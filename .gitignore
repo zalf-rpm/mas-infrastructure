@@ -123,3 +123,14 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+/data_services/climate_data/cpp/_cmake_win64
+/data_services/climate_data/cpp/_cmake_win32
+/data_services/climate_data/csharp/BlazorApp1/obj
+/data_services/climate_data/csharp/BlazorApp1/bin
+/data_services/climate_data/csharp/access_climate_data_service/bin
+/data_services/climate_data/csharp/access_climate_data_service/obj
+/capnproto_schemas/csharp-out
+/capnproto_schemas/cpp-out
+/runtime/cpp/_cmake_win64
+/runtime/cpp/_cmake_win32
+/.vscode

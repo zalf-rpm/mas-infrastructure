@@ -1,0 +1,7 @@
+{
+	"python.pythonPath": "C:\\Users\\berg.ZALF-AD\\AppData\\Local\\Continuum\\miniconda3\\python.exe",
+	"python.formatting.autopep8Args": [
+		"--ignore",
+		"E402"
+	]
+}

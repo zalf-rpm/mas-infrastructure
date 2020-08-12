@@ -1,0 +1,23 @@
+{
+  "version": 2,
+  "dgSpecHash": "NibvdWFYnhZASc4JXs2nrkrKrKYQfOItHA3bhFLLJLQHSEw8y48CBhKG0L0fwl1qZ98mhDKG0sqh0ILlMw0Mbg==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\berg.ZALF-AD\\GitHub\\climate_data_server_csharp\\BlazorApp1\\BlazorApp1.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\berg.ZALF-AD\\.nuget\\packages\\capnp.net.runtime\\1.2.189\\capnp.net.runtime.1.2.189.nupkg.sha512",
+    "C:\\Users\\berg.ZALF-AD\\.nuget\\packages\\capnpc.csharp.msbuild.generation\\1.2.138\\capnpc.csharp.msbuild.generation.1.2.138.nupkg.sha512",
+    "C:\\Users\\berg.ZALF-AD\\.nuget\\packages\\microsoft.extensions.configuration\\2.2.0\\microsoft.extensions.configuration.2.2.0.nupkg.sha512",
+    "C:\\Users\\berg.ZALF-AD\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\2.2.0\\microsoft.extensions.configuration.abstractions.2.2.0.nupkg.sha512",
+    "C:\\Users\\berg.ZALF-AD\\.nuget\\packages\\microsoft.extensions.configuration.binder\\2.2.0\\microsoft.extensions.configuration.binder.2.2.0.nupkg.sha512",
+    "C:\\Users\\berg.ZALF-AD\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\2.2.0\\microsoft.extensions.dependencyinjection.abstractions.2.2.0.nupkg.sha512",
+    "C:\\Users\\berg.ZALF-AD\\.nuget\\packages\\microsoft.extensions.logging\\2.2.0\\microsoft.extensions.logging.2.2.0.nupkg.sha512",
+    "C:\\Users\\berg.ZALF-AD\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\2.2.0\\microsoft.extensions.logging.abstractions.2.2.0.nupkg.sha512",
+    "C:\\Users\\berg.ZALF-AD\\.nuget\\packages\\microsoft.extensions.options\\2.2.0\\microsoft.extensions.options.2.2.0.nupkg.sha512",
+    "C:\\Users\\berg.ZALF-AD\\.nuget\\packages\\microsoft.extensions.primitives\\2.2.0\\microsoft.extensions.primitives.2.2.0.nupkg.sha512",
+    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder\\system.componentmodel.annotations\\4.5.0\\system.componentmodel.annotations.4.5.0.nupkg.sha512",
+    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder\\system.memory\\4.5.1\\system.memory.4.5.1.nupkg.sha512",
+    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder\\system.runtime.compilerservices.unsafe\\4.5.1\\system.runtime.compilerservices.unsafe.4.5.1.nupkg.sha512",
+    "C:\\Users\\berg.ZALF-AD\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\3.1.2\\microsoft.aspnetcore.app.ref.3.1.2.nupkg.sha512"
+  ],
+  "logs": []
+}

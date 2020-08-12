@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Capnp.Net.Runtime" Version="1.2.189" />
+    <PackageReference Include="CapnpC.CSharp.MsBuild.Generation" Version="1.2.138" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <CapnpFiles Update="capnp_schemas\climate_data.capnp">
+      <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">capnp_schemas</ImportPaths>
+    </CapnpFiles>
+    <CapnpFiles Update="capnp_schemas\common.capnp">
+      <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">capnp_schemas</ImportPaths>
+    </CapnpFiles>
+    <CapnpFiles Update="capnp_schemas\date.capnp">
+      <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">capnp_schemas</ImportPaths>
+    </CapnpFiles>
+    <CapnpFiles Update="capnp_schemas\geo_coord.capnp">
+      <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">capnp_schemas</ImportPaths>
+    </CapnpFiles>
+    <CapnpFiles Update="capnp_schemas\model.capnp">
+      <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">capnp_schemas</ImportPaths>
+    </CapnpFiles>
+  </ItemGroup>
+
+</Project>

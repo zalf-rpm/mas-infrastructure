@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "access_climate_data_service": {
+      "commandName": "Project",
+      "commandLineArgs": "client"
+    }
+  }
+}
