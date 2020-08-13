@@ -29,7 +29,7 @@ for i in range(5):
 sys.path.append(top_level_path)
 #print(sys.path)
 
-from data_services.climate_data.python import csv_time_series_service as ts_service
+from data_services.climate.python import csv_time_series_service as ts_service
 
 #@pytest.fixture(scope="session")
 #def start_time_series_service():

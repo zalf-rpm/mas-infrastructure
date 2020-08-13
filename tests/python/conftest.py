@@ -18,22 +18,21 @@ import time
 import json
 from multiprocessing import Process
 from subprocess import Popen
+from pathlib import Path
 import pytest
 
-top_level_path = os.path.realpath(__file__)
-for i in range(3):
-    top_level_path = os.path.dirname(top_level_path)
-sys.path.append(top_level_path)
+top_level_path = Path(os.path.realpath(__file__)).parent.parent.parent
+sys.path.append(str(top_level_path))
 
 TIME_SERIES_SERVICE_PORT = 6001
 MONICA_SERVICE_PROXY_PORT = 6002
-PATH_TO_MONICA_REPO = os.path.join(top_level_path, "..", "monica")
+PATH_TO_MONICA_REPO = top_level_path.parent / "monica" 
 PATH_TO_MONICA_CAPNP_PROXY_EXECUTABLE = None #PATH_TO_MONICA_REPO + "_cmake_win64/Release/"
 
-sys.path.append(os.path.join(PATH_TO_MONICA_REPO, "src", "python"))
+sys.path.append(str(PATH_TO_MONICA_REPO / "src/python"))
 import monica_io3
 
-from data_services.climate_data.python import csv_time_series_service as ts_service
+from data_services.climate.python import csv_time_series_service as ts_service
 
 import capnp
 capnp.add_import_hook(additional_paths=["capnproto_schemas"])
@@ -60,7 +59,7 @@ def monica_cap(start_monica_capnp_proxy):
 def start_time_series_service():
     p = Process(target = ts_service.main, kwargs={
         "port": TIME_SERIES_SERVICE_PORT,
-        "path_to_csv_file": "data/climate-iso.csv"
+        "path_to_csv_file": "data/climate/climate-iso.csv"
     })
     p.start()
     time.sleep(0.1)
