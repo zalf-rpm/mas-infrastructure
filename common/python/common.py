@@ -21,8 +21,24 @@ from collections import defaultdict
 import uuid
 
 import capnp
-capnp.add_import_hook(additional_paths=["../capnproto_schemas/", "../capnproto_schemas/capnp_schemas/"])
+capnp.add_import_hook(additional_paths=["capnproto_schemas"])
 import common_capnp
+import geo_coord_capnp as geo
+
+#------------------------------------------------------------------------------
+
+def name_to_proj(name, default=None):
+    return {
+        "wgs84": Proj(init="epsg:{}".format(geo.Geo.EPSG.wgs84)),
+        "latlon": Proj(init="epsg:{}".format(geo.Geo.EPSG.wgs84)),
+        "gk3": Proj(init="epsg:{}".format(geo.Geo.EPSG.gk3)),
+        "gk5": Proj(init="epsg:{}".format(geo.Geo.EPSG.gk5)),
+        "utm21S": Proj(init="epsg:{}".format(geo.Geo.EPSG.utm21S)),
+        "utm32N": Proj(init="epsg:{}".format(geo.Geo.EPSG.utm32N))
+    }.get(name, default)
+
+#------------------------------------------------------------------------------
+
 
 # interface Callback
 class CallbackImpl(common_capnp.Common.Callback.Server):
@@ -42,9 +58,32 @@ class CallbackImpl(common_capnp.Common.Callback.Server):
         self._callback(*self._args, **self._kwargs)
         self._already_called = True
 
+#------------------------------------------------------------------------------
 
-# interface CapHolder(CapType) extends(Persistent.Persistent(Text, Text))
+# interface CapHolder(Object)
 class CapHolderImpl(common_capnp.Common.CapHolder.Server):
+
+    def __init__(self, cap, cleanup_func, cleanup_on_del=False):
+        self._cap = cap
+        self._cleanup_func = cleanup_func
+        self._already_cleaned_up = False
+        self._cleanup_on_del = cleanup_on_del
+
+    def __del__(self):
+        if self._cleanup_on_del and not self._already_cleaned_up:
+            self.cleanup_func()
+
+    def cap_context(self, context): # cap @0 () -> (object :Object);
+        context.results.cap = self._cap
+
+    def release_context(self, context): # release @1 ();
+        self._cleanup_func()
+        self._cleanup_on_del = True
+
+#------------------------------------------------------------------------------
+
+# interface PersistCapHolder(Object) extends(CapHolder(Object), Persistent.Persistent(Text, Text)) {
+class PersistCapHolderImpl(common_capnp.Common.PersistCapHolder.Server):
 
     def __init__(self, cap, sturdy_ref, cleanup_func, cleanup_on_del=False):
         self._cap = cap
@@ -57,16 +96,17 @@ class CapHolderImpl(common_capnp.Common.CapHolder.Server):
         if self._cleanup_on_del and not self._already_cleaned_up:
             self.cleanup_func()
 
-    def cap_context(self, context): # cap @0 () -> (cap :CapType);
+    def cap_context(self, context): # cap @0 () -> (object :Object);
         context.results.cap = self._cap
 
-    def free_context(self, context): # free @1 ();
+    def release_context(self, context): # release @1 ();
         self._cleanup_func()
         self._cleanup_on_del = True
 
     def save_context(self, context): # save @0 SaveParams -> SaveResults;
         context.results.sturdyRef = self._sturdy_ref
 
+#------------------------------------------------------------------------------
 
 def main():
     pass
