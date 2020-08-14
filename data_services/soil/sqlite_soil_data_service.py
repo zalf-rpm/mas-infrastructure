@@ -117,6 +117,8 @@ class Service(soil_data_capnp.Soil.Service.Server):
         self._path_to_sqlite_db = path_to_sqlite_db
         self._con = sqlite3.connect(self._path_to_sqlite_db)
         self._all_available_params = soil_io3.available_soil_parameters(self._con)
+        if "Sand" in self._all_available_params and "Clay" in self._all_available_params:
+            self._all_available_params.append("Silt")
 
         interpol = grid_man.create_interpolator_from_ascii_grid(path_to_ascii_grid)
         self._interpol = grid_man.interpolate_from_latlon(interpol, grid_proj)
@@ -148,6 +150,7 @@ class Service(soil_data_capnp.Soil.Service.Server):
     def checkAvailableParameters_context(self, context): # checkAvailableParameters @2 Query -> Query.Result;
         p = context.params
         r = context.results
+        aps = self._all_available_params
 
         mandatory = self.checkParameters(p.mandatory)
         r.failed = mandatory["failed"]
@@ -165,18 +168,9 @@ class Service(soil_data_capnp.Soil.Service.Server):
         r = context.results
         aps = self._all_available_params
         
-        sand_and_clay = 0
-        if "Sand" in aps:
-            sand_and_clay += 1
-        if "Clay" in aps:
-            sand_and_clay += 1
-
-        r.params.init(len(aps) + (1 if sand_and_clay > 1 else 0))
+        r.params.init(len(aps))
         for i, param_name in enumerate(aps):
             set_param(r.params[i], param_name)
-
-        if sand_and_clay > 1:
-            set_param(r.params[-1], "Silt")
 
 
     def profilesAt_context(self, context): # profilesAt @0 (coord :Geo.LatLonCoord, query :Query) -> (profiles :List(Profile));
@@ -185,75 +179,35 @@ class Service(soil_data_capnp.Soil.Service.Server):
         q = ps.query
 
         mandatory = self.checkParameters(q.mandatory)
-        m_names = mandatory["names"]
+        names = mandatory["names"]
         if mandatory["failed"]:
             return
-        
-        if "Thickness" not in m_names:
-            m_names.append("Thickness")
         optional = self.checkParameters(q.optional)
-        o_names = optional["names"]
-        o_names.remove("Thickness")
+        names.extend(optional["names"])
+        if "Thickness" not in names:
+            names.append("Thickness")
 
         soil_id = self._interpol(ps.coord.lat, ps.coord.lon)
         if soil_id in self._cache:
-            soil_profile = self._cache[soil_id]
+            sp = self._cache[soil_id]
         else:
             sp = soil_io3.soil_parameters(self._con, soil_id)
             self._cache[soil_id] = sp
 
-            r.profiles.init(1)
-            p = r.profiles[0]
-            p.profile.init(len(m_names) + len(o_names))
+        r.profiles.init(1)
+        p = r.profiles[0]
+        p.profile.init(len(names))
 
-            prev_depth = 0
-            sand_and_clay = 0
-            silt_index = -1
-            for layer in sp:
-
-                l = p.profile[i]
-                l.size = layer["layer_depth"] - prev_depth
-                            
-                for i, m_name in enumerate(m_names):
-                    if m_name == "Thickness":
-                        set_param(p.profile[i], m_name, layer["Thickness"] - prev_depth)
-                        prev_depth = layer["Thickness"]
-                    elif m_name == "Silt":
-                        if sand_and_clay == 2:
-                            set_param(p.profile[i], "Silt", 1 - layer["Sand"] - layer["Clay"])
-                        else:
-                            silt_index = i # do silt, when we kno
-                    else:
-                        
-
-                        set_param(p.profile[i], m_name, layer[m_name])
-                        if m_name == "Sand":
-                            sand_and_clay += 1
-                        if m_name == "Clay":
-                            sand_and_clay += 1
-                    if sand_and_clay == 2:
-                        
-
-
-
-                ps = dal.params
-                if "KA5TextureClass" in l:
-                    ps.ka5SoilType = l["KA5TextureClass"]
-                
-                if "sand" in l:
-                    ps.sand = l["sand"]
-                if "clay" in l:
-                    ps.clay = l["clay"]
-
-    
-    
-
-
-            self._cache[soil_id] = soil_profile
-
-
-
-        pass
+        prev_depth = 0
+        for layer in sp:
+            for i, name in enumerate(names):
+                if name == "Thickness":
+                    set_param(p.profile[i], name, layer["Thickness"] - prev_depth)
+                    prev_depth = layer["Thickness"]
+                elif name == "Silt":
+                    set_param(p.profile[i], "Silt", 1 - layer["Sand"] - layer["Clay"])
+                else:
+                    set_param(p.profile[i], name, layer[name])
 
 
     def allProfiles_context(self, context): # allProfiles @1 Query -> (profiles :List(Common.Pair(Geo.LatLonCoord, List(Common.CapHolder(Profile)))));    
