@@ -12,13 +12,16 @@
 # Landscape Systems Analysis at the ZALF.
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
-import sys
-import os
 from datetime import date, timedelta
-import numpy
-import pandas as pd
 import json
+import numpy
+import os
+import pandas as pd
+from pathlib import Path
+import sys
 import time
+
+PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent
 
 import capnp
 capnp.add_import_hook(additional_paths=["capnproto_schemas"])
@@ -91,7 +94,7 @@ class CSV_TimeSeries(climate_data_capnp.Climate.TimeSeries.Server):
         _context.results.timeSeries = self
 
 
-def main(server="*", port=11002, path_to_csv_file="climate-iso.csv"):
+def main(server="*", port=11002, path_to_csv_file="data/climate/climate-iso.csv"):
 
     config = {
         "port": str(port),

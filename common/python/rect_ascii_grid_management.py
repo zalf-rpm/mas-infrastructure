@@ -17,7 +17,7 @@ import csv
 import json
 import numpy as np
 from scipy.interpolate import NearestNDInterpolator
-from pyproj import Proj, Transformer
+from pyproj import CRS, Transformer
 from datetime import date, timedelta
 
 #------------------------------------------------------------------------------
@@ -58,6 +58,7 @@ def create_interpolator_from_rect_grid(grid, metadata, ignore_nodata=True, trans
 
     points = []
     values = []
+    points_to_values = {}
 
     for row in range(rows):
         for col in range(cols):
@@ -72,14 +73,15 @@ def create_interpolator_from_rect_grid(grid, metadata, ignore_nodata=True, trans
 
             points.append([r, h])
             values.append(value)
+            points_to_values[(r, h)] = value
 
-    return NearestNDInterpolator(np.array(points), np.array(values))
+    return (NearestNDInterpolator(np.array(points), np.array(values)), points_to_values)
     
 #------------------------------------------------------------------------------
 
-def interpolate_from_latlon(interpolator, interpolator_proj):
-    input_proj = Proj(init="epsg:4326")
-    transformer = Transformer.from_proj(input_proj, interpolator_proj)
+def interpolate_from_latlon(interpolator, interpolator_crs):
+    input_crs = CRS.from_epsg(4326)
+    transformer = Transformer.from_crs(input_crs, interpolator_crs, always_xy=True)
     
     def interpol(lat, lon):
         r, h = transformer.transform(lon, lat)
@@ -89,15 +91,25 @@ def interpolate_from_latlon(interpolator, interpolator_proj):
 
 #------------------------------------------------------------------------------
 
-def create_interpolator_from_ascii_grid(path_to_ascii_grid, datatype=int, no_of_header_rows=6, ignore_nodata=True):
+def rect_coordinates_to_latlon(rect_crs, coords):
+    latlon_crs = CRS.from_epsg(4326)
+    transformer = Transformer.from_crs(rect_crs, latlon_crs, always_xy=True)
+    
+    rs, hs = zip(*coords)
+    lons, lats = transformer.transform(list(rs), list(hs))
+    latlons = list(zip(lats, lons))
 
+    return latlons
+
+#------------------------------------------------------------------------------
+
+def create_interpolator_from_ascii_grid(path_to_ascii_grid, datatype=int, no_of_header_rows=6, ignore_nodata=True):
     grid, metadata = load_grid_and_metadata_from_ascii_grid(path_to_ascii_grid, datatype, no_of_header_rows)
     return create_interpolator_from_rect_grid(grid, metadata, ignore_nodata)
 
 #------------------------------------------------------------------------------
 
 def load_grid_and_metadata_from_ascii_grid(path_to_ascii_grid, datatype=int, no_of_header_rows=6):
-
     metadata, _ = read_header(path_to_ascii_grid)
     grid = np.loadtxt(path_to_ascii_grid, dtype=datatype, skiprows=no_of_header_rows)
     return (grid, metadata)
@@ -110,7 +122,7 @@ def create_climate_geoGrid_interpolator_from_json_file(path_to_latlon_to_rowcol_
         points = []
         values = []
 
-        transformer = Transformer.from_proj(worldGeodeticSys84, geoTargetGrid) 
+        transformer = Transformer.from_crs(worldGeodeticSys84, geoTargetGrid, always_xy=True) 
 
         for latlon, rowcol in json.load(_):
             row, col = rowcol

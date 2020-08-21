@@ -4,7 +4,7 @@ import sys
 import os
 from datetime import date, timedelta
 import pandas as pd
-from pyproj import Proj, transform
+from pyproj import CRS, Transformer
 import json
 import time
 import csv
@@ -17,10 +17,16 @@ import csv
 #remote debugging via commandline
 #-m ptvsd --host 0.0.0.0 --port 14000 --wait
 
+PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent
+if str(PATH_TO_REPO) not in sys.path:
+    sys.path.insert(1, str(PATH_TO_REPO))
+from common.python import geo
+
+
 import capnp
-capnp.add_import_hook(additional_paths=["../capnproto_schemas/", "../capnproto_schemas/capnp_schemas/"])
+capnp.add_import_hook(additional_paths=["capnproto_schemas"])
 #import common_capnp as c
-import geo_coord_capnp as geo
+import geo_coord_capnp as geo_capnp
 import climate_data_capnp as cd
 
 def read_header(path_to_ascii_grid_file):
@@ -78,11 +84,11 @@ def read_file_and_create_interpolator(path_to_grid, dtype=int, skiprows=6, confi
     return (interpolate, grid, metadata)
 
 
-wgs84 = Proj(init="epsg:4326")
-gk3 = Proj(init="epsg:3396")
-gk5 = Proj(init="epsg:31469")
-utm21s = Proj(init="epsg:32721")
-utm32n = Proj(init="epsg:25832")
+wgs84 = CRS.from_epsg(4326)
+gk3 = CRS.from_epsg(3396)
+gk5 = CRS.from_epsg(31469)
+utm21s = CRS.from_epsg(32721)
+utm32n = CRS.from_epsg(25832)
 
 
 cdict = {}
@@ -103,30 +109,6 @@ def create_lat_lon_interpolator_from_json_coords_file(path_to_json_coords_file):
 
         return NearestNDInterpolator(np.array(points), np.array(values))
 
-
-def geo_coord_to_latlon(geo_coord):
-
-    if not hasattr(geo_coord_to_latlon, "gk_cache"):
-        geo_coord_to_latlon.gk_cache = {}
-    if not hasattr(geo_coord_to_latlon, "utm_cache"):
-        geo_coord_to_latlon.utm_cache = {}
-
-    which = geo_coord.which()
-    if which == "gk":
-        meridian = geo_coord.gk.meridianNo
-        if meridian not in geo_coord_to_latlon.gk_cache:
-            geo_coord_to_latlon.gk_cache[meridian] = Proj(init="epsg:" + str(geo.Geo.EPSG["gk" + str(meridian)]))
-        lon, lat = transform(geo_coord_to_latlon.gk_cache[meridian], wgs84, geo_coord.gk.r, geo_coord.gk.h)
-    elif which == "latlon":
-        lat, lon = geo_coord.latlon.lat, geo_coord.latlon.lon
-    elif which == "utm":
-        utm_id = str(geo_coord.utm.zone) + geo_coord.utm.latitudeBand
-        if meridian not in geo_coord_to_latlon.utm_cache:
-            geo_coord_to_latlon.utm_cache[utm_id] = \
-                Proj(init="epsg:" + str(geo.Geo.EPSG["utm" + utm_id]))
-        lon, lat = transform(geo_coord_to_latlon.utm_cache[utm_id], wgs84, geo_coord.utm.r, geo_coord.utm.h)
-
-    return lat, lon
 
 def lat_lon_interpolator(path_to_latlon_to_rowcol_json_file):
     "create an interpolator for the macsur grid"
@@ -364,7 +346,7 @@ class Dataset(cd.Climate.Dataset.Server):
     def closestTimeSeriesAt(self, geoCoord, **kwargs): # (geoCoord :Geo.Coord) -> (timeSeries :TimeSeries);
         # closest TimeSeries object which represents the whole time series 
         # of the climate realization at the give climate coordinate
-        lat, lon = geo_coord_to_latlon(geoCoord)
+        lat, lon = geo.geo_coord_to_latlon(geoCoord)
         row, col = self._interpolator(lat, lon)
         return self.time_series_at(row, col)
 

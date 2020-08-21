@@ -1,18 +1,40 @@
-from scipy.interpolate import NearestNDInterpolator
-import numpy as np
-import sys
-import os
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+# Authors:
+# Michael Berg-Mohnicke <michael.berg-mohnicke@zalf.de>
+#
+# Maintainers:
+# Currently maintained by the authors.
+#
+# This file has been created at the Institute of
+# Landscape Systems Analysis at the ZALF.
+# Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
+
 from datetime import date, timedelta
-import pandas as pd
-from pyproj import Proj, transform
 import json
+import numpy as np
+import os
+import pandas as pd
+from pathlib import Path
+from pyproj import CRS, Transformer
+from scipy.interpolate import NearestNDInterpolator
+import sys
 import time
 
+PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent
+if str(PATH_TO_REPO) not in sys.path:
+    sys.path.insert(1, str(PATH_TO_REPO))
+from common.python import geo
+
 import capnp
-capnp.add_import_hook(additional_paths=["../capnproto_schemas/", "../capnproto_schemas/capnp_schemas/"])
+capnp.add_import_hook(additional_paths=["capnproto_schemas"])
 import common_capnp as c
 import model_capnp as m
 import climate_data_old_capnp as cd
+
+#------------------------------------------------------------------------------
 
 def read_header(path_to_ascii_grid_file):
     "read metadata from esri ascii grid file"
@@ -26,6 +48,8 @@ def read_header(path_to_ascii_grid_file):
             if len(sline) > 1:
                 metadata[sline[0].strip().lower()] = float(sline[1].strip())
     return metadata, header_str
+
+#------------------------------------------------------------------------------
 
 def create_ascii_grid_interpolator(arr, meta, ignore_nodata=True):
     "read an ascii grid into a map, without the no-data values"
@@ -56,6 +80,8 @@ def create_ascii_grid_interpolator(arr, meta, ignore_nodata=True):
 
     return NearestNDInterpolator(np.array(points), np.array(values))
 
+#------------------------------------------------------------------------------
+
 def read_file_and_create_interpolator(path_to_grid, dtype=int, skiprows=6, confirm_creation=False):
     "read file and metadata and create interpolator"
 
@@ -66,11 +92,14 @@ def read_file_and_create_interpolator(path_to_grid, dtype=int, skiprows=6, confi
         print("created interpolator from:", path_to_grid)
     return (interpolate, grid, metadata)
 
-wgs84 = Proj(init="epsg:4326")
-gk3 = Proj(init="epsg:3396")
-gk5 = Proj(init="epsg:31469")
-utm21s = Proj(init="epsg:32721")
-utm32n = Proj(init="epsg:25832")
+
+wgs84 = CRS.from_epsg(4326)
+gk3 = CRS.from_epsg(3396)
+gk5 = CRS.from_epsg(31469)
+utm21s = CRS.from_epsg(32721)
+utm32n = CRS.from_epsg(25832)
+
+#------------------------------------------------------------------------------
 
 cdict = {}
 def create_climate_gk5_interpolator_from_json_file(path_to_latlon_to_rowcol_file, wgs84, gk5):
@@ -79,11 +108,13 @@ def create_climate_gk5_interpolator_from_json_file(path_to_latlon_to_rowcol_file
         points = []
         values = []
 
+        trans = Transformer.from_crs(wgs84, gk5, always_xy=True)
+
         for latlon, rowcol in json.load(_):
             row, col = rowcol
             clat, clon = latlon
             try:
-                cr_gk5, ch_gk5 = transform(wgs84, gk5, clon, clat)
+                cr_gk5, ch_gk5 = trans.transform(clon, clat)
                 cdict[(row, col)] = (round(clat, 4), round(clon, 4))
                 points.append([cr_gk5, ch_gk5])
                 values.append((row, col))
@@ -102,30 +133,7 @@ def create_climate_gk5_interpolator_from_json_file(path_to_latlon_to_rowcol_file
 #        climate_data_to_gk5_interpolator[climate_data] = create_climate_gk5_interpolator_from_json_file(path, wgs84, gk5)
 #        print "created climate_data to gk5 interpolator: ", path
 
-def geo_coord_to_latlon(geo_coord):
-
-    if not hasattr(geo_coord_to_latlon, "gk_cache"):
-        geo_coord_to_latlon.gk_cache = {}
-    if not hasattr(geo_coord_to_latlon, "utm_cache"):
-        geo_coord_to_latlon.utm_cache = {}
-
-    which = geo_coord.which()
-    if which == "gk":
-        meridian = geo_coord.gk.meridianNo
-        if meridian not in geo_coord_to_latlon.gk_cache:
-            geo_coord_to_latlon.gk_cache[meridian] = Proj(init="epsg:" + str(cd.Geo.EPSG["gk" + str(meridian)]))
-        lon, lat = transform(geo_coord_to_latlon.gk_cache[meridian], wgs84, geo_coord.gk.r, geo_coord.gk.h)
-    elif which == "latlon":
-        lat, lon = geo_coord.latlon.lat, geo_coord.latlon.lon
-    elif which == "utm":
-        utm_id = str(geo_coord.utm.zone) + geo_coord.utm.latitudeBand
-        if meridian not in geo_coord_to_latlon.utm_cache:
-            geo_coord_to_latlon.utm_cache[utm_id] = \
-                Proj(init="epsg:" + str(cd.Geo.EPSG["utm" + utm_id]))
-        lon, lat = transform(geo_coord_to_latlon.utm_cache[utm_id], wgs84, geo_coord.utm.r, geo_coord.utm.h)
-
-    return lat, lon
-
+#------------------------------------------------------------------------------
 
 class Isimip_CSV_Station(cd.Climate.Station.Server):
 
@@ -169,9 +177,12 @@ class Isimip_CSV_Station(cd.Climate.Station.Server):
     def timeSeriesFor_context(self, context): # (scenarioId :Text, realizationId :Text) -> (timeSeries :TimeSeries);
         pass
 
+#------------------------------------------------------------------------------
 
 def create_date(capnp_date):
     return date(capnp_date.year, capnp_date.month, capnp_date.day)
+
+#------------------------------------------------------------------------------
 
 def create_capnp_date(py_date):
     return {
@@ -180,6 +191,8 @@ def create_capnp_date(py_date):
         "day": py_date.day if py_date else 0
     }
     
+#------------------------------------------------------------------------------
+
 class Isimip_CSV_TimeSeries(cd.Climate.TimeSeries.Server): 
 
     def __init__(self, realization, dataframe, headers=None, start_date=None, end_date=None):
@@ -232,7 +245,7 @@ class Isimip_CSV_TimeSeries(cd.Climate.TimeSeries.Server):
             self._real, sub_df, headers=sub_headers, \
             start_date=self._start_date, end_date=self._end_date)
         
-
+#------------------------------------------------------------------------------
 
 class Isimip_CSV_Simulation(cd.Climate.Simulation.Server): 
 
@@ -287,8 +300,7 @@ class Isimip_CSV_Simulation(cd.Climate.Simulation.Server):
     def stations_context(self, context): # -> (stations :List(Station));
         pass
         
-
-
+#------------------------------------------------------------------------------
 
 class Isimip_CSV_Scenario(cd.Climate.Scenario.Server):
 
@@ -333,7 +345,7 @@ class Isimip_CSV_Scenario(cd.Climate.Scenario.Server):
         for i, real in enumerate(self.realizations):
             context.results.realizations[i] = real
         
-
+#------------------------------------------------------------------------------
 
 class Isimip_CSV_Realization(cd.Climate.Realization.Server):
 
@@ -343,6 +355,7 @@ class Isimip_CSV_Realization(cd.Climate.Realization.Server):
         self._id = id if id else "1"
         self._name = name if name else self._id
         self._description = description if description else ""
+        self._trans = Transformer.from_crs(wgs84, gk5)
 
     def info(self):
         return c.Common.IdInformation.new_message(id=self._id, name=self._name, description=self._description) 
@@ -366,8 +379,8 @@ class Isimip_CSV_Realization(cd.Climate.Realization.Server):
         if geo_coord.which() == "gk" and geo_coord.meridianNo == 5:
             gk5_r, gk5_h = geo_coord.r, geo_coord.h
         else:
-            lat, lon = geo_coord_to_latlon(geo_coord)
-            gk5_r, gk5_h = transform(wgs84, gk5, lon, lat)
+            lat, lon = geo.geo_coord_to_latlon(geo_coord)
+            gk5_r, gk5_h = self._trans.transform(lon, lat)
 
         interpol = self.scenario.simulation.gk5_interpolator
         row, col = interpol(gk5_r, gk5_h)
@@ -384,8 +397,7 @@ class Isimip_CSV_Realization(cd.Climate.Realization.Server):
 
         context.results.timeSeries = self.closest_time_series_at(context.params.geoCoord)
         
-
-
+#------------------------------------------------------------------------------
 
 class YearlyTavg(m.Model.ClimateInstance.Server):
 

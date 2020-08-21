@@ -4,7 +4,7 @@ import sys
 import os
 from datetime import date, timedelta
 import pandas as pd
-from pyproj import Proj, transform
+from pyproj import CRS, Transformer
 import json
 import time
 import csv
@@ -16,8 +16,13 @@ import csv
 #remote debugging via commandline
 #-m ptvsd --host 0.0.0.0 --port 14000 --wait
 
+PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent
+if str(PATH_TO_REPO) not in sys.path:
+    sys.path.insert(1, str(PATH_TO_REPO))
+from common.python import geo
+
 import capnp
-capnp.add_import_hook(additional_paths=["../capnproto_schemas/", "../capnproto_schemas/capnp_schemas/"])
+capnp.add_import_hook(additional_paths=["capnproto_schemas"])
 import common_capnp as c
 #import model_capnp
 import geo_coord_capnp as geo
@@ -106,31 +111,6 @@ def create_lat_lon_interpolator_from_csv_coords_file(path_to_csv_coords_file):
             #print("row:", row, "col:", col, "clat:", clat, "clon:", clon, "h:", h, "r:", r, "val:", values[i])
 
         return NearestNDInterpolator(np.array(points), np.array(values))
-
-
-def geo_coord_to_latlon(geo_coord):
-
-    if not hasattr(geo_coord_to_latlon, "gk_cache"):
-        geo_coord_to_latlon.gk_cache = {}
-    if not hasattr(geo_coord_to_latlon, "utm_cache"):
-        geo_coord_to_latlon.utm_cache = {}
-
-    which = geo_coord.which()
-    if which == "gk":
-        meridian = geo_coord.gk.meridianNo
-        if meridian not in geo_coord_to_latlon.gk_cache:
-            geo_coord_to_latlon.gk_cache[meridian] = Proj(init="epsg:" + str(cd.Geo.EPSG["gk" + str(meridian)]))
-        lon, lat = transform(geo_coord_to_latlon.gk_cache[meridian], wgs84, geo_coord.gk.r, geo_coord.gk.h)
-    elif which == "latlon":
-        lat, lon = geo_coord.latlon.lat, geo_coord.latlon.lon
-    elif which == "utm":
-        utm_id = str(geo_coord.utm.zone) + geo_coord.utm.latitudeBand
-        if meridian not in geo_coord_to_latlon.utm_cache:
-            geo_coord_to_latlon.utm_cache[utm_id] = \
-                Proj(init="epsg:" + str(cd.Geo.EPSG["utm" + utm_id]))
-        lon, lat = transform(geo_coord_to_latlon.utm_cache[utm_id], wgs84, geo_coord.utm.r, geo_coord.utm.h)
-
-    return lat, lon
 
 
 def lat_lon_interpolator():

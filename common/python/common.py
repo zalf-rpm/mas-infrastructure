@@ -12,33 +12,19 @@
 # Landscape Systems Analysis at the ZALF.
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
-import sys
-import os
+from collections import defaultdict
 from datetime import date, timedelta
 import json
+import os
+import sys
 import time
-from collections import defaultdict
 import uuid
 
 import capnp
 capnp.add_import_hook(additional_paths=["capnproto_schemas"])
 import common_capnp
-import geo_coord_capnp as geo
 
 #------------------------------------------------------------------------------
-
-def name_to_proj(name, default=None):
-    return {
-        "wgs84": Proj(init="epsg:{}".format(geo.Geo.EPSG.wgs84)),
-        "latlon": Proj(init="epsg:{}".format(geo.Geo.EPSG.wgs84)),
-        "gk3": Proj(init="epsg:{}".format(geo.Geo.EPSG.gk3)),
-        "gk5": Proj(init="epsg:{}".format(geo.Geo.EPSG.gk5)),
-        "utm21S": Proj(init="epsg:{}".format(geo.Geo.EPSG.utm21S)),
-        "utm32N": Proj(init="epsg:{}".format(geo.Geo.EPSG.utm32N))
-    }.get(name, default)
-
-#------------------------------------------------------------------------------
-
 
 # interface Callback
 class CallbackImpl(common_capnp.Common.Callback.Server):

@@ -12,34 +12,43 @@
 # Landscape Systems Analysis at the ZALF.
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
-import sys
-import os
-import time
+import asyncio
 import json
 from multiprocessing import Process
-from subprocess import Popen
+import os
 from pathlib import Path
 import pytest
+from subprocess import Popen
+import sys
+import time
 
-top_level_path = Path(os.path.realpath(__file__)).parent.parent.parent
-sys.path.append(str(top_level_path))
+PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent
+if str(PATH_TO_REPO) not in sys.path:
+    sys.path.insert(1, str(PATH_TO_REPO))
 
 TIME_SERIES_SERVICE_PORT = 6001
 MONICA_SERVICE_PROXY_PORT = 6002
-PATH_TO_MONICA_REPO = top_level_path.parent / "monica" 
+SOIL_SERVICE_PORT = 6003
+PATH_TO_MONICA_REPO = PATH_TO_REPO.parent / "monica" 
 PATH_TO_MONICA_CAPNP_PROXY_EXECUTABLE = None #PATH_TO_MONICA_REPO + "_cmake_win64/Release/"
+PATH_TO_MONICA_IO3 = PATH_TO_MONICA_REPO / "src/python"
 
-sys.path.append(str(PATH_TO_MONICA_REPO / "src/python"))
+if str(PATH_TO_MONICA_IO3) not in sys.path:
+    sys.path.insert(1, str(PATH_TO_MONICA_IO3))
 import monica_io3
 
-from data_services.climate.python import csv_time_series_service as ts_service
+import data_services.climate.python.csv_time_series_service as ts_service
+import data_services.soil.python.sqlite_soil_data_service as soil_service
+import data_services.soil.python.sqlite_soil_data_service_async as async_soil_service
+import common.python.capnp_async_helpers as async_helpers
 
 import capnp
-capnp.add_import_hook(additional_paths=["capnproto_schemas"])
-import model_capnp
-import climate_data_capnp
-import soil_data_capnp
+#capnp.add_import_hook(additional_paths=["capnproto_schemas"])
+import capnproto_schemas.model_capnp as model_capnp
+import capnproto_schemas.climate_data_capnp as climate_data_capnp
+import capnproto_schemas.soil_data_capnp as soil_data_capnp
 
+#------------------------------------------------------------------------------
 
 @pytest.fixture(scope="session")
 def start_monica_capnp_proxy():
@@ -54,6 +63,7 @@ def monica_cap(start_monica_capnp_proxy):
     monica = capnp.TwoPartyClient("localhost:" + str(MONICA_SERVICE_PROXY_PORT)).bootstrap().cast_as(model_capnp.Model.EnvInstance)
     return monica
 
+#------------------------------------------------------------------------------
 
 @pytest.fixture(scope="session")
 def start_time_series_service():
@@ -72,6 +82,7 @@ def time_series_cap(start_time_series_service):
     csv_time_series = capnp.TwoPartyClient("localhost:" + str(TIME_SERIES_SERVICE_PORT)).bootstrap().cast_as(climate_data_capnp.Climate.TimeSeries)
     return csv_time_series
 
+#------------------------------------------------------------------------------
 
 @pytest.fixture(scope="session")
 def monica_env():
@@ -93,5 +104,50 @@ def monica_env():
 
     return env
 
+#------------------------------------------------------------------------------
+
+@pytest.fixture(scope="session")
+def start_soil_service():
+    p = Process(target = soil_service.main, kwargs={
+        "port": SOIL_SERVICE_PORT,
+        "path_to_sqlite_db": "data/soil/buek1000.sqlite",
+        "path_to_ascii_soil_grid": "data/soil/buek1000_1000_gk5.asc",
+        "grid_crs": "gk5",
+        "id": "buek1000_germany",
+        "name": "BÜK1000 - Germany"
+    })
+    p.start()
+    time.sleep(10)
+    yield
+    p.terminate()
 
 
+@pytest.fixture(scope="session")
+def soil_service_cap(start_soil_service):
+    soil_service = capnp.TwoPartyClient("localhost:" + str(SOIL_SERVICE_PORT)).bootstrap().cast_as(soil_data_capnp.Soil.Service)
+    return soil_service
+
+#------------------------------------------------------------------------------
+
+@pytest.fixture(scope="session")
+def start_soil_service_async():
+    p = Process(target = async_soil_service.no_async_main, kwargs={
+        "port": SOIL_SERVICE_PORT,
+        "path_to_sqlite_db": "data/soil/buek1000.sqlite",
+        "path_to_ascii_soil_grid": "data/soil/buek1000_1000_gk5.asc",
+        "grid_crs": "gk5",
+        "id": "buek1000_germany",
+        "name": "BÜK1000 - Germany"
+    })
+    p.start()
+    time.sleep(0.1)
+    yield
+    p.terminate()
+
+
+@pytest.fixture(scope="session")
+def soil_service_cap_async(start_soil_service_async):
+    soil_service = capnp.TwoPartyClient("localhost:" + str(SOIL_SERVICE_PORT)).bootstrap().cast_as(soil_data_capnp.Soil.Service)
+    #client = await async_helpers.connect_to_server(SOIL_SERVICE_PORT)
+    #soil_service = client.bootstrap().cast_as(soil_data_capnp.Soil.Service)
+    return soil_service

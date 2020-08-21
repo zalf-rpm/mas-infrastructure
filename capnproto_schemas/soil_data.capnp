@@ -88,6 +88,8 @@ struct Soil {
       isImpenetrable @19 :Bool; # can layer be penetrated by plant
 
       size @20 :Float32; # [m]
+
+      description @21 :Text; # some human understandable description of the layer
     }
   }
 
@@ -109,13 +111,18 @@ struct Soil {
       optional @2 :List(Parameter); # the optional parameters which where available
     }
 
-    mandatory @0 :List(Parameter);
-    optional @1 :List(Parameter);
+    mandatory @0 :List(Parameter); # these parameters are really needed
+    optional @1 :List(Parameter); # these parameters are optional
+    
+    onlyRawData @2 :Bool = true; 
+    # just return data which are physically available from the data source
+    # if set to false, data can be generated from the raw data to allow more 
+    # params to be available mandatory
   }
 
 
   struct Profile {
-    profile @0 :List(Layer);
+    layers @0 :List(Layer);
     # a soil profile is a list of layers
 
     percentageOfArea @1 :Float32 = 100.0;
@@ -129,7 +136,7 @@ struct Soil {
     checkAvailableParameters @2 Query -> Query.Result;
     # check if the parameters given in Query are available
 
-    getAllAvailableParameters @3 () -> (params :List(Parameter));
+    getAllAvailableParameters @3 (onlyRawData :Bool) -> (mandatory :List(Parameter), optional :List(Parameter));
     # get all the available parameters in this service
 
     profilesAt @0 (coord :Geo.LatLonCoord, query :Query) -> (profiles :List(Profile));
