@@ -20,20 +20,29 @@ import capnproto_schemas.soil_data_capnp as soil_data_capnp
 #    print(soil_service)
 
 soil_service = capnp.TwoPartyClient("localhost:6003").bootstrap().cast_as(soil_data_capnp.Soil.Service)
-#params = soil_service.getAllAvailableParameters().wait().params
-#print(params)
+params = soil_service.getAllAvailableParameters().wait()
+print(params)
 
-profiles = soil_service.profilesAt(
-    coord={"lat": 53.0, "lon": 12.5},
-    query={
-        "mandatory": [{"sand": 0}, {"clay": 0}, {"bulkDensity": 0}, {"organicCarbon": 0}],
-        "optional": [{"pH": 0}],
-        "onlyRawData": False
-    }
+#profiles = soil_service.profilesAt(
+#    coord={"lat": 53.0, "lon": 12.5},
+#    query={
+#        "mandatory": [{"sand": 0}, {"clay": 0}, {"bulkDensity": 0}, {"organicCarbon": 0}],
+#        "optional": [{"pH": 0}],
+#        "onlyRawData": False
+#    }
+#).wait().profiles
+#print(profiles)
+
+profiles = soil_service.allLocations(
+    mandatory=[{"sand": 0}, {"clay": 0}, {"bulkDensity": 0}, {"organicCarbon": 0}],
+    optional=[{"pH": 0}],
+    onlyRawData=False
 ).wait().profiles
-print(profiles)
-
-print("after here and out")
+latlon_and_cap = profiles[0]  # at the moment there is always just one profile being returned
+cap_list = latlon_and_cap.snd
+cap = cap_list[0]
+p = latlon_and_cap.snd[0].cap().wait().object
+print(p)
 
 
 #soil_service = capnp.TwoPartyClient("localhost:6003").bootstrap().cast_as(soil_data_capnp.Soil.Service)

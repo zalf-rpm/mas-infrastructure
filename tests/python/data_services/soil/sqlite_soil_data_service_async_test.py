@@ -102,6 +102,25 @@ async def test_profilesAt(soil_service_cap_async):
     # assert len(res.optional) == 0
 
 
+@pytest.mark.asyncio
+async def test_allLocations(soil_service_cap_async):
+    profiles = (await soil_service_cap_async.allLocations(
+        mandatory=[{"sand": 0}, {"clay": 0}, {"bulkDensity": 0}, {"organicCarbon": 0}],
+        optional=[{"pH": 0}],
+        onlyRawData=False
+    ).a_wait()).profiles
+    assert len(profiles) > 1, "For BÜK1000 there should be 71 profiles in the database."
+    latlon_and_cap = profiles[0]  # at the moment there is always just one profile being returned
+    p = latlon_and_cap.snd[0].cap().wait().object
+    print(p)
+
+    assert len(p.layers) > 0, "There should be be at least one layer in a profile."
+    assert int(p.percentageOfArea) == 100, "There is just one profile, so 100% of area should be covered by that one."
+
+    l0 = p.layers[0]
+    assert len(l0.params) == 6, "There should be 6 parameters, including automatically added 'size' in every layer."
+    assert list(map(lambda p: p.which(), l0.params)) == ["sand", "clay", "bulkDensity", "organicCarbon", "pH", "size"]
+
 """
 def test_header(time_series_cap):
     header = time_series_cap.header().wait().header

@@ -80,11 +80,11 @@ struct Climate {
     entries @0 :List(Entry);
     # the actual metadata entries
 
-    interface Info {
+    interface Information {
       forOne @0 (entry :Entry) -> Common.IdInformation;
       forAll @1 () -> (all :List(Common.Pair(Entry, Common.IdInformation)));
     }  
-    info @1 :Info;
+    info @1 :Information;
     # get id information about metadata, if available
   }
 

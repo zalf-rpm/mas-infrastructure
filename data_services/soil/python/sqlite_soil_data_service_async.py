@@ -131,6 +131,7 @@ class Service(soil_data_capnp.Soil.Service.Server):
 
         self._interpol_and_latlon_coords = None
         self._all_latlon_coords = None
+        self._latlon_to_capholders = {}
 
         self._id = id if id else path_to_sqlite_db
         self._name = name if name else self._id
@@ -288,40 +289,49 @@ class Service(soil_data_capnp.Soil.Service.Server):
         self.profiles_at(c.lat, c.lon, r.profiles[0], names, q.onlyRawData)
 
 
-    def allProfiles_context(self, context): # allProfiles @1 Query -> (profiles :List(Common.Pair(Geo.LatLonCoord, List(Common.CapHolder(Profile)))));    
+    def allLocations_context(self, context): # allLocations @1 Query -> (profiles :List(Common.Pair(Geo.LatLonCoord, List(Common.CapHolder(Profile)))));    
         r = context.results
         q = context.params
 
         names = self.queried_names(q)
 
-        r.init("profiles", len(self._all_latlon_coords))
+        r.init("profiles", len(self.all_latlon_coords))
         for i, latlon in enumerate(self.all_latlon_coords):
             p = r.profiles[i]
             p.fst.lat = latlon[0]
             p.fst.lon = latlon[1]
-            p.init("snd", 1)
-            p.snd[0] = ProfileCapHolder(self, latlon, names, q.onlyRawData)
+            pchs = p.init("snd", 1)
+            pchs[0] = ProfileCapHolder(self, latlon, names, q.onlyRawData, self._latlon_to_capholders)
+            self._latlon_to_capholders[latlon] = p.snd[0] #store reference, so the object won't be garbage collected immediately
 
 #------------------------------------------------------------------------------
 
 # interface CapHolder(Object)
-class ProfileCapHolder(common_capnp.Common.CapHolder.Server):
+class ProfileCapHolder(soil_data_capnp.Soil.Service.CommonCapHolderProfile.Server): #(common_capnp.Common.CapHolder.Server):
 
-    def __init__(self, service, latlon, queried_names, only_raw_data):
+    def __init__(self, service, latlon, queried_names, only_raw_data, latlon_to_capholders):
         self._service = service
         self._latlon = latlon
-        self._queries_names = queried_names
+        self._queried_names = queried_names
         self._only_raw_data = only_raw_data
+        self._latlon_to_capholders = latlon_to_capholders
+
 
     def __del__(self):
-        pass
+        print("ProfileCapHolder.__del__")
+        self._latlon_to_capholders.pop(self._latlon)
+
 
     def cap_context(self, context): # cap @0 () -> (object :Object);
-        #context.results.object
-        profile = context.results.object.as_struct(soil_data_capnp.Soil.Profile)
+        #profile = context.results.object.as_struct(soil_data_capnp.Soil.Profile)
+        profile = context.results.object
         self._service.profiles_at(self._latlon[0], self._latlon[1], profile, self._queried_names, self._only_raw_data)
+        print(profile)
+        print(dir(context))
+
 
     def release_context(self, context): # release @1 ();
+        print("ProfileCapHolder.release_context")
         pass
 
 #------------------------------------------------------------------------------

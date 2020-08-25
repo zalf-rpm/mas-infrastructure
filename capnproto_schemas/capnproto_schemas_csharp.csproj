@@ -1,0 +1,65 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <CapnpCsharpObsoleteCodeBehindFiles Remove="cpp-out\**" />
+    <CapnpCsharpObsoleteCodeBehindFiles Remove="csharp-out\**" />
+    <CapnpFiles Remove="cpp-out\**" />
+    <CapnpFiles Remove="csharp-out\**" />
+    <Compile Remove="cpp-out\**" />
+    <Compile Remove="csharp-out\**" />
+    <EmbeddedResource Remove="cpp-out\**" />
+    <EmbeddedResource Remove="csharp-out\**" />
+    <None Remove="cpp-out\**" />
+    <None Remove="csharp-out\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <CapnpFiles Remove="climate_data_old.capnp" />
+    <CapnpFiles Remove="cluster_admin_service.capnp" />
+    <CapnpFiles Remove="data_services.capnp" />
+    <CapnpFiles Remove="fbp.capnp" />
+    <CapnpFiles Remove="vr.capnp" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="cluster_admin_service.capnp.cs" />
+    <Compile Remove="fbp.capnp.cs" />
+    <Compile Remove="vr.capnp.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="capnp_compile_cpp_all.bat" />
+    <None Remove="capnp_compile_csharp_all.bat" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Capnp.Net.Runtime" Version="1.3.118" />
+    <PackageReference Include="CapnpC.CSharp.MsBuild.Generation" Version="1.3.118" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <CapnpFiles Update="climate_data.capnp">
+      <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">.</ImportPaths>
+    </CapnpFiles>
+    <CapnpFiles Update="common.capnp">
+      <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">.</ImportPaths>
+    </CapnpFiles>
+    <CapnpFiles Update="date.capnp">
+      <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">.</ImportPaths>
+    </CapnpFiles>
+    <CapnpFiles Update="geo_coord.capnp">
+      <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">.</ImportPaths>
+    </CapnpFiles>
+    <CapnpFiles Update="model.capnp">
+      <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">.</ImportPaths>
+    </CapnpFiles>
+    <CapnpFiles Update="soil_data.capnp">
+      <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">.</ImportPaths>
+    </CapnpFiles>
+  </ItemGroup>
+
+</Project>

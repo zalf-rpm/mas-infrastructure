@@ -133,6 +133,12 @@ struct Soil {
   interface Service extends(Common.Identifiable) {
     # service for soil data
 
+    interface CommonCapHolderProfile {
+      # interface as replacement for Common.CapHolder(Profile) at the moment, as pycapnp doesn't support generic interfaces currently
+      cap @0 () -> (object :Profile);
+      release @1 ();
+    }
+
     checkAvailableParameters @2 Query -> Query.Result;
     # check if the parameters given in Query are available
 
@@ -142,8 +148,12 @@ struct Soil {
     profilesAt @0 (coord :Geo.LatLonCoord, query :Query) -> (profiles :List(Profile));
     # Get soil profiles at a given geo coordinate. This might be multiple profiles if a profile doesn't cover 100% of the area
 
-    allProfiles @1 Query -> (profiles :List(Common.Pair(Geo.LatLonCoord, List(Common.CapHolder(Profile)))));
+    allProfiles @1 Query -> (profiles :List(Common.Pair(Geo.LatLonCoord, List(CommonCapHolderProfile)))); #List(Common.CapHolder(Profile)))));
     # Get a list of capabilities back to all available soil profiles
+    # returned is a list of pairs of the geo coord and a list of capabilitites to the profiles at this geo coord
+
+    allLocations @4 Query -> (profiles :List(Common.Pair(Geo.LatLonCoord, List(CommonCapHolderProfile)))); #List(Common.CapHolder(Profile)))));
+    # Get a list of capabilities back to all locations and the available soil profiles there
     # returned is a list of pairs of the geo coord and a list of capabilitites to the profiles at this geo coord
   }
 

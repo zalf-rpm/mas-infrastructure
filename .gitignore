@@ -1,3 +1,17 @@
+capnproto_schemas/*.cs
+capnproto_schemas/capnp/*.cs
+capnproto_schemas/lang/*.cs
+capnproto_schemas/models/*.cs
+capnproto_schemas/obj
+capnproto_schemas/bin
+
+tests/csharp/bin
+tests/csharp/obj
+
+.vs
+.idea
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
