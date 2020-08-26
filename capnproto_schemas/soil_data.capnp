@@ -12,90 +12,69 @@ using Date = import "date.capnp".Date;
 using Geo = import "geo_coord.capnp".Geo;
 
 struct Soil {
-  
-  struct LayerParameters {
-    ka5SoilType @0 :Text; # soiltype according to KA5 classification
-    
-    sand @1 :Float32; # [% 0-1] sand content
-    clay @2 :Float32; # [% 0-1] clay content
-    silt @3 :Float32; # [% 0-1] silt content
-    
-    pH @4 :Float32; # pH value
-    
-    sceleton @5 :Float32; # [vol% 0-1] sceleton
-    
-    organic :union {
-      carbon @6 :Float32; # [mass% 0-1] soil organic carbon
-      matter @7 :Float32; # [mass% 0-1] soil organic matter
-    }
-    
-    density :union {
-      bulk @8 :Float32; # [kg m-3] soil bulk density
-      raw @9 :Float32; # [kg m-3] soil raw density
-    }
 
-    fieldCapacity @10 :Float32; # [vol% 0-1]
-    permanentWiltingPoint @11 :Float32; # [vol% 0-1]
-    saturation @12 :Float32; # [vol% 0-1]
+  enum SType {
+    # soil types
 
-    initialSoilMoisture @13 :Float32; # [% 0-1] initial soilmoisture in this layer
-
-    soilWaterConductivityCoefficient @14 :Float32; # [] lambda value
-
-    ammonium @15 :Float32; # [kg NH4-N m-3] soil ammonium content
-    nitrate @16 :Float32; # [kg NO3-N m-3] soil nitrate content
-
-    cnRatio @17 :Float32; # [] C/N ratio
-
-    isInGroundwater @18 :Bool; # lies layer in/below groundwater level
-
-    isImpenetrable @19 :Bool; # can layer be penetrated by plant
+    unknown @0; # marks an unknown soiltype
+    ka5 @1; # KA5 classification
   }
 
-  struct Parameter {
-    union {
-      ka5SoilType @0 :Text; # soiltype according to KA5 classification
-  
-      sand @1 :Float32; # [% 0-1] sand content
-      clay @2 :Float32; # [% 0-1] clay content
-      silt @3 :Float32; # [% 0-1] silt content
-      
-      pH @4 :Float32; # pH value
-      
-      sceleton @5 :Float32; # [vol% 0-1] sceleton
-      
-      organicCarbon @6 :Float32; # [mass% 0-1] soil organic carbon
-      organicMatter @7 :Float32; # [mass% 0-1] soil organic matter
-      
-      bulkDensity @8 :Float32; # [kg m-3] soil bulk density
-      rawDensity @9 :Float32; # [kg m-3] soil raw density
+  enum PropertyName {
+    # layer properties
 
-      fieldCapacity @10 :Float32; # [vol% 0-1]
-      permanentWiltingPoint @11 :Float32; # [vol% 0-1]
-      saturation @12 :Float32; # [vol% 0-1]
+    soilType @0; # soil type
 
-      initialSoilMoisture @13 :Float32; # [% 0-1] initial soilmoisture in this layer
+    sand @1; # [% 0-1] sand content
+    clay @2; # [% 0-1] clay content
+    silt @3; # [% 0-1] silt content
+    
+    pH @4; # pH value
+    
+    sceleton @5; # [vol% 0-1] sceleton
+    
+    organicCarbon @6; # [mass% 0-1] soil organic carbon
+    organicMatter @7; # [mass% 0-1] soil organic matter
+    
+    bulkDensity @8; # [kg m-3] soil bulk density
+    rawDensity @9; # [kg m-3] soil raw density
 
-      soilWaterConductivityCoefficient @14 :Float32; # [] lambda value
+    fieldCapacity @10; # [vol% 0-1]
+    permanentWiltingPoint @11; # [vol% 0-1]
+    saturation @12; # [vol% 0-1]
 
-      ammonium @15 :Float32; # [kg NH4-N m-3] soil ammonium content
-      nitrate @16 :Float32; # [kg NO3-N m-3] soil nitrate content
+    soilMoisture @13; # [% 0-1] initial soilmoisture in this layer
 
-      cnRatio @17 :Float32; # [] C/N ratio
+    soilWaterConductivityCoefficient @14; # [] lambda value
 
-      isInGroundwater @18 :Bool; # lies layer in/below groundwater level
+    ammonium @15; # [kg NH4-N m-3] soil ammonium content
+    nitrate @16; # [kg NO3-N m-3] soil nitrate content
 
-      isImpenetrable @19 :Bool; # can layer be penetrated by plant
+    cnRatio @17; # [] C/N ratio
 
-      size @20 :Float32; # [m]
+    inGroundwater @18; # lies layer in/below groundwater level
 
-      description @21 :Text; # some human understandable description of the layer
-    }
+    impenetrable @19; # can layer be penetrated by plant
   }
 
   struct Layer {
+    # describes a single soil layer
+
+    struct Property {
+      name @0 :PropertyName; # name of the layer property
+      union {
+        f32Value @1 :Float32;
+        bValue @2 :Bool;
+        type @3 :SType;
+      }
+    }
+
     # a layer consists of a list of soil parameters
-    params @0 :List(Parameter);
+    properties @0 :List(Property);
+
+    size @1 :Float32; # [m]
+
+    description @2 :Text; # some human understandable description of the layer
   }
 
 
@@ -107,12 +86,12 @@ struct Soil {
       # tell if the query failed and return the available parameters
       
       failed @0 :Bool; # some mandatory params where not available
-      mandatory @1 :List(Parameter); # the mandatory parameters which where available
-      optional @2 :List(Parameter); # the optional parameters which where available
+      mandatory @1 :List(PropertyName); # the mandatory parameters which where available
+      optional @2 :List(PropertyName); # the optional parameters which where available
     }
 
-    mandatory @0 :List(Parameter); # these parameters are really needed
-    optional @1 :List(Parameter); # these parameters are optional
+    mandatory @0 :List(PropertyName); # these parameters are really needed
+    optional @1 :List(PropertyName); # these parameters are optional
     
     onlyRawData @2 :Bool = true; 
     # just return data which are physically available from the data source
@@ -142,7 +121,7 @@ struct Soil {
     checkAvailableParameters @2 Query -> Query.Result;
     # check if the parameters given in Query are available
 
-    getAllAvailableParameters @3 (onlyRawData :Bool) -> (mandatory :List(Parameter), optional :List(Parameter));
+    getAllAvailableParameters @3 (onlyRawData :Bool) -> (mandatory :List(PropertyName), optional :List(PropertyName));
     # get all the available parameters in this service
 
     profilesAt @0 (coord :Geo.LatLonCoord, query :Query) -> (profiles :List(Profile));

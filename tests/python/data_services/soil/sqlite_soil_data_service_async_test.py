@@ -38,9 +38,9 @@ import data_services.soil.python.sqlite_soil_data_service as soil_service
 @pytest.mark.asyncio
 async def test_getAllAvailableParameters(soil_service_cap_async):
     res = await soil_service_cap_async.getAllAvailableParameters(onlyRawData=True).a_wait()
-    assert len(res.mandatory) == 12
+    assert len(res.mandatory) == 10
     assert len(res.optional) == 10
-    assert list(map(lambda p: p.which(), res.mandatory))[:4] == ["size", "organicCarbon", "bulkDensity", "rawDensity"]
+    assert list(map(str, res.mandatory))[:4] == ["organicCarbon", "bulkDensity", "rawDensity", "pH"]
 
 
 def test_getAllAvailableParameters_derived(soil_service_cap_async):
@@ -53,22 +53,22 @@ def test_getAllAvailableParameters_derived(soil_service_cap_async):
 @pytest.mark.asyncio
 async def test_checkAvailableParameters(soil_service_cap_async):
     res = await soil_service_cap_async.checkAvailableParameters(
-        mandatory=[{"ka5SoilType": ""}, {"bulkDensity": 0}, {"organicCarbon": 0}],
-        optional=[{"pH": 0}]
+        mandatory=["soilType", "bulkDensity", "organicCarbon"],
+        optional=["pH"]
     ).a_wait()
     assert res.failed is False
     assert len(res.mandatory) == 3
-    assert list(map(lambda p: p.which(), res.mandatory)) == ["ka5SoilType", "bulkDensity", "organicCarbon"]
+    assert list(map(str, res.mandatory)) == ["soilType", "bulkDensity", "organicCarbon"]
     assert len(res.optional) == 1
-    assert list(map(lambda p: p.which(), res.optional)) == ["pH"]
+    assert list(map(str, res.optional)) == ["pH"]
 
     res = await soil_service_cap_async.checkAvailableParameters(
-        mandatory=[{"organicMatter": 0}, {"clay": 0}, {"pH": 0}],
-        optional=[{"soilWaterConductivityCoefficient": 0}]
+        mandatory=["organicMatter", "clay", "pH"],
+        optional=["soilWaterConductivityCoefficient"]
     ).a_wait()
     assert res.failed is True
     assert len(res.mandatory) == 1
-    assert list(map(lambda p: p.which(), res.mandatory)) == ["pH"]
+    assert list(map(str, res.mandatory)) == ["pH"]
     assert len(res.optional) == 1
 
 
@@ -77,8 +77,8 @@ async def test_profilesAt(soil_service_cap_async):
     profiles = (await soil_service_cap_async.profilesAt(
         coord={"lat": 53.0, "lon": 12.5},
         query={
-            "mandatory": [{"sand": 0}, {"clay": 0}, {"bulkDensity": 0}, {"organicCarbon": 0}],
-            "optional": [{"pH": 0}],
+            "mandatory": ["sand", "clay", "bulkDensity", "organicCarbon"],
+            "optional": ["pH"],
             "onlyRawData": False
         }
     ).a_wait()).profiles
@@ -89,8 +89,8 @@ async def test_profilesAt(soil_service_cap_async):
     assert int(p.percentageOfArea) == 100, "There is just one profile, so 100% of area should be covered by that one."
 
     l0 = p.layers[0]
-    assert len(l0.params) == 6, "There should be 6 parameters, including automatically added 'size' in every layer."
-    assert list(map(lambda p: p.which(), l0.params)) == ["sand", "clay", "bulkDensity", "organicCarbon", "pH", "size"]
+    assert len(l0.properties) == 5, "There should be the 5 requested parameters."
+    assert list(map(lambda p: str(p.name), l0.properties)) == ["sand", "clay", "bulkDensity", "organicCarbon", "pH"]
 
     # res = soil_service_cap.profilesAt(
     #    mandatory=[{"organicMatter": 0}, {"clay": 0}, {"pH": 0}],

@@ -39,7 +39,6 @@ import monica_io3
 
 import data_services.climate.python.csv_time_series_service as ts_service
 import data_services.soil.python.sqlite_soil_data_service as soil_service
-import data_services.soil.python.sqlite_soil_data_service_async as async_soil_service
 import common.python.capnp_async_helpers as async_helpers
 
 import capnp
@@ -131,7 +130,7 @@ def soil_service_cap(start_soil_service):
 
 @pytest.fixture(scope="session")
 def start_soil_service_async():
-    p = Process(target = async_soil_service.no_async_main, kwargs={
+    p = Process(target = soil_service.no_async_main, kwargs={
         "port": SOIL_SERVICE_PORT,
         "path_to_sqlite_db": "data/soil/buek1000.sqlite",
         "path_to_ascii_soil_grid": "data/soil/buek1000_1000_gk5.asc",

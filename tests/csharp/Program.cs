@@ -15,37 +15,92 @@ namespace test_mas_infrastructure
         {
             if (args.Length > 0 && args[0] == "client")
             {
+                /*
+                using (TcpRpcClient client = new TcpRpcClient("localhost", 11111))
+                {
+                    await Task.WhenAll(client.WhenConnected);
+
+                    var service = client.GetMain<Mas.Rpc.IA>();
+
+                    var res = await service.Method();
+
+                    Console.WriteLine(res);
+
+                    return;
+                }
+                //*/
+
                 using (TcpRpcClient soilServiceClient = new TcpRpcClient("localhost", 6003))
                 {
                     await Task.WhenAll(soilServiceClient.WhenConnected);
 
                     var service = soilServiceClient.GetMain<Mas.Rpc.Soil.IService>();
-
+                    
                     var allParams = await service.GetAllAvailableParameters(true);
-                    
-                    
-                    
-                    var query = new Soil.Query();
-                    
-                    var sand = new Soil.Parameter();
-                    sand.Sand = 0;
-                    query.Mandatory.Append(sand);
-                    var clay = new Soil.Parameter();
-                    clay.Clay = 0;
-                    query.Mandatory.Append(clay);
-                    var bd = new Soil.Parameter();
-                    bd.BulkDensity = 0;
-                    query.Mandatory.Append(bd);
-                    var oc = new Soil.Parameter();
-                    oc.OrganicCarbon = 0;
-                    query.Mandatory.Append(oc);
+                    Console.WriteLine("soilService.getAllAvailableParameters(true) -> ");
+                    Console.WriteLine("mandatory:");
+                    foreach (var m in allParams.Item1)
+                    {
+                        Console.WriteLine(m.which);
+                    }
+                    Console.WriteLine("optional:");
+                    foreach (var o in allParams.Item2)
+                    {
+                        Console.WriteLine(o.which);
+                    }
+                    Console.WriteLine("---------------------------------");
 
-                    var ph = new Soil.Parameter();
-                    ph.PH = 0;
-                    query.Optional.Append(ph);
+                    
+                    var profiles = await service.ProfilesAt(
+                        new Geo.LatLonCoord() { Lat = 53.0, Lon = 12.5 }, 
+                        new Soil.Query()
+                        {
+                            Mandatory = new Soil.Parameter[]
+                        {
+                            new Soil.Parameter() { which = Soil.Parameter.WHICH.Sand },
+                            new Soil.Parameter() { which = Soil.Parameter.WHICH.Clay },
+                            new Soil.Parameter() { which = Soil.Parameter.WHICH.BulkDensity },
+                            new Soil.Parameter() { which = Soil.Parameter.WHICH.OrganicCarbon }
+                        },
+                            Optional = new Soil.Parameter[]
+                        {
+                            new Soil.Parameter() { which = Soil.Parameter.WHICH.PH }
+                        },
+                            OnlyRawData = false
+                        }
+                    );
+                    Console.WriteLine("soilService.profileAt(...) -> ");
+                    Console.WriteLine("profiles[0]:");
+                    foreach (var profile in profiles)
+                    {
+                        Console.WriteLine("percentageOfArea: " + profile.PercentageOfArea);
+                        foreach (var layer in profile.Layers)
+                        {
+                            Console.WriteLine(layer.Params);
+                            foreach (var param in layer.Params)
+                            {
+                                Console.WriteLine(param.which.ToString());
+                            }
+                        }
+                    }
+                    Console.WriteLine("---------------------------------");
+                    return;
 
-                    query.OnlyRawData = false;
-
+                    var query = new Soil.Query()
+                    {
+                        Mandatory = new Soil.Parameter[]
+                        {
+                            new Soil.Parameter() { which = Soil.Parameter.WHICH.Sand },
+                            new Soil.Parameter() { which = Soil.Parameter.WHICH.Clay },
+                            new Soil.Parameter() { which = Soil.Parameter.WHICH.BulkDensity },
+                            new Soil.Parameter() { which = Soil.Parameter.WHICH.OrganicCarbon }
+                        },
+                        Optional = new Soil.Parameter[]
+                        {
+                            new Soil.Parameter() { which = Soil.Parameter.WHICH.PH }
+                        },
+                        OnlyRawData = false
+                    };
                     var locs = await service.AllLocations(query);
                     var latlonAndCap = locs[0];
                     var capList = latlonAndCap.Snd;
