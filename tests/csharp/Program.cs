@@ -4,6 +4,7 @@ using Mas.Rpc;
 using System.Threading.Tasks;
 using System.Net;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 
 namespace test_mas_infrastructure
 {
@@ -15,14 +16,14 @@ namespace test_mas_infrastructure
         {
             if (args.Length > 0 && args[0] == "client")
             {
-                /*
+                //*
                 using (TcpRpcClient client = new TcpRpcClient("localhost", 11111))
                 {
                     await Task.WhenAll(client.WhenConnected);
 
                     var service = client.GetMain<Mas.Rpc.IA>();
 
-                    var res = await service.Method();
+                    var res = await service.Method("_________________method_PARAM_____________________");
 
                     Console.WriteLine(res);
 
@@ -31,6 +32,8 @@ namespace test_mas_infrastructure
                 //*/
 
                 using (TcpRpcClient soilServiceClient = new TcpRpcClient("localhost", 6003))
+                //using (TcpRpcClient soilServiceClient = new TcpRpcClient("127.0.0.1", 6003))
+                //using (TcpRpcClient soilServiceClient = new TcpRpcClient("login01.cluster.zalf.de", 6003))
                 {
                     await Task.WhenAll(soilServiceClient.WhenConnected);
 
@@ -41,31 +44,24 @@ namespace test_mas_infrastructure
                     Console.WriteLine("mandatory:");
                     foreach (var m in allParams.Item1)
                     {
-                        Console.WriteLine(m.which);
+                        Console.WriteLine(m);
                     }
                     Console.WriteLine("optional:");
                     foreach (var o in allParams.Item2)
                     {
-                        Console.WriteLine(o.which);
+                        Console.WriteLine(o);
                     }
                     Console.WriteLine("---------------------------------");
-
                     
                     var profiles = await service.ProfilesAt(
                         new Geo.LatLonCoord() { Lat = 53.0, Lon = 12.5 }, 
                         new Soil.Query()
                         {
-                            Mandatory = new Soil.Parameter[]
+                            Mandatory = new Soil.PropertyName[]
                         {
-                            new Soil.Parameter() { which = Soil.Parameter.WHICH.Sand },
-                            new Soil.Parameter() { which = Soil.Parameter.WHICH.Clay },
-                            new Soil.Parameter() { which = Soil.Parameter.WHICH.BulkDensity },
-                            new Soil.Parameter() { which = Soil.Parameter.WHICH.OrganicCarbon }
+                            Soil.PropertyName.sand, Soil.PropertyName.clay, Soil.PropertyName.bulkDensity, Soil.PropertyName.organicCarbon
                         },
-                            Optional = new Soil.Parameter[]
-                        {
-                            new Soil.Parameter() { which = Soil.Parameter.WHICH.PH }
-                        },
+                            Optional = new Soil.PropertyName[] { Soil.PropertyName.pH },
                             OnlyRawData = false
                         }
                     );
@@ -74,12 +70,22 @@ namespace test_mas_infrastructure
                     foreach (var profile in profiles)
                     {
                         Console.WriteLine("percentageOfArea: " + profile.PercentageOfArea);
-                        foreach (var layer in profile.Layers)
+                        foreach (var it in profile.Layers.Select((Value, Index) => new {Value, Index}))
                         {
-                            Console.WriteLine(layer.Params);
-                            foreach (var param in layer.Params)
+                            Console.WriteLine("Layer " + it.Index + ":");
+                            foreach (var prop in it.Value.Properties)
                             {
-                                Console.WriteLine(param.which.ToString());
+                                Func<Soil.Layer.Property, String> show = x =>
+                                {
+                                    switch (x.which)
+                                    {
+                                        case Soil.Layer.Property.WHICH.F32Value: return x.F32Value.ToString();
+                                        case Soil.Layer.Property.WHICH.BValue: return x.BValue.ToString();
+                                        case Soil.Layer.Property.WHICH.Type: return x.Type.ToString();
+                                        default: return "unknown";
+                                    }
+                                };
+                                Console.WriteLine("\t" + prop.Name + " = " + show(prop));
                             }
                         }
                     }
@@ -88,17 +94,11 @@ namespace test_mas_infrastructure
 
                     var query = new Soil.Query()
                     {
-                        Mandatory = new Soil.Parameter[]
+                        Mandatory = new Soil.PropertyName[]
                         {
-                            new Soil.Parameter() { which = Soil.Parameter.WHICH.Sand },
-                            new Soil.Parameter() { which = Soil.Parameter.WHICH.Clay },
-                            new Soil.Parameter() { which = Soil.Parameter.WHICH.BulkDensity },
-                            new Soil.Parameter() { which = Soil.Parameter.WHICH.OrganicCarbon }
+                            Soil.PropertyName.sand, Soil.PropertyName.clay, Soil.PropertyName.bulkDensity, Soil.PropertyName.organicCarbon
                         },
-                        Optional = new Soil.Parameter[]
-                        {
-                            new Soil.Parameter() { which = Soil.Parameter.WHICH.PH }
-                        },
+                        Optional = new Soil.PropertyName[] { Soil.PropertyName.pH },
                         OnlyRawData = false
                     };
                     var locs = await service.AllLocations(query);

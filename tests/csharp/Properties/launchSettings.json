@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "access_climate_data_service": {
+    "run test": {
       "commandName": "Project",
       "commandLineArgs": "client"
     }

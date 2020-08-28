@@ -342,7 +342,7 @@ def new_connection_factory(service):
 async def async_main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs, server="0.0.0.0", port=6003, id=None, name=None, description=None):
     config = {
         "port": str(port),
-        "server": server,
+        "server": "0.0.0.0", #server,
         "path_to_sqlite_db": path_to_sqlite_db,
         "path_to_ascii_soil_grid": path_to_ascii_soil_grid,
         "grid_crs": grid_crs,
@@ -356,6 +356,7 @@ async def async_main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs, serve
             k, v = arg.split("=")
             if k in config:
                 config[k] = v
+    print("config used:", config)
 
     service = Service(
         path_to_sqlite_db=config["path_to_sqlite_db"],
