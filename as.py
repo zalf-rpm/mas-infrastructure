@@ -11,7 +11,7 @@ import capnproto_schemas.a_capnp as a_capnp
 class A_Impl(a_capnp.A.Server):
 
     def method(self, param, **kwargs):
-        time.sleep(1)
+        time.sleep(3)
         return "_______________method_RESULT___________________"
 
 ""
@@ -31,15 +31,17 @@ class Server:
             except asyncio.TimeoutError:
                 print("myreader timeout.")
                 continue
-            #except Exception as err:
-            #    print("Unknown myreader err:", err)
-            #    return False
+            except Exception as err:
+                print("Unknown myreader err:", err)
+                self.retry = False
+                return False
             #await self.server.write(data)
         print("myreader done.")
         return True
 
+
     async def mywriter(self):
-        while self.retry:
+        while self.retry or self.writer.at_eof():
             try:
                 # Must be a wait_for so we don't block on read()
                 data = await asyncio.wait_for(
@@ -51,9 +53,10 @@ class Server:
             except asyncio.TimeoutError:
                 print("mywriter timeout.")
                 continue
-            #except Exception as err:
-            #    print("Unknown mywriter err:", err)
-            #    return False
+            except Exception as err:
+                print("Unknown mywriter err:", err)
+                self.retry = False
+                return False
         print("mywriter done.")
         return True
 
