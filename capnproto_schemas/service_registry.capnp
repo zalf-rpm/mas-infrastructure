@@ -46,10 +46,9 @@ struct Service {
 
     interface Unregister {
       unregister @0 ();
-      # unregister a previously registered service
     }
 
-    registerService @2 (type :Type, service :Capability) -> (unregister :Unregister);
+    registerService @2 (type :Type, service :Common.Identifiable) -> (unregister :Unregister);
   }
 
 }

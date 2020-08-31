@@ -87,7 +87,7 @@ class Registry(reg_capnp.Service.Registry.Server):
     #    pfp.fulfill()
 
 
-    def registerService_context(self, context): # registerService @2 (type :Type, service :Capability) -> Entry; 
+    def registerService_context(self, context): # registerService @2 (type :Type, service :Common.Identifiable) -> Entry; 
         ps = context.params
         tts = self.type_to_string(ps.type)
         regId = str(uuid.uuid4())
