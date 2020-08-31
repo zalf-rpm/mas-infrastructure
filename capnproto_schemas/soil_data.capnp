@@ -112,26 +112,26 @@ struct Soil {
   interface Service extends(Common.Identifiable) {
     # service for soil data
 
-    interface CommonCapHolderProfile {
+    #interface CommonCapHolderProfile {
       # interface as replacement for Common.CapHolder(Profile) at the moment, as pycapnp doesn't support generic interfaces currently
-      cap @0 () -> (object :Profile);
-      release @1 ();
-    }
+    #  cap @0 () -> (object :Profile);
+    #  release @1 ();
+    #}
 
-    checkAvailableParameters @2 Query -> Query.Result;
+    checkAvailableParameters @0 Query -> Query.Result;
     # check if the parameters given in Query are available
 
-    getAllAvailableParameters @3 (onlyRawData :Bool) -> (mandatory :List(PropertyName), optional :List(PropertyName));
+    getAllAvailableParameters @1 (onlyRawData :Bool) -> (mandatory :List(PropertyName), optional :List(PropertyName));
     # get all the available parameters in this service
 
-    profilesAt @0 (coord :Geo.LatLonCoord, query :Query) -> (profiles :List(Profile));
+    profilesAt @2 (coord :Geo.LatLonCoord, query :Query) -> (profiles :List(Profile));
     # Get soil profiles at a given geo coordinate. This might be multiple profiles if a profile doesn't cover 100% of the area
 
-    allProfiles @1 Query -> (profiles :List(Common.Pair(Geo.LatLonCoord, List(CommonCapHolderProfile)))); #List(Common.CapHolder(Profile)))));
+    #allProfiles @1 Query -> (profiles :List(Common.Pair(Geo.LatLonCoord, List(CommonCapHolderProfile)))); #List(Common.CapHolder(Profile)))));
     # Get a list of capabilities back to all available soil profiles
     # returned is a list of pairs of the geo coord and a list of capabilitites to the profiles at this geo coord
 
-    allLocations @4 Query -> (profiles :List(Common.Pair(Geo.LatLonCoord, List(CommonCapHolderProfile)))); #List(Common.CapHolder(Profile)))));
+    #allLocations @4 Query -> (profiles :List(Common.Pair(Geo.LatLonCoord, List(CommonCapHolderProfile)))); #List(Common.CapHolder(Profile)))));
     # Get a list of capabilities back to all locations and the available soil profiles there
     # returned is a list of pairs of the geo coord and a list of capabilitites to the profiles at this geo coord
   }

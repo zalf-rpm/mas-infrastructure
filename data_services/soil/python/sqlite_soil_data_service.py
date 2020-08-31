@@ -19,6 +19,7 @@ from pathlib import Path
 import socket
 import sqlite3
 import sys
+import uuid
 
 from pyproj import CRS, Transformer
 
@@ -36,6 +37,7 @@ import soil_io3
 import capnp
 import capnproto_schemas.soil_data_capnp as soil_data_capnp
 import capnproto_schemas.common_capnp as common_capnp
+import capnproto_schemas.service_registry_capnp as reg_capnp
 
 #------------------------------------------------------------------------------
 
@@ -127,8 +129,8 @@ class Service(soil_data_capnp.Soil.Service.Server):
         self._all_latlon_coords = None
         self._latlon_to_capholders = {}
 
-        self._id = id if id else path_to_sqlite_db
-        self._name = name if name else self._id
+        self._id = id if id else uuid.uuid4()
+        self._name = name if name else self._path_to_sqlite_db
         self._description = description if description else ""
         self._cache_raw = {}
         self._cache_derived = {}
@@ -281,7 +283,7 @@ class Service(soil_data_capnp.Soil.Service.Server):
         # fill profile with data
         self.profiles_at(c.lat, c.lon, r.profiles[0], avail_props, q.onlyRawData)
 
-
+    """
     def allLocations_context(self, context): # allLocations @1 Query -> (profiles :List(Common.Pair(Geo.LatLonCoord, List(Common.CapHolder(Profile)))));    
         r = context.results
         q = context.params
@@ -296,9 +298,11 @@ class Service(soil_data_capnp.Soil.Service.Server):
             pchs = p.init("snd", 1)
             pchs[0] = ProfileCapHolder(self, latlon, names, q.onlyRawData, self._latlon_to_capholders)
             self._latlon_to_capholders[latlon] = p.snd[0] #store reference, so the object won't be garbage collected immediately
+    """
 
 #------------------------------------------------------------------------------
 
+"""
 # interface CapHolder(Object)
 class ProfileCapHolder(soil_data_capnp.Soil.Service.CommonCapHolderProfile.Server): #(common_capnp.Common.CapHolder.Server):
 
@@ -326,6 +330,7 @@ class ProfileCapHolder(soil_data_capnp.Soil.Service.CommonCapHolderProfile.Serve
     def release_context(self, context): # release @1 ();
         print("ProfileCapHolder.release_context")
         pass
+"""
 
 #------------------------------------------------------------------------------
 
@@ -339,7 +344,47 @@ def new_connection_factory(service):
 
 #------------------------------------------------------------------------------
 
-async def async_main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs, server="0.0.0.0", port=6003, id=None, name=None, description=None):
+async def async_main_register(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs, reg_server="127.0.0.1", reg_port=10001, id=None, name=None, description=None):
+    config = {
+        "path_to_sqlite_db": path_to_sqlite_db,
+        "path_to_ascii_soil_grid": path_to_ascii_soil_grid,
+        "grid_crs": grid_crs,
+        "id": id,
+        "name": name,
+        "description": description,
+        "reg_port": str(reg_port),
+        "reg_server": reg_server
+    }
+    # read commandline args only if script is invoked directly from commandline
+    if len(sys.argv) > 1 and __name__ == "__main__":
+        for arg in sys.argv[1:]:
+            k, v = arg.split("=")
+            if k in config:
+                config[k] = v
+    print("config used:", config)
+
+    service = Service(
+        path_to_sqlite_db=config["path_to_sqlite_db"],
+        path_to_ascii_grid=config["path_to_ascii_soil_grid"],
+        grid_crs=geo.name_to_proj(config["grid_crs"]),
+        id=config["id"], name=config["name"], description=config["description"])
+
+    client, gather_results = await async_helpers.connect_to_server(port=config["reg_port"], address=config["reg_server"])
+
+    registry = client.bootstrap().cast_as(reg_capnp.Service.Registry)
+    unreg = await registry.registerService(type={"fixed": "soil"}, service=service).a_wait()
+
+    print("registered soil service")
+
+    #await unreg.unregister.unregister().a_wait()
+
+    await gather_results
+
+    print("after gather_results")
+
+#------------------------------------------------------------------------------
+
+async def async_main_server(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs, server="0.0.0.0", port=6003, id=None, name=None, description=None):
     config = {
         "port": str(port),
         "server": "0.0.0.0", #server,
@@ -348,7 +393,9 @@ async def async_main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs, serve
         "grid_crs": grid_crs,
         "id": id,
         "name": name,
-        "description": description
+        "description": description,
+        "reg_port": "reg_port",
+        "reg_server": "reg_server"
     }
     # read commandline args only if script is invoked directly from commandline
     if len(sys.argv) > 1 and __name__ == "__main__":
@@ -426,7 +473,7 @@ if __name__ == '__main__':
     grid = "data/soil/buek1000_1000_gk5.asc"
     crs = "gk5"
 
-    asyncio.run(async_main(db, grid, crs))
+    asyncio.run(async_main_register(db, grid, crs))
     exit()
 
     if len(sys.argv) > 1:

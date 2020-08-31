@@ -34,6 +34,8 @@
   <ItemGroup>
     <None Remove="capnp_compile_cpp_all.bat" />
     <None Remove="capnp_compile_csharp_all.bat" />
+    <None Remove="service_registry.capnp.c++" />
+    <None Remove="service_registry.capnp.h" />
   </ItemGroup>
 
   <ItemGroup>
@@ -69,6 +71,10 @@
     <CapnpFiles Update="model.capnp">
       <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">.</ImportPaths>
       <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">.</ImportPaths>
+    </CapnpFiles>
+    <CapnpFiles Update="service_registry.capnp">
+      <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">.</ImportPaths>
+      <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">.</ImportPaths>
     </CapnpFiles>
     <CapnpFiles Update="soil_data.capnp">
       <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">.</ImportPaths>

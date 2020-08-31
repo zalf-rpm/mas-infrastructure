@@ -67,9 +67,12 @@ struct Common {
       # unregister a previously registered object
     }
 
-    register @0 [Object] (object :Object, registrationToken :Text = "") -> (unregister :Unregister);
-    # register the given object using optionally the given token and return a capability to unregister again
+    register @0 (object :Capability, category :Text = "") -> (regId :Text, unregister :Unregister);
+    # register the given object using optionally a category to put the object into and return the register-id and a capability to unregister again
     # deleting this capability or calling unregister on it will do the same 
+
+    getObject @1 (regId :Text) -> (object :Capability);
+    # get back an object which has been registered before
   }
 
 
