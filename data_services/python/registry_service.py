@@ -94,6 +94,7 @@ class Registry(reg_capnp.Service.Registry.Server):
         unreg = Unregister(regId, self._services)
         self._services[regId] = {"entry": {"registerId": regId, "type": tts["dict"], "service": ps.service}, "unreg": unreg}
         context.results.unregister = unreg
+        print("registered service regId:", regId, "type:", tts["str"])
 
 #------------------------------------------------------------------------------
 
