@@ -16,8 +16,9 @@ namespace test_mas_infrastructure
         {
             if (args.Length > 0 && args[0] == "client")
             {
-                //*
+                /*
                 using (TcpRpcClient client = new TcpRpcClient("localhost", 11111))
+                //using (TcpRpcClient client = new TcpRpcClient("192.168.111.202", 11111))
                 {
                     await Task.WhenAll(client.WhenConnected);
 
@@ -31,6 +32,82 @@ namespace test_mas_infrastructure
                 }
                 //*/
 
+                //*
+                //using (TcpRpcClient client = new TcpRpcClient("localhost", 10001))
+                using (TcpRpcClient client = new TcpRpcClient("login01.cluster.zalf.de", 10001))
+                {
+                    await Task.WhenAll(client.WhenConnected);
+
+                    var registry = client.GetMain<Mas.Rpc.Service.IRegistry>();
+
+                    var services = await registry.GetAvailableServices(
+                        new Service.Registry.QueryType() { which = Service.Registry.QueryType.WHICH.All }
+                    );
+
+                    var service = (Mas.Rpc.Common.Identifiable_Proxy)services[0].Service;
+                    var soilService = service.Cast<Mas.Rpc.Soil.IService>(true);
+                    var allParams = await soilService.GetAllAvailableParameters(true);
+                    Console.WriteLine("soilService.getAllAvailableParameters(true) -> ");
+                    Console.WriteLine("mandatory:");
+                    foreach (var m in allParams.Item1)
+                    {
+                        Console.WriteLine(m);
+                    }
+                    Console.WriteLine("optional:");
+                    foreach (var o in allParams.Item2)
+                    {
+                        Console.WriteLine(o);
+                    }
+                    Console.WriteLine("---------------------------------");
+
+                    var profiles = await soilService.ProfilesAt(
+                        new Geo.LatLonCoord() { Lat = 53.0, Lon = 12.5 },
+                        new Soil.Query()
+                        {
+                            Mandatory = new Soil.PropertyName[]
+                        {
+                            Soil.PropertyName.sand, Soil.PropertyName.clay, Soil.PropertyName.bulkDensity, Soil.PropertyName.organicCarbon
+                        },
+                            Optional = new Soil.PropertyName[] { Soil.PropertyName.pH },
+                            OnlyRawData = false
+                        }
+                    );
+                    Console.WriteLine("soilService.profileAt(...) -> ");
+                    Console.WriteLine("profiles[0]:");
+                    foreach (var profile in profiles)
+                    {
+                        Console.WriteLine("percentageOfArea: " + profile.PercentageOfArea);
+                        foreach (var it in profile.Layers.Select((Value, Index) => new { Value, Index }))
+                        {
+                            Console.WriteLine("Layer " + it.Index + ":");
+                            foreach (var prop in it.Value.Properties)
+                            {
+                                Func<Soil.Layer.Property, String> show = x =>
+                                {
+                                    switch (x.which)
+                                    {
+                                        case Soil.Layer.Property.WHICH.F32Value: return x.F32Value.ToString();
+                                        case Soil.Layer.Property.WHICH.BValue: return x.BValue.ToString();
+                                        case Soil.Layer.Property.WHICH.Type: return x.Type.ToString();
+                                        default: return "unknown";
+                                    }
+                                };
+                                Console.WriteLine("\t" + prop.Name + " = " + show(prop));
+                            }
+                        }
+                    }
+                    Console.WriteLine("---------------------------------");
+
+                    //var res = await service.Method("_________________method_PARAM_____________________");
+
+                    //Console.WriteLine(res);
+
+                    return;
+                }
+                //*/
+
+
+                /*
                 using (TcpRpcClient soilServiceClient = new TcpRpcClient("localhost", 6003))
                 //using (TcpRpcClient soilServiceClient = new TcpRpcClient("127.0.0.1", 6003))
                 //using (TcpRpcClient soilServiceClient = new TcpRpcClient("login01.cluster.zalf.de", 6003))
@@ -115,6 +192,7 @@ namespace test_mas_infrastructure
                     //Console.WriteLine("data.Count=" + data.Count + " should be: " + data.Count * 7 + " is: " + x);
                     Console.WriteLine("\n");
                 }
+                //*/
 
 
                 /*
