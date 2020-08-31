@@ -373,6 +373,7 @@ async def async_main_register(path_to_sqlite_db, path_to_ascii_soil_grid, grid_c
 
     registry = client.bootstrap().cast_as(reg_capnp.Service.Registry)
     unreg = await registry.registerService(type={"fixed": "soil"}, service=service).a_wait()
+    #await unreg.unregister.unregister().a_wait()
 
     print("registered soil service")
 
@@ -462,7 +463,7 @@ def no_async_main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs, server="
 def main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs, server="*", port=6003, id=None, name=None, description=None, use_asyncio=True):
 
     if use_asyncio:
-        asyncio.run(async_main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs, server=server, port=port, id=id, name=name, description=description))
+        asyncio.run(async_main_server(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs, server=server, port=port, id=id, name=name, description=description))
     else:
         no_async_main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs, server=server, port=port, id=id, name=name, description=description)
 
@@ -477,10 +478,12 @@ if __name__ == '__main__':
     exit()
 
     if len(sys.argv) > 1:
-        async_no_async = sys.argv[1]
-        if async_no_async == "async":
+        command = sys.argv[1]
+        if command == "async_server":
             sys.argv.pop(1)
-            asyncio.run(async_main(db, grid, crs))
+            asyncio.run(async_main_server(db, grid, crs))
+        elif command == "async_register":
+            asyncio.run(async_main_register(db, grid, crs))
     else:
         no_async_main(db, grid, crs)
 

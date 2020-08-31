@@ -23,6 +23,11 @@ import capnp
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+
+#logger.addHandler(ch)
+
 class Server:
     def __init__(self, service):
         self._service = service
@@ -38,14 +43,14 @@ class Server:
                 )
                 await self.server.write(data)
             except asyncio.TimeoutError:
-                logger.debug("myreader timeout.")
+                #logger.debug("myreader timeout.")
                 continue
             except Exception as err:
-                logger.debug("Unknown myreader err:", err)
+                logger.debug("Unknown myreader err: %s", err)
                 self.retry = False
                 return False
             #await self.server.write(data)
-        print("myreader done.")
+        logger.debug("myreader done.")
         return True
 
 
@@ -60,13 +65,13 @@ class Server:
                 self.writer.write(data.tobytes())
                 await self.writer.drain()
             except asyncio.TimeoutError:
-                logger.debug("mywriter timeout.")
+                #logger.debug("mywriter timeout.")
                 continue
             except Exception as err:
-                logger.debug("Unknown mywriter err:", err)
+                logger.debug("Unknown mywriter err: %s", err)
                 self.retry = False
                 return False
-        print("mywriter done.")
+        logger.debug("mywriter done.")
         return True
 
 
