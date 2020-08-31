@@ -14,80 +14,59 @@
 
 # code adapted from: https://github.com/capnproto/pycapnp/blob/master/examples/async_calculator_server.py
 
-import argparse
 import asyncio
 import logging
 import socket
 
-
 import capnp
-
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-
 class Server:
-
     def __init__(self, service):
         self._service = service
 
+
     async def myreader(self):
-        to_count = 0
         while self.retry:
             try:
                 # Must be a wait_for so we don't block on read()
                 data = await asyncio.wait_for(
                     self.reader.read(4096),
-                    timeout=1#0.1
+                    timeout=0.1
                 )
-                print("R<<<<<<<<", data)
+                await self.server.write(data)
             except asyncio.TimeoutError:
                 logger.debug("myreader timeout.")
-                to_count += 1
-                print("R" + str(to_count), end=" ", flush=True)
                 continue
             except Exception as err:
-                logger.error("Unknown myreader err: %s", err)
+                logger.debug("Unknown myreader err:", err)
+                self.retry = False
                 return False
-            await self.server.write(data)
-        logger.debug("myreader done.")
-        print("[[[[myreader done.]]]]")
+            #await self.server.write(data)
+        print("myreader done.")
         return True
 
-    async def server_read(self):
-        print("before")
-        data = await self.server.read(4096)
-        print("after, data:", data)
-        return data
 
     async def mywriter(self):
-        to_count = 0
-        while self.retry:
+        while self.retry or self.writer.at_eof():
             try:
                 # Must be a wait_for so we don't block on read()
-                print("?", end="", flush=True)
-                #data = await asyncio.wait_for(
-                #    self.server.read(4096),
-                #    timeout=2#0.1
-                #)
                 data = await asyncio.wait_for(
-                    self.server_read(),
-                    timeout=0.1#0.1
+                    self.server.read(4096),
+                    timeout=0.1
                 )
-                print("W>>>>>>>>", data.tobytes())
                 self.writer.write(data.tobytes())
                 await self.writer.drain()
             except asyncio.TimeoutError:
                 logger.debug("mywriter timeout.")
-                to_count += 1
-                print("W" + str(to_count), end=" ", flush=True)
                 continue
             except Exception as err:
-                logger.error("Unknown mywriter err: %s", err)
+                logger.debug("Unknown mywriter err:", err)
+                self.retry = False
                 return False
-        logger.debug("mywriter done.")
-        print("[[[[mywriter done.]]]]")
+        print("mywriter done.")
         return True
 
 
@@ -106,10 +85,9 @@ class Server:
             self.server.poll_once()
             # Check to see if reader has been sent an eof (disconnect)
             if self.reader.at_eof():
-                print("R<<<<<<<<<<<<<< ------- END OF FILE --------", flush=True)
                 self.retry = False
                 break
-            await asyncio.sleep(0.1)#0.01)
+            await asyncio.sleep(0.01)
 
         # Make wait for reader/writer to finish (prevent possible resource leaks)
         await tasks
@@ -149,6 +127,6 @@ async def connect_to_server(port, address="127.0.0.1"):
 
     # Assemble reader and writer tasks, run in the background
     coroutines = [myreader(client, reader), mywriter(client, writer)]
-    asyncio.gather(*coroutines, return_exceptions=True)
+    gather_results = asyncio.gather(*coroutines, return_exceptions=True)
 
-    return client
+    return (client, gather_results)
