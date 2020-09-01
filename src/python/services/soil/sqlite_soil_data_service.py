@@ -22,6 +22,7 @@ from pathlib import Path
 import socket
 import sqlite3
 import sys
+import time
 import uuid
 
 from pyproj import CRS, Transformer
@@ -374,7 +375,21 @@ async def async_main_register(path_to_sqlite_db, path_to_ascii_soil_grid, grid_c
         grid_crs=geo.name_to_proj(config["grid_crs"]),
         id=config["id"], name=config["name"], description=config["description"])
 
-    client, gather_results = await async_helpers.connect_to_server(port=config["reg_port"], address=config["reg_server"])
+    registry_available = False
+    connect_to_registry_retry_count = 10
+    retry_secs = 5
+    while not registry_available:
+        try:
+            client, gather_results = await async_helpers.connect_to_server(port=config["reg_port"], address=config["reg_server"])
+            registry_available = True
+        except:
+            if connect_to_registry_retry_count == 0:
+                print("Couldn't connect to registry server at {}:{}!".format(config["reg_server"], config["reg_port"]))
+                exit(0)
+            connect_to_registry_retry_count -= 1
+            print("Trying to connect to {}:{} again in {} secs!".format(config["reg_server"], config["reg_port"], retry_secs))
+            time.sleep(retry_secs)
+            retry_secs += 1
 
     registry = client.bootstrap().cast_as(reg_capnp.Service.Registry)
     unreg = await registry.registerService(type={"fixed": "soil"}, service=service).a_wait()
@@ -416,20 +431,20 @@ async def async_main_server(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs
         id=config["id"], name=config["name"], description=config["description"])
 
     # Handle both IPv4 and IPv6 cases
-    try:
-        print("Try IPv4")
-        server = await asyncio.start_server(
-            new_connection_factory(service),
-            server, port,
-            family=socket.AF_INET
-        )
-    except Exception:
-        print("Try IPv6")
-        server = await asyncio.start_server(
-            new_connection_factory(service),
-            server, port,
-            family=socket.AF_INET6
-        )
+    #try:
+    #print("Try IPv4")
+    server = await asyncio.start_server(
+        new_connection_factory(service),
+        server, port,
+        family=socket.AF_INET
+    )
+    #except Exception:
+    #    print("Try IPv6")
+    #    server = await asyncio.start_server(
+    #        new_connection_factory(service),
+    #        server, port,
+    #        family=socket.AF_INET6
+    #    )
 
     async with server:
         await server.serve_forever()

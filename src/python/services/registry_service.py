@@ -152,20 +152,20 @@ async def async_main(server="0.0.0.0", port=10001, id=None, name="registry name"
     registry = Registry(id=config["id"], name=config["name"], description=config["description"])
 
     # Handle both IPv4 and IPv6 cases
-    try:
-        print("Try IPv4")
-        server = await asyncio.start_server(
-            new_connection_factory(registry),
-            server, port,
-            family=socket.AF_INET
-        )
-    except Exception:
-        print("Try IPv6")
-        server = await asyncio.start_server(
-            new_connection_factory(registry),
-            server, port,
-            family=socket.AF_INET6
-        )
+    #try:
+    #print("Try IPv4")
+    server = await asyncio.start_server(
+        new_connection_factory(registry),
+        server, port,
+        family=socket.AF_INET
+    )
+    #except Exception:
+    #    print("Try IPv6")
+    #    server = await asyncio.start_server(
+    #        new_connection_factory(registry),
+    #        server, port,
+    #        family=socket.AF_INET6
+    #    )
 
     async with server:
         await server.serve_forever()
@@ -203,8 +203,8 @@ def main(server="*", port=10001, id=None, name=None, description=None, use_async
 
 if __name__ == '__main__':
 
-    asyncio.run(async_main())
-    exit()
+    #asyncio.run(async_main())
+    #exit()
 
     if len(sys.argv) > 1:
         async_no_async = sys.argv[1]

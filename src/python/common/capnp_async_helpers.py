@@ -114,18 +114,18 @@ async def mywriter(client, writer):
 
 async def connect_to_server(port, address="127.0.0.1"):
     # Handle both IPv4 and IPv6 cases
-    try:
-        print("Try IPv4")
-        reader, writer = await asyncio.open_connection(
-            address, port,
-            family=socket.AF_INET
-        )
-    except Exception:
-        print("Try IPv6")
-        reader, writer = await asyncio.open_connection(
-            address, port,
-            family=socket.AF_INET6
-        )
+    #try:
+    #print("Try IPv4")
+    reader, writer = await asyncio.open_connection(
+        address, port,
+        family=socket.AF_INET
+    )
+    #except Exception:
+    #    print("Try IPv6")
+    #    reader, writer = await asyncio.open_connection(
+    #        address, port,
+    #        family=socket.AF_INET6
+    #    )
 
     # Start TwoPartyClient using TwoWayPipe (takes no arguments in this mode)
     client = capnp.TwoPartyClient()
