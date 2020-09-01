@@ -389,15 +389,13 @@ async def async_main_register(path_to_sqlite_db, path_to_ascii_soil_grid, grid_c
 async def async_main_server(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs, server="0.0.0.0", port=6003, id=None, name=None, description=None):
     config = {
         "port": str(port),
-        "server": "0.0.0.0", #server,
+        "server": server,
         "path_to_sqlite_db": path_to_sqlite_db,
         "path_to_ascii_soil_grid": path_to_ascii_soil_grid,
         "grid_crs": grid_crs,
         "id": id,
         "name": name,
-        "description": description,
-        "reg_port": "reg_port",
-        "reg_server": "reg_server"
+        "description": description
     }
     # read commandline args only if script is invoked directly from commandline
     if len(sys.argv) > 1 and __name__ == "__main__":
@@ -475,8 +473,8 @@ if __name__ == '__main__':
     grid = "data/soil/buek1000_1000_gk5.asc"
     crs = "gk5"
 
-    asyncio.run(async_main_register(db, grid, crs))
-    exit()
+    #asyncio.run(async_main_register(db, grid, crs))
+    #exit()
 
     if len(sys.argv) > 1:
         command = sys.argv[1]
@@ -484,6 +482,7 @@ if __name__ == '__main__':
             sys.argv.pop(1)
             asyncio.run(async_main_server(db, grid, crs))
         elif command == "async_register":
+            sys.argv.pop(1)
             asyncio.run(async_main_register(db, grid, crs))
     else:
         no_async_main(db, grid, crs)
