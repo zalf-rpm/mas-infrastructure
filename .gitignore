@@ -1,3 +1,14 @@
+src/cpp/runtime/_cmake_win64
+src/cpp/runtime/_cmake_win32
+src/csharp/temp/BlazorApp1/obj
+src/csharp/temp/BlazorApp1/bin
+src/csharp/temp/access_climate_data_service/bin
+src/csharp/temp/access_climate_data_service/obj
+src/csharp/temp/test_client/bin
+src/csharp/temp/test_client/obj
+
+capnproto_schemas/csharp-out
+capnproto_schemas/cpp-out
 capnproto_schemas/*.cs
 capnproto_schemas/capnp/*.cs
 capnproto_schemas/*.h
@@ -7,12 +18,11 @@ capnproto_schemas/models/*.cs
 capnproto_schemas/obj
 capnproto_schemas/bin
 
-tests/csharp/bin
-tests/csharp/obj
+trash
 
+.vscode
 .vs
 .idea
-
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -139,14 +149,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-/data_services/climate_data/cpp/_cmake_win64
-/data_services/climate_data/cpp/_cmake_win32
-/data_services/climate_data/csharp/BlazorApp1/obj
-/data_services/climate_data/csharp/BlazorApp1/bin
-/data_services/climate_data/csharp/access_climate_data_service/bin
-/data_services/climate_data/csharp/access_climate_data_service/obj
-/capnproto_schemas/csharp-out
-/capnproto_schemas/cpp-out
-/runtime/cpp/_cmake_win64
-/runtime/cpp/_cmake_win32
-/.vscode
+
