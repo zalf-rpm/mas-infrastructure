@@ -17,12 +17,17 @@
 
 import json
 import os
+from pathlib import Path
 import sys
 import time
 
 PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent.parent
 if str(PATH_TO_REPO) not in sys.path:
     sys.path.insert(1, str(PATH_TO_REPO))
+
+PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
+if str(PATH_TO_PYTHON_CODE) not in sys.path:
+    sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
 import capnp
 from capnproto_schemas import model_capnp, climate_data_capnp

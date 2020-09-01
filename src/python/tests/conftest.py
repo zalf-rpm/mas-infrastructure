@@ -26,6 +26,10 @@ PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent
 if str(PATH_TO_REPO) not in sys.path:
     sys.path.insert(1, str(PATH_TO_REPO))
 
+PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
+if str(PATH_TO_PYTHON_CODE) not in sys.path:
+    sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
+
 TIME_SERIES_SERVICE_PORT = 6001
 MONICA_SERVICE_PROXY_PORT = 6002
 SOIL_SERVICE_PORT = 6003

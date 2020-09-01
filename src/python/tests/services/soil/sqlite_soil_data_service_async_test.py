@@ -25,6 +25,10 @@ PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent.pare
 if str(PATH_TO_REPO) not in sys.path:
     sys.path.insert(1, str(PATH_TO_REPO))
 
+PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
+if str(PATH_TO_PYTHON_CODE) not in sys.path:
+    sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
+
 import services.soil.sqlite_soil_data_service as soil_service
 
 import capnp

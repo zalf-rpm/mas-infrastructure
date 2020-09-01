@@ -30,6 +30,10 @@ PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent.pare
 if str(PATH_TO_REPO) not in sys.path:
     sys.path.insert(1, str(PATH_TO_REPO))
 
+PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
+if str(PATH_TO_PYTHON_CODE) not in sys.path:
+    sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
+
 from common import rect_ascii_grid_management as grid_man, common, geo, capnp_async_helpers as async_helpers
 
 PATH_TO_UTIL_SOIL = PATH_TO_REPO.parent / "util/soil"
