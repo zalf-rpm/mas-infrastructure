@@ -33,6 +33,46 @@ namespace test_mas_infrastructure
                 //*/
 
                 //*
+                //using (var csvTimeSeriesClient = new TcpRpcClient("login01.cluster.zalf.de", 11002))
+                using (var monicaClient = new TcpRpcClient("login01.cluster.zalf.de", 10002))
+                //using (var monicaClient = new TcpRpcClient("login01.cluster.zalf.de", 10003))
+                using (var csvTimeSeriesClient = new TcpRpcClient("localhost", 11002))
+                {
+                    await Task.WhenAll(csvTimeSeriesClient.WhenConnected, monicaClient.WhenConnected);
+                    var timeSeries = csvTimeSeriesClient.GetMain<Mas.Rpc.Climate.ITimeSeries>();
+
+                    string envJson = System.IO.File.ReadAllText(@"data\monica\env.json");
+
+                    var monica = monicaClient.GetMain<Model.IEnvInstance<Common.StructuredText, Common.StructuredText>>();
+                    //var info = await monica.Info();
+                    //Console.WriteLine("id: " + info.Id + " name: " + info.Name);
+
+                    var res = await monica.Run(
+                        new Model.Env<Common.StructuredText>()
+                        {
+                            Rest = new Common.StructuredText()
+                            {
+                                Structure = new Common.StructuredText.structure() { which = Common.StructuredText.structure.WHICH.Json },
+                                Value = envJson
+                            },
+                            TimeSeries = Proxy.Share(timeSeries)
+                        }
+                    );
+
+                    var data = await timeSeries.Data();
+                    int x = 0;
+                    foreach(var d in data)
+                    {
+                        x += d.Count;
+                    }
+                    Console.WriteLine("data.Count=" + data.Count + " should be: " + data.Count*7 + " is: " + x);
+                    Console.WriteLine("\n");
+                }
+                return;
+                //*/
+
+
+                //*
                 //using (TcpRpcClient client = new TcpRpcClient("localhost", 10001))
                 using (TcpRpcClient client = new TcpRpcClient("login01.cluster.zalf.de", 10001))
                 {
@@ -44,7 +84,7 @@ namespace test_mas_infrastructure
                         new Service.Registry.QueryType() { which = Service.Registry.QueryType.WHICH.All }
                     );
 
-                    var service = (Mas.Rpc.Common.Identifiable_Proxy)services[0].Service;
+                    var service = (Mas.Rpc.Common.Identifiable_Proxy)services[1].Service;
                     var soilService = service.Cast<Mas.Rpc.Soil.IService>(true);
                     var allParams = await soilService.GetAllAvailableParameters(true);
                     Console.WriteLine("soilService.getAllAvailableParameters(true) -> ");

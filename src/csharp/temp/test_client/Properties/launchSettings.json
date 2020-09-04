@@ -2,7 +2,8 @@
   "profiles": {
     "run test": {
       "commandName": "Project",
-      "commandLineArgs": "client"
+      "commandLineArgs": "client",
+      "workingDirectory": "C:\\Users\\berg.ZALF-AD\\GitHub\\mas-infrastructure"
     }
   }
 }
