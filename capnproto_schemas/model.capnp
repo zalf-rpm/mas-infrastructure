@@ -77,4 +77,19 @@ struct Model {
     # register an instance of an EnvInstance model to get jobs transparently forwarded to by the proxy
   }
 
+
+  interface InstanceFactory(InstanceType) extends(Common.Identifiable, Common.Registry.Private) {
+    # interface to create model instances 
+
+    modelInfo @0 () -> Common.IdInformation;
+    # return information about the model this factory creates instances of
+    
+    newInstance @0 () -> (instance :InstanceType);
+    # return a new instance of the model
+
+    newInstances @1 (numberOfInstances :Int16) -> (instances :List(Common.ListEntry(InstanceType)));
+    # return the requested number of model instances
+  }
+
+
 }
