@@ -8,47 +8,44 @@ $Cxx.namespace("mas::rpc");
 #$Go.import("dataServices");
 
 using Common = import "common.capnp".Common;
+using Soil = import "soil_data.capnp".Soil
+using Climate = import "climate_data.capnp".Climate
+using Model = import "model.capnp".Model
 
 struct Service {
 
-  struct Type {
-    enum Fixed {
-      soil @0; #Soil.Service
-      climate @1; #Climate.Service
-    }
-
-    union {
-      fixed @0 :Fixed;
-      other @1 :Text;
-      none @2 :Void;
-    }
+  enum ServiceType {
+    unknown @0 ; # an unknown service
+    soilService @1; #Soil.Service
+    climateService @2; #Climate.Service
+    modelInstanceFactory @3; #Model.InstanceFactory
   }
 
   interface Registry extends(Common.Identifiable) {
-    # the bootstrap interface to the different data services
+    # the bootstrap interface to the different services
     
     struct Entry {
-      registerId @0 :Text;
-      type @1 :Type;
-      service @2 :Common.Identifiable;
+      regToken @0 :Text;
+      type @1 :ServiceType;
+      service @1 :Common.Identifiable; # a service should at least be identifiable
     }
 
-    struct QueryType {
+    struct Query {
       union {
         all @0 :Void;
-        type @1 :Type;
+        type @1 :ServiceType;
       }
     }
 
-    getAvailableServices @0 QueryType -> (services :List(Entry));
+    getAvailableServices @0 Query -> (services :List(Entry));
+    # get all available services according to the query
 
-    getService @1 (id :Text) -> Entry;
+    getService [Service] @7 (regToken :Text) -> (services :Service);
+    # get service registered under given registration token
 
-    interface Unregister {
-      unregister @0 ();
-    }
-
-    registerService @2 (type :Type, service :Common.Identifiable) -> (unregister :Unregister);
+    registerService @2 (type :ServiceType, service :Common.Identifiable) -> (regToken :Text, unreg :Common.Registry.Unregister);
+    # register a service with a certain type 
+    # returns the registration token to get the service again and an unregister capability
   }
 
 }
