@@ -59,6 +59,19 @@ struct Common {
 
   interface Registry {
     # an interface for registering 
+    # there are two use cases for using the interface
+    # a) ModelFactory
+    #    e.g. a factory starts a model instance which has to register at the 
+    #    factory in order for the factory to get the reference to the model
+    #    instance -> in this case the factory can create a token which 
+    #    the model instance uses to register itself at the factories registration
+    #    service
+    # b) DataServices
+    #    - an administrator wants to register a new service at an registry
+    #    - the registry registers the service and returns a newly created UUID 
+    #      for the service
+    #    an arbitrary user can register a capability at the registration service
+    #    then the registry will 
 
     interface Unregister {
       # interface to unregister objects
@@ -67,12 +80,61 @@ struct Common {
       # unregister a previously registered object
     }
 
-    register @0 (object :Capability, category :Text = "") -> (regId :Text, unregister :Unregister);
-    # register the given object using optionally a category to put the object into and return the register-id and a capability to unregister again
-    # deleting this capability or calling unregister on it will do the same 
+    registerByToken @0 (cap :Capability, token :Text) -> (unreg :Unregister);
+    # - register the given capability using the registrationToken and return a capability to unregister again
+    # - deleting this capability or calling unregister on it will do the same 
+    # - the registry might only allow registration for tokens it already knows
+    #   this depends on the implementation of the registry 
+    #   use case a) would not allow registration requests for unknown tokens
+    #   (not created by the registry itself)
 
-    getObject @1 (regId :Text) -> (object :Capability);
-    # get back an object which has been registered before
+    registerNew @1 (cap :Capability) -> (token :Text, unreg :Unregister);
+    # register the given capability and return the created token and unregister capability
+
+    getRegisteredCapability @1 (token :Text) -> (cap :Capability);
+    # get an previously registered capability for the given token
+  }
+
+  struct Registry {
+    # an interface for registering 
+    # there are two use cases for using the interface
+    # a) ModelFactory
+    #    e.g. a factory starts a model instance which has to register at the 
+    #    factory in order for the factory to get the reference to the model
+    #    instance -> in this case the factory can create a token which 
+    #    the model instance uses to register itself at the factories registration
+    #    service
+    # b) DataServices
+    #    - an administrator wants to register a new service at an registry
+    #    - the registry registers the service and returns a newly created UUID 
+    #      for the service
+    #    an arbitrary user can register a capability at the registration service
+    #    then the registry will 
+
+    interface Unregister {
+      # interface to unregister objects
+
+      unregister @0 ();
+      # unregister a previously registered object
+    }
+
+    interface Private(Object) extends(Registry) {
+      register @0 (obj :Object, regToken :Text) -> (unreg :Unregister);
+      # - register the given object using the registrationToken and return a capability to unregister again
+      # - deleting this capability or calling unregister on it will do the same 
+      # - the registry might only allow registration for tokens it already knows
+      #   this depends on the implementation of the registry 
+      #   use case a) would not allow registration requests for unknown tokens
+      #   (not created by the registry itself)
+    }
+
+    interface Public(Object) extends(Registry) {
+      register @0 (obj :Object) -> (regToken :Text, unreg :Unregister);
+      # register the given object and return the created token and unregister capability
+
+      get @1 (regToken :Text) -> (obj :Object);
+      # get an previously registered object for the given token
+    }
   }
 
 
@@ -87,7 +149,7 @@ struct Common {
     # give the sender the chance to know when the CapHolder object isn't used any more
 
     cap @0 () -> (object :Object);
-    # reference to some capability, which can be any pointer type like a List(Capability), Capability or Struct
+    # reference to some object, which can be any pointer type like a List(Capability), Capability or Struct
 
     release @1 ();
     # release capability on server side (signaling that capability cap isn't needed anymore)
