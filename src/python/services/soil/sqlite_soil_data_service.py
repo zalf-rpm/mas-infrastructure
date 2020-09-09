@@ -392,7 +392,7 @@ async def async_main_register(path_to_sqlite_db, path_to_ascii_soil_grid, grid_c
             retry_secs += 1
 
     registry = client.bootstrap().cast_as(reg_capnp.Service.Registry)
-    unreg = await registry.registerService(type={"fixed": "soil"}, service=service).a_wait()
+    unreg = await registry.registerService(type="soil", service=service).a_wait()
     #await unreg.unregister.unregister().a_wait()
 
     print("registered soil service")

@@ -78,16 +78,16 @@ struct Model {
   }
 
 
-  interface InstanceFactory(InstanceType) extends(Common.Identifiable, Common.Registry.Private) {
+  interface InstanceFactory(InstanceType) extends(Common.Identifiable, Common.Registry.Private(InstanceType)) {
     # interface to create model instances 
 
     modelInfo @0 () -> Common.IdInformation;
     # return information about the model this factory creates instances of
     
-    newInstance @0 () -> (instance :InstanceType);
+    newInstance @1 () -> (instance :InstanceType);
     # return a new instance of the model
 
-    newInstances @1 (numberOfInstances :Int16) -> (instances :List(Common.ListEntry(InstanceType)));
+    newInstances @2 (numberOfInstances :Int16) -> (instances :List(Common.ListEntry(InstanceType)));
     # return the requested number of model instances
   }
 

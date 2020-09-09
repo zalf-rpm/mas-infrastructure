@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "run RegistrationService": {
+      "commandName": "Project",
+      "workingDirectory": "C:\\Users\\berg.ZALF-AD\\GitHub\\mas-infrastructure"
+    }
+  }
+}

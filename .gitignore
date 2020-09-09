@@ -6,6 +6,8 @@ src/csharp/temp/access_climate_data_service/bin
 src/csharp/temp/access_climate_data_service/obj
 src/csharp/temp/test_client/bin
 src/csharp/temp/test_client/obj
+src/csharp/services/registration_service/bin
+src/csharp/services/registration_service/obj
 
 capnproto_schemas/csharp-out
 capnproto_schemas/cpp-out
