@@ -73,8 +73,8 @@ namespace test_mas_infrastructure
 
 
                 //*
-                using (TcpRpcClient client = new TcpRpcClient("localhost", 10001))
-                //using (TcpRpcClient client = new TcpRpcClient("login01.cluster.zalf.de", 10001))
+                //using (TcpRpcClient client = new TcpRpcClient("localhost", 10001))
+                using (TcpRpcClient client = new TcpRpcClient("login01.cluster.zalf.de", 10001))
                 {
                     await Task.WhenAll(client.WhenConnected);
 

@@ -5,6 +5,10 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+    
   <ItemGroup>
     <CapnpCsharpObsoleteCodeBehindFiles Remove="climate_data.capnp.cs" />
     <CapnpCsharpObsoleteCodeBehindFiles Remove="cluster_admin_service.capnp.cs" />
