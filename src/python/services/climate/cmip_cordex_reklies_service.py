@@ -15,6 +15,7 @@
 # Landscape Systems Analysis at the ZALF.
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
+import asyncio
 import csv
 import json
 from datetime import date, timedelta
@@ -42,6 +43,8 @@ if str(PATH_TO_REPO) not in sys.path:
 PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
+
+from common import rect_ascii_grid_management as grid_man, common, geo, capnp_async_helpers as async_helpers
 
 import common.geo as geo
 
@@ -514,17 +517,88 @@ class Service(climate_data_capnp.Climate.Service.Server):
         datasets = map(lambda mds: mds.data, meta_plus_datasets)
         return list(datasets)
 
+#------------------------------------------------------------------------------
 
+async def async_main_register(path_to_data, reg_server=None, reg_port=None, id=None, name=None, description=None):
+    config = {
+        "path_to_data": path_to_data,
+        "id": id,
+        "name": name,
+        "description": description,
+        "reg_port": str(reg_port),
+        "reg_server": reg_server
+    }
+    # read commandline args only if script is invoked directly from commandline
+    if len(sys.argv) > 1 and __name__ == "__main__":
+        for arg in sys.argv[1:]:
+            k, v = arg.split("=")
+            if k in config:
+                config[k] = v
+    print("config used:", config)
 
+    interpolator = lat_lon_interpolator(config["path_to_data"] + "/" + "latlon-to-rowcol.json")
+    service = Service(config["path_to_data"] + "/csv/", interpolator)
 
-def main():
-    #address = parse_args().address
+    registry_available = False
+    connect_to_registry_retry_count = 10
+    retry_secs = 5
+    while not registry_available:
+        try:
+            client, gather_results = await async_helpers.connect_to_server(port=config["reg_port"], address=config["reg_server"])
+            registry_available = True
+        except:
+            if connect_to_registry_retry_count == 0:
+                print("Couldn't connect to registry server at {}:{}!".format(config["reg_server"], config["reg_port"]))
+                exit(0)
+            connect_to_registry_retry_count -= 1
+            print("Trying to connect to {}:{} again in {} secs!".format(config["reg_server"], config["reg_port"], retry_secs))
+            time.sleep(retry_secs)
+            retry_secs += 1
 
-    #server = capnp.TwoPartyServer("*:8000", bootstrap=DataServiceImpl("/home/berg/archive/data/"))
-    path_to_data = "/beegfs/common/data/climate/dwd/cmip_cordex_reklies/"
-    interpolator = lat_lon_interpolator(path_to_data + "latlon-to-rowcol.json")
-    server = capnp.TwoPartyServer("*:11001", bootstrap=Service(path_to_data + "csv/", interpolator))
+    registry = client.bootstrap().cast_as(reg_capnp.Service.Registry)
+    unreg = await registry.registerService(type="soil", service=service).a_wait()
+    #await unreg.unregister.unregister().a_wait()
+
+    print("registered soil service")
+
+    #await unreg.unregister.unregister().a_wait()
+
+    await gather_results
+
+    print("after gather_results")
+
+#------------------------------------------------------------------------------
+
+def sync_main_server(path_to_data, port):
+    config = {
+        "path_to_data": path_to_data,
+        "port": str(reg_port),
+        "server": "*"
+    }
+    # read commandline args only if script is invoked directly from commandline
+    if len(sys.argv) > 1 and __name__ == "__main__":
+        for arg in sys.argv[1:]:
+            k, v = arg.split("=")
+            if k in config:
+                config[k] = v
+    print("config used:", config)
+
+    interpolator = lat_lon_interpolator(config["path_to_data"] + "/" + "latlon-to-rowcol.json")
+    server = capnp.TwoPartyServer(config["server"] + ":" + config["port"], bootstrap=Service(config["path_to_data"] + "/csv/", interpolator))
     server.run_forever()
 
+#------------------------------------------------------------------------------
+
 if __name__ == '__main__':
-    main()
+    path_to_data = "/beegfs/common/data/climate/dwd/cmip_cordex_reklies"
+
+    if len(sys.argv) > 1:
+        command = sys.argv[1]
+        if command == "sync_server":
+            sys.argv.pop(1)
+            sync_main_server(path_to_data, 12000)
+        elif command == "async_register":
+            sys.argv.pop(1)
+            asyncio.run(async_main_register(path_to_data, reg_server="login01.cluster.zalf.de", reg_port=11001))
+
+    print("sync_server | async_register")
