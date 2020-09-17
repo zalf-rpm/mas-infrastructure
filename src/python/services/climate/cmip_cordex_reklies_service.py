@@ -50,7 +50,7 @@ import common.geo as geo
 
 import capnp
 #import capnproto_schemas.common_capnp as common_capnp
-from capnproto_schemas import geo_coord_capnp as geo_capnp, climate_data_capnp
+from capnproto_schemas import geo_coord_capnp as geo_capnp, climate_data_capnp, service_registry_capnp as reg_capnp
 
 #------------------------------------------------------------------------------
 
@@ -572,7 +572,7 @@ async def async_main_register(path_to_data, reg_server=None, reg_port=None, id=N
 def sync_main_server(path_to_data, port):
     config = {
         "path_to_data": path_to_data,
-        "port": str(reg_port),
+        "port": str(port),
         "server": "*"
     }
     # read commandline args only if script is invoked directly from commandline
