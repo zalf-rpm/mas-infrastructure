@@ -556,10 +556,10 @@ async def async_main_register(path_to_data, reg_server=None, reg_port=None, id=N
             retry_secs += 1
 
     registry = client.bootstrap().cast_as(reg_capnp.Service.Registry)
-    unreg = await registry.registerService(type="soil", service=service).a_wait()
+    unreg = await registry.registerService(type="climate", service=service).a_wait()
     #await unreg.unregister.unregister().a_wait()
 
-    print("registered soil service")
+    print("Registered a CMIP-Cordex-Reklies climate service.")
 
     #await unreg.unregister.unregister().a_wait()
 
