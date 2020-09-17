@@ -16,6 +16,52 @@ namespace test_mas_infrastructure
         {
             if (args.Length > 0 && args[0] == "client")
             {
+                //*
+                using (TcpRpcClient regClient = new TcpRpcClient("login01.cluster.zalf.de", 10001))
+                //using (TcpRpcClient client = new TcpRpcClient("192.168.111.202", 11111))
+                {
+                    await Task.WhenAll(regClient.WhenConnected);
+
+                    using var registry = regClient.GetMain<Mas.Rpc.Service.IRegistry>();
+                    var services = await registry.GetAvailableServices(
+                        new Service.Registry.Query() { 
+                            which = Service.Registry.Query.WHICH.Type, 
+                            Type = Service.ServiceType.climate 
+                        }
+                    );
+                    foreach (var entry in services)
+                    {
+                        using var climateService = ((Mas.Rpc.Common.Identifiable_Proxy)entry.Service).Cast<Mas.Rpc.Climate.IService>(true);
+                        var datasets = await climateService.GetAvailableDatasets();
+                        foreach (var metaPlusData in datasets)
+                        {
+                            using var dataset = metaPlusData.Data;
+                            using var timeSeries = await dataset.ClosestTimeSeriesAt(
+                                new Geo.Coord()
+                                {
+                                    Latlon = new Geo.LatLonCoord() { Lat = 53.0, Lon = 12.5 }
+                                }
+                             );
+                            var (start, end) = await timeSeries.Range();
+                            var startDate = new DateTime(start.Year, start.Month, start.Day);
+                            var header = await timeSeries.Header();
+                            var headerLine = header.Select(elem => elem.ToString()).Aggregate((acc, str) => acc + ", " + str);
+                            Console.WriteLine(headerLine);
+                            var data = await timeSeries.Data();
+                            foreach (var (day, index) in data.Take(10).Select((Value, Index) => ValueTuple.Create(Value, Index)))
+                            {
+                                var currentDate = startDate.AddDays(index);
+                                var dataLine = day.Select(elem => elem.ToString()).Aggregate((acc, str) => acc + ", " + str);
+                                Console.WriteLine(currentDate.ToShortDateString() + ", " + dataLine);
+                            }
+                        }
+                    }
+
+                    return;
+                }
+                //*/
+
+
                 /*
                 using (TcpRpcClient client = new TcpRpcClient("localhost", 11111))
                 //using (TcpRpcClient client = new TcpRpcClient("192.168.111.202", 11111))
