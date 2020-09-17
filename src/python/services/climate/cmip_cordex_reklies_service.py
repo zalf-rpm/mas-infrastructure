@@ -413,7 +413,7 @@ class Dataset(climate_data_capnp.Climate.Dataset.Server):
         return locs
 
 
-class Metadata_Info(climate_data_capnp.Climate.Metadata.Info.Server):
+class Metadata_Info(climate_data_capnp.Climate.Metadata.Information.Server):
 
     def __init__(self, metadata):
         self._meta = metadata
