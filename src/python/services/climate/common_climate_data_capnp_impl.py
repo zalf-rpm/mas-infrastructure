@@ -246,7 +246,7 @@ def rcp_or_ssp_to_info_factory(type):
     rev_map = {v : k for k, v in fwd_map.items()}
     
     def to_info(rev_map, xxp):
-        id = rev_map[xxp]
+        id = rev_map[int(xxp)]
         name = id[:3].upper() + id[3:]
         return {"id": id, "name": name, "description": ""}
 
