@@ -15,7 +15,6 @@
 # Landscape Systems Analysis at the ZALF.
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
-import asyncio
 import csv
 import json
 from datetime import date, timedelta
@@ -24,18 +23,8 @@ import numpy as np
 import os
 import pandas as pd
 from pathlib import Path
-from pyproj import CRS, Transformer
-from scipy.interpolate import NearestNDInterpolator
 import sys
 import time
-
-#remote debugging via embedded code
-#import ptvsd
-#ptvsd.enable_attach(("0.0.0.0", 14000))
-#ptvsd.wait_for_attach()  # blocks execution until debugger is attached
-
-#remote debugging via commandline
-#-m ptvsd --host 0.0.0.0 --port 14000 --wait
 
 PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent.parent
 if str(PATH_TO_REPO) not in sys.path:
@@ -45,17 +34,18 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-import common.common as cc
+#import common.common as cc
 import common.geo as geo
-import common.capnp_async_helpers as async_helpers
 import common_climate_data_capnp_impl as ccdi
 
 import capnp
-from capnproto_schemas import geo_coord_capnp as geo_capnp, climate_data_capnp
+#import capnproto_schemas.geo_coord_capnp as geo_capnp
+import capnproto_schemas.climate_data_capnp as climate_data_capnp
 
 #------------------------------------------------------------------------------
 
 class TimeSeries(climate_data_capnp.Climate.TimeSeries.Server): 
+
 
     def __init__(self, metadata, location, path_to_csv=None, dataframe=None, header_map=None, supported_headers=None):
         "a supplied dataframe asumes the correct index is already set (when reading from csv then it will always be 1980 to 2010)"
@@ -162,6 +152,7 @@ class TimeSeries(climate_data_capnp.Climate.TimeSeries.Server):
 
 class Dataset(climate_data_capnp.Climate.Dataset.Server):
 
+
     def __init__(self, metadata, path_to_rows, interpolator, rowcol_to_latlon, header_map=None, supported_headers=None):
         self._meta = metadata
         self._path_to_rows = path_to_rows
@@ -173,6 +164,7 @@ class Dataset(climate_data_capnp.Climate.Dataset.Server):
         self._supported_headers = supported_headers
         self._rowcol_to_latlon = rowcol_to_latlon
 
+
     def metadata(self, _context, **kwargs): # metadata @0 () -> Metadata;
         # get metadata for these data 
         r = _context.results
@@ -181,6 +173,7 @@ class Dataset(climate_data_capnp.Climate.Dataset.Server):
             r.entries[i] = e
         r.info = self._meta.info
         
+
     def time_series_at(self, row, col, location=None):
         if (row, col) not in self._time_series:
             path_to_csv = self._path_to_rows + "/row-" + str(row) + "/col-" + str(col) + ".csv"
@@ -190,6 +183,7 @@ class Dataset(climate_data_capnp.Climate.Dataset.Server):
             self._time_series[(row, col)] = time_series
         return self._time_series[(row, col)]
 
+
     def closestTimeSeriesAt(self, geoCoord, **kwargs): # (geoCoord :Geo.Coord) -> (timeSeries :TimeSeries);
         # closest TimeSeries object which represents the whole time series 
         # of the climate realization at the give climate coordinate
@@ -197,11 +191,13 @@ class Dataset(climate_data_capnp.Climate.Dataset.Server):
         row, col = self._interpolator(lat, lon)
         return self.time_series_at(row, col)
 
+
     def timeSeriesAt(self, locationId, **kwargs): # (locationId :Text) -> (timeSeries :TimeSeries);
         rs, cs = locationId.split("/")
         row = int(rs[2:])
         col = int(cs[2:])
         return self.time_series_at(row, col)
+
 
     def location_at(self, row, col, coord=None, time_series=None):
         if (row, col) not in self._locations:
@@ -218,6 +214,7 @@ class Dataset(climate_data_capnp.Climate.Dataset.Server):
                 loc.timeSeries = time_series
             self._locations[(row, col)] = loc
         return self._locations[(row, col)]
+
 
     def locations(self, **kwargs): # locations @2 () -> (locations :List(Location));
         # all the climate locations this dataset has

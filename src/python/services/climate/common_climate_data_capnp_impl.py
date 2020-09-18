@@ -28,14 +28,6 @@ from scipy.interpolate import NearestNDInterpolator
 import sys
 import time
 
-#remote debugging via embedded code
-#import ptvsd
-#ptvsd.enable_attach(("0.0.0.0", 14000))
-#ptvsd.wait_for_attach()  # blocks execution until debugger is attached
-
-#remote debugging via commandline
-#-m ptvsd --host 0.0.0.0 --port 14000 --wait
-
 PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent.parent
 if str(PATH_TO_REPO) not in sys.path:
     sys.path.insert(1, str(PATH_TO_REPO))
@@ -44,12 +36,12 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-from common import rect_ascii_grid_management as grid_man, common, geo, capnp_async_helpers as async_helpers
-
-import common.geo as geo
+#import common.common as cc
+#import common.geo as geo
 
 import capnp
-from capnproto_schemas import geo_coord_capnp as geo_capnp, climate_data_capnp
+import capnproto_schemas.geo_coord_capnp as geo_capnp
+import capnproto_schemas.climate_data_capnp as climate_data_capnp
 
 #------------------------------------------------------------------------------
 
@@ -111,11 +103,17 @@ def read_file_and_create_interpolator(path_to_grid, dtype=int, skiprows=6, confi
 
 #------------------------------------------------------------------------------
 
-wgs84 = CRS.from_epsg(4326)
-gk3 = CRS.from_epsg(3396)
-gk5 = CRS.from_epsg(31469)
-utm21s = CRS.from_epsg(32721)
-utm32n = CRS.from_epsg(25832)
+def name_to_crs(name):
+    if not hasattr(crs_by_name, "d"):
+        name_to_crs.d = {
+            "latlon": CRS.from_epsg(4326), 
+            "wgs84": CRS.from_epsg(4326),
+            "gk3": CRS.from_epsg(3396),
+            "gk5": CRS.from_epsg(31469),
+            "utm21s": CRS.from_epsg(32721),
+            "utm32n": CRS.from_epsg(25832)
+        }
+    return name_to_crs.d.get(name, None)
 
 #------------------------------------------------------------------------------
 
@@ -220,6 +218,8 @@ def string_to_ensmem(ensmem_str):
     si, sp = sip.split("p")
     return {"r": int(sr), "i": int(si), "p": int(sp)}
 
+#------------------------------------------------------------------------------
+
 def ensmem_to_info(ensmem):
     # r<N>i<M>p<L>
     id = "r{r}i{i}p{p}".format(r=ensmem.r, i=ensmem.i, p=ensmem.p)
@@ -256,24 +256,30 @@ def rcp_or_ssp_to_info_factory(type):
 
 #------------------------------------------------------------------------------
 
-access_entries = {
-    "gcm": lambda e: e.gcm,
-    "rcm": lambda e: e.rcm,
-    "historical": lambda e: True,
-    "rcp": lambda e: e.rcp,
-    "ssp": lambda e: e.ssp,
-    "ensMem": lambda e: e.ensMem,
-    "version": lambda e: e.version,
-    "start": lambda e: create_date(e.start),
-    "end": lambda e: create_date(e.end),
-    "co2": lambda e: e.co2,
-    "picontrol": lambda e: e.picontrol
-}
+def access_entries(which):
+    if not hasattr(access_entries, "d"):
+        access_entries.d = {
+            "gcm": lambda e: e.gcm,
+            "rcm": lambda e: e.rcm,
+            "historical": lambda e: True,
+            "rcp": lambda e: e.rcp,
+            "ssp": lambda e: e.ssp,
+            "ensMem": lambda e: e.ensMem,
+            "version": lambda e: e.version,
+            "start": lambda e: create_date(e.start),
+            "end": lambda e: create_date(e.end),
+            "co2": lambda e: e.co2,
+            "picontrol": lambda e: e.picontrol
+        }
+    return access_entries.d.get(which, None)
+
+#------------------------------------------------------------------------------
+
 def create_entry_map(entries):
     entry_to_value = {}
     for e in entries:
         which = e.which()
-        entry_to_value[which] = access_entries[which](e)
+        entry_to_value[which] = access_entries(which)(e)
     
     return entry_to_value
 
@@ -307,12 +313,12 @@ class Metadata_Info(climate_data_capnp.Climate.Metadata.Information.Server):
             "rcp": lambda v: rcp_to_info(v),
             "ssp": lambda v: ssp_to_info(v),
             "ensMem": lambda v: ensmem_to_info(v),
-            "version": lambda v: {"id": v, "name": v, "description": ""}, 
-            "start": lambda v: date_to_info(create_date(v)),
-            "end": lambda v: date_to_info(create_date(v)),
-            "co2": lambda v: v,
+            "version": lambda v: {"id": "version", "name": "Version", "description": v}, 
+            "start": lambda v: {"id": "start", "name": "Start", "description": create_date(v).isoformat()[:10]},
+            "end": lambda v: {"id": "end", "name": "End", "description": create_date(v).isoformat()[:10]},
+            "co2": lambda v: {"id": "co2", "name": "CO2", "description": str(v) + "ppm"},
             "picontrol": lambda v: {"id": "picontrol", "name": "piControl", "description": ""},
-            "description": lambda v: v
+            "description": lambda v: {"id": "description", "name": "Description", "description": v}
         }
 
 
