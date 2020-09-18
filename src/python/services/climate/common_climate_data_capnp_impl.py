@@ -234,23 +234,10 @@ def date_to_info(d):
 
 #------------------------------------------------------------------------------
 
-def rcp_or_ssp_to_info_factory(type):
-    fwd_map = {
-        "RCP": climate_data_capnp.Climate.RCP.schema.enumerants,
-        "SSP": climate_data_capnp.Climate.SSP.schema.enumerants
-    }.get(type.upper(), None)
-
-    if not fwd_map:
-        return {"id": "", "name": "", "description": ""}
-
-    rev_map = {v : k for k, v in fwd_map.items()}
-    
-    def to_info(rev_map, xxp):
-        id = rev_map[int(xxp)]
-        name = id[:3].upper() + id[3:]
-        return {"id": id, "name": name, "description": ""}
-
-    return lambda xxp: to_info(rev_map, xxp)
+def rcp_or_ssp_to_info(xxp):
+    id = str(xxp)
+    name = id[:3].upper() + id[3:]
+    return {"id": id, "name": name, "description": ""}
 
 #------------------------------------------------------------------------------
 
@@ -302,14 +289,12 @@ class Metadata_Info(climate_data_capnp.Climate.Metadata.Information.Server):
     def __init__(self, metadata):
         self._meta = metadata
         self._entry_map = create_entry_map(metadata.entries)
-        rcp_to_info = rcp_or_ssp_to_info_factory("rcp")
-        ssp_to_info = rcp_or_ssp_to_info_factory("ssp")
         self._entry_to_info = {
             "gcm": lambda v: gcm_to_info(v),
             "rcm": lambda v: rcm_to_info(v),
             "historical": lambda v: {"id": "historical", "name": "Historical", "description": ""},
-            "rcp": lambda v: rcp_to_info(v),
-            "ssp": lambda v: ssp_to_info(v),
+            "rcp": lambda v: rcp_or_ssp_to_info(v),
+            "ssp": lambda v: rcp_or_ssp_to_info(v),
             "ensMem": lambda v: ensmem_to_info(v),
             "version": lambda v: {"id": "version", "name": "Version", "description": v}, 
             "start": lambda v: {"id": "start", "name": "Start", "description": create_date(v).isoformat()[:10]},
