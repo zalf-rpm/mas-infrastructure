@@ -35,6 +35,12 @@ namespace test_mas_infrastructure
                         var datasets = await climateService.GetAvailableDatasets();
                         foreach (var metaPlusData in datasets)
                         {
+                            using var info = metaPlusData.Meta.Info;
+                            var allMetaInfos = await info.ForAll();
+                            var metaStr = allMetaInfos.
+                                Select(x => "[" + x.Snd.Id + "|" + x.Snd.Name + "|" + x.Snd.Description + "]").
+                                Aggregate((acc, str) => acc + ", " + str);
+                            Console.WriteLine(metaStr);
                             using var dataset = metaPlusData.Data;
                             using var timeSeries = await dataset.ClosestTimeSeriesAt(
                                 new Geo.Coord()

@@ -243,9 +243,7 @@ def rcp_or_ssp_to_info_factory(type):
     if not fwd_map:
         return {"id": "", "name": "", "description": ""}
 
-    rev_map = {}
-    for k, v in fwd_map.items():
-        rev_map[v] = k
+    rev_map = {v : k for k, v in fwd_map.items()}
     
     def to_info(rev_map, xxp):
         id = rev_map[xxp]
