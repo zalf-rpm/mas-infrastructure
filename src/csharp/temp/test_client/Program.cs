@@ -41,6 +41,8 @@ namespace test_mas_infrastructure
                                 Select(x => "[" + x.Snd.Id + "|" + x.Snd.Name + "|" + x.Snd.Description + "]").
                                 Aggregate((acc, str) => acc + ", " + str);
                             Console.WriteLine(metaStr);
+                            if (allMetaInfos.Where(x => x.Snd.Name.StartsWith("UKESM")).Count() > 0)
+                                continue;
                             using var dataset = metaPlusData.Data;
                             using var timeSeries = await dataset.ClosestTimeSeriesAt(
                                 new Geo.Coord()
