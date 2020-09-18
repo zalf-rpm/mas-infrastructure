@@ -153,7 +153,7 @@ class TimeSeries(climate_data_capnp.Climate.TimeSeries.Server):
 class Dataset(climate_data_capnp.Climate.Dataset.Server):
 
 
-    def __init__(self, metadata, path_to_rows, interpolator, rowcol_to_latlon, header_map=None, supported_headers=None):
+    def __init__(self, metadata, path_to_rows, interpolator, rowcol_to_latlon, gzipped=False, header_map=None, supported_headers=None):
         self._meta = metadata
         self._path_to_rows = path_to_rows
         self._interpolator = interpolator
@@ -163,6 +163,7 @@ class Dataset(climate_data_capnp.Climate.Dataset.Server):
         self._header_map = header_map
         self._supported_headers = supported_headers
         self._rowcol_to_latlon = rowcol_to_latlon
+        self._gzipped = gzipped
 
 
     def metadata(self, _context, **kwargs): # metadata @0 () -> Metadata;
@@ -176,7 +177,7 @@ class Dataset(climate_data_capnp.Climate.Dataset.Server):
 
     def time_series_at(self, row, col, location=None):
         if (row, col) not in self._time_series:
-            path_to_csv = self._path_to_rows + "/row-" + str(row) + "/col-" + str(col) + ".csv"
+            path_to_csv = self._path_to_rows + "/row-" + str(row) + "/col-" + str(col) + ".csv" + (".gz" if self._gzipped else "")
             if not location:
                 location = self.location_at(row, col)
             time_series = TimeSeries.from_csv_file(self._meta, location, path_to_csv, header_map=self._header_map, supported_headers=self._supported_headers)    

@@ -104,7 +104,7 @@ def read_file_and_create_interpolator(path_to_grid, dtype=int, skiprows=6, confi
 #------------------------------------------------------------------------------
 
 def name_to_crs(name):
-    if not hasattr(crs_by_name, "d"):
+    if not hasattr(name_to_crs, "d"):
         name_to_crs.d = {
             "latlon": CRS.from_epsg(4326), 
             "wgs84": CRS.from_epsg(4326),
