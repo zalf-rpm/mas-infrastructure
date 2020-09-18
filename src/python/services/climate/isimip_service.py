@@ -51,7 +51,7 @@ def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon):
 
     datasets = []
     for gcm in os.listdir(path_to_data_dir):
-        gcm_dir = path_to_data_dir + gcm
+        gcm_dir = path_to_data_dir + "/" + gcm
         if os.path.isdir(gcm_dir) and gcm in gcms:
             for scen in os.listdir(gcm_dir):
                 scen_dir = gcm_dir + "/" + scen
@@ -130,7 +130,7 @@ async def async_main_register(path_to_data, reg_server=None, reg_port=None, id=N
     print("config used:", config)
 
     interpolator, rowcol_to_latlon = ccdi.create_lat_lon_interpolator_from_json_coords_file(config["path_to_data"] + "/" + "latlon-to-rowcol.json")
-    service = Service(config["path_to_data"] + "/csv/", interpolator, rowcol_to_latlon)
+    service = Service(config["path_to_data"], interpolator, rowcol_to_latlon)
 
     registry_available = False
     connect_to_registry_retry_count = 10
