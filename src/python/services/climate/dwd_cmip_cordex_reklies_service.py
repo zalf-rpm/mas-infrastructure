@@ -43,29 +43,38 @@ import capnproto_schemas.service_registry_capnp as reg_capnp
 #------------------------------------------------------------------------------
 
 def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon):
-    gcms = ["GFDL-ESM4", "IPSL-CM6A-LR", "MPI-ESM1-2-HR", "MRI-ESM2-0", "UKESM1-0-LL"]
-    ssps = ["ssp126", "ssp585"]
-
     datasets = []
     for gcm in os.listdir(path_to_data_dir):
-        gcm_dir = path_to_data_dir + "/" + gcm
-        if os.path.isdir(gcm_dir) and gcm in gcms:
-            for scen in os.listdir(gcm_dir):
-                scen_dir = gcm_dir + "/" + scen
-
-                entries = [{"gcm": ccdi.string_to_gcm(gcm)}]
-                if scen in ssps: 
-                    entries.append({"rcp": "rcp" + scen[-2:]})
-                    entries.append({"ssp": scen[:-2]})
-                else: # either historical or picontrol
-                    entries.append({scen: None})
-
-                metadata = climate_data_capnp.Climate.Metadata.new_message(entries=entries)
-                metadata.info = ccdi.Metadata_Info(metadata)
-                datasets.append(climate_data_capnp.Climate.MetaPlusData.new_message(
-                    meta=metadata, 
-                    data=csv_based.Dataset(metadata, scen_dir, interpolator, rowcol_to_latlon, row_col_pattern="row-{row}/col-{col}.csv.gz")
-                ))
+        gcm_dir = path_to_data_dir + gcm
+        if os.path.isdir(gcm_dir):
+            for rcm in os.listdir(gcm_dir):
+                rcm_dir = gcm_dir + "/" + rcm
+                if os.path.isdir(rcm_dir):
+                    for scen in os.listdir(rcm_dir):
+                        scen_dir = rcm_dir + "/" + scen
+                        if os.path.isdir(scen_dir):
+                            for ensmem in os.listdir(scen_dir):
+                                ensmem_dir = scen_dir + "/" + ensmem
+                                if os.path.isdir(ensmem_dir):
+                                    for version in os.listdir(ensmem_dir):
+                                        version_dir = ensmem_dir + "/" + version
+                                        if os.path.isdir(version_dir):
+                                            metadata = climate_data_capnp.Climate.Metadata.new_message(
+                                                entries = [
+                                                    {"gcm": ccdi.string_to_gcm(gcm)},
+                                                    {"rcm": ccdi.string_to_rcm(rcm)},
+                                                    {"historical": None} if scen == "historical" else {"rcp": scen},
+                                                    {"ensMem": ccdi.string_to_ensmem(ensmem)},
+                                                    {"version": version}
+                                                ]
+                                            )
+                                            metadata.info = ccdi.Metadata_Info(metadata)
+                                            datasets.append(climate_data_capnp.Climate.MetaPlusData.new_message(
+                                                meta=metadata, 
+                                                data=csv_based.Dataset(metadata, version_dir, interpolator, rowcol_to_latlon, 
+                                                header_map={"windspeed": "wind"},
+                                                row_col_pattern="row-{row}/col-{col}.csv")
+                                            ))
     return datasets
 
 #------------------------------------------------------------------------------
@@ -88,8 +97,8 @@ async def async_main_register(path_to_data, reg_server=None, reg_port=None, id=N
     print("config used:", config)
 
     interpolator, rowcol_to_latlon = ccdi.create_lat_lon_interpolator_from_json_coords_file(config["path_to_data"] + "/" + "latlon-to-rowcol.json")
-    meta_plus_data = create_meta_plus_datasets(config["path_to_data"], interpolator, rowcol_to_latlon)
-    service = ccdi.Service(meta_plus_data, name="ISIMIP AgMIP Phase3")
+    meta_plus_data = create_meta_plus_datasets(config["path_to_data"] + "/csv", interpolator, rowcol_to_latlon)
+    service = ccdi.Service(meta_plus_data, name="DWD - CMIP Cordex Reklies")
 
     registry_available = False
     connect_to_registry_retry_count = 10
@@ -111,7 +120,7 @@ async def async_main_register(path_to_data, reg_server=None, reg_port=None, id=N
     unreg = await registry.registerService(type="climate", service=service).a_wait()
     #await unreg.unregister.unregister().a_wait()
 
-    print("Registered a ISIMIP climate service.")
+    print("Registered a CMIP-Cordex-Reklies climate service.")
 
     #await unreg.unregister.unregister().a_wait()
 
@@ -136,15 +145,15 @@ def sync_main_server(path_to_data, port):
     print("config used:", config)
 
     interpolator, rowcol_to_latlon = ccdi.create_lat_lon_interpolator_from_json_coords_file(config["path_to_data"] + "/" + "latlon-to-rowcol.json")
-    meta_plus_data = create_meta_plus_datasets(config["path_to_data"], interpolator, rowcol_to_latlon)
-    service = ccdi.Service(meta_plus_data, name="ISIMIP AgMIP Phase3")
+    meta_plus_data = create_meta_plus_datasets(config["path_to_data"] + "/csv", interpolator, rowcol_to_latlon)
+    service = Service(meta_plus_data, name="DWD - CMIP Cordex Reklies")
     server = capnp.TwoPartyServer(config["server"] + ":" + config["port"], bootstrap=service)
     server.run_forever()
 
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    path_to_data = "/beegfs/common/data/climate/isimip/AgMIP.input_csvs"
+    path_to_data = "/beegfs/common/data/climate/dwd/cmip_cordex_reklies"
 
     if len(sys.argv) > 1:
         command = sys.argv[1]

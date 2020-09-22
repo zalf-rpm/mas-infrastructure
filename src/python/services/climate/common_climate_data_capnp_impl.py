@@ -27,6 +27,7 @@ from pyproj import CRS, Transformer
 from scipy.interpolate import NearestNDInterpolator
 import sys
 import time
+import uuid
 
 PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent.parent
 if str(PATH_TO_REPO) not in sys.path:
@@ -322,5 +323,43 @@ class Metadata_Info(climate_data_capnp.Climate.Metadata.Information.Server):
             value = self._entry_map[which]
             id_infos.append({"fst": e, "snd": self._entry_to_info[which](value)})
         return id_infos
+
+#------------------------------------------------------------------------------
+
+class Service(climate_data_capnp.Climate.Service.Server):
+
+    def __init__(self, meta_plus_datasets, id=None, name=None, description=None):
+        self._id = id if id else str(uuid.uuid4()) 
+        self._name = name if name else "Unnamed " + self._id 
+        self._description = description if description else ""
+        self._meta_plus_datasets = meta_plus_datasets
+
+
+    def info(self, _context, **kwargs): # () -> IdInformation;
+        r = _context.results
+        r.id = self._id
+        r.name = self._name
+        r.description = self._description
+
+
+    def getAvailableDatasets(self, **kwargs): # getAvailableDatasets @0 () -> (datasets :List(MetaPlusData));
+        "get a list of all available datasets"
+        return self._meta_plus_datasets
+
+
+    def getDatasetsFor(self, template, **kwargs): # getDatasets @1 (template :Metadata) -> (datasets :List(Dataset));
+        "get a reference to the simulation with given id"
+        search_entry_to_value = create_entry_map(template.entries)
+
+        def contains_search_entries(mds):
+            for e in mds.meta.entries:
+                which = e.which()
+                if which in search_entry_to_value and search_entry_to_value[which] != access_entries(which)(e):
+                    return False
+            return True
+
+        meta_plus_datasets = filter(contains_search_entries, self._meta_plus_datasets)
+        datasets = map(lambda mds: mds.data, meta_plus_datasets)
+        return list(datasets)
 
 #------------------------------------------------------------------------------
