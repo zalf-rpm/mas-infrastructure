@@ -2,6 +2,8 @@
 
 cd src/python
 
+#export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
+
 # start registry service
 ~/.conda/envs/py38/bin/python services/registry_service.py async port=10001 &
 
@@ -25,5 +27,20 @@ name=BUEK200 &
 
 cd ../..
 
+# start some climate services
+# start DWD climate service
+~/.conda/envs/py38/bin/python src/python/services/climate/dwd_germany_service.py async_register \
+reg_port=10001 &
 
+# start DWD Bonn climate service
+~/.conda/envs/py38/bin/python src/python/services/climate/dwd_germany_university_bonn_service.py async_register \
+reg_port=10001 &
+
+# start DWD cmip cordex reklies climate service
+~/.conda/envs/py38/bin/python src/python/services/climate/dwd_cmip_cordex_reklies_service.py async_register \
+reg_port=10001 &
+
+# start Isimip global climate service
+~/.conda/envs/py38/bin/python src/python/services/climate/isimip_service.py async_register \
+reg_port=10001 &
 
