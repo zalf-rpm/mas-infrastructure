@@ -195,6 +195,8 @@ class Dataset(climate_data_capnp.Climate.Dataset.Server):
             time_series = TimeSeries.from_csv_file(path_to_csv, 
                 metadata=self._meta, 
                 location=location, 
+                supported_headers=self._supported_headers,
+                header_map=self._header_map,
                 pandas_csv_config=self._pandas_csv_config)    
             self._time_series[(row, col)] = time_series
         return self._time_series[(row, col)]
