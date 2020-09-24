@@ -70,7 +70,7 @@ def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon):
             pandas_csv_config={"skip_rows": 0, "sep": "\t"},
             transform_map={
                 "relhumid": lambda rh: rh * 100.0,
-                "globrad": lambda gr: gr / 1000.0
+                "globrad": lambda gr: gr / 1000.0 if gr > 0 else gr
             })
     ))
     return datasets
