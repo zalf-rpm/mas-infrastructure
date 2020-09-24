@@ -81,7 +81,7 @@ class TimeSeries(climate_data_capnp.Climate.TimeSeries.Server):
         "init underlying dataframe lazily if initialized with path to csv file"
         if self._df is None and self._path_to_csv:
             # load csv file
-            if self._path_to_csv[:-2] == "gz":
+            if self._path_to_csv[-2:] == "gz":
                 with gzip.open(self._path_to_csv) as _:
                     self._df = pd.read_csv(_, 
                         skiprows=self._pandas_csv_config["skip_rows"], 
