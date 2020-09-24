@@ -45,7 +45,7 @@ import capnproto_schemas.service_registry_capnp as reg_capnp
 def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon):
     datasets = []
     for gcm in os.listdir(path_to_data_dir):
-        gcm_dir = path_to_data_dir + gcm
+        gcm_dir = path_to_data_dir + "/" + gcm
         if os.path.isdir(gcm_dir):
             for rcm in os.listdir(gcm_dir):
                 rcm_dir = gcm_dir + "/" + rcm
