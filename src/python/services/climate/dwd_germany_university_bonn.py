@@ -55,9 +55,23 @@ def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon):
     datasets.append(climate_data_capnp.Climate.MetaPlusData.new_message(
         meta=metadata, 
         data=csv_based.Dataset(metadata, path_to_data_dir, interpolator, rowcol_to_latlon, 
-            header_map={"windspeed": "wind"}, 
+            header_map={
+                "Date": "iso-date",
+                "Precipitation": "precip",
+                "TempMin": "tmin",
+                "TempMean": "tavg",
+                "TempMax": "tmax",
+                "Radiation": "globrad",
+                "Windspeed": "wind",
+                "RelHumCalc": "relhumid"
+            },
+            supported_headers=["tmin", "tavg", "tmax", "precip", "globrad", "wind", "relhumid"],
             row_col_pattern="{row}/daily_mean_RES1_C{col}R{row}.csv.gz",
-            pandas_csv_config={"skip_rows": 0, "sep": "\t"})
+            pandas_csv_config={"skip_rows": 0, "sep": "\t"},
+            transform_map={
+                "relhumid": lambda rh: rh * 100.0,
+                "globrad": lambda gr: gr / 1000.0
+            })
     ))
     return datasets
 

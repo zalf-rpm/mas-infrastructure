@@ -47,7 +47,7 @@ import capnproto_schemas.climate_data_capnp as climate_data_capnp
 class TimeSeries(climate_data_capnp.Climate.TimeSeries.Server): 
 
     def __init__(self, metadata=None, location=None, path_to_csv=None, dataframe=None, header_map=None, supported_headers=None,
-        pandas_csv_config={}):
+        pandas_csv_config={}, transform_map=None):
         "a supplied dataframe asumes the correct index is already set (when reading from csv then it will always be 1980 to 2010)"
 
         if not path_to_csv and not dataframe:
@@ -61,12 +61,14 @@ class TimeSeries(climate_data_capnp.Climate.TimeSeries.Server):
         self._supported_headers = supported_headers
         self._pandas_csv_config_defaults = {"skip_rows": [1], "index_col": 0, "sep": ","}
         self._pandas_csv_config = {**self._pandas_csv_config_defaults, **pandas_csv_config}
+        self._transform_map = transform_map
 
 
     @classmethod
-    def from_csv_file(cls, path_to_csv, metadata=None, location=None, header_map=None, supported_headers=None, pandas_csv_config=None):
+    def from_csv_file(cls, path_to_csv, metadata=None, location=None, header_map=None, supported_headers=None, pandas_csv_config=None,
+        transform_map=None):
         return TimeSeries(metadata=metadata, location=location, path_to_csv=path_to_csv, header_map=header_map, supported_headers=supported_headers,
-            pandas_csv_config=pandas_csv_config)
+            pandas_csv_config=pandas_csv_config, transform_map=transform_map)
 
 
     @classmethod
@@ -98,6 +100,10 @@ class TimeSeries(climate_data_capnp.Climate.TimeSeries.Server):
             #all_supported_headers = ["tmin", "tavg", "tmax", "precip", "globrad", "wind", "relhumid"]
             if self._supported_headers:
                 self._df = self._df.loc[:, self._supported_headers]
+
+            if self._transform_map:
+                for col_name, trans_func in self._transform_map:
+                    self._df[col_name] = self._df[col_name].map(trans_func)
 
         return self._df
 
@@ -164,7 +170,7 @@ class Dataset(climate_data_capnp.Climate.Dataset.Server):
 
     def __init__(self, metadata, path_to_rows, interpolator, rowcol_to_latlon, 
         gzipped=False, header_map=None, supported_headers=None, row_col_pattern="row-{row}/col-{col}.csv",
-        pandas_csv_config={}):
+        pandas_csv_config={}, transform_map=None):
         self._meta = metadata
         self._path_to_rows = path_to_rows
         self._interpolator = interpolator
@@ -176,6 +182,7 @@ class Dataset(climate_data_capnp.Climate.Dataset.Server):
         self._rowcol_to_latlon = rowcol_to_latlon
         self._row_col_pattern = row_col_pattern
         self._pandas_csv_config = pandas_csv_config
+        self._transform_map = transform_map
 
 
     def metadata(self, _context, **kwargs): # metadata @0 () -> Metadata;
@@ -197,7 +204,8 @@ class Dataset(climate_data_capnp.Climate.Dataset.Server):
                 location=location, 
                 supported_headers=self._supported_headers,
                 header_map=self._header_map,
-                pandas_csv_config=self._pandas_csv_config)    
+                pandas_csv_config=self._pandas_csv_config,
+                transform_map=self._transform_map) 
             self._time_series[(row, col)] = time_series
         return self._time_series[(row, col)]
 
