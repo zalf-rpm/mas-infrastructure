@@ -47,7 +47,7 @@ def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon):
     metadata = climate_data_capnp.Climate.Metadata.new_message(
         entries = [
             {"historical": None},
-            {"start": {"year": 1990, "month": 1, "day": 1},
+            {"start": {"year": 1990, "month": 1, "day": 1}},
             {"end": {"year": 2019, "month": 12, "day": 31}}
         ]
     )
@@ -55,7 +55,9 @@ def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon):
     datasets.append(climate_data_capnp.Climate.MetaPlusData.new_message(
         meta=metadata, 
         data=csv_based.Dataset(metadata, path_to_data_dir, interpolator, rowcol_to_latlon, 
-        header_map={"windspeed": "wind"}, row_col_pattern="{row}/daily_mean_RES1_C{col}R{row}.csv.gz")
+            header_map={"windspeed": "wind"}, 
+            row_col_pattern="{row}/daily_mean_RES1_C{col}R{row}.csv.gz",
+            pandas_csv_config={"skip_rows": 0, "sep": "\t"})
     ))
     return datasets
 
@@ -80,7 +82,7 @@ async def async_main_register(path_to_data, reg_server=None, reg_port=None, id=N
 
     interpolator, rowcol_to_latlon = ccdi.create_lat_lon_interpolator_from_json_coords_file(config["path_to_data"] + "/" + "latlon-to-rowcol.json")
     meta_plus_data = create_meta_plus_datasets(config["path_to_data"] + "/germany_ubn_1901-2018", interpolator, rowcol_to_latlon)
-    service = ccdi.Service(meta_plus_data, name="DWD - historical - 1901 - ...")
+    service = ccdi.Service(meta_plus_data, name="DWD/UBN - historical - 1901 - ...")
 
     registry_available = False
     connect_to_registry_retry_count = 10
@@ -102,7 +104,7 @@ async def async_main_register(path_to_data, reg_server=None, reg_port=None, id=N
     unreg = await registry.registerService(type="climate", service=service).a_wait()
     #await unreg.unregister.unregister().a_wait()
 
-    print("Registered a CMIP-Cordex-Reklies climate service.")
+    print("Registered a DWD/UBN - historical climate service.")
 
     #await unreg.unregister.unregister().a_wait()
 

@@ -46,7 +46,8 @@ import capnproto_schemas.climate_data_capnp as climate_data_capnp
 
 class TimeSeries(climate_data_capnp.Climate.TimeSeries.Server): 
 
-    def __init__(self, metadata, location, path_to_csv=None, dataframe=None, header_map=None, supported_headers=None):
+    def __init__(self, metadata=None, location=None, path_to_csv=None, dataframe=None, header_map=None, supported_headers=None,
+        pandas_csv_config={}):
         "a supplied dataframe asumes the correct index is already set (when reading from csv then it will always be 1980 to 2010)"
 
         if not path_to_csv and not dataframe:
@@ -58,16 +59,19 @@ class TimeSeries(climate_data_capnp.Climate.TimeSeries.Server):
         self._location = location
         self._header_map = header_map
         self._supported_headers = supported_headers
+        self._pandas_csv_config_defaults = {"skip_rows": [1], "index_col": 0, "sep": ","}
+        self._pandas_csv_config = {**self._pandas_csv_config_defaults, **pandas_csv_config}
 
 
     @classmethod
-    def from_csv_file(cls, metadata, location, path_to_csv, header_map, supported_headers):
-        return TimeSeries(metadata, location, path_to_csv=path_to_csv, header_map=header_map, supported_headers=supported_headers)
+    def from_csv_file(cls, path_to_csv, metadata=None, location=None, header_map=None, supported_headers=None, pandas_csv_config=None):
+        return TimeSeries(metadata=metadata, location=location, path_to_csv=path_to_csv, header_map=header_map, supported_headers=supported_headers,
+            pandas_csv_config=pandas_csv_config)
 
 
     @classmethod
-    def from_dataframe(cls, metadata, location, dataframe, header_map, supported_headers):
-        return TimeSeries(metadata, location, dataframe=dataframe, header_map=header_map, supported_headers=supported_headers)
+    def from_dataframe(cls, dataframe, metadata=None, location=None):
+        return TimeSeries(metadata=metadata, location=location, dataframe=dataframe)
 
 
     @property
@@ -77,9 +81,15 @@ class TimeSeries(climate_data_capnp.Climate.TimeSeries.Server):
             # load csv file
             if self._path_to_csv[:-2] == "gz":
                 with gzip.open(self._path_to_csv) as _:
-                    self._df = pd.read_csv(_, skiprows=[1], index_col=0)
+                    self._df = pd.read_csv(_, 
+                        skiprows=self._pandas_csv_config["skip_rows"], 
+                        index_col=self._pandas_csv_config["index_col"],
+                        sep=self._pandas_csv_config["sep"])
             else:
-                self._df = pd.read_csv(self._path_to_csv, skiprows=[1], index_col=0)
+                self._df = pd.read_csv(self._path_to_csv, 
+                    skiprows=self._pandas_csv_config["skip_rows"], 
+                    index_col=self._pandas_csv_config["index_col"],
+                    sep=self._pandas_csv_config["sep"])
             
             if self._header_map:
                 self._df.rename(columns=self._header_map, inplace=True)
@@ -119,40 +129,42 @@ class TimeSeries(climate_data_capnp.Climate.TimeSeries.Server):
 
         sub_df = self._df.loc[str(from_date):str(to_date)]
 
-        return TimeSeries.from_dataframe(self._real, self._location, sub_df, header_map=self._header_map, supported_headers=self._supported_headers)
+        return TimeSeries.from_dataframe(sub_df, metadata=self._meta, location=self._location)
 
 
     def subheader(self, elements, **kwargs): # (elements :List(Element)) -> (timeSeries :TimeSeries);
         sub_headers = [str(e) for e in elements]
         sub_df = self.dataframe.loc[:, sub_headers]
 
-        return TimeSeries.from_dataframe(self._real, self._location, sub_df, header_map=self._header_map, supported_headers=self._supported_headers)
+        return TimeSeries.from_dataframe(sub_df, metadata=self._meta, location=self._location)
 
 
     def metadata(self, _context, **kwargs): # metadata @7 () -> Metadata;
         "the metadata for this time series"
-        r = _context.results
-        r.init("entries", len(self._meta.entries))
-        for i, e in enumerate(self._meta.entries):
-            r.entries[i] = e
-        r.info = self._meta.info
+        if self._meta:
+            r = _context.results
+            r.init("entries", len(self._meta.entries))
+            for i, e in enumerate(self._meta.entries):
+                r.entries[i] = e
+            r.info = self._meta.info
 
 
     def location(self, _context, **kwargs): # location @8 () -> Location;
         "location of this time series"
         r = _context.results
-        r.id = self._location.id
-        r.heightNN = self._location.heightNN
-        r.geoCoord = self._location.geoCoord
         r.timeSeries = self
+        if self._location:
+            r.id = self._location.id
+            r.heightNN = self._location.heightNN
+            r.geoCoord = self._location.geoCoord
 
 #------------------------------------------------------------------------------
 
 class Dataset(climate_data_capnp.Climate.Dataset.Server):
 
     def __init__(self, metadata, path_to_rows, interpolator, rowcol_to_latlon, 
-    gzipped=False, header_map=None, supported_headers=None, row_col_pattern="row-{row}/col-{col}.csv"):
-        self._config = config
+        gzipped=False, header_map=None, supported_headers=None, row_col_pattern="row-{row}/col-{col}.csv",
+        pandas_csv_config={}):
         self._meta = metadata
         self._path_to_rows = path_to_rows
         self._interpolator = interpolator
@@ -163,6 +175,7 @@ class Dataset(climate_data_capnp.Climate.Dataset.Server):
         self._supported_headers = supported_headers
         self._rowcol_to_latlon = rowcol_to_latlon
         self._row_col_pattern = row_col_pattern
+        self._pandas_csv_config = pandas_csv_config
 
 
     def metadata(self, _context, **kwargs): # metadata @0 () -> Metadata;
@@ -179,7 +192,10 @@ class Dataset(climate_data_capnp.Climate.Dataset.Server):
             path_to_csv = self._path_to_rows + "/" + self._row_col_pattern.format(row=row, col=col)
             if not location:
                 location = self.location_at(row, col)
-            time_series = TimeSeries.from_csv_file(self._meta, location, path_to_csv, header_map=self._header_map, supported_headers=self._supported_headers)    
+            time_series = TimeSeries.from_csv_file(path_to_csv, 
+                metadata=self._meta, 
+                location=location, 
+                pandas_csv_config=self._pandas_csv_config)    
             self._time_series[(row, col)] = time_series
         return self._time_series[(row, col)]
 
