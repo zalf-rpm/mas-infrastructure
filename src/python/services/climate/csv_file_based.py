@@ -102,7 +102,7 @@ class TimeSeries(climate_data_capnp.Climate.TimeSeries.Server):
                 self._df = self._df.loc[:, self._supported_headers]
 
             if self._transform_map:
-                for col_name, trans_func in self._transform_map:
+                for col_name, trans_func in self._transform_map.items():
                     self._df[col_name] = self._df[col_name].map(trans_func)
 
         return self._df
