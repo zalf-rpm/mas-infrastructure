@@ -47,7 +47,7 @@ def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon):
     metadata = climate_data_capnp.Climate.Metadata.new_message(
         entries = [
             {"historical": None},
-            {"start": {"year": 1990, "month": 1, "day": 1}},
+            {"start": {"year": 1901, "month": 1, "day": 1}},
             {"end": {"year": 2019, "month": 12, "day": 31}}
         ]
     )
