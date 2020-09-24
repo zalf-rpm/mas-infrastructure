@@ -5,7 +5,7 @@ cd src/python
 #export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
 
 # start registry service
-~/.conda/envs/py38/bin/python services/registry_service.py async port=10001 &
+#~/.conda/envs/py38/bin/python services/registry_service.py async port=10001 &
 
 # start BUEK1000 soil service
 ~/.conda/envs/py38/bin/python services/soil/sqlite_soil_data_service.py async_register \
