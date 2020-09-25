@@ -32,7 +32,8 @@ if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
 import capnp
-from capnproto_schemas import common_capnp, geo_coord_capnp as geo_capnp
+import capnproto_schemas.common_capnp as common_capnp
+import capnproto_schemas.geo_coord_capnp as geo_capnp
 
 #------------------------------------------------------------------------------
 
