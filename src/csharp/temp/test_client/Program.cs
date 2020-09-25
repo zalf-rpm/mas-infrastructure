@@ -16,7 +16,7 @@ namespace test_mas_infrastructure
         {
             if (args.Length > 0 && args[0] == "client")
             {
-                //*
+                /*
                 //access climate services
                 using (TcpRpcClient regClient = new TcpRpcClient("login01.cluster.zalf.de", 10001))
                 //using (TcpRpcClient client = new TcpRpcClient("192.168.111.202", 11111))
@@ -87,41 +87,75 @@ namespace test_mas_infrastructure
                 }
                 //*/
 
-                /*
+                //*
                 //using (var csvTimeSeriesClient = new TcpRpcClient("login01.cluster.zalf.de", 11002))
                 using (var monicaClient = new TcpRpcClient("login01.cluster.zalf.de", 10002))
                 //using (var monicaClient = new TcpRpcClient("login01.cluster.zalf.de", 10003))
-                using (var csvTimeSeriesClient = new TcpRpcClient("localhost", 11002))
+                using (var regClient = new TcpRpcClient("login01.cluster.zalf.de", 10001))
+                // using (var csvTimeSeriesClient = new TcpRpcClient("localhost", 11002))
                 {
-                    await Task.WhenAll(csvTimeSeriesClient.WhenConnected, monicaClient.WhenConnected);
-                    var timeSeries = csvTimeSeriesClient.GetMain<Mas.Rpc.Climate.ITimeSeries>();
-
-                    string envJson = System.IO.File.ReadAllText(@"data\monica\env.json");
-
-                    var monica = monicaClient.GetMain<Model.IEnvInstance<Common.StructuredText, Common.StructuredText>>();
-                    //var info = await monica.Info();
-                    //Console.WriteLine("id: " + info.Id + " name: " + info.Name);
-
-                    var res = await monica.Run(
-                        new Model.Env<Common.StructuredText>()
+                    await Task.WhenAll(regClient.WhenConnected, monicaClient.WhenConnected);
+                    using var registry = regClient.GetMain<Mas.Rpc.Service.IRegistry>();
+                    var services = await registry.GetAvailableServices(
+                        new Service.Registry.Query()
                         {
-                            Rest = new Common.StructuredText()
-                            {
-                                Structure = new Common.StructuredText.structure() { which = Common.StructuredText.structure.WHICH.Json },
-                                Value = envJson
-                            },
-                            TimeSeries = Proxy.Share(timeSeries)
+                            which = Service.Registry.Query.WHICH.Type,
+                            Type = Service.ServiceType.climate
                         }
                     );
-
-                    var data = await timeSeries.Data();
-                    int x = 0;
-                    foreach(var d in data)
+                    if(services.Count() > 0)
                     {
-                        x += d.Count;
-                    }
-                    Console.WriteLine("data.Count=" + data.Count + " should be: " + data.Count*7 + " is: " + x);
-                    Console.WriteLine("\n");
+                        var entry = services[0];
+                        using var climateService = ((Mas.Rpc.Common.Identifiable_Proxy)entry.Service).Cast<Mas.Rpc.Climate.IService>(true);
+                        var serviceInfo = await climateService.Info();
+                        Console.WriteLine("Service id:" + serviceInfo.Id + " name:" + serviceInfo.Name);
+                        var datasets = await climateService.GetAvailableDatasets();
+                        if (datasets.Count() > 0)
+                        {
+                            var metaPlusData = datasets[0];
+                            using var info = metaPlusData.Meta.Info;
+                            var allMetaInfos = await info.ForAll();
+                            var metaStr = allMetaInfos.
+                                Select(x => "[" + x.Snd.Id + "|" + x.Snd.Name + "|" + x.Snd.Description + "]").
+                                Aggregate((acc, str) => acc + ", " + str);
+                            Console.WriteLine(metaStr);
+                            using var dataset = metaPlusData.Data;
+                            using var timeSeries = await dataset.ClosestTimeSeriesAt(
+                                new Geo.Coord()
+                                {
+                                    Latlon = new Geo.LatLonCoord() { Lat = 53.0, Lon = 12.5 }
+                                }
+                             );
+
+                            string envJson = System.IO.File.ReadAllText(@"data\monica\env.json");
+
+                            using var monica = monicaClient.GetMain<Model.IEnvInstance<Common.StructuredText, Common.StructuredText>>();
+                            //var minfo = await monica.Info();
+                            //Console.WriteLine("id: " + minfo.Id + " name: " + minfo.Name);
+
+                            var res = await monica.Run(
+                                new Model.Env<Common.StructuredText>()
+                                {
+                                    Rest = new Common.StructuredText()
+                                    {
+                                        Structure = new Common.StructuredText.structure() { which = Common.StructuredText.structure.WHICH.Json },
+                                        Value = envJson
+                                    },
+                                    TimeSeries = Proxy.Share(timeSeries)
+                                }
+                            );
+
+                            var data = await timeSeries.Data();
+                            int x = 0;
+                            foreach (var d in data)
+                            {
+                                x += d.Count;
+                            }
+                            Console.WriteLine("data.Count=" + data.Count + " should be: " + data.Count * 7 + " is: " + x);
+                            Console.WriteLine("\n");
+
+                        }
+                    }   
                 }
                 return;
                 //*/
