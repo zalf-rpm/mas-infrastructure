@@ -45,7 +45,7 @@ class Registry(reg_capnp.Service.Registry.Server):
         self._id = id if id else uuid.uuid4()
         self._name = name if name else self._uuid
         self._description = description if description else ""
-        self._services = {} # id -> {regToken, type, service}
+        self._services = {} # regToken -> {"entry": {regToken, type, service}, "unreg": unreg_cap}
 
 
     def info(self): # info @0 () -> IdInformation;
@@ -59,7 +59,7 @@ class Registry(reg_capnp.Service.Registry.Server):
                 all_services.append(service_entry["entry"])
         else:
             serviceType = str(context.params.type)
-            for _, service_entry in filter(lambda key, value: value["entry"]["type"] == serviceType, self._services):
+            for service_entry in filter(lambda v: v["entry"]["type"] == serviceType, self._services.values()):
                 all_services.append(service_entry["entry"])
 
         context.results.services = all_services
