@@ -1,14 +1,13 @@
 #!/usr/bin/sh
 
-#cd src/python
-
-#export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
-
 REG_PORT=$1
 if [ -z $1 ]; then REG_PORT=10001; fi
 
 # start registry service
-~/.conda/envs/py38/bin/python src/python/services/registry_service.py async port=$REG_PORT &
+#~/.conda/envs/py38/bin/python src/python/services/registry_service.py async port=$REG_PORT &
+
+#export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
+../../registration_service &
 
 # start BUEK1000 soil service
 ~/.conda/envs/py38/bin/python src/python/services/soil/sqlite_soil_data_service.py async_register \
@@ -27,8 +26,6 @@ path_to_ascii_soil_grid=data/soil/buek200_1000_gk5.asc \
 grid_crs=gk5 \
 id=buek200 \
 name=BUEK200 &
-
-#cd ../..
 
 # start some climate services
 # start DWD climate service

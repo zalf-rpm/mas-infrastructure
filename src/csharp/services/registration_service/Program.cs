@@ -15,6 +15,12 @@ namespace Mas.Infrastructure.ServiceRegistry
                 server.AddBuffering();
                 server.Main = new ServiceRegistryImpl("test-id", "test-name");
                 server.StartAccepting(IPAddress.Any, TcpPort);
+
+                while (true)
+                {
+                    System.Threading.Thread.Sleep(1000);
+                }
+
                 Console.WriteLine("Press RETURN to stop listening");
                 Console.ReadLine();
             }

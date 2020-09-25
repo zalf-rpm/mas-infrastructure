@@ -15,6 +15,9 @@
 # Landscape Systems Analysis at the ZALF.
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
+#remote debugging via commandline
+#-m ptvsd --host 0.0.0.0 --port 14000 --wait
+
 import asyncio
 import logging
 import os
