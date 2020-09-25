@@ -17,6 +17,7 @@ namespace test_mas_infrastructure
             if (args.Length > 0 && args[0] == "client")
             {
                 //*
+                //access climate services
                 using (TcpRpcClient regClient = new TcpRpcClient("login01.cluster.zalf.de", 10001))
                 //using (TcpRpcClient client = new TcpRpcClient("192.168.111.202", 11111))
                 {
@@ -32,6 +33,8 @@ namespace test_mas_infrastructure
                     foreach (var entry in services)
                     {
                         using var climateService = ((Mas.Rpc.Common.Identifiable_Proxy)entry.Service).Cast<Mas.Rpc.Climate.IService>(true);
+                        var serviceInfo = await climateService.Info();
+                        Console.WriteLine("Service id:" + serviceInfo.Id + " name:" + serviceInfo.Name);
                         var datasets = await climateService.GetAvailableDatasets();
                         foreach (var metaPlusData in datasets)
                         {
@@ -41,8 +44,6 @@ namespace test_mas_infrastructure
                                 Select(x => "[" + x.Snd.Id + "|" + x.Snd.Name + "|" + x.Snd.Description + "]").
                                 Aggregate((acc, str) => acc + ", " + str);
                             Console.WriteLine(metaStr);
-                            if (allMetaInfos.Where(x => x.Snd.Name.StartsWith("UKESM")).Count() > 0)
-                                continue;
                             using var dataset = metaPlusData.Data;
                             using var timeSeries = await dataset.ClosestTimeSeriesAt(
                                 new Geo.Coord()
@@ -65,7 +66,7 @@ namespace test_mas_infrastructure
                         }
                     }
 
-                    return;
+                    //return;
                 }
                 //*/
 
@@ -135,12 +136,18 @@ namespace test_mas_infrastructure
                     using var registry = client.GetMain<Mas.Rpc.Service.IRegistry>();
 
                     var services = await registry.GetAvailableServices(
-                        new Service.Registry.Query() { which = Service.Registry.Query.WHICH.All }
+                        new Service.Registry.Query()
+                        {
+                            which = Service.Registry.Query.WHICH.Type,
+                            Type = Service.ServiceType.soil
+                        }
                     );
 
                     foreach (var entry in services)
                     {
                         using var soilService = ((Mas.Rpc.Common.Identifiable_Proxy)entry.Service).Cast<Mas.Rpc.Soil.IService>(true);
+                        var serviceInfo = await soilService.Info();
+                        Console.WriteLine("Service id:" + serviceInfo.Id + " name:" + serviceInfo.Name);
                         var allParams = await soilService.GetAllAvailableParameters(true);
                         Console.WriteLine("soilService.getAllAvailableParameters(true) -> ");
                         Console.WriteLine("mandatory:");
