@@ -34,6 +34,7 @@ if str(PATH_TO_PYTHON_CODE) not in sys.path:
 import common.capnp_async_helpers as async_helpers
 
 import capnp
+import capnproto_schemas.common_capnp as common_capnp
 import capnproto_schemas.service_registry_capnp as reg_capnp
 
 #------------------------------------------------------------------------------
@@ -82,7 +83,7 @@ class Registry(reg_capnp.Service.Registry.Server):
 
 #------------------------------------------------------------------------------
 
-class Unregister(reg_capnp.Service.Registry.Unregister.Server):
+class Unregister(common_capnp.Common.Registry.Unregister.Server):
 
     def __init__(self, regToken, removeServiceFunc):
         self._regToken = regToken

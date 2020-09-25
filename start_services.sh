@@ -8,7 +8,7 @@ REG_PORT=$1
 if [ -z $1 ]; then REG_PORT=10001; fi
 
 # start registry service
-~/.conda/envs/py38/bin/python  src/python/services/registry_service.py async port=$REG_PORT &
+~/.conda/envs/py38/bin/python src/python/services/registry_service.py async port=$REG_PORT &
 
 # start BUEK1000 soil service
 ~/.conda/envs/py38/bin/python src/python/services/soil/sqlite_soil_data_service.py async_register \
