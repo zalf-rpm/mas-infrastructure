@@ -19,6 +19,7 @@ struct Service {
     soil @1; #Soil.Service
     climate @2; #Climate.Service
     modelInstanceFactory @3; #Model.InstanceFactory
+    modelEnvInstance @4; #Model.EnvInstance
   }
 
   interface Registry extends(Common.Identifiable) {

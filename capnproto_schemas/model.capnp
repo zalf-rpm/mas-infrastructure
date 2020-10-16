@@ -79,7 +79,7 @@ struct Model {
 
 
   interface InstanceFactory(InstanceType) extends(Common.Identifiable, Common.Registry.Private(InstanceType)) {
-    # interface to create model instances 
+    # interface to create unshared model instances 
 
     modelInfo @0 () -> Common.IdInformation;
     # return information about the model this factory creates instances of
