@@ -78,7 +78,7 @@ struct Model {
   }
 
 
-  interface InstanceFactory(InstanceType) extends(Common.Identifiable, Common.Registry.Private(InstanceType)) {
+  interface InstanceFactory(InstanceType) extends(Common.Identifiable) {
     # interface to create unshared model instances 
 
     modelInfo @0 () -> Common.IdInformation;
