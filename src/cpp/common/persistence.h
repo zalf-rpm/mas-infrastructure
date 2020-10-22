@@ -61,7 +61,6 @@ namespace Persistence {
 
 	private:
 		kj::HashMap<kj::String, kj::Own<ClientContext>> _connections;
-		kj::AsyncIoContext* _ioContext{ nullptr };
 	};
 
 

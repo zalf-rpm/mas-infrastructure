@@ -1,7 +1,7 @@
 @0xd3f8859c7688b76b;
 
 using Cxx = import "/capnp/c++.capnp";
-$Cxx.namespace("mas::rpc");
+$Cxx.namespace("mas::rpc::service");
 
 #using Go = import "lang/go.capnp";
 #$Go.package("dataServices");
@@ -12,30 +12,29 @@ using Soil = import "soil_data.capnp".Soil;
 using Climate = import "climate_data.capnp".Climate;
 using Model = import "model.capnp".Model;
 
-struct Service {
 
-  enum ServiceType {
+enum ServiceType {
     unknown @0 ; # an unknown service
     soil @1; #Soil.Service
     climate @2; #Climate.Service
     modelInstanceFactory @3; #Model.InstanceFactory
     modelEnvInstance @4; #Model.EnvInstance
-  }
+}
 
-  interface Registry extends(Common.Identifiable) {
-    # the bootstrap interface to the different services
+interface Registry extends(Common.Identifiable) {
+# the bootstrap interface to the different services
     
     struct Entry {
-      regToken @0 :Text;
-      type @1 :ServiceType;
-      service @2 :Common.Identifiable; # a service should at least be identifiable
+        regToken @0 :Text;
+        type @1 :ServiceType;
+        service @2 :Common.Identifiable; # a service should at least be identifiable
     }
 
     struct Query {
-      union {
+        union {
         all @0 :Void;
         type @1 :ServiceType;
-      }
+        }
     }
 
     getAvailableServices @0 Query -> (services :List(Entry));
@@ -44,9 +43,7 @@ struct Service {
     getService @1 [Service] (regToken :Text) -> (services :Service);
     # get service registered under given registration token
 
-    registerService @2 (type :ServiceType, service :Common.Identifiable) -> (regToken :Text, unreg :Common.Registry.Unregister);
+    registerService @2 (type :ServiceType, service :Common.Identifiable) -> (regToken :Text, unreg :Common.Callback);
     # register a service with a certain type 
     # returns the registration token to get the service again and an unregister capability
-  }
-
 }

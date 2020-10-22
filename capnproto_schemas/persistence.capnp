@@ -1,4 +1,4 @@
-@0x99f1c9a775a88ac9;
+@0x855efed3475f6b26;
 
 using Persistent = import "/capnp/persistent.capnp";
 

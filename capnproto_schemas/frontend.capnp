@@ -1,23 +1,20 @@
-@0x8405c4b8907e57b8;
+@0xad51a0298da64a5f;
 
 using Persistent = import "/capnp/persistent.capnp";
 
 using Cxx = import "/capnp/c++.capnp";
-$Cxx.namespace("mas::rpc");
+$Cxx.namespace("mas::rpc::frontend");
 
 using Go = import "lang/go.capnp";
 $Go.package("common");
 $Go.import("common");
 
 using Common = import "common.capnp".Common;
+using SturdyRef = import "persistence.capnp".SturdyRef;
 
-interface Frontend {
+interface Admin {
+    # admin functionality of the frontend
 
-    interface Admin {
-        # admin functionality of the frontend
-
-        addPublicKey @0 (srOwner :Common.SturdyRef.Owner, publicKey :Data);
-    }
-
+    addPublicKey @0 (srOwner :SturdyRef.Owner, publicKey :Data);
 }
 

@@ -7,13 +7,16 @@ namespace Mas.Infrastructure.ServiceRegistry
     class Program
     {
         public static int TcpPort = 10001;
+        private static ServiceRegistry.RegistratorImpl Registrator;
 
         static void Main(string[] args)
         {
             using (var server = new TcpRpcServer())
             {
                 server.AddBuffering();
-                server.Main = new ServiceRegistryImpl("test-id", "test-name");
+                var bootstrap = new ServiceRegistry("test-id", "test-name");
+                server.Main = bootstrap;
+                Registrator = new ServiceRegistry.RegistratorImpl(bootstrap);
                 server.StartAccepting(IPAddress.Any, TcpPort);
 
                 while (true)
