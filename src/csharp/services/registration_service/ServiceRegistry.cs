@@ -9,69 +9,21 @@ using System.Threading;
 using System.Collections.Concurrent;
 using Mas.Rpc.Registry;
 using Mas.Rpc.Persistence;
+using System.Diagnostics.CodeAnalysis;
+using System.Net;
+using System.Net.Sockets;
+using Capnp;
 
 namespace Mas.Infrastructure.ServiceRegistry
 {
-    class PersistableProxy : Proxy
-    {
-        private BareProxy _bareProxy;
-        /// <summary>
-        /// Wraps a capability implementation in a Proxy.
-        /// </summary>
-        /// <param name="impl">Capability implementation</param>
-        /// <returns>Proxy</returns>
-        /// <exception cref="System.ArgumentNullException"><paramref name="impl"/> is null.</exception>
-        /// <exception cref="InvalidCapabilityInterfaceException">No <see cref="SkeletonAttribute"/> found on implemented interface(s).</exception>
-        /// <exception cref="System.InvalidOperationException">Mismatch between generic type arguments (if capability interface is generic).</exception>
-        /// <exception cref="System.ArgumentException">Mismatch between generic type arguments (if capability interface is generic).</exception>
-        /// <exception cref="System.Reflection.TargetInvocationException">Problem with instatiating the Skeleton (constructor threw exception).</exception>
-        /// <exception cref="System.MemberAccessException">Caller does not have permission to invoke the Skeleton constructor.</exception>
-        /// <exception cref="System.TypeLoadException">Problem with building the Skeleton type, or problem with loading some dependent class.</exception>
-        public static PersistableProxy FromBareProxy(BareProxy bp)
-        {
-            return new PersistableProxy(bp);
-        }
-
-        /// <summary>
-        /// Constructs an unbound instance.
-        /// </summary>
-        public PersistableProxy()
-        {
-        }
-
-        /// <summary>
-        /// Constructs an instance and binds it to the given low-level capability.
-        /// </summary>
-        /// <param name="cap">low-level capability</param>
-        public PersistableProxy(BareProxy bp)
-        {
-            _bareProxy = bp;
-        }
-
-        /// <summary>
-        /// Requests a method call.
-        /// </summary>
-        /// <param name="interfaceId">Target interface ID</param>
-        /// <param name="methodId">Target method ID</param>
-        /// <param name="args">Method arguments</param>
-        /// <returns>Answer promise</returns>
-        public IPromisedAnswer Call(ulong interfaceId, ushort methodId, Capnp.DynamicSerializerState args)
-        {
-            if(interfaceId == 14468694717054801553UL) //Capnp.Persistent_Skeleton<string, string>.)
-            {
-                Console.WriteLine("bla");
-            }
-            return base.Call(interfaceId, methodId, args, default);
-        }
-    }
-
 
     class ServiceRegistry : Mas.Rpc.Registry.IRegistry, Mas.Rpc.Persistence.IRestorer<string>
     {
         private string _id, _name, _description;
         private ConcurrentBag<Common.IdInformation> _supportedCategories;
         private ConcurrentDictionary<string, Tuple<string, Registry.Entry, Unregister>> _srToken2Entry;
-        private ConcurrentDictionary<string, BareProxy> _srToken2Proxy;
+        private ConcurrentDictionary<string, Proxy> _srToken2Proxy;
+        private IInterceptionPolicy _savePolicy;
 
         public ServiceRegistry(string id = "", string name = "", string description = "")
         {
@@ -81,11 +33,32 @@ namespace Mas.Infrastructure.ServiceRegistry
             _supportedCategories = new ConcurrentBag<Common.IdInformation>();
             _supportedCategories.Add(new Common.IdInformation() { Id = "abc" });
             _srToken2Entry = new ConcurrentDictionary<string, Tuple<string, Registry.Entry, Unregister>>();
-            _srToken2Proxy = new ConcurrentDictionary<string, BareProxy>();
-            _srToken2Proxy["registratorABCD"] = BareProxy.FromImpl(this);
-
+            _srToken2Proxy = new ConcurrentDictionary<string, Proxy>();
+            _savePolicy = new InterceptPersistentPolicy(new PersistentImpl(this));
+            //_srToken2Proxy["registratorABCD"] = _savePolicy.Attach(BareProxy.FromImpl(new RegistratorImpl(this)));
             //IEquatable
             //IInterceptionPolicy
+        }
+
+        public static string GetLocalIPAddress()
+        {
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    return ip.ToString();
+                }
+            }
+            throw new System.Exception("No network adapters with an IPv4 address in the system!");
+        }
+
+        public string saveCapability(Proxy proxy)
+        {
+            var srToken = "abcd";// System.Guid.NewGuid().ToString();
+            _srToken2Proxy[srToken] = proxy;
+            var ip = "localhost";// GetLocalIPAddress();
+            return $"capnp://insecure@{ip}:{Program.TcpPort}/{srToken}";
         }
 
         #region implementation of Mas.Rpc.Common.IIdentifiable
@@ -107,11 +80,14 @@ namespace Mas.Infrastructure.ServiceRegistry
             var entries = new List<Registry.Entry>();
             if (categoryId != null)
                 entries.AddRange(from p in _srToken2Entry
-                                 where p.Value.Item1 == categoryId
+                                 where p.Key == categoryId
                                  select p.Value.Item2);
             else
                 entries.AddRange(from p in _srToken2Entry select p.Value.Item2);
-            return Task.FromResult<IReadOnlyList<Registry.Entry>>(entries);
+            var e = new Registry.Entry() { CategoryId = "xyz", Ref = Proxy.Share(entries[0].Ref) };
+            var es = new List<Registry.Entry>() { e };
+            return Task.FromResult<IReadOnlyList<Registry.Entry>>(es);
+            //return Task.FromResult<IReadOnlyList<Registry.Entry>>(entries);
         }
 
         public Task<IReadOnlyList<Common.IdInformation>> SupportedCategories(CancellationToken cancellationToken_ = default)
@@ -123,7 +99,7 @@ namespace Mas.Infrastructure.ServiceRegistry
         #region implementation of Mas.Rpc.Persistence.IRestorer<string> 
         public Task Drop(string srToken, SturdyRef.Owner owner, CancellationToken cancellationToken_ = default)
         {
-            BareProxy bp;
+            Proxy bp;
             _srToken2Proxy.Remove(srToken, out bp);
             return Task.CompletedTask;
         }
@@ -131,7 +107,17 @@ namespace Mas.Infrastructure.ServiceRegistry
         public Task<BareProxy> Restore(string srToken, SturdyRef.Owner owner, CancellationToken cancellationToken_ = default)
         {
             if (_srToken2Proxy.ContainsKey(srToken))
-                return Task.FromResult(Proxy.Share(_srToken2Proxy[srToken]));
+            {
+                var proxy = _srToken2Proxy[srToken];
+                if (proxy is BareProxy bareProxy)
+                    return Task.FromResult(bareProxy);
+                else
+                {
+                    var sharedProxy = Proxy.Share(proxy);
+                    var bareProxy2 = new BareProxy(sharedProxy.ConsumedCap);
+                    return Task.FromResult(bareProxy2);// Proxy.Share(_srToken2Proxy[srToken]));
+                }
+            }
             return Task.FromResult<BareProxy>(null);
         }
         #endregion
@@ -174,8 +160,11 @@ namespace Mas.Infrastructure.ServiceRegistry
                     if (_registry._supportedCategories.Where(cat => cat.Id == categoryId).Count() > 0)
                     {
                         var uuid = System.Guid.NewGuid().ToString();
+                        var persistentRef = _registry._savePolicy.Attach(Proxy.Share(@ref));
                         var unreg = new Unregister(uuid, () => _registry._srToken2Entry.TryRemove(uuid, out Tuple<string, Registry.Entry, Unregister> removedValue));
-                        _registry._srToken2Entry[categoryId] = Tuple.Create(uuid, new Registry.Entry() { CategoryId = categoryId, Ref = Proxy.Share(@ref) }, unreg);
+                        _registry._srToken2Entry[categoryId] = Tuple.Create(uuid, new Registry.Entry() { 
+                                CategoryId = categoryId, Ref = persistentRef//Proxy.Share(@ref) 
+                            }, unreg);
                         return Task.FromResult<Common.ICallback>(unreg);
                     }
                 }
@@ -186,6 +175,65 @@ namespace Mas.Infrastructure.ServiceRegistry
             public void Dispose()
             {
                 Console.WriteLine("RegistratorImpl.Dispose");
+            }
+        }
+
+        class InterceptPersistentPolicy : IInterceptionPolicy
+        {
+            private ulong PersistentInterfaceId;
+            private BareProxy _Persistent;
+
+            public InterceptPersistentPolicy(PersistentImpl persistent)
+            {
+                _Persistent = BareProxy.FromImpl(persistent);
+                var typeId = (Capnp.TypeIdAttribute)Attribute.GetCustomAttribute(typeof(Capnp.IPersistent<string, string>), typeof(Capnp.TypeIdAttribute));
+                PersistentInterfaceId = typeId.Id;
+            }
+
+            public bool Equals([AllowNull] IInterceptionPolicy other)
+            {
+                return this.Equals(other);
+            }
+
+            public void OnCallFromAlice(CallContext callContext)
+            {
+                // is a Persistent interface
+                if (callContext.InterfaceId == PersistentInterfaceId)
+                {
+                    callContext.Bob = _Persistent;
+                    Console.WriteLine("forwarding Persistent.save to _Persistent BareProxy");
+                }
+                callContext.ForwardToBob();
+            }
+
+            public void OnReturnFromBob(CallContext callContext)
+            {
+                //if (callContext.InterfaceId == PersistentInterfaceId)
+                //    Console.WriteLine("OnReturnFromBob");
+                callContext.ReturnToAlice();
+            }
+        }
+
+        class PersistentImpl : Capnp.IPersistent<string, string>
+        {
+            private ServiceRegistry _Registry;
+
+            public PersistentImpl(ServiceRegistry registry) 
+            {
+                _Registry = registry;
+            }
+
+            #region implementation of Capnp.IPersistent<string, string>        
+            public Task<Persistent<string, string>.SaveResults> Save(Persistent<string, string>.SaveParams arg_, CancellationToken cancellationToken_ = default)
+            {
+                var sturdyRef = "qwertz";// _Registry.saveCapability((Proxy)this);
+                return Task.FromResult(new Persistent<string, string>.SaveResults() { SturdyRef = sturdyRef });
+            }
+            #endregion
+
+            public void Dispose() 
+            {
+                Console.WriteLine("PersistentImpl.Dispose");
             }
         }
     }

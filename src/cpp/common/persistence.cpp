@@ -85,15 +85,15 @@ kj::Promise<capnp::Capability::Client> ConnectionManager::connect(kj::AsyncIoCon
 		if (!addressPort.empty()) {
 
 			KJ_IF_MAYBE(clientContext, _connections.find(addressPort)) {
-				Capability::Client c = clientContext->get()->bootstrap;
+				Capability::Client bootstrapCap = (*clientContext)->bootstrap;
 
 				if (!srToken.empty()) {
-					auto restorerClient = c.castAs<Restorer<capnp::Text>>();
+					auto restorerClient = bootstrapCap.castAs<Restorer<capnp::Text>>();
 					auto req = restorerClient.restoreRequest();
           req.setSrToken(srToken);
           return req.send().then([](auto&& res) { return res.getCap(); });
-				}
-				return c;
+				} 
+				return bootstrapCap;
 			} else {
 				return ioc.provider->getNetwork().parseAddress(addressPort).then(
 					[](kj::Own<kj::NetworkAddress>&& addr) {
@@ -103,9 +103,8 @@ kj::Promise<capnp::Capability::Client> ConnectionManager::connect(kj::AsyncIoCon
 					[readerOpts, this, addressPort, srToken](kj::Own<kj::AsyncIoStream>&& stream) {
 						auto cc = kj::heap<ClientContext>(kj::mv(stream), readerOpts);
 						Capability::Client bootstrapCap = cc->getMain();
-						cc.get()->bootstrap = bootstrapCap;
+						cc->bootstrap = bootstrapCap;
 						_connections.insert(kj::str(addressPort), kj::mv(cc));
-						//return booststrapCap;
 
 						if (!srToken.empty()) {
 							auto restorerCap = bootstrapCap.castAs<Restorer<capnp::Text>>();

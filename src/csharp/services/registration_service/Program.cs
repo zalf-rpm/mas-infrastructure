@@ -1,5 +1,6 @@
 ﻿using System;
 using Capnp.Rpc;
+using Capnp.Rpc.Interception;
 using System.Net;
 
 namespace Mas.Infrastructure.ServiceRegistry
@@ -7,7 +8,6 @@ namespace Mas.Infrastructure.ServiceRegistry
     class Program
     {
         public static int TcpPort = 10001;
-        private static ServiceRegistry.RegistratorImpl Registrator;
 
         static void Main(string[] args)
         {
@@ -16,7 +16,9 @@ namespace Mas.Infrastructure.ServiceRegistry
                 server.AddBuffering();
                 var bootstrap = new ServiceRegistry("test-id", "test-name");
                 server.Main = bootstrap;
-                Registrator = new ServiceRegistry.RegistratorImpl(bootstrap);
+                var registrator = new ServiceRegistry.RegistratorImpl(bootstrap);
+                var sturdyRef = bootstrap.saveCapability(BareProxy.FromImpl(registrator));
+                Console.WriteLine($"SturdyRef to Registrator: [{sturdyRef}]");
                 server.StartAccepting(IPAddress.Any, TcpPort);
 
                 while (true)
