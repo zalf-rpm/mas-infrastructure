@@ -17,7 +17,7 @@ namespace Mas.Infrastructure.ServiceRegistry
                 var bootstrap = new ServiceRegistry("test-id", "test-name");
                 server.Main = bootstrap;
                 var registrator = new ServiceRegistry.RegistratorImpl(bootstrap);
-                var sturdyRef = bootstrap.saveCapability(BareProxy.FromImpl(registrator));
+                var sturdyRef = bootstrap.saveCapability(BareProxy.FromImpl(registrator), "abcd");
                 Console.WriteLine($"SturdyRef to Registrator: [{sturdyRef}]");
                 server.StartAccepting(IPAddress.Any, TcpPort);
 
