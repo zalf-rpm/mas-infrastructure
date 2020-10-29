@@ -22,6 +22,7 @@ struct Climate {
     mpiEsm12Hr @7;# $Cxx.name("MPI-ESM1-2-HR");
     mriEsm20 @8;# $Cxx.name("MRI-ESM2-0");
     ukesm10Ll @9;# $Cxx.name("UKESM1-0-LL");
+    gswp3W5E5 @10; # Global Soil Wetness Project Phase 3
   }
 
   enum RCM {

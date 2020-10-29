@@ -28,12 +28,48 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-import common.python.capnp_async_helpers as async_helpers
+#import common.python.capnp_async_helpers as async_helpers
 
 import capnp
 import capnproto_schemas.soil_data_capnp as soil_data_capnp
+import capnproto_schemas.registry_capnp as registry_capnp
+import capnproto_schemas.persistence_capnp as persistence_capnp
+
 
 #------------------------------------------------------------------------------
+
+bootstrap_caps = {}
+
+def connect(sturdy_ref, cast_as = None):
+
+    try:
+        if sturdy_ref[:8] == "capnp://":
+            rest = sturdy_ref[8:]
+            hash_digest, rest = sturdy_ref.split("@")
+            host, rest = rest.split(":")
+            port_sr_token = rest.split("/")
+            port = port_sr_token[0]
+            sr_token = port_sr_token[1] if len(port_sr_token) > 1 else ""
+
+            host_port = "{}:{}".format(host, port)
+            if host_port in bootstrap_caps:
+                bootstrap_cap = bootstrap_caps[host_port]
+            else:
+                bootstrap_cap = capnp.TwoPartyClient(host_port).bootstrap()
+                bootstrap_caps[host_port] = bootstrap_cap
+
+            if len(sr_token) == 0:
+                return bootstrap_cap.cast_as(cast_as) if cast_as else bootstrap_cap
+            else:
+                restorer = bootstrap_cap.cast_as(persistence_capnp.Restorer)
+                dyn_obj_reader = restorer.restore(sr_token).wait().cap
+                return dyn_obj_reader.as_interface(cast_as) if cast_as else dyn_obj_reader
+
+    except Exception as e:
+        print(e)
+        return None
+
+    
 
 def main():
     config = {
@@ -58,6 +94,14 @@ def main():
     #    params = soil_service.getAllAvailableParameters().wait().params
 
     #    print(soil_service)
+
+    #registry = capnp.TwoPartyClient("localhost:10001").bootstrap().cast_as(registry_capnp.Registry)
+    #print(registry.info().wait())
+
+    admin = connect("capnp://insecure@nb-berg-9550:10001/cb276992-ff97-4f99-b755-7858f780e771", registry_capnp.Admin)
+    success = admin.addCategory({"id": "models", "name": "models"}).wait().success
+
+
 
     soil_service = capnp.TwoPartyClient(config["server"] + ":" + config["port"]).bootstrap().cast_as(soil_data_capnp.Soil.Service)
     props = soil_service.getAllAvailableParameters().wait()

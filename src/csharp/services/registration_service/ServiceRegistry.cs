@@ -21,8 +21,8 @@ namespace Mas.Infrastructure.ServiceRegistry
     {
         private string _id, _name, _description;
         private ConcurrentBag<Common.IdInformation> _supportedCategories;
-        private ConcurrentDictionary<string, Tuple<string, Registry.Entry, Unregister>> _srToken2Entry;
-        private ConcurrentDictionary<string, Proxy> _srToken2Proxy;
+        private ConcurrentDictionary<string, Tuple<string, Registry.Entry, Unregister>> _OId2Entry;
+        private ConcurrentDictionary<string, Proxy> _SrToken2Capability;
         private IInterceptionPolicy _savePolicy;
 
         public ServiceRegistry(string id = "", string name = "", string description = "")
@@ -32,8 +32,8 @@ namespace Mas.Infrastructure.ServiceRegistry
             _description = description;
             _supportedCategories = new ConcurrentBag<Common.IdInformation>();
             _supportedCategories.Add(new Common.IdInformation() { Id = "abc" });
-            _srToken2Entry = new ConcurrentDictionary<string, Tuple<string, Registry.Entry, Unregister>>();
-            _srToken2Proxy = new ConcurrentDictionary<string, Proxy>();
+            _OId2Entry = new ConcurrentDictionary<string, Tuple<string, Registry.Entry, Unregister>>();
+            _SrToken2Capability = new ConcurrentDictionary<string, Proxy>();
             _savePolicy = new InterceptPersistentPolicy(this);
         }
 
@@ -53,15 +53,15 @@ namespace Mas.Infrastructure.ServiceRegistry
         public string saveCapability(Proxy proxy, string fixedSrToken = null)
         {
             var srToken = fixedSrToken ?? System.Guid.NewGuid().ToString();
-            _srToken2Proxy[srToken] = proxy;
-            var ip = "localhost";// GetLocalIPAddress();
+            _SrToken2Capability[srToken] = proxy;
+            var ip = Dns.GetHostName(); // "localhost";// GetLocalIPAddress();
             return $"capnp://insecure@{ip}:{Program.TcpPort}/{srToken}";
         }
 
         #region implementation of Mas.Rpc.Common.IIdentifiable
         public Task<Common.IdInformation> Info(CancellationToken cancellationToken_ = default)
         {
-            return Task.FromResult<Common.IdInformation>(new Common.IdInformation()
+            return Task.FromResult(new Common.IdInformation()
             { Id = _id, Name = _name, Description = _description });
         }
         #endregion
@@ -76,15 +76,15 @@ namespace Mas.Infrastructure.ServiceRegistry
         {
             var entries = new List<Registry.Entry>();
             if (categoryId != null)
-                entries.AddRange((from p in _srToken2Entry
-                                  where p.Key == categoryId
+                entries.AddRange((from p in _OId2Entry
+                                  where p.Value.Item2.CategoryId == categoryId
                                   select p.Value.Item2).
                                   Select(e => new Registry.Entry(){
                                       CategoryId = e.CategoryId,
                                       Ref = Proxy.Share(e.Ref)
                                  }));
             else
-                entries.AddRange((from p in _srToken2Entry select p.Value.Item2).
+                entries.AddRange((from p in _OId2Entry select p.Value.Item2).
                     Select(e => new Registry.Entry()
                     {
                         CategoryId = e.CategoryId,
@@ -103,15 +103,15 @@ namespace Mas.Infrastructure.ServiceRegistry
         public Task Drop(string srToken, SturdyRef.Owner owner, CancellationToken cancellationToken_ = default)
         {
             Proxy bp;
-            _srToken2Proxy.Remove(srToken, out bp);
+            _SrToken2Capability.Remove(srToken, out bp);
             return Task.CompletedTask;
         }
 
         public Task<BareProxy> Restore(string srToken, SturdyRef.Owner owner, CancellationToken cancellationToken_ = default)
         {
-            if (_srToken2Proxy.ContainsKey(srToken))
+            if (_SrToken2Capability.ContainsKey(srToken))
             {
-                var proxy = _srToken2Proxy[srToken];
+                var proxy = _SrToken2Capability[srToken];
                 if (proxy is BareProxy bareProxy)
                     return Task.FromResult(Proxy.Share(bareProxy));
                 else
@@ -129,48 +129,150 @@ namespace Mas.Infrastructure.ServiceRegistry
         public void Dispose()
         {
             // dispose registered caps
-            foreach (var sr2e in _srToken2Entry)
+            foreach (var oid2e in _OId2Entry)
             {
-                sr2e.Value.Item2.Ref?.Dispose(); // registered services
-                //sr2e.Value.Item3.Dispose();
+                oid2e.Value.Item2.Ref?.Dispose(); // registered services
+                oid2e.Value.Item3.Dispose();
             }
 
             // dispose sturdy ref caps
-            foreach (var sr2p in _srToken2Proxy)
+            foreach (var sr2p in _SrToken2Capability)
                 sr2p.Value?.Dispose();
 
             Console.WriteLine("Dispose");
         }
 
+        public class AdminImpl : Mas.Rpc.Registry.IAdmin
+        {
+            private ServiceRegistry _Registry;
+
+            public AdminImpl(ServiceRegistry registry)
+            {
+                _Registry = registry;
+            }
+
+            public Task<bool> AddCategory(Common.IdInformation category, bool upsert, CancellationToken cancellationToken_ = default)
+            {
+                if (_Registry._supportedCategories.Where(info => category.Id == info.Id).Count() == 0 || upsert)
+                {
+                    _Registry._supportedCategories.Add(category);
+                    return Task.FromResult(true);
+                }
+                return Task.FromResult(false);
+            }
+
+            public void Dispose() {}
+
+            public Task<IReadOnlyList<string>> MoveObjects(IReadOnlyList<string> objectIds, string toCatId, CancellationToken cancellationToken_ = default)
+            {
+                // if there is no category to move to, do rather nothing
+                // another option would be to remove the objects, but this is what removeObjects is for
+                if (toCatId == null)
+                    return Task.FromResult<IReadOnlyList<string>>(new List<string>());
+
+                var moved = new List<string>();
+                foreach(var oid in objectIds)
+                {
+                    try
+                    {
+                        _Registry._OId2Entry[oid].Item2.CategoryId = toCatId;
+                        moved.Add(oid);
+                    }
+                    catch (KeyNotFoundException){}
+                }
+                return Task.FromResult<IReadOnlyList<string>>(moved);
+            }
+
+            public Task<IRegistry> Registry(CancellationToken cancellationToken_ = default)
+            {
+                return Task.FromResult<IRegistry>(_Registry);
+            }
+
+            public Task<IReadOnlyList<Common.IIdentifiable>> RemoveCategory(string categoryId, string moveObjectsToCategoryId, CancellationToken cancellationToken_ = default)
+            {
+                var removed = new List<Common.IIdentifiable>();
+                // no category means nothing to remove
+                if (categoryId == null)
+                    return Task.FromResult<IReadOnlyList<Common.IIdentifiable>>(removed);
+
+                var removedIds = new List<string>();
+                foreach(var oid2entry in from p in _Registry._OId2Entry 
+                                     where p.Value.Item2.CategoryId == categoryId 
+                                     select p)
+                {
+                    if (moveObjectsToCategoryId == null)
+                    {
+                        removed.Add(Proxy.Share(oid2entry.Value.Item2.Ref));
+                        removedIds.Add(oid2entry.Key);
+                    }
+                    else
+                        oid2entry.Value.Item2.CategoryId = moveObjectsToCategoryId;
+                }
+
+                foreach (var oid in removedIds)
+                    _Registry._OId2Entry.Remove(oid, out Tuple<string, Registry.Entry, Unregister> removedValue);
+
+                return Task.FromResult<IReadOnlyList<Common.IIdentifiable>>(removed);
+            }
+
+            public async Task<IReadOnlyList<Common.IIdentifiable>> RemoveObjects(IReadOnlyList<string> objectIds, CancellationToken cancellationToken_ = default)
+            {
+                var removed = new List<Common.IIdentifiable>();
+                foreach (var oid in objectIds)
+                {
+                    try
+                    {
+                        var entry = _Registry._OId2Entry[oid];
+                        var obj = entry.Item2.Ref;
+                        await _Registry._OId2Entry[oid].Item3.Call(cancellationToken_);
+                        if (!_Registry._OId2Entry.ContainsKey(oid))
+                            removed.Add(Proxy.Share(entry.Item2.Ref));
+                    }
+                    catch (KeyNotFoundException) { }
+                }
+                return removed;
+            }
+        }
 
         public class RegistratorImpl : Mas.Rpc.Registry.IRegistrator
         {
-            private ServiceRegistry _registry;
+            private ServiceRegistry _Registry;
 
             public RegistratorImpl(ServiceRegistry reg)
             {
-                _registry = reg;
+                _Registry = reg;
             }
 
             #region implemenation of Mas.Rpc.Registry.IRegistrator
-            public Task<Common.ICallback> Register(Common.IIdentifiable @ref, string categoryId, CancellationToken cancellationToken_ = default)
+            public async Task<Common.ICallback> Register(Common.IIdentifiable @ref, string categoryId, CancellationToken cancellationToken_ = default)
             {
                 if (categoryId == null)
-                    return Task.FromResult<Common.ICallback>(null);
+                    return null;
 
-                if (_registry._supportedCategories.Where(cat => cat.Id == categoryId).Count() > 0)
+                if (_Registry._supportedCategories.Where(cat => cat.Id == categoryId).Count() > 0)
                 {
-                    var uuid = System.Guid.NewGuid().ToString();
-                    var persistentRef = _registry._savePolicy.Attach(@ref);
-                    var unreg = new Unregister(uuid, () => _registry._srToken2Entry.TryRemove(uuid, out Tuple<string, Registry.Entry, Unregister> removedValue));
-                    _registry._srToken2Entry[categoryId] = Tuple.Create(uuid, new Registry.Entry()
+                    try
                     {
-                        CategoryId = categoryId,
-                        Ref = persistentRef
-                    }, unreg);
-                    return Task.FromResult<Common.ICallback>(unreg);
+                        // get id of reference and at the same time test it, before we store it
+                        var oid = (await @ref.Info()).Id;
+                        var persistentRef = _Registry._savePolicy.Attach(@ref);
+                        var unreg = new Unregister(oid, () => {
+                            if (_Registry._OId2Entry.TryRemove(oid, out var removedValue))
+                                _Registry._SrToken2Capability.TryRemove(removedValue.Item1, out _);
+                        });
+                        _Registry._OId2Entry[oid] = Tuple.Create("", new Registry.Entry()
+                        {
+                            CategoryId = categoryId,
+                            Ref = persistentRef
+                        }, unreg);
+                        return unreg;
+                    }
+                    catch(Capnp.Rpc.RpcException e)
+                    {
+                        //Console.Error.WriteLine(e.Message);
+                    }
                 }
-                return Task.FromResult<Common.ICallback>(null);
+                return null;
             }
             #endregion
 
@@ -224,22 +326,21 @@ namespace Mas.Infrastructure.ServiceRegistry
 
     class Unregister : Common.ICallback
     {
-        private string _srToken;
-        private Action _removeService;
+        private string _OId;
+        private Action _RemoveService;
         private bool _alreadyUnregistered = false;
 
-        public Unregister(string srToken, Action removeService)
+        public Unregister(string oid, Action removeService)
         {
-            _srToken = srToken;
-            _removeService = removeService;
+            _OId = oid;
+            _RemoveService = removeService;
         }
               
         #region implementation of Common.ICallback
         public Task Call(CancellationToken cancellationToken_ = default)
         {
-            _removeService();
+            _RemoveService();
             _alreadyUnregistered = true;
-            Console.WriteLine("Removing service in Unregister for srToken: " + _srToken);
             return Task.CompletedTask;
         }
         #endregion
@@ -247,10 +348,7 @@ namespace Mas.Infrastructure.ServiceRegistry
         public void Dispose()
         {
             if (!_alreadyUnregistered)
-            {
-                _removeService();
-                Console.WriteLine("Removing service in Dispose for srToken: " + _srToken);
-            }
+                _RemoveService();
         }
     }
 }

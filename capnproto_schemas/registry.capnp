@@ -15,18 +15,18 @@ using Common = import "common.capnp".Common;
 interface Admin {
   # administrative interface to a registry
 
-  addCategory @0 Common.IdInformation -> (success :Bool);
+  addCategory @0 (category :Common.IdInformation, upsert :Bool = false) -> (success :Bool);
   # add a category to the registry
 
-  removeCategory @1 (categoryId :Text, moveEntriesToCategoryId :Text) -> (entriesMoved :List(Common.Identifiable));
-  # remove a category and move registered entries from category into other category
-  # if moveEntriesToCategoryId is NULL, remove entries from registry -> entriesMoved contains the removed refs
+  removeCategory @1 (categoryId :Text, moveObjectsToCategoryId :Text) -> (removedObjects :List(Common.Identifiable));
+  # remove a category and move registered objects from category into other category
+  # if moveObjectsToCategoryId is NULL, remove objects from registry -> removedObjects contains the list of removed refs
 
-  moveObjects @2 (entries :List(Common.Identifiable), fromCatId :Text, toCatId :Text) -> (movedEntries :List(Common.Identifiable));
+  moveObjects @2 (objectIds :List(Text), toCatId :Text) -> (movedObjectIds :List(Text));
   # move objects from one category into another category
 
-  removeEntries @3 (entries :List(Common.Identifiable)) -> (removedEntries :List(Common.Identifiable));
-  # remove entries from registry and return the actually removed ones (in case some haven't been there)
+  removeObjects @3 (objectIds :List(Text)) -> (removedObjects :List(Common.Identifiable));
+  # remove objects from registry and return the actually removed ones (in case some haven't been there)
 
   registry @4 () -> (registry :Registry);
   # return the registry administered by this interface

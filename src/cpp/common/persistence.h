@@ -55,6 +55,28 @@ namespace Persistence {
 		}
 	};
 
+	/*
+	struct ErrorHandler : public kj::TaskSet::ErrorHandler {
+		void taskFailed(kj::Exception&& exception) override {
+			kj::throwFatalException(kj::mv(exception));
+		}
+	};
+
+	struct ServerContext {
+		kj::Own<kj::AsyncIoStream> stream;
+		capnp::TwoPartyVatNetwork network;
+		capnp::RpcSystem<capnp::rpc::twoparty::VatId> rpcSystem;
+
+		ServerContext(
+			kj::Own<kj::AsyncIoStream>&& stream,
+			capnp::ReaderOptions readerOpts)
+			: stream(kj::mv(stream))
+			, network(*this->stream, capnp::rpc::twoparty::Side::SERVER, readerOpts)
+			, rpcSystem(makeRpcServer(network, mainInterface)) {}
+	};
+	*/
+
+
 	class ConnectionManager {
 	public:
 		kj::Promise<capnp::Capability::Client> connect(kj::AsyncIoContext& ioc, std::string sturdyRefStr);
