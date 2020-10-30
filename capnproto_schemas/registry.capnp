@@ -1,6 +1,6 @@
 @0xfe1be0c39c7e8269;
 
-using Persistent = import "/capnp/persistent.capnp";
+#using Persistent = import "/capnp/persistent.capnp";
 
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("mas::rpc::registry");
@@ -11,19 +11,22 @@ $Go.import("common");
 
 using Common = import "common.capnp".Common;
 
-
 interface Admin {
   # administrative interface to a registry
 
   addCategory @0 (category :Common.IdInformation, upsert :Bool = false) -> (success :Bool);
   # add a category to the registry
+  # if upsert = true, update an existing category with the same id else ignore the add
 
   removeCategory @1 (categoryId :Text, moveObjectsToCategoryId :Text) -> (removedObjects :List(Common.Identifiable));
   # remove a category and move registered objects from category into other category
   # if moveObjectsToCategoryId is NULL, remove objects from registry -> removedObjects contains the list of removed refs
+  # if moveObjectsToCategory is actually not existing treat it as if it would be null
 
   moveObjects @2 (objectIds :List(Text), toCatId :Text) -> (movedObjectIds :List(Text));
-  # move objects from one category into another category
+  # move objects to another category
+  # if toCatId is null, don't move the objects
+  # if toCatId doesn't exist, treat it as if it would be null
 
   removeObjects @3 (objectIds :List(Text)) -> (removedObjects :List(Common.Identifiable));
   # remove objects from registry and return the actually removed ones (in case some haven't been there)

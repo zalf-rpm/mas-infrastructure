@@ -50,10 +50,19 @@ namespace Mas.Infrastructure.ServiceRegistry
             throw new System.Exception("No network adapters with an IPv4 address in the system!");
         }
 
-        public string saveCapability(Proxy proxy, string fixedSrToken = null)
+        public string SaveCapability(Proxy proxy, string fixedSrToken = null)
         {
-            var srToken = fixedSrToken ?? System.Guid.NewGuid().ToString();
-            _SrToken2Capability[srToken] = proxy;
+            var existingSturdyRefs = from p in _SrToken2Capability
+                                     where p.Value.ConsumedCap == proxy.ConsumedCap
+                                     select p.Key;
+            var srToken = "";
+            if (existingSturdyRefs.Count() > 0)
+                srToken = existingSturdyRefs.First();
+            else
+            {
+                srToken = fixedSrToken ?? System.Guid.NewGuid().ToString();
+                _SrToken2Capability[srToken] = proxy;
+            }
             var ip = Dns.GetHostName(); // "localhost";// GetLocalIPAddress();
             return $"capnp://insecure@{ip}:{Program.TcpPort}/{srToken}";
         }
@@ -165,6 +174,10 @@ namespace Mas.Infrastructure.ServiceRegistry
 
             public Task<IReadOnlyList<string>> MoveObjects(IReadOnlyList<string> objectIds, string toCatId, CancellationToken cancellationToken_ = default)
             {
+                // check that the move to category actually exists, else treat it as none existing
+                if (_Registry._supportedCategories.Where(cat => cat.Id == toCatId).Count() == 0)
+                    toCatId = null;
+
                 // if there is no category to move to, do rather nothing
                 // another option would be to remove the objects, but this is what removeObjects is for
                 if (toCatId == null)
@@ -194,6 +207,10 @@ namespace Mas.Infrastructure.ServiceRegistry
                 // no category means nothing to remove
                 if (categoryId == null)
                     return Task.FromResult<IReadOnlyList<Common.IIdentifiable>>(removed);
+
+                // check that the move to category actually exists, else treat it as none existing
+                if (_Registry._supportedCategories.Where(cat => cat.Id == moveObjectsToCategoryId).Count() == 0)
+                    moveObjectsToCategoryId = null;
 
                 var removedIds = new List<string>();
                 foreach(var oid2entry in from p in _Registry._OId2Entry 
@@ -305,7 +322,7 @@ namespace Mas.Infrastructure.ServiceRegistry
                 if (callContext.InterfaceId == PersistentInterfaceId)
                 {
                     var result = CapnpSerializable.Create<Capnp.Persistent<string, string>.SaveResults>(callContext.OutArgs);
-                    var sturdyRef = _Registry.saveCapability(callContext.Bob as Proxy);
+                    var sturdyRef = _Registry.SaveCapability(new BareProxy((ConsumedCapability)callContext.Bob));
                     result.SturdyRef = sturdyRef;
                     var resultWriter = SerializerState.CreateForRpc<Capnp.Persistent<string, string>.SaveResults.WRITER>();
                     result.serialize(resultWriter);
