@@ -34,6 +34,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\capnproto_schemas\capnproto_schemas_csharp.csproj" />
+    <ProjectReference Include="..\..\common\common.csproj" />
   </ItemGroup>
 
   <ItemGroup>

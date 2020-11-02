@@ -73,6 +73,7 @@ capnp::Capability::Client Persistence::resolveSturdyRefez(std::string sturdyRefS
 kj::Promise<capnp::Capability::Client> ConnectionManager::connect(kj::AsyncIoContext& ioc, std::string sturdyRefStr) {
 	capnp::ReaderOptions readerOpts;
 
+	// we assume that a sturdy ref url looks always like capnp://hash-digest-or-insecure@host:port/sturdy-ref-token
 	if (sturdyRefStr.substr(0, 8) == "capnp://") {
 		auto atPos = sturdyRefStr.find_first_of("@", 8);
 		if (atPos == string::npos) //unix domain sockets unimplemented

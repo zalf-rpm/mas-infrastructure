@@ -42,6 +42,7 @@ bootstrap_caps = {}
 
 def connect(sturdy_ref, cast_as = None):
 
+    # we assume that a sturdy ref url looks always like capnp://hash-digest-or-insecure@host:port/sturdy-ref-token
     try:
         if sturdy_ref[:8] == "capnp://":
             rest = sturdy_ref[8:]
@@ -98,7 +99,7 @@ def main():
     #registry = capnp.TwoPartyClient("localhost:10001").bootstrap().cast_as(registry_capnp.Registry)
     #print(registry.info().wait())
 
-    admin = connect("capnp://insecure@nb-berg-9550:10001/cb276992-ff97-4f99-b755-7858f780e771", registry_capnp.Admin)
+    admin = connect("capnp://insecure@nb-berg-9550:10001/320a351d-c6cb-400a-92e0-4647d33cfedb", registry_capnp.Admin)
     success = admin.addCategory({"id": "models", "name": "models"}).wait().success
 
 
