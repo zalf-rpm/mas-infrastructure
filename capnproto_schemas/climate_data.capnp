@@ -69,6 +69,30 @@ struct Climate {
   struct Metadata {
     # metadata describing a set of climate data
 
+    #interface Supported {
+    #  # this interface allows access to all supported Metadata elements by the implementing service
+    #
+    #  supportedTypes @0 () -> (types :List(Common.IdInformation));
+    #  # types can be things like GCMs, RCMs, SSPs, RCPs etc
+    #  
+    #  supportedValues @ 1 (typeId :Text) -> (values :List(Common.IdInformation));
+    #  # the values a supported type can take on
+    #}
+
+    #struct Entry {
+    #  typeId @0 :Text;
+    #
+    #  value :union {
+    #    text @1 :Text;
+    #    float @2 :Float64;
+    #    int @3 :Int64;
+    #    bool @4 :Bool;
+    #    date @5 :Date;
+    #  }
+    #}
+
+    #entries @0 :List(Entry);
+
     struct Entry {
       union {
         gcm @0 :GCM;
@@ -85,6 +109,8 @@ struct Climate {
         description @11 :Text;
       }
     }
+
+    
 
     entries @0 :List(Entry);
     # the actual metadata entries
@@ -194,11 +220,16 @@ struct Climate {
   }
 
   interface Service extends(Common.Identifiable) {
-    getAvailableDatasets @0 () -> (datasets :List(MetaPlusData));
+    # climate data service 
+
+    availableDatasets @0 () -> (datasets :List(MetaPlusData));
     # get a list of all available datasets
 
-    getDatasetsFor @1 (template :Metadata) -> (datasets :List(Dataset));
-    # get a reference to the simulation with given id
+    datasetsFor @1 (template :Metadata) -> (datasets :List(Dataset));
+    # get all datasets matching the given metadata template
+
+    #supportedMetadata @2 () -> (cap :Metadata.Supported);
+    # return a capability to an interface describing the services supported metadata
   }
 
 }

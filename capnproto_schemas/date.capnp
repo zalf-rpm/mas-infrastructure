@@ -1,7 +1,7 @@
 @0xe8ea2bc38b07f62a;
 
 using Cxx = import "/capnp/c++.capnp";
-$Cxx.namespace("mas::rpc");
+$Cxx.namespace("mas::common");
 
 #using Go = import "go.capnp";
 #$Go.package("date");
