@@ -29,7 +29,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 #include "tools/debug.h"
 
-#include "persistence.h"
+#include "rpc-connections.h"
 
 //#include "model.capnp.h"
 #include "common.capnp.h"
@@ -42,33 +42,7 @@ using namespace Tools;
 using namespace mas;
 using namespace mas::rpc::Persistence;
 using namespace capnp;
-using namespace Persistence;
-
-capnp::Capability::Client Persistence::resolveSturdyRefez(std::string sturdyRefStr) {
-
-	if (sturdyRefStr.substr(0, 8) == "capnp://") {
-		auto atPos = sturdyRefStr.find_first_of("@", 8);
-		auto hashDigest = sturdyRefStr.substr(8, atPos);
-		auto slashPos = sturdyRefStr.find_first_of("@", atPos == string::npos ? 8 : atPos);
-		auto addressPort = sturdyRefStr.substr(atPos == string::npos ? 8 : atPos, slashPos);
-		auto srToken = slashPos == string::npos ? "" : sturdyRefStr.substr(slashPos);
-	
-		capnp::EzRpcClient client(addressPort);
-		auto& waitScope = client.getWaitScope();
-		Restorer<capnp::Text>::Client restorerCap = client.getMain<Restorer<capnp::Text>>();
-		if (!srToken.empty()) {
-			auto req = restorerCap.restoreRequest();
-			req.setSrToken(srToken);
-			auto cap = req.send().wait(waitScope).getCap();
-
-			return cap;
-		}
-
-		return restorerCap;
-	}
-
-	return nullptr;
-}
+using namespace mas::infrastructure::common;
 
 kj::Promise<capnp::Capability::Client> ConnectionManager::connect(kj::AsyncIoContext& ioc, std::string sturdyRefStr) {
 	capnp::ReaderOptions readerOpts;
@@ -124,64 +98,41 @@ kj::Promise<capnp::Capability::Client> ConnectionManager::connect(kj::AsyncIoCon
 }
 
 
+kj::Promise<kj::uint> ConnectionManager::bind(kj::AsyncIoContext& ioContext, 
+	capnp::Capability::Client mainInterface, std::string address, kj::uint port) 	{
 
+	_serverMainInterface = mainInterface;
 
-kj::Promise<capnp::Capability::Client> Persistence::resolveSturdyRef(std::string sturdyRefStr, kj::Network& network, capnp::ReaderOptions readerOpts) {
+	auto paf = kj::newPromiseAndFulfiller<uint>();
+	kj::ForkedPromise<uint> portPromise = paf.promise.fork();
 
-	if (sturdyRefStr.substr(0, 8) == "capnp://") {
-		auto atPos = sturdyRefStr.find_first_of("@", 8);
-		auto hashDigest = sturdyRefStr.substr(8, atPos);
-		auto slashPos = sturdyRefStr.find_first_of("@", atPos == string::npos ? 8 : atPos);
-		auto addressPort = sturdyRefStr.substr(atPos == string::npos ? 8 : atPos, slashPos);
-		auto srToken = slashPos == string::npos ? "" : sturdyRefStr.substr(slashPos);
+	auto& network = ioContext.provider->getNetwork();
+	auto bindAddress = address + (port < 0 ? "" : string(":") + to_string(port));
+	//uint defaultPort = 0;
 
-		/*
-    kj::ForkedPromise<kj::Own<ClientContext>> setupPromise(
-      network.parseAddress(addressPort)
-      .then([](kj::Own<kj::NetworkAddress>&& addr) {
-        return addr->connect().attach(kj::mv(addr));
-        }).then([readerOpts](kj::Own<kj::AsyncIoStream>&& stream) {
-          return kj::mv(kj::heap<ClientContext>(kj::mv(stream), readerOpts));
-          }).fork());
-					*/
+	auto&& portFulfiller = paf.fulfiller;
+	tasks.add(network.parseAddress(bindAddress, port)
+		.then([KJ_MVCAP(portFulfiller), this](kj::Own<kj::NetworkAddress>&& addr) mutable {
+		auto listener = addr->listen();
+		portFulfiller->fulfill(listener->getPort());
+		acceptLoop(kj::mv(listener), capnp::ReaderOptions());
+	}));
 
-    auto setupPromise = network.parseAddress(addressPort).then(
-      [](kj::Own<kj::NetworkAddress>&& addr) {
-        return addr->connect().attach(kj::mv(addr));
-      }
-    ).then(
-      [readerOpts](kj::Own<kj::AsyncIoStream>&& stream) {
-        return kj::mv(kj::heap<ClientContext>(kj::mv(stream), readerOpts));
-      }
-      );
+	return portPromise.addBranch();
+}
 
-      auto bootstrapCapPromise = setupPromise.then(
-      [](kj::Own<ClientContext>&& context) {
-        return context->getMain();
-      }
-    );
+void ConnectionManager::acceptLoop(kj::Own<kj::ConnectionReceiver>&& listener, capnp::ReaderOptions readerOpts) {
+	auto ptr = listener.get();
+	tasks.add(ptr->accept().then(kj::mvCapture(kj::mv(listener),
+		[readerOpts, this](kj::Own<kj::ConnectionReceiver>&& listener,
+			kj::Own<kj::AsyncIoStream>&& connection) {
+				acceptLoop(kj::mv(listener), readerOpts);
 
-    if (!srToken.empty()) {
+				cout << "connection from client" << endl;
+				auto server = kj::heap<ServerContext>(kj::mv(connection), readerOpts, _serverMainInterface);
 
-      auto restorerClientPromise = bootstrapCapPromise.then(
-        [](Capability::Client bootstrapCap) {
-          return bootstrapCap.castAs<Restorer<capnp::Text>>();
-        }
-      );
-
-			auto restorerCapPromise = restorerClientPromise.then(
-				[srToken](Restorer<capnp::Text>::Client cap) {
-					auto req = cap.restoreRequest();
-					req.setSrToken(srToken);
-					return req.send().then([](auto&& res) { return res.getCap(); });
-				}
-			);
-
-			return restorerCapPromise;
-    }
-
-		return bootstrapCapPromise;
-	}
-
-	return nullptr;
+				// Arrange to destroy the server context when all references are gone, or when the
+				// EzRpcServer is destroyed (which will destroy the TaskSet).
+				tasks.add(server->network.onDisconnect().attach(kj::mv(server)));
+		})));
 }
