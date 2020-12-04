@@ -31,6 +31,44 @@ if str(PATH_TO_PYTHON_CODE) not in sys.path:
 
 import capnp
 import capnproto_schemas.common_capnp as common_capnp
+import capnproto_schemas.persistence_capnp as persistence_capnp
+
+#------------------------------------------------------------------------------
+
+class ConnectionManager:
+
+    def __init__(self):
+        _connections = {}
+
+    def connect(self, sturdy_ref, cast_as = None):
+
+        # we assume that a sturdy ref url looks always like capnp://hash-digest-or-insecure@host:port/sturdy-ref-token
+        try:
+            if sturdy_ref[:8] == "capnp://":
+                rest = sturdy_ref[8:]
+                hash_digest, rest = sturdy_ref.split("@")
+                host, rest = rest.split(":")
+                port_sr_token = rest.split("/")
+                port = port_sr_token[0]
+                sr_token = port_sr_token[1] if len(port_sr_token) > 1 else ""
+
+                host_port = "{}:{}".format(host, port)
+                if host_port in self._connections:
+                    bootstrap_cap = self._connections[host_port]
+                else:
+                    bootstrap_cap = capnp.TwoPartyClient(host_port).bootstrap()
+                    self._connections[host_port] = bootstrap_cap
+
+                if len(sr_token) == 0:
+                    return bootstrap_cap.cast_as(cast_as) if cast_as else bootstrap_cap
+                else:
+                    restorer = bootstrap_cap.cast_as(persistence_capnp.Restorer)
+                    dyn_obj_reader = restorer.restore(sr_token).wait().cap
+                    return dyn_obj_reader.as_interface(cast_as) if cast_as else dyn_obj_reader
+
+        except Exception as e:
+            print(e)
+            return None
 
 #------------------------------------------------------------------------------
 
