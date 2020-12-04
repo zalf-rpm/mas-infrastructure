@@ -6,27 +6,30 @@ $Cxx.namespace("mas::models::monica");
 using Date = import "../date.capnp".Date;
 using Params = import "monica_params.capnp";
 
-struct Crop {
-    struct MaybeBool {
-        value @0 :Bool;
-    }
+struct MaybeBool {
+    value @0 :Bool;
+}
 
-    dbId @0 :Int64 = -1;
-    speciesName @1 :Text;
-    cultivarName @2 :Text;
-	seedDate @3 :Date;
-	harvestDate @4 :Date;
-    isWinterCrop @5 :MaybeBool;
-	isPerennialCrop @6 :MaybeBool;
-	cuttingDates @7 :List(Date);
-    cropParams @8 :Params.CropParameters;
-    perennialCropParams @9 :Params.CropParameters;
-    residueParams @10 :Params.CropResidueParameters;
+struct RuntimeState {
+    modelState  @0 :MonicaModelState;
+    critPos     @1 :UInt16; # crop rotation iterator position
+    cmitPos     @2 :UInt16; # cultivation method iterator position
+}
 
+struct CropState {
+    speciesName             @1  :Text;
+    cultivarName            @2  :Text;
+	seedDate                @3  :Date;
+	harvestDate             @4  :Date;
+    isWinterCrop            @5  :MaybeBool;
+	isPerennialCrop         @6  :MaybeBool;
+	cuttingDates            @7  :List(Date);
+    cropParams              @8  :Params.CropParameters;
+    perennialCropParams     @9  :Params.CropParameters;
+    residueParams           @10 :Params.CropResidueParameters;
     crossCropAdaptionFactor @11 :Float64 = 1.0;
-
-    automaticHarvest @12 :Bool;
-	automaticHarvestParams @13 :Params.AutomaticHarvestParameters;
+    automaticHarvest        @12 :Bool;
+	automaticHarvestParams  @0  :Params.AutomaticHarvestParameters;
 }
 
 
@@ -59,7 +62,7 @@ struct AOMProperties {
     aomFastDelta            @18 :Float64;       # Difference of AOM fast between to timesteps
 
     incorporation           @19 :Bool = false;  # true if organic fertilizer is added with a subsequent incorporation.
-	volatilization          @20 :Bool = true;   # true means it's a crop residue and won't participate in vo_volatilisation()
+	noVolatilization        @20 :Bool = true;   # true means it's a crop residue and won't participate in vo_volatilisation()
 }
 
 
@@ -107,12 +110,8 @@ struct SoilLayerState {
 
 struct MonicaModelState {
     sitePs                          @0  :Params.SiteParameters;
-    smPs                            @1  :Params.SoilMoistureModuleParameters;
     envPs                           @2  :Params.EnvironmentParameters;
     cropPs                          @3  :Params.CropModuleParameters;
-    soilTempPs                      @4  :Params.SoilTemperatureModuleParameters;
-    soilTransPs                     @5  :Params.SoilTransportModuleParameters;
-    soilOrganicPs                   @6  :Params.SoilOrganicModuleParameters;
     simPs                           @7  :Params.SimulationParameters;
 
     groundwaterInformation          @8  :Params.MeasuredGroundwaterTableInformation;
@@ -122,8 +121,8 @@ struct MonicaModelState {
     soilMoisture                    @11 :SoilMoistureModuleState; # moisture code
     soilOrganic                     @12 :SoilOrganicModuleState; # organic code
     soilTransport                   @13 :SoilTransportModuleState; # transport code
-    currentCrop                     @14 :Crop; # currently possibly planted crop
-    currentCropGrowth               @15 :CropModuleState; # crop code for possibly planted crop
+    currentCrop                     @14 :CropState; # currently possibly planted crop
+    currentCropModule               @15 :CropModuleState; # crop code for possibly planted crop
 
     sumFertiliser                   @16 :Float64; 
     sumOrgFertiliser                @17 :Float64; 
@@ -159,82 +158,77 @@ struct MonicaModelState {
     accuHeatStress                  @34 :Float64;
     accuOxygenStress                @35 :Float64;
 
-    vwAtmosphericCO2Concentration   @36 :Float64;
-    vwAtmosphericO3Concentration    @37 :Float64;
-    vsGroundwaterDepth              @38 :Float64;
+    vwAtmosphericCO2Concentration   @6  :Float64;
+    vwAtmosphericO3Concentration    @5  :Float64;
+    vsGroundwaterDepth              @4  :Float64;
 
-    cultivationMethodCount          @39 :UInt16;
+    cultivationMethodCount          @1  :UInt16;
 }
 
 struct CropModuleState {
     frostKillOn                                 @0      :Bool;      
-    soilColumn                                  @1      :SoilColumnState;
-    perennialCropParams                         @2      :Params.CropParameters;
-    cropPs                                      @3      :Params.CropModuleParameters;
-    speciesPs                                   @4      :Params.SpeciesParameters;
-    cultivarPs                                  @5      :Params.CultivarParameters;      
     vsLatitude                                  @6      :Float64;  
     abovegroundBiomass                          @7      :Float64; # old OBMAS
     abovegroundBiomassOld                       @8      :Float64; # old OBALT
-    abovegroundOrgan                            @9      :List(Bool); # old KOMP
+    pcAbovegroundOrgan                            @9    :List(Bool); # old KOMP
     actualTranspiration                         @10     :Float64; 
-    assimilatePartitioningCoeff                 @11     :List(List(Float64)); # old PRO
-    assimilateReallocation                      @12     :Float64; 
+    pcAssimilatePartitioningCoeff                 @11   :List(List(Float64)); # old PRO
+    pcAssimilateReallocation                      @12   :Float64; 
     assimilates                                 @13     :Float64; 
     assimilationRate                            @14     :Float64; # old AMAX
     astronomicDayLenght                         @15     :Float64; # old DL
-    baseDaylength                               @16     :List(Float64); # old DLBAS
-    baseTemperature                             @17     :List(Float64); # old BAS
-    beginSensitivePhaseHeatStress               @18     :Float64;
+    pcBaseDaylength                               @16   :List(Float64); # old DLBAS
+    pcBaseTemperature                             @17   :List(Float64); # old BAS
+    pcBeginSensitivePhaseHeatStress               @18   :Float64;
     belowgroundBiomass                          @19     :Float64; 
     belowgroundBiomassOld                       @20     :Float64;
-    carboxylationPathway                        @21     :Int64; # old TEMPTYP
+    pcCarboxylationPathway                        @21   :Int64; # old TEMPTYP
     clearDayRadiation                           @22     :Float64; # old DRC
-    co2Method                                   @23     :UInt8 = 3;
+    pcCo2Method                                   @23   :UInt8 = 3;
     criticalNConcentration                      @24     :Float64; # old GEHMIN
-    criticalOxygenContent                       @25     :List(Float64); # old LUKRIT
-    criticalTemperatureHeatStress               @26     :Float64; 
+    pcCriticalOxygenContent                       @25   :List(Float64); # old LUKRIT
+    pcCriticalTemperatureHeatStress               @26   :Float64; 
     cropDiameter                                @27     :Float64;
     cropFrostRedux                              @28     :Float64 = 1.0;
     cropHeatRedux                               @29     :Float64 = 1.0;
     cropHeight                                  @30     :Float64;
-    cropHeightP1                                @31     :Float64;
-    cropHeightP2                                @32     :Float64;
-    cropName                                    @33     :Text; # old FRUCHT$(AKF)
+    pcCropHeightP1                                @31   :Float64;
+    pcCropHeightP2                                @32   :Float64;
+    pcCropName                                    @33   :Text; # old FRUCHT$(AKF)
     cropNDemand                                 @34     :Float64; # old DTGESN
     cropNRedux                                  @35     :Float64 = 1.0; # old REDUK
-    cropSpecificMaxRootingDepth                 @36     :Float64; # old WUMAXPF [m]
+    pcCropSpecificMaxRootingDepth                 @36   :Float64; # old WUMAXPF [m]
     cropWaterUptake                             @37     :List(Float64); # old TP
     currentTemperatureSum                       @38     :List(Float64); # old SUM
     currentTotalTemperatureSum                  @39     :Float64; # old FP
     currentTotalTemperatureSumRoot              @40     :Float64;
     pcCuttingDelayDays                          @41     :UInt16;
     daylengthFactor                             @42     :Float64; # old DAYL
-    daylengthRequirement                        @43     :List(Float64); # old DEC
+    pcDaylengthRequirement                        @43   :List(Float64); # old DEC
     daysAfterBeginFlowering                     @44     :UInt16;
     declination                                 @45     :Float64; # old EFF0
-    defaultRadiationUseEfficiency               @46     :Float64;
+    pcDefaultRadiationUseEfficiency               @46   :Float64;
     vmDepthGroundwaterTable                     @47     :UInt16; # old GRW
-    developmentAccelerationByNitrogenStress     @48     :UInt64;
+    pcDevelopmentAccelerationByNitrogenStress     @48   :UInt64;
     developmentalStage                          @49     :UInt16; # old INTWICK
     noOfCropSteps                               @50     :UInt16; 
     droughtImpactOnFertility                    @51     :Float64 = 1.0;
-    droughtImpactOnFertilityFactor              @52     :Float64;
-    droughtStressThreshold                      @53     :List(Float64); # old DRYswell
-    emergenceFloodingControlOn                  @54     :Bool = false;
-    emergenceMoistureControlOn                  @55     :Bool = false;
-    endSensitivePhaseHeatStress                 @56     :Float64;
+    pcDroughtImpactOnFertilityFactor              @52   :Float64;
+    pcDroughtStressThreshold                      @53   :List(Float64); # old DRYswell
+    pcEmergenceFloodingControlOn                  @54   :Bool = false;
+    pcEmergenceMoistureControlOn                  @55   :Bool = false;
+    pcEndSensitivePhaseHeatStress                 @56   :Float64;
     effectiveDayLength                          @57     :Float64; # old DLE
     errorStatus                                 @58     :Bool = false;
     errorMessage                                @59     :Text;
     evaporatedFromIntercept                     @60     :Float64;
     extraterrestrialRadiation                   @61     :Float64;
-    fieldConditionModifier                      @62     :Float64;
+    pcFieldConditionModifier                      @62   :Float64;
     finalDevelopmentalStage                     @63     :UInt16;
     fixedN                                      @64     :Float64;
     #std::vector<double> vo_FreshSoilOrganicMatter @16 :List(Float64); # old NFOS
-    frostDehardening                            @65     :Float64;
-    frostHardening                              @66     :Float64;
+    pcFrostDehardening                            @65   :Float64;
+    pcFrostHardening                              @66   :Float64;
     globalRadiation                             @67     :Float64;
     greenAreaIndex                              @68     :Float64;
     grossAssimilates                            @69     :Float64;
@@ -244,34 +238,34 @@ struct CropModuleState {
     grossPrimaryProduction                      @73     :Float64;
     growthCycleEnded                            @74     :Bool = false;
     growthRespirationAS                         @75     :Float64 = 0.0;
-    heatSumIrrigationStart                      @76     :Float64;
-    heatSumIrrigationEnd                        @77     :Float64;
+    pcHeatSumIrrigationStart                      @76   :Float64;
+    pcHeatSumIrrigationEnd                        @77   :Float64;
     vsHeightNN                                  @78     :Float64;
-    initialKcFactor                             @79     :Float64; # old Kcini
-    initialOrganBiomass                         @80     :List(Float64);
-    initialRootingDepth                         @81     :Float64;
+    pcInitialKcFactor                             @79   :Float64; # old Kcini
+    pcInitialOrganBiomass                         @80   :List(Float64);
+    pcInitialRootingDepth                         @81   :Float64;
     interceptionStorage                         @82     :Float64; 
     kcFactor                                    @83     :Float64 = 0.6; # old FKc
     leafAreaIndex                               @84     :Float64; # old LAI
     sunlitLeafAreaIndex                         @85     :List(Float64);
     shadedLeafAreaIndex                         @86     :List(Float64);
-    lowTemperatureExposure                      @87     :Float64;
-    limitingTemperatureHeatStress               @88     :Float64;
+    pcLowTemperatureExposure                      @87   :Float64;
+    pcLimitingTemperatureHeatStress               @88   :Float64;
     lt50                                        @89     :Float64 = -3.0;
-    lt50cultivar                                @90     :Float64;
-    luxuryNCoeff                                @91     :Float64;
+    pcLt50cultivar                                @90   :Float64;
+    pcLuxuryNCoeff                                @91   :Float64;
     maintenanceRespirationAS                    @92     :Float64;
-    maxAssimilationRate                         @93     :Float64; # old MAXAMAX
-    maxCropDiameter                             @94     :Float64;
-    maxCropHeight                               @95     :Float64;
+    pcMaxAssimilationRate                         @93   :Float64; # old MAXAMAX
+    pcMaxCropDiameter                             @94   :Float64;
+    pcMaxCropHeight                               @95   :Float64;
     maxNUptake                                  @96     :Float64; # old MAXUP
-    maxNUptakeParam                             @97     :Float64;
-    maxRootingDepth                             @98     :Float64; # old WURM
-    minimumNConcentration                       @99     :Float64;
-    minimumTemperatureForAssimilation           @100    :Float64; # old MINTMP
-    optimumTemperatureForAssimilation           @101    :Float64;
-    maximumTemperatureForAssimilation           @102    :Float64;
-    minimumTemperatureRootGrowth                @103    :Float64;
+    pcMaxNUptakeParam                             @97   :Float64;
+    pcMaxRootingDepth                             @98   :Float64; # old WURM
+    pcMinimumNConcentration                       @99   :Float64;
+    pcMinimumTemperatureForAssimilation           @100  :Float64; # old MINTMP
+    pcOptimumTemperatureForAssimilation           @101  :Float64;
+    pcMaximumTemperatureForAssimilation           @102  :Float64;
+    pcMinimumTemperatureRootGrowth                @103  :Float64;
     netMaintenanceRespiration                   @104    :Float64; # old MAINT
     netPhotosynthesis                           @105    :Float64; # old GTW
     netPrecipitation                            @106    :Float64;
@@ -279,67 +273,67 @@ struct CropModuleState {
     pcNConcentrationAbovegroundBiomass          @108    :Float64; # initial value of old GEHOB
     nConcentrationAbovegroundBiomass            @109    :Float64; # old GEHOB
     nConcentrationAbovegroundBiomassOld         @110    :Float64; # old GEHALT
-    nConcentrationB0                            @111    :Float64;
+    pcNConcentrationB0                            @111  :Float64;
     nContentDeficit                             @112    :Float64;
-    nConcentrationPN                            @113    :Float64; 
+    pcNConcentrationPN                            @113  :Float64; 
     pcNConcentrationRoot                        @114    :Float64; # initial value to WUGEH
     nConcentrationRoot                          @115    :Float64; # old WUGEH
     nConcentrationRootOld                       @116    :Float64; # old
-    nitrogenResponseOn                          @117    :Bool; 
-    numberOfDevelopmentalStages                 @118    :Float64;
-    numberOfOrgans                              @119    :Float64; # old NRKOM
+    pcNitrogenResponseOn                          @117  :Bool; 
+    pcNumberOfDevelopmentalStages                 @118  :Float64;
+    pcNumberOfOrgans                              @119  :Float64; # old NRKOM
     nUptakeFromLayer                            @120    :List(Float64); # old PE
-    optimumTemperature                          @121    :List(Float64);
+    pcOptimumTemperature                          @121  :List(Float64);
     organBiomass                                @122    :List(Float64); # old WORG
     organDeadBiomass                            @123    :List(Float64); # old WDORG
     organGreenBiomass                           @124    :List(Float64);
     organGrowthIncrement                        @125    :List(Float64); # old GORG
-    organGrowthRespiration                      @126    :List(Float64); # old MAIRT
-    organIdsForPrimaryYield                     @127    :List(Params.YieldComponent);
-    organIdsForSecondaryYield                   @128    :List(Params.YieldComponent);
-    organIdsForCutting                          @129    :List(Params.YieldComponent);
-    organMaintenanceRespiration                 @130    :List(Float64); # old MAIRT
-    organSenescenceIncremen                     @131    :List(Float64); # old DGORG
-    organSenescenceRate                         @132    :List(List(Float64)); # old DEAD
+    pcOrganGrowthRespiration                      @126  :List(Float64); # old MAIRT
+    pcOrganIdsForPrimaryYield                     @127  :List(Params.YieldComponent);
+    pcOrganIdsForSecondaryYield                   @128  :List(Params.YieldComponent);
+    pcOrganIdsForCutting                          @129  :List(Params.YieldComponent);
+    pcOrganMaintenanceRespiration                 @130  :List(Float64); # old MAIRT
+    organSenescenceIncrement                    @131    :List(Float64); # old DGORG
+    pcOrganSenescenceRate                         @132  :List(List(Float64)); # old DEAD
     overcastDayRadiation                        @133    :Float64; # old DRO
     oxygenDeficit                               @134    :Float64; # old LURED
-    partBiologicalNFixation                     @135    :Float64;
-    perennial                                   @136    :Bool;
+    pcPartBiologicalNFixation                     @135  :Float64;
+    pcPerennial                                   @136  :Bool;
     photoperiodicDaylength                      @137    :Float64; # old DLP
     photActRadiationMean                        @138    :Float64; # old RDN
-    plantDensity                                @139    :Float64; 
+    pcPlantDensity                                @139  :Float64; 
     potentialTranspiration                      @140    :Float64; 
     referenceEvapotranspiration                 @141    :Float64; 
     relativeTotalDevelopment                    @142    :Float64; 
     remainingEvapotranspiration                 @143    :Float64; 
     reserveAssimilatePool                       @144    :Float64; # old ASPOO
-    residueNRatio                               @145    :Float64; 
-    respiratoryStress                           @146    :Float64; 
+    pcResidueNRatio                               @145  :Float64; 
+    pcRespiratoryStress                           @146  :Float64; 
     rootBiomass                                 @147    :Float64; # old WUMAS
     rootBiomassOld                              @148    :Float64; # old WUMALT
     rootDensity                                 @149    :List(Float64); # old WUDICH
     rootDiameter                                @150    :List(Float64); # old WRAD
-    rootDistributionParam                       @151    :Float64;
+    pcRootDistributionParam                       @151  :Float64;
     rootEffectivity                             @152    :List(Float64); # old WUEFF
-    rootFormFactor                              @153    :Float64;
-    rootGrowthLag                               @154    :Float64;
+    pcRootFormFactor                              @153  :Float64;
+    pcRootGrowthLag                               @154  :Float64;
     rootingDepth                                @155    :UInt16; # old WURZ
     rootingDepthM                               @156    :Float64;
     rootingZone                                 @157    :UInt16;
-    rootPenetrationRate                         @158    :Float64;
+    pcRootPenetrationRate                         @158  :Float64;
     vmSaturationDeficit                         @159    :Float64;
     soilCoverage                                @160    :Float64;
     vsSoilMineralNContent                       @161    :List(Float64); # old C1
     soilSpecificMaxRootingDepth                 @162    :Float64; # old WURZMAX [m]
     vsSoilSpecificMaxRootingDepth               @163    :Float64;
-    specificLeafArea                            @164    :List(Float64); # old LAIFKT [ha kg-1]
-    specificRootLength                          @165    :Float64;
-    stageAfterCut                               @166    :UInt16; # //0-indexed
-    stageAtMaxDiameter                          @167    :Float64;
-    stageAtMaxHeight                            @168    :Float64;
-    stageMaxRootNConcentration                  @169    :List(Float64); # old WGMAX
-    stageKcFactor                               @170    :List(Float64); # old Kc
-    stageTemperatureSum                         @171    :List(Float64); # old TSUM
+    pcSpecificLeafArea                            @164  :List(Float64); # old LAIFKT [ha kg-1]
+    pcSpecificRootLength                          @165  :Float64;
+    pcStageAfterCut                               @166  :UInt16; # //0-indexed
+    pcStageAtMaxDiameter                          @167  :Float64;
+    pcStageAtMaxHeight                            @168  :Float64;
+    pcStageMaxRootNConcentration                  @169  :List(Float64); # old WGMAX
+    pcStageKcFactor                               @170  :List(Float64); # old Kc
+    pcStageTemperatureSum                         @171  :List(Float64); # old TSUM
     stomataResistance                           @172    :Float64; # old RSTOM
     pcStorageOrgan                              @173    :List(Bool);  
     storageOrgan                                @174    :UInt16 = 4;
@@ -363,12 +357,9 @@ struct CropModuleState {
     transpirationDeficit                        @192    :Float64 = 1.0; # old TRREL
     vernalisationDays                           @193    :Float64;
     vernalisationFactor                         @194    :Float64; # old FV
-    vernalisationRequirement                    @195    :List(Float64); # old VSCHWELL
-    waterDeficitResponseOn                      @196    :Bool;
+    pcVernalisationRequirement                    @195  :List(Float64); # old VSCHWELL
+    pcWaterDeficitResponseOn                      @196  :Bool;
 
-    eva2usage                                   @197    :UInt8;
-    eva2primaryYieldComponents                  @198    :List(Params.YieldComponent);
-    eva2secondaryYieldComponents                @199    :List(Params.YieldComponent);   
     dyingOut                                    @200    :Bool;
     accumulatedETa                              @201    :Float64;
     accumulatedTranspiration                    @202    :Float64;
@@ -391,9 +382,9 @@ struct CropModuleState {
     stepSize24                                  @214    :UInt16 = 24;
     stepSize240                                 @215    :UInt16 = 240;
     rad24                                       @216    :List(Float64); 
-    rad240                                      @217    :Float64; 
-    tfol24                                      @218    :Float64; 
-    tfol240                                     @219    :Float64;
+    rad240                                      @217    :List(Float64);  
+    tfol24                                      @218    :List(Float64); 
+    tfol240                                     @219    :List(Float64); 
     index24                                     @220    :UInt16; 
     index240                                    @221    :UInt16;
     full24                                      @222    :Bool; 
@@ -407,20 +398,18 @@ struct CropModuleState {
     #std::function<void(std::string)> _fireEvent;   
     #std::function<void(std::map<size_t, double>, double)> _addOrganicMatter;
 
-    o3ShortTermDamage                           @228    :Float64 = 1.0;
-    o3LongTermDamage                            @229    :Float64 = 1.0;
-    o3Senescence                                @230    :Float64 = 1.0;
-    o3SumUptake                                 @231    :Float64;
-    o3WStomatalClosure                          @232    :Float64 = 1.0;
+    o3ShortTermDamage                           @199    :Float64 = 1.0;
+    o3LongTermDamage                            @198    :Float64 = 1.0;
+    o3Senescence                                @197    :Float64 = 1.0;
+    o3SumUptake                                 @5      :Float64;
+    o3WStomatalClosure                          @4      :Float64 = 1.0;
 
-    assimilatePartCoeffsReduced                 @233    :Bool;
-    ktkc                                        @234    :Float64; # old KTkc
-    ktko                                        @235    :Float64; # old KTko
+    assimilatePartCoeffsReduced                 @3      :Bool;
+    ktkc                                        @2      :Float64; # old KTkc
+    ktko                                        @1      :Float64; # old KTko
 }
 
 struct SnowModuleState {
-    soilColumn                              @0  :SoilColumnState;
-
     snowDensity                             @1  :Float64;   # Snow density [kg dm-3]
     snowDepth                               @2  :Float64;   # Snow depth [mm]
     frozenWaterInSnow                       @3  :Float64;   # [mm]
@@ -428,8 +417,6 @@ struct SnowModuleState {
     waterToInfiltrate                       @5  :Float64;   # [mm]
     maxSnowDepth                            @6  :Float64;   # [mm]
     accumulatedSnowDepth                    @7  :Float64;   # [mm]
-    
-    # extern or user defined snow parameter
     snowmeltTemperature                     @8  :Float64;   # Base temperature for snowmelt [°C]
     snowAccumulationThresholdTemperature    @9  :Float64;
     temperatureLimitForLiquidWater          @10 :Float64;   # Lower temperature limit of liquid water in snow
@@ -442,11 +429,10 @@ struct SnowModuleState {
     snowMaxAdditionalDensity                @17 :Float64;   # Maximum additional density of snow (max rho = 0.35, Karvonen)
     snowPacking                             @18 :Float64;   # Snow packing factor (calibrated by Helge Bonesmo)
     snowRetentionCapacityMin                @19 :Float64;   # Minimum liquid water retention capacity in snow [mm]
-    snowRetentionCapacityMax                @20 :Float64;  
+    snowRetentionCapacityMax                @0  :Float64;  
 }
 
 struct FrostModuleState {
-    soilColumn                      @0  :SoilColumnState;
     frostDepth                      @1  :Float64;
     accumulatedFrostDepth           @2  :Float64;
     negativeDegreeDays              @3  :Float64;       # Counts negative degree-days under snow
@@ -454,25 +440,15 @@ struct FrostModuleState {
     frostDays                       @5  :UInt16;
     lambdaRedux                     @6  :List(Float64); # Reduction factor for Lambda []
     temperatureUnderSnow            @7  :Float64;
-
-    # user defined or data base parameter
     hydraulicConductivityRedux      @8  :Float64;
     ptTimeStep                      @9  :Float64;
-
-    pmHydraulicConductivityRedux    @10 :Float64;
+    pmHydraulicConductivityRedux    @0  :Float64;
 }
 
 struct SoilMoistureModuleState {
-    soilColumn                      @0  :SoilColumnState;
-    siteParameters                  @1  :Params.SiteParameters;
-    monica                          @2  :MonicaModelState;
-    smPs                            @3  :Params.SoilMoistureModuleParameters;
-    envPs                           @4  :Params.EnvironmentParameters;
-    cropPs                          @5  :Params.CropModuleParameters;
-	
+    moduleParams                    @3  :Params.SoilMoistureModuleParameters;
     numberOfLayers                  @6  :UInt16;
 	vsNumberOfLayers                @7  :UInt16;
-
     actualEvaporation               @8  :Float64;               # Sum of evaporation of all layers [mm]
     actualEvapotranspiration        @9  :Float64;               # Sum of evaporation and transpiration of all layers [mm]
     actualTranspiration             @10 :Float64;               # Sum of transpiration of all layers [mm]
@@ -485,7 +461,6 @@ struct SoilMoistureModuleState {
     evapotranspiration              @17 :List(Float64);         # Evapotranspiration of layer [mm]
     fieldCapacity                   @18 :List(Float64);         # Soil water content at Field Capacity
     fluxAtLowerBoundary             @19 :Float64;               # Water flux out of bottom layer [mm]
-
     gravitationalWater              @20 :List(Float64);         # Soil water content drained by gravitation only [mm]
     grossPrecipitation              @21 :Float64;               # Precipitation amount that falls on soil and vegetation [mm]
     groundwaterAdded                @22 :Float64;
@@ -517,7 +492,6 @@ struct SoilMoistureModuleState {
     relativeHumidity                @48 :Float64;               # [m3 m-3]
     residualEvapotranspiration      @49 :List(Float64);         # Residual evapotranspiration in [mm]
     saturatedHydraulicConductivity  @50 :List(Float64);         # Saturated hydraulic conductivity [mm d-1]
-
     soilMoisture                    @51 :List(Float64);         # Result - Soil moisture of layer [m3 m-3]
     soilMoisturecrit                @52 :Float64;
     soilMoistureDeficit             @53 :Float64;               # Soil moisture deficit [m3 m-3]
@@ -532,20 +506,15 @@ struct SoilMoistureModuleState {
     transpiration                   @62 :List(Float64);         # Transpiration of layer [mm]
     transpirationDeficit            @63 :Float64;
     waterFlux                       @64 :List(Float64);         # Soil water flux at the layer's upper boundary[mm d-1]
-    vwWindSpeed                     @65 :Float64;               # [m s-1]
-    vwWindSpeedHeight               @66 :Float64;               # [m]
-    xSACriticalSoilMoisture         @67 :Float64;
-
-    snowComponent                   @68 :SnowModuleState;
-    frostComponent                  @69 :FrostModuleState;
-    cropModule                      @70 :CropModuleState;
+    vwWindSpeed                     @5  :Float64;               # [m s-1]
+    vwWindSpeedHeight               @4  :Float64;               # [m]
+    xSACriticalSoilMoisture         @2  :Float64;
+    snowComponent                   @1  :SnowModuleState;
+    frostComponent                  @0  :FrostModuleState;
 }
 
 struct SoilOrganicModuleState {
-    soilColumn                          @0  :SoilColumnState;
-    siteParams                          @1  :Params.SiteParameters;
-    organicPs                           @2  :Params.SoilOrganicModuleParameters;
-
+    moduleParams                        @2  :Params.SoilOrganicModuleParameters;
     vsNumberOfLayers                    @3  :UInt16;
     vsNumberOfOrganicLayers             @4  :UInt16;
     addedOrganicMatter                  @5  :Bool;
@@ -584,18 +553,15 @@ struct SoilOrganicModuleState {
     sumNetNMineralisation               @38 :Float64;
     sumN2OProduced                      @39 :Float64;
     sumNH3Volatilised                   @40 :Float64;
-    totalDenitrification                @41 :Float64;
-
-    incorporation                       @42 :Bool;
-    cropModule                          @43 :CropModuleState;
+    totalDenitrification                @1 :Float64;
+    incorporation                       @0 :Bool;
 }
 
 struct SoilTemperatureModuleState {
     soilSurfaceTemperature      @0  :Float64;
-    soilColumn                  @1  :SoilColumnState;
-    monica                      @2  :MonicaModelState;
     soilColumnVtGroundLayer     @3  :SoilLayerState;
     soilColumnVtBottomLayer     @4  :SoilLayerState;
+    moduleParams                @1  :Params.SoilTemperatureModuleParameters;
     numberOfLayers              @5  :UInt16;
     vsNumberOfLayers            @6  :UInt16;
     vsSoilMoistureConst         @7  :List(Float64);
@@ -610,12 +576,11 @@ struct SoilTemperatureModuleState {
     heatConductivity            @16 :List(Float64);
     heatConductivityMean        @17 :List(Float64);
     heatCapacity                @18 :List(Float64);
-    dampingFactor               @19 :Float64 = 0.8;
+    dampingFactor               @2 :Float64 = 0.8;
 }
 
 struct SoilTransportModuleState {
-    soilColumn              @0  :SoilColumnState;
-    stPs                    @1  :Params.SoilTransportModuleParameters;
+    moduleParams            @1  :Params.SoilTransportModuleParameters;
     convection              @2  :List(Float64);
     cropNUptake             @3  :Float64;
     diffusionCoeff          @4  :List(Float64);
@@ -632,9 +597,6 @@ struct SoilTransportModuleState {
     timeStep                @15 :Float64 = 1.0;
     totalDispersion         @16 :List(Float64);
     percolationRate         @17 :List(Float64); # Soil water flux from above [mm d-1]
-
-    pcMinimumAvailableN     @18 :Float64;       # kg m-2
-
-    cropModule              @19 :CropModuleState;
+    pcMinimumAvailableN     @0 :Float64;       # kg m-2
 }
 

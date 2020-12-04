@@ -393,7 +393,7 @@ struct SoilOrganicModuleParameters {
     partSMBFastToSOMFast                @14 :Float64 = 0.60;        # 0.60 [], from DAISY manual
     partSOMToSMBSlow                    @15 :Float64 = 0.0150;      # 0.0150 [], optimised
     partSOMToSMBFast                    @16 :Float64 = 0.0002;      # 0.0002 [], optimised
-    cmRatioSMB                          @17 :Float64 = 6.70;        # 6.70 [], from DAISY manual
+    cnRatioSMB                          @17 :Float64 = 6.70;        # 6.70 [], from DAISY manual
     limitClayEffect                     @18 :Float64 = 0.25;        # 0.25 [kg kg-1], from DAISY manual
     ammoniaOxidationRateCoeffStandard   @19 :Float64 = 1.0e-1;      # 1.0e-1 [d-1], from DAISY manual
     nitriteOxidationRateCoeffStandard   @20 :Float64 = 9.0e-1;      # 9.0e-1 [d-1], fudged by Florian Stange
@@ -445,61 +445,61 @@ struct SoilTransportModuleParameters {
 
 struct Voc {
 
-    const kilo          :Float64 = 1000.0;
-    const milli         :Float64 = 0.001;
+#    const kilo          :Float64 = 1000.0;
+#    const milli         :Float64 = 0.001;
 
 	# conv constants
-	const nmol2umol     :Float64 = Voc.kilo;               # nmol to umol
-	const umol2nmol     :Float64 = 0.001;               # (= 1.0 / NMOL2UMOL) umol to nmol
-	const mol2mmol      :Float64 = Voc.milli;
-	const mmol2mol      :Float64 = 1000.0;              # (= 1.0 / MOL2MMOL)
-	const fPar          :Float64 = 0.45;                # conversion factor for global into PAR (Monteith 1965, Meek et al. 1984)
-	const d2k           :Float64 = 273.15;              # kelvin at zero degree celsius
-	const g2kg          :Float64 = 1000.0;              # 0.001 kg per g
-	const umol2w        :Float64 = 4.57;                # conversion factor from Watt in umol PAR (Cox et al. 1998)
-	const w2umol        :Float64 = 0.2188183807439825;  # (= 1.0 / UMOL2W) conversion factor from umol PAR in Watt (Cox et al. 1998)
-	const ng2ug         :Float64 = 1000.0;              # conversion factor from nano to micro (gramm)
-	const ug2ng         :Float64 = 0.001;                # (= 1.0 / NG2UG) 
+#	const nmol2umol     :Float64 = Voc.kilo;               # nmol to umol
+#	const umol2nmol     :Float64 = 0.001;               # (= 1.0 / NMOL2UMOL) umol to nmol
+#	const mol2mmol      :Float64 = Voc.milli;
+#	const mmol2mol      :Float64 = 1000.0;              # (= 1.0 / MOL2MMOL)
+#	const fPar          :Float64 = 0.45;                # conversion factor for global into PAR (Monteith 1965, Meek et al. 1984)
+#	const d2k           :Float64 = 273.15;              # kelvin at zero degree celsius
+#	const g2kg          :Float64 = 1000.0;              # 0.001 kg per g
+#	const umol2w        :Float64 = 4.57;                # conversion factor from Watt in umol PAR (Cox et al. 1998)
+#	const w2umol        :Float64 = 0.2188183807439825;  # (= 1.0 / UMOL2W) conversion factor from umol PAR in Watt (Cox et al. 1998)
+#	const ng2ug         :Float64 = 1000.0;              # conversion factor from nano to micro (gramm)
+#	const ug2ng         :Float64 = 0.001;                # (= 1.0 / NG2UG) 
 
 	# phys constants
-	const rGas          :Float64 = 8.3143;              # general gas constant  [J mol-1 K-1]
+#	const rGas          :Float64 = 8.3143;              # general gas constant  [J mol-1 K-1]
 
 	# chem constants
-	const mc            :Float64 = 12.0;                # molecular weight of carbon  [g mol-1]
-	const cIso          :Float64 = 5.0;                 # number of carbons in Isoprene (C5H8)
-	const cMono         :Float64 = 10.0;                # number of carbons in Monoterpene (C10H16)
+#	const mc            :Float64 = 12.0;                # molecular weight of carbon  [g mol-1]
+#	const cIso          :Float64 = 5.0;                 # number of carbons in Isoprene (C5H8)
+#	const cMono         :Float64 = 10.0;                # number of carbons in Monoterpene (C10H16)
 
 	# time constants
-	const secInMin      :UInt8 = 60;                    # minute to seconds
-	const minInHr       :UInt8 = 60;                    # hour to minutes
-	const hrInDay       :UInt8 = 24;                    # day to hours
-	const monthsInYear  :UInt8 = 12;                    # year to months
-	const secInHr       :UInt16 = 3600;                 # hour to seconds
-	const minInDay      :UInt16 = 1440;                 # day to minutes
-	const secInDay      :UInt32 = 86400;                # day to seconds
+#	const secInMin      :UInt8 = 60;                    # minute to seconds
+#	const minInHr       :UInt8 = 60;                    # hour to minutes
+#	const hrInDay       :UInt8 = 24;                    # day to hours
+#	const monthsInYear  :UInt8 = 12;                    # year to months
+#	const secInHr       :UInt16 = 3600;                 # hour to seconds
+#	const minInDay      :UInt16 = 1440;                 # day to minutes
+#	const secInDay      :UInt32 = 86400;                # day to seconds
 
 	# meteo constants
-	const po2           :Float64 = 0.208;               # volumentric percentage of oxygen in the canopy air
+#	const po2           :Float64 = 0.208;               # volumentric percentage of oxygen in the canopy air
 
 	# voc module specific constants
-	const abso          :Float64 = 0.860;               # absorbance factor, Collatz et al. 1991 
-	const alpha         :Float64 = 0.0027;              # light modifier, Guenther et al. 1993; (Staudt et al. 2004 f. Q.ilex: 0.0041, Bertin et al. 1997 f. Q.ilex: 0.00147, Harley et al. 2004 f. M.indica: 0.00145) 
-	const beta          :Float64 = 0.09;                # monoterpene scaling factor, Guenther et al. 1995 (cit. in Guenther 1999 says this value originates from Guenther 1993) 
-	const c1            :Float64 = 0.17650;             #fw: 0.17650e-3 in Grote et al. 2014 to preserve the constant relation to C2; #  fraction of electrons used from excess electron transport (−), from Sun et al. 2012 dataset, Grote et al. 2014 
-	const c2            :Float64 = 0.00280;             #fw: 0.00280e-3 (umol m-2 s-1) in Grote et al. 2014; here in nmol m-2 s-1; # fraction of electrons used from photosynthetic electron transport (−),from Sun et al. 2012 dataset, Grote et al. 2014 
-	const ceoIso        :Float64 = 2.0;                 # emission-class dependent empirical coefficient for temperature acitivity factor of isoprene from MEGAN v2.1 (Guenther et al. 2012)
-	const ceoMono       :Float64 = 1.83;                # emission-class dependent empirical coefficient for temperature acitivity factor of a-pinene, b-pinene, oMT, Limonen, etc from MEGAN v2.1 (Guenther et al. 2012)
-	const ct1           :Float64 = 95000.0;             # first temperature modifier (J mol-1), Guenther et al. 1993; (Staudt et al. 2004 f. Q.ilex: 87620, Bertin et al. 1997 f. Q.ilex: 74050, Harley et al. f. M.indica: 124600, in WIMOVAC 95100) 
-	const ct2           :Float64 = 230000.0;            # second temperature modifier (J mol-1), Guenther et al. 1993; (Staudt et al. 2004 f. Q.ilex: 188200, Bertin et al. 1997 f. Q.ilex: 638600, Harley et al. f. M.indica: 254800) 
-	const cl1           :Float64 = 1.066;               # radiation modifier, Guenther et al. 1993; (Staudt et al. 2004 f. Q.ilex: 1.04, Bertin et al. 1997 f. Q.ilex: 1.21, Harley et al. 2004 f. M.indica: 1.218) 
-	const gammaMax      :Float64 = 34.0;                # saturating amount of electrons that can be supplied from other sources (μmol m−2 s−1), Sun et al. 2012 dataset, Grote et al. 2014 (delta J_sat in paper)
-	const ppfd0         :Float64 = 1000.0;              # reference photosynthetically active quantum flux density/light density (standard conditions) (umol m-2 s-1), Guenther et al. 1993 
-	const temp0         :Float64 = 298.15;              # (= 25.0 + D2K) reference (leaf) temperature (standard conditions) (K), Guenther et al. 1993 
-	const topT          :Float64 = 314.0;               # temperature with maximum emission (K), Guenther et al. 1993; (Staudt et al. 2004 f. Q.ilex: 317, Bertin et al. 1997 f. Q.ilex: 311.6, Harley et al. f. M.indica: 313.4, in WIMOVAC 311.83) 
-	const tRef          :Float64 = 303.15;              # (= 30.0 + D2K) reference temperature (K), Guenther et al. 1993 
+#	const abso          :Float64 = 0.860;               # absorbance factor, Collatz et al. 1991 
+#	const alpha         :Float64 = 0.0027;              # light modifier, Guenther et al. 1993; (Staudt et al. 2004 f. Q.ilex: 0.0041, Bertin et al. 1997 f. Q.ilex: 0.00147, Harley et al. 2004 f. M.indica: 0.00145) 
+#	const beta          :Float64 = 0.09;                # monoterpene scaling factor, Guenther et al. 1995 (cit. in Guenther 1999 says this value originates from Guenther 1993) 
+#	const c1            :Float64 = 0.17650;             #fw: 0.17650e-3 in Grote et al. 2014 to preserve the constant relation to C2; #  fraction of electrons used from excess electron transport (−), from Sun et al. 2012 dataset, Grote et al. 2014 
+#	const c2            :Float64 = 0.00280;             #fw: 0.00280e-3 (umol m-2 s-1) in Grote et al. 2014; here in nmol m-2 s-1; # fraction of electrons used from photosynthetic electron transport (−),from Sun et al. 2012 dataset, Grote et al. 2014 
+#	const ceoIso        :Float64 = 2.0;                 # emission-class dependent empirical coefficient for temperature acitivity factor of isoprene from MEGAN v2.1 (Guenther et al. 2012)
+#	const ceoMono       :Float64 = 1.83;                # emission-class dependent empirical coefficient for temperature acitivity factor of a-pinene, b-pinene, oMT, Limonen, etc from MEGAN v2.1 (Guenther et al. 2012)
+#	const ct1           :Float64 = 95000.0;             # first temperature modifier (J mol-1), Guenther et al. 1993; (Staudt et al. 2004 f. Q.ilex: 87620, Bertin et al. 1997 f. Q.ilex: 74050, Harley et al. f. M.indica: 124600, in WIMOVAC 95100) 
+#	const ct2           :Float64 = 230000.0;            # second temperature modifier (J mol-1), Guenther et al. 1993; (Staudt et al. 2004 f. Q.ilex: 188200, Bertin et al. 1997 f. Q.ilex: 638600, Harley et al. f. M.indica: 254800) 
+#	const cl1           :Float64 = 1.066;               # radiation modifier, Guenther et al. 1993; (Staudt et al. 2004 f. Q.ilex: 1.04, Bertin et al. 1997 f. Q.ilex: 1.21, Harley et al. 2004 f. M.indica: 1.218) 
+#	const gammaMax      :Float64 = 34.0;                # saturating amount of electrons that can be supplied from other sources (μmol m−2 s−1), Sun et al. 2012 dataset, Grote et al. 2014 (delta J_sat in paper)
+#	const ppfd0         :Float64 = 1000.0;              # reference photosynthetically active quantum flux density/light density (standard conditions) (umol m-2 s-1), Guenther et al. 1993 
+#	const temp0         :Float64 = 298.15;              # (= 25.0 + D2K) reference (leaf) temperature (standard conditions) (K), Guenther et al. 1993 
+#	const topT          :Float64 = 314.0;               # temperature with maximum emission (K), Guenther et al. 1993; (Staudt et al. 2004 f. Q.ilex: 317, Bertin et al. 1997 f. Q.ilex: 311.6, Harley et al. f. M.indica: 313.4, in WIMOVAC 311.83) 
+#	const tRef          :Float64 = 303.15;              # (= 30.0 + D2K) reference temperature (K), Guenther et al. 1993 
 		
 	# photofarquhar specific constants
-	const tk25 :Float64 = 298.16;
+#	const tk25 :Float64 = 298.16;
 
     struct Emissions {
         struct SpeciesIdToEmission {
