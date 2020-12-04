@@ -19,13 +19,54 @@ namespace test_mas_infrastructure
             {
                 if (args.Length > 0 && args[0] == "client")
                 {
+                    //*
+                    using (var monicaClient = new TcpRpcClient("localhost", 6666))
+                    using (var csvTimeSeriesClient = new TcpRpcClient("localhost", 11002))
+                    {
+                        await Task.WhenAll(csvTimeSeriesClient.WhenConnected, monicaClient.WhenConnected);
+                        using var timeSeries = csvTimeSeriesClient.GetMain<Mas.Rpc.Climate.ITimeSeries>();
+
+                        var y = await timeSeries.Data();
+
+                        string envJson = System.IO.File.ReadAllText(@"data\monica\env.json");
+
+                        using var monica = monicaClient.GetMain<Mas.Rpc.Model.IEnvInstance<Mas.Rpc.Common.StructuredText, Mas.Rpc.Common.StructuredText>>();
+                        //var minfo = await monica.Info();
+                        //Console.WriteLine("id: " + minfo.Id + " name: " + minfo.Name);
+
+                        var res = await monica.Run(
+                            new Mas.Rpc.Model.Env<Mas.Rpc.Common.StructuredText>()
+                            {
+                                Rest = new Mas.Rpc.Common.StructuredText()
+                                {
+                                    Structure = new Mas.Rpc.Common.StructuredText.structure() { which = Mas.Rpc.Common.StructuredText.structure.WHICH.Json },
+                                    Value = envJson
+                                },
+                                TimeSeries = Proxy.Share(timeSeries)
+                            }
+                        );
+
+                        var data = await timeSeries.Data();
+                        int x = 0;
+                        foreach (var d in data)
+                        {
+                            x += d.Count;
+                        }
+                        Console.WriteLine("data.Count=" + data.Count + " should be: " + data.Count * 7 + " is: " + x);
+                        Console.WriteLine("\n");
+                    }
+                    return;
+                    //*/
+
+
+                    /*
                     var admin = (await conMan.Connect("capnp://insecure@nb-berg-9550:10001/5ea7896b-e2ea-4f63-8ad0-03ecafc35082")).Cast<Mas.Rpc.Registry.IAdmin>(true);
                     var registry = await admin.Registry();
                     var addSucc = await admin.AddCategory(new Mas.Rpc.Common.IdInformation() { Id = "test1", Name = "Test1 Name", Description = "Test1 Description" }, false);
                     var cats = await registry.SupportedCategories();
                     foreach(var cat in cats)
                         Console.WriteLine(cat.Name);
-
+                    //*/
 
                     /*
                     //access climate services
@@ -100,14 +141,15 @@ namespace test_mas_infrastructure
 
                     /*
                     //using (var csvTimeSeriesClient = new TcpRpcClient("login01.cluster.zalf.de", 11002))
-                    using (var monicaClient = new TcpRpcClient("login01.cluster.zalf.de", 10002))
+                    //using (var monicaClient = new TcpRpcClient("login01.cluster.zalf.de", 10002))
+                    using (var monicaClient = new TcpRpcClient("localhost", 6666))
                     //using (var monicaClient = new TcpRpcClient("login01.cluster.zalf.de", 10003))
-                    using (var regClient = new TcpRpcClient("login01.cluster.zalf.de", 10001))
-                    // using (var csvTimeSeriesClient = new TcpRpcClient("localhost", 11002))
+                    //using (var regClient = new TcpRpcClient("login01.cluster.zalf.de", 10001))
+                    using (var csvTimeSeriesClient = new TcpRpcClient("localhost", 11002))
                     {
                         await Task.WhenAll(regClient.WhenConnected, monicaClient.WhenConnected);
                         using var registry = regClient.GetMain<Mas.Rpc.Service.IRegistry>();
-                        var services = await registry.GetAvailableServices(
+                        var services = await registry.availableServices(
                             new Service.Registry.Query()
                             {
                                 which = Service.Registry.Query.WHICH.Type,
