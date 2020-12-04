@@ -34,6 +34,7 @@ import capnp
 import capnproto_schemas.soil_data_capnp as soil_data_capnp
 import capnproto_schemas.registry_capnp as registry_capnp
 import capnproto_schemas.persistence_capnp as persistence_capnp
+import capnproto_schemas.climate_data_capnp as climate_data_capnp
 
 
 #------------------------------------------------------------------------------
@@ -84,9 +85,9 @@ def main():
             if k in config:
                 config[k] = v
 
-    #csv_timeseries_cap = capnp.TwoPartyClient("localhost:11002").bootstrap().cast_as(climate_data_capnp.Climate.TimeSeries)
-    #header = csv_timeseries_cap.header().wait().header
-    #print(header)
+    csv_timeseries_cap = capnp.TwoPartyClient("localhost:11002").bootstrap().cast_as(climate_data_capnp.Climate.TimeSeries)
+    header = csv_timeseries_cap.header().wait().header
+    print(header)
 
     #async def main():
 
