@@ -50,6 +50,7 @@ def main(server="*", port=11002, path_to_csv_file="data/climate/climate-iso.csv"
             k, v = arg.split("=")
             if k in config:
                 config[k] = v
+    print(config)
 
     server = capnp.TwoPartyServer(config["server"] + ":" + config["port"],
                                   bootstrap=csv_based.TimeSeries.from_csv_file(config["path_to_csv_file"],
