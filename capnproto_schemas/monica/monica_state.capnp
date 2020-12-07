@@ -68,6 +68,16 @@ struct AOMProperties {
 
 
 struct SoilColumnState {
+    struct DelayedNMinApplicationParams {
+      fp                        @0 :Params.MineralFertilizerParameters;
+      samplingDepth             @1 :Float64;
+      cropNTarget               @2 :Float64;
+      cropNTarget30             @3 :Float64;
+      fertiliserMinApplication  @4 :Float64;
+      fertiliserMaxApplication  @5 :Float64;
+      topDressingDelay          @6 :Float64;
+    }
+
     vsSurfaceWaterStorage       @0  :Float64;       # Content of above-ground water storage [mm]
     vsInterceptionStorage       @1  :Float64;       # Amount of intercepted water on crop surface [mm]
     vmGroundwaterTable          @2  :UInt16;        # Layer of current groundwater table
@@ -81,8 +91,8 @@ struct SoilColumnState {
     vfTopDressingPartition      @10 :Params.MineralFertilizerParameters;
     vfTopDressingDelay          @11 :UInt16;
     cropModule                  @12 :CropModuleState;
-    #std::list<std::function<double()>> _delayedNMinApplications;
-    pmCriticalMoistureDepth     @13  :Float64;
+    delayedNMinApplications     @13 :List(DelayedNMinApplicationParams);
+    pmCriticalMoistureDepth     @14 :Float64;
 }
 
 struct SoilLayerState {
@@ -394,9 +404,6 @@ struct CropModuleState {
     jjvEmissions                                @225    :Params.Voc.Emissions;
     vocSpecies                                  @226    :Params.Voc.SpeciesData;
     cropPhotosynthesisResults                   @227    :Params.Voc.CPData;
-
-    #std::function<void(std::string)> _fireEvent;   
-    #std::function<void(std::map<size_t, double>, double)> _addOrganicMatter;
 
     o3ShortTermDamage                           @199    :Float64 = 1.0;
     o3LongTermDamage                            @198    :Float64 = 1.0;
