@@ -12,8 +12,8 @@ struct MaybeBool {
 
 struct RuntimeState {
     modelState  @0 :MonicaModelState;
-    critPos     @1 :UInt16; # crop rotation iterator position
-    cmitPos     @2 :UInt16; # cultivation method iterator position
+    #critPos     @1 :UInt16; # crop rotation iterator position
+    #cmitPos     @2 :UInt16; # cultivation method iterator position
 }
 
 struct CropState {
@@ -93,6 +93,8 @@ struct SoilColumnState {
     cropModule                  @12 :CropModuleState;
     delayedNMinApplications     @13 :List(DelayedNMinApplicationParams);
     pmCriticalMoistureDepth     @14 :Float64;
+
+    layers                      @15 :List(SoilLayerState);
 }
 
 struct SoilLayerState {
@@ -131,7 +133,6 @@ struct MonicaModelState {
     soilMoisture                    @11 :SoilMoistureModuleState; # moisture code
     soilOrganic                     @12 :SoilOrganicModuleState; # organic code
     soilTransport                   @13 :SoilTransportModuleState; # transport code
-    currentCrop                     @14 :CropState; # currently possibly planted crop
     currentCropModule               @15 :CropModuleState; # crop code for possibly planted crop
 
     sumFertiliser                   @16 :Float64; 
@@ -166,7 +167,7 @@ struct MonicaModelState {
     accuNStress                     @32 :Float64;
     accuWaterStress                 @33 :Float64;
     accuHeatStress                  @34 :Float64;
-    accuOxygenStress                @35 :Float64;
+    accuOxygenStress                @14 :Float64;
 
     vwAtmosphericCO2Concentration   @6  :Float64;
     vwAtmosphericO3Concentration    @5  :Float64;
@@ -177,6 +178,10 @@ struct MonicaModelState {
 
 struct CropModuleState {
     frostKillOn                                 @0      :Bool;      
+    speciesParams                               @228    :Params.SpeciesParameters;
+    cultivarParams                              @229    :Params.CultivarParameters;
+    residueParams                               @230    :Params.CropResidueParameters;
+    isWinterCrop                                @231    :Bool;
     vsLatitude                                  @6      :Float64;  
     abovegroundBiomass                          @7      :Float64; # old OBMAS
     abovegroundBiomassOld                       @8      :Float64; # old OBALT
