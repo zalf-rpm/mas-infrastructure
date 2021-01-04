@@ -69,19 +69,32 @@ struct Climate {
   struct Metadata {
     # metadata describing a set of climate data
 
-    #interface Supported {
-    #  # this interface allows access to all supported Metadata elements by the implementing service
-    #
-    #  supportedTypes @0 () -> (types :List(Common.IdInformation));
-    #  # types can be things like GCMs, RCMs, SSPs, RCPs etc
-    #  
-    #  supportedValues @ 1 (typeId :Text) -> (values :List(Common.IdInformation));
-    #  # the values a supported type can take on
-    #}
+    interface Supported {
+      # this interface allows access to all supported Metadata elements by the implementing service
+    
+      #struct Category
+
+      categories @0 () -> (types :List(Common.IdInformation));
+      # types can be things like GCMs, RCMs, SSPs, RCPs etc
+      
+      supportedValues @ 1 (typeId :Text) -> (values :List(Common.IdInformation));
+      # the values a supported type can take on
+    }
+
+    struct Value {
+      union {
+        text @0 :Text;
+        float @1 :Float64;
+        int @2 :Int64;
+        bool @3 :Bool;
+        date @4 :Date;
+      }
+    }
+
 
     #struct Entry {
     #  typeId @0 :Text;
-    #
+    #  
     #  value :union {
     #    text @1 :Text;
     #    float @2 :Float64;
@@ -229,7 +242,7 @@ struct Climate {
     # get all datasets matching the given metadata template
 
     #supportedMetadata @2 () -> (cap :Metadata.Supported);
-    # return a capability to an interface describing the services supported metadata
+    # return a capability to an interface describing the service's supported metadata
   }
 
 }
