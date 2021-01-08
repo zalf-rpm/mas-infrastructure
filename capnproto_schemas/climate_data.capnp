@@ -235,10 +235,10 @@ struct Climate {
   interface Service extends(Common.Identifiable) {
     # climate data service 
 
-    availableDatasets @0 () -> (datasets :List(MetaPlusData));
+    getAvailableDatasets @0 () -> (datasets :List(MetaPlusData));
     # get a list of all available datasets
 
-    datasetsFor @1 (template :Metadata) -> (datasets :List(Dataset));
+    getDatasetsFor @1 (template :Metadata) -> (datasets :List(Dataset));
     # get all datasets matching the given metadata template
 
     #supportedMetadata @2 () -> (cap :Metadata.Supported);

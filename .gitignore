@@ -144,3 +144,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+capnproto_schemas/monica/monica_params.capnp.cs
+capnproto_schemas/monica/monica_state.capnp.cs
