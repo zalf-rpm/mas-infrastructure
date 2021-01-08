@@ -19,19 +19,31 @@ namespace Mas.Infrastructure.ServiceRegistry
 {
     class ServiceRegistry : Rpc.Registry.IRegistry, Rpc.Persistence.IRestorer<string>
     {
-        private string _id, _name, _description;
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+
         private ConcurrentDictionary<string, Rpc.Common.IdInformation> _CatId2SupportedCategories;
+        public Rpc.Common.IdInformation[] Categories
+        {
+            get { return _CatId2SupportedCategories.Values.ToArray(); }
+            set {
+                foreach (var cat in value)
+                {
+                    try { _CatId2SupportedCategories[cat.Id] = cat; } catch (System.Exception) { }
+                }
+            }
+        }
+        
         private ConcurrentDictionary<string, Tuple<string, Registry.Entry, Common.Unregister>> _OId2Entry;
         private ConcurrentDictionary<string, Proxy> _SrToken2Capability;
         private IInterceptionPolicy _savePolicy;
 
-        public ServiceRegistry(string id = "", string name = "", string description = "")
+        public int TcpPort { get; set; }
+
+        public ServiceRegistry()
         {
-            _id = id;
-            _name = name;
-            _description = description;
             _CatId2SupportedCategories = new ConcurrentDictionary<string, Rpc.Common.IdInformation>();
-            _CatId2SupportedCategories["abc"] = new Rpc.Common.IdInformation() { Id = "abc" };
             _OId2Entry = new ConcurrentDictionary<string, Tuple<string, Registry.Entry, Common.Unregister>>();
             _SrToken2Capability = new ConcurrentDictionary<string, Proxy>();
             _savePolicy = new InterceptPersistentPolicy(this);
@@ -81,14 +93,14 @@ namespace Mas.Infrastructure.ServiceRegistry
                 _SrToken2Capability[srToken] = proxy;
             }
             var ip = Dns.GetHostName(); // "localhost";// GetLocalIPAddress();
-            return $"capnp://insecure@{ip}:{Program.TcpPort}/{srToken}";
+            return $"capnp://insecure@{ip}:{TcpPort}/{srToken}";
         }
 
         #region implementation of Mas.Rpc.Common.IIdentifiable
         public Task<Rpc.Common.IdInformation> Info(CancellationToken cancellationToken_ = default)
         {
             return Task.FromResult(new Rpc.Common.IdInformation()
-            { Id = _id, Name = _name, Description = _description });
+            { Id = Id, Name = Name, Description = Description });
         }
         #endregion
 
