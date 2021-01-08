@@ -38,7 +38,7 @@ import csv_file_based as csv_based
 
 import capnp
 import capnproto_schemas.climate_data_capnp as climate_data_capnp
-import capnproto_schemas.service_registry_capnp as reg_capnp
+import capnproto_schemas.service_registry_capnp as service_registry_capnp
 
 #------------------------------------------------------------------------------
 
@@ -99,7 +99,7 @@ async def async_main_register(path_to_data, reg_server=None, reg_port=None, id=N
             time.sleep(retry_secs)
             retry_secs += 1
 
-    registry = client.bootstrap().cast_as(reg_capnp.Service.Registry)
+    registry = client.bootstrap().cast_as(service_registry_capnp.Registry)
     unreg = await registry.registerService(type="climate", service=service).a_wait()
     #await unreg.unregister.unregister().a_wait()
 
