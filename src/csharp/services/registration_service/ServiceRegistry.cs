@@ -35,16 +35,27 @@ namespace Mas.Infrastructure.ServiceRegistry
             }
         }
         
-        private ConcurrentDictionary<string, Tuple<string, Registry.Entry, Common.Unregister>> _OId2Entry;
+        public struct RegData
+        {
+            public string Id { get; set; }
+            public Registry.Entry Entry { get; set; }
+            public Common.Unregister Unreg { get; set; }
+            public string SturdyRef { get; set; }
+        }
+
+        //private ConcurrentDictionary<string, Tuple<string, Registry.Entry, Common.Unregister>> _OId2Entry;
+        private ConcurrentDictionary<string, RegData> _OId2Entry;
         private ConcurrentDictionary<string, Proxy> _SrToken2Capability;
         private IInterceptionPolicy _savePolicy;
 
         public int TcpPort { get; set; }
 
+        public static ulong PersistentInterfaceId = ((Capnp.TypeIdAttribute)Attribute.GetCustomAttribute(typeof(Capnp.IPersistent<string, string>), typeof(Capnp.TypeIdAttribute))).Id;
+
         public ServiceRegistry()
         {
             _CatId2SupportedCategories = new ConcurrentDictionary<string, Rpc.Common.IdInformation>();
-            _OId2Entry = new ConcurrentDictionary<string, Tuple<string, Registry.Entry, Common.Unregister>>();
+            _OId2Entry = new ConcurrentDictionary<string, RegData>();//Tuple<string, Registry.Entry, Common.Unregister>>();
             _SrToken2Capability = new ConcurrentDictionary<string, Proxy>();
             _savePolicy = new InterceptPersistentPolicy(this);
         }
@@ -53,8 +64,8 @@ namespace Mas.Infrastructure.ServiceRegistry
             // dispose registered caps
             foreach (var oid2e in _OId2Entry)
             {
-                oid2e.Value.Item2.Ref?.Dispose(); // registered services
-                oid2e.Value.Item3.Dispose();
+                oid2e.Value.Entry.Ref?.Dispose(); // registered services
+                oid2e.Value.Unreg.Dispose();
             }
 
             // dispose sturdy ref caps
@@ -115,14 +126,14 @@ namespace Mas.Infrastructure.ServiceRegistry
             var entries = new List<Registry.Entry>();
             if (categoryId != null)
                 entries.AddRange((from p in _OId2Entry
-                                  where p.Value.Item2.CategoryId == categoryId
-                                  select p.Value.Item2).
+                                  where p.Value.Entry.CategoryId == categoryId
+                                  select p.Value.Entry).
                                   Select(e => new Registry.Entry(){
                                       CategoryId = e.CategoryId,
                                       Ref = Proxy.Share(e.Ref)
                                  }));
             else
-                entries.AddRange((from p in _OId2Entry select p.Value.Item2).
+                entries.AddRange((from p in _OId2Entry select p.Value.Entry).
                     Select(e => new Registry.Entry()
                     {
                         CategoryId = e.CategoryId,
@@ -162,8 +173,6 @@ namespace Mas.Infrastructure.ServiceRegistry
             return Task.FromResult<BareProxy>(null);
         }
         #endregion
-
-        
         
 
         public class AdminImpl : Rpc.Registry.IAdmin
@@ -204,7 +213,7 @@ namespace Mas.Infrastructure.ServiceRegistry
                 {
                     try
                     {
-                        _Registry._OId2Entry[oid].Item2.CategoryId = toCatId;
+                        _Registry._OId2Entry[oid].Entry.CategoryId = toCatId;
                         moved.Add(oid);
                     }
                     catch (KeyNotFoundException){}
@@ -232,21 +241,21 @@ namespace Mas.Infrastructure.ServiceRegistry
                 // but remember objects to be removed, to remove them outside of the iterator
                 var removedIds = new List<string>();
                 foreach(var oid2entry in from p in _Registry._OId2Entry 
-                                     where p.Value.Item2.CategoryId == categoryId 
+                                     where p.Value.Entry.CategoryId == categoryId 
                                      select p)
                 {
                     if (moveObjectsToCategoryId == null)
                     {
-                        removed.Add(Capnp.Rpc.Proxy.Share(oid2entry.Value.Item2.Ref));
+                        removed.Add(Capnp.Rpc.Proxy.Share(oid2entry.Value.Entry.Ref));
                         removedIds.Add(oid2entry.Key);
                     }
                     else
-                        oid2entry.Value.Item2.CategoryId = moveObjectsToCategoryId;
+                        oid2entry.Value.Entry.CategoryId = moveObjectsToCategoryId;
                 }
 
                 // remove remembered objects from registry
                 foreach (var oid in removedIds)
-                    _Registry._OId2Entry.Remove(oid, out Tuple<string, Registry.Entry, Common.Unregister> removedValue);
+                    _Registry._OId2Entry.Remove(oid, out RegData removedValue);
 
                 // finally remove the category
                 _Registry._CatId2SupportedCategories.TryRemove(categoryId, out _);
@@ -262,10 +271,10 @@ namespace Mas.Infrastructure.ServiceRegistry
                     try
                     {
                         var entry = _Registry._OId2Entry[oid];
-                        var obj = entry.Item2.Ref;
-                        await _Registry._OId2Entry[oid].Item3.Call(cancellationToken_);
+                        var obj = entry.Entry.Ref;
+                        await _Registry._OId2Entry[oid].Unreg.Call(cancellationToken_);
                         if (!_Registry._OId2Entry.ContainsKey(oid))
-                            removed.Add(Capnp.Rpc.Proxy.Share(entry.Item2.Ref));
+                            removed.Add(Capnp.Rpc.Proxy.Share(entry.Entry.Ref));
                     }
                     catch (KeyNotFoundException) { }
                 }
@@ -300,21 +309,30 @@ namespace Mas.Infrastructure.ServiceRegistry
                     {
                         // get id of reference and at the same time test it, before we store it
                         var oid = (await @ref.Info()).Id;
+                        //try to get the sturdyRef of the to be registered service
+                        string sturdyRef = null;
+                        try { sturdyRef = (await ((Proxy)@ref).Cast<IPersistent<string, string>>(false).Save(null)).SturdyRef; }
+                        catch (Capnp.Rpc.RpcException) { }
                         var persistentRef = _Registry._savePolicy.Attach(@ref);
                         var unreg = new Common.Unregister(oid, () => {
                             if (_Registry._OId2Entry.TryRemove(oid, out var removedValue))
-                                _Registry._SrToken2Capability.TryRemove(removedValue.Item1, out _);
+                                _Registry._SrToken2Capability.TryRemove(removedValue.Id, out _);
                         });
-                        _Registry._OId2Entry[oid] = Tuple.Create("", new Registry.Entry()
+                        _Registry._OId2Entry[oid] = new RegData
                         {
-                            CategoryId = categoryId,
-                            Ref = persistentRef
-                        }, unreg);
+                            Entry = new Registry.Entry()
+                            {
+                                CategoryId = categoryId,
+                                Ref = persistentRef
+                            },
+                            Unreg = unreg,
+                            SturdyRef = sturdyRef
+                        };
                         return unreg;
                     }
-                    catch(Capnp.Rpc.RpcException)
+                    catch (Capnp.Rpc.RpcException e)
                     {
-                        //Console.Error.WriteLine(e.Message);
+                        Console.Error.WriteLine(e.Message);
                     }
                 }
                 return null;
