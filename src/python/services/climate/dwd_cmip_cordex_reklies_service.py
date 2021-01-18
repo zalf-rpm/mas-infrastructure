@@ -158,7 +158,7 @@ host="0.0.0.0", port=None, reg_sturdy_ref=None, id=None, name="DWD - CMIP Cordex
     conMan = async_helpers.ConnectionManager()
 
     interpolator, rowcol_to_latlon = ccdi.create_lat_lon_interpolator_from_json_coords_file(config["path_to_data"] + "/" + "latlon-to-rowcol.json")
-    meta_plus_data = create_meta_plus_datasets(config["path_to_data"] + "/germany_ubn_1901-2018", interpolator, rowcol_to_latlon)
+    meta_plus_data = create_meta_plus_datasets(config["path_to_data"] + "/csv", interpolator, rowcol_to_latlon)
     service = ccdi.Service(meta_plus_data, id=config["id"], name=config["name"], description=config["description"])
 
     if config["reg_sturdy_ref"]:
