@@ -15,6 +15,7 @@
 # Landscape Systems Analysis at the ZALF.
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
+import capnp
 import csv
 import json
 from datetime import date, timedelta
@@ -38,9 +39,8 @@ if str(PATH_TO_PYTHON_CODE) not in sys.path:
 import common.geo as geo
 import common_climate_data_capnp_impl as ccdi
 
-import capnp
-#import capnproto_schemas.geo_coord_capnp as geo_capnp
-import capnproto_schemas.climate_data_capnp as climate_data_capnp
+abs_imports = ["capnproto_schemas"]
+climate_data_capnp = capnp.load("capnproto_schemas/climate_data.capnp", imports=abs_imports)
 
 #------------------------------------------------------------------------------
 
