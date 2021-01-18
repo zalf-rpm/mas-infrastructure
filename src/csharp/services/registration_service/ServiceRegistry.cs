@@ -50,8 +50,6 @@ namespace Mas.Infrastructure.ServiceRegistry
 
         public int TcpPort { get; set; }
 
-        public static ulong PersistentInterfaceId = ((Capnp.TypeIdAttribute)Attribute.GetCustomAttribute(typeof(Capnp.IPersistent<string, string>), typeof(Capnp.TypeIdAttribute))).Id;
-
         public ServiceRegistry()
         {
             _CatId2SupportedCategories = new ConcurrentDictionary<string, Rpc.Common.IdInformation>();
