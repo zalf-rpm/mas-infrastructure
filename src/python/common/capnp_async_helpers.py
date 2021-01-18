@@ -15,10 +15,12 @@
 # code adapted from: https://github.com/capnproto/pycapnp/blob/master/examples/async_calculator_server.py
 
 import asyncio
+import capnp
 import logging
 import socket
+import time
 
-import capnp
+persistence_capnp = capnp.load("capnproto_schemas/persistence.capnp", imports=["capnproto_schemas"]) 
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -32,21 +34,26 @@ class Server:
     def __init__(self, service):
         self._service = service
 
+        self.server = None
+        self.reader = None
+        self.writer = None
+        self.retry = False
 
-    async def myreader(self):
+
+    async def socket_reader(self):
         while self.retry:
             try:
                 # Must be a wait_for so we don't block on read()
                 data = await asyncio.wait_for(
                     self.reader.read(4096),
-                    timeout=0.1
+                    timeout=5.0 #0.1
                 )
                 await self.server.write(data)
             except asyncio.TimeoutError:
                 #logger.debug("myreader timeout.")
                 continue
             except Exception as err:
-                logger.debug("Unknown myreader err: %s", err)
+                logger.debug("Unknown socket_reader err: %s", err)
                 self.retry = False
                 return False
             #await self.server.write(data)
@@ -54,13 +61,13 @@ class Server:
         return True
 
 
-    async def mywriter(self):
+    async def socket_writer(self):
         while self.retry or self.writer.at_eof():
             try:
                 # Must be a wait_for so we don't block on read()
                 data = await asyncio.wait_for(
                     self.server.read(4096),
-                    timeout=0.1
+                    timeout=5.0 #0.1
                 )
                 self.writer.write(data.tobytes())
                 await self.writer.drain()
@@ -68,14 +75,14 @@ class Server:
                 #logger.debug("mywriter timeout.")
                 continue
             except Exception as err:
-                logger.debug("Unknown mywriter err: %s", err)
+                logger.debug("Unknown socket_writer err: %s", err)
                 self.retry = False
                 return False
         logger.debug("mywriter done.")
         return True
 
 
-    async def myserver(self, reader, writer):
+    async def handle_connection(self, reader, writer):
         # Start TwoPartyServer using TwoWayPipe (only requires bootstrap)
         self.server = capnp.TwoPartyServer(bootstrap=self._service)
         self.reader = reader
@@ -83,7 +90,7 @@ class Server:
         self.retry = True
 
         # Assemble reader and writer tasks, run in the background
-        coroutines = [self.myreader(), self.mywriter()]
+        coroutines = [self.socket_reader(), self.socket_writer()]
         tasks = asyncio.gather(*coroutines, return_exceptions=True)
 
         while True:
@@ -97,8 +104,184 @@ class Server:
         # Make wait for reader/writer to finish (prevent possible resource leaks)
         await tasks
 
+
+async def serve(host, port, bootstrap):
+
+    def new_connection_factory(bootstrap):
+        async def new_connection(reader, writer):
+            server = Server(bootstrap)
+            await server.handle_connection(reader, writer)
+        return new_connection
+
+    # Handle both IPv4 and IPv6 cases
+    try:
+        server = await asyncio.start_server(
+            new_connection_factory(bootstrap),
+            host, port,
+            family=socket.AF_INET
+        )
+    except Exception:
+        print("Tried start server via IPv4, now trying IPv6.")
+        server = await asyncio.start_server(
+            new_connection_factory(bootstrap),
+            host, port,
+            family=socket.AF_INET6
+        )
+    h, p = server.sockets[0].getsockname()
+    try:
+        bootstrap.port = p
+    except:
+        pass
+    print("serving bootstrap on interface:", h, "port:", p)
+    return server
+
+
+async def serve_forever(host, port, bootstrap):
+    server = await serve(host, port, bootstrap)
+    async with server:
+        await server.serve_forever()
+
 #------------------------------------------------------------------------------
 
+class ConnectionManager:
+
+    def __init__(self):
+        self.connections = {}
+        self.alltasks = []
+
+
+    async def manage_forever(self):
+        await asyncio.gather(*self.alltasks, return_exceptions=True)
+
+
+    async def connect(self, sturdy_ref, cast_as = None):
+        # we assume that a sturdy ref url looks always like capnp://hash-digest-or-insecure@host:port/sturdy-ref-token
+        try:
+            if sturdy_ref[:8] == "capnp://":
+                rest = sturdy_ref[8:]
+                hash_digest, rest = sturdy_ref.split("@")
+                host, rest = rest.split(":")
+                port_sr_token = rest.split("/")
+                port = port_sr_token[0]
+                sr_token = port_sr_token[1] if len(port_sr_token) > 1 else ""
+
+                host_port = "{}:{}".format(host, port)
+                if host_port in self.connections:
+                    bootstrap_cap = self.connections[host_port]
+                else:
+                    # Handle both IPv4 and IPv6 cases
+                    try:
+                        reader, writer = await asyncio.open_connection(
+                            host, port,
+                            family=socket.AF_INET
+                        )
+                    except Exception:
+                        print("Tried open connection via IPv4, now trying IPv6.")
+                        reader, writer = await asyncio.open_connection(
+                            host, port,
+                            family=socket.AF_INET6
+                        )
+
+                    # Start TwoPartyClient using TwoWayPipe (takes no arguments in this mode)
+                    client = capnp.TwoPartyClient()
+
+                    # Assemble reader and writer tasks, run in the background
+                    coroutines = [self.socket_reader(client, reader), self.socket_writer(client, writer)]
+                    self.alltasks.append(asyncio.gather(*coroutines, return_exceptions=True))
+
+                    bootstrap_cap = client.bootstrap()
+                    self.connections[host_port] = bootstrap_cap
+
+                if len(sr_token) == 0:
+                    return bootstrap_cap.cast_as(cast_as) if cast_as else bootstrap_cap
+                else:
+                    restorer = bootstrap_cap.cast_as(persistence_capnp.Restorer)
+                    dyn_obj_reader = (await restorer.restore(sr_token).a_wait()).cap
+                    return dyn_obj_reader.as_interface(cast_as) if cast_as else dyn_obj_reader
+
+        except Exception as e:
+            print(e)
+            return None
+
+
+    async def try_connect(self, sturdy_ref, cast_as = None, retry_count=10, retry_secs=5, print_retry_msgs=True):
+        while True:
+            try:
+                return await self.connect(sturdy_ref, cast_as=cast_as)
+            except Exception as e:
+                if retry_count == 0:
+                    if print_retry_msgs:
+                        print("Couldn't connect to sturdy_ref at {}!".format(sturdy_ref))
+                    return None
+                retry_count -= 1
+                if print_retry_msgs:
+                    print("Trying to connect to {} again in {} secs!".format(sturdy_ref, retry_secs))
+                time.sleep(retry_secs)
+                retry_secs += 1
+
+
+    async def socket_reader(self, client, reader, retry_task=True):
+        '''
+        Reads from asyncio socket and writes to pycapnp client interface
+        '''
+
+        while True:
+            data = await reader.read(4096)
+            client.write(data)
+        return
+
+        while retry_task:
+            try:
+                # Must be a wait_for in order to give watch_connection a slot
+                # to try again
+                data = await asyncio.wait_for(
+                    reader.read(4096),
+                    timeout=5.0
+                )
+            except asyncio.TimeoutError:
+                logger.debug("socketreader timeout.")
+                continue
+            except Exception as err:
+                logger.error("Unknown socket_reader err: %s", err)
+                return False
+            client.write(data)
+        logger.debug("socketreader done.")
+        return True
+
+
+    async def socket_writer(self, client, writer, retry_task=True):
+        '''
+        Reads from pycapnp client interface and writes to asyncio socket
+        '''
+
+        while True:
+            data = await client.read(4096)
+            writer.write(data.tobytes())
+            await writer.drain()
+        return
+
+        while retry_task:
+            try:
+                # Must be a wait_for in order to give watch_connection a slot
+                # to try again
+                data = await asyncio.wait_for(
+                    client.read(4096),
+                    timeout=5.0
+                )
+                writer.write(data.tobytes())
+                await writer.drain()
+            except asyncio.TimeoutError:
+                logger.debug("socketwriter timeout.")
+                continue
+            except Exception as err:
+                logger.error("Unknown socket_writer err: %s", err)
+                return False
+        logger.debug("socketwriter done.")
+        return True
+
+#------------------------------------------------------------------------------
+
+"""
 async def myreader(client, reader):
     while True:
         data = await reader.read(4096)
@@ -135,3 +318,4 @@ async def connect_to_server(port, address="127.0.0.1"):
     gather_results = asyncio.gather(*coroutines, return_exceptions=True)
 
     return (client, gather_results)
+"""
