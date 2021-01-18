@@ -1,6 +1,6 @@
 @0x99f1c9a775a88ac9;
 
-using Persistent = import "/capnp/persistent.capnp";
+using Persistent = import "/capnp/persistent.capnp".Persistent;
 
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("mas::rpc");
@@ -22,7 +22,6 @@ struct Common {
     # interface to retrieve id information from an object
     info @0 () -> IdInformation;
   }
-
 
   struct Date {
     # A standard Gregorian calendar date.
@@ -76,7 +75,7 @@ struct Common {
     # release capability on server side (signaling that capability cap isn't needed anymore)
   }
 
-  interface PersistCapHolder(Object) extends(CapHolder(Object), Persistent.Persistent(Text, Text)) {
+  interface PersistCapHolder(Object) extends(CapHolder(Object), Persistent(Text, Text)) {
     # persistent CapHolder which allows to get a token to recreate the CapHolder later
   }
 

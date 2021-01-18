@@ -3,6 +3,8 @@
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("mas::rpc");
 
+using Persistent = import "/capnp/persistent.capnp".Persistent;
+using Restorer = import "persistence.capnp".Restorer;
 using Common = import "common.capnp".Common;
 using Model = import "model.capnp".Model;
 using Geo = import "geo_coord.capnp".Geo;
@@ -232,7 +234,7 @@ struct Climate {
     # location of this time series
   }
 
-  interface Service extends(Common.Identifiable) {
+  interface Service extends(Common.Identifiable, Persistent(Text, Text), Restorer(Text)) {
     # climate data service 
 
     getAvailableDatasets @0 () -> (datasets :List(MetaPlusData));

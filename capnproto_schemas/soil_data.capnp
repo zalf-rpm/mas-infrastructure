@@ -7,6 +7,8 @@ $Cxx.namespace("mas::rpc");
 #$Go.package("dataServices");
 #$Go.import("dataServices");
 
+using Persistent = import "/capnp/persistent.capnp".Persistent;
+using Restorer = import "persistence.capnp".Restorer;
 using Common = import "common.capnp".Common;
 using Date = import "date.capnp".Date;
 using Geo = import "geo_coord.capnp".Geo;
@@ -109,7 +111,7 @@ struct Soil {
   }
 
 
-  interface Service extends(Common.Identifiable) {
+  interface Service extends(Common.Identifiable, Persistent(Text, Text), Restorer(Text)) {
     # service for soil data
 
     #interface CommonCapHolderProfile {
