@@ -30,8 +30,8 @@ if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
 import capnp
-import capnproto_schemas.common_capnp as common_capnp
-import capnproto_schemas.persistence_capnp as persistence_capnp
+common_capnp = capnp.load("capnproto_schemas/common.capnp", imports=["capnproto_schemas"]) 
+persistence_capnp = capnp.load("capnproto_schemas/persistence.capnp", imports=["capnproto_schemas"]) 
 
 #------------------------------------------------------------------------------
 

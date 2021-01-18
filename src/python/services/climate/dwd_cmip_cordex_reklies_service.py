@@ -16,6 +16,7 @@
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 import asyncio
+import capnp
 import os
 from pathlib import Path
 import sys
@@ -36,9 +37,9 @@ import common.capnp_async_helpers as async_helpers
 import common_climate_data_capnp_impl as ccdi
 import csv_file_based as csv_based
 
-import capnp
-import capnproto_schemas.climate_data_capnp as climate_data_capnp
-import capnproto_schemas.service_registry_capnp as service_registry_capnp
+abs_imports = ["capnproto_schemas"]
+reg_capnp = capnp.load("capnproto_schemas/registry.capnp", imports=abs_imports)
+climate_data_capnp = capnp.load("capnproto_schemas/climate_data.capnp", imports=abs_imports)
 
 #------------------------------------------------------------------------------
 
@@ -79,6 +80,7 @@ def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon):
 
 #------------------------------------------------------------------------------
 
+"""
 async def async_main_register(path_to_data, reg_server=None, reg_port=None, id=None, name=None, description=None):
     config = {
         "path_to_data": path_to_data,
@@ -127,14 +129,23 @@ async def async_main_register(path_to_data, reg_server=None, reg_port=None, id=N
     await gather_results
 
     print("after gather_results")
+"""
 
 #------------------------------------------------------------------------------
 
-def sync_main_server(path_to_data, port):
+async def async_main(path_to_data, serve_bootstrap=False,
+host="0.0.0.0", port=None, reg_sturdy_ref=None, id=None, name="DWD - CMIP Cordex Reklies", description=None):
+
     config = {
         "path_to_data": path_to_data,
-        "port": str(port),
-        "server": "*"
+        "host": host,
+        "port": port,
+        "id": id,
+        "name": name,
+        "description": description,
+        "reg_sturdy_ref": reg_sturdy_ref,
+        "serve_bootstrap": str(serve_bootstrap),
+        "reg_category": "climate",
     }
     # read commandline args only if script is invoked directly from commandline
     if len(sys.argv) > 1 and __name__ == "__main__":
@@ -144,24 +155,27 @@ def sync_main_server(path_to_data, port):
                 config[k] = v
     print("config used:", config)
 
+    conMan = async_helpers.ConnectionManager()
+
     interpolator, rowcol_to_latlon = ccdi.create_lat_lon_interpolator_from_json_coords_file(config["path_to_data"] + "/" + "latlon-to-rowcol.json")
-    meta_plus_data = create_meta_plus_datasets(config["path_to_data"] + "/csv", interpolator, rowcol_to_latlon)
-    service = Service(meta_plus_data, name="DWD - CMIP Cordex Reklies")
-    server = capnp.TwoPartyServer(config["server"] + ":" + config["port"], bootstrap=service)
-    server.run_forever()
+    meta_plus_data = create_meta_plus_datasets(config["path_to_data"] + "/germany_ubn_1901-2018", interpolator, rowcol_to_latlon)
+    service = ccdi.Service(meta_plus_data, id=config["id"], name=config["name"], description=config["description"])
+
+    if config["reg_sturdy_ref"]:
+        registrator = await conMan.try_connect(config["reg_sturdy_ref"], cast_as=reg_capnp.Registrator)
+        if registrator:
+            unreg = await registrator.register(ref=service, categoryId=config["reg_category"]).a_wait()
+            print("Registered ", config["name"], "climate service.")
+            #await unreg.unregister.unregister().a_wait()
+        else:
+            print("Couldn't connect to registrator at sturdy_ref:", config["reg_sturdy_ref"])
+
+    if config["serve_bootstrap"].upper() == "TRUE":
+        await async_helpers.serve_forever(config["host"], config["port"], service)
+    else:
+        await conMan.manage_forever()
 
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    path_to_data = "/beegfs/common/data/climate/dwd/cmip_cordex_reklies"
-
-    if len(sys.argv) > 1:
-        command = sys.argv[1]
-        if command == "sync_server":
-            sys.argv.pop(1)
-            sync_main_server(path_to_data, 12000)
-        elif command == "async_register":
-            sys.argv.pop(1)
-            asyncio.run(async_main_register(path_to_data, reg_server="login01.cluster.zalf.de", reg_port=11001))
-
-    print("sync_server | async_register")
+    asyncio.run(async_main("/beegfs/common/data/climate/dwd/cmip_cordex_reklies"))

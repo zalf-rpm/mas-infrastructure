@@ -19,16 +19,17 @@
 #-m ptvsd --host 0.0.0.0 --port 14000 --wait
 
 import asyncio
+import capnp
 import logging
 import os
 from pathlib import Path
+from pyproj import CRS, Transformer
 import socket
 import sqlite3
+import socket
 import sys
-import time
+#import time
 import uuid
-
-from pyproj import CRS, Transformer
 
 PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent.parent
 if str(PATH_TO_REPO) not in sys.path:
@@ -38,15 +39,20 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-from common import rect_ascii_grid_management as grid_man, common, geo, capnp_async_helpers as async_helpers
+import common.common as common
+import common.rect_ascii_grid_management as grid_man
+import common.geo as geo
+import common.capnp_async_helpers as async_helpers
 
 PATH_TO_UTIL_SOIL = PATH_TO_REPO.parent / "util/soil"
 if str(PATH_TO_UTIL_SOIL) not in sys.path:
     sys.path.insert(1, str(PATH_TO_UTIL_SOIL))
 import soil_io3
 
-import capnp
-from capnproto_schemas import soil_data_capnp, common_capnp, service_registry_capnp as reg_capnp
+abs_imports = ["capnproto_schemas"]
+soil_data_capnp = capnp.load("capnproto_schemas/soil_data.capnp", imports=abs_imports) 
+common_capnp = capnp.load("capnproto_schemas/common.capnp", imports=abs_imports) 
+reg_capnp = capnp.load("capnproto_schemas/registry.capnp", imports=abs_imports)
 
 #------------------------------------------------------------------------------
 
@@ -123,9 +129,9 @@ CAPNP_PROP_to_MONICA_PARAM_NAME = {
 
 #------------------------------------------------------------------------------
 
-class Service(soil_data_capnp.Soil.Service.Server):
+class Service(soil_data_capnp.Soil.Service.Server): 
 
-    def __init__(self, path_to_sqlite_db, path_to_ascii_grid, grid_crs, id=None, name=None, description=None):
+    def __init__(self, path_to_sqlite_db, path_to_ascii_grid, grid_crs, id=None, name=None, description=None, port=None):
         self._path_to_sqlite_db = path_to_sqlite_db
         self._path_to_ascii_grid = path_to_ascii_grid
         self._con = sqlite3.connect(self._path_to_sqlite_db)
@@ -138,7 +144,7 @@ class Service(soil_data_capnp.Soil.Service.Server):
         self._all_latlon_coords = None
         self._latlon_to_capholders = {}
 
-        self._id = id if id else uuid.uuid4()
+        self._id = str(id if id else uuid.uuid4())
         self._name = name if name else self._path_to_sqlite_db
         self._description = description if description else ""
         self._cache_raw = {}
@@ -146,6 +152,19 @@ class Service(soil_data_capnp.Soil.Service.Server):
 
         self._capnp_prop_to_monica_param_name = CAPNP_PROP_to_MONICA_PARAM_NAME
         self._monica_param_to_capnp_prop_name = {value : key for key, value in CAPNP_PROP_to_MONICA_PARAM_NAME.items()}
+
+        self._issued_sr_tokens = []
+        self._host = socket.getfqdn() #gethostname()
+        self._port = port
+
+
+    @property
+    def port(self):
+        return self._port
+    
+    @port.setter
+    def port(self, p):
+        self._port = p
 
 
     @property
@@ -309,60 +328,38 @@ class Service(soil_data_capnp.Soil.Service.Server):
             self._latlon_to_capholders[latlon] = p.snd[0] #store reference, so the object won't be garbage collected immediately
     """
 
-#------------------------------------------------------------------------------
+    def save_context(self, context): # save @0 SaveParams -> SaveResults;
+        if self.port:
+            id = uuid.uuid4()
+            self._issued_sr_tokens.append(str(id))
+            context.results.sturdyRef = "capnp://insecure@{host}:{port}/{sr_token}".format(host=self._host, port=self.port, sr_token=id)
+        
 
-"""
-# interface CapHolder(Object)
-class ProfileCapHolder(soil_data_capnp.Soil.Service.CommonCapHolderProfile.Server): #(common_capnp.Common.CapHolder.Server):
-
-    def __init__(self, service, latlon, queried_names, only_raw_data, latlon_to_capholders):
-        self._service = service
-        self._latlon = latlon
-        self._queried_names = queried_names
-        self._only_raw_data = only_raw_data
-        self._latlon_to_capholders = latlon_to_capholders
+    def restore_context(self, context): # restore @0 (srToken :Token, owner :SturdyRef.Owner) -> (cap :Capability);
+        if context.params.srToken in self._issued_sr_tokens:
+            context.results.cap = self
 
 
-    def __del__(self):
-        print("ProfileCapHolder.__del__")
-        self._latlon_to_capholders.pop(self._latlon)
-
-
-    def cap_context(self, context): # cap @0 () -> (object :Object);
-        #profile = context.results.object.as_struct(soil_data_capnp.Soil.Profile)
-        profile = context.results.object
-        self._service.profiles_at(self._latlon[0], self._latlon[1], profile, self._queried_names, self._only_raw_data)
-        print(profile)
-        print(dir(context))
-
-
-    def release_context(self, context): # release @1 ();
-        print("ProfileCapHolder.release_context")
-        pass
-"""
+    def drop_context(self, context): # drop @1 (srToken :Token, owner :SturdyRef.Owner);
+        self._issued_sr_tokens.remove(context.params.srToken)
 
 #------------------------------------------------------------------------------
 
-def new_connection_factory(service):
-    
-    async def new_connection(reader, writer):
-        server = async_helpers.Server(service)
-        await server.myserver(reader, writer)
+async def async_main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs, serve_bootstrap=False,
+host="0.0.0.0", port=None, reg_sturdy_ref=None, id=None, name=None, description=None):
 
-    return new_connection
-
-#------------------------------------------------------------------------------
-
-async def async_main_register(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs, reg_server="127.0.0.1", reg_port=10001, id=None, name=None, description=None):
     config = {
+        "host": host,
+        "port": port,
         "path_to_sqlite_db": path_to_sqlite_db,
         "path_to_ascii_soil_grid": path_to_ascii_soil_grid,
         "grid_crs": grid_crs,
         "id": id,
         "name": name,
         "description": description,
-        "reg_port": str(reg_port),
-        "reg_server": reg_server
+        "reg_sturdy_ref": reg_sturdy_ref,
+        "serve_bootstrap": str(serve_bootstrap),
+        "reg_category": "soil",
     }
     # read commandline args only if script is invoked directly from commandline
     if len(sys.argv) > 1 and __name__ == "__main__":
@@ -372,60 +369,7 @@ async def async_main_register(path_to_sqlite_db, path_to_ascii_soil_grid, grid_c
                 config[k] = v
     print("config used:", config)
 
-    service = Service(
-        path_to_sqlite_db=config["path_to_sqlite_db"],
-        path_to_ascii_grid=config["path_to_ascii_soil_grid"],
-        grid_crs=geo.name_to_proj(config["grid_crs"]),
-        id=config["id"], name=config["name"], description=config["description"])
-
-    registry_available = False
-    connect_to_registry_retry_count = 10
-    retry_secs = 5
-    while not registry_available:
-        try:
-            client, gather_results = await async_helpers.connect_to_server(port=config["reg_port"], address=config["reg_server"])
-            registry_available = True
-        except:
-            if connect_to_registry_retry_count == 0:
-                print("Couldn't connect to registry server at {}:{}!".format(config["reg_server"], config["reg_port"]))
-                exit(0)
-            connect_to_registry_retry_count -= 1
-            print("Trying to connect to {}:{} again in {} secs!".format(config["reg_server"], config["reg_port"], retry_secs))
-            time.sleep(retry_secs)
-            retry_secs += 1
-
-    registry = client.bootstrap().cast_as(reg_capnp.Service.Registry)
-    unreg = await registry.registerService(type="soil", service=service).a_wait()
-    #await unreg.unregister.unregister().a_wait()
-
-    print("registered soil service")
-
-    #await unreg.unregister.unregister().a_wait()
-
-    await gather_results
-
-    print("after gather_results")
-
-#------------------------------------------------------------------------------
-
-async def async_main_server(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs, server="0.0.0.0", port=6003, id=None, name=None, description=None):
-    config = {
-        "port": str(port),
-        "server": server,
-        "path_to_sqlite_db": path_to_sqlite_db,
-        "path_to_ascii_soil_grid": path_to_ascii_soil_grid,
-        "grid_crs": grid_crs,
-        "id": id,
-        "name": name,
-        "description": description
-    }
-    # read commandline args only if script is invoked directly from commandline
-    if len(sys.argv) > 1 and __name__ == "__main__":
-        for arg in sys.argv[1:]:
-            k, v = arg.split("=")
-            if k in config:
-                config[k] = v
-    print("config used:", config)
+    conMan = async_helpers.ConnectionManager()
 
     service = Service(
         path_to_sqlite_db=config["path_to_sqlite_db"],
@@ -433,60 +377,19 @@ async def async_main_server(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs
         grid_crs=geo.name_to_proj(config["grid_crs"]),
         id=config["id"], name=config["name"], description=config["description"])
 
-    # Handle both IPv4 and IPv6 cases
-    #try:
-    #print("Try IPv4")
-    server = await asyncio.start_server(
-        new_connection_factory(service),
-        server, port,
-        family=socket.AF_INET
-    )
-    #except Exception:
-    #    print("Try IPv6")
-    #    server = await asyncio.start_server(
-    #        new_connection_factory(service),
-    #        server, port,
-    #        family=socket.AF_INET6
-    #    )
+    if config["reg_sturdy_ref"]:
+        registrator = await conMan.try_connect(config["reg_sturdy_ref"], cast_as=reg_capnp.Registrator)
+        if registrator:
+            unreg = await registrator.register(ref=service, categoryId=config["reg_category"]).a_wait()
+            print("Registered ", config["name"], "soil service")
+            #await unreg.unregister.unregister().a_wait()
+        else:
+            print("Couldn't connect to registrator at sturdy_ref:", config["reg_sturdy_ref"])
 
-    async with server:
-        await server.serve_forever()
-
-#------------------------------------------------------------------------------
-
-def no_async_main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs, server="*", port=6003, id=None, name=None, description=None):
-    config = {
-        "port": str(port),
-        "server": server,
-        "path_to_sqlite_db": path_to_sqlite_db,
-        "path_to_ascii_soil_grid": path_to_ascii_soil_grid,
-        "grid_crs": grid_crs,
-        "id": id,
-        "name": name,
-        "description": description
-    }
-    # read commandline args only if script is invoked directly from commandline
-    if len(sys.argv) > 1 and __name__ == "__main__":
-        for arg in sys.argv[1:]:
-            k, v = arg.split("=")
-            if k in config:
-                config[k] = v
-
-    server = capnp.TwoPartyServer(config["server"] + ":" + config["port"],
-                                  bootstrap=Service(path_to_sqlite_db=config["path_to_sqlite_db"],
-                                  path_to_ascii_grid=config["path_to_ascii_soil_grid"],
-                                  grid_crs=geo.name_to_proj(config["grid_crs"]),
-                                  id=config["id"], name=config["name"], description=config["description"]))
-    server.run_forever()
-
-#------------------------------------------------------------------------------
-
-def main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs, server="*", port=6003, id=None, name=None, description=None, use_asyncio=True):
-
-    if use_asyncio:
-        asyncio.run(async_main_server(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs, server=server, port=port, id=id, name=name, description=description))
+    if config["serve_bootstrap"].upper() == "TRUE":
+        await async_helpers.serve_forever(config["host"], config["port"], service)
     else:
-        no_async_main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs, server=server, port=port, id=id, name=name, description=description)
+        await conMan.manage_forever()
 
 #------------------------------------------------------------------------------
 
@@ -495,19 +398,6 @@ if __name__ == '__main__':
     grid = "data/soil/buek1000_1000_gk5.asc"
     crs = "gk5"
 
-    #asyncio.run(async_main_register(db, grid, crs))
-    #exit()
+    asyncio.run(async_main(db, grid, crs, reg_sturdy_ref="capnp://insecure@nb-berg-9550:9999/abcd"))
 
-    if len(sys.argv) > 1:
-        command = sys.argv[1]
-        if command == "async_server":
-            sys.argv.pop(1)
-            asyncio.run(async_main_server(db, grid, crs))
-        elif command == "async_register":
-            sys.argv.pop(1)
-            asyncio.run(async_main_register(db, grid, crs))
-    else:
-        no_async_main(db, grid, crs)
-
-#------------------------------------------------------------------------------
 
