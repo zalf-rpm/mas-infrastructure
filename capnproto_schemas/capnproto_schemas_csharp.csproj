@@ -77,7 +77,7 @@
       <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">.</ImportPaths>
     </CapnpFiles>
     <CapnpFiles Update="monica\monica_params.capnp">
-      <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">C:\Users\berg.ZALF-AD\GitHub\mas-infrastructure\capnproto_schemas</ImportPaths>
+      <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">.</ImportPaths>
       <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">.</ImportPaths>
     </CapnpFiles>
     <CapnpFiles Update="monica\monica_state.capnp">
