@@ -1,0 +1,24 @@
+﻿@using Capnp.Rpc
+@using Mas.Infrastructure.Common
+@inject Mas.Infrastructure.Common.ConnectionManager ConMan
+
+<h3>ConnectToSturdyRef</h3>
+
+<input type="text" @onchange=OnChange value="blabla"/>
+
+<p>@SturdyRef</p>
+
+@code {
+    private String SturdyRef;
+
+    private async Task OnChange(ChangeEventArgs args) {
+        SturdyRef = args.Value.ToString();
+        var x = "";
+
+        var cm = ConnectionManager();
+        cm.Connect(SturdyRef);
+
+        //Proxy ref = await ConMan.Connect(SturdyRef);
+    }
+
+}
