@@ -10,9 +10,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "registration_service", "ser
 		{CEB9D2AC-A284-42A0-A4A5-7C3ADF652780} = {CEB9D2AC-A284-42A0-A4A5-7C3ADF652780}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "common", "common\common.csproj", "{CEB9D2AC-A284-42A0-A4A5-7C3ADF652780}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "common", "common\common.csproj", "{CEB9D2AC-A284-42A0-A4A5-7C3ADF652780}"
 	ProjectSection(ProjectDependencies) = postProject
 		{6CB664DE-0406-49F1-A2F8-B3F22E495601} = {6CB664DE-0406-49F1-A2F8-B3F22E495601}
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClimateBlazorUI", "ui\web\ClimateBlazorUI\ClimateBlazorUI.csproj", "{883B496F-CBAF-4CC5-84DE-EB3590B0906B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CEB9D2AC-A284-42A0-A4A5-7C3ADF652780} = {CEB9D2AC-A284-42A0-A4A5-7C3ADF652780}
 	EndProjectSection
 EndProject
 Global
@@ -33,6 +38,10 @@ Global
 		{CEB9D2AC-A284-42A0-A4A5-7C3ADF652780}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CEB9D2AC-A284-42A0-A4A5-7C3ADF652780}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CEB9D2AC-A284-42A0-A4A5-7C3ADF652780}.Release|Any CPU.Build.0 = Release|Any CPU
+		{883B496F-CBAF-4CC5-84DE-EB3590B0906B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{883B496F-CBAF-4CC5-84DE-EB3590B0906B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{883B496F-CBAF-4CC5-84DE-EB3590B0906B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{883B496F-CBAF-4CC5-84DE-EB3590B0906B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
