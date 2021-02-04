@@ -1,6 +1,6 @@
 @0x855efed3475f6b26;
 
-using Persistent = import "/capnp/persistent.capnp";
+using Persistent = import "/capnp/persistent.capnp".Persistent;
 
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("mas::rpc::Persistence");
@@ -9,6 +9,7 @@ using Go = import "lang/go.capnp";
 $Go.package("common");
 $Go.import("common");
 
+using Common = import "common.capnp".Common;
 
 struct VatId {
   # Taken from https://github.com/sandstorm-io/blackrock/blob/master/src/blackrock/cluster-rpc.capnp#L22
@@ -115,3 +116,45 @@ interface Restorer(Token) {
   # if owner is set (not NULL) restorer should expect srToken to be encrypted by the owners private key
 }
 
+
+interface ExternalPersistent(Token) {
+  # external Persistent interface to create SturdyRefs for external capabilities
+
+  #save @0 (cap :Capability, params :Persistent(Token, SturdyRef.Owner).SaveParams) -> ExternalSaveResults;
+  # create a sturdy ref for the given capability and parameters
+  # return the original SaveResults object and an unregister callback
+
+  struct ExternalSaveResults {
+    results @0 :Persistent(Token, SturdyRef.Owner).SaveResults;
+    unreg @1 :Common.Callback;
+  }
+
+}
+
+
+
+#interface A(T) {
+#  m @0 () -> S;
+
+#  interface CB1 {
+#    call @0 ();
+#  }
+
+#  struct S {
+#    res @0 :T;
+#    callback @1 :CB1;
+#  }
+#}
+
+#interface CB2 {
+#  call @0 ();
+#}
+
+#interface B(T) {
+#  m @0 () -> S;
+ 
+#  struct S {
+#    res @0 :T;
+#    callback @1 :CB2;
+#  }
+#}

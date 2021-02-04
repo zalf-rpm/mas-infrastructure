@@ -59,7 +59,7 @@ interface Registry extends(Common.Identifiable) {
 
 interface Registrator {
   # simple interface to register something
-  # use case: a registry creates a sturdy ref of a register callback and 
+  # use case: a registry creates a sturdy ref of a Registrator capability and 
   # this sturdy ref is used to register a service at the registry
 
   register @0 (ref :Common.Identifiable, categoryId :Text) -> (unreg :Common.Callback);
