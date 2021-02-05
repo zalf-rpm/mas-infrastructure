@@ -69,6 +69,8 @@ namespace Mas.Infrastructure.ServiceRegistry
             var admin = new ServiceRegistry.AdminImpl(bootstrap);
             var adminSturdyRef = bootstrap.SaveCapability(BareProxy.FromImpl(admin));
             Console.WriteLine($"SturdyRef to Admin interface: [{adminSturdyRef}]");
+            var bootstrapSturdyRef = bootstrap.SaveCapability(BareProxy.FromImpl(bootstrap));
+            Console.WriteLine($"SturdyRef to Registry interface: [{bootstrapSturdyRef}]");
 
             while (true) System.Threading.Thread.Sleep(1000); 
 

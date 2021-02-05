@@ -15,8 +15,8 @@
         SturdyRef = args.Value.ToString();
         var x = "";
 
-        var cm = ConnectionManager();
-        cm.Connect(SturdyRef);
+        var cm = new ConnectionManager();
+        var proxy = await cm.Connect(SturdyRef);
 
         //Proxy ref = await ConMan.Connect(SturdyRef);
     }

@@ -25,10 +25,10 @@ namespace Mas.Infrastructure.Common
         }
 
 
-        public async Task<Proxy> Connect(string sturdyRefToken)
+        public async Task<Proxy> Connect(string sturdyRef)
         {
             // we assume that a sturdy ref url looks always like capnp://hash-digest-or-insecure@host:port/sturdy-ref-token
-            if (sturdyRefToken.StartsWith("capnp://")) 
+            if (sturdyRef.StartsWith("capnp://")) 
             {
                 var hashDigest = "";
                 var addressPort = "";
@@ -36,7 +36,7 @@ namespace Mas.Infrastructure.Common
                 var port = 0;
                 var srToken = "";
 
-                var rest = sturdyRefToken.Substring(8);
+                var rest = sturdyRef.Substring(8);
                 // is unix domain socket
                 if (rest.StartsWith("/"))
                 {
