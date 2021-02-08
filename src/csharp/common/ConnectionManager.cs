@@ -25,7 +25,7 @@ namespace Mas.Infrastructure.Common
         }
 
 
-        public async Task<Proxy> Connect(string sturdyRef)
+        public async Task<TRemoteInterface> Connect<TRemoteInterface>(string sturdyRef) where TRemoteInterface : class, IDisposable
         {
             // we assume that a sturdy ref url looks always like capnp://hash-digest-or-insecure@host:port/sturdy-ref-token
             if (sturdyRef.StartsWith("capnp://")) 
@@ -65,11 +65,11 @@ namespace Mas.Infrastructure.Common
                     {
                         var restorer = con.GetMain<Rpc.Persistence.IRestorer<string>>();
                         var cap = await restorer.Restore(srToken, null);
-                        return cap;
+                        return cap.Cast<TRemoteInterface>(true);
                     }
                     else
                     {
-                        var bootstrap = con.GetMain<Proxy>();
+                        var bootstrap = con.GetMain<TRemoteInterface>();
                         return bootstrap;
                     }
                 }

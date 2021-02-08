@@ -4,7 +4,7 @@
 
 <h3>ConnectToSturdyRef</h3>
 
-<input type="text" @onchange=OnChange value="blabla"/>
+<input type="text" @onchange=OnChange value="capnp://localhost:50487/"/>
 
 <p>@SturdyRef</p>
 
@@ -13,10 +13,16 @@
 
     private async Task OnChange(ChangeEventArgs args) {
         SturdyRef = args.Value.ToString();
-        var x = "";
 
         var cm = new ConnectionManager();
-        var proxy = await cm.Connect(SturdyRef);
+        var service = await cm.Connect<Mas.Rpc.Soil.IService>(SturdyRef);
+
+        var allParams = await service.GetAllAvailableParameters(false);
+
+        foreach(var param in allParams.Item1)
+        {
+            Console.WriteLine(param.ToString());
+        }
 
         //Proxy ref = await ConMan.Connect(SturdyRef);
     }
