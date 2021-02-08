@@ -1,30 +1,54 @@
 ﻿@using Capnp.Rpc
 @using Mas.Infrastructure.Common
 @inject Mas.Infrastructure.Common.ConnectionManager ConMan
+@typeparam TCapnpInterface
 
 <h3>ConnectToSturdyRef</h3>
 
-<input type="text" @onchange=OnChange value="capnp://localhost:50487/"/>
+<p>
+    <input type="text" @bind="sturdyRef" @bind:event="onchange" oninput="ClearButton"/>
+</p>
 
-<p>@SturdyRef</p>
+<p>SturdyRef: @sturdyRef</p>
+<p>
+    <button class="btn @bootstrapButtonType" @onclick="Connect">@buttonLabel</button>
+</p>
 
 @code {
-    private String SturdyRef;
+    private String sturdyRef = "capnp://localhost:56081/";
 
-    private async Task OnChange(ChangeEventArgs args) {
-        SturdyRef = args.Value.ToString();
+    private bool connected = false;
 
-        var cm = new ConnectionManager();
-        var service = await cm.Connect<Mas.Rpc.Soil.IService>(SturdyRef);
+    private String buttonLabel = "Connect";
+    private String bootstrapButtonType = "btn-primary";
 
-        var allParams = await service.GetAllAvailableParameters(false);
+    [Parameter]
+    public TCapnpInterface Capability { get; set; }
 
-        foreach(var param in allParams.Item1)
+    [Parameter]
+    public EventCallback<TCapnpInterface> CapabilityChanged { get; set; }
+
+    private async Task Connect()
+    {
+        try
         {
-            Console.WriteLine(param.ToString());
+            Capability = await ConMan.Connect<TCapnpInterface>(sturdyRef);
+            bootstrapButtonType = "btn-success";
+            buttonLabel = "Connected";
+        }
+        catch(Capnp.Rpc.RpcException e)
+        {
+            bootstrapButtonType = "btn-danger";
+            buttonLabel = "Connect";
         }
 
-        //Proxy ref = await ConMan.Connect(SturdyRef);
+        await CapabilityChanged.InvokeAsync(Capability);
     }
 
+    private void ClearButton()
+    {
+        Console.WriteLine("bla");
+        bootstrapButtonType = "btn-primary";
+        buttonLabel = "Connect";
+    }
 }

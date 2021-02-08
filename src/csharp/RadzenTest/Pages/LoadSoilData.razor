@@ -1,0 +1,44 @@
+﻿@using Capnp.Rpc
+@using Mas.Infrastructure.Common
+
+<ConnectToSturdyRef @bind-Capability="soilService" TCapnpInterface="Mas.Rpc.Soil.IService"></ConnectToSturdyRef>
+
+<p>
+    Params:<br />
+    @if (Params == null)
+    {
+        <em>Load parameters ...</em>
+    }
+    else
+    {
+        <ul>
+            @foreach (var param in Params)
+            {
+                <li>@param</li>
+            }
+        </ul>
+    }
+</p>
+
+<p>
+    <button class="btn btn-primary" @onclick="LoadParams">Load params</button>
+    <button class="btn btn-primary" @onclick="ResetParams">Reset params</button>
+</p>
+
+@code {
+    private String Result;
+    private IList<String> Params;
+    private Mas.Rpc.Soil.IService soilService;
+
+    private async Task LoadParams()
+    {
+        if (soilService == null) return;
+        var allParams = await soilService.GetAllAvailableParameters(false);
+        Params = allParams.Item1.Select(p => p.ToString()).ToList();
+    }
+
+    private void ResetParams()
+    {
+        Params = null;
+    }
+}
