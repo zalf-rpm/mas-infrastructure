@@ -1,22 +1,55 @@
-﻿@using Capnp.Rpc
+﻿@page "/soil"
+
+@using Capnp.Rpc
 @using Mas.Infrastructure.Common
+@using Mas.Rpc
 
 <ConnectToSturdyRef @bind-Capability="soilService" TCapnpInterface="Mas.Rpc.Soil.IService"></ConnectToSturdyRef>
 
+<RadzenPanel Text="@(@CoordStr)" AllowCollapse="true">
+    <ChildContent>
+        <GeoposPicker @bind-LatLng="latLng"
+                      Width="50%" Height="400px"
+                      CenterLatLng="@((51.0, 10.0))"></GeoposPicker>
+    </ChildContent>
+</RadzenPanel>
+
 <p>
-    Params:<br />
-    @if (Params == null)
+    Available soil parameters:<br />
+    @if (availableParams == null)
     {
-        <em>Load parameters ...</em>
+        <em>Waiting for available parameters ...</em>
     }
     else
     {
         <ul>
-            @foreach (var param in Params)
+            @foreach (var param in availableParams)
             {
                 <li>@param</li>
             }
         </ul>
+    }
+</p>
+
+<p>
+    Profile:<br />
+    @if (profile == null)
+    {
+        <em>Waiting for profile ...</em>
+    }
+    else
+    {
+        <RadzenTree>
+            @foreach (var l in profile.Layers)
+            {
+                <RadzenTreeItem Text="@l.Size.ToString()">
+                    @foreach (var p in l.Properties)
+                    {
+                        <RadzenTreeItem Text="@p.Name.ToString()"></RadzenTreeItem>
+                    }
+                </RadzenTreeItem>
+            }
+        </RadzenTree>
     }
 </p>
 
@@ -27,18 +60,37 @@
 
 @code {
     private String Result;
-    private IList<String> Params;
+    private IList<String> availableParams;
     private Mas.Rpc.Soil.IService soilService;
+
+    private (double, double) latLng;
+    private Soil.Profile profile;
+
+    private string CoordStr { get { return "Pick geo-location ... picked: " + latLng.ToString(); } }
 
     private async Task LoadParams()
     {
         if (soilService == null) return;
         var allParams = await soilService.GetAllAvailableParameters(false);
-        Params = allParams.Item1.Select(p => p.ToString()).ToList();
+        availableParams = allParams.Item1.Select(p => p.ToString()).ToList();
+
+        var profiles = await soilService.ProfilesAt(new Geo.LatLonCoord { Lat = latLng.Item1, Lon = latLng.Item2 },
+            new Soil.Query
+            {
+                Mandatory = new Soil.PropertyName[]
+                {
+                    Soil.PropertyName.sand,
+                    Soil.PropertyName.clay,
+                    Soil.PropertyName.bulkDensity,
+                },
+                OnlyRawData=false
+            }
+        );
+        if (profiles.Count > 0) profile = profiles[0];
     }
 
     private void ResetParams()
     {
-        Params = null;
+        availableParams = null;
     }
 }

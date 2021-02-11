@@ -1,0 +1,113 @@
+﻿@page "/climate"
+
+@using Capnp.Rpc
+@using Mas.Infrastructure.Common
+@using Mas.Rpc
+
+@inject IDialogService Dialog
+
+<MudGrid>
+    <MudItem xs="12">
+        <ConnectToSturdyRef CapabilityChanged="ClimateServiceChanged" TCapnpInterface="Climate.IService"></ConnectToSturdyRef>
+    </MudItem>
+    <MudItem xs="12">
+        <MudCard>
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h5">Pick Geolocation - picked: @(latLng.ToString())</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <GeoposPicker @bind-LatLng="latLng"
+                              Width="100%" Height="400px"
+                              CenterLatLng="@((51.0, 10.0))"></GeoposPicker>
+                <!--<MudButton OnClick="@(() => geoPosPickerVisible = true)" Variant="Variant.Filled" Color="Color.Primary">Pick geolocation</MudButton>-->
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+    <MudItem xs="12">
+        <MudCard>
+            <MudCardContent>
+                <MudSelect T="Climate.IDataset" @bind-Value="selectedDataset" Label="Datasets" Strict="true" Variant="Variant.Outlined">
+                    @foreach (var p in meta2data)
+                    {
+                        <MudSelectItem T="Climate.IDataset" Value="@p.Value">@p.Key</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+</MudGrid>
+
+<!--
+<MudDialog @bind-IsVisible="geoPosPickerVisible" >
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Edit" Class="mr-3" />Pick geolocation
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <GeoposPicker @bind-LatLng="latLng"
+                      Width="100%" Height="400px"
+                      CenterLatLng="@((51.0, 10.0))"></GeoposPicker>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(()=>geoPosPickerVisible = false)" Class="px-10">Close</MudButton>
+    </DialogActions>
+</MudDialog>
+-->
+
+<p>
+    <button class="btn btn-primary" @onclick="LoadParams">Load params</button>
+    <button class="btn btn-primary" @onclick="ResetParams">Reset params</button>
+</p>
+
+<p>
+    @latLng
+</p>
+
+@code {
+    private String Result;
+    private IList<String> Params;
+    private Climate.IService climateService;
+
+    //private bool geoPosPickerVisible = false;
+    private (double, double) latLng;
+    //private void OpenDialog() => geoPosPickerVisible = true;
+
+    private Dictionary<String, Climate.IDataset> meta2data = new Dictionary<string, Climate.IDataset>();
+    private Climate.IDataset selectedDataset;
+
+    private string CoordStr { get { return "Pick geo-location ... picked: " + latLng.ToString(); } }
+
+    //RadzenGoogleMap
+
+    private async Task ClimateServiceChanged(Climate.IService service)
+    {
+        if (service == null) return;
+
+        climateService = service;
+
+        var datasets = await climateService.GetAvailableDatasets();
+        foreach (var ds in datasets)
+        {
+            var r = await ds.Meta.Info.ForAll();
+            meta2data[r.Select(p => p.Snd.Name).Aggregate((acc, name) => acc + "|" + name)] = Proxy.Share(ds.Data);
+        }
+
+
+    }
+
+    private async Task LoadParams()
+    {
+        if (climateService == null) return;
+        //var allParams = await climateService.GetAllAvailableParameters(false);
+        //Params = allParams.Item1.Select(p => p.ToString()).ToList();
+    }
+
+    private void ResetParams()
+    {
+        Params = null;
+    }
+
+}

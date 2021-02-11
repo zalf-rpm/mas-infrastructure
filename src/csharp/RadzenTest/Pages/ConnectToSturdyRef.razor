@@ -3,24 +3,31 @@
 @inject Mas.Infrastructure.Common.ConnectionManager ConMan
 @typeparam TCapnpInterface
 
-<h3>ConnectToSturdyRef</h3>
+<MudCard>
+    <MudCardContent>
+        <MudTextField @bind-Value="sturdyRef" Label="Enter persistent capability (capnp://host:port/token)" Variant="Variant.Outlined"></MudTextField>
+    </MudCardContent>
+    <MudCardActions>
+        <MudButton Variant="Variant.Filled" EndIcon="@buttonEndIcon" Color="@buttonColor" OnClick="Connect">@buttonLabel</MudButton>
+    </MudCardActions>
+</MudCard>
+<!--
+<MudGrid>
+    <MudItem xs="6">
 
-<p>
-    <input type="text" @bind="sturdyRef" @bind:event="onchange" oninput="ClearButton"/>
-</p>
-
-<p>SturdyRef: @sturdyRef</p>
-<p>
-    <button class="btn @bootstrapButtonType" @onclick="Connect">@buttonLabel</button>
-</p>
+    </MudItem>
+    <MudItem xs="6">
+        <MudButton Variant="Variant.Filled" EndIcon="@buttonEndIcon" Color="@buttonColor" OnClick="Connect">@buttonLabel</MudButton>
+    </MudItem>
+</MudGrid>
+    -->
 
 @code {
-    private String sturdyRef = "capnp://localhost:56081/";
+    private String sturdyRef = "capnp://localhost:64317";
 
-    private bool connected = false;
-
+    private String buttonEndIcon = Icons.Material.Filled.CastConnected;
+    private Color buttonColor = Color.Primary;
     private String buttonLabel = "Connect";
-    private String bootstrapButtonType = "btn-primary";
 
     [Parameter]
     public TCapnpInterface Capability { get; set; }
@@ -32,14 +39,17 @@
     {
         try
         {
+            buttonLabel = "Connecting ...";
             Capability = await ConMan.Connect<TCapnpInterface>(sturdyRef);
-            bootstrapButtonType = "btn-success";
+            buttonEndIcon = Icons.Material.Filled.CastConnected;
+            buttonColor = Color.Success;
             buttonLabel = "Connected";
         }
-        catch(Capnp.Rpc.RpcException e)
+        catch (Capnp.Rpc.RpcException e)
         {
-            bootstrapButtonType = "btn-danger";
-            buttonLabel = "Connect";
+            buttonEndIcon = Icons.Material.Filled.Error;
+            buttonColor = Color.Error;
+            buttonLabel = "Connect failed";
         }
 
         await CapabilityChanged.InvokeAsync(Capability);
@@ -47,8 +57,8 @@
 
     private void ClearButton()
     {
-        Console.WriteLine("bla");
-        bootstrapButtonType = "btn-primary";
+        buttonEndIcon = Icons.Material.Filled.CastConnected;
+        buttonColor = Color.Primary;
         buttonLabel = "Connect";
     }
 }

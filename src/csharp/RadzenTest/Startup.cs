@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RadzenTest.Data;
+using MudBlazor.Services;
 
 namespace RadzenTest
 {
@@ -27,6 +28,7 @@ namespace RadzenTest
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
+            services.AddMudServices();
             services.AddSingleton<WeatherForecastService>();
             services.AddSingleton<Mas.Infrastructure.Common.ConnectionManager>();
         }
