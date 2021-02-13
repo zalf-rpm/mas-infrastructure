@@ -30,7 +30,7 @@
     <MudItem xs="12">
         <MudCard>
             <MudCardContent>
-                <MudSelect T="Climate.IDataset" @bind-Value="selectedDataset" Label="Datasets" Strict="true" Variant="Variant.Outlined">
+                <MudSelect T="Climate.IDataset" ValueChanged="@DatasetChanged" Label="Datasets" Strict="true" Variant="Variant.Outlined">
                     @foreach (var p in meta2data)
                     {
                         <MudSelectItem T="Climate.IDataset" Value="@p.Value">@p.Key</MudSelectItem>
@@ -44,6 +44,9 @@
             <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="LoadTimeSeries" Class="px-10">Load some data</MudButton>
             <MudButton Disabled="@(csvString.Length == 0)" Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveTimeSeries" Class="px-10">Save data</MudButton>
         </MudCard>
+    </MudItem>
+    <MudItem xs="12">
+        <MudDateRangePicker Label="Date range" Editable="true" DateRangeChanged="@DateRangeChanged" DateRange="@range" />
     </MudItem>
     <MudItem>
         <MudTable Items="@data" Hover="true" Dense="true" Filter="new Func<Element,bool>(DataFilterFunc)">
@@ -104,6 +107,14 @@
     private Dictionary<String, Climate.IDataset> meta2data = new Dictionary<string, Climate.IDataset>();
     private Climate.IDataset selectedDataset;
 
+    private Climate.ITimeSeries timeSeries;
+    private DateTime start, end;
+    private DateRange range
+    {
+        get { return new DateRange(start, end); }
+        set { start = value.Start ?? new DateTime(); end = value.End ?? new DateTime(); }
+    }
+
     private struct Element
     {
         public DateTime Date;
@@ -119,6 +130,7 @@
     {
         if (service == null) return;
 
+        if (climateService != service) climateService?.Dispose();
         climateService = service;
 
         var datasets = await climateService.GetAvailableDatasets();
@@ -129,20 +141,51 @@
         }
     }
 
-    private async Task LoadTimeSeries()
+    private async Task DatasetChanged(Climate.IDataset dataset)
     {
-        if (selectedDataset == null) return;
+        if (dataset == null) return;
+        selectedDataset = dataset;
 
-        var timeSeries = await selectedDataset.ClosestTimeSeriesAt(new Geo.Coord
+        var ts = await selectedDataset.ClosestTimeSeriesAt(new Geo.Coord
         {
             Latlon = new Geo.LatLonCoord { Lat = latLng.Item1, Lon = latLng.Item2 }
-        });
+        });//.Eager();
 
-        var se = await timeSeries.Range();
-        var start = new DateTime(se.Item1.Year, se.Item1.Month, se.Item1.Day);
+        var (s, e) = await ts.Range();
+        var h = await ts.Header();
 
-        var h = await timeSeries.Header();
+        //var (s, e) = se.Result;
+        start = new DateTime(s.Year, s.Month, s.Day);
+        end = new DateTime(e.Year, e.Month, e.Day);
+
         headings = h.Select(h => h.ToString()).ToList();
+
+        if (timeSeries != ts) timeSeries?.Dispose();
+        timeSeries = ts;
+    }
+
+    private async Task DateRangeChanged(DateRange range)
+    {
+        if (range == null) return;
+        Console.WriteLine(range.ToString());
+
+        //var s = range.Start;
+    }
+
+    private async Task LoadTimeSeries()
+    {
+        //if (selectedDataset == null) return;
+
+        //var timeSeries = await selectedDataset.ClosestTimeSeriesAt(new Geo.Coord
+        //{
+        //Latlon = new Geo.LatLonCoord { Lat = latLng.Item1, Lon = latLng.Item2 }
+        //});
+
+        //var se = await timeSeries.Range();
+        //var start = new DateTime(se.Item1.Year, se.Item1.Month, se.Item1.Day);
+
+        //var h = await timeSeries.Header();
+        //headings = h.Select(h => h.ToString()).ToList();
 
         var ds = await timeSeries.Data();
         data = ds.Select((d, i) => new Element { Date = start.AddDays(i), Data = d });
@@ -181,5 +224,11 @@
     private async Task SaveTimeSeries()
     {
         await JSRuntime.InvokeVoidAsync("saveAsBase64", "data.csv", Convert.ToBase64String(Encoding.UTF8.GetBytes(csvString)));
+    }
+
+    public void Dispose()
+    {
+        foreach (var ds in meta2data.Values) ds?.Dispose();
+        timeSeries?.Dispose();
     }
 }
