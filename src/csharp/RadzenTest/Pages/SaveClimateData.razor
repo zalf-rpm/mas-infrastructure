@@ -46,7 +46,8 @@
         </MudCard>
     </MudItem>
     <MudItem xs="12">
-        <MudDateRangePicker Label="Date range" Editable="true" DateRangeChanged="@DateRangeChanged" DateRange="@range" />
+        <MudDateRangePicker Label="Date range" Editable="true" DateRangeChanged="DateRangeChanged" DateRange="@range" />
+        <!--<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => range = originalDateRange)" Class="px-10">Restore original date range</MudButton>-->
     </MudItem>
     <MudItem>
         <MudTable Items="@data" Hover="true" Dense="true" Filter="new Func<Element,bool>(DataFilterFunc)">
@@ -109,11 +110,8 @@
 
     private Climate.ITimeSeries timeSeries;
     private DateTime start, end;
-    private DateRange range
-    {
-        get { return new DateRange(start, end); }
-        set { start = value.Start ?? new DateTime(); end = value.End ?? new DateTime(); }
-    }
+    private DateRange range;
+    private DateRange originalDateRange;
 
     private struct Element
     {
@@ -155,8 +153,9 @@
         var h = await ts.Header();
 
         //var (s, e) = se.Result;
-        start = new DateTime(s.Year, s.Month, s.Day);
-        end = new DateTime(e.Year, e.Month, e.Day);
+        start = CommonDate2DateTime(s);
+        end = CommonDate2DateTime(e);
+        range = new DateRange(start, end);
 
         headings = h.Select(h => h.ToString()).ToList();
 
@@ -164,12 +163,29 @@
         timeSeries = ts;
     }
 
+    private DateTime CommonDate2DateTime(Common.Date d)
+    {
+        return new DateTime(d.Year, d.Month, d.Day);
+    }
+
+    private Common.Date DateTime2CommonDate(DateTime d)
+    {
+        return new Common.Date { Year = (short)d.Year, Month = (byte)d.Month, Day = (byte)d.Day };
+    }
+
     private async Task DateRangeChanged(DateRange range)
     {
         if (range == null) return;
-        Console.WriteLine(range.ToString());
+        if (originalDateRange == null) originalDateRange = range;
 
-        //var s = range.Start;
+        if (range == originalDateRange) return;
+
+        start = range.Start ?? start;
+        end = range.End ?? end;
+
+        //var sts = await timeSeries.Subrange(DateTime2CommonDate(start), DateTime2CommonDate(end));
+        //if (timeSeries != sts) timeSeries.Dispose();
+        //timeSeries = sts;
     }
 
     private async Task LoadTimeSeries()
