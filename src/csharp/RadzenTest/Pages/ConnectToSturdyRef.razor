@@ -3,23 +3,20 @@
 @inject Mas.Infrastructure.Common.ConnectionManager ConMan
 @typeparam TCapnpInterface
 
+<MudPaper Class="d-flex flex-row py-2 px-1">
+    <MudButton Class="pa-2 mx-2" Variant=Variant.Filled EndIcon=@buttonEndIcon Color=@buttonColor OnClick=@Connect>@buttonLabel</MudButton>
+    <MudTextField Class="pa-2 mx-2" @bind-Value=sturdyRef Label=@Label Variant=Variant.Outlined></MudTextField>
+</MudPaper>
+
+<!--
 <MudCard>
     <MudCardContent>
-        <MudTextField @bind-Value="sturdyRef" Label="Enter persistent capability (capnp://host:port/token)" Variant="Variant.Outlined"></MudTextField>
+        <MudTextField @bind-Value=sturdyRef Label="Enter persistent capability (capnp://host:port/token)" Variant=Variant.Outlined></MudTextField>
     </MudCardContent>
     <MudCardActions>
-        <MudButton Variant="Variant.Filled" EndIcon="@buttonEndIcon" Color="@buttonColor" OnClick="Connect">@buttonLabel</MudButton>
+        <MudButton Variant=Variant.Filled EndIcon=@buttonEndIcon Color=@buttonColor OnClick=@Connect>@buttonLabel</MudButton>
     </MudCardActions>
 </MudCard>
-<!--
-<MudGrid>
-    <MudItem xs="6">
-
-    </MudItem>
-    <MudItem xs="6">
-        <MudButton Variant="Variant.Filled" EndIcon="@buttonEndIcon" Color="@buttonColor" OnClick="Connect">@buttonLabel</MudButton>
-    </MudItem>
-</MudGrid>
     -->
 
 @code {
@@ -34,6 +31,9 @@
 
     [Parameter]
     public EventCallback<TCapnpInterface> CapabilityChanged { get; set; }
+
+    [Parameter]
+    public String Label { get; set; } = "Enter persistent capability (capnp://host:port/token)";
 
     private async Task Connect()
     {
