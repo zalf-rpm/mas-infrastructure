@@ -50,7 +50,7 @@ class TimeSeries(climate_data_capnp.Climate.TimeSeries.Server):
         pandas_csv_config={}, transform_map=None):
         "a supplied dataframe asumes the correct index is already set (when reading from csv then it will always be 1980 to 2010)"
 
-        if path_to_csv == None and dataframe == None:
+        if path_to_csv is None and dataframe is None:
             raise Exception("Missing argument, either path_to_csv or dataframe have to be supplied!")
 
         self._path_to_csv = path_to_csv
