@@ -9,54 +9,62 @@
 
 <MudGrid>
     <MudItem Class=@(HideSturdyRefConnector ? "d-none" : "") xs="12">
-        <ConnectToSturdyRef Label="Enter capability to climate timeseries (capnp://host:port/token)" 
-                            CapabilityChanged=@CapabilityChanged 
+        <ConnectToSturdyRef Label="Enter capability to climate timeseries (capnp://host:port/token)"
+                            CapabilityChanged=@CapabilityChanged
                             TCapnpInterface=Climate.ITimeSeries>
         </ConnectToSturdyRef>
     </MudItem>
     <MudItem xs="12">
-        <MudCard>
-            <MudButton Variant=Variant.Filled Color=Color.Primary OnClick=@LoadTimeSeriesData Class="px-10">Load some data</MudButton>
-            <MudButton Disabled=@(csvString.Length == 0) Variant=Variant.Filled Color=Color.Primary OnClick=@SaveTimeSeries Class="px-10">Save data</MudButton>
+        <MudCard Class="d-flex flex-row py-2 px-1">>
+            <MudButton Class="pa-2 mx-2" Variant=Variant.Filled Color=Color.Primary OnClick=@LoadTimeSeriesData>Load some data</MudButton>
+            <MudButton Class="pa-2 mx-2" Disabled=@(csvString.Length == 0) Variant=Variant.Filled Color=Color.Primary OnClick=@SaveTimeSeries>Save data</MudButton>
+            <MudButton Class="pa-2 mx-2" Variant=Variant.Filled Color=Color.Primary OnClick=@RestoreInitialTimeSeriesCap>Restore initial time series</MudButton>
         </MudCard>
     </MudItem>
     <MudItem xs="12">
         <MudPaper Class="d-flex flex-row py-2 px-1">
             <MudDateRangePicker Label="Date range" Editable=@true DateRangeChanged=@DateRangeChanged DateRange=@range />
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => range = originalDateRange)" Class="px-10">Restore original date range</MudButton>
         </MudPaper>
     </MudItem>
     <MudItem>
-        <MudTable Items=@data Hover=@true Dense=@true Filter=@(new Func<Element,bool>(DataFilterFunc))>
-            <ToolBarContent>
-                <MudText Typo=Typo.h6>Timeseries Data</MudText>
-                <MudToolBarSpacer />
-                <MudTextField @bind-Value=searchString Placeholder="Search" Adornment=Adornment.Start AdornmentIcon=@Icons.Material.Filled.Search IconSize="Size.Medium" Class="mt-0"></MudTextField>
-            </ToolBarContent>
-            <HeaderContent>
-                <MudTh>Date</MudTh>
-                @foreach (var h in headings)
-                {
-                    <MudTh>@h</MudTh>
-                }
-            </HeaderContent>
-            <RowTemplate>
-                <MudTd DataLabel="Date">@context.Date.ToShortDateString()</MudTd>
-                @foreach (var (val, i) in headings.Select((Value, Index) => (Value, Index)))
-                {
-                    <MudTd DataLabel=@val>@context.Data[i]</MudTd>
-                }
-            </RowTemplate>
-            <PagerContent>
-                <MudTablePager />
-            </PagerContent>
-        </MudTable>
+        <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true">
+            <MudTabPanel Text="Table">
+                <MudTable Items=@data Hover=@true Dense=@true Filter=@(new Func<Element,bool>(DataFilterFunc))>
+                    <ToolBarContent>
+                        <MudText Typo=Typo.h6>Timeseries Data</MudText>
+                        <MudToolBarSpacer />
+                        <MudTextField @bind-Value=searchString Placeholder="Search" Adornment=Adornment.Start AdornmentIcon=@Icons.Material.Filled.Search IconSize=Size.Medium Class="mt-0"></MudTextField>
+                    </ToolBarContent>
+                    <HeaderContent>
+                        <MudTh>Date</MudTh>
+                        @foreach (var h in headings)
+                        {
+                            <MudTh>@h</MudTh>
+                        }
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Date">@context.Date.ToShortDateString()</MudTd>
+                        @foreach (var (val, i) in headings.Select((Value, Index) => (Value, Index)))
+                        {
+                            <MudTd DataLabel=@val>@context.Data[i]</MudTd>
+                        }
+                    </RowTemplate>
+                    <PagerContent>
+                        <MudTablePager />
+                    </PagerContent>
+                </MudTable>
+            </MudTabPanel>
+            <MudTabPanel Text="Graph">
+                <MudChart ChartType="ChartType.Line" ChartSeries="@Series" XAxisLabels="@XAxisLabels" Width="650" Height="350"></MudChart>
+            </MudTabPanel>
+        </MudTabs>
     </MudItem>
 </MudGrid>
 
 @code {
     [Parameter]
     public Climate.ITimeSeries TimeSeriesCap { get; set; }
+    private Climate.ITimeSeries originalTimeSeriesCap;
     private bool timeSeriesCapUpdated = false;
 
     private bool componentIsTimeSeriesCapOwner = false;
@@ -68,7 +76,6 @@
     public bool HideSturdyRefConnector { get; set; } = false;
 
     private DateTime start, end;
-    //private DateTime? origStart, origEnd;
     private DateRange range;
     private DateRange originalDateRange;
 
@@ -91,17 +98,30 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        if (timeSeriesCapUpdated) await TimeSeriesUpdated();
+        if (timeSeriesCapUpdated)
+        {
+            originalTimeSeriesCap = TimeSeriesCap; //save unrestricted cap
+            await TimeSeriesUpdated();
+        }
     }
 
     private async Task CapabilityChanged(Climate.ITimeSeries ts)
     {
         if (ts == null) return;
 
-        if (TimeSeriesCap != ts && componentIsTimeSeriesCapOwner) TimeSeriesCap?.Dispose();
+        if (TimeSeriesCap != ts && componentIsTimeSeriesCapOwner) TimeSeriesCap?.Dispose(); //free old cap
         TimeSeriesCap = ts;
+        originalTimeSeriesCap = TimeSeriesCap; //save unrestricted cap
         componentIsTimeSeriesCapOwner = true;
 
+        await TimeSeriesUpdated();
+    }
+
+    private async Task RestoreInitialTimeSeriesCap()
+    {
+        if (originalTimeSeriesCap == null) return;
+        if (originalTimeSeriesCap != TimeSeriesCap) TimeSeriesCap?.Dispose();
+        TimeSeriesCap = originalTimeSeriesCap;
         await TimeSeriesUpdated();
     }
 
@@ -133,17 +153,14 @@
     private async Task DateRangeChanged(DateRange r)
     {
         if (r == null) return;
-        if (originalDateRange == null && range != null) originalDateRange = range;
         range = r;
 
         start = r.Start ?? start;
         end = r.End ?? end;
 
-        var s = DateTime2CommonDate(start);
-        var e = DateTime2CommonDate(end);
-
-        var sts = await TimeSeriesCap.Subrange(s, e);
-        if (TimeSeriesCap != sts) TimeSeriesCap.Dispose();
+        var sts = await TimeSeriesCap.Subrange(DateTime2CommonDate(start), DateTime2CommonDate(end));
+        //dispose the current time series cap, unless it's the initial one
+        if (TimeSeriesCap != originalTimeSeriesCap) TimeSeriesCap?.Dispose();
         TimeSeriesCap = sts;
     }
 
@@ -153,6 +170,33 @@
 
         var ds = await TimeSeriesCap.Data();
         data = ds.Select((d, i) => new Element { Date = start.AddDays(i), Data = d });
+
+        /*
+        var chartData = new Tuple<String, double[]>[7];
+        foreach (var (d, i) in ds.Select((d, i) => (d, i)))
+        {
+            var vals = new double[]
+            foreach (var (n, k) in headings.Select((n, k) => (n, k)))
+            {
+                chartData[k] = (n, .Item1 = n;
+                chartData, i] = d[k];
+            }
+        }
+
+        Series = new List<ChartSeries>();
+        foreach (var (n, k) in headings.Select((n, k) => (n, k)))
+        {
+            Series.Add(new ChartSeries { Name = n, Data = chartData[k] });
+        }
+
+
+
+        {
+            new ChartSeries() { Name = "Serie 1", Data = new double[] { 90, 79, 72, 69, 62, 62, 55, 65, 70 } },
+        new ChartSeries() { Name = "Serie 2", Data = new double[] { 10, 41, 35, 51, 49, 62, 69, 91, 148 } },
+    };
+        */
+
 
         //create csv file
         var sb = new StringBuilder();
@@ -171,6 +215,13 @@
 
         csvString = sb.ToString();
     }
+
+    public List<ChartSeries> Series = new List<ChartSeries>()
+{
+        new ChartSeries() { Name = "Serie 1", Data = new double[] { 90, 79, 72, 69, 62, 62, 55, 65, 70 } },
+        new ChartSeries() { Name = "Serie 2", Data = new double[] { 10, 41, 35, 51, 49, 62, 69, 91, 148 } },
+    };
+    public string[] XAxisLabels = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep" };
 
     private bool DataFilterFunc(Element elem)
     {
@@ -192,6 +243,13 @@
 
     public void Dispose()
     {
-        if (componentIsTimeSeriesCapOwner) TimeSeriesCap?.Dispose();
+        //dispose the current time series cap if it's not the same as the initial one
+        if (originalTimeSeriesCap != TimeSeriesCap)
+        {
+            TimeSeriesCap?.Dispose();
+
+            //free the original cap if we are the owner
+            if (componentIsTimeSeriesCapOwner) originalTimeSeriesCap?.Dispose();
+        }
     }
 }
