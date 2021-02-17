@@ -129,13 +129,13 @@ class TimeSeries(climate_data_capnp.Climate.TimeSeries.Server):
         return self.dataframe.T.to_numpy().tolist()
 
 
-    def subrange(self, from_, to, **kwargs): # (from :Date, to :Date) -> (timeSeries :TimeSeries);
-        from_date = ccdi.create_date(from_)
-        to_date = ccdi.create_date(to)
+    def subrange_context(self, context): # (from :Date, to :Date) -> (timeSeries :TimeSeries);
+        from_date = ccdi.create_date(getattr(context.params, "from"))
+        to_date = ccdi.create_date(context.params.to)
 
         sub_df = self._df.loc[str(from_date):str(to_date)]
 
-        return TimeSeries.from_dataframe(sub_df, metadata=self._meta, location=self._location)
+        context.results.timeSeries = TimeSeries.from_dataframe(sub_df, metadata=self._meta, location=self._location)
 
 
     def subheader(self, elements, **kwargs): # (elements :List(Element)) -> (timeSeries :TimeSeries);
