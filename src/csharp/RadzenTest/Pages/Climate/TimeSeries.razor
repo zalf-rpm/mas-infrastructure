@@ -9,7 +9,10 @@
 
 <MudGrid>
     <MudItem Class=@(HideSturdyRefConnector ? "d-none" : "") xs="12">
-        <ConnectToSturdyRef Label="Enter capability to climate timeseries (capnp://host:port/token)" CapabilityChanged=@CapabilityChanged TCapnpInterface=Climate.ITimeSeries></ConnectToSturdyRef>
+        <ConnectToSturdyRef Label="Enter capability to climate timeseries (capnp://host:port/token)" 
+                            CapabilityChanged=@CapabilityChanged 
+                            TCapnpInterface=Climate.ITimeSeries>
+        </ConnectToSturdyRef>
     </MudItem>
     <MudItem xs="12">
         <MudCard>
@@ -18,8 +21,10 @@
         </MudCard>
     </MudItem>
     <MudItem xs="12">
-        <MudDateRangePicker Label="Date range" Editable=@true DateRangeChanged=@DateRangeChanged DateRange=@range />
-        <!--<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => range = originalDateRange)" Class="px-10">Restore original date range</MudButton>-->
+        <MudPaper Class="d-flex flex-row py-2 px-1">
+            <MudDateRangePicker Label="Date range" Editable=@true DateRangeChanged=@DateRangeChanged DateRange=@range />
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => range = originalDateRange)" Class="px-10">Restore original date range</MudButton>
+        </MudPaper>
     </MudItem>
     <MudItem>
         <MudTable Items=@data Hover=@true Dense=@true Filter=@(new Func<Element,bool>(DataFilterFunc))>
@@ -52,6 +57,7 @@
 @code {
     [Parameter]
     public Climate.ITimeSeries TimeSeriesCap { get; set; }
+    private bool timeSeriesCapUpdated = false;
 
     private bool componentIsTimeSeriesCapOwner = false;
 
@@ -62,6 +68,7 @@
     public bool HideSturdyRefConnector { get; set; } = false;
 
     private DateTime start, end;
+    //private DateTime? origStart, origEnd;
     private DateRange range;
     private DateRange originalDateRange;
 
@@ -76,9 +83,15 @@
     private IEnumerable<Element> data = new List<Element>();
     private String searchString;
 
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        timeSeriesCapUpdated = parameters.DidParameterChange("TimeSeriesCap", TimeSeriesCap);
+        await base.SetParametersAsync(parameters);
+    }
+
     protected override async Task OnParametersSetAsync()
     {
-        await TimeSeriesUpdated();
+        if (timeSeriesCapUpdated) await TimeSeriesUpdated();
     }
 
     private async Task CapabilityChanged(Climate.ITimeSeries ts)
@@ -117,36 +130,26 @@
         return new Common.Date { Year = (short)d.Year, Month = (byte)d.Month, Day = (byte)d.Day };
     }
 
-    private async Task DateRangeChanged(DateRange range)
+    private async Task DateRangeChanged(DateRange r)
     {
-        if (range == null) return;
-        if (originalDateRange == null) originalDateRange = range;
+        if (r == null) return;
+        if (originalDateRange == null && range != null) originalDateRange = range;
+        range = r;
 
-        if (range == originalDateRange) return;
+        start = r.Start ?? start;
+        end = r.End ?? end;
 
-        start = range.Start ?? start;
-        end = range.End ?? end;
+        var s = DateTime2CommonDate(start);
+        var e = DateTime2CommonDate(end);
 
-        //var sts = await timeSeries.Subrange(DateTime2CommonDate(start), DateTime2CommonDate(end));
-        //if (timeSeries != sts) timeSeries.Dispose();
-        //timeSeries = sts;
+        var sts = await TimeSeriesCap.Subrange(s, e);
+        if (TimeSeriesCap != sts) TimeSeriesCap.Dispose();
+        TimeSeriesCap = sts;
     }
 
     private async Task LoadTimeSeriesData()
     {
         if (TimeSeriesCap == null) return;
-        //if (selectedDataset == null) return;
-
-        //var timeSeries = await selectedDataset.ClosestTimeSeriesAt(new Geo.Coord
-        //{
-        //Latlon = new Geo.LatLonCoord { Lat = latLng.Item1, Lon = latLng.Item2 }
-        //});
-
-        //var se = await timeSeries.Range();
-        //var start = new DateTime(se.Item1.Year, se.Item1.Month, se.Item1.Day);
-
-        //var h = await timeSeries.Header();
-        //headings = h.Select(h => h.ToString()).ToList();
 
         var ds = await TimeSeriesCap.Data();
         data = ds.Select((d, i) => new Element { Date = start.AddDays(i), Data = d });

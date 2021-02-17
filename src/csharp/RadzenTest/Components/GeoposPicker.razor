@@ -1,4 +1,6 @@
-﻿<RadzenGoogleMap Style="@($"width:{Width};height:{Height}")" 
+﻿@namespace RadzenTest.Components
+
+<RadzenGoogleMap Style="@($"width:{Width};height:{Height}")"
                  Center="@(new GoogleMapPosition{Lat=CenterLatLng.Item1, Lng=CenterLatLng.Item2})" MapClick="MapClicked">
 
 </RadzenGoogleMap>

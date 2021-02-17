@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 
-namespace RadzenTest.Pages
+namespace RadzenTest.Components
 {
     public partial class ConnectToSturdyRef<TCapnpInterface> where TCapnpInterface : class, IDisposable
     {
