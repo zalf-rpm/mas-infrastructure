@@ -15,15 +15,6 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "RadzenTest": {
-      "commandName": "Project",
-      "launchBrowser": true,
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      },
-      "dotnetRunMessages": "true",
-      "applicationUrl": "http://localhost:5000"
-    },
     "BlazorUIs": {
       "commandName": "Project",
       "launchBrowser": true,

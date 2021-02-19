@@ -1,9 +1,9 @@
 ﻿@namespace BlazorUIs.Components
+@using GoogleMapsComponents
+@using GoogleMapsComponents.Maps
 
-<RadzenGoogleMap Style="@($"width:{Width};height:{Height}")"
-                 Center="@(new GoogleMapPosition{Lat=CenterLatLng.Item1, Lng=CenterLatLng.Item2})" MapClick="MapClicked">
-
-</RadzenGoogleMap>
+<GoogleMap @ref=@map Id="map1" Options=@mapOptions Height=@Height  OnAfterInit=@OnAfterInitAsync>
+</GoogleMap>
 
 @code {
     [Parameter]
@@ -21,12 +21,75 @@
     [Parameter]
     public EventCallback<(double, double)> LatLngChanged { get; set; }
 
-    //RadzenGoogleMap
+    [Parameter]
+    public int Zoom { get; set; } = 13;
 
-    private async Task MapClicked(GoogleMapClickEventArgs args)
+    private GoogleMap map;
+    private MapOptions mapOptions;
+
+    protected override void OnInitialized()
     {
-        var p = args.Position;
-        LatLng = (p.Lat, p.Lng);
+        mapOptions = new MapOptions()
+        {
+            Zoom = Zoom,
+            Center = new LatLngLiteral()
+            {
+                Lat = CenterLatLng.Item1,
+                Lng = CenterLatLng.Item2
+            },
+            MapTypeId = MapTypeId.Roadmap
+        };
+    }
+
+    private async Task OnAfterInitAsync()
+    {
+        //Debug.WriteLine("Start OnAfterRenderAsync");
+
+        await map.InteropObject.AddListener<MouseEvent>("click", async (e) => await OnClick(e));
+
+        /*
+        await map1.InteropObject.AddListener("bounds_changed", OnBoundsChanged);
+
+        await map1.InteropObject.AddListener("center_changed", OnCenterChanged);
+
+        await map1.InteropObject.AddListener<MouseEvent>("click", async (e) => await OnClick(e));
+
+        await map1.InteropObject.AddListener("dblclick", OnDoubleClick);
+
+        await map1.InteropObject.AddListener("drag", OnDrag);
+
+        await map1.InteropObject.AddListener("dragend", OnDragEnd);
+
+        await map1.InteropObject.AddListener("dragstart", OnDragStart);
+
+        await map1.InteropObject.AddListener("heading_changed", OnHeadingChanged);
+
+        await map1.InteropObject.AddListener("idle", OnIdle);
+
+        await map1.InteropObject.AddListener("maptypeid_changed", OnMapTypeIdChanged);
+
+        await map1.InteropObject.AddListener<MouseEvent>("mousemove", OnMouseMove);
+        await map1.InteropObject.AddListener<MouseEvent>("mousedown", OnMouseMove);
+
+        await map1.InteropObject.AddListener("mouseout", OnMouseOut);
+
+        await map1.InteropObject.AddListener("mouseover", OnMouseOver);
+
+        await map1.InteropObject.AddListener("projection_changed", OnProjectionChanged);
+
+        await map1.InteropObject.AddListener("rightclick", OnRightClick);
+
+        await map1.InteropObject.AddListener("tilesloaded", OnTilesLoaded);
+
+        await map1.InteropObject.AddListener("tilt_changed", OnTiltChanged);
+
+        await map1.InteropObject.AddListener("zoom_changed", OnZoomChanged);
+        */
+    }
+
+    private async Task OnClick(MouseEvent e)
+    {
+        LatLng = (e.LatLng.Lat, e.LatLng.Lng);
         await LatLngChanged.InvokeAsync(LatLng);
     }
 }
