@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "registration_service", "ser
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "common", "common\common.csproj", "{CEB9D2AC-A284-42A0-A4A5-7C3ADF652780}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RadzenTest", "RadzenTest\RadzenTest.csproj", "{EA61842D-040C-4BC8-8A87-33F4D64825F7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorUIs", "BlazorUIs\BlazorUIs.csproj", "{EA61842D-040C-4BC8-8A87-33F4D64825F7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
