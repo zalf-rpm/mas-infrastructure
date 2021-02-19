@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 //using BlazorUIs.Data;
 using MudBlazor.Services;
+using Allegiance.Blazor.Highcharts.Services;
 
 namespace BlazorUIs
 {
@@ -30,6 +31,7 @@ namespace BlazorUIs
             services.AddServerSideBlazor();
             services.AddMudServices();
             services.AddSingleton<Mas.Infrastructure.Common.ConnectionManager>();
+            services.AddTransient<IChartService, ChartService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

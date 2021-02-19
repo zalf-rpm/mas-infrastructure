@@ -6,13 +6,9 @@
 
 <ConnectToSturdyRef @bind-Capability="soilService" TCapnpInterface="Mas.Rpc.Soil.IService"></ConnectToSturdyRef>
 
-<RadzenPanel Text="@(@CoordStr)" AllowCollapse="true">
-    <ChildContent>
-        <GeoposPicker @bind-LatLng="latLng"
-                      Width="50%" Height="400px"
-                      CenterLatLng="@((51.0, 10.0))"></GeoposPicker>
-    </ChildContent>
-</RadzenPanel>
+<GeoposPicker @bind-LatLng="latLng"
+              Width="50%" Height="400px"
+              CenterLatLng="@((51.0, 10.0))"></GeoposPicker>
 
 <p>
     Available soil parameters:<br />
@@ -39,6 +35,7 @@
     }
     else
     {
+        <!--
         <RadzenTree>
             @foreach (var l in profile.Layers)
             {
@@ -50,6 +47,7 @@
                 </RadzenTreeItem>
             }
         </RadzenTree>
+        -->
     }
 </p>
 
@@ -82,8 +80,8 @@
                     Soil.PropertyName.sand,
                     Soil.PropertyName.clay,
                     Soil.PropertyName.bulkDensity,
-                },
-                OnlyRawData=false
+                    },
+                OnlyRawData = false
             }
         );
         if (profiles.Count > 0) profile = profiles[0];

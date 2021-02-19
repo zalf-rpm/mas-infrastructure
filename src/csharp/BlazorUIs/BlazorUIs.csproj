@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Allegiance.Blazor.Highcharts" Version="2.0.15" />
     <PackageReference Include="BlazorGoogleMaps" Version="1.0.12" />
     <PackageReference Include="Capnp.Net.Runtime" Version="1.3.118" />
     <PackageReference Include="MudBlazor" Version="5.0.1" />
