@@ -4,6 +4,6 @@
     <DebuggerFlavor>ProjectDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup>
-    <ActiveDebugProfile>RadzenTest</ActiveDebugProfile>
+    <ActiveDebugProfile>BlazorUIs</ActiveDebugProfile>
   </PropertyGroup>
 </Project>
