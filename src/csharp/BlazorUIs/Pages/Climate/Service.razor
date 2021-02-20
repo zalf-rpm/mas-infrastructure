@@ -9,7 +9,7 @@
 
 <MudGrid>
     <MudItem Class=@(HideSturdyRefConnector ? "d-none" : "") xs="12">
-        <ConnectToSturdyRef Label="Enter capability to climate service (capnp://host:port/token)"
+        <ConnectToSturdyRef Label="Persistent capability to climate service (capnp://host:port/token)"
                             CapabilityChanged=@CapabilityChanged
                             TCapnpInterface=Climate.IService>
         </ConnectToSturdyRef>

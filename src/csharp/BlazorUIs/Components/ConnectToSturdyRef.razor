@@ -5,22 +5,16 @@
 
 <MudPaper Class="d-flex flex-row py-2 px-1">
     <MudButton Class="pa-2 mx-2" Variant=Variant.Filled EndIcon=@buttonEndIcon Color=@buttonColor OnClick=@Connect>@buttonLabel</MudButton>
-    <MudTextField Class="pa-2 mx-2" @bind-Value=sturdyRef Label=@Label Variant=Variant.Outlined></MudTextField>
+    <MudTextField Class="pa-2 mx-2" @bind-Value=SturdyRef Label=@Label Variant=Variant.Outlined></MudTextField>
+    <MudButton Class="pa-2 mx-2" Variant=Variant.Outlined Color=@Color.Primary OnClick=@RetrieveSturdyRef>Retrieve</MudButton>
 </MudPaper>
 
-<!--
-<MudCard>
-    <MudCardContent>
-        <MudTextField @bind-Value=sturdyRef Label="Enter persistent capability (capnp://host:port/token)" Variant=Variant.Outlined></MudTextField>
-    </MudCardContent>
-    <MudCardActions>
-        <MudButton Variant=Variant.Filled EndIcon=@buttonEndIcon Color=@buttonColor OnClick=@Connect>@buttonLabel</MudButton>
-    </MudCardActions>
-</MudCard>
-    -->
-
 @code {
-    private String sturdyRef = "capnp://localhost:64317";
+    [Parameter]
+    public String SturdyRef { get; set; }
+
+    [Parameter]
+    public EventCallback<String> SturdyRefChanged { get; set; }
 
     private String buttonEndIcon = Icons.Material.Filled.CastConnected;
     private Color buttonColor = Color.Primary;
@@ -33,19 +27,19 @@
     public EventCallback<TCapnpInterface> CapabilityChanged { get; set; }
 
     [Parameter]
-    public String Label { get; set; } = "Enter persistent capability (capnp://host:port/token)";
+    public String Label { get; set; } = "Persistent capability (capnp://host:port/token)";
 
     private async Task Connect()
     {
         try
         {
             buttonLabel = "Connecting ...";
-            Capability = await ConMan.Connect<TCapnpInterface>(sturdyRef);
+            Capability = await ConMan.Connect<TCapnpInterface>(SturdyRef);
             buttonEndIcon = Icons.Material.Filled.CastConnected;
             buttonColor = Color.Success;
             buttonLabel = "Connected";
         }
-        catch (Capnp.Rpc.RpcException e)
+        catch (Capnp.Rpc.RpcException)
         {
             buttonEndIcon = Icons.Material.Filled.Error;
             buttonColor = Color.Error;
@@ -60,5 +54,18 @@
         buttonEndIcon = Icons.Material.Filled.CastConnected;
         buttonColor = Color.Primary;
         buttonLabel = "Connect";
+    }
+
+    private async Task RetrieveSturdyRef()
+    {
+        try
+        {
+            if (Capability is Proxy p) SturdyRef = (await p.Cast<Capnp.IPersistent<String, String>>(false)?.Save(null))?.SturdyRef;
+        }
+        catch (Capnp.Rpc.RpcException)
+        {
+        }
+
+        await SturdyRefChanged.InvokeAsync(SturdyRef);
     }
 }
