@@ -1,0 +1,8 @@
+{  
+  "Carbamid":0,
+  "NH4":0.56499999761581421,
+  "NO3":0.43500000238418579,
+  "id":"CF4",
+  "name":"Compound fertiliser (43% NO3, 57% NH4)",
+  "type":"MineralFertiliserParameters"
+}

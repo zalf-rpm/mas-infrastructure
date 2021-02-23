@@ -1,0 +1,60 @@
+﻿@inherits LayoutComponentBase
+@using MonicaBlazorZmqUI.Services
+@using Core.Share
+
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+<RadzenDialog />
+<RadzenNotification />
+
+<div class="sidebar">
+    <NavMenu />
+</div>
+
+<div class="main">
+    <div class="top-row px-4">
+        @if (!_userSetting.GithubLoggedIn)
+        {
+            <a href="/Account/GithubLogin">Login</a>
+        }
+        else
+        {
+            <a @onclick="LogoutAsync" href="">Logout</a>//needs to empty the credential information
+          
+
+        }
+    </div>
+    <div class="content px-4">
+        @Body
+    </div>
+</div>
+
+@code{
+
+    UserSetting _userSetting = new UserSetting();
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var localUserSettings = await localStorage.GetItemAsync<UserSetting>(StaticFields.UserSettingsLocalStorageKey);
+
+            if (localUserSettings != null)
+            {
+                _userSetting = localUserSettings;
+            }
+
+            StateHasChanged();
+        }
+    }
+
+    async Task LogoutAsync()
+    {
+        _userSetting.GithubLoggedIn = false;
+        _userSetting = new UserSetting();
+        await localStorage.SetItemAsync<UserSetting>(StaticFields.UserSettingsLocalStorageKey, _userSetting);
+        StateHasChanged();
+
+    }
+}

@@ -4,6 +4,8 @@
 @using Capnp.Rpc
 @using Mas.Rpc
 
+@using BlazorUIs.Components 
+
 <MudGrid>
     <MudItem Class=@(HideSturdyRefConnector ? "d-none" : "") xs="12">
         <ConnectToSturdyRef Label="Persistent capability to climate dataset (capnp://host:port/token)"
@@ -35,6 +37,7 @@
     [Parameter]
     public Climate.IDataset DatasetCap { get; set; }
 
+    private bool datasetCapUpdated = false;
     private bool componentIsDatasetCapOwner = false;
 
     [Parameter]
@@ -47,9 +50,15 @@
 
     private Climate.ITimeSeries timeSeries;
 
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        datasetCapUpdated = parameters.GetValueOrDefault<Climate.IDataset>("DatasetCap", null) == DatasetCap;
+        await base.SetParametersAsync(parameters);
+    }
+
     protected override async Task OnParametersSetAsync()
     {
-        await SetClosestTimeSeries();
+        if (datasetCapUpdated) await SetClosestTimeSeries();
     }
 
     private async Task CapabilityChanged(Climate.IDataset dataset)

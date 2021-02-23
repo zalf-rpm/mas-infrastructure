@@ -1,0 +1,44 @@
+﻿@page "/Account/GithubLoginResult"
+@using Application.Share
+@using MonicaBlazorZmqUI.Services.Github
+@using Core.Share
+@using Microsoft.AspNetCore.WebUtilities
+
+@inherits Shared.BasePage
+
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject IGithubService GithubService
+@inject NavigationManager NavigationManager
+
+@if (UserSetting.GithubLoggedIn)
+{
+    <h1>You successfully logged in.</h1>
+}
+
+@code{
+    private string loginCode = string.Empty;
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var query = new Uri(NavigationManager.Uri).Query;
+
+            if (QueryHelpers.ParseQuery(query).TryGetValue("code", out var value))
+            {
+                loginCode = value;
+            }
+
+            if (String.IsNullOrEmpty(loginCode))
+                NavigationManager.NavigateTo("/Account/GithubLogin/false");
+
+            var token = GithubService.OAuthAuthorize(loginCode, string.Empty);
+            var user = GithubService.GetCurrentUser(token);
+            UserSetting.GithubUserName = user.Login;
+            UserSetting.GithubToken = token;
+            UserSetting.GithubLoggedIn = true;
+            SaveUserSettingsInLocalStorageAsync();
+            StateHasChanged();
+        }
+    }
+}

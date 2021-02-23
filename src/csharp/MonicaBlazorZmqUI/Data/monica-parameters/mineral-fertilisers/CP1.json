@@ -1,0 +1,8 @@
+{  
+  "Carbamid":0,
+  "NH4":1,
+  "NO3":0,
+  "id":"CP1",
+  "name":"Compound fertiliser (0% NO3, 100% NH4)",
+  "type":"MineralFertiliserParameters"
+}

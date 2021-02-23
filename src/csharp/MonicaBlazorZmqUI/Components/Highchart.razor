@@ -1,0 +1,42 @@
+﻿@inject Microsoft.JSInterop.IJSRuntime jsruntime;
+
+    <SpinLoader IsLoading="isLoading">
+        <LoadingTemplate>
+            <Chase Center="true"></Chase>
+        </LoadingTemplate>
+        <ContentTemplate>
+            <div id="@id.ToString()"></div>
+        </ContentTemplate>
+    </SpinLoader>
+
+
+@code
+{
+    bool isLoading = true;
+
+    [Parameter] public string Json { get; set; }
+    private string id { get; set; } = "Highchart" + Guid.NewGuid().ToString();
+
+
+    protected override void OnParametersSet()
+    {
+        StateHasChanged();
+        base.OnParametersSet();
+    }
+
+    protected async override Task OnInitializedAsync()
+    {
+        isLoading = false;
+    }
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!string.IsNullOrEmpty(Json))
+        {
+            await jsruntime.InvokeAsync<string>("loadHighchart", new object[] { id, Json });
+            //await jsruntime.InvokeAsync<string>("loadStockchart", new object[] { id, Json });
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+}

@@ -1,0 +1,116 @@
+﻿@page "/setting"
+@using Core.Share
+@using MonicaBlazorZmqUI.Services.Github
+@inherits Shared.BasePage
+
+@inject IGithubService GithubService
+
+<h3>Setting</h3>
+
+<label for="basic-url">Your ZeroMQ server Address</label>
+<div class="input-group mb-3">
+    <div class="input-group-prepend">
+        <span class="input-group-text" id="basic-addon3">Server Push Address:</span>
+    </div>
+    <input type="text" class="form-control" aria-describedby="basic-addon3" @bind="@UserSetting.ServerPushAddress" @onfocusout="UpdateLocalStorageSettingsAsync">
+</div>
+<div class="input-group mb-3">
+    <div class="input-group-prepend">
+        <span class="input-group-text" id="basic-addon3">Server Push Port:</span>
+    </div>
+    <input class="form-control" aria-describedby="basic-addon3" @bind="@UserSetting.ServerPushPort" @onfocusout="UpdateLocalStorageSettingsAsync">
+</div>
+<div class="input-group mb-3">
+    <div class="input-group-prepend">
+        <span class="input-group-text" id="basic-addon3">Server Pull Address:</span>
+    </div>
+    <input type="text" class="form-control" aria-describedby="basic-addon3" @bind="@UserSetting.ServerPullAddress" @onfocusout="UpdateLocalStorageSettingsAsync">
+</div>
+<div class="input-group mb-3">
+    <div class="input-group-prepend">
+        <span class="input-group-text" id="basic-addon3">Server Pull Port:</span>
+    </div>
+    <input type="number" class="form-control" aria-describedby="basic-addon3" @bind="UserSetting.ServerPullPort" @onfocusout="UpdateLocalStorageSettingsAsync">
+</div>
+<p> </p>
+<label for="basic-url">Your gitHub authentication information</label>
+<div class="input-group mb-3">
+    <div class="input-group-prepend">
+        <span class="input-group-text" id="basic-addon3">User Name:</span>
+    </div>
+    <input disabled type="text" class="form-control" aria-describedby="basic-addon3" @bind="UserSetting.GithubUserName" @onfocusout="UpdateLocalStorageSettingsAsync">
+</div>
+<div class="input-group mb-3">
+    <div class="input-group-prepend">
+        <span class="input-group-text" id="basic-addon3">Password:</span>
+    </div>
+    <input disabled type="password" class="form-control" aria-describedby="basic-addon3" value="@UserSetting.GithubPassword">
+</div>
+<div class="input-group mb-3">
+    <div class="input-group-prepend">
+        <span class="input-group-text" id="basic-addon3">github Path Validator:</span>
+    </div>
+    @if (UserSetting.MonicaPathOnGitIsValid == false) //show proper icon when is Not valid
+    {
+        <div class="input-group-prepend tooltip2">
+            <span class="input-group-text tooltip2" id="basic-addon3">&#9888;</span>
+            <span class="tooltiptext">
+                <strong>Only After logging-in:</strong> <br />
+                Please enter your full github repository Address which contains "monica parameters" in its root <br />
+                Do not add Slash (/) at the the end of this address. <br />
+                After entering the path, click on "Validate the path" button.
+            </span>
+        </div>
+    }
+    else // when path is valid
+    {
+        <div class="input-group-prepend">
+            <span class="input-group-text" id="basic-addon3">&#10004;</span>
+        </div>
+    }
+    <input type="text" class="form-control" aria-describedby="basic-addon3" @bind="somePath" @onfocusout="@PathChangedAsync">
+    <div class="input-group-prepend">
+        <button class="btn btn-info btn-sm rounded-right" type="button" @onclick="GithubPathValidation">Validate the path</button>
+    </div>
+</div>
+
+
+@code {
+
+    Boolean value;
+
+    private string somePath = string.Empty;
+
+    void Change(bool value)
+    {
+        // do something
+    }
+
+
+
+    //somePath = UserSetting.MonicaParametersPathOnGithub;
+
+
+
+    async Task GithubPathValidation()
+    {
+        if (!string.IsNullOrWhiteSpace(somePath))
+        {
+
+            string repoPath = GithubService.GetRepoResultPath(somePath);
+            UserSetting.MonicaPathOnGitIsValid = GithubService.PathValidator(UserSetting.MonicaResultsPathOnGithub, UserSetting.GithubUserName, UserSetting.GithubToken, repoPath);
+            await SaveUserSettingsInLocalStorageAsync();
+        }
+    }
+
+    async Task PathChangedAsync()
+    {
+        UserSetting.MonicaPathOnGitIsValid = false;
+        await SaveUserSettingsInLocalStorageAsync();
+    }
+
+    async Task UpdateLocalStorageSettingsAsync()
+    {
+        await SaveUserSettingsInLocalStorageAsync();
+    }
+}

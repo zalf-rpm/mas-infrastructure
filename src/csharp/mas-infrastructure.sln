@@ -11,6 +11,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "common", "common\common.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorUIs", "BlazorUIs\BlazorUIs.csproj", "{EA61842D-040C-4BC8-8A87-33F4D64825F7}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MonicaBlazorZmqUI", "MonicaBlazorZmqUI\MonicaBlazorZmqUI.csproj", "{04357925-5DDE-4270-B271-461890A938DE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application", "Application\Application.csproj", "{BE1D2C72-83C8-4EBB-9C93-780CC35F90B2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Core\Core.csproj", "{EE42216D-B0F3-4509-8281-A27E11E98289}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MonicaBlazorCapnpUI", "MonicaBlazorCapnpUI\MonicaBlazorCapnpUI.csproj", "{3D03FC15-580F-4B30-85A2-29B7B8B53199}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +41,22 @@ Global
 		{EA61842D-040C-4BC8-8A87-33F4D64825F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EA61842D-040C-4BC8-8A87-33F4D64825F7}.Release|Any CPU.ActiveCfg = Debug|Any CPU
 		{EA61842D-040C-4BC8-8A87-33F4D64825F7}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{04357925-5DDE-4270-B271-461890A938DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04357925-5DDE-4270-B271-461890A938DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04357925-5DDE-4270-B271-461890A938DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04357925-5DDE-4270-B271-461890A938DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE1D2C72-83C8-4EBB-9C93-780CC35F90B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE1D2C72-83C8-4EBB-9C93-780CC35F90B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE1D2C72-83C8-4EBB-9C93-780CC35F90B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE1D2C72-83C8-4EBB-9C93-780CC35F90B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE42216D-B0F3-4509-8281-A27E11E98289}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE42216D-B0F3-4509-8281-A27E11E98289}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE42216D-B0F3-4509-8281-A27E11E98289}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE42216D-B0F3-4509-8281-A27E11E98289}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D03FC15-580F-4B30-85A2-29B7B8B53199}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D03FC15-580F-4B30-85A2-29B7B8B53199}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D03FC15-580F-4B30-85A2-29B7B8B53199}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D03FC15-580F-4B30-85A2-29B7B8B53199}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
