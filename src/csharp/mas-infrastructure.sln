@@ -18,6 +18,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Core\Core.csproj", "{EE42216D-B0F3-4509-8281-A27E11E98289}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MonicaBlazorCapnpUI", "MonicaBlazorCapnpUI\MonicaBlazorCapnpUI.csproj", "{3D03FC15-580F-4B30-85A2-29B7B8B53199}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6CB664DE-0406-49F1-A2F8-B3F22E495601} = {6CB664DE-0406-49F1-A2F8-B3F22E495601}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -26,19 +26,19 @@
         <div class="row">
             <div class="col-sm-12">
                 Result Options
-                <RadzenRadioButtonList @bind-Value="this._monicaViewReultType" TValue="MonicaViewReultType" Orientation="Orientation.Vertical" Change="MonicaViewResultTypeChanged">
+                <RadzenRadioButtonList @bind-Value="this._monicaViewResultType" TValue="MonicaViewResultType" Orientation="Orientation.Vertical" Change="MonicaViewResultTypeChanged">
                     <Items>
-                        <RadzenRadioButtonListItem Visible="UserSetting.GithubLoggedIn" Text="View result from Github" Value="MonicaViewReultType.Github" />
-                        <RadzenRadioButtonListItem Text="View result from shared link" Value="MonicaViewReultType.SharedLink" />
-                        <RadzenRadioButtonListItem Text="Upload Monica result file" Value="MonicaViewReultType.UploadJsonResult" />
+                        <RadzenRadioButtonListItem Visible="UserSetting.GithubLoggedIn" Text="View result from Github" Value="MonicaViewResultType.Github" />
+                        <RadzenRadioButtonListItem Text="View result from shared link" Value="MonicaViewResultType.SharedLink" />
+                        <RadzenRadioButtonListItem Text="Upload Monica result file" Value="MonicaViewResultType.UploadJsonResult" />
                     </Items>
                 </RadzenRadioButtonList>
             </div>
         </div>
 
-        @switch (this._monicaViewReultType)
+        @switch (this._monicaViewResultType)
         {
-            case MonicaViewReultType.Github:
+            case MonicaViewResultType.Github:
 
                 <div class="form-group">
                     <select class="form-control p-2 m-2" @onchange="MonicaResultsFromGithubChanged">
@@ -54,7 +54,7 @@
                 </div>
 
                 break;
-            case MonicaViewReultType.SharedLink:
+            case MonicaViewResultType.SharedLink:
 
                 <div class="input-group m-2">
                     <input type="text" class="form-control disabled" @bind="sharedLink" aria-label="Shared Link" aria-describedby="basic-addon2">
@@ -75,12 +75,12 @@
                     </div>*@
 
                 break;
-            case MonicaViewReultType.UploadJsonResult:
+            case MonicaViewResultType.UploadJsonResult:
 
                 <div class="row">
                     <div class="col-sm-12">
                         <div class="drag-drop-zone">
-                            <InputFile OnChange="HandleFile" />
+                            <BlazorInputFile.InputFile OnChange="HandleFile" />
                             @status
                         </div>
                     </div>
@@ -170,7 +170,7 @@
     private bool canLoadMonicaBaseData = false;
     private bool CanLoadChart = false;
     private bool isJson = true;
-    private MonicaViewReultType _monicaViewReultType = MonicaViewReultType.Github;
+    private MonicaViewResultType _monicaViewResultType = MonicaViewResultType.Github;
     private IEnumerable<RepositoryContent> githubResultFilesName;
 
     const string DefaultStatus = "Drop your JSON file here or just click to choose your file";
