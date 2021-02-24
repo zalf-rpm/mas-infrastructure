@@ -1,9 +1,13 @@
 ﻿@page "/climate/timeseries"
 
 @using System.Text;
+
+@using MudBlazor
+
 @using Capnp.Rpc
-@using Mas.Infrastructure.Common
+
 @using Mas.Rpc
+@using Mas.Infrastructure.BlazorComponents
 
 @inject IJSRuntime jsRuntime
 
@@ -35,14 +39,14 @@
                         <MudTh>Date</MudTh>
                         @foreach (var h in headings)
                         {
-                            <MudTh>@h</MudTh>
+                        <MudTh>@h</MudTh>
                         }
                     </HeaderContent>
                     <RowTemplate>
                         <MudTd DataLabel="Date">@context.Date.ToShortDateString()</MudTd>
                         @foreach (var (val, i) in headings.Select((Value, Index) => (Value, Index)))
                         {
-                            <MudTd DataLabel=@val>@context.Data[i]</MudTd>
+                        <MudTd DataLabel=@val>@context.Data[i]</MudTd>
                         }
                     </RowTemplate>
                     <PagerContent>
@@ -239,7 +243,7 @@
         await jsRuntime.InvokeVoidAsync("saveAsBase64", "data.csv", Convert.ToBase64String(Encoding.UTF8.GetBytes(csvString)));
     }
 
-    public void Dispose()
+    void IDisposable.Dispose()
     {
         //dispose the current time series cap if it's not the same as the initial one
         if (originalTimeSeriesCap != TimeSeriesCap)

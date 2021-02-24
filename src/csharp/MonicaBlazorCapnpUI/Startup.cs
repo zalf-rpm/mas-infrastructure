@@ -11,6 +11,7 @@ using MonicaBlazorZmqUI.Services.Github;
 using Microsoft.JSInterop;
 using Blazored.LocalStorage;
 using Radzen;
+using MudBlazor.Services;
 using Microsoft.AspNetCore.Http.Features;
 
 namespace MonicaBlazorCapnpUI
@@ -42,6 +43,9 @@ namespace MonicaBlazorCapnpUI
 
             services.AddBlazoredLocalStorage();
 
+            services.AddMudServices();
+            services.AddSingleton<Mas.Infrastructure.Common.ConnectionManager>();
+            
             services.AddScoped<Radzen.NotificationService>();
             services.AddTransient<IMonicaJsonMapper, MonicaJsonMapper>();
             services.AddTransient<IMonicaChartApp, MonicaChartApp>();
@@ -50,6 +54,7 @@ namespace MonicaBlazorCapnpUI
             services.AddTransient<MonicaIO>();
             services.AddTransient<ZmqProducer>();
             services.AddTransient<ZmqConsumer>();
+            services.AddTransient<Services.RunMonica>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

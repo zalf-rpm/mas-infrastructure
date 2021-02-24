@@ -1,6 +1,7 @@
 ﻿@inherits LayoutComponentBase
 @using MonicaBlazorZmqUI.Services
 @using Core.Share
+@using Radzen
 
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 
@@ -20,7 +21,7 @@
         else
         {
             <a @onclick="LogoutAsync" href="">Logout</a>//needs to empty the credential information
-          
+
 
         }
     </div>

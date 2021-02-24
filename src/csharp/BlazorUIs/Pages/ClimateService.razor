@@ -1,11 +1,15 @@
 ﻿@page "/climate/service"
 
 @using System.Text;
-@using Capnp.Rpc
-@using Mas.Infrastructure.Common
+
+@using MudBlazor
+
 @using Mas.Rpc
+@using Mas.Infrastructure.BlazorComponents 
 
 @inject IJSRuntime JSRuntime;
+
+@implements IDisposable
 
 <MudGrid>
     <MudItem Class=@(HideSturdyRefConnector ? "d-none" : "") xs="12">
@@ -16,11 +20,11 @@
     </MudItem>
     <MudItem xs="12">
         <MudTable T="ValueTuple<IEnumerable<Common.IdInformation>, Climate.IDataset>"
-                  FixedHeader=@true 
+                  FixedHeader=@true
                   Height=@(metaAndData.Count() == 0 ? "" : "400px")
-                  Items=@metaAndData 
-                  Hover=@true 
-                  Dense=@true 
+                  Items=@metaAndData
+                  Hover=@true
+                  Dense=@true
                   Filter=@(new Func<(IEnumerable<Common.IdInformation>, Climate.IDataset), bool>(DataFilterFunc))
                   SelectedItemChanged=@(t => selectedDataset = t.Item2)>
             <ToolBarContent>
@@ -43,7 +47,7 @@
         </MudTable>
     </MudItem>
     <MudItem xs="12">
-        <Dataset DatasetCap=@selectedDataset HideSturdyRefConnector=@true></Dataset>
+        <ClimateDataset DatasetCap=@selectedDataset HideSturdyRefConnector=@true></ClimateDataset>
     </MudItem>
 </MudGrid>
 
@@ -111,7 +115,7 @@
     }
 
 
-    public void Dispose()
+    void IDisposable.Dispose()
     {
         if (componentIsClimateServiceCapOwner) ClimateServiceCap?.Dispose();
         foreach (var (_, ds) in metaAndData) ds?.Dispose();

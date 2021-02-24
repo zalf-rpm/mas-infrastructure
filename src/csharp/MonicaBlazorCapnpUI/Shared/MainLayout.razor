@@ -1,38 +1,55 @@
 ﻿@inherits LayoutComponentBase
+
+@using MudBlazor
 @using MonicaBlazorZmqUI.Services
 @using Core.Share
 
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 
-<RadzenDialog />
-<RadzenNotification />
+<MudThemeProvider />
+<!--<RadzenDialog />
+<RadzenNotification />-->
 
-<div class="sidebar">
-    <NavMenu />
-</div>
-
-<div class="main">
+<MudLayout>
+    <MudAppBar Elevation="1">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        <MudAppBarSpacer />
+        <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
+    </MudAppBar>
+    <MudDrawer @bind-Open="_drawerOpen" Elevation="2">
+        <MudDrawerHeader>
+            <MudText Typo="Typo.h5" Class="mt-1">MONICA Web-Interfaces</MudText>
+        </MudDrawerHeader>
+        <NavMenu />
+    </MudDrawer>
+    <MudMainContent>
+        <!--
     <div class="top-row px-4">
         @if (!_userSetting.GithubLoggedIn)
         {
-            <a href="/Account/GithubLogin">Login</a>
+            <a href="/expert/Account/GithubLogin">Login</a>
         }
         else
         {
             <a @onclick="LogoutAsync" href="">Logout</a>//needs to empty the credential information
-          
-
         }
-    </div>
-    <div class="content px-4">
+        </div>
+        <div class="content px-4">
+            @Body
+        </div>
+        -->
         @Body
-    </div>
-</div>
+    </MudMainContent>
+</MudLayout>
+@code {
+    bool _drawerOpen = true;
 
-@code{
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
 
     UserSetting _userSetting = new UserSetting();
-
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

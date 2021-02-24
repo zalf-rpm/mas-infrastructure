@@ -1,10 +1,11 @@
 ﻿@page "/climate/dataset"
 
-@using System.Text;
-@using Capnp.Rpc
-@using Mas.Rpc
+@using MudBlazor
 
-@using BlazorUIs.Components 
+@using Mas.Rpc
+@using Mas.Infrastructure.BlazorComponents
+
+@implements IDisposable
 
 <MudGrid>
     <MudItem Class=@(HideSturdyRefConnector ? "d-none" : "") xs="12">
@@ -29,7 +30,7 @@
         </MudCard>
     </MudItem>
     <MudItem xs="12">
-        <TimeSeries TimeSeriesCap=@timeSeries HideSturdyRefConnector=@true></TimeSeries>
+        <ClimateTimeSeries TimeSeriesCap=@timeSeries HideSturdyRefConnector=@true></ClimateTimeSeries>
     </MudItem>
 </MudGrid>
 
@@ -85,7 +86,7 @@
         timeSeries = ts;
     }
 
-    public void Dispose()
+    void IDisposable.Dispose()
     {
         if (componentIsDatasetCapOwner) DatasetCap?.Dispose();
         timeSeries?.Dispose();

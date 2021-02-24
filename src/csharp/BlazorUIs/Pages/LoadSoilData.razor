@@ -1,10 +1,14 @@
 ﻿@page "/soil"
 
-@using Capnp.Rpc
-@using Mas.Infrastructure.Common
 @using Mas.Rpc
+@using Mas.Infrastructure.BlazorComponents 
 
-<ConnectToSturdyRef @bind-Capability="soilService" TCapnpInterface="Soil.Service_Proxy"></ConnectToSturdyRef>
+@implements IDisposable
+
+<ConnectToSturdyRef @bind-Capability=@soilService
+                    TCapnpInterface=@Soil.Service_Proxy>
+
+</ConnectToSturdyRef>
 
 <GeoposPicker @bind-LatLng="latLng"
               Width="50%" Height="400px"
@@ -91,4 +95,7 @@
     {
         availableParams = null;
     }
+
+    void IDisposable.Dispose()
+    { }
 }

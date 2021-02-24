@@ -1,0 +1,131 @@
+﻿@page "/simplified/monica"
+
+@using MudBlazor
+
+@using Newtonsoft.Json.Linq
+
+@using Mas.Rpc
+@using Mas.Infrastructure.BlazorComponents
+
+@inject IJSRuntime JSRuntime
+@inject Services.RunMonica runMonica
+
+@implements IDisposable
+
+<MudGrid>
+    <MudItem Class=@(HideSturdyRefConnector ? "d-none" : "") xs="12">
+        <ConnectToSturdyRef Label="Persistent capability to MONICA instance (capnp://host:port/token)"
+                            CapabilityChanged=@CapabilityChanged
+                            TCapnpInterface="Model.IEnvInstance<Common.StructuredText, Common.StructuredText>"
+                            @bind-SturdyRef=monicaSturdyRef>
+
+        </ConnectToSturdyRef>
+    </MudItem>
+    <MudItem Class=@(HideSturdyRefConnector ? "d-none" : "") xs="12">
+        <ConnectToSturdyRef Label="Persistent capability to climate time series (capnp://host:port/token)"
+                            CapabilityChanged=@TimeSeriesCapabilityChanged
+                            TCapnpInterface=@Climate.ITimeSeries
+                            @bind-SturdyRef=timeSeriesSturdyRef>
+        </ConnectToSturdyRef>
+    </MudItem>
+    <MudItem xs="12">
+        <MudButton Variant=@Variant.Filled Color=@Color.Primary OnClick=@RunMonica>Run MONICA</MudButton>
+    </MudItem>
+    <MudItem xs="12">
+        <MudCard>
+            <MudCardContent>
+                <MudText>@monicaResult</MudText>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+    <MudItem xs="12">
+        <MudAlert Severity="Severity.Error">@monicaErrorMessage</MudAlert>
+    </MudItem>
+</MudGrid>
+
+@code {
+    [Parameter]
+    public Model.IEnvInstance<Common.StructuredText, Common.StructuredText> MonicaInstanceCap { get; set; }
+    private String monicaSturdyRef = "capnp://localhost:6666";
+    private bool componentIsMonicaInstanceCapOwner = false;
+
+    [Parameter]
+    public EventCallback<Model.IEnvInstance<Common.StructuredText, Common.StructuredText>> MonicaInstanceCapChanged { get; set; }
+
+    [Parameter]
+    public bool HideSturdyRefConnector { get; set; } = false;
+
+    [Parameter]
+    public Climate.ITimeSeries TimeSeriesCap { get; set; }
+    private String timeSeriesSturdyRef = "capnp://localhost:11002";
+    private bool componentIsTimeSeriesCapOwner = false;
+
+    [Parameter]
+    public EventCallback<Climate.ITimeSeries> TimeSeriesCapChanged { get; set; }
+
+    private String monicaResult;
+    private String monicaErrorMessage;
+
+    private async Task CapabilityChanged(Model.IEnvInstance<Common.StructuredText, Common.StructuredText> monicaInstance)
+    {
+        if (monicaInstance == null) return;
+
+        if (MonicaInstanceCap != monicaInstance && componentIsMonicaInstanceCapOwner) MonicaInstanceCap?.Dispose();
+        MonicaInstanceCap = monicaInstance;
+        componentIsMonicaInstanceCapOwner = true;
+
+        //await RunMonica();
+    }
+
+    private async Task TimeSeriesCapabilityChanged(Climate.ITimeSeries timeSeries)
+    {
+        if (timeSeries == null) return;
+
+        //var datasets = await timeSeries.GetAvailableDatasets();
+
+        if (TimeSeriesCap != timeSeries && componentIsMonicaInstanceCapOwner) TimeSeriesCap?.Dispose();
+        TimeSeriesCap = null;// timeSeries;
+        componentIsTimeSeriesCapOwner = true;
+
+        await RunMonica();
+    }
+
+    private async Task RunMonica()
+    {
+        //if (MonicaInstanceCap == null || TimeSeriesCap == null) return;
+
+        var files = new List<String> {
+            "Data-Full/sim-min.json", "Data-Full/crop-min.json", "Data-Full/site-min.json", "Data-Full/climate-min.csv"
+        };
+        var envj = await runMonica.RunMonicaAsync(files, new Core.Share.UserSetting(), Core.Share.Enums.MonicaParametersBasePathTypeEnum.LocalServer);
+
+        var h = await TimeSeriesCap.Header();
+
+        var menv = new Model.Env<Common.StructuredText>()
+        {
+            TimeSeries = Capnp.Rpc.Proxy.Share(TimeSeriesCap),
+            Rest = new Common.StructuredText()
+            {
+                Structure = new Common.StructuredText.structure { which = Common.StructuredText.structure.WHICH.Json },
+                Value = envj.ToString()
+            }
+        };
+
+        try
+        {
+            var res = await MonicaInstanceCap.Run(menv);
+            monicaResult = res.Value;
+        }
+        catch (Capnp.Rpc.RpcException e)
+        {
+            monicaErrorMessage = e.ToString();
+        }
+    }
+
+
+    void IDisposable.Dispose()
+    {
+        if (componentIsMonicaInstanceCapOwner) MonicaInstanceCap?.Dispose();
+        if (componentIsTimeSeriesCapOwner) TimeSeriesCap?.Dispose();
+    }
+}

@@ -10,6 +10,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "common", "common\common.csproj", "{CEB9D2AC-A284-42A0-A4A5-7C3ADF652780}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorUIs", "BlazorUIs\BlazorUIs.csproj", "{EA61842D-040C-4BC8-8A87-33F4D64825F7}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5A41EBDC-208D-465D-8935-B80F0FCEA719} = {5A41EBDC-208D-465D-8935-B80F0FCEA719}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MonicaBlazorZmqUI", "MonicaBlazorZmqUI\MonicaBlazorZmqUI.csproj", "{04357925-5DDE-4270-B271-461890A938DE}"
 EndProject
@@ -19,8 +22,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Core\Core.csproj", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MonicaBlazorCapnpUI", "MonicaBlazorCapnpUI\MonicaBlazorCapnpUI.csproj", "{3D03FC15-580F-4B30-85A2-29B7B8B53199}"
 	ProjectSection(ProjectDependencies) = postProject
+		{EA61842D-040C-4BC8-8A87-33F4D64825F7} = {EA61842D-040C-4BC8-8A87-33F4D64825F7}
+		{CEB9D2AC-A284-42A0-A4A5-7C3ADF652780} = {CEB9D2AC-A284-42A0-A4A5-7C3ADF652780}
 		{6CB664DE-0406-49F1-A2F8-B3F22E495601} = {6CB664DE-0406-49F1-A2F8-B3F22E495601}
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorComponents", "BlazorComponents\BlazorComponents.csproj", "{5A41EBDC-208D-465D-8935-B80F0FCEA719}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -60,6 +67,10 @@ Global
 		{3D03FC15-580F-4B30-85A2-29B7B8B53199}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3D03FC15-580F-4B30-85A2-29B7B8B53199}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3D03FC15-580F-4B30-85A2-29B7B8B53199}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A41EBDC-208D-465D-8935-B80F0FCEA719}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A41EBDC-208D-465D-8935-B80F0FCEA719}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A41EBDC-208D-465D-8935-B80F0FCEA719}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A41EBDC-208D-465D-8935-B80F0FCEA719}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

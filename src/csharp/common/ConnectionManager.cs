@@ -15,7 +15,7 @@ namespace Mas.Infrastructure.Common
         {
         }
 
-        public void Dispose()
+        void IDisposable.Dispose()
         {
             foreach (var con in _Connections.Values)
                 con.Dispose();

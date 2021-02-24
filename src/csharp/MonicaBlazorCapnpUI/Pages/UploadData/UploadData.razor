@@ -1,4 +1,4 @@
-﻿@page "/uploadData"
+﻿@page "/expert/uploadData"
 @* Usings *@
 @using Microsoft.AspNetCore.Hosting
 @using System.Threading
@@ -7,6 +7,11 @@
 @using Core.Share
 @using Core.Share.Enums
 
+@using NetMQ 
+@using NetMQ.Sockets
+
+@using Radzen
+@using Radzen.Blazor
 
 @inherits Shared.BasePage
 @* Injects *@
@@ -273,7 +278,7 @@ else
             {
                 if (files[i].Size > MaxFileSize)
                 {
-                    status = $"That's too big. Max size: {MaxFileSize/1024/1024} MB";
+                    status = $"That's too big. Max size: {MaxFileSize / 1024 / 1024} MB";
                     return;
                 }
             }

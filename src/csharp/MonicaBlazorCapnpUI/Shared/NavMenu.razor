@@ -1,80 +1,15 @@
-﻿<div class="top-row pl-4 navbar navbar-dark">
-    <div><img src="../zalf-logo.png" /></div>
-    <a class="navbar-brand" href="">MonicaZMQ interface</a>
-    <button class="navbar-toggler" @onclick="ToggleNavMenu">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-</div>
+﻿@using MudBlazor
 
-<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
-    <ul class="nav flex-column">
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Home
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="uploadData" Match="NavLinkMatch.All">
-                <span class="oi oi-cloud-upload" aria-hidden="true"></span> Upload Data
-            </NavLink>
-        </li>
-        <!--
-    <li class="nav-item px-3">
-        <NavLink class="nav-link" href="GetServerResult" Match="NavLinkMatch.All">
-            <span class="oi oi-cloud-download" aria-hidden="true"></span> ZMQ Consumer
-        </NavLink>
-    </li>-->
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="monicaCharts/monicaChart" Match="NavLinkMatch.All">
-                <span class="oi oi-bar-chart" aria-hidden="true"></span> Results' Chart
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="setting" Match="NavLinkMatch.All">
-                <span class="oi oi-cog" aria-hidden="true"></span> Settings
-            </NavLink>
-        </li>
-
-        <li class="nav-item px-3" style="border-top:1px solid #808080;">
-            <NavLink class="nav-link" href="help" Match="NavLinkMatch.All">
-                <span class="oi oi-info" aria-hidden="true"></span> Help
-            </NavLink>
-        </li>
-
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="privacy-policy" Match="NavLinkMatch.All">
-                <span class="oi oi-shield" aria-hidden="true"></span> Privacy policy
-            </NavLink>
-        </li> 
-
-        @*<li class="nav-item px-3">
-            <NavLink class="nav-link" href="UploadDataCapnp" Match="NavLinkMatch.All">
-                <span class="oi oi-shield" aria-hidden="true"></span> UploadDataCapnp
-            </NavLink>
-        </li>*@
-        <!--
-        <li class="nav-item px-3" style="border-top:1px solid #808080;">
-            <NavLink class="nav-link" href="capnptest" Match="NavLinkMatch.All">
-                <span class="oi oi-code" aria-hidden="true"></span> Capnp-test
-            </NavLink>
-        </li>
-
-    <li class="nav-item px-3">
-        <NavLink class="nav-link" href="monicaParametersTree" Match="NavLinkMatch.All">
-            <span class="oi oi-code" aria-hidden="true"></span> File Folder test
-        </NavLink>
-    </li>
-        -->
-    </ul>
-</div>
-
-@code {
-    private bool collapseNavMenu = true;
-
-    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
-    private void ToggleNavMenu()
-    {
-        collapseNavMenu = !collapseNavMenu;
-    }
-}
+<MudNavMenu Class="demo-navmenu">
+    <MudNavLink Href="/">Home</MudNavLink>
+    <MudNavGroup Title="Expert UI" Expanded="true">
+        <MudNavLink Href="expert/uploadData">Run MONICA</MudNavLink>
+        <MudNavLink Href="expert/monicaCharts/monicaChart">Visualize Results</MudNavLink>
+        <MudNavLink Href="expert/settings">Settings</MudNavLink>
+        <MudNavLink Href="expert/help">Help</MudNavLink>
+        <MudNavLink Href="expert/privacy-policy">Privacy policy</MudNavLink>
+    </MudNavGroup>
+    <MudNavGroup Title="Simplified UI" Expanded="true">
+        <MudNavLink Href="/simplified/monica">MONICA</MudNavLink>
+    </MudNavGroup>
+</MudNavMenu>

@@ -1,7 +1,13 @@
-﻿@namespace BlazorUIs.Components
-@using Capnp.Rpc
+﻿@using Capnp.Rpc
+@using MudBlazor
+
+@namespace Mas.Infrastructure.BlazorComponents
+
 @inject Mas.Infrastructure.Common.ConnectionManager ConMan
+
 @typeparam TCapnpInterface
+
+@implements IDisposable
 
 <MudPaper Class="d-flex flex-row py-2 px-1">
     <MudButton Class="pa-2 mx-2" Variant=Variant.Filled EndIcon=@buttonEndIcon Color=@buttonColor OnClick=@Connect>@buttonLabel</MudButton>
@@ -21,32 +27,51 @@
     private String buttonLabel = "Connect";
 
     [Parameter]
-    public TCapnpInterface Capability { get; set; }
+    public TCapnpInterface Capability
+    {
+        get;
+        set;
+    }
 
     [Parameter]
-    public EventCallback<TCapnpInterface> CapabilityChanged { get; set; }
+    public EventCallback<TCapnpInterface> CapabilityChanged
+    {
+        get;
+        set;
+    }
 
     [Parameter]
     public String Label { get; set; } = "Persistent capability (capnp://host:port/token)";
+
+    [Parameter]
+    public EventCallback<RpcException> RpcExceptionThrown { get; set; }
 
     private async Task Connect()
     {
         try
         {
             buttonLabel = "Connecting ...";
-            Capability = await ConMan.Connect<TCapnpInterface>(SturdyRef);
+
+            var cap = await ConMan.Connect<TCapnpInterface>(SturdyRef);
+            if (Capability != cap) Capability?.Dispose();
+            Capability = cap;
+
             buttonEndIcon = Icons.Material.Filled.CastConnected;
             buttonColor = Color.Success;
             buttonLabel = "Connected";
+
+            await CapabilityChanged.InvokeAsync(Capnp.Rpc.Proxy.Share(Capability));
         }
-        catch (Capnp.Rpc.RpcException)
+        catch (RpcException e)
         {
+            Console.WriteLine(e.ToString());
+
             buttonEndIcon = Icons.Material.Filled.Error;
             buttonColor = Color.Error;
             buttonLabel = "Connect failed";
-        }
 
-        await CapabilityChanged.InvokeAsync(Capability);
+            await RpcExceptionThrown.InvokeAsync(e);
+        }
     }
 
     private void ClearButton()
@@ -60,12 +85,21 @@
     {
         try
         {
-            if (Capability is Proxy p) SturdyRef = (await p.Cast<Capnp.IPersistent<String, String>>(false)?.Save(null))?.SturdyRef;
+            if (Capability is Proxy p)
+            {
+                SturdyRef = (await p.Cast<Capnp.IPersistent<String, String>>(false)?.Save(null))?.SturdyRef;
+                await SturdyRefChanged.InvokeAsync(SturdyRef);
+            }
         }
-        catch (Capnp.Rpc.RpcException)
+        catch (Capnp.Rpc.RpcException e)
         {
+            Console.WriteLine(e.ToString());
+            await CapabilityChanged.InvokeAsync(Capability);
         }
+    }
 
-        await SturdyRefChanged.InvokeAsync(SturdyRef);
+    void IDisposable.Dispose()
+    {
+        Capability?.Dispose();
     }
 }

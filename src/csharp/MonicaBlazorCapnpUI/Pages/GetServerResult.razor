@@ -1,6 +1,7 @@
-﻿@page "/GetServerResult"
+﻿@page "/expert/GetServerResult"
 @using MonicaBlazorZmqUI.Services
 @using NetMQ
+@using NetMQ.Sockets
 @using System.IO
 @using Core.Share
 
@@ -11,7 +12,7 @@
 @inject ZmqConsumer ZmqConsumer
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 
-<h3>Recive ENV via ZMQ</h3>
+<h3>Receive ENV via ZMQ</h3>
 
 <button class="btn btn-primary m-2" @onclick="GetMassage">Recieve message from server and put in CSV</button>
 @if (gotAnswer)
