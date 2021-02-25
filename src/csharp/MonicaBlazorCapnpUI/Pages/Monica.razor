@@ -81,18 +81,16 @@
     {
         if (timeSeries == null) return;
 
-        //var datasets = await timeSeries.GetAvailableDatasets();
-
         if (TimeSeriesCap != timeSeries && componentIsMonicaInstanceCapOwner) TimeSeriesCap?.Dispose();
-        TimeSeriesCap = null;// timeSeries;
+        TimeSeriesCap = timeSeries;
         componentIsTimeSeriesCapOwner = true;
 
-        await RunMonica();
+        //await RunMonica();
     }
 
     private async Task RunMonica()
     {
-        //if (MonicaInstanceCap == null || TimeSeriesCap == null) return;
+        if (MonicaInstanceCap == null || TimeSeriesCap == null) return;
 
         var files = new List<String> {
             "Data-Full/sim-min.json", "Data-Full/crop-min.json", "Data-Full/site-min.json", "Data-Full/climate-min.csv"
