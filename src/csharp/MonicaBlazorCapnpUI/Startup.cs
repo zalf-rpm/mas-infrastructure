@@ -13,6 +13,7 @@ using Blazored.LocalStorage;
 using Radzen;
 using MudBlazor.Services;
 using Microsoft.AspNetCore.Http.Features;
+using Allegiance.Blazor.Highcharts.Services;
 
 namespace MonicaBlazorCapnpUI
 {
@@ -45,7 +46,8 @@ namespace MonicaBlazorCapnpUI
 
             services.AddMudServices();
             services.AddSingleton<Mas.Infrastructure.Common.ConnectionManager>();
-            
+            services.AddTransient<IChartService, ChartService>();
+
             services.AddScoped<Radzen.NotificationService>();
             services.AddTransient<IMonicaJsonMapper, MonicaJsonMapper>();
             services.AddTransient<IMonicaChartApp, MonicaChartApp>();

@@ -32,6 +32,17 @@
         <MudButton Variant=@Variant.Filled Color=@Color.Primary OnClick=@RunMonica>Run MONICA</MudButton>
     </MudItem>
     <MudItem xs="12">
+        <MudExpansionPanels MultiExpansion="true">
+            @foreach (var p in Section2Oid2Data)
+            {
+            <MudExpansionPanel Text=@p.Key>
+                <Highchart Data=@p.Value></Highchart>
+            </MudExpansionPanel>
+            }
+        </MudExpansionPanels>
+        <!--<Highchart Data=@Section2Oid2Data></Highchart>-->
+    </MudItem>
+    <MudItem xs="12">
         <MudCard>
             <MudCardContent>
                 <MudText>@monicaResult</MudText>
@@ -66,6 +77,12 @@
     private String monicaResult;
     private String monicaErrorMessage;
 
+    private Dictionary<String, Dictionary<String, IEnumerable<float>>> Section2Oid2Data =
+        new Dictionary<String, Dictionary<String, IEnumerable<float>>>();
+
+    private Dictionary<String, IEnumerable<DateTime>> Section2Dates =
+        new Dictionary<String, IEnumerable<DateTime>>();
+
     private async Task CapabilityChanged(Model.IEnvInstance<Common.StructuredText, Common.StructuredText> monicaInstance)
     {
         if (monicaInstance == null) return;
@@ -88,6 +105,8 @@
         //await RunMonica();
     }
 
+    private IEnumerable<float> dataf;
+
     private async Task RunMonica()
     {
         if (MonicaInstanceCap == null || TimeSeriesCap == null) return;
@@ -109,10 +128,48 @@
             }
         };
 
+        Section2Oid2Data.Clear();
+        Section2Dates.Clear();
+
         try
         {
             var res = await MonicaInstanceCap.Run(menv);
-            monicaResult = res.Value;
+            var resj = JObject.Parse(res.Value);
+            var data = resj["data"]; //list
+            foreach (var section in data.Select(s => s.Value<JObject>()))
+            {
+                var oids = section["outputIds"].Select(oid =>
+                oid["displayName"].Value<String>().Length == 0
+                ? oid["name"].Value<String>()
+                : oid["displayName"].Value<String>());
+
+                var sectionName = section["origSpec"].Value<String>().Trim(new char[]{'\"'});
+                Section2Oid2Data[sectionName] = new Dictionary<String, IEnumerable<float>>();
+
+                var results = section["results"];
+                foreach (var (name, result) in oids.Zip(results))
+                {
+                    var type = result.First?.Type;
+                    switch (type ?? JTokenType.None)
+                    {
+                        case JTokenType.Integer:
+                        case JTokenType.Float: Section2Oid2Data[sectionName][name] = result.Select(v => v.Value<float>()); break;
+
+                        case JTokenType.String:
+                            try
+                            {
+                                var date = result.First?.Value<DateTime>();
+                                if (!date.HasValue) continue;
+                            }
+                            catch (System.FormatException) { continue; }
+                            goto case JTokenType.Date;
+                        case JTokenType.Date: Section2Dates[sectionName] = result.Select(v => v.Value<DateTime>()); break;
+                    }
+                }
+            }
+            var error = resj["error"];
+
+            //monicaResult = res.Value;
         }
         catch (Capnp.Rpc.RpcException e)
         {
