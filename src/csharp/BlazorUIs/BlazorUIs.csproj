@@ -13,7 +13,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BlazorGoogleMaps" Version="1.0.12" />
     <PackageReference Include="Capnp.Net.Runtime" Version="1.3.118" />
     <PackageReference Include="MudBlazor" Version="5.0.2" />
   </ItemGroup>
@@ -22,6 +21,10 @@
     <ProjectReference Include="..\..\..\capnproto_schemas\capnproto_schemas_csharp.csproj" />
     <ProjectReference Include="..\BlazorComponents\BlazorComponents.csproj" />
     <ProjectReference Include="..\common\common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Components\" />
   </ItemGroup>
 
 </Project>

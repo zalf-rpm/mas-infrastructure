@@ -29,6 +29,43 @@
         </ConnectToSturdyRef>
     </MudItem>
     <MudItem xs="12">
+        <ConnectToSturdyRef Label="Persistent capability to soil service (capnp://host:port/token)"
+                            CapabilityChanged=@SoilServiceCapabilityChanged
+                            TCapnpInterface=@Soil.IService
+                            @bind-SturdyRef=@soilServiceSturdyRef>
+        </ConnectToSturdyRef>
+        <GeoposPicker @bind-LatLng=LatLng
+                      Width="50%" Height="400px"
+                      CenterLatLng=@LatLng>
+        </GeoposPicker>
+    </MudItem>
+    <MudItem xs="12">
+        <!--
+            <MudTreeView Style="width: 500px;" Items="@profile.Layers" MaxHeight="500px" Width="350px">
+                <ItemTemplate>
+                    <MudTreeViewItem @bind-Expanded="@context.IsExpanded" Items="@context.TreeItems">
+                        <Content>
+                            <MudTreeViewItemToggleButton @bind-Expanded="@context.IsExpanded" Visible="@context.HasChild" />
+                            <MudIcon Icon="@context.Icon" Class="ml-0 mr-2" Color="@Color.Default" />
+                            <MudText>@context.Text</MudText>
+                        </Content>
+                    </MudTreeViewItem>
+                </ItemTemplate>
+            </MudTreeView>
+    -->
+        <MudTreeView T="string" Style="width: 500px;">
+            @foreach (var l in profile == null ? new List<Soil.Layer>() : profile.Layers)
+            {
+                <MudTreeViewItem Value=@l.Size.ToString()>
+                    @foreach (var p in l.Properties)
+                    {
+                        <MudTreeViewItem Value=@p.Name.ToString() />
+                    }
+                </MudTreeViewItem>
+            }
+        </MudTreeView>
+    </MudItem>
+    <MudItem xs="12">
         <MudButton Variant=@Variant.Filled Color=@Color.Primary OnClick=@RunMonica>Run MONICA</MudButton>
     </MudItem>
     <MudItem xs="12">
@@ -87,6 +124,19 @@
     [Parameter]
     public EventCallback<Climate.ITimeSeries> TimeSeriesCapChanged { get; set; }
 
+    [Parameter]
+    public Soil.IService SoilServiceCap { get; set; }
+    private String soilServiceSturdyRef = "capnp://localhost:10000";
+    private bool componentIsSoilServiceCapOwner = false;
+    private Soil.Profile profile;
+    private IList<String> availableSoilParams;
+
+    [Parameter]
+    public EventCallback<Soil.IService> SoilServiceCapChanged { get; set; }
+
+    [Parameter]
+    public (double, double) LatLng { get; set; } = (51.0, 10.0);
+
     private String monicaResult;
     private String monicaErrorMessage;
 
@@ -118,6 +168,39 @@
         componentIsTimeSeriesCapOwner = true;
 
         //await RunMonica();
+    }
+
+    private async Task SoilServiceCapabilityChanged(Soil.IService service)
+    {
+        if (service == null) return;
+
+        if (SoilServiceCap != service && componentIsSoilServiceCapOwner) SoilServiceCap?.Dispose();
+        SoilServiceCap = service;
+        componentIsSoilServiceCapOwner = true;
+
+        await GetSoilProfiles();
+    }
+
+    private async Task GetSoilProfiles()
+    {
+        if (SoilServiceCap == null) return;
+
+        //var allParams = await SoilServiceCap.GetAllAvailableParameters(false);
+        //availableSoilParams = allParams.Item1.Select(p => p.ToString()).ToList();
+
+        var profiles = await SoilServiceCap.ProfilesAt(new Geo.LatLonCoord { Lat = LatLng.Item1, Lon = LatLng.Item2 },
+            new Soil.Query
+            {
+                Mandatory = new Soil.PropertyName[]
+                {
+                    Soil.PropertyName.sand,
+                    Soil.PropertyName.clay,
+                    Soil.PropertyName.bulkDensity,
+                    },
+                OnlyRawData = false
+            }
+        );
+        if (profiles.Count > 0) profile = profiles[0];
     }
 
     private async Task RunMonica()
