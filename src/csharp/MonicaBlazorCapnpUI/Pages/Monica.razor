@@ -32,16 +32,29 @@
         <MudButton Variant=@Variant.Filled Color=@Color.Primary OnClick=@RunMonica>Run MONICA</MudButton>
     </MudItem>
     <MudItem xs="12">
+        <MudSelect Label="Select result section" @bind-Value=@selectedResultSection>
+            @foreach (var p in Section2Oid2Data)
+            {
+                <MudSelectItem Value=@p.Key>@p.Key</MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+    <MudItem xs="12">
+        <Highchart Data=@(Section2Oid2Data.GetValueOrDefault(selectedResultSection, new Dictionary<string, IEnumerable<float>>()))
+                   Dates=@(Section2Dates.GetValueOrDefault(selectedResultSection, new List<DateTime>()))></Highchart>
+    </MudItem>
+    <!--
+    <MudItem xs="12">
         <MudExpansionPanels MultiExpansion="true">
             @foreach (var p in Section2Oid2Data)
             {
-            <MudExpansionPanel Text=@p.Key>
-                <Highchart Data=@p.Value></Highchart>
-            </MudExpansionPanel>
+                <MudExpansionPanel Text=@p.Key>
+                    <Highchart Data=@p.Value></Highchart>
+                </MudExpansionPanel>
             }
         </MudExpansionPanels>
-        <!--<Highchart Data=@Section2Oid2Data></Highchart>-->
     </MudItem>
+    -->
     <MudItem xs="12">
         <MudCard>
             <MudCardContent>
@@ -83,6 +96,8 @@
     private Dictionary<String, IEnumerable<DateTime>> Section2Dates =
         new Dictionary<String, IEnumerable<DateTime>>();
 
+    private String selectedResultSection = "";
+
     private async Task CapabilityChanged(Model.IEnvInstance<Common.StructuredText, Common.StructuredText> monicaInstance)
     {
         if (monicaInstance == null) return;
@@ -104,8 +119,6 @@
 
         //await RunMonica();
     }
-
-    private IEnumerable<float> dataf;
 
     private async Task RunMonica()
     {
@@ -143,7 +156,7 @@
                 ? oid["name"].Value<String>()
                 : oid["displayName"].Value<String>());
 
-                var sectionName = section["origSpec"].Value<String>().Trim(new char[]{'\"'});
+                var sectionName = section["origSpec"].Value<String>().Trim(new char[] { '\"' });
                 Section2Oid2Data[sectionName] = new Dictionary<String, IEnumerable<float>>();
 
                 var results = section["results"];
@@ -169,7 +182,8 @@
             }
             var error = resj["error"];
 
-            //monicaResult = res.Value;
+            selectedResultSection = Section2Oid2Data.ContainsKey("daily") ? "daily" : Section2Oid2Data.FirstOrDefault().Key;
+
         }
         catch (Capnp.Rpc.RpcException e)
         {
