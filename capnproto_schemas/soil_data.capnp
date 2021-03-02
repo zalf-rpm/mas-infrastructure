@@ -67,7 +67,7 @@ struct Soil {
       union {
         f32Value @1 :Float32;
         bValue @2 :Bool;
-        type @3 :SType;
+        type @3 :Text;
       }
     }
 
