@@ -9,6 +9,7 @@
 
 @inject IJSRuntime JSRuntime
 @inject Services.RunMonica runMonica
+@inject ISnackbar Snackbar
 
 @implements IDisposable
 
@@ -39,22 +40,75 @@
                       CenterLatLng=@LatLng>
         </GeoposPicker>
     </MudItem>
+    <MudItem xs="12" Class="d-flex flex-row py-2 px-1">
+        <MudButton Variant=@Variant.Filled Color=@Color.Primary OnClick=@GetSoilProfiles>Get soil profiles</MudButton>
+        <MudSelect T=@Soil.PropertyName Label="Available soil properties" HelperText="Pick all needed soil properties" MultiSelection="true" @bind-SelectedValues=@chosenSoilPropertyNames>
+            @foreach (var p in availableSoilProps)
+            {
+                <MudSelectItem T=@Soil.PropertyName Value=@p>@p.ToString()</MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
     <MudItem xs="12">
-        <!--
-            <MudTreeView Style="width: 500px;" Items="@profile.Layers" MaxHeight="500px" Width="350px">
-                <ItemTemplate>
-                    <MudTreeViewItem @bind-Expanded="@context.IsExpanded" Items="@context.TreeItems">
-                        <Content>
-                            <MudTreeViewItemToggleButton @bind-Expanded="@context.IsExpanded" Visible="@context.HasChild" />
-                            <MudIcon Icon="@context.Icon" Class="ml-0 mr-2" Color="@Color.Default" />
-                            <MudText>@context.Text</MudText>
-                        </Content>
-                    </MudTreeViewItem>
-                </ItemTemplate>
-            </MudTreeView>
-    -->
+        <MudTable Items=@profileLayers Hover=@true Filter="new Func<Soil.Layer,bool>(FilterFunc)" SortLabel="Sort By" CommitEditTooltip="Commit Edit" OnCommitEditClick="@(() => Snackbar.Add("Commit Edit Handler Invoked"))">
+            <ToolBarContent>
+                <MudText Typo="Typo.h6">Layers</MudText>
+                <MudToolBarSpacer />
+                <MudTextField @bind-Value="layerSearchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+            </ToolBarContent>
+            <!--<ColGroup>
+        <col style="width:50px;" />
+        <col style="width:80px;" />
+        <col style="width:50%;" />
+        <col />
+        <col />
+        <col style="width:50px;" />
+    </ColGroup>-->
+            <HeaderContent>
+                @foreach (var propName in chosenSoilPropertyNames)
+                {
+                    <MudTh>@propName</MudTh>
+                }
+            </HeaderContent>
+            <RowTemplate>
+                @foreach (var p in context.Properties)
+                {
+                    switch (p.which)
+                    {
+                        case Soil.Layer.Property.WHICH.BValue:
+                            <MudTd DataLabel=@p.Name.ToString()>@((p.BValue ?? false) ? "true" : "false")</MudTd>
+                            break;
+                        case Soil.Layer.Property.WHICH.F32Value:
+                            <MudTd DataLabel=@p.Name.ToString()>@(p.F32Value ?? 0.0)</MudTd>
+                            break;
+                        case Soil.Layer.Property.WHICH.Type:
+                            <MudTd DataLabel=@p.Name.ToString()>@p.Type</MudTd>
+                            break;
+                    }
+                }
+            </RowTemplate>
+            <!--
+    <RowEditingTemplate>
+        <MudTd DataLabel="Nr">@context.Number</MudTd>
+        <MudTd DataLabel="Sign">
+            <MudTextField @bind-Value="@context.Sign" Required />
+        </MudTd>
+        <MudTd DataLabel="Name">
+            <MudTextField @bind-Value="@context.Name" Required />
+        </MudTd>
+        <MudTd DataLabel="Position">
+            <MudTextField @bind-Value="@context.Position" Required />
+        </MudTd>
+        <MudTd DataLabel="Molar mass">
+            <MudTextField @bind-Value="@context.Molar" Required />
+        </MudTd>
+    </RowEditingTemplate>
+        -->
+        </MudTable>
+    </MudItem>
+    <MudItem xs="12">
         <MudTreeView T="string" Style="width: 500px;">
-            @foreach (var l in profile == null ? new List<Soil.Layer>() : profile.Layers)
+            @foreach (var l in profileLayers)
             {
                 <MudTreeViewItem Value=@l.Size.ToString()>
                     @foreach (var p in l.Properties)
@@ -126,10 +180,12 @@
 
     [Parameter]
     public Soil.IService SoilServiceCap { get; set; }
-    private String soilServiceSturdyRef = "capnp://localhost:10000";
+    private String soilServiceSturdyRef = "capnp://login01.cluster.zalf.de:10000";
     private bool componentIsSoilServiceCapOwner = false;
     private Soil.Profile profile;
-    private IList<String> availableSoilParams;
+    private List<Soil.Layer> profileLayers = new List<Soil.Layer>();
+    private IEnumerable<Soil.PropertyName> availableSoilProps = new List<Soil.PropertyName>();
+    private HashSet<Soil.PropertyName> chosenSoilPropertyNames = new HashSet<Soil.PropertyName>();
 
     [Parameter]
     public EventCallback<Soil.IService> SoilServiceCapChanged { get; set; }
@@ -178,29 +234,49 @@
         SoilServiceCap = service;
         componentIsSoilServiceCapOwner = true;
 
-        await GetSoilProfiles();
+        await GetAllAvailableSoilProperties();
+        //await GetSoilProfiles();
+    }
+
+    private async Task GetAllAvailableSoilProperties()
+    {
+        var allProps = await SoilServiceCap.GetAllAvailableParameters(false);
+        availableSoilProps = allProps.Item1.Concat(allProps.Item2);
     }
 
     private async Task GetSoilProfiles()
     {
         if (SoilServiceCap == null) return;
 
-        //var allParams = await SoilServiceCap.GetAllAvailableParameters(false);
-        //availableSoilParams = allParams.Item1.Select(p => p.ToString()).ToList();
-
         var profiles = await SoilServiceCap.ProfilesAt(new Geo.LatLonCoord { Lat = LatLng.Item1, Lon = LatLng.Item2 },
             new Soil.Query
             {
-                Mandatory = new Soil.PropertyName[]
-                {
-                    Soil.PropertyName.sand,
-                    Soil.PropertyName.clay,
-                    Soil.PropertyName.bulkDensity,
-                    },
+                Mandatory = chosenSoilPropertyNames.ToArray(),
                 OnlyRawData = false
             }
         );
-        if (profiles.Count > 0) profile = profiles[0];
+        if (profiles.Count > 0)
+        {
+            profile = profiles[0];
+            profileLayers.Clear();
+            profileLayers.AddRange(profile.Layers);
+        }
+    }
+
+    private String layerSearchString = "";
+    private bool FilterFunc(Soil.Layer layer)
+    {
+        /*
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (element.Sign.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (element.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if ($"{element.Number} {element.Position} {element.Molar}".Contains(searchString))
+            return true;
+        */
+        return false;
     }
 
     private async Task RunMonica()
