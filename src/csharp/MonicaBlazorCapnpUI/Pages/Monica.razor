@@ -42,7 +42,12 @@
     </MudItem>
     <MudItem xs="12" Class="d-flex flex-row py-2 px-1">
         <MudButton Variant=@Variant.Filled Color=@Color.Primary OnClick=@GetSoilProfiles>Get soil profiles</MudButton>
-        <MudSelect T=@Soil.PropertyName Label="Available soil properties" HelperText="Pick all needed soil properties" MultiSelection="true" @bind-SelectedValues=@chosenSoilPropertyNames>
+        <MudSelect T=@Soil.PropertyName
+                   Label="Available soil properties"
+                   HelperText="Pick all needed soil properties"
+                   MultiSelection=@true
+                   @bind-Text=@displayedChosenPropertyNames
+                   @bind-SelectedValues=@chosenSoilPropertyNames>
             @foreach (var p in availableSoilProps)
             {
                 <MudSelectItem T=@Soil.PropertyName Value=@p>@p.ToString()</MudSelectItem>
@@ -50,70 +55,61 @@
         </MudSelect>
     </MudItem>
     <MudItem xs="12">
-        <MudTable Items=@profileLayers Hover=@true Filter="new Func<Soil.Layer,bool>(FilterFunc)" SortLabel="Sort By" CommitEditTooltip="Commit Edit" OnCommitEditClick="@(() => Snackbar.Add("Commit Edit Handler Invoked"))">
+        <MudTable T=@L
+                  Items=@profileLayers
+                  Hover=@true
+                  Filter="new Func<L,bool>(FilterFunc)"
+                  CommitEditTooltip="Commit Edit"
+                  OnCommitEditClick="@(() => Snackbar.Add("Commit Edit Handler Invoked"))">
             <ToolBarContent>
                 <MudText Typo="Typo.h6">Layers</MudText>
                 <MudToolBarSpacer />
                 <MudTextField @bind-Value="layerSearchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
             </ToolBarContent>
             <!--<ColGroup>
-        <col style="width:50px;" />
-        <col style="width:80px;" />
-        <col style="width:50%;" />
-        <col />
-        <col />
-        <col style="width:50px;" />
-    </ColGroup>-->
+                <col style="width:50px;" />
+                <col style="width:80px;" />
+                <col style="width:50%;" />
+                <col />
+                <col />
+                <col style="width:50px;" />
+            </ColGroup>-->
             <HeaderContent>
+                <MudTh>Size</MudTh>
                 @foreach (var propName in chosenSoilPropertyNames)
                 {
                     <MudTh>@propName</MudTh>
                 }
             </HeaderContent>
             <RowTemplate>
-                @foreach (var p in context.Properties)
+                <MudTd DataLabel="Size">@context.Layer.Size.ToString()</MudTd>
+                @foreach (var propName in chosenSoilPropertyNames)
                 {
-                    switch (p.which)
-                    {
-                        case Soil.Layer.Property.WHICH.BValue:
-                            <MudTd DataLabel=@p.Name.ToString()>@((p.BValue ?? false) ? "true" : "false")</MudTd>
-                            break;
-                        case Soil.Layer.Property.WHICH.F32Value:
-                            <MudTd DataLabel=@p.Name.ToString()>@(p.F32Value ?? 0.0)</MudTd>
-                            break;
-                        case Soil.Layer.Property.WHICH.Type:
-                            <MudTd DataLabel=@p.Name.ToString()>@p.Type</MudTd>
-                            break;
-                    }
+                    <MudTd DataLabel=@propName.ToString()>
+                        @context.Props[propName.ToString()]
+                        @*(GetSoilPropertyValue(context.Properties.Where(p => p.Name == propName).FirstOrDefault()))*@
+                    </MudTd>
                 }
             </RowTemplate>
-            <!--
-    <RowEditingTemplate>
-        <MudTd DataLabel="Nr">@context.Number</MudTd>
-        <MudTd DataLabel="Sign">
-            <MudTextField @bind-Value="@context.Sign" Required />
-        </MudTd>
-        <MudTd DataLabel="Name">
-            <MudTextField @bind-Value="@context.Name" Required />
-        </MudTd>
-        <MudTd DataLabel="Position">
-            <MudTextField @bind-Value="@context.Position" Required />
-        </MudTd>
-        <MudTd DataLabel="Molar mass">
-            <MudTextField @bind-Value="@context.Molar" Required />
-        </MudTd>
-    </RowEditingTemplate>
-        -->
+            <RowEditingTemplate>
+                <MudTd DataLabel="Size">@context.Layer.Size.ToString()</MudTd>
+                @foreach (var propName in chosenSoilPropertyNames)
+                {
+                    <MudTd DataLabel=@propName.ToString()>
+                        <MudTextField @bind-Value=@context.Props[propName.ToString()] Required />
+                    </MudTd>
+                }
+            </RowEditingTemplate>
         </MudTable>
     </MudItem>
     <MudItem xs="12">
         <MudTreeView T="string" Style="width: 500px;">
             @foreach (var l in profileLayers)
             {
-                <MudTreeViewItem Value=@l.Size.ToString()>
-                    @foreach (var p in l.Properties)
+                <MudTreeViewItem Value=@l.Layer.Size.ToString()>
+                    @foreach (var p in l.Props)
                     {
-                        <MudTreeViewItem Value=@p.Name.ToString() />
+                        <MudTreeViewItem Value=@($"{p.Key}: {p.Value}") />
                     }
                 </MudTreeViewItem>
             }
@@ -159,8 +155,8 @@
 </MudGrid>
 
 @code {
-    [Parameter]
-    public Model.IEnvInstance<Common.StructuredText, Common.StructuredText> MonicaInstanceCap { get; set; }
+        [Parameter]
+        public Model.IEnvInstance<Common.StructuredText, Common.StructuredText> MonicaInstanceCap { get; set; }
     private String monicaSturdyRef = "capnp://localhost:6666";
     private bool componentIsMonicaInstanceCapOwner = false;
 
@@ -183,9 +179,17 @@
     private String soilServiceSturdyRef = "capnp://login01.cluster.zalf.de:10000";
     private bool componentIsSoilServiceCapOwner = false;
     private Soil.Profile profile;
-    private List<Soil.Layer> profileLayers = new List<Soil.Layer>();
+    //private List<Soil.Layer> profileLayers = new List<Soil.Layer>();
+    private List<L> profileLayers = new List<L>();
     private IEnumerable<Soil.PropertyName> availableSoilProps = new List<Soil.PropertyName>();
     private HashSet<Soil.PropertyName> chosenSoilPropertyNames = new HashSet<Soil.PropertyName>();
+    private String displayedChosenPropertyNames = "";
+
+    struct L
+    {
+        public Soil.Layer Layer { get; set; }
+        public Dictionary<String, String> Props { get; set; }
+    }
 
     [Parameter]
     public EventCallback<Soil.IService> SoilServiceCapChanged { get; set; }
@@ -244,6 +248,18 @@
         availableSoilProps = allProps.Item1.Concat(allProps.Item2);
     }
 
+    private string GetSoilPropertyValue(Soil.Layer.Property p)
+    {
+        switch (p.which)
+        {
+            case Soil.Layer.Property.WHICH.BValue: return p.BValue?.ToString();// (p.BValue ?? false) ? "true" : "false";
+            case Soil.Layer.Property.WHICH.F32Value: return p.F32Value?.ToString();
+            case Soil.Layer.Property.WHICH.Type: return p.Type;
+            case Soil.Layer.Property.WHICH.undefined:
+            default: return "";
+        }
+    }
+
     private async Task GetSoilProfiles()
     {
         if (SoilServiceCap == null) return;
@@ -259,12 +275,18 @@
         {
             profile = profiles[0];
             profileLayers.Clear();
-            profileLayers.AddRange(profile.Layers);
+            foreach (var l in profile.Layers)
+            {
+                var x = l.Properties.
+                    Select(p => (p.Name.ToString(), GetSoilPropertyValue(p))).
+                    ToDictionary(p => p.Item1, p => p.Item2);
+                profileLayers.Add(new L() { Layer = l, Props = x });
+            }
         }
     }
 
     private String layerSearchString = "";
-    private bool FilterFunc(Soil.Layer layer)
+    private bool FilterFunc(L layer)
     {
         /*
         if (string.IsNullOrWhiteSpace(searchString))
@@ -276,7 +298,7 @@
         if ($"{element.Number} {element.Position} {element.Molar}".Contains(searchString))
             return true;
         */
-        return false;
+        return true;
     }
 
     private async Task RunMonica()
