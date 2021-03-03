@@ -41,39 +41,27 @@
         </GeoposPicker>
     </MudItem>
     <MudItem xs="12" Class="d-flex flex-row py-2 px-1">
-        <MudButton Variant=@Variant.Filled Color=@Color.Primary OnClick=@GetSoilProfiles>Get soil profiles</MudButton>
-        <MudSelect T=@Soil.PropertyName
-                   Label="Available soil properties"
-                   HelperText="Pick all needed soil properties"
-                   MultiSelection=@true
-                   @bind-Text=@displayedChosenPropertyNames
-                   @bind-SelectedValues=@chosenSoilPropertyNames>
-            @foreach (var p in availableSoilProps)
+        <MudButton Class="px-5" Variant=@Variant.Filled Color=@Color.Primary OnClick=@GetSoilProfiles>Get soil profiles with ...</MudButton>
+        <MudChipSet SelectedChipsChanged=@(cs => chosenSoilPropertyNames = cs.Select(c => (Soil.PropertyName)c.Tag))
+                    MultiSelection=@true
+                    Filter=@true>
+            @foreach (var (p, i) in availableSoilProps.Select((p, i) => (p, i)))
             {
-                <MudSelectItem T=@Soil.PropertyName Value=@p>@p.ToString()</MudSelectItem>
+                var pn = p.ToString();
+                <MudChip @ref=defaultSelectedSoilPropertyNameChips[i]
+                         Tag=@p
+                         Text=@pn
+                         Default=@defaultSelectedSoilProps.Contains(pn)>
+                </MudChip>
             }
-        </MudSelect>
+        </MudChipSet>
     </MudItem>
     <MudItem xs="12">
         <MudTable T=@L
                   Items=@profileLayers
                   Hover=@true
-                  Filter="new Func<L,bool>(FilterFunc)"
                   CommitEditTooltip="Commit Edit"
                   OnCommitEditClick="@(() => Snackbar.Add("Commit Edit Handler Invoked"))">
-            <ToolBarContent>
-                <MudText Typo="Typo.h6">Layers</MudText>
-                <MudToolBarSpacer />
-                <MudTextField @bind-Value="layerSearchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
-            </ToolBarContent>
-            <!--<ColGroup>
-                <col style="width:50px;" />
-                <col style="width:80px;" />
-                <col style="width:50%;" />
-                <col />
-                <col />
-                <col style="width:50px;" />
-            </ColGroup>-->
             <HeaderContent>
                 <MudTh>Size</MudTh>
                 @foreach (var propName in chosenSoilPropertyNames)
@@ -86,8 +74,7 @@
                 @foreach (var propName in chosenSoilPropertyNames)
                 {
                     <MudTd DataLabel=@propName.ToString()>
-                        @context.Props[propName.ToString()]
-                        @*(GetSoilPropertyValue(context.Properties.Where(p => p.Name == propName).FirstOrDefault()))*@
+                        @context.Props.GetValueOrDefault(propName.ToString())
                     </MudTd>
                 }
             </RowTemplate>
@@ -95,53 +82,38 @@
                 <MudTd DataLabel="Size">@context.Layer.Size.ToString()</MudTd>
                 @foreach (var propName in chosenSoilPropertyNames)
                 {
-                    <MudTd DataLabel=@propName.ToString()>
-                        <MudTextField @bind-Value=@context.Props[propName.ToString()] Required />
-                    </MudTd>
+                    var pn = propName.ToString();
+                    if (context.Props.ContainsKey(pn))
+                    {
+                        <MudTd DataLabel=@pn>
+                            <MudTextField @bind-Value=context.Props[pn]
+                                          Required />
+                        </MudTd>
+
+                    }
+                    else
+                    {
+                        <MudTd DataLabel=@pn></MudTd>
+                    }
                 }
             </RowEditingTemplate>
         </MudTable>
     </MudItem>
-    <MudItem xs="12">
-        <MudTreeView T="string" Style="width: 500px;">
-            @foreach (var l in profileLayers)
-            {
-                <MudTreeViewItem Value=@l.Layer.Size.ToString()>
-                    @foreach (var p in l.Props)
-                    {
-                        <MudTreeViewItem Value=@($"{p.Key}: {p.Value}") />
-                    }
-                </MudTreeViewItem>
-            }
-        </MudTreeView>
-    </MudItem>
-    <MudItem xs="12">
+    <MudItem xs="12" Class="d-flex flex-row py-2 px-1">
         <MudButton Variant=@Variant.Filled Color=@Color.Primary OnClick=@RunMonica>Run MONICA</MudButton>
-    </MudItem>
-    <MudItem xs="12">
-        <MudSelect Label="Select result section" @bind-Value=@selectedResultSection>
-            @foreach (var p in Section2Oid2Data)
+        <MudChipSet SelectedChipsChanged=@(cs => selectedResultSection = cs.Select(c => c.Text).FirstOrDefault())
+                    Mandatory=@true
+                    Filter=@true>
+            @foreach (var (s, i) in Section2Oid2Data.Keys.Select((s, i) => (s, i)))
             {
-                <MudSelectItem Value=@p.Key>@p.Key</MudSelectItem>
+                <MudChip @ref=defaultSelectedSectionChips[i] Text=@s Default=@(s == selectedResultSection)></MudChip>
             }
-        </MudSelect>
+        </MudChipSet>
     </MudItem>
     <MudItem xs="12">
         <Highchart Data=@(Section2Oid2Data.GetValueOrDefault(selectedResultSection, new Dictionary<string, IEnumerable<float>>()))
                    Dates=@(Section2Dates.GetValueOrDefault(selectedResultSection, new List<DateTime>()))></Highchart>
     </MudItem>
-    <!--
-    <MudItem xs="12">
-        <MudExpansionPanels MultiExpansion="true">
-            @foreach (var p in Section2Oid2Data)
-            {
-                <MudExpansionPanel Text=@p.Key>
-                    <Highchart Data=@p.Value></Highchart>
-                </MudExpansionPanel>
-            }
-        </MudExpansionPanels>
-    </MudItem>
-    -->
     <MudItem xs="12">
         <MudCard>
             <MudCardContent>
@@ -182,8 +154,10 @@
     //private List<Soil.Layer> profileLayers = new List<Soil.Layer>();
     private List<L> profileLayers = new List<L>();
     private IEnumerable<Soil.PropertyName> availableSoilProps = new List<Soil.PropertyName>();
-    private HashSet<Soil.PropertyName> chosenSoilPropertyNames = new HashSet<Soil.PropertyName>();
-    private String displayedChosenPropertyNames = "";
+    private IEnumerable<Soil.PropertyName> chosenSoilPropertyNames = new List<Soil.PropertyName>();
+    private MudChip[] defaultSelectedSoilPropertyNameChips = new MudChip[0];
+    private HashSet<String> defaultSelectedSoilProps = new HashSet<String>() { "sand", "clay", "soilType", "bulkDensity", "organicCarbon" };
+    private MudChipSet chosenSoilPropertyNamesChipset;
 
     struct L
     {
@@ -203,8 +177,10 @@
     private Dictionary<String, Dictionary<String, IEnumerable<float>>> Section2Oid2Data =
         new Dictionary<String, Dictionary<String, IEnumerable<float>>>();
 
+    private MudChip[] defaultSelectedSectionChips = new MudChip[1];
+
     private Dictionary<String, IEnumerable<DateTime>> Section2Dates =
-        new Dictionary<String, IEnumerable<DateTime>>();
+    new Dictionary<String, IEnumerable<DateTime>>();
 
     private String selectedResultSection = "";
 
@@ -246,6 +222,24 @@
     {
         var allProps = await SoilServiceCap.GetAllAvailableParameters(false);
         availableSoilProps = allProps.Item1.Concat(allProps.Item2);
+        defaultSelectedSoilPropertyNameChips = new MudChip[availableSoilProps.Count()];
+
+        //workaround to mark the default chips selected even when ChipSet has been rendered once already
+        MarkDefaultChipsAfterLoad(defaultSelectedSoilPropertyNameChips, 300,
+            cs => { chosenSoilPropertyNames = cs.Select(c => (Soil.PropertyName)c.Tag); });
+    }
+
+    private async Task MarkDefaultChipsAfterLoad(MudChip[] chips, int loadAfterMilliSeconds, Action<MudChip[]> action = null)
+    {
+        await Task.Delay(loadAfterMilliSeconds);
+        var selected = new List<MudChip>();
+        foreach (var c in chips)
+        {
+            c.IsSelected = c.Default;
+            if (c.IsSelected) selected.Add(c);
+        }
+        if (action != null) action(selected.ToArray());
+        StateHasChanged();
     }
 
     private string GetSoilPropertyValue(Soil.Layer.Property p)
@@ -283,22 +277,6 @@
                 profileLayers.Add(new L() { Layer = l, Props = x });
             }
         }
-    }
-
-    private String layerSearchString = "";
-    private bool FilterFunc(L layer)
-    {
-        /*
-        if (string.IsNullOrWhiteSpace(searchString))
-            return true;
-        if (element.Sign.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-            return true;
-        if (element.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-            return true;
-        if ($"{element.Number} {element.Position} {element.Molar}".Contains(searchString))
-            return true;
-        */
-        return true;
     }
 
     private async Task RunMonica()
@@ -363,6 +341,9 @@
             }
             var error = resj["error"];
 
+            //workaround to mark the default selected chip
+            defaultSelectedSectionChips = new MudChip[Section2Oid2Data.Count()];
+
             selectedResultSection = Section2Oid2Data.ContainsKey("daily") ? "daily" : Section2Oid2Data.FirstOrDefault().Key;
 
         }
@@ -370,6 +351,8 @@
         {
             monicaErrorMessage = e.ToString();
         }
+
+        MarkDefaultChipsAfterLoad(defaultSelectedSectionChips, 300);
     }
 
 
