@@ -285,8 +285,6 @@ class Service(soil_data_capnp.Soil.Service.Server):
                         props[i].f32Value = value * 100.0
                     elif prop == "soilmoisture":
                         props[i].f32Value = value * 100.0
-                    elif prop == "bulkDensity" or prop == "rawDensity":
-                        props[i].f32Value = value * 100.0
                     else:
                         props[i].f32Value = value
 
