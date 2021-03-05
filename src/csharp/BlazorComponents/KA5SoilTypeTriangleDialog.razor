@@ -1,0 +1,27 @@
+﻿@namespace Mas.Infrastructure.BlazorComponents
+
+@using MudBlazor
+
+<MudDialog>
+    <DialogContent>
+        <KA5SoilTypeTriangle @ref=triangle SoilTextureNameSelected=@SoilTextureNameSelected></KA5SoilTypeTriangle>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick=@Cancel>Cancel</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    private KA5SoilTypeTriangle triangle { get; set; }
+
+    private async Task SoilTextureNameSelected(bool selected)
+    {
+        if (triangle == null) return;
+
+        MudDialog.Close(DialogResult.Ok(triangle.SoilTextureName));
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}
