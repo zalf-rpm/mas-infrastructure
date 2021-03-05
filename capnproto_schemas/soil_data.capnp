@@ -27,25 +27,25 @@ struct Soil {
 
     soilType @0; # soil type
 
-    sand @1; # [% 0-1] sand content
-    clay @2; # [% 0-1] clay content
-    silt @3; # [% 0-1] silt content
+    sand @1; # [%] sand content
+    clay @2; # [%] clay content
+    silt @3; # [%] silt content
     
     pH @4; # pH value
     
-    sceleton @5; # [vol% 0-1] sceleton
+    sceleton @5; # [vol%] sceleton
     
-    organicCarbon @6; # [mass% 0-1] soil organic carbon
-    organicMatter @7; # [mass% 0-1] soil organic matter
+    organicCarbon @6; # [mass%] soil organic carbon
+    organicMatter @7; # [mass%] soil organic matter
     
     bulkDensity @8; # [kg m-3] soil bulk density
     rawDensity @9; # [kg m-3] soil raw density
 
-    fieldCapacity @10; # [vol% 0-1]
-    permanentWiltingPoint @11; # [vol% 0-1]
-    saturation @12; # [vol% 0-1]
+    fieldCapacity @10; # [vol%]
+    permanentWiltingPoint @11; # [vol%]
+    saturation @12; # [vol%]
 
-    soilMoisture @13; # [% 0-1] initial soilmoisture in this layer
+    soilMoisture @13; # [%] initial soilmoisture in this layer
 
     soilWaterConductivityCoefficient @14; # [] lambda value
 

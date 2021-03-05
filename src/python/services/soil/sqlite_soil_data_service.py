@@ -279,6 +279,14 @@ class Service(soil_data_capnp.Soil.Service.Server):
                         props[i].bValue = value
                     elif prop == "soilType":
                         props[i].type = value
+                    elif prop == "sand" or prop == "clay" or prop == "silt":
+                        props[i].f32Value = value * 100.0
+                    elif prop == "sceleton" or prop == "fieldCapacity" or prop == "permanentWiltingPoint" or prop == "saturation":
+                        props[i].f32Value = value * 100.0
+                    elif prop == "soilmoisture":
+                        props[i].f32Value = value * 100.0
+                    elif prop == "bulkDensity" or prop == "rawDensity":
+                        props[i].f32Value = value * 100.0
                     else:
                         props[i].f32Value = value
 
