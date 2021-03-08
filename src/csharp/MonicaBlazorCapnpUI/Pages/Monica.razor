@@ -31,152 +31,13 @@
         </ConnectToSturdyRef>
     </MudItem>
     <MudItem xs="12">
-        <ConnectToSturdyRef Label="Persistent capability to soil service (capnp://host:port/token)"
-                            CapabilityChanged=@SoilServiceCapabilityChanged
-                            TCapnpInterface=@Soil.IService
-                            @bind-SturdyRef=@soilServiceSturdyRef>
-        </ConnectToSturdyRef>
         <GeoposPicker @bind-LatLng=LatLng
                       Width="50%" Height="400px"
                       CenterLatLng=@LatLng>
         </GeoposPicker>
     </MudItem>
-    <MudItem xs="12" Class="d-flex flex-row py-2 px-1">
-        <MudButton Class="px-5" Variant=@Variant.Filled Color=@Color.Primary OnClick=@GetSoilProfiles>Get soil profiles with ...</MudButton>
-        <MudChipSet SelectedChipsChanged=@(cs => chosenSoilPropertyNames = cs.Select(c => (Soil.PropertyName)c.Tag))
-                    MultiSelection=@true
-                    Filter=@true>
-            @foreach (var (p, i) in availableSoilProps.Select((p, i) => (p, i)))
-            {
-                var pn = p.ToString();
-                <MudChip @ref=defaultSelectedSoilPropertyNameChips[i]
-                         Tag=@p
-                         Text=@pn
-                         Default=@defaultSelectedSoilProps.Contains(pn)>
-                </MudChip>
-            }
-        </MudChipSet>
-    </MudItem>
     <MudItem xs="12">
-        <MudTable T=@Soil.Layer
-                  Items=@profileLayers
-                  Hover=@true
-                  CommitEditTooltip="Commit Edit"
-                  OnCommitEditClick="@(() => Snackbar.Add("Commit Edit Handler Invoked"))">
-            <HeaderContent>
-                <MudTh>Size</MudTh>
-                @foreach (var propName in chosenSoilPropertyNames)
-                {
-                    <MudTh>@propName.ToString()</MudTh>
-                }
-            </HeaderContent>
-            <RowTemplate>
-                <MudTd DataLabel="Size">@context.Size.ToString()</MudTd>
-                @foreach (var propName in chosenSoilPropertyNames)
-                {
-                    <MudTd DataLabel=@propName.ToString()>
-                        @((from p in context.Properties
-                   where p.Name == propName
-                   select GetSoilPropertyValue(p)).FirstOrDefault())
-                    </MudTd>
-                }
-            </RowTemplate>
-            <RowEditingTemplate>
-                <MudTd DataLabel="Size">@context.Size.ToString()</MudTd>
-                @foreach (var propName in chosenSoilPropertyNames)
-                {
-                    var props = context.Properties.Where(p => p.Name == propName);
-                    if (props.Any())
-                    {
-                        var prop = props.First();
-                        Func<float?, string> valid = val => null;
-                        <MudTd DataLabel=@prop.Name.ToString()>
-                            @switch (prop.Name)
-                            {
-                                case Soil.PropertyName.sand:
-                                case Soil.PropertyName.clay:
-                                case Soil.PropertyName.silt:
-                                    valid = val => val < 0 || val > 100 ? "[0 - 100]" : null;
-                                    <MudTextField @bind-Value=prop.F32Value Validation=@valid Required
-                                                  Adornment="Adornment.End" AdornmentText="%" />
-                                    break;
-                                case Soil.PropertyName.fieldCapacity:
-                                case Soil.PropertyName.permanentWiltingPoint:
-                                case Soil.PropertyName.saturation:
-                                case Soil.PropertyName.sceleton:
-                                    valid = val => val < 0 || val > 100 ? "[0 - 100]" : null;
-                                    <MudTextField @bind-Value=prop.F32Value Validation=@valid Required
-                                                  Adornment="Adornment.End" AdornmentText="vol%" />
-                                    break;
-                                case Soil.PropertyName.organicCarbon:
-                                case Soil.PropertyName.organicMatter:
-                                    valid = val => val < 0.0 || val > 100.0 ? "[0 - 100]" : null;
-                                    <MudTextField @bind-Value=prop.F32Value Validation=@valid Required
-                                                  Adornment="Adornment.End" AdornmentText="mass%" />
-                                    break;
-                                case Soil.PropertyName.ammonium:
-                                    valid = val => val < 0.0 || val > 1000 ? "[0 - 1000]" : null;
-                                    <MudTextField @bind-Value=prop.F32Value Validation=@valid Required
-                                                  Adornment="Adornment.End" AdornmentText="kg NH4-N m-3" />
-                                    break;
-                                case Soil.PropertyName.nitrate:
-                                    valid = val => val < 0.0 || val > 1000 ? "[0 - 1000]" : null;
-                                    <MudTextField @bind-Value=prop.F32Value Validation=@valid Required
-                                                  Adornment="Adornment.End" AdornmentText="kg NO3-N m-3" />
-                                    break;
-                                case Soil.PropertyName.bulkDensity:
-                                case Soil.PropertyName.rawDensity:
-                                    valid = val => val < 0.0 || val > 2500.0 ? "[0 - 2500]" : null;
-                                    <MudTextField @bind-Value=prop.F32Value Validation=@valid Required
-                                                  Adornment="Adornment.End" AdornmentText="kg m-3" />
-                                    break;
-                                case Soil.PropertyName.pH:
-                                    valid = val => val < 0 || val > 14 ? "[0 - 14]" : null;
-                                    <MudTextField @bind-Value=prop.F32Value Validation=@valid Required
-                                                  Adornment="Adornment.End" AdornmentText="" />
-                                    break;
-                                case Soil.PropertyName.soilMoisture:
-                                    valid = val => val < 0 || val > 100 ? "[0 - 100]" : null;
-                                    <MudTextField @bind-Value=prop.F32Value Validation=@valid Required
-                                                  Adornment="Adornment.End" AdornmentText="%" />
-                                    break;
-                                case Soil.PropertyName.cnRatio:
-                                    valid = val => val < 0.0 || val > 1.0 ? "[0 - 1]" : null;
-                                    <MudTextField @bind-Value=prop.F32Value Validation=@valid Required
-                                                  Adornment="Adornment.End" AdornmentText="" />
-                                    break;
-                                case Soil.PropertyName.soilWaterConductivityCoefficient:
-                                    valid = val => val < 0.0 ? "[0 - ?]" : null;
-                                    <MudTextField @bind-Value=prop.F32Value Validation=@valid Required
-                                                  Adornment="Adornment.End" AdornmentText="" />
-                                    break;
-                                case Soil.PropertyName.inGroundwater:
-                                case Soil.PropertyName.impenetrable:
-                                    <MudSwitch @bind-Checked=prop.BValue Label=@prop.BValue?.ToString() />
-                                    break;
-                                case Soil.PropertyName.soilType:
-                                    <MudButton @onclick="@(e => OpenKA5SoilTypeDialog(prop))" 
-                                               Variant="Variant.Outlined">
-                                        @prop.Type
-                                    </MudButton>
-                                    break;
-                                default:
-                                    <MudTextField T=@String
-                                                  Value=@GetSoilPropertyValue(prop)
-                                                  ValueChanged=@(v => SetSoilPropertyValue(prop, v))
-                                                  Required />
-                                    break;
-                            }
-                        </MudTd>
-
-                    }
-                    else
-                    {
-                        <MudTd DataLabel=@propName.ToString()></MudTd>
-                    }
-                }
-            </RowEditingTemplate>
-        </MudTable>
+        <SoilService LatLng=@LatLng ProfileLayers=@profileLayers HideGeoPosPicker=@true></SoilService>
     </MudItem>
     <MudItem xs="12" Class="d-flex flex-row py-2 px-1">
         <MudButton Variant=@Variant.Filled Color=@Color.Primary OnClick=@RunMonica>Run MONICA</MudButton>
@@ -203,9 +64,6 @@
     <MudItem xs="12">
         <MudAlert Severity="Severity.Error">@monicaErrorMessage</MudAlert>
     </MudItem>
-    <MudItem xs="12">
-        <KA5SoilTypeTriangle></KA5SoilTypeTriangle>
-    </MudItem>
 </MudGrid>
 
 @code {
@@ -228,20 +86,7 @@
     [Parameter]
     public EventCallback<Climate.ITimeSeries> TimeSeriesCapChanged { get; set; }
 
-    [Parameter]
-    public Soil.IService SoilServiceCap { get; set; }
-    private String soilServiceSturdyRef = "capnp://login01.cluster.zalf.de:10000";
-    private bool componentIsSoilServiceCapOwner = false;
-    private Soil.Profile profile;
     private List<Soil.Layer> profileLayers = new List<Soil.Layer>();
-    private IEnumerable<Soil.PropertyName> availableSoilProps = new List<Soil.PropertyName>();
-    private IEnumerable<Soil.PropertyName> chosenSoilPropertyNames = new List<Soil.PropertyName>();
-    private MudChip[] defaultSelectedSoilPropertyNameChips = new MudChip[0];
-    private HashSet<String> defaultSelectedSoilProps = new HashSet<String>() { "sand", "clay", "soilType", "bulkDensity", "organicCarbon" };
-    private MudChipSet chosenSoilPropertyNamesChipset;
-
-    [Parameter]
-    public EventCallback<Soil.IService> SoilServiceCapChanged { get; set; }
 
     [Parameter]
     public (double, double) LatLng { get; set; } = (51.0, 10.0);
@@ -281,29 +126,6 @@
         //await RunMonica();
     }
 
-    private async Task SoilServiceCapabilityChanged(Soil.IService service)
-    {
-        if (service == null) return;
-
-        if (SoilServiceCap != service && componentIsSoilServiceCapOwner) SoilServiceCap?.Dispose();
-        SoilServiceCap = service;
-        componentIsSoilServiceCapOwner = true;
-
-        await GetAllAvailableSoilProperties();
-        //await GetSoilProfiles();
-    }
-
-    private async Task GetAllAvailableSoilProperties()
-    {
-        var allProps = await SoilServiceCap.GetAllAvailableParameters(false);
-        availableSoilProps = allProps.Item1.Concat(allProps.Item2);
-        defaultSelectedSoilPropertyNameChips = new MudChip[availableSoilProps.Count()];
-
-        //workaround to mark the default chips selected even when ChipSet has been rendered once already
-        MarkDefaultChipsAfterLoad(defaultSelectedSoilPropertyNameChips, 300,
-            cs => { chosenSoilPropertyNames = cs.Select(c => (Soil.PropertyName)c.Tag); });
-    }
-
     private async Task MarkDefaultChipsAfterLoad(MudChip[] chips, int loadAfterMilliSeconds, Action<MudChip[]> action = null)
     {
         await Task.Delay(loadAfterMilliSeconds);
@@ -315,63 +137,6 @@
         }
         if (action != null) action(selected.ToArray());
         StateHasChanged();
-    }
-
-    private string GetSoilPropertyValue(Soil.Layer.Property p)
-    {
-        switch (p.which)
-        {
-            case Soil.Layer.Property.WHICH.BValue: return p.BValue?.ToString();// (p.BValue ?? false) ? "true" : "false";
-            case Soil.Layer.Property.WHICH.F32Value: return p.F32Value?.ToString();
-            case Soil.Layer.Property.WHICH.Type: return p.Type;
-            case Soil.Layer.Property.WHICH.undefined:
-            default: return "";
-        }
-    }
-
-    private void SetSoilPropertyValue(Soil.Layer.Property p, string value)
-    {
-        switch (p.which)
-        {
-            case Soil.Layer.Property.WHICH.BValue: p.BValue = bool.Parse(value); break;
-            case Soil.Layer.Property.WHICH.F32Value: p.F32Value = float.Parse(value); break;
-            //case Soil.Layer.Property.WHICH.Type: p.Type;
-            case Soil.Layer.Property.WHICH.undefined:
-            default: return;
-        }
-    }
-
-    private async Task GetSoilProfiles()
-    {
-        if (SoilServiceCap == null) return;
-
-        var profiles = await SoilServiceCap.ProfilesAt(new Geo.LatLonCoord { Lat = LatLng.Item1, Lon = LatLng.Item2 },
-            new Soil.Query
-            {
-                Mandatory = chosenSoilPropertyNames.ToArray(),
-                OnlyRawData = false
-            }
-        );
-        if (profiles.Count > 0)
-        {
-            profile = profiles[0];
-            profileLayers.Clear();
-            foreach (var l in profile.Layers)
-            {
-                profileLayers.Add(l);
-                //var x = l.Properties.
-                //    Select(p => (p.Name.ToString(), GetSoilPropertyValue(p))).
-                //    ToDictionary(p => p.Item1, p => p.Item2);
-                //profileLayers.Add(new L() { Layer = l, Props = x });
-            }
-        }
-    }
-
-    private async void OpenKA5SoilTypeDialog(Soil.Layer.Property prop)
-    {
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraLarge };
-        var res = await DialogService.Show<KA5SoilTypeTriangleDialog>("Select soil type", options).Result;
-        if (res.Data is String soilTextureName) prop.Type = soilTextureName;
     }
 
     private async Task RunMonica()
@@ -449,7 +214,6 @@
 
         MarkDefaultChipsAfterLoad(defaultSelectedSectionChips, 300);
     }
-
 
     void IDisposable.Dispose()
     {
