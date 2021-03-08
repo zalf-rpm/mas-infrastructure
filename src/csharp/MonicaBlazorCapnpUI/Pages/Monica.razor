@@ -153,6 +153,7 @@
         var menv = new Model.Env<Common.StructuredText>()
         {
             TimeSeries = Capnp.Rpc.Proxy.Share(TimeSeriesCap),
+            SoilProfile = new Soil.Profile() { Layers = profileLayers },
             Rest = new Common.StructuredText()
             {
                 Structure = new Common.StructuredText.structure { which = Common.StructuredText.structure.WHICH.Json },
