@@ -69,7 +69,7 @@
 @code {
     [Parameter]
     public Model.IEnvInstance<Common.StructuredText, Common.StructuredText> MonicaInstanceCap { get; set; }
-    private String monicaSturdyRef = "capnp://localhost:6666";
+    private String monicaSturdyRef { get; set; } = "capnp://login01.cluster.zalf.de:12003";
     private bool componentIsMonicaInstanceCapOwner = false;
 
     [Parameter]
@@ -80,7 +80,7 @@
 
     [Parameter]
     public Climate.ITimeSeries TimeSeriesCap { get; set; }
-    private String timeSeriesSturdyRef = "capnp://localhost:11002";
+    private String timeSeriesSturdyRef { get; set; } = "capnp://login01.cluster.zalf.de:11002";
     private bool componentIsTimeSeriesCapOwner = false;
 
     [Parameter]
@@ -132,6 +132,7 @@
         var selected = new List<MudChip>();
         foreach (var c in chips)
         {
+            if (c == null) continue;
             c.IsSelected = c.Default;
             if (c.IsSelected) selected.Add(c);
         }
@@ -141,7 +142,7 @@
 
     private async Task RunMonica()
     {
-        if (MonicaInstanceCap == null || TimeSeriesCap == null) return;
+        if (MonicaInstanceCap == null || TimeSeriesCap == null || !profileLayers.Any()) return;
 
         var files = new List<String> {
             "Data-Full/sim-min.json", "Data-Full/crop-min.json", "Data-Full/site-min.json", "Data-Full/climate-min.csv"
