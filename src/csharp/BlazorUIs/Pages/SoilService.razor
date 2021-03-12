@@ -253,15 +253,20 @@
         SoilServiceCap = service;
         componentIsSoilServiceCapOwner = true;
 
-        await GetAllAvailableSoilProperties();
+        SoilServiceCapChanged.InvokeAsync(Capnp.Rpc.Proxy.Share(SoilServiceCap));
+
+        //GetAllAvailableSoilProperties();
         //await GetSoilProfiles();
     }
 
     private async Task GetAllAvailableSoilProperties()
     {
+        Console.WriteLine("before GetAllAvailableParameters");
         var allProps = await SoilServiceCap.GetAllAvailableParameters(false);
+        Console.WriteLine("after GetAllAvailableParameters");
         availableSoilProps = allProps.Item1.Concat(allProps.Item2);
         defaultSelectedSoilPropertyNameChips = new MudChip[availableSoilProps.Count()];
+        StateHasChanged();
 
         //workaround to mark the default chips selected even when ChipSet has been rendered once already
         MarkDefaultChipsAfterLoad(defaultSelectedSoilPropertyNameChips, 300,
@@ -271,6 +276,12 @@
     private async Task MarkDefaultChipsAfterLoad(MudChip[] chips, int loadAfterMilliSeconds, Action<MudChip[]> action = null)
     {
         await Task.Delay(loadAfterMilliSeconds);
+        if (chips.All(c => c == null))
+        {
+            MarkDefaultChipsAfterLoad(chips, loadAfterMilliSeconds, action);
+            return;
+        }
+
         var selected = new List<MudChip>();
         foreach (var c in chips)
         {

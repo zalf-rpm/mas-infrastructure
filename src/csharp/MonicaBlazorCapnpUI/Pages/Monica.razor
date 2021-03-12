@@ -129,6 +129,13 @@
     private async Task MarkDefaultChipsAfterLoad(MudChip[] chips, int loadAfterMilliSeconds, Action<MudChip[]> action = null)
     {
         await Task.Delay(loadAfterMilliSeconds);
+
+        if (chips.All(c => c == null))
+        {
+            MarkDefaultChipsAfterLoad(chips, loadAfterMilliSeconds, action);
+            return;
+        }
+
         var selected = new List<MudChip>();
         foreach (var c in chips)
         {

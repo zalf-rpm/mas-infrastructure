@@ -59,18 +59,31 @@ namespace Mas.Infrastructure.Common
 
                 if(addressPort.Length > 0)
                 {
-                    var con = _Connections.GetOrAdd(addressPort, new TcpRpcClient(address, port));
-                    await Task.WhenAll(con.WhenConnected);
-                    if (!string.IsNullOrEmpty(srToken))
+                    try
                     {
-                        var restorer = con.GetMain<Rpc.Persistence.IRestorer<string>>();
-                        var cap = await restorer.Restore(srToken, null);
-                        return cap.Cast<TRemoteInterface>(true);
+                        var con = new TcpRpcClient(address, port);
+                        //var con = _Connections.GetOrAdd(addressPort, new TcpRpcClient(address, port));
+                        await Task.WhenAll(con.WhenConnected);
+                        if (!string.IsNullOrEmpty(srToken))
+                        {
+                            var restorer = con.GetMain<Rpc.Persistence.IRestorer<string>>();
+                            var cap = await restorer.Restore(srToken, null);
+                            return cap.Cast<TRemoteInterface>(true);
+                        }
+                        else
+                        {
+                            var bootstrap = con.GetMain<TRemoteInterface>();
+                            return bootstrap;
+                        }
                     }
-                    else
+                    catch(ArgumentOutOfRangeException)
                     {
-                        var bootstrap = con.GetMain<TRemoteInterface>();
-                        return bootstrap;
+                        _Connections.TryRemove(addressPort, out _);
+                    }
+                    catch(System.Exception e)
+                    {
+                        _Connections.TryRemove(addressPort, out _);
+                        throw;
                     }
                 }
             }

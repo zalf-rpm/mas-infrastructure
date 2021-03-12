@@ -23,6 +23,7 @@
     {
         SturdyRef = sr;
         SturdyRefChanged.InvokeAsync(sr);
+        ClearButton();
     }
 
     [Parameter]
@@ -33,18 +34,10 @@
     private String buttonLabel = "Connect";
 
     [Parameter]
-    public TCapnpInterface Capability
-    {
-        get;
-        set;
-    }
+    public TCapnpInterface Capability { get; set; }
 
     [Parameter]
-    public EventCallback<TCapnpInterface> CapabilityChanged
-    {
-        get;
-        set;
-    }
+    public EventCallback<TCapnpInterface> CapabilityChanged { get; set; }
 
     [Parameter]
     public String Label { get; set; } = "Persistent capability (capnp://host:port/token)";
@@ -66,7 +59,7 @@
             buttonColor = Color.Success;
             buttonLabel = "Connected";
 
-            await CapabilityChanged.InvokeAsync(Capnp.Rpc.Proxy.Share(Capability));
+            CapabilityChanged.InvokeAsync(Capnp.Rpc.Proxy.Share(Capability));
         }
         catch (RpcException e)
         {
@@ -76,7 +69,7 @@
             buttonColor = Color.Error;
             buttonLabel = "Connect failed";
 
-            await RpcExceptionThrown.InvokeAsync(e);
+            RpcExceptionThrown.InvokeAsync(e);
         }
     }
 
@@ -94,13 +87,13 @@
             if (Capability is Proxy p)
             {
                 SturdyRef = (await p.Cast<Capnp.IPersistent<String, String>>(false)?.Save(null))?.SturdyRef;
-                await SturdyRefChanged.InvokeAsync(SturdyRef);
+                SturdyRefChanged.InvokeAsync(SturdyRef);
             }
         }
         catch (Capnp.Rpc.RpcException e)
         {
             Console.WriteLine(e.ToString());
-            await CapabilityChanged.InvokeAsync(Capability);
+            //CapabilityChanged.InvokeAsync(Capability);
         }
     }
 
