@@ -16,7 +16,8 @@
         <ConnectToSturdyRef Label="Persistent capability to soil service (capnp://host:port/token)"
                             CapabilityChanged=@SoilServiceCapabilityChanged
                             TCapnpInterface=@Soil.IService
-                            @bind-SturdyRef=@soilServiceSturdyRef>
+                            @bind-SturdyRef=@soilServiceSturdyRef
+                            @ref=sturdyRefConnector>
         </ConnectToSturdyRef>
     </MudItem>
     <MudItem Class=@(HideGeoPosPicker ? "d-none" : "") xs="12">
@@ -26,6 +27,12 @@
         </GeoposPicker>
     </MudItem>
     <MudItem xs="12" Class="d-flex flex-row py-2 px-1">
+        <MudButton Class="px-5"
+                   Variant=@Variant.Filled
+                   Color=@Color.Primary
+                   OnClick=@GetAllAvailableSoilProperties>
+            Get params
+        </MudButton>
         <MudButton Class="px-5"
                    Variant=@Variant.Filled
                    Color=@Color.Primary
@@ -214,8 +221,7 @@
     [Parameter]
     public EventCallback<Soil.IService> SoilServiceCapChanged { get; set; }
 
-    private String soilServiceSturdyRef = "capnp://login01.cluster.zalf.de:10000";
-    private bool componentIsSoilServiceCapOwner = false;
+    private String soilServiceSturdyRef = "capnp://localhost:10000";//"capnp://login01.cluster.zalf.de:10000";
 
     private Soil.Profile profile;
 
@@ -236,6 +242,8 @@
     [Parameter]
     public HashSet<String> DefaultSelectedSoilProperties { get; set; } = new HashSet<String>() { "sand", "clay", "soilType", "bulkDensity", "organicCarbon" };
 
+    private ConnectToSturdyRef<Soil.IService> sturdyRefConnector;
+
     [Parameter]
     public bool HideSturdyRefConnector { get; set; } = false;
 
@@ -248,29 +256,37 @@
     private async Task SoilServiceCapabilityChanged(Soil.IService service)
     {
         if (service == null) return;
-
-        if (SoilServiceCap != service && componentIsSoilServiceCapOwner) SoilServiceCap?.Dispose();
+        
+        if (SoilServiceCap != service) SoilServiceCap?.Dispose();
         SoilServiceCap = service;
-        componentIsSoilServiceCapOwner = true;
 
-        SoilServiceCapChanged.InvokeAsync(Capnp.Rpc.Proxy.Share(SoilServiceCap));
+        _ = SoilServiceCapChanged.InvokeAsync(SoilServiceCap);
 
-        //GetAllAvailableSoilProperties();
-        //await GetSoilProfiles();
+        //_ = GetAllAvailableSoilProperties();
     }
 
     private async Task GetAllAvailableSoilProperties()
     {
-        Console.WriteLine("before GetAllAvailableParameters");
-        var allProps = await SoilServiceCap.GetAllAvailableParameters(false);
-        Console.WriteLine("after GetAllAvailableParameters");
-        availableSoilProps = allProps.Item1.Concat(allProps.Item2);
-        defaultSelectedSoilPropertyNameChips = new MudChip[availableSoilProps.Count()];
-        StateHasChanged();
+        if (SoilServiceCap == null) return;
 
-        //workaround to mark the default chips selected even when ChipSet has been rendered once already
-        MarkDefaultChipsAfterLoad(defaultSelectedSoilPropertyNameChips, 300,
-            cs => { chosenSoilPropertyNames = cs.Select(c => (Soil.PropertyName)c.Tag); });
+        try
+        {
+            Console.WriteLine("before GetAllAvailableParameters");
+            var (mps, ops) = await SoilServiceCap.GetAllAvailableParameters(false);
+            Console.WriteLine("after GetAllAvailableParameters");
+            availableSoilProps = mps.Concat(ops);
+            defaultSelectedSoilPropertyNameChips = new MudChip[availableSoilProps.Count()];
+            StateHasChanged();
+
+            //workaround to mark the default chips selected even when ChipSet has been rendered once already
+            _ = MarkDefaultChipsAfterLoad(defaultSelectedSoilPropertyNameChips, 300,
+                cs => { chosenSoilPropertyNames = cs.Select(c => (Soil.PropertyName)c.Tag); });
+        }
+        catch (Capnp.Rpc.RpcException e)
+        {
+            Console.WriteLine(e.Message);
+            //await sturdyRefConnector?.Reconnect();
+        }
     }
 
     private async Task MarkDefaultChipsAfterLoad(MudChip[] chips, int loadAfterMilliSeconds, Action<MudChip[]> action = null)
@@ -278,7 +294,7 @@
         await Task.Delay(loadAfterMilliSeconds);
         if (chips.All(c => c == null))
         {
-            MarkDefaultChipsAfterLoad(chips, loadAfterMilliSeconds, action);
+            _ = MarkDefaultChipsAfterLoad(chips, loadAfterMilliSeconds, action);
             return;
         }
 
@@ -320,26 +336,34 @@
     {
         if (SoilServiceCap == null) return;
 
-        var profiles = await SoilServiceCap.ProfilesAt(new Geo.LatLonCoord { Lat = LatLng.Item1, Lon = LatLng.Item2 },
+        try
+        {
+            var profiles = await SoilServiceCap.ProfilesAt(new Geo.LatLonCoord { Lat = LatLng.Item1, Lon = LatLng.Item2 },
             new Soil.Query
             {
                 Mandatory = chosenSoilPropertyNames.ToArray(),
                 OnlyRawData = false
-            }
-        );
-        if (profiles.Count > 0)
-        {
-            profile = profiles[0];
-            ProfileLayers.Clear();
-            foreach (var l in profile.Layers)
+            });
+
+            if (profiles.Count > 0)
             {
-                ProfileLayers.Add(l);
-                //var x = l.Properties.
-                //    Select(p => (p.Name.ToString(), GetSoilPropertyValue(p))).
-                //    ToDictionary(p => p.Item1, p => p.Item2);
-                //ProfileLayers.Add(new L() { Layer = l, Props = x });
+                profile = profiles[0];
+                ProfileLayers.Clear();
+                foreach (var l in profile.Layers)
+                {
+                    ProfileLayers.Add(l);
+                    //var x = l.Properties.
+                    //    Select(p => (p.Name.ToString(), GetSoilPropertyValue(p))).
+                    //    ToDictionary(p => p.Item1, p => p.Item2);
+                    //ProfileLayers.Add(new L() { Layer = l, Props = x });
+                }
+                _ = ProfileLayersChanged.InvokeAsync(ProfileLayers);
             }
-            ProfileLayersChanged.InvokeAsync(ProfileLayers);
+        }
+        catch (Capnp.Rpc.RpcException e)
+        {
+            Console.WriteLine(e.Message);
+            //await sturdyRefConnector?.Reconnect();
         }
     }
 
@@ -349,11 +373,11 @@
         var res = await DialogService.Show<KA5SoilTypeTriangleDialog>("Select soil type", options).Result;
         if (res.Data is KA5SoilTypeTriangleDialog.Result r) prop.Type = r.SoilTextureName;
         StateHasChanged();
-        ProfileLayersChanged.InvokeAsync(ProfileLayers);
+        _ = ProfileLayersChanged.InvokeAsync(ProfileLayers);
     }
 
     void IDisposable.Dispose()
     {
-        if (componentIsSoilServiceCapOwner) SoilServiceCap?.Dispose();
+        SoilServiceCap?.Dispose();
     }
 }
