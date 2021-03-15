@@ -442,7 +442,7 @@ if __name__ == '__main__':
     grid = "data/soil/buek1000_1000_gk5.asc"
     crs = "gk5"
 
-    #main(db, grid, crs, serve_bootstrap=True, port=10000)
-    asyncio.run(async_main(db, grid, crs, serve_bootstrap=True, port=10000))
+    main(db, grid, crs, serve_bootstrap=True, port=10000)
+    #asyncio.run(async_main(db, grid, crs, serve_bootstrap=True, port=10000))
 
 

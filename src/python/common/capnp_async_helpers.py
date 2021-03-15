@@ -29,7 +29,7 @@ logger.setLevel(logging.DEBUG)
 ch = logging.StreamHandler(sys.stdout)
 ch.setLevel(logging.DEBUG)
 
-logger.addHandler(ch)
+#logger.addHandler(ch)
 
 class Server:
     def __init__(self, service):
@@ -52,10 +52,10 @@ class Server:
                     if task in done:
                         data = task.result()
                     else:
-                        print("<r", flush=True, end="")
+                        #print("<r", flush=True, end="")
                         continue
 
-                    print(len(data), flush=True, end="|")
+                    #print("<" + str(len(data)), flush=True, end="<")
                     await self.server.write(data)
                     break
             except Exception as err:
@@ -78,9 +78,10 @@ class Server:
                     if task in done:
                         data = task.result()
                     else:
-                        print("w>", flush=True, end="")
+                        #print("w>", flush=True, end="")
                         continue
 
+                    #print(">" + str(len(data)), flush=True, end=">")
                     self.writer.write(data.tobytes())
                     await self.writer.drain()
                     break

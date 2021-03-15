@@ -22,7 +22,7 @@
     private async Task SturdyRefValueChanged(String sr)
     {
         SturdyRef = sr;
-        SturdyRefChanged.InvokeAsync(sr);
+        _ = SturdyRefChanged.InvokeAsync(sr);
         ClearButton();
     }
 
@@ -59,7 +59,7 @@
             buttonColor = Color.Success;
             buttonLabel = "Connected";
 
-            CapabilityChanged.InvokeAsync(Capnp.Rpc.Proxy.Share(Capability));
+            //_ = CapabilityChanged.InvokeAsync(Capnp.Rpc.Proxy.Share(Capability));
         }
         catch (RpcException e)
         {
@@ -69,8 +69,14 @@
             buttonColor = Color.Error;
             buttonLabel = "Connect failed";
 
-            RpcExceptionThrown.InvokeAsync(e);
+            _ = RpcExceptionThrown.InvokeAsync(e);
         }
+    }
+
+    public async Task Reconnect()
+    {
+        ClearButton();
+        await Connect();
     }
 
     private void ClearButton()
@@ -87,7 +93,7 @@
             if (Capability is Proxy p)
             {
                 SturdyRef = (await p.Cast<Capnp.IPersistent<String, String>>(false)?.Save(null))?.SturdyRef;
-                SturdyRefChanged.InvokeAsync(SturdyRef);
+                _ = SturdyRefChanged.InvokeAsync(SturdyRef);
             }
         }
         catch (Capnp.Rpc.RpcException e)

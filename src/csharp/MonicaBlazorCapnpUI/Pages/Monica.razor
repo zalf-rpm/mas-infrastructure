@@ -70,7 +70,6 @@
     [Parameter]
     public Model.IEnvInstance<Common.StructuredText, Common.StructuredText> MonicaInstanceCap { get; set; }
     private String monicaSturdyRef { get; set; } = "capnp://login01.cluster.zalf.de:12003";
-    private bool componentIsMonicaInstanceCapOwner = false;
 
     [Parameter]
     public EventCallback<Model.IEnvInstance<Common.StructuredText, Common.StructuredText>> MonicaInstanceCapChanged { get; set; }
@@ -81,7 +80,6 @@
     [Parameter]
     public Climate.ITimeSeries TimeSeriesCap { get; set; }
     private String timeSeriesSturdyRef { get; set; } = "capnp://login01.cluster.zalf.de:11002";
-    private bool componentIsTimeSeriesCapOwner = false;
 
     [Parameter]
     public EventCallback<Climate.ITimeSeries> TimeSeriesCapChanged { get; set; }
@@ -108,9 +106,8 @@
     {
         if (monicaInstance == null) return;
 
-        if (MonicaInstanceCap != monicaInstance && componentIsMonicaInstanceCapOwner) MonicaInstanceCap?.Dispose();
+        if (MonicaInstanceCap != monicaInstance) MonicaInstanceCap?.Dispose();
         MonicaInstanceCap = monicaInstance;
-        componentIsMonicaInstanceCapOwner = true;
 
         //await RunMonica();
     }
@@ -119,9 +116,8 @@
     {
         if (timeSeries == null) return;
 
-        if (TimeSeriesCap != timeSeries && componentIsMonicaInstanceCapOwner) TimeSeriesCap?.Dispose();
+        if (TimeSeriesCap != timeSeries) TimeSeriesCap?.Dispose();
         TimeSeriesCap = timeSeries;
-        componentIsTimeSeriesCapOwner = true;
 
         //await RunMonica();
     }
@@ -132,14 +128,13 @@
 
         if (chips.All(c => c == null))
         {
-            MarkDefaultChipsAfterLoad(chips, loadAfterMilliSeconds, action);
+            _ = MarkDefaultChipsAfterLoad(chips, loadAfterMilliSeconds, action);
             return;
         }
 
         var selected = new List<MudChip>();
         foreach (var c in chips)
         {
-            if (c == null) continue;
             c.IsSelected = c.Default;
             if (c.IsSelected) selected.Add(c);
         }
@@ -155,8 +150,6 @@
             "Data-Full/sim-min.json", "Data-Full/crop-min.json", "Data-Full/site-min.json", "Data-Full/climate-min.csv"
         };
         var envj = await runMonica.RunMonicaAsync(files, new Core.Share.UserSetting(), Core.Share.Enums.MonicaParametersBasePathTypeEnum.LocalServer);
-
-        var h = await TimeSeriesCap.Header();
 
         var menv = new Model.Env<Common.StructuredText>()
         {
@@ -221,12 +214,12 @@
             monicaErrorMessage = e.ToString();
         }
 
-        MarkDefaultChipsAfterLoad(defaultSelectedSectionChips, 300);
+        _ = MarkDefaultChipsAfterLoad(defaultSelectedSectionChips, 300);
     }
 
     void IDisposable.Dispose()
     {
-        if (componentIsMonicaInstanceCapOwner) MonicaInstanceCap?.Dispose();
-        if (componentIsTimeSeriesCapOwner) TimeSeriesCap?.Dispose();
+        MonicaInstanceCap?.Dispose();
+        TimeSeriesCap?.Dispose();
     }
 }

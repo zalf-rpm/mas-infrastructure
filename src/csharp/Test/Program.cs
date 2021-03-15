@@ -21,6 +21,7 @@ namespace Mas.Infrastructure.Common
             //using var ss = con.GetMain<Soil.IService>();
 
             var ss = await conMan.Connect<Soil.IService>("capnp://localhost:10000");
+            //await Task.Delay(10000);
             for(int i = 0; i < 100; i++)
             {
                 var (mps, ops) = await ss.GetAllAvailableParameters(false);
@@ -34,7 +35,7 @@ namespace Mas.Infrastructure.Common
                 //await Task.Delay(500);
             }
             //*/
-
+            await Task.Delay(10000);
             /*
             var ts = await conMan.Connect<Climate.ITimeSeries>("capnp://localhost:11002");
             for (int i = 0; i < 100; i++)

@@ -61,8 +61,8 @@ namespace Mas.Infrastructure.Common
                 {
                     try
                     {
-                        var con = new TcpRpcClient(address, port);
-                        //var con = _Connections.GetOrAdd(addressPort, new TcpRpcClient(address, port));
+                        //var con = new TcpRpcClient(address, port);
+                        var con = _Connections.GetOrAdd(addressPort, new TcpRpcClient(address, port));
                         await Task.WhenAll(con.WhenConnected);
                         if (!string.IsNullOrEmpty(srToken))
                         {
