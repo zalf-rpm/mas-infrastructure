@@ -38,12 +38,20 @@ namespace MonicaBlazorCapnpUI.Services
             var climateFile = files.FirstOrDefault(file => Path.GetFileName(file).Contains("climate"));
             var climateCsv = File.ReadAllText(climateFile ?? "Data/climate.csv");
 
+            return CreateMonicaEnv(simj, cropj, sitej, climateCsv, userSetting, basePathType);
+        }
+
+        public JObject CreateMonicaEnv(JObject simj, JObject cropj, JObject sitej, string climateCsv,
+            UserSetting userSetting, MonicaParametersBasePathTypeEnum basePathType)
+        {
+            _monicaIO.UserSettings = userSetting;
+
             JObject crop_site_sim = new JObject() {
-                {"sim", simj}, 
-                {"crop", cropj}, 
-                {"site", sitej}, 
-                {"climate", climateCsv} 
-            } ;
+                {"sim", simj},
+                {"crop", cropj},
+                {"site", sitej},
+                {"climate", climateCsv}
+            };
 
             string parametersPath = string.Empty;
             if (basePathType == MonicaParametersBasePathTypeEnum.LocalServer)
@@ -52,11 +60,6 @@ namespace MonicaBlazorCapnpUI.Services
                 parametersPath = userSetting.MonicaParametersPathOnGithub;
 
             var envj = _monicaIO.create_env_json_from_json_config(crop_site_sim, parametersPath);
-
-
-
-
-
             return envj;
         }
     }

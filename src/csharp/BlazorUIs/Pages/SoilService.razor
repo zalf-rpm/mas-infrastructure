@@ -4,6 +4,9 @@
 
 @using MudBlazor
 @using Mas.Rpc
+@using System.Threading
+@using Capnp.Rpc
+@using Mas.Infrastructure.Common
 
 @inject IJSRuntime JSRuntime
 @inject ISnackbar Snackbar
@@ -26,18 +29,18 @@
                       CenterLatLng=@LatLng>
         </GeoposPicker>
     </MudItem>
+    <MudButton Class="px-5"
+               Variant=@Variant.Filled
+               Color=@Color.Primary
+               OnClick=@GetSoilProfiles>
+        Show soil profiles @@ @(Math.Round(LatLng.Item1, 2))N/@(Math.Round(LatLng.Item2, 2))E with ...
+    </MudButton>
     <MudItem xs="12" Class="d-flex flex-row py-2 px-1">
         <MudButton Class="px-5"
                    Variant=@Variant.Filled
                    Color=@Color.Primary
                    OnClick=@GetAllAvailableSoilProperties>
             Get params
-        </MudButton>
-        <MudButton Class="px-5"
-                   Variant=@Variant.Filled
-                   Color=@Color.Primary
-                   OnClick=@GetSoilProfiles>
-            Get profiles @@ @(Math.Round(LatLng.Item1, 2))N/@(Math.Round(LatLng.Item2, 2))E with ...
         </MudButton>
         <MudChipSet SelectedChipsChanged=@(cs => chosenSoilPropertyNames = cs.Select(c => (Soil.PropertyName)c.Tag))
                     MultiSelection=@true
@@ -50,6 +53,14 @@
                          Text=@pn
                          Default=@DefaultSelectedSoilProperties.Contains(pn)>
                 </MudChip>
+                /*
+                if (availableSoilProps.Count() == i - 1)
+                {
+                    _markDefaultChips = true;
+                    _ = Task.Delay(200).ContinueWith(_ => MarkDefaultChips(defaultSelectedSoilPropertyNameChips,
+                        cs => { chosenSoilPropertyNames = cs.Select(c => (Soil.PropertyName)c.Tag); }));
+                }
+                */
             }
         </MudChipSet>
     </MudItem>
@@ -218,10 +229,12 @@
     [Parameter]
     public Soil.IService SoilServiceCap { get; set; }
 
+    public LockableCap<Soil.IService> SoilServiceCapL { get; set; }
+
     [Parameter]
     public EventCallback<Soil.IService> SoilServiceCapChanged { get; set; }
 
-    private String soilServiceSturdyRef = "capnp://localhost:10000";//"capnp://login01.cluster.zalf.de:10000";
+    private String soilServiceSturdyRef = "capnp://login01.cluster.zalf.de:10000";//"capnp://localhost:10000";//
 
     private Soil.Profile profile;
 
@@ -243,6 +256,7 @@
     public HashSet<String> DefaultSelectedSoilProperties { get; set; } = new HashSet<String>() { "sand", "clay", "soilType", "bulkDensity", "organicCarbon" };
 
     private ConnectToSturdyRef<Soil.IService> sturdyRefConnector;
+    //private ConnectToSturdyRefL<Soil.IService> sturdyRefConnectorL;
 
     [Parameter]
     public bool HideSturdyRefConnector { get; set; } = false;
@@ -256,18 +270,26 @@
     private async Task SoilServiceCapabilityChanged(Soil.IService service)
     {
         if (service == null) return;
-        
+
+        //var (mps, ops) = await service.GetAllAvailableParameters(false);
+
         if (SoilServiceCap != service) SoilServiceCap?.Dispose();
         SoilServiceCap = service;
 
-        _ = SoilServiceCapChanged.InvokeAsync(SoilServiceCap);
+        if (SoilServiceCapChanged.HasDelegate) _ = SoilServiceCapChanged.InvokeAsync(Capnp.Rpc.Proxy.Share(SoilServiceCap));
+
+        Console.WriteLine("SoilService.SoilServiceCapabilityChanged: ThreadId: " + Thread.CurrentThread.ManagedThreadId);
 
         //_ = GetAllAvailableSoilProperties();
+        //_ = Task.Delay(200).ContinueWith(_ => GetAllAvailableSoilProperties());
+        //_ = InvokeAsync(GetAllAvailableSoilProperties);
     }
 
     private async Task GetAllAvailableSoilProperties()
     {
         if (SoilServiceCap == null) return;
+
+        Console.WriteLine("SoilService.GetAllAvailableSoilProperties: ThreadId: " + Thread.CurrentThread.ManagedThreadId);
 
         try
         {
@@ -276,11 +298,10 @@
             Console.WriteLine("after GetAllAvailableParameters");
             availableSoilProps = mps.Concat(ops);
             defaultSelectedSoilPropertyNameChips = new MudChip[availableSoilProps.Count()];
-            StateHasChanged();
 
-            //workaround to mark the default chips selected even when ChipSet has been rendered once already
-            _ = MarkDefaultChipsAfterLoad(defaultSelectedSoilPropertyNameChips, 300,
-                cs => { chosenSoilPropertyNames = cs.Select(c => (Soil.PropertyName)c.Tag); });
+            StateHasChanged();
+            await MarkDefaultChips(defaultSelectedSoilPropertyNameChips,
+            cs => { chosenSoilPropertyNames = cs.Select(c => (Soil.PropertyName)c.Tag); });
         }
         catch (Capnp.Rpc.RpcException e)
         {
@@ -288,15 +309,12 @@
             //await sturdyRefConnector?.Reconnect();
         }
     }
-
-    private async Task MarkDefaultChipsAfterLoad(MudChip[] chips, int loadAfterMilliSeconds, Action<MudChip[]> action = null)
+        
+    private async Task MarkDefaultChips(MudChip[] chips, Action<MudChip[]> action = null)
     {
-        await Task.Delay(loadAfterMilliSeconds);
-        if (chips.All(c => c == null))
-        {
-            _ = MarkDefaultChipsAfterLoad(chips, loadAfterMilliSeconds, action);
-            return;
-        }
+        Console.WriteLine("SoilService.MarkDefaultChips: ThreadId: " + Thread.CurrentThread.ManagedThreadId);
+
+        if (chips.All(c => c == null)) return; 
 
         var selected = new List<MudChip>();
         foreach (var c in chips)
@@ -357,7 +375,7 @@
                     //    ToDictionary(p => p.Item1, p => p.Item2);
                     //ProfileLayers.Add(new L() { Layer = l, Props = x });
                 }
-                _ = ProfileLayersChanged.InvokeAsync(ProfileLayers);
+                if (ProfileLayersChanged.HasDelegate) _ = ProfileLayersChanged.InvokeAsync(ProfileLayers);
             }
         }
         catch (Capnp.Rpc.RpcException e)
@@ -370,14 +388,21 @@
     private async void OpenKA5SoilTypeDialog(Soil.Layer.Property prop)
     {
         var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraLarge, FullWidth = true };
-        var res = await DialogService.Show<KA5SoilTypeTriangleDialog>("Select soil type", options).Result;
+        var res = await DialogService.Show<KA5SoilTypeTriangleDialog>
+            ("Select soil type", options).Result;
         if (res.Data is KA5SoilTypeTriangleDialog.Result r) prop.Type = r.SoilTextureName;
         StateHasChanged();
-        _ = ProfileLayersChanged.InvokeAsync(ProfileLayers);
+        if (ProfileLayersChanged.HasDelegate) _ = ProfileLayersChanged.InvokeAsync(ProfileLayers);
+    }
+
+    protected override void OnInitialized()
+    {
+        Console.WriteLine("OnInitialized SoilService SR: " + soilServiceSturdyRef);
     }
 
     void IDisposable.Dispose()
     {
+        Console.WriteLine("Disposing SoilService SR: " + soilServiceSturdyRef + " cap: " + SoilServiceCap);
         SoilServiceCap?.Dispose();
     }
 }

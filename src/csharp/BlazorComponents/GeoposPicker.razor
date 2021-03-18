@@ -95,7 +95,6 @@
     private async Task OnClick(MouseEvent e)
     {
         LatLng = (e.LatLng.Lat, e.LatLng.Lng);
-        await LatLngChanged.InvokeAsync(LatLng);
+        if (LatLngChanged.HasDelegate) _ = LatLngChanged.InvokeAsync(LatLng);
     }
-
 }

@@ -6,29 +6,58 @@
 
 @using Mas.Rpc
 @using Mas.Infrastructure.BlazorComponents
+@using Microsoft.AspNetCore.WebUtilities
 
 @inject IJSRuntime JSRuntime
-@inject Services.RunMonica runMonica
+@inject Services.RunMonica RunMonica
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
+@inject NavigationManager NavigationManager
 
 @implements IDisposable
 
 <MudGrid>
-    <MudItem Class=@(HideSturdyRefConnector ? "d-none" : "") xs="12">
+    <MudItem Class=@(HideSturdyRefConnectors ? "d-none" : "") xs="12">
         <ConnectToSturdyRef Label="Persistent capability to MONICA instance (capnp://host:port/token)"
                             CapabilityChanged=@CapabilityChanged
                             TCapnpInterface="Model.IEnvInstance<Common.StructuredText, Common.StructuredText>"
-                            @bind-SturdyRef=monicaSturdyRef>
+                            @bind-SturdyRef=MonicaSturdyRef
+                            ConnectOnInit=@monicaConnectOnInit>
 
         </ConnectToSturdyRef>
     </MudItem>
-    <MudItem Class=@(HideSturdyRefConnector ? "d-none" : "") xs="12">
+    <MudItem Class=@(HideSturdyRefConnectors ? "d-none" : "") xs="12">
         <ConnectToSturdyRef Label="Persistent capability to climate time series (capnp://host:port/token)"
                             CapabilityChanged=@TimeSeriesCapabilityChanged
                             TCapnpInterface=@Climate.ITimeSeries
-                            @bind-SturdyRef=timeSeriesSturdyRef>
+                            @bind-SturdyRef=TimeSeriesSturdyRef
+                            ConnectOnInit=@timeSeriesConnectOnInit>
         </ConnectToSturdyRef>
+    </MudItem>
+    <MudItem Class=@(HideSturdyRefConnectors ? "d-none" : "") xs="12">
+        <ConnectToSturdyRef Label="Persistent capability to climate time series (capnp://host:port/token)"
+                            CapabilityChanged=@SoilServiceCapabilityChanged
+                            TCapnpInterface=@Soil.IService
+                            @bind-SturdyRef=SoilServiceSturdyRef
+                            ConnectOnInit=@soilServiceConnectOnInit>
+        </ConnectToSturdyRef>
+    </MudItem>
+    <MudItem xs="12">
+        <MudExpansionPanels>
+            <MudExpansionPanel Text="Base sim/crop/site.json">
+                <MudGrid>
+                    <MudItem xs="4">
+                        <MudTextField T=@string Label="sim.json" Variant=@Variant.Outlined @bind-Text=simJsonTxt Lines=10 />
+                    </MudItem>
+                    <MudItem xs="4">
+                        <MudTextField T=@string Label="crop.json" Variant=@Variant.Outlined @bind-Text=cropJsonTxt Lines=10 />
+                    </MudItem>
+                    <MudItem xs="4">
+                        <MudTextField T=@string Label="site.json" Variant=@Variant.Outlined @bind-Text=siteJsonTxt Lines=10 />
+                    </MudItem>
+                </MudGrid>
+            </MudExpansionPanel>
+        </MudExpansionPanels>
     </MudItem>
     <MudItem xs="12">
         <GeoposPicker @bind-LatLng=LatLng
@@ -37,10 +66,106 @@
         </GeoposPicker>
     </MudItem>
     <MudItem xs="12">
-        <SoilService LatLng=@LatLng ProfileLayers=@profileLayers HideGeoPosPicker=@true></SoilService>
+        <SoilService LatLng=@LatLng
+                     HideSturdyRefConnector=@true
+                     SoilServiceCap=@SoilServiceCap
+                     @bind-ProfileLayers=profileLayers
+                     HideGeoPosPicker=@true>
+        </SoilService>
+    </MudItem>
+    <MudItem xs="12">
+        <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+            <MudTabPanel Text="daily">
+                @code
+                {
+                    private OId dailyOutputEdit = OId.Out("");
+                }
+                <MudChipSet AllClosable=@true OnClose=@(c => dailyOutput.Remove(c.Tag as OId))>
+                    @foreach (var oid in dailyOutput)
+                    {
+                        <MudChip Tag=@oid Text=@oid.Name OnClick=@(() => dailyOutputEdit = oid) />
+                    }
+                </MudChipSet>
+                <MudGrid>
+                    <MudItem xs="1">
+                        <MudField DisableUnderLine=@true>
+                            <MudButton Color=@Color.Primary
+                                       Variant=@Variant.Filled
+                                       OnClick=@(() => { dailyOutput.Add(dailyOutputEdit); dailyOutputEdit = OId.Out(""); })
+                                       Disabled=@(dailyOutputEdit.From > dailyOutputEdit.To)>
+                                Add/Change
+                            </MudButton>
+                        </MudField>
+                    </MudItem>
+                    <MudItem xs="2">
+                        <MudField Label="Output Name" DisableUnderLine=@true>
+                            <MudTextField @bind-Value=dailyOutputEdit.Name Variant=@Variant.Outlined></MudTextField>
+                        </MudField>
+                    </MudItem>
+                    <MudItem xs="3">
+                        <MudField Label="Layers" DisableUnderLine=@true>
+                            <MudGrid>
+                                <MudItem xs="4">
+                                    <MudSelect @bind-Value=dailyOutputEdit.From
+                                               Label="From"
+                                               Error=@(dailyOutputEdit.From > dailyOutputEdit.To)
+                                               ErrorText="From > To">
+                                        @for (int? i = 1; i <= 20; i++)
+                                        {
+                                            <MudSelectItem Value=@i />
+                                        }
+                                    </MudSelect>
+                                </MudItem>
+                                <MudItem xs="4">
+                                    <MudSelect @bind-Value=dailyOutputEdit.To
+                                               Label="From"
+                                               Error=@(dailyOutputEdit.To < dailyOutputEdit.From)
+                                               ErrorText="To < From">
+                                        @for (int? i = 1; i <= 20; i++)
+                                        {
+                                            <MudSelectItem Value=@i />
+                                        }
+                                    </MudSelect>
+                                </MudItem>
+                                <MudItem xs="4">
+                                    <MudSelect Label="Aggregation"
+                                               @bind-Value=dailyOutputEdit.LayerAgg>
+                                        @foreach (Agg? agg in Enum.GetValues(typeof(Agg)))
+                                        {
+                                            <MudSelectItem Value=@agg />
+                                        }
+                                    </MudSelect>
+                                </MudItem>
+                            </MudGrid>
+                        </MudField>
+                    </MudItem>
+                </MudGrid>
+            </MudTabPanel>
+            <MudTabPanel Text="crop">
+                <MudChipSet Mandatory=@true MultiSelection=@true AllClosable=@true OnClose=@(c => cropOutput.Remove(c.Tag as OId))>
+                    @foreach (var oid in cropOutput)
+                    {
+                        <MudChip Text=@oid.Name></MudChip>
+                    }
+                </MudChipSet>
+            </MudTabPanel>
+            <MudTabPanel Text="yearly">
+                <MudChipSet Mandatory=@true MultiSelection=@true AllClosable=@true OnClose=@(c => yearlyOutput.Remove(c.Tag as OId))>
+                    @foreach (var oid in yearlyOutput)
+                    {
+                        <MudChip Text=@oid.Name></MudChip>
+                    }
+                </MudChipSet>
+            </MudTabPanel>
+            <MudTabPanel Text="...">
+                <MudText>Content Disabled</MudText>
+            </MudTabPanel>
+        </MudTabs>
     </MudItem>
     <MudItem xs="12" Class="d-flex flex-row py-2 px-1">
-        <MudButton Variant=@Variant.Filled Color=@Color.Primary OnClick=@RunMonica>Run MONICA</MudButton>
+        <div class="try-center">
+            <MudButton Variant=@Variant.Filled Class="run-main" OnClick=@RunMonicaModel>Run MONICA</MudButton>
+        </div>
         <MudChipSet SelectedChipsChanged=@(cs => selectedResultSection = cs.Select(c => c.Text).FirstOrDefault())
                     Mandatory=@true
                     Filter=@true>
@@ -49,10 +174,12 @@
                 <MudChip @ref=defaultSelectedSectionChips[i] Text=@s Default=@(s == selectedResultSection)></MudChip>
             }
         </MudChipSet>
+
     </MudItem>
     <MudItem xs="12">
         <Highchart Data=@(Section2Oid2Data.GetValueOrDefault(selectedResultSection, new Dictionary<string, IEnumerable<float>>()))
-                   Dates=@(Section2Dates.GetValueOrDefault(selectedResultSection, new List<DateTime>()))></Highchart>
+                   Dates=@(Section2Dates.GetValueOrDefault(selectedResultSection, new List<DateTime>()))>
+        </Highchart>
     </MudItem>
     <MudItem xs="12">
         <MudCard>
@@ -69,20 +196,39 @@
 @code {
     [Parameter]
     public Model.IEnvInstance<Common.StructuredText, Common.StructuredText> MonicaInstanceCap { get; set; }
-    private String monicaSturdyRef { get; set; } = "capnp://login01.cluster.zalf.de:12003";
+
+    [Parameter]
+    public String MonicaSturdyRef { get; set; } = "";
 
     [Parameter]
     public EventCallback<Model.IEnvInstance<Common.StructuredText, Common.StructuredText>> MonicaInstanceCapChanged { get; set; }
 
     [Parameter]
-    public bool HideSturdyRefConnector { get; set; } = false;
+    public bool HideSturdyRefConnectors { get; set; } = false;
+
+    private bool monicaConnectOnInit = false;
 
     [Parameter]
     public Climate.ITimeSeries TimeSeriesCap { get; set; }
-    private String timeSeriesSturdyRef { get; set; } = "capnp://login01.cluster.zalf.de:11002";
+
+    [Parameter]
+    public String TimeSeriesSturdyRef { get; set; } = "";
 
     [Parameter]
     public EventCallback<Climate.ITimeSeries> TimeSeriesCapChanged { get; set; }
+
+    private bool timeSeriesConnectOnInit = false;
+
+    [Parameter]
+    public Soil.IService SoilServiceCap { get; set; }
+
+    [Parameter]
+    public String SoilServiceSturdyRef { get; set; } = "";
+
+    [Parameter]
+    public EventCallback<Climate.ITimeSeries> SoilServiceCapChanged { get; set; }
+
+    private bool soilServiceConnectOnInit = false;
 
     private List<Soil.Layer> profileLayers = new List<Soil.Layer>();
 
@@ -102,14 +248,75 @@
 
     private String selectedResultSection = "";
 
+    private String simJsonTxt = "";
+    private String cropJsonTxt = "";
+    private String siteJsonTxt = "";
+    private String climateCsv = "";
+
+    public enum Agg { AVG, MEDIAN, SUM, MIN, MAX, FIRST, LAST, NONE }
+    public class OId
+    {
+        public static OId Out(string name) { return new OId { Name = name }; }
+
+        public static OId OutL(string name, int from, int to, Agg agg = Agg.NONE)
+        { return new OId { Name = name, From = from, To = to, LayerAgg = agg }; }
+
+        public static OId OutT(string name, Agg agg = Agg.AVG)
+        { return new OId { Name = name, TimeAgg = agg }; }
+
+        public static OId OutLT(string name, int from, int to, Agg layerAgg = Agg.NONE, Agg timeAgg = Agg.AVG)
+        { return new OId { Name = name, From = from, To = to, LayerAgg = layerAgg, TimeAgg = timeAgg }; }
+
+        public string Name { get; set; } = "";
+        public int? From { get; set; }
+        public int? To { get; set; }
+        public Agg? LayerAgg { get; set; }
+        public Agg? TimeAgg { get; set; }
+    }
+    private List<OId> dailyOutput = new() { OId.Out("Date"), OId.Out("Crop"), OId.Out("Stage"), OId.Out("Yield"), OId.OutL("Mois", 1, 3), OId.OutL("SOC", 1, 6, Agg.AVG), OId.Out("Tavg"), OId.Out("Precip") };
+    private List<OId> cropOutput = new() { OId.Out("CM-count"), OId.Out("Crop"), OId.OutT("Yield", Agg.LAST), OId.OutT("Date|sowing", Agg.FIRST), OId.OutT("Date|harvest", Agg.LAST) };
+    private List<OId> yearlyOutput = new() { OId.Out("Year"), OId.OutT("RunOff", Agg.SUM), OId.OutT("NLeach", Agg.SUM), OId.OutT("Recharge", Agg.SUM) };
+
+    protected override async Task OnInitializedAsync()
+    {
+        Console.WriteLine("OnInitialized Monica SR: " + MonicaSturdyRef);
+
+        var query = new Uri(NavigationManager.Uri).Query;
+        var qps = QueryHelpers.ParseQuery(query);
+
+        if (MonicaSturdyRef.Length == 0) MonicaSturdyRef = qps.GetValueOrDefault("monicaSturdyRef", "");
+        if (MonicaSturdyRef.Length > 0)
+        {
+            HideSturdyRefConnectors = true;
+            monicaConnectOnInit = true;
+        }
+
+        if (TimeSeriesSturdyRef.Length == 0) TimeSeriesSturdyRef = qps.GetValueOrDefault("timeSeriesSturdyRef", "");
+        if (TimeSeriesSturdyRef.Length > 0)
+        {
+            HideSturdyRefConnectors = true;
+            timeSeriesConnectOnInit = true;
+        }
+
+        if (SoilServiceSturdyRef.Length == 0) SoilServiceSturdyRef = qps.GetValueOrDefault("soilServiceSturdyRef", "");
+        if (SoilServiceSturdyRef.Length > 0)
+        {
+            HideSturdyRefConnectors = true;
+            soilServiceConnectOnInit = true;
+        }
+
+        simJsonTxt = File.ReadAllText("Data-Full/sim-min.json");
+        cropJsonTxt = File.ReadAllText("Data-Full/crop-min.json");
+        siteJsonTxt = File.ReadAllText("Data-Full/site-min.json");
+        climateCsv = File.ReadAllText("Data-Full/climate-min.csv");
+    }
+
     private async Task CapabilityChanged(Model.IEnvInstance<Common.StructuredText, Common.StructuredText> monicaInstance)
     {
         if (monicaInstance == null) return;
 
         if (MonicaInstanceCap != monicaInstance) MonicaInstanceCap?.Dispose();
         MonicaInstanceCap = monicaInstance;
-
-        //await RunMonica();
     }
 
     private async Task TimeSeriesCapabilityChanged(Climate.ITimeSeries timeSeries)
@@ -118,19 +325,19 @@
 
         if (TimeSeriesCap != timeSeries) TimeSeriesCap?.Dispose();
         TimeSeriesCap = timeSeries;
-
-        //await RunMonica();
     }
 
-    private async Task MarkDefaultChipsAfterLoad(MudChip[] chips, int loadAfterMilliSeconds, Action<MudChip[]> action = null)
+    private async Task SoilServiceCapabilityChanged(Soil.IService service)
     {
-        await Task.Delay(loadAfterMilliSeconds);
+        if (service == null) return;
 
-        if (chips.All(c => c == null))
-        {
-            _ = MarkDefaultChipsAfterLoad(chips, loadAfterMilliSeconds, action);
-            return;
-        }
+        if (SoilServiceCap != service) SoilServiceCap?.Dispose();
+        SoilServiceCap = service;
+    }
+
+    private async Task MarkDefaultChips(MudChip[] chips, Action<MudChip[]> action = null)
+    {
+        if (chips.All(c => c == null)) return;
 
         var selected = new List<MudChip>();
         foreach (var c in chips)
@@ -142,14 +349,56 @@
         StateHasChanged();
     }
 
-    private async Task RunMonica()
+    private JArray CreateSingleEventsSection(List<OId> oids)
+    {
+        JArray section = new();
+        foreach (var oid in oids)
+        {
+            if (oid.From.HasValue && oid.To.HasValue)
+            {
+                var ft = new JArray { oid.From, oid.To };
+                if (oid.LayerAgg.HasValue) ft.Add(oid.LayerAgg.ToString());
+
+                var a = new JArray { oid.Name, ft };
+                if (oid.TimeAgg.HasValue) a.Add(oid.TimeAgg.ToString());
+
+                section.Add(a);
+            }
+            else
+            {
+                if (oid.TimeAgg.HasValue)
+                    section.Add(new JArray() { oid.Name, oid.TimeAgg.ToString() });
+                else
+                    section.Add(oid.Name);
+            }
+        }
+
+        return section;
+    }
+
+    private JArray CreateEvents()
+    {
+        return new JArray {
+            "daily", CreateSingleEventsSection(dailyOutput),
+            "crop", CreateSingleEventsSection(cropOutput),
+            "yearly", CreateSingleEventsSection(yearlyOutput)
+        };
+    }
+
+    private async Task RunMonicaModel()
     {
         if (MonicaInstanceCap == null || TimeSeriesCap == null || !profileLayers.Any()) return;
 
-        var files = new List<String> {
-            "Data-Full/sim-min.json", "Data-Full/crop-min.json", "Data-Full/site-min.json", "Data-Full/climate-min.csv"
-        };
-        var envj = await runMonica.RunMonicaAsync(files, new Core.Share.UserSetting(), Core.Share.Enums.MonicaParametersBasePathTypeEnum.LocalServer);
+        //var files = new List<String> {
+        //    "Data-Full/sim-min.json", "Data-Full/crop-min.json", "Data-Full/site-min.json", "Data-Full/climate-min.csv"
+        //};
+
+        var simj = JObject.Parse(simJsonTxt);
+        var cropj = JObject.Parse(cropJsonTxt);
+        var sitej = JObject.Parse(siteJsonTxt);
+
+        var envj = RunMonica.CreateMonicaEnv(simj, cropj, sitej, null, new Core.Share.UserSetting(), Core.Share.Enums.MonicaParametersBasePathTypeEnum.LocalServer);
+        envj["events"] = CreateEvents();
 
         var menv = new Model.Env<Common.StructuredText>()
         {
@@ -214,12 +463,15 @@
             monicaErrorMessage = e.ToString();
         }
 
-        _ = MarkDefaultChipsAfterLoad(defaultSelectedSectionChips, 300);
+        StateHasChanged();
+        await MarkDefaultChips(defaultSelectedSectionChips);
     }
 
     void IDisposable.Dispose()
     {
+        Console.WriteLine("Disposing Monica SR: " + MonicaSturdyRef + " cap: " + MonicaInstanceCap);
         MonicaInstanceCap?.Dispose();
+        Console.WriteLine("Disposing TimeSeries SR:" + TimeSeriesSturdyRef + " cap: " + TimeSeriesCap);
         TimeSeriesCap?.Dispose();
     }
 }
