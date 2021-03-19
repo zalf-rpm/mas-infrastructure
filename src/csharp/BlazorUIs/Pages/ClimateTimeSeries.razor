@@ -29,7 +29,7 @@
     <MudItem xs="12">
         <MudTabs Elevation="2" Rounded=@true ApplyEffectsToContainer=@true>
             <MudTabPanel Text="Table">
-                <MudTable Items=@data Hover=@true Dense=@true Filter=@(new Func<Element,bool>(DataFilterFunc))>
+                <MudTable T=@Element Items=@data Hover=@true Dense=@true Filter=@(new Func<Element,bool>(DataFilterFunc))>
                     <ToolBarContent>
                         <MudText Typo=Typo.h6>Timeseries Data</MudText>
                         <MudToolBarSpacer />
@@ -39,16 +39,30 @@
                         <MudTh>Date</MudTh>
                         @foreach (var h in headings)
                         {
-                        <MudTh>@h</MudTh>
+                            <MudTh>@h</MudTh>
                         }
                     </HeaderContent>
                     <RowTemplate>
                         <MudTd DataLabel="Date">@context.Date.ToShortDateString()</MudTd>
                         @foreach (var (val, i) in headings.Select((Value, Index) => (Value, Index)))
                         {
-                        <MudTd DataLabel=@val>@context.Data[i]</MudTd>
+                            var k = i;
+                            <MudTd DataLabel=@val>@context.Data[k]</MudTd>
                         }
                     </RowTemplate>
+                    <RowEditingTemplate>
+                        <MudTd DataLabel="Date">@context.Date.ToShortDateString()</MudTd>
+                        @foreach (var (val, i) in headings.Select((Value, Index) => (Value, Index)))
+                        {
+                            var k = i;
+                            <MudTd DataLabel=@val>
+                                <MudTextField T=@float
+                                              @bind-Value=context.Data[k]
+                                              
+                                              Required />
+                            </MudTd>
+                        }
+                    </RowEditingTemplate>
                     <PagerContent>
                         <MudTablePager />
                     </PagerContent>
@@ -84,12 +98,12 @@
     private struct Element
     {
         public DateTime Date;
-        public IReadOnlyList<float> Data;
+        public List<float> Data;
     }
     private String csvString = "";
 
     private IList<String> headings = new List<String>();
-    private IEnumerable<Element> data = new List<Element>();
+    private List<Element> data = new List<Element>();
     private String searchString;
 
     public override async Task SetParametersAsync(ParameterView parameters)
@@ -116,7 +130,7 @@
         originalTimeSeriesCap = TimeSeriesCap; //save unrestricted cap
         componentIsTimeSeriesCapOwner = true;
 
-        await TimeSeriesUpdated();
+        //await TimeSeriesUpdated();
     }
 
     private async Task RestoreInitialTimeSeriesCap()
@@ -170,35 +184,10 @@
     {
         if (TimeSeriesCap == null) return;
 
+        await TimeSeriesUpdated();
+
         var ds = await TimeSeriesCap.Data();
-        data = ds.Select((d, i) => new Element { Date = start.AddDays(i), Data = d });
-
-        /*
-        var chartData = new Tuple<String, double[]>[7];
-        foreach (var (d, i) in ds.Select((d, i) => (d, i)))
-        {
-            var vals = new double[]
-            foreach (var (n, k) in headings.Select((n, k) => (n, k)))
-            {
-                chartData[k] = (n, .Item1 = n;
-                chartData, i] = d[k];
-            }
-        }
-
-        Series = new List<ChartSeries>();
-        foreach (var (n, k) in headings.Select((n, k) => (n, k)))
-        {
-            Series.Add(new ChartSeries { Name = n, Data = chartData[k] });
-        }
-
-
-
-        {
-            new ChartSeries() { Name = "Serie 1", Data = new double[] { 90, 79, 72, 69, 62, 62, 55, 65, 70 } },
-        new ChartSeries() { Name = "Serie 2", Data = new double[] { 10, 41, 35, 51, 49, 62, 69, 91, 148 } },
-    };
-        */
-
+        data = ds.Select((d, i) => new Element { Date = start.AddDays(i), Data = d.ToList() }).ToList();
 
         //create csv file
         var sb = new StringBuilder();

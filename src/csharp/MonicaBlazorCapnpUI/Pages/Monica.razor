@@ -48,14 +48,17 @@
     </MudExpansionPanel>
     <MudExpansionPanel Text="Base sim/crop/site.json" @bind-IsExpanded=@panelOpened["BaseFiles"]>
         <MudGrid>
-            <MudItem xs="4">
+            <MudItem xs="6">
                 <MudTextField T=@string Label="sim.json" Variant=@Variant.Outlined @bind-Text=simJsonTxt Lines=10 />
             </MudItem>
-            <MudItem xs="4">
+            <MudItem xs="6">
                 <MudTextField T=@string Label="crop.json" Variant=@Variant.Outlined @bind-Text=cropJsonTxt Lines=10 />
             </MudItem>
-            <MudItem xs="4">
+            <MudItem xs="6">
                 <MudTextField T=@string Label="site.json" Variant=@Variant.Outlined @bind-Text=siteJsonTxt Lines=10 />
+            </MudItem>
+            <MudItem xs="6">
+                <MudTextField T=@string Label="climate.csv" Variant=@Variant.Outlined @bind-Text=climateCsv Lines=10 />
             </MudItem>
         </MudGrid>
     </MudExpansionPanel>
@@ -65,6 +68,9 @@
                       CenterLatLng=@LatLng
                       Zoom=6>
         </GeoposPicker>
+    </MudExpansionPanel>
+    <MudExpansionPanel @bind-IsExpanded=@panelOpened["Climate"] Text="Climate data">
+    
     </MudExpansionPanel>
     <MudExpansionPanel @bind-IsExpanded=@panelOpened["SoilProfile"] Text="Soil profile">
         <SoilService @ref=@soilServiceRef
@@ -353,6 +359,7 @@
         { "Connections", true },
         { "BaseFiles", false },
         { "Location", false },
+        { "Climate", false },
         { "SoilProfile", false },
         { "CropRotation", false },
         { "OutputConfig", false },
