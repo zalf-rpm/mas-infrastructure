@@ -229,8 +229,6 @@
     [Parameter]
     public Soil.IService SoilServiceCap { get; set; }
 
-    public LockableCap<Soil.IService> SoilServiceCapL { get; set; }
-
     [Parameter]
     public EventCallback<Soil.IService> SoilServiceCapChanged { get; set; }
 
@@ -239,7 +237,7 @@
     private Soil.Profile profile;
 
     [Parameter]
-    public List<Soil.Layer> ProfileLayers { get; set; } = new List<Soil.Layer>();
+    public List<Soil.Layer> ProfileLayers { get; set; } = new();
 
     [Parameter]
     public EventCallback<List<Soil.Layer>> ProfileLayersChanged { get; set; }
