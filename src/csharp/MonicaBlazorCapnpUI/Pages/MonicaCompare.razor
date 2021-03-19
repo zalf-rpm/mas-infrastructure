@@ -1,0 +1,115 @@
+﻿@page "/simplified/monica-compare"
+
+@using MudBlazor
+@using Mas.Infrastructure.BlazorComponents
+
+@implements IDisposable
+
+<MudExpansionPanels MultiExpansion=@true>
+    @for (int k = 0; k < noOfMonicas; k++)
+    {
+        var i = k;
+        <MudExpansionPanel @bind-IsExpanded=@(panelOpened[$"monica{i}"]) Text=@($"MONICA {i+1}")>
+            <MudGrid>
+                <MudItem xs="2">
+                    <MudSelect T=@string
+                               @bind-Value=selectedSection[i]
+                               Label="Event">
+                        @foreach (var s in Monica2Section2Oid2Data[i].Keys)
+                        {
+                            <MudSelectItem Value=@s />
+                        }
+                    </MudSelect>
+                </MudItem>
+            <MudItem xs="2">
+                <MudSelect T=@string
+                           @bind-Value=selectedCurve[i]
+                           Label="Curve">
+                    @foreach (var curve in Monica2Section2Oid2Data[i].GetValueOrDefault(selectedSection[i], new()).Keys)
+                    {
+                        <MudSelectItem Value=@curve />
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12">
+                <Monica ResultChanged=@(p => { Monica2Section2Dates[i] = p.Item1; Monica2Section2Oid2Data[i] = p.Item2; })
+                        MonicaSturdyRef="capnp://login01.cluster.zalf.de:12003"
+                        TimeSeriesSturdyRef="capnp://login01.cluster.zalf.de:11002"
+                        SoilServiceSturdyRef="capnp://login01.cluster.zalf.de:10000"
+                        TryConnectOnInit=@true
+                        HideSturdyRefConnectors=@true>
+                </Monica>
+            </MudItem>
+            </MudGrid>
+        </MudExpansionPanel>
+    }
+    <MudExpansionPanel @bind-IsExpanded=@panelOpened["compare"] Text="Compare MONICA 1 & 2">
+        <MudGrid>
+            <MudItem xs="12">
+
+            </MudItem>
+            <MudItem xs="12">
+                <Highchart Data=@OId2Data Dates=@Dates></Highchart>
+            </MudItem>
+        </MudGrid>
+    </MudExpansionPanel>
+</MudExpansionPanels>
+
+@code {
+    private static readonly int noOfMonicas = 2;
+
+    Dictionary<int, Dictionary<String, Dictionary<String, IEnumerable<float>>>> Monica2Section2Oid2Data = new();
+    Dictionary<int, Dictionary<String, IEnumerable<DateTime>>> Monica2Section2Dates = new();
+
+    Dictionary<String, IEnumerable<float>> OId2Data
+    {
+        get
+        {
+            var d = new Dictionary<String, IEnumerable<float>>();
+            for (int i = 0; i < selectedSection.Count; i++)
+            {
+                var ss = selectedSection[i];
+                var sc = selectedCurve[i];
+                d[$"{i}-{ss}-{sc}"] = Monica2Section2Oid2Data[i].GetValueOrDefault(ss, new()).GetValueOrDefault(sc, new List<float>());
+            }
+
+            return d;
+        }
+    }
+
+    IEnumerable<DateTime> Dates
+    {
+        get
+        {
+            IEnumerable<DateTime> ds = new List<DateTime>();
+            for (int i = 0; i < selectedSection.Count; i++)
+            {
+                var ss = selectedSection[i];
+                ds = Monica2Section2Dates[i].GetValueOrDefault(ss, ds);
+            }
+
+            return ds;
+        }
+    }
+
+    Dictionary<int, string> selectedSection = new();
+    Dictionary<int, string> selectedCurve = new();
+
+    private Dictionary<string, bool> panelOpened = new() { { "compare", true } };
+
+    protected override async Task OnInitializedAsync()
+    {
+        for (int i = 0; i < noOfMonicas; i++)
+        {
+            Monica2Section2Oid2Data[i] = new();
+            Monica2Section2Dates[i] = new();
+            selectedSection[i] = "";
+            selectedCurve[i] = "";
+            panelOpened[$"monica{i}"] = false;
+        }
+    }
+
+    void IDisposable.Dispose()
+    {
+    }
+}

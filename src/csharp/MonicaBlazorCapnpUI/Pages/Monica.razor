@@ -16,64 +16,69 @@
 
 @implements IDisposable
 
-<MudGrid>
-    <MudItem Class=@(HideSturdyRefConnectors ? "d-none" : "") xs="12">
-        <ConnectToSturdyRef Label="Persistent capability to MONICA instance (capnp://host:port/token)"
-                            CapabilityChanged=@CapabilityChanged
-                            TCapnpInterface="Model.IEnvInstance<Common.StructuredText, Common.StructuredText>"
-                            @bind-SturdyRef=MonicaSturdyRef
-                            ConnectOnInit=@monicaConnectOnInit>
+<MudExpansionPanels MultiExpansion=@true>
+    <MudExpansionPanel @bind-IsExpanded=@panelOpened["Connections"] Class=@(HideSturdyRefConnectors ? "d-none" : "") Text="Connections">
+        <MudGrid>
+            <MudItem Class=@(HideSturdyRefConnectors ? "d-none" : "") xs="12">
+                <ConnectToSturdyRef Label="Persistent capability to MONICA instance (capnp://host:port/token)"
+                                    CapabilityChanged=@CapabilityChanged
+                                    TCapnpInterface="Model.IEnvInstance<Common.StructuredText, Common.StructuredText>"
+                                    @bind-SturdyRef=MonicaSturdyRef
+                                    ConnectOnInit=@TryConnectOnInit>
 
-        </ConnectToSturdyRef>
-    </MudItem>
-    <MudItem Class=@(HideSturdyRefConnectors ? "d-none" : "") xs="12">
-        <ConnectToSturdyRef Label="Persistent capability to climate time series (capnp://host:port/token)"
-                            CapabilityChanged=@TimeSeriesCapabilityChanged
-                            TCapnpInterface=@Climate.ITimeSeries
-                            @bind-SturdyRef=TimeSeriesSturdyRef
-                            ConnectOnInit=@timeSeriesConnectOnInit>
-        </ConnectToSturdyRef>
-    </MudItem>
-    <MudItem Class=@(HideSturdyRefConnectors ? "d-none" : "") xs="12">
-        <ConnectToSturdyRef Label="Persistent capability to climate time series (capnp://host:port/token)"
-                            CapabilityChanged=@SoilServiceCapabilityChanged
-                            TCapnpInterface=@Soil.IService
-                            @bind-SturdyRef=SoilServiceSturdyRef
-                            ConnectOnInit=@soilServiceConnectOnInit>
-        </ConnectToSturdyRef>
-    </MudItem>
-    <MudItem xs="12">
-        <MudExpansionPanels>
-            <MudExpansionPanel Text="Base sim/crop/site.json">
-                <MudGrid>
-                    <MudItem xs="4">
-                        <MudTextField T=@string Label="sim.json" Variant=@Variant.Outlined @bind-Text=simJsonTxt Lines=10 />
-                    </MudItem>
-                    <MudItem xs="4">
-                        <MudTextField T=@string Label="crop.json" Variant=@Variant.Outlined @bind-Text=cropJsonTxt Lines=10 />
-                    </MudItem>
-                    <MudItem xs="4">
-                        <MudTextField T=@string Label="site.json" Variant=@Variant.Outlined @bind-Text=siteJsonTxt Lines=10 />
-                    </MudItem>
-                </MudGrid>
-            </MudExpansionPanel>
-        </MudExpansionPanels>
-    </MudItem>
-    <MudItem xs="12">
+                </ConnectToSturdyRef>
+            </MudItem>
+            <MudItem Class=@(HideSturdyRefConnectors ? "d-none" : "") xs="12">
+                <ConnectToSturdyRef Label="Persistent capability to climate time series (capnp://host:port/token)"
+                                    CapabilityChanged=@TimeSeriesCapabilityChanged
+                                    TCapnpInterface=@Climate.ITimeSeries
+                                    @bind-SturdyRef=TimeSeriesSturdyRef
+                                    ConnectOnInit=@TryConnectOnInit>
+                </ConnectToSturdyRef>
+            </MudItem>
+            <MudItem Class=@(HideSturdyRefConnectors ? "d-none" : "") xs="12">
+                <ConnectToSturdyRef Label="Persistent capability to climate time series (capnp://host:port/token)"
+                                    CapabilityChanged=@SoilServiceCapabilityChanged
+                                    TCapnpInterface=@Soil.IService
+                                    @bind-SturdyRef=SoilServiceSturdyRef
+                                    ConnectOnInit=@TryConnectOnInit>
+                </ConnectToSturdyRef>
+            </MudItem>
+        </MudGrid>
+    </MudExpansionPanel>
+    <MudExpansionPanel Text="Base sim/crop/site.json" @bind-IsExpanded=@panelOpened["BaseFiles"]>
+        <MudGrid>
+            <MudItem xs="4">
+                <MudTextField T=@string Label="sim.json" Variant=@Variant.Outlined @bind-Text=simJsonTxt Lines=10 />
+            </MudItem>
+            <MudItem xs="4">
+                <MudTextField T=@string Label="crop.json" Variant=@Variant.Outlined @bind-Text=cropJsonTxt Lines=10 />
+            </MudItem>
+            <MudItem xs="4">
+                <MudTextField T=@string Label="site.json" Variant=@Variant.Outlined @bind-Text=siteJsonTxt Lines=10 />
+            </MudItem>
+        </MudGrid>
+    </MudExpansionPanel>
+    <MudExpansionPanel @bind-IsExpanded=@panelOpened["Location"] Text=@($"Data location ({Math.Round(LatLng.Item1, 2)}N/{Math.Round(LatLng.Item2, 2)}E)")>
         <GeoposPicker @bind-LatLng=LatLng
                       Width="50%" Height="400px"
-                      CenterLatLng=@LatLng>
+                      CenterLatLng=@LatLng
+                      Zoom=6>
         </GeoposPicker>
-    </MudItem>
-    <MudItem xs="12">
-        <SoilService LatLng=@LatLng
+    </MudExpansionPanel>
+    <MudExpansionPanel @bind-IsExpanded=@panelOpened["SoilProfile"] Text="Soil profile">
+        <SoilService @ref=@soilServiceRef
+                     LatLng=@LatLng
                      HideSturdyRefConnector=@true
                      SoilServiceCap=@SoilServiceCap
                      @bind-ProfileLayers=profileLayers
                      HideGeoPosPicker=@true>
         </SoilService>
-    </MudItem>
-    <MudItem xs="12">
+    </MudExpansionPanel>
+    <MudExpansionPanel @bind-IsExpanded=@panelOpened["CropRotation"] Text="Crop rotation">
+
+    </MudExpansionPanel>
+    <MudExpansionPanel @bind-IsExpanded=@panelOpened["OutputConfig"] Text="Output configuration">
         <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
             @code
             {
@@ -139,7 +144,7 @@
                         <MudItem xs="4">
                             <MudField Label="Layers" DisableUnderLine=@true>
                                 <MudGrid>
-                                    <MudItem xs="4">
+                                    <MudItem xs="3">
                                         <MudSelect @bind-Value=editOId.From
                                                    Label="From"
                                                    Error=@(editOId.From > editOId.To)
@@ -150,7 +155,7 @@
                                                 }
                                         </MudSelect>
                                     </MudItem>
-                                    <MudItem xs="4">
+                                    <MudItem xs="3">
                                         <MudSelect @bind-Value=editOId.To
                                                    Label="From"
                                                    Error=@(editOId.To < editOId.From)
@@ -161,7 +166,7 @@
                                                 }
                                         </MudSelect>
                                     </MudItem>
-                                    <MudItem xs="4">
+                                    <MudItem xs="3">
                                         <MudSelect Label="Aggregation"
                                                    @bind-Value=editOId.LayerAgg>
                                             @foreach (Agg? agg in Enum.GetValues(typeof(Agg)))
@@ -170,7 +175,7 @@
                                                 }
                                         </MudSelect>
                                     </MudItem>
-                                    <MudItem xs="4" Class=@(isDailyEvent(eventShortcut) ? "d-none" : "")>
+                                    <MudItem xs="3" Class=@(isDailyEvent(eventShortcut) ? "d-none" : "")>
                                         <MudSelect Label="Aggregation"
                                                    @bind-Value=editOId.TimeAgg>
                                             @foreach (Agg? agg in Enum.GetValues(typeof(Agg)))
@@ -209,38 +214,43 @@
                 </MudGrid>
             </MudTabPanel>
         </MudTabs>
-    </MudItem>
-    <MudItem xs="12" Class="d-flex flex-row py-2 px-1">
-        <div class="try-center">
-            <MudButton Variant=@Variant.Filled Class="run-main" OnClick=@RunMonicaModel>Run MONICA</MudButton>
-        </div>
-        <MudChipSet SelectedChipsChanged=@(cs => selectedResultSection = cs.Select(c => c.Text).FirstOrDefault())
-                    Mandatory=@true
-                    Filter=@true>
-            @foreach (var (s, i) in Section2Oid2Data.Keys.Select((s, i) => (s, i)))
-            {
-                <MudChip @ref=defaultSelectedSectionChips[i] Text=@s Default=@(s == selectedResultSection)></MudChip>
-            }
-        </MudChipSet>
+    </MudExpansionPanel>
+    <MudExpansionPanel @bind-IsExpanded=@panelOpened["Results"] Text="MONICA results">
+        <MudGrid>
+            <MudItem xs="2">
+                <MudButton Variant=@Variant.Filled Class="run-main" OnClick=@RunMonicaModel>Run MONICA</MudButton>
+            </MudItem>
+            <MudItem xs="10">
+                <MudChipSet SelectedChipsChanged=@(cs => selectedResultSection = cs.Select(c => c.Text).FirstOrDefault())
+                            Mandatory=@true
+                            Filter=@true>
+                    @foreach (var (s, i) in Section2Oid2Data.Keys.Select((s, i) => (s, i)))
+                    {
+                        <MudChip @ref=defaultSelectedSectionChips[i] Text=@s Default=@(s == selectedResultSection)></MudChip>
+                    }
+                </MudChipSet>
+            </MudItem>
+            <MudItem xs="12">
+                <Highchart Data=@(Section2Oid2Data.GetValueOrDefault(selectedResultSection, new Dictionary<string, IEnumerable<float>>()))
+                           Dates=@(Section2Dates.GetValueOrDefault(selectedResultSection, new List<DateTime>()))>
+                </Highchart>
+            </MudItem>
+            <!--<MudItem xs="12">
+                <MudCard>
+                    <MudCardContent>
+                        <MudText>@monicaResult</MudText>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
 
-    </MudItem>
-    <MudItem xs="12">
-        <Highchart Data=@(Section2Oid2Data.GetValueOrDefault(selectedResultSection, new Dictionary<string, IEnumerable<float>>()))
-                   Dates=@(Section2Dates.GetValueOrDefault(selectedResultSection, new List<DateTime>()))>
-        </Highchart>
-    </MudItem>
-    <MudItem xs="12">
-        <MudCard>
-            <MudCardContent>
-                <MudText>@monicaResult</MudText>
-            </MudCardContent>
-        </MudCard>
-    </MudItem>
-    <MudItem xs="12">
-        <MudAlert Severity="Severity.Error">@monicaErrorMessage</MudAlert>
-    </MudItem>
-</MudGrid>
+            <MudItem xs="12">
+                <MudAlert Severity="Severity.Error">@monicaErrorMessage</MudAlert>
+            </MudItem>
+                -->
+        </MudGrid>
+    </MudExpansionPanel>
 
+</MudExpansionPanels>
 @code {
     [Parameter]
     public Model.IEnvInstance<Common.StructuredText, Common.StructuredText> MonicaInstanceCap { get; set; }
@@ -254,7 +264,8 @@
     [Parameter]
     public bool HideSturdyRefConnectors { get; set; } = false;
 
-    private bool monicaConnectOnInit = false;
+    [Parameter]
+    public bool TryConnectOnInit { get; set; } = false;
 
     [Parameter]
     public Climate.ITimeSeries TimeSeriesCap { get; set; }
@@ -265,8 +276,6 @@
     [Parameter]
     public EventCallback<Climate.ITimeSeries> TimeSeriesCapChanged { get; set; }
 
-    private bool timeSeriesConnectOnInit = false;
-
     [Parameter]
     public Soil.IService SoilServiceCap { get; set; }
 
@@ -276,17 +285,20 @@
     [Parameter]
     public EventCallback<Climate.ITimeSeries> SoilServiceCapChanged { get; set; }
 
-    private bool soilServiceConnectOnInit = false;
-
     private List<Soil.Layer> profileLayers = new();
 
+    private SoilService soilServiceRef;
+
     [Parameter]
-    public (double, double) LatLng { get; set; } = (51.0, 10.0);
+    public (double, double) LatLng { get; set; } = (52.52, 14.11);
 
     private String monicaResult;
     private String monicaErrorMessage;
 
-    private Dictionary<String, Dictionary<String, IEnumerable<float>>> Section2Oid2Data = new();
+    public Dictionary<String, Dictionary<String, IEnumerable<float>>> Section2Oid2Data = new();
+
+    [Parameter]
+    public EventCallback<(Dictionary<String, IEnumerable<DateTime>>, Dictionary<String, Dictionary<String, IEnumerable<float>>>)> ResultChanged { get; set; }
 
     private MudChip[] defaultSelectedSectionChips = new MudChip[1];
 
@@ -336,6 +348,17 @@
 
     private List<String> eventShortcuts = new() { "daily", "crop", "monthly", "yearly", "run", "Sowing", "AutomaticSowing", "Harvest", "AutomaticHarvest", "Cutting", "emergence", "anthesis", "maturity", "Stage-1", "Stage-2", "Stage-3", "Stage-4", "Stage-5", "Stage-6", "Stage-7" };
 
+    private Dictionary<string, bool> panelOpened = new()
+    {
+        { "Connections", true },
+        { "BaseFiles", false },
+        { "Location", false },
+        { "SoilProfile", false },
+        { "CropRotation", false },
+        { "OutputConfig", false },
+        { "Results", true }
+    };
+
     protected override async Task OnInitializedAsync()
     {
         Console.WriteLine("OnInitialized Monica SR: " + MonicaSturdyRef);
@@ -347,27 +370,29 @@
         if (MonicaSturdyRef.Length > 0)
         {
             HideSturdyRefConnectors = true;
-            monicaConnectOnInit = true;
+            TryConnectOnInit = true;
         }
 
         if (TimeSeriesSturdyRef.Length == 0) TimeSeriesSturdyRef = qps.GetValueOrDefault("timeSeriesSturdyRef", "");
         if (TimeSeriesSturdyRef.Length > 0)
         {
             HideSturdyRefConnectors = true;
-            timeSeriesConnectOnInit = true;
+            TryConnectOnInit = true;
         }
 
         if (SoilServiceSturdyRef.Length == 0) SoilServiceSturdyRef = qps.GetValueOrDefault("soilServiceSturdyRef", "");
         if (SoilServiceSturdyRef.Length > 0)
         {
             HideSturdyRefConnectors = true;
-            soilServiceConnectOnInit = true;
+            TryConnectOnInit = true;
         }
 
         simJsonTxt = File.ReadAllText("Data-Full/sim-min.json");
         cropJsonTxt = File.ReadAllText("Data-Full/crop-min.json");
         siteJsonTxt = File.ReadAllText("Data-Full/site-min.json");
         climateCsv = File.ReadAllText("Data-Full/climate-min.csv");
+
+        //_ = Task.Delay(1000).ContinueWith(_ => soilServiceRef?.GetAllAvailableSoilProperties());
     }
 
     private async Task CapabilityChanged(Model.IEnvInstance<Common.StructuredText, Common.StructuredText> monicaInstance)
@@ -523,6 +548,7 @@
 
             selectedResultSection = Section2Oid2Data.ContainsKey("daily") ? "daily" : Section2Oid2Data.FirstOrDefault().Key;
 
+            if (ResultChanged.HasDelegate) _ = ResultChanged.InvokeAsync((Section2Dates, Section2Oid2Data));
         }
         catch (Capnp.Rpc.RpcException e)
         {

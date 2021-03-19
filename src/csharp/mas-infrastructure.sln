@@ -29,7 +29,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MonicaBlazorCapnpUI", "Moni
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorComponents", "BlazorComponents\BlazorComponents.csproj", "{5A41EBDC-208D-465D-8935-B80F0FCEA719}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{7D350AA9-F199-4851-8AD5-8C171F378107}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test", "Test\Test.csproj", "{7D350AA9-F199-4851-8AD5-8C171F378107}"
 	ProjectSection(ProjectDependencies) = postProject
 		{CEB9D2AC-A284-42A0-A4A5-7C3ADF652780} = {CEB9D2AC-A284-42A0-A4A5-7C3ADF652780}
 	EndProjectSection

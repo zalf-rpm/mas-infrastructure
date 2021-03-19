@@ -67,7 +67,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (ConnectOnInit) await Connect();
+        if (ConnectOnInit && SturdyRef.Length > 0) await Connect();
     }
 
     private async Task Connect()

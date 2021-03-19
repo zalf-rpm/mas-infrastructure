@@ -32,6 +32,7 @@
 
     private GoogleMap map;
     private MapOptions mapOptions;
+    private Marker currentMarker;
 
     protected override void OnInitialized()
     {
@@ -52,6 +53,7 @@
         //Debug.WriteLine("Start OnAfterRenderAsync");
 
         await map.InteropObject.AddListener<MouseEvent>("click", async (e) => await OnClick(e));
+        await SetMarker(CenterLatLng.Item1, CenterLatLng.Item2);
 
         //await map1.InteropObject.AddListener("bounds_changed", OnBoundsChanged);
 
@@ -92,9 +94,27 @@
 
     }
 
+    private async Task SetMarker(double lat, double lng)
+    {
+        currentMarker?.SetMap(null);
+        currentMarker = await Marker.CreateAsync(map.JsRuntime, new MarkerOptions()
+        {
+            Position = new LatLngLiteral(lng, lat),
+            Map = map.InteropObject,
+            //Label = $"Test",
+            //Animation = Animation.Bounce
+            //Icon = new Icon()
+            //{
+            //    Url = "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png"
+            //}
+            //Icon = "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png"
+        });
+    }
+
     private async Task OnClick(MouseEvent e)
     {
         LatLng = (e.LatLng.Lat, e.LatLng.Lng);
         if (LatLngChanged.HasDelegate) _ = LatLngChanged.InvokeAsync(LatLng);
+        await SetMarker(LatLng.Item1, LatLng.Item2);
     }
 }
