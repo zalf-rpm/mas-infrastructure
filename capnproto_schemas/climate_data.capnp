@@ -217,9 +217,11 @@ struct Climate {
 
     data @3 () -> (data :List(List(Float32)));
     # the actual climate data a list (the days) of a list (the actual days data) of data
+    # e.g. [[tavg-day1, precip-day1, globrad-day-1, ...], [tavg-day2, precip-day2, globrad-day-2, ...], ...]
 
     dataT @4 () -> (data :List(List(Float32)));
     # the transposed version of the data() method = a list (the elements) of a list (the actual elements data) of data
+    # e.g. [[tavg-day1, tavg-day-2, ...], [precip-day1, precip-day2, ...], [globrad-day-1, globrad-day-2, ...]]
 
     subrange @5 (from :Common.Date, to :Common.Date) -> (timeSeries :TimeSeries);
     # create a subrange of the current time series
@@ -245,6 +247,27 @@ struct Climate {
 
     #supportedMetadata @2 () -> (cap :Metadata.Supported);
     # return a capability to an interface describing the service's supported metadata
+  }
+
+  interface CSVTimeSeriesFactory extends(Common.Identifiable) {
+    # create TimeSeries capabilities from data
+
+    struct CSVConfig {
+      sep @0 :Text = ",";
+      # which separator is being used in the csv data
+
+      headerMap @1 :List(Common.Pair(Text, Text));
+      # list of mappings from header names in csv data to supported ones, e.g. windspeed -> wind, avg_temp -> tavg, ...
+
+      skipLinesToHeader @2 :Int16 = 0;
+      # how many lines to skip until header line (counted from top of file)
+
+      skipLinesFromHeaderToData @3 :Int16 = 1;
+      # how many lines to skip until data start (counted from header line to start of data)
+    }
+
+    create @0 (fromCSV :Text, config :CSVConfig) -> (timeSeries :TimeSeries, error :Text);
+    # create a time series from the given structured text
   }
 
 }

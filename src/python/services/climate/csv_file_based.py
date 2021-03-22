@@ -20,6 +20,7 @@ import csv
 import json
 from datetime import date, timedelta
 import gzip
+import io
 import numpy as np
 import os
 import pandas as pd
@@ -46,14 +47,14 @@ climate_data_capnp = capnp.load("capnproto_schemas/climate_data.capnp", imports=
 
 class TimeSeries(climate_data_capnp.Climate.TimeSeries.Server): 
 
-    def __init__(self, metadata=None, location=None, path_to_csv=None, dataframe=None, header_map=None, supported_headers=None,
-        pandas_csv_config={}, transform_map=None):
-        "a supplied dataframe asumes the correct index is already set (when reading from csv then it will always be 1980 to 2010)"
+    def __init__(self, metadata=None, location=None, path_to_csv=None, dataframe=None, csv_string=None, 
+    header_map=None, supported_headers=None, pandas_csv_config={}, transform_map=None):
 
         if path_to_csv is None and dataframe is None:
             raise Exception("Missing argument, either path_to_csv or dataframe have to be supplied!")
 
         self._path_to_csv = path_to_csv
+        self._csv_string = csv_string
         self._df = dataframe
         self._meta = metadata
         self._location = location
@@ -72,6 +73,13 @@ class TimeSeries(climate_data_capnp.Climate.TimeSeries.Server):
 
 
     @classmethod
+    def from_csv_string(cls, csv_string, metadata=None, location=None, header_map=None, supported_headers=None, pandas_csv_config=None,
+        transform_map=None):
+        return TimeSeries(metadata=metadata, location=location, csv_string=csv_string, header_map=header_map, supported_headers=supported_headers,
+            pandas_csv_config=pandas_csv_config, transform_map=transform_map)
+
+
+    @classmethod
     def from_dataframe(cls, dataframe, metadata=None, location=None):
         return TimeSeries(metadata=metadata, location=location, dataframe=dataframe)
 
@@ -79,20 +87,25 @@ class TimeSeries(climate_data_capnp.Climate.TimeSeries.Server):
     @property
     def dataframe(self):
         "init underlying dataframe lazily if initialized with path to csv file"
-        if self._df is None and self._path_to_csv:
+        if self._df is None and (self._path_to_csv or self._csv_string):
             # load csv file
-            if self._path_to_csv[-2:] == "gz":
+            if self._path_to_csv and self._path_to_csv[-2:] == "gz":
                 with gzip.open(self._path_to_csv) as _:
                     self._df = pd.read_csv(_, 
                         skiprows=self._pandas_csv_config["skip_rows"], 
                         index_col=self._pandas_csv_config["index_col"],
                         sep=self._pandas_csv_config["sep"])
-            else:
+            elif self._path_to_csv:
                 self._df = pd.read_csv(self._path_to_csv, 
                     skiprows=self._pandas_csv_config["skip_rows"], 
                     index_col=self._pandas_csv_config["index_col"],
                     sep=self._pandas_csv_config["sep"])
-            
+            else:
+                self._df = pd.read_csv(io.StringIO(self._csv_string), 
+                    skiprows=self._pandas_csv_config["skip_rows"], 
+                    index_col=self._pandas_csv_config["index_col"],
+                    sep=self._pandas_csv_config["sep"])
+
             if self._header_map:
                 self._df.rename(columns=self._header_map, inplace=True)
 
