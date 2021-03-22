@@ -30,6 +30,9 @@ namespace MonicaBlazorCapnpUI
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddServerSideBlazor().AddHubOptions(
+                    options => { options.MaximumReceiveMessageSize = 2*1024*1024; });
+
             services.AddRazorPages();
             services.AddServerSideBlazor();
 

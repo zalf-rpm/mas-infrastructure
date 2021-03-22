@@ -38,6 +38,14 @@
             </MudItem>
             <MudItem Class=@(HideSturdyRefConnectors ? "d-none" : "") xs="12">
                 <ConnectToSturdyRef Label="Persistent capability to climate time series (capnp://host:port/token)"
+                                    CapabilityChanged=@TimeSeriesFactoryCapabilityChanged
+                                    TCapnpInterface=@Climate.ICSVTimeSeriesFactory
+                                    @bind-SturdyRef=TimeSeriesFactorySturdyRef
+                                    ConnectOnInit=@TryConnectOnInit>
+                </ConnectToSturdyRef>
+            </MudItem>
+            <MudItem Class=@(HideSturdyRefConnectors ? "d-none" : "") xs="12">
+                <ConnectToSturdyRef Label="Persistent capability to climate time series (capnp://host:port/token)"
                                     CapabilityChanged=@SoilServiceCapabilityChanged
                                     TCapnpInterface=@Soil.IService
                                     @bind-SturdyRef=SoilServiceSturdyRef
@@ -58,7 +66,12 @@
                 <MudTextField T=@string Label="site.json" Variant=@Variant.Outlined @bind-Text=siteJsonTxt Lines=10 />
             </MudItem>
             <MudItem xs="6">
-                <MudTextField T=@string Label="climate.csv" Variant=@Variant.Outlined @bind-Text=climateCsv Lines=10 />
+                <MudTextField T=@string
+                              Label="climate.csv"
+                              Variant=@Variant.Outlined
+                              Text=@climateCsv
+                              TextChanged=@(async (t) => { climateCsv = t; await ClimateCSVInputChanged(t); })
+                              Lines=10 />
             </MudItem>
         </MudGrid>
     </MudExpansionPanel>
@@ -70,7 +83,7 @@
         </GeoposPicker>
     </MudExpansionPanel>
     <MudExpansionPanel @bind-IsExpanded=@panelOpened["Climate"] Text="Climate data">
-    
+
     </MudExpansionPanel>
     <MudExpansionPanel @bind-IsExpanded=@panelOpened["SoilProfile"] Text="Soil profile">
         <SoilService @ref=@soilServiceRef
@@ -283,6 +296,15 @@
     public EventCallback<Climate.ITimeSeries> TimeSeriesCapChanged { get; set; }
 
     [Parameter]
+    public Climate.ICSVTimeSeriesFactory TimeSeriesFactoryCap { get; set; }
+
+    [Parameter]
+    public String TimeSeriesFactorySturdyRef { get; set; } = "capnp://10.10.24.86:11005";
+
+    [Parameter]
+    public EventCallback<Climate.ICSVTimeSeriesFactory> TimeSeriesFactoryCapChanged { get; set; }
+
+    [Parameter]
     public Soil.IService SoilServiceCap { get; set; }
 
     [Parameter]
@@ -418,12 +440,37 @@
         TimeSeriesCap = timeSeries;
     }
 
+    private async Task TimeSeriesFactoryCapabilityChanged(Climate.ICSVTimeSeriesFactory factory)
+    {
+        if (factory == null) return;
+
+        if (TimeSeriesFactoryCap != factory) TimeSeriesFactoryCap?.Dispose();
+        TimeSeriesFactoryCap = factory;
+    }
+
     private async Task SoilServiceCapabilityChanged(Soil.IService service)
     {
         if (service == null) return;
 
         if (SoilServiceCap != service) SoilServiceCap?.Dispose();
         SoilServiceCap = service;
+    }
+
+    private async Task ClimateCSVInputChanged(string csv)
+    {
+        if (csv.Length == 0 || TimeSeriesFactoryCap == null) return;
+
+        var (tsCap, error) = await TimeSeriesFactoryCap.Create(csv, new Climate.CSVTimeSeriesFactory.CSVConfig());
+        if (tsCap == null && error.Length != 0)
+        {
+            monicaErrorMessage = error;
+            return;
+        }
+
+        var hs = await tsCap.Header();
+        var r = await tsCap.Range();
+        if (TimeSeriesCap != tsCap) TimeSeriesCap?.Dispose();
+        TimeSeriesCap = tsCap;
     }
 
     private async Task MarkDefaultChips(MudChip[] chips, Action<MudChip[]> action = null)
@@ -572,5 +619,9 @@
         MonicaInstanceCap?.Dispose();
         Console.WriteLine("Disposing TimeSeries SR:" + TimeSeriesSturdyRef + " cap: " + TimeSeriesCap);
         TimeSeriesCap?.Dispose();
+        Console.WriteLine("Disposing TimeSeriesFactory SR:" + TimeSeriesFactorySturdyRef + " cap: " + TimeSeriesFactoryCap);
+        TimeSeriesFactoryCap?.Dispose();
+        Console.WriteLine("Disposing SoilService SR:" + SoilServiceSturdyRef + " cap: " + SoilServiceCap);
+        SoilServiceCap?.Dispose();
     }
 }
