@@ -1,0 +1,96 @@
+{
+	"AbovegroundOrgan": [
+		false,
+		true,
+		true,
+		true
+	],
+	"AssimilateReallocation": 0.30000001192092896,
+	"BaseTemperature": [
+		8,
+		8,
+		6,
+		6,
+		6,
+		-15,
+		-15
+	],
+	"CarboxylationPathway": 1,
+	"CriticalOxygenContent": [
+		0.08,
+		0.08,
+		0.08,
+		0.08,
+		0.08,
+		0.08,
+		0.08
+	],
+	"CuttingDelayDays": 0,
+	"DefaultRadiationUseEfficiency": 0.5,
+	"DevelopmentAccelerationByNitrogenStress": 0,
+	"DroughtImpactOnFertilityFactor": 0,
+	"FieldConditionModifier": 1,
+	"InitialKcFactor": 0.4000000059604645,
+	"InitialOrganBiomass": [
+		25,
+		25,
+		0,
+		0
+	],
+	"InitialRootingDepth": 0.10000000149011612,
+	"LimitingTemperatureHeatStress": 40,
+	"LuxuryNCoeff": 1,
+	"MaxCropDiameter": 0.006000000052154064,
+	"MaxNUptakeParam": 3.1449999809265137,
+	"MinimumNConcentration": 0.004999999888241291,
+	"MinimumTemperatureForAssimilation": 5,
+    "OptimumTemperatureForAssimilation": 25,
+    "MaximumTemperatureForAssimilation": 36,
+	"MinimumTemperatureRootGrowth": 6,
+	"NConcentrationAbovegroundBiomass": 0.05999999865889549,
+	"NConcentrationB0": 0.30000001192092896,
+	"NConcentrationPN": 5,
+	"NConcentrationRoot": 0.019999999552965164,
+	"OrganGrowthRespiration": [
+		0.01,
+		0.03,
+		0.015,
+		0.01
+	],
+	"OrganMaintenanceRespiration": [
+		0.01,
+		0.03,
+		0.015,
+		0.01
+	],
+	"PartBiologicalNFixation": 0.550000011920929,
+	"PlantDensity": 30,
+	"RootDistributionParam": 0.00278700003400445,
+	"RootFormFactor": 3,
+	"RootGrowthLag": -30,
+	"RootPenetrationRate": 0.0012000000569969416,
+	"SamplingDepth": 0.8999999761581421,
+	"SpeciesName": "soybean",
+	"SpecificRootLength": 300,
+	"StageAfterCut": 0,
+	"StageAtMaxDiameter": 3,
+	"StageAtMaxHeight": 4,
+	"StageMaxRootNConcentration": [
+		0.0155,
+		0.012,
+		0.01,
+		0.01,
+		0.01,
+		0.01,
+		0.01
+	],
+	"StorageOrgan": [
+		false,
+		false,
+		false,
+		true
+	],
+	"TargetN30": 0,
+	"TargetNSamplingDepth": 50,
+	"type": "SpeciesParameters"
+}

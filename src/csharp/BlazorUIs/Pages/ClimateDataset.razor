@@ -1,0 +1,94 @@
+﻿@page "/climate/dataset"
+
+@using MudBlazor
+
+@using Mas.Rpc
+@using Mas.Infrastructure.BlazorComponents
+
+@implements IDisposable
+
+<MudGrid>
+    <MudItem Class=@(HideSturdyRefConnector ? "d-none" : "") xs="12">
+        <ConnectToSturdyRef Label="Persistent capability to climate dataset (capnp://host:port/token)"
+                            CapabilityChanged=@CapabilityChanged
+                            TCapnpInterface=Climate.IDataset>
+        </ConnectToSturdyRef>
+    </MudItem>
+    <MudItem xs="12">
+        <MudCard>
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo=Typo.h5>Pick Geolocation - picked: @latLng</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <GeoposPicker @bind-LatLng=latLng
+                              Width="100%" Height="400px"
+                              CenterLatLng="@((51.0, 10.0))"></GeoposPicker>
+                <!--<MudButton OnClick="@(() => geoPosPickerVisible = true)" Variant="Variant.Filled" Color="Color.Primary">Pick geolocation</MudButton>-->
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+    <MudItem xs="12">
+        <ClimateTimeSeries TimeSeriesCap=@timeSeries HideSturdyRefConnector=@true></ClimateTimeSeries>
+    </MudItem>
+</MudGrid>
+
+@code {
+    [Parameter]
+    public Climate.IDataset DatasetCap { get; set; }
+
+    private bool datasetCapUpdated = false;
+    private bool componentIsDatasetCapOwner = false;
+
+    [Parameter]
+    public EventCallback<Climate.IDataset> DatasetCapChanged { get; set; }
+
+    [Parameter]
+    public bool HideSturdyRefConnector { get; set; } = false;
+
+    private (double, double) latLng;
+
+    private Climate.ITimeSeries timeSeries;
+
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        datasetCapUpdated = parameters.GetValueOrDefault<Climate.IDataset>("DatasetCap", null) == DatasetCap;
+        await base.SetParametersAsync(parameters);
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (datasetCapUpdated) await SetClosestTimeSeries();
+    }
+
+    private async Task CapabilityChanged(Climate.IDataset dataset)
+    {
+        if (dataset == null) return;
+
+        if (DatasetCap != dataset && componentIsDatasetCapOwner) DatasetCap?.Dispose();
+        DatasetCap = dataset;
+        componentIsDatasetCapOwner = true;
+
+        await SetClosestTimeSeries();
+    }
+
+    private async Task SetClosestTimeSeries()
+    {
+        if (DatasetCap == null) return;
+
+        var ts = await DatasetCap.ClosestTimeSeriesAt(new Geo.Coord
+        {
+            Latlon = new Geo.LatLonCoord { Lat = latLng.Item1, Lon = latLng.Item2 }
+        });
+
+        if (timeSeries != ts) timeSeries?.Dispose();
+        timeSeries = ts;
+    }
+
+    void IDisposable.Dispose()
+    {
+        if (componentIsDatasetCapOwner) DatasetCap?.Dispose();
+        timeSeries?.Dispose();
+    }
+}

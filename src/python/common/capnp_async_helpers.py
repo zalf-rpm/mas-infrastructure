@@ -18,6 +18,7 @@ import asyncio
 import capnp
 import logging
 import socket
+import sys
 import time
 
 persistence_capnp = capnp.load("capnproto_schemas/persistence.capnp", imports=["capnproto_schemas"]) 
@@ -25,7 +26,7 @@ persistence_capnp = capnp.load("capnproto_schemas/persistence.capnp", imports=["
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-ch = logging.StreamHandler()
+ch = logging.StreamHandler(sys.stdout)
 ch.setLevel(logging.DEBUG)
 
 #logger.addHandler(ch)
@@ -43,42 +44,52 @@ class Server:
     async def socket_reader(self):
         while self.retry:
             try:
-                # Must be a wait_for so we don't block on read()
-                data = await asyncio.wait_for(
-                    self.reader.read(4096),
-                    timeout=5.0 #0.1
-                )
-                await self.server.write(data)
-            except asyncio.TimeoutError:
-                #logger.debug("myreader timeout.")
-                continue
+                task = asyncio.create_task(self.reader.read(4096))
+                left = [task]
+                while self.retry:
+                    # Must be a wait_for so we don't block on read()
+                    done, left = await asyncio.wait(left, timeout=0.1)
+                    if task in done:
+                        data = task.result()
+                    else:
+                        #print("<r", flush=True, end="")
+                        continue
+
+                    #print("<" + str(len(data)), flush=True, end="<")
+                    await self.server.write(data)
+                    break
             except Exception as err:
                 logger.debug("Unknown socket_reader err: %s", err)
                 self.retry = False
                 return False
-            #await self.server.write(data)
-        logger.debug("myreader done.")
+        logger.debug("socket_reader done.")
         return True
 
 
     async def socket_writer(self):
         while self.retry or self.writer.at_eof():
             try:
-                # Must be a wait_for so we don't block on read()
-                data = await asyncio.wait_for(
-                    self.server.read(4096),
-                    timeout=5.0 #0.1
-                )
-                self.writer.write(data.tobytes())
-                await self.writer.drain()
-            except asyncio.TimeoutError:
-                #logger.debug("mywriter timeout.")
-                continue
+                task = asyncio.create_task(self.server.read(4096))
+                left = [task]
+                while self.retry:
+                    # Must be a wait_for so we don't block on read()
+                    done, left = await asyncio.wait(left, timeout=0.1)
+                    
+                    if task in done:
+                        data = task.result()
+                    else:
+                        #print("w>", flush=True, end="")
+                        continue
+
+                    #print(">" + str(len(data)), flush=True, end=">")
+                    self.writer.write(data.tobytes())
+                    await self.writer.drain()
+                    break
             except Exception as err:
                 logger.debug("Unknown socket_writer err: %s", err)
                 self.retry = False
                 return False
-        logger.debug("mywriter done.")
+        logger.debug("socket_writer done.")
         return True
 
 

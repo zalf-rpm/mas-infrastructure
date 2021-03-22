@@ -1,0 +1,33 @@
+﻿@page "/expert/consumer"
+@using MonicaBlazorZmqUI.Services
+@using NetMQ
+@using NetMQ.Sockets
+@using Core.Share
+
+@inherits Shared.BasePage
+
+
+<h3>Consumer</h3>
+<button @onclick="Consumerf">Recive via ZMQ and show the content</button>
+<p class="fixwidth">@answer</p>
+
+@code {
+    private string answer { get; set; } = "the answer";
+
+    private void Consumerf()
+    {
+        using (var consumer = new PullSocket())
+        //using (var producer = new RequestSocket())
+        {
+            //consumer.Connect("tcp://localhost:7777");
+            consumer.Connect(UserSetting.ServerPullAddress + ":" + UserSetting.ServerPullPort);
+            answer = consumer.ReceiveFrameString();
+
+            System.Threading.Thread.Sleep(2000);
+            consumer.Disconnect(UserSetting.ServerPullAddress + ":" + UserSetting.ServerPullPort);
+
+
+        }
+    }
+
+}

@@ -1,0 +1,69 @@
+﻿@page "/expert/Account/GithubLogin"
+@page "/expert/Account/GithubLogin/{loginFailed}"
+@using Application.Share
+@using MonicaBlazorZmqUI.Services.Github
+@using Core.Share
+
+@inherits Shared.BasePage
+
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject IGithubService GithubService
+@inject NavigationManager NavigationManager
+
+<h1>Login to Github</h1>
+<br />
+
+@if(isFailed)
+{
+    <p style="color:red">Login failed !</p>
+}
+
+@*<button @onclick="RedirectToGithub">Login</button>*@
+<button class="btn btn-primary" @onclick="RedirectToGithub">Login</button>
+
+@*<div class="card mb-3" style="width: 50%; display:table-cell;">
+        <RadzenCard>
+                <RadzenLogin AllowRegister="false" AllowResetPassword="false" Login="@((args) => Login(args, "Github Authentication"))" Style="margin-bottom: 20px;" />
+            </RadzenCard>
+    </div>*@
+<hr />
+<div class="m-4">
+    <div class="alert alert-warning" role="alert">
+        For optimal use, please read the <a href="/help">Help</a> page first.
+    </div>
+</div>
+
+
+@code{
+
+    Boolean result;
+    Boolean firstRun = true;
+    bool isFailed = false;
+
+    [Parameter]
+    public string LoginFailed { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (!string.IsNullOrWhiteSpace(LoginFailed))
+            isFailed = bool.Parse(LoginFailed);
+    }
+
+    void RedirectToGithub()
+    {
+        firstRun = false;
+        StateHasChanged();
+
+        var githubUri = GithubService.OAuthLogin();
+        NavigationManager.NavigateTo(githubUri.AbsoluteUri);
+    }
+
+    async Task Logout()
+    {
+        UserSetting.GithubLoggedIn = false;
+        // to renew the LocalStorage after logout
+        UserSetting = new UserSetting();
+        await SaveUserSettingsInLocalStorageAsync();
+        StateHasChanged();
+    }
+}

@@ -1,0 +1,8 @@
+{  
+  "Carbamid":0,
+  "NH4":0.6600000262260437,
+  "NO3":0.34000000357627869,
+  "id":"NPK",
+  "name":"NPK-Dünger",
+  "type":"MineralFertiliserParameters"
+}

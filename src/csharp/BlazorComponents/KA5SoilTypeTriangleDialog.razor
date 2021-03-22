@@ -1,0 +1,47 @@
+﻿@namespace Mas.Infrastructure.BlazorComponents
+
+@using MudBlazor
+
+<MudDialog>
+    <DialogContent>
+        <KA5SoilTypeTriangle @ref=triangle SoilTextureNameSelected=@SoilTextureNameSelected></KA5SoilTypeTriangle>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick=@Cancel>Cancel</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    private KA5SoilTypeTriangle triangle { get; set; }
+
+    public struct Result
+    {
+        public string SoilTextureName { get; set; }
+        public (double, double) SiltPercentRange { get; set; }
+        public double SiltPercentRangeAvg { get; set; }
+        public (double, double) ClayPercentRange { get; set; }
+        public double ClayPercentRangeAvg { get; set; }
+        public (double, double) SandPercentRange { get; set; }
+        public double SandPercentRangeAvg { get; set; }
+    }
+
+    private async Task SoilTextureNameSelected(bool selected)
+    {
+        if (triangle == null) return;
+
+        MudDialog.Close(DialogResult.Ok(new Result()
+        {
+            SoilTextureName = triangle.SoilTextureName,
+            SiltPercentRange = triangle.SiltPercentageRange,
+            SiltPercentRangeAvg = triangle.SiltPercentageRangeAvg,
+            ClayPercentRange = triangle.ClayPercentageRange,
+            ClayPercentRangeAvg = triangle.ClayPercentageRangeAvg,
+            SandPercentRange = triangle.SandPercentageRange,
+            SandPercentRangeAvg = triangle.SandPercentageRangeAvg
+        }));
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

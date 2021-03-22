@@ -1,0 +1,8 @@
+{  
+  "Carbamid":0.5,
+  "NH4":0.25,
+  "NO3":0.25,
+  "id":"UAN",
+  "name":"Urea Ammonium Nitrate",
+  "type":"MineralFertiliserParameters"
+}

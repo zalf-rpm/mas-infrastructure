@@ -1,0 +1,16 @@
+{
+    "BaseTemperature": 9.5,
+    "DensityAir": 1.25,
+    "DensityHumus": 1300,
+    "DensityWater": 1000,
+    "InitialSurfaceTemperature": 10,
+    "NTau": 0.65,
+    "QuartzRawDensity": 2650,
+    "SoilAlbedo": 0.7,
+    "SoilMoisture": 0.25,
+    "SpecificHeatCapacityAir": 1005,
+    "SpecificHeatCapacityHumus": 1920,
+    "SpecificHeatCapacityQuartz": 750,
+    "SpecificHeatCapacityWater": 4192,
+    "type": "UserSoilTemperatureParameters"
+}

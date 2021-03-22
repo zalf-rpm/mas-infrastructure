@@ -1,0 +1,52 @@
+.shape-group:hover .shape {
+    fill: #464646;
+}
+
+.shape-group:hover .shape-text {
+    fill: #ffffff;
+}
+
+.mud-drawer-header.logo-container img{
+    width: 210px;
+}
+
+.mud-drawer-header.logo-container {
+    padding: 10px;
+    box-shadow: 0 2px 2px -2px gray;
+}
+
+.mud-appbar {
+    background: linear-gradient(90deg, rgba(77,169,80,1) 0%, rgba(60,150,62,1) 38%, rgba(138,233,140,1) 92%);
+}
+
+.mud-card.minimize-card {
+    border: none;
+}
+
+.mud-card.minimize-card .mud-card-content{
+    padding: 5px 5px 0;
+}
+
+.mud-card.minimize-card .mud-card-actions{
+    float: right;
+}
+
+button.run-main {
+    background-color: #2cd34b;
+    color: white;
+    width: 200px;
+    height: 60px;
+}
+
+button.run-main:hover {
+    background-color: #34d173;
+}
+
+.try-center {
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    outline: 0;
+    position: relative;
+    justify-content: center;
+}

@@ -1,0 +1,99 @@
+﻿@using Core.Share
+
+@using Radzen 
+
+@inject Radzen.NotificationService notificationService
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+@code{
+
+    protected EventHandler UserSettingsUpdated;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var localUserSettings = await localStorage.GetItemAsync<UserSetting>(StaticFields.UserSettingsLocalStorageKey);
+
+            if (localUserSettings != null)
+            {
+                UserSetting = localUserSettings;
+            }
+            StateHasChanged();
+            UserSettingsUpdated?.Invoke(this, new EventArgs());
+        }
+    }
+
+    #region User Settings
+
+    public UserSetting UserSetting { get; set; } = new UserSetting();
+
+    public async Task SaveUserSettingsInLocalStorageAsync()
+    {
+        await localStorage.SetItemAsync<UserSetting>(StaticFields.UserSettingsLocalStorageKey, UserSetting);
+    }
+
+    #endregion
+
+    #region Notifications
+
+    public async Task ShowSuccessMessageAsync(string title, string message = "")
+    {
+        var notify = new NotificationMessage()
+        {
+            Severity = NotificationSeverity.Success,
+            Summary = title,
+            Detail = message,
+            Duration = 4000
+        };
+
+        await ShowNotification(notify);
+    }
+
+    public async Task ShowErrorMessageAsync(string title, string message = "")
+    {
+        var notify = new NotificationMessage()
+        {
+            Severity = NotificationSeverity.Error,
+            Summary = title,
+            Detail = message,
+            Duration = 4000
+        };
+
+        await ShowNotification(notify);
+    }
+
+    public async Task ShowInfoMessageAsync(string title, string message = "")
+    {
+        var notify = new NotificationMessage()
+        {
+            Severity = NotificationSeverity.Info,
+            Summary = title,
+            Detail = message,
+            Duration = 4000
+        };
+
+        await ShowNotification(notify);
+    }
+
+    public async Task ShowWarningMessageAsync(string title, string message = "")
+    {
+        var notify = new NotificationMessage()
+        {
+            Severity = NotificationSeverity.Warning,
+            Summary = title,
+            Detail = message,
+            Duration = 4000
+        };
+
+        await ShowNotification(notify);
+    }
+
+    async Task ShowNotification(NotificationMessage message)
+    {
+        notificationService.Notify(message);
+
+        await InvokeAsync(() => { StateHasChanged(); });
+    }
+    #endregion
+}

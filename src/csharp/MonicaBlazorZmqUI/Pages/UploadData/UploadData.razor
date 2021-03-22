@@ -1,0 +1,490 @@
+﻿@page "/uploadData"
+@* Usings *@
+@using Microsoft.AspNetCore.Hosting
+@using System.Threading
+@using MonicaBlazorZmqUI.Services
+@using BlazorInputFile
+@using Core.Share
+@using Core.Share.Enums
+
+
+@inherits Shared.BasePage
+@* Injects *@
+@inject IWebHostEnvironment HostEnvironment
+@inject IFileUpload FileUpload
+@inject IMonicaZmqService MonicaZmqService
+@inject MonicaBlazorZmqUI.Services.Github.IGithubService GithubService
+@inject ZmqProducer ZmqProducer
+@inject ZmqConsumer ZmqConsumer
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+@inject DialogService dialogService
+
+<h1>Upload data</h1>
+<h3>Select your files (sim, site, crop, climate to use your own parameters, or just leave it empty to use the default parameters from our server)</h3>
+<h4>Old Monica users! The "include-file-base-path" will be ignored in the above files. Please use your github path, in this page</h4>
+
+<div class="row">
+    <div class="col-sm-12">
+        <!--<input type="text" @bind="githubPath" />
+        <button @onclick="GetRepoContnet">GetRepoContent</button> -->
+
+        <div class="drag-drop-zone">
+            <BlazorInputFile.InputFile multiple OnChange="ViewFile" />
+            @status
+        </div>
+
+        @if (_files != null)
+        {
+            foreach (var file in _files)
+            {
+                <div class="file-row">
+                    <h2>@file.File.Name</h2>
+                    <div> <b>size</b> @file.File.Size</div>
+                    <button class="btn btn-danger btn-sm" type="button" disabled="@file.IsUploaded" @onclick="(() => RemoveFile(file))">Remove</button>
+                </div>
+            }
+        }
+    </div>
+</div>
+<hr />
+@if (!UserSetting.GithubLoggedIn)
+{
+    <div class="col-sm-12">
+        <div class="alert alert-info" role="alert">
+            To be able to spicify a paramateres base path on your Github, please login to your Github account.
+        </div>
+    </div>
+}
+
+@if (showModal)
+{
+    <div class="modal fade show" id="myModal" style="display:block" aria-modal="true" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">You are sending some Defult data</h4>
+                    <button type="button" class="close" @onclick="@ModalCancel">&times;</button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <div>Default values are just for testing purposes</div>
+                    <p>Are You Sure?</p>
+                    @if (!sim)
+                    {
+                        <div>SIM: <span style="color:red;">Default Value</span></div>
+                    }
+                    @if (!crop)
+                    {
+                        <div>CROP: <span style="color:red;">Default Value</span></div>
+                    }
+                    @if (!site)
+                    {
+                        <div>SITE: <span style="color:red;">Default Value</span></div>
+                    }
+                    @if (!climate)
+                    {
+                        <div>CLIMATE: <span style="color:red;">Default Value</span></div>
+                    }
+                </div>
+
+
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn" @onclick="@ModalCancel">Cancel</button>
+                    <button type="button" class="btn btn-danger" @onclick=@HandleFiles>Send</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+
+
+<div class="row">
+    <div class="col-sm-12">
+        Read Monica Parameters From
+        @*Change="@((args) => Change(args))"*@
+        <RadzenRadioButtonList @bind-Value="this._basePathType" TValue="MonicaParametersBasePathTypeEnum" Orientation="Orientation.Vertical">
+            <Items>
+                <RadzenRadioButtonListItem Text="Default server / Default values" Value="MonicaParametersBasePathTypeEnum.LocalServer" />
+                <RadzenRadioButtonListItem Visible="UserSetting.GithubLoggedIn" Text="Your github (Needs your parameters base full path)" Value="MonicaParametersBasePathTypeEnum.Github">
+                </RadzenRadioButtonListItem>
+            </Items>
+        </RadzenRadioButtonList>
+    </div>
+</div>
+@if (_basePathType == MonicaParametersBasePathTypeEnum.Github)
+{
+    <div class="form-group row">
+        <label for="inputPassword" class="col-sm-2 col-form-label">github Path</label>
+        <div class="col-sm-10">
+            <input class="form-control" placeholder="Monica Parameters Path On github" @bind="UserSetting.MonicaParametersPathOnGithub" @onfocusout="SaveUserSettingsInLocalStorageAsync" />
+        </div>
+    </div>
+}
+
+<div class="row">
+    <div class="col-sm-12">
+        Result Options
+        <RadzenRadioButtonList @bind-Value="this._exportResultType" TValue="MonicaExportResultType" Orientation="Orientation.Vertical">
+            <Items>
+                <RadzenRadioButtonListItem Text="Show me the download/share link" Value="MonicaExportResultType.DowloadLink" />
+                <RadzenRadioButtonListItem Visible="UserSetting.GithubLoggedIn" Text="Export it into my github (Needs your a full path on your github)" Value="MonicaExportResultType.Github">
+                </RadzenRadioButtonListItem>
+            </Items>
+        </RadzenRadioButtonList>
+    </div>
+</div>
+@if (_exportResultType == MonicaExportResultType.Github)
+{
+    <div class="form-group row">
+        <label for="inputPassword" class="col-sm-2 col-form-label">github Path</label>
+        <div class="col-sm-10">
+            <input class="form-control" placeholder="Export Path On github" @bind="UserSetting.MonicaResultsPathOnGithub" @onfocusout="SaveUserSettingsInLocalStorageAsync" />
+        </div>
+    </div>
+}
+
+@if (isDataSending)
+{
+    <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
+}
+else
+{
+    if (sim && crop && site && climate)
+    {
+        <button class="btn btn-primary" @onclick="@HandleFiles">Send to server</button>
+    }
+    else
+    {
+        <button class="btn btn-primary" @onclick="@ModalShow">Send to server</button>
+    }
+
+}
+
+<div class="row" style="margin-bottom: 100px">
+    @if (isExportDone)
+    {
+        if (_exportResultType == MonicaExportResultType.DowloadLink)
+        {
+            <div class="input-group m-2">
+                <input type="text" class="form-control disabled" @bind="jsonFullDownloadPath" aria-label="Recipient's username" aria-describedby="basic-addon2">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button" @onclick="@(() => CopyTextToClipboard(jsonFullDownloadPath))">Copy</button>
+                    <a href="@jsonDownloadPath" class="btn btn-outline-secondary" type="button" target="_blank">Download</a>
+                </div>
+            </div>
+            <div class="input-group m-2">
+                <input type="text" class="form-control disabled" @bind="csvFullDownloadPath" aria-label="Recipient's username" aria-describedby="basic-addon2">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button" @onclick="@(() => CopyTextToClipboard(csvFullDownloadPath))">Copy</button>
+                    <a href="@csvDownloadPath" class="btn btn-outline-secondary" type="button" target="_blank">Download</a>
+                </div>
+            </div>
+        }
+        else if (_exportResultType == MonicaExportResultType.Github)
+        {
+            <div class="col-sm-12 m-2">
+                <div class="alert alert-success" role="alert">
+                    We made your result. Please find them in you github repository.
+                </div>
+            </div>
+        }
+    }
+
+    @if (!string.IsNullOrWhiteSpace(SendToServerStatus))
+    {
+        <div class="col-sm-12 m-2 transition1">
+            <div class="alert transition1 @BgColor" role="alert">
+                @SendToServerStatus
+                @if (!isExportDone)
+                {
+                    <div class="spinner-border"></div>
+                }
+            </div>
+        </div>
+    }
+</div>
+@code {
+    const string DefaultStatus = "Drop your Sim, Site, Crop and Climate file(s) or just click here to choose you file(s)";
+    const int MaxFileSize = 6 * 1024 * 1024; // 6MB
+    string status = DefaultStatus;
+
+    private List<UploadedFilesModel> _files = new List<UploadedFilesModel>();
+    private bool IsDataSent = false;
+    private string SendToServerStatus = string.Empty;
+    private string BgColor = string.Empty;
+    bool isDataSending = false;
+    bool isExportDone = false;
+    string jsonDownloadPath = string.Empty;
+    string csvDownloadPath = string.Empty;
+
+    bool sim = false;
+    bool crop = false;
+    bool site = false;
+    bool climate = false;
+
+    private string simValue = string.Empty;
+
+
+
+    private MonicaParametersBasePathTypeEnum _basePathType = MonicaParametersBasePathTypeEnum.LocalServer;
+    private MonicaExportResultType _exportResultType = MonicaExportResultType.DowloadLink;
+
+
+    [Parameter]
+    public string jsonFullDownloadPath { get; set; } = string.Empty;
+    [Parameter]
+    public string csvFullDownloadPath { get; set; } = string.Empty;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        UserSettingsUpdated += OnAfterUserSettingsUpdatedAsync;
+    }
+
+    void OnAfterUserSettingsUpdatedAsync(object sender, EventArgs e)
+    {
+        StateHasChanged();
+    }
+
+    private async Task CopyTextToClipboard(string shareLink)
+    {
+        await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", shareLink);
+    }
+
+
+    async Task ViewFile(IFileListEntry[] files)
+    {
+
+
+        if (files.Length == 0)
+        {
+            return;
+        }
+        else
+        {
+            for (int i = 0; i < files.Length; i++)
+            {
+                if (files[i].Size > MaxFileSize)
+                {
+                    status = $"That's too big. Max size: {MaxFileSize/1024/1024} MB";
+                    return;
+                }
+            }
+
+            status = "Loading...";
+
+            for (int i = 0; i < files.Length; i++)
+            {
+                if (!_files.Any(file => file.File.Name == files[i].Name && file.File.Size == files[i].Size))
+                    _files.Add(new UploadedFilesModel() { File = files[i] });
+                // add a switch case and check if it is Sim change sim to true and etc,
+                // use these values in dialog and present if the file is default one or is uploaded
+                if (files[i].Name.Contains("sim"))
+                {
+                    sim = true;
+                }
+                else if (files[i].Name.Contains("crop"))
+                {
+                    crop = true;
+                }
+                else if (files[i].Name.Contains("site"))
+                {
+                    site = true;
+                }
+                else if (files[i].Name.Contains("climate"))
+                {
+                    climate = true;
+                }
+
+            }
+
+            status = DefaultStatus;
+        }
+    }
+
+    private void RemoveFile(UploadedFilesModel file)
+    {
+        // switch case - first check the name, if its Sim change its value to false then remove it
+        if (file.File.Name.Contains("sim"))
+        {
+            sim = false;
+        }
+        else if (file.File.Name.Contains("crop"))
+        {
+            crop = false;
+        }
+        else if (file.File.Name.Contains("site"))
+        {
+            site = false;
+        }
+        else if (file.File.Name.Contains("climate"))
+        {
+            climate = false;
+        }
+
+        _files.Remove(file);
+    }
+
+    private async Task HandleFiles()
+    {
+        showModal = false; // hide the modal
+        isDataSending = true;
+
+        await ResultStatusAsync("Uploading files", 1);
+
+        var filePathes = new List<string>();
+        FileUpload.DeleteExistingFiles();
+
+        foreach (var file in _files)
+        {
+            var filePath = await FileUpload.UploadAsync(file.File);
+            filePathes.Add(filePath);
+        }
+
+        await ResultStatusAsync("Creating Monica request file", 2);
+
+        var result = await ZmqProducer.RunProducerAsync(filePathes, UserSetting, _basePathType);
+
+        await ResultStatusAsync("Sending the request to Monica ZMQ", 3);
+        //SendToServerStatus += $"Sending Monica request file [{DateTime.Now.ToString()}]... " + Environment.NewLine;
+        //BgColor = "colorg3";
+        //StateHasChanged();
+
+        IsDataSent = MonicaZmqService.Send(result, UserSetting.ServerPushAddress, UserSetting.ServerPushPort);
+
+        if (IsDataSent)
+        {
+            _files = new List<UploadedFilesModel>();
+            await ExportResultAsync();
+        }
+        else
+        {
+
+        }
+    }
+
+    async Task ResultStatusAsync(string SendingStatus, int ColorNo)
+    {
+        SendToServerStatus += SendingStatus + ": " + DateTime.Now.ToLongTimeString() + " ... " + Environment.NewLine;
+        switch (ColorNo)
+        {
+            case 1:
+                BgColor = "colorg1";
+                break;
+            case 2:
+                BgColor = "colorg2";
+                break;
+            case 3:
+                BgColor = "colorg3";
+                break;
+            case 4:
+                BgColor = "colorg4";
+                break;
+            case 5:
+                BgColor = "colorg5";
+                break;
+        }
+        StateHasChanged();
+    }
+
+    async Task ExportResultAsync() // call ZmqProducer calss
+    {
+        await ResultStatusAsync("Reciving the result from Monica ZMQ", 4);
+
+        await Task.Delay(2000);
+
+        using (var consumer = new PullSocket())
+        {
+            consumer.Connect(UserSetting.ServerPullAddress + ":" + UserSetting.ServerPullPort);
+            string answer = consumer.ReceiveFrameString();
+
+            await Task.Delay(2000);
+            consumer.Disconnect(UserSetting.ServerPullAddress + ":" + UserSetting.ServerPullPort);
+
+            string csvContent = ZmqConsumer.RunConsumer(answer);
+
+            // create path
+            string exportPath = "wwwroot/export/";
+
+            foreach (var file in Directory.GetFiles(exportPath))
+            {
+                if (File.GetCreationTime(file) > DateTime.Now.AddDays(-7))
+                    continue;
+                //File.Delete(file);
+            }
+
+            if (_exportResultType == MonicaExportResultType.DowloadLink)
+            {
+                //get the base URI Address and remove / from its end
+                string baseUriAddress = new Uri(NavigationManager.BaseUri).ToString().TrimEnd('/');
+
+                string fileName = Guid.NewGuid().ToString();
+                jsonDownloadPath = Path.Combine(exportPath, fileName + ".json");
+
+                File.WriteAllText(jsonDownloadPath, answer);
+                jsonDownloadPath = Path.Combine(HostEnvironment.WebRootPath, jsonDownloadPath);
+                jsonDownloadPath = jsonDownloadPath.Substring(jsonDownloadPath.IndexOf("/"));
+                jsonFullDownloadPath = baseUriAddress + jsonDownloadPath;
+
+                //fileName = Guid.NewGuid().ToString();  // commented to use the old GUID for csv
+                csvDownloadPath = Path.Combine(exportPath, fileName + ".csv");
+                File.WriteAllText(csvDownloadPath, csvContent);
+                csvDownloadPath = csvDownloadPath.Substring(csvDownloadPath.IndexOf("/"));
+                csvFullDownloadPath = baseUriAddress + csvDownloadPath;
+            }
+            else if (_exportResultType == MonicaExportResultType.Github)
+            {
+                await ResultStatusAsync("Writing the result to github", 5);
+
+                string fileName = "MonicaResult_" + DateTime.Now.ToString("yyyy-MM-dd_hhmmss");
+                //commit the Json and CSV file
+                string repoPath = GithubService.GetRepoResultPath(UserSetting.MonicaResultsPathOnGithub);
+                GithubService.CommitOnGit(fileName, answer, csvContent, UserSetting.GithubUserName, UserSetting.GithubToken, repoPath);
+            }
+        }
+
+        isDataSending = false;
+        isExportDone = true;
+    }
+
+    class UploadedFilesModel
+    {
+        public UploadedFilesModel()
+        {
+            IsUploaded = false;
+        }
+
+        public IFileListEntry File { get; set; }
+
+        public bool IsUploaded { get; set; }
+    }
+
+    @* private async Task Close(dynamic result)
+        {
+            if(result == true)
+            {
+                await HandleFiles();
+                StateHasChanged();
+            }
+        }*@
+
+
+
+    bool showModal = false;
+
+    void ModalShow() => showModal = true;
+    void ModalCancel() => showModal = false;
+    void ModalOk()
+    {
+        Console.WriteLine("Modal ok");
+        showModal = false;
+    }
+
+}

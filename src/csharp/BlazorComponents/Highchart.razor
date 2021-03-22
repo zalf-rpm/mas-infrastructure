@@ -1,0 +1,90 @@
+﻿@using System.Text;
+@using Allegiance.Blazor.Highcharts.Services
+@using Allegiance.Blazor.Highcharts.Charts
+@using Allegiance.Blazor.Highcharts.Constants
+@using Allegiance.Blazor.Highcharts.Options
+@using Microsoft.JSInterop
+
+@namespace Mas.Infrastructure.BlazorComponents
+
+@inject IJSRuntime jsRuntime
+@inject IChartService chartService
+
+@implements IDisposable
+
+<div id=@chartId></div>
+
+@code {
+
+        [Parameter]
+        public Dictionary<String, IEnumerable<float>> Data { get; set; }
+
+        [Parameter]
+        public IEnumerable<DateTime> Dates { get; set; }
+
+        [Parameter]
+        public String Type { get; set; } = ChartType.Line;
+
+    private string chartId = Guid.NewGuid().ToString();
+    private bool chartRenderedOnce = false;
+
+    private ChartObject lineGraph = new ChartObject()
+    {
+        Chart = new Chart(ChartType.Line, false),
+        Legend = new Legend(true, Layout.Vertical, Align.Right, VerticalAlign.Middle),
+        PlotOptions = new PlotOptions(new PlotOptionsSeries(new Label(false), 2010)),
+        Responsive = new Responsive(new Rule(new Condition(500),
+        new ChartOptions(new Legend(true, Layout.Vertical, Align.Right, VerticalAlign.Middle)))),
+        Series = new List<SeriesElement>(),
+        //Subtitle = new Title("MONICA Result Data"),
+        Title = new Title("Monica results"),
+        YAxis = new YAxis(new Title("Values")),
+        XAxis = new XAxis()
+        {
+            Accessibility = new Accessibility("Date / days"),
+            Type = "datetime"
+        }
+    };
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Data == null) return;
+
+        lineGraph.Series = new List<SeriesElement>();
+
+        var noDates = Dates == null || Dates.Count() == 0 ;
+        var milliDates = noDates ? null : Dates.Select(d => new DateTimeOffset(d).ToUnixTimeMilliseconds());
+        lineGraph.XAxis.Type = noDates ? "linear" : "datetime";
+
+        foreach (var p in Data)
+        {
+            var ds = noDates 
+                ? p.Value.Select(v => (object)v).ToList() 
+                : p.Value.Zip(milliDates).Select(z => new List<object>() { z.Second, z.First }).ToList<object>();
+
+            lineGraph.Series.Add(new SeriesElement()
+            {
+                Name = p.Key,
+                Data = ds
+            });
+        }
+
+        if (chartRenderedOnce) await chartService.RenderChart(chartId, lineGraph.Generate());
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        if (firstRender)
+        {
+            chartService.RenderChart(chartId, lineGraph.Generate());
+            //jsRuntime.InvokeVoidAsync("prettyPrint");
+            chartRenderedOnce = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        lineGraph.DisposeChart(jsRuntime, chartId);
+    }
+}

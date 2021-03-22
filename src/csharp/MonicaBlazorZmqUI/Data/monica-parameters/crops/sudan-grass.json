@@ -1,0 +1,61 @@
+{  
+  "AbovegroundOrgan":[  
+
+  ],
+  "AssimilateReallocation":0,
+  "BaseTemperature":[  
+
+  ],
+  "CarboxylationPathway":0,
+  "CriticalOxygenContent":[  
+
+  ],
+  "CuttingDelayDays":0,
+  "DefaultRadiationUseEfficiency":0,
+  "DevelopmentAccelerationByNitrogenStress":0,
+  "DroughtImpactOnFertilityFactor":0,
+  "FieldConditionModifier":1,
+  "InitialKcFactor":0,
+  "InitialOrganBiomass":[  
+
+  ],
+  "InitialRootingDepth":0,
+  "LimitingTemperatureHeatStress":0,
+  "LuxuryNCoeff":0,
+  "MaxCropDiameter":0,
+  "MaxNUptakeParam":0,
+  "MinimumNConcentration":0,
+  "MinimumTemperatureForAssimilation":0,
+  "MinimumTemperatureRootGrowth":0,
+  "NConcentrationAbovegroundBiomass":0,
+  "NConcentrationB0":0,
+  "NConcentrationPN":0,
+  "NConcentrationRoot":0,
+  "OrganGrowthRespiration":[  
+
+  ],
+  "OrganMaintenanceRespiration":[  
+
+  ],
+  "PartBiologicalNFixation":0,
+  "PlantDensity":0,
+  "RootDistributionParam":0,
+  "RootFormFactor":0,
+  "RootGrowthLag":0,
+  "RootPenetrationRate":0,
+  "SamplingDepth":0,
+  "SpeciesName":"sudan grass",
+  "SpecificRootLength":0,
+  "StageAfterCut":0,
+  "StageAtMaxDiameter":0,
+  "StageAtMaxHeight":0,
+  "StageMaxRootNConcentration":[  
+
+  ],
+  "StorageOrgan":[  
+
+  ],
+  "TargetN30":0,
+  "TargetNSamplingDepth":0,
+  "type":"SpeciesParameters"
+}

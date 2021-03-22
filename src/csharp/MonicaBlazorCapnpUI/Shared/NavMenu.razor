@@ -1,0 +1,19 @@
+﻿@using MudBlazor
+
+<MudNavMenu Class="demo-navmenu">
+    <MudNavLink Href="/">Home</MudNavLink>
+    <MudNavGroup Title="Expert UI" Expanded=@false>
+        <MudNavLink Href="expert/uploadData">Run MONICA</MudNavLink>
+        <MudNavLink Href="expert/monicaCharts/monicaChart">Visualize Results</MudNavLink>
+        <MudNavLink Href="expert/settings">Settings</MudNavLink>
+        <MudNavLink Href="expert/help">Help</MudNavLink>
+        <MudNavLink Href="expert/privacy-policy">Privacy policy</MudNavLink>
+    </MudNavGroup>
+    <MudNavGroup Title="Simplified UI" Expanded=@true>
+        <MudNavLink Href="/simplified/monica">MONICA flex</MudNavLink>
+        <MudNavLink Href="/simplified/monica?monicaSturdyRef=capnp://login01.cluster.zalf.de:12003&timeSeriesSturdyRef=capnp://login01.cluster.zalf.de:11002&soilServiceSturdyRef=capnp://login01.cluster.zalf.de:10000">
+            MONICA
+        </MudNavLink>
+        <MudNavLink Href="/simplified/monica-compare">MONICA Compare</MudNavLink>
+    </MudNavGroup>
+</MudNavMenu>

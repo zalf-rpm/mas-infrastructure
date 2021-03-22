@@ -1,0 +1,371 @@
+﻿@page "/help"
+
+
+<h1>How to Use Monica Interface</h1>
+
+
+<div>
+
+    <p>
+        To use Monica service you need to have at least 4 files with
+        these names: Sim.json Site.json, Crop.json, and Climate.csv.  You may also need
+        a few JSON files as parameters.
+    </p>
+
+    <p>
+        Since this web interface does not have access to users’
+        local directories, you need to upload your Sim, Site, Crop and Climate files
+        into the program, and if there is any link to the parameters, those JSON parameter
+        files should be accessible in your github repository. So the program can read
+        them from your github repository.
+    </p>
+
+    <p>
+        Note: You can also use this program if any of these files
+        are missing (we will use some default data), but remember; this case is only
+        for testing purposes (e.g. for students).
+    </p>
+
+    <p><b>Login to your github</b></p>
+
+    <p>
+        You can find the login box on the top right of the Home page.
+        You will be redirected to the Github login page to enter your Github User name and Password. If you are already logged into your Github on the same browser,
+        and this is not your first login, you may not even asked to enter your data.
+    </p>
+    <p>Monica App needs to access to your public github repository to read the Monica parameters or to commit you result,
+    so you need to permit Github to let Monica App has this access, if you are asked on the login page.</p>
+
+    <p>
+        <img width=750 height=541
+             src="help/image001-2.jpg">
+    </p>
+
+    <p>&nbsp;</p>
+
+    <p>
+        If you don’t log in to your github, you can
+        still use this program, but some features will not be available/visable.
+    </p>
+
+    <p class=MsoListParagraphCxSpLast>&nbsp;</p>
+
+    <p><b>Upload Data:</b></p>
+
+    <p>
+        Use this page to upload your Sim, Site, Crop,
+        and climate files. (sim, site and crop files are in JSON format and the climate
+        file is in CSV format).
+    </p>
+
+    <p>
+        <img width=751 height=532 id="Picture 3"
+             src="help/image002.jpg">
+    </p>
+
+    <p>
+        Be careful that the name of the files must
+        correctly start with (sim/site/crop or climate). Please note that if you upload
+        two or more files with the same structure (e.g. two sim files), the system will
+        ignore the second one and you may confuse which file has been used to make the
+        result.
+    </p>
+
+    <p>
+        Please note that if you don’t upload one of
+        these files, the system will ask you a confirmation and then you need to
+        approve that a sample file will be used instead of the missing file. (We
+        activated these default values only for educational purposes).
+    </p>
+
+    <p>&nbsp;</p>
+
+    <p>&nbsp;</p>
+
+    <p>
+        If you are logged into your github, you
+        will have some options at the bottom of this page.
+    </p>
+
+    <p>
+        <b>
+            Read Monica parameters from the Default
+            server:
+        </b> will read the parameters form sample data if it is mentioned in
+        your sim/site/crop file.
+    </p>
+
+    <p>
+        <b>Read Monica parameters from your github</b>:
+        will show you a box to enter your parameters path in your github repository.
+        You can copy the path from your browser when you are in your github. Please see
+        the image blew
+    </p>
+
+    <p>
+        <img width=752 height=538
+             src="help/image003.jpg">
+    </p>
+
+    <p>&nbsp;</p>
+
+    <p>
+        Please note that this app will ignore the “include-file-base-path”
+        option inside your sim/crop/site and will use the path which is defined here in
+        this page. This is especially notable for old Monica users who needed to set the
+        path of the parameters inside the main files.
+    </p>
+
+    <p>&nbsp;</p>
+
+    <p>&nbsp;</p>
+
+    <p>
+        When you send your request to the Monica
+        ZMQ server, the app needs some time to read and merge your data, send it to the
+        simulator and show the result to you. If your files are big or you have many
+        parameters, reading from your local machine or github is not real-time and
+        takes a little bit of time. So after click on the "Send" button please be patient.
+    </p>
+
+    <p>&nbsp;</p>
+
+    <p>
+        This app can also provide the results in
+        two ways for you.
+    </p>
+
+    <p>
+        <b>Show me a download link:</b> your result
+        will be saved on our server for a few days. You can download the results in
+        JSON and CSV format or you can copy the link and share it with other people. So
+        others just need to have this unique link to see your result. We recommend you
+        to download your result if you need it for further use, because depending on
+        the server load, old results will be deleted time by time.
+    </p>
+
+    <p>&nbsp;</p>
+
+    <p>
+        <b>Export into my github</b>: This option
+        will ask you a path to your github to put/commit your results there. We suggest
+        you to use the same path as your parameters on your github.
+    </p>
+
+    <p>
+        Please note that the path is absolute and
+        doesn’t have “/” at its end.
+    </p>
+
+    <p class=MsoListParagraphCxSpLast>&nbsp;</p>
+
+    <p><b>Results’ chart</b></p>
+
+    <p>
+        On this page you have three options to load
+        your results on a chart.
+    </p>
+
+    <p>
+        <img width=753 height=395 id="Picture 1"
+             src="help/image004.jpg">
+    </p>
+
+    <p>&nbsp;</p>
+
+    <p>
+        If you are logged in, and you have entered
+        a right path in
+    </p>
+
+    <p>
+        Upload Data <span style='font-family:Wingdings'>à</span>
+        Result Options <span style='font-family:Wingdings'>à</span> Export it into my
+        github<span style='font-family:Wingdings'>à</span> github Path
+    </p>
+
+    <p>
+        And you have some results inside this
+        directory in your repository, then you can select your result among them.
+    </p>
+
+    <p>&nbsp;</p>
+
+    <p>
+        <img width=753 height=395 id="Picture 2"
+             src="help/image005.jpg">
+    </p>
+
+    <p>&nbsp;</p>
+
+    <p>
+        By selecting one, the system will read your
+        JSON result from your repository and will show you an option to choose your
+        Chart Group
+    </p>
+
+    <p>
+        <img width=753 height=433 id="Picture 4"
+             src="help/image006.jpg">
+    </p>
+
+    <p>&nbsp;</p>
+
+    <p>
+        If your result is valid, depending on your
+        result, you will have a few groups to choose from. After selecting one, you will
+        be asked to choose the right x Axis.
+    </p>
+
+    <p>
+        <img width=753 height=433 id="Picture 5"
+             src="help/image007.jpg">
+    </p>
+
+    <p>&nbsp;</p>
+
+    <p>
+        When the app draws the chart, by default,
+        the first item is enabled as y Axis.
+    </p>
+
+    <p>
+        <img width=751 height=454 id="Picture 6"
+             src="help/image008.jpg">
+    </p>
+
+    <p>&nbsp;</p>
+
+    <p>
+        You can enable or disable different items
+        by clicking on the name. (The list is placed at the right side of the chart)
+    </p>
+
+    <p>
+        <img width=752 height=518 id="Picture 7"
+             src="help/image009.jpg">
+    </p>
+
+    <p>
+        If you want to zoom in; on the chart, you
+        can just click, hold the button and drag your mouse to the new area, then
+        release it to see the result in detail.
+    </p>
+
+    <p>
+        <img width=752 height=434
+             src="help/image010.gif">
+    </p>
+
+    <p>&nbsp;</p>
+
+    <p>
+        There are also some options to export the
+        chart as an image by clicking on the three horizontal lines at the top right of
+        the chart.
+    </p>
+
+    <p>
+        <img width=752 height=489 id="Picture 8"
+             src="help/image011.jpg">
+    </p>
+
+    <p>&nbsp;</p>
+
+    <p>&nbsp;</p>
+
+    <p><b>View result from shared link:</b></p>
+
+    <p>
+        This option lets you paste your result link
+        to see its chart. If someone shares a link to you, you need to enter that link
+        here to see the chart.
+    </p>
+
+    <p>
+        Please note that this is a link to a JSON
+        file, so CSV links will not work here.
+    </p>
+
+    <p>
+        <img width=752 height=258 id="Picture 9"
+             src="help/image012.jpg">
+    </p>
+
+    <p>&nbsp;</p>
+
+    <p><b>Upload Monica result file:</b></p>
+
+    <p>
+        If you have saved your result before, you
+        can drop it anytime here to see it on a chart. Old results (only in JSON format)
+        should also work fine.
+    </p>
+
+    <p class=MsoListParagraphCxSpLast>
+        <img width=752 height=364 id="Picture 10"
+             src="help/image013.jpg">
+    </p>
+
+    <p><b>Settings:</b></p>
+
+    <p>
+        <img width=752 height=469 id="Picture 11"
+             src="help/image014.jpg">
+    </p>
+
+    <p>&nbsp;</p>
+
+    <p>
+        Setting page contains very important information
+        about the Monica ZMQ server. You need to ask about the right configuration
+        before using this program. There are probably some default settings here, but
+        you need to be sure these are addressing a right Monica ZMQ server.
+    </p>
+
+    <p>
+        To change a setting you just need to
+        replace the default value. (There is no save button, it will be saved
+        automatically.)
+    </p>
+
+    <p>
+        If you have logged into your github
+        account, you may see your repository name in the “User Name” field.
+    </p>
+
+    <p>
+        <b>Github Path Validator:</b> is a tool, to
+        check whether the app has access to read your parameters correctly or not. (Use
+        this tool when you are logged-in.)
+    </p>
+
+    <p>
+        If you enter a right path; by clicking on
+        the “Validate the path” button, a green checkmark icon will be shown.
+    </p>
+
+    <p>
+        <img width=751 height=537 id="Picture 14"
+             src="help/image015.jpg">
+    </p>
+
+    <p>&nbsp;</p>
+
+    <p>&nbsp;</p>
+
+    <p>
+        If you are logged-in, your setting form the
+        setting page and your github paths (parameters and export path) will be saved
+        on your browser’s local storage, so next time you use this service you don’t
+        need to fill these fields again, but if you use a different browser, you need
+        to log-in again. In this case, you can save different settings (by the same or a
+        different github user) it also means that you cannot reach your previous
+        settings by logging-in from different browsers. But in the same browser your
+        setting will remain valid even after closing the browser. If you want to clear
+        the setting you need to logout.
+    </p>
+
+    <p>&nbsp;</p>
+
+</div>

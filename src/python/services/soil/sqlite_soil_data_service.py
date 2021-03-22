@@ -247,9 +247,10 @@ class Service(soil_data_capnp.Soil.Service.Server):
         
         r.mandatory = aps["mandatory"]
         r.optional = aps["optional"]
+        print("Aps", flush=True)
 
 
-    def profiles_at(self, lat, lon, profile, avail_props, only_raw_data): 
+    def profiles_at(self, lat, lon, profile, avail_props, only_raw_data):
         if len(avail_props) > 0:
             soil_id = self.interpolator(lat, lon)
             cache = self._cache_raw if only_raw_data else self._cache_derived
@@ -279,6 +280,12 @@ class Service(soil_data_capnp.Soil.Service.Server):
                         props[i].bValue = value
                     elif prop == "soilType":
                         props[i].type = value
+                    elif prop == "sand" or prop == "clay" or prop == "silt":
+                        props[i].f32Value = value * 100.0
+                    elif prop == "sceleton" or prop == "fieldCapacity" or prop == "permanentWiltingPoint" or prop == "saturation":
+                        props[i].f32Value = value * 100.0
+                    elif prop == "soilmoisture":
+                        props[i].f32Value = value * 100.0
                     else:
                         props[i].f32Value = value
 
@@ -310,6 +317,7 @@ class Service(soil_data_capnp.Soil.Service.Server):
 
         # fill profile with data
         self.profiles_at(c.lat, c.lon, r.profiles[0], avail_props, q.onlyRawData)
+        print("ps@", flush=True)
 
     """
     def allLocations_context(self, context): # allLocations @1 Query -> (profiles :List(Common.Pair(Geo.LatLonCoord, List(Common.CapHolder(Profile)))));    
@@ -393,11 +401,48 @@ host="0.0.0.0", port=None, reg_sturdy_ref=None, id=None, name=None, description=
 
 #------------------------------------------------------------------------------
 
+def main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs, serve_bootstrap=False,
+host="0.0.0.0", port=None, reg_sturdy_ref=None, id=None, name=None, description=None):
+
+    config = {
+        "host": host,
+        "port": port,
+        "path_to_sqlite_db": path_to_sqlite_db,
+        "path_to_ascii_soil_grid": path_to_ascii_soil_grid,
+        "grid_crs": grid_crs,
+        "id": id,
+        "name": name,
+        "description": description,
+        "reg_sturdy_ref": reg_sturdy_ref,
+        "serve_bootstrap": str(serve_bootstrap),
+        "reg_category": "soil",
+    }
+    # read commandline args only if script is invoked directly from commandline
+    if len(sys.argv) > 1 and __name__ == "__main__":
+        for arg in sys.argv[1:]:
+            k, v = arg.split("=")
+            if k in config:
+                config[k] = v
+    print("config used:", config)
+
+    service = Service(
+        path_to_sqlite_db=config["path_to_sqlite_db"],
+        path_to_ascii_grid=config["path_to_ascii_soil_grid"],
+        grid_crs=geo.name_to_proj(config["grid_crs"]),
+        id=config["id"], name=config["name"], description=config["description"])
+
+    if config["serve_bootstrap"].upper() == "TRUE":
+        server = capnp.TwoPartyServer(config["host"] + ":" + str(config["port"]), bootstrap=service)
+        server.run_forever()
+
+#------------------------------------------------------------------------------
+
 if __name__ == '__main__':
     db = "data/soil/buek1000.sqlite"
     grid = "data/soil/buek1000_1000_gk5.asc"
     crs = "gk5"
 
-    asyncio.run(async_main(db, grid, crs, serve_bootstrap=True))
+    #main(db, grid, crs, serve_bootstrap=True, port=10000)
+    asyncio.run(async_main(db, grid, crs, serve_bootstrap=True, port=10000))
 
 

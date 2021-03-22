@@ -1,0 +1,215 @@
+{
+	"AssimilatePartitioningCoeff": [
+		[
+			0.65,
+			0.35,
+			0
+		],
+		[
+			0.6,
+			0.2,
+			0.2
+		],
+		[
+			0.2,
+			0.4,
+			0.4
+		],
+		[
+			0.05,
+			0.35,
+			0.6
+		],
+		[
+			0.05,
+			0.25,
+			0.7
+		],
+		[
+			0,
+			0.4,
+			0.6
+		],
+		[
+			0,
+			0.4,
+			0.6
+		]
+	],
+	"BaseDaylength": [
+		[
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0
+		],
+		"h"
+	],
+	"BeginSensitivePhaseHeatStress": [
+		0,
+		"°C d"
+	],
+	"CriticalTemperatureHeatStress": [
+		31,
+		"°C"
+	],
+	"CropHeightP1": 7.760000228881836,
+	"CropHeightP2": 0.49000000953674316,
+	"CropSpecificMaxRootingDepth": 1.399999976158142,
+	"CultivarName": "",
+	"DaylengthRequirement": [
+		[
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0
+		],
+		"h"
+	],
+	"Description": "",
+	"DroughtStressThreshold": [
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0
+	],
+	"EndSensitivePhaseHeatStress": [
+		0,
+		"°C d"
+	],
+	"FrostDehardening": 0,
+	"FrostHardening": 0,
+	"HeatSumIrrigationEnd": 993,
+	"HeatSumIrrigationStart": 113,
+	"LT50cultivar": 0,
+	"LatestHarvestDoy": -1,
+	"LowTemperatureExposure": 0,
+	"MaxAssimilationRate": 50.20000076293945,
+	"MaxCropHeight": [
+		3,
+		"m"
+	],
+	"OptimumTemperature": [
+		[
+			30,
+			30,
+			30,
+			30,
+			30,
+			30,
+			30
+		],
+		"°C"
+	],
+	"OrganIdsForCutting": [],
+	"OrganIdsForPrimaryYield": [
+		{
+			"organId": 2,
+			"type": "YieldComponent",
+			"yieldDryMatter": 0.32,
+			"yieldPercentage": 0.9
+		},
+		{
+			"organId": 3,
+			"type": "YieldComponent",
+			"yieldDryMatter": 0.32,
+			"yieldPercentage": 0.9
+		}
+	],
+	"OrganIdsForSecondaryYield": [],
+	"OrganSenescenceRate": [
+		[
+			0,
+			0,
+			0
+		],
+		[
+			0,
+			0,
+			0
+		],
+		[
+			0,
+			0,
+			0
+		],
+		[
+			0.005,
+			0.001,
+			0
+		],
+		[
+			0.1,
+			0.003,
+			0
+		],
+		[
+			0.1,
+			0.005,
+			0.013
+		],
+		[
+			0,
+			0.02,
+			0.02
+		]
+	],
+	"Perennial": false,
+	"ResidueNRatio": 0.5,
+	"RespiratoryStress": 0,
+	"SpecificLeafArea": [
+		[
+			0.0025,
+			0.0017,
+			0.0015,
+			0.0014,
+			0.0012,
+			0.0012,
+			0.0012
+		],
+		"ha kg-1"
+	],
+	"StageKcFactor": [
+		[
+			0.2,
+			0.8,
+			1,
+			0.9,
+			1.25,
+			0.9,
+			1
+		],
+		"1;0"
+	],
+	"StageTemperatureSum": [
+		[
+			89.9,
+			250.2,
+			299.5,
+			400,
+			200,
+			300,
+			25
+		],
+		"°C d"
+	],
+	"VernalisationRequirement": [
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0
+	],
+	"type": "CultivarParameters"
+}

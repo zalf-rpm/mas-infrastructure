@@ -1,0 +1,145 @@
+﻿@using Capnp.Rpc
+@using MudBlazor
+@using Mas.Rpc;
+@using System.Threading;
+
+@namespace Mas.Infrastructure.BlazorComponents
+
+@inject Mas.Infrastructure.Common.ConnectionManager ConMan
+
+@typeparam TCapnpInterface
+
+@implements IDisposable
+
+<MudCard Class="minimize-card" Outlined="true">
+    <MudCardContent>
+        <MudTextField Class="mx-1" @bind-Value=SturdyRef Label=@Label Variant=Variant.Outlined HelperText=@HelperText></MudTextField>
+    </MudCardContent>
+    <MudCardActions>
+        <MudButton Class="mx-1" Variant=Variant.Filled StartIcon=@buttonIcon Color=@buttonColor OnClick=@Connect>@buttonLabel</MudButton>
+        <MudButton Class="mx-1" Variant=Variant.Text Color=@Color.Primary OnClick=@RetrieveSturdyRef>Retrieve</MudButton>
+    </MudCardActions>
+</MudCard>
+
+<!--
+<MudPaper Class="d-flex flex-row py-2 px-1">
+    <MudButton Class="pa-2 mx-2" Variant=Variant.Filled EndIcon=@buttonEndIcon Color=@buttonColor OnClick=@Connect>@buttonLabel</MudButton>
+    <MudTextField Class="pa-2 mx-2" T=@String Value=@SturdyRef ValueChanged=@SturdyRefValueChanged Label=@Label Variant=Variant.Outlined></MudTextField>
+    <MudButton Class="pa-2 mx-2" Variant=Variant.Outlined Color=@Color.Primary OnClick=@RetrieveSturdyRef>Retrieve</MudButton>
+</MudPaper>
+    -->
+
+@code {
+    [Parameter]
+    public String SturdyRef { get; set; }
+
+    private async Task SturdyRefValueChanged(String sr)
+    {
+        SturdyRef = sr;
+        if(SturdyRefChanged.HasDelegate) _ = SturdyRefChanged.InvokeAsync(sr);
+        ClearButton();
+    }
+
+    [Parameter]
+    public bool ConnectOnInit { get; set; } = false;
+
+    [Parameter]
+    public EventCallback<String> SturdyRefChanged { get; set; }
+
+    private String buttonIcon = Icons.Material.Filled.CastConnected;
+    private Color buttonColor = Color.Primary;
+    private String buttonLabel = "Connect";
+
+    [Parameter]
+    public TCapnpInterface Capability { get; set; }
+
+    [Parameter]
+    public EventCallback<TCapnpInterface> CapabilityChanged { get; set; }
+
+    [Parameter]
+    public String Label { get; set; } = "Persistent capability";
+
+    [Parameter]
+    public String HelperText { get; set; } = "capnp://host:port/token";
+
+    [Parameter]
+    public EventCallback<RpcException> RpcExceptionThrown { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (ConnectOnInit && SturdyRef.Length > 0) await Connect();
+    }
+
+    private async Task Connect()
+    {
+        try
+        {
+            buttonLabel = "Connecting ...";
+
+            Console.WriteLine("ConnectToSturdyRef: ThreadId: " + Thread.CurrentThread.ManagedThreadId);
+            var cap = await ConMan.Connect<TCapnpInterface>(SturdyRef);
+            if (Capability != cap) Capability?.Dispose();
+            Capability = cap;
+
+            //Console.WriteLine("ConnectToSturdyRef: current TaskSchedulerId: " + TaskScheduler.Current.Id);
+            //var (mps, ops) = await (cap as Soil.IService)?.GetAllAvailableParameters(false);
+
+            buttonIcon = Icons.Material.Filled.CastConnected;
+            buttonColor = Color.Success;
+            buttonLabel = "Connected";
+
+            if(CapabilityChanged.HasDelegate) await CapabilityChanged.InvokeAsync(Capnp.Rpc.Proxy.Share(Capability));
+        }
+        catch (RpcException e)
+        {
+            Console.WriteLine(e.ToString());
+
+            buttonIcon = Icons.Material.Filled.Error;
+            buttonColor = Color.Error;
+            buttonLabel = "Connect failed";
+
+            if (RpcExceptionThrown.HasDelegate) _ = RpcExceptionThrown.InvokeAsync(e);
+        }
+    }
+
+    public async Task Reconnect()
+    {
+        ClearButton();
+        await Connect();
+    }
+
+    private void ClearButton()
+    {
+        buttonIcon = Icons.Material.Filled.CastConnected;
+        buttonColor = Color.Primary;
+        buttonLabel = "Connect";
+    }
+
+    private async Task RetrieveSturdyRef()
+    {
+        try
+        {
+            if (Capability is Proxy p)
+            {
+                SturdyRef = (await p.Cast<Capnp.IPersistent<String, String>>(false)?.Save(null))?.SturdyRef;
+
+                if (SturdyRefChanged.HasDelegate) _ = SturdyRefChanged.InvokeAsync(SturdyRef);
+            }
+        }
+        catch (Capnp.Rpc.RpcException e)
+        {
+            Console.WriteLine(e.ToString());
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        Console.WriteLine("OnInitialized SR: " + SturdyRef);
+    }
+
+    void IDisposable.Dispose()
+    {
+        Console.WriteLine("Disposing " + SturdyRef + " cap: " + Capability);
+        Capability?.Dispose();
+    }
+}

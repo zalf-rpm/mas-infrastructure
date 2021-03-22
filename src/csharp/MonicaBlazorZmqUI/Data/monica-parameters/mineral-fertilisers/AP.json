@@ -1,0 +1,8 @@
+{  
+  "Carbamid":0,
+  "NH4":1,
+  "NO3":0,
+  "id":"AP",
+  "name":"Ammonium Phosphate",
+  "type":"MineralFertiliserParameters"
+}

@@ -1,0 +1,90 @@
+﻿@page "/expert/GetServerResult"
+@using MonicaBlazorZmqUI.Services
+@using NetMQ
+@using NetMQ.Sockets
+@using System.IO
+@using Core.Share
+
+@inherits Shared.BasePage
+
+@inject NavigationManager NavigationManager
+@inject MonicaBlazorZmqUI.Services.Github.IGithubService GithubService
+@inject ZmqConsumer ZmqConsumer
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+<h3>Receive ENV via ZMQ</h3>
+
+<button class="btn btn-primary m-2" @onclick="GetMassage">Recieve message from server and put in CSV</button>
+@if (gotAnswer)
+{
+    <p><a href="@csvLink">Download CSV file</a></p>
+}
+else
+{
+    <p>@csvLink</p>
+}
+<p class="fixwidth">@answer</p>
+
+
+@code {
+
+    Boolean gotAnswer = false;
+    public string answer { get; set; } = " ";
+    private string csvLink { get; set; } = " ";
+    private string repositoryPathToExport = "";
+
+
+    /// <summary>
+    /// //////////////////   IN CONSUMER SHOULD CHECK TO STOR DATA ON GITHUB ONLY IF USER PROVIDES HIS GITHUB!
+    /// </summary>
+    /// <returns></returns>
+
+    async Task GetMassage() // call ZmqProducer calss
+    {
+
+        //RunConsumer();
+
+        using (var consumer = new PullSocket())
+        //using (var producer = new RequestSocket())
+        {
+            //consumer.Connect("tcp://localhost:7777");
+            consumer.Connect(UserSetting.ServerPullAddress + ":" + UserSetting.ServerPullPort);
+            answer = consumer.ReceiveFrameString();
+
+            System.Threading.Thread.Sleep(2000);
+            gotAnswer = true;
+            consumer.Disconnect(UserSetting.ServerPullAddress + ":" + UserSetting.ServerPullPort);
+
+            // create path
+            string fileName = DateTime.Now.ToString("yyyyMMdd_hhmmss");
+            string filePath = "wwwroot/export/" + fileName;
+
+            //write the answer into a file
+            string jsonFile = (filePath + ".json");
+
+            if (!File.Exists(jsonFile))
+                File.WriteAllText(jsonFile, answer);
+
+
+            // call runConsumer Method(). get ths csv path and csv string, remove wwwroot from path and use the link in razor section
+
+            string csvLinkLong = "";
+            string csvContent = "";//ZmqConsumer.RunConsumer(answer, filePath, out csvLinkLong);
+
+            //write csv in Folder
+            if (!File.Exists(csvLink))
+                File.WriteAllText(csvLink, csvContent);
+
+            csvLink = csvLinkLong.Substring(csvLinkLong.IndexOf("/"));
+
+            //commit the Json and CSV file
+            GithubService.CommitOnGit(fileName, answer, csvContent, UserSetting.GithubUserName, UserSetting.GithubPassword, UserSetting.MonicaResultsPathOnGithub);
+
+            System.Threading.Thread.Sleep(1500);
+            NavigationManager.NavigateTo("/monicaCharts/monicaChart");
+
+        }
+
+    }
+
+}

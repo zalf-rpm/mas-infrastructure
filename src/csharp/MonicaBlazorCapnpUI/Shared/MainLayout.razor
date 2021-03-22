@@ -1,0 +1,132 @@
+﻿@inherits LayoutComponentBase
+
+@using MudBlazor
+@using MonicaBlazorZmqUI.Services
+@using Core.Share
+
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+<MudThemeProvider Theme="currentTheme" />
+<!--<RadzenDialog />
+<RadzenNotification />-->
+
+<MudLayout>
+    <MudAppBar Elevation="1">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        <MudText Typo="Typo.h5">MONICA Web-Interfaces</MudText>
+        <MudAppBarSpacer />
+        <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
+    </MudAppBar>
+    <MudDrawer @bind-Open="_drawerOpen" Elevation="2">
+        <MudDrawerHeader Class="logo-container">
+            <img src="/images/fdsmas-logo2.png" asp-append-version="true" />
+        </MudDrawerHeader>
+        <NavMenu />
+    </MudDrawer>
+    <MudMainContent>
+        <MudContainer Class="mt-16 px-8" MaxWidth="MaxWidth.False">
+            <!--
+        <div class="top-row px-4">
+            @if (!_userSetting.GithubLoggedIn)
+            {
+                <a href="/expert/Account/GithubLogin">Login</a>
+            }
+            else
+            {
+                <a @onclick="LogoutAsync" href="">Logout</a>//needs to empty the credential information
+            }
+            </div>
+            <div class="content px-4">
+                @Body
+            </div>
+            -->
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+@code {
+    bool _drawerOpen = true;
+
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+
+    protected override void OnInitialized()
+    {
+        currentTheme = defaultTheme;
+    }
+
+    void DarkMode()
+    {
+        if (currentTheme == defaultTheme)
+        {
+            currentTheme = darkTheme;
+        }
+        else
+        {
+            currentTheme = defaultTheme;
+        }
+    }
+
+    MudTheme currentTheme = new MudTheme();
+    MudTheme defaultTheme = new MudTheme()
+    {
+        Palette = new Palette()
+        {
+            Black = "#272c34",
+            Primary = "#4da950",
+            Secondary = "#357537",
+            AppbarBackground = "#4da950"
+        }
+    };
+
+    // The dark theme is just placed here for later use if needed
+    MudTheme darkTheme = new MudTheme()
+    {
+        Palette = new Palette()
+        {
+            Black = "#27272f",
+            Background = "#32333d",
+            BackgroundGrey = "#27272f",
+            Surface = "#373740",
+            DrawerBackground = "#27272f",
+            DrawerText = "rgba(255,255,255, 0.50)",
+            DrawerIcon = "rgba(255,255,255, 0.50)",
+            AppbarBackground = "#27272f",
+            AppbarText = "rgba(255,255,255, 0.70)",
+            TextPrimary = "rgba(255,255,255, 0.70)",
+            TextSecondary = "rgba(255,255,255, 0.50)",
+            ActionDefault = "#adadb1",
+            ActionDisabled = "rgba(255,255,255, 0.26)",
+            ActionDisabledBackground = "rgba(255,255,255, 0.12)",
+            Secondary = "#4da950"
+        }
+    };
+
+    UserSetting _userSetting = new UserSetting();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var localUserSettings = await localStorage.GetItemAsync<UserSetting>(StaticFields.UserSettingsLocalStorageKey);
+
+            if (localUserSettings != null)
+            {
+                _userSetting = localUserSettings;
+            }
+
+            StateHasChanged();
+        }
+    }
+
+    async Task LogoutAsync()
+    {
+        _userSetting.GithubLoggedIn = false;
+        _userSetting = new UserSetting();
+        await localStorage.SetItemAsync<UserSetting>(StaticFields.UserSettingsLocalStorageKey, _userSetting);
+        StateHasChanged();
+
+    }
+}

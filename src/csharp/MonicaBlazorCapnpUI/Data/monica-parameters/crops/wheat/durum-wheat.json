@@ -1,0 +1,20 @@
+var dic = new Dictionary<int, string>();
+            dic.Add(ORGAN_ROOT, "Root");
+            dic.Add(ORGAN_LEAF, "Leaf");
+            dic.Add(ORGAN_SHOOT, "Shoot");
+            dic.Add(ORGAN_FRUIT, "Fruit");
+            dic.Add(ORGAN_STRUCT, "Struct");
+            dic.Add(ORGAN_SUGAR, "Sugar");
+            dic.Add(ORGAN_UNDEFINED_ORGAN_, "undef");
+
+var dic = new Dictionary<int, string>
+{
+	{ ORGAN_ROOT, "Root" },
+	{ ORGAN_LEAF, "Leaf" },
+	{ ORGAN_SHOOT, "Shoot" },
+	{ ORGAN_FRUIT, "Fruit" },
+	{ ORGAN_STRUCT, "Struct" },
+	{ ORGAN_SUGAR, "Sugar" },
+	{ ORGAN_UNDEFINED_ORGAN_, "undef" },
+
+};

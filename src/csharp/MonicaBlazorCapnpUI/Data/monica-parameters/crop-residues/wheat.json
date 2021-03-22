@@ -1,0 +1,61 @@
+{  
+  "AOM_DryMatterContent":[  
+    1,
+    "kg DM kg FM-1",
+    "Dry matter content of added organic matter"
+  ],
+  "AOM_FastDecCoeffStandard":[  
+    0.05000000074505806,
+    "d-1",
+    "Decomposition rate coefficient of fast AOM at standard conditions"
+  ],
+  "AOM_NH4Content":[  
+    0,
+    "kg N kg DM-1",
+    "Ammonium content in added organic matter"
+  ],
+  "AOM_NO3Content":[  
+    0.0010000000474974513,
+    "kg N kg DM-1",
+    "Nitrate content in added organic matter"
+  ],
+  "AOM_SlowDecCoeffStandard":[  
+    0.012000000104308128,
+    "d-1",
+    "Decomposition rate coefficient of slow AOM at standard conditions"
+  ],
+  "CN_Ratio_AOM_Fast":[  
+    0,
+    "",
+    "C to N ratio of the rapidly decomposing AOM pool"
+  ],
+  "CN_Ratio_AOM_Slow":[  
+    200,
+    "",
+    "C to N ratio of the slowly decomposing AOM pool"
+  ],
+  "NConcentration":0,
+  "PartAOM_Slow_to_SMB_Fast":[  
+    0.5,
+    "kg kg-1",
+    "Part of AOM slow consumed by fast soil microbial biomass"
+  ],
+  "PartAOM_Slow_to_SMB_Slow":[  
+    0.5,
+    "kg kg-1",
+    "Part of AOM slow consumed by slow soil microbial biomass"
+  ],
+  "PartAOM_to_AOM_Fast":[  
+    0.33000001311302185,
+    "kg kg-1",
+    "Part of AOM that is assigned to the rapidly decomposing pool"
+  ],
+  "PartAOM_to_AOM_Slow":[  
+    0.67000001668930054,
+    "kg kg-1",
+    "Part of AOM that is assigned to the slowly decomposing pool"
+  ],
+  "residueType":"",
+  "species":"wheat",
+  "type":"CropResidueParameters"
+}

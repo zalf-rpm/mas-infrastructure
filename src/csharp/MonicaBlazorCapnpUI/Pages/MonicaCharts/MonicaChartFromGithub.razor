@@ -1,0 +1,220 @@
+﻿@page "/expert/monicaCharts/monicaGitChart"
+@* Usings *@
+@using MonicaBlazorZmqUI.Services.MonicaCharts
+@using Core.MonicaData
+@using Core.Share
+
+
+@inherits Shared.BasePage
+
+@* Injects *@
+@inject IMonicaChartService MonicaChartService
+@inject MonicaBlazorZmqUI.Services.Github.IGithubService GithubService
+
+
+<h3>Monica Results From your github repository</h3>
+<h4>Last 15 results</h4>
+
+<SpinLoader IsLoading="isLoading">
+    <LoadingTemplate>
+        <Chase Center="true"></Chase>
+    </LoadingTemplate>
+    <ContentTemplate>
+        @if (dirsLenght > 0)
+        {
+            <div class="form-group">
+                <select class="form-control p-2 m-2" @onchange="LoadMonicaBaseDataAsync">
+                    <option value="-1">Select a file</option>
+                    @for (int i = (dirsLenght > 15) ? dirsLenght - 15 : 0; i < dirsLenght; i++)
+                    {
+                        var fileIndex = i;
+                        <option value="0">null</option>
+                    }
+                </select>
+            </div>
+            @if (string.IsNullOrWhiteSpace(_selectedFile) == false)
+            {
+                <div class="alert-dark m-1 rounded small">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Result Name</th>
+                                <th>Created Time</th>
+                                <th>Json download link - size</th>
+                                <th>CSV download link - size</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            <tr>
+                                <td>@System.IO.Path.GetFileNameWithoutExtension(_selectedFile)</td>
+                                <td>@System.IO.File.GetCreationTime(System.IO.Path.GetFullPath(_selectedFile))</td>
+                                <td><a target="_blank" href="@_selectedFile.Substring(_selectedFile.IndexOf("/"))">Json file</a>, Size: @GetTheLength(true) KB</td>
+                                <td><a target="_blank" href="@System.IO.Path.ChangeExtension(_selectedFile.Substring(_selectedFile.IndexOf("/")), "csv")">CSV file</a>, Size: @GetTheLength(false)  KB</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon3">Chart Group</span>
+                    </div>
+                    <select id="dataCategory" class="form-control" @onchange="ChangeDataCategory">
+                        <option selected="@(_selectedCategoryId == null)" class="form-control"></option>
+                        @foreach (var dataCategory in MonicaDataCategories)
+                        {
+                            <option value=@dataCategory.Key>@dataCategory.Value</option>
+                        }
+                    </select>
+                </div>
+
+                @if (_selectedCategoryId != null)
+                {
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon3">Chart's x Axis</span>
+                        </div>
+                        <select id="chartXAxis" class="form-control" @onchange="ChangeXAxis">
+                            <option selected="@(_selectedCategoryId == null)" class="form-control"></option>
+                            @foreach (var chartXAxis in ChartXAxises)
+                            {
+                                <option value="@chartXAxis.Id">@chartXAxis.SerieTitle</option>
+                            }
+                        </select>
+                    </div>
+
+                    @if (_selectedXAxisId != null)
+                    {
+                        <button class="btn btn-primary m-1" @onclick="DrawChart">Draw The Chart</button>
+                    }
+                }
+
+            }
+        }
+
+        @if (CanLoadChart)
+        {
+            <MonicaHighchart @bind-XAxis="ChartXAxise" @bind-Series="ChartSeries"></MonicaHighchart>
+        }
+    </ContentTemplate>
+</SpinLoader>
+
+
+@code{
+    private int dirsLenght;
+    private object dirs;
+    private bool isLoading = true;
+    private string _selectedFile;
+    private int? _selectedCategoryId = null;
+    private Guid? _selectedXAxisId = null;
+    private bool CanLoadChart = false;
+    private bool isJson = true;
+
+    public List<MonicaBaseData> MonicaBaseDatas { get; set; } = null;
+
+    public Dictionary<int, string> MonicaDataCategories { get; set; } = null;
+
+    public List<MonicaSerie> ChartXAxises { get; set; } = null;
+
+    [Parameter]
+    public MonicaSerie ChartXAxise { get; set; } = null;
+
+    [Parameter]
+    public List<MonicaSerie> ChartSeries { get; set; } = null;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        dirs = GithubService.GetContentsList("armaghan-monica-params", UserSetting.GithubUserName, UserSetting.MonicaResultsPathOnGithub);
+        //dirsLenght = dirs.Length;
+        isLoading = false;
+    }
+
+    private long GetTheLength(bool isJson)
+    {
+        long length;
+        if (isJson == true)
+        {
+            length = new System.IO.FileInfo(System.IO.Path.GetFullPath(_selectedFile)).Length / 1024;
+        }
+        else
+        {
+            length = new System.IO.FileInfo(System.IO.Path.GetFullPath(System.IO.Path.ChangeExtension(_selectedFile, "csv"))).Length / 1024;
+        }
+        return (length);
+    }
+
+
+    private void UnloadChart()
+    {
+        CanLoadChart = false;
+    }
+
+    private async Task LoadMonicaBaseDataAsync(ChangeEventArgs e)
+    {
+        UnloadChart();
+        _selectedCategoryId = null;
+        _selectedXAxisId = null;
+
+        if (e.Value.ToString() == "-1")
+        {
+            _selectedFile = null;
+            return;
+        }
+
+        _selectedFile = e.Value.ToString();
+        MonicaBaseDatas = await MonicaChartService.GetBaseDataAsync(_selectedFile);
+        MonicaDataCategories = MonicaBaseDatas.ToDictionary(s => s.Id, o => o.OrigSpec);
+
+        //var result = new Dictionary<int, string>();
+        //foreach (var s in MonicaBaseDatas)
+        //{
+        //    result.Add(s.Id, s.OrigSpec);
+        //}
+        //MonicaDataCategories = result;
+    }
+
+    private void ChangeDataCategory(ChangeEventArgs e)
+    {
+        UnloadChart();
+        _selectedXAxisId = null;
+
+        if (string.IsNullOrWhiteSpace(e.Value.ToString()))
+        {
+            _selectedCategoryId = null;
+            return;
+        }
+
+        _selectedCategoryId = Convert.ToInt32(e.Value);
+
+        var monicaBaseData = MonicaBaseDatas.First(s => s.Id == _selectedCategoryId);
+        ChartXAxises = MonicaChartService.GetXAxises(monicaBaseData);
+        ChartSeries = MonicaChartService.GetSeries(monicaBaseData);
+    }
+
+    private void ChangeXAxis(ChangeEventArgs e)
+    {
+        UnloadChart();
+
+        if (string.IsNullOrWhiteSpace(e.Value.ToString()))
+        {
+            _selectedXAxisId = null;
+            return;
+        }
+
+        _selectedXAxisId = new Guid(e.Value.ToString());
+    }
+
+    public void DrawChart()
+    {
+
+        if (_selectedXAxisId != null)
+        {
+            ChartXAxise = ChartXAxises.First(s => s.Id == _selectedXAxisId);
+            CanLoadChart = true;
+
+        }
+    }
+}
+
