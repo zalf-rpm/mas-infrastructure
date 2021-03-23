@@ -46,10 +46,10 @@ climate_data_capnp = capnp.load("capnproto_schemas/climate_data.capnp", imports=
 
 class AlterTimeSeriesWrapper(climate_data_capnp.Climate.AlterTimeSeriesWrapper.Server): 
 
-    def __init__(self, time_series, header, altered = []):
+    def __init__(self, time_series, header, altered = {}):
 
         self._timeSeries = time_series
-        self._altered = altered #list of pair (Altered, func)
+        self._altered = altered #dict of elem to pair (Altered, func)
         self._cloned_time_series = []
 
         self._available_headers = header
@@ -67,13 +67,13 @@ class AlterTimeSeriesWrapper(climate_data_capnp.Climate.AlterTimeSeriesWrapper.S
 
 
     def listAlteredElements_context(self, context): # listAlteredElements @7 () -> (list :List(Common.Pair(Element, Float32)));
-        context.results = [altered for altered, _ in self._altered]
+        context.results = [altered for altered, _ in self._altered.values()]
 
 
     def alter(self, context): # alter @1 (element :Element, by :Float32, type :AlterType = elementDefault, asNewTimeSeries :Bool = false)  -> (timeSeries :TimeSeries);
         elem = context.params.element
         if elem in self._available_headers:
-            altered = self._altered if context.params.asNewTimeSeries else []
+            altered = self._altered if context.params.asNewTimeSeries else {}
 
             by = context.params.by
             type_ = context.params.type
@@ -85,7 +85,7 @@ class AlterTimeSeriesWrapper(climate_data_capnp.Climate.AlterTimeSeriesWrapper.S
                     "fraction": lambda v: v * by,
                 }.get(type__, lambda v: v + by)
                 
-                altered = ({"element": elem, "value": by, "type": type_}, f)
+                altered[elem] = ({"element": elem, "value": by, "type": type_}, f)
 
                 if context.params.asNewTimeSeries:
                     cts = AlterTimeSeriesWrapper(self, self._available_headers, altered)
@@ -93,30 +93,6 @@ class AlterTimeSeriesWrapper(climate_data_capnp.Climate.AlterTimeSeriesWrapper.S
                     context.results.timeSeries = cts
                 else:
                     context.results.timeSeries = self
-
-
-
-    def alterTemperaturesByDegrees_context(self, context): # alterTemperaturesByDegrees(tmin :Int16 = 0, tavg :Int16 = 0, tmax :Int16 = 0, bool asNewTimeSeries = false) -> (timeSeries :TimeSeries);
-        alter_dict = self._alter_elem_to_func if context.params.asNewTimeSeries else {}
-
-        tmin = context.params.tmin
-        if tmin != 0:
-            alter_dict["tmin"] = lambda v: v + tmin
-        
-        tavg = context.params.tavg
-        if tavg != 0:
-            alter_dict["tavg"] = lambda v: v + tavg
-        
-        tmax = context.params.tmax
-        if tmax != 0:
-            alter_dict["tmax"] = lambda v: v + tmax
-
-        if context.params.asNewTimeSeries:
-            cts = AlterTimeSeriesWrapper(self, alter_dict)
-            self._cloned_time_series.append(cts)
-            context.results.timeSeries = cts
-        else:
-            context.results.timeSeries = self
 
 
     def resolution_context(self, context): # -> (resolution :TimeResolution);

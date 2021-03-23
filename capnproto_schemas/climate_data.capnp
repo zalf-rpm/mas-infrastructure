@@ -286,7 +286,7 @@ struct Climate {
     # list the elements and their altered value
 
     enum AlterType {
-      absoluteValue @0;
+      absValue @0;
       percentage @1;
       elementDefault @2;
     }
