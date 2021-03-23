@@ -39,7 +39,7 @@
             <MudItem Class=@(HideSturdyRefConnectors ? "d-none" : "") xs="12">
                 <ConnectToSturdyRef Label="Persistent capability to climate time series (capnp://host:port/token)"
                                     CapabilityChanged=@TimeSeriesFactoryCapabilityChanged
-                                    TCapnpInterface=@Climate.ICSVTimeSeriesFactory
+                                    TCapnpInterface=@Climate.IAlterTimeSeriesWrapperFactory
                                     @bind-SturdyRef=TimeSeriesFactorySturdyRef
                                     ConnectOnInit=@TryConnectOnInit>
                 </ConnectToSturdyRef>
@@ -65,14 +65,15 @@
             <MudItem xs="6">
                 <MudTextField T=@string Label="site.json" Variant=@Variant.Outlined @bind-Text=siteJsonTxt Lines=10 />
             </MudItem>
-            <MudItem xs="6">
-                <MudTextField T=@string
-                              Label="climate.csv"
-                              Variant=@Variant.Outlined
-                              Text=@climateCsv
-                              TextChanged=@(async (t) => { climateCsv = t; await ClimateCSVInputChanged(t); })
-                              Lines=10 />
-            </MudItem>
+            <!--
+    <MudItem xs="6">
+        <MudTextField T=@string
+                      Label="climate.csv"
+                      Variant=@Variant.Outlined
+                      TextChanged=@(async (t) => { climateCsv = t; await ClimateCSVInputChanged(t); })
+                      Lines=10 />
+    </MudItem>
+        -->
         </MudGrid>
     </MudExpansionPanel>
     <MudExpansionPanel @bind-IsExpanded=@panelOpened["Location"] Text=@($"Data location ({Math.Round(LatLng.Item1, 2)}N/{Math.Round(LatLng.Item2, 2)}E)")>
@@ -83,7 +84,12 @@
         </GeoposPicker>
     </MudExpansionPanel>
     <MudExpansionPanel @bind-IsExpanded=@panelOpened["Climate"] Text="Climate data">
+        <MudGrid>
+            <MudItem xs="2">
+                <MudButton Variant=@Variant.Filled OnClick=@WrapTimeSeries>Wrap time series</MudButton>
+            </MudItem>
 
+        </MudGrid>
     </MudExpansionPanel>
     <MudExpansionPanel @bind-IsExpanded=@panelOpened["SoilProfile"] Text="Soil profile">
         <SoilService @ref=@soilServiceRef
@@ -288,6 +294,7 @@
 
     [Parameter]
     public Climate.ITimeSeries TimeSeriesCap { get; set; }
+    private Climate.ITimeSeries OrigTimeSeriesCap { get; set; }
 
     [Parameter]
     public String TimeSeriesSturdyRef { get; set; } = "";
@@ -296,13 +303,13 @@
     public EventCallback<Climate.ITimeSeries> TimeSeriesCapChanged { get; set; }
 
     [Parameter]
-    public Climate.ICSVTimeSeriesFactory TimeSeriesFactoryCap { get; set; }
+    public Climate.IAlterTimeSeriesWrapperFactory TimeSeriesFactoryCap { get; set; }
 
     [Parameter]
-    public String TimeSeriesFactorySturdyRef { get; set; } = "capnp://10.10.24.86:11005";
+    public String TimeSeriesFactorySturdyRef { get; set; } = "capnp://10.10.24.86:11006"; //"capnp://login01.cluster.zalf.de:11006";//
 
     [Parameter]
-    public EventCallback<Climate.ICSVTimeSeriesFactory> TimeSeriesFactoryCapChanged { get; set; }
+    public EventCallback<Climate.IAlterTimeSeriesWrapperFactory> TimeSeriesFactoryCapChanged { get; set; }
 
     [Parameter]
     public Soil.IService SoilServiceCap { get; set; }
@@ -440,7 +447,7 @@
         TimeSeriesCap = timeSeries;
     }
 
-    private async Task TimeSeriesFactoryCapabilityChanged(Climate.ICSVTimeSeriesFactory factory)
+    private async Task TimeSeriesFactoryCapabilityChanged(Climate.IAlterTimeSeriesWrapperFactory factory)
     {
         if (factory == null) return;
 
@@ -456,21 +463,40 @@
         SoilServiceCap = service;
     }
 
+    private async Task WrapTimeSeries()
+    {
+        if (TimeSeriesFactoryCap == null || TimeSeriesCap == null) return;
+
+        var wts = await TimeSeriesFactoryCap.Wrap(TimeSeriesCap);
+        if (wts == null) return;
+
+        OrigTimeSeriesCap = TimeSeriesCap;
+        TimeSeriesCap = wts;
+    }
+
     private async Task ClimateCSVInputChanged(string csv)
     {
-        if (csv.Length == 0 || TimeSeriesFactoryCap == null) return;
+        if (csv.Length == 0 || TimeSeriesFactoryCap == null || TimeSeriesCap == null) return;
 
+        /*
         var (tsCap, error) = await TimeSeriesFactoryCap.Create(csv, new Climate.CSVTimeSeriesFactory.CSVConfig());
         if (tsCap == null && error.Length != 0)
         {
             monicaErrorMessage = error;
             return;
         }
+        */
 
-        var hs = await tsCap.Header();
-        var r = await tsCap.Range();
-        if (TimeSeriesCap != tsCap) TimeSeriesCap?.Dispose();
-        TimeSeriesCap = tsCap;
+        var ts = await TimeSeriesFactoryCap.Wrap(TimeSeriesCap);
+        var r = await ts.Range();
+        var hs = await ts.Header();
+        var loc = await ts.Location();
+        var md = await ts.Metadata();
+        var d = await ts.Data();
+        var dt = await ts.DataT();
+
+        if (TimeSeriesCap != ts) TimeSeriesCap?.Dispose();
+        TimeSeriesCap = ts;
     }
 
     private async Task MarkDefaultChips(MudChip[] chips, Action<MudChip[]> action = null)

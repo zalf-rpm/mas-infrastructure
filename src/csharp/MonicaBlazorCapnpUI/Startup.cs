@@ -31,7 +31,10 @@ namespace MonicaBlazorCapnpUI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddServerSideBlazor().AddHubOptions(
-                    options => { options.MaximumReceiveMessageSize = 2*1024*1024; });
+                    options => {
+                        options.EnableDetailedErrors = true;
+                        options.MaximumReceiveMessageSize = 256 * 1024;// 2 * 1024 * 1024 * 1024; //default 32*1024 // null
+                    });
 
             services.AddRazorPages();
             services.AddServerSideBlazor();
@@ -91,7 +94,12 @@ namespace MonicaBlazorCapnpUI
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapBlazorHub();
+                endpoints.MapBlazorHub(options =>
+                {
+                    // Increase the limits to 256 kB
+                    options.ApplicationMaxBufferSize = 256 * 1024; // 2 * 1024 * 1024 * 1024; //262144;
+                    options.TransportMaxBufferSize = 256 * 1024; // 2 * 1024 * 1024 * 1024; //262144;
+                });
                 endpoints.MapFallbackToPage("/_Host");
             });
         }
