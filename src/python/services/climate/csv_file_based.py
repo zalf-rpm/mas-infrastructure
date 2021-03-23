@@ -50,16 +50,19 @@ class TimeSeries(climate_data_capnp.Climate.TimeSeries.Server):
     def __init__(self, metadata=None, location=None, path_to_csv=None, dataframe=None, csv_string=None, 
     header_map=None, supported_headers=None, pandas_csv_config={}, transform_map=None):
 
-        if path_to_csv is None and dataframe is None:
+        if path_to_csv is None and dataframe is None and csv_string is None:
             raise Exception("Missing argument, either path_to_csv or dataframe have to be supplied!")
+
+        #print(csv_string)
 
         self._path_to_csv = path_to_csv
         self._csv_string = csv_string
         self._df = dataframe
         self._meta = metadata
         self._location = location
+
         self._header_map = header_map
-        self._supported_headers = supported_headers
+        self._supported_headers = list(climate_data_capnp.Climate.Element.schema.enumerants.keys()) if supported_headers is None else supported_headers
         self._pandas_csv_config_defaults = {"skip_rows": [1], "index_col": 0, "sep": ","}
         self._pandas_csv_config = {**self._pandas_csv_config_defaults, **pandas_csv_config}
         self._transform_map = transform_map
@@ -110,9 +113,8 @@ class TimeSeries(climate_data_capnp.Climate.TimeSeries.Server):
                 self._df.rename(columns=self._header_map, inplace=True)
 
             # reduce headers to the supported ones
-            #all_supported_headers = ["tmin", "tavg", "tmax", "precip", "globrad", "wind", "relhumid"]
             if self._supported_headers:
-                self._df = self._df.loc[:, self._supported_headers]
+                self._df = self._df.loc[:, self._df.columns.intersection(self._supported_headers)]
 
             if self._transform_map:
                 for col_name, trans_func in self._transform_map.items():
