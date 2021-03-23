@@ -85,19 +85,23 @@ class AlterTimeSeriesWrapper(climate_data_capnp.Climate.AlterTimeSeriesWrapper.S
 
 
     def range_context(self, context): # -> (startDate :Date, endDate :Date);
-        return self._timeSeries.range()
+        def setRange(results, range):
+            results.startDate = range.startDate
+            results.endDate = range.endDate
+        return self._timeSeries.range().then(lambda r: setRange(context.results, r))
         
 
-    def header(self, **kwargs): # () -> (header :List(Element));
-        return self._timeSeries.header()
+    def header_context(self, context): # () -> (header :List(Element));
+        return self._timeSeries.header().then(lambda h: setattr(context.results, "header", h.header))
+        #return self._timeSeries.header().then(lambda h: print(h))
 
 
-    def data(self, **kwargs): # () -> (data :List(List(Float32)));
-        return self.dataframe.to_numpy().tolist()
+    def data_context(self, context): # () -> (data :List(List(Float32)));
+        return self._timeSeries.data()
 
 
-    def dataT(self, **kwargs): # () -> (data :List(List(Float32)));
-        return self.dataframe.T.to_numpy().tolist()
+    def dataT_context(self, context): # () -> (data :List(List(Float32)));
+        return self._timeSeries.dataT()
 
 
     def subrange_context(self, context): # (from :Date, to :Date) -> (timeSeries :TimeSeries);
