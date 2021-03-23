@@ -67,11 +67,6 @@ class Factory(climate_data_capnp.Climate.CSVTimeSeriesFactory.Server):
         r.description = self._description
 
 
-    def getAvailableDatasets(self, **kwargs): # getAvailableDatasets @0 () -> (datasets :List(MetaPlusData));
-        "get a list of all available datasets"
-        return self._meta_plus_datasets
-
-
     def create_context(self, context): # create @0 (fromCSV :Text, config :CSVConfig) -> (timeSeries :TimeSeries, error :Text);
         c = context.params.config
         csv = context.params.fromCSV

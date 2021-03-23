@@ -270,4 +270,35 @@ struct Climate {
     # create a time series from the given structured text
   }
 
+  interface AlterTimeSeriesWrapper extends(TimeSeries) {
+    # wraps a time series, but allows to alter the data represented by the time series
+
+    wrappedTimeSeries @0 () -> (timeSeries :TimeSeries);
+    # return the actually wrapped time series capability
+
+    alterTemperaturesByDegrees @1 (minTemp :Int16 = 0, avgTemp :Int16 = 0, maxTemp :Int16 = 0, asNewTimeSeries :Bool = false) -> (timeSeries :TimeSeries);
+    # alter the given temperatures [+- x°C/day] and optionally return a new time series capability
+
+    alterPrecipitationByPercentage @2 (percentage :Float32, asNewTimeSeries :Bool = false) -> (timeSeries :TimeSeries);
+    # alter the daily precipitation values by [+- x%/day] and optionally return a new time series capability
+
+    alterCO2ContentByPpm @3 (ppm :Int16, asNewTimeSeries :Bool = false) -> (timeSeries :TimeSeries);
+    # alter the daily CO2 content by [+- x ppm/day] and optionally return a new time series capability
+
+    alterGlobalRadiationByPercentage @4 (percentage :Float32, asNewTimeSeries :Bool = false) -> (timeSeries :TimeSeries);
+    # alter the daily global radiation by [+- x%/day] and optionally return a new time series capability
+
+    alterRelativeHumidityByPercentage @5 (percentage :Float32, asNewTimeSeries :Bool = false) -> (timeSeries :TimeSeries);
+    # alter the daily relative humidity by [+- x%/day] and optionally return a new time series capability
+
+    alterWindspeedByPercentage @6 (percentage :Float32, asNewTimeSeries :Bool = false) -> (timeSeries :TimeSeries);
+    # alter the given temperatures [+- x°C/day] and optionally return a new time series capability
+  }
+
+  interface AlterTimeSeriesWrapperFactory extends(Common.Identifiable) {
+    # create AlterTimeSeriesWrapper capabilities from existing TimeSeries capabilities
+
+    wrap @0 (timeSeries :TimeSeries) -> (wrapper :AlterTimeSeriesWrapper);
+    # wrap the given time series and return the wrapper
+  }
 }
