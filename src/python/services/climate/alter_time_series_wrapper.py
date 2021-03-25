@@ -70,13 +70,14 @@ class AlterTimeSeriesWrapper(climate_data_capnp.Climate.AlterTimeSeriesWrapper.S
         context.results = [altered for altered, _, _ in self._altered.values()]
 
 
-    def alter(self, context): # alter @1 (element :Element, by :Float32, type :AlterType = elementDefault, asNewTimeSeries :Bool = false)  -> (timeSeries :TimeSeries);
-        elem = context.params.element
+    def alter(self, context): # alter @1 (desc :Altered, asNewTimeSeries :Bool = false)  -> (timeSeries :TimeSeries);
+        desc = context.params.desc
+        elem = desc.elem
         if elem in self._available_headers:
             altered = self._altered if context.params.asNewTimeSeries else {}
 
-            by = context.params.by
-            type_ = context.params.type
+            by = elem.value
+            type_ = elem.type
 
             if int(by * 100000) != 0:
                 type__ = self._element_defaults[elem] if type__ == "elementDefault" else type_

@@ -279,7 +279,7 @@ struct Climate {
     struct Altered {
       element @0 :Element;
       value @1 :Float32;
-      type @2 :AlterType;
+      type @2 :AlterType = elementDefault;
     }
 
     alteredElements @1 () -> (list :List(Altered));
@@ -291,8 +291,8 @@ struct Climate {
       elementDefault @2;
     }
 
-    alter @2 (element :Element, by :Float32, type :AlterType = elementDefault, asNewTimeSeries :Bool = false)  -> (timeSeries :TimeSeries);
-    # alter the given "element" by the value "by" using "type" and optionally create a new time series capability for this alteration
+    alter @2 (desc :Altered, asNewTimeSeries :Bool = false)  -> (timeSeries :TimeSeries);
+    # given the description "desc" alter element by some amount depending on declared type and optionally create a new time series capability for this alteration
   }
 
   interface AlterTimeSeriesWrapperFactory extends(Common.Identifiable) {
