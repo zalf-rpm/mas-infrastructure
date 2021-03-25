@@ -84,11 +84,139 @@
         </GeoposPicker>
     </MudExpansionPanel>
     <MudExpansionPanel @bind-IsExpanded=@panelOpened["Climate"] Text="Climate data">
+        @code {
+            private List<Climate.Element> allClimateElements = new()
+            {
+            Climate.Element.tmin,
+            Climate.Element.tavg,
+            Climate.Element.tmax,
+            Climate.Element.precip,
+            Climate.Element.globrad,
+            Climate.Element.wind,
+            Climate.Element.sunhours,
+            Climate.Element.cloudamount,
+            Climate.Element.relhumid,
+            Climate.Element.airpress,
+            Climate.Element.vaporpress,
+            Climate.Element.co2,
+            Climate.Element.o3,
+            Climate.Element.et0,
+            Climate.Element.dewpointTemp
+        };
+
+            private Dictionary<Climate.AlterTimeSeriesWrapper.AlterType, string> allAlterTypes = new()
+            {
+            { Climate.AlterTimeSeriesWrapper.AlterType.add, "Add (+)" },
+            { Climate.AlterTimeSeriesWrapper.AlterType.mul, "Mul (*)" }
+        };
+
+            private List<Climate.AlterTimeSeriesWrapper.Altered> alteredElements = new();
+
+            private Climate.AlterTimeSeriesWrapper.Altered newAltered = new();
+        }
         <MudGrid>
             <MudItem xs="2">
-                <MudButton Variant=@Variant.Filled OnClick=@WrapTimeSeries>Wrap time series</MudButton>
+                <MudButton Class=@(AlterTimeSeriesWrapperCap == null ? "" : "d-none")
+                           Variant=@Variant.Filled
+                           OnClick=@WrapTimeSeries
+                           Disabled=@(TimeSeriesCap == null || TimeSeriesFactoryCap == null)>
+                    Update climate data
+                </MudButton>
             </MudItem>
-
+            <MudItem xs="12" Class=@(AlterTimeSeriesWrapperCap == null ? "d-none" : "")>
+                <MudCard Elevation="3">
+                    <MudCardContent>
+                        <MudGrid>
+                            <MudItem xs="2">
+                                <MudSelect T=@Climate.Element
+                                           @bind-Value=newAltered.Element
+                                           Label="New Element">
+                                    @foreach (var elem in allClimateElements)
+                                    {
+                                        <MudSelectItem Value=@elem />
+                                    }
+                                </MudSelect>
+                            </MudItem>
+                            <MudItem xs="2">
+                                <MudSelect T=@Climate.AlterTimeSeriesWrapper.AlterType
+                                           @bind-Value=newAltered.Type
+                                           Label="Operation">
+                                    @foreach (var (type, label) in allAlterTypes)
+                                    {
+                                        <MudSelectItem Value=@type><MudText Typo=@Typo.body1>@label</MudText></MudSelectItem>
+                                    }
+                                </MudSelect>
+                            </MudItem>
+                            <MudItem xs="2">
+                                <MudTextField @bind-Value=newAltered.Value Label="Value" />
+                            </MudItem>
+                            <MudItem xs="2">
+                                <MudFab Color=@Color.Secondary
+                                        Icon=@Icons.Material.Filled.Add
+                                        Label="Add"
+                                        OnClick=@(async () => {
+                                              AlterTimeSeriesWrapperCap?.Alter(newAltered, false);
+                                              alteredElements = (await AlterTimeSeriesWrapperCap?.AlteredElements()).ToList();
+                                              StateHasChanged();
+                                          }) />
+                            </MudItem>
+                            <MudItem xs="4"></MudItem>
+                        </MudGrid>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+            <MudItem xs="12">
+                <MudCard Elevation="3">
+                    <MudCardContent>
+                        <MudGrid>
+                            @foreach (var altered in alteredElements)
+                            {
+                                <MudItem xs="2">
+                                    <MudSelect T=@Climate.Element
+                                               @bind-Value=altered.Element
+                                               Label="Altered Element">
+                                        @foreach (var elem in allClimateElements)
+                                        {
+                                            <MudSelectItem Value=@elem />
+                                        }
+                                    </MudSelect>
+                                </MudItem>
+                                <MudItem xs="2">
+                                    <MudSelect T=@Climate.AlterTimeSeriesWrapper.AlterType
+                                               @bind-Value=altered.Type
+                                               Label="Operation">
+                                        @foreach (var (type, label) in allAlterTypes)
+                                        {
+                                            <MudSelectItem Value=@type><MudText Typo=@Typo.body1>@label</MudText></MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                </MudItem>
+                                <MudItem xs="2">
+                                    <MudTextField @bind-Value=altered.Value Label="Value" />
+                                </MudItem>
+                                <MudItem xs="2">
+                                    <MudFab Color=@Color.Secondary
+                                            Icon=@Icons.Material.Filled.Save
+                                            Label="Update"
+                                            OnClick=@(async () => {await AlterTimeSeriesWrapperCap?.Alter(altered, false);}) />
+                                </MudItem>
+                                <MudItem xs="2">
+                                    <MudFab Color=@Color.Secondary
+                                            Icon=@Icons.Material.Filled.Delete
+                                            Label="Delete"
+                                            OnClick=@(async () => {
+                                                  AlterTimeSeriesWrapperCap?.Remove(altered.Element);
+                                                  var aes = await AlterTimeSeriesWrapperCap?.AlteredElements();
+                                                  alteredElements = aes.ToList();
+                                                  StateHasChanged();
+                                              }) />
+                                </MudItem>
+                                <MudItem xs="2"></MudItem>
+                            }
+                        </MudGrid>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
         </MudGrid>
     </MudExpansionPanel>
     <MudExpansionPanel @bind-IsExpanded=@panelOpened["SoilProfile"] Text="Soil profile">
@@ -267,11 +395,10 @@
                     </MudCardContent>
                 </MudCard>
             </MudItem>
-
+-->
             <MudItem xs="12">
                 <MudAlert Severity="Severity.Error">@monicaErrorMessage</MudAlert>
             </MudItem>
-                -->
         </MudGrid>
     </MudExpansionPanel>
 
@@ -294,7 +421,8 @@
 
     [Parameter]
     public Climate.ITimeSeries TimeSeriesCap { get; set; }
-    private Climate.ITimeSeries OrigTimeSeriesCap { get; set; }
+
+    private Climate.IAlterTimeSeriesWrapper AlterTimeSeriesWrapperCap { get; set; }
 
     [Parameter]
     public String TimeSeriesSturdyRef { get; set; } = "";
@@ -467,11 +595,16 @@
     {
         if (TimeSeriesFactoryCap == null || TimeSeriesCap == null) return;
 
-        var wts = await TimeSeriesFactoryCap.Wrap(TimeSeriesCap);
+        var wts = await TimeSeriesFactoryCap.Wrap(Capnp.Rpc.Proxy.Share(TimeSeriesCap));
         if (wts == null) return;
 
-        OrigTimeSeriesCap = TimeSeriesCap;
-        TimeSeriesCap = wts;
+        //store wrapper cap
+        if (AlterTimeSeriesWrapperCap != wts) AlterTimeSeriesWrapperCap?.Dispose();
+        AlterTimeSeriesWrapperCap = wts;
+
+        //let wrapper point also to general time series, but dispose ref to old time series - just remote wrapper still holds ref
+        if (TimeSeriesCap != AlterTimeSeriesWrapperCap) TimeSeriesCap?.Dispose();
+        TimeSeriesCap = AlterTimeSeriesWrapperCap;
     }
 
     private async Task ClimateCSVInputChanged(string csv)
@@ -587,6 +720,8 @@
 
         try
         {
+            //var datat = await TimeSeriesCap.DataT();
+
             var res = await MonicaInstanceCap.Run(menv);
             var resj = JObject.Parse(res.Value);
             var data = resj["data"]; //list
