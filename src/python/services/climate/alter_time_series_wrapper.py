@@ -53,13 +53,6 @@ class AlterTimeSeriesWrapper(climate_data_capnp.Climate.AlterTimeSeriesWrapper.S
         self._cloned_time_series = []
 
         self._available_headers = header
-        self._element_defaults = {
-            "tmin": "absValue", "tavg": "absValue", "tmax": "absValue", 
-            "precip": "percentage", "globrad": "percentage", "relhumid": "percentage", 
-            "co2": "absValue", "wind": "percentage",
-            "sunhours": "absValue", "cloudamount": "percentage", "airpress": "percentage",
-            "vaporpress": "percentage", "o3": "absValue", "et0": "absValue", "dewpointTemp": "absValue"
-        }
 
 
     def wrappedTimeSeries_context(self, context): # wrappedTimeSeries @0 () -> (timeSeries :TimeSeries);
@@ -67,33 +60,38 @@ class AlterTimeSeriesWrapper(climate_data_capnp.Climate.AlterTimeSeriesWrapper.S
 
 
     def alteredElements_context(self, context): # alteredElements @7 () -> (list :List(Common.Pair(Element, Float32)));
-        context.results = [altered for altered, _, _ in self._altered.values()]
+        context.results.list = [altered for altered, _, _ in self._altered.values()]
 
 
-    def alter(self, context): # alter @1 (desc :Altered, asNewTimeSeries :Bool = false)  -> (timeSeries :TimeSeries);
+    def alter_context(self, context): # alter @1 (desc :Altered, asNewTimeSeries :Bool = false)  -> (timeSeries :TimeSeries);
         desc = context.params.desc
-        elem = desc.elem
+        elem = desc.element
         if elem in self._available_headers:
-            altered = self._altered if context.params.asNewTimeSeries else {}
+            altered = {} if context.params.asNewTimeSeries else self._altered
 
-            by = elem.value
-            type_ = elem.type
+            val = desc.value
+            f = {
+                "add": lambda v: v + val,
+                "mul": lambda v: v * val,
+            }.get(desc.type, None)
+            
+            if f is None:
+                return
+            
+            altered[elem] = ({"element": elem, "value": val, "type": desc.type}, self._available_headers.index(elem), f)
 
-            if int(by * 100000) != 0:
-                type__ = self._element_defaults[elem] if type__ == "elementDefault" else type_
-                f = {
-                    "absValue": lambda v: v + by,
-                    "fraction": lambda v: v * by,
-                }.get(type__, lambda v: v + by)
-                
-                altered[elem] = ({"element": elem, "value": by, "type": type_}, self._available_headers.index(elem), f)
+            if context.params.asNewTimeSeries:
+                cts = AlterTimeSeriesWrapper(self, self._available_headers, altered)
+                self._cloned_time_series.append(cts)
+                context.results.timeSeries = cts
+            else:
+                context.results.timeSeries = self
 
-                if context.params.asNewTimeSeries:
-                    cts = AlterTimeSeriesWrapper(self, self._available_headers, altered)
-                    self._cloned_time_series.append(cts)
-                    context.results.timeSeries = cts
-                else:
-                    context.results.timeSeries = self
+
+    def remove_context(self, context): # remove @2 (alteredElement :Element);
+        ae = context.params.alteredElement
+        if ae:
+            self._altered.pop(ae, None)
 
 
     def resolution_context(self, context): # -> (resolution :TimeResolution);
@@ -108,7 +106,6 @@ class AlterTimeSeriesWrapper(climate_data_capnp.Climate.AlterTimeSeriesWrapper.S
         
 
     def header_context(self, context): # () -> (header :List(Element));
-        #return self._timeSeries.header().then(lambda h: setattr(context.results, "header", list(h.header)))
         return self._timeSeries.header().then(lambda h: setattr(context.results, "header", list(h.header)))
 
 
@@ -118,15 +115,19 @@ class AlterTimeSeriesWrapper(climate_data_capnp.Climate.AlterTimeSeriesWrapper.S
             vs = list(values)
             for i, f in index_to_func.items():
                 vs[i] = f(vs[i])
+            return vs
         return self._timeSeries.data().then(lambda res: setattr(context.results, "data", [alter(d) for d in res.data]))
 
 
     def dataT_context(self, context): # () -> (data :List(List(Float32)));
-        def alter(data):
-            ds = list(data)
-            for _, (_, index, func) in self._altered.items():
-                ds[index] = np.array([func(val) for val in ds[index]])
-        return self._timeSeries.dataT().then(lambda res: setattr(context.results, "data", alter(res.data)))
+        i_to_f = {i : f for _, (_, i, f) in self._altered.items()}
+        def alter(index, vals):
+            if index in i_to_f:
+                func = i_to_f[index]
+                return [func(val) for val in vals]
+            else:
+                return list(vals)
+        return self._timeSeries.dataT().then(lambda res: setattr(context.results, "data", [alter(i, d) for i, d in enumerate(res.data)]))#alter(res.data)))
 
 
     def subrange_context(self, context): # (from :Date, to :Date) -> (timeSeries :TimeSeries);
@@ -171,7 +172,7 @@ class AlterTimeSeriesWrapperFactory(climate_data_capnp.Climate.AlterTimeSeriesWr
 
         ts = context.params.timeSeries
         if ts:
-            return ts.header().then(lambda h: create_wrapper(list(h)))
+            return ts.header().then(lambda h: create_wrapper(list(h.header)))
 
 
 #------------------------------------------------------------------------------
