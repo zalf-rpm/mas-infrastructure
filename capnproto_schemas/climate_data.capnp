@@ -282,7 +282,7 @@ struct Climate {
       type @2 :AlterType;
     }
 
-    listAlteredElements @1 () -> (list :List(Altered));
+    alteredElements @1 () -> (list :List(Altered));
     # list the elements and their altered value
 
     enum AlterType {

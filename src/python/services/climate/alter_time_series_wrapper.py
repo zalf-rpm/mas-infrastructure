@@ -49,7 +49,7 @@ class AlterTimeSeriesWrapper(climate_data_capnp.Climate.AlterTimeSeriesWrapper.S
     def __init__(self, time_series, header, altered = {}):
 
         self._timeSeries = time_series
-        self._altered = altered #dict of elem to pair (Altered, func)
+        self._altered = altered #dict of elem to pair (Altered, header_index, func)
         self._cloned_time_series = []
 
         self._available_headers = header
@@ -66,8 +66,8 @@ class AlterTimeSeriesWrapper(climate_data_capnp.Climate.AlterTimeSeriesWrapper.S
         context.results = self._timeSeries
 
 
-    def listAlteredElements_context(self, context): # listAlteredElements @7 () -> (list :List(Common.Pair(Element, Float32)));
-        context.results = [altered for altered, _ in self._altered.values()]
+    def alteredElements_context(self, context): # alteredElements @7 () -> (list :List(Common.Pair(Element, Float32)));
+        context.results = [altered for altered, _, _ in self._altered.values()]
 
 
     def alter(self, context): # alter @1 (element :Element, by :Float32, type :AlterType = elementDefault, asNewTimeSeries :Bool = false)  -> (timeSeries :TimeSeries);
@@ -85,7 +85,7 @@ class AlterTimeSeriesWrapper(climate_data_capnp.Climate.AlterTimeSeriesWrapper.S
                     "fraction": lambda v: v * by,
                 }.get(type__, lambda v: v + by)
                 
-                altered[elem] = ({"element": elem, "value": by, "type": type_}, f)
+                altered[elem] = ({"element": elem, "value": by, "type": type_}, self._available_headers.index(elem), f)
 
                 if context.params.asNewTimeSeries:
                     cts = AlterTimeSeriesWrapper(self, self._available_headers, altered)
@@ -112,11 +112,20 @@ class AlterTimeSeriesWrapper(climate_data_capnp.Climate.AlterTimeSeriesWrapper.S
 
 
     def data_context(self, context): # () -> (data :List(List(Float32)));
-        return self._timeSeries.data().then(lambda res: setattr(context.results, "data", [list(d) for d in res.data]))
+        index_to_func = {index : func for _, (_, index, func) in self._altered.items()}
+        def alter(values):
+            vs = list(values)
+            for i, f in index_to_func.items():
+                vs[i] = f(vs[i])
+        return self._timeSeries.data().then(lambda res: setattr(context.results, "data", [alter(d) for d in res.data]))
 
 
     def dataT_context(self, context): # () -> (data :List(List(Float32)));
-        return self._timeSeries.dataT().then(lambda res: setattr(context.results, "data", [list(d) for d in res.data]))
+        def alter(data):
+            ds = list(data)
+            for _, (_, index, func) in self._altered.items():
+                ds[index] = np.array([func(val) for val in ds[index]])
+        return self._timeSeries.dataT().then(lambda res: setattr(context.results, "data", alter(res.data)))
 
 
     def subrange_context(self, context): # (from :Date, to :Date) -> (timeSeries :TimeSeries);
