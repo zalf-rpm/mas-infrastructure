@@ -1,13 +1,11 @@
 ﻿@page "/climate/timeseries"
 
+@namespace Mas.Infrastructure.BlazorComponents
+
 @using System.Text;
-
 @using MudBlazor
-
 @using Capnp.Rpc
-
 @using Mas.Rpc
-@using Mas.Infrastructure.BlazorComponents
 
 @inject IJSRuntime jsRuntime
 
@@ -20,15 +18,30 @@
                             TCapnpInterface=Climate.ITimeSeries>
         </ConnectToSturdyRef>
     </MudItem>
-    <MudItem Class="d-flex flex-row py-2 px-1" xs="12">
-        <MudDateRangePicker Class="pa-2 mx-2" Label="Date range" Editable=@true DateRangeChanged=@DateRangeChanged DateRange=@range />
-        <MudButton Class="pa-2 mx-2" Variant=Variant.Filled Color=Color.Primary OnClick=@LoadTimeSeriesData>Load data</MudButton>
-        <MudButton Class="pa-2 mx-2" Disabled=@(csvString.Length == 0) Variant=Variant.Filled Color=Color.Primary OnClick=@SaveTimeSeries>Save data</MudButton>
-        <MudButton Class="pa-2 mx-2" Variant=Variant.Filled Color=Color.Primary OnClick=@RestoreInitialTimeSeriesCap>Restore initial time series</MudButton>
+    <MudItem xs="4">
+        <MudDateRangePicker Label="Date range" Editable=@true DateRangeChanged=@DateRangeChanged DateRange=@range />
+    </MudItem>
+    <MudItem xs="2">
+        <MudButton Variant=Variant.Filled Color=Color.Primary OnClick=@LoadTimeSeriesData>Load data</MudButton>
+    </MudItem>
+    <MudItem xs="2">
+        <MudButton Disabled=@(headings.Count() == 0) Variant=Variant.Filled Color=Color.Primary
+                   OnClick=@SaveTimeSeries>
+            Save data
+        </MudButton>
+    </MudItem>
+    <MudItem xs="3">
+        <MudButton Variant=Variant.Filled Color=Color.Primary OnClick=@RestoreInitialTimeSeriesCap>Restore initial time series</MudButton>
     </MudItem>
     <MudItem xs="12">
-        <MudTabs Elevation="2" Rounded=@true ApplyEffectsToContainer=@true>
-            <MudTabPanel Text="Table">
+        <MudExpansionPanels MultiExpansion=@true>
+            @code {
+                private Dictionary<string, bool> panelOpened = new() { { "chart", true }, { "table", false } };
+            }
+            <MudExpansionPanel @bind-IsExpanded=@panelOpened["chart"] Text="Chart">
+                <Highchart Data=@name2Data Dates=@dates DataChanged=@dataChanged></Highchart>
+            </MudExpansionPanel>
+            <MudExpansionPanel @bind-IsExpanded=@panelOpened["table"] Text="Table">
                 <MudTable T=@Element Items=@data Hover=@true Dense=@true Filter=@(new Func<Element,bool>(DataFilterFunc))>
                     <ToolBarContent>
                         <MudText Typo=Typo.h6>Timeseries Data</MudText>
@@ -58,7 +71,6 @@
                             <MudTd DataLabel=@val>
                                 <MudTextField T=@float
                                               @bind-Value=context.Data[k]
-                                              
                                               Required />
                             </MudTd>
                         }
@@ -67,14 +79,8 @@
                         <MudTablePager />
                     </PagerContent>
                 </MudTable>
-            </MudTabPanel>
-            <MudTabPanel Text="Graph">
-                <MudChart ChartType=@MudBlazor.ChartType.Line ChartSeries=@Series XAxisLabels=@XAxisLabels Width="650" Height="350"></MudChart>
-            </MudTabPanel>
-            <MudTabPanel Text="Highcharts">
-                <Highchart></Highchart>
-            </MudTabPanel>
-        </MudTabs>
+            </MudExpansionPanel>
+        </MudExpansionPanels>
     </MudItem>
 </MudGrid>
 
@@ -105,6 +111,10 @@
     private IList<String> headings = new List<String>();
     private List<Element> data = new List<Element>();
     private String searchString;
+
+    private Dictionary<String, IEnumerable<float>> name2Data = new();
+    private IEnumerable<DateTime> dates = new List<DateTime>();
+    private bool dataChanged = false;
 
     public override async Task SetParametersAsync(ParameterView parameters)
     {
@@ -189,6 +199,16 @@
         var ds = await TimeSeriesCap.Data();
         data = ds.Select((d, i) => new Element { Date = start.AddDays(i), Data = d.ToList() }).ToList();
 
+        dates = data.Select((_, i) => start.AddDays(i));
+        name2Data.Clear();
+        foreach (var (header, i) in headings.Select((h, i) => (h, i)))
+        {
+            name2Data[header] = data.Select(e => e.Data[i]);
+        }
+
+        dataChanged = true;
+
+        /*
         //create csv file
         var sb = new StringBuilder();
         sb.Append("iso-date,");
@@ -205,14 +225,8 @@
         }
 
         csvString = sb.ToString();
+        */
     }
-
-    public List<ChartSeries> Series = new List<ChartSeries>()
-{
-        new ChartSeries() { Name = "Serie 1", Data = new double[] { 90, 79, 72, 69, 62, 62, 55, 65, 70 } },
-        new ChartSeries() { Name = "Serie 2", Data = new double[] { 10, 41, 35, 51, 49, 62, 69, 91, 148 } },
-    };
-    public string[] XAxisLabels = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep" };
 
     private bool DataFilterFunc(Element elem)
     {
@@ -229,6 +243,23 @@
 
     private async Task SaveTimeSeries()
     {
+        //create csv file
+        var sb = new StringBuilder();
+        sb.Append("iso-date,");
+        sb.Append(headings.Aggregate((a, e) => a + "," + e.ToString()));
+        sb.Append("\n");
+
+        var ci = new System.Globalization.CultureInfo("en-US");
+        foreach (var el in data)
+        {
+            sb.Append(el.Date.ToString("yyyy-MM-dd"));
+            sb.Append(",");
+            sb.Append(el.Data.Select(e => e.ToString(ci)).Aggregate((a, e) => a + "," + e));
+            sb.Append("\n");
+        }
+
+        var csvString = sb.ToString();
+
         await jsRuntime.InvokeVoidAsync("saveAsBase64", "data.csv", Convert.ToBase64String(Encoding.UTF8.GetBytes(csvString)));
     }
 

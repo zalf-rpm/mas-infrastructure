@@ -15,7 +15,6 @@
 <div id=@chartId></div>
 
 @code {
-
         [Parameter]
         public Dictionary<String, IEnumerable<float>> Data { get; set; }
 
@@ -25,6 +24,9 @@
         [Parameter]
         public String Type { get; set; } = ChartType.Line;
 
+        [Parameter]
+        public bool DataChanged { get; set; } = false;
+
     private string chartId = Guid.NewGuid().ToString();
     private bool chartRenderedOnce = false;
 
@@ -32,7 +34,7 @@
     {
         Chart = new Chart(ChartType.Line, false),
         Legend = new Legend(true, Layout.Vertical, Align.Right, VerticalAlign.Middle),
-        PlotOptions = new PlotOptions(new PlotOptionsSeries(new Label(false), 2010)),
+        //PlotOptions = new PlotOptions(new PlotOptionsSeries(new Label(false), 2010)),
         Responsive = new Responsive(new Rule(new Condition(500),
         new ChartOptions(new Legend(true, Layout.Vertical, Align.Right, VerticalAlign.Middle)))),
         Series = new List<SeriesElement>(),
@@ -46,30 +48,43 @@
         }
     };
 
+    private Dictionary<string, bool> _visibleCurves = new();
+
     protected override async Task OnParametersSetAsync()
     {
         if (Data == null) return;
 
-        lineGraph.Series = new List<SeriesElement>();
-
-        var noDates = Dates == null || Dates.Count() == 0 ;
-        var milliDates = noDates ? null : Dates.Select(d => new DateTimeOffset(d).ToUnixTimeMilliseconds());
-        lineGraph.XAxis.Type = noDates ? "linear" : "datetime";
-
-        foreach (var p in Data)
+        if (DataChanged)
         {
-            var ds = noDates 
-                ? p.Value.Select(v => (object)v).ToList() 
-                : p.Value.Zip(milliDates).Select(z => new List<object>() { z.Second, z.First }).ToList<object>();
+            lineGraph.Series = new List<SeriesElement>();
 
-            lineGraph.Series.Add(new SeriesElement()
+            var noDates = Dates == null || Dates.Count() == 0;
+            var milliDates = noDates ? null : Dates.Select(d => new DateTimeOffset(d).ToUnixTimeMilliseconds());
+            lineGraph.XAxis.Type = noDates ? "linear" : "datetime";
+
+            foreach (var (p, i) in Data.Select((p, i) => (p, i)))
             {
-                Name = p.Key,
-                Data = ds
-            });
-        }
+                var curveName = p.Key;
+                var ds = noDates
+                    ? p.Value.Select(v => (object)v).ToList()
+                    : p.Value.Zip(milliDates).Select(z => new List<object>() { z.Second, z.First }).ToList<object>();
 
-        if (chartRenderedOnce) await chartService.RenderChart(chartId, lineGraph.Generate());
+                bool isVisible = i == 0;
+                if (!_visibleCurves.TryGetValue(curveName, out isVisible))
+                    _visibleCurves[curveName] = isVisible;
+
+                lineGraph.Series.Add(new SeriesElement()
+                {
+                    Name = p.Key,
+                    Data = ds,
+                    Visible = isVisible
+                });
+            }
+
+            if (chartRenderedOnce) await chartService.RenderChart(chartId, lineGraph.Generate());
+
+            DataChanged = false;
+        }
     }
 
     protected override void OnAfterRender(bool firstRender)
@@ -78,7 +93,7 @@
         if (firstRender)
         {
             chartService.RenderChart(chartId, lineGraph.Generate());
-            //jsRuntime.InvokeVoidAsync("prettyPrint");
+            jsRuntime.InvokeVoidAsync("prettyPrint");
             chartRenderedOnce = true;
         }
     }
