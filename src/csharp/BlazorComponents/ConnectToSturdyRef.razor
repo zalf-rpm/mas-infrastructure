@@ -6,6 +6,7 @@
 @namespace Mas.Infrastructure.BlazorComponents
 
 @inject Mas.Infrastructure.Common.ConnectionManager ConMan
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 
 @typeparam TCapnpInterface
 
@@ -13,6 +14,15 @@
 
 <MudCard Class="minimize-card" Outlined="true">
     <MudCardContent>
+        <MudSelect @bind-Value=@_selectedBookmark Label="Bookmarks" Variant="Variant.Outlined" OffsetY="true">
+            @foreach (var (petname, data) in bookmarks["Climate.IService"])
+            {
+                <MudSelectItem Value=@data>
+                    <MudIcon Icon=@(data.AutoConnect ? Icons.Filled.CastConnected : Icons.Filled.CastConnected)/>
+                    <MudText Typo=@Typo.body1>@($"{data.PetName} ({data.SturdyRef})")</MudText>
+                </MudSelectItem>
+            }
+        </MudSelect>
         <MudTextField Class="mx-1" @bind-Value=SturdyRef Label=@Label Variant=Variant.Outlined HelperText=@HelperText></MudTextField>
     </MudCardContent>
     <MudCardActions>
@@ -30,21 +40,21 @@
     -->
 
 @code {
-    [Parameter]
-    public String SturdyRef { get; set; }
+        [Parameter]
+        public String SturdyRef { get; set; }
 
-    private async Task SturdyRefValueChanged(String sr)
-    {
-        SturdyRef = sr;
-        if(SturdyRefChanged.HasDelegate) _ = SturdyRefChanged.InvokeAsync(sr);
-        ClearButton();
-    }
+        private async Task SturdyRefValueChanged(String sr)
+        {
+            SturdyRef = sr;
+            if (SturdyRefChanged.HasDelegate) _ = SturdyRefChanged.InvokeAsync(sr);
+            ClearButton();
+        }
 
-    [Parameter]
-    public bool ConnectOnInit { get; set; } = false;
+        [Parameter]
+        public bool ConnectOnInit { get; set; } = false;
 
-    [Parameter]
-    public EventCallback<String> SturdyRefChanged { get; set; }
+        [Parameter]
+        public EventCallback<String> SturdyRefChanged { get; set; }
 
     private String buttonIcon = Icons.Material.Filled.CastConnected;
     private Color buttonColor = Color.Primary;
@@ -88,7 +98,7 @@
             buttonColor = Color.Success;
             buttonLabel = "Connected";
 
-            if(CapabilityChanged.HasDelegate) await CapabilityChanged.InvokeAsync(Capnp.Rpc.Proxy.Share(Capability));
+            if (CapabilityChanged.HasDelegate) await CapabilityChanged.InvokeAsync(Capnp.Rpc.Proxy.Share(Capability));
         }
         catch (RpcException e)
         {
@@ -141,5 +151,46 @@
     {
         Console.WriteLine("Disposing " + SturdyRef + " cap: " + Capability);
         Capability?.Dispose();
+    }
+
+    public class LSData
+    {
+        public string SturdyRef { get; set; }
+        public string PetName { get; set; }
+        public bool AutoConnect { get; set; }
+    }
+
+
+    private Dictionary<string, SortedDictionary<string, LSData>> bookmarks = new()
+    {
+        {
+            "Climate.IService",
+            new()
+            {
+                { "climate1", new() { SturdyRef = "capnp://localhost:1111#wesdfdfc", PetName = "climate1" } },
+                { "climate2", new() { SturdyRef = "capnp://localhost:2222#sdfsdfd", PetName = "climate22", AutoConnect = true } }
+            }
+        },
+        {
+            "Soil.IService",
+            new() { { "soil1", new() { SturdyRef = "capnp://localhost:3333#soilwesdfdfc", PetName = "soil1" } } }
+        }
+    };
+    private LSData _selectedBookmark;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LocalStorage.SetItemAsync("name", "John Smith");
+            var name = await LocalStorage.GetItemAsync<string>("name");
+
+            await LocalStorage.SetItemAsync("dict", bookmarks);
+            var dict = await LocalStorage.GetItemAsync<Dictionary<string, SortedDictionary<string, LSData>>>("dict");
+
+            var l = await LocalStorage.LengthAsync();
+
+            Console.WriteLine();
+        }
     }
 }
