@@ -1,18 +1,22 @@
 @inherits LayoutComponentBase
 
 @using MudBlazor
+@using Mas.Infrastructure.BlazorComponents 
+
+@inject IDialogService DialogService
 
 <MudThemeProvider />
 
 <MudLayout>
     <MudAppBar Elevation="1">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        <MudIconButton Icon=@Icons.Material.Filled.Menu Color=@Color.Inherit Edge=@Edge.Start OnClick=@(e => DrawerToggle()) />
         <MudAppBarSpacer />
-        <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
+        <MudIconButton Icon=@Icons.Material.Filled.SettingsRemote Color=@Color.Inherit OnClick=@ShowSturdyRefDialog />
+        <MudIconButton Icon=@Icons.Material.Filled.MoreVert Color=@Color.Inherit Edge=@Edge.End />
     </MudAppBar>
-    <MudDrawer @bind-Open="_drawerOpen" Elevation="2">
+    <MudDrawer @bind-Open=_drawerOpen Elevation="2">
         <MudDrawerHeader>
-            <MudText Typo="Typo.h5" Class="mt-1">Application</MudText>
+            <MudText Typo=@Typo.h5 Class="mt-1">Application</MudText>
         </MudDrawerHeader>
         <NavMenu />
     </MudDrawer>
@@ -26,5 +30,11 @@
     void DrawerToggle()
     {
         _drawerOpen = !_drawerOpen;
+    }
+
+    private async Task ShowSturdyRefDialog()
+    {
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraLarge, FullWidth = true };
+        DialogService.Show<LocallyStoredSturdyRefsDialog>("Sturdy reference bookmarks", options);
     }
 }

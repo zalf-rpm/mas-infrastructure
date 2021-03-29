@@ -15,17 +15,27 @@
 <div id=@chartId></div>
 
 @code {
-        [Parameter]
-        public Dictionary<String, IEnumerable<float>> Data { get; set; }
+    [Parameter]
+    public Dictionary<String, IEnumerable<float>> Data { get; set; }
 
-        [Parameter]
-        public IEnumerable<DateTime> Dates { get; set; }
+    [Parameter]
+    public IEnumerable<DateTime> Dates { get; set; }
 
-        [Parameter]
-        public String Type { get; set; } = ChartType.Line;
+    [Parameter]
+    public String Type { get; set; } = ChartType.Line;
 
-        [Parameter]
-        public bool DataChanged { get; set; } = false;
+    [Parameter]
+    public bool DataChanged { get; set; } = false;
+
+    [Parameter]
+    public string Title { get; set; }
+
+    [Parameter]
+    public string XAxisTitle { get; set; }
+
+    [Parameter]
+    public string YAxisTitle { get; set; }
+
 
     private string chartId = Guid.NewGuid().ToString();
     private bool chartRenderedOnce = false;
@@ -39,9 +49,9 @@
         new ChartOptions(new Legend(true, Layout.Vertical, Align.Right, VerticalAlign.Middle)))),
         Series = new List<SeriesElement>(),
         //Subtitle = new Title("MONICA Result Data"),
-        Title = new Title("Monica results"),
-        YAxis = new YAxis(new Title("Values")),
-        XAxis = new XAxis()
+        //Title = new Title(Title),
+        //YAxis = new YAxis(new Title(YAxisTitle)),
+        XAxis = new XAxis
         {
             Accessibility = new Accessibility("Date / days"),
             Type = "datetime"
@@ -60,7 +70,10 @@
 
             var noDates = Dates == null || Dates.Count() == 0;
             var milliDates = noDates ? null : Dates.Select(d => new DateTimeOffset(d).ToUnixTimeMilliseconds());
+            lineGraph.Title = new(Title);
             lineGraph.XAxis.Type = noDates ? "linear" : "datetime";
+            lineGraph.XAxis.Title = new(XAxisTitle);
+            lineGraph.YAxis.Title = new(YAxisTitle);
 
             foreach (var (p, i) in Data.Select((p, i) => (p, i)))
             {

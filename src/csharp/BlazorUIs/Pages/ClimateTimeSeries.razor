@@ -7,7 +7,7 @@
 @using Capnp.Rpc
 @using Mas.Rpc
 
-@inject IJSRuntime jsRuntime
+@inject IJSRuntime JsRuntime
 
 @implements IDisposable
 
@@ -39,7 +39,12 @@
                 private Dictionary<string, bool> panelOpened = new() { { "chart", true }, { "table", false } };
             }
             <MudExpansionPanel @bind-IsExpanded=@panelOpened["chart"] Text="Chart">
-                <Highchart Data=@name2Data Dates=@dates DataChanged=@dataChanged></Highchart>
+                <Highchart Title="Climate Curves"
+                           XAxisTitle="Date"
+                           YAxisTitle="Values"
+                           Data=@name2Data 
+                           Dates=@dates 
+                           DataChanged=@dataChanged></Highchart>
             </MudExpansionPanel>
             <MudExpansionPanel @bind-IsExpanded=@panelOpened["table"] Text="Table">
                 <MudTable T=@Element Items=@data Hover=@true Dense=@true Filter=@(new Func<Element,bool>(DataFilterFunc))>
@@ -260,7 +265,7 @@
 
         var csvString = sb.ToString();
 
-        await jsRuntime.InvokeVoidAsync("saveAsBase64", "data.csv", Convert.ToBase64String(Encoding.UTF8.GetBytes(csvString)));
+        await JsRuntime.InvokeVoidAsync("saveAsBase64", "data.csv", Convert.ToBase64String(Encoding.UTF8.GetBytes(csvString)));
     }
 
     void IDisposable.Dispose()
