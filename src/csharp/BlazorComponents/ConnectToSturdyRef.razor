@@ -113,10 +113,7 @@
     [Parameter]
     public EventCallback<RpcException> RpcExceptionThrown { get; set; }
 
-    protected override async Task OnInitializedAsync()
-    {
-        if (ConnectOnInit && SturdyRef.Length > 0) await Connect();
-    }
+
 
     private async Task Connect()
     {
@@ -124,7 +121,7 @@
         {
             buttonLabel = "Connecting ...";
 
-            Console.WriteLine("ConnectToSturdyRef: ThreadId: " + Thread.CurrentThread.ManagedThreadId);
+            Console.WriteLine("ConnectToSturdyRef<" + typeof(TCapnpInterface).ToString() + ">: ThreadId: " + Thread.CurrentThread.ManagedThreadId);
             var cap = await ConMan.Connect<TCapnpInterface>(SturdyRef);
             if (Capability != cap) Capability?.Dispose();
             Capability = cap;
@@ -182,12 +179,12 @@
 
     protected override void OnInitialized()
     {
-        Console.WriteLine("OnInitialized SR: " + SturdyRef);
+        Console.WriteLine("OnInitialized SR<" + typeof(TCapnpInterface).ToString() + ">: " + SturdyRef);
     }
 
     void IDisposable.Dispose()
     {
-        Console.WriteLine("Disposing " + SturdyRef + " cap: " + Capability);
+        Console.WriteLine("Disposing<" + typeof(TCapnpInterface).ToString() + "> " + SturdyRef + " cap: " + Capability);
         Capability?.Dispose();
     }
 
@@ -195,36 +192,129 @@
     private List<StoredSRData> bookmarks => allBookmarks.Where(b => b.Interface == typeof(TCapnpInterface).ToString()).ToList();
     private StoredSRData selectedBookmark;
 
-    private async Task SelectedBookmarkChanged(StoredSRData b)
+    private async Task SelectedBookmarkChanged(StoredSRData b, bool allowAutoConnect)
     {
         selectedBookmark = b;
         await SturdyRefValueChanged(b.SturdyRef);
-        if (b.AutoConnect) await Connect();
+        if (allowAutoConnect && b.AutoConnect) await Connect();
         StateHasChanged();
     }
 
+    private async Task SelectedBookmarkChanged(StoredSRData b)
+    {
+        await SelectedBookmarkChanged(b, true);
+    }
+
+    private List<StoredSRData> hardcodedDefaultSturdyRefs = new()
+    {
+        new StoredSRData
+        {
+            Interface = "Mas.Rpc.Climate+IService",
+            PetName = "DWD CMIP5 EURO-CORDEX ReKLiEs-De",
+            SturdyRef = "capnp://login01.cluster.zalf.de:9998",
+            AutoConnect = true,
+            DefaultSelect = true
+        },
+        new StoredSRData
+        {
+            Interface = "Mas.Rpc.Climate+IService",
+            PetName = "DWD Germany",
+            SturdyRef = "capnp://login01.cluster.zalf.de:9999",
+            AutoConnect = true,
+            DefaultSelect = false
+        },
+        new StoredSRData
+        {
+            Interface = "Mas.Rpc.Climate+ITimeSeries",
+            PetName = "Hohenfinow2 Test CSV",
+            SturdyRef = "capnp://login01.cluster.zalf.de:11002",
+            AutoConnect = true,
+            DefaultSelect = true
+        },
+        new StoredSRData
+        {
+            Interface = "Mas.Rpc.Soil+IService",
+            PetName = "BÜK200",
+            SturdyRef = "capnp://login01.cluster.zalf.de:10001",
+            AutoConnect = true,
+            DefaultSelect = false
+        },
+        new StoredSRData
+        {
+            Interface = "Mas.Rpc.Soil+IService",
+            PetName = "BÜK1000",
+            SturdyRef = "capnp://login01.cluster.zalf.de:10000",
+            AutoConnect = true,
+            DefaultSelect = true
+        },
+        new StoredSRData
+        {
+            Interface = "Mas.Rpc.Model+IEnvInstance`2[Mas.Rpc.Common+StructuredText,Mas.Rpc.Common+StructuredText]",
+            PetName = "a MONICA instance",
+            SturdyRef = "capnp://login01.cluster.zalf.de:10003",
+            AutoConnect = true,
+            DefaultSelect = false
+        },
+        new StoredSRData
+        {
+            Interface = "Mas.Rpc.Model+IEnvInstance`2[Mas.Rpc.Common+StructuredText,Mas.Rpc.Common+StructuredText]",
+            PetName = "a proxy with 3 MONICA instances",
+            SturdyRef = "capnp://login01.cluster.zalf.de:10002",
+            AutoConnect = true,
+            DefaultSelect = true
+        },
+        new StoredSRData
+        {
+            Interface = "Mas.Rpc.Climate+IAlterTimeSeriesWrapperFactory",
+            PetName = "Alter time series wrapper",
+            SturdyRef = "capnp://login01.cluster.zalf.de:11006",
+            AutoConnect = true,
+            DefaultSelect = true
+        },
+        new StoredSRData
+        {
+            Interface = "Mas.Rpc.Model+ICSVTimeSeriesFactory",
+            PetName = "Time series factory from CSV data",
+            SturdyRef = "capnp://login01.cluster.zalf.de:11005",
+            AutoConnect = false,
+            DefaultSelect = true
+        }
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (ConnectOnInit && SturdyRef.Length > 0) await Connect();
+
+        //just temporary to have some sturdy refs available in the users browser
+        if (!await LocalStorage.ContainKeyAsync("sturdy-ref-store"))
+            await StoredSRData.SaveAllData(LocalStorage, hardcodedDefaultSturdyRefs);
+
+        if (await LocalStorage.ContainKeyAsync("sturdy-ref-store"))
+        {
+            allBookmarks = await StoredSRData.GetAllData(LocalStorage);
+            allBookmarks.Sort();
+            //try to select the first found default connect and auto connect field, so the user can start right away
+            var sbms = bookmarks.Where(b => b.AutoConnect && b.DefaultSelect);
+            var sb = sbms.Any() ? sbms.First() : null;
+            //if there was no one with default select, then just take the first auto-connect one
+            if (sb == null)
+            {
+                sbms = bookmarks.Where(b => b.AutoConnect);
+                sb = sbms.Any() ? sbms.First() : null;
+            }
+            if (sb != null) await SelectedBookmarkChanged(sb, ConnectOnInit);
+            StateHasChanged();
+        }
+    }
+
+    /*
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            if (await LocalStorage.ContainKeyAsync("sturdy-ref-store"))
-            {
-                allBookmarks = await StoredSRData.GetAllData(LocalStorage);
-                allBookmarks.Sort();
-                //try to select the first found default connect and auto connect field, so the user can start right away
-                var sbms = bookmarks.Where(b => b.AutoConnect && b.DefaultSelect);
-                var sb = sbms.Any() ? sbms.First() : null;
-                //if there was no one with default select, then just take the first auto-connect one
-                if (sb == null)
-                {
-                    sbms = bookmarks.Where(b => b.AutoConnect);
-                    sb = sbms.Any() ? sbms.First() : null;
-                }
-                if(sb != null) await SelectedBookmarkChanged(sb);
-                StateHasChanged();
-            }
         }
     }
+    */
 
     private async Task OpenAddSturdyRefDialog(StoredSRData editData = null)
     {

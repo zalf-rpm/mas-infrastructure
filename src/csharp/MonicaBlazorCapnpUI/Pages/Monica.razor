@@ -19,7 +19,7 @@
     @code {
         private Dictionary<string, bool> panelOpened = new()
         {
-            { "Connections", true },
+            { "Connections", false },
             { "BaseFiles", false },
             { "Location", false },
             { "UpdateTimeSeries", false },
@@ -112,7 +112,9 @@
                       Zoom=6>
         </GeoposPicker>
     </MudExpansionPanel>
-    <MudExpansionPanel @bind-IsExpanded=@panelOpened["ClimateService"] Text="Choose climate data from service">
+    <MudExpansionPanel Class=@(true ? "d-none" : "")
+                       @bind-IsExpanded=@panelOpened["ClimateService"] 
+                       Text="Choose climate data from service">
         <ClimateService ClimateServiceCap=@ClimateServiceCap
                         HideSturdyRefConnector=@true
                         HideGeoPosPicker=@true
@@ -254,7 +256,7 @@
                     </MudCardContent>
                 </MudCard>
             </MudItem>
-            <MudItem xs="12">
+            <MudItem xs="12" Class=@(true ? "d-none" : "")>
                 @code {
                     private Dictionary<String, IEnumerable<float>> Name2Data = new();
                     private IEnumerable<DateTime> Dates = new List<DateTime>();
@@ -418,7 +420,10 @@
                 <MudButton Variant=@Variant.Filled Class="run-main" OnClick=@RunMonicaModel>Run MONICA</MudButton>
             </MudItem>
             <MudItem xs="10">
-                <MudChipSet SelectedChipsChanged=@(cs => selectedResultSection = cs.Select(c => c.Text).FirstOrDefault())
+                <MudChipSet SelectedChipsChanged=@(cs => {
+                                                       selectedResultSection = cs.Select(c => c.Text).FirstOrDefault();
+                                                       MonicaResultsChanged = true;
+                                                   })
                             Mandatory=@true
                             Filter=@true>
                     @foreach (var (s, i) in Section2Oid2Data.Keys.Select((s, i) => (s, i)))
@@ -428,9 +433,25 @@
                 </MudChipSet>
             </MudItem>
             <MudItem xs="12">
-                <Highchart Data=@(Section2Oid2Data.GetValueOrDefault(selectedResultSection, new Dictionary<string, IEnumerable<float>>()))
+                @code {
+                    private List<Highchart.AxisConfig> yAxisConfigs = new()
+                    {
+                        new Highchart.AxisConfig { Id = "def", Title = "other values" },
+                        new Highchart.AxisConfig { Id = "yields", Title = "Yield [kg/ha]", Opposite = true }
+                    };
+                    private Dictionary<string, Highchart.CurveConfig> curveName2Config = new()
+                    {
+                        { "Yield", new Highchart.CurveConfig { DisplayAxisId = "yields", IsVisible = true } }
+                    };
+                }
+                <Highchart Title="MONICA results"
+                           XAxisTitle="Date"
+                           Data=@(Section2Oid2Data.GetValueOrDefault(selectedResultSection, new Dictionary<string, IEnumerable<float>>()))
                            Dates=@(Section2Dates.GetValueOrDefault(selectedResultSection, new List<DateTime>()))
-                           DataChanged=@MonicaResultsChanged>
+                           DataChanged=@MonicaResultsChanged
+                           ChartRerendered=@(() => MonicaResultsChanged = false)
+                           YAxisConfigs=@yAxisConfigs
+                           CurveName2Config=@curveName2Config>
                 </Highchart>
             </MudItem>
             <!--<MudItem xs="12">

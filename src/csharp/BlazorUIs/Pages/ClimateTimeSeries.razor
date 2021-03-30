@@ -39,12 +39,34 @@
                 private Dictionary<string, bool> panelOpened = new() { { "chart", true }, { "table", false } };
             }
             <MudExpansionPanel @bind-IsExpanded=@panelOpened["chart"] Text="Chart">
+                @code {
+                    private List<Highchart.AxisConfig> yAxisConfigs = new()
+                    {
+                        new Highchart.AxisConfig { Id = "def", Title = "Wind [m/s], Globrad [MJ/m2], Relhumid [%]" },
+                        new Highchart.AxisConfig { Id = "temps", Title = "Temp [°C]" },
+                        new Highchart.AxisConfig { Id = "precip", Title = "Precipitation [mm]", Opposite = true },
+                    };
+
+                    private Dictionary<string, Highchart.CurveConfig> curveName2Config = new()
+                    {
+                        { "tmin", new Highchart.CurveConfig { DisplayAxisId = "temps" } },
+                        { "tavg", new Highchart.CurveConfig { DisplayAxisId = "temps", IsVisible = true } },
+                        { "tmax", new Highchart.CurveConfig { DisplayAxisId = "temps" } },
+                        { "precip", new Highchart.CurveConfig { DisplayAxisId = "precip", IsVisible = true } },
+                        { "globrad", new Highchart.CurveConfig { DisplayAxisId = "def" } },
+                        { "wind", new Highchart.CurveConfig { DisplayAxisId = "def" } },
+                        { "relhumid", new Highchart.CurveConfig { DisplayAxisId = "def" } }
+                    };
+                }
                 <Highchart Title="Climate Curves"
                            XAxisTitle="Date"
-                           YAxisTitle="Values"
+                           YAxisConfigs=@yAxisConfigs
+                           CurveName2Config=@curveName2Config
                            Data=@name2Data 
                            Dates=@dates 
-                           DataChanged=@dataChanged></Highchart>
+                           DataChanged=@dataChanged
+                           ChartRerendered=@(() => dataChanged = false)
+                           ></Highchart>
             </MudExpansionPanel>
             <MudExpansionPanel @bind-IsExpanded=@panelOpened["table"] Text="Table">
                 <MudTable T=@Element Items=@data Hover=@true Dense=@true Filter=@(new Func<Element,bool>(DataFilterFunc))>

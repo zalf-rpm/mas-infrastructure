@@ -29,17 +29,15 @@ namespace Mas.Infrastructure.BlazorComponents
             if (MonicaInstanceCap != monicaInstance) MonicaInstanceCap?.Dispose();
             MonicaInstanceCap = monicaInstance;
         }
-
         #endregion Monica capability
 
         [Parameter]
         public bool HideSturdyRefConnectors { get; set; } = false;
 
         [Parameter]
-        public bool TryConnectOnInit { get; set; } = false;
+        public bool TryConnectOnInit { get; set; } = true;
 
         #region time series capability
-
         [Parameter]
         public Climate.ITimeSeries TimeSeriesCap { get; set; }
         private Climate.IAlterTimeSeriesWrapper AlterTimeSeriesWrapperCap { get; set; }
@@ -55,7 +53,6 @@ namespace Mas.Infrastructure.BlazorComponents
             if (TimeSeriesCap != timeSeries) TimeSeriesCap?.Dispose();
             TimeSeriesCap = timeSeries;
         }
-
         #endregion time series capability
 
         #region time series wrapper factory capability
@@ -63,7 +60,7 @@ namespace Mas.Infrastructure.BlazorComponents
         public Climate.IAlterTimeSeriesWrapperFactory TimeSeriesFactoryCap { get; set; }
 
         [Parameter]
-        public String TimeSeriesFactorySturdyRef { get; set; } = "capnp://10.10.24.86:11006"; //"capnp://login01.cluster.zalf.de:11006";//
+        public String TimeSeriesFactorySturdyRef { get; set; } = "";// = "capnp://10.10.24.86:11006"; //"capnp://login01.cluster.zalf.de:11006";//
 
         [Parameter]
         public EventCallback<Climate.IAlterTimeSeriesWrapperFactory> TimeSeriesFactoryCapChanged { get; set; }
@@ -84,11 +81,13 @@ namespace Mas.Infrastructure.BlazorComponents
             if (wts == null) return;
 
             //store wrapper cap
-            if (AlterTimeSeriesWrapperCap != wts) AlterTimeSeriesWrapperCap?.Dispose();
+            if (AlterTimeSeriesWrapperCap != wts) 
+                AlterTimeSeriesWrapperCap?.Dispose();
             AlterTimeSeriesWrapperCap = wts;
 
             //let wrapper point also to general time series, but dispose ref to old time series - just remote wrapper still holds ref
-            if (TimeSeriesCap != AlterTimeSeriesWrapperCap) TimeSeriesCap?.Dispose();
+            if (TimeSeriesCap != AlterTimeSeriesWrapperCap) 
+                TimeSeriesCap?.Dispose();
             TimeSeriesCap = AlterTimeSeriesWrapperCap;
         }
         #endregion time series wrapper factory capability
@@ -107,7 +106,8 @@ namespace Mas.Infrastructure.BlazorComponents
         {
             if (service == null) return;
 
-            if (SoilServiceCap != service) SoilServiceCap?.Dispose();
+            if (SoilServiceCap != service) 
+                SoilServiceCap?.Dispose();
             SoilServiceCap = service;
         }
 
@@ -121,7 +121,7 @@ namespace Mas.Infrastructure.BlazorComponents
         public Climate.IService ClimateServiceCap { get; set; }
 
         [Parameter]
-        public string ClimateServiceSturdyRef { get; set; } = "capnp://login01.cluster.zalf.de:9998";
+        public string ClimateServiceSturdyRef { get; set; } = "";//"capnp://login01.cluster.zalf.de:9998";
 
         [Parameter]
         public EventCallback<Climate.ITimeSeries> ClimateServiceCapChanged { get; set; }
@@ -146,6 +146,7 @@ namespace Mas.Infrastructure.BlazorComponents
         {
             Console.WriteLine("OnInitialized Monica SR: " + MonicaSturdyRef);
 
+            /*
             var query = new Uri(NavigationManager.Uri).Query;
             var qps = QueryHelpers.ParseQuery(query);
 
@@ -176,6 +177,7 @@ namespace Mas.Infrastructure.BlazorComponents
                 HideSturdyRefConnectors = true;
                 TryConnectOnInit = true;
             }
+            */
 
             simJsonTxt = File.ReadAllText("Data-Full/sim-min.json");
             cropJsonTxt = File.ReadAllText("Data-Full/crop-min.json");
@@ -211,7 +213,8 @@ namespace Mas.Infrastructure.BlazorComponents
             var dt = await ts.DataT();
             */
 
-            if (TimeSeriesCap != ts) TimeSeriesCap?.Dispose();
+            if (TimeSeriesCap != ts) 
+                TimeSeriesCap?.Dispose();
             TimeSeriesCap = ts;
         }
 
@@ -363,8 +366,8 @@ namespace Mas.Infrastructure.BlazorComponents
             try
             {
                 //var datat = await TimeSeriesCap.DataT();
-
                 var res = await MonicaInstanceCap.Run(menv);
+                if (res == null) throw new Capnp.Rpc.RpcException("MonicaInstanceCap.Run return null result.");
                 var resj = JObject.Parse(res.Value);
                 var data = resj["data"]; //list
                 foreach (var section in data.Select(s => s.Value<JObject>()))
