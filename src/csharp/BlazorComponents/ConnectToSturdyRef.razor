@@ -18,7 +18,7 @@
                Variant=Variant.Filled
                StartIcon=@Icons.Material.Filled.Add
                Color=@Color.Primary
-               OnClick=@OpenAddSturdyRefDialog>
+               OnClick=@(async () => await OpenAddSturdyRefDialog())>
         Add new
     </MudButton>
     <MudSelect Class="pa-2 mx-2"
@@ -38,6 +38,14 @@
             </MudSelectItem>
         }
     </MudSelect>
+    <MudButton Class="pa-2 mx-2"
+               Variant=Variant.Filled
+               StartIcon=@Icons.Material.Filled.Edit
+               Color=@Color.Primary
+               Disabled=@(selectedBookmark == null)
+               OnClick=@(async () => await OpenAddSturdyRefDialog(selectedBookmark))>
+        Edit
+    </MudButton>
     <MudButton Class="pa-2 mx-2"
                Variant=Variant.Filled
                StartIcon=@buttonIcon
@@ -203,28 +211,46 @@
             {
                 allBookmarks = await StoredSRData.GetAllData(LocalStorage);
                 allBookmarks.Sort();
+                //try to select the first found default connect and auto connect field, so the user can start right away
+                var sbms = bookmarks.Where(b => b.AutoConnect && b.DefaultSelect);
+                var sb = sbms.Any() ? sbms.First() : null;
+                //if there was no one with default select, then just take the first auto-connect one
+                if (sb == null)
+                {
+                    sbms = bookmarks.Where(b => b.AutoConnect);
+                    sb = sbms.Any() ? sbms.First() : null;
+                }
+                if(sb != null) await SelectedBookmarkChanged(sb);
                 StateHasChanged();
             }
         }
     }
 
-    private async Task AddAndSave(StoredSRData newBookmark)
-    {
-        if (newBookmark.SturdyRef.Length == 0) return;
-        allBookmarks = await StoredSRData.Save(LocalStorage, newBookmark);
-        allBookmarks.Sort();
-    }
-
-    private async Task OpenAddSturdyRefDialog()
+    private async Task OpenAddSturdyRefDialog(StoredSRData editData = null)
     {
         var parameters = new DialogParameters();
         parameters.Add("Interface", typeof(TCapnpInterface).ToString());
+        parameters.Add("EditData", editData);
         var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true };
         var res = await DialogService.Show<NewSturdyRefDialog>("Add sturdy reference", parameters, options).Result;
-        if (res.Data is StoredSRData nb)
+        if (res.Data is StoredSRData nb && editData == null)
         {
-            await AddAndSave(nb);
+            if (nb.SturdyRef.Length == 0) return;
+            allBookmarks = await StoredSRData.SaveNew(LocalStorage, nb);
+            allBookmarks.Sort();
             await SelectedBookmarkChanged(nb);
+        }
+        else if (editData != null)
+        {
+            //if the user possibly updated the default select field, un-default select all others with same interface
+            if (editData.DefaultSelect)
+            {
+                foreach (var b in bookmarks)
+                {
+                    if (b != editData) b.DefaultSelect = false;
+                }
+            }
+            await StoredSRData.SaveAllData(LocalStorage, allBookmarks);
         }
     }
 

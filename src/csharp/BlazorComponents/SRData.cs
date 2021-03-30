@@ -11,6 +11,7 @@ namespace Mas.Infrastructure.BlazorComponents
         public string SturdyRef { get; set; } = "";
         public string PetName { get; set; }
         public bool AutoConnect { get; set; } = false;
+        public bool DefaultSelect { get; set; } = false;
 
         public int CompareTo(StoredSRData other)
         {
@@ -30,10 +31,10 @@ namespace Mas.Infrastructure.BlazorComponents
             return await service.GetItemAsync<List<StoredSRData>>(StorageKey);
         }
 
-        public static async Task<List<StoredSRData>> Save(ILocalStorageService service, StoredSRData data)
+        public static async Task<List<StoredSRData>> SaveNew(ILocalStorageService service, StoredSRData newData)
         {
             var all = await GetAllData(service);
-            all.Add(data);
+            all.Add(newData);
             return await SaveAllData(service, all);
         }
 

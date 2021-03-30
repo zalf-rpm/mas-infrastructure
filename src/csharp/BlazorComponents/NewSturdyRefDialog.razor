@@ -5,9 +5,10 @@
 <MudDialog>
     <DialogContent>
         <MudTextField Value=@Interface ReadOnly=@true Label="Interface" />
-        <MudTextField @bind-Value=newBookmark.PetName Label="Petname" />
-        <MudTextField @bind-Value=newBookmark.SturdyRef Label="Sturdy reference" Required />
-        <MudSwitch @bind-Checked=newBookmark.AutoConnect Label="Auto-connect?" Color=@Color.Primary/>
+        <MudTextField @bind-Value=editBookmark.PetName Label="Petname" />
+        <MudTextField @bind-Value=editBookmark.SturdyRef Label="Sturdy reference" Required />
+        <MudSwitch @bind-Checked=editBookmark.AutoConnect Label="Auto-connect?" Color=@Color.Primary />
+        <MudSwitch @bind-Checked=editBookmark.DefaultSelect Label="Select by default?" Color=@Color.Primary />
     </DialogContent>
     <DialogActions>
         <MudButton OnClick=@Cancel>Cancel</MudButton>
@@ -22,12 +23,20 @@
     [Parameter]
     public string Interface { get; set; }
 
-    private StoredSRData newBookmark = new();
+    [Parameter]
+    public StoredSRData EditData { get; set; }
+
+    private StoredSRData editBookmark = new();
+
+    protected override void OnParametersSet()
+    {
+        if (EditData != null) editBookmark = EditData;
+    }
 
     private void Close()
     {
-        newBookmark.Interface = Interface;
-        MudDialog.Close(DialogResult.Ok(newBookmark));
+        editBookmark.Interface = Interface;
+        MudDialog.Close(DialogResult.Ok(editBookmark));
     }
     void Cancel() => MudDialog.Cancel();
 }
