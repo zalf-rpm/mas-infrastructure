@@ -284,37 +284,35 @@
     protected override async Task OnInitializedAsync()
     {
         if (ConnectOnInit && SturdyRef.Length > 0) await Connect();
-
-        //just temporary to have some sturdy refs available in the users browser
-        if (!await LocalStorage.ContainKeyAsync("sturdy-ref-store"))
-            await StoredSRData.SaveAllData(LocalStorage, hardcodedDefaultSturdyRefs);
-
-        if (await LocalStorage.ContainKeyAsync("sturdy-ref-store"))
-        {
-            allBookmarks = await StoredSRData.GetAllData(LocalStorage);
-            allBookmarks.Sort();
-            //try to select the first found default connect and auto connect field, so the user can start right away
-            var sbms = bookmarks.Where(b => b.AutoConnect && b.DefaultSelect);
-            var sb = sbms.Any() ? sbms.First() : null;
-            //if there was no one with default select, then just take the first auto-connect one
-            if (sb == null)
-            {
-                sbms = bookmarks.Where(b => b.AutoConnect);
-                sb = sbms.Any() ? sbms.First() : null;
-            }
-            if (sb != null) await SelectedBookmarkChanged(sb, ConnectOnInit);
-            StateHasChanged();
-        }
     }
 
-    /*
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            //just temporary to have some sturdy refs available in the users browser
+            if (!await LocalStorage.ContainKeyAsync("sturdy-ref-store"))
+                await StoredSRData.SaveAllData(LocalStorage, hardcodedDefaultSturdyRefs);
+
+            if (await LocalStorage.ContainKeyAsync("sturdy-ref-store"))
+            {
+                allBookmarks = await StoredSRData.GetAllData(LocalStorage);
+                allBookmarks.Sort();
+                //try to select the first found default connect and auto connect field, so the user can start right away
+                var sbms = bookmarks.Where(b => b.AutoConnect && b.DefaultSelect);
+                var sb = sbms.Any() ? sbms.First() : null;
+                //if there was no one with default select, then just take the first auto-connect one
+                if (sb == null)
+                {
+                    sbms = bookmarks.Where(b => b.AutoConnect);
+                    sb = sbms.Any() ? sbms.First() : null;
+                }
+                if (sb != null) await SelectedBookmarkChanged(sb, ConnectOnInit);
+                StateHasChanged();
+            }
+
         }
     }
-    */
 
     private async Task OpenAddSturdyRefDialog(StoredSRData editData = null)
     {
