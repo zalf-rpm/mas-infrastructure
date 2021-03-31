@@ -19,16 +19,16 @@
     public String Height { get; set; }
 
     [Parameter]
-    public (double, double) CenterLatLng { get; set; }
+    public (double, double) CenterLatLng { get; set; } = (0.0, 0.0);
 
     [Parameter]
-    public (double, double) LatLng { get; set; }
+    public (double, double) LatLng { get; set; } = (0.0, 0.0);
 
     [Parameter]
     public EventCallback<(double, double)> LatLngChanged { get; set; }
 
     [Parameter]
-    public int Zoom { get; set; } = 13;
+    public int Zoom { get; set; } = 6;
 
     private GoogleMap map;
     private MapOptions mapOptions;

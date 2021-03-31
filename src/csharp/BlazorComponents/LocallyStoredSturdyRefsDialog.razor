@@ -1,0 +1,136 @@
+﻿@namespace Mas.Infrastructure.BlazorComponents
+
+@using MudBlazor
+
+@inject ISnackbar Snackbar
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+
+<MudDialog>
+    <DialogContent>
+        <MudTable T=@StoredSRData
+                  Items=@bookmarks
+                  Hover=@true
+                  CommitEditTooltip="Commit Edit"
+                  OnCommitEditClick=@BookmarksCommited
+                  FixedHeader=@true
+                  Height="600px">
+            <ColGroup>
+                <col style="width: 20%;" />
+                <col style="width: 5%;" />
+                <col style="width: 5%;" />
+                <col style="width: 20%;" />
+                <col style="width: 45%;" />
+                <col style="width: 5%;" />
+            </ColGroup>
+            <HeaderContent>
+                <MudTh>Interface</MudTh>
+                <MudTh>Auto connect?</MudTh>
+                <MudTh>Select by default?</MudTh>
+                <MudTh>Petname</MudTh>
+                <MudTh>Sturdy reference</MudTh>
+                <MudTh>Action</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Interface">@context.Interface</MudTd>
+                <MudTd DataLabel="Auto connect?">@context.AutoConnect</MudTd>
+                <MudTd DataLabel="Select by default?">@context.DefaultSelect</MudTd>
+                <MudTd DataLabel="Petname">@context.PetName</MudTd>
+                <MudTd DataLabel="Sturdy reference">@context.SturdyRef</MudTd>
+                <MudTd DataLabel="Action">
+                    @if (context.SturdyRef == null || context.SturdyRef.Length == 0)
+                    {
+                        <MudText>NEW</MudText>
+                    }
+                    else
+                    {
+                        <MudIconButton Icon=@Icons.Material.Filled.Delete OnClick=@(async () => await Delete(context)) />
+                    }
+                </MudTd>
+
+            </RowTemplate>
+            <RowEditingTemplate>
+                <MudTd DataLabel="Interface">
+                    <MudTextField T=@string
+                                  Value=@context.Interface 
+                                  ValueChanged=@(v => {
+                                                     context.Interface = v;
+                                                     if(context.DefaultSelect) bookmarkWithLastDefaultSwitchedOn[context.Interface] = context;
+                                                 })
+                                  Required/>
+                </MudTd>
+                <MudTd DataLabel="Auto connect?"><MudSwitch @bind-Checked=context.AutoConnect Color=@Color.Primary /></MudTd>
+                <MudTd DataLabel="Select by default?">
+                    <MudSwitch T=@bool
+                               Checked=@context.DefaultSelect
+                               CheckedChanged=@(s =>
+                                                {
+                                                    context.DefaultSelect = s;
+                                                    bookmarkWithLastDefaultSwitchedOn[context.Interface] = context;
+                                                })
+                               Color=@Color.Primary />
+                </MudTd>
+                <MudTd DataLabel="Petname"><MudTextField @bind-Value=context.PetName/></MudTd>
+                <MudTd DataLabel="Sturdy reference"><MudTextField @bind-Value=context.SturdyRef Required /></MudTd>
+                <MudTd DataLabel="Action"></MudTd>
+            </RowEditingTemplate>
+        </MudTable>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick=@Close>Close</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    private List<StoredSRData> bookmarks = new();
+
+    private Dictionary<string, StoredSRData> bookmarkWithLastDefaultSwitchedOn = new();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (await LocalStorage.ContainKeyAsync("sturdy-ref-store"))
+            {
+                bookmarks = await StoredSRData.GetAllData(LocalStorage);
+                bookmarks.Sort();
+            }
+            bookmarks.Insert(0, new StoredSRData());
+            StateHasChanged();
+        }
+    }
+
+    private async Task BookmarksCommited()
+    {
+        Snackbar.Add("Bookmarks updated.");
+
+        if (bookmarkWithLastDefaultSwitchedOn.Any())
+        {
+            foreach (var b in bookmarks)
+            {
+                var def = bookmarkWithLastDefaultSwitchedOn.GetValueOrDefault(b.Interface, null);
+                if (def != null && def.DefaultSelect && b != def) b.DefaultSelect = false;
+            }
+        }
+        await SaveBookmarks();
+
+        if (!string.IsNullOrEmpty(bookmarks[0].SturdyRef)) bookmarks.Insert(0, new StoredSRData());
+        StateHasChanged();
+    }
+
+    private async Task SaveBookmarks()
+    {
+        var bms = bookmarks.Where(d => !string.IsNullOrEmpty(d.SturdyRef) && !string.IsNullOrEmpty(d.Interface));
+        await StoredSRData.SaveAllData(LocalStorage, bms.ToList());
+    }
+
+    private async Task Delete(StoredSRData data)
+    {
+        if (!bookmarks.Remove(data)) return;
+        await SaveBookmarks();
+        StateHasChanged();
+    }
+
+    private void Close() => MudDialog.Close();
+}

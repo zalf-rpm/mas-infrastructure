@@ -1,0 +1,42 @@
+﻿@namespace Mas.Infrastructure.BlazorComponents
+
+@using MudBlazor
+
+<MudDialog>
+    <DialogContent>
+        <MudTextField Value=@Interface ReadOnly=@true Label="Interface" />
+        <MudTextField @bind-Value=editBookmark.PetName Label="Petname" />
+        <MudTextField @bind-Value=editBookmark.SturdyRef Label="Sturdy reference" Required />
+        <MudSwitch @bind-Checked=editBookmark.AutoConnect Label="Auto-connect?" Color=@Color.Primary />
+        <MudSwitch @bind-Checked=editBookmark.DefaultSelect Label="Select by default?" Color=@Color.Primary />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick=@Cancel>Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick=@Close>Add</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public string Interface { get; set; }
+
+    [Parameter]
+    public StoredSRData EditData { get; set; }
+
+    private StoredSRData editBookmark = new();
+
+    protected override void OnParametersSet()
+    {
+        if (EditData != null) editBookmark = EditData;
+    }
+
+    private void Close()
+    {
+        editBookmark.Interface = Interface;
+        MudDialog.Close(DialogResult.Ok(editBookmark));
+    }
+    void Cancel() => MudDialog.Cancel();
+}

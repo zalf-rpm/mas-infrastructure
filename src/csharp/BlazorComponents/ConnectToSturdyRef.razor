@@ -6,11 +6,57 @@
 @namespace Mas.Infrastructure.BlazorComponents
 
 @inject Mas.Infrastructure.Common.ConnectionManager ConMan
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject IDialogService DialogService
 
 @typeparam TCapnpInterface
 
 @implements IDisposable
 
+<MudPaper Class="d-flex flex-row py-2 px-1">
+    <MudButton Class="pa-2 mx-2"
+               Variant=Variant.Filled
+               StartIcon=@Icons.Material.Filled.Add
+               Color=@Color.Primary
+               OnClick=@(async () => await OpenAddSturdyRefDialog())>
+        Add new
+    </MudButton>
+    <MudSelect Class="pa-2 mx-2"
+               T=@StoredSRData
+               Value=@selectedBookmark
+               ValueChanged=@SelectedBookmarkChanged
+               Label=@Label
+               Variant=@Variant.Outlined
+               OffsetY=@true>
+        @foreach (var b in bookmarks)
+        {
+            <MudSelectItem Value=@b>
+                <MudElement Class="d-flex">
+                    <MudIcon Icon=@(b.AutoConnect ? Icons.Material.Filled.CastConnected : Icons.Material.Filled.Cast) />
+                    <MudText Class="ml-8" Typo=@Typo.body1>@($"{b.PetName} ({b.SturdyRef})")</MudText>
+                </MudElement>
+            </MudSelectItem>
+        }
+    </MudSelect>
+    <MudButton Class="pa-2 mx-2"
+               Variant=Variant.Filled
+               StartIcon=@Icons.Material.Filled.Edit
+               Color=@Color.Primary
+               Disabled=@(selectedBookmark == null)
+               OnClick=@(async () => await OpenAddSturdyRefDialog(selectedBookmark))>
+        Edit
+    </MudButton>
+    <MudButton Class="pa-2 mx-2"
+               Variant=Variant.Filled
+               StartIcon=@buttonIcon
+               Color=@buttonColor
+               OnClick=@Connect>
+        @buttonLabel
+    </MudButton>
+</MudPaper>
+
+
+<!--
 <MudCard Class="minimize-card" Outlined="true">
     <MudCardContent>
         <MudTextField Class="mx-1" @bind-Value=SturdyRef Label=@Label Variant=Variant.Outlined HelperText=@HelperText></MudTextField>
@@ -20,7 +66,7 @@
         <MudButton Class="mx-1" Variant=Variant.Text Color=@Color.Primary OnClick=@RetrieveSturdyRef>Retrieve</MudButton>
     </MudCardActions>
 </MudCard>
-
+    -->
 <!--
 <MudPaper Class="d-flex flex-row py-2 px-1">
     <MudButton Class="pa-2 mx-2" Variant=Variant.Filled EndIcon=@buttonEndIcon Color=@buttonColor OnClick=@Connect>@buttonLabel</MudButton>
@@ -36,7 +82,7 @@
     private async Task SturdyRefValueChanged(String sr)
     {
         SturdyRef = sr;
-        if(SturdyRefChanged.HasDelegate) _ = SturdyRefChanged.InvokeAsync(sr);
+        if (SturdyRefChanged.HasDelegate) _ = SturdyRefChanged.InvokeAsync(sr);
         ClearButton();
     }
 
@@ -49,6 +95,8 @@
     private String buttonIcon = Icons.Material.Filled.CastConnected;
     private Color buttonColor = Color.Primary;
     private String buttonLabel = "Connect";
+
+    private bool _showSturdyRefEdit = false;
 
     [Parameter]
     public TCapnpInterface Capability { get; set; }
@@ -65,10 +113,7 @@
     [Parameter]
     public EventCallback<RpcException> RpcExceptionThrown { get; set; }
 
-    protected override async Task OnInitializedAsync()
-    {
-        if (ConnectOnInit && SturdyRef.Length > 0) await Connect();
-    }
+
 
     private async Task Connect()
     {
@@ -76,7 +121,7 @@
         {
             buttonLabel = "Connecting ...";
 
-            Console.WriteLine("ConnectToSturdyRef: ThreadId: " + Thread.CurrentThread.ManagedThreadId);
+            Console.WriteLine("ConnectToSturdyRef<" + typeof(TCapnpInterface).ToString() + ">: ThreadId: " + Thread.CurrentThread.ManagedThreadId);
             var cap = await ConMan.Connect<TCapnpInterface>(SturdyRef);
             if (Capability != cap) Capability?.Dispose();
             Capability = cap;
@@ -88,7 +133,7 @@
             buttonColor = Color.Success;
             buttonLabel = "Connected";
 
-            if(CapabilityChanged.HasDelegate) await CapabilityChanged.InvokeAsync(Capnp.Rpc.Proxy.Share(Capability));
+            if (CapabilityChanged.HasDelegate) await CapabilityChanged.InvokeAsync(Capnp.Rpc.Proxy.Share(Capability));
         }
         catch (RpcException e)
         {
@@ -134,12 +179,169 @@
 
     protected override void OnInitialized()
     {
-        Console.WriteLine("OnInitialized SR: " + SturdyRef);
+        Console.WriteLine("OnInitialized SR<" + typeof(TCapnpInterface).ToString() + ">: " + SturdyRef);
     }
 
     void IDisposable.Dispose()
     {
-        Console.WriteLine("Disposing " + SturdyRef + " cap: " + Capability);
+        Console.WriteLine("Disposing<" + typeof(TCapnpInterface).ToString() + "> " + SturdyRef + " cap: " + Capability);
         Capability?.Dispose();
     }
+
+    private List<StoredSRData> allBookmarks = new();
+    private List<StoredSRData> bookmarks => allBookmarks.Where(b => b.Interface == typeof(TCapnpInterface).ToString()).ToList();
+    private StoredSRData selectedBookmark;
+
+    private async Task SelectedBookmarkChanged(StoredSRData b, bool allowAutoConnect)
+    {
+        selectedBookmark = b;
+        await SturdyRefValueChanged(b.SturdyRef);
+        if (allowAutoConnect && b.AutoConnect) await Connect();
+        StateHasChanged();
+    }
+
+    private async Task SelectedBookmarkChanged(StoredSRData b)
+    {
+        await SelectedBookmarkChanged(b, true);
+    }
+
+    private List<StoredSRData> hardcodedDefaultSturdyRefs = new()
+    {
+        new StoredSRData
+        {
+            Interface = "Mas.Rpc.Climate+IService",
+            PetName = "DWD CMIP5 EURO-CORDEX ReKLiEs-De",
+            SturdyRef = "capnp://login01.cluster.zalf.de:9998",
+            AutoConnect = true,
+            DefaultSelect = true
+        },
+        new StoredSRData
+        {
+            Interface = "Mas.Rpc.Climate+IService",
+            PetName = "DWD Germany",
+            SturdyRef = "capnp://login01.cluster.zalf.de:9999",
+            AutoConnect = true,
+            DefaultSelect = false
+        },
+        new StoredSRData
+        {
+            Interface = "Mas.Rpc.Climate+ITimeSeries",
+            PetName = "Hohenfinow2 Test CSV",
+            SturdyRef = "capnp://login01.cluster.zalf.de:11002",
+            AutoConnect = true,
+            DefaultSelect = true
+        },
+        new StoredSRData
+        {
+            Interface = "Mas.Rpc.Soil+IService",
+            PetName = "BÜK200",
+            SturdyRef = "capnp://login01.cluster.zalf.de:10001",
+            AutoConnect = true,
+            DefaultSelect = false
+        },
+        new StoredSRData
+        {
+            Interface = "Mas.Rpc.Soil+IService",
+            PetName = "BÜK1000",
+            SturdyRef = "capnp://login01.cluster.zalf.de:10000",
+            AutoConnect = true,
+            DefaultSelect = true
+        },
+        new StoredSRData
+        {
+            Interface = "Mas.Rpc.Model+IEnvInstance`2[Mas.Rpc.Common+StructuredText,Mas.Rpc.Common+StructuredText]",
+            PetName = "a MONICA instance",
+            SturdyRef = "capnp://login01.cluster.zalf.de:10003",
+            AutoConnect = true,
+            DefaultSelect = false
+        },
+        new StoredSRData
+        {
+            Interface = "Mas.Rpc.Model+IEnvInstance`2[Mas.Rpc.Common+StructuredText,Mas.Rpc.Common+StructuredText]",
+            PetName = "a proxy with 3 MONICA instances",
+            SturdyRef = "capnp://login01.cluster.zalf.de:10002",
+            AutoConnect = true,
+            DefaultSelect = true
+        },
+        new StoredSRData
+        {
+            Interface = "Mas.Rpc.Climate+IAlterTimeSeriesWrapperFactory",
+            PetName = "Alter time series wrapper",
+            SturdyRef = "capnp://login01.cluster.zalf.de:11006",
+            AutoConnect = true,
+            DefaultSelect = true
+        },
+        new StoredSRData
+        {
+            Interface = "Mas.Rpc.Model+ICSVTimeSeriesFactory",
+            PetName = "Time series factory from CSV data",
+            SturdyRef = "capnp://login01.cluster.zalf.de:11005",
+            AutoConnect = false,
+            DefaultSelect = true
+        }
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (ConnectOnInit && SturdyRef.Length > 0) await Connect();
+
+        //just temporary to have some sturdy refs available in the users browser
+        if (!await LocalStorage.ContainKeyAsync("sturdy-ref-store"))
+            await StoredSRData.SaveAllData(LocalStorage, hardcodedDefaultSturdyRefs);
+
+        if (await LocalStorage.ContainKeyAsync("sturdy-ref-store"))
+        {
+            allBookmarks = await StoredSRData.GetAllData(LocalStorage);
+            allBookmarks.Sort();
+            //try to select the first found default connect and auto connect field, so the user can start right away
+            var sbms = bookmarks.Where(b => b.AutoConnect && b.DefaultSelect);
+            var sb = sbms.Any() ? sbms.First() : null;
+            //if there was no one with default select, then just take the first auto-connect one
+            if (sb == null)
+            {
+                sbms = bookmarks.Where(b => b.AutoConnect);
+                sb = sbms.Any() ? sbms.First() : null;
+            }
+            if (sb != null) await SelectedBookmarkChanged(sb, ConnectOnInit);
+            StateHasChanged();
+        }
+    }
+
+    /*
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+        }
+    }
+    */
+
+    private async Task OpenAddSturdyRefDialog(StoredSRData editData = null)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("Interface", typeof(TCapnpInterface).ToString());
+        parameters.Add("EditData", editData);
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true };
+        var res = await DialogService.Show<NewSturdyRefDialog>("Add sturdy reference", parameters, options).Result;
+        if (res.Data is StoredSRData nb && editData == null)
+        {
+            if (nb.SturdyRef.Length == 0) return;
+            allBookmarks = await StoredSRData.SaveNew(LocalStorage, nb);
+            allBookmarks.Sort();
+            await SelectedBookmarkChanged(nb);
+        }
+        else if (editData != null)
+        {
+            //if the user possibly updated the default select field, un-default select all others with same interface
+            if (editData.DefaultSelect)
+            {
+                foreach (var b in bookmarks)
+                {
+                    if (b != editData) b.DefaultSelect = false;
+                }
+            }
+            await StoredSRData.SaveAllData(LocalStorage, allBookmarks);
+        }
+    }
+
 }
