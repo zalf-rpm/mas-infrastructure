@@ -86,9 +86,9 @@ enum Cultivar {
   triticaleSpring           @49;
   triticaleWinter           @50;
 
-  durumWheat                @51;
-  springWheat               @52;
-  winterWheat               @53;
+  wheatDurum                @51;
+  wheatSpring               @52;
+  wheatWinter               @53;
 }
 
 enum EventType {
@@ -279,6 +279,7 @@ struct Params {
   struct Tillage {
     depth @0 :Float64;
   }
+
 
 }
 
