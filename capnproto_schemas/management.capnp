@@ -282,7 +282,7 @@ struct Params {
 
   struct Irrigation {
     amount @0 :Float64;
-    params @1 :IrrigationParameters;
+    params @1 :MonicaParams.IrrigationParameters;
   }
 
 
