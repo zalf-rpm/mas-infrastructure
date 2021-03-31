@@ -280,6 +280,11 @@ struct Params {
     depth @0 :Float64;
   }
 
+  struct Irrigation {
+    amount @0 :Float64;
+    params @1 :IrrigationParameters;
+  }
+
 
 }
 
