@@ -184,7 +184,7 @@ struct Event {
 struct Params {
   struct Sowing {
     cultivar      @0 :Cultivar;
-    plantDensity  @1 :UInt16;
+    plantDensity  @1 :UInt16 = 0;
   }
 
   struct AutomaticSowing {
@@ -256,9 +256,8 @@ struct Params {
       exportPercentage  @4 :Float64     = 100.0; 
     }
 
-    exportAll                         @0 :Bool = true;
-    cuttingSpec                       @1 :List(Spec);
-    cutMaxAssimilationRatePercentage  @2 :Float64;
+    cuttingSpec                       @0 :List(Spec);
+    cutMaxAssimilationRatePercentage  @1 :Float64;
 	}
 
   struct MineralFertilization {
