@@ -188,7 +188,8 @@ struct Params {
   }
 
   struct AutomaticSowing {
-    
+    sowing                      @11 :Sowing;
+
 	  minTempThreshold            @0  :Float64;
     daysInTempWindow            @1  :UInt16;
     minPercentASW               @2  :Float64;
@@ -227,11 +228,13 @@ struct Params {
   }
 
   struct AutomaticHarvest {
-	  minPercentASW @0 :Float64;
-	  maxPercentASW @1 :Float64;
-	  max3dayPrecipSum  @2 :Float64;
+    harvest                 @5 :Harvest;
+
+	  minPercentASW           @0 :Float64;
+	  maxPercentASW           @1 :Float64;
+	  max3dayPrecipSum        @2 :Float64;
 	  maxCurrentDayPrecipSum  @3 :Float64;
-	  harvestTime @4 :Event.PhenoStage = maturity;
+	  harvestTime             @4 :Event.PhenoStage = maturity;
   }
 
   struct Cutting {
