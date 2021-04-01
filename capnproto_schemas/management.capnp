@@ -250,7 +250,7 @@ struct Params {
 
     struct Spec {
       organ             @0 :PlantOrgan;
-      value             @1 :Float
+      value             @1 :Float64;
 		  unit              @2 :Unit        = percentage;
 		  cutOrLeft         @3 :CL          = cut;
       exportPercentage  @4 :Float64     = 100.0; 
