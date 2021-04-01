@@ -159,7 +159,7 @@ struct Event {
     }
   }
 
-  type            @0 :Type;
+  type            @0 :ExternalType;
   info            @1 :Common.IdInformation;
 
   union {
@@ -250,7 +250,7 @@ struct Params {
 
     struct Spec {
       organ             @0 :PlantOrgan;
-      value             @1 :Float64;
+      value             @1 :Float
 		  unit              @2 :Unit        = percentage;
 		  cutOrLeft         @3 :CL          = cut;
       exportPercentage  @4 :Float64     = 100.0; 
