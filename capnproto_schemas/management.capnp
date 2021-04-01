@@ -221,10 +221,8 @@ struct Params {
       maxResidueRecoverFraction @5 :Float64;
     }
 
-    percentage      @0 :Float64;
-	  exported        @1 :Bool;
-
-    optCarbMgmtData @2 :OptCarbonMgmtData;
+    exported        @0 :Bool = true;
+    optCarbMgmtData @1 :OptCarbonMgmtData;
   }
 
   struct AutomaticHarvest {
