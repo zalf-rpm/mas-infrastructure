@@ -1,7 +1,8 @@
 ﻿@page "/simplified/monica-compare"
 
+@namespace Mas.Infrastructure.BlazorComponents
+
 @using MudBlazor
-@using Mas.Infrastructure.BlazorComponents
 
 @implements IDisposable
 
@@ -21,35 +22,60 @@
                         }
                     </MudSelect>
                 </MudItem>
+                <MudItem xs="2">
+                    <MudSelect T=@string
+                               @bind-Value=selectedCurve[i]
+                               Label="Curve">
+                        @foreach (var curve in Monica2Section2Oid2Data[i].GetValueOrDefault(selectedSection[i], new()).Keys)
+                        {
+                            <MudSelectItem Value=@curve />
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12">
+                    <Monica ResultChanged=@(p => {
+                        Monica2Section2Dates[i] = p.Item1;
+                        Monica2Section2Oid2Data[i] = p.Item2;
+                        monicaDataChanged=true;
+                        })
+                            TryConnectOnInit=@true
+                            HideSturdyRefConnectors=@true>
+                    </Monica>
+                </MudItem>
+            </MudGrid>
+        </MudExpansionPanel>
+    }
+    <MudExpansionPanel @bind-IsExpanded=@panelOpened["compare"] Text="Compare MONICA 1 & 2">
+        <MudGrid>
+            <!--
+            <MudItem xs="2">
+                <MudSelect T=@string
+                           @bind-Value=selectedSection[i]
+                           Label="Event">
+                    @foreach (var s in Monica2Section2Oid2Data[i].Keys)
+                        {
+                    <MudSelectItem Value=@s />
+                        }
+                </MudSelect>
+            </MudItem>
             <MudItem xs="2">
                 <MudSelect T=@string
                            @bind-Value=selectedCurve[i]
                            Label="Curve">
                     @foreach (var curve in Monica2Section2Oid2Data[i].GetValueOrDefault(selectedSection[i], new()).Keys)
                     {
-                        <MudSelectItem Value=@curve />
+                    <MudSelectItem Value=@curve />
                     }
                 </MudSelect>
             </MudItem>
+            -->
             <MudItem xs="12">
-                <Monica ResultChanged=@(p => { Monica2Section2Dates[i] = p.Item1; Monica2Section2Oid2Data[i] = p.Item2; })
-                        MonicaSturdyRef="capnp://login01.cluster.zalf.de:12003"
-                        TimeSeriesSturdyRef="capnp://login01.cluster.zalf.de:11002"
-                        SoilServiceSturdyRef="capnp://login01.cluster.zalf.de:10000"
-                        TryConnectOnInit=@true
-                        HideSturdyRefConnectors=@true>
-                </Monica>
-            </MudItem>
-            </MudGrid>
-        </MudExpansionPanel>
-    }
-    <MudExpansionPanel @bind-IsExpanded=@panelOpened["compare"] Text="Compare MONICA 1 & 2">
-        <MudGrid>
-            <MudItem xs="12">
-
-            </MudItem>
-            <MudItem xs="12">
-                <Highchart Data=@OId2Data Dates=@Dates></Highchart>
+                <Highchart Title=@compareTitle()
+                           XAxisTitle="Date"
+                           Data=@OId2Data
+                           Dates=@Dates
+                           DataChanged=@monicaDataChanged
+                           ChartRerendered=@(() => monicaDataChanged = false)></Highchart>
             </MudItem>
         </MudGrid>
     </MudExpansionPanel>
@@ -57,6 +83,23 @@
 
 @code {
     private static readonly int noOfMonicas = 2;
+
+    private string compareTitle()
+    {
+        var sb = new System.Text.StringBuilder("Compare MONICA results ");
+        for (int i = 1; i <= noOfMonicas; i++)
+        {
+            if (selectedSection.ContainsKey(i) && selectedCurve.ContainsKey(i))
+            {
+                sb.Append($"{selectedSection[i]}/{selectedCurve[i]}");
+                if (i < noOfMonicas) sb.Append(" vs ");
+            }
+        }
+
+        return sb.ToString();
+    }
+
+    private bool monicaDataChanged = false;
 
     Dictionary<int, Dictionary<String, Dictionary<String, IEnumerable<float>>>> Monica2Section2Oid2Data = new();
     Dictionary<int, Dictionary<String, IEnumerable<DateTime>>> Monica2Section2Dates = new();

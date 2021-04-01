@@ -1,0 +1,100 @@
+{
+	"crop.json": "crop_template.json",
+	"site.json": "site_template.json",
+	"climate.csv": "climate.csv",
+
+	"climate.csv-options": {
+		"_start-date": "1991-01-01",
+		"_end-date": "1997-12-31",
+
+		"no-of-climate-file-header-lines": 2,
+		"csv-separator": ",",
+		"header-to-acd-names": {}
+	},
+
+	"include-file-base-path": "${MONICA_PARAMETERS}/",
+
+	"output": {
+		"events": [
+			"daily",
+			[
+				"Date",
+				"Crop",
+				"Stage",
+				"AbBiom",
+				[ "OrgBiom", "Leaf" ],
+				[ "OrgBiom", "Fruit" ],
+				"Yield",
+				"LAI",
+				"Precip",
+				[
+					"Mois",
+					[ 1, 3 ]
+				],
+				[
+					"Mois",
+					[ 1, 3 ],
+					"AVG"
+				],
+				[
+					"SOC",
+					[ 1, 3 ]
+				],
+				"Tavg",
+				"Globrad"
+			],
+
+			"crop",
+			[
+				"CM-count",
+				"Crop",
+				[ "Yield", "LAST" ],
+				[ "Date|sowing", "FIRST" ],
+				[ "Date|harvest", "LAST" ]
+			],
+
+			"yearly",
+			[
+				"Year",
+				[
+					"N",
+					[ 1, 3 ]
+				],
+				[ "RunOff", "SUM" ],
+				[ "NLeach", "SUM" ],
+				[ "Recharge", "SUM" ]
+			],
+
+			"run",
+			[
+				[ "Precip", "SUM" ]
+			]
+		]
+	},
+
+	"UseSecondaryYields": true,
+	"NitrogenResponseOn": true,
+	"WaterDeficitResponseOn": true,
+	"EmergenceMoistureControlOn": true,
+	"EmergenceFloodingControlOn": true,
+
+	"UseAutomaticIrrigation": false,
+	"AutoIrrigationParams": {
+		"irrigationParameters": {
+			"nitrateConcentration": [ 0, "mg dm-3" ],
+			"sulfateConcentration": [ 0, "mg dm-3" ]
+		},
+		"amount": [ 17, "mm" ],
+		"threshold": 0.35
+	},
+
+	"UseNMinMineralFertilisingMethod": false,
+	"NMinUserParams": {
+		"min": 40,
+		"max": 120,
+		"delayInDays": 10
+	},
+	"NMinFertiliserPartition": [ "include-from-file", "mineral-fertilisers/AN.json" ],
+	"JulianDayAutomaticFertilising": 89
+}
+

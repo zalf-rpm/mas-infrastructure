@@ -182,10 +182,10 @@ namespace Mas.Infrastructure.BlazorComponents
             }
             */
 
-            simJsonTxt = File.ReadAllText("Data-Full/sim-min.json");
-            cropJsonTxt = File.ReadAllText("Data-Full/crop-min.json");
-            siteJsonTxt = File.ReadAllText("Data-Full/site-min.json");
-            climateCsv = File.ReadAllText("Data-Full/climate-min.csv");
+            simJsonTxt = File.ReadAllText("Data/sim_template.json");
+            cropJsonTxt = File.ReadAllText("Data/crop_template.json");
+            siteJsonTxt = File.ReadAllText("Data/site_template.json");
+            //climateCsv = File.ReadAllText("Data-Full/climate-min.csv");
 
             //_ = Task.Delay(1000).ContinueWith(_ => soilServiceRef?.GetAllAvailableSoilProperties());
         }
@@ -314,17 +314,17 @@ namespace Mas.Infrastructure.BlazorComponents
         #endregion events / outputs
 
         #region crop rotation
-        private List<Mas.Rpc.Management.Event> cropRotation = new()
+        private List<Mgmt.Event> cropRotation = new()
         {
-            new Mas.Rpc.Management.Event()
+            new Mgmt.Event()
             {
-                TheType = new() { External = Mas.Rpc.Management.Event.ExternalType.sowing },
+                TheType = ExtType.sowing,
                 At = new() { Date = new Mas.Common.Date { Year = 0, Month = 9, Day = 23 } },
-                Params = new Mas.Rpc.Management.Params.Sowing { Cultivar = Rpc.Management.Cultivar.wheatWinter }
+                Params = new Mgmt.Params.Sowing { Cultivar = Mgmt.Cultivar.wheatWinter }
             },
             new Mas.Rpc.Management.Event()
             {
-                TheType = new() { External = Mas.Rpc.Management.Event.ExternalType.harvest },
+                TheType = ExtType.harvest,
                 At = new() { Date = new Mas.Common.Date { Year = 1, Month = 7, Day = 27 } }
             }
         };
@@ -333,8 +333,7 @@ namespace Mas.Infrastructure.BlazorComponents
 
         private string NameFromEvent(Mas.Rpc.Management.Event e)
         {
-            var typeStr = e.TheType.which == Rpc.Management.Event.Type.WHICH.External
-                ? e.TheType.External.ToString() : e.TheType.Internal.ToString();
+            var typeStr = e.TheType.ToString();
 
             var type = e.Info == null ? typeStr : textInfo.ToTitleCase(e.Info.Name);
             var crop = (e.Params is Mas.Rpc.Management.Params.Sowing s) ? s.Cultivar.ToString() : "";
@@ -354,97 +353,189 @@ namespace Mas.Infrastructure.BlazorComponents
             var cm = new JObject { { "worksteps", wss } };
             foreach(var e in cropRotation)
             {
-                if (e.TheType.which == Mgmt.Event.Type.WHICH.External && e.TheType.External.HasValue)
+                switch (e.TheType)
                 {
-                    switch (e.TheType.External.Value)
-                    {
-                        case ExtType.sowing:
-                            if (e.Params is Mgmt.Params.Sowing s)
+                    case ExtType.sowing:
+                        if (e.Params is Mgmt.Params.Sowing s)
+                        {
+                            if (wss.Any())
                             {
-                                if (wss.Any())
-                                {
-                                    cr.Add(cm);
-                                    wss = new JArray();
-                                    cm = new JObject { { "worksteps", wss } };
-                                }
-
-                                wss.Add(new JObject() 
-                                {
-                                    { "type", "Sowing" },
-                                    { "date", Helper.CommonDate2IsoDateString(e.At.Date) },
-                                    { "crop", new JArray { "ref", "crops", s.Cultivar.ToString() } }
-                                });
+                                cr.Add(cm);
+                                wss = new JArray();
+                                cm = new JObject { { "worksteps", wss } };
                             }
-                            break;
-                        case ExtType.harvest:
+
+                            wss.Add(new JObject()
+                            {
+                                { "type", "Sowing" },
+                                { "date", Helper.CommonDate2IsoDateString(e.At.Date) },
+                                { "crop", new JArray { "ref", "crops", s.Cultivar.ToString() } },
+                                { "PlantDensity", s.PlantDensity }
+                            });
+                        }
+                        break;
+                    case ExtType.automaticSowing:
+                        if (e.Params is Mgmt.Params.AutomaticSowing sa)
+                        {
+                            if (wss.Any())
+                            {
+                                cr.Add(cm);
+                                wss = new JArray();
+                                cm = new JObject { { "worksteps", wss } };
+                            }
+
+                            wss.Add(new JObject()
+                            {
+                                { "type", "AutomaticSowing" },
+                                { "earliest-date", Helper.CommonDate2IsoDateString(e.Between.Earliest) },
+                                { "latest-date", Helper.CommonDate2IsoDateString(e.Between.Latest) },
+                                { "crop", new JArray { "ref", "crops", sa.Sowing?.Cultivar.ToString() } },
+                                { "min-temp", sa.MinTempThreshold },
+                                { "days-in-temp-window", sa.DaysInTempWindow },
+                                { "min-%-asw", sa.MinPercentASW },
+                                { "max-%-asw", sa.MaxPercentASW },
+                                { "max-3d-precip-sum", sa.Max3dayPrecipSum },
+                                { "max-curr-day-precip", sa.MaxCurrentDayPrecipSum },
+                                { "temp-sum-above-base-temp", sa.TempSumAboveBaseTemp },
+                                { "base-temp", sa.BaseTemp },
+                                { "avg-soil-temp", new JObject {
+                                    { "depth", sa.AvgSoilTemp.SoilDepthForAveraging },
+                                    { "days", sa.AvgSoilTemp.DaysInSoilTempWindow },
+                                    { "Tavg", sa.AvgSoilTemp.SowingIfAboveAvgSoilTemp } } }
+
+                            });
+                        }
+                        break;
+                    case ExtType.harvest:
+                        wss.Add(new JObject()
+                        {
+                            { "type", "Harvest" },
+                            { "date", Helper.CommonDate2IsoDateString(e.At.Date) },
+                        });
+                        break;
+                    case ExtType.automaticHarvest:
+                        if (e.Params is Mgmt.Params.AutomaticHarvest ha)
+                        {
                             wss.Add(new JObject()
                             {
                                 { "type", "Harvest" },
-                                { "date", Helper.CommonDate2IsoDateString(e.At.Date) },
+                                { "latest-date", Helper.CommonDate2IsoDateString(e.Between.Latest) },
+                                { "min-%-asw", ha.MinPercentASW },
+                                { "max-%-asw", ha.MaxPercentASW },
+                                { "max-3d-precip-sum", ha.Max3dayPrecipSum },
+                                { "max-curr-day-precip", ha.MaxCurrentDayPrecipSum },
+                                { "harvest-time", ha.HarvestTime.ToString() }
                             });
-                            break;
-                        case ExtType.mineralFertilization:
-                            if (e.Params is Mgmt.Params.MineralFertilization mf)
+                        }
+                        break;
+                    case ExtType.cutting:
+                        if (e.Params is Mgmt.Params.Cutting c)
+                        {
+                            Func<Mgmt.Params.Cutting.Unit, string> toUnit = u =>
                             {
-                                wss.Add(new JObject()
+                                var res = "";
+                                switch (u)
                                 {
-                                    { "type", "MineralFertilization" },
-                                    { "date", Helper.CommonDate2IsoDateString(e.At.Date) },
-                                    { "amount", mf.Amount },
-                                    { "partition", new JObject() {
-                                        { "type", "MineralFertiliserParameters" },
-                                        { "id", mf.Partition.Id },
-                                        { "name", mf.Partition.Name ?? "" },
-                                        { "Carbamid", mf.Partition.Carbamid },
-                                        { "NH4", mf.Partition.Nh4 },
-                                        { "NO3", mf.Partition.No3 } } }
-                                });
-                            }
-                            break;
-                        case ExtType.organicFertilization:
-                            if (e.Params is Mgmt.Params.OrganicFertilization of)
+                                    case Mgmt.Params.Cutting.Unit.percentage: res = "%"; break;
+                                    case Mgmt.Params.Cutting.Unit.biomass: res = "kg ha-1"; break;
+                                    case Mgmt.Params.Cutting.Unit.lai: res = "m2 m-2"; break;
+                                }
+                                return res;
+                            };
+
+                            var organs = new JObject();
+                            var exports = new JObject();
+                            foreach(var cs in c.CuttingSpec)
                             {
-                                wss.Add(new JObject()
-                                {
-                                    { "type", "OrganicFertilization" },
-                                    { "date", Helper.CommonDate2IsoDateString(e.At.Date) },
-                                    { "amount", of.Amount },
-                                    { "partition", new JObject() {
-                                        { "type", "OrganicFertiliserParameters" },
-                                        { "id", of.Params.Id },
-                                        { "name", of.Params.Name ?? "" },
-                                        { "AOM_DryMatterContent", of.Params.Params.AomDryMatterContent },
-                                        { "AOM_FastDecCoeffStandard", of.Params.Params.AomFastDecCoeffStandard },
-                                        { "AOM_NH4Content", of.Params.Params.AomNH4Content },
-                                        { "AOM_NO3Content", of.Params.Params.AomNO3Content },
-                                        { "AOM_SlowDecCoeffStandard", of.Params.Params.AomSlowDecCoeffStandard },
-                                        { "CN_Ratio_AOM_Fast", of.Params.Params.CnRatioAOMFast },
-                                        { "CN_Ratio_AOM_Slow", of.Params.Params.CnRatioAOMSlow },
-                                        { "NConcentration", of.Params.Params.NConcentration },
-                                        { "PartAOM_Slow_to_SMB_Fast", of.Params.Params.PartAOMSlowToSMBFast },
-                                        { "PartAOM_Slow_to_SMB_Slow", of.Params.Params.PartAOMSlowToSMBSlow },
-                                        { "PartAOM_to_AOM_Fast", of.Params.Params.PartAOMToAOMFast },
-                                        { "PartAOM_to_AOM_Slow", of.Params.Params.PartAOMToAOMSlow } } }
-                                });
+                                var organ = textInfo.ToTitleCase(cs.Organ.ToString().Replace("strukt", "struct"));
+                                organs[organ] = new JArray { cs.Value, toUnit(cs.Unit), cs.CutOrLeft.ToString() };
+                                organs[organ] = cs.ExportPercentage;
                             }
-                            break;
-                        case ExtType.irrigation:
-                            if (e.Params is Mgmt.Params.Irrigation i)
+
+                            wss.Add(new JObject()
                             {
-                                wss.Add(new JObject()
-                                {
-                                    { "type", "MineralFertilization" },
-                                    { "date", Helper.CommonDate2IsoDateString(e.At.Date) },
-                                    { "amount", i.Amount },
-                                    { "parameters", new JObject() {
-                                        { "nitrateConcentration", i.Params.NitrateConcentration },
-                                        { "sulfateConcentration", i.Params.NitrateConcentration } } }
-                                });
-                            }
-                            break;
-                    }
+                                { "type", "Cutting" },
+                                { "date", Helper.CommonDate2IsoDateString(e.At.Date) },
+                                { "organs", organs },
+                                { "exports", exports },
+                                { "cut-max-assimilation-rate", c.CutMaxAssimilationRatePercentage }
+                            });
+                        }
+                        break;
+                    case ExtType.mineralFertilization:
+                        if (e.Params is Mgmt.Params.MineralFertilization mf)
+                        {
+                            wss.Add(new JObject()
+                            {
+                                { "type", "MineralFertilization" },
+                                { "date", Helper.CommonDate2IsoDateString(e.At.Date) },
+                                { "amount", mf.Amount },
+                                { "partition", new JObject() {
+                                    { "type", "MineralFertiliserParameters" },
+                                    { "id", mf.Partition.Id },
+                                    { "name", mf.Partition.Name ?? "" },
+                                    { "Carbamid", mf.Partition.Carbamid / 100.0 },
+                                    { "NH4", mf.Partition.Nh4 / 100.0 },
+                                    { "NO3", mf.Partition.No3 / 100.0 } } }
+                            });
+                        }
+                        break;
+                    case ExtType.organicFertilization:
+                        if (e.Params is Mgmt.Params.OrganicFertilization of)
+                        {
+                            wss.Add(new JObject()
+                            {
+                                { "type", "OrganicFertilization" },
+                                { "date", Helper.CommonDate2IsoDateString(e.At.Date) },
+                                { "amount", of.Amount },
+                                { "partition", new JObject() {
+                                    { "type", "OrganicFertiliserParameters" },
+                                    { "id", of.Params.Id },
+                                    { "name", of.Params.Name ?? "" },
+                                    { "AOM_DryMatterContent", of.Params.Params.AomDryMatterContent },
+                                    { "AOM_FastDecCoeffStandard", of.Params.Params.AomFastDecCoeffStandard },
+                                    { "AOM_NH4Content", of.Params.Params.AomNH4Content },
+                                    { "AOM_NO3Content", of.Params.Params.AomNO3Content },
+                                    { "AOM_SlowDecCoeffStandard", of.Params.Params.AomSlowDecCoeffStandard },
+                                    { "CN_Ratio_AOM_Fast", of.Params.Params.CnRatioAOMFast },
+                                    { "CN_Ratio_AOM_Slow", of.Params.Params.CnRatioAOMSlow },
+                                    { "NConcentration", of.Params.Params.NConcentration },
+                                    { "PartAOM_Slow_to_SMB_Fast", of.Params.Params.PartAOMSlowToSMBFast },
+                                    { "PartAOM_Slow_to_SMB_Slow", of.Params.Params.PartAOMSlowToSMBSlow },
+                                    { "PartAOM_to_AOM_Fast", of.Params.Params.PartAOMToAOMFast },
+                                    { "PartAOM_to_AOM_Slow", of.Params.Params.PartAOMToAOMSlow } } }
+                            });
+                        }
+                        break;
+                    case ExtType.irrigation:
+                        if (e.Params is Mgmt.Params.Irrigation i)
+                        {
+                            wss.Add(new JObject()
+                            {
+                                { "type", "MineralFertilization" },
+                                { "date", Helper.CommonDate2IsoDateString(e.At.Date) },
+                                { "amount", i.Amount },
+                                { "parameters", new JObject() {
+                                    { "nitrateConcentration", i.Params.NitrateConcentration },
+                                    { "sulfateConcentration", i.Params.NitrateConcentration } } }
+                            });
+                        }
+                        break;
+                    case ExtType.tillage:
+                        if (e.Params is Mgmt.Params.Tillage t)
+                        {
+                            wss.Add(new JObject()
+                            {
+                                { "type", "Tillage" },
+                                { "date", Helper.CommonDate2IsoDateString(e.At.Date) },
+                                { "depth", t.Depth }
+                            });
+                        }
+                        break;
                 }
             }
+
+            if (wss.Any()) cr.Add(cm);
             return cr;
         }
         #endregion crop rotation
@@ -464,7 +555,7 @@ namespace Mas.Infrastructure.BlazorComponents
         private String simJsonTxt = "";
         private String cropJsonTxt = "";
         private String siteJsonTxt = "";
-        private String climateCsv = "";
+        //private String climateCsv = "";
 
         private bool MonicaResultsChanged = false;
 
@@ -480,6 +571,13 @@ namespace Mas.Infrastructure.BlazorComponents
             var cropj = JObject.Parse(cropJsonTxt);
             var sitej = JObject.Parse(siteJsonTxt);
 
+            //update crop rotation (before resolving references)
+            if (overwriteCropRotation)
+            {
+                var cr = CreateCropRotation();
+                cropj["cropRotation"] = cr;
+            }
+
             var envj = RunMonica.CreateMonicaEnv(simj, cropj, sitej, null, new Core.Share.UserSetting(), Core.Share.Enums.MonicaParametersBasePathTypeEnum.LocalServer);
 
             var events = new JArray();
@@ -488,8 +586,7 @@ namespace Mas.Infrastructure.BlazorComponents
             foreach (var jt in CreateEvents()) events.Add(jt);
             envj["events"] = events;
 
-            //update crop rotation
-
+            envj["params"]["siteParameters"]["Latitude"] = LatLng.Item1;
 
             var menv = new Model.Env<Rpc.Common.StructuredText>()
             {

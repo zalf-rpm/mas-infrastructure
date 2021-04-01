@@ -7,6 +7,9 @@
 @using Mas.Rpc
 @using Microsoft.AspNetCore.WebUtilities
 @using Mas.Infrastructure.Common
+@using ExtType = Rpc.Management.Event.ExternalType
+@using Mgmt = Rpc.Management
+@using System.Linq
 
 @inject IJSRuntime JSRuntime
 @inject MonicaBlazorCapnpUI.Services.RunMonica RunMonica
@@ -113,7 +116,7 @@
         </GeoposPicker>
     </MudExpansionPanel>
     <MudExpansionPanel Class=@(true ? "d-none" : "")
-                       @bind-IsExpanded=@panelOpened["ClimateService"] 
+                       @bind-IsExpanded=@panelOpened["ClimateService"]
                        Text="Choose climate data from service">
         <ClimateService ClimateServiceCap=@ClimateServiceCap
                         HideSturdyRefConnector=@true
@@ -122,47 +125,52 @@
                         TimeSeriesCapChanged=@TimeSeriesCapabilityChanged>
         </ClimateService>
     </MudExpansionPanel>
-    <MudExpansionPanel @bind-IsExpanded=@panelOpened["UpdateTimeSeries"] Text="Climate data">
+    <MudExpansionPanel @bind-IsExpanded=@panelOpened["UpdateTimeSeries"] Text="Change climate data">
         @code {
+            private bool overwriteTimeSeriesData = false;
+
             private List<Climate.Element> allClimateElements = new()
             {
-            Climate.Element.tmin,
-            Climate.Element.tavg,
-            Climate.Element.tmax,
-            Climate.Element.precip,
-            Climate.Element.globrad,
-            Climate.Element.wind,
-            Climate.Element.sunhours,
-            Climate.Element.cloudamount,
-            Climate.Element.relhumid,
-            Climate.Element.airpress,
-            Climate.Element.vaporpress,
-            Climate.Element.co2,
-            Climate.Element.o3,
-            Climate.Element.et0,
-            Climate.Element.dewpointTemp
-        };
+                Climate.Element.tmin,
+                Climate.Element.tavg,
+                Climate.Element.tmax,
+                Climate.Element.precip,
+                Climate.Element.globrad,
+                Climate.Element.wind,
+                Climate.Element.sunhours,
+                Climate.Element.cloudamount,
+                Climate.Element.relhumid,
+                Climate.Element.airpress,
+                Climate.Element.vaporpress,
+                Climate.Element.co2,
+                Climate.Element.o3,
+                Climate.Element.et0,
+                Climate.Element.dewpointTemp
+            };
 
             private Dictionary<Climate.AlterTimeSeriesWrapper.AlterType, string> allAlterTypes = new()
             {
-            { Climate.AlterTimeSeriesWrapper.AlterType.add, "Add (+)" },
-            { Climate.AlterTimeSeriesWrapper.AlterType.mul, "Mul (*)" }
-        };
+                { Climate.AlterTimeSeriesWrapper.AlterType.add, "Add (+)" },
+                { Climate.AlterTimeSeriesWrapper.AlterType.mul, "Mul (*)" }
+            };
 
             private List<Climate.AlterTimeSeriesWrapper.Altered> alteredElements = new();
 
             private Climate.AlterTimeSeriesWrapper.Altered newAltered = new();
         }
         <MudGrid>
-            <MudItem xs="2">
-                <MudButton Class=@(AlterTimeSeriesWrapperCap == null ? "" : "d-none")
-                           Variant=@Variant.Filled
-                           OnClick=@WrapTimeSeries
-                           Disabled=@(TimeSeriesCap == null || TimeSeriesFactoryCap == null)>
-                    Update climate data
-                </MudButton>
+            <MudItem xs="12">
+                <MudSwitch Checked=@overwriteTimeSeriesData
+                           T=@bool
+                           CheckedChanged=@(async b => {
+                                                overwriteTimeSeriesData = b;
+                                                if (AlterTimeSeriesWrapperCap == null) await WrapTimeSeries();
+                                            })
+                           Disabled=@(TimeSeriesFactoryCap == null)
+                           Color=@Color.Primary
+                           Label="Change" />
             </MudItem>
-            <MudItem xs="12" Class=@(AlterTimeSeriesWrapperCap == null ? "d-none" : "")>
+            <MudItem xs="12" Class=@(overwriteTimeSeriesData ? "" : "d-none")>
                 <MudCard Elevation="3">
                     <MudCardContent>
                         <MudGrid>
@@ -204,373 +212,651 @@
                     </MudCardContent>
                 </MudCard>
             </MudItem>
-            <MudItem xs="12">
-                <MudCard Elevation="3">
-                    <MudCardContent>
-                        <MudGrid>
-                            @foreach (var altered in alteredElements)
-                            {
-                                <MudItem xs="2">
-                                    <MudSelect T=@Climate.Element
-                                               @bind-Value=altered.Element
-                                               Label="Altered Element">
-                                        @foreach (var elem in allClimateElements)
-                                        {
-                                            <MudSelectItem Value=@elem />
-                                        }
-                                    </MudSelect>
-                                </MudItem>
-                                <MudItem xs="2">
-                                    <MudSelect T=@Climate.AlterTimeSeriesWrapper.AlterType
-                                               @bind-Value=altered.Type
-                                               Label="Operation">
-                                        @foreach (var (type, label) in allAlterTypes)
-                                        {
-                                            <MudSelectItem Value=@type><MudText Typo=@Typo.body1>@label</MudText></MudSelectItem>
-                                        }
-                                    </MudSelect>
-                                </MudItem>
-                                <MudItem xs="2">
-                                    <MudTextField @bind-Value=altered.Value Label="Value" />
-                                </MudItem>
-                                <MudItem xs="2">
-                                    <MudFab Color=@Color.Secondary
-                                            Icon=@Icons.Material.Filled.Save
-                                            Label="Update"
-                                            OnClick=@(async () => {await AlterTimeSeriesWrapperCap?.Alter(altered, false);}) />
-                                </MudItem>
-                                <MudItem xs="2">
-                                    <MudFab Color=@Color.Secondary
-                                            Icon=@Icons.Material.Filled.Delete
-                                            Label="Delete"
-                                            OnClick=@(async () => {
+                <MudItem xs="12">
+                    <MudCard Elevation="3">
+                        <MudCardContent>
+                            <MudGrid>
+                                @foreach (var altered in alteredElements)
+                                {
+                                    <MudItem xs="2">
+                                        <MudSelect T=@Climate.Element
+                                                   @bind-Value=altered.Element
+                                                   Label="Altered Element">
+                                            @foreach (var elem in allClimateElements)
+                                            {
+                                                <MudSelectItem Value=@elem />
+                                            }
+                                        </MudSelect>
+                                    </MudItem>
+                                    <MudItem xs="2">
+                                        <MudSelect T=@Climate.AlterTimeSeriesWrapper.AlterType
+                                                   @bind-Value=altered.Type
+                                                   Label="Operation">
+                                            @foreach (var (type, label) in allAlterTypes)
+                                            {
+                                                <MudSelectItem Value=@type><MudText Typo=@Typo.body1>@label</MudText></MudSelectItem>
+                                            }
+                                        </MudSelect>
+                                    </MudItem>
+                                    <MudItem xs="2">
+                                        <MudTextField @bind-Value=altered.Value Label="Value" />
+                                    </MudItem>
+                                    <MudItem xs="2">
+                                        <MudFab Color=@Color.Secondary
+                                                Icon=@Icons.Material.Filled.Save
+                                                Label="Update"
+                                                OnClick=@(async () => {await AlterTimeSeriesWrapperCap?.Alter(altered, false);}) />
+                                    </MudItem>
+                                    <MudItem xs="2">
+                                        <MudFab Color=@Color.Secondary
+                                                Icon=@Icons.Material.Filled.Delete
+                                                Label="Delete"
+                                                OnClick=@(async () => {
                                                   AlterTimeSeriesWrapperCap?.Remove(altered.Element);
                                                   var aes = await AlterTimeSeriesWrapperCap?.AlteredElements();
                                                   alteredElements = aes.ToList();
                                                   StateHasChanged();
                                               }) />
-                                </MudItem>
-                                <MudItem xs="2"></MudItem>
-                            }
-                        </MudGrid>
-                    </MudCardContent>
-                </MudCard>
-            </MudItem>
-            <MudItem xs="12" Class=@(true ? "d-none" : "")>
-                @code {
-                    private Dictionary<String, IEnumerable<float>> Name2Data = new();
-                    private IEnumerable<DateTime> Dates = new List<DateTime>();
-                }
-                <Highchart Data=@Name2Data Dates=@Dates></Highchart>
-            </MudItem>
+                                    </MudItem>
+                                    <MudItem xs="2"></MudItem>
+                                }
+                            </MudGrid>
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+                <MudItem xs="12" Class=@(true ? "d-none" : "")>
+                    @code {
+                        private Dictionary<String, IEnumerable<float>> Name2Data = new();
+                        private IEnumerable<DateTime> Dates = new List<DateTime>();
+                    }
+                    <Highchart Data=@Name2Data Dates=@Dates></Highchart>
+                </MudItem>
         </MudGrid>
     </MudExpansionPanel>
-    <MudExpansionPanel @bind-IsExpanded=@panelOpened["SoilProfile"] Text="Soil profile">
-        <SoilService @ref=@soilServiceRef
-                     LatLng=@LatLng
-                     HideSturdyRefConnector=@true
-                     SoilServiceCap=@SoilServiceCap
-                     @bind-ProfileLayers=profileLayers
-                     HideGeoPosPicker=@true>
-        </SoilService>
-    </MudExpansionPanel>
-    <MudExpansionPanel @bind-IsExpanded=@panelOpened["CropRotation"] Text="Crop rotation">
+    <MudExpansionPanel @bind-IsExpanded=@panelOpened["SoilProfile"] Text="Change soil profile">
         @code {
-            
-
+            private bool overwriteSoilProfile = false;
         }
         <MudGrid>
             <MudItem xs="12">
-                <MudChipSet AllClosable=@true>
-                    @foreach (var e in cropRotation)
-                    {
-                        <MudChip Tag=@e Text=@NameFromEvent(e)/>
-                    }
-                </MudChipSet>
+                <MudSwitch @bind-Checked=overwriteSoilProfile Color="Color.Primary" Label="Change" />
             </MudItem>
-
-            <!--
-        <MudItem xs="2" Class="d-flex flex-row py-2 px-1">
-            <MudSelect T=@string
-                       Class=@(showEventSelect ? "" : "d-none")
-                       Value=p.Item1
-                       ValueChanged=@(v => { events[k] = (v, oids); StateHasChanged(); })
-                       Label="Event">
-                @foreach (var eventSc in eventShortcuts)
-                {
-                    <MudSelectItem Value=@eventSc />
-                }
-            </MudSelect>
-            <MudTextField T=@string
-                          Class=@(showEventSelect ? "d-none" : "")
-                          Value=p.Item1
-                          ValueChanged=@(v => { events[k] = (v, oids); StateHasChanged(); })
-                          Label="Event"
-                          Variant="Variant.Outlined" />
-            <MudFab Color=@Color.Secondary
-                    Icon=@(showEventSelect ? Icons.Material.Filled.Edit : Icons.Material.Filled.Close)
-                    OnClick=@(() => showEventSelect = !showEventSelect) />
-        </MudItem>
-        <MudItem xs="10">
-            <MudChipSet AllClosable=@true OnClose=@(c => oids.Remove(c.Tag as OId))>
-                @foreach (var oid in oids)
-                {
-                    <MudChip Tag=@oid Text=@oid.ToString() OnClick=@(() => editOId = oid) />
-                }
-            </MudChipSet>
-        </MudItem>
-        <MudItem xs="2">
-            <MudField DisableUnderLine=@true>
-                <MudButton Color=@Color.Primary
-                           Variant=@Variant.Filled
-                           OnClick=@(() => { oids.Add(editOId); editOId = OId.Out(""); })
-                           Disabled=@(editOId.From > editOId.To)>
-                    Add/Change
-                </MudButton>
-            </MudField>
-        </MudItem>
-        <MudItem xs="2">
-            <MudField Label="Output Name" DisableUnderLine=@true>
-                <MudTextField @bind-Value=editOId.Name Variant=@Variant.Outlined></MudTextField>
-            </MudField>
-        </MudItem>
-        <MudItem xs="4">
-            <MudField Label="Layers" DisableUnderLine=@true>
-                <MudGrid>
-                    <MudItem xs="3">
-                        <MudSelect @bind-Value=editOId.From
-                                   Label="From"
-                                   Error=@(editOId.From > editOId.To)
-                                   ErrorText="From > To">
-                            @for (int? i = 1; i <= 20; i++)
-                            {
-                                <MudSelectItem Value=@i />
-                            }
-                        </MudSelect>
-                    </MudItem>
-                    <MudItem xs="3">
-                        <MudSelect @bind-Value=editOId.To
-                                   Label="From"
-                                   Error=@(editOId.To < editOId.From)
-                                   ErrorText="To < From">
-                            @for (int? i = 1; i <= 20; i++)
-                            {
-                                <MudSelectItem Value=@i />
-                            }
-                        </MudSelect>
-                    </MudItem>
-                    <MudItem xs="3">
-                        <MudSelect Label="Aggregation"
-                                   @bind-Value=editOId.LayerAgg>
-                            @foreach (Agg? agg in Enum.GetValues(typeof(Agg)))
-                            {
-                                <MudSelectItem Value=@agg />
-                            }
-                        </MudSelect>
-                    </MudItem>
-                    <MudItem xs="3" Class=@(isDailyEvent(eventShortcut) ? "d-none" : "")>
-                        <MudSelect Label="Aggregation"
-                                   @bind-Value=editOId.TimeAgg>
-                            @foreach (Agg? agg in Enum.GetValues(typeof(Agg)))
-                            {
-                                <MudSelectItem Value=@agg />
-                            }
-                        </MudSelect>
-                    </MudItem>
-                </MudGrid>
-            </MudField>
-
-            </MudItem> -->
+            <MudItem xs="12" Class=@(overwriteSoilProfile ? "" : "d-none")>
+                <SoilService @ref=@soilServiceRef
+                             LatLng=@LatLng
+                             HideSturdyRefConnector=@true
+                             SoilServiceCap=@SoilServiceCap
+                             @bind-ProfileLayers=profileLayers
+                             HideGeoPosPicker=@true>
+                </SoilService>
+            </MudItem>
         </MudGrid>
     </MudExpansionPanel>
-    <MudExpansionPanel @bind-IsExpanded=@panelOpened["OutputConfig"] Text="Output configuration">
-        <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
-            @code
-            {
-                bool showEventSelect = true;
+    <MudExpansionPanel @bind-IsExpanded=@panelOpened["CropRotation"] Text="Change crop rotation">
+        @code {
+            private bool overwriteCropRotation = false;
 
-                bool isDailyEvent(string eventShortcut)
-                {
-                    return eventShortcut == "daily" || eventShortcut.Contains("at");
-                }
-            }
-            @for (int i = 0; i < events.Count; i++)
+            private IEnumerable<Mgmt.Event.Type> allMgmtEventTypes =
+                Enum.GetValues(typeof(ExtType)).Cast<ExtType>().
+                Select(et => new Mgmt.Event.Type { External = et }).Concat(
+                    Enum.GetValues(typeof(Mgmt.Event.PhenoStage)).Cast<Mgmt.Event.PhenoStage>().
+                    Select(ps => new Mgmt.Event.Type { Internal = ps }));
+
+            private string mgmtEventTypeName(Mgmt.Event.Type t)
             {
-                var k = i;
-                var p = events[i];
-                var eventShortcut = p.Item1;
-                var oids = p.Item2;
-                <MudTabPanel Text="@eventShortcut">
-                    <MudGrid>
-                        <MudItem xs="2" Class="d-flex flex-row py-2 px-1">
-                            <MudSelect T=@string
-                                       Class=@(showEventSelect ? "" : "d-none")
-                                       Value=p.Item1
-                                       ValueChanged=@(v => { events[k] = (v, oids); StateHasChanged(); })
-                                       Label="Event">
-                                @foreach (var eventSc in eventShortcuts)
+                return textInfo.ToTitleCase(t.which == Mgmt.Event.Type.WHICH.External
+                    ? t.External.ToString() : t.Internal.ToString());
+            }
+        }
+        <MudGrid>
+            <MudItem xs="12">
+                <MudSwitch @bind-Checked=overwriteCropRotation Color="Color.Primary" Label="Change" />
+            </MudItem>
+            <MudItem xs="12" Class=@(overwriteCropRotation ? "" : "d-none")>
+                <MudSimpleTable Style="overflow-x: auto;">
+                    <thead>
+                        <tr>
+                            <th>When</th>
+                            <th>Type</th>
+                            <th>Options</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var (i, e) in cropRotation.Select((e, i) => (i, e)))
+                        {
+                            Func<float?, string> valid = val => null;
+                        <tr>
+                            <td>
+                                <MudSelect Value=@e.which
+                                           T=@Mgmt.Event.WHICH
+                                           ValueChanged=@(v => {
+                                                              e.which = v;
+                                                              switch (e.which)
+                                                              {
+                                                                  case Mgmt.Event.WHICH.At:
+                                                                      e.At = new() { Date = new() };
+                                                                      break;
+                                                                  case Mgmt.Event.WHICH.Between:
+                                                                      e.Between = new() { Earliest = new(), Latest = new() };
+                                                                      break;
+                                                                  case Mgmt.Event.WHICH.After:
+                                                                      e.After = new() { Event = new() };
+                                                                      break;
+                                                              }
+                                                          })
+                                           Label="When options">
+                                    <MudSelectItem Value=@Mgmt.Event.WHICH.At>AT a date</MudSelectItem>
+                                    <MudSelectItem Value=@Mgmt.Event.WHICH.Between>auto BETWEEN dates</MudSelectItem>
+                                    <MudSelectItem Value=@Mgmt.Event.WHICH.After>AFTER events</MudSelectItem>
+                                </MudSelect>
+                                @switch (e.which)
                                 {
-                                    <MudSelectItem Value=@eventSc />
+                                    case Mgmt.Event.WHICH.At:
+                                        <MudDatePicker Label="at date"
+                                                       Date=@Helper.CommonDate2DateTime(e.At.Date)
+                                                       DateChanged=@(d => { if (d.HasValue) e.At.Date = Helper.DateTime2CommonDate(d.Value); })
+                                                       Editable="true" />
+                                        break;
+                                    case Mgmt.Event.WHICH.Between:
+                                        <MudDatePicker Label="earliest date"
+                                                       Date=@Helper.CommonDate2DateTime(e.Between.Earliest)
+                                                       DateChanged=@(d => { if (d.HasValue) e.Between.Earliest = Helper.DateTime2CommonDate(d.Value); })
+                                                       Editable="true" />
+                                        <MudDatePicker Label="latest date"
+                                                       Date=@Helper.CommonDate2DateTime(e.Between.Latest)
+                                                       DateChanged=@(d => { if (d.HasValue) e.Between.Latest = Helper.DateTime2CommonDate(d.Value); })
+                                                       Editable="true" />
+                                        break;
+                                    case Mgmt.Event.WHICH.After:
+                                        <MudSelect @bind-Value=e.After.Event Label="Workstep">
+                                            @foreach (var t in allMgmtEventTypes)
+                                            {
+                                                <MudSelectItem Value="@t">
+                                                    @(textInfo.ToTitleCase(t.which == Mgmt.Event.Type.WHICH.External
+                                                        ? t.External.ToString() : t.Internal.ToString()))
+                                                </MudSelectItem>
+                                            }
+                                        </MudSelect>
+                                        <MudTextField @bind-Value=e.After.Days
+                                                      Label=@($"days after {mgmtEventTypeName(e.After.Event)}") />
+                                        break;
                                 }
-                            </MudSelect>
-                            <MudTextField T=@string
-                                          Class=@(showEventSelect ? "d-none" : "")
-                                          Value=p.Item1
-                                          ValueChanged=@(v => { events[k] = (v, oids); StateHasChanged(); })
-                                          Label="Event"
-                                          Variant="Variant.Outlined" />
-                            <MudFab Color=@Color.Secondary
-                                    Icon=@(showEventSelect ? Icons.Material.Filled.Edit : Icons.Material.Filled.Close)
-                                    OnClick=@(() => showEventSelect = !showEventSelect) />
-                        </MudItem>
-                        <MudItem xs="10">
-                            <MudChipSet AllClosable=@true OnClose=@(c => oids.Remove(c.Tag as OId))>
-                                @foreach (var oid in oids)
+                            </td>
+                            <td>
+                                <MudSelect Value=@e.TheType
+                                           T=@ExtType
+                                           ValueChanged=@(v => { e.TheType = v; StateHasChanged(); })
+                                           Label="Workstep">
+                                    @foreach (ExtType et in Enum.GetValues(typeof(ExtType)))
+                                    {
+                                        <MudSelectItem Value="@et">@textInfo.ToTitleCase(et.ToString())</MudSelectItem>
+                                    }
+                                </MudSelect>
+                            </td>
+                            <td>
+                                @switch (e.TheType)
                                 {
-                                    <MudChip Tag=@oid Text=@oid.ToString() OnClick=@(() => editOId = oid) />
+                                    case ExtType.sowing:
+                                        if (e.Params == null) e.Params = new Mgmt.Params.Sowing();
+                                        if (e.Params is Mgmt.Params.Sowing s)
+                                        {
+                                            <MudCard>
+                                                <MudCardContent>
+                                                    <MudSelect @bind-Value=s.Cultivar Label="Sow cultivar ...">
+                                                        @foreach (Mgmt.Cultivar cult in Enum.GetValues(typeof(Mgmt.Cultivar)))
+                                                                        {
+                                                            <MudSelectItem Value="@cult">@textInfo.ToTitleCase(cult.ToString())</MudSelectItem>
+                                                                        }
+                                                    </MudSelect>
+                                                </MudCardContent>
+                                            </MudCard>
+                                        }
+                                        break;
+                                    case ExtType.harvest:
+                                        if (e.Params == null) e.Params = new Mgmt.Params.Harvest() { OptCarbMgmtData = new() };
+                                        if (e.Params is Mgmt.Params.Harvest h)
+                                        {
+                                            valid = val => val < 0 || val > 100 ? "[0 - 100]" : null;
+                                            <MudCard>
+                                                <MudCardContent>
+                                                    <MudCheckBox @bind-Checked=@h.Exported Label="Exported" />
+                                                    <MudSwitch @bind-Checked=@h.OptCarbMgmtData.OptCarbonConservation
+                                                               Label="Carbon Conservation?" />
+                                                    <MudCard Class=@(h.OptCarbMgmtData.OptCarbonConservation ? "" : "d-none")>
+                                                        <MudCardContent>
+                                                            <MudSelect @bind-Value=h.OptCarbMgmtData.CropUsage Label="CropUsage">
+                                                                <MudSelectItem Value=@Mgmt.Params.Harvest.CropUsage.biomassProduction>Biomass production</MudSelectItem>
+                                                                <MudSelectItem Value=@Mgmt.Params.Harvest.CropUsage.greenManure>Green manure</MudSelectItem>
+                                                            </MudSelect>
+                                                            <MudTextField @bind-Value=h.OptCarbMgmtData.CropImpactOnHumusBalance
+                                                                          Label="CropImpactOnHumusBalance"
+                                                                          Adornment="Adornment.End"
+                                                                          AdornmentText="%"
+                                                                          Validation=@valid />
+                                                            <MudTextField @bind-Value=h.OptCarbMgmtData.ResidueHeq
+                                                                          Label="ResidueHeq"
+                                                                          Adornment="Adornment.End"
+                                                                          AdornmentText="%"
+                                                                          Validation=@valid />
+                                                            <MudTextField @bind-Value=h.OptCarbMgmtData.OrganicFertilizerHeq
+                                                                          Label="OrganicFertilizerHeq"
+                                                                          Adornment="Adornment.End"
+                                                                          AdornmentText="%"
+                                                                          Validation=@valid />
+                                                            <MudTextField @bind-Value=h.OptCarbMgmtData.MaxResidueRecoverFraction
+                                                                          Label="MaxResidueRecoverFraction"
+                                                                          Adornment="Adornment.End"
+                                                                          AdornmentText="%"
+                                                                          Validation=@valid />
+                                                        </MudCardContent>
+                                                    </MudCard>
+                                                </MudCardContent>
+                                            </MudCard>
+                                        }
+                                        break;
+                                    case ExtType.mineralFertilization:
+                                        if (e.Params == null) e.Params = new Mgmt.Params.MineralFertilization() { Partition = new() };
+                                        if (e.Params is Mgmt.Params.MineralFertilization mf)
+                                        {
+                                            valid = val => val < 0 || val > 100 ? "[0 - 100]" : null;
+                                            <MudCard>
+                                                <MudCardContent>
+                                                    <MudTextField @bind-Value=mf.Amount
+                                                                  Label="Amount"
+                                                                  Adornment="Adornment.End"
+                                                                  AdornmentText="kg" />
+                                                    <MudCard>
+                                                        <MudCardContent>
+                                                            <MudTextField @bind-Value=mf.Partition.Carbamid
+                                                                          Label="Carbamid"
+                                                                          Adornment="Adornment.End"
+                                                                          AdornmentText="%"
+                                                                          Validation=@valid />
+                                                            <MudTextField @bind-Value=mf.Partition.Nh4
+                                                                          Label="NH4"
+                                                                          Adornment="Adornment.End"
+                                                                          AdornmentText="%"
+                                                                          Validation=@valid />
+                                                            <MudTextField @bind-Value=mf.Partition.No3
+                                                                          Label="NO3"
+                                                                          Adornment="Adornment.End"
+                                                                          AdornmentText="%"
+                                                                          Validation=@valid />
+                                                        </MudCardContent>
+                                                    </MudCard>
+                                                </MudCardContent>
+                                            </MudCard>
+                                        }
+                                        break;
+                                    case ExtType.tillage:
+                                        if (e.Params == null) e.Params = new Mgmt.Params.Tillage();
+                                        if (e.Params is Mgmt.Params.Tillage t)
+                                        {
+                                            valid = val => val < 0 || val > 2 ? "[0 - 2]" : null;
+                                            <MudCard>
+                                                <MudCardContent>
+                                                    <MudTextField @bind-Value=t.Depth
+                                                                  Label="depth"
+                                                                  Adornment="Adornment.End"
+                                                                  AdornmentText="m"
+                                                                  Validation=@valid />
+                                                </MudCardContent>
+                                            </MudCard>
+                                        }
+                                        break;
+                                    case ExtType.irrigation:
+                                        if (e.Params == null) e.Params = new Mgmt.Params.Irrigation() { Params = new() };
+                                        if (e.Params is Mgmt.Params.Irrigation ir)
+                                        {
+                                            valid = val => val < 0 || val > 100 ? "[0 - 100]" : null;
+                                            <MudCard>
+                                                <MudCardContent>
+                                                    <MudTextField @bind-Value=ir.Amount
+                                                                  Label="Amount"
+                                                                  Adornment="Adornment.End"
+                                                                  AdornmentText="mm"/>
+                                                    <MudCard>
+                                                        <MudCardContent>
+                                                            <MudTextField @bind-Value=ir.Params.NitrateConcentration
+                                                                          Label="Nitrate concentration"
+                                                                          Adornment="Adornment.End"
+                                                                          AdornmentText="mg dm-3"
+                                                                          Validation=@valid />
+                                                            <MudTextField @bind-Value=ir.Params.SulfateConcentration
+                                                                          Label="Sulfate concentration"
+                                                                          Adornment="Adornment.End"
+                                                                          AdornmentText="mg dm-3"
+                                                                          Validation=@valid />
+                                                        </MudCardContent>
+                                                    </MudCard>
+                                                </MudCardContent>
+                                            </MudCard>
+                                        }
+                                        break;
                                 }
-                            </MudChipSet>
-                        </MudItem>
-                        <MudItem xs="2">
-                            <MudField DisableUnderLine=@true>
-                                <MudButton Color=@Color.Primary
-                                           Variant=@Variant.Filled
-                                           OnClick=@(() => { oids.Add(editOId); editOId = OId.Out(""); })
-                                           Disabled=@(editOId.From > editOId.To)>
-                                    Add/Change
-                                </MudButton>
-                            </MudField>
-                        </MudItem>
-                        <MudItem xs="2">
-                            <MudField Label="Output Name" DisableUnderLine=@true>
-                                <MudTextField @bind-Value=editOId.Name Variant=@Variant.Outlined></MudTextField>
-                            </MudField>
-                        </MudItem>
-                        <MudItem xs="4">
-                            <MudField Label="Layers" DisableUnderLine=@true>
+                            </td>
+                            <td>
+                                <MudFab Icon=@Icons.Material.Filled.ArrowUpward
+                                        Disabled=@(i == 0)
+                                        OnClick=@(() => { 
+                                                      cropRotation.Remove(e); 
+                                                      cropRotation.Insert(Math.Max(0, i - 1), e); 
+                                                      StateHasChanged(); }) />
+                                <MudFab Icon=@Icons.Material.Filled.ArrowDownward
+                                        Disabled=@(i == cropRotation.Count() - 1)
+                                        OnClick=@(() => { 
+                                                      cropRotation.Remove(e); 
+                                                      cropRotation.Insert(Math.Min(i + 1, cropRotation.Count()), e);
+                                                      StateHasChanged();
+                                                  }) />
+                                <MudFab Icon=@Icons.Material.Filled.Add
+                                        Color=@Color.Success
+                                        OnClick=@(() => { 
+                                                      cropRotation.Insert(Math.Max(0, i - 1), new Mgmt.Event());
+                                                      StateHasChanged();
+                                                  }) />
+                                <MudFab Icon=@Icons.Material.Filled.Delete
+                                        Color=@Color.Error
+                                        OnClick=@(() => { cropRotation.Remove(e); StateHasChanged(); }) />
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </MudSimpleTable>
+            </MudItem>
+        </MudGrid>
+
+        <!--
+
+        <MudChipSet AllClosable=@true>
+                    @foreach (var e in cropRotation)
+                    {
+                        <MudChip Tag=@e Text=@NameFromEvent(e) />
+                    }
+                </MudChipSet>
+
+
+    <MudItem xs="2" Class="d-flex flex-row py-2 px-1">
+        <MudSelect T=@string
+                   Class=@(showEventSelect ? "" : "d-none")
+                   Value=p.Item1
+                   ValueChanged=@(v => { events[k] = (v, oids); StateHasChanged(); })
+                   Label="Event">
+            @foreach (var eventSc in eventShortcuts)
+            {
+                <MudSelectItem Value=@eventSc />
+            }
+        </MudSelect>
+        <MudTextField T=@string
+                      Class=@(showEventSelect ? "d-none" : "")
+                      Value=p.Item1
+                      ValueChanged=@(v => { events[k] = (v, oids); StateHasChanged(); })
+                      Label="Event"
+                      Variant="Variant.Outlined" />
+        <MudFab Color=@Color.Secondary
+                Icon=@(showEventSelect ? Icons.Material.Filled.Edit : Icons.Material.Filled.Close)
+                OnClick=@(() => showEventSelect = !showEventSelect) />
+    </MudItem>
+    <MudItem xs="10">
+        <MudChipSet AllClosable=@true OnClose=@(c => oids.Remove(c.Tag as OId))>
+            @foreach (var oid in oids)
+            {
+                <MudChip Tag=@oid Text=@oid.ToString() OnClick=@(() => editOId = oid) />
+            }
+        </MudChipSet>
+    </MudItem>
+    <MudItem xs="2">
+        <MudField DisableUnderLine=@true>
+            <MudButton Color=@Color.Primary
+                       Variant=@Variant.Filled
+                       OnClick=@(() => { oids.Add(editOId); editOId = OId.Out(""); })
+                       Disabled=@(editOId.From > editOId.To)>
+                Add/Change
+            </MudButton>
+        </MudField>
+    </MudItem>
+    <MudItem xs="2">
+        <MudField Label="Output Name" DisableUnderLine=@true>
+            <MudTextField @bind-Value=editOId.Name Variant=@Variant.Outlined></MudTextField>
+        </MudField>
+    </MudItem>
+    <MudItem xs="4">
+        <MudField Label="Layers" DisableUnderLine=@true>
+            <MudGrid>
+                <MudItem xs="3">
+                    <MudSelect @bind-Value=editOId.From
+                               Label="From"
+                               Error=@(editOId.From > editOId.To)
+                               ErrorText="From > To">
+                        @for (int? i = 1; i <= 20; i++)
+                        {
+                            <MudSelectItem Value=@i />
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="3">
+                    <MudSelect @bind-Value=editOId.To
+                               Label="From"
+                               Error=@(editOId.To < editOId.From)
+                               ErrorText="To < From">
+                        @for (int? i = 1; i <= 20; i++)
+                        {
+                            <MudSelectItem Value=@i />
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="3">
+                    <MudSelect Label="Aggregation"
+                               @bind-Value=editOId.LayerAgg>
+                        @foreach (Agg? agg in Enum.GetValues(typeof(Agg)))
+                        {
+                            <MudSelectItem Value=@agg />
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="3" Class=@(isDailyEvent(eventShortcut) ? "d-none" : "")>
+                    <MudSelect Label="Aggregation"
+                               @bind-Value=editOId.TimeAgg>
+                        @foreach (Agg? agg in Enum.GetValues(typeof(Agg)))
+                        {
+                            <MudSelectItem Value=@agg />
+                        }
+                    </MudSelect>
+                </MudItem>
+            </MudGrid>
+        </MudField>
+
+        </MudItem> -->
+    </MudExpansionPanel>
+                <MudExpansionPanel @bind-IsExpanded=@panelOpened["OutputConfig"] Text="Output configuration">
+                    <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+                        @code
+            {
+                            bool showEventSelect = true;
+
+                            bool isDailyEvent(string eventShortcut)
+                            {
+                                return eventShortcut == "daily" || eventShortcut.Contains("at");
+                            }
+                        }
+                        @for (int i = 0; i < events.Count; i++)
+                        {
+                            var k = i;
+                            var p = events[i];
+                            var eventShortcut = p.Item1;
+                            var oids = p.Item2;
+                            <MudTabPanel Text="@eventShortcut">
                                 <MudGrid>
-                                    <MudItem xs="3">
-                                        <MudSelect @bind-Value=editOId.From
-                                                   Label="From"
-                                                   Error=@(editOId.From > editOId.To)
-                                                   ErrorText="From > To">
-                                            @for (int? i = 1; i <= 20; i++)
-                                                {
-                                                <MudSelectItem Value=@i />
-                                                }
+                                    <MudItem xs="2" Class="d-flex flex-row py-2 px-1">
+                                        <MudSelect T=@string
+                                                   Class=@(showEventSelect ? "" : "d-none")
+                                                   Value=p.Item1
+                                                   ValueChanged=@(v => { events[k] = (v, oids); StateHasChanged(); })
+                                                   Label="Event">
+                                            @foreach (var eventSc in eventShortcuts)
+                                            {
+                                                <MudSelectItem Value=@eventSc />
+                                            }
                                         </MudSelect>
+                                        <MudTextField T=@string
+                                                      Class=@(showEventSelect ? "d-none" : "")
+                                                      Value=p.Item1
+                                                      ValueChanged=@(v => { events[k] = (v, oids); StateHasChanged(); })
+                                                      Label="Event"
+                                                      Variant="Variant.Outlined" />
+                                        <MudFab Color=@Color.Secondary
+                                                Icon=@(showEventSelect ? Icons.Material.Filled.Edit : Icons.Material.Filled.Close)
+                                                OnClick=@(() => showEventSelect = !showEventSelect) />
                                     </MudItem>
-                                    <MudItem xs="3">
-                                        <MudSelect @bind-Value=editOId.To
-                                                   Label="From"
-                                                   Error=@(editOId.To < editOId.From)
-                                                   ErrorText="To < From">
-                                            @for (int? i = 1; i <= 20; i++)
-                                                {
-                                                <MudSelectItem Value=@i />
-                                                }
-                                        </MudSelect>
+                                    <MudItem xs="10">
+                                        <MudChipSet AllClosable=@true OnClose=@(c => oids.Remove(c.Tag as OId))>
+                                            @foreach (var oid in oids)
+                                            {
+                                                <MudChip Tag=@oid Text=@oid.ToString() OnClick=@(() => editOId = oid) />
+                                            }
+                                        </MudChipSet>
                                     </MudItem>
-                                    <MudItem xs="3">
-                                        <MudSelect Label="Aggregation"
-                                                   @bind-Value=editOId.LayerAgg>
-                                            @foreach (Agg? agg in Enum.GetValues(typeof(Agg)))
-                                                {
-                                                <MudSelectItem Value=@agg />
-                                                }
-                                        </MudSelect>
+                                    <MudItem xs="2">
+                                        <MudField DisableUnderLine=@true>
+                                            <MudButton Color=@Color.Primary
+                                                       Variant=@Variant.Filled
+                                                       OnClick=@(() => { oids.Add(editOId); editOId = OId.Out(""); })
+                                                       Disabled=@(editOId.From > editOId.To)>
+                                                Add/Change
+                                            </MudButton>
+                                        </MudField>
                                     </MudItem>
-                                    <MudItem xs="3" Class=@(isDailyEvent(eventShortcut) ? "d-none" : "")>
-                                        <MudSelect Label="Aggregation"
-                                                   @bind-Value=editOId.TimeAgg>
-                                            @foreach (Agg? agg in Enum.GetValues(typeof(Agg)))
-                                                {
-                                                <MudSelectItem Value=@agg />
-                                                }
-                                        </MudSelect>
+                                    <MudItem xs="2">
+                                        <MudField Label="Output Name" DisableUnderLine=@true>
+                                            <MudTextField @bind-Value=editOId.Name Variant=@Variant.Outlined></MudTextField>
+                                        </MudField>
+                                    </MudItem>
+                                    <MudItem xs="4">
+                                        <MudField Label="Layers" DisableUnderLine=@true>
+                                            <MudGrid>
+                                                <MudItem xs="3">
+                                                    <MudSelect @bind-Value=editOId.From
+                                                               Label="From"
+                                                               Error=@(editOId.From > editOId.To)
+                                                               ErrorText="From > To">
+                                                        @for (int? i = 1; i <= 20; i++)
+                                                                {
+                                                            <MudSelectItem Value=@i />
+                                                                }
+                                                    </MudSelect>
+                                                </MudItem>
+                                                <MudItem xs="3">
+                                                    <MudSelect @bind-Value=editOId.To
+                                                               Label="From"
+                                                               Error=@(editOId.To < editOId.From)
+                                                               ErrorText="To < From">
+                                                        @for (int? i = 1; i <= 20; i++)
+                                                                {
+                                                            <MudSelectItem Value=@i />
+                                                                }
+                                                    </MudSelect>
+                                                </MudItem>
+                                                <MudItem xs="3">
+                                                    <MudSelect Label="Aggregation"
+                                                               @bind-Value=editOId.LayerAgg>
+                                                        @foreach (Agg? agg in Enum.GetValues(typeof(Agg)))
+                                                                {
+                                                            <MudSelectItem Value=@agg />
+                                                                }
+                                                    </MudSelect>
+                                                </MudItem>
+                                                <MudItem xs="3" Class=@(isDailyEvent(eventShortcut) ? "d-none" : "")>
+                                                    <MudSelect Label="Aggregation"
+                                                               @bind-Value=editOId.TimeAgg>
+                                                        @foreach (Agg? agg in Enum.GetValues(typeof(Agg)))
+                                                                {
+                                                            <MudSelectItem Value=@agg />
+                                                                }
+                                                    </MudSelect>
+                                                </MudItem>
+                                            </MudGrid>
+                                        </MudField>
                                     </MudItem>
                                 </MudGrid>
-                            </MudField>
+                            </MudTabPanel>
+                        }
+                        <MudTabPanel Text="new">
+                            <MudGrid>
+                                <MudItem xs="2" Class="d-flex flex-row py-2 px-1">
+                                    <MudSelect T=@string
+                                               Class=@(showEventSelect ? "" : "d-none")
+                                               ValueChanged=@(v => { events.Add((v, new List<OId>())); StateHasChanged(); })
+                                               Label="New Event">
+                                        @foreach (var eventSc in eventShortcuts)
+                                        {
+                                            <MudSelectItem Value=@eventSc />
+                                        }
+                                    </MudSelect>
+                                    <MudTextField T=@string
+                                                  Class=@(showEventSelect ? "d-none" : "")
+                                                  ValueChanged=@(v => { events.Add((v, new List<OId>())); StateHasChanged(); })
+                                                  Label="New Event"
+                                                  Variant="Variant.Outlined" />
+                                    <MudFab Color=@Color.Secondary
+                                            Icon=@(showEventSelect ? Icons.Material.Filled.Edit : Icons.Material.Filled.Close)
+                                            OnClick=@(() => showEventSelect = !showEventSelect) />
+                                </MudItem>
+                            </MudGrid>
+                        </MudTabPanel>
+                    </MudTabs>
+                </MudExpansionPanel>
+                <MudExpansionPanel @bind-IsExpanded=@panelOpened["Results"] Text="MONICA results">
+                    <MudGrid>
+                        <MudItem xs="2">
+                            <MudButton Variant=@Variant.Filled Class="run-main" OnClick=@RunMonicaModel>Run MONICA</MudButton>
                         </MudItem>
-                    </MudGrid>
-                </MudTabPanel>
-            }
-            <MudTabPanel Text="new">
-                <MudGrid>
-                    <MudItem xs="2" Class="d-flex flex-row py-2 px-1">
-                        <MudSelect T=@string
-                                   Class=@(showEventSelect ? "" : "d-none")
-                                   ValueChanged=@(v => { events.Add((v, new List<OId>())); StateHasChanged(); })
-                                   Label="New Event">
-                            @foreach (var eventSc in eventShortcuts)
-                            {
-                                <MudSelectItem Value=@eventSc />
-                            }
-                        </MudSelect>
-                        <MudTextField T=@string
-                                      Class=@(showEventSelect ? "d-none" : "")
-                                      ValueChanged=@(v => { events.Add((v, new List<OId>())); StateHasChanged(); })
-                                      Label="New Event"
-                                      Variant="Variant.Outlined" />
-                        <MudFab Color=@Color.Secondary
-                                Icon=@(showEventSelect ? Icons.Material.Filled.Edit : Icons.Material.Filled.Close)
-                                OnClick=@(() => showEventSelect = !showEventSelect) />
-                    </MudItem>
-                </MudGrid>
-            </MudTabPanel>
-        </MudTabs>
-    </MudExpansionPanel>
-    <MudExpansionPanel @bind-IsExpanded=@panelOpened["Results"] Text="MONICA results">
-        <MudGrid>
-            <MudItem xs="2">
-                <MudButton Variant=@Variant.Filled Class="run-main" OnClick=@RunMonicaModel>Run MONICA</MudButton>
-            </MudItem>
-            <MudItem xs="10">
-                <MudChipSet SelectedChipsChanged=@(cs => {
+                        <MudItem xs="10">
+                            <MudChipSet SelectedChipsChanged=@(cs => {
                                                        selectedResultSection = cs.Select(c => c.Text).FirstOrDefault();
                                                        MonicaResultsChanged = true;
                                                    })
-                            Mandatory=@true
-                            Filter=@true>
-                    @foreach (var (s, i) in Section2Oid2Data.Keys.Select((s, i) => (s, i)))
-                    {
-                        <MudChip @ref=defaultSelectedSectionChips[i] Text=@s Default=@(s == selectedResultSection)></MudChip>
-                    }
-                </MudChipSet>
-            </MudItem>
-            <MudItem xs="12">
-                @code {
-                    private List<Highchart.AxisConfig> yAxisConfigs = new()
-                    {
-                        new Highchart.AxisConfig { Id = "def", Title = "other values" },
-                        new Highchart.AxisConfig { Id = "yields", Title = "Yield [kg/ha]", Opposite = true }
-                    };
-                    private Dictionary<string, Highchart.CurveConfig> curveName2Config = new()
-                    {
-                        { "Yield", new Highchart.CurveConfig { DisplayAxisId = "yields", IsVisible = true } }
-                    };
-                }
-                <Highchart Title="MONICA results"
-                           XAxisTitle="Date"
-                           Data=@(Section2Oid2Data.GetValueOrDefault(selectedResultSection, new Dictionary<string, IEnumerable<float>>()))
-                           Dates=@(Section2Dates.GetValueOrDefault(selectedResultSection, new List<DateTime>()))
-                           DataChanged=@MonicaResultsChanged
-                           ChartRerendered=@(() => MonicaResultsChanged = false)
-                           YAxisConfigs=@yAxisConfigs
-                           CurveName2Config=@curveName2Config>
-                </Highchart>
-            </MudItem>
-            <!--<MudItem xs="12">
-                            <MudCard>
-                                <MudCardContent>
-                                    <MudText>@monicaResult</MudText>
-                                </MudCardContent>
-                            </MudCard>
+                                        Mandatory=@true
+                                        Filter=@true>
+                                @foreach (var (s, i) in Section2Oid2Data.Keys.Select((s, i) => (s, i)))
+                                {
+                                    <MudChip @ref=defaultSelectedSectionChips[i] Text=@s Default=@(s == selectedResultSection)></MudChip>
+                                }
+                            </MudChipSet>
                         </MudItem>
-            -->
-            <MudItem xs="12">
-                <MudAlert Severity="Severity.Error">@monicaErrorMessage</MudAlert>
-            </MudItem>
-        </MudGrid>
-    </MudExpansionPanel>
-</MudExpansionPanels>
+                        <MudItem xs="12">
+                            @code {
+                                private List<Highchart.AxisConfig> yAxisConfigs = new()
+                                {
+            new Highchart.AxisConfig { Id = "def", Title = "other values" },
+            new Highchart.AxisConfig { Id = "yields", Title = "Yield [kg/ha]", Opposite = true }
+        };
+                                private Dictionary<string, Highchart.CurveConfig> curveName2Config = new()
+                                {
+            { "Yield", new Highchart.CurveConfig { DisplayAxisId = "yields", IsVisible = true } }
+        };
+                            }
+                            <Highchart Title="MONICA results"
+                                       XAxisTitle="Date"
+                                       Data=@(Section2Oid2Data.GetValueOrDefault(selectedResultSection, new Dictionary<string, IEnumerable<float>>()))
+                                       Dates=@(Section2Dates.GetValueOrDefault(selectedResultSection, new List<DateTime>()))
+                                       DataChanged=@MonicaResultsChanged
+                                       ChartRerendered=@(() => MonicaResultsChanged = false)
+                                       YAxisConfigs=@yAxisConfigs
+                                       CurveName2Config=@curveName2Config>
+                            </Highchart>
+                        </MudItem>
+                        <!--<MudItem xs="12">
+                                        <MudCard>
+                                            <MudCardContent>
+                                                <MudText>@monicaResult</MudText>
+                                            </MudCardContent>
+                                        </MudCard>
+                                    </MudItem>
+                        -->
+                        <MudItem xs="12">
+                            <MudAlert Severity="Severity.Error">@monicaErrorMessage</MudAlert>
+                        </MudItem>
+                    </MudGrid>
+                </MudExpansionPanel>
+            </MudExpansionPanels>

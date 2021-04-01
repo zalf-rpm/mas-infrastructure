@@ -315,7 +315,7 @@ namespace MonicaBlazorZmqUI.Services
                 return false;
             return j.Type == JTokenType.String;
         }
-        private  JObject find_and_replace_references(JToken root, JToken j)
+        public JObject find_and_replace_references(JToken root, JToken j)
         {
             JObject res;
             var success = true;
