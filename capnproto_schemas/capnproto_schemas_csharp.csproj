@@ -72,6 +72,9 @@
       <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">.</ImportPaths>
       <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">.</ImportPaths>
     </CapnpFiles>
+    <CapnpFiles Update="management.capnp">
+      <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">.</ImportPaths>
+    </CapnpFiles>
     <CapnpFiles Update="model.capnp">
       <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">.</ImportPaths>
       <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">.</ImportPaths>

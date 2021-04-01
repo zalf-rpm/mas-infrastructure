@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Mgmt = Mas.Rpc.Management;
+using ExtType = Mas.Rpc.Management.Event.ExternalType;
+using Mas.Infrastructure.Common;
 
 namespace Mas.Infrastructure.BlazorComponents
 {
@@ -310,6 +313,142 @@ namespace Mas.Infrastructure.BlazorComponents
 
         #endregion events / outputs
 
+        #region crop rotation
+        private List<Mas.Rpc.Management.Event> cropRotation = new()
+        {
+            new Mas.Rpc.Management.Event()
+            {
+                TheType = new() { External = Mas.Rpc.Management.Event.ExternalType.sowing },
+                At = new() { Date = new Mas.Common.Date { Year = 0, Month = 9, Day = 23 } },
+                Params = new Mas.Rpc.Management.Params.Sowing { Cultivar = Rpc.Management.Cultivar.wheatWinter }
+            },
+            new Mas.Rpc.Management.Event()
+            {
+                TheType = new() { External = Mas.Rpc.Management.Event.ExternalType.harvest },
+                At = new() { Date = new Mas.Common.Date { Year = 1, Month = 7, Day = 27 } }
+            }
+        };
+
+        private System.Globalization.TextInfo textInfo = new System.Globalization.CultureInfo("de-DE", false).TextInfo;
+
+        private string NameFromEvent(Mas.Rpc.Management.Event e)
+        {
+            var typeStr = e.TheType.which == Rpc.Management.Event.Type.WHICH.External
+                ? e.TheType.External.ToString() : e.TheType.Internal.ToString();
+
+            var type = e.Info == null ? typeStr : textInfo.ToTitleCase(e.Info.Name);
+            var crop = (e.Params is Mas.Rpc.Management.Params.Sowing s) ? s.Cultivar.ToString() : "";
+            if (!string.IsNullOrEmpty(crop)) type = $"{type} : {crop}";
+            var date = e.which == Mgmt.Event.WHICH.At ? Helper.CommonDate2IsoDateString(e.At.Date) : null;
+            var amount = (e.Params is Rpc.Management.Params.MineralFertilization m)
+                ? m.Amount.ToString() : (e.Params is Rpc.Management.Params.OrganicFertilization o)
+                ? o.Amount.ToString() : "";
+
+            return string.IsNullOrEmpty(amount) ? $"{type} @ {date}" : $"{type} @ {date} = {amount}";
+        }
+
+        private JArray CreateCropRotation()
+        {
+            var cr = new JArray();
+            var wss = new JArray();
+            var cm = new JObject { { "worksteps", wss } };
+            foreach(var e in cropRotation)
+            {
+                if (e.TheType.which == Mgmt.Event.Type.WHICH.External && e.TheType.External.HasValue)
+                {
+                    switch (e.TheType.External.Value)
+                    {
+                        case ExtType.sowing:
+                            if (e.Params is Mgmt.Params.Sowing s)
+                            {
+                                if (wss.Any())
+                                {
+                                    cr.Add(cm);
+                                    wss = new JArray();
+                                    cm = new JObject { { "worksteps", wss } };
+                                }
+
+                                wss.Add(new JObject() 
+                                {
+                                    { "type", "Sowing" },
+                                    { "date", Helper.CommonDate2IsoDateString(e.At.Date) },
+                                    { "crop", new JArray { "ref", "crops", s.Cultivar.ToString() } }
+                                });
+                            }
+                            break;
+                        case ExtType.harvest:
+                            wss.Add(new JObject()
+                            {
+                                { "type", "Harvest" },
+                                { "date", Helper.CommonDate2IsoDateString(e.At.Date) },
+                            });
+                            break;
+                        case ExtType.mineralFertilization:
+                            if (e.Params is Mgmt.Params.MineralFertilization mf)
+                            {
+                                wss.Add(new JObject()
+                                {
+                                    { "type", "MineralFertilization" },
+                                    { "date", Helper.CommonDate2IsoDateString(e.At.Date) },
+                                    { "amount", mf.Amount },
+                                    { "partition", new JObject() {
+                                        { "type", "MineralFertiliserParameters" },
+                                        { "id", mf.Partition.Id },
+                                        { "name", mf.Partition.Name ?? "" },
+                                        { "Carbamid", mf.Partition.Carbamid },
+                                        { "NH4", mf.Partition.Nh4 },
+                                        { "NO3", mf.Partition.No3 } } }
+                                });
+                            }
+                            break;
+                        case ExtType.organicFertilization:
+                            if (e.Params is Mgmt.Params.OrganicFertilization of)
+                            {
+                                wss.Add(new JObject()
+                                {
+                                    { "type", "OrganicFertilization" },
+                                    { "date", Helper.CommonDate2IsoDateString(e.At.Date) },
+                                    { "amount", of.Amount },
+                                    { "partition", new JObject() {
+                                        { "type", "OrganicFertiliserParameters" },
+                                        { "id", of.Params.Id },
+                                        { "name", of.Params.Name ?? "" },
+                                        { "AOM_DryMatterContent", of.Params.Params.AomDryMatterContent },
+                                        { "AOM_FastDecCoeffStandard", of.Params.Params.AomFastDecCoeffStandard },
+                                        { "AOM_NH4Content", of.Params.Params.AomNH4Content },
+                                        { "AOM_NO3Content", of.Params.Params.AomNO3Content },
+                                        { "AOM_SlowDecCoeffStandard", of.Params.Params.AomSlowDecCoeffStandard },
+                                        { "CN_Ratio_AOM_Fast", of.Params.Params.CnRatioAOMFast },
+                                        { "CN_Ratio_AOM_Slow", of.Params.Params.CnRatioAOMSlow },
+                                        { "NConcentration", of.Params.Params.NConcentration },
+                                        { "PartAOM_Slow_to_SMB_Fast", of.Params.Params.PartAOMSlowToSMBFast },
+                                        { "PartAOM_Slow_to_SMB_Slow", of.Params.Params.PartAOMSlowToSMBSlow },
+                                        { "PartAOM_to_AOM_Fast", of.Params.Params.PartAOMToAOMFast },
+                                        { "PartAOM_to_AOM_Slow", of.Params.Params.PartAOMToAOMSlow } } }
+                                });
+                            }
+                            break;
+                        case ExtType.irrigation:
+                            if (e.Params is Mgmt.Params.Irrigation i)
+                            {
+                                wss.Add(new JObject()
+                                {
+                                    { "type", "MineralFertilization" },
+                                    { "date", Helper.CommonDate2IsoDateString(e.At.Date) },
+                                    { "amount", i.Amount },
+                                    { "parameters", new JObject() {
+                                        { "nitrateConcentration", i.Params.NitrateConcentration },
+                                        { "sulfateConcentration", i.Params.NitrateConcentration } } }
+                                });
+                            }
+                            break;
+                    }
+                }
+            }
+            return cr;
+        }
+        #endregion crop rotation
+
         #region run monica
         [Parameter]
         public EventCallback<(Dictionary<String, IEnumerable<DateTime>>, Dictionary<String, Dictionary<String, IEnumerable<float>>>)> ResultChanged { get; set; }
@@ -331,7 +470,7 @@ namespace Mas.Infrastructure.BlazorComponents
 
         private async Task RunMonicaModel()
         {
-            if (MonicaInstanceCap == null || TimeSeriesCap == null || !profileLayers.Any()) return;
+            if (MonicaInstanceCap == null || TimeSeriesCap == null) return;
 
             //var files = new List<String> {
             //    "Data-Full/sim-min.json", "Data-Full/crop-min.json", "Data-Full/site-min.json", "Data-Full/climate-min.csv"
@@ -349,10 +488,13 @@ namespace Mas.Infrastructure.BlazorComponents
             foreach (var jt in CreateEvents()) events.Add(jt);
             envj["events"] = events;
 
+            //update crop rotation
+
+
             var menv = new Model.Env<Rpc.Common.StructuredText>()
             {
                 TimeSeries = Capnp.Rpc.Proxy.Share(TimeSeriesCap),
-                SoilProfile = new Soil.Profile() { Layers = profileLayers },
+                SoilProfile = profileLayers.Any() ? new Soil.Profile() { Layers = profileLayers } : null,
                 Rest = new Rpc.Common.StructuredText()
                 {
                     Structure = new Rpc.Common.StructuredText.structure { which = Rpc.Common.StructuredText.structure.WHICH.Json },
