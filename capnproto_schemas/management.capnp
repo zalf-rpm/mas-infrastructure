@@ -213,12 +213,12 @@ struct Params {
     }
 
     struct OptCarbonMgmtData {
-      optCarbonConservation     @0 :Bool;
-      cropImpactOnHumusBalance  @1 :Float64;
-      cropUsage                 @2 :CropUsage;
-      residueHeq                @3 :Float64;
-      organicFertilizerHeq      @4 :Float64;
-      maxResidueRecoverFraction @5 :Float64;
+      optCarbonConservation     @0 :Bool      = false;
+      cropImpactOnHumusBalance  @1 :Float64   = 0;
+      cropUsage                 @2 :CropUsage = biomassProduction;
+      residueHeq                @3 :Float64   = 0;
+      organicFertilizerHeq      @4 :Float64   = 0;
+      maxResidueRecoverFraction @5 :Float64   = 0;
     }
 
     exported        @0 :Bool = true;

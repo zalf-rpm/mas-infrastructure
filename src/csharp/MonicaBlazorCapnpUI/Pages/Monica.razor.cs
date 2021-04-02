@@ -407,25 +407,55 @@ namespace Mas.Infrastructure.BlazorComponents
                         }
                         break;
                     case ExtType.harvest:
-                        wss.Add(new JObject()
+                        if (e.Params is Mgmt.Params.Harvest h)
                         {
-                            { "type", "Harvest" },
-                            { "date", Helper.CommonDate2IsoDateString(e.At.Date) },
-                        });
+                            var o = new JObject()
+                            {
+                                { "type", "Harvest" },
+                                { "date", Helper.CommonDate2IsoDateString(e.At.Date) },
+                                { "exported", h.Exported }
+                            };
+                            if (h.OptCarbMgmtData != null)
+                            {
+                                o.Add("opt-carbon-conservation", h.OptCarbMgmtData.OptCarbonConservation);
+                                o.Add("crop-impact-on-humus-balance", h.OptCarbMgmtData.CropImpactOnHumusBalance);
+                                o.Add("crop-usage", h.OptCarbMgmtData.CropUsage == Mgmt.Params.Harvest.CropUsage.greenManure ? "green-manure" : "biomass-production");
+                                o.Add("residue-heq", h.OptCarbMgmtData.ResidueHeq);
+                                o.Add("organic-fertilizer-heq", h.OptCarbMgmtData.OrganicFertilizerHeq);
+                                o.Add("max-residue-recover-fraction", h.OptCarbMgmtData.MaxResidueRecoverFraction);
+                            }
+                            wss.Add(o);
+                        }
                         break;
                     case ExtType.automaticHarvest:
                         if (e.Params is Mgmt.Params.AutomaticHarvest ha)
                         {
-                            wss.Add(new JObject()
+                            var o = new JObject()
                             {
-                                { "type", "Harvest" },
+                                { "type", "AutomaticHarvest" },
+                                { "exported", ha.Harvest.Exported },
                                 { "latest-date", Helper.CommonDate2IsoDateString(e.Between.Latest) },
                                 { "min-%-asw", ha.MinPercentASW },
                                 { "max-%-asw", ha.MaxPercentASW },
                                 { "max-3d-precip-sum", ha.Max3dayPrecipSum },
                                 { "max-curr-day-precip", ha.MaxCurrentDayPrecipSum },
                                 { "harvest-time", ha.HarvestTime.ToString() }
-                            });
+                            };
+                            if(ha.Harvest != null)
+                            {
+                                var h2 = ha.Harvest;
+                                o.Add("exported", h2.Exported);
+                                if (h2.OptCarbMgmtData != null)
+                                {
+                                    o.Add("opt-carbon-conservation", h2.OptCarbMgmtData.OptCarbonConservation);
+                                    o.Add("crop-impact-on-humus-balance", h2.OptCarbMgmtData.CropImpactOnHumusBalance);
+                                    o.Add("crop-usage", h2.OptCarbMgmtData.CropUsage == Mgmt.Params.Harvest.CropUsage.greenManure ? "green-manure" : "biomass-production");
+                                    o.Add("residue-heq", h2.OptCarbMgmtData.ResidueHeq);
+                                    o.Add("organic-fertilizer-heq", h2.OptCarbMgmtData.OrganicFertilizerHeq);
+                                    o.Add("max-residue-recover-fraction", h2.OptCarbMgmtData.MaxResidueRecoverFraction);
+                                }
+                            }
+                            wss.Add(o);
                         }
                         break;
                     case ExtType.cutting:
