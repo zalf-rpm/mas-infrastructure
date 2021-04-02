@@ -91,6 +91,52 @@ enum Cultivar {
   wheatWinter               @53;
 }
 
+enum MineralFertilizer {
+  ahls  @0;
+  alzon @1;
+  an    @2;
+  ap    @3;
+  as    @4;
+  ash   @5;
+  cf4   @6;
+  cp1   @7;
+  cp2   @8;
+  cp3   @9;
+  npk   @10;
+  ns    @11;
+  u     @12;
+  uan   @13;
+  uas   @14;
+  uni   @15;
+}
+
+enum OrganicFertilizer {
+  ash   @0;
+  cadlm @1;
+  cam   @2;
+  cas   @3;
+  cau   @4;
+  dgdlm @5;
+  gwc   @6;
+  hodlm @7;
+  mc    @8;
+  ms    @9;
+  oic   @10;
+  pidlm @11;
+  pim   @12;
+  pis   @13;
+  piu   @14;
+  piudk @15;
+  plw   @16;
+  podlm @17;
+  pom   @18;
+  soy   @19;
+  ss    @20;
+  tudlm @21;
+  weeds @22;
+  ws    @23;
+}
+
 enum EventType {
   sowing                    @0;
   automaticSowing           @1;
@@ -284,11 +330,18 @@ struct Params {
     amount @0 :Float64;
     params @1 :MonicaParams.IrrigationParameters;
   }
-
-
 }
 
 
+interface FertilizerService extends(Common.Identifiable) {
+  # service to return predefined fertilizers
+
+  mineralFertilizerPartitionFor @0 (minFert :MineralFertilizer) -> (partition :MonicaParams.MineralFertilizerParameters);
+  # get mineral fertilizer parameters by name/id
+
+  organicFertilizerParametersFor @1 (orgFert :OrganicFertilizer) -> (params :MonicaParams.OrganicFertilizerParameters);
+  # get organic fertilizer parameters by name/id
+}
 
 
 interface Service extends(Common.Identifiable) {
