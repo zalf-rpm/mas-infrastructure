@@ -234,22 +234,24 @@ struct Params {
   }
 
   struct AutomaticSowing {
-    sowing                      @11 :Sowing;
+    struct AvgSoilTemp {
+      soilDepthForAveraging     @0  :Float64  = 0.3;
+		  daysInSoilTempWindow      @1  :UInt16;
+		  sowingIfAboveAvgSoilTemp  @2  :Float64;
+    }
+
+    sowing                      @9  :Sowing;
 
 	  minTempThreshold            @0  :Float64;
     daysInTempWindow            @1  :UInt16;
-    minPercentASW               @2  :Float64;
-	  maxPercentASW               @3  :Float64;
+    minPercentASW               @2  :Float64  = 0;
+	  maxPercentASW               @3  :Float64  = 100;
 	  max3dayPrecipSum            @4  :Float64;
 	  maxCurrentDayPrecipSum      @5  :Float64;
 	  tempSumAboveBaseTemp        @6  :Float64;
 	  baseTemp                    @7  :Float64;
 
-    avgSoilTemp :group {
-      soilDepthForAveraging     @8  :Float64;
-		  daysInSoilTempWindow      @9  :UInt16;
-		  sowingIfAboveAvgSoilTemp  @10 :Float64;
-  	}
+    avgSoilTemp                 @8  :AvgSoilTemp; 
   }
 
   struct Harvest {
@@ -275,10 +277,10 @@ struct Params {
     harvest                 @5 :Harvest;
 
 	  minPercentASW           @0 :Float64;
-	  maxPercentASW           @1 :Float64;
+	  maxPercentASW           @1 :Float64           = 100;
 	  max3dayPrecipSum        @2 :Float64;
 	  maxCurrentDayPrecipSum  @3 :Float64;
-	  harvestTime             @4 :Event.PhenoStage = maturity;
+	  harvestTime             @4 :Event.PhenoStage  = maturity;
   }
 
   struct Cutting {
@@ -323,7 +325,7 @@ struct Params {
   }
 
   struct Tillage {
-    depth @0 :Float64;
+    depth @0 :Float64 = 0.3;
   }
 
   struct Irrigation {

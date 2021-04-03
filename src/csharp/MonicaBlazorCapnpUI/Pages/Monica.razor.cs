@@ -384,7 +384,7 @@ namespace Mas.Infrastructure.BlazorComponents
                                 cm = new JObject { { "worksteps", wss } };
                             }
 
-                            wss.Add(new JObject()
+                            var o = new JObject()
                             {
                                 { "type", "AutomaticSowing" },
                                 { "earliest-date", Helper.CommonDate2IsoDateString(e.Between.Earliest) },
@@ -397,13 +397,17 @@ namespace Mas.Infrastructure.BlazorComponents
                                 { "max-3d-precip-sum", sa.Max3dayPrecipSum },
                                 { "max-curr-day-precip", sa.MaxCurrentDayPrecipSum },
                                 { "temp-sum-above-base-temp", sa.TempSumAboveBaseTemp },
-                                { "base-temp", sa.BaseTemp },
-                                { "avg-soil-temp", new JObject {
-                                    { "depth", sa.AvgSoilTemp.SoilDepthForAveraging },
-                                    { "days", sa.AvgSoilTemp.DaysInSoilTempWindow },
-                                    { "Tavg", sa.AvgSoilTemp.SowingIfAboveAvgSoilTemp } } }
-
-                            });
+                                { "base-temp", sa.BaseTemp }
+                            };
+                            if(sa.TheAvgSoilTemp != null)
+                            {
+                                o["avg-soil-temp"] = new JObject {
+                                    { "depth", sa.TheAvgSoilTemp.SoilDepthForAveraging },
+                                    { "days", sa.TheAvgSoilTemp.DaysInSoilTempWindow },
+                                    { "Tavg", sa.TheAvgSoilTemp.SowingIfAboveAvgSoilTemp } 
+                                };
+                            }
+                            wss.Add(o);
                         }
                         break;
                     case ExtType.harvest:
@@ -441,19 +445,15 @@ namespace Mas.Infrastructure.BlazorComponents
                                 { "max-curr-day-precip", ha.MaxCurrentDayPrecipSum },
                                 { "harvest-time", ha.HarvestTime.ToString() }
                             };
-                            if(ha.Harvest != null)
+                            var h2 = ha.Harvest;
+                            if (h2.OptCarbMgmtData != null)
                             {
-                                var h2 = ha.Harvest;
-                                o.Add("exported", h2.Exported);
-                                if (h2.OptCarbMgmtData != null)
-                                {
-                                    o.Add("opt-carbon-conservation", h2.OptCarbMgmtData.OptCarbonConservation);
-                                    o.Add("crop-impact-on-humus-balance", h2.OptCarbMgmtData.CropImpactOnHumusBalance);
-                                    o.Add("crop-usage", h2.OptCarbMgmtData.CropUsage == Mgmt.Params.Harvest.CropUsage.greenManure ? "green-manure" : "biomass-production");
-                                    o.Add("residue-heq", h2.OptCarbMgmtData.ResidueHeq);
-                                    o.Add("organic-fertilizer-heq", h2.OptCarbMgmtData.OrganicFertilizerHeq);
-                                    o.Add("max-residue-recover-fraction", h2.OptCarbMgmtData.MaxResidueRecoverFraction);
-                                }
+                                o.Add("opt-carbon-conservation", h2.OptCarbMgmtData.OptCarbonConservation);
+                                o.Add("crop-impact-on-humus-balance", h2.OptCarbMgmtData.CropImpactOnHumusBalance);
+                                o.Add("crop-usage", h2.OptCarbMgmtData.CropUsage == Mgmt.Params.Harvest.CropUsage.greenManure ? "green-manure" : "biomass-production");
+                                o.Add("residue-heq", h2.OptCarbMgmtData.ResidueHeq);
+                                o.Add("organic-fertilizer-heq", h2.OptCarbMgmtData.OrganicFertilizerHeq);
+                                o.Add("max-residue-recover-fraction", h2.OptCarbMgmtData.MaxResidueRecoverFraction);
                             }
                             wss.Add(o);
                         }
