@@ -79,6 +79,32 @@
                                     ConnectOnInit=@TryConnectOnInit>
                 </ConnectToSturdyRef>
             </MudItem>
+            <MudItem Class=@(HideSturdyRefConnectors ? "d-none" : "") xs="12">
+                @code {
+                    [Parameter]
+                    public Mgmt.IFertilizerService FertilizerServiceCap { get; set; }
+
+                    [Parameter]
+                    public string FertilizerServiceSturdyRef { get; set; } = "";//"capnp://login01.cluster.zalf.de:9998";
+
+                    [Parameter]
+                    public EventCallback<Mgmt.IFertilizerService> FertilizerServiceCapChanged { get; set; }
+
+                    private async Task FertilizerServiceCapabilityChanged(Mgmt.IFertilizerService service)
+                    {
+                        if (service == null) return;
+
+                        if (FertilizerServiceCap != service) FertilizerServiceCap?.Dispose();
+                        FertilizerServiceCap = service;
+                    }
+                }
+                <ConnectToSturdyRef Label="Persistent capability to fertilizer service (capnp://host:port/token)"
+                                    CapabilityChanged=@FertilizerServiceCapabilityChanged
+                                    TCapnpInterface=@Mgmt.IFertilizerService
+                                    @bind-SturdyRef=FertilizerServiceSturdyRef
+                                    ConnectOnInit=@TryConnectOnInit>
+                </ConnectToSturdyRef>
+            </MudItem>
         </MudGrid>
     </MudExpansionPanel>
     <MudExpansionPanel Text="Base sim/crop/site.json" @bind-IsExpanded=@panelOpened["BaseFiles"]>
@@ -86,11 +112,11 @@
             @code {
                 private Dictionary<string, bool> baseFilePanelOpened = new()
                 {
-            { "sim", false },
-            { "crop", false },
-            { "site", false },
-            { "climate", false }
-        };
+                    { "sim", false },
+                    { "crop", false },
+                    { "site", false },
+                    { "climate", false }
+                };
             }
             <MudExpansionPanel Text="sim.json" @bind-IsExpanded=@baseFilePanelOpened["sim"]>
                 <MudTextField T=@string Variant=@Variant.Outlined @bind-Text=simJsonTxt Lines=15 />
@@ -370,6 +396,7 @@
                                                            Editable="true" />
                                             break;
                                         case Mgmt.Event.WHICH.Between:
+                                            if (e.Between == null) e.Between = new() { Earliest = new(), Latest = new() };
                                             var eEarliestDateTime = new DateWrapper { cDate = e.Between.Earliest };
                                             var eLatestDateTime = new DateWrapper { cDate = e.Between.Latest };
                                             <MudDatePicker Label="earliest date"
@@ -380,6 +407,7 @@
                                                            Editable="true" />
                                             break;
                                         case Mgmt.Event.WHICH.After:
+                                            if (e.After == null) e.After = new() { Event = new() };
                                             <MudSelect @bind-Value=e.After.Event Label="Workstep">
                                                 @foreach (var t in allMgmtEventTypes)
                                                             {
@@ -420,7 +448,7 @@
                                     @switch (e.TheType)
                                     {
                                         case ExtType.sowing:
-                                            if (e.Params == null) e.Params = new Mgmt.Params.Sowing();
+                                            if (e.Params == null || e.Params is not Mgmt.Params.Sowing) e.Params = new Mgmt.Params.Sowing();
                                             if (e.Params is Mgmt.Params.Sowing s)
                                             {
                                                 <MudCard>
@@ -441,12 +469,11 @@
                                             }
                                             break;
                                         case ExtType.automaticSowing:
-                                            if (e.Params == null) e.Params = new Mgmt.Params.AutomaticSowing() { Sowing = new() };
+                                            if (e.Params == null || e.Params is not Mgmt.Params.AutomaticSowing) e.Params = new Mgmt.Params.AutomaticSowing() { Sowing = new() };
                                             if (e.Params is Mgmt.Params.AutomaticSowing sa)
                                             {
                                                 var s2 = sa.Sowing;
                                                 valid = val => val < 0 || val > 100 ? "[0 - 100]" : null;
-                                                bool checkSoilTemp = false;
                                                 <MudCard>
                                                     <MudCardContent>
                                                         <MudSelect @bind-Value=s2.Cultivar Label="Sow cultivar ...">
@@ -496,32 +523,33 @@
                                                                               Label="base temp"
                                                                               Adornment="Adornment.End"
                                                                               AdornmentText="°C" />
-                                                                <MudSwitch Checked=@checkSoilTemp
-                                                                           T=@bool
+                                                                <MudSwitch T=@bool
                                                                            CheckedChanged=@(b => {
-                                                                                                checkSoilTemp = b;
                                                                                                 if (b && sa.TheAvgSoilTemp == null)
                                                                                                     sa.TheAvgSoilTemp = new();
                                                                                                 else if (!b && sa.TheAvgSoilTemp != null)
                                                                                                     sa.TheAvgSoilTemp = null;
                                                                                             })
                                                                            Label="Check for soil temperature?" />
-                                                                <MudCard Class=@(checkSoilTemp ? "" : "d-none")>
-                                                                    <MudCardContent>
-                                                                        <MudTextField @bind-Value=sa.TheAvgSoilTemp.SoilDepthForAveraging
-                                                                                      Label="Soil depth for averaging"
-                                                                                      Adornment="Adornment.End"
-                                                                                      AdornmentText="m" />
-                                                                        <MudTextField @bind-Value=sa.TheAvgSoilTemp.DaysInSoilTempWindow
-                                                                                      Label="Days in soil temp windows"
-                                                                                      Adornment="Adornment.End"
-                                                                                      AdornmentText="d" />
-                                                                        <MudTextField @bind-Value=sa.TheAvgSoilTemp.SowingIfAboveAvgSoilTemp
-                                                                                      Label="Sowing if above avg soil temp"
-                                                                                      Adornment="Adornment.End"
-                                                                                      AdornmentText="°C" />
-                                                                    </MudCardContent>
-                                                                </MudCard>
+                                                                @if (sa.TheAvgSoilTemp != null)
+                                                                {
+                                                                    <MudCard>
+                                                                        <MudCardContent>
+                                                                            <MudTextField @bind-Value=sa.TheAvgSoilTemp.SoilDepthForAveraging
+                                                                                          Label="Soil depth for averaging"
+                                                                                          Adornment="Adornment.End"
+                                                                                          AdornmentText="m" />
+                                                                            <MudTextField @bind-Value=sa.TheAvgSoilTemp.DaysInSoilTempWindow
+                                                                                          Label="Days in soil temp windows"
+                                                                                          Adornment="Adornment.End"
+                                                                                          AdornmentText="d" />
+                                                                            <MudTextField @bind-Value=sa.TheAvgSoilTemp.SowingIfAboveAvgSoilTemp
+                                                                                          Label="Sowing if above avg soil temp"
+                                                                                          Adornment="Adornment.End"
+                                                                                          AdornmentText="°C" />
+                                                                        </MudCardContent>
+                                                                    </MudCard>
+                                                                }
                                                             </MudCardContent>
                                                         </MudCard>
                                                     </MudCardContent>
@@ -529,7 +557,7 @@
                                             }
                                             break;
                                         case ExtType.harvest:
-                                            if (e.Params == null) e.Params = new Mgmt.Params.Harvest() { OptCarbMgmtData = new() };
+                                            if (e.Params == null || e.Params is not Mgmt.Params.Harvest) e.Params = new Mgmt.Params.Harvest() { OptCarbMgmtData = new() };
                                             if (e.Params is Mgmt.Params.Harvest h)
                                             {
                                                 valid = val => val < 0 || val > 1 ? "[0 - 1]" : null;
@@ -568,7 +596,7 @@
                                             }
                                             break;
                                         case ExtType.automaticHarvest:
-                                            if (e.Params == null) e.Params = new Mgmt.Params.AutomaticHarvest() { Harvest = new() { OptCarbMgmtData = new() } };
+                                            if (e.Params == null || e.Params is not Mgmt.Params.AutomaticHarvest) e.Params = new Mgmt.Params.AutomaticHarvest() { Harvest = new() { OptCarbMgmtData = new() } };
                                             if (e.Params is Mgmt.Params.AutomaticHarvest ha)
                                             {
                                                 var h2 = ha.Harvest;
@@ -636,7 +664,7 @@
                                             }
                                             break;
                                         case ExtType.cutting:
-                                            if (e.Params == null) e.Params = new Mgmt.Params.Cutting() { CuttingSpec = new List<Mgmt.Params.Cutting.Spec>() };
+                                            if (e.Params == null || e.Params is not Mgmt.Params.Cutting) e.Params = new Mgmt.Params.Cutting() { CuttingSpec = new List<Mgmt.Params.Cutting.Spec>() };
                                             if (e.Params is Mgmt.Params.Cutting c)
                                             {
                                                 valid = val => val < 0 || val > 100 ? "[0 - 100]" : null;
@@ -658,7 +686,7 @@
                                                                     <th>Action</th>
                                                                 </tr>
                                                             </thead>
-<tbody>
+                                    <tbody>
                                         @foreach (var (i, cs) in c.CuttingSpec.Select((cs, i) => (i, cs)))
                                         {
                                             <tr>
@@ -674,9 +702,9 @@
                                                     <MudTextField @bind-Value=cs.Value
                                                                   Label="Value"
                                                                   Adornment="Adornment.End"
-                                                                  AdornmentText=@(cs.Unit == Mgmt.Params.Cutting.Unit.percentage 
-                                                                                  ? "%" : cs.Unit == Mgmt.Params.Cutting.Unit.biomass 
-                                                                                  ? "kg ha-1" : "m2 m-2")/>
+                                                                  AdornmentText=@(cs.Unit == Mgmt.Params.Cutting.Unit.percentage
+                                                                                  ? "%" : cs.Unit == Mgmt.Params.Cutting.Unit.biomass
+                                                                                  ? "kg ha-1" : "m2 m-2") />
                                                 </td>
                                                 <td>
                                                     <MudSelect @bind-Value=cs.CutOrLeft Label="Cut/Left">
@@ -695,39 +723,59 @@
                                                     <MudFab Icon=@Icons.Material.Filled.Add
                                                             Color=@Color.Success
                                                             OnClick=@(() => {
-                                                      (c.CuttingSpec as List<Mgmt.Params.Cutting.Spec>)?.Insert(Math.Min(i + 1, c.CuttingSpec.Count()), 
+                                                      (c.CuttingSpec as List<Mgmt.Params.Cutting.Spec>)?.Insert(Math.Min(i + 1, c.CuttingSpec.Count()),
                                                           new Mgmt.Params.Cutting.Spec());
                                                       StateHasChanged();
                                                   }) />
                                                     <MudFab Icon=@Icons.Material.Filled.Delete
                                                             Color=@Color.Error
-                                                            OnClick=@(() => { 
-                                                                          (c.CuttingSpec as List<Mgmt.Params.Cutting.Spec>)?.Remove(cs); 
-                                                                          StateHasChanged(); 
+                                                            OnClick=@(() => {
+                                                                          (c.CuttingSpec as List<Mgmt.Params.Cutting.Spec>)?.Remove(cs);
+                                                                          StateHasChanged();
                                                                       }) />
                                                 </td>
                                             </tr>
                                         }
                                     </tbody>
                                 </MudSimpleTable>
-                                                        </MudCardContent>
-                                                    </MudCard>
+                                </MudCardContent>
+                                </MudCard>
 
                             }
                             break;
                         case ExtType.mineralFertilization:
-                            if (e.Params == null) e.Params = new Mgmt.Params.MineralFertilization() { Partition = new() };
+                            if (e.Params == null || e.Params is not Mgmt.Params.MineralFertilization) e.Params = new Mgmt.Params.MineralFertilization() { Partition = new() };
                             if (e.Params is Mgmt.Params.MineralFertilization mf)
                             {
                                 valid = val => val < 0 || val > 100 ? "[0 - 100]" : null;
+                                Mgmt.MineralFertilizer? selectedMfId = null;
                                 <MudCard>
                                     <MudCardContent>
+                                        <MudSelect Value=@selectedMfId
+                                                   T="Mgmt.MineralFertilizer?"
+                                                   ValueChanged=@(async f => {
+                                                                      selectedMfId = f;
+                                                                      if (selectedMfId.HasValue && FertilizerServiceCap != null)
+                                                                      {
+                                                                          var part = await FertilizerServiceCap.MineralFertilizerPartitionFor(selectedMfId.Value);
+                                                                          mf.Partition = part;
+                                                                          StateHasChanged();
+                                                                      }
+                                                                  })
+                                                   Label="Min.Fertilizer">
+                                            @foreach (Mgmt.MineralFertilizer? mfId in Enum.GetValues(typeof(Mgmt.MineralFertilizer)))
+                                            {
+                                                <MudSelectItem Value="@mfId">@textInfo.ToUpper(mfId.ToString())</MudSelectItem>
+                                            }
+                                        </MudSelect>
                                         <MudTextField @bind-Value=mf.Amount
                                                       Label="Amount"
                                                       Adornment="Adornment.End"
                                                       AdornmentText="kg" />
                                         <MudCard>
                                             <MudCardContent>
+                                                <MudTextField @bind-Value=mf.Partition.Id Label="Id" />
+                                                <MudTextField @bind-Value=mf.Partition.Name Label="Name" />
                                                 <MudTextField @bind-Value=mf.Partition.Carbamid
                                                               Label="Carbamid"
                                                               Adornment="Adornment.End"
@@ -749,8 +797,100 @@
                                 </MudCard>
                             }
                             break;
+                        case ExtType.organicFertilization:
+                            if (e.Params == null || e.Params is not Mgmt.Params.OrganicFertilization) e.Params = new Mgmt.Params.OrganicFertilization() { Params = new() { Params = new() } };
+                            if (e.Params is Mgmt.Params.OrganicFertilization of)
+                            {
+                                valid = val => val < 0 || val > 100 ? "[0 - 100]" : null;
+                                Mgmt.OrganicFertilizer? selectedOfId = null;
+                                <MudCard>
+                                    <MudCardContent>
+                                        <MudTextField @bind-Value=of.Amount
+                                                      Label="Amount"
+                                                      Adornment="Adornment.End"
+                                                      AdornmentText="kg" />
+                                        <MudCheckBox @bind-Checked=@of.Incorporation Label="Incorporation" />
+                                        <MudSelect Value=@selectedOfId
+                                                   T="Mgmt.OrganicFertilizer?"
+                                                   ValueChanged=@(async f => {
+                                                                      selectedOfId = f;
+                                                                      if (selectedOfId.HasValue && FertilizerServiceCap != null)
+                                                                      {
+                                                                          var part = await FertilizerServiceCap.OrganicFertilizerParametersFor(selectedOfId.Value);
+                                                                          of.Params= part;
+                                                                          StateHasChanged();
+                                                                      }
+                                                                  })
+                                                   Label="Org.Fertilizer">
+                                            @foreach (Mgmt.OrganicFertilizer? ofId in Enum.GetValues(typeof(Mgmt.OrganicFertilizer)))
+                                            {
+                                                <MudSelectItem Value="@ofId">@textInfo.ToUpper(ofId.ToString())</MudSelectItem>
+                                            }
+                                        </MudSelect>
+                                        <MudCard>
+                                            <MudCardContent>
+                                                <MudTextField @bind-Value=of.Params.Id Label="Id" />
+                                                <MudTextField @bind-Value=of.Params.Name Label="Name" />
+                                                <MudTextField @bind-Value=of.Params.Params.AomDryMatterContent
+                                                              Label="aomDryMatterContent"
+                                                              Adornment="Adornment.End"
+                                                              AdornmentText="kg-DM/kg-FM" />
+                                                <MudTextField @bind-Value=of.Params.Params.AomNH4Content
+                                                              Label="aomNH4Content"
+                                                              Adornment="Adornment.End"
+                                                              AdornmentText="kg-N/kg-DM" />
+                                                <MudTextField @bind-Value=of.Params.Params.AomNO3Content
+                                                              Label="aomNO3Content"
+                                                              Adornment="Adornment.End"
+                                                              AdornmentText="kg-N/kg-DM" />
+                                                <MudTextField @bind-Value=of.Params.Params.AomCarbamidContent
+                                                              Label="aomCarbamidContent"
+                                                              Adornment="Adornment.End"
+                                                              AdornmentText="kg-N/kg-DM" />
+                                                <MudTextField @bind-Value=of.Params.Params.AomSlowDecCoeffStandard
+                                                              Label="aomSlowDecCoeffStandard"
+                                                              Adornment="Adornment.End"
+                                                              AdornmentText="1/d" />
+                                                <MudTextField @bind-Value=of.Params.Params.AomFastDecCoeffStandard
+                                                              Label="aomFastDecCoeffStandard"
+                                                              Adornment="Adornment.End"
+                                                              AdornmentText="1/d" />
+                                                <MudTextField @bind-Value=of.Params.Params.PartAOMToAOMSlow
+                                                              Label="partAOMToAOMSlow"
+                                                              Adornment="Adornment.End"
+                                                              AdornmentText="kg/kg" />
+                                                <MudTextField @bind-Value=of.Params.Params.PartAOMToAOMFast
+                                                              Label="partAOMToAOMFast"
+                                                              Adornment="Adornment.End"
+                                                              AdornmentText="kg/kg" />
+                                                <MudTextField @bind-Value=of.Params.Params.CnRatioAOMSlow
+                                                              Label="cnRatioAOMSlow"
+                                                              Adornment="Adornment.End"
+                                                              AdornmentText="kg/kg" />
+                                                <MudTextField @bind-Value=of.Params.Params.CnRatioAOMFast
+                                                              Label="cnRatioAOMFast"
+                                                              Adornment="Adornment.End"
+                                                              AdornmentText="" />
+                                                <MudTextField @bind-Value=of.Params.Params.PartAOMSlowToSMBSlow
+                                                              Label="partAOMSlowToSMBSlow"
+                                                              Adornment="Adornment.End"
+                                                              AdornmentText="kg/kg" />
+                                                <MudTextField @bind-Value=of.Params.Params.PartAOMSlowToSMBFast
+                                                              Label="partAOMSlowToSMBFast"
+                                                              Adornment="Adornment.End"
+                                                              AdornmentText="kg/kg" />
+                                                <MudTextField @bind-Value=of.Params.Params.NConcentration
+                                                              Label="nConcentration"
+                                                              Adornment="Adornment.End"
+                                                              AdornmentText="" />
+                                            </MudCardContent>
+                                        </MudCard>
+                                    </MudCardContent>
+                                </MudCard>
+                            }
+                            break;
                         case ExtType.tillage:
-                            if (e.Params == null) e.Params = new Mgmt.Params.Tillage();
+                            if (e.Params == null || e.Params is not Mgmt.Params.Tillage) e.Params = new Mgmt.Params.Tillage();
                             if (e.Params is Mgmt.Params.Tillage t)
                             {
                                 valid = val => val < 0 || val > 2 ? "[0 - 2]" : null;
@@ -766,7 +906,7 @@
                             }
                             break;
                         case ExtType.irrigation:
-                            if (e.Params == null) e.Params = new Mgmt.Params.Irrigation() { Params = new() };
+                            if (e.Params == null || e.Params is not Mgmt.Params.Irrigation) e.Params = new Mgmt.Params.Irrigation() { Params = new() };
                             if (e.Params is Mgmt.Params.Irrigation ir)
                             {
                                 valid = val => val < 0 ? "[0 - ...]" : null;
@@ -814,7 +954,7 @@
                                         <MudFab Icon=@Icons.Material.Filled.Add
                                                 Color=@Color.Success
                                                 OnClick=@(() => {
-                                                      cropRotation.Insert(Math.Max(0, i - 1), new Mgmt.Event());
+                                                      cropRotation.Insert(Math.Min(i + 1, cropRotation.Count()), new Mgmt.Event());
                                                       StateHasChanged();
                                                   }) />
                                         <MudFab Icon=@Icons.Material.Filled.Delete
@@ -826,110 +966,8 @@
                         </tbody>
                         </MudSimpleTable>
                     </MudItem>
-        </MudGrid>
-
-        <!--
-
-            <MudChipSet AllClosable=@true>
-                        @foreach (var e in cropRotation)
-                        {
-                            <MudChip Tag=@e Text=@NameFromEvent(e) />
-                        }
-                    </MudChipSet>
-
-
-        <MudItem xs="2" Class="d-flex flex-row py-2 px-1">
-            <MudSelect T=@string
-                       Class=@(showEventSelect ? "" : "d-none")
-                       Value=p.Item1
-                       ValueChanged=@(v => { events[k] = (v, oids); StateHasChanged(); })
-                       Label="Event">
-                @foreach (var eventSc in eventShortcuts)
-                {
-                    <MudSelectItem Value=@eventSc />
-                }
-            </MudSelect>
-            <MudTextField T=@string
-                          Class=@(showEventSelect ? "d-none" : "")
-                          Value=p.Item1
-                          ValueChanged=@(v => { events[k] = (v, oids); StateHasChanged(); })
-                          Label="Event"
-                          Variant="Variant.Outlined" />
-            <MudFab Color=@Color.Secondary
-                    Icon=@(showEventSelect ? Icons.Material.Filled.Edit : Icons.Material.Filled.Close)
-                    OnClick=@(() => showEventSelect = !showEventSelect) />
-        </MudItem>
-        <MudItem xs="10">
-            <MudChipSet AllClosable=@true OnClose=@(c => oids.Remove(c.Tag as OId))>
-                @foreach (var oid in oids)
-                {
-                    <MudChip Tag=@oid Text=@oid.ToString() OnClick=@(() => editOId = oid) />
-                }
-            </MudChipSet>
-        </MudItem>
-        <MudItem xs="2">
-            <MudField DisableUnderLine=@true>
-                <MudButton Color=@Color.Primary
-                           Variant=@Variant.Filled
-                           OnClick=@(() => { oids.Add(editOId); editOId = OId.Out(""); })
-                           Disabled=@(editOId.From > editOId.To)>
-                    Add/Change
-                </MudButton>
-            </MudField>
-        </MudItem>
-        <MudItem xs="2">
-            <MudField Label="Output Name" DisableUnderLine=@true>
-                <MudTextField @bind-Value=editOId.Name Variant=@Variant.Outlined></MudTextField>
-            </MudField>
-        </MudItem>
-        <MudItem xs="4">
-            <MudField Label="Layers" DisableUnderLine=@true>
-                <MudGrid>
-                    <MudItem xs="3">
-                        <MudSelect @bind-Value=editOId.From
-                                   Label="From"
-                                   Error=@(editOId.From > editOId.To)
-                                   ErrorText="From > To">
-                            @for (int? i = 1; i <= 20; i++)
-                            {
-                                <MudSelectItem Value=@i />
-                            }
-                        </MudSelect>
-                    </MudItem>
-                    <MudItem xs="3">
-                        <MudSelect @bind-Value=editOId.To
-                                   Label="From"
-                                   Error=@(editOId.To < editOId.From)
-                                   ErrorText="To < From">
-                            @for (int? i = 1; i <= 20; i++)
-                            {
-                                <MudSelectItem Value=@i />
-                            }
-                        </MudSelect>
-                    </MudItem>
-                    <MudItem xs="3">
-                        <MudSelect Label="Aggregation"
-                                   @bind-Value=editOId.LayerAgg>
-                            @foreach (Agg? agg in Enum.GetValues(typeof(Agg)))
-                            {
-                                <MudSelectItem Value=@agg />
-                            }
-                        </MudSelect>
-                    </MudItem>
-                    <MudItem xs="3" Class=@(isDailyEvent(eventShortcut) ? "d-none" : "")>
-                        <MudSelect Label="Aggregation"
-                                   @bind-Value=editOId.TimeAgg>
-                            @foreach (Agg? agg in Enum.GetValues(typeof(Agg)))
-                            {
-                                <MudSelectItem Value=@agg />
-                            }
-                        </MudSelect>
-                    </MudItem>
                 </MudGrid>
-            </MudField>
-
-            </MudItem> -->
-    </MudExpansionPanel>
+            </MudExpansionPanel>
     <MudExpansionPanel @bind-IsExpanded=@panelOpened["OutputConfig"] Text="Output configuration">
         <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
             @code

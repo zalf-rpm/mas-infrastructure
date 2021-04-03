@@ -502,7 +502,7 @@ namespace Mas.Infrastructure.BlazorComponents
                                 { "amount", mf.Amount },
                                 { "partition", new JObject() {
                                     { "type", "MineralFertiliserParameters" },
-                                    { "id", mf.Partition.Id },
+                                    { "id", mf.Partition.Id ?? "" },
                                     { "name", mf.Partition.Name ?? "" },
                                     { "Carbamid", mf.Partition.Carbamid / 100.0 },
                                     { "NH4", mf.Partition.Nh4 / 100.0 },
@@ -520,7 +520,7 @@ namespace Mas.Infrastructure.BlazorComponents
                                 { "amount", of.Amount },
                                 { "partition", new JObject() {
                                     { "type", "OrganicFertiliserParameters" },
-                                    { "id", of.Params.Id },
+                                    { "id", of.Params.Id ?? ""},
                                     { "name", of.Params.Name ?? "" },
                                     { "AOM_DryMatterContent", of.Params.Params.AomDryMatterContent },
                                     { "AOM_FastDecCoeffStandard", of.Params.Params.AomFastDecCoeffStandard },
