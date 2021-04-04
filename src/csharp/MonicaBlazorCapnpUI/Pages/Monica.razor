@@ -683,7 +683,9 @@
                                                 }
                                                 break;
                                             case ExtType.cutting:
-                                                if (e.Params == null || e.Params is not Mgmt.Params.Cutting) e.Params = new Mgmt.Params.Cutting() { CuttingSpec = new List<Mgmt.Params.Cutting.Spec>() };
+                                                if (e.Params == null || e.Params is not Mgmt.Params.Cutting) e.Params = new Mgmt.Params.Cutting() {
+                                                    CuttingSpec = new List<Mgmt.Params.Cutting.Spec>() { new Mgmt.Params.Cutting.Spec() }
+                                                };
                                                 if (e.Params is Mgmt.Params.Cutting c)
                                                 {
                                                     valid = val => val < 0 || val > 100 ? "[0 - 100]" : null;
@@ -742,17 +744,16 @@
                                                         <MudFab Icon=@Icons.Material.Filled.Add
                                                                 Size=@Size.Small
                                                                 Color=@Color.Success
-                                                                OnClick=@(() =>
-                                                                      {
+                                                                OnClick=@(() => {
                                                                           (c.CuttingSpec as List<Mgmt.Params.Cutting.Spec>)?.Insert(Math.Min(i + 1, c.CuttingSpec.Count()),
                                                                               new Mgmt.Params.Cutting.Spec());
                                                                           StateHasChanged();
                                                                       }) />
                                                         <MudFab Icon=@Icons.Material.Filled.Delete
+                                                                Disabled=@(c.CuttingSpec.Count() < 2)
                                                                 Size=@Size.Small
                                                                 Color=@Color.Error
-                                                                OnClick=@(() =>
-                                                                      {
+                                                                OnClick=@(() => {
                                                                           (c.CuttingSpec as List<Mgmt.Params.Cutting.Spec>)?.Remove(cs);
                                                                           StateHasChanged();
                                                                       }) />
@@ -771,22 +772,21 @@
                                 if (e.Params is Mgmt.Params.MineralFertilization mf)
                                 {
                                     valid = val => val < 0 || val > 100 ? "[0 - 100]" : null;
-                                    Mgmt.MineralFertilizer? selectedMfId = null;
+                                    //Mgmt.MineralFertilizer? selectedMfId = null;
                                     <MudCard>
                                         <MudCardContent>
-                                            <MudSelect Value=@selectedMfId
-                                                       T="Mgmt.MineralFertilizer?"
+                                            <MudSelect T="Mgmt.MineralFertilizer?"
                                                        ValueChanged=@(async f =>
                                                                   {
-                                                                      selectedMfId = f;
-                                                                      if (selectedMfId.HasValue && FertilizerServiceCap != null)
+                                                                      //selectedMfId = f;
+                                                                      if (f.HasValue && FertilizerServiceCap != null)
                                                                       {
-                                                                          var part = await FertilizerServiceCap.MineralFertilizerPartitionFor(selectedMfId.Value);
+                                                                          var part = await FertilizerServiceCap.MineralFertilizerPartitionFor(f.Value);
                                                                           mf.Partition = part;
                                                                           StateHasChanged();
                                                                       }
                                                                   })
-                                                       Label="Min.Fertilizer">
+                                                       Label="Load fertilizer parameters">
                                                 @foreach (Mgmt.MineralFertilizer? mfId in Enum.GetValues(typeof(Mgmt.MineralFertilizer)))
                                                 {
                                                     <MudSelectItem Value="@mfId">@textInfo.ToUpper(mfId.ToString())</MudSelectItem>
@@ -826,32 +826,31 @@
                                 if (e.Params is Mgmt.Params.OrganicFertilization of)
                                 {
                                     valid = val => val < 0 || val > 100 ? "[0 - 100]" : null;
-                                    Mgmt.OrganicFertilizer? selectedOfId = null;
+                                    //Mgmt.OrganicFertilizer? selectedOfId = null;
                                     <MudCard>
                                         <MudCardContent>
-                                            <MudTextField @bind-Value=of.Amount
-                                                          Label="Amount"
-                                                          Adornment="Adornment.End"
-                                                          AdornmentText="kg" />
-                                            <MudCheckBox @bind-Checked=@of.Incorporation Label="Incorporation" />
-                                            <MudSelect Value=@selectedOfId
-                                                       T="Mgmt.OrganicFertilizer?"
-                                                       ValueChanged=@(async f =>
-                                                                  {
-                                                                      selectedOfId = f;
-                                                                      if (selectedOfId.HasValue && FertilizerServiceCap != null)
+                                            <MudSelect T="Mgmt.OrganicFertilizer?"
+                                                       ValueChanged=@(async f => {
+                                                                      //selectedOfId = f;
+                                                                      if (f.HasValue && FertilizerServiceCap != null)
                                                                       {
-                                                                          var part = await FertilizerServiceCap.OrganicFertilizerParametersFor(selectedOfId.Value);
+                                                                          var part = await FertilizerServiceCap.OrganicFertilizerParametersFor(f.Value);
                                                                           of.Params = part;
                                                                           StateHasChanged();
                                                                       }
                                                                   })
-                                                       Label="Org.Fertilizer">
+                                                       Label="Load fertilizer parameters">
                                                 @foreach (Mgmt.OrganicFertilizer? ofId in Enum.GetValues(typeof(Mgmt.OrganicFertilizer)))
                                                 {
                                                     <MudSelectItem Value="@ofId">@textInfo.ToUpper(ofId.ToString())</MudSelectItem>
                                                 }
                                             </MudSelect>
+                                            <MudTextField @bind-Value=of.Amount
+                                                          Label="Amount"
+                                                          Adornment="Adornment.End"
+                                                          AdornmentText="kg" />
+                                            <MudCheckBox @bind-Checked=@of.Incorporation Label="Incorporation" />
+
                                             <MudCard>
                                                 <MudCardContent>
                                                     <MudTextField @bind-Value=of.Params.Id Label="Id" />

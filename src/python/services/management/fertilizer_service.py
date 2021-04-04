@@ -92,7 +92,7 @@ class Service(management_capnp.FertilizerService.Server):
     def organicFertilizerParametersFor_context(self, context): # organicFertilizerParametersFor @1 (orgFert :OrganicFertilizer) -> (params :MonicaParams.OrganicFertilizerParameters);
         of = context.params.orgFert
         if of in self._org_ferts:
-            context.results.partition = self._org_ferts[of]
+            context.results.params = self._org_ferts[of]
         else:
             try:
                 path = Path(self._org_ferts_dir) / (str(of).upper() + ".json")
