@@ -372,7 +372,7 @@
                                 <th>When</th>
                                 <th>Type</th>
                                 <th>Options</th>
-                                <th>Actions</th>
+                                <th style="width:20%">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -702,7 +702,7 @@
                                                                         <th>Unit</th>
                                                                         <th>Cut/Left</th>
                                                                         <th>Export %</th>
-                                                                        <th>Action</th>
+                                                                        <th style="width:20%">Action</th>
                                                                     </tr>
                                                                 </thead>
                                         <tbody>
@@ -740,6 +740,7 @@
                                                     </td>
                                                     <td>
                                                         <MudFab Icon=@Icons.Material.Filled.Add
+                                                                Size=@Size.Small
                                                                 Color=@Color.Success
                                                                 OnClick=@(() =>
                                                                       {
@@ -748,6 +749,7 @@
                                                                           StateHasChanged();
                                                                       }) />
                                                         <MudFab Icon=@Icons.Material.Filled.Delete
+                                                                Size=@Size.Small
                                                                 Color=@Color.Error
                                                                 OnClick=@(() =>
                                                                       {
@@ -961,6 +963,7 @@
                                         </td>
                                         <td>
                                             <MudFab Icon=@Icons.Material.Filled.ArrowUpward
+                                                    Size=@Size.Small
                                                     Disabled=@(i == 0)
                                                     OnClick=@(() =>
                                                           {
@@ -969,6 +972,7 @@
                                                               StateHasChanged();
                                                           }) />
                                             <MudFab Icon=@Icons.Material.Filled.ArrowDownward
+                                                    Size=@Size.Small
                                                     Disabled=@(i == cropRotation.Count() - 1)
                                                     OnClick=@(() =>
                                                           {
@@ -977,6 +981,7 @@
                                                               StateHasChanged();
                                                           }) />
                                             <MudFab Icon=@Icons.Material.Filled.Add
+                                                    Size=@Size.Small
                                                     Color=@Color.Success
                                                     OnClick=@(() =>
                                                           {
@@ -984,6 +989,7 @@
                                                               StateHasChanged();
                                                           }) />
                                             <MudFab Icon=@Icons.Material.Filled.Delete
+                                                    Size=@Size.Small
                                                     Color=@Color.Error
                                                     OnClick=@(() => { cropRotation.Remove(e); StateHasChanged(); }) />
                                         </td>
@@ -1005,21 +1011,55 @@
             {
                 return eventShortcut == "daily" || eventShortcut.Contains("at");
             }
+            MudTabs outputConfigTabs;
         }
         <MudGrid>
             <MudItem xs="12">
-                <MudSwitch @bind-Checked=overwriteOutputConfig Color="Color.Primary" Label="Change" />
+                <MudSwitch @bind-Checked=@overwriteOutputConfig
+                           Color="Color.Primary" 
+                           Label="Change" />
             </MudItem>
         </MudGrid>
         @if (overwriteOutputConfig)
         {
             <MudItem xs="12">
-                <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+                <MudTabs @ref=outputConfigTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+                    <MudTabPanel Text="new">
+                        <MudGrid>
+                            <MudItem xs="2" Class="d-flex flex-row py-2 px-1">
+                                <MudSelect T="(string, bool)"
+                                           Class=@(showEventSelect ? "" : "d-none")
+                                           Value=@(("-", false))
+                                           ValueChanged=@(p => {
+                                                              if (p.Item1 != "-")
+                                                              {
+                                                                  events.Add((p.Item1, new List<OId>() { new OId() }, p.Item2));
+                                                                  StateHasChanged();
+                                                              }
+                                                          })
+                                           Label="New Event">
+                                    <MudSelectItem Value=@(("-", false))>-</MudSelectItem>
+                                    @foreach (var eventScAndTimeAgg in eventShortcuts)
+                                    {
+                                        <MudSelectItem Value=@eventScAndTimeAgg>@eventScAndTimeAgg.Item1</MudSelectItem>
+                                    }
+                                </MudSelect>
+                                <MudTextField T=@string
+                                              Class=@(showEventSelect ? "d-none" : "")
+                                              ValueChanged=@(v => { events.Add((v, new List<OId>() { new OId() }, true)); StateHasChanged(); })
+                                              Label="New Event"
+                                              Variant="Variant.Outlined" />
+                                <MudFab Color=@Color.Secondary
+                                        Icon=@(showEventSelect ? Icons.Material.Filled.Edit : Icons.Material.Filled.Close)
+                                        OnClick=@(() => showEventSelect = !showEventSelect) />
+                            </MudItem>
+                        </MudGrid>
+                    </MudTabPanel>
                     @foreach (var (i, p) in events.Select((p, i) => (i, p)))
                     {
                         var eventShortcut = p.Item1;
                         var oids = p.Item2;
-                        var allowTimeAgg = p.Item3 || isDailyEvent(eventShortcut);
+                        var allowTimeAgg = p.Item3 || !isDailyEvent(eventShortcut);
                         <MudTabPanel Text="@eventShortcut">
                             <MudSimpleTable>
                                 <thead>
@@ -1029,7 +1069,7 @@
                                         <th>To Layer</th>
                                         <th>Layer aggregation</th>
                                         <th>Time aggregation</th>
-                                        <th>Actions</th>
+                                        <th style="width:20%">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -1168,29 +1208,7 @@
                             </MudSimpleTable>
                         </MudTabPanel>
                     }
-                    <MudTabPanel Text="new">
-                        <MudGrid>
-                            <MudItem xs="2" Class="d-flex flex-row py-2 px-1">
-                                <MudSelect T="(string, bool)"
-                                           Class=@(showEventSelect ? "" : "d-none")
-                                           ValueChanged=@(p => { events.Add((p.Item1, new List<OId>() { new OId() }, p.Item2)); StateHasChanged(); })
-                                           Label="New Event">
-                                    @foreach (var eventScAndTimeAgg in eventShortcuts)
-                                    {
-                                        <MudSelectItem Value=@eventScAndTimeAgg />
-                                    }
-                                </MudSelect>
-                                <MudTextField T=@string
-                                              Class=@(showEventSelect ? "d-none" : "")
-                                              ValueChanged=@(v => { events.Add((v, new List<OId>() { new OId() }, true)); StateHasChanged(); })
-                                              Label="New Event"
-                                              Variant="Variant.Outlined" />
-                                <MudFab Color=@Color.Secondary
-                                        Icon=@(showEventSelect ? Icons.Material.Filled.Edit : Icons.Material.Filled.Close)
-                                        OnClick=@(() => showEventSelect = !showEventSelect) />
-                            </MudItem>
-                        </MudGrid>
-                    </MudTabPanel>
+
                 </MudTabs>
             </MudItem>
         }
@@ -1217,13 +1235,13 @@
                 @code {
                     private List<Highchart.AxisConfig> yAxisConfigs = new()
                     {
-            new Highchart.AxisConfig { Id = "def", Title = "other values" },
-            new Highchart.AxisConfig { Id = "yields", Title = "Yield [kg/ha]", Opposite = true }
-        };
+                        new Highchart.AxisConfig { Id = "def", Title = "other values" },
+                        new Highchart.AxisConfig { Id = "yields", Title = "Yield [kg/ha]", Opposite = true }
+                    };
                     private Dictionary<string, Highchart.CurveConfig> curveName2Config = new()
                     {
-            { "Yield", new Highchart.CurveConfig { DisplayAxisId = "yields", IsVisible = true } }
-        };
+                        { "Yield", new Highchart.CurveConfig { DisplayAxisId = "yields", IsVisible = true } }
+                    };
                 }
                 <Highchart Title="MONICA results"
                            XAxisTitle="Date"

@@ -681,7 +681,7 @@ namespace Mas.Infrastructure.BlazorComponents
             var menv = new Model.Env<Rpc.Common.StructuredText>()
             {
                 TimeSeries = Capnp.Rpc.Proxy.Share(TimeSeriesCap),
-                SoilProfile = profileLayers.Any() ? new Soil.Profile() { Layers = profileLayers } : null,
+                SoilProfile = overwriteSoilProfile && profileLayers.Any() ? new Soil.Profile() { Layers = profileLayers } : null,
                 Rest = new Rpc.Common.StructuredText()
                 {
                     Structure = new Rpc.Common.StructuredText.structure { which = Rpc.Common.StructuredText.structure.WHICH.Json },
