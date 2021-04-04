@@ -124,7 +124,7 @@ namespace Mas.Infrastructure.BlazorComponents
         public Climate.IService ClimateServiceCap { get; set; }
 
         [Parameter]
-        public string ClimateServiceSturdyRef { get; set; } = "";//"capnp://login01.cluster.zalf.de:9998";
+        public string ClimateServiceSturdyRef { get; set; } = "";
 
         [Parameter]
         public EventCallback<Climate.ITimeSeries> ClimateServiceCapChanged { get; set; }
@@ -187,6 +187,8 @@ namespace Mas.Infrastructure.BlazorComponents
             siteJsonTxt = File.ReadAllText("Data/site_template.json");
             //climateCsv = File.ReadAllText("Data-Full/climate-min.csv");
 
+            availableOIds.Sort();
+
             //_ = Task.Delay(1000).ContinueWith(_ => soilServiceRef?.GetAllAvailableSoilProperties());
         }
 
@@ -237,19 +239,29 @@ namespace Mas.Infrastructure.BlazorComponents
 
         #region events / outputs
         public enum Agg { AVG, MEDIAN, SUM, MIN, MAX, FIRST, LAST, NONE }
-        public class OId
+        public class OId : IComparable<OId>
         {
             public static OId Out(string name) { return new OId { Name = name }; }
 
-            public static OId OutL(string name, int from, int to, Agg agg = Agg.NONE)
+            public static OId Out(string name, string desc, string unit = "")
+            { return new OId { Name = name, Desc = desc, Unit = unit}; }
+
+            public static OId Out(string name, string desc, Mgmt.PlantOrgan o, string unit = "")
+            { return new OId { Name = name, Desc = desc, Unit = unit, Organ = o }; }
+            
+            public static OId Out(string name, string desc, int layer, string unit = "")
+            { return new OId { Name = name, Desc = desc, Unit = unit, From = layer }; }
+
+            public static OId OutL(string name, int from, int? to = null, Agg agg = Agg.NONE)
             { return new OId { Name = name, From = from, To = to, LayerAgg = agg }; }
 
             public static OId OutT(string name, Agg agg = Agg.AVG)
             { return new OId { Name = name, TimeAgg = agg }; }
 
-            public static OId OutLT(string name, int from, int to, Agg layerAgg = Agg.NONE, Agg timeAgg = Agg.AVG)
+            public static OId OutLT(string name, int from, int? to = null, Agg layerAgg = Agg.NONE, Agg timeAgg = Agg.AVG)
             { return new OId { Name = name, From = from, To = to, LayerAgg = layerAgg, TimeAgg = timeAgg }; }
 
+            /*
             public override string ToString()
             {
                 if (From.HasValue && To.HasValue && LayerAgg.HasValue && TimeAgg.HasValue)
@@ -260,18 +272,63 @@ namespace Mas.Infrastructure.BlazorComponents
                     return $"[{Name},{TimeAgg}]";
                 return Name;
             }
+            */
 
+            public int CompareTo(OId other)
+            {
+                // A null value means that this object is greater.
+                if (other == null)
+                    return 1;
+                if (Name != null) 
+                    return Name.CompareTo(other.Name);
+                return 0;
+            }
+
+            public override string ToString() => Name ?? "";
+            
             public string Name { get; set; } = "";
+            public string Desc { get; set; } = "";
+            public string Unit { get; set; } = "";
             public int? From { get; set; }
             public int? To { get; set; }
             public Agg? LayerAgg { get; set; }
             public Agg? TimeAgg { get; set; }
+            public Mgmt.PlantOrgan? Organ { get; set; }
         }
         private OId editOId = OId.Out("");
 
-        private List<(String, List<OId>)> events = new() { ("daily", new List<OId> { OId.Out("Date"), OId.Out("Crop"), OId.Out("Stage"), OId.Out("Yield"), OId.OutL("Mois", 1, 3), OId.OutL("SOC", 1, 6, Agg.AVG), OId.Out("Tavg"), OId.Out("Precip") }) };
+        private List<(String, List<OId>, bool)> events = new() 
+        { 
+            ("daily", new List<OId> { 
+                OId.Out("Date"), OId.Out("Crop"), OId.Out("Stage"), OId.Out("Yield"), 
+                OId.OutL("Mois", 1, 3), OId.OutL("SOC", 1, 6, Agg.AVG), OId.Out("Tavg"), 
+                OId.Out("Precip") 
+            }, false) 
+        };
 
-        private List<String> eventShortcuts = new() { "daily", "crop", "monthly", "yearly", "run", "Sowing", "AutomaticSowing", "Harvest", "AutomaticHarvest", "Cutting", "emergence", "anthesis", "maturity", "Stage-1", "Stage-2", "Stage-3", "Stage-4", "Stage-5", "Stage-6", "Stage-7" };
+        private List<(String, bool)> eventShortcuts = new() 
+        { 
+            ("daily", false), 
+            ("crop", true), 
+            ("monthly", true), 
+            ("yearly", true), 
+            ("run", true), 
+            ("Sowing", false), 
+            ("AutomaticSowing", false), 
+            ("Harvest", false), 
+            ("AutomaticHarvest", false), 
+            ("Cutting", false), 
+            ("emergence", false), 
+            ("anthesis", false), 
+            ("maturity", false), 
+            ("Stage-1", false), 
+            ("Stage-2", false), 
+            ("Stage-3", false), 
+            ("Stage-4", false),
+            ("Stage-5", false),
+            ("Stage-6", false), 
+            ("Stage-7", false)
+        };
 
         private JArray CreateSingleEventsSection(List<OId> oids)
         {
@@ -303,7 +360,7 @@ namespace Mas.Infrastructure.BlazorComponents
         private JArray CreateEvents()
         {
             JArray es = new();
-            foreach (var (sectionName, oids) in events)
+            foreach (var (sectionName, oids, _) in events)
             {
                 es.Add(sectionName);
                 es.Add(CreateSingleEventsSection(oids));
@@ -610,11 +667,14 @@ namespace Mas.Infrastructure.BlazorComponents
 
             var envj = RunMonica.CreateMonicaEnv(simj, cropj, sitej, null, new Core.Share.UserSetting(), Core.Share.Enums.MonicaParametersBasePathTypeEnum.LocalServer);
 
-            var events = new JArray();
-            //keep events in files and append the onces defined via UI
-            foreach (var jt in envj["events"]) events.Add(jt);
-            foreach (var jt in CreateEvents()) events.Add(jt);
-            envj["events"] = events;
+            if (overwriteOutputConfig)
+            {
+                var events = new JArray();
+                //keep events in files and append the onces defined via UI
+                foreach (var jt in envj["events"]) events.Add(jt);
+                foreach (var jt in CreateEvents()) events.Add(jt);
+                envj["events"] = events;
+            }
 
             envj["params"]["siteParameters"]["Latitude"] = LatLng.Item1;
 
@@ -704,6 +764,170 @@ namespace Mas.Infrastructure.BlazorComponents
             SoilServiceCap?.Dispose();
         }
         #endregion implement IDisposable
+
+
+        private List<OId> availableOIds = new()
+        {
+            OId.Out("Count", "output 1 for counting things"),
+            OId.Out("CM-count", "output the order number of the current cultivation method"),
+            OId.Out("Date", "output current date"),
+            OId.Out("days-since-start", "output number of days since simulation start"),
+            OId.Out("DOY", "output current day of year"),
+            OId.Out("Month", "output current Month"),
+            OId.Out("Year", "output current Year"),
+            OId.Out("Crop", "crop name"),
+            OId.Out("TraDef", "TranspirationDeficit", ""),
+            OId.Out("Tra", "ActualTranspiration", "mm"),
+            OId.Out("NDef", "CropNRedux, indicates N availability: 1 no stress, 0 no N available", ""),
+            OId.Out("HeatRed", "HeatStressRedux", ""),
+            OId.Out("FrostRed", "FrostStressRedux", ""),
+            OId.Out("OxRed", "OxygenDeficit", ""),
+            OId.Out("Stage", "DevelopmentalStage", ""),
+            OId.Out("TempSum", "CurrentTemperatureSum", "°Cd"),
+            OId.Out("VernF", "VernalisationFactor", ""),
+            OId.Out("DaylF", "DaylengthFactor", ""),
+            OId.Out("IncRoot", "OrganGrowthIncrement root", "kg/ha"),
+            OId.Out("IncLeaf", "OrganGrowthIncrement leaf", "kg/ha"),
+            OId.Out("IncShoot", "OrganGrowthIncrement shoot", "kg/ha"),
+            OId.Out("IncFruit", "OrganGrowthIncrement fruit", "kg/ha"),
+            OId.Out("RelDev", "RelativeTotalDevelopment", ""),
+            OId.Out("LT50", "LT50", "°C"),
+            OId.Out("AbBiom", "AbovegroundBiomass", "kg/ha"),
+            OId.Out("OrgBiom", "OrganBiomass", Mgmt.PlantOrgan.leaf, "kg-DM/ha"),
+            OId.Out("OrgGreenBiom", "OrganGreenBiomass", Mgmt.PlantOrgan.leaf, "kg-DM/ha"),
+            OId.Out("Yield", "get_PrimaryCropYield", "kg-DM/ha"),
+            OId.Out("SumYield", "get_AccumulatedPrimaryCropYield", "kg-DM/ha"),
+            OId.Out("sumExportedCutBiomass", "return sum(across cuts) of exported cut biomass for current crop", "kg-DM/ha"),
+            OId.Out("exportedCutBiomass", "return exported cut biomass for current crop and cut", "kg-DM/ha"),
+            OId.Out("sumResidueCutBiomass", "return sum(across cuts) of residue cut biomass for current crop", "kg-DM/ha"),
+            OId.Out("residueCutBiomass", "return residue cut biomass for current crop and cut", "kg-DM/ha"),
+            OId.Out("optCarbonExportedResidues", "return exported part of the residues according to optimal carbon balance", "kg-DM/ha"),
+            OId.Out("optCarbonReturnedResidues", "return returned to soil part of the residues according to optimal carbon balance", "kg-DM/ha"),
+            OId.Out("humusBalanceCarryOver", "return humus balance carry over according to optimal carbon balance", "Heq-NRW/ha"),
+            OId.Out("SecondaryYield", "SecondaryCropYield", "kg-DM/ha"),
+            OId.Out("GroPhot", "GrossPhotosynthesisHaRate", "kg-CH2O/ha"),
+            OId.Out("NetPhot", "NetPhotosynthesis", "kg-CH2O/ha"),
+            OId.Out("MaintR", "MaintenanceRespirationAS", "kg-CH2O/ha"),
+            OId.Out("GrowthR", "GrowthRespirationAS", "kg-CH2O/ha"),
+            OId.Out("StomRes", "StomataResistance", "s/m"),
+            OId.Out("Height", "CropHeight", "m"),
+            OId.Out("LAI", "LeafAreaIndex", "m2/m2"),
+            OId.Out("RootDep", "RootingDepth", "Layer#"),
+            OId.Out("EffRootDep", "Effective RootingDepth", "m"),
+            OId.Out("TotBiomN", "TotalBiomassNContent", "kg-N/ha"),
+            OId.Out("AbBiomN", "AbovegroundBiomassNContent", "kg-N/ha"),
+            OId.Out("SumNUp", "SumTotalNUptake", "kg-N/ha"),
+            OId.Out("ActNup", "ActNUptake", "kg-N/ha"),
+            OId.Out("PotNup", "PotNUptake", "kg-N/ha"),
+            OId.Out("NFixed", "NFixed", "kg-N/ha"),
+            OId.Out("Target", "TargetNConcentration", "kg-N/ha"),
+            OId.Out("CritN", "CriticalNConcentration", "kg-N/ha"),
+            OId.Out("AbBiomNc", "AbovegroundBiomassNConcentration", "kg-N/ha"),
+            OId.Out("Nstress", "NitrogenStressIndex", ""),
+            OId.Out("YieldNc", "PrimaryYieldNConcentration", "kg-N/ha"),
+            OId.Out("YieldN", "PrimaryYieldNContent", "kg-N/ha"),
+            OId.Out("Protein", "RawProteinConcentration", "kg/kg"),
+            OId.Out("NPP", "NPP", "kg-C/ha"),
+            OId.Out("NPP-Organs", "organ specific NPP", Mgmt.PlantOrgan.leaf, "kg-C/ha"),
+            OId.Out("GPP", "GPP", "kg-C/ha"),
+            OId.Out("Ra", "autotrophic respiration", "kg-C/ha"),
+            OId.Out("Ra-Organs", "organ specific autotrophic respiration", Mgmt.PlantOrgan.leaf, "kg-C/ha"),
+            OId.Out("Mois", "Soil moisture content", 1, "m3/m3"),
+            OId.Out("ActNupLayer", "ActNUptakefromLayer", 1, "kg-N/ha"),
+            OId.Out("Irrig", "Irrigation", "mm"),
+            OId.Out("Infilt", "Infiltration", "mm"),
+            OId.Out("Surface", "Surface water storage", "mm"),
+            OId.Out("RunOff", "Surface water runoff", "mm"),
+            OId.Out("SnowD", "Snow depth", "mm"),
+            OId.Out("FrostD", "Frost front depth in soil", "m"),
+            OId.Out("ThawD", "Thaw front depth in soil", "m"),
+            OId.Out("PASW", "Plant Available Soil Water", 1, "m3/m3"),
+            OId.Out("SurfTemp", "Surface temperature", "°C"),
+            OId.Out("STemp", "Soil temperature", 1, "°C"),
+            OId.Out("Act_Ev", "Actual evaporation", "mm"),
+            OId.Out("Pot_ET", "Potential evapotranspiration", "mm"),
+            OId.Out("Act_ET", "Actual evapotranspiration", "mm"),
+            OId.Out("Act_ET2", "ActualEvaporation + Transpiration", "mm"),
+            OId.Out("ET0", "ET0", "mm"),
+            OId.Out("Kc", "Kc", ""),
+            OId.Out("AtmCO2", "Atmospheric CO2 concentration", "ppm"),
+            OId.Out("AtmO3", "Atmospheric O3 concentration", "ppb"),
+            OId.Out("Groundw", "Groundwater level", "m"),
+            OId.Out("Recharge", "Groundwater recharge", "mm"),
+            OId.Out("NLeach", "N leaching", "kg-N/ha"),
+            OId.Out("NO3", "Soil NO3 content", 1, "kg-N/m3"),
+            OId.Out("Carb", "Soil Carbamid content", 1, "kg-N/m3"),
+            OId.Out("NH4", "Soil NH4 content", 1, "kg-N/m3"),
+            OId.Out("NO2", "NO2", "kg-N/m3"),
+            OId.Out("SOC", "Soil organic carbon content", 1, "kg-C/kg"),
+            OId.Out("SOC-X-Y", "SOC*SoilBulkDensity*LayerThickness*1000", 1, "g-C/m2"),
+            OId.Out("AOMf", "AOM_FastSum", 1, "kg-C/m3"),
+            OId.Out("AOMs", "AOM_SlowSum", 1, "kg-C/m3"),
+            OId.Out("SMBf", "SMB_Fast", 1, "kg-C/m3"),
+            OId.Out("SMBs", "SMB_Slow", 1, "kg-C/m3"),
+            OId.Out("SOMf", "SOM_Fast", 1, "kg-C/m3"),
+            OId.Out("SOMs", "SOM_Slow", 1, "kg-C/m3"),
+            OId.Out("CBal", "get_CBalance", 1, "kg-C/m3"),
+            OId.Out("Nmin", "NetNMineralisationRate", 1, "kg-N/ha"),
+            OId.Out("NetNmin", "NetNminRate for the layers defined in the parameter MaxMineralizationDepth(general/soil-organic.json)", "kg-N/ha"),
+            OId.Out("Denit", "Amount of N resulting from denitrification", "kg-N/ha"),
+            OId.Out("actnitrate", "N production rate resulting from nitrification(N2O STICS module)", "kg-N/m3"),
+            OId.Out("N2O", "Total N2O produced(Monica's original approach)", "kg-N/ha"),
+            OId.Out("N2Onit", "N2O produced through nitrification (N2O STICS module)", "kg-N/ha"),
+            OId.Out("N2Odenit", "N2O produced through denitrification(N2O STICS module)", "kg-N/ha"),
+            OId.Out("SoilpH", "SoilpH", ""),
+            OId.Out("NEP", "NEP", "kg-C/ha"),
+            OId.Out("NEE", "NEE", "kg-C/ha"),
+            OId.Out("Rh", "Rh", "kg-C/ha"),
+            OId.Out("Tmin", "Daily minimum temperature", "°C"),
+            OId.Out("Tavg", "Daily average temperature", "°C"),
+            OId.Out("Tmax", "Daily maximum temperature", "°C"),
+            OId.Out("Precip", "Daily precipitation", "mm"),
+            OId.Out("Wind", "Daily average windspeed", "m/s"),
+            OId.Out("Globrad", "Daily global radiation", "MJ/m2"),
+            OId.Out("Relhumid", "Daily relative humidity", "%"),
+            OId.Out("Sunhours", "If available? Daily number of sunshine hours", "h"),
+            OId.Out("BedGrad", "PercentageSoilCoverage", ""),
+            OId.Out("N", "Nitrate", 1, "kg-N/m3"),
+            OId.Out("Co", "Co", 1, "kg-C/m3"),
+            OId.Out("NH3", "NH3_Volatilised", "kg-N/ha"),
+            OId.Out("NFert", "dailySumFertiliser", "kg-N/ha"),
+            OId.Out("SumNFert", "sum of N fertilizer applied during cropping period", "kg-N/ha"),
+            OId.Out("NOrgFert", "dailySumOrgFertiliser", "kg-N/ha"),
+            OId.Out("SumNOrgFert", "sum of N of organic fertilizer applied during cropping period", "kg-N/ha"),
+            OId.Out("WaterContent", "soil water content", "%nFC"),
+            OId.Out("AWC", "available water capacity", "m3/m3"),
+            OId.Out("CapillaryRise", "Capillary rise", 1, "mm"),
+            OId.Out("PercolationRate", "percolation rate", 1, "mm"),
+            OId.Out("SMB-CO2-ER", "SMB_CO2EvolutionRate", 1, ""),
+            OId.Out("Evapotranspiration", "", "mm"),
+            OId.Out("Evaporation", "", "mm"),
+            OId.Out("ETa/ETc", "actual evapotranspiration / potential evapotranspiration", ""),
+            OId.Out("Transpiration", "", "mm"),
+            OId.Out("GrainN", "FruitBiomassNContent", "kg/ha"),
+            OId.Out("Fc", "Field capacity", 1, "m3/m3"),
+            OId.Out("Pwp", "Permanent wilting point", 1, "m3/m3"),
+            OId.Out("Sat", "saturation", 1, "m3/m3"),
+            OId.Out("Nresid", "Nitrogen content in crop residues", "kg-N/ha"),
+            OId.Out("Sand", "Soil sand content", "kg/kg"),
+            OId.Out("Clay", "Soil clay content", "kg/kg"),
+            OId.Out("Silt", "Soil silt content", "kg/kg"),
+            OId.Out("Stone", "Soil stone content", "kg/kg"),
+            OId.Out("pH", "Soil pH content", ""),
+            OId.Out("rootDensity", "Root density at layer", 1, ""),
+            OId.Out("rootingZone", "Layer into which roots reach", "Layer#"),
+            OId.Out("actammoxrate", "actAmmoniaOxidationRate", "kgN/m3/d"),
+            OId.Out("actnitrate", "actNitrificationRate", "kgN/m3/d"),
+            OId.Out("actdenitrate", "actDenitrificationRate", "kgN/m3/d"),
+            OId.Out("O3-short-damage", "short term ozone induced reduction of Ac", ""),
+            OId.Out("O3-long-damage", "long term ozone induced senescence", ""),
+            OId.Out("O3-WS-gs-reduction", "water stress impact on stomatal conductance", ""),
+            OId.Out("O3-total-uptake", "total O3 uptake", "?"),
+            OId.Out("NO3conv", "Convection", ""),
+            OId.Out("NO3disp", "Dispersion", ""),
+            OId.Out("noOfAOMPools", "number of AOM pools in existence currently", "#")
+        };
+
     }
 
 

@@ -29,23 +29,34 @@
                       CenterLatLng=@LatLng>
         </GeoposPicker>
     </MudItem>
-    <MudButton Class="px-5"
-               Variant=@Variant.Filled
-               Color=@Color.Primary
-               OnClick=@GetSoilProfiles>
-        Show soil profiles @@ @(Math.Round(LatLng.Item1, 2))N/@(Math.Round(LatLng.Item2, 2))E with ...
-    </MudButton>
+    <!--
+    <MudItem xs="2">
+        <MudButton Variant=@Variant.Filled
+                   Color=@Color.Primary
+                   OnClick=@GetAllAvailableSoilProperties>
+            Get available soil properties
+        </MudButton>
+    </MudItem>
+
+    <MudItem xs="2">
+        <MudButton Variant=@Variant.Filled
+                   Color=@Color.Primary
+                   OnClick=@GetSoilProfiles>
+            Load soil profile @@ @(Math.Round(LatLng.Item1, 2))N/@(Math.Round(LatLng.Item2, 2))E with ...
+        </MudButton>
+    </MudItem>
+    -->
     <MudItem xs="12" Class="d-flex flex-row py-2 px-1">
         <MudButton Class="px-5"
                    Variant=@Variant.Filled
                    Color=@Color.Primary
-                   OnClick=@GetAllAvailableSoilProperties>
-            Get params
+                   OnClick=@GetSoilProfiles>
+            Load soil profile @@ @(Math.Round(LatLng.Item1, 2))N/@(Math.Round(LatLng.Item2, 2))E with ...
         </MudButton>
         <MudChipSet SelectedChipsChanged=@(cs => chosenSoilPropertyNames = cs.Select(c => (Soil.PropertyName)c.Tag))
                     MultiSelection=@true
                     Filter=@true>
-            @foreach (var (p, i) in availableSoilProps.Select((p, i) => (p, i)))
+            @foreach (var (p, i) in availableSoilProps.OrderBy(p => p.ToString()).Select((p, i) => (p, i)))
             {
                 var pn = p.ToString();
                 <MudChip @ref=defaultSelectedSoilPropertyNameChips[i]
@@ -53,14 +64,6 @@
                          Text=@pn
                          Default=@DefaultSelectedSoilProperties.Contains(pn)>
                 </MudChip>
-                /*
-                if (availableSoilProps.Count() == i - 1)
-                {
-                    _markDefaultChips = true;
-                    _ = Task.Delay(200).ContinueWith(_ => MarkDefaultChips(defaultSelectedSoilPropertyNameChips,
-                        cs => { chosenSoilPropertyNames = cs.Select(c => (Soil.PropertyName)c.Tag); }));
-                }
-                */
             }
         </MudChipSet>
     </MudItem>
@@ -229,6 +232,8 @@
     [Parameter]
     public Soil.IService SoilServiceCap { get; set; }
 
+    private bool soilServiceCapUpdated = false;
+
     [Parameter]
     public EventCallback<Soil.IService> SoilServiceCapChanged { get; set; }
 
@@ -264,6 +269,20 @@
 
     [Parameter]
     public bool HideGeoPosPicker { get; set; } = false;
+
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        soilServiceCapUpdated = parameters.GetValueOrDefault<Soil.IService>("SoilServiceCap", null) != SoilServiceCap;
+        await base.SetParametersAsync(parameters);
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (soilServiceCapUpdated)
+        {
+            await GetAllAvailableSoilProperties();
+        }
+    }
 
     private async Task SoilServiceCapabilityChanged(Soil.IService service)
     {
@@ -307,12 +326,12 @@
             //await sturdyRefConnector?.Reconnect();
         }
     }
-        
+
     private async Task MarkDefaultChips(MudChip[] chips, Action<MudChip[]> action = null)
     {
         Console.WriteLine("SoilService.MarkDefaultChips: ThreadId: " + Thread.CurrentThread.ManagedThreadId);
 
-        if (chips.All(c => c == null)) return; 
+        if (chips.All(c => c == null)) return;
 
         var selected = new List<MudChip>();
         foreach (var c in chips)

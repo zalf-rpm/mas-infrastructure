@@ -692,5 +692,3 @@ struct SticsParameters {
     profdenit               @37 :Float64 = 20;      # [cm]
     vpotdenit               @38 :Float64 = 2.0;     # [kg N/ha/day]
 }
-
-

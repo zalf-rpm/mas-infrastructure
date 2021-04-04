@@ -145,7 +145,7 @@
 
     public override async Task SetParametersAsync(ParameterView parameters)
     {
-        timeSeriesCapUpdated = parameters.GetValueOrDefault<Climate.ITimeSeries>("TimeSeriesCap", null) == TimeSeriesCap;
+        timeSeriesCapUpdated = parameters.GetValueOrDefault<Climate.ITimeSeries>("TimeSeriesCap", null) != TimeSeriesCap;
         await base.SetParametersAsync(parameters);
     }
 
