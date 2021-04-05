@@ -6,15 +6,34 @@
 
 @implements IDisposable
 
+<MudGrid>
+    <MudItem xs="10"></MudItem>
+    <MudItem xs="2">
+        <MudSelect @bind-Value=NoOfMonicas
+                   Label="No of MONICAs">
+            @for (int i = 2; i <= MaxNoOfMonicas; i++)
+            {
+                <MudSelectItem Value=@i />
+            }
+        </MudSelect>
+    </MudItem>
+</MudGrid>
+
 <MudExpansionPanels MultiExpansion=@true>
-    @for (int k = 0; k < noOfMonicas; k++)
+    @for (int k = 0; k < NoOfMonicas; k++)
     {
         var i = k;
         <MudExpansionPanel @bind-IsExpanded=@(panelOpened[$"monica{i}"]) Text=@($"MONICA {i+1}")>
             <MudGrid>
                 <MudItem xs="2">
                     <MudSelect T=@string
-                               @bind-Value=selectedSection[i]
+                               Value=@selectedSection[i]
+                               ValueChanged=@(v =>
+                                              {
+                                                  selectedSection[i] = v;
+                                                  commonSelectedCurve = null;
+                                                  StateHasChanged();
+                                              })
                                Label="Event">
                         @foreach (var s in Monica2Section2Oid2Data[i].Keys)
                         {
@@ -28,6 +47,7 @@
                                ValueChanged=@(v =>
                                               {
                                                   selectedCurve[i] = v;
+                                                  commonSelectedCurve = null;
                                                   monicaDataChanged = true;
                                                   StateHasChanged();
                                               })
@@ -54,33 +74,40 @@
     }
     <MudExpansionPanel @bind-IsExpanded=@panelOpened["compare"] Text="Compare MONICA 1 & 2">
         <MudGrid>
-            <!--
             <MudItem xs="2">
                 <MudSelect T=@string
-                           @bind-Value=selectedSection[i]
+                           Value=@commonSelectedSection
+                           ValueChanged=@(v =>
+                                          {
+                                              commonSelectedSection = v;
+                                              for (int i = 0; i < NoOfMonicas; i++) selectedSection[i] = v;
+                                              StateHasChanged();
+                                          })
                            Label="Event">
-                    @foreach (var s in Monica2Section2Oid2Data[i].Keys)
-                        {
-                    <MudSelectItem Value=@s />
-                        }
-                </MudSelect>
-            </MudItem>
-            <MudItem xs="2">
-                <MudSelect T=@string
-                           @bind-Value=selectedCurve[i]
-                           Label="Curve">
-                    @foreach (var curve in Monica2Section2Oid2Data[i].GetValueOrDefault(selectedSection[i], new()).Keys)
+                    @foreach (var s in CommonSections2Oids.Keys)
                     {
-                    <MudSelectItem Value=@curve />
+                        <MudSelectItem Value=@s />
                     }
                 </MudSelect>
             </MudItem>
-            -->
+            <MudItem xs="2">
+                <MudSelect T=@string
+                           Value=@commonSelectedCurve
+                           ValueChanged=@(v =>
+                                          {
+                                              commonSelectedCurve = v;
+                                              for (int i = 0; i < NoOfMonicas; i++) selectedCurve[i] = v;
+                                              monicaDataChanged = true;
+                                              StateHasChanged();
+                                          })
+                           Label="Curve">
+                    @foreach (var curve in CommonSections2Oids.GetValueOrDefault(commonSelectedSection ?? "", new()))
+                    {
+                        <MudSelectItem Value=@curve />
+                    }
+                </MudSelect>
+            </MudItem>
             <MudItem xs="12">
-                @code {
-                    private List<Highchart.AxisConfig> yAxisConfigs = Enumerable.Range(0, noOfMonicas).Select(i =>
-                    new Highchart.AxisConfig { Id = i.ToString(), Title = $"MONICA {i+1}", Opposite = i % 2 != 0 }).ToList();
-                }
                 <Highchart Title=@compareTitle()
                            XAxisTitle="Date"
                            Data=@OId2Data
@@ -95,17 +122,21 @@
 </MudExpansionPanels>
 
 @code {
-    private static readonly int noOfMonicas = 2;
+    [Parameter]
+    public int NoOfMonicas { get; set; } = 2;
+
+    [Parameter]
+    public int MaxNoOfMonicas { get; set; } = 10;
 
     private string compareTitle()
     {
         var sb = new System.Text.StringBuilder("Compare MONICA results ");
-        for (int i = 1; i <= noOfMonicas; i++)
+        for (int i = 0; i < NoOfMonicas; i++)
         {
             if (selectedSection.ContainsKey(i) && selectedCurve.ContainsKey(i))
             {
-                sb.Append($"{selectedSection[i]}/{selectedCurve[i]}");
-                if (i < noOfMonicas) sb.Append(" vs ");
+                sb.Append($"M{i+1} [{selectedSection[i]}/{selectedCurve[i]}]");
+                if (i < NoOfMonicas-1) sb.Append(" vs ");
             }
         }
 
@@ -117,16 +148,60 @@
     Dictionary<int, Dictionary<String, Dictionary<String, IEnumerable<float>>>> Monica2Section2Oid2Data = new();
     Dictionary<int, Dictionary<String, IEnumerable<DateTime>>> Monica2Section2Dates = new();
 
+    Dictionary<string, List<string>> CommonSections2Oids
+    {
+        get
+        {
+            Dictionary<string, List<string>> res = new();
+
+            HashSet<string> commonSections = null;
+            for (int i = 0; i < NoOfMonicas; i++)
+            {
+                var sections = Monica2Section2Oid2Data[i].Keys;
+                if(sections.Any())
+                {
+                    if (commonSections == null) commonSections = new(sections);
+                    else commonSections.IntersectWith(sections);
+                }
+            }
+
+            if (commonSections == null) return res;
+
+            foreach (var section in commonSections)
+            {
+                HashSet<string> commonCurves = null;
+                for (int i = 0; i < NoOfMonicas; i++)
+                {
+                    var secs2curves = Monica2Section2Oid2Data[i];
+                    if (secs2curves.ContainsKey(section))
+                    {
+                        var curves = Monica2Section2Oid2Data[i][section].Keys;
+                        if (curves.Any())
+                        {
+                            if (commonCurves == null) commonCurves = new(curves);
+                            else commonCurves.IntersectWith(curves);
+                        }
+                    }
+                }
+
+                res[section] = commonCurves?.ToList();
+            }
+
+            return res;
+        }
+    }
+
+
     Dictionary<String, IEnumerable<float>> OId2Data
     {
         get
         {
             var d = new Dictionary<String, IEnumerable<float>>();
-            for (int i = 0; i < selectedSection.Count; i++)
+            for (int i = 0; i < NoOfMonicas; i++)
             {
                 var ss = selectedSection[i];
                 var sc = selectedCurve[i];
-                d[$"M{i+1}-{ss}-{sc}_@{i % noOfMonicas}"] = Monica2Section2Oid2Data[i].GetValueOrDefault(ss, new()).GetValueOrDefault(sc, new List<float>());
+                d[$"M{i + 1}-{ss}-{sc}_@{i % NoOfMonicas}"] = Monica2Section2Oid2Data[i].GetValueOrDefault(ss, new()).GetValueOrDefault(sc, new List<float>());
             }
 
             return d;
@@ -148,14 +223,29 @@
         }
     }
 
-    Dictionary<int, string> selectedSection = new();
-    Dictionary<int, string> selectedCurve = new();
+    private Dictionary<int, string> selectedSection = new();
+    private string commonSelectedSection;
+    private Dictionary<int, string> selectedCurve = new();
+    private string commonSelectedCurve;
 
     private Dictionary<string, bool> panelOpened = new() { { "compare", true } };
 
+    private List<Highchart.AxisConfig> allYAxisConfigs = new();
+    private List<Highchart.AxisConfig> yAxisConfigs => allYAxisConfigs.Take(NoOfMonicas).ToList();
+
     protected override async Task OnInitializedAsync()
     {
-        for (int i = 0; i < noOfMonicas; i++)
+        if (!yAxisConfigs.Any())
+        {
+            allYAxisConfigs = Enumerable.Range(0, MaxNoOfMonicas).Select(i => new Highchart.AxisConfig
+            {
+                Id = i.ToString(),
+                Title = $"MONICA {i + 1}",
+                Opposite = i % 2 != 0
+            }).ToList();
+        }
+
+        for (int i = 0; i < MaxNoOfMonicas; i++)
         {
             Monica2Section2Oid2Data[i] = new();
             Monica2Section2Dates[i] = new();
