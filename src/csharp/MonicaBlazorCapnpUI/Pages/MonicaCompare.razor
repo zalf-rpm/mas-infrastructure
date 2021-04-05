@@ -24,7 +24,13 @@
                 </MudItem>
                 <MudItem xs="2">
                     <MudSelect T=@string
-                               @bind-Value=selectedCurve[i]
+                               Value=@selectedCurve[i]
+                               ValueChanged=@(v =>
+                                              {
+                                                  selectedCurve[i] = v;
+                                                  monicaDataChanged = true;
+                                                  StateHasChanged();
+                                              })
                                Label="Curve">
                         @foreach (var curve in Monica2Section2Oid2Data[i].GetValueOrDefault(selectedSection[i], new()).Keys)
                         {
@@ -37,6 +43,7 @@
                         Monica2Section2Dates[i] = p.Item1;
                         Monica2Section2Oid2Data[i] = p.Item2;
                         monicaDataChanged=true;
+                        StateHasChanged();
                         })
                             TryConnectOnInit=@true
                             HideSturdyRefConnectors=@true>
@@ -70,11 +77,17 @@
             </MudItem>
             -->
             <MudItem xs="12">
+                @code {
+                    private List<Highchart.AxisConfig> yAxisConfigs = Enumerable.Range(0, noOfMonicas).Select(i =>
+                    new Highchart.AxisConfig { Id = i.ToString(), Title = $"MONICA {i+1}", Opposite = i % 2 != 0 }).ToList();
+                }
                 <Highchart Title=@compareTitle()
                            XAxisTitle="Date"
                            Data=@OId2Data
                            Dates=@Dates
                            DataChanged=@monicaDataChanged
+                           YAxisConfigs=@yAxisConfigs
+                           AllCurvesVisible=@true
                            ChartRerendered=@(() => monicaDataChanged = false)></Highchart>
             </MudItem>
         </MudGrid>
@@ -113,7 +126,7 @@
             {
                 var ss = selectedSection[i];
                 var sc = selectedCurve[i];
-                d[$"{i}-{ss}-{sc}"] = Monica2Section2Oid2Data[i].GetValueOrDefault(ss, new()).GetValueOrDefault(sc, new List<float>());
+                d[$"M{i+1}-{ss}-{sc}_@{i % noOfMonicas}"] = Monica2Section2Oid2Data[i].GetValueOrDefault(ss, new()).GetValueOrDefault(sc, new List<float>());
             }
 
             return d;

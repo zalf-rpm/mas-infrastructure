@@ -317,7 +317,7 @@
         }
         <MudGrid>
             <MudItem xs="12">
-                <MudSwitch @bind-Checked=overwriteSoilProfile Color="Color.Primary" Label="Change" />
+                <MudSwitch @bind-Checked=overwriteSoilProfile Color=@Color.Primary Label="Change" />
             </MudItem>
             @if (overwriteSoilProfile)
             {
@@ -345,23 +345,33 @@
 
             private string mgmtEventTypeName(Mgmt.Event.Type t)
             {
+                if (t == null) return "";
                 return textInfo.ToTitleCase(t.which == Mgmt.Event.Type.WHICH.External
                     ? t.External.ToString() : t.Internal.ToString());
             }
 
             class DateWrapper
             {
-                public Mas.Common.Date cDate { get; set; }
+                public Mas.Common.Date CDate { get; set; }
                 public DateTime? Date
                 {
-                    get { return cDate == null ? null : Helper.CommonDate2DateTime(cDate); }
-                    set { cDate = value.HasValue ? Helper.DateTime2CommonDate(value.Value) : null; }
+                    get { return CDate == null ? null : Helper.CommonDate2DateTime(CDate); }
+                    set {
+                        if(value.HasValue)
+                        {
+                            var d = Helper.DateTime2CommonDate(value.Value);
+                            CDate.Year = d.Year;
+                            CDate.Month = d.Month;
+                            CDate.Day = d.Day;
+                        }
+                        else { CDate = null; }
+                    }
                 }
             }
         }
         <MudGrid>
             <MudItem xs="12">
-                <MudSwitch @bind-Checked=overwriteCropRotation Color="Color.Primary" Label="Change" />
+                <MudSwitch @bind-Checked=overwriteCropRotation Color=@Color.Primary Label="Change" />
             </MudItem>
             @if (overwriteCropRotation)
             {
@@ -369,9 +379,9 @@
                     <MudSimpleTable>
                         <thead>
                             <tr>
-                                <th>When</th>
+                                <th style="width:30%">When</th>
                                 <th>Type</th>
-                                <th>Options</th>
+                                <th style="width:40%">Options</th>
                                 <th style="width:20%">Actions</th>
                             </tr>
                         </thead>
@@ -395,37 +405,57 @@
                                                                           e.Between = new() { Earliest = new(), Latest = new() };
                                                                           break;
                                                                       case Mgmt.Event.WHICH.After:
-                                                                          e.After = new() { Event = new() };
+                                                                          e.After = new();
                                                                           break;
                                                                   }
                                                               })
                                                    Label="When options">
                                             <MudSelectItem Value=@Mgmt.Event.WHICH.At>AT a date</MudSelectItem>
-                                            <MudSelectItem Value=@Mgmt.Event.WHICH.Between>auto BETWEEN dates</MudSelectItem>
+                                            <MudSelectItem Value=@Mgmt.Event.WHICH.Between>BETWEEN dates (automatic worksteps)</MudSelectItem>
                                             <MudSelectItem Value=@Mgmt.Event.WHICH.After>AFTER events</MudSelectItem>
                                         </MudSelect>
                                         @switch (e.which)
                                         {
                                             case Mgmt.Event.WHICH.At:
-                                                var eAtDateTime = new DateWrapper { cDate = e.At.Date };
+                                                if (e.At == null) e.At = new() { Date = new() };
+                                                <MudGrid>
+                                                    <MudItem xs="4"><MudTextField @bind-Value=e.At.Date.Year Label="Year" /></MudItem>
+                                                    <MudItem xs="4"><MudTextField @bind-Value=e.At.Date.Month Label="Month" /></MudItem>
+                                                    <MudItem xs="4"><MudTextField @bind-Value=e.At.Date.Day Label="Day" /></MudItem>
+                                                </MudGrid>
+
+                                                <!--
+                                                var eAtDateTime = new DateWrapper { CDate = e.At.Date };
                                                 <MudDatePicker Label="at date"
-                                                               @bind-Date=eAtDateTime.Date
-                                                               Editable="true" />
+            @bind-Date=eAtDateTime.Date
+            Editable="true" />-->
                                                 break;
                                             case Mgmt.Event.WHICH.Between:
                                                 if (e.Between == null) e.Between = new() { Earliest = new(), Latest = new() };
-                                                var eEarliestDateTime = new DateWrapper { cDate = e.Between.Earliest };
-                                                var eLatestDateTime = new DateWrapper { cDate = e.Between.Latest };
-                                                <MudDatePicker Label="earliest date"
-                                                               @bind-Date=eEarliestDateTime.Date
-                                                               Editable="true" />
-                                                <MudDatePicker Label="latest date"
-                                                               @bind-Date=eLatestDateTime.Date
-                                                               Editable="true" />
+                                                <MudGrid>
+                                                    <MudItem xs="4"><MudTextField @bind-Value=e.Between.Earliest.Year Label="Earliest Year" /></MudItem>
+                                                    <MudItem xs="4"><MudTextField @bind-Value=e.Between.Earliest.Month Label="Earliest Month" /></MudItem>
+                                                    <MudItem xs="4"><MudTextField @bind-Value=e.Between.Earliest.Day Label="Earliest Day" /></MudItem>
+                                                    <MudItem xs="4"><MudTextField @bind-Value=e.Between.Latest.Year Label="Latest Year" /></MudItem>
+                                                    <MudItem xs="4"><MudTextField @bind-Value=e.Between.Latest.Month Label="Latest Month" /></MudItem>
+                                                    <MudItem xs="4"><MudTextField @bind-Value=e.Between.Latest.Day Label="Latest Day" /></MudItem>
+                                                </MudGrid>
+                                                <!--
+            var eEarliestDateTime = new DateWrapper { CDate = e.Between.Earliest };
+            var eLatestDateTime = new DateWrapper { CDate = e.Between.Latest };
+            <MudDatePicker Label="earliest date"
+                           @bind-Date=eEarliestDateTime.Date
+                           Editable="true" />
+            <MudDatePicker Label="latest date"
+                           @bind-Date=eLatestDateTime.Date
+                           Editable="true" />-->
                                                 break;
                                             case Mgmt.Event.WHICH.After:
-                                                if (e.After == null) e.After = new() { Event = new() };
-                                                <MudSelect @bind-Value=e.After.Event Label="Workstep">
+                                                if (e.After == null) e.After = new();
+                                                <MudSelect @bind-Value=e.After.Event 
+                                                           T="Mgmt.Event.Type"
+                                                           Label="Workstep">
+                                                    <MudSelectItem Value=@((Mgmt.Event.Type)null)>-</MudSelectItem>
                                                     @foreach (var t in allMgmtEventTypes)
                                                                     {
                                                         <MudSelectItem Value="@t">
@@ -542,6 +572,7 @@
                                                                                   Adornment="Adornment.End"
                                                                                   AdornmentText="°C" />
                                                                     <MudSwitch T=@bool
+                                                                               Color=@Color.Primary 
                                                                                CheckedChanged=@(b =>
                                                                                             {
                                                                                                 if (b && sa.TheAvgSoilTemp == null)
@@ -584,6 +615,7 @@
                                                         <MudCardContent>
                                                             <MudCheckBox @bind-Checked=@h.Exported Label="Exported" />
                                                             <MudSwitch @bind-Checked=@h.OptCarbMgmtData.OptCarbonConservation
+                                                                       Color=@Color.Primary
                                                                        Label="Carbon Conservation?" />
                                                             <MudCard Class=@(h.OptCarbMgmtData.OptCarbonConservation ? "" : "d-none")>
                                                                 <MudCardContent>
@@ -624,6 +656,7 @@
                                                         <MudCardContent>
                                                             <MudCheckBox @bind-Checked=@h2.Exported Label="Exported" />
                                                             <MudSwitch @bind-Checked=@h2.OptCarbMgmtData.OptCarbonConservation
+                                                                       Color=@Color.Primary
                                                                        Label="Carbon Conservation?" />
                                                             <MudCard Class=@(h2.OptCarbMgmtData.OptCarbonConservation ? "" : "d-none")>
                                                                 <MudCardContent>
@@ -1015,7 +1048,7 @@
         <MudGrid>
             <MudItem xs="12">
                 <MudSwitch @bind-Checked=@overwriteOutputConfig
-                           Color="Color.Primary" 
+                           Color=@Color.Primary 
                            Label="Change" />
             </MudItem>
         </MudGrid>
