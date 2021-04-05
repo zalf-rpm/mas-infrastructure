@@ -335,14 +335,24 @@ namespace Mas.Infrastructure.BlazorComponents
             JArray section = new();
             foreach (var oid in oids)
             {
-                if (oid.From.HasValue && oid.To.HasValue)
+                if (oid.From.HasValue)
                 {
-                    var ft = new JArray { oid.From, oid.To };
-                    if (oid.LayerAgg.HasValue) ft.Add(oid.LayerAgg.ToString());
+                    JArray ft = null;
+                    if (oid.To.HasValue)
+                    {
+                        ft = new JArray { oid.From, oid.To };
+                        if (oid.LayerAgg.HasValue) ft.Add(oid.LayerAgg.ToString());
+                    }
 
-                    var a = new JArray { oid.Name, ft };
+                    var a = new JArray { oid.Name, ft == null ? oid.From : ft };
                     if (oid.TimeAgg.HasValue) a.Add(oid.TimeAgg.ToString());
 
+                    section.Add(a);
+                }
+                else if(oid.Organ.HasValue)
+                {
+                    var a = new JArray { oid.Name, oid.Organ.ToString().Replace("strukt", "struct") };
+                    if (oid.TimeAgg.HasValue) a.Add(oid.TimeAgg.ToString());
                     section.Add(a);
                 }
                 else
@@ -370,6 +380,12 @@ namespace Mas.Infrastructure.BlazorComponents
 
         #endregion events / outputs
 
+        private string Capitalize(string s)
+        {
+            if (string.IsNullOrEmpty(s)) return s;
+            return s.Length == 1 ? char.ToUpper(s[0]).ToString() : char.ToUpper(s[0]) + s.Substring(1);
+        }
+
         #region crop rotation
         private List<Mgmt.Event> cropRotation = new()
         {
@@ -392,7 +408,7 @@ namespace Mas.Infrastructure.BlazorComponents
         {
             var typeStr = e.TheType.ToString();
 
-            var type = e.Info == null ? typeStr : textInfo.ToTitleCase(e.Info.Name);
+            var type = e.Info == null ? typeStr : Capitalize(e.Info.Name);
             var crop = (e.Params is Mas.Rpc.Management.Params.Sowing s) ? s.Cultivar.ToString() : "";
             if (!string.IsNullOrEmpty(crop)) type = $"{type} : {crop}";
             var date = e.which == Mgmt.Event.WHICH.At ? Helper.CommonDate2IsoDateString(e.At.Date) : null;
@@ -534,7 +550,7 @@ namespace Mas.Infrastructure.BlazorComponents
                             var exports = new JObject();
                             foreach(var cs in c.CuttingSpec)
                             {
-                                var organ = textInfo.ToTitleCase(cs.Organ.ToString().Replace("strukt", "struct"));
+                                var organ = Capitalize(cs.Organ.ToString().Replace("strukt", "struct"));
                                 organs[organ] = new JArray { cs.Value, toUnit(cs.Unit), cs.CutOrLeft.ToString() };
                                 organs[organ] = cs.ExportPercentage;
                             }
@@ -599,7 +615,7 @@ namespace Mas.Infrastructure.BlazorComponents
                         {
                             wss.Add(new JObject()
                             {
-                                { "type", "MineralFertilization" },
+                                { "type", "Irrigation" },
                                 { "date", Helper.CommonDate2IsoDateString(e.At.Date) },
                                 { "amount", i.Amount },
                                 { "parameters", new JObject() {
@@ -662,6 +678,7 @@ namespace Mas.Infrastructure.BlazorComponents
             if (overwriteCropRotation)
             {
                 var cr = CreateCropRotation();
+                var str = cr.ToString();
                 cropj["cropRotation"] = cr;
             }
 
@@ -669,10 +686,12 @@ namespace Mas.Infrastructure.BlazorComponents
 
             if (overwriteOutputConfig)
             {
-                var events = new JArray();
+                //var events = new JArray();
                 //keep events in files and append the onces defined via UI
-                foreach (var jt in envj["events"]) events.Add(jt);
-                foreach (var jt in CreateEvents()) events.Add(jt);
+                //foreach (var jt in envj["events"]) events.Add(jt);
+                //foreach (var jt in CreateEvents()) events.Add(jt);
+                var events = CreateEvents();
+                var str = events.ToString();
                 envj["events"] = events;
             }
 

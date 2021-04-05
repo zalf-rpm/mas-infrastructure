@@ -346,7 +346,7 @@
             private string mgmtEventTypeName(Mgmt.Event.Type t)
             {
                 if (t == null) return "";
-                return textInfo.ToTitleCase(t.which == Mgmt.Event.Type.WHICH.External
+                return Capitalize(t.which == Mgmt.Event.Type.WHICH.External
                     ? t.External.ToString() : t.Internal.ToString());
             }
 
@@ -459,7 +459,7 @@
                                                     @foreach (var t in allMgmtEventTypes)
                                                                     {
                                                         <MudSelectItem Value="@t">
-                                                            @(textInfo.ToTitleCase(t.which == Mgmt.Event.Type.WHICH.External
+                                                            @(Capitalize(t.which == Mgmt.Event.Type.WHICH.External
                                             ? t.External.ToString() : t.Internal.ToString()))
                                                         </MudSelectItem>
                                                                     }
@@ -488,7 +488,8 @@
                                                    Label="Workstep">
                                             @foreach (ExtType et in Enum.GetValues(typeof(ExtType)))
                                             {
-                                                <MudSelectItem Value="@et">@textInfo.ToTitleCase(et.ToString())</MudSelectItem>
+                                            //.Cast<ExType>().OrderBy(p => p.ToString())
+                                                <MudSelectItem Value="@et">@Capitalize(et.ToString())</MudSelectItem>
                                             }
                                         </MudSelect>
                                     </td>
@@ -504,7 +505,7 @@
                                                             <MudSelect @bind-Value=s.Cultivar Label="Sow cultivar ...">
                                                                 @foreach (Mgmt.Cultivar cult in Enum.GetValues(typeof(Mgmt.Cultivar)))
                                                                                     {
-                                                                    <MudSelectItem Value="@cult">@textInfo.ToTitleCase(cult.ToString())</MudSelectItem>
+                                                                    <MudSelectItem Value="@cult">@cult.ToString()</MudSelectItem>
                                                                                     }
                                                             </MudSelect>
                                                             <MudTextField @bind-Value=s.PlantDensity
@@ -527,7 +528,7 @@
                                                             <MudSelect @bind-Value=s2.Cultivar Label="Sow cultivar ...">
                                                                 @foreach (Mgmt.Cultivar cult in Enum.GetValues(typeof(Mgmt.Cultivar)))
                                                                                     {
-                                                                    <MudSelectItem Value="@cult">@textInfo.ToTitleCase(cult.ToString())</MudSelectItem>
+                                                                    <MudSelectItem Value="@cult">@cult.ToString()</MudSelectItem>
                                                                                     }
                                                             </MudSelect>
                                                             <MudTextField @bind-Value=s2.PlantDensity
@@ -688,7 +689,7 @@
                                                                     <MudSelect @bind-Value=ha.HarvestTime Label="Harvest time ...">
                                                                         @foreach (Mgmt.Event.PhenoStage ps in Enum.GetValues(typeof(Mgmt.Event.PhenoStage)))
                                                                                             {
-                                                                            <MudSelectItem Value="@ps">@textInfo.ToTitleCase(ps.ToString())</MudSelectItem>
+                                                                            <MudSelectItem Value="@ps">@Capitalize(ps.ToString())</MudSelectItem>
                                                                                             }
                                                                     </MudSelect>
                                                                     <MudTextField @bind-Value=ha.MinPercentASW
@@ -748,7 +749,7 @@
                                                         <MudSelect @bind-Value=cs.Organ Label="Organ">
                                                             @foreach (Mgmt.PlantOrgan po in Enum.GetValues(typeof(Mgmt.PlantOrgan)))
                                                                                     {
-                                                                <MudSelectItem Value="@po">@textInfo.ToTitleCase(po.ToString())</MudSelectItem>
+                                                                <MudSelectItem Value="@po">@Capitalize(po.ToString().Replace("strukt", "struct"))</MudSelectItem>
                                                                                     }
                                                         </MudSelect>
                                                     </td>
@@ -1175,7 +1176,7 @@
                                                                Label="Organ">
                                                         @foreach (Mgmt.PlantOrgan? o in Enum.GetValues(typeof(Mgmt.PlantOrgan)))
                                                         {
-                                                            <MudSelectItem Value="@o">@textInfo.ToTitleCase(o.ToString().Replace("strukt", "struct"))</MudSelectItem>
+                                                            <MudSelectItem Value="@o">@Capitalize(o.ToString().Replace("strukt", "struct"))</MudSelectItem>
                                                         }
                                                     </MudSelect>
                                                 </td>
