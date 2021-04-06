@@ -1,0 +1,35 @@
+﻿@namespace Mas.Infrastructure.BlazorComponents
+
+@using MudBlazor
+@using Mgmt = Rpc.Management
+
+@code {
+    Func<float?, string> valid = val => val < 0 ? "[0 - ...]" : null;
+}
+<MudCard>
+    <MudCardContent>
+        <MudTextField @bind-Value=Params.Amount
+                      Label="Amount"
+                      Adornment="Adornment.End"
+                      AdornmentText="mm" />
+        <MudCard>
+            <MudCardContent>
+                <MudTextField @bind-Value=Params.Params.NitrateConcentration
+                              Label="Nitrate concentration"
+                              Adornment="Adornment.End"
+                              AdornmentText="mg dm-3"
+                              Validation=@valid />
+                <MudTextField @bind-Value=Params.Params.SulfateConcentration
+                              Label="Sulfate concentration"
+                              Adornment="Adornment.End"
+                              AdornmentText="mg dm-3"
+                              Validation=@valid />
+            </MudCardContent>
+        </MudCard>
+    </MudCardContent>
+</MudCard>
+
+@code {
+    [Parameter]
+    public Mgmt.Params.Irrigation Params { get; set; } = new();
+}

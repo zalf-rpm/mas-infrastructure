@@ -1,0 +1,22 @@
+﻿@namespace Mas.Infrastructure.BlazorComponents
+
+@using MudBlazor
+@using Mgmt = Rpc.Management
+
+@code {
+    Func<float?, string> valid = val => val < 0 || val > 2 ? "[0 - 2]" : null;
+}
+<MudCard>
+    <MudCardContent>
+        <MudTextField @bind-Value=Params.Depth
+                      Label="depth"
+                      Adornment="Adornment.End"
+                      AdornmentText="m"
+                      Validation=@valid />
+    </MudCardContent>
+</MudCard>
+
+@code {
+    [Parameter]
+    public Mgmt.Params.Tillage Params { get; set; } = new();
+}

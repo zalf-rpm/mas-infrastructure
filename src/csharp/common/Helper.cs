@@ -26,5 +26,18 @@ namespace Mas.Infrastructure.Common
                 Day = (byte)d.Day };
         }
 
+        public static string Capitalize(string s)
+        {
+            if (string.IsNullOrEmpty(s)) return s;
+            return s.Length == 1 ? char.ToUpper(s[0]).ToString() : char.ToUpper(s[0]) + s.Substring(1);
+        }
+
+        public static string ToUpper(string s)
+        {
+            if (string.IsNullOrEmpty(s)) return s;
+            var res = new System.Text.StringBuilder();
+            foreach (var c in s) res.Append(char.ToUpper(c));
+            return res.ToString();
+        }
     }
 }

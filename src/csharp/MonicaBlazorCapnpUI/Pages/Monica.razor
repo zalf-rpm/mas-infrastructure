@@ -508,11 +508,14 @@
                                                                     <MudSelectItem Value="@cult">@cult.ToString()</MudSelectItem>
                                                                                     }
                                                             </MudSelect>
-                                                            <MudTextField @bind-Value=s.PlantDensity
-                                                                          Label="Plant density"
-                                                                          HelperText="> 0 overwrites plant density from species parameters"
-                                                                          Adornment="Adornment.End"
-                                                                          AdornmentText="plants m-2" />
+                                                            <!--
+    <MudTextField @bind-Value=s.PlantDensity
+                  Label="Plant density"
+                  HelperText="> 0 overwrites plant density from species parameters"
+                  Adornment="Adornment.End"
+                  AdornmentText="plants m-2" />
+    -->
+
                                                         </MudCardContent>
                                                     </MudCard>
                                                 }
@@ -531,11 +534,13 @@
                                                                     <MudSelectItem Value="@cult">@cult.ToString()</MudSelectItem>
                                                                                     }
                                                             </MudSelect>
-                                                            <MudTextField @bind-Value=s2.PlantDensity
-                                                                          Label="Plant density"
-                                                                          HelperText="> 0 overwrites plant density from species parameters"
-                                                                          Adornment="Adornment.End"
-                                                                          AdornmentText="plants m-2" />
+                                                            <!--
+    <MudTextField @bind-Value=s2.PlantDensity
+                  Label="Plant density"
+                  HelperText="> 0 overwrites plant density from species parameters"
+                  Adornment="Adornment.End"
+                  AdornmentText="plants m-2" />
+    -->
                                                             <MudCard>
                                                                 <MudCardContent>
                                                                     <MudTextField @bind-Value=sa.MinTempThreshold
@@ -573,7 +578,7 @@
                                                                                   Adornment="Adornment.End"
                                                                                   AdornmentText="°C" />
                                                                     <MudSwitch T=@bool
-                                                                               Color=@Color.Primary 
+                                                                               Color=@Color.Primary
                                                                                CheckedChanged=@(b =>
                                                                                             {
                                                                                                 if (b && sa.TheAvgSoilTemp == null)
