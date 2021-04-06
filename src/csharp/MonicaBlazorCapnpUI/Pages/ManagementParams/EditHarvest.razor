@@ -12,8 +12,10 @@
         <MudSwitch @bind-Checked=@Params.OptCarbMgmtData.OptCarbonConservation
                    Color=@Color.Primary
                    Label="Carbon Conservation?" />
-        <EditOptimalCarbonManagment Class=@(Params.OptCarbMgmtData.OptCarbonConservation ? "" : "d-none")
-                                    Params=@Params.OptCarbMgmtData />
+        @if (Params.OptCarbMgmtData.OptCarbonConservation)
+        {
+            <EditOptimalCarbonManagment Params=@Params.OptCarbMgmtData />
+        }
     </MudCardContent>
 </MudCard>
 

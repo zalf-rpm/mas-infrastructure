@@ -13,8 +13,10 @@
         <MudSwitch @bind-Checked=@Params.Harvest.OptCarbMgmtData.OptCarbonConservation
                    Color=@Color.Primary
                    Label="Carbon Conservation?" />
-        <EditOptimalCarbonManagment Class=@(Params.Harvest.OptCarbMgmtData.OptCarbonConservation ? "" : "d-none")
-                                    Params=@Params.Harvest.OptCarbMgmtData />
+        @if (Params.Harvest.OptCarbMgmtData.OptCarbonConservation)
+        {
+            <EditOptimalCarbonManagment Params=@Params.Harvest.OptCarbMgmtData />
+        }
         <MudCard>
             <MudCardContent>
                 <MudSelect @bind-Value=Params.HarvestTime Label="Harvest time ...">

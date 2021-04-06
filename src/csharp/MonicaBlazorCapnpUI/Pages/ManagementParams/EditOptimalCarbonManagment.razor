@@ -6,7 +6,7 @@
 @code {
     Func<float?, string> valid = val => val < 0 || val > 1 ? "[0 - 1]" : null;
 }
-<MudCard Class=@(Params.OptCarbonConservation ? "" : "d-none")>
+<MudCard>
     <MudCardContent>
         <MudSelect @bind-Value=Params.CropUsage Label="CropUsage">
             <MudSelectItem Value=@Mgmt.Params.Harvest.CropUsage.biomassProduction>Biomass production</MudSelectItem>
