@@ -9,6 +9,11 @@ using Date = import "../date.capnp".Date;
 # crop related parameters
 # -----------------------------------------------------------------------------
 
+struct CropSpec {
+    cropParams      @0 :CropParameters;
+    residueParams   @1 :CropResidueParameters;
+}
+
 struct CropParameters {
     speciesParams   @0 :SpeciesParameters;
     cultivarParams  @1 :CultivarParameters;
@@ -126,6 +131,7 @@ struct CultivarParameters {
     minTempDevWE                            @35 :Float64;
     optTempDevWE                            @36 :Float64;
     maxTempDevWE                            @37 :Float64;
+    winterCrop                              @38 :Bool;
 }
 
 struct YieldComponent {
