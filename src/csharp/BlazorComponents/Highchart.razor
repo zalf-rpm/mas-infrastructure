@@ -48,6 +48,9 @@
     [Parameter]
     public List<AxisConfig> YAxisConfigs { get; set; } = new();
 
+    [Parameter]
+    public bool AllCurvesVisible { get; set; } = false;
+
     private Dictionary<string, int> _axisIdToCurveNo = new();
 
     public class CurveConfig
@@ -105,7 +108,7 @@
                     ? p.Value.Select(v => (object)v).ToList()
                     : p.Value.Zip(milliDates).Select(z => new List<object>() { z.Second, z.First }).ToList<object>();
 
-                bool isVisible = CurveName2Config.GetValueOrDefault(curveName,
+                bool isVisible = AllCurvesVisible || CurveName2Config.GetValueOrDefault(curveName,
                     new CurveConfig { IsVisible = i == 0 && !CurveName2Config.Any() }).IsVisible;
                 lineGraph.Series.Add(new SeriesElement()
                 {
@@ -145,7 +148,14 @@
         {
             var curve = c as JObject;
             var name = curve.Value<string>("name");
-            if (CurveName2Config.ContainsKey(name))
+            var index = name.LastIndexOf("_@");
+            if (index > 0)
+            {
+                var curveNo = int.Parse(name.Substring(index + 2));
+                curve["yAxis"] = curveNo;
+                curve["name"] = name.Substring(0, index);
+            }
+            else if (CurveName2Config.ContainsKey(name))
             {
                 var conf = CurveName2Config[name];
                 curve["yAxis"] = _axisIdToCurveNo.GetValueOrDefault(conf.DisplayAxisId, 0);

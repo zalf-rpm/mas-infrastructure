@@ -1,0 +1,54 @@
+﻿@namespace Mas.Infrastructure.BlazorComponents
+
+@using MudBlazor
+@using Mas.Infrastructure.Common
+@using Mgmt = Rpc.Management
+
+@code {
+    Func<float?, string> valid = val => val < 0 || val > 1 ? "[0 - 1]" : null;
+}
+<MudCard>
+    <MudCardContent>
+        <MudCheckBox @bind-Checked=@Params.Harvest.Exported Label="Exported" />
+        <MudSwitch @bind-Checked=@Params.Harvest.OptCarbMgmtData.OptCarbonConservation
+                   Color=@Color.Primary
+                   Label="Carbon Conservation?" />
+        @if (Params.Harvest.OptCarbMgmtData.OptCarbonConservation)
+        {
+            <EditOptimalCarbonManagment Params=@Params.Harvest.OptCarbMgmtData />
+        }
+        <MudCard>
+            <MudCardContent>
+                <MudSelect @bind-Value=Params.HarvestTime Label="Harvest time ...">
+                    @foreach (Mgmt.Event.PhenoStage ps in Enum.GetValues(typeof(Mgmt.Event.PhenoStage)))
+                    {
+                        <MudSelectItem Value="@ps">@Helper.Capitalize(ps.ToString())</MudSelectItem>
+                    }
+                </MudSelect>
+                <MudTextField @bind-Value=Params.MinPercentASW
+                              Label="min % ASW"
+                              Adornment="Adornment.End"
+                              AdornmentText="%"
+                              Validation=@valid />
+                <MudTextField @bind-Value=Params.MaxPercentASW
+                              Label="max % ASW"
+                              Adornment="Adornment.End"
+                              AdornmentText="%"
+                              Validation=@valid />
+                <MudTextField @bind-Value=Params.Max3dayPrecipSum
+                              Label="max 3-day precip sum"
+                              Adornment="Adornment.End"
+                              AdornmentText="mm" />
+                <MudTextField @bind-Value=Params.MaxCurrentDayPrecipSum
+                              Label="max current day precip sum"
+                              Adornment="Adornment.End"
+                              AdornmentText="mm" />
+            </MudCardContent>
+        </MudCard>
+    </MudCardContent>
+</MudCard>
+
+@code {
+    [Parameter]
+    public Mgmt.Params.AutomaticHarvest Params { get; set; } = new();
+}

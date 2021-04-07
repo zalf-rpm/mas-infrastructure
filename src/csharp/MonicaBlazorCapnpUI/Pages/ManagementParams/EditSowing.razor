@@ -1,0 +1,27 @@
+﻿@namespace Mas.Infrastructure.BlazorComponents
+
+@using MudBlazor
+@using Mgmt = Rpc.Management
+
+<MudCard>
+    <MudCardContent>
+        <MudSelect @bind-Value=Params.Cultivar Label="Sow cultivar ...">
+            @foreach (Mgmt.Cultivar cult in Enum.GetValues(typeof(Mgmt.Cultivar)))
+            {
+                <MudSelectItem Value="@cult">@cult.ToString()</MudSelectItem>
+                }
+            </MudSelect>
+            <!--
+        <MudTextField @bind-Value=Params.PlantDensity
+                      Label="Plant density"
+                      HelperText="> 0 overwrites plant density from species parameters"
+                      Adornment="Adornment.End"
+                      AdornmentText="plants m-2" />
+        -->
+        </MudCardContent>
+</MudCard>
+
+@code {
+    [Parameter]
+    public Mgmt.Params.Sowing Params { get; set; } = new();
+}

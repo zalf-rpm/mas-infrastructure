@@ -17,7 +17,7 @@ using Mas.Infrastructure;
 
 namespace Mas.Infrastructure.ServiceRegistry
 {
-    class ServiceRegistry : Rpc.Registry.IRegistry, Rpc.Persistence.IRestorer<string>
+    class ServiceRegistry : Rpc.Registry.IRegistry, Rpc.Persistence.IRestorer<string>//, Rpc.Persistence.IExternalPersistent<string>
     {
         public string Id { get; set; }
         public string Name { get; set; }
@@ -171,7 +171,34 @@ namespace Mas.Infrastructure.ServiceRegistry
             return Task.FromResult<BareProxy>(null);
         }
         #endregion
-        
+
+        /*
+        #region implementation of Mas.Rpc.Persistence.IExternalPersistent<string>
+        public Task<ExternalPersistent<string>.ExternalSaveResults> Save(BareProxy cap, Persistent<string, SturdyRef.Owner>.SaveParams @params, CancellationToken cancellationToken_ = default)
+        {
+            try
+            {
+                var sturdyRef = SaveCapability(Capnp.Rpc.Proxy.Share(cap));
+                var unreg = new Common.Unregister(sturdyRef, () => {
+                    _SrToken2Capability.TryRemove(sturdyRef, out _);
+                });
+                var res = new ExternalPersistent<string>.ExternalSaveResults
+                {
+                    Results = new Persistent<string, SturdyRef.Owner>.SaveResults { SturdyRef = sturdyRef },
+                    Unreg = unreg
+                };
+                return Task.FromResult(res);
+            }
+            catch (Capnp.Rpc.RpcException e)
+            {
+                Console.Error.WriteLine(e.Message);
+            }
+
+            return Task.FromResult(new ExternalPersistent<string>.ExternalSaveResults());
+        }
+        #endregion
+        */
+
 
         public class AdminImpl : Rpc.Registry.IAdmin
         {
@@ -295,7 +322,7 @@ namespace Mas.Infrastructure.ServiceRegistry
                 Console.WriteLine("RegistratorImpl.Dispose");
             }
 
-            #region implemenation of Mas.Rpc.Registry.IRegistrator
+            #region implementation of Mas.Rpc.Registry.IRegistrator
             public async Task<Rpc.Common.ICallback> Register(Rpc.Common.IIdentifiable @ref, string categoryId, CancellationToken cancellationToken_ = default)
             {
                 if (categoryId == null)

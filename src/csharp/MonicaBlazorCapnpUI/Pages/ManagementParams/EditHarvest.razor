@@ -1,0 +1,25 @@
+﻿@namespace Mas.Infrastructure.BlazorComponents
+
+@using MudBlazor
+@using Mgmt = Rpc.Management
+
+@code {
+    Func<float?, string> valid = val => val < 0 || val > 1 ? "[0 - 1]" : null;
+}
+<MudCard>
+    <MudCardContent>
+        <MudCheckBox @bind-Checked=@Params.Exported Label="Exported" />
+        <MudSwitch @bind-Checked=@Params.OptCarbMgmtData.OptCarbonConservation
+                   Color=@Color.Primary
+                   Label="Carbon Conservation?" />
+        @if (Params.OptCarbMgmtData.OptCarbonConservation)
+        {
+            <EditOptimalCarbonManagment Params=@Params.OptCarbMgmtData />
+        }
+    </MudCardContent>
+</MudCard>
+
+@code {
+    [Parameter]
+    public Mgmt.Params.Harvest Params { get; set; } = new();
+}

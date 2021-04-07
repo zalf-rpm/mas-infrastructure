@@ -91,6 +91,52 @@ enum Cultivar {
   wheatWinter               @53;
 }
 
+enum MineralFertilizer {
+  ahls  @0;
+  alzon @1;
+  an    @2;
+  ap    @3;
+  as    @4;
+  ash   @5;
+  cf4   @6;
+  cp1   @7;
+  cp2   @8;
+  cp3   @9;
+  npk   @10;
+  ns    @11;
+  u     @12;
+  uan   @13;
+  uas   @14;
+  uni   @15;
+}
+
+enum OrganicFertilizer {
+  ash   @0;
+  cadlm @1;
+  cam   @2;
+  cas   @3;
+  cau   @4;
+  dgdlm @5;
+  gwc   @6;
+  hodlm @7;
+  mc    @8;
+  ms    @9;
+  oic   @10;
+  pidlm @11;
+  pim   @12;
+  pis   @13;
+  piu   @14;
+  piudk @15;
+  plw   @16;
+  podlm @17;
+  pom   @18;
+  soy   @19;
+  ss    @20;
+  tudlm @21;
+  weeds @22;
+  ws    @23;
+}
+
 enum EventType {
   sowing                    @0;
   automaticSowing           @1;
@@ -188,22 +234,24 @@ struct Params {
   }
 
   struct AutomaticSowing {
-    sowing                      @11 :Sowing;
+    struct AvgSoilTemp {
+      soilDepthForAveraging     @0  :Float64  = 0.3;
+		  daysInSoilTempWindow      @1  :UInt16;
+		  sowingIfAboveAvgSoilTemp  @2  :Float64;
+    }
+
+    sowing                      @9  :Sowing;
 
 	  minTempThreshold            @0  :Float64;
     daysInTempWindow            @1  :UInt16;
-    minPercentASW               @2  :Float64;
-	  maxPercentASW               @3  :Float64;
+    minPercentASW               @2  :Float64  = 0;
+	  maxPercentASW               @3  :Float64  = 100;
 	  max3dayPrecipSum            @4  :Float64;
 	  maxCurrentDayPrecipSum      @5  :Float64;
 	  tempSumAboveBaseTemp        @6  :Float64;
 	  baseTemp                    @7  :Float64;
 
-    avgSoilTemp :group {
-      soilDepthForAveraging     @8  :Float64;
-		  daysInSoilTempWindow      @9  :UInt16;
-		  sowingIfAboveAvgSoilTemp  @10 :Float64;
-  	}
+    avgSoilTemp                 @8  :AvgSoilTemp; 
   }
 
   struct Harvest {
@@ -213,12 +261,12 @@ struct Params {
     }
 
     struct OptCarbonMgmtData {
-      optCarbonConservation     @0 :Bool;
-      cropImpactOnHumusBalance  @1 :Float64;
-      cropUsage                 @2 :CropUsage;
-      residueHeq                @3 :Float64;
-      organicFertilizerHeq      @4 :Float64;
-      maxResidueRecoverFraction @5 :Float64;
+      optCarbonConservation     @0 :Bool      = false;
+      cropImpactOnHumusBalance  @1 :Float64   = 0;
+      cropUsage                 @2 :CropUsage = biomassProduction;
+      residueHeq                @3 :Float64   = 0;
+      organicFertilizerHeq      @4 :Float64   = 0;
+      maxResidueRecoverFraction @5 :Float64   = 0;
     }
 
     exported        @0 :Bool = true;
@@ -229,10 +277,10 @@ struct Params {
     harvest                 @5 :Harvest;
 
 	  minPercentASW           @0 :Float64;
-	  maxPercentASW           @1 :Float64;
+	  maxPercentASW           @1 :Float64           = 100;
 	  max3dayPrecipSum        @2 :Float64;
 	  maxCurrentDayPrecipSum  @3 :Float64;
-	  harvestTime             @4 :Event.PhenoStage = maturity;
+	  harvestTime             @4 :Event.PhenoStage  = maturity;
   }
 
   struct Cutting {
@@ -277,18 +325,25 @@ struct Params {
   }
 
   struct Tillage {
-    depth @0 :Float64;
+    depth @0 :Float64 = 0.3;
   }
 
   struct Irrigation {
     amount @0 :Float64;
     params @1 :MonicaParams.IrrigationParameters;
   }
-
-
 }
 
 
+interface FertilizerService extends(Common.Identifiable) {
+  # service to return predefined fertilizers
+
+  mineralFertilizerPartitionFor @0 (minFert :MineralFertilizer) -> (partition :MonicaParams.MineralFertilizerParameters);
+  # get mineral fertilizer parameters by name/id
+
+  organicFertilizerParametersFor @1 (orgFert :OrganicFertilizer) -> (params :MonicaParams.OrganicFertilizerParameters);
+  # get organic fertilizer parameters by name/id
+}
 
 
 interface Service extends(Common.Identifiable) {
