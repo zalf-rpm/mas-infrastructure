@@ -55,12 +55,11 @@ class Service(management_capnp.FertilizerService.Server):
         self._org_ferts = {}
     
 
-    def info(self):
-        return common_capnp.Common.IdInformation.new_message(id=self._id, name=self._name, description=self._description) 
-
-
-    def info_context(self, context): # -> (info :IdInformation);
-        context.results.info = self.info()
+    def info_context(self, context): # -> Common.IdInformation;
+        r = context.results
+        r.id = self._id
+        r.name = self._name
+        r.description = self._description
 
 
     def get_value(self, val_or_array):

@@ -160,8 +160,18 @@ class AlterTimeSeriesWrapper(climate_data_capnp.Climate.AlterTimeSeriesWrapper.S
 
 class AlterTimeSeriesWrapperFactory(climate_data_capnp.Climate.AlterTimeSeriesWrapperFactory.Server): 
 
-    def __init__(self):
+    def __init__(self, id=None, name=None, description=None):
+        self._id = id if id else str(uuid.uuid4())
+        self._name = name if name else id
+        self._description = description if description else ""
         self._timeseries = []
+
+
+    def info_context(self, context): # -> Common.IdInformation;
+        r = context.results
+        r.id = self._id
+        r.name = self._name
+        r.description = self._description
 
 
     def wrap_context(self, context): # wrap @0 (timeSeries :TimeSeries) -> (wrapper :AlterTimeSeriesWrapper);
@@ -200,7 +210,7 @@ host="0.0.0.0", port=None, reg_sturdy_ref=None, id=None, name="AlterTimeSeriesWr
 
     conMan = async_helpers.ConnectionManager()
 
-    service = AlterTimeSeriesWrapperFactory()
+    service = AlterTimeSeriesWrapperFactory(id=config["id"], name=config["name"], description=config["description"])
 
     if config["reg_sturdy_ref"]:
         registrator = await conMan.try_connect(config["reg_sturdy_ref"], cast_as=reg_capnp.Registrator)

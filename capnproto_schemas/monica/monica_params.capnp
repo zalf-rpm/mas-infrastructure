@@ -27,7 +27,7 @@ struct SpeciesParameters {
     initialKcFactor                             @4  :Float64;
     luxuryNCoeff                                @5  :Float64;
     maxCropDiameter                             @6  :Float64;
-    stageAtMaxHeight                            @7  :Float64;
+    stageAtMaxHeight                              @7  :Float64;
     stageAtMaxDiameter                          @8  :Float64;
     minimumNConcentration                       @9  :Float64;
     minimumTemperatureForAssimilation           @10 :Float64;
