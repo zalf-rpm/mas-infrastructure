@@ -10,6 +10,8 @@
 @using Mas.Infrastructure.Common
 @using ExtType = Rpc.Management.Event.ExternalType
 @using Mgmt = Rpc.Management
+@using Crop = Rpc.Crop
+@using Reg = Rpc.Registry
 @using System.Linq
 
 @inject IJSRuntime JSRuntime
@@ -89,25 +91,43 @@
 
                     [Parameter]
                     public EventCallback<Mgmt.IFertilizerService> FertilizerServiceCapChanged { get; set; }
-
-                    private async Task FertilizerServiceCapabilityChanged(Mgmt.IFertilizerService service)
-                    {
-                        if (service == null) return;
-
-                        if (FertilizerServiceCap != service) FertilizerServiceCap?.Dispose();
-                        FertilizerServiceCap = service;
-                    }
                 }
                 <ConnectToSturdyRef Label="Persistent capability to fertilizer service (capnp://host:port/token)"
-                                    CapabilityChanged=@FertilizerServiceCapabilityChanged
+                                    CapabilityChanged=@(cap => {
+                                                            if (cap == null) return;
+                                                            if (FertilizerServiceCap != cap) FertilizerServiceCap?.Dispose();
+                                                            FertilizerServiceCap = cap;
+                                                        })
                                     TCapnpInterface=@Mgmt.IFertilizerService
+                                    @bind-SturdyRef=FertilizerServiceSturdyRef
+                                    ConnectOnInit=@TryConnectOnInit>
+                </ConnectToSturdyRef>
+            </MudItem>
+            <MudItem Class=@(HideSturdyRefConnectors ? "d-none" : "") xs="12">
+                @code {
+                    [Parameter]
+                    public Reg.IRegistry CropRegistryServiceCap { get; set; }
+
+                    [Parameter]
+                    public string CropRegistryServiceSturdyRef { get; set; } = "";
+
+                    [Parameter]
+                    public EventCallback<Reg.IRegistry> CropRegistryServiceCapChanged { get; set; }
+                }
+                <ConnectToSturdyRef Label="Persistent capability to fertilizer service (capnp://host:port/token)"
+                                    TCapnpInterface=@Reg.IRegistry
+                                    CapabilityChanged=@(cap => {
+                                                            if (cap == null) return;
+                                                            if (CropRegistryServiceCap != cap) CropRegistryServiceCap?.Dispose();
+                                                            CropRegistryServiceCap = cap;
+                                                        })
                                     @bind-SturdyRef=FertilizerServiceSturdyRef
                                     ConnectOnInit=@TryConnectOnInit>
                 </ConnectToSturdyRef>
             </MudItem>
         </MudGrid>
     </MudExpansionPanel>
-    <MudExpansionPanel @bind-IsExpanded=@panelOpened["BaseFiles"] Text="Base sim/crop/site.json for default soildata, output configuration and crop rotation." >
+    <MudExpansionPanel @bind-IsExpanded=@panelOpened["BaseFiles"] Text="Base sim/crop/site.json for default soildata, output configuration and crop rotation.">
         <MudExpansionPanels MultiExpansion=@true>
             @code {
                 private Dictionary<string, bool> baseFilePanelOpened = new()
@@ -174,7 +194,7 @@
             @if (overwriteTimeSeriesData)
             {
                 <MudItem xs="12">
-                    <AlterTimeSeries AlterTimeSeriesWrapperCap=@(AlterTimeSeriesWrapperCap == null ? null : Capnp.Rpc.Proxy.Share(AlterTimeSeriesWrapperCap))/>
+                    <AlterTimeSeries AlterTimeSeriesWrapperCap=@(AlterTimeSeriesWrapperCap == null ? null : Capnp.Rpc.Proxy.Share(AlterTimeSeriesWrapperCap)) />
                 </MudItem>
             }
             @if (false)
@@ -226,7 +246,7 @@
                                       FertilizerServiceCap=@(FertilizerServiceCap == null ? null : Capnp.Rpc.Proxy.Share(FertilizerServiceCap)) />
                 </MudItem>
             }
-            </MudGrid>
+        </MudGrid>
     </MudExpansionPanel>
     <MudExpansionPanel @bind-IsExpanded=@panelOpened["OutputConfig"] Text=@(overwriteOutputConfig ? "Using output configuration below." : "Using default output configuration.")>
         @code
@@ -243,7 +263,7 @@
         <MudGrid>
             <MudItem xs="12">
                 <MudSwitch @bind-Checked=@overwriteOutputConfig
-                           Color=@Color.Primary 
+                           Color=@Color.Primary
                            Label="Change" />
             </MudItem>
         </MudGrid>
@@ -462,13 +482,13 @@
                 @code {
                     private List<Highchart.AxisConfig> yAxisConfigs = new()
                     {
-                        new Highchart.AxisConfig { Id = "def", Title = "other values" },
-                        new Highchart.AxisConfig { Id = "yields", Title = "Yield [kg/ha]", Opposite = true }
-                    };
+            new Highchart.AxisConfig { Id = "def", Title = "other values" },
+            new Highchart.AxisConfig { Id = "yields", Title = "Yield [kg/ha]", Opposite = true }
+        };
                     private Dictionary<string, Highchart.CurveConfig> curveName2Config = new()
                     {
-                        { "Yield", new Highchart.CurveConfig { DisplayAxisId = "yields", IsVisible = true } }
-                    };
+            { "Yield", new Highchart.CurveConfig { DisplayAxisId = "yields", IsVisible = true } }
+        };
                 }
                 <Highchart Title="MONICA results"
                            XAxisTitle="Date"
