@@ -46,11 +46,23 @@ monica_params_capnp = capnp.load("capnproto_schemas/monica/monica_params.capnp",
 
 class Crop(crop_capnp.Crop.Server):
 
-    def __init__(self, species_path, cult_path, residue_path):
+    def __init__(self, species_path, cult_path, residue_path, entry_ref, id=None, name=None, description=None):
+        self._id = id if id else str(uuid.uuid4())
+        self._name = name if name else id
+        self._description = description if description else ""
         self._species_path = species_path
         self._cult_path = cult_path
         self._residue_path = residue_path
         self._params = None
+        self._entry_ref = entry_ref
+
+
+    def info_context(self, context): # -> Common.IdInformation;
+        r = context.results
+        r.id = self._id
+        cps = self._params.cropParams.cultivarParams if self._params else None
+        r.name = self._name if not cps else cps.cultivarId
+        r.description = self._description if not cps else cps.description
 
 
     def get_value(self, val_or_arr, expected_val_dim=0):
@@ -246,6 +258,10 @@ class Crop(crop_capnp.Crop.Server):
                     j = json.load(_)
                     self._params.residueParams = self.create_residue_params(j)        
 
+            # now that we actually loaded the crop, update the entry we return on the "entries" message
+            if cps.cultivarParams and len(cps.cultivarParams.cultivarId) > 0:
+                self._entry_ref.refInfo.name = cps.cultivarParams.cultivarId
+
         return self._params
 
 
@@ -264,13 +280,20 @@ class Registry(reg_capnp.Registry.Server):
             species_path = crops_path / species_name
             residue_path = Path(self._path_to_monica_params) / "crop-residues" / (species_name + ".json")
             if os.path.isdir(species_path):
-                for cult_name in os.listdir(species_path):
-                    cult_path = species_path / cult_name
+                for cult_fname in os.listdir(species_path):
+                    cult_name = cult_fname[:-5]
+                    if len(cult_name) == 0:
+                        cult_name = species_name
+                    cult_id = species_name + "_" + cult_name
+                    cult_path = species_path / cult_fname
                     if not os.path.isdir(cult_path):
-                       self._species_to_entries[species_name].append(reg_capnp.Registry.Entry(
+                        entry = reg_capnp.Registry.Entry(
                            categoryId=species_name, 
-                           ref=Crop(str(species_path) + ".json", str(cult_path), str(residue_path))
-                        ))
+                           refInfo={"id": cult_id, "name": cult_name}
+                        )
+                        crop = Crop(str(species_path) + ".json", str(cult_path), str(residue_path), entry, id=cult_id, name=cult_name)
+                        entry.ref = crop
+                        self._species_to_entries[species_name].append(entry)
 
         self._categories = {}
         for species_name, _ in self._species_to_entries.items():

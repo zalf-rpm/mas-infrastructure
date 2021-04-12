@@ -47,13 +47,16 @@ interface Registry extends(Common.Identifiable) {
   # get information to a particular category
 
   struct Entry {
-    categoryId @0 :Text;
-    ref @1 :Common.Identifiable;  
+    categoryId  @0 :Text;
+    ref         @1 :Common.Identifiable;  
+    refInfo     @2 :Common.IdInformation;
   }
 
-  entries @2 (categoryId :Text) -> (entries :List(Entry));
+  entries @2 (categoryId :Text, forceRefInfos :Bool = false) -> (entries :List(Entry));
   # return the entries registered under the given category
   # given a NULL category id, maybe return all entries
+  # forceRefInfos = true will mandatorily include refInfo = ref->info()
+  # else it is optional, but might still be included
 }
 
 
