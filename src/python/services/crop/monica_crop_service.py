@@ -44,9 +44,127 @@ monica_params_capnp = capnp.load("capnproto_schemas/monica/monica_params.capnp",
 
 #------------------------------------------------------------------------------
 
+monica_to_generic_cultivar = {
+    "alfalfa-clover-grass-ley-mix/.json": "alfalfaClovergrassLeyMix",
+    "alfalfa/.json": "alfalfa",
+    "Bacharia/.json": "bacharia",
+    "barley/spring-barley.json": "barleySpring",
+    "barley/winter-barley.json": "barleyWinter",
+    "clover-grass-ley/.json": "cloverGrassLey",
+    "cotton/br-mid.json": "cottonBrMid",
+    "cotton/long.json": "cottonLong",
+    "cotton/mid.json": "cottonMid",
+    "cotton/short.json": "cottonShort",
+    "einkorn/.json": "einkorn",
+    "emmer/.json": "emmer",
+    "field-pea/24.json": "fieldPea24",
+    "field-pea/26.json": "fieldPea26",
+    "grapevine/.json": "",
+    "maize/grain-maize.json": "maizeGrain",
+    "maize/grain-maize_AgMIPFrance.json": "maizeGrain",
+    "maize/grain-maize-Pioneer-30K75.json": "maizeGrain",
+    "maize/silage-maize.json": "maizeSilage",
+    "mustard/.json": "mustard",
+    "oat-compound/.json": "oatCompound",
+    "oil-radish/.json": "oilRadish",
+    "phacelia/.json": "phacelia",
+    "potato/moderately-early-potato.json": "potatoModeratelyEarly",
+    "rape/winter-rape.json": "rapeWinter",
+    "rye-grass/.json": "ryeGrass",
+    "rye/silage-winter-rye.json": "ryeSilageWinter",
+    "rye/spring-rye.json": "ryeSpring",
+    "rye/winter-rye.json": "ryeWinter",
+    "sorghum/.json": "sorghum",
+    "soybean/0.json": "soybean0",
+    "soybean/00.json": "soybean00",
+    "soybean/000.json": "soybean000",
+    "soybean/0000.json": "soybean0000",
+    "soybean/I.json": "soybeanI",
+    "soybean/II.json": "soybeanII",
+    "soybean/III.json": "soybeanIII",
+    "soybean/IV.json": "soybeanIV",
+    "soybean/V.json": "soybeanV",
+    "soybean/VI.json": "soybeanVI",
+    "soybean/VII.json": "soybeanVII",
+    "soybean/VIII.json": "soybeanVIII",
+    "soybean/IX.json": "soybeanIX",
+    "soybean/X.json": "soybeanX",
+    "soybean/XI.json": "soybeanXI",
+    "soybean/XII.json": "soybeanXII",
+    "sudan-grass/.json": "sudanGrass",
+    "sugar-beet/.json": "sugarBeet",
+    "sugarcane/transplant.json": "sugarcaneTransplant",
+    "sugarcane/ratoon.json": "sugarcaneRatoon",
+    "tomato/field-tomato.json": "tomatoField",
+    "triticale/spring-triticale.json": "triticaleSpring",
+    "triticale/winter-triticale.json": "triticaleWinter",
+    "wheat/durum-wheat.json": "wheatDurum",
+    "wheat/spring-wheat.json": "wheatSpring",
+    "wheat/winter-wheat.json": "wheatWinter",
+    "wheat/winter-wheat_AgMIP4_bacanora_St1.json": "wheatWinter",
+}
+
+generic_cultivar_to_display_name = {
+    "alfalfaClovergrassLeyMix": "Alfalfa/clover grass ley mix",
+    "alfalfa": "Alfalfa",
+    "bacharia": "Bacharia",
+    "barleySpring": "Barley | Spring barley",
+    "barleyWinter": "Barley | Winter barley",
+    "cloverGrassLey": "Clover grass ley",
+    "cottonBrMid": "Cotton | Br mid cotton",
+    "cottonLong": "Cotton | Long cotton",
+    "cottonMid": "Cotton | Mid cotton",
+    "cottonShort": "Cotton | Short cotton",
+    "einkorn": "Einkorn",
+    "emmer": "Emmer",
+    "fieldPea24": "Field pea | 24",
+    "fieldPea26": "Field pea | 26",
+    "grapevine": "Grapevine",
+    "maizeGrain": "Maize | Grain maize",
+    "maizeSilage": "Maize | Silage maize",
+    "mustard": "Mustard",
+    "oatCompound": "Oat compound",
+    "oilRadish": "Oil radish",
+    "phacelia": "Phacelia",
+    "potatoModeratelyEarly": "Potato | Moderately early potato",
+    "rapeWinter": "Rape | Winter rape",
+    "ryeGrass": "Rye grass",
+    "ryeSilageWinter": "Rye | Winter silage rye",
+    "ryeSpring": "Rye | Spring rye",
+    "ryeWinter": "Rye | Winter rye",
+    "sorghum": "Sorghum",
+    "soybean0": "Soybean | 0",
+    "soybean00": "Soybean | 00",
+    "soybean000": "Soybean | 000",
+    "soybean0000": "Soybean | 0000",
+    "soybeanI": "Soybean | I",
+    "soybeanII": "Soybean | II",
+    "soybeanIII": "Soybean | III",
+    "soybeanIV": "Soybean | IV",
+    "soybeanV": "Soybean | V",
+    "soybeanVI": "Soybean | VI",
+    "soybeanVII": "Soybean | VII",
+    "soybeanVIII": "Soybean | VIII",
+    "soybeanIX": "Soybean | IX",
+    "soybeanX": "Soybean | X",
+    "soybeanXI": "Soybean | XI",
+    "soybeanXII": "Soybean | XII",
+    "sudanGrass": "Sudan grass",
+    "sugarBeet": "Sugar beet",
+    "sugarcaneTransplant": "Sugarcane | Transplant",
+    "sugarcaneRatoon": "Sugarcane | Ratoon",
+    "tomatoField": "Tomato | Field tomato",
+    "triticaleSpring": "Triticale | Spring triticale",
+    "triticaleWinter": "Triticale | Winter triticale",
+    "wheatDurum": "Wheat | Durum wheat",
+    "wheatSpring": "Wheat | Spring wheat",
+    "wheatWinter": "Wheat | Winter wheat",
+}
+
+
 class Crop(crop_capnp.Crop.Server):
 
-    def __init__(self, species_path, cult_path, residue_path, entry_ref, id=None, name=None, description=None):
+    def __init__(self, species_path, cult_path, residue_path, entry_ref, generic_cultivar_str, id=None, name=None, description=None):
         self._id = id if id else str(uuid.uuid4())
         self._name = name if name else id
         self._description = description if description else ""
@@ -55,6 +173,7 @@ class Crop(crop_capnp.Crop.Server):
         self._residue_path = residue_path
         self._params = None
         self._entry_ref = entry_ref
+        self._gen_cultivar_str = generic_cultivar_str
 
 
     def info_context(self, context): # -> Common.IdInformation;
@@ -240,6 +359,8 @@ class Crop(crop_capnp.Crop.Server):
     
         return rp    
 
+    def cultivar(self, **kwargs): # cultivar    @1 () -> (cult :Cultivar);
+        return self._gen_cultivar_str
 
     def parameters(self, **kwargs): # parameters @0 () -> (params :AnyPointer);
         if not self._params:
@@ -273,7 +394,7 @@ class Registry(reg_capnp.Registry.Server):
         self._description = description if description else ""
         self._path_to_monica_params = path_to_monica_parameters
 
-        self._species_to_entries = defaultdict(list) # list of entries { species: "", ref: Crop capability } which lazily load the actual parameters on first call
+        self._gen_cultivar_to_entries = defaultdict(list) # list of entries { species: "", ref: Crop capability } which lazily load the actual parameters on first call
 
         crops_path = Path(self._path_to_monica_params) / "crops"
         for species_name in os.listdir(crops_path):
@@ -285,19 +406,26 @@ class Registry(reg_capnp.Registry.Server):
                     if len(cult_name) == 0:
                         cult_name = species_name
                     cult_id = species_name + "_" + cult_name
+                    cult_subpath = species_name + "/" + cult_fname
+                    generic_cultivar_str = monica_to_generic_cultivar.get(cult_subpath, None)
+                    # only serve cultivars we know about
+                    if not generic_cultivar_str:
+                        continue
+                    category_id = generic_cultivar_str
                     cult_path = species_path / cult_fname
                     if not os.path.isdir(cult_path):
                         entry = reg_capnp.Registry.Entry(
-                           categoryId=species_name, 
+                           categoryId=category_id, 
                            refInfo={"id": cult_id, "name": cult_name}
                         )
-                        crop = Crop(str(species_path) + ".json", str(cult_path), str(residue_path), entry, id=cult_id, name=cult_name)
+                        crop = Crop(str(species_path) + ".json", str(cult_path), str(residue_path), entry, generic_cultivar_str, id=cult_id, name=cult_name)
                         entry.ref = crop
-                        self._species_to_entries[species_name].append(entry)
+                        self._gen_cultivar_to_entries[category_id].append(entry)
 
         self._categories = {}
-        for species_name, _ in self._species_to_entries.items():
-            self._categories[species_name] = common_capnp.Common.IdInformation(id=species_name, name=species_name, description="")
+        for gen_cultivar_str in set(self._gen_cultivar_to_entries.keys()):
+            disp_name = generic_cultivar_to_display_name.get(gen_cultivar_str, gen_cultivar_str)
+            self._categories[gen_cultivar_str] = common_capnp.Common.IdInformation(id=gen_cultivar_str, name=disp_name, description="")
 
 
     def info_context(self, context): # -> Common.IdInformation;
@@ -321,7 +449,7 @@ class Registry(reg_capnp.Registry.Server):
 
 
     def entries(self, categoryId, **kwargs): # entries @2 (categoryId :Text) -> (entries :List(Entry));
-        return self._species_to_entries.get(categoryId, None)
+        return self._gen_cultivar_to_entries.get(categoryId, None)
 
 
 #------------------------------------------------------------------------------
