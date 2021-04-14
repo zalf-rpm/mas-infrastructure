@@ -4,9 +4,9 @@ using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("mas::rpc::management");
 
 using Date = import "date.capnp".Date;
-using Common = import "common.capnp".Common;
-using Geo = import "geo_coord.capnp".Geo;
-using MonicaParams = import "monica/monica_params.capnp";
+using Common = import "common.capnp";
+using Geo = import "geo_coord.capnp";
+using MonicaParams = import "models/monica/monica_params.capnp";
 using Crop = import "crop.capnp";
 
 enum MineralFertilizer {

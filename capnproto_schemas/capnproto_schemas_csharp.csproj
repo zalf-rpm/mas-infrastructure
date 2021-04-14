@@ -60,6 +60,9 @@
       <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">.</ImportPaths>
       <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">.</ImportPaths>
     </CapnpFiles>
+    <CapnpFiles Update="crop.capnp">
+      <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">.</ImportPaths>
+    </CapnpFiles>
     <CapnpFiles Update="date.capnp">
       <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">.</ImportPaths>
       <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">.</ImportPaths>
@@ -78,6 +81,15 @@
     <CapnpFiles Update="model.capnp">
       <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">.</ImportPaths>
       <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">.</ImportPaths>
+    </CapnpFiles>
+    <CapnpFiles Update="models\monica\monica_params.capnp">
+      <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">.</ImportPaths>
+    </CapnpFiles>
+    <CapnpFiles Update="models\monica\monica_state.capnp">
+      <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">.</ImportPaths>
+    </CapnpFiles>
+    <CapnpFiles Update="models\yieldstat.capnp">
+      <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">.</ImportPaths>
     </CapnpFiles>
     <CapnpFiles Update="monica\monica_params.capnp">
       <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">.</ImportPaths>

@@ -4,8 +4,8 @@
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("mas::rpc");
 
-using Common = import "common.capnp".Common;
-using Model = import "model.capnp".Model;
+using Common = import "common.capnp";
+using Model = import "model.capnp";
 #using Geo = import "geo_coord.capnp".Geo;
 
 struct Cluster {

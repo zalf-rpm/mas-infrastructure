@@ -85,14 +85,14 @@ def main():
             if k in config:
                 config[k] = v
 
-    csv_timeseries_cap = capnp.TwoPartyClient("localhost:11002").bootstrap().cast_as(climate_data_capnp.Climate.TimeSeries)
+    csv_timeseries_cap = capnp.TwoPartyClient("localhost:11002").bootstrap().cast_as(climate_data_capnp.TimeSeries)
     header = csv_timeseries_cap.header().wait().header
     print(header)
 
     #async def main():
 
     #    client = await async_helpers.connect_to_server(6003)
-    #    soil_service = client.bootstrap().cast_as(soil_data_capnp.Soil.Service)
+    #    soil_service = client.bootstrap().cast_as(soil_data_capnp.Service)
     #    params = soil_service.getAllAvailableParameters().wait().params
 
     #    print(soil_service)
@@ -105,7 +105,7 @@ def main():
 
 
 
-    soil_service = capnp.TwoPartyClient(config["server"] + ":" + config["port"]).bootstrap().cast_as(soil_data_capnp.Soil.Service)
+    soil_service = capnp.TwoPartyClient(config["server"] + ":" + config["port"]).bootstrap().cast_as(soil_data_capnp.Service)
     props = soil_service.getAllAvailableParameters().wait()
     print(props)
 
@@ -131,7 +131,7 @@ def main():
     #print(p)
 
 
-    #soil_service = capnp.TwoPartyClient("localhost:6003").bootstrap().cast_as(soil_data_capnp.Soil.Service)
+    #soil_service = capnp.TwoPartyClient("localhost:6003").bootstrap().cast_as(soil_data_capnp.Service)
     #profiles = soil_service.profilesAt(
     #    coord={"lat": 53.0, "lon": 12.5},
     #    query={

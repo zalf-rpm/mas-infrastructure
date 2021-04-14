@@ -9,7 +9,7 @@ using Go = import "lang/go.capnp";
 $Go.package("common");
 $Go.import("common");
 
-using Common = import "common.capnp".Common;
+using Common = import "common.capnp";
 using SturdyRef = import "persistence.capnp".SturdyRef;
 
 interface Admin {

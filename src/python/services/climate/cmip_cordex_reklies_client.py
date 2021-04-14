@@ -48,7 +48,7 @@ def main():
     print("config:", config)
 
     """
-    climate_service = capnp.TwoPartyClient("localhost:8000").bootstrap().cast_as(climate_data_capnp.Climate.DataService)
+    climate_service = capnp.TwoPartyClient("localhost:8000").bootstrap().cast_as(climate_data_capnp.DataService)
 
     sims_prom = climate_service.simulations_request().send()
     sims = sims_prom.wait()
@@ -78,8 +78,8 @@ def main():
                 ts.simulationInfo().then(lambda r: print(r.simInfo)).wait()
     """
 
-    #cmip_service = capnp.TwoPartyClient("login01.cluster.zalf.de:11001").bootstrap().cast_as(climate_data_capnp.Climate.Service)
-    cmip_service = capnp.TwoPartyClient("localhost:9000").bootstrap().cast_as(climate_data_capnp.Climate.Service)
+    #cmip_service = capnp.TwoPartyClient("login01.cluster.zalf.de:11001").bootstrap().cast_as(climate_data_capnp.Service)
+    cmip_service = capnp.TwoPartyClient("localhost:9000").bootstrap().cast_as(climate_data_capnp.Service)
     #header = csv_time_series.header().wait().header
 
     print(cmip_service.info().wait())

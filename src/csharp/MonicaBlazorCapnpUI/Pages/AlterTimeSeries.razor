@@ -1,8 +1,8 @@
 ﻿@namespace Mas.Infrastructure.BlazorComponents
 
 @using MudBlazor
-@using Mas.Rpc
 @using Mgmt = Rpc.Management
+@using Climate = Mas.Rpc.Climate 
 
 @code {
     Func<float?, string> valid = val => val < 0 || val > 1 ? "[0 - 1]" : null;

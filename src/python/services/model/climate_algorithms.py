@@ -45,7 +45,7 @@ import capnproto_schemas.model_capnp as model_capnp
 
 #------------------------------------------------------------------------------
 
-class YearlyTavg(model_capnp.Model.ClimateInstance.Server):
+class YearlyTavg(model_capnp.ClimateInstance.Server):
 
     def __init__(self):
         pass

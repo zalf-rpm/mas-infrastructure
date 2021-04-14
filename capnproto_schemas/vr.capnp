@@ -1,8 +1,8 @@
 @0xa16af7a45e431f73;
 
-using Common = import "common.capnp".Common;
+using Common = import "common.capnp";
 #using Date = import "date.capnp".Date;
-using Geo = import "geo_coord.capnp".Geo;
+using Geo = import "geo_coord.capnp";
 
 struct RT {
 

@@ -61,9 +61,9 @@ def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon):
                 else: # either historical or picontrol
                     entries.append({scen: None})
 
-                metadata = climate_data_capnp.Climate.Metadata.new_message(entries=entries)
+                metadata = climate_data_capnp.Metadata.new_message(entries=entries)
                 metadata.info = ccdi.Metadata_Info(metadata)
-                datasets.append(climate_data_capnp.Climate.MetaPlusData.new_message(
+                datasets.append(climate_data_capnp.MetaPlusData.new_message(
                     meta=metadata, 
                     data=csv_based.Dataset(metadata, scen_dir, interpolator, rowcol_to_latlon, row_col_pattern="row-{row}/col-{col}.csv.gz")
                 ))

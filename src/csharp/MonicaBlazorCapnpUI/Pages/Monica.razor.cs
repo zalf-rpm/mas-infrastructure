@@ -10,7 +10,12 @@ using System.IO;
 using System.Linq;
 using Mgmt = Mas.Rpc.Management;
 using ExtType = Mas.Rpc.Management.Event.ExternalType;
+using Crop = Mas.Rpc.Crop;
+using Soil = Mas.Rpc.Soil;
 using Mas.Infrastructure.Common;
+using Climate = Mas.Rpc.Climate;
+using Model = Mas.Rpc.Model;
+using Monica = Mas.Models.Monica;
 
 namespace Mas.Infrastructure.BlazorComponents
 {
@@ -393,7 +398,7 @@ namespace Mas.Infrastructure.BlazorComponents
             {
                 TheType = ExtType.sowing,
                 At = new() { Date = new Mas.Common.Date { Year = 0, Month = 9, Day = 23 } },
-                Params = new Mgmt.Params.Sowing { Cultivar = Mgmt.Cultivar.wheatWinter }
+                Params = new Mgmt.Params.Sowing { Cultivar = Crop.Cultivar.wheatWinter }
             },
             new Mas.Rpc.Management.Event()
             {
@@ -419,7 +424,7 @@ namespace Mas.Infrastructure.BlazorComponents
             return string.IsNullOrEmpty(amount) ? $"{type} @ {date}" : $"{type} @ {date} = {amount}";
         }
 
-        private JArray CreateCropRotation()
+        private async Task<JArray> CreateCropRotation()
         {
             var cr = new JArray();
             var wss = new JArray();
@@ -436,6 +441,11 @@ namespace Mas.Infrastructure.BlazorComponents
                                 cr.Add(cm);
                                 wss = new JArray();
                                 cm = new JObject { { "worksteps", wss } };
+                            }
+
+                            if(s.Crop != null)
+                            {
+                                s.Cultivar = await s.Crop.Cultivar();
                             }
 
                             wss.Add(new JObject()
@@ -677,7 +687,7 @@ namespace Mas.Infrastructure.BlazorComponents
             //update crop rotation (before resolving references)
             if (overwriteCropRotation)
             {
-                var cr = CreateCropRotation();
+                var cr = await CreateCropRotation();
                 var str = cr.ToString();
                 cropj["cropRotation"] = cr;
             }
@@ -781,6 +791,8 @@ namespace Mas.Infrastructure.BlazorComponents
             TimeSeriesFactoryCap?.Dispose();
             Console.WriteLine("Disposing SoilService SR:" + SoilServiceSturdyRef + " cap: " + SoilServiceCap);
             SoilServiceCap?.Dispose();
+            Console.WriteLine("Disposing Monica.CropRegistryServiceCap SR:" + CropRegistryServiceSturdyRef + " cap: " + CropRegistryServiceCap);
+            CropRegistryServiceCap?.Dispose();
         }
         #endregion implement IDisposable
 

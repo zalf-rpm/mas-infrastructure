@@ -45,7 +45,7 @@ climate_data_capnp = capnp.load("capnproto_schemas/climate_data.capnp", imports=
 
 def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon):
     datasets = []
-    metadata = climate_data_capnp.Climate.Metadata.new_message(
+    metadata = climate_data_capnp.Metadata.new_message(
         entries = [
             {"historical": None},
             {"start": {"year": 1990, "month": 1, "day": 1}},
@@ -53,7 +53,7 @@ def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon):
         ]
     )
     metadata.info = ccdi.Metadata_Info(metadata)
-    datasets.append(climate_data_capnp.Climate.MetaPlusData.new_message(
+    datasets.append(climate_data_capnp.MetaPlusData.new_message(
         meta=metadata, 
         data=csv_based.Dataset(metadata, path_to_data_dir, interpolator, rowcol_to_latlon, 
             header_map={"windspeed": "wind"},

@@ -60,7 +60,7 @@ def start_monica_capnp_proxy():
 
 @pytest.fixture(scope="session")
 def monica_cap(start_monica_capnp_proxy):
-    monica = capnp.TwoPartyClient("localhost:" + str(MONICA_SERVICE_PROXY_PORT)).bootstrap().cast_as(model_capnp.Model.EnvInstance)
+    monica = capnp.TwoPartyClient("localhost:" + str(MONICA_SERVICE_PROXY_PORT)).bootstrap().cast_as(model_capnp.EnvInstance)
     return monica
 
 #------------------------------------------------------------------------------
@@ -79,7 +79,7 @@ def start_time_series_service():
 
 @pytest.fixture(scope="session")
 def time_series_cap(start_time_series_service):
-    csv_time_series = capnp.TwoPartyClient("localhost:" + str(TIME_SERIES_SERVICE_PORT)).bootstrap().cast_as(climate_data_capnp.Climate.TimeSeries)
+    csv_time_series = capnp.TwoPartyClient("localhost:" + str(TIME_SERIES_SERVICE_PORT)).bootstrap().cast_as(climate_data_capnp.TimeSeries)
     return csv_time_series
 
 #------------------------------------------------------------------------------
@@ -124,7 +124,7 @@ def start_soil_service():
 
 @pytest.fixture(scope="session")
 def soil_service_cap(start_soil_service):
-    soil_service = capnp.TwoPartyClient("localhost:" + str(SOIL_SERVICE_PORT)).bootstrap().cast_as(soil_data_capnp.Soil.Service)
+    soil_service = capnp.TwoPartyClient("localhost:" + str(SOIL_SERVICE_PORT)).bootstrap().cast_as(soil_data_capnp.Service)
     return soil_service
 
 #------------------------------------------------------------------------------
@@ -147,7 +147,7 @@ def start_soil_service_async():
 
 @pytest.fixture(scope="session")
 def soil_service_cap_async(start_soil_service_async):
-    soil_service = capnp.TwoPartyClient("localhost:" + str(SOIL_SERVICE_PORT)).bootstrap().cast_as(soil_data_capnp.Soil.Service)
+    soil_service = capnp.TwoPartyClient("localhost:" + str(SOIL_SERVICE_PORT)).bootstrap().cast_as(soil_data_capnp.Service)
     #client = await async_helpers.connect_to_server(SOIL_SERVICE_PORT)
-    #soil_service = client.bootstrap().cast_as(soil_data_capnp.Soil.Service)
+    #soil_service = client.bootstrap().cast_as(soil_data_capnp.Service)
     return soil_service

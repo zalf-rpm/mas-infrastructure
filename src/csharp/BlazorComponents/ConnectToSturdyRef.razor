@@ -209,7 +209,7 @@
     {
         new StoredSRData
         {
-            Interface = "Mas.Rpc.Climate+IService",
+            Interface = "Mas.Rpc.Climate.IService",
             PetName = "DWD CMIP5 EURO-CORDEX ReKLiEs-De",
             SturdyRef = "capnp://login01.cluster.zalf.de:9998",
             AutoConnect = true,
@@ -217,7 +217,7 @@
         },
         new StoredSRData
         {
-            Interface = "Mas.Rpc.Climate+IService",
+            Interface = "Mas.Rpc.Climate.IService",
             PetName = "DWD Germany",
             SturdyRef = "capnp://login01.cluster.zalf.de:9999",
             AutoConnect = true,
@@ -225,7 +225,7 @@
         },
         new StoredSRData
         {
-            Interface = "Mas.Rpc.Climate+ITimeSeries",
+            Interface = "Mas.Rpc.Climate.ITimeSeries",
             PetName = "Hohenfinow2 Test CSV",
             SturdyRef = "capnp://login01.cluster.zalf.de:11002",
             AutoConnect = true,
@@ -233,7 +233,7 @@
         },
         new StoredSRData
         {
-            Interface = "Mas.Rpc.Soil+IService",
+            Interface = "Mas.Rpc.Soil.IService",
             PetName = "BÜK200",
             SturdyRef = "capnp://login01.cluster.zalf.de:10001",
             AutoConnect = true,
@@ -241,7 +241,7 @@
         },
         new StoredSRData
         {
-            Interface = "Mas.Rpc.Soil+IService",
+            Interface = "Mas.Rpc.Soil.IService",
             PetName = "BÜK1000",
             SturdyRef = "capnp://login01.cluster.zalf.de:10000",
             AutoConnect = true,
@@ -249,7 +249,7 @@
         },
         new StoredSRData
         {
-            Interface = "Mas.Rpc.Model+IEnvInstance`2[Mas.Rpc.Common+StructuredText,Mas.Rpc.Common+StructuredText]",
+            Interface = "Mas.Rpc.Model.IEnvInstance`2[Mas.Rpc.Common.StructuredText,Mas.Rpc.Common.StructuredText]",
             PetName = "a MONICA instance",
             SturdyRef = "capnp://login01.cluster.zalf.de:12003",
             AutoConnect = true,
@@ -257,7 +257,7 @@
         },
         new StoredSRData
         {
-            Interface = "Mas.Rpc.Model+IEnvInstance`2[Mas.Rpc.Common+StructuredText,Mas.Rpc.Common+StructuredText]",
+            Interface = "Mas.Rpc.Model.IEnvInstance`2[Mas.Rpc.Common.StructuredText,Mas.Rpc.Common.StructuredText]",
             PetName = "a proxy with 5 MONICA instances",
             SturdyRef = "capnp://login01.cluster.zalf.de:12002",
             AutoConnect = true,
@@ -265,7 +265,7 @@
         },
         new StoredSRData
         {
-            Interface = "Mas.Rpc.Climate+IAlterTimeSeriesWrapperFactory",
+            Interface = "Mas.Rpc.Climate.IAlterTimeSeriesWrapperFactory",
             PetName = "Alter time series wrapper",
             SturdyRef = "capnp://login01.cluster.zalf.de:11006",
             AutoConnect = true,
@@ -273,7 +273,7 @@
         },
         new StoredSRData
         {
-            Interface = "Mas.Rpc.Model+ICSVTimeSeriesFactory",
+            Interface = "Mas.Rpc.Model.ICSVTimeSeriesFactory",
             PetName = "Time series factory from CSV data",
             SturdyRef = "capnp://login01.cluster.zalf.de:11005",
             AutoConnect = false,
@@ -284,6 +284,14 @@
             Interface = "Mas.Rpc.Management.IFertilizerService",
             PetName = "Fertilizer service",
             SturdyRef = "capnp://login01.cluster.zalf.de:13001",
+            AutoConnect = true,
+            DefaultSelect = true
+        },
+        new StoredSRData
+        {
+            Interface = "Mas.Rpc.Registry.IRegistry",
+            PetName = "Crop registry",
+            SturdyRef = "capnp://login01.cluster.zalf.de:14001",
             AutoConnect = true,
             DefaultSelect = true
         }

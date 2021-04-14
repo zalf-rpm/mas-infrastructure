@@ -28,6 +28,7 @@ import pandas as pd
 from pathlib import Path
 import sys
 import time
+import uuid
 
 PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent.parent
 if str(PATH_TO_REPO) not in sys.path:
@@ -44,7 +45,7 @@ climate_data_capnp = capnp.load("capnproto_schemas/climate_data.capnp", imports=
 
 #------------------------------------------------------------------------------
 
-class AlterTimeSeriesWrapper(climate_data_capnp.Climate.AlterTimeSeriesWrapper.Server): 
+class AlterTimeSeriesWrapper(climate_data_capnp.AlterTimeSeriesWrapper.Server): 
 
     def __init__(self, time_series, header, altered = {}):
 
@@ -158,7 +159,7 @@ class AlterTimeSeriesWrapper(climate_data_capnp.Climate.AlterTimeSeriesWrapper.S
 
 #------------------------------------------------------------------------------
 
-class AlterTimeSeriesWrapperFactory(climate_data_capnp.Climate.AlterTimeSeriesWrapperFactory.Server): 
+class AlterTimeSeriesWrapperFactory(climate_data_capnp.AlterTimeSeriesWrapperFactory.Server): 
 
     def __init__(self, id=None, name=None, description=None):
         self._id = id if id else str(uuid.uuid4())

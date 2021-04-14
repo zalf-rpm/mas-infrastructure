@@ -86,7 +86,7 @@ class Registry(reg_capnp.Service.Registry.Server):
 
 #------------------------------------------------------------------------------
 
-class Unregister(common_capnp.Common.Registry.Unregister.Server):
+class Unregister(common_capnp.Registry.Unregister.Server):
 
     def __init__(self, regToken, removeServiceFunc):
         self._regToken = regToken

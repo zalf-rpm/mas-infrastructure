@@ -3,7 +3,7 @@
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("mas::models::monica");
 
-using Date = import "../date.capnp".Date;
+using Date = import "../../date.capnp".Date;
 using Params = import "monica_params.capnp";
 
 struct MaybeBool {

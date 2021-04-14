@@ -122,7 +122,7 @@ namespace access_climate_data_service
                     await Task.WhenAll(csvTimeSeriesClient.WhenConnected, adminMasterClient.WhenConnected);
 
                     //csv_time_series = capnp.TwoPartyClient("localhost:11000").bootstrap().cast_as(
-                    //climate_data_capnp.Climate.TimeSeries)
+                    //climate_data_capnp.TimeSeries)
                     var adminMaster = adminMasterClient.GetMain<Cluster.IAdminMaster>();
                     var factories = await adminMaster.AvailableModels();
                     if (factories.Count > 0)
@@ -186,7 +186,7 @@ namespace access_climate_data_service
                     await Task.WhenAll(csvTimeSeriesClient.WhenConnected, adminMasterClient.WhenConnected);
 
                     //csv_time_series = capnp.TwoPartyClient("localhost:11000").bootstrap().cast_as(
-                    //climate_data_capnp.Climate.TimeSeries)
+                    //climate_data_capnp.TimeSeries)
                     var adminMaster = adminMasterClient.GetMain<Cluster.IAdminMaster>();
                     var factories = await adminMaster.AvailableModels();
                     if (factories.Count > 0)

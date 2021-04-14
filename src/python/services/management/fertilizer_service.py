@@ -39,7 +39,7 @@ abs_imports = ["capnproto_schemas"]
 reg_capnp = capnp.load("capnproto_schemas/registry.capnp", imports=abs_imports)
 common_capnp = capnp.load("capnproto_schemas/common.capnp", imports=abs_imports)
 management_capnp = capnp.load("capnproto_schemas/management.capnp", imports=abs_imports)
-monica_params_capnp = capnp.load("capnproto_schemas/monica/monica_params.capnp", imports=abs_imports)
+monica_params_capnp = capnp.load("capnproto_schemas/models/monica/monica_params.capnp", imports=abs_imports)
 
 #------------------------------------------------------------------------------
 

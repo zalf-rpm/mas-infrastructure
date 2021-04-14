@@ -44,8 +44,8 @@ def test_monica(monica_cap, monica_env, time_series_cap):
     env = deepcopy(monica_env)
     env["customId"] = random.randint(0, 1000)
 
-    env_struct = common_capnp.Common.StructuredText.new_message(value=json.dumps(env), structure={"json": None})
-    res = monica_cap.run({"rest": env_struct, "timeSeries": time_series_cap}).wait().result.as_struct(common_capnp.Common.StructuredText)
+    env_struct = common_capnp.StructuredText.new_message(value=json.dumps(env), structure={"json": None})
+    res = monica_cap.run({"rest": env_struct, "timeSeries": time_series_cap}).wait().result.as_struct(common_capnp.StructuredText)
     assert len(res.value) > 0
     res_j = json.loads(res.value)
     assert res_j["customId"] == env["customId"]

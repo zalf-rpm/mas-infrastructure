@@ -45,7 +45,7 @@ climate_data_capnp = capnp.load("capnproto_schemas/climate_data.capnp", imports=
 
 #------------------------------------------------------------------------------
 
-class TimeSeries(climate_data_capnp.Climate.TimeSeries.Server): 
+class TimeSeries(climate_data_capnp.TimeSeries.Server): 
 
     def __init__(self, metadata=None, location=None, path_to_csv=None, dataframe=None, csv_string=None, 
     header_map=None, supported_headers=None, pandas_csv_config={}, transform_map=None):
@@ -62,7 +62,7 @@ class TimeSeries(climate_data_capnp.Climate.TimeSeries.Server):
         self._location = location
 
         self._header_map = header_map
-        self._supported_headers = list(climate_data_capnp.Climate.Element.schema.enumerants.keys()) if supported_headers is None else supported_headers
+        self._supported_headers = list(climate_data_capnp.Element.schema.enumerants.keys()) if supported_headers is None else supported_headers
         self._pandas_csv_config_defaults = {"skip_rows": [1], "index_col": 0, "sep": ","}
         self._pandas_csv_config = {**self._pandas_csv_config_defaults, **pandas_csv_config}
         self._transform_map = transform_map
@@ -124,7 +124,7 @@ class TimeSeries(climate_data_capnp.Climate.TimeSeries.Server):
 
 
     def resolution_context(self, context): # -> (resolution :TimeResolution);
-        context.results.resolution = climate_data_capnp.Climate.TimeSeries.Resolution.daily
+        context.results.resolution = climate_data_capnp.TimeSeries.Resolution.daily
 
 
     def range_context(self, context): # -> (startDate :Date, endDate :Date);
@@ -181,7 +181,7 @@ class TimeSeries(climate_data_capnp.Climate.TimeSeries.Server):
 
 #------------------------------------------------------------------------------
 
-class Dataset(climate_data_capnp.Climate.Dataset.Server):
+class Dataset(climate_data_capnp.Dataset.Server):
 
     def __init__(self, metadata, path_to_rows, interpolator, rowcol_to_latlon, 
         gzipped=False, header_map=None, supported_headers=None, row_col_pattern="row-{row}/col-{col}.csv",
@@ -246,7 +246,7 @@ class Dataset(climate_data_capnp.Climate.Dataset.Server):
                 coord = self._rowcol_to_latlon[(row, col)]
             id = "r:{}/c:{}".format(row, col)
             name = "Row/Col:{}/{}|LatLon:{}/{}".format(row, col, coord["lat"], coord["lon"])
-            loc = climate_data_capnp.Climate.Location.new_message(
+            loc = climate_data_capnp.Location.new_message(
                 id={"id": id, "name": name, "description": ""},
                 heightNN=coord["alt"],
                 geoCoord={"latlon": {"lat": coord["lat"], "lon": coord["lon"]}},

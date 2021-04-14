@@ -38,7 +38,7 @@ import csv_file_based as csv_based
 abs_imports = ["capnproto_schemas"]
 climate_data_capnp = capnp.load("capnproto_schemas/climate_data.capnp", imports=abs_imports)
 
-class Factory(climate_data_capnp.Climate.CSVTimeSeriesFactory.Server):
+class Factory(climate_data_capnp.CSVTimeSeriesFactory.Server):
 
     def __init__(self, id=None, name=None, description=None, port=None):
         self._id = id if id else str(uuid.uuid4()) 

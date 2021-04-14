@@ -129,7 +129,7 @@ CAPNP_PROP_to_MONICA_PARAM_NAME = {
 
 #------------------------------------------------------------------------------
 
-class Service(soil_data_capnp.Soil.Service.Server): 
+class Service(soil_data_capnp.Service.Server): 
 
     def __init__(self, path_to_sqlite_db, path_to_ascii_grid, grid_crs, id=None, name=None, description=None, port=None):
         self._path_to_sqlite_db = path_to_sqlite_db

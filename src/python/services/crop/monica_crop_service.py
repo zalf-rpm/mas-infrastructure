@@ -40,7 +40,7 @@ abs_imports = ["capnproto_schemas"]
 reg_capnp = capnp.load("capnproto_schemas/registry.capnp", imports=abs_imports)
 crop_capnp = capnp.load("capnproto_schemas/crop.capnp", imports=abs_imports)
 common_capnp = capnp.load("capnproto_schemas/common.capnp", imports=abs_imports)
-monica_params_capnp = capnp.load("capnproto_schemas/monica/monica_params.capnp", imports=abs_imports)
+monica_params_capnp = capnp.load("capnproto_schemas/models/monica/monica_params.capnp", imports=abs_imports)
 
 #------------------------------------------------------------------------------
 
@@ -425,7 +425,7 @@ class Registry(reg_capnp.Registry.Server):
         self._categories = {}
         for gen_cultivar_str in set(self._gen_cultivar_to_entries.keys()):
             disp_name = generic_cultivar_to_display_name.get(gen_cultivar_str, gen_cultivar_str)
-            self._categories[gen_cultivar_str] = common_capnp.Common.IdInformation(id=gen_cultivar_str, name=disp_name, description="")
+            self._categories[gen_cultivar_str] = common_capnp.IdInformation(id=gen_cultivar_str, name=disp_name, description="")
 
 
     def info_context(self, context): # -> Common.IdInformation;

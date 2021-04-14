@@ -7,10 +7,10 @@ $Cxx.namespace("mas::rpc::service");
 #$Go.package("dataServices");
 #$Go.import("dataServices");
 
-using Common = import "common.capnp".Common;
-using Soil = import "soil_data.capnp".Soil;
-using Climate = import "climate_data.capnp".Climate;
-using Model = import "model.capnp".Model;
+using Common = import "common.capnp";
+using Soil = import "soil_data.capnp";
+using Climate = import "climate_data.capnp";
+using Model = import "model.capnp";
 
 
 enum ServiceType {

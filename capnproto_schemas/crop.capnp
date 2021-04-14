@@ -3,7 +3,7 @@
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("mas::rpc::crop");
 
-using Common = import "common.capnp".Common;
+using Common = import "common.capnp";
 
 enum Cultivar {
   alfalfaClovergrassLeyMix  @0;

@@ -4,14 +4,14 @@
 @namespace Mas.Infrastructure.BlazorComponents
 
 @using MudBlazor
-@using Newtonsoft.Json.Linq
-@using Mas.Rpc
-@using Microsoft.AspNetCore.WebUtilities
-@using Mas.Infrastructure.Common
-@using ExtType = Rpc.Management.Event.ExternalType
-@using Mgmt = Rpc.Management
-@using Crop = Rpc.Crop
-@using Reg = Rpc.Registry
+@using ExtType = Mas.Rpc.Management.Event.ExternalType
+@using Mgmt = Mas.Rpc.Management
+@using Crop = Mas.Rpc.Crop
+@using Reg = Mas.Rpc.Registry
+@using Model = Mas.Rpc.Model
+@using Common = Mas.Rpc.Common 
+@using Climate = Mas.Rpc.Climate 
+@using Soil = Mas.Rpc.Soil 
 @using System.Linq
 
 @inject IJSRuntime JSRuntime
@@ -243,7 +243,8 @@
             {
                 <MudItem xs="12">
                     <EditCropRotation CropRotation=@cropRotation
-                                      FertilizerServiceCap=@(FertilizerServiceCap == null ? null : Capnp.Rpc.Proxy.Share(FertilizerServiceCap)) />
+                                      FertilizerServiceCap=@(FertilizerServiceCap == null ? null : Capnp.Rpc.Proxy.Share(FertilizerServiceCap))
+                                      CropRegistryServiceCap=@(CropRegistryServiceCap == null ? null : Capnp.Rpc.Proxy.Share(CropRegistryServiceCap))/>
                 </MudItem>
             }
         </MudGrid>

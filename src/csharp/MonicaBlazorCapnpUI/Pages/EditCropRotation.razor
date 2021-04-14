@@ -115,14 +115,16 @@
                             if (e.Params == null || e.Params is not Mgmt.Params.Sowing) e.Params = new Mgmt.Params.Sowing();
                             if (e.Params is Mgmt.Params.Sowing s)
                             {
-                                <EditSowing Params=@s />
+                                <EditSowing Params=@s
+                                            CropRegistryServiceCap=@(CropRegistryServiceCap == null ? null : Capnp.Rpc.Proxy.Share(CropRegistryServiceCap))/>
                             }
                             break;
                         case ExtType.automaticSowing:
                             if (e.Params == null || e.Params is not Mgmt.Params.AutomaticSowing) e.Params = new Mgmt.Params.AutomaticSowing() { Sowing = new() };
                             if (e.Params is Mgmt.Params.AutomaticSowing sa)
                             {
-                                <EditAutomaticSowing Params=@sa />
+                                <EditAutomaticSowing Params=@sa
+                                                     CropRegistryServiceCap=@(CropRegistryServiceCap == null ? null : Capnp.Rpc.Proxy.Share(CropRegistryServiceCap))/>
                             }
                             break;
                         case ExtType.harvest:
@@ -242,5 +244,7 @@
     {
         Console.WriteLine("Disposing Management.IFertilizerService cap: " + FertilizerServiceCap);
         FertilizerServiceCap?.Dispose();
+        Console.WriteLine("Disposing EditCropRotatio.CropRegistryServiceCap cap: " + CropRegistryServiceCap);
+        CropRegistryServiceCap?.Dispose();
     }
 }

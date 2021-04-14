@@ -60,7 +60,7 @@ def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon):
                                     for version in os.listdir(ensmem_dir):
                                         version_dir = ensmem_dir + "/" + version
                                         if os.path.isdir(version_dir):
-                                            metadata = climate_data_capnp.Climate.Metadata.new_message(
+                                            metadata = climate_data_capnp.Metadata.new_message(
                                                 entries = [
                                                     {"gcm": ccdi.string_to_gcm(gcm)},
                                                     {"rcm": ccdi.string_to_rcm(rcm)},
@@ -70,7 +70,7 @@ def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon):
                                                 ]
                                             )
                                             metadata.info = ccdi.Metadata_Info(metadata)
-                                            datasets.append(climate_data_capnp.Climate.MetaPlusData.new_message(
+                                            datasets.append(climate_data_capnp.MetaPlusData.new_message(
                                                 meta=metadata, 
                                                 data=csv_based.Dataset(metadata, version_dir, interpolator, rowcol_to_latlon, 
                                                 header_map={"windspeed": "wind"},

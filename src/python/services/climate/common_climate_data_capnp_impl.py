@@ -152,16 +152,16 @@ def lat_lon_interpolator(path_to_latlon_to_rowcol_json_file):
 def string_to_gcm(gcm_str):
     if not hasattr(string_to_gcm, "d"):
         string_to_gcm.d = {
-            "CCCma-CanESM2": climate_data_capnp.Climate.GCM.cccmaCanEsm2,
-            "ICHEC-EC-EARTH": climate_data_capnp.Climate.GCM.ichecEcEarth,
-            "IPSL-IPSL-CM5A-MR": climate_data_capnp.Climate.GCM.ipslIpslCm5AMr,
-            "MIROC-MIROC5": climate_data_capnp.Climate.GCM.mirocMiroc5,
-            "MPI-M-MPI-ESM-LR": climate_data_capnp.Climate.GCM.mpiMMpiEsmLr,
-            "GFDL-ESM4": climate_data_capnp.Climate.GCM.gfdlEsm4,
-            "IPSL-CM6A-LR": climate_data_capnp.Climate.GCM.ipslCm6aLr,
-            "MPI-ESM1-2-HR": climate_data_capnp.Climate.GCM.mpiEsm12Hr,
-            "MRI-ESM2-0": climate_data_capnp.Climate.GCM.mriEsm20,
-            "UKESM1-0-LL": climate_data_capnp.Climate.GCM.ukesm10Ll
+            "CCCma-CanESM2": climate_data_capnp.GCM.cccmaCanEsm2,
+            "ICHEC-EC-EARTH": climate_data_capnp.GCM.ichecEcEarth,
+            "IPSL-IPSL-CM5A-MR": climate_data_capnp.GCM.ipslIpslCm5AMr,
+            "MIROC-MIROC5": climate_data_capnp.GCM.mirocMiroc5,
+            "MPI-M-MPI-ESM-LR": climate_data_capnp.GCM.mpiMMpiEsmLr,
+            "GFDL-ESM4": climate_data_capnp.GCM.gfdlEsm4,
+            "IPSL-CM6A-LR": climate_data_capnp.GCM.ipslCm6aLr,
+            "MPI-ESM1-2-HR": climate_data_capnp.GCM.mpiEsm12Hr,
+            "MRI-ESM2-0": climate_data_capnp.GCM.mriEsm20,
+            "UKESM1-0-LL": climate_data_capnp.GCM.ukesm10Ll
         }
     return string_to_gcm.d.get(gcm_str, None)
 
@@ -170,16 +170,16 @@ def string_to_gcm(gcm_str):
 def gcm_to_info(gcm):
     if not hasattr(gcm_to_info, "d"):
         gcm_to_info.d = {
-            climate_data_capnp.Climate.GCM.cccmaCanEsm2: {"id": "CCCma-CanESM2", "name": "CCCma-CanESM2", "description": ""},
-            climate_data_capnp.Climate.GCM.ichecEcEarth: {"id": "ICHEC-EC-EARTH", "name": "ICHEC-EC-EARTH", "description": ""},
-            climate_data_capnp.Climate.GCM.ipslIpslCm5AMr: {"id": "IPSL-IPSL-CM5A-MR", "name": "IPSL-IPSL-CM5A-MR", "description": ""},
-            climate_data_capnp.Climate.GCM.mirocMiroc5: {"id": "MIROC-MIROC5", "name": "MIROC-MIROC5", "description": ""},
-            climate_data_capnp.Climate.GCM.mpiMMpiEsmLr: {"id": "MPI-M-MPI-ESM-LR", "name": "MPI-M-MPI-ESM-LR", "description": ""},
-            climate_data_capnp.Climate.GCM.gfdlEsm4: {"id": "GFDL-ESM4", "name": "GFDL-ESM4", "description": ""},
-            climate_data_capnp.Climate.GCM.ipslCm6aLr: {"id": "IPSL-CM6A-LR", "name": "IPSL-CM6A-LR", "description": ""},
-            climate_data_capnp.Climate.GCM.mpiEsm12Hr: {"id": "MPI-ESM1-2-HR", "name": "MPI-ESM1-2-HR", "description": ""},
-            climate_data_capnp.Climate.GCM.mriEsm20: {"id": "MRI-ESM2-0", "name": "MRI-ESM2-0", "description": ""},
-            climate_data_capnp.Climate.GCM.ukesm10Ll: {"id": "UKESM1-0-LL", "name": "UKESM1-0-LL", "description": ""}
+            climate_data_capnp.GCM.cccmaCanEsm2: {"id": "CCCma-CanESM2", "name": "CCCma-CanESM2", "description": ""},
+            climate_data_capnp.GCM.ichecEcEarth: {"id": "ICHEC-EC-EARTH", "name": "ICHEC-EC-EARTH", "description": ""},
+            climate_data_capnp.GCM.ipslIpslCm5AMr: {"id": "IPSL-IPSL-CM5A-MR", "name": "IPSL-IPSL-CM5A-MR", "description": ""},
+            climate_data_capnp.GCM.mirocMiroc5: {"id": "MIROC-MIROC5", "name": "MIROC-MIROC5", "description": ""},
+            climate_data_capnp.GCM.mpiMMpiEsmLr: {"id": "MPI-M-MPI-ESM-LR", "name": "MPI-M-MPI-ESM-LR", "description": ""},
+            climate_data_capnp.GCM.gfdlEsm4: {"id": "GFDL-ESM4", "name": "GFDL-ESM4", "description": ""},
+            climate_data_capnp.GCM.ipslCm6aLr: {"id": "IPSL-CM6A-LR", "name": "IPSL-CM6A-LR", "description": ""},
+            climate_data_capnp.GCM.mpiEsm12Hr: {"id": "MPI-ESM1-2-HR", "name": "MPI-ESM1-2-HR", "description": ""},
+            climate_data_capnp.GCM.mriEsm20: {"id": "MRI-ESM2-0", "name": "MRI-ESM2-0", "description": ""},
+            climate_data_capnp.GCM.ukesm10Ll: {"id": "UKESM1-0-LL", "name": "UKESM1-0-LL", "description": ""}
         }
     return gcm_to_info.d.get(gcm.raw, None)
 
@@ -188,12 +188,12 @@ def gcm_to_info(gcm):
 def string_to_rcm(rcm_str):
     if not hasattr(string_to_rcm, "d"):
         string_to_rcm.d = {
-            "CLMcom-CCLM4-8-17": climate_data_capnp.Climate.RCM.clmcomCclm4817,
-            "GERICS-REMO2015": climate_data_capnp.Climate.RCM.gericsRemo2015,
-            "KNMI-RACMO22E": climate_data_capnp.Climate.RCM.knmiRacmo22E,
-            "SMHI-RCA4": climate_data_capnp.Climate.RCM.smhiRca4,
-            "CLMcom-BTU-CCLM4-8-17": climate_data_capnp.Climate.RCM.clmcomBtuCclm4817,
-            "MPI-CSC-REMO2009": climate_data_capnp.Climate.RCM.mpiCscRemo2009
+            "CLMcom-CCLM4-8-17": climate_data_capnp.RCM.clmcomCclm4817,
+            "GERICS-REMO2015": climate_data_capnp.RCM.gericsRemo2015,
+            "KNMI-RACMO22E": climate_data_capnp.RCM.knmiRacmo22E,
+            "SMHI-RCA4": climate_data_capnp.RCM.smhiRca4,
+            "CLMcom-BTU-CCLM4-8-17": climate_data_capnp.RCM.clmcomBtuCclm4817,
+            "MPI-CSC-REMO2009": climate_data_capnp.RCM.mpiCscRemo2009
         }
     return string_to_rcm.d.get(rcm_str, None)
 
@@ -202,12 +202,12 @@ def string_to_rcm(rcm_str):
 def rcm_to_info(rcm):
     if not hasattr(rcm_to_info, "d"):
         rcm_to_info.d = {
-            climate_data_capnp.Climate.RCM.clmcomCclm4817: {"id": "CLMcom-CCLM4-8-17", "name": "CLMcom-CCLM4-8-17", "description": ""},
-            climate_data_capnp.Climate.RCM.gericsRemo2015: {"id": "GERICS-REMO2015", "name": "GERICS-REMO2015", "description": ""},
-            climate_data_capnp.Climate.RCM.knmiRacmo22E: {"id": "KNMI-RACMO22E", "name": "KNMI-RACMO22E", "description": ""},
-            climate_data_capnp.Climate.RCM.smhiRca4: {"id": "SMHI-RCA4", "name": "SMHI-RCA4", "description": ""},
-            climate_data_capnp.Climate.RCM.clmcomBtuCclm4817: {"id": "CLMcom-BTU-CCLM4-8-17", "name": "CLMcom-BTU-CCLM4-8-17", "description": ""},
-            climate_data_capnp.Climate.RCM.mpiCscRemo2009: {"id": "MPI-CSC-REMO2009", "name": "MPI-CSC-REMO2009", "description": ""}
+            climate_data_capnp.RCM.clmcomCclm4817: {"id": "CLMcom-CCLM4-8-17", "name": "CLMcom-CCLM4-8-17", "description": ""},
+            climate_data_capnp.RCM.gericsRemo2015: {"id": "GERICS-REMO2015", "name": "GERICS-REMO2015", "description": ""},
+            climate_data_capnp.RCM.knmiRacmo22E: {"id": "KNMI-RACMO22E", "name": "KNMI-RACMO22E", "description": ""},
+            climate_data_capnp.RCM.smhiRca4: {"id": "SMHI-RCA4", "name": "SMHI-RCA4", "description": ""},
+            climate_data_capnp.RCM.clmcomBtuCclm4817: {"id": "CLMcom-BTU-CCLM4-8-17", "name": "CLMcom-BTU-CCLM4-8-17", "description": ""},
+            climate_data_capnp.RCM.mpiCscRemo2009: {"id": "MPI-CSC-REMO2009", "name": "MPI-CSC-REMO2009", "description": ""}
         } 
     return rcm_to_info.d.get(rcm.raw, None)
 
@@ -285,7 +285,7 @@ def create_capnp_date(py_date):
     
 #------------------------------------------------------------------------------
 
-class Metadata_Info(climate_data_capnp.Climate.Metadata.Information.Server):
+class Metadata_Info(climate_data_capnp.Metadata.Information.Server):
 
     def __init__(self, metadata):
         self._meta = metadata
@@ -326,7 +326,7 @@ class Metadata_Info(climate_data_capnp.Climate.Metadata.Information.Server):
 
 #------------------------------------------------------------------------------
 
-class Service(climate_data_capnp.Climate.Service.Server):
+class Service(climate_data_capnp.Service.Server):
 
     def __init__(self, meta_plus_datasets, id=None, name=None, description=None, port=None):
         self._id = id if id else str(uuid.uuid4()) 

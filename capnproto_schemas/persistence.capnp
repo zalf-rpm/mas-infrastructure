@@ -3,13 +3,13 @@
 using Persistent = import "/capnp/persistent.capnp".Persistent;
 
 using Cxx = import "/capnp/c++.capnp";
-$Cxx.namespace("mas::rpc::Persistence");
+$Cxx.namespace("mas::rpc::persistence");
 
 using Go = import "lang/go.capnp";
 $Go.package("common");
 $Go.import("common");
 
-using Common = import "common.capnp".Common;
+using Common = import "common.capnp";
 
 struct VatId {
   # Taken from https://github.com/sandstorm-io/blackrock/blob/master/src/blackrock/cluster-rpc.capnp#L22

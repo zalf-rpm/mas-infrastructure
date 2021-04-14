@@ -73,7 +73,7 @@ class ConnectionManager:
 #------------------------------------------------------------------------------
 
 # interface Callback
-class CallbackImpl(common_capnp.Common.Callback.Server):
+class CallbackImpl(common_capnp.Callback.Server):
 
     def __init__(self, callback, *args, exec_callback_on_del=False, **kwargs):
         self._args = args
@@ -93,7 +93,7 @@ class CallbackImpl(common_capnp.Common.Callback.Server):
 #------------------------------------------------------------------------------
 
 # interface CapHolder(Object)
-class CapHolderImpl(common_capnp.Common.CapHolder.Server):
+class CapHolderImpl(common_capnp.CapHolder.Server):
 
     def __init__(self, cap, cleanup_func, cleanup_on_del=False):
         self._cap = cap
@@ -115,7 +115,7 @@ class CapHolderImpl(common_capnp.Common.CapHolder.Server):
 #------------------------------------------------------------------------------
 
 # interface PersistCapHolder(Object) extends(CapHolder(Object), Persistent.Persistent(Text, Text)) {
-class PersistCapHolderImpl(common_capnp.Common.PersistCapHolder.Server):
+class PersistCapHolderImpl(common_capnp.PersistCapHolder.Server):
 
     def __init__(self, cap, sturdy_ref, cleanup_func, cleanup_on_del=False):
         self._cap = cap

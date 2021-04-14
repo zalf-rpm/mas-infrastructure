@@ -43,7 +43,7 @@ import capnproto_schemas.climate_data_capnp as climate_data_capnp
 
 #@pytest.fixture(scope="session")
 #def time_series_cap(start_time_series_service):
-#    csv_time_series = capnp.TwoPartyClient("localhost:6666").bootstrap().cast_as(climate_data_capnp.Climate.TimeSeries)
+#    csv_time_series = capnp.TwoPartyClient("localhost:6666").bootstrap().cast_as(climate_data_capnp.TimeSeries)
 #    return csv_time_series
 
 
