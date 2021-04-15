@@ -4,6 +4,7 @@ using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("mas::models::monica");
 
 using Date = import "../../date.capnp".Date;
+using Mgmt = import "../../management.capnp";
 
 # -----------------------------------------------------------------------------
 # crop related parameters
@@ -159,13 +160,13 @@ struct NMinCropParameters {
 # fertilizer parameters
 # -----------------------------------------------------------------------------
 
-struct MineralFertilizerParameters {
-    id          @0 :Text;
-	name        @1 :Text;
-    carbamid    @2 :Float64; # [%]
-	nh4         @3 :Float64; # [%]
-	no3         @4 :Float64; # [%]
-}
+#struct MineralFertilizerParameters {
+#    id          @0 :Text;
+#	name        @1 :Text;
+#    carbamid    @2 :Float64; # [%]
+#	nh4         @3 :Float64; # [%]
+#	no3         @4 :Float64; # [%]
+#}
 
 struct NMinApplicationParameters {
     min         @0 :Float64;
@@ -173,35 +174,35 @@ struct NMinApplicationParameters {
     delayInDays @2 :UInt16;
 }
 
-struct OrganicMatterParameters {
-    aomDryMatterContent         @0  :Float64; # Dry matter content of added organic matter [kg DM kg FM-1]
-    aomNH4Content               @1  :Float64; # Ammonium content in added organic matter [kg N kg DM-1]
-    aomNO3Content               @2  :Float64; # Nitrate content in added organic matter [kg N kg DM-1]
-    aomCarbamidContent          @3  :Float64; # Carbamide content in added organic matter [kg N kg DM-1]
+#struct OrganicMatterParameters {
+#    aomDryMatterContent         @0  :Float64; # Dry matter content of added organic matter [kg DM kg FM-1]
+#    aomNH4Content               @1  :Float64; # Ammonium content in added organic matter [kg N kg DM-1]
+#    aomNO3Content               @2  :Float64; # Nitrate content in added organic matter [kg N kg DM-1]
+#    aomCarbamidContent          @3  :Float64; # Carbamide content in added organic matter [kg N kg DM-1]
 
-    aomSlowDecCoeffStandard     @4  :Float64; # Decomposition rate coefficient of slow AOM at standard conditions [d-1]
-    aomFastDecCoeffStandard     @5  :Float64; # Decomposition rate coefficient of fast AOM at standard conditions [d-1]
+#    aomSlowDecCoeffStandard     @4  :Float64; # Decomposition rate coefficient of slow AOM at standard conditions [d-1]
+#    aomFastDecCoeffStandard     @5  :Float64; # Decomposition rate coefficient of fast AOM at standard conditions [d-1]
 
-    partAOMToAOMSlow            @6  :Float64; # Part of AOM that is assigned to the slowly decomposing pool [kg kg-1]
-    partAOMToAOMFast            @7  :Float64; # Part of AOM that is assigned to the rapidly decomposing pool [kg kg-1]
+#    partAOMToAOMSlow            @6  :Float64; # Part of AOM that is assigned to the slowly decomposing pool [kg kg-1]
+#    partAOMToAOMFast            @7  :Float64; # Part of AOM that is assigned to the rapidly decomposing pool [kg kg-1]
 
-    cnRatioAOMSlow              @8  :Float64; # C to N ratio of the slowly decomposing AOM pool []
-    cnRatioAOMFast              @9  :Float64; # C to N ratio of the rapidly decomposing AOM pool []
+#    cnRatioAOMSlow              @8  :Float64; # C to N ratio of the slowly decomposing AOM pool []
+#    cnRatioAOMFast              @9  :Float64; # C to N ratio of the rapidly decomposing AOM pool []
 
-    partAOMSlowToSMBSlow        @10 :Float64; # Part of AOM slow consumed by slow soil microbial biomass [kg kg-1]
-    partAOMSlowToSMBFast        @11 :Float64; # Part of AOM slow consumed by fast soil microbial biomass [kg kg-1]
+#    partAOMSlowToSMBSlow        @10 :Float64; # Part of AOM slow consumed by slow soil microbial biomass [kg kg-1]
+#    partAOMSlowToSMBFast        @11 :Float64; # Part of AOM slow consumed by fast soil microbial biomass [kg kg-1]
 
-    nConcentration              @12 :Float64;
-}
+#    nConcentration              @12 :Float64;
+#}
 
-struct OrganicFertilizerParameters {
-    params  @0 :OrganicMatterParameters;
-    id      @1 :Text;
-	name    @2 :Text;
-}
+#struct OrganicFertilizerParameters {
+#    params  @0 :OrganicMatterParameters;
+#    id      @1 :Text;
+#	name    @2 :Text;
+#}
 
 struct CropResidueParameters {
-    params      @0 :OrganicMatterParameters;
+    params      @0 :Mgmt.Params.OrganicFertilization.OrganicMatterParameters;
     species     @1 :Text;
     residueType @2 :Text;
 }
@@ -234,13 +235,13 @@ struct SoilParameters {
 # irrigation parameters
 # -----------------------------------------------------------------------------
 
-struct IrrigationParameters {
-    nitrateConcentration @0 :Float64;   # nitrate concentration [mg dm-3]
-	sulfateConcentration @1 :Float64;   # sulfate concentration [mg dm-3]
-}
+#struct IrrigationParameters {
+#    nitrateConcentration @0 :Float64;   # nitrate concentration [mg dm-3]
+#	sulfateConcentration @1 :Float64;   # sulfate concentration [mg dm-3]
+#}
 
 struct AutomaticIrrigationParameters {
-    params      @0 :IrrigationParameters;
+    params      @0 :Mgmt.Params.Irrigation.Parameters;
     amount      @1 :Float64 = 17.0;
 	threshold   @2 :Float64 = 0.35;
 }
@@ -312,7 +313,7 @@ struct SimulationParameters {
     autoIrrigationParams            @8  :AutomaticIrrigationParameters;
 
     useNMinMineralFertilisingMethod @9  :Bool;
-    nMinFertiliserPartition         @10 :MineralFertilizerParameters;
+    nMinFertiliserPartition         @10 :Mgmt.Params.MineralFertilization.Parameters;
     nMinApplicationParams           @11 :NMinApplicationParameters;
 
     useSecondaryYields              @12 :Bool = true;

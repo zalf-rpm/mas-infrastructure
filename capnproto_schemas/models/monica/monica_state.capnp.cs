@@ -753,7 +753,7 @@ namespace Mas.Models.Monica
             PsMaxMineralisationDepth = reader.PsMaxMineralisationDepth;
             VsNumberOfOrganicLayers = reader.VsNumberOfOrganicLayers;
             VfTopDressing = reader.VfTopDressing;
-            VfTopDressingPartition = CapnpSerializable.Create<Mas.Models.Monica.MineralFertilizerParameters>(reader.VfTopDressingPartition);
+            VfTopDressingPartition = CapnpSerializable.Create<Mas.Rpc.Management.Params.MineralFertilization.Parameters>(reader.VfTopDressingPartition);
             VfTopDressingDelay = reader.VfTopDressingDelay;
             CropModule = CapnpSerializable.Create<Mas.Models.Monica.CropModuleState>(reader.CropModule);
             DelayedNMinApplications = reader.DelayedNMinApplications?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Models.Monica.SoilColumnState.DelayedNMinApplicationParams>(_));
@@ -852,7 +852,7 @@ namespace Mas.Models.Monica
             set;
         }
 
-        public Mas.Models.Monica.MineralFertilizerParameters VfTopDressingPartition
+        public Mas.Rpc.Management.Params.MineralFertilization.Parameters VfTopDressingPartition
         {
             get;
             set;
@@ -909,7 +909,7 @@ namespace Mas.Models.Monica
             public double PsMaxMineralisationDepth => ctx.ReadDataDouble(448UL, 0.4);
             public double VsNumberOfOrganicLayers => ctx.ReadDataDouble(512UL, 0);
             public double VfTopDressing => ctx.ReadDataDouble(576UL, 0);
-            public Mas.Models.Monica.MineralFertilizerParameters.READER VfTopDressingPartition => ctx.ReadStruct(0, Mas.Models.Monica.MineralFertilizerParameters.READER.create);
+            public Mas.Rpc.Management.Params.MineralFertilization.Parameters.READER VfTopDressingPartition => ctx.ReadStruct(0, Mas.Rpc.Management.Params.MineralFertilization.Parameters.READER.create);
             public ushort VfTopDressingDelay => ctx.ReadDataUShort(144UL, (ushort)0);
             public Mas.Models.Monica.CropModuleState.READER CropModule => ctx.ReadStruct(1, Mas.Models.Monica.CropModuleState.READER.create);
             public IReadOnlyList<Mas.Models.Monica.SoilColumnState.DelayedNMinApplicationParams.READER> DelayedNMinApplications => ctx.ReadList(2).Cast(Mas.Models.Monica.SoilColumnState.DelayedNMinApplicationParams.READER.create);
@@ -984,9 +984,9 @@ namespace Mas.Models.Monica
                 set => this.WriteData(576UL, value, 0);
             }
 
-            public Mas.Models.Monica.MineralFertilizerParameters.WRITER VfTopDressingPartition
+            public Mas.Rpc.Management.Params.MineralFertilization.Parameters.WRITER VfTopDressingPartition
             {
-                get => BuildPointer<Mas.Models.Monica.MineralFertilizerParameters.WRITER>(0);
+                get => BuildPointer<Mas.Rpc.Management.Params.MineralFertilization.Parameters.WRITER>(0);
                 set => Link(0, value);
             }
 
@@ -1028,7 +1028,7 @@ namespace Mas.Models.Monica
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Fp = CapnpSerializable.Create<Mas.Models.Monica.MineralFertilizerParameters>(reader.Fp);
+                Fp = CapnpSerializable.Create<Mas.Rpc.Management.Params.MineralFertilization.Parameters>(reader.Fp);
                 SamplingDepth = reader.SamplingDepth;
                 CropNTarget = reader.CropNTarget;
                 CropNTarget30 = reader.CropNTarget30;
@@ -1058,7 +1058,7 @@ namespace Mas.Models.Monica
             {
             }
 
-            public Mas.Models.Monica.MineralFertilizerParameters Fp
+            public Mas.Rpc.Management.Params.MineralFertilization.Parameters Fp
             {
                 get;
                 set;
@@ -1111,7 +1111,7 @@ namespace Mas.Models.Monica
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Models.Monica.MineralFertilizerParameters.READER Fp => ctx.ReadStruct(0, Mas.Models.Monica.MineralFertilizerParameters.READER.create);
+                public Mas.Rpc.Management.Params.MineralFertilization.Parameters.READER Fp => ctx.ReadStruct(0, Mas.Rpc.Management.Params.MineralFertilization.Parameters.READER.create);
                 public double SamplingDepth => ctx.ReadDataDouble(0UL, 0);
                 public double CropNTarget => ctx.ReadDataDouble(64UL, 0);
                 public double CropNTarget30 => ctx.ReadDataDouble(128UL, 0);
@@ -1127,9 +1127,9 @@ namespace Mas.Models.Monica
                     this.SetStruct(6, 1);
                 }
 
-                public Mas.Models.Monica.MineralFertilizerParameters.WRITER Fp
+                public Mas.Rpc.Management.Params.MineralFertilization.Parameters.WRITER Fp
                 {
-                    get => BuildPointer<Mas.Models.Monica.MineralFertilizerParameters.WRITER>(0);
+                    get => BuildPointer<Mas.Rpc.Management.Params.MineralFertilization.Parameters.WRITER>(0);
                     set => Link(0, value);
                 }
 

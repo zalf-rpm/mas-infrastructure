@@ -6,7 +6,6 @@ $Cxx.namespace("mas::rpc::management");
 using Date = import "date.capnp".Date;
 using Common = import "common.capnp";
 using Geo = import "geo_coord.capnp";
-using MonicaParams = import "models/monica/monica_params.capnp";
 using Crop = import "crop.capnp";
 
 enum MineralFertilizer {
@@ -229,19 +228,54 @@ struct Params {
 	}
 
   struct MineralFertilization {
-    partition @0 :MonicaParams.MineralFertilizerParameters;
+    struct Parameters {
+      id          @0 :Text;
+      name        @1 :Text;
+      carbamid    @2 :Float64; # [%]
+      nh4         @3 :Float64; # [%]
+      no3         @4 :Float64; # [%]
+    }
+
+    partition @0 :Parameters;
     amount    @1 :Float64;
   }
 
   struct NDemandFertilization {
 	  nDemand   @0 :Float64;
-    partition @1 :MonicaParams.MineralFertilizerParameters;
+    partition @1 :MineralFertilization.Parameters;
 	  depth     @2 :Float64;
 	  stage     @3 :UInt8 = 1;
   }
 
   struct OrganicFertilization {
-    params        @0 :MonicaParams.OrganicFertilizerParameters;
+    struct OrganicMatterParameters {
+      aomDryMatterContent         @0  :Float64; # Dry matter content of added organic matter [kg DM kg FM-1]
+      aomNH4Content               @1  :Float64; # Ammonium content in added organic matter [kg N kg DM-1]
+      aomNO3Content               @2  :Float64; # Nitrate content in added organic matter [kg N kg DM-1]
+      aomCarbamidContent          @3  :Float64; # Carbamide content in added organic matter [kg N kg DM-1]
+
+      aomSlowDecCoeffStandard     @4  :Float64; # Decomposition rate coefficient of slow AOM at standard conditions [d-1]
+      aomFastDecCoeffStandard     @5  :Float64; # Decomposition rate coefficient of fast AOM at standard conditions [d-1]
+
+      partAOMToAOMSlow            @6  :Float64; # Part of AOM that is assigned to the slowly decomposing pool [kg kg-1]
+      partAOMToAOMFast            @7  :Float64; # Part of AOM that is assigned to the rapidly decomposing pool [kg kg-1]
+
+      cnRatioAOMSlow              @8  :Float64; # C to N ratio of the slowly decomposing AOM pool []
+      cnRatioAOMFast              @9  :Float64; # C to N ratio of the rapidly decomposing AOM pool []
+
+      partAOMSlowToSMBSlow        @10 :Float64; # Part of AOM slow consumed by slow soil microbial biomass [kg kg-1]
+      partAOMSlowToSMBFast        @11 :Float64; # Part of AOM slow consumed by fast soil microbial biomass [kg kg-1]
+
+      nConcentration              @12 :Float64;
+    }
+
+    struct Parameters {
+      params  @0 :OrganicMatterParameters;
+      id      @1 :Text;
+      name    @2 :Text;
+    }
+
+    params        @0 :Parameters;
 	  amount        @1 :Float64;
 	  incorporation @2 :Bool = false;
   }
@@ -251,8 +285,13 @@ struct Params {
   }
 
   struct Irrigation {
+    struct Parameters {
+      nitrateConcentration @0 :Float64;   # nitrate concentration [mg dm-3]
+      sulfateConcentration @1 :Float64;   # sulfate concentration [mg dm-3]
+    }
+
     amount @0 :Float64;
-    params @1 :MonicaParams.IrrigationParameters;
+    params @1 :Parameters;
   }
 }
 
@@ -260,10 +299,10 @@ struct Params {
 interface FertilizerService extends(Common.Identifiable) {
   # service to return predefined fertilizers
 
-  mineralFertilizerPartitionFor @0 (minFert :MineralFertilizer) -> (partition :MonicaParams.MineralFertilizerParameters);
+  mineralFertilizerPartitionFor @0 (minFert :MineralFertilizer) -> (partition :Params.MineralFertilization.Parameters);
   # get mineral fertilizer parameters by name/id
 
-  organicFertilizerParametersFor @1 (orgFert :OrganicFertilizer) -> (params :MonicaParams.OrganicFertilizerParameters);
+  organicFertilizerParametersFor @1 (orgFert :OrganicFertilizer) -> (params :Params.OrganicFertilization.Parameters);
   # get organic fertilizer parameters by name/id
 }
 

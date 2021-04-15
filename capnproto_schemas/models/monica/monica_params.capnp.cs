@@ -1935,126 +1935,6 @@ namespace Mas.Models.Monica
         }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x80d5e7b633a3b398UL)]
-    public class MineralFertilizerParameters : ICapnpSerializable
-    {
-        public const UInt64 typeId = 0x80d5e7b633a3b398UL;
-        void ICapnpSerializable.Deserialize(DeserializerState arg_)
-        {
-            var reader = READER.create(arg_);
-            Id = reader.Id;
-            Name = reader.Name;
-            Carbamid = reader.Carbamid;
-            Nh4 = reader.Nh4;
-            No3 = reader.No3;
-            applyDefaults();
-        }
-
-        public void serialize(WRITER writer)
-        {
-            writer.Id = Id;
-            writer.Name = Name;
-            writer.Carbamid = Carbamid;
-            writer.Nh4 = Nh4;
-            writer.No3 = No3;
-        }
-
-        void ICapnpSerializable.Serialize(SerializerState arg_)
-        {
-            serialize(arg_.Rewrap<WRITER>());
-        }
-
-        public void applyDefaults()
-        {
-        }
-
-        public string Id
-        {
-            get;
-            set;
-        }
-
-        public string Name
-        {
-            get;
-            set;
-        }
-
-        public double Carbamid
-        {
-            get;
-            set;
-        }
-
-        public double Nh4
-        {
-            get;
-            set;
-        }
-
-        public double No3
-        {
-            get;
-            set;
-        }
-
-        public struct READER
-        {
-            readonly DeserializerState ctx;
-            public READER(DeserializerState ctx)
-            {
-                this.ctx = ctx;
-            }
-
-            public static READER create(DeserializerState ctx) => new READER(ctx);
-            public static implicit operator DeserializerState(READER reader) => reader.ctx;
-            public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-            public string Id => ctx.ReadText(0, null);
-            public string Name => ctx.ReadText(1, null);
-            public double Carbamid => ctx.ReadDataDouble(0UL, 0);
-            public double Nh4 => ctx.ReadDataDouble(64UL, 0);
-            public double No3 => ctx.ReadDataDouble(128UL, 0);
-        }
-
-        public class WRITER : SerializerState
-        {
-            public WRITER()
-            {
-                this.SetStruct(3, 2);
-            }
-
-            public string Id
-            {
-                get => this.ReadText(0, null);
-                set => this.WriteText(0, value, null);
-            }
-
-            public string Name
-            {
-                get => this.ReadText(1, null);
-                set => this.WriteText(1, value, null);
-            }
-
-            public double Carbamid
-            {
-                get => this.ReadDataDouble(0UL, 0);
-                set => this.WriteData(0UL, value, 0);
-            }
-
-            public double Nh4
-            {
-                get => this.ReadDataDouble(64UL, 0);
-                set => this.WriteData(64UL, value, 0);
-            }
-
-            public double No3
-            {
-                get => this.ReadDataDouble(128UL, 0);
-                set => this.WriteData(128UL, value, 0);
-            }
-        }
-    }
-
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xde7576c640b5ad18UL)]
     public class NMinApplicationParameters : ICapnpSerializable
     {
@@ -2145,336 +2025,6 @@ namespace Mas.Models.Monica
         }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xafe2ecafd369812aUL)]
-    public class OrganicMatterParameters : ICapnpSerializable
-    {
-        public const UInt64 typeId = 0xafe2ecafd369812aUL;
-        void ICapnpSerializable.Deserialize(DeserializerState arg_)
-        {
-            var reader = READER.create(arg_);
-            AomDryMatterContent = reader.AomDryMatterContent;
-            AomNH4Content = reader.AomNH4Content;
-            AomNO3Content = reader.AomNO3Content;
-            AomCarbamidContent = reader.AomCarbamidContent;
-            AomSlowDecCoeffStandard = reader.AomSlowDecCoeffStandard;
-            AomFastDecCoeffStandard = reader.AomFastDecCoeffStandard;
-            PartAOMToAOMSlow = reader.PartAOMToAOMSlow;
-            PartAOMToAOMFast = reader.PartAOMToAOMFast;
-            CnRatioAOMSlow = reader.CnRatioAOMSlow;
-            CnRatioAOMFast = reader.CnRatioAOMFast;
-            PartAOMSlowToSMBSlow = reader.PartAOMSlowToSMBSlow;
-            PartAOMSlowToSMBFast = reader.PartAOMSlowToSMBFast;
-            NConcentration = reader.NConcentration;
-            applyDefaults();
-        }
-
-        public void serialize(WRITER writer)
-        {
-            writer.AomDryMatterContent = AomDryMatterContent;
-            writer.AomNH4Content = AomNH4Content;
-            writer.AomNO3Content = AomNO3Content;
-            writer.AomCarbamidContent = AomCarbamidContent;
-            writer.AomSlowDecCoeffStandard = AomSlowDecCoeffStandard;
-            writer.AomFastDecCoeffStandard = AomFastDecCoeffStandard;
-            writer.PartAOMToAOMSlow = PartAOMToAOMSlow;
-            writer.PartAOMToAOMFast = PartAOMToAOMFast;
-            writer.CnRatioAOMSlow = CnRatioAOMSlow;
-            writer.CnRatioAOMFast = CnRatioAOMFast;
-            writer.PartAOMSlowToSMBSlow = PartAOMSlowToSMBSlow;
-            writer.PartAOMSlowToSMBFast = PartAOMSlowToSMBFast;
-            writer.NConcentration = NConcentration;
-        }
-
-        void ICapnpSerializable.Serialize(SerializerState arg_)
-        {
-            serialize(arg_.Rewrap<WRITER>());
-        }
-
-        public void applyDefaults()
-        {
-        }
-
-        public double AomDryMatterContent
-        {
-            get;
-            set;
-        }
-
-        public double AomNH4Content
-        {
-            get;
-            set;
-        }
-
-        public double AomNO3Content
-        {
-            get;
-            set;
-        }
-
-        public double AomCarbamidContent
-        {
-            get;
-            set;
-        }
-
-        public double AomSlowDecCoeffStandard
-        {
-            get;
-            set;
-        }
-
-        public double AomFastDecCoeffStandard
-        {
-            get;
-            set;
-        }
-
-        public double PartAOMToAOMSlow
-        {
-            get;
-            set;
-        }
-
-        public double PartAOMToAOMFast
-        {
-            get;
-            set;
-        }
-
-        public double CnRatioAOMSlow
-        {
-            get;
-            set;
-        }
-
-        public double CnRatioAOMFast
-        {
-            get;
-            set;
-        }
-
-        public double PartAOMSlowToSMBSlow
-        {
-            get;
-            set;
-        }
-
-        public double PartAOMSlowToSMBFast
-        {
-            get;
-            set;
-        }
-
-        public double NConcentration
-        {
-            get;
-            set;
-        }
-
-        public struct READER
-        {
-            readonly DeserializerState ctx;
-            public READER(DeserializerState ctx)
-            {
-                this.ctx = ctx;
-            }
-
-            public static READER create(DeserializerState ctx) => new READER(ctx);
-            public static implicit operator DeserializerState(READER reader) => reader.ctx;
-            public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-            public double AomDryMatterContent => ctx.ReadDataDouble(0UL, 0);
-            public double AomNH4Content => ctx.ReadDataDouble(64UL, 0);
-            public double AomNO3Content => ctx.ReadDataDouble(128UL, 0);
-            public double AomCarbamidContent => ctx.ReadDataDouble(192UL, 0);
-            public double AomSlowDecCoeffStandard => ctx.ReadDataDouble(256UL, 0);
-            public double AomFastDecCoeffStandard => ctx.ReadDataDouble(320UL, 0);
-            public double PartAOMToAOMSlow => ctx.ReadDataDouble(384UL, 0);
-            public double PartAOMToAOMFast => ctx.ReadDataDouble(448UL, 0);
-            public double CnRatioAOMSlow => ctx.ReadDataDouble(512UL, 0);
-            public double CnRatioAOMFast => ctx.ReadDataDouble(576UL, 0);
-            public double PartAOMSlowToSMBSlow => ctx.ReadDataDouble(640UL, 0);
-            public double PartAOMSlowToSMBFast => ctx.ReadDataDouble(704UL, 0);
-            public double NConcentration => ctx.ReadDataDouble(768UL, 0);
-        }
-
-        public class WRITER : SerializerState
-        {
-            public WRITER()
-            {
-                this.SetStruct(13, 0);
-            }
-
-            public double AomDryMatterContent
-            {
-                get => this.ReadDataDouble(0UL, 0);
-                set => this.WriteData(0UL, value, 0);
-            }
-
-            public double AomNH4Content
-            {
-                get => this.ReadDataDouble(64UL, 0);
-                set => this.WriteData(64UL, value, 0);
-            }
-
-            public double AomNO3Content
-            {
-                get => this.ReadDataDouble(128UL, 0);
-                set => this.WriteData(128UL, value, 0);
-            }
-
-            public double AomCarbamidContent
-            {
-                get => this.ReadDataDouble(192UL, 0);
-                set => this.WriteData(192UL, value, 0);
-            }
-
-            public double AomSlowDecCoeffStandard
-            {
-                get => this.ReadDataDouble(256UL, 0);
-                set => this.WriteData(256UL, value, 0);
-            }
-
-            public double AomFastDecCoeffStandard
-            {
-                get => this.ReadDataDouble(320UL, 0);
-                set => this.WriteData(320UL, value, 0);
-            }
-
-            public double PartAOMToAOMSlow
-            {
-                get => this.ReadDataDouble(384UL, 0);
-                set => this.WriteData(384UL, value, 0);
-            }
-
-            public double PartAOMToAOMFast
-            {
-                get => this.ReadDataDouble(448UL, 0);
-                set => this.WriteData(448UL, value, 0);
-            }
-
-            public double CnRatioAOMSlow
-            {
-                get => this.ReadDataDouble(512UL, 0);
-                set => this.WriteData(512UL, value, 0);
-            }
-
-            public double CnRatioAOMFast
-            {
-                get => this.ReadDataDouble(576UL, 0);
-                set => this.WriteData(576UL, value, 0);
-            }
-
-            public double PartAOMSlowToSMBSlow
-            {
-                get => this.ReadDataDouble(640UL, 0);
-                set => this.WriteData(640UL, value, 0);
-            }
-
-            public double PartAOMSlowToSMBFast
-            {
-                get => this.ReadDataDouble(704UL, 0);
-                set => this.WriteData(704UL, value, 0);
-            }
-
-            public double NConcentration
-            {
-                get => this.ReadDataDouble(768UL, 0);
-                set => this.WriteData(768UL, value, 0);
-            }
-        }
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xd4ab840d07528e57UL)]
-    public class OrganicFertilizerParameters : ICapnpSerializable
-    {
-        public const UInt64 typeId = 0xd4ab840d07528e57UL;
-        void ICapnpSerializable.Deserialize(DeserializerState arg_)
-        {
-            var reader = READER.create(arg_);
-            Params = CapnpSerializable.Create<Mas.Models.Monica.OrganicMatterParameters>(reader.Params);
-            Id = reader.Id;
-            Name = reader.Name;
-            applyDefaults();
-        }
-
-        public void serialize(WRITER writer)
-        {
-            Params?.serialize(writer.Params);
-            writer.Id = Id;
-            writer.Name = Name;
-        }
-
-        void ICapnpSerializable.Serialize(SerializerState arg_)
-        {
-            serialize(arg_.Rewrap<WRITER>());
-        }
-
-        public void applyDefaults()
-        {
-        }
-
-        public Mas.Models.Monica.OrganicMatterParameters Params
-        {
-            get;
-            set;
-        }
-
-        public string Id
-        {
-            get;
-            set;
-        }
-
-        public string Name
-        {
-            get;
-            set;
-        }
-
-        public struct READER
-        {
-            readonly DeserializerState ctx;
-            public READER(DeserializerState ctx)
-            {
-                this.ctx = ctx;
-            }
-
-            public static READER create(DeserializerState ctx) => new READER(ctx);
-            public static implicit operator DeserializerState(READER reader) => reader.ctx;
-            public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-            public Mas.Models.Monica.OrganicMatterParameters.READER Params => ctx.ReadStruct(0, Mas.Models.Monica.OrganicMatterParameters.READER.create);
-            public string Id => ctx.ReadText(1, null);
-            public string Name => ctx.ReadText(2, null);
-        }
-
-        public class WRITER : SerializerState
-        {
-            public WRITER()
-            {
-                this.SetStruct(0, 3);
-            }
-
-            public Mas.Models.Monica.OrganicMatterParameters.WRITER Params
-            {
-                get => BuildPointer<Mas.Models.Monica.OrganicMatterParameters.WRITER>(0);
-                set => Link(0, value);
-            }
-
-            public string Id
-            {
-                get => this.ReadText(1, null);
-                set => this.WriteText(1, value, null);
-            }
-
-            public string Name
-            {
-                get => this.ReadText(2, null);
-                set => this.WriteText(2, value, null);
-            }
-        }
-    }
-
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x8491dc2c2f94f1d1UL)]
     public class CropResidueParameters : ICapnpSerializable
     {
@@ -2482,7 +2032,7 @@ namespace Mas.Models.Monica
         void ICapnpSerializable.Deserialize(DeserializerState arg_)
         {
             var reader = READER.create(arg_);
-            Params = CapnpSerializable.Create<Mas.Models.Monica.OrganicMatterParameters>(reader.Params);
+            Params = CapnpSerializable.Create<Mas.Rpc.Management.Params.OrganicFertilization.OrganicMatterParameters>(reader.Params);
             Species = reader.Species;
             ResidueType = reader.ResidueType;
             applyDefaults();
@@ -2504,7 +2054,7 @@ namespace Mas.Models.Monica
         {
         }
 
-        public Mas.Models.Monica.OrganicMatterParameters Params
+        public Mas.Rpc.Management.Params.OrganicFertilization.OrganicMatterParameters Params
         {
             get;
             set;
@@ -2533,7 +2083,7 @@ namespace Mas.Models.Monica
             public static READER create(DeserializerState ctx) => new READER(ctx);
             public static implicit operator DeserializerState(READER reader) => reader.ctx;
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-            public Mas.Models.Monica.OrganicMatterParameters.READER Params => ctx.ReadStruct(0, Mas.Models.Monica.OrganicMatterParameters.READER.create);
+            public Mas.Rpc.Management.Params.OrganicFertilization.OrganicMatterParameters.READER Params => ctx.ReadStruct(0, Mas.Rpc.Management.Params.OrganicFertilization.OrganicMatterParameters.READER.create);
             public string Species => ctx.ReadText(1, null);
             public string ResidueType => ctx.ReadText(2, null);
         }
@@ -2545,9 +2095,9 @@ namespace Mas.Models.Monica
                 this.SetStruct(0, 3);
             }
 
-            public Mas.Models.Monica.OrganicMatterParameters.WRITER Params
+            public Mas.Rpc.Management.Params.OrganicFertilization.OrganicMatterParameters.WRITER Params
             {
-                get => BuildPointer<Mas.Models.Monica.OrganicMatterParameters.WRITER>(0);
+                get => BuildPointer<Mas.Rpc.Management.Params.OrganicFertilization.OrganicMatterParameters.WRITER>(0);
                 set => Link(0, value);
             }
 
@@ -2880,81 +2430,6 @@ namespace Mas.Models.Monica
         }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x9634835c10cc4733UL)]
-    public class IrrigationParameters : ICapnpSerializable
-    {
-        public const UInt64 typeId = 0x9634835c10cc4733UL;
-        void ICapnpSerializable.Deserialize(DeserializerState arg_)
-        {
-            var reader = READER.create(arg_);
-            NitrateConcentration = reader.NitrateConcentration;
-            SulfateConcentration = reader.SulfateConcentration;
-            applyDefaults();
-        }
-
-        public void serialize(WRITER writer)
-        {
-            writer.NitrateConcentration = NitrateConcentration;
-            writer.SulfateConcentration = SulfateConcentration;
-        }
-
-        void ICapnpSerializable.Serialize(SerializerState arg_)
-        {
-            serialize(arg_.Rewrap<WRITER>());
-        }
-
-        public void applyDefaults()
-        {
-        }
-
-        public double NitrateConcentration
-        {
-            get;
-            set;
-        }
-
-        public double SulfateConcentration
-        {
-            get;
-            set;
-        }
-
-        public struct READER
-        {
-            readonly DeserializerState ctx;
-            public READER(DeserializerState ctx)
-            {
-                this.ctx = ctx;
-            }
-
-            public static READER create(DeserializerState ctx) => new READER(ctx);
-            public static implicit operator DeserializerState(READER reader) => reader.ctx;
-            public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-            public double NitrateConcentration => ctx.ReadDataDouble(0UL, 0);
-            public double SulfateConcentration => ctx.ReadDataDouble(64UL, 0);
-        }
-
-        public class WRITER : SerializerState
-        {
-            public WRITER()
-            {
-                this.SetStruct(2, 0);
-            }
-
-            public double NitrateConcentration
-            {
-                get => this.ReadDataDouble(0UL, 0);
-                set => this.WriteData(0UL, value, 0);
-            }
-
-            public double SulfateConcentration
-            {
-                get => this.ReadDataDouble(64UL, 0);
-                set => this.WriteData(64UL, value, 0);
-            }
-        }
-    }
-
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x8890f17a143c6896UL)]
     public class AutomaticIrrigationParameters : ICapnpSerializable
     {
@@ -2962,7 +2437,7 @@ namespace Mas.Models.Monica
         void ICapnpSerializable.Deserialize(DeserializerState arg_)
         {
             var reader = READER.create(arg_);
-            Params = CapnpSerializable.Create<Mas.Models.Monica.IrrigationParameters>(reader.Params);
+            Params = CapnpSerializable.Create<Mas.Rpc.Management.Params.Irrigation.Parameters>(reader.Params);
             Amount = reader.Amount;
             Threshold = reader.Threshold;
             applyDefaults();
@@ -2984,7 +2459,7 @@ namespace Mas.Models.Monica
         {
         }
 
-        public Mas.Models.Monica.IrrigationParameters Params
+        public Mas.Rpc.Management.Params.Irrigation.Parameters Params
         {
             get;
             set;
@@ -3015,7 +2490,7 @@ namespace Mas.Models.Monica
             public static READER create(DeserializerState ctx) => new READER(ctx);
             public static implicit operator DeserializerState(READER reader) => reader.ctx;
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-            public Mas.Models.Monica.IrrigationParameters.READER Params => ctx.ReadStruct(0, Mas.Models.Monica.IrrigationParameters.READER.create);
+            public Mas.Rpc.Management.Params.Irrigation.Parameters.READER Params => ctx.ReadStruct(0, Mas.Rpc.Management.Params.Irrigation.Parameters.READER.create);
             public double Amount => ctx.ReadDataDouble(0UL, 17);
             public double Threshold => ctx.ReadDataDouble(64UL, 0.35);
         }
@@ -3027,9 +2502,9 @@ namespace Mas.Models.Monica
                 this.SetStruct(2, 1);
             }
 
-            public Mas.Models.Monica.IrrigationParameters.WRITER Params
+            public Mas.Rpc.Management.Params.Irrigation.Parameters.WRITER Params
             {
-                get => BuildPointer<Mas.Models.Monica.IrrigationParameters.WRITER>(0);
+                get => BuildPointer<Mas.Rpc.Management.Params.Irrigation.Parameters.WRITER>(0);
                 set => Link(0, value);
             }
 
@@ -3723,7 +3198,7 @@ namespace Mas.Models.Monica
             UseAutomaticIrrigation = reader.UseAutomaticIrrigation;
             AutoIrrigationParams = CapnpSerializable.Create<Mas.Models.Monica.AutomaticIrrigationParameters>(reader.AutoIrrigationParams);
             UseNMinMineralFertilisingMethod = reader.UseNMinMineralFertilisingMethod;
-            NMinFertiliserPartition = CapnpSerializable.Create<Mas.Models.Monica.MineralFertilizerParameters>(reader.NMinFertiliserPartition);
+            NMinFertiliserPartition = CapnpSerializable.Create<Mas.Rpc.Management.Params.MineralFertilization.Parameters>(reader.NMinFertiliserPartition);
             NMinApplicationParams = CapnpSerializable.Create<Mas.Models.Monica.NMinApplicationParameters>(reader.NMinApplicationParams);
             UseSecondaryYields = reader.UseSecondaryYields;
             UseAutomaticHarvestTrigger = reader.UseAutomaticHarvestTrigger;
@@ -3830,7 +3305,7 @@ namespace Mas.Models.Monica
             set;
         }
 
-        public Mas.Models.Monica.MineralFertilizerParameters NMinFertiliserPartition
+        public Mas.Rpc.Management.Params.MineralFertilization.Parameters NMinFertiliserPartition
         {
             get;
             set;
@@ -3902,7 +3377,7 @@ namespace Mas.Models.Monica
             public bool UseAutomaticIrrigation => ctx.ReadDataBool(5UL, false);
             public Mas.Models.Monica.AutomaticIrrigationParameters.READER AutoIrrigationParams => ctx.ReadStruct(2, Mas.Models.Monica.AutomaticIrrigationParameters.READER.create);
             public bool UseNMinMineralFertilisingMethod => ctx.ReadDataBool(6UL, false);
-            public Mas.Models.Monica.MineralFertilizerParameters.READER NMinFertiliserPartition => ctx.ReadStruct(3, Mas.Models.Monica.MineralFertilizerParameters.READER.create);
+            public Mas.Rpc.Management.Params.MineralFertilization.Parameters.READER NMinFertiliserPartition => ctx.ReadStruct(3, Mas.Rpc.Management.Params.MineralFertilization.Parameters.READER.create);
             public Mas.Models.Monica.NMinApplicationParameters.READER NMinApplicationParams => ctx.ReadStruct(4, Mas.Models.Monica.NMinApplicationParameters.READER.create);
             public bool UseSecondaryYields => ctx.ReadDataBool(7UL, true);
             public bool UseAutomaticHarvestTrigger => ctx.ReadDataBool(8UL, false);
@@ -3979,9 +3454,9 @@ namespace Mas.Models.Monica
                 set => this.WriteData(6UL, value, false);
             }
 
-            public Mas.Models.Monica.MineralFertilizerParameters.WRITER NMinFertiliserPartition
+            public Mas.Rpc.Management.Params.MineralFertilization.Parameters.WRITER NMinFertiliserPartition
             {
-                get => BuildPointer<Mas.Models.Monica.MineralFertilizerParameters.WRITER>(3);
+                get => BuildPointer<Mas.Rpc.Management.Params.MineralFertilization.Parameters.WRITER>(3);
                 set => Link(3, value);
             }
 

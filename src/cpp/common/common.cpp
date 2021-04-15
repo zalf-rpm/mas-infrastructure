@@ -79,7 +79,7 @@ CapHolderImpl::CapHolderImpl(capnp::Capability::Client cap,
 
 CapHolderImpl::~CapHolderImpl() noexcept(false) {
   if (releaseOnDel && !alreadyReleased) {
-    auto c = _cap.castAs<rpc::Common::Stopable>();
+    auto c = _cap.castAs<rpc::common::Stopable>();
     alreadyReleased = true;
     c.stopRequest().send().ignoreResult();
   }
@@ -92,7 +92,7 @@ kj::Promise<void> CapHolderImpl::cap(CapContext context) {
 
 kj::Promise<void> CapHolderImpl::release(ReleaseContext context) {
   if (!alreadyReleased) {
-    auto c = _cap.castAs<rpc::Common::Stopable>();
+    auto c = _cap.castAs<rpc::common::Stopable>();
     return c.stopRequest().send().then([this](auto&&) {
       cout << "capholderimpl::release" << endl;
       alreadyReleased = true;
@@ -120,7 +120,7 @@ CapHolderListImpl::CapHolderListImpl(kj::Vector<capnp::Capability::Client>&& cap
 CapHolderListImpl::~CapHolderListImpl() noexcept(false) {
   if (releaseOnDel && !alreadyReleased) {
     for (auto cap : caps) {
-      auto c = cap.castAs<rpc::Common::Stopable>();
+      auto c = cap.castAs<rpc::common::Stopable>();
       c.stopRequest().send().ignoreResult();
     }
     alreadyReleased = true;
@@ -129,11 +129,11 @@ CapHolderListImpl::~CapHolderListImpl() noexcept(false) {
 
 kj::Promise<void> CapHolderListImpl::cap(CapContext context) {
   auto rs = context.getResults();
-  auto list = rs.getObject().initAs<capnp::List<rpc::Common::ListEntry<rpc::Common::CapHolder<capnp::AnyPointer>>>>(caps.size());
+  auto list = rs.getObject().initAs<capnp::List<rpc::common::ListEntry<rpc::common::CapHolder<capnp::AnyPointer>>>>((uint)caps.size());
   int i = 0;
   for (auto& cap : caps) {
     auto entryB = list[i];
-    entryB.setEntry(cap.castAs<rpc::Common::CapHolder<capnp::AnyPointer>>());
+    entryB.setEntry(cap.castAs<rpc::common::CapHolder<capnp::AnyPointer>>());
     i++;
   }
   return kj::READY_NOW;
@@ -142,7 +142,7 @@ kj::Promise<void> CapHolderListImpl::cap(CapContext context) {
 kj::Promise<void> CapHolderListImpl::release(ReleaseContext context) {
   if (!alreadyReleased) {
     for (auto cap : caps) {
-      auto c = cap.castAs<rpc::Common::CapHolder<capnp::AnyPointer>>();
+      auto c = cap.castAs<rpc::common::CapHolder<capnp::AnyPointer>>();
       c.releaseRequest().send().ignoreResult();
     }
     alreadyReleased = true;

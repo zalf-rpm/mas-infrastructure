@@ -31,7 +31,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 namespace Monica {
 
-class CallbackImpl final : public mas::rpc::Common::Callback::Server {
+class CallbackImpl final : public mas::rpc::common::Callback::Server {
 public:
   CallbackImpl(std::function<void()> callback, 
                bool execCallbackOnDel = false,
@@ -50,7 +50,7 @@ private:
 
 //-----------------------------------------------------------------------------
 
-class CapHolderImpl final : public mas::rpc::Common::PersistCapHolder<capnp::AnyPointer>::Server {
+class CapHolderImpl final : public mas::rpc::common::PersistCapHolder<capnp::AnyPointer>::Server {
 public:
   CapHolderImpl(capnp::Capability::Client cap,
                 kj::String sturdyRef,
@@ -75,7 +75,7 @@ private:
 
 //-----------------------------------------------------------------------------
 
-class CapHolderListImpl final : public mas::rpc::Common::PersistCapHolder<capnp::AnyPointer>::Server {
+class CapHolderListImpl final : public mas::rpc::common::PersistCapHolder<capnp::AnyPointer>::Server {
 public:
   CapHolderListImpl(kj::Vector<capnp::Capability::Client>&& caps,
                     kj::String sturdyRef,

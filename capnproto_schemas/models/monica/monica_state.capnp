@@ -5,6 +5,7 @@ $Cxx.namespace("mas::models::monica");
 
 using Date = import "../../date.capnp".Date;
 using Params = import "monica_params.capnp";
+using Mgmt = import "../../management.capnp";
 
 struct MaybeBool {
     value @0 :Bool;
@@ -69,7 +70,7 @@ struct AOMProperties {
 
 struct SoilColumnState {
     struct DelayedNMinApplicationParams {
-      fp                        @0 :Params.MineralFertilizerParameters;
+      fp                        @0 :Mgmt.Params.MineralFertilization.Parameters;
       samplingDepth             @1 :Float64;
       cropNTarget               @2 :Float64;
       cropNTarget30             @3 :Float64;
@@ -88,7 +89,7 @@ struct SoilColumnState {
     psMaxMineralisationDepth    @7  :Float64 = 0.4;
     vsNumberOfOrganicLayers     @8  :Float64;       # Number of organic layers.
     vfTopDressing               @9  :Float64;
-    vfTopDressingPartition      @10 :Params.MineralFertilizerParameters;
+    vfTopDressingPartition      @10 :Mgmt.Params.MineralFertilization.Parameters;
     vfTopDressingDelay          @11 :UInt16;
     cropModule                  @12 :CropModuleState;
     delayedNMinApplications     @13 :List(DelayedNMinApplicationParams);

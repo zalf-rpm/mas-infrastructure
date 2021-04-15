@@ -40,7 +40,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 using namespace std;
 using namespace Tools;
 using namespace mas;
-using namespace mas::rpc::Persistence;
+using namespace mas::rpc::persistence;
 using namespace capnp;
 using namespace mas::infrastructure::common;
 
