@@ -1,8 +1,9 @@
 ﻿@namespace Mas.Infrastructure.BlazorComponents
 
 @using MudBlazor
-@using Mgmt = Rpc.Management
-@using Reg = Rpc.Registry
+@using Mgmt = Mas.Rpc.Management
+@using Reg = Mas.Rpc.Registry
+@using Crop = Mas.Rpc.Crop
 
 @implements IDisposable
 
@@ -11,20 +12,24 @@
 }
 <MudCard>
     <MudCardContent>
-        <MudSelect @bind-Value=Params.Sowing.Crop Label="Cultivar">
-            @foreach (var entry in allCultivarEntries)
-            {
-                <MudSelectItem Value=@entry.Ref>@entry.RefInfo.Name</MudSelectItem>
-            }
-        </MudSelect>
-        <!--
-        <MudSelect @bind-Value=Params.Sowing.Cultivar Label="Sow cultivar ...">
-            @foreach (Mgmt.Cultivar cult in Enum.GetValues(typeof(Mgmt.Cultivar)))
-            {
-                <MudSelectItem Value="@cult">@cult.ToString()</MudSelectItem>
-            }
-        </MudSelect>
-        -->
+        @if (CropRegistryServiceCap == null)
+        {
+            <MudSelect @bind-Value=Params.Sowing.Cultivar Label="Crop.json Cultivar">
+                @foreach (Crop.Cultivar cult in Enum.GetValues(typeof(Crop.Cultivar)))
+                    {
+                    <MudSelectItem Value="@cult">@cult.ToString()</MudSelectItem>
+                    }
+            </MudSelect>
+        }
+        else
+        {
+            <MudSelect @bind-Value=Params.Sowing.Crop Label="Crop-Service Cultivar">
+                @foreach (var entry in allCultivarEntries)
+                    {
+                    <MudSelectItem Value=@entry.Ref>@entry.RefInfo.Name</MudSelectItem>
+                    }
+            </MudSelect>
+        }
         <!--
         <MudTextField @bind-Value=Params.Sowing.PlantDensity
                       Label="Plant density"
