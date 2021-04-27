@@ -16,9 +16,11 @@
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 import asyncio
+import capnp
 from pathlib import Path
 import os
 import sys
+import time
 
 PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent
 if str(PATH_TO_REPO) not in sys.path:
@@ -28,50 +30,71 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-#import common.python.capnp_async_helpers as async_helpers
+import common.capnp_async_helpers as async_helpers
 
-import capnp
-import capnproto_schemas.soil_data_capnp as soil_data_capnp
-import capnproto_schemas.registry_capnp as registry_capnp
-import capnproto_schemas.persistence_capnp as persistence_capnp
-import capnproto_schemas.climate_data_capnp as climate_data_capnp
-
+abs_imports = ["capnproto_schemas"]
+reg_capnp = capnp.load("capnproto_schemas/registry.capnp", imports=abs_imports)
+soil_data_capnp = capnp.load("capnproto_schemas/soil_data.capnp", imports=abs_imports)
+registry_capnp = capnp.load("capnproto_schemas/registry.capnp", imports=abs_imports)
+persistence_capnp = capnp.load("capnproto_schemas/persistence.capnp", imports=abs_imports)
+model_capnp = capnp.load("capnproto_schemas/model.capnp", imports=abs_imports)
+yieldstat_capnp = capnp.load("capnproto_schemas/models/yieldstat.capnp", imports=abs_imports)
+climate_data_capnp = capnp.load("capnproto_schemas/climate_data.capnp", imports=abs_imports)
+mgmt_capnp = capnp.load("capnproto_schemas/management.capnp", imports=abs_imports)
 
 #------------------------------------------------------------------------------
 
-bootstrap_caps = {}
-
-def connect(sturdy_ref, cast_as = None):
-
-    # we assume that a sturdy ref url looks always like capnp://hash-digest-or-insecure@host:port/sturdy-ref-token
-    try:
-        if sturdy_ref[:8] == "capnp://":
-            rest = sturdy_ref[8:]
-            hash_digest, rest = sturdy_ref.split("@")
-            host, rest = rest.split(":")
-            port_sr_token = rest.split("/")
-            port = port_sr_token[0]
-            sr_token = port_sr_token[1] if len(port_sr_token) > 1 else ""
-
-            host_port = "{}:{}".format(host, port)
-            if host_port in bootstrap_caps:
-                bootstrap_cap = bootstrap_caps[host_port]
-            else:
-                bootstrap_cap = capnp.TwoPartyClient(host_port).bootstrap()
-                bootstrap_caps[host_port] = bootstrap_cap
-
-            if len(sr_token) == 0:
-                return bootstrap_cap.cast_as(cast_as) if cast_as else bootstrap_cap
-            else:
-                restorer = bootstrap_cap.cast_as(persistence_capnp.Restorer)
-                dyn_obj_reader = restorer.restore(sr_token).wait().cap
-                return dyn_obj_reader.as_interface(cast_as) if cast_as else dyn_obj_reader
-
-    except Exception as e:
-        print(e)
-        return None
-
+async def async_main():
+    config = {
+        "port": "6003",
+        "server": "localhost"
+    }
+    # read commandline args only if script is invoked directly from commandline
+    if len(sys.argv) > 1 and __name__ == "__main__":
+        for arg in sys.argv[1:]:
+            k, v = arg.split("=")
+            if k in config:
+                config[k] = v
     
+    conMan = async_helpers.ConnectionManager()
+    yieldstat = await conMan.connect("capnp://localhost:15000", model_capnp.EnvInstance)
+    info = await yieldstat.info().a_wait()
+    print(info)
+
+    time_series = await conMan.connect("capnp://localhost:11002", climate_data_capnp.TimeSeries)
+    ts_header = (await time_series.header().a_wait()).header
+    print(ts_header)
+
+    run_req = yieldstat.run_request()
+    env = run_req.env
+    env.timeSeries=time_series
+    env.rest = yieldstat_capnp.RestInput.new_message(
+        useDevTrend=True,
+        useCO2Increase=True,
+        dgm=100.5,
+        hft=53,
+        nft=1,
+        sft=36,
+        slope=0,
+        steino=1,
+        az=14,
+        klz=8,
+        stt=152,
+        germanFederalStates=5, #-1
+        getDryYearWaterNeed=True #false;
+    )
+    cr = env.init("cropRotation", 3)
+    cr[0].type = "sowing"
+    cr[0].params = mgmt_capnp.Params.Sowing.new_message(cultivar="wheatWinter")
+    cr[1].type = "irrigation"
+    cr[2].type = "harvest"
+
+    ys_res = (await run_req.send().a_wait()).result.as_struct(yieldstat_capnp.Output)
+    print(ys_res)
+
+
+
+
 
 def main():
     config = {
@@ -85,25 +108,13 @@ def main():
             if k in config:
                 config[k] = v
 
+
     csv_timeseries_cap = capnp.TwoPartyClient("localhost:11002").bootstrap().cast_as(climate_data_capnp.TimeSeries)
     header = csv_timeseries_cap.header().wait().header
     print(header)
 
-    #async def main():
-
-    #    client = await async_helpers.connect_to_server(6003)
-    #    soil_service = client.bootstrap().cast_as(soil_data_capnp.Service)
-    #    params = soil_service.getAllAvailableParameters().wait().params
-
-    #    print(soil_service)
-
-    #registry = capnp.TwoPartyClient("localhost:10001").bootstrap().cast_as(registry_capnp.Registry)
-    #print(registry.info().wait())
-
     admin = connect("capnp://insecure@nb-berg-9550:10001/320a351d-c6cb-400a-92e0-4647d33cfedb", registry_capnp.Admin)
     success = admin.addCategory({"id": "models", "name": "models"}).wait().success
-
-
 
     soil_service = capnp.TwoPartyClient(config["server"] + ":" + config["port"]).bootstrap().cast_as(soil_data_capnp.Service)
     props = soil_service.getAllAvailableParameters().wait()
@@ -143,6 +154,7 @@ def main():
     #print(profiles)
 
 
-
 if __name__ == '__main__':
-    main()
+    #main()
+    asyncio.get_event_loop().run_until_complete(async_main()) # gets rid of some eventloop cleanup problems using te usual call below
+    #asyncio.run(async_main())

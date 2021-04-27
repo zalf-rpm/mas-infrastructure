@@ -19,6 +19,7 @@ models/monica/monica_state.capnp
 persistence.capnp
 registry.capnp
 soil_data.capnp
+models/yieldstat.capnp
 )
 message(STATUS "CAPNP_HDRS: " ${CAPNP_HDRS})
 message(STATUS "CAPNP_SRCS: " ${CAPNP_SRCS})	
