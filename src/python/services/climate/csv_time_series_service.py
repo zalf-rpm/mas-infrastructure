@@ -54,8 +54,8 @@ def main(server="*", port=11002, path_to_csv_file="data/climate/climate-iso.csv"
 
     server = capnp.TwoPartyServer(config["server"] + ":" + config["port"],
                                   bootstrap=csv_based.TimeSeries.from_csv_file(config["path_to_csv_file"],
-                                    header_map={"windspeed": "wind"},
-                                    pandas_csv_config={"sep": ";"}))
+                                    header_map={},#{"windspeed": "wind"},
+                                    pandas_csv_config={}))#{"sep": ";"}))
     server.run_forever()
 
 
