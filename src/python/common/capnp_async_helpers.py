@@ -170,11 +170,9 @@ class ConnectionManager:
         try:
             if sturdy_ref[:8] == "capnp://":
                 rest = sturdy_ref[8:]
-                hash_digest, rest = sturdy_ref.split("@")
+                hash_digest, rest = rest.split("@") if "@" in rest else (None, rest)
                 host, rest = rest.split(":")
-                port_sr_token = rest.split("/")
-                port = port_sr_token[0]
-                sr_token = port_sr_token[1] if len(port_sr_token) > 1 else ""
+                port, sr_token = rest.split("/") if "/" in rest else (rest, None)
 
                 host_port = "{}:{}".format(host, port)
                 if host_port in self.connections:
@@ -203,12 +201,12 @@ class ConnectionManager:
                     bootstrap_cap = client.bootstrap()
                     self.connections[host_port] = bootstrap_cap
 
-                if len(sr_token) == 0:
-                    return bootstrap_cap.cast_as(cast_as) if cast_as else bootstrap_cap
-                else:
+                if sr_token:
                     restorer = bootstrap_cap.cast_as(persistence_capnp.Restorer)
                     dyn_obj_reader = (await restorer.restore(sr_token).a_wait()).cap
                     return dyn_obj_reader.as_interface(cast_as) if cast_as else dyn_obj_reader
+                else:
+                    return bootstrap_cap.cast_as(cast_as) if cast_as else bootstrap_cap
 
         except Exception as e:
             print(e)
