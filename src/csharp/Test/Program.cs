@@ -15,7 +15,7 @@ namespace Mas.Infrastructure.Common
 
             using var conMan = new ConnectionManager();
 
-            //*
+            /*
             try {
                 var fs = await conMan.Connect<Rpc.Management.IFertilizerService>("capnp://localhost:13001");
                 var mf = await fs.MineralFertilizerPartitionFor(Rpc.Management.MineralFertilizer.an);
@@ -27,10 +27,12 @@ namespace Mas.Infrastructure.Common
             //*/
 
 
+            //*
+            var ts = await conMan.Connect<Mas.Rpc.Climate.ITimeSeries>("capnp://localhost:11002");
+            var hs = await ts.Header();
+            foreach (var h in hs) Console.WriteLine(h.ToString());
+            //*/
 
-            //var ts = await conMan.Connect<Climate.ITimeSeries>("capnp://localhost:11002");
-            //var hs = await ts.Header();
-            //foreach (var h in hs) Console.WriteLine(h.ToString());
 
             //*
             //using var con = new TcpRpcClient("localhost", 10000);
