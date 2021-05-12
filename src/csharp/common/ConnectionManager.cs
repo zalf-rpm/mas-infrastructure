@@ -19,7 +19,9 @@ namespace Mas.Infrastructure.Common
             Console.WriteLine("ConnectionManager created");
         }
 
-        void IDisposable.Dispose()
+        public void Dispose() => Dispose(true);
+
+        protected virtual void Dispose(bool disposing)
         {
             Console.WriteLine("Disposing ConnectionManager");
 
