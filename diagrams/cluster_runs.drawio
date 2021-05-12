@@ -1,0 +1,102 @@
+<mxfile>
+    <diagram id="PxGF7eC3AnM1OxPcS1oj" name="Page-1">
+        <mxGraphModel dx="882" dy="1131" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="22" style="edgeStyle=orthogonalEdgeStyle;curved=1;jumpStyle=none;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;startArrow=oval;startFill=1;endArrow=none;endFill=0;" edge="1" parent="1" source="2" target="21">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="24" style="edgeStyle=orthogonalEdgeStyle;curved=1;jumpStyle=none;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;startArrow=oval;startFill=1;endArrow=classic;endFill=1;" edge="1" parent="1" source="2" target="4">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="510" y="308"/>
+                            <mxPoint x="510" y="520"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="2" value="&lt;font color=&quot;#000000&quot;&gt;Run Factory&lt;/font&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;comic=0;sketch=0;shadow=0;fillColor=#B3FF66;" vertex="1" parent="1">
+                    <mxGeometry x="400" y="240" width="80" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="30" style="edgeStyle=orthogonalEdgeStyle;curved=1;jumpStyle=none;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;startArrow=oval;startFill=1;endArrow=classic;endFill=1;" edge="1" parent="1" source="4" target="27">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="31" style="edgeStyle=orthogonalEdgeStyle;curved=1;jumpStyle=none;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;startArrow=oval;startFill=1;endArrow=classic;endFill=1;" edge="1" parent="1" source="4" target="28">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="4" value="&lt;font color=&quot;#000000&quot;&gt;Run Cap&lt;/font&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#B3FF66;" vertex="1" parent="1">
+                    <mxGeometry x="310" y="480" width="80" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="11" style="edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;jumpStyle=none;curved=1;startArrow=oval;startFill=1;" edge="1" parent="1" source="5" target="9">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="12" style="edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;jumpStyle=none;curved=1;startArrow=oval;startFill=1;" edge="1" parent="1" source="5" target="10">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="16" style="edgeStyle=orthogonalEdgeStyle;curved=1;jumpStyle=none;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;endArrow=none;endFill=0;startArrow=oval;startFill=1;" edge="1" parent="1" source="5" target="17">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="210" y="280" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="5" value="User" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#FFFF66;" vertex="1" parent="1">
+                    <mxGeometry x="70" y="250" width="30" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="8" value="&lt;h1&gt;Run Factory&lt;/h1&gt;&lt;p&gt;- Represents factory accessible to user which can create cluster runs.&lt;/p&gt;&lt;p&gt;- Returns a Run Capability to represent the run.&lt;/p&gt;&lt;p&gt;- Gets capabilities from user to be used for run.&lt;/p&gt;&lt;p&gt;- Gets parameters how many nodes to use etc and reference to region (cap).&lt;/p&gt;&lt;p&gt;- Spawnes as many Patches as possible given the requested resources (possibly also via cap).&lt;/p&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;shadow=0;comic=0;sketch=0;" vertex="1" parent="1">
+                    <mxGeometry x="600" y="10" width="190" height="290" as="geometry"/>
+                </mxCell>
+                <mxCell id="9" value="&lt;font color=&quot;#000000&quot;&gt;Data Caps&lt;/font&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;comic=0;sketch=0;shadow=0;fillColor=#B3FF66;" vertex="1" parent="1">
+                    <mxGeometry x="45" y="30" width="80" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" value="&lt;font color=&quot;#000000&quot;&gt;Region&amp;nbsp;Cap&lt;br&gt;&lt;/font&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;comic=0;sketch=0;shadow=0;fillColor=#B3FF66;" vertex="1" parent="1">
+                    <mxGeometry x="150" y="30" width="80" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="18" style="edgeStyle=orthogonalEdgeStyle;curved=1;jumpStyle=none;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="17" target="2">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="19" style="edgeStyle=orthogonalEdgeStyle;curved=1;jumpStyle=none;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0;exitDx=30;exitDy=21;exitPerimeter=0;entryX=1;entryY=1;entryDx=0;entryDy=0;startArrow=oval;startFill=1;endArrow=classic;endFill=1;" edge="1" parent="1" source="17" target="9">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="250" y="180"/>
+                            <mxPoint x="113" y="180"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="20" style="edgeStyle=orthogonalEdgeStyle;curved=1;jumpStyle=none;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0;exitDx=30;exitDy=21;exitPerimeter=0;entryX=1;entryY=1;entryDx=0;entryDy=0;startArrow=oval;startFill=1;endArrow=classic;endFill=1;" edge="1" parent="1" source="17" target="10">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="250" y="98"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="17" value="&lt;font color=&quot;#000000&quot;&gt;CreateRun&lt;/font&gt;" style="html=1;shadow=0;dashed=0;align=center;verticalAlign=middle;shape=mxgraph.arrows2.arrow;dy=0.6;dx=40;notch=0;fillColor=#FFFF66;" vertex="1" parent="1">
+                    <mxGeometry x="220" y="245" width="100" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="23" style="edgeStyle=orthogonalEdgeStyle;curved=1;jumpStyle=none;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;startArrow=none;startFill=0;endArrow=classic;endFill=1;" edge="1" parent="1" source="21" target="5">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="25" style="edgeStyle=orthogonalEdgeStyle;curved=1;jumpStyle=none;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0;exitDx=30;exitDy=49;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;startArrow=oval;startFill=1;endArrow=classic;endFill=1;" edge="1" parent="1" source="21" target="4">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="280" y="520"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="21" value="&lt;font color=&quot;#000000&quot;&gt;Answer&lt;/font&gt;" style="html=1;shadow=0;dashed=0;align=center;verticalAlign=middle;shape=mxgraph.arrows2.arrow;dy=0.6;dx=40;flipH=1;notch=0;comic=0;sketch=0;fillColor=#FFFF66;" vertex="1" parent="1">
+                    <mxGeometry x="210" y="370" width="100" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="26" value="&lt;h1&gt;Run Cap&lt;/h1&gt;&lt;p&gt;- Represents the actual run.&lt;/p&gt;&lt;p&gt;- Holds a list of all Patch capabilities which represent the patches create by the factory according to the available resources.&lt;/p&gt;&lt;p&gt;- Will get the Data caps and to some degree region cap to deliver to the Patch Caps&lt;/p&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;shadow=0;comic=0;sketch=0;" vertex="1" parent="1">
+                    <mxGeometry x="600" y="310" width="190" height="210" as="geometry"/>
+                </mxCell>
+                <mxCell id="27" value="&lt;font color=&quot;#000000&quot;&gt;Patch Cap 1&lt;/font&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;comic=0;sketch=0;shadow=0;fillColor=#B3FF66;" vertex="1" parent="1">
+                    <mxGeometry x="100" y="630" width="80" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="28" value="&lt;font color=&quot;#000000&quot;&gt;Patch Cap 2&lt;/font&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;comic=0;sketch=0;shadow=0;fillColor=#B3FF66;" vertex="1" parent="1">
+                    <mxGeometry x="270" y="630" width="80" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="32" value="&lt;h1&gt;Patch Cap&lt;/h1&gt;&lt;p&gt;- Represents a number of cells to run and is implemented via a FBP flow. It's interface is nevertheless a Capnp VAT and the user can get a capability to a Patch.&lt;/p&gt;&lt;p&gt;- Will be initialized by a dictionary of capabilities.&lt;/p&gt;&lt;p&gt;- The flow used for the patch will need a list of caps to run. These caps will be supplied from the user to the Run Factory/Run Cap/Patch Cap. In theory maybe these caps could be updated selectively via the capability to the patch later on. But in general this would run behind the scenes and start right away.&lt;/p&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;shadow=0;comic=0;sketch=0;" vertex="1" parent="1">
+                    <mxGeometry x="600" y="550" width="190" height="320" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
