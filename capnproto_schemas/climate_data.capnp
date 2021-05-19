@@ -169,7 +169,7 @@ enum Element {
   sunhours @6; # [-] sunshine hours
   cloudamount @7; # [% 0-100] cloudcover
   relhumid @8; # [% 0-100] relative humidity
-  airpress @9; # [] air pressure
+  airpress @9; # [hPa] air pressure
   vaporpress @10; # [kPa] vapor pressure
   co2 @11; # [ppm] atmospheric CO2 concentration
   o3 @12; # [ppm] atmospheric O3 concentration

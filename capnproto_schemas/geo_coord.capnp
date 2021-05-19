@@ -19,6 +19,7 @@ struct EPSG {
   const utm21S :UInt32 = 32721;
   const utm32N :UInt32 = 25832;
   const gk5 :UInt32 = 31469;
+  const gk4 :UInt32 = 31468;
   const gk3 :UInt32 = 31467; #3396;
 }
 

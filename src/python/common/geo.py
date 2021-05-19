@@ -40,7 +40,8 @@ geo_capnp = capnp.load("capnproto_schemas/geo_coord.capnp", imports=["capnproto_
 def name_to_proj(name, default=None):
     return {
         "latlon": CRS.from_epsg(geo_capnp.EPSG.wgs84),
-        "gk3":CRS.from_epsg(geo_capnp.EPSG.gk3),
+        "gk3": CRS.from_epsg(geo_capnp.EPSG.gk3),
+        "gk4": CRS.from_epsg(geo_capnp.EPSG.gk4),
         "gk5": CRS.from_epsg(geo_capnp.EPSG.gk5),
         "utm21S": CRS.from_epsg(geo_capnp.EPSG.utm21S),
         "utm32N": CRS.from_epsg(geo_capnp.EPSG.utm32N)
@@ -70,7 +71,7 @@ def geo_coord_to_latlon(geo_coord):
         lat, lon = geo_coord.latlon.lat, geo_coord.latlon.lon
     elif which == "utm":
         utm_id = str(geo_coord.utm.zone) + geo_coord.utm.latitudeBand
-        if meridian not in geo_coord_to_latlon.utm_cache:
+        if utm_id not in geo_coord_to_latlon.utm_cache:
             utm_crs = CRS.from_epsg(geo_capnp.EPSG["utm" + utm_id])
             trans = geo_coord_to_latlon.utm_cache[utm_id] = Transformer.from_crs(utm_crs, geo_coord_to_latlon.latlon_crs, always_xy=True)
         else:
