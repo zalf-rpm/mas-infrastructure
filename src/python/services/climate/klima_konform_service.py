@@ -133,34 +133,34 @@ class DatasetImpl(climate_data_capnp.Dataset.Server):
         self._elem_to_data = {}
         if region == "sn": 
             self._elem_to_data = {
-                "tmax": {"var": "tx", "convf": 1, "ds": Dataset(path_to_nc_files + "/Temperatur_max.nc")}, #-> °C
-                "tavg": {"var": "tmean", "convf": 1, "ds": Dataset(path_to_nc_files + "/Temperatur_mean.nc")}, #-> °C
-                "tmin": {"var": "tn", "convf": 1, "ds": Dataset(path_to_nc_files + "/Temperatur_min.nc")}, #-> °C
-                "precip": {"var": "p", "convf": 1, "ds": Dataset(path_to_nc_files + "/Niederschlag.nc")}, #-> mm
-                "relhumid": {"var": "rh", "convf": 1, "ds": Dataset(path_to_nc_files + "/Relative_Feuchte.nc")}, #-> %
-                "globrad": {"var": "gr", "convf": 1, "ds": Dataset(path_to_nc_files + "/Globalstrahlung.nc")}, #-> MJ/m2/d
-                "wind": {"var": "wind", "convf": 1, "ds": Dataset(path_to_nc_files + "/Windgeschwindigkeit.nc")} #-> m/s
+                "tmax": {"var": "tx", "convf": 1.0, "ds": Dataset(path_to_nc_files + "/Temperatur_max.nc")}, #-> °C
+                "tavg": {"var": "tmean", "convf": 1.0, "ds": Dataset(path_to_nc_files + "/Temperatur_mean.nc")}, #-> °C
+                "tmin": {"var": "tn", "convf": 1.0, "ds": Dataset(path_to_nc_files + "/Temperatur_min.nc")}, #-> °C
+                "precip": {"var": "p", "convf": 1.0, "ds": Dataset(path_to_nc_files + "/Niederschlag.nc")}, #-> mm
+                "relhumid": {"var": "rh", "convf": 1.0, "ds": Dataset(path_to_nc_files + "/Relative_Feuchte.nc")}, #-> %
+                "globrad": {"var": "gr", "convf": 3.6, "ds": Dataset(path_to_nc_files + "/Globalstrahlung.nc")}, #-> MJ/m2/d
+                "wind": {"var": "wind", "convf": 1.0, "ds": Dataset(path_to_nc_files + "/Windgeschwindigkeit.nc")} #-> m/s
             }
         elif region == "sa": 
             self._elem_to_data = {
-                "tmax": {"var": "Tagesmaximum_Temperatur", "convf": 1, "ds": Dataset(path_to_nc_files + "/Temperatur_max.nc")}, #-> °C
-                "tavg": {"var": "Tagesmittel_Temperatur", "convf": 1, "ds": Dataset(path_to_nc_files + "/Temperatur_mean.nc")}, #-> °C
-                "tmin": {"var": "TagesminimumTemperatur", "convf": 1, "ds": Dataset(path_to_nc_files + "/Temperatur_min.nc")}, #-> °C
-                "precip": {"var": "Korrigierter_Niederschlag", "convf": 1, "ds": Dataset(path_to_nc_files + "/Niederschlag.nc")}, #-> mm
-                "globrad": {"var": "Globalstrahlung", "convf": 1, "ds": Dataset(path_to_nc_files + "/Globalstrahlung.nc")}, #-> MJ/m2/d
-                "wind": {"var": "Tagesmittel_Windgeschwindigkeit", "convf": 1, "ds": Dataset(path_to_nc_files + "/Windgeschwindigkeit.nc")}, #-> m/s
-                "airpress": {"var": "Tagesmittel_Luftdruck", "convf": 1, "ds": Dataset(path_to_nc_files + "/Luftdruck.nc")} #-> hPa
+                "tmax": {"var": "Tagesmaximum_Temperatur", "convf": 1.0, "ds": Dataset(path_to_nc_files + "/Temperatur_max.nc")}, #-> °C
+                "tavg": {"var": "Tagesmittel_Temperatur", "convf": 1.0, "ds": Dataset(path_to_nc_files + "/Temperatur_mean.nc")}, #-> °C
+                "tmin": {"var": "TagesminimumTemperatur", "convf": 1.0, "ds": Dataset(path_to_nc_files + "/Temperatur_min.nc")}, #-> °C
+                "precip": {"var": "Korrigierter_Niederschlag", "convf": 1.0, "ds": Dataset(path_to_nc_files + "/Niederschlag.nc")}, #-> mm
+                "globrad": {"var": "Globalstrahlung", "convf": 3.6, "ds": Dataset(path_to_nc_files + "/Globalstrahlung.nc")}, #-> MJ/m2/d
+                "wind": {"var": "Tagesmittel_Windgeschwindigkeit", "convf": 1.0, "ds": Dataset(path_to_nc_files + "/Windgeschwindigkeit.nc")}, #-> m/s
+                "airpress": {"var": "Tagesmittel_Luftdruck", "convf": 1.0, "ds": Dataset(path_to_nc_files + "/Luftdruck.nc")} #-> hPa
             }
         elif region == "tn":
             self._elem_to_data = {
-                "tmax": {"var": "Tagesmaximum_Temperatur", "convf": 1, "ds": Dataset(path_to_nc_files + "/Temperatur_max.nc")}, #-> °C
-                "tavg": {"var": "Tagesmittel_Temperatur", "convf": 1, "ds": Dataset(path_to_nc_files + "/Temperatur_mean.nc")}, #-> °C
-                "tmin": {"var": "TagesminimumTemperatur", "convf": 1, "ds": Dataset(path_to_nc_files + "/Temperatur_min.nc")}, #-> °C
-                "precip": {"var": "Korrigierter_Niederschlag", "convf": 1, "ds": Dataset(path_to_nc_files + "/Niederschlag.nc")}, #-> mm
-                "relhumid": {"var": "Relative_Feuchte", "convf": 1, "ds": Dataset(path_to_nc_files + "/Relative_Feuchte.nc")}, #-> mm
+                "tmax": {"var": "Tagesmaximum_Temperatur", "convf": 1.0, "ds": Dataset(path_to_nc_files + "/Temperatur_max.nc")}, #-> °C
+                "tavg": {"var": "Tagesmittel_Temperatur", "convf": 1.0, "ds": Dataset(path_to_nc_files + "/Temperatur_mean.nc")}, #-> °C
+                "tmin": {"var": "TagesminimumTemperatur", "convf": 1.0, "ds": Dataset(path_to_nc_files + "/Temperatur_min.nc")}, #-> °C
+                "precip": {"var": "Korrigierter_Niederschlag", "convf": 1.0, "ds": Dataset(path_to_nc_files + "/Niederschlag.nc")}, #-> mm
+                "relhumid": {"var": "Relative_Feuchte", "convf": 1.0, "ds": Dataset(path_to_nc_files + "/Relative_Feuchte.nc")}, #-> mm
                 "globrad": {"var": "Globalstrahlung", "convf": 3.6, "ds": Dataset(path_to_nc_files + "/Globalstrahlung.nc")}, #-> MJ/m2/d
-                "wind": {"var": "Tagesmittel_Windgeschwindigkeit", "convf": 1, "ds": Dataset(path_to_nc_files + "/Windgeschwindigkeit.nc")}, #-> m/s
-                "airpress": {"var": "Tagesmittel_Luftdruck", "convf": 1, "ds": Dataset(path_to_nc_files + "/Luftdruck.nc")} #-> hPa
+                "wind": {"var": "Tagesmittel_Windgeschwindigkeit", "convf": 1.0, "ds": Dataset(path_to_nc_files + "/Windgeschwindigkeit.nc")}, #-> m/s
+                "airpress": {"var": "Tagesmittel_Luftdruck", "convf": 1.0, "ds": Dataset(path_to_nc_files + "/Luftdruck.nc")} #-> hPa
             }
         
         no_of_days = self._elem_to_data["tavg"]["ds"]["time"].shape[0] if "tavg" in self._elem_to_data else 0
@@ -226,7 +226,7 @@ class DatasetImpl(climate_data_capnp.Dataset.Server):
 
     def time_series_at(self, row, col, location=None):
         if (row, col) not in self._time_series:
-            data = list([list(map(float, data["ds"][data["var"]][:, row, col])) for data in self._elem_to_data.values()])
+            data = list([list(map(float, data["ds"][data["var"]][:, row, col] * data["convf"])) for data in self._elem_to_data.values()])
 
             if not location:
                 location = self.location_at(row, col)
