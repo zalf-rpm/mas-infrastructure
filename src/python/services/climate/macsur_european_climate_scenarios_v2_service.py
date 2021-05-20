@@ -397,11 +397,10 @@ class Realization(climate_data_capnpData.Realization.Server):
         return closest_time_series
 
 
-    def closestTimeSeriesAt(self, geoCoord, **kwargs): # (geoCoord :Geo.Coord) -> (timeSeries :List(TimeSeries));
+    def closestTimeSeriesAt(self, latlon, **kwargs): # (latlon :Geo.LatLonCoord) -> (timeSeries :List(TimeSeries));
         # closest TimeSeries object which represents the whole time series 
         # of the climate realization at the give climate coordinate
-        lat, lon = geo_coord_to_latlon(geoCoord)
-        return self.closest_time_series_at(lat, lon)
+        return self.closest_time_series_at(latlon.lat, latlon.lon)
 
 
 class Service(climate_data_capnpData.Service.Server):

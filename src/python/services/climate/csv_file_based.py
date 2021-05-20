@@ -177,7 +177,7 @@ class TimeSeries(climate_data_capnp.TimeSeries.Server):
         if self._location:
             r.id = self._location.id
             r.heightNN = self._location.heightNN
-            r.geoCoord = self._location.geoCoord
+            r.latlon = self._location.latlon
 
 #------------------------------------------------------------------------------
 
@@ -225,11 +225,10 @@ class Dataset(climate_data_capnp.Dataset.Server):
         return self._time_series[(row, col)]
 
 
-    def closestTimeSeriesAt(self, geoCoord, **kwargs): # (geoCoord :Geo.Coord) -> (timeSeries :TimeSeries);
+    def closestTimeSeriesAt(self, latlon, **kwargs): # (latlon :Geo.LatLonCoord) -> (timeSeries :TimeSeries);
         # closest TimeSeries object which represents the whole time series 
         # of the climate realization at the give climate coordinate
-        lat, lon = geo.geo_coord_to_latlon(geoCoord)
-        row, col = self._interpolator(lat, lon)
+        row, col = self._interpolator(latlon.lat, latlon.lon)
         return self.time_series_at(row, col)
 
 
@@ -249,7 +248,7 @@ class Dataset(climate_data_capnp.Dataset.Server):
             loc = climate_data_capnp.Location.new_message(
                 id={"id": id, "name": name, "description": ""},
                 heightNN=coord["alt"],
-                geoCoord={"latlon": {"lat": coord["lat"], "lon": coord["lon"]}},
+                latlon={"lat": coord["lat"], "lon": coord["lon"]},
             )
             if time_series:
                 loc.timeSeries = time_series
