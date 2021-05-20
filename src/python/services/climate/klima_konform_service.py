@@ -53,13 +53,13 @@ climate_data_capnp = capnp.load("capnproto_schemas/climate_data.capnp", imports=
 
 class TimeSeries(climate_data_capnp.TimeSeries.Server): 
 
-    def __init__(self, data, header, metadata=None, location=None):
-        self._data = data
-        self._data_t = None
+    def __init__(self, data_t, header, metadata=None, location=None):
+        self._data_t = data_t
+        self._data = None
         self._header = header
         self._meta = metadata
         self._location = location
-        no_of_days = len(data[0]) if len(data) > 0 else 0
+        no_of_days = len(data_t[0]) if len(data_t) > 0 else 0
         self._start_date = date(1961, 1, 1) 
         self._end_date = date(1961, 1, 1) + timedelta(days = no_of_days - 1)
 
@@ -77,13 +77,13 @@ class TimeSeries(climate_data_capnp.TimeSeries.Server):
 
 
     def data(self, **kwargs): # () -> (data :List(List(Float32)));
+        if self._data is None:
+            no_of_days = len(self._data_t[0]) if len(self._data_t) > 0 else 0
+            self._data = list([list(map(lambda ds: ds[i], self._data_t)) for i in range(no_of_days)])
         return self._data
 
 
     def dataT(self, **kwargs): # () -> (data :List(List(Float32)));
-        if self._data_t is None:
-            no_of_days = len(self._data[0]) if len(self._data) > 0 else 0
-            self._data_t = list([list(map(lambda ds: ds[i], self._data)) for i in range(no_of_days)])
         return self._data_t
 
 
@@ -92,17 +92,17 @@ class TimeSeries(climate_data_capnp.TimeSeries.Server):
         to_date = ccdi.create_date(context.params.to)
         start_i = (from_date - self._start_date).days
         end_i = (to_date - self._start_date).days
-        sub_data = [ds[start_i : end_i + 1] for ds in self._data]
-        context.results.timeSeries = TimeSeries(sub_data, self._header, metadata=self._meta, location=self._location)
+        sub_data_t = [ds[start_i : end_i + 1] for ds in self._data_t]
+        context.results.timeSeries = TimeSeries(sub_data_t, self._header, metadata=self._meta, location=self._location)
 
 
     def subheader(self, elements, **kwargs): # (elements :List(Element)) -> (timeSeries :TimeSeries);
         sub_header = [str(e) for e in elements]
-        sub_data = []
+        sub_data_t = []
         for i, elem in enumerate(self._header):
             if elem in sub_header:
-                sub_data.append(self._data[i])
-        return TimeSeries(sub_data, sub_header, metadata=self._meta, location=self._location)
+                sub_data_t.append(self._data_t[i])
+        return TimeSeries(sub_data_t, sub_header, metadata=self._meta, location=self._location)
 
 
     def metadata(self, _context, **kwargs): # metadata @7 () -> Metadata;
@@ -226,12 +226,12 @@ class DatasetImpl(climate_data_capnp.Dataset.Server):
 
     def time_series_at(self, row, col, location=None):
         if (row, col) not in self._time_series:
-            data = list([list(map(float, data["ds"][data["var"]][:, row, col] * data["convf"])) for data in self._elem_to_data.values()])
+            data_t = list([list(map(float, data["ds"][data["var"]][:, row, col] * data["convf"])) for data in self._elem_to_data.values()])
 
             if not location:
                 location = self.location_at(row, col)
 
-            timeSeries = TimeSeries(data, list(self._elem_to_data.keys()), metadata=self._meta, location=location)
+            timeSeries = TimeSeries(data_t, list(self._elem_to_data.keys()), metadata=self._meta, location=location)
 
             self._time_series[(row, col)] = timeSeries
 
