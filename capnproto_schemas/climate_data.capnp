@@ -123,8 +123,6 @@ struct Metadata {
     }
   }
 
-  
-
   entries @0 :List(Entry);
   # the actual metadata entries
 
@@ -141,7 +139,7 @@ interface Dataset {
   metadata @0 () -> Metadata;
   # get metadata for these data
 
-  closestTimeSeriesAt @1 (geoCoord :Geo.Coord) -> (timeSeries :TimeSeries);  
+  closestTimeSeriesAt @1 (latlon :Geo.LatLonCoord) -> (timeSeries :TimeSeries);  
   # closest TimeSeries object which represents the whole time series 
   # of the climate realization at the give climate coordinate
 
@@ -187,8 +185,8 @@ struct Location {
   heightNN @1 :Float32;
   # the locations height over NN
 
-  geoCoord @2 :Geo.Coord;
-  # the locations geo coordinate
+  latlon @2 :Geo.LatLonCoord;
+  # the latitude/longitude coordinate of the location
 
   timeSeries @3 :TimeSeries;
   # time series at this location
