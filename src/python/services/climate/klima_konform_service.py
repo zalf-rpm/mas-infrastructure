@@ -55,14 +55,13 @@ class TimeSeries(climate_data_capnp.TimeSeries.Server):
 
     def __init__(self, data, header, metadata=None, location=None):
         self._data = data
+        self._data_t = None
+        self._header = header
         self._meta = metadata
         self._location = location
-        no_of_days = data["tavg"].shape[0]
+        no_of_days = len(data[0]) if len(data) > 0 else 0
         self._start_date = date(1961, 1, 1) 
         self._end_date = date(1961, 1, 1) + timedelta(days = no_of_days - 1)
-        self._header = header
-        self._data = list(map(lambda elem: list(data[elem]), self._header))
-        self._data_t = None
 
     def resolution_context(self, context): # -> (resolution :TimeResolution);
         context.results.resolution = climate_data_capnp.TimeSeries.Resolution.daily
@@ -78,12 +77,12 @@ class TimeSeries(climate_data_capnp.TimeSeries.Server):
 
 
     def data(self, **kwargs): # () -> (data :List(List(Float32)));
-        return [list(self._data[0][0:100])]
+        return self._data
 
 
     def dataT(self, **kwargs): # () -> (data :List(List(Float32)));
         if self._data_t is None:
-            no_of_days = len(self._data[0])
+            no_of_days = len(self._data[0]) if len(self._data) > 0 else 0
             self._data_t = list([list(map(lambda ds: ds[i], self._data)) for i in range(no_of_days)])
         return self._data_t
 
@@ -91,19 +90,19 @@ class TimeSeries(climate_data_capnp.TimeSeries.Server):
     def subrange_context(self, context): # (from :Date, to :Date) -> (timeSeries :TimeSeries);
         from_date = ccdi.create_date(getattr(context.params, "from"))
         to_date = ccdi.create_date(context.params.to)
-
-        start_i = from_date - self._start_date
-        end_i = to_date - self._start_date
-        
-        sub_data = {elem : d[start_i : end_i + 1] for elem, d in self._data.items()}
-
+        start_i = (from_date - self._start_date).days
+        end_i = (to_date - self._start_date).days
+        sub_data = [ds[start_i : end_i + 1] for ds in self._data]
         context.results.timeSeries = TimeSeries(sub_data, self._header, metadata=self._meta, location=self._location)
 
 
     def subheader(self, elements, **kwargs): # (elements :List(Element)) -> (timeSeries :TimeSeries);
-        sub_headers = [str(e) for e in elements]
-        sub_data = {elem : d for elem, d in self._data.items() if d in sub_headers}
-        return TimeSeries(sub_data, sub_headers, metadata=self._meta, location=self._location)
+        sub_header = [str(e) for e in elements]
+        sub_data = []
+        for i, elem in enumerate(self._header):
+            if elem in sub_header:
+                sub_data.append(self._data[i])
+        return TimeSeries(sub_data, sub_header, metadata=self._meta, location=self._location)
 
 
     def metadata(self, _context, **kwargs): # metadata @7 () -> Metadata;
@@ -123,7 +122,7 @@ class TimeSeries(climate_data_capnp.TimeSeries.Server):
         if self._location:
             r.id = self._location.id
             r.heightNN = self._location.heightNN
-            r.geoCoord = self._location.geoCoord
+            r.latlon = self._location.latlon
 
 #------------------------------------------------------------------------------
 
@@ -164,26 +163,34 @@ class DatasetImpl(climate_data_capnp.Dataset.Server):
                 "airpress": {"var": "Tagesmittel_Luftdruck", "convf": 1, "ds": Dataset(path_to_nc_files + "/Luftdruck.nc")} #-> hPa
             }
         
-        self._meta = metadata
+        no_of_days = self._elem_to_data["tavg"]["ds"]["time"].shape[0] if "tavg" in self._elem_to_data else 0
+        self._meta = climate_data_capnp.Metadata.new_message(
+            entries=[
+                {"historical": None}, 
+                {"start": ccdi.create_capnp_date(date(1961, 1, 1))},
+                {"end": ccdi.create_capnp_date(date(1961, 1, 1) + timedelta(days = no_of_days - 1))}
+            ])
         self._time_series = {}
         self._locations = {}
         self._all_locations_created = False
+        self._rowcol_to_gk4_rh = {}
 
         latlon_crs = geo.name_to_proj("latlon")
         gk4_crs = geo.name_to_proj("gk4")
-        self._transformer = Transformer.from_crs(latlon_crs, gk4_crs, always_xy=True)
+        self._latlon_to_gk4_transformer = Transformer.from_crs(latlon_crs, gk4_crs, always_xy=True)
+        self._gk4_to_latlon_transformer = Transformer.from_crs(gk4_crs, latlon_crs, always_xy=True)
         self._interpolator = self.create_interpolator()
+        
 
 
     def metadata(self, _context, **kwargs): # metadata @0 () -> Metadata;
         # get metadata for these data 
-        pass
-        
-        #r = _context.results
-        #r.init("entries", len(self._meta.entries))
-        #for i, e in enumerate(self._meta.entries):
-        #    r.entries[i] = e
-        #r.info = self._meta.info
+        r = _context.results
+        r.init("entries", len(self._meta.entries))
+        for i, e in enumerate(self._meta.entries):
+            r.entries[i] = e
+        r.info = self._meta.info
+
 
     def create_interpolator(self):
         "read an ascii grid into a map, without the no-data values"
@@ -210,6 +217,7 @@ class DatasetImpl(climate_data_capnp.Dataset.Server):
                 h_gk4 = int(ys[row])
                 gk4_coords.append([r_gk4, h_gk4])
                 row_cols.append((row, col))
+                self._rowcol_to_gk4_rh[(row, col)] = (r_gk4, h_gk4)
                 #print "row:", row, "col:", col, "lat:", lat, "lon:", lon, "val:", values[i]
             #print row,
 
@@ -218,25 +226,23 @@ class DatasetImpl(climate_data_capnp.Dataset.Server):
 
     def time_series_at(self, row, col, location=None):
         if (row, col) not in self._time_series:
-            data_at_rowcol = {}
-            for elem, data in self._elem_to_data.items():
-                data_at_rowcol[elem] = data["ds"][data["var"]][:, row, col]
+            data = list([list(map(float, data["ds"][data["var"]][:, row, col])) for data in self._elem_to_data.values()])
 
-            #if not location:
-            #    location = self.location_at(row, col)
+            if not location:
+                location = self.location_at(row, col)
 
-            timeSeries = TimeSeries(data_at_rowcol, list(self._elem_to_data.keys()), location=location)
+            timeSeries = TimeSeries(data, list(self._elem_to_data.keys()), metadata=self._meta, location=location)
 
             self._time_series[(row, col)] = timeSeries
 
         return self._time_series[(row, col)]
 
 
-    def closestTimeSeriesAt(self, geoCoord, **kwargs): # (geoCoord :Geo.Coord) -> (timeSeries :TimeSeries);
+    def closestTimeSeriesAt(self, latlon, **kwargs): # (latlon :Geo.LatLonCoord) -> (timeSeries :TimeSeries);
         # closest TimeSeries object which represents the whole time series 
         # of the climate realization at the give climate coordinate
-        lat, lon = geo.geo_coord_to_latlon(geoCoord)
-        gk4_r, gk4_h = self._transformer.transform(lon, lat)
+        lat, lon = (latlon.lat, latlon.lon)
+        gk4_r, gk4_h = self._latlon_to_gk4_transformer.transform(lon, lat)
         row, col = self._interpolator(gk4_r, gk4_h)
         return self.time_series_at(row, col)
 
@@ -248,16 +254,18 @@ class DatasetImpl(climate_data_capnp.Dataset.Server):
         return self.time_series_at(row, col)
 
 
-    def location_at(self, row, col, coord=None, time_series=None):
+    def location_at(self, row, col, ll_coord=None, time_series=None):
         if (row, col) not in self._locations:
-            if not coord:
-                coord = self._rowcol_to_latlon[(row, col)]
+            if not ll_coord:
+                gk4_r, gk4_h = self._rowcol_to_gk4_rh[(row, col)]
+                lonlat = self._gk4_to_latlon_transformer.transform(gk4_r, gk4_h)
+                ll_coord = {"lat": lonlat[1], "lon": lonlat[0], "alt": -9999}
             id = "r:{}/c:{}".format(row, col)
-            name = "Row/Col:{}/{}|LatLon:{}/{}".format(row, col, coord["lat"], coord["lon"])
+            name = "Row/Col:{}/{}|LatLon:{}/{}".format(row, col, ll_coord["lat"], ll_coord["lon"])
             loc = climate_data_capnp.Location.new_message(
                 id={"id": id, "name": name, "description": ""},
-                heightNN=coord["alt"],
-                geoCoord={"latlon": {"lat": coord["lat"], "lon": coord["lon"]}},
+                heightNN=ll_coord["alt"],
+                latlon={"lat": ll_coord["lat"], "lon": ll_coord["lon"]}
             )
             if time_series:
                 loc.timeSeries = time_series
@@ -268,11 +276,12 @@ class DatasetImpl(climate_data_capnp.Dataset.Server):
     def locations(self, **kwargs): # locations @2 () -> (locations :List(Location));
         # all the climate locations this dataset has
         locs = []
-        return
         if not self._all_locations_created:
-            for row_col, coord in self._rowcol_to_latlon.items():
-                row, col = row_col
-                loc = self.location_at(row, col, coord)
+            for (row, col), (gk4_r, gk4_h) in self._rowcol_to_gk4_rh.items():
+                lon, lat = self._gk4_to_latlon_transformer(gk4_r, gk4_h)
+                ll_coord = {"lat": lat, "lon": lon, "alt": -9999}
+                #row, col = row_col
+                loc = self.location_at(row, col, ll_coord)
                 ts = self.time_series_at(row, col, loc)
                 loc.timeSeries = ts
                 locs.append(loc)
@@ -280,36 +289,6 @@ class DatasetImpl(climate_data_capnp.Dataset.Server):
         else:
             locs.extend(self._locations.values())
         return locs
-
-#------------------------------------------------------------------------------
-
-"""
-def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon):
-    gcms = ["GFDL-ESM4", "IPSL-CM6A-LR", "MPI-ESM1-2-HR", "MRI-ESM2-0", "UKESM1-0-LL"]
-    ssps = ["ssp126", "ssp585"]
-
-    datasets = []
-    for gcm in os.listdir(path_to_data_dir):
-        gcm_dir = path_to_data_dir + "/" + gcm
-        if os.path.isdir(gcm_dir) and gcm in gcms:
-            for scen in os.listdir(gcm_dir):
-                scen_dir = gcm_dir + "/" + scen
-
-                entries = [{"gcm": ccdi.string_to_gcm(gcm)}]
-                if scen in ssps: 
-                    entries.append({"rcp": "rcp" + scen[-2:]})
-                    entries.append({"ssp": scen[:-2]})
-                else: # either historical or picontrol
-                    entries.append({scen: None})
-
-                metadata = climate_data_capnp.Metadata.new_message(entries=entries)
-                metadata.info = ccdi.Metadata_Info(metadata)
-                datasets.append(climate_data_capnp.MetaPlusData.new_message(
-                    meta=metadata, 
-                    data=csv_based.Dataset(metadata, scen_dir, interpolator, rowcol_to_latlon, row_col_pattern="row-{row}/col-{col}.csv.gz")
-                ))
-    return datasets
-"""
 
 #------------------------------------------------------------------------------
 
