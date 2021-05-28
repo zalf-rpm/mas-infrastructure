@@ -59,8 +59,8 @@ struct Env(RestInput) {
   soilProfile @2 :Soil.Profile;
   # soil profile to use for a model run
 
-  cropRotation @3 :List(Mgmt.Event);
-  # crop rotation = a list of management events
+  mgmtEvents @3 :List(Mgmt.Event);
+  # a list of management events
 }
 
 
