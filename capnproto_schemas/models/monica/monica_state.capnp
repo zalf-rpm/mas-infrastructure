@@ -420,6 +420,8 @@ struct CropModuleState {
     assimilatePartCoeffsReduced                 @3      :Bool;
     ktkc                                        @2      :Float64; # old KTkc
     ktko                                        @1      :Float64; # old KTko
+
+    stemElongationEventFired                    @232    :Bool;
 }
 
 struct SnowModuleState {
