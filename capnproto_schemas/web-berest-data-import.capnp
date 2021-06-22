@@ -5,8 +5,8 @@ $Cxx.namespace("mas::rpc");
 
 using Java = import "/capnp/java.capnp";
 $Java.package("de.zalf.mas");
-$Java.outerClassname("OuterA");
+$Java.outerClassname("WebBerestDWDImport");
 
-interface A {
-    method @0 (param :Text) -> (res :Text);
+interface DWLABImport {
+    importData @0 (dwla :Text, dwlb :Text) -> (success :Bool);
 }

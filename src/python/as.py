@@ -16,9 +16,12 @@
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 import asyncio
+import capnp
+#from datetime import date, timedelta
+#import json
 import os
 from pathlib import Path
-import socket
+import sys
 import time
 
 PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent
@@ -29,11 +32,12 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-#import capnp_async_helpers as async_helpers
-#import common.python.capnp_async_helpers as async_helpers
+import common.capnp_async_helpers as async_helpers
 
-import capnp
-import capnproto_schemas.a_capnp as a_capnp
+abs_imports = ["capnproto_schemas"]
+a_capnp = capnp.load("src/python/a.capnp", imports=abs_imports)
+
+#------------------------------------------------------------------------------
 
 class A_Impl(a_capnp.A.Server):
 
@@ -41,7 +45,7 @@ class A_Impl(a_capnp.A.Server):
         time.sleep(secs)
         pfp.fulfill()
 
-    def method_context(self, context, **kwargs):
+    def _method_context(self, context, **kwargs):
         pfp = capnp.PromiseFulfillerPair()
         pfp.fulfill()
         asyncio.create_task(self.sleep(3, pfp))
@@ -54,113 +58,69 @@ class A_Impl(a_capnp.A.Server):
         time.sleep(3)
         return "_______________method_RESULT___________________"
 
-
-""
-class Server:
-    def __init__(self, service):
-        self._service = service
-
-    async def myreader(self):
-        while self.retry:
-            try:
-                # Must be a wait_for so we don't block on read()
-                data = await asyncio.wait_for(
-                    self.reader.read(4096),
-                    timeout=0.1
-                )
-                await self.server.write(data)
-            except asyncio.TimeoutError:
-                print("myreader timeout.")
-                continue
-            except Exception as err:
-                print("Unknown myreader err:", err)
-                self.retry = False
-                return False
-            #await self.server.write(data)
-        print("myreader done.")
-        return True
+    def method(self, param, **kwargs):
+        return "_______________method_RESULT___________________"
 
 
-    async def mywriter(self):
-        while self.retry or self.writer.at_eof():
-            try:
-                # Must be a wait_for so we don't block on read()
-                data = await asyncio.wait_for(
-                    self.server.read(4096),
-                    timeout=0.1
-                )
-                self.writer.write(data.tobytes())
-                await self.writer.drain()
-            except asyncio.TimeoutError:
-                print("mywriter timeout.")
-                continue
-            except Exception as err:
-                print("Unknown mywriter err:", err)
-                self.retry = False
-                return False
-        print("mywriter done.")
-        return True
+#------------------------------------------------------------------------------
 
+def main(server="*", port=11002):
 
-    async def myserver(self, reader, writer):
-        # Start TwoPartyServer using TwoWayPipe (only requires bootstrap)
-        self.server = capnp.TwoPartyServer(bootstrap=self._service)
-        self.reader = reader
-        self.writer = writer
-        self.retry = True
+    config = {
+        "port": str(port),
+        "server": server
+    }
+    # read commandline args only if script is invoked directly from commandline
+    if len(sys.argv) > 1 and __name__ == "__main__":
+        for arg in sys.argv[1:]:
+            k, v = arg.split("=")
+            if k in config:
+                config[k] = v
+    print(config)
 
-        # Assemble reader and writer tasks, run in the background
-        coroutines = [self.myreader(), self.mywriter()]
-        tasks = asyncio.gather(*coroutines, return_exceptions=True)
-
-        while True:
-            self.server.poll_once()
-            # Check to see if reader has been sent an eof (disconnect)
-            if self.reader.at_eof():
-                self.retry = False
-                break
-            await asyncio.sleep(0.01)
-
-        # Make wait for reader/writer to finish (prevent possible resource leaks)
-        await tasks
-""
-
-async def async_main():
-
-    server = "0.0.0.0"
-    port = 11111
-
-    async def new_connection(reader, writer):
-        #server = async_helpers.Server()#A_Impl())
-        #await server.myserver(capnp.TwoPartyServer(bootstrap=A_Impl()), reader, writer)
-        server = Server(A_Impl())
-        await server.myserver(reader, writer)
-
-    # Handle both IPv4 and IPv6 cases
-    try:
-        print("Try IPv4")
-        server = await asyncio.start_server(
-            new_connection,
-            server, port,
-            family=socket.AF_INET
-        )
-    except Exception:
-        print("Try IPv6")
-        server = await asyncio.start_server(
-            new_connection,
-            server, port,
-            family=socket.AF_INET6
-        )
-
-    async with server:
-        await server.serve_forever()
-
-
-def no_async_main():
-    server = capnp.TwoPartyServer("*:11111", bootstrap=A_Impl())
+    server = capnp.TwoPartyServer(config["server"] + ":" + config["port"],
+                                  bootstrap=A_Impl())
     server.run_forever()
 
+#------------------------------------------------------------------------------
+
+async def async_main(serve_bootstrap=False, host="0.0.0.0", port=None, reg_sturdy_ref=None):
+    config = {
+        "host": host,
+        "port": port,
+        "reg_sturdy_ref": reg_sturdy_ref,
+        "serve_bootstrap": str(serve_bootstrap),
+        "reg_category": "climate",
+    }
+    # read commandline args only if script is invoked directly from commandline
+    if len(sys.argv) > 1 and __name__ == "__main__":
+        for arg in sys.argv[1:]:
+            k, v = arg.split("=")
+            if k in config:
+                config[k] = v
+    print("config used:", config)
+
+    conMan = async_helpers.ConnectionManager()
+
+    service = A_Impl()
+
+    if config["reg_sturdy_ref"]:
+        registrator = await conMan.try_connect(config["reg_sturdy_ref"], cast_as=reg_capnp.Registrator)
+        if registrator:
+            unreg = await registrator.register(ref=service, categoryId=config["reg_category"]).a_wait()
+            print("Registered ", config["name"], "climate service.")
+            #await unreg.unregister.unregister().a_wait()
+        else:
+            print("Couldn't connect to registrator at sturdy_ref:", config["reg_sturdy_ref"])
+
+    if config["serve_bootstrap"].upper() == "TRUE":
+        await async_helpers.serve_forever(config["host"], config["port"], service)
+    else:
+        await conMan.manage_forever()
+
+#------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    #no_async_main()
-    asyncio.run(async_main())
+    #main()
+    asyncio.run(async_main(serve_bootstrap=True, port=11002))
+
