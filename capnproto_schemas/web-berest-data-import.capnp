@@ -8,5 +8,5 @@ $Java.package("de.zalf.mas");
 $Java.outerClassname("WebBerestDWDImport");
 
 interface DWLABImport {
-    importData @0 (dwla :Text, dwlb :Text) -> (success :Bool);
+    importData @0 (id :Text, dwla :Text, dwlb :Text) -> (id :Text, successA :Bool, successB :Bool);
 }

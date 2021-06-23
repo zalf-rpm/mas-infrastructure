@@ -80,7 +80,7 @@ public final class WebBerestDWDImport {
       protected Client thisCap() { return new Client(super.thisCap()); }
     }
     public static class ImportDataParams {
-      public static final org.capnproto.StructSize STRUCT_SIZE = new org.capnproto.StructSize((short)0,(short)2);
+      public static final org.capnproto.StructSize STRUCT_SIZE = new org.capnproto.StructSize((short)0,(short)3);
       public static final class Factory extends org.capnproto.StructFactory<Builder, Reader> {
         public Factory() {
         }
@@ -107,35 +107,50 @@ public final class WebBerestDWDImport {
         public final Reader asReader() {
           return new Reader(segment, data, pointers, dataSize, pointerCount, 0x7fffffff);
         }
-        public final boolean hasDwla() {
+        public final boolean hasId() {
           return !_pointerFieldIsNull(0);
         }
-        public final org.capnproto.Text.Builder getDwla() {
+        public final org.capnproto.Text.Builder getId() {
           return _getPointerField(org.capnproto.Text.factory, 0, null, 0, 0);
         }
-        public final void setDwla(org.capnproto.Text.Reader value) {
+        public final void setId(org.capnproto.Text.Reader value) {
           _setPointerField(org.capnproto.Text.factory, 0, value);
         }
-        public final void setDwla(String value) {
+        public final void setId(String value) {
           _setPointerField(org.capnproto.Text.factory, 0, new org.capnproto.Text.Reader(value));
         }
-        public final org.capnproto.Text.Builder initDwla(int size) {
+        public final org.capnproto.Text.Builder initId(int size) {
           return _initPointerField(org.capnproto.Text.factory, 0, size);
         }
-        public final boolean hasDwlb() {
+        public final boolean hasDwla() {
           return !_pointerFieldIsNull(1);
         }
-        public final org.capnproto.Text.Builder getDwlb() {
+        public final org.capnproto.Text.Builder getDwla() {
           return _getPointerField(org.capnproto.Text.factory, 1, null, 0, 0);
         }
-        public final void setDwlb(org.capnproto.Text.Reader value) {
+        public final void setDwla(org.capnproto.Text.Reader value) {
           _setPointerField(org.capnproto.Text.factory, 1, value);
         }
-        public final void setDwlb(String value) {
+        public final void setDwla(String value) {
           _setPointerField(org.capnproto.Text.factory, 1, new org.capnproto.Text.Reader(value));
         }
-        public final org.capnproto.Text.Builder initDwlb(int size) {
+        public final org.capnproto.Text.Builder initDwla(int size) {
           return _initPointerField(org.capnproto.Text.factory, 1, size);
+        }
+        public final boolean hasDwlb() {
+          return !_pointerFieldIsNull(2);
+        }
+        public final org.capnproto.Text.Builder getDwlb() {
+          return _getPointerField(org.capnproto.Text.factory, 2, null, 0, 0);
+        }
+        public final void setDwlb(org.capnproto.Text.Reader value) {
+          _setPointerField(org.capnproto.Text.factory, 2, value);
+        }
+        public final void setDwlb(String value) {
+          _setPointerField(org.capnproto.Text.factory, 2, new org.capnproto.Text.Reader(value));
+        }
+        public final org.capnproto.Text.Builder initDwlb(int size) {
+          return _initPointerField(org.capnproto.Text.factory, 2, size);
         }
       }
 
@@ -144,18 +159,25 @@ public final class WebBerestDWDImport {
           super(segment, data, pointers, dataSize, pointerCount, nestingLimit);
         }
 
-        public boolean hasDwla() {
+        public boolean hasId() {
           return !_pointerFieldIsNull(0);
         }
-        public org.capnproto.Text.Reader getDwla() {
+        public org.capnproto.Text.Reader getId() {
           return _getPointerField(org.capnproto.Text.factory, 0, null, 0, 0);
         }
 
-        public boolean hasDwlb() {
+        public boolean hasDwla() {
           return !_pointerFieldIsNull(1);
         }
-        public org.capnproto.Text.Reader getDwlb() {
+        public org.capnproto.Text.Reader getDwla() {
           return _getPointerField(org.capnproto.Text.factory, 1, null, 0, 0);
+        }
+
+        public boolean hasDwlb() {
+          return !_pointerFieldIsNull(2);
+        }
+        public org.capnproto.Text.Reader getDwlb() {
+          return _getPointerField(org.capnproto.Text.factory, 2, null, 0, 0);
         }
 
       }
@@ -164,7 +186,7 @@ public final class WebBerestDWDImport {
       }
     }
     public static class ImportDataResults {
-      public static final org.capnproto.StructSize STRUCT_SIZE = new org.capnproto.StructSize((short)1,(short)0);
+      public static final org.capnproto.StructSize STRUCT_SIZE = new org.capnproto.StructSize((short)1,(short)1);
       public static final class Factory extends org.capnproto.StructFactory<Builder, Reader> {
         public Factory() {
         }
@@ -191,11 +213,33 @@ public final class WebBerestDWDImport {
         public final Reader asReader() {
           return new Reader(segment, data, pointers, dataSize, pointerCount, 0x7fffffff);
         }
-        public final boolean getSuccess() {
+        public final boolean hasId() {
+          return !_pointerFieldIsNull(0);
+        }
+        public final org.capnproto.Text.Builder getId() {
+          return _getPointerField(org.capnproto.Text.factory, 0, null, 0, 0);
+        }
+        public final void setId(org.capnproto.Text.Reader value) {
+          _setPointerField(org.capnproto.Text.factory, 0, value);
+        }
+        public final void setId(String value) {
+          _setPointerField(org.capnproto.Text.factory, 0, new org.capnproto.Text.Reader(value));
+        }
+        public final org.capnproto.Text.Builder initId(int size) {
+          return _initPointerField(org.capnproto.Text.factory, 0, size);
+        }
+        public final boolean getSuccessA() {
           return _getBooleanField(0);
         }
-        public final void setSuccess(boolean value) {
+        public final void setSuccessA(boolean value) {
           _setBooleanField(0, value);
+        }
+
+        public final boolean getSuccessB() {
+          return _getBooleanField(1);
+        }
+        public final void setSuccessB(boolean value) {
+          _setBooleanField(1, value);
         }
 
       }
@@ -205,8 +249,19 @@ public final class WebBerestDWDImport {
           super(segment, data, pointers, dataSize, pointerCount, nestingLimit);
         }
 
-        public final boolean getSuccess() {
+        public boolean hasId() {
+          return !_pointerFieldIsNull(0);
+        }
+        public org.capnproto.Text.Reader getId() {
+          return _getPointerField(org.capnproto.Text.factory, 0, null, 0, 0);
+        }
+
+        public final boolean getSuccessA() {
           return _getBooleanField(0);
+        }
+
+        public final boolean getSuccessB() {
+          return _getBooleanField(1);
         }
 
       }
@@ -258,12 +313,12 @@ public static final org.capnproto.SegmentReader b_eb03972caa23c7d2 =
    "\u00d2\u00c7\u0023\u00aa\u002c\u0097\u0003\u00eb" +
    "\u0029\u0000\u0000\u0000\u0001\u0000\u0000\u0000" +
    "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
-   "\u0002\u0000\u0007\u0000\u0000\u0000\u0000\u0000" +
+   "\u0003\u0000\u0007\u0000\u0000\u0000\u0000\u0000" +
    "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
    "\u0015\u0000\u0000\u0000\u00da\u0001\u0000\u0000" +
    "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
    "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
-   "\u0029\u0000\u0000\u0000\u0077\u0000\u0000\u0000" +
+   "\u0029\u0000\u0000\u0000\u00af\u0000\u0000\u0000" +
    "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
    "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
    "\u0077\u0065\u0062\u002d\u0062\u0065\u0072\u0065" +
@@ -274,21 +329,36 @@ public static final org.capnproto.SegmentReader b_eb03972caa23c7d2 =
    "\u002e\u0069\u006d\u0070\u006f\u0072\u0074\u0044" +
    "\u0061\u0074\u0061\u0024\u0050\u0061\u0072\u0061" +
    "\u006d\u0073\u0000\u0000\u0000\u0000\u0000\u0000" +
-   "\u0008\u0000\u0000\u0000\u0003\u0000\u0004\u0000" +
+   "\u000c\u0000\u0000\u0000\u0003\u0000\u0004\u0000" +
    "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
    "\u0000\u0000\u0001\u0000\u0000\u0000\u0000\u0000" +
    "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
-   "\u0029\u0000\u0000\u0000\u002a\u0000\u0000\u0000" +
+   "\u0045\u0000\u0000\u0000\u001a\u0000\u0000\u0000" +
    "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
-   "\u0024\u0000\u0000\u0000\u0003\u0000\u0001\u0000" +
-   "\u0030\u0000\u0000\u0000\u0002\u0000\u0001\u0000" +
+   "\u0040\u0000\u0000\u0000\u0003\u0000\u0001\u0000" +
+   "\u004c\u0000\u0000\u0000\u0002\u0000\u0001\u0000" +
    "\u0001\u0000\u0000\u0000\u0001\u0000\u0000\u0000" +
    "\u0000\u0000\u0001\u0000\u0001\u0000\u0000\u0000" +
    "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
-   "\u002d\u0000\u0000\u0000\u002a\u0000\u0000\u0000" +
+   "\u0049\u0000\u0000\u0000\u002a\u0000\u0000\u0000" +
    "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
-   "\u0028\u0000\u0000\u0000\u0003\u0000\u0001\u0000" +
-   "\u0034\u0000\u0000\u0000\u0002\u0000\u0001\u0000" +
+   "\u0044\u0000\u0000\u0000\u0003\u0000\u0001\u0000" +
+   "\u0050\u0000\u0000\u0000\u0002\u0000\u0001\u0000" +
+   "\u0002\u0000\u0000\u0000\u0002\u0000\u0000\u0000" +
+   "\u0000\u0000\u0001\u0000\u0002\u0000\u0000\u0000" +
+   "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
+   "\u004d\u0000\u0000\u0000\u002a\u0000\u0000\u0000" +
+   "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
+   "\u0048\u0000\u0000\u0000\u0003\u0000\u0001\u0000" +
+   "\u0054\u0000\u0000\u0000\u0002\u0000\u0001\u0000" +
+   "\u0069\u0064\u0000\u0000\u0000\u0000\u0000\u0000" +
+   "\u000c\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
+   "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
+   "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
+   "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
+   "\u000c\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
+   "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
+   "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
    "\u0064\u0077\u006c\u0061\u0000\u0000\u0000\u0000" +
    "\u000c\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
    "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
@@ -311,12 +381,12 @@ public static final org.capnproto.SegmentReader b_b9bc568c49fcca07 =
    "\u0007\u00ca\u00fc\u0049\u008c\u0056\u00bc\u00b9" +
    "\u0029\u0000\u0000\u0000\u0001\u0000\u0001\u0000" +
    "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
-   "\u0000\u0000\u0007\u0000\u0000\u0000\u0000\u0000" +
+   "\u0001\u0000\u0007\u0000\u0000\u0000\u0000\u0000" +
    "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
    "\u0015\u0000\u0000\u0000\u00e2\u0001\u0000\u0000" +
    "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
    "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
-   "\u0029\u0000\u0000\u0000\u003f\u0000\u0000\u0000" +
+   "\u0029\u0000\u0000\u0000\u00af\u0000\u0000\u0000" +
    "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
    "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
    "\u0077\u0065\u0062\u002d\u0062\u0065\u0072\u0065" +
@@ -327,15 +397,47 @@ public static final org.capnproto.SegmentReader b_b9bc568c49fcca07 =
    "\u002e\u0069\u006d\u0070\u006f\u0072\u0074\u0044" +
    "\u0061\u0074\u0061\u0024\u0052\u0065\u0073\u0075" +
    "\u006c\u0074\u0073\u0000\u0000\u0000\u0000\u0000" +
-   "\u0004\u0000\u0000\u0000\u0003\u0000\u0004\u0000" +
+   "\u000c\u0000\u0000\u0000\u0003\u0000\u0004\u0000" +
    "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
    "\u0000\u0000\u0001\u0000\u0000\u0000\u0000\u0000" +
    "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
-   "\r\u0000\u0000\u0000\u0042\u0000\u0000\u0000" +
+   "\u0045\u0000\u0000\u0000\u001a\u0000\u0000\u0000" +
    "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
-   "\u0008\u0000\u0000\u0000\u0003\u0000\u0001\u0000" +
-   "\u0014\u0000\u0000\u0000\u0002\u0000\u0001\u0000" +
-   "\u0073\u0075\u0063\u0063\u0065\u0073\u0073\u0000" +
+   "\u0040\u0000\u0000\u0000\u0003\u0000\u0001\u0000" +
+   "\u004c\u0000\u0000\u0000\u0002\u0000\u0001\u0000" +
+   "\u0001\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
+   "\u0000\u0000\u0001\u0000\u0001\u0000\u0000\u0000" +
+   "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
+   "\u0049\u0000\u0000\u0000\u004a\u0000\u0000\u0000" +
+   "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
+   "\u0048\u0000\u0000\u0000\u0003\u0000\u0001\u0000" +
+   "\u0054\u0000\u0000\u0000\u0002\u0000\u0001\u0000" +
+   "\u0002\u0000\u0000\u0000\u0001\u0000\u0000\u0000" +
+   "\u0000\u0000\u0001\u0000\u0002\u0000\u0000\u0000" +
+   "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
+   "\u0051\u0000\u0000\u0000\u004a\u0000\u0000\u0000" +
+   "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
+   "\u0050\u0000\u0000\u0000\u0003\u0000\u0001\u0000" +
+   "\\\u0000\u0000\u0000\u0002\u0000\u0001\u0000" +
+   "\u0069\u0064\u0000\u0000\u0000\u0000\u0000\u0000" +
+   "\u000c\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
+   "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
+   "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
+   "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
+   "\u000c\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
+   "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
+   "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
+   "\u0073\u0075\u0063\u0063\u0065\u0073\u0073\u0041" +
+   "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
+   "\u0001\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
+   "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
+   "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
+   "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
+   "\u0001\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
+   "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
+   "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
+   "\u0073\u0075\u0063\u0063\u0065\u0073\u0073\u0042" +
+   "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
    "\u0001\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
    "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
    "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +

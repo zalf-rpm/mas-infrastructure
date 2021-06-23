@@ -13,36 +13,40 @@ public class DWDImportService {
 
     static class ImportService extends WebBerestDWDImport.DWLABImport.Server {
 
-        private final IFn requireFn;
-        private final IFn currentDbFn;
-        private final IFn qFn;
-        private final Object currentDb;
-        private final String dbName;
+        //private final IFn currentDbFn;
+        //private final IFn qFn;
+        private final IFn importFn;
+        //private final Object currentDb;
 
         public ImportService() {
-            requireFn = Clojure.var("clojure.core", "require");
-            requireFn.invoke(Clojure.read("de.zalf.berest.core.datomic"));
-            requireFn.invoke(Clojure.read("datomic.api"));
+            var requireFn = Clojure.var("clojure.core", "require");
+            //requireFn.invoke(Clojure.read("de.zalf.berest.core.datomic"));
+            //requireFn.invoke(Clojure.read("datomic.api"));
 
-            qFn = Clojure.var("datomic.api", "q");
-            currentDbFn = Clojure.var("de.zalf.berest.core.datomic", "current-db");
+            //qFn = Clojure.var("datomic.api", "q");
+            //currentDbFn = Clojure.var("de.zalf.berest.core.datomic", "current-db");
+            //dbName = System.getProperty("berest.datomic.url");
+            //currentDb = currentDbFn.invoke();//dbName);
 
-            dbName = System.getProperty("berest.datomic.url");
-            currentDb = currentDbFn.invoke(dbName);
+            requireFn.invoke(Clojure.read("de.zalf.berest.core.import.dwd-data"));
+            importFn = Clojure.var("de.zalf.berest.core.import.dwd-data", "import-dwd-data-into-datomic**");
         }
 
         @Override
         protected CompletableFuture<Void> importData(CallContext<WebBerestDWDImport.DWLABImport.ImportDataParams.Reader, WebBerestDWDImport.DWLABImport.ImportDataResults.Builder> context) {
             var params = context.getParams();
+            var id = params.getId();
             var dwla = params.getDwla();
             var dwlb = params.getDwlb();
 
-            var out = qFn.invoke(Clojure.read("[:find ?se ?station-id :in $ :where [?se :weather-station/id ?station-id]]"),
-                    currentDb, "dwd_10162", Clojure.read("#inst \"2014-02-04T00:00:00.000-00:00\""));
-            System.out.println(out);
+            var aOk = (boolean) importFn.invoke("A", dwla.toString());
+            var bOk = (boolean) importFn.invoke("B", dwlb.toString());
+            System.out.println("Tried to import data: id=" + id + ", DWLA-OK? " + aOk + ", DWLB-OK? " + bOk);
 
             var results = context.getResults();
-            results.setSuccess(true);
+            results.setId(id);
+            results.setSuccessA((boolean)aOk);
+            results.setSuccessB((boolean)bOk);
             return READY_NOW;
         }
     }
