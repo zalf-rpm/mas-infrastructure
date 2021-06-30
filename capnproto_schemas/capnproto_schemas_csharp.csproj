@@ -115,6 +115,9 @@
       <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">.</ImportPaths>
       <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">.</ImportPaths>
     </CapnpFiles>
+    <CapnpFiles Update="web-berest-data-import.capnp">
+      <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">.</ImportPaths>
+    </CapnpFiles>
   </ItemGroup>
 
 </Project>
