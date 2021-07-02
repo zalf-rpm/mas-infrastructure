@@ -6,9 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Components\**" />
     <Compile Remove="Data\**" />
+    <Content Remove="Components\**" />
     <Content Remove="Data\**" />
+    <EmbeddedResource Remove="Components\**" />
     <EmbeddedResource Remove="Data\**" />
+    <None Remove="Components\**" />
     <None Remove="Data\**" />
   </ItemGroup>
 
@@ -22,10 +26,6 @@
     <ProjectReference Include="..\..\..\capnproto_schemas\capnproto_schemas_csharp.csproj" />
     <ProjectReference Include="..\BlazorComponents\BlazorComponents.csproj" />
     <ProjectReference Include="..\common\common.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Components\" />
   </ItemGroup>
 
 </Project>

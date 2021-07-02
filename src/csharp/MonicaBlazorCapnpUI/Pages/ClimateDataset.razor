@@ -49,7 +49,7 @@
     public bool HideGeoPosPicker { get; set; } = false;
 
     [Parameter]
-    public (double, double) LatLng { get; set; }
+    public (double, double) LatLng { get; set; } = (52.52, 14.11);
 
     private Climate.ITimeSeries timeSeries;
 
