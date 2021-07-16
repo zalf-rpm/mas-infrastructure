@@ -1,0 +1,189 @@
+﻿@page "/climate/service"
+
+@namespace Mas.Infrastructure.BlazorComponents
+
+@using MudBlazor
+@using Common = Mas.Rpc.Common
+@using Climate = Mas.Rpc.Climate
+
+@inject IJSRuntime JSRuntime;
+
+@implements IDisposable
+
+<MudGrid>
+    <MudItem Class=@(HideSturdyRefConnector ? "d-none" : "") xs="12">
+        <ConnectToSturdyRef Label="Persistent capability to climate service (capnp://host:port/token)"
+                            CapabilityChanged=@CapabilityChanged
+                            TCapnpInterface=Climate.IService
+                            @bind-SturdyRef=ClimateServiceSturdyRef>
+        </ConnectToSturdyRef>
+    </MudItem>
+    <MudItem xs="12">
+        @code {
+            private int _selectedDatasetId = -1;
+        }
+        <MudTable T="ValueTuple<IEnumerable<Common.IdInformation>, Climate.IDataset, int>"
+                  FixedHeader=@true
+                  Height=@(metaAndData.Count() == 0 ? "" : "400px")
+                  Items=@metaAndData
+                  Hover=@true
+                  Dense=@true
+                  Filter=@(new Func<(IEnumerable<Common.IdInformation>, Climate.IDataset, int), bool>(DataFilterFunc))
+                  SelectedItemChanged=@(t => {
+                                            _selectedDatasetId = t.Item3;
+                                            selectedDataset = t.Item2;
+                                            if (DatasetCapChanged.HasDelegate) _ = DatasetCapChanged.InvokeAsync(selectedDataset);
+                                            StateHasChanged(); })>
+            <ToolBarContent>
+                <MudButton Variant=@Variant.Filled OnClick=@LoadDatasets Disabled=@(ClimateServiceCap == null)>
+                    Load
+                </MudButton>
+                <MudText Typo=Typo.h6>Datasets</MudText>
+                <MudToolBarSpacer />
+                <MudTextField @bind-Value=searchString Placeholder="Search" Adornment=Adornment.Start AdornmentIcon=@Icons.Material.Filled.Search IconSize=Size.Medium Class="mt-0"></MudTextField>
+            </ToolBarContent>
+            <HeaderContent>
+                @foreach (var h in metaHeadings)
+                {
+                    <MudTh>@h</MudTh>
+                }
+            </HeaderContent>
+            <RowTemplate>
+                @foreach (var (m, i) in context.Item1.Select((m, i) => (m, i)))
+                {
+                    <MudTd Style=@(_selectedDatasetId == context.Item3 ? "background-color: LightGrey" : "")
+                           DataLabel=@metaHeadings[i]>
+                        @m.Name
+                    </MudTd>
+                }
+            </RowTemplate>
+        </MudTable>
+    </MudItem>
+    <MudItem xs="12">
+        <ClimateDataset DatasetCap=@selectedDataset 
+                        HideSturdyRefConnector=@true
+                        HideGeoPosPicker=@HideGeoPosPicker
+                        LatLng=@LatLng
+                        TimeSeriesCapChanged=@TimeSeriesCapChanged>
+        </ClimateDataset>
+    </MudItem>
+</MudGrid>
+
+@code {
+    [Parameter]
+    public Climate.IService ClimateServiceCap { get; set; }
+
+    private bool _climateServiceCapUpdated = false;
+
+    [Parameter]
+    public String ClimateServiceSturdyRef { get; set; } = "";
+
+    [Parameter]
+    public EventCallback<Climate.IService> ClimateServiceCapChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<Climate.IDataset> DatasetCapChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<Climate.ITimeSeries> TimeSeriesCapChanged { get; set; }
+
+    [Parameter]
+    public bool HideSturdyRefConnector { get; set; } = false;
+
+    [Parameter]
+    public bool HideGeoPosPicker { get; set; } = false;
+
+    [Parameter]
+    public (double, double) LatLng { get; set; } = (52.52, 14.11);
+
+    private String searchString = "";
+
+    //private Dictionary<String, Climate.IDataset> meta2data = new Dictionary<string, Climate.IDataset>();
+    private String[] metaHeadings = new String[0];
+    private IEnumerable<(IEnumerable<Common.IdInformation>, Climate.IDataset, int)> metaAndData = new List<(IEnumerable<Common.IdInformation>, Climate.IDataset, int)>();
+    private Climate.IDataset selectedDataset;
+
+
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        _climateServiceCapUpdated = parameters.GetValueOrDefault<Climate.IService>("ClimateServiceCap", null) != ClimateServiceCap;
+        await base.SetParametersAsync(parameters);
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (_climateServiceCapUpdated) await CapabilityChanged(ClimateServiceCap);
+    }
+
+    public String EntryToString(Climate.Metadata.Entry entry)
+    {
+        switch (entry.which)
+        {
+            case Climate.Metadata.Entry.WHICH.Co2: return "CO2";
+            case Climate.Metadata.Entry.WHICH.Description: return "Description";
+            case Climate.Metadata.Entry.WHICH.Start: return "Start";
+            case Climate.Metadata.Entry.WHICH.End: return "End";
+            case Climate.Metadata.Entry.WHICH.EnsMem: return "EnsembleMember";
+            case Climate.Metadata.Entry.WHICH.Gcm: return "GCM";
+            case Climate.Metadata.Entry.WHICH.Rcm: return "RCM";
+            case Climate.Metadata.Entry.WHICH.Rcp: return "RCP";
+            case Climate.Metadata.Entry.WHICH.Ssp: return "SSP";
+            case Climate.Metadata.Entry.WHICH.Version: return "Version";
+            case Climate.Metadata.Entry.WHICH.Historical: return "Historical";
+            case Climate.Metadata.Entry.WHICH.Picontrol: return "PiControl";
+        }
+        return "undef";
+    }
+
+    private async Task CapabilityChanged(Climate.IService service)
+    {
+        if (service == null) return;
+
+        if (ClimateServiceCap != service) ClimateServiceCap?.Dispose();
+        ClimateServiceCap = service;
+
+        if (ClimateServiceCapChanged.HasDelegate) _ = ClimateServiceCapChanged.InvokeAsync(ClimateServiceCap);
+
+        //await LoadDatasets();
+    }
+
+    private async Task LoadDatasets()
+    {
+        if (ClimateServiceCap == null) return;
+
+        //dispose existing datasets
+        foreach (var (_, ds, _) in metaAndData) ds?.Dispose();
+
+        var metaAndDataL = new List<(IEnumerable<Common.IdInformation>, Climate.IDataset, int)>();
+
+        var datasets = await ClimateServiceCap.GetAvailableDatasets();
+        foreach (var (ds, i) in datasets.Select((ds, i) => (ds, i)))
+        {
+            var r = await ds.Meta.Info.ForAll();
+            metaHeadings = r.Select(p => EntryToString(p.Fst)).ToArray();
+            var e = r.Select(p => p.Snd);
+            metaAndDataL.Add((r.Select(p => p.Snd), ds.Data, i));
+        }
+        metaAndData = metaAndDataL;
+
+        if (ClimateServiceCapChanged.HasDelegate) _ = ClimateServiceCapChanged.InvokeAsync(ClimateServiceCap);
+    }
+
+    void IDisposable.Dispose()
+    {
+        ClimateServiceCap?.Dispose();
+        foreach (var (_, ds, _) in metaAndData) ds?.Dispose();
+    }
+
+    private bool DataFilterFunc(ValueTuple<IEnumerable<Common.IdInformation>, Climate.IDataset, int> elem)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        foreach (var m in elem.Item1)
+        {
+            if (m.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+        return false;
+    }
+}

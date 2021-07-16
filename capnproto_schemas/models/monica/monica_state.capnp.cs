@@ -2332,6 +2332,7 @@ namespace Mas.Models.Monica
             CultivarParams = CapnpSerializable.Create<Mas.Models.Monica.CultivarParameters>(reader.CultivarParams);
             ResidueParams = CapnpSerializable.Create<Mas.Models.Monica.CropResidueParameters>(reader.ResidueParams);
             IsWinterCrop = reader.IsWinterCrop;
+            StemElongationEventFired = reader.StemElongationEventFired;
             applyDefaults();
         }
 
@@ -2569,6 +2570,7 @@ namespace Mas.Models.Monica
             CultivarParams?.serialize(writer.CultivarParams);
             ResidueParams?.serialize(writer.ResidueParams);
             writer.IsWinterCrop = IsWinterCrop;
+            writer.StemElongationEventFired = StemElongationEventFired;
         }
 
         void ICapnpSerializable.Serialize(SerializerState arg_)
@@ -3995,6 +3997,12 @@ namespace Mas.Models.Monica
             set;
         }
 
+        public bool StemElongationEventFired
+        {
+            get;
+            set;
+        }
+
         public struct READER
         {
             readonly DeserializerState ctx;
@@ -4238,6 +4246,7 @@ namespace Mas.Models.Monica
             public Mas.Models.Monica.CultivarParameters.READER CultivarParams => ctx.ReadStruct(48, Mas.Models.Monica.CultivarParameters.READER.create);
             public Mas.Models.Monica.CropResidueParameters.READER ResidueParams => ctx.ReadStruct(49, Mas.Models.Monica.CropResidueParameters.READER.create);
             public bool IsWinterCrop => ctx.ReadDataBool(7285UL, false);
+            public bool StemElongationEventFired => ctx.ReadDataBool(7286UL, false);
         }
 
         public class WRITER : SerializerState
@@ -5637,6 +5646,12 @@ namespace Mas.Models.Monica
             {
                 get => this.ReadDataBool(7285UL, false);
                 set => this.WriteData(7285UL, value, false);
+            }
+
+            public bool StemElongationEventFired
+            {
+                get => this.ReadDataBool(7286UL, false);
+                set => this.WriteData(7286UL, value, false);
             }
         }
     }
