@@ -317,7 +317,7 @@ class Service(soil_data_capnp.Service.Server):
 
         # fill profile with data
         self.profiles_at(c.lat, c.lon, r.profiles[0], avail_props, q.onlyRawData)
-        print("ps@", flush=True)
+        #print("ps@", flush=True)
 
     """
     def allLocations_context(self, context): # allLocations @1 Query -> (profiles :List(Common.Pair(Geo.LatLonCoord, List(Common.CapHolder(Profile)))));    
