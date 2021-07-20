@@ -37,7 +37,7 @@ def read_header(path_to_ascii_grid_file):
 
 #------------------------------------------------------------------------------
 
-def create_interpolator_from_rect_grid(grid, metadata, ignore_nodata=True, transform_func=None):
+def create_interpolator_from_rect_grid(grid, metadata, ignore_nodata=True, transform_func=None, row_col_value=False, no_points_to_values=False):
     """Create an interpolator from the given grid.
     It is assumed that the values in the grid have a rectangular projection
     so the interpolators underlying distance calculations make sense.
@@ -72,10 +72,12 @@ def create_interpolator_from_rect_grid(grid, metadata, ignore_nodata=True, trans
                 r, h = transform_func(r, h)
 
             points.append([r, h])
-            values.append(value)
-            points_to_values[(r, h)] = value
+            values.append((row, col, value) if row_col_value else value)
+            
+            if not no_points_to_values:
+                points_to_values[(r, h)] = value
 
-    return (NearestNDInterpolator(np.array(points), np.array(values)), points_to_values)
+    return (NearestNDInterpolator(np.array(points), np.array(values)), None if no_points_to_values else points_to_values)
     
 #------------------------------------------------------------------------------
 
