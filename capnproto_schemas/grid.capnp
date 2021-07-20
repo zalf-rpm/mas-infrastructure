@@ -20,8 +20,7 @@ enum Aggregation {
   median  @2; # median
   min     @3; # minimum
   max     @4; # maximum
-  first   @5; # first value
-  last    @6; # last value
+  sum     @5; # sum
 }
 
 

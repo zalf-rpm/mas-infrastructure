@@ -92,7 +92,7 @@ class Grid(grid_capnp.Grid.Server):
 
     def valueAt(self, row, col, resolution, agg, **kwargs): # valueAt @4 (row :UInt64, col :UInt64, resolution :UInt64, agg :Aggregation = none) -> (val :Value);
         
-        if resolution < self._cellsize and row >= 0 and row < self._nrows and col >= 0 and col < self._ncols:
+        if resolution <= self._cellsize and row >= 0 and row < self._nrows and col >= 0 and col < self._ncols:
             value = self._grid[row, col]
             if value == self._nodata:
                 val = {"no": True}
@@ -101,7 +101,107 @@ class Grid(grid_capnp.Grid.Server):
             else:
                 val = {"f": float(value)}
             return val
+        elif resolution % self._cellsize == 0 and row >= 0 and row < self._nrows and col >= 0 and col < self._ncols:
 
+            cs = self._cellsize
+
+            # what is outside of main cell
+            rest_cellsize = resolution - cs
+            # divide amongst sides (left/right, top/bottom)
+            sidecell = rest_cellsize // 2
+            d, mod_sidecell = divmod(sidecell, cs)
+
+            cells = []
+
+            # first create the fraction ring, if necessary
+            if mod_sidecell > 0:
+                # corners
+                fraction = mod_sidecell / cs
+
+                top_row = row - d - 1
+                if top_row >= 0:
+
+                    left_col = col - d - 1
+                    if left_col >= 0:
+                        # top left corner
+                        cells.append((top_row, left_col, fraction*fraction)) 
+
+                        # left side
+                        for i in range(1, 1 + d + 1):
+                            cells.append((top_row + i, left_col, fraction))
+
+                    # top side
+                    for i in range(1, 1 + d + 1):
+                        cells.append((top_row, left_col + i, fraction))
+
+                    right_col = col + d + 1
+                    if right_col <= self._ncols - 1:
+                        # top right corner
+                        cells.append((top_row, right_col, fraction*fraction)) 
+
+                        # right side
+                        for i in range(1, 1 + d + 1):
+                            cells.append((top_row + i, right_col, fraction))
+
+                
+
+
+                bottom_row = row + d + 1
+                if bottom_row <= self._nrows - 1:
+
+                    left_col = col - d - 1
+                    if left_col >= 0:
+                        # bottom left corner
+                        cells.append((bottom_row, left_col, fraction*fraction)) 
+
+                    # bottom side
+                    for i in range(1, 1 + d + 1):
+                        cells.append((bottom_row, left_col + i, fraction))
+
+                    right_col = col + d + 1
+                    if right_col <= self._ncols - 1:
+                        # bottom right corner
+                        cells.append((bottom_row, right_col, fraction*fraction)) 
+    
+            # create the inner full columns
+            for row_i in range(-d, d + 1):
+                r = row + row_i
+                if r >= 0 and r <= self._nrows - 1:
+                    for col_i in range(-d, d + 1):
+                        c = col + col_i
+                        if c >= 0 and c <= self._ncols - 1 and not (r == row and c == col):
+                            cells.append((r, c, 1.0))
+
+            
+            value = self._nodata
+            values = []
+            for r, c, frac in cells:
+                val = self._grid[r, c]
+                if val == self._nodata:
+                    continue
+                values.append(val * frac)
+
+            if len(values) > 0:
+                if agg == "avg":
+                    value = sum(values) / len(values)
+                elif agg == "median":
+                    sort(values)
+                    value = values[len(values) // 2]
+                elif agg == "min":
+                    value = min(values)
+                elif agg == "max":
+                    value = max(values)
+                elif agg == "sum":
+                    value = sum(values)
+
+            if value == self._nodata:
+                val = {"no": True}
+            elif self._val_type == int:
+                val = {"i": int(value)}
+            else:
+                val = {"f": float(value)}
+            return val            
+                
 
     def resolution(self, **kwargs): # resolution @1 () -> (res :UInt64);
         return self._cellsize
