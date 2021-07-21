@@ -21,6 +21,7 @@
 import asyncio
 import capnp
 import logging
+import math
 import os
 from pathlib import Path
 from pyproj import CRS, Transformer
@@ -75,133 +76,248 @@ class Grid(grid_capnp.Grid.Server):
         self._yll = int(self._metadata["yllcorner"])
 
 
-    def closestValueAt(self, latlonCoord, ignoreNoData, resolution, agg, returnRowCols, **kwargs): # closestValueAt @0 (latlonCoord :Geo.LatLonCoord, ignoreNoData :Bool, resolution :UInt64, agg :Aggregation = none) -> (val :Value, tl :RowCol, br :RowCol);
+    def to_union(self, value):
+        if value == self._nodata:
+            val = {"no": True}
+        elif self._val_type == int:
+            val = {"i": int(value)}
+        else:
+            val = {"f": float(value)}
+        return val            
+
+    def closestValueAt(self, latlonCoord, ignoreNoData, resolution, agg, returnRowCols, includeAggParts, _context, **kwargs): # closestValueAt @0 (latlonCoord :Geo.LatLonCoord, ignoreNoData :Bool, resolution :UInt64, agg :Aggregation = none, includeAggParts :Bool = false) -> (val :Value, tl :RowCol, br :RowCol, aggParts :List(AggregationPart));
         lat = latlonCoord.lat
         lon = latlonCoord.lon
 
         r, h = self._latlon_to_grid_crs.transform(lon, lat)
-        if resolution < self._cellsize:
-            if ignoreNoData:
-                row, col, value = self._ignore_nodata_rowcol_interpol(r, h)
-            else:
-                row, col, value = self._include_nodata_rowcol_interpol(r, h)
-            val = {"i": int(value)} if self._val_type == int else {"f": float(value)}
+        if ignoreNoData:
+            row, col, value = self._ignore_nodata_rowcol_interpol(r, h)
+        else:
+            row, col, value = self._include_nodata_rowcol_interpol(r, h)
+
+        if resolution <= self._cellsize:
+            val = self.to_union(value)
             rc = {"row": int(row), "col": int(col)}
             return (val, rc, rc) if returnRowCols else val
-
-
-    def valueAt(self, row, col, resolution, agg, **kwargs): # valueAt @4 (row :UInt64, col :UInt64, resolution :UInt64, agg :Aggregation = none) -> (val :Value);
         
+        elif resolution % self._cellsize == 0:
+
+            union_value, aggValues, tl, br = self.valueAtRowCol(int(row), int(col), resolution, agg, includeAggParts)
+
+            if agg == "none":
+                _context.results.aggParts = aggValues
+                if returnRowCols:
+                    _context.results.tl = tl
+                    _context.results.br = br
+                return
+            elif includeAggParts:
+                _context.results.aggParts = aggValues
+                _context.results.val = union_value
+                if returnRowCols:
+                    _context.results.tl = tl
+                    _context.results.br = br
+                return
+            else: 
+                return (union_value, tl, br) if returnRowCols else union_value
+
+
+    def valueAt(self, row, col, resolution, agg, includeAggParts, _context, **kwargs): # valueAt @4 (row :UInt64, col :UInt64, resolution :UInt64, agg :Aggregation = none, includeAggParts :Bool = false) -> (val :Value, aggParts :List(AggregationPart));
+
         if resolution <= self._cellsize and row >= 0 and row < self._nrows and col >= 0 and col < self._ncols:
             value = self._grid[row, col]
-            if value == self._nodata:
-                val = {"no": True}
-            elif self._val_type == int:
-                val = {"i": int(value)}
-            else:
-                val = {"f": float(value)}
-            return val
+            return self.to_union(value)
+
         elif resolution % self._cellsize == 0 and row >= 0 and row < self._nrows and col >= 0 and col < self._ncols:
 
-            cs = self._cellsize
+            union_value, aggValues, _, _ = self.valueAtRowCol(row, col, resolution, agg, includeAggParts)
 
-            # what is outside of main cell
-            rest_cellsize = resolution - cs
-            # divide amongst sides (left/right, top/bottom)
-            sidecell = rest_cellsize // 2
-            d, mod_sidecell = divmod(sidecell, cs)
-
-            cells = []
-
-            # first create the fraction ring, if necessary
-            if mod_sidecell > 0:
-                # corners
-                fraction = mod_sidecell / cs
-
-                top_row = row - d - 1
-                if top_row >= 0:
-
-                    left_col = col - d - 1
-                    if left_col >= 0:
-                        # top left corner
-                        cells.append((top_row, left_col, fraction*fraction)) 
-
-                        # left side
-                        for i in range(1, 1 + d + 1):
-                            cells.append((top_row + i, left_col, fraction))
-
-                    # top side
-                    for i in range(1, 1 + d + 1):
-                        cells.append((top_row, left_col + i, fraction))
-
-                    right_col = col + d + 1
-                    if right_col <= self._ncols - 1:
-                        # top right corner
-                        cells.append((top_row, right_col, fraction*fraction)) 
-
-                        # right side
-                        for i in range(1, 1 + d + 1):
-                            cells.append((top_row + i, right_col, fraction))
-
-                
+            if agg == "none":
+                _context.results.aggParts = aggValues
+                return
+            elif includeAggParts:
+                return (union_value, aggValues)
+            else: 
+                return union_value
 
 
-                bottom_row = row + d + 1
-                if bottom_row <= self._nrows - 1:
+    def valueAtRowCol(self, row, col, resolution, agg, includeAggParts):
 
-                    left_col = col - d - 1
-                    if left_col >= 0:
-                        # bottom left corner
-                        cells.append((bottom_row, left_col, fraction*fraction)) 
+        cellsize = self._cellsize
 
-                    # bottom side
-                    for i in range(1, 1 + d + 1):
-                        cells.append((bottom_row, left_col + i, fraction))
+        # what is outside of main cell
+        boundary_size = resolution - cellsize
+        # divide amongst sides (left/right, top/bottom)
+        boundary_size_per_side = boundary_size // 2
+        full_cell_count, rest_outer_boundary_size = divmod(boundary_size_per_side, cellsize)
 
-                    right_col = col + d + 1
-                    if right_col <= self._ncols - 1:
-                        # bottom right corner
-                        cells.append((bottom_row, right_col, fraction*fraction)) 
-    
-            # create the inner full columns
-            for row_i in range(-d, d + 1):
-                r = row + row_i
-                if r >= 0 and r <= self._nrows - 1:
-                    for col_i in range(-d, d + 1):
-                        c = col + col_i
-                        if c >= 0 and c <= self._ncols - 1 and not (r == row and c == col):
-                            cells.append((r, c, 1.0))
+        cells = [(row, col, 1.0, None)]
+        tl = {"row": row, "col": col}
+        br = {"row": row, "col": col}
 
-            
-            value = self._nodata
-            values = []
-            for r, c, frac in cells:
-                val = self._grid[r, c]
-                if val == self._nodata:
-                    continue
-                values.append(val * frac)
+        # first create the fraction ring, if necessary
+        if rest_outer_boundary_size > 0:
+            # corners
+            fraction = rest_outer_boundary_size / cellsize
 
-            if len(values) > 0:
-                if agg == "avg":
-                    value = sum(values) / len(values)
-                elif agg == "median":
-                    sort(values)
-                    value = values[len(values) // 2]
-                elif agg == "min":
-                    value = min(values)
-                elif agg == "max":
-                    value = max(values)
-                elif agg == "sum":
-                    value = sum(values)
+            outer_tl = None
+            top_row = row - full_cell_count - 1
+            if top_row >= 0:
+                # top left corner
+                left_col = col - full_cell_count - 1
+                if left_col >= 0:
+                    # store top left row/col
+                    outer_tl = {"row": top_row, "col": left_col}
+                    cells.append((top_row, left_col, fraction*fraction, (top_row + 1, left_col + 1))) 
 
-            if value == self._nodata:
-                val = {"no": True}
-            elif self._val_type == int:
-                val = {"i": int(value)}
-            else:
-                val = {"f": float(value)}
-            return val            
-                
+                # top side
+                for i in range(1, 1 + (2*full_cell_count) + 1):
+                    left_i = left_col + i
+                    if 0 <= left_i and left_i <= self._ncols - 1:
+                        # if not done yet, store top left row/col
+                        if outer_tl is None:
+                            outer_tl = {"row": top_row, "col": left_i}
+                        cells.append((top_row, left_i, fraction, (top_row + 1, left_i)))
+
+                # top right corner
+                right_col = col + full_cell_count + 1
+                if right_col <= self._ncols - 1:
+                    cells.append((top_row, right_col, fraction*fraction, (top_row + 1, right_col - 1))) 
+
+            # left side
+            left_col = col - full_cell_count - 1
+            if left_col >= 0:
+                for i in range(1, 1 + (2*full_cell_count) + 1):
+                    top_i = top_row + i
+                    if top_i >= 0:
+                        if outer_tl is None:
+                            outer_tl = {"row": top_i, "col": left_col}
+                        cells.append((top_i, left_col, fraction, (top_i, left_col + 1)))
+
+            if outer_tl is not None:
+                tl = outer_tl
+
+            outer_br = None
+            # right side
+            right_col = col + full_cell_count + 1
+            if right_col <= self._ncols - 1:
+                for i in range(1, 1 + (2*full_cell_count) + 1):
+                    top_i = top_row + i
+                    if top_i >= 0:
+                        # store bottom right row/col
+                        outer_br = {"row": top_i, "col": right_col}
+                        cells.append((top_i, right_col, fraction, (top_i, right_col - 1)))
+
+
+            bottom_row = row + full_cell_count + 1
+            if bottom_row <= self._nrows - 1:
+                # bottom left corner
+                left_col = col - full_cell_count - 1
+                if left_col >= 0:
+                    cells.append((bottom_row, left_col, fraction*fraction, (bottom_row - 1, left_col + 1))) 
+
+                # bottom side
+                for i in range(1, 1 + (2*full_cell_count) + 1):
+                    left_i = left_col + i
+                    if 0 <= left_i and left_i <= self._ncols - 1:
+                        # store bottom right row/col
+                        outer_br = {"row": bottom_row, "col": left_i}
+                        cells.append((bottom_row, left_i, fraction, (bottom_row - 1, left_i)))
+
+                # bottom right corner
+                right_col = col + full_cell_count + 1
+                if right_col <= self._ncols - 1:
+                    # store bottom right row/col
+                    outer_br = {"row": bottom_row, "col": right_col}
+                    cells.append((bottom_row, right_col, fraction*fraction, (bottom_row - 1, right_col - 1))) 
+
+            if outer_br is not None:
+                br = outer_br
+
+        inner_tl = None
+        inner_br = None
+        # create the inner full columns
+        for row_i in range(-full_cell_count, full_cell_count + 1):
+            r = row + row_i
+            if r >= 0 and r <= self._nrows - 1:
+                for col_i in range(-full_cell_count, full_cell_count + 1):
+                    c = col + col_i
+                    if c >= 0 and c <= self._ncols - 1 and not (r == row and c == col):
+                        # if not set previously, store top left row/col
+                        if inner_tl is None:
+                            inner_tl = {"row": r, "col": c}
+                        # store bottom right row col
+                        inner_br = {"row": r, "col": c}
+                        cells.append((r, c, 1.0, None))
+        
+        if outer_tl is None and inner_tl is not None:
+            tl = inner_tl
+        if outer_br is None and inner_br is not None:
+            br = inner_br
+        
+        value = self._nodata
+        values = []
+        weightedValues = []
+        aggValues = []
+        sum_fractions = 0
+        rc_to_val = {}
+        for r, c, frac, _ in cells:
+            val = self._grid[r, c]
+            if agg == "none" or includeAggParts:
+                aggValues.append({
+                    "value": self.to_union(val), 
+                    "rowCol": {"row": r, "col": c},
+                    "fraction": frac
+                })
+            if val == self._nodata:
+                continue
+            if int(frac) == 1:
+                rc_to_val[(r,c)] = val
+            values.append(val)
+            weightedValues.append(val * frac)
+            sum_fractions += frac
+
+        interpolatedValues = []
+        for r, c, frac, (fr, fc) in filter(lambda c: c[2] < 1, cells):
+            fval = rc_to_val[(fr,fc)]
+
+            dr = abs(r - fr)
+            dc = abs(c - fc)
+
+            full_dist = math.sqrt(dr * cellsize**2 + dc * cellsize**2)
+            half_full_dist = math.sqrt(dr * (cellsize/2)**2 + dc * (cellsize/2)**2)
+            half_short_dist = math.sqrt(dr * frac * (cellsize/2)**2 + dc * frac * (cellsize/2)**2)
+
+            interpol_value = fval * (half_full_dist + half_short_dist) / full_dist
+
+            interpolatedValues.append(interpol_value)
+
+
+        if len(values) > 0:
+            if agg == "wAvg":
+                # calc weighted average https://www.indeed.com/career-advice/career-development/how-to-calculate-weighted-average
+                value = sum(weightedValues) / sum_fractions
+            elif agg == "wMedian":
+                # calc weighted median https://www.datablick.com/blog/2017/7/3/weighted-medians-for-weighted-data-in-tableau
+                values.sort()
+                running_fraction = 0
+                for i, (_, _, frac, _) in enumerate(cells):
+                    running_fraction += frac
+                    if running_fraction / sum_fractions >= 0.5:
+                        no_vals = len(values)
+                        d, m = divmod(len(values), 2)
+                        if m == 0:
+                            value = (values[d - 1] + values[d]) / 2
+                        else:
+                            value = values[d]
+            elif agg == "min":
+                value = min(values)
+            elif agg == "max":
+                value = max(values)
+            elif agg == "sum":
+                value = sum(values)
+
+        return (self.to_union(value), aggValues, tl, br)
+
 
     def resolution(self, **kwargs): # resolution @1 () -> (res :UInt64);
         return self._cellsize
@@ -328,6 +444,6 @@ if __name__ == '__main__':
     crs = "gk5"
 
     #main(db, grid, crs, serve_bootstrap=True, port=10000)
-    asyncio.run(async_main(grid, crs, "int", serve_bootstrap=True, port=16000))
+    asyncio.run(async_main(grid, crs, "float", serve_bootstrap=True, port=16000))
 
 

@@ -15,12 +15,14 @@ using Geo = import "geo_coord.capnp";
 enum Aggregation {
   # how to aggregate multiple values if the output resolution is lower than the grids base resolution
 
-  none    @0; # no aggregation/default
-  avg     @1; # average
-  median  @2; # median
-  min     @3; # minimum
-  max     @4; # maximum
-  sum     @5; # sum
+  none      @0; # no aggregation/default
+  wAvg      @1; # area weighted average
+  wMedian   @2; # area weighted median
+  min       @3; # minimum
+  max       @4; # maximum
+  sum       @5; # sum
+  iAvg      @6; # interpolated average
+  iMedian   @7; # interpolated median
 }
 
 
@@ -41,14 +43,34 @@ interface Grid extends(Common.Identifiable) {
     col @1 :UInt64;
   }
 
-  closestValueAt @0 (latlonCoord :Geo.LatLonCoord, ignoreNoData :Bool = true, resolution :UInt64 = 0, agg :Aggregation = none, returnRowCols :Bool = false) -> (val :Value, tl :RowCol, br :RowCol);
+  struct AggregationPart {
+    value     @0 :Value;
+    rowCol    @1 :RowCol;
+    fraction  @2 :Float64;
+  }
+
+  closestValueAt @0 (latlonCoord :Geo.LatLonCoord, 
+                     ignoreNoData :Bool = true, 
+                     resolution :UInt64 = 0, 
+                     agg :Aggregation = none, 
+                     returnRowCols :Bool = false, 
+                     includeAggParts :Bool = false) 
+                     -> (val :Value, tl :RowCol, br :RowCol, aggParts :List(AggregationPart));
   # Get data at given lat/lon geo coordinate. If a resolution is given which is larger (larger number)
   # than the grids base resolution and aggregation as how to aggregate multiple values has to be given.
   # If no data values should not be ignored, then the closest no data cell will be returned.
-  # If rows and cols should be returned then tl is the top left corner and br the bottom right corner the used data rectangle
+  # If rows and cols should be returned then tl is the top left corner and br the bottom right corner the used data rectangle.
+  # If includeAggParts is true, then a list of intermediate aggregation data values is returned, as well as if 
+  # agg is set to none and no aggregation can happen.
 
-  valueAt @4 (row :UInt64, col :UInt64, resolution :UInt64, agg :Aggregation = none) -> (val :Value);
-  # get data at a particular cell identified by row and column, potentially aggregated if resolution is lower
+  valueAt @4 (row :UInt64, col :UInt64, 
+              resolution :UInt64, 
+              agg :Aggregation = none,
+              includeAggParts :Bool = false) 
+              -> (val :Value, aggParts :List(AggregationPart));
+  # Get data at a particular cell identified by row and column, potentially aggregated if resolution is lower.
+  # If resolution is lower, but agg is none, then val will be null or 0 default and aggParts will be returned.
+  # includeAggParts returns the intermediate aggregation in any case
 
   resolution @1 () -> (res :UInt64);
   # which resolution is this grid using
