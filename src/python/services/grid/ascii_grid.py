@@ -135,7 +135,9 @@ class Grid(grid_capnp.Grid.Server):
                 _context.results.aggParts = aggValues
                 return
             elif includeAggParts:
-                return (union_value, aggValues)
+                _context.results.aggParts = aggValues
+                _context.results.val = union_value
+                return
             else: 
                 return union_value
 
@@ -254,69 +256,114 @@ class Grid(grid_capnp.Grid.Server):
         if outer_br is None and inner_br is not None:
             br = inner_br
         
+
         value = self._nodata
         values = []
-        weightedValues = []
-        aggValues = []
+        weighted_values = []
         sum_fractions = 0
         rc_to_val = {}
+        rc_to_agg_val = {}
+        # calc weighted values
         for r, c, frac, _ in cells:
             val = self._grid[r, c]
             if agg == "none" or includeAggParts:
-                aggValues.append({
+                rc_to_agg_val[(r,c)] = {
                     "value": self.to_union(val), 
                     "rowCol": {"row": r, "col": c},
-                    "fraction": frac
-                })
+                    "areaFrac": frac,
+                    "iValue": 0
+                }
             if val == self._nodata:
                 continue
-            if int(frac) == 1:
-                rc_to_val[(r,c)] = val
+            rc_to_val[(r,c)] = val
             values.append(val)
-            weightedValues.append(val * frac)
+            weighted_values.append(val * frac)
             sum_fractions += frac
 
-        interpolatedValues = []
-        for r, c, frac, (fr, fc) in filter(lambda c: c[2] < 1, cells):
-            fval = rc_to_val[(fr,fc)]
+        # if the aggregation demands it, calc actually interpolated values for the outer cells
+        interpolated_values = []
+        if str(agg)[0] == "i":
+            for r, c, frac, closest_full_cell in cells:
+                
+                if int(frac) == 1 or closest_full_cell is None:
+                    interpolated_values.append(rc_to_val[(r,c)])
+                    continue
 
-            dr = abs(r - fr)
-            dc = abs(c - fc)
+                (fr,fc) = closest_full_cell
 
-            full_dist = math.sqrt(dr * cellsize**2 + dc * cellsize**2)
-            half_full_dist = math.sqrt(dr * (cellsize/2)**2 + dc * (cellsize/2)**2)
-            half_short_dist = math.sqrt(dr * frac * (cellsize/2)**2 + dc * frac * (cellsize/2)**2)
+                dr = abs(r - fr)
+                dc = abs(c - fc)
 
-            interpol_value = fval * (half_full_dist + half_short_dist) / full_dist
+                full_dist = math.sqrt(dr * cellsize**2 + dc * cellsize**2)
+                half_full_dist = math.sqrt(dr * (cellsize/2)**2 + dc * (cellsize/2)**2)
+                half_short_dist = math.sqrt(dr * frac * (cellsize/2)**2 + dc * frac * (cellsize/2)**2)
 
-            interpolatedValues.append(interpol_value)
+                fval = rc_to_val[(fr,fc)]
+                interpol_value = fval * (half_full_dist + half_short_dist) / full_dist
+
+                interpolated_values.append(interpol_value)
+                if includeAggParts:
+                    rc_to_agg_val[(r,c)]["iValue"] = float(interpol_value)
 
 
         if len(values) > 0:
-            if agg == "wAvg":
+            if agg == "avg":
+                # calc average
+                value = sum(values) / len(values) if len(values) > 0 else 0
+            elif agg == "wAvg":
                 # calc weighted average https://www.indeed.com/career-advice/career-development/how-to-calculate-weighted-average
-                value = sum(weightedValues) / sum_fractions
+                value = sum(weighted_values) / sum_fractions
+            elif agg == "iAvg":
+                # calc interpolated average
+                value = sum(interpolated_values) / len(interpolated_values) if len(interpolated_values) > 0 else 0
+            elif agg == "median":
+                # calc median
+                values.sort()
+                d, m = divmod(len(values), 2)
+                if m == 0:
+                    value = (values[d - 1] + values[d]) / 2
+                else:
+                    value = values[d]
             elif agg == "wMedian":
                 # calc weighted median https://www.datablick.com/blog/2017/7/3/weighted-medians-for-weighted-data-in-tableau
-                values.sort()
+                weighted_values.sort()
                 running_fraction = 0
                 for i, (_, _, frac, _) in enumerate(cells):
                     running_fraction += frac
                     if running_fraction / sum_fractions >= 0.5:
-                        no_vals = len(values)
-                        d, m = divmod(len(values), 2)
+                        d, m = divmod(len(weighted_values), 2)
                         if m == 0:
-                            value = (values[d - 1] + values[d]) / 2
+                            value = (weighted_values[d - 1] + weighted_values[d]) / 2
                         else:
-                            value = values[d]
+                            value = weighted_values[d]
+            elif agg == "iMedian":
+                # calc interpolated median
+                interpolated_values.sort()
+                d, m = divmod(len(interpolated_values), 2)
+                if m == 0:
+                    value = (interpolated_values[d - 1] + interpolated_values[d]) / 2
+                else:
+                    value = interpolated_values[d]
             elif agg == "min":
                 value = min(values)
+            elif agg == "wMin":
+                value = min(weighted_values)
+            elif agg == "iMin":
+                value = min(interpolated_values)
             elif agg == "max":
                 value = max(values)
+            elif agg == "wMax":
+                value = max(weighted_values)
+            elif agg == "iMax":
+                value = max(interpolated_values)
             elif agg == "sum":
                 value = sum(values)
+            elif agg == "wSum":
+                value = sum(weighted_values)
+            elif agg == "iSum":
+                value = sum(interpolated_values)
 
-        return (self.to_union(value), aggValues, tl, br)
+        return (self.to_union(value), list(rc_to_agg_val.values()), tl, br)
 
 
     def resolution(self, **kwargs): # resolution @1 () -> (res :UInt64);

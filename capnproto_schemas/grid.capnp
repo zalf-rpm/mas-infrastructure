@@ -8,21 +8,30 @@ $Cxx.namespace("mas::rpc::grid");
 #$Go.import("dataServices");
 
 using Common = import "common.capnp";
-using Persistent = import "/capnp/persistent.capnp".Persistent;
-using Restorer = import "persistence.capnp".Restorer;
 using Geo = import "geo_coord.capnp";
 
 enum Aggregation {
   # how to aggregate multiple values if the output resolution is lower than the grids base resolution
+  # no prefix = no weights or interpolation of outer partial cell values
+  # w prefix = weight outer partial cell values by cell area
+  # i prefix = interpolate outer partial cell values
 
-  none      @0; # no aggregation/default
-  wAvg      @1; # area weighted average
-  wMedian   @2; # area weighted median
-  min       @3; # minimum
-  max       @4; # maximum
-  sum       @5; # sum
-  iAvg      @6; # interpolated average
-  iMedian   @7; # interpolated median
+  none      @0;   # no aggregation/default
+  avg       @8;   # average of cell values
+  wAvg      @1;   # area weighted average 
+  iAvg      @6;   # interpolated average
+  median    @9;   # median of cell values
+  wMedian   @2;   # area weighted median
+  iMedian   @7;   # interpolated median
+  min       @3;   # minimum
+  wMin      @12;  # area weighted minimum
+  iMin      @13;  # interpolated minimum
+  max       @4;   # maximum
+  wMax      @14;  # area weighted maximum
+  iMax      @15;  # interpolated maximum
+  sum       @5;   # sum of all cells values
+  wSum      @10;  # area weighted sum
+  iSum      @11;  # interpolated sum
 }
 
 
@@ -44,9 +53,10 @@ interface Grid extends(Common.Identifiable) {
   }
 
   struct AggregationPart {
-    value     @0 :Value;
+    value     @0 :Value;   # original cell value
     rowCol    @1 :RowCol;
-    fraction  @2 :Float64;
+    areaFrac  @2 :Float64; # area weight
+    iValue    @3 :Float64; # interpolated value
   }
 
   closestValueAt @0 (latlonCoord :Geo.LatLonCoord, 
