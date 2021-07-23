@@ -94,5 +94,11 @@ interface Grid extends(Common.Identifiable) {
   latLonBounds @5 (useCellCenter :Bool = false) -> (tl :Geo.LatLonCoord, tr :Geo.LatLonCoord, br :Geo.LatLonCoord, bl :Geo.LatLonCoord);
   # return the lat lon boundary of the grid
 
+  interface Callback {
+    sendCells @0 (cells :List(RowCol)) -> ();
+  }
+
+  streamCells @6 (callback :Callback, maxNoOfCellsPerSend :UInt64 = 100) -> ();
+  # stream all cells to client in chunks of maxNoOfCellsPerSend
 }
 
