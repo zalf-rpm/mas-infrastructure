@@ -260,7 +260,6 @@ class Grid(grid_capnp.Grid.Server):
         value = self._nodata
         values = []
         weighted_values = []
-        sum_fractions = 0
         rc_to_val = {}
         rc_to_agg_val = {}
         # calc weighted values
@@ -277,8 +276,7 @@ class Grid(grid_capnp.Grid.Server):
                 continue
             rc_to_val[(r,c)] = val
             values.append(val)
-            weighted_values.append(val * frac)
-            sum_fractions += frac
+            weighted_values.append((val * frac, frac))
 
         # if the aggregation demands it, calc actually interpolated values for the outer cells
         interpolated_values = []
@@ -312,7 +310,7 @@ class Grid(grid_capnp.Grid.Server):
                 value = sum(values) / len(values) if len(values) > 0 else 0
             elif agg == "wAvg":
                 # calc weighted average https://www.indeed.com/career-advice/career-development/how-to-calculate-weighted-average
-                value = sum(weighted_values) / sum_fractions
+                value = sum(map(lambda t: t[0], weighted_values)) / sum(map(lambda t: t[1], weighted_values))
             elif agg == "iAvg":
                 # calc interpolated average
                 value = sum(interpolated_values) / len(interpolated_values) if len(interpolated_values) > 0 else 0
@@ -326,16 +324,17 @@ class Grid(grid_capnp.Grid.Server):
                     value = values[d]
             elif agg == "wMedian":
                 # calc weighted median https://www.datablick.com/blog/2017/7/3/weighted-medians-for-weighted-data-in-tableau
-                weighted_values.sort()
+                weighted_values.sort(key=lambda t: t[0])
+                sum_fractions = sum(map(lambda t: t[1], weighted_values))
                 running_fraction = 0
-                for i, (_, _, frac, _) in enumerate(cells):
+                for i, (weighted_value, frac) in enumerate(weighted_values):
                     running_fraction += frac
-                    if running_fraction / sum_fractions >= 0.5:
-                        d, m = divmod(len(weighted_values), 2)
-                        if m == 0:
-                            value = (weighted_values[d - 1] + weighted_values[d]) / 2
-                        else:
-                            value = weighted_values[d]
+                    if running_fraction / sum_fractions > 0.5:
+                        value = weighted_value
+                        break
+                    elif running_fraction / sum_fractions == 0.5:
+                        value = (weighted_value + weighted_values[i+1][0]) / 2.0  # it should be impossible to have no i+1 if == 0.5
+                        break
             elif agg == "iMedian":
                 # calc interpolated median
                 interpolated_values.sort()
@@ -347,19 +346,19 @@ class Grid(grid_capnp.Grid.Server):
             elif agg == "min":
                 value = min(values)
             elif agg == "wMin":
-                value = min(weighted_values)
+                value = min(map(lambda t: t[0], weighted_values))
             elif agg == "iMin":
                 value = min(interpolated_values)
             elif agg == "max":
                 value = max(values)
             elif agg == "wMax":
-                value = max(weighted_values)
+                value = max(map(lambda t: t[0], weighted_values))
             elif agg == "iMax":
                 value = max(interpolated_values)
             elif agg == "sum":
                 value = sum(values)
             elif agg == "wSum":
-                value = sum(weighted_values)
+                value = sum(map(lambda t: t[0], weighted_values))
             elif agg == "iSum":
                 value = sum(interpolated_values)
 
