@@ -17,11 +17,19 @@
 import asyncio
 import capnp
 import logging
+import os
+from pathlib import Path
 import socket
 import sys
 import time
 
-persistence_capnp = capnp.load("capnproto_schemas/persistence.capnp", imports=["capnproto_schemas"]) 
+PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent
+if str(PATH_TO_REPO) not in sys.path:
+    sys.path.insert(1, str(PATH_TO_REPO))
+
+PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
+abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
+persistence_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "persistence.capnp"), imports=abs_imports) 
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)

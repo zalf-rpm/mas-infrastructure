@@ -12,6 +12,7 @@
 # Landscape Systems Analysis at the ZALF.
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
+import capnp
 from collections import defaultdict
 from datetime import date, timedelta
 import json
@@ -29,16 +30,17 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-import capnp
-common_capnp = capnp.load("capnproto_schemas/common.capnp", imports=["capnproto_schemas"]) 
-persistence_capnp = capnp.load("capnproto_schemas/persistence.capnp", imports=["capnproto_schemas"]) 
+PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
+abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
+common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports) 
+persistence_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "persistence.capnp"), imports=abs_imports) 
 
 #------------------------------------------------------------------------------
 
 class ConnectionManager:
 
     def __init__(self):
-        _connections = {}
+        self._connections = {}
 
     def connect(self, sturdy_ref, cast_as = None):
 
@@ -46,11 +48,9 @@ class ConnectionManager:
         try:
             if sturdy_ref[:8] == "capnp://":
                 rest = sturdy_ref[8:]
-                hash_digest, rest = sturdy_ref.split("@")
+                hash_digest, rest = rest.split("@") if "@" in rest else (None, rest)
                 host, rest = rest.split(":")
-                port_sr_token = rest.split("/")
-                port = port_sr_token[0]
-                sr_token = port_sr_token[1] if len(port_sr_token) > 1 else ""
+                port, sr_token = rest.split("/") if "/" in rest else (rest, None)
 
                 host_port = "{}:{}".format(host, port)
                 if host_port in self._connections:
@@ -59,12 +59,12 @@ class ConnectionManager:
                     bootstrap_cap = capnp.TwoPartyClient(host_port).bootstrap()
                     self._connections[host_port] = bootstrap_cap
 
-                if len(sr_token) == 0:
-                    return bootstrap_cap.cast_as(cast_as) if cast_as else bootstrap_cap
-                else:
+                if sr_token:
                     restorer = bootstrap_cap.cast_as(persistence_capnp.Restorer)
                     dyn_obj_reader = restorer.restore(sr_token).wait().cap
                     return dyn_obj_reader.as_interface(cast_as) if cast_as else dyn_obj_reader
+                else:
+                    return bootstrap_cap.cast_as(cast_as) if cast_as else bootstrap_cap
 
         except Exception as e:
             print(e)
