@@ -5,31 +5,35 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Threading;
 using Mas.Rpc;
+using System.Linq;
 
 namespace Mas.Infrastructure.Common
 {
     public class ConnectionManager : IDisposable
     {
         private ConcurrentDictionary<string, TcpRpcClient> _Connections = new();
-        private ConcurrentBag<IDisposable> _ConnectionsL = new();
+        //private ConcurrentBag<IDisposable> _ConnectionsL = new();
         private TcpRpcServer _Server;
 
         public ConnectionManager() 
         {
-            Console.WriteLine("ConnectionManager created");
+            //Console.WriteLine("ConnectionManager created");
         }
 
         public void Dispose() => Dispose(true);
 
         protected virtual void Dispose(bool disposing)
         {
-            Console.WriteLine("Disposing ConnectionManager");
+            //Console.WriteLine("Disposing ConnectionManager");
 
-            Console.WriteLine("ConnectionManager: Disposing connections");
+            //if(_Connections.Any()) Console.WriteLine("ConnectionManager: Disposing connections");
             foreach (var con in _Connections.Values) con.Dispose();
 
-            Console.WriteLine("ConnectionManager: Disposing Capnp.Rpc.TcpRpcServer");
-            if (_Server != null) _Server.Dispose();
+            if (_Server != null)
+            {
+                //Console.WriteLine("ConnectionManager: Disposing Capnp.Rpc.TcpRpcServer");
+                _Server.Dispose();
+            }
         }
 
         public async Task<TRemoteInterface> Connect<TRemoteInterface>(string sturdyRef) where TRemoteInterface : class, IDisposable
@@ -68,7 +72,7 @@ namespace Mas.Infrastructure.Common
                 {
                     try
                     {
-                        Console.WriteLine("ConnectionManager: ThreadId: " + Thread.CurrentThread.ManagedThreadId);
+                        //Console.WriteLine("ConnectionManager: ThreadId: " + Thread.CurrentThread.ManagedThreadId);
                         //var con = new TcpRpcClient(address, port);
                         var con = _Connections.GetOrAdd(addressPort, new TcpRpcClient(address, port));
                         await Task.WhenAll(con.WhenConnected);
@@ -81,7 +85,7 @@ namespace Mas.Infrastructure.Common
                         else
                         {
                             var bootstrap = con.GetMain<TRemoteInterface>();
-                            Console.WriteLine("ConnectionManager: current TaskSchedulerId: " + TaskScheduler.Current.Id);
+                            //Console.WriteLine("ConnectionManager: current TaskSchedulerId: " + TaskScheduler.Current.Id);
                             //var ss = con.GetMain<Soil.IService>();
                             //var (mps, ops) = await ss.GetAllAvailableParameters(false);
                             return bootstrap;
@@ -91,7 +95,7 @@ namespace Mas.Infrastructure.Common
                     {
                         _Connections.TryRemove(addressPort, out _);
                     }
-                    catch(System.Exception e)
+                    catch(System.Exception)
                     {
                         _Connections.TryRemove(addressPort, out _);
                         throw;
@@ -101,6 +105,7 @@ namespace Mas.Infrastructure.Common
             return null;
         }
 
+        /*
         public async Task<LockableCap<TRemoteInterface>> ConnectL<TRemoteInterface>(string sturdyRef) where TRemoteInterface : class, IDisposable
         {
             // we assume that a sturdy ref url looks always like capnp://hash-digest-or-insecure@host:port/sturdy-ref-token
@@ -159,6 +164,7 @@ namespace Mas.Infrastructure.Common
             }
             return null;
         }
+        */
 
         public void Bind(IPAddress address, int tcpPort, object bootstrap)
         {
@@ -172,6 +178,7 @@ namespace Mas.Infrastructure.Common
         }
     }
 
+    /*
     public class LockableCap<TCapnpInterface> : IDisposable where TCapnpInterface : class, IDisposable
     {
         object _lock = new();
@@ -207,5 +214,6 @@ namespace Mas.Infrastructure.Common
             _con?.Dispose();
         }
     }
+    */
 
 }
