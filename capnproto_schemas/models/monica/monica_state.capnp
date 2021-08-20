@@ -268,6 +268,7 @@ struct CropModuleState {
     pcLowTemperatureExposure                      @87   :Float64;
     pcLimitingTemperatureHeatStress               @88   :Float64;
     lt50                                        @89     :Float64 = -3.0;
+    lt50m                                       @233    :Float64 = -3.0;
     pcLt50cultivar                                @90   :Float64;
     pcLuxuryNCoeff                                @91   :Float64;
     maintenanceRespirationAS                    @92     :Float64;
