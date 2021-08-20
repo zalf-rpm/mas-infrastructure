@@ -15,6 +15,7 @@ geo_coord.capnp
 management.capnp
 model.capnp
 models/monica/monica_params.capnp
+models/monica/soil_params.capnp
 models/monica/monica_state.capnp
 persistence.capnp
 registry.capnp
@@ -25,7 +26,7 @@ message(STATUS "CAPNP_HDRS: " ${CAPNP_HDRS})
 message(STATUS "CAPNP_SRCS: " ${CAPNP_SRCS})	
 
 add_library(capnp_schemas_lib STATIC ${CAPNP_HDRS} ${CAPNP_SRCS})
-target_link_libraries(capnp_schemas_lib PUBLIC CapnProto::capnp-rpc)
+target_link_libraries(capnp_schemas_lib PUBLIC CapnProto::capnp-rpc CapnProto::capnp-json)
 #target_include_directories(capnp_schemas_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ..)
 if(MSVC AND MT_RUNTIME_LIB)
 	target_compile_options(capnp_schemas_lib PRIVATE "/MT$<$<CONFIG:Debug>:d>")
