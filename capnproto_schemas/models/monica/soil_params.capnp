@@ -28,9 +28,9 @@ struct SoilCharacteristicModifier {
 
 struct CapillaryRiseRate {
     struct Data {
-        soilType        @0 :Text;
-        distance        @1 :UInt8;      # cm
-        capillaryRate   @2 :Float32;
+        soilType    @0 :Text;
+        distance    @1 :UInt8;  # dm
+        rate        @2 :Float32;
     }
     list @0 :List(Data);
 }
