@@ -40,8 +40,9 @@ if str(PATH_TO_PYTHON_CODE) not in sys.path:
 import common.geo as geo
 import common_climate_data_capnp_impl as ccdi
 
-abs_imports = ["capnproto_schemas"]
-climate_data_capnp = capnp.load("capnproto_schemas/climate_data.capnp", imports=abs_imports)
+PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
+abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
+climate_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate_data.capnp"), imports=abs_imports)
 
 #------------------------------------------------------------------------------
 

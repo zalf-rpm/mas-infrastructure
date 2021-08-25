@@ -34,8 +34,9 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-abs_imports = ["capnproto_schemas"]
-dwd_service_capnp = capnp.load("capnproto_schemas/web-berest-data-import.capnp", imports=abs_imports)
+PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
+abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
+dwd_service_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "web-berest-data-import.capnp"), imports=abs_imports)
 
 
 def run_continuously(interval=1):

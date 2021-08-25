@@ -45,9 +45,10 @@ import common.geo as geo
 import common.capnp_async_helpers as async_helpers
 import common_climate_data_capnp_impl as ccdi
 
-abs_imports = ["capnproto_schemas"]
-reg_capnp = capnp.load("capnproto_schemas/registry.capnp", imports=abs_imports)
-climate_data_capnp = capnp.load("capnproto_schemas/climate_data.capnp", imports=abs_imports)
+PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
+abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
+reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
+climate_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate_data.capnp"), imports=abs_imports)
 
 #------------------------------------------------------------------------------
 

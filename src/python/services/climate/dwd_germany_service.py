@@ -37,9 +37,10 @@ import common.capnp_async_helpers as async_helpers
 import common_climate_data_capnp_impl as ccdi
 import csv_file_based as csv_based
 
-abs_imports = ["capnproto_schemas"]
-reg_capnp = capnp.load("capnproto_schemas/registry.capnp", imports=abs_imports)
-climate_data_capnp = capnp.load("capnproto_schemas/climate_data.capnp", imports=abs_imports)
+PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
+abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
+reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
+climate_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate_data.capnp"), imports=abs_imports)
 
 #------------------------------------------------------------------------------
 
@@ -133,7 +134,7 @@ host="0.0.0.0", port=None, reg_sturdy_ref=None, id=None, name="DWD - historical 
     # read commandline args only if script is invoked directly from commandline
     if len(sys.argv) > 1 and __name__ == "__main__":
         for arg in sys.argv[1:]:
-            k, v = arg.split("=")
+            k, v = arg.split("#")
             if k in config:
                 config[k] = v
     print("config used:", config)

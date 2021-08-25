@@ -15,6 +15,7 @@
 # Landscape Systems Analysis at the ZALF.
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
+import capnp
 from collections import defaultdict
 import json
 from datetime import date, timedelta
@@ -38,8 +39,10 @@ if str(PATH_TO_PYTHON_CODE) not in sys.path:
 
 import common
 
-import capnp
-from capnproto_schemas import common_capnp, cluster_admin_service_capnp
+PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
+abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
+common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
+cluster_admin_service_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "cluster_admin_service.capnp"), imports=abs_imports) 
 
 #------------------------------------------------------------------------------
 

@@ -19,6 +19,7 @@
 #-m ptvsd --host 0.0.0.0 --port 14000 --wait
 
 import asyncio
+import capnp
 import logging
 import os
 from pathlib import Path
@@ -36,9 +37,10 @@ if str(PATH_TO_PYTHON_CODE) not in sys.path:
 
 import common.capnp_async_helpers as async_helpers
 
-import capnp
-import capnproto_schemas.common_capnp as common_capnp
-import capnproto_schemas.service_registry_capnp as reg_capnp
+ATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
+abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
+common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
+reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "service_registry.capnp"), imports=abs_imports)
 
 #------------------------------------------------------------------------------
 

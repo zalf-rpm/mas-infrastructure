@@ -37,11 +37,12 @@ if str(PATH_TO_PYTHON_CODE) not in sys.path:
 import common_climate_data_capnp_impl as ccdi
 
 import capnp
-#import capnproto_schemas.common_capnp as common_capnp
-#import capnproto_schemas.geo_coord_capnp as geo_capnp
-import capnproto_schemas.climate_data_capnp as climate_data_capnp
-import capnproto_schemas.service_registry_capnp as reg_capnp
-import capnproto_schemas.model_capnp as model_capnp
+
+PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
+abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
+climate_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate_data.capnp"), imports=abs_imports)
+reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "service_registry.capnp"), imports=abs_imports)
+model_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "model.capnp"), imports=abs_imports)
 
 #------------------------------------------------------------------------------
 

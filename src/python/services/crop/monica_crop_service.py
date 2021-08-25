@@ -36,11 +36,12 @@ if str(PATH_TO_PYTHON_CODE) not in sys.path:
 
 import common.capnp_async_helpers as async_helpers
 
-abs_imports = ["capnproto_schemas"]
-reg_capnp = capnp.load("capnproto_schemas/registry.capnp", imports=abs_imports)
-crop_capnp = capnp.load("capnproto_schemas/crop.capnp", imports=abs_imports)
-common_capnp = capnp.load("capnproto_schemas/common.capnp", imports=abs_imports)
-monica_params_capnp = capnp.load("capnproto_schemas/models/monica/monica_params.capnp", imports=abs_imports)
+PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
+abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
+reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
+crop_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "crop.capnp"), imports=abs_imports)
+common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
+monica_params_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "models" / "monica" / "monica_params.capnp"), imports=abs_imports)
 
 #------------------------------------------------------------------------------
 

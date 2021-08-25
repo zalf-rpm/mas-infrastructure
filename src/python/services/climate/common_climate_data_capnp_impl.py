@@ -39,10 +39,11 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-abs_imports = ["capnproto_schemas"]
-reg_capnp = capnp.load("capnproto_schemas/registry.capnp", imports=abs_imports)
-climate_data_capnp = capnp.load("capnproto_schemas/climate_data.capnp", imports=abs_imports)
-geo_capnp = capnp.load("capnproto_schemas/geo_coord.capnp", imports=abs_imports)
+PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
+abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
+reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
+climate_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate_data.capnp"), imports=abs_imports)
+geo_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "geo_coord.capnp"), imports=abs_imports)
 
 #------------------------------------------------------------------------------
 

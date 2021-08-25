@@ -49,10 +49,11 @@ if str(PATH_TO_UTIL_SOIL) not in sys.path:
     sys.path.insert(1, str(PATH_TO_UTIL_SOIL))
 import soil_io3
 
-abs_imports = ["capnproto_schemas"]
-soil_data_capnp = capnp.load("capnproto_schemas/soil_data.capnp", imports=abs_imports) 
-common_capnp = capnp.load("capnproto_schemas/common.capnp", imports=abs_imports) 
-reg_capnp = capnp.load("capnproto_schemas/registry.capnp", imports=abs_imports)
+PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
+abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
+soil_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "soil_data.capnp"), imports=abs_imports) 
+common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports) 
+reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
 
 #------------------------------------------------------------------------------
 
