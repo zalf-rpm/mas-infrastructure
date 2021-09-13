@@ -1,0 +1,77 @@
+﻿@page "/test"
+
+@namespace Mas.Infrastructure.BlazorComponents
+
+@using MudBlazor
+@using Climate = Mas.Rpc.Climate
+@using Geo = Mas.Rpc.Geo
+
+@implements IDisposable
+
+<p>blablabla</p>
+
+<MudGrid>
+    <MudItem xs="12" Class=@(HideSturdyRefConnector ? "d-none" : "")>
+        <ConnectToSturdyRef Label="Persistent capability to climate dataset (capnp://host:port/token)"
+                            CapabilityChanged=@CapabilityChanged
+                            TCapnpInterface=Climate.IDataset>
+        </ConnectToSturdyRef>
+    </MudItem>
+
+    <MudItem xs="2" Class=@(HideGeoPosPicker ? "d-none" : "")>
+        <MudText Typo=Typo.h5>Pick Geolocation - picked: @($"({Math.Round(LatLng.Item1, 2)}N/{Math.Round(LatLng.Item2, 2)}E)")</MudText>
+    </MudItem>
+    <MudItem xs="12" Class=@(HideGeoPosPicker ? "d-none" : "")>
+        <GeoRegionPicker LatLng=@LatLng
+                         LatLngChanged=@(async latLng => { LatLng = latLng; await SetClosestTimeSeries(); })
+                         Width="100%" Height="400px"
+                         CenterLatLng=@LatLng>
+        </GeoRegionPicker>
+    </MudItem>
+</MudGrid>
+
+@code {
+    [Parameter]
+    public Climate.IDataset DatasetCap { get; set; }
+
+    private bool datasetCapUpdated = false;
+
+    [Parameter]
+    public EventCallback<Climate.IDataset> DatasetCapChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<Climate.ITimeSeries> TimeSeriesCapChanged { get; set; }
+
+    [Parameter]
+    public bool HideSturdyRefConnector { get; set; } = false;
+
+    [Parameter]
+    public bool HideGeoPosPicker { get; set; } = false;
+
+    [Parameter]
+    public (double, double) LatLng { get; set; }
+
+    private Climate.ITimeSeries timeSeries;
+
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        //datasetCapUpdated = parameters.GetValueOrDefault<Climate.IDataset>("DatasetCap", null) != DatasetCap;
+        await base.SetParametersAsync(parameters);
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+    }
+
+    private async Task CapabilityChanged(Climate.IDataset dataset)
+    {
+    }
+
+    private async Task SetClosestTimeSeries()
+    {
+    }
+
+    void IDisposable.Dispose()
+    {
+    }
+}
