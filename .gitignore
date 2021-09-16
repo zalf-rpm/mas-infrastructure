@@ -9,6 +9,7 @@ capnproto_schemas/*.h
 capnproto_schemas/*.c++
 capnproto_schemas/lang/*.cs
 capnproto_schemas/models/*.cs
+capnproto_schemas/models/monica/*.cs
 capnproto_schemas/obj
 capnproto_schemas/bin
 
@@ -143,6 +144,3 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-
-capnproto_schemas/monica/monica_params.capnp.cs
-capnproto_schemas/monica/monica_state.capnp.cs
