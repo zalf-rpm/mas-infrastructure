@@ -353,6 +353,7 @@ struct CropModuleParameters {
     experimentalEnableHourlyFvCBPhotosynthesis                      @18 :Bool;
     experimentalEnableTResponseLeafExpansion                        @19 :Bool;
     experimentalDisableDailyRootBiomassToSoil                       @20 :Bool;
+    enableVernalisationFactorFix                                    @21 :Bool;
 }
 
 struct SoilMoistureModuleParameters {
