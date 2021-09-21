@@ -5,6 +5,7 @@ $Cxx.namespace("mas::models::monica");
 
 using Date = import "../../date.capnp".Date;
 using Mgmt = import "../../management.capnp";
+using Climate = import "../../climate_data.capnp";
 
 # -----------------------------------------------------------------------------
 # crop related parameters
@@ -272,6 +273,7 @@ struct EnvironmentParameters {
     }
 
     albedo                      @0  :Float64 = 0.23;
+    rcp                         @11 :Climate.RCP;
     atmosphericCO2              @1  :Float64;
     atmosphericCO2s             @2  :List(YearToValue);
     atmosphericO3               @3  :Float64;
