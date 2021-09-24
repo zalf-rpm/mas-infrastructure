@@ -3,7 +3,7 @@
 @using GoogleMapsComponents
 @using GoogleMapsComponents.Maps
 
-<div @ref=MapWrapper @onclick="DrawRectangle">
+<div @onclick="DrawRectangle">   @*For addingan ID:  @ref=MapWrapper*@
     <GoogleMap @ref=map
                Id="map1"
                Options=@mapOptions
@@ -21,6 +21,21 @@
     public String Height { get; set; }
 
     [Parameter]
+    public float FillOpacity { get; set; } = 0.2F;
+
+    [Parameter]
+    public String FillColor { get; set; } = "DodgerBlue";
+
+    [Parameter]
+    public bool DefaultRectangle { get; set; } = false;
+
+    [Parameter]
+    public (double, double) DefaultTopLeft { get; set; } = (0.0, 0.0);
+
+    [Parameter]
+    public (double, double) DefaultBottomRight { get; set; } = (0.0, 0.0);
+
+    [Parameter]
     public (double, double) CenterLatLng { get; set; } = (0.0, 0.0);
 
     [Parameter]
@@ -30,6 +45,9 @@
     public EventCallback<(double, double)> LatLngChanged { get; set; }
 
     [Parameter]
+    public EventCallback<LatLngBoundsLiteral> RectangleChanged { get; set; }
+
+    [Parameter]
     public int Zoom { get; set; } = 6;
 
     private GoogleMap map;
@@ -37,14 +55,18 @@
     private Marker currentMarker;
     private Rectangle rectangle;
 
-    ElementReference MapWrapper;  //not used and can be removed from here and DOM element as well.
-
+    //ElementReference MapWrapper;  //not used and can be removed from here and DOM element as well.
 
     private List<LatLngLiteral> path = new List<LatLngLiteral>();
     private LatLngLiteral temp_path = new LatLngLiteral();
+    //private LatLngLiteral topLeft = new LatLngLiteral();
+    //private LatLngLiteral topRight = new LatLngLiteral();
+    //private LatLngLiteral bottomRight = new LatLngLiteral();
+    //private LatLngLiteral bottomLeft = new LatLngLiteral();
 
     private int currentCount = 0;
     private bool rectangle_is_drawn = false;
+    private bool rectangleBoundsChangedByParent = false;
 
     protected override void OnInitialized()
     {
@@ -72,15 +94,18 @@
         {
             Draggable = true,
             Editable = true,
-            FillColor = "DodgerBlue",
-            FillOpacity = 0.5F,
+            FillColor = FillColor,
+            FillOpacity = FillOpacity,
             Map = map.InteropObject
         });
         path.Clear();
 
         await map.InteropObject.AddListener<MouseEvent>("mousemove", async (e) => await OnMouseMove(e));
 
-        //await map1.InteropObject.AddListener("bounds_changed", OnBoundsChanged);
+        await SetRectangle(DefaultTopLeft, DefaultBottomRight);
+
+        //await map.InteropObject.AddListener<Rectangle>("bounds_changed", async (Rectangle) => await testst(Rectangle));
+        await rectangle.AddListener("bounds_changed", async () => await RectangleBoundsChanged());
 
         //await map1.InteropObject.AddListener("center_changed", OnCenterChanged);
 
@@ -118,54 +143,65 @@
         //await map1.InteropObject.AddListener("zoom_changed", OnZoomChanged);
     }
 
-    private async Task SetMarker(double lat, double lng)
+    //private async Task SetMarker(double lat, double lng)
+    //{
+    //    currentMarker?.SetMap(null);
+    //    currentMarker = await Marker.CreateAsync(map.JsRuntime, new MarkerOptions()
+    //    {
+    //        Position = new LatLngLiteral(lng, lat),
+    //        Map = map.InteropObject,
+    //    });
+    //}
+
+    private async Task RectangleBoundsChanged()
     {
-        currentMarker?.SetMap(null);
-        currentMarker = await Marker.CreateAsync(map.JsRuntime, new MarkerOptions()
+        if (rectangle_is_drawn == true && path.Count == 0 && currentCount == 0 && rectangleBoundsChangedByParent == false)
         {
-            Position = new LatLngLiteral(lng, lat),
-            Map = map.InteropObject,
-            //Label = $"Test",
-            //Animation = Animation.Bounce
-            //Icon = new Icon()
-            //{
-            //    Url = "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png"
-            //}
-            //Icon = "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png"
-        });
+            var bounds = await rectangle.GetBounds();
+            await RectangleChanged.InvokeAsync(bounds);
+
+            var newBounds = new LatLngBoundsLiteral()
+            {
+                East = DefaultBottomRight.Item2,
+                North = DefaultTopLeft.Item1,
+                South = DefaultBottomRight.Item1,
+                West = DefaultTopLeft.Item2
+            };
+
+            await rectangle.SetBounds(newBounds);
+
+            rectangleBoundsChangedByParent = true;
+        }
+
+    }
+
+    private async Task SetRectangle((double, double) topLeft, (double, double) bottomRight)
+    {
+        if (DefaultRectangle == true)
+        {
+            var bounds = new LatLngBoundsLiteral()
+            {
+                East = bottomRight.Item2,
+                North = topLeft.Item1,
+                South = bottomRight.Item1,
+                West = topLeft.Item2
+            };
+
+            await rectangle.SetBounds(bounds);
+
+            rectangle_is_drawn = true;
+        }
+
     }
 
     private async Task OnClick(MouseEvent e)
     {
-        //LatLng = (e.LatLng.Lat, e.LatLng.Lng);
-        //if (LatLngChanged.HasDelegate) _ = LatLngChanged.InvokeAsync(LatLng);
-        //await SetMarker(LatLng.Item1, LatLng.Item2);
-
         path.Add(e.LatLng);
-
-        if (path.Count < 2)
-        {
-            return;
-        }
-
-        var bounds = new LatLngBoundsLiteral()
-        {
-            East = path[1].Lng,
-            North = path[0].Lat,
-            South = path[1].Lat,
-            West = path[0].Lng
-        };
-
-        await rectangle.SetBounds(bounds);
-
-        path.Clear();
-        //rectangle = null;
     }
 
     private async Task DrawRectangle()
     {
         if (rectangle_is_drawn == true && path.Count == 0) return;  // There is already a rectangle in the page and this click is on this rectangle, so do nothing.
-
         // Either it's the first ever click or it's a click on an empty space while there is already a rectangle on the page.
         // Check if it is the first click or the secound in the Wrapper
         currentCount++;
@@ -176,6 +212,14 @@
 
         if (path.Count < 2) return;  // just an extra check, can be removed
 
+        //specify the corners
+        //topLeft = path[0];
+        //topRight.Lng = path[1].Lng;
+        //topRight.Lat = path[0].Lat;
+        //bottomRight = path[1];
+        //bottomLeft.Lng = path[0].Lng;
+        //bottomLeft.Lat = path[1].Lat;
+
         var bounds = new LatLngBoundsLiteral()
         {
             East = path[1].Lng,
@@ -186,6 +230,30 @@
 
         await rectangle.SetBounds(bounds);
 
+        // //This is how to get tha corners of our rectangle. Will be useful in other methods:
+
+        //bounds = await rectangle.GetBounds();
+        //topLeft.Lng = bounds.West;
+        //topLeft.Lat = bounds.North;
+        //topRight.Lng = bounds.East;
+        //topRight.Lat = bounds.North;
+        //bottomRight.Lng = bounds.East;
+        //bottomRight.Lat = bounds.South;
+        //bottomLeft.Lng = bounds.West;
+        //bottomLeft.Lat = bounds.South;
+
+        await RectangleChanged.InvokeAsync(bounds);
+
+        var newBounds = new LatLngBoundsLiteral()
+        {
+            East = DefaultBottomRight.Item2,
+            North = DefaultTopLeft.Item1,
+            South = DefaultBottomRight.Item1,
+            West = DefaultTopLeft.Item2
+        };
+
+        await rectangle.SetBounds(newBounds);
+
         path.Clear();
         currentCount = 0;
         rectangle_is_drawn = true;
@@ -195,6 +263,8 @@
     private async Task OnMouseMove(MouseEvent e)
     {
         //Console.WriteLine("OnMouseMove.");
+
+        rectangleBoundsChangedByParent = false;
 
         if (path.Count == 1)
         {
@@ -211,9 +281,6 @@
             await rectangle.SetBounds(bounds);
             //await rectangle.AddListener<MouseEvent>("click", async (e) => await OnClick2(e));
         }
-
-        //_events.Insert(0, $"OnMouseMove {e.LatLng}.");
-        //_events = _events.Take(100).ToList();
 
         StateHasChanged();
     }
