@@ -61,7 +61,7 @@ def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon):
         metadata.info = ccdi.Metadata_Info(metadata)
         datasets.append(climate_data_capnp.MetaPlusData.new_message(
             meta=metadata, 
-            data=csv_based.Dataset(metadata, folder, interpolator, rowcol_to_latlon, 
+            data=csv_based.Dataset(metadata, path_to_data_dir + "/" + folder, interpolator, rowcol_to_latlon, 
             row_col_pattern="row-{row}/col-{col}.csv")
         ))
     return datasets
@@ -113,4 +113,4 @@ host="0.0.0.0", port=None, reg_sturdy_ref=None, id=None, name="DWD Core Ensemble
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    asyncio.run(async_main("/beegfs/common/data/climate/dwd_core_ensemble"))
+    asyncio.run(async_main("/beegfs/common/data/climate/dwd_core_ensemble", port=10009, serve_bootstrap=True))

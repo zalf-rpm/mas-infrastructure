@@ -181,7 +181,8 @@ def gcm_to_info(gcm):
             climate_data_capnp.GCM.ipslCm6aLr: {"id": "IPSL-CM6A-LR", "name": "IPSL-CM6A-LR", "description": ""},
             climate_data_capnp.GCM.mpiEsm12Hr: {"id": "MPI-ESM1-2-HR", "name": "MPI-ESM1-2-HR", "description": ""},
             climate_data_capnp.GCM.mriEsm20: {"id": "MRI-ESM2-0", "name": "MRI-ESM2-0", "description": ""},
-            climate_data_capnp.GCM.ukesm10Ll: {"id": "UKESM1-0-LL", "name": "UKESM1-0-LL", "description": ""}
+            climate_data_capnp.GCM.ukesm10Ll: {"id": "UKESM1-0-LL", "name": "UKESM1-0-LL", "description": ""},
+            climate_data_capnp.GCM.mohcHadGem2Es: {"id": "MOHC-HadGEM2-ES", "name": "MOHC-HadGEM2-ES", "description": ""}
         }
     return gcm_to_info.d.get(gcm.raw, None)
 
@@ -210,7 +211,8 @@ def rcm_to_info(rcm):
             climate_data_capnp.RCM.knmiRacmo22E: {"id": "KNMI-RACMO22E", "name": "KNMI-RACMO22E", "description": ""},
             climate_data_capnp.RCM.smhiRca4: {"id": "SMHI-RCA4", "name": "SMHI-RCA4", "description": ""},
             climate_data_capnp.RCM.clmcomBtuCclm4817: {"id": "CLMcom-BTU-CCLM4-8-17", "name": "CLMcom-BTU-CCLM4-8-17", "description": ""},
-            climate_data_capnp.RCM.mpiCscRemo2009: {"id": "MPI-CSC-REMO2009", "name": "MPI-CSC-REMO2009", "description": ""}
+            climate_data_capnp.RCM.mpiCscRemo2009: {"id": "MPI-CSC-REMO2009", "name": "MPI-CSC-REMO2009", "description": ""},
+            climate_data_capnp.RCM.uhohWrf361H: {"id": "UHOH-WRF361H", "name": "UHOH-WRF361H", "description": ""}
         } 
     return rcm_to_info.d.get(rcm.raw, None)
 
