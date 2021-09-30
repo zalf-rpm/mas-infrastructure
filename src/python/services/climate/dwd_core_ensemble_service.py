@@ -47,7 +47,7 @@ climate_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate_data.capnp"
 def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon):
     datasets = []
     for folder in os.listdir(path_to_data_dir):
-        print(folder)
+        #print(folder)
         gcm, rcm, scen, ensmem, version = folder.split("_")
         metadata = climate_data_capnp.Metadata.new_message(
             entries = [
