@@ -12,50 +12,51 @@ using Date = import "date.capnp".Date;
 
 enum GCM {
   # global circulation models
-  cccmaCanEsm2 @0;# $Cxx.name("CCCma-CanESM2");
-  ichecEcEarth @1;# $Cxx.name("ICHEC-EC-EARTH");
-  ipslIpslCm5AMr @2;# $Cxx.name("IPSL-IPSL-CM5A-MR");
-  mirocMiroc5 @3;# $Cxx.name("MIROC-MIROC5");
-  mpiMMpiEsmLr @4;# $Cxx.name("MPI-M-MPI-ESM-LR");
-  gfdlEsm4 @5;# $Cxx.name("GFDL-ESM4");
-  ipslCm6aLr @6;# $Cxx.name("IPSL-CM6A-LR");
-  mpiEsm12Hr @7;# $Cxx.name("MPI-ESM1-2-HR");
-  mriEsm20 @8;# $Cxx.name("MRI-ESM2-0");
-  ukesm10Ll @9;# $Cxx.name("UKESM1-0-LL");
-  gswp3W5E5 @10; # Global Soil Wetness Project Phase 3
+  cccmaCanEsm2    @0;   # CCCma-CanESM2
+  ichecEcEarth    @1;   # ICHEC-EC-EARTH
+  ipslIpslCm5AMr  @2;   # IPSL-IPSL-CM5A-MR
+  mirocMiroc5     @3;   # MIROC-MIROC5
+  mpiMMpiEsmLr    @4;   # MPI-M-MPI-ESM-LR
+  gfdlEsm4        @5;   # GFDL-ESM4
+  ipslCm6aLr      @6;   # IPSL-CM6A-LR
+  mpiEsm12Hr      @7;   # MPI-ESM1-2-HR
+  mriEsm20        @8;   # MRI-ESM2-0
+  ukesm10Ll       @9;   # UKESM1-0-LL
+  gswp3W5E5       @10;  # Global Soil Wetness Project Phase 3
 }
 
 enum RCM {
   # regional circulation models
   
-  clmcomCclm4817 @0;# $Cxx.name("CLMcom-CCLM4-8-17");
-  gericsRemo2015 @1;# $Cxx.name("GERICS-REMO2015");
-  knmiRacmo22E @2;# $Cxx.name("KNMI-RACMO22E");
-  smhiRca4 @3;# $Cxx.name("SMHI-RCA4");
-  clmcomBtuCclm4817 @4;# $Cxx.name("CLMcom-BTU-CCLM4-8-17");
-  mpiCscRemo2009 @5;# $Cxx.name("MPI-CSC-REMO2009");
+  clmcomCclm4817    @0; # CLMcom-CCLM4-8-17
+  gericsRemo2015    @1; # GERICS-REMO2015
+  knmiRacmo22E      @2; # KNMI-RACMO22E
+  smhiRca4          @3; # SMHI-RCA4
+  clmcomBtuCclm4817 @4; # CLMcom-BTU-CCLM4-8-17
+  mpiCscRemo2009    @5; # MPI-CSC-REMO2009
+  uhohWrf361H       @6; # UHOH-WRF361H
 }
 
 enum SSP {
   # Shared Socioeconomic Pathways
 
-  ssp1 @0;# $Cxx.name("SSP1"); # SSP1: Sustainability (Taking the Green Road)
-  ssp2 @1;# $Cxx.name("SSP2"); # SSP2: Middle of the Road
-  ssp3 @2;# $Cxx.name("SSP3"); # SSP3: Regional Rivalry (A Rocky Road)
-  ssp4 @3;# $Cxx.name("SSP4"); # SSP4: Inequality (A Road divided)  
-  ssp5 @4;# $Cxx.name("SSP5"); # SSP5: Fossil-fueled Development (Taking the Highway)
+  ssp1 @0;  # SSP1 # SSP1: Sustainability (Taking the Green Road)
+  ssp2 @1;  # SSP2 # SSP2: Middle of the Road
+  ssp3 @2;  # SSP3 # SSP3: Regional Rivalry (A Rocky Road)
+  ssp4 @3;  # SSP4 # SSP4: Inequality (A Road divided)  
+  ssp5 @4;  # SSP5 # SSP5: Fossil-fueled Development (Taking the Highway)
 }
 
 enum RCP { 
   # Representative Concentration Pathway
 
-  rcp19 @0;# $Cxx.name("RCP 1.9"); # RCP 1.9 is a pathway that limits global warming to below 1.5 °C, the aspirational goal of the Paris Agreement.
-  rcp26 @1;# $Cxx.name("RCP 2.6"); # RCP 2.6 is a "very stringent" pathway.
-  rcp34 @2;# $Cxx.name("RCP 3.4"); # As well as just providing another option a variant of RCP 3.4 includes considerable removal of greenhouse gases from the atmosphere.
-  rcp45 @3;# $Cxx.name("RCP 4.5"); # Emissions in RCP 4.5 peak around 2040, then decline.
-  rcp60 @4;# $Cxx.name("RCP 6"); # In RCP 6, emissions peak around 2080, then decline.
-  rcp70 @5;# $Cxx.name("RCP 7"); # RCP 7 is a baseline outcome rather than a mitigation target.
-  rcp85 @6;# $Cxx.name("RCP 8.5"); # In RCP 8.5 emissions continue to rise throughout the 21st century.
+  rcp19 @0; # RCP 1.9 # RCP 1.9 is a pathway that limits global warming to below 1.5 °C, the aspirational goal of the Paris Agreement.
+  rcp26 @1; # RCP 2.6 # RCP 2.6 is a "very stringent" pathway.
+  rcp34 @2; # RCP 3.4 # As well as just providing another option a variant of RCP 3.4 includes considerable removal of greenhouse gases from the atmosphere.
+  rcp45 @3; # RCP 4.5 # Emissions in RCP 4.5 peak around 2040, then decline.
+  rcp60 @4; # RCP 6   # In RCP 6, emissions peak around 2080, then decline.
+  rcp70 @5; # RCP 7   # RCP 7 is a baseline outcome rather than a mitigation target.
+  rcp85 @6; # RCP 8.5 # In RCP 8.5 emissions continue to rise throughout the 21st century.
 }
 
 struct EnsembleMember {

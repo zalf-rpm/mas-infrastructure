@@ -194,7 +194,8 @@ def string_to_rcm(rcm_str):
             "KNMI-RACMO22E": climate_data_capnp.RCM.knmiRacmo22E,
             "SMHI-RCA4": climate_data_capnp.RCM.smhiRca4,
             "CLMcom-BTU-CCLM4-8-17": climate_data_capnp.RCM.clmcomBtuCclm4817,
-            "MPI-CSC-REMO2009": climate_data_capnp.RCM.mpiCscRemo2009
+            "MPI-CSC-REMO2009": climate_data_capnp.RCM.mpiCscRemo2009,
+            "UHOH-WRF361H": climate_data_capnp.RCM.uhohWrf361H
         }
     return string_to_rcm.d.get(rcm_str, None)
 
