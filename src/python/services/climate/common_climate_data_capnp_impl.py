@@ -162,7 +162,8 @@ def string_to_gcm(gcm_str):
             "IPSL-CM6A-LR": climate_data_capnp.GCM.ipslCm6aLr,
             "MPI-ESM1-2-HR": climate_data_capnp.GCM.mpiEsm12Hr,
             "MRI-ESM2-0": climate_data_capnp.GCM.mriEsm20,
-            "UKESM1-0-LL": climate_data_capnp.GCM.ukesm10Ll
+            "UKESM1-0-LL": climate_data_capnp.GCM.ukesm10Ll,
+            "MOHC-HadGEM2-ES": climate_data_capnp.GCM.mohcHadGem2Es
         }
     return string_to_gcm.d.get(gcm_str, None)
 

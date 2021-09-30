@@ -46,8 +46,9 @@ climate_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate_data.capnp"
 
 def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon):
     datasets = []
-    for symlink in os.listdir(path_to_data_dir):
-        gcm, rcm, scen, ensmem, version = symlink.split("_")
+    for folder in os.listdir(path_to_data_dir):
+        print(folder)
+        gcm, rcm, scen, ensmem, version = folder.split("_")
         metadata = climate_data_capnp.Metadata.new_message(
             entries = [
                 {"gcm": ccdi.string_to_gcm(gcm)},
@@ -60,7 +61,7 @@ def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon):
         metadata.info = ccdi.Metadata_Info(metadata)
         datasets.append(climate_data_capnp.MetaPlusData.new_message(
             meta=metadata, 
-            data=csv_based.Dataset(metadata, version_dir, interpolator, rowcol_to_latlon, 
+            data=csv_based.Dataset(metadata, folder, interpolator, rowcol_to_latlon, 
             row_col_pattern="row-{row}/col-{col}.csv")
         ))
     return datasets
@@ -112,4 +113,4 @@ host="0.0.0.0", port=None, reg_sturdy_ref=None, id=None, name="DWD Core Ensemble
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    asyncio.run(async_main("beegfs/common/data/climate/dwd_core_ensemble"))
+    asyncio.run(async_main("/run/user/1000/gvfs/sftp:host=login01.cluster.zalf.de,user=rpm/beegfs/common/data/climate/dwd_core_ensemble"))#"/beegfs/common/data/climate/dwd_core_ensemble"))

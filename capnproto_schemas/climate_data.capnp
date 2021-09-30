@@ -23,6 +23,7 @@ enum GCM {
   mriEsm20        @8;   # MRI-ESM2-0
   ukesm10Ll       @9;   # UKESM1-0-LL
   gswp3W5E5       @10;  # Global Soil Wetness Project Phase 3
+  mohcHadGem2Es   @11;  # MOHC-HadGEM2-ES
 }
 
 enum RCM {
