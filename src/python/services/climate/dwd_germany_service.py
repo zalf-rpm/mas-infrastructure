@@ -64,59 +64,6 @@ def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon):
 
 #------------------------------------------------------------------------------
 
-"""
-async def async_main_register(path_to_data, reg_server=None, reg_port=None, id=None, name=None, description=None):
-    config = {
-        "path_to_data": path_to_data,
-        "id": id,
-        "name": name,
-        "description": description,
-        "reg_port": str(reg_port),
-        "reg_server": reg_server
-    }
-    # read commandline args only if script is invoked directly from commandline
-    if len(sys.argv) > 1 and __name__ == "__main__":
-        for arg in sys.argv[1:]:
-            k, v = arg.split("=")
-            if k in config:
-                config[k] = v
-    print("config used:", config)
-
-    interpolator, rowcol_to_latlon = ccdi.create_lat_lon_interpolator_from_json_coords_file(config["path_to_data"] + "/" + "latlon-to-rowcol.json")
-    meta_plus_data = create_meta_plus_datasets(config["path_to_data"] + "/germany", interpolator, rowcol_to_latlon)
-    service = ccdi.Service(meta_plus_data, name="DWD - historical - 1990 - ...")
-
-    registry_available = False
-    connect_to_registry_retry_count = 10
-    retry_secs = 5
-    while not registry_available:
-        try:
-            client, gather_results = await async_helpers.connect_to_server(port=config["reg_port"], address=config["reg_server"])
-            registry_available = True
-        except:
-            if connect_to_registry_retry_count == 0:
-                print("Couldn't connect to registry server at {}:{}!".format(config["reg_server"], config["reg_port"]))
-                exit(0)
-            connect_to_registry_retry_count -= 1
-            print("Trying to connect to {}:{} again in {} secs!".format(config["reg_server"], config["reg_port"], retry_secs))
-            time.sleep(retry_secs)
-            retry_secs += 1
-
-    registry = client.bootstrap().cast_as(service_registry_capnp.Registry)
-    unreg = await registry.registerService(type="climate", service=service).a_wait()
-    #await unreg.unregister.unregister().a_wait()
-
-    print("Registered a DWD - historical climate service.")
-
-    #await unreg.unregister.unregister().a_wait()
-
-    await gather_results
-
-    print("after gather_results")
-"""
-
-#------------------------------------------------------------------------------
-
 async def async_main(path_to_data, serve_bootstrap=False,
 host="0.0.0.0", port=None, reg_sturdy_ref=None, id=None, name="DWD - historical - 1990 - ...", description=None):
 
