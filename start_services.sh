@@ -44,3 +44,11 @@ reg_port=$REG_PORT &
 ~/.conda/envs/py38/bin/python src/python/services/climate/isimip_service.py async_register \
 reg_port=$REG_PORT &
 
+# start DWD core ensemble climate service
+#~/.conda/envs/py38/bin/python src/python/services/climate/dwd_core_ensemble_service.py id=dwd_core_ensemble_all name="DWD Core Ensemble (all)" serve_bootstrap=true &
+~/.conda/envs/py38/bin/python src/python/services/climate/dwd_core_ensemble_service.py \
+id=dwd_core_ensemble_all \
+name="DWD Core Ensemble (all)" \
+serve_bootstrap=true \
+reg_port=$REG_PORT &
+

@@ -125,4 +125,4 @@ host="0.0.0.0", port=None, reg_sturdy_ref=None, id=None, name="DWD Core Ensemble
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    asyncio.run(async_main("/beegfs/common/data/climate/dwd_core_ensemble"))
+    asyncio.run(async_main("/beegfs/common/data/climate/dwd_core_ensemble", port=10009, serve_bootstrap=True))
