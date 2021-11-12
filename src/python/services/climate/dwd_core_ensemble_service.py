@@ -46,24 +46,36 @@ climate_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate_data.capnp"
 
 def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon):
     datasets = []
-    for folder in os.listdir(path_to_data_dir):
-        #print(folder)
-        gcm, rcm, scen, ensmem, version = folder.split("_")
-        metadata = climate_data_capnp.Metadata.new_message(
-            entries = [
-                {"gcm": ccdi.string_to_gcm(gcm)},
-                {"rcm": ccdi.string_to_rcm(rcm)},
-                {"historical": None} if scen == "historical" else {"rcp": scen},
-                {"ensMem": ccdi.string_to_ensmem(ensmem)},
-                {"version": version}
-            ]
-        )
-        metadata.info = ccdi.Metadata_Info(metadata)
-        datasets.append(climate_data_capnp.MetaPlusData.new_message(
-            meta=metadata, 
-            data=csv_based.Dataset(metadata, folder, interpolator, rowcol_to_latlon, 
-            row_col_pattern="row-{row}/col-{col}.csv")
-        ))
+    for gcm in os.listdir(path_to_data_dir):
+        gcm_dir = path_to_data_dir + "/" + gcm
+        if os.path.isdir(gcm_dir):
+            for rcm in os.listdir(gcm_dir):
+                rcm_dir = gcm_dir + "/" + rcm
+                if os.path.isdir(rcm_dir):
+                    for scen in os.listdir(rcm_dir):
+                        scen_dir = rcm_dir + "/" + scen
+                        if os.path.isdir(scen_dir):
+                            for ensmem in os.listdir(scen_dir):
+                                ensmem_dir = scen_dir + "/" + ensmem
+                                if os.path.isdir(ensmem_dir):
+                                    for version in os.listdir(ensmem_dir):
+                                        version_dir = ensmem_dir + "/" + version
+                                        if os.path.isdir(version_dir):
+                                            metadata = climate_data_capnp.Metadata.new_message(
+                                                entries = [
+                                                    {"gcm": ccdi.string_to_gcm(gcm)},
+                                                    {"rcm": ccdi.string_to_rcm(rcm)},
+                                                    {"historical": None} if scen == "historical" else {"rcp": scen},
+                                                    {"ensMem": ccdi.string_to_ensmem(ensmem)},
+                                                    {"version": version}
+                                                ]
+                                            )
+                                            metadata.info = ccdi.Metadata_Info(metadata)
+                                            datasets.append(climate_data_capnp.MetaPlusData.new_message(
+                                                meta=metadata, 
+                                                data=csv_based.Dataset(metadata, version_dir, interpolator, rowcol_to_latlon, 
+                                                row_col_pattern="row-{row}/col-{col}.csv")
+                                            ))
     return datasets
 
 #------------------------------------------------------------------------------
@@ -93,7 +105,7 @@ host="0.0.0.0", port=None, reg_sturdy_ref=None, id=None, name="DWD Core Ensemble
     conMan = async_helpers.ConnectionManager()
 
     interpolator, rowcol_to_latlon = ccdi.create_lat_lon_interpolator_from_json_coords_file(config["path_to_data"] + "/" + "latlon-to-rowcol.json")
-    meta_plus_data = create_meta_plus_datasets(config["path_to_data"] + "/csvs_all", interpolator, rowcol_to_latlon)
+    meta_plus_data = create_meta_plus_datasets(config["path_to_data"] + "/csvs", interpolator, rowcol_to_latlon)
     service = ccdi.Service(meta_plus_data, id=config["id"], name=config["name"], description=config["description"])
 
     if config["reg_sturdy_ref"]:
