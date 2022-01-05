@@ -3,7 +3,7 @@
     "run RegistrationService": {
       "commandName": "Project",
       "commandLineArgs": "name=bla desc=blabli cats=\"[{\\\"id\\\": \\\"soil\\\", \\\"Name\\\": \\\"Soil\\\", \\\"Description\\\": \\\"\\\"}, {\\\"id\\\": \\\"climate\\\", \\\"Name\\\": \\\"Climate\\\", \\\"Description\\\": \\\"\\\"}, {\\\"Id\\\": \\\"monica\\\", \\\"Name\\\": \\\"MONICA\\\", \\\"Description\\\": \\\"\\\"}]\" port=9999",
-      "workingDirectory": "C:\\Users\\berg.ZALF-AD\\GitHub\\mas-infrastructure"
+      "workingDirectory": "../../../.."
     }
   }
 }

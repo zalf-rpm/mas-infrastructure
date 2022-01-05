@@ -19,31 +19,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <CapnpFiles Remove="a.capnp" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="a.capnp.cs" />
-    <Compile Remove="SlurmMonicaInstanceFactory.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\..\..\capnproto_schemas\capnproto_schemas_csharp.csproj" />
     <ProjectReference Include="..\..\common\common.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <CapnpFiles Update="climate_data.capnp">
-      <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">C:\Users\berg.ZALF-AD\GitHub\capnproto\c++\src;</ImportPaths>
-    </CapnpFiles>
-    <CapnpFiles Update="date.capnp">
-      <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">C:\Users\berg.ZALF-AD\GitHub\capnproto\c++\src;%(ImportPaths)</ImportPaths>
-    </CapnpFiles>
-    <CapnpFiles Update="model.capnp">
-      <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">C:\Users\berg.ZALF-AD\GitHub\capnproto\c++\src;%(ImportPaths)</ImportPaths>
-    </CapnpFiles>
-  </ItemGroup>
-
+  
   <ItemGroup>
     <PackageReference Include="Capnp.Net.Runtime" Version="1.3.118" />
   </ItemGroup>

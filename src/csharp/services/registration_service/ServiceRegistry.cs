@@ -119,7 +119,7 @@ namespace Mas.Infrastructure.ServiceRegistry
             return Task.FromResult(_CatId2SupportedCategories.GetValueOrDefault(categoryId));
         }
 
-        public Task<IReadOnlyList<Registry.Entry>> Entries(string categoryId, CancellationToken cancellationToken_ = default)
+        public Task<IReadOnlyList<Registry.Entry>> Entries(string categoryId, bool forceRefInfos, CancellationToken cancellationToken_ = default)
         {
             var entries = new List<Registry.Entry>();
             if (categoryId != null)
