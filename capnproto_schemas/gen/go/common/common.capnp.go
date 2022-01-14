@@ -8,7 +8,6 @@ import (
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
-	persistence "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/persistence"
 	strconv "strconv"
 )
 
@@ -693,7 +692,7 @@ func (c CapHolder) Cap(ctx context.Context, params func(CapHolder_cap_Params) er
 	ans, release := c.Client.SendCall(ctx, s)
 	return CapHolder_cap_Results_Future{Future: ans.Future()}, release
 }
-func (c CapHolder) Release(ctx context.Context, params func(CapHolder_release_Params) error) (CapHolder_release_Results_Future, capnp.ReleaseFunc) {
+func (c CapHolder) ReleaseCap(ctx context.Context, params func(CapHolder_releaseCap_Params) error) (CapHolder_releaseCap_Results_Future, capnp.ReleaseFunc) {
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xcac9c6537df1a097,
@@ -704,10 +703,10 @@ func (c CapHolder) Release(ctx context.Context, params func(CapHolder_release_Pa
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(CapHolder_release_Params{Struct: s}) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(CapHolder_releaseCap_Params{Struct: s}) }
 	}
 	ans, release := c.Client.SendCall(ctx, s)
-	return CapHolder_release_Results_Future{Future: ans.Future()}, release
+	return CapHolder_releaseCap_Results_Future{Future: ans.Future()}, release
 }
 
 func (c CapHolder) AddRef() CapHolder {
@@ -724,7 +723,7 @@ func (c CapHolder) Release() {
 type CapHolder_Server interface {
 	Cap(context.Context, CapHolder_cap) error
 
-	Release(context.Context, CapHolder_release) error
+	ReleaseCap(context.Context, CapHolder_releaseCap) error
 }
 
 // CapHolder_NewServer creates a new Server from an implementation of CapHolder_Server.
@@ -766,7 +765,7 @@ func CapHolder_Methods(methods []server.Method, s CapHolder_Server) []server.Met
 			MethodName:    "release",
 		},
 		Impl: func(ctx context.Context, call *server.Call) error {
-			return s.Release(ctx, CapHolder_release{call})
+			return s.ReleaseCap(ctx, CapHolder_releaseCap{call})
 		},
 	})
 
@@ -790,21 +789,21 @@ func (c CapHolder_cap) AllocResults() (CapHolder_cap_Results, error) {
 	return CapHolder_cap_Results{Struct: r}, err
 }
 
-// CapHolder_release holds the state for a server call to CapHolder.release.
+// CapHolder_releaseCap holds the state for a server call to CapHolder.releaseCap.
 // See server.Call for documentation.
-type CapHolder_release struct {
+type CapHolder_releaseCap struct {
 	*server.Call
 }
 
 // Args returns the call's arguments.
-func (c CapHolder_release) Args() CapHolder_release_Params {
-	return CapHolder_release_Params{Struct: c.Call.Args()}
+func (c CapHolder_releaseCap) Args() CapHolder_releaseCap_Params {
+	return CapHolder_releaseCap_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
-func (c CapHolder_release) AllocResults() (CapHolder_release_Results, error) {
+func (c CapHolder_releaseCap) AllocResults() (CapHolder_releaseCap_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return CapHolder_release_Results{Struct: r}, err
+	return CapHolder_releaseCap_Results{Struct: r}, err
 }
 
 type CapHolder_cap_Params struct{ capnp.Struct }
@@ -933,245 +932,114 @@ func (p CapHolder_cap_Results_Future) Object() *capnp.Future {
 	return p.Future.Field(0, nil)
 }
 
-type CapHolder_release_Params struct{ capnp.Struct }
+type CapHolder_releaseCap_Params struct{ capnp.Struct }
 
-// CapHolder_release_Params_TypeID is the unique identifier for the type CapHolder_release_Params.
-const CapHolder_release_Params_TypeID = 0x82449708d4fd120d
+// CapHolder_releaseCap_Params_TypeID is the unique identifier for the type CapHolder_releaseCap_Params.
+const CapHolder_releaseCap_Params_TypeID = 0x82449708d4fd120d
 
-func NewCapHolder_release_Params(s *capnp.Segment) (CapHolder_release_Params, error) {
+func NewCapHolder_releaseCap_Params(s *capnp.Segment) (CapHolder_releaseCap_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return CapHolder_release_Params{st}, err
+	return CapHolder_releaseCap_Params{st}, err
 }
 
-func NewRootCapHolder_release_Params(s *capnp.Segment) (CapHolder_release_Params, error) {
+func NewRootCapHolder_releaseCap_Params(s *capnp.Segment) (CapHolder_releaseCap_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return CapHolder_release_Params{st}, err
+	return CapHolder_releaseCap_Params{st}, err
 }
 
-func ReadRootCapHolder_release_Params(msg *capnp.Message) (CapHolder_release_Params, error) {
+func ReadRootCapHolder_releaseCap_Params(msg *capnp.Message) (CapHolder_releaseCap_Params, error) {
 	root, err := msg.Root()
-	return CapHolder_release_Params{root.Struct()}, err
+	return CapHolder_releaseCap_Params{root.Struct()}, err
 }
 
-func (s CapHolder_release_Params) String() string {
+func (s CapHolder_releaseCap_Params) String() string {
 	str, _ := text.Marshal(0x82449708d4fd120d, s.Struct)
 	return str
 }
 
-// CapHolder_release_Params_List is a list of CapHolder_release_Params.
-type CapHolder_release_Params_List struct{ capnp.List }
+// CapHolder_releaseCap_Params_List is a list of CapHolder_releaseCap_Params.
+type CapHolder_releaseCap_Params_List struct{ capnp.List }
 
-// NewCapHolder_release_Params creates a new list of CapHolder_release_Params.
-func NewCapHolder_release_Params_List(s *capnp.Segment, sz int32) (CapHolder_release_Params_List, error) {
+// NewCapHolder_releaseCap_Params creates a new list of CapHolder_releaseCap_Params.
+func NewCapHolder_releaseCap_Params_List(s *capnp.Segment, sz int32) (CapHolder_releaseCap_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return CapHolder_release_Params_List{l}, err
+	return CapHolder_releaseCap_Params_List{l}, err
 }
 
-func (s CapHolder_release_Params_List) At(i int) CapHolder_release_Params {
-	return CapHolder_release_Params{s.List.Struct(i)}
+func (s CapHolder_releaseCap_Params_List) At(i int) CapHolder_releaseCap_Params {
+	return CapHolder_releaseCap_Params{s.List.Struct(i)}
 }
 
-func (s CapHolder_release_Params_List) Set(i int, v CapHolder_release_Params) error {
+func (s CapHolder_releaseCap_Params_List) Set(i int, v CapHolder_releaseCap_Params) error {
 	return s.List.SetStruct(i, v.Struct)
 }
 
-func (s CapHolder_release_Params_List) String() string {
+func (s CapHolder_releaseCap_Params_List) String() string {
 	str, _ := text.MarshalList(0x82449708d4fd120d, s.List)
 	return str
 }
 
-// CapHolder_release_Params_Future is a wrapper for a CapHolder_release_Params promised by a client call.
-type CapHolder_release_Params_Future struct{ *capnp.Future }
+// CapHolder_releaseCap_Params_Future is a wrapper for a CapHolder_releaseCap_Params promised by a client call.
+type CapHolder_releaseCap_Params_Future struct{ *capnp.Future }
 
-func (p CapHolder_release_Params_Future) Struct() (CapHolder_release_Params, error) {
+func (p CapHolder_releaseCap_Params_Future) Struct() (CapHolder_releaseCap_Params, error) {
 	s, err := p.Future.Struct()
-	return CapHolder_release_Params{s}, err
+	return CapHolder_releaseCap_Params{s}, err
 }
 
-type CapHolder_release_Results struct{ capnp.Struct }
+type CapHolder_releaseCap_Results struct{ capnp.Struct }
 
-// CapHolder_release_Results_TypeID is the unique identifier for the type CapHolder_release_Results.
-const CapHolder_release_Results_TypeID = 0xc1374ccca01e2b53
+// CapHolder_releaseCap_Results_TypeID is the unique identifier for the type CapHolder_releaseCap_Results.
+const CapHolder_releaseCap_Results_TypeID = 0xc1374ccca01e2b53
 
-func NewCapHolder_release_Results(s *capnp.Segment) (CapHolder_release_Results, error) {
+func NewCapHolder_releaseCap_Results(s *capnp.Segment) (CapHolder_releaseCap_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return CapHolder_release_Results{st}, err
+	return CapHolder_releaseCap_Results{st}, err
 }
 
-func NewRootCapHolder_release_Results(s *capnp.Segment) (CapHolder_release_Results, error) {
+func NewRootCapHolder_releaseCap_Results(s *capnp.Segment) (CapHolder_releaseCap_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return CapHolder_release_Results{st}, err
+	return CapHolder_releaseCap_Results{st}, err
 }
 
-func ReadRootCapHolder_release_Results(msg *capnp.Message) (CapHolder_release_Results, error) {
+func ReadRootCapHolder_releaseCap_Results(msg *capnp.Message) (CapHolder_releaseCap_Results, error) {
 	root, err := msg.Root()
-	return CapHolder_release_Results{root.Struct()}, err
+	return CapHolder_releaseCap_Results{root.Struct()}, err
 }
 
-func (s CapHolder_release_Results) String() string {
+func (s CapHolder_releaseCap_Results) String() string {
 	str, _ := text.Marshal(0xc1374ccca01e2b53, s.Struct)
 	return str
 }
 
-// CapHolder_release_Results_List is a list of CapHolder_release_Results.
-type CapHolder_release_Results_List struct{ capnp.List }
+// CapHolder_releaseCap_Results_List is a list of CapHolder_releaseCap_Results.
+type CapHolder_releaseCap_Results_List struct{ capnp.List }
 
-// NewCapHolder_release_Results creates a new list of CapHolder_release_Results.
-func NewCapHolder_release_Results_List(s *capnp.Segment, sz int32) (CapHolder_release_Results_List, error) {
+// NewCapHolder_releaseCap_Results creates a new list of CapHolder_releaseCap_Results.
+func NewCapHolder_releaseCap_Results_List(s *capnp.Segment, sz int32) (CapHolder_releaseCap_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return CapHolder_release_Results_List{l}, err
+	return CapHolder_releaseCap_Results_List{l}, err
 }
 
-func (s CapHolder_release_Results_List) At(i int) CapHolder_release_Results {
-	return CapHolder_release_Results{s.List.Struct(i)}
+func (s CapHolder_releaseCap_Results_List) At(i int) CapHolder_releaseCap_Results {
+	return CapHolder_releaseCap_Results{s.List.Struct(i)}
 }
 
-func (s CapHolder_release_Results_List) Set(i int, v CapHolder_release_Results) error {
+func (s CapHolder_releaseCap_Results_List) Set(i int, v CapHolder_releaseCap_Results) error {
 	return s.List.SetStruct(i, v.Struct)
 }
 
-func (s CapHolder_release_Results_List) String() string {
+func (s CapHolder_releaseCap_Results_List) String() string {
 	str, _ := text.MarshalList(0xc1374ccca01e2b53, s.List)
 	return str
 }
 
-// CapHolder_release_Results_Future is a wrapper for a CapHolder_release_Results promised by a client call.
-type CapHolder_release_Results_Future struct{ *capnp.Future }
+// CapHolder_releaseCap_Results_Future is a wrapper for a CapHolder_releaseCap_Results promised by a client call.
+type CapHolder_releaseCap_Results_Future struct{ *capnp.Future }
 
-func (p CapHolder_release_Results_Future) Struct() (CapHolder_release_Results, error) {
+func (p CapHolder_releaseCap_Results_Future) Struct() (CapHolder_releaseCap_Results, error) {
 	s, err := p.Future.Struct()
-	return CapHolder_release_Results{s}, err
-}
-
-type PersistCapHolder struct{ Client *capnp.Client }
-
-// PersistCapHolder_TypeID is the unique identifier for the type PersistCapHolder.
-const PersistCapHolder_TypeID = 0x8dbca6a407dd8082
-
-func (c PersistCapHolder) Cap(ctx context.Context, params func(CapHolder_cap_Params) error) (CapHolder_cap_Results_Future, capnp.ReleaseFunc) {
-	s := capnp.Send{
-		Method: capnp.Method{
-			InterfaceID:   0xcac9c6537df1a097,
-			MethodID:      0,
-			InterfaceName: "common.capnp:CapHolder",
-			MethodName:    "cap",
-		},
-	}
-	if params != nil {
-		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(CapHolder_cap_Params{Struct: s}) }
-	}
-	ans, release := c.Client.SendCall(ctx, s)
-	return CapHolder_cap_Results_Future{Future: ans.Future()}, release
-}
-func (c PersistCapHolder) Release(ctx context.Context, params func(CapHolder_release_Params) error) (CapHolder_release_Results_Future, capnp.ReleaseFunc) {
-	s := capnp.Send{
-		Method: capnp.Method{
-			InterfaceID:   0xcac9c6537df1a097,
-			MethodID:      1,
-			InterfaceName: "common.capnp:CapHolder",
-			MethodName:    "release",
-		},
-	}
-	if params != nil {
-		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(CapHolder_release_Params{Struct: s}) }
-	}
-	ans, release := c.Client.SendCall(ctx, s)
-	return CapHolder_release_Results_Future{Future: ans.Future()}, release
-}
-func (c PersistCapHolder) Save(ctx context.Context, params func(persistence.Persistent_SaveParams) error) (persistence.Persistent_SaveResults_Future, capnp.ReleaseFunc) {
-	s := capnp.Send{
-		Method: capnp.Method{
-			InterfaceID:   0xc8cb212fcd9f5691,
-			MethodID:      0,
-			InterfaceName: "capnp/persistent.capnp:Persistent",
-			MethodName:    "save",
-		},
-	}
-	if params != nil {
-		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams{Struct: s}) }
-	}
-	ans, release := c.Client.SendCall(ctx, s)
-	return persistence.Persistent_SaveResults_Future{Future: ans.Future()}, release
-}
-
-func (c PersistCapHolder) AddRef() PersistCapHolder {
-	return PersistCapHolder{
-		Client: c.Client.AddRef(),
-	}
-}
-
-func (c PersistCapHolder) Release() {
-	c.Client.Release()
-}
-
-// A PersistCapHolder_Server is a PersistCapHolder with a local implementation.
-type PersistCapHolder_Server interface {
-	Cap(context.Context, CapHolder_cap) error
-
-	Release(context.Context, CapHolder_release) error
-
-	Save(context.Context, persistence.Persistent_save) error
-}
-
-// PersistCapHolder_NewServer creates a new Server from an implementation of PersistCapHolder_Server.
-func PersistCapHolder_NewServer(s PersistCapHolder_Server, policy *server.Policy) *server.Server {
-	c, _ := s.(server.Shutdowner)
-	return server.New(PersistCapHolder_Methods(nil, s), s, c, policy)
-}
-
-// PersistCapHolder_ServerToClient creates a new Client from an implementation of PersistCapHolder_Server.
-// The caller is responsible for calling Release on the returned Client.
-func PersistCapHolder_ServerToClient(s PersistCapHolder_Server, policy *server.Policy) PersistCapHolder {
-	return PersistCapHolder{Client: capnp.NewClient(PersistCapHolder_NewServer(s, policy))}
-}
-
-// PersistCapHolder_Methods appends Methods to a slice that invoke the methods on s.
-// This can be used to create a more complicated Server.
-func PersistCapHolder_Methods(methods []server.Method, s PersistCapHolder_Server) []server.Method {
-	if cap(methods) == 0 {
-		methods = make([]server.Method, 0, 3)
-	}
-
-	methods = append(methods, server.Method{
-		Method: capnp.Method{
-			InterfaceID:   0xcac9c6537df1a097,
-			MethodID:      0,
-			InterfaceName: "common.capnp:CapHolder",
-			MethodName:    "cap",
-		},
-		Impl: func(ctx context.Context, call *server.Call) error {
-			return s.Cap(ctx, CapHolder_cap{call})
-		},
-	})
-
-	methods = append(methods, server.Method{
-		Method: capnp.Method{
-			InterfaceID:   0xcac9c6537df1a097,
-			MethodID:      1,
-			InterfaceName: "common.capnp:CapHolder",
-			MethodName:    "release",
-		},
-		Impl: func(ctx context.Context, call *server.Call) error {
-			return s.Release(ctx, CapHolder_release{call})
-		},
-	})
-
-	methods = append(methods, server.Method{
-		Method: capnp.Method{
-			InterfaceID:   0xc8cb212fcd9f5691,
-			MethodID:      0,
-			InterfaceName: "capnp/persistent.capnp:Persistent",
-			MethodName:    "save",
-		},
-		Impl: func(ctx context.Context, call *server.Call) error {
-			return s.Save(ctx, persistence.Persistent_save{call})
-		},
-	})
-
-	return methods
+	return CapHolder_releaseCap_Results{s}, err
 }
 
 type ListEntry struct{ capnp.Struct }
@@ -1605,95 +1473,89 @@ func (p LL_Future) Tail() *capnp.Future {
 	return p.Future.Field(1, nil)
 }
 
-const schema_99f1c9a775a88ac9 = "x\xda\x94U]l\x14U\x14>gf\xef\xdc\xc5\xb0" +
-	"\xd9\xceN\xb1\xb11l$\x10\xa4J\xa5\xad\xc4\xd8@" +
-	"\xb6\x8b@[\xd2\xc6\x9d\xb6\xfeF\x1e\xa6\xbb\xb7:\xb0" +
-	";\xb3\xee\xccRH\xf81h4BH\x04%H\x14" +
-	"\x05\x14\x05\x12CZ\xf5\x01\"\x12I4\x96\x05\x09R" +
-	"L$\xe2\x83O\xfa@\"&>\xd21w\xb6\xf3\xc3" +
-	"n+JB\xb3s\xcfw\xef9\xe7\xfb\xbe{\xee\xb2" +
-	"\xe5b\x97\xd0FN\xdd\x03\xa0n%\x92\x13K\xdc\x9e" +
-	"\x8c\x1eX\xbd\x13\xe4&\x04\x88\xd0\x06\xecXI\xda\x11" +
-	"\"Nw\xa5\xf2\xe6\xe3\xcb\xbfx\x15\xe4{\xdd\x08@" +
-	"\xc7\"\x92\xe0\x91\x9d\xaf\xdc\xa0\x1f\x7f\xf2\xd5\x1e\x90c" +
-	"\xa23\xb1\xebx\xf9\xd3\x89[\x07\x01\xa0\x01\x95\x18\xf9" +
-	"K\xb9\x8fP\x00e\x1e\xa1\xca<\xb2X9D\xe2N" +
-	"\xd3\xads\xea\xa5\xc8\x92\xb7j6\xa0\xb2\x97\x8c+\x07" +
-	"]\xf8~\xd2\xad\x9c\xe5\xbf\x9c%\xcf\xb4mzg\xeb" +
-	"\xd1wCy\x8fU\xf3\x8e\xfd\xda;\xff\xf2\x91]\x87" +
-	"@n\xf6\"{\xaa\xb5^\xde\xb5\xfb\xf2k\xda\xc6\xb1" +
-	"\xd0\x9e2i\xe6\x91k=\xef?W\xb9rj\xbc." +
-	"\xf5z\xf2\xa3\xa2\xbb\xa9\x19\xe9V\xf6\xb8\xa9;\xba\x9b" +
-	"\x16u\xbf>y\x1a\xe4\x18\x06`\"\xd0\x06T\xcad" +
-	"\x9f\xb2\xcd\xc5o!\xa3\x00\xcaM\xd2\xe4\x0c>4\xff" +
-	"\xf0\xc5\xbe\xc7\xbe\x09\x91\xf7\x07\xe9\xe4i\xe7\x93\xae\x1b" +
-	"k\xcf\xe1\xf9\x9a\x93\x90\x9ft\x85\x9cQ~vO\xba" +
-	"FR\x00JL\x8a;\x07\x0e\xdf\xda6\xf8\xdd\xc4\x85" +
-	"\x19(%\xd2\x19%&q\xf8\x1c\xe9\x0d\xe5\x84D\x95" +
-	"\x13R\xdcY\xd7\xf6\xc1\x9f\xc2\xaa\xed?\xd4\xf5uH" +
-	"\x1aW\x8e\xb9\xf0#R\xb72\xc1\x7f9/l '" +
-	"\xd7\x8d\x7ft5D\xcf\x98\xe4\xd2s\xf5\xba8U\xd9" +
-	"^\x99\xac\xa9S\xe4\xfb\x0fJ\xd7\xfd\x93N\x01:_" +
-	"\xa7\xcf\xa7N\xee\x1b\xfdi&vV\xd2\x9dJ\x9ar" +
-	"\xecJ\xca\xd9\x19\xa3MN\xe3\xf1\x1do\xf7\x7f>p" +
-	"=\xc4\xceg\xd4\x152\xa9\xef_\xde\x13\x7f\xef\x97j" +
-	"\xc4e\xa5c?mF^>M\x01:\x17\x87\xcf\x8f" +
-	"\x0d\xfc]\xf9\x1d\xd4\xfb\x11\x9d\xa1\xc9\x0b/\xee\x9e\x93" +
-	"\xbf\x09O!E\x11\xa0\xe3,m\xe7\xd8o)/\xcb" +
-	"\x8f\xaa1\xbc\x93k\x00e}\xf47E\x8f\xba*G" +
-	"G\x01\x9d\xedG\x17\x9d90\x15\x99\xaa\xeb\x01\xa0\xe3" +
-	"D4\x81\xcai\x17\xfcet\x14L'k\x16\x0a\xa6" +
-	"\xd1\x9a\x15\xb5\xa2Q\xec|B+\xf6\x98\xf9\x1c+\xb5" +
-	"\x96X\x9ei\x16[\x98Ij%\xad`\xd5\xe1\xf2\xf9" +
-	"a-\xbb\xb15\xab\xe5\xf3\x0b3\x1c\x82\x01Fp1" +
-	"\x19V\xb2t\xcb\xe6G&\xdd33\x88\x19\x91\xa8Q" +
-	"\xc4\xc0\x0a\xe9(:{\x9f\xfe\xf0\xd2#\x0fT\xbe\x87" +
-	"\xf42\x941\xa9F\x84\x10\x00@\xc6&5\x82\xc87" +
-	"#&\x10\x83\xab\xc9cU\xb8\x7f\x04_Z\xccS " +
-	"\xaaQ\x91\xffm\x10\x11\xe7\x82\xc0\xff\xa7#(cg" +
-	"\xea\xc9\xe1\x0d,k\xfb\xd5\xa2\xd7Q\xd2m)\x83\xa8" +
-	"FD\x02\xe0\x0f\x07\xf4n\x9e,\xb7\x80 \x13\x1a\xe7" +
-	"]wa\x06\xb1\x86\x96A\xdb,j\xc3y\xd6j\xd9" +
-	"f\xb1\x8e\x96*\xa67\xc7\x0c[\x1f\xd1]\x9cn\x8c" +
-	"\x98\xff\x89\xe2\x01f\x95\xf3\xa2]\xcbq\xe80dA" +
-	"\xe5\xde\x10A\xcf\xfa~\xe5<\xe1\x9d\x95W\xdb\xcfh" +
-	":r\x81\xd4\xa8\x18\x01\x88 \x80\xbcd\x01\x80\xbaP" +
-	"Du\x99\x802b#\xf2\xc5\xa5|\xf1A\x11\xd5G" +
-	"\x05\xa4#\x96\xed\x0a\xe2\x8f\x14\x00L\x00R\xcb\xc8a" +
-	"\x82\xd4\x07\xd2Q\x94IB&\x09\\\x8b\x83wu\xde" +
-	"@\x8a\xf7\x1cj\xb9Zi\x9fn\xa5\xec5\x86]\xda" +
-	"R\xed\xd7+7\xd6\x0e\xc0%W\x1b\x05L2\x1ew" +
-	"k\xf3\x87\xd4t\x09\xdc\x02\xc3N\xc6\xd4\x0d\x9b\x95\x86" +
-	"\x80n)\xb2:'\x14S=\x9ea\xd5\xa8K\xa8w" +
-	"\xcd\xd1\xbb\xd5r\xdb\x02\x80\xf4\xc3\x98^\x81r?E" +
-	"\xf4\xdf\x18\xf4\xe6\xa5\x9c^\x05\x90^\x81\xe9>\x94\xd7" +
-	"S\x9a\xd5\x8au\xdev\x19\x9di\xb1\x0bwL\xb3\xf0" +
-	"\x7f\xf6d\x10\xff\xcd\xe1\x83\xb6\x99t\xdd\x19\xf8\xc4{" +
-	"\x86\xd0\x1b\x9e\xbeO\xb8\x81\xef\xee\xf0Y]\xd9k\x8c" +
-	"\x98\xa5\x82f\xeb\xa2i\xf0ts}\x99\xd64\x03\xa8" +
-	"]\"\xaa}!W\xf5\xb6\x00\xa8\xabET3\x02\xca" +
-	"\x82\xd0\x88\x02\x80\xdc?\x0c\xa0\xf6\x89\xa8>+\xa0\xa8" +
-	"\xe7\xa6/1\xc6\x0d\xad\xc0\xbc\x0f'\xc7\xaclI/" +
-	"\xda@u\xd3\xf0Wk\x1c\xd3\x075\xcen\x99\xc9\xd9" +
-	"-\x81\xb3\xe3/1-\xe7\xda\xc7\x7f\x0f\xaa\xf6\x89\xdb" +
-	"\x9a\x9e\xafz\xbb&\x12x\xbb\x07\x87f\xf5vV\x9b" +
-	"m,\xdc\x89\xf1\x88\x0d\xfb\xbb3\xf0w\xcat\x05v" +
-	"+\x0cMJ^G\x9d^\xa5r\xd6.\x97Xn\x88" +
-	"m\xb6[-\xbbTN\xba\xdf\\\x92\xb9\x8eS\xed}" +
-	"MK J\x0c\xa7\x9c\xaa\x00aUb\xc2m\xa7\x91" +
-	"\xbfKr?\x9f\x00=\"\xaaC\x02\xc6\x0d\xd3` " +
-	"\xc57X\xa6\x01\x12\xdd\\\xc8\x83T\xe3\x85P\x01\x94" +
-	"m\xb6k\x84h\x0f\x84\xe0\xff\x827Q^:\x00B" +
-	"r\x93\x96/\x07Z[\xd3G\x01\xb2\x9a.\x9f/\xbc" +
-	"\x9c\xd1\x8b,\xaf\x1b,\x9d\xcb\x95\x98e1\xb4fO" +
-	"\x15h\xde\x19h\x9e\xd4\x8db\xd9\xf6\x92\xa5\xcc\xb2\x1d" +
-	"\xfa\xfc'\x00\x00\xff\xffqi\xee\x9d"
+const schema_99f1c9a775a88ac9 = "x\xda\x8cU_l\x14\xd5\x17>g\xe6\xceLI\xba" +
+	"Yf\xa7\xf95i~a\x13\x02\x89\xadRikc" +
+	"lL\xb6\x0b\x94\xb6\xa4\x95\x9d\xb6FK$q\xba{" +
+	"\xab\x03\xb33\xc3\xcc,\x85D!\xc1\x7f\x01B\xa2(" +
+	"A\xa25\x80!\"\x89!\xad\xfaP\x12%\xf6\xc1\x04" +
+	"\x8a\x12\xa4\x98@\xd4\x07_\xf4\xc5\xc4>\xf8H\xc7\xdc" +
+	"\x99\xce\xce2K\x83\xfb\xb4s\xcf7\xe7\x9c\xfb}\xe7" +
+	";\xb3\xf9\x0f\xae\x97\xeb\x10v\xae\x01P\x0dA\xf4S" +
+	"\x99\xfb\x8b\x0d\xa7\xb7\x1d\x01\xb9\x19\x01\x88\xb4\x16\xbbN" +
+	"\x90N\x04\xe2\xf7/,\x1c}\xa6\xfb\xab7@\xfe_" +
+	"\x10\x01\xe8\xaa\x90\x0c\x8b4/]U\x7f \xad\xef\x82" +
+	"\x9c\xe2\xfdk\xc7.V>\xbb\xb6t\x06\x00\x95\xddd" +
+	"V\xa1\x0c\xa9h\xa4_9\xca\xfe\xf9\xad/t\xec\xff" +
+	"\xe0\xb5\xf3\x1f\xd6\xa4\xd9\x17\xa6\x99\xf9mp\xdd\xcds" +
+	"\xc7\xa6An\x89\"\xe3a\xe9\x9b\xc7\x8e\xdf|S\xdb" +
+	";S\xf3N\x9e\xb4\xb0\xc8\x9d\x81\x8f\xc7\x17n]\x9e" +
+	"\xad+\xddJ~R\xba\x83\xd2\x1d\xa4_\x19\x0fJw" +
+	"\xf57o\xec\x7f{q\x0e\xe4\x14\xc6`\x81\x93\xd6\xa2" +
+	"\x92''\x95\xc1\x00\xdfG\xa6\x00\x949\xd2\xec\x8f>" +
+	"\xbe\xee\xec\x8d\xa1\xa7\xbf\xab\xe1\xe2k\xd2\xc3\xca\xae\x13" +
+	"z\x7f\xdd~\x15\xe7\x13\x99\x90e\x9a&W\x94\x0bA" +
+	"\xa6s$\x07\xa0\xdc%i\xff\xf4\xd9\xa5\xd7G\xbf\xbf" +
+	"v=\xd1&\xacE\xe5\x16\xb9\xa2\xdc\x0d\xe0w\xc8;" +
+	"\xca\xb4 )\xd3B\xda\xdf\xd1\xf1\xc9\xdf\xdc\x96C?" +
+	"\xd6\xdd\xeb=aV9#0\xf8)\xa1_\xf9\x86\xfd" +
+	"\xf3_\xda#\\\xda1\xfb\xe9\xed\x1az.\x08\x01=" +
+	"\xb7\xef\xf1\xcb\x0b\x87\x16\x16\x13}\xf2\xec\xfd\x13\xc2\xbd" +
+	"j\xa6\xcb\x80\xfe\xb7\xf9\xf9\xdc\xa5\x93S??\x8c\x9d" +
+	"\x0e\xf1\x88\xd2-\x06l\x8a\x8c\x9d\x0bb\xb3\xdft\xf1" +
+	"\xf0\xfb\xc3_\x8e\xdc\xaba\xe7\x9c\x18\x08\x99\xd5Ou" +
+	"\x0f\xa4?\xfa%\x8c\x04\xact\x1d\x15[\x90\xb5/\xe6" +
+	"\x00\xfd\x1b\x13\xf33#\xff,\xfc\x09\xea\xff\x11\xfd\xb1" +
+	"\xc5\xeb\xaf\x1c_c\xfc\x05\xcf\xa3\x84<@\xd7\x8c\xd8" +
+	"\xc9\xb0s\"k\xab\x1aUS\xf8 \xd7\x00\x8a*\xfd" +
+	"\xae\xec\x96\xd8\xbfqi\x0a\xd0?t~\xe3\x95\xd3\xcb" +
+	"d\xb9\xee\x0e\x00]\xd3R\x06\x95/\x02\xf0\xe7\xd2\x14" +
+	"<\xe7\x17\xadr\xd92\xdb\x8b\xbcf\x9bv\xcfV\xcd" +
+	"\x1e\xb0\x8c\x12u\xda\x1djP\xcd\xa5\x1b\x0aY\xcd\xd1" +
+	"\xcan\x1d\xce0&\xb4\xe2\xde\xf6\xa2f\x18\x1b\x0a\x0c" +
+	"\x821\x06#L6\x00\x15\x10U\xc2\x0b\x00U\xf7`" +
+	"4\xcb\xb2\xdc\x06\x9c,Hi\x96\xa7\x17\x0b\x88\x89B" +
+	"\xa3\x9eek\x13\x06mw=\xcb\xae+\x14b\x06K" +
+	"\xd4\xf4\xf4I=\xc0\xe9\xe6\xa4\xf5\x9f\x9a\x1e\xa1n\xc5" +
+	"\xe0\xbd\x18\xc4%\x93!\x8d;\x8fl\x89\xd10U;" +
+	"g\x05\x1f\xec<\xbc~A\xd3\xd1a\x09\x1ax\x02@" +
+	"\x10@n]\x0f\xa0n\xe0Q\xdd\xcc\xa1\x8c\xd8\x84\xec" +
+	"p\x13;|\x8cG\xf5)\x0e\xa5I\xd7\xc3\x0cbl" +
+	"R\x00\xcc\x00J\xaeY\xc2\x8cP\x1f\xc87\xa0,d" +
+	"d!\x83\xdbq\xf4\x91Z\x8e\xe4\xd8\x9d\xbd\xa4PC" +
+	"\xba\x9b\xf3\xfaL\xcf9\x18\xde7j7\xd5\x09\xa06" +
+	"\xf0\xa86q\x98\xa5,\x1e\xf4V\xb5\xfdJ\x0b\x04e" +
+	"\x9c\xf0\x0b\x96nz\xd4\x19\x03\xe9\xa0M\xeb&\xc1\xce" +
+	"\x85\xad\x84|0B#\xe3`\xe4\x13\xb9c=@\xfe" +
+	"\x09\xcc?\x8b\xf2\xb0\x84X]\xc2\x18m 9\xbfE" +
+	"\xceg\xf3%\xcc{(\xbf%IE\xcd\x961\xab\x12" +
+	"\x0e\xe3\xd5\x12P\xfa\xb0\xc3^<\xbcB\x83J\x90\xf3" +
+	"\x97N<\xd9\x9cyyn\x1e\x182\xdf\x84\xd8\xc8\xde" +
+	"\xdb\xe5\xaf`\xb6\x02\xaf\xd9\xabdZ%}\x01C*" +
+	"zr;'\xf6\xd0\xa2\x97\xe0`\xd4\xb3\xb2\xc1$\xc7" +
+	"3\x15}\x040Z]\xd5\x99b\xc3\xfeh7\xac:" +
+	"\xc1\x83\xe6\xa4\xe5\x945O\xe7-\x93\x95k\xacJ\xda" +
+	"\xd7\x02\xa0\xf6\xf2\xa8\x0e\xd5L\xe0`\x1b\x80\xba\x8dG" +
+	"\xb5\xc0\xa1\xccqM\xc8\x01\xc8\xc3\x13\x00\xea\x10\x8f\xea" +
+	"\x8b\x1c\xf2z\x09\x1b\x81\xc3F\xc0\xb4\xa9\x95i\xf4\xe0" +
+	"\x97\xa8[tt\xdb\x03I\xb7\xcc\xeaib\xba\x86 " +
+	"\xe1\x82\xb6\x87\xb9\xa0-vA\xfaU\xaa\x95\x82Q\xab" +
+	"n\xe3p\xd4\xd2\x9e\xa6\x1b\xa1\x0f\x12\x91\xd8\x07\x038" +
+	"\xb6\xaa\x0f\x8a\xdaj+\xe4ALDl\xad\x17zb" +
+	"/\xe4\xac@\xe0\xa0\xc3\xea\x10\x84}\xd4\xe9\xe5T\x8a" +
+	"^\xc5\xa1\xa51z\xc0kw=\xa7\x92\x0d\x9e\x99$" +
+	"\x8d\xbe\x1f\xde\xbd\xaf-\x16%\x85\xcb~(@\xad*" +
+	")\xee\xbe\xdf\xc4\xbe\x0a\xf20\xdb\x16\x03<\xaac\x1c" +
+	"\xa6M\xcb\xa4 \xa6\xf7\xb8\x96\x09\xa2t\xa0l\x80\x98" +
+	"\x98\x85\x9a\x06$z\xc0K\x08\xd1\x19\x0b\xc1~\xf1\x17" +
+	"I\xde4\x02\\v\xbffTb\xad\xdd\x95T\x804" +
+	"q\xcb]\xe5}\x05\xdd\xa6\x86n\xd2|\xa9\xe4P\xd7" +
+	"\xa5\xe8\xae^*\xd6\xbc'\xd6<\xab\x9bv\xc5\x8b\x8a" +
+	"\xe5\xac\x8aW\xf3\xf8o\x00\x00\x00\xff\xff\x9f)\xb9P"
 
 func init() {
 	schemas.Register(schema_99f1c9a775a88ac9,
 		0x82449708d4fd120d,
 		0x83b4353989cbcb47,
-		0x8dbca6a407dd8082,
 		0x902904cd51bff117,
 		0x98a27c9476315729,
 		0x9d8aa1cf1e49deb1,

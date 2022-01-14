@@ -69,13 +69,13 @@ interface CapHolder(Object) {
   cap @0 () -> (object :Object);
   # reference to some object, which can be any pointer type like a List(Capability), Capability or Struct
 
-  release @1 ();
+  release @1 () $Go.name("releaseCap"); 
   # release capability on server side (signaling that capability cap isn't needed anymore)
 }
 
-interface PersistCapHolder(Object) extends(CapHolder(Object), Persistent(Text, Text)) {
+#interface PersistCapHolder(Object) extends(CapHolder(Object), Persistent(Text, Text)) {
   # persistent CapHolder which allows to get a token to recreate the CapHolder later
-}
+#}
 
 struct ListEntry(PointerType) {
   entry @0 :PointerType;

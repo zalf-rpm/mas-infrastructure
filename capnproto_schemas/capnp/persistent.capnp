@@ -129,7 +129,7 @@ interface RealmGateway(InternalRef, ExternalRef, InternalOwner, ExternalOwner) {
   # outside the realm tries to save a capability from inside the realm.
 }
 
-annotation persistent(interface, field) :Void;
+annotation persistent(interface, field) :Void $Go.name("isPersistent");
 # Apply this annotation to interfaces for objects that will always be persistent, instead of
 # extending the Persistent capability, since the correct type parameters to Persistent depend on
 # the realm, which is orthogonal to the interface type and therefore should not be defined
