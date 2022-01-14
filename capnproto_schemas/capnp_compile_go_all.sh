@@ -2,6 +2,7 @@
 
 capnp compile -I. -ogo:./gen/go/persistence capnp/persistent.capnp
 
+capnp compile -I. -ogo:./gen/go/test a.capnp
 capnp compile -I. -ogo:./gen/go/climate climate_data.capnp
 capnp compile -I. -ogo:./gen/go/cluster cluster_admin_service.capnp
 capnp compile -I. -ogo:./gen/go/common common.capnp
@@ -19,9 +20,9 @@ capnp compile -I. -ogo:./gen/go/registry registry.capnp
 capnp compile -I. -ogo:./gen/go/soil soil_data.capnp
 capnp compile -I. -ogo:./gen/go/vr vr.capnp
 
-capnp compile -I. -ogo:./gen/go/models/weberest models/weberest/web-berest-data-import.capnp
-capnp compile -I. -ogo:./gen/go/models/yieldstat models/yieldstat/yieldstat.capnp
-capnp compile -I. -ogo:./gen/go/models/monica models/monica/monica_params.capnp
-capnp compile -I. -ogo:./gen/go/models/monica models/monica/monica_state.capnp
-capnp compile -I. -ogo:./gen/go/models/monica models/monica/soil_params.capnp
+capnp compile -I. -ogo:./gen/go models/weberest/web-berest-data-import.capnp
+capnp compile -I. -ogo:./gen/go models/yieldstat/yieldstat.capnp
+capnp compile -I. -ogo:./gen/go models/monica/monica_params.capnp
+capnp compile -I. -ogo:./gen/go models/monica/monica_state.capnp
+capnp compile -I. -ogo:./gen/go models/monica/soil_params.capnp
 
