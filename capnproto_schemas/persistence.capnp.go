@@ -8,7 +8,7 @@ import (
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
-	persistence "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/capnp/persistence"
+	capnp2 "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/capnp"
 	common "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/common"
 	strconv "strconv"
 )
@@ -1265,25 +1265,25 @@ func (s ExternalPersistent_ExternalSaveResults) String() string {
 	return str
 }
 
-func (s ExternalPersistent_ExternalSaveResults) Results() (persistence.Persistent_SaveResults, error) {
+func (s ExternalPersistent_ExternalSaveResults) Results() (capnp2.Persistent_SaveResults, error) {
 	p, err := s.Struct.Ptr(0)
-	return persistence.Persistent_SaveResults{Struct: p.Struct()}, err
+	return capnp2.Persistent_SaveResults{Struct: p.Struct()}, err
 }
 
 func (s ExternalPersistent_ExternalSaveResults) HasResults() bool {
 	return s.Struct.HasPtr(0)
 }
 
-func (s ExternalPersistent_ExternalSaveResults) SetResults(v persistence.Persistent_SaveResults) error {
+func (s ExternalPersistent_ExternalSaveResults) SetResults(v capnp2.Persistent_SaveResults) error {
 	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewResults sets the results field to a newly
-// allocated persistence.Persistent_SaveResults struct, preferring placement in s's segment.
-func (s ExternalPersistent_ExternalSaveResults) NewResults() (persistence.Persistent_SaveResults, error) {
-	ss, err := persistence.NewPersistent_SaveResults(s.Struct.Segment())
+// allocated capnp2.Persistent_SaveResults struct, preferring placement in s's segment.
+func (s ExternalPersistent_ExternalSaveResults) NewResults() (capnp2.Persistent_SaveResults, error) {
+	ss, err := capnp2.NewPersistent_SaveResults(s.Struct.Segment())
 	if err != nil {
-		return persistence.Persistent_SaveResults{}, err
+		return capnp2.Persistent_SaveResults{}, err
 	}
 	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
 	return ss, err
@@ -1337,8 +1337,8 @@ func (p ExternalPersistent_ExternalSaveResults_Future) Struct() (ExternalPersist
 	return ExternalPersistent_ExternalSaveResults{s}, err
 }
 
-func (p ExternalPersistent_ExternalSaveResults_Future) Results() persistence.Persistent_SaveResults_Future {
-	return persistence.Persistent_SaveResults_Future{Future: p.Future.Field(0, nil)}
+func (p ExternalPersistent_ExternalSaveResults_Future) Results() capnp2.Persistent_SaveResults_Future {
+	return capnp2.Persistent_SaveResults_Future{Future: p.Future.Field(0, nil)}
 }
 
 func (p ExternalPersistent_ExternalSaveResults_Future) Unreg() common.Callback {

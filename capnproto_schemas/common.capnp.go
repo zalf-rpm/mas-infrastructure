@@ -8,7 +8,7 @@ import (
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
-	persistence "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/capnp/persistence"
+	capnp2 "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/capnp"
 	strconv "strconv"
 )
 
@@ -1080,7 +1080,7 @@ func (c PersistCapHolder) Release(ctx context.Context, params func(CapHolder_rel
 	ans, release := c.Client.SendCall(ctx, s)
 	return CapHolder_release_Results_Future{Future: ans.Future()}, release
 }
-func (c PersistCapHolder) Save(ctx context.Context, params func(persistence.Persistent_SaveParams) error) (persistence.Persistent_SaveResults_Future, capnp.ReleaseFunc) {
+func (c PersistCapHolder) Save(ctx context.Context, params func(capnp2.Persistent_SaveParams) error) (capnp2.Persistent_SaveResults_Future, capnp.ReleaseFunc) {
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xc8cb212fcd9f5691,
@@ -1091,10 +1091,10 @@ func (c PersistCapHolder) Save(ctx context.Context, params func(persistence.Pers
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams{Struct: s}) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(capnp2.Persistent_SaveParams{Struct: s}) }
 	}
 	ans, release := c.Client.SendCall(ctx, s)
-	return persistence.Persistent_SaveResults_Future{Future: ans.Future()}, release
+	return capnp2.Persistent_SaveResults_Future{Future: ans.Future()}, release
 }
 
 func (c PersistCapHolder) AddRef() PersistCapHolder {
@@ -1113,7 +1113,7 @@ type PersistCapHolder_Server interface {
 
 	Release(context.Context, CapHolder_release) error
 
-	Save(context.Context, persistence.Persistent_save) error
+	Save(context.Context, capnp2.Persistent_save) error
 }
 
 // PersistCapHolder_NewServer creates a new Server from an implementation of PersistCapHolder_Server.
@@ -1167,7 +1167,7 @@ func PersistCapHolder_Methods(methods []server.Method, s PersistCapHolder_Server
 			MethodName:    "save",
 		},
 		Impl: func(ctx context.Context, call *server.Call) error {
-			return s.Save(ctx, persistence.Persistent_save{call})
+			return s.Save(ctx, capnp2.Persistent_save{call})
 		},
 	})
 

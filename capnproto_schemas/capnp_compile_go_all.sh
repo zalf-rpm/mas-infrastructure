@@ -20,7 +20,7 @@ capnp compile -I. -ogo soil_data.capnp
 #capnp compile -I. -ogo vr.capnp
 #capnp compile -I. -ogo web-berest-data-import.capnp
 
-capnp compile -I. -ogo models/yieldstat.capnp
+capnp compile -I. -ogo models/yieldstat/yieldstat.capnp
 capnp compile -I. -ogo models/monica/monica_params.capnp
 capnp compile -I. -ogo models/monica/monica_state.capnp
 capnp compile -I. -ogo models/monica/soil_params.capnp

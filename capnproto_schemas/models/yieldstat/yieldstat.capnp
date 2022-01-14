@@ -7,7 +7,7 @@ using Go = import "/capnp/go.capnp";
 $Go.package("yieldstat");
 $Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/models/yieldstat");
 
-using Crop = import "../crop.capnp";
+using Crop = import "../../crop.capnp";
 
 enum ResultId {
     primaryYield                @0; # primary yield for the crop (e.g. the actual fruit)
