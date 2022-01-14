@@ -5,9 +5,9 @@ using Persistent = import "/capnp/persistent.capnp".Persistent;
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("mas::rpc::common");
 
-using Go = import "lang/go.capnp";
+using Go = import "/capnp/go.capnp";
 $Go.package("common");
-$Go.import("common");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/common");
 
 struct IdInformation {
   id @0 :Text; # could be a UUID4

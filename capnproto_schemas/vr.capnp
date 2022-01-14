@@ -1,5 +1,9 @@
 @0xa16af7a45e431f73;
 
+using Go = import "/capnp/go.capnp";
+$Go.package("vr");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/vr");
+
 using Common = import "common.capnp";
 #using Date = import "date.capnp".Date;
 using Geo = import "geo_coord.capnp";

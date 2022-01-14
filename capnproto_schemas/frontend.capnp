@@ -5,9 +5,9 @@ using Persistent = import "/capnp/persistent.capnp";
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("mas::rpc::frontend");
 
-using Go = import "lang/go.capnp";
-$Go.package("common");
-$Go.import("common");
+using Go = import "/capnp/go.capnp";
+$Go.package("frontend");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/frontend");
 
 using Common = import "common.capnp";
 using SturdyRef = import "persistence.capnp".SturdyRef;

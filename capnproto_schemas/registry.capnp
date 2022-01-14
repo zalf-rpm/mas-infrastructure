@@ -5,9 +5,9 @@
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("mas::rpc::registry");
 
-using Go = import "lang/go.capnp";
-$Go.package("common");
-$Go.import("common");
+using Go = import "/capnp/go.capnp";
+$Go.package("registry");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/registry");
 
 using Common = import "common.capnp";
 
@@ -49,10 +49,10 @@ interface Registry extends(Common.Identifiable) {
   struct Entry {
     categoryId  @0 :Text;
     ref         @1 :Common.Identifiable;  
-    refInfo     @2 :Common.IdInformation;
+    name        @2 :Text;
   }
 
-  entries @2 (categoryId :Text, forceRefInfos :Bool = false) -> (entries :List(Entry));
+  entries @2 (categoryId :Text) -> (entries :List(Entry));
   # return the entries registered under the given category
   # given a NULL category id, maybe return all entries
   # forceRefInfos = true will mandatorily include refInfo = ref->info()
@@ -60,12 +60,15 @@ interface Registry extends(Common.Identifiable) {
 }
 
 
-interface Registrator {
+interface Registrar(SturdyRef) {
   # simple interface to register something
-  # use case: a registry creates a sturdy ref of a Registrator capability and 
+  # use case: a registry creates a sturdy ref of a Registrar capability and 
   # this sturdy ref is used to register a service at the registry
 
-  register @0 (ref :Common.Identifiable, categoryId :Text) -> (unreg :Common.Callback);
-  # register the given identifiable reference under the optional categoryId 
-  # return an unregister callback
+  register @0 (ref :Common.Identifiable, regName :Text, categoryId :Text) -> (unreg :Common.Callback, rereg :SturdyRef);
+  # register the given identifiable reference with the given name
+  # under the given categoryId which must match one of the supported categories
+  # if categoryId or name are null, nothing is registered
+  # return an unregister callback and a sturdy ref to reregister in case of
+  # a necessary restart of the service with the same internal registry id
 }

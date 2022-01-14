@@ -1,8 +1,11 @@
 @0xf3c1b27d6da9d0fa;
 
-#using Cxx = import "lang/c++.capnp";
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("mas::rpc");
+
+using Go = import "/capnp/go.capnp";
+$Go.package("cluster");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/cluster");
 
 using Common = import "common.capnp";
 using Model = import "model.capnp";

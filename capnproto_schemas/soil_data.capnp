@@ -3,9 +3,9 @@
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("mas::rpc::soil");
 
-#using Go = import "lang/go.capnp";
-#$Go.package("dataServices");
-#$Go.import("dataServices");
+using Go = import "/capnp/go.capnp";
+$Go.package("soil");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/soil");
 
 using Persistent = import "/capnp/persistent.capnp".Persistent;
 using Restorer = import "persistence.capnp".Restorer;

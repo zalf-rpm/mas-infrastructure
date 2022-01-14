@@ -3,6 +3,10 @@
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("mas::rpc::model");
 
+using Go = import "/capnp/go.capnp";
+$Go.package("model");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/model");
+
 using Common = import "common.capnp";
 using Geo = import "geo_coord.capnp";
 using Climate = import "climate_data.capnp";

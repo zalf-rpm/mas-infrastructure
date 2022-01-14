@@ -3,6 +3,10 @@
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("mas::models::yieldstat");
 
+using Go = import "/capnp/go.capnp";
+$Go.package("yieldstat");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/models/yieldstat");
+
 using Crop = import "../crop.capnp";
 
 enum ResultId {

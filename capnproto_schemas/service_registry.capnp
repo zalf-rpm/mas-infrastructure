@@ -3,15 +3,14 @@
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("mas::rpc::service");
 
-#using Go = import "lang/go.capnp";
-#$Go.package("dataServices");
-#$Go.import("dataServices");
+using Go = import "/capnp/go.capnp";
+$Go.package("registry");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/registry");
 
 using Common = import "common.capnp";
 using Soil = import "soil_data.capnp";
 using Climate = import "climate_data.capnp";
 using Model = import "model.capnp";
-
 
 enum ServiceType {
     unknown @0 ; # an unknown service

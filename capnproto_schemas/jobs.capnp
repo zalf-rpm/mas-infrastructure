@@ -3,6 +3,10 @@
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("mas::rpc::jobs");
 
+using Go = import "/capnp/go.capnp";
+$Go.package("jobs");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/jobs");
+
 using LatLngCoord = import "geo_coord.capnp".LatLonCoord;
 
 struct Job {

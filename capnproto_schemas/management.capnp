@@ -3,6 +3,10 @@
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("mas::rpc::management");
 
+using Go = import "/capnp/go.capnp";
+$Go.package("management");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/management");
+
 using Date = import "date.capnp".Date;
 using Common = import "common.capnp";
 using Geo = import "geo_coord.capnp";

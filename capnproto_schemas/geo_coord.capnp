@@ -3,9 +3,9 @@
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("mas::rpc::geo");
 
-using Go = import "lang/go.capnp";
+using Go = import "/capnp/go.capnp";
 $Go.package("geo");
-$Go.import("geo_coord.capnp");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/geo");
 
 enum CoordType {
   gk @0; # Gauss-Krüger 

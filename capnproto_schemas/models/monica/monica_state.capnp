@@ -3,6 +3,10 @@
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("mas::models::monica");
 
+using Go = import "/capnp/go.capnp";
+$Go.package("monica");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/models/monica");
+
 using Date = import "../../date.capnp".Date;
 using Params = import "monica_params.capnp";
 using Mgmt = import "../../management.capnp";

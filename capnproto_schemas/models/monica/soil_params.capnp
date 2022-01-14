@@ -3,6 +3,10 @@
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("mas::data::soil");
 
+using Go = import "/capnp/go.capnp";
+$Go.package("monica");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/models/monica");
+
 struct SoilCharacteristicData {
     struct Data {
         soilType        @0 :Text;   # KA5 soil type
