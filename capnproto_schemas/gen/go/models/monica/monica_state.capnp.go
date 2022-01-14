@@ -8,7 +8,6 @@ import (
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	common "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/common"
 	management "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/management"
-	monica "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/models/monica"
 	math "math"
 )
 
@@ -331,73 +330,73 @@ func (s CropState) NewCuttingDates(n int32) (common.Date_List, error) {
 	return l, err
 }
 
-func (s CropState) CropParams() (monica.CropParameters, error) {
+func (s CropState) CropParams() (CropParameters, error) {
 	p, err := s.Struct.Ptr(8)
-	return monica.CropParameters{Struct: p.Struct()}, err
+	return CropParameters{Struct: p.Struct()}, err
 }
 
 func (s CropState) HasCropParams() bool {
 	return s.Struct.HasPtr(8)
 }
 
-func (s CropState) SetCropParams(v monica.CropParameters) error {
+func (s CropState) SetCropParams(v CropParameters) error {
 	return s.Struct.SetPtr(8, v.Struct.ToPtr())
 }
 
 // NewCropParams sets the cropParams field to a newly
-// allocated monica.CropParameters struct, preferring placement in s's segment.
-func (s CropState) NewCropParams() (monica.CropParameters, error) {
-	ss, err := monica.NewCropParameters(s.Struct.Segment())
+// allocated CropParameters struct, preferring placement in s's segment.
+func (s CropState) NewCropParams() (CropParameters, error) {
+	ss, err := NewCropParameters(s.Struct.Segment())
 	if err != nil {
-		return monica.CropParameters{}, err
+		return CropParameters{}, err
 	}
 	err = s.Struct.SetPtr(8, ss.Struct.ToPtr())
 	return ss, err
 }
 
-func (s CropState) PerennialCropParams() (monica.CropParameters, error) {
+func (s CropState) PerennialCropParams() (CropParameters, error) {
 	p, err := s.Struct.Ptr(9)
-	return monica.CropParameters{Struct: p.Struct()}, err
+	return CropParameters{Struct: p.Struct()}, err
 }
 
 func (s CropState) HasPerennialCropParams() bool {
 	return s.Struct.HasPtr(9)
 }
 
-func (s CropState) SetPerennialCropParams(v monica.CropParameters) error {
+func (s CropState) SetPerennialCropParams(v CropParameters) error {
 	return s.Struct.SetPtr(9, v.Struct.ToPtr())
 }
 
 // NewPerennialCropParams sets the perennialCropParams field to a newly
-// allocated monica.CropParameters struct, preferring placement in s's segment.
-func (s CropState) NewPerennialCropParams() (monica.CropParameters, error) {
-	ss, err := monica.NewCropParameters(s.Struct.Segment())
+// allocated CropParameters struct, preferring placement in s's segment.
+func (s CropState) NewPerennialCropParams() (CropParameters, error) {
+	ss, err := NewCropParameters(s.Struct.Segment())
 	if err != nil {
-		return monica.CropParameters{}, err
+		return CropParameters{}, err
 	}
 	err = s.Struct.SetPtr(9, ss.Struct.ToPtr())
 	return ss, err
 }
 
-func (s CropState) ResidueParams() (monica.CropResidueParameters, error) {
+func (s CropState) ResidueParams() (CropResidueParameters, error) {
 	p, err := s.Struct.Ptr(10)
-	return monica.CropResidueParameters{Struct: p.Struct()}, err
+	return CropResidueParameters{Struct: p.Struct()}, err
 }
 
 func (s CropState) HasResidueParams() bool {
 	return s.Struct.HasPtr(10)
 }
 
-func (s CropState) SetResidueParams(v monica.CropResidueParameters) error {
+func (s CropState) SetResidueParams(v CropResidueParameters) error {
 	return s.Struct.SetPtr(10, v.Struct.ToPtr())
 }
 
 // NewResidueParams sets the residueParams field to a newly
-// allocated monica.CropResidueParameters struct, preferring placement in s's segment.
-func (s CropState) NewResidueParams() (monica.CropResidueParameters, error) {
-	ss, err := monica.NewCropResidueParameters(s.Struct.Segment())
+// allocated CropResidueParameters struct, preferring placement in s's segment.
+func (s CropState) NewResidueParams() (CropResidueParameters, error) {
+	ss, err := NewCropResidueParameters(s.Struct.Segment())
 	if err != nil {
-		return monica.CropResidueParameters{}, err
+		return CropResidueParameters{}, err
 	}
 	err = s.Struct.SetPtr(10, ss.Struct.ToPtr())
 	return ss, err
@@ -419,25 +418,25 @@ func (s CropState) SetAutomaticHarvest(v bool) {
 	s.Struct.SetBit(64, v)
 }
 
-func (s CropState) AutomaticHarvestParams() (monica.AutomaticHarvestParameters, error) {
+func (s CropState) AutomaticHarvestParams() (AutomaticHarvestParameters, error) {
 	p, err := s.Struct.Ptr(0)
-	return monica.AutomaticHarvestParameters{Struct: p.Struct()}, err
+	return AutomaticHarvestParameters{Struct: p.Struct()}, err
 }
 
 func (s CropState) HasAutomaticHarvestParams() bool {
 	return s.Struct.HasPtr(0)
 }
 
-func (s CropState) SetAutomaticHarvestParams(v monica.AutomaticHarvestParameters) error {
+func (s CropState) SetAutomaticHarvestParams(v AutomaticHarvestParameters) error {
 	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewAutomaticHarvestParams sets the automaticHarvestParams field to a newly
-// allocated monica.AutomaticHarvestParameters struct, preferring placement in s's segment.
-func (s CropState) NewAutomaticHarvestParams() (monica.AutomaticHarvestParameters, error) {
-	ss, err := monica.NewAutomaticHarvestParameters(s.Struct.Segment())
+// allocated AutomaticHarvestParameters struct, preferring placement in s's segment.
+func (s CropState) NewAutomaticHarvestParams() (AutomaticHarvestParameters, error) {
+	ss, err := NewAutomaticHarvestParameters(s.Struct.Segment())
 	if err != nil {
-		return monica.AutomaticHarvestParameters{}, err
+		return AutomaticHarvestParameters{}, err
 	}
 	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
 	return ss, err
@@ -485,20 +484,20 @@ func (p CropState_Future) IsPerennialCrop() MaybeBool_Future {
 	return MaybeBool_Future{Future: p.Future.Field(6, nil)}
 }
 
-func (p CropState_Future) CropParams() monica.CropParameters_Future {
-	return monica.CropParameters_Future{Future: p.Future.Field(8, nil)}
+func (p CropState_Future) CropParams() CropParameters_Future {
+	return CropParameters_Future{Future: p.Future.Field(8, nil)}
 }
 
-func (p CropState_Future) PerennialCropParams() monica.CropParameters_Future {
-	return monica.CropParameters_Future{Future: p.Future.Field(9, nil)}
+func (p CropState_Future) PerennialCropParams() CropParameters_Future {
+	return CropParameters_Future{Future: p.Future.Field(9, nil)}
 }
 
-func (p CropState_Future) ResidueParams() monica.CropResidueParameters_Future {
-	return monica.CropResidueParameters_Future{Future: p.Future.Field(10, nil)}
+func (p CropState_Future) ResidueParams() CropResidueParameters_Future {
+	return CropResidueParameters_Future{Future: p.Future.Field(10, nil)}
 }
 
-func (p CropState_Future) AutomaticHarvestParams() monica.AutomaticHarvestParameters_Future {
-	return monica.AutomaticHarvestParameters_Future{Future: p.Future.Field(0, nil)}
+func (p CropState_Future) AutomaticHarvestParams() AutomaticHarvestParameters_Future {
+	return AutomaticHarvestParameters_Future{Future: p.Future.Field(0, nil)}
 }
 
 type AOMProperties struct{ capnp.Struct }
@@ -1241,25 +1240,25 @@ func (s SoilLayerState) SetSoilFrozen(v bool) {
 	s.Struct.SetBit(640, v)
 }
 
-func (s SoilLayerState) Sps() (monica.SoilParameters, error) {
+func (s SoilLayerState) Sps() (SoilParameters, error) {
 	p, err := s.Struct.Ptr(1)
-	return monica.SoilParameters{Struct: p.Struct()}, err
+	return SoilParameters{Struct: p.Struct()}, err
 }
 
 func (s SoilLayerState) HasSps() bool {
 	return s.Struct.HasPtr(1)
 }
 
-func (s SoilLayerState) SetSps(v monica.SoilParameters) error {
+func (s SoilLayerState) SetSps(v SoilParameters) error {
 	return s.Struct.SetPtr(1, v.Struct.ToPtr())
 }
 
 // NewSps sets the sps field to a newly
-// allocated monica.SoilParameters struct, preferring placement in s's segment.
-func (s SoilLayerState) NewSps() (monica.SoilParameters, error) {
-	ss, err := monica.NewSoilParameters(s.Struct.Segment())
+// allocated SoilParameters struct, preferring placement in s's segment.
+func (s SoilLayerState) NewSps() (SoilParameters, error) {
+	ss, err := NewSoilParameters(s.Struct.Segment())
 	if err != nil {
-		return monica.SoilParameters{}, err
+		return SoilParameters{}, err
 	}
 	err = s.Struct.SetPtr(1, ss.Struct.ToPtr())
 	return ss, err
@@ -1307,8 +1306,8 @@ func (p SoilLayerState_Future) Struct() (SoilLayerState, error) {
 	return SoilLayerState{s}, err
 }
 
-func (p SoilLayerState_Future) Sps() monica.SoilParameters_Future {
-	return monica.SoilParameters_Future{Future: p.Future.Field(1, nil)}
+func (p SoilLayerState_Future) Sps() SoilParameters_Future {
+	return SoilParameters_Future{Future: p.Future.Field(1, nil)}
 }
 
 type MonicaModelState struct{ capnp.Struct }
@@ -1336,121 +1335,121 @@ func (s MonicaModelState) String() string {
 	return str
 }
 
-func (s MonicaModelState) SitePs() (monica.SiteParameters, error) {
+func (s MonicaModelState) SitePs() (SiteParameters, error) {
 	p, err := s.Struct.Ptr(0)
-	return monica.SiteParameters{Struct: p.Struct()}, err
+	return SiteParameters{Struct: p.Struct()}, err
 }
 
 func (s MonicaModelState) HasSitePs() bool {
 	return s.Struct.HasPtr(0)
 }
 
-func (s MonicaModelState) SetSitePs(v monica.SiteParameters) error {
+func (s MonicaModelState) SetSitePs(v SiteParameters) error {
 	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewSitePs sets the sitePs field to a newly
-// allocated monica.SiteParameters struct, preferring placement in s's segment.
-func (s MonicaModelState) NewSitePs() (monica.SiteParameters, error) {
-	ss, err := monica.NewSiteParameters(s.Struct.Segment())
+// allocated SiteParameters struct, preferring placement in s's segment.
+func (s MonicaModelState) NewSitePs() (SiteParameters, error) {
+	ss, err := NewSiteParameters(s.Struct.Segment())
 	if err != nil {
-		return monica.SiteParameters{}, err
+		return SiteParameters{}, err
 	}
 	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
 	return ss, err
 }
 
-func (s MonicaModelState) EnvPs() (monica.EnvironmentParameters, error) {
+func (s MonicaModelState) EnvPs() (EnvironmentParameters, error) {
 	p, err := s.Struct.Ptr(1)
-	return monica.EnvironmentParameters{Struct: p.Struct()}, err
+	return EnvironmentParameters{Struct: p.Struct()}, err
 }
 
 func (s MonicaModelState) HasEnvPs() bool {
 	return s.Struct.HasPtr(1)
 }
 
-func (s MonicaModelState) SetEnvPs(v monica.EnvironmentParameters) error {
+func (s MonicaModelState) SetEnvPs(v EnvironmentParameters) error {
 	return s.Struct.SetPtr(1, v.Struct.ToPtr())
 }
 
 // NewEnvPs sets the envPs field to a newly
-// allocated monica.EnvironmentParameters struct, preferring placement in s's segment.
-func (s MonicaModelState) NewEnvPs() (monica.EnvironmentParameters, error) {
-	ss, err := monica.NewEnvironmentParameters(s.Struct.Segment())
+// allocated EnvironmentParameters struct, preferring placement in s's segment.
+func (s MonicaModelState) NewEnvPs() (EnvironmentParameters, error) {
+	ss, err := NewEnvironmentParameters(s.Struct.Segment())
 	if err != nil {
-		return monica.EnvironmentParameters{}, err
+		return EnvironmentParameters{}, err
 	}
 	err = s.Struct.SetPtr(1, ss.Struct.ToPtr())
 	return ss, err
 }
 
-func (s MonicaModelState) CropPs() (monica.CropModuleParameters, error) {
+func (s MonicaModelState) CropPs() (CropModuleParameters, error) {
 	p, err := s.Struct.Ptr(2)
-	return monica.CropModuleParameters{Struct: p.Struct()}, err
+	return CropModuleParameters{Struct: p.Struct()}, err
 }
 
 func (s MonicaModelState) HasCropPs() bool {
 	return s.Struct.HasPtr(2)
 }
 
-func (s MonicaModelState) SetCropPs(v monica.CropModuleParameters) error {
+func (s MonicaModelState) SetCropPs(v CropModuleParameters) error {
 	return s.Struct.SetPtr(2, v.Struct.ToPtr())
 }
 
 // NewCropPs sets the cropPs field to a newly
-// allocated monica.CropModuleParameters struct, preferring placement in s's segment.
-func (s MonicaModelState) NewCropPs() (monica.CropModuleParameters, error) {
-	ss, err := monica.NewCropModuleParameters(s.Struct.Segment())
+// allocated CropModuleParameters struct, preferring placement in s's segment.
+func (s MonicaModelState) NewCropPs() (CropModuleParameters, error) {
+	ss, err := NewCropModuleParameters(s.Struct.Segment())
 	if err != nil {
-		return monica.CropModuleParameters{}, err
+		return CropModuleParameters{}, err
 	}
 	err = s.Struct.SetPtr(2, ss.Struct.ToPtr())
 	return ss, err
 }
 
-func (s MonicaModelState) SimPs() (monica.SimulationParameters, error) {
+func (s MonicaModelState) SimPs() (SimulationParameters, error) {
 	p, err := s.Struct.Ptr(3)
-	return monica.SimulationParameters{Struct: p.Struct()}, err
+	return SimulationParameters{Struct: p.Struct()}, err
 }
 
 func (s MonicaModelState) HasSimPs() bool {
 	return s.Struct.HasPtr(3)
 }
 
-func (s MonicaModelState) SetSimPs(v monica.SimulationParameters) error {
+func (s MonicaModelState) SetSimPs(v SimulationParameters) error {
 	return s.Struct.SetPtr(3, v.Struct.ToPtr())
 }
 
 // NewSimPs sets the simPs field to a newly
-// allocated monica.SimulationParameters struct, preferring placement in s's segment.
-func (s MonicaModelState) NewSimPs() (monica.SimulationParameters, error) {
-	ss, err := monica.NewSimulationParameters(s.Struct.Segment())
+// allocated SimulationParameters struct, preferring placement in s's segment.
+func (s MonicaModelState) NewSimPs() (SimulationParameters, error) {
+	ss, err := NewSimulationParameters(s.Struct.Segment())
 	if err != nil {
-		return monica.SimulationParameters{}, err
+		return SimulationParameters{}, err
 	}
 	err = s.Struct.SetPtr(3, ss.Struct.ToPtr())
 	return ss, err
 }
 
-func (s MonicaModelState) GroundwaterInformation() (monica.MeasuredGroundwaterTableInformation, error) {
+func (s MonicaModelState) GroundwaterInformation() (MeasuredGroundwaterTableInformation, error) {
 	p, err := s.Struct.Ptr(4)
-	return monica.MeasuredGroundwaterTableInformation{Struct: p.Struct()}, err
+	return MeasuredGroundwaterTableInformation{Struct: p.Struct()}, err
 }
 
 func (s MonicaModelState) HasGroundwaterInformation() bool {
 	return s.Struct.HasPtr(4)
 }
 
-func (s MonicaModelState) SetGroundwaterInformation(v monica.MeasuredGroundwaterTableInformation) error {
+func (s MonicaModelState) SetGroundwaterInformation(v MeasuredGroundwaterTableInformation) error {
 	return s.Struct.SetPtr(4, v.Struct.ToPtr())
 }
 
 // NewGroundwaterInformation sets the groundwaterInformation field to a newly
-// allocated monica.MeasuredGroundwaterTableInformation struct, preferring placement in s's segment.
-func (s MonicaModelState) NewGroundwaterInformation() (monica.MeasuredGroundwaterTableInformation, error) {
-	ss, err := monica.NewMeasuredGroundwaterTableInformation(s.Struct.Segment())
+// allocated MeasuredGroundwaterTableInformation struct, preferring placement in s's segment.
+func (s MonicaModelState) NewGroundwaterInformation() (MeasuredGroundwaterTableInformation, error) {
+	ss, err := NewMeasuredGroundwaterTableInformation(s.Struct.Segment())
 	if err != nil {
-		return monica.MeasuredGroundwaterTableInformation{}, err
+		return MeasuredGroundwaterTableInformation{}, err
 	}
 	err = s.Struct.SetPtr(4, ss.Struct.ToPtr())
 	return ss, err
@@ -1884,24 +1883,24 @@ func (p MonicaModelState_Future) Struct() (MonicaModelState, error) {
 	return MonicaModelState{s}, err
 }
 
-func (p MonicaModelState_Future) SitePs() monica.SiteParameters_Future {
-	return monica.SiteParameters_Future{Future: p.Future.Field(0, nil)}
+func (p MonicaModelState_Future) SitePs() SiteParameters_Future {
+	return SiteParameters_Future{Future: p.Future.Field(0, nil)}
 }
 
-func (p MonicaModelState_Future) EnvPs() monica.EnvironmentParameters_Future {
-	return monica.EnvironmentParameters_Future{Future: p.Future.Field(1, nil)}
+func (p MonicaModelState_Future) EnvPs() EnvironmentParameters_Future {
+	return EnvironmentParameters_Future{Future: p.Future.Field(1, nil)}
 }
 
-func (p MonicaModelState_Future) CropPs() monica.CropModuleParameters_Future {
-	return monica.CropModuleParameters_Future{Future: p.Future.Field(2, nil)}
+func (p MonicaModelState_Future) CropPs() CropModuleParameters_Future {
+	return CropModuleParameters_Future{Future: p.Future.Field(2, nil)}
 }
 
-func (p MonicaModelState_Future) SimPs() monica.SimulationParameters_Future {
-	return monica.SimulationParameters_Future{Future: p.Future.Field(3, nil)}
+func (p MonicaModelState_Future) SimPs() SimulationParameters_Future {
+	return SimulationParameters_Future{Future: p.Future.Field(3, nil)}
 }
 
-func (p MonicaModelState_Future) GroundwaterInformation() monica.MeasuredGroundwaterTableInformation_Future {
-	return monica.MeasuredGroundwaterTableInformation_Future{Future: p.Future.Field(4, nil)}
+func (p MonicaModelState_Future) GroundwaterInformation() MeasuredGroundwaterTableInformation_Future {
+	return MeasuredGroundwaterTableInformation_Future{Future: p.Future.Field(4, nil)}
 }
 
 func (p MonicaModelState_Future) SoilColumn() SoilColumnState_Future {
@@ -2036,73 +2035,73 @@ func (s CropModuleState) SetFrostKillOn(v bool) {
 	s.Struct.SetBit(0, v)
 }
 
-func (s CropModuleState) SpeciesParams() (monica.SpeciesParameters, error) {
+func (s CropModuleState) SpeciesParams() (SpeciesParameters, error) {
 	p, err := s.Struct.Ptr(47)
-	return monica.SpeciesParameters{Struct: p.Struct()}, err
+	return SpeciesParameters{Struct: p.Struct()}, err
 }
 
 func (s CropModuleState) HasSpeciesParams() bool {
 	return s.Struct.HasPtr(47)
 }
 
-func (s CropModuleState) SetSpeciesParams(v monica.SpeciesParameters) error {
+func (s CropModuleState) SetSpeciesParams(v SpeciesParameters) error {
 	return s.Struct.SetPtr(47, v.Struct.ToPtr())
 }
 
 // NewSpeciesParams sets the speciesParams field to a newly
-// allocated monica.SpeciesParameters struct, preferring placement in s's segment.
-func (s CropModuleState) NewSpeciesParams() (monica.SpeciesParameters, error) {
-	ss, err := monica.NewSpeciesParameters(s.Struct.Segment())
+// allocated SpeciesParameters struct, preferring placement in s's segment.
+func (s CropModuleState) NewSpeciesParams() (SpeciesParameters, error) {
+	ss, err := NewSpeciesParameters(s.Struct.Segment())
 	if err != nil {
-		return monica.SpeciesParameters{}, err
+		return SpeciesParameters{}, err
 	}
 	err = s.Struct.SetPtr(47, ss.Struct.ToPtr())
 	return ss, err
 }
 
-func (s CropModuleState) CultivarParams() (monica.CultivarParameters, error) {
+func (s CropModuleState) CultivarParams() (CultivarParameters, error) {
 	p, err := s.Struct.Ptr(48)
-	return monica.CultivarParameters{Struct: p.Struct()}, err
+	return CultivarParameters{Struct: p.Struct()}, err
 }
 
 func (s CropModuleState) HasCultivarParams() bool {
 	return s.Struct.HasPtr(48)
 }
 
-func (s CropModuleState) SetCultivarParams(v monica.CultivarParameters) error {
+func (s CropModuleState) SetCultivarParams(v CultivarParameters) error {
 	return s.Struct.SetPtr(48, v.Struct.ToPtr())
 }
 
 // NewCultivarParams sets the cultivarParams field to a newly
-// allocated monica.CultivarParameters struct, preferring placement in s's segment.
-func (s CropModuleState) NewCultivarParams() (monica.CultivarParameters, error) {
-	ss, err := monica.NewCultivarParameters(s.Struct.Segment())
+// allocated CultivarParameters struct, preferring placement in s's segment.
+func (s CropModuleState) NewCultivarParams() (CultivarParameters, error) {
+	ss, err := NewCultivarParameters(s.Struct.Segment())
 	if err != nil {
-		return monica.CultivarParameters{}, err
+		return CultivarParameters{}, err
 	}
 	err = s.Struct.SetPtr(48, ss.Struct.ToPtr())
 	return ss, err
 }
 
-func (s CropModuleState) ResidueParams() (monica.CropResidueParameters, error) {
+func (s CropModuleState) ResidueParams() (CropResidueParameters, error) {
 	p, err := s.Struct.Ptr(49)
-	return monica.CropResidueParameters{Struct: p.Struct()}, err
+	return CropResidueParameters{Struct: p.Struct()}, err
 }
 
 func (s CropModuleState) HasResidueParams() bool {
 	return s.Struct.HasPtr(49)
 }
 
-func (s CropModuleState) SetResidueParams(v monica.CropResidueParameters) error {
+func (s CropModuleState) SetResidueParams(v CropResidueParameters) error {
 	return s.Struct.SetPtr(49, v.Struct.ToPtr())
 }
 
 // NewResidueParams sets the residueParams field to a newly
-// allocated monica.CropResidueParameters struct, preferring placement in s's segment.
-func (s CropModuleState) NewResidueParams() (monica.CropResidueParameters, error) {
-	ss, err := monica.NewCropResidueParameters(s.Struct.Segment())
+// allocated CropResidueParameters struct, preferring placement in s's segment.
+func (s CropModuleState) NewResidueParams() (CropResidueParameters, error) {
+	ss, err := NewCropResidueParameters(s.Struct.Segment())
 	if err != nil {
-		return monica.CropResidueParameters{}, err
+		return CropResidueParameters{}, err
 	}
 	err = s.Struct.SetPtr(49, ss.Struct.ToPtr())
 	return ss, err
@@ -3416,73 +3415,73 @@ func (s CropModuleState) NewPcOrganGrowthRespiration(n int32) (capnp.Float64List
 	return l, err
 }
 
-func (s CropModuleState) PcOrganIdsForPrimaryYield() (monica.YieldComponent_List, error) {
+func (s CropModuleState) PcOrganIdsForPrimaryYield() (YieldComponent_List, error) {
 	p, err := s.Struct.Ptr(21)
-	return monica.YieldComponent_List{List: p.List()}, err
+	return YieldComponent_List{List: p.List()}, err
 }
 
 func (s CropModuleState) HasPcOrganIdsForPrimaryYield() bool {
 	return s.Struct.HasPtr(21)
 }
 
-func (s CropModuleState) SetPcOrganIdsForPrimaryYield(v monica.YieldComponent_List) error {
+func (s CropModuleState) SetPcOrganIdsForPrimaryYield(v YieldComponent_List) error {
 	return s.Struct.SetPtr(21, v.List.ToPtr())
 }
 
 // NewPcOrganIdsForPrimaryYield sets the pcOrganIdsForPrimaryYield field to a newly
-// allocated monica.YieldComponent_List, preferring placement in s's segment.
-func (s CropModuleState) NewPcOrganIdsForPrimaryYield(n int32) (monica.YieldComponent_List, error) {
-	l, err := monica.NewYieldComponent_List(s.Struct.Segment(), n)
+// allocated YieldComponent_List, preferring placement in s's segment.
+func (s CropModuleState) NewPcOrganIdsForPrimaryYield(n int32) (YieldComponent_List, error) {
+	l, err := NewYieldComponent_List(s.Struct.Segment(), n)
 	if err != nil {
-		return monica.YieldComponent_List{}, err
+		return YieldComponent_List{}, err
 	}
 	err = s.Struct.SetPtr(21, l.List.ToPtr())
 	return l, err
 }
 
-func (s CropModuleState) PcOrganIdsForSecondaryYield() (monica.YieldComponent_List, error) {
+func (s CropModuleState) PcOrganIdsForSecondaryYield() (YieldComponent_List, error) {
 	p, err := s.Struct.Ptr(22)
-	return monica.YieldComponent_List{List: p.List()}, err
+	return YieldComponent_List{List: p.List()}, err
 }
 
 func (s CropModuleState) HasPcOrganIdsForSecondaryYield() bool {
 	return s.Struct.HasPtr(22)
 }
 
-func (s CropModuleState) SetPcOrganIdsForSecondaryYield(v monica.YieldComponent_List) error {
+func (s CropModuleState) SetPcOrganIdsForSecondaryYield(v YieldComponent_List) error {
 	return s.Struct.SetPtr(22, v.List.ToPtr())
 }
 
 // NewPcOrganIdsForSecondaryYield sets the pcOrganIdsForSecondaryYield field to a newly
-// allocated monica.YieldComponent_List, preferring placement in s's segment.
-func (s CropModuleState) NewPcOrganIdsForSecondaryYield(n int32) (monica.YieldComponent_List, error) {
-	l, err := monica.NewYieldComponent_List(s.Struct.Segment(), n)
+// allocated YieldComponent_List, preferring placement in s's segment.
+func (s CropModuleState) NewPcOrganIdsForSecondaryYield(n int32) (YieldComponent_List, error) {
+	l, err := NewYieldComponent_List(s.Struct.Segment(), n)
 	if err != nil {
-		return monica.YieldComponent_List{}, err
+		return YieldComponent_List{}, err
 	}
 	err = s.Struct.SetPtr(22, l.List.ToPtr())
 	return l, err
 }
 
-func (s CropModuleState) PcOrganIdsForCutting() (monica.YieldComponent_List, error) {
+func (s CropModuleState) PcOrganIdsForCutting() (YieldComponent_List, error) {
 	p, err := s.Struct.Ptr(23)
-	return monica.YieldComponent_List{List: p.List()}, err
+	return YieldComponent_List{List: p.List()}, err
 }
 
 func (s CropModuleState) HasPcOrganIdsForCutting() bool {
 	return s.Struct.HasPtr(23)
 }
 
-func (s CropModuleState) SetPcOrganIdsForCutting(v monica.YieldComponent_List) error {
+func (s CropModuleState) SetPcOrganIdsForCutting(v YieldComponent_List) error {
 	return s.Struct.SetPtr(23, v.List.ToPtr())
 }
 
 // NewPcOrganIdsForCutting sets the pcOrganIdsForCutting field to a newly
-// allocated monica.YieldComponent_List, preferring placement in s's segment.
-func (s CropModuleState) NewPcOrganIdsForCutting(n int32) (monica.YieldComponent_List, error) {
-	l, err := monica.NewYieldComponent_List(s.Struct.Segment(), n)
+// allocated YieldComponent_List, preferring placement in s's segment.
+func (s CropModuleState) NewPcOrganIdsForCutting(n int32) (YieldComponent_List, error) {
+	l, err := NewYieldComponent_List(s.Struct.Segment(), n)
 	if err != nil {
-		return monica.YieldComponent_List{}, err
+		return YieldComponent_List{}, err
 	}
 	err = s.Struct.SetPtr(23, l.List.ToPtr())
 	return l, err
@@ -4520,97 +4519,97 @@ func (s CropModuleState) SetFull240(v bool) {
 	s.Struct.SetBit(7284, v)
 }
 
-func (s CropModuleState) GuentherEmissions() (monica.Voc_Emissions, error) {
+func (s CropModuleState) GuentherEmissions() (Voc_Emissions, error) {
 	p, err := s.Struct.Ptr(43)
-	return monica.Voc_Emissions{Struct: p.Struct()}, err
+	return Voc_Emissions{Struct: p.Struct()}, err
 }
 
 func (s CropModuleState) HasGuentherEmissions() bool {
 	return s.Struct.HasPtr(43)
 }
 
-func (s CropModuleState) SetGuentherEmissions(v monica.Voc_Emissions) error {
+func (s CropModuleState) SetGuentherEmissions(v Voc_Emissions) error {
 	return s.Struct.SetPtr(43, v.Struct.ToPtr())
 }
 
 // NewGuentherEmissions sets the guentherEmissions field to a newly
-// allocated monica.Voc_Emissions struct, preferring placement in s's segment.
-func (s CropModuleState) NewGuentherEmissions() (monica.Voc_Emissions, error) {
-	ss, err := monica.NewVoc_Emissions(s.Struct.Segment())
+// allocated Voc_Emissions struct, preferring placement in s's segment.
+func (s CropModuleState) NewGuentherEmissions() (Voc_Emissions, error) {
+	ss, err := NewVoc_Emissions(s.Struct.Segment())
 	if err != nil {
-		return monica.Voc_Emissions{}, err
+		return Voc_Emissions{}, err
 	}
 	err = s.Struct.SetPtr(43, ss.Struct.ToPtr())
 	return ss, err
 }
 
-func (s CropModuleState) JjvEmissions() (monica.Voc_Emissions, error) {
+func (s CropModuleState) JjvEmissions() (Voc_Emissions, error) {
 	p, err := s.Struct.Ptr(44)
-	return monica.Voc_Emissions{Struct: p.Struct()}, err
+	return Voc_Emissions{Struct: p.Struct()}, err
 }
 
 func (s CropModuleState) HasJjvEmissions() bool {
 	return s.Struct.HasPtr(44)
 }
 
-func (s CropModuleState) SetJjvEmissions(v monica.Voc_Emissions) error {
+func (s CropModuleState) SetJjvEmissions(v Voc_Emissions) error {
 	return s.Struct.SetPtr(44, v.Struct.ToPtr())
 }
 
 // NewJjvEmissions sets the jjvEmissions field to a newly
-// allocated monica.Voc_Emissions struct, preferring placement in s's segment.
-func (s CropModuleState) NewJjvEmissions() (monica.Voc_Emissions, error) {
-	ss, err := monica.NewVoc_Emissions(s.Struct.Segment())
+// allocated Voc_Emissions struct, preferring placement in s's segment.
+func (s CropModuleState) NewJjvEmissions() (Voc_Emissions, error) {
+	ss, err := NewVoc_Emissions(s.Struct.Segment())
 	if err != nil {
-		return monica.Voc_Emissions{}, err
+		return Voc_Emissions{}, err
 	}
 	err = s.Struct.SetPtr(44, ss.Struct.ToPtr())
 	return ss, err
 }
 
-func (s CropModuleState) VocSpecies() (monica.Voc_SpeciesData, error) {
+func (s CropModuleState) VocSpecies() (Voc_SpeciesData, error) {
 	p, err := s.Struct.Ptr(45)
-	return monica.Voc_SpeciesData{Struct: p.Struct()}, err
+	return Voc_SpeciesData{Struct: p.Struct()}, err
 }
 
 func (s CropModuleState) HasVocSpecies() bool {
 	return s.Struct.HasPtr(45)
 }
 
-func (s CropModuleState) SetVocSpecies(v monica.Voc_SpeciesData) error {
+func (s CropModuleState) SetVocSpecies(v Voc_SpeciesData) error {
 	return s.Struct.SetPtr(45, v.Struct.ToPtr())
 }
 
 // NewVocSpecies sets the vocSpecies field to a newly
-// allocated monica.Voc_SpeciesData struct, preferring placement in s's segment.
-func (s CropModuleState) NewVocSpecies() (monica.Voc_SpeciesData, error) {
-	ss, err := monica.NewVoc_SpeciesData(s.Struct.Segment())
+// allocated Voc_SpeciesData struct, preferring placement in s's segment.
+func (s CropModuleState) NewVocSpecies() (Voc_SpeciesData, error) {
+	ss, err := NewVoc_SpeciesData(s.Struct.Segment())
 	if err != nil {
-		return monica.Voc_SpeciesData{}, err
+		return Voc_SpeciesData{}, err
 	}
 	err = s.Struct.SetPtr(45, ss.Struct.ToPtr())
 	return ss, err
 }
 
-func (s CropModuleState) CropPhotosynthesisResults() (monica.Voc_CPData, error) {
+func (s CropModuleState) CropPhotosynthesisResults() (Voc_CPData, error) {
 	p, err := s.Struct.Ptr(46)
-	return monica.Voc_CPData{Struct: p.Struct()}, err
+	return Voc_CPData{Struct: p.Struct()}, err
 }
 
 func (s CropModuleState) HasCropPhotosynthesisResults() bool {
 	return s.Struct.HasPtr(46)
 }
 
-func (s CropModuleState) SetCropPhotosynthesisResults(v monica.Voc_CPData) error {
+func (s CropModuleState) SetCropPhotosynthesisResults(v Voc_CPData) error {
 	return s.Struct.SetPtr(46, v.Struct.ToPtr())
 }
 
 // NewCropPhotosynthesisResults sets the cropPhotosynthesisResults field to a newly
-// allocated monica.Voc_CPData struct, preferring placement in s's segment.
-func (s CropModuleState) NewCropPhotosynthesisResults() (monica.Voc_CPData, error) {
-	ss, err := monica.NewVoc_CPData(s.Struct.Segment())
+// allocated Voc_CPData struct, preferring placement in s's segment.
+func (s CropModuleState) NewCropPhotosynthesisResults() (Voc_CPData, error) {
+	ss, err := NewVoc_CPData(s.Struct.Segment())
 	if err != nil {
-		return monica.Voc_CPData{}, err
+		return Voc_CPData{}, err
 	}
 	err = s.Struct.SetPtr(46, ss.Struct.ToPtr())
 	return ss, err
@@ -4716,32 +4715,32 @@ func (p CropModuleState_Future) Struct() (CropModuleState, error) {
 	return CropModuleState{s}, err
 }
 
-func (p CropModuleState_Future) SpeciesParams() monica.SpeciesParameters_Future {
-	return monica.SpeciesParameters_Future{Future: p.Future.Field(47, nil)}
+func (p CropModuleState_Future) SpeciesParams() SpeciesParameters_Future {
+	return SpeciesParameters_Future{Future: p.Future.Field(47, nil)}
 }
 
-func (p CropModuleState_Future) CultivarParams() monica.CultivarParameters_Future {
-	return monica.CultivarParameters_Future{Future: p.Future.Field(48, nil)}
+func (p CropModuleState_Future) CultivarParams() CultivarParameters_Future {
+	return CultivarParameters_Future{Future: p.Future.Field(48, nil)}
 }
 
-func (p CropModuleState_Future) ResidueParams() monica.CropResidueParameters_Future {
-	return monica.CropResidueParameters_Future{Future: p.Future.Field(49, nil)}
+func (p CropModuleState_Future) ResidueParams() CropResidueParameters_Future {
+	return CropResidueParameters_Future{Future: p.Future.Field(49, nil)}
 }
 
-func (p CropModuleState_Future) GuentherEmissions() monica.Voc_Emissions_Future {
-	return monica.Voc_Emissions_Future{Future: p.Future.Field(43, nil)}
+func (p CropModuleState_Future) GuentherEmissions() Voc_Emissions_Future {
+	return Voc_Emissions_Future{Future: p.Future.Field(43, nil)}
 }
 
-func (p CropModuleState_Future) JjvEmissions() monica.Voc_Emissions_Future {
-	return monica.Voc_Emissions_Future{Future: p.Future.Field(44, nil)}
+func (p CropModuleState_Future) JjvEmissions() Voc_Emissions_Future {
+	return Voc_Emissions_Future{Future: p.Future.Field(44, nil)}
 }
 
-func (p CropModuleState_Future) VocSpecies() monica.Voc_SpeciesData_Future {
-	return monica.Voc_SpeciesData_Future{Future: p.Future.Field(45, nil)}
+func (p CropModuleState_Future) VocSpecies() Voc_SpeciesData_Future {
+	return Voc_SpeciesData_Future{Future: p.Future.Field(45, nil)}
 }
 
-func (p CropModuleState_Future) CropPhotosynthesisResults() monica.Voc_CPData_Future {
-	return monica.Voc_CPData_Future{Future: p.Future.Field(46, nil)}
+func (p CropModuleState_Future) CropPhotosynthesisResults() Voc_CPData_Future {
+	return Voc_CPData_Future{Future: p.Future.Field(46, nil)}
 }
 
 type SnowModuleState struct{ capnp.Struct }
@@ -5131,25 +5130,25 @@ func (s SoilMoistureModuleState) String() string {
 	return str
 }
 
-func (s SoilMoistureModuleState) ModuleParams() (monica.SoilMoistureModuleParameters, error) {
+func (s SoilMoistureModuleState) ModuleParams() (SoilMoistureModuleParameters, error) {
 	p, err := s.Struct.Ptr(2)
-	return monica.SoilMoistureModuleParameters{Struct: p.Struct()}, err
+	return SoilMoistureModuleParameters{Struct: p.Struct()}, err
 }
 
 func (s SoilMoistureModuleState) HasModuleParams() bool {
 	return s.Struct.HasPtr(2)
 }
 
-func (s SoilMoistureModuleState) SetModuleParams(v monica.SoilMoistureModuleParameters) error {
+func (s SoilMoistureModuleState) SetModuleParams(v SoilMoistureModuleParameters) error {
 	return s.Struct.SetPtr(2, v.Struct.ToPtr())
 }
 
 // NewModuleParams sets the moduleParams field to a newly
-// allocated monica.SoilMoistureModuleParameters struct, preferring placement in s's segment.
-func (s SoilMoistureModuleState) NewModuleParams() (monica.SoilMoistureModuleParameters, error) {
-	ss, err := monica.NewSoilMoistureModuleParameters(s.Struct.Segment())
+// allocated SoilMoistureModuleParameters struct, preferring placement in s's segment.
+func (s SoilMoistureModuleState) NewModuleParams() (SoilMoistureModuleParameters, error) {
+	ss, err := NewSoilMoistureModuleParameters(s.Struct.Segment())
 	if err != nil {
-		return monica.SoilMoistureModuleParameters{}, err
+		return SoilMoistureModuleParameters{}, err
 	}
 	err = s.Struct.SetPtr(2, ss.Struct.ToPtr())
 	return ss, err
@@ -6033,8 +6032,8 @@ func (p SoilMoistureModuleState_Future) Struct() (SoilMoistureModuleState, error
 	return SoilMoistureModuleState{s}, err
 }
 
-func (p SoilMoistureModuleState_Future) ModuleParams() monica.SoilMoistureModuleParameters_Future {
-	return monica.SoilMoistureModuleParameters_Future{Future: p.Future.Field(2, nil)}
+func (p SoilMoistureModuleState_Future) ModuleParams() SoilMoistureModuleParameters_Future {
+	return SoilMoistureModuleParameters_Future{Future: p.Future.Field(2, nil)}
 }
 
 func (p SoilMoistureModuleState_Future) SnowComponent() SnowModuleState_Future {
@@ -6070,25 +6069,25 @@ func (s SoilOrganicModuleState) String() string {
 	return str
 }
 
-func (s SoilOrganicModuleState) ModuleParams() (monica.SoilOrganicModuleParameters, error) {
+func (s SoilOrganicModuleState) ModuleParams() (SoilOrganicModuleParameters, error) {
 	p, err := s.Struct.Ptr(0)
-	return monica.SoilOrganicModuleParameters{Struct: p.Struct()}, err
+	return SoilOrganicModuleParameters{Struct: p.Struct()}, err
 }
 
 func (s SoilOrganicModuleState) HasModuleParams() bool {
 	return s.Struct.HasPtr(0)
 }
 
-func (s SoilOrganicModuleState) SetModuleParams(v monica.SoilOrganicModuleParameters) error {
+func (s SoilOrganicModuleState) SetModuleParams(v SoilOrganicModuleParameters) error {
 	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewModuleParams sets the moduleParams field to a newly
-// allocated monica.SoilOrganicModuleParameters struct, preferring placement in s's segment.
-func (s SoilOrganicModuleState) NewModuleParams() (monica.SoilOrganicModuleParameters, error) {
-	ss, err := monica.NewSoilOrganicModuleParameters(s.Struct.Segment())
+// allocated SoilOrganicModuleParameters struct, preferring placement in s's segment.
+func (s SoilOrganicModuleState) NewModuleParams() (SoilOrganicModuleParameters, error) {
+	ss, err := NewSoilOrganicModuleParameters(s.Struct.Segment())
 	if err != nil {
-		return monica.SoilOrganicModuleParameters{}, err
+		return SoilOrganicModuleParameters{}, err
 	}
 	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
 	return ss, err
@@ -6774,8 +6773,8 @@ func (p SoilOrganicModuleState_Future) Struct() (SoilOrganicModuleState, error) 
 	return SoilOrganicModuleState{s}, err
 }
 
-func (p SoilOrganicModuleState_Future) ModuleParams() monica.SoilOrganicModuleParameters_Future {
-	return monica.SoilOrganicModuleParameters_Future{Future: p.Future.Field(0, nil)}
+func (p SoilOrganicModuleState_Future) ModuleParams() SoilOrganicModuleParameters_Future {
+	return SoilOrganicModuleParameters_Future{Future: p.Future.Field(0, nil)}
 }
 
 type SoilTemperatureModuleState struct{ capnp.Struct }
@@ -6859,25 +6858,25 @@ func (s SoilTemperatureModuleState) NewSoilColumnVtBottomLayer() (SoilLayerState
 	return ss, err
 }
 
-func (s SoilTemperatureModuleState) ModuleParams() (monica.SoilTemperatureModuleParameters, error) {
+func (s SoilTemperatureModuleState) ModuleParams() (SoilTemperatureModuleParameters, error) {
 	p, err := s.Struct.Ptr(0)
-	return monica.SoilTemperatureModuleParameters{Struct: p.Struct()}, err
+	return SoilTemperatureModuleParameters{Struct: p.Struct()}, err
 }
 
 func (s SoilTemperatureModuleState) HasModuleParams() bool {
 	return s.Struct.HasPtr(0)
 }
 
-func (s SoilTemperatureModuleState) SetModuleParams(v monica.SoilTemperatureModuleParameters) error {
+func (s SoilTemperatureModuleState) SetModuleParams(v SoilTemperatureModuleParameters) error {
 	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewModuleParams sets the moduleParams field to a newly
-// allocated monica.SoilTemperatureModuleParameters struct, preferring placement in s's segment.
-func (s SoilTemperatureModuleState) NewModuleParams() (monica.SoilTemperatureModuleParameters, error) {
-	ss, err := monica.NewSoilTemperatureModuleParameters(s.Struct.Segment())
+// allocated SoilTemperatureModuleParameters struct, preferring placement in s's segment.
+func (s SoilTemperatureModuleState) NewModuleParams() (SoilTemperatureModuleParameters, error) {
+	ss, err := NewSoilTemperatureModuleParameters(s.Struct.Segment())
 	if err != nil {
-		return monica.SoilTemperatureModuleParameters{}, err
+		return SoilTemperatureModuleParameters{}, err
 	}
 	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
 	return ss, err
@@ -7217,8 +7216,8 @@ func (p SoilTemperatureModuleState_Future) SoilColumnVtBottomLayer() SoilLayerSt
 	return SoilLayerState_Future{Future: p.Future.Field(2, nil)}
 }
 
-func (p SoilTemperatureModuleState_Future) ModuleParams() monica.SoilTemperatureModuleParameters_Future {
-	return monica.SoilTemperatureModuleParameters_Future{Future: p.Future.Field(0, nil)}
+func (p SoilTemperatureModuleState_Future) ModuleParams() SoilTemperatureModuleParameters_Future {
+	return SoilTemperatureModuleParameters_Future{Future: p.Future.Field(0, nil)}
 }
 
 type SoilTransportModuleState struct{ capnp.Struct }
@@ -7246,25 +7245,25 @@ func (s SoilTransportModuleState) String() string {
 	return str
 }
 
-func (s SoilTransportModuleState) ModuleParams() (monica.SoilTransportModuleParameters, error) {
+func (s SoilTransportModuleState) ModuleParams() (SoilTransportModuleParameters, error) {
 	p, err := s.Struct.Ptr(0)
-	return monica.SoilTransportModuleParameters{Struct: p.Struct()}, err
+	return SoilTransportModuleParameters{Struct: p.Struct()}, err
 }
 
 func (s SoilTransportModuleState) HasModuleParams() bool {
 	return s.Struct.HasPtr(0)
 }
 
-func (s SoilTransportModuleState) SetModuleParams(v monica.SoilTransportModuleParameters) error {
+func (s SoilTransportModuleState) SetModuleParams(v SoilTransportModuleParameters) error {
 	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewModuleParams sets the moduleParams field to a newly
-// allocated monica.SoilTransportModuleParameters struct, preferring placement in s's segment.
-func (s SoilTransportModuleState) NewModuleParams() (monica.SoilTransportModuleParameters, error) {
-	ss, err := monica.NewSoilTransportModuleParameters(s.Struct.Segment())
+// allocated SoilTransportModuleParameters struct, preferring placement in s's segment.
+func (s SoilTransportModuleState) NewModuleParams() (SoilTransportModuleParameters, error) {
+	ss, err := NewSoilTransportModuleParameters(s.Struct.Segment())
 	if err != nil {
-		return monica.SoilTransportModuleParameters{}, err
+		return SoilTransportModuleParameters{}, err
 	}
 	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
 	return ss, err
@@ -7612,8 +7611,8 @@ func (p SoilTransportModuleState_Future) Struct() (SoilTransportModuleState, err
 	return SoilTransportModuleState{s}, err
 }
 
-func (p SoilTransportModuleState_Future) ModuleParams() monica.SoilTransportModuleParameters_Future {
-	return monica.SoilTransportModuleParameters_Future{Future: p.Future.Field(0, nil)}
+func (p SoilTransportModuleState_Future) ModuleParams() SoilTransportModuleParameters_Future {
+	return SoilTransportModuleParameters_Future{Future: p.Future.Field(0, nil)}
 }
 
 const schema_86ea47c297746539 = "x\xda\x9c\xbd\x7f\x9c\x14\xd5\x95\xf7\x7fOU\x0f=3" +

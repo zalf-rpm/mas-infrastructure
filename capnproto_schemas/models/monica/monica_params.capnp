@@ -5,7 +5,7 @@ $Cxx.namespace("mas::models::monica");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("monica");
-$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/models/monica");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/models/monica");
 
 using Date = import "../../date.capnp".Date;
 using Mgmt = import "../../management.capnp";
