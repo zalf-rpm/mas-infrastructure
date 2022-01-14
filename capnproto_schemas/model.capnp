@@ -4,8 +4,8 @@ using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("mas::rpc::model");
 
 using Go = import "/capnp/go.capnp";
-$Go.package("model");
-$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/model");
+$Go.package("models");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/models");
 
 using Common = import "common.capnp";
 using Geo = import "geo_coord.capnp";

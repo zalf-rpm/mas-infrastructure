@@ -5,7 +5,7 @@ $Cxx.namespace("mas::rpc::climate");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("climate");
-$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/climate");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/climate");
 
 using Persistent = import "/capnp/persistent.capnp".Persistent;
 using Restorer = import "persistence.capnp".Restorer;

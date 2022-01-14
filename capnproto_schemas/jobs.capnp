@@ -5,7 +5,7 @@ $Cxx.namespace("mas::rpc::jobs");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("jobs");
-$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/jobs");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/jobs");
 
 using LatLngCoord = import "geo_coord.capnp".LatLonCoord;
 

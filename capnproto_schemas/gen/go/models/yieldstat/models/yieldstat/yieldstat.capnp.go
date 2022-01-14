@@ -6,7 +6,7 @@ import (
 	capnp "capnproto.org/go/capnp/v3"
 	text "capnproto.org/go/capnp/v3/encoding/text"
 	schemas "capnproto.org/go/capnp/v3/schemas"
-	crop "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/crop"
+	crop "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/crop"
 	math "math"
 )
 

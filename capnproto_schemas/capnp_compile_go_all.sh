@@ -1,27 +1,27 @@
 #/bin/sh
 
-capnp compile -I. -ogo capnp/persistent.capnp
+capnp compile -I. -ogo:./gen/go/persistence capnp/persistent.capnp
 
-capnp compile -I. -ogo climate_data.capnp
-capnp compile -I. -ogo cluster_admin_service.capnp
-capnp compile -I. -ogo common.capnp
-capnp compile -I. -ogo crop.capnp
-capnp compile -I. -ogo date.capnp
-#capnp compile -I. -ogo fbp.capnp
-#capnp compile -I. -ogo frontend.capnp
-capnp compile -I. -ogo geo_coord.capnp
-capnp compile -I. -ogo grid.capnp
-capnp compile -I. -ogo jobs.capnp
-capnp compile -I. -ogo management.capnp
-capnp compile -I. -ogo model.capnp
-capnp compile -I. -ogo persistence.capnp
-capnp compile -I. -ogo registry.capnp
-capnp compile -I. -ogo soil_data.capnp
-#capnp compile -I. -ogo vr.capnp
-#capnp compile -I. -ogo web-berest-data-import.capnp
+capnp compile -I. -ogo:./gen/go/climate climate_data.capnp
+capnp compile -I. -ogo:./gen/go/cluster cluster_admin_service.capnp
+capnp compile -I. -ogo:./gen/go/common common.capnp
+capnp compile -I. -ogo:./gen/go/crop crop.capnp
+capnp compile -I. -ogo:./gen/go/common date.capnp
+capnp compile -I. -ogo:./gen/go/fbp fbp.capnp
+capnp compile -I. -ogo:./gen/go/frontend frontend.capnp
+capnp compile -I. -ogo:./gen/go/geo geo_coord.capnp
+capnp compile -I. -ogo:./gen/go/grid grid.capnp
+capnp compile -I. -ogo:./gen/go/jobs jobs.capnp
+capnp compile -I. -ogo:./gen/go/management management.capnp
+capnp compile -I. -ogo:./gen/go/models model.capnp
+capnp compile -I. -ogo:./gen/go/persistence persistence.capnp
+capnp compile -I. -ogo:./gen/go/registry registry.capnp
+capnp compile -I. -ogo:./gen/go/soil soil_data.capnp
+capnp compile -I. -ogo:./gen/go/vr vr.capnp
 
-capnp compile -I. -ogo models/yieldstat/yieldstat.capnp
-capnp compile -I. -ogo models/monica/monica_params.capnp
-capnp compile -I. -ogo models/monica/monica_state.capnp
-capnp compile -I. -ogo models/monica/soil_params.capnp
+capnp compile -I. -ogo:./gen/go/models/weberest models/weberest/web-berest-data-import.capnp
+capnp compile -I. -ogo:./gen/go/models/yieldstat models/yieldstat/yieldstat.capnp
+capnp compile -I. -ogo:./gen/go/models/monica models/monica/monica_params.capnp
+capnp compile -I. -ogo:./gen/go/models/monica models/monica/monica_state.capnp
+capnp compile -I. -ogo:./gen/go/models/monica models/monica/soil_params.capnp
 

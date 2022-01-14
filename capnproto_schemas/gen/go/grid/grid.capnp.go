@@ -8,8 +8,8 @@ import (
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
-	common "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/common"
-	geo "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/geo"
+	common "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/common"
+	geo "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/geo"
 	math "math"
 	strconv "strconv"
 )

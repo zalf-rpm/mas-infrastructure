@@ -8,10 +8,9 @@ import (
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
-	capnp2 "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/capnp"
-	common "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/common"
-	geo "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/geo"
-	persistence "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/persistence"
+	common "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/common"
+	geo "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/geo"
+	persistence "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/persistence"
 	math "math"
 	strconv "strconv"
 )
@@ -815,7 +814,7 @@ func (c Service) Info(ctx context.Context, params func(common.Identifiable_info_
 	ans, release := c.Client.SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
 }
-func (c Service) Save(ctx context.Context, params func(capnp2.Persistent_SaveParams) error) (capnp2.Persistent_SaveResults_Future, capnp.ReleaseFunc) {
+func (c Service) Save(ctx context.Context, params func(persistence.Persistent_SaveParams) error) (persistence.Persistent_SaveResults_Future, capnp.ReleaseFunc) {
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xc8cb212fcd9f5691,
@@ -826,10 +825,10 @@ func (c Service) Save(ctx context.Context, params func(capnp2.Persistent_SavePar
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(capnp2.Persistent_SaveParams{Struct: s}) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams{Struct: s}) }
 	}
 	ans, release := c.Client.SendCall(ctx, s)
-	return capnp2.Persistent_SaveResults_Future{Future: ans.Future()}, release
+	return persistence.Persistent_SaveResults_Future{Future: ans.Future()}, release
 }
 func (c Service) Restore(ctx context.Context, params func(persistence.Restorer_restore_Params) error) (persistence.Restorer_restore_Results_Future, capnp.ReleaseFunc) {
 	s := capnp.Send{
@@ -884,7 +883,7 @@ type Service_Server interface {
 
 	Info(context.Context, common.Identifiable_info) error
 
-	Save(context.Context, capnp2.Persistent_save) error
+	Save(context.Context, persistence.Persistent_save) error
 
 	Restore(context.Context, persistence.Restorer_restore) error
 
@@ -966,7 +965,7 @@ func Service_Methods(methods []server.Method, s Service_Server) []server.Method 
 			MethodName:    "save",
 		},
 		Impl: func(ctx context.Context, call *server.Call) error {
-			return s.Save(ctx, capnp2.Persistent_save{call})
+			return s.Save(ctx, persistence.Persistent_save{call})
 		},
 	})
 

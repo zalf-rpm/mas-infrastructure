@@ -6,9 +6,9 @@ import (
 	capnp "capnproto.org/go/capnp/v3"
 	text "capnproto.org/go/capnp/v3/encoding/text"
 	schemas "capnproto.org/go/capnp/v3/schemas"
-	climate "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/climate"
-	common "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/common"
-	management "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/management"
+	climate "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/climate"
+	common "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/common"
+	management "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/management"
 	math "math"
 )
 

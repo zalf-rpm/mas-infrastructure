@@ -5,7 +5,7 @@ $Cxx.namespace("mas::rpc::grid");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("grid");
-$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/grid");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/grid");
 
 using Common = import "common.capnp";
 using Geo = import "geo_coord.capnp";

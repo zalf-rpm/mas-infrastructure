@@ -5,7 +5,7 @@ $Cxx.namespace("mas::rpc");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("cluster");
-$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/cluster");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/cluster");
 
 using Common = import "common.capnp";
 using Model = import "model.capnp";

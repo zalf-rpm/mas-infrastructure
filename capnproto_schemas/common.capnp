@@ -7,7 +7,7 @@ $Cxx.namespace("mas::rpc::common");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("common");
-$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/common");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/common");
 
 struct IdInformation {
   id @0 :Text; # could be a UUID4

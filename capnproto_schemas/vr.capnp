@@ -2,11 +2,12 @@
 
 using Go = import "/capnp/go.capnp";
 $Go.package("vr");
-$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/vr");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/vr");
 
 using Common = import "common.capnp";
 #using Date = import "date.capnp".Date;
 using Geo = import "geo_coord.capnp";
+using Registry = import "registry.capnp";
 
 struct RT {
 
@@ -91,23 +92,23 @@ struct RT {
     }
 
 
-    interface VR extends(Region, Common.Registry) {
+    interface VR extends(Region, Registry.Registry) {
         # capability to a VR 
         
         params @0 () -> VRParams;
         # get the parameters used to create this VR
 
-        registerCoordMapping @4 (coordType :Geo.CoordType, func :Cell2Coord2Cell) -> (unregister :Common.Registry.Unregister);
+        registerCoordMapping @4 (coordType :Geo.CoordType, func :Cell2Coord2Cell) -> (unregister :Common.Callback);
         # register mapping functions
 
-        registerDataService @1 (id :Text, data :DataService) -> (unregister :Common.Registry.Unregister);
+        registerDataService @1 (id :Text, data :DataService) -> (unregister :Common.Callback);
         # a VR needs data and models to be registered, so they can be accessed
         # by users which hold a reference to the VR
 
-        registerModel @2 (model :Model) -> (unregister :Common.Registry.Unregister);
+        registerModel @2 (model :Model) -> (unregister :Common.Callback);
         # register a model to use with this VR
 
-        createSubRegion @3 RegionParams -> (unregister :Common.Registry.Unregister);
+        createSubRegion @3 RegionParams -> (unregister :Common.Callback);
         # create a (sub-)region in this VR with the given parameters
 
 

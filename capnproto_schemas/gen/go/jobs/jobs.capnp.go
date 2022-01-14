@@ -8,7 +8,7 @@ import (
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
-	geo "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/geo"
+	geo "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/geo"
 )
 
 type Job struct{ capnp.Struct }
