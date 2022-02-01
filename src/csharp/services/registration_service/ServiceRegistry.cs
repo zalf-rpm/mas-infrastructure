@@ -119,7 +119,7 @@ namespace Mas.Infrastructure.ServiceRegistry
             return Task.FromResult(_CatId2SupportedCategories.GetValueOrDefault(categoryId));
         }
 
-        public Task<IReadOnlyList<Registry.Entry>> Entries(string categoryId, bool forceRefInfos, CancellationToken cancellationToken_ = default)
+        public Task<IReadOnlyList<Registry.Entry>> Entries(string categoryId, CancellationToken cancellationToken_ = default)
         {
             var entries = new List<Registry.Entry>();
             if (categoryId != null)
@@ -308,11 +308,11 @@ namespace Mas.Infrastructure.ServiceRegistry
             #endregion
         }
 
-        public class RegistratorImpl : Rpc.Registry.IRegistrator
+        public class RegistrarImpl : Rpc.Registry.IRegistrar<string>
         {
             private ServiceRegistry _Registry;
 
-            public RegistratorImpl(ServiceRegistry reg)
+            public RegistrarImpl(ServiceRegistry reg)
             {
                 _Registry = reg;
             }
@@ -322,11 +322,11 @@ namespace Mas.Infrastructure.ServiceRegistry
                 Console.WriteLine("RegistratorImpl.Dispose");
             }
 
-            #region implementation of Mas.Rpc.Registry.IRegistrator
-            public async Task<Rpc.Common.ICallback> Register(Rpc.Common.IIdentifiable @ref, string categoryId, CancellationToken cancellationToken_ = default)
+            #region implementation of Mas.Rpc.Registry.IRegistrar
+            public async Task<(Rpc.Common.ICallback, string)> Register(Rpc.Common.IIdentifiable @ref, string regName, string categoryId, CancellationToken cancellationToken_ = default)
             {
-                if (categoryId == null)
-                    return null;
+                if (categoryId == null || regName == null)
+                    return (null, null);
 
                 if (_Registry._CatId2SupportedCategories.ContainsKey(categoryId))
                 {
@@ -348,19 +348,20 @@ namespace Mas.Infrastructure.ServiceRegistry
                             Entry = new Registry.Entry()
                             {
                                 CategoryId = categoryId,
-                                Ref = persistentRef
+                                Ref = persistentRef,
+                                Name = regName,
                             },
                             Unreg = unreg,
                             SturdyRef = sturdyRef
                         };
-                        return unreg;
+                        return (unreg, null);
                     }
                     catch (Capnp.Rpc.RpcException e)
                     {
                         Console.Error.WriteLine(e.Message);
                     }
                 }
-                return null;
+                return (null, null);
             }
             #endregion
         }

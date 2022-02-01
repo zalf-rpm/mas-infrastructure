@@ -124,6 +124,8 @@ interface ExternalPersistent(Token) {
   # create a sturdy ref for the given capability and parameters
   # return the original SaveResults object and an unregister callback
 
+  #saveSR @1 (sturdyRef :SturdyRef, params :Persistent(Token, SturdyRef.Owner).SaveParams) -> ExternalSaveResults;
+
   struct ExternalSaveResults {
     results @0 :Persistent(Token, SturdyRef.Owner).SaveResults;
     unreg @1 :Common.Callback;
