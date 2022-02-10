@@ -2,6 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
+    <PackageId>Zalf.Mas.CapnpSchemas</PackageId>
+    <Version>0.0.1</Version>
+    <PackageTags>Capnproto;ZALF;MAS;Schemas</PackageTags>
+    <Description>ZALF MAS Cap'n Proto schemas</Description>
   </PropertyGroup>
 
   <ItemGroup>

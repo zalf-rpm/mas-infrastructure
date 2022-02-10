@@ -2,24 +2,15 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup>
     <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
-    
+  
   <ItemGroup>
-    <CapnpCsharpObsoleteCodeBehindFiles Remove="climate_data.capnp.cs" />
-    <CapnpCsharpObsoleteCodeBehindFiles Remove="cluster_admin_service.capnp.cs" />
-    <CapnpCsharpObsoleteCodeBehindFiles Remove="common.capnp.cs" />
-    <CapnpCsharpObsoleteCodeBehindFiles Remove="date.capnp.cs" />
-    <CapnpCsharpObsoleteCodeBehindFiles Remove="geo_coord.capnp.cs" />
-    <CapnpCsharpObsoleteCodeBehindFiles Remove="model.capnp.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\..\capnproto_schemas\capnproto_schemas_csharp.csproj" />
+    <ProjectReference Include="..\..\..\..\capnproto_schemas\gen\csharp\capnproto_schemas_csharp.csproj" />
     <ProjectReference Include="..\..\common\common.csproj" />
   </ItemGroup>
   
