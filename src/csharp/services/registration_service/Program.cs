@@ -4,6 +4,7 @@ using Capnp.Rpc.Interception;
 using System.Net;
 using Mas.Infrastructure;
 using System.Text.Json;
+using Mas;
 
 namespace Mas.Infrastructure.ServiceRegistry
 {
@@ -63,8 +64,8 @@ namespace Mas.Infrastructure.ServiceRegistry
             foreach (var cat in bootstrap.Categories) Console.WriteLine(cat.Id);
             
             conMan.Bind(IPAddress.Any, tcpPort, bootstrap);
-            var registrator = new ServiceRegistry.RegistrarImpl(bootstrap);
-            var regSturdyRef = bootstrap.SaveCapability(BareProxy.FromImpl(registrator));//, "abcd");
+            var registrar = new ServiceRegistry.RegistrarImpl(bootstrap);
+            var regSturdyRef = bootstrap.SaveCapability(BareProxy.FromImpl(registrar));//, "abcd");
             Console.WriteLine($"SturdyRef to Registrator interface: [{regSturdyRef}]");
             var admin = new ServiceRegistry.AdminImpl(bootstrap);
             var adminSturdyRef = bootstrap.SaveCapability(BareProxy.FromImpl(admin));
