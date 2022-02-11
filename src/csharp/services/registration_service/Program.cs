@@ -63,7 +63,7 @@ namespace Mas.Infrastructure.ServiceRegistry
             foreach (var cat in bootstrap.Categories) Console.WriteLine(cat.Id);
             
             conMan.Bind(IPAddress.Any, tcpPort, bootstrap);
-            var registrator = new ServiceRegistry.RegistratorImpl(bootstrap);
+            var registrator = new ServiceRegistry.RegistrarImpl(bootstrap);
             var regSturdyRef = bootstrap.SaveCapability(BareProxy.FromImpl(registrator));//, "abcd");
             Console.WriteLine($"SturdyRef to Registrator interface: [{regSturdyRef}]");
             var admin = new ServiceRegistry.AdminImpl(bootstrap);

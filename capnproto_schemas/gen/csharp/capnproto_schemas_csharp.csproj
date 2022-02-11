@@ -7,10 +7,9 @@
     <PackageTags>Capnproto;ZALF;MAS;Schemas</PackageTags>
     <Description>ZALF MAS Cap'n Proto schemas</Description>
   </PropertyGroup>
-
+  
   <ItemGroup>
-    <PackageReference Include="Capnp.Net.Runtime" Version="1.3.118" />
-    <PackageReference Include="CapnpC.CSharp.MsBuild.Generation" Version="1.3.118" />
+    <PackageReference Include="Capnp.Net.Runtime" Version="1.3.134" />
   </ItemGroup>
 
 </Project>

@@ -1,10 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29215.179
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32126.317
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "capnproto_schemas_csharp", "..\..\capnproto_schemas\capnproto_schemas_csharp.csproj", "{6CB664DE-0406-49F1-A2F8-B3F22E495601}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "registration_service", "services\registration_service\registration_service.csproj", "{96F9A766-D1D4-4294-88D3-8C6C3CDA58ED}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "common", "common\common.csproj", "{CEB9D2AC-A284-42A0-A4A5-7C3ADF652780}"
@@ -23,7 +21,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MonicaBlazorCapnpUI", "MonicaBlazorCapnpUI\MonicaBlazorCapnpUI.csproj", "{3D03FC15-580F-4B30-85A2-29B7B8B53199}"
 	ProjectSection(ProjectDependencies) = postProject
 		{CEB9D2AC-A284-42A0-A4A5-7C3ADF652780} = {CEB9D2AC-A284-42A0-A4A5-7C3ADF652780}
-		{6CB664DE-0406-49F1-A2F8-B3F22E495601} = {6CB664DE-0406-49F1-A2F8-B3F22E495601}
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorComponents", "BlazorComponents\BlazorComponents.csproj", "{5A41EBDC-208D-465D-8935-B80F0FCEA719}"
@@ -33,16 +30,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test", "Test\Test.csproj", 
 		{CEB9D2AC-A284-42A0-A4A5-7C3ADF652780} = {CEB9D2AC-A284-42A0-A4A5-7C3ADF652780}
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "capnproto_schemas_csharp", "..\..\capnproto_schemas\gen\csharp\capnproto_schemas_csharp.csproj", "{9B19F700-EF79-4424-B482-BB0837420EA1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{6CB664DE-0406-49F1-A2F8-B3F22E495601}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6CB664DE-0406-49F1-A2F8-B3F22E495601}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6CB664DE-0406-49F1-A2F8-B3F22E495601}.Release|Any CPU.ActiveCfg = Debug|Any CPU
-		{6CB664DE-0406-49F1-A2F8-B3F22E495601}.Release|Any CPU.Build.0 = Debug|Any CPU
 		{96F9A766-D1D4-4294-88D3-8C6C3CDA58ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{96F9A766-D1D4-4294-88D3-8C6C3CDA58ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{96F9A766-D1D4-4294-88D3-8C6C3CDA58ED}.Release|Any CPU.ActiveCfg = Debug|Any CPU
@@ -79,6 +74,10 @@ Global
 		{7D350AA9-F199-4851-8AD5-8C171F378107}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7D350AA9-F199-4851-8AD5-8C171F378107}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7D350AA9-F199-4851-8AD5-8C171F378107}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B19F700-EF79-4424-B482-BB0837420EA1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B19F700-EF79-4424-B482-BB0837420EA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B19F700-EF79-4424-B482-BB0837420EA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B19F700-EF79-4424-B482-BB0837420EA1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
