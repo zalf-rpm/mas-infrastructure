@@ -55,8 +55,6 @@ interface Registry extends(Common.Identifiable) {
   entries @2 (categoryId :Text) -> (entries :List(Entry));
   # return the entries registered under the given category
   # given a NULL category id, maybe return all entries
-  # forceRefInfos = true will mandatorily include refInfo = ref->info()
-  # else it is optional, but might still be included
 }
 
 

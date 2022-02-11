@@ -26,7 +26,7 @@
             <MudSelect @bind-Value=Params.Sowing.Crop Label="Crop-Service Cultivar">
                 @foreach (var entry in allCultivarEntries)
                     {
-                    <MudSelectItem Value=@entry.Ref>@entry.RefInfo.Name</MudSelectItem>
+                    <MudSelectItem Value=@entry.Ref>@entry.Name</MudSelectItem>
                     }
             </MudSelect>
         }
@@ -132,8 +132,8 @@
     {
         if (CropRegistryServiceCap == null) return;
 
-        var entries = await CropRegistryServiceCap.Entries(null, true);
-        allCultivarEntries = entries.OrderBy(e => $"{e.CategoryId}_{e.RefInfo.Name}");
+        var entries = await CropRegistryServiceCap.Entries(null);
+        allCultivarEntries = entries.OrderBy(e => $"{e.CategoryId}_{e.Name}");
     }
 
     void IDisposable.Dispose()
