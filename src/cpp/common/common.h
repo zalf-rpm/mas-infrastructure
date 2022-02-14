@@ -50,7 +50,7 @@ private:
 
 //-----------------------------------------------------------------------------
 
-class CapHolderImpl final : public mas::rpc::common::PersistCapHolder<capnp::AnyPointer>::Server {
+class CapHolderImpl final : public mas::rpc::common::CapHolder<capnp::AnyPointer>::Server {
 public:
   CapHolderImpl(capnp::Capability::Client cap,
                 kj::String sturdyRef,
@@ -63,7 +63,7 @@ public:
 
   kj::Promise<void> release(ReleaseContext context) override;
 
-  kj::Promise<void> save(SaveContext context) override;
+  //kj::Promise<void> save(SaveContext context) override;
 
 private:
   std::string id{ "-" };
@@ -75,7 +75,7 @@ private:
 
 //-----------------------------------------------------------------------------
 
-class CapHolderListImpl final : public mas::rpc::common::PersistCapHolder<capnp::AnyPointer>::Server {
+class CapHolderListImpl final : public mas::rpc::common::CapHolder<capnp::AnyPointer>::Server {
 public:
   CapHolderListImpl(kj::Vector<capnp::Capability::Client>&& caps,
                     kj::String sturdyRef,
@@ -88,7 +88,7 @@ public:
 
   kj::Promise<void> release(ReleaseContext context) override;
 
-  kj::Promise<void> save(SaveContext context) override;
+  //kj::Promise<void> save(SaveContext context) override;
 
 private:
   std::string id{ "[-]" };

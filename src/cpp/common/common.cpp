@@ -101,10 +101,10 @@ kj::Promise<void> CapHolderImpl::release(ReleaseContext context) {
   return kj::READY_NOW;
 }
 
-kj::Promise<void> CapHolderImpl::save(SaveContext context) {
-  context.getResults().setSturdyRef(sturdyRef);
-  return kj::READY_NOW;
-}
+//kj::Promise<void> CapHolderImpl::save(SaveContext context) {
+//  context.getResults().setSturdyRef(sturdyRef);
+//  return kj::READY_NOW;
+//}
 
 //-----------------------------------------------------------------------------
 
@@ -150,8 +150,8 @@ kj::Promise<void> CapHolderListImpl::release(ReleaseContext context) {
   return kj::READY_NOW;
 }
 
-kj::Promise<void> CapHolderListImpl::save(SaveContext context) {
-  context.getResults().setSturdyRef(sturdyRef);
-  return kj::READY_NOW;
-}
+//kj::Promise<void> CapHolderListImpl::save(SaveContext context) {
+//  context.getResults().setSturdyRef(sturdyRef);
+//  return kj::READY_NOW;
+//}
 
