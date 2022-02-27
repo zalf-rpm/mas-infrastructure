@@ -42,33 +42,46 @@ class ConnectionManager:
     def __init__(self):
         self._connections = {}
 
+
     def connect(self, sturdy_ref, cast_as = None):
 
         # we assume that a sturdy ref url looks always like capnp://hash-digest-or-insecure@host:port/sturdy-ref-token
-        try:
-            if sturdy_ref[:8] == "capnp://":
-                rest = sturdy_ref[8:]
-                hash_digest, rest = rest.split("@") if "@" in rest else (None, rest)
-                host, rest = rest.split(":")
-                port, sr_token = rest.split("/") if "/" in rest else (rest, None)
+        if sturdy_ref[:8] == "capnp://":
+            rest = sturdy_ref[8:]
+            hash_digest, rest = rest.split("@") if "@" in rest else (None, rest)
+            host, rest = rest.split(":")
+            port, sr_token = rest.split("/") if "/" in rest else (rest, None)
 
-                host_port = "{}:{}".format(host, port)
-                if host_port in self._connections:
-                    bootstrap_cap = self._connections[host_port]
-                else:
-                    bootstrap_cap = capnp.TwoPartyClient(host_port).bootstrap()
-                    self._connections[host_port] = bootstrap_cap
+            host_port = "{}:{}".format(host, port)
+            if host_port in self._connections:
+                bootstrap_cap = self._connections[host_port]
+            else:
+                bootstrap_cap = capnp.TwoPartyClient(host_port).bootstrap()
+                self._connections[host_port] = bootstrap_cap
 
-                if sr_token:
-                    restorer = bootstrap_cap.cast_as(persistence_capnp.Restorer)
-                    dyn_obj_reader = restorer.restore(sr_token).wait().cap
-                    return dyn_obj_reader.as_interface(cast_as) if cast_as else dyn_obj_reader
-                else:
-                    return bootstrap_cap.cast_as(cast_as) if cast_as else bootstrap_cap
+            if sr_token:
+                restorer = bootstrap_cap.cast_as(persistence_capnp.Restorer)
+                dyn_obj_reader = restorer.restore(sr_token).wait().cap
+                return dyn_obj_reader.as_interface(cast_as) if cast_as else dyn_obj_reader
+            else:
+                return bootstrap_cap.cast_as(cast_as) if cast_as else bootstrap_cap
 
-        except Exception as e:
-            print(e)
-            return None
+
+    def try_connect(self, sturdy_ref, cast_as = None, retry_count=10, retry_secs=5, print_retry_msgs=True):
+        while True:
+            try:
+                return self.connect(sturdy_ref, cast_as=cast_as)
+            except Exception as e:
+                print(e)
+                if retry_count == 0:
+                    if print_retry_msgs:
+                        print("Couldn't connect to sturdy_ref at {}!".format(sturdy_ref))
+                    return None
+                retry_count -= 1
+                if print_retry_msgs:
+                    print("Trying to connect to {} again in {} secs!".format(sturdy_ref, retry_secs))
+                time.sleep(retry_secs)
+                retry_secs += 1
 
 #------------------------------------------------------------------------------
 
@@ -91,6 +104,27 @@ class CallbackImpl(common_capnp.Callback.Server):
         self._already_called = True
 
 #------------------------------------------------------------------------------
+
+# interface Action
+class Action(common_capnp.Action.Server):
+
+    def __init__(self, action, *args, exec_action_on_del=False, **kwargs):
+        self._args = args
+        self._kwargs = kwargs
+        self._action = action
+        self._already_executed = False
+        self._exec_action_on_del = exec_action_on_del
+
+    def __del__(self):
+        if self._exec_action_on_del and not self._already_executed:
+            self._action(*self._args, **self._kwargs)
+
+    def do_context(self, context): # do @0 () -> ();
+        self._action(*self._args, **self._kwargs)
+        self._already_executed = True
+
+#------------------------------------------------------------------------------
+
 
 # interface CapHolder(Object)
 class CapHolderImpl(common_capnp.CapHolder.Server):
@@ -115,6 +149,7 @@ class CapHolderImpl(common_capnp.CapHolder.Server):
 #------------------------------------------------------------------------------
 
 # interface PersistCapHolder(Object) extends(CapHolder(Object), Persistent.Persistent(Text, Text)) {
+"""
 class PersistCapHolderImpl(common_capnp.PersistCapHolder.Server):
 
     def __init__(self, cap, sturdy_ref, cleanup_func, cleanup_on_del=False):
@@ -137,6 +172,7 @@ class PersistCapHolderImpl(common_capnp.PersistCapHolder.Server):
 
     def save_context(self, context): # save @0 SaveParams -> SaveResults;
         context.results.sturdyRef = self._sturdy_ref
+"""
 
 #------------------------------------------------------------------------------
 

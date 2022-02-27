@@ -1,13 +1,13 @@
 @0x99f1c9a775a88ac9;
 
-using Persistent = import "/capnp/persistent.capnp".Persistent;
-
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("mas::rpc::common");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("common");
 $Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/common");
+
+using Persistent = import "persistence.capnp".Persistent;
 
 struct IdInformation {
   id @0 :Text; # could be a UUID4
@@ -56,6 +56,21 @@ interface Callback {
 }
 
 
+interface Action extends(Persistent) {
+  # interface to an arbitrary unparameterised action object
+
+  do @0 () -> ();
+  # execute the action represented by this object
+}
+
+
+interface Factory(Input, Output) {
+  # minimal interface to produce some output from input
+
+  produce @0 (in :Input) -> (out :Output);
+}
+
+
 struct ZmqPipelineAddresses {
   input @0 :Text;
   output @1 :Text;
@@ -73,7 +88,7 @@ interface CapHolder(Object) {
   # release capability on server side (signaling that capability cap isn't needed anymore)
 }
 
-#interface PersistCapHolder(Object) extends(CapHolder(Object), Persistent(Text, Text)) {
+#interface PersistCapHolder(Object) extends(CapHolder(Object), Persistent) {
   # persistent CapHolder which allows to get a token to recreate the CapHolder later
 #}
 

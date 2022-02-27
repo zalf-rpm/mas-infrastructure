@@ -30,17 +30,25 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-import common.capnp_async_helpers as async_helpers
+PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
+abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 
-abs_imports = ["capnproto_schemas"]
-reg_capnp = capnp.load("capnproto_schemas/registry.capnp", imports=abs_imports)
-soil_data_capnp = capnp.load("capnproto_schemas/soil_data.capnp", imports=abs_imports)
-registry_capnp = capnp.load("capnproto_schemas/registry.capnp", imports=abs_imports)
-persistence_capnp = capnp.load("capnproto_schemas/persistence.capnp", imports=abs_imports)
-model_capnp = capnp.load("capnproto_schemas/model.capnp", imports=abs_imports)
-yieldstat_capnp = capnp.load("capnproto_schemas/models/yieldstat.capnp", imports=abs_imports)
-climate_data_capnp = capnp.load("capnproto_schemas/climate_data.capnp", imports=abs_imports)
-mgmt_capnp = capnp.load("capnproto_schemas/management.capnp", imports=abs_imports)
+import common.capnp_async_helpers as async_helpers
+import common.common as common
+import services.climate.csv_file_based as csv_based
+
+reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
+soil_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "soil_data.capnp"), imports=abs_imports)
+registry_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
+persistence_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "persistence.capnp"), imports=abs_imports)
+model_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "model.capnp"), imports=abs_imports)
+yieldstat_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "models" / "yieldstat" / "yieldstat.capnp"), imports=abs_imports)
+climate_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate_data.capnp"), imports=abs_imports)
+mgmt_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "management.capnp"), imports=abs_imports)
+service_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "service.capnp"), imports=abs_imports)
+common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
+csv_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "csv.capnp"), imports=abs_imports)
+
 
 #------------------------------------------------------------------------------
 
@@ -94,7 +102,12 @@ async def async_main():
 
 
 
-
+def x():
+    s = capnp.TwoPartyServer("*:11002", bootstrap=csv_based.TimeSeries.from_csv_file("data/climate/climate-iso.csv", header_map={}, pandas_csv_config={}))
+    s.run_forever()
+    s._decref()
+    
+    #del s
 
 def main():
     config = {
@@ -108,11 +121,38 @@ def main():
             if k in config:
                 config[k] = v
 
+    conMan = common.ConnectionManager()
+    #restorer = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000", cast_as=persistence_capnp.Restorer)
+    service = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/cf478c42-9a5c-403e-8377-03445494bfac", cast_as=climate_data_capnp.CSVTimeSeriesFactory)
 
-    csv_timeseries_cap = capnp.TwoPartyClient("localhost:11002").bootstrap().cast_as(climate_data_capnp.TimeSeries)
-    header = csv_timeseries_cap.header().wait().header
-    print(header)
+    try:
+        print(service.info().wait())
+    except Exception as e:
+        print(e)
 
+    #unsave = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/49ec71b8-a525-4c38-b137-58e1eafc0c1c", cast_as=common_capnp.Action)
+    #unsave.do().wait()
+
+    with open("../../data/climate/climate-iso.csv", "r") as _:
+        csv_data = _.read()
+
+    res = service.create(csvData=csv_data, config={}).wait()
+
+
+    #s = capnp.TwoPartyServer("*:11002", bootstrap=csv_based.TimeSeries.from_csv_file("data/climate/climate-iso.csv", header_map={}, pandas_csv_config={}))
+    #s.run_forever()
+    #del s
+    #x()
+
+
+    for i in range(1):
+        csv_timeseries_cap = capnp.TwoPartyClient("localhost:11002").bootstrap().cast_as(climate_data_capnp.TimeSeries)
+        header = csv_timeseries_cap.header().wait().header
+        data = csv_timeseries_cap.data().wait().data
+        print("i:", i, "header:", header)
+
+
+    """
     admin = connect("capnp://insecure@nb-berg-9550:10001/320a351d-c6cb-400a-92e0-4647d33cfedb", registry_capnp.Admin)
     success = admin.addCategory({"id": "models", "name": "models"}).wait().success
 
@@ -129,6 +169,8 @@ def main():
         }
     ).wait().profiles
     print(profiles)
+
+    """
 
     #profiles = soil_service.allLocations(
     #    mandatory=[{"sand": 0}, {"clay": 0}, {"bulkDensity": 0}, {"organicCarbon": 0}],
@@ -155,6 +197,6 @@ def main():
 
 
 if __name__ == '__main__':
-    #main()
-    asyncio.get_event_loop().run_until_complete(async_main()) # gets rid of some eventloop cleanup problems using te usual call below
+    main()
+    #asyncio.get_event_loop().run_until_complete(async_main()) # gets rid of some eventloop cleanup problems using te usual call below
     #asyncio.run(async_main())

@@ -1,6 +1,6 @@
 @0xad51a0298da64a5f;
 
-using Persistent = import "/capnp/persistent.capnp";
+using Persistent = import "persistence.capnp".Persistent;
 
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("mas::rpc::frontend");
@@ -10,11 +10,11 @@ $Go.package("frontend");
 $Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/frontend");
 
 using Common = import "common.capnp";
-using SturdyRef = import "persistence.capnp".SturdyRef;
+#using SturdyRef = import "persistence.capnp".SturdyRef;
 
-interface Admin {
+#interface Admin {
     # admin functionality of the frontend
 
-    addPublicKey @0 (srOwner :SturdyRef.Owner, publicKey :Data);
-}
+#    addPublicKey @0 (srOwner :SturdyRef.Owner, publicKey :Data);
+#}
 

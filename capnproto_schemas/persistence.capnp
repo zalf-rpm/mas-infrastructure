@@ -1,6 +1,6 @@
 @0x855efed3475f6b26;
 
-using Persistent = import "/capnp/persistent.capnp".Persistent;
+#using Persistent = import "/capnp/persistent.capnp".Persistent;
 
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("mas::rpc::persistence");
@@ -104,59 +104,19 @@ struct SturdyRef {
 }
 
 
-interface Restorer(Token) {
+interface Persistent {
+  # simplified version of persistent.capnp::Persistent interface
+
+  save @0 () -> (sturdyRef :Text, unsaveSR :Text);
+  # create a sturdy ref to be able to restore this object and 
+  # optionally return another SR refering to a Common.Action object representing the action to unsave this object
+}
+
+
+interface Restorer {
   # restore a capability from a sturdy ref
 
-  restore @0 (srToken :Token, owner :SturdyRef.Owner) -> (cap :Capability);
+  restore @0 (srToken :Text) -> (cap :Capability);
   # restore from the given sturdy ref token a live capability
-  # if owner is set (not NULL) restorer should expect srToken to be encrypted by the owners private key
-
-  drop @1 (srToken :Token, owner :SturdyRef.Owner);
-  # drop the given token from the service
-  # if owner is set (not NULL) restorer should expect srToken to be encrypted by the owners private key
 }
 
-
-interface ExternalPersistent(Token) {
-  # external Persistent interface to create SturdyRefs for external capabilities
-
-  #save @0 (cap :Capability, params :Persistent(Token, SturdyRef.Owner).SaveParams) -> ExternalSaveResults;
-  # create a sturdy ref for the given capability and parameters
-  # return the original SaveResults object and an unregister callback
-
-  #saveSR @1 (sturdyRef :SturdyRef, params :Persistent(Token, SturdyRef.Owner).SaveParams) -> ExternalSaveResults;
-
-  struct ExternalSaveResults {
-    results @0 :Persistent(Token, SturdyRef.Owner).SaveResults;
-    unreg @1 :Common.Callback;
-  }
-
-}
-
-
-
-#interface A(T) {
-#  m @0 () -> S;
-
-#  interface CB1 {
-#    call @0 ();
-#  }
-
-#  struct S {
-#    res @0 :T;
-#    callback @1 :CB1;
-#  }
-#}
-
-#interface CB2 {
-#  call @0 ();
-#}
-
-#interface B(T) {
-#  m @0 () -> S;
- 
-#  struct S {
-#    res @0 :T;
-#    callback @1 :CB2;
-#  }
-#}

@@ -33,21 +33,25 @@ if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
 import common.capnp_async_helpers as async_helpers
-import csv_file_based as csv_based
+import common.common as common
+import services.climate.csv_file_based as csv_based
 
-#PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
-#abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
-#reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
+PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
+abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
+reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
 #climate_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate_data.capnp"), imports=abs_imports)
 
 #------------------------------------------------------------------------------
 
-def main(server="*", port=11002, path_to_csv_file="data/climate/climate-iso.csv"):
+def main(path_to_csv_file, serve_bootstrap=False, host="*", port=None, reg_sturdy_ref=None):
 
     config = {
-        "port": str(port),
-        "server": server,
-        "path_to_csv_file": path_to_csv_file
+        "port": port,
+        "host": host,
+        "path_to_csv_file": path_to_csv_file,
+        "reg_sturdy_ref": reg_sturdy_ref,
+        "serve_bootstrap": str(serve_bootstrap),
+        "reg_category": "climate",
     }
     # read commandline args only if script is invoked directly from commandline
     if len(sys.argv) > 1 and __name__ == "__main__":
@@ -57,10 +61,27 @@ def main(server="*", port=11002, path_to_csv_file="data/climate/climate-iso.csv"
                 config[k] = v
     print(config)
 
-    server = capnp.TwoPartyServer(config["server"] + ":" + config["port"],
-                                  bootstrap=csv_based.TimeSeries.from_csv_file(config["path_to_csv_file"],
-                                    header_map={},#{"windspeed": "wind"},
-                                    pandas_csv_config={}))#{"sep": ";"}))
+    conMan = common.ConnectionManager()
+
+    service = csv_based.TimeSeries.from_csv_file(config["path_to_csv_file"], \
+        header_map={}, #{"windspeed": "wind"}, 
+        pandas_csv_config={} #{"sep": ";"}
+    )
+
+    if config["reg_sturdy_ref"]:
+        registrator = conMan.try_connect(config["reg_sturdy_ref"], cast_as=reg_capnp.Registrator)
+        if registrator:
+            unreg = registrator.register(ref=service, categoryId=config["reg_category"]).wait()
+            print("Registered ", config["name"], "climate service.")
+            #await unreg.unregister.unregister().a_wait()
+        else:
+            print("Couldn't connect to registrator at sturdy_ref:", config["reg_sturdy_ref"])
+
+    addr = config["host"] + (":" + str(config["port"])) if config["port"] else ""
+    if config["serve_bootstrap"].lower() == "true":
+        server = capnp.TwoPartyServer(addr, bootstrap=service)
+    else:
+        capnp.wait_forever()
     server.run_forever()
 
 #------------------------------------------------------------------------------
@@ -105,6 +126,6 @@ async def async_main(path_to_csv_file, serve_bootstrap=False, host="0.0.0.0", po
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    #main()
-    asyncio.run(async_main("data/climate/climate-iso.csv", serve_bootstrap=True, port=11002))
+    main("data/climate/climate-iso.csv", serve_bootstrap=False, port=11002)
+    #asyncio.run(async_main("data/climate/climate-iso.csv", serve_bootstrap=True, port=11002))
 

@@ -58,12 +58,12 @@ interface Registry extends(Common.Identifiable) {
 }
 
 
-interface Registrar(SturdyRef) {
+interface Registrar {
   # simple interface to register something
   # use case: a registry creates a sturdy ref of a Registrar capability and 
   # this sturdy ref is used to register a service at the registry
 
-  register @0 (ref :Common.Identifiable, regName :Text, categoryId :Text) -> (unreg :Common.Callback, rereg :SturdyRef);
+  register @0 (ref :Common.Identifiable, regName :Text, categoryId :Text) -> (unreg :Common.Action, reregSR :Text);
   # register the given identifiable reference with the given name
   # under the given categoryId which must match one of the supported categories
   # if categoryId or name are null, nothing is registered

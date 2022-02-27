@@ -19,6 +19,7 @@ capnp compile -I. -ogo:./gen/go/management management.capnp
 capnp compile -I. -ogo:./gen/go/models model.capnp
 capnp compile -I. -ogo:./gen/go/persistence persistence.capnp
 capnp compile -I. -ogo:./gen/go/registry registry.capnp
+capnp compile -I. -ogo:./gen/go/service service.capnp
 capnp compile -I. -ogo:./gen/go/soil soil_data.capnp
 #capnp compile -I. -ogo:./gen/go/vr vr.capnp
 

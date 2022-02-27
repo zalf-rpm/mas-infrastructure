@@ -7,7 +7,7 @@ using Go = import "/capnp/go.capnp";
 $Go.package("climate");
 $Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/climate");
 
-using Persistent = import "/capnp/persistent.capnp".Persistent;
+using Persistent = import "persistence.capnp".Persistent;
 using Restorer = import "persistence.capnp".Restorer;
 using Common = import "common.capnp";
 using Model = import "model.capnp";
@@ -199,7 +199,7 @@ struct Location {
 }
 
 
-interface TimeSeries {
+interface TimeSeries extends(Persistent) {
   # a series of climate elements from start to end date
 
   enum Resolution {
@@ -238,7 +238,7 @@ interface TimeSeries {
   # location of this time series
 }
 
-interface Service extends(Common.Identifiable, Persistent(Text, Text), Restorer(Text)) {
+interface Service extends(Common.Identifiable, Persistent, Restorer) {
   # climate data service 
 
   getAvailableDatasets @0 () -> (datasets :List(MetaPlusData));
@@ -268,9 +268,10 @@ interface CSVTimeSeriesFactory extends(Common.Identifiable) {
     # how many lines to skip until data start (counted from header line to start of data)
   }
 
-  create @0 (fromCSV :Text, config :CSVConfig) -> (timeSeries :TimeSeries, error :Text);
+  create @0 (csvData :Text, config :CSVConfig) -> (timeseries :TimeSeries, error :Text);
   # create a time series from the given structured text
 }
+
 
 interface AlterTimeSeriesWrapper extends(TimeSeries) {
   # wraps a time series, but allows to alter the data represented by the time series
@@ -298,6 +299,7 @@ interface AlterTimeSeriesWrapper extends(TimeSeries) {
   remove @3 (alteredElement :Element);
   # remove the altered element
 }
+
 
 interface AlterTimeSeriesWrapperFactory extends(Common.Identifiable) {
   # create AlterTimeSeriesWrapper capabilities from existing TimeSeries capabilities

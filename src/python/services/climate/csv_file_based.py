@@ -27,6 +27,7 @@ import pandas as pd
 from pathlib import Path
 import sys
 import time
+import uuid
 
 PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent.parent
 if str(PATH_TO_REPO) not in sys.path:
@@ -38,7 +39,7 @@ if str(PATH_TO_PYTHON_CODE) not in sys.path:
 
 #import common.common as cc
 import common.geo as geo
-import common_climate_data_capnp_impl as ccdi
+import services.climate.common_climate_data_capnp_impl as ccdi
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
@@ -67,6 +68,22 @@ class TimeSeries(climate_data_capnp.TimeSeries.Server):
         self._pandas_csv_config_defaults = {"skip_rows": [1], "index_col": 0, "sep": ","}
         self._pandas_csv_config = {**self._pandas_csv_config_defaults, **pandas_csv_config}
         self._transform_map = transform_map
+
+        self._persistence_service = None
+        self._uuid = str(uuid.uuid4())
+
+    @property
+    def uuid(self):
+        return self._uuid
+    
+
+    @property
+    def persistence_service(self):
+        return self._persistence_service
+    
+    @persistence_service.setter
+    def persistence_service(self, ps):
+        self._persistence_service = ps
 
 
     @classmethod
@@ -179,6 +196,16 @@ class TimeSeries(climate_data_capnp.TimeSeries.Server):
             r.id = self._location.id
             r.heightNN = self._location.heightNN
             r.latlon = self._location.latlon
+
+
+    def save_context(self, context): # save @0 () -> (sturdyRef :Text, unsaveSR :Text);
+        if self.persistence_service:
+            sr, unsave_sr = self.persistence_service.save_timeseries(self)
+            context.results.sturdyRef = sr
+            context.results.unsaveSR = unsave_sr
+
+    def __del__(self):
+        print("deleting timeseries")
 
 #------------------------------------------------------------------------------
 
