@@ -39,6 +39,9 @@ ch.setLevel(logging.DEBUG)
 
 #logger.addHandler(ch)
 
+def pr():
+    print("disconnected")
+
 class Server:
     def __init__(self, service):
         self._service = service
@@ -47,7 +50,6 @@ class Server:
         self.reader = None
         self.writer = None
         self.retry = False
-
 
     async def socket_reader(self):
         while self.retry:
@@ -100,10 +102,13 @@ class Server:
         logger.debug("socket_writer done.")
         return True
 
-
     async def handle_connection(self, reader, writer):
         # Start TwoPartyServer using TwoWayPipe (only requires bootstrap)
+        
+        #with capnp.TwoPartyServer(bootstrap=self._service) as ss:
+        #    self.server = ss
         self.server = capnp.TwoPartyServer(bootstrap=self._service)
+        #self._disconnect_prom = self.server.on_disconnect().then(lambda: print("disconnected"))
         self.reader = reader
         self.writer = writer
         self.retry = True
@@ -122,14 +127,27 @@ class Server:
 
         # Make wait for reader/writer to finish (prevent possible resource leaks)
         await tasks
+        
+        #del self.server
+        #self.server._decref()
+        #del self.server
+        #print("finished")
 
+    def __del__(self):
+        print("dying")
+        #self._disconnect_prom.wait()
+        #print("died")
+
+servers = []
 
 async def serve(host, port, bootstrap):
 
     def new_connection_factory(bootstrap):
         async def new_connection(reader, writer):
             server = Server(bootstrap)
+            #servers.append(server)
             await server.handle_connection(reader, writer)
+            #print("handled connection")
         return new_connection
 
     # Handle both IPv4 and IPv6 cases

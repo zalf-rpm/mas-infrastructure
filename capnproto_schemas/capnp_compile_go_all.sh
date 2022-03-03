@@ -1,8 +1,8 @@
 #/bin/sh
 
-cd capnp
-capnp compile -I.. -ogo:../gen/go/persistence persistent.capnp
-cd ..
+#cd capnp
+#capnp compile -I.. -ogo:../gen/go/persistence persistent.capnp
+#cd ..
 
 capnp compile -I. -ogo:./gen/go/test a.capnp
 capnp compile -I. -ogo:./gen/go/climate climate_data.capnp

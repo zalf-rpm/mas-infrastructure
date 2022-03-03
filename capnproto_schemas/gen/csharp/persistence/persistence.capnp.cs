@@ -792,66 +792,46 @@ namespace Mas.Rpc.Persistence
         }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x9fb6218427d92e3cUL), Proxy(typeof(Restorer_Proxy<>)), Skeleton(typeof(Restorer_Skeleton<>))]
-    public interface IRestorer<TToken> : IDisposable where TToken : class
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xc1a7daa0dc36cb65UL), Proxy(typeof(Persistent_Proxy)), Skeleton(typeof(Persistent_Skeleton))]
+    public interface IPersistent : IDisposable
     {
-        Task<BareProxy> Restore(TToken srToken, Mas.Rpc.Persistence.SturdyRef.Owner owner, CancellationToken cancellationToken_ = default);
-        Task Drop(TToken srToken, Mas.Rpc.Persistence.SturdyRef.Owner owner, CancellationToken cancellationToken_ = default);
+        Task<(string, string)> Save(CancellationToken cancellationToken_ = default);
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x9fb6218427d92e3cUL)]
-    public class Restorer_Proxy<TToken> : Proxy, IRestorer<TToken> where TToken : class
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xc1a7daa0dc36cb65UL)]
+    public class Persistent_Proxy : Proxy, IPersistent
     {
-        public Task<BareProxy> Restore(TToken srToken, Mas.Rpc.Persistence.SturdyRef.Owner owner, CancellationToken cancellationToken_ = default)
+        public async Task<(string, string)> Save(CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Persistence.Restorer<TToken>.Params_Restore.WRITER>();
-            var arg_ = new Mas.Rpc.Persistence.Restorer<TToken>.Params_Restore()
-            {SrToken = srToken, Owner = owner};
+            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Persistence.Persistent.Params_Save.WRITER>();
+            var arg_ = new Mas.Rpc.Persistence.Persistent.Params_Save()
+            {};
             arg_?.serialize(in_);
-            return Impatient.MakePipelineAware(Call(11508422749279825468UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
+            using (var d_ = await Call(13954362354854972261UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                using (d_)
-                {
-                    var r_ = CapnpSerializable.Create<Mas.Rpc.Persistence.Restorer<TToken>.Result_Restore>(d_);
-                    return (r_.Cap);
-                }
-            }
-
-            );
-        }
-
-        public async Task Drop(TToken srToken, Mas.Rpc.Persistence.SturdyRef.Owner owner, CancellationToken cancellationToken_ = default)
-        {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Persistence.Restorer<TToken>.Params_Drop.WRITER>();
-            var arg_ = new Mas.Rpc.Persistence.Restorer<TToken>.Params_Drop()
-            {SrToken = srToken, Owner = owner};
-            arg_?.serialize(in_);
-            using (var d_ = await Call(11508422749279825468UL, 1, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
-            {
-                var r_ = CapnpSerializable.Create<Mas.Rpc.Persistence.Restorer<TToken>.Result_Drop>(d_);
-                return;
+                var r_ = CapnpSerializable.Create<Mas.Rpc.Persistence.Persistent.Result_Save>(d_);
+                return (r_.SturdyRef, r_.UnsaveSR);
             }
         }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x9fb6218427d92e3cUL)]
-    public class Restorer_Skeleton<TToken> : Skeleton<IRestorer<TToken>> where TToken : class
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xc1a7daa0dc36cb65UL)]
+    public class Persistent_Skeleton : Skeleton<IPersistent>
     {
-        public Restorer_Skeleton()
+        public Persistent_Skeleton()
         {
-            SetMethodTable(Restore, Drop);
+            SetMethodTable(Save);
         }
 
-        public override ulong InterfaceId => 11508422749279825468UL;
-        Task<AnswerOrCounterquestion> Restore(DeserializerState d_, CancellationToken cancellationToken_)
+        public override ulong InterfaceId => 13954362354854972261UL;
+        Task<AnswerOrCounterquestion> Save(DeserializerState d_, CancellationToken cancellationToken_)
         {
             using (d_)
             {
-                var in_ = CapnpSerializable.Create<Mas.Rpc.Persistence.Restorer<TToken>.Params_Restore>(d_);
-                return Impatient.MaybeTailCall(Impl.Restore(in_.SrToken, in_.Owner, cancellationToken_), cap =>
+                return Impatient.MaybeTailCall(Impl.Save(cancellationToken_), (sturdyRef, unsaveSR) =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Rpc.Persistence.Restorer<TToken>.Result_Restore.WRITER>();
-                    var r_ = new Mas.Rpc.Persistence.Restorer<TToken>.Result_Restore{Cap = cap};
+                    var s_ = SerializerState.CreateForRpc<Mas.Rpc.Persistence.Persistent.Result_Save.WRITER>();
+                    var r_ = new Mas.Rpc.Persistence.Persistent.Result_Save{SturdyRef = sturdyRef, UnsaveSR = unsaveSR};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -859,38 +839,22 @@ namespace Mas.Rpc.Persistence
                 );
             }
         }
-
-        async Task<AnswerOrCounterquestion> Drop(DeserializerState d_, CancellationToken cancellationToken_)
-        {
-            using (d_)
-            {
-                var in_ = CapnpSerializable.Create<Mas.Rpc.Persistence.Restorer<TToken>.Params_Drop>(d_);
-                await Impl.Drop(in_.SrToken, in_.Owner, cancellationToken_);
-                var s_ = SerializerState.CreateForRpc<Mas.Rpc.Persistence.Restorer<TToken>.Result_Drop.WRITER>();
-                return s_;
-            }
-        }
     }
 
-    public static class Restorer<TToken>
-        where TToken : class
+    public static class Persistent
     {
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x8071b2eb61aac3f0UL)]
-        public class Params_Restore : ICapnpSerializable
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xffc59cb2d8a71502UL)]
+        public class Params_Save : ICapnpSerializable
         {
-            public const UInt64 typeId = 0x8071b2eb61aac3f0UL;
+            public const UInt64 typeId = 0xffc59cb2d8a71502UL;
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                SrToken = CapnpSerializable.Create<TToken>(reader.SrToken);
-                Owner = CapnpSerializable.Create<Mas.Rpc.Persistence.SturdyRef.Owner>(reader.Owner);
                 applyDefaults();
             }
 
             public void serialize(WRITER writer)
             {
-                writer.SrToken.SetObject(SrToken);
-                Owner?.serialize(writer.Owner);
             }
 
             void ICapnpSerializable.Serialize(SerializerState arg_)
@@ -902,13 +866,62 @@ namespace Mas.Rpc.Persistence
             {
             }
 
-            public TToken SrToken
+            public struct READER
+            {
+                readonly DeserializerState ctx;
+                public READER(DeserializerState ctx)
+                {
+                    this.ctx = ctx;
+                }
+
+                public static READER create(DeserializerState ctx) => new READER(ctx);
+                public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+            }
+
+            public class WRITER : SerializerState
+            {
+                public WRITER()
+                {
+                    this.SetStruct(0, 0);
+                }
+            }
+        }
+
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xef80b08e84155cc2UL)]
+        public class Result_Save : ICapnpSerializable
+        {
+            public const UInt64 typeId = 0xef80b08e84155cc2UL;
+            void ICapnpSerializable.Deserialize(DeserializerState arg_)
+            {
+                var reader = READER.create(arg_);
+                SturdyRef = reader.SturdyRef;
+                UnsaveSR = reader.UnsaveSR;
+                applyDefaults();
+            }
+
+            public void serialize(WRITER writer)
+            {
+                writer.SturdyRef = SturdyRef;
+                writer.UnsaveSR = UnsaveSR;
+            }
+
+            void ICapnpSerializable.Serialize(SerializerState arg_)
+            {
+                serialize(arg_.Rewrap<WRITER>());
+            }
+
+            public void applyDefaults()
+            {
+            }
+
+            public string SturdyRef
             {
                 get;
                 set;
             }
 
-            public Mas.Rpc.Persistence.SturdyRef.Owner Owner
+            public string UnsaveSR
             {
                 get;
                 set;
@@ -925,9 +938,8 @@ namespace Mas.Rpc.Persistence
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public DeserializerState SrToken => ctx.StructReadPointer(0);
-                public Mas.Rpc.Persistence.SturdyRef.Owner.READER Owner => ctx.ReadStruct(1, Mas.Rpc.Persistence.SturdyRef.Owner.READER.create);
-                public bool HasOwner => ctx.IsStructFieldNonNull(1);
+                public string SturdyRef => ctx.ReadText(0, null);
+                public string UnsaveSR => ctx.ReadText(1, null);
             }
 
             public class WRITER : SerializerState
@@ -937,16 +949,134 @@ namespace Mas.Rpc.Persistence
                     this.SetStruct(0, 2);
                 }
 
-                public DynamicSerializerState SrToken
+                public string SturdyRef
                 {
-                    get => BuildPointer<DynamicSerializerState>(0);
-                    set => Link(0, value);
+                    get => this.ReadText(0, null);
+                    set => this.WriteText(0, value, null);
                 }
 
-                public Mas.Rpc.Persistence.SturdyRef.Owner.WRITER Owner
+                public string UnsaveSR
                 {
-                    get => BuildPointer<Mas.Rpc.Persistence.SturdyRef.Owner.WRITER>(1);
-                    set => Link(1, value);
+                    get => this.ReadText(1, null);
+                    set => this.WriteText(1, value, null);
+                }
+            }
+        }
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x9fb6218427d92e3cUL), Proxy(typeof(Restorer_Proxy)), Skeleton(typeof(Restorer_Skeleton))]
+    public interface IRestorer : IDisposable
+    {
+        Task<BareProxy> Restore(string srToken, CancellationToken cancellationToken_ = default);
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x9fb6218427d92e3cUL)]
+    public class Restorer_Proxy : Proxy, IRestorer
+    {
+        public Task<BareProxy> Restore(string srToken, CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Persistence.Restorer.Params_Restore.WRITER>();
+            var arg_ = new Mas.Rpc.Persistence.Restorer.Params_Restore()
+            {SrToken = srToken};
+            arg_?.serialize(in_);
+            return Impatient.MakePipelineAware(Call(11508422749279825468UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
+            {
+                using (d_)
+                {
+                    var r_ = CapnpSerializable.Create<Mas.Rpc.Persistence.Restorer.Result_Restore>(d_);
+                    return (r_.Cap);
+                }
+            }
+
+            );
+        }
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x9fb6218427d92e3cUL)]
+    public class Restorer_Skeleton : Skeleton<IRestorer>
+    {
+        public Restorer_Skeleton()
+        {
+            SetMethodTable(Restore);
+        }
+
+        public override ulong InterfaceId => 11508422749279825468UL;
+        Task<AnswerOrCounterquestion> Restore(DeserializerState d_, CancellationToken cancellationToken_)
+        {
+            using (d_)
+            {
+                var in_ = CapnpSerializable.Create<Mas.Rpc.Persistence.Restorer.Params_Restore>(d_);
+                return Impatient.MaybeTailCall(Impl.Restore(in_.SrToken, cancellationToken_), cap =>
+                {
+                    var s_ = SerializerState.CreateForRpc<Mas.Rpc.Persistence.Restorer.Result_Restore.WRITER>();
+                    var r_ = new Mas.Rpc.Persistence.Restorer.Result_Restore{Cap = cap};
+                    r_.serialize(s_);
+                    return s_;
+                }
+
+                );
+            }
+        }
+    }
+
+    public static class Restorer
+    {
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x8071b2eb61aac3f0UL)]
+        public class Params_Restore : ICapnpSerializable
+        {
+            public const UInt64 typeId = 0x8071b2eb61aac3f0UL;
+            void ICapnpSerializable.Deserialize(DeserializerState arg_)
+            {
+                var reader = READER.create(arg_);
+                SrToken = reader.SrToken;
+                applyDefaults();
+            }
+
+            public void serialize(WRITER writer)
+            {
+                writer.SrToken = SrToken;
+            }
+
+            void ICapnpSerializable.Serialize(SerializerState arg_)
+            {
+                serialize(arg_.Rewrap<WRITER>());
+            }
+
+            public void applyDefaults()
+            {
+            }
+
+            public string SrToken
+            {
+                get;
+                set;
+            }
+
+            public struct READER
+            {
+                readonly DeserializerState ctx;
+                public READER(DeserializerState ctx)
+                {
+                    this.ctx = ctx;
+                }
+
+                public static READER create(DeserializerState ctx) => new READER(ctx);
+                public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                public string SrToken => ctx.ReadText(0, null);
+            }
+
+            public class WRITER : SerializerState
+            {
+                public WRITER()
+                {
+                    this.SetStruct(0, 1);
+                }
+
+                public string SrToken
+                {
+                    get => this.ReadText(0, null);
+                    set => this.WriteText(0, value, null);
                 }
             }
         }
@@ -1007,228 +1137,6 @@ namespace Mas.Rpc.Persistence
                 {
                     get => ReadCap<BareProxy>(0);
                     set => LinkObject(0, value);
-                }
-            }
-        }
-
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xe9343ab77e29dd66UL)]
-        public class Params_Drop : ICapnpSerializable
-        {
-            public const UInt64 typeId = 0xe9343ab77e29dd66UL;
-            void ICapnpSerializable.Deserialize(DeserializerState arg_)
-            {
-                var reader = READER.create(arg_);
-                SrToken = CapnpSerializable.Create<TToken>(reader.SrToken);
-                Owner = CapnpSerializable.Create<Mas.Rpc.Persistence.SturdyRef.Owner>(reader.Owner);
-                applyDefaults();
-            }
-
-            public void serialize(WRITER writer)
-            {
-                writer.SrToken.SetObject(SrToken);
-                Owner?.serialize(writer.Owner);
-            }
-
-            void ICapnpSerializable.Serialize(SerializerState arg_)
-            {
-                serialize(arg_.Rewrap<WRITER>());
-            }
-
-            public void applyDefaults()
-            {
-            }
-
-            public TToken SrToken
-            {
-                get;
-                set;
-            }
-
-            public Mas.Rpc.Persistence.SturdyRef.Owner Owner
-            {
-                get;
-                set;
-            }
-
-            public struct READER
-            {
-                readonly DeserializerState ctx;
-                public READER(DeserializerState ctx)
-                {
-                    this.ctx = ctx;
-                }
-
-                public static READER create(DeserializerState ctx) => new READER(ctx);
-                public static implicit operator DeserializerState(READER reader) => reader.ctx;
-                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public DeserializerState SrToken => ctx.StructReadPointer(0);
-                public Mas.Rpc.Persistence.SturdyRef.Owner.READER Owner => ctx.ReadStruct(1, Mas.Rpc.Persistence.SturdyRef.Owner.READER.create);
-                public bool HasOwner => ctx.IsStructFieldNonNull(1);
-            }
-
-            public class WRITER : SerializerState
-            {
-                public WRITER()
-                {
-                    this.SetStruct(0, 2);
-                }
-
-                public DynamicSerializerState SrToken
-                {
-                    get => BuildPointer<DynamicSerializerState>(0);
-                    set => Link(0, value);
-                }
-
-                public Mas.Rpc.Persistence.SturdyRef.Owner.WRITER Owner
-                {
-                    get => BuildPointer<Mas.Rpc.Persistence.SturdyRef.Owner.WRITER>(1);
-                    set => Link(1, value);
-                }
-            }
-        }
-
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xcb74f672266ee797UL)]
-        public class Result_Drop : ICapnpSerializable
-        {
-            public const UInt64 typeId = 0xcb74f672266ee797UL;
-            void ICapnpSerializable.Deserialize(DeserializerState arg_)
-            {
-                var reader = READER.create(arg_);
-                applyDefaults();
-            }
-
-            public void serialize(WRITER writer)
-            {
-            }
-
-            void ICapnpSerializable.Serialize(SerializerState arg_)
-            {
-                serialize(arg_.Rewrap<WRITER>());
-            }
-
-            public void applyDefaults()
-            {
-            }
-
-            public struct READER
-            {
-                readonly DeserializerState ctx;
-                public READER(DeserializerState ctx)
-                {
-                    this.ctx = ctx;
-                }
-
-                public static READER create(DeserializerState ctx) => new READER(ctx);
-                public static implicit operator DeserializerState(READER reader) => reader.ctx;
-                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-            }
-
-            public class WRITER : SerializerState
-            {
-                public WRITER()
-                {
-                    this.SetStruct(0, 0);
-                }
-            }
-        }
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xbdc1d2a8302f6031UL), Proxy(typeof(ExternalPersistent_Proxy<>)), Skeleton(typeof(ExternalPersistent_Skeleton<>))]
-    public interface IExternalPersistent<TToken> : IDisposable where TToken : class
-    {
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xbdc1d2a8302f6031UL)]
-    public class ExternalPersistent_Proxy<TToken> : Proxy, IExternalPersistent<TToken> where TToken : class
-    {
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xbdc1d2a8302f6031UL)]
-    public class ExternalPersistent_Skeleton<TToken> : Skeleton<IExternalPersistent<TToken>> where TToken : class
-    {
-        public ExternalPersistent_Skeleton()
-        {
-            SetMethodTable();
-        }
-
-        public override ulong InterfaceId => 13673441563478286385UL;
-    }
-
-    public static class ExternalPersistent<TToken>
-        where TToken : class
-    {
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xcb715d4c82cf27c3UL)]
-        public class ExternalSaveResults : ICapnpSerializable
-        {
-            public const UInt64 typeId = 0xcb715d4c82cf27c3UL;
-            void ICapnpSerializable.Deserialize(DeserializerState arg_)
-            {
-                var reader = READER.create(arg_);
-                Results = CapnpSerializable.Create<Capnp.Persistent<TToken, Mas.Rpc.Persistence.SturdyRef.Owner>.SaveResults>(reader.Results);
-                Unreg = reader.Unreg;
-                applyDefaults();
-            }
-
-            public void serialize(WRITER writer)
-            {
-                Results?.serialize(writer.Results);
-                writer.Unreg = Unreg;
-            }
-
-            void ICapnpSerializable.Serialize(SerializerState arg_)
-            {
-                serialize(arg_.Rewrap<WRITER>());
-            }
-
-            public void applyDefaults()
-            {
-            }
-
-            public Capnp.Persistent<TToken, Mas.Rpc.Persistence.SturdyRef.Owner>.SaveResults Results
-            {
-                get;
-                set;
-            }
-
-            public Mas.Rpc.Common.ICallback Unreg
-            {
-                get;
-                set;
-            }
-
-            public struct READER
-            {
-                readonly DeserializerState ctx;
-                public READER(DeserializerState ctx)
-                {
-                    this.ctx = ctx;
-                }
-
-                public static READER create(DeserializerState ctx) => new READER(ctx);
-                public static implicit operator DeserializerState(READER reader) => reader.ctx;
-                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Capnp.Persistent<TToken, Mas.Rpc.Persistence.SturdyRef.Owner>.SaveResults.READER Results => ctx.ReadStruct(0, Capnp.Persistent<TToken, Mas.Rpc.Persistence.SturdyRef.Owner>.SaveResults.READER.create);
-                public bool HasResults => ctx.IsStructFieldNonNull(0);
-                public Mas.Rpc.Common.ICallback Unreg => ctx.ReadCap<Mas.Rpc.Common.ICallback>(1);
-            }
-
-            public class WRITER : SerializerState
-            {
-                public WRITER()
-                {
-                    this.SetStruct(0, 2);
-                }
-
-                public Capnp.Persistent<TToken, Mas.Rpc.Persistence.SturdyRef.Owner>.SaveResults.WRITER Results
-                {
-                    get => BuildPointer<Capnp.Persistent<TToken, Mas.Rpc.Persistence.SturdyRef.Owner>.SaveResults.WRITER>(0);
-                    set => Link(0, value);
-                }
-
-                public Mas.Rpc.Common.ICallback Unreg
-                {
-                    get => ReadCap<Mas.Rpc.Common.ICallback>(1);
-                    set => LinkObject(1, value);
                 }
             }
         }

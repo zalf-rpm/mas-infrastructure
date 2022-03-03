@@ -1,8 +1,8 @@
 #/bin/sh
 
-cd capnp
-capnp compile -I.. -ocsharp:../gen/csharp/persistence persistent.capnp
-cd ..
+#cd capnp
+#capnp compile -I.. -ocsharp:../gen/csharp/persistence persistent.capnp
+#cd ..
 
 capnp compile -I. -ocsharp:./gen/csharp/test a.capnp
 capnp compile -I. -ocsharp:./gen/csharp/climate climate_data.capnp
@@ -19,6 +19,7 @@ capnp compile -I. -ocsharp:./gen/csharp/management management.capnp
 capnp compile -I. -ocsharp:./gen/csharp/models model.capnp
 capnp compile -I. -ocsharp:./gen/csharp/persistence persistence.capnp
 capnp compile -I. -ocsharp:./gen/csharp/registry registry.capnp
+capnp compile -I. -ocsharp:./gen/csharp/service service.capnp
 capnp compile -I. -ocsharp:./gen/csharp/soil soil_data.capnp
 #capnp compile -I. -ocsharp:./gen/csharp/vr vr.capnp
 

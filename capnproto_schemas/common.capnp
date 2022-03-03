@@ -61,6 +61,15 @@ interface Action extends(Persistent) {
 
   do @0 () -> ();
   # execute the action represented by this object
+  # any parameter can be null representing optional parameters
+}
+
+
+interface Action1 extends(Persistent) {
+  # interface to an arbitrary unparameterised action object
+
+  do @0 (p :AnyPointer) -> ();
+  # execute the action represented by this object with one parameter
 }
 
 

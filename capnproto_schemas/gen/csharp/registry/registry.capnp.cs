@@ -1344,27 +1344,27 @@ namespace Mas.Rpc.Registry
         }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xabaef93c36f2d1eaUL), Proxy(typeof(Registrar_Proxy<>)), Skeleton(typeof(Registrar_Skeleton<>))]
-    public interface IRegistrar<TSturdyRef> : IDisposable where TSturdyRef : class
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xabaef93c36f2d1eaUL), Proxy(typeof(Registrar_Proxy)), Skeleton(typeof(Registrar_Skeleton))]
+    public interface IRegistrar : IDisposable
     {
-        Task<(Mas.Rpc.Common.ICallback, TSturdyRef)> Register(Mas.Rpc.Common.IIdentifiable @ref, string regName, string categoryId, CancellationToken cancellationToken_ = default);
+        Task<(Mas.Rpc.Common.IAction, string)> Register(Mas.Rpc.Common.IIdentifiable cap, string regName, string categoryId, CancellationToken cancellationToken_ = default);
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xabaef93c36f2d1eaUL)]
-    public class Registrar_Proxy<TSturdyRef> : Proxy, IRegistrar<TSturdyRef> where TSturdyRef : class
+    public class Registrar_Proxy : Proxy, IRegistrar
     {
-        public Task<(Mas.Rpc.Common.ICallback, TSturdyRef)> Register(Mas.Rpc.Common.IIdentifiable @ref, string regName, string categoryId, CancellationToken cancellationToken_ = default)
+        public Task<(Mas.Rpc.Common.IAction, string)> Register(Mas.Rpc.Common.IIdentifiable cap, string regName, string categoryId, CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Registry.Registrar<TSturdyRef>.Params_Register.WRITER>();
-            var arg_ = new Mas.Rpc.Registry.Registrar<TSturdyRef>.Params_Register()
-            {Ref = @ref, RegName = regName, CategoryId = categoryId};
+            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Registry.Registrar.Params_Register.WRITER>();
+            var arg_ = new Mas.Rpc.Registry.Registrar.Params_Register()
+            {Cap = cap, RegName = regName, CategoryId = categoryId};
             arg_?.serialize(in_);
             return Impatient.MakePipelineAware(Call(12371099263448568298UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
             {
                 using (d_)
                 {
-                    var r_ = CapnpSerializable.Create<Mas.Rpc.Registry.Registrar<TSturdyRef>.Result_Register>(d_);
-                    return (r_.Unreg, r_.Rereg);
+                    var r_ = CapnpSerializable.Create<Mas.Rpc.Registry.Registrar.Result_Register>(d_);
+                    return (r_.Unreg, r_.ReregSR);
                 }
             }
 
@@ -1373,7 +1373,7 @@ namespace Mas.Rpc.Registry
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xabaef93c36f2d1eaUL)]
-    public class Registrar_Skeleton<TSturdyRef> : Skeleton<IRegistrar<TSturdyRef>> where TSturdyRef : class
+    public class Registrar_Skeleton : Skeleton<IRegistrar>
     {
         public Registrar_Skeleton()
         {
@@ -1385,11 +1385,11 @@ namespace Mas.Rpc.Registry
         {
             using (d_)
             {
-                var in_ = CapnpSerializable.Create<Mas.Rpc.Registry.Registrar<TSturdyRef>.Params_Register>(d_);
-                return Impatient.MaybeTailCall(Impl.Register(in_.Ref, in_.RegName, in_.CategoryId, cancellationToken_), (unreg, rereg) =>
+                var in_ = CapnpSerializable.Create<Mas.Rpc.Registry.Registrar.Params_Register>(d_);
+                return Impatient.MaybeTailCall(Impl.Register(in_.Cap, in_.RegName, in_.CategoryId, cancellationToken_), (unreg, reregSR) =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Rpc.Registry.Registrar<TSturdyRef>.Result_Register.WRITER>();
-                    var r_ = new Mas.Rpc.Registry.Registrar<TSturdyRef>.Result_Register{Unreg = unreg, Rereg = rereg};
+                    var s_ = SerializerState.CreateForRpc<Mas.Rpc.Registry.Registrar.Result_Register.WRITER>();
+                    var r_ = new Mas.Rpc.Registry.Registrar.Result_Register{Unreg = unreg, ReregSR = reregSR};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -1399,8 +1399,7 @@ namespace Mas.Rpc.Registry
         }
     }
 
-    public static class Registrar<TSturdyRef>
-        where TSturdyRef : class
+    public static class Registrar
     {
         [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x98ee0ca0962009bcUL)]
         public class Params_Register : ICapnpSerializable
@@ -1409,7 +1408,7 @@ namespace Mas.Rpc.Registry
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Ref = reader.Ref;
+                Cap = reader.Cap;
                 RegName = reader.RegName;
                 CategoryId = reader.CategoryId;
                 applyDefaults();
@@ -1417,7 +1416,7 @@ namespace Mas.Rpc.Registry
 
             public void serialize(WRITER writer)
             {
-                writer.Ref = Ref;
+                writer.Cap = Cap;
                 writer.RegName = RegName;
                 writer.CategoryId = CategoryId;
             }
@@ -1431,7 +1430,7 @@ namespace Mas.Rpc.Registry
             {
             }
 
-            public Mas.Rpc.Common.IIdentifiable Ref
+            public Mas.Rpc.Common.IIdentifiable Cap
             {
                 get;
                 set;
@@ -1460,7 +1459,7 @@ namespace Mas.Rpc.Registry
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Rpc.Common.IIdentifiable Ref => ctx.ReadCap<Mas.Rpc.Common.IIdentifiable>(0);
+                public Mas.Rpc.Common.IIdentifiable Cap => ctx.ReadCap<Mas.Rpc.Common.IIdentifiable>(0);
                 public string RegName => ctx.ReadText(1, null);
                 public string CategoryId => ctx.ReadText(2, null);
             }
@@ -1472,7 +1471,7 @@ namespace Mas.Rpc.Registry
                     this.SetStruct(0, 3);
                 }
 
-                public Mas.Rpc.Common.IIdentifiable Ref
+                public Mas.Rpc.Common.IIdentifiable Cap
                 {
                     get => ReadCap<Mas.Rpc.Common.IIdentifiable>(0);
                     set => LinkObject(0, value);
@@ -1500,14 +1499,14 @@ namespace Mas.Rpc.Registry
             {
                 var reader = READER.create(arg_);
                 Unreg = reader.Unreg;
-                Rereg = CapnpSerializable.Create<TSturdyRef>(reader.Rereg);
+                ReregSR = reader.ReregSR;
                 applyDefaults();
             }
 
             public void serialize(WRITER writer)
             {
                 writer.Unreg = Unreg;
-                writer.Rereg.SetObject(Rereg);
+                writer.ReregSR = ReregSR;
             }
 
             void ICapnpSerializable.Serialize(SerializerState arg_)
@@ -1519,13 +1518,13 @@ namespace Mas.Rpc.Registry
             {
             }
 
-            public Mas.Rpc.Common.ICallback Unreg
+            public Mas.Rpc.Common.IAction Unreg
             {
                 get;
                 set;
             }
 
-            public TSturdyRef Rereg
+            public string ReregSR
             {
                 get;
                 set;
@@ -1542,8 +1541,8 @@ namespace Mas.Rpc.Registry
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Rpc.Common.ICallback Unreg => ctx.ReadCap<Mas.Rpc.Common.ICallback>(0);
-                public DeserializerState Rereg => ctx.StructReadPointer(1);
+                public Mas.Rpc.Common.IAction Unreg => ctx.ReadCap<Mas.Rpc.Common.IAction>(0);
+                public string ReregSR => ctx.ReadText(1, null);
             }
 
             public class WRITER : SerializerState
@@ -1553,16 +1552,16 @@ namespace Mas.Rpc.Registry
                     this.SetStruct(0, 2);
                 }
 
-                public Mas.Rpc.Common.ICallback Unreg
+                public Mas.Rpc.Common.IAction Unreg
                 {
-                    get => ReadCap<Mas.Rpc.Common.ICallback>(0);
+                    get => ReadCap<Mas.Rpc.Common.IAction>(0);
                     set => LinkObject(0, value);
                 }
 
-                public DynamicSerializerState Rereg
+                public string ReregSR
                 {
-                    get => BuildPointer<DynamicSerializerState>(1);
-                    set => Link(1, value);
+                    get => this.ReadText(1, null);
+                    set => this.WriteText(1, value, null);
                 }
             }
         }

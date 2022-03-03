@@ -572,7 +572,7 @@ namespace Mas.Rpc.Soil
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xa09aa71427dc64e1UL), Proxy(typeof(Service_Proxy)), Skeleton(typeof(Service_Skeleton))]
-    public interface IService : Mas.Rpc.Common.IIdentifiable, Capnp.IPersistent<string, string>, Mas.Rpc.Persistence.IRestorer<string>
+    public interface IService : Mas.Rpc.Common.IIdentifiable, Mas.Rpc.Persistence.IPersistent, Mas.Rpc.Persistence.IRestorer
     {
         Task<Mas.Rpc.Soil.Query.Result> CheckAvailableParameters(Mas.Rpc.Soil.Query arg_, CancellationToken cancellationToken_ = default);
         Task<(IReadOnlyList<Mas.Rpc.Soil.PropertyName>, IReadOnlyList<Mas.Rpc.Soil.PropertyName>)> GetAllAvailableParameters(bool onlyRawData, CancellationToken cancellationToken_ = default);
@@ -619,17 +619,17 @@ namespace Mas.Rpc.Soil
             }
         }
 
-        public Task<BareProxy> Restore(string srToken, Mas.Rpc.Persistence.SturdyRef.Owner owner, CancellationToken cancellationToken_ = default)
+        public Task<BareProxy> Restore(string srToken, CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Persistence.Restorer<string>.Params_Restore.WRITER>();
-            var arg_ = new Mas.Rpc.Persistence.Restorer<string>.Params_Restore()
-            {SrToken = srToken, Owner = owner};
+            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Persistence.Restorer.Params_Restore.WRITER>();
+            var arg_ = new Mas.Rpc.Persistence.Restorer.Params_Restore()
+            {SrToken = srToken};
             arg_?.serialize(in_);
             return Impatient.MakePipelineAware(Call(11508422749279825468UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
             {
                 using (d_)
                 {
-                    var r_ = CapnpSerializable.Create<Mas.Rpc.Persistence.Restorer<string>.Result_Restore>(d_);
+                    var r_ = CapnpSerializable.Create<Mas.Rpc.Persistence.Restorer.Result_Restore>(d_);
                     return (r_.Cap);
                 }
             }
@@ -637,27 +637,16 @@ namespace Mas.Rpc.Soil
             );
         }
 
-        public async Task Drop(string srToken, Mas.Rpc.Persistence.SturdyRef.Owner owner, CancellationToken cancellationToken_ = default)
+        public async Task<(string, string)> Save(CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Persistence.Restorer<string>.Params_Drop.WRITER>();
-            var arg_ = new Mas.Rpc.Persistence.Restorer<string>.Params_Drop()
-            {SrToken = srToken, Owner = owner};
+            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Persistence.Persistent.Params_Save.WRITER>();
+            var arg_ = new Mas.Rpc.Persistence.Persistent.Params_Save()
+            {};
             arg_?.serialize(in_);
-            using (var d_ = await Call(11508422749279825468UL, 1, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            using (var d_ = await Call(13954362354854972261UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Rpc.Persistence.Restorer<string>.Result_Drop>(d_);
-                return;
-            }
-        }
-
-        public async Task<Capnp.Persistent<string, string>.SaveResults> Save(Capnp.Persistent<string, string>.SaveParams arg_, CancellationToken cancellationToken_ = default)
-        {
-            var in_ = SerializerState.CreateForRpc<Capnp.Persistent<string, string>.SaveParams.WRITER>();
-            arg_?.serialize(in_);
-            using (var d_ = await Call(14468694717054801553UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
-            {
-                var r_ = CapnpSerializable.Create<Capnp.Persistent<string, string>.SaveResults>(d_);
-                return r_;
+                var r_ = CapnpSerializable.Create<Mas.Rpc.Persistence.Persistent.Result_Save>(d_);
+                return (r_.SturdyRef, r_.UnsaveSR);
             }
         }
 

@@ -38,7 +38,7 @@ namespace Mas.Infrastructure.ServiceRegistry
                 catch (System.Exception) { }
             }
 
-            if (Console.IsInputRedirected)
+            if (!Console.IsInputRedirected)
             {
                 var catsJson = new System.Text.StringBuilder();
                 while(true)
@@ -52,26 +52,37 @@ namespace Mas.Infrastructure.ServiceRegistry
             }
 
             using var conMan = new Common.ConnectionManager();
-            var bootstrap = new ServiceRegistry
+            var restorer = new Common.Restorer() { TcpPort = tcpPort };
+            conMan.Bind(IPAddress.Any, tcpPort, restorer);
+            
+            var registry = new ServiceRegistry
             {
-                TcpPort = tcpPort,
+                Restorer = restorer,
                 Categories = cats,
                 Id = id,
                 Name = name,
                 Description = desc
             };
             Console.WriteLine("Started ServiceRegistry with these Categories:");
-            foreach (var cat in bootstrap.Categories) Console.WriteLine(cat.Id);
+            foreach (var cat in registry.Categories) Console.WriteLine(cat.Id);
+            var registrySturdyRef = restorer.Save(BareProxy.FromImpl(registry)).SturdyRef;
+            Console.WriteLine($"registry_sr: {registrySturdyRef}");
             
-            conMan.Bind(IPAddress.Any, tcpPort, bootstrap);
-            var registrar = new ServiceRegistry.RegistrarImpl(bootstrap);
-            var regSturdyRef = bootstrap.SaveCapability(BareProxy.FromImpl(registrar));//, "abcd");
-            Console.WriteLine($"SturdyRef to Registrator interface: [{regSturdyRef}]");
-            var admin = new ServiceRegistry.AdminImpl(bootstrap);
-            var adminSturdyRef = bootstrap.SaveCapability(BareProxy.FromImpl(admin));
-            Console.WriteLine($"SturdyRef to Admin interface: [{adminSturdyRef}]");
-            var bootstrapSturdyRef = bootstrap.SaveCapability(BareProxy.FromImpl(bootstrap));
-            Console.WriteLine($"SturdyRef to Registry interface: [{bootstrapSturdyRef}]");
+            var registrar = new ServiceRegistry.Registrar(registry, restorer);
+            var regSturdyRef = restorer.Save(BareProxy.FromImpl(registrar)).SturdyRef;
+            Console.WriteLine($"registrar_sr: {regSturdyRef}, unsave_sr: ");
+
+            var registryAdmin = new ServiceRegistry.Admin(registry);
+            var registryAdminSturdyRef = restorer.Save(BareProxy.FromImpl(registryAdmin)).SturdyRef;
+            Console.WriteLine($"registry_admin_sr: {registryAdminSturdyRef}");
+            
+            var serviceAdmin = new Service.Admin(registry, (info) => {
+                registry.Id = info.Id;
+                registry.Name = info.Name;
+                registry.Description = info.Description;
+            });
+            var serviceAdminSturdyRef = restorer.Save(BareProxy.FromImpl(serviceAdmin)).SturdyRef;
+            Console.WriteLine($"service_admin_sr: {serviceAdminSturdyRef}");
 
             while (true) System.Threading.Thread.Sleep(1000); 
 

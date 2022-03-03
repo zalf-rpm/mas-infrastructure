@@ -39,6 +39,9 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
+import common.common as common
+import common.service as serv
+
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
@@ -331,33 +334,13 @@ class Metadata_Info(climate_data_capnp.Metadata.Information.Server):
 
 #------------------------------------------------------------------------------
 
-class Service(climate_data_capnp.Service.Server):
+class Service(climate_data_capnp.Service.Server, common.Identifiable, serv.AdministrableService):
 
-    def __init__(self, meta_plus_datasets, id=None, name=None, description=None, port=None):
-        self._id = id if id else str(uuid.uuid4()) 
-        self._name = name if name else "Unnamed " + self._id 
-        self._description = description if description else ""
+    def __init__(self, meta_plus_datasets, id=None, name=None, description=None, admin=None):
+        common.Identifiable.__init__(self, id, name, description)
+        serv.AdministrableService.__init__(self, admin)
+
         self._meta_plus_datasets = meta_plus_datasets
-
-        self._issued_sr_tokens = []
-        self._host = socket.getfqdn() #gethostname()
-        self._port = port
-
-
-    @property
-    def port(self):
-        return self._port
-    
-    @port.setter
-    def port(self, p):
-        self._port = p
-
-
-    def info(self, _context, **kwargs): # () -> IdInformation;
-        r = _context.results
-        r.id = self._id
-        r.name = self._name
-        r.description = self._description
 
 
     def getAvailableDatasets(self, **kwargs): # getAvailableDatasets @0 () -> (datasets :List(MetaPlusData));
@@ -379,21 +362,5 @@ class Service(climate_data_capnp.Service.Server):
         meta_plus_datasets = filter(contains_search_entries, self._meta_plus_datasets)
         datasets = map(lambda mds: mds.data, meta_plus_datasets)
         return list(datasets)
-
-
-    def save_context(self, context): # save @0 SaveParams -> SaveResults;
-        if self.port:
-            id = uuid.uuid4()
-            self._issued_sr_tokens.append(str(id))
-            context.results.sturdyRef = "capnp://insecure@{host}:{port}/{sr_token}".format(host=self._host, port=self.port, sr_token=id)
-         
-
-    def restore_context(self, context): # restore @0 (srToken :Token, owner :SturdyRef.Owner) -> (cap :Capability);
-        if context.params.srToken in self._issued_sr_tokens:
-            context.results.cap = self
-
-
-    def drop_context(self, context): # drop @1 (srToken :Token, owner :SturdyRef.Owner);
-        self._issued_sr_tokens.remove(context.params.srToken)
 
 #------------------------------------------------------------------------------

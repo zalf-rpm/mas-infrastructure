@@ -88,8 +88,8 @@ namespace Mas.Infrastructure.Common
                         await Task.WhenAll(con.WhenConnected);
                         if (!string.IsNullOrEmpty(srToken))
                         {
-                            var restorer = con.GetMain<Rpc.Persistence.IRestorer<string>>();
-                            var cap = await restorer.Restore(srToken, null);
+                            var restorer = con.GetMain<Rpc.Persistence.IRestorer>();
+                            var cap = await restorer.Restore(srToken);
                             return cap.Cast<TRemoteInterface>(true);
                         }
                         else

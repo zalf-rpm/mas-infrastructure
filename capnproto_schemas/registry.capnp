@@ -63,10 +63,10 @@ interface Registrar {
   # use case: a registry creates a sturdy ref of a Registrar capability and 
   # this sturdy ref is used to register a service at the registry
 
-  register @0 (ref :Common.Identifiable, regName :Text, categoryId :Text) -> (unreg :Common.Action, reregSR :Text);
-  # register the given identifiable reference with the given name
+  register @0 (cap :Common.Identifiable, regName :Text, categoryId :Text) -> (unreg :Common.Action, reregSR :Text);
+  # register the given identifiable capability with the given name
   # under the given categoryId which must match one of the supported categories
   # if categoryId or name are null, nothing is registered
-  # return an unregister callback and a sturdy ref to reregister in case of
-  # a necessary restart of the service with the same internal registry id
+  # return an unregister callback and a sturdy ref to reregister Common.Action taken the new capability in case of
+  # a necessary restart of the service with the same internal registry id, regName and categoryId
 }

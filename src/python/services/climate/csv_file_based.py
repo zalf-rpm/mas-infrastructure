@@ -39,18 +39,22 @@ if str(PATH_TO_PYTHON_CODE) not in sys.path:
 
 #import common.common as cc
 import common.geo as geo
+import common.common as common
 import services.climate.common_climate_data_capnp_impl as ccdi
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 climate_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate_data.capnp"), imports=abs_imports)
+persistence_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "persistence.capnp"), imports=abs_imports)
 
 #------------------------------------------------------------------------------
 
-class TimeSeries(climate_data_capnp.TimeSeries.Server): 
+class TimeSeries(climate_data_capnp.TimeSeries.Server, common.Persistable): 
 
     def __init__(self, metadata=None, location=None, path_to_csv=None, dataframe=None, csv_string=None, 
-    header_map=None, supported_headers=None, pandas_csv_config={}, transform_map=None):
+    header_map=None, supported_headers=None, pandas_csv_config={}, transform_map=None,
+        id=None, name=None, description=None, restorer=None):
+        common.Persistable.__init__(self, id, name, description, restorer)
 
         if path_to_csv is None and dataframe is None and csv_string is None:
             raise Exception("Missing argument, either path_to_csv or dataframe have to be supplied!")
@@ -70,20 +74,6 @@ class TimeSeries(climate_data_capnp.TimeSeries.Server):
         self._transform_map = transform_map
 
         self._persistence_service = None
-        self._uuid = str(uuid.uuid4())
-
-    @property
-    def uuid(self):
-        return self._uuid
-    
-
-    @property
-    def persistence_service(self):
-        return self._persistence_service
-    
-    @persistence_service.setter
-    def persistence_service(self, ps):
-        self._persistence_service = ps
 
 
     @classmethod
@@ -198,22 +188,18 @@ class TimeSeries(climate_data_capnp.TimeSeries.Server):
             r.latlon = self._location.latlon
 
 
-    def save_context(self, context): # save @0 () -> (sturdyRef :Text, unsaveSR :Text);
-        if self.persistence_service:
-            sr, unsave_sr = self.persistence_service.save_timeseries(self)
-            context.results.sturdyRef = sr
-            context.results.unsaveSR = unsave_sr
-
     def __del__(self):
         print("deleting timeseries")
 
 #------------------------------------------------------------------------------
 
-class Dataset(climate_data_capnp.Dataset.Server):
+class Dataset(climate_data_capnp.Dataset.Server, common.Persistable):
 
     def __init__(self, metadata, path_to_rows, interpolator, rowcol_to_latlon, 
         gzipped=False, header_map=None, supported_headers=None, row_col_pattern="row-{row}/col-{col}.csv",
-        pandas_csv_config={}, transform_map=None):
+        pandas_csv_config={}, transform_map=None, id=None, name=None, description=None, restorer=None):
+        common.Persistable.__init__(self, id, name, description, restorer)
+
         self._meta = metadata
         self._path_to_rows = path_to_rows
         self._interpolator = interpolator
@@ -250,6 +236,8 @@ class Dataset(climate_data_capnp.Dataset.Server):
                 pandas_csv_config=self._pandas_csv_config,
                 transform_map=self._transform_map) 
             self._time_series[(row, col)] = time_series
+            time_series.name = "row: {}/col: {}".format(row, col)
+            time_series.restorer = self._restorer
         return self._time_series[(row, col)]
 
 

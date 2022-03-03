@@ -18,6 +18,7 @@ from datetime import date, timedelta
 import json
 import os
 from pathlib import Path
+import socket
 import sys
 import time
 import uuid
@@ -34,6 +35,162 @@ PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports) 
 persistence_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "persistence.capnp"), imports=abs_imports) 
+
+#------------------------------------------------------------------------------
+
+class Restorer(persistence_capnp.Restorer.Server):
+
+    def __init__(self):
+        self._issued_sr_tokens = {} # sr_token to capability
+        self._actions = []
+        self._host = socket.getfqdn() #gethostname()
+        self._port = None
+
+
+    @property
+    def port(self):
+        return self._port
+    
+    @port.setter
+    def port(self, p):
+        self._port = p
+
+
+    @property
+    def host(self):
+        return self._host
+    
+    @host.setter
+    def host(self, h):
+        self._host = h
+
+
+    def sturdy_ref(self, sr_token=None):
+        if sr_token:
+            return "capnp://insecure@{host}:{port}/{sr_token}".format(host=self.host, port=self.port, sr_token=sr_token)
+        else:
+            return "capnp://insecure@{host}:{port}".format(host=self.host, port=self.port)
+
+
+    def save(self, cap):
+        sr_token = str(uuid.uuid4())
+        self._issued_sr_tokens[sr_token] = cap
+        unsave_sr_token = str(uuid.uuid4())
+        unsave_action = Action(lambda: [self.unsave(sr_token), self.unsave(unsave_sr_token)]) 
+        self._issued_sr_tokens[unsave_sr_token] = unsave_action
+        return (self.sturdy_ref(sr_token), self.sturdy_ref(unsave_sr_token))
+
+
+    def unsave(self, sr_token): 
+        if sr_token in self._issued_sr_tokens:
+            del self._issued_sr_tokens[sr_token]
+
+
+    def restore_context(self, context): # restore @0 (srToken :Text) -> (cap :Capability);
+        srt = context.params.srToken
+        if srt in self._issued_sr_tokens:
+            context.results.cap = self._issued_sr_tokens[srt]
+
+#------------------------------------------------------------------------------
+
+class Identifiable(common_capnp.Identifiable.Server):
+
+    def __init__(self, id=None, name=None, description=None):
+        self._id = id if id else str(uuid.uuid4()) 
+        self._name = name if name else "Unnamed Factory " + self._id 
+        self._description = description if description else ""
+
+
+    @property
+    def id(self):
+        return self._id
+
+    @id.setter
+    def id(self, i):
+        self._if = i
+
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, n):
+        self._name = n
+
+
+    @property
+    def description(self):
+        return self._description
+
+    @description.setter
+    def description(self, d):
+        self._description = d
+
+
+    def info_context(self, context): # () -> IdInformation;
+        r = context.results
+        r.id = self.id
+        r.name = self.name
+        r.description = self.description
+
+#------------------------------------------------------------------------------
+
+class Factory(Identifiable):
+
+    def __init__(self, id=None, name=None, description=None):
+        Identifiable.__init__(self, id, name, description)
+
+        self._admin = None
+        self._restorer = None
+
+
+    @property
+    def admin(self):
+        return self._admin
+
+    @admin.setter
+    def admin(self, a):
+        self._admin = a
+
+
+    @property
+    def restorer(self):
+        return self._restorer
+
+    @restorer.setter
+    def restorer(self, r):
+        self._restorer = r
+
+
+    def refesh_timeout(self):
+        if self.admin:
+            self.admin.heartbeat_context(None)
+
+#------------------------------------------------------------------------------
+
+class Persistable(persistence_capnp.Persistent.Server, Identifiable):
+
+    def __init__(self, id=None, name=None, description=None, restorer=None):
+        Identifiable.__init__(self, id, name, description)
+
+        self._restorer = restorer
+
+
+    @property
+    def restorer(self):
+        return self._restorer
+
+    @restorer.setter
+    def restorer(self, r):
+        self._restorer = r
+
+
+    def save_context(self, context): # save @0 () -> (sturdyRef :Text, unsaveSR :Text);
+        if self.restorer:
+            sr, unsave_sr = self.restorer.save(self)
+            context.results.sturdyRef = sr
+            context.results.unsaveSR = unsave_sr
 
 #------------------------------------------------------------------------------
 

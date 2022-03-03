@@ -141,7 +141,9 @@ struct Metadata {
 }
 
 
-interface Dataset {
+interface Dataset extends(Common.Identifiable, Persistent) {
+  # represent a set of TimeSeries
+
   metadata @0 () -> Metadata;
   # get metadata for these data
 
@@ -199,7 +201,7 @@ struct Location {
 }
 
 
-interface TimeSeries extends(Persistent) {
+interface TimeSeries extends(Common.Identifiable, Persistent) {
   # a series of climate elements from start to end date
 
   enum Resolution {
@@ -238,7 +240,8 @@ interface TimeSeries extends(Persistent) {
   # location of this time series
 }
 
-interface Service extends(Common.Identifiable, Persistent, Restorer) {
+
+interface Service extends(Common.Identifiable) {
   # climate data service 
 
   getAvailableDatasets @0 () -> (datasets :List(MetaPlusData));
@@ -250,6 +253,7 @@ interface Service extends(Common.Identifiable, Persistent, Restorer) {
   #supportedMetadata @2 () -> (cap :Metadata.Supported);
   # return a capability to an interface describing the service's supported metadata
 }
+
 
 interface CSVTimeSeriesFactory extends(Common.Identifiable) {
   # create TimeSeries capabilities from data

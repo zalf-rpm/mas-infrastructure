@@ -1372,7 +1372,7 @@ namespace Mas.Rpc.Climate
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xf635fdd1f05960f0UL), Proxy(typeof(Dataset_Proxy)), Skeleton(typeof(Dataset_Skeleton))]
-    public interface IDataset : IDisposable
+    public interface IDataset : Mas.Rpc.Common.IIdentifiable, Mas.Rpc.Persistence.IPersistent
     {
         Task<Mas.Rpc.Climate.Metadata> Metadata(CancellationToken cancellationToken_ = default);
         Task<Mas.Rpc.Climate.ITimeSeries> ClosestTimeSeriesAt(Mas.Rpc.Geo.LatLonCoord latlon, CancellationToken cancellationToken_ = default);
@@ -1453,6 +1453,32 @@ namespace Mas.Rpc.Climate
             }
 
             );
+        }
+
+        public async Task<(string, string)> Save(CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Persistence.Persistent.Params_Save.WRITER>();
+            var arg_ = new Mas.Rpc.Persistence.Persistent.Params_Save()
+            {};
+            arg_?.serialize(in_);
+            using (var d_ = await Call(13954362354854972261UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            {
+                var r_ = CapnpSerializable.Create<Mas.Rpc.Persistence.Persistent.Result_Save>(d_);
+                return (r_.SturdyRef, r_.UnsaveSR);
+            }
+        }
+
+        public async Task<Mas.Rpc.Common.IdInformation> Info(CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Common.Identifiable.Params_Info.WRITER>();
+            var arg_ = new Mas.Rpc.Common.Identifiable.Params_Info()
+            {};
+            arg_?.serialize(in_);
+            using (var d_ = await Call(12875740530987518165UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            {
+                var r_ = CapnpSerializable.Create<Mas.Rpc.Common.IdInformation>(d_);
+                return r_;
+            }
         }
     }
 
@@ -2130,7 +2156,7 @@ namespace Mas.Rpc.Climate
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xa7769f40fe6e6de8UL), Proxy(typeof(TimeSeries_Proxy)), Skeleton(typeof(TimeSeries_Skeleton))]
-    public interface ITimeSeries : IDisposable
+    public interface ITimeSeries : Mas.Rpc.Common.IIdentifiable, Mas.Rpc.Persistence.IPersistent
     {
         Task<Mas.Rpc.Climate.TimeSeries.Resolution> Resolution(CancellationToken cancellationToken_ = default);
         Task<(Mas.Common.Date, Mas.Common.Date)> Range(CancellationToken cancellationToken_ = default);
@@ -2281,6 +2307,32 @@ namespace Mas.Rpc.Climate
             }
 
             );
+        }
+
+        public async Task<(string, string)> Save(CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Persistence.Persistent.Params_Save.WRITER>();
+            var arg_ = new Mas.Rpc.Persistence.Persistent.Params_Save()
+            {};
+            arg_?.serialize(in_);
+            using (var d_ = await Call(13954362354854972261UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            {
+                var r_ = CapnpSerializable.Create<Mas.Rpc.Persistence.Persistent.Result_Save>(d_);
+                return (r_.SturdyRef, r_.UnsaveSR);
+            }
+        }
+
+        public async Task<Mas.Rpc.Common.IdInformation> Info(CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Common.Identifiable.Params_Info.WRITER>();
+            var arg_ = new Mas.Rpc.Common.Identifiable.Params_Info()
+            {};
+            arg_?.serialize(in_);
+            using (var d_ = await Call(12875740530987518165UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            {
+                var r_ = CapnpSerializable.Create<Mas.Rpc.Common.IdInformation>(d_);
+                return r_;
+            }
         }
     }
 
@@ -3342,7 +3394,7 @@ namespace Mas.Rpc.Climate
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xfe7d08d4352b0c5fUL), Proxy(typeof(Service_Proxy)), Skeleton(typeof(Service_Skeleton))]
-    public interface IService : Mas.Rpc.Common.IIdentifiable, Capnp.IPersistent<string, string>, Mas.Rpc.Persistence.IRestorer<string>
+    public interface IService : Mas.Rpc.Common.IIdentifiable
     {
         Task<IReadOnlyList<Mas.Rpc.Climate.MetaPlusData>> GetAvailableDatasets(CancellationToken cancellationToken_ = default);
         Task<IReadOnlyList<Mas.Rpc.Climate.IDataset>> GetDatasetsFor(Mas.Rpc.Climate.Metadata template, CancellationToken cancellationToken_ = default);
@@ -3385,48 +3437,6 @@ namespace Mas.Rpc.Climate
             }
 
             );
-        }
-
-        public Task<BareProxy> Restore(string srToken, Mas.Rpc.Persistence.SturdyRef.Owner owner, CancellationToken cancellationToken_ = default)
-        {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Persistence.Restorer<string>.Params_Restore.WRITER>();
-            var arg_ = new Mas.Rpc.Persistence.Restorer<string>.Params_Restore()
-            {SrToken = srToken, Owner = owner};
-            arg_?.serialize(in_);
-            return Impatient.MakePipelineAware(Call(11508422749279825468UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
-            {
-                using (d_)
-                {
-                    var r_ = CapnpSerializable.Create<Mas.Rpc.Persistence.Restorer<string>.Result_Restore>(d_);
-                    return (r_.Cap);
-                }
-            }
-
-            );
-        }
-
-        public async Task Drop(string srToken, Mas.Rpc.Persistence.SturdyRef.Owner owner, CancellationToken cancellationToken_ = default)
-        {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Persistence.Restorer<string>.Params_Drop.WRITER>();
-            var arg_ = new Mas.Rpc.Persistence.Restorer<string>.Params_Drop()
-            {SrToken = srToken, Owner = owner};
-            arg_?.serialize(in_);
-            using (var d_ = await Call(11508422749279825468UL, 1, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
-            {
-                var r_ = CapnpSerializable.Create<Mas.Rpc.Persistence.Restorer<string>.Result_Drop>(d_);
-                return;
-            }
-        }
-
-        public async Task<Capnp.Persistent<string, string>.SaveResults> Save(Capnp.Persistent<string, string>.SaveParams arg_, CancellationToken cancellationToken_ = default)
-        {
-            var in_ = SerializerState.CreateForRpc<Capnp.Persistent<string, string>.SaveParams.WRITER>();
-            arg_?.serialize(in_);
-            using (var d_ = await Call(14468694717054801553UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
-            {
-                var r_ = CapnpSerializable.Create<Capnp.Persistent<string, string>.SaveResults>(d_);
-                return r_;
-            }
         }
 
         public async Task<Mas.Rpc.Common.IdInformation> Info(CancellationToken cancellationToken_ = default)
@@ -3720,24 +3730,24 @@ namespace Mas.Rpc.Climate
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xa418c26cc59929d9UL), Proxy(typeof(CSVTimeSeriesFactory_Proxy)), Skeleton(typeof(CSVTimeSeriesFactory_Skeleton))]
     public interface ICSVTimeSeriesFactory : Mas.Rpc.Common.IIdentifiable
     {
-        Task<(Mas.Rpc.Climate.ITimeSeries, string)> Create(string fromCSV, Mas.Rpc.Climate.CSVTimeSeriesFactory.CSVConfig config, CancellationToken cancellationToken_ = default);
+        Task<(Mas.Rpc.Climate.ITimeSeries, string)> Create(string csvData, Mas.Rpc.Climate.CSVTimeSeriesFactory.CSVConfig config, CancellationToken cancellationToken_ = default);
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xa418c26cc59929d9UL)]
     public class CSVTimeSeriesFactory_Proxy : Proxy, ICSVTimeSeriesFactory
     {
-        public Task<(Mas.Rpc.Climate.ITimeSeries, string)> Create(string fromCSV, Mas.Rpc.Climate.CSVTimeSeriesFactory.CSVConfig config, CancellationToken cancellationToken_ = default)
+        public Task<(Mas.Rpc.Climate.ITimeSeries, string)> Create(string csvData, Mas.Rpc.Climate.CSVTimeSeriesFactory.CSVConfig config, CancellationToken cancellationToken_ = default)
         {
             var in_ = SerializerState.CreateForRpc<Mas.Rpc.Climate.CSVTimeSeriesFactory.Params_Create.WRITER>();
             var arg_ = new Mas.Rpc.Climate.CSVTimeSeriesFactory.Params_Create()
-            {FromCSV = fromCSV, Config = config};
+            {CsvData = csvData, Config = config};
             arg_?.serialize(in_);
             return Impatient.MakePipelineAware(Call(11824414594088643033UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
             {
                 using (d_)
                 {
                     var r_ = CapnpSerializable.Create<Mas.Rpc.Climate.CSVTimeSeriesFactory.Result_Create>(d_);
-                    return (r_.TimeSeries, r_.Error);
+                    return (r_.Timeseries, r_.Error);
                 }
             }
 
@@ -3772,10 +3782,10 @@ namespace Mas.Rpc.Climate
             using (d_)
             {
                 var in_ = CapnpSerializable.Create<Mas.Rpc.Climate.CSVTimeSeriesFactory.Params_Create>(d_);
-                return Impatient.MaybeTailCall(Impl.Create(in_.FromCSV, in_.Config, cancellationToken_), (timeSeries, error) =>
+                return Impatient.MaybeTailCall(Impl.Create(in_.CsvData, in_.Config, cancellationToken_), (timeseries, error) =>
                 {
                     var s_ = SerializerState.CreateForRpc<Mas.Rpc.Climate.CSVTimeSeriesFactory.Result_Create.WRITER>();
-                    var r_ = new Mas.Rpc.Climate.CSVTimeSeriesFactory.Result_Create{TimeSeries = timeSeries, Error = error};
+                    var r_ = new Mas.Rpc.Climate.CSVTimeSeriesFactory.Result_Create{Timeseries = timeseries, Error = error};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -3903,14 +3913,14 @@ namespace Mas.Rpc.Climate
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                FromCSV = reader.FromCSV;
+                CsvData = reader.CsvData;
                 Config = CapnpSerializable.Create<Mas.Rpc.Climate.CSVTimeSeriesFactory.CSVConfig>(reader.Config);
                 applyDefaults();
             }
 
             public void serialize(WRITER writer)
             {
-                writer.FromCSV = FromCSV;
+                writer.CsvData = CsvData;
                 Config?.serialize(writer.Config);
             }
 
@@ -3923,7 +3933,7 @@ namespace Mas.Rpc.Climate
             {
             }
 
-            public string FromCSV
+            public string CsvData
             {
                 get;
                 set;
@@ -3946,7 +3956,7 @@ namespace Mas.Rpc.Climate
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public string FromCSV => ctx.ReadText(0, null);
+                public string CsvData => ctx.ReadText(0, null);
                 public Mas.Rpc.Climate.CSVTimeSeriesFactory.CSVConfig.READER Config => ctx.ReadStruct(1, Mas.Rpc.Climate.CSVTimeSeriesFactory.CSVConfig.READER.create);
                 public bool HasConfig => ctx.IsStructFieldNonNull(1);
             }
@@ -3958,7 +3968,7 @@ namespace Mas.Rpc.Climate
                     this.SetStruct(0, 2);
                 }
 
-                public string FromCSV
+                public string CsvData
                 {
                     get => this.ReadText(0, null);
                     set => this.WriteText(0, value, null);
@@ -3979,14 +3989,14 @@ namespace Mas.Rpc.Climate
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                TimeSeries = reader.TimeSeries;
+                Timeseries = reader.Timeseries;
                 Error = reader.Error;
                 applyDefaults();
             }
 
             public void serialize(WRITER writer)
             {
-                writer.TimeSeries = TimeSeries;
+                writer.Timeseries = Timeseries;
                 writer.Error = Error;
             }
 
@@ -3999,7 +4009,7 @@ namespace Mas.Rpc.Climate
             {
             }
 
-            public Mas.Rpc.Climate.ITimeSeries TimeSeries
+            public Mas.Rpc.Climate.ITimeSeries Timeseries
             {
                 get;
                 set;
@@ -4022,7 +4032,7 @@ namespace Mas.Rpc.Climate
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Rpc.Climate.ITimeSeries TimeSeries => ctx.ReadCap<Mas.Rpc.Climate.ITimeSeries>(0);
+                public Mas.Rpc.Climate.ITimeSeries Timeseries => ctx.ReadCap<Mas.Rpc.Climate.ITimeSeries>(0);
                 public string Error => ctx.ReadText(1, null);
             }
 
@@ -4033,7 +4043,7 @@ namespace Mas.Rpc.Climate
                     this.SetStruct(0, 2);
                 }
 
-                public Mas.Rpc.Climate.ITimeSeries TimeSeries
+                public Mas.Rpc.Climate.ITimeSeries Timeseries
                 {
                     get => ReadCap<Mas.Rpc.Climate.ITimeSeries>(0);
                     set => LinkObject(0, value);
@@ -4257,6 +4267,32 @@ namespace Mas.Rpc.Climate
             }
 
             );
+        }
+
+        public async Task<(string, string)> Save(CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Persistence.Persistent.Params_Save.WRITER>();
+            var arg_ = new Mas.Rpc.Persistence.Persistent.Params_Save()
+            {};
+            arg_?.serialize(in_);
+            using (var d_ = await Call(13954362354854972261UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            {
+                var r_ = CapnpSerializable.Create<Mas.Rpc.Persistence.Persistent.Result_Save>(d_);
+                return (r_.SturdyRef, r_.UnsaveSR);
+            }
+        }
+
+        public async Task<Mas.Rpc.Common.IdInformation> Info(CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Common.Identifiable.Params_Info.WRITER>();
+            var arg_ = new Mas.Rpc.Common.Identifiable.Params_Info()
+            {};
+            arg_?.serialize(in_);
+            using (var d_ = await Call(12875740530987518165UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            {
+                var r_ = CapnpSerializable.Create<Mas.Rpc.Common.IdInformation>(d_);
+                return r_;
+            }
         }
     }
 
