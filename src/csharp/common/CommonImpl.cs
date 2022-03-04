@@ -48,12 +48,12 @@ namespace Mas.Infrastructure.Common
         public SaveRes Save(Capnp.Rpc.Proxy proxy, string fixedSrToken = null, bool includeUnsave = true)
         {
             var srToken = fixedSrToken ?? System.Guid.NewGuid().ToString();
-            _srToken2Capability[srToken] = Proxy.Share(proxy);
+            _srToken2Capability[srToken] = proxy;
             if(includeUnsave)
             {
                 var unsaveSRToken = System.Guid.NewGuid().ToString();
                 var unsaveAction = new Action(() => { Unsave(srToken); Unsave(unsaveSRToken); }); 
-                _srToken2Capability[srToken] = BareProxy.FromImpl(unsaveAction);
+                _srToken2Capability[unsaveSRToken] = BareProxy.FromImpl(unsaveAction);
                 return new SaveRes { 
                     SturdyRef = SturdyRef(srToken), 
                     SRToken = srToken,
@@ -86,14 +86,14 @@ namespace Mas.Infrastructure.Common
         {
             if (_srToken2Capability.ContainsKey(srToken))
             {
-                var proxy = _srToken2Capability[srToken];
-                if (proxy is BareProxy bareProxy)
+                var cap = _srToken2Capability[srToken];
+                if (cap is BareProxy bareProxy)
                     return Task.FromResult(Proxy.Share(bareProxy));
                 else
                 {
-                    var sharedProxy = Proxy.Share(proxy);
+                    var sharedProxy = Proxy.Share(cap);
                     var bareProxy2 = new BareProxy(sharedProxy.ConsumedCap);
-                    return Task.FromResult(bareProxy2);// Proxy.Share(_srToken2Proxy[srToken]));
+                    return Task.FromResult<BareProxy>(bareProxy2);// Proxy.Share(_srToken2Proxy[srToken]));
                 }
             }
             return Task.FromResult<BareProxy>(null);
@@ -103,8 +103,8 @@ namespace Mas.Infrastructure.Common
         public void Dispose()
         {
             // dispose sturdy ref caps
-            foreach (var sr2p in _srToken2Capability)
-                sr2p.Value?.Dispose();
+            //foreach (var sr2p in _srToken2Capability)
+            //    sr2p.Value?.Dispose();
 
             Console.WriteLine("Dispose");
         }

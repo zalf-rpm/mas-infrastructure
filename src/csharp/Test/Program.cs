@@ -28,9 +28,11 @@ namespace Mas.Infrastructure.Common
 
 
             //*
-            var ts = await conMan.Connect<Mas.Rpc.Climate.ITimeSeries>("capnp://localhost:11002");
-            var hs = await ts.Header();
-            foreach (var h in hs) Console.WriteLine(h.ToString());
+            var registry = await conMan.Connect<Mas.Rpc.Registry.IRegistry>("capnp://insecure@127.0.0.1:9999/bcf70357-85e5-4cda-9872-8c44512f7046");
+            //var registry = await conMan.Connect<Mas.Rpc.Registry.IRegistry>("capnp://insecure@127.0.0.1:9999");
+            var cats = await registry.SupportedCategories();
+            var info = await registry.Info();
+            Console.WriteLine(info.Id);
             //*/
 
 

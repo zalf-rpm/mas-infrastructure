@@ -47,7 +47,6 @@ climate_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate_data.capnp"
 mgmt_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "management.capnp"), imports=abs_imports)
 service_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "service.capnp"), imports=abs_imports)
 common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
-csv_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "csv.capnp"), imports=abs_imports)
 
 
 #------------------------------------------------------------------------------
@@ -65,6 +64,9 @@ async def async_main():
                 config[k] = v
     
     conMan = async_helpers.ConnectionManager()
+    registry = await conMan.connect("capnp://insecure@localhost:9999/ba803fb8-8055-4ec5-8c6c-ed23b02e9035", registry_capnp.Registry)
+    print(await registry.info().a_wait())
+
     yieldstat = await conMan.connect("capnp://localhost:15000", model_capnp.EnvInstance)
     info = await yieldstat.info().a_wait()
     print(info)
@@ -109,22 +111,14 @@ def x():
     
     #del s
 
-def main():
-    config = {
-        "port": "6003",
-        "server": "localhost"
-    }
-    # read commandline args only if script is invoked directly from commandline
-    if len(sys.argv) > 1 and __name__ == "__main__":
-        for arg in sys.argv[1:]:
-            k, v = arg.split("=")
-            if k in config:
-                config[k] = v
-
+def test_climate_service():
     conMan = common.ConnectionManager()
     #restorer = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000", cast_as=persistence_capnp.Restorer)
-    service = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/cf478c42-9a5c-403e-8377-03445494bfac", cast_as=climate_data_capnp.CSVTimeSeriesFactory)
-
+    #service = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/6feaf299-d620-430b-9189-36dfccf48b3a", cast_as=climate_data_capnp.CSVTimeSeriesFactory)
+    service = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/1a170e7e-5a93-46a4-b748-87812ea4d4ba", cast_as=climate_data_capnp.Service)
+    #timeseries = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/8e7961c5-bd16-4c1d-86fd-8347dc46185e", cast_as=climate_data_capnp.TimeSeries)
+    unsave = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/ac544d7b-1f82-4bf8-9adb-cf586ae46287", cast_as=common_capnp.Action)
+    #4e4fe3fb-791a-4a26-9ae1-1ce52093bda5'  row: 340/col: 288
     try:
         print(service.info().wait())
     except Exception as e:
@@ -138,6 +132,57 @@ def main():
 
     res = service.create(csvData=csv_data, config={}).wait()
 
+    print()
+
+
+def test_registry():
+
+    conMan = common.ConnectionManager()
+    #restorer = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000", cast_as=persistence_capnp.Restorer)
+    service = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/17051891-fdc2-49f5-a1fd-0c35ecd6cd89", cast_as=climate_data_capnp.Service)
+    registry = conMan.try_connect("capnp://insecure@localhost:9999/ba803fb8-8055-4ec5-8c6c-ed23b02e9035", cast_as=registry_capnp.Registry)
+    registrar = conMan.try_connect("capnp://insecure@pc-berg-7920:9999/c17c4d46-16c9-4220-9ee8-12ba61969f70", cast_as=registry_capnp.Registrar)
+    
+    res = registrar.register(cap=service, regName="dwd-klima", categoryId="climate").wait()
+
+
+
+    
+    
+    try:
+        print(registrar.info().wait())
+    except Exception as e:
+        print(e)
+
+    #unsave = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/49ec71b8-a525-4c38-b137-58e1eafc0c1c", cast_as=common_capnp.Action)
+    #unsave.do().wait()
+
+    with open("../../data/climate/climate-iso.csv", "r") as _:
+        csv_data = _.read()
+
+    res = service.create(csvData=csv_data, config={}).wait()
+
+    print()
+
+
+def main():
+    config = {
+        "port": "6003",
+        "server": "localhost"
+    }
+    # read commandline args only if script is invoked directly from commandline
+    if len(sys.argv) > 1 and __name__ == "__main__":
+        for arg in sys.argv[1:]:
+            k, v = arg.split("=")
+            if k in config:
+                config[k] = v
+
+
+    #test_climate_service()
+
+    test_registry()
+
+    return
 
     #s = capnp.TwoPartyServer("*:11002", bootstrap=csv_based.TimeSeries.from_csv_file("data/climate/climate-iso.csv", header_map={}, pandas_csv_config={}))
     #s.run_forever()
@@ -197,6 +242,6 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    #main()
     #asyncio.get_event_loop().run_until_complete(async_main()) # gets rid of some eventloop cleanup problems using te usual call below
-    #asyncio.run(async_main())
+    asyncio.run(async_main())

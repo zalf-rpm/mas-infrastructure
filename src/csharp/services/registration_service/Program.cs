@@ -53,7 +53,6 @@ namespace Mas.Infrastructure.ServiceRegistry
 
             using var conMan = new Common.ConnectionManager();
             var restorer = new Common.Restorer() { TcpPort = tcpPort };
-            conMan.Bind(IPAddress.Any, tcpPort, restorer);
             
             var registry = new ServiceRegistry
             {
@@ -63,6 +62,8 @@ namespace Mas.Infrastructure.ServiceRegistry
                 Name = name,
                 Description = desc
             };
+            conMan.Bind(IPAddress.Any, tcpPort, restorer);
+            
             Console.WriteLine("Started ServiceRegistry with these Categories:");
             foreach (var cat in registry.Categories) Console.WriteLine(cat.Id);
             var registrySturdyRef = restorer.Save(BareProxy.FromImpl(registry)).SturdyRef;

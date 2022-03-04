@@ -97,6 +97,8 @@ def main(serve_bootstrap=True, host="*", port=None, reg_sturdy_ref=None,
             reg_config = json.loads(sys.stdin.read())
         except:
             pass
+    else:
+        reg_config = {}
 
     conMan = common.ConnectionManager()
 
@@ -166,6 +168,8 @@ reg_sturdy_ref=None, id=None, name="DWD - historical - 1991-2019", description=N
             reg_config = json.loads(sys.stdin.read())
         except:
             pass
+    else:
+        reg_config = {}
 
     conMan = async_helpers.ConnectionManager()
 
