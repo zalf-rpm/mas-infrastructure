@@ -28,11 +28,26 @@ namespace Mas.Infrastructure.Common
 
 
             //*
-            var registry = await conMan.Connect<Mas.Rpc.Registry.IRegistry>("capnp://insecure@127.0.0.1:9999/bcf70357-85e5-4cda-9872-8c44512f7046");
+            var service = await conMan.Connect<Mas.Rpc.Climate.IService>("capnp://insecure@127.0.0.1:10000/cc91b9d8-c4ec-4512-8814-0865d5bb0ffd");
+            var registry = await conMan.Connect<Mas.Rpc.Registry.IRegistry>("capnp://insecure@127.0.0.1:9999/0dea389d-300e-4dde-a1bc-4f5c315a768f");
+            var registrar = await conMan.Connect<Mas.Rpc.Registry.IRegistrar>("capnp://insecure@127.0.0.1:9999/889fa33c-7933-4ee4-9047-7c87752fae4a");
             //var registry = await conMan.Connect<Mas.Rpc.Registry.IRegistry>("capnp://insecure@127.0.0.1:9999");
             var cats = await registry.SupportedCategories();
             var info = await registry.Info();
             Console.WriteLine(info.Id);
+
+            var entries = await registry.Entries("climate");
+            foreach(var ent in entries)
+            {
+                Console.WriteLine("name:", ent.Name, " ref.info:");
+            }
+
+            var res = await registrar.Register(service, "dwd-data", "climate");
+
+
+
+
+
             //*/
 
 

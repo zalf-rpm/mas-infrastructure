@@ -14,6 +14,7 @@ using System.Net;
 using System.Net.Sockets;
 using Capnp;
 using Mas.Infrastructure;
+using System.Text.Json;
 
 namespace Mas.Infrastructure.ServiceRegistry
 {
@@ -37,7 +38,24 @@ namespace Mas.Infrastructure.ServiceRegistry
                 }
             }
         }
-        
+
+        private string _categoriesFilePath = "categories.json";
+        public string CategoriesFilePath { 
+            get { return _categoriesFilePath; }
+            set {
+                _categoriesFilePath = value;
+                Categories = DeserializeCats(System.IO.File.ReadAllText(_categoriesFilePath));
+            } 
+        } 
+
+        static public Rpc.Common.IdInformation[] DeserializeCats(string catsJsonStr)
+        {
+            return JsonSerializer.Deserialize<Rpc.Common.IdInformation[]>(
+                catsJsonStr, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+            );
+        }
+
+
         public struct RegData
         {
             public string Id { get; set; }
@@ -92,14 +110,16 @@ namespace Mas.Infrastructure.ServiceRegistry
                                   select p.Value.Entry).
                                   Select(e => new Registry.Entry(){
                                       CategoryId = e.CategoryId,
-                                      Ref = Proxy.Share(e.Ref)
+                                      Ref = Proxy.Share(e.Ref),
+                                      Name = e.Name
                                  }));
             else
                 entries.AddRange((from p in _regId2Entry select p.Value.Entry).
                     Select(e => new Registry.Entry()
                     {
                         CategoryId = e.CategoryId,
-                        Ref = Proxy.Share(e.Ref)
+                        Ref = Proxy.Share(e.Ref),
+                        Name = e.Name
                     }));
             return Task.FromResult<IReadOnlyList<Registry.Entry>>(entries);
         }
@@ -256,7 +276,7 @@ namespace Mas.Infrastructure.ServiceRegistry
                         var unreg = new Common.Action(() => {
                             _registry._regId2Entry.TryRemove(regId, out var removedRegData);
                             removedRegData.ReregUnsave?.Do();
-                        }, _restorer);
+                        }, restorer : _restorer, callActionOnDispose : true);
 
                         var regData = new RegData
                         {
@@ -269,7 +289,6 @@ namespace Mas.Infrastructure.ServiceRegistry
                             Unreg = unreg,
                             Cap = Proxy.Share(cap)
                         };
-                        _registry._regId2Entry[regId] = regData;
 
                         // create an reregister action and sturdy ref to it
                         var rereg = new Common.Action1((object anyp) => {
@@ -294,6 +313,8 @@ namespace Mas.Infrastructure.ServiceRegistry
                         var res = _restorer.Save(BareProxy.FromImpl(rereg));
                         // and save the unsave action to remove the sturdy ref on unregistration of the capability
                         regData.ReregUnsave = res.UnsaveAction;
+
+                        _registry._regId2Entry[regId] = regData;
                         
                         // !!! note it is fine to accept manually aquired sturdy refs to the unreg action
                         // !!! to not be automatically removed on unregistration of the capability as the user might
