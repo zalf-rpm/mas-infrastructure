@@ -14,6 +14,7 @@ namespace Mas.Infrastructure.Service
     public class Admin : Mas.Rpc.Service.IAdmin
     {
         private System.Timers.Timer _timer = new();
+        private System.Timers.Timer _killTimer = new();
 
         private Mas.Rpc.Registry.IRegistry _registry;
 
@@ -59,7 +60,9 @@ namespace Mas.Infrastructure.Service
         // stop @2 ();
         public Task Stop(CancellationToken cancellationToken_ = default)
         {
-            System.Environment.Exit(0);
+            _killTimer.Interval = 2000;
+            _killTimer.Elapsed += (s, e) => System.Environment.Exit(0);
+            _killTimer.Start();
             return Task.CompletedTask;
         }
 

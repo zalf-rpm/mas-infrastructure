@@ -64,7 +64,7 @@ async def async_main():
                 config[k] = v
     
     conMan = async_helpers.ConnectionManager()
-    registry = await conMan.connect("capnp://insecure@localhost:9999/ba803fb8-8055-4ec5-8c6c-ed23b02e9035", registry_capnp.Registry)
+    registry = await conMan.connect("capnp://insecure@localhost:9999/a8b8ff83-0af4-42c9-95c8-b6ec19a35945", registry_capnp.Registry)
     print(await registry.info().a_wait())
 
     yieldstat = await conMan.connect("capnp://localhost:15000", model_capnp.EnvInstance)
@@ -139,14 +139,24 @@ def test_registry():
 
     conMan = common.ConnectionManager()
     #restorer = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000", cast_as=persistence_capnp.Restorer)
-    service = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/17051891-fdc2-49f5-a1fd-0c35ecd6cd89", cast_as=climate_data_capnp.Service)
-    registry = conMan.try_connect("capnp://insecure@localhost:9999/ba803fb8-8055-4ec5-8c6c-ed23b02e9035", cast_as=registry_capnp.Registry)
-    registrar = conMan.try_connect("capnp://insecure@pc-berg-7920:9999/c17c4d46-16c9-4220-9ee8-12ba61969f70", cast_as=registry_capnp.Registrar)
-    
+    #service = conMan.try_connect("capnp://insecure@10.10.24.71:38955/5681fdaa-4d7f-4ea9-876e-e0566255486c", cast_as=climate_data_capnp.Service)
+    #registry = conMan.try_connect("capnp://insecure@10.10.24.71:38955/5681fdaa-4d7f-4ea9-876e-e0566255486c", cast_as=registry_capnp.Registry)
+    #registrar = conMan.try_connect("capnp://insecure@10.10.24.71:36501/2d997d95-95ac-400e-aeb7-c439b58b77a5", cast_as=registry_capnp.Registrar)
+    service_admin = conMan.try_connect("capnp://insecure@10.10.24.71:43643/24963034-fbd5-4351-9779-226180259ac3", cast_as=service_capnp.Admin)
+
+    #cap_holder = common.IdentifiableHolder(service, lambda: print("deleted capholder"))
+    #res = registrar.register(cap=cap_holder, regName="dwd-klima", categoryId="climate").wait()
+
     res = registrar.register(cap=service, regName="dwd-klima", categoryId="climate").wait()
+    
+    climate_entries = registry.entries("climate").wait().entries
+    for ent in climate_entries:
+        print(ent.name, " ref.info:")#, ent.ref.info().wait())
+
+    service_again = ent.ref.cast_as(climate_data_capnp.Service)
 
 
-
+    return
     
     
     try:
@@ -242,6 +252,6 @@ def main():
 
 
 if __name__ == '__main__':
-    #main()
+    main()
     #asyncio.get_event_loop().run_until_complete(async_main()) # gets rid of some eventloop cleanup problems using te usual call below
-    asyncio.run(async_main())
+    #asyncio.run(async_main())

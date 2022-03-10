@@ -11,6 +11,8 @@ namespace Mas.Infrastructure.Common
         private ConcurrentDictionary<string, TcpRpcClient> _Connections = new();
         private TcpRpcServer _Server;
 
+        public int Port { get { return _Server.Port; } }
+
         public ConnectionManager() 
         {
             //Console.WriteLine("ConnectionManager created");

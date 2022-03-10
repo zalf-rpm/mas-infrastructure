@@ -43,7 +43,7 @@ class Restorer(persistence_capnp.Restorer.Server):
     def __init__(self):
         self._issued_sr_tokens = {} # sr_token to capability
         self._actions = []
-        self._host = socket.getfqdn() #gethostname()
+        self._host = socket.gethostbyname(socket.gethostname()) #socket.getfqdn() #gethostname()
         self._port = None
 
 
@@ -284,7 +284,28 @@ class Action(common_capnp.Action.Server):
 
 
 # interface CapHolder(Object)
-class CapHolderImpl(common_capnp.CapHolder.Server):
+class CapHolderImpl(common_capnp.CapHolder.Server, Identifiable):
+
+    def __init__(self, cap, cleanup_func, cleanup_on_del=False):
+        self._cap = cap
+        self._cleanup_func = cleanup_func
+        self._already_cleaned_up = False
+        self._cleanup_on_del = cleanup_on_del
+
+    def __del__(self):
+        if self._cleanup_on_del and not self._already_cleaned_up:
+            self.cleanup_func()
+
+    def cap_context(self, context): # cap @0 () -> (object :Object);
+        context.results.cap = self._cap
+
+    def release_context(self, context): # release @1 ();
+        self._cleanup_func()
+        self._cleanup_on_del = True
+
+#------------------------------------------------------------------------------
+
+class IdentifiableHolder(common_capnp.IdentifiableHolder.Server, Identifiable):
 
     def __init__(self, cap, cleanup_func, cleanup_on_del=False):
         self._cap = cap

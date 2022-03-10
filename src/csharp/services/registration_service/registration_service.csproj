@@ -10,8 +10,8 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\capnproto_schemas\gen\csharp\capnproto_schemas_csharp.csproj" />
-    <ProjectReference Include="..\..\common\common.csproj" />
+    <ProjectReference Include="../../../../capnproto_schemas/gen/csharp/capnproto_schemas_csharp.csproj" />
+    <ProjectReference Include="../../common/common.csproj" />
   </ItemGroup>
   
   <ItemGroup>
@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Properties\PublishProfiles\" />
+    <Folder Include="Properties/PublishProfiles/" />
   </ItemGroup>
 
 </Project>

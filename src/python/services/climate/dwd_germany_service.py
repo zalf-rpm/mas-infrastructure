@@ -142,7 +142,7 @@ def main(serve_bootstrap=True, host="*", port=None, reg_sturdy_ref=None,
 
 #------------------------------------------------------------------------------
 
-async def async_main(path_to_data, serve_bootstrap=True, host=None, port=10000, 
+async def async_main(path_to_data, serve_bootstrap=True, host=None, port=0, 
 reg_sturdy_ref=None, id=None, name="DWD - historical - 1991-2019", description=None):
 
     config = {
@@ -215,4 +215,4 @@ reg_sturdy_ref=None, id=None, name="DWD - historical - 1991-2019", description=N
 
 if __name__ == '__main__':
     #asyncio.run(async_main("/beegfs/common/data/climate/dwd/csvs"))
-    asyncio.run(async_main("/run/user/1000/gvfs/sftp:host=localhost,port=2222,user=rpm/beegfs/common/data/climate/dwd/csvs"))
+    asyncio.run(async_main("/run/user/1000/gvfs/sftp:host=login01.cluster.zalf.de,user=rpm/beegfs/common/data/climate/dwd/csvs"))
