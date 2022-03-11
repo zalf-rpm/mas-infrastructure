@@ -11,7 +11,7 @@ $Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/registry
 
 using Common = import "common.capnp";
 
-interface Admin {
+interface Admin extends(Common.Identifiable) {
   # administrative interface to a registry
 
   addCategory @0 (category :Common.IdInformation, upsert :Bool = false) -> (success :Bool);
@@ -58,7 +58,7 @@ interface Registry extends(Common.Identifiable) {
 }
 
 
-interface Registrar {
+interface Registrar extends(Common.Identifiable) {
   # simple interface to register something
   # use case: a registry creates a sturdy ref of a Registrar capability and 
   # this sturdy ref is used to register a service at the registry

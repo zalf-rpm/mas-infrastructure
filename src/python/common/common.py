@@ -354,6 +354,10 @@ class PersistCapHolderImpl(common_capnp.PersistCapHolder.Server):
 
 #------------------------------------------------------------------------------
 
+
+
+
+
 def main():
     pass
     #server = capnp.TwoPartyServer("*:8000", bootstrap=AdminMasterImpl()) #UserMasterImpl(AdminMasterImpl()))

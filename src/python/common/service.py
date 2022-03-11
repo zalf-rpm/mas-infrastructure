@@ -31,11 +31,16 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
+import common.common as common
+import common.service as serv
+import common.capnp_async_helpers as async_helpers
+
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports) 
 persistence_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "persistence.capnp"), imports=abs_imports) 
 service_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "service.capnp"), imports=abs_imports)
+reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
 
 #------------------------------------------------------------------------------
 
@@ -60,10 +65,12 @@ class AdministrableService:
 
 #------------------------------------------------------------------------------
 
-class Admin(service_capnp.Admin.Server):
+class Admin(service_capnp.Admin.Server, common.Identifiable):
 
-    def __init__(self, service, timeout = 0):
-        self._service = service
+    def __init__(self, services, id=None, name=None, description=None, timeout = 0):
+        common.Identifiable.__init__(self, id, name, description)
+
+        self._services = services
         self._timeout = timeout
         self._timeout_prom = None
         self.make_timeout()
@@ -94,17 +101,122 @@ class Admin(service_capnp.Admin.Server):
         exit(0)
 
 
-    def identity_context(self, context): # identity @3 () -> Common.IdInformation;
-        rs = context.results
-        rs.id = self._service.id
-        rs.name = self._service.name
-        rs.description = self._service.description
+    def identities_context(self, context): # identities @3 () -> (infos :List(Common.IdInformation));
+        infos = []
+        for s in self._services:
+            infos.append({"id": s.id, "name": s.name, "description": s.description})
+        return infos
 
 
-    def updateIdentity_context(self, context): # updateIdentity @4 Common.IdInformation;
-        ps = context.params
-        self._service.id = ps.id if ps.id else ""
-        self._service.name = ps.name if ps.name else ""
-        self._service.description = ps.description if ps.description else ""
+    def updateIdentity_context(self, context): # updateIdentity @4 (oldId :Text, newInfo :Common.IdInformation);
+        oid = context.params.oldId
+        ni = context.params.newInfo
+        for s in self._services:
+            if s.id == oid:
+                s.id = ni.id
+                s.name = ni.name
+                s.description = ni.description
 
 #------------------------------------------------------------------------------
+
+async def async_init_and_run_service(name_to_service, host, port, restorer=None, serve_bootstrap=True):
+
+    # check for sturdy ref inputs
+    if not sys.stdin.isatty():
+        try:
+            reg_config = json.loads(sys.stdin.read())
+        except:
+            pass
+    else:
+        reg_config = {}
+
+    conMan = async_helpers.ConnectionManager()
+    if not restorer:
+        restorer = common.Restorer()
+    admin = serv.Admin(list(name_to_service.values()))
+    for s in name_to_service.values():
+        if isinstance(s, AdministrableService):
+            s.admin = admin
+
+    for name, data in reg_config:
+        try:
+            reg_sr = data["reg_sr"]
+            reg_name = data["reg_name"]
+            reg_cat_id = data["cat_id"]
+            registrar = await conMan.try_connect(reg_sr, cast_as=reg_capnp.Registrar)
+            if registrar and name in name_to_service:
+                r = await registrar.register(ref=name_to_service[name], regName=reg_name, categoryId=reg_cat_id).a_wait()
+                unreg_action = r.unreg
+                rereg_sr = r.reregSR
+                admin.store_unreg_data(name, unreg_action, rereg_sr)
+                print("Registered", name, "in category", reg_cat_id, "as", reg_name, ".")
+            else:
+                print("Couldn't connect to registrar at sturdy_ref:", reg_sr)
+        except:
+            pass
+
+    if serve_bootstrap:
+        server = await async_helpers.serve(host, port, restorer)
+        admin_sr, admin_unsave_sr = restorer.save(admin)
+        print("admin_sr:", admin_sr)
+        for s in name_to_service.values():
+            service_sr, service_unsave_sr = restorer.save(s)
+            print("service_sr:", service_sr)
+        print("restorer_sr:", restorer.sturdy_ref())
+
+        async with server:
+            await server.serve_forever()
+    else:
+        await conMan.manage_forever()
+
+#------------------------------------------------------------------------------
+
+def init_and_run_service(name_to_service, host, port, serve_bootstrap=True, restorer=None):
+
+    # check for sturdy ref inputs
+    if not sys.stdin.isatty():
+        try:
+            reg_config = json.loads(sys.stdin.read())
+        except:
+            pass
+    else:
+        reg_config = {}
+
+    conMan = common.ConnectionManager()
+    if not restorer:
+        restorer = common.Restorer()
+    admin = serv.Admin(list(name_to_service.values()))
+    for s in name_to_service.values():
+        if isinstance(s, AdministrableService):
+            s.admin = admin
+
+    for name, data in reg_config:
+        try:
+            reg_sr = data["reg_sr"]
+            reg_name = data["reg_name"]
+            reg_cat_id = data["cat_id"]
+            registrar = conMan.try_connect(reg_sr, cast_as=reg_capnp.Registrar)
+            if registrar and name in name_to_service:
+                r = registrar.register(ref=name_to_service[name], regName=reg_name, categoryId=reg_cat_id).wait()
+                unreg_action = r.unreg
+                rereg_sr = r.reregSR
+                admin.store_unreg_data(name, unreg_action, rereg_sr)
+                print("Registered", name, "in category", reg_cat_id, "as", reg_name, ".")
+            else:
+                print("Couldn't connect to registrar at sturdy_ref:", reg_sr)
+        except:
+            pass
+
+    addr = host + ((":" + str(port)) if port else "")
+    if serve_bootstrap:
+        server = capnp.TwoPartyServer(addr, bootstrap=restorer)
+        restorer.port = port if port else server.port
+        admin_sr, admin_unsave_sr = restorer.save(admin)
+        print("admin_sr:", admin_sr)
+        for s in name_to_service.values():
+            service_sr, service_unsave_sr = restorer.save(s)
+            print("service_sr:", service_sr)
+        print("restorer_sr:", restorer.sturdy_ref())
+    else:
+        capnp.wait_forever()
+    server.run_forever()

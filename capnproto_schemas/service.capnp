@@ -10,7 +10,7 @@ $Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/service"
 using Common = import "common.capnp";
 using Restorer = import "persistence.capnp".Restorer;
 
-interface Admin {
+interface Admin extends(Common.Identifiable) {
   # interface to administer service
 
   heartbeat @0 ();
@@ -22,12 +22,13 @@ interface Admin {
   # or the service received a normal message
 
   stop @2 ();
-  # stop this service immediately
+  # stop all services immediately
 
-  identity @3 () -> Common.IdInformation;
+  identities @3 () -> (infos :List(Common.IdInformation));
+  # get the identities of the administered service objects
 
-  updateIdentity @4 Common.IdInformation;
-  # update the identity of this service
+  updateIdentity @4 (oldId :Text, newInfo :Common.IdInformation);
+  # update the identity of one of the service objects
 }
 
 

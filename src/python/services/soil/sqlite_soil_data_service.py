@@ -20,6 +20,7 @@
 
 import asyncio
 import capnp
+import json
 import logging
 import os
 from pathlib import Path
@@ -42,6 +43,7 @@ if str(PATH_TO_PYTHON_CODE) not in sys.path:
 import common.common as common
 import common.rect_ascii_grid_management as grid_man
 import common.geo as geo
+import common.service as serv
 import common.capnp_async_helpers as async_helpers
 
 PATH_TO_UTIL_SOIL = PATH_TO_REPO.parent / "util/soil"
@@ -130,9 +132,12 @@ CAPNP_PROP_to_MONICA_PARAM_NAME = {
 
 #------------------------------------------------------------------------------
 
-class Service(soil_data_capnp.Service.Server): 
+class Service(soil_data_capnp.Service.Server, common.Identifiable, serv.AdministrableService): 
 
-    def __init__(self, path_to_sqlite_db, path_to_ascii_grid, grid_crs, id=None, name=None, description=None, port=None):
+    def __init__(self, path_to_sqlite_db, path_to_ascii_grid, grid_crs, id=None, name=None, description=None, admin=None):
+        common.Identifiable.__init__(self, id, name, description)
+        serv.AdministrableService.__init__(self, admin)
+
         self._path_to_sqlite_db = path_to_sqlite_db
         self._path_to_ascii_grid = path_to_ascii_grid
         self._con = sqlite3.connect(self._path_to_sqlite_db)
@@ -153,19 +158,6 @@ class Service(soil_data_capnp.Service.Server):
 
         self._capnp_prop_to_monica_param_name = CAPNP_PROP_to_MONICA_PARAM_NAME
         self._monica_param_to_capnp_prop_name = {value : key for key, value in CAPNP_PROP_to_MONICA_PARAM_NAME.items()}
-
-        self._issued_sr_tokens = []
-        self._host = socket.getfqdn() #gethostname()
-        self._port = port
-
-
-    @property
-    def port(self):
-        return self._port
-    
-    @port.setter
-    def port(self, p):
-        self._port = p
 
 
     @property
@@ -209,13 +201,6 @@ class Service(soil_data_capnp.Service.Server):
                 "optional": list(filter(None, map(lambda p: self._monica_param_to_capnp_prop_name.get(p, None), params["optional"])))
             }
         return self._all_available_params_raw
-
-
-    def info_context(self, context): # info @0 () -> IdInformation;
-        r = context.results
-        r.id = self._id
-        r.name = self._name
-        r.description = self._description
 
 
     def check_params_are_available(self, mandatory, optional, only_raw_data): 
@@ -337,25 +322,10 @@ class Service(soil_data_capnp.Service.Server):
             self._latlon_to_capholders[latlon] = p.snd[0] #store reference, so the object won't be garbage collected immediately
     """
 
-    def save_context(self, context): # save @0 SaveParams -> SaveResults;
-        if self.port:
-            id = uuid.uuid4()
-            self._issued_sr_tokens.append(str(id))
-            context.results.sturdyRef = "capnp://insecure@{host}:{port}/{sr_token}".format(host=self._host, port=self.port, sr_token=id)
-        
-
-    def restore_context(self, context): # restore @0 (srToken :Token, owner :SturdyRef.Owner) -> (cap :Capability);
-        if context.params.srToken in self._issued_sr_tokens:
-            context.results.cap = self
-
-
-    def drop_context(self, context): # drop @1 (srToken :Token, owner :SturdyRef.Owner);
-        self._issued_sr_tokens.remove(context.params.srToken)
-
 #------------------------------------------------------------------------------
 
 async def async_main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs, serve_bootstrap=False,
-host="0.0.0.0", port=None, reg_sturdy_ref=None, id=None, name=None, description=None):
+host=None, port=0, id=None, name="Soil service", description=None):
 
     config = {
         "host": host,
@@ -366,9 +336,7 @@ host="0.0.0.0", port=None, reg_sturdy_ref=None, id=None, name=None, description=
         "id": id,
         "name": name,
         "description": description,
-        "reg_sturdy_ref": reg_sturdy_ref,
-        "serve_bootstrap": str(serve_bootstrap),
-        "reg_category": "soil",
+        "serve_bootstrap": str(serve_bootstrap)
     }
     # read commandline args only if script is invoked directly from commandline
     if len(sys.argv) > 1 and __name__ == "__main__":
@@ -378,32 +346,19 @@ host="0.0.0.0", port=None, reg_sturdy_ref=None, id=None, name=None, description=
                 config[k] = v
     print("config used:", config)
 
-    conMan = async_helpers.ConnectionManager()
-
     service = Service(
         path_to_sqlite_db=config["path_to_sqlite_db"],
         path_to_ascii_grid=config["path_to_ascii_soil_grid"],
         grid_crs=geo.name_to_proj(config["grid_crs"]),
         id=config["id"], name=config["name"], description=config["description"])
 
-    if config["reg_sturdy_ref"]:
-        registrator = await conMan.try_connect(config["reg_sturdy_ref"], cast_as=reg_capnp.Registrator)
-        if registrator:
-            unreg = await registrator.register(ref=service, categoryId=config["reg_category"]).a_wait()
-            print("Registered ", config["name"], "soil service")
-            #await unreg.unregister.unregister().a_wait()
-        else:
-            print("Couldn't connect to registrator at sturdy_ref:", config["reg_sturdy_ref"])
-
-    if config["serve_bootstrap"].upper() == "TRUE":
-        await async_helpers.serve_forever(config["host"], config["port"], service)
-    else:
-        await conMan.manage_forever()
+    await serv.async_init_and_run_service({"service": service}, config["host"], config["port"], 
+        serve_bootstrap=config["serve_bootstrap"])
 
 #------------------------------------------------------------------------------
 
-def main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs, serve_bootstrap=False,
-host="0.0.0.0", port=None, reg_sturdy_ref=None, id=None, name=None, description=None):
+def main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs, serve_bootstrap=True,
+host="*", port=None, id=None, name="Soil service", description=None):
 
     config = {
         "host": host,
@@ -414,9 +369,7 @@ host="0.0.0.0", port=None, reg_sturdy_ref=None, id=None, name=None, description=
         "id": id,
         "name": name,
         "description": description,
-        "reg_sturdy_ref": reg_sturdy_ref,
-        "serve_bootstrap": str(serve_bootstrap),
-        "reg_category": "soil",
+        "serve_bootstrap": str(serve_bootstrap)
     }
     # read commandline args only if script is invoked directly from commandline
     if len(sys.argv) > 1 and __name__ == "__main__":
@@ -432,18 +385,17 @@ host="0.0.0.0", port=None, reg_sturdy_ref=None, id=None, name=None, description=
         grid_crs=geo.name_to_proj(config["grid_crs"]),
         id=config["id"], name=config["name"], description=config["description"])
 
-    if config["serve_bootstrap"].upper() == "TRUE":
-        server = capnp.TwoPartyServer(config["host"] + ":" + str(config["port"]), bootstrap=service)
-        server.run_forever()
+    serv.init_and_run_service({"service": service}, config["host"], config["port"], 
+        serve_bootstrap=config["serve_bootstrap"])
 
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__':
     db = "data/soil/buek1000.sqlite"
-    grid = "data/soil/buek1000_1000_gk5.asc"
+    grid = "data/soil/buek1000_1000_31469_gk5.asc"
     crs = "gk5"
 
-    #main(db, grid, crs, serve_bootstrap=True, port=10000)
-    asyncio.run(async_main(db, grid, crs, serve_bootstrap=True, port=10000))
+    main(db, grid, crs, serve_bootstrap=True)
+    #asyncio.run(async_main(db, grid, crs, serve_bootstrap=True))
 
 

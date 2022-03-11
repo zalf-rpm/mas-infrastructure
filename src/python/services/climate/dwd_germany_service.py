@@ -72,10 +72,10 @@ def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon, 
 
 #------------------------------------------------------------------------------
 
-def main(serve_bootstrap=True, host="*", port=None, reg_sturdy_ref=None,
-    id=None, name="DWD - historical - 1991-2019", description=None):
+def main(path_to_data, serve_bootstrap=True, host="*", port=None, id=None, name="DWD - historical - 1991-2019", description=None):
 
     config = {
+        "path_to_data": path_to_data,
         "port": port,
         "host": host,
         "id": id,
@@ -91,54 +91,12 @@ def main(serve_bootstrap=True, host="*", port=None, reg_sturdy_ref=None,
                 config[k] = v
     print(config)
 
-    # check for sturdy ref inputs
-    if not sys.stdin.isatty():
-        try:
-            reg_config = json.loads(sys.stdin.read())
-        except:
-            pass
-    else:
-        reg_config = {}
-
-    conMan = common.ConnectionManager()
-
     restorer = common.Restorer()
-
     interpolator, rowcol_to_latlon = ccdi.create_lat_lon_interpolator_from_json_coords_file(config["path_to_data"] + "/" + "latlon-to-rowcol.json")
     meta_plus_data = create_meta_plus_datasets(config["path_to_data"] + "/germany", interpolator, rowcol_to_latlon, restorer)
     service = ccdi.Service(meta_plus_data, id=config["id"], name=config["name"], description=config["description"])
-    admin = serv.Admin(service)
-    service.admin = admin
-    
-    for name, data in reg_config:
-        try:
-            reg_sr = data["reg_sr"]
-            reg_name = data["reg_name"]
-            reg_cat_id = data["cat_id"]
-            registrar = conMan.try_connect(reg_sr, cast_as=reg_capnp.Registrar)
-            if registrar:
-                r = registrar.register(ref=service, regName=reg_name, categoryId=reg_cat_id).wait()
-                unreg_action = r.unreg
-                rereg_sr = r.reregSR
-                admin.store_unreg_data(name, unreg_action, rereg_sr)
-                print("Registered", name, "in category", reg_cat_id, "as", reg_name, ".")
-            else:
-                print("Couldn't connect to registrar at sturdy_ref:", reg_sr)
-        except:
-            pass
-
-    addr = config["host"] + ((":" + str(config["port"])) if config["port"] else "")
-    if config["serve_bootstrap"].lower() == "true":
-        server = capnp.TwoPartyServer(addr, bootstrap=restorer)
-        restorer.port = port if port else server.port
-        admin_sr = restorer.save(admin)
-        service_sr = restorer.save(service)
-        print("admin_sr:", admin_sr)
-        print("service_sr:", service_sr)
-        print("restorer_sr:", restorer.sturdy_ref())
-    else:
-        capnp.wait_forever()
-    server.run_forever()
+    serv.init_and_run_service({"service": service}, config["host"], config["port"], 
+        serve_bootstrap=config["serve_bootstrap"], restorer = restorer)
 
 #------------------------------------------------------------------------------
 
@@ -162,57 +120,15 @@ reg_sturdy_ref=None, id=None, name="DWD - historical - 1991-2019", description=N
                 config[k] = v
     print("config used:", config)
 
-    # check for sturdy ref inputs
-    if not sys.stdin.isatty():
-        try:
-            reg_config = json.loads(sys.stdin.read())
-        except:
-            pass
-    else:
-        reg_config = {}
-
-    conMan = async_helpers.ConnectionManager()
-
     restorer = common.Restorer()
     interpolator, rowcol_to_latlon = ccdi.create_lat_lon_interpolator_from_json_coords_file(config["path_to_data"] + "/" + "latlon-to-rowcol.json")
     meta_plus_data = create_meta_plus_datasets(config["path_to_data"] + "/germany", interpolator, rowcol_to_latlon, restorer)
     service = ccdi.Service(meta_plus_data, id=config["id"], name=config["name"], description=config["description"])
-    admin = serv.Admin(service)
-    service.admin = admin
-
-    for name, data in reg_config:
-        try:
-            reg_sr = data["reg_sr"]
-            reg_name = data["reg_name"]
-            reg_cat_id = data["cat_id"]
-            registrar = await conMan.try_connect(reg_sr, cast_as=reg_capnp.Registrar)
-            if registrar:
-                r = await registrar.register(ref=service, regName=reg_name, categoryId=reg_cat_id).a_wait()
-                unreg_action = r.unreg
-                rereg_sr = r.reregSR
-                admin.store_unreg_data(name, unreg_action, rereg_sr)
-                print("Registered", name, "in category", reg_cat_id, "as", reg_name, ".")
-            else:
-                print("Couldn't connect to registrar at sturdy_ref:", reg_sr)
-        except:
-            pass
-
-    if config["serve_bootstrap"].lower() == "true":
-        server = await async_helpers.serve(config["host"], config["port"], restorer)
-
-        admin_sr = restorer.save(admin)
-        service_sr = restorer.save(service)
-        print("admin_sr:", admin_sr[0])
-        print("service_sr:", service_sr[0])
-        print("restorer_sr:", restorer.sturdy_ref()[0])
-
-        async with server:
-            await server.serve_forever()
-    else:
-        await conMan.manage_forever()
+    await serv.async_init_and_run_service({"service": service}, config["host"], config["port"], 
+        serve_bootstrap=config["serve_bootstrap"], restorer = restorer)
 
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    #asyncio.run(async_main("/beegfs/common/data/climate/dwd/csvs"))
-    asyncio.run(async_main("/run/user/1000/gvfs/sftp:host=login01.cluster.zalf.de,user=rpm/beegfs/common/data/climate/dwd/csvs"))
+    main("/run/user/1000/gvfs/sftp:host=login01.cluster.zalf.de,user=rpm/beegfs/common/data/climate/dwd/csvs")
+    #asyncio.run(async_main("/run/user/1000/gvfs/sftp:host=login01.cluster.zalf.de,user=rpm/beegfs/common/data/climate/dwd/csvs"))

@@ -20,6 +20,7 @@
 
 import asyncio
 import capnp
+import json
 import logging
 import math
 import os
@@ -40,6 +41,7 @@ if str(PATH_TO_PYTHON_CODE) not in sys.path:
 import common.common as common
 import common.rect_ascii_grid_management as grid_man
 import common.geo as geo
+import common.service as serv
 import common.capnp_async_helpers as async_helpers
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
@@ -50,9 +52,11 @@ reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=ab
 
 #------------------------------------------------------------------------------
 
-class Grid(grid_capnp.Grid.Server): 
+class Grid(grid_capnp.Grid.Server, common.Identifiable, serv.AdministrableService): 
 
-    def __init__(self, path_to_ascii_grid, grid_crs, val_type, id=None, name=None, description=None):
+    def __init__(self, path_to_ascii_grid, grid_crs, val_type, id=None, name=None, description=None, admin=None):
+        common.Identifiable.__init__(self, id, name, description)
+        serv.AdministrableService.__init__(self, admin)
 
         self._id = str(id if id else uuid.uuid4())
         self._name = name if name else self._id
@@ -406,7 +410,7 @@ class Grid(grid_capnp.Grid.Server):
 #------------------------------------------------------------------------------
 
 async def async_main(path_to_ascii_grid, grid_crs, val_type, serve_bootstrap=False,
-host="0.0.0.0", port=None, reg_sturdy_ref=None, id=None, name=None, description=None):
+host=None, port=0, reg_sturdy_ref=None, id=None, name="Grid service", description=None):
 
     config = {
         "host": host,
@@ -417,9 +421,7 @@ host="0.0.0.0", port=None, reg_sturdy_ref=None, id=None, name=None, description=
         "id": id,
         "name": name,
         "description": description,
-        "reg_sturdy_ref": reg_sturdy_ref,
-        "serve_bootstrap": str(serve_bootstrap),
-        "reg_category": "soil",
+        "serve_bootstrap": str(serve_bootstrap)
     }
     # read commandline args only if script is invoked directly from commandline
     if len(sys.argv) > 1 and __name__ == "__main__":
@@ -429,30 +431,16 @@ host="0.0.0.0", port=None, reg_sturdy_ref=None, id=None, name=None, description=
                 config[k] = v
     print("config used:", config)
 
-    conMan = async_helpers.ConnectionManager()
-
     grid = Grid(path_to_ascii_grid=config["path_to_ascii_grid"], 
         grid_crs=geo.name_to_proj(config["grid_crs"]), val_type=int if config["val_type"] == "int" else float,
         id=config["id"], name=config["name"], description=config["description"])
 
-    if config["reg_sturdy_ref"]:
-        registrator = await conMan.try_connect(config["reg_sturdy_ref"], cast_as=reg_capnp.Registrator)
-        if registrator:
-            unreg = await registrator.register(ref=grid, categoryId=config["reg_category"]).a_wait()
-            print("Registered ", config["name"], "soil service")
-            #await unreg.unregister.unregister().a_wait()
-        else:
-            print("Couldn't connect to registrator at sturdy_ref:", config["reg_sturdy_ref"])
-
-    if config["serve_bootstrap"].upper() == "TRUE":
-        await async_helpers.serve_forever(config["host"], config["port"], grid)
-    else:
-        await conMan.manage_forever()
+    await serv.async_init_and_run_service({"grid": grid}, config["host"], config["port"], config["serve_bootstrap"])
 
 #------------------------------------------------------------------------------
 
-def main(path_to_ascii_grid, grid_crs, val_type,serve_bootstrap=False,
-host="0.0.0.0", port=None, reg_sturdy_ref=None, id=None, name=None, description=None):
+def main(path_to_ascii_grid, grid_crs, val_type, serve_bootstrap=True,
+host="*", port=None, id=None, name="Grid service", description=None):
 
     config = {
         "host": host,
@@ -463,9 +451,7 @@ host="0.0.0.0", port=None, reg_sturdy_ref=None, id=None, name=None, description=
         "id": id,
         "name": name,
         "description": description,
-        "reg_sturdy_ref": reg_sturdy_ref,
-        "serve_bootstrap": str(serve_bootstrap),
-        "reg_category": "soil",
+        "serve_bootstrap": str(serve_bootstrap)
     }
     # read commandline args only if script is invoked directly from commandline
     if len(sys.argv) > 1 and __name__ == "__main__":
@@ -479,17 +465,16 @@ host="0.0.0.0", port=None, reg_sturdy_ref=None, id=None, name=None, description=
         grid_crs=geo.name_to_proj(config["grid_crs"]), val_type=int if config["val_type"] == "int" else float,
         id=config["id"], name=config["name"], description=config["description"])
 
-    if config["serve_bootstrap"].upper() == "TRUE":
-        server = capnp.TwoPartyServer(config["host"] + ":" + str(config["port"]), bootstrap=grid)
-        server.run_forever()
+    serv.init_and_run_service({"grid": grid}, config["host"], config["port"], config["serve_bootstrap"])
 
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    grid = "data/geo/dem_1000_gk5.asc"
+    #grid = "data/geo/dem_1000_31469_gk5.asc"
+    grid = "data/geo/slope_1000_31469_gk5.asc"
     crs = "gk5"
 
-    #main(db, grid, crs, serve_bootstrap=True, port=10000)
-    asyncio.run(async_main(grid, crs, "float", serve_bootstrap=True, port=16000))
+    main(grid, crs, "float", serve_bootstrap=True)
+    #asyncio.run(async_main(grid, crs, "float", serve_bootstrap=True))
 
 
