@@ -119,7 +119,9 @@ class Admin(service_capnp.Admin.Server, common.Identifiable):
 
 #------------------------------------------------------------------------------
 
-async def async_init_and_run_service(name_to_service, host, port, restorer=None, serve_bootstrap=True):
+async def async_init_and_run_service(name_to_service, host=None, port=0, serve_bootstrap=True, restorer=None, **kwargs):
+
+    port = port if port else 0
 
     # check for sturdy ref inputs
     if not sys.stdin.isatty():
@@ -171,7 +173,9 @@ async def async_init_and_run_service(name_to_service, host, port, restorer=None,
 
 #------------------------------------------------------------------------------
 
-def init_and_run_service(name_to_service, host, port, serve_bootstrap=True, restorer=None):
+def init_and_run_service(name_to_service, host="*", port=None, serve_bootstrap=True, restorer=None, **kwargs):
+
+    host = host if host else "*"
 
     # check for sturdy ref inputs
     if not sys.stdin.isatty():

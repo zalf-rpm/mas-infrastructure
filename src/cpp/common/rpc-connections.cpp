@@ -63,10 +63,10 @@ kj::Promise<capnp::Capability::Client> ConnectionManager::connect(kj::AsyncIoCon
 				Capability::Client bootstrapCap = (*clientContext)->bootstrap;
 
 				if (!srToken.empty()) {
-					auto restorerClient = bootstrapCap.castAs<Restorer<capnp::Text>>();
+					auto restorerClient = bootstrapCap.castAs<Restorer>();
 					auto req = restorerClient.restoreRequest();
-          req.setSrToken(srToken);
-          return req.send().then([](auto&& res) { return res.getCap(); });
+					req.setSrToken(srToken);
+					return req.send().then([](auto&& res) { return res.getCap(); });
 				} 
 				return bootstrapCap;
 			} else {
@@ -82,10 +82,10 @@ kj::Promise<capnp::Capability::Client> ConnectionManager::connect(kj::AsyncIoCon
 						_connections.insert(kj::str(addressPort), kj::mv(cc));
 
 						if (!srToken.empty()) {
-							auto restorerCap = bootstrapCap.castAs<Restorer<capnp::Text>>();
-              auto req = restorerCap.restoreRequest();
-              req.setSrToken(srToken);
-              return req.send().then([](auto&& res) { return res.getCap(); });
+							auto restorerCap = bootstrapCap.castAs<Restorer>();
+							auto req = restorerCap.restoreRequest();
+							req.setSrToken(srToken);
+							return req.send().then([](auto&& res) { return res.getCap(); });
 						}
 						return kj::Promise<Capability::Client>(bootstrapCap);
 					}

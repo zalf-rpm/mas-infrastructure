@@ -7,10 +7,8 @@ using Go = import "/capnp/go.capnp";
 $Go.package("jobs");
 $Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/jobs");
 
-using LatLngCoord = import "geo_coord.capnp".LatLonCoord;
-
-struct Job {
-    latLngCoords    @0 :List(LatLngCoord);
+struct Job(Payload) {
+    data            @0 :Payload;
     noFurtherJobs   @1 :Bool = false;
 }
 
