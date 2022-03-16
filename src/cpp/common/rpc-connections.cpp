@@ -19,6 +19,8 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <vector>
 #include <algorithm>
 
+#include <sys/socket.h>
+
 #define KJ_MVCAP(var) var = kj::mv(var)
 
 #include <capnp/ez-rpc.h>
@@ -40,7 +42,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 using namespace std;
 using namespace Tools;
 using namespace mas;
-using namespace mas::rpc::persistence;
+using namespace mas::schema::persistence;
 using namespace capnp;
 using namespace mas::infrastructure::common;
 
@@ -58,7 +60,6 @@ kj::Promise<capnp::Capability::Client> ConnectionManager::connect(kj::AsyncIoCon
 		auto srToken = slashPos == string::npos ? "" : sturdyRefStr.substr(slashPos + 1);
 
 		if (!addressPort.empty()) {
-
 			KJ_IF_MAYBE(clientContext, _connections.find(addressPort)) {
 				Capability::Client bootstrapCap = (*clientContext)->bootstrap;
 
@@ -85,11 +86,13 @@ kj::Promise<capnp::Capability::Client> ConnectionManager::connect(kj::AsyncIoCon
 							auto restorerCap = bootstrapCap.castAs<Restorer>();
 							auto req = restorerCap.restoreRequest();
 							req.setSrToken(srToken);
-							return req.send().then([](auto&& res) { return res.getCap(); });
+							return req.send().then([](auto&& res) { 
+								return res.getCap(); 
+							});
 						}
 						return kj::Promise<Capability::Client>(bootstrapCap);
 					}
-        );
+        		);
 			}
 		}
 	}
@@ -98,27 +101,35 @@ kj::Promise<capnp::Capability::Client> ConnectionManager::connect(kj::AsyncIoCon
 }
 
 
-kj::Promise<kj::uint> ConnectionManager::bind(kj::AsyncIoContext& ioContext, 
+std::pair<kj::Promise<std::string>, kj::Promise<kj::uint>> ConnectionManager::bind(kj::AsyncIoContext& ioContext, 
 	capnp::Capability::Client mainInterface, std::string address, kj::uint port) 	{
 
 	_serverMainInterface = mainInterface;
 
-	auto paf = kj::newPromiseAndFulfiller<uint>();
-	kj::ForkedPromise<uint> portPromise = paf.promise.fork();
+	auto portPaf = kj::newPromiseAndFulfiller<uint>();
+	kj::ForkedPromise<uint> portPromise = portPaf.promise.fork();
+
+	auto ipPaf = kj::newPromiseAndFulfiller<string>();
+	kj::ForkedPromise<string> ipPromise = ipPaf.promise.fork();
 
 	auto& network = ioContext.provider->getNetwork();
 	auto bindAddress = address + (port < 0 ? "" : string(":") + to_string(port));
 	//uint defaultPort = 0;
 
-	auto&& portFulfiller = paf.fulfiller;
+	auto&& portFulfiller = portPaf.fulfiller;
+	auto&& ipFulfiller = ipPaf.fulfiller;
 	tasks.add(network.parseAddress(bindAddress, port)
-		.then([KJ_MVCAP(portFulfiller), this](kj::Own<kj::NetworkAddress>&& addr) mutable {
+		.then([KJ_MVCAP(portFulfiller), KJ_MVCAP(ipFulfiller), this](kj::Own<kj::NetworkAddress>&& addr) mutable {
 		auto listener = addr->listen();
 		portFulfiller->fulfill(listener->getPort());
+		sockaddr saddr;
+		kj::uint socklen;
+		listener->getsockname(&saddr, &socklen);
+		ipFulfiller->fulfill(saddr.sa_data);
 		acceptLoop(kj::mv(listener), capnp::ReaderOptions());
 	}));
 
-	return portPromise.addBranch();
+	return make_pair(ipPromise.addBranch(), portPromise.addBranch());
 }
 
 void ConnectionManager::acceptLoop(kj::Own<kj::ConnectionReceiver>&& listener, capnp::ReaderOptions readerOpts) {

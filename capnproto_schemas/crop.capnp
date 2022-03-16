@@ -1,7 +1,7 @@
 @0xf98a24e1969df972;
 
 using Cxx = import "/capnp/c++.capnp";
-$Cxx.namespace("mas::rpc::crop");
+$Cxx.namespace("mas::schema::crop");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("crop");

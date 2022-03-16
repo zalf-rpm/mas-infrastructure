@@ -1,7 +1,7 @@
 @0x99f1c9a775a88ac9;
 
 using Cxx = import "/capnp/c++.capnp";
-$Cxx.namespace("mas::rpc::common");
+$Cxx.namespace("mas::schema::common");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("common");
@@ -20,17 +20,6 @@ interface Identifiable {
   # interface to retrieve id information from an object
   info @0 () -> IdInformation;
 }
-
-#struct Date {
-  # A standard Gregorian calendar date.
-
-#  year @0 :Int16;
-  # The year. Must include the century.
-  # Negative value indicates BC.
-
-#  month @1 :UInt8;   # Month number, 1-12.
-#  day @2 :UInt8;     # Day number, 1-31.
-#}
 
 
 struct StructuredText {
@@ -96,6 +85,19 @@ interface CapHolder(Object) {
   release @1 () $Go.name("releaseCap"); 
   # release capability on server side (signaling that capability cap isn't needed anymore)
 }
+
+
+interface IdentifiableHolder extends(Identifiable) {
+  # hold a capability to an object
+  # give the sender the chance to know when the CapHolder object isn't used any more
+
+  cap @0 () -> (cap :Identifiable);
+  # reference to some object, which can be any pointer type like a List(Capability), Capability or Struct
+
+  release @1 () $Go.name("releaseCap"); 
+  # release capability on server side (signaling that capability cap isn't needed anymore)
+}
+
 
 #interface PersistCapHolder(Object) extends(CapHolder(Object), Persistent) {
   # persistent CapHolder which allows to get a token to recreate the CapHolder later

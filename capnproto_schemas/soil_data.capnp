@@ -1,7 +1,7 @@
 @0xff3f350f11891951;
 
 using Cxx = import "/capnp/c++.capnp";
-$Cxx.namespace("mas::rpc::soil");
+$Cxx.namespace("mas::schema::soil");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("soil");

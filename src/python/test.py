@@ -42,7 +42,7 @@ soil_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "soil_data.capnp"), imp
 registry_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
 persistence_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "persistence.capnp"), imports=abs_imports)
 model_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "model.capnp"), imports=abs_imports)
-yieldstat_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "models" / "yieldstat" / "yieldstat.capnp"), imports=abs_imports)
+yieldstat_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "model" / "yieldstat" / "yieldstat.capnp"), imports=abs_imports)
 climate_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate_data.capnp"), imports=abs_imports)
 mgmt_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "management.capnp"), imports=abs_imports)
 service_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "service.capnp"), imports=abs_imports)
@@ -138,6 +138,7 @@ def test_climate_service():
 def test_registry():
 
     conMan = common.ConnectionManager()
+    monica = conMan.try_connect("capnp://insecure@10.10.24.110:42343/87976b96-38f1-4598-99f6-197048bd2c07", cast_as=model_capnp.EnvInstance)
     #restorer = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000", cast_as=persistence_capnp.Restorer)
     #service = conMan.try_connect("capnp://insecure@10.10.24.71:38955/5681fdaa-4d7f-4ea9-876e-e0566255486c", cast_as=climate_data_capnp.Service)
     #registry = conMan.try_connect("capnp://insecure@10.10.24.71:38955/5681fdaa-4d7f-4ea9-876e-e0566255486c", cast_as=registry_capnp.Registry)

@@ -3,7 +3,7 @@
 #using Persistent = import "/capnp/persistent.capnp".Persistent;
 
 using Cxx = import "/capnp/c++.capnp";
-$Cxx.namespace("mas::rpc::persistence");
+$Cxx.namespace("mas::schema::persistence");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("persistence");

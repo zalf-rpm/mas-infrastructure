@@ -1,7 +1,7 @@
 @0xd373e9739460aa23;
 
 using Cxx = import "/capnp/c++.capnp";
-$Cxx.namespace("mas::rpc::grid");
+$Cxx.namespace("mas::schema::grid");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("grid");

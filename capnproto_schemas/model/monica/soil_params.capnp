@@ -1,11 +1,11 @@
 @0xf83caca0747996ab;
 
 using Cxx = import "/capnp/c++.capnp";
-$Cxx.namespace("mas::data::soil");
+$Cxx.namespace("mas::schema::soil");
 
 using Go = import "/capnp/go.capnp";
-$Go.package("monica");
-$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/models/monica");
+$Go.package("soil");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/soil");
 
 struct SoilCharacteristicData {
     struct Data {

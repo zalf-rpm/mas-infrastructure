@@ -1,7 +1,7 @@
 @0xf52adf98d2bbc6c0;
 
 using Cxx = import "/capnp/c++.capnp";
-$Cxx.namespace("mas::rpc::service");
+$Cxx.namespace("mas::schema::service");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("service");

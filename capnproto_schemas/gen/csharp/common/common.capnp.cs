@@ -1352,6 +1352,295 @@ namespace Mas.Rpc.Common
         }
     }
 
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xee543d7c305d56f6UL), Proxy(typeof(IdentifiableHolder_Proxy)), Skeleton(typeof(IdentifiableHolder_Skeleton))]
+    public interface IIdentifiableHolder : Mas.Rpc.Common.IIdentifiable
+    {
+        Task<Mas.Rpc.Common.IIdentifiable> Cap(CancellationToken cancellationToken_ = default);
+        Task Release(CancellationToken cancellationToken_ = default);
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xee543d7c305d56f6UL)]
+    public class IdentifiableHolder_Proxy : Proxy, IIdentifiableHolder
+    {
+        public Task<Mas.Rpc.Common.IIdentifiable> Cap(CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Common.IdentifiableHolder.Params_Cap.WRITER>();
+            var arg_ = new Mas.Rpc.Common.IdentifiableHolder.Params_Cap()
+            {};
+            arg_?.serialize(in_);
+            return Impatient.MakePipelineAware(Call(17173418882667206390UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
+            {
+                using (d_)
+                {
+                    var r_ = CapnpSerializable.Create<Mas.Rpc.Common.IdentifiableHolder.Result_Cap>(d_);
+                    return (r_.Cap);
+                }
+            }
+
+            );
+        }
+
+        public async Task Release(CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Common.IdentifiableHolder.Params_Release.WRITER>();
+            var arg_ = new Mas.Rpc.Common.IdentifiableHolder.Params_Release()
+            {};
+            arg_?.serialize(in_);
+            using (var d_ = await Call(17173418882667206390UL, 1, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            {
+                var r_ = CapnpSerializable.Create<Mas.Rpc.Common.IdentifiableHolder.Result_Release>(d_);
+                return;
+            }
+        }
+
+        public async Task<Mas.Rpc.Common.IdInformation> Info(CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Common.Identifiable.Params_Info.WRITER>();
+            var arg_ = new Mas.Rpc.Common.Identifiable.Params_Info()
+            {};
+            arg_?.serialize(in_);
+            using (var d_ = await Call(12875740530987518165UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            {
+                var r_ = CapnpSerializable.Create<Mas.Rpc.Common.IdInformation>(d_);
+                return r_;
+            }
+        }
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xee543d7c305d56f6UL)]
+    public class IdentifiableHolder_Skeleton : Skeleton<IIdentifiableHolder>
+    {
+        public IdentifiableHolder_Skeleton()
+        {
+            SetMethodTable(Cap, Release);
+        }
+
+        public override ulong InterfaceId => 17173418882667206390UL;
+        Task<AnswerOrCounterquestion> Cap(DeserializerState d_, CancellationToken cancellationToken_)
+        {
+            using (d_)
+            {
+                return Impatient.MaybeTailCall(Impl.Cap(cancellationToken_), cap =>
+                {
+                    var s_ = SerializerState.CreateForRpc<Mas.Rpc.Common.IdentifiableHolder.Result_Cap.WRITER>();
+                    var r_ = new Mas.Rpc.Common.IdentifiableHolder.Result_Cap{Cap = cap};
+                    r_.serialize(s_);
+                    return s_;
+                }
+
+                );
+            }
+        }
+
+        async Task<AnswerOrCounterquestion> Release(DeserializerState d_, CancellationToken cancellationToken_)
+        {
+            using (d_)
+            {
+                await Impl.Release(cancellationToken_);
+                var s_ = SerializerState.CreateForRpc<Mas.Rpc.Common.IdentifiableHolder.Result_Release.WRITER>();
+                return s_;
+            }
+        }
+    }
+
+    public static class IdentifiableHolder
+    {
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x93a1b0e66bcacfbbUL)]
+        public class Params_Cap : ICapnpSerializable
+        {
+            public const UInt64 typeId = 0x93a1b0e66bcacfbbUL;
+            void ICapnpSerializable.Deserialize(DeserializerState arg_)
+            {
+                var reader = READER.create(arg_);
+                applyDefaults();
+            }
+
+            public void serialize(WRITER writer)
+            {
+            }
+
+            void ICapnpSerializable.Serialize(SerializerState arg_)
+            {
+                serialize(arg_.Rewrap<WRITER>());
+            }
+
+            public void applyDefaults()
+            {
+            }
+
+            public struct READER
+            {
+                readonly DeserializerState ctx;
+                public READER(DeserializerState ctx)
+                {
+                    this.ctx = ctx;
+                }
+
+                public static READER create(DeserializerState ctx) => new READER(ctx);
+                public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+            }
+
+            public class WRITER : SerializerState
+            {
+                public WRITER()
+                {
+                    this.SetStruct(0, 0);
+                }
+            }
+        }
+
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xb9fe596d7cadbdccUL)]
+        public class Result_Cap : ICapnpSerializable
+        {
+            public const UInt64 typeId = 0xb9fe596d7cadbdccUL;
+            void ICapnpSerializable.Deserialize(DeserializerState arg_)
+            {
+                var reader = READER.create(arg_);
+                Cap = reader.Cap;
+                applyDefaults();
+            }
+
+            public void serialize(WRITER writer)
+            {
+                writer.Cap = Cap;
+            }
+
+            void ICapnpSerializable.Serialize(SerializerState arg_)
+            {
+                serialize(arg_.Rewrap<WRITER>());
+            }
+
+            public void applyDefaults()
+            {
+            }
+
+            public Mas.Rpc.Common.IIdentifiable Cap
+            {
+                get;
+                set;
+            }
+
+            public struct READER
+            {
+                readonly DeserializerState ctx;
+                public READER(DeserializerState ctx)
+                {
+                    this.ctx = ctx;
+                }
+
+                public static READER create(DeserializerState ctx) => new READER(ctx);
+                public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                public Mas.Rpc.Common.IIdentifiable Cap => ctx.ReadCap<Mas.Rpc.Common.IIdentifiable>(0);
+            }
+
+            public class WRITER : SerializerState
+            {
+                public WRITER()
+                {
+                    this.SetStruct(0, 1);
+                }
+
+                public Mas.Rpc.Common.IIdentifiable Cap
+                {
+                    get => ReadCap<Mas.Rpc.Common.IIdentifiable>(0);
+                    set => LinkObject(0, value);
+                }
+            }
+        }
+
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xd69f2da1efe3faafUL)]
+        public class Params_Release : ICapnpSerializable
+        {
+            public const UInt64 typeId = 0xd69f2da1efe3faafUL;
+            void ICapnpSerializable.Deserialize(DeserializerState arg_)
+            {
+                var reader = READER.create(arg_);
+                applyDefaults();
+            }
+
+            public void serialize(WRITER writer)
+            {
+            }
+
+            void ICapnpSerializable.Serialize(SerializerState arg_)
+            {
+                serialize(arg_.Rewrap<WRITER>());
+            }
+
+            public void applyDefaults()
+            {
+            }
+
+            public struct READER
+            {
+                readonly DeserializerState ctx;
+                public READER(DeserializerState ctx)
+                {
+                    this.ctx = ctx;
+                }
+
+                public static READER create(DeserializerState ctx) => new READER(ctx);
+                public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+            }
+
+            public class WRITER : SerializerState
+            {
+                public WRITER()
+                {
+                    this.SetStruct(0, 0);
+                }
+            }
+        }
+
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x8ca159db7de3927bUL)]
+        public class Result_Release : ICapnpSerializable
+        {
+            public const UInt64 typeId = 0x8ca159db7de3927bUL;
+            void ICapnpSerializable.Deserialize(DeserializerState arg_)
+            {
+                var reader = READER.create(arg_);
+                applyDefaults();
+            }
+
+            public void serialize(WRITER writer)
+            {
+            }
+
+            void ICapnpSerializable.Serialize(SerializerState arg_)
+            {
+                serialize(arg_.Rewrap<WRITER>());
+            }
+
+            public void applyDefaults()
+            {
+            }
+
+            public struct READER
+            {
+                readonly DeserializerState ctx;
+                public READER(DeserializerState ctx)
+                {
+                    this.ctx = ctx;
+                }
+
+                public static READER create(DeserializerState ctx) => new READER(ctx);
+                public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+            }
+
+            public class WRITER : SerializerState
+            {
+                public WRITER()
+                {
+                    this.SetStruct(0, 0);
+                }
+            }
+        }
+    }
+
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xc201bf46dd40051eUL)]
     public class ListEntry<TPointerType> : ICapnpSerializable where TPointerType : class
     {

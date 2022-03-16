@@ -4,7 +4,7 @@
 
 /*
 Authors:
-Michael Berg <michael.berg@zalf.de>
+Michael Berg <michael.berg-mohnicke@zalf.de>
 
 Maintainers:
 Currently maintained by the authors.
@@ -37,9 +37,9 @@ namespace mas {
 				capnp::Capability::Client bootstrap{ nullptr };
 
 				ClientContext(kj::Own<kj::AsyncIoStream>&& stream, capnp::ReaderOptions readerOpts)
-					: stream(kj::mv(stream)),
-					network(*this->stream, capnp::rpc::twoparty::Side::CLIENT, readerOpts),
-					rpcSystem(makeRpcClient(network)) {}
+					: stream(kj::mv(stream))
+					, network(*this->stream, capnp::rpc::twoparty::Side::CLIENT, readerOpts)
+					, rpcSystem(makeRpcClient(network)) {}
 
 				capnp::Capability::Client getMain() {
 					capnp::word scratch[4];
@@ -78,7 +78,7 @@ namespace mas {
 
 				kj::Promise<capnp::Capability::Client> connect(kj::AsyncIoContext& ioContext, std::string sturdyRefStr);
 
-				kj::Promise<kj::uint> bind(kj::AsyncIoContext& ioContext, capnp::Capability::Client mainInterface, std::string address, kj::uint port = 0U);
+				std::pair<kj::Promise<std::string>, kj::Promise<kj::uint>> bind(kj::AsyncIoContext& ioContext, capnp::Capability::Client mainInterface, std::string address, kj::uint port = 0U);
 
 			private:
 				void acceptLoop(kj::Own<kj::ConnectionReceiver>&& listener, capnp::ReaderOptions readerOpts);

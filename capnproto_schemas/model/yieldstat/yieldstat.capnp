@@ -1,11 +1,11 @@
 @0xb80c8fd14e523f9b;
 
 using Cxx = import "/capnp/c++.capnp";
-$Cxx.namespace("mas::models::yieldstat");
+$Cxx.namespace("mas::schema::model::yieldstat");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("yieldstat");
-$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/models/yieldstat");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/model/yieldstat");
 
 using Crop = import "../../crop.capnp";
 

@@ -1,7 +1,7 @@
 @0x9090542079c7fc24;
 
 using Cxx = import "/capnp/c++.capnp";
-$Cxx.namespace("mas::rpc::geo");
+$Cxx.namespace("mas::schema::geocoord");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("geo");

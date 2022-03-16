@@ -1,11 +1,11 @@
 @0xeef9ddc7a345de6d;
 
 using Cxx = import "/capnp/c++.capnp";
-$Cxx.namespace("mas::models::monica");
+$Cxx.namespace("mas::schema::model::monica");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("monica");
-$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/models/monica");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/model/monica");
 
 using Date = import "../../date.capnp".Date;
 using Mgmt = import "../../management.capnp";

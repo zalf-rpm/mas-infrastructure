@@ -1,7 +1,7 @@
 @0xf3c1b27d6da9d0fa;
 
 using Cxx = import "/capnp/c++.capnp";
-$Cxx.namespace("mas::rpc");
+$Cxx.namespace("mas::schema::cluster");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("cluster");

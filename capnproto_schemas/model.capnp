@@ -1,7 +1,7 @@
 @0x9273388a9624d430;
 
 using Cxx = import "/capnp/c++.capnp";
-$Cxx.namespace("mas::rpc::model");
+$Cxx.namespace("mas::schema::model");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("models");
@@ -12,6 +12,8 @@ using Geo = import "geo_coord.capnp";
 using Climate = import "climate_data.capnp";
 using Soil = import "soil_data.capnp";
 using Mgmt = import "management.capnp";
+using Persistent = import "persistence.capnp".Persistent;
+using Restorer = import "persistence.capnp".Restorer;
 
 struct XYResult {
   xs @0 :List(Float64); # x axis values
@@ -68,7 +70,7 @@ struct Env(RestInput) {
 }
 
 
-interface EnvInstance(RestInput, Output) extends(Common.Identifiable, Common.Stopable) {
+interface EnvInstance(RestInput, Output) extends(Common.Identifiable, Persistent, Restorer, Common.Stopable) {
   # an interface to run a model against an environment of input data
 
   run @0 (env :Env(RestInput)) -> (result :Output);
@@ -79,7 +81,7 @@ interface EnvInstance(RestInput, Output) extends(Common.Identifiable, Common.Sto
 interface EnvInstanceProxy(RestInput, Output) extends(EnvInstance(RestInput, Output)) {
   # the EnvInstance interface with the ability to forward run messages to registered EnvInstances
 
-  registerEnvInstance @0 (instance :EnvInstance(RestInput, Output)) -> (unregister :Common.Callback);
+  registerEnvInstance @0 (instance :EnvInstance(RestInput, Output)) -> (unregister :Common.Action);
   # register an instance of an EnvInstance model to get jobs transparently forwarded to by the proxy
 }
 

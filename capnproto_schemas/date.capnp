@@ -1,7 +1,7 @@
 @0xe8ea2bc38b07f62a;
 
 using Cxx = import "/capnp/c++.capnp";
-$Cxx.namespace("mas::common");
+$Cxx.namespace("mas::schema::common");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("common");

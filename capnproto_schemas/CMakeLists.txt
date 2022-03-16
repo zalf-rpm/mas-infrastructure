@@ -14,13 +14,13 @@ date.capnp
 geo_coord.capnp
 management.capnp
 model.capnp
-models/monica/monica_params.capnp
-models/monica/soil_params.capnp
-models/monica/monica_state.capnp
+model/monica/monica_params.capnp
+model/monica/soil_params.capnp
+model/monica/monica_state.capnp
 persistence.capnp
 registry.capnp
 soil_data.capnp
-models/yieldstat/yieldstat.capnp
+model/yieldstat/yieldstat.capnp
 )
 message(STATUS "CAPNP_HDRS: " ${CAPNP_HDRS})
 message(STATUS "CAPNP_SRCS: " ${CAPNP_SRCS})	

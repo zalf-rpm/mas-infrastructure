@@ -1,7 +1,7 @@
 @0xbf602c4868dbb22f;
 
 using Cxx = import "/capnp/c++.capnp";
-$Cxx.namespace("mas::rpc::fbp");
+$Cxx.namespace("mas::schema::fbp");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("fbp");

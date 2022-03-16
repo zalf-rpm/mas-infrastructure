@@ -1,7 +1,7 @@
 @0xa01d3ae410eb4518;
 
 using Cxx = import "/capnp/c++.capnp";
-$Cxx.namespace("mas::rpc::climate");
+$Cxx.namespace("mas::schema::climate");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("climate");
