@@ -173,7 +173,8 @@ async def async_init_and_run_service(name_to_service, host=None, port=0, serve_b
 
 #------------------------------------------------------------------------------
 
-def init_and_run_service(name_to_service, host="*", port=None, serve_bootstrap=True, restorer=None, **kwargs):
+def init_and_run_service(name_to_service, host="*", port=None, serve_bootstrap=True, restorer=None, 
+    run_before_enter_eventloop=None, **kwargs):
 
     host = host if host else "*"
 
@@ -222,5 +223,10 @@ def init_and_run_service(name_to_service, host="*", port=None, serve_bootstrap=T
             print("service_sr:", service_sr)
         print("restorer_sr:", restorer.sturdy_ref())
     else:
+        if run_before_enter_eventloop:
+            run_before_enter_eventloop()
         capnp.wait_forever()
+    
+    if run_before_enter_eventloop:
+        run_before_enter_eventloop()
     server.run_forever()
