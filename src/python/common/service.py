@@ -119,7 +119,8 @@ class Admin(service_capnp.Admin.Server, common.Identifiable):
 
 #------------------------------------------------------------------------------
 
-async def async_init_and_run_service(name_to_service, host=None, port=0, serve_bootstrap=True, restorer=None, **kwargs):
+async def async_init_and_run_service(name_to_service, host=None, port=0, serve_bootstrap=True, restorer=None, 
+    run_before_enter_eventloop=None, **kwargs):
 
     port = port if port else 0
 
@@ -166,9 +167,13 @@ async def async_init_and_run_service(name_to_service, host=None, port=0, serve_b
             print("service_sr:", service_sr)
         print("restorer_sr:", restorer.sturdy_ref())
 
+        if run_before_enter_eventloop:
+            run_before_enter_eventloop()
         async with server:
             await server.serve_forever()
     else:
+        if run_before_enter_eventloop:
+            run_before_enter_eventloop()
         await conMan.manage_forever()
 
 #------------------------------------------------------------------------------

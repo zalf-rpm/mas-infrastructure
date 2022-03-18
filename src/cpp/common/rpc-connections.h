@@ -21,6 +21,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <capnp/rpc-twoparty.h>
 #include <kj/async-io.h>
 #include <kj/map.h>
+#include <kj/timer.h>
 
 //#include <kj/debug.h>
 //#include <kj/common.h>
@@ -76,6 +77,12 @@ namespace mas {
 			public:
 				ConnectionManager() : tasks(eh) {}
 
+				kj::Promise<capnp::Capability::Client> tryConnect(kj::AsyncIoContext& ioc, std::string sturdyRefStr, 
+					int retryCount = 10, int retrySecs = 5, bool printRetryMsgs = true);
+
+				capnp::Capability::Client tryConnectB(kj::AsyncIoContext& ioc, std::string sturdyRefStr, 
+					int retryCount = 10, int retrySecs = 5, bool printRetryMsgs = true);
+
 				kj::Promise<capnp::Capability::Client> connect(kj::AsyncIoContext& ioContext, std::string sturdyRefStr);
 
 				std::pair<kj::Promise<std::string>, kj::Promise<kj::uint>> bind(kj::AsyncIoContext& ioContext, capnp::Capability::Client mainInterface, std::string address, kj::uint port = 0U);
@@ -87,6 +94,7 @@ namespace mas {
 				kj::TaskSet tasks;
 				kj::HashMap<kj::String, kj::Own<ClientContext>> _connections;
 				capnp::Capability::Client _serverMainInterface{ nullptr };
+				kj::Timer* _timer{nullptr};
 			};
 		}
 	}

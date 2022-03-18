@@ -18,6 +18,8 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <tuple>
 #include <vector>
 #include <algorithm>
+#include <chrono>
+#include <thread>
 
 #include <sys/socket.h>
 
@@ -45,6 +47,45 @@ using namespace mas;
 using namespace mas::schema::persistence;
 using namespace capnp;
 using namespace mas::infrastructure::common;
+
+kj::Promise<capnp::Capability::Client> ConnectionManager::tryConnect(kj::AsyncIoContext& ioc, std::string sturdyRefStr,
+	int retryCount, int retrySecs, bool printRetryMsgs){
+	try {
+		return connect(ioc, sturdyRefStr);
+	} catch(std::exception e) {
+		if(!_timer) _timer = &(ioc.provider->getTimer());
+		return _timer->afterDelay(retrySecs*kj::SECONDS).then([&]() {
+			if(retryCount == 0) {
+				if(printRetryMsgs) cout << "Couldn't connect to sturdy_ref at " << sturdyRefStr << " !" << endl;
+					return kj::Promise<capnp::Capability::Client>(nullptr);
+			}
+			retryCount -= 1;
+			if(printRetryMsgs) cout << "Trying to connect to " << sturdyRefStr << " again in " << retrySecs << " s!" << endl;
+			retrySecs += 1;
+			return tryConnect(ioc, sturdyRefStr);
+		});
+	}
+}
+
+capnp::Capability::Client ConnectionManager::tryConnectB(kj::AsyncIoContext& ioc, std::string sturdyRefStr,
+	int retryCount, int retrySecs, bool printRetryMsgs){
+	while(true)
+	{
+		try {
+			return connect(ioc, sturdyRefStr).wait(ioc.waitScope);
+		} catch(std::exception e) {
+			if(retryCount == 0) {
+				if(printRetryMsgs) cout << "Couldn't connect to sturdy ref at " << sturdyRefStr << " !" << endl;
+					return nullptr;
+			}
+			std::this_thread::sleep_for(std::chrono::milliseconds(retrySecs*1000));
+			retryCount -= 1;
+			if(printRetryMsgs) cout << "Trying to connect to " << sturdyRefStr << " again in " << retrySecs << " s!" << endl;
+			retrySecs += 1;
+		}
+	}
+}
+
 
 kj::Promise<capnp::Capability::Client> ConnectionManager::connect(kj::AsyncIoContext& ioc, std::string sturdyRefStr) {
 	capnp::ReaderOptions readerOpts;
@@ -83,10 +124,13 @@ kj::Promise<capnp::Capability::Client> ConnectionManager::connect(kj::AsyncIoCon
 						_connections.insert(kj::str(addressPort), kj::mv(cc));
 
 						if (!srToken.empty()) {
+							cout << "monica: restoring token: " << srToken << endl;
 							auto restorerCap = bootstrapCap.castAs<Restorer>();
 							auto req = restorerCap.restoreRequest();
 							req.setSrToken(srToken);
+							cout << "monica: making restore request" << endl;
 							return req.send().then([](auto&& res) { 
+								cout << "monica: send returned" << endl;
 								return res.getCap(); 
 							});
 						}
