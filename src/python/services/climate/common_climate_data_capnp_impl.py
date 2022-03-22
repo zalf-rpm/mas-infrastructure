@@ -334,10 +334,11 @@ class Metadata_Info(climate_data_capnp.Metadata.Information.Server):
 
 #------------------------------------------------------------------------------
 
-class Service(climate_data_capnp.Service.Server, common.Identifiable, serv.AdministrableService):
+class Service(climate_data_capnp.Service.Server, common.Identifiable, common.Persistable, serv.AdministrableService):
 
-    def __init__(self, meta_plus_datasets, id=None, name=None, description=None, admin=None):
+    def __init__(self, meta_plus_datasets, id=None, name=None, description=None, admin=None, restorer=None):
         common.Identifiable.__init__(self, id, name, description)
+        common.Persistable.__init__(self, restorer)
         serv.AdministrableService.__init__(self, admin)
 
         self._meta_plus_datasets = meta_plus_datasets

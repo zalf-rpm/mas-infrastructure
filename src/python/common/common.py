@@ -169,11 +169,9 @@ class Factory(Identifiable):
 
 #------------------------------------------------------------------------------
 
-class Persistable(persistence_capnp.Persistent.Server, Identifiable):
+class Persistable(persistence_capnp.Persistent.Server):
 
-    def __init__(self, id=None, name=None, description=None, restorer=None):
-        Identifiable.__init__(self, id, name, description)
-
+    def __init__(self, restorer=None):
         self._restorer = restorer
 
 

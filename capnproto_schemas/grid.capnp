@@ -7,6 +7,7 @@ using Go = import "/capnp/go.capnp";
 $Go.package("grid");
 $Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/grid");
 
+using Persistent = import "persistence.capnp".Persistent;
 using Common = import "common.capnp";
 using Geo = import "geo_coord.capnp";
 
@@ -35,7 +36,7 @@ enum Aggregation {
 }
 
 
-interface Grid extends(Common.Identifiable) {
+interface Grid extends(Common.Identifiable, Persistent) {
   # interface to a grid of data
 
   struct Value {

@@ -34,98 +34,52 @@ if str(PATH_TO_PYTHON_CODE) not in sys.path:
 
 import common.capnp_async_helpers as async_helpers
 import common.common as common
+import common.service as serv
 import services.climate.csv_file_based as csv_based
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
-reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
-#climate_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate_data.capnp"), imports=abs_imports)
+#reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
 
 #------------------------------------------------------------------------------
 
-def main(path_to_csv_file, serve_bootstrap=False, host="*", port=None, reg_sturdy_ref=None):
+async def main(path_to_csv_file, serve_bootstrap=True, host=None, port=None, 
+    id=None, name="CSV Timeseries Service", description=None, use_async=False):
 
     config = {
-        "port": port,
-        "host": host,
         "path_to_csv_file": path_to_csv_file,
-        "reg_sturdy_ref": reg_sturdy_ref,
-        "serve_bootstrap": str(serve_bootstrap),
-        "reg_category": "climate",
+        "id_col_name": "id",
+        "port": port, 
+        "host": host,
+        "id": id,
+        "name": name,
+        "description": description,
+        "serve_bootstrap": serve_bootstrap,
+        "use_async": use_async
     }
     # read commandline args only if script is invoked directly from commandline
     if len(sys.argv) > 1 and __name__ == "__main__":
         for arg in sys.argv[1:]:
             k, v = arg.split("=")
             if k in config:
-                config[k] = v
+                config[k] = bool(v) if v.lower() in ["true", "false"] else v 
     print(config)
 
-    conMan = common.ConnectionManager()
-
+    restorer = common.Restorer()
     service = csv_based.TimeSeries.from_csv_file(config["path_to_csv_file"], \
         header_map={}, #{"windspeed": "wind"}, 
         pandas_csv_config={} #{"sep": ";"}
     )
-
-    if config["reg_sturdy_ref"]:
-        registrator = conMan.try_connect(config["reg_sturdy_ref"], cast_as=reg_capnp.Registrator)
-        if registrator:
-            unreg = registrator.register(ref=service, categoryId=config["reg_category"]).wait()
-            print("Registered ", config["name"], "climate service.")
-            #await unreg.unregister.unregister().a_wait()
-        else:
-            print("Couldn't connect to registrator at sturdy_ref:", config["reg_sturdy_ref"])
-
-    addr = config["host"] + (":" + str(config["port"])) if config["port"] else ""
-    if config["serve_bootstrap"].lower() == "true":
-        server = capnp.TwoPartyServer(addr, bootstrap=service)
+    if use_async:
+        await serv.async_init_and_run_service({"service": service}, config["host"], config["port"], 
+        serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
     else:
-        capnp.wait_forever()
-    server.run_forever()
-
-#------------------------------------------------------------------------------
-
-async def async_main(path_to_csv_file, serve_bootstrap=False, host="0.0.0.0", port=None, reg_sturdy_ref=None):
-    config = {
-        "path_to_csv_file": path_to_csv_file,
-        "host": host,
-        "port": port,
-        "reg_sturdy_ref": reg_sturdy_ref,
-        "serve_bootstrap": str(serve_bootstrap),
-        "reg_category": "climate",
-    }
-    # read commandline args only if script is invoked directly from commandline
-    if len(sys.argv) > 1 and __name__ == "__main__":
-        for arg in sys.argv[1:]:
-            k, v = arg.split("=")
-            if k in config:
-                config[k] = v
-    print("config used:", config)
-
-    conMan = async_helpers.ConnectionManager()
-
-    service = csv_based.TimeSeries.from_csv_file(config["path_to_csv_file"], 
-                                                header_map={},#{"windspeed": "wind"},
-                                                pandas_csv_config={})#{"sep": ";"}))
-
-    if config["reg_sturdy_ref"]:
-        registrator = await conMan.try_connect(config["reg_sturdy_ref"], cast_as=reg_capnp.Registrator)
-        if registrator:
-            unreg = await registrator.register(ref=service, categoryId=config["reg_category"]).a_wait()
-            print("Registered ", config["name"], "climate service.")
-            #await unreg.unregister.unregister().a_wait()
-        else:
-            print("Couldn't connect to registrator at sturdy_ref:", config["reg_sturdy_ref"])
-
-    if config["serve_bootstrap"].upper() == "TRUE":
-        await async_helpers.serve_forever(config["host"], config["port"], service)
-    else:
-        await conMan.manage_forever()
+        
+        serv.init_and_run_service({"service": service}, config["host"], config["port"], 
+            serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
 
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    main("data/climate/climate-iso.csv", serve_bootstrap=False, port=11002)
-    #asyncio.run(async_main("data/climate/climate-iso.csv", serve_bootstrap=True, port=11002))
-
+    path = str(PATH_TO_REPO / "data/climate/climate-iso.csv")
+    asyncio.run(main(path, use_async=False)) 

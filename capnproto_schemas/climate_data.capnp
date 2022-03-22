@@ -241,7 +241,7 @@ interface TimeSeries extends(Common.Identifiable, Persistent) {
 }
 
 
-interface Service extends(Common.Identifiable) {
+interface Service extends(Common.Identifiable, Persistent) {
   # climate data service 
 
   getAvailableDatasets @0 () -> (datasets :List(MetaPlusData));

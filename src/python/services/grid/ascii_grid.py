@@ -52,10 +52,11 @@ reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=ab
 
 #------------------------------------------------------------------------------
 
-class Grid(grid_capnp.Grid.Server, common.Identifiable, serv.AdministrableService): 
+class Grid(grid_capnp.Grid.Server, common.Identifiable, common.Persistable, serv.AdministrableService): 
 
-    def __init__(self, path_to_ascii_grid, grid_crs, val_type, id=None, name=None, description=None, admin=None):
+    def __init__(self, path_to_ascii_grid, grid_crs, val_type, id=None, name=None, description=None, admin=None, restorer=None):
         common.Identifiable.__init__(self, id, name, description)
+        common.Persistable.__init__(self, restorer)
         serv.AdministrableService.__init__(self, admin)
 
         self._id = str(id if id else uuid.uuid4())
@@ -409,72 +410,48 @@ class Grid(grid_capnp.Grid.Server, common.Identifiable, serv.AdministrableServic
 
 #------------------------------------------------------------------------------
 
-async def async_main(path_to_ascii_grid, grid_crs, val_type, serve_bootstrap=False,
-host=None, port=0, reg_sturdy_ref=None, id=None, name="Grid service", description=None):
+async def main(path_to_ascii_grid, grid_crs, val_type, serve_bootstrap=True, host=None, port=None, 
+    id=None, name="Grid Service", description=None, use_async=False):
 
     config = {
-        "host": host,
-        "port": port,
         "path_to_ascii_grid": path_to_ascii_grid,
         "grid_crs": grid_crs,
         "val_type": val_type,
+        "port": port, 
+        "host": host,
         "id": id,
         "name": name,
         "description": description,
-        "serve_bootstrap": str(serve_bootstrap)
+        "serve_bootstrap": serve_bootstrap,
+        "use_async": use_async
     }
     # read commandline args only if script is invoked directly from commandline
     if len(sys.argv) > 1 and __name__ == "__main__":
         for arg in sys.argv[1:]:
             k, v = arg.split("=")
             if k in config:
-                config[k] = v
-    print("config used:", config)
+                config[k] = bool(v) if v.lower() in ["true", "false"] else v 
+    print(config)
 
-    grid = Grid(path_to_ascii_grid=config["path_to_ascii_grid"], 
+    restorer = common.Restorer()
+    service = Grid(path_to_ascii_grid=config["path_to_ascii_grid"], 
         grid_crs=geo.name_to_proj(config["grid_crs"]), val_type=int if config["val_type"] == "int" else float,
-        id=config["id"], name=config["name"], description=config["description"])
-
-    await serv.async_init_and_run_service({"grid": grid}, config["host"], config["port"], config["serve_bootstrap"])
-
-#------------------------------------------------------------------------------
-
-def main(path_to_ascii_grid, grid_crs, val_type, serve_bootstrap=True,
-host="*", port=None, id=None, name="Grid service", description=None):
-
-    config = {
-        "host": host,
-        "port": port,
-        "path_to_ascii_grid": path_to_ascii_grid,
-        "grid_crs": grid_crs,
-        "val_type": val_type,
-        "id": id,
-        "name": name,
-        "description": description,
-        "serve_bootstrap": str(serve_bootstrap)
-    }
-    # read commandline args only if script is invoked directly from commandline
-    if len(sys.argv) > 1 and __name__ == "__main__":
-        for arg in sys.argv[1:]:
-            k, v = arg.split("=")
-            if k in config:
-                config[k] = v
-    print("config used:", config)
-
-    grid = Grid(path_to_ascii_grid=config["path_to_ascii_grid"],
-        grid_crs=geo.name_to_proj(config["grid_crs"]), val_type=int if config["val_type"] == "int" else float,
-        id=config["id"], name=config["name"], description=config["description"])
-
-    serv.init_and_run_service({"grid": grid}, config["host"], config["port"], config["serve_bootstrap"])
+        id=config["id"], name=config["name"], description=config["description"], restorer=restorer)
+    if config["use_async"]:
+        await serv.async_init_and_run_service({"service": service}, config["host"], config["port"], 
+        serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
+    else:
+        
+        serv.init_and_run_service({"service": service}, config["host"], config["port"], 
+            serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
 
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__':
     #grid = "data/geo/dem_1000_31469_gk5.asc"
-    grid = "data/geo/slope_1000_31469_gk5.asc"
+    grid = str(PATH_TO_REPO / "data/geo/slope_1000_31469_gk5.asc")
     crs = "gk5"
+    asyncio.run(main(grid, crs, "float", serve_bootstrap=True, use_async=True)) 
 
-    main(grid, crs, "float", serve_bootstrap=True)
-    #asyncio.run(async_main(grid, crs, "float", serve_bootstrap=True))
 
 

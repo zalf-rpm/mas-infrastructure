@@ -7,11 +7,14 @@ using Go = import "/capnp/go.capnp";
 $Go.package("jobs");
 $Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/jobs");
 
+using Persistent = import "persistence.capnp".Persistent;
+using Identifiable = import "common.capnp".Identifiable;
+
 struct Job(Payload) {
     data            @0 :Payload;
     noFurtherJobs   @1 :Bool = false;
 }
 
-interface Service {
+interface Service extends(Identifiable, Persistent) {
     nextJob @0 () -> (job :Job);
 }

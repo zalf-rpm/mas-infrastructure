@@ -70,7 +70,7 @@ struct Env(RestInput) {
 }
 
 
-interface EnvInstance(RestInput, Output) extends(Common.Identifiable, Persistent, Restorer, Common.Stopable) {
+interface EnvInstance(RestInput, Output) extends(Common.Identifiable, Persistent, Common.Stopable) {
   # an interface to run a model against an environment of input data
 
   run @0 (env :Env(RestInput)) -> (result :Output);

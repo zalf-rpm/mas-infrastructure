@@ -128,8 +128,9 @@ async def async_init_and_run_service(name_to_service, host=None, port=0, serve_b
     if not sys.stdin.isatty():
         try:
             reg_config = json.loads(sys.stdin.read())
-        except:
-            pass
+            #print("read from stdin:", reg_config)
+        except Exception as e:
+            print("service.py: Error reading from sys.stdin. Exception:", e)
     else:
         reg_config = {}
 
@@ -141,22 +142,31 @@ async def async_init_and_run_service(name_to_service, host=None, port=0, serve_b
         if isinstance(s, AdministrableService):
             s.admin = admin
 
-    for name, data in reg_config:
-        try:
-            reg_sr = data["reg_sr"]
-            reg_name = data["reg_name"]
-            reg_cat_id = data["cat_id"]
-            registrar = await conMan.try_connect(reg_sr, cast_as=reg_capnp.Registrar)
-            if registrar and name in name_to_service:
-                r = await registrar.register(ref=name_to_service[name], regName=reg_name, categoryId=reg_cat_id).a_wait()
-                unreg_action = r.unreg
-                rereg_sr = r.reregSR
-                admin.store_unreg_data(name, unreg_action, rereg_sr)
-                print("Registered", name, "in category", reg_cat_id, "as", reg_name, ".")
-            else:
-                print("Couldn't connect to registrar at sturdy_ref:", reg_sr)
-        except:
-            pass
+    async def register_services(conMan, admin, reg_config):
+        for name, data in reg_config.items():
+            try:
+                if isinstance(data, dict):
+                    reg_sr = data["reg_sr"]
+                    reg_name = data.get("reg_name", "")
+                    reg_cat_id = data.get("cat_id", "")
+                elif isinstance(data, str):
+                    reg_sr = data
+                    reg_name = ""
+                    reg_cat_id = ""
+                else:
+                    continue
+                print("trying to register name:", name, "data:", data)
+                registrar = await conMan.try_connect(reg_sr, cast_as=reg_capnp.Registrar)
+                if registrar and name in name_to_service:
+                    r = await registrar.register(cap=name_to_service[name], regName=reg_name, categoryId=reg_cat_id).a_wait()
+                    unreg_action = r.unreg
+                    rereg_sr = r.reregSR
+                    admin.store_unreg_data(name, unreg_action, rereg_sr)
+                    print("Registered", name, "in category '", reg_cat_id, "' as '", reg_name, "'.")
+                else:
+                    print("Couldn't connect to registrar at sturdy_ref:", reg_sr)
+            except Exception as e:
+                print("Error registering service name:", name, ". Exception:", e)
 
     if serve_bootstrap:
         server = await async_helpers.serve(host, port, restorer)
@@ -167,11 +177,13 @@ async def async_init_and_run_service(name_to_service, host=None, port=0, serve_b
             print("service_sr:", service_sr)
         print("restorer_sr:", restorer.sturdy_ref())
 
+        await register_services(conMan, admin, reg_config)
         if run_before_enter_eventloop:
             run_before_enter_eventloop()
         async with server:
             await server.serve_forever()
     else:
+        await register_services(conMan, admin, reg_config)
         if run_before_enter_eventloop:
             run_before_enter_eventloop()
         await conMan.manage_forever()
@@ -187,7 +199,9 @@ def init_and_run_service(name_to_service, host="*", port=None, serve_bootstrap=T
     if not sys.stdin.isatty():
         try:
             reg_config = json.loads(sys.stdin.read())
-        except:
+            #print("read from stdin:", reg_config)
+        except Exception as e:
+            print("service.py: Error reading from sys.stdin. Exception:", e)
             pass
     else:
         reg_config = {}
@@ -200,22 +214,31 @@ def init_and_run_service(name_to_service, host="*", port=None, serve_bootstrap=T
         if isinstance(s, AdministrableService):
             s.admin = admin
 
-    for name, data in reg_config:
-        try:
-            reg_sr = data["reg_sr"]
-            reg_name = data["reg_name"]
-            reg_cat_id = data["cat_id"]
-            registrar = conMan.try_connect(reg_sr, cast_as=reg_capnp.Registrar)
-            if registrar and name in name_to_service:
-                r = registrar.register(ref=name_to_service[name], regName=reg_name, categoryId=reg_cat_id).wait()
-                unreg_action = r.unreg
-                rereg_sr = r.reregSR
-                admin.store_unreg_data(name, unreg_action, rereg_sr)
-                print("Registered", name, "in category", reg_cat_id, "as", reg_name, ".")
-            else:
-                print("Couldn't connect to registrar at sturdy_ref:", reg_sr)
-        except:
-            pass
+    def register_services(conMan, admin, reg_config):
+        for name, data in reg_config.items():
+            try:
+                if isinstance(data, dict):
+                    reg_sr = data["reg_sr"]
+                    reg_name = data.get("reg_name", "")
+                    reg_cat_id = data.get("cat_id", "")
+                elif isinstance(data, str):
+                    reg_sr = data
+                    reg_name = ""
+                    reg_cat_id = ""
+                else:
+                    continue
+                print("trying to register name:", name, "data:", data)
+                registrar = conMan.try_connect(reg_sr, cast_as=reg_capnp.Registrar)
+                if registrar and name in name_to_service:
+                    r = registrar.register(cap=name_to_service[name], regName=reg_name, categoryId=reg_cat_id).wait()
+                    unreg_action = r.unreg
+                    rereg_sr = r.reregSR
+                    admin.store_unreg_data(name, unreg_action, rereg_sr)
+                    print("Registered", name, "in category '", reg_cat_id, "' as '", reg_name, "'.")
+                else:
+                    print("Couldn't connect to registrar at sturdy_ref:", reg_sr)
+            except Exception as e:
+                print("Error registering service name:", name, ". Exception:", e)
 
     addr = host + ((":" + str(port)) if port else "")
     if serve_bootstrap:
@@ -227,7 +250,10 @@ def init_and_run_service(name_to_service, host="*", port=None, serve_bootstrap=T
             service_sr, service_unsave_sr = restorer.save(s)
             print("service_sr:", service_sr)
         print("restorer_sr:", restorer.sturdy_ref())
+
+        register_services(conMan, admin, reg_config)
     else:
+        register_services(conMan, admin, reg_config)
         if run_before_enter_eventloop:
             run_before_enter_eventloop()
         capnp.wait_forever()

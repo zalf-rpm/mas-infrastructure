@@ -109,7 +109,7 @@ struct Profile {
 }
 
 
-interface Service extends(Common.Identifiable) {
+interface Service extends(Common.Identifiable, Persistent) {
   # service for soil data
 
   #interface CommonCapHolderProfile {

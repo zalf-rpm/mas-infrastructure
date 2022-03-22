@@ -49,12 +49,13 @@ persistence_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "persistence.capnp"),
 
 #------------------------------------------------------------------------------
 
-class TimeSeries(climate_data_capnp.TimeSeries.Server, common.Persistable): 
+class TimeSeries(climate_data_capnp.TimeSeries.Server, common.Identifiable, common.Persistable): 
 
     def __init__(self, metadata=None, location=None, path_to_csv=None, dataframe=None, csv_string=None, 
     header_map=None, supported_headers=None, pandas_csv_config={}, transform_map=None,
         id=None, name=None, description=None, restorer=None):
-        common.Persistable.__init__(self, id, name, description, restorer)
+        common.Persistable.__init__(self, restorer)
+        common.Identifiable.__init__(self, id, name, description)
 
         if path_to_csv is None and dataframe is None and csv_string is None:
             raise Exception("Missing argument, either path_to_csv or dataframe have to be supplied!")
@@ -193,12 +194,13 @@ class TimeSeries(climate_data_capnp.TimeSeries.Server, common.Persistable):
 
 #------------------------------------------------------------------------------
 
-class Dataset(climate_data_capnp.Dataset.Server, common.Persistable):
+class Dataset(climate_data_capnp.Dataset.Server, common.Identifiable, common.Persistable):
 
     def __init__(self, metadata, path_to_rows, interpolator, rowcol_to_latlon, 
         gzipped=False, header_map=None, supported_headers=None, row_col_pattern="row-{row}/col-{col}.csv",
         pandas_csv_config={}, transform_map=None, id=None, name=None, description=None, restorer=None):
-        common.Persistable.__init__(self, id, name, description, restorer)
+        common.Persistable.__init__(self, restorer)
+        common.Identifiable.__init__(self, id, name, description)
 
         self._meta = metadata
         self._path_to_rows = path_to_rows

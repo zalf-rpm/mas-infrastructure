@@ -54,8 +54,6 @@ import soil_io3
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 soil_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "soil_data.capnp"), imports=abs_imports) 
-common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports) 
-reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
 
 #------------------------------------------------------------------------------
 
@@ -132,10 +130,11 @@ CAPNP_PROP_to_MONICA_PARAM_NAME = {
 
 #------------------------------------------------------------------------------
 
-class Service(soil_data_capnp.Service.Server, common.Identifiable, serv.AdministrableService): 
+class Service(soil_data_capnp.Service.Server, common.Identifiable, common.Persistable, serv.AdministrableService): 
 
-    def __init__(self, path_to_sqlite_db, path_to_ascii_grid, grid_crs, id=None, name=None, description=None, admin=None):
+    def __init__(self, path_to_sqlite_db, path_to_ascii_grid, grid_crs, id=None, name=None, description=None, admin=None, restorer=None):
         common.Identifiable.__init__(self, id, name, description)
+        common.Persistable.__init__(self, restorer)
         serv.AdministrableService.__init__(self, admin)
 
         self._path_to_sqlite_db = path_to_sqlite_db
@@ -324,78 +323,48 @@ class Service(soil_data_capnp.Service.Server, common.Identifiable, serv.Administ
 
 #------------------------------------------------------------------------------
 
-async def async_main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs, serve_bootstrap=False,
-host=None, port=0, id=None, name="Soil service", description=None):
+async def main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs, serve_bootstrap=True, host=None, port=None, 
+    id=None, name="Soil service", description=None, use_async=False):
 
     config = {
-        "host": host,
-        "port": port,
         "path_to_sqlite_db": path_to_sqlite_db,
         "path_to_ascii_soil_grid": path_to_ascii_soil_grid,
         "grid_crs": grid_crs,
+        "port": port, 
+        "host": host,
         "id": id,
         "name": name,
         "description": description,
-        "serve_bootstrap": str(serve_bootstrap)
+        "serve_bootstrap": serve_bootstrap,
+        "use_async": use_async
     }
     # read commandline args only if script is invoked directly from commandline
     if len(sys.argv) > 1 and __name__ == "__main__":
         for arg in sys.argv[1:]:
             k, v = arg.split("=")
             if k in config:
-                config[k] = v
-    print("config used:", config)
+                config[k] = bool(v) if v.lower() in ["true", "false"] else v 
+    print(config)
 
+    restorer = common.Restorer()
     service = Service(
         path_to_sqlite_db=config["path_to_sqlite_db"],
         path_to_ascii_grid=config["path_to_ascii_soil_grid"],
         grid_crs=geo.name_to_proj(config["grid_crs"]),
-        id=config["id"], name=config["name"], description=config["description"])
-
-    await serv.async_init_and_run_service({"service": service}, config["host"], config["port"], 
-        serve_bootstrap=config["serve_bootstrap"])
-
-#------------------------------------------------------------------------------
-
-def main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs, serve_bootstrap=True,
-host="*", port=None, id=None, name="Soil service", description=None):
-
-    config = {
-        "host": host,
-        "port": port,
-        "path_to_sqlite_db": path_to_sqlite_db,
-        "path_to_ascii_soil_grid": path_to_ascii_soil_grid,
-        "grid_crs": grid_crs,
-        "id": id,
-        "name": name,
-        "description": description,
-        "serve_bootstrap": str(serve_bootstrap)
-    }
-    # read commandline args only if script is invoked directly from commandline
-    if len(sys.argv) > 1 and __name__ == "__main__":
-        for arg in sys.argv[1:]:
-            k, v = arg.split("=")
-            if k in config:
-                config[k] = v
-    print("config used:", config)
-
-    service = Service(
-        path_to_sqlite_db=config["path_to_sqlite_db"],
-        path_to_ascii_grid=config["path_to_ascii_soil_grid"],
-        grid_crs=geo.name_to_proj(config["grid_crs"]),
-        id=config["id"], name=config["name"], description=config["description"])
-
-    serv.init_and_run_service({"service": service}, config["host"], config["port"], 
-        serve_bootstrap=config["serve_bootstrap"])
+        id=config["id"], name=config["name"], description=config["description"], restorer=restorer)
+    if config["use_async"]:
+        await serv.async_init_and_run_service({"service": service}, config["host"], config["port"], 
+        serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
+    else:
+        
+        serv.init_and_run_service({"service": service}, config["host"], config["port"], 
+            serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
 
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    db = "data/soil/buek1000.sqlite"
-    grid = "data/soil/buek1000_1000_31469_gk5.asc"
+    db = str(PATH_TO_REPO / "data/soil/buek1000.sqlite")
+    grid = str(PATH_TO_REPO / "data/soil/buek1000_1000_31469_gk5.asc")
     crs = "gk5"
-
     main(db, grid, crs, serve_bootstrap=True)
-    #asyncio.run(async_main(db, grid, crs, serve_bootstrap=True))
-
-
+    asyncio.run(main(db, grid, crs, serve_bootstrap=True, use_async=True)) 
