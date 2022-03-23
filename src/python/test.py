@@ -138,13 +138,14 @@ def test_climate_service():
 def test_registry():
 
     conMan = common.ConnectionManager()
-    monica = conMan.try_connect("capnp://insecure@10.10.24.210:40867/16e65116-76d5-44ae-b3e6-65738bcb3b31", cast_as=model_capnp.EnvInstance)
-    print(monica.info().wait())
+    #monica = conMan.try_connect("capnp://insecure@10.10.24.210:40867/16e65116-76d5-44ae-b3e6-65738bcb3b31", cast_as=model_capnp.EnvInstance)
+    #print(monica.info().wait())
     #restorer = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000", cast_as=persistence_capnp.Restorer)
-    service = conMan.try_connect("capnp://insecure@10.10.24.210:37203/6b57e75b-dee3-4882-90ae-731a679a3653", cast_as=climate_data_capnp.Service)
+    #service = conMan.try_connect("capnp://insecure@10.10.24.210:37203/6b57e75b-dee3-4882-90ae-731a679a3653", cast_as=climate_data_capnp.Service)
     #registry = conMan.try_connect("capnp://insecure@10.10.24.71:38955/5681fdaa-4d7f-4ea9-876e-e0566255486c", cast_as=registry_capnp.Registry)
     #registrar = conMan.try_connect("capnp://insecure@10.10.24.71:36501/2d997d95-95ac-400e-aeb7-c439b58b77a5", cast_as=registry_capnp.Registrar)
-    service_admin = conMan.try_connect("capnp://insecure@10.10.24.71:43643/24963034-fbd5-4351-9779-226180259ac3", cast_as=service_capnp.Admin)
+    service_admin = conMan.try_connect("capnp://insecure@10.10.24.210:43141/898cac63-d20b-454b-bd20-5d6bc4f91a8c", cast_as=service_capnp.Admin)
+    print(service_admin.info().wait())
 
     #cap_holder = common.IdentifiableHolder(service, lambda: print("deleted capholder"))
     #res = registrar.register(cap=cap_holder, regName="dwd-klima", categoryId="climate").wait()

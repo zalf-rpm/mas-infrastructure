@@ -76,6 +76,16 @@ class Admin(service_capnp.Admin.Server, common.Identifiable):
         self.make_timeout()
         self._unreg_sturdy_refs = {}  #name to (unreg action, rereg sturdy ref)
 
+        self._stop_action = None
+
+    @property
+    def stop_action(self):
+        return self._stop_action
+
+    @stop_action.setter
+    def stop_action(self, a):
+        self._stop_action = a
+
 
     def store_unreg_data(self, name, unreg_action, rereg_sr):
         self._unreg_sturdy_refs[name] = (unreg_action, rereg_sr)
@@ -98,7 +108,12 @@ class Admin(service_capnp.Admin.Server, common.Identifiable):
 
 
     def stop_context(self, context): # stop @2 ();
-        exit(0)
+        if self._stop_action:
+            print("Admin::stop message with stop_action")
+            return self._stop_action().then(capnp.getTimer().after_delay(5 * 10**9).then(lambda: exit(0)))
+        else:
+            print("Admin::stop message without")
+            return capnp.getTimer().after_delay(5 * 10**9).then(lambda: exit(0))
 
 
     def identities_context(self, context): # identities @3 () -> (infos :List(Common.IdInformation));
@@ -137,10 +152,14 @@ async def async_init_and_run_service(name_to_service, host=None, port=0, serve_b
     conMan = async_helpers.ConnectionManager()
     if not restorer:
         restorer = common.Restorer()
+
+    #create and register admin with services
     admin = serv.Admin(list(name_to_service.values()))
     for s in name_to_service.values():
         if isinstance(s, AdministrableService):
             s.admin = admin
+    if "admin" not in name_to_service and admin not in name_to_service.values():
+        name_to_service["admin"] = admin
 
     async def register_services(conMan, admin, reg_config):
         for name, data in reg_config.items():
@@ -170,11 +189,9 @@ async def async_init_and_run_service(name_to_service, host=None, port=0, serve_b
 
     if serve_bootstrap:
         server = await async_helpers.serve(host, port, restorer)
-        admin_sr, admin_unsave_sr = restorer.save(admin)
-        print("admin_sr:", admin_sr)
-        for s in name_to_service.values():
+        for name, s in name_to_service.items():
             service_sr, service_unsave_sr = restorer.save(s)
-            print("service_sr:", service_sr)
+            print("service:", name, "sr:", service_sr)
         print("restorer_sr:", restorer.sturdy_ref())
 
         await register_services(conMan, admin, reg_config)
@@ -209,10 +226,14 @@ def init_and_run_service(name_to_service, host="*", port=None, serve_bootstrap=T
     conMan = common.ConnectionManager()
     if not restorer:
         restorer = common.Restorer()
+    
+    #create and register admin with services
     admin = serv.Admin(list(name_to_service.values()))
     for s in name_to_service.values():
         if isinstance(s, AdministrableService):
             s.admin = admin
+    if "admin" not in name_to_service and admin not in name_to_service.values():
+        name_to_service["admin"] = admin
 
     def register_services(conMan, admin, reg_config):
         for name, data in reg_config.items():
@@ -244,11 +265,9 @@ def init_and_run_service(name_to_service, host="*", port=None, serve_bootstrap=T
     if serve_bootstrap:
         server = capnp.TwoPartyServer(addr, bootstrap=restorer)
         restorer.port = port if port else server.port
-        admin_sr, admin_unsave_sr = restorer.save(admin)
-        print("admin_sr:", admin_sr)
-        for s in name_to_service.values():
+        for name, s in name_to_service.items():
             service_sr, service_unsave_sr = restorer.save(s)
-            print("service_sr:", service_sr)
+            print("service:", name, "sr:", service_sr)
         print("restorer_sr:", restorer.sturdy_ref())
 
         register_services(conMan, admin, reg_config)
