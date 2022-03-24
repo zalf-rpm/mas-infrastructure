@@ -20,6 +20,7 @@ import os
 from pathlib import Path
 import socket
 import sys
+import threading
 import time
 import uuid
 
@@ -108,12 +109,15 @@ class Admin(service_capnp.Admin.Server, common.Identifiable):
 
 
     def stop_context(self, context): # stop @2 ();
+        def stop():
+            capnp.remove_event_loop(ignore_errors=True)
+            exit(0)
         if self._stop_action:
             print("Admin::stop message with stop_action")
-            return self._stop_action().then(capnp.getTimer().after_delay(5 * 10**9).then(lambda: exit(0)))
+            return self._stop_action().then(lambda proms: [proms, threading.Timer(5, stop).start()][0])
         else:
             print("Admin::stop message without")
-            return capnp.getTimer().after_delay(5 * 10**9).then(lambda: exit(0))
+            threading.Timer(5, stop).start()
 
 
     def identities_context(self, context): # identities @3 () -> (infos :List(Common.IdInformation));
