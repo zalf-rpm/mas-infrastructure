@@ -140,13 +140,22 @@ def test_registry():
     conMan = common.ConnectionManager()
     #monica = conMan.try_connect("capnp://insecure@10.10.24.210:40867/16e65116-76d5-44ae-b3e6-65738bcb3b31", cast_as=model_capnp.EnvInstance)
     #print(monica.info().wait())
+    
     #restorer = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000", cast_as=persistence_capnp.Restorer)
-    #service = conMan.try_connect("capnp://insecure@10.10.24.210:37203/6b57e75b-dee3-4882-90ae-731a679a3653", cast_as=climate_data_capnp.Service)
+    
+    #climate = conMan.try_connect("capnp://insecure@10.10.24.210:37203/6b57e75b-dee3-4882-90ae-731a679a3653", cast_as=climate_data_capnp.Service)
+    
     #registry = conMan.try_connect("capnp://insecure@10.10.24.71:38955/5681fdaa-4d7f-4ea9-876e-e0566255486c", cast_as=registry_capnp.Registry)
+    
     #registrar = conMan.try_connect("capnp://insecure@10.10.24.71:36501/2d997d95-95ac-400e-aeb7-c439b58b77a5", cast_as=registry_capnp.Registrar)
-    service_admin = conMan.try_connect("capnp://insecure@10.10.24.210:43141/898cac63-d20b-454b-bd20-5d6bc4f91a8c", cast_as=service_capnp.Admin)
-    print(service_admin.info().wait())
+    
+    #admin = conMan.try_connect("capnp://insecure@10.10.24.210:37087/6a9dea44-d00e-4a48-adf3-6c83b24cc5fa", cast_as=service_capnp.Admin)
+    #print(service_admin.info().wait())
 
+    soil = conMan.try_connect("capnp://insecure@10.10.24.210:35287/ed4ca6e2-52f6-42db-95ed-27393820755c", cast_as=soil_data_capnp.Service)
+    ps = soil.profilesAt(coord={'lat':49.84933532002113, 'lon':8.410100749300772}, query={"mandatory": ["soilType", "organicCarbon", "rawDensity"]}).wait()
+    print(ps)
+    
     #cap_holder = common.IdentifiableHolder(service, lambda: print("deleted capholder"))
     #res = registrar.register(cap=cap_holder, regName="dwd-klima", categoryId="climate").wait()
 

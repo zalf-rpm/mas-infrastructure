@@ -134,7 +134,8 @@ class Server:
         #print("finished")
 
     def __del__(self):
-        print("dying")
+        pass
+        #print("dying")
         #self._disconnect_prom.wait()
         #print("died")
 
@@ -169,7 +170,7 @@ async def serve(host, port, bootstrap):
         bootstrap.port = p
     except:
         pass
-    print("serving bootstrap on interface:", h, "port:", p)
+    #print("serving bootstrap on interface:", h, "port:", p)
     return server
 
 
