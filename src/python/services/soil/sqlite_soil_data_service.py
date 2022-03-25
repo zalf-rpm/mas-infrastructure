@@ -323,13 +323,14 @@ class Service(soil_data_capnp.Service.Server, common.Identifiable, common.Persis
 
 #------------------------------------------------------------------------------
 
-async def main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs, serve_bootstrap=True, host=None, port=None, 
+async def main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs=None, grid_epsg=None, serve_bootstrap=True, host=None, port=None, 
     id=None, name="Soil service", description=None, use_async=False):
 
     config = {
         "path_to_sqlite_db": path_to_sqlite_db,
         "path_to_ascii_soil_grid": path_to_ascii_soil_grid,
         "grid_crs": grid_crs,
+        "grid_epsg": grid_epsg,
         "port": port, 
         "host": host,
         "id": id,
@@ -346,11 +347,23 @@ async def main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs, serve_boots
                 config[k] = bool(v) if v.lower() in ["true", "false"] else v 
     print(config)
 
+    if config["grid_epsg"]:
+        grid_crs = CRS.from_epsg(int(config["grid_epsg"]))
+    elif config["grid_crs"]:
+        grid_crs = geo.name_to_proj(config["grid_crs"])
+    else:
+        try:
+            epsg = int(Path(config["path_to_ascii_soil_grid"]).name.split("_")[2])
+            grid_crs = CRS.from_epsg(epsg)
+        except:
+            print("Couldn't create CRS from soil grid name:", config["path_to_ascii_soil_grid"])
+            exit(0)
+
     restorer = common.Restorer()
     service = Service(
         path_to_sqlite_db=config["path_to_sqlite_db"],
         path_to_ascii_grid=config["path_to_ascii_soil_grid"],
-        grid_crs=geo.name_to_proj(config["grid_crs"]),
+        grid_crs=grid_crs,
         id=config["id"], name=config["name"], description=config["description"], restorer=restorer)
     if config["use_async"]:
         await serv.async_init_and_run_service({"service": service}, config["host"], config["port"], 
@@ -363,8 +376,8 @@ async def main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs, serve_boots
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    db = str(PATH_TO_REPO / "data/soil/buek1000.sqlite")
-    grid = str(PATH_TO_REPO / "data/soil/buek1000_1000_31469_gk5.asc")
-    crs = "gk5"
-    main(db, grid, crs, serve_bootstrap=True)
-    asyncio.run(main(db, grid, crs, serve_bootstrap=True, use_async=True)) 
+    #db = str(PATH_TO_REPO / "data/soil/buek1000.sqlite")
+    #grid = str(PATH_TO_REPO / "data/soil/buek1000_1000_31469_gk5.asc")
+    db = str(PATH_TO_REPO / "data/soil/buek200.sqlite")
+    grid = str(PATH_TO_REPO / "data/soil/buek200_1000_25832_etrs89-utm32n.asc")
+    asyncio.run(main(db, grid, use_async=True)) 
