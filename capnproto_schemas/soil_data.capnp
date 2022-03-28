@@ -101,10 +101,13 @@ struct Query {
 
 
 struct Profile {
-  layers @0 :List(Layer);
+  id                @2 :Text; 
+  # optional identity of the profile
+
+  layers            @0 :List(Layer);
   # a soil profile is a list of layers
 
-  percentageOfArea @1 :Float32 = 100.0;
+  percentageOfArea  @1 :Float32 = 100.0;
   # how many percent of some area are represented by this soil profile
 }
 

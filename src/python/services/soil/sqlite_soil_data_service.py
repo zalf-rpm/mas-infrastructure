@@ -183,7 +183,7 @@ class Service(soil_data_capnp.Service.Server, common.Identifiable, common.Persis
     @property
     def all_available_params_derived(self):
         if not self._all_available_params_derived:
-            params = soil_io3.available_soil_parameters(self._con, only_raw_data=False)
+            params = soil_io3.available_soil_parameters_group(self._con, only_raw_data=False)
             self._all_available_params_derived = {
                 "mandatory": list(filter(None, map(lambda p: self._monica_param_to_capnp_prop_name.get(p, None), params["mandatory"]))),
                 "optional": list(filter(None, map(lambda p: self._monica_param_to_capnp_prop_name.get(p, None), params["optional"])))
@@ -235,44 +235,52 @@ class Service(soil_data_capnp.Service.Server, common.Identifiable, common.Persis
         print("Aps", flush=True)
 
 
-    def profiles_at(self, lat, lon, profile, avail_props, only_raw_data):
+    def profiles_at(self, lat, lon, results, avail_props, only_raw_data):
         if len(avail_props) > 0:
             soil_id = self.interpolator(lat, lon)
             cache = self._cache_raw if only_raw_data else self._cache_derived
             if soil_id in cache:
-                sp = cache[soil_id]
+                sps = cache[soil_id]
             else:
-                profiles = soil_io3.get_soil_profile(self._con, int(soil_id), only_raw_data=only_raw_data, no_units=True)
-                sp = profiles[0][1]
-                cache[soil_id] = sp
+                sp_groups = soil_io3.get_soil_profile_group(self._con, int(soil_id), only_raw_data=only_raw_data, no_units=True)
+                # because of given soil_id we expect only one profile group (with potentially many profiles)
+                sps = sp_groups[0]
+                cache[soil_id] = sps
         else:
-            sp = []
+            return
 
-        profile.init("layers", len(sp))
-
-        for k, layer in enumerate(sp):
-            l = profile.layers[k]
-            l.size = layer["Thickness"]
-            if "description" in sp:
-                l.description = layer["description"]
-            props = l.init("properties", len(avail_props))
-            for i, prop in enumerate(avail_props):
-                monica_param = self._capnp_prop_to_monica_param_name.get(prop, None)
-                if monica_param:
-                    props[i].name = prop
-                    value = layer[monica_param]
-                    if prop == "impenetrable" or prop == "inGroundwater":
-                        props[i].bValue = value
-                    elif prop == "soilType":
-                        props[i].type = value
-                    elif prop == "sand" or prop == "clay" or prop == "silt":
-                        props[i].f32Value = value * 100.0
-                    elif prop == "sceleton" or prop == "fieldCapacity" or prop == "permanentWiltingPoint" or prop == "saturation":
-                        props[i].f32Value = value * 100.0
-                    elif prop == "soilmoisture":
-                        props[i].f32Value = value * 100.0
-                    else:
-                        props[i].f32Value = value
+        profiles = results.init("profiles", len(sps[1]))
+        profile_group_id = sps[0]
+        for j, sp in enumerate(sps[1]):
+            profile = profiles[j] 
+            profile.id = str(profile_group_id) + "_" + str(sp["id"])
+            profile.percentageOfArea = sp["avg_range_percentage_in_group"]
+            
+            layers = sp["layers"]
+            profile.init("layers", len(layers))
+            for k, layer in enumerate(layers):
+                l = profile.layers[k]
+                l.size = layer["Thickness"]
+                if "description" in sp:
+                    l.description = layer["description"]
+                props = l.init("properties", len(avail_props))
+                for i, prop in enumerate(avail_props):
+                    monica_param = self._capnp_prop_to_monica_param_name.get(prop, None)
+                    if monica_param:
+                        props[i].name = prop
+                        value = layer[monica_param]
+                        if prop == "impenetrable" or prop == "inGroundwater":
+                            props[i].bValue = value
+                        elif prop == "soilType":
+                            props[i].type = value
+                        elif prop == "sand" or prop == "clay" or prop == "silt":
+                            props[i].f32Value = value * 100.0
+                        elif prop == "sceleton" or prop == "fieldCapacity" or prop == "permanentWiltingPoint" or prop == "saturation":
+                            props[i].f32Value = value * 100.0
+                        elif prop == "soilmoisture":
+                            props[i].f32Value = value * 100.0
+                        else:
+                            props[i].f32Value = value
 
 
     def available_properties(self, query):
@@ -297,12 +305,9 @@ class Service(soil_data_capnp.Service.Server, common.Identifiable, common.Persis
 
         avail_props = self.available_properties(q)
 
-        # at the moment just support one soil profile per coordinate
-        r.init("profiles", 1)
-
         # fill profile with data
-        self.profiles_at(c.lat, c.lon, r.profiles[0], avail_props, q.onlyRawData)
-        #print("ps@", flush=True)
+        self.profiles_at(c.lat, c.lon, r, avail_props, q.onlyRawData)
+        
 
     """
     def allLocations_context(self, context): # allLocations @1 Query -> (profiles :List(Common.Pair(Geo.LatLonCoord, List(Common.CapHolder(Profile)))));    
