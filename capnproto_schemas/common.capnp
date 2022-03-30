@@ -8,6 +8,7 @@ $Go.package("common");
 $Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/common");
 
 using Persistent = import "persistence.capnp".Persistent;
+using Date = import "date.capnp".Date;
 
 struct IdInformation {
   id @0 :Text; # could be a UUID4
@@ -126,4 +127,35 @@ struct Pair(F, S) {
 struct LL(H, T) {
   head @0 :H;
   tail @1 :T;
+}
+
+interface Clock(T) {
+  # represents a syncronizing clock
+
+  tick @0 (time :T);
+  # forward clock one step to time T (which could also be just a Common.Date)
+}
+
+interface Reader(V) {
+  read @0 () -> (value :V);
+}
+
+interface Writer(V) {
+  write @0 (value :V);
+}
+
+interface Channel(V) {
+  # a potentially buffered channel to transport values of type V
+
+  setBufferSize @0 (size :UInt64);
+  # set buffer size of channel
+
+  reader        @1 () -> (r :Capability);#Reader(V));
+  # get just a reader
+
+  writer        @2 () -> (w :Capability);#Writer(V));
+  # get just a writer
+
+  endpoints     @3 () -> (r :Reader(V), w :Writer(V));
+  # get both endpoints of channel
 }

@@ -10,6 +10,7 @@ $Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/model/mo
 using Date = import "../../date.capnp".Date;
 using Params = import "monica_params.capnp";
 using Mgmt = import "../../management.capnp";
+using Action = import "../../common.capnp".Action;
 
 struct MaybeBool {
     value @0 :Bool;
@@ -620,3 +621,24 @@ struct SoilTransportModuleState {
     pcMinimumAvailableN     @0 :Float64;       # kg m-2
 }
 
+interface Intercropping {
+    # enable some intercropping communication
+
+    getClient       @4 () -> (client :Intercropping);
+    # get the client intercropping interface to communicate the clock ticks
+
+    cropPlanted     @0 () -> (cropHarvested :Action);
+    # tell the main MONICA that a second crop has been planted
+    # return an action which will tell the new crops MONICA if the old crop 
+    # has been harvested
+
+    cropHeight      @1 (height2 :Float64) -> (height1 :Float64);
+    # tell the MONICA with the main crop the second crops height 
+    # and return the main crops height
+
+    cropHarvested   @2 ();
+    # tell the main crops MONICA the new crop has been harvested
+
+    tick            @3 (currentDate :Date);
+    # tell a client the current time
+}

@@ -24,7 +24,9 @@ import threading
 import time
 import uuid
 
-PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent
+
+PATH_TO_SCRIPT_DIR = Path(os.path.realpath(__file__)).parent
+PATH_TO_REPO = PATH_TO_SCRIPT_DIR.parent.parent.parent
 if str(PATH_TO_REPO) not in sys.path:
     sys.path.insert(1, str(PATH_TO_REPO))
 
@@ -32,9 +34,12 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-import common.common as common
-import common.service as serv
-import common.capnp_async_helpers as async_helpers
+if str(PATH_TO_SCRIPT_DIR) in sys.path:
+    import common as common
+    import capnp_async_helpers as async_helpers
+else:
+    import common.common as common
+    import common.capnp_async_helpers as async_helpers
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
@@ -158,7 +163,7 @@ async def async_init_and_run_service(name_to_service, host=None, port=0, serve_b
         restorer = common.Restorer()
 
     #create and register admin with services
-    admin = serv.Admin(list(name_to_service.values()))
+    admin = Admin(list(name_to_service.values()))
     for s in name_to_service.values():
         if isinstance(s, AdministrableService):
             s.admin = admin
@@ -232,7 +237,7 @@ def init_and_run_service(name_to_service, host="*", port=None, serve_bootstrap=T
         restorer = common.Restorer()
     
     #create and register admin with services
-    admin = serv.Admin(list(name_to_service.values()))
+    admin = Admin(list(name_to_service.values()))
     for s in name_to_service.values():
         if isinstance(s, AdministrableService):
             s.admin = admin

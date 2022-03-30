@@ -21,6 +21,7 @@ from pathlib import Path
 import os
 import sys
 import time
+from threading import Thread
 
 PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent
 if str(PATH_TO_REPO) not in sys.path:
@@ -47,7 +48,10 @@ climate_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate_data.capnp"
 mgmt_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "management.capnp"), imports=abs_imports)
 service_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "service.capnp"), imports=abs_imports)
 common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
+grid_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "grid.capnp"), imports=abs_imports)
 
+capnp.remove_event_loop()
+capnp.create_event_loop(threaded=True)
 
 #------------------------------------------------------------------------------
 
@@ -103,7 +107,6 @@ async def async_main():
     print(ys_res)
 
 
-
 def x():
     s = capnp.TwoPartyServer("*:11002", bootstrap=csv_based.TimeSeries.from_csv_file("data/climate/climate-iso.csv", header_map={}, pandas_csv_config={}))
     s.run_forever()
@@ -152,8 +155,28 @@ def test_registry():
     #admin = conMan.try_connect("capnp://insecure@10.10.24.210:37087/6a9dea44-d00e-4a48-adf3-6c83b24cc5fa", cast_as=service_capnp.Admin)
     #print(service_admin.info().wait())
 
-    soil = conMan.try_connect("capnp://insecure@10.10.24.210:35287/ed4ca6e2-52f6-42db-95ed-27393820755c", cast_as=soil_data_capnp.Service)
-    ps = soil.profilesAt(coord={'lat':49.84933532002113, 'lon':8.410100749300772}, query={"mandatory": ["soilType", "organicCarbon", "rawDensity"]}).wait()
+    #grid = conMan.try_connect("capnp://insecure@10.10.24.210:39875/2fa47702-f112-4628-b72c-7754e457d3a2", cast_as=grid_capnp.Grid)
+    #value = grid.valueAt(coord={'lat': 50.02045903295569, 'lon': 8.449222632820296}).wait()
+   
+    # test channel
+    channel_sr = "capnp://insecure@10.10.24.210:40865/3ab309b9-a9f2-4bd6-a0e1-f20c0a0f6cee"
+    def writer():
+        conMan = common.ConnectionManager()
+        channel = conMan.try_connect(channel_sr, cast_as=common_capnp.Channel)
+        writer = channel.writer().wait().w.as_interface(common_capnp.Writer)
+        #writer.write(value="hello")
+        writer.write(value="world").wait()
+        print("wrote value:", "hello", "world")
+    Thread(target=writer).start()
+    channel = conMan.try_connect(channel_sr, cast_as=common_capnp.Channel)
+    reader = channel.reader().wait().r.as_interface(common_capnp.Reader)
+    time.sleep(2)
+    print(reader.read().wait().value.as_text())
+    #print(reader.read().wait().value.as_text())
+    #print("read value:", value)
+
+    soil = conMan.try_connect("capnp://insecure@10.10.24.210:39341/9c15ad6f-0778-4bea-b91e-b015453188b9", cast_as=soil_data_capnp.Service)
+    ps = soil.profilesAt(coord={'lat': 50.02045903295569, 'lon': 8.449222632820296}, query={"mandatory": ["soilType", "organicCarbon", "rawDensity"]}).wait()
     print(ps)
     
     #cap_holder = common.IdentifiableHolder(service, lambda: print("deleted capholder"))
