@@ -16,6 +16,7 @@
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 import asyncio
+from random import random
 import capnp
 from pathlib import Path
 import os
@@ -44,6 +45,7 @@ registry_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), impor
 persistence_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "persistence.capnp"), imports=abs_imports)
 model_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "model.capnp"), imports=abs_imports)
 yieldstat_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "model" / "yieldstat" / "yieldstat.capnp"), imports=abs_imports)
+monica_state_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "model" / "monica" / "monica_state.capnp"), imports=abs_imports)
 climate_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate_data.capnp"), imports=abs_imports)
 mgmt_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "management.capnp"), imports=abs_imports)
 service_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "service.capnp"), imports=abs_imports)
@@ -157,22 +159,34 @@ def test_registry():
 
     #grid = conMan.try_connect("capnp://insecure@10.10.24.210:39875/2fa47702-f112-4628-b72c-7754e457d3a2", cast_as=grid_capnp.Grid)
     #value = grid.valueAt(coord={'lat': 50.02045903295569, 'lon': 8.449222632820296}).wait()
-   
+    
+    writer = conMan.try_connect("capnp://insecure@10.10.24.210:44735/2c7554bc-5112-461d-a478-e95cbc905d37", cast_as=common_capnp.Writer)
+    writer.write(value=monica_state_capnp.ICData.new_message(init={"syncDate": {"day": 1, "month": 2, "year": 2022}})).wait()
+    print("bla")
+
     # test channel
-    channel_sr = "capnp://insecure@10.10.24.210:40865/3ab309b9-a9f2-4bd6-a0e1-f20c0a0f6cee"
+    #channel_sr = "capnp://insecure@10.10.24.210:37505/6c25454e-4ef9-4659-9c94-341bdd827df5"
     def writer():
         conMan = common.ConnectionManager()
-        channel = conMan.try_connect(channel_sr, cast_as=common_capnp.Channel)
-        writer = channel.writer().wait().w.as_interface(common_capnp.Writer)
-        #writer.write(value="hello")
-        writer.write(value="world").wait()
-        print("wrote value:", "hello", "world")
+        writer = conMan.try_connect("capnp://insecure@10.10.24.210:43513/668ce2c1-f256-466d-99ce-30b01fd2b21b", cast_as=common_capnp.Writer)
+        #channel = conMan.try_connect(channel_sr, cast_as=common_capnp.Channel)
+        #writer = channel.writer().wait().w.as_interface(common_capnp.Writer)
+        for i in range(1000):
+            time.sleep(random())
+            writer.write(value=common_capnp.X.new_message(t="hello_" + str(i))).wait()
+            #writer.write(value="hello_" + str(i)).wait()
+            print("wrote: hello_"+str(i))
+            #writer.write(value=common_capnp.X.new_message(t="world")).wait()
+        #print("wrote value:", "hello", "world")
     Thread(target=writer).start()
-    channel = conMan.try_connect(channel_sr, cast_as=common_capnp.Channel)
-    reader = channel.reader().wait().r.as_interface(common_capnp.Reader)
-    time.sleep(2)
-    print(reader.read().wait().value.as_text())
-    #print(reader.read().wait().value.as_text())
+    reader = conMan.try_connect("capnp://insecure@10.10.24.210:34307/40daafc3-490b-4b27-a84f-6ee4c111b352", cast_as=common_capnp.Reader)
+    #channel = conMan.try_connect(channel_sr, cast_as=common_capnp.Channel)
+    #reader = channel.reader().wait().r.as_interface(common_capnp.Reader)
+    for i in range(1000):
+        time.sleep(random())
+        print("read:", reader.read().wait().value.as_struct(common_capnp.X).t)
+        #print("read:", reader.read().wait().value.as_text())
+    #print(reader.read().wait().value.as_struct(common_capnp.X).t)
     #print("read value:", value)
 
     soil = conMan.try_connect("capnp://insecure@10.10.24.210:39341/9c15ad6f-0778-4bea-b91e-b015453188b9", cast_as=soil_data_capnp.Service)

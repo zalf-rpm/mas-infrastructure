@@ -54,7 +54,7 @@ reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=ab
 
 class Channel(common_capnp.Channel.Server, common.Identifiable, common.Persistable, serv.AdministrableService): 
 
-    def __init__(self, id=None, name=None, description=None, admin=None, restorer=None):
+    def __init__(self, channel_value_type="Text", buffer_size=1, id=None, name=None, description=None, admin=None, restorer=None):
         common.Identifiable.__init__(self, id, name, description)
         common.Persistable.__init__(self, restorer)
         serv.AdministrableService.__init__(self, admin)
@@ -63,14 +63,29 @@ class Channel(common_capnp.Channel.Server, common.Identifiable, common.Persistab
         self._name = name if name else self._id
         self._description = description if description else ""
         self._buffer = deque()
-        self._buffer_size = 1
+        self._buffer_size = buffer_size
         self._endpoints = []
         self._blocking_read_fulfillers = deque()
         self._blocking_write_fulfillers = deque()
-        self._blocking_fulfiller = None
+        self._channel_value_type = channel_value_type
+
+
+    def deserialize(self, v):
+        if self._channel_value_type == "Text":
+            return v
+        elif isinstance(self._channel_value_type, capnp.lib.capnp._StructModule):
+            return self._channel_value_type.from_bytes(v)
+
+
+    def serialize(self, v):
+        if self._channel_value_type == "Text":
+            return v.as_text()
+        elif isinstance(self._channel_value_type, capnp.lib.capnp._StructModule):
+            return v.as_struct(self._channel_value_type).as_builder().to_bytes()
+
 
     def setBufferSize_context(self, context): # setBufferSize @0 (size :UInt64);
-        self._buffer_size = context.params.size
+        self._buffer_size = max(1, context.params.size)
 
 
     def reader_context(self, context): # reader        @1 () -> (r :Reader(V));
@@ -89,9 +104,14 @@ class Channel(common_capnp.Channel.Server, common.Identifiable, common.Persistab
         context.results.w = ep["w"]
 
 
-    def endpoints_context(self, context): # endpoints     @1 () -> (r :Reader(V), w :Writer(V));
+    def create_reader_writer_pair(self):
         ep = {"r": Reader(self), "w": Writer(self)}
         self._endpoints.append(ep)
+        return ep
+
+
+    def endpoints_context(self, context): # endpoints     @1 () -> (r :Reader(V), w :Writer(V));
+        ep = self.create_reader_writer_pair()
         context.results.r = ep["r"]
         context.results.w = ep["w"]
 
@@ -107,14 +127,18 @@ class Reader(common_capnp.Reader.Server):
         b = c._buffer
         # read value non-blocking
         if len(b) > 0:
-            context.results.value = b.popleft()
+            #context.results.value = common_capnp.X.from_bytes(b.popleft())
+            context.results.value = c.deserialize(b.popleft())
+            print("r", sep="", end="")
             # unblock potentially waiting writers
             while len(b) < c._buffer_size and len(c._blocking_write_fulfillers) > 0:
                 c._blocking_write_fulfillers.popleft().fulfill()
         else: # block because no value to read
             paf = capnp.PromiseFulfillerPair()
             c._blocking_read_fulfillers.append(paf) 
-            return paf.promise.then(lambda: setattr(context.results, "value", b.popleft()))
+            print("[r"+str(len(c._blocking_read_fulfillers))+"]", sep="", end="")
+            #return paf.promise.then(lambda: setattr(context.results, "value", common_capnp.X.from_bytes(b.popleft())))
+            return paf.promise.then(lambda: setattr(context.results, "value", c.deserialize(b.popleft())))
 
 
 class Writer(common_capnp.Writer.Server): 
@@ -126,26 +150,30 @@ class Writer(common_capnp.Writer.Server):
         v = context.params.value
         c = self._channel
         b = c._buffer
-        # block until buffer has space
-        if len(b) > c._buffer_size:
-            paf = capnp.PromiseFulfillerPair()
-            c._blocking_write_fulfillers.append(paf)
-            return paf.promise.then(lambda: b.append(v))
-        else: # write value non-block
-            b.append(v)
+        # write value non-block
+        if len(b) < c._buffer_size:
+            #b.append(v.as_struct(common_capnp.X).as_builder().to_bytes())
+            b.append(c.serialize(v))
+            print("w", sep="", end="")
             # unblock potentially waiting readers
             while len(b) > 0 and len(c._blocking_read_fulfillers) > 0:
                 c._blocking_read_fulfillers.popleft().fulfill()
-
-
+        else: # block until buffer has space
+            paf = capnp.PromiseFulfillerPair()
+            c._blocking_write_fulfillers.append(paf)
+            print("[w"+str(len(c._blocking_write_fulfillers))+"]", sep="", end="")
+            #return paf.promise.then(lambda: b.append(v.as_struct(common_capnp.X).as_builder().to_bytes()))
+            return paf.promise.then(lambda: b.append(c.serialize(v)))
 
 #------------------------------------------------------------------------------
 
-async def main(no_of_channels = 1, serve_bootstrap=True, host=None, port=None, 
+async def main(no_of_channels = 1, buffer_size=1, serve_bootstrap=True, host=None, port=None, 
     id=None, name="Channel Service", description=None, use_async=False):
 
     config = {
         "no_of_channels": str(no_of_channels),
+        "buffer_size": str(max(1, buffer_size)),
+        "type_1": "/home/berg/GitHub/mas-infrastructure/capnproto_schemas/common.capnp:X",
         "port": port, 
         "host": host,
         "id": id,
@@ -154,6 +182,7 @@ async def main(no_of_channels = 1, serve_bootstrap=True, host=None, port=None,
         "serve_bootstrap": serve_bootstrap,
         "use_async": use_async
     }
+    
     # read commandline args only if script is invoked directly from commandline
     if len(sys.argv) > 1 and __name__ == "__main__":
         for arg in sys.argv[1:]:
@@ -162,10 +191,25 @@ async def main(no_of_channels = 1, serve_bootstrap=True, host=None, port=None,
                 config[k] = bool(v) if v.lower() in ["true", "false"] else v 
     print(config)
 
+    channel_to_type = {i : "Text" for i in range(1, int(config["no_of_channels"])+1)}
+    for k, v in config.items():
+        if k.startswith("type_"):
+            no = int(k.split("_")[1])
+            capnp_module_path, type_name = v.split(":")
+            capnp_module = capnp.load(capnp_module_path, imports=abs_imports)
+            capnp_type = capnp_module.__dict__.get(type_name, "Text")
+            channel_to_type[no] = capnp_type
+
     restorer = common.Restorer()
     services = {}
-    for i in range(int(no_of_channels)):
-        services["channel_" + str(i)] = Channel(id=config["id"], name=config["name"], description=config["description"], restorer=restorer)
+    for i in range(1, int(no_of_channels)+1):
+        channel_value_type = channel_to_type.get(i, "Text")
+        c = Channel(channel_value_type=channel_value_type, buffer_size=int(config["buffer_size"]), 
+            id=config["id"], name=config["name"], description=config["description"], restorer=restorer)
+        ep = c.create_reader_writer_pair()
+        services["channel_" + str(i)] = c
+        services["reader_" + str(i)] = ep["r"]
+        services["writer_" + str(i)] = ep["w"]
     if config["use_async"]:
         await serv.async_init_and_run_service(services, config["host"], config["port"], 
             serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
@@ -177,7 +221,7 @@ async def main(no_of_channels = 1, serve_bootstrap=True, host=None, port=None,
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    asyncio.run(main(1, serve_bootstrap=True, use_async=True)) 
+    asyncio.run(main(no_of_channels=2, buffer_size=1, serve_bootstrap=True, use_async=True)) 
 
 
 

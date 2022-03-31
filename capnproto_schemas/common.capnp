@@ -136,19 +136,19 @@ interface Clock(T) {
   # forward clock one step to time T (which could also be just a Common.Date)
 }
 
-interface Reader(V) {
+interface Reader(V) $Cxx.name("ChanReader") {
   read @0 () -> (value :V);
 }
 
-interface Writer(V) {
+interface Writer(V) $Cxx.name("ChanWriter") {
   write @0 (value :V);
 }
 
 interface Channel(V) {
   # a potentially buffered channel to transport values of type V
 
-  setBufferSize @0 (size :UInt64);
-  # set buffer size of channel
+  setBufferSize @0 (size :UInt64 = 1);
+  # set buffer size of channel, lowest allowed value = 1, meaning basically no buffer
 
   reader        @1 () -> (r :Capability);#Reader(V));
   # get just a reader
@@ -158,4 +158,8 @@ interface Channel(V) {
 
   endpoints     @3 () -> (r :Reader(V), w :Writer(V));
   # get both endpoints of channel
+}
+
+struct X {
+  t @0 :Text;
 }
