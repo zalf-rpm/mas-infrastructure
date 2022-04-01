@@ -129,14 +129,14 @@ class Reader(common_capnp.Reader.Server):
         if len(b) > 0:
             #context.results.value = common_capnp.X.from_bytes(b.popleft())
             context.results.value = c.deserialize(b.popleft())
-            print("r", sep="", end="")
+            print(c.name, "r ", sep="", end="")
             # unblock potentially waiting writers
             while len(b) < c._buffer_size and len(c._blocking_write_fulfillers) > 0:
                 c._blocking_write_fulfillers.popleft().fulfill()
         else: # block because no value to read
             paf = capnp.PromiseFulfillerPair()
             c._blocking_read_fulfillers.append(paf) 
-            print("[r"+str(len(c._blocking_read_fulfillers))+"]", sep="", end="")
+            print("[", c.name, "r"+str(len(c._blocking_read_fulfillers))+"] ", sep="", end="")
             #return paf.promise.then(lambda: setattr(context.results, "value", common_capnp.X.from_bytes(b.popleft())))
             return paf.promise.then(lambda: setattr(context.results, "value", c.deserialize(b.popleft())))
 
@@ -154,14 +154,14 @@ class Writer(common_capnp.Writer.Server):
         if len(b) < c._buffer_size:
             #b.append(v.as_struct(common_capnp.X).as_builder().to_bytes())
             b.append(c.serialize(v))
-            print("w", sep="", end="")
+            print(c.name, "w ", sep="", end="")
             # unblock potentially waiting readers
             while len(b) > 0 and len(c._blocking_read_fulfillers) > 0:
                 c._blocking_read_fulfillers.popleft().fulfill()
         else: # block until buffer has space
             paf = capnp.PromiseFulfillerPair()
             c._blocking_write_fulfillers.append(paf)
-            print("[w"+str(len(c._blocking_write_fulfillers))+"]", sep="", end="")
+            print("[", c.name, "w"+str(len(c._blocking_write_fulfillers))+"] ", sep="", end="")
             #return paf.promise.then(lambda: b.append(v.as_struct(common_capnp.X).as_builder().to_bytes()))
             return paf.promise.then(lambda: b.append(c.serialize(v)))
 
@@ -173,7 +173,8 @@ async def main(no_of_channels = 1, buffer_size=1, serve_bootstrap=True, host=Non
     config = {
         "no_of_channels": str(no_of_channels),
         "buffer_size": str(max(1, buffer_size)),
-        "type_1": "/home/berg/GitHub/mas-infrastructure/capnproto_schemas/common.capnp:X",
+        "type_1": "/home/berg/GitHub/mas-infrastructure/capnproto_schemas/model/monica/monica_state.capnp:ICData",
+        "type_2": "/home/berg/GitHub/mas-infrastructure/capnproto_schemas/model/monica/monica_state.capnp:ICData",
         "port": port, 
         "host": host,
         "id": id,
@@ -205,7 +206,7 @@ async def main(no_of_channels = 1, buffer_size=1, serve_bootstrap=True, host=Non
     for i in range(1, int(no_of_channels)+1):
         channel_value_type = channel_to_type.get(i, "Text")
         c = Channel(channel_value_type=channel_value_type, buffer_size=int(config["buffer_size"]), 
-            id=config["id"], name=config["name"], description=config["description"], restorer=restorer)
+            id=config["id"], name=str(i), description=config["description"], restorer=restorer)
         ep = c.create_reader_writer_pair()
         services["channel_" + str(i)] = c
         services["reader_" + str(i)] = ep["r"]
