@@ -21,6 +21,7 @@
 import asyncio
 import capnp
 from collections import deque
+import json
 import logging
 import os
 from pathlib import Path
@@ -181,7 +182,8 @@ async def main(no_of_channels = 1, buffer_size=1, serve_bootstrap=True, host=Non
         "name": name,
         "description": description,
         "serve_bootstrap": serve_bootstrap,
-        "use_async": use_async
+        "use_async": use_async,
+        "store_srs_file": None
     }
     
     # read commandline args only if script is invoked directly from commandline
@@ -203,26 +205,36 @@ async def main(no_of_channels = 1, buffer_size=1, serve_bootstrap=True, host=Non
 
     restorer = common.Restorer()
     services = {}
+    name_to_service_srs = {}
     for i in range(1, int(no_of_channels)+1):
         channel_value_type = channel_to_type.get(i, "Text")
         c = Channel(channel_value_type=channel_value_type, buffer_size=int(config["buffer_size"]), 
             id=config["id"], name=str(i), description=config["description"], restorer=restorer)
         ep = c.create_reader_writer_pair()
-        services["channel_" + str(i)] = c
+        services["channel_" + str(i)] =  c
         services["reader_" + str(i)] = ep["r"]
         services["writer_" + str(i)] = ep["w"]
+
+    store_srs_file_path = config["store_srs_file"]
+    def write_srs():
+        if store_srs_file_path:
+            with open(store_srs_file_path, mode="wt") as _:
+                _.write(json.dumps(name_to_service_srs))
+
     if config["use_async"]:
         await serv.async_init_and_run_service(services, config["host"], config["port"], 
-            serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
+            serve_bootstrap=config["serve_bootstrap"], restorer=restorer, name_to_service_srs=name_to_service_srs,
+            run_before_enter_eventloop=write_srs)
     else:
         
         serv.init_and_run_service(services, config["host"], config["port"], 
-            serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
+            serve_bootstrap=config["serve_bootstrap"], restorer=restorer, name_to_service_srs=name_to_service_srs,
+            run_before_enter_eventloop=write_srs)
 
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    asyncio.run(main(no_of_channels=2, buffer_size=1, serve_bootstrap=True, use_async=True)) 
+    asyncio.run(main(no_of_channels=2, buffer_size=2, serve_bootstrap=True, use_async=True)) 
 
 
 

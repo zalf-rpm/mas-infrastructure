@@ -144,7 +144,7 @@ class Admin(service_capnp.Admin.Server, common.Identifiable):
 #------------------------------------------------------------------------------
 
 async def async_init_and_run_service(name_to_service, host=None, port=0, serve_bootstrap=True, restorer=None, 
-    run_before_enter_eventloop=None, **kwargs):
+    name_to_service_srs={}, run_before_enter_eventloop=None, **kwargs):
 
     port = port if port else 0
 
@@ -199,7 +199,7 @@ async def async_init_and_run_service(name_to_service, host=None, port=0, serve_b
     if serve_bootstrap:
         server = await async_helpers.serve(host, port, restorer)
         for name, s in name_to_service.items():
-            service_sr, service_unsave_sr = restorer.save(s)
+            service_sr, service_unsave_sr = name_to_service_srs.setdefault(name, restorer.save(s))
             print("service:", name, "sr:", service_sr)
         print("restorer_sr:", restorer.sturdy_ref())
 
@@ -217,7 +217,7 @@ async def async_init_and_run_service(name_to_service, host=None, port=0, serve_b
 #------------------------------------------------------------------------------
 
 def init_and_run_service(name_to_service, host="*", port=None, serve_bootstrap=True, restorer=None, 
-    run_before_enter_eventloop=None, **kwargs):
+    name_to_service_srs={}, run_before_enter_eventloop=None, **kwargs):
 
     host = host if host else "*"
 
@@ -275,7 +275,7 @@ def init_and_run_service(name_to_service, host="*", port=None, serve_bootstrap=T
         server = capnp.TwoPartyServer(addr, bootstrap=restorer)
         restorer.port = port if port else server.port
         for name, s in name_to_service.items():
-            service_sr, service_unsave_sr = restorer.save(s)
+            service_sr, service_unsave_sr = name_to_service_srs.setdefault(name, restorer.save(s))
             print("service:", name, "sr:", service_sr)
         print("restorer_sr:", restorer.sturdy_ref())
 
