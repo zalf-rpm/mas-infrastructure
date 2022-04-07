@@ -8,9 +8,33 @@ $Go.package("fbp");
 $Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/fbp");
 
 interface Input {
-	input @0 (data :Text); # send some data to the input port
+	# input port 
+
+	send 	@0 (data :AnyPointer); 
+	# send some data to the input port
+
+	close 	@1 ();
+	# close this port
 }
 
-interface Output {
-	output @0 (data :Text); # send some data to the output port
+interface InputArray {
+	# array input port which consists of a dynamic set of ports of the same type
+	send 	@0 (at :UInt8, data :AnyPointer); 
+	# send some data to array port at
+
+	close 	@1 (at :UInt8);
+	# close array port at at
+}
+
+interface Config {
+	# configure interface to setup an FBP component via sturdy refs
+
+	struct NameToSR {
+		name 	@0 :Text;
+		sr		@1 :Text;
+	}
+
+	setup @0 (config :List(NameToSR));
+	# the component will connect it's output ports with name to the downstream 
+	# component via the given sturdy reference sr
 }
