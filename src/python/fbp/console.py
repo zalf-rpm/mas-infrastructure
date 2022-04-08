@@ -38,14 +38,13 @@ if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
 if str(PATH_TO_SCRIPT_DIR) in sys.path:
-    import common as common
-    import service as serv
-    import capnp_async_helpers as async_helpers
+    import fbp as fbp    
 else:
-    import common.common as common
-    import common.service as serv
-    import common.capnp_async_helpers as async_helpers
-import fbp.fbp as fbp
+    import fbp.fbp as fbp
+
+import common.common as common
+import common.service as serv
+import common.capnp_async_helpers as async_helpers
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
@@ -53,14 +52,16 @@ common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=a
 reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
 fbp_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "fbp.capnp"), imports=abs_imports)
 
+is_async = False
 
 #------------------------------------------------------------------------------
 
-class Console(fbp.Config, common.Identifiable): 
+class Console(fbp.Component, common.Identifiable): 
 
-    def __init__(self, connection_manager, data_type="Text", buffer_size=1, 
-        id=None, name=None, description=None, restorer=None):
-        fbp.Config.__init__(self, connection_manager, in_port_config={"in": (data_type, buffer_size)}, restorer=restorer)
+    def __init__(self, in_buffer_size=1, id=None, name=None, description=None, restorer=None):
+        in_ports={"in": ("Text", in_buffer_size)}
+
+        fbp.Component.__init__(self, in_ports=in_ports, restorer=restorer)
         common.Identifiable.__init__(self, id, name, description)
 
         self._id = str(id if id else uuid.uuid4())
@@ -70,10 +71,13 @@ class Console(fbp.Config, common.Identifiable):
 
 
     def run(self):
-        inp = self._in_ports["in"]["port"]
+        inp = self.in_ports["in"]["port"]
         if inp:
-            while not self._stop:
-                inp.read_value().then(lambda v: print(v))
+            if is_async:
+                val = inp.read_value().then(lambda v: print(v))    
+            else:
+                val = inp.read_value().then(lambda v: print(v))
+            print(val)
 
 #------------------------------------------------------------------------------
 
@@ -82,17 +86,19 @@ async def main(buffer_size=1, serve_bootstrap=True, host=None, port=None,
 
     config = {
         "in_buffer_size": str(buffer_size),
-        "in_type": None, #"/home/berg/GitHub/mas-infrastructure/capnproto_schemas/model/monica/monica_state.capnp:ICData",
-        "port": port, 
+        "in_sr_token": "1234",#None, 
+        "port": "9999",#port, 
         "host": host,
         "id": id,
         "name": name,
         "description": description,
         "serve_bootstrap": serve_bootstrap,
-        "use_async": use_async,
-        "store_srs_file": None
+        "use_async": use_async
     }
-    
+
+    global is_async
+    is_async = config["use_async"]
+
     # read commandline args only if script is invoked directly from commandline
     if len(sys.argv) > 1 and __name__ == "__main__":
         for arg in sys.argv[1:]:
@@ -101,44 +107,31 @@ async def main(buffer_size=1, serve_bootstrap=True, host=None, port=None,
                 config[k] = v.lower() == "true" if v.lower() in ["true", "false"] else v 
     print(config)
 
-    in_type = "Text"
-    if config["in_type"] is not None:
-        capnp_module_path, type_name = config["in_type"].split(":")
-        capnp_module = capnp.load(capnp_module_path, imports=abs_imports)
-        capnp_type = capnp_module.__dict__.get(type_name, "Text")
-        in_type = capnp_type
+    #name_to_out_type = common.load_capnp_modules({"in": config["out_type"]})
 
     restorer = common.Restorer()
-    conman = async_helpers.ConnectionManager() if config["use_async"] else common.ConnectionManager()
-    services = {}
-    name_to_service_srs = {}
-    component = Console(conman, in_value_type=in_type, in_buffer_size=int(config["buffer_size"]), 
+    component = Console(in_buffer_size=int(config["in_buffer_size"]), 
         id=config["id"], name=config["name"], description=config["description"], restorer=restorer)
-    in_port = component._in
-    services["in"] =  in_port
-
-    store_srs_file_path = config["store_srs_file"]
-    def write_srs():
-        if store_srs_file_path:
-            with open(store_srs_file_path, mode="wt") as _:
-                _.write(json.dumps(name_to_service_srs))
+    component.in_ports["in"]["sr_token"] = config["in_sr_token"]
 
     if config["use_async"]:
-        await serv.async_init_and_run_service(services, config["host"], config["port"], 
-            serve_bootstrap=config["serve_bootstrap"], conman=conman, restorer=restorer, 
-            name_to_service_srs=name_to_service_srs,
-            run_before_enter_eventloop=write_srs)
+        await fbp.async_init_and_run_fbp_component(name_to_in_ports=component.in_ports, 
+            host=config["host"], port=config["port"], 
+            serve_bootstrap=config["serve_bootstrap"], restorer=restorer, eventloop_wait_forever=False)
     else:
-        
-        serv.init_and_run_service(services, config["host"], config["port"], 
-            serve_bootstrap=config["serve_bootstrap"], conman=conman, restorer=restorer, 
-            name_to_service_srs=name_to_service_srs,
-            run_before_enter_eventloop=write_srs)
+        fbp.init_and_run_fbp_component(name_to_in_ports=component.in_ports,
+            host=config["host"], port=config["port"], 
+            serve_bootstrap=config["serve_bootstrap"], restorer=restorer, eventloop_wait_forever=False)
+
+    if is_async:
+        component.run()
+    else:
+        component.run()
 
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    asyncio.run(main(buffer_size=1, serve_bootstrap=True, use_async=False)) 
+    asyncio.run(main(buffer_size=1, serve_bootstrap=True, use_async=True)) 
 
 
 

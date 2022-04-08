@@ -20,7 +20,7 @@
 
 import asyncio
 import capnp
-from collections import deque
+from collections import deque, defaultdict
 import json
 import logging
 import os
@@ -38,62 +38,57 @@ if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
 if str(PATH_TO_SCRIPT_DIR) in sys.path:
-    import common as common
-    import service as serv
-    import capnp_async_helpers as async_helpers
+    import fbp as fbp    
 else:
-    import common.common as common
-    import common.service as serv
-    import common.capnp_async_helpers as async_helpers
-import fbp.fbp as fbp
+    import fbp.fbp as fbp
+
+import common.common as common
+import common.service as serv
+import common.capnp_async_helpers as async_helpers
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports) 
-reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
 fbp_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "fbp.capnp"), imports=abs_imports)
 
 
 #------------------------------------------------------------------------------
 
-class FileReader(fbp.Config, common.Identifiable): 
+class FileReader(fbp.Component, common.Identifiable): 
 
-    def __init__(self, connection_manager, id=None, name=None, description=None, restorer=None):
-        fbp.Config.__init__(self, connection_manager, out_port_config={"out": None}, restorer=restorer)
+    def __init__(self, id=None, name=None, description=None, restorer=None):
+        out_ports={"out": "Text"}
+
+        fbp.Component.__init__(self, out_ports=out_ports, restorer=restorer)
         common.Identifiable.__init__(self, id, name, description)
 
         self._id = str(id if id else uuid.uuid4())
         self._name = name if name else self._id
         self._description = description if description else ""
-        self._out = None
-        self._stop = False
 
 
     def run(self):
-        out = self._out_ports["out"]["port"]
+        out = self.out_ports["out"]["port"]
         if out:
             with open("test.txt") as _:
-                while not self._stop:
+                while not self.stop:
                     line = _.readline()
-                    out.send(data=line).then(lambda v: print(v))
+                    out.send(data=line).wait();#then(lambda v: print(v))
 
 #------------------------------------------------------------------------------
 
-async def main(buffer_size=1, serve_bootstrap=True, host=None, port=None, 
-    id=None, name="Console component", description=None, use_async=False):
+async def main(serve_bootstrap=True, host=None, port=None, 
+    id=None, name="Read file component", description=None, use_async=False):
 
     config = {
-        "in_buffer_size": str(buffer_size),
-        "in_type": None, #"/home/berg/GitHub/mas-infrastructure/capnproto_schemas/model/monica/monica_state.capnp:ICData",
-        "out_type": None,
+        "out_sr": "capnp://insecure@10.10.24.210:9999/1234",#None,
         "port": port, 
         "host": host,
         "id": id,
         "name": name,
         "description": description,
         "serve_bootstrap": serve_bootstrap,
-        "use_async": use_async,
-        "store_srs_file": None
+        "use_async": use_async
     }
     
     # read commandline args only if script is invoked directly from commandline
@@ -104,44 +99,27 @@ async def main(buffer_size=1, serve_bootstrap=True, host=None, port=None,
                 config[k] = v.lower() == "true" if v.lower() in ["true", "false"] else v 
     print(config)
 
-    out_type = "Text"
-    if config["out_type"] is not None:
-        capnp_module_path, type_name = config["out_type"].split(":")
-        capnp_module = capnp.load(capnp_module_path, imports=abs_imports)
-        capnp_type = capnp_module.__dict__.get(type_name, "Text")
-        out_type = capnp_type
+    #name_to_out_type = common.load_capnp_modules({"in": config["out_type"]})
 
     restorer = common.Restorer()
-    conman = async_helpers.ConnectionManager() if config["use_async"] else common.ConnectionManager()
-    services = {}
-    name_to_service_srs = {}
-    component = FileReader(conman, out_type=out_type, 
-        id=config["id"], name=config["name"], description=config["description"], restorer=restorer)
-    in_port = component._in
-    services["in"] =  in_port
-
-    store_srs_file_path = config["store_srs_file"]
-    def write_srs():
-        if store_srs_file_path:
-            with open(store_srs_file_path, mode="wt") as _:
-                _.write(json.dumps(name_to_service_srs))
+    component = FileReader(id=config["id"], name=config["name"], description=config["description"], restorer=restorer)
+    component.out_ports["out"]["sr"] = config["out_sr"]
 
     if config["use_async"]:
-        await serv.async_init_and_run_service(services, config["host"], config["port"], 
-            serve_bootstrap=config["serve_bootstrap"], conman=conman, restorer=restorer, 
-            name_to_service_srs=name_to_service_srs,
-            run_before_enter_eventloop=write_srs)
+        await fbp.async_init_and_run_fbp_component(name_to_out_ports=component.out_ports, 
+            host=config["host"], port=config["port"], 
+            serve_bootstrap=config["serve_bootstrap"], restorer=restorer, eventloop_wait_forever=False)
     else:
-        
-        serv.init_and_run_service(services, config["host"], config["port"], 
-            serve_bootstrap=config["serve_bootstrap"], conman=conman, restorer=restorer, 
-            name_to_service_srs=name_to_service_srs,
-            run_before_enter_eventloop=write_srs)
+        fbp.init_and_run_fbp_component(name_to_out_ports=component.out_ports, 
+            host=config["host"], port=config["port"], 
+            serve_bootstrap=config["serve_bootstrap"], restorer=restorer, eventloop_wait_forever=False)
+
+    component.run()
 
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    asyncio.run(main(buffer_size=1, serve_bootstrap=True, use_async=False)) 
+    asyncio.run(main(serve_bootstrap=True, use_async=False)) 
 
 
 

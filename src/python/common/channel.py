@@ -190,14 +190,8 @@ async def main(no_of_channels = 1, buffer_size=1, serve_bootstrap=True, host=Non
                 config[k] = v.lower() == "true" if v.lower() in ["true", "false"] else v 
     print(config)
 
-    channel_to_type = {i : "Text" for i in range(1, int(config["no_of_channels"])+1)}
-    for k, v in config.items():
-        if k.startswith("type_"):
-            no = int(k.split("_")[1])
-            capnp_module_path, type_name = v.split(":")
-            capnp_module = capnp.load(capnp_module_path, imports=abs_imports)
-            capnp_type = capnp_module.__dict__.get(type_name, "Text")
-            channel_to_type[no] = capnp_type
+    channel_to_type = common.load_capnp_modules(
+        {int(k.split("_")[1]) : v for k, v in config.items() if k.startswith("type_")})
 
     restorer = common.Restorer()
     services = {}

@@ -21,7 +21,7 @@
 import asyncio
 from multiprocessing import connection
 import capnp
-from collections import deque
+from collections import deque, defaultdict
 import os
 from pathlib import Path
 import sys
@@ -36,12 +36,13 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-if str(PATH_TO_SCRIPT_DIR) in sys.path:
-    import common as common
-else:
-    import common.common as common
-    import common.service as serv
-    import common.capnp_async_helpers as async_helpers
+#if str(PATH_TO_SCRIPT_DIR) in sys.path:
+    
+#else:
+
+import common.common as common
+import common.service as serv
+import common.capnp_async_helpers as async_helpers
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
@@ -100,7 +101,7 @@ class Input(fbp_capnp.Input.Server, common.Identifiable, common.Persistable):
         self._buffer_size = max(1, context.params.size)
 
 
-    def send_context(self, context): # send 	@0 (data :AnyPointer); 
+    def _send_context(self, context): # send 	@0 (data :AnyPointer); 
         v = context.params.data
         b = self._buffer
         # write value non-block
@@ -118,9 +119,68 @@ class Input(fbp_capnp.Input.Server, common.Identifiable, common.Persistable):
             #print("[", c.name, "w"+str(len(c._blocking_write_fulfillers))+"] ", sep="", end="")
             return paf.promise.then(lambda: b.append(self.serialize(v)))
 
+    def send_context(self, context): # send 	@0 (data :AnyPointer); 
+        v = context.params.data
+        b = self._buffer
+        # write value non-block
+        if len(b) < self._buffer_size:
+            b.append(self.serialize(v))
+            self._component.run()
+            #print(c.name, "w ", sep="", end="")
+            # unblock potentially waiting readers
+            #while len(b) > 0 and self._next_value_fulfiller is not None:
+            #    ff = self._blocking_read_fulfiller
+            #    self._blocking_read_fulfiller = None
+            #    ff.fulfill()
+        else: # block until buffer has space
+            paf = capnp.PromiseFulfillerPair()
+            self._blocking_write_fulfillers.append(paf)
+            #print("[", c.name, "w"+str(len(c._blocking_write_fulfillers))+"] ", sep="", end="")
+            return paf.promise.then(lambda: b.append(self.serialize(v)))
+
+
 
     def close_context(self, context): #close 	@1 ();
         self._component._stop = True
+
+#--------------------------------------------------------------------------------------
+
+class Component(common.Persistable): 
+
+    def __init__(self, in_ports={}, out_ports={}, restorer=None):
+        common.Persistable.__init__(self, restorer)
+
+        self._in_ports = defaultdict(lambda: {"port": None, "data_type": None, "sr_token": None})
+        for name, data in in_ports.items():
+            data_type, buffer_size = data if isinstance(data, type(())) else (data, 1)
+            self._in_ports[name]["port"] = Input(self, data_type=data_type, buffer_size=buffer_size, name=name, restorer=restorer)
+            self._in_ports[name]["data_type"] = data_type
+        
+        self._out_ports = defaultdict(lambda: {"port": None, "data_type": None, "sr": None})
+        for name, data_type in out_ports.items():
+            self._out_ports[name]["data_type"] = data_type
+        
+        self._stop = False
+
+
+    @property
+    def in_ports(self):
+        return self._in_ports
+
+
+    @property
+    def out_ports(self):
+        return self._out_ports
+
+
+    @property
+    def stop(self):
+        return self._stop
+
+    @stop.setter
+    def stop(self, s):
+        self._stop = s
+
 
 #--------------------------------------------------------------------------------------
 
@@ -144,3 +204,94 @@ class Config(fbp_capnp.Config.Server, common.Persistable):
         for name, sr in c.items():
             if name in self._out_ports:
                 self._out_ports[name]["port"] = self._conman.try_connect(sr, cast_as=fbp_capnp.Input)
+
+#------------------------------------------------------------------------------
+
+async def async_init_and_run_fbp_component(name_to_in_ports={}, name_to_out_ports={}, 
+    host=None, port=0, serve_bootstrap=True, restorer=None, 
+    conman=None, run_before_enter_eventloop=None, eventloop_wait_forever=True):
+
+    port = port if port else 0
+
+    if not conman:
+        conman = async_helpers.ConnectionManager()
+    if not restorer:
+        restorer = common.Restorer()
+
+    async def connect_out_ports():
+        for name, data in name_to_out_ports.items():
+            try:
+                print("trying to connect out port:", name, " via sr:", data["sr"])
+                data["port"] = await conman.try_connect(data["sr"], cast_as=fbp_capnp.Input, retry_secs=1)
+            except Exception as e:
+                print("Error connecting to out port:", name, ". Exception:", e)
+
+    if serve_bootstrap:
+        server = await async_helpers.serve(host, port, restorer)
+         
+         # make input ports available via restorer
+        for name, data in name_to_in_ports.items():
+            if data["port"] and data["sr_token"]:
+                port_sr, _ = restorer.save(data["port"], data["sr_token"])
+            print("in_port:", name, "sr:", port_sr)
+        print("restorer_sr:", restorer.sturdy_ref())
+
+        await connect_out_ports()
+
+        if run_before_enter_eventloop:
+            run_before_enter_eventloop()
+        if eventloop_wait_forever:
+            async with server:
+                await server.serve_forever()
+    else:
+        await connect_out_ports()
+        if run_before_enter_eventloop:
+            run_before_enter_eventloop()
+        if eventloop_wait_forever:
+            await conman.manage_forever()
+
+#--------------------------------------------------------------------------------------------
+
+def init_and_run_fbp_component(name_to_in_ports={}, name_to_out_ports={}, 
+    host="*", port=None, serve_bootstrap=True, restorer=None, 
+    conman=None, run_before_enter_eventloop=None, eventloop_wait_forever=True):
+
+    host = host if host else "*"
+
+    if not conman:
+        conman = common.ConnectionManager()
+    if not restorer:
+        restorer = common.Restorer()
+
+    def connect_out_ports():
+        for name, data in name_to_out_ports.items():
+            try:
+                print("trying to connect out port:", name, " via sr:", data["sr"])
+                data["port"] = conman.try_connect(data["sr"], cast_as=fbp_capnp.Input, retry_secs=1)
+            except Exception as e:
+                print("Error connecting to out port:", name, ". Exception:", e)
+
+    addr = host + ((":" + str(port)) if port else "")
+    if serve_bootstrap:
+        server = capnp.TwoPartyServer(addr, bootstrap=restorer)
+        restorer.port = port if port else server.port
+
+        # make input ports available via restorer
+        for name, data in name_to_in_ports.items():
+            if data["port"] and data["sr_token"]:
+                port_sr, _ = restorer.save(data["port"], data["sr_token"])
+                print("in_port:", name, "sr:", port_sr)
+        print("restorer_sr:", restorer.sturdy_ref())
+
+        connect_out_ports()
+    else:
+        connect_out_ports()
+        if run_before_enter_eventloop:
+            run_before_enter_eventloop()
+        if eventloop_wait_forever:
+            capnp.wait_forever()
+    
+    if run_before_enter_eventloop:
+        run_before_enter_eventloop()
+    if eventloop_wait_forever:
+        server.run_forever()
