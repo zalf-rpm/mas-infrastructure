@@ -20,10 +20,12 @@
 
 import asyncio
 from multiprocessing import connection
+import threading
 import capnp
 from collections import deque, defaultdict
 import os
 from pathlib import Path
+import socket
 import sys
 import uuid
 
@@ -48,8 +50,7 @@ PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 fbp_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "fbp.capnp"), imports=abs_imports)
 
-
-#------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------
 
 class Input(fbp_capnp.Input.Server, common.Identifiable, common.Persistable): 
 
@@ -67,21 +68,31 @@ class Input(fbp_capnp.Input.Server, common.Identifiable, common.Persistable):
         self._blocking_write_fulfillers = deque()
         self._data_type = data_type
 
-    def read_value(self):
-        b = self._buffer
-        # read value non-blocking
-        if len(b) > 0:
-            val = self.deserialize(b.popleft())
-            #print(c.name, "r ", sep="", end="")
-            # unblock potentially waiting writers
-            while len(b) < self._buffer_size and len(self._blocking_write_fulfillers) > 0:
-                self._blocking_write_fulfillers.popleft().fulfill()
-            return capnp.Promise().then(lambda: val)
-        else: # block because no value to read
-            paf = capnp.PromiseFulfillerPair()
-            self._blocking_read_fulfiller = paf 
-            #print("[", c.name, "r"+str(len(c._blocking_read_fulfillers))+"] ", sep="", end="")
-            return paf.promise.then(lambda: self.deserialize(b.popleft()))
+
+    def get_reader(self):
+        return Reader(self, self._restorer)
+
+
+    def get_writer(self):
+        return Writer(self, self._restorer)
+
+
+    #def read_value(self):
+    #    b = self._buffer
+    #    # read value non-blocking
+    #    if len(b) > 0:
+    #        val = self.deserialize(b.popleft())
+    #        #print(c.name, "r ", sep="", end="")
+    #        # unblock potentially waiting writers
+    #        while len(b) < self._buffer_size and len(self._blocking_write_fulfillers) > 0:
+    #            self._blocking_write_fulfillers.popleft().fulfill()
+    #        return capnp.Promise().then(lambda: val)
+    #    else: # block because no value to read
+    #        paf = capnp.PromiseFulfillerPair()
+    #        self._blocking_read_fulfiller = paf 
+    #        #print("[", c.name, "r"+str(len(c._blocking_read_fulfillers))+"] ", sep="", end="")
+    #        return paf.promise.then(lambda: self.deserialize(b.popleft()))
+
 
     def deserialize(self, v):
         if self._data_type == "Text":
@@ -101,66 +112,115 @@ class Input(fbp_capnp.Input.Server, common.Identifiable, common.Persistable):
         self._buffer_size = max(1, context.params.size)
 
 
-    def _send_context(self, context): # send 	@0 (data :AnyPointer); 
-        v = context.params.data
-        b = self._buffer
-        # write value non-block
-        if len(b) < self._buffer_size:
-            b.append(self.serialize(v))
-            #print(c.name, "w ", sep="", end="")
-            # unblock potentially waiting readers
-            while len(b) > 0 and self._next_value_fulfiller is not None:
-                ff = self._blocking_read_fulfiller
-                self._blocking_read_fulfiller = None
-                ff.fulfill()
-        else: # block until buffer has space
-            paf = capnp.PromiseFulfillerPair()
-            self._blocking_write_fulfillers.append(paf)
-            #print("[", c.name, "w"+str(len(c._blocking_write_fulfillers))+"] ", sep="", end="")
-            return paf.promise.then(lambda: b.append(self.serialize(v)))
-
-    def send_context(self, context): # send 	@0 (data :AnyPointer); 
-        v = context.params.data
-        b = self._buffer
-        # write value non-block
-        if len(b) < self._buffer_size:
-            b.append(self.serialize(v))
-            self._component.run()
-            #print(c.name, "w ", sep="", end="")
-            # unblock potentially waiting readers
-            #while len(b) > 0 and self._next_value_fulfiller is not None:
-            #    ff = self._blocking_read_fulfiller
-            #    self._blocking_read_fulfiller = None
-            #    ff.fulfill()
-        else: # block until buffer has space
-            paf = capnp.PromiseFulfillerPair()
-            self._blocking_write_fulfillers.append(paf)
-            #print("[", c.name, "w"+str(len(c._blocking_write_fulfillers))+"] ", sep="", end="")
-            return paf.promise.then(lambda: b.append(self.serialize(v)))
-
+    #def send_context(self, context): # send 	@0 (data :AnyPointer); 
+    #    v = context.params.data
+    #    b = self._buffer
+    #    # write value non-block
+    #    if len(b) < self._buffer_size:
+    #        b.append(self.serialize(v))
+    #        #print(c.name, "w ", sep="", end="")
+    #        # unblock potentially waiting readers
+    #        while len(b) > 0 and self._blocking_read_fulfiller is not None:
+    #            ff = self._blocking_read_fulfiller
+    #            self._blocking_read_fulfiller = None
+    #            ff.fulfill()
+    #    else: # block until buffer has space
+    #        paf = capnp.PromiseFulfillerPair()
+    #        self._blocking_write_fulfillers.append(paf)
+    #        #print("[", c.name, "w"+str(len(c._blocking_write_fulfillers))+"] ", sep="", end="")
+    #        return paf.promise.then(lambda: b.append(self.serialize(v)))
 
 
     def close_context(self, context): #close 	@1 ();
-        self._component._stop = True
+        return self._component.stop()
 
 #--------------------------------------------------------------------------------------
 
-class Component(common.Persistable): 
+class Reader(fbp_capnp.Input.Reader.Server, common.Persistable): 
 
-    def __init__(self, in_ports={}, out_ports={}, restorer=None):
+    def __init__(self, input, restorer=None):
         common.Persistable.__init__(self, restorer)
 
+        self._input = input
+
+
+    def read_context(self, context): # read @0 () -> (value :AnyPointer);
+        i = self._input
+        b = i._buffer
+        # read value non-blocking
+        if len(b) > 0:
+            context.results.value = i.deserialize(b.popleft())
+            #print(c.name, "r ", sep="", end="")
+            # unblock potentially waiting writers
+            while len(b) < i._buffer_size and len(i._blocking_write_fulfillers) > 0:
+                i._blocking_write_fulfillers.popleft().fulfill()
+        else: # block because no value to read
+            paf = capnp.PromiseFulfillerPair()
+            i._blocking_read_fulfiller = paf 
+            #print("[", c.name, "r"+str(len(c._blocking_read_fulfillers))+"] ", sep="", end="")
+            return paf.promise.then(lambda: setattr(context.results, "value", i.deserialize(b.popleft())))
+
+
+#--------------------------------------------------------------------------------------
+class Writer(fbp_capnp.Input.Writer.Server, common.Persistable): 
+
+    def __init__(self, input, restorer=None):
+        common.Persistable.__init__(self, restorer)
+
+        self._input = input
+
+    def write_context(self, context): # write @0 (value :AnyPointer);
+        v = context.params.value
+        i = self._input
+        b = i._buffer
+        # write value non-block
+        if len(b) < i._buffer_size:
+            b.append(i.serialize(v))
+            #print(c.name, "w ", sep="", end="")
+            # unblock potentially waiting readers
+            while len(b) > 0 and i._blocking_read_fulfiller is not None:
+                ff = i._blocking_read_fulfiller
+                i._blocking_read_fulfiller = None
+                ff.fulfill()
+        else: # block until buffer has space
+            paf = capnp.PromiseFulfillerPair()
+            i._blocking_write_fulfillers.append(paf)
+            #print("[", c.name, "w"+str(len(c._blocking_write_fulfillers))+"] ", sep="", end="")
+            return paf.promise.then(lambda: b.append(i.serialize(v)))
+
+#--------------------------------------------------------------------------------------
+
+def start_component_thread(sock, bootstrap):
+    server = capnp.TwoPartyServer(sock, bootstrap=bootstrap)
+    bootstrap.run()
+    #server.run_forever()
+
+
+class Component(fbp_capnp.Component.Server):#, common.Persistable): 
+
+    def __init__(self, restorer=None):
+        #common.Persistable.__init__(self, restorer)
+
         self._in_ports = defaultdict(lambda: {"port": None, "data_type": None, "sr_token": None})
-        for name, data in in_ports.items():
-            data_type, buffer_size = data if isinstance(data, type(())) else (data, 1)
-            self._in_ports[name]["port"] = Input(self, data_type=data_type, buffer_size=buffer_size, name=name, restorer=restorer)
-            self._in_ports[name]["data_type"] = data_type
-        
         self._out_ports = defaultdict(lambda: {"port": None, "data_type": None, "sr": None})
-        for name, data_type in out_ports.items():
-            self._out_ports[name]["data_type"] = data_type
+        #for name, data_type in out_ports.items():
+        #    self._out_ports[name]["data_type"] = data_type
         
         self._stop = False
+
+
+    def setInputPorts_context(self, context): # setInputPorts @0 (ports :List(NameToPort));
+        for n2p in context.params.ports:
+            self._in_ports[n2p.name]["port"] = n2p.port.as_interface(fbp_capnp.Input.Reader)
+
+
+    def setOutputPorts_context(self, context): # setOutputPorts @1 (ports :List(NameToPort));
+        for n2p in context.params.ports:
+            self._out_ports[n2p.name]["port"] = n2p.port.as_interface(fbp_capnp.Input.Writer)
+
+
+    def stop_context(self, context): # stop @2 ();
+        self._stop = True
 
 
     @property
@@ -183,29 +243,6 @@ class Component(common.Persistable):
 
 
 #--------------------------------------------------------------------------------------
-
-class Config(fbp_capnp.Config.Server, common.Persistable): 
-
-    def __init__(self, connection_manager, in_port_config={}, out_port_config={}, restorer=None):
-        common.Persistable.__init__(self, restorer)
-        self._conman = connection_manager
-        self._component = self
-        self._in_ports = {}
-        for name, (data_type, buffer_size) in in_port_config.items():
-            self._in_ports[name] = {"port": Input(self, data_type, buffer_size, restorer=restorer)}
-        self._out_ports = {}
-        for name, data_type in out_port_config.items():
-            self._out_ports[name] = {"port": None, "data_type": data_type}
-
-
-    def setup_context(self, context): # setup @0 (config :List(NameToSR));
-        c = context.params.config
-
-        for name, sr in c.items():
-            if name in self._out_ports:
-                self._out_ports[name]["port"] = self._conman.try_connect(sr, cast_as=fbp_capnp.Input)
-
-#------------------------------------------------------------------------------
 
 async def async_init_and_run_fbp_component(name_to_in_ports={}, name_to_out_ports={}, 
     host=None, port=0, serve_bootstrap=True, restorer=None, 

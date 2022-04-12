@@ -7,15 +7,42 @@ using Go = import "/capnp/go.capnp";
 $Go.package("fbp");
 $Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/fbp");
 
+interface Component {
+	# act as bootstrap for component thread
+
+	struct NameToPort {
+		name 	@0 :Text;
+		port	@1 :Capability;
+	}
+
+	setInputPorts 	@0 (ports :List(NameToPort));
+	# set the connected input ports
+
+	setOutputPorts 	@1 (ports :List(NameToPort));
+	# set the connected input ports
+
+	stop 			@2 ();
+	# stop the component
+}
+
 interface Input {
 	# input port 
 
-	send 	@0 (data :AnyPointer); 
+	interface Reader $Cxx.name("InpReader") {
+		read @0 () -> (value :AnyPointer);
+	}
+
+	interface Writer $Cxx.name("InpWriter") {
+		write @0 (value :AnyPointer);
+	}
+
+	#send 	@0 (data :AnyPointer); 
 	# send some data to the input port
 
-	close 	@1 ();
+	close 	@0 ();
 	# close this port
 }
+
 
 interface InputArray {
 	# array input port which consists of a dynamic set of ports of the same type
