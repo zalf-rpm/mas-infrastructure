@@ -199,8 +199,10 @@ async def async_init_and_run_service(name_to_service, host=None, port=0, serve_b
 
     if serve_bootstrap:
         server = await async_helpers.serve(host, port, restorer)
+        
         for name, s in name_to_service.items():
-            service_sr, service_unsave_sr = name_to_service_srs.setdefault(name, restorer.save(s))
+            service_sr, service_unsave_sr = restorer.save(s, name_to_service_srs.get(name, None))
+            name_to_service_srs[name] = service_sr
             print("service:", name, "sr:", service_sr)
         print("restorer_sr:", restorer.sturdy_ref())
 
@@ -276,8 +278,10 @@ def init_and_run_service(name_to_service, host="*", port=None, serve_bootstrap=T
     if serve_bootstrap:
         server = capnp.TwoPartyServer(addr, bootstrap=restorer)
         restorer.port = port if port else server.port
+
         for name, s in name_to_service.items():
-            service_sr, service_unsave_sr = name_to_service_srs.setdefault(name, restorer.save(s))
+            service_sr, service_unsave_sr = restorer.save(s, name_to_service_srs.get(name, None))
+            name_to_service_srs[name] = service_sr
             print("service:", name, "sr:", service_sr)
         print("restorer_sr:", restorer.sturdy_ref())
 

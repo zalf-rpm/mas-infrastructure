@@ -136,30 +136,47 @@ interface Clock(T) {
   # forward clock one step to time T (which could also be just a Common.Date)
 }
 
-interface Reader(V) $Cxx.name("ChanReader") {
-  read @0 () -> (value :V);
+interface Reader $Cxx.name("ChanReader") {
+  # reading end of a channel
+
+  read @0 () -> (value :AnyPointer);
+  # read a value
+
+  done @1 ();
+  # no further data to be read
+  # reading end could be closed
+
+  registerCloseNotification @2 (notification :Action);
+  # register an action to get notified of closing the reading end
 }
 
-interface Writer(V) $Cxx.name("ChanWriter") {
-  write @0 (value :V);
+interface Writer $Cxx.name("ChanWriter") {
+  # writing end of a channel
+
+  write @0 (value :AnyPointer);
+  # write a value
+
+  done  @1 ();
+  # no further data to be written
+  # writing end of channel can be closed
+
+  registerCloseNotification @2 (notification :Action);
+  # register an action to get notified of closing the writing end
 }
 
-interface Channel(V) {
+interface Channel {
   # a potentially buffered channel to transport values of type V
 
   setBufferSize @0 (size :UInt64 = 1);
   # set buffer size of channel, lowest allowed value = 1, meaning basically no buffer
 
-  reader        @1 () -> (r :Capability);#Reader(V));
+  reader        @1 () -> (r :Reader);
   # get just a reader
 
-  writer        @2 () -> (w :Capability);#Writer(V));
+  writer        @2 () -> (w :Writer);
   # get just a writer
 
-  endpoints     @3 () -> (r :Reader(V), w :Writer(V));
+  endpoints     @3 () -> (r :Reader, w :Writer);
   # get both endpoints of channel
 }
 
-struct X {
-  t @0 :Text;
-}

@@ -20,14 +20,29 @@ from pathlib import Path
 import subprocess as sp
 import time
 from threading import Thread
+import uuid
+
+r = str(uuid.uuid4())
+w = str(uuid.uuid4())
+channel = Thread(
+    target=sp.run, 
+    args=(["python", "/home/berg/GitHub/mas-infrastructure/src/python/common/channel.py", 
+        "port=9990",
+        "no_of_channels=1",
+        "buffer_size=1",
+        "type_1=Text",
+        "rw_srts_1="+r+"_"+w,
+        "use_async=True"
+    ],),
+    daemon=False
+)
+channel.start()
 
 console = Thread(
     target=sp.run, 
     args=(["python", "/home/berg/GitHub/mas-infrastructure/src/python/fbp/console.py", 
-        "port=9999",
-        "in_sr_token="+"1234", 
-        "in_buffer_size="+str(1), 
-        "use_async=false"],),
+        "in_sr=capnp://localhost:9990/"+r
+    ],),
     daemon=False
 )
 console.start()
@@ -37,14 +52,15 @@ console.start()
 read_file = Thread(
     target=sp.run, 
     args=(["python", "/home/berg/GitHub/mas-infrastructure/src/python/fbp/read_file.py", 
-        "out_sr="+"capnp://insecure@10.10.24.210:9999/1234", 
-        "use_async=false"],),
+        "out_sr=capnp://insecure@10.10.24.210:9990/"+w
+    ],),
     daemon=False
 )
 read_file.start()
 
 read_file.join()
 console.join()
+channel.join()
 
 
 

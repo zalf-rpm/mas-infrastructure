@@ -15,13 +15,10 @@ interface Component {
 		port	@1 :Capability;
 	}
 
-	setInputPorts 	@0 (ports :List(NameToPort));
-	# set the connected input ports
+	setupPorts 		@0 (inPorts :List(NameToPort), outPorts :List(NameToPort));
+	# setup the ports
 
-	setOutputPorts 	@1 (ports :List(NameToPort));
-	# set the connected input ports
-
-	stop 			@2 ();
+	stop 			@1 ();
 	# stop the component
 }
 
@@ -51,17 +48,4 @@ interface InputArray {
 
 	close 	@1 (at :UInt8);
 	# close array port at at
-}
-
-interface Config {
-	# configure interface to setup an FBP component via sturdy refs
-
-	struct NameToSR {
-		name 	@0 :Text;
-		sr		@1 :Text;
-	}
-
-	setup @0 (config :List(NameToSR));
-	# the component will connect it's output ports with name to the downstream 
-	# component via the given sturdy reference sr
 }

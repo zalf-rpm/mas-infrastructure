@@ -38,6 +38,17 @@ persistence_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "persistence.capnp"),
 
 #------------------------------------------------------------------------------
 
+def update_config(config, argv, print_config=False):
+    if len(argv) > 1:
+        for arg in argv[1:]:
+            k, v = arg.split("=")
+            if k in config:
+                config[k] = v.lower() == "true" if v.lower() in ["true", "false"] else v 
+        if print_config:
+            print(config)
+
+#------------------------------------------------------------------------------
+
 class Restorer(persistence_capnp.Restorer.Server):
 
     def __init__(self):
@@ -358,8 +369,12 @@ def load_capnp_modules(id_to_path_and_type, def_type="Text"):
     for name, path_and_type in id_to_path_and_type.items():
         capnp_type = def_type
         if path_and_type:
-            capnp_module_path, type_name = path_and_type.split(":")
-            capnp_module = capnp.load(capnp_module_path, imports=abs_imports)
-            capnp_type = capnp_module.__dict__.get(type_name, def_type)
+            p_and_t = path_and_type.split(":")
+            if len(p_and_t) > 1:
+                capnp_module_path, type_name = p_and_t
+                capnp_module = capnp.load(capnp_module_path, imports=abs_imports)
+                capnp_type = capnp_module.__dict__.get(type_name, def_type)
+            elif len(p_and_t) > 0:
+                capnp_type = p_and_t[0] 
         id_to_type[name] = capnp_type
     return id_to_type
