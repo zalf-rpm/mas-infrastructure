@@ -57,38 +57,23 @@ fbp_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "fbp.capnp"), imports=abs_imp
 capnp.remove_event_loop()
 capnp.create_event_loop(threaded=True)
 
-
 #------------------------------------------------------------------------------
 
 class FileReader(fbp.Component):#, common.Identifiable): 
-
-    #def __init__(self, id=None, name=None, description=None, restorer=None):
-    #    out_ports={"out": "Text"}
-
-    #    fbp.Component.__init__(self, out_ports=out_ports, restorer=restorer)
-    #    common.Identifiable.__init__(self, id, name, description)
-
-    #    self._id = str(id if id else uuid.uuid4())
-    #    self._name = name if name else self._id
-    #    self._description = description if description else ""
+    def __init__(self):
+        fbp.Component.__init__(self, out_ports=["out"])
 
 
-    def run(self):
-        while not self.stop:
-            outp = self.out_ports["out"]["port"]
-            if outp:
-                print("out-port available")
-                break
-            else:
-                print("sleeping a bit")
-                time.sleep(1)
-                capnp.poll_once()
-
-        if outp and not self.stop:
-            with open("src/python/fbp/test.txt") as _:
-                while not self.stop:
-                    line = _.readline()
-                    outp.write(value=line).wait();#then(lambda v: print(v))
+    def execute(self):
+        if self._out_ports["out"]["connected"]:
+            outp = self._out_ports["out"]["port"]
+            if not self.stop:
+                with open("src/python/fbp/test.txt") as _:
+                    for line in _.readlines():
+                        if self.stop:
+                            break
+                        #print(line, end="", flush=True)
+                        outp.write(value=line).wait()
 
         print("exiting run")
 
@@ -120,7 +105,7 @@ async def main(serve_bootstrap=True, host=None, port=None,
 
     s1, s2 = socket.socketpair()
     t = threading.Thread(target=fbp.start_component_thread, args=(s2, FileReader()))
-    t.daemon = True
+    t.daemon = False
     t.start()
 
     component_client = capnp.TwoPartyClient(s1)
@@ -135,7 +120,7 @@ async def main(serve_bootstrap=True, host=None, port=None,
     }
 
     def set_ports():
-        component_cap.setOutputPorts([{"name": "out", "port": out_ports["out"]["port"]}]).wait()
+        component_cap.setupPorts(outPorts=[{"name": "out", "port": out_ports["out"]["port"]}]).wait()
 
     if config["use_async"]:
         await fbp.async_init_and_run_fbp_component(name_to_out_ports=out_ports, 
@@ -151,7 +136,7 @@ async def main(serve_bootstrap=True, host=None, port=None,
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    asyncio.run(main(serve_bootstrap=True, use_async=False)) 
+    asyncio.run(main(serve_bootstrap=True, use_async=True)) 
 
 
 

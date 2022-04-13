@@ -64,33 +64,17 @@ capnp.create_event_loop(threaded=True)
 
 class Console(fbp.Component):#, common.Identifiable): 
 
-    #def __init__(self):#, id=None, name=None, description=None):
-        #common.Identifiable.__init__(self, id, name, description)
+    def __init__(self):
+        fbp.Component.__init__(self, in_ports={"in": False})
 
-        #self._in = None
-        #self._id = str(id if id else uuid.uuid4())
-        #self._name = name if name else self._id
-        #self._description = description if description else ""
-        #self._stop = False
 
-    def run(self):
+    def execute(self):
+        inp = self.in_ports["in"]["port"]
         while not self.stop:
-            inp = self.in_ports["in"]["port"]
-            if inp:
-                print("in-port available")
-                break
-            else:
-                print("sleeping a bit")
-                time.sleep(1)
-                capnp.poll_once()
-            
-        if inp:
-            while not self.stop:
-                val = inp.read().wait().value
-                print(val)
+            val = inp.read().wait().value
+            print(val.as_text(), flush=True, end="")
 
         print("exiting run")
-
 
 #------------------------------------------------------------------------------
 
@@ -141,7 +125,7 @@ async def main(buffer_size=1, serve_bootstrap=True, host=None, port=None,
     }
 
     def set_ports():
-        component_cap.setInputPorts([{"name": "in", "port": in_port.get_reader()}]).wait()
+        component_cap.setupPorts(inPorts=[{"name": "in", "port": in_port.get_reader()}]).wait()
 
     if config["use_async"]:
         await fbp.async_init_and_run_fbp_component(name_to_in_ports=in_ports, 
@@ -158,7 +142,7 @@ async def main(buffer_size=1, serve_bootstrap=True, host=None, port=None,
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    asyncio.run(main(buffer_size=1, serve_bootstrap=True, use_async=False)) 
+    asyncio.run(main(buffer_size=1, serve_bootstrap=True, use_async=True)) 
 
 
 
