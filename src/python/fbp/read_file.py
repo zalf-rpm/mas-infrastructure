@@ -39,19 +39,24 @@ common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=a
 
 config = {
     "out_sr": "capnp://insecure@10.10.24.210:9999/w1234",#None,
+    "file": "src/python/fbp/test.txt"
 }
 common.update_config(config, sys.argv, True)
 
 conman = common.ConnectionManager()
-outp = conman.try_connect(config["out_sr"], cast_as=common_capnp.Writer, retry_secs=1)
+outp = conman.try_connect(config["out_sr"], cast_as=common_capnp.Channel.Writer, retry_secs=1)
 
-if outp:
-    with open("src/python/fbp/test.txt") as _:
-        for line in _.readlines():
-            #print(line, end="", flush=True)
-            outp.write(value=line).wait()
+try:
+    if outp:
+        with open(config["file"]) as _:
+            for line in _.readlines():
+                outp.write(value=line).wait()
+    
+    outp.write(done=None).wait()
 
-outp.done().wait()
+except Exception as e:
+    print("read_file.py ex:", e)
+
 print("read_file.py: exiting run")
 
 

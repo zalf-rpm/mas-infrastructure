@@ -43,23 +43,19 @@ config = {
 }
 common.update_config(config, sys.argv, True)
 
-stop = False
-def leave():
-    stop = True
-    print("before removing eventloop")
-    capnp.remove_event_loop(ignore_errors=True)
-    print("after removing eventloop")
-
 conman = common.ConnectionManager()
-a = common.Action(lambda: [print("exiting due to close notification"), threading.Timer(1, leave()).start()])
-inp = conman.try_connect(config["in_sr"], cast_as=common_capnp.Reader, retry_secs=1)
-inp.registerCloseNotification(a).wait()
+inp = conman.try_connect(config["in_sr"], cast_as=common_capnp.Channel.Reader, retry_secs=1)
 
-if inp:
-    while stop == False:
-        capnp.poll_once()
-        val = inp.read().wait().value
-        print(val.as_text(), flush=True, end="")
+try:
+    if inp:
+        while True:
+            msg = inp.read().wait()
+            if msg.which() == "done":
+                break
+            print(msg.value.as_text(), flush=True, end="")
+
+except Exception as e:
+    print("console.py ex:", e)
 
 print("console.py: exiting run")
 
