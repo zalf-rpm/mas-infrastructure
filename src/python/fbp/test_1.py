@@ -24,21 +24,26 @@ import uuid
 
 r = str(uuid.uuid4())
 w = str(uuid.uuid4())
+w2 = str(uuid.uuid4())
+w3 = str(uuid.uuid4())
+w4 = str(uuid.uuid4())
 channel = Thread(
+    name="channel",
     target=sp.run, 
     args=(["python", "/home/berg/GitHub/mas-infrastructure/src/python/common/channel.py", 
         "port=9990",
         "no_of_channels=1",
         "buffer_size=1",
-        "type_1=Text",
-        "rw_srts_1="+r+"_"+w,
+        "reader_srts=[[\""+r+"\"]]",
+        "writer_srts=[[\""+w+"\",\""+w2+"\",\""+w3+"\",\""+w4+"\"]]",
         "use_async=True"
     ],),
-    daemon=False
+    daemon=True
 )
 channel.start()
 
 console = Thread(
+    name="console",
     target=sp.run, 
     args=(["python", "/home/berg/GitHub/mas-infrastructure/src/python/fbp/console.py", 
         "in_sr=capnp://localhost:9990/"+r
@@ -47,20 +52,59 @@ console = Thread(
 )
 console.start()
 
-#time.sleep(2)
-
 read_file = Thread(
+    name="read_file_1",
     target=sp.run, 
     args=(["python", "/home/berg/GitHub/mas-infrastructure/src/python/fbp/read_file.py", 
-        "out_sr=capnp://insecure@10.10.24.210:9990/"+w
+        "out_sr=capnp://insecure@10.10.24.210:9990/"+w,
+        "file=src/python/fbp/test1.txt"
     ],),
     daemon=False
 )
 read_file.start()
 
+read_file_2 = Thread(
+    name="read_file_2",
+    target=sp.run, 
+    args=(["python", "/home/berg/GitHub/mas-infrastructure/src/python/fbp/read_file.py", 
+        "out_sr=capnp://insecure@10.10.24.210:9990/"+w2,
+        "file=src/python/fbp/test2.txt"
+    ],),
+    daemon=False
+)
+read_file_2.start()
+
+read_file_3 = Thread(
+    name="read_file_3",
+    target=sp.run, 
+    args=(["python", "/home/berg/GitHub/mas-infrastructure/src/python/fbp/read_file.py", 
+        "out_sr=capnp://insecure@10.10.24.210:9990/"+w3,
+        "file=src/python/fbp/test3.txt"
+    ],),
+    daemon=False
+)
+read_file_3.start()
+
+read_file_4 = Thread(
+    name="read_file_4",
+    target=sp.run, 
+    args=(["python", "/home/berg/GitHub/mas-infrastructure/src/python/fbp/read_file.py", 
+        "out_sr=capnp://insecure@10.10.24.210:9990/"+w4,
+        "file=src/python/fbp/test4.txt"
+    ],),
+    daemon=False
+)
+read_file_4.start()
+
 read_file.join()
+read_file_2.join()
+read_file_3.join()
+read_file_4.join()
+print("test_1.py: read_files joined")
 console.join()
+print("test_1.py: console joined")
 channel.join()
+#print("test_1.py: after channel.join")
 
 
 
