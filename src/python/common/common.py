@@ -38,11 +38,11 @@ persistence_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "persistence.capnp"),
 
 #------------------------------------------------------------------------------
 
-def update_config(config, argv, print_config=False):
+def update_config(config, argv, print_config=False, allow_new_keys=False):
     if len(argv) > 1:
         for arg in argv[1:]:
             k, v = arg.split("=")
-            if k in config:
+            if not allow_new_keys and k in config:
                 config[k] = v.lower() == "true" if v.lower() in ["true", "false"] else v 
         if print_config:
             print(config)

@@ -18,8 +18,8 @@
 import capnp
 import os
 from pathlib import Path
+import string
 import sys
-import threading
 
 PATH_TO_SCRIPT_DIR = Path(os.path.realpath(__file__)).parent
 PATH_TO_REPO = PATH_TO_SCRIPT_DIR.parent.parent.parent
@@ -39,27 +39,56 @@ common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=a
 #------------------------------------------------------------------------------
 
 config = {
-    "in_sr": "capnp://insecure@10.10.24.210:9999/r1234",#None,
+    "split_at": ",",
+    "cast_to": "text", # text | float | int
+    "in_sr": None, # string
+    "out_list_sr": None # list[text | float | int]
 }
 common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
 conman = common.ConnectionManager()
 inp = conman.try_connect(config["in_sr"], cast_as=common_capnp.Channel.Reader, retry_secs=1)
+outp = conman.try_connect(config["out_list_sr"], cast_as=common_capnp.Channel.Writer, retry_secs=1)
+
+cast_to = None
+if config["cast_to"] == "float":
+    cast_to = lambda v: float(v)
+elif config["cast_to"] == "int":
+    cast_to = lambda v: int(v)
+
+init_list = lambda anyp, len: anyp.init_as_list(capnp._ListSchema(capnp.types.Text), len) 
+if config["cast_to"] == "float":
+    init_list = lambda anyp, len: anyp.init_as_list(capnp._ListSchema(capnp.types.Float64), len) 
+elif config["cast_to"] == "int":
+    init_list = lambda anyp, len: anyp.init_as_list(capnp._ListSchema(capnp.types.Int64), len) 
 
 try:
-    if inp:
+    if inp and outp:
         while True:
             msg = inp.read().wait()
+            # check for end of data from in port
             if msg.which() == "done":
                 break
-            print(msg.value.as_text(), flush=True, end="")
+            
+            s : str = msg.value.as_text()
+            s = s.rstrip()
+            vals = s.split(config["split_at"])
+            if cast_to:
+                vals = list(map(cast_to, vals))
+            #print("split_string vals:", vals)
+
+            req = outp.write_request()
+            l = init_list(req.value, len(vals))
+            for i, val in enumerate(vals):
+                l[i] = val
+            req.send().wait()
+            #outp.write(value=vals).wait()
+
+        # close out port
+        outp.write(done=None).wait()
 
 except Exception as e:
-    print("console.py ex:", e)
+    print("split_string.py ex:", e)
 
-print("console.py: exiting run")
-
-
-
-
+print("split_string.py: exiting run")
 

@@ -18,6 +18,7 @@
 import capnp
 import os
 from pathlib import Path
+from pyproj import CRS, Transformer
 import sys
 
 PATH_TO_SCRIPT_DIR = Path(os.path.realpath(__file__)).parent
@@ -30,38 +31,46 @@ if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
 import common.common as common
+import common.geo as geo
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports) 
+geo_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "geo_coord.capnp"), imports=abs_imports)
 
 #------------------------------------------------------------------------------
 
 config = {
-    "out_sr": None,
-    "file": "src/python/fbp/test.txt",
-    "skip_lines": str(0)
+    "from_name": "utm32n",
+    "to_name": "wgs84",
+    "in_coord_sr": None, # geo.LatLonCoord | geo.UTMCoord | geo.GKCoord
+    "out_coord_sr": None # geo.LatLonCoord | geo.UTMCoord | geo.GKCoord
 }
 common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
 conman = common.ConnectionManager()
-outp = conman.try_connect(config["out_sr"], cast_as=common_capnp.Channel.Writer, retry_secs=1)
-skip_lines = int(config["skip_lines"])
+inp = conman.try_connect(config["in_coord_sr"], cast_as=common_capnp.Channel.Reader, retry_secs=1)
+outp = conman.try_connect(config["out_coord_sr"], cast_as=common_capnp.Channel.Writer, retry_secs=1)
+
+from_type = geo.name_to_struct_type(config["from_name"])
 
 try:
-    if outp:
-        with open(config["file"]) as _:
-            for line in _.readlines():
-                if skip_lines > 0:
-                    skip_lines -= 1
-                    continue
-                outp.write(value=line).wait()
-    
-    outp.write(done=None).wait()
+    if inp and outp:
+        while True:
+            msg = inp.read().wait()
+            # check for end of data from in port
+            if msg.which() == "done":
+                break
+            
+            from_coord = msg.value.as_struct(from_type)
+            to_coord = geo.transform_from_to_geo_coord(from_coord, config["to_name"])
+            outp.write(value=to_coord).wait()
+
+        # close out port
+        outp.write(done=None).wait()
 
 except Exception as e:
-    print("read_file.py ex:", e)
+    print("proj_transformer.py ex:", e)
 
-print("read_file.py: exiting run")
-
+print("proj_transformer.py: exiting run")
 

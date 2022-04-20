@@ -19,6 +19,7 @@ import capnp
 import os
 from pathlib import Path
 import sys
+import threading
 
 PATH_TO_SCRIPT_DIR = Path(os.path.realpath(__file__)).parent
 PATH_TO_REPO = PATH_TO_SCRIPT_DIR.parent.parent.parent
@@ -38,30 +39,34 @@ common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=a
 #------------------------------------------------------------------------------
 
 config = {
-    "out_sr": None,
-    "file": "src/python/fbp/test.txt",
-    "skip_lines": str(0)
+    "in_sr": None,
+    "filepath_pattern": "out/csv_{id}.csv"
 }
 common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
 conman = common.ConnectionManager()
-outp = conman.try_connect(config["out_sr"], cast_as=common_capnp.Channel.Writer, retry_secs=1)
-skip_lines = int(config["skip_lines"])
+inp = conman.try_connect(config["in_sr"], cast_as=common_capnp.Channel.Reader, retry_secs=1)
+count = 0
 
 try:
-    if outp:
-        with open(config["file"]) as _:
-            for line in _.readlines():
-                if skip_lines > 0:
-                    skip_lines -= 1
-                    continue
-                outp.write(value=line).wait()
-    
-    outp.write(done=None).wait()
+    if inp:
+        while True:
+            msg = inp.read().wait()
+            if msg.which() == "done":
+                break
+
+            filepath = config["filepath_pattern"].format(id=count)
+            with open(filepath, "wt") as _:
+                _.write(msg.value.as_text())
+                count += 1
+            print("wrote", filepath)
 
 except Exception as e:
-    print("read_file.py ex:", e)
+    print("write_file.py ex:", e)
 
-print("read_file.py: exiting run")
+print("write_file.py: exiting run")
+
+
+
 
 

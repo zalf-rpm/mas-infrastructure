@@ -355,7 +355,7 @@ async def main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs=None, grid_e
     if config["grid_epsg"]:
         grid_crs = CRS.from_epsg(int(config["grid_epsg"]))
     elif config["grid_crs"]:
-        grid_crs = geo.name_to_proj(config["grid_crs"])
+        grid_crs = geo.name_to_crs(config["grid_crs"])
     else:
         try:
             epsg = int(Path(config["path_to_ascii_soil_grid"]).name.split("_")[2])

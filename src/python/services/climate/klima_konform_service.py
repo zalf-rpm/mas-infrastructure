@@ -176,8 +176,8 @@ class DatasetImpl(climate_data_capnp.Dataset.Server):
         self._all_locations_created = False
         self._rowcol_to_gk4_rh = {}
 
-        latlon_crs = geo.name_to_proj("latlon")
-        gk4_crs = geo.name_to_proj("gk4")
+        latlon_crs = geo.name_to_crs("latlon")
+        gk4_crs = geo.name_to_crs("gk4")
         self._latlon_to_gk4_transformer = Transformer.from_crs(latlon_crs, gk4_crs, always_xy=True)
         self._gk4_to_latlon_transformer = Transformer.from_crs(gk4_crs, latlon_crs, always_xy=True)
         self._interpolator = self.create_interpolator()
