@@ -21,7 +21,11 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <chrono>
 #include <thread>
 
-#include <sys/socket.h>
+#ifdef WIN32
+//#include <winsock.h>
+#else
+//#include <sys/socket.h>
+#endif
 
 #define KJ_MVCAP(var) var = kj::mv(var)
 
@@ -166,10 +170,10 @@ std::pair<kj::Promise<std::string>, kj::Promise<kj::uint>> ConnectionManager::bi
 		.then([KJ_MVCAP(portFulfiller), KJ_MVCAP(ipFulfiller), this](kj::Own<kj::NetworkAddress>&& addr) mutable {
 		auto listener = addr->listen();
 		portFulfiller->fulfill(listener->getPort());
-		sockaddr saddr;
-		kj::uint socklen;
-		listener->getsockname(&saddr, &socklen);
-		ipFulfiller->fulfill(saddr.sa_data);
+		//sockaddr saddr;
+		//kj::uint socklen;
+		//listener->getsockname(&saddr, &socklen);
+		ipFulfiller->fulfill("unknown");// saddr.sa_data);
 		acceptLoop(kj::mv(listener), capnp::ReaderOptions());
 	}));
 
