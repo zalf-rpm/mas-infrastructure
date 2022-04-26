@@ -19,13 +19,15 @@
 #-m ptvsd --host 0.0.0.0 --port 14000 --wait
 
 import asyncio
+from email.policy import default
 import capnp
-from collections import deque
+from collections import deque, defaultdict
 import json
 import logging
 import os
 from pathlib import Path
 import sys
+from threading import Timer
 import uuid
 
 PATH_TO_SCRIPT_DIR = Path(os.path.realpath(__file__)).parent
@@ -55,7 +57,8 @@ reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=ab
 
 class Channel(common_capnp.Channel.Server, common.Identifiable, common.Persistable, serv.AdministrableService): 
 
-    def __init__(self, channel_value_type="Text", buffer_size=1, id=None, name=None, description=None, admin=None, restorer=None):
+    def __init__(self, buffer_size=1, auto_close_semantics="fbp",
+        id=None, name=None, description=None, admin=None, restorer=None):
         common.Identifiable.__init__(self, id, name, description)
         common.Persistable.__init__(self, restorer)
         serv.AdministrableService.__init__(self, admin)
@@ -65,93 +68,225 @@ class Channel(common_capnp.Channel.Server, common.Identifiable, common.Persistab
         self._description = description if description else ""
         self._buffer = deque()
         self._buffer_size = buffer_size
-        self._endpoints = []
+        self._readers = []
+        self._writers = []
         self._blocking_read_fulfillers = deque()
         self._blocking_write_fulfillers = deque()
-        self._channel_value_type = channel_value_type
+        self._auto_close_semantics = auto_close_semantics
 
 
-    def deserialize(self, v):
-        if self._channel_value_type == "Text":
-            return v
-        elif isinstance(self._channel_value_type, capnp.lib.capnp._StructModule):
-            return self._channel_value_type.from_bytes(v)
+    def shutdown(self):
+        print("Channel::shutdown")
+        #capnp.reset_event_loop()
+        exit(0)
 
 
-    def serialize(self, v):
-        if self._channel_value_type == "Text":
-            return v.as_text()
-        elif isinstance(self._channel_value_type, capnp.lib.capnp._StructModule):
-            return v.as_struct(self._channel_value_type).as_builder().to_bytes()
+    def closed_reader(self, reader):
+        print("Channel::closed_reader")
+        self._readers.remove(reader)
+        #if self._auto_close_semantics == "fbp" and len(self._readers) == 0:
+            #capnp.getTimer().after_delay(1*10**9).then(lambda: self.shutdown())
+            #Timer(1, self.shutdown).start()
+            
+
+    def closed_writer(self, writer):
+        print("Channel::closed_writer")
+        self._writers.remove(writer)
+        if self._auto_close_semantics == "fbp" and len(self._writers) == 0:
+            for r in self._readers:
+                r.send_close_on_empty_buffer = True
+            # as we just received a done message which should be distributed and would
+            # fill the buffer, unblock all readers, so they send the done message
+            while len(self._blocking_read_fulfillers) > 0:
+                self._blocking_read_fulfillers.popleft().fulfill()
 
 
     def setBufferSize_context(self, context): # setBufferSize @0 (size :UInt64);
         self._buffer_size = max(1, context.params.size)
 
 
-    def reader_context(self, context): # reader        @1 () -> (r :Reader(V));
-        ep = {"r": Reader(self), "w": None}
-        self._endpoints.append(ep)
-        context.results.r = ep["r"]
+    def reader_context(self, context): # reader @1 () -> (r :Reader);
+        r = self.create_reader()
+        context.results.r = r
 
 
-    def writer_context(self, context): # writer        @2 () -> (w :Writer(V));
-        if len(self._endpoints) > 0 and self._endpoints[-1]["w"] is None:
-            ep = self._endpoints[-1]
-            ep["w"] = Writer(self)
-        else:
-            ep = {"r": None, "w": Writer(self)}
-            self._endpoints.append(ep)
-        context.results.w = ep["w"]
+    def writer_context(self, context): # writer @2 () -> (w :Writer);
+        w = self.create_writer()
+        context.results.w = w
+
+
+    def create_reader(self):
+        r = Reader(self)
+        self._readers.append(r)
+        return r
+
+
+    def create_writer(self):
+        w = Writer(self)
+        self._writers.append(w)
+        return w
 
 
     def create_reader_writer_pair(self):
-        ep = {"r": Reader(self), "w": Writer(self)}
-        self._endpoints.append(ep)
-        return ep
+        r = self.create_reader()
+        w = self.create_writer()
+        return {"r": r, "w": w}
 
 
-    def endpoints_context(self, context): # endpoints     @1 () -> (r :Reader(V), w :Writer(V));
+    def endpoints_context(self, context): # endpoints @1 () -> (r :Reader, w :Writer);
         ep = self.create_reader_writer_pair()
         context.results.r = ep["r"]
         context.results.w = ep["w"]
 
+
+    def setAutoCloseSemantics_context(self, context): # setAutoCloseSemantics @4 (cs :CloseSemantics);
+        self._auto_close_semantics = context.params.cs
+
+
+    def close_context(self, context): # close @5 (waitForEmptyBuffer :Bool = true);
+        # make new writes refused
+        for w in self._writers:
+            w.closed = True
+        # forget writers
+        self._writers.clear()
+
+        if context.params.waitForEmptyBuffer:
+            # cancel blocking writers
+            for paf in self._blocking_write_fulfillers:
+                paf.promise.cancel()
+            for r in self._readers:
+                r.send_close_on_empty_buffer = True
+            while len(self._blocking_read_fulfillers) > 0:
+                self._blocking_read_fulfillers.popleft().fulfill()
+        else:
+            # close all readers
+            for r in self._readers:
+                r.closed = True
+            # and forget them
+            self._readers.clear()
+            #return capnp.getTimer().after_delay(1*10**9).then(lambda: self.shutdown())
+            self.shutdown()
+
 #------------------------------------------------------------------------------
 
-class Reader(common_capnp.Reader.Server): 
+class Reader(common_capnp.Channel.Reader.Server): 
 
     def __init__(self, channel):
         self._channel = channel
+        self._send_close_on_empty_buffer = False
+        self._closed = False
+
+
+    @property
+    def closed(self):
+        return self._closed
+
+    @closed.setter
+    def closed(self, v):
+        self._closed = v
+
+
+    @property
+    def send_close_on_empty_buffer(self):
+        return self._send_close_on_empty_buffer
+
+    @send_close_on_empty_buffer.setter
+    def send_close_on_empty_buffer(self, v):
+        self._send_close_on_empty_buffer = v
+
 
     def read_context(self, context): # read @0 () -> (value :V);
+        if self.closed:
+            raise Exception("Reader closed")
+
         c = self._channel
         b = c._buffer
+
+        def set_results_from_buffer():
+            if self.closed:
+                raise Exception("Reader closed")
+
+            if self.send_close_on_empty_buffer and len(b) == 0:
+                context.results.done = None
+                c.closed_reader(self)
+            elif len(b) > 0:
+                context.results.value = common_capnp.Channel.Msg.from_bytes(b.popleft()).value
+
         # read value non-blocking
         if len(b) > 0:
-            context.results.value = c.deserialize(b.popleft())
+            set_results_from_buffer()
             #print(c.name, "r ", sep="", end="")
-            # unblock potentially waiting writers
-            while len(b) < c._buffer_size and len(c._blocking_write_fulfillers) > 0:
-                c._blocking_write_fulfillers.popleft().fulfill()
+
+            # unblock writers unless we're about to close down
+            if len(b) == 0 and not self.send_close_on_empty_buffer:
+                # unblock potentially waiting writers
+                while len(b) < c._buffer_size and len(c._blocking_write_fulfillers) > 0:
+                    c._blocking_write_fulfillers.popleft().fulfill()
+
         else: # block because no value to read
-            paf = capnp.PromiseFulfillerPair()
-            c._blocking_read_fulfillers.append(paf) 
-            #print("[", c.name, "r"+str(len(c._blocking_read_fulfillers))+"] ", sep="", end="")
-            return paf.promise.then(lambda: setattr(context.results, "value", c.deserialize(b.popleft())))
+            # if the channel is supposed to close down, just generate a close message
+            if self.send_close_on_empty_buffer:
+                print("Reader::read_context -> len(b) == 0 -> send done")
+                set_results_from_buffer()
+
+                # as the buffer is empty and we're supposed to shut down as any other reader
+                # fulfill waiting readers with done messages
+                while len(c._blocking_read_fulfillers) > 0:
+                    c._blocking_read_fulfillers.popleft().fulfill()
+            else: 
+                paf = capnp.PromiseFulfillerPair()
+                c._blocking_read_fulfillers.append(paf) 
+
+                #print("[", c.name, "r"+str(len(c._blocking_read_fulfillers))+"] ", sep="", end="")
+                return paf.promise.then(set_results_from_buffer)
 
 
-class Writer(common_capnp.Writer.Server): 
+    def close_context(self, context): # close @1 ();
+        if self.closed:
+            raise Exception("Reader closed")
+
+        self._channel.closed_reader(self)
+        self.closed = True
+
+#------------------------------------------------------------------------------
+
+class Writer(common_capnp.Channel.Writer.Server): 
 
     def __init__(self, channel):
         self._channel = channel
+        self._closed = False
+
+
+    @property
+    def closed(self):
+        return self._closed
+
+    @closed.setter
+    def closed(self, v):
+        self._closed = v
+
 
     def write_context(self, context): # write @0 (value :V);
-        v = context.params.value
+        if self.closed:
+            raise Exception("Writer closed")
+
+        v = context.params
         c = self._channel
         b = c._buffer
+        
+        def append_from_buffer():
+            if self.closed:
+                raise Exception("Writer closed")
+            b.append(v.as_builder().to_bytes())
+
+        # if we received a done, this writer can be removed
+        if v.which() == "done":
+            c.closed_writer(self)
+            return
+        
         # write value non-block
         if len(b) < c._buffer_size:
-            b.append(c.serialize(v))
+            append_from_buffer()
             #print(c.name, "w ", sep="", end="")
             # unblock potentially waiting readers
             while len(b) > 0 and len(c._blocking_read_fulfillers) > 0:
@@ -160,7 +295,15 @@ class Writer(common_capnp.Writer.Server):
             paf = capnp.PromiseFulfillerPair()
             c._blocking_write_fulfillers.append(paf)
             #print("[", c.name, "w"+str(len(c._blocking_write_fulfillers))+"] ", sep="", end="")
-            return paf.promise.then(lambda: b.append(c.serialize(v)))
+            return paf.promise.then(append_from_buffer)
+
+
+    def close_context(self, context): # close @1 ();
+        if self.closed:
+            raise Exception("Writer closed")
+
+        self._channel.closed_writer(self)
+        self.closed = True
 
 #------------------------------------------------------------------------------
 
@@ -170,8 +313,8 @@ async def main(no_of_channels = 1, buffer_size=1, serve_bootstrap=True, host=Non
     config = {
         "no_of_channels": str(no_of_channels),
         "buffer_size": str(max(1, buffer_size)),
-        "type_1": "/home/berg/GitHub/mas-infrastructure/capnproto_schemas/model/monica/monica_state.capnp:ICData",
-        "type_2": "/home/berg/GitHub/mas-infrastructure/capnproto_schemas/model/monica/monica_state.capnp:ICData",
+        "reader_srts": "[[r1_1234,r2_1234]]", # [[c1_r1,c1_r2,c1_r3],[c1_r1],...]
+        "writer_srts": "[[w1_1234]]", # [[c1_w1,c1_w2],[c2_w1],...]
         "port": port, 
         "host": host,
         "id": id,
@@ -186,30 +329,33 @@ async def main(no_of_channels = 1, buffer_size=1, serve_bootstrap=True, host=Non
     if len(sys.argv) > 1 and __name__ == "__main__":
         for arg in sys.argv[1:]:
             k, v = arg.split("=")
-            if k in config:
-                config[k] = v.lower() == "true" if v.lower() in ["true", "false"] else v 
+            config[k] = v.lower() == "true" if v.lower() in ["true", "false"] else v 
     print(config)
 
-    channel_to_type = {i : "Text" for i in range(1, int(config["no_of_channels"])+1)}
-    for k, v in config.items():
-        if k.startswith("type_"):
-            no = int(k.split("_")[1])
-            capnp_module_path, type_name = v.split(":")
-            capnp_module = capnp.load(capnp_module_path, imports=abs_imports)
-            capnp_type = capnp_module.__dict__.get(type_name, "Text")
-            channel_to_type[no] = capnp_type
+    channel_to_reader_srts = defaultdict(list)
+    channel_to_writer_srts = defaultdict(list)
+    if "reader_srts" in config:
+        for i, srts in enumerate(json.loads(config["reader_srts"])):
+            channel_to_reader_srts[i+1] = srts
+    if "writer_srts" in config:
+        for i, srts in enumerate(json.loads(config["writer_srts"])):
+            channel_to_writer_srts[i+1] = srts
 
     restorer = common.Restorer()
     services = {}
     name_to_service_srs = {}
     for i in range(1, int(config["no_of_channels"])+1):
-        channel_value_type = channel_to_type.get(i, "Text")
-        c = Channel(channel_value_type=channel_value_type, buffer_size=int(config["buffer_size"]), 
+        c = Channel(buffer_size=int(config["buffer_size"]), 
             id=config["id"], name=str(i), description=config["description"], restorer=restorer)
-        ep = c.create_reader_writer_pair()
-        services["channel_" + str(i)] =  c
-        services["reader_" + str(i)] = ep["r"]
-        services["writer_" + str(i)] = ep["w"]
+        services["channel_" + str(i)] = c
+        for k, srt in enumerate(channel_to_reader_srts.get(i, [None])):
+            reader_name = "channel_"+str(i)+"_reader_"+str(k+1)
+            name_to_service_srs[reader_name] = srt
+            services[reader_name] = c.create_reader()
+        for k, srt in enumerate(channel_to_writer_srts.get(i, [None])):
+            writer_name = "channel_"+str(i)+"_writer_"+str(k+1)
+            name_to_service_srs[writer_name] = srt
+            services[writer_name] = c.create_writer()
 
     store_srs_file_path = config["store_srs_file"]
     def write_srs():

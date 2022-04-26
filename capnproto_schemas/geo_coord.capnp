@@ -29,8 +29,8 @@ struct UTMCoord {
   zone @0 :UInt8; # zones from 1 to 60
   latitudeBand @1 :Text;
 
-  r @2 :Int64; # right value
-  h @3 :Int64; # height value
+  r @2 :Float64; # right value
+  h @3 :Float64; # height value
 }
 
 struct LatLonCoord {
@@ -44,14 +44,14 @@ struct GKCoord {
   # a Gauss Krueger coordinate
 
   meridianNo @0 :UInt8;
-  r @1 :Int64; # right value
-  h @2 :Int64; # height value
+  r @1 :Float64; # right value
+  h @2 :Float64; # height value
 }
 
 struct Point2D {
   # a rectangular coordinate
-  x @0 :Int64;
-  y @1 :Int64;
+  x @0 :Float64;
+  y @1 :Float64;
 }
 
 struct Coord {

@@ -38,6 +38,17 @@ persistence_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "persistence.capnp"),
 
 #------------------------------------------------------------------------------
 
+def update_config(config, argv, print_config=False, allow_new_keys=False):
+    if len(argv) > 1:
+        for arg in argv[1:]:
+            k, v = arg.split("=")
+            if not allow_new_keys and k in config:
+                config[k] = v.lower() == "true" if v.lower() in ["true", "false"] else v 
+        if print_config:
+            print(config)
+
+#------------------------------------------------------------------------------
+
 class Restorer(persistence_capnp.Restorer.Server):
 
     def __init__(self):
@@ -72,13 +83,14 @@ class Restorer(persistence_capnp.Restorer.Server):
             return "capnp://insecure@{host}:{port}".format(host=self.host, port=self.port)
 
 
-    def save(self, cap):
-        sr_token = str(uuid.uuid4())
+    def save(self, cap, sr_token=None, create_unsave=True):
+        sr_token = sr_token if sr_token else str(uuid.uuid4())
         self._issued_sr_tokens[sr_token] = cap
-        unsave_sr_token = str(uuid.uuid4())
-        unsave_action = Action(lambda: [self.unsave(sr_token), self.unsave(unsave_sr_token)]) 
-        self._issued_sr_tokens[unsave_sr_token] = unsave_action
-        return (self.sturdy_ref(sr_token), self.sturdy_ref(unsave_sr_token))
+        if create_unsave:
+            unsave_sr_token = str(uuid.uuid4())
+            unsave_action = Action(lambda: [self.unsave(sr_token), self.unsave(unsave_sr_token)]) 
+            self._issued_sr_tokens[unsave_sr_token] = unsave_action
+        return (self.sturdy_ref(sr_token), self.sturdy_ref(unsave_sr_token) if create_unsave else None)
 
 
     def unsave(self, sr_token): 
@@ -352,14 +364,17 @@ class PersistCapHolderImpl(common_capnp.PersistCapHolder.Server):
 
 #------------------------------------------------------------------------------
 
-
-
-
-
-def main():
-    pass
-    #server = capnp.TwoPartyServer("*:8000", bootstrap=AdminMasterImpl()) #UserMasterImpl(AdminMasterImpl()))
-    #server.run_forever()
-
-if __name__ == '__main__':
-    main()
+def load_capnp_modules(id_to_path_and_type, def_type="Text"):
+    id_to_type = {}
+    for name, path_and_type in id_to_path_and_type.items():
+        capnp_type = def_type
+        if path_and_type:
+            p_and_t = path_and_type.split(":")
+            if len(p_and_t) > 1:
+                capnp_module_path, type_name = p_and_t
+                capnp_module = capnp.load(capnp_module_path, imports=abs_imports)
+                capnp_type = capnp_module.__dict__.get(type_name, def_type)
+            elif len(p_and_t) > 0:
+                capnp_type = p_and_t[0] 
+        id_to_type[name] = capnp_type
+    return id_to_type

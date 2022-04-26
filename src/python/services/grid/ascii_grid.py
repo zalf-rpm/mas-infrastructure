@@ -65,7 +65,7 @@ class Grid(grid_capnp.Grid.Server, common.Identifiable, common.Persistable, serv
 
         self._path = path_to_ascii_grid
         self._grid_crs = grid_crs
-        self._wgs84 = geo.name_to_proj("latlon")
+        self._wgs84 = geo.name_to_crs("latlon")
         self._grid_crs_to_latlon = Transformer.from_crs(grid_crs, self._wgs84, always_xy=True)
         self._latlon_to_grid_crs = Transformer.from_crs(self._wgs84, grid_crs, always_xy=True)
         self._val_type = val_type
@@ -435,7 +435,7 @@ async def main(path_to_ascii_grid, grid_crs, val_type, serve_bootstrap=True, hos
 
     restorer = common.Restorer()
     service = Grid(path_to_ascii_grid=config["path_to_ascii_grid"], 
-        grid_crs=geo.name_to_proj(config["grid_crs"]), val_type=int if config["val_type"] == "int" else float,
+        grid_crs=geo.name_to_crs(config["grid_crs"]), val_type=int if config["val_type"] == "int" else float,
         id=config["id"], name=config["name"], description=config["description"], restorer=restorer)
     if config["use_async"]:
         await serv.async_init_and_run_service({"service": service}, config["host"], config["port"], 

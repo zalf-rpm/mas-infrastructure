@@ -144,7 +144,7 @@ class Admin(service_capnp.Admin.Server, common.Identifiable):
 #------------------------------------------------------------------------------
 
 async def async_init_and_run_service(name_to_service, host=None, port=0, serve_bootstrap=True, restorer=None, 
-    name_to_service_srs={}, run_before_enter_eventloop=None, **kwargs):
+    conman=None, name_to_service_srs={}, run_before_enter_eventloop=None, **kwargs):
 
     port = port if port else 0
 
@@ -158,7 +158,8 @@ async def async_init_and_run_service(name_to_service, host=None, port=0, serve_b
     else:
         reg_config = {}
 
-    conMan = async_helpers.ConnectionManager()
+    if not conman:
+        conman = async_helpers.ConnectionManager()
     if not restorer:
         restorer = common.Restorer()
 
@@ -198,26 +199,28 @@ async def async_init_and_run_service(name_to_service, host=None, port=0, serve_b
 
     if serve_bootstrap:
         server = await async_helpers.serve(host, port, restorer)
+        
         for name, s in name_to_service.items():
-            service_sr, service_unsave_sr = name_to_service_srs.setdefault(name, restorer.save(s))
+            service_sr, service_unsave_sr = restorer.save(s, name_to_service_srs.get(name, None))
+            name_to_service_srs[name] = service_sr
             print("service:", name, "sr:", service_sr)
         print("restorer_sr:", restorer.sturdy_ref())
 
-        await register_services(conMan, admin, reg_config)
+        await register_services(conman, admin, reg_config)
         if run_before_enter_eventloop:
             run_before_enter_eventloop()
         async with server:
             await server.serve_forever()
     else:
-        await register_services(conMan, admin, reg_config)
+        await register_services(conman, admin, reg_config)
         if run_before_enter_eventloop:
             run_before_enter_eventloop()
-        await conMan.manage_forever()
+        await conman.manage_forever()
 
 #------------------------------------------------------------------------------
 
 def init_and_run_service(name_to_service, host="*", port=None, serve_bootstrap=True, restorer=None, 
-    name_to_service_srs={}, run_before_enter_eventloop=None, **kwargs):
+    conman=None, name_to_service_srs={}, run_before_enter_eventloop=None, **kwargs):
 
     host = host if host else "*"
 
@@ -232,7 +235,8 @@ def init_and_run_service(name_to_service, host="*", port=None, serve_bootstrap=T
     else:
         reg_config = {}
 
-    conMan = common.ConnectionManager()
+    if not conman:
+        conman = common.ConnectionManager()
     if not restorer:
         restorer = common.Restorer()
     
@@ -244,7 +248,7 @@ def init_and_run_service(name_to_service, host="*", port=None, serve_bootstrap=T
     if "admin" not in name_to_service and admin not in name_to_service.values():
         name_to_service["admin"] = admin
 
-    def register_services(conMan, admin, reg_config):
+    def register_services(conman, admin, reg_config):
         for name, data in reg_config.items():
             try:
                 if isinstance(data, dict):
@@ -258,7 +262,7 @@ def init_and_run_service(name_to_service, host="*", port=None, serve_bootstrap=T
                 else:
                     continue
                 print("trying to register name:", name, "data:", data)
-                registrar = conMan.try_connect(reg_sr, cast_as=reg_capnp.Registrar)
+                registrar = conman.try_connect(reg_sr, cast_as=reg_capnp.Registrar)
                 if registrar and name in name_to_service:
                     r = registrar.register(cap=name_to_service[name], regName=reg_name, categoryId=reg_cat_id).wait()
                     unreg_action = r.unreg
@@ -274,14 +278,16 @@ def init_and_run_service(name_to_service, host="*", port=None, serve_bootstrap=T
     if serve_bootstrap:
         server = capnp.TwoPartyServer(addr, bootstrap=restorer)
         restorer.port = port if port else server.port
+
         for name, s in name_to_service.items():
-            service_sr, service_unsave_sr = name_to_service_srs.setdefault(name, restorer.save(s))
+            service_sr, service_unsave_sr = restorer.save(s, name_to_service_srs.get(name, None))
+            name_to_service_srs[name] = service_sr
             print("service:", name, "sr:", service_sr)
         print("restorer_sr:", restorer.sturdy_ref())
 
-        register_services(conMan, admin, reg_config)
+        register_services(conman, admin, reg_config)
     else:
-        register_services(conMan, admin, reg_config)
+        register_services(conman, admin, reg_config)
         if run_before_enter_eventloop:
             run_before_enter_eventloop()
         capnp.wait_forever()
@@ -289,3 +295,5 @@ def init_and_run_service(name_to_service, host="*", port=None, serve_bootstrap=T
     if run_before_enter_eventloop:
         run_before_enter_eventloop()
     server.run_forever()
+
+#--------------------------------------------------------------------------------------------

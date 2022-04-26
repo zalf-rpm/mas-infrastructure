@@ -136,30 +136,49 @@ interface Clock(T) {
   # forward clock one step to time T (which could also be just a Common.Date)
 }
 
-interface Reader(V) $Cxx.name("ChanReader") {
-  read @0 () -> (value :V);
-}
 
-interface Writer(V) $Cxx.name("ChanWriter") {
-  write @0 (value :V);
-}
-
-interface Channel(V) {
+interface Channel {
   # a potentially buffered channel to transport values of type V
+
+  enum CloseSemantics {
+    fbp   @0; # close channel automatically if there are no writers anymore and buffer is empty = no upstream data
+    no    @1; # keep channel open until close message received
+  }
+
+  struct Msg {
+    union {
+      value @0 :AnyPointer;
+      done  @1 :Void;
+    }
+  }
+
+  interface Reader $Cxx.name("ChanReader") {
+    read  @0 () -> Msg;
+    close @1 ();
+  }
+
+  interface Writer $Cxx.name("ChanWriter") {
+    write @0 Msg;
+    close @1 ();
+  }
 
   setBufferSize @0 (size :UInt64 = 1);
   # set buffer size of channel, lowest allowed value = 1, meaning basically no buffer
 
-  reader        @1 () -> (r :Capability);#Reader(V));
+  reader        @1 () -> (r :Reader);
   # get just a reader
 
-  writer        @2 () -> (w :Capability);#Writer(V));
+  writer        @2 () -> (w :Writer);
   # get just a writer
 
-  endpoints     @3 () -> (r :Reader(V), w :Writer(V));
+  endpoints     @3 () -> (r :Reader, w :Writer);
   # get both endpoints of channel
+
+  setAutoCloseSemantics @4 (cs :CloseSemantics);
+  # set semantics when to automatically close this channel
+
+  close         @5 (waitForEmptyBuffer :Bool = true);
+  # close this channel
+  # wait for empty buffer or kill channel right away
 }
 
-struct X {
-  t @0 :Text;
-}
