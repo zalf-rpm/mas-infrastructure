@@ -125,32 +125,32 @@ public final class WebBerestDWDImport {
         public final boolean hasDwla() {
           return !_pointerFieldIsNull(1);
         }
-        public final org.capnproto.Text.Builder getDwla() {
-          return _getPointerField(org.capnproto.Text.factory, 1, null, 0, 0);
+        public final org.capnproto.Data.Builder getDwla() {
+          return _getPointerField(org.capnproto.Data.factory, 1, null, 0, 0);
         }
-        public final void setDwla(org.capnproto.Text.Reader value) {
-          _setPointerField(org.capnproto.Text.factory, 1, value);
+        public final void setDwla(org.capnproto.Data.Reader value) {
+          _setPointerField(org.capnproto.Data.factory, 1, value);
         }
-        public final void setDwla(String value) {
-          _setPointerField(org.capnproto.Text.factory, 1, new org.capnproto.Text.Reader(value));
+        public final void setDwla(byte [] value) {
+          _setPointerField(org.capnproto.Data.factory, 1, new org.capnproto.Data.Reader(value));
         }
-        public final org.capnproto.Text.Builder initDwla(int size) {
-          return _initPointerField(org.capnproto.Text.factory, 1, size);
+        public final org.capnproto.Data.Builder initDwla(int size) {
+          return _initPointerField(org.capnproto.Data.factory, 1, size);
         }
         public final boolean hasDwlb() {
           return !_pointerFieldIsNull(2);
         }
-        public final org.capnproto.Text.Builder getDwlb() {
-          return _getPointerField(org.capnproto.Text.factory, 2, null, 0, 0);
+        public final org.capnproto.Data.Builder getDwlb() {
+          return _getPointerField(org.capnproto.Data.factory, 2, null, 0, 0);
         }
-        public final void setDwlb(org.capnproto.Text.Reader value) {
-          _setPointerField(org.capnproto.Text.factory, 2, value);
+        public final void setDwlb(org.capnproto.Data.Reader value) {
+          _setPointerField(org.capnproto.Data.factory, 2, value);
         }
-        public final void setDwlb(String value) {
-          _setPointerField(org.capnproto.Text.factory, 2, new org.capnproto.Text.Reader(value));
+        public final void setDwlb(byte [] value) {
+          _setPointerField(org.capnproto.Data.factory, 2, new org.capnproto.Data.Reader(value));
         }
-        public final org.capnproto.Text.Builder initDwlb(int size) {
-          return _initPointerField(org.capnproto.Text.factory, 2, size);
+        public final org.capnproto.Data.Builder initDwlb(int size) {
+          return _initPointerField(org.capnproto.Data.factory, 2, size);
         }
       }
 
@@ -169,15 +169,15 @@ public final class WebBerestDWDImport {
         public boolean hasDwla() {
           return !_pointerFieldIsNull(1);
         }
-        public org.capnproto.Text.Reader getDwla() {
-          return _getPointerField(org.capnproto.Text.factory, 1, null, 0, 0);
+        public org.capnproto.Data.Reader getDwla() {
+          return _getPointerField(org.capnproto.Data.factory, 1, null, 0, 0);
         }
 
         public boolean hasDwlb() {
           return !_pointerFieldIsNull(2);
         }
-        public org.capnproto.Text.Reader getDwlb() {
-          return _getPointerField(org.capnproto.Text.factory, 2, null, 0, 0);
+        public org.capnproto.Data.Reader getDwlb() {
+          return _getPointerField(org.capnproto.Data.factory, 2, null, 0, 0);
         }
 
       }
@@ -360,19 +360,19 @@ public static final org.capnproto.SegmentReader b_eb03972caa23c7d2 =
    "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
    "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
    "\u0064\u0077\u006c\u0061\u0000\u0000\u0000\u0000" +
-   "\u000c\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
+   "\r\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
    "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
    "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
    "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
-   "\u000c\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
+   "\r\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
    "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
    "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
    "\u0064\u0077\u006c\u0062\u0000\u0000\u0000\u0000" +
-   "\u000c\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
+   "\r\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
    "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
    "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
    "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
-   "\u000c\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
+   "\r\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
    "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" +
    "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000" + "");
 public static final org.capnproto.SegmentReader b_b9bc568c49fcca07 =

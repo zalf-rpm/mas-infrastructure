@@ -17,13 +17,13 @@
         <dependency>
             <groupId>org.capnproto</groupId>
             <artifactId>runtime</artifactId>
-            <version>0.1.6-SNAPSHOT</version>
+            <version>0.1.14-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>org.capnproto</groupId>
             <artifactId>runtime-rpc</artifactId>
-            <version>0.1.6-SNAPSHOT</version>
+            <version>0.1.14-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -36,7 +36,7 @@
         <dependency>
             <groupId>de.zalf.berest</groupId>
             <artifactId>berest-core</artifactId>
-            <version>0.2.4</version>
+            <version>0.3.20</version>
         </dependency>
     </dependencies>
 
@@ -67,9 +67,9 @@
                                 <arg value="compile"/>
                                 <arg value="-I"/>
                                 <arg value="../../../../capnproto_schemas/"/>
-                                <arg value="--src-prefix=../../../../capnproto_schemas/"/>
+                                <arg value="--src-prefix=../../../../capnproto_schemas/model/weberest/"/>
                                 <arg value="-o/home/berg/bin/capnpc-java:src/main/generated/de/zalf/mas"/>
-                                <arg value="../../../../capnproto_schemas/web-berest-data-import.capnp"/>
+                                <arg value="../../../../capnproto_schemas/model/weberest/web-berest-data-import.capnp"/>
                             </exec>
                         </target>
                     </configuration>

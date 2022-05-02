@@ -25,8 +25,9 @@ import schedule
 import sys
 import threading
 import time
+import zlib
 
-PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent.parent.parent
+PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent.parent
 if str(PATH_TO_REPO) not in sys.path:
     sys.path.insert(1, str(PATH_TO_REPO))
 
@@ -36,7 +37,7 @@ if str(PATH_TO_PYTHON_CODE) not in sys.path:
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
-dwd_service_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "web-berest-data-import.capnp"), imports=abs_imports)
+dwd_service_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "model" / "weberest" / "web-berest-data-import.capnp"), imports=abs_imports)
 
 
 def run_continuously(interval=1):
@@ -73,27 +74,31 @@ def task(ftps_host, ftps_user, ftps_pwd, import_host="localhost", import_port="1
     ftps.cwd("dwd")
 
     with io.BytesIO() as f:
-        ftps.retrbinary(f"RETR FY60DWLA-{d:%Y%m%d}_0815.txt", f.write)
+        ftps.retrbinary(f"RETR FY60DWLA-{d:%Y%m%d}_0915.txt", f.write)
         dwla = f.getvalue().decode("cp1252")
         #print("DWLA:\n", dwla)
     with io.BytesIO() as f:
-        ftps.retrbinary(f"RETR FY60DWLB-{d:%Y%m%d}_0815.txt", f.write)
+        ftps.retrbinary(f"RETR FY60DWLB-{d:%Y%m%d}_0915.txt", f.write)
         dwlb = f.getvalue().decode("cp1252")
         #print("DWLB:\n", dwlb)
 
     cap = capnp.TwoPartyClient(import_host + ":" + import_port).bootstrap().cast_as(dwd_service_capnp.DWLABImport)
-    success = cap.importData(f"{d:%Y-%m-%d}", dwla, dwlb).wait()
+    #print("len(dwla)=",len(dwla), " len(dwlb)=",len(dwlb))
+    dwla_comp = zlib.compress(dwla.encode("cp1252"))
+    dwlb_comp = zlib.compress(dwlb.encode("cp1252"))
+    #print("len(dwla_comp)=",len(dwla_comp), " len(dwlb_comp)=",len(dwlb_comp))
+    success = cap.importData(f"{d:%Y-%m-%d}", dwla_comp, dwlb_comp).wait()
     print("Import succeeded?", success)
 
 if __name__ == '__main__':
     config = {
         "ftps_host": "srv-fds-tran.zalf.de",
         "ftps_user": "dwduser2021",
-        "ftps_pwd": None,
+        "ftps_pwd": "***REMOVED***", #None,
         "import_host": "localhost",
         "import_port": "15000",
         "run_at": "11:00",
-        "dates" : None
+        "dates" : "2021-10-30" #None
     }
     # read commandline args only if script is invoked directly from commandline
     if len(sys.argv) > 1 and __name__ == "__main__":
