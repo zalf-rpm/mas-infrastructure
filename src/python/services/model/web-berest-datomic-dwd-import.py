@@ -16,7 +16,8 @@
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 import capnp
-from datetime import date, datetime
+from collections import defaultdict
+from datetime import date, datetime, timedelta
 import ftplib
 import io
 import os
@@ -65,30 +66,49 @@ def run_continuously(interval=1):
     return cease_continuous_run
 
 
-def task(ftps_host, ftps_user, ftps_pwd, import_host="localhost", import_port="15000", specific_date = None):
+def task(ftps_host, ftps_user, ftps_pwd, import_host="localhost", import_port="15000", specific_dates = None):
     print("Running import task at", datetime.now())
-    d = date.today() if specific_date is None else specific_date
+    ds = [date.today()] if specific_dates is None else specific_dates
 
     ftps = ftplib.FTP_TLS(ftps_host, user=ftps_user, passwd=ftps_pwd)
     ftps.prot_p()
     ftps.cwd("dwd")
 
-    with io.BytesIO() as f:
-        ftps.retrbinary(f"RETR FY60DWLA-{d:%Y%m%d}_0915.txt", f.write)
-        dwla = f.getvalue().decode("cp1252")
+    cap = capnp.TwoPartyClient(import_host + ":" + import_port).bootstrap().cast_as(dwd_service_capnp.DWLABImport)
+    
+    dates = [f"{d:%Y%m%d}" for d in ds]
+    files = defaultdict(lambda: defaultdict(dict))
+    for entry in filter(lambda e: e[1]["type"] == "file", ftps.mlsd(facts=["type"])):
+        date = entry[0][9:17]
+        type = entry[0][4:8]
+        time = int(entry[0][18:22])
+        if date in dates and type in ["DWLA", "DWLB"]:
+            files[date][type][time] = entry[0]
+    
+    dates = list(files.keys())
+    dates.sort()
+    for date in dates:
+        type_to_times = files[date]
+        def retrieve(type):
+            times = list(type_to_times[type].keys())
+            if len(times) > 0:
+                times.sort()
+                time = times[-1]
+                with io.BytesIO() as f:
+                    ftps.retrbinary("RETR " + type_to_times[type][time], f.write)
+                    return f.getvalue().decode("cp1252")
+        dwla = retrieve("DWLA")
+        dwla_comp = zlib.compress(dwla.encode("cp1252"))
         #print("DWLA:\n", dwla)
-    with io.BytesIO() as f:
-        ftps.retrbinary(f"RETR FY60DWLB-{d:%Y%m%d}_0915.txt", f.write)
-        dwlb = f.getvalue().decode("cp1252")
+        dwlb = retrieve("DWLB")
+        dwlb_comp = zlib.compress(dwlb.encode("cp1252"))
         #print("DWLB:\n", dwlb)
 
-    cap = capnp.TwoPartyClient(import_host + ":" + import_port).bootstrap().cast_as(dwd_service_capnp.DWLABImport)
-    #print("len(dwla)=",len(dwla), " len(dwlb)=",len(dwlb))
-    dwla_comp = zlib.compress(dwla.encode("cp1252"))
-    dwlb_comp = zlib.compress(dwlb.encode("cp1252"))
-    #print("len(dwla_comp)=",len(dwla_comp), " len(dwlb_comp)=",len(dwlb_comp))
-    success = cap.importData(f"{d:%Y-%m-%d}", dwla_comp, dwlb_comp).wait()
-    print("Import succeeded?", success)
+        d = datetime.strptime(date, "%Y%m%d")
+        #print("len(dwla)=",len(dwla), " len(dwlb)=",len(dwlb))
+        #print("len(dwla_comp)=",len(dwla_comp), " len(dwlb_comp)=",len(dwlb_comp))
+        success = cap.importData(f"{d:%Y-%m-%d}", dwla_comp, dwlb_comp).wait()
+        print("Import succeeded?", success)
 
 if __name__ == '__main__':
     config = {
@@ -98,7 +118,9 @@ if __name__ == '__main__':
         "import_host": "localhost",
         "import_port": "15000",
         "run_at": "11:00",
-        "dates" : "2021-10-30" #None
+        "dates" : None,
+        "from_date": None,
+        "to_date": None #"2022-02-05"
     }
     # read commandline args only if script is invoked directly from commandline
     if len(sys.argv) > 1 and __name__ == "__main__":
@@ -115,12 +137,19 @@ if __name__ == '__main__':
     import_dates = None
     if config["dates"] is not None:
         import_dates = list(map(lambda d: date.fromisoformat(d), config["dates"].split(",")))
+    if config["from_date"] is not None:
+        from_date = date.fromisoformat(config["from_date"])
+        to_date = date.today() if config["to_date"] is None else date.fromisoformat(config["to_date"])
+        import_dates = []
+        day = 0
+        while from_date + timedelta(days=day) <= to_date:
+            import_dates.append(from_date + timedelta(days=day))
+            day += 1
 
     if import_dates is None:
         schedule.every().day.at(config["run_at"]).do(task, config["ftps_host"], config["ftps_user"], config["ftps_pwd"], \
             import_host=config["import_host"], import_port=config["import_port"])
         run_continuously(60) #check every minute
     else:
-        for import_date in import_dates:
-            task(config["ftps_host"], config["ftps_user"], config["ftps_pwd"], specific_date=import_date, \
-                import_host=config["import_host"], import_port=config["import_port"])
+        task(config["ftps_host"], config["ftps_user"], config["ftps_pwd"], specific_dates=import_dates, \
+            import_host=config["import_host"], import_port=config["import_port"])
