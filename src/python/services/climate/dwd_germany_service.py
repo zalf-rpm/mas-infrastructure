@@ -48,44 +48,64 @@ import common.geo as geo
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
-climate_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate_data.capnp"), imports=abs_imports)
+climate_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate_data.capnp"), imports=abs_imports)
 common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
 geo_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "geo_coord.capnp"), imports=abs_imports)
 
 #------------------------------------------------------------------------------
 
-def data_to_csv(header : list, data : list[list[float]], start_date : date):
-    csv = io.StringIO()
-    h_str = ",".join([str(h) for h in header])
-    csv.write(h_str + "\n")
-    for i, line in enumerate(data):
-        current_date = start_date + timedelta(days=i)
-        d_str = ",".join([str(d) for d in line])
-        csv.write(current_date.strftime("%Y-%m-%d") + "," + d_str + "\n")
-    return csv
 
 
-def fbp(in_coord_sr, out_csv_sr, service : ccdi.Service):
+def fbp(config : dict, service : ccdi.Service):
     conman = common.ConnectionManager()
-    coordp = conman.try_connect(in_coord_sr, cast_as=common_capnp.Channel.Reader, retry_secs=1)
-    csvp = conman.try_connect(out_csv_sr, cast_as=common_capnp.Channel.Writer, retry_secs=1)
+    inp = conman.try_connect(config["in_sr"], cast_as=common_capnp.Channel.Reader, retry_secs=1)
+    outp = conman.try_connect(config["out_sr"], cast_as=common_capnp.Channel.Writer, retry_secs=1)
+    mode = config["mode"]
 
     try:
-        if coordp and csvp and service:
-            dataset : csv_based.Dataset = service.getAvailableDatasets()[0].data
+        if inp and outp and service:
+            dataset : csv_based.Dataset = service.getAvailableDatasets().wait().datasets[0].data
             while True:
-                in_msg = coordp.read().wait()
+                in_msg = inp.read().wait()
                 if in_msg.which() == "done":
                     break
-                coord = in_msg.value.as_struct(geo_capnp.LatLonCoord)
-                timeseries : csv_based.TimeSeries = dataset.closestTimeSeriesAt(coord).timeSeries
-                header : list = timeseries.header().wait().header
-                sd = timeseries.range().wait().startDate
-                data = timeseries.data().wait().data
-                csv = data_to_csv(header, data, date(sd.year, sd.month, sd.day))
-                csvp.write(value=csv.getvalue()).wait()
+
+                in_ip = in_msg.value.as_struct(common_capnp.IP)
+                attr = common.get_fbp_attr(in_ip, config["from_attr"])
+                if attr:
+                    coord = attr.as_struct(geo_capnp.LatLonCoord)
+                else:
+                    coord = in_ip.content.as_struct(geo_capnp.LatLonCoord)
+
+                timeseries : csv_based.TimeSeries = dataset.closestTimeSeriesAt(coord).wait().timeSeries
+
+                res = timeseries
+                if mode == "sturdyref":
+                    res = timeseries.save().wait()
+                elif mode == "capability":
+                    res = timeseries
+                elif mode == "data":
+                    res = climate_capnp.TimeSeriesData.new_message()
+                    res.isTransposed = False
+                    header = timeseries.header().header
+                    se_date = timeseries.range()
+                    resolution = timeseries.resolution().resolution
+                    res.data = timeseries.data().wait().data
+                    res.header = header
+                    se_date = se_date
+                    res.startDate = se_date.startDate
+                    res.endDate = se_date.endDate
+                    res.resolution = resolution
+
+                #print(res.data().wait())
+                out_ip = common_capnp.IP.new_message()
+                if not config["to_attr"]:
+                    out_ip.content = res
+                common.copy_fbp_attr(in_ip, out_ip, config["to_attr"], res)
+                outp.write(value=out_ip).wait()
+
             
-            csvp.write(done=None).wait()
+            outp.write(done=None).wait()
 
     except Exception as e:
         print("dwd_germany_service.py ex:", e)
@@ -133,7 +153,7 @@ def no_fbp(service : ccdi.Service):
 
 def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon, restorer):
     datasets = []
-    metadata = climate_data_capnp.Metadata.new_message(
+    metadata = climate_capnp.Metadata.new_message(
         entries = [
             {"historical": None},
             {"start": {"year": 1990, "month": 1, "day": 1}},
@@ -141,7 +161,7 @@ def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon, 
         ]
     )
     metadata.info = ccdi.Metadata_Info(metadata)
-    datasets.append(climate_data_capnp.MetaPlusData.new_message(
+    datasets.append(climate_capnp.MetaPlusData.new_message(
         meta=metadata, 
         data=csv_based.Dataset(metadata, path_to_data_dir, interpolator, rowcol_to_latlon, 
             header_map={"windspeed": "wind"},
@@ -165,11 +185,14 @@ async def main(path_to_data, serve_bootstrap=True, host=None, port=None,
         "name": name,
         "description": description,
         "serve_bootstrap": serve_bootstrap,
-        "in_coord_sr": None,
-        "out_csv_sr": None,
+        "in_sr": None,
+        "out_sr": None,
         "fbp": False,
         "no_fbp": False,
-        "use_async": use_async
+        "use_async": use_async,
+        "to_attr": None, #"climate",
+        "from_attr": None, #"latlon"
+        "mode": "sturdyref", # sturdyref | capability | data
     }
     common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
@@ -178,7 +201,7 @@ async def main(path_to_data, serve_bootstrap=True, host=None, port=None,
     meta_plus_data = create_meta_plus_datasets(config["path_to_data"] + "/germany", interpolator, rowcol_to_latlon, restorer)
     service = ccdi.Service(meta_plus_data, id=config["id"], name=config["name"], description=config["description"], restorer=restorer)
     if config["fbp"]:
-        fbp(config["in_coord_sr"], config["out_csv_sr"], service)
+        fbp(config, climate_capnp.Service._new_client(service))
     if config["no_fbp"]:
         no_fbp(service)
     else:

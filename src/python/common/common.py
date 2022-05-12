@@ -31,10 +31,51 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
+PATH_TO_CAPNP_SCHEMAS = (PATH_TO_REPO / "capnproto_schemas").resolve()
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports) 
 persistence_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "persistence.capnp"), imports=abs_imports) 
+
+#------------------------------------------------------------------------------
+
+def get_fbp_attr(ip, attr_name):
+    if ip.attributes and attr_name:
+        for kv in ip.attributes:
+            if kv.key == attr_name:
+                return kv.value
+    return None
+
+
+def copy_fbp_attr(old_ip, new_ip, new_attr_name=None, new_attr_value=None):
+    if not old_ip.attributes and not new_attr_name:
+        return
+
+    # if there find index of attribute to be set
+    new_index = -1
+    if old_ip.attributes and new_attr_name:
+        for i, kv in enumerate(old_ip.attributes):
+            if kv.key == new_attr_name:
+                new_index = i
+                break
+
+    # init space for attributes in new IP
+    new_attrs_size = len(old_ip.attributes) if old_ip.attributes else 0
+    if new_index < 0 and new_attr_name and new_attr_value:
+        new_attrs_size += 1
+        new_index = new_attrs_size - 1
+    attrs = new_ip.init("attributes", new_attrs_size)
+
+    # copy old attributes
+    if old_ip.attributes:
+        for i, kv in enumerate(old_ip.attributes):
+            if i != new_index:
+                attrs[i].key = kv.key
+                attrs[i].value = kv.value
+
+    # set new attribute if there
+    if new_index > -1:
+        attrs[new_index].key = new_attr_name
+        attrs[new_index].value = new_attr_value
 
 #------------------------------------------------------------------------------
 

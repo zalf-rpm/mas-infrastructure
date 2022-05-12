@@ -49,6 +49,44 @@ abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 grid_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "grid.capnp"), imports=abs_imports) 
 common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports) 
 reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
+geo_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "geo_coord.capnp"), imports=abs_imports)
+
+#------------------------------------------------------------------------------
+
+def fbp(config, service : grid_capnp.Grid):
+    conman = common.ConnectionManager()
+    inp = conman.try_connect(config["in_sr"], cast_as=common_capnp.Channel.Reader, retry_secs=1)
+    outp = conman.try_connect(config["out_sr"], cast_as=common_capnp.Channel.Writer, retry_secs=1)
+
+    try:
+        if inp and outp and service:
+            while True:
+                in_msg = inp.read().wait()
+                if in_msg.which() == "done":
+                    break
+                
+                in_ip = in_msg.value.as_struct(common_capnp.IP)
+                attr = common.get_fbp_attr(in_ip, config["from_attr"])
+                if attr:
+                    coord = attr.as_struct(geo_capnp.LatLonCoord)
+                else:
+                    coord = in_ip.content.as_struct(geo_capnp.LatLonCoord)
+
+                val = service.closestValueAt(coord).wait().val
+
+                out_ip = common_capnp.IP.new_message()
+                if not config["to_attr"]:
+                    out_ip.content = val
+                common.copy_fbp_attr(in_ip, out_ip, config["to_attr"], val)
+                outp.write(value=out_ip).wait()
+            
+            outp.write(done=None).wait()
+
+    except Exception as e:
+        print("ascii_grid.py ex:", e)
+
+    print("ascii_grid.py: exiting FBP component")
+
 
 #------------------------------------------------------------------------------
 
@@ -423,7 +461,13 @@ async def main(path_to_ascii_grid, grid_crs, val_type, serve_bootstrap=True, hos
         "name": name,
         "description": description,
         "serve_bootstrap": serve_bootstrap,
-        "use_async": use_async
+        "use_async": use_async,
+        "fbp": False,
+        "in_sr": None,
+        "out_sr": None,
+        "mandatory": """["soilType","organicCarbon","rawDensity"]""",
+        "from_attr": None, #"latlon"
+        "to_attr": None, #"dgm",
     }
     # read commandline args only if script is invoked directly from commandline
     if len(sys.argv) > 1 and __name__ == "__main__":
@@ -437,13 +481,17 @@ async def main(path_to_ascii_grid, grid_crs, val_type, serve_bootstrap=True, hos
     service = Grid(path_to_ascii_grid=config["path_to_ascii_grid"], 
         grid_crs=geo.name_to_crs(config["grid_crs"]), val_type=int if config["val_type"] == "int" else float,
         id=config["id"], name=config["name"], description=config["description"], restorer=restorer)
-    if config["use_async"]:
-        await serv.async_init_and_run_service({"service": service}, config["host"], config["port"], 
-        serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
+    if config["fbp"]:
+        mandatory = json.loads(config["mandatory"])
+        fbp(config, grid_capnp.Grid._new_client(service))
     else:
-        
-        serv.init_and_run_service({"service": service}, config["host"], config["port"], 
+        if config["use_async"]:
+            await serv.async_init_and_run_service({"service": service}, config["host"], config["port"], 
             serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
+        else:
+            
+            serv.init_and_run_service({"service": service}, config["host"], config["port"], 
+                serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
 
 #------------------------------------------------------------------------------
 

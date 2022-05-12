@@ -55,7 +55,8 @@ try:
                 if skip_lines > 0:
                     skip_lines -= 1
                     continue
-                outp.write(value=line).wait()
+
+                outp.write(value=common_capnp.IP.new_message(content=line)).wait()
     
     outp.write(done=None).wait()
 

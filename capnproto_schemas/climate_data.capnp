@@ -241,6 +241,27 @@ interface TimeSeries extends(Common.Identifiable, Persistent) {
 }
 
 
+struct TimeSeriesData {
+  # a complete set of time series data as plain data, useful for instance in FBP flows
+
+  data          @0 :List(List(Float32));
+  # the actual data
+
+  isTransposed  @1 :Bool;
+  # is the data or dataT result of TimeSeries
+
+  header        @2 :List(Element);
+  # the header information belonging to the data
+
+  startDate     @3 :Date;
+  endDate       @4 :Date;
+  # start and end date of the data
+
+  resolution    @5 :TimeSeries.Resolution = daily;
+  # resolution of the data
+}
+
+
 interface Service extends(Common.Identifiable, Persistent) {
   # climate data service 
 

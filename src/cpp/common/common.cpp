@@ -218,3 +218,77 @@ kj::Promise<void> CapHolderListImpl::release(ReleaseContext context) {
 //  return kj::READY_NOW;
 //}
 
+//-----------------------------------------------------------------------------
+
+kj::Maybe<capnp::AnyPointer::Reader> mas::rpc::common::getIPAttr(mas::schema::common::IP::Reader ip, kj::StringPtr attrName)
+{
+  if(ip.hasAttributes() && attrName != nullptr)
+  {
+    for(const auto& kv : ip.getAttributes()) if (kv.getKey() == attrName) return kv.getValue();
+  }
+  return nullptr;
+}
+
+kj::Maybe<capnp::AnyPointer::Builder> mas::rpc::common::copyAndSetIPAttrs(mas::schema::common::IP::Reader oldIp, mas::schema::common::IP::Builder newIp, 
+        kj::StringPtr newAttrName)//, kj::Maybe<capnp::AnyPointer::Reader> newValue)
+{
+  // if there are not attributes and nothing new to set, nothing to copy
+  if (!oldIp.hasAttributes() && newAttrName == nullptr) return nullptr;
+
+  int newIndex = -1;
+  int oldAttrsSize = 0;
+  // if there are attributes and a new value to set, find the index to be replaced
+  if(oldIp.hasAttributes() && newAttrName != nullptr)
+  {
+    auto attrs = oldIp.getAttributes();
+    oldAttrsSize = attrs.size();
+    for(int i = 0; i < oldAttrsSize; i++)
+    {
+      auto kv = attrs[i];
+      if(kv.getKey() == newAttrName)
+      {
+        newIndex = i;
+        break;
+      }
+    }
+  }
+
+  // init space for attributes in new IP
+  auto newAttrsSize = oldAttrsSize;
+  if(newIndex < 0 && newAttrName != nullptr)// && newValue != nullptr)
+  {
+      newAttrsSize += 1;
+      newIndex = newAttrsSize - 1;
+  }
+  auto newAttrs = newIp.initAttributes(newAttrsSize);
+
+  // copy old attributes
+  if(oldIp.hasAttributes())
+  {
+    auto oldAttrs = oldIp.getAttributes();
+    for(int i = 0; i < oldAttrsSize; i++)
+    {
+      const auto& kv = oldAttrs[i]; 
+      if (i != newIndex)
+      {
+        newAttrs[i].setKey(kv.getKey());
+        newAttrs[i].initValue().set(kv.getValue());
+      }
+    }
+  }
+  
+  // set new attribute if there
+  if (newIndex > -1) 
+  {
+    newAttrs[newIndex].setKey(newAttrName);
+    //KJ_IF_MAYBE(nv, newValue) newAttrs[newIndex].initValue().set(*nv);
+    return newAttrs[newIndex].initValue();
+  }
+
+  return nullptr;
+}
+
+
+
+
+

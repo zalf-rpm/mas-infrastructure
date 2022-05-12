@@ -53,7 +53,49 @@ import soil_io3
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
-soil_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "soil_data.capnp"), imports=abs_imports) 
+soil_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "soil_data.capnp"), imports=abs_imports) 
+common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
+geo_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "geo_coord.capnp"), imports=abs_imports)
+
+#------------------------------------------------------------------------------
+
+def fbp(config, service : soil_capnp.Service):
+    conman = common.ConnectionManager()
+    inp = conman.try_connect(config["in_sr"], cast_as=common_capnp.Channel.Reader, retry_secs=1)
+    outp = conman.try_connect(config["out_sr"], cast_as=common_capnp.Channel.Writer, retry_secs=1)
+    mandatory = json.loads(config["mandatory"])
+
+    try:
+        if inp and outp and service:
+            while True:
+                in_msg = inp.read().wait()
+                if in_msg.which() == "done":
+                    break
+
+                in_ip = in_msg.value.as_struct(common_capnp.IP)
+                attr = common.get_fbp_attr(in_ip, config["from_attr"])
+                if attr:
+                    coord = attr.as_struct(geo_capnp.LatLonCoord)
+                else:
+                    coord = in_ip.content.as_struct(geo_capnp.LatLonCoord)
+
+                profiles = service.profiles_at(coord.lat, coord.lon, mandatory, False)
+                if len(profiles) > 0:
+                    profile = profiles[0]
+
+                    out_ip = common_capnp.IP.new_message()
+                    if not config["to_attr"]:
+                        out_ip.content = profile
+                    common.copy_fbp_attr(in_ip, out_ip, config["to_attr"], profile)
+                    outp.write(value=out_ip).wait()
+            
+            outp.write(done=None).wait()
+
+    except Exception as e:
+        print("sqlite_soil_data_service.py ex:", e)
+
+    print("dwd_germany_service.py: exiting FBP component")
+
 
 #------------------------------------------------------------------------------
 
@@ -130,7 +172,7 @@ CAPNP_PROP_to_MONICA_PARAM_NAME = {
 
 #------------------------------------------------------------------------------
 
-class Service(soil_data_capnp.Service.Server, common.Identifiable, common.Persistable, serv.AdministrableService): 
+class Service(soil_capnp.Service.Server, common.Identifiable, common.Persistable, serv.AdministrableService): 
 
     def __init__(self, path_to_sqlite_db, path_to_ascii_grid, grid_crs, id=None, name=None, description=None, admin=None, restorer=None):
         common.Identifiable.__init__(self, id, name, description)
@@ -235,7 +277,7 @@ class Service(soil_data_capnp.Service.Server, common.Identifiable, common.Persis
         print("Aps", flush=True)
 
 
-    def profiles_at(self, lat, lon, results, avail_props, only_raw_data):
+    def profiles_at(self, lat, lon, avail_props, only_raw_data):
         if len(avail_props) > 0:
             soil_id = self.interpolator(lat, lon)
             cache = self._cache_raw if only_raw_data else self._cache_derived
@@ -249,10 +291,11 @@ class Service(soil_data_capnp.Service.Server, common.Identifiable, common.Persis
         else:
             return
 
-        profiles = results.init("profiles", len(sps[1]))
+        profiles = []#results.init("profiles", len(sps[1]))
         profile_group_id = sps[0]
         for j, sp in enumerate(sps[1]):
-            profile = profiles[j] 
+            profile = soil_capnp.Profile.new_message()#profiles[j] 
+            profiles.append(profile)
             profile.id = str(profile_group_id) + "_" + str(sp["id"])
             profile.percentageOfArea = sp["avg_range_percentage_in_group"]
             
@@ -282,6 +325,9 @@ class Service(soil_data_capnp.Service.Server, common.Identifiable, common.Persis
                         else:
                             props[i].f32Value = value
 
+        profiles.sort(key=lambda p: p.percentageOfArea, reverse=True)
+        return profiles
+
 
     def available_properties(self, query):
         """
@@ -297,16 +343,11 @@ class Service(soil_data_capnp.Service.Server, common.Identifiable, common.Persis
         return names
 
 
-    def profilesAt_context(self, context): # profilesAt @0 (coord :Geo.LatLonCoord, query :Query) -> (profiles :List(Profile));
-        r = context.results
-        ps = context.params
-        c = ps.coord
-        q = ps.query
+    def profilesAt(self, coord, query, **kwargs): # profilesAt @0 (coord :Geo.LatLonCoord, query :Query) -> (profiles :List(Profile));
+        avail_props = self.available_properties(query)
+        profiles = self.profiles_at(coord.lat, coord.lon, avail_props, query.onlyRawData)
+        return profiles
 
-        avail_props = self.available_properties(q)
-
-        # fill profile with data
-        self.profiles_at(c.lat, c.lon, r, avail_props, q.onlyRawData)
         
 
     """
@@ -342,7 +383,13 @@ async def main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs=None, grid_e
         "name": name,
         "description": description,
         "serve_bootstrap": serve_bootstrap,
-        "use_async": use_async
+        "use_async": use_async,
+        "fbp": False,
+        "in_sr": None,
+        "out_sr": None,
+        "mandatory": """["soilType","organicCarbon","rawDensity"]""",
+        "to_attr": None, #"soil",
+        "from_attr": None, #"latlon"
     }
     # read commandline args only if script is invoked directly from commandline
     if len(sys.argv) > 1 and __name__ == "__main__":
@@ -370,13 +417,15 @@ async def main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs=None, grid_e
         path_to_ascii_grid=config["path_to_ascii_soil_grid"],
         grid_crs=grid_crs,
         id=config["id"], name=config["name"], description=config["description"], restorer=restorer)
-    if config["use_async"]:
-        await serv.async_init_and_run_service({"service": service}, config["host"], config["port"], 
-        serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
+    if config["fbp"]:
+        fbp(config, soil_capnp.Service._new_client(service))
     else:
-        
-        serv.init_and_run_service({"service": service}, config["host"], config["port"], 
+        if config["use_async"]:
+            await serv.async_init_and_run_service({"service": service}, config["host"], config["port"], 
             serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
+        else:
+            serv.init_and_run_service({"service": service}, config["host"], config["port"], 
+                serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
 
 #------------------------------------------------------------------------------
 

@@ -136,8 +136,21 @@ interface Clock(T) {
   # forward clock one step to time T (which could also be just a Common.Date)
 }
 
+struct IP {
+	# an FBP information packet
 
-interface Channel {
+	struct KV {
+		key 	@0 :Text;
+		value 	@1 :AnyPointer;
+	}
+	attributes @0 :List(KV);
+	# key value pair attributes attached to IP additional to main content
+
+	content @1 :AnyPointer;
+	# main content of IP
+}
+
+interface Channel(V) {
   # a potentially buffered channel to transport values of type V
 
   enum CloseSemantics {
@@ -147,7 +160,7 @@ interface Channel {
 
   struct Msg {
     union {
-      value @0 :AnyPointer;
+      value @0 :V;
       done  @1 :Void;
     }
   }

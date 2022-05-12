@@ -16,10 +16,12 @@
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 import capnp
+import io
 import os
 from pathlib import Path
 from pyproj import CRS, Transformer
 import sys
+from datetime import timedelta, date
 
 PATH_TO_SCRIPT_DIR = Path(os.path.realpath(__file__)).parent
 PATH_TO_REPO = PATH_TO_SCRIPT_DIR.parent.parent.parent
@@ -37,16 +39,16 @@ PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports) 
 geo_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "geo_coord.capnp"), imports=abs_imports)
+climate_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate_data.capnp"), imports=abs_imports)
 
 #------------------------------------------------------------------------------
 
 config = {
-    "from_name": "utm32n",
-    "to_name": "wgs84",
     "to_attr": None, #"latlon",
-    "from_attr": None, 
-    "in_sr": None, # geo.LatLonCoord | geo.UTMCoord | geo.GKCoord
-    "out_sr": None # geo.LatLonCoord | geo.UTMCoord | geo.GKCoord
+    "from_attr": None,
+    "in_type": "sturdyref", # sturdyref | capability 
+    "in_sr": None, # string (sturdyref) | climate_capnp.TimeSeries (capability)
+    "out_sr": None # climate_capnp.TimeSeriesData (data)
 }
 common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
@@ -54,7 +56,7 @@ conman = common.ConnectionManager()
 inp = conman.try_connect(config["in_sr"], cast_as=common_capnp.Channel.Reader, retry_secs=1)
 outp = conman.try_connect(config["out_sr"], cast_as=common_capnp.Channel.Writer, retry_secs=1)
 
-from_type = geo.name_to_struct_type(config["from_name"])
+in_type = config["in_type"]
 
 try:
     if inp and outp:
@@ -66,22 +68,36 @@ try:
             
             in_ip = msg.value.as_struct(common_capnp.IP)
             attr = common.get_fbp_attr(in_ip, config["from_attr"])
-            if attr:
-                from_coord = attr.as_struct(from_type)
-            else:
-                from_coord = in_ip.content.as_struct(from_type)
-            to_coord = geo.transform_from_to_geo_coord(from_coord, config["to_name"])
+            obj = attr if attr else in_ip.content
+            if in_type == "capability":
+                timeseries = obj.as_interface(climate_capnp.TimeSeries)
+            elif in_type == "sturdyref":
+                try:
+                    timeseries = conman.try_connect(obj.as_text(), cast_as=climate_capnp.TimeSeries, retry_secs=1)
+                except Exception as e:
+                    print("Error: Couldn't connect to sturdyref:", obj.as_text())
+                    continue
+
+            tsd = climate_capnp.TimeSeriesData.new_message()
+            tsd.isTransposed = False
+            tsd.header = timeseries.header().wait().header
+            se_date = timeseries.range().wait()
+            tsd.startDate = se_date.startDate
+            tsd.endDate = se_date.endDate
+            tsd.resolution = timeseries.resolution().wait().resolution
+            tsd.data = timeseries.data().wait().data
+
             out_ip = common_capnp.IP.new_message()
             if not config["to_attr"]:
-                out_ip.content = to_coord
-            common.copy_fbp_attr(in_ip, out_ip, config["to_attr"], to_coord)
+                out_ip.content = tsd
+            common.copy_fbp_attr(in_ip, out_ip, config["to_attr"], tsd)
             outp.write(value=out_ip).wait()
 
         # close out port
         outp.write(done=None).wait()
 
 except Exception as e:
-    print("proj_transformer.py ex:", e)
+    print("timeseries_to_data.py ex:", e)
 
-print("proj_transformer.py: exiting run")
+print("timeseries_to_data.py: exiting run")
 

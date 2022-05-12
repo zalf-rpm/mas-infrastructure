@@ -57,7 +57,7 @@ try:
 
             filepath = config["filepath_pattern"].format(id=count)
             with open(filepath, "wt") as _:
-                _.write(msg.value.as_text())
+                _.write(msg.value.as_struct(common_capnp.IP).content.as_text())
                 count += 1
             print("wrote", filepath)
 

@@ -42,13 +42,13 @@ config = {
     "split_at": ",",
     "cast_to": "text", # text | float | int
     "in_sr": None, # string
-    "out_list_sr": None # list[text | float | int]
+    "out_sr": None # list[text | float | int]
 }
 common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
 conman = common.ConnectionManager()
 inp = conman.try_connect(config["in_sr"], cast_as=common_capnp.Channel.Reader, retry_secs=1)
-outp = conman.try_connect(config["out_list_sr"], cast_as=common_capnp.Channel.Writer, retry_secs=1)
+outp = conman.try_connect(config["out_sr"], cast_as=common_capnp.Channel.Writer, retry_secs=1)
 
 cast_to = None
 if config["cast_to"] == "float":
@@ -70,7 +70,7 @@ try:
             if msg.which() == "done":
                 break
             
-            s : str = msg.value.as_text()
+            s : str = msg.value.as_struct(common_capnp.IP).content.as_text()
             s = s.rstrip()
             vals = s.split(config["split_at"])
             if cast_to:
@@ -78,7 +78,7 @@ try:
             #print("split_string vals:", vals)
 
             req = outp.write_request()
-            l = init_list(req.value, len(vals))
+            l = init_list(req.value.as_struct(common_capnp.IP).content, len(vals))
             for i, val in enumerate(vals):
                 l[i] = val
             req.send().wait()

@@ -16,10 +16,12 @@
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 import capnp
+import io
 import os
 from pathlib import Path
 from pyproj import CRS, Transformer
 import sys
+from datetime import timedelta, date
 
 PATH_TO_SCRIPT_DIR = Path(os.path.realpath(__file__)).parent
 PATH_TO_REPO = PATH_TO_SCRIPT_DIR.parent.parent.parent
@@ -37,23 +39,31 @@ PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports) 
 geo_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "geo_coord.capnp"), imports=abs_imports)
+climate_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate_data.capnp"), imports=abs_imports)
 
 #------------------------------------------------------------------------------
 
 config = {
-    "to_name": "wgs84",
-    "list_type": "float", # float | int
-    "in_vals_sr": None, # list[float | int]
-    "out_coord_sr": None # geo.LatLonCoord | geo.UTMCoord | geo.GKCoord
+    "to_attr": None, #"latlon",
+    "from_attr": None, 
+    "in_sr": None, # string (sturdyref) | climate_capnp.TimeSeries (capability) | climate_capnp.TimeSeriesData (data)
+    "out_sr": None # string (csv)
 }
 common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
 conman = common.ConnectionManager()
-inp = conman.try_connect(config["in_vals_sr"], cast_as=common_capnp.Channel.Reader, retry_secs=1)
-outp = conman.try_connect(config["out_coord_sr"], cast_as=common_capnp.Channel.Writer, retry_secs=1)
+inp = conman.try_connect(config["in_sr"], cast_as=common_capnp.Channel.Reader, retry_secs=1)
+outp = conman.try_connect(config["out_sr"], cast_as=common_capnp.Channel.Writer, retry_secs=1)
 
-to_instance = geo.name_to_struct_instance(config["to_name"])
-list_schema_type = capnp._ListSchema(capnp.types.Float64) if config["list_type"] == "float" else capnp._ListSchema(capnp.types.Int64)
+def data_to_csv(header : list, data : list[list[float]], start_date : date):
+    csv = io.StringIO()
+    h_str = ",".join([str(h) for h in header])
+    csv.write(h_str + "\n")
+    for i, line in enumerate(data):
+        current_date = start_date + timedelta(days=i)
+        d_str = ",".join([str(d) for d in line])
+        csv.write(current_date.strftime("%Y-%m-%d") + "," + d_str + "\n")
+    return csv
 
 try:
     if inp and outp:
@@ -63,19 +73,26 @@ try:
             if msg.which() == "done":
                 break
             
-            vals = msg.value.as_struct(common_capnp.IP).content.as_list(list_schema_type)
-            if len(vals) > 1:
-                to_coord = to_instance.copy()
-                geo.set_xy(to_coord, vals[0], vals[1])
-                outp.write(value=common_capnp.IP.new_message(content=to_coord)).wait()
+            in_ip = msg.value.as_struct(common_capnp.IP)
+            attr = common.get_fbp_attr(in_ip, config["from_attr"])
+            if attr:
+                data = attr.as_struct(climate_capnp.TimeSeriesData)
             else:
-                raise Exception("Not enough values in list. Need at least two for a coordinate.")
+                data = in_ip.content.as_struct(climate_capnp.TimeSeriesData)
+
+            csv = data_to_csv(data.header, data.data, data.startDate)
+            
+            out_ip = common_capnp.IP.new_message()
+            if not config["to_attr"]:
+                out_ip.content = csv
+            common.copy_fbp_attr(in_ip, out_ip, config["to_attr"], csv)
+            outp.write(value=out_ip).wait()
 
         # close out port
         outp.write(done=None).wait()
 
 except Exception as e:
-    print("to_geo_coord.py ex:", e)
+    print("climate_data_to_csv.py ex:", e)
 
-print("to_geo_coord.py: exiting run")
+print("climate_data_to_csv.py: exiting run")
 
