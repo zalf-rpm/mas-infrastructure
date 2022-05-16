@@ -114,7 +114,7 @@ if __name__ == '__main__':
     config = {
         "ftps_host": "srv-fds-tran.zalf.de",
         "ftps_user": "dwduser2021",
-        "ftps_pwd": "***REMOVED***", #None,
+        "ftps_pwd": None,
         "import_host": "localhost",
         "import_port": "15000",
         "run_at": "11:00",
