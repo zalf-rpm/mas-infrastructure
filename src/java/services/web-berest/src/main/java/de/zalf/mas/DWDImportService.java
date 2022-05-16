@@ -39,7 +39,7 @@ public class DWDImportService {
         protected CompletableFuture<Void> importData(CallContext<WebBerestDWDImport.DWLABImport.ImportDataParams.Reader, WebBerestDWDImport.DWLABImport.ImportDataResults.Builder> context) {
             var params = context.getParams();
             var id = params.getId();
-            System.out.println("id: " + id);
+            //System.out.println("id: " + id);
             var dwla_comp = params.getDwla();
             var iis = new InflaterInputStream(new ByteArrayInputStream(dwla_comp.toArray()));
             StringBuffer dwla = new StringBuffer();
@@ -50,7 +50,7 @@ public class DWDImportService {
                 while ((rlen = iis.read(buf)) != -1) {
                     dwla.append(new String(Arrays.copyOf(buf, rlen)));
                 }
-                System.out.println("dwla:");
+                //System.out.println("dwla:");
                 aOk = (boolean) importFn.invoke("A", dwla.toString());
             } catch(IOException ioe) {}
 
@@ -65,7 +65,7 @@ public class DWDImportService {
                     dwlb.append(new String(Arrays.copyOf(buf, rlen)));
                     
                 }
-                System.out.println("dwlb:");
+                //System.out.println("dwlb:");
                 bOk = (boolean) importFn.invoke("B", dwlb.toString());
             } catch(IOException ioe) {}
 
