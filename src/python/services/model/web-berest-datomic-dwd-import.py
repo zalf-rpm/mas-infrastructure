@@ -68,7 +68,7 @@ def run_continuously(interval=1):
 
 def task(ftps_host, ftps_user, ftps_pwd, import_host="localhost", import_port="15000", specific_dates = None):
     print("Running import task at", datetime.now())
-    ds = [date.today()] if specific_dates is None else specific_dates
+    ds = [datetime.date.today()] if specific_dates is None else specific_dates
 
     ftps = ftplib.FTP_TLS(ftps_host, user=ftps_user, passwd=ftps_pwd)
     ftps.prot_p()
