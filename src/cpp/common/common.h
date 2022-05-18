@@ -27,7 +27,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <functional>
 #include <string>
 
-#include "model.capnp.h"
+//#include "model.capnp.h"
 #include "common.capnp.h"
 #include "persistence.capnp.h"
 
