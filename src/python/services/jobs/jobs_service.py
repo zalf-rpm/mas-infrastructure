@@ -65,7 +65,7 @@ async def main(path_to_csv, serve_bootstrap=True, host=None, port=None,
 
     config = {
         "path_to_csv": path_to_csv,
-        "id_col_name": "id",
+        "id_col_name": "dummy_id",
         "port": port, 
         "host": host,
         "id": id,
