@@ -45,10 +45,6 @@ import common.rect_ascii_grid_management as grid_man
 import common.geo as geo
 import common.service as serv
 import common.capnp_async_helpers as async_helpers
-
-PATH_TO_UTIL_SOIL = PATH_TO_REPO.parent / "util/soil"
-if str(PATH_TO_UTIL_SOIL) not in sys.path:
-    sys.path.insert(1, str(PATH_TO_UTIL_SOIL))
 import soil_io3
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
@@ -235,8 +231,9 @@ class Service(soil_capnp.Service.Server, common.Identifiable, common.Persistable
 
     @property
     def all_available_params_raw(self):
-        if not self._all_available_params_raw:
-            params = soil_io3.available_soil_parameters(self._con, only_raw_data=True)
+        if self._all_available_params_raw is None:
+            params = soil_io3.available_soil_parameters_group(self._con, only_raw_data=True)
+            #print("params:", params)
             self._all_available_params_raw = {
                 "mandatory": list(filter(None, map(lambda p: self._monica_param_to_capnp_prop_name.get(p, None), params["mandatory"]))),
                 "optional": list(filter(None, map(lambda p: self._monica_param_to_capnp_prop_name.get(p, None), params["optional"])))
