@@ -54,8 +54,6 @@ geo_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "geo_coord.capnp"), imports=a
 
 #------------------------------------------------------------------------------
 
-
-
 def fbp(config : dict, service : ccdi.Service):
     conman = common.ConnectionManager()
     inp = conman.try_connect(config["in_sr"], cast_as=common_capnp.Channel.Reader, retry_secs=1)
@@ -104,50 +102,13 @@ def fbp(config : dict, service : ccdi.Service):
                 common.copy_fbp_attr(in_ip, out_ip, config["to_attr"], res)
                 outp.write(value=out_ip).wait()
 
-            
+
             outp.write(done=None).wait()
 
     except Exception as e:
         print("dwd_germany_service.py ex:", e)
 
     print("dwd_germany_service.py: exiting FBP component")
-
-
-def no_fbp(service : ccdi.Service):
-
-    dataset : csv_based.Dataset = service.getAvailableDatasets()[0].data
-    count = 0
-
-    # read file
-    with open("/home/berg/Desktop/Koordinaten_HE_dummy_ID.csv") as _:
-        skip_lines = 1
-        for line in _.readlines():
-            if skip_lines > 0:
-                skip_lines -= 1
-                continue
-
-            line = line.rstrip()
-            vals = line.split(",")
-            vals = list(map(lambda v: float(v), vals))
-
-            to_instance = geo.name_to_struct_instance("utm32n")
-            utm_coord = to_instance.copy()
-            geo.set_xy(utm_coord, vals[0], vals[1])
-            ll_coord = geo.transform_from_to_geo_coord(utm_coord, "latlon")
-
-            timeseries : csv_based.TimeSeries = dataset.closestTimeSeriesAt(ll_coord).timeSeries
-            header : list = timeseries.header().wait().header
-            sd = timeseries.range().wait().startDate
-            data = timeseries.data().wait().data
-            csv = data_to_csv(header, data, date(sd.year, sd.month, sd.day))
-            filepath = "out_no_fbp/csv_{id}.csv".format(id=count)
-            with open(filepath, "wt") as _:
-                _.write(csv.getvalue())
-            count += 1
-            print("wrote", filepath)
-
-        print("no_fbp done")
-
 
 #------------------------------------------------------------------------------
 
@@ -216,5 +177,5 @@ async def main(path_to_data, serve_bootstrap=True, host=None, port=None,
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    asyncio.run(main("/run/user/1000/gvfs/sftp:host=login01.cluster.zalf.de,user=rpm/beegfs/common/data/climate/dwd/csvs", 
+    asyncio.run(main("/run/user/1000/gvfs/sftp:host=login01.cluster.zalf.de,user=berg/beegfs/common/data/climate/dwd/csvs", 
         serve_bootstrap=True, use_async=True)) 
