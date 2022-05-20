@@ -32,6 +32,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 #include "rpc-connections.h"
 #include "common.h"
+#include "sole.hpp"
 
 #include "channel.h"
 #include "common.capnp.h"
@@ -52,17 +53,19 @@ int main(int argc, const char* argv[]) {
   uint bufferSize = 1;
   string host = "*";
   int port = 0;
+  kj::String name;
 
   auto printHelp = [=]() {
     cout
       << "channel [options]" << endl
       << endl
       << "options:" << endl
+      << "name=" << endl
       << "host=" << host << endl
       << "port=" << port << endl
       << "buffer_size=" << bufferSize << endl
-      << "reader_srts=[[]]" << endl
-      << "writer_srts=[[]]" << endl;
+      << "reader_srts=...,...,..." << endl
+      << "writer_srts=...,...,..." << endl;
   };
 
   if (argc >= 1) {
@@ -76,18 +79,25 @@ int main(int argc, const char* argv[]) {
       else if (key == "buffer_size") bufferSize = max(1U, uint(stoi(value)));
       else if (key == "host") host = value;
       else if (key == "port") port = max(0, stoi(value));
+      else if (key == "name") name = kj::str(value);
     }
 
-    KJ_LOG(INFO, "starting channel");
+    if(readerSrts.empty()) readerSrts.push_back(sole::uuid4().str());
+    if(writerSrts.empty()) writerSrts.push_back(sole::uuid4().str());
+
+    KJ_LOG(WARNING, "starting channel");
 
     auto restorer = kj::heap<rpc::common::Restorer>();
     auto& restorerRef = *restorer;
     schema::persistence::Restorer::Client restorerClient = kj::mv(restorer);
-    auto channel = kj::heap<rpc::common::Channel>(&restorerRef, bufferSize);
+    auto channel = kj::heap<rpc::common::Channel>(&restorerRef, kj::mv(name), bufferSize);
     auto& channelRef = *channel;
-    rpc::common::Channel::Client channelClient = kj::mv(channel);
+    rpc::common::AnyPointerChannel::Client channelClient = kj::mv(channel);
     //runMonicaRef.setClient(runMonicaClient);
     KJ_LOG(INFO, "created monica");
+
+    auto reader = channelClient.readerRequest().send().wait(ioContext.waitScope).getR();
+    auto writer = channelClient.writerRequest().send().wait(ioContext.waitScope).getW();
 
     KJ_LOG(INFO, "Channel: trying to bind to host: " + host + " port: " + to_string(port));
     auto proms = _conMan.bind(ioContext, restorerClient, host, port);
@@ -101,7 +111,11 @@ int main(int argc, const char* argv[]) {
 
     auto restorerSR = restorerRef.sturdyRef();
     auto channelSRs = restorerRef.save(channelClient);
+    auto readerSRs = restorerRef.save(reader, readerSrts.at(0), false);
+    auto writerSRs = restorerRef.save(writer, writerSrts.at(0), false);
     KJ_LOG(INFO, "Channel: channel_sr: " + channelSRs.first);
+    KJ_LOG(INFO, "Channel: reader_sr: " + readerSRs.first);
+    KJ_LOG(INFO, "Channel: writer_sr: " + writerSRs.first);
     KJ_LOG(INFO, "Channel: restorer_sr: " + restorerSR);
 
     // Run forever, accepting connections and handling requests.

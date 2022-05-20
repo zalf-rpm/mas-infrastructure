@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 project(channel)
 
-add_compile_definitions(NO_MYSQL)
 set(MT_RUNTIME_LIB 1)
 
 #add_subdirectory(../util/tools/date util/date)
@@ -83,6 +82,7 @@ capnp_generate_cpp(CAPNP_SRCS CAPNP_HDRS
 ${CAPNP_SCHEMAS_DIR}/common.capnp 
 ${CAPNP_SCHEMAS_DIR}/date.capnp
 ${CAPNP_SCHEMAS_DIR}/persistence.capnp
+${CAPNP_SCHEMAS_DIR}/x.capnp
 )
 message(STATUS "CAPNP_HDRS: " "${CAPNP_HDRS}")
 message(STATUS "CAPNP_SRCS: " "${CAPNP_SRCS}")
@@ -92,6 +92,8 @@ set(SOURCE
 	channel_main.cpp
 	common.h
 	common.cpp
+	rpc-connections.h
+	rpc-connections.cpp
 	channel.h
 	channel.cpp
 	${CAPNP_HDRS}

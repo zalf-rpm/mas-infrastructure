@@ -53,7 +53,8 @@ namespace mas {
 
         std::string sturdyRef(std::string srToken = "") const;
 
-        std::pair<std::string, std::string> save(capnp::Capability::Client cap);
+        std::pair<std::string, std::string> save(capnp::Capability::Client cap, std::string srToken = std::string(),
+          bool createUnsave = true);
 
         void unsave(std::string srToken);
 

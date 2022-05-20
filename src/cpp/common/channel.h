@@ -15,22 +15,25 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 #pragma once
 
+#include <functional>
+#include <string>
+#include <deque>
+
 #include <kj/debug.h>
 #include <kj/common.h>
 #include <kj/string.h>
 #include <kj/vector.h>
 #include <kj/map.h>
 #include <kj/memory.h>
-#include <capnp/any.h>
+#include <kj/thread.h>
 #include <kj/async.h>
 
+#include <capnp/any.h>
 #include <capnp/rpc-twoparty.h>
-#include <kj/thread.h>
 
-#include <functional>
-#include <string>
-
+#include "common.h"
 #include "common.capnp.h"
+#include "x.capnp.h"
 
 namespace mas {
   namespace rpc {
@@ -39,11 +42,13 @@ namespace mas {
       class Reader;
       class Writer;
 
+      typedef mas::schema::common::Channel<capnp::AnyPointer> AnyPointerChannel;
+
       //template<typename T>
-      class Channel final : public mas::schema::common::Channel<capnp::AnyPointer>::Server
+      class Channel final : public AnyPointerChannel::Server
       {
       public:
-        Channel(mas::rpc::common::Restorer* restorer, uint bufferSize = 1);
+        Channel(mas::rpc::common::Restorer* restorer, kj::String name, uint bufferSize = 1);
 
         virtual ~Channel() noexcept(false) {}
 
@@ -51,8 +56,10 @@ namespace mas {
 
         void closedWriter(Writer& writer);
 
-        Reader& createReader();
+        kj::Promise<void> reader(ReaderContext context) override;
+        //Reader& createReader();
 
+        kj::Promise<void> writer(WriterContext context) override;
         Writer& createWriter();
 
         /*
@@ -77,15 +84,18 @@ namespace mas {
       private:
         mas::rpc::common::Restorer* _restorer{nullptr};
         kj::String _name;
-        //std::string _host{ "" };
-        //int _port{ 0 };
-        //kj::HashMap<kj::String, capnp::Capability::Client> _issuedSRTokens;
-        kj::Vector<kj::Own<Reader>> _readers;
-        kj::Vector<kj::Own<Writer>> _writers;
-        kj::Vector<capnp::AnyPointer::Reader> _buffer;
+        kj::Vector<AnyPointerChannel::ChanReader::Client> _readers;
+        kj::Vector<AnyPointerChannel::ChanWriter::Client> _writers;
+        //kj::Vector<capnp::AnyPointer::Reader> _buffer;
+        //kj::Vector<X::Client> _buffer;
+        kj::Vector<S::Builder> _buffer;
+        uint _bri{0}; // buffer read index -> points to cell to read next from
+        uint _bwi{0}; // buffer write index -> points to cell to write next to
         uint _bufferSize{1};
-        kj::Vector<kj::Own<kj::PromiseFulfiller<void>>> _blockingReadFulfillers;
-        kj::Vector<kj::Own<kj::PromiseFulfiller<void>>> _blockingWriteFulfillers;
+        std::deque<kj::Own<kj::PromiseFulfiller<void>>> _blockingReadFulfillers;
+        uint _brfInsertIndex{0};
+        std::deque<kj::Own<kj::PromiseFulfiller<void>>> _blockingWriteFulfillers;
+        uint _bwfInsertIndex{0};
         friend class Reader;
         friend class Writer;
       };

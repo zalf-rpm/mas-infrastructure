@@ -59,14 +59,19 @@ std::string Restorer::sturdyRef(std::string srToken) const {
   else return "capnp://insecure@" + _host + ":" + to_string(_port) + "/" + srToken;
 }
 
-std::pair<std::string, std::string> Restorer::save(capnp::Capability::Client cap) {
-  auto srToken = sole::uuid4().str();
+std::pair<std::string, std::string> Restorer::save(capnp::Capability::Client cap, 
+ std::string srToken, bool createUnsave) {
+  if(srToken.empty()) srToken = sole::uuid4().str();
   _issuedSRTokens.insert(kj::str(srToken), cap);
-  auto unsaveSRToken = sole::uuid4().str();
-  auto unsaveAction = kj::heap<Action>([this, srToken, unsaveSRToken]() { unsave(srToken); unsave(unsaveSRToken); }); 
-  schema::common::Action::Client unsaveActionClient = kj::mv(unsaveAction);
-  _issuedSRTokens.insert(kj::str(unsaveSRToken), unsaveActionClient);
-  return make_pair(sturdyRef(srToken), sturdyRef(unsaveSRToken));
+  string unsaveSRToken = "";
+  if(createUnsave)
+  {
+    unsaveSRToken = sole::uuid4().str();
+    auto unsaveAction = kj::heap<Action>([this, srToken, unsaveSRToken]() { unsave(srToken); unsave(unsaveSRToken); }); 
+    schema::common::Action::Client unsaveActionClient = kj::mv(unsaveAction);
+    _issuedSRTokens.insert(kj::str(unsaveSRToken), unsaveActionClient);
+  }
+  return make_pair(sturdyRef(srToken), unsaveSRToken.empty() ? "" : sturdyRef(unsaveSRToken));
 }
 
 void Restorer::unsave(std::string srToken) {
