@@ -128,7 +128,7 @@ if __name__ == '__main__':
             k, v = arg.split("=")
             if k in config:
                 config[k] = v
-    print("config used:", config)
+    #print("config used:", config)
 
     if config["ftps_pwd"] is None:
         print("ftps_pwd is missing!")
