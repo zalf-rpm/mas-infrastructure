@@ -43,6 +43,7 @@ namespace mas {
       class Writer;
 
       typedef mas::schema::common::Channel<capnp::AnyPointer> AnyPointerChannel;
+      typedef typename mas::schema::common::Channel<capnp::AnyPointer>::Msg AnyPointerMsg;
 
       //template<typename T>
       class Channel final : public AnyPointerChannel::Server
@@ -85,17 +86,18 @@ namespace mas {
         mas::rpc::common::Restorer* _restorer{nullptr};
         kj::String _name;
         kj::Vector<AnyPointerChannel::ChanReader::Client> _readers;
+        //int _nextReaderIndex {-1};
         kj::Vector<AnyPointerChannel::ChanWriter::Client> _writers;
         //kj::Vector<capnp::AnyPointer::Reader> _buffer;
         //kj::Vector<X::Client> _buffer;
-        kj::Vector<S::Builder> _buffer;
-        uint _bri{0}; // buffer read index -> points to cell to read next from
-        uint _bwi{0}; // buffer write index -> points to cell to write next to
-        uint _bufferSize{1};
-        std::deque<kj::Own<kj::PromiseFulfiller<void>>> _blockingReadFulfillers;
-        uint _brfInsertIndex{0};
-        std::deque<kj::Own<kj::PromiseFulfiller<void>>> _blockingWriteFulfillers;
-        uint _bwfInsertIndex{0};
+        //kj::Vector<S::Builder> _buffer;
+        //uint _bri{0}; // buffer read index -> points to cell to read next from
+        //uint _bwi{0}; // buffer write index -> points to cell to write next to
+        //uint _bufferSize{1};
+        std::deque<kj::Own<kj::PromiseFulfiller<AnyPointerMsg::Reader>>> _blockingReadFulfillers;
+        //uint _brfInsertIndex{0};
+        std::deque<kj::Own<kj::PromiseFulfiller<AnyPointerMsg::Builder>>> _blockingWriteFulfillers;
+        //uint _bwfInsertIndex{0};
         friend class Reader;
         friend class Writer;
       };

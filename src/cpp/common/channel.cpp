@@ -49,9 +49,9 @@ using namespace mas::rpc::common;
 Channel::Channel(mas::rpc::common::Restorer* restorer, kj::String name, uint bufferSize) 
 : _restorer(restorer)
 , _name(kj::mv(name))
-, _buffer(bufferSize)
+//, _buffer(bufferSize)
 {
-  for(int i = 0; i < bufferSize; i++) _buffer.add(nullptr);//capnp::AnyPointer::Reader());//nullptr);
+  //for(int i = 0; i < bufferSize; i++) _buffer.add(nullptr);//capnp::AnyPointer::Reader());//nullptr);
 }
 
 void Channel::closedReader(Reader& reader){
@@ -123,6 +123,39 @@ kj::Promise<void> Reader::read(ReadContext context) {
   KJ_REQUIRE(!_closed, "Reader already closed.", _closed);
 
   auto& c = _channel;
+
+  auto setResults = [context, this](AnyPointerMsg::Reader msg) mutable {
+    KJ_REQUIRE(!_closed, "Reader already closed.", _closed);
+
+    // if(_sendCloseOnEmptyBuffer){
+    //   KJ_DBG(kj::str("setResults"));
+    //   context.getResults().setDone();
+    //   c.closedReader(*this);
+    // } else {
+      KJ_DBG(kj::str("setResultsFromBuffer"));
+      context.getResults().setValue(msg.getValue());
+    //}
+  };
+
+
+  if (!c._blockingWriteFulfillers.empty()){
+    auto& bwf = c._blockingWriteFulfillers.front();
+    bwf->fulfill(context.getResults());
+    c._blockingWriteFulfillers.pop_front();
+  } else {
+    auto paf = kj::newPromiseAndFulfiller<AnyPointerMsg::Reader>();
+    c._blockingReadFulfillers.push_back(kj::mv(paf.fulfiller)); 
+    return paf.promise.then(setResults);
+  }
+
+  return kj::READY_NOW;
+}
+
+/*
+kj::Promise<void> Reader::read(ReadContext context) {
+  KJ_REQUIRE(!_closed, "Reader already closed.", _closed);
+
+  auto& c = _channel;
   auto& b = c._buffer;
 
   auto setResultsFromBuffer = [&](){
@@ -186,10 +219,41 @@ kj::Promise<void> Reader::read(ReadContext context) {
 
   return kj::READY_NOW;
 }
-
+*/
 
 //-----------------------------------------------------------------------------
 
+kj::Promise<void> Writer::write(WriteContext context) {
+  KJ_REQUIRE(!_closed, "Writer already closed.", _closed);
+
+  auto v = context.getParams();
+  auto& c = _channel;
+        
+  auto setResults = [v, this](AnyPointerMsg::Builder msg) mutable {
+    KJ_REQUIRE(!_closed, "Writer already closed.", _closed);
+    msg.setValue(v.getValue());
+  };
+
+  // if we received a done, this writer can be removed
+  if(v.isDone()){
+    c.closedWriter(*this);
+    return kj::READY_NOW;
+  }
+
+  if (!c._blockingReadFulfillers.empty()){
+    auto& bwf = c._blockingReadFulfillers.front();
+    bwf->fulfill(kj::mv(v));
+    c._blockingReadFulfillers.pop_front();
+  } else {
+    auto paf = kj::newPromiseAndFulfiller<AnyPointerMsg::Builder>();
+    c._blockingWriteFulfillers.push_back(kj::mv(paf.fulfiller)); 
+    return paf.promise.then(kj::mvCapture(v, setResults));
+  }
+
+  return kj::READY_NOW;
+}
+
+/*
 kj::Promise<void> Writer::write(WriteContext context) {
   KJ_REQUIRE(!_closed, "Writer already closed.", _closed);
 
@@ -233,6 +297,7 @@ kj::Promise<void> Writer::write(WriteContext context) {
 
   return kj::READY_NOW;
 }
+*/
 
 //-----------------------------------------------------------------------------
 
