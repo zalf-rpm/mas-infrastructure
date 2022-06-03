@@ -17,7 +17,7 @@
 
 import capnp
 from collections import defaultdict
-from datetime import date, datetime, timedelta
+import datetime
 import ftplib
 import io
 import os
@@ -67,7 +67,7 @@ def run_continuously(interval=1):
 
 
 def task(ftps_host, ftps_user, ftps_pwd, import_host="localhost", import_port="15000", specific_dates = None):
-    print("Running import task at", datetime.now())
+    print("Running import task at", datetime.datetime.now())
     ds = [datetime.date.today()] if specific_dates is None else specific_dates
 
     ftps = ftplib.FTP_TLS(ftps_host, user=ftps_user, passwd=ftps_pwd)
@@ -104,7 +104,7 @@ def task(ftps_host, ftps_user, ftps_pwd, import_host="localhost", import_port="1
         dwlb_comp = zlib.compress(dwlb.encode("cp1252"))
         #print("DWLB:\n", dwlb)
 
-        d = datetime.strptime(date, "%Y%m%d")
+        d = datetime.datetime.strptime(date, "%Y%m%d")
         #print("len(dwla)=",len(dwla), " len(dwlb)=",len(dwlb))
         #print("len(dwla_comp)=",len(dwla_comp), " len(dwlb_comp)=",len(dwlb_comp))
         success = cap.importData(f"{d:%Y-%m-%d}", dwla_comp, dwlb_comp).wait()
@@ -128,7 +128,7 @@ if __name__ == '__main__':
             k, v = arg.split("=")
             if k in config:
                 config[k] = v
-    print("config used:", config)
+    #print("config used:", config)
 
     if config["ftps_pwd"] is None:
         print("ftps_pwd is missing!")
@@ -136,14 +136,14 @@ if __name__ == '__main__':
 
     import_dates = None
     if config["dates"] is not None:
-        import_dates = list(map(lambda d: date.fromisoformat(d), config["dates"].split(",")))
+        import_dates = list(map(lambda d: datetime.date.fromisoformat(d), config["dates"].split(",")))
     if config["from_date"] is not None:
-        from_date = date.fromisoformat(config["from_date"])
-        to_date = date.today() if config["to_date"] is None else date.fromisoformat(config["to_date"])
+        from_date = datetime.date.fromisoformat(config["from_date"])
+        to_date = datetime.date.today() if config["to_date"] is None else datetime.date.fromisoformat(config["to_date"])
         import_dates = []
         day = 0
-        while from_date + timedelta(days=day) <= to_date:
-            import_dates.append(from_date + timedelta(days=day))
+        while from_date + datetime.timedelta(days=day) <= to_date:
+            import_dates.append(from_date + datetime.timedelta(days=day))
             day += 1
 
     if import_dates is None:
