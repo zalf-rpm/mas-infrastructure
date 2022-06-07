@@ -132,11 +132,10 @@ kj::Promise<void> Reader::read(ReadContext context) {
     //   context.getResults().setDone();
     //   c.closedReader(*this);
     // } else {
-      KJ_DBG(kj::str("setResultsFromBuffer"));
+      KJ_LOG(INFO, kj::str("Reader::read setResults"));
       context.getResults().setValue(msg.getValue());
     //}
   };
-
 
   if (!c._blockingWriteFulfillers.empty()){
     auto& bwf = c._blockingWriteFulfillers.front();
@@ -145,7 +144,10 @@ kj::Promise<void> Reader::read(ReadContext context) {
   } else {
     auto paf = kj::newPromiseAndFulfiller<AnyPointerMsg::Reader>();
     c._blockingReadFulfillers.push_back(kj::mv(paf.fulfiller)); 
-    return paf.promise.then(setResults);
+    return paf.promise.then(kj::mv(setResults));
+    // return paf.promise.then([context](AnyPointerMsg::Reader msg) mutable {
+    //   context.getResults().setValue(msg.getValue());
+    // });//setResults);
   }
 
   return kj::READY_NOW;
@@ -229,8 +231,10 @@ kj::Promise<void> Writer::write(WriteContext context) {
   auto v = context.getParams();
   auto& c = _channel;
         
-  auto setResults = [v, this](AnyPointerMsg::Builder msg) mutable {
+  auto setResults = [context, this](AnyPointerMsg::Builder msg) mutable {
     KJ_REQUIRE(!_closed, "Writer already closed.", _closed);
+    KJ_LOG(INFO, kj::str("Write::write setResults"));
+    auto v = context.getParams();
     msg.setValue(v.getValue());
   };
 
@@ -247,7 +251,12 @@ kj::Promise<void> Writer::write(WriteContext context) {
   } else {
     auto paf = kj::newPromiseAndFulfiller<AnyPointerMsg::Builder>();
     c._blockingWriteFulfillers.push_back(kj::mv(paf.fulfiller)); 
-    return paf.promise.then(kj::mvCapture(v, setResults));
+    return paf.promise.then(kj::mv(setResults));//kj::mvCapture(v, setResults));
+    // return paf.promise.then([context](AnyPointerMsg::Builder msg) mutable {
+    //   //KJ_REQUIRE(!_closed, "Writer already closed.", _closed);
+    //   auto v = context.getParams();
+    //   msg.setValue(v.getValue());
+    // });//setResults);//kj::mvCapture(v, setResults));
   }
 
   return kj::READY_NOW;
