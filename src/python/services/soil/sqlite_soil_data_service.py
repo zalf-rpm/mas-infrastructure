@@ -75,7 +75,7 @@ def fbp(config, service : soil_capnp.Service):
                 else:
                     coord = in_ip.content.as_struct(geo_capnp.LatLonCoord)
 
-                profiles = service.profiles_at(coord.lat, coord.lon, mandatory, False)
+                profiles = service.profilesAt(coord, {"mandatory": mandatory, "onlyRawData": False}).wait().profiles
                 if len(profiles) > 0:
                     profile = profiles[0]
 
@@ -276,7 +276,10 @@ class Service(soil_capnp.Service.Server, common.Identifiable, common.Persistable
 
     def profiles_at(self, lat, lon, avail_props, only_raw_data):
         if len(avail_props) > 0:
-            soil_id = self.interpolator(lat, lon)
+            try:
+                soil_id = self.interpolator(lat, lon)
+            except:
+                return
             cache = self._cache_raw if only_raw_data else self._cache_derived
             if soil_id in cache:
                 sps = cache[soil_id]

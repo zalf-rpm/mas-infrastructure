@@ -118,6 +118,7 @@ def set_xy(obj, x, y):
 def name_to_crs(name, default=None):
     return {
         "latlon": CRS.from_epsg(geo_capnp.EPSG.wgs84),
+        "wgs84": CRS.from_epsg(geo_capnp.EPSG.wgs84),
         "gk3": CRS.from_epsg(geo_capnp.EPSG.gk3),
         "gk4": CRS.from_epsg(geo_capnp.EPSG.gk4),
         "gk5": CRS.from_epsg(geo_capnp.EPSG.gk5),

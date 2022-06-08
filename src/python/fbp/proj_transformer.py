@@ -42,7 +42,7 @@ geo_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "geo_coord.capnp"), imports=a
 
 config = {
     "from_name": "utm32n",
-    "to_name": "wgs84",
+    "to_name": "latlon",
     "to_attr": None, #"latlon",
     "from_attr": None, 
     "in_sr": None, # geo.LatLonCoord | geo.UTMCoord | geo.GKCoord

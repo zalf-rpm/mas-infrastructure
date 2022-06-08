@@ -87,7 +87,7 @@ public:
     auto proms = conMan.bind(ioContext, restorerClient, host, port);
     auto hostPromise = proms.first.fork().addBranch();
     auto hostStr = hostPromise.wait(ioContext.waitScope);
-    restorerRef.setHost("10.10.24.218");//addrStr);
+    restorerRef.setHost(host.cStr());//addrStr);
     auto portPromise = proms.second.fork().addBranch();
     auto port = portPromise.wait(ioContext.waitScope);
     restorerRef.setPort(port);
