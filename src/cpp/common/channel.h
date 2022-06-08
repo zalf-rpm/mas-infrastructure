@@ -49,19 +49,17 @@ namespace mas {
       class Channel final : public AnyPointerChannel::Server
       {
       public:
-        Channel(mas::rpc::common::Restorer* restorer, kj::String name, uint bufferSize = 1);
+        Channel(mas::rpc::common::Restorer* restorer, kj::StringPtr name);
 
         virtual ~Channel() noexcept(false) {}
 
-        void closedReader(Reader& reader);
+        void closedReader(kj::StringPtr readerId);
 
-        void closedWriter(Writer& writer);
+        void closedWriter(kj::StringPtr writerId);
 
         kj::Promise<void> reader(ReaderContext context) override;
-        //Reader& createReader();
 
         kj::Promise<void> writer(WriterContext context) override;
-        Writer& createWriter();
 
         /*
         // restore @0 (srToken :Text) -> (cap :Capability);
@@ -85,19 +83,12 @@ namespace mas {
       private:
         mas::rpc::common::Restorer* _restorer{nullptr};
         kj::String _name;
-        kj::Vector<AnyPointerChannel::ChanReader::Client> _readers;
-        //int _nextReaderIndex {-1};
-        kj::Vector<AnyPointerChannel::ChanWriter::Client> _writers;
-        //kj::Vector<capnp::AnyPointer::Reader> _buffer;
-        //kj::Vector<X::Client> _buffer;
-        //kj::Vector<S::Builder> _buffer;
-        //uint _bri{0}; // buffer read index -> points to cell to read next from
-        //uint _bwi{0}; // buffer write index -> points to cell to write next to
-        //uint _bufferSize{1};
-        std::deque<kj::Own<kj::PromiseFulfiller<AnyPointerMsg::Reader>>> _blockingReadFulfillers;
-        //uint _brfInsertIndex{0};
+        kj::HashMap<kj::String, AnyPointerChannel::ChanReader::Client> _readers;
+        kj::HashMap<kj::String, AnyPointerChannel::ChanWriter::Client> _writers;
+        std::deque<kj::Own<kj::PromiseFulfiller<kj::Maybe<AnyPointerMsg::Reader>>>> _blockingReadFulfillers;
         std::deque<kj::Own<kj::PromiseFulfiller<AnyPointerMsg::Builder>>> _blockingWriteFulfillers;
-        //uint _bwfInsertIndex{0};
+        AnyPointerChannel::CloseSemantics _autoCloseSemantics {AnyPointerChannel::CloseSemantics::FBP};
+        bool _sendCloseOnEmptyBuffer{false};
         friend class Reader;
         friend class Writer;
       };
@@ -107,31 +98,36 @@ namespace mas {
       //template<typename T>
       class Reader final : public mas::schema::common::Channel<capnp::AnyPointer>::ChanReader::Server {
       public:
-        Reader(Channel& c) : _channel(c) {}
+        Reader(Channel& c);
 
         virtual ~Reader() noexcept(false) {}
 
         kj::Promise<void> read(ReadContext context) override;
 
+        kj::StringPtr id() const { return _id; }
+
       private:
         Channel& _channel;
         bool _closed{false};
-        bool _sendCloseOnEmptyBuffer{false};
+        kj::String _id;
       };
 
       //-----------------------------------------------------------------------------
 
       class Writer final : public mas::schema::common::Channel<capnp::AnyPointer>::ChanWriter::Server {
       public:
-        Writer(Channel& c) : _channel(c) {}
+        Writer(Channel& c);
 
         virtual ~Writer() noexcept(false) {}
 
         kj::Promise<void> write(WriteContext context) override;
 
+        kj::StringPtr id() const { return _id; }
+
       private:
         Channel& _channel;
         bool _closed{false};
+        kj::String _id;
       };
     }
   }

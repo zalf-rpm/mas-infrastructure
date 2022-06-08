@@ -23,6 +23,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <kj/debug.h>
 #include <kj/common.h>
 #define KJ_MVCAP(var) var = kj::mv(var)
+#include <kj/main.h>
 
 #include <capnp/ez-rpc.h>
 #include <capnp/message.h>
@@ -41,139 +42,194 @@ using namespace std;
 using namespace Tools;
 using namespace mas;
 
-int main(int argc, const char* argv[]) {
-  setlocale(LC_ALL, "");
-  setlocale(LC_NUMERIC, "C");
+class ChannelMain
+{
+public:
+  ChannelMain(kj::ProcessContext &context) : context(context) {}
 
-  infrastructure::common::ConnectionManager _conMan;
-  auto ioContext = kj::setupAsyncIo();
+  kj::MainBuilder::Validity setName(kj::StringPtr n) { name = n; return true; }
 
-  vector<string> readerSrts;
-  vector<string> writerSrts;
-  uint bufferSize = 1;
-  string host = "*";
-  int port = 0;
-  kj::String name;
+  kj::MainBuilder::Validity setHost(kj::StringPtr name) { host = name; return true; }
 
-  auto printHelp = [=]() {
-    cout
-      << "channel [options]" << endl
-      << endl
-      << "options:" << endl
-      << "name=" << endl
-      << "host=" << host << endl
-      << "port=" << port << endl
-      << "buffer_size=" << bufferSize << endl
-      << "reader_srts=...,...,..." << endl
-      << "writer_srts=...,...,..." << endl;
-  };
+  kj::MainBuilder::Validity setPort(kj::StringPtr name) { port = max(0, stoi(name.cStr())); return true; }
 
-  if (argc >= 1) {
-    for (auto i = 1; i < argc; i++) {
-      auto kv = splitString(argv[i], "=");
-      if(kv.size() < 2) continue;
-      auto key = kv.at(0);
-      auto value = kv.at(1);
-      if (key == "reader_srts") readerSrts.push_back(value);
-      else if (key == "writer_srts") writerSrts.push_back(value);
-      else if (key == "buffer_size") bufferSize = max(1U, uint(stoi(value)));
-      else if (key == "host") host = value;
-      else if (key == "port") port = max(0, stoi(value));
-      else if (key == "name") name = kj::str(value);
-    }
+  kj::MainBuilder::Validity setReaderSrts(kj::StringPtr name)
+  {
+    readerSrts = Tools::splitString(name.cStr(), ",");
+    return true;
+  }
+
+  kj::MainBuilder::Validity setWriterSrts(kj::StringPtr name)
+  {
+    writerSrts = Tools::splitString(name.cStr(), ",");
+    return true;
+  }
+
+  kj::MainBuilder::Validity startChannel()
+  {
+    auto ioContext = kj::setupAsyncIo();
 
     if(readerSrts.empty()) readerSrts.push_back(sole::uuid4().str());
     if(writerSrts.empty()) writerSrts.push_back(sole::uuid4().str());
 
-    KJ_LOG(WARNING, "starting channel");
+    KJ_LOG(INFO, "starting channel");
 
     auto restorer = kj::heap<rpc::common::Restorer>();
     auto& restorerRef = *restorer;
     schema::persistence::Restorer::Client restorerClient = kj::mv(restorer);
-    auto channel = kj::heap<rpc::common::Channel>(&restorerRef, kj::mv(name), bufferSize);
+    auto channel = kj::heap<rpc::common::Channel>(&restorerRef, name);//, bufferSize);
     auto& channelRef = *channel;
     rpc::common::AnyPointerChannel::Client channelClient = kj::mv(channel);
     //runMonicaRef.setClient(runMonicaClient);
     KJ_LOG(INFO, "created monica");
-
-    auto reader = channelClient.readerRequest().send().wait(ioContext.waitScope).getR();
-    auto writer = channelClient.writerRequest().send().wait(ioContext.waitScope).getW();
-
-    KJ_LOG(INFO, "Channel: trying to bind to host: " + host + " port: " + to_string(port));
-    auto proms = _conMan.bind(ioContext, restorerClient, host, port);
+    
+    KJ_LOG(INFO, "Channel: trying to bind to", host, port);
+    auto proms = conMan.bind(ioContext, restorerClient, host, port);
     auto hostPromise = proms.first.fork().addBranch();
     auto hostStr = hostPromise.wait(ioContext.waitScope);
-    restorerRef.setHost("10.10.24.210");//addrStr);
+    restorerRef.setHost("10.10.24.218");//addrStr);
     auto portPromise = proms.second.fork().addBranch();
     auto port = portPromise.wait(ioContext.waitScope);
     restorerRef.setPort(port);
-    KJ_LOG(INFO, "Channel: bound to host: " + host + " port: " + to_string(port));
+    KJ_LOG(INFO, "Channel: bound to", host, port);
 
     auto restorerSR = restorerRef.sturdyRef();
     auto channelSRs = restorerRef.save(channelClient);
-    auto readerSRs = restorerRef.save(reader, readerSrts.at(0), false);
-    auto writerSRs = restorerRef.save(writer, writerSrts.at(0), false);
-    KJ_LOG(INFO, "Channel: channel_sr: " + channelSRs.first);
-    KJ_LOG(INFO, "Channel: reader_sr: " + readerSRs.first);
-    KJ_LOG(INFO, "Channel: writer_sr: " + writerSRs.first);
-    KJ_LOG(INFO, "Channel: restorer_sr: " + restorerSR);
+    KJ_LOG(INFO, "Channel:", channelSRs.first);
+
+    for(auto srt : readerSrts){ 
+      auto reader = channelClient.readerRequest().send().wait(ioContext.waitScope).getR();
+      auto readerSRs = restorerRef.save(reader, srt, false);  
+      KJ_LOG(INFO, "Channel:", readerSRs.first);
+    }
+    for(auto srt : writerSrts){
+      auto writer = channelClient.writerRequest().send().wait(ioContext.waitScope).getW();
+      auto writerSRs = restorerRef.save(writer, srt, false);
+      KJ_LOG(INFO, "Channel:", writerSRs.first);
+    }
+
+    KJ_LOG(INFO, "Channel:", restorerSR);
 
     // Run forever, accepting connections and handling requests.
     kj::NEVER_DONE.wait(ioContext.waitScope);
-
-    /*
-    //create monica server implementation
-    rpc::Cluster::ModelInstanceFactory::Client instanceFactoryClient = 
-      kj::heap<SlurmMonicaInstanceFactory>(kj::str(monicaId), 
-                                           kj::str(monicaPath), 
-                                           kj::str(factoryAddress), 
-                                           factoryPort);
-
-    capnp::Capability::Client unregister(nullptr);
-
-    //create client connection to proxy
-    try {
-      capnp::EzRpcClient client(runtimeAddress, runtimePort);
-
-      auto& cWaitScope = client.getWaitScope();
-
-      // Request the bootstrap capability from the server.
-      rpc::Cluster::Runtime::Client cap = client.getMain<rpc::Cluster::Runtime>();
-
-      // Make a call to the capability.
-      auto request = cap.registerModelInstanceFactoryRequest();
-      request.setAModelId(monicaId);
-      request.setAFactory(instanceFactoryClient);
-      auto response = request.send().wait(cWaitScope);
-      unregister = kj::mv(response.getUnregister());
-
-      if (!hideServer) {
-        capnp::EzRpcServer server(instanceFactoryClient, address + (port < 0 ? "" : string(":") + to_string(port)));
-
-        // Write the port number to stdout, in case it was chosen automatically.
-        auto& waitScope = server.getWaitScope();
-        port = server.getPort().wait(waitScope);
-        if (port == 0) {
-          // The address format "unix:/path/to/socket" opens a unix domain socket,
-          // in which case the port will be zero.
-          std::cout << "Listening on Unix socket..." << std::endl;
-        } else {
-          std::cout << "Listening on port " << port << "..." << std::endl;
-        }
-
-        // Run forever, accepting connections and handling requests.
-        kj::NEVER_DONE.wait(waitScope);
-      } else {
-        kj::NEVER_DONE.wait(cWaitScope);
-      }
-    } catch (exception e) {
-      cerr << "Couldn't connect to runtime at address: " << runtimeAddress << ":" << runtimePort << endl
-        << "Exception: " << e.what() << endl;
-    }
-
-    debug() << "stopped Cap'n Proto Slurm MONICA instance factory" << endl;
-    */
   }
 
-  return 0;
-}
+  kj::MainFunc getMain()
+  {
+    return kj::MainBuilder(context, "Channel v0.1", "Offers a channel service.")
+      .addOptionWithArg({'n', "name"}, KJ_BIND_METHOD(*this, setName),
+                        "<channel-name>", "Give channel a name.")
+      .addOptionWithArg({'h', "host"}, KJ_BIND_METHOD(*this, setHost),
+                        "<host-IP>", "Set host IP.")
+      .addOptionWithArg({'p', "port"}, KJ_BIND_METHOD(*this, setPort),
+                        "<port>", "Set port.")
+      .addOptionWithArg({'r', "reader_srts"}, KJ_BIND_METHOD(*this, setReaderSrts),
+                        "<Sturdy_ref_token_1,[Sturdy_ref_token_2],...>", "Create readers for given sturdy ref tokens.")
+      .addOptionWithArg({'w', "writer_srts"}, KJ_BIND_METHOD(*this, setWriterSrts),
+                        "<Sturdy_ref_token_1,[Sturdy_ref_token_2],...>", "Create writers for given sturdy ref tokens.")      
+      .callAfterParsing(KJ_BIND_METHOD(*this, startChannel))
+      .build();
+  }
+
+private:
+  infrastructure::common::ConnectionManager conMan;
+  kj::StringPtr name;
+  kj::StringPtr host;
+  int port{0};
+  std::vector<std::string> readerSrts;
+  std::vector<std::string> writerSrts;
+  kj::ProcessContext &context;
+};
+
+KJ_MAIN(ChannelMain)
+
+// int main(int argc, const char* argv[]) {
+//   setlocale(LC_ALL, "");
+//   setlocale(LC_NUMERIC, "C");
+
+//   kj::_::Debug::setLogLevel(kj::_::Debug::Severity::INFO);
+
+//   infrastructure::common::ConnectionManager _conMan;
+//   auto ioContext = kj::setupAsyncIo();
+
+//   vector<string> readerSrts;
+//   vector<string> writerSrts;
+//   uint bufferSize = 1;
+//   string host = "*";
+//   int port = 0;
+//   kj::String name;
+
+//   auto printHelp = [=]() {
+//     cout
+//       << "channel [options]" << endl
+//       << endl
+//       << "options:" << endl
+//       << "name=" << endl
+//       << "host=" << host << endl
+//       << "port=" << port << endl
+//       //<< "buffer_size=" << bufferSize << endl
+//       << "reader_srts=...,...,..." << endl
+//       << "writer_srts=...,...,..." << endl;
+//   };
+
+//   if (argc >= 1) {
+//     for (auto i = 1; i < argc; i++) {
+//       auto kv = splitString(argv[i], "=");
+//       if(kv.size() < 2) continue;
+//       auto key = kv.at(0);
+//       auto value = kv.at(1);
+//       if (key == "reader_srts") readerSrts = Tools::splitString(value, ",");
+//       else if (key == "writer_srts") writerSrts = Tools::splitString(value, ",");
+//       //else if (key == "buffer_size") bufferSize = max(1U, uint(stoi(value)));
+//       else if (key == "host") host = value;
+//       else if (key == "port") port = max(0, stoi(value));
+//       else if (key == "name") name = kj::str(value);
+//     }
+
+//     if(readerSrts.empty()) readerSrts.push_back(sole::uuid4().str());
+//     if(writerSrts.empty()) writerSrts.push_back(sole::uuid4().str());
+
+//     KJ_LOG(WARNING, "starting channel");
+
+//     auto restorer = kj::heap<rpc::common::Restorer>();
+//     auto& restorerRef = *restorer;
+//     schema::persistence::Restorer::Client restorerClient = kj::mv(restorer);
+//     auto channel = kj::heap<rpc::common::Channel>(&restorerRef, kj::mv(name), bufferSize);
+//     auto& channelRef = *channel;
+//     rpc::common::AnyPointerChannel::Client channelClient = kj::mv(channel);
+//     //runMonicaRef.setClient(runMonicaClient);
+//     KJ_LOG(INFO, "created monica");
+    
+//     KJ_LOG(INFO, "Channel: trying to bind to host: " + host + " port: " + to_string(port));
+//     auto proms = _conMan.bind(ioContext, restorerClient, host, port);
+//     auto hostPromise = proms.first.fork().addBranch();
+//     auto hostStr = hostPromise.wait(ioContext.waitScope);
+//     restorerRef.setHost("10.10.24.218");//addrStr);
+//     auto portPromise = proms.second.fork().addBranch();
+//     auto port = portPromise.wait(ioContext.waitScope);
+//     restorerRef.setPort(port);
+//     KJ_LOG(INFO, "Channel: bound to host: " + host + " port: " + to_string(port));
+
+//     auto restorerSR = restorerRef.sturdyRef();
+//     auto channelSRs = restorerRef.save(channelClient);
+//     KJ_LOG(INFO, "Channel: channel_sr: " + channelSRs.first);
+
+//     for(auto srt : readerSrts){ 
+//       auto reader = channelClient.readerRequest().send().wait(ioContext.waitScope).getR();
+//       auto readerSRs = restorerRef.save(reader, srt, false);  
+//       KJ_LOG(INFO, "Channel: reader_sr: " + readerSRs.first);
+//     }
+//     for(auto srt : writerSrts){
+//       auto writer = channelClient.writerRequest().send().wait(ioContext.waitScope).getW();
+//       auto writerSRs = restorerRef.save(writer, srt, false);
+//       KJ_LOG(INFO, "Channel: writer_sr: " + writerSRs.first);
+//     }
+
+//     KJ_LOG(INFO, "Channel: restorer_sr: " + restorerSR);
+
+//     // Run forever, accepting connections and handling requests.
+//     kj::NEVER_DONE.wait(ioContext.waitScope);
+//   }
+
+//   return 0;
+// }
