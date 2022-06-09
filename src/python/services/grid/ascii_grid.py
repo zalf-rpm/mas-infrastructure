@@ -465,7 +465,6 @@ async def main(path_to_ascii_grid, grid_crs, val_type, serve_bootstrap=True, hos
         "fbp": False,
         "in_sr": None,
         "out_sr": None,
-        "mandatory": """["soilType","organicCarbon","rawDensity"]""",
         "from_attr": None, #"latlon"
         "to_attr": None, #"dgm",
     }
@@ -482,7 +481,6 @@ async def main(path_to_ascii_grid, grid_crs, val_type, serve_bootstrap=True, hos
         grid_crs=geo.name_to_crs(config["grid_crs"]), val_type=int if config["val_type"] == "int" else float,
         id=config["id"], name=config["name"], description=config["description"], restorer=restorer)
     if config["fbp"]:
-        mandatory = json.loads(config["mandatory"])
         fbp(config, grid_capnp.Grid._new_client(service))
     else:
         if config["use_async"]:

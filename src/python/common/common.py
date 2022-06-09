@@ -405,6 +405,20 @@ class PersistCapHolderImpl(common_capnp.PersistCapHolder.Server):
 
 #------------------------------------------------------------------------------
 
+def load_capnp_module(path_and_type, def_type="Text"):
+    capnp_type = def_type
+    if path_and_type:
+        p_and_t = path_and_type.split(":")
+        if len(p_and_t) > 1:
+            capnp_module_path, type_name = p_and_t
+            capnp_module = capnp.load(capnp_module_path, imports=abs_imports)
+            capnp_type = capnp_module.__dict__.get(type_name, def_type)
+        elif len(p_and_t) > 0:
+            capnp_type = p_and_t[0] 
+    return capnp_type
+
+#------------------------------------------------------------------------------
+
 def load_capnp_modules(id_to_path_and_type, def_type="Text"):
     id_to_type = {}
     for name, path_and_type in id_to_path_and_type.items():

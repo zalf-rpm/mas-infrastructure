@@ -12,6 +12,14 @@ using Common = import "common.capnp";
 using Geo = import "geo_coord.capnp";
 using Crop = import "crop.capnp";
 
+struct ILRDates {
+  sowing          @0 :Date;
+  earliestSowing  @1 :Date;
+  latestSowing    @2 :Date;
+  harvest         @3 :Date;
+  latestHarvest   @4 :Date;
+}
+
 enum MineralFertilizer {
   ahls  @0;
   alzon @1;
@@ -319,4 +327,3 @@ interface Service extends(Common.Identifiable) {
 
 }
   
-

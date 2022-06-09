@@ -38,6 +38,8 @@ common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=a
 #------------------------------------------------------------------------------
 
 config = {
+    "attr_sr": None,
+    "to_attr": "setup",
     "out_sr": None,
     "file": "src/python/fbp/test.txt",
     "skip_lines": str(0)
@@ -45,18 +47,30 @@ config = {
 common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
 conman = common.ConnectionManager()
+attrp = conman.try_connect(config["attr_sr"], cast_as=common_capnp.Channel.Reader, retry_secs=1)
 outp = conman.try_connect(config["out_sr"], cast_as=common_capnp.Channel.Writer, retry_secs=1)
 skip_lines = int(config["skip_lines"])
 
 try:
+    attr = None
+    if attrp:
+        msg = attrp.read().wait()
+        # check for end of data from in port
+        if msg.which() != "done":
+            attr_ip = msg.value.as_struct(common_capnp.IP)
+            attr = attr_ip.content
+
     if outp:
         with open(config["file"]) as _:
             for line in _.readlines():
                 if skip_lines > 0:
                     skip_lines -= 1
                     continue
-
-                outp.write(value=common_capnp.IP.new_message(content=line)).wait()
+                
+                out_ip = common_capnp.IP.new_message(content=line)
+                if attr and config["to_attr"]:
+                    out_ip.attributes = [{"key": config["to_attr"], "value": attr}]
+                outp.write(value=out_ip).wait()
     
     outp.write(done=None).wait()
 
