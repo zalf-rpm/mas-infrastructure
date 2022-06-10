@@ -208,24 +208,30 @@ try:
                     is_winter_crop = ilr_seed_harvest_data[crop_id]["is-winter-crop"]
 
                     if sowing_time == "fixed":  # fixed indicates that regionally fixed sowing dates will be used
-                        ilr_dates.sowing = seed_harvest_data["sowing-date"]
+                        sowing_date = seed_harvest_data["sowing-date"]
                     elif sowing_time == "auto":  # auto indicates that automatic sowng dates will be used that vary between regions
-                        ilr_dates.sowing = seed_harvest_data["latest-sowing-date"]
+                        sowing_date = seed_harvest_data["latest-sowing-date"]
+                    else:
+                        sowing_date = None
 
-                    sds = ilr_dates.sowing
-                    sd = date(2001, sds.month, sds.day)
-                    sdoy = sd.timetuple().tm_yday
+                    if sowing_date:
+                        sds = sowing_date
+                        sd = date(2001, sds["month"], sds["day"])
+                        sdoy = sd.timetuple().tm_yday
 
                     if harvest_time == "fixed":  # fixed indicates that regionally fixed harvest dates will be used
-                        ilr_dates.harvest = seed_harvest_data["harvest-date"]                         
+                        harvest_date = seed_harvest_data["harvest-date"]                         
                     elif harvest_time == "auto":  # auto indicates that automatic harvest dates will be used that vary between regions
-                        ilr_dates.harvest = seed_harvest_data["latest-harvest-date"]
+                        harvest_date = seed_harvest_data["latest-harvest-date"]
+                    else:
+                        harvest_date = None
 
                     # print("sowing_date:", ilr_dates["sowing"], "harvest_date:", ilr_dates["harvest"])
 
-                    hds = ilr_dates.harvest
-                    hd = date(2001, hds.month, hds.day)
-                    hdoy = hd.timetuple().tm_yday
+                    if harvest_date:
+                        hds = harvest_date
+                        hd = date(2001, hds["month"], hds["day"])
+                        hdoy = hd.timetuple().tm_yday
 
                     esds = seed_harvest_data["earliest-sowing-date"]
                     esd = date(2001, esds["month"], esds["day"])
@@ -238,7 +244,7 @@ try:
                         else:
                             calc_harvest_date = date(2000, 12, 31) + timedelta(days=hdoy)
                         ilr_dates.sowing = seed_harvest_data["sowing-date"]
-                        ilr_dates.harvest = {"year": hds.year, "month": calc_harvest_date.month, "day": calc_harvest_date.day} #"{:04d}-{:02d}-{:02d}".format(hds[0], calc_harvest_date.month, calc_harvest_date.day)
+                        ilr_dates.harvest = {"year": hds["year"], "month": calc_harvest_date.month, "day": calc_harvest_date.day} #"{:04d}-{:02d}-{:02d}".format(hds[0], calc_harvest_date.month, calc_harvest_date.day)
                         #print("dates: ", int(seed_harvest_cs), ":", ilr_dates["sowing"])
                         #print("dates: ", int(seed_harvest_cs), ":", ilr_dates["harvest"])
                     
@@ -248,26 +254,26 @@ try:
                         else:
                             calc_harvest_date = date(2000, 12, 31) + timedelta(days=hdoy)
                         ilr_dates.sowing = seed_harvest_data["sowing-date"]
-                        ilr_dates.latestHarvest = {"year": hds.year, "month": calc_harvest_date.month, "day": calc_harvest_date.day} #"{:04d}-{:02d}-{:02d}".format(hds[0], calc_harvest_date.month, calc_harvest_date.day)
+                        ilr_dates.latestHarvest = {"year": hds["year"], "month": calc_harvest_date.month, "day": calc_harvest_date.day} #"{:04d}-{:02d}-{:02d}".format(hds[0], calc_harvest_date.month, calc_harvest_date.day)
                         #print("dates: ", int(seed_harvest_cs), ":", ilr_dates["sowing"])
                         #print("dates: ", int(seed_harvest_cs), ":", latest_harvest_date)
 
                     elif sowing_time == "auto" and harvest_time == "fixed":
-                        ilr_dates.earliestSowing = seed_harvest_data["earliest-sowing-date"] if esd > date(esd.year, 6, 20) else {"year": sds.year, "month": 6, "day": 20} #"{:04d}-{:02d}-{:02d}".format(sds[0], 6, 20)
+                        ilr_dates.earliestSowing = seed_harvest_data["earliest-sowing-date"] if esd > date(esd.year, 6, 20) else {"year": sds["year"], "month": 6, "day": 20} #"{:04d}-{:02d}-{:02d}".format(sds[0], 6, 20)
                         calc_sowing_date = date(2000, 12, 31) + timedelta(days=max(hdoy+1, sdoy))
-                        ilr_dates.latestSowing = {"year": sds.year, "month": calc_sowing_date.month, "day": calc_sowing_date.day} #"{:04d}-{:02d}-{:02d}".format(sds[0], calc_sowing_date.month, calc_sowing_date.day)
+                        ilr_dates.latestSowing = {"year": sds["year"], "month": calc_sowing_date.month, "day": calc_sowing_date.day} #"{:04d}-{:02d}-{:02d}".format(sds[0], calc_sowing_date.month, calc_sowing_date.day)
                         ilr_dates.harvest = seed_harvest_data["harvest-date"]
                         #print("dates: ", int(seed_harvest_cs), ":", ilr_dates["earliestSowing"], "<", ilr_dates["latestSowing"])
                         #print("dates: ", int(seed_harvest_cs), ":", ilr_dates["harvest"])
 
                     elif sowing_time == "auto" and harvest_time == "auto":
-                        ilr_dates.earliestSowing = seed_harvest_data["earliest-sowing-date"] if esd > date(esd.year, 6, 20) else {"year": sds.year, "month": 6, "day": 20} #"{:04d}-{:02d}-{:02d}".format(sds[0], 6, 20)
+                        ilr_dates.earliestSowing = seed_harvest_data["earliest-sowing-date"] if esd > date(esd.year, 6, 20) else {"year": sds["year"], "month": 6, "day": 20} #"{:04d}-{:02d}-{:02d}".format(sds[0], 6, 20)
                         if is_winter_crop:
                             calc_harvest_date = date(2000, 12, 31) + timedelta(days=min(hdoy, sdoy-1))
                         else:
                             calc_harvest_date = date(2000, 12, 31) + timedelta(days=hdoy)
                         ilr_dates.latestSowing = seed_harvest_data["latest-sowing-date"]
-                        ilr_dates.latestHarvest = {"year": hds.year, "month": calc_harvest_date.month, "day": calc_harvest_date.day} #"{:04d}-{:02d}-{:02d}".format(hds[0], calc_harvest_date.month, calc_harvest_date.day)
+                        ilr_dates.latestHarvest = {"year": hds["year"], "month": calc_harvest_date.month, "day": calc_harvest_date.day} #"{:04d}-{:02d}-{:02d}".format(hds[0], calc_harvest_date.month, calc_harvest_date.day)
                         #print("dates: ", int(seed_harvest_cs), ":", ilr_dates["earliestSowing"], "<", ilr_dates["latestSowing"])
                         #print("dates: ", int(seed_harvest_cs), ":", ilr_dates["latestHarvest"])
 

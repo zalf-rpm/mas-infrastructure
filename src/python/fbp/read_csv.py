@@ -74,17 +74,20 @@ try:
                         continue
                     value = row[i]
                     fld_type = struct_fields[header_col].proto.slot.type.which()
-                    if fld_type == "bool":
-                        val.__setattr__(header_col, value.lower() == "true")
-                    elif fld_type == "text":
-                        val.__setattr__(header_col, value)
-                    elif fld_type in ["float32", "float64"]:
-                        val.__setattr__(header_col, float(value))
-                    elif fld_type in ["int8", "int16", "int32", "int64", "uint8", "uint16", "uint32", "uint64"]:
-                        val.__setattr__(header_col, int(value))
-                    elif fld_type == "enum":
-                        if value in struct_fields[header_col].schema.enumerants:
+                    try:
+                        if fld_type == "bool":
+                            val.__setattr__(header_col, value.lower() == "true")
+                        elif fld_type == "text":
                             val.__setattr__(header_col, value)
+                        elif fld_type in ["float32", "float64"]:
+                            val.__setattr__(header_col, float(value))
+                        elif fld_type in ["int8", "int16", "int32", "int64", "uint8", "uint16", "uint32", "uint64"]:
+                            val.__setattr__(header_col, int(value))
+                        elif fld_type == "enum":
+                            if value in struct_fields[header_col].schema.enumerants:
+                                val.__setattr__(header_col, value)
+                    except ValueError:
+                        continue
 
                 if send_ids is None or (id_col in struct_fieldnames and str(val.__getattr__(id_col)) in send_ids):
                     out_ip = common_capnp.IP.new_message()

@@ -60,6 +60,10 @@ def fbp(config : dict, service : ccdi.Service):
     outp = conman.try_connect(config["out_sr"], cast_as=common_capnp.Channel.Writer, retry_secs=1)
     mode = config["mode"]
 
+    def iso_to_cdate(iso_date_str):
+        ds = iso_date_str.split("-")
+        return {"year": int(ds[0]), "month": int(ds[1]), "day": int(ds[2])} 
+
     try:
         if inp and outp and service:
             dataset : csv_based.Dataset = service.getAvailableDatasets().wait().datasets[0].data
@@ -69,13 +73,16 @@ def fbp(config : dict, service : ccdi.Service):
                     break
 
                 in_ip = in_msg.value.as_struct(common_capnp.IP)
-                attr = common.get_fbp_attr(in_ip, config["from_attr"])
+                attr = common.get_fbp_attr(in_ip, config["latlon_attr"])
                 if attr:
                     coord = attr.as_struct(geo_capnp.LatLonCoord)
                 else:
                     coord = in_ip.content.as_struct(geo_capnp.LatLonCoord)
+                start_date = common.get_fbp_attr(in_ip, config["start_date_attr"]).as_text()
+                end_date = common.get_fbp_attr(in_ip, config["end_date_attr"]).as_text()
 
-                timeseries : csv_based.TimeSeries = dataset.closestTimeSeriesAt(coord).wait().timeSeries
+                timeseries_p : csv_based.TimeSeries = dataset.closestTimeSeriesAt(coord).timeSeries
+                timeseries = timeseries_p.subrange(iso_to_cdate(start_date), iso_to_cdate(end_date)).wait().timeSeries
 
                 res = timeseries
                 if mode == "sturdyref":
@@ -152,7 +159,9 @@ async def main(path_to_data, serve_bootstrap=True, host=None, port=None,
         "no_fbp": False,
         "use_async": use_async,
         "to_attr": None, #"climate",
-        "from_attr": None, #"latlon"
+        "latlon_attr": "latlon",
+        "start_date_attr": "startDate",
+        "end_date_attr": "endDate",
         "mode": "sturdyref", # sturdyref | capability | data
     }
     common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
