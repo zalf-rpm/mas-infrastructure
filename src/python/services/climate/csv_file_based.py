@@ -157,7 +157,7 @@ class TimeSeries(climate_data_capnp.TimeSeries.Server, common.Identifiable, comm
         from_date = ccdi.create_date(getattr(context.params, "from"))
         to_date = ccdi.create_date(context.params.to)
 
-        sub_df = self._df.loc[str(from_date):str(to_date)]
+        sub_df = self.dataframe.loc[str(from_date):str(to_date)]
 
         context.results.timeSeries = TimeSeries.from_dataframe(sub_df, metadata=self._meta, location=self._location)
 
