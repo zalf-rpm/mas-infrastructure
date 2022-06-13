@@ -33,7 +33,6 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 #include "common.h"
 #include "common.capnp.h"
-#include "x.capnp.h"
 
 namespace mas {
   namespace rpc {

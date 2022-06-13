@@ -41,7 +41,6 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include "sole.hpp"
 
 using namespace std;
-//using namespace Tools;
 using namespace mas::rpc::common;
 
 //-----------------------------------------------------------------------------

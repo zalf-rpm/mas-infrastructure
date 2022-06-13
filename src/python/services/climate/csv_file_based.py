@@ -190,7 +190,8 @@ class TimeSeries(climate_data_capnp.TimeSeries.Server, common.Identifiable, comm
 
 
     def __del__(self):
-        print("deleting timeseries")
+        pass
+        #print("deleting timeseries")
 
 #------------------------------------------------------------------------------
 

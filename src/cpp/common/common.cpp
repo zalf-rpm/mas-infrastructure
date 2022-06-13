@@ -234,14 +234,15 @@ kj::Maybe<capnp::AnyPointer::Reader> mas::rpc::common::getIPAttr(mas::schema::co
   return nullptr;
 }
 
-kj::Maybe<capnp::AnyPointer::Builder> mas::rpc::common::copyAndSetIPAttrs(mas::schema::common::IP::Reader oldIp, mas::schema::common::IP::Builder newIp, 
+kj::Maybe<capnp::AnyPointer::Builder> 
+mas::rpc::common::copyAndSetIPAttrs(mas::schema::common::IP::Reader oldIp, mas::schema::common::IP::Builder newIp, 
         kj::StringPtr newAttrName)//, kj::Maybe<capnp::AnyPointer::Reader> newValue)
 {
   // if there are not attributes and nothing new to set, nothing to copy
   if (!oldIp.hasAttributes() && newAttrName == nullptr) return nullptr;
 
   int newIndex = -1;
-  int oldAttrsSize = 0;
+  int oldAttrsSize = kj::size(oldIp.getAttributes());
   // if there are attributes and a new value to set, find the index to be replaced
   if(oldIp.hasAttributes() && newAttrName != nullptr)
   {

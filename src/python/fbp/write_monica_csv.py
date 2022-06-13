@@ -42,7 +42,8 @@ common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=a
 
 config = {
     "in_sr": None, # string (json)
-    "filepath_pattern": "out/csv_{id}.csv",
+    "path_to_out_dir": "out/",
+    "file_pattern": "csv_{id}.csv",
     "from_attr": None,
     "id_attr": "id",
 }
@@ -51,6 +52,16 @@ common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 conman = common.ConnectionManager()
 inp = conman.try_connect(config["in_sr"], cast_as=common_capnp.Channel.Reader, retry_secs=1)
 count = 0
+
+dir = config["path_to_out_dir"]
+if os.path.isdir(dir) and os.path.exists(dir):
+    pass
+else:
+    try:
+        os.makedirs(dir)
+    except OSError:
+        print("c: Couldn't create dir:", dir, "! Exiting.")
+        exit(1)
 
 try:
     if inp:
@@ -63,7 +74,7 @@ try:
             id_attr = common.get_fbp_attr(in_ip, config["id_attr"])
             id = id_attr.as_text() if id_attr else str(count)
 
-            filepath = config["filepath_pattern"].format(id=id)
+            filepath = dir + config["file_pattern"].format(id=id)
             with open(filepath, "wt") as _:
                 writer = csv.writer(_, delimiter=",")
                 

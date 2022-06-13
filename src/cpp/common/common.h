@@ -173,7 +173,8 @@ namespace mas {
 
       kj::Maybe<capnp::AnyPointer::Reader> getIPAttr(schema::common::IP::Reader ip, kj::StringPtr attrName);
        
-      kj::Maybe<capnp::AnyPointer::Builder> copyAndSetIPAttrs(schema::common::IP::Reader oldIp, schema::common::IP::Builder newIp, 
+      kj::Maybe<capnp::AnyPointer::Builder> 
+      copyAndSetIPAttrs(schema::common::IP::Reader oldIp, schema::common::IP::Builder newIp, 
         kj::StringPtr newAttrName = nullptr);//, kj::Maybe<capnp::AnyPointer::Reader> newValue = nullptr);
     } 
   }
