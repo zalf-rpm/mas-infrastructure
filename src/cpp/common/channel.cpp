@@ -105,7 +105,7 @@ Reader::Reader(Channel& c)
 
 kj::Promise<void> Reader::read(ReadContext context) {
   KJ_REQUIRE(!_closed, "Reader::read: Reader already closed.", _closed);
-  
+
   auto& c = _channel;
 
   // there's a write waiting
@@ -152,6 +152,8 @@ kj::Promise<void> Writer::write(WriteContext context) {
   auto v = context.getParams();
   auto& c = _channel;
 
+  //KJ_DBG("Writer::write: blockingWriteFulfillers.size():", kj::size(c._blockingWriteFulfillers));
+
   // if we receive a message on a new writer reopen an already closed channel
   if (c._sendCloseOnEmptyBuffer) c._sendCloseOnEmptyBuffer = false;
 
@@ -175,9 +177,4 @@ kj::Promise<void> Writer::write(WriteContext context) {
 
   return kj::READY_NOW;
 }
-
-//-----------------------------------------------------------------------------
-
-
-
 

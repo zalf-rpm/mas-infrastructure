@@ -16,6 +16,8 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <iostream>
 #include <string>
 #include <vector>
+#include <chrono>
+#include <thread>
 
 #include <kj/debug.h>
 #include <kj/common.h>
@@ -50,9 +52,8 @@ public:
       {
         auto inIp = msg.getValue();
         auto txt = inIp.getContent().getAs<capnp::Text>();
-        //std::cout << txt.cStr() << std::endl;
-        //std::cout << "|";
         if (i % 10000 == 0) { std::cout << "."; std::cout.flush(); }
+        //std::this_thread::sleep_for(std::chrono::milliseconds(10));
       }
       i++;
     }
