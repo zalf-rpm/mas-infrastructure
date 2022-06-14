@@ -37,11 +37,11 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 #include "sole.hpp"
 
-#include "tools/debug.h"
-#include "tools/date.h"
+//#include "tools/debug.h"
+//#include "tools/date.h"
 
 using namespace std;
-using namespace Tools;
+//using namespace Tools;
 using namespace mas::rpc::common;
 
 //-----------------------------------------------------------------------------

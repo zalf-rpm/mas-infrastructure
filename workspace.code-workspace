@@ -1,0 +1,30 @@
+{
+	"folders": [
+		{
+			"path": "src/cpp/common"
+		},
+		{
+			"path": "capnproto_schemas"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"*.tcc": "cpp",
+			"fstream": "cpp",
+			"iosfwd": "cpp",
+			"istream": "cpp",
+			"limits": "cpp",
+			"sstream": "cpp",
+			"streambuf": "cpp",
+			"array": "cpp",
+			"deque": "cpp",
+			"list": "cpp",
+			"vector": "cpp",
+			"string_view": "cpp",
+			"iostream": "cpp",
+			"string": "cpp",
+			"unordered_map": "cpp",
+			"initializer_list": "cpp"
+		}
+	}
+}

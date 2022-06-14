@@ -47,20 +47,24 @@ using namespace mas::rpc::common;
 
 Channel::Channel(mas::rpc::common::Restorer* restorer, kj::StringPtr name)
 : _restorer(restorer)
-, _name(kj::heapString(name))
+, _name(kj::str(name))
 {
 }
 
 void Channel::closedReader(kj::StringPtr readerId){
   KJ_LOG(INFO, "Channel::closedReader");
-  _writers.erase(readerId);
+  _readers.erase(readerId);
+  KJ_LOG(INFO, "Channel::closedReader: number of readers left:", kj::size(_readers));
 }
 
 void Channel::closedWriter(kj::StringPtr writerId){
   KJ_LOG(INFO, "Channel::closed_writer");
   _writers.erase(writerId);
+  KJ_LOG(INFO, "Channel::closedWriter: number of writers left:", kj::size(_writers), _autoCloseSemantics);
+
   if(_autoCloseSemantics == AnyPointerChannel::CloseSemantics::FBP && kj::size(_writers) == 0){
     _sendCloseOnEmptyBuffer = true;
+    KJ_LOG(INFO, "Channel::closedWriter: FBP semantics and no writers left -> sending done to readers");
 
     // as we just received a done message which should be distributed and would
     // fill the buffer, unblock all readers, so they send the done message
@@ -68,7 +72,10 @@ void Channel::closedWriter(kj::StringPtr writerId){
       auto& brf = _blockingReadFulfillers.front();
       brf->fulfill(kj::Maybe<AnyPointerMsg::Reader>());
       _blockingReadFulfillers.pop_front();
-    } 
+      KJ_LOG(INFO, "Channel::closedWriter: sent done to reader on last finished writer");
+    }
+    KJ_LOG(INFO, "Channel::closedWriter: blockingReadFulfillers.size():", kj::size(_blockingReadFulfillers));
+    KJ_LOG(INFO, "Channel::closedWriter: blockingWriteFulfillers.size():", kj::size(_blockingWriteFulfillers));
   }
 }
 
@@ -90,17 +97,6 @@ kj::Promise<void> Channel::writer(WriterContext context){
   return kj::READY_NOW;
 }
 
-// kj::Promise<void> Channel::save(SaveContext context) {
-//   std::cout << "Channel::save message received" << std::endl;
-//   if(_restorer)
-//   {
-//     auto srs = _restorer->save(_client);
-//     context.getResults().setSturdyRef(srs.first);
-//     context.getResults().setUnsaveSR(srs.second);
-//   }
-//   return kj::READY_NOW;
-// }
-
 //-----------------------------------------------------------------------------
 
 Reader::Reader(Channel& c) 
@@ -108,27 +104,34 @@ Reader::Reader(Channel& c)
 , _id(kj::str(sole::uuid4().str())) {}
 
 kj::Promise<void> Reader::read(ReadContext context) {
-  KJ_REQUIRE(!_closed, "Reader already closed.", _closed);
+  KJ_REQUIRE(!_closed, "Reader::read: Reader already closed.", _closed);
   
   auto& c = _channel;
 
+  // there's a write waiting
   if (!c._blockingWriteFulfillers.empty()){
     auto& bwf = c._blockingWriteFulfillers.front();
     bwf->fulfill(context.getResults());
     c._blockingWriteFulfillers.pop_front();
-  } else {
+  } else if(c._sendCloseOnEmptyBuffer) { // there are no writers left, just close readers
+    context.getResults().setDone();
+    c.closedReader(id());
+  } else { // there's no write for our read
     auto paf = kj::newPromiseAndFulfiller<kj::Maybe<AnyPointerMsg::Reader>>();
     c._blockingReadFulfillers.push_back(kj::mv(paf.fulfiller)); 
     return paf.promise.then([context, this](kj::Maybe<AnyPointerMsg::Reader> msg) mutable {
       KJ_REQUIRE(!_closed, "Reader already closed.", _closed);
+
       if(_channel._sendCloseOnEmptyBuffer && msg == nullptr){
-        KJ_LOG(DBG, kj::str("setResults"));
+        //KJ_LOG(DBG, kj::str("setResults"));
         context.getResults().setDone();
+        KJ_LOG(INFO, "Reader::read::promise_lambda: sending done to reader");
         _channel.closedReader(id());
       } else {
         KJ_IF_MAYBE(m, msg){
-          KJ_LOG(INFO, kj::str("Reader::read setResults"));
+          //KJ_LOG(INFO, kj::str("Reader::read setResults"));
           context.getResults().setValue(m->getValue());
+          KJ_LOG(INFO, "Reader::read::promise_lambda: sending value to reader");
         }
       }
     });
@@ -144,29 +147,29 @@ Writer::Writer(Channel& c)
 , _id(kj::str(sole::uuid4().str())) {}
 
 kj::Promise<void> Writer::write(WriteContext context) {
-  KJ_REQUIRE(!_closed, "Writer already closed.", _closed);
-
+  KJ_REQUIRE(!_closed, "Writer::write: Writer already closed.", _closed);
+  
   auto v = context.getParams();
   auto& c = _channel;
+
+  // if we receive a message on a new writer reopen an already closed channel
+  if (c._sendCloseOnEmptyBuffer) c._sendCloseOnEmptyBuffer = false;
 
   // if we received a done, this writer can be removed
   if(v.isDone()){
     c.closedWriter(id());
-    return kj::READY_NOW;
-  }
-
-  if (!c._blockingReadFulfillers.empty()){
+  } else if (!c._blockingReadFulfillers.empty()) { // we got a read waiting
     auto& brf = c._blockingReadFulfillers.front();
     brf->fulfill(kj::mv(v));
     c._blockingReadFulfillers.pop_front();
-  } else {
+  } else { // we have to wait for a read to our write
     auto paf = kj::newPromiseAndFulfiller<AnyPointerMsg::Builder>();
     c._blockingWriteFulfillers.push_back(kj::mv(paf.fulfiller)); 
     return paf.promise.then([context, this](AnyPointerMsg::Builder msg) mutable {
-      KJ_REQUIRE(!_closed, "Writer already closed.", _closed);
-      KJ_LOG(INFO, kj::str("Write::write setResults"));
+      KJ_REQUIRE(!_closed, "Writer::write::promise_lambda: Writer already closed.", _closed);
       auto v = context.getParams();
       msg.setValue(v.getValue());
+      KJ_LOG(INFO, "Writer:write::promise_lambda: sending value to reader");
     });
   }
 

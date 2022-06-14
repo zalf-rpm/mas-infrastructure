@@ -44,7 +44,6 @@ namespace mas {
       typedef mas::schema::common::Channel<capnp::AnyPointer> AnyPointerChannel;
       typedef typename mas::schema::common::Channel<capnp::AnyPointer>::Msg AnyPointerMsg;
 
-      //template<typename T>
       class Channel final : public AnyPointerChannel::Server
       {
       public:
@@ -59,25 +58,6 @@ namespace mas {
         kj::Promise<void> reader(ReaderContext context) override;
 
         kj::Promise<void> writer(WriterContext context) override;
-
-        /*
-        // restore @0 (srToken :Text) -> (cap :Capability);
-        kj::Promise<void> restore(RestoreContext context) override;
-
-        int getPort() const { return _port; }
-        void setPort(int p) { _port = p; }
-
-        std::string getHost() const { return _host; }
-        void setHost(std::string h) { _host = h; }
-
-        std::string sturdyRef(std::string srToken = "") const;
-
-        std::pair<std::string, std::string> save(capnp::Capability::Client cap);
-
-        void unsave(std::string srToken);
-        */
-
-        //kj::Promise<void> save(SaveContext context) override;
 
       private:
         mas::rpc::common::Restorer* _restorer{nullptr};
@@ -94,7 +74,6 @@ namespace mas {
 
       //-----------------------------------------------------------------------------
 
-      //template<typename T>
       class Reader final : public mas::schema::common::Channel<capnp::AnyPointer>::ChanReader::Server {
       public:
         Reader(Channel& c);

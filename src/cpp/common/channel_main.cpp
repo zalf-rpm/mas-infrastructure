@@ -33,7 +33,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 class ChannelMain
 {
 public:
-  ChannelMain(kj::ProcessContext &context) : context(context) {}
+  ChannelMain(kj::ProcessContext& context) : context(context), ioContext(kj::setupAsyncIo()) {}
 
   kj::MainBuilder::Validity setName(kj::StringPtr n) { name = n; return true; }
 
@@ -55,12 +55,10 @@ public:
 
   kj::MainBuilder::Validity startChannel()
   {
-    auto ioContext = kj::setupAsyncIo();
-
     if(readerSrts.empty()) readerSrts.push_back(sole::uuid4().str());
     if(writerSrts.empty()) writerSrts.push_back(sole::uuid4().str());
 
-    KJ_LOG(INFO, "starting channel");
+    KJ_LOG(INFO, "Channel::startChannel: starting channel");
 
     auto restorer = kj::heap<mas::rpc::common::Restorer>();
     auto& restorerRef = *restorer;
@@ -68,9 +66,9 @@ public:
     auto channel = kj::heap<mas::rpc::common::Channel>(&restorerRef, name);//, bufferSize);
     auto& channelRef = *channel;
     mas::rpc::common::AnyPointerChannel::Client channelClient = kj::mv(channel);
-    KJ_LOG(INFO, "created monica");
+    KJ_LOG(INFO, "Channel::startChannel: created channel");
     
-    KJ_LOG(INFO, "Channel: trying to bind to", host, port);
+    KJ_LOG(INFO, "Channel::startChannel trying to bind to", host, port);
     auto proms = conMan.bind(ioContext, restorerClient, host, port);
     auto hostPromise = proms.first.fork().addBranch();
     auto hostStr = hostPromise.wait(ioContext.waitScope);
@@ -78,24 +76,24 @@ public:
     auto portPromise = proms.second.fork().addBranch();
     auto port = portPromise.wait(ioContext.waitScope);
     restorerRef.setPort(port);
-    KJ_LOG(INFO, "Channel: bound to", host, port);
+    KJ_LOG(INFO, "Channel::startChannel bound to", host, port);
 
     auto restorerSR = restorerRef.sturdyRef();
     auto channelSRs = restorerRef.save(channelClient);
-    KJ_LOG(INFO, "Channel:", channelSRs.first);
+    KJ_LOG(INFO, "Channel::startChannel", channelSRs.first);
 
     for(auto srt : readerSrts){ 
       auto reader = channelClient.readerRequest().send().wait(ioContext.waitScope).getR();
       auto readerSRs = restorerRef.save(reader, srt, false);  
-      KJ_LOG(INFO, "Channel:", readerSRs.first);
+      KJ_LOG(INFO, "Channel::startChannel", readerSRs.first);
     }
     for(auto srt : writerSrts){
       auto writer = channelClient.writerRequest().send().wait(ioContext.waitScope).getW();
       auto writerSRs = restorerRef.save(writer, srt, false);
-      KJ_LOG(INFO, "Channel:", writerSRs.first);
+      KJ_LOG(INFO, "Channel::startChannel", writerSRs.first);
     }
 
-    KJ_LOG(INFO, "Channel:", restorerSR);
+    KJ_LOG(INFO, "Channel::startChannel", restorerSR);
 
     // Run forever, accepting connections and handling requests.
     kj::NEVER_DONE.wait(ioContext.waitScope);
@@ -126,6 +124,7 @@ private:
   std::vector<std::string> readerSrts;
   std::vector<std::string> writerSrts;
   kj::ProcessContext &context;
+  kj::AsyncIoContext ioContext;
 };
 
 KJ_MAIN(ChannelMain)

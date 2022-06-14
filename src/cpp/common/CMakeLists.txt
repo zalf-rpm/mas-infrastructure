@@ -82,13 +82,15 @@ capnp_generate_cpp(CAPNP_SRCS CAPNP_HDRS
 ${CAPNP_SCHEMAS_DIR}/common.capnp 
 ${CAPNP_SCHEMAS_DIR}/date.capnp
 ${CAPNP_SCHEMAS_DIR}/persistence.capnp
-${CAPNP_SCHEMAS_DIR}/x.capnp
+#${CAPNP_SCHEMAS_DIR}/x.capnp
 )
 message(STATUS "CAPNP_HDRS: " "${CAPNP_HDRS}")
 message(STATUS "CAPNP_SRCS: " "${CAPNP_SRCS}")
 
-# create monica-capnp-server executable, the server running monica via CapNProto RPC
-set(SOURCE 
+#------------------------------------------------------------------------------
+
+# create channel
+set(CHANNEL_SOURCE 
 	channel_main.cpp
 	common.h
 	common.cpp
@@ -99,7 +101,7 @@ set(SOURCE
 	${CAPNP_HDRS}
 	${CAPNP_SRCS}
 )
-add_executable(channel ${SOURCE})
+add_executable(channel ${CHANNEL_SOURCE})
 target_link_libraries(channel
 	${CMAKE_THREAD_LIBS_INIT}
 	${CMAKE_DL_LIBS}
@@ -108,14 +110,67 @@ target_link_libraries(channel
 	CapnProto::capnp-rpc
 	CapnProto::kj
 	CapnProto::kj-async
-	#debug_lib
 	helpers_lib
-	#date_lib
-	#monica_lib
 )
 target_include_directories(channel PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 if (MSVC)
 	target_compile_options(channel PRIVATE "/MT$<$<CONFIG:Debug>:d>")
+endif()
+
+#------------------------------------------------------------------------------
+
+# create test writer 
+set(TEST_WRITER_SOURCE 
+	test_writer_main.cpp
+	common.h
+	common.cpp
+	rpc-connections.h
+	rpc-connections.cpp
+	${CAPNP_HDRS}
+	${CAPNP_SRCS}
+)
+add_executable(test_writer ${TEST_WRITER_SOURCE})
+target_link_libraries(test_writer
+	${CMAKE_THREAD_LIBS_INIT}
+	${CMAKE_DL_LIBS}
+	CapnProto::capnp
+	CapnProto::capnpc
+	CapnProto::capnp-rpc
+	CapnProto::kj
+	CapnProto::kj-async
+	helpers_lib
+)
+target_include_directories(test_writer PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+if (MSVC)
+	target_compile_options(test_writer PRIVATE "/MT$<$<CONFIG:Debug>:d>")
+endif()
+
+#------------------------------------------------------------------------------
+
+# create test reader
+set(TEST_READER_SOURCE 
+	test_reader_main.cpp
+	common.h
+	common.cpp
+	rpc-connections.h
+	rpc-connections.cpp
+	${CAPNP_HDRS}
+	${CAPNP_SRCS}
+)
+add_executable(test_reader ${TEST_READER_SOURCE})
+target_link_libraries(test_reader
+	${CMAKE_THREAD_LIBS_INIT}
+	${CMAKE_DL_LIBS}
+	CapnProto::capnp
+	CapnProto::capnpc
+	CapnProto::capnp-rpc
+	CapnProto::kj
+	CapnProto::kj-async
+	helpers_lib
+)
+target_include_directories(test_reader PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+if (MSVC)
+	target_compile_options(test_reader PRIVATE "/MT$<$<CONFIG:Debug>:d>")
 endif()
 
 #------------------------------------------------------------------------------

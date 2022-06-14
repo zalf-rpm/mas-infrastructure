@@ -13,6 +13,8 @@ This file is part of the MONICA model.
 Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 */
 
+#include "rpc-connections.h"
+
 #include <iostream>
 #include <string>
 #include <tuple>
@@ -32,21 +34,20 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <capnp/ez-rpc.h>
 #include <capnp/message.h>
 #include <capnp/rpc-twoparty.h>
+
 #include <kj/async-io.h>
+#include <kj/debug.h>
 //#include <kj/thread.h>
 
-#include "tools/debug.h"
 
-#include "rpc-connections.h"
 
-//#include "model.capnp.h"
+
 #include "common.capnp.h"
 #include "persistence.capnp.h"
 
 //#include "common/sole.hpp"
 
 using namespace std;
-using namespace Tools;
 using namespace mas;
 using namespace mas::schema::persistence;
 using namespace capnp;
@@ -60,11 +61,11 @@ kj::Promise<capnp::Capability::Client> ConnectionManager::tryConnect(kj::AsyncIo
 		if(!_timer) _timer = &(ioc.provider->getTimer());
 		return _timer->afterDelay(retrySecs*kj::SECONDS).then([&]() {
 			if(retryCount == 0) {
-				if(printRetryMsgs) cout << "Couldn't connect to sturdy_ref at " << sturdyRefStr << " !" << endl;
+				if(printRetryMsgs) KJ_LOG(DBG, "Couldn't connect to sturdy_ref at", sturdyRefStr, "!");
 					return kj::Promise<capnp::Capability::Client>(nullptr);
 			}
 			retryCount -= 1;
-			if(printRetryMsgs) cout << "Trying to connect to " << sturdyRefStr << " again in " << retrySecs << " s!" << endl;
+			if(printRetryMsgs) KJ_LOG(DBG, "Trying to connect to", sturdyRefStr, "again in", retrySecs, "s!");
 			retrySecs += 1;
 			return tryConnect(ioc, sturdyRefStr);
 		});
@@ -79,12 +80,12 @@ capnp::Capability::Client ConnectionManager::tryConnectB(kj::AsyncIoContext& ioc
 			return connect(ioc, sturdyRefStr).wait(ioc.waitScope);
 		} catch(std::exception e) {
 			if(retryCount == 0) {
-				if(printRetryMsgs) cout << "Couldn't connect to sturdy ref at " << sturdyRefStr << " !" << endl;
+				if(printRetryMsgs) KJ_LOG(DBG, "Couldn't connect to sturdy_ref at", sturdyRefStr, "!");
 					return nullptr;
 			}
 			std::this_thread::sleep_for(std::chrono::milliseconds(retrySecs*1000));
 			retryCount -= 1;
-			if(printRetryMsgs) cout << "Trying to connect to " << sturdyRefStr << " again in " << retrySecs << " s!" << endl;
+			if(printRetryMsgs) KJ_LOG(DBG, "Trying to connect to", sturdyRefStr, "again in", retrySecs, "s!");
 			retrySecs += 1;
 		}
 	}
@@ -128,13 +129,13 @@ kj::Promise<capnp::Capability::Client> ConnectionManager::connect(kj::AsyncIoCon
 						_connections.insert(kj::str(addressPort), kj::mv(cc));
 
 						if (!srToken.empty()) {
-							cout << "monica: restoring token: " << srToken << endl;
+							KJ_LOG(INFO, "ConnectionManager::connect: restoring token", srToken);
 							auto restorerCap = bootstrapCap.castAs<Restorer>();
 							auto req = restorerCap.restoreRequest();
 							req.setSrToken(srToken);
-							cout << "monica: making restore request" << endl;
+							KJ_LOG(INFO, "ConnectionManager::connect: making restore request");
 							return req.send().then([](auto&& res) { 
-								cout << "monica: send returned" << endl;
+								KJ_LOG(INFO, "ConnectionManager::connect: send returned");
 								return res.getCap(); 
 							});
 						}
@@ -187,7 +188,7 @@ void ConnectionManager::acceptLoop(kj::Own<kj::ConnectionReceiver>&& listener, c
 			kj::Own<kj::AsyncIoStream>&& connection) {
 				acceptLoop(kj::mv(listener), readerOpts);
 
-				cout << "connection from client" << endl;
+				KJ_LOG(INFO, "ConnectionManager::acceptLoop: connection from client");
 				auto server = kj::heap<ServerContext>(kj::mv(connection), readerOpts, _serverMainInterface);
 
 				// Arrange to destroy the server context when all references are gone, or when the
