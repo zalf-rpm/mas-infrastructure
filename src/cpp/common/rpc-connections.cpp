@@ -39,9 +39,6 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <kj/debug.h>
 //#include <kj/thread.h>
 
-
-
-
 #include "common.capnp.h"
 #include "persistence.capnp.h"
 

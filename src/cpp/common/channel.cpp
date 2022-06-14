@@ -54,6 +54,8 @@ Channel::Channel(mas::rpc::common::Restorer* restorer, kj::StringPtr name)
 void Channel::closedReader(kj::StringPtr readerId){
   KJ_LOG(INFO, "Channel::closedReader");
   _readers.erase(readerId);
+  // now that all readers disconnected, turn of auto-closing readers
+  if (kj::size(_readers) == 0) _sendCloseOnEmptyBuffer = false;
   KJ_LOG(INFO, "Channel::closedReader: number of readers left:", kj::size(_readers));
 }
 
@@ -151,11 +153,6 @@ kj::Promise<void> Writer::write(WriteContext context) {
   
   auto v = context.getParams();
   auto& c = _channel;
-
-  //KJ_DBG("Writer::write: blockingWriteFulfillers.size():", kj::size(c._blockingWriteFulfillers));
-
-  // if we receive a message on a new writer reopen an already closed channel
-  if (c._sendCloseOnEmptyBuffer) c._sendCloseOnEmptyBuffer = false;
 
   // if we received a done, this writer can be removed
   if(v.isDone()){

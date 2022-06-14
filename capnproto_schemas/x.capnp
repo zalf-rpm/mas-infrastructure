@@ -7,3 +7,7 @@ struct S {
 interface X {
     m @0 (i :Int64) -> (t :Text);
 }
+
+interface Y {
+    m @0 (hello :Text);
+}
