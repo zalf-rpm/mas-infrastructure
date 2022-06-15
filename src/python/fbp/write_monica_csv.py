@@ -74,7 +74,7 @@ try:
             id_attr = common.get_fbp_attr(in_ip, config["id_attr"])
             id = id_attr.as_text() if id_attr else str(count)
 
-            filepath = dir + config["file_pattern"].format(id=id)
+            filepath = dir + "/" + config["file_pattern"].format(id=id)
             with open(filepath, "wt") as _:
                 writer = csv.writer(_, delimiter=",")
                 
