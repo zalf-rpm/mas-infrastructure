@@ -46,22 +46,13 @@ config = {
     "file_pattern": "csv_{id}.csv",
     "from_attr": None,
     "id_attr": "id",
+    "out_path_attr": "out_path",
 }
 common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
 conman = common.ConnectionManager()
 inp = conman.try_connect(config["in_sr"], cast_as=common_capnp.Channel.Reader, retry_secs=1)
 count = 0
-
-dir = config["path_to_out_dir"]
-if os.path.isdir(dir) and os.path.exists(dir):
-    pass
-else:
-    try:
-        os.makedirs(dir)
-    except OSError:
-        print("c: Couldn't create dir:", dir, "! Exiting.")
-        exit(1)
 
 try:
     if inp:
@@ -73,6 +64,18 @@ try:
             in_ip = msg.value.as_struct(common_capnp.IP)
             id_attr = common.get_fbp_attr(in_ip, config["id_attr"])
             id = id_attr.as_text() if id_attr else str(count)
+            out_path_attr = common.get_fbp_attr(in_ip, config["out_path_attr"])
+            out_path = out_path_attr.as_text() if out_path_attr else config["path_to_out_dir"]
+
+            dir = out_path
+            if os.path.isdir(dir) and os.path.exists(dir):
+                pass
+            else:
+                try:
+                    os.makedirs(dir)
+                except OSError:
+                    print("c: Couldn't create dir:", dir, "! Exiting.")
+                    exit(1)
 
             filepath = dir + "/" + config["file_pattern"].format(id=id)
             with open(filepath, "wt") as _:
