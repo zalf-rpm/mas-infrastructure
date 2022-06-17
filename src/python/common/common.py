@@ -82,7 +82,7 @@ def copy_fbp_attr(old_ip, new_ip, new_attr_name=None, new_attr_value=None):
 def update_config(config, argv, print_config=False, allow_new_keys=False):
     if len(argv) > 1:
         for arg in argv[1:]:
-            k, v = arg.split("=")
+            k, v = arg.split("=", maxsplit=1)
             if not allow_new_keys and k in config:
                 config[k] = v.lower() == "true" if v.lower() in ["true", "false"] else v 
         if print_config:
