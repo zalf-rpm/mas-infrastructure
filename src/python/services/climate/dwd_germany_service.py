@@ -172,8 +172,6 @@ async def main(path_to_data, serve_bootstrap=True, host=None, port=None,
     service = ccdi.Service(meta_plus_data, id=config["id"], name=config["name"], description=config["description"], restorer=restorer)
     if config["fbp"]:
         fbp(config, climate_capnp.Service._new_client(service))
-    if config["no_fbp"]:
-        no_fbp(service)
     else:
         if config["use_async"]:
             await serv.async_init_and_run_service({"service": service}, config["host"], config["port"], 
