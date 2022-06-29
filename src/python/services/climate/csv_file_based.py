@@ -15,6 +15,7 @@
 # Landscape Systems Analysis at the ZALF.
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
+from collections import deque
 import capnp
 import csv
 import json
@@ -25,6 +26,7 @@ import numpy as np
 import os
 import pandas as pd
 from pathlib import Path
+import psutil
 import sys
 import time
 import uuid
@@ -199,7 +201,8 @@ class Dataset(climate_data_capnp.Dataset.Server, common.Identifiable, common.Per
 
     def __init__(self, metadata, path_to_rows, interpolator, rowcol_to_latlon, 
         gzipped=False, header_map=None, supported_headers=None, row_col_pattern="row-{row}/col-{col}.csv",
-        pandas_csv_config={}, transform_map=None, id=None, name=None, description=None, restorer=None):
+        pandas_csv_config={}, transform_map=None, id=None, name=None, description=None, restorer=None,
+        percentage_of_main_memory_use=20):
         common.Persistable.__init__(self, restorer)
         common.Identifiable.__init__(self, id, name, description)
 
@@ -207,6 +210,7 @@ class Dataset(climate_data_capnp.Dataset.Server, common.Identifiable, common.Per
         self._path_to_rows = path_to_rows
         self._interpolator = interpolator
         self._time_series = {}
+        self._creation_order = deque()
         self._locations = {}
         self._all_locations_created = False
         self._header_map = header_map
@@ -215,6 +219,8 @@ class Dataset(climate_data_capnp.Dataset.Server, common.Identifiable, common.Per
         self._row_col_pattern = row_col_pattern
         self._pandas_csv_config = pandas_csv_config
         self._transform_map = transform_map
+        self._process = psutil.Process()
+        self._percentage_of_main_memory_use = percentage_of_main_memory_use
 
 
     def metadata(self, _context, **kwargs): # metadata @0 () -> Metadata;
@@ -239,8 +245,17 @@ class Dataset(climate_data_capnp.Dataset.Server, common.Identifiable, common.Per
                 pandas_csv_config=self._pandas_csv_config,
                 transform_map=self._transform_map) 
             self._time_series[(row, col)] = time_series
+            self._creation_order.append((row, col))
             time_series.name = "row: {}/col: {}".format(row, col)
             time_series.restorer = self._restorer
+
+            #print(self._process.memory_percent(memtype="rss"))
+            while len(self._creation_order) > 1 and self._process.memory_percent(memtype="rss") > self._percentage_of_main_memory_use:
+                rc = self._creation_order.popleft()
+                if rc != (row, col):
+                    self._time_series.pop(rc)
+                    #print("after pop:", self._process.memory_percent(memtype="rss"))
+
         return self._time_series[(row, col)]
 
 
