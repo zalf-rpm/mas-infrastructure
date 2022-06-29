@@ -150,7 +150,7 @@ class Identifiable(common_capnp.Identifiable.Server):
 
     def __init__(self, id=None, name=None, description=None):
         self._id = id if id else str(uuid.uuid4()) 
-        self._name = name if name else "Unnamed Factory " + self._id 
+        self._name = name if name else "Unnamed_{}".format(self._id)
         self._description = description if description else ""
 
 
