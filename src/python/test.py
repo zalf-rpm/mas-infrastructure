@@ -23,6 +23,7 @@ import os
 import sys
 import time
 from threading import Thread
+import psutil
 
 PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent
 if str(PATH_TO_REPO) not in sys.path:
@@ -120,14 +121,30 @@ def test_climate_service():
     conMan = common.ConnectionManager()
     #restorer = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000", cast_as=persistence_capnp.Restorer)
     #service = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/6feaf299-d620-430b-9189-36dfccf48b3a", cast_as=climate_data_capnp.CSVTimeSeriesFactory)
-    service = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/1a170e7e-5a93-46a4-b748-87812ea4d4ba", cast_as=climate_data_capnp.Service)
+    service = conMan.try_connect("capnp://insecure@10.10.24.218:36541/7555fd1a-e413-4ec7-be5d-8f3a94825b3c", cast_as=climate_data_capnp.Service)
     #timeseries = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/8e7961c5-bd16-4c1d-86fd-8347dc46185e", cast_as=climate_data_capnp.TimeSeries)
-    unsave = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/ac544d7b-1f82-4bf8-9adb-cf586ae46287", cast_as=common_capnp.Action)
+    #unsave = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/ac544d7b-1f82-4bf8-9adb-cf586ae46287", cast_as=common_capnp.Action)
     #4e4fe3fb-791a-4a26-9ae1-1ce52093bda5'  row: 340/col: 288
     try:
         print(service.info().wait())
     except Exception as e:
         print(e)
+
+    p = psutil.Process()
+
+    for ds in service.getAvailableDatasets().wait().datasets:
+        ds_data = ds.data
+        print(ds_data.info().wait())
+        print(ds.meta)
+        #tss = []
+        for lat in range(45, 55):
+            for lon in range(8, 15):
+                ts = ds_data.closestTimeSeriesAt({"lat": lat, "lon": lon}).wait().timeSeries
+                ts.data().wait()
+                #tss.append(ts)
+                print(ts.info().wait())
+                #print(p.memory_percent())
+
 
     #unsave = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/49ec71b8-a525-4c38-b137-58e1eafc0c1c", cast_as=common_capnp.Action)
     #unsave.do().wait()
@@ -237,9 +254,9 @@ def main():
                 config[k] = v
 
 
-    #test_climate_service()
+    test_climate_service()
 
-    test_registry()
+    #test_registry()
 
     return
 
