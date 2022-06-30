@@ -6,8 +6,133 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Mas.Rpc.Management
+namespace Mas.Schema.Management
 {
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xc70d4452b8b0ebd7UL)]
+    public class ILRDates : ICapnpSerializable
+    {
+        public const UInt64 typeId = 0xc70d4452b8b0ebd7UL;
+        void ICapnpSerializable.Deserialize(DeserializerState arg_)
+        {
+            var reader = READER.create(arg_);
+            Sowing = CapnpSerializable.Create<Mas.Schema.Common.Date>(reader.Sowing);
+            EarliestSowing = CapnpSerializable.Create<Mas.Schema.Common.Date>(reader.EarliestSowing);
+            LatestSowing = CapnpSerializable.Create<Mas.Schema.Common.Date>(reader.LatestSowing);
+            Harvest = CapnpSerializable.Create<Mas.Schema.Common.Date>(reader.Harvest);
+            LatestHarvest = CapnpSerializable.Create<Mas.Schema.Common.Date>(reader.LatestHarvest);
+            applyDefaults();
+        }
+
+        public void serialize(WRITER writer)
+        {
+            Sowing?.serialize(writer.Sowing);
+            EarliestSowing?.serialize(writer.EarliestSowing);
+            LatestSowing?.serialize(writer.LatestSowing);
+            Harvest?.serialize(writer.Harvest);
+            LatestHarvest?.serialize(writer.LatestHarvest);
+        }
+
+        void ICapnpSerializable.Serialize(SerializerState arg_)
+        {
+            serialize(arg_.Rewrap<WRITER>());
+        }
+
+        public void applyDefaults()
+        {
+        }
+
+        public Mas.Schema.Common.Date Sowing
+        {
+            get;
+            set;
+        }
+
+        public Mas.Schema.Common.Date EarliestSowing
+        {
+            get;
+            set;
+        }
+
+        public Mas.Schema.Common.Date LatestSowing
+        {
+            get;
+            set;
+        }
+
+        public Mas.Schema.Common.Date Harvest
+        {
+            get;
+            set;
+        }
+
+        public Mas.Schema.Common.Date LatestHarvest
+        {
+            get;
+            set;
+        }
+
+        public struct READER
+        {
+            readonly DeserializerState ctx;
+            public READER(DeserializerState ctx)
+            {
+                this.ctx = ctx;
+            }
+
+            public static READER create(DeserializerState ctx) => new READER(ctx);
+            public static implicit operator DeserializerState(READER reader) => reader.ctx;
+            public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+            public Mas.Schema.Common.Date.READER Sowing => ctx.ReadStruct(0, Mas.Schema.Common.Date.READER.create);
+            public bool HasSowing => ctx.IsStructFieldNonNull(0);
+            public Mas.Schema.Common.Date.READER EarliestSowing => ctx.ReadStruct(1, Mas.Schema.Common.Date.READER.create);
+            public bool HasEarliestSowing => ctx.IsStructFieldNonNull(1);
+            public Mas.Schema.Common.Date.READER LatestSowing => ctx.ReadStruct(2, Mas.Schema.Common.Date.READER.create);
+            public bool HasLatestSowing => ctx.IsStructFieldNonNull(2);
+            public Mas.Schema.Common.Date.READER Harvest => ctx.ReadStruct(3, Mas.Schema.Common.Date.READER.create);
+            public bool HasHarvest => ctx.IsStructFieldNonNull(3);
+            public Mas.Schema.Common.Date.READER LatestHarvest => ctx.ReadStruct(4, Mas.Schema.Common.Date.READER.create);
+            public bool HasLatestHarvest => ctx.IsStructFieldNonNull(4);
+        }
+
+        public class WRITER : SerializerState
+        {
+            public WRITER()
+            {
+                this.SetStruct(0, 5);
+            }
+
+            public Mas.Schema.Common.Date.WRITER Sowing
+            {
+                get => BuildPointer<Mas.Schema.Common.Date.WRITER>(0);
+                set => Link(0, value);
+            }
+
+            public Mas.Schema.Common.Date.WRITER EarliestSowing
+            {
+                get => BuildPointer<Mas.Schema.Common.Date.WRITER>(1);
+                set => Link(1, value);
+            }
+
+            public Mas.Schema.Common.Date.WRITER LatestSowing
+            {
+                get => BuildPointer<Mas.Schema.Common.Date.WRITER>(2);
+                set => Link(2, value);
+            }
+
+            public Mas.Schema.Common.Date.WRITER Harvest
+            {
+                get => BuildPointer<Mas.Schema.Common.Date.WRITER>(3);
+                set => Link(3, value);
+            }
+
+            public Mas.Schema.Common.Date.WRITER LatestHarvest
+            {
+                get => BuildPointer<Mas.Schema.Common.Date.WRITER>(4);
+                set => Link(4, value);
+            }
+        }
+    }
+
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xf95ca008c46a4b3bUL)]
     public enum MineralFertilizer : ushort
     {
@@ -104,18 +229,18 @@ namespace Mas.Rpc.Management
             switch (reader.which)
             {
                 case WHICH.At:
-                    At = CapnpSerializable.Create<Mas.Rpc.Management.Event.at>(reader.At);
+                    At = CapnpSerializable.Create<Mas.Schema.Management.Event.at>(reader.At);
                     break;
                 case WHICH.Between:
-                    Between = CapnpSerializable.Create<Mas.Rpc.Management.Event.between>(reader.Between);
+                    Between = CapnpSerializable.Create<Mas.Schema.Management.Event.between>(reader.Between);
                     break;
                 case WHICH.After:
-                    After = CapnpSerializable.Create<Mas.Rpc.Management.Event.after>(reader.After);
+                    After = CapnpSerializable.Create<Mas.Schema.Management.Event.after>(reader.After);
                     break;
             }
 
             TheType = reader.TheType;
-            Info = CapnpSerializable.Create<Mas.Rpc.Common.IdInformation>(reader.Info);
+            Info = CapnpSerializable.Create<Mas.Schema.Common.IdInformation>(reader.Info);
             Params = CapnpSerializable.Create<object>(reader.Params);
             RunAtStartOfDay = reader.RunAtStartOfDay;
             applyDefaults();
@@ -177,21 +302,21 @@ namespace Mas.Rpc.Management
         {
         }
 
-        public Mas.Rpc.Management.Event.ExternalType TheType
+        public Mas.Schema.Management.Event.ExternalType TheType
         {
             get;
             set;
         }
 
-        public Mas.Rpc.Common.IdInformation Info
+        public Mas.Schema.Common.IdInformation Info
         {
             get;
             set;
         }
 
-        public Mas.Rpc.Management.Event.at At
+        public Mas.Schema.Management.Event.at At
         {
-            get => _which == WHICH.At ? (Mas.Rpc.Management.Event.at)_content : null;
+            get => _which == WHICH.At ? (Mas.Schema.Management.Event.at)_content : null;
             set
             {
                 _which = WHICH.At;
@@ -199,9 +324,9 @@ namespace Mas.Rpc.Management
             }
         }
 
-        public Mas.Rpc.Management.Event.between Between
+        public Mas.Schema.Management.Event.between Between
         {
-            get => _which == WHICH.Between ? (Mas.Rpc.Management.Event.between)_content : null;
+            get => _which == WHICH.Between ? (Mas.Schema.Management.Event.between)_content : null;
             set
             {
                 _which = WHICH.Between;
@@ -209,9 +334,9 @@ namespace Mas.Rpc.Management
             }
         }
 
-        public Mas.Rpc.Management.Event.after After
+        public Mas.Schema.Management.Event.after After
         {
-            get => _which == WHICH.After ? (Mas.Rpc.Management.Event.after)_content : null;
+            get => _which == WHICH.After ? (Mas.Schema.Management.Event.after)_content : null;
             set
             {
                 _which = WHICH.After;
@@ -243,8 +368,8 @@ namespace Mas.Rpc.Management
             public static implicit operator DeserializerState(READER reader) => reader.ctx;
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
             public WHICH which => (WHICH)ctx.ReadDataUShort(16U, (ushort)0);
-            public Mas.Rpc.Management.Event.ExternalType TheType => (Mas.Rpc.Management.Event.ExternalType)ctx.ReadDataUShort(0UL, (ushort)0);
-            public Mas.Rpc.Common.IdInformation.READER Info => ctx.ReadStruct(0, Mas.Rpc.Common.IdInformation.READER.create);
+            public Mas.Schema.Management.Event.ExternalType TheType => (Mas.Schema.Management.Event.ExternalType)ctx.ReadDataUShort(0UL, (ushort)0);
+            public Mas.Schema.Common.IdInformation.READER Info => ctx.ReadStruct(0, Mas.Schema.Common.IdInformation.READER.create);
             public bool HasInfo => ctx.IsStructFieldNonNull(0);
             public at.READER At => which == WHICH.At ? new at.READER(ctx) : default;
             public between.READER Between => which == WHICH.Between ? new between.READER(ctx) : default;
@@ -266,15 +391,15 @@ namespace Mas.Rpc.Management
                 set => this.WriteData(16U, (ushort)value, (ushort)0);
             }
 
-            public Mas.Rpc.Management.Event.ExternalType TheType
+            public Mas.Schema.Management.Event.ExternalType TheType
             {
-                get => (Mas.Rpc.Management.Event.ExternalType)this.ReadDataUShort(0UL, (ushort)0);
+                get => (Mas.Schema.Management.Event.ExternalType)this.ReadDataUShort(0UL, (ushort)0);
                 set => this.WriteData(0UL, (ushort)value, (ushort)0);
             }
 
-            public Mas.Rpc.Common.IdInformation.WRITER Info
+            public Mas.Schema.Common.IdInformation.WRITER Info
             {
-                get => BuildPointer<Mas.Rpc.Common.IdInformation.WRITER>(0);
+                get => BuildPointer<Mas.Schema.Common.IdInformation.WRITER>(0);
                 set => Link(0, value);
             }
 
@@ -313,7 +438,7 @@ namespace Mas.Rpc.Management
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Date = CapnpSerializable.Create<Mas.Common.Date>(reader.Date);
+                Date = CapnpSerializable.Create<Mas.Schema.Common.Date>(reader.Date);
                 applyDefaults();
             }
 
@@ -331,7 +456,7 @@ namespace Mas.Rpc.Management
             {
             }
 
-            public Mas.Common.Date Date
+            public Mas.Schema.Common.Date Date
             {
                 get;
                 set;
@@ -348,7 +473,7 @@ namespace Mas.Rpc.Management
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Common.Date.READER Date => ctx.ReadStruct(1, Mas.Common.Date.READER.create);
+                public Mas.Schema.Common.Date.READER Date => ctx.ReadStruct(1, Mas.Schema.Common.Date.READER.create);
                 public bool HasDate => ctx.IsStructFieldNonNull(1);
             }
 
@@ -358,9 +483,9 @@ namespace Mas.Rpc.Management
                 {
                 }
 
-                public Mas.Common.Date.WRITER Date
+                public Mas.Schema.Common.Date.WRITER Date
                 {
-                    get => BuildPointer<Mas.Common.Date.WRITER>(1);
+                    get => BuildPointer<Mas.Schema.Common.Date.WRITER>(1);
                     set => Link(1, value);
                 }
             }
@@ -373,8 +498,8 @@ namespace Mas.Rpc.Management
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Earliest = CapnpSerializable.Create<Mas.Common.Date>(reader.Earliest);
-                Latest = CapnpSerializable.Create<Mas.Common.Date>(reader.Latest);
+                Earliest = CapnpSerializable.Create<Mas.Schema.Common.Date>(reader.Earliest);
+                Latest = CapnpSerializable.Create<Mas.Schema.Common.Date>(reader.Latest);
                 applyDefaults();
             }
 
@@ -393,13 +518,13 @@ namespace Mas.Rpc.Management
             {
             }
 
-            public Mas.Common.Date Earliest
+            public Mas.Schema.Common.Date Earliest
             {
                 get;
                 set;
             }
 
-            public Mas.Common.Date Latest
+            public Mas.Schema.Common.Date Latest
             {
                 get;
                 set;
@@ -416,9 +541,9 @@ namespace Mas.Rpc.Management
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Common.Date.READER Earliest => ctx.ReadStruct(1, Mas.Common.Date.READER.create);
+                public Mas.Schema.Common.Date.READER Earliest => ctx.ReadStruct(1, Mas.Schema.Common.Date.READER.create);
                 public bool HasEarliest => ctx.IsStructFieldNonNull(1);
-                public Mas.Common.Date.READER Latest => ctx.ReadStruct(2, Mas.Common.Date.READER.create);
+                public Mas.Schema.Common.Date.READER Latest => ctx.ReadStruct(2, Mas.Schema.Common.Date.READER.create);
                 public bool HasLatest => ctx.IsStructFieldNonNull(2);
             }
 
@@ -428,15 +553,15 @@ namespace Mas.Rpc.Management
                 {
                 }
 
-                public Mas.Common.Date.WRITER Earliest
+                public Mas.Schema.Common.Date.WRITER Earliest
                 {
-                    get => BuildPointer<Mas.Common.Date.WRITER>(1);
+                    get => BuildPointer<Mas.Schema.Common.Date.WRITER>(1);
                     set => Link(1, value);
                 }
 
-                public Mas.Common.Date.WRITER Latest
+                public Mas.Schema.Common.Date.WRITER Latest
                 {
-                    get => BuildPointer<Mas.Common.Date.WRITER>(2);
+                    get => BuildPointer<Mas.Schema.Common.Date.WRITER>(2);
                     set => Link(2, value);
                 }
             }
@@ -449,7 +574,7 @@ namespace Mas.Rpc.Management
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Event = CapnpSerializable.Create<Mas.Rpc.Management.Event.Type>(reader.Event);
+                Event = CapnpSerializable.Create<Mas.Schema.Management.Event.Type>(reader.Event);
                 Days = reader.Days;
                 applyDefaults();
             }
@@ -469,7 +594,7 @@ namespace Mas.Rpc.Management
             {
             }
 
-            public Mas.Rpc.Management.Event.Type Event
+            public Mas.Schema.Management.Event.Type Event
             {
                 get;
                 set;
@@ -492,7 +617,7 @@ namespace Mas.Rpc.Management
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Rpc.Management.Event.Type.READER Event => ctx.ReadStruct(1, Mas.Rpc.Management.Event.Type.READER.create);
+                public Mas.Schema.Management.Event.Type.READER Event => ctx.ReadStruct(1, Mas.Schema.Management.Event.Type.READER.create);
                 public bool HasEvent => ctx.IsStructFieldNonNull(1);
                 public ushort Days => ctx.ReadDataUShort(32UL, (ushort)0);
             }
@@ -503,9 +628,9 @@ namespace Mas.Rpc.Management
                 {
                 }
 
-                public Mas.Rpc.Management.Event.Type.WRITER Event
+                public Mas.Schema.Management.Event.Type.WRITER Event
                 {
-                    get => BuildPointer<Mas.Rpc.Management.Event.Type.WRITER>(1);
+                    get => BuildPointer<Mas.Schema.Management.Event.Type.WRITER>(1);
                     set => Link(1, value);
                 }
 
@@ -581,10 +706,10 @@ namespace Mas.Rpc.Management
                     switch (value)
                     {
                         case WHICH.External:
-                            _content = (Mas.Rpc.Management.Event.ExternalType)0;
+                            _content = (Mas.Schema.Management.Event.ExternalType)0;
                             break;
                         case WHICH.Internal:
-                            _content = (Mas.Rpc.Management.Event.PhenoStage)0;
+                            _content = (Mas.Schema.Management.Event.PhenoStage)0;
                             break;
                     }
                 }
@@ -613,9 +738,9 @@ namespace Mas.Rpc.Management
             {
             }
 
-            public Mas.Rpc.Management.Event.ExternalType? External
+            public Mas.Schema.Management.Event.ExternalType? External
             {
-                get => _which == WHICH.External ? (Mas.Rpc.Management.Event.ExternalType? )_content : null;
+                get => _which == WHICH.External ? (Mas.Schema.Management.Event.ExternalType? )_content : null;
                 set
                 {
                     _which = WHICH.External;
@@ -623,9 +748,9 @@ namespace Mas.Rpc.Management
                 }
             }
 
-            public Mas.Rpc.Management.Event.PhenoStage? Internal
+            public Mas.Schema.Management.Event.PhenoStage? Internal
             {
-                get => _which == WHICH.Internal ? (Mas.Rpc.Management.Event.PhenoStage? )_content : null;
+                get => _which == WHICH.Internal ? (Mas.Schema.Management.Event.PhenoStage? )_content : null;
                 set
                 {
                     _which = WHICH.Internal;
@@ -645,8 +770,8 @@ namespace Mas.Rpc.Management
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
                 public WHICH which => (WHICH)ctx.ReadDataUShort(16U, (ushort)0);
-                public Mas.Rpc.Management.Event.ExternalType External => which == WHICH.External ? (Mas.Rpc.Management.Event.ExternalType)ctx.ReadDataUShort(0UL, (ushort)0) : default;
-                public Mas.Rpc.Management.Event.PhenoStage Internal => which == WHICH.Internal ? (Mas.Rpc.Management.Event.PhenoStage)ctx.ReadDataUShort(0UL, (ushort)0) : default;
+                public Mas.Schema.Management.Event.ExternalType External => which == WHICH.External ? (Mas.Schema.Management.Event.ExternalType)ctx.ReadDataUShort(0UL, (ushort)0) : default;
+                public Mas.Schema.Management.Event.PhenoStage Internal => which == WHICH.Internal ? (Mas.Schema.Management.Event.PhenoStage)ctx.ReadDataUShort(0UL, (ushort)0) : default;
             }
 
             public class WRITER : SerializerState
@@ -662,15 +787,15 @@ namespace Mas.Rpc.Management
                     set => this.WriteData(16U, (ushort)value, (ushort)0);
                 }
 
-                public Mas.Rpc.Management.Event.ExternalType External
+                public Mas.Schema.Management.Event.ExternalType External
                 {
-                    get => which == WHICH.External ? (Mas.Rpc.Management.Event.ExternalType)this.ReadDataUShort(0UL, (ushort)0) : default;
+                    get => which == WHICH.External ? (Mas.Schema.Management.Event.ExternalType)this.ReadDataUShort(0UL, (ushort)0) : default;
                     set => this.WriteData(0UL, (ushort)value, (ushort)0);
                 }
 
-                public Mas.Rpc.Management.Event.PhenoStage Internal
+                public Mas.Schema.Management.Event.PhenoStage Internal
                 {
-                    get => which == WHICH.Internal ? (Mas.Rpc.Management.Event.PhenoStage)this.ReadDataUShort(0UL, (ushort)0) : default;
+                    get => which == WHICH.Internal ? (Mas.Schema.Management.Event.PhenoStage)this.ReadDataUShort(0UL, (ushort)0) : default;
                     set => this.WriteData(0UL, (ushort)value, (ushort)0);
                 }
             }
@@ -750,7 +875,7 @@ namespace Mas.Rpc.Management
             {
             }
 
-            public Mas.Rpc.Crop.Cultivar Cultivar
+            public Mas.Schema.Crop.Cultivar Cultivar
             {
                 get;
                 set;
@@ -763,7 +888,7 @@ namespace Mas.Rpc.Management
             }
 
             = 0;
-            public Mas.Rpc.Crop.ICrop Crop
+            public Mas.Schema.Crop.ICrop Crop
             {
                 get;
                 set;
@@ -780,9 +905,9 @@ namespace Mas.Rpc.Management
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Rpc.Crop.Cultivar Cultivar => (Mas.Rpc.Crop.Cultivar)ctx.ReadDataUShort(0UL, (ushort)0);
+                public Mas.Schema.Crop.Cultivar Cultivar => (Mas.Schema.Crop.Cultivar)ctx.ReadDataUShort(0UL, (ushort)0);
                 public ushort PlantDensity => ctx.ReadDataUShort(16UL, (ushort)0);
-                public Mas.Rpc.Crop.ICrop Crop => ctx.ReadCap<Mas.Rpc.Crop.ICrop>(0);
+                public Mas.Schema.Crop.ICrop Crop => ctx.ReadCap<Mas.Schema.Crop.ICrop>(0);
             }
 
             public class WRITER : SerializerState
@@ -792,9 +917,9 @@ namespace Mas.Rpc.Management
                     this.SetStruct(1, 1);
                 }
 
-                public Mas.Rpc.Crop.Cultivar Cultivar
+                public Mas.Schema.Crop.Cultivar Cultivar
                 {
-                    get => (Mas.Rpc.Crop.Cultivar)this.ReadDataUShort(0UL, (ushort)0);
+                    get => (Mas.Schema.Crop.Cultivar)this.ReadDataUShort(0UL, (ushort)0);
                     set => this.WriteData(0UL, (ushort)value, (ushort)0);
                 }
 
@@ -804,9 +929,9 @@ namespace Mas.Rpc.Management
                     set => this.WriteData(16UL, value, (ushort)0);
                 }
 
-                public Mas.Rpc.Crop.ICrop Crop
+                public Mas.Schema.Crop.ICrop Crop
                 {
-                    get => ReadCap<Mas.Rpc.Crop.ICrop>(0);
+                    get => ReadCap<Mas.Schema.Crop.ICrop>(0);
                     set => LinkObject(0, value);
                 }
             }
@@ -827,8 +952,8 @@ namespace Mas.Rpc.Management
                 MaxCurrentDayPrecipSum = reader.MaxCurrentDayPrecipSum;
                 TempSumAboveBaseTemp = reader.TempSumAboveBaseTemp;
                 BaseTemp = reader.BaseTemp;
-                TheAvgSoilTemp = CapnpSerializable.Create<Mas.Rpc.Management.Params.AutomaticSowing.AvgSoilTemp>(reader.TheAvgSoilTemp);
-                Sowing = CapnpSerializable.Create<Mas.Rpc.Management.Params.Sowing>(reader.Sowing);
+                TheAvgSoilTemp = CapnpSerializable.Create<Mas.Schema.Management.Params.AutomaticSowing.AvgSoilTemp>(reader.TheAvgSoilTemp);
+                Sowing = CapnpSerializable.Create<Mas.Schema.Management.Params.Sowing>(reader.Sowing);
                 applyDefaults();
             }
 
@@ -905,13 +1030,13 @@ namespace Mas.Rpc.Management
                 set;
             }
 
-            public Mas.Rpc.Management.Params.AutomaticSowing.AvgSoilTemp TheAvgSoilTemp
+            public Mas.Schema.Management.Params.AutomaticSowing.AvgSoilTemp TheAvgSoilTemp
             {
                 get;
                 set;
             }
 
-            public Mas.Rpc.Management.Params.Sowing Sowing
+            public Mas.Schema.Management.Params.Sowing Sowing
             {
                 get;
                 set;
@@ -936,9 +1061,9 @@ namespace Mas.Rpc.Management
                 public double MaxCurrentDayPrecipSum => ctx.ReadDataDouble(320UL, 0);
                 public double TempSumAboveBaseTemp => ctx.ReadDataDouble(384UL, 0);
                 public double BaseTemp => ctx.ReadDataDouble(448UL, 0);
-                public Mas.Rpc.Management.Params.AutomaticSowing.AvgSoilTemp.READER TheAvgSoilTemp => ctx.ReadStruct(0, Mas.Rpc.Management.Params.AutomaticSowing.AvgSoilTemp.READER.create);
+                public Mas.Schema.Management.Params.AutomaticSowing.AvgSoilTemp.READER TheAvgSoilTemp => ctx.ReadStruct(0, Mas.Schema.Management.Params.AutomaticSowing.AvgSoilTemp.READER.create);
                 public bool HasTheAvgSoilTemp => ctx.IsStructFieldNonNull(0);
-                public Mas.Rpc.Management.Params.Sowing.READER Sowing => ctx.ReadStruct(1, Mas.Rpc.Management.Params.Sowing.READER.create);
+                public Mas.Schema.Management.Params.Sowing.READER Sowing => ctx.ReadStruct(1, Mas.Schema.Management.Params.Sowing.READER.create);
                 public bool HasSowing => ctx.IsStructFieldNonNull(1);
             }
 
@@ -997,15 +1122,15 @@ namespace Mas.Rpc.Management
                     set => this.WriteData(448UL, value, 0);
                 }
 
-                public Mas.Rpc.Management.Params.AutomaticSowing.AvgSoilTemp.WRITER TheAvgSoilTemp
+                public Mas.Schema.Management.Params.AutomaticSowing.AvgSoilTemp.WRITER TheAvgSoilTemp
                 {
-                    get => BuildPointer<Mas.Rpc.Management.Params.AutomaticSowing.AvgSoilTemp.WRITER>(0);
+                    get => BuildPointer<Mas.Schema.Management.Params.AutomaticSowing.AvgSoilTemp.WRITER>(0);
                     set => Link(0, value);
                 }
 
-                public Mas.Rpc.Management.Params.Sowing.WRITER Sowing
+                public Mas.Schema.Management.Params.Sowing.WRITER Sowing
                 {
-                    get => BuildPointer<Mas.Rpc.Management.Params.Sowing.WRITER>(1);
+                    get => BuildPointer<Mas.Schema.Management.Params.Sowing.WRITER>(1);
                     set => Link(1, value);
                 }
             }
@@ -1110,7 +1235,7 @@ namespace Mas.Rpc.Management
             {
                 var reader = READER.create(arg_);
                 Exported = reader.Exported;
-                OptCarbMgmtData = CapnpSerializable.Create<Mas.Rpc.Management.Params.Harvest.OptCarbonMgmtData>(reader.OptCarbMgmtData);
+                OptCarbMgmtData = CapnpSerializable.Create<Mas.Schema.Management.Params.Harvest.OptCarbonMgmtData>(reader.OptCarbMgmtData);
                 applyDefaults();
             }
 
@@ -1136,7 +1261,7 @@ namespace Mas.Rpc.Management
             }
 
             = true;
-            public Mas.Rpc.Management.Params.Harvest.OptCarbonMgmtData OptCarbMgmtData
+            public Mas.Schema.Management.Params.Harvest.OptCarbonMgmtData OptCarbMgmtData
             {
                 get;
                 set;
@@ -1154,7 +1279,7 @@ namespace Mas.Rpc.Management
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
                 public bool Exported => ctx.ReadDataBool(0UL, true);
-                public Mas.Rpc.Management.Params.Harvest.OptCarbonMgmtData.READER OptCarbMgmtData => ctx.ReadStruct(0, Mas.Rpc.Management.Params.Harvest.OptCarbonMgmtData.READER.create);
+                public Mas.Schema.Management.Params.Harvest.OptCarbonMgmtData.READER OptCarbMgmtData => ctx.ReadStruct(0, Mas.Schema.Management.Params.Harvest.OptCarbonMgmtData.READER.create);
                 public bool HasOptCarbMgmtData => ctx.IsStructFieldNonNull(0);
             }
 
@@ -1171,9 +1296,9 @@ namespace Mas.Rpc.Management
                     set => this.WriteData(0UL, value, true);
                 }
 
-                public Mas.Rpc.Management.Params.Harvest.OptCarbonMgmtData.WRITER OptCarbMgmtData
+                public Mas.Schema.Management.Params.Harvest.OptCarbonMgmtData.WRITER OptCarbMgmtData
                 {
-                    get => BuildPointer<Mas.Rpc.Management.Params.Harvest.OptCarbonMgmtData.WRITER>(0);
+                    get => BuildPointer<Mas.Schema.Management.Params.Harvest.OptCarbonMgmtData.WRITER>(0);
                     set => Link(0, value);
                 }
             }
@@ -1234,13 +1359,13 @@ namespace Mas.Rpc.Management
                 }
 
                 = 0;
-                public Mas.Rpc.Management.Params.Harvest.CropUsage CropUsage
+                public Mas.Schema.Management.Params.Harvest.CropUsage CropUsage
                 {
                     get;
                     set;
                 }
 
-                = Mas.Rpc.Management.Params.Harvest.CropUsage.biomassProduction;
+                = Mas.Schema.Management.Params.Harvest.CropUsage.biomassProduction;
                 public double ResidueHeq
                 {
                     get;
@@ -1275,7 +1400,7 @@ namespace Mas.Rpc.Management
                     public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
                     public bool OptCarbonConservation => ctx.ReadDataBool(0UL, false);
                     public double CropImpactOnHumusBalance => ctx.ReadDataDouble(64UL, 0);
-                    public Mas.Rpc.Management.Params.Harvest.CropUsage CropUsage => (Mas.Rpc.Management.Params.Harvest.CropUsage)ctx.ReadDataUShort(16UL, (ushort)1);
+                    public Mas.Schema.Management.Params.Harvest.CropUsage CropUsage => (Mas.Schema.Management.Params.Harvest.CropUsage)ctx.ReadDataUShort(16UL, (ushort)1);
                     public double ResidueHeq => ctx.ReadDataDouble(128UL, 0);
                     public double OrganicFertilizerHeq => ctx.ReadDataDouble(192UL, 0);
                     public double MaxResidueRecoverFraction => ctx.ReadDataDouble(256UL, 0);
@@ -1300,9 +1425,9 @@ namespace Mas.Rpc.Management
                         set => this.WriteData(64UL, value, 0);
                     }
 
-                    public Mas.Rpc.Management.Params.Harvest.CropUsage CropUsage
+                    public Mas.Schema.Management.Params.Harvest.CropUsage CropUsage
                     {
-                        get => (Mas.Rpc.Management.Params.Harvest.CropUsage)this.ReadDataUShort(16UL, (ushort)1);
+                        get => (Mas.Schema.Management.Params.Harvest.CropUsage)this.ReadDataUShort(16UL, (ushort)1);
                         set => this.WriteData(16UL, (ushort)value, (ushort)1);
                     }
 
@@ -1339,7 +1464,7 @@ namespace Mas.Rpc.Management
                 Max3dayPrecipSum = reader.Max3dayPrecipSum;
                 MaxCurrentDayPrecipSum = reader.MaxCurrentDayPrecipSum;
                 HarvestTime = reader.HarvestTime;
-                Harvest = CapnpSerializable.Create<Mas.Rpc.Management.Params.Harvest>(reader.Harvest);
+                Harvest = CapnpSerializable.Create<Mas.Schema.Management.Params.Harvest>(reader.Harvest);
                 applyDefaults();
             }
 
@@ -1387,14 +1512,14 @@ namespace Mas.Rpc.Management
                 set;
             }
 
-            public Mas.Rpc.Management.Event.PhenoStage HarvestTime
+            public Mas.Schema.Management.Event.PhenoStage HarvestTime
             {
                 get;
                 set;
             }
 
-            = Mas.Rpc.Management.Event.PhenoStage.maturity;
-            public Mas.Rpc.Management.Params.Harvest Harvest
+            = Mas.Schema.Management.Event.PhenoStage.maturity;
+            public Mas.Schema.Management.Params.Harvest Harvest
             {
                 get;
                 set;
@@ -1415,8 +1540,8 @@ namespace Mas.Rpc.Management
                 public double MaxPercentASW => ctx.ReadDataDouble(64UL, 100);
                 public double Max3dayPrecipSum => ctx.ReadDataDouble(128UL, 0);
                 public double MaxCurrentDayPrecipSum => ctx.ReadDataDouble(192UL, 0);
-                public Mas.Rpc.Management.Event.PhenoStage HarvestTime => (Mas.Rpc.Management.Event.PhenoStage)ctx.ReadDataUShort(256UL, (ushort)3);
-                public Mas.Rpc.Management.Params.Harvest.READER Harvest => ctx.ReadStruct(0, Mas.Rpc.Management.Params.Harvest.READER.create);
+                public Mas.Schema.Management.Event.PhenoStage HarvestTime => (Mas.Schema.Management.Event.PhenoStage)ctx.ReadDataUShort(256UL, (ushort)3);
+                public Mas.Schema.Management.Params.Harvest.READER Harvest => ctx.ReadStruct(0, Mas.Schema.Management.Params.Harvest.READER.create);
                 public bool HasHarvest => ctx.IsStructFieldNonNull(0);
             }
 
@@ -1451,15 +1576,15 @@ namespace Mas.Rpc.Management
                     set => this.WriteData(192UL, value, 0);
                 }
 
-                public Mas.Rpc.Management.Event.PhenoStage HarvestTime
+                public Mas.Schema.Management.Event.PhenoStage HarvestTime
                 {
-                    get => (Mas.Rpc.Management.Event.PhenoStage)this.ReadDataUShort(256UL, (ushort)3);
+                    get => (Mas.Schema.Management.Event.PhenoStage)this.ReadDataUShort(256UL, (ushort)3);
                     set => this.WriteData(256UL, (ushort)value, (ushort)3);
                 }
 
-                public Mas.Rpc.Management.Params.Harvest.WRITER Harvest
+                public Mas.Schema.Management.Params.Harvest.WRITER Harvest
                 {
-                    get => BuildPointer<Mas.Rpc.Management.Params.Harvest.WRITER>(0);
+                    get => BuildPointer<Mas.Schema.Management.Params.Harvest.WRITER>(0);
                     set => Link(0, value);
                 }
             }
@@ -1472,7 +1597,7 @@ namespace Mas.Rpc.Management
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                CuttingSpec = reader.CuttingSpec?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Rpc.Management.Params.Cutting.Spec>(_));
+                CuttingSpec = reader.CuttingSpec?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Management.Params.Cutting.Spec>(_));
                 CutMaxAssimilationRatePercentage = reader.CutMaxAssimilationRatePercentage;
                 applyDefaults();
             }
@@ -1492,7 +1617,7 @@ namespace Mas.Rpc.Management
             {
             }
 
-            public IReadOnlyList<Mas.Rpc.Management.Params.Cutting.Spec> CuttingSpec
+            public IReadOnlyList<Mas.Schema.Management.Params.Cutting.Spec> CuttingSpec
             {
                 get;
                 set;
@@ -1515,7 +1640,7 @@ namespace Mas.Rpc.Management
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public IReadOnlyList<Mas.Rpc.Management.Params.Cutting.Spec.READER> CuttingSpec => ctx.ReadList(0).Cast(Mas.Rpc.Management.Params.Cutting.Spec.READER.create);
+                public IReadOnlyList<Mas.Schema.Management.Params.Cutting.Spec.READER> CuttingSpec => ctx.ReadList(0).Cast(Mas.Schema.Management.Params.Cutting.Spec.READER.create);
                 public bool HasCuttingSpec => ctx.IsStructFieldNonNull(0);
                 public double CutMaxAssimilationRatePercentage => ctx.ReadDataDouble(0UL, 0);
             }
@@ -1527,9 +1652,9 @@ namespace Mas.Rpc.Management
                     this.SetStruct(1, 1);
                 }
 
-                public ListOfStructsSerializer<Mas.Rpc.Management.Params.Cutting.Spec.WRITER> CuttingSpec
+                public ListOfStructsSerializer<Mas.Schema.Management.Params.Cutting.Spec.WRITER> CuttingSpec
                 {
-                    get => BuildPointer<ListOfStructsSerializer<Mas.Rpc.Management.Params.Cutting.Spec.WRITER>>(0);
+                    get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Management.Params.Cutting.Spec.WRITER>>(0);
                     set => Link(0, value);
                 }
 
@@ -1588,7 +1713,7 @@ namespace Mas.Rpc.Management
                 {
                 }
 
-                public Mas.Rpc.Management.PlantOrgan Organ
+                public Mas.Schema.Management.PlantOrgan Organ
                 {
                     get;
                     set;
@@ -1600,20 +1725,20 @@ namespace Mas.Rpc.Management
                     set;
                 }
 
-                public Mas.Rpc.Management.Params.Cutting.Unit Unit
+                public Mas.Schema.Management.Params.Cutting.Unit Unit
                 {
                     get;
                     set;
                 }
 
-                = Mas.Rpc.Management.Params.Cutting.Unit.percentage;
-                public Mas.Rpc.Management.Params.Cutting.CL CutOrLeft
+                = Mas.Schema.Management.Params.Cutting.Unit.percentage;
+                public Mas.Schema.Management.Params.Cutting.CL CutOrLeft
                 {
                     get;
                     set;
                 }
 
-                = Mas.Rpc.Management.Params.Cutting.CL.cut;
+                = Mas.Schema.Management.Params.Cutting.CL.cut;
                 public double ExportPercentage
                 {
                     get;
@@ -1632,10 +1757,10 @@ namespace Mas.Rpc.Management
                     public static READER create(DeserializerState ctx) => new READER(ctx);
                     public static implicit operator DeserializerState(READER reader) => reader.ctx;
                     public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                    public Mas.Rpc.Management.PlantOrgan Organ => (Mas.Rpc.Management.PlantOrgan)ctx.ReadDataUShort(0UL, (ushort)0);
+                    public Mas.Schema.Management.PlantOrgan Organ => (Mas.Schema.Management.PlantOrgan)ctx.ReadDataUShort(0UL, (ushort)0);
                     public double Value => ctx.ReadDataDouble(64UL, 0);
-                    public Mas.Rpc.Management.Params.Cutting.Unit Unit => (Mas.Rpc.Management.Params.Cutting.Unit)ctx.ReadDataUShort(16UL, (ushort)0);
-                    public Mas.Rpc.Management.Params.Cutting.CL CutOrLeft => (Mas.Rpc.Management.Params.Cutting.CL)ctx.ReadDataUShort(32UL, (ushort)0);
+                    public Mas.Schema.Management.Params.Cutting.Unit Unit => (Mas.Schema.Management.Params.Cutting.Unit)ctx.ReadDataUShort(16UL, (ushort)0);
+                    public Mas.Schema.Management.Params.Cutting.CL CutOrLeft => (Mas.Schema.Management.Params.Cutting.CL)ctx.ReadDataUShort(32UL, (ushort)0);
                     public double ExportPercentage => ctx.ReadDataDouble(128UL, 100);
                 }
 
@@ -1646,9 +1771,9 @@ namespace Mas.Rpc.Management
                         this.SetStruct(3, 0);
                     }
 
-                    public Mas.Rpc.Management.PlantOrgan Organ
+                    public Mas.Schema.Management.PlantOrgan Organ
                     {
-                        get => (Mas.Rpc.Management.PlantOrgan)this.ReadDataUShort(0UL, (ushort)0);
+                        get => (Mas.Schema.Management.PlantOrgan)this.ReadDataUShort(0UL, (ushort)0);
                         set => this.WriteData(0UL, (ushort)value, (ushort)0);
                     }
 
@@ -1658,15 +1783,15 @@ namespace Mas.Rpc.Management
                         set => this.WriteData(64UL, value, 0);
                     }
 
-                    public Mas.Rpc.Management.Params.Cutting.Unit Unit
+                    public Mas.Schema.Management.Params.Cutting.Unit Unit
                     {
-                        get => (Mas.Rpc.Management.Params.Cutting.Unit)this.ReadDataUShort(16UL, (ushort)0);
+                        get => (Mas.Schema.Management.Params.Cutting.Unit)this.ReadDataUShort(16UL, (ushort)0);
                         set => this.WriteData(16UL, (ushort)value, (ushort)0);
                     }
 
-                    public Mas.Rpc.Management.Params.Cutting.CL CutOrLeft
+                    public Mas.Schema.Management.Params.Cutting.CL CutOrLeft
                     {
-                        get => (Mas.Rpc.Management.Params.Cutting.CL)this.ReadDataUShort(32UL, (ushort)0);
+                        get => (Mas.Schema.Management.Params.Cutting.CL)this.ReadDataUShort(32UL, (ushort)0);
                         set => this.WriteData(32UL, (ushort)value, (ushort)0);
                     }
 
@@ -1686,7 +1811,7 @@ namespace Mas.Rpc.Management
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Partition = CapnpSerializable.Create<Mas.Rpc.Management.Params.MineralFertilization.Parameters>(reader.Partition);
+                Partition = CapnpSerializable.Create<Mas.Schema.Management.Params.MineralFertilization.Parameters>(reader.Partition);
                 Amount = reader.Amount;
                 applyDefaults();
             }
@@ -1706,7 +1831,7 @@ namespace Mas.Rpc.Management
             {
             }
 
-            public Mas.Rpc.Management.Params.MineralFertilization.Parameters Partition
+            public Mas.Schema.Management.Params.MineralFertilization.Parameters Partition
             {
                 get;
                 set;
@@ -1729,7 +1854,7 @@ namespace Mas.Rpc.Management
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Rpc.Management.Params.MineralFertilization.Parameters.READER Partition => ctx.ReadStruct(0, Mas.Rpc.Management.Params.MineralFertilization.Parameters.READER.create);
+                public Mas.Schema.Management.Params.MineralFertilization.Parameters.READER Partition => ctx.ReadStruct(0, Mas.Schema.Management.Params.MineralFertilization.Parameters.READER.create);
                 public bool HasPartition => ctx.IsStructFieldNonNull(0);
                 public double Amount => ctx.ReadDataDouble(0UL, 0);
             }
@@ -1741,9 +1866,9 @@ namespace Mas.Rpc.Management
                     this.SetStruct(1, 1);
                 }
 
-                public Mas.Rpc.Management.Params.MineralFertilization.Parameters.WRITER Partition
+                public Mas.Schema.Management.Params.MineralFertilization.Parameters.WRITER Partition
                 {
-                    get => BuildPointer<Mas.Rpc.Management.Params.MineralFertilization.Parameters.WRITER>(0);
+                    get => BuildPointer<Mas.Schema.Management.Params.MineralFertilization.Parameters.WRITER>(0);
                     set => Link(0, value);
                 }
 
@@ -1883,7 +2008,7 @@ namespace Mas.Rpc.Management
             {
                 var reader = READER.create(arg_);
                 NDemand = reader.NDemand;
-                Partition = CapnpSerializable.Create<Mas.Rpc.Management.Params.MineralFertilization.Parameters>(reader.Partition);
+                Partition = CapnpSerializable.Create<Mas.Schema.Management.Params.MineralFertilization.Parameters>(reader.Partition);
                 Depth = reader.Depth;
                 Stage = reader.Stage;
                 applyDefaults();
@@ -1912,7 +2037,7 @@ namespace Mas.Rpc.Management
                 set;
             }
 
-            public Mas.Rpc.Management.Params.MineralFertilization.Parameters Partition
+            public Mas.Schema.Management.Params.MineralFertilization.Parameters Partition
             {
                 get;
                 set;
@@ -1943,7 +2068,7 @@ namespace Mas.Rpc.Management
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
                 public double NDemand => ctx.ReadDataDouble(0UL, 0);
-                public Mas.Rpc.Management.Params.MineralFertilization.Parameters.READER Partition => ctx.ReadStruct(0, Mas.Rpc.Management.Params.MineralFertilization.Parameters.READER.create);
+                public Mas.Schema.Management.Params.MineralFertilization.Parameters.READER Partition => ctx.ReadStruct(0, Mas.Schema.Management.Params.MineralFertilization.Parameters.READER.create);
                 public bool HasPartition => ctx.IsStructFieldNonNull(0);
                 public double Depth => ctx.ReadDataDouble(64UL, 0);
                 public byte Stage => ctx.ReadDataByte(128UL, (byte)1);
@@ -1962,9 +2087,9 @@ namespace Mas.Rpc.Management
                     set => this.WriteData(0UL, value, 0);
                 }
 
-                public Mas.Rpc.Management.Params.MineralFertilization.Parameters.WRITER Partition
+                public Mas.Schema.Management.Params.MineralFertilization.Parameters.WRITER Partition
                 {
-                    get => BuildPointer<Mas.Rpc.Management.Params.MineralFertilization.Parameters.WRITER>(0);
+                    get => BuildPointer<Mas.Schema.Management.Params.MineralFertilization.Parameters.WRITER>(0);
                     set => Link(0, value);
                 }
 
@@ -1989,7 +2114,7 @@ namespace Mas.Rpc.Management
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Params = CapnpSerializable.Create<Mas.Rpc.Management.Params.OrganicFertilization.Parameters>(reader.Params);
+                Params = CapnpSerializable.Create<Mas.Schema.Management.Params.OrganicFertilization.Parameters>(reader.Params);
                 Amount = reader.Amount;
                 Incorporation = reader.Incorporation;
                 applyDefaults();
@@ -2011,7 +2136,7 @@ namespace Mas.Rpc.Management
             {
             }
 
-            public Mas.Rpc.Management.Params.OrganicFertilization.Parameters Params
+            public Mas.Schema.Management.Params.OrganicFertilization.Parameters Params
             {
                 get;
                 set;
@@ -2041,7 +2166,7 @@ namespace Mas.Rpc.Management
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Rpc.Management.Params.OrganicFertilization.Parameters.READER Params => ctx.ReadStruct(0, Mas.Rpc.Management.Params.OrganicFertilization.Parameters.READER.create);
+                public Mas.Schema.Management.Params.OrganicFertilization.Parameters.READER Params => ctx.ReadStruct(0, Mas.Schema.Management.Params.OrganicFertilization.Parameters.READER.create);
                 public bool HasParams => ctx.IsStructFieldNonNull(0);
                 public double Amount => ctx.ReadDataDouble(0UL, 0);
                 public bool Incorporation => ctx.ReadDataBool(64UL, false);
@@ -2054,9 +2179,9 @@ namespace Mas.Rpc.Management
                     this.SetStruct(2, 1);
                 }
 
-                public Mas.Rpc.Management.Params.OrganicFertilization.Parameters.WRITER Params
+                public Mas.Schema.Management.Params.OrganicFertilization.Parameters.WRITER Params
                 {
-                    get => BuildPointer<Mas.Rpc.Management.Params.OrganicFertilization.Parameters.WRITER>(0);
+                    get => BuildPointer<Mas.Schema.Management.Params.OrganicFertilization.Parameters.WRITER>(0);
                     set => Link(0, value);
                 }
 
@@ -2320,7 +2445,7 @@ namespace Mas.Rpc.Management
                 void ICapnpSerializable.Deserialize(DeserializerState arg_)
                 {
                     var reader = READER.create(arg_);
-                    Params = CapnpSerializable.Create<Mas.Rpc.Management.Params.OrganicFertilization.OrganicMatterParameters>(reader.Params);
+                    Params = CapnpSerializable.Create<Mas.Schema.Management.Params.OrganicFertilization.OrganicMatterParameters>(reader.Params);
                     Id = reader.Id;
                     Name = reader.Name;
                     applyDefaults();
@@ -2342,7 +2467,7 @@ namespace Mas.Rpc.Management
                 {
                 }
 
-                public Mas.Rpc.Management.Params.OrganicFertilization.OrganicMatterParameters Params
+                public Mas.Schema.Management.Params.OrganicFertilization.OrganicMatterParameters Params
                 {
                     get;
                     set;
@@ -2371,7 +2496,7 @@ namespace Mas.Rpc.Management
                     public static READER create(DeserializerState ctx) => new READER(ctx);
                     public static implicit operator DeserializerState(READER reader) => reader.ctx;
                     public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                    public Mas.Rpc.Management.Params.OrganicFertilization.OrganicMatterParameters.READER Params => ctx.ReadStruct(0, Mas.Rpc.Management.Params.OrganicFertilization.OrganicMatterParameters.READER.create);
+                    public Mas.Schema.Management.Params.OrganicFertilization.OrganicMatterParameters.READER Params => ctx.ReadStruct(0, Mas.Schema.Management.Params.OrganicFertilization.OrganicMatterParameters.READER.create);
                     public bool HasParams => ctx.IsStructFieldNonNull(0);
                     public string Id => ctx.ReadText(1, null);
                     public string Name => ctx.ReadText(2, null);
@@ -2384,9 +2509,9 @@ namespace Mas.Rpc.Management
                         this.SetStruct(0, 3);
                     }
 
-                    public Mas.Rpc.Management.Params.OrganicFertilization.OrganicMatterParameters.WRITER Params
+                    public Mas.Schema.Management.Params.OrganicFertilization.OrganicMatterParameters.WRITER Params
                     {
-                        get => BuildPointer<Mas.Rpc.Management.Params.OrganicFertilization.OrganicMatterParameters.WRITER>(0);
+                        get => BuildPointer<Mas.Schema.Management.Params.OrganicFertilization.OrganicMatterParameters.WRITER>(0);
                         set => Link(0, value);
                     }
 
@@ -2474,7 +2599,7 @@ namespace Mas.Rpc.Management
             {
                 var reader = READER.create(arg_);
                 Amount = reader.Amount;
-                Params = CapnpSerializable.Create<Mas.Rpc.Management.Params.Irrigation.Parameters>(reader.Params);
+                Params = CapnpSerializable.Create<Mas.Schema.Management.Params.Irrigation.Parameters>(reader.Params);
                 applyDefaults();
             }
 
@@ -2499,7 +2624,7 @@ namespace Mas.Rpc.Management
                 set;
             }
 
-            public Mas.Rpc.Management.Params.Irrigation.Parameters Params
+            public Mas.Schema.Management.Params.Irrigation.Parameters Params
             {
                 get;
                 set;
@@ -2517,7 +2642,7 @@ namespace Mas.Rpc.Management
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
                 public double Amount => ctx.ReadDataDouble(0UL, 0);
-                public Mas.Rpc.Management.Params.Irrigation.Parameters.READER Params => ctx.ReadStruct(0, Mas.Rpc.Management.Params.Irrigation.Parameters.READER.create);
+                public Mas.Schema.Management.Params.Irrigation.Parameters.READER Params => ctx.ReadStruct(0, Mas.Schema.Management.Params.Irrigation.Parameters.READER.create);
                 public bool HasParams => ctx.IsStructFieldNonNull(0);
             }
 
@@ -2534,9 +2659,9 @@ namespace Mas.Rpc.Management
                     set => this.WriteData(0UL, value, 0);
                 }
 
-                public Mas.Rpc.Management.Params.Irrigation.Parameters.WRITER Params
+                public Mas.Schema.Management.Params.Irrigation.Parameters.WRITER Params
                 {
-                    get => BuildPointer<Mas.Rpc.Management.Params.Irrigation.Parameters.WRITER>(0);
+                    get => BuildPointer<Mas.Schema.Management.Params.Irrigation.Parameters.WRITER>(0);
                     set => Link(0, value);
                 }
             }
@@ -2619,50 +2744,50 @@ namespace Mas.Rpc.Management
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xbbb7aeae0d097e05UL), Proxy(typeof(FertilizerService_Proxy)), Skeleton(typeof(FertilizerService_Skeleton))]
-    public interface IFertilizerService : Mas.Rpc.Common.IIdentifiable
+    public interface IFertilizerService : Mas.Schema.Common.IIdentifiable
     {
-        Task<Mas.Rpc.Management.Params.MineralFertilization.Parameters> MineralFertilizerPartitionFor(Mas.Rpc.Management.MineralFertilizer minFert, CancellationToken cancellationToken_ = default);
-        Task<Mas.Rpc.Management.Params.OrganicFertilization.Parameters> OrganicFertilizerParametersFor(Mas.Rpc.Management.OrganicFertilizer orgFert, CancellationToken cancellationToken_ = default);
+        Task<Mas.Schema.Management.Params.MineralFertilization.Parameters> MineralFertilizerPartitionFor(Mas.Schema.Management.MineralFertilizer minFert, CancellationToken cancellationToken_ = default);
+        Task<Mas.Schema.Management.Params.OrganicFertilization.Parameters> OrganicFertilizerParametersFor(Mas.Schema.Management.OrganicFertilizer orgFert, CancellationToken cancellationToken_ = default);
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xbbb7aeae0d097e05UL)]
     public class FertilizerService_Proxy : Proxy, IFertilizerService
     {
-        public async Task<Mas.Rpc.Management.Params.MineralFertilization.Parameters> MineralFertilizerPartitionFor(Mas.Rpc.Management.MineralFertilizer minFert, CancellationToken cancellationToken_ = default)
+        public async Task<Mas.Schema.Management.Params.MineralFertilization.Parameters> MineralFertilizerPartitionFor(Mas.Schema.Management.MineralFertilizer minFert, CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Management.FertilizerService.Params_MineralFertilizerPartitionFor.WRITER>();
-            var arg_ = new Mas.Rpc.Management.FertilizerService.Params_MineralFertilizerPartitionFor()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Management.FertilizerService.Params_MineralFertilizerPartitionFor.WRITER>();
+            var arg_ = new Mas.Schema.Management.FertilizerService.Params_MineralFertilizerPartitionFor()
             {MinFert = minFert};
             arg_?.serialize(in_);
             using (var d_ = await Call(13526472068396842501UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Rpc.Management.FertilizerService.Result_MineralFertilizerPartitionFor>(d_);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Management.FertilizerService.Result_MineralFertilizerPartitionFor>(d_);
                 return (r_.Partition);
             }
         }
 
-        public async Task<Mas.Rpc.Management.Params.OrganicFertilization.Parameters> OrganicFertilizerParametersFor(Mas.Rpc.Management.OrganicFertilizer orgFert, CancellationToken cancellationToken_ = default)
+        public async Task<Mas.Schema.Management.Params.OrganicFertilization.Parameters> OrganicFertilizerParametersFor(Mas.Schema.Management.OrganicFertilizer orgFert, CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Management.FertilizerService.Params_OrganicFertilizerParametersFor.WRITER>();
-            var arg_ = new Mas.Rpc.Management.FertilizerService.Params_OrganicFertilizerParametersFor()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Management.FertilizerService.Params_OrganicFertilizerParametersFor.WRITER>();
+            var arg_ = new Mas.Schema.Management.FertilizerService.Params_OrganicFertilizerParametersFor()
             {OrgFert = orgFert};
             arg_?.serialize(in_);
             using (var d_ = await Call(13526472068396842501UL, 1, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Rpc.Management.FertilizerService.Result_OrganicFertilizerParametersFor>(d_);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Management.FertilizerService.Result_OrganicFertilizerParametersFor>(d_);
                 return (r_.Params);
             }
         }
 
-        public async Task<Mas.Rpc.Common.IdInformation> Info(CancellationToken cancellationToken_ = default)
+        public async Task<Mas.Schema.Common.IdInformation> Info(CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Common.Identifiable.Params_Info.WRITER>();
-            var arg_ = new Mas.Rpc.Common.Identifiable.Params_Info()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Common.Identifiable.Params_Info.WRITER>();
+            var arg_ = new Mas.Schema.Common.Identifiable.Params_Info()
             {};
             arg_?.serialize(in_);
             using (var d_ = await Call(12875740530987518165UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Rpc.Common.IdInformation>(d_);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Common.IdInformation>(d_);
                 return r_;
             }
         }
@@ -2681,11 +2806,11 @@ namespace Mas.Rpc.Management
         {
             using (d_)
             {
-                var in_ = CapnpSerializable.Create<Mas.Rpc.Management.FertilizerService.Params_MineralFertilizerPartitionFor>(d_);
+                var in_ = CapnpSerializable.Create<Mas.Schema.Management.FertilizerService.Params_MineralFertilizerPartitionFor>(d_);
                 return Impatient.MaybeTailCall(Impl.MineralFertilizerPartitionFor(in_.MinFert, cancellationToken_), partition =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Rpc.Management.FertilizerService.Result_MineralFertilizerPartitionFor.WRITER>();
-                    var r_ = new Mas.Rpc.Management.FertilizerService.Result_MineralFertilizerPartitionFor{Partition = partition};
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Management.FertilizerService.Result_MineralFertilizerPartitionFor.WRITER>();
+                    var r_ = new Mas.Schema.Management.FertilizerService.Result_MineralFertilizerPartitionFor{Partition = partition};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -2698,11 +2823,11 @@ namespace Mas.Rpc.Management
         {
             using (d_)
             {
-                var in_ = CapnpSerializable.Create<Mas.Rpc.Management.FertilizerService.Params_OrganicFertilizerParametersFor>(d_);
+                var in_ = CapnpSerializable.Create<Mas.Schema.Management.FertilizerService.Params_OrganicFertilizerParametersFor>(d_);
                 return Impatient.MaybeTailCall(Impl.OrganicFertilizerParametersFor(in_.OrgFert, cancellationToken_), @params =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Rpc.Management.FertilizerService.Result_OrganicFertilizerParametersFor.WRITER>();
-                    var r_ = new Mas.Rpc.Management.FertilizerService.Result_OrganicFertilizerParametersFor{Params = @params};
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Management.FertilizerService.Result_OrganicFertilizerParametersFor.WRITER>();
+                    var r_ = new Mas.Schema.Management.FertilizerService.Result_OrganicFertilizerParametersFor{Params = @params};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -2739,7 +2864,7 @@ namespace Mas.Rpc.Management
             {
             }
 
-            public Mas.Rpc.Management.MineralFertilizer MinFert
+            public Mas.Schema.Management.MineralFertilizer MinFert
             {
                 get;
                 set;
@@ -2756,7 +2881,7 @@ namespace Mas.Rpc.Management
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Rpc.Management.MineralFertilizer MinFert => (Mas.Rpc.Management.MineralFertilizer)ctx.ReadDataUShort(0UL, (ushort)0);
+                public Mas.Schema.Management.MineralFertilizer MinFert => (Mas.Schema.Management.MineralFertilizer)ctx.ReadDataUShort(0UL, (ushort)0);
             }
 
             public class WRITER : SerializerState
@@ -2766,9 +2891,9 @@ namespace Mas.Rpc.Management
                     this.SetStruct(1, 0);
                 }
 
-                public Mas.Rpc.Management.MineralFertilizer MinFert
+                public Mas.Schema.Management.MineralFertilizer MinFert
                 {
-                    get => (Mas.Rpc.Management.MineralFertilizer)this.ReadDataUShort(0UL, (ushort)0);
+                    get => (Mas.Schema.Management.MineralFertilizer)this.ReadDataUShort(0UL, (ushort)0);
                     set => this.WriteData(0UL, (ushort)value, (ushort)0);
                 }
             }
@@ -2781,7 +2906,7 @@ namespace Mas.Rpc.Management
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Partition = CapnpSerializable.Create<Mas.Rpc.Management.Params.MineralFertilization.Parameters>(reader.Partition);
+                Partition = CapnpSerializable.Create<Mas.Schema.Management.Params.MineralFertilization.Parameters>(reader.Partition);
                 applyDefaults();
             }
 
@@ -2799,7 +2924,7 @@ namespace Mas.Rpc.Management
             {
             }
 
-            public Mas.Rpc.Management.Params.MineralFertilization.Parameters Partition
+            public Mas.Schema.Management.Params.MineralFertilization.Parameters Partition
             {
                 get;
                 set;
@@ -2816,7 +2941,7 @@ namespace Mas.Rpc.Management
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Rpc.Management.Params.MineralFertilization.Parameters.READER Partition => ctx.ReadStruct(0, Mas.Rpc.Management.Params.MineralFertilization.Parameters.READER.create);
+                public Mas.Schema.Management.Params.MineralFertilization.Parameters.READER Partition => ctx.ReadStruct(0, Mas.Schema.Management.Params.MineralFertilization.Parameters.READER.create);
                 public bool HasPartition => ctx.IsStructFieldNonNull(0);
             }
 
@@ -2827,9 +2952,9 @@ namespace Mas.Rpc.Management
                     this.SetStruct(0, 1);
                 }
 
-                public Mas.Rpc.Management.Params.MineralFertilization.Parameters.WRITER Partition
+                public Mas.Schema.Management.Params.MineralFertilization.Parameters.WRITER Partition
                 {
-                    get => BuildPointer<Mas.Rpc.Management.Params.MineralFertilization.Parameters.WRITER>(0);
+                    get => BuildPointer<Mas.Schema.Management.Params.MineralFertilization.Parameters.WRITER>(0);
                     set => Link(0, value);
                 }
             }
@@ -2860,7 +2985,7 @@ namespace Mas.Rpc.Management
             {
             }
 
-            public Mas.Rpc.Management.OrganicFertilizer OrgFert
+            public Mas.Schema.Management.OrganicFertilizer OrgFert
             {
                 get;
                 set;
@@ -2877,7 +3002,7 @@ namespace Mas.Rpc.Management
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Rpc.Management.OrganicFertilizer OrgFert => (Mas.Rpc.Management.OrganicFertilizer)ctx.ReadDataUShort(0UL, (ushort)0);
+                public Mas.Schema.Management.OrganicFertilizer OrgFert => (Mas.Schema.Management.OrganicFertilizer)ctx.ReadDataUShort(0UL, (ushort)0);
             }
 
             public class WRITER : SerializerState
@@ -2887,9 +3012,9 @@ namespace Mas.Rpc.Management
                     this.SetStruct(1, 0);
                 }
 
-                public Mas.Rpc.Management.OrganicFertilizer OrgFert
+                public Mas.Schema.Management.OrganicFertilizer OrgFert
                 {
-                    get => (Mas.Rpc.Management.OrganicFertilizer)this.ReadDataUShort(0UL, (ushort)0);
+                    get => (Mas.Schema.Management.OrganicFertilizer)this.ReadDataUShort(0UL, (ushort)0);
                     set => this.WriteData(0UL, (ushort)value, (ushort)0);
                 }
             }
@@ -2902,7 +3027,7 @@ namespace Mas.Rpc.Management
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Params = CapnpSerializable.Create<Mas.Rpc.Management.Params.OrganicFertilization.Parameters>(reader.Params);
+                Params = CapnpSerializable.Create<Mas.Schema.Management.Params.OrganicFertilization.Parameters>(reader.Params);
                 applyDefaults();
             }
 
@@ -2920,7 +3045,7 @@ namespace Mas.Rpc.Management
             {
             }
 
-            public Mas.Rpc.Management.Params.OrganicFertilization.Parameters Params
+            public Mas.Schema.Management.Params.OrganicFertilization.Parameters Params
             {
                 get;
                 set;
@@ -2937,7 +3062,7 @@ namespace Mas.Rpc.Management
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Rpc.Management.Params.OrganicFertilization.Parameters.READER Params => ctx.ReadStruct(0, Mas.Rpc.Management.Params.OrganicFertilization.Parameters.READER.create);
+                public Mas.Schema.Management.Params.OrganicFertilization.Parameters.READER Params => ctx.ReadStruct(0, Mas.Schema.Management.Params.OrganicFertilization.Parameters.READER.create);
                 public bool HasParams => ctx.IsStructFieldNonNull(0);
             }
 
@@ -2948,9 +3073,9 @@ namespace Mas.Rpc.Management
                     this.SetStruct(0, 1);
                 }
 
-                public Mas.Rpc.Management.Params.OrganicFertilization.Parameters.WRITER Params
+                public Mas.Schema.Management.Params.OrganicFertilization.Parameters.WRITER Params
                 {
-                    get => BuildPointer<Mas.Rpc.Management.Params.OrganicFertilization.Parameters.WRITER>(0);
+                    get => BuildPointer<Mas.Schema.Management.Params.OrganicFertilization.Parameters.WRITER>(0);
                     set => Link(0, value);
                 }
             }
@@ -2958,34 +3083,34 @@ namespace Mas.Rpc.Management
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xc876b729b7d7f6d9UL), Proxy(typeof(Service_Proxy)), Skeleton(typeof(Service_Skeleton))]
-    public interface IService : Mas.Rpc.Common.IIdentifiable
+    public interface IService : Mas.Schema.Common.IIdentifiable
     {
-        Task<IReadOnlyList<Mas.Rpc.Management.Event>> ManagementAt(Mas.Rpc.Geo.LatLonCoord arg_, CancellationToken cancellationToken_ = default);
+        Task<IReadOnlyList<Mas.Schema.Management.Event>> ManagementAt(Mas.Schema.Geocoord.LatLonCoord arg_, CancellationToken cancellationToken_ = default);
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xc876b729b7d7f6d9UL)]
     public class Service_Proxy : Proxy, IService
     {
-        public async Task<IReadOnlyList<Mas.Rpc.Management.Event>> ManagementAt(Mas.Rpc.Geo.LatLonCoord arg_, CancellationToken cancellationToken_ = default)
+        public async Task<IReadOnlyList<Mas.Schema.Management.Event>> ManagementAt(Mas.Schema.Geocoord.LatLonCoord arg_, CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Geo.LatLonCoord.WRITER>();
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Geocoord.LatLonCoord.WRITER>();
             arg_?.serialize(in_);
             using (var d_ = await Call(14444934244643370713UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Rpc.Management.Service.Result_ManagementAt>(d_);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Management.Service.Result_ManagementAt>(d_);
                 return (r_.Mgmt);
             }
         }
 
-        public async Task<Mas.Rpc.Common.IdInformation> Info(CancellationToken cancellationToken_ = default)
+        public async Task<Mas.Schema.Common.IdInformation> Info(CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Common.Identifiable.Params_Info.WRITER>();
-            var arg_ = new Mas.Rpc.Common.Identifiable.Params_Info()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Common.Identifiable.Params_Info.WRITER>();
+            var arg_ = new Mas.Schema.Common.Identifiable.Params_Info()
             {};
             arg_?.serialize(in_);
             using (var d_ = await Call(12875740530987518165UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Rpc.Common.IdInformation>(d_);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Common.IdInformation>(d_);
                 return r_;
             }
         }
@@ -3004,10 +3129,10 @@ namespace Mas.Rpc.Management
         {
             using (d_)
             {
-                return Impatient.MaybeTailCall(Impl.ManagementAt(CapnpSerializable.Create<Mas.Rpc.Geo.LatLonCoord>(d_), cancellationToken_), mgmt =>
+                return Impatient.MaybeTailCall(Impl.ManagementAt(CapnpSerializable.Create<Mas.Schema.Geocoord.LatLonCoord>(d_), cancellationToken_), mgmt =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Rpc.Management.Service.Result_ManagementAt.WRITER>();
-                    var r_ = new Mas.Rpc.Management.Service.Result_ManagementAt{Mgmt = mgmt};
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Management.Service.Result_ManagementAt.WRITER>();
+                    var r_ = new Mas.Schema.Management.Service.Result_ManagementAt{Mgmt = mgmt};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -3026,7 +3151,7 @@ namespace Mas.Rpc.Management
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Mgmt = reader.Mgmt?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Rpc.Management.Event>(_));
+                Mgmt = reader.Mgmt?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Management.Event>(_));
                 applyDefaults();
             }
 
@@ -3044,7 +3169,7 @@ namespace Mas.Rpc.Management
             {
             }
 
-            public IReadOnlyList<Mas.Rpc.Management.Event> Mgmt
+            public IReadOnlyList<Mas.Schema.Management.Event> Mgmt
             {
                 get;
                 set;
@@ -3061,7 +3186,7 @@ namespace Mas.Rpc.Management
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public IReadOnlyList<Mas.Rpc.Management.Event.READER> Mgmt => ctx.ReadList(0).Cast(Mas.Rpc.Management.Event.READER.create);
+                public IReadOnlyList<Mas.Schema.Management.Event.READER> Mgmt => ctx.ReadList(0).Cast(Mas.Schema.Management.Event.READER.create);
                 public bool HasMgmt => ctx.IsStructFieldNonNull(0);
             }
 
@@ -3072,9 +3197,9 @@ namespace Mas.Rpc.Management
                     this.SetStruct(0, 1);
                 }
 
-                public ListOfStructsSerializer<Mas.Rpc.Management.Event.WRITER> Mgmt
+                public ListOfStructsSerializer<Mas.Schema.Management.Event.WRITER> Mgmt
                 {
-                    get => BuildPointer<ListOfStructsSerializer<Mas.Rpc.Management.Event.WRITER>>(0);
+                    get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Management.Event.WRITER>>(0);
                     set => Link(0, value);
                 }
             }

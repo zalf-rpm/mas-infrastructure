@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Mas.Rpc.Model
+namespace Mas.Schema.Model
 {
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x851d47c6ccdecf08UL)]
     public class XYResult : ICapnpSerializable
@@ -112,13 +112,13 @@ namespace Mas.Rpc.Model
         {
         }
 
-        public Mas.Rpc.Model.Stat.Type TheType
+        public Mas.Schema.Model.Stat.Type TheType
         {
             get;
             set;
         }
 
-        = Mas.Rpc.Model.Stat.Type.avg;
+        = Mas.Schema.Model.Stat.Type.avg;
         public IReadOnlyList<double> Vs
         {
             get;
@@ -136,7 +136,7 @@ namespace Mas.Rpc.Model
             public static READER create(DeserializerState ctx) => new READER(ctx);
             public static implicit operator DeserializerState(READER reader) => reader.ctx;
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-            public Mas.Rpc.Model.Stat.Type TheType => (Mas.Rpc.Model.Stat.Type)ctx.ReadDataUShort(0UL, (ushort)3);
+            public Mas.Schema.Model.Stat.Type TheType => (Mas.Schema.Model.Stat.Type)ctx.ReadDataUShort(0UL, (ushort)3);
             public IReadOnlyList<double> Vs => ctx.ReadList(0).CastDouble();
             public bool HasVs => ctx.IsStructFieldNonNull(0);
         }
@@ -148,9 +148,9 @@ namespace Mas.Rpc.Model
                 this.SetStruct(1, 1);
             }
 
-            public Mas.Rpc.Model.Stat.Type TheType
+            public Mas.Schema.Model.Stat.Type TheType
             {
-                get => (Mas.Rpc.Model.Stat.Type)this.ReadDataUShort(0UL, (ushort)3);
+                get => (Mas.Schema.Model.Stat.Type)this.ReadDataUShort(0UL, (ushort)3);
                 set => this.WriteData(0UL, (ushort)value, (ushort)3);
             }
 
@@ -179,8 +179,8 @@ namespace Mas.Rpc.Model
         void ICapnpSerializable.Deserialize(DeserializerState arg_)
         {
             var reader = READER.create(arg_);
-            Xy = CapnpSerializable.Create<Mas.Rpc.Model.XYResult>(reader.Xy);
-            Stats = reader.Stats?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Rpc.Model.Stat>(_));
+            Xy = CapnpSerializable.Create<Mas.Schema.Model.XYResult>(reader.Xy);
+            Stats = reader.Stats?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Model.Stat>(_));
             applyDefaults();
         }
 
@@ -199,13 +199,13 @@ namespace Mas.Rpc.Model
         {
         }
 
-        public Mas.Rpc.Model.XYResult Xy
+        public Mas.Schema.Model.XYResult Xy
         {
             get;
             set;
         }
 
-        public IReadOnlyList<Mas.Rpc.Model.Stat> Stats
+        public IReadOnlyList<Mas.Schema.Model.Stat> Stats
         {
             get;
             set;
@@ -222,9 +222,9 @@ namespace Mas.Rpc.Model
             public static READER create(DeserializerState ctx) => new READER(ctx);
             public static implicit operator DeserializerState(READER reader) => reader.ctx;
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-            public Mas.Rpc.Model.XYResult.READER Xy => ctx.ReadStruct(0, Mas.Rpc.Model.XYResult.READER.create);
+            public Mas.Schema.Model.XYResult.READER Xy => ctx.ReadStruct(0, Mas.Schema.Model.XYResult.READER.create);
             public bool HasXy => ctx.IsStructFieldNonNull(0);
-            public IReadOnlyList<Mas.Rpc.Model.Stat.READER> Stats => ctx.ReadList(1).Cast(Mas.Rpc.Model.Stat.READER.create);
+            public IReadOnlyList<Mas.Schema.Model.Stat.READER> Stats => ctx.ReadList(1).Cast(Mas.Schema.Model.Stat.READER.create);
             public bool HasStats => ctx.IsStructFieldNonNull(1);
         }
 
@@ -235,65 +235,65 @@ namespace Mas.Rpc.Model
                 this.SetStruct(0, 2);
             }
 
-            public Mas.Rpc.Model.XYResult.WRITER Xy
+            public Mas.Schema.Model.XYResult.WRITER Xy
             {
-                get => BuildPointer<Mas.Rpc.Model.XYResult.WRITER>(0);
+                get => BuildPointer<Mas.Schema.Model.XYResult.WRITER>(0);
                 set => Link(0, value);
             }
 
-            public ListOfStructsSerializer<Mas.Rpc.Model.Stat.WRITER> Stats
+            public ListOfStructsSerializer<Mas.Schema.Model.Stat.WRITER> Stats
             {
-                get => BuildPointer<ListOfStructsSerializer<Mas.Rpc.Model.Stat.WRITER>>(1);
+                get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Model.Stat.WRITER>>(1);
                 set => Link(1, value);
             }
         }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xdfcfeb783c4948fcUL), Proxy(typeof(ClimateInstance_Proxy)), Skeleton(typeof(ClimateInstance_Skeleton))]
-    public interface IClimateInstance : Mas.Rpc.Common.IIdentifiable
+    public interface IClimateInstance : Mas.Schema.Common.IIdentifiable
     {
-        Task<Mas.Rpc.Model.XYResult> Run(Mas.Rpc.Climate.ITimeSeries timeSeries, CancellationToken cancellationToken_ = default);
-        Task<Mas.Rpc.Model.XYPlusResult> RunSet(IReadOnlyList<Mas.Rpc.Climate.ITimeSeries> dataset, CancellationToken cancellationToken_ = default);
+        Task<Mas.Schema.Model.XYResult> Run(Mas.Schema.Climate.ITimeSeries timeSeries, CancellationToken cancellationToken_ = default);
+        Task<Mas.Schema.Model.XYPlusResult> RunSet(IReadOnlyList<Mas.Schema.Climate.ITimeSeries> dataset, CancellationToken cancellationToken_ = default);
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xdfcfeb783c4948fcUL)]
     public class ClimateInstance_Proxy : Proxy, IClimateInstance
     {
-        public async Task<Mas.Rpc.Model.XYResult> Run(Mas.Rpc.Climate.ITimeSeries timeSeries, CancellationToken cancellationToken_ = default)
+        public async Task<Mas.Schema.Model.XYResult> Run(Mas.Schema.Climate.ITimeSeries timeSeries, CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Model.ClimateInstance.Params_Run.WRITER>();
-            var arg_ = new Mas.Rpc.Model.ClimateInstance.Params_Run()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Model.ClimateInstance.Params_Run.WRITER>();
+            var arg_ = new Mas.Schema.Model.ClimateInstance.Params_Run()
             {TimeSeries = timeSeries};
             arg_?.serialize(in_);
             using (var d_ = await Call(16127367692277074172UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Rpc.Model.ClimateInstance.Result_Run>(d_);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Model.ClimateInstance.Result_Run>(d_);
                 return (r_.Result);
             }
         }
 
-        public async Task<Mas.Rpc.Model.XYPlusResult> RunSet(IReadOnlyList<Mas.Rpc.Climate.ITimeSeries> dataset, CancellationToken cancellationToken_ = default)
+        public async Task<Mas.Schema.Model.XYPlusResult> RunSet(IReadOnlyList<Mas.Schema.Climate.ITimeSeries> dataset, CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Model.ClimateInstance.Params_RunSet.WRITER>();
-            var arg_ = new Mas.Rpc.Model.ClimateInstance.Params_RunSet()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Model.ClimateInstance.Params_RunSet.WRITER>();
+            var arg_ = new Mas.Schema.Model.ClimateInstance.Params_RunSet()
             {Dataset = dataset};
             arg_?.serialize(in_);
             using (var d_ = await Call(16127367692277074172UL, 1, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Rpc.Model.ClimateInstance.Result_RunSet>(d_);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Model.ClimateInstance.Result_RunSet>(d_);
                 return (r_.Result);
             }
         }
 
-        public async Task<Mas.Rpc.Common.IdInformation> Info(CancellationToken cancellationToken_ = default)
+        public async Task<Mas.Schema.Common.IdInformation> Info(CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Common.Identifiable.Params_Info.WRITER>();
-            var arg_ = new Mas.Rpc.Common.Identifiable.Params_Info()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Common.Identifiable.Params_Info.WRITER>();
+            var arg_ = new Mas.Schema.Common.Identifiable.Params_Info()
             {};
             arg_?.serialize(in_);
             using (var d_ = await Call(12875740530987518165UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Rpc.Common.IdInformation>(d_);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Common.IdInformation>(d_);
                 return r_;
             }
         }
@@ -312,11 +312,11 @@ namespace Mas.Rpc.Model
         {
             using (d_)
             {
-                var in_ = CapnpSerializable.Create<Mas.Rpc.Model.ClimateInstance.Params_Run>(d_);
+                var in_ = CapnpSerializable.Create<Mas.Schema.Model.ClimateInstance.Params_Run>(d_);
                 return Impatient.MaybeTailCall(Impl.Run(in_.TimeSeries, cancellationToken_), result =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Rpc.Model.ClimateInstance.Result_Run.WRITER>();
-                    var r_ = new Mas.Rpc.Model.ClimateInstance.Result_Run{Result = result};
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Model.ClimateInstance.Result_Run.WRITER>();
+                    var r_ = new Mas.Schema.Model.ClimateInstance.Result_Run{Result = result};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -329,11 +329,11 @@ namespace Mas.Rpc.Model
         {
             using (d_)
             {
-                var in_ = CapnpSerializable.Create<Mas.Rpc.Model.ClimateInstance.Params_RunSet>(d_);
+                var in_ = CapnpSerializable.Create<Mas.Schema.Model.ClimateInstance.Params_RunSet>(d_);
                 return Impatient.MaybeTailCall(Impl.RunSet(in_.Dataset, cancellationToken_), result =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Rpc.Model.ClimateInstance.Result_RunSet.WRITER>();
-                    var r_ = new Mas.Rpc.Model.ClimateInstance.Result_RunSet{Result = result};
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Model.ClimateInstance.Result_RunSet.WRITER>();
+                    var r_ = new Mas.Schema.Model.ClimateInstance.Result_RunSet{Result = result};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -370,7 +370,7 @@ namespace Mas.Rpc.Model
             {
             }
 
-            public Mas.Rpc.Climate.ITimeSeries TimeSeries
+            public Mas.Schema.Climate.ITimeSeries TimeSeries
             {
                 get;
                 set;
@@ -387,7 +387,7 @@ namespace Mas.Rpc.Model
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Rpc.Climate.ITimeSeries TimeSeries => ctx.ReadCap<Mas.Rpc.Climate.ITimeSeries>(0);
+                public Mas.Schema.Climate.ITimeSeries TimeSeries => ctx.ReadCap<Mas.Schema.Climate.ITimeSeries>(0);
             }
 
             public class WRITER : SerializerState
@@ -397,9 +397,9 @@ namespace Mas.Rpc.Model
                     this.SetStruct(0, 1);
                 }
 
-                public Mas.Rpc.Climate.ITimeSeries TimeSeries
+                public Mas.Schema.Climate.ITimeSeries TimeSeries
                 {
-                    get => ReadCap<Mas.Rpc.Climate.ITimeSeries>(0);
+                    get => ReadCap<Mas.Schema.Climate.ITimeSeries>(0);
                     set => LinkObject(0, value);
                 }
             }
@@ -412,7 +412,7 @@ namespace Mas.Rpc.Model
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Result = CapnpSerializable.Create<Mas.Rpc.Model.XYResult>(reader.Result);
+                Result = CapnpSerializable.Create<Mas.Schema.Model.XYResult>(reader.Result);
                 applyDefaults();
             }
 
@@ -430,7 +430,7 @@ namespace Mas.Rpc.Model
             {
             }
 
-            public Mas.Rpc.Model.XYResult Result
+            public Mas.Schema.Model.XYResult Result
             {
                 get;
                 set;
@@ -447,7 +447,7 @@ namespace Mas.Rpc.Model
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Rpc.Model.XYResult.READER Result => ctx.ReadStruct(0, Mas.Rpc.Model.XYResult.READER.create);
+                public Mas.Schema.Model.XYResult.READER Result => ctx.ReadStruct(0, Mas.Schema.Model.XYResult.READER.create);
                 public bool HasResult => ctx.IsStructFieldNonNull(0);
             }
 
@@ -458,9 +458,9 @@ namespace Mas.Rpc.Model
                     this.SetStruct(0, 1);
                 }
 
-                public Mas.Rpc.Model.XYResult.WRITER Result
+                public Mas.Schema.Model.XYResult.WRITER Result
                 {
-                    get => BuildPointer<Mas.Rpc.Model.XYResult.WRITER>(0);
+                    get => BuildPointer<Mas.Schema.Model.XYResult.WRITER>(0);
                     set => Link(0, value);
                 }
             }
@@ -491,7 +491,7 @@ namespace Mas.Rpc.Model
             {
             }
 
-            public IReadOnlyList<Mas.Rpc.Climate.ITimeSeries> Dataset
+            public IReadOnlyList<Mas.Schema.Climate.ITimeSeries> Dataset
             {
                 get;
                 set;
@@ -508,7 +508,7 @@ namespace Mas.Rpc.Model
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public IReadOnlyList<Mas.Rpc.Climate.ITimeSeries> Dataset => ctx.ReadCapList<Mas.Rpc.Climate.ITimeSeries>(0);
+                public IReadOnlyList<Mas.Schema.Climate.ITimeSeries> Dataset => ctx.ReadCapList<Mas.Schema.Climate.ITimeSeries>(0);
                 public bool HasDataset => ctx.IsStructFieldNonNull(0);
             }
 
@@ -519,9 +519,9 @@ namespace Mas.Rpc.Model
                     this.SetStruct(0, 1);
                 }
 
-                public ListOfCapsSerializer<Mas.Rpc.Climate.ITimeSeries> Dataset
+                public ListOfCapsSerializer<Mas.Schema.Climate.ITimeSeries> Dataset
                 {
-                    get => BuildPointer<ListOfCapsSerializer<Mas.Rpc.Climate.ITimeSeries>>(0);
+                    get => BuildPointer<ListOfCapsSerializer<Mas.Schema.Climate.ITimeSeries>>(0);
                     set => Link(0, value);
                 }
             }
@@ -534,7 +534,7 @@ namespace Mas.Rpc.Model
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Result = CapnpSerializable.Create<Mas.Rpc.Model.XYPlusResult>(reader.Result);
+                Result = CapnpSerializable.Create<Mas.Schema.Model.XYPlusResult>(reader.Result);
                 applyDefaults();
             }
 
@@ -552,7 +552,7 @@ namespace Mas.Rpc.Model
             {
             }
 
-            public Mas.Rpc.Model.XYPlusResult Result
+            public Mas.Schema.Model.XYPlusResult Result
             {
                 get;
                 set;
@@ -569,7 +569,7 @@ namespace Mas.Rpc.Model
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Rpc.Model.XYPlusResult.READER Result => ctx.ReadStruct(0, Mas.Rpc.Model.XYPlusResult.READER.create);
+                public Mas.Schema.Model.XYPlusResult.READER Result => ctx.ReadStruct(0, Mas.Schema.Model.XYPlusResult.READER.create);
                 public bool HasResult => ctx.IsStructFieldNonNull(0);
             }
 
@@ -580,9 +580,9 @@ namespace Mas.Rpc.Model
                     this.SetStruct(0, 1);
                 }
 
-                public Mas.Rpc.Model.XYPlusResult.WRITER Result
+                public Mas.Schema.Model.XYPlusResult.WRITER Result
                 {
-                    get => BuildPointer<Mas.Rpc.Model.XYPlusResult.WRITER>(0);
+                    get => BuildPointer<Mas.Schema.Model.XYPlusResult.WRITER>(0);
                     set => Link(0, value);
                 }
             }
@@ -598,8 +598,8 @@ namespace Mas.Rpc.Model
             var reader = READER.create(arg_);
             Rest = CapnpSerializable.Create<TRestInput>(reader.Rest);
             TimeSeries = reader.TimeSeries;
-            SoilProfile = CapnpSerializable.Create<Mas.Rpc.Soil.Profile>(reader.SoilProfile);
-            MgmtEvents = reader.MgmtEvents?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Rpc.Management.Event>(_));
+            SoilProfile = CapnpSerializable.Create<Mas.Schema.Soil.Profile>(reader.SoilProfile);
+            MgmtEvents = reader.MgmtEvents?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Management.Event>(_));
             applyDefaults();
         }
 
@@ -626,19 +626,19 @@ namespace Mas.Rpc.Model
             set;
         }
 
-        public Mas.Rpc.Climate.ITimeSeries TimeSeries
+        public Mas.Schema.Climate.ITimeSeries TimeSeries
         {
             get;
             set;
         }
 
-        public Mas.Rpc.Soil.Profile SoilProfile
+        public Mas.Schema.Soil.Profile SoilProfile
         {
             get;
             set;
         }
 
-        public IReadOnlyList<Mas.Rpc.Management.Event> MgmtEvents
+        public IReadOnlyList<Mas.Schema.Management.Event> MgmtEvents
         {
             get;
             set;
@@ -656,10 +656,10 @@ namespace Mas.Rpc.Model
             public static implicit operator DeserializerState(READER reader) => reader.ctx;
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
             public DeserializerState Rest => ctx.StructReadPointer(0);
-            public Mas.Rpc.Climate.ITimeSeries TimeSeries => ctx.ReadCap<Mas.Rpc.Climate.ITimeSeries>(1);
-            public Mas.Rpc.Soil.Profile.READER SoilProfile => ctx.ReadStruct(2, Mas.Rpc.Soil.Profile.READER.create);
+            public Mas.Schema.Climate.ITimeSeries TimeSeries => ctx.ReadCap<Mas.Schema.Climate.ITimeSeries>(1);
+            public Mas.Schema.Soil.Profile.READER SoilProfile => ctx.ReadStruct(2, Mas.Schema.Soil.Profile.READER.create);
             public bool HasSoilProfile => ctx.IsStructFieldNonNull(2);
-            public IReadOnlyList<Mas.Rpc.Management.Event.READER> MgmtEvents => ctx.ReadList(3).Cast(Mas.Rpc.Management.Event.READER.create);
+            public IReadOnlyList<Mas.Schema.Management.Event.READER> MgmtEvents => ctx.ReadList(3).Cast(Mas.Schema.Management.Event.READER.create);
             public bool HasMgmtEvents => ctx.IsStructFieldNonNull(3);
         }
 
@@ -676,46 +676,46 @@ namespace Mas.Rpc.Model
                 set => Link(0, value);
             }
 
-            public Mas.Rpc.Climate.ITimeSeries TimeSeries
+            public Mas.Schema.Climate.ITimeSeries TimeSeries
             {
-                get => ReadCap<Mas.Rpc.Climate.ITimeSeries>(1);
+                get => ReadCap<Mas.Schema.Climate.ITimeSeries>(1);
                 set => LinkObject(1, value);
             }
 
-            public Mas.Rpc.Soil.Profile.WRITER SoilProfile
+            public Mas.Schema.Soil.Profile.WRITER SoilProfile
             {
-                get => BuildPointer<Mas.Rpc.Soil.Profile.WRITER>(2);
+                get => BuildPointer<Mas.Schema.Soil.Profile.WRITER>(2);
                 set => Link(2, value);
             }
 
-            public ListOfStructsSerializer<Mas.Rpc.Management.Event.WRITER> MgmtEvents
+            public ListOfStructsSerializer<Mas.Schema.Management.Event.WRITER> MgmtEvents
             {
-                get => BuildPointer<ListOfStructsSerializer<Mas.Rpc.Management.Event.WRITER>>(3);
+                get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Management.Event.WRITER>>(3);
                 set => Link(3, value);
             }
         }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xa5feedafa5ec5c4aUL), Proxy(typeof(EnvInstance_Proxy<, >)), Skeleton(typeof(EnvInstance_Skeleton<, >))]
-    public interface IEnvInstance<TRestInput, TOutput> : Mas.Rpc.Common.IIdentifiable, Mas.Rpc.Common.IStopable where TRestInput : class where TOutput : class
+    public interface IEnvInstance<TRestInput, TOutput> : Mas.Schema.Common.IIdentifiable, Mas.Schema.Persistence.IPersistent, Mas.Schema.Common.IStopable where TRestInput : class where TOutput : class
     {
-        Task<TOutput> Run(Mas.Rpc.Model.Env<TRestInput> env, CancellationToken cancellationToken_ = default);
+        Task<TOutput> Run(Mas.Schema.Model.Env<TRestInput> env, CancellationToken cancellationToken_ = default);
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xa5feedafa5ec5c4aUL)]
     public class EnvInstance_Proxy<TRestInput, TOutput> : Proxy, IEnvInstance<TRestInput, TOutput> where TRestInput : class where TOutput : class
     {
-        public Task<TOutput> Run(Mas.Rpc.Model.Env<TRestInput> env, CancellationToken cancellationToken_ = default)
+        public Task<TOutput> Run(Mas.Schema.Model.Env<TRestInput> env, CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Model.EnvInstance<TRestInput, TOutput>.Params_Run.WRITER>();
-            var arg_ = new Mas.Rpc.Model.EnvInstance<TRestInput, TOutput>.Params_Run()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Model.EnvInstance<TRestInput, TOutput>.Params_Run.WRITER>();
+            var arg_ = new Mas.Schema.Model.EnvInstance<TRestInput, TOutput>.Params_Run()
             {Env = env};
             arg_?.serialize(in_);
             return Impatient.MakePipelineAware(Call(11961258999001406538UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
             {
                 using (d_)
                 {
-                    var r_ = CapnpSerializable.Create<Mas.Rpc.Model.EnvInstance<TRestInput, TOutput>.Result_Run>(d_);
+                    var r_ = CapnpSerializable.Create<Mas.Schema.Model.EnvInstance<TRestInput, TOutput>.Result_Run>(d_);
                     return (r_.Result);
                 }
             }
@@ -725,26 +725,39 @@ namespace Mas.Rpc.Model
 
         public async Task Stop(CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Common.Stopable.Params_Stop.WRITER>();
-            var arg_ = new Mas.Rpc.Common.Stopable.Params_Stop()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Common.Stopable.Params_Stop.WRITER>();
+            var arg_ = new Mas.Schema.Common.Stopable.Params_Stop()
             {};
             arg_?.serialize(in_);
             using (var d_ = await Call(14879402799272964426UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Rpc.Common.Stopable.Result_Stop>(d_);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Common.Stopable.Result_Stop>(d_);
                 return;
             }
         }
 
-        public async Task<Mas.Rpc.Common.IdInformation> Info(CancellationToken cancellationToken_ = default)
+        public async Task<(string, string)> Save(CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Common.Identifiable.Params_Info.WRITER>();
-            var arg_ = new Mas.Rpc.Common.Identifiable.Params_Info()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.Persistent.Params_Save.WRITER>();
+            var arg_ = new Mas.Schema.Persistence.Persistent.Params_Save()
+            {};
+            arg_?.serialize(in_);
+            using (var d_ = await Call(13954362354854972261UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            {
+                var r_ = CapnpSerializable.Create<Mas.Schema.Persistence.Persistent.Result_Save>(d_);
+                return (r_.SturdyRef, r_.UnsaveSR);
+            }
+        }
+
+        public async Task<Mas.Schema.Common.IdInformation> Info(CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Common.Identifiable.Params_Info.WRITER>();
+            var arg_ = new Mas.Schema.Common.Identifiable.Params_Info()
             {};
             arg_?.serialize(in_);
             using (var d_ = await Call(12875740530987518165UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Rpc.Common.IdInformation>(d_);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Common.IdInformation>(d_);
                 return r_;
             }
         }
@@ -763,11 +776,11 @@ namespace Mas.Rpc.Model
         {
             using (d_)
             {
-                var in_ = CapnpSerializable.Create<Mas.Rpc.Model.EnvInstance<TRestInput, TOutput>.Params_Run>(d_);
+                var in_ = CapnpSerializable.Create<Mas.Schema.Model.EnvInstance<TRestInput, TOutput>.Params_Run>(d_);
                 return Impatient.MaybeTailCall(Impl.Run(in_.Env, cancellationToken_), result =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Rpc.Model.EnvInstance<TRestInput, TOutput>.Result_Run.WRITER>();
-                    var r_ = new Mas.Rpc.Model.EnvInstance<TRestInput, TOutput>.Result_Run{Result = result};
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Model.EnvInstance<TRestInput, TOutput>.Result_Run.WRITER>();
+                    var r_ = new Mas.Schema.Model.EnvInstance<TRestInput, TOutput>.Result_Run{Result = result};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -787,7 +800,7 @@ namespace Mas.Rpc.Model
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Env = CapnpSerializable.Create<Mas.Rpc.Model.Env<TRestInput>>(reader.Env);
+                Env = CapnpSerializable.Create<Mas.Schema.Model.Env<TRestInput>>(reader.Env);
                 applyDefaults();
             }
 
@@ -805,7 +818,7 @@ namespace Mas.Rpc.Model
             {
             }
 
-            public Mas.Rpc.Model.Env<TRestInput> Env
+            public Mas.Schema.Model.Env<TRestInput> Env
             {
                 get;
                 set;
@@ -822,7 +835,7 @@ namespace Mas.Rpc.Model
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Rpc.Model.Env<TRestInput>.READER Env => ctx.ReadStruct(0, Mas.Rpc.Model.Env<TRestInput>.READER.create);
+                public Mas.Schema.Model.Env<TRestInput>.READER Env => ctx.ReadStruct(0, Mas.Schema.Model.Env<TRestInput>.READER.create);
                 public bool HasEnv => ctx.IsStructFieldNonNull(0);
             }
 
@@ -833,9 +846,9 @@ namespace Mas.Rpc.Model
                     this.SetStruct(0, 1);
                 }
 
-                public Mas.Rpc.Model.Env<TRestInput>.WRITER Env
+                public Mas.Schema.Model.Env<TRestInput>.WRITER Env
                 {
-                    get => BuildPointer<Mas.Rpc.Model.Env<TRestInput>.WRITER>(0);
+                    get => BuildPointer<Mas.Schema.Model.Env<TRestInput>.WRITER>(0);
                     set => Link(0, value);
                 }
             }
@@ -903,25 +916,25 @@ namespace Mas.Rpc.Model
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x87cbebfc1164a24aUL), Proxy(typeof(EnvInstanceProxy_Proxy<, >)), Skeleton(typeof(EnvInstanceProxy_Skeleton<, >))]
-    public interface IEnvInstanceProxy<TRestInput, TOutput> : Mas.Rpc.Model.IEnvInstance<TRestInput, TOutput> where TRestInput : class where TOutput : class
+    public interface IEnvInstanceProxy<TRestInput, TOutput> : Mas.Schema.Model.IEnvInstance<TRestInput, TOutput> where TRestInput : class where TOutput : class
     {
-        Task<Mas.Rpc.Common.ICallback> RegisterEnvInstance(Mas.Rpc.Model.IEnvInstance<TRestInput, TOutput> instance, CancellationToken cancellationToken_ = default);
+        Task<Mas.Schema.Common.IAction> RegisterEnvInstance(Mas.Schema.Model.IEnvInstance<TRestInput, TOutput> instance, CancellationToken cancellationToken_ = default);
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x87cbebfc1164a24aUL)]
     public class EnvInstanceProxy_Proxy<TRestInput, TOutput> : Proxy, IEnvInstanceProxy<TRestInput, TOutput> where TRestInput : class where TOutput : class
     {
-        public Task<Mas.Rpc.Common.ICallback> RegisterEnvInstance(Mas.Rpc.Model.IEnvInstance<TRestInput, TOutput> instance, CancellationToken cancellationToken_ = default)
+        public Task<Mas.Schema.Common.IAction> RegisterEnvInstance(Mas.Schema.Model.IEnvInstance<TRestInput, TOutput> instance, CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Model.EnvInstanceProxy<TRestInput, TOutput>.Params_RegisterEnvInstance.WRITER>();
-            var arg_ = new Mas.Rpc.Model.EnvInstanceProxy<TRestInput, TOutput>.Params_RegisterEnvInstance()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Model.EnvInstanceProxy<TRestInput, TOutput>.Params_RegisterEnvInstance.WRITER>();
+            var arg_ = new Mas.Schema.Model.EnvInstanceProxy<TRestInput, TOutput>.Params_RegisterEnvInstance()
             {Instance = instance};
             arg_?.serialize(in_);
             return Impatient.MakePipelineAware(Call(9785174083248628298UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
             {
                 using (d_)
                 {
-                    var r_ = CapnpSerializable.Create<Mas.Rpc.Model.EnvInstanceProxy<TRestInput, TOutput>.Result_RegisterEnvInstance>(d_);
+                    var r_ = CapnpSerializable.Create<Mas.Schema.Model.EnvInstanceProxy<TRestInput, TOutput>.Result_RegisterEnvInstance>(d_);
                     return (r_.Unregister);
                 }
             }
@@ -929,17 +942,17 @@ namespace Mas.Rpc.Model
             );
         }
 
-        public Task<TOutput> Run(Mas.Rpc.Model.Env<TRestInput> env, CancellationToken cancellationToken_ = default)
+        public Task<TOutput> Run(Mas.Schema.Model.Env<TRestInput> env, CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Model.EnvInstance<TRestInput, TOutput>.Params_Run.WRITER>();
-            var arg_ = new Mas.Rpc.Model.EnvInstance<TRestInput, TOutput>.Params_Run()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Model.EnvInstance<TRestInput, TOutput>.Params_Run.WRITER>();
+            var arg_ = new Mas.Schema.Model.EnvInstance<TRestInput, TOutput>.Params_Run()
             {Env = env};
             arg_?.serialize(in_);
             return Impatient.MakePipelineAware(Call(11961258999001406538UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
             {
                 using (d_)
                 {
-                    var r_ = CapnpSerializable.Create<Mas.Rpc.Model.EnvInstance<TRestInput, TOutput>.Result_Run>(d_);
+                    var r_ = CapnpSerializable.Create<Mas.Schema.Model.EnvInstance<TRestInput, TOutput>.Result_Run>(d_);
                     return (r_.Result);
                 }
             }
@@ -949,26 +962,39 @@ namespace Mas.Rpc.Model
 
         public async Task Stop(CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Common.Stopable.Params_Stop.WRITER>();
-            var arg_ = new Mas.Rpc.Common.Stopable.Params_Stop()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Common.Stopable.Params_Stop.WRITER>();
+            var arg_ = new Mas.Schema.Common.Stopable.Params_Stop()
             {};
             arg_?.serialize(in_);
             using (var d_ = await Call(14879402799272964426UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Rpc.Common.Stopable.Result_Stop>(d_);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Common.Stopable.Result_Stop>(d_);
                 return;
             }
         }
 
-        public async Task<Mas.Rpc.Common.IdInformation> Info(CancellationToken cancellationToken_ = default)
+        public async Task<(string, string)> Save(CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Common.Identifiable.Params_Info.WRITER>();
-            var arg_ = new Mas.Rpc.Common.Identifiable.Params_Info()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.Persistent.Params_Save.WRITER>();
+            var arg_ = new Mas.Schema.Persistence.Persistent.Params_Save()
+            {};
+            arg_?.serialize(in_);
+            using (var d_ = await Call(13954362354854972261UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            {
+                var r_ = CapnpSerializable.Create<Mas.Schema.Persistence.Persistent.Result_Save>(d_);
+                return (r_.SturdyRef, r_.UnsaveSR);
+            }
+        }
+
+        public async Task<Mas.Schema.Common.IdInformation> Info(CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Common.Identifiable.Params_Info.WRITER>();
+            var arg_ = new Mas.Schema.Common.Identifiable.Params_Info()
             {};
             arg_?.serialize(in_);
             using (var d_ = await Call(12875740530987518165UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Rpc.Common.IdInformation>(d_);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Common.IdInformation>(d_);
                 return r_;
             }
         }
@@ -987,11 +1013,11 @@ namespace Mas.Rpc.Model
         {
             using (d_)
             {
-                var in_ = CapnpSerializable.Create<Mas.Rpc.Model.EnvInstanceProxy<TRestInput, TOutput>.Params_RegisterEnvInstance>(d_);
+                var in_ = CapnpSerializable.Create<Mas.Schema.Model.EnvInstanceProxy<TRestInput, TOutput>.Params_RegisterEnvInstance>(d_);
                 return Impatient.MaybeTailCall(Impl.RegisterEnvInstance(in_.Instance, cancellationToken_), unregister =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Rpc.Model.EnvInstanceProxy<TRestInput, TOutput>.Result_RegisterEnvInstance.WRITER>();
-                    var r_ = new Mas.Rpc.Model.EnvInstanceProxy<TRestInput, TOutput>.Result_RegisterEnvInstance{Unregister = unregister};
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Model.EnvInstanceProxy<TRestInput, TOutput>.Result_RegisterEnvInstance.WRITER>();
+                    var r_ = new Mas.Schema.Model.EnvInstanceProxy<TRestInput, TOutput>.Result_RegisterEnvInstance{Unregister = unregister};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -1029,7 +1055,7 @@ namespace Mas.Rpc.Model
             {
             }
 
-            public Mas.Rpc.Model.IEnvInstance<TRestInput, TOutput> Instance
+            public Mas.Schema.Model.IEnvInstance<TRestInput, TOutput> Instance
             {
                 get;
                 set;
@@ -1046,7 +1072,7 @@ namespace Mas.Rpc.Model
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Rpc.Model.IEnvInstance<TRestInput, TOutput> Instance => ctx.ReadCap<Mas.Rpc.Model.IEnvInstance<TRestInput, TOutput>>(0);
+                public Mas.Schema.Model.IEnvInstance<TRestInput, TOutput> Instance => ctx.ReadCap<Mas.Schema.Model.IEnvInstance<TRestInput, TOutput>>(0);
             }
 
             public class WRITER : SerializerState
@@ -1056,9 +1082,9 @@ namespace Mas.Rpc.Model
                     this.SetStruct(0, 1);
                 }
 
-                public Mas.Rpc.Model.IEnvInstance<TRestInput, TOutput> Instance
+                public Mas.Schema.Model.IEnvInstance<TRestInput, TOutput> Instance
                 {
-                    get => ReadCap<Mas.Rpc.Model.IEnvInstance<TRestInput, TOutput>>(0);
+                    get => ReadCap<Mas.Schema.Model.IEnvInstance<TRestInput, TOutput>>(0);
                     set => LinkObject(0, value);
                 }
             }
@@ -1089,7 +1115,7 @@ namespace Mas.Rpc.Model
             {
             }
 
-            public Mas.Rpc.Common.ICallback Unregister
+            public Mas.Schema.Common.IAction Unregister
             {
                 get;
                 set;
@@ -1106,7 +1132,7 @@ namespace Mas.Rpc.Model
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Rpc.Common.ICallback Unregister => ctx.ReadCap<Mas.Rpc.Common.ICallback>(0);
+                public Mas.Schema.Common.IAction Unregister => ctx.ReadCap<Mas.Schema.Common.IAction>(0);
             }
 
             public class WRITER : SerializerState
@@ -1116,9 +1142,9 @@ namespace Mas.Rpc.Model
                     this.SetStruct(0, 1);
                 }
 
-                public Mas.Rpc.Common.ICallback Unregister
+                public Mas.Schema.Common.IAction Unregister
                 {
-                    get => ReadCap<Mas.Rpc.Common.ICallback>(0);
+                    get => ReadCap<Mas.Schema.Common.IAction>(0);
                     set => LinkObject(0, value);
                 }
             }
@@ -1126,40 +1152,40 @@ namespace Mas.Rpc.Model
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xce552eef738a45eaUL), Proxy(typeof(InstanceFactory_Proxy<>)), Skeleton(typeof(InstanceFactory_Skeleton<>))]
-    public interface IInstanceFactory<TInstanceType> : Mas.Rpc.Common.IIdentifiable where TInstanceType : class
+    public interface IInstanceFactory<TInstanceType> : Mas.Schema.Common.IIdentifiable where TInstanceType : class
     {
-        Task<Mas.Rpc.Common.IdInformation> ModelInfo(CancellationToken cancellationToken_ = default);
+        Task<Mas.Schema.Common.IdInformation> ModelInfo(CancellationToken cancellationToken_ = default);
         Task<TInstanceType> NewInstance(CancellationToken cancellationToken_ = default);
-        Task<IReadOnlyList<Mas.Rpc.Common.ListEntry<TInstanceType>>> NewInstances(short numberOfInstances, CancellationToken cancellationToken_ = default);
+        Task<IReadOnlyList<Mas.Schema.Common.ListEntry<TInstanceType>>> NewInstances(short numberOfInstances, CancellationToken cancellationToken_ = default);
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xce552eef738a45eaUL)]
     public class InstanceFactory_Proxy<TInstanceType> : Proxy, IInstanceFactory<TInstanceType> where TInstanceType : class
     {
-        public async Task<Mas.Rpc.Common.IdInformation> ModelInfo(CancellationToken cancellationToken_ = default)
+        public async Task<Mas.Schema.Common.IdInformation> ModelInfo(CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Model.InstanceFactory<TInstanceType>.Params_ModelInfo.WRITER>();
-            var arg_ = new Mas.Rpc.Model.InstanceFactory<TInstanceType>.Params_ModelInfo()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Model.InstanceFactory<TInstanceType>.Params_ModelInfo.WRITER>();
+            var arg_ = new Mas.Schema.Model.InstanceFactory<TInstanceType>.Params_ModelInfo()
             {};
             arg_?.serialize(in_);
             using (var d_ = await Call(14867841350804063722UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Rpc.Common.IdInformation>(d_);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Common.IdInformation>(d_);
                 return r_;
             }
         }
 
         public Task<TInstanceType> NewInstance(CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Model.InstanceFactory<TInstanceType>.Params_NewInstance.WRITER>();
-            var arg_ = new Mas.Rpc.Model.InstanceFactory<TInstanceType>.Params_NewInstance()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Model.InstanceFactory<TInstanceType>.Params_NewInstance.WRITER>();
+            var arg_ = new Mas.Schema.Model.InstanceFactory<TInstanceType>.Params_NewInstance()
             {};
             arg_?.serialize(in_);
             return Impatient.MakePipelineAware(Call(14867841350804063722UL, 1, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
             {
                 using (d_)
                 {
-                    var r_ = CapnpSerializable.Create<Mas.Rpc.Model.InstanceFactory<TInstanceType>.Result_NewInstance>(d_);
+                    var r_ = CapnpSerializable.Create<Mas.Schema.Model.InstanceFactory<TInstanceType>.Result_NewInstance>(d_);
                     return (r_.Instance);
                 }
             }
@@ -1167,28 +1193,28 @@ namespace Mas.Rpc.Model
             );
         }
 
-        public async Task<IReadOnlyList<Mas.Rpc.Common.ListEntry<TInstanceType>>> NewInstances(short numberOfInstances, CancellationToken cancellationToken_ = default)
+        public async Task<IReadOnlyList<Mas.Schema.Common.ListEntry<TInstanceType>>> NewInstances(short numberOfInstances, CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Model.InstanceFactory<TInstanceType>.Params_NewInstances.WRITER>();
-            var arg_ = new Mas.Rpc.Model.InstanceFactory<TInstanceType>.Params_NewInstances()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Model.InstanceFactory<TInstanceType>.Params_NewInstances.WRITER>();
+            var arg_ = new Mas.Schema.Model.InstanceFactory<TInstanceType>.Params_NewInstances()
             {NumberOfInstances = numberOfInstances};
             arg_?.serialize(in_);
             using (var d_ = await Call(14867841350804063722UL, 2, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Rpc.Model.InstanceFactory<TInstanceType>.Result_NewInstances>(d_);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Model.InstanceFactory<TInstanceType>.Result_NewInstances>(d_);
                 return (r_.Instances);
             }
         }
 
-        public async Task<Mas.Rpc.Common.IdInformation> Info(CancellationToken cancellationToken_ = default)
+        public async Task<Mas.Schema.Common.IdInformation> Info(CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Common.Identifiable.Params_Info.WRITER>();
-            var arg_ = new Mas.Rpc.Common.Identifiable.Params_Info()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Common.Identifiable.Params_Info.WRITER>();
+            var arg_ = new Mas.Schema.Common.Identifiable.Params_Info()
             {};
             arg_?.serialize(in_);
             using (var d_ = await Call(12875740530987518165UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Rpc.Common.IdInformation>(d_);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Common.IdInformation>(d_);
                 return r_;
             }
         }
@@ -1209,7 +1235,7 @@ namespace Mas.Rpc.Model
             {
                 return Impatient.MaybeTailCall(Impl.ModelInfo(cancellationToken_), r_ =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Rpc.Common.IdInformation.WRITER>();
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Common.IdInformation.WRITER>();
                     r_.serialize(s_);
                     return s_;
                 }
@@ -1224,8 +1250,8 @@ namespace Mas.Rpc.Model
             {
                 return Impatient.MaybeTailCall(Impl.NewInstance(cancellationToken_), instance =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Rpc.Model.InstanceFactory<TInstanceType>.Result_NewInstance.WRITER>();
-                    var r_ = new Mas.Rpc.Model.InstanceFactory<TInstanceType>.Result_NewInstance{Instance = instance};
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Model.InstanceFactory<TInstanceType>.Result_NewInstance.WRITER>();
+                    var r_ = new Mas.Schema.Model.InstanceFactory<TInstanceType>.Result_NewInstance{Instance = instance};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -1238,11 +1264,11 @@ namespace Mas.Rpc.Model
         {
             using (d_)
             {
-                var in_ = CapnpSerializable.Create<Mas.Rpc.Model.InstanceFactory<TInstanceType>.Params_NewInstances>(d_);
+                var in_ = CapnpSerializable.Create<Mas.Schema.Model.InstanceFactory<TInstanceType>.Params_NewInstances>(d_);
                 return Impatient.MaybeTailCall(Impl.NewInstances(in_.NumberOfInstances, cancellationToken_), instances =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Rpc.Model.InstanceFactory<TInstanceType>.Result_NewInstances.WRITER>();
-                    var r_ = new Mas.Rpc.Model.InstanceFactory<TInstanceType>.Result_NewInstances{Instances = instances};
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Model.InstanceFactory<TInstanceType>.Result_NewInstances.WRITER>();
+                    var r_ = new Mas.Schema.Model.InstanceFactory<TInstanceType>.Result_NewInstances{Instances = instances};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -1472,7 +1498,7 @@ namespace Mas.Rpc.Model
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Instances = reader.Instances?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Rpc.Common.ListEntry<TInstanceType>>(_));
+                Instances = reader.Instances?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Common.ListEntry<TInstanceType>>(_));
                 applyDefaults();
             }
 
@@ -1490,7 +1516,7 @@ namespace Mas.Rpc.Model
             {
             }
 
-            public IReadOnlyList<Mas.Rpc.Common.ListEntry<TInstanceType>> Instances
+            public IReadOnlyList<Mas.Schema.Common.ListEntry<TInstanceType>> Instances
             {
                 get;
                 set;
@@ -1507,7 +1533,7 @@ namespace Mas.Rpc.Model
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public IReadOnlyList<Mas.Rpc.Common.ListEntry<TInstanceType>.READER> Instances => ctx.ReadList(0).Cast(Mas.Rpc.Common.ListEntry<TInstanceType>.READER.create);
+                public IReadOnlyList<Mas.Schema.Common.ListEntry<TInstanceType>.READER> Instances => ctx.ReadList(0).Cast(Mas.Schema.Common.ListEntry<TInstanceType>.READER.create);
                 public bool HasInstances => ctx.IsStructFieldNonNull(0);
             }
 
@@ -1518,9 +1544,9 @@ namespace Mas.Rpc.Model
                     this.SetStruct(0, 1);
                 }
 
-                public ListOfStructsSerializer<Mas.Rpc.Common.ListEntry<TInstanceType>.WRITER> Instances
+                public ListOfStructsSerializer<Mas.Schema.Common.ListEntry<TInstanceType>.WRITER> Instances
                 {
-                    get => BuildPointer<ListOfStructsSerializer<Mas.Rpc.Common.ListEntry<TInstanceType>.WRITER>>(0);
+                    get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Common.ListEntry<TInstanceType>.WRITER>>(0);
                     set => Link(0, value);
                 }
             }

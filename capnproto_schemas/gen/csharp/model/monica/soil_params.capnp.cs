@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Mas.Data.Soil
+namespace Mas.Schema.Soil
 {
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xfc682227304e2281UL)]
     public class SoilCharacteristicData : ICapnpSerializable
@@ -15,7 +15,7 @@ namespace Mas.Data.Soil
         void ICapnpSerializable.Deserialize(DeserializerState arg_)
         {
             var reader = READER.create(arg_);
-            List = reader.List?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Data.Soil.SoilCharacteristicData.Data>(_));
+            List = reader.List?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Soil.SoilCharacteristicData.Data>(_));
             applyDefaults();
         }
 
@@ -33,7 +33,7 @@ namespace Mas.Data.Soil
         {
         }
 
-        public IReadOnlyList<Mas.Data.Soil.SoilCharacteristicData.Data> List
+        public IReadOnlyList<Mas.Schema.Soil.SoilCharacteristicData.Data> List
         {
             get;
             set;
@@ -50,7 +50,7 @@ namespace Mas.Data.Soil
             public static READER create(DeserializerState ctx) => new READER(ctx);
             public static implicit operator DeserializerState(READER reader) => reader.ctx;
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-            public IReadOnlyList<Mas.Data.Soil.SoilCharacteristicData.Data.READER> List => ctx.ReadList(0).Cast(Mas.Data.Soil.SoilCharacteristicData.Data.READER.create);
+            public IReadOnlyList<Mas.Schema.Soil.SoilCharacteristicData.Data.READER> List => ctx.ReadList(0).Cast(Mas.Schema.Soil.SoilCharacteristicData.Data.READER.create);
             public bool HasList => ctx.IsStructFieldNonNull(0);
         }
 
@@ -61,9 +61,9 @@ namespace Mas.Data.Soil
                 this.SetStruct(0, 1);
             }
 
-            public ListOfStructsSerializer<Mas.Data.Soil.SoilCharacteristicData.Data.WRITER> List
+            public ListOfStructsSerializer<Mas.Schema.Soil.SoilCharacteristicData.Data.WRITER> List
             {
-                get => BuildPointer<ListOfStructsSerializer<Mas.Data.Soil.SoilCharacteristicData.Data.WRITER>>(0);
+                get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Soil.SoilCharacteristicData.Data.WRITER>>(0);
                 set => Link(0, value);
             }
         }
@@ -196,7 +196,7 @@ namespace Mas.Data.Soil
         void ICapnpSerializable.Deserialize(DeserializerState arg_)
         {
             var reader = READER.create(arg_);
-            List = reader.List?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Data.Soil.SoilCharacteristicModifier.Data>(_));
+            List = reader.List?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Soil.SoilCharacteristicModifier.Data>(_));
             applyDefaults();
         }
 
@@ -214,7 +214,7 @@ namespace Mas.Data.Soil
         {
         }
 
-        public IReadOnlyList<Mas.Data.Soil.SoilCharacteristicModifier.Data> List
+        public IReadOnlyList<Mas.Schema.Soil.SoilCharacteristicModifier.Data> List
         {
             get;
             set;
@@ -231,7 +231,7 @@ namespace Mas.Data.Soil
             public static READER create(DeserializerState ctx) => new READER(ctx);
             public static implicit operator DeserializerState(READER reader) => reader.ctx;
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-            public IReadOnlyList<Mas.Data.Soil.SoilCharacteristicModifier.Data.READER> List => ctx.ReadList(0).Cast(Mas.Data.Soil.SoilCharacteristicModifier.Data.READER.create);
+            public IReadOnlyList<Mas.Schema.Soil.SoilCharacteristicModifier.Data.READER> List => ctx.ReadList(0).Cast(Mas.Schema.Soil.SoilCharacteristicModifier.Data.READER.create);
             public bool HasList => ctx.IsStructFieldNonNull(0);
         }
 
@@ -242,9 +242,9 @@ namespace Mas.Data.Soil
                 this.SetStruct(0, 1);
             }
 
-            public ListOfStructsSerializer<Mas.Data.Soil.SoilCharacteristicModifier.Data.WRITER> List
+            public ListOfStructsSerializer<Mas.Schema.Soil.SoilCharacteristicModifier.Data.WRITER> List
             {
-                get => BuildPointer<ListOfStructsSerializer<Mas.Data.Soil.SoilCharacteristicModifier.Data.WRITER>>(0);
+                get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Soil.SoilCharacteristicModifier.Data.WRITER>>(0);
                 set => Link(0, value);
             }
         }
@@ -377,7 +377,7 @@ namespace Mas.Data.Soil
         void ICapnpSerializable.Deserialize(DeserializerState arg_)
         {
             var reader = READER.create(arg_);
-            List = reader.List?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Data.Soil.CapillaryRiseRate.Data>(_));
+            List = reader.List?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Soil.CapillaryRiseRate.Data>(_));
             applyDefaults();
         }
 
@@ -395,7 +395,7 @@ namespace Mas.Data.Soil
         {
         }
 
-        public IReadOnlyList<Mas.Data.Soil.CapillaryRiseRate.Data> List
+        public IReadOnlyList<Mas.Schema.Soil.CapillaryRiseRate.Data> List
         {
             get;
             set;
@@ -412,7 +412,7 @@ namespace Mas.Data.Soil
             public static READER create(DeserializerState ctx) => new READER(ctx);
             public static implicit operator DeserializerState(READER reader) => reader.ctx;
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-            public IReadOnlyList<Mas.Data.Soil.CapillaryRiseRate.Data.READER> List => ctx.ReadList(0).Cast(Mas.Data.Soil.CapillaryRiseRate.Data.READER.create);
+            public IReadOnlyList<Mas.Schema.Soil.CapillaryRiseRate.Data.READER> List => ctx.ReadList(0).Cast(Mas.Schema.Soil.CapillaryRiseRate.Data.READER.create);
             public bool HasList => ctx.IsStructFieldNonNull(0);
         }
 
@@ -423,9 +423,9 @@ namespace Mas.Data.Soil
                 this.SetStruct(0, 1);
             }
 
-            public ListOfStructsSerializer<Mas.Data.Soil.CapillaryRiseRate.Data.WRITER> List
+            public ListOfStructsSerializer<Mas.Schema.Soil.CapillaryRiseRate.Data.WRITER> List
             {
-                get => BuildPointer<ListOfStructsSerializer<Mas.Data.Soil.CapillaryRiseRate.Data.WRITER>>(0);
+                get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Soil.CapillaryRiseRate.Data.WRITER>>(0);
                 set => Link(0, value);
             }
         }

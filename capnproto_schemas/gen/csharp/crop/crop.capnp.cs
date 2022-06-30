@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Mas.Rpc.Crop
+namespace Mas.Schema.Crop
 {
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xdd81b0520864e2b4UL)]
     public enum Cultivar : ushort
@@ -68,10 +68,10 @@ namespace Mas.Rpc.Crop
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xe88d97a324bf5c84UL), Proxy(typeof(Crop_Proxy)), Skeleton(typeof(Crop_Skeleton))]
-    public interface ICrop : Mas.Rpc.Common.IIdentifiable
+    public interface ICrop : Mas.Schema.Common.IIdentifiable
     {
         Task<object> Parameters(CancellationToken cancellationToken_ = default);
-        Task<Mas.Rpc.Crop.Cultivar> Cultivar(CancellationToken cancellationToken_ = default);
+        Task<Mas.Schema.Crop.Cultivar> Cultivar(CancellationToken cancellationToken_ = default);
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xe88d97a324bf5c84UL)]
@@ -79,15 +79,15 @@ namespace Mas.Rpc.Crop
     {
         public Task<object> Parameters(CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Crop.Crop.Params_Parameters.WRITER>();
-            var arg_ = new Mas.Rpc.Crop.Crop.Params_Parameters()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Crop.Crop.Params_Parameters.WRITER>();
+            var arg_ = new Mas.Schema.Crop.Crop.Params_Parameters()
             {};
             arg_?.serialize(in_);
             return Impatient.MakePipelineAware(Call(16757216515467467908UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
             {
                 using (d_)
                 {
-                    var r_ = CapnpSerializable.Create<Mas.Rpc.Crop.Crop.Result_Parameters>(d_);
+                    var r_ = CapnpSerializable.Create<Mas.Schema.Crop.Crop.Result_Parameters>(d_);
                     return (r_.Params);
                 }
             }
@@ -95,28 +95,28 @@ namespace Mas.Rpc.Crop
             );
         }
 
-        public async Task<Mas.Rpc.Crop.Cultivar> Cultivar(CancellationToken cancellationToken_ = default)
+        public async Task<Mas.Schema.Crop.Cultivar> Cultivar(CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Crop.Crop.Params_Cultivar.WRITER>();
-            var arg_ = new Mas.Rpc.Crop.Crop.Params_Cultivar()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Crop.Crop.Params_Cultivar.WRITER>();
+            var arg_ = new Mas.Schema.Crop.Crop.Params_Cultivar()
             {};
             arg_?.serialize(in_);
             using (var d_ = await Call(16757216515467467908UL, 1, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Rpc.Crop.Crop.Result_Cultivar>(d_);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Crop.Crop.Result_Cultivar>(d_);
                 return (r_.Cult);
             }
         }
 
-        public async Task<Mas.Rpc.Common.IdInformation> Info(CancellationToken cancellationToken_ = default)
+        public async Task<Mas.Schema.Common.IdInformation> Info(CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Common.Identifiable.Params_Info.WRITER>();
-            var arg_ = new Mas.Rpc.Common.Identifiable.Params_Info()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Common.Identifiable.Params_Info.WRITER>();
+            var arg_ = new Mas.Schema.Common.Identifiable.Params_Info()
             {};
             arg_?.serialize(in_);
             using (var d_ = await Call(12875740530987518165UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Rpc.Common.IdInformation>(d_);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Common.IdInformation>(d_);
                 return r_;
             }
         }
@@ -137,8 +137,8 @@ namespace Mas.Rpc.Crop
             {
                 return Impatient.MaybeTailCall(Impl.Parameters(cancellationToken_), @params =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Rpc.Crop.Crop.Result_Parameters.WRITER>();
-                    var r_ = new Mas.Rpc.Crop.Crop.Result_Parameters{Params = @params};
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Crop.Crop.Result_Parameters.WRITER>();
+                    var r_ = new Mas.Schema.Crop.Crop.Result_Parameters{Params = @params};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -153,8 +153,8 @@ namespace Mas.Rpc.Crop
             {
                 return Impatient.MaybeTailCall(Impl.Cultivar(cancellationToken_), cult =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Rpc.Crop.Crop.Result_Cultivar.WRITER>();
-                    var r_ = new Mas.Rpc.Crop.Crop.Result_Cultivar{Cult = cult};
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Crop.Crop.Result_Cultivar.WRITER>();
+                    var r_ = new Mas.Schema.Crop.Crop.Result_Cultivar{Cult = cult};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -341,7 +341,7 @@ namespace Mas.Rpc.Crop
             {
             }
 
-            public Mas.Rpc.Crop.Cultivar Cult
+            public Mas.Schema.Crop.Cultivar Cult
             {
                 get;
                 set;
@@ -358,7 +358,7 @@ namespace Mas.Rpc.Crop
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Rpc.Crop.Cultivar Cult => (Mas.Rpc.Crop.Cultivar)ctx.ReadDataUShort(0UL, (ushort)0);
+                public Mas.Schema.Crop.Cultivar Cult => (Mas.Schema.Crop.Cultivar)ctx.ReadDataUShort(0UL, (ushort)0);
             }
 
             public class WRITER : SerializerState
@@ -368,9 +368,9 @@ namespace Mas.Rpc.Crop
                     this.SetStruct(1, 0);
                 }
 
-                public Mas.Rpc.Crop.Cultivar Cult
+                public Mas.Schema.Crop.Cultivar Cult
                 {
-                    get => (Mas.Rpc.Crop.Cultivar)this.ReadDataUShort(0UL, (ushort)0);
+                    get => (Mas.Schema.Crop.Cultivar)this.ReadDataUShort(0UL, (ushort)0);
                     set => this.WriteData(0UL, (ushort)value, (ushort)0);
                 }
             }

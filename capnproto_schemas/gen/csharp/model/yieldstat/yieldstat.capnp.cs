@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Mas.Models.Yieldstat
+namespace Mas.Schema.Model.Yieldstat
 {
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xcfe218c48d227e0dUL)]
     public enum ResultId : ushort
@@ -281,7 +281,7 @@ namespace Mas.Models.Yieldstat
             var reader = READER.create(arg_);
             Cultivar = reader.Cultivar;
             IsNoData = reader.IsNoData;
-            Values = reader.Values?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Models.Yieldstat.Result.ResultToValue>(_));
+            Values = reader.Values?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Model.Yieldstat.Result.ResultToValue>(_));
             applyDefaults();
         }
 
@@ -301,7 +301,7 @@ namespace Mas.Models.Yieldstat
         {
         }
 
-        public Mas.Rpc.Crop.Cultivar Cultivar
+        public Mas.Schema.Crop.Cultivar Cultivar
         {
             get;
             set;
@@ -314,7 +314,7 @@ namespace Mas.Models.Yieldstat
         }
 
         = false;
-        public IReadOnlyList<Mas.Models.Yieldstat.Result.ResultToValue> Values
+        public IReadOnlyList<Mas.Schema.Model.Yieldstat.Result.ResultToValue> Values
         {
             get;
             set;
@@ -331,9 +331,9 @@ namespace Mas.Models.Yieldstat
             public static READER create(DeserializerState ctx) => new READER(ctx);
             public static implicit operator DeserializerState(READER reader) => reader.ctx;
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-            public Mas.Rpc.Crop.Cultivar Cultivar => (Mas.Rpc.Crop.Cultivar)ctx.ReadDataUShort(0UL, (ushort)0);
+            public Mas.Schema.Crop.Cultivar Cultivar => (Mas.Schema.Crop.Cultivar)ctx.ReadDataUShort(0UL, (ushort)0);
             public bool IsNoData => ctx.ReadDataBool(16UL, false);
-            public IReadOnlyList<Mas.Models.Yieldstat.Result.ResultToValue.READER> Values => ctx.ReadList(0).Cast(Mas.Models.Yieldstat.Result.ResultToValue.READER.create);
+            public IReadOnlyList<Mas.Schema.Model.Yieldstat.Result.ResultToValue.READER> Values => ctx.ReadList(0).Cast(Mas.Schema.Model.Yieldstat.Result.ResultToValue.READER.create);
             public bool HasValues => ctx.IsStructFieldNonNull(0);
         }
 
@@ -344,9 +344,9 @@ namespace Mas.Models.Yieldstat
                 this.SetStruct(1, 1);
             }
 
-            public Mas.Rpc.Crop.Cultivar Cultivar
+            public Mas.Schema.Crop.Cultivar Cultivar
             {
-                get => (Mas.Rpc.Crop.Cultivar)this.ReadDataUShort(0UL, (ushort)0);
+                get => (Mas.Schema.Crop.Cultivar)this.ReadDataUShort(0UL, (ushort)0);
                 set => this.WriteData(0UL, (ushort)value, (ushort)0);
             }
 
@@ -356,9 +356,9 @@ namespace Mas.Models.Yieldstat
                 set => this.WriteData(16UL, value, false);
             }
 
-            public ListOfStructsSerializer<Mas.Models.Yieldstat.Result.ResultToValue.WRITER> Values
+            public ListOfStructsSerializer<Mas.Schema.Model.Yieldstat.Result.ResultToValue.WRITER> Values
             {
-                get => BuildPointer<ListOfStructsSerializer<Mas.Models.Yieldstat.Result.ResultToValue.WRITER>>(0);
+                get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Model.Yieldstat.Result.ResultToValue.WRITER>>(0);
                 set => Link(0, value);
             }
         }
@@ -390,7 +390,7 @@ namespace Mas.Models.Yieldstat
             {
             }
 
-            public Mas.Models.Yieldstat.ResultId Id
+            public Mas.Schema.Model.Yieldstat.ResultId Id
             {
                 get;
                 set;
@@ -413,7 +413,7 @@ namespace Mas.Models.Yieldstat
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Models.Yieldstat.ResultId Id => (Mas.Models.Yieldstat.ResultId)ctx.ReadDataUShort(0UL, (ushort)0);
+                public Mas.Schema.Model.Yieldstat.ResultId Id => (Mas.Schema.Model.Yieldstat.ResultId)ctx.ReadDataUShort(0UL, (ushort)0);
                 public double Value => ctx.ReadDataDouble(64UL, 0);
             }
 
@@ -424,9 +424,9 @@ namespace Mas.Models.Yieldstat
                     this.SetStruct(2, 0);
                 }
 
-                public Mas.Models.Yieldstat.ResultId Id
+                public Mas.Schema.Model.Yieldstat.ResultId Id
                 {
-                    get => (Mas.Models.Yieldstat.ResultId)this.ReadDataUShort(0UL, (ushort)0);
+                    get => (Mas.Schema.Model.Yieldstat.ResultId)this.ReadDataUShort(0UL, (ushort)0);
                     set => this.WriteData(0UL, (ushort)value, (ushort)0);
                 }
 
@@ -449,7 +449,7 @@ namespace Mas.Models.Yieldstat
             Id = reader.Id;
             RunFailed = reader.RunFailed;
             Reason = reader.Reason;
-            Results = reader.Results?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Models.Yieldstat.Output.YearToResult>(_));
+            Results = reader.Results?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Model.Yieldstat.Output.YearToResult>(_));
             applyDefaults();
         }
 
@@ -489,7 +489,7 @@ namespace Mas.Models.Yieldstat
             set;
         }
 
-        public IReadOnlyList<Mas.Models.Yieldstat.Output.YearToResult> Results
+        public IReadOnlyList<Mas.Schema.Model.Yieldstat.Output.YearToResult> Results
         {
             get;
             set;
@@ -509,7 +509,7 @@ namespace Mas.Models.Yieldstat
             public string Id => ctx.ReadText(0, null);
             public bool RunFailed => ctx.ReadDataBool(0UL, false);
             public string Reason => ctx.ReadText(1, null);
-            public IReadOnlyList<Mas.Models.Yieldstat.Output.YearToResult.READER> Results => ctx.ReadList(2).Cast(Mas.Models.Yieldstat.Output.YearToResult.READER.create);
+            public IReadOnlyList<Mas.Schema.Model.Yieldstat.Output.YearToResult.READER> Results => ctx.ReadList(2).Cast(Mas.Schema.Model.Yieldstat.Output.YearToResult.READER.create);
             public bool HasResults => ctx.IsStructFieldNonNull(2);
         }
 
@@ -538,9 +538,9 @@ namespace Mas.Models.Yieldstat
                 set => this.WriteText(1, value, null);
             }
 
-            public ListOfStructsSerializer<Mas.Models.Yieldstat.Output.YearToResult.WRITER> Results
+            public ListOfStructsSerializer<Mas.Schema.Model.Yieldstat.Output.YearToResult.WRITER> Results
             {
-                get => BuildPointer<ListOfStructsSerializer<Mas.Models.Yieldstat.Output.YearToResult.WRITER>>(2);
+                get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Model.Yieldstat.Output.YearToResult.WRITER>>(2);
                 set => Link(2, value);
             }
         }
@@ -553,7 +553,7 @@ namespace Mas.Models.Yieldstat
             {
                 var reader = READER.create(arg_);
                 Year = reader.Year;
-                Result = CapnpSerializable.Create<Mas.Models.Yieldstat.Result>(reader.Result);
+                Result = CapnpSerializable.Create<Mas.Schema.Model.Yieldstat.Result>(reader.Result);
                 applyDefaults();
             }
 
@@ -578,7 +578,7 @@ namespace Mas.Models.Yieldstat
                 set;
             }
 
-            public Mas.Models.Yieldstat.Result Result
+            public Mas.Schema.Model.Yieldstat.Result Result
             {
                 get;
                 set;
@@ -596,7 +596,7 @@ namespace Mas.Models.Yieldstat
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
                 public short Year => ctx.ReadDataShort(0UL, (short)0);
-                public Mas.Models.Yieldstat.Result.READER Result => ctx.ReadStruct(0, Mas.Models.Yieldstat.Result.READER.create);
+                public Mas.Schema.Model.Yieldstat.Result.READER Result => ctx.ReadStruct(0, Mas.Schema.Model.Yieldstat.Result.READER.create);
                 public bool HasResult => ctx.IsStructFieldNonNull(0);
             }
 
@@ -613,9 +613,9 @@ namespace Mas.Models.Yieldstat
                     set => this.WriteData(0UL, value, (short)0);
                 }
 
-                public Mas.Models.Yieldstat.Result.WRITER Result
+                public Mas.Schema.Model.Yieldstat.Result.WRITER Result
                 {
-                    get => BuildPointer<Mas.Models.Yieldstat.Result.WRITER>(0);
+                    get => BuildPointer<Mas.Schema.Model.Yieldstat.Result.WRITER>(0);
                     set => Link(0, value);
                 }
             }

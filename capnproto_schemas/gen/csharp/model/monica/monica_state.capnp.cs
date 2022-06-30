@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Mas.Models.Monica
+namespace Mas.Schema.Model.Monica
 {
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xd8af9210839bc071UL)]
     public class MaybeBool : ICapnpSerializable
@@ -75,7 +75,7 @@ namespace Mas.Models.Monica
         void ICapnpSerializable.Deserialize(DeserializerState arg_)
         {
             var reader = READER.create(arg_);
-            ModelState = CapnpSerializable.Create<Mas.Models.Monica.MonicaModelState>(reader.ModelState);
+            ModelState = CapnpSerializable.Create<Mas.Schema.Model.Monica.MonicaModelState>(reader.ModelState);
             applyDefaults();
         }
 
@@ -93,7 +93,7 @@ namespace Mas.Models.Monica
         {
         }
 
-        public Mas.Models.Monica.MonicaModelState ModelState
+        public Mas.Schema.Model.Monica.MonicaModelState ModelState
         {
             get;
             set;
@@ -110,7 +110,7 @@ namespace Mas.Models.Monica
             public static READER create(DeserializerState ctx) => new READER(ctx);
             public static implicit operator DeserializerState(READER reader) => reader.ctx;
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-            public Mas.Models.Monica.MonicaModelState.READER ModelState => ctx.ReadStruct(0, Mas.Models.Monica.MonicaModelState.READER.create);
+            public Mas.Schema.Model.Monica.MonicaModelState.READER ModelState => ctx.ReadStruct(0, Mas.Schema.Model.Monica.MonicaModelState.READER.create);
             public bool HasModelState => ctx.IsStructFieldNonNull(0);
         }
 
@@ -121,9 +121,9 @@ namespace Mas.Models.Monica
                 this.SetStruct(0, 1);
             }
 
-            public Mas.Models.Monica.MonicaModelState.WRITER ModelState
+            public Mas.Schema.Model.Monica.MonicaModelState.WRITER ModelState
             {
-                get => BuildPointer<Mas.Models.Monica.MonicaModelState.WRITER>(0);
+                get => BuildPointer<Mas.Schema.Model.Monica.MonicaModelState.WRITER>(0);
                 set => Link(0, value);
             }
         }
@@ -136,17 +136,17 @@ namespace Mas.Models.Monica
         void ICapnpSerializable.Deserialize(DeserializerState arg_)
         {
             var reader = READER.create(arg_);
-            AutomaticHarvestParams = CapnpSerializable.Create<Mas.Models.Monica.AutomaticHarvestParameters>(reader.AutomaticHarvestParams);
+            AutomaticHarvestParams = CapnpSerializable.Create<Mas.Schema.Model.Monica.AutomaticHarvestParameters>(reader.AutomaticHarvestParams);
             SpeciesName = reader.SpeciesName;
             CultivarName = reader.CultivarName;
-            SeedDate = CapnpSerializable.Create<Mas.Common.Date>(reader.SeedDate);
-            HarvestDate = CapnpSerializable.Create<Mas.Common.Date>(reader.HarvestDate);
-            IsWinterCrop = CapnpSerializable.Create<Mas.Models.Monica.MaybeBool>(reader.IsWinterCrop);
-            IsPerennialCrop = CapnpSerializable.Create<Mas.Models.Monica.MaybeBool>(reader.IsPerennialCrop);
-            CuttingDates = reader.CuttingDates?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Common.Date>(_));
-            CropParams = CapnpSerializable.Create<Mas.Models.Monica.CropParameters>(reader.CropParams);
-            PerennialCropParams = CapnpSerializable.Create<Mas.Models.Monica.CropParameters>(reader.PerennialCropParams);
-            ResidueParams = CapnpSerializable.Create<Mas.Models.Monica.CropResidueParameters>(reader.ResidueParams);
+            SeedDate = CapnpSerializable.Create<Mas.Schema.Common.Date>(reader.SeedDate);
+            HarvestDate = CapnpSerializable.Create<Mas.Schema.Common.Date>(reader.HarvestDate);
+            IsWinterCrop = CapnpSerializable.Create<Mas.Schema.Model.Monica.MaybeBool>(reader.IsWinterCrop);
+            IsPerennialCrop = CapnpSerializable.Create<Mas.Schema.Model.Monica.MaybeBool>(reader.IsPerennialCrop);
+            CuttingDates = reader.CuttingDates?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Common.Date>(_));
+            CropParams = CapnpSerializable.Create<Mas.Schema.Model.Monica.CropParameters>(reader.CropParams);
+            PerennialCropParams = CapnpSerializable.Create<Mas.Schema.Model.Monica.CropParameters>(reader.PerennialCropParams);
+            ResidueParams = CapnpSerializable.Create<Mas.Schema.Model.Monica.CropResidueParameters>(reader.ResidueParams);
             CrossCropAdaptionFactor = reader.CrossCropAdaptionFactor;
             AutomaticHarvest = reader.AutomaticHarvest;
             applyDefaults();
@@ -178,7 +178,7 @@ namespace Mas.Models.Monica
         {
         }
 
-        public Mas.Models.Monica.AutomaticHarvestParameters AutomaticHarvestParams
+        public Mas.Schema.Model.Monica.AutomaticHarvestParameters AutomaticHarvestParams
         {
             get;
             set;
@@ -196,49 +196,49 @@ namespace Mas.Models.Monica
             set;
         }
 
-        public Mas.Common.Date SeedDate
+        public Mas.Schema.Common.Date SeedDate
         {
             get;
             set;
         }
 
-        public Mas.Common.Date HarvestDate
+        public Mas.Schema.Common.Date HarvestDate
         {
             get;
             set;
         }
 
-        public Mas.Models.Monica.MaybeBool IsWinterCrop
+        public Mas.Schema.Model.Monica.MaybeBool IsWinterCrop
         {
             get;
             set;
         }
 
-        public Mas.Models.Monica.MaybeBool IsPerennialCrop
+        public Mas.Schema.Model.Monica.MaybeBool IsPerennialCrop
         {
             get;
             set;
         }
 
-        public IReadOnlyList<Mas.Common.Date> CuttingDates
+        public IReadOnlyList<Mas.Schema.Common.Date> CuttingDates
         {
             get;
             set;
         }
 
-        public Mas.Models.Monica.CropParameters CropParams
+        public Mas.Schema.Model.Monica.CropParameters CropParams
         {
             get;
             set;
         }
 
-        public Mas.Models.Monica.CropParameters PerennialCropParams
+        public Mas.Schema.Model.Monica.CropParameters PerennialCropParams
         {
             get;
             set;
         }
 
-        public Mas.Models.Monica.CropResidueParameters ResidueParams
+        public Mas.Schema.Model.Monica.CropResidueParameters ResidueParams
         {
             get;
             set;
@@ -268,25 +268,25 @@ namespace Mas.Models.Monica
             public static READER create(DeserializerState ctx) => new READER(ctx);
             public static implicit operator DeserializerState(READER reader) => reader.ctx;
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-            public Mas.Models.Monica.AutomaticHarvestParameters.READER AutomaticHarvestParams => ctx.ReadStruct(0, Mas.Models.Monica.AutomaticHarvestParameters.READER.create);
+            public Mas.Schema.Model.Monica.AutomaticHarvestParameters.READER AutomaticHarvestParams => ctx.ReadStruct(0, Mas.Schema.Model.Monica.AutomaticHarvestParameters.READER.create);
             public bool HasAutomaticHarvestParams => ctx.IsStructFieldNonNull(0);
             public string SpeciesName => ctx.ReadText(1, null);
             public string CultivarName => ctx.ReadText(2, null);
-            public Mas.Common.Date.READER SeedDate => ctx.ReadStruct(3, Mas.Common.Date.READER.create);
+            public Mas.Schema.Common.Date.READER SeedDate => ctx.ReadStruct(3, Mas.Schema.Common.Date.READER.create);
             public bool HasSeedDate => ctx.IsStructFieldNonNull(3);
-            public Mas.Common.Date.READER HarvestDate => ctx.ReadStruct(4, Mas.Common.Date.READER.create);
+            public Mas.Schema.Common.Date.READER HarvestDate => ctx.ReadStruct(4, Mas.Schema.Common.Date.READER.create);
             public bool HasHarvestDate => ctx.IsStructFieldNonNull(4);
-            public Mas.Models.Monica.MaybeBool.READER IsWinterCrop => ctx.ReadStruct(5, Mas.Models.Monica.MaybeBool.READER.create);
+            public Mas.Schema.Model.Monica.MaybeBool.READER IsWinterCrop => ctx.ReadStruct(5, Mas.Schema.Model.Monica.MaybeBool.READER.create);
             public bool HasIsWinterCrop => ctx.IsStructFieldNonNull(5);
-            public Mas.Models.Monica.MaybeBool.READER IsPerennialCrop => ctx.ReadStruct(6, Mas.Models.Monica.MaybeBool.READER.create);
+            public Mas.Schema.Model.Monica.MaybeBool.READER IsPerennialCrop => ctx.ReadStruct(6, Mas.Schema.Model.Monica.MaybeBool.READER.create);
             public bool HasIsPerennialCrop => ctx.IsStructFieldNonNull(6);
-            public IReadOnlyList<Mas.Common.Date.READER> CuttingDates => ctx.ReadList(7).Cast(Mas.Common.Date.READER.create);
+            public IReadOnlyList<Mas.Schema.Common.Date.READER> CuttingDates => ctx.ReadList(7).Cast(Mas.Schema.Common.Date.READER.create);
             public bool HasCuttingDates => ctx.IsStructFieldNonNull(7);
-            public Mas.Models.Monica.CropParameters.READER CropParams => ctx.ReadStruct(8, Mas.Models.Monica.CropParameters.READER.create);
+            public Mas.Schema.Model.Monica.CropParameters.READER CropParams => ctx.ReadStruct(8, Mas.Schema.Model.Monica.CropParameters.READER.create);
             public bool HasCropParams => ctx.IsStructFieldNonNull(8);
-            public Mas.Models.Monica.CropParameters.READER PerennialCropParams => ctx.ReadStruct(9, Mas.Models.Monica.CropParameters.READER.create);
+            public Mas.Schema.Model.Monica.CropParameters.READER PerennialCropParams => ctx.ReadStruct(9, Mas.Schema.Model.Monica.CropParameters.READER.create);
             public bool HasPerennialCropParams => ctx.IsStructFieldNonNull(9);
-            public Mas.Models.Monica.CropResidueParameters.READER ResidueParams => ctx.ReadStruct(10, Mas.Models.Monica.CropResidueParameters.READER.create);
+            public Mas.Schema.Model.Monica.CropResidueParameters.READER ResidueParams => ctx.ReadStruct(10, Mas.Schema.Model.Monica.CropResidueParameters.READER.create);
             public bool HasResidueParams => ctx.IsStructFieldNonNull(10);
             public double CrossCropAdaptionFactor => ctx.ReadDataDouble(0UL, 1);
             public bool AutomaticHarvest => ctx.ReadDataBool(64UL, false);
@@ -299,9 +299,9 @@ namespace Mas.Models.Monica
                 this.SetStruct(2, 11);
             }
 
-            public Mas.Models.Monica.AutomaticHarvestParameters.WRITER AutomaticHarvestParams
+            public Mas.Schema.Model.Monica.AutomaticHarvestParameters.WRITER AutomaticHarvestParams
             {
-                get => BuildPointer<Mas.Models.Monica.AutomaticHarvestParameters.WRITER>(0);
+                get => BuildPointer<Mas.Schema.Model.Monica.AutomaticHarvestParameters.WRITER>(0);
                 set => Link(0, value);
             }
 
@@ -317,51 +317,51 @@ namespace Mas.Models.Monica
                 set => this.WriteText(2, value, null);
             }
 
-            public Mas.Common.Date.WRITER SeedDate
+            public Mas.Schema.Common.Date.WRITER SeedDate
             {
-                get => BuildPointer<Mas.Common.Date.WRITER>(3);
+                get => BuildPointer<Mas.Schema.Common.Date.WRITER>(3);
                 set => Link(3, value);
             }
 
-            public Mas.Common.Date.WRITER HarvestDate
+            public Mas.Schema.Common.Date.WRITER HarvestDate
             {
-                get => BuildPointer<Mas.Common.Date.WRITER>(4);
+                get => BuildPointer<Mas.Schema.Common.Date.WRITER>(4);
                 set => Link(4, value);
             }
 
-            public Mas.Models.Monica.MaybeBool.WRITER IsWinterCrop
+            public Mas.Schema.Model.Monica.MaybeBool.WRITER IsWinterCrop
             {
-                get => BuildPointer<Mas.Models.Monica.MaybeBool.WRITER>(5);
+                get => BuildPointer<Mas.Schema.Model.Monica.MaybeBool.WRITER>(5);
                 set => Link(5, value);
             }
 
-            public Mas.Models.Monica.MaybeBool.WRITER IsPerennialCrop
+            public Mas.Schema.Model.Monica.MaybeBool.WRITER IsPerennialCrop
             {
-                get => BuildPointer<Mas.Models.Monica.MaybeBool.WRITER>(6);
+                get => BuildPointer<Mas.Schema.Model.Monica.MaybeBool.WRITER>(6);
                 set => Link(6, value);
             }
 
-            public ListOfStructsSerializer<Mas.Common.Date.WRITER> CuttingDates
+            public ListOfStructsSerializer<Mas.Schema.Common.Date.WRITER> CuttingDates
             {
-                get => BuildPointer<ListOfStructsSerializer<Mas.Common.Date.WRITER>>(7);
+                get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Common.Date.WRITER>>(7);
                 set => Link(7, value);
             }
 
-            public Mas.Models.Monica.CropParameters.WRITER CropParams
+            public Mas.Schema.Model.Monica.CropParameters.WRITER CropParams
             {
-                get => BuildPointer<Mas.Models.Monica.CropParameters.WRITER>(8);
+                get => BuildPointer<Mas.Schema.Model.Monica.CropParameters.WRITER>(8);
                 set => Link(8, value);
             }
 
-            public Mas.Models.Monica.CropParameters.WRITER PerennialCropParams
+            public Mas.Schema.Model.Monica.CropParameters.WRITER PerennialCropParams
             {
-                get => BuildPointer<Mas.Models.Monica.CropParameters.WRITER>(9);
+                get => BuildPointer<Mas.Schema.Model.Monica.CropParameters.WRITER>(9);
                 set => Link(9, value);
             }
 
-            public Mas.Models.Monica.CropResidueParameters.WRITER ResidueParams
+            public Mas.Schema.Model.Monica.CropResidueParameters.WRITER ResidueParams
             {
-                get => BuildPointer<Mas.Models.Monica.CropResidueParameters.WRITER>(10);
+                get => BuildPointer<Mas.Schema.Model.Monica.CropResidueParameters.WRITER>(10);
                 set => Link(10, value);
             }
 
@@ -763,12 +763,12 @@ namespace Mas.Models.Monica
             PsMaxMineralisationDepth = reader.PsMaxMineralisationDepth;
             VsNumberOfOrganicLayers = reader.VsNumberOfOrganicLayers;
             VfTopDressing = reader.VfTopDressing;
-            VfTopDressingPartition = CapnpSerializable.Create<Mas.Rpc.Management.Params.MineralFertilization.Parameters>(reader.VfTopDressingPartition);
+            VfTopDressingPartition = CapnpSerializable.Create<Mas.Schema.Management.Params.MineralFertilization.Parameters>(reader.VfTopDressingPartition);
             VfTopDressingDelay = reader.VfTopDressingDelay;
-            CropModule = CapnpSerializable.Create<Mas.Models.Monica.CropModuleState>(reader.CropModule);
-            DelayedNMinApplications = reader.DelayedNMinApplications?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Models.Monica.SoilColumnState.DelayedNMinApplicationParams>(_));
+            CropModule = CapnpSerializable.Create<Mas.Schema.Model.Monica.CropModuleState>(reader.CropModule);
+            DelayedNMinApplications = reader.DelayedNMinApplications?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Model.Monica.SoilColumnState.DelayedNMinApplicationParams>(_));
             PmCriticalMoistureDepth = reader.PmCriticalMoistureDepth;
-            Layers = reader.Layers?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Models.Monica.SoilLayerState>(_));
+            Layers = reader.Layers?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Model.Monica.SoilLayerState>(_));
             applyDefaults();
         }
 
@@ -862,7 +862,7 @@ namespace Mas.Models.Monica
             set;
         }
 
-        public Mas.Rpc.Management.Params.MineralFertilization.Parameters VfTopDressingPartition
+        public Mas.Schema.Management.Params.MineralFertilization.Parameters VfTopDressingPartition
         {
             get;
             set;
@@ -874,13 +874,13 @@ namespace Mas.Models.Monica
             set;
         }
 
-        public Mas.Models.Monica.CropModuleState CropModule
+        public Mas.Schema.Model.Monica.CropModuleState CropModule
         {
             get;
             set;
         }
 
-        public IReadOnlyList<Mas.Models.Monica.SoilColumnState.DelayedNMinApplicationParams> DelayedNMinApplications
+        public IReadOnlyList<Mas.Schema.Model.Monica.SoilColumnState.DelayedNMinApplicationParams> DelayedNMinApplications
         {
             get;
             set;
@@ -892,7 +892,7 @@ namespace Mas.Models.Monica
             set;
         }
 
-        public IReadOnlyList<Mas.Models.Monica.SoilLayerState> Layers
+        public IReadOnlyList<Mas.Schema.Model.Monica.SoilLayerState> Layers
         {
             get;
             set;
@@ -919,15 +919,15 @@ namespace Mas.Models.Monica
             public double PsMaxMineralisationDepth => ctx.ReadDataDouble(448UL, 0.4);
             public double VsNumberOfOrganicLayers => ctx.ReadDataDouble(512UL, 0);
             public double VfTopDressing => ctx.ReadDataDouble(576UL, 0);
-            public Mas.Rpc.Management.Params.MineralFertilization.Parameters.READER VfTopDressingPartition => ctx.ReadStruct(0, Mas.Rpc.Management.Params.MineralFertilization.Parameters.READER.create);
+            public Mas.Schema.Management.Params.MineralFertilization.Parameters.READER VfTopDressingPartition => ctx.ReadStruct(0, Mas.Schema.Management.Params.MineralFertilization.Parameters.READER.create);
             public bool HasVfTopDressingPartition => ctx.IsStructFieldNonNull(0);
             public ushort VfTopDressingDelay => ctx.ReadDataUShort(144UL, (ushort)0);
-            public Mas.Models.Monica.CropModuleState.READER CropModule => ctx.ReadStruct(1, Mas.Models.Monica.CropModuleState.READER.create);
+            public Mas.Schema.Model.Monica.CropModuleState.READER CropModule => ctx.ReadStruct(1, Mas.Schema.Model.Monica.CropModuleState.READER.create);
             public bool HasCropModule => ctx.IsStructFieldNonNull(1);
-            public IReadOnlyList<Mas.Models.Monica.SoilColumnState.DelayedNMinApplicationParams.READER> DelayedNMinApplications => ctx.ReadList(2).Cast(Mas.Models.Monica.SoilColumnState.DelayedNMinApplicationParams.READER.create);
+            public IReadOnlyList<Mas.Schema.Model.Monica.SoilColumnState.DelayedNMinApplicationParams.READER> DelayedNMinApplications => ctx.ReadList(2).Cast(Mas.Schema.Model.Monica.SoilColumnState.DelayedNMinApplicationParams.READER.create);
             public bool HasDelayedNMinApplications => ctx.IsStructFieldNonNull(2);
             public double PmCriticalMoistureDepth => ctx.ReadDataDouble(640UL, 0);
-            public IReadOnlyList<Mas.Models.Monica.SoilLayerState.READER> Layers => ctx.ReadList(3).Cast(Mas.Models.Monica.SoilLayerState.READER.create);
+            public IReadOnlyList<Mas.Schema.Model.Monica.SoilLayerState.READER> Layers => ctx.ReadList(3).Cast(Mas.Schema.Model.Monica.SoilLayerState.READER.create);
             public bool HasLayers => ctx.IsStructFieldNonNull(3);
         }
 
@@ -998,9 +998,9 @@ namespace Mas.Models.Monica
                 set => this.WriteData(576UL, value, 0);
             }
 
-            public Mas.Rpc.Management.Params.MineralFertilization.Parameters.WRITER VfTopDressingPartition
+            public Mas.Schema.Management.Params.MineralFertilization.Parameters.WRITER VfTopDressingPartition
             {
-                get => BuildPointer<Mas.Rpc.Management.Params.MineralFertilization.Parameters.WRITER>(0);
+                get => BuildPointer<Mas.Schema.Management.Params.MineralFertilization.Parameters.WRITER>(0);
                 set => Link(0, value);
             }
 
@@ -1010,15 +1010,15 @@ namespace Mas.Models.Monica
                 set => this.WriteData(144UL, value, (ushort)0);
             }
 
-            public Mas.Models.Monica.CropModuleState.WRITER CropModule
+            public Mas.Schema.Model.Monica.CropModuleState.WRITER CropModule
             {
-                get => BuildPointer<Mas.Models.Monica.CropModuleState.WRITER>(1);
+                get => BuildPointer<Mas.Schema.Model.Monica.CropModuleState.WRITER>(1);
                 set => Link(1, value);
             }
 
-            public ListOfStructsSerializer<Mas.Models.Monica.SoilColumnState.DelayedNMinApplicationParams.WRITER> DelayedNMinApplications
+            public ListOfStructsSerializer<Mas.Schema.Model.Monica.SoilColumnState.DelayedNMinApplicationParams.WRITER> DelayedNMinApplications
             {
-                get => BuildPointer<ListOfStructsSerializer<Mas.Models.Monica.SoilColumnState.DelayedNMinApplicationParams.WRITER>>(2);
+                get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Model.Monica.SoilColumnState.DelayedNMinApplicationParams.WRITER>>(2);
                 set => Link(2, value);
             }
 
@@ -1028,9 +1028,9 @@ namespace Mas.Models.Monica
                 set => this.WriteData(640UL, value, 0);
             }
 
-            public ListOfStructsSerializer<Mas.Models.Monica.SoilLayerState.WRITER> Layers
+            public ListOfStructsSerializer<Mas.Schema.Model.Monica.SoilLayerState.WRITER> Layers
             {
-                get => BuildPointer<ListOfStructsSerializer<Mas.Models.Monica.SoilLayerState.WRITER>>(3);
+                get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Model.Monica.SoilLayerState.WRITER>>(3);
                 set => Link(3, value);
             }
         }
@@ -1042,7 +1042,7 @@ namespace Mas.Models.Monica
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Fp = CapnpSerializable.Create<Mas.Rpc.Management.Params.MineralFertilization.Parameters>(reader.Fp);
+                Fp = CapnpSerializable.Create<Mas.Schema.Management.Params.MineralFertilization.Parameters>(reader.Fp);
                 SamplingDepth = reader.SamplingDepth;
                 CropNTarget = reader.CropNTarget;
                 CropNTarget30 = reader.CropNTarget30;
@@ -1072,7 +1072,7 @@ namespace Mas.Models.Monica
             {
             }
 
-            public Mas.Rpc.Management.Params.MineralFertilization.Parameters Fp
+            public Mas.Schema.Management.Params.MineralFertilization.Parameters Fp
             {
                 get;
                 set;
@@ -1125,7 +1125,7 @@ namespace Mas.Models.Monica
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Rpc.Management.Params.MineralFertilization.Parameters.READER Fp => ctx.ReadStruct(0, Mas.Rpc.Management.Params.MineralFertilization.Parameters.READER.create);
+                public Mas.Schema.Management.Params.MineralFertilization.Parameters.READER Fp => ctx.ReadStruct(0, Mas.Schema.Management.Params.MineralFertilization.Parameters.READER.create);
                 public bool HasFp => ctx.IsStructFieldNonNull(0);
                 public double SamplingDepth => ctx.ReadDataDouble(0UL, 0);
                 public double CropNTarget => ctx.ReadDataDouble(64UL, 0);
@@ -1142,9 +1142,9 @@ namespace Mas.Models.Monica
                     this.SetStruct(6, 1);
                 }
 
-                public Mas.Rpc.Management.Params.MineralFertilization.Parameters.WRITER Fp
+                public Mas.Schema.Management.Params.MineralFertilization.Parameters.WRITER Fp
                 {
-                    get => BuildPointer<Mas.Rpc.Management.Params.MineralFertilization.Parameters.WRITER>(0);
+                    get => BuildPointer<Mas.Schema.Management.Params.MineralFertilization.Parameters.WRITER>(0);
                     set => Link(0, value);
                 }
 
@@ -1196,7 +1196,7 @@ namespace Mas.Models.Monica
             var reader = READER.create(arg_);
             LayerThickness = reader.LayerThickness;
             SoilWaterFlux = reader.SoilWaterFlux;
-            VoAOMPool = reader.VoAOMPool?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Models.Monica.AOMProperties>(_));
+            VoAOMPool = reader.VoAOMPool?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Model.Monica.AOMProperties>(_));
             SomSlow = reader.SomSlow;
             SomFast = reader.SomFast;
             SmbSlow = reader.SmbSlow;
@@ -1206,7 +1206,7 @@ namespace Mas.Models.Monica
             SoilNO2 = reader.SoilNO2;
             SoilNO3 = reader.SoilNO3;
             SoilFrozen = reader.SoilFrozen;
-            Sps = CapnpSerializable.Create<Mas.Models.Monica.SoilParameters>(reader.Sps);
+            Sps = CapnpSerializable.Create<Mas.Schema.Model.Monica.SoilParameters>(reader.Sps);
             SoilMoistureM3 = reader.SoilMoistureM3;
             SoilTemperature = reader.SoilTemperature;
             applyDefaults();
@@ -1253,7 +1253,7 @@ namespace Mas.Models.Monica
             set;
         }
 
-        public IReadOnlyList<Mas.Models.Monica.AOMProperties> VoAOMPool
+        public IReadOnlyList<Mas.Schema.Model.Monica.AOMProperties> VoAOMPool
         {
             get;
             set;
@@ -1317,7 +1317,7 @@ namespace Mas.Models.Monica
         }
 
         = false;
-        public Mas.Models.Monica.SoilParameters Sps
+        public Mas.Schema.Model.Monica.SoilParameters Sps
         {
             get;
             set;
@@ -1349,7 +1349,7 @@ namespace Mas.Models.Monica
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
             public double LayerThickness => ctx.ReadDataDouble(0UL, 0.1);
             public double SoilWaterFlux => ctx.ReadDataDouble(64UL, 0);
-            public IReadOnlyList<Mas.Models.Monica.AOMProperties.READER> VoAOMPool => ctx.ReadList(0).Cast(Mas.Models.Monica.AOMProperties.READER.create);
+            public IReadOnlyList<Mas.Schema.Model.Monica.AOMProperties.READER> VoAOMPool => ctx.ReadList(0).Cast(Mas.Schema.Model.Monica.AOMProperties.READER.create);
             public bool HasVoAOMPool => ctx.IsStructFieldNonNull(0);
             public double SomSlow => ctx.ReadDataDouble(128UL, 0);
             public double SomFast => ctx.ReadDataDouble(192UL, 0);
@@ -1360,7 +1360,7 @@ namespace Mas.Models.Monica
             public double SoilNO2 => ctx.ReadDataDouble(512UL, 0.001);
             public double SoilNO3 => ctx.ReadDataDouble(576UL, 0.0001);
             public bool SoilFrozen => ctx.ReadDataBool(640UL, false);
-            public Mas.Models.Monica.SoilParameters.READER Sps => ctx.ReadStruct(1, Mas.Models.Monica.SoilParameters.READER.create);
+            public Mas.Schema.Model.Monica.SoilParameters.READER Sps => ctx.ReadStruct(1, Mas.Schema.Model.Monica.SoilParameters.READER.create);
             public bool HasSps => ctx.IsStructFieldNonNull(1);
             public double SoilMoistureM3 => ctx.ReadDataDouble(704UL, 0.25);
             public double SoilTemperature => ctx.ReadDataDouble(768UL, 0);
@@ -1385,9 +1385,9 @@ namespace Mas.Models.Monica
                 set => this.WriteData(64UL, value, 0);
             }
 
-            public ListOfStructsSerializer<Mas.Models.Monica.AOMProperties.WRITER> VoAOMPool
+            public ListOfStructsSerializer<Mas.Schema.Model.Monica.AOMProperties.WRITER> VoAOMPool
             {
-                get => BuildPointer<ListOfStructsSerializer<Mas.Models.Monica.AOMProperties.WRITER>>(0);
+                get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Model.Monica.AOMProperties.WRITER>>(0);
                 set => Link(0, value);
             }
 
@@ -1445,9 +1445,9 @@ namespace Mas.Models.Monica
                 set => this.WriteData(640UL, value, false);
             }
 
-            public Mas.Models.Monica.SoilParameters.WRITER Sps
+            public Mas.Schema.Model.Monica.SoilParameters.WRITER Sps
             {
-                get => BuildPointer<Mas.Models.Monica.SoilParameters.WRITER>(1);
+                get => BuildPointer<Mas.Schema.Model.Monica.SoilParameters.WRITER>(1);
                 set => Link(1, value);
             }
 
@@ -1472,22 +1472,22 @@ namespace Mas.Models.Monica
         void ICapnpSerializable.Deserialize(DeserializerState arg_)
         {
             var reader = READER.create(arg_);
-            SitePs = CapnpSerializable.Create<Mas.Models.Monica.SiteParameters>(reader.SitePs);
+            SitePs = CapnpSerializable.Create<Mas.Schema.Model.Monica.SiteParameters>(reader.SitePs);
             CultivationMethodCount = reader.CultivationMethodCount;
-            EnvPs = CapnpSerializable.Create<Mas.Models.Monica.EnvironmentParameters>(reader.EnvPs);
-            CropPs = CapnpSerializable.Create<Mas.Models.Monica.CropModuleParameters>(reader.CropPs);
+            EnvPs = CapnpSerializable.Create<Mas.Schema.Model.Monica.EnvironmentParameters>(reader.EnvPs);
+            CropPs = CapnpSerializable.Create<Mas.Schema.Model.Monica.CropModuleParameters>(reader.CropPs);
             VsGroundwaterDepth = reader.VsGroundwaterDepth;
             VwAtmosphericO3Concentration = reader.VwAtmosphericO3Concentration;
             VwAtmosphericCO2Concentration = reader.VwAtmosphericCO2Concentration;
-            SimPs = CapnpSerializable.Create<Mas.Models.Monica.SimulationParameters>(reader.SimPs);
-            GroundwaterInformation = CapnpSerializable.Create<Mas.Models.Monica.MeasuredGroundwaterTableInformation>(reader.GroundwaterInformation);
-            SoilColumn = CapnpSerializable.Create<Mas.Models.Monica.SoilColumnState>(reader.SoilColumn);
-            SoilTemperature = CapnpSerializable.Create<Mas.Models.Monica.SoilTemperatureModuleState>(reader.SoilTemperature);
-            SoilMoisture = CapnpSerializable.Create<Mas.Models.Monica.SoilMoistureModuleState>(reader.SoilMoisture);
-            SoilOrganic = CapnpSerializable.Create<Mas.Models.Monica.SoilOrganicModuleState>(reader.SoilOrganic);
-            SoilTransport = CapnpSerializable.Create<Mas.Models.Monica.SoilTransportModuleState>(reader.SoilTransport);
+            SimPs = CapnpSerializable.Create<Mas.Schema.Model.Monica.SimulationParameters>(reader.SimPs);
+            GroundwaterInformation = CapnpSerializable.Create<Mas.Schema.Model.Monica.MeasuredGroundwaterTableInformation>(reader.GroundwaterInformation);
+            SoilColumn = CapnpSerializable.Create<Mas.Schema.Model.Monica.SoilColumnState>(reader.SoilColumn);
+            SoilTemperature = CapnpSerializable.Create<Mas.Schema.Model.Monica.SoilTemperatureModuleState>(reader.SoilTemperature);
+            SoilMoisture = CapnpSerializable.Create<Mas.Schema.Model.Monica.SoilMoistureModuleState>(reader.SoilMoisture);
+            SoilOrganic = CapnpSerializable.Create<Mas.Schema.Model.Monica.SoilOrganicModuleState>(reader.SoilOrganic);
+            SoilTransport = CapnpSerializable.Create<Mas.Schema.Model.Monica.SoilTransportModuleState>(reader.SoilTransport);
             AccuOxygenStress = reader.AccuOxygenStress;
-            CurrentCropModule = CapnpSerializable.Create<Mas.Models.Monica.CropModuleState>(reader.CurrentCropModule);
+            CurrentCropModule = CapnpSerializable.Create<Mas.Schema.Model.Monica.CropModuleState>(reader.CurrentCropModule);
             SumFertiliser = reader.SumFertiliser;
             SumOrgFertiliser = reader.SumOrgFertiliser;
             DailySumFertiliser = reader.DailySumFertiliser;
@@ -1498,8 +1498,8 @@ namespace Mas.Models.Monica
             DailySumIrrigationWater = reader.DailySumIrrigationWater;
             OptCarbonExportedResidues = reader.OptCarbonExportedResidues;
             OptCarbonReturnedResidues = reader.OptCarbonReturnedResidues;
-            CurrentStepDate = CapnpSerializable.Create<Mas.Common.Date>(reader.CurrentStepDate);
-            ClimateData = reader.ClimateData?.ToReadOnlyList(_2 => _2?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Models.Monica.MonicaModelState.ACDToValue>(_)));
+            CurrentStepDate = CapnpSerializable.Create<Mas.Schema.Common.Date>(reader.CurrentStepDate);
+            ClimateData = reader.ClimateData?.ToReadOnlyList(_2 => _2?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Model.Monica.MonicaModelState.ACDToValue>(_)));
             CurrentEvents = reader.CurrentEvents;
             PreviousDaysEvents = reader.PreviousDaysEvents;
             ClearCropUponNextDay = reader.ClearCropUponNextDay;
@@ -1558,7 +1558,7 @@ namespace Mas.Models.Monica
         {
         }
 
-        public Mas.Models.Monica.SiteParameters SitePs
+        public Mas.Schema.Model.Monica.SiteParameters SitePs
         {
             get;
             set;
@@ -1570,13 +1570,13 @@ namespace Mas.Models.Monica
             set;
         }
 
-        public Mas.Models.Monica.EnvironmentParameters EnvPs
+        public Mas.Schema.Model.Monica.EnvironmentParameters EnvPs
         {
             get;
             set;
         }
 
-        public Mas.Models.Monica.CropModuleParameters CropPs
+        public Mas.Schema.Model.Monica.CropModuleParameters CropPs
         {
             get;
             set;
@@ -1600,43 +1600,43 @@ namespace Mas.Models.Monica
             set;
         }
 
-        public Mas.Models.Monica.SimulationParameters SimPs
+        public Mas.Schema.Model.Monica.SimulationParameters SimPs
         {
             get;
             set;
         }
 
-        public Mas.Models.Monica.MeasuredGroundwaterTableInformation GroundwaterInformation
+        public Mas.Schema.Model.Monica.MeasuredGroundwaterTableInformation GroundwaterInformation
         {
             get;
             set;
         }
 
-        public Mas.Models.Monica.SoilColumnState SoilColumn
+        public Mas.Schema.Model.Monica.SoilColumnState SoilColumn
         {
             get;
             set;
         }
 
-        public Mas.Models.Monica.SoilTemperatureModuleState SoilTemperature
+        public Mas.Schema.Model.Monica.SoilTemperatureModuleState SoilTemperature
         {
             get;
             set;
         }
 
-        public Mas.Models.Monica.SoilMoistureModuleState SoilMoisture
+        public Mas.Schema.Model.Monica.SoilMoistureModuleState SoilMoisture
         {
             get;
             set;
         }
 
-        public Mas.Models.Monica.SoilOrganicModuleState SoilOrganic
+        public Mas.Schema.Model.Monica.SoilOrganicModuleState SoilOrganic
         {
             get;
             set;
         }
 
-        public Mas.Models.Monica.SoilTransportModuleState SoilTransport
+        public Mas.Schema.Model.Monica.SoilTransportModuleState SoilTransport
         {
             get;
             set;
@@ -1648,7 +1648,7 @@ namespace Mas.Models.Monica
             set;
         }
 
-        public Mas.Models.Monica.CropModuleState CurrentCropModule
+        public Mas.Schema.Model.Monica.CropModuleState CurrentCropModule
         {
             get;
             set;
@@ -1714,13 +1714,13 @@ namespace Mas.Models.Monica
             set;
         }
 
-        public Mas.Common.Date CurrentStepDate
+        public Mas.Schema.Common.Date CurrentStepDate
         {
             get;
             set;
         }
 
-        public IReadOnlyList<IReadOnlyList<Mas.Models.Monica.MonicaModelState.ACDToValue>> ClimateData
+        public IReadOnlyList<IReadOnlyList<Mas.Schema.Model.Monica.MonicaModelState.ACDToValue>> ClimateData
         {
             get;
             set;
@@ -1779,32 +1779,32 @@ namespace Mas.Models.Monica
             public static READER create(DeserializerState ctx) => new READER(ctx);
             public static implicit operator DeserializerState(READER reader) => reader.ctx;
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-            public Mas.Models.Monica.SiteParameters.READER SitePs => ctx.ReadStruct(0, Mas.Models.Monica.SiteParameters.READER.create);
+            public Mas.Schema.Model.Monica.SiteParameters.READER SitePs => ctx.ReadStruct(0, Mas.Schema.Model.Monica.SiteParameters.READER.create);
             public bool HasSitePs => ctx.IsStructFieldNonNull(0);
             public ushort CultivationMethodCount => ctx.ReadDataUShort(0UL, (ushort)0);
-            public Mas.Models.Monica.EnvironmentParameters.READER EnvPs => ctx.ReadStruct(1, Mas.Models.Monica.EnvironmentParameters.READER.create);
+            public Mas.Schema.Model.Monica.EnvironmentParameters.READER EnvPs => ctx.ReadStruct(1, Mas.Schema.Model.Monica.EnvironmentParameters.READER.create);
             public bool HasEnvPs => ctx.IsStructFieldNonNull(1);
-            public Mas.Models.Monica.CropModuleParameters.READER CropPs => ctx.ReadStruct(2, Mas.Models.Monica.CropModuleParameters.READER.create);
+            public Mas.Schema.Model.Monica.CropModuleParameters.READER CropPs => ctx.ReadStruct(2, Mas.Schema.Model.Monica.CropModuleParameters.READER.create);
             public bool HasCropPs => ctx.IsStructFieldNonNull(2);
             public double VsGroundwaterDepth => ctx.ReadDataDouble(64UL, 0);
             public double VwAtmosphericO3Concentration => ctx.ReadDataDouble(128UL, 0);
             public double VwAtmosphericCO2Concentration => ctx.ReadDataDouble(192UL, 0);
-            public Mas.Models.Monica.SimulationParameters.READER SimPs => ctx.ReadStruct(3, Mas.Models.Monica.SimulationParameters.READER.create);
+            public Mas.Schema.Model.Monica.SimulationParameters.READER SimPs => ctx.ReadStruct(3, Mas.Schema.Model.Monica.SimulationParameters.READER.create);
             public bool HasSimPs => ctx.IsStructFieldNonNull(3);
-            public Mas.Models.Monica.MeasuredGroundwaterTableInformation.READER GroundwaterInformation => ctx.ReadStruct(4, Mas.Models.Monica.MeasuredGroundwaterTableInformation.READER.create);
+            public Mas.Schema.Model.Monica.MeasuredGroundwaterTableInformation.READER GroundwaterInformation => ctx.ReadStruct(4, Mas.Schema.Model.Monica.MeasuredGroundwaterTableInformation.READER.create);
             public bool HasGroundwaterInformation => ctx.IsStructFieldNonNull(4);
-            public Mas.Models.Monica.SoilColumnState.READER SoilColumn => ctx.ReadStruct(5, Mas.Models.Monica.SoilColumnState.READER.create);
+            public Mas.Schema.Model.Monica.SoilColumnState.READER SoilColumn => ctx.ReadStruct(5, Mas.Schema.Model.Monica.SoilColumnState.READER.create);
             public bool HasSoilColumn => ctx.IsStructFieldNonNull(5);
-            public Mas.Models.Monica.SoilTemperatureModuleState.READER SoilTemperature => ctx.ReadStruct(6, Mas.Models.Monica.SoilTemperatureModuleState.READER.create);
+            public Mas.Schema.Model.Monica.SoilTemperatureModuleState.READER SoilTemperature => ctx.ReadStruct(6, Mas.Schema.Model.Monica.SoilTemperatureModuleState.READER.create);
             public bool HasSoilTemperature => ctx.IsStructFieldNonNull(6);
-            public Mas.Models.Monica.SoilMoistureModuleState.READER SoilMoisture => ctx.ReadStruct(7, Mas.Models.Monica.SoilMoistureModuleState.READER.create);
+            public Mas.Schema.Model.Monica.SoilMoistureModuleState.READER SoilMoisture => ctx.ReadStruct(7, Mas.Schema.Model.Monica.SoilMoistureModuleState.READER.create);
             public bool HasSoilMoisture => ctx.IsStructFieldNonNull(7);
-            public Mas.Models.Monica.SoilOrganicModuleState.READER SoilOrganic => ctx.ReadStruct(8, Mas.Models.Monica.SoilOrganicModuleState.READER.create);
+            public Mas.Schema.Model.Monica.SoilOrganicModuleState.READER SoilOrganic => ctx.ReadStruct(8, Mas.Schema.Model.Monica.SoilOrganicModuleState.READER.create);
             public bool HasSoilOrganic => ctx.IsStructFieldNonNull(8);
-            public Mas.Models.Monica.SoilTransportModuleState.READER SoilTransport => ctx.ReadStruct(9, Mas.Models.Monica.SoilTransportModuleState.READER.create);
+            public Mas.Schema.Model.Monica.SoilTransportModuleState.READER SoilTransport => ctx.ReadStruct(9, Mas.Schema.Model.Monica.SoilTransportModuleState.READER.create);
             public bool HasSoilTransport => ctx.IsStructFieldNonNull(9);
             public double AccuOxygenStress => ctx.ReadDataDouble(256UL, 0);
-            public Mas.Models.Monica.CropModuleState.READER CurrentCropModule => ctx.ReadStruct(10, Mas.Models.Monica.CropModuleState.READER.create);
+            public Mas.Schema.Model.Monica.CropModuleState.READER CurrentCropModule => ctx.ReadStruct(10, Mas.Schema.Model.Monica.CropModuleState.READER.create);
             public bool HasCurrentCropModule => ctx.IsStructFieldNonNull(10);
             public double SumFertiliser => ctx.ReadDataDouble(320UL, 0);
             public double SumOrgFertiliser => ctx.ReadDataDouble(384UL, 0);
@@ -1816,9 +1816,9 @@ namespace Mas.Models.Monica
             public double DailySumIrrigationWater => ctx.ReadDataDouble(768UL, 0);
             public double OptCarbonExportedResidues => ctx.ReadDataDouble(832UL, 0);
             public double OptCarbonReturnedResidues => ctx.ReadDataDouble(896UL, 0);
-            public Mas.Common.Date.READER CurrentStepDate => ctx.ReadStruct(11, Mas.Common.Date.READER.create);
+            public Mas.Schema.Common.Date.READER CurrentStepDate => ctx.ReadStruct(11, Mas.Schema.Common.Date.READER.create);
             public bool HasCurrentStepDate => ctx.IsStructFieldNonNull(11);
-            public IReadOnlyList<IReadOnlyList<Mas.Models.Monica.MonicaModelState.ACDToValue.READER>> ClimateData => ctx.ReadList(12).Cast(_0 => _0.RequireList().Cast(Mas.Models.Monica.MonicaModelState.ACDToValue.READER.create));
+            public IReadOnlyList<IReadOnlyList<Mas.Schema.Model.Monica.MonicaModelState.ACDToValue.READER>> ClimateData => ctx.ReadList(12).Cast(_0 => _0.RequireList().Cast(Mas.Schema.Model.Monica.MonicaModelState.ACDToValue.READER.create));
             public bool HasClimateData => ctx.IsStructFieldNonNull(12);
             public IReadOnlyList<string> CurrentEvents => ctx.ReadList(13).CastText2();
             public bool HasCurrentEvents => ctx.IsStructFieldNonNull(13);
@@ -1838,9 +1838,9 @@ namespace Mas.Models.Monica
                 this.SetStruct(18, 15);
             }
 
-            public Mas.Models.Monica.SiteParameters.WRITER SitePs
+            public Mas.Schema.Model.Monica.SiteParameters.WRITER SitePs
             {
-                get => BuildPointer<Mas.Models.Monica.SiteParameters.WRITER>(0);
+                get => BuildPointer<Mas.Schema.Model.Monica.SiteParameters.WRITER>(0);
                 set => Link(0, value);
             }
 
@@ -1850,15 +1850,15 @@ namespace Mas.Models.Monica
                 set => this.WriteData(0UL, value, (ushort)0);
             }
 
-            public Mas.Models.Monica.EnvironmentParameters.WRITER EnvPs
+            public Mas.Schema.Model.Monica.EnvironmentParameters.WRITER EnvPs
             {
-                get => BuildPointer<Mas.Models.Monica.EnvironmentParameters.WRITER>(1);
+                get => BuildPointer<Mas.Schema.Model.Monica.EnvironmentParameters.WRITER>(1);
                 set => Link(1, value);
             }
 
-            public Mas.Models.Monica.CropModuleParameters.WRITER CropPs
+            public Mas.Schema.Model.Monica.CropModuleParameters.WRITER CropPs
             {
-                get => BuildPointer<Mas.Models.Monica.CropModuleParameters.WRITER>(2);
+                get => BuildPointer<Mas.Schema.Model.Monica.CropModuleParameters.WRITER>(2);
                 set => Link(2, value);
             }
 
@@ -1880,45 +1880,45 @@ namespace Mas.Models.Monica
                 set => this.WriteData(192UL, value, 0);
             }
 
-            public Mas.Models.Monica.SimulationParameters.WRITER SimPs
+            public Mas.Schema.Model.Monica.SimulationParameters.WRITER SimPs
             {
-                get => BuildPointer<Mas.Models.Monica.SimulationParameters.WRITER>(3);
+                get => BuildPointer<Mas.Schema.Model.Monica.SimulationParameters.WRITER>(3);
                 set => Link(3, value);
             }
 
-            public Mas.Models.Monica.MeasuredGroundwaterTableInformation.WRITER GroundwaterInformation
+            public Mas.Schema.Model.Monica.MeasuredGroundwaterTableInformation.WRITER GroundwaterInformation
             {
-                get => BuildPointer<Mas.Models.Monica.MeasuredGroundwaterTableInformation.WRITER>(4);
+                get => BuildPointer<Mas.Schema.Model.Monica.MeasuredGroundwaterTableInformation.WRITER>(4);
                 set => Link(4, value);
             }
 
-            public Mas.Models.Monica.SoilColumnState.WRITER SoilColumn
+            public Mas.Schema.Model.Monica.SoilColumnState.WRITER SoilColumn
             {
-                get => BuildPointer<Mas.Models.Monica.SoilColumnState.WRITER>(5);
+                get => BuildPointer<Mas.Schema.Model.Monica.SoilColumnState.WRITER>(5);
                 set => Link(5, value);
             }
 
-            public Mas.Models.Monica.SoilTemperatureModuleState.WRITER SoilTemperature
+            public Mas.Schema.Model.Monica.SoilTemperatureModuleState.WRITER SoilTemperature
             {
-                get => BuildPointer<Mas.Models.Monica.SoilTemperatureModuleState.WRITER>(6);
+                get => BuildPointer<Mas.Schema.Model.Monica.SoilTemperatureModuleState.WRITER>(6);
                 set => Link(6, value);
             }
 
-            public Mas.Models.Monica.SoilMoistureModuleState.WRITER SoilMoisture
+            public Mas.Schema.Model.Monica.SoilMoistureModuleState.WRITER SoilMoisture
             {
-                get => BuildPointer<Mas.Models.Monica.SoilMoistureModuleState.WRITER>(7);
+                get => BuildPointer<Mas.Schema.Model.Monica.SoilMoistureModuleState.WRITER>(7);
                 set => Link(7, value);
             }
 
-            public Mas.Models.Monica.SoilOrganicModuleState.WRITER SoilOrganic
+            public Mas.Schema.Model.Monica.SoilOrganicModuleState.WRITER SoilOrganic
             {
-                get => BuildPointer<Mas.Models.Monica.SoilOrganicModuleState.WRITER>(8);
+                get => BuildPointer<Mas.Schema.Model.Monica.SoilOrganicModuleState.WRITER>(8);
                 set => Link(8, value);
             }
 
-            public Mas.Models.Monica.SoilTransportModuleState.WRITER SoilTransport
+            public Mas.Schema.Model.Monica.SoilTransportModuleState.WRITER SoilTransport
             {
-                get => BuildPointer<Mas.Models.Monica.SoilTransportModuleState.WRITER>(9);
+                get => BuildPointer<Mas.Schema.Model.Monica.SoilTransportModuleState.WRITER>(9);
                 set => Link(9, value);
             }
 
@@ -1928,9 +1928,9 @@ namespace Mas.Models.Monica
                 set => this.WriteData(256UL, value, 0);
             }
 
-            public Mas.Models.Monica.CropModuleState.WRITER CurrentCropModule
+            public Mas.Schema.Model.Monica.CropModuleState.WRITER CurrentCropModule
             {
-                get => BuildPointer<Mas.Models.Monica.CropModuleState.WRITER>(10);
+                get => BuildPointer<Mas.Schema.Model.Monica.CropModuleState.WRITER>(10);
                 set => Link(10, value);
             }
 
@@ -1994,15 +1994,15 @@ namespace Mas.Models.Monica
                 set => this.WriteData(896UL, value, 0);
             }
 
-            public Mas.Common.Date.WRITER CurrentStepDate
+            public Mas.Schema.Common.Date.WRITER CurrentStepDate
             {
-                get => BuildPointer<Mas.Common.Date.WRITER>(11);
+                get => BuildPointer<Mas.Schema.Common.Date.WRITER>(11);
                 set => Link(11, value);
             }
 
-            public ListOfPointersSerializer<ListOfStructsSerializer<Mas.Models.Monica.MonicaModelState.ACDToValue.WRITER>> ClimateData
+            public ListOfPointersSerializer<ListOfStructsSerializer<Mas.Schema.Model.Monica.MonicaModelState.ACDToValue.WRITER>> ClimateData
             {
-                get => BuildPointer<ListOfPointersSerializer<ListOfStructsSerializer<Mas.Models.Monica.MonicaModelState.ACDToValue.WRITER>>>(12);
+                get => BuildPointer<ListOfPointersSerializer<ListOfStructsSerializer<Mas.Schema.Model.Monica.MonicaModelState.ACDToValue.WRITER>>>(12);
                 set => Link(12, value);
             }
 
@@ -2259,9 +2259,9 @@ namespace Mas.Models.Monica
             OrganGreenBiomass = reader.OrganGreenBiomass;
             OrganGrowthIncrement = reader.OrganGrowthIncrement;
             PcOrganGrowthRespiration = reader.PcOrganGrowthRespiration;
-            PcOrganIdsForPrimaryYield = reader.PcOrganIdsForPrimaryYield?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Models.Monica.YieldComponent>(_));
-            PcOrganIdsForSecondaryYield = reader.PcOrganIdsForSecondaryYield?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Models.Monica.YieldComponent>(_));
-            PcOrganIdsForCutting = reader.PcOrganIdsForCutting?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Models.Monica.YieldComponent>(_));
+            PcOrganIdsForPrimaryYield = reader.PcOrganIdsForPrimaryYield?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Model.Monica.YieldComponent>(_));
+            PcOrganIdsForSecondaryYield = reader.PcOrganIdsForSecondaryYield?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Model.Monica.YieldComponent>(_));
+            PcOrganIdsForCutting = reader.PcOrganIdsForCutting?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Model.Monica.YieldComponent>(_));
             PcOrganMaintenanceRespiration = reader.PcOrganMaintenanceRespiration;
             OrganSenescenceIncrement = reader.OrganSenescenceIncrement;
             PcOrganSenescenceRate = reader.PcOrganSenescenceRate;
@@ -2356,13 +2356,13 @@ namespace Mas.Models.Monica
             Index240 = reader.Index240;
             Full24 = reader.Full24;
             Full240 = reader.Full240;
-            GuentherEmissions = CapnpSerializable.Create<Mas.Models.Monica.Voc.Emissions>(reader.GuentherEmissions);
-            JjvEmissions = CapnpSerializable.Create<Mas.Models.Monica.Voc.Emissions>(reader.JjvEmissions);
-            VocSpecies = CapnpSerializable.Create<Mas.Models.Monica.Voc.SpeciesData>(reader.VocSpecies);
-            CropPhotosynthesisResults = CapnpSerializable.Create<Mas.Models.Monica.Voc.CPData>(reader.CropPhotosynthesisResults);
-            SpeciesParams = CapnpSerializable.Create<Mas.Models.Monica.SpeciesParameters>(reader.SpeciesParams);
-            CultivarParams = CapnpSerializable.Create<Mas.Models.Monica.CultivarParameters>(reader.CultivarParams);
-            ResidueParams = CapnpSerializable.Create<Mas.Models.Monica.CropResidueParameters>(reader.ResidueParams);
+            GuentherEmissions = CapnpSerializable.Create<Mas.Schema.Model.Monica.Voc.Emissions>(reader.GuentherEmissions);
+            JjvEmissions = CapnpSerializable.Create<Mas.Schema.Model.Monica.Voc.Emissions>(reader.JjvEmissions);
+            VocSpecies = CapnpSerializable.Create<Mas.Schema.Model.Monica.Voc.SpeciesData>(reader.VocSpecies);
+            CropPhotosynthesisResults = CapnpSerializable.Create<Mas.Schema.Model.Monica.Voc.CPData>(reader.CropPhotosynthesisResults);
+            SpeciesParams = CapnpSerializable.Create<Mas.Schema.Model.Monica.SpeciesParameters>(reader.SpeciesParams);
+            CultivarParams = CapnpSerializable.Create<Mas.Schema.Model.Monica.CultivarParameters>(reader.CultivarParams);
+            ResidueParams = CapnpSerializable.Create<Mas.Schema.Model.Monica.CropResidueParameters>(reader.ResidueParams);
             IsWinterCrop = reader.IsWinterCrop;
             StemElongationEventFired = reader.StemElongationEventFired;
             Lt50m = reader.Lt50m;
@@ -3391,19 +3391,19 @@ namespace Mas.Models.Monica
             set;
         }
 
-        public IReadOnlyList<Mas.Models.Monica.YieldComponent> PcOrganIdsForPrimaryYield
+        public IReadOnlyList<Mas.Schema.Model.Monica.YieldComponent> PcOrganIdsForPrimaryYield
         {
             get;
             set;
         }
 
-        public IReadOnlyList<Mas.Models.Monica.YieldComponent> PcOrganIdsForSecondaryYield
+        public IReadOnlyList<Mas.Schema.Model.Monica.YieldComponent> PcOrganIdsForSecondaryYield
         {
             get;
             set;
         }
 
-        public IReadOnlyList<Mas.Models.Monica.YieldComponent> PcOrganIdsForCutting
+        public IReadOnlyList<Mas.Schema.Model.Monica.YieldComponent> PcOrganIdsForCutting
         {
             get;
             set;
@@ -3983,43 +3983,43 @@ namespace Mas.Models.Monica
             set;
         }
 
-        public Mas.Models.Monica.Voc.Emissions GuentherEmissions
+        public Mas.Schema.Model.Monica.Voc.Emissions GuentherEmissions
         {
             get;
             set;
         }
 
-        public Mas.Models.Monica.Voc.Emissions JjvEmissions
+        public Mas.Schema.Model.Monica.Voc.Emissions JjvEmissions
         {
             get;
             set;
         }
 
-        public Mas.Models.Monica.Voc.SpeciesData VocSpecies
+        public Mas.Schema.Model.Monica.Voc.SpeciesData VocSpecies
         {
             get;
             set;
         }
 
-        public Mas.Models.Monica.Voc.CPData CropPhotosynthesisResults
+        public Mas.Schema.Model.Monica.Voc.CPData CropPhotosynthesisResults
         {
             get;
             set;
         }
 
-        public Mas.Models.Monica.SpeciesParameters SpeciesParams
+        public Mas.Schema.Model.Monica.SpeciesParameters SpeciesParams
         {
             get;
             set;
         }
 
-        public Mas.Models.Monica.CultivarParameters CultivarParams
+        public Mas.Schema.Model.Monica.CultivarParameters CultivarParams
         {
             get;
             set;
         }
 
-        public Mas.Models.Monica.CropResidueParameters ResidueParams
+        public Mas.Schema.Model.Monica.CropResidueParameters ResidueParams
         {
             get;
             set;
@@ -4201,11 +4201,11 @@ namespace Mas.Models.Monica
             public bool HasOrganGrowthIncrement => ctx.IsStructFieldNonNull(19);
             public IReadOnlyList<double> PcOrganGrowthRespiration => ctx.ReadList(20).CastDouble();
             public bool HasPcOrganGrowthRespiration => ctx.IsStructFieldNonNull(20);
-            public IReadOnlyList<Mas.Models.Monica.YieldComponent.READER> PcOrganIdsForPrimaryYield => ctx.ReadList(21).Cast(Mas.Models.Monica.YieldComponent.READER.create);
+            public IReadOnlyList<Mas.Schema.Model.Monica.YieldComponent.READER> PcOrganIdsForPrimaryYield => ctx.ReadList(21).Cast(Mas.Schema.Model.Monica.YieldComponent.READER.create);
             public bool HasPcOrganIdsForPrimaryYield => ctx.IsStructFieldNonNull(21);
-            public IReadOnlyList<Mas.Models.Monica.YieldComponent.READER> PcOrganIdsForSecondaryYield => ctx.ReadList(22).Cast(Mas.Models.Monica.YieldComponent.READER.create);
+            public IReadOnlyList<Mas.Schema.Model.Monica.YieldComponent.READER> PcOrganIdsForSecondaryYield => ctx.ReadList(22).Cast(Mas.Schema.Model.Monica.YieldComponent.READER.create);
             public bool HasPcOrganIdsForSecondaryYield => ctx.IsStructFieldNonNull(22);
-            public IReadOnlyList<Mas.Models.Monica.YieldComponent.READER> PcOrganIdsForCutting => ctx.ReadList(23).Cast(Mas.Models.Monica.YieldComponent.READER.create);
+            public IReadOnlyList<Mas.Schema.Model.Monica.YieldComponent.READER> PcOrganIdsForCutting => ctx.ReadList(23).Cast(Mas.Schema.Model.Monica.YieldComponent.READER.create);
             public bool HasPcOrganIdsForCutting => ctx.IsStructFieldNonNull(23);
             public IReadOnlyList<double> PcOrganMaintenanceRespiration => ctx.ReadList(24).CastDouble();
             public bool HasPcOrganMaintenanceRespiration => ctx.IsStructFieldNonNull(24);
@@ -4320,19 +4320,19 @@ namespace Mas.Models.Monica
             public ushort Index240 => ctx.ReadDataUShort(9888UL, (ushort)0);
             public bool Full24 => ctx.ReadDataBool(7283UL, false);
             public bool Full240 => ctx.ReadDataBool(7284UL, false);
-            public Mas.Models.Monica.Voc.Emissions.READER GuentherEmissions => ctx.ReadStruct(43, Mas.Models.Monica.Voc.Emissions.READER.create);
+            public Mas.Schema.Model.Monica.Voc.Emissions.READER GuentherEmissions => ctx.ReadStruct(43, Mas.Schema.Model.Monica.Voc.Emissions.READER.create);
             public bool HasGuentherEmissions => ctx.IsStructFieldNonNull(43);
-            public Mas.Models.Monica.Voc.Emissions.READER JjvEmissions => ctx.ReadStruct(44, Mas.Models.Monica.Voc.Emissions.READER.create);
+            public Mas.Schema.Model.Monica.Voc.Emissions.READER JjvEmissions => ctx.ReadStruct(44, Mas.Schema.Model.Monica.Voc.Emissions.READER.create);
             public bool HasJjvEmissions => ctx.IsStructFieldNonNull(44);
-            public Mas.Models.Monica.Voc.SpeciesData.READER VocSpecies => ctx.ReadStruct(45, Mas.Models.Monica.Voc.SpeciesData.READER.create);
+            public Mas.Schema.Model.Monica.Voc.SpeciesData.READER VocSpecies => ctx.ReadStruct(45, Mas.Schema.Model.Monica.Voc.SpeciesData.READER.create);
             public bool HasVocSpecies => ctx.IsStructFieldNonNull(45);
-            public Mas.Models.Monica.Voc.CPData.READER CropPhotosynthesisResults => ctx.ReadStruct(46, Mas.Models.Monica.Voc.CPData.READER.create);
+            public Mas.Schema.Model.Monica.Voc.CPData.READER CropPhotosynthesisResults => ctx.ReadStruct(46, Mas.Schema.Model.Monica.Voc.CPData.READER.create);
             public bool HasCropPhotosynthesisResults => ctx.IsStructFieldNonNull(46);
-            public Mas.Models.Monica.SpeciesParameters.READER SpeciesParams => ctx.ReadStruct(47, Mas.Models.Monica.SpeciesParameters.READER.create);
+            public Mas.Schema.Model.Monica.SpeciesParameters.READER SpeciesParams => ctx.ReadStruct(47, Mas.Schema.Model.Monica.SpeciesParameters.READER.create);
             public bool HasSpeciesParams => ctx.IsStructFieldNonNull(47);
-            public Mas.Models.Monica.CultivarParameters.READER CultivarParams => ctx.ReadStruct(48, Mas.Models.Monica.CultivarParameters.READER.create);
+            public Mas.Schema.Model.Monica.CultivarParameters.READER CultivarParams => ctx.ReadStruct(48, Mas.Schema.Model.Monica.CultivarParameters.READER.create);
             public bool HasCultivarParams => ctx.IsStructFieldNonNull(48);
-            public Mas.Models.Monica.CropResidueParameters.READER ResidueParams => ctx.ReadStruct(49, Mas.Models.Monica.CropResidueParameters.READER.create);
+            public Mas.Schema.Model.Monica.CropResidueParameters.READER ResidueParams => ctx.ReadStruct(49, Mas.Schema.Model.Monica.CropResidueParameters.READER.create);
             public bool HasResidueParams => ctx.IsStructFieldNonNull(49);
             public bool IsWinterCrop => ctx.ReadDataBool(7285UL, false);
             public bool StemElongationEventFired => ctx.ReadDataBool(7286UL, false);
@@ -5108,21 +5108,21 @@ namespace Mas.Models.Monica
                 set => Link(20, value);
             }
 
-            public ListOfStructsSerializer<Mas.Models.Monica.YieldComponent.WRITER> PcOrganIdsForPrimaryYield
+            public ListOfStructsSerializer<Mas.Schema.Model.Monica.YieldComponent.WRITER> PcOrganIdsForPrimaryYield
             {
-                get => BuildPointer<ListOfStructsSerializer<Mas.Models.Monica.YieldComponent.WRITER>>(21);
+                get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Model.Monica.YieldComponent.WRITER>>(21);
                 set => Link(21, value);
             }
 
-            public ListOfStructsSerializer<Mas.Models.Monica.YieldComponent.WRITER> PcOrganIdsForSecondaryYield
+            public ListOfStructsSerializer<Mas.Schema.Model.Monica.YieldComponent.WRITER> PcOrganIdsForSecondaryYield
             {
-                get => BuildPointer<ListOfStructsSerializer<Mas.Models.Monica.YieldComponent.WRITER>>(22);
+                get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Model.Monica.YieldComponent.WRITER>>(22);
                 set => Link(22, value);
             }
 
-            public ListOfStructsSerializer<Mas.Models.Monica.YieldComponent.WRITER> PcOrganIdsForCutting
+            public ListOfStructsSerializer<Mas.Schema.Model.Monica.YieldComponent.WRITER> PcOrganIdsForCutting
             {
-                get => BuildPointer<ListOfStructsSerializer<Mas.Models.Monica.YieldComponent.WRITER>>(23);
+                get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Model.Monica.YieldComponent.WRITER>>(23);
                 set => Link(23, value);
             }
 
@@ -5690,45 +5690,45 @@ namespace Mas.Models.Monica
                 set => this.WriteData(7284UL, value, false);
             }
 
-            public Mas.Models.Monica.Voc.Emissions.WRITER GuentherEmissions
+            public Mas.Schema.Model.Monica.Voc.Emissions.WRITER GuentherEmissions
             {
-                get => BuildPointer<Mas.Models.Monica.Voc.Emissions.WRITER>(43);
+                get => BuildPointer<Mas.Schema.Model.Monica.Voc.Emissions.WRITER>(43);
                 set => Link(43, value);
             }
 
-            public Mas.Models.Monica.Voc.Emissions.WRITER JjvEmissions
+            public Mas.Schema.Model.Monica.Voc.Emissions.WRITER JjvEmissions
             {
-                get => BuildPointer<Mas.Models.Monica.Voc.Emissions.WRITER>(44);
+                get => BuildPointer<Mas.Schema.Model.Monica.Voc.Emissions.WRITER>(44);
                 set => Link(44, value);
             }
 
-            public Mas.Models.Monica.Voc.SpeciesData.WRITER VocSpecies
+            public Mas.Schema.Model.Monica.Voc.SpeciesData.WRITER VocSpecies
             {
-                get => BuildPointer<Mas.Models.Monica.Voc.SpeciesData.WRITER>(45);
+                get => BuildPointer<Mas.Schema.Model.Monica.Voc.SpeciesData.WRITER>(45);
                 set => Link(45, value);
             }
 
-            public Mas.Models.Monica.Voc.CPData.WRITER CropPhotosynthesisResults
+            public Mas.Schema.Model.Monica.Voc.CPData.WRITER CropPhotosynthesisResults
             {
-                get => BuildPointer<Mas.Models.Monica.Voc.CPData.WRITER>(46);
+                get => BuildPointer<Mas.Schema.Model.Monica.Voc.CPData.WRITER>(46);
                 set => Link(46, value);
             }
 
-            public Mas.Models.Monica.SpeciesParameters.WRITER SpeciesParams
+            public Mas.Schema.Model.Monica.SpeciesParameters.WRITER SpeciesParams
             {
-                get => BuildPointer<Mas.Models.Monica.SpeciesParameters.WRITER>(47);
+                get => BuildPointer<Mas.Schema.Model.Monica.SpeciesParameters.WRITER>(47);
                 set => Link(47, value);
             }
 
-            public Mas.Models.Monica.CultivarParameters.WRITER CultivarParams
+            public Mas.Schema.Model.Monica.CultivarParameters.WRITER CultivarParams
             {
-                get => BuildPointer<Mas.Models.Monica.CultivarParameters.WRITER>(48);
+                get => BuildPointer<Mas.Schema.Model.Monica.CultivarParameters.WRITER>(48);
                 set => Link(48, value);
             }
 
-            public Mas.Models.Monica.CropResidueParameters.WRITER ResidueParams
+            public Mas.Schema.Model.Monica.CropResidueParameters.WRITER ResidueParams
             {
-                get => BuildPointer<Mas.Models.Monica.CropResidueParameters.WRITER>(49);
+                get => BuildPointer<Mas.Schema.Model.Monica.CropResidueParameters.WRITER>(49);
                 set => Link(49, value);
             }
 
@@ -6300,10 +6300,10 @@ namespace Mas.Models.Monica
         void ICapnpSerializable.Deserialize(DeserializerState arg_)
         {
             var reader = READER.create(arg_);
-            FrostComponent = CapnpSerializable.Create<Mas.Models.Monica.FrostModuleState>(reader.FrostComponent);
-            SnowComponent = CapnpSerializable.Create<Mas.Models.Monica.SnowModuleState>(reader.SnowComponent);
+            FrostComponent = CapnpSerializable.Create<Mas.Schema.Model.Monica.FrostModuleState>(reader.FrostComponent);
+            SnowComponent = CapnpSerializable.Create<Mas.Schema.Model.Monica.SnowModuleState>(reader.SnowComponent);
             XSACriticalSoilMoisture = reader.XSACriticalSoilMoisture;
-            ModuleParams = CapnpSerializable.Create<Mas.Models.Monica.SoilMoistureModuleParameters>(reader.ModuleParams);
+            ModuleParams = CapnpSerializable.Create<Mas.Schema.Model.Monica.SoilMoistureModuleParameters>(reader.ModuleParams);
             VwWindSpeedHeight = reader.VwWindSpeedHeight;
             VwWindSpeed = reader.VwWindSpeed;
             NumberOfLayers = reader.NumberOfLayers;
@@ -6446,13 +6446,13 @@ namespace Mas.Models.Monica
         {
         }
 
-        public Mas.Models.Monica.FrostModuleState FrostComponent
+        public Mas.Schema.Model.Monica.FrostModuleState FrostComponent
         {
             get;
             set;
         }
 
-        public Mas.Models.Monica.SnowModuleState SnowComponent
+        public Mas.Schema.Model.Monica.SnowModuleState SnowComponent
         {
             get;
             set;
@@ -6464,7 +6464,7 @@ namespace Mas.Models.Monica
             set;
         }
 
-        public Mas.Models.Monica.SoilMoistureModuleParameters ModuleParams
+        public Mas.Schema.Model.Monica.SoilMoistureModuleParameters ModuleParams
         {
             get;
             set;
@@ -6849,12 +6849,12 @@ namespace Mas.Models.Monica
             public static READER create(DeserializerState ctx) => new READER(ctx);
             public static implicit operator DeserializerState(READER reader) => reader.ctx;
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-            public Mas.Models.Monica.FrostModuleState.READER FrostComponent => ctx.ReadStruct(0, Mas.Models.Monica.FrostModuleState.READER.create);
+            public Mas.Schema.Model.Monica.FrostModuleState.READER FrostComponent => ctx.ReadStruct(0, Mas.Schema.Model.Monica.FrostModuleState.READER.create);
             public bool HasFrostComponent => ctx.IsStructFieldNonNull(0);
-            public Mas.Models.Monica.SnowModuleState.READER SnowComponent => ctx.ReadStruct(1, Mas.Models.Monica.SnowModuleState.READER.create);
+            public Mas.Schema.Model.Monica.SnowModuleState.READER SnowComponent => ctx.ReadStruct(1, Mas.Schema.Model.Monica.SnowModuleState.READER.create);
             public bool HasSnowComponent => ctx.IsStructFieldNonNull(1);
             public double XSACriticalSoilMoisture => ctx.ReadDataDouble(0UL, 0);
-            public Mas.Models.Monica.SoilMoistureModuleParameters.READER ModuleParams => ctx.ReadStruct(2, Mas.Models.Monica.SoilMoistureModuleParameters.READER.create);
+            public Mas.Schema.Model.Monica.SoilMoistureModuleParameters.READER ModuleParams => ctx.ReadStruct(2, Mas.Schema.Model.Monica.SoilMoistureModuleParameters.READER.create);
             public bool HasModuleParams => ctx.IsStructFieldNonNull(2);
             public double VwWindSpeedHeight => ctx.ReadDataDouble(64UL, 0);
             public double VwWindSpeed => ctx.ReadDataDouble(128UL, 0);
@@ -6945,15 +6945,15 @@ namespace Mas.Models.Monica
                 this.SetStruct(40, 22);
             }
 
-            public Mas.Models.Monica.FrostModuleState.WRITER FrostComponent
+            public Mas.Schema.Model.Monica.FrostModuleState.WRITER FrostComponent
             {
-                get => BuildPointer<Mas.Models.Monica.FrostModuleState.WRITER>(0);
+                get => BuildPointer<Mas.Schema.Model.Monica.FrostModuleState.WRITER>(0);
                 set => Link(0, value);
             }
 
-            public Mas.Models.Monica.SnowModuleState.WRITER SnowComponent
+            public Mas.Schema.Model.Monica.SnowModuleState.WRITER SnowComponent
             {
-                get => BuildPointer<Mas.Models.Monica.SnowModuleState.WRITER>(1);
+                get => BuildPointer<Mas.Schema.Model.Monica.SnowModuleState.WRITER>(1);
                 set => Link(1, value);
             }
 
@@ -6963,9 +6963,9 @@ namespace Mas.Models.Monica
                 set => this.WriteData(0UL, value, 0);
             }
 
-            public Mas.Models.Monica.SoilMoistureModuleParameters.WRITER ModuleParams
+            public Mas.Schema.Model.Monica.SoilMoistureModuleParameters.WRITER ModuleParams
             {
-                get => BuildPointer<Mas.Models.Monica.SoilMoistureModuleParameters.WRITER>(2);
+                get => BuildPointer<Mas.Schema.Model.Monica.SoilMoistureModuleParameters.WRITER>(2);
                 set => Link(2, value);
             }
 
@@ -7346,7 +7346,7 @@ namespace Mas.Models.Monica
             var reader = READER.create(arg_);
             Incorporation = reader.Incorporation;
             TotalDenitrification = reader.TotalDenitrification;
-            ModuleParams = CapnpSerializable.Create<Mas.Models.Monica.SoilOrganicModuleParameters>(reader.ModuleParams);
+            ModuleParams = CapnpSerializable.Create<Mas.Schema.Model.Monica.SoilOrganicModuleParameters>(reader.ModuleParams);
             VsNumberOfLayers = reader.VsNumberOfLayers;
             VsNumberOfOrganicLayers = reader.VsNumberOfOrganicLayers;
             AddedOrganicMatter = reader.AddedOrganicMatter;
@@ -7454,7 +7454,7 @@ namespace Mas.Models.Monica
             set;
         }
 
-        public Mas.Models.Monica.SoilOrganicModuleParameters ModuleParams
+        public Mas.Schema.Model.Monica.SoilOrganicModuleParameters ModuleParams
         {
             get;
             set;
@@ -7701,7 +7701,7 @@ namespace Mas.Models.Monica
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
             public bool Incorporation => ctx.ReadDataBool(0UL, false);
             public double TotalDenitrification => ctx.ReadDataDouble(64UL, 0);
-            public Mas.Models.Monica.SoilOrganicModuleParameters.READER ModuleParams => ctx.ReadStruct(0, Mas.Models.Monica.SoilOrganicModuleParameters.READER.create);
+            public Mas.Schema.Model.Monica.SoilOrganicModuleParameters.READER ModuleParams => ctx.ReadStruct(0, Mas.Schema.Model.Monica.SoilOrganicModuleParameters.READER.create);
             public bool HasModuleParams => ctx.IsStructFieldNonNull(0);
             public ushort VsNumberOfLayers => ctx.ReadDataUShort(16UL, (ushort)0);
             public ushort VsNumberOfOrganicLayers => ctx.ReadDataUShort(32UL, (ushort)0);
@@ -7782,9 +7782,9 @@ namespace Mas.Models.Monica
                 set => this.WriteData(64UL, value, 0);
             }
 
-            public Mas.Models.Monica.SoilOrganicModuleParameters.WRITER ModuleParams
+            public Mas.Schema.Model.Monica.SoilOrganicModuleParameters.WRITER ModuleParams
             {
-                get => BuildPointer<Mas.Models.Monica.SoilOrganicModuleParameters.WRITER>(0);
+                get => BuildPointer<Mas.Schema.Model.Monica.SoilOrganicModuleParameters.WRITER>(0);
                 set => Link(0, value);
             }
 
@@ -8026,10 +8026,10 @@ namespace Mas.Models.Monica
         {
             var reader = READER.create(arg_);
             SoilSurfaceTemperature = reader.SoilSurfaceTemperature;
-            ModuleParams = CapnpSerializable.Create<Mas.Models.Monica.SoilTemperatureModuleParameters>(reader.ModuleParams);
+            ModuleParams = CapnpSerializable.Create<Mas.Schema.Model.Monica.SoilTemperatureModuleParameters>(reader.ModuleParams);
             DampingFactor = reader.DampingFactor;
-            SoilColumnVtGroundLayer = CapnpSerializable.Create<Mas.Models.Monica.SoilLayerState>(reader.SoilColumnVtGroundLayer);
-            SoilColumnVtBottomLayer = CapnpSerializable.Create<Mas.Models.Monica.SoilLayerState>(reader.SoilColumnVtBottomLayer);
+            SoilColumnVtGroundLayer = CapnpSerializable.Create<Mas.Schema.Model.Monica.SoilLayerState>(reader.SoilColumnVtGroundLayer);
+            SoilColumnVtBottomLayer = CapnpSerializable.Create<Mas.Schema.Model.Monica.SoilLayerState>(reader.SoilColumnVtBottomLayer);
             NumberOfLayers = reader.NumberOfLayers;
             VsNumberOfLayers = reader.VsNumberOfLayers;
             VsSoilMoistureConst = reader.VsSoilMoistureConst;
@@ -8085,7 +8085,7 @@ namespace Mas.Models.Monica
             set;
         }
 
-        public Mas.Models.Monica.SoilTemperatureModuleParameters ModuleParams
+        public Mas.Schema.Model.Monica.SoilTemperatureModuleParameters ModuleParams
         {
             get;
             set;
@@ -8098,13 +8098,13 @@ namespace Mas.Models.Monica
         }
 
         = 0.8;
-        public Mas.Models.Monica.SoilLayerState SoilColumnVtGroundLayer
+        public Mas.Schema.Model.Monica.SoilLayerState SoilColumnVtGroundLayer
         {
             get;
             set;
         }
 
-        public Mas.Models.Monica.SoilLayerState SoilColumnVtBottomLayer
+        public Mas.Schema.Model.Monica.SoilLayerState SoilColumnVtBottomLayer
         {
             get;
             set;
@@ -8206,12 +8206,12 @@ namespace Mas.Models.Monica
             public static implicit operator DeserializerState(READER reader) => reader.ctx;
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
             public double SoilSurfaceTemperature => ctx.ReadDataDouble(0UL, 0);
-            public Mas.Models.Monica.SoilTemperatureModuleParameters.READER ModuleParams => ctx.ReadStruct(0, Mas.Models.Monica.SoilTemperatureModuleParameters.READER.create);
+            public Mas.Schema.Model.Monica.SoilTemperatureModuleParameters.READER ModuleParams => ctx.ReadStruct(0, Mas.Schema.Model.Monica.SoilTemperatureModuleParameters.READER.create);
             public bool HasModuleParams => ctx.IsStructFieldNonNull(0);
             public double DampingFactor => ctx.ReadDataDouble(64UL, 0.8);
-            public Mas.Models.Monica.SoilLayerState.READER SoilColumnVtGroundLayer => ctx.ReadStruct(1, Mas.Models.Monica.SoilLayerState.READER.create);
+            public Mas.Schema.Model.Monica.SoilLayerState.READER SoilColumnVtGroundLayer => ctx.ReadStruct(1, Mas.Schema.Model.Monica.SoilLayerState.READER.create);
             public bool HasSoilColumnVtGroundLayer => ctx.IsStructFieldNonNull(1);
-            public Mas.Models.Monica.SoilLayerState.READER SoilColumnVtBottomLayer => ctx.ReadStruct(2, Mas.Models.Monica.SoilLayerState.READER.create);
+            public Mas.Schema.Model.Monica.SoilLayerState.READER SoilColumnVtBottomLayer => ctx.ReadStruct(2, Mas.Schema.Model.Monica.SoilLayerState.READER.create);
             public bool HasSoilColumnVtBottomLayer => ctx.IsStructFieldNonNull(2);
             public ushort NumberOfLayers => ctx.ReadDataUShort(128UL, (ushort)0);
             public ushort VsNumberOfLayers => ctx.ReadDataUShort(144UL, (ushort)0);
@@ -8253,9 +8253,9 @@ namespace Mas.Models.Monica
                 set => this.WriteData(0UL, value, 0);
             }
 
-            public Mas.Models.Monica.SoilTemperatureModuleParameters.WRITER ModuleParams
+            public Mas.Schema.Model.Monica.SoilTemperatureModuleParameters.WRITER ModuleParams
             {
-                get => BuildPointer<Mas.Models.Monica.SoilTemperatureModuleParameters.WRITER>(0);
+                get => BuildPointer<Mas.Schema.Model.Monica.SoilTemperatureModuleParameters.WRITER>(0);
                 set => Link(0, value);
             }
 
@@ -8265,15 +8265,15 @@ namespace Mas.Models.Monica
                 set => this.WriteData(64UL, value, 0.8);
             }
 
-            public Mas.Models.Monica.SoilLayerState.WRITER SoilColumnVtGroundLayer
+            public Mas.Schema.Model.Monica.SoilLayerState.WRITER SoilColumnVtGroundLayer
             {
-                get => BuildPointer<Mas.Models.Monica.SoilLayerState.WRITER>(1);
+                get => BuildPointer<Mas.Schema.Model.Monica.SoilLayerState.WRITER>(1);
                 set => Link(1, value);
             }
 
-            public Mas.Models.Monica.SoilLayerState.WRITER SoilColumnVtBottomLayer
+            public Mas.Schema.Model.Monica.SoilLayerState.WRITER SoilColumnVtBottomLayer
             {
-                get => BuildPointer<Mas.Models.Monica.SoilLayerState.WRITER>(2);
+                get => BuildPointer<Mas.Schema.Model.Monica.SoilLayerState.WRITER>(2);
                 set => Link(2, value);
             }
 
@@ -8371,7 +8371,7 @@ namespace Mas.Models.Monica
         {
             var reader = READER.create(arg_);
             PcMinimumAvailableN = reader.PcMinimumAvailableN;
-            ModuleParams = CapnpSerializable.Create<Mas.Models.Monica.SoilTransportModuleParameters>(reader.ModuleParams);
+            ModuleParams = CapnpSerializable.Create<Mas.Schema.Model.Monica.SoilTransportModuleParameters>(reader.ModuleParams);
             Convection = reader.Convection;
             CropNUptake = reader.CropNUptake;
             DiffusionCoeff = reader.DiffusionCoeff;
@@ -8428,7 +8428,7 @@ namespace Mas.Models.Monica
             set;
         }
 
-        public Mas.Models.Monica.SoilTransportModuleParameters ModuleParams
+        public Mas.Schema.Model.Monica.SoilTransportModuleParameters ModuleParams
         {
             get;
             set;
@@ -8543,7 +8543,7 @@ namespace Mas.Models.Monica
             public static implicit operator DeserializerState(READER reader) => reader.ctx;
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
             public double PcMinimumAvailableN => ctx.ReadDataDouble(0UL, 0);
-            public Mas.Models.Monica.SoilTransportModuleParameters.READER ModuleParams => ctx.ReadStruct(0, Mas.Models.Monica.SoilTransportModuleParameters.READER.create);
+            public Mas.Schema.Model.Monica.SoilTransportModuleParameters.READER ModuleParams => ctx.ReadStruct(0, Mas.Schema.Model.Monica.SoilTransportModuleParameters.READER.create);
             public bool HasModuleParams => ctx.IsStructFieldNonNull(0);
             public IReadOnlyList<double> Convection => ctx.ReadList(1).CastDouble();
             public bool HasConvection => ctx.IsStructFieldNonNull(1);
@@ -8587,9 +8587,9 @@ namespace Mas.Models.Monica
                 set => this.WriteData(0UL, value, 0);
             }
 
-            public Mas.Models.Monica.SoilTransportModuleParameters.WRITER ModuleParams
+            public Mas.Schema.Model.Monica.SoilTransportModuleParameters.WRITER ModuleParams
             {
-                get => BuildPointer<Mas.Models.Monica.SoilTransportModuleParameters.WRITER>(0);
+                get => BuildPointer<Mas.Schema.Model.Monica.SoilTransportModuleParameters.WRITER>(0);
                 set => Link(0, value);
             }
 
@@ -8687,6 +8687,149 @@ namespace Mas.Models.Monica
             {
                 get => BuildPointer<ListOfPrimitivesSerializer<double>>(11);
                 set => Link(11, value);
+            }
+        }
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xf03d8fd1bbe75519UL)]
+    public class ICData : ICapnpSerializable
+    {
+        public const UInt64 typeId = 0xf03d8fd1bbe75519UL;
+        public enum WHICH : ushort
+        {
+            NoCrop = 0,
+            Height = 1,
+            Lait = 2,
+            undefined = 65535
+        }
+
+        void ICapnpSerializable.Deserialize(DeserializerState arg_)
+        {
+            var reader = READER.create(arg_);
+            switch (reader.which)
+            {
+                case WHICH.NoCrop:
+                    which = reader.which;
+                    break;
+                case WHICH.Height:
+                    Height = reader.Height;
+                    break;
+                case WHICH.Lait:
+                    Lait = reader.Lait;
+                    break;
+            }
+
+            applyDefaults();
+        }
+
+        private WHICH _which = WHICH.undefined;
+        private object _content;
+        public WHICH which
+        {
+            get => _which;
+            set
+            {
+                if (value == _which)
+                    return;
+                _which = value;
+                switch (value)
+                {
+                    case WHICH.NoCrop:
+                        break;
+                    case WHICH.Height:
+                        _content = 0;
+                        break;
+                    case WHICH.Lait:
+                        _content = 0;
+                        break;
+                }
+            }
+        }
+
+        public void serialize(WRITER writer)
+        {
+            writer.which = which;
+            switch (which)
+            {
+                case WHICH.NoCrop:
+                    break;
+                case WHICH.Height:
+                    writer.Height = Height.Value;
+                    break;
+                case WHICH.Lait:
+                    writer.Lait = Lait.Value;
+                    break;
+            }
+        }
+
+        void ICapnpSerializable.Serialize(SerializerState arg_)
+        {
+            serialize(arg_.Rewrap<WRITER>());
+        }
+
+        public void applyDefaults()
+        {
+        }
+
+        public double? Height
+        {
+            get => _which == WHICH.Height ? (double? )_content : null;
+            set
+            {
+                _which = WHICH.Height;
+                _content = value;
+            }
+        }
+
+        public double? Lait
+        {
+            get => _which == WHICH.Lait ? (double? )_content : null;
+            set
+            {
+                _which = WHICH.Lait;
+                _content = value;
+            }
+        }
+
+        public struct READER
+        {
+            readonly DeserializerState ctx;
+            public READER(DeserializerState ctx)
+            {
+                this.ctx = ctx;
+            }
+
+            public static READER create(DeserializerState ctx) => new READER(ctx);
+            public static implicit operator DeserializerState(READER reader) => reader.ctx;
+            public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+            public WHICH which => (WHICH)ctx.ReadDataUShort(0U, (ushort)0);
+            public double Height => which == WHICH.Height ? ctx.ReadDataDouble(64UL, 0) : default;
+            public double Lait => which == WHICH.Lait ? ctx.ReadDataDouble(64UL, 0) : default;
+        }
+
+        public class WRITER : SerializerState
+        {
+            public WRITER()
+            {
+                this.SetStruct(2, 0);
+            }
+
+            public WHICH which
+            {
+                get => (WHICH)this.ReadDataUShort(0U, (ushort)0);
+                set => this.WriteData(0U, (ushort)value, (ushort)0);
+            }
+
+            public double Height
+            {
+                get => which == WHICH.Height ? this.ReadDataDouble(64UL, 0) : default;
+                set => this.WriteData(64UL, value, 0);
+            }
+
+            public double Lait
+            {
+                get => which == WHICH.Lait ? this.ReadDataDouble(64UL, 0) : default;
+                set => this.WriteData(64UL, value, 0);
             }
         }
     }

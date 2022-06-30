@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Mas.Rpc.Geo
+namespace Mas.Schema.Geocoord
 {
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xe529b4deb322ece8UL)]
     public enum CoordType : ushort
@@ -104,13 +104,13 @@ namespace Mas.Rpc.Geo
             set;
         }
 
-        public long R
+        public double R
         {
             get;
             set;
         }
 
-        public long H
+        public double H
         {
             get;
             set;
@@ -129,8 +129,8 @@ namespace Mas.Rpc.Geo
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
             public byte Zone => ctx.ReadDataByte(0UL, (byte)0);
             public string LatitudeBand => ctx.ReadText(0, null);
-            public long R => ctx.ReadDataLong(64UL, 0L);
-            public long H => ctx.ReadDataLong(128UL, 0L);
+            public double R => ctx.ReadDataDouble(64UL, 0);
+            public double H => ctx.ReadDataDouble(128UL, 0);
         }
 
         public class WRITER : SerializerState
@@ -152,16 +152,16 @@ namespace Mas.Rpc.Geo
                 set => this.WriteText(0, value, null);
             }
 
-            public long R
+            public double R
             {
-                get => this.ReadDataLong(64UL, 0L);
-                set => this.WriteData(64UL, value, 0L);
+                get => this.ReadDataDouble(64UL, 0);
+                set => this.WriteData(64UL, value, 0);
             }
 
-            public long H
+            public double H
             {
-                get => this.ReadDataLong(128UL, 0L);
-                set => this.WriteData(128UL, value, 0L);
+                get => this.ReadDataDouble(128UL, 0);
+                set => this.WriteData(128UL, value, 0);
             }
         }
     }
@@ -276,13 +276,13 @@ namespace Mas.Rpc.Geo
             set;
         }
 
-        public long R
+        public double R
         {
             get;
             set;
         }
 
-        public long H
+        public double H
         {
             get;
             set;
@@ -300,8 +300,8 @@ namespace Mas.Rpc.Geo
             public static implicit operator DeserializerState(READER reader) => reader.ctx;
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
             public byte MeridianNo => ctx.ReadDataByte(0UL, (byte)0);
-            public long R => ctx.ReadDataLong(64UL, 0L);
-            public long H => ctx.ReadDataLong(128UL, 0L);
+            public double R => ctx.ReadDataDouble(64UL, 0);
+            public double H => ctx.ReadDataDouble(128UL, 0);
         }
 
         public class WRITER : SerializerState
@@ -317,16 +317,16 @@ namespace Mas.Rpc.Geo
                 set => this.WriteData(0UL, value, (byte)0);
             }
 
-            public long R
+            public double R
             {
-                get => this.ReadDataLong(64UL, 0L);
-                set => this.WriteData(64UL, value, 0L);
+                get => this.ReadDataDouble(64UL, 0);
+                set => this.WriteData(64UL, value, 0);
             }
 
-            public long H
+            public double H
             {
-                get => this.ReadDataLong(128UL, 0L);
-                set => this.WriteData(128UL, value, 0L);
+                get => this.ReadDataDouble(128UL, 0);
+                set => this.WriteData(128UL, value, 0);
             }
         }
     }
@@ -358,13 +358,13 @@ namespace Mas.Rpc.Geo
         {
         }
 
-        public long X
+        public double X
         {
             get;
             set;
         }
 
-        public long Y
+        public double Y
         {
             get;
             set;
@@ -381,8 +381,8 @@ namespace Mas.Rpc.Geo
             public static READER create(DeserializerState ctx) => new READER(ctx);
             public static implicit operator DeserializerState(READER reader) => reader.ctx;
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-            public long X => ctx.ReadDataLong(0UL, 0L);
-            public long Y => ctx.ReadDataLong(64UL, 0L);
+            public double X => ctx.ReadDataDouble(0UL, 0);
+            public double Y => ctx.ReadDataDouble(64UL, 0);
         }
 
         public class WRITER : SerializerState
@@ -392,16 +392,16 @@ namespace Mas.Rpc.Geo
                 this.SetStruct(2, 0);
             }
 
-            public long X
+            public double X
             {
-                get => this.ReadDataLong(0UL, 0L);
-                set => this.WriteData(0UL, value, 0L);
+                get => this.ReadDataDouble(0UL, 0);
+                set => this.WriteData(0UL, value, 0);
             }
 
-            public long Y
+            public double Y
             {
-                get => this.ReadDataLong(64UL, 0L);
-                set => this.WriteData(64UL, value, 0L);
+                get => this.ReadDataDouble(64UL, 0);
+                set => this.WriteData(64UL, value, 0);
             }
         }
     }
@@ -425,16 +425,16 @@ namespace Mas.Rpc.Geo
             switch (reader.which)
             {
                 case WHICH.Gk:
-                    Gk = CapnpSerializable.Create<Mas.Rpc.Geo.GKCoord>(reader.Gk);
+                    Gk = CapnpSerializable.Create<Mas.Schema.Geocoord.GKCoord>(reader.Gk);
                     break;
                 case WHICH.Latlon:
-                    Latlon = CapnpSerializable.Create<Mas.Rpc.Geo.LatLonCoord>(reader.Latlon);
+                    Latlon = CapnpSerializable.Create<Mas.Schema.Geocoord.LatLonCoord>(reader.Latlon);
                     break;
                 case WHICH.Utm:
-                    Utm = CapnpSerializable.Create<Mas.Rpc.Geo.UTMCoord>(reader.Utm);
+                    Utm = CapnpSerializable.Create<Mas.Schema.Geocoord.UTMCoord>(reader.Utm);
                     break;
                 case WHICH.P2D:
-                    P2D = CapnpSerializable.Create<Mas.Rpc.Geo.Point2D>(reader.P2D);
+                    P2D = CapnpSerializable.Create<Mas.Schema.Geocoord.Point2D>(reader.P2D);
                     break;
             }
 
@@ -498,9 +498,9 @@ namespace Mas.Rpc.Geo
         {
         }
 
-        public Mas.Rpc.Geo.GKCoord Gk
+        public Mas.Schema.Geocoord.GKCoord Gk
         {
-            get => _which == WHICH.Gk ? (Mas.Rpc.Geo.GKCoord)_content : null;
+            get => _which == WHICH.Gk ? (Mas.Schema.Geocoord.GKCoord)_content : null;
             set
             {
                 _which = WHICH.Gk;
@@ -508,9 +508,9 @@ namespace Mas.Rpc.Geo
             }
         }
 
-        public Mas.Rpc.Geo.LatLonCoord Latlon
+        public Mas.Schema.Geocoord.LatLonCoord Latlon
         {
-            get => _which == WHICH.Latlon ? (Mas.Rpc.Geo.LatLonCoord)_content : null;
+            get => _which == WHICH.Latlon ? (Mas.Schema.Geocoord.LatLonCoord)_content : null;
             set
             {
                 _which = WHICH.Latlon;
@@ -518,9 +518,9 @@ namespace Mas.Rpc.Geo
             }
         }
 
-        public Mas.Rpc.Geo.UTMCoord Utm
+        public Mas.Schema.Geocoord.UTMCoord Utm
         {
-            get => _which == WHICH.Utm ? (Mas.Rpc.Geo.UTMCoord)_content : null;
+            get => _which == WHICH.Utm ? (Mas.Schema.Geocoord.UTMCoord)_content : null;
             set
             {
                 _which = WHICH.Utm;
@@ -528,9 +528,9 @@ namespace Mas.Rpc.Geo
             }
         }
 
-        public Mas.Rpc.Geo.Point2D P2D
+        public Mas.Schema.Geocoord.Point2D P2D
         {
-            get => _which == WHICH.P2D ? (Mas.Rpc.Geo.Point2D)_content : null;
+            get => _which == WHICH.P2D ? (Mas.Schema.Geocoord.Point2D)_content : null;
             set
             {
                 _which = WHICH.P2D;
@@ -550,13 +550,13 @@ namespace Mas.Rpc.Geo
             public static implicit operator DeserializerState(READER reader) => reader.ctx;
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
             public WHICH which => (WHICH)ctx.ReadDataUShort(0U, (ushort)0);
-            public Mas.Rpc.Geo.GKCoord.READER Gk => which == WHICH.Gk ? ctx.ReadStruct(0, Mas.Rpc.Geo.GKCoord.READER.create) : default;
+            public Mas.Schema.Geocoord.GKCoord.READER Gk => which == WHICH.Gk ? ctx.ReadStruct(0, Mas.Schema.Geocoord.GKCoord.READER.create) : default;
             public bool HasGk => ctx.IsStructFieldNonNull(0);
-            public Mas.Rpc.Geo.LatLonCoord.READER Latlon => which == WHICH.Latlon ? ctx.ReadStruct(0, Mas.Rpc.Geo.LatLonCoord.READER.create) : default;
+            public Mas.Schema.Geocoord.LatLonCoord.READER Latlon => which == WHICH.Latlon ? ctx.ReadStruct(0, Mas.Schema.Geocoord.LatLonCoord.READER.create) : default;
             public bool HasLatlon => ctx.IsStructFieldNonNull(0);
-            public Mas.Rpc.Geo.UTMCoord.READER Utm => which == WHICH.Utm ? ctx.ReadStruct(0, Mas.Rpc.Geo.UTMCoord.READER.create) : default;
+            public Mas.Schema.Geocoord.UTMCoord.READER Utm => which == WHICH.Utm ? ctx.ReadStruct(0, Mas.Schema.Geocoord.UTMCoord.READER.create) : default;
             public bool HasUtm => ctx.IsStructFieldNonNull(0);
-            public Mas.Rpc.Geo.Point2D.READER P2D => which == WHICH.P2D ? ctx.ReadStruct(0, Mas.Rpc.Geo.Point2D.READER.create) : default;
+            public Mas.Schema.Geocoord.Point2D.READER P2D => which == WHICH.P2D ? ctx.ReadStruct(0, Mas.Schema.Geocoord.Point2D.READER.create) : default;
             public bool HasP2D => ctx.IsStructFieldNonNull(0);
         }
 
@@ -573,27 +573,27 @@ namespace Mas.Rpc.Geo
                 set => this.WriteData(0U, (ushort)value, (ushort)0);
             }
 
-            public Mas.Rpc.Geo.GKCoord.WRITER Gk
+            public Mas.Schema.Geocoord.GKCoord.WRITER Gk
             {
-                get => which == WHICH.Gk ? BuildPointer<Mas.Rpc.Geo.GKCoord.WRITER>(0) : default;
+                get => which == WHICH.Gk ? BuildPointer<Mas.Schema.Geocoord.GKCoord.WRITER>(0) : default;
                 set => Link(0, value);
             }
 
-            public Mas.Rpc.Geo.LatLonCoord.WRITER Latlon
+            public Mas.Schema.Geocoord.LatLonCoord.WRITER Latlon
             {
-                get => which == WHICH.Latlon ? BuildPointer<Mas.Rpc.Geo.LatLonCoord.WRITER>(0) : default;
+                get => which == WHICH.Latlon ? BuildPointer<Mas.Schema.Geocoord.LatLonCoord.WRITER>(0) : default;
                 set => Link(0, value);
             }
 
-            public Mas.Rpc.Geo.UTMCoord.WRITER Utm
+            public Mas.Schema.Geocoord.UTMCoord.WRITER Utm
             {
-                get => which == WHICH.Utm ? BuildPointer<Mas.Rpc.Geo.UTMCoord.WRITER>(0) : default;
+                get => which == WHICH.Utm ? BuildPointer<Mas.Schema.Geocoord.UTMCoord.WRITER>(0) : default;
                 set => Link(0, value);
             }
 
-            public Mas.Rpc.Geo.Point2D.WRITER P2D
+            public Mas.Schema.Geocoord.Point2D.WRITER P2D
             {
-                get => which == WHICH.P2D ? BuildPointer<Mas.Rpc.Geo.Point2D.WRITER>(0) : default;
+                get => which == WHICH.P2D ? BuildPointer<Mas.Schema.Geocoord.Point2D.WRITER>(0) : default;
                 set => Link(0, value);
             }
         }

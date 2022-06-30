@@ -6,45 +6,45 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Mas.Rpc.Registry
+namespace Mas.Schema.Registry
 {
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xf503f3237666574eUL), Proxy(typeof(Admin_Proxy)), Skeleton(typeof(Admin_Skeleton))]
-    public interface IAdmin : IDisposable
+    public interface IAdmin : Mas.Schema.Common.IIdentifiable
     {
-        Task<bool> AddCategory(Mas.Rpc.Common.IdInformation category, bool upsert, CancellationToken cancellationToken_ = default);
-        Task<IReadOnlyList<Mas.Rpc.Common.IIdentifiable>> RemoveCategory(string categoryId, string moveObjectsToCategoryId, CancellationToken cancellationToken_ = default);
+        Task<bool> AddCategory(Mas.Schema.Common.IdInformation category, bool upsert, CancellationToken cancellationToken_ = default);
+        Task<IReadOnlyList<Mas.Schema.Common.IIdentifiable>> RemoveCategory(string categoryId, string moveObjectsToCategoryId, CancellationToken cancellationToken_ = default);
         Task<IReadOnlyList<string>> MoveObjects(IReadOnlyList<string> objectIds, string toCatId, CancellationToken cancellationToken_ = default);
-        Task<IReadOnlyList<Mas.Rpc.Common.IIdentifiable>> RemoveObjects(IReadOnlyList<string> objectIds, CancellationToken cancellationToken_ = default);
-        Task<Mas.Rpc.Registry.IRegistry> Registry(CancellationToken cancellationToken_ = default);
+        Task<IReadOnlyList<Mas.Schema.Common.IIdentifiable>> RemoveObjects(IReadOnlyList<string> objectIds, CancellationToken cancellationToken_ = default);
+        Task<Mas.Schema.Registry.IRegistry> Registry(CancellationToken cancellationToken_ = default);
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xf503f3237666574eUL)]
     public class Admin_Proxy : Proxy, IAdmin
     {
-        public async Task<bool> AddCategory(Mas.Rpc.Common.IdInformation category, bool upsert, CancellationToken cancellationToken_ = default)
+        public async Task<bool> AddCategory(Mas.Schema.Common.IdInformation category, bool upsert, CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Registry.Admin.Params_AddCategory.WRITER>();
-            var arg_ = new Mas.Rpc.Registry.Admin.Params_AddCategory()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Registry.Admin.Params_AddCategory.WRITER>();
+            var arg_ = new Mas.Schema.Registry.Admin.Params_AddCategory()
             {Category = category, Upsert = upsert};
             arg_?.serialize(in_);
             using (var d_ = await Call(17655222297858299726UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Rpc.Registry.Admin.Result_AddCategory>(d_);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Registry.Admin.Result_AddCategory>(d_);
                 return (r_.Success);
             }
         }
 
-        public Task<IReadOnlyList<Mas.Rpc.Common.IIdentifiable>> RemoveCategory(string categoryId, string moveObjectsToCategoryId, CancellationToken cancellationToken_ = default)
+        public Task<IReadOnlyList<Mas.Schema.Common.IIdentifiable>> RemoveCategory(string categoryId, string moveObjectsToCategoryId, CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Registry.Admin.Params_RemoveCategory.WRITER>();
-            var arg_ = new Mas.Rpc.Registry.Admin.Params_RemoveCategory()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Registry.Admin.Params_RemoveCategory.WRITER>();
+            var arg_ = new Mas.Schema.Registry.Admin.Params_RemoveCategory()
             {CategoryId = categoryId, MoveObjectsToCategoryId = moveObjectsToCategoryId};
             arg_?.serialize(in_);
             return Impatient.MakePipelineAware(Call(17655222297858299726UL, 1, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
             {
                 using (d_)
                 {
-                    var r_ = CapnpSerializable.Create<Mas.Rpc.Registry.Admin.Result_RemoveCategory>(d_);
+                    var r_ = CapnpSerializable.Create<Mas.Schema.Registry.Admin.Result_RemoveCategory>(d_);
                     return (r_.RemovedObjects);
                 }
             }
@@ -54,28 +54,28 @@ namespace Mas.Rpc.Registry
 
         public async Task<IReadOnlyList<string>> MoveObjects(IReadOnlyList<string> objectIds, string toCatId, CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Registry.Admin.Params_MoveObjects.WRITER>();
-            var arg_ = new Mas.Rpc.Registry.Admin.Params_MoveObjects()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Registry.Admin.Params_MoveObjects.WRITER>();
+            var arg_ = new Mas.Schema.Registry.Admin.Params_MoveObjects()
             {ObjectIds = objectIds, ToCatId = toCatId};
             arg_?.serialize(in_);
             using (var d_ = await Call(17655222297858299726UL, 2, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Rpc.Registry.Admin.Result_MoveObjects>(d_);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Registry.Admin.Result_MoveObjects>(d_);
                 return (r_.MovedObjectIds);
             }
         }
 
-        public Task<IReadOnlyList<Mas.Rpc.Common.IIdentifiable>> RemoveObjects(IReadOnlyList<string> objectIds, CancellationToken cancellationToken_ = default)
+        public Task<IReadOnlyList<Mas.Schema.Common.IIdentifiable>> RemoveObjects(IReadOnlyList<string> objectIds, CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Registry.Admin.Params_RemoveObjects.WRITER>();
-            var arg_ = new Mas.Rpc.Registry.Admin.Params_RemoveObjects()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Registry.Admin.Params_RemoveObjects.WRITER>();
+            var arg_ = new Mas.Schema.Registry.Admin.Params_RemoveObjects()
             {ObjectIds = objectIds};
             arg_?.serialize(in_);
             return Impatient.MakePipelineAware(Call(17655222297858299726UL, 3, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
             {
                 using (d_)
                 {
-                    var r_ = CapnpSerializable.Create<Mas.Rpc.Registry.Admin.Result_RemoveObjects>(d_);
+                    var r_ = CapnpSerializable.Create<Mas.Schema.Registry.Admin.Result_RemoveObjects>(d_);
                     return (r_.RemovedObjects);
                 }
             }
@@ -83,22 +83,35 @@ namespace Mas.Rpc.Registry
             );
         }
 
-        public Task<Mas.Rpc.Registry.IRegistry> Registry(CancellationToken cancellationToken_ = default)
+        public Task<Mas.Schema.Registry.IRegistry> Registry(CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Registry.Admin.Params_Registry.WRITER>();
-            var arg_ = new Mas.Rpc.Registry.Admin.Params_Registry()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Registry.Admin.Params_Registry.WRITER>();
+            var arg_ = new Mas.Schema.Registry.Admin.Params_Registry()
             {};
             arg_?.serialize(in_);
             return Impatient.MakePipelineAware(Call(17655222297858299726UL, 4, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
             {
                 using (d_)
                 {
-                    var r_ = CapnpSerializable.Create<Mas.Rpc.Registry.Admin.Result_Registry>(d_);
+                    var r_ = CapnpSerializable.Create<Mas.Schema.Registry.Admin.Result_Registry>(d_);
                     return (r_.Registry);
                 }
             }
 
             );
+        }
+
+        public async Task<Mas.Schema.Common.IdInformation> Info(CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Common.Identifiable.Params_Info.WRITER>();
+            var arg_ = new Mas.Schema.Common.Identifiable.Params_Info()
+            {};
+            arg_?.serialize(in_);
+            using (var d_ = await Call(12875740530987518165UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            {
+                var r_ = CapnpSerializable.Create<Mas.Schema.Common.IdInformation>(d_);
+                return r_;
+            }
         }
     }
 
@@ -115,11 +128,11 @@ namespace Mas.Rpc.Registry
         {
             using (d_)
             {
-                var in_ = CapnpSerializable.Create<Mas.Rpc.Registry.Admin.Params_AddCategory>(d_);
+                var in_ = CapnpSerializable.Create<Mas.Schema.Registry.Admin.Params_AddCategory>(d_);
                 return Impatient.MaybeTailCall(Impl.AddCategory(in_.Category, in_.Upsert, cancellationToken_), success =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Rpc.Registry.Admin.Result_AddCategory.WRITER>();
-                    var r_ = new Mas.Rpc.Registry.Admin.Result_AddCategory{Success = success};
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Registry.Admin.Result_AddCategory.WRITER>();
+                    var r_ = new Mas.Schema.Registry.Admin.Result_AddCategory{Success = success};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -132,11 +145,11 @@ namespace Mas.Rpc.Registry
         {
             using (d_)
             {
-                var in_ = CapnpSerializable.Create<Mas.Rpc.Registry.Admin.Params_RemoveCategory>(d_);
+                var in_ = CapnpSerializable.Create<Mas.Schema.Registry.Admin.Params_RemoveCategory>(d_);
                 return Impatient.MaybeTailCall(Impl.RemoveCategory(in_.CategoryId, in_.MoveObjectsToCategoryId, cancellationToken_), removedObjects =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Rpc.Registry.Admin.Result_RemoveCategory.WRITER>();
-                    var r_ = new Mas.Rpc.Registry.Admin.Result_RemoveCategory{RemovedObjects = removedObjects};
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Registry.Admin.Result_RemoveCategory.WRITER>();
+                    var r_ = new Mas.Schema.Registry.Admin.Result_RemoveCategory{RemovedObjects = removedObjects};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -149,11 +162,11 @@ namespace Mas.Rpc.Registry
         {
             using (d_)
             {
-                var in_ = CapnpSerializable.Create<Mas.Rpc.Registry.Admin.Params_MoveObjects>(d_);
+                var in_ = CapnpSerializable.Create<Mas.Schema.Registry.Admin.Params_MoveObjects>(d_);
                 return Impatient.MaybeTailCall(Impl.MoveObjects(in_.ObjectIds, in_.ToCatId, cancellationToken_), movedObjectIds =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Rpc.Registry.Admin.Result_MoveObjects.WRITER>();
-                    var r_ = new Mas.Rpc.Registry.Admin.Result_MoveObjects{MovedObjectIds = movedObjectIds};
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Registry.Admin.Result_MoveObjects.WRITER>();
+                    var r_ = new Mas.Schema.Registry.Admin.Result_MoveObjects{MovedObjectIds = movedObjectIds};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -166,11 +179,11 @@ namespace Mas.Rpc.Registry
         {
             using (d_)
             {
-                var in_ = CapnpSerializable.Create<Mas.Rpc.Registry.Admin.Params_RemoveObjects>(d_);
+                var in_ = CapnpSerializable.Create<Mas.Schema.Registry.Admin.Params_RemoveObjects>(d_);
                 return Impatient.MaybeTailCall(Impl.RemoveObjects(in_.ObjectIds, cancellationToken_), removedObjects =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Rpc.Registry.Admin.Result_RemoveObjects.WRITER>();
-                    var r_ = new Mas.Rpc.Registry.Admin.Result_RemoveObjects{RemovedObjects = removedObjects};
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Registry.Admin.Result_RemoveObjects.WRITER>();
+                    var r_ = new Mas.Schema.Registry.Admin.Result_RemoveObjects{RemovedObjects = removedObjects};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -185,8 +198,8 @@ namespace Mas.Rpc.Registry
             {
                 return Impatient.MaybeTailCall(Impl.Registry(cancellationToken_), registry =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Rpc.Registry.Admin.Result_Registry.WRITER>();
-                    var r_ = new Mas.Rpc.Registry.Admin.Result_Registry{Registry = registry};
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Registry.Admin.Result_Registry.WRITER>();
+                    var r_ = new Mas.Schema.Registry.Admin.Result_Registry{Registry = registry};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -205,7 +218,7 @@ namespace Mas.Rpc.Registry
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Category = CapnpSerializable.Create<Mas.Rpc.Common.IdInformation>(reader.Category);
+                Category = CapnpSerializable.Create<Mas.Schema.Common.IdInformation>(reader.Category);
                 Upsert = reader.Upsert;
                 applyDefaults();
             }
@@ -225,7 +238,7 @@ namespace Mas.Rpc.Registry
             {
             }
 
-            public Mas.Rpc.Common.IdInformation Category
+            public Mas.Schema.Common.IdInformation Category
             {
                 get;
                 set;
@@ -249,7 +262,7 @@ namespace Mas.Rpc.Registry
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Rpc.Common.IdInformation.READER Category => ctx.ReadStruct(0, Mas.Rpc.Common.IdInformation.READER.create);
+                public Mas.Schema.Common.IdInformation.READER Category => ctx.ReadStruct(0, Mas.Schema.Common.IdInformation.READER.create);
                 public bool HasCategory => ctx.IsStructFieldNonNull(0);
                 public bool Upsert => ctx.ReadDataBool(0UL, false);
             }
@@ -261,9 +274,9 @@ namespace Mas.Rpc.Registry
                     this.SetStruct(1, 1);
                 }
 
-                public Mas.Rpc.Common.IdInformation.WRITER Category
+                public Mas.Schema.Common.IdInformation.WRITER Category
                 {
-                    get => BuildPointer<Mas.Rpc.Common.IdInformation.WRITER>(0);
+                    get => BuildPointer<Mas.Schema.Common.IdInformation.WRITER>(0);
                     set => Link(0, value);
                 }
 
@@ -435,7 +448,7 @@ namespace Mas.Rpc.Registry
             {
             }
 
-            public IReadOnlyList<Mas.Rpc.Common.IIdentifiable> RemovedObjects
+            public IReadOnlyList<Mas.Schema.Common.IIdentifiable> RemovedObjects
             {
                 get;
                 set;
@@ -452,7 +465,7 @@ namespace Mas.Rpc.Registry
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public IReadOnlyList<Mas.Rpc.Common.IIdentifiable> RemovedObjects => ctx.ReadCapList<Mas.Rpc.Common.IIdentifiable>(0);
+                public IReadOnlyList<Mas.Schema.Common.IIdentifiable> RemovedObjects => ctx.ReadCapList<Mas.Schema.Common.IIdentifiable>(0);
                 public bool HasRemovedObjects => ctx.IsStructFieldNonNull(0);
             }
 
@@ -463,9 +476,9 @@ namespace Mas.Rpc.Registry
                     this.SetStruct(0, 1);
                 }
 
-                public ListOfCapsSerializer<Mas.Rpc.Common.IIdentifiable> RemovedObjects
+                public ListOfCapsSerializer<Mas.Schema.Common.IIdentifiable> RemovedObjects
                 {
-                    get => BuildPointer<ListOfCapsSerializer<Mas.Rpc.Common.IIdentifiable>>(0);
+                    get => BuildPointer<ListOfCapsSerializer<Mas.Schema.Common.IIdentifiable>>(0);
                     set => Link(0, value);
                 }
             }
@@ -694,7 +707,7 @@ namespace Mas.Rpc.Registry
             {
             }
 
-            public IReadOnlyList<Mas.Rpc.Common.IIdentifiable> RemovedObjects
+            public IReadOnlyList<Mas.Schema.Common.IIdentifiable> RemovedObjects
             {
                 get;
                 set;
@@ -711,7 +724,7 @@ namespace Mas.Rpc.Registry
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public IReadOnlyList<Mas.Rpc.Common.IIdentifiable> RemovedObjects => ctx.ReadCapList<Mas.Rpc.Common.IIdentifiable>(0);
+                public IReadOnlyList<Mas.Schema.Common.IIdentifiable> RemovedObjects => ctx.ReadCapList<Mas.Schema.Common.IIdentifiable>(0);
                 public bool HasRemovedObjects => ctx.IsStructFieldNonNull(0);
             }
 
@@ -722,9 +735,9 @@ namespace Mas.Rpc.Registry
                     this.SetStruct(0, 1);
                 }
 
-                public ListOfCapsSerializer<Mas.Rpc.Common.IIdentifiable> RemovedObjects
+                public ListOfCapsSerializer<Mas.Schema.Common.IIdentifiable> RemovedObjects
                 {
-                    get => BuildPointer<ListOfCapsSerializer<Mas.Rpc.Common.IIdentifiable>>(0);
+                    get => BuildPointer<ListOfCapsSerializer<Mas.Schema.Common.IIdentifiable>>(0);
                     set => Link(0, value);
                 }
             }
@@ -800,7 +813,7 @@ namespace Mas.Rpc.Registry
             {
             }
 
-            public Mas.Rpc.Registry.IRegistry Registry
+            public Mas.Schema.Registry.IRegistry Registry
             {
                 get;
                 set;
@@ -817,7 +830,7 @@ namespace Mas.Rpc.Registry
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Rpc.Registry.IRegistry Registry => ctx.ReadCap<Mas.Rpc.Registry.IRegistry>(0);
+                public Mas.Schema.Registry.IRegistry Registry => ctx.ReadCap<Mas.Schema.Registry.IRegistry>(0);
             }
 
             public class WRITER : SerializerState
@@ -827,9 +840,9 @@ namespace Mas.Rpc.Registry
                     this.SetStruct(0, 1);
                 }
 
-                public Mas.Rpc.Registry.IRegistry Registry
+                public Mas.Schema.Registry.IRegistry Registry
                 {
-                    get => ReadCap<Mas.Rpc.Registry.IRegistry>(0);
+                    get => ReadCap<Mas.Schema.Registry.IRegistry>(0);
                     set => LinkObject(0, value);
                 }
             }
@@ -837,53 +850,53 @@ namespace Mas.Rpc.Registry
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xca7b4bd1600633b8UL), Proxy(typeof(Registry_Proxy)), Skeleton(typeof(Registry_Skeleton))]
-    public interface IRegistry : Mas.Rpc.Common.IIdentifiable
+    public interface IRegistry : Mas.Schema.Common.IIdentifiable
     {
-        Task<IReadOnlyList<Mas.Rpc.Common.IdInformation>> SupportedCategories(CancellationToken cancellationToken_ = default);
-        Task<Mas.Rpc.Common.IdInformation> CategoryInfo(string categoryId, CancellationToken cancellationToken_ = default);
-        Task<IReadOnlyList<Mas.Rpc.Registry.Registry.Entry>> Entries(string categoryId, CancellationToken cancellationToken_ = default);
+        Task<IReadOnlyList<Mas.Schema.Common.IdInformation>> SupportedCategories(CancellationToken cancellationToken_ = default);
+        Task<Mas.Schema.Common.IdInformation> CategoryInfo(string categoryId, CancellationToken cancellationToken_ = default);
+        Task<IReadOnlyList<Mas.Schema.Registry.Registry.Entry>> Entries(string categoryId, CancellationToken cancellationToken_ = default);
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xca7b4bd1600633b8UL)]
     public class Registry_Proxy : Proxy, IRegistry
     {
-        public async Task<IReadOnlyList<Mas.Rpc.Common.IdInformation>> SupportedCategories(CancellationToken cancellationToken_ = default)
+        public async Task<IReadOnlyList<Mas.Schema.Common.IdInformation>> SupportedCategories(CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Registry.Registry.Params_SupportedCategories.WRITER>();
-            var arg_ = new Mas.Rpc.Registry.Registry.Params_SupportedCategories()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Registry.Registry.Params_SupportedCategories.WRITER>();
+            var arg_ = new Mas.Schema.Registry.Registry.Params_SupportedCategories()
             {};
             arg_?.serialize(in_);
             using (var d_ = await Call(14590338780428121016UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Rpc.Registry.Registry.Result_SupportedCategories>(d_);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Registry.Registry.Result_SupportedCategories>(d_);
                 return (r_.Cats);
             }
         }
 
-        public async Task<Mas.Rpc.Common.IdInformation> CategoryInfo(string categoryId, CancellationToken cancellationToken_ = default)
+        public async Task<Mas.Schema.Common.IdInformation> CategoryInfo(string categoryId, CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Registry.Registry.Params_CategoryInfo.WRITER>();
-            var arg_ = new Mas.Rpc.Registry.Registry.Params_CategoryInfo()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Registry.Registry.Params_CategoryInfo.WRITER>();
+            var arg_ = new Mas.Schema.Registry.Registry.Params_CategoryInfo()
             {CategoryId = categoryId};
             arg_?.serialize(in_);
             using (var d_ = await Call(14590338780428121016UL, 1, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Rpc.Common.IdInformation>(d_);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Common.IdInformation>(d_);
                 return r_;
             }
         }
 
-        public Task<IReadOnlyList<Mas.Rpc.Registry.Registry.Entry>> Entries(string categoryId, CancellationToken cancellationToken_ = default)
+        public Task<IReadOnlyList<Mas.Schema.Registry.Registry.Entry>> Entries(string categoryId, CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Registry.Registry.Params_Entries.WRITER>();
-            var arg_ = new Mas.Rpc.Registry.Registry.Params_Entries()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Registry.Registry.Params_Entries.WRITER>();
+            var arg_ = new Mas.Schema.Registry.Registry.Params_Entries()
             {CategoryId = categoryId};
             arg_?.serialize(in_);
             return Impatient.MakePipelineAware(Call(14590338780428121016UL, 2, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
             {
                 using (d_)
                 {
-                    var r_ = CapnpSerializable.Create<Mas.Rpc.Registry.Registry.Result_Entries>(d_);
+                    var r_ = CapnpSerializable.Create<Mas.Schema.Registry.Registry.Result_Entries>(d_);
                     return (r_.Entries);
                 }
             }
@@ -891,15 +904,15 @@ namespace Mas.Rpc.Registry
             );
         }
 
-        public async Task<Mas.Rpc.Common.IdInformation> Info(CancellationToken cancellationToken_ = default)
+        public async Task<Mas.Schema.Common.IdInformation> Info(CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Common.Identifiable.Params_Info.WRITER>();
-            var arg_ = new Mas.Rpc.Common.Identifiable.Params_Info()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Common.Identifiable.Params_Info.WRITER>();
+            var arg_ = new Mas.Schema.Common.Identifiable.Params_Info()
             {};
             arg_?.serialize(in_);
             using (var d_ = await Call(12875740530987518165UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Rpc.Common.IdInformation>(d_);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Common.IdInformation>(d_);
                 return r_;
             }
         }
@@ -920,8 +933,8 @@ namespace Mas.Rpc.Registry
             {
                 return Impatient.MaybeTailCall(Impl.SupportedCategories(cancellationToken_), cats =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Rpc.Registry.Registry.Result_SupportedCategories.WRITER>();
-                    var r_ = new Mas.Rpc.Registry.Registry.Result_SupportedCategories{Cats = cats};
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Registry.Registry.Result_SupportedCategories.WRITER>();
+                    var r_ = new Mas.Schema.Registry.Registry.Result_SupportedCategories{Cats = cats};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -934,10 +947,10 @@ namespace Mas.Rpc.Registry
         {
             using (d_)
             {
-                var in_ = CapnpSerializable.Create<Mas.Rpc.Registry.Registry.Params_CategoryInfo>(d_);
+                var in_ = CapnpSerializable.Create<Mas.Schema.Registry.Registry.Params_CategoryInfo>(d_);
                 return Impatient.MaybeTailCall(Impl.CategoryInfo(in_.CategoryId, cancellationToken_), r_ =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Rpc.Common.IdInformation.WRITER>();
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Common.IdInformation.WRITER>();
                     r_.serialize(s_);
                     return s_;
                 }
@@ -950,11 +963,11 @@ namespace Mas.Rpc.Registry
         {
             using (d_)
             {
-                var in_ = CapnpSerializable.Create<Mas.Rpc.Registry.Registry.Params_Entries>(d_);
+                var in_ = CapnpSerializable.Create<Mas.Schema.Registry.Registry.Params_Entries>(d_);
                 return Impatient.MaybeTailCall(Impl.Entries(in_.CategoryId, cancellationToken_), entries =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Rpc.Registry.Registry.Result_Entries.WRITER>();
-                    var r_ = new Mas.Rpc.Registry.Registry.Result_Entries{Entries = entries};
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Registry.Registry.Result_Entries.WRITER>();
+                    var r_ = new Mas.Schema.Registry.Registry.Result_Entries{Entries = entries};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -1001,7 +1014,7 @@ namespace Mas.Rpc.Registry
                 set;
             }
 
-            public Mas.Rpc.Common.IIdentifiable Ref
+            public Mas.Schema.Common.IIdentifiable Ref
             {
                 get;
                 set;
@@ -1025,7 +1038,7 @@ namespace Mas.Rpc.Registry
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
                 public string CategoryId => ctx.ReadText(0, null);
-                public Mas.Rpc.Common.IIdentifiable Ref => ctx.ReadCap<Mas.Rpc.Common.IIdentifiable>(1);
+                public Mas.Schema.Common.IIdentifiable Ref => ctx.ReadCap<Mas.Schema.Common.IIdentifiable>(1);
                 public string Name => ctx.ReadText(2, null);
             }
 
@@ -1042,9 +1055,9 @@ namespace Mas.Rpc.Registry
                     set => this.WriteText(0, value, null);
                 }
 
-                public Mas.Rpc.Common.IIdentifiable Ref
+                public Mas.Schema.Common.IIdentifiable Ref
                 {
-                    get => ReadCap<Mas.Rpc.Common.IIdentifiable>(1);
+                    get => ReadCap<Mas.Schema.Common.IIdentifiable>(1);
                     set => LinkObject(1, value);
                 }
 
@@ -1108,7 +1121,7 @@ namespace Mas.Rpc.Registry
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Cats = reader.Cats?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Rpc.Common.IdInformation>(_));
+                Cats = reader.Cats?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Common.IdInformation>(_));
                 applyDefaults();
             }
 
@@ -1126,7 +1139,7 @@ namespace Mas.Rpc.Registry
             {
             }
 
-            public IReadOnlyList<Mas.Rpc.Common.IdInformation> Cats
+            public IReadOnlyList<Mas.Schema.Common.IdInformation> Cats
             {
                 get;
                 set;
@@ -1143,7 +1156,7 @@ namespace Mas.Rpc.Registry
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public IReadOnlyList<Mas.Rpc.Common.IdInformation.READER> Cats => ctx.ReadList(0).Cast(Mas.Rpc.Common.IdInformation.READER.create);
+                public IReadOnlyList<Mas.Schema.Common.IdInformation.READER> Cats => ctx.ReadList(0).Cast(Mas.Schema.Common.IdInformation.READER.create);
                 public bool HasCats => ctx.IsStructFieldNonNull(0);
             }
 
@@ -1154,9 +1167,9 @@ namespace Mas.Rpc.Registry
                     this.SetStruct(0, 1);
                 }
 
-                public ListOfStructsSerializer<Mas.Rpc.Common.IdInformation.WRITER> Cats
+                public ListOfStructsSerializer<Mas.Schema.Common.IdInformation.WRITER> Cats
                 {
-                    get => BuildPointer<ListOfStructsSerializer<Mas.Rpc.Common.IdInformation.WRITER>>(0);
+                    get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Common.IdInformation.WRITER>>(0);
                     set => Link(0, value);
                 }
             }
@@ -1289,7 +1302,7 @@ namespace Mas.Rpc.Registry
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Entries = reader.Entries?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Rpc.Registry.Registry.Entry>(_));
+                Entries = reader.Entries?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Registry.Registry.Entry>(_));
                 applyDefaults();
             }
 
@@ -1307,7 +1320,7 @@ namespace Mas.Rpc.Registry
             {
             }
 
-            public IReadOnlyList<Mas.Rpc.Registry.Registry.Entry> Entries
+            public IReadOnlyList<Mas.Schema.Registry.Registry.Entry> Entries
             {
                 get;
                 set;
@@ -1324,7 +1337,7 @@ namespace Mas.Rpc.Registry
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public IReadOnlyList<Mas.Rpc.Registry.Registry.Entry.READER> Entries => ctx.ReadList(0).Cast(Mas.Rpc.Registry.Registry.Entry.READER.create);
+                public IReadOnlyList<Mas.Schema.Registry.Registry.Entry.READER> Entries => ctx.ReadList(0).Cast(Mas.Schema.Registry.Registry.Entry.READER.create);
                 public bool HasEntries => ctx.IsStructFieldNonNull(0);
             }
 
@@ -1335,9 +1348,9 @@ namespace Mas.Rpc.Registry
                     this.SetStruct(0, 1);
                 }
 
-                public ListOfStructsSerializer<Mas.Rpc.Registry.Registry.Entry.WRITER> Entries
+                public ListOfStructsSerializer<Mas.Schema.Registry.Registry.Entry.WRITER> Entries
                 {
-                    get => BuildPointer<ListOfStructsSerializer<Mas.Rpc.Registry.Registry.Entry.WRITER>>(0);
+                    get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Registry.Registry.Entry.WRITER>>(0);
                     set => Link(0, value);
                 }
             }
@@ -1345,30 +1358,43 @@ namespace Mas.Rpc.Registry
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xabaef93c36f2d1eaUL), Proxy(typeof(Registrar_Proxy)), Skeleton(typeof(Registrar_Skeleton))]
-    public interface IRegistrar : IDisposable
+    public interface IRegistrar : Mas.Schema.Common.IIdentifiable
     {
-        Task<(Mas.Rpc.Common.IAction, string)> Register(Mas.Rpc.Common.IIdentifiable cap, string regName, string categoryId, CancellationToken cancellationToken_ = default);
+        Task<(Mas.Schema.Common.IAction, string)> Register(Mas.Schema.Common.IIdentifiable cap, string regName, string categoryId, CancellationToken cancellationToken_ = default);
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xabaef93c36f2d1eaUL)]
     public class Registrar_Proxy : Proxy, IRegistrar
     {
-        public Task<(Mas.Rpc.Common.IAction, string)> Register(Mas.Rpc.Common.IIdentifiable cap, string regName, string categoryId, CancellationToken cancellationToken_ = default)
+        public Task<(Mas.Schema.Common.IAction, string)> Register(Mas.Schema.Common.IIdentifiable cap, string regName, string categoryId, CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Registry.Registrar.Params_Register.WRITER>();
-            var arg_ = new Mas.Rpc.Registry.Registrar.Params_Register()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Registry.Registrar.Params_Register.WRITER>();
+            var arg_ = new Mas.Schema.Registry.Registrar.Params_Register()
             {Cap = cap, RegName = regName, CategoryId = categoryId};
             arg_?.serialize(in_);
             return Impatient.MakePipelineAware(Call(12371099263448568298UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
             {
                 using (d_)
                 {
-                    var r_ = CapnpSerializable.Create<Mas.Rpc.Registry.Registrar.Result_Register>(d_);
+                    var r_ = CapnpSerializable.Create<Mas.Schema.Registry.Registrar.Result_Register>(d_);
                     return (r_.Unreg, r_.ReregSR);
                 }
             }
 
             );
+        }
+
+        public async Task<Mas.Schema.Common.IdInformation> Info(CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Common.Identifiable.Params_Info.WRITER>();
+            var arg_ = new Mas.Schema.Common.Identifiable.Params_Info()
+            {};
+            arg_?.serialize(in_);
+            using (var d_ = await Call(12875740530987518165UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            {
+                var r_ = CapnpSerializable.Create<Mas.Schema.Common.IdInformation>(d_);
+                return r_;
+            }
         }
     }
 
@@ -1385,11 +1411,11 @@ namespace Mas.Rpc.Registry
         {
             using (d_)
             {
-                var in_ = CapnpSerializable.Create<Mas.Rpc.Registry.Registrar.Params_Register>(d_);
+                var in_ = CapnpSerializable.Create<Mas.Schema.Registry.Registrar.Params_Register>(d_);
                 return Impatient.MaybeTailCall(Impl.Register(in_.Cap, in_.RegName, in_.CategoryId, cancellationToken_), (unreg, reregSR) =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Rpc.Registry.Registrar.Result_Register.WRITER>();
-                    var r_ = new Mas.Rpc.Registry.Registrar.Result_Register{Unreg = unreg, ReregSR = reregSR};
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Registry.Registrar.Result_Register.WRITER>();
+                    var r_ = new Mas.Schema.Registry.Registrar.Result_Register{Unreg = unreg, ReregSR = reregSR};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -1430,7 +1456,7 @@ namespace Mas.Rpc.Registry
             {
             }
 
-            public Mas.Rpc.Common.IIdentifiable Cap
+            public Mas.Schema.Common.IIdentifiable Cap
             {
                 get;
                 set;
@@ -1459,7 +1485,7 @@ namespace Mas.Rpc.Registry
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Rpc.Common.IIdentifiable Cap => ctx.ReadCap<Mas.Rpc.Common.IIdentifiable>(0);
+                public Mas.Schema.Common.IIdentifiable Cap => ctx.ReadCap<Mas.Schema.Common.IIdentifiable>(0);
                 public string RegName => ctx.ReadText(1, null);
                 public string CategoryId => ctx.ReadText(2, null);
             }
@@ -1471,9 +1497,9 @@ namespace Mas.Rpc.Registry
                     this.SetStruct(0, 3);
                 }
 
-                public Mas.Rpc.Common.IIdentifiable Cap
+                public Mas.Schema.Common.IIdentifiable Cap
                 {
-                    get => ReadCap<Mas.Rpc.Common.IIdentifiable>(0);
+                    get => ReadCap<Mas.Schema.Common.IIdentifiable>(0);
                     set => LinkObject(0, value);
                 }
 
@@ -1518,7 +1544,7 @@ namespace Mas.Rpc.Registry
             {
             }
 
-            public Mas.Rpc.Common.IAction Unreg
+            public Mas.Schema.Common.IAction Unreg
             {
                 get;
                 set;
@@ -1541,7 +1567,7 @@ namespace Mas.Rpc.Registry
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Rpc.Common.IAction Unreg => ctx.ReadCap<Mas.Rpc.Common.IAction>(0);
+                public Mas.Schema.Common.IAction Unreg => ctx.ReadCap<Mas.Schema.Common.IAction>(0);
                 public string ReregSR => ctx.ReadText(1, null);
             }
 
@@ -1552,9 +1578,9 @@ namespace Mas.Rpc.Registry
                     this.SetStruct(0, 2);
                 }
 
-                public Mas.Rpc.Common.IAction Unreg
+                public Mas.Schema.Common.IAction Unreg
                 {
-                    get => ReadCap<Mas.Rpc.Common.IAction>(0);
+                    get => ReadCap<Mas.Schema.Common.IAction>(0);
                     set => LinkObject(0, value);
                 }
 

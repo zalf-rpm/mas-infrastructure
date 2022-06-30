@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Mas.Rpc.Persistence
+namespace Mas.Schema.Persistence
 {
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xe10a5d74d58bd18dUL)]
     public class VatId : ICapnpSerializable
@@ -130,7 +130,7 @@ namespace Mas.Rpc.Persistence
             switch (reader.which)
             {
                 case WHICH.Ip6:
-                    Ip6 = CapnpSerializable.Create<Mas.Rpc.Persistence.Address.ip6>(reader.Ip6);
+                    Ip6 = CapnpSerializable.Create<Mas.Schema.Persistence.Address.ip6>(reader.Ip6);
                     break;
                 case WHICH.Host:
                     Host = reader.Host;
@@ -188,9 +188,9 @@ namespace Mas.Rpc.Persistence
         {
         }
 
-        public Mas.Rpc.Persistence.Address.ip6 Ip6
+        public Mas.Schema.Persistence.Address.ip6 Ip6
         {
-            get => _which == WHICH.Ip6 ? (Mas.Rpc.Persistence.Address.ip6)_content : null;
+            get => _which == WHICH.Ip6 ? (Mas.Schema.Persistence.Address.ip6)_content : null;
             set
             {
                 _which = WHICH.Ip6;
@@ -344,8 +344,8 @@ namespace Mas.Rpc.Persistence
         void ICapnpSerializable.Deserialize(DeserializerState arg_)
         {
             var reader = READER.create(arg_);
-            Id = CapnpSerializable.Create<Mas.Rpc.Persistence.VatId>(reader.Id);
-            Address = CapnpSerializable.Create<Mas.Rpc.Persistence.Address>(reader.Address);
+            Id = CapnpSerializable.Create<Mas.Schema.Persistence.VatId>(reader.Id);
+            Address = CapnpSerializable.Create<Mas.Schema.Persistence.Address>(reader.Address);
             applyDefaults();
         }
 
@@ -364,13 +364,13 @@ namespace Mas.Rpc.Persistence
         {
         }
 
-        public Mas.Rpc.Persistence.VatId Id
+        public Mas.Schema.Persistence.VatId Id
         {
             get;
             set;
         }
 
-        public Mas.Rpc.Persistence.Address Address
+        public Mas.Schema.Persistence.Address Address
         {
             get;
             set;
@@ -387,9 +387,9 @@ namespace Mas.Rpc.Persistence
             public static READER create(DeserializerState ctx) => new READER(ctx);
             public static implicit operator DeserializerState(READER reader) => reader.ctx;
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-            public Mas.Rpc.Persistence.VatId.READER Id => ctx.ReadStruct(0, Mas.Rpc.Persistence.VatId.READER.create);
+            public Mas.Schema.Persistence.VatId.READER Id => ctx.ReadStruct(0, Mas.Schema.Persistence.VatId.READER.create);
             public bool HasId => ctx.IsStructFieldNonNull(0);
-            public Mas.Rpc.Persistence.Address.READER Address => ctx.ReadStruct(1, Mas.Rpc.Persistence.Address.READER.create);
+            public Mas.Schema.Persistence.Address.READER Address => ctx.ReadStruct(1, Mas.Schema.Persistence.Address.READER.create);
             public bool HasAddress => ctx.IsStructFieldNonNull(1);
         }
 
@@ -400,15 +400,15 @@ namespace Mas.Rpc.Persistence
                 this.SetStruct(0, 2);
             }
 
-            public Mas.Rpc.Persistence.VatId.WRITER Id
+            public Mas.Schema.Persistence.VatId.WRITER Id
             {
-                get => BuildPointer<Mas.Rpc.Persistence.VatId.WRITER>(0);
+                get => BuildPointer<Mas.Schema.Persistence.VatId.WRITER>(0);
                 set => Link(0, value);
             }
 
-            public Mas.Rpc.Persistence.Address.WRITER Address
+            public Mas.Schema.Persistence.Address.WRITER Address
             {
-                get => BuildPointer<Mas.Rpc.Persistence.Address.WRITER>(1);
+                get => BuildPointer<Mas.Schema.Persistence.Address.WRITER>(1);
                 set => Link(1, value);
             }
         }
@@ -431,10 +431,10 @@ namespace Mas.Rpc.Persistence
             switch (reader.which)
             {
                 case WHICH.TheTransient:
-                    TheTransient = CapnpSerializable.Create<Mas.Rpc.Persistence.SturdyRef.Transient>(reader.TheTransient);
+                    TheTransient = CapnpSerializable.Create<Mas.Schema.Persistence.SturdyRef.Transient>(reader.TheTransient);
                     break;
                 case WHICH.TheStored:
-                    TheStored = CapnpSerializable.Create<Mas.Rpc.Persistence.SturdyRef.Stored>(reader.TheStored);
+                    TheStored = CapnpSerializable.Create<Mas.Schema.Persistence.SturdyRef.Stored>(reader.TheStored);
                     break;
             }
 
@@ -486,9 +486,9 @@ namespace Mas.Rpc.Persistence
         {
         }
 
-        public Mas.Rpc.Persistence.SturdyRef.Transient TheTransient
+        public Mas.Schema.Persistence.SturdyRef.Transient TheTransient
         {
-            get => _which == WHICH.TheTransient ? (Mas.Rpc.Persistence.SturdyRef.Transient)_content : null;
+            get => _which == WHICH.TheTransient ? (Mas.Schema.Persistence.SturdyRef.Transient)_content : null;
             set
             {
                 _which = WHICH.TheTransient;
@@ -496,9 +496,9 @@ namespace Mas.Rpc.Persistence
             }
         }
 
-        public Mas.Rpc.Persistence.SturdyRef.Stored TheStored
+        public Mas.Schema.Persistence.SturdyRef.Stored TheStored
         {
-            get => _which == WHICH.TheStored ? (Mas.Rpc.Persistence.SturdyRef.Stored)_content : null;
+            get => _which == WHICH.TheStored ? (Mas.Schema.Persistence.SturdyRef.Stored)_content : null;
             set
             {
                 _which = WHICH.TheStored;
@@ -518,9 +518,9 @@ namespace Mas.Rpc.Persistence
             public static implicit operator DeserializerState(READER reader) => reader.ctx;
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
             public WHICH which => (WHICH)ctx.ReadDataUShort(0U, (ushort)0);
-            public Mas.Rpc.Persistence.SturdyRef.Transient.READER TheTransient => which == WHICH.TheTransient ? ctx.ReadStruct(0, Mas.Rpc.Persistence.SturdyRef.Transient.READER.create) : default;
+            public Mas.Schema.Persistence.SturdyRef.Transient.READER TheTransient => which == WHICH.TheTransient ? ctx.ReadStruct(0, Mas.Schema.Persistence.SturdyRef.Transient.READER.create) : default;
             public bool HasTheTransient => ctx.IsStructFieldNonNull(0);
-            public Mas.Rpc.Persistence.SturdyRef.Stored.READER TheStored => which == WHICH.TheStored ? ctx.ReadStruct(0, Mas.Rpc.Persistence.SturdyRef.Stored.READER.create) : default;
+            public Mas.Schema.Persistence.SturdyRef.Stored.READER TheStored => which == WHICH.TheStored ? ctx.ReadStruct(0, Mas.Schema.Persistence.SturdyRef.Stored.READER.create) : default;
             public bool HasTheStored => ctx.IsStructFieldNonNull(0);
         }
 
@@ -537,15 +537,15 @@ namespace Mas.Rpc.Persistence
                 set => this.WriteData(0U, (ushort)value, (ushort)0);
             }
 
-            public Mas.Rpc.Persistence.SturdyRef.Transient.WRITER TheTransient
+            public Mas.Schema.Persistence.SturdyRef.Transient.WRITER TheTransient
             {
-                get => which == WHICH.TheTransient ? BuildPointer<Mas.Rpc.Persistence.SturdyRef.Transient.WRITER>(0) : default;
+                get => which == WHICH.TheTransient ? BuildPointer<Mas.Schema.Persistence.SturdyRef.Transient.WRITER>(0) : default;
                 set => Link(0, value);
             }
 
-            public Mas.Rpc.Persistence.SturdyRef.Stored.WRITER TheStored
+            public Mas.Schema.Persistence.SturdyRef.Stored.WRITER TheStored
             {
-                get => which == WHICH.TheStored ? BuildPointer<Mas.Rpc.Persistence.SturdyRef.Stored.WRITER>(0) : default;
+                get => which == WHICH.TheStored ? BuildPointer<Mas.Schema.Persistence.SturdyRef.Stored.WRITER>(0) : default;
                 set => Link(0, value);
             }
         }
@@ -617,7 +617,7 @@ namespace Mas.Rpc.Persistence
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Vat = CapnpSerializable.Create<Mas.Rpc.Persistence.VatPath>(reader.Vat);
+                Vat = CapnpSerializable.Create<Mas.Schema.Persistence.VatPath>(reader.Vat);
                 LocalRef = CapnpSerializable.Create<object>(reader.LocalRef);
                 applyDefaults();
             }
@@ -637,7 +637,7 @@ namespace Mas.Rpc.Persistence
             {
             }
 
-            public Mas.Rpc.Persistence.VatPath Vat
+            public Mas.Schema.Persistence.VatPath Vat
             {
                 get;
                 set;
@@ -660,7 +660,7 @@ namespace Mas.Rpc.Persistence
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Rpc.Persistence.VatPath.READER Vat => ctx.ReadStruct(0, Mas.Rpc.Persistence.VatPath.READER.create);
+                public Mas.Schema.Persistence.VatPath.READER Vat => ctx.ReadStruct(0, Mas.Schema.Persistence.VatPath.READER.create);
                 public bool HasVat => ctx.IsStructFieldNonNull(0);
                 public DeserializerState LocalRef => ctx.StructReadPointer(1);
             }
@@ -672,9 +672,9 @@ namespace Mas.Rpc.Persistence
                     this.SetStruct(0, 2);
                 }
 
-                public Mas.Rpc.Persistence.VatPath.WRITER Vat
+                public Mas.Schema.Persistence.VatPath.WRITER Vat
                 {
-                    get => BuildPointer<Mas.Rpc.Persistence.VatPath.WRITER>(0);
+                    get => BuildPointer<Mas.Schema.Persistence.VatPath.WRITER>(0);
                     set => Link(0, value);
                 }
 
@@ -803,13 +803,13 @@ namespace Mas.Rpc.Persistence
     {
         public async Task<(string, string)> Save(CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Persistence.Persistent.Params_Save.WRITER>();
-            var arg_ = new Mas.Rpc.Persistence.Persistent.Params_Save()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.Persistent.Params_Save.WRITER>();
+            var arg_ = new Mas.Schema.Persistence.Persistent.Params_Save()
             {};
             arg_?.serialize(in_);
             using (var d_ = await Call(13954362354854972261UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Rpc.Persistence.Persistent.Result_Save>(d_);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Persistence.Persistent.Result_Save>(d_);
                 return (r_.SturdyRef, r_.UnsaveSR);
             }
         }
@@ -830,8 +830,8 @@ namespace Mas.Rpc.Persistence
             {
                 return Impatient.MaybeTailCall(Impl.Save(cancellationToken_), (sturdyRef, unsaveSR) =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Rpc.Persistence.Persistent.Result_Save.WRITER>();
-                    var r_ = new Mas.Rpc.Persistence.Persistent.Result_Save{SturdyRef = sturdyRef, UnsaveSR = unsaveSR};
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.Persistent.Result_Save.WRITER>();
+                    var r_ = new Mas.Schema.Persistence.Persistent.Result_Save{SturdyRef = sturdyRef, UnsaveSR = unsaveSR};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -975,15 +975,15 @@ namespace Mas.Rpc.Persistence
     {
         public Task<BareProxy> Restore(string srToken, CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Persistence.Restorer.Params_Restore.WRITER>();
-            var arg_ = new Mas.Rpc.Persistence.Restorer.Params_Restore()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.Restorer.Params_Restore.WRITER>();
+            var arg_ = new Mas.Schema.Persistence.Restorer.Params_Restore()
             {SrToken = srToken};
             arg_?.serialize(in_);
             return Impatient.MakePipelineAware(Call(11508422749279825468UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
             {
                 using (d_)
                 {
-                    var r_ = CapnpSerializable.Create<Mas.Rpc.Persistence.Restorer.Result_Restore>(d_);
+                    var r_ = CapnpSerializable.Create<Mas.Schema.Persistence.Restorer.Result_Restore>(d_);
                     return (r_.Cap);
                 }
             }
@@ -1005,11 +1005,11 @@ namespace Mas.Rpc.Persistence
         {
             using (d_)
             {
-                var in_ = CapnpSerializable.Create<Mas.Rpc.Persistence.Restorer.Params_Restore>(d_);
+                var in_ = CapnpSerializable.Create<Mas.Schema.Persistence.Restorer.Params_Restore>(d_);
                 return Impatient.MaybeTailCall(Impl.Restore(in_.SrToken, cancellationToken_), cap =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Rpc.Persistence.Restorer.Result_Restore.WRITER>();
-                    var r_ = new Mas.Rpc.Persistence.Restorer.Result_Restore{Cap = cap};
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.Restorer.Result_Restore.WRITER>();
+                    var r_ = new Mas.Schema.Persistence.Restorer.Result_Restore{Cap = cap};
                     r_.serialize(s_);
                     return s_;
                 }

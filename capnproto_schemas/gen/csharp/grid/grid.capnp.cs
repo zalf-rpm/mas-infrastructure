@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Mas.Rpc.Grid
+namespace Mas.Schema.Grid
 {
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xa5ecdc7767a6b301UL)]
     public enum Aggregation : ushort
@@ -30,120 +30,133 @@ namespace Mas.Rpc.Grid
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xe42973b29661e3c6UL), Proxy(typeof(Grid_Proxy)), Skeleton(typeof(Grid_Skeleton))]
-    public interface IGrid : Mas.Rpc.Common.IIdentifiable
+    public interface IGrid : Mas.Schema.Common.IIdentifiable, Mas.Schema.Persistence.IPersistent
     {
-        Task<(Mas.Rpc.Grid.Grid.Value, Mas.Rpc.Grid.Grid.RowCol, Mas.Rpc.Grid.Grid.RowCol, IReadOnlyList<Mas.Rpc.Grid.Grid.AggregationPart>)> ClosestValueAt(Mas.Rpc.Geo.LatLonCoord latlonCoord, bool ignoreNoData, ulong resolution, Mas.Rpc.Grid.Aggregation agg, bool returnRowCols, bool includeAggParts, CancellationToken cancellationToken_ = default);
+        Task<(Mas.Schema.Grid.Grid.Value, Mas.Schema.Grid.Grid.RowCol, Mas.Schema.Grid.Grid.RowCol, IReadOnlyList<Mas.Schema.Grid.Grid.AggregationPart>)> ClosestValueAt(Mas.Schema.Geocoord.LatLonCoord latlonCoord, bool ignoreNoData, ulong resolution, Mas.Schema.Grid.Aggregation agg, bool returnRowCols, bool includeAggParts, CancellationToken cancellationToken_ = default);
         Task<ulong> Resolution(CancellationToken cancellationToken_ = default);
         Task<(ulong, ulong)> Dimension(CancellationToken cancellationToken_ = default);
-        Task<Mas.Rpc.Grid.Grid.Value> NoDataValue(CancellationToken cancellationToken_ = default);
-        Task<(Mas.Rpc.Grid.Grid.Value, IReadOnlyList<Mas.Rpc.Grid.Grid.AggregationPart>)> ValueAt(ulong row, ulong col, ulong resolution, Mas.Rpc.Grid.Aggregation agg, bool includeAggParts, CancellationToken cancellationToken_ = default);
-        Task<(Mas.Rpc.Geo.LatLonCoord, Mas.Rpc.Geo.LatLonCoord, Mas.Rpc.Geo.LatLonCoord, Mas.Rpc.Geo.LatLonCoord)> LatLonBounds(bool useCellCenter, CancellationToken cancellationToken_ = default);
-        Task StreamCells(Mas.Rpc.Grid.Grid.ICallback callback, ulong maxNoOfCellsPerSend, CancellationToken cancellationToken_ = default);
+        Task<Mas.Schema.Grid.Grid.Value> NoDataValue(CancellationToken cancellationToken_ = default);
+        Task<(Mas.Schema.Grid.Grid.Value, IReadOnlyList<Mas.Schema.Grid.Grid.AggregationPart>)> ValueAt(ulong row, ulong col, ulong resolution, Mas.Schema.Grid.Aggregation agg, bool includeAggParts, CancellationToken cancellationToken_ = default);
+        Task<(Mas.Schema.Geocoord.LatLonCoord, Mas.Schema.Geocoord.LatLonCoord, Mas.Schema.Geocoord.LatLonCoord, Mas.Schema.Geocoord.LatLonCoord)> LatLonBounds(bool useCellCenter, CancellationToken cancellationToken_ = default);
+        Task StreamCells(Mas.Schema.Grid.Grid.ICallback callback, ulong maxNoOfCellsPerSend, CancellationToken cancellationToken_ = default);
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xe42973b29661e3c6UL)]
     public class Grid_Proxy : Proxy, IGrid
     {
-        public async Task<(Mas.Rpc.Grid.Grid.Value, Mas.Rpc.Grid.Grid.RowCol, Mas.Rpc.Grid.Grid.RowCol, IReadOnlyList<Mas.Rpc.Grid.Grid.AggregationPart>)> ClosestValueAt(Mas.Rpc.Geo.LatLonCoord latlonCoord, bool ignoreNoData, ulong resolution, Mas.Rpc.Grid.Aggregation agg, bool returnRowCols, bool includeAggParts, CancellationToken cancellationToken_ = default)
+        public async Task<(Mas.Schema.Grid.Grid.Value, Mas.Schema.Grid.Grid.RowCol, Mas.Schema.Grid.Grid.RowCol, IReadOnlyList<Mas.Schema.Grid.Grid.AggregationPart>)> ClosestValueAt(Mas.Schema.Geocoord.LatLonCoord latlonCoord, bool ignoreNoData, ulong resolution, Mas.Schema.Grid.Aggregation agg, bool returnRowCols, bool includeAggParts, CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Grid.Grid.Params_ClosestValueAt.WRITER>();
-            var arg_ = new Mas.Rpc.Grid.Grid.Params_ClosestValueAt()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Grid.Grid.Params_ClosestValueAt.WRITER>();
+            var arg_ = new Mas.Schema.Grid.Grid.Params_ClosestValueAt()
             {LatlonCoord = latlonCoord, IgnoreNoData = ignoreNoData, Resolution = resolution, Agg = agg, ReturnRowCols = returnRowCols, IncludeAggParts = includeAggParts};
             arg_?.serialize(in_);
             using (var d_ = await Call(16440799125557076934UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Rpc.Grid.Grid.Result_ClosestValueAt>(d_);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Grid.Grid.Result_ClosestValueAt>(d_);
                 return (r_.Val, r_.Tl, r_.Br, r_.AggParts);
             }
         }
 
         public async Task<ulong> Resolution(CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Grid.Grid.Params_Resolution.WRITER>();
-            var arg_ = new Mas.Rpc.Grid.Grid.Params_Resolution()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Grid.Grid.Params_Resolution.WRITER>();
+            var arg_ = new Mas.Schema.Grid.Grid.Params_Resolution()
             {};
             arg_?.serialize(in_);
             using (var d_ = await Call(16440799125557076934UL, 1, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Rpc.Grid.Grid.Result_Resolution>(d_);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Grid.Grid.Result_Resolution>(d_);
                 return (r_.Res);
             }
         }
 
         public async Task<(ulong, ulong)> Dimension(CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Grid.Grid.Params_Dimension.WRITER>();
-            var arg_ = new Mas.Rpc.Grid.Grid.Params_Dimension()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Grid.Grid.Params_Dimension.WRITER>();
+            var arg_ = new Mas.Schema.Grid.Grid.Params_Dimension()
             {};
             arg_?.serialize(in_);
             using (var d_ = await Call(16440799125557076934UL, 2, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Rpc.Grid.Grid.Result_Dimension>(d_);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Grid.Grid.Result_Dimension>(d_);
                 return (r_.Rows, r_.Cols);
             }
         }
 
-        public async Task<Mas.Rpc.Grid.Grid.Value> NoDataValue(CancellationToken cancellationToken_ = default)
+        public async Task<Mas.Schema.Grid.Grid.Value> NoDataValue(CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Grid.Grid.Params_NoDataValue.WRITER>();
-            var arg_ = new Mas.Rpc.Grid.Grid.Params_NoDataValue()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Grid.Grid.Params_NoDataValue.WRITER>();
+            var arg_ = new Mas.Schema.Grid.Grid.Params_NoDataValue()
             {};
             arg_?.serialize(in_);
             using (var d_ = await Call(16440799125557076934UL, 3, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Rpc.Grid.Grid.Result_NoDataValue>(d_);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Grid.Grid.Result_NoDataValue>(d_);
                 return (r_.Nodata);
             }
         }
 
-        public async Task<(Mas.Rpc.Grid.Grid.Value, IReadOnlyList<Mas.Rpc.Grid.Grid.AggregationPart>)> ValueAt(ulong row, ulong col, ulong resolution, Mas.Rpc.Grid.Aggregation agg, bool includeAggParts, CancellationToken cancellationToken_ = default)
+        public async Task<(Mas.Schema.Grid.Grid.Value, IReadOnlyList<Mas.Schema.Grid.Grid.AggregationPart>)> ValueAt(ulong row, ulong col, ulong resolution, Mas.Schema.Grid.Aggregation agg, bool includeAggParts, CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Grid.Grid.Params_ValueAt.WRITER>();
-            var arg_ = new Mas.Rpc.Grid.Grid.Params_ValueAt()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Grid.Grid.Params_ValueAt.WRITER>();
+            var arg_ = new Mas.Schema.Grid.Grid.Params_ValueAt()
             {Row = row, Col = col, Resolution = resolution, Agg = agg, IncludeAggParts = includeAggParts};
             arg_?.serialize(in_);
             using (var d_ = await Call(16440799125557076934UL, 4, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Rpc.Grid.Grid.Result_ValueAt>(d_);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Grid.Grid.Result_ValueAt>(d_);
                 return (r_.Val, r_.AggParts);
             }
         }
 
-        public async Task<(Mas.Rpc.Geo.LatLonCoord, Mas.Rpc.Geo.LatLonCoord, Mas.Rpc.Geo.LatLonCoord, Mas.Rpc.Geo.LatLonCoord)> LatLonBounds(bool useCellCenter, CancellationToken cancellationToken_ = default)
+        public async Task<(Mas.Schema.Geocoord.LatLonCoord, Mas.Schema.Geocoord.LatLonCoord, Mas.Schema.Geocoord.LatLonCoord, Mas.Schema.Geocoord.LatLonCoord)> LatLonBounds(bool useCellCenter, CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Grid.Grid.Params_LatLonBounds.WRITER>();
-            var arg_ = new Mas.Rpc.Grid.Grid.Params_LatLonBounds()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Grid.Grid.Params_LatLonBounds.WRITER>();
+            var arg_ = new Mas.Schema.Grid.Grid.Params_LatLonBounds()
             {UseCellCenter = useCellCenter};
             arg_?.serialize(in_);
             using (var d_ = await Call(16440799125557076934UL, 5, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Rpc.Grid.Grid.Result_LatLonBounds>(d_);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Grid.Grid.Result_LatLonBounds>(d_);
                 return (r_.Tl, r_.Tr, r_.Br, r_.Bl);
             }
         }
 
-        public async Task StreamCells(Mas.Rpc.Grid.Grid.ICallback callback, ulong maxNoOfCellsPerSend, CancellationToken cancellationToken_ = default)
+        public async Task StreamCells(Mas.Schema.Grid.Grid.ICallback callback, ulong maxNoOfCellsPerSend, CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Grid.Grid.Params_StreamCells.WRITER>();
-            var arg_ = new Mas.Rpc.Grid.Grid.Params_StreamCells()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Grid.Grid.Params_StreamCells.WRITER>();
+            var arg_ = new Mas.Schema.Grid.Grid.Params_StreamCells()
             {Callback = callback, MaxNoOfCellsPerSend = maxNoOfCellsPerSend};
             arg_?.serialize(in_);
             using (var d_ = await Call(16440799125557076934UL, 6, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Rpc.Grid.Grid.Result_StreamCells>(d_);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Grid.Grid.Result_StreamCells>(d_);
                 return;
             }
         }
 
-        public async Task<Mas.Rpc.Common.IdInformation> Info(CancellationToken cancellationToken_ = default)
+        public async Task<(string, string)> Save(CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Rpc.Common.Identifiable.Params_Info.WRITER>();
-            var arg_ = new Mas.Rpc.Common.Identifiable.Params_Info()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.Persistent.Params_Save.WRITER>();
+            var arg_ = new Mas.Schema.Persistence.Persistent.Params_Save()
+            {};
+            arg_?.serialize(in_);
+            using (var d_ = await Call(13954362354854972261UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            {
+                var r_ = CapnpSerializable.Create<Mas.Schema.Persistence.Persistent.Result_Save>(d_);
+                return (r_.SturdyRef, r_.UnsaveSR);
+            }
+        }
+
+        public async Task<Mas.Schema.Common.IdInformation> Info(CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Common.Identifiable.Params_Info.WRITER>();
+            var arg_ = new Mas.Schema.Common.Identifiable.Params_Info()
             {};
             arg_?.serialize(in_);
             using (var d_ = await Call(12875740530987518165UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Rpc.Common.IdInformation>(d_);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Common.IdInformation>(d_);
                 return r_;
             }
         }
@@ -162,11 +175,11 @@ namespace Mas.Rpc.Grid
         {
             using (d_)
             {
-                var in_ = CapnpSerializable.Create<Mas.Rpc.Grid.Grid.Params_ClosestValueAt>(d_);
+                var in_ = CapnpSerializable.Create<Mas.Schema.Grid.Grid.Params_ClosestValueAt>(d_);
                 return Impatient.MaybeTailCall(Impl.ClosestValueAt(in_.LatlonCoord, in_.IgnoreNoData, in_.Resolution, in_.Agg, in_.ReturnRowCols, in_.IncludeAggParts, cancellationToken_), (val, tl, br, aggParts) =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Rpc.Grid.Grid.Result_ClosestValueAt.WRITER>();
-                    var r_ = new Mas.Rpc.Grid.Grid.Result_ClosestValueAt{Val = val, Tl = tl, Br = br, AggParts = aggParts};
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Grid.Grid.Result_ClosestValueAt.WRITER>();
+                    var r_ = new Mas.Schema.Grid.Grid.Result_ClosestValueAt{Val = val, Tl = tl, Br = br, AggParts = aggParts};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -181,8 +194,8 @@ namespace Mas.Rpc.Grid
             {
                 return Impatient.MaybeTailCall(Impl.Resolution(cancellationToken_), res =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Rpc.Grid.Grid.Result_Resolution.WRITER>();
-                    var r_ = new Mas.Rpc.Grid.Grid.Result_Resolution{Res = res};
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Grid.Grid.Result_Resolution.WRITER>();
+                    var r_ = new Mas.Schema.Grid.Grid.Result_Resolution{Res = res};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -197,8 +210,8 @@ namespace Mas.Rpc.Grid
             {
                 return Impatient.MaybeTailCall(Impl.Dimension(cancellationToken_), (rows, cols) =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Rpc.Grid.Grid.Result_Dimension.WRITER>();
-                    var r_ = new Mas.Rpc.Grid.Grid.Result_Dimension{Rows = rows, Cols = cols};
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Grid.Grid.Result_Dimension.WRITER>();
+                    var r_ = new Mas.Schema.Grid.Grid.Result_Dimension{Rows = rows, Cols = cols};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -213,8 +226,8 @@ namespace Mas.Rpc.Grid
             {
                 return Impatient.MaybeTailCall(Impl.NoDataValue(cancellationToken_), nodata =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Rpc.Grid.Grid.Result_NoDataValue.WRITER>();
-                    var r_ = new Mas.Rpc.Grid.Grid.Result_NoDataValue{Nodata = nodata};
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Grid.Grid.Result_NoDataValue.WRITER>();
+                    var r_ = new Mas.Schema.Grid.Grid.Result_NoDataValue{Nodata = nodata};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -227,11 +240,11 @@ namespace Mas.Rpc.Grid
         {
             using (d_)
             {
-                var in_ = CapnpSerializable.Create<Mas.Rpc.Grid.Grid.Params_ValueAt>(d_);
+                var in_ = CapnpSerializable.Create<Mas.Schema.Grid.Grid.Params_ValueAt>(d_);
                 return Impatient.MaybeTailCall(Impl.ValueAt(in_.Row, in_.Col, in_.Resolution, in_.Agg, in_.IncludeAggParts, cancellationToken_), (val, aggParts) =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Rpc.Grid.Grid.Result_ValueAt.WRITER>();
-                    var r_ = new Mas.Rpc.Grid.Grid.Result_ValueAt{Val = val, AggParts = aggParts};
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Grid.Grid.Result_ValueAt.WRITER>();
+                    var r_ = new Mas.Schema.Grid.Grid.Result_ValueAt{Val = val, AggParts = aggParts};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -244,11 +257,11 @@ namespace Mas.Rpc.Grid
         {
             using (d_)
             {
-                var in_ = CapnpSerializable.Create<Mas.Rpc.Grid.Grid.Params_LatLonBounds>(d_);
+                var in_ = CapnpSerializable.Create<Mas.Schema.Grid.Grid.Params_LatLonBounds>(d_);
                 return Impatient.MaybeTailCall(Impl.LatLonBounds(in_.UseCellCenter, cancellationToken_), (tl, tr, br, bl) =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Rpc.Grid.Grid.Result_LatLonBounds.WRITER>();
-                    var r_ = new Mas.Rpc.Grid.Grid.Result_LatLonBounds{Tl = tl, Tr = tr, Br = br, Bl = bl};
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Grid.Grid.Result_LatLonBounds.WRITER>();
+                    var r_ = new Mas.Schema.Grid.Grid.Result_LatLonBounds{Tl = tl, Tr = tr, Br = br, Bl = bl};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -261,9 +274,9 @@ namespace Mas.Rpc.Grid
         {
             using (d_)
             {
-                var in_ = CapnpSerializable.Create<Mas.Rpc.Grid.Grid.Params_StreamCells>(d_);
+                var in_ = CapnpSerializable.Create<Mas.Schema.Grid.Grid.Params_StreamCells>(d_);
                 await Impl.StreamCells(in_.Callback, in_.MaxNoOfCellsPerSend, cancellationToken_);
-                var s_ = SerializerState.CreateForRpc<Mas.Rpc.Grid.Grid.Result_StreamCells.WRITER>();
+                var s_ = SerializerState.CreateForRpc<Mas.Schema.Grid.Grid.Result_StreamCells.WRITER>();
                 return s_;
             }
         }
@@ -542,8 +555,8 @@ namespace Mas.Rpc.Grid
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Value = CapnpSerializable.Create<Mas.Rpc.Grid.Grid.Value>(reader.Value);
-                RowCol = CapnpSerializable.Create<Mas.Rpc.Grid.Grid.RowCol>(reader.RowCol);
+                Value = CapnpSerializable.Create<Mas.Schema.Grid.Grid.Value>(reader.Value);
+                RowCol = CapnpSerializable.Create<Mas.Schema.Grid.Grid.RowCol>(reader.RowCol);
                 AreaFrac = reader.AreaFrac;
                 IValue = reader.IValue;
                 applyDefaults();
@@ -566,13 +579,13 @@ namespace Mas.Rpc.Grid
             {
             }
 
-            public Mas.Rpc.Grid.Grid.Value Value
+            public Mas.Schema.Grid.Grid.Value Value
             {
                 get;
                 set;
             }
 
-            public Mas.Rpc.Grid.Grid.RowCol RowCol
+            public Mas.Schema.Grid.Grid.RowCol RowCol
             {
                 get;
                 set;
@@ -601,9 +614,9 @@ namespace Mas.Rpc.Grid
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Rpc.Grid.Grid.Value.READER Value => ctx.ReadStruct(0, Mas.Rpc.Grid.Grid.Value.READER.create);
+                public Mas.Schema.Grid.Grid.Value.READER Value => ctx.ReadStruct(0, Mas.Schema.Grid.Grid.Value.READER.create);
                 public bool HasValue => ctx.IsStructFieldNonNull(0);
-                public Mas.Rpc.Grid.Grid.RowCol.READER RowCol => ctx.ReadStruct(1, Mas.Rpc.Grid.Grid.RowCol.READER.create);
+                public Mas.Schema.Grid.Grid.RowCol.READER RowCol => ctx.ReadStruct(1, Mas.Schema.Grid.Grid.RowCol.READER.create);
                 public bool HasRowCol => ctx.IsStructFieldNonNull(1);
                 public double AreaFrac => ctx.ReadDataDouble(0UL, 0);
                 public double IValue => ctx.ReadDataDouble(64UL, 0);
@@ -616,15 +629,15 @@ namespace Mas.Rpc.Grid
                     this.SetStruct(2, 2);
                 }
 
-                public Mas.Rpc.Grid.Grid.Value.WRITER Value
+                public Mas.Schema.Grid.Grid.Value.WRITER Value
                 {
-                    get => BuildPointer<Mas.Rpc.Grid.Grid.Value.WRITER>(0);
+                    get => BuildPointer<Mas.Schema.Grid.Grid.Value.WRITER>(0);
                     set => Link(0, value);
                 }
 
-                public Mas.Rpc.Grid.Grid.RowCol.WRITER RowCol
+                public Mas.Schema.Grid.Grid.RowCol.WRITER RowCol
                 {
-                    get => BuildPointer<Mas.Rpc.Grid.Grid.RowCol.WRITER>(1);
+                    get => BuildPointer<Mas.Schema.Grid.Grid.RowCol.WRITER>(1);
                     set => Link(1, value);
                 }
 
@@ -645,21 +658,21 @@ namespace Mas.Rpc.Grid
         [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xd639518280cb55d3UL), Proxy(typeof(Callback_Proxy)), Skeleton(typeof(Callback_Skeleton))]
         public interface ICallback : IDisposable
         {
-            Task SendCells(IReadOnlyList<Mas.Rpc.Grid.Grid.RowCol> cells, CancellationToken cancellationToken_ = default);
+            Task SendCells(IReadOnlyList<Mas.Schema.Grid.Grid.RowCol> cells, CancellationToken cancellationToken_ = default);
         }
 
         [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xd639518280cb55d3UL)]
         public class Callback_Proxy : Proxy, ICallback
         {
-            public async Task SendCells(IReadOnlyList<Mas.Rpc.Grid.Grid.RowCol> cells, CancellationToken cancellationToken_ = default)
+            public async Task SendCells(IReadOnlyList<Mas.Schema.Grid.Grid.RowCol> cells, CancellationToken cancellationToken_ = default)
             {
-                var in_ = SerializerState.CreateForRpc<Mas.Rpc.Grid.Grid.Callback.Params_SendCells.WRITER>();
-                var arg_ = new Mas.Rpc.Grid.Grid.Callback.Params_SendCells()
+                var in_ = SerializerState.CreateForRpc<Mas.Schema.Grid.Grid.Callback.Params_SendCells.WRITER>();
+                var arg_ = new Mas.Schema.Grid.Grid.Callback.Params_SendCells()
                 {Cells = cells};
                 arg_?.serialize(in_);
                 using (var d_ = await Call(15436458818737493459UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
                 {
-                    var r_ = CapnpSerializable.Create<Mas.Rpc.Grid.Grid.Callback.Result_SendCells>(d_);
+                    var r_ = CapnpSerializable.Create<Mas.Schema.Grid.Grid.Callback.Result_SendCells>(d_);
                     return;
                 }
             }
@@ -678,9 +691,9 @@ namespace Mas.Rpc.Grid
             {
                 using (d_)
                 {
-                    var in_ = CapnpSerializable.Create<Mas.Rpc.Grid.Grid.Callback.Params_SendCells>(d_);
+                    var in_ = CapnpSerializable.Create<Mas.Schema.Grid.Grid.Callback.Params_SendCells>(d_);
                     await Impl.SendCells(in_.Cells, cancellationToken_);
-                    var s_ = SerializerState.CreateForRpc<Mas.Rpc.Grid.Grid.Callback.Result_SendCells.WRITER>();
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Grid.Grid.Callback.Result_SendCells.WRITER>();
                     return s_;
                 }
             }
@@ -695,7 +708,7 @@ namespace Mas.Rpc.Grid
                 void ICapnpSerializable.Deserialize(DeserializerState arg_)
                 {
                     var reader = READER.create(arg_);
-                    Cells = reader.Cells?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Rpc.Grid.Grid.RowCol>(_));
+                    Cells = reader.Cells?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Grid.Grid.RowCol>(_));
                     applyDefaults();
                 }
 
@@ -713,7 +726,7 @@ namespace Mas.Rpc.Grid
                 {
                 }
 
-                public IReadOnlyList<Mas.Rpc.Grid.Grid.RowCol> Cells
+                public IReadOnlyList<Mas.Schema.Grid.Grid.RowCol> Cells
                 {
                     get;
                     set;
@@ -730,7 +743,7 @@ namespace Mas.Rpc.Grid
                     public static READER create(DeserializerState ctx) => new READER(ctx);
                     public static implicit operator DeserializerState(READER reader) => reader.ctx;
                     public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                    public IReadOnlyList<Mas.Rpc.Grid.Grid.RowCol.READER> Cells => ctx.ReadList(0).Cast(Mas.Rpc.Grid.Grid.RowCol.READER.create);
+                    public IReadOnlyList<Mas.Schema.Grid.Grid.RowCol.READER> Cells => ctx.ReadList(0).Cast(Mas.Schema.Grid.Grid.RowCol.READER.create);
                     public bool HasCells => ctx.IsStructFieldNonNull(0);
                 }
 
@@ -741,9 +754,9 @@ namespace Mas.Rpc.Grid
                         this.SetStruct(0, 1);
                     }
 
-                    public ListOfStructsSerializer<Mas.Rpc.Grid.Grid.RowCol.WRITER> Cells
+                    public ListOfStructsSerializer<Mas.Schema.Grid.Grid.RowCol.WRITER> Cells
                     {
-                        get => BuildPointer<ListOfStructsSerializer<Mas.Rpc.Grid.Grid.RowCol.WRITER>>(0);
+                        get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Grid.Grid.RowCol.WRITER>>(0);
                         set => Link(0, value);
                     }
                 }
@@ -802,7 +815,7 @@ namespace Mas.Rpc.Grid
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                LatlonCoord = CapnpSerializable.Create<Mas.Rpc.Geo.LatLonCoord>(reader.LatlonCoord);
+                LatlonCoord = CapnpSerializable.Create<Mas.Schema.Geocoord.LatLonCoord>(reader.LatlonCoord);
                 IgnoreNoData = reader.IgnoreNoData;
                 Resolution = reader.Resolution;
                 Agg = reader.Agg;
@@ -830,7 +843,7 @@ namespace Mas.Rpc.Grid
             {
             }
 
-            public Mas.Rpc.Geo.LatLonCoord LatlonCoord
+            public Mas.Schema.Geocoord.LatLonCoord LatlonCoord
             {
                 get;
                 set;
@@ -850,13 +863,13 @@ namespace Mas.Rpc.Grid
             }
 
             = 0UL;
-            public Mas.Rpc.Grid.Aggregation Agg
+            public Mas.Schema.Grid.Aggregation Agg
             {
                 get;
                 set;
             }
 
-            = Mas.Rpc.Grid.Aggregation.none;
+            = Mas.Schema.Grid.Aggregation.none;
             public bool ReturnRowCols
             {
                 get;
@@ -882,11 +895,11 @@ namespace Mas.Rpc.Grid
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Rpc.Geo.LatLonCoord.READER LatlonCoord => ctx.ReadStruct(0, Mas.Rpc.Geo.LatLonCoord.READER.create);
+                public Mas.Schema.Geocoord.LatLonCoord.READER LatlonCoord => ctx.ReadStruct(0, Mas.Schema.Geocoord.LatLonCoord.READER.create);
                 public bool HasLatlonCoord => ctx.IsStructFieldNonNull(0);
                 public bool IgnoreNoData => ctx.ReadDataBool(0UL, true);
                 public ulong Resolution => ctx.ReadDataULong(64UL, 0UL);
-                public Mas.Rpc.Grid.Aggregation Agg => (Mas.Rpc.Grid.Aggregation)ctx.ReadDataUShort(16UL, (ushort)0);
+                public Mas.Schema.Grid.Aggregation Agg => (Mas.Schema.Grid.Aggregation)ctx.ReadDataUShort(16UL, (ushort)0);
                 public bool ReturnRowCols => ctx.ReadDataBool(1UL, false);
                 public bool IncludeAggParts => ctx.ReadDataBool(2UL, false);
             }
@@ -898,9 +911,9 @@ namespace Mas.Rpc.Grid
                     this.SetStruct(2, 1);
                 }
 
-                public Mas.Rpc.Geo.LatLonCoord.WRITER LatlonCoord
+                public Mas.Schema.Geocoord.LatLonCoord.WRITER LatlonCoord
                 {
-                    get => BuildPointer<Mas.Rpc.Geo.LatLonCoord.WRITER>(0);
+                    get => BuildPointer<Mas.Schema.Geocoord.LatLonCoord.WRITER>(0);
                     set => Link(0, value);
                 }
 
@@ -916,9 +929,9 @@ namespace Mas.Rpc.Grid
                     set => this.WriteData(64UL, value, 0UL);
                 }
 
-                public Mas.Rpc.Grid.Aggregation Agg
+                public Mas.Schema.Grid.Aggregation Agg
                 {
-                    get => (Mas.Rpc.Grid.Aggregation)this.ReadDataUShort(16UL, (ushort)0);
+                    get => (Mas.Schema.Grid.Aggregation)this.ReadDataUShort(16UL, (ushort)0);
                     set => this.WriteData(16UL, (ushort)value, (ushort)0);
                 }
 
@@ -943,10 +956,10 @@ namespace Mas.Rpc.Grid
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Val = CapnpSerializable.Create<Mas.Rpc.Grid.Grid.Value>(reader.Val);
-                Tl = CapnpSerializable.Create<Mas.Rpc.Grid.Grid.RowCol>(reader.Tl);
-                Br = CapnpSerializable.Create<Mas.Rpc.Grid.Grid.RowCol>(reader.Br);
-                AggParts = reader.AggParts?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Rpc.Grid.Grid.AggregationPart>(_));
+                Val = CapnpSerializable.Create<Mas.Schema.Grid.Grid.Value>(reader.Val);
+                Tl = CapnpSerializable.Create<Mas.Schema.Grid.Grid.RowCol>(reader.Tl);
+                Br = CapnpSerializable.Create<Mas.Schema.Grid.Grid.RowCol>(reader.Br);
+                AggParts = reader.AggParts?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Grid.Grid.AggregationPart>(_));
                 applyDefaults();
             }
 
@@ -967,25 +980,25 @@ namespace Mas.Rpc.Grid
             {
             }
 
-            public Mas.Rpc.Grid.Grid.Value Val
+            public Mas.Schema.Grid.Grid.Value Val
             {
                 get;
                 set;
             }
 
-            public Mas.Rpc.Grid.Grid.RowCol Tl
+            public Mas.Schema.Grid.Grid.RowCol Tl
             {
                 get;
                 set;
             }
 
-            public Mas.Rpc.Grid.Grid.RowCol Br
+            public Mas.Schema.Grid.Grid.RowCol Br
             {
                 get;
                 set;
             }
 
-            public IReadOnlyList<Mas.Rpc.Grid.Grid.AggregationPart> AggParts
+            public IReadOnlyList<Mas.Schema.Grid.Grid.AggregationPart> AggParts
             {
                 get;
                 set;
@@ -1002,13 +1015,13 @@ namespace Mas.Rpc.Grid
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Rpc.Grid.Grid.Value.READER Val => ctx.ReadStruct(0, Mas.Rpc.Grid.Grid.Value.READER.create);
+                public Mas.Schema.Grid.Grid.Value.READER Val => ctx.ReadStruct(0, Mas.Schema.Grid.Grid.Value.READER.create);
                 public bool HasVal => ctx.IsStructFieldNonNull(0);
-                public Mas.Rpc.Grid.Grid.RowCol.READER Tl => ctx.ReadStruct(1, Mas.Rpc.Grid.Grid.RowCol.READER.create);
+                public Mas.Schema.Grid.Grid.RowCol.READER Tl => ctx.ReadStruct(1, Mas.Schema.Grid.Grid.RowCol.READER.create);
                 public bool HasTl => ctx.IsStructFieldNonNull(1);
-                public Mas.Rpc.Grid.Grid.RowCol.READER Br => ctx.ReadStruct(2, Mas.Rpc.Grid.Grid.RowCol.READER.create);
+                public Mas.Schema.Grid.Grid.RowCol.READER Br => ctx.ReadStruct(2, Mas.Schema.Grid.Grid.RowCol.READER.create);
                 public bool HasBr => ctx.IsStructFieldNonNull(2);
-                public IReadOnlyList<Mas.Rpc.Grid.Grid.AggregationPart.READER> AggParts => ctx.ReadList(3).Cast(Mas.Rpc.Grid.Grid.AggregationPart.READER.create);
+                public IReadOnlyList<Mas.Schema.Grid.Grid.AggregationPart.READER> AggParts => ctx.ReadList(3).Cast(Mas.Schema.Grid.Grid.AggregationPart.READER.create);
                 public bool HasAggParts => ctx.IsStructFieldNonNull(3);
             }
 
@@ -1019,27 +1032,27 @@ namespace Mas.Rpc.Grid
                     this.SetStruct(0, 4);
                 }
 
-                public Mas.Rpc.Grid.Grid.Value.WRITER Val
+                public Mas.Schema.Grid.Grid.Value.WRITER Val
                 {
-                    get => BuildPointer<Mas.Rpc.Grid.Grid.Value.WRITER>(0);
+                    get => BuildPointer<Mas.Schema.Grid.Grid.Value.WRITER>(0);
                     set => Link(0, value);
                 }
 
-                public Mas.Rpc.Grid.Grid.RowCol.WRITER Tl
+                public Mas.Schema.Grid.Grid.RowCol.WRITER Tl
                 {
-                    get => BuildPointer<Mas.Rpc.Grid.Grid.RowCol.WRITER>(1);
+                    get => BuildPointer<Mas.Schema.Grid.Grid.RowCol.WRITER>(1);
                     set => Link(1, value);
                 }
 
-                public Mas.Rpc.Grid.Grid.RowCol.WRITER Br
+                public Mas.Schema.Grid.Grid.RowCol.WRITER Br
                 {
-                    get => BuildPointer<Mas.Rpc.Grid.Grid.RowCol.WRITER>(2);
+                    get => BuildPointer<Mas.Schema.Grid.Grid.RowCol.WRITER>(2);
                     set => Link(2, value);
                 }
 
-                public ListOfStructsSerializer<Mas.Rpc.Grid.Grid.AggregationPart.WRITER> AggParts
+                public ListOfStructsSerializer<Mas.Schema.Grid.Grid.AggregationPart.WRITER> AggParts
                 {
-                    get => BuildPointer<ListOfStructsSerializer<Mas.Rpc.Grid.Grid.AggregationPart.WRITER>>(3);
+                    get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Grid.Grid.AggregationPart.WRITER>>(3);
                     set => Link(3, value);
                 }
             }
@@ -1322,7 +1335,7 @@ namespace Mas.Rpc.Grid
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Nodata = CapnpSerializable.Create<Mas.Rpc.Grid.Grid.Value>(reader.Nodata);
+                Nodata = CapnpSerializable.Create<Mas.Schema.Grid.Grid.Value>(reader.Nodata);
                 applyDefaults();
             }
 
@@ -1340,7 +1353,7 @@ namespace Mas.Rpc.Grid
             {
             }
 
-            public Mas.Rpc.Grid.Grid.Value Nodata
+            public Mas.Schema.Grid.Grid.Value Nodata
             {
                 get;
                 set;
@@ -1357,7 +1370,7 @@ namespace Mas.Rpc.Grid
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Rpc.Grid.Grid.Value.READER Nodata => ctx.ReadStruct(0, Mas.Rpc.Grid.Grid.Value.READER.create);
+                public Mas.Schema.Grid.Grid.Value.READER Nodata => ctx.ReadStruct(0, Mas.Schema.Grid.Grid.Value.READER.create);
                 public bool HasNodata => ctx.IsStructFieldNonNull(0);
             }
 
@@ -1368,9 +1381,9 @@ namespace Mas.Rpc.Grid
                     this.SetStruct(0, 1);
                 }
 
-                public Mas.Rpc.Grid.Grid.Value.WRITER Nodata
+                public Mas.Schema.Grid.Grid.Value.WRITER Nodata
                 {
-                    get => BuildPointer<Mas.Rpc.Grid.Grid.Value.WRITER>(0);
+                    get => BuildPointer<Mas.Schema.Grid.Grid.Value.WRITER>(0);
                     set => Link(0, value);
                 }
             }
@@ -1427,13 +1440,13 @@ namespace Mas.Rpc.Grid
                 set;
             }
 
-            public Mas.Rpc.Grid.Aggregation Agg
+            public Mas.Schema.Grid.Aggregation Agg
             {
                 get;
                 set;
             }
 
-            = Mas.Rpc.Grid.Aggregation.none;
+            = Mas.Schema.Grid.Aggregation.none;
             public bool IncludeAggParts
             {
                 get;
@@ -1455,7 +1468,7 @@ namespace Mas.Rpc.Grid
                 public ulong Row => ctx.ReadDataULong(0UL, 0UL);
                 public ulong Col => ctx.ReadDataULong(64UL, 0UL);
                 public ulong Resolution => ctx.ReadDataULong(128UL, 0UL);
-                public Mas.Rpc.Grid.Aggregation Agg => (Mas.Rpc.Grid.Aggregation)ctx.ReadDataUShort(192UL, (ushort)0);
+                public Mas.Schema.Grid.Aggregation Agg => (Mas.Schema.Grid.Aggregation)ctx.ReadDataUShort(192UL, (ushort)0);
                 public bool IncludeAggParts => ctx.ReadDataBool(208UL, false);
             }
 
@@ -1484,9 +1497,9 @@ namespace Mas.Rpc.Grid
                     set => this.WriteData(128UL, value, 0UL);
                 }
 
-                public Mas.Rpc.Grid.Aggregation Agg
+                public Mas.Schema.Grid.Aggregation Agg
                 {
-                    get => (Mas.Rpc.Grid.Aggregation)this.ReadDataUShort(192UL, (ushort)0);
+                    get => (Mas.Schema.Grid.Aggregation)this.ReadDataUShort(192UL, (ushort)0);
                     set => this.WriteData(192UL, (ushort)value, (ushort)0);
                 }
 
@@ -1505,8 +1518,8 @@ namespace Mas.Rpc.Grid
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Val = CapnpSerializable.Create<Mas.Rpc.Grid.Grid.Value>(reader.Val);
-                AggParts = reader.AggParts?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Rpc.Grid.Grid.AggregationPart>(_));
+                Val = CapnpSerializable.Create<Mas.Schema.Grid.Grid.Value>(reader.Val);
+                AggParts = reader.AggParts?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Grid.Grid.AggregationPart>(_));
                 applyDefaults();
             }
 
@@ -1525,13 +1538,13 @@ namespace Mas.Rpc.Grid
             {
             }
 
-            public Mas.Rpc.Grid.Grid.Value Val
+            public Mas.Schema.Grid.Grid.Value Val
             {
                 get;
                 set;
             }
 
-            public IReadOnlyList<Mas.Rpc.Grid.Grid.AggregationPart> AggParts
+            public IReadOnlyList<Mas.Schema.Grid.Grid.AggregationPart> AggParts
             {
                 get;
                 set;
@@ -1548,9 +1561,9 @@ namespace Mas.Rpc.Grid
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Rpc.Grid.Grid.Value.READER Val => ctx.ReadStruct(0, Mas.Rpc.Grid.Grid.Value.READER.create);
+                public Mas.Schema.Grid.Grid.Value.READER Val => ctx.ReadStruct(0, Mas.Schema.Grid.Grid.Value.READER.create);
                 public bool HasVal => ctx.IsStructFieldNonNull(0);
-                public IReadOnlyList<Mas.Rpc.Grid.Grid.AggregationPart.READER> AggParts => ctx.ReadList(1).Cast(Mas.Rpc.Grid.Grid.AggregationPart.READER.create);
+                public IReadOnlyList<Mas.Schema.Grid.Grid.AggregationPart.READER> AggParts => ctx.ReadList(1).Cast(Mas.Schema.Grid.Grid.AggregationPart.READER.create);
                 public bool HasAggParts => ctx.IsStructFieldNonNull(1);
             }
 
@@ -1561,15 +1574,15 @@ namespace Mas.Rpc.Grid
                     this.SetStruct(0, 2);
                 }
 
-                public Mas.Rpc.Grid.Grid.Value.WRITER Val
+                public Mas.Schema.Grid.Grid.Value.WRITER Val
                 {
-                    get => BuildPointer<Mas.Rpc.Grid.Grid.Value.WRITER>(0);
+                    get => BuildPointer<Mas.Schema.Grid.Grid.Value.WRITER>(0);
                     set => Link(0, value);
                 }
 
-                public ListOfStructsSerializer<Mas.Rpc.Grid.Grid.AggregationPart.WRITER> AggParts
+                public ListOfStructsSerializer<Mas.Schema.Grid.Grid.AggregationPart.WRITER> AggParts
                 {
-                    get => BuildPointer<ListOfStructsSerializer<Mas.Rpc.Grid.Grid.AggregationPart.WRITER>>(1);
+                    get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Grid.Grid.AggregationPart.WRITER>>(1);
                     set => Link(1, value);
                 }
             }
@@ -1643,10 +1656,10 @@ namespace Mas.Rpc.Grid
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Tl = CapnpSerializable.Create<Mas.Rpc.Geo.LatLonCoord>(reader.Tl);
-                Tr = CapnpSerializable.Create<Mas.Rpc.Geo.LatLonCoord>(reader.Tr);
-                Br = CapnpSerializable.Create<Mas.Rpc.Geo.LatLonCoord>(reader.Br);
-                Bl = CapnpSerializable.Create<Mas.Rpc.Geo.LatLonCoord>(reader.Bl);
+                Tl = CapnpSerializable.Create<Mas.Schema.Geocoord.LatLonCoord>(reader.Tl);
+                Tr = CapnpSerializable.Create<Mas.Schema.Geocoord.LatLonCoord>(reader.Tr);
+                Br = CapnpSerializable.Create<Mas.Schema.Geocoord.LatLonCoord>(reader.Br);
+                Bl = CapnpSerializable.Create<Mas.Schema.Geocoord.LatLonCoord>(reader.Bl);
                 applyDefaults();
             }
 
@@ -1667,25 +1680,25 @@ namespace Mas.Rpc.Grid
             {
             }
 
-            public Mas.Rpc.Geo.LatLonCoord Tl
+            public Mas.Schema.Geocoord.LatLonCoord Tl
             {
                 get;
                 set;
             }
 
-            public Mas.Rpc.Geo.LatLonCoord Tr
+            public Mas.Schema.Geocoord.LatLonCoord Tr
             {
                 get;
                 set;
             }
 
-            public Mas.Rpc.Geo.LatLonCoord Br
+            public Mas.Schema.Geocoord.LatLonCoord Br
             {
                 get;
                 set;
             }
 
-            public Mas.Rpc.Geo.LatLonCoord Bl
+            public Mas.Schema.Geocoord.LatLonCoord Bl
             {
                 get;
                 set;
@@ -1702,13 +1715,13 @@ namespace Mas.Rpc.Grid
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Rpc.Geo.LatLonCoord.READER Tl => ctx.ReadStruct(0, Mas.Rpc.Geo.LatLonCoord.READER.create);
+                public Mas.Schema.Geocoord.LatLonCoord.READER Tl => ctx.ReadStruct(0, Mas.Schema.Geocoord.LatLonCoord.READER.create);
                 public bool HasTl => ctx.IsStructFieldNonNull(0);
-                public Mas.Rpc.Geo.LatLonCoord.READER Tr => ctx.ReadStruct(1, Mas.Rpc.Geo.LatLonCoord.READER.create);
+                public Mas.Schema.Geocoord.LatLonCoord.READER Tr => ctx.ReadStruct(1, Mas.Schema.Geocoord.LatLonCoord.READER.create);
                 public bool HasTr => ctx.IsStructFieldNonNull(1);
-                public Mas.Rpc.Geo.LatLonCoord.READER Br => ctx.ReadStruct(2, Mas.Rpc.Geo.LatLonCoord.READER.create);
+                public Mas.Schema.Geocoord.LatLonCoord.READER Br => ctx.ReadStruct(2, Mas.Schema.Geocoord.LatLonCoord.READER.create);
                 public bool HasBr => ctx.IsStructFieldNonNull(2);
-                public Mas.Rpc.Geo.LatLonCoord.READER Bl => ctx.ReadStruct(3, Mas.Rpc.Geo.LatLonCoord.READER.create);
+                public Mas.Schema.Geocoord.LatLonCoord.READER Bl => ctx.ReadStruct(3, Mas.Schema.Geocoord.LatLonCoord.READER.create);
                 public bool HasBl => ctx.IsStructFieldNonNull(3);
             }
 
@@ -1719,27 +1732,27 @@ namespace Mas.Rpc.Grid
                     this.SetStruct(0, 4);
                 }
 
-                public Mas.Rpc.Geo.LatLonCoord.WRITER Tl
+                public Mas.Schema.Geocoord.LatLonCoord.WRITER Tl
                 {
-                    get => BuildPointer<Mas.Rpc.Geo.LatLonCoord.WRITER>(0);
+                    get => BuildPointer<Mas.Schema.Geocoord.LatLonCoord.WRITER>(0);
                     set => Link(0, value);
                 }
 
-                public Mas.Rpc.Geo.LatLonCoord.WRITER Tr
+                public Mas.Schema.Geocoord.LatLonCoord.WRITER Tr
                 {
-                    get => BuildPointer<Mas.Rpc.Geo.LatLonCoord.WRITER>(1);
+                    get => BuildPointer<Mas.Schema.Geocoord.LatLonCoord.WRITER>(1);
                     set => Link(1, value);
                 }
 
-                public Mas.Rpc.Geo.LatLonCoord.WRITER Br
+                public Mas.Schema.Geocoord.LatLonCoord.WRITER Br
                 {
-                    get => BuildPointer<Mas.Rpc.Geo.LatLonCoord.WRITER>(2);
+                    get => BuildPointer<Mas.Schema.Geocoord.LatLonCoord.WRITER>(2);
                     set => Link(2, value);
                 }
 
-                public Mas.Rpc.Geo.LatLonCoord.WRITER Bl
+                public Mas.Schema.Geocoord.LatLonCoord.WRITER Bl
                 {
-                    get => BuildPointer<Mas.Rpc.Geo.LatLonCoord.WRITER>(3);
+                    get => BuildPointer<Mas.Schema.Geocoord.LatLonCoord.WRITER>(3);
                     set => Link(3, value);
                 }
             }
@@ -1772,7 +1785,7 @@ namespace Mas.Rpc.Grid
             {
             }
 
-            public Mas.Rpc.Grid.Grid.ICallback Callback
+            public Mas.Schema.Grid.Grid.ICallback Callback
             {
                 get;
                 set;
@@ -1796,7 +1809,7 @@ namespace Mas.Rpc.Grid
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Rpc.Grid.Grid.ICallback Callback => ctx.ReadCap<Mas.Rpc.Grid.Grid.ICallback>(0);
+                public Mas.Schema.Grid.Grid.ICallback Callback => ctx.ReadCap<Mas.Schema.Grid.Grid.ICallback>(0);
                 public ulong MaxNoOfCellsPerSend => ctx.ReadDataULong(0UL, 100UL);
             }
 
@@ -1807,9 +1820,9 @@ namespace Mas.Rpc.Grid
                     this.SetStruct(1, 1);
                 }
 
-                public Mas.Rpc.Grid.Grid.ICallback Callback
+                public Mas.Schema.Grid.Grid.ICallback Callback
                 {
-                    get => ReadCap<Mas.Rpc.Grid.Grid.ICallback>(0);
+                    get => ReadCap<Mas.Schema.Grid.Grid.ICallback>(0);
                     set => LinkObject(0, value);
                 }
 
