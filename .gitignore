@@ -12,6 +12,8 @@ capnproto_schemas/models/*.cs
 capnproto_schemas/models/monica/*.cs
 capnproto_schemas/obj
 capnproto_schemas/bin
+_cmake_release
+_cmake_debug
 
 trash
 
