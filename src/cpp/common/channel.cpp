@@ -9,7 +9,6 @@ Michael Berg <michael.berg@zalf.de>
 Maintainers:
 Currently maintained by the authors.
 
-This file is part of the MONICA model.
 Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 */
 
@@ -45,9 +44,10 @@ using namespace mas::rpc::common;
 
 //-----------------------------------------------------------------------------
 
-Channel::Channel(mas::rpc::common::Restorer* restorer, kj::StringPtr name)
+Channel::Channel(mas::rpc::common::Restorer* restorer, kj::StringPtr name, uint bufferSize)
 : _restorer(restorer)
 , _name(kj::str(name))
+, _bufferSize(std::max(1U, bufferSize))
 {
 }
 
@@ -71,9 +71,9 @@ void Channel::closedWriter(kj::StringPtr writerId){
     // as we just received a done message which should be distributed and would
     // fill the buffer, unblock all readers, so they send the done message
     while(kj::size(_blockingReadFulfillers) > 0){
-      auto& brf = _blockingReadFulfillers.front();
+      auto& brf = _blockingReadFulfillers.back();
       brf->fulfill(kj::Maybe<AnyPointerMsg::Reader>());
-      _blockingReadFulfillers.pop_front();
+      _blockingReadFulfillers.pop_back();
       KJ_LOG(INFO, "Channel::closedWriter: sent done to reader on last finished writer");
     }
     KJ_LOG(INFO, "Channel::closedWriter: blockingReadFulfillers.size():", kj::size(_blockingReadFulfillers));
@@ -109,34 +109,52 @@ kj::Promise<void> Reader::read(ReadContext context) {
   KJ_REQUIRE(!_closed, "Reader::read: Reader already closed.", _closed);
 
   auto& c = _channel;
+  auto& b = c._buffer;
 
-  // there's a write waiting
-  if (!c._blockingWriteFulfillers.empty()){
-    auto& bwf = c._blockingWriteFulfillers.front();
-    bwf->fulfill(context.getResults());
-    c._blockingWriteFulfillers.pop_front();
-  } else if(c._sendCloseOnEmptyBuffer) { // there are no writers left, just close readers
-    context.getResults().setDone();
-    c.closedReader(id());
-  } else { // there's no write for our read
-    auto paf = kj::newPromiseAndFulfiller<kj::Maybe<AnyPointerMsg::Reader>>();
-    c._blockingReadFulfillers.push_back(kj::mv(paf.fulfiller)); 
-    return paf.promise.then([context, this](kj::Maybe<AnyPointerMsg::Reader> msg) mutable {
-      KJ_REQUIRE(!_closed, "Reader already closed.", _closed);
+  // buffer not empty, send next value
+  if(b.size() > 0){ 
+    auto&& v = b.back();
+    context.getResults().setValue(v.get()->getValue());
+    b.pop_back();
+    
+    // unblock a writer unless we're about to close down
+    if(!c._blockingWriteFulfillers.empty() && !c._sendCloseOnEmptyBuffer){
+      auto&& bwf = c._blockingWriteFulfillers.back();
+      bwf->fulfill();
+      c._blockingWriteFulfillers.pop_back();
+    }
+  } else { 
+    // buffer is empty, but we are supposed to close down
+    if(c._sendCloseOnEmptyBuffer){
+      context.getResults().setDone();
+      c.closedReader(id());
 
-      if(_channel._sendCloseOnEmptyBuffer && msg == nullptr){
-        //KJ_LOG(DBG, kj::str("setResults"));
-        context.getResults().setDone();
-        KJ_LOG(INFO, "Reader::read::promise_lambda: sending done to reader");
-        _channel.closedReader(id());
-      } else {
-        KJ_IF_MAYBE(m, msg){
-          //KJ_LOG(INFO, kj::str("Reader::read setResults"));
-          context.getResults().setValue(m->getValue());
-          KJ_LOG(INFO, "Reader::read::promise_lambda: sending value to reader");
-        }
+      // if there are other readers waiting close them as well
+      while(!c._blockingReadFulfillers.empty()){
+        auto&& brf = c._blockingReadFulfillers.back(); 
+        brf->fulfill(nullptr);
+        c._blockingReadFulfillers.pop_back();
       }
-    });
+    } else { // block because no value to read
+      auto paf = kj::newPromiseAndFulfiller<kj::Maybe<AnyPointerMsg::Reader>>();
+      c._blockingReadFulfillers.push_front(kj::mv(paf.fulfiller)); 
+      return paf.promise.then([context, this](kj::Maybe<AnyPointerMsg::Reader> msg) mutable {
+        KJ_REQUIRE(!_closed, "Reader already closed.", _closed);
+
+        if(_channel._sendCloseOnEmptyBuffer && msg == nullptr){
+          //KJ_DBG("setResults");
+          context.getResults().setDone();
+          KJ_LOG(INFO, "Reader::read::promise_lambda: sending done to reader");
+          _channel.closedReader(id());
+        } else {
+          KJ_IF_MAYBE(m, msg){
+            //KJ_DBG("Reader::read setResults");
+            context.getResults().setValue(m->getValue());
+            KJ_LOG(INFO, "Reader::read::promise_lambda: sending value to reader");
+          }
+        }
+      });
+    }
   }
 
   return kj::READY_NOW;
@@ -153,25 +171,27 @@ kj::Promise<void> Writer::write(WriteContext context) {
   
   auto v = context.getParams();
   auto& c = _channel;
+  auto& b = c._buffer;
 
   // if we received a done, this writer can be removed
   if(v.isDone()){
     c.closedWriter(id());
-  } else if (!c._blockingReadFulfillers.empty()) { // we got a read waiting
-    auto& brf = c._blockingReadFulfillers.front();
-    brf->fulfill(kj::mv(v));
-    c._blockingReadFulfillers.pop_front();
-  } else { // we have to wait for a read to our write
-    auto paf = kj::newPromiseAndFulfiller<AnyPointerMsg::Builder>();
-    c._blockingWriteFulfillers.push_back(kj::mv(paf.fulfiller)); 
-    return paf.promise.then([context, this](AnyPointerMsg::Builder msg) mutable {
+  } else if (c._blockingReadFulfillers.size() > 0) { // there's a reader waiting
+    auto&& brf = c._blockingReadFulfillers.back(); 
+    brf->fulfill(v);
+    c._blockingReadFulfillers.pop_back();
+  } else if (b.size() < c._bufferSize) { // there space to store the message
+    b.push_front(capnp::clone(v));
+  } else { // block until buffer has space 
+    auto paf = kj::newPromiseAndFulfiller<void>();
+    c._blockingWriteFulfillers.push_front(kj::mv(paf.fulfiller)); 
+    return paf.promise.then([context, this]() mutable {
       KJ_REQUIRE(!_closed, "Writer::write::promise_lambda: Writer already closed.", _closed);
       auto v = context.getParams();
-      msg.setValue(v.getValue());
-      KJ_LOG(INFO, "Writer:write::promise_lambda: sending value to reader");
+      _channel._buffer.push_front(capnp::clone(v));
+      KJ_LOG(INFO, "Writer:write::promise_lambda: wrote value to buffer");
     });
   }
 
   return kj::READY_NOW;
 }
-

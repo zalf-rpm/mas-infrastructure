@@ -9,7 +9,6 @@ Michael Berg <michael.berg-mohnicke@zalf.de>
 Maintainers:
 Currently maintained by the authors.
 
-This file is part of the MONICA model.
 Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 */
 
@@ -47,7 +46,7 @@ namespace mas {
       class Channel final : public AnyPointerChannel::Server
       {
       public:
-        Channel(mas::rpc::common::Restorer* restorer, kj::StringPtr name);
+        Channel(mas::rpc::common::Restorer* restorer, kj::StringPtr name, uint bufferSize);
 
         virtual ~Channel() noexcept(false) {}
 
@@ -65,12 +64,15 @@ namespace mas {
         kj::HashMap<kj::String, AnyPointerChannel::ChanReader::Client> _readers;
         kj::HashMap<kj::String, AnyPointerChannel::ChanWriter::Client> _writers;
         std::deque<kj::Own<kj::PromiseFulfiller<kj::Maybe<AnyPointerMsg::Reader>>>> _blockingReadFulfillers;
-        std::deque<kj::Own<kj::PromiseFulfiller<AnyPointerMsg::Builder>>> _blockingWriteFulfillers;
+        std::deque<kj::Own<kj::PromiseFulfiller<void>>> _blockingWriteFulfillers;
+        uint _bufferSize{1};
+        std::deque<kj::Own<kj::Decay<AnyPointerMsg::Reader>>> _buffer;
         AnyPointerChannel::CloseSemantics _autoCloseSemantics {AnyPointerChannel::CloseSemantics::FBP};
         bool _sendCloseOnEmptyBuffer{false};
         friend class Reader;
         friend class Writer;
       };
+      
 
       //-----------------------------------------------------------------------------
 

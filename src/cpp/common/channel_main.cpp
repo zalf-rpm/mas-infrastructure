@@ -9,7 +9,6 @@ Michael Berg <michael.berg@zalf.de>
 Maintainers:
 Currently maintained by the authors.
 
-This file is part of the MONICA model.
 Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 */
 
@@ -41,6 +40,8 @@ public:
 
   kj::MainBuilder::Validity setPort(kj::StringPtr name) { port = std::max(0, std::stoi(name.cStr())); return true; }
 
+  kj::MainBuilder::Validity setBufferSize(kj::StringPtr name) { bufferSize = std::max(1, std::stoi(name.cStr())); return true; }
+
   kj::MainBuilder::Validity setReaderSrts(kj::StringPtr name)
   {
     readerSrts = Tools::splitString(name.cStr(), ",");
@@ -63,7 +64,7 @@ public:
     auto restorer = kj::heap<mas::rpc::common::Restorer>();
     auto& restorerRef = *restorer;
     mas::schema::persistence::Restorer::Client restorerClient = kj::mv(restorer);
-    auto channel = kj::heap<mas::rpc::common::Channel>(&restorerRef, name);//, bufferSize);
+    auto channel = kj::heap<mas::rpc::common::Channel>(&restorerRef, name, bufferSize);
     auto& channelRef = *channel;
     mas::rpc::common::AnyPointerChannel::Client channelClient = kj::mv(channel);
     KJ_LOG(INFO, "Channel::startChannel: created channel");
@@ -104,6 +105,8 @@ public:
     return kj::MainBuilder(context, "Channel v0.1", "Offers a channel service.")
       .addOptionWithArg({'n', "name"}, KJ_BIND_METHOD(*this, setName),
                         "<channel-name>", "Give channel a name.")
+      .addOptionWithArg({'b', "buffer-size"}, KJ_BIND_METHOD(*this, setBufferSize),
+                        "<buffer-size=1>", "Set buffer size of channel.")
       .addOptionWithArg({'h', "host"}, KJ_BIND_METHOD(*this, setHost),
                         "<host-IP>", "Set host IP.")
       .addOptionWithArg({'p', "port"}, KJ_BIND_METHOD(*this, setPort),
@@ -121,6 +124,7 @@ private:
   kj::StringPtr name;
   kj::StringPtr host;
   int port{0};
+  int bufferSize{1};
   std::vector<std::string> readerSrts;
   std::vector<std::string> writerSrts;
   kj::ProcessContext &context;
