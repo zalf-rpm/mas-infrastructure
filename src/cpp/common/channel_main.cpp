@@ -124,7 +124,7 @@ private:
   kj::StringPtr name;
   kj::StringPtr host;
   int port{0};
-  int bufferSize{1};
+  uint bufferSize{1};
   std::vector<std::string> readerSrts;
   std::vector<std::string> writerSrts;
   kj::ProcessContext &context;
