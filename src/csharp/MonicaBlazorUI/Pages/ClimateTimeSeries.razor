@@ -1,0 +1,305 @@
+﻿@page "/climate/timeseries"
+
+@namespace Mas.Infrastructure.BlazorComponents
+
+@using System.Text;
+@using MudBlazor
+@using Climate = Mas.Schema.Climate
+@using Common = Mas.Schema.Common
+
+@inject IJSRuntime JsRuntime
+
+@implements IDisposable
+
+<MudGrid>
+    <MudItem Class=@(HideSturdyRefConnector ? "d-none" : "") xs="12">
+        <ConnectToSturdyRef Label="Persistent capability to climate timeseries (capnp://host:port/token)"
+                            CapabilityChanged=@CapabilityChanged
+                            TCapnpInterface=Climate.ITimeSeries>
+        </ConnectToSturdyRef>
+    </MudItem>
+    <MudItem xs="4">
+        <MudDateRangePicker Label="Date range" Editable=@true DateRangeChanged=@DateRangeChanged DateRange=@range />
+    </MudItem>
+    <MudItem xs="2">
+        <MudButton Variant=Variant.Filled Color=Color.Primary OnClick=@LoadTimeSeriesData>Load data</MudButton>
+    </MudItem>
+    <MudItem xs="2">
+        <MudButton Disabled=@(headings.Count() == 0) Variant=Variant.Filled Color=Color.Primary
+                   OnClick=@SaveTimeSeries>
+            Save data
+        </MudButton>
+    </MudItem>
+    <MudItem xs="3">
+        <MudButton Variant=Variant.Filled Color=Color.Primary OnClick=@RestoreInitialTimeSeriesCap>Restore initial time series</MudButton>
+    </MudItem>
+    <MudItem xs="12">
+        <MudExpansionPanels MultiExpansion=@true>
+            @code {
+                private Dictionary<string, bool> panelOpened = new() { { "chart", true }, { "table", false } };
+            }
+            <MudExpansionPanel @bind-IsExpanded=@panelOpened["chart"] Text="Chart">
+                @code {
+                    private List<Highchart.AxisConfig> yAxisConfigs = new()
+                    {
+                        new Highchart.AxisConfig { Id = "def", Title = "Wind [m/s], Globrad [MJ/m2], Relhumid [%]" },
+                        new Highchart.AxisConfig { Id = "temps", Title = "Temp [°C]" },
+                        new Highchart.AxisConfig { Id = "precip", Title = "Precipitation [mm]", Opposite = true },
+                    };
+
+                    private Dictionary<string, Highchart.CurveConfig> curveName2Config = new()
+                    {
+                        { "tmin", new Highchart.CurveConfig { DisplayAxisId = "temps" } },
+                        { "tavg", new Highchart.CurveConfig { DisplayAxisId = "temps", IsVisible = true } },
+                        { "tmax", new Highchart.CurveConfig { DisplayAxisId = "temps" } },
+                        { "precip", new Highchart.CurveConfig { DisplayAxisId = "precip", IsVisible = true } },
+                        { "globrad", new Highchart.CurveConfig { DisplayAxisId = "def" } },
+                        { "wind", new Highchart.CurveConfig { DisplayAxisId = "def" } },
+                        { "relhumid", new Highchart.CurveConfig { DisplayAxisId = "def" } }
+                    };
+                }
+                <Highchart Title="Climate Curves"
+                           XAxisTitle="Date"
+                           YAxisConfigs=@yAxisConfigs
+                           CurveName2Config=@curveName2Config
+                           Data=@name2Data 
+                           Dates=@dates 
+                           DataChanged=@dataChanged
+                           ChartRerendered=@(() => dataChanged = false)
+                           ></Highchart>
+            </MudExpansionPanel>
+            <MudExpansionPanel @bind-IsExpanded=@panelOpened["table"] Text="Table">
+                <MudTable T=@Element Items=@data Hover=@true Dense=@true Filter=@(new Func<Element,bool>(DataFilterFunc))>
+                    <ToolBarContent>
+                        <MudText Typo=Typo.h6>Timeseries Data</MudText>
+                        <MudSpacer />
+                        <MudTextField @bind-Value=searchString Placeholder="Search" Adornment=Adornment.Start AdornmentIcon=@Icons.Material.Filled.Search IconSize=Size.Medium Class="mt-0"></MudTextField>
+                    </ToolBarContent>
+                    <HeaderContent>
+                        <MudTh>Date</MudTh>
+                        @foreach (var h in headings)
+                        {
+                            <MudTh>@h</MudTh>
+                        }
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Date">@context.Date.ToShortDateString()</MudTd>
+                        @foreach (var (val, i) in headings.Select((Value, Index) => (Value, Index)))
+                        {
+                            var k = i;
+                            <MudTd DataLabel=@val>@context.Data[k]</MudTd>
+                        }
+                    </RowTemplate>
+                    <RowEditingTemplate>
+                        <MudTd DataLabel="Date">@context.Date.ToShortDateString()</MudTd>
+                        @foreach (var (val, i) in headings.Select((Value, Index) => (Value, Index)))
+                        {
+                            var k = i;
+                            <MudTd DataLabel=@val>
+                                <MudTextField T=@float
+                                              @bind-Value=context.Data[k]
+                                              Required />
+                            </MudTd>
+                        }
+                    </RowEditingTemplate>
+                    <PagerContent>
+                        <MudTablePager />
+                    </PagerContent>
+                </MudTable>
+            </MudExpansionPanel>
+        </MudExpansionPanels>
+    </MudItem>
+</MudGrid>
+
+@code {
+    [Parameter]
+    public Climate.ITimeSeries TimeSeriesCap { get; set; }
+    private Climate.ITimeSeries originalTimeSeriesCap;
+    private bool timeSeriesCapUpdated = false;
+
+    private bool componentIsTimeSeriesCapOwner = false;
+
+    [Parameter]
+    public EventCallback<Climate.ITimeSeries> TimeSeriesCapChanged { get; set; }
+
+    [Parameter]
+    public bool HideSturdyRefConnector { get; set; } = false;
+
+    private DateTime start, end;
+    private DateRange range;
+
+    private struct Element
+    {
+        public DateTime Date;
+        public List<float> Data;
+    }
+    private String csvString = "";
+
+    private IList<String> headings = new List<String>();
+    private List<Element> data = new List<Element>();
+    private String searchString;
+
+    private Dictionary<String, IEnumerable<float>> name2Data = new();
+    private IEnumerable<DateTime> dates = new List<DateTime>();
+    private bool dataChanged = false;
+
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        timeSeriesCapUpdated = parameters.GetValueOrDefault<Climate.ITimeSeries>("TimeSeriesCap", null) != TimeSeriesCap;
+        await base.SetParametersAsync(parameters);
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (timeSeriesCapUpdated)
+        {
+            originalTimeSeriesCap = TimeSeriesCap; //save unrestricted cap
+            await TimeSeriesUpdated();
+        }
+    }
+
+    private async Task CapabilityChanged(Climate.ITimeSeries ts)
+    {
+        if (ts == null) return;
+
+        if (TimeSeriesCap != ts && componentIsTimeSeriesCapOwner) TimeSeriesCap?.Dispose(); //free old cap
+        TimeSeriesCap = ts;
+        originalTimeSeriesCap = TimeSeriesCap; //save unrestricted cap
+        componentIsTimeSeriesCapOwner = true;
+
+        //await TimeSeriesUpdated();
+    }
+
+    private async Task RestoreInitialTimeSeriesCap()
+    {
+        if (originalTimeSeriesCap == null) return;
+        if (originalTimeSeriesCap != TimeSeriesCap) TimeSeriesCap?.Dispose();
+        TimeSeriesCap = originalTimeSeriesCap;
+        await TimeSeriesUpdated();
+    }
+
+    private async Task TimeSeriesUpdated()
+    {
+        if (TimeSeriesCap == null) return;
+
+        var (s, e) = await TimeSeriesCap.Range();
+        var h = await TimeSeriesCap.Header();
+
+        //var (s, e) = se.Result;
+        start = CommonDate2DateTime(s);
+        end = CommonDate2DateTime(e);
+        range = new DateRange(start, end);
+
+        headings = h.Select(h => h.ToString()).ToList();
+    }
+
+    private DateTime CommonDate2DateTime(Common.Date d)
+    {
+        return new DateTime(d.Year, d.Month, d.Day);
+    }
+
+    private Common.Date DateTime2CommonDate(DateTime d)
+    {
+        return new Common.Date { Year = (short)d.Year, Month = (byte)d.Month, Day = (byte)d.Day };
+    }
+
+    private async Task DateRangeChanged(DateRange r)
+    {
+        if (r == null) return;
+        range = r;
+
+        start = r.Start ?? start;
+        end = r.End ?? end;
+
+        var sts = await TimeSeriesCap.Subrange(DateTime2CommonDate(start), DateTime2CommonDate(end));
+        //dispose the current time series cap, unless it's the initial one
+        if (TimeSeriesCap != originalTimeSeriesCap) TimeSeriesCap?.Dispose();
+        TimeSeriesCap = sts;
+    }
+
+    private async Task LoadTimeSeriesData()
+    {
+        if (TimeSeriesCap == null) return;
+
+        await TimeSeriesUpdated();
+
+        var ds = await TimeSeriesCap.Data();
+        data = ds.Select((d, i) => new Element { Date = start.AddDays(i), Data = d.ToList() }).ToList();
+
+        dates = data.Select((_, i) => start.AddDays(i));
+        name2Data.Clear();
+        foreach (var (header, i) in headings.Select((h, i) => (h, i)))
+        {
+            name2Data[header] = data.Select(e => e.Data[i]);
+        }
+
+        dataChanged = true;
+
+        /*
+        //create csv file
+        var sb = new StringBuilder();
+        sb.Append("iso-date,");
+        sb.Append(headings.Aggregate((a, e) => a + "," + e.ToString()));
+        sb.Append("\n");
+
+        var ci = new System.Globalization.CultureInfo("en-US");
+        foreach (var el in data)
+        {
+            sb.Append(el.Date.ToString("yyyy-MM-dd"));
+            sb.Append(",");
+            sb.Append(el.Data.Select(e => e.ToString(ci)).Aggregate((a, e) => a + "," + e));
+            sb.Append("\n");
+        }
+
+        csvString = sb.ToString();
+        */
+    }
+
+    private bool DataFilterFunc(Element elem)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (elem.Date.ToShortDateString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        //if (element.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+        //    return true;
+        //if ($"{element.Number} {element.Position} {element.Molar}".Contains(searchString))
+        //    return true;
+        return false;
+    }
+
+    private async Task SaveTimeSeries()
+    {
+        //create csv file
+        var sb = new StringBuilder();
+        sb.Append("iso-date,");
+        sb.Append(headings.Aggregate((a, e) => a + "," + e.ToString()));
+        sb.Append("\n");
+
+        var ci = new System.Globalization.CultureInfo("en-US");
+        foreach (var el in data)
+        {
+            sb.Append(el.Date.ToString("yyyy-MM-dd"));
+            sb.Append(",");
+            sb.Append(el.Data.Select(e => e.ToString(ci)).Aggregate((a, e) => a + "," + e));
+            sb.Append("\n");
+        }
+
+        var csvString = sb.ToString();
+
+        await JsRuntime.InvokeVoidAsync("saveAsBase64", "data.csv", Convert.ToBase64String(Encoding.UTF8.GetBytes(csvString)));
+    }
+
+    void IDisposable.Dispose()
+    {
+        //dispose the current time series cap if it's not the same as the initial one
+        if (originalTimeSeriesCap != TimeSeriesCap)
+        {
+            TimeSeriesCap?.Dispose();
+
+            //free the original cap if we are the owner
+            if (componentIsTimeSeriesCapOwner) originalTimeSeriesCap?.Dispose();
+        }
+    }
+
+}

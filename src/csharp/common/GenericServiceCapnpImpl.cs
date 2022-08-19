@@ -11,16 +11,20 @@ using System.Threading.Tasks;
 
 namespace Mas.Infrastructure.Service
 {
-    public class Admin : Mas.Rpc.Service.IAdmin
+    public class Admin : Mas.Schema.Service.IAdmin
     {
         private System.Timers.Timer _timer = new();
         private System.Timers.Timer _killTimer = new();
 
-        private Mas.Rpc.Registry.IRegistry _registry;
+        private Mas.Schema.Registry.IRegistry _registry;
 
-        private System.Action<Mas.Rpc.Common.IdInformation> _updateIdentity;
+        private System.Action<Mas.Schema.Common.IdInformation> _updateIdentity;
 
-        public Admin(Mas.Rpc.Registry.IRegistry registry, System.Action<Mas.Rpc.Common.IdInformation> updateIdentity)
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+
+        public Admin(Mas.Schema.Registry.IRegistry registry, System.Action<Mas.Schema.Common.IdInformation> updateIdentity)
         {
             _registry = registry;
             _timer.AutoReset = false;
@@ -36,6 +40,14 @@ namespace Mas.Infrastructure.Service
         //    self._unreg_sturdy_refs[name] = (unreg_action, rereg_sr)
         //}
 
+
+        #region implementation of Mas.Rpc.Common.IIdentifiable
+        public Task<Mas.Schema.Common.IdInformation> Info(CancellationToken cancellationToken_ = default)
+        {
+            return Task.FromResult(new Schema.Common.IdInformation()
+            { Id = Id, Name = Name, Description = Description });
+        }
+        #endregion
 
         #region implementation of Persistence.IPersistent
         // heartbeat @0 ();
@@ -67,15 +79,17 @@ namespace Mas.Infrastructure.Service
         }
 
         // identity @3 () -> Common.IdInformation;
-        public Task<Mas.Rpc.Common.IdInformation> Identity(CancellationToken cancellationToken_ = default)
+        public Task<IReadOnlyList<Mas.Schema.Common.IdInformation>> Identities(CancellationToken cancellationToken_ = default)
         {
             var info = _registry.Info().Result;
-            return Task.FromResult(new Mas.Rpc.Common.IdInformation 
-            { Id = info.Id, Name = info.Name, Description = info.Description });
+            IReadOnlyList<Mas.Schema.Common.IdInformation> l = new List<Mas.Schema.Common.IdInformation>{ 
+                new Mas.Schema.Common.IdInformation { Id = info.Id, Name = info.Name, Description = info.Description }
+            };
+            return Task.FromResult(l);
         }
 
         // updateIdentity @4 Common.IdInformation;
-        public Task UpdateIdentity(Mas.Rpc.Common.IdInformation info, CancellationToken cancellationToken_ = default)
+        public Task UpdateIdentity(string oldId, Mas.Schema.Common.IdInformation info, CancellationToken cancellationToken_ = default)
         {
             _updateIdentity(info);
             return Task.CompletedTask;

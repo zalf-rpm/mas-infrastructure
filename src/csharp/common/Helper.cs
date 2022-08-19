@@ -4,7 +4,7 @@ namespace Mas.Infrastructure.Common
 {
     public class Helper
     {
-        public static DateTime CommonDate2DateTime(Mas.Common.Date d)
+        public static DateTime CommonDate2DateTime(Mas.Schema.Common.Date d)
         {
             return new DateTime(
                 d.Year < 100 ? d.Year + 1 : d.Year, 
@@ -13,14 +13,14 @@ namespace Mas.Infrastructure.Common
             );
         }
 
-        public static string CommonDate2IsoDateString(Mas.Common.Date d)
+        public static string CommonDate2IsoDateString(Mas.Schema.Common.Date d)
         {
             return $"{d.Year:D4}-{d.Month:D2}-{d.Day:D2}";
         }
 
-        public static Mas.Common.Date DateTime2CommonDate(DateTime d)
+        public static Mas.Schema.Common.Date DateTime2CommonDate(DateTime d)
         {
-            return new Mas.Common.Date { 
+            return new Mas.Schema.Common.Date { 
                 Year = (short) (d.Year <= 100 ? d.Year - 1 : d.Year), 
                 Month = (byte)d.Month, 
                 Day = (byte)d.Day };

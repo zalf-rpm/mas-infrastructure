@@ -1,0 +1,140 @@
+﻿@namespace Mas.Infrastructure.BlazorComponents
+
+@using MudBlazor
+@using Mgmt = Mas.Schema.Management
+@using Climate = Mas.Schema.Climate 
+
+@code {
+    Func<float?, string> valid = val => val < 0 || val > 1 ? "[0 - 1]" : null;
+}
+<MudGrid>
+    <MudItem xs="12">
+        <MudCard Elevation="3">
+            <MudCardContent>
+                <MudGrid>
+                    <MudItem xs="2">
+                        <MudSelect T=@Climate.Element
+                                   @bind-Value=newAltered.Element
+                                   Label="New Element">
+                            @foreach (var elem in allClimateElements)
+                            {
+                                <MudSelectItem Value=@elem />
+                            }
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="2">
+                        <MudSelect T=@Climate.AlterTimeSeriesWrapper.AlterType
+                                   @bind-Value=newAltered.Type
+                                   Label="Operation">
+                            @foreach (var (type, label) in allAlterTypes)
+                            {
+                                <MudSelectItem Value=@type><MudText Typo=@Typo.body1>@label</MudText></MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="2">
+                        <MudTextField @bind-Value=newAltered.Value Label="Value" />
+                    </MudItem>
+                    <MudItem xs="2">
+                        <MudFab Color=@Color.Secondary
+                                Icon=@Icons.Material.Filled.Add
+                                Label="Add"
+                                OnClick=@(async () => {
+                                                      AlterTimeSeriesWrapperCap?.Alter(newAltered, false);
+                                                      alteredElements = (await AlterTimeSeriesWrapperCap?.AlteredElements()).ToList();
+                                                      StateHasChanged();
+                                                  }) />
+                    </MudItem>
+                    <MudItem xs="4"></MudItem>
+                </MudGrid>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+    <MudItem xs="12">
+        <MudCard Elevation="3">
+            <MudCardContent>
+                <MudGrid>
+                    @foreach (var altered in alteredElements)
+                    {
+                        <MudItem xs="2">
+                            <MudSelect T=@Climate.Element
+                                       @bind-Value=altered.Element
+                                       Label="Altered Element">
+                                @foreach (var elem in allClimateElements)
+                                {
+                                    <MudSelectItem Value=@elem />
+                                }
+                            </MudSelect>
+                        </MudItem>
+                        <MudItem xs="2">
+                            <MudSelect T=@Climate.AlterTimeSeriesWrapper.AlterType
+                                       @bind-Value=altered.Type
+                                       Label="Operation">
+                                @foreach (var (type, label) in allAlterTypes)
+                                {
+                                    <MudSelectItem Value=@type><MudText Typo=@Typo.body1>@label</MudText></MudSelectItem>
+                                }
+                            </MudSelect>
+                        </MudItem>
+                        <MudItem xs="2">
+                            <MudTextField @bind-Value=altered.Value Label="Value" />
+                        </MudItem>
+                        <MudItem xs="2">
+                            <MudFab Color=@Color.Secondary
+                                    Icon=@Icons.Material.Filled.Save
+                                    Label="Update"
+                                    OnClick=@(async () => { await AlterTimeSeriesWrapperCap?.Alter(altered, false); }) />
+                        </MudItem>
+                        <MudItem xs="2">
+                            <MudFab Color=@Color.Secondary
+                                    Icon=@Icons.Material.Filled.Delete
+                                    Label="Delete"
+                                    OnClick=@(async () =>
+                                                      {
+                                                          AlterTimeSeriesWrapperCap?.Remove(altered.Element);
+                                                          var aes = await AlterTimeSeriesWrapperCap?.AlteredElements();
+                                                          alteredElements = aes.ToList();
+                                                          StateHasChanged();
+                                                      }) />
+                        </MudItem>
+                        <MudItem xs="2"></MudItem>
+                    }
+                </MudGrid>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+</MudGrid>
+
+@code {
+    [Parameter]
+    public Climate.IAlterTimeSeriesWrapper AlterTimeSeriesWrapperCap { get; set; }
+
+    private List<Climate.Element> allClimateElements = new()
+    {
+        Climate.Element.tmin,
+        Climate.Element.tavg,
+        Climate.Element.tmax,
+        Climate.Element.precip,
+        Climate.Element.globrad,
+        Climate.Element.wind,
+        Climate.Element.sunhours,
+        Climate.Element.cloudamount,
+        Climate.Element.relhumid,
+        Climate.Element.airpress,
+        Climate.Element.vaporpress,
+        Climate.Element.co2,
+        Climate.Element.o3,
+        Climate.Element.et0,
+        Climate.Element.dewpointTemp
+    };
+
+    private Dictionary<Climate.AlterTimeSeriesWrapper.AlterType, string> allAlterTypes = new()
+    {
+        { Climate.AlterTimeSeriesWrapper.AlterType.add, "Add (+)" },
+        { Climate.AlterTimeSeriesWrapper.AlterType.mul, "Mul (*)" }
+    };
+
+    private List<Climate.AlterTimeSeriesWrapper.Altered> alteredElements = new();
+
+    private Climate.AlterTimeSeriesWrapper.Altered newAltered = new();
+}

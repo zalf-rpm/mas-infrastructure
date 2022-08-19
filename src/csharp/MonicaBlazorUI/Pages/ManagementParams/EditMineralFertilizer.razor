@@ -1,0 +1,69 @@
+﻿@namespace Mas.Infrastructure.BlazorComponents
+
+@using MudBlazor
+@using Mas.Infrastructure.Common
+@using Mgmt = Mas.Schema.Management
+
+@implements IDisposable
+
+@code {
+    Func<float?, string> valid = val => val < 0 || val > 100 ? "[0 - 100]" : null;
+}
+<MudCard>
+    <MudCardContent>
+        <MudSelect T="Mgmt.MineralFertilizer?"
+                   ValueChanged=@(async f => {
+                                      if (f.HasValue && FertilizerServiceCap != null)
+                                      {
+                                          var part = await FertilizerServiceCap.MineralFertilizerPartitionFor(f.Value);
+                                          Params.Partition = part;
+                                          StateHasChanged();
+                                      }
+                                  })
+                   Label="Load fertilizer parameters">
+            @foreach (Mgmt.MineralFertilizer? mfId in Enum.GetValues(typeof(Mgmt.MineralFertilizer)))
+            {
+                <MudSelectItem Value="@mfId">@Helper.ToUpper(mfId.ToString())</MudSelectItem>
+            }
+        </MudSelect>
+        <MudTextField @bind-Value=Params.Amount
+                      Label="Amount"
+                      Adornment="Adornment.End"
+                      AdornmentText="kg" />
+        <MudCard>
+            <MudCardContent>
+                <MudTextField @bind-Value=Params.Partition.Id Label="Id" />
+                <MudTextField @bind-Value=Params.Partition.Name Label="Name" />
+                <MudTextField @bind-Value=Params.Partition.Carbamid
+                              Label="Carbamid"
+                              Adornment="Adornment.End"
+                              AdornmentText="%"
+                              Validation=@valid />
+                <MudTextField @bind-Value=Params.Partition.Nh4
+                              Label="NH4"
+                              Adornment="Adornment.End"
+                              AdornmentText="%"
+                              Validation=@valid />
+                <MudTextField @bind-Value=Params.Partition.No3
+                              Label="NO3"
+                              Adornment="Adornment.End"
+                              AdornmentText="%"
+                              Validation=@valid />
+            </MudCardContent>
+        </MudCard>
+    </MudCardContent>
+</MudCard>
+
+@code {
+    [Parameter]
+    public Mgmt.Params.MineralFertilization Params { get; set; } = new();
+
+    [Parameter]
+    public Mgmt.IFertilizerService FertilizerServiceCap { get; set; }
+
+    void IDisposable.Dispose()
+    {
+        Console.WriteLine("EditMineralFertilizer: Disposing Management.IFertilizerService cap: " + FertilizerServiceCap);
+        FertilizerServiceCap?.Dispose();
+    }
+}

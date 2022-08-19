@@ -1,6 +1,6 @@
 ﻿@using Capnp.Rpc
 @using MudBlazor
-@using Mas.Rpc;
+@using Mas.Schema;
 @using System.Threading;
 
 @namespace Mas.Infrastructure.BlazorComponents
@@ -16,7 +16,7 @@
 <MudPaper Class="d-flex flex-row py-2 px-1">
     <MudButton Class="pa-2 mx-2"
                Variant=Variant.Filled
-               StartIcon=@Icons.Material.Filled.Add
+               StartIcon=@Icons.Filled.Add
                Color=@Color.Primary
                OnClick=@(async () => await OpenAddSturdyRefDialog())>
         Add new
@@ -32,7 +32,7 @@
         {
             <MudSelectItem Value=@b>
                 <MudElement Class="d-flex">
-                    <MudIcon Icon=@(b.AutoConnect ? Icons.Material.Filled.CastConnected : Icons.Material.Filled.Cast) />
+                    <MudIcon Icon=@(b.AutoConnect ? Icons.Filled.CastConnected : Icons.Filled.Cast) />
                     <MudText Class="ml-8" Typo=@Typo.body1>@($"{b.PetName} ({b.SturdyRef})")</MudText>
                 </MudElement>
             </MudSelectItem>
@@ -40,7 +40,7 @@
     </MudSelect>
     <MudButton Class="pa-2 mx-2"
                Variant=Variant.Filled
-               StartIcon=@Icons.Material.Filled.Edit
+               StartIcon=@Icons.Filled.Edit
                Color=@Color.Primary
                Disabled=@(selectedBookmark == null)
                OnClick=@(async () => await OpenAddSturdyRefDialog(selectedBookmark))>
@@ -92,7 +92,7 @@
     [Parameter]
     public EventCallback<String> SturdyRefChanged { get; set; }
 
-    private String buttonIcon = Icons.Material.Filled.CastConnected;
+    private String buttonIcon = Icons.Filled.CastConnected;
     private Color buttonColor = Color.Primary;
     private String buttonLabel = "Connect";
 
@@ -129,7 +129,7 @@
             //Console.WriteLine("ConnectToSturdyRef: current TaskSchedulerId: " + TaskScheduler.Current.Id);
             //var (mps, ops) = await (cap as Soil.IService)?.GetAllAvailableParameters(false);
 
-            buttonIcon = Icons.Material.Filled.CastConnected;
+            buttonIcon = Icons.Filled.CastConnected;
             buttonColor = Color.Success;
             buttonLabel = "Connected";
 
@@ -139,7 +139,7 @@
         {
             Console.WriteLine(e.ToString());
 
-            buttonIcon = Icons.Material.Filled.Error;
+            buttonIcon = Icons.Filled.Error;
             buttonColor = Color.Error;
             buttonLabel = "Connect failed";
 
@@ -155,7 +155,7 @@
 
     private void ClearButton()
     {
-        buttonIcon = Icons.Material.Filled.CastConnected;
+        buttonIcon = Icons.Filled.CastConnected;
         buttonColor = Color.Primary;
         buttonLabel = "Connect";
     }

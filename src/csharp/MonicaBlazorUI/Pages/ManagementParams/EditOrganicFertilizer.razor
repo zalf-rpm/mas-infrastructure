@@ -1,0 +1,108 @@
+﻿@namespace Mas.Infrastructure.BlazorComponents
+
+@using MudBlazor
+@using Mas.Infrastructure.Common
+@using Mgmt = Mas.Schema.Management
+
+@implements IDisposable
+
+@code {
+    Func<float?, string> valid = val => val < 0 || val > 100 ? "[0 - 100]" : null;
+}
+<MudCard>
+    <MudCardContent>
+        <MudSelect T="Mgmt.OrganicFertilizer?"
+                   ValueChanged=@(async f => {
+                                      if (f.HasValue && FertilizerServiceCap != null)
+                                      {
+                                          var part = await FertilizerServiceCap.OrganicFertilizerParametersFor(f.Value);
+                                          Params.Params = part;
+                                          StateHasChanged();
+                                      }
+                                  })
+                   Label="Load fertilizer parameters">
+            @foreach (Mgmt.OrganicFertilizer? ofId in Enum.GetValues(typeof(Mgmt.OrganicFertilizer)))
+            {
+                <MudSelectItem Value="@ofId">@Helper.ToUpper(ofId.ToString())</MudSelectItem>
+            }
+        </MudSelect>
+        <MudTextField @bind-Value=Params.Amount
+                      Label="Amount"
+                      Adornment="Adornment.End"
+                      AdornmentText="kg" />
+        <MudCheckBox @bind-Checked=@Params.Incorporation Label="Incorporation" />
+
+        <MudCard>
+            <MudCardContent>
+                <MudTextField @bind-Value=Params.Params.Id Label="Id" />
+                <MudTextField @bind-Value=Params.Params.Name Label="Name" />
+                <MudTextField @bind-Value=Params.Params.Params.AomDryMatterContent
+                              Label="aomDryMatterContent"
+                              Adornment="Adornment.End"
+                              AdornmentText="kg-DM/kg-FM" />
+                <MudTextField @bind-Value=Params.Params.Params.AomNH4Content
+                              Label="aomNH4Content"
+                              Adornment="Adornment.End"
+                              AdornmentText="kg-N/kg-DM" />
+                <MudTextField @bind-Value=Params.Params.Params.AomNO3Content
+                              Label="aomNO3Content"
+                              Adornment="Adornment.End"
+                              AdornmentText="kg-N/kg-DM" />
+                <MudTextField @bind-Value=Params.Params.Params.AomCarbamidContent
+                              Label="aomCarbamidContent"
+                              Adornment="Adornment.End"
+                              AdornmentText="kg-N/kg-DM" />
+                <MudTextField @bind-Value=Params.Params.Params.AomSlowDecCoeffStandard
+                              Label="aomSlowDecCoeffStandard"
+                              Adornment="Adornment.End"
+                              AdornmentText="1/d" />
+                <MudTextField @bind-Value=Params.Params.Params.AomFastDecCoeffStandard
+                              Label="aomFastDecCoeffStandard"
+                              Adornment="Adornment.End"
+                              AdornmentText="1/d" />
+                <MudTextField @bind-Value=Params.Params.Params.PartAOMToAOMSlow
+                              Label="partAOMToAOMSlow"
+                              Adornment="Adornment.End"
+                              AdornmentText="kg/kg" />
+                <MudTextField @bind-Value=Params.Params.Params.PartAOMToAOMFast
+                              Label="partAOMToAOMFast"
+                              Adornment="Adornment.End"
+                              AdornmentText="kg/kg" />
+                <MudTextField @bind-Value=Params.Params.Params.CnRatioAOMSlow
+                              Label="cnRatioAOMSlow"
+                              Adornment="Adornment.End"
+                              AdornmentText="kg/kg" />
+                <MudTextField @bind-Value=Params.Params.Params.CnRatioAOMFast
+                              Label="cnRatioAOMFast"
+                              Adornment="Adornment.End"
+                              AdornmentText="" />
+                <MudTextField @bind-Value=Params.Params.Params.PartAOMSlowToSMBSlow
+                              Label="partAOMSlowToSMBSlow"
+                              Adornment="Adornment.End"
+                              AdornmentText="kg/kg" />
+                <MudTextField @bind-Value=Params.Params.Params.PartAOMSlowToSMBFast
+                              Label="partAOMSlowToSMBFast"
+                              Adornment="Adornment.End"
+                              AdornmentText="kg/kg" />
+                <MudTextField @bind-Value=Params.Params.Params.NConcentration
+                              Label="nConcentration"
+                              Adornment="Adornment.End"
+                              AdornmentText="" />
+            </MudCardContent>
+        </MudCard>
+    </MudCardContent>
+</MudCard>
+
+@code {
+    [Parameter]
+    public Mgmt.Params.OrganicFertilization Params { get; set; } = new();
+
+    [Parameter]
+    public Mgmt.IFertilizerService FertilizerServiceCap { get; set; }
+
+    void IDisposable.Dispose()
+    {
+        Console.WriteLine("EditOrganicFertilizer: Disposing Management.IFertilizerService cap: " + FertilizerServiceCap);
+        FertilizerServiceCap?.Dispose();
+    }
+}

@@ -1,0 +1,250 @@
+﻿@namespace Mas.Infrastructure.BlazorComponents
+
+@using MudBlazor
+@using Mas.Infrastructure.Common
+@using ExtType = Mas.Schema.Management.Event.ExternalType
+@using Mgmt = Mas.Schema.Management
+@using Reg = Mas.Schema.Registry
+@using System.Linq
+
+@implements IDisposable
+
+<MudSimpleTable>
+    <thead>
+        <tr>
+            <th style="width:30%">When</th>
+            <th>Type</th>
+            <th style="width:40%">Options</th>
+            <th style="width:20%">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var (i, e) in CropRotation.Select((e, i) => (i, e)))
+        {
+            Func<float?, string> valid = val => null;
+            <tr>
+                <td>
+                    <MudSelect Value=@e.which
+                               T=@Mgmt.Event.WHICH
+                               ValueChanged=@(v => {
+                                                  e.which = v;
+                                                  switch (e.which)
+                                                  {
+                                                      case Mgmt.Event.WHICH.At:
+                                                          e.At = new() { Date = new() };
+                                                          break;
+                                                      case Mgmt.Event.WHICH.Between:
+                                                          e.Between = new() { Earliest = new(), Latest = new() };
+                                                          break;
+                                                      case Mgmt.Event.WHICH.After:
+                                                          e.After = new();
+                                                          break;
+                                                  }
+                                              })
+                               Label="When options">
+                        <MudSelectItem Value=@Mgmt.Event.WHICH.At>AT a date</MudSelectItem>
+                        <MudSelectItem Value=@Mgmt.Event.WHICH.Between>BETWEEN dates (automatic worksteps)</MudSelectItem>
+                        <MudSelectItem Value=@Mgmt.Event.WHICH.After>AFTER events</MudSelectItem>
+                    </MudSelect>
+                    @switch (e.which)
+                    {
+                        case Mgmt.Event.WHICH.At:
+                            if (e.At == null) e.At = new() { Date = new() };
+                            <MudGrid>
+                                <MudItem xs="4"><MudTextField @bind-Value=e.At.Date.Year Label="Year" /></MudItem>
+                                <MudItem xs="4"><MudTextField @bind-Value=e.At.Date.Month Label="Month" /></MudItem>
+                                <MudItem xs="4"><MudTextField @bind-Value=e.At.Date.Day Label="Day" /></MudItem>
+                            </MudGrid>
+                            break;
+                        case Mgmt.Event.WHICH.Between:
+                            if (e.Between == null) e.Between = new() { Earliest = new(), Latest = new() };
+                            <MudGrid>
+                                <MudItem xs="4"><MudTextField @bind-Value=e.Between.Earliest.Year Label="Earliest Year" /></MudItem>
+                                <MudItem xs="4"><MudTextField @bind-Value=e.Between.Earliest.Month Label="Earliest Month" /></MudItem>
+                                <MudItem xs="4"><MudTextField @bind-Value=e.Between.Earliest.Day Label="Earliest Day" /></MudItem>
+                                <MudItem xs="4"><MudTextField @bind-Value=e.Between.Latest.Year Label="Latest Year" /></MudItem>
+                                <MudItem xs="4"><MudTextField @bind-Value=e.Between.Latest.Month Label="Latest Month" /></MudItem>
+                                <MudItem xs="4"><MudTextField @bind-Value=e.Between.Latest.Day Label="Latest Day" /></MudItem>
+                            </MudGrid>
+                            break;
+                        case Mgmt.Event.WHICH.After:
+                            if (e.After == null) e.After = new();
+                            <MudSelect @bind-Value=e.After.Event
+                                       T="Mgmt.Event.Type"
+                                       Label="Workstep">
+                                <MudSelectItem Value=@((Mgmt.Event.Type)null)>-</MudSelectItem>
+                                @foreach (var t in allMgmtEventTypes)
+                                {
+                                    <MudSelectItem Value="@t">
+                                        @(Helper.Capitalize(t.which == Mgmt.Event.Type.WHICH.External
+                                            ? t.External.ToString() : t.Internal.ToString()))
+                                    </MudSelectItem>
+                                }
+                            </MudSelect>
+                            <MudTextField @bind-Value=e.After.Days
+                                          Label=@($"days after {mgmtEventTypeName(e.After.Event)}") />
+                            break;
+                    }
+                </td>
+                <td>
+                    <MudSelect Value=@e.TheType
+                               T=@ExtType
+                               ValueChanged=@(v => {
+                                                  e.TheType = v;
+                                                  //in case of automatic workstep set to between event time
+                                                  switch (v)
+                                                  {
+                                                      case ExtType.automaticSowing:
+                                                      case ExtType.automaticHarvest:
+                                                          e.which = Mgmt.Event.WHICH.Between;
+                                                          break;
+                                                  }
+                                                  StateHasChanged();
+                                              })
+                               Label="Workstep">
+                        @foreach (ExtType et in Enum.GetValues(typeof(ExtType)))
+                        {
+                            <MudSelectItem Value="@et">@Helper.Capitalize(et.ToString())</MudSelectItem>
+                        }
+                    </MudSelect>
+                </td>
+                <td>
+                    @switch (e.TheType)
+                    {
+                        case ExtType.sowing:
+                            if (e.Params == null || e.Params is not Mgmt.Params.Sowing) e.Params = new Mgmt.Params.Sowing();
+                            if (e.Params is Mgmt.Params.Sowing s)
+                            {
+                                <EditSowing Params=@s
+                                            CropRegistryServiceCap=@(CropRegistryServiceCap == null ? null : Capnp.Rpc.Proxy.Share(CropRegistryServiceCap))/>
+                            }
+                            break;
+                        case ExtType.automaticSowing:
+                            if (e.Params == null || e.Params is not Mgmt.Params.AutomaticSowing) e.Params = new Mgmt.Params.AutomaticSowing() { Sowing = new() };
+                            if (e.Params is Mgmt.Params.AutomaticSowing sa)
+                            {
+                                <EditAutomaticSowing Params=@sa
+                                                     CropRegistryServiceCap=@(CropRegistryServiceCap == null ? null : Capnp.Rpc.Proxy.Share(CropRegistryServiceCap))/>
+                            }
+                            break;
+                        case ExtType.harvest:
+                            if (e.Params == null || e.Params is not Mgmt.Params.Harvest) e.Params = new Mgmt.Params.Harvest() { OptCarbMgmtData = new() };
+                            if (e.Params is Mgmt.Params.Harvest h)
+                            {
+                                <EditHarvest Params=@h />
+                            }
+                            break;
+                        case ExtType.automaticHarvest:
+                            if (e.Params == null || e.Params is not Mgmt.Params.AutomaticHarvest) e.Params = new Mgmt.Params.AutomaticHarvest() { Harvest = new() { OptCarbMgmtData = new() } };
+                            if (e.Params is Mgmt.Params.AutomaticHarvest ha)
+                            {
+                                <EditAutomaticHarvest Params=@ha />
+                            }
+                            break;
+                        case ExtType.cutting:
+                            if (e.Params == null || e.Params is not Mgmt.Params.Cutting)
+                                e.Params = new Mgmt.Params.Cutting() { CuttingSpec = new List<Mgmt.Params.Cutting.Spec>() { new Mgmt.Params.Cutting.Spec() } };
+                            if (e.Params is Mgmt.Params.Cutting c)
+                            {
+                                <EditCutting Params=@c />
+                            }
+                            break;
+                        case ExtType.mineralFertilization:
+                            if (e.Params == null || e.Params is not Mgmt.Params.MineralFertilization) e.Params = new Mgmt.Params.MineralFertilization() { Partition = new() };
+                            if (e.Params is Mgmt.Params.MineralFertilization mf)
+                            {
+                                <EditMineralFertilizer FertilizerServiceCap=@(FertilizerServiceCap == null ? null : Capnp.Rpc.Proxy.Share(FertilizerServiceCap))
+                                                       Params=@mf />
+                            }
+                            break;
+                        case ExtType.organicFertilization:
+                            if (e.Params == null || e.Params is not Mgmt.Params.OrganicFertilization) e.Params = new Mgmt.Params.OrganicFertilization() { Params = new() { Params = new() } };
+                            if (e.Params is Mgmt.Params.OrganicFertilization of)
+                            {
+                                <EditOrganicFertilizer FertilizerServiceCap=@(FertilizerServiceCap == null ? null : Capnp.Rpc.Proxy.Share(FertilizerServiceCap))
+                                                       Params=@of />
+                            }
+                            break;
+                        case ExtType.tillage:
+                            if (e.Params == null || e.Params is not Mgmt.Params.Tillage) e.Params = new Mgmt.Params.Tillage();
+                            if (e.Params is Mgmt.Params.Tillage t)
+                            {
+                                <EditTillage Params=@t />
+                            }
+                            break;
+                        case ExtType.irrigation:
+                            if (e.Params == null || e.Params is not Mgmt.Params.Irrigation) e.Params = new Mgmt.Params.Irrigation() { Params = new() };
+                            if (e.Params is Mgmt.Params.Irrigation ir)
+                            {
+                                <EditIrrigation Params=@ir />
+                            }
+                            break;
+                    }
+                </td>
+                <td>
+                    <MudFab Icon=@Icons.Material.Filled.ArrowUpward
+                            Size=@Size.Small
+                            Disabled=@(i == 0)
+                            OnClick=@(() => {
+                                              CropRotation.Remove(e);
+                                              CropRotation.Insert(Math.Max(0, i - 1), e);
+                                              StateHasChanged();
+                                          }) />
+                    <MudFab Icon=@Icons.Material.Filled.ArrowDownward
+                            Size=@Size.Small
+                            Disabled=@(i == CropRotation.Count() - 1)
+                            OnClick=@(() => {
+                                              CropRotation.Remove(e);
+                                              CropRotation.Insert(Math.Min(i + 1, CropRotation.Count()), e);
+                                              StateHasChanged();
+                                          }) />
+                    <MudFab Icon=@Icons.Material.Filled.Add
+                            Size=@Size.Small
+                            Color=@Color.Success
+                            OnClick=@(() => {
+                                              CropRotation.Insert(Math.Min(i + 1, CropRotation.Count()), new Mgmt.Event());
+                                              StateHasChanged();
+                                          }) />
+                    <MudFab Icon=@Icons.Material.Filled.Delete
+                            Size=@Size.Small
+                            Color=@Color.Error
+                            OnClick=@(() => { CropRotation.Remove(e); StateHasChanged(); }) />
+                </td>
+            </tr>
+        }
+    </tbody>
+</MudSimpleTable>
+
+@code {
+    [Parameter]
+    public List<Mgmt.Event> CropRotation { get; set; } = new();
+
+    [Parameter]
+    public Mgmt.IFertilizerService FertilizerServiceCap { get; set; }
+
+    [Parameter]
+    public Reg.IRegistry CropRegistryServiceCap { get; set; }
+
+    private System.Globalization.TextInfo textInfo = new System.Globalization.CultureInfo("de-DE", false).TextInfo;
+
+    private IEnumerable<Mgmt.Event.Type> allMgmtEventTypes =
+                                    Enum.GetValues(typeof(ExtType)).Cast<ExtType>().
+                                    Select(et => new Mgmt.Event.Type { External = et }).Concat(
+                                        Enum.GetValues(typeof(Mgmt.Event.PhenoStage)).Cast<Mgmt.Event.PhenoStage>().
+                                        Select(ps => new Mgmt.Event.Type { Internal = ps }));
+
+    private string mgmtEventTypeName(Mgmt.Event.Type t)
+    {
+        if (t == null) return "";
+        return Helper.Capitalize(t.which == Mgmt.Event.Type.WHICH.External
+            ? t.External.ToString() : t.Internal.ToString());
+    }
+
+    void IDisposable.Dispose()
+    {
+        Console.WriteLine("Disposing Management.IFertilizerService cap: " + FertilizerServiceCap);
+        FertilizerServiceCap?.Dispose();
+        Console.WriteLine("Disposing EditCropRotatio.CropRegistryServiceCap cap: " + CropRegistryServiceCap);
+        CropRegistryServiceCap?.Dispose();
+    }
+}

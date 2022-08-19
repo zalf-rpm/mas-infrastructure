@@ -1,0 +1,89 @@
+﻿@namespace Mas.Infrastructure.BlazorComponents
+
+@using MudBlazor
+@using Mas.Infrastructure.Common
+@using Mgmt = Mas.Schema.Management
+
+@code {
+    Func<float?, string?> valid = val => val < 0 || val > 100 ? "[0 - 100]" : null;
+}
+<MudCard>
+    <MudCardContent>
+        <MudTextField @bind-Value=Params.CutMaxAssimilationRatePercentage
+                      Label="Cut max assimilation rate %"
+                      Adornment="Adornment.End"
+                      AdornmentText="%"
+                      Validation=@valid />
+        <MudSimpleTable>
+            <thead>
+                <tr>
+                    <th>Organ</th>
+                    <th>Value</th>
+                    <th>Unit</th>
+                    <th>Cut/Left</th>
+                    <th>Export %</th>
+                    <th style="width:20%">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var (i, cs) in Params.CuttingSpec.Select((cs, i) => (i, cs)))
+                {
+                    <tr>
+                        <td>
+                            <MudSelect @bind-Value=cs.Organ Label="Organ">
+                                @foreach (Mgmt.PlantOrgan po in Enum.GetValues(typeof(Mgmt.PlantOrgan)))
+                                    {
+                                    <MudSelectItem Value="@po">@Helper.Capitalize(po.ToString().Replace("strukt", "struct"))</MudSelectItem>
+                                    }
+                            </MudSelect>
+                        </td>
+                        <td>
+                            <MudTextField @bind-Value=cs.Value
+                                          Label="Value"
+                                          Adornment="Adornment.End"
+                                          AdornmentText=@(cs.Unit == Mgmt.Params.Cutting.Unit.percentage
+                                                          ? "%" : cs.Unit == Mgmt.Params.Cutting.Unit.biomass
+                                                          ? "kg ha-1" : "m2 m-2") />
+                        </td>
+                        <td>
+                            <MudSelect @bind-Value=cs.CutOrLeft Label="Cut/Left">
+                                <MudSelectItem Value=@Mgmt.Params.Cutting.CL.cut>Cut</MudSelectItem>
+                                <MudSelectItem Value=@Mgmt.Params.Cutting.CL.left>Left</MudSelectItem>
+                            </MudSelect>
+                        </td>
+                        <td>
+                            <MudTextField @bind-Value=cs.ExportPercentage
+                                          Label="Export%"
+                                          Adornment="Adornment.End"
+                                          AdornmentText="%"
+                                          Validation=@valid />
+                        </td>
+                        <td>
+                            <MudFab Icon=@Icons.Material.Filled.Add
+                                    Size=@Size.Small
+                                    Color=@Color.Success
+                                    OnClick=@(() => {
+                                                  (Params.CuttingSpec as List<Mgmt.Params.Cutting.Spec>)?.Insert(Math.Min(i + 1, Params.CuttingSpec.Count()),
+                                                      new Mgmt.Params.Cutting.Spec());
+                                                  StateHasChanged();
+                                              }) />
+                            <MudFab Icon=@Icons.Material.Filled.Delete
+                                    Disabled=@(Params.CuttingSpec.Count() < 2)
+                                    Size=@Size.Small
+                                    Color=@Color.Error
+                                    OnClick=@(() => {
+                                                  (Params.CuttingSpec as List<Mgmt.Params.Cutting.Spec>)?.Remove(cs);
+                                                  StateHasChanged();
+                                              }) />
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </MudSimpleTable>
+    </MudCardContent>
+</MudCard>
+
+@code {
+    [Parameter]
+    public Mgmt.Params.Cutting Params { get; set; } = new();
+}

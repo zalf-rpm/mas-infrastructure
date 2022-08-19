@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Mas.Infrastructure.Common
 {
-    public class Restorer : Mas.Rpc.Persistence.IRestorer
+    public class Restorer : Mas.Schema.Persistence.IRestorer
     {
         private ConcurrentDictionary<string, Proxy> _srToken2Capability = new();
 
@@ -112,7 +112,7 @@ namespace Mas.Infrastructure.Common
 
 //-----------------------------------------------------------------------------
 
-    public class Action : Mas.Rpc.Common.IAction
+    public class Action : Mas.Schema.Common.IAction
     {
         private System.Action _removeService;
         private bool _alreadyCalled = false;
@@ -156,7 +156,7 @@ namespace Mas.Infrastructure.Common
 
 //-----------------------------------------------------------------------------
 
-    public class Action1 : Mas.Rpc.Common.IAction1
+    public class Action1 : Mas.Schema.Common.IAction1
     {
         private System.Action<object> _removeService;
         private Restorer _restorer;

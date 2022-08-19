@@ -1,0 +1,75 @@
+﻿@namespace Mas.Infrastructure.BlazorComponents
+
+@using MudBlazor
+@using Mgmt = Mas.Schema.Management
+@using Reg = Mas.Schema.Registry
+@using Crop = Mas.Schema.Crop
+
+@implements IDisposable
+
+<MudCard>
+    <MudCardContent>
+        @if (CropRegistryServiceCap == null)
+        {
+            <MudSelect @bind-Value=Params.Cultivar Label="Crop.json cultivar">
+                @foreach (Crop.Cultivar cult in Enum.GetValues(typeof(Crop.Cultivar)))
+                    {
+                    <MudSelectItem Value="@cult">@cult.ToString()</MudSelectItem>
+                    }
+            </MudSelect>
+        }
+        else
+        {
+            <MudSelect @bind-Value=Params.Crop Label="Crop-Service Cultivar">
+                @foreach (var entry in allCultivarEntries)
+                    {
+                    <MudSelectItem Value=@entry.Ref>@entry.Name</MudSelectItem>
+                    }
+            </MudSelect>
+        }
+        <!--
+    <MudTextField @bind-Value=Params.PlantDensity
+                  Label="Plant density"
+                  HelperText="> 0 overwrites plant density from species parameters"
+                  Adornment="Adornment.End"
+                  AdornmentText="plants m-2" />
+    -->
+    </MudCardContent>
+</MudCard>
+
+@code {
+    [Parameter]
+    public Mgmt.Params.Sowing Params { get; set; } = new();
+
+    [Parameter]
+    public Reg.IRegistry CropRegistryServiceCap { get; set; }
+
+    private bool cropRegistryCapUpdated = false;
+
+    private IEnumerable<Reg.Registry.Entry> allCultivarEntries = new List<Reg.Registry.Entry>();
+
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        cropRegistryCapUpdated = parameters.GetValueOrDefault<Reg.IRegistry>("CropRegistryServiceCap", null) != CropRegistryServiceCap;
+        await base.SetParametersAsync(parameters);
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (cropRegistryCapUpdated) await LoadCultivars();
+    }
+
+    private async Task LoadCultivars()
+    {
+        if (CropRegistryServiceCap == null) return;
+
+        var entries = await CropRegistryServiceCap.Entries(null);
+        allCultivarEntries = entries.OrderBy(e => $"{e.CategoryId}_{e.Name}");
+    }
+
+    void IDisposable.Dispose()
+    {
+        Console.WriteLine("Disposing EditSowing.CropRegistryServiceCap cap: " + CropRegistryServiceCap);
+        CropRegistryServiceCap?.Dispose();
+    }
+}
