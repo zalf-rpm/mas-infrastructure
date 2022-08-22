@@ -23,7 +23,7 @@
                 <col style="width: 5%;" />
             </ColGroup>
             <HeaderContent>
-                <MudTh>Interface</MudTh>
+                <MudTh>InterfaceId</MudTh>
                 <MudTh>Auto connect?</MudTh>
                 <MudTh>Select by default?</MudTh>
                 <MudTh>Petname</MudTh>
@@ -31,7 +31,7 @@
                 <MudTh>Action</MudTh>
             </HeaderContent>
             <RowTemplate>
-                <MudTd DataLabel="Interface">@context.Interface</MudTd>
+                <MudTd DataLabel="InterfaceId">@context.InterfaceId</MudTd>
                 <MudTd DataLabel="Auto connect?">@context.AutoConnect</MudTd>
                 <MudTd DataLabel="Select by default?">@context.DefaultSelect</MudTd>
                 <MudTd DataLabel="Petname">@context.PetName</MudTd>
@@ -49,12 +49,12 @@
 
             </RowTemplate>
             <RowEditingTemplate>
-                <MudTd DataLabel="Interface">
-                    <MudTextField T=@string
-                                  Value=@context.Interface 
+                <MudTd DataLabel="InterfaceId">
+                    <MudTextField T=@ulong
+                                  Value=@context.InterfaceId 
                                   ValueChanged=@(v => {
-                                                     context.Interface = v;
-                                                     if(context.DefaultSelect) bookmarkWithLastDefaultSwitchedOn[context.Interface] = context;
+                                                     context.InterfaceId = v;
+                                                     if(context.DefaultSelect) bookmarkWithLastDefaultSwitchedOn[context.InterfaceId] = context;
                                                  })
                                   Required/>
                 </MudTd>
@@ -65,7 +65,7 @@
                                CheckedChanged=@(s =>
                                                 {
                                                     context.DefaultSelect = s;
-                                                    bookmarkWithLastDefaultSwitchedOn[context.Interface] = context;
+                                                    bookmarkWithLastDefaultSwitchedOn[context.InterfaceId] = context;
                                                 })
                                Color=@Color.Primary />
                 </MudTd>
@@ -85,7 +85,7 @@
 
     private List<StoredSRData> bookmarks = new();
 
-    private Dictionary<string, StoredSRData> bookmarkWithLastDefaultSwitchedOn = new();
+    private Dictionary<ulong?, StoredSRData> bookmarkWithLastDefaultSwitchedOn = new();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -109,7 +109,7 @@
         {
             foreach (var b in bookmarks)
             {
-                var def = bookmarkWithLastDefaultSwitchedOn.GetValueOrDefault(b.Interface, null);
+                var def = bookmarkWithLastDefaultSwitchedOn.GetValueOrDefault(b.InterfaceId, null);
                 if (def != null && def.DefaultSelect && b != def) b.DefaultSelect = false;
             }
         }
@@ -121,7 +121,7 @@
 
     private async Task SaveBookmarks()
     {
-        var bms = bookmarks.Where(d => !string.IsNullOrEmpty(d.SturdyRef) && !string.IsNullOrEmpty(d.Interface));
+        var bms = bookmarks.Where(d => !string.IsNullOrEmpty(d.SturdyRef) && d.InterfaceId != null);
         await StoredSRData.SaveAllData(LocalStorage, bms.ToList());
     }
 

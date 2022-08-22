@@ -1,24 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Blazored.LocalStorage;
+﻿using Blazored.LocalStorage;
 
 namespace Mas.Infrastructure.BlazorComponents
 {
     public class StoredSRData : IComparable<StoredSRData>
     {
-        public string Interface { get; set; }
+        public ulong InterfaceId { get; set; } = 0;
         public string SturdyRef { get; set; } = "";
-        public string PetName { get; set; }
+        public string PetName { get; set; } = "";
         public bool AutoConnect { get; set; } = false;
         public bool DefaultSelect { get; set; } = false;
 
-        public int CompareTo(StoredSRData other)
+        public int CompareTo(StoredSRData? other)
         {
             // A null value means that this object is greater.
             if (other == null)
                 return 1;
-            if (PetName != null && other.PetName != null)
+            if (PetName != "" && other.PetName != "")
                 return PetName.CompareTo(other.PetName);
             else
                 return SturdyRef.CompareTo(other.SturdyRef);

@@ -2,6 +2,7 @@
 @using MudBlazor
 @using Mas.Schema;
 @using System.Threading;
+@using System.Reflection;
 
 @namespace Mas.Infrastructure.BlazorComponents
 
@@ -189,7 +190,7 @@
     }
 
     private List<StoredSRData> allBookmarks = new();
-    private List<StoredSRData> bookmarks => allBookmarks.Where(b => b.Interface == typeof(TCapnpInterface).ToString()).ToList();
+    private List<StoredSRData> bookmarks => allBookmarks.Where(b => b.InterfaceId == typeof(TCapnpInterface).GetCustomAttribute<Capnp.TypeIdAttribute>(false)?.Id).ToList();
     private StoredSRData selectedBookmark;
 
     private async Task SelectedBookmarkChanged(StoredSRData b, bool allowAutoConnect)
@@ -209,7 +210,7 @@
     {
         new StoredSRData
         {
-            Interface = "Mas.Rpc.Climate.IService",
+            InterfaceId = 0xfe7d08d4352b0c5f,
             PetName = "DWD CMIP5 EURO-CORDEX ReKLiEs-De",
             SturdyRef = "capnp://login01.cluster.zalf.de:9998",
             AutoConnect = true,
@@ -217,7 +218,7 @@
         },
         new StoredSRData
         {
-            Interface = "Mas.Rpc.Climate.IService",
+            InterfaceId = 0xfe7d08d4352b0c5f,
             PetName = "DWD Germany",
             SturdyRef = "capnp://login01.cluster.zalf.de:9999",
             AutoConnect = true,
@@ -225,7 +226,7 @@
         },
         new StoredSRData
         {
-            Interface = "Mas.Rpc.Climate.ITimeSeries",
+            InterfaceId = 0xa7769f40fe6e6de8,
             PetName = "Hohenfinow2 Test CSV",
             SturdyRef = "capnp://login01.cluster.zalf.de:11002",
             AutoConnect = true,
@@ -233,7 +234,7 @@
         },
         new StoredSRData
         {
-            Interface = "Mas.Rpc.Soil.IService",
+            InterfaceId = 0xa09aa71427dc64e1,
             PetName = "BÜK200",
             SturdyRef = "capnp://login01.cluster.zalf.de:10001",
             AutoConnect = true,
@@ -241,7 +242,7 @@
         },
         new StoredSRData
         {
-            Interface = "Mas.Rpc.Soil.IService",
+            InterfaceId = 0xa09aa71427dc64e1,
             PetName = "BÜK1000",
             SturdyRef = "capnp://login01.cluster.zalf.de:10000",
             AutoConnect = true,
@@ -249,7 +250,7 @@
         },
         new StoredSRData
         {
-            Interface = "Mas.Rpc.Model.IEnvInstance`2[Mas.Rpc.Common.StructuredText,Mas.Rpc.Common.StructuredText]",
+            InterfaceId = 0xa5feedafa5ec5c4a,
             PetName = "a MONICA instance",
             SturdyRef = "capnp://login01.cluster.zalf.de:12003",
             AutoConnect = true,
@@ -257,7 +258,7 @@
         },
         new StoredSRData
         {
-            Interface = "Mas.Rpc.Model.IEnvInstance`2[Mas.Rpc.Common.StructuredText,Mas.Rpc.Common.StructuredText]",
+            InterfaceId = 0xa5feedafa5ec5c4a,
             PetName = "a proxy with 5 MONICA instances",
             SturdyRef = "capnp://login01.cluster.zalf.de:12002",
             AutoConnect = true,
@@ -265,7 +266,7 @@
         },
         new StoredSRData
         {
-            Interface = "Mas.Rpc.Climate.IAlterTimeSeriesWrapperFactory",
+            InterfaceId = 0xe1f480ef979784b2,
             PetName = "Alter time series wrapper",
             SturdyRef = "capnp://login01.cluster.zalf.de:11006",
             AutoConnect = true,
@@ -273,7 +274,7 @@
         },
         new StoredSRData
         {
-            Interface = "Mas.Rpc.Model.ICSVTimeSeriesFactory",
+            InterfaceId = 0xa418c26cc59929d9,
             PetName = "Time series factory from CSV data",
             SturdyRef = "capnp://login01.cluster.zalf.de:11005",
             AutoConnect = false,
@@ -281,7 +282,7 @@
         },
         new StoredSRData
         {
-            Interface = "Mas.Rpc.Management.IFertilizerService",
+            InterfaceId = 0xbbb7aeae0d097e05,
             PetName = "Fertilizer service",
             SturdyRef = "capnp://login01.cluster.zalf.de:13001",
             AutoConnect = true,
@@ -289,7 +290,7 @@
         },
         new StoredSRData
         {
-            Interface = "Mas.Rpc.Registry.IRegistry",
+            InterfaceId = 0xca7b4bd1600633b8,
             PetName = "Crop registry",
             SturdyRef = "capnp://login01.cluster.zalf.de:14001",
             AutoConnect = true,
@@ -330,7 +331,7 @@
         }
     }
 
-    private async Task OpenAddSturdyRefDialog(StoredSRData editData = null)
+    private async Task OpenAddSturdyRefDialog(StoredSRData? editData = null)
     {
         var parameters = new DialogParameters();
         parameters.Add("Interface", typeof(TCapnpInterface).ToString());
