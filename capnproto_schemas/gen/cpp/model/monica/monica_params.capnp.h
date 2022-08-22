@@ -10,7 +10,7 @@
 #error "Version mismatch between generated code and library headers.  You must use the same version of the Cap'n Proto compiler and library."
 #endif
 
-#include "../../climate_data.capnp.h"
+#include "../../climate.capnp.h"
 #include "../../date.capnp.h"
 #include "../../management.capnp.h"
 

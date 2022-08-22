@@ -13,6 +13,8 @@
 #error "Version mismatch between generated code and library headers.  You must use the same version of the Cap'n Proto compiler and library."
 #endif
 
+#include "common.capnp.h"
+#include "persistence.capnp.h"
 
 CAPNP_BEGIN_HEADER
 
@@ -204,7 +206,9 @@ private:
 
 #if !CAPNP_LITE
 class Service::Client
-    : public virtual ::capnp::Capability::Client {
+    : public virtual ::capnp::Capability::Client,
+      public virtual  ::mas::schema::common::Identifiable::Client,
+      public virtual  ::mas::schema::persistence::Persistent::Client {
 public:
   typedef Service Calls;
   typedef Service Reads;
@@ -229,7 +233,9 @@ protected:
 };
 
 class Service::Server
-    : public virtual ::capnp::Capability::Server {
+    : public virtual ::capnp::Capability::Server,
+      public virtual  ::mas::schema::common::Identifiable::Server,
+      public virtual  ::mas::schema::persistence::Persistent::Server {
 public:
   typedef Service Serves;
 

@@ -9,7 +9,7 @@ $Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/manageme
 
 using Date = import "date.capnp".Date;
 using Common = import "common.capnp";
-using Geo = import "geo_coord.capnp";
+using Geo = import "geo.capnp";
 using Crop = import "crop.capnp";
 
 struct ILRDates {

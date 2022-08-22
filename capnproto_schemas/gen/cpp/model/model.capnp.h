@@ -13,11 +13,11 @@
 #error "Version mismatch between generated code and library headers.  You must use the same version of the Cap'n Proto compiler and library."
 #endif
 
-#include "climate_data.capnp.h"
+#include "climate.capnp.h"
 #include "common.capnp.h"
 #include "management.capnp.h"
 #include "persistence.capnp.h"
-#include "soil_data.capnp.h"
+#include "soil.capnp.h"
 
 CAPNP_BEGIN_HEADER
 
@@ -1266,7 +1266,6 @@ class EnvInstance<RestInput, Output>::Client
     : public virtual ::capnp::Capability::Client,
       public virtual  ::mas::schema::common::Identifiable::Client,
       public virtual  ::mas::schema::persistence::Persistent::Client,
-      public virtual  ::mas::schema::persistence::Restorer::Client,
       public virtual  ::mas::schema::common::Stopable::Client {
 public:
   typedef EnvInstance Calls;
@@ -1301,7 +1300,6 @@ class EnvInstance<RestInput, Output>::Server
     : public virtual ::capnp::Capability::Server,
       public virtual  ::mas::schema::common::Identifiable::Server,
       public virtual  ::mas::schema::persistence::Persistent::Server,
-      public virtual  ::mas::schema::persistence::Restorer::Server,
       public virtual  ::mas::schema::common::Stopable::Server {
 public:
   typedef EnvInstance Serves;
@@ -3103,8 +3101,6 @@ template <typename RestInput, typename Output>
   switch (interfaceId) {
     case 0xa5feedafa5ec5c4aull:
       return dispatchCallInternal(methodId, context);
-    case 0x9fb6218427d92e3cull:
-      return  ::mas::schema::persistence::Restorer::Server::dispatchCallInternal(methodId, context);
     case 0xb2afd1cb599c48d5ull:
       return  ::mas::schema::common::Identifiable::Server::dispatchCallInternal(methodId, context);
     case 0xc1a7daa0dc36cb65ull:
@@ -3365,8 +3361,6 @@ template <typename RestInput, typename Output>
   switch (interfaceId) {
     case 0x87cbebfc1164a24aull:
       return dispatchCallInternal(methodId, context);
-    case 0x9fb6218427d92e3cull:
-      return  ::mas::schema::persistence::Restorer::Server::dispatchCallInternal(methodId, context);
     case 0xa5feedafa5ec5c4aull:
       return  ::mas::schema::model::EnvInstance<RestInput, Output>::Server::dispatchCallInternal(methodId, context);
     case 0xb2afd1cb599c48d5ull:

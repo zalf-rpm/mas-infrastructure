@@ -7,11 +7,11 @@ find_package(CapnProto CONFIG REQUIRED)
 set(CAPNPC_SRC_PREFIX ${CAPNP_SCHEMAS_DIR})
 capnp_generate_cpp(CAPNP_SRCS CAPNP_HDRS 
 common.capnp 
-climate_data.capnp
+climate.capnp
 cluster_admin_service.capnp
 crop.capnp
 date.capnp
-geo_coord.capnp
+geo.capnp
 management.capnp
 model.capnp
 model/monica/monica_params.capnp
@@ -19,7 +19,7 @@ model/monica/soil_params.capnp
 model/monica/monica_state.capnp
 persistence.capnp
 registry.capnp
-soil_data.capnp
+soil.capnp
 model/yieldstat/yieldstat.capnp
 )
 message(STATUS "CAPNP_HDRS: " ${CAPNP_HDRS})

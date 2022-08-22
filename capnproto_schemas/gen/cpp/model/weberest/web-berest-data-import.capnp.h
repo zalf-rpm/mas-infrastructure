@@ -156,10 +156,10 @@ public:
   inline  ::capnp::Text::Reader getId() const;
 
   inline bool hasDwla() const;
-  inline  ::capnp::Text::Reader getDwla() const;
+  inline  ::capnp::Data::Reader getDwla() const;
 
   inline bool hasDwlb() const;
-  inline  ::capnp::Text::Reader getDwlb() const;
+  inline  ::capnp::Data::Reader getDwlb() const;
 
 private:
   ::capnp::_::StructReader _reader;
@@ -197,18 +197,18 @@ public:
   inline ::capnp::Orphan< ::capnp::Text> disownId();
 
   inline bool hasDwla();
-  inline  ::capnp::Text::Builder getDwla();
-  inline void setDwla( ::capnp::Text::Reader value);
-  inline  ::capnp::Text::Builder initDwla(unsigned int size);
-  inline void adoptDwla(::capnp::Orphan< ::capnp::Text>&& value);
-  inline ::capnp::Orphan< ::capnp::Text> disownDwla();
+  inline  ::capnp::Data::Builder getDwla();
+  inline void setDwla( ::capnp::Data::Reader value);
+  inline  ::capnp::Data::Builder initDwla(unsigned int size);
+  inline void adoptDwla(::capnp::Orphan< ::capnp::Data>&& value);
+  inline ::capnp::Orphan< ::capnp::Data> disownDwla();
 
   inline bool hasDwlb();
-  inline  ::capnp::Text::Builder getDwlb();
-  inline void setDwlb( ::capnp::Text::Reader value);
-  inline  ::capnp::Text::Builder initDwlb(unsigned int size);
-  inline void adoptDwlb(::capnp::Orphan< ::capnp::Text>&& value);
-  inline ::capnp::Orphan< ::capnp::Text> disownDwlb();
+  inline  ::capnp::Data::Builder getDwlb();
+  inline void setDwlb( ::capnp::Data::Reader value);
+  inline  ::capnp::Data::Builder initDwlb(unsigned int size);
+  inline void adoptDwlb(::capnp::Orphan< ::capnp::Data>&& value);
+  inline ::capnp::Orphan< ::capnp::Data> disownDwlb();
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -395,29 +395,29 @@ inline bool DWLABImport::ImportDataParams::Builder::hasDwla() {
   return !_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
 }
-inline  ::capnp::Text::Reader DWLABImport::ImportDataParams::Reader::getDwla() const {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_reader.getPointerField(
+inline  ::capnp::Data::Reader DWLABImport::ImportDataParams::Reader::getDwla() const {
+  return ::capnp::_::PointerHelpers< ::capnp::Data>::get(_reader.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
-inline  ::capnp::Text::Builder DWLABImport::ImportDataParams::Builder::getDwla() {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_builder.getPointerField(
+inline  ::capnp::Data::Builder DWLABImport::ImportDataParams::Builder::getDwla() {
+  return ::capnp::_::PointerHelpers< ::capnp::Data>::get(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
-inline void DWLABImport::ImportDataParams::Builder::setDwla( ::capnp::Text::Reader value) {
-  ::capnp::_::PointerHelpers< ::capnp::Text>::set(_builder.getPointerField(
+inline void DWLABImport::ImportDataParams::Builder::setDwla( ::capnp::Data::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::Data>::set(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS), value);
 }
-inline  ::capnp::Text::Builder DWLABImport::ImportDataParams::Builder::initDwla(unsigned int size) {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::init(_builder.getPointerField(
+inline  ::capnp::Data::Builder DWLABImport::ImportDataParams::Builder::initDwla(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::Data>::init(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS), size);
 }
 inline void DWLABImport::ImportDataParams::Builder::adoptDwla(
-    ::capnp::Orphan< ::capnp::Text>&& value) {
-  ::capnp::_::PointerHelpers< ::capnp::Text>::adopt(_builder.getPointerField(
+    ::capnp::Orphan< ::capnp::Data>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::Data>::adopt(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::capnp::Text> DWLABImport::ImportDataParams::Builder::disownDwla() {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::disown(_builder.getPointerField(
+inline ::capnp::Orphan< ::capnp::Data> DWLABImport::ImportDataParams::Builder::disownDwla() {
+  return ::capnp::_::PointerHelpers< ::capnp::Data>::disown(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
 
@@ -429,29 +429,29 @@ inline bool DWLABImport::ImportDataParams::Builder::hasDwlb() {
   return !_builder.getPointerField(
       ::capnp::bounded<2>() * ::capnp::POINTERS).isNull();
 }
-inline  ::capnp::Text::Reader DWLABImport::ImportDataParams::Reader::getDwlb() const {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_reader.getPointerField(
+inline  ::capnp::Data::Reader DWLABImport::ImportDataParams::Reader::getDwlb() const {
+  return ::capnp::_::PointerHelpers< ::capnp::Data>::get(_reader.getPointerField(
       ::capnp::bounded<2>() * ::capnp::POINTERS));
 }
-inline  ::capnp::Text::Builder DWLABImport::ImportDataParams::Builder::getDwlb() {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_builder.getPointerField(
+inline  ::capnp::Data::Builder DWLABImport::ImportDataParams::Builder::getDwlb() {
+  return ::capnp::_::PointerHelpers< ::capnp::Data>::get(_builder.getPointerField(
       ::capnp::bounded<2>() * ::capnp::POINTERS));
 }
-inline void DWLABImport::ImportDataParams::Builder::setDwlb( ::capnp::Text::Reader value) {
-  ::capnp::_::PointerHelpers< ::capnp::Text>::set(_builder.getPointerField(
+inline void DWLABImport::ImportDataParams::Builder::setDwlb( ::capnp::Data::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::Data>::set(_builder.getPointerField(
       ::capnp::bounded<2>() * ::capnp::POINTERS), value);
 }
-inline  ::capnp::Text::Builder DWLABImport::ImportDataParams::Builder::initDwlb(unsigned int size) {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::init(_builder.getPointerField(
+inline  ::capnp::Data::Builder DWLABImport::ImportDataParams::Builder::initDwlb(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::Data>::init(_builder.getPointerField(
       ::capnp::bounded<2>() * ::capnp::POINTERS), size);
 }
 inline void DWLABImport::ImportDataParams::Builder::adoptDwlb(
-    ::capnp::Orphan< ::capnp::Text>&& value) {
-  ::capnp::_::PointerHelpers< ::capnp::Text>::adopt(_builder.getPointerField(
+    ::capnp::Orphan< ::capnp::Data>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::Data>::adopt(_builder.getPointerField(
       ::capnp::bounded<2>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::capnp::Text> DWLABImport::ImportDataParams::Builder::disownDwlb() {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::disown(_builder.getPointerField(
+inline ::capnp::Orphan< ::capnp::Data> DWLABImport::ImportDataParams::Builder::disownDwlb() {
+  return ::capnp::_::PointerHelpers< ::capnp::Data>::disown(_builder.getPointerField(
       ::capnp::bounded<2>() * ::capnp::POINTERS));
 }
 

@@ -16,13 +16,14 @@
 #include "common.capnp.h"
 #include "crop.capnp.h"
 #include "date.capnp.h"
-#include "geo_coord.capnp.h"
+#include "geo.capnp.h"
 
 CAPNP_BEGIN_HEADER
 
 namespace capnp {
 namespace schemas {
 
+CAPNP_DECLARE_SCHEMA(c70d4452b8b0ebd7);
 CAPNP_DECLARE_SCHEMA(f95ca008c46a4b3b);
 enum class MineralFertilizer_f95ca008c46a4b3b: uint16_t {
   AHLS,
@@ -175,6 +176,21 @@ CAPNP_DECLARE_SCHEMA(cca7748d367db151);
 namespace mas {
 namespace schema {
 namespace management {
+
+struct ILRDates {
+  ILRDates() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(c70d4452b8b0ebd7, 0, 5)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
 
 typedef ::capnp::schemas::MineralFertilizer_f95ca008c46a4b3b MineralFertilizer;
 
@@ -684,6 +700,132 @@ struct Service::ManagementAtResults {
 };
 
 // =======================================================================================
+
+class ILRDates::Reader {
+public:
+  typedef ILRDates Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  inline bool hasSowing() const;
+  inline  ::mas::schema::common::Date::Reader getSowing() const;
+
+  inline bool hasEarliestSowing() const;
+  inline  ::mas::schema::common::Date::Reader getEarliestSowing() const;
+
+  inline bool hasLatestSowing() const;
+  inline  ::mas::schema::common::Date::Reader getLatestSowing() const;
+
+  inline bool hasHarvest() const;
+  inline  ::mas::schema::common::Date::Reader getHarvest() const;
+
+  inline bool hasLatestHarvest() const;
+  inline  ::mas::schema::common::Date::Reader getLatestHarvest() const;
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class ILRDates::Builder {
+public:
+  typedef ILRDates Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline bool hasSowing();
+  inline  ::mas::schema::common::Date::Builder getSowing();
+  inline void setSowing( ::mas::schema::common::Date::Reader value);
+  inline  ::mas::schema::common::Date::Builder initSowing();
+  inline void adoptSowing(::capnp::Orphan< ::mas::schema::common::Date>&& value);
+  inline ::capnp::Orphan< ::mas::schema::common::Date> disownSowing();
+
+  inline bool hasEarliestSowing();
+  inline  ::mas::schema::common::Date::Builder getEarliestSowing();
+  inline void setEarliestSowing( ::mas::schema::common::Date::Reader value);
+  inline  ::mas::schema::common::Date::Builder initEarliestSowing();
+  inline void adoptEarliestSowing(::capnp::Orphan< ::mas::schema::common::Date>&& value);
+  inline ::capnp::Orphan< ::mas::schema::common::Date> disownEarliestSowing();
+
+  inline bool hasLatestSowing();
+  inline  ::mas::schema::common::Date::Builder getLatestSowing();
+  inline void setLatestSowing( ::mas::schema::common::Date::Reader value);
+  inline  ::mas::schema::common::Date::Builder initLatestSowing();
+  inline void adoptLatestSowing(::capnp::Orphan< ::mas::schema::common::Date>&& value);
+  inline ::capnp::Orphan< ::mas::schema::common::Date> disownLatestSowing();
+
+  inline bool hasHarvest();
+  inline  ::mas::schema::common::Date::Builder getHarvest();
+  inline void setHarvest( ::mas::schema::common::Date::Reader value);
+  inline  ::mas::schema::common::Date::Builder initHarvest();
+  inline void adoptHarvest(::capnp::Orphan< ::mas::schema::common::Date>&& value);
+  inline ::capnp::Orphan< ::mas::schema::common::Date> disownHarvest();
+
+  inline bool hasLatestHarvest();
+  inline  ::mas::schema::common::Date::Builder getLatestHarvest();
+  inline void setLatestHarvest( ::mas::schema::common::Date::Reader value);
+  inline  ::mas::schema::common::Date::Builder initLatestHarvest();
+  inline void adoptLatestHarvest(::capnp::Orphan< ::mas::schema::common::Date>&& value);
+  inline ::capnp::Orphan< ::mas::schema::common::Date> disownLatestHarvest();
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class ILRDates::Pipeline {
+public:
+  typedef ILRDates Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+  inline  ::mas::schema::common::Date::Pipeline getSowing();
+  inline  ::mas::schema::common::Date::Pipeline getEarliestSowing();
+  inline  ::mas::schema::common::Date::Pipeline getLatestSowing();
+  inline  ::mas::schema::common::Date::Pipeline getHarvest();
+  inline  ::mas::schema::common::Date::Pipeline getLatestHarvest();
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
 
 class Event::Reader {
 public:
@@ -3280,7 +3422,7 @@ public:
   Client& operator=(Client& other);
   Client& operator=(Client&& other);
 
-  ::capnp::Request< ::mas::schema::geocoord::LatLonCoord,  ::mas::schema::management::Service::ManagementAtResults> managementAtRequest(
+  ::capnp::Request< ::mas::schema::geo::LatLonCoord,  ::mas::schema::management::Service::ManagementAtResults> managementAtRequest(
       ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
 
 protected:
@@ -3300,7 +3442,7 @@ public:
 
 protected:
   typedef  ::mas::schema::management::Service::ManagementAtResults ManagementAtResults;
-  typedef ::capnp::CallContext< ::mas::schema::geocoord::LatLonCoord, ManagementAtResults> ManagementAtContext;
+  typedef ::capnp::CallContext< ::mas::schema::geo::LatLonCoord, ManagementAtResults> ManagementAtContext;
   virtual ::kj::Promise<void> managementAt(ManagementAtContext context);
 
   inline  ::mas::schema::management::Service::Client thisCap() {
@@ -3396,6 +3538,201 @@ private:
 #endif  // !CAPNP_LITE
 
 // =======================================================================================
+
+inline bool ILRDates::Reader::hasSowing() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline bool ILRDates::Builder::hasSowing() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline  ::mas::schema::common::Date::Reader ILRDates::Reader::getSowing() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::get(_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline  ::mas::schema::common::Date::Builder ILRDates::Builder::getSowing() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::get(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+#if !CAPNP_LITE
+inline  ::mas::schema::common::Date::Pipeline ILRDates::Pipeline::getSowing() {
+  return  ::mas::schema::common::Date::Pipeline(_typeless.getPointerField(0));
+}
+#endif  // !CAPNP_LITE
+inline void ILRDates::Builder::setSowing( ::mas::schema::common::Date::Reader value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::set(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), value);
+}
+inline  ::mas::schema::common::Date::Builder ILRDates::Builder::initSowing() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::init(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline void ILRDates::Builder::adoptSowing(
+    ::capnp::Orphan< ::mas::schema::common::Date>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::adopt(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::mas::schema::common::Date> ILRDates::Builder::disownSowing() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::disown(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+
+inline bool ILRDates::Reader::hasEarliestSowing() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
+}
+inline bool ILRDates::Builder::hasEarliestSowing() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
+}
+inline  ::mas::schema::common::Date::Reader ILRDates::Reader::getEarliestSowing() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::get(_reader.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+inline  ::mas::schema::common::Date::Builder ILRDates::Builder::getEarliestSowing() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::get(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+#if !CAPNP_LITE
+inline  ::mas::schema::common::Date::Pipeline ILRDates::Pipeline::getEarliestSowing() {
+  return  ::mas::schema::common::Date::Pipeline(_typeless.getPointerField(1));
+}
+#endif  // !CAPNP_LITE
+inline void ILRDates::Builder::setEarliestSowing( ::mas::schema::common::Date::Reader value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::set(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS), value);
+}
+inline  ::mas::schema::common::Date::Builder ILRDates::Builder::initEarliestSowing() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::init(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+inline void ILRDates::Builder::adoptEarliestSowing(
+    ::capnp::Orphan< ::mas::schema::common::Date>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::adopt(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::mas::schema::common::Date> ILRDates::Builder::disownEarliestSowing() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::disown(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+
+inline bool ILRDates::Reader::hasLatestSowing() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS).isNull();
+}
+inline bool ILRDates::Builder::hasLatestSowing() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS).isNull();
+}
+inline  ::mas::schema::common::Date::Reader ILRDates::Reader::getLatestSowing() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::get(_reader.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS));
+}
+inline  ::mas::schema::common::Date::Builder ILRDates::Builder::getLatestSowing() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::get(_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS));
+}
+#if !CAPNP_LITE
+inline  ::mas::schema::common::Date::Pipeline ILRDates::Pipeline::getLatestSowing() {
+  return  ::mas::schema::common::Date::Pipeline(_typeless.getPointerField(2));
+}
+#endif  // !CAPNP_LITE
+inline void ILRDates::Builder::setLatestSowing( ::mas::schema::common::Date::Reader value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::set(_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS), value);
+}
+inline  ::mas::schema::common::Date::Builder ILRDates::Builder::initLatestSowing() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::init(_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS));
+}
+inline void ILRDates::Builder::adoptLatestSowing(
+    ::capnp::Orphan< ::mas::schema::common::Date>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::adopt(_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::mas::schema::common::Date> ILRDates::Builder::disownLatestSowing() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::disown(_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS));
+}
+
+inline bool ILRDates::Reader::hasHarvest() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS).isNull();
+}
+inline bool ILRDates::Builder::hasHarvest() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS).isNull();
+}
+inline  ::mas::schema::common::Date::Reader ILRDates::Reader::getHarvest() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::get(_reader.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS));
+}
+inline  ::mas::schema::common::Date::Builder ILRDates::Builder::getHarvest() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::get(_builder.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS));
+}
+#if !CAPNP_LITE
+inline  ::mas::schema::common::Date::Pipeline ILRDates::Pipeline::getHarvest() {
+  return  ::mas::schema::common::Date::Pipeline(_typeless.getPointerField(3));
+}
+#endif  // !CAPNP_LITE
+inline void ILRDates::Builder::setHarvest( ::mas::schema::common::Date::Reader value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::set(_builder.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS), value);
+}
+inline  ::mas::schema::common::Date::Builder ILRDates::Builder::initHarvest() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::init(_builder.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS));
+}
+inline void ILRDates::Builder::adoptHarvest(
+    ::capnp::Orphan< ::mas::schema::common::Date>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::adopt(_builder.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::mas::schema::common::Date> ILRDates::Builder::disownHarvest() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::disown(_builder.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS));
+}
+
+inline bool ILRDates::Reader::hasLatestHarvest() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<4>() * ::capnp::POINTERS).isNull();
+}
+inline bool ILRDates::Builder::hasLatestHarvest() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<4>() * ::capnp::POINTERS).isNull();
+}
+inline  ::mas::schema::common::Date::Reader ILRDates::Reader::getLatestHarvest() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::get(_reader.getPointerField(
+      ::capnp::bounded<4>() * ::capnp::POINTERS));
+}
+inline  ::mas::schema::common::Date::Builder ILRDates::Builder::getLatestHarvest() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::get(_builder.getPointerField(
+      ::capnp::bounded<4>() * ::capnp::POINTERS));
+}
+#if !CAPNP_LITE
+inline  ::mas::schema::common::Date::Pipeline ILRDates::Pipeline::getLatestHarvest() {
+  return  ::mas::schema::common::Date::Pipeline(_typeless.getPointerField(4));
+}
+#endif  // !CAPNP_LITE
+inline void ILRDates::Builder::setLatestHarvest( ::mas::schema::common::Date::Reader value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::set(_builder.getPointerField(
+      ::capnp::bounded<4>() * ::capnp::POINTERS), value);
+}
+inline  ::mas::schema::common::Date::Builder ILRDates::Builder::initLatestHarvest() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::init(_builder.getPointerField(
+      ::capnp::bounded<4>() * ::capnp::POINTERS));
+}
+inline void ILRDates::Builder::adoptLatestHarvest(
+    ::capnp::Orphan< ::mas::schema::common::Date>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::adopt(_builder.getPointerField(
+      ::capnp::bounded<4>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::mas::schema::common::Date> ILRDates::Builder::disownLatestHarvest() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::disown(_builder.getPointerField(
+      ::capnp::bounded<4>() * ::capnp::POINTERS));
+}
 
 inline  ::mas::schema::management::Event::Which Event::Reader::which() const {
   return _reader.getDataField<Which>(

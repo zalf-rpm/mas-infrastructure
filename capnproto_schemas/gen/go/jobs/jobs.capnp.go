@@ -8,7 +8,8 @@ import (
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
-	geo "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/geo"
+	common "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/common"
+	persistence "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/persistence"
 )
 
 type Job struct{ capnp.Struct }
@@ -36,28 +37,16 @@ func (s Job) String() string {
 	return str
 }
 
-func (s Job) LatLngCoords() (geo.LatLonCoord_List, error) {
-	p, err := s.Struct.Ptr(0)
-	return geo.LatLonCoord_List{List: p.List()}, err
+func (s Job) Data() (capnp.Ptr, error) {
+	return s.Struct.Ptr(0)
 }
 
-func (s Job) HasLatLngCoords() bool {
+func (s Job) HasData() bool {
 	return s.Struct.HasPtr(0)
 }
 
-func (s Job) SetLatLngCoords(v geo.LatLonCoord_List) error {
-	return s.Struct.SetPtr(0, v.List.ToPtr())
-}
-
-// NewLatLngCoords sets the latLngCoords field to a newly
-// allocated geo.LatLonCoord_List, preferring placement in s's segment.
-func (s Job) NewLatLngCoords(n int32) (geo.LatLonCoord_List, error) {
-	l, err := geo.NewLatLonCoord_List(s.Struct.Segment(), n)
-	if err != nil {
-		return geo.LatLonCoord_List{}, err
-	}
-	err = s.Struct.SetPtr(0, l.List.ToPtr())
-	return l, err
+func (s Job) SetData(v capnp.Ptr) error {
+	return s.Struct.SetPtr(0, v)
 }
 
 func (s Job) NoFurtherJobs() bool {
@@ -94,6 +83,10 @@ func (p Job_Future) Struct() (Job, error) {
 	return Job{s}, err
 }
 
+func (p Job_Future) Data() *capnp.Future {
+	return p.Future.Field(0, nil)
+}
+
 type Service struct{ Client *capnp.Client }
 
 // Service_TypeID is the unique identifier for the type Service.
@@ -115,6 +108,38 @@ func (c Service) NextJob(ctx context.Context, params func(Service_nextJob_Params
 	ans, release := c.Client.SendCall(ctx, s)
 	return Service_nextJob_Results_Future{Future: ans.Future()}, release
 }
+func (c Service) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0xb2afd1cb599c48d5,
+			MethodID:      0,
+			InterfaceName: "common.capnp:Identifiable",
+			MethodName:    "info",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params{Struct: s}) }
+	}
+	ans, release := c.Client.SendCall(ctx, s)
+	return common.IdInformation_Future{Future: ans.Future()}, release
+}
+func (c Service) Save(ctx context.Context, params func(persistence.Persistent_save_Params) error) (persistence.Persistent_save_Results_Future, capnp.ReleaseFunc) {
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0xc1a7daa0dc36cb65,
+			MethodID:      0,
+			InterfaceName: "persistence.capnp:Persistent",
+			MethodName:    "save",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_save_Params{Struct: s}) }
+	}
+	ans, release := c.Client.SendCall(ctx, s)
+	return persistence.Persistent_save_Results_Future{Future: ans.Future()}, release
+}
 
 func (c Service) AddRef() Service {
 	return Service{
@@ -129,6 +154,10 @@ func (c Service) Release() {
 // A Service_Server is a Service with a local implementation.
 type Service_Server interface {
 	NextJob(context.Context, Service_nextJob) error
+
+	Info(context.Context, common.Identifiable_info) error
+
+	Save(context.Context, persistence.Persistent_save) error
 }
 
 // Service_NewServer creates a new Server from an implementation of Service_Server.
@@ -147,7 +176,7 @@ func Service_ServerToClient(s Service_Server, policy *server.Policy) Service {
 // This can be used to create a more complicated Server.
 func Service_Methods(methods []server.Method, s Service_Server) []server.Method {
 	if cap(methods) == 0 {
-		methods = make([]server.Method, 0, 1)
+		methods = make([]server.Method, 0, 3)
 	}
 
 	methods = append(methods, server.Method{
@@ -159,6 +188,30 @@ func Service_Methods(methods []server.Method, s Service_Server) []server.Method 
 		},
 		Impl: func(ctx context.Context, call *server.Call) error {
 			return s.NextJob(ctx, Service_nextJob{call})
+		},
+	})
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
+			InterfaceID:   0xb2afd1cb599c48d5,
+			MethodID:      0,
+			InterfaceName: "common.capnp:Identifiable",
+			MethodName:    "info",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.Info(ctx, common.Identifiable_info{call})
+		},
+	})
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
+			InterfaceID:   0xc1a7daa0dc36cb65,
+			MethodID:      0,
+			InterfaceName: "persistence.capnp:Persistent",
+			MethodName:    "save",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.Save(ctx, persistence.Persistent_save{call})
 		},
 	})
 
@@ -320,29 +373,31 @@ func (p Service_nextJob_Results_Future) Job() Job_Future {
 	return Job_Future{Future: p.Future.Field(0, nil)}
 }
 
-const schema_e7e7e2edc72e660c = "x\xda|\x91\xbd\x8b\x13A\x00\xc5\xdf\x9b\xd95\x07\xe7" +
-	"\xc7\xaes\x95\x1c\x0a\x87\xa06\xe1\xc4\xcaX$~\xa0" +
-	"\xb2\xa4\xd8\x89\xe9\xb4p7\xae\xd1\x90\xec\xc4\xddM\x14" +
-	"\x0b\xc5N+k\xad\x04\xab\xfc\x05\x0a\x82\xad\x85\x16\xd6" +
-	"Vb\x13\x90\x08Z\x8a\xca\xc8\x92\xaf\xee\xba\xc7\xcc\x8f" +
-	"\xdf\xbc\xc7x_\x1a\xe2\xb4{\xc2\x01\xf4\xae\xbb\xcf^" +
-	"}\xfaz\xfb\xcd\xcd\xeb\xaf\xa07I\xbb\xffv\xf5\xc3" +
-	"\x8fo\xd3)\\V\x00\xf5\x9b\x0f\xd5\xbfE\xba\x0f\xda" +
-	"\x9f\x1f\xd5\xe7v\xbbx\x0b\x7fS\xaeYP\x0d\xc4K" +
-	"5\x12%xO\\Q/\xcad\xdf\xbd?\xda\xda\x99" +
-	"u\xbf\xc2W\xc4\\x\xe6\x898BP=\x13u\xd0" +
-	"n\xcb`\xfchr\xee\xfb\x1cp\xca\xfb\x898L\xdc" +
-	"\xb0=\x13\xe7\xd5N4D=\x1d\xd6\x02\x13\x87\xa4\xde" +
-	"\x90\x0e\xe0\x10\xf0O\xf5\x00}RR_\x12$\xb7H" +
-	"\xd2?\x9f\x01\xba!\xa9\x9b\x82\xb6\x1f\x15\xcd\xb4{\xd1" +
-	"\xe0\x90\xc9n\xe5<\x08\x86\x92\xf4\xec\x9f\xe7\x9f\xce\xee" +
-	"\xfe\xfd5\x03X\x1e\xda\xd4\\\x1ee\xc5\x9d\x04\xc7\xb2" +
-	"\xc0\xc49\x09A\x82\xab\xe7\x99\x0ek\xd7\x92l|W" +
-	"v\x92\xb2\x82#]`U\x9b\xcb\x81\xbe\x7f\x01\xc2w" +
-	"+\x8f\xd3\xe4A\x11\x98\xb8\xc1\x90k\x89\\J:I" +
-	"u\x01\x1co%\xf9\xa8/\x8b\\;\xabQ\x07v\x00" +
-	"\xbd!\xa9\xb7\x04+=\x13\xd3[\x7f\x0dH\x0f{\x1b" +
-	"\xc3(\x8b\x06\xcc\xff\x07\x00\x00\xff\xff\xb32\x83\xd7"
+const schema_e7e7e2edc72e660c = "x\xda|\x8f\xbfk\x14Q\x14\x85\xcf\x99;\x93Y\x88" +
+	"\x92}\xfbRI\x88\x10\x02\xa2\xe8\x12\x11Tb\x91\x98" +
+	"B\x97\xa9\xf6\xc54b\xe3\xccf\xfc\x11\x92\x99uf" +
+	"6\x1a\x0b\xb7\xb5\xb5\\\x11Y\xb0\x10+\xc1FE\x10" +
+	"\xac,\xb6\xd1\xc2F,\xc4fA\x14\xfc\x0f\x9e\x8c\xba" +
+	"\xbbV\xe9.\xdcs\xbf{\xbe\xa5y\xae:'\xbd3" +
+	"S\x80ixS\xb6q\xff\xc9\xdc\xcb\xabW\xfa0\xd3" +
+	"\xa4=p\xad\xfe\xfe\xe7\xb7\xe1\x10\x1e\xfd*5\xe5\xae" +
+	"\xf6\xc4\x074\xe56\xa0\xf7d\xc6\xfe\x1a\xe8\x0f\x1b\x1b" +
+	"\xc5+\xa8i\x99\xe4A\xbd#\x0fu\xe7O\xf8\x96\\" +
+	"\xd4=9\x02\xd87o\xe7\xd7\x17~\\\xff\x0a\xa5\x89" +
+	"\x12\x0a\x9cz \x87\x08\xea\x9e\xac\x80vN\x82\xdd{" +
+	"\xcf\xce}\xff\x1bp\xcb\xfdk\xa9\x11\x8f\xedV\x1a\xe5" +
+	"\xf5V\xd8\xc6J\xd2^\x0e\xd2\xa8I\x9a\x8a\xb8\x80K" +
+	"@\x1d=\x06\x98E\xa1YrH\xce\x92\xa4:\x91\x01" +
+	"\xe6\xb8\xd0\x9cu8\xb3\x19\x16!k\xe4D\x10`\x0d" +
+	"\xb4Iz\xa1\x93\x157b\x1c\xce\x824\xcaI8$" +
+	"x\xde\xa5\xe2Z\xb7\x19\xeem\xa7\xe1\xe6\xf8;\x93\xf6" +
+	"\xf2\xa58\xdb\xbd)\xad\xb8l\xe0\x8a\x07\x8c[s\xe4" +
+	"\xa7\xd4\x1a\x1c\xe5\xf9\xdd$\xbeS\x04i\xb4JS!" +
+	"\xed\xa7\xc6\xa3\xcb\x83\x8f\xcf_\x00\xb0\xf1\xe0\xf4\x97\xfe" +
+	"\xe7\xa7\xef\xcayD\x97\x11\xbd\x15\xd7\xff].\xae\xc7" +
+	"yg[\x8a\xdc\xb8c\xd9\x83\x0b\x80\xa9\x08\xcd\xacC" +
+	"\x7f+\x8dX\xfd\xcf\x8a\xac\x82\xfb\x12\x9ba\x16\xee0" +
+	"\xff\x1d\x00\x00\xff\xff\x1c\xac\x8a\xcf"
 
 func init() {
 	schemas.Register(schema_e7e7e2edc72e660c,

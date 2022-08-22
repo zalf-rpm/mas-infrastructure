@@ -39,8 +39,8 @@ struct Service {
   class Server;
 #endif  // !CAPNP_LITE
 
-  struct CreateConfigParams;
-  struct CreateConfigResults;
+  struct NextConfigParams;
+  struct NextConfigResults;
 
   #if !CAPNP_LITE
   struct _capnpPrivate {
@@ -55,8 +55,8 @@ struct Service {
 };
 
 template <typename C>
-struct Service<C>::CreateConfigParams {
-  CreateConfigParams() = delete;
+struct Service<C>::NextConfigParams {
+  NextConfigParams() = delete;
 
   class Reader;
   class Builder;
@@ -74,8 +74,8 @@ struct Service<C>::CreateConfigParams {
 };
 
 template <typename C>
-struct Service<C>::CreateConfigResults {
-  CreateConfigResults() = delete;
+struct Service<C>::NextConfigResults {
+  NextConfigResults() = delete;
 
   class Reader;
   class Builder;
@@ -119,7 +119,7 @@ public:
     return castAs<Service<C2>>();
   }
 
-  CAPNP_AUTO_IF_MSVC(::capnp::Request<typename  ::mas::schema::config::Service<C>::CreateConfigParams, typename  ::mas::schema::config::Service<C>::CreateConfigResults>) createConfigRequest(
+  CAPNP_AUTO_IF_MSVC(::capnp::Request<typename  ::mas::schema::config::Service<C>::NextConfigParams, typename  ::mas::schema::config::Service<C>::NextConfigResults>) nextConfigRequest(
       ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
 
 protected:
@@ -138,10 +138,10 @@ public:
       override;
 
 protected:
-  typedef typename  ::mas::schema::config::Service<C>::CreateConfigParams CreateConfigParams;
-  typedef typename  ::mas::schema::config::Service<C>::CreateConfigResults CreateConfigResults;
-  typedef ::capnp::CallContext<CreateConfigParams, CreateConfigResults> CreateConfigContext;
-  virtual ::kj::Promise<void> createConfig(CreateConfigContext context);
+  typedef typename  ::mas::schema::config::Service<C>::NextConfigParams NextConfigParams;
+  typedef typename  ::mas::schema::config::Service<C>::NextConfigResults NextConfigResults;
+  typedef ::capnp::CallContext<NextConfigParams, NextConfigResults> NextConfigContext;
+  virtual ::kj::Promise<void> nextConfig(NextConfigContext context);
 
   inline typename  ::mas::schema::config::Service<C>::Client thisCap() {
     return ::capnp::Capability::Server::thisCap()
@@ -155,9 +155,9 @@ protected:
 #endif  // !CAPNP_LITE
 
 template <typename C>
-class Service<C>::CreateConfigParams::Reader {
+class Service<C>::NextConfigParams::Reader {
 public:
-  typedef CreateConfigParams Reads;
+  typedef NextConfigParams Reads;
 
   Reader() = default;
   inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
@@ -173,8 +173,8 @@ public:
 #endif  // !CAPNP_LITE
 
   template <typename C2 = ::capnp::AnyPointer>
-  typename Service<C2>::CreateConfigParams::Reader asServiceGeneric() {
-    return typename Service<C2>::CreateConfigParams::Reader(_reader);
+  typename Service<C2>::NextConfigParams::Reader asServiceGeneric() {
+    return typename Service<C2>::NextConfigParams::Reader(_reader);
   }
 
 private:
@@ -190,9 +190,9 @@ private:
 };
 
 template <typename C>
-class Service<C>::CreateConfigParams::Builder {
+class Service<C>::NextConfigParams::Builder {
 public:
-  typedef CreateConfigParams Builds;
+  typedef NextConfigParams Builds;
 
   Builder() = delete;  // Deleted to discourage incorrect usage.
                        // You can explicitly initialize to nullptr instead.
@@ -207,8 +207,8 @@ public:
 #endif  // !CAPNP_LITE
 
   template <typename C2 = ::capnp::AnyPointer>
-  typename Service<C2>::CreateConfigParams::Builder asServiceGeneric() {
-    return typename Service<C2>::CreateConfigParams::Builder(_builder);
+  typename Service<C2>::NextConfigParams::Builder asServiceGeneric() {
+    return typename Service<C2>::NextConfigParams::Builder(_builder);
   }
 
 private:
@@ -222,9 +222,9 @@ private:
 
 #if !CAPNP_LITE
 template <typename C>
-class Service<C>::CreateConfigParams::Pipeline {
+class Service<C>::NextConfigParams::Pipeline {
 public:
-  typedef CreateConfigParams Pipelines;
+  typedef NextConfigParams Pipelines;
 
   inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
@@ -239,9 +239,9 @@ private:
 #endif  // !CAPNP_LITE
 
 template <typename C>
-class Service<C>::CreateConfigResults::Reader {
+class Service<C>::NextConfigResults::Reader {
 public:
-  typedef CreateConfigResults Reads;
+  typedef NextConfigResults Reads;
 
   Reader() = default;
   inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
@@ -257,8 +257,8 @@ public:
 #endif  // !CAPNP_LITE
 
   template <typename C2 = ::capnp::AnyPointer>
-  typename Service<C2>::CreateConfigResults::Reader asServiceGeneric() {
-    return typename Service<C2>::CreateConfigResults::Reader(_reader);
+  typename Service<C2>::NextConfigResults::Reader asServiceGeneric() {
+    return typename Service<C2>::NextConfigResults::Reader(_reader);
   }
 
   inline bool hasConfig() const;
@@ -279,9 +279,9 @@ private:
 };
 
 template <typename C>
-class Service<C>::CreateConfigResults::Builder {
+class Service<C>::NextConfigResults::Builder {
 public:
-  typedef CreateConfigResults Builds;
+  typedef NextConfigResults Builds;
 
   Builder() = delete;  // Deleted to discourage incorrect usage.
                        // You can explicitly initialize to nullptr instead.
@@ -296,8 +296,8 @@ public:
 #endif  // !CAPNP_LITE
 
   template <typename C2 = ::capnp::AnyPointer>
-  typename Service<C2>::CreateConfigResults::Builder asServiceGeneric() {
-    return typename Service<C2>::CreateConfigResults::Builder(_builder);
+  typename Service<C2>::NextConfigResults::Builder asServiceGeneric() {
+    return typename Service<C2>::NextConfigResults::Builder(_builder);
   }
 
   inline bool hasConfig();
@@ -322,9 +322,9 @@ private:
 
 #if !CAPNP_LITE
 template <typename C>
-class Service<C>::CreateConfigResults::Pipeline {
+class Service<C>::NextConfigResults::Pipeline {
 public:
-  typedef CreateConfigResults Pipelines;
+  typedef NextConfigResults Pipelines;
 
   inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
@@ -372,121 +372,121 @@ inline typename  ::mas::schema::config::Service<C>::Client& Service<C>::Client::
 }
 
 #endif  // !CAPNP_LITE
-// Service<C>::CreateConfigParams
+// Service<C>::NextConfigParams
 template <typename C>
-constexpr uint16_t Service<C>::CreateConfigParams::_capnpPrivate::dataWordSize;
+constexpr uint16_t Service<C>::NextConfigParams::_capnpPrivate::dataWordSize;
 template <typename C>
-constexpr uint16_t Service<C>::CreateConfigParams::_capnpPrivate::pointerCount;
+constexpr uint16_t Service<C>::NextConfigParams::_capnpPrivate::pointerCount;
 #if !CAPNP_LITE
 template <typename C>
-constexpr ::capnp::Kind Service<C>::CreateConfigParams::_capnpPrivate::kind;
+constexpr ::capnp::Kind Service<C>::NextConfigParams::_capnpPrivate::kind;
 template <typename C>
-constexpr ::capnp::_::RawSchema const* Service<C>::CreateConfigParams::_capnpPrivate::schema;
+constexpr ::capnp::_::RawSchema const* Service<C>::NextConfigParams::_capnpPrivate::schema;
 template <typename C>
-const ::capnp::_::RawBrandedSchema::Scope Service<C>::CreateConfigParams::_capnpPrivate::brandScopes[] = {
+const ::capnp::_::RawBrandedSchema::Scope Service<C>::NextConfigParams::_capnpPrivate::brandScopes[] = {
   { 0x860d660620aefcda, brandBindings + 0, 1, false},
 };
 template <typename C>
-const ::capnp::_::RawBrandedSchema::Binding Service<C>::CreateConfigParams::_capnpPrivate::brandBindings[] = {
+const ::capnp::_::RawBrandedSchema::Binding Service<C>::NextConfigParams::_capnpPrivate::brandBindings[] = {
   ::capnp::_::brandBindingFor<C>(),
 };
 template <typename C>
-const ::capnp::_::RawBrandedSchema Service<C>::CreateConfigParams::_capnpPrivate::specificBrand = {
+const ::capnp::_::RawBrandedSchema Service<C>::NextConfigParams::_capnpPrivate::specificBrand = {
   &::capnp::schemas::s_8a931778446b73d8, brandScopes, nullptr,
   1, 0, nullptr
 };
 #endif  // !CAPNP_LITE
 
 template <typename C>
-inline bool Service<C>::CreateConfigResults::Reader::hasConfig() const {
+inline bool Service<C>::NextConfigResults::Reader::hasConfig() const {
   return !_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
 template <typename C>
-inline bool Service<C>::CreateConfigResults::Builder::hasConfig() {
+inline bool Service<C>::NextConfigResults::Builder::hasConfig() {
   return !_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
 template <typename C>
-inline  ::capnp::ReaderFor<C> Service<C>::CreateConfigResults::Reader::getConfig() const {
+inline  ::capnp::ReaderFor<C> Service<C>::NextConfigResults::Reader::getConfig() const {
   return ::capnp::_::PointerHelpers<C>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 template <typename C>
-inline  ::capnp::BuilderFor<C> Service<C>::CreateConfigResults::Builder::getConfig() {
+inline  ::capnp::BuilderFor<C> Service<C>::NextConfigResults::Builder::getConfig() {
   return ::capnp::_::PointerHelpers<C>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 #if !CAPNP_LITE
 template <typename C>
-inline  ::capnp::PipelineFor<C> Service<C>::CreateConfigResults::Pipeline::getConfig() {
+inline  ::capnp::PipelineFor<C> Service<C>::NextConfigResults::Pipeline::getConfig() {
   return  ::capnp::PipelineFor<C>(_typeless.getPointerField(0));
 }
 #endif  // !CAPNP_LITE
 template <typename C>
-inline void Service<C>::CreateConfigResults::Builder::setConfig( ::capnp::ReaderFor<C> value) {
+inline void Service<C>::NextConfigResults::Builder::setConfig( ::capnp::ReaderFor<C> value) {
   ::capnp::_::PointerHelpers<C>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), value);
 }
 template <typename C>
-inline  ::capnp::BuilderFor<C> Service<C>::CreateConfigResults::Builder::initConfig() {
+inline  ::capnp::BuilderFor<C> Service<C>::NextConfigResults::Builder::initConfig() {
   return ::capnp::_::PointerHelpers<C>::init(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 template <typename C>
-inline  ::capnp::BuilderFor<C> Service<C>::CreateConfigResults::Builder::initConfig(unsigned int size) {
+inline  ::capnp::BuilderFor<C> Service<C>::NextConfigResults::Builder::initConfig(unsigned int size) {
   return ::capnp::_::PointerHelpers<C>::init(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), size);
 }
 template <typename C>
-inline void Service<C>::CreateConfigResults::Builder::adoptConfig(
+inline void Service<C>::NextConfigResults::Builder::adoptConfig(
     ::capnp::Orphan<C>&& value) {
   ::capnp::_::PointerHelpers<C>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
 template <typename C>
-inline ::capnp::Orphan<C> Service<C>::CreateConfigResults::Builder::disownConfig() {
+inline ::capnp::Orphan<C> Service<C>::NextConfigResults::Builder::disownConfig() {
   return ::capnp::_::PointerHelpers<C>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 
 template <typename C>
-inline bool Service<C>::CreateConfigResults::Reader::getNoFurtherConfigs() const {
+inline bool Service<C>::NextConfigResults::Reader::getNoFurtherConfigs() const {
   return _reader.getDataField<bool>(
       ::capnp::bounded<0>() * ::capnp::ELEMENTS);
 }
 
 template <typename C>
-inline bool Service<C>::CreateConfigResults::Builder::getNoFurtherConfigs() {
+inline bool Service<C>::NextConfigResults::Builder::getNoFurtherConfigs() {
   return _builder.getDataField<bool>(
       ::capnp::bounded<0>() * ::capnp::ELEMENTS);
 }
 template <typename C>
-inline void Service<C>::CreateConfigResults::Builder::setNoFurtherConfigs(bool value) {
+inline void Service<C>::NextConfigResults::Builder::setNoFurtherConfigs(bool value) {
   _builder.setDataField<bool>(
       ::capnp::bounded<0>() * ::capnp::ELEMENTS, value);
 }
 
-// Service<C>::CreateConfigResults
+// Service<C>::NextConfigResults
 template <typename C>
-constexpr uint16_t Service<C>::CreateConfigResults::_capnpPrivate::dataWordSize;
+constexpr uint16_t Service<C>::NextConfigResults::_capnpPrivate::dataWordSize;
 template <typename C>
-constexpr uint16_t Service<C>::CreateConfigResults::_capnpPrivate::pointerCount;
+constexpr uint16_t Service<C>::NextConfigResults::_capnpPrivate::pointerCount;
 #if !CAPNP_LITE
 template <typename C>
-constexpr ::capnp::Kind Service<C>::CreateConfigResults::_capnpPrivate::kind;
+constexpr ::capnp::Kind Service<C>::NextConfigResults::_capnpPrivate::kind;
 template <typename C>
-constexpr ::capnp::_::RawSchema const* Service<C>::CreateConfigResults::_capnpPrivate::schema;
+constexpr ::capnp::_::RawSchema const* Service<C>::NextConfigResults::_capnpPrivate::schema;
 template <typename C>
-const ::capnp::_::RawBrandedSchema::Scope Service<C>::CreateConfigResults::_capnpPrivate::brandScopes[] = {
+const ::capnp::_::RawBrandedSchema::Scope Service<C>::NextConfigResults::_capnpPrivate::brandScopes[] = {
   { 0x860d660620aefcda, brandBindings + 0, 1, false},
 };
 template <typename C>
-const ::capnp::_::RawBrandedSchema::Binding Service<C>::CreateConfigResults::_capnpPrivate::brandBindings[] = {
+const ::capnp::_::RawBrandedSchema::Binding Service<C>::NextConfigResults::_capnpPrivate::brandBindings[] = {
   ::capnp::_::brandBindingFor<C>(),
 };
 template <typename C>
-const ::capnp::_::RawBrandedSchema Service<C>::CreateConfigResults::_capnpPrivate::specificBrand = {
+const ::capnp::_::RawBrandedSchema Service<C>::NextConfigResults::_capnpPrivate::specificBrand = {
   &::capnp::schemas::s_b0cc157dd72bb20b, brandScopes, nullptr,
   1, 0, nullptr
 };
@@ -494,15 +494,15 @@ const ::capnp::_::RawBrandedSchema Service<C>::CreateConfigResults::_capnpPrivat
 
 #if !CAPNP_LITE
 template <typename C>
-CAPNP_AUTO_IF_MSVC(::capnp::Request<typename  ::mas::schema::config::Service<C>::CreateConfigParams, typename  ::mas::schema::config::Service<C>::CreateConfigResults>)
-Service<C>::Client::createConfigRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
-  return newCall<typename  ::mas::schema::config::Service<C>::CreateConfigParams, typename  ::mas::schema::config::Service<C>::CreateConfigResults>(
+CAPNP_AUTO_IF_MSVC(::capnp::Request<typename  ::mas::schema::config::Service<C>::NextConfigParams, typename  ::mas::schema::config::Service<C>::NextConfigResults>)
+Service<C>::Client::nextConfigRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
+  return newCall<typename  ::mas::schema::config::Service<C>::NextConfigParams, typename  ::mas::schema::config::Service<C>::NextConfigResults>(
       0x860d660620aefcdaull, 0, sizeHint);
 }
 template <typename C>
-::kj::Promise<void> Service<C>::Server::createConfig(CreateConfigContext) {
+::kj::Promise<void> Service<C>::Server::nextConfig(NextConfigContext) {
   return ::capnp::Capability::Server::internalUnimplemented(
-      "config.capnp:Service", "createConfig",
+      "config.capnp:Service", "nextConfig",
       0x860d660620aefcdaull, 0);
 }
 template <typename C>
@@ -523,8 +523,8 @@ template <typename C>
   switch (methodId) {
     case 0:
       return {
-        createConfig(::capnp::Capability::Server::internalGetTypedContext<
-            typename  ::mas::schema::config::Service<C>::CreateConfigParams, typename  ::mas::schema::config::Service<C>::CreateConfigResults>(context)),
+        nextConfig(::capnp::Capability::Server::internalGetTypedContext<
+            typename  ::mas::schema::config::Service<C>::NextConfigParams, typename  ::mas::schema::config::Service<C>::NextConfigResults>(context)),
         false
       };
     default:
@@ -552,8 +552,8 @@ const ::capnp::_::RawBrandedSchema::Binding Service<C>::_capnpPrivate::brandBind
 };
 template <typename C>
 const ::capnp::_::RawBrandedSchema::Dependency Service<C>::_capnpPrivate::brandDependencies[] = {
-  { 33554432,  ::mas::schema::config::Service<C>::CreateConfigParams::_capnpPrivate::brand() },
-  { 50331648,  ::mas::schema::config::Service<C>::CreateConfigResults::_capnpPrivate::brand() },
+  { 33554432,  ::mas::schema::config::Service<C>::NextConfigParams::_capnpPrivate::brand() },
+  { 50331648,  ::mas::schema::config::Service<C>::NextConfigResults::_capnpPrivate::brand() },
 };
 template <typename C>
 const ::capnp::_::RawBrandedSchema Service<C>::_capnpPrivate::specificBrand = {

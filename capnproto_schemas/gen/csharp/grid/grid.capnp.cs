@@ -32,19 +32,19 @@ namespace Mas.Schema.Grid
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xe42973b29661e3c6UL), Proxy(typeof(Grid_Proxy)), Skeleton(typeof(Grid_Skeleton))]
     public interface IGrid : Mas.Schema.Common.IIdentifiable, Mas.Schema.Persistence.IPersistent
     {
-        Task<(Mas.Schema.Grid.Grid.Value, Mas.Schema.Grid.Grid.RowCol, Mas.Schema.Grid.Grid.RowCol, IReadOnlyList<Mas.Schema.Grid.Grid.AggregationPart>)> ClosestValueAt(Mas.Schema.Geocoord.LatLonCoord latlonCoord, bool ignoreNoData, ulong resolution, Mas.Schema.Grid.Aggregation agg, bool returnRowCols, bool includeAggParts, CancellationToken cancellationToken_ = default);
+        Task<(Mas.Schema.Grid.Grid.Value, Mas.Schema.Grid.Grid.RowCol, Mas.Schema.Grid.Grid.RowCol, IReadOnlyList<Mas.Schema.Grid.Grid.AggregationPart>)> ClosestValueAt(Mas.Schema.Geo.LatLonCoord latlonCoord, bool ignoreNoData, ulong resolution, Mas.Schema.Grid.Aggregation agg, bool returnRowCols, bool includeAggParts, CancellationToken cancellationToken_ = default);
         Task<ulong> Resolution(CancellationToken cancellationToken_ = default);
         Task<(ulong, ulong)> Dimension(CancellationToken cancellationToken_ = default);
         Task<Mas.Schema.Grid.Grid.Value> NoDataValue(CancellationToken cancellationToken_ = default);
         Task<(Mas.Schema.Grid.Grid.Value, IReadOnlyList<Mas.Schema.Grid.Grid.AggregationPart>)> ValueAt(ulong row, ulong col, ulong resolution, Mas.Schema.Grid.Aggregation agg, bool includeAggParts, CancellationToken cancellationToken_ = default);
-        Task<(Mas.Schema.Geocoord.LatLonCoord, Mas.Schema.Geocoord.LatLonCoord, Mas.Schema.Geocoord.LatLonCoord, Mas.Schema.Geocoord.LatLonCoord)> LatLonBounds(bool useCellCenter, CancellationToken cancellationToken_ = default);
+        Task<(Mas.Schema.Geo.LatLonCoord, Mas.Schema.Geo.LatLonCoord, Mas.Schema.Geo.LatLonCoord, Mas.Schema.Geo.LatLonCoord)> LatLonBounds(bool useCellCenter, CancellationToken cancellationToken_ = default);
         Task StreamCells(Mas.Schema.Grid.Grid.ICallback callback, ulong maxNoOfCellsPerSend, CancellationToken cancellationToken_ = default);
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xe42973b29661e3c6UL)]
     public class Grid_Proxy : Proxy, IGrid
     {
-        public async Task<(Mas.Schema.Grid.Grid.Value, Mas.Schema.Grid.Grid.RowCol, Mas.Schema.Grid.Grid.RowCol, IReadOnlyList<Mas.Schema.Grid.Grid.AggregationPart>)> ClosestValueAt(Mas.Schema.Geocoord.LatLonCoord latlonCoord, bool ignoreNoData, ulong resolution, Mas.Schema.Grid.Aggregation agg, bool returnRowCols, bool includeAggParts, CancellationToken cancellationToken_ = default)
+        public async Task<(Mas.Schema.Grid.Grid.Value, Mas.Schema.Grid.Grid.RowCol, Mas.Schema.Grid.Grid.RowCol, IReadOnlyList<Mas.Schema.Grid.Grid.AggregationPart>)> ClosestValueAt(Mas.Schema.Geo.LatLonCoord latlonCoord, bool ignoreNoData, ulong resolution, Mas.Schema.Grid.Aggregation agg, bool returnRowCols, bool includeAggParts, CancellationToken cancellationToken_ = default)
         {
             var in_ = SerializerState.CreateForRpc<Mas.Schema.Grid.Grid.Params_ClosestValueAt.WRITER>();
             var arg_ = new Mas.Schema.Grid.Grid.Params_ClosestValueAt()
@@ -109,7 +109,7 @@ namespace Mas.Schema.Grid
             }
         }
 
-        public async Task<(Mas.Schema.Geocoord.LatLonCoord, Mas.Schema.Geocoord.LatLonCoord, Mas.Schema.Geocoord.LatLonCoord, Mas.Schema.Geocoord.LatLonCoord)> LatLonBounds(bool useCellCenter, CancellationToken cancellationToken_ = default)
+        public async Task<(Mas.Schema.Geo.LatLonCoord, Mas.Schema.Geo.LatLonCoord, Mas.Schema.Geo.LatLonCoord, Mas.Schema.Geo.LatLonCoord)> LatLonBounds(bool useCellCenter, CancellationToken cancellationToken_ = default)
         {
             var in_ = SerializerState.CreateForRpc<Mas.Schema.Grid.Grid.Params_LatLonBounds.WRITER>();
             var arg_ = new Mas.Schema.Grid.Grid.Params_LatLonBounds()
@@ -815,7 +815,7 @@ namespace Mas.Schema.Grid
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                LatlonCoord = CapnpSerializable.Create<Mas.Schema.Geocoord.LatLonCoord>(reader.LatlonCoord);
+                LatlonCoord = CapnpSerializable.Create<Mas.Schema.Geo.LatLonCoord>(reader.LatlonCoord);
                 IgnoreNoData = reader.IgnoreNoData;
                 Resolution = reader.Resolution;
                 Agg = reader.Agg;
@@ -843,7 +843,7 @@ namespace Mas.Schema.Grid
             {
             }
 
-            public Mas.Schema.Geocoord.LatLonCoord LatlonCoord
+            public Mas.Schema.Geo.LatLonCoord LatlonCoord
             {
                 get;
                 set;
@@ -895,7 +895,7 @@ namespace Mas.Schema.Grid
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Schema.Geocoord.LatLonCoord.READER LatlonCoord => ctx.ReadStruct(0, Mas.Schema.Geocoord.LatLonCoord.READER.create);
+                public Mas.Schema.Geo.LatLonCoord.READER LatlonCoord => ctx.ReadStruct(0, Mas.Schema.Geo.LatLonCoord.READER.create);
                 public bool HasLatlonCoord => ctx.IsStructFieldNonNull(0);
                 public bool IgnoreNoData => ctx.ReadDataBool(0UL, true);
                 public ulong Resolution => ctx.ReadDataULong(64UL, 0UL);
@@ -911,9 +911,9 @@ namespace Mas.Schema.Grid
                     this.SetStruct(2, 1);
                 }
 
-                public Mas.Schema.Geocoord.LatLonCoord.WRITER LatlonCoord
+                public Mas.Schema.Geo.LatLonCoord.WRITER LatlonCoord
                 {
-                    get => BuildPointer<Mas.Schema.Geocoord.LatLonCoord.WRITER>(0);
+                    get => BuildPointer<Mas.Schema.Geo.LatLonCoord.WRITER>(0);
                     set => Link(0, value);
                 }
 
@@ -1656,10 +1656,10 @@ namespace Mas.Schema.Grid
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Tl = CapnpSerializable.Create<Mas.Schema.Geocoord.LatLonCoord>(reader.Tl);
-                Tr = CapnpSerializable.Create<Mas.Schema.Geocoord.LatLonCoord>(reader.Tr);
-                Br = CapnpSerializable.Create<Mas.Schema.Geocoord.LatLonCoord>(reader.Br);
-                Bl = CapnpSerializable.Create<Mas.Schema.Geocoord.LatLonCoord>(reader.Bl);
+                Tl = CapnpSerializable.Create<Mas.Schema.Geo.LatLonCoord>(reader.Tl);
+                Tr = CapnpSerializable.Create<Mas.Schema.Geo.LatLonCoord>(reader.Tr);
+                Br = CapnpSerializable.Create<Mas.Schema.Geo.LatLonCoord>(reader.Br);
+                Bl = CapnpSerializable.Create<Mas.Schema.Geo.LatLonCoord>(reader.Bl);
                 applyDefaults();
             }
 
@@ -1680,25 +1680,25 @@ namespace Mas.Schema.Grid
             {
             }
 
-            public Mas.Schema.Geocoord.LatLonCoord Tl
+            public Mas.Schema.Geo.LatLonCoord Tl
             {
                 get;
                 set;
             }
 
-            public Mas.Schema.Geocoord.LatLonCoord Tr
+            public Mas.Schema.Geo.LatLonCoord Tr
             {
                 get;
                 set;
             }
 
-            public Mas.Schema.Geocoord.LatLonCoord Br
+            public Mas.Schema.Geo.LatLonCoord Br
             {
                 get;
                 set;
             }
 
-            public Mas.Schema.Geocoord.LatLonCoord Bl
+            public Mas.Schema.Geo.LatLonCoord Bl
             {
                 get;
                 set;
@@ -1715,13 +1715,13 @@ namespace Mas.Schema.Grid
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Schema.Geocoord.LatLonCoord.READER Tl => ctx.ReadStruct(0, Mas.Schema.Geocoord.LatLonCoord.READER.create);
+                public Mas.Schema.Geo.LatLonCoord.READER Tl => ctx.ReadStruct(0, Mas.Schema.Geo.LatLonCoord.READER.create);
                 public bool HasTl => ctx.IsStructFieldNonNull(0);
-                public Mas.Schema.Geocoord.LatLonCoord.READER Tr => ctx.ReadStruct(1, Mas.Schema.Geocoord.LatLonCoord.READER.create);
+                public Mas.Schema.Geo.LatLonCoord.READER Tr => ctx.ReadStruct(1, Mas.Schema.Geo.LatLonCoord.READER.create);
                 public bool HasTr => ctx.IsStructFieldNonNull(1);
-                public Mas.Schema.Geocoord.LatLonCoord.READER Br => ctx.ReadStruct(2, Mas.Schema.Geocoord.LatLonCoord.READER.create);
+                public Mas.Schema.Geo.LatLonCoord.READER Br => ctx.ReadStruct(2, Mas.Schema.Geo.LatLonCoord.READER.create);
                 public bool HasBr => ctx.IsStructFieldNonNull(2);
-                public Mas.Schema.Geocoord.LatLonCoord.READER Bl => ctx.ReadStruct(3, Mas.Schema.Geocoord.LatLonCoord.READER.create);
+                public Mas.Schema.Geo.LatLonCoord.READER Bl => ctx.ReadStruct(3, Mas.Schema.Geo.LatLonCoord.READER.create);
                 public bool HasBl => ctx.IsStructFieldNonNull(3);
             }
 
@@ -1732,27 +1732,27 @@ namespace Mas.Schema.Grid
                     this.SetStruct(0, 4);
                 }
 
-                public Mas.Schema.Geocoord.LatLonCoord.WRITER Tl
+                public Mas.Schema.Geo.LatLonCoord.WRITER Tl
                 {
-                    get => BuildPointer<Mas.Schema.Geocoord.LatLonCoord.WRITER>(0);
+                    get => BuildPointer<Mas.Schema.Geo.LatLonCoord.WRITER>(0);
                     set => Link(0, value);
                 }
 
-                public Mas.Schema.Geocoord.LatLonCoord.WRITER Tr
+                public Mas.Schema.Geo.LatLonCoord.WRITER Tr
                 {
-                    get => BuildPointer<Mas.Schema.Geocoord.LatLonCoord.WRITER>(1);
+                    get => BuildPointer<Mas.Schema.Geo.LatLonCoord.WRITER>(1);
                     set => Link(1, value);
                 }
 
-                public Mas.Schema.Geocoord.LatLonCoord.WRITER Br
+                public Mas.Schema.Geo.LatLonCoord.WRITER Br
                 {
-                    get => BuildPointer<Mas.Schema.Geocoord.LatLonCoord.WRITER>(2);
+                    get => BuildPointer<Mas.Schema.Geo.LatLonCoord.WRITER>(2);
                     set => Link(2, value);
                 }
 
-                public Mas.Schema.Geocoord.LatLonCoord.WRITER Bl
+                public Mas.Schema.Geo.LatLonCoord.WRITER Bl
                 {
-                    get => BuildPointer<Mas.Schema.Geocoord.LatLonCoord.WRITER>(3);
+                    get => BuildPointer<Mas.Schema.Geo.LatLonCoord.WRITER>(3);
                     set => Link(3, value);
                 }
             }

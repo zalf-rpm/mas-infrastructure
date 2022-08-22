@@ -5,6 +5,116 @@
 
 namespace capnp {
 namespace schemas {
+static const ::capnp::_::AlignedData<96> b_c70d4452b8b0ebd7 = {
+  {   0,   0,   0,   0,   5,   0,   6,   0,
+    215, 235, 176, 184,  82,  68,  13, 199,
+     17,   0,   0,   0,   1,   0,   0,   0,
+     62, 107, 234,  60, 245,  58,  10, 179,
+      5,   0,   7,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+     21,   0,   0,   0, 210,   0,   0,   0,
+     33,   0,   0,   0,   7,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+     29,   0,   0,   0,  31,   1,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+    109,  97, 110,  97, 103, 101, 109, 101,
+    110, 116,  46,  99,  97, 112, 110, 112,
+     58,  73,  76,  82,  68,  97, 116, 101,
+    115,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   1,   0,   1,   0,
+     20,   0,   0,   0,   3,   0,   4,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   1,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+    125,   0,   0,   0,  58,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+    120,   0,   0,   0,   3,   0,   1,   0,
+    132,   0,   0,   0,   2,   0,   1,   0,
+      1,   0,   0,   0,   1,   0,   0,   0,
+      0,   0,   1,   0,   1,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+    129,   0,   0,   0, 122,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+    128,   0,   0,   0,   3,   0,   1,   0,
+    140,   0,   0,   0,   2,   0,   1,   0,
+      2,   0,   0,   0,   2,   0,   0,   0,
+      0,   0,   1,   0,   2,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+    137,   0,   0,   0, 106,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+    136,   0,   0,   0,   3,   0,   1,   0,
+    148,   0,   0,   0,   2,   0,   1,   0,
+      3,   0,   0,   0,   3,   0,   0,   0,
+      0,   0,   1,   0,   3,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+    145,   0,   0,   0,  66,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+    140,   0,   0,   0,   3,   0,   1,   0,
+    152,   0,   0,   0,   2,   0,   1,   0,
+      4,   0,   0,   0,   4,   0,   0,   0,
+      0,   0,   1,   0,   4,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+    149,   0,   0,   0, 114,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+    148,   0,   0,   0,   3,   0,   1,   0,
+    160,   0,   0,   0,   2,   0,   1,   0,
+    115, 111, 119, 105, 110, 103,   0,   0,
+     16,   0,   0,   0,   0,   0,   0,   0,
+    141,  17,  34,   3, 172, 254, 230, 151,
+      0,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+     16,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+    101,  97, 114, 108, 105, 101, 115, 116,
+     83, 111, 119, 105, 110, 103,   0,   0,
+     16,   0,   0,   0,   0,   0,   0,   0,
+    141,  17,  34,   3, 172, 254, 230, 151,
+      0,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+     16,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+    108,  97, 116, 101, 115, 116,  83, 111,
+    119, 105, 110, 103,   0,   0,   0,   0,
+     16,   0,   0,   0,   0,   0,   0,   0,
+    141,  17,  34,   3, 172, 254, 230, 151,
+      0,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+     16,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+    104,  97, 114, 118, 101, 115, 116,   0,
+     16,   0,   0,   0,   0,   0,   0,   0,
+    141,  17,  34,   3, 172, 254, 230, 151,
+      0,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+     16,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+    108,  97, 116, 101, 115, 116,  72,  97,
+    114, 118, 101, 115, 116,   0,   0,   0,
+     16,   0,   0,   0,   0,   0,   0,   0,
+    141,  17,  34,   3, 172, 254, 230, 151,
+      0,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+     16,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0, }
+};
+::capnp::word const* const bp_c70d4452b8b0ebd7 = b_c70d4452b8b0ebd7.words;
+#if !CAPNP_LITE
+static const ::capnp::_::RawSchema* const d_c70d4452b8b0ebd7[] = {
+  &s_97e6feac0322118d,
+};
+static const uint16_t m_c70d4452b8b0ebd7[] = {1, 3, 4, 2, 0};
+static const uint16_t i_c70d4452b8b0ebd7[] = {0, 1, 2, 3, 4};
+const ::capnp::_::RawSchema s_c70d4452b8b0ebd7 = {
+  0xc70d4452b8b0ebd7, b_c70d4452b8b0ebd7.words, 96, d_c70d4452b8b0ebd7, m_c70d4452b8b0ebd7,
+  1, 5, i_c70d4452b8b0ebd7, nullptr, nullptr, { &s_c70d4452b8b0ebd7, nullptr, nullptr, 0, 0, nullptr }
+};
+#endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<83> b_f95ca008c46a4b3b = {
   {   0,   0,   0,   0,   5,   0,   6,   0,
      59,  75, 106, 196,   8, 160,  92, 249,
@@ -3202,6 +3312,14 @@ namespace mas {
 namespace schema {
 namespace management {
 
+// ILRDates
+constexpr uint16_t ILRDates::_capnpPrivate::dataWordSize;
+constexpr uint16_t ILRDates::_capnpPrivate::pointerCount;
+#if !CAPNP_LITE
+constexpr ::capnp::Kind ILRDates::_capnpPrivate::kind;
+constexpr ::capnp::_::RawSchema const* ILRDates::_capnpPrivate::schema;
+#endif  // !CAPNP_LITE
+
 // Event
 constexpr uint16_t Event::_capnpPrivate::dataWordSize;
 constexpr uint16_t Event::_capnpPrivate::pointerCount;
@@ -3483,9 +3601,9 @@ constexpr ::capnp::_::RawSchema const* FertilizerService::OrganicFertilizerParam
 #endif  // !CAPNP_LITE
 
 #if !CAPNP_LITE
-::capnp::Request< ::mas::schema::geocoord::LatLonCoord,  ::mas::schema::management::Service::ManagementAtResults>
+::capnp::Request< ::mas::schema::geo::LatLonCoord,  ::mas::schema::management::Service::ManagementAtResults>
 Service::Client::managementAtRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
-  return newCall< ::mas::schema::geocoord::LatLonCoord,  ::mas::schema::management::Service::ManagementAtResults>(
+  return newCall< ::mas::schema::geo::LatLonCoord,  ::mas::schema::management::Service::ManagementAtResults>(
       0xc876b729b7d7f6d9ull, 0, sizeHint);
 }
 ::kj::Promise<void> Service::Server::managementAt(ManagementAtContext) {
@@ -3512,7 +3630,7 @@ Service::Client::managementAtRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint
     case 0:
       return {
         managementAt(::capnp::Capability::Server::internalGetTypedContext<
-             ::mas::schema::geocoord::LatLonCoord,  ::mas::schema::management::Service::ManagementAtResults>(context)),
+             ::mas::schema::geo::LatLonCoord,  ::mas::schema::management::Service::ManagementAtResults>(context)),
         false
       };
     default:

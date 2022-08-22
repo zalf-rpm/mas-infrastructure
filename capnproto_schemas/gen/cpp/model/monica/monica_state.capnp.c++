@@ -9659,6 +9659,81 @@ const ::capnp::_::RawSchema s_b1760f65e652e737 = {
   1, 18, i_b1760f65e652e737, nullptr, nullptr, { &s_b1760f65e652e737, nullptr, nullptr, 0, 0, nullptr }
 };
 #endif  // !CAPNP_LITE
+static const ::capnp::_::AlignedData<64> b_f03d8fd1bbe75519 = {
+  {   0,   0,   0,   0,   5,   0,   6,   0,
+     25,  85, 231, 187, 209, 143,  61, 240,
+     32,   0,   0,   0,   1,   0,   2,   0,
+     57, 101, 116, 151, 194,  71, 234, 134,
+      0,   0,   7,   0,   0,   0,   3,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+     21,   0,   0,   0,  58,   1,   0,   0,
+     37,   0,   0,   0,   7,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+     33,   0,   0,   0, 175,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+    109, 111, 100, 101, 108,  47, 109, 111,
+    110, 105,  99,  97,  47, 109, 111, 110,
+    105,  99,  97,  95, 115, 116,  97, 116,
+    101,  46,  99,  97, 112, 110, 112,  58,
+     73,  67,  68,  97, 116,  97,   0,   0,
+      0,   0,   0,   0,   1,   0,   1,   0,
+     12,   0,   0,   0,   3,   0,   4,   0,
+      0,   0, 255, 255,   0,   0,   0,   0,
+      0,   0,   1,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+     69,   0,   0,   0,  58,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+     64,   0,   0,   0,   3,   0,   1,   0,
+     76,   0,   0,   0,   2,   0,   1,   0,
+      1,   0, 254, 255,   1,   0,   0,   0,
+      0,   0,   1,   0,   1,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+     73,   0,   0,   0,  58,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+     68,   0,   0,   0,   3,   0,   1,   0,
+     80,   0,   0,   0,   2,   0,   1,   0,
+      2,   0, 253, 255,   1,   0,   0,   0,
+      0,   0,   1,   0,   2,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+     77,   0,   0,   0,  42,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+     72,   0,   0,   0,   3,   0,   1,   0,
+     84,   0,   0,   0,   2,   0,   1,   0,
+    110, 111,  67, 114, 111, 112,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+    104, 101, 105, 103, 104, 116,   0,   0,
+     11,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+     11,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+    108,  97, 105, 116,   0,   0,   0,   0,
+     11,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+     11,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0, }
+};
+::capnp::word const* const bp_f03d8fd1bbe75519 = b_f03d8fd1bbe75519.words;
+#if !CAPNP_LITE
+static const uint16_t m_f03d8fd1bbe75519[] = {1, 2, 0};
+static const uint16_t i_f03d8fd1bbe75519[] = {0, 1, 2};
+const ::capnp::_::RawSchema s_f03d8fd1bbe75519 = {
+  0xf03d8fd1bbe75519, b_f03d8fd1bbe75519.words, 64, nullptr, m_f03d8fd1bbe75519,
+  0, 3, i_f03d8fd1bbe75519, nullptr, nullptr, { &s_f03d8fd1bbe75519, nullptr, nullptr, 0, 0, nullptr }
+};
+#endif  // !CAPNP_LITE
 }  // namespace schemas
 }  // namespace capnp
 
@@ -9795,6 +9870,14 @@ constexpr uint16_t SoilTransportModuleState::_capnpPrivate::pointerCount;
 #if !CAPNP_LITE
 constexpr ::capnp::Kind SoilTransportModuleState::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* SoilTransportModuleState::_capnpPrivate::schema;
+#endif  // !CAPNP_LITE
+
+// ICData
+constexpr uint16_t ICData::_capnpPrivate::dataWordSize;
+constexpr uint16_t ICData::_capnpPrivate::pointerCount;
+#if !CAPNP_LITE
+constexpr ::capnp::Kind ICData::_capnpPrivate::kind;
+constexpr ::capnp::_::RawSchema const* ICData::_capnpPrivate::schema;
 #endif  // !CAPNP_LITE
 
 

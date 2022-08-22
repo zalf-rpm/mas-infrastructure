@@ -3085,15 +3085,15 @@ namespace Mas.Schema.Management
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xc876b729b7d7f6d9UL), Proxy(typeof(Service_Proxy)), Skeleton(typeof(Service_Skeleton))]
     public interface IService : Mas.Schema.Common.IIdentifiable
     {
-        Task<IReadOnlyList<Mas.Schema.Management.Event>> ManagementAt(Mas.Schema.Geocoord.LatLonCoord arg_, CancellationToken cancellationToken_ = default);
+        Task<IReadOnlyList<Mas.Schema.Management.Event>> ManagementAt(Mas.Schema.Geo.LatLonCoord arg_, CancellationToken cancellationToken_ = default);
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xc876b729b7d7f6d9UL)]
     public class Service_Proxy : Proxy, IService
     {
-        public async Task<IReadOnlyList<Mas.Schema.Management.Event>> ManagementAt(Mas.Schema.Geocoord.LatLonCoord arg_, CancellationToken cancellationToken_ = default)
+        public async Task<IReadOnlyList<Mas.Schema.Management.Event>> ManagementAt(Mas.Schema.Geo.LatLonCoord arg_, CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Schema.Geocoord.LatLonCoord.WRITER>();
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Geo.LatLonCoord.WRITER>();
             arg_?.serialize(in_);
             using (var d_ = await Call(14444934244643370713UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
@@ -3129,7 +3129,7 @@ namespace Mas.Schema.Management
         {
             using (d_)
             {
-                return Impatient.MaybeTailCall(Impl.ManagementAt(CapnpSerializable.Create<Mas.Schema.Geocoord.LatLonCoord>(d_), cancellationToken_), mgmt =>
+                return Impatient.MaybeTailCall(Impl.ManagementAt(CapnpSerializable.Create<Mas.Schema.Geo.LatLonCoord>(d_), cancellationToken_), mgmt =>
                 {
                     var s_ = SerializerState.CreateForRpc<Mas.Schema.Management.Service.Result_ManagementAt.WRITER>();
                     var r_ = new Mas.Schema.Management.Service.Result_ManagementAt{Mgmt = mgmt};

@@ -35,6 +35,7 @@ CAPNP_DECLARE_SCHEMA(cd05962719bf7ec8);
 CAPNP_DECLARE_SCHEMA(d594e64f6b5f461d);
 CAPNP_DECLARE_SCHEMA(bd3e199eb9b03758);
 CAPNP_DECLARE_SCHEMA(b1760f65e652e737);
+CAPNP_DECLARE_SCHEMA(f03d8fd1bbe75519);
 
 }  // namespace schemas
 }  // namespace capnp
@@ -280,6 +281,26 @@ struct SoilTransportModuleState {
 
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(b1760f65e652e737, 6, 12)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct ICData {
+  ICData() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+  enum Which: uint16_t {
+    NO_CROP,
+    HEIGHT,
+    LAIT,
+  };
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(f03d8fd1bbe75519, 2, 0)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
@@ -4924,6 +4945,100 @@ public:
       : _typeless(kj::mv(typeless)) {}
 
   inline  ::mas::schema::model::monica::SoilTransportModuleParameters::Pipeline getModuleParams();
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+class ICData::Reader {
+public:
+  typedef ICData Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  inline Which which() const;
+  inline bool isNoCrop() const;
+  inline  ::capnp::Void getNoCrop() const;
+
+  inline bool isHeight() const;
+  inline double getHeight() const;
+
+  inline bool isLait() const;
+  inline double getLait() const;
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class ICData::Builder {
+public:
+  typedef ICData Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline Which which();
+  inline bool isNoCrop();
+  inline  ::capnp::Void getNoCrop();
+  inline void setNoCrop( ::capnp::Void value = ::capnp::VOID);
+
+  inline bool isHeight();
+  inline double getHeight();
+  inline void setHeight(double value);
+
+  inline bool isLait();
+  inline double getLait();
+  inline void setLait(double value);
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class ICData::Pipeline {
+public:
+  typedef ICData Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -15896,6 +16011,93 @@ inline void SoilTransportModuleState::Builder::adoptPercolationRate(
 inline ::capnp::Orphan< ::capnp::List<double,  ::capnp::Kind::PRIMITIVE>> SoilTransportModuleState::Builder::disownPercolationRate() {
   return ::capnp::_::PointerHelpers< ::capnp::List<double,  ::capnp::Kind::PRIMITIVE>>::disown(_builder.getPointerField(
       ::capnp::bounded<11>() * ::capnp::POINTERS));
+}
+
+inline  ::mas::schema::model::monica::ICData::Which ICData::Reader::which() const {
+  return _reader.getDataField<Which>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+inline  ::mas::schema::model::monica::ICData::Which ICData::Builder::which() {
+  return _builder.getDataField<Which>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+
+inline bool ICData::Reader::isNoCrop() const {
+  return which() == ICData::NO_CROP;
+}
+inline bool ICData::Builder::isNoCrop() {
+  return which() == ICData::NO_CROP;
+}
+inline  ::capnp::Void ICData::Reader::getNoCrop() const {
+  KJ_IREQUIRE((which() == ICData::NO_CROP),
+              "Must check which() before get()ing a union member.");
+  return _reader.getDataField< ::capnp::Void>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+
+inline  ::capnp::Void ICData::Builder::getNoCrop() {
+  KJ_IREQUIRE((which() == ICData::NO_CROP),
+              "Must check which() before get()ing a union member.");
+  return _builder.getDataField< ::capnp::Void>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+inline void ICData::Builder::setNoCrop( ::capnp::Void value) {
+  _builder.setDataField<ICData::Which>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, ICData::NO_CROP);
+  _builder.setDataField< ::capnp::Void>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, value);
+}
+
+inline bool ICData::Reader::isHeight() const {
+  return which() == ICData::HEIGHT;
+}
+inline bool ICData::Builder::isHeight() {
+  return which() == ICData::HEIGHT;
+}
+inline double ICData::Reader::getHeight() const {
+  KJ_IREQUIRE((which() == ICData::HEIGHT),
+              "Must check which() before get()ing a union member.");
+  return _reader.getDataField<double>(
+      ::capnp::bounded<1>() * ::capnp::ELEMENTS);
+}
+
+inline double ICData::Builder::getHeight() {
+  KJ_IREQUIRE((which() == ICData::HEIGHT),
+              "Must check which() before get()ing a union member.");
+  return _builder.getDataField<double>(
+      ::capnp::bounded<1>() * ::capnp::ELEMENTS);
+}
+inline void ICData::Builder::setHeight(double value) {
+  _builder.setDataField<ICData::Which>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, ICData::HEIGHT);
+  _builder.setDataField<double>(
+      ::capnp::bounded<1>() * ::capnp::ELEMENTS, value);
+}
+
+inline bool ICData::Reader::isLait() const {
+  return which() == ICData::LAIT;
+}
+inline bool ICData::Builder::isLait() {
+  return which() == ICData::LAIT;
+}
+inline double ICData::Reader::getLait() const {
+  KJ_IREQUIRE((which() == ICData::LAIT),
+              "Must check which() before get()ing a union member.");
+  return _reader.getDataField<double>(
+      ::capnp::bounded<1>() * ::capnp::ELEMENTS);
+}
+
+inline double ICData::Builder::getLait() {
+  KJ_IREQUIRE((which() == ICData::LAIT),
+              "Must check which() before get()ing a union member.");
+  return _builder.getDataField<double>(
+      ::capnp::bounded<1>() * ::capnp::ELEMENTS);
+}
+inline void ICData::Builder::setLait(double value) {
+  _builder.setDataField<ICData::Which>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, ICData::LAIT);
+  _builder.setDataField<double>(
+      ::capnp::bounded<1>() * ::capnp::ELEMENTS, value);
 }
 
 }  // namespace

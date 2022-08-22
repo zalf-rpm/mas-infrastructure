@@ -97,7 +97,7 @@ const ::capnp::_::RawSchema s_a5ecdc7767a6b301 = {
 };
 #endif  // !CAPNP_LITE
 CAPNP_DEFINE_ENUM(Aggregation_a5ecdc7767a6b301, a5ecdc7767a6b301);
-static const ::capnp::_::AlignedData<109> b_e42973b29661e3c6 = {
+static const ::capnp::_::AlignedData<111> b_e42973b29661e3c6 = {
   {   0,   0,   0,   0,   5,   0,   6,   0,
     198, 227,  97, 150, 178, 115,  41, 228,
      11,   0,   0,   0,   3,   0,   0,   0,
@@ -108,7 +108,7 @@ static const ::capnp::_::AlignedData<109> b_e42973b29661e3c6 = {
      25,   0,   0,   0,  71,   0,   0,   0,
       0,   0,   0,   0,   0,   0,   0,   0,
      77,   0,   0,   0, 199,   1,   0,   0,
-    125,   1,   0,   0,  23,   0,   0,   0,
+    125,   1,   0,   0,  39,   0,   0,   0,
       0,   0,   0,   0,   0,   0,   0,   0,
     103, 114, 105, 100,  46,  99,  97, 112,
     110, 112,  58,  71, 114, 105, 100,   0,
@@ -204,8 +204,10 @@ static const ::capnp::_::AlignedData<109> b_e42973b29661e3c6 = {
     115, 116, 114, 101,  97, 109,  67, 101,
     108, 108, 115,   0,   0,   0,   0,   0,
       0,   0,   0,   0,   0,   0,   1,   0,
-      4,   0,   0,   0,   1,   0,   1,   0,
+      8,   0,   0,   0,   1,   0,   1,   0,
     213,  72, 156,  89, 203, 209, 175, 178,
+      0,   0,   0,   0,   0,   0,   0,   0,
+    101, 203,  54, 220, 160, 218, 167, 193,
       0,   0,   0,   0,   0,   0,   0,   0, }
 };
 ::capnp::word const* const bp_e42973b29661e3c6 = b_e42973b29661e3c6.words;
@@ -219,6 +221,7 @@ static const ::capnp::_::RawSchema* const d_e42973b29661e3c6[] = {
   &s_a6005af20cc08dbe,
   &s_a8bd0263833540b0,
   &s_b2afd1cb599c48d5,
+  &s_c1a7daa0dc36cb65,
   &s_d9add1b3fdcfdbba,
   &s_e57fce57d3443377,
   &s_e7a46f6b1610256f,
@@ -229,8 +232,8 @@ static const ::capnp::_::RawSchema* const d_e42973b29661e3c6[] = {
 };
 static const uint16_t m_e42973b29661e3c6[] = {0, 2, 5, 3, 1, 6, 4};
 const ::capnp::_::RawSchema s_e42973b29661e3c6 = {
-  0xe42973b29661e3c6, b_e42973b29661e3c6.words, 109, d_e42973b29661e3c6, m_e42973b29661e3c6,
-  15, 7, nullptr, nullptr, nullptr, { &s_e42973b29661e3c6, nullptr, nullptr, 0, 0, nullptr }
+  0xe42973b29661e3c6, b_e42973b29661e3c6.words, 111, d_e42973b29661e3c6, m_e42973b29661e3c6,
+  16, 7, nullptr, nullptr, nullptr, { &s_e42973b29661e3c6, nullptr, nullptr, 0, 0, nullptr }
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<77> b_fe2e0dfae573d9d0 = {
@@ -1542,6 +1545,8 @@ Grid::Client::streamCellsRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
       return dispatchCallInternal(methodId, context);
     case 0xb2afd1cb599c48d5ull:
       return  ::mas::schema::common::Identifiable::Server::dispatchCallInternal(methodId, context);
+    case 0xc1a7daa0dc36cb65ull:
+      return  ::mas::schema::persistence::Persistent::Server::dispatchCallInternal(methodId, context);
     default:
       return internalUnimplemented("grid.capnp:Grid", interfaceId);
   }

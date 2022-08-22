@@ -9,7 +9,7 @@ $Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/grid");
 
 using Persistent = import "persistence.capnp".Persistent;
 using Common = import "common.capnp";
-using Geo = import "geo_coord.capnp";
+using Geo = import "geo.capnp";
 
 enum Aggregation {
   # how to aggregate multiple values if the output resolution is lower than the grids base resolution

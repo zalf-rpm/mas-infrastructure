@@ -14,7 +14,8 @@
 #endif
 
 #include "common.capnp.h"
-#include "geo_coord.capnp.h"
+#include "geo.capnp.h"
+#include "persistence.capnp.h"
 
 CAPNP_BEGIN_HEADER
 
@@ -422,7 +423,8 @@ struct Grid::StreamCellsResults {
 #if !CAPNP_LITE
 class Grid::Client
     : public virtual ::capnp::Capability::Client,
-      public virtual  ::mas::schema::common::Identifiable::Client {
+      public virtual  ::mas::schema::common::Identifiable::Client,
+      public virtual  ::mas::schema::persistence::Persistent::Client {
 public:
   typedef Grid Calls;
   typedef Grid Reads;
@@ -460,7 +462,8 @@ protected:
 
 class Grid::Server
     : public virtual ::capnp::Capability::Server,
-      public virtual  ::mas::schema::common::Identifiable::Server {
+      public virtual  ::mas::schema::common::Identifiable::Server,
+      public virtual  ::mas::schema::persistence::Persistent::Server {
 public:
   typedef Grid Serves;
 
@@ -1018,7 +1021,7 @@ public:
 #endif  // !CAPNP_LITE
 
   inline bool hasLatlonCoord() const;
-  inline  ::mas::schema::geocoord::LatLonCoord::Reader getLatlonCoord() const;
+  inline  ::mas::schema::geo::LatLonCoord::Reader getLatlonCoord() const;
 
   inline bool getIgnoreNoData() const;
 
@@ -1059,11 +1062,11 @@ public:
 #endif  // !CAPNP_LITE
 
   inline bool hasLatlonCoord();
-  inline  ::mas::schema::geocoord::LatLonCoord::Builder getLatlonCoord();
-  inline void setLatlonCoord( ::mas::schema::geocoord::LatLonCoord::Reader value);
-  inline  ::mas::schema::geocoord::LatLonCoord::Builder initLatlonCoord();
-  inline void adoptLatlonCoord(::capnp::Orphan< ::mas::schema::geocoord::LatLonCoord>&& value);
-  inline ::capnp::Orphan< ::mas::schema::geocoord::LatLonCoord> disownLatlonCoord();
+  inline  ::mas::schema::geo::LatLonCoord::Builder getLatlonCoord();
+  inline void setLatlonCoord( ::mas::schema::geo::LatLonCoord::Reader value);
+  inline  ::mas::schema::geo::LatLonCoord::Builder initLatlonCoord();
+  inline void adoptLatlonCoord(::capnp::Orphan< ::mas::schema::geo::LatLonCoord>&& value);
+  inline ::capnp::Orphan< ::mas::schema::geo::LatLonCoord> disownLatlonCoord();
 
   inline bool getIgnoreNoData();
   inline void setIgnoreNoData(bool value);
@@ -1098,7 +1101,7 @@ public:
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
       : _typeless(kj::mv(typeless)) {}
 
-  inline  ::mas::schema::geocoord::LatLonCoord::Pipeline getLatlonCoord();
+  inline  ::mas::schema::geo::LatLonCoord::Pipeline getLatlonCoord();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -1955,16 +1958,16 @@ public:
 #endif  // !CAPNP_LITE
 
   inline bool hasTl() const;
-  inline  ::mas::schema::geocoord::LatLonCoord::Reader getTl() const;
+  inline  ::mas::schema::geo::LatLonCoord::Reader getTl() const;
 
   inline bool hasTr() const;
-  inline  ::mas::schema::geocoord::LatLonCoord::Reader getTr() const;
+  inline  ::mas::schema::geo::LatLonCoord::Reader getTr() const;
 
   inline bool hasBr() const;
-  inline  ::mas::schema::geocoord::LatLonCoord::Reader getBr() const;
+  inline  ::mas::schema::geo::LatLonCoord::Reader getBr() const;
 
   inline bool hasBl() const;
-  inline  ::mas::schema::geocoord::LatLonCoord::Reader getBl() const;
+  inline  ::mas::schema::geo::LatLonCoord::Reader getBl() const;
 
 private:
   ::capnp::_::StructReader _reader;
@@ -1995,32 +1998,32 @@ public:
 #endif  // !CAPNP_LITE
 
   inline bool hasTl();
-  inline  ::mas::schema::geocoord::LatLonCoord::Builder getTl();
-  inline void setTl( ::mas::schema::geocoord::LatLonCoord::Reader value);
-  inline  ::mas::schema::geocoord::LatLonCoord::Builder initTl();
-  inline void adoptTl(::capnp::Orphan< ::mas::schema::geocoord::LatLonCoord>&& value);
-  inline ::capnp::Orphan< ::mas::schema::geocoord::LatLonCoord> disownTl();
+  inline  ::mas::schema::geo::LatLonCoord::Builder getTl();
+  inline void setTl( ::mas::schema::geo::LatLonCoord::Reader value);
+  inline  ::mas::schema::geo::LatLonCoord::Builder initTl();
+  inline void adoptTl(::capnp::Orphan< ::mas::schema::geo::LatLonCoord>&& value);
+  inline ::capnp::Orphan< ::mas::schema::geo::LatLonCoord> disownTl();
 
   inline bool hasTr();
-  inline  ::mas::schema::geocoord::LatLonCoord::Builder getTr();
-  inline void setTr( ::mas::schema::geocoord::LatLonCoord::Reader value);
-  inline  ::mas::schema::geocoord::LatLonCoord::Builder initTr();
-  inline void adoptTr(::capnp::Orphan< ::mas::schema::geocoord::LatLonCoord>&& value);
-  inline ::capnp::Orphan< ::mas::schema::geocoord::LatLonCoord> disownTr();
+  inline  ::mas::schema::geo::LatLonCoord::Builder getTr();
+  inline void setTr( ::mas::schema::geo::LatLonCoord::Reader value);
+  inline  ::mas::schema::geo::LatLonCoord::Builder initTr();
+  inline void adoptTr(::capnp::Orphan< ::mas::schema::geo::LatLonCoord>&& value);
+  inline ::capnp::Orphan< ::mas::schema::geo::LatLonCoord> disownTr();
 
   inline bool hasBr();
-  inline  ::mas::schema::geocoord::LatLonCoord::Builder getBr();
-  inline void setBr( ::mas::schema::geocoord::LatLonCoord::Reader value);
-  inline  ::mas::schema::geocoord::LatLonCoord::Builder initBr();
-  inline void adoptBr(::capnp::Orphan< ::mas::schema::geocoord::LatLonCoord>&& value);
-  inline ::capnp::Orphan< ::mas::schema::geocoord::LatLonCoord> disownBr();
+  inline  ::mas::schema::geo::LatLonCoord::Builder getBr();
+  inline void setBr( ::mas::schema::geo::LatLonCoord::Reader value);
+  inline  ::mas::schema::geo::LatLonCoord::Builder initBr();
+  inline void adoptBr(::capnp::Orphan< ::mas::schema::geo::LatLonCoord>&& value);
+  inline ::capnp::Orphan< ::mas::schema::geo::LatLonCoord> disownBr();
 
   inline bool hasBl();
-  inline  ::mas::schema::geocoord::LatLonCoord::Builder getBl();
-  inline void setBl( ::mas::schema::geocoord::LatLonCoord::Reader value);
-  inline  ::mas::schema::geocoord::LatLonCoord::Builder initBl();
-  inline void adoptBl(::capnp::Orphan< ::mas::schema::geocoord::LatLonCoord>&& value);
-  inline ::capnp::Orphan< ::mas::schema::geocoord::LatLonCoord> disownBl();
+  inline  ::mas::schema::geo::LatLonCoord::Builder getBl();
+  inline void setBl( ::mas::schema::geo::LatLonCoord::Reader value);
+  inline  ::mas::schema::geo::LatLonCoord::Builder initBl();
+  inline void adoptBl(::capnp::Orphan< ::mas::schema::geo::LatLonCoord>&& value);
+  inline ::capnp::Orphan< ::mas::schema::geo::LatLonCoord> disownBl();
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -2040,10 +2043,10 @@ public:
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
       : _typeless(kj::mv(typeless)) {}
 
-  inline  ::mas::schema::geocoord::LatLonCoord::Pipeline getTl();
-  inline  ::mas::schema::geocoord::LatLonCoord::Pipeline getTr();
-  inline  ::mas::schema::geocoord::LatLonCoord::Pipeline getBr();
-  inline  ::mas::schema::geocoord::LatLonCoord::Pipeline getBl();
+  inline  ::mas::schema::geo::LatLonCoord::Pipeline getTl();
+  inline  ::mas::schema::geo::LatLonCoord::Pipeline getTr();
+  inline  ::mas::schema::geo::LatLonCoord::Pipeline getBr();
+  inline  ::mas::schema::geo::LatLonCoord::Pipeline getBl();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -2553,34 +2556,34 @@ inline bool Grid::ClosestValueAtParams::Builder::hasLatlonCoord() {
   return !_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline  ::mas::schema::geocoord::LatLonCoord::Reader Grid::ClosestValueAtParams::Reader::getLatlonCoord() const {
-  return ::capnp::_::PointerHelpers< ::mas::schema::geocoord::LatLonCoord>::get(_reader.getPointerField(
+inline  ::mas::schema::geo::LatLonCoord::Reader Grid::ClosestValueAtParams::Reader::getLatlonCoord() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::geocoord::LatLonCoord::Builder Grid::ClosestValueAtParams::Builder::getLatlonCoord() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::geocoord::LatLonCoord>::get(_builder.getPointerField(
+inline  ::mas::schema::geo::LatLonCoord::Builder Grid::ClosestValueAtParams::Builder::getLatlonCoord() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 #if !CAPNP_LITE
-inline  ::mas::schema::geocoord::LatLonCoord::Pipeline Grid::ClosestValueAtParams::Pipeline::getLatlonCoord() {
-  return  ::mas::schema::geocoord::LatLonCoord::Pipeline(_typeless.getPointerField(0));
+inline  ::mas::schema::geo::LatLonCoord::Pipeline Grid::ClosestValueAtParams::Pipeline::getLatlonCoord() {
+  return  ::mas::schema::geo::LatLonCoord::Pipeline(_typeless.getPointerField(0));
 }
 #endif  // !CAPNP_LITE
-inline void Grid::ClosestValueAtParams::Builder::setLatlonCoord( ::mas::schema::geocoord::LatLonCoord::Reader value) {
-  ::capnp::_::PointerHelpers< ::mas::schema::geocoord::LatLonCoord>::set(_builder.getPointerField(
+inline void Grid::ClosestValueAtParams::Builder::setLatlonCoord( ::mas::schema::geo::LatLonCoord::Reader value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), value);
 }
-inline  ::mas::schema::geocoord::LatLonCoord::Builder Grid::ClosestValueAtParams::Builder::initLatlonCoord() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::geocoord::LatLonCoord>::init(_builder.getPointerField(
+inline  ::mas::schema::geo::LatLonCoord::Builder Grid::ClosestValueAtParams::Builder::initLatlonCoord() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::init(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 inline void Grid::ClosestValueAtParams::Builder::adoptLatlonCoord(
-    ::capnp::Orphan< ::mas::schema::geocoord::LatLonCoord>&& value) {
-  ::capnp::_::PointerHelpers< ::mas::schema::geocoord::LatLonCoord>::adopt(_builder.getPointerField(
+    ::capnp::Orphan< ::mas::schema::geo::LatLonCoord>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::mas::schema::geocoord::LatLonCoord> Grid::ClosestValueAtParams::Builder::disownLatlonCoord() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::geocoord::LatLonCoord>::disown(_builder.getPointerField(
+inline ::capnp::Orphan< ::mas::schema::geo::LatLonCoord> Grid::ClosestValueAtParams::Builder::disownLatlonCoord() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 
@@ -3051,34 +3054,34 @@ inline bool Grid::LatLonBoundsResults::Builder::hasTl() {
   return !_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline  ::mas::schema::geocoord::LatLonCoord::Reader Grid::LatLonBoundsResults::Reader::getTl() const {
-  return ::capnp::_::PointerHelpers< ::mas::schema::geocoord::LatLonCoord>::get(_reader.getPointerField(
+inline  ::mas::schema::geo::LatLonCoord::Reader Grid::LatLonBoundsResults::Reader::getTl() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::geocoord::LatLonCoord::Builder Grid::LatLonBoundsResults::Builder::getTl() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::geocoord::LatLonCoord>::get(_builder.getPointerField(
+inline  ::mas::schema::geo::LatLonCoord::Builder Grid::LatLonBoundsResults::Builder::getTl() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 #if !CAPNP_LITE
-inline  ::mas::schema::geocoord::LatLonCoord::Pipeline Grid::LatLonBoundsResults::Pipeline::getTl() {
-  return  ::mas::schema::geocoord::LatLonCoord::Pipeline(_typeless.getPointerField(0));
+inline  ::mas::schema::geo::LatLonCoord::Pipeline Grid::LatLonBoundsResults::Pipeline::getTl() {
+  return  ::mas::schema::geo::LatLonCoord::Pipeline(_typeless.getPointerField(0));
 }
 #endif  // !CAPNP_LITE
-inline void Grid::LatLonBoundsResults::Builder::setTl( ::mas::schema::geocoord::LatLonCoord::Reader value) {
-  ::capnp::_::PointerHelpers< ::mas::schema::geocoord::LatLonCoord>::set(_builder.getPointerField(
+inline void Grid::LatLonBoundsResults::Builder::setTl( ::mas::schema::geo::LatLonCoord::Reader value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), value);
 }
-inline  ::mas::schema::geocoord::LatLonCoord::Builder Grid::LatLonBoundsResults::Builder::initTl() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::geocoord::LatLonCoord>::init(_builder.getPointerField(
+inline  ::mas::schema::geo::LatLonCoord::Builder Grid::LatLonBoundsResults::Builder::initTl() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::init(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 inline void Grid::LatLonBoundsResults::Builder::adoptTl(
-    ::capnp::Orphan< ::mas::schema::geocoord::LatLonCoord>&& value) {
-  ::capnp::_::PointerHelpers< ::mas::schema::geocoord::LatLonCoord>::adopt(_builder.getPointerField(
+    ::capnp::Orphan< ::mas::schema::geo::LatLonCoord>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::mas::schema::geocoord::LatLonCoord> Grid::LatLonBoundsResults::Builder::disownTl() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::geocoord::LatLonCoord>::disown(_builder.getPointerField(
+inline ::capnp::Orphan< ::mas::schema::geo::LatLonCoord> Grid::LatLonBoundsResults::Builder::disownTl() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 
@@ -3090,34 +3093,34 @@ inline bool Grid::LatLonBoundsResults::Builder::hasTr() {
   return !_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
 }
-inline  ::mas::schema::geocoord::LatLonCoord::Reader Grid::LatLonBoundsResults::Reader::getTr() const {
-  return ::capnp::_::PointerHelpers< ::mas::schema::geocoord::LatLonCoord>::get(_reader.getPointerField(
+inline  ::mas::schema::geo::LatLonCoord::Reader Grid::LatLonBoundsResults::Reader::getTr() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::get(_reader.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::geocoord::LatLonCoord::Builder Grid::LatLonBoundsResults::Builder::getTr() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::geocoord::LatLonCoord>::get(_builder.getPointerField(
+inline  ::mas::schema::geo::LatLonCoord::Builder Grid::LatLonBoundsResults::Builder::getTr() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::get(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
 #if !CAPNP_LITE
-inline  ::mas::schema::geocoord::LatLonCoord::Pipeline Grid::LatLonBoundsResults::Pipeline::getTr() {
-  return  ::mas::schema::geocoord::LatLonCoord::Pipeline(_typeless.getPointerField(1));
+inline  ::mas::schema::geo::LatLonCoord::Pipeline Grid::LatLonBoundsResults::Pipeline::getTr() {
+  return  ::mas::schema::geo::LatLonCoord::Pipeline(_typeless.getPointerField(1));
 }
 #endif  // !CAPNP_LITE
-inline void Grid::LatLonBoundsResults::Builder::setTr( ::mas::schema::geocoord::LatLonCoord::Reader value) {
-  ::capnp::_::PointerHelpers< ::mas::schema::geocoord::LatLonCoord>::set(_builder.getPointerField(
+inline void Grid::LatLonBoundsResults::Builder::setTr( ::mas::schema::geo::LatLonCoord::Reader value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::set(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS), value);
 }
-inline  ::mas::schema::geocoord::LatLonCoord::Builder Grid::LatLonBoundsResults::Builder::initTr() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::geocoord::LatLonCoord>::init(_builder.getPointerField(
+inline  ::mas::schema::geo::LatLonCoord::Builder Grid::LatLonBoundsResults::Builder::initTr() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::init(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
 inline void Grid::LatLonBoundsResults::Builder::adoptTr(
-    ::capnp::Orphan< ::mas::schema::geocoord::LatLonCoord>&& value) {
-  ::capnp::_::PointerHelpers< ::mas::schema::geocoord::LatLonCoord>::adopt(_builder.getPointerField(
+    ::capnp::Orphan< ::mas::schema::geo::LatLonCoord>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::adopt(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::mas::schema::geocoord::LatLonCoord> Grid::LatLonBoundsResults::Builder::disownTr() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::geocoord::LatLonCoord>::disown(_builder.getPointerField(
+inline ::capnp::Orphan< ::mas::schema::geo::LatLonCoord> Grid::LatLonBoundsResults::Builder::disownTr() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::disown(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
 
@@ -3129,34 +3132,34 @@ inline bool Grid::LatLonBoundsResults::Builder::hasBr() {
   return !_builder.getPointerField(
       ::capnp::bounded<2>() * ::capnp::POINTERS).isNull();
 }
-inline  ::mas::schema::geocoord::LatLonCoord::Reader Grid::LatLonBoundsResults::Reader::getBr() const {
-  return ::capnp::_::PointerHelpers< ::mas::schema::geocoord::LatLonCoord>::get(_reader.getPointerField(
+inline  ::mas::schema::geo::LatLonCoord::Reader Grid::LatLonBoundsResults::Reader::getBr() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::get(_reader.getPointerField(
       ::capnp::bounded<2>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::geocoord::LatLonCoord::Builder Grid::LatLonBoundsResults::Builder::getBr() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::geocoord::LatLonCoord>::get(_builder.getPointerField(
+inline  ::mas::schema::geo::LatLonCoord::Builder Grid::LatLonBoundsResults::Builder::getBr() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::get(_builder.getPointerField(
       ::capnp::bounded<2>() * ::capnp::POINTERS));
 }
 #if !CAPNP_LITE
-inline  ::mas::schema::geocoord::LatLonCoord::Pipeline Grid::LatLonBoundsResults::Pipeline::getBr() {
-  return  ::mas::schema::geocoord::LatLonCoord::Pipeline(_typeless.getPointerField(2));
+inline  ::mas::schema::geo::LatLonCoord::Pipeline Grid::LatLonBoundsResults::Pipeline::getBr() {
+  return  ::mas::schema::geo::LatLonCoord::Pipeline(_typeless.getPointerField(2));
 }
 #endif  // !CAPNP_LITE
-inline void Grid::LatLonBoundsResults::Builder::setBr( ::mas::schema::geocoord::LatLonCoord::Reader value) {
-  ::capnp::_::PointerHelpers< ::mas::schema::geocoord::LatLonCoord>::set(_builder.getPointerField(
+inline void Grid::LatLonBoundsResults::Builder::setBr( ::mas::schema::geo::LatLonCoord::Reader value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::set(_builder.getPointerField(
       ::capnp::bounded<2>() * ::capnp::POINTERS), value);
 }
-inline  ::mas::schema::geocoord::LatLonCoord::Builder Grid::LatLonBoundsResults::Builder::initBr() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::geocoord::LatLonCoord>::init(_builder.getPointerField(
+inline  ::mas::schema::geo::LatLonCoord::Builder Grid::LatLonBoundsResults::Builder::initBr() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::init(_builder.getPointerField(
       ::capnp::bounded<2>() * ::capnp::POINTERS));
 }
 inline void Grid::LatLonBoundsResults::Builder::adoptBr(
-    ::capnp::Orphan< ::mas::schema::geocoord::LatLonCoord>&& value) {
-  ::capnp::_::PointerHelpers< ::mas::schema::geocoord::LatLonCoord>::adopt(_builder.getPointerField(
+    ::capnp::Orphan< ::mas::schema::geo::LatLonCoord>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::adopt(_builder.getPointerField(
       ::capnp::bounded<2>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::mas::schema::geocoord::LatLonCoord> Grid::LatLonBoundsResults::Builder::disownBr() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::geocoord::LatLonCoord>::disown(_builder.getPointerField(
+inline ::capnp::Orphan< ::mas::schema::geo::LatLonCoord> Grid::LatLonBoundsResults::Builder::disownBr() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::disown(_builder.getPointerField(
       ::capnp::bounded<2>() * ::capnp::POINTERS));
 }
 
@@ -3168,34 +3171,34 @@ inline bool Grid::LatLonBoundsResults::Builder::hasBl() {
   return !_builder.getPointerField(
       ::capnp::bounded<3>() * ::capnp::POINTERS).isNull();
 }
-inline  ::mas::schema::geocoord::LatLonCoord::Reader Grid::LatLonBoundsResults::Reader::getBl() const {
-  return ::capnp::_::PointerHelpers< ::mas::schema::geocoord::LatLonCoord>::get(_reader.getPointerField(
+inline  ::mas::schema::geo::LatLonCoord::Reader Grid::LatLonBoundsResults::Reader::getBl() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::get(_reader.getPointerField(
       ::capnp::bounded<3>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::geocoord::LatLonCoord::Builder Grid::LatLonBoundsResults::Builder::getBl() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::geocoord::LatLonCoord>::get(_builder.getPointerField(
+inline  ::mas::schema::geo::LatLonCoord::Builder Grid::LatLonBoundsResults::Builder::getBl() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::get(_builder.getPointerField(
       ::capnp::bounded<3>() * ::capnp::POINTERS));
 }
 #if !CAPNP_LITE
-inline  ::mas::schema::geocoord::LatLonCoord::Pipeline Grid::LatLonBoundsResults::Pipeline::getBl() {
-  return  ::mas::schema::geocoord::LatLonCoord::Pipeline(_typeless.getPointerField(3));
+inline  ::mas::schema::geo::LatLonCoord::Pipeline Grid::LatLonBoundsResults::Pipeline::getBl() {
+  return  ::mas::schema::geo::LatLonCoord::Pipeline(_typeless.getPointerField(3));
 }
 #endif  // !CAPNP_LITE
-inline void Grid::LatLonBoundsResults::Builder::setBl( ::mas::schema::geocoord::LatLonCoord::Reader value) {
-  ::capnp::_::PointerHelpers< ::mas::schema::geocoord::LatLonCoord>::set(_builder.getPointerField(
+inline void Grid::LatLonBoundsResults::Builder::setBl( ::mas::schema::geo::LatLonCoord::Reader value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::set(_builder.getPointerField(
       ::capnp::bounded<3>() * ::capnp::POINTERS), value);
 }
-inline  ::mas::schema::geocoord::LatLonCoord::Builder Grid::LatLonBoundsResults::Builder::initBl() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::geocoord::LatLonCoord>::init(_builder.getPointerField(
+inline  ::mas::schema::geo::LatLonCoord::Builder Grid::LatLonBoundsResults::Builder::initBl() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::init(_builder.getPointerField(
       ::capnp::bounded<3>() * ::capnp::POINTERS));
 }
 inline void Grid::LatLonBoundsResults::Builder::adoptBl(
-    ::capnp::Orphan< ::mas::schema::geocoord::LatLonCoord>&& value) {
-  ::capnp::_::PointerHelpers< ::mas::schema::geocoord::LatLonCoord>::adopt(_builder.getPointerField(
+    ::capnp::Orphan< ::mas::schema::geo::LatLonCoord>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::adopt(_builder.getPointerField(
       ::capnp::bounded<3>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::mas::schema::geocoord::LatLonCoord> Grid::LatLonBoundsResults::Builder::disownBl() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::geocoord::LatLonCoord>::disown(_builder.getPointerField(
+inline ::capnp::Orphan< ::mas::schema::geo::LatLonCoord> Grid::LatLonBoundsResults::Builder::disownBl() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::disown(_builder.getPointerField(
       ::capnp::bounded<3>() * ::capnp::POINTERS));
 }
 

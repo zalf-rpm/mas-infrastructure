@@ -19,12 +19,26 @@ CAPNP_BEGIN_HEADER
 namespace capnp {
 namespace schemas {
 
+CAPNP_DECLARE_SCHEMA(d717ff7d6815a6b0);
+CAPNP_DECLARE_SCHEMA(f77095186c3c4f65);
+CAPNP_DECLARE_SCHEMA(f5b257d7fba7ed60);
+CAPNP_DECLARE_SCHEMA(da58608ec3b1dfa6);
+CAPNP_DECLARE_SCHEMA(be5bb9ba1de54674);
+CAPNP_DECLARE_SCHEMA(be0c6a5a76e75105);
 CAPNP_DECLARE_SCHEMA(9f6bf783c59ae53f);
+CAPNP_DECLARE_SCHEMA(d21817ccd00e3d80);
+CAPNP_DECLARE_SCHEMA(ad9b89c132c7c6aa);
+CAPNP_DECLARE_SCHEMA(d863f5e4c1939673);
+CAPNP_DECLARE_SCHEMA(fb9b181fea82028a);
+CAPNP_DECLARE_SCHEMA(e5a47f5477f0222d);
+CAPNP_DECLARE_SCHEMA(cd975c65ddfc7918);
 CAPNP_DECLARE_SCHEMA(df66370e686c9b09);
 CAPNP_DECLARE_SCHEMA(9d2556ab64354282);
-CAPNP_DECLARE_SCHEMA(f92ba4cc25099ed7);
-CAPNP_DECLARE_SCHEMA(c041f7b2c1f05e54);
-CAPNP_DECLARE_SCHEMA(b1ffe14d66f53639);
+CAPNP_DECLARE_SCHEMA(9dc72eab4c0686c7);
+CAPNP_DECLARE_SCHEMA(d6f73232158ce7e9);
+CAPNP_DECLARE_SCHEMA(a27dca50a85ba1b3);
+CAPNP_DECLARE_SCHEMA(a3ea6f6acc75c72a);
+CAPNP_DECLARE_SCHEMA(e8439136add88b78);
 
 }  // namespace schemas
 }  // namespace capnp
@@ -32,6 +46,103 @@ CAPNP_DECLARE_SCHEMA(b1ffe14d66f53639);
 namespace mas {
 namespace schema {
 namespace fbp {
+
+struct Component {
+  Component() = delete;
+
+#if !CAPNP_LITE
+  class Client;
+  class Server;
+#endif  // !CAPNP_LITE
+
+  struct NameToPort;
+  struct SetupPortsParams;
+  struct SetupPortsResults;
+  struct StopParams;
+  struct StopResults;
+
+  #if !CAPNP_LITE
+  struct _capnpPrivate {
+    CAPNP_DECLARE_INTERFACE_HEADER(d717ff7d6815a6b0)
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+  };
+  #endif  // !CAPNP_LITE
+};
+
+struct Component::NameToPort {
+  NameToPort() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(f77095186c3c4f65, 0, 2)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct Component::SetupPortsParams {
+  SetupPortsParams() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(f5b257d7fba7ed60, 0, 2)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct Component::SetupPortsResults {
+  SetupPortsResults() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(da58608ec3b1dfa6, 0, 0)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct Component::StopParams {
+  StopParams() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(be5bb9ba1de54674, 0, 0)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct Component::StopResults {
+  StopResults() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(be0c6a5a76e75105, 0, 0)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
 
 struct Input {
   Input() = delete;
@@ -41,8 +152,10 @@ struct Input {
   class Server;
 #endif  // !CAPNP_LITE
 
-  struct InputParams;
-  struct InputResults;
+  struct InpReader;
+  struct InpWriter;
+  struct CloseParams;
+  struct CloseResults;
 
   #if !CAPNP_LITE
   struct _capnpPrivate {
@@ -52,23 +165,121 @@ struct Input {
   #endif  // !CAPNP_LITE
 };
 
-struct Input::InputParams {
-  InputParams() = delete;
+struct Input::InpReader {
+  InpReader() = delete;
+
+#if !CAPNP_LITE
+  class Client;
+  class Server;
+#endif  // !CAPNP_LITE
+
+  struct ReadParams;
+  struct ReadResults;
+
+  #if !CAPNP_LITE
+  struct _capnpPrivate {
+    CAPNP_DECLARE_INTERFACE_HEADER(d21817ccd00e3d80)
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+  };
+  #endif  // !CAPNP_LITE
+};
+
+struct Input::InpReader::ReadParams {
+  ReadParams() = delete;
 
   class Reader;
   class Builder;
   class Pipeline;
 
   struct _capnpPrivate {
-    CAPNP_DECLARE_STRUCT_HEADER(df66370e686c9b09, 0, 1)
+    CAPNP_DECLARE_STRUCT_HEADER(ad9b89c132c7c6aa, 0, 0)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
   };
 };
 
-struct Input::InputResults {
-  InputResults() = delete;
+struct Input::InpReader::ReadResults {
+  ReadResults() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(d863f5e4c1939673, 0, 1)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct Input::InpWriter {
+  InpWriter() = delete;
+
+#if !CAPNP_LITE
+  class Client;
+  class Server;
+#endif  // !CAPNP_LITE
+
+  struct WriteParams;
+  struct WriteResults;
+
+  #if !CAPNP_LITE
+  struct _capnpPrivate {
+    CAPNP_DECLARE_INTERFACE_HEADER(fb9b181fea82028a)
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+  };
+  #endif  // !CAPNP_LITE
+};
+
+struct Input::InpWriter::WriteParams {
+  WriteParams() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(e5a47f5477f0222d, 0, 1)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct Input::InpWriter::WriteResults {
+  WriteResults() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(cd975c65ddfc7918, 0, 0)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct Input::CloseParams {
+  CloseParams() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(df66370e686c9b09, 0, 0)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct Input::CloseResults {
+  CloseResults() = delete;
 
   class Reader;
   class Builder;
@@ -82,49 +293,81 @@ struct Input::InputResults {
   };
 };
 
-struct Output {
-  Output() = delete;
+struct InputArray {
+  InputArray() = delete;
 
 #if !CAPNP_LITE
   class Client;
   class Server;
 #endif  // !CAPNP_LITE
 
-  struct OutputParams;
-  struct OutputResults;
+  struct SendParams;
+  struct SendResults;
+  struct CloseParams;
+  struct CloseResults;
 
   #if !CAPNP_LITE
   struct _capnpPrivate {
-    CAPNP_DECLARE_INTERFACE_HEADER(f92ba4cc25099ed7)
+    CAPNP_DECLARE_INTERFACE_HEADER(9dc72eab4c0686c7)
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
   };
   #endif  // !CAPNP_LITE
 };
 
-struct Output::OutputParams {
-  OutputParams() = delete;
+struct InputArray::SendParams {
+  SendParams() = delete;
 
   class Reader;
   class Builder;
   class Pipeline;
 
   struct _capnpPrivate {
-    CAPNP_DECLARE_STRUCT_HEADER(c041f7b2c1f05e54, 0, 1)
+    CAPNP_DECLARE_STRUCT_HEADER(d6f73232158ce7e9, 1, 1)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
   };
 };
 
-struct Output::OutputResults {
-  OutputResults() = delete;
+struct InputArray::SendResults {
+  SendResults() = delete;
 
   class Reader;
   class Builder;
   class Pipeline;
 
   struct _capnpPrivate {
-    CAPNP_DECLARE_STRUCT_HEADER(b1ffe14d66f53639, 0, 0)
+    CAPNP_DECLARE_STRUCT_HEADER(a27dca50a85ba1b3, 0, 0)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct InputArray::CloseParams {
+  CloseParams() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(a3ea6f6acc75c72a, 1, 0)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct InputArray::CloseResults {
+  CloseResults() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(e8439136add88b78, 0, 0)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
@@ -132,6 +375,465 @@ struct Output::OutputResults {
 };
 
 // =======================================================================================
+
+#if !CAPNP_LITE
+class Component::Client
+    : public virtual ::capnp::Capability::Client {
+public:
+  typedef Component Calls;
+  typedef Component Reads;
+
+  Client(decltype(nullptr));
+  explicit Client(::kj::Own< ::capnp::ClientHook>&& hook);
+  template <typename _t, typename = ::kj::EnableIf< ::kj::canConvert<_t*, Server*>()>>
+  Client(::kj::Own<_t>&& server);
+  template <typename _t, typename = ::kj::EnableIf< ::kj::canConvert<_t*, Client*>()>>
+  Client(::kj::Promise<_t>&& promise);
+  Client(::kj::Exception&& exception);
+  Client(Client&) = default;
+  Client(Client&&) = default;
+  Client& operator=(Client& other);
+  Client& operator=(Client&& other);
+
+  ::capnp::Request< ::mas::schema::fbp::Component::SetupPortsParams,  ::mas::schema::fbp::Component::SetupPortsResults> setupPortsRequest(
+      ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
+  ::capnp::Request< ::mas::schema::fbp::Component::StopParams,  ::mas::schema::fbp::Component::StopResults> stopRequest(
+      ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
+
+protected:
+  Client() = default;
+};
+
+class Component::Server
+    : public virtual ::capnp::Capability::Server {
+public:
+  typedef Component Serves;
+
+  ::capnp::Capability::Server::DispatchCallResult dispatchCall(
+      uint64_t interfaceId, uint16_t methodId,
+      ::capnp::CallContext< ::capnp::AnyPointer, ::capnp::AnyPointer> context)
+      override;
+
+protected:
+  typedef  ::mas::schema::fbp::Component::SetupPortsParams SetupPortsParams;
+  typedef  ::mas::schema::fbp::Component::SetupPortsResults SetupPortsResults;
+  typedef ::capnp::CallContext<SetupPortsParams, SetupPortsResults> SetupPortsContext;
+  virtual ::kj::Promise<void> setupPorts(SetupPortsContext context);
+  typedef  ::mas::schema::fbp::Component::StopParams StopParams;
+  typedef  ::mas::schema::fbp::Component::StopResults StopResults;
+  typedef ::capnp::CallContext<StopParams, StopResults> StopContext;
+  virtual ::kj::Promise<void> stop(StopContext context);
+
+  inline  ::mas::schema::fbp::Component::Client thisCap() {
+    return ::capnp::Capability::Server::thisCap()
+        .template castAs< ::mas::schema::fbp::Component>();
+  }
+
+  ::capnp::Capability::Server::DispatchCallResult dispatchCallInternal(
+      uint16_t methodId,
+      ::capnp::CallContext< ::capnp::AnyPointer, ::capnp::AnyPointer> context);
+};
+#endif  // !CAPNP_LITE
+
+class Component::NameToPort::Reader {
+public:
+  typedef NameToPort Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  inline bool hasName() const;
+  inline  ::capnp::Text::Reader getName() const;
+
+  inline bool hasPort() const;
+#if !CAPNP_LITE
+  inline  ::capnp::Capability::Client getPort() const;
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class Component::NameToPort::Builder {
+public:
+  typedef NameToPort Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline bool hasName();
+  inline  ::capnp::Text::Builder getName();
+  inline void setName( ::capnp::Text::Reader value);
+  inline  ::capnp::Text::Builder initName(unsigned int size);
+  inline void adoptName(::capnp::Orphan< ::capnp::Text>&& value);
+  inline ::capnp::Orphan< ::capnp::Text> disownName();
+
+  inline bool hasPort();
+#if !CAPNP_LITE
+  inline  ::capnp::Capability::Client getPort();
+  inline void setPort( ::capnp::Capability::Client&& value);
+  inline void setPort( ::capnp::Capability::Client& value);
+  inline void adoptPort(::capnp::Orphan< ::capnp::Capability>&& value);
+  inline ::capnp::Orphan< ::capnp::Capability> disownPort();
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class Component::NameToPort::Pipeline {
+public:
+  typedef NameToPort Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+  inline  ::capnp::Capability::Client getPort();
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+class Component::SetupPortsParams::Reader {
+public:
+  typedef SetupPortsParams Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  inline bool hasInPorts() const;
+  inline  ::capnp::List< ::mas::schema::fbp::Component::NameToPort,  ::capnp::Kind::STRUCT>::Reader getInPorts() const;
+
+  inline bool hasOutPorts() const;
+  inline  ::capnp::List< ::mas::schema::fbp::Component::NameToPort,  ::capnp::Kind::STRUCT>::Reader getOutPorts() const;
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class Component::SetupPortsParams::Builder {
+public:
+  typedef SetupPortsParams Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline bool hasInPorts();
+  inline  ::capnp::List< ::mas::schema::fbp::Component::NameToPort,  ::capnp::Kind::STRUCT>::Builder getInPorts();
+  inline void setInPorts( ::capnp::List< ::mas::schema::fbp::Component::NameToPort,  ::capnp::Kind::STRUCT>::Reader value);
+  inline  ::capnp::List< ::mas::schema::fbp::Component::NameToPort,  ::capnp::Kind::STRUCT>::Builder initInPorts(unsigned int size);
+  inline void adoptInPorts(::capnp::Orphan< ::capnp::List< ::mas::schema::fbp::Component::NameToPort,  ::capnp::Kind::STRUCT>>&& value);
+  inline ::capnp::Orphan< ::capnp::List< ::mas::schema::fbp::Component::NameToPort,  ::capnp::Kind::STRUCT>> disownInPorts();
+
+  inline bool hasOutPorts();
+  inline  ::capnp::List< ::mas::schema::fbp::Component::NameToPort,  ::capnp::Kind::STRUCT>::Builder getOutPorts();
+  inline void setOutPorts( ::capnp::List< ::mas::schema::fbp::Component::NameToPort,  ::capnp::Kind::STRUCT>::Reader value);
+  inline  ::capnp::List< ::mas::schema::fbp::Component::NameToPort,  ::capnp::Kind::STRUCT>::Builder initOutPorts(unsigned int size);
+  inline void adoptOutPorts(::capnp::Orphan< ::capnp::List< ::mas::schema::fbp::Component::NameToPort,  ::capnp::Kind::STRUCT>>&& value);
+  inline ::capnp::Orphan< ::capnp::List< ::mas::schema::fbp::Component::NameToPort,  ::capnp::Kind::STRUCT>> disownOutPorts();
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class Component::SetupPortsParams::Pipeline {
+public:
+  typedef SetupPortsParams Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+class Component::SetupPortsResults::Reader {
+public:
+  typedef SetupPortsResults Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class Component::SetupPortsResults::Builder {
+public:
+  typedef SetupPortsResults Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class Component::SetupPortsResults::Pipeline {
+public:
+  typedef SetupPortsResults Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+class Component::StopParams::Reader {
+public:
+  typedef StopParams Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class Component::StopParams::Builder {
+public:
+  typedef StopParams Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class Component::StopParams::Pipeline {
+public:
+  typedef StopParams Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+class Component::StopResults::Reader {
+public:
+  typedef StopResults Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class Component::StopResults::Builder {
+public:
+  typedef StopResults Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class Component::StopResults::Pipeline {
+public:
+  typedef StopResults Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
 
 #if !CAPNP_LITE
 class Input::Client
@@ -152,7 +854,7 @@ public:
   Client& operator=(Client& other);
   Client& operator=(Client&& other);
 
-  ::capnp::Request< ::mas::schema::fbp::Input::InputParams,  ::mas::schema::fbp::Input::InputResults> inputRequest(
+  ::capnp::Request< ::mas::schema::fbp::Input::CloseParams,  ::mas::schema::fbp::Input::CloseResults> closeRequest(
       ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
 
 protected:
@@ -170,10 +872,10 @@ public:
       override;
 
 protected:
-  typedef  ::mas::schema::fbp::Input::InputParams InputParams;
-  typedef  ::mas::schema::fbp::Input::InputResults InputResults;
-  typedef ::capnp::CallContext<InputParams, InputResults> InputContext;
-  virtual ::kj::Promise<void> input(InputContext context);
+  typedef  ::mas::schema::fbp::Input::CloseParams CloseParams;
+  typedef  ::mas::schema::fbp::Input::CloseResults CloseResults;
+  typedef ::capnp::CallContext<CloseParams, CloseResults> CloseContext;
+  virtual ::kj::Promise<void> close(CloseContext context);
 
   inline  ::mas::schema::fbp::Input::Client thisCap() {
     return ::capnp::Capability::Server::thisCap()
@@ -186,164 +888,12 @@ protected:
 };
 #endif  // !CAPNP_LITE
 
-class Input::InputParams::Reader {
-public:
-  typedef InputParams Reads;
-
-  Reader() = default;
-  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
-
-  inline ::capnp::MessageSize totalSize() const {
-    return _reader.totalSize().asPublic();
-  }
-
 #if !CAPNP_LITE
-  inline ::kj::StringTree toString() const {
-    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
-  }
-#endif  // !CAPNP_LITE
-
-  inline bool hasData() const;
-  inline  ::capnp::Text::Reader getData() const;
-
-private:
-  ::capnp::_::StructReader _reader;
-  template <typename, ::capnp::Kind>
-  friend struct ::capnp::ToDynamic_;
-  template <typename, ::capnp::Kind>
-  friend struct ::capnp::_::PointerHelpers;
-  template <typename, ::capnp::Kind>
-  friend struct ::capnp::List;
-  friend class ::capnp::MessageBuilder;
-  friend class ::capnp::Orphanage;
-};
-
-class Input::InputParams::Builder {
-public:
-  typedef InputParams Builds;
-
-  Builder() = delete;  // Deleted to discourage incorrect usage.
-                       // You can explicitly initialize to nullptr instead.
-  inline Builder(decltype(nullptr)) {}
-  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
-  inline operator Reader() const { return Reader(_builder.asReader()); }
-  inline Reader asReader() const { return *this; }
-
-  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
-#if !CAPNP_LITE
-  inline ::kj::StringTree toString() const { return asReader().toString(); }
-#endif  // !CAPNP_LITE
-
-  inline bool hasData();
-  inline  ::capnp::Text::Builder getData();
-  inline void setData( ::capnp::Text::Reader value);
-  inline  ::capnp::Text::Builder initData(unsigned int size);
-  inline void adoptData(::capnp::Orphan< ::capnp::Text>&& value);
-  inline ::capnp::Orphan< ::capnp::Text> disownData();
-
-private:
-  ::capnp::_::StructBuilder _builder;
-  template <typename, ::capnp::Kind>
-  friend struct ::capnp::ToDynamic_;
-  friend class ::capnp::Orphanage;
-  template <typename, ::capnp::Kind>
-  friend struct ::capnp::_::PointerHelpers;
-};
-
-#if !CAPNP_LITE
-class Input::InputParams::Pipeline {
-public:
-  typedef InputParams Pipelines;
-
-  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
-  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
-      : _typeless(kj::mv(typeless)) {}
-
-private:
-  ::capnp::AnyPointer::Pipeline _typeless;
-  friend class ::capnp::PipelineHook;
-  template <typename, ::capnp::Kind>
-  friend struct ::capnp::ToDynamic_;
-};
-#endif  // !CAPNP_LITE
-
-class Input::InputResults::Reader {
-public:
-  typedef InputResults Reads;
-
-  Reader() = default;
-  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
-
-  inline ::capnp::MessageSize totalSize() const {
-    return _reader.totalSize().asPublic();
-  }
-
-#if !CAPNP_LITE
-  inline ::kj::StringTree toString() const {
-    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
-  }
-#endif  // !CAPNP_LITE
-
-private:
-  ::capnp::_::StructReader _reader;
-  template <typename, ::capnp::Kind>
-  friend struct ::capnp::ToDynamic_;
-  template <typename, ::capnp::Kind>
-  friend struct ::capnp::_::PointerHelpers;
-  template <typename, ::capnp::Kind>
-  friend struct ::capnp::List;
-  friend class ::capnp::MessageBuilder;
-  friend class ::capnp::Orphanage;
-};
-
-class Input::InputResults::Builder {
-public:
-  typedef InputResults Builds;
-
-  Builder() = delete;  // Deleted to discourage incorrect usage.
-                       // You can explicitly initialize to nullptr instead.
-  inline Builder(decltype(nullptr)) {}
-  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
-  inline operator Reader() const { return Reader(_builder.asReader()); }
-  inline Reader asReader() const { return *this; }
-
-  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
-#if !CAPNP_LITE
-  inline ::kj::StringTree toString() const { return asReader().toString(); }
-#endif  // !CAPNP_LITE
-
-private:
-  ::capnp::_::StructBuilder _builder;
-  template <typename, ::capnp::Kind>
-  friend struct ::capnp::ToDynamic_;
-  friend class ::capnp::Orphanage;
-  template <typename, ::capnp::Kind>
-  friend struct ::capnp::_::PointerHelpers;
-};
-
-#if !CAPNP_LITE
-class Input::InputResults::Pipeline {
-public:
-  typedef InputResults Pipelines;
-
-  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
-  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
-      : _typeless(kj::mv(typeless)) {}
-
-private:
-  ::capnp::AnyPointer::Pipeline _typeless;
-  friend class ::capnp::PipelineHook;
-  template <typename, ::capnp::Kind>
-  friend struct ::capnp::ToDynamic_;
-};
-#endif  // !CAPNP_LITE
-
-#if !CAPNP_LITE
-class Output::Client
+class Input::InpReader::Client
     : public virtual ::capnp::Capability::Client {
 public:
-  typedef Output Calls;
-  typedef Output Reads;
+  typedef InpReader Calls;
+  typedef InpReader Reads;
 
   Client(decltype(nullptr));
   explicit Client(::kj::Own< ::capnp::ClientHook>&& hook);
@@ -357,17 +907,17 @@ public:
   Client& operator=(Client& other);
   Client& operator=(Client&& other);
 
-  ::capnp::Request< ::mas::schema::fbp::Output::OutputParams,  ::mas::schema::fbp::Output::OutputResults> outputRequest(
+  ::capnp::Request< ::mas::schema::fbp::Input::InpReader::ReadParams,  ::mas::schema::fbp::Input::InpReader::ReadResults> readRequest(
       ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
 
 protected:
   Client() = default;
 };
 
-class Output::Server
+class Input::InpReader::Server
     : public virtual ::capnp::Capability::Server {
 public:
-  typedef Output Serves;
+  typedef InpReader Serves;
 
   ::capnp::Capability::Server::DispatchCallResult dispatchCall(
       uint64_t interfaceId, uint16_t methodId,
@@ -375,14 +925,14 @@ public:
       override;
 
 protected:
-  typedef  ::mas::schema::fbp::Output::OutputParams OutputParams;
-  typedef  ::mas::schema::fbp::Output::OutputResults OutputResults;
-  typedef ::capnp::CallContext<OutputParams, OutputResults> OutputContext;
-  virtual ::kj::Promise<void> output(OutputContext context);
+  typedef  ::mas::schema::fbp::Input::InpReader::ReadParams ReadParams;
+  typedef  ::mas::schema::fbp::Input::InpReader::ReadResults ReadResults;
+  typedef ::capnp::CallContext<ReadParams, ReadResults> ReadContext;
+  virtual ::kj::Promise<void> read(ReadContext context);
 
-  inline  ::mas::schema::fbp::Output::Client thisCap() {
+  inline  ::mas::schema::fbp::Input::InpReader::Client thisCap() {
     return ::capnp::Capability::Server::thisCap()
-        .template castAs< ::mas::schema::fbp::Output>();
+        .template castAs< ::mas::schema::fbp::Input::InpReader>();
   }
 
   ::capnp::Capability::Server::DispatchCallResult dispatchCallInternal(
@@ -391,9 +941,9 @@ protected:
 };
 #endif  // !CAPNP_LITE
 
-class Output::OutputParams::Reader {
+class Input::InpReader::ReadParams::Reader {
 public:
-  typedef OutputParams Reads;
+  typedef ReadParams Reads;
 
   Reader() = default;
   inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
@@ -408,9 +958,6 @@ public:
   }
 #endif  // !CAPNP_LITE
 
-  inline bool hasData() const;
-  inline  ::capnp::Text::Reader getData() const;
-
 private:
   ::capnp::_::StructReader _reader;
   template <typename, ::capnp::Kind>
@@ -423,9 +970,9 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Output::OutputParams::Builder {
+class Input::InpReader::ReadParams::Builder {
 public:
-  typedef OutputParams Builds;
+  typedef ReadParams Builds;
 
   Builder() = delete;  // Deleted to discourage incorrect usage.
                        // You can explicitly initialize to nullptr instead.
@@ -439,13 +986,6 @@ public:
   inline ::kj::StringTree toString() const { return asReader().toString(); }
 #endif  // !CAPNP_LITE
 
-  inline bool hasData();
-  inline  ::capnp::Text::Builder getData();
-  inline void setData( ::capnp::Text::Reader value);
-  inline  ::capnp::Text::Builder initData(unsigned int size);
-  inline void adoptData(::capnp::Orphan< ::capnp::Text>&& value);
-  inline ::capnp::Orphan< ::capnp::Text> disownData();
-
 private:
   ::capnp::_::StructBuilder _builder;
   template <typename, ::capnp::Kind>
@@ -456,9 +996,9 @@ private:
 };
 
 #if !CAPNP_LITE
-class Output::OutputParams::Pipeline {
+class Input::InpReader::ReadParams::Pipeline {
 public:
-  typedef OutputParams Pipelines;
+  typedef ReadParams Pipelines;
 
   inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
@@ -472,9 +1012,218 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Output::OutputResults::Reader {
+class Input::InpReader::ReadResults::Reader {
 public:
-  typedef OutputResults Reads;
+  typedef ReadResults Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  inline bool hasValue() const;
+  inline ::capnp::AnyPointer::Reader getValue() const;
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class Input::InpReader::ReadResults::Builder {
+public:
+  typedef ReadResults Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline bool hasValue();
+  inline ::capnp::AnyPointer::Builder getValue();
+  inline ::capnp::AnyPointer::Builder initValue();
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class Input::InpReader::ReadResults::Pipeline {
+public:
+  typedef ReadResults Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+#if !CAPNP_LITE
+class Input::InpWriter::Client
+    : public virtual ::capnp::Capability::Client {
+public:
+  typedef InpWriter Calls;
+  typedef InpWriter Reads;
+
+  Client(decltype(nullptr));
+  explicit Client(::kj::Own< ::capnp::ClientHook>&& hook);
+  template <typename _t, typename = ::kj::EnableIf< ::kj::canConvert<_t*, Server*>()>>
+  Client(::kj::Own<_t>&& server);
+  template <typename _t, typename = ::kj::EnableIf< ::kj::canConvert<_t*, Client*>()>>
+  Client(::kj::Promise<_t>&& promise);
+  Client(::kj::Exception&& exception);
+  Client(Client&) = default;
+  Client(Client&&) = default;
+  Client& operator=(Client& other);
+  Client& operator=(Client&& other);
+
+  ::capnp::Request< ::mas::schema::fbp::Input::InpWriter::WriteParams,  ::mas::schema::fbp::Input::InpWriter::WriteResults> writeRequest(
+      ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
+
+protected:
+  Client() = default;
+};
+
+class Input::InpWriter::Server
+    : public virtual ::capnp::Capability::Server {
+public:
+  typedef InpWriter Serves;
+
+  ::capnp::Capability::Server::DispatchCallResult dispatchCall(
+      uint64_t interfaceId, uint16_t methodId,
+      ::capnp::CallContext< ::capnp::AnyPointer, ::capnp::AnyPointer> context)
+      override;
+
+protected:
+  typedef  ::mas::schema::fbp::Input::InpWriter::WriteParams WriteParams;
+  typedef  ::mas::schema::fbp::Input::InpWriter::WriteResults WriteResults;
+  typedef ::capnp::CallContext<WriteParams, WriteResults> WriteContext;
+  virtual ::kj::Promise<void> write(WriteContext context);
+
+  inline  ::mas::schema::fbp::Input::InpWriter::Client thisCap() {
+    return ::capnp::Capability::Server::thisCap()
+        .template castAs< ::mas::schema::fbp::Input::InpWriter>();
+  }
+
+  ::capnp::Capability::Server::DispatchCallResult dispatchCallInternal(
+      uint16_t methodId,
+      ::capnp::CallContext< ::capnp::AnyPointer, ::capnp::AnyPointer> context);
+};
+#endif  // !CAPNP_LITE
+
+class Input::InpWriter::WriteParams::Reader {
+public:
+  typedef WriteParams Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  inline bool hasValue() const;
+  inline ::capnp::AnyPointer::Reader getValue() const;
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class Input::InpWriter::WriteParams::Builder {
+public:
+  typedef WriteParams Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline bool hasValue();
+  inline ::capnp::AnyPointer::Builder getValue();
+  inline ::capnp::AnyPointer::Builder initValue();
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class Input::InpWriter::WriteParams::Pipeline {
+public:
+  typedef WriteParams Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+class Input::InpWriter::WriteResults::Reader {
+public:
+  typedef WriteResults Reads;
 
   Reader() = default;
   inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
@@ -501,9 +1250,9 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Output::OutputResults::Builder {
+class Input::InpWriter::WriteResults::Builder {
 public:
-  typedef OutputResults Builds;
+  typedef WriteResults Builds;
 
   Builder() = delete;  // Deleted to discourage incorrect usage.
                        // You can explicitly initialize to nullptr instead.
@@ -527,9 +1276,511 @@ private:
 };
 
 #if !CAPNP_LITE
-class Output::OutputResults::Pipeline {
+class Input::InpWriter::WriteResults::Pipeline {
 public:
-  typedef OutputResults Pipelines;
+  typedef WriteResults Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+class Input::CloseParams::Reader {
+public:
+  typedef CloseParams Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class Input::CloseParams::Builder {
+public:
+  typedef CloseParams Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class Input::CloseParams::Pipeline {
+public:
+  typedef CloseParams Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+class Input::CloseResults::Reader {
+public:
+  typedef CloseResults Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class Input::CloseResults::Builder {
+public:
+  typedef CloseResults Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class Input::CloseResults::Pipeline {
+public:
+  typedef CloseResults Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+#if !CAPNP_LITE
+class InputArray::Client
+    : public virtual ::capnp::Capability::Client {
+public:
+  typedef InputArray Calls;
+  typedef InputArray Reads;
+
+  Client(decltype(nullptr));
+  explicit Client(::kj::Own< ::capnp::ClientHook>&& hook);
+  template <typename _t, typename = ::kj::EnableIf< ::kj::canConvert<_t*, Server*>()>>
+  Client(::kj::Own<_t>&& server);
+  template <typename _t, typename = ::kj::EnableIf< ::kj::canConvert<_t*, Client*>()>>
+  Client(::kj::Promise<_t>&& promise);
+  Client(::kj::Exception&& exception);
+  Client(Client&) = default;
+  Client(Client&&) = default;
+  Client& operator=(Client& other);
+  Client& operator=(Client&& other);
+
+  ::capnp::Request< ::mas::schema::fbp::InputArray::SendParams,  ::mas::schema::fbp::InputArray::SendResults> sendRequest(
+      ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
+  ::capnp::Request< ::mas::schema::fbp::InputArray::CloseParams,  ::mas::schema::fbp::InputArray::CloseResults> closeRequest(
+      ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
+
+protected:
+  Client() = default;
+};
+
+class InputArray::Server
+    : public virtual ::capnp::Capability::Server {
+public:
+  typedef InputArray Serves;
+
+  ::capnp::Capability::Server::DispatchCallResult dispatchCall(
+      uint64_t interfaceId, uint16_t methodId,
+      ::capnp::CallContext< ::capnp::AnyPointer, ::capnp::AnyPointer> context)
+      override;
+
+protected:
+  typedef  ::mas::schema::fbp::InputArray::SendParams SendParams;
+  typedef  ::mas::schema::fbp::InputArray::SendResults SendResults;
+  typedef ::capnp::CallContext<SendParams, SendResults> SendContext;
+  virtual ::kj::Promise<void> send(SendContext context);
+  typedef  ::mas::schema::fbp::InputArray::CloseParams CloseParams;
+  typedef  ::mas::schema::fbp::InputArray::CloseResults CloseResults;
+  typedef ::capnp::CallContext<CloseParams, CloseResults> CloseContext;
+  virtual ::kj::Promise<void> close(CloseContext context);
+
+  inline  ::mas::schema::fbp::InputArray::Client thisCap() {
+    return ::capnp::Capability::Server::thisCap()
+        .template castAs< ::mas::schema::fbp::InputArray>();
+  }
+
+  ::capnp::Capability::Server::DispatchCallResult dispatchCallInternal(
+      uint16_t methodId,
+      ::capnp::CallContext< ::capnp::AnyPointer, ::capnp::AnyPointer> context);
+};
+#endif  // !CAPNP_LITE
+
+class InputArray::SendParams::Reader {
+public:
+  typedef SendParams Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  inline  ::uint8_t getAt() const;
+
+  inline bool hasData() const;
+  inline ::capnp::AnyPointer::Reader getData() const;
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class InputArray::SendParams::Builder {
+public:
+  typedef SendParams Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline  ::uint8_t getAt();
+  inline void setAt( ::uint8_t value);
+
+  inline bool hasData();
+  inline ::capnp::AnyPointer::Builder getData();
+  inline ::capnp::AnyPointer::Builder initData();
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class InputArray::SendParams::Pipeline {
+public:
+  typedef SendParams Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+class InputArray::SendResults::Reader {
+public:
+  typedef SendResults Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class InputArray::SendResults::Builder {
+public:
+  typedef SendResults Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class InputArray::SendResults::Pipeline {
+public:
+  typedef SendResults Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+class InputArray::CloseParams::Reader {
+public:
+  typedef CloseParams Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  inline  ::uint8_t getAt() const;
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class InputArray::CloseParams::Builder {
+public:
+  typedef CloseParams Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline  ::uint8_t getAt();
+  inline void setAt( ::uint8_t value);
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class InputArray::CloseParams::Pipeline {
+public:
+  typedef CloseParams Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+class InputArray::CloseResults::Reader {
+public:
+  typedef CloseResults Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class InputArray::CloseResults::Builder {
+public:
+  typedef CloseResults Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class InputArray::CloseResults::Pipeline {
+public:
+  typedef CloseResults Pipelines;
 
   inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
@@ -544,6 +1795,171 @@ private:
 #endif  // !CAPNP_LITE
 
 // =======================================================================================
+
+#if !CAPNP_LITE
+inline Component::Client::Client(decltype(nullptr))
+    : ::capnp::Capability::Client(nullptr) {}
+inline Component::Client::Client(
+    ::kj::Own< ::capnp::ClientHook>&& hook)
+    : ::capnp::Capability::Client(::kj::mv(hook)) {}
+template <typename _t, typename>
+inline Component::Client::Client(::kj::Own<_t>&& server)
+    : ::capnp::Capability::Client(::kj::mv(server)) {}
+template <typename _t, typename>
+inline Component::Client::Client(::kj::Promise<_t>&& promise)
+    : ::capnp::Capability::Client(::kj::mv(promise)) {}
+inline Component::Client::Client(::kj::Exception&& exception)
+    : ::capnp::Capability::Client(::kj::mv(exception)) {}
+inline  ::mas::schema::fbp::Component::Client& Component::Client::operator=(Client& other) {
+  ::capnp::Capability::Client::operator=(other);
+  return *this;
+}
+inline  ::mas::schema::fbp::Component::Client& Component::Client::operator=(Client&& other) {
+  ::capnp::Capability::Client::operator=(kj::mv(other));
+  return *this;
+}
+
+#endif  // !CAPNP_LITE
+inline bool Component::NameToPort::Reader::hasName() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline bool Component::NameToPort::Builder::hasName() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline  ::capnp::Text::Reader Component::NameToPort::Reader::getName() const {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline  ::capnp::Text::Builder Component::NameToPort::Builder::getName() {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline void Component::NameToPort::Builder::setName( ::capnp::Text::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::Text>::set(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), value);
+}
+inline  ::capnp::Text::Builder Component::NameToPort::Builder::initName(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::init(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), size);
+}
+inline void Component::NameToPort::Builder::adoptName(
+    ::capnp::Orphan< ::capnp::Text>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::Text>::adopt(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::capnp::Text> Component::NameToPort::Builder::disownName() {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::disown(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+
+inline bool Component::NameToPort::Reader::hasPort() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
+}
+inline bool Component::NameToPort::Builder::hasPort() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
+}
+#if !CAPNP_LITE
+inline  ::capnp::Capability::Client Component::NameToPort::Reader::getPort() const {
+  return ::capnp::_::PointerHelpers< ::capnp::Capability>::get(_reader.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+inline  ::capnp::Capability::Client Component::NameToPort::Builder::getPort() {
+  return ::capnp::_::PointerHelpers< ::capnp::Capability>::get(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+inline  ::capnp::Capability::Client Component::NameToPort::Pipeline::getPort() {
+  return  ::capnp::Capability::Client(_typeless.getPointerField(1).asCap());
+}
+inline void Component::NameToPort::Builder::setPort( ::capnp::Capability::Client&& cap) {
+  ::capnp::_::PointerHelpers< ::capnp::Capability>::set(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS), kj::mv(cap));
+}
+inline void Component::NameToPort::Builder::setPort( ::capnp::Capability::Client& cap) {
+  ::capnp::_::PointerHelpers< ::capnp::Capability>::set(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS), cap);
+}
+inline void Component::NameToPort::Builder::adoptPort(
+    ::capnp::Orphan< ::capnp::Capability>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::Capability>::adopt(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::capnp::Capability> Component::NameToPort::Builder::disownPort() {
+  return ::capnp::_::PointerHelpers< ::capnp::Capability>::disown(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+#endif  // !CAPNP_LITE
+
+inline bool Component::SetupPortsParams::Reader::hasInPorts() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline bool Component::SetupPortsParams::Builder::hasInPorts() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline  ::capnp::List< ::mas::schema::fbp::Component::NameToPort,  ::capnp::Kind::STRUCT>::Reader Component::SetupPortsParams::Reader::getInPorts() const {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::fbp::Component::NameToPort,  ::capnp::Kind::STRUCT>>::get(_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline  ::capnp::List< ::mas::schema::fbp::Component::NameToPort,  ::capnp::Kind::STRUCT>::Builder Component::SetupPortsParams::Builder::getInPorts() {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::fbp::Component::NameToPort,  ::capnp::Kind::STRUCT>>::get(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline void Component::SetupPortsParams::Builder::setInPorts( ::capnp::List< ::mas::schema::fbp::Component::NameToPort,  ::capnp::Kind::STRUCT>::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::fbp::Component::NameToPort,  ::capnp::Kind::STRUCT>>::set(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), value);
+}
+inline  ::capnp::List< ::mas::schema::fbp::Component::NameToPort,  ::capnp::Kind::STRUCT>::Builder Component::SetupPortsParams::Builder::initInPorts(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::fbp::Component::NameToPort,  ::capnp::Kind::STRUCT>>::init(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), size);
+}
+inline void Component::SetupPortsParams::Builder::adoptInPorts(
+    ::capnp::Orphan< ::capnp::List< ::mas::schema::fbp::Component::NameToPort,  ::capnp::Kind::STRUCT>>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::fbp::Component::NameToPort,  ::capnp::Kind::STRUCT>>::adopt(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::capnp::List< ::mas::schema::fbp::Component::NameToPort,  ::capnp::Kind::STRUCT>> Component::SetupPortsParams::Builder::disownInPorts() {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::fbp::Component::NameToPort,  ::capnp::Kind::STRUCT>>::disown(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+
+inline bool Component::SetupPortsParams::Reader::hasOutPorts() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
+}
+inline bool Component::SetupPortsParams::Builder::hasOutPorts() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
+}
+inline  ::capnp::List< ::mas::schema::fbp::Component::NameToPort,  ::capnp::Kind::STRUCT>::Reader Component::SetupPortsParams::Reader::getOutPorts() const {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::fbp::Component::NameToPort,  ::capnp::Kind::STRUCT>>::get(_reader.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+inline  ::capnp::List< ::mas::schema::fbp::Component::NameToPort,  ::capnp::Kind::STRUCT>::Builder Component::SetupPortsParams::Builder::getOutPorts() {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::fbp::Component::NameToPort,  ::capnp::Kind::STRUCT>>::get(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+inline void Component::SetupPortsParams::Builder::setOutPorts( ::capnp::List< ::mas::schema::fbp::Component::NameToPort,  ::capnp::Kind::STRUCT>::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::fbp::Component::NameToPort,  ::capnp::Kind::STRUCT>>::set(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS), value);
+}
+inline  ::capnp::List< ::mas::schema::fbp::Component::NameToPort,  ::capnp::Kind::STRUCT>::Builder Component::SetupPortsParams::Builder::initOutPorts(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::fbp::Component::NameToPort,  ::capnp::Kind::STRUCT>>::init(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS), size);
+}
+inline void Component::SetupPortsParams::Builder::adoptOutPorts(
+    ::capnp::Orphan< ::capnp::List< ::mas::schema::fbp::Component::NameToPort,  ::capnp::Kind::STRUCT>>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::fbp::Component::NameToPort,  ::capnp::Kind::STRUCT>>::adopt(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::capnp::List< ::mas::schema::fbp::Component::NameToPort,  ::capnp::Kind::STRUCT>> Component::SetupPortsParams::Builder::disownOutPorts() {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::fbp::Component::NameToPort,  ::capnp::Kind::STRUCT>>::disown(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
 
 #if !CAPNP_LITE
 inline Input::Client::Client(decltype(nullptr))
@@ -569,96 +1985,173 @@ inline  ::mas::schema::fbp::Input::Client& Input::Client::operator=(Client&& oth
 }
 
 #endif  // !CAPNP_LITE
-inline bool Input::InputParams::Reader::hasData() const {
-  return !_reader.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
-}
-inline bool Input::InputParams::Builder::hasData() {
-  return !_builder.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
-}
-inline  ::capnp::Text::Reader Input::InputParams::Reader::getData() const {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_reader.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS));
-}
-inline  ::capnp::Text::Builder Input::InputParams::Builder::getData() {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_builder.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS));
-}
-inline void Input::InputParams::Builder::setData( ::capnp::Text::Reader value) {
-  ::capnp::_::PointerHelpers< ::capnp::Text>::set(_builder.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS), value);
-}
-inline  ::capnp::Text::Builder Input::InputParams::Builder::initData(unsigned int size) {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::init(_builder.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS), size);
-}
-inline void Input::InputParams::Builder::adoptData(
-    ::capnp::Orphan< ::capnp::Text>&& value) {
-  ::capnp::_::PointerHelpers< ::capnp::Text>::adopt(_builder.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
-}
-inline ::capnp::Orphan< ::capnp::Text> Input::InputParams::Builder::disownData() {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::disown(_builder.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS));
-}
-
 #if !CAPNP_LITE
-inline Output::Client::Client(decltype(nullptr))
+inline Input::InpReader::Client::Client(decltype(nullptr))
     : ::capnp::Capability::Client(nullptr) {}
-inline Output::Client::Client(
+inline Input::InpReader::Client::Client(
     ::kj::Own< ::capnp::ClientHook>&& hook)
     : ::capnp::Capability::Client(::kj::mv(hook)) {}
 template <typename _t, typename>
-inline Output::Client::Client(::kj::Own<_t>&& server)
+inline Input::InpReader::Client::Client(::kj::Own<_t>&& server)
     : ::capnp::Capability::Client(::kj::mv(server)) {}
 template <typename _t, typename>
-inline Output::Client::Client(::kj::Promise<_t>&& promise)
+inline Input::InpReader::Client::Client(::kj::Promise<_t>&& promise)
     : ::capnp::Capability::Client(::kj::mv(promise)) {}
-inline Output::Client::Client(::kj::Exception&& exception)
+inline Input::InpReader::Client::Client(::kj::Exception&& exception)
     : ::capnp::Capability::Client(::kj::mv(exception)) {}
-inline  ::mas::schema::fbp::Output::Client& Output::Client::operator=(Client& other) {
+inline  ::mas::schema::fbp::Input::InpReader::Client& Input::InpReader::Client::operator=(Client& other) {
   ::capnp::Capability::Client::operator=(other);
   return *this;
 }
-inline  ::mas::schema::fbp::Output::Client& Output::Client::operator=(Client&& other) {
+inline  ::mas::schema::fbp::Input::InpReader::Client& Input::InpReader::Client::operator=(Client&& other) {
   ::capnp::Capability::Client::operator=(kj::mv(other));
   return *this;
 }
 
 #endif  // !CAPNP_LITE
-inline bool Output::OutputParams::Reader::hasData() const {
+inline bool Input::InpReader::ReadResults::Reader::hasValue() const {
   return !_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline bool Output::OutputParams::Builder::hasData() {
+inline bool Input::InpReader::ReadResults::Builder::hasValue() {
   return !_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline  ::capnp::Text::Reader Output::OutputParams::Reader::getData() const {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_reader.getPointerField(
+inline ::capnp::AnyPointer::Reader Input::InpReader::ReadResults::Reader::getValue() const {
+  return ::capnp::AnyPointer::Reader(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::capnp::Text::Builder Output::OutputParams::Builder::getData() {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_builder.getPointerField(
+inline ::capnp::AnyPointer::Builder Input::InpReader::ReadResults::Builder::getValue() {
+  return ::capnp::AnyPointer::Builder(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline void Output::OutputParams::Builder::setData( ::capnp::Text::Reader value) {
-  ::capnp::_::PointerHelpers< ::capnp::Text>::set(_builder.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS), value);
-}
-inline  ::capnp::Text::Builder Output::OutputParams::Builder::initData(unsigned int size) {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::init(_builder.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS), size);
-}
-inline void Output::OutputParams::Builder::adoptData(
-    ::capnp::Orphan< ::capnp::Text>&& value) {
-  ::capnp::_::PointerHelpers< ::capnp::Text>::adopt(_builder.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
-}
-inline ::capnp::Orphan< ::capnp::Text> Output::OutputParams::Builder::disownData() {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::disown(_builder.getPointerField(
+inline ::capnp::AnyPointer::Builder Input::InpReader::ReadResults::Builder::initValue() {
+  auto result = ::capnp::AnyPointer::Builder(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
+  result.clear();
+  return result;
+}
+
+#if !CAPNP_LITE
+inline Input::InpWriter::Client::Client(decltype(nullptr))
+    : ::capnp::Capability::Client(nullptr) {}
+inline Input::InpWriter::Client::Client(
+    ::kj::Own< ::capnp::ClientHook>&& hook)
+    : ::capnp::Capability::Client(::kj::mv(hook)) {}
+template <typename _t, typename>
+inline Input::InpWriter::Client::Client(::kj::Own<_t>&& server)
+    : ::capnp::Capability::Client(::kj::mv(server)) {}
+template <typename _t, typename>
+inline Input::InpWriter::Client::Client(::kj::Promise<_t>&& promise)
+    : ::capnp::Capability::Client(::kj::mv(promise)) {}
+inline Input::InpWriter::Client::Client(::kj::Exception&& exception)
+    : ::capnp::Capability::Client(::kj::mv(exception)) {}
+inline  ::mas::schema::fbp::Input::InpWriter::Client& Input::InpWriter::Client::operator=(Client& other) {
+  ::capnp::Capability::Client::operator=(other);
+  return *this;
+}
+inline  ::mas::schema::fbp::Input::InpWriter::Client& Input::InpWriter::Client::operator=(Client&& other) {
+  ::capnp::Capability::Client::operator=(kj::mv(other));
+  return *this;
+}
+
+#endif  // !CAPNP_LITE
+inline bool Input::InpWriter::WriteParams::Reader::hasValue() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline bool Input::InpWriter::WriteParams::Builder::hasValue() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline ::capnp::AnyPointer::Reader Input::InpWriter::WriteParams::Reader::getValue() const {
+  return ::capnp::AnyPointer::Reader(_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline ::capnp::AnyPointer::Builder Input::InpWriter::WriteParams::Builder::getValue() {
+  return ::capnp::AnyPointer::Builder(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline ::capnp::AnyPointer::Builder Input::InpWriter::WriteParams::Builder::initValue() {
+  auto result = ::capnp::AnyPointer::Builder(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+  result.clear();
+  return result;
+}
+
+#if !CAPNP_LITE
+inline InputArray::Client::Client(decltype(nullptr))
+    : ::capnp::Capability::Client(nullptr) {}
+inline InputArray::Client::Client(
+    ::kj::Own< ::capnp::ClientHook>&& hook)
+    : ::capnp::Capability::Client(::kj::mv(hook)) {}
+template <typename _t, typename>
+inline InputArray::Client::Client(::kj::Own<_t>&& server)
+    : ::capnp::Capability::Client(::kj::mv(server)) {}
+template <typename _t, typename>
+inline InputArray::Client::Client(::kj::Promise<_t>&& promise)
+    : ::capnp::Capability::Client(::kj::mv(promise)) {}
+inline InputArray::Client::Client(::kj::Exception&& exception)
+    : ::capnp::Capability::Client(::kj::mv(exception)) {}
+inline  ::mas::schema::fbp::InputArray::Client& InputArray::Client::operator=(Client& other) {
+  ::capnp::Capability::Client::operator=(other);
+  return *this;
+}
+inline  ::mas::schema::fbp::InputArray::Client& InputArray::Client::operator=(Client&& other) {
+  ::capnp::Capability::Client::operator=(kj::mv(other));
+  return *this;
+}
+
+#endif  // !CAPNP_LITE
+inline  ::uint8_t InputArray::SendParams::Reader::getAt() const {
+  return _reader.getDataField< ::uint8_t>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+
+inline  ::uint8_t InputArray::SendParams::Builder::getAt() {
+  return _builder.getDataField< ::uint8_t>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+inline void InputArray::SendParams::Builder::setAt( ::uint8_t value) {
+  _builder.setDataField< ::uint8_t>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, value);
+}
+
+inline bool InputArray::SendParams::Reader::hasData() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline bool InputArray::SendParams::Builder::hasData() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline ::capnp::AnyPointer::Reader InputArray::SendParams::Reader::getData() const {
+  return ::capnp::AnyPointer::Reader(_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline ::capnp::AnyPointer::Builder InputArray::SendParams::Builder::getData() {
+  return ::capnp::AnyPointer::Builder(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline ::capnp::AnyPointer::Builder InputArray::SendParams::Builder::initData() {
+  auto result = ::capnp::AnyPointer::Builder(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+  result.clear();
+  return result;
+}
+
+inline  ::uint8_t InputArray::CloseParams::Reader::getAt() const {
+  return _reader.getDataField< ::uint8_t>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+
+inline  ::uint8_t InputArray::CloseParams::Builder::getAt() {
+  return _builder.getDataField< ::uint8_t>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+inline void InputArray::CloseParams::Builder::setAt( ::uint8_t value) {
+  _builder.setDataField< ::uint8_t>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, value);
 }
 
 }  // namespace

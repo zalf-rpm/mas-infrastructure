@@ -8,9 +8,9 @@ $Go.package("models");
 $Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/models");
 
 using Common = import "common.capnp";
-using Geo = import "geo_coord.capnp";
-using Climate = import "climate_data.capnp";
-using Soil = import "soil_data.capnp";
+using Geo = import "geo.capnp";
+using Climate = import "climate.capnp";
+using Soil = import "soil.capnp";
 using Mgmt = import "management.capnp";
 using Persistent = import "persistence.capnp".Persistent;
 using Restorer = import "persistence.capnp".Restorer;

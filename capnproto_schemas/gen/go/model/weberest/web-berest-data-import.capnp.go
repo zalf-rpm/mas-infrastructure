@@ -20,7 +20,7 @@ func (c DWLABImport) ImportData(ctx context.Context, params func(DWLABImport_imp
 		Method: capnp.Method{
 			InterfaceID:   0xa1a4ad9d143eaa6f,
 			MethodID:      0,
-			InterfaceName: "models/weberest/web-berest-data-import.capnp:DWLABImport",
+			InterfaceName: "model/weberest/web-berest-data-import.capnp:DWLABImport",
 			MethodName:    "importData",
 		},
 	}
@@ -70,7 +70,7 @@ func DWLABImport_Methods(methods []server.Method, s DWLABImport_Server) []server
 		Method: capnp.Method{
 			InterfaceID:   0xa1a4ad9d143eaa6f,
 			MethodID:      0,
-			InterfaceName: "models/weberest/web-berest-data-import.capnp:DWLABImport",
+			InterfaceName: "model/weberest/web-berest-data-import.capnp:DWLABImport",
 			MethodName:    "importData",
 		},
 		Impl: func(ctx context.Context, call *server.Call) error {
@@ -141,40 +141,30 @@ func (s DWLABImport_importData_Params) SetId(v string) error {
 	return s.Struct.SetText(0, v)
 }
 
-func (s DWLABImport_importData_Params) Dwla() (string, error) {
+func (s DWLABImport_importData_Params) Dwla() ([]byte, error) {
 	p, err := s.Struct.Ptr(1)
-	return p.Text(), err
+	return []byte(p.Data()), err
 }
 
 func (s DWLABImport_importData_Params) HasDwla() bool {
 	return s.Struct.HasPtr(1)
 }
 
-func (s DWLABImport_importData_Params) DwlaBytes() ([]byte, error) {
-	p, err := s.Struct.Ptr(1)
-	return p.TextBytes(), err
+func (s DWLABImport_importData_Params) SetDwla(v []byte) error {
+	return s.Struct.SetData(1, v)
 }
 
-func (s DWLABImport_importData_Params) SetDwla(v string) error {
-	return s.Struct.SetText(1, v)
-}
-
-func (s DWLABImport_importData_Params) Dwlb() (string, error) {
+func (s DWLABImport_importData_Params) Dwlb() ([]byte, error) {
 	p, err := s.Struct.Ptr(2)
-	return p.Text(), err
+	return []byte(p.Data()), err
 }
 
 func (s DWLABImport_importData_Params) HasDwlb() bool {
 	return s.Struct.HasPtr(2)
 }
 
-func (s DWLABImport_importData_Params) DwlbBytes() ([]byte, error) {
-	p, err := s.Struct.Ptr(2)
-	return p.TextBytes(), err
-}
-
-func (s DWLABImport_importData_Params) SetDwlb(v string) error {
-	return s.Struct.SetText(2, v)
+func (s DWLABImport_importData_Params) SetDwlb(v []byte) error {
+	return s.Struct.SetData(2, v)
 }
 
 // DWLABImport_importData_Params_List is a list of DWLABImport_importData_Params.
@@ -296,29 +286,30 @@ func (p DWLABImport_importData_Results_Future) Struct() (DWLABImport_importData_
 	return DWLABImport_importData_Results{s}, err
 }
 
-const schema_c4b468a2826bb79b = "x\xda\xac\x90\xbf\xeb\xd3P\x14\xc5\xcf\xb9/\xf9F\xa1" +
-	"\xa0\x8f\xd4\xc5UE(\xa6\xadt\xaa\xa0\xb4\xa5\xa2\x95" +
-	"\x0ay\"\x0a\xc5\xe5\xa5\x09XlmiR\xba;\xbb" +
-	";\x88\x83\xe2T\x90.\x82\x08\x8e\x82\xd0\xd1\xff\xc0\xd9" +
-	"\xbf@P\"\xb1\xf4\xc7\xe2 \xb8\xdd{8\xef\x9d\xf3" +
-	"\xb9\xf5\xb3l\xc9U\xf7\xb2\x03\x98\xba{\x92OW7" +
-	"\xca\xaf\xde\xbd}\x0d\x1d\xa8\xfc\xe5\x87'\xcf\xde<~" +
-	"\xff\x19`\xe3\x077\xf4\xcf\x89\x07\xf8Zn\xf9\xd7\x8b" +
-	")\xf76?{\xcf\x1f|\xfa\x08\xd3$\x01\x97\x1e\xd0" +
-	"\xb8$\x91\x80~[\xd6`\xfe\xf5\xcb\x85\xd5\x95\x17\xea" +
-	";t\xb30\xa8\xc2\xf0M\x06\x85\xe1\x97\xac\x11\xe7\x93" +
-	"i\x9c\x8c\xd3\xda\xf2$\x89\x92y\x92f\xb5e\x12\x05" +
-	"\xdb1\x88mf\x83\xd1d6\x9dg\xd5\xa1\x9d=\x9d" +
-	"]\xeb>\xec\xb7;\xbd?\x0a\x10\x92\xc6Q.\xb0O" +
-	"\xe1\xae\x90\xd6\x03\x88>\xed\xe5\xdb\xd7]\x0b\x95\xd9\x16" +
-	"Cr\x1fx\xea_\x03\xab\xbb\xbf2{\xf1^\x92." +
-	"\xbcq\x96\x9a\x92r\x00\x87\x80\xbey\x1e0-E\xd3" +
-	"\x17\x92\xe5\xe2\x1e\xbaw\x070\xb7\x15\xcd}\xa1\x16\x96" +
-	")\x806\x85\x18*\x9aGB5\x8aY\x82\xb0\x04\xe6" +
-	"\xe9b8L\xd2\xb4\x0d\x80\x84\x90\x07\xads\xac\xfd\x17" +
-	"\x80\xd0\xce\xad\x9a\xfc\xad\xbf\xde\x03T\x00\xd3U4a" +
-	"\x01 [\x80\xbb\x95\x03\xd5\x11\xc0\x99x9\xb6\xc7K" +
-	"\xb4[~\x07\x00\x00\xff\xff[G\x9b}"
+const schema_c4b468a2826bb79b = "x\xda\xac\x90?\xab\x13A\x14\xc5\xcf\xb9\xb3\xfbV!" +
+	"\xe11l*;Q\x10\x1e//\x914QP\x92\x10" +
+	"\xd1H\x84\x9d \x0a\xc1f\x92]0\x98\x98\x90\xdd\x90" +
+	"\xde\xda\xdeB,\x14\xab\x80\xa4\x11D\xb0\x12A\xb0\xb4" +
+	"\xf7\x13\xf8\x09\x02\xc2\xca\xba\xe4Oc!\xd8\xdd\xfb\xe3" +
+	"\xcc\x9c\xdfL\xf5\x98\x0d\xb9\xea^q\x00Su\x8f\xd2" +
+	"\xe9\xeaf\xe9\xd5\xbb\xb7\xaf\xa1OU\xfa\xf2\xc3\x93g" +
+	"o\x1e\xbf\xff\x02\xb0\xb6\xe1g\xfaZ<\xc0/\xcam" +
+	"\xffZ6\xa5\xde\xb7_\x9d\xe7\x0f>}\x84\xa9\x93\x80" +
+	"K\x0f\xa8]\x94\xbe\x80\xfe\x0dY\x83\xe9\xf7\xaf\x97V" +
+	"\xa7/\xd4O\xe8z\x16PY\xe0\x87\xf4\xb2\xc0F\xd6" +
+	"\x08\xd3\xc94\x8c\xc6\x95et4\x88\xe6Q\x9cT\x96" +
+	"\xd1\xa0\x9c\x8f\xe5\xd0&\xb6<\x9a\xcc\xa6\xf3\xe4lh" +
+	"gOg\xd7\xdb\x0f\xbb\xcdV\xe7\x0fA@\x1aG\xb9" +
+	"\xc0\xae\x83[\x1d\xad\xfb\x10}\xdeK\xf3\xc3m\x0b\x95" +
+	"\xd8\x06\x03rWw\xee\x1f\xeb\xce\xb6W%\xf6r/" +
+	"\x8a\x17c\x95\xc4\xa6\xa0\x1c\xc0!\xa0o]\x00LC" +
+	"\xd1t\x85d)\xfb\x0c\xdd\xb9\x0b\x98;\x8a\xe6\xbeP" +
+	"\x0bK\x14@\x9b\x0c\x06\x8a\xe6\x91P\x8dB\x16 ," +
+	"\x80i\xbc\x18\x0e\xa38n\x02 !\xe4\x9e\xb5\x0e\xd9" +
+	"\xff\xf0\x0f\xec\xdcN\xf87}\xbd\xf3?\x01L[\xd1" +
+	"\x04\x99\xbf\xe4\xfe\xf7N\xf6\x8f:\xf0?\x0e\x97c\xcb" +
+	"\"\x84\xc5|\x19l\x97\xdf\x01\x00\x00\xff\xff\x01\xdc\x99" +
+	"\xea"
 
 func init() {
 	schemas.Register(schema_c4b468a2826bb79b,
