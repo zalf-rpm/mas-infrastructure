@@ -49,9 +49,9 @@ import soil_io3
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
-soil_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "soil_data.capnp"), imports=abs_imports) 
+soil_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "soil.capnp"), imports=abs_imports) 
 common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
-geo_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "geo_coord.capnp"), imports=abs_imports)
+geo_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "geo.capnp"), imports=abs_imports)
 
 #------------------------------------------------------------------------------
 
@@ -271,7 +271,6 @@ class Service(soil_capnp.Service.Server, common.Identifiable, common.Persistable
         
         r.mandatory = aps["mandatory"]
         r.optional = aps["optional"]
-        print("Aps", flush=True)
 
 
     def profiles_at(self, lat, lon, avail_props, only_raw_data):

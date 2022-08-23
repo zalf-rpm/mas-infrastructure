@@ -6,11 +6,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <CapnpCsharpObsoleteCodeBehindFiles Remove="climate_data.capnp.cs" />
+    <CapnpCsharpObsoleteCodeBehindFiles Remove="climate.capnp.cs" />
     <CapnpCsharpObsoleteCodeBehindFiles Remove="cluster_admin_service.capnp.cs" />
     <CapnpCsharpObsoleteCodeBehindFiles Remove="common.capnp.cs" />
     <CapnpCsharpObsoleteCodeBehindFiles Remove="date.capnp.cs" />
-    <CapnpCsharpObsoleteCodeBehindFiles Remove="geo_coord.capnp.cs" />
+    <CapnpCsharpObsoleteCodeBehindFiles Remove="geo.capnp.cs" />
     <CapnpCsharpObsoleteCodeBehindFiles Remove="model.capnp.cs" />
   </ItemGroup>
 
@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <CapnpFiles Update="capnp_schemas\climate_data.capnp">
+    <CapnpFiles Update="capnp_schemas\climate.capnp">
       <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">capnp_schemas</ImportPaths>
     </CapnpFiles>
     <CapnpFiles Update="capnp_schemas\cluster_admin_service.capnp">
@@ -35,13 +35,13 @@
     <CapnpFiles Update="capnp_schemas\date.capnp">
       <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">capnp_schemas</ImportPaths>
     </CapnpFiles>
-    <CapnpFiles Update="capnp_schemas\geo_coord.capnp">
+    <CapnpFiles Update="capnp_schemas\geo.capnp">
       <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">capnp_schemas</ImportPaths>
     </CapnpFiles>
     <CapnpFiles Update="capnp_schemas\model.capnp">
       <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">capnp_schemas</ImportPaths>
     </CapnpFiles>
-    <CapnpFiles Update="climate_data.capnp">
+    <CapnpFiles Update="climate.capnp">
       <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">C:\Users\berg.ZALF-AD\GitHub\capnproto\c++\src;</ImportPaths>
     </CapnpFiles>
     <CapnpFiles Update="common.capnp">
@@ -50,7 +50,7 @@
     <CapnpFiles Update="date.capnp">
       <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">C:\Users\berg.ZALF-AD\GitHub\capnproto\c++\src;%(ImportPaths)</ImportPaths>
     </CapnpFiles>
-    <CapnpFiles Update="geo_coord.capnp">
+    <CapnpFiles Update="geo.capnp">
       <ImportPaths Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">C:\Users\berg.ZALF-AD\GitHub\capnproto\c++\src;%(ImportPaths)</ImportPaths>
     </CapnpFiles>
     <CapnpFiles Update="model.capnp">

@@ -43,7 +43,7 @@ import common.service as serv
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
-climate_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate_data.capnp"), imports=abs_imports)
+climate_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate.capnp"), imports=abs_imports)
 
 #------------------------------------------------------------------------------
 
@@ -134,4 +134,6 @@ async def main(path_to_config, serve_bootstrap=True, host=None, port=None,
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    asyncio.run(main("/beegfs/common/data/climate/dwd_core_ensemble", serve_bootstrap=True, use_async=True))
+    #asyncio.run(main("/beegfs/common/data/climate/dwd_core_ensemble", serve_bootstrap=True, use_async=True))
+    asyncio.run(main("/run/user/1000/gvfs/sftp:host=login01.cluster.zalf.de,user=rpm/beegfs/common/data/climate/dwd_core_ensemble", serve_bootstrap=True, use_async=True))
+    

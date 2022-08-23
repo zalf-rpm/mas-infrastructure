@@ -82,4 +82,4 @@ async def main(path_to_csv_file, serve_bootstrap=True, host=None, port=None,
 
 if __name__ == '__main__':
     path = str(PATH_TO_REPO / "data/climate/climate-iso.csv")
-    asyncio.run(main(path, use_async=False)) 
+    asyncio.run(main(path, use_async=True)) 
