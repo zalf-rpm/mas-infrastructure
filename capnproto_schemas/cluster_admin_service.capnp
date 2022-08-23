@@ -9,7 +9,7 @@ $Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/cluster"
 
 using Common = import "common.capnp";
 using Model = import "model.capnp";
-#using Geo = import "geo_coord.capnp".Geo;
+#using Geo = import "geo.capnp".Geo;
 
 struct Cluster {
 

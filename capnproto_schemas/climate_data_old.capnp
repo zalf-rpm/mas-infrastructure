@@ -5,7 +5,7 @@ $Cxx.namespace("mas::rpc");
 
 using Common = import "common.capnp".Common;
 using Model = import "model.capnp".Model;
-using Geo = import "geo_coord.capnp".Geo;
+using Geo = import "geo.capnp".Geo;
 
 struct ClimateData {
 

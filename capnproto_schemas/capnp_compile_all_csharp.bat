@@ -10,8 +10,8 @@ capnp compile --src-prefix .. -I ..\..\capnproto\c++\src\ -ocsharp ..\cluster_ad
 cd ..
 
 rem capnp compile -I ..\capnproto\c++\src\ -ocsharp:csharp-out common.capnp
-rem capnp compile -I ..\capnproto\c++\src\ -ocsharp:csharp-out climate_data.capnp
-rem capnp compile -I ..\capnproto\c++\src\ -ocsharp:csharp-out geo_coord.capnp
+rem capnp compile -I ..\capnproto\c++\src\ -ocsharp:csharp-out climate.capnp
+rem capnp compile -I ..\capnproto\c++\src\ -ocsharp:csharp-out geo.capnp
 rem capnp compile -I ..\capnproto\c++\src\ -ocsharp:csharp-out model.capnp
 rem capnp compile -I ..\capnproto\c++\src\ -oc++:csharp-out service.capnp
 rem capnp compile -I ..\capnproto\c++\src\ -ocsharp:csharp-out cluster_admin_service.capnp

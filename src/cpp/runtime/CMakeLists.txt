@@ -96,9 +96,9 @@ set(CAPNPC_SRC_PREFIX ${CAPNP_SCHEMAS_DIR})
 capnp_generate_cpp(CAPNP_SRCS CAPNP_HDRS 
 ${CAPNP_SCHEMAS_DIR}/common.capnp 
 ${CAPNP_SCHEMAS_DIR}/date.capnp
-${CAPNP_SCHEMAS_DIR}/climate_data.capnp
+${CAPNP_SCHEMAS_DIR}/climate.capnp
 ${CAPNP_SCHEMAS_DIR}/model.capnp
-${CAPNP_SCHEMAS_DIR}/geo_coord.capnp
+${CAPNP_SCHEMAS_DIR}/geo.capnp
 ${CAPNP_SCHEMAS_DIR}/cluster_admin_service.capnp)
 message(STATUS "CAPNP_HDRS: " "${CAPNP_HDRS}")
 message(STATUS "CAPNP_SRCS: " "${CAPNP_SRCS}")
