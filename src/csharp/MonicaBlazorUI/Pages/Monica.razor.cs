@@ -1,12 +1,6 @@
-﻿using System;
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using Newtonsoft.Json.Linq;
-using Microsoft.AspNetCore.WebUtilities;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using Mgmt = Mas.Schema.Management;
 using ExtType = Mas.Schema.Management.Event.ExternalType;
 using Crop = Mas.Schema.Crop;
@@ -691,7 +685,7 @@ namespace Mas.Infrastructure.BlazorComponents
                 cropj["cropRotation"] = cr;
             }
 
-            var envj = RunMonica.CreateMonicaEnv(simj, cropj, sitej, null, new Core.Share.UserSetting(), Core.Share.Enums.MonicaParametersBasePathTypeEnum.LocalServer);
+            var envj = RunMonica.CreateMonicaEnv(simj, cropj, sitej, null);//, new Core.Share.UserSetting(), Core.Share.Enums.MonicaParametersBasePathTypeEnum.LocalServer);
 
             if (overwriteOutputConfig)
             {

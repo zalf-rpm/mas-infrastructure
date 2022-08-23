@@ -1,11 +1,6 @@
 ﻿//using MonicaBlazorZmqUI.Services.Github;
-using Core.Share;
-using Microsoft.AspNetCore.Routing.Matching;
+//using Core.Share;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text;
 
 
@@ -32,7 +27,7 @@ namespace MonicaBlazorUI.Services
 
         //protected readonly IGithubService _githubService;
 
-        public UserSetting? UserSettings { get; set; }
+        //public UserSetting? UserSettings { get; set; }
 
         public MonicaIO()//IGithubService githubService)
         {

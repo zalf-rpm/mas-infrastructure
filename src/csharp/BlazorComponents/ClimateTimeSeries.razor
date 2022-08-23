@@ -1,6 +1,4 @@
-﻿@page "/climate/timeseries"
-
-@namespace Mas.Infrastructure.BlazorComponents
+﻿@namespace Mas.Infrastructure.BlazorComponents
 
 @using System.Text;
 @using MudBlazor
@@ -113,8 +111,8 @@
 
 @code {
     [Parameter]
-    public Climate.ITimeSeries TimeSeriesCap { get; set; }
-    private Climate.ITimeSeries originalTimeSeriesCap;
+    public Climate.ITimeSeries? TimeSeriesCap { get; set; }
+    private Climate.ITimeSeries? originalTimeSeriesCap;
     private bool timeSeriesCapUpdated = false;
 
     private bool componentIsTimeSeriesCapOwner = false;
@@ -126,7 +124,7 @@
     public bool HideSturdyRefConnector { get; set; } = false;
 
     private DateTime start, end;
-    private DateRange range;
+    private DateRange? range;
 
     private struct Element
     {
@@ -137,7 +135,7 @@
 
     private IList<String> headings = new List<String>();
     private List<Element> data = new List<Element>();
-    private String searchString;
+    private String? searchString;
 
     private Dictionary<String, IEnumerable<float>> name2Data = new();
     private IEnumerable<DateTime> dates = new List<DateTime>();
@@ -158,7 +156,7 @@
         }
     }
 
-    private async Task CapabilityChanged(Climate.ITimeSeries ts)
+    private async Task CapabilityChanged(Climate.ITimeSeries? ts)
     {
         if (ts == null) return;
 
