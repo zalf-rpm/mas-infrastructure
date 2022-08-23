@@ -45,8 +45,8 @@ import common.service as serv
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
-climate_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate_data.capnp"), imports=abs_imports)
-geo_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "geo_coord.capnp"), imports=abs_imports)
+climate_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate.capnp"), imports=abs_imports)
+geo_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "geo.capnp"), imports=abs_imports)
 
 #------------------------------------------------------------------------------
 
@@ -305,12 +305,12 @@ class Metadata_Info(climate_data_capnp.Metadata.Information.Server):
             "rcp": lambda v: rcp_or_ssp_to_info(v),
             "ssp": lambda v: rcp_or_ssp_to_info(v),
             "ensMem": lambda v: ensmem_to_info(v),
-            "version": lambda v: {"id": "version", "name": "Version", "description": v}, 
-            "start": lambda v: {"id": "start", "name": "Start", "description": create_date(v).isoformat()[:10]},
-            "end": lambda v: {"id": "end", "name": "End", "description": create_date(v).isoformat()[:10]},
-            "co2": lambda v: {"id": "co2", "name": "CO2", "description": str(v) + "ppm"},
+            "version": lambda v: {"id": v, "name": v, "description": ""}, 
+            "start": lambda v: {"id": create_date(v).isoformat()[:10], "name": create_date(v).isoformat()[:10], "description": ""},
+            "end": lambda v: {"id": create_date(v).isoformat()[:10], "name": create_date(v).isoformat()[:10], "description": ""},
+            "co2": lambda v: {"id": str(v), "name": str(v) + "ppm", "description": ""},
             "picontrol": lambda v: {"id": "picontrol", "name": "piControl", "description": ""},
-            "description": lambda v: {"id": "description", "name": "Description", "description": v}
+            "description": lambda v: {"id": v, "name": v, "description": v}
         }
 
 
