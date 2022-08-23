@@ -1,6 +1,4 @@
-﻿@page "/soil/service"
-
-@namespace Mas.Infrastructure.BlazorComponents
+﻿@namespace Mas.Infrastructure.BlazorComponents
 
 @using MudBlazor
 @using System.Threading
@@ -259,7 +257,7 @@
 
 @code {
     [Parameter]
-    public Soil.IService SoilServiceCap { get; set; }
+    public Soil.IService? SoilServiceCap { get; set; }
 
     private bool soilServiceCapUpdated = false;
 
@@ -268,7 +266,7 @@
 
     private String soilServiceSturdyRef = "";
 
-    private Soil.Profile profile;
+    private Soil.Profile? profile;
 
     [Parameter]
     public List<Soil.Layer> ProfileLayers { get; set; } = new();
@@ -279,7 +277,7 @@
     private IEnumerable<Soil.PropertyName> availableSoilProps = new List<Soil.PropertyName>();
     private IEnumerable<Soil.PropertyName> chosenSoilPropertyNames = new List<Soil.PropertyName>();
     private MudChip[] defaultSelectedSoilPropertyNameChips = new MudChip[0];
-    private MudChipSet chosenSoilPropertyNamesChipset;
+    //private MudChipSet chosenSoilPropertyNamesChipset;
 
     [Parameter]
     public bool AllowLocalSoilPropertiesEditing { get; set; } = true;
@@ -287,7 +285,7 @@
     [Parameter]
     public HashSet<String> DefaultSelectedSoilProperties { get; set; } = new HashSet<String>() { "sand", "clay", "soilType", "bulkDensity", "organicCarbon" };
 
-    private ConnectToSturdyRef<Soil.IService> sturdyRefConnector;
+    private ConnectToSturdyRef<Soil.IService>? sturdyRefConnector;
     //private ConnectToSturdyRefL<Soil.IService> sturdyRefConnectorL;
 
     [Parameter]
@@ -313,7 +311,7 @@
         }
     }
 
-    private async Task SoilServiceCapabilityChanged(Soil.IService service)
+    private async Task SoilServiceCapabilityChanged(Soil.IService? service)
     {
         if (service == null) return;
 
@@ -326,7 +324,7 @@
 
         Console.WriteLine("SoilService.SoilServiceCapabilityChanged: ThreadId: " + Thread.CurrentThread.ManagedThreadId);
 
-        //_ = GetAllAvailableSoilProperties();
+        _ = GetAllAvailableSoilProperties();
         //_ = Task.Delay(200).ContinueWith(_ => GetAllAvailableSoilProperties());
         //_ = InvokeAsync(GetAllAvailableSoilProperties);
     }
@@ -356,11 +354,11 @@
         }
     }
 
-    private async Task MarkDefaultChips(MudChip[] chips, Action<MudChip[]>? action = null)
+    private Task MarkDefaultChips(MudChip[] chips, Action<MudChip[]>? action = null)
     {
         Console.WriteLine("SoilService.MarkDefaultChips: ThreadId: " + Thread.CurrentThread.ManagedThreadId);
 
-        if (chips.All(c => c == null)) return;
+        if (chips.All(c => c == null)) return Task.CompletedTask;
 
         var selected = new List<MudChip>();
         foreach (var c in chips)
@@ -370,6 +368,7 @@
         }
         if (action != null) action(selected.ToArray());
         StateHasChanged();
+        return Task.CompletedTask;
     }
 
     private string GetSoilPropertyValue(Soil.Layer.Property p)
@@ -402,14 +401,16 @@
 
         try
         {
-            var profiles = await SoilServiceCap.ProfilesAt(new Geo.LatLonCoord { Lat = LatLng.Item1, Lon = LatLng.Item2 },
-            new Soil.Query
-            {
-                Mandatory = chosenSoilPropertyNames.ToArray(),
-                OnlyRawData = false
-            });
+            var profiles = await SoilServiceCap.ProfilesAt(
+                new Geo.LatLonCoord { Lat = LatLng.Item1, Lon = LatLng.Item2 },
+                new Soil.Query
+                {
+                    Mandatory = chosenSoilPropertyNames.ToArray(),
+                    OnlyRawData = false
+                }
+            );
 
-            if (profiles.Count > 0)
+            if (profiles?.Count > 0)
             {
                 profile = profiles[0];
                 ProfileLayers.Clear();
