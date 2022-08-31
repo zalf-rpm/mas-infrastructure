@@ -75,6 +75,12 @@ struct ZmqPipelineAddresses {
   output @1 :Text;
 }
 
+interface ValueHolder(T) {
+  # an interface to a remote value 
+
+  value @0 () -> (val :T);
+  # get the referenced value
+}
 
 interface CapHolder(Object) {
   # hold a capability to an object

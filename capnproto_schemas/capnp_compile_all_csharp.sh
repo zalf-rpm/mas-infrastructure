@@ -26,6 +26,7 @@ capnp compile -I. -ocsharp:./gen/csharp/soil soil.capnp
 
 capnp compile -I. -ocsharp:./gen/csharp model/weberest/web-berest-data-import.capnp
 capnp compile -I. -ocsharp:./gen/csharp model/yieldstat/yieldstat.capnp
+capnp compile -I. -ocsharp:./gen/csharp model/monica/monica_management.capnp
 capnp compile -I. -ocsharp:./gen/csharp model/monica/monica_params.capnp
 capnp compile -I. -ocsharp:./gen/csharp model/monica/monica_state.capnp
 capnp compile -I. -ocsharp:./gen/csharp model/monica/soil_params.capnp

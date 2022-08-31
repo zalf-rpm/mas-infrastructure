@@ -26,6 +26,7 @@ capnp compile -I. -ogo:./gen/go/soil soil.capnp
 
 capnp compile -I. -ogo:./gen/go model/weberest/web-berest-data-import.capnp
 capnp compile -I. -ogo:./gen/go model/yieldstat/yieldstat.capnp
+capnp compile -I. -ogo:./gen/go model/monica/monica_management.capnp
 capnp compile -I. -ogo:./gen/go model/monica/monica_params.capnp
 capnp compile -I. -ogo:./gen/go model/monica/monica_state.capnp
 capnp compile -I. -ogo:./gen/go model/monica/soil_params.capnp

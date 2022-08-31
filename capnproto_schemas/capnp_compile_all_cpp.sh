@@ -26,6 +26,7 @@ capnp compile -I. -oc++:./gen/cpp/soil soil.capnp
 
 capnp compile -I. -oc++:./gen/cpp model/weberest/web-berest-data-import.capnp
 capnp compile -I. -oc++:./gen/cpp model/yieldstat/yieldstat.capnp
+capnp compile -I. -oc++:./gen/cpp model/monica/monica_management.capnp
 capnp compile -I. -oc++:./gen/cpp model/monica/monica_params.capnp
 capnp compile -I. -oc++:./gen/cpp model/monica/monica_state.capnp
 capnp compile -I. -oc++:./gen/cpp model/monica/soil_params.capnp

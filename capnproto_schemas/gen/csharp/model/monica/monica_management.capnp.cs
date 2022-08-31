@@ -6,9 +6,184 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Mas.Schema.Management
+namespace Mas.Schema.Model.Monica
 {
-    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x82a74595175b71a3UL)]
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xa1f99f32eea02590UL)]
+    public class ILRDates : ICapnpSerializable
+    {
+        public const UInt64 typeId = 0xa1f99f32eea02590UL;
+        void ICapnpSerializable.Deserialize(DeserializerState arg_)
+        {
+            var reader = READER.create(arg_);
+            Sowing = CapnpSerializable.Create<Mas.Schema.Common.Date>(reader.Sowing);
+            EarliestSowing = CapnpSerializable.Create<Mas.Schema.Common.Date>(reader.EarliestSowing);
+            LatestSowing = CapnpSerializable.Create<Mas.Schema.Common.Date>(reader.LatestSowing);
+            Harvest = CapnpSerializable.Create<Mas.Schema.Common.Date>(reader.Harvest);
+            LatestHarvest = CapnpSerializable.Create<Mas.Schema.Common.Date>(reader.LatestHarvest);
+            applyDefaults();
+        }
+
+        public void serialize(WRITER writer)
+        {
+            Sowing?.serialize(writer.Sowing);
+            EarliestSowing?.serialize(writer.EarliestSowing);
+            LatestSowing?.serialize(writer.LatestSowing);
+            Harvest?.serialize(writer.Harvest);
+            LatestHarvest?.serialize(writer.LatestHarvest);
+        }
+
+        void ICapnpSerializable.Serialize(SerializerState arg_)
+        {
+            serialize(arg_.Rewrap<WRITER>());
+        }
+
+        public void applyDefaults()
+        {
+        }
+
+        public Mas.Schema.Common.Date Sowing
+        {
+            get;
+            set;
+        }
+
+        public Mas.Schema.Common.Date EarliestSowing
+        {
+            get;
+            set;
+        }
+
+        public Mas.Schema.Common.Date LatestSowing
+        {
+            get;
+            set;
+        }
+
+        public Mas.Schema.Common.Date Harvest
+        {
+            get;
+            set;
+        }
+
+        public Mas.Schema.Common.Date LatestHarvest
+        {
+            get;
+            set;
+        }
+
+        public struct READER
+        {
+            readonly DeserializerState ctx;
+            public READER(DeserializerState ctx)
+            {
+                this.ctx = ctx;
+            }
+
+            public static READER create(DeserializerState ctx) => new READER(ctx);
+            public static implicit operator DeserializerState(READER reader) => reader.ctx;
+            public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+            public Mas.Schema.Common.Date.READER Sowing => ctx.ReadStruct(0, Mas.Schema.Common.Date.READER.create);
+            public bool HasSowing => ctx.IsStructFieldNonNull(0);
+            public Mas.Schema.Common.Date.READER EarliestSowing => ctx.ReadStruct(1, Mas.Schema.Common.Date.READER.create);
+            public bool HasEarliestSowing => ctx.IsStructFieldNonNull(1);
+            public Mas.Schema.Common.Date.READER LatestSowing => ctx.ReadStruct(2, Mas.Schema.Common.Date.READER.create);
+            public bool HasLatestSowing => ctx.IsStructFieldNonNull(2);
+            public Mas.Schema.Common.Date.READER Harvest => ctx.ReadStruct(3, Mas.Schema.Common.Date.READER.create);
+            public bool HasHarvest => ctx.IsStructFieldNonNull(3);
+            public Mas.Schema.Common.Date.READER LatestHarvest => ctx.ReadStruct(4, Mas.Schema.Common.Date.READER.create);
+            public bool HasLatestHarvest => ctx.IsStructFieldNonNull(4);
+        }
+
+        public class WRITER : SerializerState
+        {
+            public WRITER()
+            {
+                this.SetStruct(0, 5);
+            }
+
+            public Mas.Schema.Common.Date.WRITER Sowing
+            {
+                get => BuildPointer<Mas.Schema.Common.Date.WRITER>(0);
+                set => Link(0, value);
+            }
+
+            public Mas.Schema.Common.Date.WRITER EarliestSowing
+            {
+                get => BuildPointer<Mas.Schema.Common.Date.WRITER>(1);
+                set => Link(1, value);
+            }
+
+            public Mas.Schema.Common.Date.WRITER LatestSowing
+            {
+                get => BuildPointer<Mas.Schema.Common.Date.WRITER>(2);
+                set => Link(2, value);
+            }
+
+            public Mas.Schema.Common.Date.WRITER Harvest
+            {
+                get => BuildPointer<Mas.Schema.Common.Date.WRITER>(3);
+                set => Link(3, value);
+            }
+
+            public Mas.Schema.Common.Date.WRITER LatestHarvest
+            {
+                get => BuildPointer<Mas.Schema.Common.Date.WRITER>(4);
+                set => Link(4, value);
+            }
+        }
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x94aa9c195abf0a1aUL)]
+    public enum MineralFertilizer : ushort
+    {
+        ahls,
+        alzon,
+        an,
+        ap,
+        @as,
+        ash,
+        cf4,
+        cp1,
+        cp2,
+        cp3,
+        npk,
+        ns,
+        u,
+        uan,
+        uas,
+        uni
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xfd676465ae0b8cf0UL)]
+    public enum OrganicFertilizer : ushort
+    {
+        ash,
+        cadlm,
+        cam,
+        cas,
+        cau,
+        dgdlm,
+        gwc,
+        hodlm,
+        mc,
+        ms,
+        oic,
+        pidlm,
+        pim,
+        pis,
+        piu,
+        piudk,
+        plw,
+        podlm,
+        pom,
+        soy,
+        ss,
+        tudlm,
+        weeds,
+        ws
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xd0290daf8de9f2b0UL)]
     public enum EventType : ushort
     {
         sowing,
@@ -25,7 +200,7 @@ namespace Mas.Schema.Management
         saveState
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xc2d50914b83d42deUL)]
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xb33447204cdf022cUL)]
     public enum PlantOrgan : ushort
     {
         root,
@@ -36,10 +211,10 @@ namespace Mas.Schema.Management
         sugar
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x9c5dedfd679ac842UL)]
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xcf672ab379467704UL)]
     public class Event : ICapnpSerializable
     {
-        public const UInt64 typeId = 0x9c5dedfd679ac842UL;
+        public const UInt64 typeId = 0xcf672ab379467704UL;
         public enum WHICH : ushort
         {
             At = 0,
@@ -54,13 +229,13 @@ namespace Mas.Schema.Management
             switch (reader.which)
             {
                 case WHICH.At:
-                    At = CapnpSerializable.Create<Mas.Schema.Management.Event.at>(reader.At);
+                    At = CapnpSerializable.Create<Mas.Schema.Model.Monica.Event.at>(reader.At);
                     break;
                 case WHICH.Between:
-                    Between = CapnpSerializable.Create<Mas.Schema.Management.Event.between>(reader.Between);
+                    Between = CapnpSerializable.Create<Mas.Schema.Model.Monica.Event.between>(reader.Between);
                     break;
                 case WHICH.After:
-                    After = CapnpSerializable.Create<Mas.Schema.Management.Event.after>(reader.After);
+                    After = CapnpSerializable.Create<Mas.Schema.Model.Monica.Event.after>(reader.After);
                     break;
             }
 
@@ -127,7 +302,7 @@ namespace Mas.Schema.Management
         {
         }
 
-        public Mas.Schema.Management.Event.ExternalType TheType
+        public Mas.Schema.Model.Monica.Event.ExternalType TheType
         {
             get;
             set;
@@ -139,9 +314,9 @@ namespace Mas.Schema.Management
             set;
         }
 
-        public Mas.Schema.Management.Event.at At
+        public Mas.Schema.Model.Monica.Event.at At
         {
-            get => _which == WHICH.At ? (Mas.Schema.Management.Event.at)_content : null;
+            get => _which == WHICH.At ? (Mas.Schema.Model.Monica.Event.at)_content : null;
             set
             {
                 _which = WHICH.At;
@@ -149,9 +324,9 @@ namespace Mas.Schema.Management
             }
         }
 
-        public Mas.Schema.Management.Event.between Between
+        public Mas.Schema.Model.Monica.Event.between Between
         {
-            get => _which == WHICH.Between ? (Mas.Schema.Management.Event.between)_content : null;
+            get => _which == WHICH.Between ? (Mas.Schema.Model.Monica.Event.between)_content : null;
             set
             {
                 _which = WHICH.Between;
@@ -159,9 +334,9 @@ namespace Mas.Schema.Management
             }
         }
 
-        public Mas.Schema.Management.Event.after After
+        public Mas.Schema.Model.Monica.Event.after After
         {
-            get => _which == WHICH.After ? (Mas.Schema.Management.Event.after)_content : null;
+            get => _which == WHICH.After ? (Mas.Schema.Model.Monica.Event.after)_content : null;
             set
             {
                 _which = WHICH.After;
@@ -193,7 +368,7 @@ namespace Mas.Schema.Management
             public static implicit operator DeserializerState(READER reader) => reader.ctx;
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
             public WHICH which => (WHICH)ctx.ReadDataUShort(16U, (ushort)0);
-            public Mas.Schema.Management.Event.ExternalType TheType => (Mas.Schema.Management.Event.ExternalType)ctx.ReadDataUShort(0UL, (ushort)0);
+            public Mas.Schema.Model.Monica.Event.ExternalType TheType => (Mas.Schema.Model.Monica.Event.ExternalType)ctx.ReadDataUShort(0UL, (ushort)0);
             public Mas.Schema.Common.IdInformation.READER Info => ctx.ReadStruct(0, Mas.Schema.Common.IdInformation.READER.create);
             public bool HasInfo => ctx.IsStructFieldNonNull(0);
             public at.READER At => which == WHICH.At ? new at.READER(ctx) : default;
@@ -216,9 +391,9 @@ namespace Mas.Schema.Management
                 set => this.WriteData(16U, (ushort)value, (ushort)0);
             }
 
-            public Mas.Schema.Management.Event.ExternalType TheType
+            public Mas.Schema.Model.Monica.Event.ExternalType TheType
             {
-                get => (Mas.Schema.Management.Event.ExternalType)this.ReadDataUShort(0UL, (ushort)0);
+                get => (Mas.Schema.Model.Monica.Event.ExternalType)this.ReadDataUShort(0UL, (ushort)0);
                 set => this.WriteData(0UL, (ushort)value, (ushort)0);
             }
 
@@ -256,10 +431,10 @@ namespace Mas.Schema.Management
             }
         }
 
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xc6c4991fe51b272fUL)]
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xdb4674cbf3154bfaUL)]
         public class at : ICapnpSerializable
         {
-            public const UInt64 typeId = 0xc6c4991fe51b272fUL;
+            public const UInt64 typeId = 0xdb4674cbf3154bfaUL;
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
@@ -316,10 +491,10 @@ namespace Mas.Schema.Management
             }
         }
 
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x9539b8e14ac7d5a9UL)]
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xc8479e0f1798b1fcUL)]
         public class between : ICapnpSerializable
         {
-            public const UInt64 typeId = 0x9539b8e14ac7d5a9UL;
+            public const UInt64 typeId = 0xc8479e0f1798b1fcUL;
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
@@ -392,14 +567,14 @@ namespace Mas.Schema.Management
             }
         }
 
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xc58610b90af83811UL)]
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xbeb6ab7b0e6b585eUL)]
         public class after : ICapnpSerializable
         {
-            public const UInt64 typeId = 0xc58610b90af83811UL;
+            public const UInt64 typeId = 0xbeb6ab7b0e6b585eUL;
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Event = CapnpSerializable.Create<Mas.Schema.Management.Event.Type>(reader.Event);
+                Event = CapnpSerializable.Create<Mas.Schema.Model.Monica.Event.Type>(reader.Event);
                 Days = reader.Days;
                 applyDefaults();
             }
@@ -419,7 +594,7 @@ namespace Mas.Schema.Management
             {
             }
 
-            public Mas.Schema.Management.Event.Type Event
+            public Mas.Schema.Model.Monica.Event.Type Event
             {
                 get;
                 set;
@@ -442,7 +617,7 @@ namespace Mas.Schema.Management
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Schema.Management.Event.Type.READER Event => ctx.ReadStruct(1, Mas.Schema.Management.Event.Type.READER.create);
+                public Mas.Schema.Model.Monica.Event.Type.READER Event => ctx.ReadStruct(1, Mas.Schema.Model.Monica.Event.Type.READER.create);
                 public bool HasEvent => ctx.IsStructFieldNonNull(1);
                 public ushort Days => ctx.ReadDataUShort(32UL, (ushort)0);
             }
@@ -453,9 +628,9 @@ namespace Mas.Schema.Management
                 {
                 }
 
-                public Mas.Schema.Management.Event.Type.WRITER Event
+                public Mas.Schema.Model.Monica.Event.Type.WRITER Event
                 {
-                    get => BuildPointer<Mas.Schema.Management.Event.Type.WRITER>(1);
+                    get => BuildPointer<Mas.Schema.Model.Monica.Event.Type.WRITER>(1);
                     set => Link(1, value);
                 }
 
@@ -467,7 +642,7 @@ namespace Mas.Schema.Management
             }
         }
 
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xf082ec2d0eb50c9bUL)]
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xe5484dc513ee11e0UL)]
         public enum ExternalType : ushort
         {
             sowing,
@@ -482,7 +657,7 @@ namespace Mas.Schema.Management
             cutting
         }
 
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x8fa09457bc1bfc34UL)]
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xb2bf3a5557791bc1UL)]
         public enum PhenoStage : ushort
         {
             emergence,
@@ -491,10 +666,10 @@ namespace Mas.Schema.Management
             maturity
         }
 
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xe1ed73d59c8ce359UL)]
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xb91010c363e568a4UL)]
         public class Type : ICapnpSerializable
         {
-            public const UInt64 typeId = 0xe1ed73d59c8ce359UL;
+            public const UInt64 typeId = 0xb91010c363e568a4UL;
             public enum WHICH : ushort
             {
                 External = 0,
@@ -531,10 +706,10 @@ namespace Mas.Schema.Management
                     switch (value)
                     {
                         case WHICH.External:
-                            _content = (Mas.Schema.Management.Event.ExternalType)0;
+                            _content = (Mas.Schema.Model.Monica.Event.ExternalType)0;
                             break;
                         case WHICH.Internal:
-                            _content = (Mas.Schema.Management.Event.PhenoStage)0;
+                            _content = (Mas.Schema.Model.Monica.Event.PhenoStage)0;
                             break;
                     }
                 }
@@ -563,9 +738,9 @@ namespace Mas.Schema.Management
             {
             }
 
-            public Mas.Schema.Management.Event.ExternalType? External
+            public Mas.Schema.Model.Monica.Event.ExternalType? External
             {
-                get => _which == WHICH.External ? (Mas.Schema.Management.Event.ExternalType? )_content : null;
+                get => _which == WHICH.External ? (Mas.Schema.Model.Monica.Event.ExternalType? )_content : null;
                 set
                 {
                     _which = WHICH.External;
@@ -573,9 +748,9 @@ namespace Mas.Schema.Management
                 }
             }
 
-            public Mas.Schema.Management.Event.PhenoStage? Internal
+            public Mas.Schema.Model.Monica.Event.PhenoStage? Internal
             {
-                get => _which == WHICH.Internal ? (Mas.Schema.Management.Event.PhenoStage? )_content : null;
+                get => _which == WHICH.Internal ? (Mas.Schema.Model.Monica.Event.PhenoStage? )_content : null;
                 set
                 {
                     _which = WHICH.Internal;
@@ -595,8 +770,8 @@ namespace Mas.Schema.Management
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
                 public WHICH which => (WHICH)ctx.ReadDataUShort(16U, (ushort)0);
-                public Mas.Schema.Management.Event.ExternalType External => which == WHICH.External ? (Mas.Schema.Management.Event.ExternalType)ctx.ReadDataUShort(0UL, (ushort)0) : default;
-                public Mas.Schema.Management.Event.PhenoStage Internal => which == WHICH.Internal ? (Mas.Schema.Management.Event.PhenoStage)ctx.ReadDataUShort(0UL, (ushort)0) : default;
+                public Mas.Schema.Model.Monica.Event.ExternalType External => which == WHICH.External ? (Mas.Schema.Model.Monica.Event.ExternalType)ctx.ReadDataUShort(0UL, (ushort)0) : default;
+                public Mas.Schema.Model.Monica.Event.PhenoStage Internal => which == WHICH.Internal ? (Mas.Schema.Model.Monica.Event.PhenoStage)ctx.ReadDataUShort(0UL, (ushort)0) : default;
             }
 
             public class WRITER : SerializerState
@@ -612,25 +787,25 @@ namespace Mas.Schema.Management
                     set => this.WriteData(16U, (ushort)value, (ushort)0);
                 }
 
-                public Mas.Schema.Management.Event.ExternalType External
+                public Mas.Schema.Model.Monica.Event.ExternalType External
                 {
-                    get => which == WHICH.External ? (Mas.Schema.Management.Event.ExternalType)this.ReadDataUShort(0UL, (ushort)0) : default;
+                    get => which == WHICH.External ? (Mas.Schema.Model.Monica.Event.ExternalType)this.ReadDataUShort(0UL, (ushort)0) : default;
                     set => this.WriteData(0UL, (ushort)value, (ushort)0);
                 }
 
-                public Mas.Schema.Management.Event.PhenoStage Internal
+                public Mas.Schema.Model.Monica.Event.PhenoStage Internal
                 {
-                    get => which == WHICH.Internal ? (Mas.Schema.Management.Event.PhenoStage)this.ReadDataUShort(0UL, (ushort)0) : default;
+                    get => which == WHICH.Internal ? (Mas.Schema.Model.Monica.Event.PhenoStage)this.ReadDataUShort(0UL, (ushort)0) : default;
                     set => this.WriteData(0UL, (ushort)value, (ushort)0);
                 }
             }
         }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x9d247c812334c917UL)]
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xcb20e21466098705UL)]
     public class Params : ICapnpSerializable
     {
-        public const UInt64 typeId = 0x9d247c812334c917UL;
+        public const UInt64 typeId = 0xcb20e21466098705UL;
         void ICapnpSerializable.Deserialize(DeserializerState arg_)
         {
             var reader = READER.create(arg_);
@@ -671,10 +846,10 @@ namespace Mas.Schema.Management
             }
         }
 
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x80ce153f3bc9a9e8UL)]
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xc6880d1c13ec14dcUL)]
         public class Sowing : ICapnpSerializable
         {
-            public const UInt64 typeId = 0x80ce153f3bc9a9e8UL;
+            public const UInt64 typeId = 0xc6880d1c13ec14dcUL;
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
@@ -762,10 +937,10 @@ namespace Mas.Schema.Management
             }
         }
 
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xcfcf44997e7ceab4UL)]
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xd1bfc1c9617d9453UL)]
         public class AutomaticSowing : ICapnpSerializable
         {
-            public const UInt64 typeId = 0xcfcf44997e7ceab4UL;
+            public const UInt64 typeId = 0xd1bfc1c9617d9453UL;
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
@@ -777,8 +952,8 @@ namespace Mas.Schema.Management
                 MaxCurrentDayPrecipSum = reader.MaxCurrentDayPrecipSum;
                 TempSumAboveBaseTemp = reader.TempSumAboveBaseTemp;
                 BaseTemp = reader.BaseTemp;
-                TheAvgSoilTemp = CapnpSerializable.Create<Mas.Schema.Management.Params.AutomaticSowing.AvgSoilTemp>(reader.TheAvgSoilTemp);
-                Sowing = CapnpSerializable.Create<Mas.Schema.Management.Params.Sowing>(reader.Sowing);
+                TheAvgSoilTemp = CapnpSerializable.Create<Mas.Schema.Model.Monica.Params.AutomaticSowing.AvgSoilTemp>(reader.TheAvgSoilTemp);
+                Sowing = CapnpSerializable.Create<Mas.Schema.Model.Monica.Params.Sowing>(reader.Sowing);
                 applyDefaults();
             }
 
@@ -855,13 +1030,13 @@ namespace Mas.Schema.Management
                 set;
             }
 
-            public Mas.Schema.Management.Params.AutomaticSowing.AvgSoilTemp TheAvgSoilTemp
+            public Mas.Schema.Model.Monica.Params.AutomaticSowing.AvgSoilTemp TheAvgSoilTemp
             {
                 get;
                 set;
             }
 
-            public Mas.Schema.Management.Params.Sowing Sowing
+            public Mas.Schema.Model.Monica.Params.Sowing Sowing
             {
                 get;
                 set;
@@ -886,9 +1061,9 @@ namespace Mas.Schema.Management
                 public double MaxCurrentDayPrecipSum => ctx.ReadDataDouble(320UL, 0);
                 public double TempSumAboveBaseTemp => ctx.ReadDataDouble(384UL, 0);
                 public double BaseTemp => ctx.ReadDataDouble(448UL, 0);
-                public Mas.Schema.Management.Params.AutomaticSowing.AvgSoilTemp.READER TheAvgSoilTemp => ctx.ReadStruct(0, Mas.Schema.Management.Params.AutomaticSowing.AvgSoilTemp.READER.create);
+                public Mas.Schema.Model.Monica.Params.AutomaticSowing.AvgSoilTemp.READER TheAvgSoilTemp => ctx.ReadStruct(0, Mas.Schema.Model.Monica.Params.AutomaticSowing.AvgSoilTemp.READER.create);
                 public bool HasTheAvgSoilTemp => ctx.IsStructFieldNonNull(0);
-                public Mas.Schema.Management.Params.Sowing.READER Sowing => ctx.ReadStruct(1, Mas.Schema.Management.Params.Sowing.READER.create);
+                public Mas.Schema.Model.Monica.Params.Sowing.READER Sowing => ctx.ReadStruct(1, Mas.Schema.Model.Monica.Params.Sowing.READER.create);
                 public bool HasSowing => ctx.IsStructFieldNonNull(1);
             }
 
@@ -947,23 +1122,23 @@ namespace Mas.Schema.Management
                     set => this.WriteData(448UL, value, 0);
                 }
 
-                public Mas.Schema.Management.Params.AutomaticSowing.AvgSoilTemp.WRITER TheAvgSoilTemp
+                public Mas.Schema.Model.Monica.Params.AutomaticSowing.AvgSoilTemp.WRITER TheAvgSoilTemp
                 {
-                    get => BuildPointer<Mas.Schema.Management.Params.AutomaticSowing.AvgSoilTemp.WRITER>(0);
+                    get => BuildPointer<Mas.Schema.Model.Monica.Params.AutomaticSowing.AvgSoilTemp.WRITER>(0);
                     set => Link(0, value);
                 }
 
-                public Mas.Schema.Management.Params.Sowing.WRITER Sowing
+                public Mas.Schema.Model.Monica.Params.Sowing.WRITER Sowing
                 {
-                    get => BuildPointer<Mas.Schema.Management.Params.Sowing.WRITER>(1);
+                    get => BuildPointer<Mas.Schema.Model.Monica.Params.Sowing.WRITER>(1);
                     set => Link(1, value);
                 }
             }
 
-            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x9d81d2bf4cd0f868UL)]
+            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x846f567433b186d1UL)]
             public class AvgSoilTemp : ICapnpSerializable
             {
-                public const UInt64 typeId = 0x9d81d2bf4cd0f868UL;
+                public const UInt64 typeId = 0x846f567433b186d1UL;
                 void ICapnpSerializable.Deserialize(DeserializerState arg_)
                 {
                     var reader = READER.create(arg_);
@@ -1052,15 +1227,15 @@ namespace Mas.Schema.Management
             }
         }
 
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xeed4e55bb04289efUL)]
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x8feb941d70f2a468UL)]
         public class Harvest : ICapnpSerializable
         {
-            public const UInt64 typeId = 0xeed4e55bb04289efUL;
+            public const UInt64 typeId = 0x8feb941d70f2a468UL;
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
                 Exported = reader.Exported;
-                OptCarbMgmtData = CapnpSerializable.Create<Mas.Schema.Management.Params.Harvest.OptCarbonMgmtData>(reader.OptCarbMgmtData);
+                OptCarbMgmtData = CapnpSerializable.Create<Mas.Schema.Model.Monica.Params.Harvest.OptCarbonMgmtData>(reader.OptCarbMgmtData);
                 applyDefaults();
             }
 
@@ -1086,7 +1261,7 @@ namespace Mas.Schema.Management
             }
 
             = true;
-            public Mas.Schema.Management.Params.Harvest.OptCarbonMgmtData OptCarbMgmtData
+            public Mas.Schema.Model.Monica.Params.Harvest.OptCarbonMgmtData OptCarbMgmtData
             {
                 get;
                 set;
@@ -1104,7 +1279,7 @@ namespace Mas.Schema.Management
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
                 public bool Exported => ctx.ReadDataBool(0UL, true);
-                public Mas.Schema.Management.Params.Harvest.OptCarbonMgmtData.READER OptCarbMgmtData => ctx.ReadStruct(0, Mas.Schema.Management.Params.Harvest.OptCarbonMgmtData.READER.create);
+                public Mas.Schema.Model.Monica.Params.Harvest.OptCarbonMgmtData.READER OptCarbMgmtData => ctx.ReadStruct(0, Mas.Schema.Model.Monica.Params.Harvest.OptCarbonMgmtData.READER.create);
                 public bool HasOptCarbMgmtData => ctx.IsStructFieldNonNull(0);
             }
 
@@ -1121,24 +1296,24 @@ namespace Mas.Schema.Management
                     set => this.WriteData(0UL, value, true);
                 }
 
-                public Mas.Schema.Management.Params.Harvest.OptCarbonMgmtData.WRITER OptCarbMgmtData
+                public Mas.Schema.Model.Monica.Params.Harvest.OptCarbonMgmtData.WRITER OptCarbMgmtData
                 {
-                    get => BuildPointer<Mas.Schema.Management.Params.Harvest.OptCarbonMgmtData.WRITER>(0);
+                    get => BuildPointer<Mas.Schema.Model.Monica.Params.Harvest.OptCarbonMgmtData.WRITER>(0);
                     set => Link(0, value);
                 }
             }
 
-            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x8f0cbec420589373UL)]
+            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xa9a9bc941e963701UL)]
             public enum CropUsage : ushort
             {
                 greenManure,
                 biomassProduction
             }
 
-            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x8cb6b3e3c50d3665UL)]
+            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xaf49ab9bbe76e375UL)]
             public class OptCarbonMgmtData : ICapnpSerializable
             {
-                public const UInt64 typeId = 0x8cb6b3e3c50d3665UL;
+                public const UInt64 typeId = 0xaf49ab9bbe76e375UL;
                 void ICapnpSerializable.Deserialize(DeserializerState arg_)
                 {
                     var reader = READER.create(arg_);
@@ -1184,13 +1359,13 @@ namespace Mas.Schema.Management
                 }
 
                 = 0;
-                public Mas.Schema.Management.Params.Harvest.CropUsage CropUsage
+                public Mas.Schema.Model.Monica.Params.Harvest.CropUsage CropUsage
                 {
                     get;
                     set;
                 }
 
-                = Mas.Schema.Management.Params.Harvest.CropUsage.biomassProduction;
+                = Mas.Schema.Model.Monica.Params.Harvest.CropUsage.biomassProduction;
                 public double ResidueHeq
                 {
                     get;
@@ -1225,7 +1400,7 @@ namespace Mas.Schema.Management
                     public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
                     public bool OptCarbonConservation => ctx.ReadDataBool(0UL, false);
                     public double CropImpactOnHumusBalance => ctx.ReadDataDouble(64UL, 0);
-                    public Mas.Schema.Management.Params.Harvest.CropUsage CropUsage => (Mas.Schema.Management.Params.Harvest.CropUsage)ctx.ReadDataUShort(16UL, (ushort)1);
+                    public Mas.Schema.Model.Monica.Params.Harvest.CropUsage CropUsage => (Mas.Schema.Model.Monica.Params.Harvest.CropUsage)ctx.ReadDataUShort(16UL, (ushort)1);
                     public double ResidueHeq => ctx.ReadDataDouble(128UL, 0);
                     public double OrganicFertilizerHeq => ctx.ReadDataDouble(192UL, 0);
                     public double MaxResidueRecoverFraction => ctx.ReadDataDouble(256UL, 0);
@@ -1250,9 +1425,9 @@ namespace Mas.Schema.Management
                         set => this.WriteData(64UL, value, 0);
                     }
 
-                    public Mas.Schema.Management.Params.Harvest.CropUsage CropUsage
+                    public Mas.Schema.Model.Monica.Params.Harvest.CropUsage CropUsage
                     {
-                        get => (Mas.Schema.Management.Params.Harvest.CropUsage)this.ReadDataUShort(16UL, (ushort)1);
+                        get => (Mas.Schema.Model.Monica.Params.Harvest.CropUsage)this.ReadDataUShort(16UL, (ushort)1);
                         set => this.WriteData(16UL, (ushort)value, (ushort)1);
                     }
 
@@ -1277,10 +1452,10 @@ namespace Mas.Schema.Management
             }
         }
 
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xe3a37e340f816cd1UL)]
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xf805d22fabb80702UL)]
         public class AutomaticHarvest : ICapnpSerializable
         {
-            public const UInt64 typeId = 0xe3a37e340f816cd1UL;
+            public const UInt64 typeId = 0xf805d22fabb80702UL;
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
@@ -1289,7 +1464,7 @@ namespace Mas.Schema.Management
                 Max3dayPrecipSum = reader.Max3dayPrecipSum;
                 MaxCurrentDayPrecipSum = reader.MaxCurrentDayPrecipSum;
                 HarvestTime = reader.HarvestTime;
-                Harvest = CapnpSerializable.Create<Mas.Schema.Management.Params.Harvest>(reader.Harvest);
+                Harvest = CapnpSerializable.Create<Mas.Schema.Model.Monica.Params.Harvest>(reader.Harvest);
                 applyDefaults();
             }
 
@@ -1337,14 +1512,14 @@ namespace Mas.Schema.Management
                 set;
             }
 
-            public Mas.Schema.Management.Event.PhenoStage HarvestTime
+            public Mas.Schema.Model.Monica.Event.PhenoStage HarvestTime
             {
                 get;
                 set;
             }
 
-            = Mas.Schema.Management.Event.PhenoStage.maturity;
-            public Mas.Schema.Management.Params.Harvest Harvest
+            = Mas.Schema.Model.Monica.Event.PhenoStage.maturity;
+            public Mas.Schema.Model.Monica.Params.Harvest Harvest
             {
                 get;
                 set;
@@ -1365,8 +1540,8 @@ namespace Mas.Schema.Management
                 public double MaxPercentASW => ctx.ReadDataDouble(64UL, 100);
                 public double Max3dayPrecipSum => ctx.ReadDataDouble(128UL, 0);
                 public double MaxCurrentDayPrecipSum => ctx.ReadDataDouble(192UL, 0);
-                public Mas.Schema.Management.Event.PhenoStage HarvestTime => (Mas.Schema.Management.Event.PhenoStage)ctx.ReadDataUShort(256UL, (ushort)3);
-                public Mas.Schema.Management.Params.Harvest.READER Harvest => ctx.ReadStruct(0, Mas.Schema.Management.Params.Harvest.READER.create);
+                public Mas.Schema.Model.Monica.Event.PhenoStage HarvestTime => (Mas.Schema.Model.Monica.Event.PhenoStage)ctx.ReadDataUShort(256UL, (ushort)3);
+                public Mas.Schema.Model.Monica.Params.Harvest.READER Harvest => ctx.ReadStruct(0, Mas.Schema.Model.Monica.Params.Harvest.READER.create);
                 public bool HasHarvest => ctx.IsStructFieldNonNull(0);
             }
 
@@ -1401,28 +1576,28 @@ namespace Mas.Schema.Management
                     set => this.WriteData(192UL, value, 0);
                 }
 
-                public Mas.Schema.Management.Event.PhenoStage HarvestTime
+                public Mas.Schema.Model.Monica.Event.PhenoStage HarvestTime
                 {
-                    get => (Mas.Schema.Management.Event.PhenoStage)this.ReadDataUShort(256UL, (ushort)3);
+                    get => (Mas.Schema.Model.Monica.Event.PhenoStage)this.ReadDataUShort(256UL, (ushort)3);
                     set => this.WriteData(256UL, (ushort)value, (ushort)3);
                 }
 
-                public Mas.Schema.Management.Params.Harvest.WRITER Harvest
+                public Mas.Schema.Model.Monica.Params.Harvest.WRITER Harvest
                 {
-                    get => BuildPointer<Mas.Schema.Management.Params.Harvest.WRITER>(0);
+                    get => BuildPointer<Mas.Schema.Model.Monica.Params.Harvest.WRITER>(0);
                     set => Link(0, value);
                 }
             }
         }
 
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xfec75f2ddd43431dUL)]
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x8460dac6abff7ed9UL)]
         public class Cutting : ICapnpSerializable
         {
-            public const UInt64 typeId = 0xfec75f2ddd43431dUL;
+            public const UInt64 typeId = 0x8460dac6abff7ed9UL;
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                CuttingSpec = reader.CuttingSpec?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Management.Params.Cutting.Spec>(_));
+                CuttingSpec = reader.CuttingSpec?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Model.Monica.Params.Cutting.Spec>(_));
                 CutMaxAssimilationRatePercentage = reader.CutMaxAssimilationRatePercentage;
                 applyDefaults();
             }
@@ -1442,7 +1617,7 @@ namespace Mas.Schema.Management
             {
             }
 
-            public IReadOnlyList<Mas.Schema.Management.Params.Cutting.Spec> CuttingSpec
+            public IReadOnlyList<Mas.Schema.Model.Monica.Params.Cutting.Spec> CuttingSpec
             {
                 get;
                 set;
@@ -1465,7 +1640,7 @@ namespace Mas.Schema.Management
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public IReadOnlyList<Mas.Schema.Management.Params.Cutting.Spec.READER> CuttingSpec => ctx.ReadList(0).Cast(Mas.Schema.Management.Params.Cutting.Spec.READER.create);
+                public IReadOnlyList<Mas.Schema.Model.Monica.Params.Cutting.Spec.READER> CuttingSpec => ctx.ReadList(0).Cast(Mas.Schema.Model.Monica.Params.Cutting.Spec.READER.create);
                 public bool HasCuttingSpec => ctx.IsStructFieldNonNull(0);
                 public double CutMaxAssimilationRatePercentage => ctx.ReadDataDouble(0UL, 0);
             }
@@ -1477,9 +1652,9 @@ namespace Mas.Schema.Management
                     this.SetStruct(1, 1);
                 }
 
-                public ListOfStructsSerializer<Mas.Schema.Management.Params.Cutting.Spec.WRITER> CuttingSpec
+                public ListOfStructsSerializer<Mas.Schema.Model.Monica.Params.Cutting.Spec.WRITER> CuttingSpec
                 {
-                    get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Management.Params.Cutting.Spec.WRITER>>(0);
+                    get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Model.Monica.Params.Cutting.Spec.WRITER>>(0);
                     set => Link(0, value);
                 }
 
@@ -1490,14 +1665,14 @@ namespace Mas.Schema.Management
                 }
             }
 
-            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x825bb2508c0b37b2UL)]
+            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xe444f780b29541a7UL)]
             public enum CL : ushort
             {
                 cut,
                 left
             }
 
-            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xf0c763e472409ba2UL)]
+            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x94d32947f136655eUL)]
             public enum Unit : ushort
             {
                 percentage,
@@ -1505,10 +1680,10 @@ namespace Mas.Schema.Management
                 lai
             }
 
-            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x9a221e04faf79efcUL)]
+            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xfae5dcfccbb93a23UL)]
             public class Spec : ICapnpSerializable
             {
-                public const UInt64 typeId = 0x9a221e04faf79efcUL;
+                public const UInt64 typeId = 0xfae5dcfccbb93a23UL;
                 void ICapnpSerializable.Deserialize(DeserializerState arg_)
                 {
                     var reader = READER.create(arg_);
@@ -1538,7 +1713,7 @@ namespace Mas.Schema.Management
                 {
                 }
 
-                public Mas.Schema.Management.PlantOrgan Organ
+                public Mas.Schema.Model.Monica.PlantOrgan Organ
                 {
                     get;
                     set;
@@ -1550,20 +1725,20 @@ namespace Mas.Schema.Management
                     set;
                 }
 
-                public Mas.Schema.Management.Params.Cutting.Unit Unit
+                public Mas.Schema.Model.Monica.Params.Cutting.Unit Unit
                 {
                     get;
                     set;
                 }
 
-                = Mas.Schema.Management.Params.Cutting.Unit.percentage;
-                public Mas.Schema.Management.Params.Cutting.CL CutOrLeft
+                = Mas.Schema.Model.Monica.Params.Cutting.Unit.percentage;
+                public Mas.Schema.Model.Monica.Params.Cutting.CL CutOrLeft
                 {
                     get;
                     set;
                 }
 
-                = Mas.Schema.Management.Params.Cutting.CL.cut;
+                = Mas.Schema.Model.Monica.Params.Cutting.CL.cut;
                 public double ExportPercentage
                 {
                     get;
@@ -1582,10 +1757,10 @@ namespace Mas.Schema.Management
                     public static READER create(DeserializerState ctx) => new READER(ctx);
                     public static implicit operator DeserializerState(READER reader) => reader.ctx;
                     public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                    public Mas.Schema.Management.PlantOrgan Organ => (Mas.Schema.Management.PlantOrgan)ctx.ReadDataUShort(0UL, (ushort)0);
+                    public Mas.Schema.Model.Monica.PlantOrgan Organ => (Mas.Schema.Model.Monica.PlantOrgan)ctx.ReadDataUShort(0UL, (ushort)0);
                     public double Value => ctx.ReadDataDouble(64UL, 0);
-                    public Mas.Schema.Management.Params.Cutting.Unit Unit => (Mas.Schema.Management.Params.Cutting.Unit)ctx.ReadDataUShort(16UL, (ushort)0);
-                    public Mas.Schema.Management.Params.Cutting.CL CutOrLeft => (Mas.Schema.Management.Params.Cutting.CL)ctx.ReadDataUShort(32UL, (ushort)0);
+                    public Mas.Schema.Model.Monica.Params.Cutting.Unit Unit => (Mas.Schema.Model.Monica.Params.Cutting.Unit)ctx.ReadDataUShort(16UL, (ushort)0);
+                    public Mas.Schema.Model.Monica.Params.Cutting.CL CutOrLeft => (Mas.Schema.Model.Monica.Params.Cutting.CL)ctx.ReadDataUShort(32UL, (ushort)0);
                     public double ExportPercentage => ctx.ReadDataDouble(128UL, 100);
                 }
 
@@ -1596,9 +1771,9 @@ namespace Mas.Schema.Management
                         this.SetStruct(3, 0);
                     }
 
-                    public Mas.Schema.Management.PlantOrgan Organ
+                    public Mas.Schema.Model.Monica.PlantOrgan Organ
                     {
-                        get => (Mas.Schema.Management.PlantOrgan)this.ReadDataUShort(0UL, (ushort)0);
+                        get => (Mas.Schema.Model.Monica.PlantOrgan)this.ReadDataUShort(0UL, (ushort)0);
                         set => this.WriteData(0UL, (ushort)value, (ushort)0);
                     }
 
@@ -1608,15 +1783,15 @@ namespace Mas.Schema.Management
                         set => this.WriteData(64UL, value, 0);
                     }
 
-                    public Mas.Schema.Management.Params.Cutting.Unit Unit
+                    public Mas.Schema.Model.Monica.Params.Cutting.Unit Unit
                     {
-                        get => (Mas.Schema.Management.Params.Cutting.Unit)this.ReadDataUShort(16UL, (ushort)0);
+                        get => (Mas.Schema.Model.Monica.Params.Cutting.Unit)this.ReadDataUShort(16UL, (ushort)0);
                         set => this.WriteData(16UL, (ushort)value, (ushort)0);
                     }
 
-                    public Mas.Schema.Management.Params.Cutting.CL CutOrLeft
+                    public Mas.Schema.Model.Monica.Params.Cutting.CL CutOrLeft
                     {
-                        get => (Mas.Schema.Management.Params.Cutting.CL)this.ReadDataUShort(32UL, (ushort)0);
+                        get => (Mas.Schema.Model.Monica.Params.Cutting.CL)this.ReadDataUShort(32UL, (ushort)0);
                         set => this.WriteData(32UL, (ushort)value, (ushort)0);
                     }
 
@@ -1629,14 +1804,14 @@ namespace Mas.Schema.Management
             }
         }
 
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xd3da30ea7b25d921UL)]
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xa363d226e178debdUL)]
         public class MineralFertilization : ICapnpSerializable
         {
-            public const UInt64 typeId = 0xd3da30ea7b25d921UL;
+            public const UInt64 typeId = 0xa363d226e178debdUL;
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Partition = CapnpSerializable.Create<Mas.Schema.Management.Params.MineralFertilization.Parameters>(reader.Partition);
+                Partition = CapnpSerializable.Create<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters>(reader.Partition);
                 Amount = reader.Amount;
                 applyDefaults();
             }
@@ -1656,7 +1831,7 @@ namespace Mas.Schema.Management
             {
             }
 
-            public Mas.Schema.Management.Params.MineralFertilization.Parameters Partition
+            public Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters Partition
             {
                 get;
                 set;
@@ -1679,7 +1854,7 @@ namespace Mas.Schema.Management
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Schema.Management.Params.MineralFertilization.Parameters.READER Partition => ctx.ReadStruct(0, Mas.Schema.Management.Params.MineralFertilization.Parameters.READER.create);
+                public Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters.READER Partition => ctx.ReadStruct(0, Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters.READER.create);
                 public bool HasPartition => ctx.IsStructFieldNonNull(0);
                 public double Amount => ctx.ReadDataDouble(0UL, 0);
             }
@@ -1691,9 +1866,9 @@ namespace Mas.Schema.Management
                     this.SetStruct(1, 1);
                 }
 
-                public Mas.Schema.Management.Params.MineralFertilization.Parameters.WRITER Partition
+                public Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters.WRITER Partition
                 {
-                    get => BuildPointer<Mas.Schema.Management.Params.MineralFertilization.Parameters.WRITER>(0);
+                    get => BuildPointer<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters.WRITER>(0);
                     set => Link(0, value);
                 }
 
@@ -1704,10 +1879,10 @@ namespace Mas.Schema.Management
                 }
             }
 
-            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xfcd78361390515e1UL)]
+            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xc75b5ef2e9b05c2dUL)]
             public class Parameters : ICapnpSerializable
             {
-                public const UInt64 typeId = 0xfcd78361390515e1UL;
+                public const UInt64 typeId = 0xc75b5ef2e9b05c2dUL;
                 void ICapnpSerializable.Deserialize(DeserializerState arg_)
                 {
                     var reader = READER.create(arg_);
@@ -1825,15 +2000,15 @@ namespace Mas.Schema.Management
             }
         }
 
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x953375ac67d4f573UL)]
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xc7c14e92e0cd461cUL)]
         public class NDemandFertilization : ICapnpSerializable
         {
-            public const UInt64 typeId = 0x953375ac67d4f573UL;
+            public const UInt64 typeId = 0xc7c14e92e0cd461cUL;
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
                 NDemand = reader.NDemand;
-                Partition = CapnpSerializable.Create<Mas.Schema.Management.Params.MineralFertilization.Parameters>(reader.Partition);
+                Partition = CapnpSerializable.Create<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters>(reader.Partition);
                 Depth = reader.Depth;
                 Stage = reader.Stage;
                 applyDefaults();
@@ -1862,7 +2037,7 @@ namespace Mas.Schema.Management
                 set;
             }
 
-            public Mas.Schema.Management.Params.MineralFertilization.Parameters Partition
+            public Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters Partition
             {
                 get;
                 set;
@@ -1893,7 +2068,7 @@ namespace Mas.Schema.Management
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
                 public double NDemand => ctx.ReadDataDouble(0UL, 0);
-                public Mas.Schema.Management.Params.MineralFertilization.Parameters.READER Partition => ctx.ReadStruct(0, Mas.Schema.Management.Params.MineralFertilization.Parameters.READER.create);
+                public Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters.READER Partition => ctx.ReadStruct(0, Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters.READER.create);
                 public bool HasPartition => ctx.IsStructFieldNonNull(0);
                 public double Depth => ctx.ReadDataDouble(64UL, 0);
                 public byte Stage => ctx.ReadDataByte(128UL, (byte)1);
@@ -1912,9 +2087,9 @@ namespace Mas.Schema.Management
                     set => this.WriteData(0UL, value, 0);
                 }
 
-                public Mas.Schema.Management.Params.MineralFertilization.Parameters.WRITER Partition
+                public Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters.WRITER Partition
                 {
-                    get => BuildPointer<Mas.Schema.Management.Params.MineralFertilization.Parameters.WRITER>(0);
+                    get => BuildPointer<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters.WRITER>(0);
                     set => Link(0, value);
                 }
 
@@ -1932,14 +2107,14 @@ namespace Mas.Schema.Management
             }
         }
 
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xe98c76fb0fb0b2cdUL)]
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xb492838c7fed50b0UL)]
         public class OrganicFertilization : ICapnpSerializable
         {
-            public const UInt64 typeId = 0xe98c76fb0fb0b2cdUL;
+            public const UInt64 typeId = 0xb492838c7fed50b0UL;
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Params = CapnpSerializable.Create<Mas.Schema.Management.Params.OrganicFertilization.Parameters>(reader.Params);
+                Params = CapnpSerializable.Create<Mas.Schema.Model.Monica.Params.OrganicFertilization.Parameters>(reader.Params);
                 Amount = reader.Amount;
                 Incorporation = reader.Incorporation;
                 applyDefaults();
@@ -1961,7 +2136,7 @@ namespace Mas.Schema.Management
             {
             }
 
-            public Mas.Schema.Management.Params.OrganicFertilization.Parameters Params
+            public Mas.Schema.Model.Monica.Params.OrganicFertilization.Parameters Params
             {
                 get;
                 set;
@@ -1991,7 +2166,7 @@ namespace Mas.Schema.Management
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Schema.Management.Params.OrganicFertilization.Parameters.READER Params => ctx.ReadStruct(0, Mas.Schema.Management.Params.OrganicFertilization.Parameters.READER.create);
+                public Mas.Schema.Model.Monica.Params.OrganicFertilization.Parameters.READER Params => ctx.ReadStruct(0, Mas.Schema.Model.Monica.Params.OrganicFertilization.Parameters.READER.create);
                 public bool HasParams => ctx.IsStructFieldNonNull(0);
                 public double Amount => ctx.ReadDataDouble(0UL, 0);
                 public bool Incorporation => ctx.ReadDataBool(64UL, false);
@@ -2004,9 +2179,9 @@ namespace Mas.Schema.Management
                     this.SetStruct(2, 1);
                 }
 
-                public Mas.Schema.Management.Params.OrganicFertilization.Parameters.WRITER Params
+                public Mas.Schema.Model.Monica.Params.OrganicFertilization.Parameters.WRITER Params
                 {
-                    get => BuildPointer<Mas.Schema.Management.Params.OrganicFertilization.Parameters.WRITER>(0);
+                    get => BuildPointer<Mas.Schema.Model.Monica.Params.OrganicFertilization.Parameters.WRITER>(0);
                     set => Link(0, value);
                 }
 
@@ -2023,10 +2198,10 @@ namespace Mas.Schema.Management
                 }
             }
 
-            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x962b157a9dc85681UL)]
+            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x95cdc661a6600137UL)]
             public class OrganicMatterParameters : ICapnpSerializable
             {
-                public const UInt64 typeId = 0x962b157a9dc85681UL;
+                public const UInt64 typeId = 0x95cdc661a6600137UL;
                 void ICapnpSerializable.Deserialize(DeserializerState arg_)
                 {
                     var reader = READER.create(arg_);
@@ -2263,14 +2438,14 @@ namespace Mas.Schema.Management
                 }
             }
 
-            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xb0919989cca2fd9aUL)]
+            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xba0c11cf818d29fdUL)]
             public class Parameters : ICapnpSerializable
             {
-                public const UInt64 typeId = 0xb0919989cca2fd9aUL;
+                public const UInt64 typeId = 0xba0c11cf818d29fdUL;
                 void ICapnpSerializable.Deserialize(DeserializerState arg_)
                 {
                     var reader = READER.create(arg_);
-                    Params = CapnpSerializable.Create<Mas.Schema.Management.Params.OrganicFertilization.OrganicMatterParameters>(reader.Params);
+                    Params = CapnpSerializable.Create<Mas.Schema.Model.Monica.Params.OrganicFertilization.OrganicMatterParameters>(reader.Params);
                     Id = reader.Id;
                     Name = reader.Name;
                     applyDefaults();
@@ -2292,7 +2467,7 @@ namespace Mas.Schema.Management
                 {
                 }
 
-                public Mas.Schema.Management.Params.OrganicFertilization.OrganicMatterParameters Params
+                public Mas.Schema.Model.Monica.Params.OrganicFertilization.OrganicMatterParameters Params
                 {
                     get;
                     set;
@@ -2321,7 +2496,7 @@ namespace Mas.Schema.Management
                     public static READER create(DeserializerState ctx) => new READER(ctx);
                     public static implicit operator DeserializerState(READER reader) => reader.ctx;
                     public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                    public Mas.Schema.Management.Params.OrganicFertilization.OrganicMatterParameters.READER Params => ctx.ReadStruct(0, Mas.Schema.Management.Params.OrganicFertilization.OrganicMatterParameters.READER.create);
+                    public Mas.Schema.Model.Monica.Params.OrganicFertilization.OrganicMatterParameters.READER Params => ctx.ReadStruct(0, Mas.Schema.Model.Monica.Params.OrganicFertilization.OrganicMatterParameters.READER.create);
                     public bool HasParams => ctx.IsStructFieldNonNull(0);
                     public string Id => ctx.ReadText(1, null);
                     public string Name => ctx.ReadText(2, null);
@@ -2334,9 +2509,9 @@ namespace Mas.Schema.Management
                         this.SetStruct(0, 3);
                     }
 
-                    public Mas.Schema.Management.Params.OrganicFertilization.OrganicMatterParameters.WRITER Params
+                    public Mas.Schema.Model.Monica.Params.OrganicFertilization.OrganicMatterParameters.WRITER Params
                     {
-                        get => BuildPointer<Mas.Schema.Management.Params.OrganicFertilization.OrganicMatterParameters.WRITER>(0);
+                        get => BuildPointer<Mas.Schema.Model.Monica.Params.OrganicFertilization.OrganicMatterParameters.WRITER>(0);
                         set => Link(0, value);
                     }
 
@@ -2355,10 +2530,10 @@ namespace Mas.Schema.Management
             }
         }
 
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x88a5848ef8603554UL)]
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xaa49811a4e3e2c59UL)]
         public class Tillage : ICapnpSerializable
         {
-            public const UInt64 typeId = 0x88a5848ef8603554UL;
+            public const UInt64 typeId = 0xaa49811a4e3e2c59UL;
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
@@ -2416,15 +2591,15 @@ namespace Mas.Schema.Management
             }
         }
 
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x87feb816363ff43cUL)]
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xd90939a58e404ff8UL)]
         public class Irrigation : ICapnpSerializable
         {
-            public const UInt64 typeId = 0x87feb816363ff43cUL;
+            public const UInt64 typeId = 0xd90939a58e404ff8UL;
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
                 Amount = reader.Amount;
-                Params = CapnpSerializable.Create<Mas.Schema.Management.Params.Irrigation.Parameters>(reader.Params);
+                Params = CapnpSerializable.Create<Mas.Schema.Model.Monica.Params.Irrigation.Parameters>(reader.Params);
                 applyDefaults();
             }
 
@@ -2449,7 +2624,7 @@ namespace Mas.Schema.Management
                 set;
             }
 
-            public Mas.Schema.Management.Params.Irrigation.Parameters Params
+            public Mas.Schema.Model.Monica.Params.Irrigation.Parameters Params
             {
                 get;
                 set;
@@ -2467,7 +2642,7 @@ namespace Mas.Schema.Management
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
                 public double Amount => ctx.ReadDataDouble(0UL, 0);
-                public Mas.Schema.Management.Params.Irrigation.Parameters.READER Params => ctx.ReadStruct(0, Mas.Schema.Management.Params.Irrigation.Parameters.READER.create);
+                public Mas.Schema.Model.Monica.Params.Irrigation.Parameters.READER Params => ctx.ReadStruct(0, Mas.Schema.Model.Monica.Params.Irrigation.Parameters.READER.create);
                 public bool HasParams => ctx.IsStructFieldNonNull(0);
             }
 
@@ -2484,17 +2659,17 @@ namespace Mas.Schema.Management
                     set => this.WriteData(0UL, value, 0);
                 }
 
-                public Mas.Schema.Management.Params.Irrigation.Parameters.WRITER Params
+                public Mas.Schema.Model.Monica.Params.Irrigation.Parameters.WRITER Params
                 {
-                    get => BuildPointer<Mas.Schema.Management.Params.Irrigation.Parameters.WRITER>(0);
+                    get => BuildPointer<Mas.Schema.Model.Monica.Params.Irrigation.Parameters.WRITER>(0);
                     set => Link(0, value);
                 }
             }
 
-            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xb991be9572278e2dUL)]
+            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xaec9e089e87f1599UL)]
             public class Parameters : ICapnpSerializable
             {
-                public const UInt64 typeId = 0xb991be9572278e2dUL;
+                public const UInt64 typeId = 0xaec9e089e87f1599UL;
                 void ICapnpSerializable.Deserialize(DeserializerState arg_)
                 {
                     var reader = READER.create(arg_);
@@ -2568,174 +2743,104 @@ namespace Mas.Schema.Management
         }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xaafe4332e17aa43eUL)]
-    public class Nutrient : ICapnpSerializable
-    {
-        public const UInt64 typeId = 0xaafe4332e17aa43eUL;
-        void ICapnpSerializable.Deserialize(DeserializerState arg_)
-        {
-            var reader = READER.create(arg_);
-            TheNutrient = reader.TheNutrient;
-            TheUnit = reader.TheUnit;
-            applyDefaults();
-        }
-
-        public void serialize(WRITER writer)
-        {
-            writer.TheNutrient = TheNutrient;
-            writer.TheUnit = TheUnit;
-        }
-
-        void ICapnpSerializable.Serialize(SerializerState arg_)
-        {
-            serialize(arg_.Rewrap<WRITER>());
-        }
-
-        public void applyDefaults()
-        {
-        }
-
-        public Mas.Schema.Management.Nutrient.Name TheNutrient
-        {
-            get;
-            set;
-        }
-
-        public Mas.Schema.Management.Nutrient.Unit TheUnit
-        {
-            get;
-            set;
-        }
-
-        public struct READER
-        {
-            readonly DeserializerState ctx;
-            public READER(DeserializerState ctx)
-            {
-                this.ctx = ctx;
-            }
-
-            public static READER create(DeserializerState ctx) => new READER(ctx);
-            public static implicit operator DeserializerState(READER reader) => reader.ctx;
-            public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-            public Mas.Schema.Management.Nutrient.Name TheNutrient => (Mas.Schema.Management.Nutrient.Name)ctx.ReadDataUShort(0UL, (ushort)0);
-            public Mas.Schema.Management.Nutrient.Unit TheUnit => (Mas.Schema.Management.Nutrient.Unit)ctx.ReadDataUShort(16UL, (ushort)0);
-        }
-
-        public class WRITER : SerializerState
-        {
-            public WRITER()
-            {
-                this.SetStruct(1, 0);
-            }
-
-            public Mas.Schema.Management.Nutrient.Name TheNutrient
-            {
-                get => (Mas.Schema.Management.Nutrient.Name)this.ReadDataUShort(0UL, (ushort)0);
-                set => this.WriteData(0UL, (ushort)value, (ushort)0);
-            }
-
-            public Mas.Schema.Management.Nutrient.Unit TheUnit
-            {
-                get => (Mas.Schema.Management.Nutrient.Unit)this.ReadDataUShort(16UL, (ushort)0);
-                set => this.WriteData(16UL, (ushort)value, (ushort)0);
-            }
-        }
-
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xbc6b579acf43fb6eUL)]
-        public enum Name : ushort
-        {
-            urea,
-            ammonia,
-            nitrate,
-            phosphorus,
-            potassium,
-            sulfate,
-            organiceC,
-            organicN,
-            organicP,
-            organicNFast,
-            organicNSlow
-        }
-
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x987b68b57edbbdb6UL)]
-        public enum Unit : ushort
-        {
-            percent,
-            fraction
-        }
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xbbb7aeae0d097e05UL), Proxy(typeof(FertilizerService_Proxy)), Skeleton(typeof(FertilizerService_Skeleton))]
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xe3da81cc36d5741dUL), Proxy(typeof(FertilizerService_Proxy)), Skeleton(typeof(FertilizerService_Skeleton))]
     public interface IFertilizerService : Mas.Schema.Common.IIdentifiable
     {
-        Task<IReadOnlyList<Mas.Schema.Management.FertilizerService.Entry<IReadOnlyList<Mas.Schema.Management.Nutrient>>>> AvailableMineralFertilizers(CancellationToken cancellationToken_ = default);
-        Task<IReadOnlyList<Mas.Schema.Management.Nutrient>> MineralFertilizer(string id, CancellationToken cancellationToken_ = default);
-        Task<IReadOnlyList<Mas.Schema.Management.FertilizerService.Entry<IReadOnlyList<Mas.Schema.Management.Nutrient>>>> AvailableOrganicFertilizers(CancellationToken cancellationToken_ = default);
-        Task<IReadOnlyList<Mas.Schema.Management.Nutrient>> OrganicFertilizer(string id, CancellationToken cancellationToken_ = default);
+        Task<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters> MineralFertilizerPartitionFor(Mas.Schema.Model.Monica.MineralFertilizer minFert, CancellationToken cancellationToken_ = default);
+        Task<Mas.Schema.Model.Monica.Params.OrganicFertilization.Parameters> OrganicFertilizerParametersFor(Mas.Schema.Model.Monica.OrganicFertilizer orgFert, CancellationToken cancellationToken_ = default);
+        Task<IReadOnlyList<Mas.Schema.Model.Monica.FertilizerService.Entry<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters>>> AvailableMineralFertilizers(CancellationToken cancellationToken_ = default);
+        Task<IReadOnlyList<Mas.Schema.Model.Monica.FertilizerService.Entry<Mas.Schema.Model.Monica.Params.OrganicFertilization.OrganicMatterParameters>>> AvailableOrganicFertilizers(CancellationToken cancellationToken_ = default);
+        Task<IReadOnlyList<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters>> MineralFertilizer(string id, CancellationToken cancellationToken_ = default);
+        Task<Mas.Schema.Model.Monica.Params.OrganicFertilization.OrganicMatterParameters> OrganicFertilizer(string id, CancellationToken cancellationToken_ = default);
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xbbb7aeae0d097e05UL)]
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xe3da81cc36d5741dUL)]
     public class FertilizerService_Proxy : Proxy, IFertilizerService
     {
-        public Task<IReadOnlyList<Mas.Schema.Management.FertilizerService.Entry<IReadOnlyList<Mas.Schema.Management.Nutrient>>>> AvailableMineralFertilizers(CancellationToken cancellationToken_ = default)
+        public async Task<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters> MineralFertilizerPartitionFor(Mas.Schema.Model.Monica.MineralFertilizer minFert, CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Schema.Management.FertilizerService.Params_AvailableMineralFertilizers.WRITER>();
-            var arg_ = new Mas.Schema.Management.FertilizerService.Params_AvailableMineralFertilizers()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Model.Monica.FertilizerService.Params_MineralFertilizerPartitionFor.WRITER>();
+            var arg_ = new Mas.Schema.Model.Monica.FertilizerService.Params_MineralFertilizerPartitionFor()
+            {MinFert = minFert};
+            arg_?.serialize(in_);
+            using (var d_ = await Call(16418578105625834525UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            {
+                var r_ = CapnpSerializable.Create<Mas.Schema.Model.Monica.FertilizerService.Result_MineralFertilizerPartitionFor>(d_);
+                return (r_.Partition);
+            }
+        }
+
+        public async Task<Mas.Schema.Model.Monica.Params.OrganicFertilization.Parameters> OrganicFertilizerParametersFor(Mas.Schema.Model.Monica.OrganicFertilizer orgFert, CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Model.Monica.FertilizerService.Params_OrganicFertilizerParametersFor.WRITER>();
+            var arg_ = new Mas.Schema.Model.Monica.FertilizerService.Params_OrganicFertilizerParametersFor()
+            {OrgFert = orgFert};
+            arg_?.serialize(in_);
+            using (var d_ = await Call(16418578105625834525UL, 1, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            {
+                var r_ = CapnpSerializable.Create<Mas.Schema.Model.Monica.FertilizerService.Result_OrganicFertilizerParametersFor>(d_);
+                return (r_.Params);
+            }
+        }
+
+        public Task<IReadOnlyList<Mas.Schema.Model.Monica.FertilizerService.Entry<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters>>> AvailableMineralFertilizers(CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Model.Monica.FertilizerService.Params_AvailableMineralFertilizers.WRITER>();
+            var arg_ = new Mas.Schema.Model.Monica.FertilizerService.Params_AvailableMineralFertilizers()
             {};
             arg_?.serialize(in_);
-            return Impatient.MakePipelineAware(Call(13526472068396842501UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
+            return Impatient.MakePipelineAware(Call(16418578105625834525UL, 2, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
             {
                 using (d_)
                 {
-                    var r_ = CapnpSerializable.Create<Mas.Schema.Management.FertilizerService.Result_AvailableMineralFertilizers>(d_);
-                    return (r_.List);
+                    var r_ = CapnpSerializable.Create<Mas.Schema.Model.Monica.FertilizerService.Result_AvailableMineralFertilizers>(d_);
+                    return (r_.Entries);
                 }
             }
 
             );
         }
 
-        public async Task<IReadOnlyList<Mas.Schema.Management.Nutrient>> MineralFertilizer(string id, CancellationToken cancellationToken_ = default)
+        public Task<IReadOnlyList<Mas.Schema.Model.Monica.FertilizerService.Entry<Mas.Schema.Model.Monica.Params.OrganicFertilization.OrganicMatterParameters>>> AvailableOrganicFertilizers(CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Schema.Management.FertilizerService.Params_MineralFertilizer.WRITER>();
-            var arg_ = new Mas.Schema.Management.FertilizerService.Params_MineralFertilizer()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Model.Monica.FertilizerService.Params_AvailableOrganicFertilizers.WRITER>();
+            var arg_ = new Mas.Schema.Model.Monica.FertilizerService.Params_AvailableOrganicFertilizers()
+            {};
+            arg_?.serialize(in_);
+            return Impatient.MakePipelineAware(Call(16418578105625834525UL, 3, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
+            {
+                using (d_)
+                {
+                    var r_ = CapnpSerializable.Create<Mas.Schema.Model.Monica.FertilizerService.Result_AvailableOrganicFertilizers>(d_);
+                    return (r_.Entries);
+                }
+            }
+
+            );
+        }
+
+        public async Task<IReadOnlyList<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters>> MineralFertilizer(string id, CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Model.Monica.FertilizerService.Params_MineralFertilizer.WRITER>();
+            var arg_ = new Mas.Schema.Model.Monica.FertilizerService.Params_MineralFertilizer()
             {Id = id};
             arg_?.serialize(in_);
-            using (var d_ = await Call(13526472068396842501UL, 1, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            using (var d_ = await Call(16418578105625834525UL, 4, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Schema.Management.FertilizerService.Result_MineralFertilizer>(d_);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Model.Monica.FertilizerService.Result_MineralFertilizer>(d_);
                 return (r_.Fert);
             }
         }
 
-        public Task<IReadOnlyList<Mas.Schema.Management.FertilizerService.Entry<IReadOnlyList<Mas.Schema.Management.Nutrient>>>> AvailableOrganicFertilizers(CancellationToken cancellationToken_ = default)
+        public async Task<Mas.Schema.Model.Monica.Params.OrganicFertilization.OrganicMatterParameters> OrganicFertilizer(string id, CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Schema.Management.FertilizerService.Params_AvailableOrganicFertilizers.WRITER>();
-            var arg_ = new Mas.Schema.Management.FertilizerService.Params_AvailableOrganicFertilizers()
-            {};
-            arg_?.serialize(in_);
-            return Impatient.MakePipelineAware(Call(13526472068396842501UL, 2, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
-            {
-                using (d_)
-                {
-                    var r_ = CapnpSerializable.Create<Mas.Schema.Management.FertilizerService.Result_AvailableOrganicFertilizers>(d_);
-                    return (r_.List);
-                }
-            }
-
-            );
-        }
-
-        public async Task<IReadOnlyList<Mas.Schema.Management.Nutrient>> OrganicFertilizer(string id, CancellationToken cancellationToken_ = default)
-        {
-            var in_ = SerializerState.CreateForRpc<Mas.Schema.Management.FertilizerService.Params_OrganicFertilizer.WRITER>();
-            var arg_ = new Mas.Schema.Management.FertilizerService.Params_OrganicFertilizer()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Model.Monica.FertilizerService.Params_OrganicFertilizer.WRITER>();
+            var arg_ = new Mas.Schema.Model.Monica.FertilizerService.Params_OrganicFertilizer()
             {Id = id};
             arg_?.serialize(in_);
-            using (var d_ = await Call(13526472068396842501UL, 3, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            using (var d_ = await Call(16418578105625834525UL, 5, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Schema.Management.FertilizerService.Result_OrganicFertilizer>(d_);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Model.Monica.FertilizerService.Result_OrganicFertilizer>(d_);
                 return (r_.Fert);
             }
         }
@@ -2754,23 +2859,24 @@ namespace Mas.Schema.Management
         }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xbbb7aeae0d097e05UL)]
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xe3da81cc36d5741dUL)]
     public class FertilizerService_Skeleton : Skeleton<IFertilizerService>
     {
         public FertilizerService_Skeleton()
         {
-            SetMethodTable(AvailableMineralFertilizers, MineralFertilizer, AvailableOrganicFertilizers, OrganicFertilizer);
+            SetMethodTable(MineralFertilizerPartitionFor, OrganicFertilizerParametersFor, AvailableMineralFertilizers, AvailableOrganicFertilizers, MineralFertilizer, OrganicFertilizer);
         }
 
-        public override ulong InterfaceId => 13526472068396842501UL;
-        Task<AnswerOrCounterquestion> AvailableMineralFertilizers(DeserializerState d_, CancellationToken cancellationToken_)
+        public override ulong InterfaceId => 16418578105625834525UL;
+        Task<AnswerOrCounterquestion> MineralFertilizerPartitionFor(DeserializerState d_, CancellationToken cancellationToken_)
         {
             using (d_)
             {
-                return Impatient.MaybeTailCall(Impl.AvailableMineralFertilizers(cancellationToken_), list =>
+                var in_ = CapnpSerializable.Create<Mas.Schema.Model.Monica.FertilizerService.Params_MineralFertilizerPartitionFor>(d_);
+                return Impatient.MaybeTailCall(Impl.MineralFertilizerPartitionFor(in_.MinFert, cancellationToken_), partition =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Management.FertilizerService.Result_AvailableMineralFertilizers.WRITER>();
-                    var r_ = new Mas.Schema.Management.FertilizerService.Result_AvailableMineralFertilizers{List = list};
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Model.Monica.FertilizerService.Result_MineralFertilizerPartitionFor.WRITER>();
+                    var r_ = new Mas.Schema.Model.Monica.FertilizerService.Result_MineralFertilizerPartitionFor{Partition = partition};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -2779,15 +2885,31 @@ namespace Mas.Schema.Management
             }
         }
 
-        Task<AnswerOrCounterquestion> MineralFertilizer(DeserializerState d_, CancellationToken cancellationToken_)
+        Task<AnswerOrCounterquestion> OrganicFertilizerParametersFor(DeserializerState d_, CancellationToken cancellationToken_)
         {
             using (d_)
             {
-                var in_ = CapnpSerializable.Create<Mas.Schema.Management.FertilizerService.Params_MineralFertilizer>(d_);
-                return Impatient.MaybeTailCall(Impl.MineralFertilizer(in_.Id, cancellationToken_), fert =>
+                var in_ = CapnpSerializable.Create<Mas.Schema.Model.Monica.FertilizerService.Params_OrganicFertilizerParametersFor>(d_);
+                return Impatient.MaybeTailCall(Impl.OrganicFertilizerParametersFor(in_.OrgFert, cancellationToken_), @params =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Management.FertilizerService.Result_MineralFertilizer.WRITER>();
-                    var r_ = new Mas.Schema.Management.FertilizerService.Result_MineralFertilizer{Fert = fert};
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Model.Monica.FertilizerService.Result_OrganicFertilizerParametersFor.WRITER>();
+                    var r_ = new Mas.Schema.Model.Monica.FertilizerService.Result_OrganicFertilizerParametersFor{Params = @params};
+                    r_.serialize(s_);
+                    return s_;
+                }
+
+                );
+            }
+        }
+
+        Task<AnswerOrCounterquestion> AvailableMineralFertilizers(DeserializerState d_, CancellationToken cancellationToken_)
+        {
+            using (d_)
+            {
+                return Impatient.MaybeTailCall(Impl.AvailableMineralFertilizers(cancellationToken_), entries =>
+                {
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Model.Monica.FertilizerService.Result_AvailableMineralFertilizers.WRITER>();
+                    var r_ = new Mas.Schema.Model.Monica.FertilizerService.Result_AvailableMineralFertilizers{Entries = entries};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -2800,10 +2922,27 @@ namespace Mas.Schema.Management
         {
             using (d_)
             {
-                return Impatient.MaybeTailCall(Impl.AvailableOrganicFertilizers(cancellationToken_), list =>
+                return Impatient.MaybeTailCall(Impl.AvailableOrganicFertilizers(cancellationToken_), entries =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Management.FertilizerService.Result_AvailableOrganicFertilizers.WRITER>();
-                    var r_ = new Mas.Schema.Management.FertilizerService.Result_AvailableOrganicFertilizers{List = list};
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Model.Monica.FertilizerService.Result_AvailableOrganicFertilizers.WRITER>();
+                    var r_ = new Mas.Schema.Model.Monica.FertilizerService.Result_AvailableOrganicFertilizers{Entries = entries};
+                    r_.serialize(s_);
+                    return s_;
+                }
+
+                );
+            }
+        }
+
+        Task<AnswerOrCounterquestion> MineralFertilizer(DeserializerState d_, CancellationToken cancellationToken_)
+        {
+            using (d_)
+            {
+                var in_ = CapnpSerializable.Create<Mas.Schema.Model.Monica.FertilizerService.Params_MineralFertilizer>(d_);
+                return Impatient.MaybeTailCall(Impl.MineralFertilizer(in_.Id, cancellationToken_), fert =>
+                {
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Model.Monica.FertilizerService.Result_MineralFertilizer.WRITER>();
+                    var r_ = new Mas.Schema.Model.Monica.FertilizerService.Result_MineralFertilizer{Fert = fert};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -2816,11 +2955,11 @@ namespace Mas.Schema.Management
         {
             using (d_)
             {
-                var in_ = CapnpSerializable.Create<Mas.Schema.Management.FertilizerService.Params_OrganicFertilizer>(d_);
+                var in_ = CapnpSerializable.Create<Mas.Schema.Model.Monica.FertilizerService.Params_OrganicFertilizer>(d_);
                 return Impatient.MaybeTailCall(Impl.OrganicFertilizer(in_.Id, cancellationToken_), fert =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Management.FertilizerService.Result_OrganicFertilizer.WRITER>();
-                    var r_ = new Mas.Schema.Management.FertilizerService.Result_OrganicFertilizer{Fert = fert};
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Model.Monica.FertilizerService.Result_OrganicFertilizer.WRITER>();
+                    var r_ = new Mas.Schema.Model.Monica.FertilizerService.Result_OrganicFertilizer{Fert = fert};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -2832,10 +2971,10 @@ namespace Mas.Schema.Management
 
     public static class FertilizerService
     {
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xb2df3dc668478979UL)]
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xf54586500e2b72cdUL)]
         public class Entry<TT> : ICapnpSerializable where TT : class
         {
-            public const UInt64 typeId = 0xb2df3dc668478979UL;
+            public const UInt64 typeId = 0xf54586500e2b72cdUL;
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
@@ -2908,10 +3047,252 @@ namespace Mas.Schema.Management
             }
         }
 
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xc5292994de2615c2UL)]
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xba3900305e908e31UL)]
+        public class Params_MineralFertilizerPartitionFor : ICapnpSerializable
+        {
+            public const UInt64 typeId = 0xba3900305e908e31UL;
+            void ICapnpSerializable.Deserialize(DeserializerState arg_)
+            {
+                var reader = READER.create(arg_);
+                MinFert = reader.MinFert;
+                applyDefaults();
+            }
+
+            public void serialize(WRITER writer)
+            {
+                writer.MinFert = MinFert;
+            }
+
+            void ICapnpSerializable.Serialize(SerializerState arg_)
+            {
+                serialize(arg_.Rewrap<WRITER>());
+            }
+
+            public void applyDefaults()
+            {
+            }
+
+            public Mas.Schema.Model.Monica.MineralFertilizer MinFert
+            {
+                get;
+                set;
+            }
+
+            public struct READER
+            {
+                readonly DeserializerState ctx;
+                public READER(DeserializerState ctx)
+                {
+                    this.ctx = ctx;
+                }
+
+                public static READER create(DeserializerState ctx) => new READER(ctx);
+                public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                public Mas.Schema.Model.Monica.MineralFertilizer MinFert => (Mas.Schema.Model.Monica.MineralFertilizer)ctx.ReadDataUShort(0UL, (ushort)0);
+            }
+
+            public class WRITER : SerializerState
+            {
+                public WRITER()
+                {
+                    this.SetStruct(1, 0);
+                }
+
+                public Mas.Schema.Model.Monica.MineralFertilizer MinFert
+                {
+                    get => (Mas.Schema.Model.Monica.MineralFertilizer)this.ReadDataUShort(0UL, (ushort)0);
+                    set => this.WriteData(0UL, (ushort)value, (ushort)0);
+                }
+            }
+        }
+
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xbdb5eaa658c7ababUL)]
+        public class Result_MineralFertilizerPartitionFor : ICapnpSerializable
+        {
+            public const UInt64 typeId = 0xbdb5eaa658c7ababUL;
+            void ICapnpSerializable.Deserialize(DeserializerState arg_)
+            {
+                var reader = READER.create(arg_);
+                Partition = CapnpSerializable.Create<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters>(reader.Partition);
+                applyDefaults();
+            }
+
+            public void serialize(WRITER writer)
+            {
+                Partition?.serialize(writer.Partition);
+            }
+
+            void ICapnpSerializable.Serialize(SerializerState arg_)
+            {
+                serialize(arg_.Rewrap<WRITER>());
+            }
+
+            public void applyDefaults()
+            {
+            }
+
+            public Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters Partition
+            {
+                get;
+                set;
+            }
+
+            public struct READER
+            {
+                readonly DeserializerState ctx;
+                public READER(DeserializerState ctx)
+                {
+                    this.ctx = ctx;
+                }
+
+                public static READER create(DeserializerState ctx) => new READER(ctx);
+                public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                public Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters.READER Partition => ctx.ReadStruct(0, Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters.READER.create);
+                public bool HasPartition => ctx.IsStructFieldNonNull(0);
+            }
+
+            public class WRITER : SerializerState
+            {
+                public WRITER()
+                {
+                    this.SetStruct(0, 1);
+                }
+
+                public Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters.WRITER Partition
+                {
+                    get => BuildPointer<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters.WRITER>(0);
+                    set => Link(0, value);
+                }
+            }
+        }
+
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xead8c24402f189b4UL)]
+        public class Params_OrganicFertilizerParametersFor : ICapnpSerializable
+        {
+            public const UInt64 typeId = 0xead8c24402f189b4UL;
+            void ICapnpSerializable.Deserialize(DeserializerState arg_)
+            {
+                var reader = READER.create(arg_);
+                OrgFert = reader.OrgFert;
+                applyDefaults();
+            }
+
+            public void serialize(WRITER writer)
+            {
+                writer.OrgFert = OrgFert;
+            }
+
+            void ICapnpSerializable.Serialize(SerializerState arg_)
+            {
+                serialize(arg_.Rewrap<WRITER>());
+            }
+
+            public void applyDefaults()
+            {
+            }
+
+            public Mas.Schema.Model.Monica.OrganicFertilizer OrgFert
+            {
+                get;
+                set;
+            }
+
+            public struct READER
+            {
+                readonly DeserializerState ctx;
+                public READER(DeserializerState ctx)
+                {
+                    this.ctx = ctx;
+                }
+
+                public static READER create(DeserializerState ctx) => new READER(ctx);
+                public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                public Mas.Schema.Model.Monica.OrganicFertilizer OrgFert => (Mas.Schema.Model.Monica.OrganicFertilizer)ctx.ReadDataUShort(0UL, (ushort)0);
+            }
+
+            public class WRITER : SerializerState
+            {
+                public WRITER()
+                {
+                    this.SetStruct(1, 0);
+                }
+
+                public Mas.Schema.Model.Monica.OrganicFertilizer OrgFert
+                {
+                    get => (Mas.Schema.Model.Monica.OrganicFertilizer)this.ReadDataUShort(0UL, (ushort)0);
+                    set => this.WriteData(0UL, (ushort)value, (ushort)0);
+                }
+            }
+        }
+
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xf6b53f1a4cf29599UL)]
+        public class Result_OrganicFertilizerParametersFor : ICapnpSerializable
+        {
+            public const UInt64 typeId = 0xf6b53f1a4cf29599UL;
+            void ICapnpSerializable.Deserialize(DeserializerState arg_)
+            {
+                var reader = READER.create(arg_);
+                Params = CapnpSerializable.Create<Mas.Schema.Model.Monica.Params.OrganicFertilization.Parameters>(reader.Params);
+                applyDefaults();
+            }
+
+            public void serialize(WRITER writer)
+            {
+                Params?.serialize(writer.Params);
+            }
+
+            void ICapnpSerializable.Serialize(SerializerState arg_)
+            {
+                serialize(arg_.Rewrap<WRITER>());
+            }
+
+            public void applyDefaults()
+            {
+            }
+
+            public Mas.Schema.Model.Monica.Params.OrganicFertilization.Parameters Params
+            {
+                get;
+                set;
+            }
+
+            public struct READER
+            {
+                readonly DeserializerState ctx;
+                public READER(DeserializerState ctx)
+                {
+                    this.ctx = ctx;
+                }
+
+                public static READER create(DeserializerState ctx) => new READER(ctx);
+                public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                public Mas.Schema.Model.Monica.Params.OrganicFertilization.Parameters.READER Params => ctx.ReadStruct(0, Mas.Schema.Model.Monica.Params.OrganicFertilization.Parameters.READER.create);
+                public bool HasParams => ctx.IsStructFieldNonNull(0);
+            }
+
+            public class WRITER : SerializerState
+            {
+                public WRITER()
+                {
+                    this.SetStruct(0, 1);
+                }
+
+                public Mas.Schema.Model.Monica.Params.OrganicFertilization.Parameters.WRITER Params
+                {
+                    get => BuildPointer<Mas.Schema.Model.Monica.Params.OrganicFertilization.Parameters.WRITER>(0);
+                    set => Link(0, value);
+                }
+            }
+        }
+
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xa9b89d473e06f2c7UL)]
         public class Params_AvailableMineralFertilizers : ICapnpSerializable
         {
-            public const UInt64 typeId = 0xc5292994de2615c2UL;
+            public const UInt64 typeId = 0xa9b89d473e06f2c7UL;
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
@@ -2953,20 +3334,20 @@ namespace Mas.Schema.Management
             }
         }
 
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x81b1cd5c7865e185UL)]
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xbd608077a7cec156UL)]
         public class Result_AvailableMineralFertilizers : ICapnpSerializable
         {
-            public const UInt64 typeId = 0x81b1cd5c7865e185UL;
+            public const UInt64 typeId = 0xbd608077a7cec156UL;
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                List = reader.List?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Management.FertilizerService.Entry<IReadOnlyList<Mas.Schema.Management.Nutrient>>>(_));
+                Entries = reader.Entries?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Model.Monica.FertilizerService.Entry<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters>>(_));
                 applyDefaults();
             }
 
             public void serialize(WRITER writer)
             {
-                writer.List.Init(List, (_s1, _v1) => _v1?.serialize(_s1));
+                writer.Entries.Init(Entries, (_s1, _v1) => _v1?.serialize(_s1));
             }
 
             void ICapnpSerializable.Serialize(SerializerState arg_)
@@ -2978,7 +3359,7 @@ namespace Mas.Schema.Management
             {
             }
 
-            public IReadOnlyList<Mas.Schema.Management.FertilizerService.Entry<IReadOnlyList<Mas.Schema.Management.Nutrient>>> List
+            public IReadOnlyList<Mas.Schema.Model.Monica.FertilizerService.Entry<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters>> Entries
             {
                 get;
                 set;
@@ -2995,8 +3376,8 @@ namespace Mas.Schema.Management
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public IReadOnlyList<Mas.Schema.Management.FertilizerService.Entry<IReadOnlyList<Mas.Schema.Management.Nutrient>>.READER> List => ctx.ReadList(0).Cast(Mas.Schema.Management.FertilizerService.Entry<IReadOnlyList<Mas.Schema.Management.Nutrient>>.READER.create);
-                public bool HasList => ctx.IsStructFieldNonNull(0);
+                public IReadOnlyList<Mas.Schema.Model.Monica.FertilizerService.Entry<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters>.READER> Entries => ctx.ReadList(0).Cast(Mas.Schema.Model.Monica.FertilizerService.Entry<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters>.READER.create);
+                public bool HasEntries => ctx.IsStructFieldNonNull(0);
             }
 
             public class WRITER : SerializerState
@@ -3006,139 +3387,18 @@ namespace Mas.Schema.Management
                     this.SetStruct(0, 1);
                 }
 
-                public ListOfStructsSerializer<Mas.Schema.Management.FertilizerService.Entry<IReadOnlyList<Mas.Schema.Management.Nutrient>>.WRITER> List
+                public ListOfStructsSerializer<Mas.Schema.Model.Monica.FertilizerService.Entry<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters>.WRITER> Entries
                 {
-                    get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Management.FertilizerService.Entry<IReadOnlyList<Mas.Schema.Management.Nutrient>>.WRITER>>(0);
+                    get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Model.Monica.FertilizerService.Entry<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters>.WRITER>>(0);
                     set => Link(0, value);
                 }
             }
         }
 
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xb1c2fa546f41d480UL)]
-        public class Params_MineralFertilizer : ICapnpSerializable
-        {
-            public const UInt64 typeId = 0xb1c2fa546f41d480UL;
-            void ICapnpSerializable.Deserialize(DeserializerState arg_)
-            {
-                var reader = READER.create(arg_);
-                Id = reader.Id;
-                applyDefaults();
-            }
-
-            public void serialize(WRITER writer)
-            {
-                writer.Id = Id;
-            }
-
-            void ICapnpSerializable.Serialize(SerializerState arg_)
-            {
-                serialize(arg_.Rewrap<WRITER>());
-            }
-
-            public void applyDefaults()
-            {
-            }
-
-            public string Id
-            {
-                get;
-                set;
-            }
-
-            public struct READER
-            {
-                readonly DeserializerState ctx;
-                public READER(DeserializerState ctx)
-                {
-                    this.ctx = ctx;
-                }
-
-                public static READER create(DeserializerState ctx) => new READER(ctx);
-                public static implicit operator DeserializerState(READER reader) => reader.ctx;
-                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public string Id => ctx.ReadText(0, null);
-            }
-
-            public class WRITER : SerializerState
-            {
-                public WRITER()
-                {
-                    this.SetStruct(0, 1);
-                }
-
-                public string Id
-                {
-                    get => this.ReadText(0, null);
-                    set => this.WriteText(0, value, null);
-                }
-            }
-        }
-
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xd801f16b6fa39a94UL)]
-        public class Result_MineralFertilizer : ICapnpSerializable
-        {
-            public const UInt64 typeId = 0xd801f16b6fa39a94UL;
-            void ICapnpSerializable.Deserialize(DeserializerState arg_)
-            {
-                var reader = READER.create(arg_);
-                Fert = reader.Fert?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Management.Nutrient>(_));
-                applyDefaults();
-            }
-
-            public void serialize(WRITER writer)
-            {
-                writer.Fert.Init(Fert, (_s1, _v1) => _v1?.serialize(_s1));
-            }
-
-            void ICapnpSerializable.Serialize(SerializerState arg_)
-            {
-                serialize(arg_.Rewrap<WRITER>());
-            }
-
-            public void applyDefaults()
-            {
-            }
-
-            public IReadOnlyList<Mas.Schema.Management.Nutrient> Fert
-            {
-                get;
-                set;
-            }
-
-            public struct READER
-            {
-                readonly DeserializerState ctx;
-                public READER(DeserializerState ctx)
-                {
-                    this.ctx = ctx;
-                }
-
-                public static READER create(DeserializerState ctx) => new READER(ctx);
-                public static implicit operator DeserializerState(READER reader) => reader.ctx;
-                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public IReadOnlyList<Mas.Schema.Management.Nutrient.READER> Fert => ctx.ReadList(0).Cast(Mas.Schema.Management.Nutrient.READER.create);
-                public bool HasFert => ctx.IsStructFieldNonNull(0);
-            }
-
-            public class WRITER : SerializerState
-            {
-                public WRITER()
-                {
-                    this.SetStruct(0, 1);
-                }
-
-                public ListOfStructsSerializer<Mas.Schema.Management.Nutrient.WRITER> Fert
-                {
-                    get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Management.Nutrient.WRITER>>(0);
-                    set => Link(0, value);
-                }
-            }
-        }
-
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x940d47081167b059UL)]
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x9437da695f7567e7UL)]
         public class Params_AvailableOrganicFertilizers : ICapnpSerializable
         {
-            public const UInt64 typeId = 0x940d47081167b059UL;
+            public const UInt64 typeId = 0x9437da695f7567e7UL;
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
@@ -3180,20 +3440,20 @@ namespace Mas.Schema.Management
             }
         }
 
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xcb1556d28ba514afUL)]
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xab49546abd2a478aUL)]
         public class Result_AvailableOrganicFertilizers : ICapnpSerializable
         {
-            public const UInt64 typeId = 0xcb1556d28ba514afUL;
+            public const UInt64 typeId = 0xab49546abd2a478aUL;
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                List = reader.List?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Management.FertilizerService.Entry<IReadOnlyList<Mas.Schema.Management.Nutrient>>>(_));
+                Entries = reader.Entries?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Model.Monica.FertilizerService.Entry<Mas.Schema.Model.Monica.Params.OrganicFertilization.OrganicMatterParameters>>(_));
                 applyDefaults();
             }
 
             public void serialize(WRITER writer)
             {
-                writer.List.Init(List, (_s1, _v1) => _v1?.serialize(_s1));
+                writer.Entries.Init(Entries, (_s1, _v1) => _v1?.serialize(_s1));
             }
 
             void ICapnpSerializable.Serialize(SerializerState arg_)
@@ -3205,7 +3465,7 @@ namespace Mas.Schema.Management
             {
             }
 
-            public IReadOnlyList<Mas.Schema.Management.FertilizerService.Entry<IReadOnlyList<Mas.Schema.Management.Nutrient>>> List
+            public IReadOnlyList<Mas.Schema.Model.Monica.FertilizerService.Entry<Mas.Schema.Model.Monica.Params.OrganicFertilization.OrganicMatterParameters>> Entries
             {
                 get;
                 set;
@@ -3222,8 +3482,8 @@ namespace Mas.Schema.Management
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public IReadOnlyList<Mas.Schema.Management.FertilizerService.Entry<IReadOnlyList<Mas.Schema.Management.Nutrient>>.READER> List => ctx.ReadList(0).Cast(Mas.Schema.Management.FertilizerService.Entry<IReadOnlyList<Mas.Schema.Management.Nutrient>>.READER.create);
-                public bool HasList => ctx.IsStructFieldNonNull(0);
+                public IReadOnlyList<Mas.Schema.Model.Monica.FertilizerService.Entry<Mas.Schema.Model.Monica.Params.OrganicFertilization.OrganicMatterParameters>.READER> Entries => ctx.ReadList(0).Cast(Mas.Schema.Model.Monica.FertilizerService.Entry<Mas.Schema.Model.Monica.Params.OrganicFertilization.OrganicMatterParameters>.READER.create);
+                public bool HasEntries => ctx.IsStructFieldNonNull(0);
             }
 
             public class WRITER : SerializerState
@@ -3233,18 +3493,18 @@ namespace Mas.Schema.Management
                     this.SetStruct(0, 1);
                 }
 
-                public ListOfStructsSerializer<Mas.Schema.Management.FertilizerService.Entry<IReadOnlyList<Mas.Schema.Management.Nutrient>>.WRITER> List
+                public ListOfStructsSerializer<Mas.Schema.Model.Monica.FertilizerService.Entry<Mas.Schema.Model.Monica.Params.OrganicFertilization.OrganicMatterParameters>.WRITER> Entries
                 {
-                    get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Management.FertilizerService.Entry<IReadOnlyList<Mas.Schema.Management.Nutrient>>.WRITER>>(0);
+                    get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Model.Monica.FertilizerService.Entry<Mas.Schema.Model.Monica.Params.OrganicFertilization.OrganicMatterParameters>.WRITER>>(0);
                     set => Link(0, value);
                 }
             }
         }
 
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xeddbace5e62bf665UL)]
-        public class Params_OrganicFertilizer : ICapnpSerializable
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x9ead0b36096d9073UL)]
+        public class Params_MineralFertilizer : ICapnpSerializable
         {
-            public const UInt64 typeId = 0xeddbace5e62bf665UL;
+            public const UInt64 typeId = 0x9ead0b36096d9073UL;
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
@@ -3301,14 +3561,14 @@ namespace Mas.Schema.Management
             }
         }
 
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x9846fdc78610c262UL)]
-        public class Result_OrganicFertilizer : ICapnpSerializable
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x82a3c6bf1cc5ad84UL)]
+        public class Result_MineralFertilizer : ICapnpSerializable
         {
-            public const UInt64 typeId = 0x9846fdc78610c262UL;
+            public const UInt64 typeId = 0x82a3c6bf1cc5ad84UL;
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Fert = reader.Fert?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Management.Nutrient>(_));
+                Fert = reader.Fert?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters>(_));
                 applyDefaults();
             }
 
@@ -3326,7 +3586,7 @@ namespace Mas.Schema.Management
             {
             }
 
-            public IReadOnlyList<Mas.Schema.Management.Nutrient> Fert
+            public IReadOnlyList<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters> Fert
             {
                 get;
                 set;
@@ -3343,7 +3603,7 @@ namespace Mas.Schema.Management
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public IReadOnlyList<Mas.Schema.Management.Nutrient.READER> Fert => ctx.ReadList(0).Cast(Mas.Schema.Management.Nutrient.READER.create);
+                public IReadOnlyList<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters.READER> Fert => ctx.ReadList(0).Cast(Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters.READER.create);
                 public bool HasFert => ctx.IsStructFieldNonNull(0);
             }
 
@@ -3354,31 +3614,152 @@ namespace Mas.Schema.Management
                     this.SetStruct(0, 1);
                 }
 
-                public ListOfStructsSerializer<Mas.Schema.Management.Nutrient.WRITER> Fert
+                public ListOfStructsSerializer<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters.WRITER> Fert
                 {
-                    get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Management.Nutrient.WRITER>>(0);
+                    get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters.WRITER>>(0);
+                    set => Link(0, value);
+                }
+            }
+        }
+
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xd945095e4d1d3ad4UL)]
+        public class Params_OrganicFertilizer : ICapnpSerializable
+        {
+            public const UInt64 typeId = 0xd945095e4d1d3ad4UL;
+            void ICapnpSerializable.Deserialize(DeserializerState arg_)
+            {
+                var reader = READER.create(arg_);
+                Id = reader.Id;
+                applyDefaults();
+            }
+
+            public void serialize(WRITER writer)
+            {
+                writer.Id = Id;
+            }
+
+            void ICapnpSerializable.Serialize(SerializerState arg_)
+            {
+                serialize(arg_.Rewrap<WRITER>());
+            }
+
+            public void applyDefaults()
+            {
+            }
+
+            public string Id
+            {
+                get;
+                set;
+            }
+
+            public struct READER
+            {
+                readonly DeserializerState ctx;
+                public READER(DeserializerState ctx)
+                {
+                    this.ctx = ctx;
+                }
+
+                public static READER create(DeserializerState ctx) => new READER(ctx);
+                public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                public string Id => ctx.ReadText(0, null);
+            }
+
+            public class WRITER : SerializerState
+            {
+                public WRITER()
+                {
+                    this.SetStruct(0, 1);
+                }
+
+                public string Id
+                {
+                    get => this.ReadText(0, null);
+                    set => this.WriteText(0, value, null);
+                }
+            }
+        }
+
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xcf94305221c00752UL)]
+        public class Result_OrganicFertilizer : ICapnpSerializable
+        {
+            public const UInt64 typeId = 0xcf94305221c00752UL;
+            void ICapnpSerializable.Deserialize(DeserializerState arg_)
+            {
+                var reader = READER.create(arg_);
+                Fert = CapnpSerializable.Create<Mas.Schema.Model.Monica.Params.OrganicFertilization.OrganicMatterParameters>(reader.Fert);
+                applyDefaults();
+            }
+
+            public void serialize(WRITER writer)
+            {
+                Fert?.serialize(writer.Fert);
+            }
+
+            void ICapnpSerializable.Serialize(SerializerState arg_)
+            {
+                serialize(arg_.Rewrap<WRITER>());
+            }
+
+            public void applyDefaults()
+            {
+            }
+
+            public Mas.Schema.Model.Monica.Params.OrganicFertilization.OrganicMatterParameters Fert
+            {
+                get;
+                set;
+            }
+
+            public struct READER
+            {
+                readonly DeserializerState ctx;
+                public READER(DeserializerState ctx)
+                {
+                    this.ctx = ctx;
+                }
+
+                public static READER create(DeserializerState ctx) => new READER(ctx);
+                public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                public Mas.Schema.Model.Monica.Params.OrganicFertilization.OrganicMatterParameters.READER Fert => ctx.ReadStruct(0, Mas.Schema.Model.Monica.Params.OrganicFertilization.OrganicMatterParameters.READER.create);
+                public bool HasFert => ctx.IsStructFieldNonNull(0);
+            }
+
+            public class WRITER : SerializerState
+            {
+                public WRITER()
+                {
+                    this.SetStruct(0, 1);
+                }
+
+                public Mas.Schema.Model.Monica.Params.OrganicFertilization.OrganicMatterParameters.WRITER Fert
+                {
+                    get => BuildPointer<Mas.Schema.Model.Monica.Params.OrganicFertilization.OrganicMatterParameters.WRITER>(0);
                     set => Link(0, value);
                 }
             }
         }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xc876b729b7d7f6d9UL), Proxy(typeof(Service_Proxy)), Skeleton(typeof(Service_Skeleton))]
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xbfda1920aff38c07UL), Proxy(typeof(Service_Proxy)), Skeleton(typeof(Service_Skeleton))]
     public interface IService : Mas.Schema.Common.IIdentifiable
     {
-        Task<IReadOnlyList<Mas.Schema.Management.Event>> ManagementAt(Mas.Schema.Geo.LatLonCoord arg_, CancellationToken cancellationToken_ = default);
+        Task<IReadOnlyList<Mas.Schema.Model.Monica.Event>> ManagementAt(Mas.Schema.Geo.LatLonCoord arg_, CancellationToken cancellationToken_ = default);
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xc876b729b7d7f6d9UL)]
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xbfda1920aff38c07UL)]
     public class Service_Proxy : Proxy, IService
     {
-        public async Task<IReadOnlyList<Mas.Schema.Management.Event>> ManagementAt(Mas.Schema.Geo.LatLonCoord arg_, CancellationToken cancellationToken_ = default)
+        public async Task<IReadOnlyList<Mas.Schema.Model.Monica.Event>> ManagementAt(Mas.Schema.Geo.LatLonCoord arg_, CancellationToken cancellationToken_ = default)
         {
             var in_ = SerializerState.CreateForRpc<Mas.Schema.Geo.LatLonCoord.WRITER>();
             arg_?.serialize(in_);
-            using (var d_ = await Call(14444934244643370713UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            using (var d_ = await Call(13824389634348780551UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Schema.Management.Service.Result_ManagementAt>(d_);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Model.Monica.Service.Result_ManagementAt>(d_);
                 return (r_.Mgmt);
             }
         }
@@ -3397,7 +3778,7 @@ namespace Mas.Schema.Management
         }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xc876b729b7d7f6d9UL)]
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xbfda1920aff38c07UL)]
     public class Service_Skeleton : Skeleton<IService>
     {
         public Service_Skeleton()
@@ -3405,15 +3786,15 @@ namespace Mas.Schema.Management
             SetMethodTable(ManagementAt);
         }
 
-        public override ulong InterfaceId => 14444934244643370713UL;
+        public override ulong InterfaceId => 13824389634348780551UL;
         Task<AnswerOrCounterquestion> ManagementAt(DeserializerState d_, CancellationToken cancellationToken_)
         {
             using (d_)
             {
                 return Impatient.MaybeTailCall(Impl.ManagementAt(CapnpSerializable.Create<Mas.Schema.Geo.LatLonCoord>(d_), cancellationToken_), mgmt =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Management.Service.Result_ManagementAt.WRITER>();
-                    var r_ = new Mas.Schema.Management.Service.Result_ManagementAt{Mgmt = mgmt};
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Model.Monica.Service.Result_ManagementAt.WRITER>();
+                    var r_ = new Mas.Schema.Model.Monica.Service.Result_ManagementAt{Mgmt = mgmt};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -3425,14 +3806,14 @@ namespace Mas.Schema.Management
 
     public static class Service
     {
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xcca7748d367db151UL)]
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xf32d7a3fdc567bdbUL)]
         public class Result_ManagementAt : ICapnpSerializable
         {
-            public const UInt64 typeId = 0xcca7748d367db151UL;
+            public const UInt64 typeId = 0xf32d7a3fdc567bdbUL;
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Mgmt = reader.Mgmt?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Management.Event>(_));
+                Mgmt = reader.Mgmt?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Model.Monica.Event>(_));
                 applyDefaults();
             }
 
@@ -3450,7 +3831,7 @@ namespace Mas.Schema.Management
             {
             }
 
-            public IReadOnlyList<Mas.Schema.Management.Event> Mgmt
+            public IReadOnlyList<Mas.Schema.Model.Monica.Event> Mgmt
             {
                 get;
                 set;
@@ -3467,7 +3848,7 @@ namespace Mas.Schema.Management
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public IReadOnlyList<Mas.Schema.Management.Event.READER> Mgmt => ctx.ReadList(0).Cast(Mas.Schema.Management.Event.READER.create);
+                public IReadOnlyList<Mas.Schema.Model.Monica.Event.READER> Mgmt => ctx.ReadList(0).Cast(Mas.Schema.Model.Monica.Event.READER.create);
                 public bool HasMgmt => ctx.IsStructFieldNonNull(0);
             }
 
@@ -3478,9 +3859,9 @@ namespace Mas.Schema.Management
                     this.SetStruct(0, 1);
                 }
 
-                public ListOfStructsSerializer<Mas.Schema.Management.Event.WRITER> Mgmt
+                public ListOfStructsSerializer<Mas.Schema.Model.Monica.Event.WRITER> Mgmt
                 {
-                    get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Management.Event.WRITER>>(0);
+                    get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Model.Monica.Event.WRITER>>(0);
                     set => Link(0, value);
                 }
             }

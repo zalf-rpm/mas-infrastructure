@@ -1,16 +1,70 @@
-@0xb30a3af53cea6b3e;
+@0x93337c65a295d42f;
 
 using Cxx = import "/capnp/c++.capnp";
-$Cxx.namespace("mas::schema::management");
+$Cxx.namespace("mas::schema::model::monica");
 
 using Go = import "/capnp/go.capnp";
-$Go.package("management");
-$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/management");
+$Go.package("monica");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/model/monica");
 
-using Date = import "date.capnp".Date;
-using Common = import "common.capnp";
-using Geo = import "geo.capnp";
-using Crop = import "crop.capnp";
+using Date = import "../../date.capnp".Date;
+using Common = import "../../common.capnp";
+using Geo = import "../../geo.capnp";
+using Crop = import "../../crop.capnp";
+
+struct ILRDates {
+  sowing          @0 :Date;
+  earliestSowing  @1 :Date;
+  latestSowing    @2 :Date;
+  harvest         @3 :Date;
+  latestHarvest   @4 :Date;
+}
+
+enum MineralFertilizer {
+  ahls  @0;
+  alzon @1;
+  an    @2;
+  ap    @3;
+  as    @4;
+  ash   @5;
+  cf4   @6;
+  cp1   @7;
+  cp2   @8;
+  cp3   @9;
+  npk   @10;
+  ns    @11;
+  u     @12;
+  uan   @13;
+  uas   @14;
+  uni   @15;
+}
+
+enum OrganicFertilizer {
+  ash   @0;
+  cadlm @1;
+  cam   @2;
+  cas   @3;
+  cau   @4;
+  dgdlm @5;
+  gwc   @6;
+  hodlm @7;
+  mc    @8;
+  ms    @9;
+  oic   @10;
+  pidlm @11;
+  pim   @12;
+  pis   @13;
+  piu   @14;
+  piudk @15;
+  plw   @16;
+  podlm @17;
+  pom   @18;
+  soy   @19;
+  ss    @20;
+  tudlm @21;
+  weeds @22;
+  ws    @23;
+}
 
 enum EventType {
   sowing                    @0;
@@ -253,30 +307,6 @@ struct Params {
   }
 }
 
-struct Nutrient {
-  enum Name {
-    urea          @0;   # carbamide / Harnstoff
-    ammonia       @1;   # NH4 / Ammonium
-    nitrate       @2;   # NO3 / Nitrat
-    phosphorus    @3;   # Phosphor
-    potassium     @4;   # Kalium
-    sulfate       @5;   # Schwefel
-    organiceC     @6;   # organic carbon
-    organicN      @7;   # organic nitrate
-    organicP      @8;   # organic phosphorus
-    organicNFast  @9;   # organic N fast fraction
-    organicNSlow  @10;  # organic N slow fraction
-  }
-
-  enum Unit {
-    percent   @0; # percent 
-    fraction  @1; # fraction
-  }
-
-  nutrient  @0 :Name;
-  unit      @1 :Unit;
-}
-
 interface FertilizerService extends(Common.Identifiable) {
   # service to return predefined fertilizers
 
@@ -285,16 +315,23 @@ interface FertilizerService extends(Common.Identifiable) {
     ref   @1 :Common.ValueHolder(T);
   }
 
-  availableMineralFertilizers @0 () -> (list :List(Entry(List(Nutrient))));
+  availableMineralFertilizers     @2 () -> (entries :List(Entry(Params.MineralFertilization.Parameters)));
   # return list of all available mineral fertilizers with references to value holders
 
-  mineralFertilizer           @1 (id :Text) -> (fert :List(Nutrient));
+  mineralFertilizer               @4 (id :Text) -> (fert :List(Params.MineralFertilization.Parameters));
   
-  availableOrganicFertilizers @2 () -> (list :List(Entry(List(Nutrient))));
+  availableOrganicFertilizers    @3 () -> (entries :List(Entry(Params.OrganicFertilization.OrganicMatterParameters)));
   # return list of all available organic fertilizers with references to value holders
 
-  organicFertilizer           @3 (id :Text) -> (fert :List(Nutrient));
+  organicFertilizer               @5 (id :Text) -> (fert :Params.OrganicFertilization.OrganicMatterParameters);
+
+  mineralFertilizerPartitionFor   @0 (minFert :MineralFertilizer) -> (partition :Params.MineralFertilization.Parameters);
+  # get mineral fertilizer parameters by name/id
+
+  organicFertilizerParametersFor  @1 (orgFert :OrganicFertilizer) -> (params :Params.OrganicFertilization.Parameters);
+  # get organic fertilizer parameters by name/id
 }
+
 
 interface Service extends(Common.Identifiable) {
   # management service
