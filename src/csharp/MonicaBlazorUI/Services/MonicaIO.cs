@@ -450,7 +450,7 @@ namespace MonicaBlazorUI.Services
             }
             return (bool)errs["success"];
         }
-        public JObject create_env_json_from_json_config(JObject crop_site_sim, string parametersPath)
+        public JObject createEnvJsonFromJsonConfig(JObject crop_site_sim, string parametersPath)
         {
             JToken jTkn;
             string key;

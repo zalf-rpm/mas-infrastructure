@@ -56,7 +56,7 @@ namespace MonicaBlazorUI.Services
             // else if (basePathType == MonicaParametersBasePathTypeEnum.Github)
             //     parametersPath = userSetting.MonicaParametersPathOnGithub;
 
-            var envj = _monicaIO.create_env_json_from_json_config(crop_site_sim, parametersPath);
+            var envj = _monicaIO.createEnvJsonFromJsonConfig(crop_site_sim, parametersPath);
             return envj;
         }
     }
