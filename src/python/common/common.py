@@ -333,6 +333,16 @@ class Action(common_capnp.Action.Server):
 
 #------------------------------------------------------------------------------
 
+# interface ValueHolder(T)
+class ValueHolder(common_capnp.ValueHolder.Server):
+
+    def __init__(self, value):
+        self._value = value
+
+    def value_context(self, context): # value @0 () -> (val :T);
+        context.results.value = self._value
+
+#------------------------------------------------------------------------------
 
 # interface CapHolder(Object)
 class CapHolderImpl(common_capnp.CapHolder.Server, Identifiable):

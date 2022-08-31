@@ -241,8 +241,6 @@ struct Params {
 
   struct MineralFertilization {
     struct Parameters {
-      id          @0 :Text;
-      name        @1 :Text;
       carbamid    @2 :Float64; # [%]
       nh4         @3 :Float64; # [%]
       no3         @4 :Float64; # [%]

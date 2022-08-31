@@ -34,17 +34,19 @@ if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
 import common.capnp_async_helpers as async_helpers
+import common.common as common
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
 common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
 management_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "management.capnp"), imports=abs_imports)
+monica_mgmt_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "models" / "monica" / "monica_management.capnp"), imports=abs_imports)
 monica_params_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "models" / "monica" / "monica_params.capnp"), imports=abs_imports)
 
 #------------------------------------------------------------------------------
 
-class Service(management_capnp.FertilizerService.Server): 
+class Service(monica_mgmt_capnp.FertilizerService.Server): 
 
     def __init__(self, path_to_mineral_fertilizers_dir, path_organic_fertilizers_dir, id=None, name=None, description=None,):
         self._id = id if id else str(uuid.uuid4())
@@ -53,7 +55,9 @@ class Service(management_capnp.FertilizerService.Server):
         self._min_ferts_dir = path_to_mineral_fertilizers_dir
         self._org_ferts_dir = path_organic_fertilizers_dir
         self._min_ferts = {}
+        self._all_min_ferts = {}
         self._org_ferts = {}
+        self._all_org_ferts = {}
     
 
     def info_context(self, context): # -> Common.IdInformation;
@@ -66,8 +70,38 @@ class Service(management_capnp.FertilizerService.Server):
     def get_value(self, val_or_array):
         return val_or_array[0] if type(val_or_array) is list and len(val_or_array) > 0 else val_or_array
 
+    @property
+    def mineral_fertilizers(self):
+        if len(self._all_min_ferts) == 0:
+            for fert in os.listdir(self._min_ferts_dir):
+                path = Path(self._min_ferts_dir) / fert
+                with open(path) as _:
+                    fertj = json.load(_)
+                    id = fertj.get("id", ""),
+                    name = fertj.get("name", ""),
+                    urea = self.get_value(fertj["Carbamid"])
+                    ammonia = self.get_value(fertj["NH4"])
+                    nitrate = self.get_value(fertj["NO3"])
+                    self._all_min_ferts[id] = monica_mgmt_capnp.FertilizerService.Entry.new_message(
+                        info={"id": id, "name": name},
+                        ref=common.ValueHolder(monica_mgmt_capnp.Params.MineralFertilization.Parameters(
+                            carbamid=urea,
+                            nh4=ammonia,
+                            no3=nitrate)))
+        return self._all_min_ferts
 
-    def mineralFertilizerPartitionFor_context(self, context): # mineralFertilizerPartitionFor @0 (minFert :MineralFertilizer) -> (partition ::MonicaParams.MineralFertilizerParameters);
+
+    def availableMineralFertilizers_context(self, context): # availableMineralFertilizers @2 () -> (entries :List(Entry(Params.MineralFertilization.Parameters)));
+        context.results.entries = self.mineral_fertilizers
+
+
+    def mineralFertilizer_context(self, context): # mineralFertilizer @4 (id :Text) -> (fert :List(Params.MineralFertilization.Parameters));
+        id = context.params.id
+        if id in self._all_min_ferts:
+            context.results.fert = self._all_min_ferts[id]
+
+
+    def mineralFertilizerPartitionFor_context(self, context): # mineralFertilizerPartitionFor @0 (minFert :MineralFertilizer) -> (partition :Params.MineralFertilization.Parameters);
         mf = context.params.minFert
         if mf in self._min_ferts:
             context.results.partition = self._min_ferts[mf]
@@ -89,7 +123,7 @@ class Service(management_capnp.FertilizerService.Server):
                 print("Error: Mineral fertilizer data couldn't be loaded from", str(path), "! Exception:", e)
 
 
-    def organicFertilizerParametersFor_context(self, context): # organicFertilizerParametersFor @1 (orgFert :OrganicFertilizer) -> (params :MonicaParams.OrganicFertilizerParameters);
+    def organicFertilizerParametersFor_context(self, context): # organicFertilizerParametersFor @1 (orgFert :OrganicFertilizer) -> (params :Params.OrganicFertilization.Parameters);
         of = context.params.orgFert
         if of in self._org_ferts:
             context.results.params = self._org_ferts[of]
