@@ -121,20 +121,37 @@ def x():
 
 def test_fertilizer_managment_service():
     conMan = common.ConnectionManager()
-    service = conMan.try_connect("capnp://insecure@10.10.24.169:33887/78e9d85f-a7f3-4063-bb15-0429ac79f6bf", cast_as=monica_mgmt_capnp.FertilizerService)
+    service = conMan.try_connect("capnp://insecure@10.10.24.169:41071/b1f8e8d1-d651-4bc2-b94a-04eff31a3b97", cast_as=monica_mgmt_capnp.FertilizerService)
     try:
         print(service.info().wait())
     except Exception as e:
         print(e)
 
-    es = service.availableMineralFertilizers().wait().entries
-    avh = es[0].ref
-    v = avh.value().wait().val.as_struct(monica_mgmt_capnp.Params.MineralFertilization.Parameters)
-    print("v:", v)
-    sr = avh.save().wait().sturdyRef
-    avh2 = conMan.try_connect(sr, cast_as=common_capnp.AnyValueHolder)
-    v2 = avh2.value().wait().val.as_struct(monica_mgmt_capnp.Params.MineralFertilization.Parameters)
-    print("v2:", v2)
+    # mineral fertilizers
+    mes = service.availableMineralFertilizers().wait().entries
+    me = mes[0]
+    mavh = me.ref
+    mv = mavh.value().wait().val.as_struct(monica_mgmt_capnp.Params.MineralFertilization.Parameters)
+    print("mv:", mv)
+    msr = mavh.save().wait().sturdyRef
+    mavh2 = conMan.try_connect(msr, cast_as=common_capnp.AnyValueHolder)
+    mv2 = mavh2.value().wait().val.as_struct(monica_mgmt_capnp.Params.MineralFertilization.Parameters)
+    print("mv2:", mv2)
+    mv3 = service.mineralFertilizer(me.info.id).wait().fert
+    print("mv3", mv3)
+
+    # organic fertilizers
+    oes = service.availableOrganicFertilizers().wait().entries
+    oe = oes[0]
+    oavh = oe.ref
+    ov = oavh.value().wait().val.as_struct(monica_mgmt_capnp.Params.OrganicFertilization.OrganicMatterParameters)
+    print("ov:", ov)
+    osr = oavh.save().wait().sturdyRef
+    oavh2 = conMan.try_connect(osr, cast_as=common_capnp.AnyValueHolder)
+    ov2 = oavh2.value().wait().val.as_struct(monica_mgmt_capnp.Params.OrganicFertilization.OrganicMatterParameters)
+    print("ov2:", ov2)
+    ov3 = service.organicFertilizer(oe.info.id).wait().fert
+    print("ov3", ov3)
 
     print()
 

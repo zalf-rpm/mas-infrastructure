@@ -340,8 +340,11 @@ class ValueHolder(common_capnp.ValueHolder.Server, Persistable):
         Persistable.__init__(self, restorer)
         self._value = value
 
+    def val(self):
+        return self._value
+
     def value_context(self, context): # value @0 () -> (val :T);
-        context.results.val = self._value
+        context.results.val = self.val
 
 # interface AnyValueHolder
 class AnyValueHolder(common_capnp.AnyValueHolder.Server, Persistable):
@@ -350,8 +353,12 @@ class AnyValueHolder(common_capnp.AnyValueHolder.Server, Persistable):
         Persistable.__init__(self, restorer)
         self._value = value
 
+    @property
+    def val(self):
+        return self._value
+
     def value_context(self, context): # value @0 () -> (val :AnyPointer);
-        context.results.val = self._value
+        context.results.val = self.val
 
 
 #------------------------------------------------------------------------------

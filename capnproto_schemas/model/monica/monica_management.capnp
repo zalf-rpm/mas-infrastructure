@@ -322,7 +322,7 @@ interface FertilizerService extends(Common.Identifiable) {
   availableMineralFertilizers     @2 () -> (entries :List(Entry));
   # return list of all available mineral fertilizers with references to value holders
 
-  mineralFertilizer               @4 (id :Text) -> (fert :List(Params.MineralFertilization.Parameters));
+  mineralFertilizer               @4 (id :Text) -> (fert :Params.MineralFertilization.Parameters);
   
   #availableOrganicFertilizers    @3 () -> (entries :List(Entry(Params.OrganicFertilization.OrganicMatterParameters)));
   availableOrganicFertilizers    @3 () -> (entries :List(Entry));

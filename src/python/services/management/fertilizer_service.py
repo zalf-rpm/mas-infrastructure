@@ -93,21 +93,62 @@ class Service(monica_mgmt_capnp.FertilizerService.Server, common.Identifiable, c
                             carbamid=urea,
                             nh4=ammonia,
                             no3=nitrate)
+                    vh = common.AnyValueHolder(ps, self.restorer)
                     e = monica_mgmt_capnp.FertilizerService.Entry.new_message(
                         info={"id": id, "name": name},
-                        ref=common.AnyValueHolder(ps, self.restorer))
-                    self._all_min_ferts[id] = e
+                        ref=vh)
+                    self._all_min_ferts[id] = (e, vh)
         return self._all_min_ferts
 
 
-    def availableMineralFertilizers_context(self, context): # availableMineralFertilizers @2 () -> (entries :List(Entry(Params.MineralFertilization.Parameters)));
-        context.results.entries = list(self.mineral_fertilizers.values())
+    def availableMineralFertilizers_context(self, context): # availableMineralFertilizers @2 () -> (entries :List(Entry)); #(Params.MineralFertilization.Parameters)));
+        context.results.entries = list([e for (e, _) in self.mineral_fertilizers.values()])
 
 
-    def mineralFertilizer_context(self, context): # mineralFertilizer @4 (id :Text) -> (fert :List(Params.MineralFertilization.Parameters));
+    def mineralFertilizer_context(self, context): # mineralFertilizer @4 (id :Text) -> (fert :Params.MineralFertilization.Parameters);
         id = context.params.id
         if id in self._all_min_ferts:
-            context.results.fert = self._all_min_ferts[id]
+            context.results.fert = self._all_min_ferts[id][1].val
+
+    @property
+    def organic_fertilizers(self):
+        if len(self._all_org_ferts) == 0:
+            for fert in os.listdir(self._org_ferts_dir):
+                path = Path(self._org_ferts_dir) / fert
+                with open(path) as _:
+                    fertj = json.load(_)
+                    id = fertj.get("id", "")
+                    name = fertj.get("name", "")
+                    ps = monica_mgmt_capnp.Params.OrganicFertilization.OrganicMatterParameters(
+                        aomDryMatterContent=self.get_value(fertj["AOM_DryMatterContent"]),
+                        aomFastDecCoeffStandard=self.get_value(fertj["AOM_FastDecCoeffStandard"]),
+                        aomNH4Content=self.get_value(fertj["AOM_NH4Content"]),
+                        aomNO3Content=self.get_value(fertj["AOM_NO3Content"]),
+                        aomSlowDecCoeffStandard=self.get_value(fertj["AOM_SlowDecCoeffStandard"]),
+                        cnRatioAOMFast=self.get_value(fertj["CN_Ratio_AOM_Fast"]),
+                        cnRatioAOMSlow=self.get_value(fertj["CN_Ratio_AOM_Slow"]),
+                        nConcentration=self.get_value(fertj["NConcentration"]),
+                        partAOMSlowToSMBFast=self.get_value(fertj["PartAOM_Slow_to_SMB_Fast"]),
+                        partAOMSlowToSMBSlow=self.get_value(fertj["PartAOM_Slow_to_SMB_Slow"]),
+                        partAOMToAOMFast=self.get_value(fertj["PartAOM_to_AOM_Fast"]),
+                        partAOMToAOMSlow=self.get_value(fertj["PartAOM_to_AOM_Slow"])
+                    )
+                    vh = common.AnyValueHolder(ps, self.restorer)
+                    e = monica_mgmt_capnp.FertilizerService.Entry.new_message(
+                        info={"id": id, "name": name},
+                        ref=vh)
+                    self._all_org_ferts[id] = (e, vh)
+        return self._all_org_ferts
+
+
+    def availableOrganicFertilizers_context(self, context): # availableOrganicFertilizers @2 () -> (entries :List(Entry)); #(Params.MineralFertilization.Parameters)));
+        context.results.entries = list([e for (e, _) in self.organic_fertilizers.values()])
+
+
+    def organicFertilizer_context(self, context): # organicFertilizer @4 (id :Text) -> (fert :Params.OrganicFertilization.OrganicMatterParameters);
+        id = context.params.id
+        if id in self._all_org_ferts:
+            context.results.fert = self._all_org_ferts[id][1].val
 
 
     def mineralFertilizerPartitionFor_context(self, context): # mineralFertilizerPartitionFor @0 (minFert :MineralFertilizer) -> (partition :Params.MineralFertilization.Parameters);
