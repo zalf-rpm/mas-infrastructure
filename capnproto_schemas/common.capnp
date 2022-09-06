@@ -75,10 +75,17 @@ struct ZmqPipelineAddresses {
   output @1 :Text;
 }
 
-interface ValueHolder(T) {
+interface ValueHolder(T) extends(Persistent) {
   # an interface to a remote value 
 
   value @0 () -> (val :T);
+  # get the referenced value
+}
+
+interface AnyValueHolder extends(Persistent) {
+  # an interface to a remote value 
+
+  value @0 () -> (val :AnyPointer);
   # get the referenced value
 }
 

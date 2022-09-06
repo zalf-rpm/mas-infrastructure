@@ -334,13 +334,25 @@ class Action(common_capnp.Action.Server):
 #------------------------------------------------------------------------------
 
 # interface ValueHolder(T)
-class ValueHolder(common_capnp.ValueHolder.Server):
+class ValueHolder(common_capnp.ValueHolder.Server, Persistable):
 
-    def __init__(self, value):
+    def __init__(self, value, restorer=None):
+        Persistable.__init__(self, restorer)
         self._value = value
 
     def value_context(self, context): # value @0 () -> (val :T);
-        context.results.value = self._value
+        context.results.val = self._value
+
+# interface AnyValueHolder
+class AnyValueHolder(common_capnp.AnyValueHolder.Server, Persistable):
+
+    def __init__(self, value, restorer=None):
+        Persistable.__init__(self, restorer)
+        self._value = value
+
+    def value_context(self, context): # value @0 () -> (val :AnyPointer);
+        context.results.val = self._value
+
 
 #------------------------------------------------------------------------------
 

@@ -241,9 +241,9 @@ struct Params {
 
   struct MineralFertilization {
     struct Parameters {
-      carbamid    @2 :Float64; # [%]
-      nh4         @3 :Float64; # [%]
-      no3         @4 :Float64; # [%]
+      carbamid    @0 :Float64; # [%]
+      nh4         @1 :Float64; # [%]
+      no3         @2 :Float64; # [%]
     }
 
     partition @0 :Parameters;
@@ -308,17 +308,24 @@ struct Params {
 interface FertilizerService extends(Common.Identifiable) {
   # service to return predefined fertilizers
 
-  struct Entry(T) {
+  #struct Entry(T) {
+  #  info  @0 :Common.IdInformation;
+  #  ref   @1 :Common.ValueHolder(T);
+  #}
+
+  struct Entry {
     info  @0 :Common.IdInformation;
-    ref   @1 :Common.ValueHolder(T);
+    ref   @1 :Common.AnyValueHolder;
   }
 
-  availableMineralFertilizers     @2 () -> (entries :List(Entry(Params.MineralFertilization.Parameters)));
+  #availableMineralFertilizers     @2 () -> (entries :List(Entry(Params.MineralFertilization.Parameters)));
+  availableMineralFertilizers     @2 () -> (entries :List(Entry));
   # return list of all available mineral fertilizers with references to value holders
 
   mineralFertilizer               @4 (id :Text) -> (fert :List(Params.MineralFertilization.Parameters));
   
-  availableOrganicFertilizers    @3 () -> (entries :List(Entry(Params.OrganicFertilization.OrganicMatterParameters)));
+  #availableOrganicFertilizers    @3 () -> (entries :List(Entry(Params.OrganicFertilization.OrganicMatterParameters)));
+  availableOrganicFertilizers    @3 () -> (entries :List(Entry));
   # return list of all available organic fertilizers with references to value holders
 
   organicFertilizer               @5 (id :Text) -> (fert :Params.OrganicFertilization.OrganicMatterParameters);

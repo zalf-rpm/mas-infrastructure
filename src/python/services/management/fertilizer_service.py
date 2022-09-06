@@ -35,20 +35,27 @@ if str(PATH_TO_PYTHON_CODE) not in sys.path:
 
 import common.capnp_async_helpers as async_helpers
 import common.common as common
+import common.service as serv
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
 common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
 management_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "management.capnp"), imports=abs_imports)
-monica_mgmt_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "models" / "monica" / "monica_management.capnp"), imports=abs_imports)
-monica_params_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "models" / "monica" / "monica_params.capnp"), imports=abs_imports)
+monica_mgmt_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "model" / "monica" / "monica_management.capnp"), imports=abs_imports)
+monica_params_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "model" / "monica" / "monica_params.capnp"), imports=abs_imports)
 
 #------------------------------------------------------------------------------
 
-class Service(monica_mgmt_capnp.FertilizerService.Server): 
+class Service(monica_mgmt_capnp.FertilizerService.Server, common.Identifiable, common.Persistable, serv.AdministrableService): 
 
-    def __init__(self, path_to_mineral_fertilizers_dir, path_organic_fertilizers_dir, id=None, name=None, description=None,):
+    def __init__(self, path_to_mineral_fertilizers_dir, path_organic_fertilizers_dir, 
+        id=None, name=None, description=None, 
+        admin=None, restorer=None):
+        common.Identifiable.__init__(self, id, name, description)
+        common.Persistable.__init__(self, restorer)
+        serv.AdministrableService.__init__(self, admin)
+
         self._id = id if id else str(uuid.uuid4())
         self._name = name if name else id
         self._description = description if description else ""
@@ -77,22 +84,24 @@ class Service(monica_mgmt_capnp.FertilizerService.Server):
                 path = Path(self._min_ferts_dir) / fert
                 with open(path) as _:
                     fertj = json.load(_)
-                    id = fertj.get("id", ""),
-                    name = fertj.get("name", ""),
+                    id = fertj.get("id", "")
+                    name = fertj.get("name", "")
                     urea = self.get_value(fertj["Carbamid"])
                     ammonia = self.get_value(fertj["NH4"])
                     nitrate = self.get_value(fertj["NO3"])
-                    self._all_min_ferts[id] = monica_mgmt_capnp.FertilizerService.Entry.new_message(
-                        info={"id": id, "name": name},
-                        ref=common.ValueHolder(monica_mgmt_capnp.Params.MineralFertilization.Parameters(
+                    ps = monica_mgmt_capnp.Params.MineralFertilization.Parameters(
                             carbamid=urea,
                             nh4=ammonia,
-                            no3=nitrate)))
+                            no3=nitrate)
+                    e = monica_mgmt_capnp.FertilizerService.Entry.new_message(
+                        info={"id": id, "name": name},
+                        ref=common.AnyValueHolder(ps, self.restorer))
+                    self._all_min_ferts[id] = e
         return self._all_min_ferts
 
 
     def availableMineralFertilizers_context(self, context): # availableMineralFertilizers @2 () -> (entries :List(Entry(Params.MineralFertilization.Parameters)));
-        context.results.entries = self.mineral_fertilizers
+        context.results.entries = list(self.mineral_fertilizers.values())
 
 
     def mineralFertilizer_context(self, context): # mineralFertilizer @4 (id :Text) -> (fert :List(Params.MineralFertilization.Parameters));
@@ -158,78 +167,47 @@ class Service(monica_mgmt_capnp.FertilizerService.Server):
 
 #------------------------------------------------------------------------------
 
-def main(server="*", port=13001, path_to_monica_parameters="../monica-parameters",
-id=None, name="MONICA Parameters Fertilizer Service", description=None):
+async def main(path_to_monica_parameters, serve_bootstrap=True, host=None, port=None, 
+    id=None, name="MONICA Parameters Fertilizer Service", description=None, use_async=False):
 
     config = {
-        "port": str(port),
-        "server": server,
+        "port": port, 
+        "host": host,
         "id": id,
         "name": name,
         "description": description,
-        "path_to_min_ferts_dir": path_to_monica_parameters + "/mineral-fertilisers",
-        "path_to_org_ferts_dir": path_to_monica_parameters + "/organic-fertilisers"
-    }
-    # read commandline args only if script is invoked directly from commandline
-    if len(sys.argv) > 1 and __name__ == "__main__":
-        for arg in sys.argv[1:]:
-            k, v = arg.split("=")
-            if k in config:
-                config[k] = v
-    print(config)
-
-    server = capnp.TwoPartyServer(config["server"] + ":" + config["port"],
-                                  bootstrap=Service(config["path_to_min_ferts_dir"], config["path_to_org_ferts_dir"],
-                                  id=config["id"], name=config["name"], description=config["description"]))
-    server.run_forever()
-
-#------------------------------------------------------------------------------
-
-async def async_main(path_to_monica_parameters, serve_bootstrap=False,
-host="0.0.0.0", port=None, reg_sturdy_ref=None, id=None, name="MONICA Parameters Fertilizer Service", description=None):
-
-    config = {
+        "serve_bootstrap": serve_bootstrap,
         "path_to_min_ferts_dir": path_to_monica_parameters + "/mineral-fertilisers",
         "path_to_org_ferts_dir": path_to_monica_parameters + "/organic-fertilisers",
-        "host": host,
-        "port": str(port),
-        "id": id,
-        "name": name,
-        "description": description,
-        "reg_sturdy_ref": reg_sturdy_ref,
-        "serve_bootstrap": str(serve_bootstrap),
-        "reg_category": "fertilizer",
+        "in_sr": None,
+        "out_sr": None,
+        "fbp": False,
+        "no_fbp": False,
+        "use_async": use_async,
+        "to_attr": None, #"climate",
+        "latlon_attr": "latlon",
+        "start_date_attr": "startDate",
+        "end_date_attr": "endDate",
+        "mode": "sturdyref", # sturdyref | capability | data
     }
-    # read commandline args only if script is invoked directly from commandline
-    if len(sys.argv) > 1 and __name__ == "__main__":
-        for arg in sys.argv[1:]:
-            k, v = arg.split("=")
-            if k in config:
-                config[k] = v
-    print("config used:", config)
+    common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
-    conMan = async_helpers.ConnectionManager()
-
-    service = Service(config["path_to_min_ferts_dir"], config["path_to_org_ferts_dir"],
-    id=config["id"], name=config["name"], description=config["description"])    
-
-    if config["reg_sturdy_ref"]:
-        registrator = await conMan.try_connect(config["reg_sturdy_ref"], cast_as=reg_capnp.Registrator)
-        if registrator:
-            unreg = await registrator.register(ref=service, categoryId=config["reg_category"]).a_wait()
-            print("Registered ", config["name"], "climate service.")
-            #await unreg.unregister.unregister().a_wait()
-        else:
-            print("Couldn't connect to registrator at sturdy_ref:", config["reg_sturdy_ref"])
-
-    if config["serve_bootstrap"].upper() == "TRUE":
-        await async_helpers.serve_forever(config["host"], config["port"], service)
+    restorer = common.Restorer()
+    service = Service(config["path_to_min_ferts_dir"], config["path_to_org_ferts_dir"], 
+        id=config["id"], name=config["name"], description=config["description"], restorer=restorer)
+    if config["fbp"]:
+        pass
+        #fbp(config, climate_capnp.Service._new_client(service))
     else:
-        await conMan.manage_forever()
+        if config["use_async"]:
+            await serv.async_init_and_run_service({"service": service}, config["host"], config["port"], 
+            serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
+        else:
+            
+            serv.init_and_run_service({"service": service}, config["host"], config["port"], 
+                serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
 
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    #main()
-    asyncio.run(async_main("../monica-parameters", serve_bootstrap=True, port=13001))
-
+    asyncio.run(main("../monica-parameters", serve_bootstrap=True, use_async=True)) 

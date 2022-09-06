@@ -47,6 +47,7 @@ persistence_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "persistence.capnp"),
 model_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "model.capnp"), imports=abs_imports)
 yieldstat_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "model" / "yieldstat" / "yieldstat.capnp"), imports=abs_imports)
 monica_state_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "model" / "monica" / "monica_state.capnp"), imports=abs_imports)
+monica_mgmt_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "model" / "monica" / "monica_management.capnp"), imports=abs_imports)
 climate_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate.capnp"), imports=abs_imports)
 mgmt_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "management.capnp"), imports=abs_imports)
 service_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "service.capnp"), imports=abs_imports)
@@ -116,6 +117,27 @@ def x():
     s._decref()
     
     #del s
+
+
+def test_fertilizer_managment_service():
+    conMan = common.ConnectionManager()
+    service = conMan.try_connect("capnp://insecure@10.10.24.169:33887/78e9d85f-a7f3-4063-bb15-0429ac79f6bf", cast_as=monica_mgmt_capnp.FertilizerService)
+    try:
+        print(service.info().wait())
+    except Exception as e:
+        print(e)
+
+    es = service.availableMineralFertilizers().wait().entries
+    avh = es[0].ref
+    v = avh.value().wait().val.as_struct(monica_mgmt_capnp.Params.MineralFertilization.Parameters)
+    print("v:", v)
+    sr = avh.save().wait().sturdyRef
+    avh2 = conMan.try_connect(sr, cast_as=common_capnp.AnyValueHolder)
+    v2 = avh2.value().wait().val.as_struct(monica_mgmt_capnp.Params.MineralFertilization.Parameters)
+    print("v2:", v2)
+
+    print()
+
 
 def test_climate_service():
     conMan = common.ConnectionManager()
@@ -253,8 +275,9 @@ def main():
             if k in config:
                 config[k] = v
 
+    test_fertilizer_managment_service()
 
-    test_climate_service()
+    #test_climate_service()
 
     #test_registry()
 
