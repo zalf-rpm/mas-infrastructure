@@ -6,6 +6,7 @@ using Mas.Infrastructure;
 using System.Text.Json;
 using Mas;
 using System.Threading.Tasks;
+using Crypt = NSec.Cryptography;
 
 namespace Mas.Infrastructure.ServiceRegistry
 {
@@ -15,7 +16,7 @@ namespace Mas.Infrastructure.ServiceRegistry
             public string reg_sr { get; set; }
             public string reg_name { get; set; }
             public string cat_id { get; set; }
-            public Mas.Rpc.Common.IAction unreg { get; set; }
+            public Mas.Schema.Common.IAction unreg { get; set; }
             public string reregSR { get; set; }
         }
 
@@ -31,11 +32,11 @@ namespace Mas.Infrastructure.ServiceRegistry
             return JsonSerializer.Deserialize<Reg>(regsJsonStr, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         }
 
-        static async Task TryRegisterService(Common.ConnectionManager conMan, RegData r, Mas.Rpc.Common.IIdentifiable service) {
+        static async Task TryRegisterService(Common.ConnectionManager conMan, RegData r, Mas.Schema.Common.IIdentifiable service) {
             if (r != null)
             {
                 try {
-                    var remReg = await conMan.Connect<Mas.Rpc.Registry.IRegistrar>(r.reg_sr);
+                    var remReg = await conMan.Connect<Mas.Schema.Registry.IRegistrar>(r.reg_sr);
                     var res = await remReg.Register(service, r.reg_name, r.cat_id);
                     r.unreg = res.Item1;
                     r.reregSR = res.Item2;
@@ -91,9 +92,14 @@ namespace Mas.Infrastructure.ServiceRegistry
             }
 
             using var conMan = new Common.ConnectionManager();
-            var restorer = new Common.Restorer();
             
-            var registry = new ServiceRegistry
+            var algorithm = Crypt.SignatureAlgorithm.Ed25519;
+            var key = Crypt.Key.Create(algorithm);
+            var vatId = key.Export(Crypt.KeyBlobFormat.PkixPublicKey);
+
+            var restorer = new Common.Restorer() { VatId = vatId };
+            
+            var registry = new ServiceRegistry (key)
             {
                 Restorer = restorer,
                 CategoriesFilePath = catsFilePath,

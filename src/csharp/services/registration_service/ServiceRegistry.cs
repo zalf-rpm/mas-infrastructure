@@ -1,25 +1,25 @@
 ﻿using System;
-using Mas;
-using Capnp.Rpc;
-using Capnp.Rpc.Interception;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading;
 using System.Collections.Concurrent;
-using Mas.Rpc.Registry;
-using Mas.Rpc.Persistence;
+using S = Mas.Schema;
+using R = Mas.Schema.Registry;
+using P = Mas.Schema.Persistence;
+using C = Mas.Schema.Common;
 using System.Diagnostics.CodeAnalysis;
-using System.Net;
-using System.Net.Sockets;
-using Capnp;
-using Mas.Infrastructure;
 using System.Text.Json;
+using System.Reflection;
+using Capnp;
+using Capnp.Rpc;
+using Capnp.Rpc.Interception;
+using Crypt = NSec.Cryptography;
 
 namespace Mas.Infrastructure.ServiceRegistry
 {
     
-    class ServiceRegistry : Rpc.Registry.IRegistry
+    class ServiceRegistry : R.IRegistry
     {
         public Common.Restorer Restorer { get; set; }
 
@@ -27,8 +27,8 @@ namespace Mas.Infrastructure.ServiceRegistry
         public string Name { get; set; }
         public string Description { get; set; }
 
-        private ConcurrentDictionary<string, Rpc.Common.IdInformation> _CatId2SupportedCategories;
-        public Rpc.Common.IdInformation[] Categories
+        private ConcurrentDictionary<string, C.IdInformation> _CatId2SupportedCategories;
+        public C.IdInformation[] Categories
         {
             get { return _CatId2SupportedCategories.Values.ToArray(); }
             set {
@@ -48,9 +48,9 @@ namespace Mas.Infrastructure.ServiceRegistry
             } 
         } 
 
-        static public Rpc.Common.IdInformation[] DeserializeCats(string catsJsonStr)
+        static public C.IdInformation[] DeserializeCats(string catsJsonStr)
         {
-            return JsonSerializer.Deserialize<Rpc.Common.IdInformation[]>(
+            return JsonSerializer.Deserialize<C.IdInformation[]>(
                 catsJsonStr, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
             );
         }
@@ -59,20 +59,24 @@ namespace Mas.Infrastructure.ServiceRegistry
         public struct RegData
         {
             public string Id { get; set; }
-            public Registry.Entry Entry { get; set; }
+            public R.Registry.Entry Entry { get; set; }
             public Common.Action Unreg { get; set; }
-            public Rpc.Common.IIdentifiable Cap { get; set; }
+            public C.IIdentifiable Cap { get; set; }
             public Common.Action ReregUnsave { get; set; }
         }
 
         private ConcurrentDictionary<string, RegData> _regId2Entry;
+        private ConcurrentDictionary<string, (ulong[], string)> _extSRT2VatIdAndIntSRT; // mapping of external sturdy ref token to internal one
         private IInterceptionPolicy _savePolicy;
+        private Crypt.Key _key; // ED25519 key
+        private ConcurrentDictionary<ulong[], Mas.Schema.Persistence.IRestorer> _vatId2Restorer;   
 
-        public ServiceRegistry()
+        public ServiceRegistry(Crypt.Key key)
         {
-            _CatId2SupportedCategories = new ConcurrentDictionary<string, Rpc.Common.IdInformation>();
+            _CatId2SupportedCategories = new ConcurrentDictionary<string, C.IdInformation>();
             _regId2Entry = new ConcurrentDictionary<string, RegData>();//Tuple<string, Registry.Entry, Common.Unregister>>();
             _savePolicy = new InterceptPersistentPolicy(this);
+            _key = key;
         }
 
         public void Dispose()
@@ -84,70 +88,81 @@ namespace Mas.Infrastructure.ServiceRegistry
                 oid2e.Value.Unreg.Dispose();
             }
 
+            // erases key from memory
+            _key?.Dispose();
+
             Console.WriteLine("Dispose");
         }
 
-        #region implementation of Mas.Rpc.Common.IIdentifiable
-        public Task<Rpc.Common.IdInformation> Info(CancellationToken cancellationToken_ = default)
+        #region implementation of Mas.C.IIdentifiable
+        public Task<C.IdInformation> Info(CancellationToken cancellationToken_ = default)
         {
-            return Task.FromResult(new Rpc.Common.IdInformation()
+            return Task.FromResult(new C.IdInformation()
             { Id = Id, Name = Name, Description = Description });
         }
         #endregion
 
-        #region implementation of Mas.Rpc.Registry.IRegistry
-        public Task<Rpc.Common.IdInformation> CategoryInfo(string categoryId, CancellationToken cancellationToken_ = default)
+        #region implementation of Mas.R.IRegistry
+        public Task<C.IdInformation> CategoryInfo(string categoryId, CancellationToken cancellationToken_ = default)
         {
             return Task.FromResult(_CatId2SupportedCategories.GetValueOrDefault(categoryId));
         }
 
-        public Task<IReadOnlyList<Registry.Entry>> Entries(string categoryId, CancellationToken cancellationToken_ = default)
+        public Task<IReadOnlyList<R.Registry.Entry>> Entries(string categoryId, CancellationToken cancellationToken_ = default)
         {
-            var entries = new List<Registry.Entry>();
+            var entries = new List<R.Registry.Entry>();
             if (categoryId != null)
                 entries.AddRange((from p in _regId2Entry
                                   where p.Value.Entry.CategoryId == categoryId
                                   select p.Value.Entry).
-                                  Select(e => new Registry.Entry(){
+                                  Select(e => new R.Registry.Entry(){
                                       CategoryId = e.CategoryId,
                                       Ref = Proxy.Share(e.Ref),
                                       Name = e.Name
                                  }));
             else
                 entries.AddRange((from p in _regId2Entry select p.Value.Entry).
-                    Select(e => new Registry.Entry()
+                    Select(e => new R.Registry.Entry()
                     {
                         CategoryId = e.CategoryId,
                         Ref = Proxy.Share(e.Ref),
                         Name = e.Name
                     }));
-            return Task.FromResult<IReadOnlyList<Registry.Entry>>(entries);
+            return Task.FromResult<IReadOnlyList<R.Registry.Entry>>(entries);
         }
 
-        public Task<IReadOnlyList<Rpc.Common.IdInformation>> SupportedCategories(CancellationToken cancellationToken_ = default)
+        public Task<IReadOnlyList<C.IdInformation>> SupportedCategories(CancellationToken cancellationToken_ = default)
         {
-            return Task.FromResult<IReadOnlyList<Rpc.Common.IdInformation>>(_CatId2SupportedCategories.Values.ToList());
+            return Task.FromResult<IReadOnlyList<C.IdInformation>>(_CatId2SupportedCategories.Values.ToList());
         }
         #endregion
 
 
-        public class Admin : Rpc.Registry.IAdmin
+        public class Admin : R.IAdmin
         {
-            private ServiceRegistry _Registry;
+            private ServiceRegistry _registry;
 
             public Admin(ServiceRegistry registry)
             {
-                _Registry = registry;
+                _registry = registry;
             }
 
             public void Dispose() { }
 
-            #region implementation of Mas.Rpc.Registry.IAdmin
-            public Task<bool> AddCategory(Rpc.Common.IdInformation category, bool upsert, CancellationToken cancellationToken_ = default)
+            #region implementation of Mas.C.IIdentifiable
+            public Task<C.IdInformation> Info(CancellationToken cancellationToken_ = default)
             {
-                if (!_Registry._CatId2SupportedCategories.ContainsKey(category.Id) || upsert)
+                return Task.FromResult(new C.IdInformation()
+                { Id = "Admin_"+_registry.Id, Name = "Admin of " + _registry.Name, Description = "Admin description of " + _registry.Description });
+            }
+            #endregion
+
+            #region implementation of Mas.Schema.Registry.IAdmin
+            public Task<bool> AddCategory(C.IdInformation category, bool upsert, CancellationToken cancellationToken_ = default)
+            {
+                if (!_registry._CatId2SupportedCategories.ContainsKey(category.Id) || upsert)
                 {
-                    _Registry._CatId2SupportedCategories[category.Id] = category;
+                    _registry._CatId2SupportedCategories[category.Id] = category;
                     return Task.FromResult(true);
                 }
                 return Task.FromResult(false);
@@ -156,7 +171,7 @@ namespace Mas.Infrastructure.ServiceRegistry
             public Task<IReadOnlyList<string>> MoveObjects(IReadOnlyList<string> objectIds, string toCatId, CancellationToken cancellationToken_ = default)
             {
                 // check that the move to category actually exists, else treat it as none existing
-                if (!_Registry._CatId2SupportedCategories.ContainsKey(toCatId))
+                if (!_registry._CatId2SupportedCategories.ContainsKey(toCatId))
                     toCatId = null;
 
                 // if there is no category to move to, do rather nothing
@@ -169,7 +184,7 @@ namespace Mas.Infrastructure.ServiceRegistry
                 {
                     try
                     {
-                        _Registry._regId2Entry[oid].Entry.CategoryId = toCatId;
+                        _registry._regId2Entry[oid].Entry.CategoryId = toCatId;
                         moved.Add(oid);
                     }
                     catch (KeyNotFoundException){}
@@ -177,26 +192,26 @@ namespace Mas.Infrastructure.ServiceRegistry
                 return Task.FromResult<IReadOnlyList<string>>(moved);
             }
 
-            public Task<IRegistry> Registry(CancellationToken cancellationToken_ = default)
+            public Task<R.IRegistry> Registry(CancellationToken cancellationToken_ = default)
             {
-                return Task.FromResult<IRegistry>(_Registry);
+                return Task.FromResult<R.IRegistry>(_registry);
             }
 
-            public Task<IReadOnlyList<Rpc.Common.IIdentifiable>> RemoveCategory(string categoryId, string moveObjectsToCategoryId, CancellationToken cancellationToken_ = default)
+            public Task<IReadOnlyList<C.IIdentifiable>> RemoveCategory(string categoryId, string moveObjectsToCategoryId, CancellationToken cancellationToken_ = default)
             {
-                var removed = new List<Rpc.Common.IIdentifiable>();
+                var removed = new List<C.IIdentifiable>();
                 // no category means nothing to remove
                 if (categoryId == null)
-                    return Task.FromResult<IReadOnlyList<Rpc.Common.IIdentifiable>>(removed);
+                    return Task.FromResult<IReadOnlyList<C.IIdentifiable>>(removed);
 
                 // check that the move to category actually exists, else treat it as none existing
-                if (moveObjectsToCategoryId != null && !_Registry._CatId2SupportedCategories.ContainsKey(moveObjectsToCategoryId))
+                if (moveObjectsToCategoryId != null && !_registry._CatId2SupportedCategories.ContainsKey(moveObjectsToCategoryId))
                     moveObjectsToCategoryId = null;
 
                 // move objects from old to new category
                 // but remember objects to be removed, to remove them outside of the iterator
                 var removedIds = new List<string>();
-                foreach(var oid2entry in from p in _Registry._regId2Entry 
+                foreach(var oid2entry in from p in _registry._regId2Entry 
                                      where p.Value.Entry.CategoryId == categoryId 
                                      select p)
                 {
@@ -211,25 +226,25 @@ namespace Mas.Infrastructure.ServiceRegistry
 
                 // remove remembered objects from registry
                 foreach (var oid in removedIds)
-                    _Registry._regId2Entry.Remove(oid, out RegData removedValue);
+                    _registry._regId2Entry.Remove(oid, out RegData removedValue);
 
                 // finally remove the category
-                _Registry._CatId2SupportedCategories.TryRemove(categoryId, out _);
+                _registry._CatId2SupportedCategories.TryRemove(categoryId, out _);
 
-                return Task.FromResult<IReadOnlyList<Rpc.Common.IIdentifiable>>(removed);
+                return Task.FromResult<IReadOnlyList<C.IIdentifiable>>(removed);
             }
 
-            public async Task<IReadOnlyList<Rpc.Common.IIdentifiable>> RemoveObjects(IReadOnlyList<string> objectIds, CancellationToken cancellationToken_ = default)
+            public async Task<IReadOnlyList<C.IIdentifiable>> RemoveObjects(IReadOnlyList<string> objectIds, CancellationToken cancellationToken_ = default)
             {
-                var removed = new List<Rpc.Common.IIdentifiable>();
+                var removed = new List<C.IIdentifiable>();
                 foreach (var oid in objectIds)
                 {
                     try
                     {
-                        var entry = _Registry._regId2Entry[oid];
+                        var entry = _registry._regId2Entry[oid];
                         var obj = entry.Entry.Ref;
-                        await _Registry._regId2Entry[oid].Unreg.Do(cancellationToken_);
-                        if (!_Registry._regId2Entry.ContainsKey(oid))
+                        await _registry._regId2Entry[oid].Unreg.Do(cancellationToken_);
+                        if (!_registry._regId2Entry.ContainsKey(oid))
                             removed.Add(Capnp.Rpc.Proxy.Share(entry.Entry.Ref));
                     }
                     catch (KeyNotFoundException) { }
@@ -239,7 +254,7 @@ namespace Mas.Infrastructure.ServiceRegistry
             #endregion
         }
 
-        public class Registrar : Rpc.Registry.IRegistrar
+        public class Registrar : R.IRegistrar
         {
             private ServiceRegistry _registry;
             private Common.Restorer _restorer;
@@ -255,14 +270,23 @@ namespace Mas.Infrastructure.ServiceRegistry
                 Console.WriteLine("RegistratorImpl.Dispose");
             }
 
-            #region implementation of Mas.Rpc.Registry.IRegistrar
-            // register @0 (cap :Common.Identifiable, regName :Text, categoryId :Text) -> (unreg :Common.Action, reregSR :Text);
-            public Task<(Mas.Rpc.Common.IAction, string)> Register(Rpc.Common.IIdentifiable cap, string regName, string categoryId, CancellationToken cancellationToken_ = default)
+            #region implementation of Mas.C.IIdentifiable
+            public Task<C.IdInformation> Info(CancellationToken cancellationToken_ = default)
             {
-                if (categoryId == null || regName == null)
-                    return Task.FromResult<(Mas.Rpc.Common.IAction, string)>((null, null));
+                return Task.FromResult(new C.IdInformation()
+                { Id = "Registrar_"+_registry.Id, Name = "Registrar of " + _registry.Name, Description = "Registrar description of " + _registry.Description });
+            }
+            #endregion
 
-                if (_registry._CatId2SupportedCategories.ContainsKey(categoryId))
+            #region implementation of Mas.Schema.Registry.IRegistrar
+            // register @0 (cap :Common.Identifiable, regName :Text, categoryId :Text) -> (unreg :Common.Action, reregSR :Text);
+            public Task<(C.IAction, P.SturdyRef)> Register(R.Registrar.RegParams ps, CancellationToken cancellationToken_ = default)
+            {
+                if (ps.CategoryId == null || ps.RegName == null)
+                    return Task.FromResult<(C.IAction, P.SturdyRef)>((null, null));
+
+                // if category exists
+                if (_registry._CatId2SupportedCategories.ContainsKey(ps.CategoryId))
                 {
                     try
                     {
@@ -270,7 +294,15 @@ namespace Mas.Infrastructure.ServiceRegistry
                         var regId = System.Guid.NewGuid().ToString();
 
                         // attach a membrane around the capability to intercept save messages
-                        var interceptedCap = _registry._savePolicy.Attach(cap);
+                        var interceptedCap = _registry._savePolicy.Attach(ps.Cap);
+                        
+                        if (ps.XDomain != null && ps.XDomain.Restorer != null){
+                            var vid = ps.XDomain.VatId;
+                            _registry._vatId2Restorer.AddOrUpdate(
+                                new[] { vid.PublicKey0, vid.PublicKey1, vid.PublicKey2, vid.PublicKey3 }, 
+                                (k) => ps.XDomain.Restorer, 
+                                (k,oldRestorer) => { oldRestorer?.Dispose(); return ps.XDomain.Restorer; });
+                        }
 
                         // create an unregister action
                         var unreg = new Common.Action(() => {
@@ -280,29 +312,29 @@ namespace Mas.Infrastructure.ServiceRegistry
 
                         var regData = new RegData
                         {
-                            Entry = new Registry.Entry()
+                            Entry = new R.Registry.Entry()
                             {
-                                CategoryId = categoryId,
+                                CategoryId = ps.CategoryId,
                                 Ref = interceptedCap,
-                                Name = regName,
+                                Name = ps.RegName,
                             },
                             Unreg = unreg,
-                            Cap = Proxy.Share(cap)
+                            Cap = Proxy.Share(ps.Cap)
                         };
 
                         // create an reregister action and sturdy ref to it
                         var rereg = new Common.Action1((object anyp) => {
-                            if(anyp is Rpc.Common.IIdentifiable cap)
+                            if(anyp is C.IIdentifiable cap)
                             {
                                 var interceptedCap = _registry._savePolicy.Attach(cap);
 
                                 _registry._regId2Entry[regId] = new RegData
                                 {
-                                    Entry = new Registry.Entry()
+                                    Entry = new R.Registry.Entry()
                                     {
-                                        CategoryId = categoryId,
+                                        CategoryId = ps.CategoryId,
                                         Ref = interceptedCap,
-                                        Name = regName,
+                                        Name = ps.RegName,
                                     },
                                     Unreg = unreg,
                                     Cap = Proxy.Share(cap)
@@ -321,14 +353,14 @@ namespace Mas.Infrastructure.ServiceRegistry
                         // !!! still want to keep the aquired sturdy ref to get a reference to the capability
                         // !!! in this case the registry's vat acts just as proxy and not anymore as registry
 
-                        return Task.FromResult<(Mas.Rpc.Common.IAction, string)>((unreg, res.SturdyRef));
+                        return Task.FromResult<(C.IAction, P.SturdyRef)>((unreg, res.SturdyRef));
                     }
                     catch (Capnp.Rpc.RpcException e)
                     {
                         Console.Error.WriteLine(e.Message);
                     }
                 }
-                return Task.FromResult<(Mas.Rpc.Common.IAction, string)>((null, null));
+                return Task.FromResult<(C.IAction, P.SturdyRef)>((null, null));
             }
             #endregion
         }
@@ -336,13 +368,16 @@ namespace Mas.Infrastructure.ServiceRegistry
         class InterceptPersistentPolicy : IInterceptionPolicy
         {
             private ulong PersistentInterfaceId;
+            private ulong SaveMethodId = 0;
+            private ulong RestorerInterfaceId;
+            private ulong RestoreMethodId = 0;
             private ServiceRegistry _registry;
 
             public InterceptPersistentPolicy(ServiceRegistry registry)
             {
                 _registry = registry;
-                var typeId = (Capnp.TypeIdAttribute)Attribute.GetCustomAttribute(typeof(Capnp.IPersistent<string, string>), typeof(Capnp.TypeIdAttribute));
-                PersistentInterfaceId = typeId.Id;
+                PersistentInterfaceId = typeof(P.IPersistent).GetCustomAttribute<Capnp.TypeIdAttribute>(false)?.Id ?? 0;
+                RestorerInterfaceId = typeof(P.IRestorer).GetCustomAttribute<Capnp.TypeIdAttribute>(false)?.Id ?? 0;
             }
 
             public bool Equals([AllowNull] IInterceptionPolicy other)
@@ -350,19 +385,26 @@ namespace Mas.Infrastructure.ServiceRegistry
                 return this.Equals(other);
             }
 
-            public void OnCallFromAlice(CallContext callContext)
+            public async void OnCallFromAlice(CallContext callContext)
             {
-                // is a Persistent interface
-                if (callContext.InterfaceId == PersistentInterfaceId)
+                // is a Restorer interface
+                if (callContext.InterfaceId == RestorerInterfaceId && callContext.MethodId == RestoreMethodId)
                 {
-                    var result = CapnpSerializable.Create<Mas.Rpc.Persistence.Persistent.Result_Save>(callContext.OutArgs);
-                    var res = _registry.Restorer.Save(new BareProxy((ConsumedCapability)callContext.Bob));
-                    result.SturdyRef = res.SturdyRef;
-                    result.UnsaveSR = res.UnsaveSR;
-                    var resultWriter = SerializerState.CreateForRpc<Mas.Rpc.Persistence.Persistent.Result_Save.WRITER>();
-                    result.serialize(resultWriter);
-                    callContext.OutArgs = resultWriter;
-                    callContext.ReturnToAlice();
+                    P.Restorer.Params_Restore args = new();
+                    (args as ICapnpSerializable).Serialize(callContext.InArgs);
+                    var extSRT = args.SrToken;
+                    var (vatId, intSRT) = _registry._extSRT2VatIdAndIntSRT[extSRT];
+                    //P.IRestorer restorer = null;
+                    if (_registry._vatId2Restorer.TryGetValue(vatId, out var restorer)) {
+                        var result = CapnpSerializable.Create<P.Restorer.Result_Restore>(callContext.OutArgs);
+                        var res = await restorer.Restore(intSRT);
+                        result.Cap = res;
+                        var resultWriter = SerializerState.CreateForRpc<P.Restorer.Result_Restore.WRITER>();
+                        result.serialize(resultWriter);
+                        callContext.OutArgs = resultWriter;
+                        callContext.ReturnToAlice();
+                    }
+                    else callContext.ReturnToAlice();
                 } 
                 else
                     callContext.ForwardToBob();
@@ -370,7 +412,22 @@ namespace Mas.Infrastructure.ServiceRegistry
 
             public void OnReturnFromBob(CallContext callContext)
             {
-                callContext.ReturnToAlice();
+                if (callContext.InterfaceId == PersistentInterfaceId && callContext.MethodId == SaveMethodId)
+                {
+                    var result = CapnpSerializable.Create<P.Persistent.SaveResults>(callContext.OutArgs);
+                    var intSRT = (string)result.SturdyRef.TheTransient.LocalRef;
+                    var vid = result.SturdyRef.TheTransient.Vat.Id;
+                    var extSRT = System.Guid.NewGuid().ToString();
+                    _registry._extSRT2VatIdAndIntSRT[extSRT] = 
+                        (new[] { vid.PublicKey0, vid.PublicKey1, vid.PublicKey2, vid.PublicKey3 }, intSRT);
+                    result.SturdyRef = _registry.Restorer.SturdyRef(extSRT);
+                    var resultWriter = SerializerState.CreateForRpc<P.Persistent.SaveResults.WRITER>();
+                    result.serialize(resultWriter);
+                    callContext.OutArgs = resultWriter;
+                    callContext.ReturnToAlice();
+                } 
+                else
+                    callContext.ReturnToAlice();
             }
         }
 

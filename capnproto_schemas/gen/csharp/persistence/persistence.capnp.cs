@@ -795,22 +795,20 @@ namespace Mas.Schema.Persistence
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xc1a7daa0dc36cb65UL), Proxy(typeof(Persistent_Proxy)), Skeleton(typeof(Persistent_Skeleton))]
     public interface IPersistent : IDisposable
     {
-        Task<(string, string)> Save(CancellationToken cancellationToken_ = default);
+        Task<Mas.Schema.Persistence.Persistent.SaveResults> Save(Mas.Schema.Persistence.Persistent.SaveParams arg_, CancellationToken cancellationToken_ = default);
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xc1a7daa0dc36cb65UL)]
     public class Persistent_Proxy : Proxy, IPersistent
     {
-        public async Task<(string, string)> Save(CancellationToken cancellationToken_ = default)
+        public async Task<Mas.Schema.Persistence.Persistent.SaveResults> Save(Mas.Schema.Persistence.Persistent.SaveParams arg_, CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.Persistent.Params_Save.WRITER>();
-            var arg_ = new Mas.Schema.Persistence.Persistent.Params_Save()
-            {};
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.Persistent.SaveParams.WRITER>();
             arg_?.serialize(in_);
             using (var d_ = await Call(13954362354854972261UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Schema.Persistence.Persistent.Result_Save>(d_);
-                return (r_.SturdyRef, r_.UnsaveSR);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Persistence.Persistent.SaveResults>(d_);
+                return r_;
             }
         }
     }
@@ -828,10 +826,9 @@ namespace Mas.Schema.Persistence
         {
             using (d_)
             {
-                return Impatient.MaybeTailCall(Impl.Save(cancellationToken_), (sturdyRef, unsaveSR) =>
+                return Impatient.MaybeTailCall(Impl.Save(CapnpSerializable.Create<Mas.Schema.Persistence.Persistent.SaveParams>(d_), cancellationToken_), r_ =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.Persistent.Result_Save.WRITER>();
-                    var r_ = new Mas.Schema.Persistence.Persistent.Result_Save{SturdyRef = sturdyRef, UnsaveSR = unsaveSR};
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.Persistent.SaveResults.WRITER>();
                     r_.serialize(s_);
                     return s_;
                 }
@@ -843,18 +840,20 @@ namespace Mas.Schema.Persistence
 
     public static class Persistent
     {
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xffc59cb2d8a71502UL)]
-        public class Params_Save : ICapnpSerializable
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xd5e0aac4225e0343UL)]
+        public class SaveParams : ICapnpSerializable
         {
-            public const UInt64 typeId = 0xffc59cb2d8a71502UL;
+            public const UInt64 typeId = 0xd5e0aac4225e0343UL;
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
+                SealFor = CapnpSerializable.Create<Mas.Schema.Persistence.SturdyRef.Owner>(reader.SealFor);
                 applyDefaults();
             }
 
             public void serialize(WRITER writer)
             {
+                SealFor?.serialize(writer.SealFor);
             }
 
             void ICapnpSerializable.Serialize(SerializerState arg_)
@@ -864,6 +863,12 @@ namespace Mas.Schema.Persistence
 
             public void applyDefaults()
             {
+            }
+
+            public Mas.Schema.Persistence.SturdyRef.Owner SealFor
+            {
+                get;
+                set;
             }
 
             public struct READER
@@ -877,33 +882,41 @@ namespace Mas.Schema.Persistence
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                public Mas.Schema.Persistence.SturdyRef.Owner.READER SealFor => ctx.ReadStruct(0, Mas.Schema.Persistence.SturdyRef.Owner.READER.create);
+                public bool HasSealFor => ctx.IsStructFieldNonNull(0);
             }
 
             public class WRITER : SerializerState
             {
                 public WRITER()
                 {
-                    this.SetStruct(0, 0);
+                    this.SetStruct(0, 1);
+                }
+
+                public Mas.Schema.Persistence.SturdyRef.Owner.WRITER SealFor
+                {
+                    get => BuildPointer<Mas.Schema.Persistence.SturdyRef.Owner.WRITER>(0);
+                    set => Link(0, value);
                 }
             }
         }
 
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xef80b08e84155cc2UL)]
-        public class Result_Save : ICapnpSerializable
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xdc5bd1ef982cec13UL)]
+        public class SaveResults : ICapnpSerializable
         {
-            public const UInt64 typeId = 0xef80b08e84155cc2UL;
+            public const UInt64 typeId = 0xdc5bd1ef982cec13UL;
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                SturdyRef = reader.SturdyRef;
-                UnsaveSR = reader.UnsaveSR;
+                SturdyRef = CapnpSerializable.Create<Mas.Schema.Persistence.SturdyRef>(reader.SturdyRef);
+                UnsaveSR = CapnpSerializable.Create<Mas.Schema.Persistence.SturdyRef>(reader.UnsaveSR);
                 applyDefaults();
             }
 
             public void serialize(WRITER writer)
             {
-                writer.SturdyRef = SturdyRef;
-                writer.UnsaveSR = UnsaveSR;
+                SturdyRef?.serialize(writer.SturdyRef);
+                UnsaveSR?.serialize(writer.UnsaveSR);
             }
 
             void ICapnpSerializable.Serialize(SerializerState arg_)
@@ -915,13 +928,13 @@ namespace Mas.Schema.Persistence
             {
             }
 
-            public string SturdyRef
+            public Mas.Schema.Persistence.SturdyRef SturdyRef
             {
                 get;
                 set;
             }
 
-            public string UnsaveSR
+            public Mas.Schema.Persistence.SturdyRef UnsaveSR
             {
                 get;
                 set;
@@ -938,8 +951,10 @@ namespace Mas.Schema.Persistence
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public string SturdyRef => ctx.ReadText(0, null);
-                public string UnsaveSR => ctx.ReadText(1, null);
+                public Mas.Schema.Persistence.SturdyRef.READER SturdyRef => ctx.ReadStruct(0, Mas.Schema.Persistence.SturdyRef.READER.create);
+                public bool HasSturdyRef => ctx.IsStructFieldNonNull(0);
+                public Mas.Schema.Persistence.SturdyRef.READER UnsaveSR => ctx.ReadStruct(1, Mas.Schema.Persistence.SturdyRef.READER.create);
+                public bool HasUnsaveSR => ctx.IsStructFieldNonNull(1);
             }
 
             public class WRITER : SerializerState
@@ -949,16 +964,16 @@ namespace Mas.Schema.Persistence
                     this.SetStruct(0, 2);
                 }
 
-                public string SturdyRef
+                public Mas.Schema.Persistence.SturdyRef.WRITER SturdyRef
                 {
-                    get => this.ReadText(0, null);
-                    set => this.WriteText(0, value, null);
+                    get => BuildPointer<Mas.Schema.Persistence.SturdyRef.WRITER>(0);
+                    set => Link(0, value);
                 }
 
-                public string UnsaveSR
+                public Mas.Schema.Persistence.SturdyRef.WRITER UnsaveSR
                 {
-                    get => this.ReadText(1, null);
-                    set => this.WriteText(1, value, null);
+                    get => BuildPointer<Mas.Schema.Persistence.SturdyRef.WRITER>(1);
+                    set => Link(1, value);
                 }
             }
         }

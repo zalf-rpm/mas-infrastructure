@@ -1455,16 +1455,14 @@ namespace Mas.Schema.Climate
             );
         }
 
-        public async Task<(string, string)> Save(CancellationToken cancellationToken_ = default)
+        public async Task<Mas.Schema.Persistence.Persistent.SaveResults> Save(Mas.Schema.Persistence.Persistent.SaveParams arg_, CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.Persistent.Params_Save.WRITER>();
-            var arg_ = new Mas.Schema.Persistence.Persistent.Params_Save()
-            {};
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.Persistent.SaveParams.WRITER>();
             arg_?.serialize(in_);
             using (var d_ = await Call(13954362354854972261UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Schema.Persistence.Persistent.Result_Save>(d_);
-                return (r_.SturdyRef, r_.UnsaveSR);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Persistence.Persistent.SaveResults>(d_);
+                return r_;
             }
         }
 
@@ -2309,16 +2307,14 @@ namespace Mas.Schema.Climate
             );
         }
 
-        public async Task<(string, string)> Save(CancellationToken cancellationToken_ = default)
+        public async Task<Mas.Schema.Persistence.Persistent.SaveResults> Save(Mas.Schema.Persistence.Persistent.SaveParams arg_, CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.Persistent.Params_Save.WRITER>();
-            var arg_ = new Mas.Schema.Persistence.Persistent.Params_Save()
-            {};
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.Persistent.SaveParams.WRITER>();
             arg_?.serialize(in_);
             using (var d_ = await Call(13954362354854972261UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Schema.Persistence.Persistent.Result_Save>(d_);
-                return (r_.SturdyRef, r_.UnsaveSR);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Persistence.Persistent.SaveResults>(d_);
+                return r_;
             }
         }
 
@@ -3579,16 +3575,14 @@ namespace Mas.Schema.Climate
             );
         }
 
-        public async Task<(string, string)> Save(CancellationToken cancellationToken_ = default)
+        public async Task<Mas.Schema.Persistence.Persistent.SaveResults> Save(Mas.Schema.Persistence.Persistent.SaveParams arg_, CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.Persistent.Params_Save.WRITER>();
-            var arg_ = new Mas.Schema.Persistence.Persistent.Params_Save()
-            {};
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.Persistent.SaveParams.WRITER>();
             arg_?.serialize(in_);
             using (var d_ = await Call(13954362354854972261UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Schema.Persistence.Persistent.Result_Save>(d_);
-                return (r_.SturdyRef, r_.UnsaveSR);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Persistence.Persistent.SaveResults>(d_);
+                return r_;
             }
         }
 
@@ -4422,16 +4416,14 @@ namespace Mas.Schema.Climate
             );
         }
 
-        public async Task<(string, string)> Save(CancellationToken cancellationToken_ = default)
+        public async Task<Mas.Schema.Persistence.Persistent.SaveResults> Save(Mas.Schema.Persistence.Persistent.SaveParams arg_, CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.Persistent.Params_Save.WRITER>();
-            var arg_ = new Mas.Schema.Persistence.Persistent.Params_Save()
-            {};
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.Persistent.SaveParams.WRITER>();
             arg_?.serialize(in_);
             using (var d_ = await Call(13954362354854972261UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Schema.Persistence.Persistent.Result_Save>(d_);
-                return (r_.SturdyRef, r_.UnsaveSR);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Persistence.Persistent.SaveResults>(d_);
+                return r_;
             }
         }
 

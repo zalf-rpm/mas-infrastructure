@@ -1360,17 +1360,15 @@ namespace Mas.Schema.Registry
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xabaef93c36f2d1eaUL), Proxy(typeof(Registrar_Proxy)), Skeleton(typeof(Registrar_Skeleton))]
     public interface IRegistrar : Mas.Schema.Common.IIdentifiable
     {
-        Task<(Mas.Schema.Common.IAction, string)> Register(Mas.Schema.Common.IIdentifiable cap, string regName, string categoryId, CancellationToken cancellationToken_ = default);
+        Task<(Mas.Schema.Common.IAction, Mas.Schema.Persistence.SturdyRef)> Register(Mas.Schema.Registry.Registrar.RegParams arg_, CancellationToken cancellationToken_ = default);
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xabaef93c36f2d1eaUL)]
     public class Registrar_Proxy : Proxy, IRegistrar
     {
-        public Task<(Mas.Schema.Common.IAction, string)> Register(Mas.Schema.Common.IIdentifiable cap, string regName, string categoryId, CancellationToken cancellationToken_ = default)
+        public Task<(Mas.Schema.Common.IAction, Mas.Schema.Persistence.SturdyRef)> Register(Mas.Schema.Registry.Registrar.RegParams arg_, CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Schema.Registry.Registrar.Params_Register.WRITER>();
-            var arg_ = new Mas.Schema.Registry.Registrar.Params_Register()
-            {Cap = cap, RegName = regName, CategoryId = categoryId};
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Registry.Registrar.RegParams.WRITER>();
             arg_?.serialize(in_);
             return Impatient.MakePipelineAware(Call(12371099263448568298UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
             {
@@ -1411,8 +1409,7 @@ namespace Mas.Schema.Registry
         {
             using (d_)
             {
-                var in_ = CapnpSerializable.Create<Mas.Schema.Registry.Registrar.Params_Register>(d_);
-                return Impatient.MaybeTailCall(Impl.Register(in_.Cap, in_.RegName, in_.CategoryId, cancellationToken_), (unreg, reregSR) =>
+                return Impatient.MaybeTailCall(Impl.Register(CapnpSerializable.Create<Mas.Schema.Registry.Registrar.RegParams>(d_), cancellationToken_), (unreg, reregSR) =>
                 {
                     var s_ = SerializerState.CreateForRpc<Mas.Schema.Registry.Registrar.Result_Register.WRITER>();
                     var r_ = new Mas.Schema.Registry.Registrar.Result_Register{Unreg = unreg, ReregSR = reregSR};
@@ -1427,16 +1424,93 @@ namespace Mas.Schema.Registry
 
     public static class Registrar
     {
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x98ee0ca0962009bcUL)]
-        public class Params_Register : ICapnpSerializable
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xaa1198dd7e71b20eUL)]
+        public class CrossDomainRestore : ICapnpSerializable
         {
-            public const UInt64 typeId = 0x98ee0ca0962009bcUL;
+            public const UInt64 typeId = 0xaa1198dd7e71b20eUL;
+            void ICapnpSerializable.Deserialize(DeserializerState arg_)
+            {
+                var reader = READER.create(arg_);
+                VatId = CapnpSerializable.Create<Mas.Schema.Persistence.VatId>(reader.VatId);
+                Restorer = reader.Restorer;
+                applyDefaults();
+            }
+
+            public void serialize(WRITER writer)
+            {
+                VatId?.serialize(writer.VatId);
+                writer.Restorer = Restorer;
+            }
+
+            void ICapnpSerializable.Serialize(SerializerState arg_)
+            {
+                serialize(arg_.Rewrap<WRITER>());
+            }
+
+            public void applyDefaults()
+            {
+            }
+
+            public Mas.Schema.Persistence.VatId VatId
+            {
+                get;
+                set;
+            }
+
+            public Mas.Schema.Persistence.IRestorer Restorer
+            {
+                get;
+                set;
+            }
+
+            public struct READER
+            {
+                readonly DeserializerState ctx;
+                public READER(DeserializerState ctx)
+                {
+                    this.ctx = ctx;
+                }
+
+                public static READER create(DeserializerState ctx) => new READER(ctx);
+                public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                public Mas.Schema.Persistence.VatId.READER VatId => ctx.ReadStruct(0, Mas.Schema.Persistence.VatId.READER.create);
+                public bool HasVatId => ctx.IsStructFieldNonNull(0);
+                public Mas.Schema.Persistence.IRestorer Restorer => ctx.ReadCap<Mas.Schema.Persistence.IRestorer>(1);
+            }
+
+            public class WRITER : SerializerState
+            {
+                public WRITER()
+                {
+                    this.SetStruct(0, 2);
+                }
+
+                public Mas.Schema.Persistence.VatId.WRITER VatId
+                {
+                    get => BuildPointer<Mas.Schema.Persistence.VatId.WRITER>(0);
+                    set => Link(0, value);
+                }
+
+                public Mas.Schema.Persistence.IRestorer Restorer
+                {
+                    get => ReadCap<Mas.Schema.Persistence.IRestorer>(1);
+                    set => LinkObject(1, value);
+                }
+            }
+        }
+
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xe5a84717ea75fb0dUL)]
+        public class RegParams : ICapnpSerializable
+        {
+            public const UInt64 typeId = 0xe5a84717ea75fb0dUL;
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
                 Cap = reader.Cap;
                 RegName = reader.RegName;
                 CategoryId = reader.CategoryId;
+                XDomain = CapnpSerializable.Create<Mas.Schema.Registry.Registrar.CrossDomainRestore>(reader.XDomain);
                 applyDefaults();
             }
 
@@ -1445,6 +1519,7 @@ namespace Mas.Schema.Registry
                 writer.Cap = Cap;
                 writer.RegName = RegName;
                 writer.CategoryId = CategoryId;
+                XDomain?.serialize(writer.XDomain);
             }
 
             void ICapnpSerializable.Serialize(SerializerState arg_)
@@ -1474,6 +1549,12 @@ namespace Mas.Schema.Registry
                 set;
             }
 
+            public Mas.Schema.Registry.Registrar.CrossDomainRestore XDomain
+            {
+                get;
+                set;
+            }
+
             public struct READER
             {
                 readonly DeserializerState ctx;
@@ -1488,13 +1569,15 @@ namespace Mas.Schema.Registry
                 public Mas.Schema.Common.IIdentifiable Cap => ctx.ReadCap<Mas.Schema.Common.IIdentifiable>(0);
                 public string RegName => ctx.ReadText(1, null);
                 public string CategoryId => ctx.ReadText(2, null);
+                public Mas.Schema.Registry.Registrar.CrossDomainRestore.READER XDomain => ctx.ReadStruct(3, Mas.Schema.Registry.Registrar.CrossDomainRestore.READER.create);
+                public bool HasXDomain => ctx.IsStructFieldNonNull(3);
             }
 
             public class WRITER : SerializerState
             {
                 public WRITER()
                 {
-                    this.SetStruct(0, 3);
+                    this.SetStruct(0, 4);
                 }
 
                 public Mas.Schema.Common.IIdentifiable Cap
@@ -1514,6 +1597,12 @@ namespace Mas.Schema.Registry
                     get => this.ReadText(2, null);
                     set => this.WriteText(2, value, null);
                 }
+
+                public Mas.Schema.Registry.Registrar.CrossDomainRestore.WRITER XDomain
+                {
+                    get => BuildPointer<Mas.Schema.Registry.Registrar.CrossDomainRestore.WRITER>(3);
+                    set => Link(3, value);
+                }
             }
         }
 
@@ -1525,14 +1614,14 @@ namespace Mas.Schema.Registry
             {
                 var reader = READER.create(arg_);
                 Unreg = reader.Unreg;
-                ReregSR = reader.ReregSR;
+                ReregSR = CapnpSerializable.Create<Mas.Schema.Persistence.SturdyRef>(reader.ReregSR);
                 applyDefaults();
             }
 
             public void serialize(WRITER writer)
             {
                 writer.Unreg = Unreg;
-                writer.ReregSR = ReregSR;
+                ReregSR?.serialize(writer.ReregSR);
             }
 
             void ICapnpSerializable.Serialize(SerializerState arg_)
@@ -1550,7 +1639,7 @@ namespace Mas.Schema.Registry
                 set;
             }
 
-            public string ReregSR
+            public Mas.Schema.Persistence.SturdyRef ReregSR
             {
                 get;
                 set;
@@ -1568,7 +1657,8 @@ namespace Mas.Schema.Registry
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
                 public Mas.Schema.Common.IAction Unreg => ctx.ReadCap<Mas.Schema.Common.IAction>(0);
-                public string ReregSR => ctx.ReadText(1, null);
+                public Mas.Schema.Persistence.SturdyRef.READER ReregSR => ctx.ReadStruct(1, Mas.Schema.Persistence.SturdyRef.READER.create);
+                public bool HasReregSR => ctx.IsStructFieldNonNull(1);
             }
 
             public class WRITER : SerializerState
@@ -1584,10 +1674,10 @@ namespace Mas.Schema.Registry
                     set => LinkObject(0, value);
                 }
 
-                public string ReregSR
+                public Mas.Schema.Persistence.SturdyRef.WRITER ReregSR
                 {
-                    get => this.ReadText(1, null);
-                    set => this.WriteText(1, value, null);
+                    get => BuildPointer<Mas.Schema.Persistence.SturdyRef.WRITER>(1);
+                    set => Link(1, value);
                 }
             }
         }

@@ -1886,8 +1886,6 @@ namespace Mas.Schema.Model.Monica
                 void ICapnpSerializable.Deserialize(DeserializerState arg_)
                 {
                     var reader = READER.create(arg_);
-                    Id = reader.Id;
-                    Name = reader.Name;
                     Carbamid = reader.Carbamid;
                     Nh4 = reader.Nh4;
                     No3 = reader.No3;
@@ -1896,8 +1894,6 @@ namespace Mas.Schema.Model.Monica
 
                 public void serialize(WRITER writer)
                 {
-                    writer.Id = Id;
-                    writer.Name = Name;
                     writer.Carbamid = Carbamid;
                     writer.Nh4 = Nh4;
                     writer.No3 = No3;
@@ -1910,18 +1906,6 @@ namespace Mas.Schema.Model.Monica
 
                 public void applyDefaults()
                 {
-                }
-
-                public string Id
-                {
-                    get;
-                    set;
-                }
-
-                public string Name
-                {
-                    get;
-                    set;
                 }
 
                 public double Carbamid
@@ -1953,8 +1937,6 @@ namespace Mas.Schema.Model.Monica
                     public static READER create(DeserializerState ctx) => new READER(ctx);
                     public static implicit operator DeserializerState(READER reader) => reader.ctx;
                     public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                    public string Id => ctx.ReadText(0, null);
-                    public string Name => ctx.ReadText(1, null);
                     public double Carbamid => ctx.ReadDataDouble(0UL, 0);
                     public double Nh4 => ctx.ReadDataDouble(64UL, 0);
                     public double No3 => ctx.ReadDataDouble(128UL, 0);
@@ -1964,19 +1946,7 @@ namespace Mas.Schema.Model.Monica
                 {
                     public WRITER()
                     {
-                        this.SetStruct(3, 2);
-                    }
-
-                    public string Id
-                    {
-                        get => this.ReadText(0, null);
-                        set => this.WriteText(0, value, null);
-                    }
-
-                    public string Name
-                    {
-                        get => this.ReadText(1, null);
-                        set => this.WriteText(1, value, null);
+                        this.SetStruct(3, 0);
                     }
 
                     public double Carbamid
@@ -2748,9 +2718,9 @@ namespace Mas.Schema.Model.Monica
     {
         Task<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters> MineralFertilizerPartitionFor(Mas.Schema.Model.Monica.MineralFertilizer minFert, CancellationToken cancellationToken_ = default);
         Task<Mas.Schema.Model.Monica.Params.OrganicFertilization.Parameters> OrganicFertilizerParametersFor(Mas.Schema.Model.Monica.OrganicFertilizer orgFert, CancellationToken cancellationToken_ = default);
-        Task<IReadOnlyList<Mas.Schema.Model.Monica.FertilizerService.Entry<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters>>> AvailableMineralFertilizers(CancellationToken cancellationToken_ = default);
-        Task<IReadOnlyList<Mas.Schema.Model.Monica.FertilizerService.Entry<Mas.Schema.Model.Monica.Params.OrganicFertilization.OrganicMatterParameters>>> AvailableOrganicFertilizers(CancellationToken cancellationToken_ = default);
-        Task<IReadOnlyList<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters>> MineralFertilizer(string id, CancellationToken cancellationToken_ = default);
+        Task<IReadOnlyList<Mas.Schema.Model.Monica.FertilizerService.Entry>> AvailableMineralFertilizers(CancellationToken cancellationToken_ = default);
+        Task<IReadOnlyList<Mas.Schema.Model.Monica.FertilizerService.Entry>> AvailableOrganicFertilizers(CancellationToken cancellationToken_ = default);
+        Task<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters> MineralFertilizer(string id, CancellationToken cancellationToken_ = default);
         Task<Mas.Schema.Model.Monica.Params.OrganicFertilization.OrganicMatterParameters> OrganicFertilizer(string id, CancellationToken cancellationToken_ = default);
     }
 
@@ -2783,7 +2753,7 @@ namespace Mas.Schema.Model.Monica
             }
         }
 
-        public Task<IReadOnlyList<Mas.Schema.Model.Monica.FertilizerService.Entry<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters>>> AvailableMineralFertilizers(CancellationToken cancellationToken_ = default)
+        public Task<IReadOnlyList<Mas.Schema.Model.Monica.FertilizerService.Entry>> AvailableMineralFertilizers(CancellationToken cancellationToken_ = default)
         {
             var in_ = SerializerState.CreateForRpc<Mas.Schema.Model.Monica.FertilizerService.Params_AvailableMineralFertilizers.WRITER>();
             var arg_ = new Mas.Schema.Model.Monica.FertilizerService.Params_AvailableMineralFertilizers()
@@ -2801,7 +2771,7 @@ namespace Mas.Schema.Model.Monica
             );
         }
 
-        public Task<IReadOnlyList<Mas.Schema.Model.Monica.FertilizerService.Entry<Mas.Schema.Model.Monica.Params.OrganicFertilization.OrganicMatterParameters>>> AvailableOrganicFertilizers(CancellationToken cancellationToken_ = default)
+        public Task<IReadOnlyList<Mas.Schema.Model.Monica.FertilizerService.Entry>> AvailableOrganicFertilizers(CancellationToken cancellationToken_ = default)
         {
             var in_ = SerializerState.CreateForRpc<Mas.Schema.Model.Monica.FertilizerService.Params_AvailableOrganicFertilizers.WRITER>();
             var arg_ = new Mas.Schema.Model.Monica.FertilizerService.Params_AvailableOrganicFertilizers()
@@ -2819,7 +2789,7 @@ namespace Mas.Schema.Model.Monica
             );
         }
 
-        public async Task<IReadOnlyList<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters>> MineralFertilizer(string id, CancellationToken cancellationToken_ = default)
+        public async Task<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters> MineralFertilizer(string id, CancellationToken cancellationToken_ = default)
         {
             var in_ = SerializerState.CreateForRpc<Mas.Schema.Model.Monica.FertilizerService.Params_MineralFertilizer.WRITER>();
             var arg_ = new Mas.Schema.Model.Monica.FertilizerService.Params_MineralFertilizer()
@@ -2972,7 +2942,7 @@ namespace Mas.Schema.Model.Monica
     public static class FertilizerService
     {
         [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xf54586500e2b72cdUL)]
-        public class Entry<TT> : ICapnpSerializable where TT : class
+        public class Entry : ICapnpSerializable
         {
             public const UInt64 typeId = 0xf54586500e2b72cdUL;
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
@@ -3004,7 +2974,7 @@ namespace Mas.Schema.Model.Monica
                 set;
             }
 
-            public Mas.Schema.Common.IValueHolder<TT> Ref
+            public Mas.Schema.Common.IAnyValueHolder Ref
             {
                 get;
                 set;
@@ -3023,7 +2993,7 @@ namespace Mas.Schema.Model.Monica
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
                 public Mas.Schema.Common.IdInformation.READER Info => ctx.ReadStruct(0, Mas.Schema.Common.IdInformation.READER.create);
                 public bool HasInfo => ctx.IsStructFieldNonNull(0);
-                public Mas.Schema.Common.IValueHolder<TT> Ref => ctx.ReadCap<Mas.Schema.Common.IValueHolder<TT>>(1);
+                public Mas.Schema.Common.IAnyValueHolder Ref => ctx.ReadCap<Mas.Schema.Common.IAnyValueHolder>(1);
             }
 
             public class WRITER : SerializerState
@@ -3039,9 +3009,9 @@ namespace Mas.Schema.Model.Monica
                     set => Link(0, value);
                 }
 
-                public Mas.Schema.Common.IValueHolder<TT> Ref
+                public Mas.Schema.Common.IAnyValueHolder Ref
                 {
-                    get => ReadCap<Mas.Schema.Common.IValueHolder<TT>>(1);
+                    get => ReadCap<Mas.Schema.Common.IAnyValueHolder>(1);
                     set => LinkObject(1, value);
                 }
             }
@@ -3341,7 +3311,7 @@ namespace Mas.Schema.Model.Monica
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Entries = reader.Entries?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Model.Monica.FertilizerService.Entry<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters>>(_));
+                Entries = reader.Entries?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Model.Monica.FertilizerService.Entry>(_));
                 applyDefaults();
             }
 
@@ -3359,7 +3329,7 @@ namespace Mas.Schema.Model.Monica
             {
             }
 
-            public IReadOnlyList<Mas.Schema.Model.Monica.FertilizerService.Entry<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters>> Entries
+            public IReadOnlyList<Mas.Schema.Model.Monica.FertilizerService.Entry> Entries
             {
                 get;
                 set;
@@ -3376,7 +3346,7 @@ namespace Mas.Schema.Model.Monica
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public IReadOnlyList<Mas.Schema.Model.Monica.FertilizerService.Entry<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters>.READER> Entries => ctx.ReadList(0).Cast(Mas.Schema.Model.Monica.FertilizerService.Entry<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters>.READER.create);
+                public IReadOnlyList<Mas.Schema.Model.Monica.FertilizerService.Entry.READER> Entries => ctx.ReadList(0).Cast(Mas.Schema.Model.Monica.FertilizerService.Entry.READER.create);
                 public bool HasEntries => ctx.IsStructFieldNonNull(0);
             }
 
@@ -3387,9 +3357,9 @@ namespace Mas.Schema.Model.Monica
                     this.SetStruct(0, 1);
                 }
 
-                public ListOfStructsSerializer<Mas.Schema.Model.Monica.FertilizerService.Entry<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters>.WRITER> Entries
+                public ListOfStructsSerializer<Mas.Schema.Model.Monica.FertilizerService.Entry.WRITER> Entries
                 {
-                    get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Model.Monica.FertilizerService.Entry<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters>.WRITER>>(0);
+                    get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Model.Monica.FertilizerService.Entry.WRITER>>(0);
                     set => Link(0, value);
                 }
             }
@@ -3447,7 +3417,7 @@ namespace Mas.Schema.Model.Monica
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Entries = reader.Entries?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Model.Monica.FertilizerService.Entry<Mas.Schema.Model.Monica.Params.OrganicFertilization.OrganicMatterParameters>>(_));
+                Entries = reader.Entries?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Model.Monica.FertilizerService.Entry>(_));
                 applyDefaults();
             }
 
@@ -3465,7 +3435,7 @@ namespace Mas.Schema.Model.Monica
             {
             }
 
-            public IReadOnlyList<Mas.Schema.Model.Monica.FertilizerService.Entry<Mas.Schema.Model.Monica.Params.OrganicFertilization.OrganicMatterParameters>> Entries
+            public IReadOnlyList<Mas.Schema.Model.Monica.FertilizerService.Entry> Entries
             {
                 get;
                 set;
@@ -3482,7 +3452,7 @@ namespace Mas.Schema.Model.Monica
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public IReadOnlyList<Mas.Schema.Model.Monica.FertilizerService.Entry<Mas.Schema.Model.Monica.Params.OrganicFertilization.OrganicMatterParameters>.READER> Entries => ctx.ReadList(0).Cast(Mas.Schema.Model.Monica.FertilizerService.Entry<Mas.Schema.Model.Monica.Params.OrganicFertilization.OrganicMatterParameters>.READER.create);
+                public IReadOnlyList<Mas.Schema.Model.Monica.FertilizerService.Entry.READER> Entries => ctx.ReadList(0).Cast(Mas.Schema.Model.Monica.FertilizerService.Entry.READER.create);
                 public bool HasEntries => ctx.IsStructFieldNonNull(0);
             }
 
@@ -3493,9 +3463,9 @@ namespace Mas.Schema.Model.Monica
                     this.SetStruct(0, 1);
                 }
 
-                public ListOfStructsSerializer<Mas.Schema.Model.Monica.FertilizerService.Entry<Mas.Schema.Model.Monica.Params.OrganicFertilization.OrganicMatterParameters>.WRITER> Entries
+                public ListOfStructsSerializer<Mas.Schema.Model.Monica.FertilizerService.Entry.WRITER> Entries
                 {
-                    get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Model.Monica.FertilizerService.Entry<Mas.Schema.Model.Monica.Params.OrganicFertilization.OrganicMatterParameters>.WRITER>>(0);
+                    get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Model.Monica.FertilizerService.Entry.WRITER>>(0);
                     set => Link(0, value);
                 }
             }
@@ -3568,13 +3538,13 @@ namespace Mas.Schema.Model.Monica
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Fert = reader.Fert?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters>(_));
+                Fert = CapnpSerializable.Create<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters>(reader.Fert);
                 applyDefaults();
             }
 
             public void serialize(WRITER writer)
             {
-                writer.Fert.Init(Fert, (_s1, _v1) => _v1?.serialize(_s1));
+                Fert?.serialize(writer.Fert);
             }
 
             void ICapnpSerializable.Serialize(SerializerState arg_)
@@ -3586,7 +3556,7 @@ namespace Mas.Schema.Model.Monica
             {
             }
 
-            public IReadOnlyList<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters> Fert
+            public Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters Fert
             {
                 get;
                 set;
@@ -3603,7 +3573,7 @@ namespace Mas.Schema.Model.Monica
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public IReadOnlyList<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters.READER> Fert => ctx.ReadList(0).Cast(Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters.READER.create);
+                public Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters.READER Fert => ctx.ReadStruct(0, Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters.READER.create);
                 public bool HasFert => ctx.IsStructFieldNonNull(0);
             }
 
@@ -3614,9 +3584,9 @@ namespace Mas.Schema.Model.Monica
                     this.SetStruct(0, 1);
                 }
 
-                public ListOfStructsSerializer<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters.WRITER> Fert
+                public Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters.WRITER Fert
                 {
-                    get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters.WRITER>>(0);
+                    get => BuildPointer<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters.WRITER>(0);
                     set => Link(0, value);
                 }
             }

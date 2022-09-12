@@ -1,11 +1,8 @@
 ﻿using Capnp.Rpc;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,7 +13,8 @@ namespace Mas.Infrastructure.Common
         private ConcurrentDictionary<string, Proxy> _srToken2Capability = new();
 
         public string TcpHost { get; set; } 
-        public int TcpPort { get; set; }
+        public ushort TcpPort { get; set; }
+        public byte[] VatId { get; set; }
 
         public Restorer()
         {
@@ -38,10 +36,12 @@ namespace Mas.Infrastructure.Common
 
         public struct SaveRes 
         {
-            public string SturdyRef { get; set; }
-            public string SRToken { get; set; }
-            public string UnsaveSR { get; set; } 
-            public string UnsaveSRToken { get; set; }
+            public Mas.Schema.Persistence.SturdyRef SturdyRef { get; set; }
+            public Mas.Schema.Persistence.SturdyRef UnsaveSR { get; set; } 
+            //public string SturdyRefStr { get; set; }
+            //public string SRToken { get; set; }
+            //public string UnsaveSR { get; set; } 
+            //public string UnsaveSRToken { get; set; }
             public Action UnsaveAction { get; set; }
         }
 
@@ -56,9 +56,9 @@ namespace Mas.Infrastructure.Common
                 _srToken2Capability[unsaveSRToken] = BareProxy.FromImpl(unsaveAction);
                 return new SaveRes { 
                     SturdyRef = SturdyRef(srToken), 
-                    SRToken = srToken,
+                    //SRToken = srToken,
                     UnsaveSR = SturdyRef(unsaveSRToken),
-                    UnsaveSRToken = unsaveSRToken,
+                    //UnsaveSRToken = unsaveSRToken,
                     UnsaveAction = unsaveAction
                 };
             }
@@ -66,14 +66,38 @@ namespace Mas.Infrastructure.Common
             {
                 return new SaveRes { 
                     SturdyRef = SturdyRef(srToken), 
-                    SRToken = srToken
+                    //SRToken = srToken
                 };  
             }   
         }
 
-        public string SturdyRef(string srToken)
+        public string SturdyRefStr(string srToken)
         {
             return $"capnp://insecure@{TcpHost}:{TcpPort}/{srToken}";
+        }
+
+        public Mas.Schema.Persistence.SturdyRef SturdyRef(string srToken)
+        {
+            var vid = VatId;
+            if(!BitConverter.IsLittleEndian) Array.Reverse(vid, 0, vid.Length);
+
+            return new Schema.Persistence.SturdyRef(){
+                TheTransient = new Schema.Persistence.SturdyRef.Transient(){
+                    Vat = new Schema.Persistence.VatPath {
+                        Id = new Schema.Persistence.VatId {
+                            PublicKey0 = BitConverter.ToUInt64(vid, 0),
+                            PublicKey1 = BitConverter.ToUInt64(vid, 8),
+                            PublicKey2 = BitConverter.ToUInt64(vid, 16),
+                            PublicKey3 = BitConverter.ToUInt64(vid, 24)
+                        },
+                        Address = new Schema.Persistence.Address {
+                            Host = TcpHost,
+                            Port = TcpPort
+                        }
+                    },
+                    LocalRef = srToken
+                }
+            };
         }
 
         public void Unsave(string srToken)
@@ -81,7 +105,7 @@ namespace Mas.Infrastructure.Common
             _srToken2Capability.TryRemove(srToken, out _);
         }
 
-        #region implementation of Mas.Rpc.Persistence.Restorer
+        #region implementation of Mas.Schema.Persistence.Restorer
         public Task<BareProxy> Restore(string srToken, CancellationToken cancellationToken_ = default)
         {
             if (_srToken2Capability.ContainsKey(srToken))
@@ -133,15 +157,25 @@ namespace Mas.Infrastructure.Common
         }
 
         #region implementation of Persistence.IPersistent
-        public Task<(string, string)> Save(CancellationToken cancellationToken_ = default)
+        public Task<Mas.Schema.Persistence.Persistent.SaveResults> Save(Mas.Schema.Persistence.Persistent.SaveParams ps, CancellationToken cancellationToken_ = default)
         {
             if(_restorer == null)
-                return Task.FromResult<(string, string)>((null, null));
+                return Task.FromResult<Mas.Schema.Persistence.Persistent.SaveResults>(null);//Task.FromResult<(string, string)>((null, null));
             else {
                 var res = _restorer.Save(BareProxy.FromImpl(this));
-                return Task.FromResult<(string, string)>((res.SturdyRef, res.UnsaveSR));
+                return Task.FromResult<Mas.Schema.Persistence.Persistent.SaveResults>(
+                    new Mas.Schema.Persistence.Persistent.SaveResults(){ SturdyRef = res.SturdyRef});//Task.FromResult<(string, string)>((res.SturdyRef, res.UnsaveSR));
             }
         }
+        // public Task<(string, string)> Save(CancellationToken cancellationToken_ = default)
+        // {
+        //     if(_restorer == null)
+        //         return Task.FromResult<(string, string)>((null, null));
+        //     else {
+        //         var res = _restorer.Save(BareProxy.FromImpl(this));
+        //         return Task.FromResult<(string, string)>((res.SturdyRef, res.UnsaveSR));
+        //     }
+        // }
         #endregion
 
         #region implementation of Common.IAction
@@ -170,16 +204,26 @@ namespace Mas.Infrastructure.Common
         public void Dispose() {}
 
         #region implementation of Persistence.IPersistent
-        public Task<(string, string)> Save(CancellationToken cancellationToken_ = default)
+                public Task<Mas.Schema.Persistence.Persistent.SaveResults> Save(Mas.Schema.Persistence.Persistent.SaveParams ps, CancellationToken cancellationToken_ = default)
         {
             if(_restorer == null)
-                return Task.FromResult<(string, string)>((null, null));
+                return Task.FromResult<Mas.Schema.Persistence.Persistent.SaveResults>(null);//Task.FromResult<(string, string)>((null, null));
             else {
                 var res = _restorer.Save(BareProxy.FromImpl(this));
-                return Task.FromResult<(string, string)>((res.SturdyRef, res.UnsaveSR));
+                return Task.FromResult<Mas.Schema.Persistence.Persistent.SaveResults>(
+                    new Mas.Schema.Persistence.Persistent.SaveResults(){ SturdyRef = res.SturdyRef});//Task.FromResult<(string, string)>((res.SturdyRef, res.UnsaveSR));
             }
-            
         }
+        // public Task<(string, string)> Save(CancellationToken cancellationToken_ = default)
+        // {
+        //     if(_restorer == null)
+        //         return Task.FromResult<(string, string)>((null, null));
+        //     else {
+        //         var res = _restorer.Save(BareProxy.FromImpl(this));
+        //         return Task.FromResult<(string, string)>((res.SturdyRef, res.UnsaveSR));
+        //     }
+            
+        // }
         #endregion
 
 
