@@ -10,6 +10,7 @@ $Go.package("registry");
 $Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/registry");
 
 using Common = import "common.capnp";
+using Persistence = import "persistence.capnp";
 
 interface Admin extends(Common.Identifiable) {
   # administrative interface to a registry
@@ -63,7 +64,24 @@ interface Registrar extends(Common.Identifiable) {
   # use case: a registry creates a sturdy ref of a Registrar capability and 
   # this sturdy ref is used to register a service at the registry
 
-  register @0 (cap :Common.Identifiable, regName :Text, categoryId :Text) -> (unreg :Common.Action, reregSR :Text);
+  struct CrossDomainRestore {
+    # data needed to allow restoring registered caps across domains
+
+    vatId     @0 :Persistence.VatId;
+    # identify the caps Vat
+
+    restorer  @1 :Persistence.Restorer;
+    # capability to the restorer
+  }
+
+  struct RegParams {
+    cap         @0 :Common.Identifiable;
+    regName     @1 :Text;
+    categoryId  @2 :Text;
+    xDomain     @3 :CrossDomainRestore;
+  }
+
+  register @0 RegParams -> (unreg :Common.Action, reregSR :Persistence.SturdyRef);
   # register the given identifiable capability with the given name
   # under the given categoryId which must match one of the supported categories
   # if categoryId or name are null, nothing is registered

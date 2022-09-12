@@ -56,7 +56,7 @@ struct VatPath {
   # Taken from https://github.com/sandstorm-io/blackrock/blob/master/src/blackrock/cluster-rpc.capnp#L60
   # Enough information to connect to a vat securely.
 
-  id @0 :VatId;
+  id      @0 :VatId;
   address @1 :Address;
 }
 
@@ -107,9 +107,31 @@ struct SturdyRef {
 interface Persistent {
   # simplified version of persistent.capnp::Persistent interface
 
-  save @0 () -> (sturdyRef :Text, unsaveSR :Text);
+  save @0 SaveParams -> SaveResults;
+  # Save a capability persistently so that it can be restored by a future connection.  Not all
+  # capabilities can be saved -- application interfaces should define which capabilities support
+  # this and which do not.
+
+  struct SaveParams {
+    sealFor @0 :SturdyRef.Owner;
+    # Seal the SturdyRef so that it can only be restored by the specified Owner. This is meant
+    # to mitigate damage when a SturdyRef is leaked. See comments above.
+    #
+    # Leaving this value null may or may not be allowed; it is up to the realm to decide. If a
+    # realm does allow a null owner, this should indicate that anyone is allowed to restore the
+    # ref.
+  }
+  struct SaveResults {
+    sturdyRef @0 :SturdyRef;
+
+    unsaveSR  @1 :SturdyRef;
+    # sturdy ref refering to an Common.Action capability to unsave the referenced capability
+  }
+
+  #save @0 () -> (sturdyRef :Text, srToken :Text, unsaveSR :Text, unsaveSRToken :Text);
   # create a sturdy ref to be able to restore this object and 
   # optionally return another SR refering to a Common.Action object representing the action to unsave this object
+  # the actual sturdy ref tokens needed for the restorer service are optionally supplied as well
 }
 
 
