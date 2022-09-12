@@ -51,10 +51,17 @@ namespace mas {
 
         std::string getHost() const { return _host; }
         void setHost(std::string h) { _host = h; }
-
-        std::string sturdyRef(std::string srToken = "") const;
+        
+        std::string sturdyRefStr(std::string srToken = "") const;
 
         std::pair<std::string, std::string> save(capnp::Capability::Client cap, std::string srToken = std::string(),
+          bool createUnsave = true);
+
+        void sturdyRef(mas::schema::persistence::SturdyRef::Builder srb, std::string srToken = "") const;
+
+        void save(capnp::Capability::Client cap, 
+          mas::schema::persistence::SturdyRef::Builder sturdyRefBuilder,
+          mas::schema::persistence::SturdyRef::Builder unsaveSRBuilder = nullptr, std::string srToken = std::string(),
           bool createUnsave = true);
 
         void unsave(std::string srToken);

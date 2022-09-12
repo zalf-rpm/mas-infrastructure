@@ -54,13 +54,16 @@ kj::Promise<void> Restorer::restore(RestoreContext context) {
   return kj::READY_NOW;
 }
 
-std::string Restorer::sturdyRef(std::string srToken) const {
+
+
+std::string Restorer::sturdyRefStr(std::string srToken) const {
   if(srToken.empty()) return "capnp://insecure@" + _host + ":" + to_string(_port);
   else return "capnp://insecure@" + _host + ":" + to_string(_port) + "/" + srToken;
 }
 
 std::pair<std::string, std::string> Restorer::save(capnp::Capability::Client cap, 
- std::string srToken, bool createUnsave) {
+  std::string srToken, bool createUnsave) {
+
   if(srToken.empty()) srToken = sole::uuid4().str();
   _issuedSRTokens.insert(kj::str(srToken), cap);
   string unsaveSRToken = "";
@@ -71,8 +74,44 @@ std::pair<std::string, std::string> Restorer::save(capnp::Capability::Client cap
     schema::common::Action::Client unsaveActionClient = kj::mv(unsaveAction);
     _issuedSRTokens.insert(kj::str(unsaveSRToken), unsaveActionClient);
   }
-  return make_pair(sturdyRef(srToken), unsaveSRToken.empty() ? "" : sturdyRef(unsaveSRToken));
+
+  return make_pair(sturdyRefStr(srToken), unsaveSRToken.empty() ? "" : sturdyRefStr(unsaveSRToken));
 }
+
+void Restorer::sturdyRef(mas::schema::persistence::SturdyRef::Builder srb, std::string srToken) const {
+  auto trb = srb.initTransient();
+  auto vpb = trb.initVat();
+  auto ib = vpb.initId();
+  ib.setPublicKey0(0);
+  ib.setPublicKey1(1);
+  ib.setPublicKey2(2);
+  ib.setPublicKey3(3);
+  auto ab = vpb.initAddress();
+  ab.setHost(_host.c_str());
+  ab.setPort(_port);
+  if(!srToken.empty()) trb.initLocalRef().setAs<capnp::Text>(srToken.c_str());
+}
+
+void Restorer::save(capnp::Capability::Client cap, 
+  mas::schema::persistence::SturdyRef::Builder sturdyRefBuilder,
+  mas::schema::persistence::SturdyRef::Builder unsaveSRBuilder, 
+  std::string srToken, bool createUnsave) {
+    
+  if(srToken.empty()) srToken = sole::uuid4().str();
+  _issuedSRTokens.insert(kj::str(srToken), cap);
+  string unsaveSRToken = "";
+  if(createUnsave)
+  {
+    unsaveSRToken = sole::uuid4().str();
+    auto unsaveAction = kj::heap<Action>([this, srToken, unsaveSRToken]() { unsave(srToken); unsave(unsaveSRToken); }); 
+    schema::common::Action::Client unsaveActionClient = kj::mv(unsaveAction);
+    _issuedSRTokens.insert(kj::str(unsaveSRToken), unsaveActionClient);
+    sturdyRef(unsaveSRBuilder, unsaveSRToken);
+  }
+
+  sturdyRef(sturdyRefBuilder, srToken);
+}
+
 
 void Restorer::unsave(std::string srToken) {
   _issuedSRTokens.erase(srToken.c_str());
