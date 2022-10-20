@@ -39,7 +39,7 @@ namespace mas {
       class Restorer final : public mas::schema::persistence::Restorer::Server
       {
         public:
-        Restorer() {}
+        Restorer();
 
         virtual ~Restorer() noexcept(false) {}
 
@@ -69,6 +69,7 @@ namespace mas {
       private:
         std::string _host{ "" };
         int _port{ 0 };
+        uint64_t _vatId[4]{ 0, 0, 0, 0 };
         kj::HashMap<kj::String, capnp::Capability::Client> _issuedSRTokens;
         std::vector<std::function<void()>> _actions;
       };

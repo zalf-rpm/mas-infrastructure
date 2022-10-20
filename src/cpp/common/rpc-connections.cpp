@@ -92,15 +92,30 @@ capnp::Capability::Client ConnectionManager::tryConnectB(kj::AsyncIoContext& ioc
 kj::Promise<capnp::Capability::Client> ConnectionManager::connect(kj::AsyncIoContext& ioc, std::string sturdyRefStr) {
 	capnp::ReaderOptions readerOpts;
 
-	// we assume that a sturdy ref url looks always like capnp://hash-digest-or-insecure@host:port/sturdy-ref-token
+	// we assume that a sturdy ref url looks always like capnp://vat-id-or-insecure@host:port/sturdy-ref-token[?owner=owner_guid]
 	if (sturdyRefStr.substr(0, 8) == "capnp://") {
 		auto atPos = sturdyRefStr.find_first_of("@", 8);
 		if (atPos == string::npos) //unix domain sockets unimplemented
 			return nullptr; 
-		auto hashDigest = sturdyRefStr.substr(8, atPos - 8);
+		auto vatId = sturdyRefStr.substr(8, atPos - 8);
 		auto slashPos = sturdyRefStr.find_first_of("/", atPos);
-		auto addressPort = sturdyRefStr.substr(atPos + 1, slashPos == string::npos ? slashPos : slashPos - atPos - 1);
-		auto srToken = slashPos == string::npos ? "" : sturdyRefStr.substr(slashPos + 1);
+		auto qmPos = sturdyRefStr.find_first_of("?", atPos);
+		std::string addressPort = "";
+		std::string srToken = "";
+		std::string ownerGuid = "";
+		if(slashPos != string::npos){
+			addressPort = sturdyRefStr.substr(atPos + 1, slashPos == string::npos ? slashPos : slashPos - atPos - 1);
+			auto srTokenRest = sturdyRefStr.substr(slashPos + 1);
+			auto qmPos = srTokenRest.find_first_of("?", atPos);
+			srToken = qmPos == string::npos ? srTokenRest : srTokenRest.substr(0, qmPos);
+		} else if(qmPos != string::npos){
+			addressPort = sturdyRefStr.substr(atPos + 1, qmPos == string::npos ? qmPos : qmPos - atPos - 1);
+		} else {
+			addressPort = sturdyRefStr.substr(atPos + 1);
+		}
+		if(qmPos != string::npos){
+			ownerGuid = sturdyRefStr.substr(qmPos + 1 + 6);
+		}
 
 		if (!addressPort.empty()) {
 			KJ_IF_MAYBE(clientContext, _connections.find(addressPort)) {

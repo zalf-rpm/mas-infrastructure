@@ -66,10 +66,10 @@ namespace Mas.Infrastructure.ServiceRegistry
         }
 
         private ConcurrentDictionary<string, RegData> _regId2Entry;
-        private ConcurrentDictionary<string, (ulong[], string)> _extSRT2VatIdAndIntSRT; // mapping of external sturdy ref token to internal one
+        private ConcurrentDictionary<string, (ulong[], string)> _extSRT2VatIdAndIntSRT = new(); // mapping of external sturdy ref token to internal one
         private IInterceptionPolicy _savePolicy;
         private Crypt.Key _key; // ED25519 key
-        private ConcurrentDictionary<ulong[], Mas.Schema.Persistence.IRestorer> _vatId2Restorer;   
+        private ConcurrentDictionary<ulong[], Mas.Schema.Persistence.IRestorer> _vatId2Restorer = new();   
 
         public ServiceRegistry(Crypt.Key key)
         {

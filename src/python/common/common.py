@@ -117,11 +117,13 @@ class Restorer(persistence_capnp.Restorer.Server):
         self._host = h
 
 
-    def sturdy_ref(self, sr_token=None):
-        if sr_token:
-            return "capnp://insecure@{host}:{port}/{sr_token}".format(host=self.host, port=self.port, sr_token=sr_token)
-        else:
-            return "capnp://insecure@{host}:{port}".format(host=self.host, port=self.port)
+    def sturdy_ref(self, sr_token=None, vat_id=None, owner_guid=None):
+        return "capnp://{vat_id}@{host}:{port}{sr_token}{owner_guid}".format(
+            vat_id=vat_id if vat_id else "insecure", 
+            host=self.host, 
+            port=self.port, 
+            sr_token="/" + sr_token if sr_token else "",
+            owner_guid="?" + owner_guid if owner_guid else "")
 
 
     def save(self, cap, sr_token=None, create_unsave=True):
@@ -256,9 +258,15 @@ class ConnectionManager:
         # we assume that a sturdy ref url looks always like capnp://hash-digest-or-insecure@host:port/sturdy-ref-token
         if sturdy_ref[:8] == "capnp://":
             rest = sturdy_ref[8:]
-            hash_digest, rest = rest.split("@") if "@" in rest else (None, rest)
+            vat_id, rest = rest.split("@") if "@" in rest else (None, rest)
             host, rest = rest.split(":")
-            port, sr_token = rest.split("/") if "/" in rest else (rest, None)
+            if "/" in rest:
+                port, rest = rest.split("/") if "/" in rest else (rest, None)
+                sr_token, rest = rest.split("?") if "?" in rest else (rest, None)
+            elif "?" in rest:
+                port, rest = rest.split("?") if "?" in rest else (rest, None)
+            if "?" in rest:
+                owner_guid = rest[6:] if rest and rest[:6] == "owner=" else None
 
             host_port = "{}:{}".format(host, port)
             if host_port in self._connections:

@@ -88,6 +88,8 @@ message(STATUS "CAPNP_SRCS: " "${CAPNP_SRCS}")
 
 #------------------------------------------------------------------------------
 
+find_package(unofficial-sodium CONFIG REQUIRED)
+
 # create common_lib
 add_library(common_lib
 	common.h
@@ -108,6 +110,7 @@ target_link_libraries(common_lib
 	CapnProto::kj
 	CapnProto::kj-async
 	helpers_lib
+	unofficial-sodium::sodium unofficial-sodium::sodium_config_public
 )
 target_include_directories(common_lib PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 if (MSVC)

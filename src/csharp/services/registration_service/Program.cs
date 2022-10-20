@@ -17,7 +17,7 @@ namespace Mas.Infrastructure.ServiceRegistry
             public string reg_name { get; set; }
             public string cat_id { get; set; }
             public Mas.Schema.Common.IAction unreg { get; set; }
-            public string reregSR { get; set; }
+            public Mas.Schema.Persistence.SturdyRef reregSR { get; set; }
         }
 
         struct Reg {
@@ -37,7 +37,9 @@ namespace Mas.Infrastructure.ServiceRegistry
             {
                 try {
                     var remReg = await conMan.Connect<Mas.Schema.Registry.IRegistrar>(r.reg_sr);
-                    var res = await remReg.Register(service, r.reg_name, r.cat_id);
+                    var regParams = new Mas.Schema.Registry.Registrar.RegParams { 
+                        Cap = service, RegName = r.reg_name, CategoryId = r.cat_id };
+                    var res = await remReg.Register(regParams);
                     r.unreg = res.Item1;
                     r.reregSR = res.Item2;
                 }

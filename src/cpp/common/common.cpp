@@ -21,6 +21,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <tuple>
 #include <vector>
 #include <algorithm>
+#include <bit>
 
 #include <kj/debug.h>
 #include <kj/thread.h>
@@ -35,6 +36,8 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <capnp/list.h>
 #include <capnp/rpc-twoparty.h>
 
+#include <sodium.h>
+
 #include "sole.hpp"
 
 //#include "tools/debug.h"
@@ -45,6 +48,39 @@ using namespace std;
 using namespace mas::rpc::common;
 
 //-----------------------------------------------------------------------------
+
+namespace {
+  void byteArrayToUInt64(unsigned char* bytes, uint64_t& value) {
+    //constexpr bool littleEndian(std::endian::native == std::endian::little);
+    constexpr bool littleEndian = true;
+    const int start = littleEndian ? 0 : 7;
+    const int end = littleEndian ? 8 : -1;
+    const int inc = littleEndian ? 1 : -1;
+    value = 0;
+    for (int i = start; i != end; i += inc) {
+      value += (uint64_t)bytes[i] << (i * 8);
+    }
+  }
+}
+
+Restorer::Restorer() {
+  if (sodium_init() == -1) {
+    throw std::runtime_error("sodium_init failed");
+  }
+
+  unsigned char spk[crypto_sign_PUBLICKEYBYTES];
+  unsigned char ssk[crypto_sign_SECRETKEYBYTES];
+  crypto_sign_keypair(spk, ssk);
+  unsigned char bpk[crypto_box_PUBLICKEYBYTES];
+  unsigned char bsk[crypto_box_SECRETKEYBYTES];
+  crypto_box_keypair(bpk, bsk);
+
+  byteArrayToUInt64(&bpk[0], _vatId[3]);
+  byteArrayToUInt64(&bpk[8], _vatId[2]);
+  byteArrayToUInt64(&bpk[16], _vatId[1]);
+  byteArrayToUInt64(&bpk[24], _vatId[0]);
+}
+
 
 kj::Promise<void> Restorer::restore(RestoreContext context) {
   auto srt = context.getParams().getSrToken();

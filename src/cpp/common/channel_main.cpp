@@ -79,7 +79,7 @@ public:
     restorerRef.setPort(port);
     KJ_LOG(INFO, "Channel::startChannel bound to", host, port);
 
-    auto restorerSR = restorerRef.sturdyRef();
+    auto restorerSR = restorerRef.sturdyRefStr();
     auto channelSRs = restorerRef.save(channelClient);
     KJ_LOG(INFO, "Channel::startChannel", channelSRs.first);
 
