@@ -150,7 +150,7 @@ void Restorer::save(capnp::Capability::Client cap,
 
 
 void Restorer::unsave(std::string srToken) {
-  _issuedSRTokens.erase(srToken.c_str());
+  _issuedSRTokens.erase(kj::StringPtr(srToken.c_str()));
 }
 
 //-----------------------------------------------------------------------------
@@ -272,7 +272,7 @@ CapHolderListImpl::~CapHolderListImpl() noexcept(false) {
 
 kj::Promise<void> CapHolderListImpl::cap(CapContext context) {
   auto rs = context.getResults();
-  auto list = rs.getObject().initAs<capnp::List<mas::schema::common::ListEntry<mas::schema::common::CapHolder<capnp::AnyPointer>>>>((uint)caps.size());
+  auto list = rs.getObject().initAs<capnp::List<mas::schema::common::ListEntry<mas::schema::common::CapHolder<capnp::AnyPointer>>>>((unsigned int)caps.size());
   int i = 0;
   for (auto& cap : caps) {
     auto entryB = list[i];
