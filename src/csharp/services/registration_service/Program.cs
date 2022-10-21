@@ -95,7 +95,8 @@ namespace Mas.Infrastructure.ServiceRegistry
 
             using var conMan = new Common.ConnectionManager();
             
-            var algorithm = Crypt.SignatureAlgorithm.Ed25519;
+            //var algorithm = Crypt.SignatureAlgorithm.Ed25519;
+            var algorithm = Crypt.KeyAgreementAlgorithm.X25519;
             var key = Crypt.Key.Create(algorithm);
             var vatId = key.Export(Crypt.KeyBlobFormat.PkixPublicKey);
 

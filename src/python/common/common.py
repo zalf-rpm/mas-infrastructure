@@ -18,6 +18,7 @@ from datetime import date, timedelta
 import json
 import os
 from pathlib import Path
+import pysodium
 import socket
 import sys
 import time
@@ -97,7 +98,15 @@ class Restorer(persistence_capnp.Restorer.Server):
         self._actions = []
         self._host = socket.gethostbyname(socket.gethostname()) #socket.getfqdn() #gethostname()
         self._port = None
-
+        self._sign_pk, self._sign_sk = pysodium.crypto_sign_keypair()
+        self._box_pk, self._box_sk = pysodium.crypto_box_keypair()
+        self._vat_id = [
+            int.from_bytes(self._sign_pk[24:32], byteorder=sys.byteorder, signed=False),
+            int.from_bytes(self._sign_pk[16:24], byteorder=sys.byteorder, signed=False),
+            int.from_bytes(self._sign_pk[8:16], byteorder=sys.byteorder, signed=False),
+            int.from_bytes(self._sign_pk[0:8], byteorder=sys.byteorder, signed=False)
+        ]
+        self._owner_guids = {} # owner guid to owner owner public key
 
     @property
     def port(self):
@@ -117,23 +126,72 @@ class Restorer(persistence_capnp.Restorer.Server):
         self._host = h
 
 
-    def sturdy_ref(self, sr_token=None, vat_id=None, owner_guid=None):
-        return "capnp://{vat_id}@{host}:{port}{sr_token}{owner_guid}".format(
-            vat_id=vat_id if vat_id else "insecure", 
+    def set_owner_guid(self, owner_guid, owner_pk):
+        self._owner_guids[owner_guid] = owner_pk
+
+
+    def encrypt_sr_token(self, sr_token, seal_for_owner_guid=None):
+        sr_token_enc = sr_token
+        if seal_for_owner_guid and seal_for_owner_guid in self._owner_guids:
+            owner_pk = self._owner_guids[seal_for_owner_guid]
+            nonce = pysodium.randombytes(pysodium.crypto_box_NONCEBYTES)
+            sr_token_enc = pysodium.crypto_box(sr_token, nonce, owner_pk, self._box_sk)
+
+        sr_token_signed = pysodium.crypto_sign(sr_token_enc, self._sign_pk)
+        return sr_token_signed
+
+
+    # def decrypt_sr_token(self, sr_token_signed, seal_for_owner_guid=None):
+    #     sr_token = sr_token_signed
+    #     if seal_for_owner_guid and seal_for_owner_guid in self._owner_guids:
+    #         owner_pk = self._owner_guids[seal_for_owner_guid]
+    #         nonce = pysodium.randombytes(pysodium.crypto_box_NONCEBYTES)
+    #         sr_token_enc = pysodium.crypto_box(sr_token, nonce, owner_pk, self._box_sk)
+
+    #     sr_token_signed = pysodium.crypto_sign(sr_token_enc, self._sign_pk)
+    #     return sr_token_signed
+
+
+    def sturdy_ref_str(self, sr_token=None, seal_for_owner_guid=None):
+        return "capnp://{vat_id}@{host}:{port}{sr_token}".format(
+            vat_id="".join([h.to_bytes(8, byteorder=sys.byteorder).hex() for h in self._vat_id]), 
             host=self.host, 
             port=self.port, 
-            sr_token="/" + sr_token if sr_token else "",
-            owner_guid="?" + owner_guid if owner_guid else "")
+            sr_token="/" + self.encrypt_sr_token(sr_token, seal_for_owner_guid) if sr_token else "")
 
 
-    def save(self, cap, sr_token=None, create_unsave=True):
+    def sturdy_ref(self, sr_token=None, seal_for_owner_guid=None):
+        # if seal_for_owner_guid: then encrypt sr_token with seal_for_owner_guids stored public key
+        return {
+            "transient": {
+                "vat": {
+                    "id": {
+                        "publicKey0": self._vat_id[0],
+                        "publicKey1": self._vat_id[1],
+                        "publicKey2": self._vat_id[2],
+                        "publicKey3": self._vat_id[3],
+                    },
+                    "address": {
+                        "host": self.host,
+                        "port": self.port
+                    }
+                },
+                "localref": self.encrypt_sr_token(sr_token, seal_for_owner_guid) if sr_token else ""
+            }
+        }
+
+
+    def save(self, cap, sr_token=None, seal_for_owner_guid=None, create_unsave=True):
         sr_token = sr_token if sr_token else str(uuid.uuid4())
         self._issued_sr_tokens[sr_token] = cap
         if create_unsave:
             unsave_sr_token = str(uuid.uuid4())
             unsave_action = Action(lambda: [self.unsave(sr_token), self.unsave(unsave_sr_token)]) 
             self._issued_sr_tokens[unsave_sr_token] = unsave_action
-        return (self.sturdy_ref(sr_token), self.sturdy_ref(unsave_sr_token) if create_unsave else None)
+        return (
+            self.sturdy_ref(sr_token, seal_for_owner_guid), 
+            self.sturdy_ref(unsave_sr_token, seal_for_owner_guid) if create_unsave else None
+        )
 
 
     def unsave(self, sr_token): 

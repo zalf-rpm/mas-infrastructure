@@ -91,15 +91,9 @@ Restorer::Restorer() {
     throw std::runtime_error("sodium_init failed");
   }
 
-  //unsigned char spk[crypto_sign_PUBLICKEYBYTES];
-  //unsigned char ssk[crypto_sign_SECRETKEYBYTES];
-  //crypto_sign_keypair(spk, ssk);
   unsigned char bpk[crypto_box_PUBLICKEYBYTES];
   unsigned char bsk[crypto_box_SECRETKEYBYTES];
   crypto_box_keypair(bpk, bsk);
-
-  //uint32_t x;
-  //byteArrayToUInt32(&bpk[0], x);
 
   byteArrayToUInt64(&bpk[0], _vatId[3]);
   byteArrayToUInt64(&bpk[8], _vatId[2]);
