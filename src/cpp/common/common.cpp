@@ -21,7 +21,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <tuple>
 #include <vector>
 #include <algorithm>
-#include <bit>
+//#include <bit>
 
 #include <kj/debug.h>
 #include <kj/thread.h>
@@ -50,15 +50,38 @@ using namespace mas::rpc::common;
 //-----------------------------------------------------------------------------
 
 namespace {
+
+  typedef enum _endian {little_endian, big_endian} EndianType;
+
+  EndianType checkCPUEndian()
+  {
+      unsigned short x = 0x0001;
+      unsigned char c = *(unsigned char *)(&x);
+      EndianType CPUEndian;
+      return c == 0x01 ? little_endian : big_endian;
+  }
+
   void byteArrayToUInt64(unsigned char* bytes, uint64_t& value) {
     //constexpr bool littleEndian(std::endian::native == std::endian::little);
-    constexpr bool littleEndian = true;
+    bool littleEndian = checkCPUEndian() == little_endian;
     const int start = littleEndian ? 0 : 7;
     const int end = littleEndian ? 8 : -1;
     const int inc = littleEndian ? 1 : -1;
     value = 0;
     for (int i = start; i != end; i += inc) {
       value += (uint64_t)bytes[i] << (i * 8);
+    }
+  }
+
+  void byteArrayToUInt32(unsigned char* bytes, uint32_t& value) {
+    //constexpr bool littleEndian(std::endian::native == std::endian::little);
+    bool littleEndian = checkCPUEndian() == little_endian;
+    const int start = littleEndian ? 0 : 3;
+    const int end = littleEndian ? 4 : -1;
+    const int inc = littleEndian ? 1 : -1;
+    value = 0;
+    for (int i = start; i != end; i += inc) {
+      value += (uint32_t)bytes[i] << (i * 8);
     }
   }
 }
@@ -68,12 +91,15 @@ Restorer::Restorer() {
     throw std::runtime_error("sodium_init failed");
   }
 
-  unsigned char spk[crypto_sign_PUBLICKEYBYTES];
-  unsigned char ssk[crypto_sign_SECRETKEYBYTES];
-  crypto_sign_keypair(spk, ssk);
+  //unsigned char spk[crypto_sign_PUBLICKEYBYTES];
+  //unsigned char ssk[crypto_sign_SECRETKEYBYTES];
+  //crypto_sign_keypair(spk, ssk);
   unsigned char bpk[crypto_box_PUBLICKEYBYTES];
   unsigned char bsk[crypto_box_SECRETKEYBYTES];
   crypto_box_keypair(bpk, bsk);
+
+  //uint32_t x;
+  //byteArrayToUInt32(&bpk[0], x);
 
   byteArrayToUInt64(&bpk[0], _vatId[3]);
   byteArrayToUInt64(&bpk[8], _vatId[2]);
