@@ -94,19 +94,19 @@ def update_config(config, argv, print_config=False, allow_new_keys=False):
 class Restorer(persistence_capnp.Restorer.Server):
 
     def __init__(self):
-        self._issued_sr_tokens = {} # sr_token to capability
+        self._issued_sr_tokens = {} # sr_token to {"sealed_for": owner_guid, "cap": capability}
         self._actions = []
         self._host = socket.gethostbyname(socket.gethostname()) #socket.getfqdn() #gethostname()
         self._port = None
         self._sign_pk, self._sign_sk = pysodium.crypto_sign_keypair()
-        self._box_pk, self._box_sk = pysodium.crypto_box_keypair()
+        #self._box_pk, self._box_sk = pysodium.crypto_box_keypair()
         self._vat_id = [
             int.from_bytes(self._sign_pk[24:32], byteorder=sys.byteorder, signed=False),
             int.from_bytes(self._sign_pk[16:24], byteorder=sys.byteorder, signed=False),
             int.from_bytes(self._sign_pk[8:16], byteorder=sys.byteorder, signed=False),
             int.from_bytes(self._sign_pk[0:8], byteorder=sys.byteorder, signed=False)
         ]
-        self._owner_guids = {} # owner guid to owner owner public key
+        self._owner_guid_to_sign_pk = {} # owner guid to owner owner sign public key
 
     @property
     def port(self):
@@ -126,30 +126,30 @@ class Restorer(persistence_capnp.Restorer.Server):
         self._host = h
 
 
-    def set_owner_guid(self, owner_guid, owner_pk):
-        self._owner_guids[owner_guid] = owner_pk
+    def set_owner_guid(self, owner_guid, owner_sign_pk):
+        self._owner_guid_to_sign_pk[owner_guid] = owner_sign_pk
 
 
-    def encrypt_sr_token(self, sr_token, seal_for_owner_guid=None):
-        sr_token_enc = sr_token
-        if seal_for_owner_guid and seal_for_owner_guid in self._owner_guids:
-            owner_pk = self._owner_guids[seal_for_owner_guid]
-            nonce = pysodium.randombytes(pysodium.crypto_box_NONCEBYTES)
-            sr_token_enc = pysodium.crypto_box(sr_token, nonce, owner_pk, self._box_sk)
-
-        sr_token_signed = pysodium.crypto_sign(sr_token_enc, self._sign_pk)
-        return sr_token_signed
+    def sign_sr_token_by_vat(self, sr_token):
+        return pysodium.crypto_sign(sr_token, self._sign_pk)
 
 
-    # def decrypt_sr_token(self, sr_token_signed, seal_for_owner_guid=None):
-    #     sr_token = sr_token_signed
-    #     if seal_for_owner_guid and seal_for_owner_guid in self._owner_guids:
-    #         owner_pk = self._owner_guids[seal_for_owner_guid]
-    #         nonce = pysodium.randombytes(pysodium.crypto_box_NONCEBYTES)
-    #         sr_token_enc = pysodium.crypto_box(sr_token, nonce, owner_pk, self._box_sk)
+    def get_cap_from_sr_token(self, sr_token, owner_guid=None):
+        # if there is an owner
+        if owner_guid:
+            # and we know about that owner
+            if owner_guid in self._owner_guid_to_sign_pk:
+                verified_sr_token = pysodium.crypto_sign_open(sr_token, self._owner_guid_to_sign_pk[owner_guid])
+                data = self._issued_sr_tokens.get(verified_sr_token, None)
+                # and that known owner was actually the one who sealed the token 
+                if data and owner_guid == data["sealed_for"]:
+                    return data["cap"]
 
-    #     sr_token_signed = pysodium.crypto_sign(sr_token_enc, self._sign_pk)
-    #     return sr_token_signed
+            # if we don't know about that owner or the owner was not the one who sealed the token
+            return None
+
+        # if there is no owner
+        return self._issued_sr_tokens.get(sr_token, None)
 
 
     def sturdy_ref_str(self, sr_token=None, seal_for_owner_guid=None):
@@ -157,10 +157,10 @@ class Restorer(persistence_capnp.Restorer.Server):
             vat_id="".join([h.to_bytes(8, byteorder=sys.byteorder).hex() for h in self._vat_id]), 
             host=self.host, 
             port=self.port, 
-            sr_token="/" + self.encrypt_sr_token(sr_token, seal_for_owner_guid) if sr_token else "")
+            sr_token="/" + self.sign_sr_token_by_vat(sr_token) if sr_token else "")
 
 
-    def sturdy_ref(self, sr_token=None, seal_for_owner_guid=None):
+    def sturdy_ref(self, sr_token=None):
         # if seal_for_owner_guid: then encrypt sr_token with seal_for_owner_guids stored public key
         return {
             "transient": {
@@ -176,21 +176,22 @@ class Restorer(persistence_capnp.Restorer.Server):
                         "port": self.port
                     }
                 },
-                "localref": self.encrypt_sr_token(sr_token, seal_for_owner_guid) if sr_token else ""
+                "localRef": self.sign_sr_token_by_vat(sr_token) if sr_token else ""
             }
         }
 
 
     def save(self, cap, sr_token=None, seal_for_owner_guid=None, create_unsave=True):
         sr_token = sr_token if sr_token else str(uuid.uuid4())
-        self._issued_sr_tokens[sr_token] = cap
+        sealed_for = seal_for_owner_guid if seal_for_owner_guid and seal_for_owner_guid in self._owner_guid_to_sign_pk else None
+        self._issued_sr_tokens[sr_token] = {"sealed_for": sealed_for, "cap": cap}
         if create_unsave:
             unsave_sr_token = str(uuid.uuid4())
             unsave_action = Action(lambda: [self.unsave(sr_token), self.unsave(unsave_sr_token)]) 
-            self._issued_sr_tokens[unsave_sr_token] = unsave_action
+            self._issued_sr_tokens[unsave_sr_token] = {"sealed_for": sealed_for, "cap": unsave_action}
         return (
-            self.sturdy_ref(sr_token, seal_for_owner_guid), 
-            self.sturdy_ref(unsave_sr_token, seal_for_owner_guid) if create_unsave else None
+            self.sturdy_ref(sr_token), 
+            self.sturdy_ref(unsave_sr_token) if create_unsave else None
         )
 
 
@@ -199,10 +200,14 @@ class Restorer(persistence_capnp.Restorer.Server):
             del self._issued_sr_tokens[sr_token]
 
 
-    def restore_context(self, context): # restore @0 (srToken :Text) -> (cap :Capability);
-        srt = context.params.srToken
-        if srt in self._issued_sr_tokens:
-            context.results.cap = self._issued_sr_tokens[srt]
+    #struct RestoreParams {
+    #   localRef @0 :AnyPointer;
+    #   sealedFor @1 :SturdyRef.Owner;
+    #}
+    def restore_context(self, context): # restore @0 RestoreParams -> (cap :Capability);
+        sf = context.params.sealedFor
+        sr_token = context.params.localRef.as_text()
+        context.results.cap = self.get_cap_from_sr_token(sr_token, owner_guid=sf.guid if sf else None)
 
 #------------------------------------------------------------------------------
 

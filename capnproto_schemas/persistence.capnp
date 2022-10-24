@@ -138,7 +138,16 @@ interface Persistent {
 interface Restorer {
   # restore a capability from a sturdy ref
 
-  restore @0 (srToken :Text) -> (cap :Capability);
-  # restore from the given sturdy ref token a live capability
+  struct RestoreParams {
+    localRef @0 :AnyPointer;
+    # local reference (sturdy ref token) to the capability to be restored
+
+    sealedFor @1 :SturdyRef.Owner;
+    # the owner of the sturdy ref to be restored
+    # if everybody is allowed to restore the capability, this field should be null (unset)
+  }
+
+  restore @0 RestoreParams -> (cap :Capability);
+  # restore from the localRef in a transient sturdy ref as live capabalility
 }
 
