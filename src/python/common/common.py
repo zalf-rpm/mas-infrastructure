@@ -152,7 +152,7 @@ class Restorer(persistence_capnp.Restorer.Server):
         return self._issued_sr_tokens.get(sr_token, None)
 
 
-    def sturdy_ref_str(self, sr_token=None, seal_for_owner_guid=None):
+    def sturdy_ref_str(self, sr_token=None):
         return "capnp://{vat_id}@{host}:{port}{sr_token}".format(
             vat_id="".join([h.to_bytes(8, byteorder=sys.byteorder).hex() for h in self._vat_id]), 
             host=self.host, 
@@ -195,8 +195,18 @@ class Restorer(persistence_capnp.Restorer.Server):
         )
 
 
-    def unsave(self, sr_token): 
-        if sr_token in self._issued_sr_tokens:
+    def unsave(self, sr_token, owner_guid=None): 
+        # if there is an owner
+        if owner_guid:
+            # and we know about that owner
+            if owner_guid in self._owner_guid_to_sign_pk:
+                verified_sr_token = pysodium.crypto_sign_open(sr_token, self._owner_guid_to_sign_pk[owner_guid])
+                data = self._issued_sr_tokens.get(verified_sr_token, None)
+                # and that known owner was actually the one who sealed the token 
+                if data and owner_guid == data["sealed_for"]:
+                    del self._issued_sr_tokens[verified_sr_token]
+        # if there is no owner
+        else:
             del self._issued_sr_tokens[sr_token]
 
 
@@ -318,7 +328,7 @@ class ConnectionManager:
 
     def connect(self, sturdy_ref, cast_as = None):
 
-        # we assume that a sturdy ref url looks always like capnp://hash-digest-or-insecure@host:port/sturdy-ref-token
+        # we assume that a sturdy ref url looks always like capnp://vat-id@host:port/sturdy-ref-token
         if sturdy_ref[:8] == "capnp://":
             rest = sturdy_ref[8:]
             vat_id, rest = rest.split("@") if "@" in rest else (None, rest)
@@ -326,11 +336,7 @@ class ConnectionManager:
             if "/" in rest:
                 port, rest = rest.split("/") if "/" in rest else (rest, None)
                 sr_token, rest = rest.split("?") if "?" in rest else (rest, None)
-            elif "?" in rest:
-                port, rest = rest.split("?") if "?" in rest else (rest, None)
-            if "?" in rest:
-                owner_guid = rest[6:] if rest and rest[:6] == "owner=" else None
-
+            
             host_port = "{}:{}".format(host, port)
             if host_port in self._connections:
                 bootstrap_cap = self._connections[host_port]

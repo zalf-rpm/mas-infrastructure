@@ -20,6 +20,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <kj/string.h>
 #include <kj/vector.h>
 #include <kj/map.h>
+#include <kj/tuple.h>
 
 #include <capnp/rpc-twoparty.h>
 #include <kj/thread.h>
@@ -41,7 +42,7 @@ namespace mas {
         public:
         Restorer();
 
-        virtual ~Restorer() noexcept(false) {}
+        virtual ~Restorer() noexcept(false);
 
         // restore @0 (srToken :Text) -> (cap :Capability);
         kj::Promise<void> restore(RestoreContext context) override;
@@ -52,25 +53,28 @@ namespace mas {
         std::string getHost() const { return _host; }
         void setHost(std::string h) { _host = h; }
         
-        std::string sturdyRefStr(std::string srToken = "") const;
+        kj::String sturdyRefStr(kj::StringPtr srToken) const;
 
-        std::pair<std::string, std::string> save(capnp::Capability::Client cap, std::string srToken = std::string(),
-          bool createUnsave = true);
-
-        void sturdyRef(mas::schema::persistence::SturdyRef::Builder srb, std::string srToken = "") const;
+        void sturdyRef(mas::schema::persistence::SturdyRef::Builder srb, kj::StringPtr srToken) const;
 
         void save(capnp::Capability::Client cap, 
           mas::schema::persistence::SturdyRef::Builder sturdyRefBuilder,
-          mas::schema::persistence::SturdyRef::Builder unsaveSRBuilder = nullptr, std::string srToken = std::string(),
-          bool createUnsave = true);
+          mas::schema::persistence::SturdyRef::Builder unsaveSRBuilder = nullptr,
+          kj::StringPtr sealForOwner = kj::StringPtr(), bool createUnsave = true);
 
-        void unsave(std::string srToken);
+        void unsave(kj::StringPtr srToken);
 
       private:
+        kj::Maybe<capnp::Capability::Client> getCapFromSRToken(kj::StringPtr srToken, kj::StringPtr ownerGuid = kj::StringPtr());
+        kj::String signSRTokenByVat(kj::StringPtr srToken);
+
         std::string _host{ "" };
         int _port{ 0 };
         uint64_t _vatId[4]{ 0, 0, 0, 0 };
-        kj::HashMap<kj::String, capnp::Capability::Client> _issuedSRTokens;
+        unsigned char* _signPK{NULL};
+        unsigned char* _signSK{NULL};
+        kj::HashMap<kj::String, kj::Tuple<kj::String, capnp::Capability::Client>> _issuedSRTokens;
+        kj::HashMap<kj::String, unsigned char*> _ownerGuidToSignPK;
         std::vector<std::function<void()>> _actions;
       };
 

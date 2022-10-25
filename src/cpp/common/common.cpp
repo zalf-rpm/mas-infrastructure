@@ -26,6 +26,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <kj/debug.h>
 #include <kj/thread.h>
 #include <kj/common.h>
+#include <kj/string.h>
 #define KJ_MVCAP(var) var = kj::mv(var)
 
 #include <capnp/capability.h>
@@ -84,57 +85,89 @@ namespace {
       value += (uint32_t)bytes[i] << (i * 8);
     }
   }
+
+  constexpr char hexmap[] = 
+    {'0', '1', '2', '3', '4', '5', '6', '7',
+     '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+
+  std::string hexStr(unsigned char *data, int len)
+  {
+    std::string s(len * 2, ' ');
+    for (int i = 0; i < len; ++i) {
+      s[2 * i]     = hexmap[(data[i] & 0xF0) >> 4];
+      s[2 * i + 1] = hexmap[data[i] & 0x0F];
+    }
+    return s;
+  }
 }
 
-Restorer::Restorer() {
+Restorer::Restorer() 
+: _signPK{new unsigned char[crypto_sign_PUBLICKEYBYTES]}
+, _signSK{new unsigned char[crypto_sign_SECRETKEYBYTES]}
+{
   if (sodium_init() == -1) {
     throw std::runtime_error("sodium_init failed");
   }
 
-  unsigned char bpk[crypto_box_PUBLICKEYBYTES];
-  unsigned char bsk[crypto_box_SECRETKEYBYTES];
-  crypto_box_keypair(bpk, bsk);
+  crypto_sign_keypair(_signPK, _signSK);
 
-  byteArrayToUInt64(&bpk[0], _vatId[3]);
-  byteArrayToUInt64(&bpk[8], _vatId[2]);
-  byteArrayToUInt64(&bpk[16], _vatId[1]);
-  byteArrayToUInt64(&bpk[24], _vatId[0]);
+  byteArrayToUInt64(&_signPK[0], _vatId[3]);
+  byteArrayToUInt64(&_signPK[8], _vatId[2]);
+  byteArrayToUInt64(&_signPK[16], _vatId[1]);
+  byteArrayToUInt64(&_signPK[24], _vatId[0]);
 }
 
+Restorer::~Restorer() {
+  delete[] _signPK;
+  delete[] _signSK;
+}
 
 kj::Promise<void> Restorer::restore(RestoreContext context) {
-  auto srt = context.getParams().getSrToken();
-  KJ_IF_MAYBE(cap, _issuedSRTokens.find(srt)) {
-    context.getResults().setCap(*cap);
-  }
+  auto params = context.getParams();
+  auto srt = params.getLocalRef().getAs<capnp::Text>();
+  kj::StringPtr ownerGuid = 
+    params.hasSealedFor() && params.getSealedFor().hasGuid() 
+    ? params.getSealedFor().getGuid()
+    : kj::StringPtr();
+  KJ_IF_MAYBE(cap, getCapFromSRToken(srt, ownerGuid)) context.getResults().setCap(*cap);
   return kj::READY_NOW;
 }
 
-
-
-std::string Restorer::sturdyRefStr(std::string srToken) const {
-  if(srToken.empty()) return "capnp://insecure@" + _host + ":" + to_string(_port);
-  else return "capnp://insecure@" + _host + ":" + to_string(_port) + "/" + srToken;
-}
-
-std::pair<std::string, std::string> Restorer::save(capnp::Capability::Client cap, 
-  std::string srToken, bool createUnsave) {
-
-  if(srToken.empty()) srToken = sole::uuid4().str();
-  _issuedSRTokens.insert(kj::str(srToken), cap);
-  string unsaveSRToken = "";
-  if(createUnsave)
+kj::Maybe<capnp::Capability::Client> Restorer::getCapFromSRToken(kj::StringPtr srToken, kj::StringPtr ownerGuid) 
+{
+  if(ownerGuid != nullptr) 
   {
-    unsaveSRToken = sole::uuid4().str();
-    auto unsaveAction = kj::heap<Action>([this, srToken, unsaveSRToken]() { unsave(srToken); unsave(unsaveSRToken); }); 
-    schema::common::Action::Client unsaveActionClient = kj::mv(unsaveAction);
-    _issuedSRTokens.insert(kj::str(unsaveSRToken), unsaveActionClient);
+    // and we know about that owner
+    KJ_IF_MAYBE(ownerSignPK, _ownerGuidToSignPK.find(ownerGuid)) 
+    {
+      unsigned char unsignedSRToken[srToken.size()];
+      unsigned long long unsignedSRTokenLen;
+      if(crypto_sign_open(unsignedSRToken, &unsignedSRTokenLen, (unsigned char*)srToken.cStr(), srToken.size(), *ownerSignPK) == 0)
+      {
+        // and that known owner was actually the one who sealed the token 
+        KJ_IF_MAYBE(ownerAndCap, _issuedSRTokens.find((const char*)unsignedSRToken)) 
+        {
+          if(kj::get<0>(*ownerAndCap) == ownerGuid) return kj::get<1>(*ownerAndCap);
+        }
+      }
+    }
+    // if we don't know about that owner or the owner was not the one who sealed the token
+    return nullptr;
   }
-
-  return make_pair(sturdyRefStr(srToken), unsaveSRToken.empty() ? "" : sturdyRefStr(unsaveSRToken));
+    
+  // if there is no owner
+  KJ_IF_MAYBE(ownerAndCap, _issuedSRTokens.find(srToken)) 
+  {
+    return kj::get<1>(*ownerAndCap);
+  }
 }
 
-void Restorer::sturdyRef(mas::schema::persistence::SturdyRef::Builder srb, std::string srToken) const {
+kj::String Restorer::sturdyRefStr(kj::StringPtr srToken) const {
+  auto vatIdHexStr = hexStr(_signPK, crypto_sign_PUBLICKEYBYTES);
+  return kj::str("capnp://", vatIdHexStr, "@", _host, ":", _port, "/", srToken);
+}
+
+void Restorer::sturdyRef(mas::schema::persistence::SturdyRef::Builder srb, kj::StringPtr srToken) const {
   auto trb = srb.initTransient();
   auto vpb = trb.initVat();
   auto ib = vpb.initId();
@@ -145,32 +178,43 @@ void Restorer::sturdyRef(mas::schema::persistence::SturdyRef::Builder srb, std::
   auto ab = vpb.initAddress();
   ab.setHost(_host.c_str());
   ab.setPort(_port);
-  if(!srToken.empty()) trb.initLocalRef().setAs<capnp::Text>(srToken.c_str());
+  trb.initLocalRef().setAs<capnp::Text>(srToken);
+}
+
+kj::String Restorer::signSRTokenByVat(kj::StringPtr srToken)
+{
+  unsigned long long signedSRTokenLen = srToken.size() + crypto_sign_BYTES;
+  unsigned char signedSRToken[signedSRTokenLen];
+  crypto_sign(signedSRToken, &signedSRTokenLen, (unsigned char*)srToken.cStr(), srToken.size(), _signSK);
+  return kj::str((const char*)signedSRToken);
 }
 
 void Restorer::save(capnp::Capability::Client cap, 
   mas::schema::persistence::SturdyRef::Builder sturdyRefBuilder,
-  mas::schema::persistence::SturdyRef::Builder unsaveSRBuilder, 
-  std::string srToken, bool createUnsave) {
+  mas::schema::persistence::SturdyRef::Builder unsaveSRBuilder,
+  kj::StringPtr sealForOwner, bool createUnsave) {
     
-  if(srToken.empty()) srToken = sole::uuid4().str();
-  _issuedSRTokens.insert(kj::str(srToken), cap);
-  string unsaveSRToken = "";
+  auto vatSignedSRToken = signSRTokenByVat(kj::str(sole::uuid4().str()));
+  _issuedSRTokens.insert(kj::str(vatSignedSRToken), kj::tuple(sealForOwner, cap));
   if(createUnsave)
   {
-    unsaveSRToken = sole::uuid4().str();
-    auto unsaveAction = kj::heap<Action>([this, srToken, unsaveSRToken]() { unsave(srToken); unsave(unsaveSRToken); }); 
+    auto vatSignedUnsaveSRToken = signSRTokenByVat(kj::str(sole::uuid4().str()));
+    string vssrt = vatSignedSRToken.cStr();
+    string vsusrt = vatSignedUnsaveSRToken.cStr();
+    auto unsaveAction = kj::heap<Action>([this, vssrt, vsusrt]() { 
+      unsave(vssrt.c_str()); unsave(vsusrt.c_str());
+    }); 
     schema::common::Action::Client unsaveActionClient = kj::mv(unsaveAction);
-    _issuedSRTokens.insert(kj::str(unsaveSRToken), unsaveActionClient);
-    sturdyRef(unsaveSRBuilder, unsaveSRToken);
+    _issuedSRTokens.insert(kj::str(vatSignedUnsaveSRToken), kj::tuple(kj::heapString(sealForOwner), unsaveActionClient));
+    sturdyRef(unsaveSRBuilder, vatSignedUnsaveSRToken);
   }
 
-  sturdyRef(sturdyRefBuilder, srToken);
+  sturdyRef(sturdyRefBuilder, vatSignedSRToken);
 }
 
 
-void Restorer::unsave(std::string srToken) {
-  _issuedSRTokens.erase(kj::StringPtr(srToken.c_str()));
+void Restorer::unsave(kj::StringPtr srToken) {
+  _issuedSRTokens.erase(srToken);
 }
 
 //-----------------------------------------------------------------------------

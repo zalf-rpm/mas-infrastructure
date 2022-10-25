@@ -50,7 +50,7 @@ namespace Mas.Infrastructure.Common
 
         public async Task<TRemoteInterface> Connect<TRemoteInterface>(string sturdyRef) where TRemoteInterface : class, IDisposable
         {
-            // we assume that a sturdy ref url looks always like capnp://vat-id-or-insecure@host:port/sturdy-ref-token[?owner=owner-guid]
+            // we assume that a sturdy ref url looks always like capnp://vat-id-or-insecure@host:port/sturdy-ref-token
             if (sturdyRef.StartsWith("capnp://")) 
             {
                 var vatId = "";
@@ -58,7 +58,6 @@ namespace Mas.Infrastructure.Common
                 var address = "";
                 var port = 0;
                 var srToken = "";
-                var ownerGuid = "";
 
                 var rest = sturdyRef.Substring(8);
                 // is unix domain socket
@@ -80,30 +79,7 @@ namespace Mas.Infrastructure.Common
                             if (addressAndPort.Length > 0) address = addressAndPort[0];
                             if (addressAndPort.Length > 1) port = Int32.Parse(addressAndPort[1]);
                         }
-                        if (addressPortAndRest.Length > 1)
-                        {
-                            var srTokenAndRest = addressPortAndRest[1].Split("?");
-                            srToken = srTokenAndRest[0];
-                            if (srTokenAndRest.Length > 1 && srTokenAndRest[1].StartsWith("owner="))
-                            {
-                                ownerGuid = srTokenAndRest[1][6..]; 
-                            } 
-                        }
-                    }
-                    else if (vatIdAndRest[^1].Contains("?"))
-                    {
-                        var addressPortAndRest = vatIdAndRest[^1].Split("?");
-                        if (addressPortAndRest.Length > 0)
-                        {
-                            addressPort = addressPortAndRest[0];
-                            var addressAndPort = addressPort.Split(":");
-                            if (addressAndPort.Length > 0) address = addressAndPort[0];
-                            if (addressAndPort.Length > 1) port = Int32.Parse(addressAndPort[1]);
-                        }
-                        if (addressPortAndRest.Length > 1 && addressPortAndRest[1].StartsWith("owner="))
-                        {
-                            ownerGuid = addressPortAndRest[1][6..]; 
-                        }
+                        if (addressPortAndRest.Length > 1) srToken = addressPortAndRest[1];
                     }
                 }
 
