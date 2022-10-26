@@ -43,12 +43,22 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include "persistence.capnp.h"
 
 //#include "common/sole.hpp"
+#include "common.h"
 
 using namespace std;
 using namespace mas;
 using namespace mas::schema::persistence;
 using namespace capnp;
 using namespace mas::infrastructure::common;
+
+
+ConnectionManager::ConnectionManager(Restorer* restorer)
+: tasks(eh)
+{
+	if(restorer) _restorer = kj::Own<Restorer>(restorer, _disposer);
+	else _restorer = kj::heap<Restorer>();
+}
+
 
 kj::Promise<capnp::Capability::Client> ConnectionManager::tryConnect(kj::AsyncIoContext& ioc, std::string sturdyRefStr,
 	int retryCount, int retrySecs, bool printRetryMsgs){
@@ -89,62 +99,80 @@ capnp::Capability::Client ConnectionManager::tryConnectB(kj::AsyncIoContext& ioc
 }
 
 
-kj::Promise<capnp::Capability::Client> ConnectionManager::connect(kj::AsyncIoContext& ioc, std::string sturdyRefStr) {
+kj::Promise<capnp::Capability::Client> ConnectionManager::connect(kj::AsyncIoContext& ioc, kj::StringPtr sturdyRefStr) {
 	capnp::ReaderOptions readerOpts;
 
 	// we assume that a sturdy ref url looks always like capnp://vat-id@host:port/sturdy-ref-token
-	if (sturdyRefStr.substr(0, 8) == "capnp://") {
-		auto atPos = sturdyRefStr.find_first_of("@", 8);
-		if (atPos == string::npos) //unix domain sockets unimplemented
-			return nullptr; 
-		auto vatId = sturdyRefStr.substr(8, atPos - 8);
-		auto slashPos = sturdyRefStr.find_first_of("/", atPos);
-		std::string addressPort = "";
-		std::string srToken = "";
-		if(slashPos != string::npos){
-			addressPort = sturdyRefStr.substr(atPos + 1, slashPos == string::npos ? slashPos : slashPos - atPos - 1);
-			srToken = sturdyRefStr.substr(slashPos + 1);
-		} else {
-			addressPort = sturdyRefStr.substr(atPos + 1);
-		}
-
-		if (!addressPort.empty()) {
-			KJ_IF_MAYBE(clientContext, _connections.find(addressPort)) {
-				Capability::Client bootstrapCap = (*clientContext)->bootstrap;
-
-				if (!srToken.empty()) {
-					auto restorerClient = bootstrapCap.castAs<Restorer>();
-					auto req = restorerClient.restoreRequest();
-					req.setSrToken(srToken);
-					return req.send().then([](auto&& res) { return res.getCap(); });
-				} 
-				return bootstrapCap;
+	if (sturdyRefStr.startsWith("capnp://")) {
+		// right now we only support tcp connections
+		KJ_IF_MAYBE(atPos, sturdyRefStr.findFirst('@')) {
+			auto vatId = kj::str(sturdyRefStr.slice(8, *atPos));
+			kj::String addressPort;
+			kj::String srToken;
+			KJ_IF_MAYBE(slashPos, sturdyRefStr.findFirst('/')){
+				addressPort = kj::str(sturdyRefStr.slice(*atPos + 1, *slashPos));
+				srToken = kj::str(sturdyRefStr.slice(*slashPos + 1));
 			} else {
-				return ioc.provider->getNetwork().parseAddress(addressPort).then(
-					[](kj::Own<kj::NetworkAddress>&& addr) {
-						return addr->connect().attach(kj::mv(addr));
-					}
-				).then(
-					[readerOpts, this, addressPort, srToken](kj::Own<kj::AsyncIoStream>&& stream) {
-						auto cc = kj::heap<ClientContext>(kj::mv(stream), readerOpts);
-						Capability::Client bootstrapCap = cc->getMain();
-						cc->bootstrap = bootstrapCap;
-						_connections.insert(kj::str(addressPort), kj::mv(cc));
+				addressPort = kj::str(sturdyRefStr.slice(*atPos + 1));
+			}
 
-						if (!srToken.empty()) {
-							KJ_LOG(INFO, "ConnectionManager::connect: restoring token", srToken);
-							auto restorerCap = bootstrapCap.castAs<Restorer>();
-							auto req = restorerCap.restoreRequest();
-							req.setSrToken(srToken);
-							KJ_LOG(INFO, "ConnectionManager::connect: making restore request");
-							return req.send().then([](auto&& res) { 
-								KJ_LOG(INFO, "ConnectionManager::connect: send returned");
-								return res.getCap(); 
-							});
+			if (!addressPort.size() == 0) {
+				KJ_IF_MAYBE(clientContext, _connections.find(addressPort)) {
+					Capability::Client bootstrapCap = (*clientContext)->bootstrap;
+
+					// no token, just return the bootstrap capability
+					if (srToken.size() > 0) {
+						// token has been signed by vat with vatId
+						if(kj::get<0>(_restorer->verifySRToken(srToken, vatId))){
+							auto restorerClient = bootstrapCap.castAs<mas::schema::persistence::Restorer>();
+							auto req = restorerClient.restoreRequest();
+							req.initLocalRef().setAs<capnp::Text>(srToken);
+							return req.send().then([](auto&& res) { return res.getCap(); });
+						} else { // signature doesn't fit, don't trust the token
+							return nullptr;
 						}
-						return kj::Promise<Capability::Client>(bootstrapCap);
-					}
-        		);
+					} 
+					return bootstrapCap;
+				} else {
+					return ioc.provider->getNetwork().parseAddress(addressPort).then(
+						[](kj::Own<kj::NetworkAddress>&& addr) {
+							return addr->connect().attach(kj::mv(addr));
+						}
+					).then(
+						[readerOpts, this, addressPort = kj::mv(addressPort), srToken = kj::mv(srToken), vatId = kj::mv(vatId)]
+						(kj::Own<kj::AsyncIoStream>&& stream) {
+							auto cc = kj::heap<ClientContext>(kj::mv(stream), readerOpts);
+							Capability::Client bootstrapCap = cc->getMain();
+							cc->bootstrap = bootstrapCap;
+							_connections.insert(kj::str(addressPort), kj::mv(cc));
+
+							if (srToken.size() > 0) {
+								KJ_LOG(INFO, "ConnectionManager::connect: restoring token", srToken);
+								//auto restorerCap = bootstrapCap.castAs<mas::schema::persistence::Restorer>();
+								//auto req = restorerCap.restoreRequest();
+								//req.initLocalRef().setAs<capnp::Text>(srToken);
+								if(kj::get<0>(_restorer->verifySRToken(srToken, vatId))){
+									KJ_LOG(INFO, "ConnectionManager::connect: making restore request");
+									auto restorerClient = bootstrapCap.castAs<mas::schema::persistence::Restorer>();
+									auto req = restorerClient.restoreRequest();
+									req.initLocalRef().setAs<capnp::Text>(srToken);
+									return req.send().then([](auto&& res) { 
+										KJ_LOG(INFO, "ConnectionManager::connect: send returned");
+										return res.getCap(); 
+									});
+								} else { // signature doesn't fit, don't trust the token
+									return kj::Promise<Capability::Client>(nullptr);
+								}
+								KJ_LOG(INFO, "ConnectionManager::connect: making restore request");
+								//return req.send().then([](auto&& res) { 
+								//	KJ_LOG(INFO, "ConnectionManager::connect: send returned");
+								//	return res.getCap(); 
+								//});
+							}
+							return kj::Promise<Capability::Client>(bootstrapCap);
+						}
+					);
+				}
 			}
 		}
 	}

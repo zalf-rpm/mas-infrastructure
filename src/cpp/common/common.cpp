@@ -41,12 +41,9 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 #include "sole.hpp"
 
-//#include "tools/debug.h"
-//#include "tools/date.h"
-
 using namespace std;
 //using namespace Tools;
-using namespace mas::rpc::common;
+using namespace mas::infrastructure::common;
 
 //-----------------------------------------------------------------------------
 
@@ -90,14 +87,25 @@ namespace {
     {'0', '1', '2', '3', '4', '5', '6', '7',
      '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
-  std::string hexStr(unsigned char *data, int len)
+  //std::string bytesToHexStr(unsigned char *data, int len)
+  kj::String bytesToHexStr(unsigned char* data, int len)
   {
-    std::string s(len * 2, ' ');
+    //std::string s(len * 2, ' ');
+    kj::String s = heapString(len * 2);
     for (int i = 0; i < len; ++i) {
       s[2 * i]     = hexmap[(data[i] & 0xF0) >> 4];
       s[2 * i + 1] = hexmap[data[i] & 0x0F];
     }
-    return s;
+    return kj::mv(s);
+  }
+
+  void hexStrToBytes(kj::StringPtr hexStr, unsigned char* bytes)
+  {
+    auto bytesLen = kj::size(bytes);
+    auto hexLen = kj::size(hexStr);
+    for (unsigned int i = 0, k = 0; i < hexLen && k < bytesLen; i += 2, k++) {
+      bytes[k] = (unsigned char)strtol(hex.slice(i, i + 2).cStr(), NULL, 16);
+    }
   }
 }
 
@@ -163,11 +171,11 @@ kj::Maybe<capnp::Capability::Client> Restorer::getCapFromSRToken(kj::StringPtr s
 }
 
 kj::String Restorer::sturdyRefStr(kj::StringPtr srToken) const {
-  auto vatIdHexStr = hexStr(_signPK, crypto_sign_PUBLICKEYBYTES);
+  auto vatIdHexStr = bytesToHexStr(_signPK, crypto_sign_PUBLICKEYBYTES);
   return kj::str("capnp://", vatIdHexStr, "@", _host, ":", _port, "/", srToken);
 }
 
-void Restorer::sturdyRef(mas::schema::persistence::SturdyRef::Builder srb, kj::StringPtr srToken) const {
+void Restorer::sturdyRef(mas::schema::persistence::SturdyRef::Builder& srb, kj::StringPtr srToken) const {
   auto trb = srb.initTransient();
   auto vpb = trb.initVat();
   auto ib = vpb.initId();
@@ -179,6 +187,16 @@ void Restorer::sturdyRef(mas::schema::persistence::SturdyRef::Builder srb, kj::S
   ab.setHost(_host.c_str());
   ab.setPort(_port);
   trb.initLocalRef().setAs<capnp::Text>(srToken);
+}
+
+kj::Tuple<bool, kj::String> Restorer::verifySRToken(kj::StringPtr srToken, kj::StringPtr vatIdHexStr)
+{
+  auto vatIdPK = hexStrToBytes(vatIdHexStr);
+  unsigned char unsignedSRToken[srToken.size()];
+  unsigned long long unsignedSRTokenLen;
+  return crypto_sign_open(unsignedSRToken, &unsignedSRTokenLen, (unsigned char*)srToken.cStr(), srToken.size(), vatIdPK) == 0
+    ? kj::tuple(true, kj::str((const char*)unsignedSRToken))
+    : kj::tuple(false, kj::str());
 }
 
 kj::String Restorer::signSRTokenByVat(kj::StringPtr srToken)
@@ -195,7 +213,7 @@ void Restorer::save(capnp::Capability::Client cap,
   kj::StringPtr sealForOwner, bool createUnsave) {
     
   auto vatSignedSRToken = signSRTokenByVat(kj::str(sole::uuid4().str()));
-  _issuedSRTokens.insert(kj::str(vatSignedSRToken), kj::tuple(sealForOwner, cap));
+  _issuedSRTokens.insert(kj::str(vatSignedSRToken), kj::tuple(kj::heapString(sealForOwner), kj::mv(cap)));
   if(createUnsave)
   {
     auto vatSignedUnsaveSRToken = signSRTokenByVat(kj::str(sole::uuid4().str()));
@@ -204,8 +222,7 @@ void Restorer::save(capnp::Capability::Client cap,
     auto unsaveAction = kj::heap<Action>([this, vssrt, vsusrt]() { 
       unsave(vssrt.c_str()); unsave(vsusrt.c_str());
     }); 
-    schema::common::Action::Client unsaveActionClient = kj::mv(unsaveAction);
-    _issuedSRTokens.insert(kj::str(vatSignedUnsaveSRToken), kj::tuple(kj::heapString(sealForOwner), unsaveActionClient));
+    _issuedSRTokens.insert(kj::str(vatSignedUnsaveSRToken), kj::tuple(kj::heapString(sealForOwner), kj::mv(unsaveAction)));
     sturdyRef(unsaveSRBuilder, vatSignedUnsaveSRToken);
   }
 

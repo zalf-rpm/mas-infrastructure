@@ -34,7 +34,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include "persistence.capnp.h"
 
 namespace mas {
-  namespace rpc {
+  namespace infrastructure {
     namespace common {
 
       class Restorer final : public mas::schema::persistence::Restorer::Server
@@ -55,7 +55,7 @@ namespace mas {
         
         kj::String sturdyRefStr(kj::StringPtr srToken) const;
 
-        void sturdyRef(mas::schema::persistence::SturdyRef::Builder srb, kj::StringPtr srToken) const;
+        void sturdyRef(mas::schema::persistence::SturdyRef::Builder& srb, kj::StringPtr srToken) const;
 
         void save(capnp::Capability::Client cap, 
           mas::schema::persistence::SturdyRef::Builder sturdyRefBuilder,
@@ -63,6 +63,8 @@ namespace mas {
           kj::StringPtr sealForOwner = kj::StringPtr(), bool createUnsave = true);
 
         void unsave(kj::StringPtr srToken);
+
+        kj::Tuple<bool, kj::String> verifySRToken(kj::StringPtr srToken, kj::StringPtr vatIdHexStr);
 
       private:
         kj::Maybe<capnp::Capability::Client> getCapFromSRToken(kj::StringPtr srToken, kj::StringPtr ownerGuid = kj::StringPtr());
