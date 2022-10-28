@@ -34,7 +34,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include "common.capnp.h"
 
 namespace mas {
-  namespace rpc {
+  namespace infrastructure {
     namespace common {
 
       class Reader;
@@ -46,7 +46,7 @@ namespace mas {
       class Channel final : public AnyPointerChannel::Server
       {
       public:
-        Channel(mas::rpc::common::Restorer* restorer, kj::StringPtr name, uint bufferSize);
+        Channel(Restorer* restorer, kj::StringPtr name, uint bufferSize);
 
         virtual ~Channel() noexcept(false) {}
 
@@ -59,7 +59,7 @@ namespace mas {
         kj::Promise<void> writer(WriterContext context) override;
 
       private:
-        mas::rpc::common::Restorer* _restorer{nullptr};
+        Restorer* _restorer{nullptr};
         kj::String _name;
         kj::HashMap<kj::String, AnyPointerChannel::ChanReader::Client> _readers;
         kj::HashMap<kj::String, AnyPointerChannel::ChanWriter::Client> _writers;

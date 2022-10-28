@@ -40,11 +40,11 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include "sole.hpp"
 
 using namespace std;
-using namespace mas::rpc::common;
+using namespace mas::infrastructure::common;
 
 //-----------------------------------------------------------------------------
 
-Channel::Channel(mas::rpc::common::Restorer* restorer, kj::StringPtr name, uint bufferSize)
+Channel::Channel(mas::infrastructure::common::Restorer* restorer, kj::StringPtr name, uint bufferSize)
 : _restorer(restorer)
 , _name(kj::str(name))
 , _bufferSize(std::max(1U, bufferSize))

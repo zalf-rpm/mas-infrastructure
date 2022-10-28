@@ -91,7 +91,7 @@ namespace {
   kj::String bytesToHexStr(unsigned char* data, int len)
   {
     //std::string s(len * 2, ' ');
-    kj::String s = heapString(len * 2);
+    kj::String s = kj::heapString(len * 2);
     for (int i = 0; i < len; ++i) {
       s[2 * i]     = hexmap[(data[i] & 0xF0) >> 4];
       s[2 * i + 1] = hexmap[data[i] & 0x0F];
@@ -99,12 +99,14 @@ namespace {
     return kj::mv(s);
   }
 
-  void hexStrToBytes(kj::StringPtr hexStr, unsigned char* bytes)
+  void hexStrToBytes(kj::StringPtr hexStr, unsigned char* bytes, int bytesLen)
   {
-    auto bytesLen = kj::size(bytes);
     auto hexLen = kj::size(hexStr);
+    char slice[2];
     for (unsigned int i = 0, k = 0; i < hexLen && k < bytesLen; i += 2, k++) {
-      bytes[k] = (unsigned char)strtol(hex.slice(i, i + 2).cStr(), NULL, 16);
+      slice[0] = hexStr[i]; 
+      slice[1] = hexStr[i + 1];
+      bytes[k] = (unsigned char)strtol(slice, NULL, 16);
     }
   }
 }
@@ -172,7 +174,7 @@ kj::Maybe<capnp::Capability::Client> Restorer::getCapFromSRToken(kj::StringPtr s
 
 kj::String Restorer::sturdyRefStr(kj::StringPtr srToken) const {
   auto vatIdHexStr = bytesToHexStr(_signPK, crypto_sign_PUBLICKEYBYTES);
-  return kj::str("capnp://", vatIdHexStr, "@", _host, ":", _port, "/", srToken);
+  return kj::str("capnp://", vatIdHexStr, "@", _host, ":", _port, srToken.size() > 0 ? "/" : "", srToken);
 }
 
 void Restorer::sturdyRef(mas::schema::persistence::SturdyRef::Builder& srb, kj::StringPtr srToken) const {
@@ -191,7 +193,8 @@ void Restorer::sturdyRef(mas::schema::persistence::SturdyRef::Builder& srb, kj::
 
 kj::Tuple<bool, kj::String> Restorer::verifySRToken(kj::StringPtr srToken, kj::StringPtr vatIdHexStr)
 {
-  auto vatIdPK = hexStrToBytes(vatIdHexStr);
+  unsigned char vatIdPK[crypto_sign_PUBLICKEYBYTES];
+  hexStrToBytes(vatIdHexStr, vatIdPK, kj::size(vatIdPK));
   unsigned char unsignedSRToken[srToken.size()];
   unsigned long long unsignedSRTokenLen;
   return crypto_sign_open(unsignedSRToken, &unsignedSRTokenLen, (unsigned char*)srToken.cStr(), srToken.size(), vatIdPK) == 0
@@ -229,6 +232,26 @@ void Restorer::save(capnp::Capability::Client cap,
   sturdyRef(sturdyRefBuilder, vatSignedSRToken);
 }
 
+kj::Tuple<kj::String, kj::String> Restorer::saveStr(capnp::Capability::Client cap, 
+  kj::StringPtr sealForOwner, bool createUnsave) {
+    
+  auto vatSignedSRToken = signSRTokenByVat(kj::str(sole::uuid4().str()));
+  _issuedSRTokens.insert(kj::str(vatSignedSRToken), kj::tuple(kj::heapString(sealForOwner), kj::mv(cap)));
+  kj::String unsaveSRToken;
+  if(createUnsave)
+  {
+    auto vatSignedUnsaveSRToken = signSRTokenByVat(kj::str(sole::uuid4().str()));
+    string vssrt = vatSignedSRToken.cStr();
+    string vsusrt = vatSignedUnsaveSRToken.cStr();
+    auto unsaveAction = kj::heap<Action>([this, vssrt, vsusrt]() { 
+      unsave(vssrt.c_str()); unsave(vsusrt.c_str());
+    }); 
+    _issuedSRTokens.insert(kj::str(vatSignedUnsaveSRToken), kj::tuple(kj::heapString(sealForOwner), kj::mv(unsaveAction)));
+    unsaveSRToken = sturdyRefStr(vatSignedUnsaveSRToken);
+  }
+
+  return kj::tuple(sturdyRefStr(vatSignedSRToken), kj::mv(unsaveSRToken));
+}
 
 void Restorer::unsave(kj::StringPtr srToken) {
   _issuedSRTokens.erase(srToken);
@@ -381,7 +404,7 @@ kj::Promise<void> CapHolderListImpl::release(ReleaseContext context) {
 
 //-----------------------------------------------------------------------------
 
-kj::Maybe<capnp::AnyPointer::Reader> mas::rpc::common::getIPAttr(mas::schema::common::IP::Reader ip, kj::StringPtr attrName)
+kj::Maybe<capnp::AnyPointer::Reader> mas::infrastructure::common::getIPAttr(mas::schema::common::IP::Reader ip, kj::StringPtr attrName)
 {
   if(ip.hasAttributes() && attrName != nullptr)
   {
@@ -391,7 +414,7 @@ kj::Maybe<capnp::AnyPointer::Reader> mas::rpc::common::getIPAttr(mas::schema::co
 }
 
 kj::Maybe<capnp::AnyPointer::Builder> 
-mas::rpc::common::copyAndSetIPAttrs(mas::schema::common::IP::Reader oldIp, mas::schema::common::IP::Builder newIp, 
+mas::infrastructure::common::copyAndSetIPAttrs(mas::schema::common::IP::Reader oldIp, mas::schema::common::IP::Builder newIp, 
         kj::StringPtr newAttrName)//, kj::Maybe<capnp::AnyPointer::Reader> newValue)
 {
   // if there are not attributes and nothing new to set, nothing to copy

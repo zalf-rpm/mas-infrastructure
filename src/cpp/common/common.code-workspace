@@ -24,7 +24,11 @@
 			"iostream": "cpp",
 			"string": "cpp",
 			"unordered_map": "cpp",
-			"initializer_list": "cpp"
+			"initializer_list": "cpp",
+			"memory": "cpp",
+			"functional": "cpp",
+			"tuple": "cpp",
+			"utility": "cpp"
 		}
 	}
 }

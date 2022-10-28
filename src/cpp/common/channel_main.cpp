@@ -29,10 +29,16 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include "channel.h"
 #include "common.capnp.h"
 
+namespace mas { namespace infrastructure { namespace common {
+
 class ChannelMain
 {
 public:
-  ChannelMain(kj::ProcessContext& context) : context(context), ioContext(kj::setupAsyncIo()) {}
+  ChannelMain(kj::ProcessContext& context) 
+  : restorer(kj::heap<Restorer>())
+  , conMan(restorer.get())
+  , context(context)
+  , ioContext(kj::setupAsyncIo()) {}
 
   kj::MainBuilder::Validity setName(kj::StringPtr n) { name = n; return true; }
 
@@ -61,12 +67,11 @@ public:
 
     KJ_LOG(INFO, "Channel::startChannel: starting channel");
 
-    auto restorer = kj::heap<mas::rpc::common::Restorer>();
     auto& restorerRef = *restorer;
     mas::schema::persistence::Restorer::Client restorerClient = kj::mv(restorer);
-    auto channel = kj::heap<mas::rpc::common::Channel>(&restorerRef, name, bufferSize);
+    auto channel = kj::heap<Channel>(&restorerRef, name, bufferSize);
     auto& channelRef = *channel;
-    mas::rpc::common::AnyPointerChannel::Client channelClient = kj::mv(channel);
+    AnyPointerChannel::Client channelClient = kj::mv(channel);
     KJ_LOG(INFO, "Channel::startChannel: created channel");
     
     KJ_LOG(INFO, "Channel::startChannel trying to bind to", host, port);
@@ -79,19 +84,19 @@ public:
     restorerRef.setPort(port);
     KJ_LOG(INFO, "Channel::startChannel bound to", host, port);
 
-    auto restorerSR = restorerRef.sturdyRefStr();
-    auto channelSRs = restorerRef.save(channelClient);
-    KJ_LOG(INFO, "Channel::startChannel", channelSRs.first);
+    auto restorerSR = restorerRef.sturdyRefStr("");
+    auto channelSRs = restorerRef.saveStr(channelClient);
+    KJ_LOG(INFO, "Channel::startChannel", kj::get<0>(channelSRs));
 
     for(auto srt : readerSrts){ 
       auto reader = channelClient.readerRequest().send().wait(ioContext.waitScope).getR();
-      auto readerSRs = restorerRef.save(reader, srt, false);  
-      KJ_LOG(INFO, "Channel::startChannel", readerSRs.first);
+      auto readerSRs = restorerRef.saveStr(reader, srt, false);  
+      KJ_LOG(INFO, "Channel::startChannel", kj::get<0>(readerSRs));
     }
     for(auto srt : writerSrts){
       auto writer = channelClient.writerRequest().send().wait(ioContext.waitScope).getW();
-      auto writerSRs = restorerRef.save(writer, srt, false);
-      KJ_LOG(INFO, "Channel::startChannel", writerSRs.first);
+      auto writerSRs = restorerRef.saveStr(writer, srt, false);
+      KJ_LOG(INFO, "Channel::startChannel", kj::get<0>(writerSRs));
     }
 
     KJ_LOG(INFO, "Channel::startChannel", restorerSR);
@@ -120,7 +125,8 @@ public:
   }
 
 private:
-  mas::infrastructure::common::ConnectionManager conMan;
+  kj::Own<Restorer> restorer;
+  ConnectionManager conMan;
   kj::StringPtr name;
   kj::StringPtr host;
   int port{0};
@@ -131,4 +137,6 @@ private:
   kj::AsyncIoContext ioContext;
 };
 
-KJ_MAIN(ChannelMain)
+}}}
+
+KJ_MAIN(mas::infrastructure::common::ChannelMain)
