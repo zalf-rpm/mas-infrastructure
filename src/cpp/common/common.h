@@ -53,7 +53,7 @@ namespace mas {
         std::string getHost() const { return _host; }
         void setHost(std::string h) { _host = h; }
         
-        kj::String sturdyRefStr(kj::StringPtr srToken) const;
+        kj::String sturdyRefStr(kj::StringPtr srToken = nullptr) const;
 
         void sturdyRef(mas::schema::persistence::SturdyRef::Builder& srb, kj::StringPtr srToken) const;
 

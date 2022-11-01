@@ -23,6 +23,8 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <kj/map.h>
 #include <kj/timer.h>
 
+#include "common.h"
+
 namespace mas {
 namespace infrastructure {
 namespace common {
@@ -61,8 +63,6 @@ struct ServerContext {
 		, network(*this->stream, capnp::rpc::twoparty::Side::SERVER, readerOpts)
 		, rpcSystem(makeRpcServer(network, mainInterface)) {}
 };
-
-class Restorer;
 
 class ConnectionManager {
 
