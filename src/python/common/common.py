@@ -12,6 +12,7 @@
 # Landscape Systems Analysis at the ZALF.
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
+import base64
 import capnp
 from collections import defaultdict
 from datetime import date, timedelta
@@ -101,10 +102,10 @@ class Restorer(persistence_capnp.Restorer.Server):
         self._sign_pk, self._sign_sk = pysodium.crypto_sign_keypair()
         #self._box_pk, self._box_sk = pysodium.crypto_box_keypair()
         self._vat_id = [
-            int.from_bytes(self._sign_pk[24:32], byteorder=sys.byteorder, signed=False),
-            int.from_bytes(self._sign_pk[16:24], byteorder=sys.byteorder, signed=False),
+            int.from_bytes(self._sign_pk[0:8], byteorder=sys.byteorder, signed=False),
             int.from_bytes(self._sign_pk[8:16], byteorder=sys.byteorder, signed=False),
-            int.from_bytes(self._sign_pk[0:8], byteorder=sys.byteorder, signed=False)
+            int.from_bytes(self._sign_pk[16:24], byteorder=sys.byteorder, signed=False),
+            int.from_bytes(self._sign_pk[24:32], byteorder=sys.byteorder, signed=False),
         ]
         self._owner_guid_to_sign_pk = {} # owner guid to owner owner sign public key
 
@@ -130,8 +131,8 @@ class Restorer(persistence_capnp.Restorer.Server):
         self._owner_guid_to_sign_pk[owner_guid] = owner_sign_pk
 
 
-    def sign_sr_token_by_vat(self, sr_token):
-        return pysodium.crypto_sign(sr_token, self._sign_pk)
+    def sign_sr_token_by_vat_and_encode_base64(self, sr_token):
+        return base64.urlsafe_b64encode(pysodium.crypto_sign(sr_token, self._sign_pk))
 
 
     def get_cap_from_sr_token(self, sr_token, owner_guid=None):
@@ -153,11 +154,12 @@ class Restorer(persistence_capnp.Restorer.Server):
 
 
     def sturdy_ref_str(self, sr_token=None):
+        base64.urlsafe_b64encode(self._sign_pk)
         return "capnp://{vat_id}@{host}:{port}{sr_token}".format(
-            vat_id="".join([h.to_bytes(8, byteorder=sys.byteorder).hex() for h in self._vat_id]), 
+            vat_id=str(base64.urlsafe_b64encode(self._sign_pk)), 
             host=self.host, 
             port=self.port, 
-            sr_token="/" + self.sign_sr_token_by_vat(sr_token) if sr_token else "")
+            sr_token="/" + self.sign_sr_token_by_vat_and_encode_base64(sr_token) if sr_token else "")
 
 
     def sturdy_ref(self, sr_token=None):
@@ -176,21 +178,21 @@ class Restorer(persistence_capnp.Restorer.Server):
                         "port": self.port
                     }
                 },
-                "localRef": self.sign_sr_token_by_vat(sr_token) if sr_token else ""
+                "localRef": self.sign_sr_token_by_vat_and_encode_base64(sr_token) if sr_token else ""
             }
         }
 
 
-    def save(self, cap, sr_token=None, seal_for_owner_guid=None, create_unsave=True):
-        sr_token = sr_token if sr_token else str(uuid.uuid4())
+    def save(self, cap, seal_for_owner_guid=None, create_unsave=True):
+        vat_signed_sr_token = self.sign_sr_token_by_vat_and_encode_base64(str(uuid.uuid4()))
         sealed_for = seal_for_owner_guid if seal_for_owner_guid and seal_for_owner_guid in self._owner_guid_to_sign_pk else None
-        self._issued_sr_tokens[sr_token] = {"sealed_for": sealed_for, "cap": cap}
+        self._issued_sr_tokens[vat_signed_sr_token] = {"sealed_for": sealed_for, "cap": cap}
         if create_unsave:
             unsave_sr_token = str(uuid.uuid4())
-            unsave_action = Action(lambda: [self.unsave(sr_token), self.unsave(unsave_sr_token)]) 
+            unsave_action = Action(lambda: [self.unsave(vat_signed_sr_token), self.unsave(unsave_sr_token)]) 
             self._issued_sr_tokens[unsave_sr_token] = {"sealed_for": sealed_for, "cap": unsave_action}
         return (
-            self.sturdy_ref(sr_token), 
+            self.sturdy_ref(vat_signed_sr_token), 
             self.sturdy_ref(unsave_sr_token) if create_unsave else None
         )
 
