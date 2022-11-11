@@ -15,13 +15,14 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 #pragma once
 
-#include <string>
-
-#include <capnp/message.h>
-#include <capnp/rpc-twoparty.h>
 #include <kj/async-io.h>
 #include <kj/map.h>
 #include <kj/timer.h>
+#include <kj/string.h>
+#include <kj/tuple.h>
+
+#include <capnp/message.h>
+#include <capnp/rpc-twoparty.h>
 
 #include "common.h"
 
@@ -75,15 +76,16 @@ class ConnectionManager {
 public:
 	ConnectionManager(Restorer* restorer = nullptr);
 
-	kj::Promise<capnp::Capability::Client> tryConnect(kj::AsyncIoContext& ioc, std::string sturdyRefStr, 
+	kj::Promise<capnp::Capability::Client> tryConnect(kj::AsyncIoContext& ioc, kj::StringPtr sturdyRefStr, 
 		int retryCount = 10, int retrySecs = 5, bool printRetryMsgs = true);
 
-	capnp::Capability::Client tryConnectB(kj::AsyncIoContext& ioc, std::string sturdyRefStr, 
+	capnp::Capability::Client tryConnectB(kj::AsyncIoContext& ioc, kj::StringPtr sturdyRefStr, 
 		int retryCount = 10, int retrySecs = 5, bool printRetryMsgs = true);
 
 	kj::Promise<capnp::Capability::Client> connect(kj::AsyncIoContext& ioContext, kj::StringPtr sturdyRefStr);
 
-	std::pair<kj::Promise<std::string>, kj::Promise<kj::uint>> bind(kj::AsyncIoContext& ioContext, capnp::Capability::Client mainInterface, std::string address, kj::uint port = 0U);
+	kj::Promise<kj::uint> bind(kj::AsyncIoContext& ioContext, 
+		capnp::Capability::Client mainInterface, kj::StringPtr host, kj::uint port = 0U);
 
 private:
 	void acceptLoop(kj::Own<kj::ConnectionReceiver>&& listener, capnp::ReaderOptions readerOpts);
@@ -98,6 +100,9 @@ private:
 
 	friend class Restorer;
 };
+
+kj::Tuple<bool, kj::String> getLocalIP(kj::StringPtr connectToHost = "8.8.8.8", uint connectToPort = 53);
+
 }
 }
 }

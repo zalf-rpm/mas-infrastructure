@@ -196,6 +196,13 @@ def test_climate_service():
     print()
 
 
+def test_monica():
+    conMan = common.ConnectionManager()
+    sr = "capnp://VNDsNXxD8XTxmTQe55q2LNr8boev8T470J4LEmrF3Ww@10.10.24.181:38155/kY0R2kkPcaG19FhRQjQZwWCXY5Fgy8VJ3MComHxFzOGvLv9jh-4XZ6al-Bm8J2JTlT2xEqL9C9P6M6TH8FdNCjMwZWEzOTEyLTcxODctNDg0YS1hYzcyLWU1NGE5ZTQ5OGZkMw"
+    monica = conMan.try_connect(sr, cast_as=model_capnp.EnvInstance)
+    print(monica.info().wait())
+    
+
 def test_registry():
 
     conMan = common.ConnectionManager()
@@ -292,11 +299,15 @@ def main():
             if k in config:
                 config[k] = v
 
-    test_fertilizer_managment_service()
+    test_monica()
+
+    #test_fertilizer_managment_service()
 
     #test_climate_service()
 
     #test_registry()
+
+
 
     return
 

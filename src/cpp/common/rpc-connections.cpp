@@ -15,10 +15,6 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 #include "rpc-connections.h"
 
-#include <iostream>
-#include <string>
-#include <tuple>
-#include <vector>
 #include <algorithm>
 #include <chrono>
 #include <thread>
@@ -26,7 +22,13 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #ifdef WIN32
 //#include <winsock.h>
 #else
-//#include <sys/socket.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #endif
 
 #define KJ_MVCAP(var) var = kj::mv(var)
@@ -60,7 +62,7 @@ ConnectionManager::ConnectionManager(Restorer* restorer)
 }
 
 
-kj::Promise<capnp::Capability::Client> ConnectionManager::tryConnect(kj::AsyncIoContext& ioc, std::string sturdyRefStr,
+kj::Promise<capnp::Capability::Client> ConnectionManager::tryConnect(kj::AsyncIoContext& ioc, kj::StringPtr sturdyRefStr,
 	int retryCount, int retrySecs, bool printRetryMsgs){
 	try {
 		return connect(ioc, sturdyRefStr);
@@ -68,18 +70,18 @@ kj::Promise<capnp::Capability::Client> ConnectionManager::tryConnect(kj::AsyncIo
 		if(!_timer) _timer = &(ioc.provider->getTimer());
 		return _timer->afterDelay(retrySecs*kj::SECONDS).then([&]() {
 			if(retryCount == 0) {
-				if(printRetryMsgs) KJ_LOG(DBG, "Couldn't connect to sturdy_ref at", sturdyRefStr, "!");
+				if(printRetryMsgs) KJ_LOG(INFO, "Couldn't connect to sturdy_ref at", sturdyRefStr, "!");
 					return kj::Promise<capnp::Capability::Client>(nullptr);
 			}
 			retryCount -= 1;
-			if(printRetryMsgs) KJ_LOG(DBG, "Trying to connect to", sturdyRefStr, "again in", retrySecs, "s!");
+			if(printRetryMsgs) KJ_LOG(INFO, "Trying to connect to", sturdyRefStr, "again in", retrySecs, "s!");
 			retrySecs += 1;
 			return tryConnect(ioc, sturdyRefStr);
 		});
 	}
 }
 
-capnp::Capability::Client ConnectionManager::tryConnectB(kj::AsyncIoContext& ioc, std::string sturdyRefStr,
+capnp::Capability::Client ConnectionManager::tryConnectB(kj::AsyncIoContext& ioc, kj::StringPtr sturdyRefStr,
 	int retryCount, int retrySecs, bool printRetryMsgs){
 	while(true)
 	{
@@ -87,12 +89,12 @@ capnp::Capability::Client ConnectionManager::tryConnectB(kj::AsyncIoContext& ioc
 			return connect(ioc, sturdyRefStr).wait(ioc.waitScope);
 		} catch(std::exception e) {
 			if(retryCount == 0) {
-				if(printRetryMsgs) KJ_LOG(DBG, "Couldn't connect to sturdy_ref at", sturdyRefStr, "!");
+				if(printRetryMsgs) KJ_LOG(INFO, "Couldn't connect to sturdy_ref at", sturdyRefStr, "!");
 					return nullptr;
 			}
 			std::this_thread::sleep_for(std::chrono::milliseconds(retrySecs*1000));
 			retryCount -= 1;
-			if(printRetryMsgs) KJ_LOG(DBG, "Trying to connect to", sturdyRefStr, "again in", retrySecs, "s!");
+			if(printRetryMsgs) KJ_LOG(INFO, "Trying to connect to", sturdyRefStr, "again in", retrySecs, "s!");
 			retrySecs += 1;
 		}
 	}
@@ -181,35 +183,27 @@ kj::Promise<capnp::Capability::Client> ConnectionManager::connect(kj::AsyncIoCon
 }
 
 
-std::pair<kj::Promise<std::string>, kj::Promise<kj::uint>> ConnectionManager::bind(kj::AsyncIoContext& ioContext, 
-	capnp::Capability::Client mainInterface, std::string address, kj::uint port) 	{
-
+kj::Promise<kj::uint> ConnectionManager::bind(kj::AsyncIoContext& ioContext, 
+	capnp::Capability::Client mainInterface, kj::StringPtr host, kj::uint port) 
+{
 	_serverMainInterface = mainInterface;
 
 	auto portPaf = kj::newPromiseAndFulfiller<uint>();
-	kj::ForkedPromise<uint> portPromise = portPaf.promise.fork();
-
-	auto ipPaf = kj::newPromiseAndFulfiller<string>();
-	kj::ForkedPromise<string> ipPromise = ipPaf.promise.fork();
+	//kj::ForkedPromise<uint> portPromise = portPaf.promise.fork();
 
 	auto& network = ioContext.provider->getNetwork();
-	auto bindAddress = address + (port < 0 ? "" : string(":") + to_string(port));
-	//uint defaultPort = 0;
+	auto bindAddress = kj::str(host, port < 0 ? kj::str("") : kj::str(":", port));
 
-	auto&& portFulfiller = portPaf.fulfiller;
-	auto&& ipFulfiller = ipPaf.fulfiller;
 	tasks.add(network.parseAddress(bindAddress, port)
-		.then([KJ_MVCAP(portFulfiller), KJ_MVCAP(ipFulfiller), this](kj::Own<kj::NetworkAddress>&& addr) mutable {
+		.then([portFulfiller = kj::mv(portPaf.fulfiller), this]
+			(kj::Own<kj::NetworkAddress>&& addr) mutable {
 		auto listener = addr->listen();
 		portFulfiller->fulfill(listener->getPort());
-		//sockaddr saddr;
-		//kj::uint socklen;
-		//listener->getsockname(&saddr, &socklen);
-		ipFulfiller->fulfill("unknown");// saddr.sa_data);
 		acceptLoop(kj::mv(listener), capnp::ReaderOptions());
 	}));
 
-	return make_pair(ipPromise.addBranch(), portPromise.addBranch());
+	return kj::mv(portPaf.promise);
+	//return portPromise.addBranch();
 }
 
 void ConnectionManager::acceptLoop(kj::Own<kj::ConnectionReceiver>&& listener, capnp::ReaderOptions readerOpts) {
@@ -226,4 +220,43 @@ void ConnectionManager::acceptLoop(kj::Own<kj::ConnectionReceiver>&& listener, c
 				// EzRpcServer is destroyed (which will destroy the TaskSet).
 				tasks.add(server->network.onDisconnect().attach(kj::mv(server)));
 		})));
+}
+
+
+kj::Tuple<bool, kj::String> 
+mas::infrastructure::common::getLocalIP(kj::StringPtr connectToHost, uint connectToPort)
+{
+	if(connectToHost == "") connectToHost = "8.8.8.8";
+	if(connectToPort == 0) connectToPort = 53;
+
+	// taken from https://gist.github.com/listnukira/4045436
+	char myIP[16];
+	unsigned int myPort;
+	struct sockaddr_in server_addr, my_addr;
+	int sockfd;
+
+	// Connect to server
+	if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) return kj::tuple(false, kj::str("Can't open stream socket."));
+
+	// Set server_addr
+	bzero(&server_addr, sizeof(server_addr));
+	server_addr.sin_family = AF_INET;
+	server_addr.sin_addr.s_addr = inet_addr(connectToHost.cStr());
+	server_addr.sin_port = htons(connectToPort);
+
+	// Connect to server
+	if (connect(sockfd, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0) {
+		close(sockfd);
+		return kj::tuple(false, kj::str("Can't connect to server (", connectToHost, ":", connectToPort, ")"));
+	}
+
+	// Get my ip address and port
+	bzero(&my_addr, sizeof(my_addr));
+	socklen_t len = sizeof(my_addr);
+	getsockname(sockfd, (struct sockaddr *) &my_addr, &len);
+	inet_ntop(AF_INET, &my_addr.sin_addr, myIP, sizeof(myIP));
+	myPort = ntohs(my_addr.sin_port);
+
+	close(sockfd);
+	return kj::tuple(true, kj::str(myIP));
 }

@@ -74,7 +74,6 @@ async def main(path_to_csv_file, serve_bootstrap=True, host=None, port=None,
         await serv.async_init_and_run_service({"service": service}, config["host"], config["port"], 
         serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
     else:
-        
         serv.init_and_run_service({"service": service}, config["host"], config["port"], 
             serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
 

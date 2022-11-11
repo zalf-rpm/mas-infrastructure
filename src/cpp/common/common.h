@@ -51,8 +51,8 @@ class Restorer final : public mas::schema::persistence::Restorer::Server
   int getPort() const { return _port; }
   void setPort(int p) { _port = p; }
 
-  std::string getHost() const { return _host; }
-  void setHost(std::string h) { _host = h; }
+  kj::StringPtr getHost() const { return _host; }
+  void setHost(kj::StringPtr h) { _host = kj::str(h); }
   
   kj::String sturdyRefStr(kj::StringPtr srToken = nullptr) const;
 
@@ -76,7 +76,7 @@ private:
   kj::Maybe<capnp::Capability::Client> getCapFromSRToken(kj::StringPtr srToken, kj::StringPtr ownerGuid = kj::StringPtr());
   kj::String signSRTokenByVatAndEncodeBase64(kj::StringPtr srToken);
 
-  std::string _host{ "" };
+  kj::String _host;
   int _port{ 0 };
   uint64_t _vatId[4]{ 0, 0, 0, 0 };
   kj::Array<unsigned char> _signPKArray;

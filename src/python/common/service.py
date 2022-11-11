@@ -158,11 +158,11 @@ async def async_init_and_run_service(name_to_service, host=None, port=0, serve_b
     else:
         reg_config = {}
 
-    if not conman:
-        conman = async_helpers.ConnectionManager()
     if not restorer:
         restorer = common.Restorer()
-
+    if not conman:
+        conman = async_helpers.ConnectionManager(restorer)
+    
     #create and register admin with services
     admin = Admin(list(name_to_service.values()))
     for s in name_to_service.values():
@@ -235,10 +235,10 @@ def init_and_run_service(name_to_service, host="*", port=None, serve_bootstrap=T
     else:
         reg_config = {}
 
-    if not conman:
-        conman = common.ConnectionManager()
     if not restorer:
         restorer = common.Restorer()
+    if not conman:
+        conman = common.ConnectionManager(restorer)
     
     #create and register admin with services
     admin = Admin(list(name_to_service.values()))

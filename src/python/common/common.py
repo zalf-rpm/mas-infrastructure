@@ -131,6 +131,16 @@ class Restorer(persistence_capnp.Restorer.Server):
         self._owner_guid_to_sign_pk[owner_guid] = owner_sign_pk
 
 
+    def verify_sr_token(self, sr_token_base64, vat_id_base64):
+        # https://stackoverflow.com/questions/2941995/python-ignore-incorrect-padding-error-when-base64-decoding
+        vat_id = base64.urlsafe_b64decode(vat_id_base64 + "==")
+        try:
+            sr_token = base64.urlsafe_b64decode(sr_token_base64 + "==")
+            return (True, pysodium.crypto_sign_open(sr_token, vat_id))
+        except ValueError:
+            return (False, None)
+
+
     def sign_sr_token_by_vat_and_encode_base64(self, sr_token):
         return base64.urlsafe_b64encode(pysodium.crypto_sign(sr_token, self._sign_pk))
 
@@ -140,7 +150,10 @@ class Restorer(persistence_capnp.Restorer.Server):
         if owner_guid:
             # and we know about that owner
             if owner_guid in self._owner_guid_to_sign_pk:
-                verified_sr_token = pysodium.crypto_sign_open(sr_token, self._owner_guid_to_sign_pk[owner_guid])
+                try:
+                    verified_sr_token = pysodium.crypto_sign_open(sr_token, self._owner_guid_to_sign_pk[owner_guid])
+                except ValueError:
+                    return None
                 data = self._issued_sr_tokens.get(verified_sr_token, None)
                 # and that known owner was actually the one who sealed the token 
                 if data and owner_guid == data["sealed_for"]:
@@ -154,7 +167,6 @@ class Restorer(persistence_capnp.Restorer.Server):
 
 
     def sturdy_ref_str(self, sr_token=None):
-        base64.urlsafe_b64encode(self._sign_pk)
         return "capnp://{vat_id}@{host}:{port}{sr_token}".format(
             vat_id=str(base64.urlsafe_b64encode(self._sign_pk)), 
             host=self.host, 
@@ -181,6 +193,20 @@ class Restorer(persistence_capnp.Restorer.Server):
                 "localRef": self.sign_sr_token_by_vat_and_encode_base64(sr_token) if sr_token else ""
             }
         }
+
+
+    def save_str(self, cap, seal_for_owner_guid=None, create_unsave=True):
+        vat_signed_sr_token = self.sign_sr_token_by_vat_and_encode_base64(str(uuid.uuid4()))
+        sealed_for = seal_for_owner_guid if seal_for_owner_guid and seal_for_owner_guid in self._owner_guid_to_sign_pk else None
+        self._issued_sr_tokens[vat_signed_sr_token] = {"sealed_for": sealed_for, "cap": cap}
+        if create_unsave:
+            unsave_sr_token = str(uuid.uuid4())
+            unsave_action = Action(lambda: [self.unsave(vat_signed_sr_token), self.unsave(unsave_sr_token)]) 
+            self._issued_sr_tokens[unsave_sr_token] = {"sealed_for": sealed_for, "cap": unsave_action}
+        return (
+            self.sturdy_ref_str(vat_signed_sr_token), 
+            self.sturdy_ref_str(unsave_sr_token) if create_unsave else None
+        )
 
 
     def save(self, cap, seal_for_owner_guid=None, create_unsave=True):
@@ -324,34 +350,47 @@ class Persistable(persistence_capnp.Persistent.Server):
 
 class ConnectionManager:
 
-    def __init__(self):
+    def __init__(self, restorer=None):
         self._connections = {}
+        self._restorer = restorer if restorer else Restorer()
 
 
     def connect(self, sturdy_ref, cast_as = None):
 
-        # we assume that a sturdy ref url looks always like capnp://vat-id@host:port/sturdy-ref-token
-        if sturdy_ref[:8] == "capnp://":
-            rest = sturdy_ref[8:]
-            vat_id, rest = rest.split("@") if "@" in rest else (None, rest)
-            host, rest = rest.split(":")
-            if "/" in rest:
-                port, rest = rest.split("/") if "/" in rest else (rest, None)
-                sr_token, rest = rest.split("?") if "?" in rest else (rest, None)
-            
-            host_port = "{}:{}".format(host, port)
-            if host_port in self._connections:
-                bootstrap_cap = self._connections[host_port]
-            else:
-                bootstrap_cap = capnp.TwoPartyClient(host_port).bootstrap()
-                self._connections[host_port] = bootstrap_cap
+        # we assume that a sturdy ref url looks always like 
+        # capnp://vat-id_base64-curve25519-public-key@host:port/sturdy-ref-token_base64_vat-public-key-signed
+        try:
+            if sturdy_ref[:8] == "capnp://":
+                rest = sturdy_ref[8:]
+                vat_id_b64, rest = rest.split("@") if "@" in rest else (None, rest)
+                host, rest = rest.split(":")
+                if "/" in rest:
+                    port, rest = rest.split("/") if "/" in rest else (rest, None)
+                    sr_token_b64, rest = rest.split("?") if "?" in rest else (rest, None)
+                
+                host_port = "{}:{}".format(host, port)
+                if host_port in self._connections:
+                    bootstrap_cap = self._connections[host_port]
+                else:
+                    bootstrap_cap = capnp.TwoPartyClient(host_port).bootstrap()
+                    self._connections[host_port] = bootstrap_cap
 
-            if sr_token:
-                restorer = bootstrap_cap.cast_as(persistence_capnp.Restorer)
-                dyn_obj_reader = restorer.restore(sr_token).wait().cap
-                return dyn_obj_reader.as_interface(cast_as) if cast_as else dyn_obj_reader
-            else:
-                return bootstrap_cap.cast_as(cast_as) if cast_as else bootstrap_cap
+                if sr_token_b64:
+                    ok, _ = self._restorer.verify_sr_token(sr_token_b64, vat_id_b64)
+                    if ok:
+                        restorer = bootstrap_cap.cast_as(persistence_capnp.Restorer)
+                        res_req = restorer.restore_request()
+                        res_req.localRef = sr_token_b64
+                        dyn_obj_reader = res_req.send().wait().cap
+                        return dyn_obj_reader.as_interface(cast_as) if cast_as else dyn_obj_reader
+                else:
+                    return bootstrap_cap.cast_as(cast_as) if cast_as else bootstrap_cap
+
+            return None
+            
+        except Exception as e:
+            print("Exception in common.py::ConnectionManager.connect: {}".format(e))
+            return None
 
 
     def try_connect(self, sturdy_ref, cast_as = None, retry_count=10, retry_secs=5, print_retry_msgs=True):

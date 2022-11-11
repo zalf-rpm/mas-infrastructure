@@ -99,6 +99,7 @@ namespace {
     for (int i = 0; i < len; i++) data[i] = arr[i];
     return data;
   }
+
 }
 
 Restorer::Restorer() 
@@ -177,6 +178,7 @@ kj::Maybe<capnp::Capability::Client> Restorer::getCapFromSRToken(kj::StringPtr s
 }
 
 kj::String Restorer::sturdyRefStr(kj::StringPtr srToken) const {
+  //KJ_DBG("signPKArray as hex:", kj::encodeHex(_signPKArray));
   auto vatIdBase64 = kj::encodeBase64Url(_signPKArray);
   return kj::str("capnp://", vatIdBase64, "@", _host, ":", _port, srToken.size() > 0 ? "/" : "", srToken);
 }
@@ -190,19 +192,24 @@ void Restorer::sturdyRef(mas::schema::persistence::SturdyRef::Builder& srb, kj::
   ib.setPublicKey2(_vatId[2]);
   ib.setPublicKey3(_vatId[3]);
   auto ab = vpb.initAddress();
-  ab.setHost(_host.c_str());
+  ab.setHost(_host);
   ab.setPort(_port);
   trb.initLocalRef().setAs<capnp::Text>(srToken);
 }
 
-kj::Tuple<bool, kj::String> Restorer::verifySRToken(kj::StringPtr srToken, kj::StringPtr vatIdBase64)
+kj::Tuple<bool, kj::String> Restorer::verifySRToken(kj::StringPtr srTokenBase64, kj::StringPtr vatIdBase64)
 {
   auto vatIdPKArray = kj::decodeBase64(vatIdBase64.asArray());
   unsigned char vatIdPK[vatIdPKArray.size()];
   fromKJArray(vatIdPKArray, vatIdPK);
-  unsigned char unsignedSRToken[srToken.size()];
+
+  unsigned char unsignedSRToken[srTokenBase64.size()];
   unsigned long long unsignedSRTokenLen;
-  return crypto_sign_open(unsignedSRToken, &unsignedSRTokenLen, (unsigned char*)srToken.cStr(), srToken.size(), vatIdPK) == 0
+  
+  auto srTokenArray = kj::decodeBase64(srTokenBase64.asArray());
+  unsigned char srToken[srTokenArray.size()];
+  fromKJArray(srTokenArray, srToken);
+  return crypto_sign_open(unsignedSRToken, &unsignedSRTokenLen, srToken, srTokenArray.size(), vatIdPK) == 0
     ? kj::tuple(true, kj::str((const char*)unsignedSRToken))
     : kj::tuple(false, kj::str());
 }
@@ -216,6 +223,7 @@ kj::String Restorer::signSRTokenByVatAndEncodeBase64(kj::StringPtr srToken)
   unsigned char signedSRToken[signedSRTokenLen];
   
   crypto_sign(signedSRToken, &signedSRTokenLen, (unsigned char*)srToken.cStr(), srToken.size(), signSK);
+  //KJ_DBG("signedSRToken as hex:", kj::encodeHex(toKJArray(signedSRToken, signedSRTokenLen)));
   return kj::encodeBase64Url(toKJArray(signedSRToken, signedSRTokenLen));
 }
 

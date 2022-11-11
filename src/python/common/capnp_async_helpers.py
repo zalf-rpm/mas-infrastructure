@@ -23,6 +23,8 @@ import socket
 import sys
 import time
 
+import common.common as common
+
 PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent
 if str(PATH_TO_REPO) not in sys.path:
     sys.path.insert(1, str(PATH_TO_REPO))
@@ -183,27 +185,29 @@ async def serve_forever(host, port, bootstrap):
 
 class ConnectionManager:
 
-    def __init__(self):
-        self.connections = {}
-        self.alltasks = []
+    def __init__(self, restorer=None):
+        self._connections = {}
+        self._alltasks = []
+        self._restorer = restorer if restorer else common.Restorer()
 
 
     async def manage_forever(self):
-        await asyncio.gather(*self.alltasks, return_exceptions=True)
+        await asyncio.gather(*self._alltasks, return_exceptions=True)
 
 
     async def connect(self, sturdy_ref, cast_as = None):
-        # we assume that a sturdy ref url looks always like capnp://hash-digest-or-insecure@host:port/sturdy-ref-token
+        # we assume that a sturdy ref url looks always like 
+        # capnp://vat-id_base64-curve25519-public-key@host:port/sturdy-ref-token_base64_vat-public-key-signed
         try:
             if sturdy_ref[:8] == "capnp://":
                 rest = sturdy_ref[8:]
-                hash_digest, rest = rest.split("@") if "@" in rest else (None, rest)
+                vat_id_b64, rest = rest.split("@") if "@" in rest else (None, rest)
                 host, rest = rest.split(":")
-                port, sr_token = rest.split("/") if "/" in rest else (rest, None)
+                port, sr_token_b64 = rest.split("/") if "/" in rest else (rest, None)
 
                 host_port = "{}:{}".format(host, port)
-                if host_port in self.connections:
-                    bootstrap_cap = self.connections[host_port]
+                if host_port in self._connections:
+                    bootstrap_cap = self._connections[host_port]
                 else:
                     # Handle both IPv4 and IPv6 cases
                     try:
@@ -223,20 +227,24 @@ class ConnectionManager:
 
                     # Assemble reader and writer tasks, run in the background
                     coroutines = [self.socket_reader(client, reader), self.socket_writer(client, writer)]
-                    self.alltasks.append(asyncio.gather(*coroutines, return_exceptions=True))
+                    self._alltasks.append(asyncio.gather(*coroutines, return_exceptions=True))
 
                     bootstrap_cap = client.bootstrap()
-                    self.connections[host_port] = bootstrap_cap
+                    self._connections[host_port] = bootstrap_cap
 
-                if sr_token:
-                    restorer = bootstrap_cap.cast_as(persistence_capnp.Restorer)
-                    dyn_obj_reader = (await restorer.restore(sr_token).a_wait()).cap
-                    return dyn_obj_reader.as_interface(cast_as) if cast_as else dyn_obj_reader
+                if sr_token_b64:
+                    ok, _ = self._restorer.verify_sr_token(sr_token_b64, vat_id_b64)
+                    if ok:
+                        restorer = bootstrap_cap.cast_as(persistence_capnp.Restorer)
+                        dyn_obj_reader = (await restorer.restore(sr_token_b64).a_wait()).cap
+                        return dyn_obj_reader.as_interface(cast_as) if cast_as else dyn_obj_reader
                 else:
                     return bootstrap_cap.cast_as(cast_as) if cast_as else bootstrap_cap
 
+            return None
+
         except Exception as e:
-            print(e)
+            print("Exception in capnp_async_helpers.py::ConnectionManager.connect: {}".format(e))
             return None
 
 
