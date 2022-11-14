@@ -218,16 +218,17 @@ void ConnectionManager::acceptLoop(kj::Own<kj::ConnectionReceiver>&& listener, c
 			kj::Own<kj::AsyncIoStream>&& connection) {
 				acceptLoop(kj::mv(listener), readerOpts);
 
-				KJ_LOG(INFO, "ConnectionManager::acceptLoop: connection from client");
+				//KJ_LOG(INFO, "ConnectionManager::acceptLoop: connection from client");
 				auto server = kj::heap<ServerContext>(kj::mv(connection), readerOpts, _serverMainInterface);
 
 				// Arrange to destroy the server context when all references are gone, or when the
 				// EzRpcServer is destroyed (which will destroy the TaskSet).
-				tasks.add(server->network.onDisconnect().then([]() { 
-					KJ_LOG(INFO, "disconnecting ok"); 
-				}, [](auto&& err) { 
-					KJ_LOG(INFO, "diconnecting error", err);  
-				}).attach(kj::mv(server)));
+				tasks.add(server->network.onDisconnect().attach(kj::mv(server)));
+				//tasks.add(server->network.onDisconnect().then([]() { 
+				//	KJ_LOG(INFO, "disconnecting ok"); 
+				//}, [](auto&& err) { 
+				//	KJ_LOG(INFO, "diconnecting error", err);  
+				//}).attach(kj::mv(server)));
 		})));
 }
 
