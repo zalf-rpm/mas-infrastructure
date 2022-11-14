@@ -23,6 +23,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 //#include <winsock.h>
 #include <ws2tcpip.h>
 #define CLOSE_SOCKET(s) closesocket(s)
+#define SOCKLEN_T int
 #else
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,6 +33,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #define CLOSE_SOCKET(s) close(s)
+#define SOCKLEN_T socklen_t
 #endif
 
 #define KJ_MVCAP(var) var = kj::mv(var)
@@ -259,7 +261,7 @@ mas::infrastructure::common::getLocalIP(kj::StringPtr connectToHost, kj::uint co
 
 	// Get my ip address and port
 	memset(&my_addr, 0, sizeof(my_addr));
-	int len = sizeof(my_addr);
+	SOCKLEN_T len = sizeof(my_addr);	
 	getsockname(sockfd, (struct sockaddr*)&my_addr, &len);
 	inet_ntop(AF_INET, &my_addr.sin_addr, myIP, sizeof(myIP));
 	myPort = ntohs(my_addr.sin_port);
