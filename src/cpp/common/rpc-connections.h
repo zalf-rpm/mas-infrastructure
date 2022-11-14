@@ -101,7 +101,7 @@ private:
 	friend class Restorer;
 };
 
-kj::Tuple<bool, kj::String> getLocalIP(kj::StringPtr connectToHost = "8.8.8.8", uint connectToPort = 53);
+kj::Tuple<bool, kj::String> getLocalIP(kj::StringPtr connectToHost = "8.8.8.8", kj::uint connectToPort = 53);
 
 }
 }

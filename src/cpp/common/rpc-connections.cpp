@@ -21,6 +21,8 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 #ifdef WIN32
 //#include <winsock.h>
+#include <ws2tcpip.h>
+#define CLOSE_SOCKET(s) closesocket(s)
 #else
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,6 +31,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#define CLOSE_SOCKET(s) close(s)
 #endif
 
 #define KJ_MVCAP(var) var = kj::mv(var)
@@ -218,13 +221,17 @@ void ConnectionManager::acceptLoop(kj::Own<kj::ConnectionReceiver>&& listener, c
 
 				// Arrange to destroy the server context when all references are gone, or when the
 				// EzRpcServer is destroyed (which will destroy the TaskSet).
-				tasks.add(server->network.onDisconnect().attach(kj::mv(server)));
+				tasks.add(server->network.onDisconnect().then([]() { 
+					KJ_LOG(INFO, "disconnecting ok"); 
+				}, [](auto&& err) { 
+					KJ_LOG(INFO, "diconnecting error", err);  
+				}).attach(kj::mv(server)));
 		})));
 }
 
 
 kj::Tuple<bool, kj::String> 
-mas::infrastructure::common::getLocalIP(kj::StringPtr connectToHost, uint connectToPort)
+mas::infrastructure::common::getLocalIP(kj::StringPtr connectToHost, kj::uint connectToPort)
 {
 	if(connectToHost == "") connectToHost = "8.8.8.8";
 	if(connectToPort == 0) connectToPort = 53;
@@ -236,27 +243,26 @@ mas::infrastructure::common::getLocalIP(kj::StringPtr connectToHost, uint connec
 	int sockfd;
 
 	// Connect to server
-	if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) return kj::tuple(false, kj::str("Can't open stream socket."));
+	if ((sockfd = (int)socket(AF_INET, SOCK_STREAM, 0)) < 0) return kj::tuple(false, kj::str("Can't open stream socket."));
 
 	// Set server_addr
-	bzero(&server_addr, sizeof(server_addr));
+	memset(&server_addr, 0, sizeof(server_addr));
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_addr.s_addr = inet_addr(connectToHost.cStr());
 	server_addr.sin_port = htons(connectToPort);
 
 	// Connect to server
-	if (connect(sockfd, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0) {
-		close(sockfd);
+	if (connect(sockfd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
+		CLOSE_SOCKET(sockfd);
 		return kj::tuple(false, kj::str("Can't connect to server (", connectToHost, ":", connectToPort, ")"));
 	}
 
 	// Get my ip address and port
-	bzero(&my_addr, sizeof(my_addr));
-	socklen_t len = sizeof(my_addr);
-	getsockname(sockfd, (struct sockaddr *) &my_addr, &len);
+	memset(&my_addr, 0, sizeof(my_addr));
+	int len = sizeof(my_addr);
+	getsockname(sockfd, (struct sockaddr*)&my_addr, &len);
 	inet_ntop(AF_INET, &my_addr.sin_addr, myIP, sizeof(myIP));
 	myPort = ntohs(my_addr.sin_port);
-
-	close(sockfd);
+	CLOSE_SOCKET(sockfd);
 	return kj::tuple(true, kj::str(myIP));
 }

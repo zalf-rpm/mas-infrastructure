@@ -17,8 +17,9 @@ import capnp
 from collections import defaultdict
 from datetime import date, timedelta
 import json
-import os
 from pathlib import Path
+import numpy as np
+import os
 import pysodium
 import socket
 import sys

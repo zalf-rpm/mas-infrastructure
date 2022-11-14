@@ -144,16 +144,20 @@ kj::Maybe<capnp::Capability::Client> Restorer::getCapFromSRToken(kj::StringPtr s
     KJ_IF_MAYBE(ownerSignPKArray, _ownerGuidToSignPK.find(ownerGuid)) 
     {
       // prepare owner public key
-      unsigned char ownerSignPK[ownerSignPKArray->size()];
+      unsigned char* ownerSignPK = (unsigned char*)malloc(ownerSignPKArray->size()*sizeof(unsigned char));
+      KJ_DEFER(free(ownerSignPK));
       fromKJArray(*ownerSignPKArray, ownerSignPK);
+      
 
       // decode owner signed sturdy ref token
       auto srTokenArray = kj::decodeBase64(srTokenBase64.asArray());
-      unsigned char signedSRToken[srTokenArray.size()];
+      unsigned char* signedSRToken = (unsigned char*)malloc(srTokenArray.size() * sizeof(unsigned char));
+      KJ_DEFER(free(signedSRToken));
       fromKJArray(srTokenArray, signedSRToken);
 
       // verify owner signed sturdy ref token
-      unsigned char unsignedSRToken[srTokenArray.size()];
+      unsigned char* unsignedSRToken = (unsigned char*)malloc(srTokenArray.size() * sizeof(unsigned char));
+      KJ_DEFER(free(unsignedSRToken));
       unsigned long long unsignedSRTokenLen;
       if(crypto_sign_open(unsignedSRToken, &unsignedSRTokenLen, signedSRToken, srTokenArray.size(), ownerSignPK) == 0)
       {
@@ -200,14 +204,17 @@ void Restorer::sturdyRef(mas::schema::persistence::SturdyRef::Builder& srb, kj::
 kj::Tuple<bool, kj::String> Restorer::verifySRToken(kj::StringPtr srTokenBase64, kj::StringPtr vatIdBase64)
 {
   auto vatIdPKArray = kj::decodeBase64(vatIdBase64.asArray());
-  unsigned char vatIdPK[vatIdPKArray.size()];
+  unsigned char* vatIdPK = (unsigned char*)malloc(vatIdPKArray.size() * sizeof(unsigned char));
+  KJ_DEFER(free(vatIdPK));
   fromKJArray(vatIdPKArray, vatIdPK);
 
-  unsigned char unsignedSRToken[srTokenBase64.size()];
+  unsigned char* unsignedSRToken = (unsigned char*)malloc(srTokenBase64.size() * sizeof(unsigned char));
+  KJ_DEFER(free(unsignedSRToken));
   unsigned long long unsignedSRTokenLen;
   
   auto srTokenArray = kj::decodeBase64(srTokenBase64.asArray());
-  unsigned char srToken[srTokenArray.size()];
+  unsigned char* srToken = (unsigned char*)malloc(srTokenArray.size() * sizeof(unsigned char));
+  KJ_DEFER(free(srToken));
   fromKJArray(srTokenArray, srToken);
   return crypto_sign_open(unsignedSRToken, &unsignedSRTokenLen, srToken, srTokenArray.size(), vatIdPK) == 0
     ? kj::tuple(true, kj::str((const char*)unsignedSRToken))
@@ -216,11 +223,13 @@ kj::Tuple<bool, kj::String> Restorer::verifySRToken(kj::StringPtr srTokenBase64,
 
 kj::String Restorer::signSRTokenByVatAndEncodeBase64(kj::StringPtr srToken)
 {
-  unsigned char signSK[_signSKArray.size()];
+  unsigned char* signSK = (unsigned char*)malloc(_signSKArray.size() * sizeof(unsigned char));
+  KJ_DEFER(free(signSK));
   fromKJArray(_signSKArray, signSK);
 
   unsigned long long signedSRTokenLen = srToken.size() + crypto_sign_BYTES;
-  unsigned char signedSRToken[signedSRTokenLen];
+  unsigned char* signedSRToken = (unsigned char*)malloc(signedSRTokenLen * sizeof(unsigned char));
+  KJ_DEFER(free(signedSRToken));
   
   crypto_sign(signedSRToken, &signedSRTokenLen, (unsigned char*)srToken.cStr(), srToken.size(), signSK);
   //KJ_DBG("signedSRToken as hex:", kj::encodeHex(toKJArray(signedSRToken, signedSRTokenLen)));
