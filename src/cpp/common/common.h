@@ -61,9 +61,11 @@ class Restorer final : public mas::schema::persistence::Restorer::Server
   void save(capnp::Capability::Client cap, 
     mas::schema::persistence::SturdyRef::Builder sturdyRefBuilder,
     mas::schema::persistence::SturdyRef::Builder unsaveSRBuilder = nullptr,
+    kj::StringPtr fixedSRToken = nullptr, 
     kj::StringPtr sealForOwner = nullptr, bool createUnsave = true);
 
   kj::Tuple<kj::String, kj::String> saveStr(capnp::Capability::Client cap, 
+    kj::StringPtr fixedSRToken = nullptr,
     kj::StringPtr sealForOwner = nullptr, bool createUnsave = true);
 
   void unsave(kj::StringPtr srToken);

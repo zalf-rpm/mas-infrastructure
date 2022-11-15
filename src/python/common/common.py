@@ -167,12 +167,12 @@ class Restorer(persistence_capnp.Restorer.Server):
         return self._issued_sr_tokens.get(sr_token, None)
 
 
-    def sturdy_ref_str(self, sr_token=None):
+    def sturdy_ref_str(self, sr_token_base64=None):
         return "capnp://{vat_id}@{host}:{port}{sr_token}".format(
             vat_id=str(base64.urlsafe_b64encode(self._sign_pk)), 
             host=self.host, 
             port=self.port, 
-            sr_token="/" + self.sign_sr_token_by_vat_and_encode_base64(sr_token) if sr_token else "")
+            sr_token="/" + sr_token_base64 if sr_token_base64 else "")
 
 
     def sturdy_ref(self, sr_token=None):
@@ -191,35 +191,37 @@ class Restorer(persistence_capnp.Restorer.Server):
                         "port": self.port
                     }
                 },
-                "localRef": self.sign_sr_token_by_vat_and_encode_base64(sr_token) if sr_token else ""
+                "localRef": sr_token if sr_token else ""
             }
         }
 
 
-    def save_str(self, cap, seal_for_owner_guid=None, create_unsave=True):
-        vat_signed_sr_token = self.sign_sr_token_by_vat_and_encode_base64(str(uuid.uuid4()))
+    def save_str(self, cap, fixed_sr_token=None, seal_for_owner_guid=None, create_unsave=True):
+        sr_token = fixed_sr_token if fixed_sr_token else str(uuid.uuid4())
+        vat_signed_sr_token = self.sign_sr_token_by_vat_and_encode_base64(sr_token)
         sealed_for = seal_for_owner_guid if seal_for_owner_guid and seal_for_owner_guid in self._owner_guid_to_sign_pk else None
-        self._issued_sr_tokens[vat_signed_sr_token] = {"sealed_for": sealed_for, "cap": cap}
+        self._issued_sr_tokens[sr_token] = {"sealed_for": sealed_for, "cap": cap}
         if create_unsave:
             unsave_sr_token = str(uuid.uuid4())
-            unsave_action = Action(lambda: [self.unsave(vat_signed_sr_token), self.unsave(unsave_sr_token)]) 
+            vat_signed_unsave_sr_token = self.sign_sr_token_by_vat_and_encode_base64(unsave_sr_token)
+            unsave_action = Action(lambda: [self.unsave(sr_token), self.unsave(unsave_sr_token)]) 
             self._issued_sr_tokens[unsave_sr_token] = {"sealed_for": sealed_for, "cap": unsave_action}
         return (
             self.sturdy_ref_str(vat_signed_sr_token), 
-            self.sturdy_ref_str(unsave_sr_token) if create_unsave else None
+            self.sturdy_ref_str(vat_signed_unsave_sr_token) if create_unsave else None
         )
 
 
-    def save(self, cap, seal_for_owner_guid=None, create_unsave=True):
-        vat_signed_sr_token = self.sign_sr_token_by_vat_and_encode_base64(str(uuid.uuid4()))
+    def save(self, cap, fixed_sr_token=None, seal_for_owner_guid=None, create_unsave=True):
+        sr_token = fixed_sr_token if fixed_sr_token else str(uuid.uuid4())
         sealed_for = seal_for_owner_guid if seal_for_owner_guid and seal_for_owner_guid in self._owner_guid_to_sign_pk else None
-        self._issued_sr_tokens[vat_signed_sr_token] = {"sealed_for": sealed_for, "cap": cap}
+        self._issued_sr_tokens[sr_token] = {"sealed_for": sealed_for, "cap": cap}
         if create_unsave:
             unsave_sr_token = str(uuid.uuid4())
-            unsave_action = Action(lambda: [self.unsave(vat_signed_sr_token), self.unsave(unsave_sr_token)]) 
+            unsave_action = Action(lambda: [self.unsave(sr_token), self.unsave(unsave_sr_token)]) 
             self._issued_sr_tokens[unsave_sr_token] = {"sealed_for": sealed_for, "cap": unsave_action}
         return (
-            self.sturdy_ref(vat_signed_sr_token), 
+            self.sturdy_ref(sr_token), 
             self.sturdy_ref(unsave_sr_token) if create_unsave else None
         )
 
@@ -377,13 +379,14 @@ class ConnectionManager:
                     self._connections[host_port] = bootstrap_cap
 
                 if sr_token_b64:
-                    ok, _ = self._restorer.verify_sr_token(sr_token_b64, vat_id_b64)
+                    ok, sr_token = self._restorer.verify_sr_token(sr_token_b64, vat_id_b64)
                     if ok:
                         restorer = bootstrap_cap.cast_as(persistence_capnp.Restorer)
                         res_req = restorer.restore_request()
-                        res_req.localRef = sr_token_b64
+                        res_req.localRef = sr_token
                         dyn_obj_reader = res_req.send().wait().cap
-                        return dyn_obj_reader.as_interface(cast_as) if cast_as else dyn_obj_reader
+                        if dyn_obj_reader is not None:
+                            return dyn_obj_reader.as_interface(cast_as) if cast_as else dyn_obj_reader
                 else:
                     return bootstrap_cap.cast_as(cast_as) if cast_as else bootstrap_cap
 
