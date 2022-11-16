@@ -44,6 +44,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 #include <kj/async-io.h>
 #include <kj/debug.h>
+#include <kj/encoding.h>
 //#include <kj/thread.h>
 
 #include "common.capnp.h"
@@ -110,7 +111,7 @@ kj::Promise<capnp::Capability::Client> ConnectionManager::connect(kj::AsyncIoCon
 	capnp::ReaderOptions readerOpts;
 
 	// we assume that a sturdy ref url looks always like 
-	// capnp://vat-id_base64-curve25519-public-key@host:port/sturdy-ref-token_base64_vat-public-key-signed
+	// capnp://vat-id_base64-curve25519-public-key@host:port/sturdy-ref-token_base64
 	if (sturdyRefStr.startsWith("capnp://")) {
 		// right now we only support tcp connections
 		KJ_IF_MAYBE(atPos, sturdyRefStr.findFirst('@')) {
@@ -130,15 +131,18 @@ kj::Promise<capnp::Capability::Client> ConnectionManager::connect(kj::AsyncIoCon
 
 					// no token, just return the bootstrap capability
 					if (srTokenBase64.size() > 0) {
+						auto srTokenArr = kj::decodeBase64(srTokenBase64);
+						kj::String srToken = kj::str(srTokenArr.asChars());
+
 						// token has been signed by vat with vatId
-						if(kj::get<0>(_restorer->verifySRToken(srTokenBase64, vatIdBase64))){
-							auto restorerClient = bootstrapCap.castAs<mas::schema::persistence::Restorer>();
-							auto req = restorerClient.restoreRequest();
-							req.initLocalRef().setAs<capnp::Text>(srTokenBase64);
-							return req.send().then([](auto&& res) { return res.getCap(); });
-						} else { // signature doesn't fit, don't trust the token
-							return nullptr;
-						}
+						//if(kj::get<0>(_restorer->verifySRToken(srTokenBase64, vatIdBase64))){
+						auto restorerClient = bootstrapCap.castAs<mas::schema::persistence::Restorer>();
+						auto req = restorerClient.restoreRequest();
+						req.initLocalRef().setAs<capnp::Text>(srToken);//Base64);
+						return req.send().then([](auto&& res) { return res.getCap(); });
+						//} else { // signature doesn't fit, don't trust the token
+						//	return nullptr;
+						//}
 					} 
 					return bootstrapCap;
 				} else {

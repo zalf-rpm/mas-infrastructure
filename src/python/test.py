@@ -198,8 +198,11 @@ def test_climate_service():
 
 def test_monica():
     conMan = common.ConnectionManager()
-    sr = "capnp://VNDsNXxD8XTxmTQe55q2LNr8boev8T470J4LEmrF3Ww@10.10.24.181:38155/kY0R2kkPcaG19FhRQjQZwWCXY5Fgy8VJ3MComHxFzOGvLv9jh-4XZ6al-Bm8J2JTlT2xEqL9C9P6M6TH8FdNCjMwZWEzOTEyLTcxODctNDg0YS1hYzcyLWU1NGE5ZTQ5OGZkMw"
+    sr = "capnp://8TwMtyGcNgiSBLXps4xRi6ymeDinAINWSrzcWJyI0Uc@10.10.24.181:41075/NzVkNzc3OTMtZjA2My00YmRkLTlkNWYtNjM2NDg1MDdjODg5"
     monica = conMan.try_connect(sr, cast_as=model_capnp.EnvInstance)
+    print(monica.info().wait())
+    print(monica.info().wait())
+    print(monica.info().wait())
     print(monica.info().wait())
     
 

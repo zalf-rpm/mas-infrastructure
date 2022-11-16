@@ -15,6 +15,7 @@
 # code adapted from: https://github.com/capnproto/pycapnp/blob/master/examples/async_calculator_server.py
 
 import asyncio
+import base64
 import capnp
 import logging
 import os
@@ -197,13 +198,13 @@ class ConnectionManager:
 
     async def connect(self, sturdy_ref, cast_as = None):
         # we assume that a sturdy ref url looks always like 
-        # capnp://vat-id_base64-curve25519-public-key@host:port/sturdy-ref-token_base64_vat-public-key-signed
+        # capnp://vat-id_base64-curve25519-public-key@host:port/sturdy-ref-token_base64
         try:
             if sturdy_ref[:8] == "capnp://":
                 rest = sturdy_ref[8:]
-                vat_id_b64, rest = rest.split("@") if "@" in rest else (None, rest)
+                vat_id_base64, rest = rest.split("@") if "@" in rest else (None, rest)
                 host, rest = rest.split(":")
-                port, sr_token_b64 = rest.split("/") if "/" in rest else (rest, None)
+                port, sr_token_base64 = rest.split("/") if "/" in rest else (rest, None)
 
                 host_port = "{}:{}".format(host, port)
                 if host_port in self._connections:
@@ -232,11 +233,15 @@ class ConnectionManager:
                     bootstrap_cap = client.bootstrap()
                     self._connections[host_port] = bootstrap_cap
 
-                if sr_token_b64:
-                    ok, _ = self._restorer.verify_sr_token(sr_token_b64, vat_id_b64)
-                    if ok:
-                        restorer = bootstrap_cap.cast_as(persistence_capnp.Restorer)
-                        dyn_obj_reader = (await restorer.restore(sr_token_b64).a_wait()).cap
+                if sr_token_base64:
+                    #ok, _ = self._restorer.verify_sr_token(sr_token_b64, vat_id_b64)
+                    #if ok:
+                    sr_token = base64.urlsafe_b64decode(sr_token_base64 + "==")
+                    restorer = bootstrap_cap.cast_as(persistence_capnp.Restorer)
+                    res_req = restorer.restore_request()
+                    res_req.localRef = sr_token
+                    dyn_obj_reader = (await res_req.send().a_wait()).cap
+                    if dyn_obj_reader is not None:
                         return dyn_obj_reader.as_interface(cast_as) if cast_as else dyn_obj_reader
                 else:
                     return bootstrap_cap.cast_as(cast_as) if cast_as else bootstrap_cap

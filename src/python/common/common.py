@@ -167,7 +167,9 @@ class Restorer(persistence_capnp.Restorer.Server):
         return self._issued_sr_tokens.get(sr_token, None)
 
 
-    def sturdy_ref_str(self, sr_token_base64=None):
+    def sturdy_ref_str(self, sr_token=None):
+        if sr_token:
+            sr_token_base64 = str(base64.urlsafe_b64encode(sr_token))
         return "capnp://{vat_id}@{host}:{port}{sr_token}".format(
             vat_id=str(base64.urlsafe_b64encode(self._sign_pk)), 
             host=self.host, 
@@ -198,17 +200,18 @@ class Restorer(persistence_capnp.Restorer.Server):
 
     def save_str(self, cap, fixed_sr_token=None, seal_for_owner_guid=None, create_unsave=True):
         sr_token = fixed_sr_token if fixed_sr_token else str(uuid.uuid4())
-        vat_signed_sr_token = self.sign_sr_token_by_vat_and_encode_base64(sr_token)
+        #vat_signed_sr_token = self.sign_sr_token_by_vat_and_encode_base64(sr_token)
         sealed_for = seal_for_owner_guid if seal_for_owner_guid and seal_for_owner_guid in self._owner_guid_to_sign_pk else None
         self._issued_sr_tokens[sr_token] = {"sealed_for": sealed_for, "cap": cap}
         if create_unsave:
             unsave_sr_token = str(uuid.uuid4())
-            vat_signed_unsave_sr_token = self.sign_sr_token_by_vat_and_encode_base64(unsave_sr_token)
+            #vat_signed_unsave_sr_token = self.sign_sr_token_by_vat_and_encode_base64(unsave_sr_token)
             unsave_action = Action(lambda: [self.unsave(sr_token), self.unsave(unsave_sr_token)]) 
             self._issued_sr_tokens[unsave_sr_token] = {"sealed_for": sealed_for, "cap": unsave_action}
         return (
-            self.sturdy_ref_str(vat_signed_sr_token), 
-            self.sturdy_ref_str(vat_signed_unsave_sr_token) if create_unsave else None
+            self.sturdy_ref_str(sr_token), #vat_signed_sr_token), 
+            #self.sturdy_ref_str(vat_signed_unsave_sr_token) if create_unsave else None
+            self.sturdy_ref_str(unsave_sr_token) if create_unsave else None
         )
 
 
@@ -361,15 +364,15 @@ class ConnectionManager:
     def connect(self, sturdy_ref, cast_as = None):
 
         # we assume that a sturdy ref url looks always like 
-        # capnp://vat-id_base64-curve25519-public-key@host:port/sturdy-ref-token_base64_vat-public-key-signed
+        # capnp://vat-id_base64-curve25519-public-key@host:port/sturdy-ref-token_base64
         try:
             if sturdy_ref[:8] == "capnp://":
                 rest = sturdy_ref[8:]
-                vat_id_b64, rest = rest.split("@") if "@" in rest else (None, rest)
+                vat_id_base64, rest = rest.split("@") if "@" in rest else (None, rest)
                 host, rest = rest.split(":")
                 if "/" in rest:
                     port, rest = rest.split("/") if "/" in rest else (rest, None)
-                    sr_token_b64, rest = rest.split("?") if "?" in rest else (rest, None)
+                    sr_token_base64, rest = rest.split("?") if "?" in rest else (rest, None)
                 
                 host_port = "{}:{}".format(host, port)
                 if host_port in self._connections:
@@ -378,15 +381,16 @@ class ConnectionManager:
                     bootstrap_cap = capnp.TwoPartyClient(host_port).bootstrap()
                     self._connections[host_port] = bootstrap_cap
 
-                if sr_token_b64:
-                    ok, sr_token = self._restorer.verify_sr_token(sr_token_b64, vat_id_b64)
-                    if ok:
-                        restorer = bootstrap_cap.cast_as(persistence_capnp.Restorer)
-                        res_req = restorer.restore_request()
-                        res_req.localRef = sr_token
-                        dyn_obj_reader = res_req.send().wait().cap
-                        if dyn_obj_reader is not None:
-                            return dyn_obj_reader.as_interface(cast_as) if cast_as else dyn_obj_reader
+                if sr_token_base64:
+                    #ok, sr_token = self._restorer.verify_sr_token(sr_token_b64, vat_id_b64)
+                    #if ok:
+                    sr_token = base64.urlsafe_b64decode(sr_token_base64 + "==")
+                    restorer = bootstrap_cap.cast_as(persistence_capnp.Restorer)
+                    res_req = restorer.restore_request()
+                    res_req.localRef = sr_token
+                    dyn_obj_reader = res_req.send().wait().cap
+                    if dyn_obj_reader is not None:
+                        return dyn_obj_reader.as_interface(cast_as) if cast_as else dyn_obj_reader
                 else:
                     return bootstrap_cap.cast_as(cast_as) if cast_as else bootstrap_cap
 

@@ -184,8 +184,9 @@ kj::Maybe<capnp::Capability::Client> Restorer::getCapFromSRToken(kj::StringPtr s
   }
 }
 
-kj::String Restorer::sturdyRefStr(kj::StringPtr srTokenBase64) const {
+kj::String Restorer::sturdyRefStr(kj::StringPtr srToken) const {
   //KJ_DBG("signPKArray as hex:", kj::encodeHex(_signPKArray));
+  auto srTokenBase64 = kj::encodeBase64Url(srToken.asBytes());
   auto vatIdBase64 = kj::encodeBase64Url(_signPKArray);
   return kj::str("capnp://", vatIdBase64, "@", _host, ":", _port, srTokenBase64.size() > 0 ? "/" : "", srTokenBase64);
 }
@@ -265,23 +266,25 @@ kj::Tuple<kj::String, kj::String> Restorer::saveStr(capnp::Capability::Client ca
   kj::StringPtr fixedSRToken, kj::StringPtr sealForOwner, bool createUnsave) {
     
   auto srToken = fixedSRToken == nullptr ? kj::str(sole::uuid4().str()) : kj::str(fixedSRToken);
-  auto vatSignedBase64SRToken = signSRTokenByVatAndEncodeBase64(srToken.asPtr());
+  //auto vatSignedBase64SRToken = signSRTokenByVatAndEncodeBase64(srToken.asPtr());
   _issuedSRTokens.insert(kj::str(srToken), kj::tuple(kj::heapString(sealForOwner), kj::mv(cap)));
   kj::String unsaveSRStr;
   if(createUnsave)
   {
     auto unsaveSRToken = kj::str(sole::uuid4().str());
-    auto vatSignedBase64UnsaveSRToken = signSRTokenByVatAndEncodeBase64(unsaveSRToken.asPtr());
+    //auto vatSignedBase64UnsaveSRToken = signSRTokenByVatAndEncodeBase64(unsaveSRToken.asPtr());
     auto srt = str(srToken);
     auto usrt = str(unsaveSRToken);
     auto unsaveAction = kj::heap<Action>([this, KJ_MVCAP(srt), KJ_MVCAP(usrt)]() { 
       unsave(srt); unsave(usrt);
     }); 
     _issuedSRTokens.insert(kj::mv(unsaveSRToken), kj::tuple(kj::heapString(sealForOwner), kj::mv(unsaveAction)));
-    unsaveSRStr = sturdyRefStr(vatSignedBase64UnsaveSRToken);
+    //unsaveSRStr = sturdyRefStr(vatSignedBase64UnsaveSRToken);
+    unsaveSRStr = sturdyRefStr(unsaveSRToken);
   }
 
-  return kj::tuple(sturdyRefStr(vatSignedBase64SRToken), kj::mv(unsaveSRStr));
+  //return kj::tuple(sturdyRefStr(vatSignedBase64SRToken), kj::mv(unsaveSRStr));
+  return kj::tuple(sturdyRefStr(srToken), kj::mv(unsaveSRStr));
 }
 
 void Restorer::unsave(kj::StringPtr srToken) {
