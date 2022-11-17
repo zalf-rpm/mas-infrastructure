@@ -93,16 +93,9 @@ namespace Mas.Infrastructure.ServiceRegistry
                 regs = DeserializeRegs(regsJson.ToString());
             }
 
-            using var conMan = new Common.ConnectionManager();
-            
-            //var algorithm = Crypt.SignatureAlgorithm.Ed25519;
-            var algorithm = Crypt.KeyAgreementAlgorithm.X25519;
-            var key = Crypt.Key.Create(algorithm);
-            var vatId = key.Export(Crypt.KeyBlobFormat.PkixPublicKey);
-
-            var restorer = new Common.Restorer() { VatId = vatId };
-            
-            var registry = new ServiceRegistry (key)
+            var restorer = new Common.Restorer();
+            using var conMan = new Common.ConnectionManager(restorer);
+            var registry = new ServiceRegistry ()
             {
                 Restorer = restorer,
                 CategoriesFilePath = catsFilePath,
@@ -115,17 +108,17 @@ namespace Mas.Infrastructure.ServiceRegistry
             
             Console.WriteLine("Started ServiceRegistry with these Categories:");
             foreach (var cat in registry.Categories) Console.WriteLine(cat.Id);
-            var registrySturdyRef = restorer.Save(BareProxy.FromImpl(registry)).SturdyRef;
+            var registrySturdyRef = restorer.SaveStr(BareProxy.FromImpl(registry)).Item1;
             Console.WriteLine($"registry_sr: {registrySturdyRef}");
-            await TryRegisterService(conMan, regs.registry, registry);
+            //await TryRegisterService(conMan, regs.registry, registry);
 
             var registrar = new ServiceRegistry.Registrar(registry, restorer);
-            var regSturdyRef = restorer.Save(BareProxy.FromImpl(registrar)).SturdyRef;
+            var regSturdyRef = restorer.SaveStr(BareProxy.FromImpl(registrar)).Item1;
             Console.WriteLine($"registrar_sr: {regSturdyRef}");
             //await TryRegisterService(conMan, regs.registrar, registrar);
 
             var registryAdmin = new ServiceRegistry.Admin(registry);
-            var registryAdminSturdyRef = restorer.Save(BareProxy.FromImpl(registryAdmin)).SturdyRef;
+            var registryAdminSturdyRef = restorer.SaveStr(BareProxy.FromImpl(registryAdmin)).Item1;
             Console.WriteLine($"registry_admin_sr: {registryAdminSturdyRef}");
             //await TryRegisterService(conMan, regs.registry_admin, registryAdmin);
 
@@ -134,7 +127,7 @@ namespace Mas.Infrastructure.ServiceRegistry
                 registry.Name = info.Name;
                 registry.Description = info.Description;
             });
-            var serviceAdminSturdyRef = restorer.Save(BareProxy.FromImpl(serviceAdmin)).SturdyRef;
+            var serviceAdminSturdyRef = restorer.SaveStr(BareProxy.FromImpl(serviceAdmin)).Item1;
             Console.WriteLine($"service_admin_sr: {serviceAdminSturdyRef}");
             //await TryRegisterService(conMan, regs.service_admin, serviceAdmin);            
 

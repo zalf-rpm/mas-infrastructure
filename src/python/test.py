@@ -197,9 +197,9 @@ def test_climate_service():
 
 
 def test_monica():
-    conMan = common.ConnectionManager()
+    con_man = common.ConnectionManager()
     sr = "capnp://8TwMtyGcNgiSBLXps4xRi6ymeDinAINWSrzcWJyI0Uc@10.10.24.181:41075/NzVkNzc3OTMtZjA2My00YmRkLTlkNWYtNjM2NDg1MDdjODg5"
-    monica = conMan.try_connect(sr, cast_as=model_capnp.EnvInstance)
+    monica = con_man.try_connect(sr, cast_as=model_capnp.EnvInstance)
     print(monica.info().wait())
     print(monica.info().wait())
     print(monica.info().wait())
@@ -208,25 +208,53 @@ def test_monica():
 
 def test_registry():
 
-    conMan = common.ConnectionManager()
-    #monica = conMan.try_connect("capnp://insecure@10.10.24.210:40867/16e65116-76d5-44ae-b3e6-65738bcb3b31", cast_as=model_capnp.EnvInstance)
-    #print(monica.info().wait())
-    
-    #restorer = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000", cast_as=persistence_capnp.Restorer)
-    
-    #climate = conMan.try_connect("capnp://insecure@10.10.24.210:37203/6b57e75b-dee3-4882-90ae-731a679a3653", cast_as=climate_data_capnp.Service)
-    
-    #registry = conMan.try_connect("capnp://insecure@10.10.24.71:38955/5681fdaa-4d7f-4ea9-876e-e0566255486c", cast_as=registry_capnp.Registry)
-    
-    #registrar = conMan.try_connect("capnp://insecure@10.10.24.71:36501/2d997d95-95ac-400e-aeb7-c439b58b77a5", cast_as=registry_capnp.Registrar)
-    
-    #admin = conMan.try_connect("capnp://insecure@10.10.24.210:37087/6a9dea44-d00e-4a48-adf3-6c83b24cc5fa", cast_as=service_capnp.Admin)
-    #print(service_admin.info().wait())
+    con_man = common.ConnectionManager()
+    registry_sr = "capnp://MCowBQYDK2VwAyEAFJHQao0Dy26vAV2LmMT4lBXMtI+xebNohLBaYLvsqkc=@10.10.24.181:38101/NjJhMjYyMTEtNzBjNi00MTM4LTg2MGEtM2MwMjM0NjUyNTA2"
+    registry = con_man.try_connect(registry_sr, cast_as=registry_capnp.Registry)
+    print(registry.info().wait())
 
-    #grid = conMan.try_connect("capnp://insecure@10.10.24.210:39875/2fa47702-f112-4628-b72c-7754e457d3a2", cast_as=grid_capnp.Grid)
-    #value = grid.valueAt(coord={'lat': 50.02045903295569, 'lon': 8.449222632820296}).wait()
+    registrar_sr = "capnp://MCowBQYDK2VwAyEAFJHQao0Dy26vAV2LmMT4lBXMtI+xebNohLBaYLvsqkc=@10.10.24.181:38101/ZTE2YWE4ZTQtN2FhMi00YWMyLWJlMzctZmZmMTIyMzg5N2Q5"
+    registrar = con_man.try_connect(registrar_sr, cast_as=registry_capnp.Registrar)
+    print(registrar.info().wait())
     
-    writer = conMan.try_connect("capnp://insecure@10.10.24.210:44735/2c7554bc-5112-461d-a478-e95cbc905d37", cast_as=common_capnp.Writer)
+    admin_sr = "capnp://MCowBQYDK2VwAyEAFJHQao0Dy26vAV2LmMT4lBXMtI+xebNohLBaYLvsqkc=@10.10.24.181:38101/MzZiZDkwODAtNjQxYS00ZjEwLThmMDktYTcwOGY0YThkNWI5"
+    admin = con_man.try_connect(admin_sr, cast_as=service_capnp.Admin)
+    print(admin.info().wait())
+
+
+    res = registrar.register(cap=admin, regName="admin", categoryId="climate").wait()
+    print(res)
+
+    climate_entries = registry.entries("climate").wait().entries
+    for ent in climate_entries:
+        print(ent.name, " ref.info:", ent.ref.info().wait())
+
+    print("bla")    
+
+
+def test_grid():
+    con_man = common.ConnectionManager()
+    grid = con_man.try_connect("capnp://insecure@10.10.24.210:39875/2fa47702-f112-4628-b72c-7754e457d3a2", cast_as=grid_capnp.Grid)
+    print(grid.info().wait())
+    value = grid.valueAt(coord={'lat': 50.02045903295569, 'lon': 8.449222632820296}).wait()
+
+
+def test_restorer():
+    con_man = common.ConnectionManager()
+    restorer = con_man.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000", cast_as=persistence_capnp.Restorer)
+    print(restorer.info().wait())
+
+
+def test_climate():
+    con_man = common.ConnectionManager()
+    climate = con_man.try_connect("capnp://insecure@10.10.24.210:37203/6b57e75b-dee3-4882-90ae-731a679a3653", cast_as=climate_data_capnp.Service)
+    print(climate.info().wait())
+
+
+def test_channel():
+    con_man = common.ConnectionManager()
+    
+    writer = con_man.try_connect("capnp://insecure@10.10.24.210:44735/2c7554bc-5112-461d-a478-e95cbc905d37", cast_as=common_capnp.Writer)
     writer.write(value=monica_state_capnp.ICData.new_message(init={"syncDate": {"day": 1, "month": 2, "year": 2022}})).wait()
     print("bla")
 
@@ -245,7 +273,7 @@ def test_registry():
             #writer.write(value=common_capnp.X.new_message(t="world")).wait()
         #print("wrote value:", "hello", "world")
     Thread(target=writer).start()
-    reader = conMan.try_connect("capnp://insecure@10.10.24.210:34307/40daafc3-490b-4b27-a84f-6ee4c111b352", cast_as=common_capnp.Reader)
+    reader = con_man.try_connect("capnp://insecure@10.10.24.210:34307/40daafc3-490b-4b27-a84f-6ee4c111b352", cast_as=common_capnp.Reader)
     #channel = conMan.try_connect(channel_sr, cast_as=common_capnp.Channel)
     #reader = channel.reader().wait().r.as_interface(common_capnp.Reader)
     for i in range(1000):
@@ -255,40 +283,14 @@ def test_registry():
     #print(reader.read().wait().value.as_struct(common_capnp.X).t)
     #print("read value:", value)
 
-    soil = conMan.try_connect("capnp://insecure@10.10.24.210:39341/9c15ad6f-0778-4bea-b91e-b015453188b9", cast_as=soil_data_capnp.Service)
+
+def test_some():
+    con_man = common.ConnectionManager()
+    
+    soil = con_man.try_connect("capnp://insecure@10.10.24.210:39341/9c15ad6f-0778-4bea-b91e-b015453188b9", cast_as=soil_data_capnp.Service)
     ps = soil.profilesAt(coord={'lat': 50.02045903295569, 'lon': 8.449222632820296}, query={"mandatory": ["soilType", "organicCarbon", "rawDensity"]}).wait()
     print(ps)
     
-    #cap_holder = common.IdentifiableHolder(service, lambda: print("deleted capholder"))
-    #res = registrar.register(cap=cap_holder, regName="dwd-klima", categoryId="climate").wait()
-
-    res = registrar.register(cap=service, regName="dwd-klima", categoryId="climate").wait()
-    
-    climate_entries = registry.entries("climate").wait().entries
-    for ent in climate_entries:
-        print(ent.name, " ref.info:")#, ent.ref.info().wait())
-
-    service_again = ent.ref.cast_as(climate_data_capnp.Service)
-
-
-    return
-    
-    
-    try:
-        print(registrar.info().wait())
-    except Exception as e:
-        print(e)
-
-    #unsave = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/49ec71b8-a525-4c38-b137-58e1eafc0c1c", cast_as=common_capnp.Action)
-    #unsave.do().wait()
-
-    with open("../../data/climate/climate-iso.csv", "r") as _:
-        csv_data = _.read()
-
-    res = service.create(csvData=csv_data, config={}).wait()
-
-    print()
-
 
 def main():
     config = {
@@ -302,13 +304,13 @@ def main():
             if k in config:
                 config[k] = v
 
-    test_monica()
+    #test_monica()
 
     #test_fertilizer_managment_service()
 
     #test_climate_service()
 
-    #test_registry()
+    test_registry()
 
 
 

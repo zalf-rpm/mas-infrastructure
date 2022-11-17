@@ -68,15 +68,13 @@ namespace Mas.Infrastructure.ServiceRegistry
         private ConcurrentDictionary<string, RegData> _regId2Entry;
         private ConcurrentDictionary<string, (ulong[], string)> _extSRT2VatIdAndIntSRT = new(); // mapping of external sturdy ref token to internal one
         private IInterceptionPolicy _savePolicy;
-        private Crypt.Key _key; // ED25519 key
         private ConcurrentDictionary<ulong[], Mas.Schema.Persistence.IRestorer> _vatId2Restorer = new();   
 
-        public ServiceRegistry(Crypt.Key key)
+        public ServiceRegistry()
         {
             _CatId2SupportedCategories = new ConcurrentDictionary<string, C.IdInformation>();
             _regId2Entry = new ConcurrentDictionary<string, RegData>();//Tuple<string, Registry.Entry, Common.Unregister>>();
             _savePolicy = new InterceptPersistentPolicy(this);
-            _key = key;
         }
 
         public void Dispose()
@@ -87,9 +85,6 @@ namespace Mas.Infrastructure.ServiceRegistry
                 oid2e.Value.Entry.Ref?.Dispose(); // registered services
                 oid2e.Value.Unreg.Dispose();
             }
-
-            // erases key from memory
-            _key?.Dispose();
 
             Console.WriteLine("Dispose");
         }
@@ -402,9 +397,8 @@ namespace Mas.Infrastructure.ServiceRegistry
                         var resultWriter = SerializerState.CreateForRpc<P.Restorer.Result_Restore.WRITER>();
                         result.serialize(resultWriter);
                         callContext.OutArgs = resultWriter;
-                        callContext.ReturnToAlice();
                     }
-                    else callContext.ReturnToAlice();
+                    callContext.ReturnToAlice();
                 } 
                 else
                     callContext.ForwardToBob();
@@ -424,10 +418,8 @@ namespace Mas.Infrastructure.ServiceRegistry
                     var resultWriter = SerializerState.CreateForRpc<P.Persistent.SaveResults.WRITER>();
                     result.serialize(resultWriter);
                     callContext.OutArgs = resultWriter;
-                    callContext.ReturnToAlice();
                 } 
-                else
-                    callContext.ReturnToAlice();
+                callContext.ReturnToAlice();
             }
         }
 
