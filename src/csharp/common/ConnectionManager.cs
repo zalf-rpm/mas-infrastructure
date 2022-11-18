@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Net;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 
 namespace Mas.Infrastructure.Common
@@ -23,6 +24,23 @@ namespace Mas.Infrastructure.Common
 
         public void Dispose() => Dispose(true);
 
+        public static string GetLocalIPAddress(string connectToHost = "8.8.8.8", int connectToPort = 53)
+        {
+            var localIP = "127.0.0.1";
+            try 
+            {
+                using (Socket socket = new (AddressFamily.InterNetwork, SocketType.Stream, 0))
+                {
+                    socket.Connect(connectToHost, connectToPort);
+                    IPEndPoint endPoint = socket.LocalEndPoint as IPEndPoint;
+                    localIP = endPoint.Address.ToString();
+                }
+            } catch(System.Exception e) { 
+                Console.WriteLine(e.Message);
+            }
+            return localIP;
+        }
+        
         protected virtual void Dispose(bool disposing)
         {
             //Console.WriteLine("Disposing ConnectionManager");

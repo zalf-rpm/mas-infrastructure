@@ -13,33 +13,22 @@ namespace Mas.Infrastructure.Common
     {
         private ConcurrentDictionary<string, Proxy> _srToken2Capability = new();
 
-        public string TcpHost { get; set; } 
-        public ushort TcpPort { get; set; }
+        public string TcpHost { get; set; } = "127.0.0.1";
+        public ushort TcpPort { get; set; } = 0;
         public byte[] VatId { get; set; }
 
         private Crypt.Key _vatKey;
 
         public Restorer()
         {
-            TcpHost = GetLocalIPAddress(); //Dns.GetHostName(); //"localhost";// GetLocalIPAddress();
+            //TcpHost = Dns.GetHostName(); //"localhost";// GetLocalIPAddress();
 
             var algorithm = Crypt.SignatureAlgorithm.Ed25519;
             _vatKey = Crypt.Key.Create(algorithm);
             VatId = _vatKey.Export(Crypt.KeyBlobFormat.PkixPublicKey);
         }
 
-        public static string GetLocalIPAddress()
-        {
-            var host = Dns.GetHostEntry(Dns.GetHostName());
-            foreach (var ip in host.AddressList)
-            {
-                if (ip.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    return ip.ToString();
-                }
-            }
-            throw new System.Exception("No network adapters with an IPv4 address in the system!");
-        }
+        
 
         public struct SaveRes 
         {

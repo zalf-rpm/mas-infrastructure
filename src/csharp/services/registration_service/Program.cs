@@ -59,6 +59,8 @@ namespace Mas.Infrastructure.ServiceRegistry
             var tcpPort = 0;
             var readRegSRsFromStdIn = false;
             string regFilePath = "regs.json"; //null;
+            string checkIP = "8.8.8.8";
+            int checkPort = 53;
 
             for (var i = 0; i < args.Length; i++)
             {
@@ -71,6 +73,8 @@ namespace Mas.Infrastructure.ServiceRegistry
                     else if (args[i].StartsWith("port")) tcpPort = int.Parse(args[i].Split('=')[1]);
                     else if (args[i].StartsWith("regstdin")) readRegSRsFromStdIn = true;
                     else if (args[i].StartsWith("regfile")) regFilePath = args[i].Split('=')[1];
+                    else if (args[i].StartsWith("check_IP")) checkIP = args[i].Split('=')[1];
+                    else if (args[i].StartsWith("check_port")) checkPort = int.Parse(args[i].Split('=')[1]);
                 }
                 catch (System.Exception) { }
             }
@@ -93,7 +97,7 @@ namespace Mas.Infrastructure.ServiceRegistry
                 regs = DeserializeRegs(regsJson.ToString());
             }
 
-            var restorer = new Common.Restorer();
+            var restorer = new Common.Restorer() { TcpHost = Common.ConnectionManager.GetLocalIPAddress(checkIP, checkPort) };
             using var conMan = new Common.ConnectionManager(restorer);
             var registry = new ServiceRegistry ()
             {
@@ -101,7 +105,7 @@ namespace Mas.Infrastructure.ServiceRegistry
                 CategoriesFilePath = catsFilePath,
                 Id = id,
                 Name = name,
-                Description = desc
+                Description = desc,
             };
             conMan.Bind(IPAddress.Any, tcpPort, restorer);
             restorer.TcpPort = conMan.Port;
