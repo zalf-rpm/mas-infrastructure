@@ -8,13 +8,16 @@ namespace Mas.Infrastructure.Common
 {
     public class ConnectionManager : IDisposable
     {
-        private ConcurrentDictionary<string, TcpRpcClient> _Connections = new();
-        private TcpRpcServer _Server;
+        private ConcurrentDictionary<string, TcpRpcClient> _connections = new();
+        private TcpRpcServer _server;
 
-        public ushort Port { get { return (ushort)_Server.Port; } }
+        private Restorer _restorer;
 
-        public ConnectionManager() 
+        public ushort Port { get { return (ushort)_server.Port; } }
+
+        public ConnectionManager(Restorer restorer = null) 
         {
+            _restorer = restorer;
             //Console.WriteLine("ConnectionManager created");
         }
 
@@ -25,7 +28,7 @@ namespace Mas.Infrastructure.Common
             //Console.WriteLine("Disposing ConnectionManager");
 
             //if(_Connections.Any()) Console.WriteLine("ConnectionManager: Disposing connections");
-            foreach (var (key, con) in _Connections)
+            foreach (var (key, con) in _connections)
             {
                 try
                 {
@@ -40,7 +43,7 @@ namespace Mas.Infrastructure.Common
             try
             {
                 //Console.WriteLine("ConnectionManager: Disposing Capnp.Rpc.TcpRpcServer");
-                _Server?.Dispose();
+                _server?.Dispose();
             }
             catch(System.Exception e)
             {
@@ -50,14 +53,15 @@ namespace Mas.Infrastructure.Common
 
         public async Task<TRemoteInterface> Connect<TRemoteInterface>(string sturdyRef) where TRemoteInterface : class, IDisposable
         {
-            // we assume that a sturdy ref url looks always like capnp://vat-id-or-insecure@host:port/sturdy-ref-token
+            // we assume that a sturdy ref url looks always like 
+            // capnp://vat-id_base64-curve25519-public-key@host:port/sturdy-ref-token_base64
             if (sturdyRef.StartsWith("capnp://")) 
             {
-                var vatId = "";
+                var vatIdBase64 = "";
                 var addressPort = "";
                 var address = "";
                 var port = 0;
-                var srToken = "";
+                var srTokenBase64 = "";
 
                 var rest = sturdyRef.Substring(8);
                 // is unix domain socket
@@ -68,7 +72,7 @@ namespace Mas.Infrastructure.Common
                 else
                 {
                     var vatIdAndRest = rest.Split("@");
-                    if (vatIdAndRest.Length > 0) vatId = vatIdAndRest[0];
+                    if (vatIdAndRest.Length > 0) vatIdBase64 = vatIdAndRest[0];
                     if (vatIdAndRest[^1].Contains("/"))
                     {
                         var addressPortAndRest = vatIdAndRest[^1].Split("/");
@@ -79,7 +83,7 @@ namespace Mas.Infrastructure.Common
                             if (addressAndPort.Length > 0) address = addressAndPort[0];
                             if (addressAndPort.Length > 1) port = Int32.Parse(addressAndPort[1]);
                         }
-                        if (addressPortAndRest.Length > 1) srToken = addressPortAndRest[1];
+                        if (addressPortAndRest.Length > 1) srTokenBase64 = addressPortAndRest[1];
                     }
                 }
 
@@ -89,11 +93,13 @@ namespace Mas.Infrastructure.Common
                     {
                         //Console.WriteLine("ConnectionManager: ThreadId: " + Thread.CurrentThread.ManagedThreadId);
                         //var con = new TcpRpcClient(address, port);
-                        var con = _Connections.GetOrAdd(addressPort, new TcpRpcClient(address, port));
+                        var con = _connections.GetOrAdd(addressPort, new TcpRpcClient(address, port));
                         await Task.WhenAll(con.WhenConnected);
-                        if (!string.IsNullOrEmpty(srToken))
+                        if (!string.IsNullOrEmpty(srTokenBase64))
                         {
                             var restorer = con.GetMain<Schema.Persistence.IRestorer>();
+                            var srTokenArr = Convert.FromBase64String(srTokenBase64);
+                            var srToken = System.Text.Encoding.UTF8.GetString(srTokenArr);
                             var cap = await restorer.Restore(srToken);
                             return cap.Cast<TRemoteInterface>(true);
                         }
@@ -106,11 +112,11 @@ namespace Mas.Infrastructure.Common
                     }
                     catch(ArgumentOutOfRangeException)
                     {
-                        _Connections.TryRemove(addressPort, out _);
+                        _connections.TryRemove(addressPort, out _);
                     }
                     catch(System.Exception)
                     {
-                        _Connections.TryRemove(addressPort, out _);
+                        _connections.TryRemove(addressPort, out _);
                         throw;
                     }
                 }
@@ -120,13 +126,13 @@ namespace Mas.Infrastructure.Common
 
         public void Bind(IPAddress address, int tcpPort, object bootstrap)
         {
-            if (_Server != null)
-                _Server.Dispose();
+            if (_server != null)
+                _server.Dispose();
 
-            _Server = new TcpRpcServer();
-            _Server.AddBuffering();
-            _Server.Main = bootstrap;
-            _Server.StartAccepting(address, tcpPort);
+            _server = new TcpRpcServer();
+            _server.AddBuffering();
+            _server.Main = bootstrap;
+            _server.StartAccepting(address, tcpPort);
         }
     }
 }

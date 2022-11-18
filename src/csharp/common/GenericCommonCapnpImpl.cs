@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using Crypt = NSec.Cryptography;
 
 namespace Mas.Infrastructure.Common
 {
@@ -16,9 +17,15 @@ namespace Mas.Infrastructure.Common
         public ushort TcpPort { get; set; }
         public byte[] VatId { get; set; }
 
+        private Crypt.Key _vatKey;
+
         public Restorer()
         {
             TcpHost = GetLocalIPAddress(); //Dns.GetHostName(); //"localhost";// GetLocalIPAddress();
+
+            var algorithm = Crypt.SignatureAlgorithm.Ed25519;
+            _vatKey = Crypt.Key.Create(algorithm);
+            VatId = _vatKey.Export(Crypt.KeyBlobFormat.PkixPublicKey);
         }
 
         public static string GetLocalIPAddress()
@@ -45,7 +52,34 @@ namespace Mas.Infrastructure.Common
             public Action UnsaveAction { get; set; }
         }
 
-        public SaveRes Save(Capnp.Rpc.Proxy proxy, string fixedSrToken = null, bool includeUnsave = true)
+        public (string, string) SaveStr(Capnp.Rpc.Proxy proxy, string fixedSrToken = null, string sealForOwner = null, 
+            bool includeUnsave = true)
+        {
+            var srToken = fixedSrToken ?? System.Guid.NewGuid().ToString();
+            _srToken2Capability[srToken] = proxy;
+            if(includeUnsave)
+            {
+                var unsaveSRToken = System.Guid.NewGuid().ToString();
+                var unsaveAction = new Action(() => { Unsave(srToken); Unsave(unsaveSRToken); }); 
+                _srToken2Capability[unsaveSRToken] = BareProxy.FromImpl(unsaveAction);
+                return (SturdyRefStr(srToken), SturdyRefStr(unsaveSRToken));
+            }
+            else 
+            {
+                return (SturdyRefStr(srToken), null);
+            }   
+        }
+
+        public string SturdyRefStr(string srToken)
+        {
+            var vatIdBase64 = Convert.ToBase64String(VatId, 0, VatId.Length);
+            var srTokenBase64 = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(srToken));
+            return $"capnp://{vatIdBase64}@{TcpHost}:{TcpPort}/{srTokenBase64}";
+        }
+
+
+        public SaveRes Save(Capnp.Rpc.Proxy proxy, string fixedSrToken = null, string sealForOwner = null, 
+            bool includeUnsave = true)
         {
             var srToken = fixedSrToken ?? System.Guid.NewGuid().ToString();
             _srToken2Capability[srToken] = proxy;
@@ -71,10 +105,7 @@ namespace Mas.Infrastructure.Common
             }   
         }
 
-        public string SturdyRefStr(string srToken)
-        {
-            return $"capnp://insecure@{TcpHost}:{TcpPort}/{srToken}";
-        }
+
 
         public Mas.Schema.Persistence.SturdyRef SturdyRef(string srToken)
         {
