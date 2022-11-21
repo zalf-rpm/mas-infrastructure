@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Crypt = NSec.Cryptography;
+using P = Mas.Schema.Persistence;
 
 namespace Mas.Infrastructure.Common
 {
@@ -17,6 +18,10 @@ namespace Mas.Infrastructure.Common
         public ushort TcpPort { get; set; } = 0;
         public byte[] VatId { get; set; }
 
+        private ConcurrentDictionary<string, (ulong[], string)> _extSRT2VatIdAndIntSRT = new(); // mapping of external sturdy ref token to internal one
+
+        private ConcurrentDictionary<ulong[], Mas.Schema.Persistence.IRestorer> _vatId2Restorer = new();   
+
         private Crypt.Key _vatKey;
 
         public Restorer()
@@ -27,7 +32,6 @@ namespace Mas.Infrastructure.Common
             _vatKey = Crypt.Key.Create(algorithm);
             VatId = _vatKey.Export(Crypt.KeyBlobFormat.PkixPublicKey);
         }
-
         
 
         public struct SaveRes 
@@ -66,12 +70,18 @@ namespace Mas.Infrastructure.Common
             return $"capnp://{vatIdBase64}@{TcpHost}:{TcpPort}/{srTokenBase64}";
         }
 
+        public void InstallCrossDomainMapping(string extSRT, P.VatId vatId, string intSRT)
+        {
+            _extSRT2VatIdAndIntSRT[extSRT] = 
+                (new[] { vatId.PublicKey0, vatId.PublicKey1, vatId.PublicKey2, vatId.PublicKey3 }, intSRT);
+        }
 
-        public SaveRes Save(Capnp.Rpc.Proxy proxy, string fixedSrToken = null, string sealForOwner = null, 
+        public SaveRes Save(Capnp.Rpc.Proxy proxy, string fixedSRToken = null, string sealForOwner = null, 
             bool includeUnsave = true)
         {
-            var srToken = fixedSrToken ?? System.Guid.NewGuid().ToString();
+            var srToken = fixedSRToken ?? System.Guid.NewGuid().ToString();
             _srToken2Capability[srToken] = proxy;
+
             if(includeUnsave)
             {
                 var unsaveSRToken = System.Guid.NewGuid().ToString();
@@ -125,22 +135,41 @@ namespace Mas.Infrastructure.Common
             _srToken2Capability.TryRemove(srToken, out _);
         }
 
-        #region implementation of Mas.Schema.Persistence.Restorer
-        public Task<BareProxy> Restore(string srToken, CancellationToken cancellationToken_ = default)
+        public void AddOrUpdateCrossDomainRestore(P.VatId vatId, P.IRestorer restorer)
         {
+            _vatId2Restorer.AddOrUpdate(
+                new[] { vatId.PublicKey0, vatId.PublicKey1, vatId.PublicKey2, vatId.PublicKey3 }, 
+                (k) => restorer, (k,oldRestorer) => { oldRestorer?.Dispose(); return restorer; });
+        }
+
+
+        #region implementation of Mas.Schema.Persistence.Restorer
+        public async Task<BareProxy> Restore(string srToken, CancellationToken cancellationToken_ = default)
+        {
+            // is cross domain restore? then always query the remote restorer
+            if (_extSRT2VatIdAndIntSRT.ContainsKey(srToken))
+            {
+                var (vatId, intSRT) = _extSRT2VatIdAndIntSRT[srToken];
+                if (_vatId2Restorer.TryGetValue(vatId, out var restorer)) 
+                {
+                    return await restorer.Restore(intSRT);
+                }
+            }
+
+            // no remote restorer for cross domain available or just a normal restore
             if (_srToken2Capability.ContainsKey(srToken))
             {
                 var cap = _srToken2Capability[srToken];
                 if (cap is BareProxy bareProxy)
-                    return Task.FromResult(Proxy.Share(bareProxy));
+                    return Proxy.Share(bareProxy);
                 else
                 {
                     var sharedProxy = Proxy.Share(cap);
                     var bareProxy2 = new BareProxy(sharedProxy.ConsumedCap);
-                    return Task.FromResult<BareProxy>(bareProxy2);// Proxy.Share(_srToken2Proxy[srToken]));
+                    return bareProxy2;// Proxy.Share(_srToken2Proxy[srToken]));
                 }
             }
-            return Task.FromResult<BareProxy>(null);
+            return null;
         }
         #endregion
 

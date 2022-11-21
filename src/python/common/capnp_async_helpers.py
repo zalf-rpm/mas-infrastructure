@@ -197,60 +197,67 @@ class ConnectionManager:
 
 
     async def connect(self, sturdy_ref, cast_as = None):
-        # we assume that a sturdy ref url looks always like 
-        # capnp://vat-id_base64-curve25519-public-key@host:port/sturdy-ref-token_base64
         try:
-            if sturdy_ref[:8] == "capnp://":
-                rest = sturdy_ref[8:]
-                vat_id_base64, rest = rest.split("@") if "@" in rest else (None, rest)
-                host, rest = rest.split(":")
-                port, sr_token_base64 = rest.split("/") if "/" in rest else (rest, None)
+            if type(sturdy_ref) == str:
+                # we assume that a sturdy ref url looks always like 
+                # capnp://vat-id_base64-curve25519-public-key@host:port/sturdy-ref-token_base64
+                if sturdy_ref[:8] == "capnp://":
+                    rest = sturdy_ref[8:]
+                    vat_id_base64, rest = rest.split("@") if "@" in rest else (None, rest)
+                    host, rest = rest.split(":")
+                    if "/" in rest:
+                        port, rest = rest.split("/") if "/" in rest else (rest, None)
+                        sr_token_base64, rest = rest.split("?") if "?" in rest else (rest, None)
+                        sr_token = base64.urlsafe_b64decode(sr_token_base64 + "==")
+            else:
+                vat_path = sturdy_ref.transient.vat
+                vat_id_base64 = vat_path.id
+                host = vat_path.address.host
+                port = vat_path.address.port
+                sr_token = sturdy_ref.transient.localRef.as_text()
 
-                host_port = "{}:{}".format(host, port)
-                if host_port in self._connections:
-                    bootstrap_cap = self._connections[host_port]
-                else:
-                    # Handle both IPv4 and IPv6 cases
-                    try:
-                        reader, writer = await asyncio.open_connection(
-                            host, port,
-                            family=socket.AF_INET
-                        )
-                    except Exception:
-                        print("Tried open connection via IPv4, now trying IPv6.")
-                        reader, writer = await asyncio.open_connection(
-                            host, port,
-                            family=socket.AF_INET6
-                        )
+            host_port = "{}:{}".format(host, port)
+            if host_port in self._connections:
+                bootstrap_cap = self._connections[host_port]
+            else:
+                # Handle both IPv4 and IPv6 cases
+                try:
+                    reader, writer = await asyncio.open_connection(
+                        host, port,
+                        family=socket.AF_INET
+                    )
+                except Exception:
+                    print("Tried open connection via IPv4, now trying IPv6.")
+                    reader, writer = await asyncio.open_connection(
+                        host, port,
+                        family=socket.AF_INET6
+                    )
 
-                    # Start TwoPartyClient using TwoWayPipe (takes no arguments in this mode)
-                    client = capnp.TwoPartyClient()
+                # Start TwoPartyClient using TwoWayPipe (takes no arguments in this mode)
+                client = capnp.TwoPartyClient()
 
-                    # Assemble reader and writer tasks, run in the background
-                    coroutines = [self.socket_reader(client, reader), self.socket_writer(client, writer)]
-                    self._alltasks.append(asyncio.gather(*coroutines, return_exceptions=True))
+                # Assemble reader and writer tasks, run in the background
+                coroutines = [self.socket_reader(client, reader), self.socket_writer(client, writer)]
+                self._alltasks.append(asyncio.gather(*coroutines, return_exceptions=True))
 
-                    bootstrap_cap = client.bootstrap()
-                    self._connections[host_port] = bootstrap_cap
+                bootstrap_cap = client.bootstrap()
+                self._connections[host_port] = bootstrap_cap
 
-                if sr_token_base64:
-                    #ok, _ = self._restorer.verify_sr_token(sr_token_b64, vat_id_b64)
-                    #if ok:
-                    sr_token = base64.urlsafe_b64decode(sr_token_base64 + "==")
-                    restorer = bootstrap_cap.cast_as(persistence_capnp.Restorer)
-                    res_req = restorer.restore_request()
-                    res_req.localRef = sr_token
-                    dyn_obj_reader = (await res_req.send().a_wait()).cap
-                    if dyn_obj_reader is not None:
-                        return dyn_obj_reader.as_interface(cast_as) if cast_as else dyn_obj_reader
-                else:
-                    return bootstrap_cap.cast_as(cast_as) if cast_as else bootstrap_cap
-
-            return None
+            if sr_token:
+                restorer = bootstrap_cap.cast_as(persistence_capnp.Restorer)
+                res_req = restorer.restore_request()
+                res_req.localRef = sr_token
+                dyn_obj_reader = (await res_req.send().a_wait()).cap
+                if dyn_obj_reader is not None:
+                    return dyn_obj_reader.as_interface(cast_as) if cast_as else dyn_obj_reader
+            else:
+                return bootstrap_cap.cast_as(cast_as) if cast_as else bootstrap_cap
 
         except Exception as e:
             print("Exception in capnp_async_helpers.py::ConnectionManager.connect: {}".format(e))
             return None
+
+        return None
 
 
     async def try_connect(self, sturdy_ref, cast_as = None, retry_count=10, retry_secs=5, print_retry_msgs=True):

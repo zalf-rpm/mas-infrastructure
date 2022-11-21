@@ -250,7 +250,7 @@ void Restorer::save(capnp::Capability::Client cap,
   if(createUnsave)
   {
     auto unsaveSRToken = kj::str(sole::uuid4().str());
-    auto srt = kj::mv(srToken);
+    auto srt = kj::str(srToken);
     auto usrt = kj::str(unsaveSRToken);
     auto unsaveAction = kj::heap<Action>([this, KJ_MVCAP(srt), KJ_MVCAP(usrt)]() { 
       unsave(srt); unsave(usrt);

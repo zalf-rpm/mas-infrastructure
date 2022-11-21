@@ -66,9 +66,9 @@ namespace Mas.Infrastructure.ServiceRegistry
         }
 
         private ConcurrentDictionary<string, RegData> _regId2Entry;
-        private ConcurrentDictionary<string, (ulong[], string)> _extSRT2VatIdAndIntSRT = new(); // mapping of external sturdy ref token to internal one
+        //private ConcurrentDictionary<string, (ulong[], string)> _extSRT2VatIdAndIntSRT = new(); // mapping of external sturdy ref token to internal one
         private IInterceptionPolicy _savePolicy;
-        private ConcurrentDictionary<ulong[], Mas.Schema.Persistence.IRestorer> _vatId2Restorer = new();   
+        //private ConcurrentDictionary<ulong[], Mas.Schema.Persistence.IRestorer> _vatId2Restorer = new();   
 
         public ServiceRegistry()
         {
@@ -291,12 +291,9 @@ namespace Mas.Infrastructure.ServiceRegistry
                         // attach a membrane around the capability to intercept save messages
                         var interceptedCap = _registry._savePolicy.Attach(ps.Cap);
                         
+                        // if this capabiity is supposed to be restorable accross domains, register it at the restorer
                         if (ps.XDomain != null && ps.XDomain.Restorer != null){
-                            var vid = ps.XDomain.VatId;
-                            _registry._vatId2Restorer.AddOrUpdate(
-                                new[] { vid.PublicKey0, vid.PublicKey1, vid.PublicKey2, vid.PublicKey3 }, 
-                                (k) => ps.XDomain.Restorer, 
-                                (k,oldRestorer) => { oldRestorer?.Dispose(); return ps.XDomain.Restorer; });
+                            _restorer.AddOrUpdateCrossDomainRestore(ps.XDomain.VatId, ps.XDomain.Restorer);
                         }
 
                         // create an unregister action
@@ -382,26 +379,7 @@ namespace Mas.Infrastructure.ServiceRegistry
 
             public async void OnCallFromAlice(CallContext callContext)
             {
-                // is a Restorer interface
-                if (callContext.InterfaceId == RestorerInterfaceId && callContext.MethodId == RestoreMethodId)
-                {
-                    P.Restorer.Params_Restore args = new();
-                    (args as ICapnpSerializable).Serialize(callContext.InArgs);
-                    var extSRT = args.SrToken;
-                    var (vatId, intSRT) = _registry._extSRT2VatIdAndIntSRT[extSRT];
-                    //P.IRestorer restorer = null;
-                    if (_registry._vatId2Restorer.TryGetValue(vatId, out var restorer)) {
-                        var result = CapnpSerializable.Create<P.Restorer.Result_Restore>(callContext.OutArgs);
-                        var res = await restorer.Restore(intSRT);
-                        result.Cap = res;
-                        var resultWriter = SerializerState.CreateForRpc<P.Restorer.Result_Restore.WRITER>();
-                        result.serialize(resultWriter);
-                        callContext.OutArgs = resultWriter;
-                    }
-                    callContext.ReturnToAlice();
-                } 
-                else
-                    callContext.ForwardToBob();
+                callContext.ForwardToBob();
             }
 
             public void OnReturnFromBob(CallContext callContext)
@@ -409,11 +387,11 @@ namespace Mas.Infrastructure.ServiceRegistry
                 if (callContext.InterfaceId == PersistentInterfaceId && callContext.MethodId == SaveMethodId)
                 {
                     var result = CapnpSerializable.Create<P.Persistent.SaveResults>(callContext.OutArgs);
-                    var intSRT = (string)result.SturdyRef.TheTransient.LocalRef;
-                    var vid = result.SturdyRef.TheTransient.Vat.Id;
+                    var ds = (DeserializerState)result.SturdyRef.TheTransient.LocalRef; 
+                    var intSRT = CapnpSerializable.Create<string>(ds);
                     var extSRT = System.Guid.NewGuid().ToString();
-                    _registry._extSRT2VatIdAndIntSRT[extSRT] = 
-                        (new[] { vid.PublicKey0, vid.PublicKey1, vid.PublicKey2, vid.PublicKey3 }, intSRT);
+                    var vid = result.SturdyRef.TheTransient.Vat.Id;
+                    _registry.Restorer.InstallCrossDomainMapping(extSRT, result.SturdyRef.TheTransient.Vat.Id, intSRT);
                     result.SturdyRef = _registry.Restorer.SturdyRef(extSRT);
                     var resultWriter = SerializerState.CreateForRpc<P.Persistent.SaveResults.WRITER>();
                     result.serialize(resultWriter);
