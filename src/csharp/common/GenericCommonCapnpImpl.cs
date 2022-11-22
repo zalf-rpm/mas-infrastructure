@@ -18,9 +18,9 @@ namespace Mas.Infrastructure.Common
         public ushort TcpPort { get; set; } = 0;
         public byte[] VatId { get; set; }
 
-        private ConcurrentDictionary<string, (ulong[], string)> _extSRT2VatIdAndIntSRT = new(); // mapping of external sturdy ref token to internal one
+        private ConcurrentDictionary<string, ((ulong, ulong, ulong, ulong), string)> _extSRT2VatIdAndIntSRT = new(); // mapping of external sturdy ref token to internal one
 
-        private ConcurrentDictionary<ulong[], Mas.Schema.Persistence.IRestorer> _vatId2Restorer = new();   
+        private ConcurrentDictionary<(ulong, ulong, ulong, ulong), Mas.Schema.Persistence.IRestorer> _vatId2Restorer = new();   
 
         private Crypt.Key _vatKey;
 
@@ -73,7 +73,7 @@ namespace Mas.Infrastructure.Common
         public void InstallCrossDomainMapping(string extSRT, P.VatId vatId, string intSRT)
         {
             _extSRT2VatIdAndIntSRT[extSRT] = 
-                (new[] { vatId.PublicKey0, vatId.PublicKey1, vatId.PublicKey2, vatId.PublicKey3 }, intSRT);
+                ((vatId.PublicKey0, vatId.PublicKey1, vatId.PublicKey2, vatId.PublicKey3), intSRT);
         }
 
         public SaveRes Save(Capnp.Rpc.Proxy proxy, string fixedSRToken = null, string sealForOwner = null, 
@@ -138,7 +138,7 @@ namespace Mas.Infrastructure.Common
         public void AddOrUpdateCrossDomainRestore(P.VatId vatId, P.IRestorer restorer)
         {
             _vatId2Restorer.AddOrUpdate(
-                new[] { vatId.PublicKey0, vatId.PublicKey1, vatId.PublicKey2, vatId.PublicKey3 }, 
+                (vatId.PublicKey0, vatId.PublicKey1, vatId.PublicKey2, vatId.PublicKey3), 
                 (k) => restorer, (k,oldRestorer) => { oldRestorer?.Dispose(); return restorer; });
         }
 
