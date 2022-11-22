@@ -74,6 +74,8 @@ class Restorer final : public mas::schema::persistence::Restorer::Server
 
   void setOwnerSignPublicKey(kj::StringPtr ownerGuid, kj::ArrayPtr<unsigned char> ownerSignPublicKey);
 
+  void setVatId(mas::schema::persistence::VatId::Builder vatIdBuilder) const;
+
 private:
   kj::Maybe<capnp::Capability::Client> getCapFromSRToken(kj::StringPtr srToken, kj::StringPtr ownerGuid = kj::StringPtr());
   kj::String signSRTokenByVatAndEncodeBase64(kj::StringPtr srToken);

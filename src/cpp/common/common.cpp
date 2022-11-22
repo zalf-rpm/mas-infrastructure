@@ -194,11 +194,7 @@ kj::String Restorer::sturdyRefStr(kj::StringPtr srToken) const {
 void Restorer::sturdyRef(mas::schema::persistence::SturdyRef::Builder& srb, kj::StringPtr srToken) const {
   auto trb = srb.initTransient();
   auto vpb = trb.initVat();
-  auto ib = vpb.initId();
-  ib.setPublicKey0(_vatId[0]);
-  ib.setPublicKey1(_vatId[1]);
-  ib.setPublicKey2(_vatId[2]);
-  ib.setPublicKey3(_vatId[3]);
+  setVatId(vpb.initId());
   auto ab = vpb.initAddress();
   ab.setHost(_host);
   ab.setPort(_port);
@@ -287,12 +283,22 @@ kj::Tuple<kj::String, kj::String> Restorer::saveStr(capnp::Capability::Client ca
   return kj::tuple(sturdyRefStr(srToken), kj::mv(unsaveSRStr));
 }
 
-void Restorer::unsave(kj::StringPtr srToken) {
+void Restorer::unsave(kj::StringPtr srToken) 
+{
   _issuedSRTokens.erase(srToken);
 }
 
-void Restorer::setOwnerSignPublicKey(kj::StringPtr ownerGuid, kj::ArrayPtr<unsigned char> ownerSignPublicKey){
+void Restorer::setOwnerSignPublicKey(kj::StringPtr ownerGuid, kj::ArrayPtr<unsigned char> ownerSignPublicKey)
+{
   _ownerGuidToSignPK.insert(kj::heapString(ownerGuid), kj::heapArray(ownerSignPublicKey));
+}
+
+void Restorer::setVatId(mas::schema::persistence::VatId::Builder vidb) const
+{
+  vidb.setPublicKey0(_vatId[0]);
+  vidb.setPublicKey1(_vatId[1]);
+  vidb.setPublicKey2(_vatId[2]);
+  vidb.setPublicKey3(_vatId[3]);
 }
 
 //-----------------------------------------------------------------------------
