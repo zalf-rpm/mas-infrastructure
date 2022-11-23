@@ -21,5 +21,15 @@ interface Registry @0xca7b4bd1600633b8 superclasses(import "/common.capnp".Ident
   }
 }
 interface Registrar @0xabaef93c36f2d1ea superclasses(import "/common.capnp".Identifiable) {
-  register @0 (cap :import "/common.capnp".Identifiable, regName :Text, categoryId :Text) -> (unreg :import "/common.capnp".Action, reregSR :Text);
+  register @0 RegParams -> (unreg :import "/common.capnp".Action, reregSR :import "/persistence.capnp".SturdyRef);
+  struct CrossDomainRestore @0xaa1198dd7e71b20e {  # 0 bytes, 2 ptrs
+    vatId @0 :import "/persistence.capnp".VatId;  # ptr[0]
+    restorer @1 :import "/persistence.capnp".Restorer;  # ptr[1]
+  }
+  struct RegParams @0xe5a84717ea75fb0d {  # 0 bytes, 4 ptrs
+    cap @0 :import "/common.capnp".Identifiable;  # ptr[0]
+    regName @1 :Text;  # ptr[1]
+    categoryId @2 :Text;  # ptr[2]
+    xDomain @3 :CrossDomainRestore;  # ptr[3]
+  }
 }

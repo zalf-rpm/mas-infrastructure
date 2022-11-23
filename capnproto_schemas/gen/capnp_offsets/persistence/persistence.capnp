@@ -43,8 +43,19 @@ struct SturdyRef @0x886d68271d83de4d {  # 8 bytes, 1 ptrs
   }
 }
 interface Persistent @0xc1a7daa0dc36cb65 {
-  save @0 () -> (sturdyRef :Text, unsaveSR :Text);
+  save @0 SaveParams -> SaveResults;
+  struct SaveParams @0xd5e0aac4225e0343 {  # 0 bytes, 1 ptrs
+    sealFor @0 :SturdyRef.Owner;  # ptr[0]
+  }
+  struct SaveResults @0xdc5bd1ef982cec13 {  # 0 bytes, 2 ptrs
+    sturdyRef @0 :SturdyRef;  # ptr[0]
+    unsaveSR @1 :SturdyRef;  # ptr[1]
+  }
 }
 interface Restorer @0x9fb6218427d92e3c {
-  restore @0 (srToken :Text) -> (cap :Capability);
+  restore @0 RestoreParams -> (cap :Capability);
+  struct RestoreParams @0xc541e5764a37d73a {  # 0 bytes, 2 ptrs
+    localRef @0 :AnyPointer;  # ptr[0]
+    sealedFor @1 :SturdyRef.Owner;  # ptr[1]
+  }
 }

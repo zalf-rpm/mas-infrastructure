@@ -18,6 +18,7 @@ capnp compile -I. -ocapnp persistence.capnp > ./gen/capnp_offsets/persistence/pe
 capnp compile -I. -ocapnp registry.capnp > ./gen/capnp_offsets/registry/registry.capnp
 capnp compile -I. -ocapnp service.capnp > ./gen/capnp_offsets/service/service.capnp
 capnp compile -I. -ocapnp soil.capnp > ./gen/capnp_offsets/soil/soil.capnp
+capnp compile -I. -ocapnp storage.capnp > ./gen/capnp_offsets/storage/storage.capnp
 #capnp compile -I. -ocapnp vr.capnp > ./gen/capnp_offsets/vr/vr.capnp
 
 capnp compile -I. -ocapnp model/weberest/web-berest-data-import.capnp > ./gen/capnp_offsets/model/weberest/web-berest-data-import.capnp

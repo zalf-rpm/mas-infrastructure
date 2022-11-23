@@ -37,6 +37,12 @@ struct ZmqPipelineAddresses @0xfe04fe97ba25a27e {  # 0 bytes, 2 ptrs
   input @0 :Text;  # ptr[0]
   output @1 :Text;  # ptr[1]
 }
+interface ValueHolder @0xf1c80d9ce9dfd993 (T) superclasses(import "/persistence.capnp".Persistent) {
+  value @0 () -> (val :T);
+}
+interface AnyValueHolder @0x89f6c5dd387cc101 superclasses(import "/persistence.capnp".Persistent) {
+  value @0 () -> (val :AnyPointer);
+}
 interface CapHolder @0xcac9c6537df1a097 (Object) {
   cap @0 () -> (object :Object);
   release @1 () -> () $import "/capnp/go.capnp".name("releaseCap");

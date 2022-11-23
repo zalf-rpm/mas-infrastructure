@@ -22,6 +22,7 @@ capnp compile -I. -ocsharp:./gen/csharp/persistence persistence.capnp
 capnp compile -I. -ocsharp:./gen/csharp/registry registry.capnp
 capnp compile -I. -ocsharp:./gen/csharp/service service.capnp
 capnp compile -I. -ocsharp:./gen/csharp/soil soil.capnp
+capnp compile -I. -ocsharp:./gen/csharp/storage storage.capnp
 #capnp compile -I. -ocsharp:./gen/csharp/vr vr.capnp
 
 capnp compile -I. -ocsharp:./gen/csharp model/weberest/web-berest-data-import.capnp

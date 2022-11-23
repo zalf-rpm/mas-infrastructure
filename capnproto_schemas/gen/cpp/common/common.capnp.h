@@ -41,6 +41,9 @@ CAPNP_DECLARE_SCHEMA(fe04fe97ba25a27e);
 CAPNP_DECLARE_SCHEMA(f1c80d9ce9dfd993);
 CAPNP_DECLARE_SCHEMA(fb528c3db0280a11);
 CAPNP_DECLARE_SCHEMA(ade9d46971ea9ee3);
+CAPNP_DECLARE_SCHEMA(89f6c5dd387cc101);
+CAPNP_DECLARE_SCHEMA(c9851222d70aff42);
+CAPNP_DECLARE_SCHEMA(b5fca46714e53e71);
 CAPNP_DECLARE_SCHEMA(cac9c6537df1a097);
 CAPNP_DECLARE_SCHEMA(da52b34d937fa814);
 CAPNP_DECLARE_SCHEMA(dc9b0f483595691f);
@@ -464,6 +467,55 @@ struct ValueHolder<T>::ValueResults {
     static const ::capnp::_::RawBrandedSchema::Binding brandBindings[];
     static const ::capnp::_::RawBrandedSchema specificBrand;
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return ::capnp::_::ChooseBrand<_capnpPrivate, T>::brand(); }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct AnyValueHolder {
+  AnyValueHolder() = delete;
+
+#if !CAPNP_LITE
+  class Client;
+  class Server;
+#endif  // !CAPNP_LITE
+
+  struct ValueParams;
+  struct ValueResults;
+
+  #if !CAPNP_LITE
+  struct _capnpPrivate {
+    CAPNP_DECLARE_INTERFACE_HEADER(89f6c5dd387cc101)
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+  };
+  #endif  // !CAPNP_LITE
+};
+
+struct AnyValueHolder::ValueParams {
+  ValueParams() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(c9851222d70aff42, 0, 0)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct AnyValueHolder::ValueResults {
+  ValueResults() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(b5fca46714e53e71, 0, 1)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
   };
 };
@@ -2656,7 +2708,8 @@ private:
 #if !CAPNP_LITE
 template <typename T>
 class ValueHolder<T>::Client
-    : public virtual ::capnp::Capability::Client {
+    : public virtual ::capnp::Capability::Client,
+      public virtual  ::mas::schema::persistence::Persistent::Client {
 public:
   typedef ValueHolder Calls;
   typedef ValueHolder Reads;
@@ -2687,7 +2740,8 @@ protected:
 
 template <typename T>
 class ValueHolder<T>::Server
-    : public virtual ::capnp::Capability::Server {
+    : public virtual ::capnp::Capability::Server,
+      public virtual  ::mas::schema::persistence::Persistent::Server {
 public:
   typedef ValueHolder Serves;
 
@@ -2885,6 +2939,210 @@ public:
       : _typeless(kj::mv(typeless)) {}
 
   inline  ::capnp::PipelineFor<T> getVal();
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+#if !CAPNP_LITE
+class AnyValueHolder::Client
+    : public virtual ::capnp::Capability::Client,
+      public virtual  ::mas::schema::persistence::Persistent::Client {
+public:
+  typedef AnyValueHolder Calls;
+  typedef AnyValueHolder Reads;
+
+  Client(decltype(nullptr));
+  explicit Client(::kj::Own< ::capnp::ClientHook>&& hook);
+  template <typename _t, typename = ::kj::EnableIf< ::kj::canConvert<_t*, Server*>()>>
+  Client(::kj::Own<_t>&& server);
+  template <typename _t, typename = ::kj::EnableIf< ::kj::canConvert<_t*, Client*>()>>
+  Client(::kj::Promise<_t>&& promise);
+  Client(::kj::Exception&& exception);
+  Client(Client&) = default;
+  Client(Client&&) = default;
+  Client& operator=(Client& other);
+  Client& operator=(Client&& other);
+
+  ::capnp::Request< ::mas::schema::common::AnyValueHolder::ValueParams,  ::mas::schema::common::AnyValueHolder::ValueResults> valueRequest(
+      ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
+
+protected:
+  Client() = default;
+};
+
+class AnyValueHolder::Server
+    : public virtual ::capnp::Capability::Server,
+      public virtual  ::mas::schema::persistence::Persistent::Server {
+public:
+  typedef AnyValueHolder Serves;
+
+  ::capnp::Capability::Server::DispatchCallResult dispatchCall(
+      uint64_t interfaceId, uint16_t methodId,
+      ::capnp::CallContext< ::capnp::AnyPointer, ::capnp::AnyPointer> context)
+      override;
+
+protected:
+  typedef  ::mas::schema::common::AnyValueHolder::ValueParams ValueParams;
+  typedef  ::mas::schema::common::AnyValueHolder::ValueResults ValueResults;
+  typedef ::capnp::CallContext<ValueParams, ValueResults> ValueContext;
+  virtual ::kj::Promise<void> value(ValueContext context);
+
+  inline  ::mas::schema::common::AnyValueHolder::Client thisCap() {
+    return ::capnp::Capability::Server::thisCap()
+        .template castAs< ::mas::schema::common::AnyValueHolder>();
+  }
+
+  ::capnp::Capability::Server::DispatchCallResult dispatchCallInternal(
+      uint16_t methodId,
+      ::capnp::CallContext< ::capnp::AnyPointer, ::capnp::AnyPointer> context);
+};
+#endif  // !CAPNP_LITE
+
+class AnyValueHolder::ValueParams::Reader {
+public:
+  typedef ValueParams Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class AnyValueHolder::ValueParams::Builder {
+public:
+  typedef ValueParams Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class AnyValueHolder::ValueParams::Pipeline {
+public:
+  typedef ValueParams Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+class AnyValueHolder::ValueResults::Reader {
+public:
+  typedef ValueResults Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  inline bool hasVal() const;
+  inline ::capnp::AnyPointer::Reader getVal() const;
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class AnyValueHolder::ValueResults::Builder {
+public:
+  typedef ValueResults Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline bool hasVal();
+  inline ::capnp::AnyPointer::Builder getVal();
+  inline ::capnp::AnyPointer::Builder initVal();
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class AnyValueHolder::ValueResults::Pipeline {
+public:
+  typedef ValueResults Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -7344,6 +7602,8 @@ template <typename T>
   switch (interfaceId) {
     case 0xf1c80d9ce9dfd993ull:
       return dispatchCallInternal(methodId, context);
+    case 0xc1a7daa0dc36cb65ull:
+      return  ::mas::schema::persistence::Persistent::Server::dispatchCallInternal(methodId, context);
     default:
       return internalUnimplemented("common.capnp:ValueHolder", interfaceId);
   }
@@ -7393,6 +7653,53 @@ const ::capnp::_::RawBrandedSchema ValueHolder<T>::_capnpPrivate::specificBrand 
   1, 2, nullptr
 };
 #endif  // !CAPNP_LITE
+
+#if !CAPNP_LITE
+inline AnyValueHolder::Client::Client(decltype(nullptr))
+    : ::capnp::Capability::Client(nullptr) {}
+inline AnyValueHolder::Client::Client(
+    ::kj::Own< ::capnp::ClientHook>&& hook)
+    : ::capnp::Capability::Client(::kj::mv(hook)) {}
+template <typename _t, typename>
+inline AnyValueHolder::Client::Client(::kj::Own<_t>&& server)
+    : ::capnp::Capability::Client(::kj::mv(server)) {}
+template <typename _t, typename>
+inline AnyValueHolder::Client::Client(::kj::Promise<_t>&& promise)
+    : ::capnp::Capability::Client(::kj::mv(promise)) {}
+inline AnyValueHolder::Client::Client(::kj::Exception&& exception)
+    : ::capnp::Capability::Client(::kj::mv(exception)) {}
+inline  ::mas::schema::common::AnyValueHolder::Client& AnyValueHolder::Client::operator=(Client& other) {
+  ::capnp::Capability::Client::operator=(other);
+  return *this;
+}
+inline  ::mas::schema::common::AnyValueHolder::Client& AnyValueHolder::Client::operator=(Client&& other) {
+  ::capnp::Capability::Client::operator=(kj::mv(other));
+  return *this;
+}
+
+#endif  // !CAPNP_LITE
+inline bool AnyValueHolder::ValueResults::Reader::hasVal() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline bool AnyValueHolder::ValueResults::Builder::hasVal() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline ::capnp::AnyPointer::Reader AnyValueHolder::ValueResults::Reader::getVal() const {
+  return ::capnp::AnyPointer::Reader(_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline ::capnp::AnyPointer::Builder AnyValueHolder::ValueResults::Builder::getVal() {
+  return ::capnp::AnyPointer::Builder(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline ::capnp::AnyPointer::Builder AnyValueHolder::ValueResults::Builder::initVal() {
+  auto result = ::capnp::AnyPointer::Builder(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+  result.clear();
+  return result;
+}
 
 #if !CAPNP_LITE
 template <typename Object>

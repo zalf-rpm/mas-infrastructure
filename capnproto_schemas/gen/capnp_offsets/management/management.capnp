@@ -3,57 +3,6 @@
 $import "/capnp/c++.capnp".namespace("mas::schema::management");
 $import "/capnp/go.capnp".package("management");
 $import "/capnp/go.capnp".import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/management");
-struct ILRDates @0xc70d4452b8b0ebd7 {  # 0 bytes, 5 ptrs
-  sowing @0 :import "/date.capnp".Date;  # ptr[0]
-  earliestSowing @1 :import "/date.capnp".Date;  # ptr[1]
-  latestSowing @2 :import "/date.capnp".Date;  # ptr[2]
-  harvest @3 :import "/date.capnp".Date;  # ptr[3]
-  latestHarvest @4 :import "/date.capnp".Date;  # ptr[4]
-}
-enum MineralFertilizer @0xf95ca008c46a4b3b {
-  ahls @0;
-  alzon @1;
-  an @2;
-  ap @3;
-  as @4;
-  ash @5;
-  cf4 @6;
-  cp1 @7;
-  cp2 @8;
-  cp3 @9;
-  npk @10;
-  ns @11;
-  u @12;
-  uan @13;
-  uas @14;
-  uni @15;
-}
-enum OrganicFertilizer @0x84acb8f8eab508b9 {
-  ash @0;
-  cadlm @1;
-  cam @2;
-  cas @3;
-  cau @4;
-  dgdlm @5;
-  gwc @6;
-  hodlm @7;
-  mc @8;
-  ms @9;
-  oic @10;
-  pidlm @11;
-  pim @12;
-  pis @13;
-  piu @14;
-  piudk @15;
-  plw @16;
-  podlm @17;
-  pom @18;
-  soy @19;
-  ss @20;
-  tudlm @21;
-  weeds @22;
-  ws @23;
-}
 enum EventType @0x82a74595175b71a3 {
   sowing @0;
   automaticSowing @1;
@@ -240,9 +189,36 @@ struct Params @0x9d247c812334c917 {  # 0 bytes, 0 ptrs
     }
   }
 }
+struct Nutrient @0xaafe4332e17aa43e {  # 8 bytes, 0 ptrs
+  nutrient @0 :Name;  # bits[0, 16)
+  unit @1 :Unit;  # bits[16, 32)
+  enum Name @0xbc6b579acf43fb6e {
+    urea @0;
+    ammonia @1;
+    nitrate @2;
+    phosphorus @3;
+    potassium @4;
+    sulfate @5;
+    organiceC @6;
+    organicN @7;
+    organicP @8;
+    organicNFast @9;
+    organicNSlow @10;
+  }
+  enum Unit @0x987b68b57edbbdb6 {
+    percent @0;
+    fraction @1;
+  }
+}
 interface FertilizerService @0xbbb7aeae0d097e05 superclasses(import "/common.capnp".Identifiable) {
-  mineralFertilizerPartitionFor @0 (minFert :MineralFertilizer) -> (partition :Params.MineralFertilization.Parameters);
-  organicFertilizerParametersFor @1 (orgFert :OrganicFertilizer) -> (params :Params.OrganicFertilization.Parameters);
+  availableMineralFertilizers @0 () -> (list :List(Entry(List(Nutrient))));
+  mineralFertilizer @1 (id :Text) -> (fert :List(Nutrient));
+  availableOrganicFertilizers @2 () -> (list :List(Entry(List(Nutrient))));
+  organicFertilizer @3 (id :Text) -> (fert :List(Nutrient));
+  struct Entry @0xb2df3dc668478979 (T) {  # 0 bytes, 2 ptrs
+    info @0 :import "/common.capnp".IdInformation;  # ptr[0]
+    ref @1 :import "/common.capnp".ValueHolder(T);  # ptr[1]
+  }
 }
 interface Service @0xc876b729b7d7f6d9 superclasses(import "/common.capnp".Identifiable) {
   managementAt @0 import "/geo.capnp".LatLonCoord -> (mgmt :List(Event));

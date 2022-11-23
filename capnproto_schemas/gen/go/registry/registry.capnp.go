@@ -9,6 +9,7 @@ import (
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
 	common "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/common"
+	persistence "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/persistence"
 )
 
 type Admin struct{ Client *capnp.Client }
@@ -1792,7 +1793,7 @@ type Registrar struct{ Client *capnp.Client }
 // Registrar_TypeID is the unique identifier for the type Registrar.
 const Registrar_TypeID = 0xabaef93c36f2d1ea
 
-func (c Registrar) Register(ctx context.Context, params func(Registrar_register_Params) error) (Registrar_register_Results_Future, capnp.ReleaseFunc) {
+func (c Registrar) Register(ctx context.Context, params func(Registrar_RegParams) error) (Registrar_register_Results_Future, capnp.ReleaseFunc) {
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xabaef93c36f2d1ea,
@@ -1802,8 +1803,8 @@ func (c Registrar) Register(ctx context.Context, params func(Registrar_register_
 		},
 	}
 	if params != nil {
-		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 3}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Registrar_register_Params{Struct: s}) }
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 4}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Registrar_RegParams{Struct: s}) }
 	}
 	ans, release := c.Client.SendCall(ctx, s)
 	return Registrar_register_Results_Future{Future: ans.Future()}, release
@@ -1895,8 +1896,8 @@ type Registrar_register struct {
 }
 
 // Args returns the call's arguments.
-func (c Registrar_register) Args() Registrar_register_Params {
-	return Registrar_register_Params{Struct: c.Call.Args()}
+func (c Registrar_register) Args() Registrar_RegParams {
+	return Registrar_RegParams{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
@@ -1905,41 +1906,146 @@ func (c Registrar_register) AllocResults() (Registrar_register_Results, error) {
 	return Registrar_register_Results{Struct: r}, err
 }
 
-type Registrar_register_Params struct{ capnp.Struct }
+type Registrar_CrossDomainRestore struct{ capnp.Struct }
 
-// Registrar_register_Params_TypeID is the unique identifier for the type Registrar_register_Params.
-const Registrar_register_Params_TypeID = 0x98ee0ca0962009bc
+// Registrar_CrossDomainRestore_TypeID is the unique identifier for the type Registrar_CrossDomainRestore.
+const Registrar_CrossDomainRestore_TypeID = 0xaa1198dd7e71b20e
 
-func NewRegistrar_register_Params(s *capnp.Segment) (Registrar_register_Params, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 3})
-	return Registrar_register_Params{st}, err
+func NewRegistrar_CrossDomainRestore(s *capnp.Segment) (Registrar_CrossDomainRestore, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
+	return Registrar_CrossDomainRestore{st}, err
 }
 
-func NewRootRegistrar_register_Params(s *capnp.Segment) (Registrar_register_Params, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 3})
-	return Registrar_register_Params{st}, err
+func NewRootRegistrar_CrossDomainRestore(s *capnp.Segment) (Registrar_CrossDomainRestore, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
+	return Registrar_CrossDomainRestore{st}, err
 }
 
-func ReadRootRegistrar_register_Params(msg *capnp.Message) (Registrar_register_Params, error) {
+func ReadRootRegistrar_CrossDomainRestore(msg *capnp.Message) (Registrar_CrossDomainRestore, error) {
 	root, err := msg.Root()
-	return Registrar_register_Params{root.Struct()}, err
+	return Registrar_CrossDomainRestore{root.Struct()}, err
 }
 
-func (s Registrar_register_Params) String() string {
-	str, _ := text.Marshal(0x98ee0ca0962009bc, s.Struct)
+func (s Registrar_CrossDomainRestore) String() string {
+	str, _ := text.Marshal(0xaa1198dd7e71b20e, s.Struct)
 	return str
 }
 
-func (s Registrar_register_Params) Cap() common.Identifiable {
+func (s Registrar_CrossDomainRestore) VatId() (persistence.VatId, error) {
+	p, err := s.Struct.Ptr(0)
+	return persistence.VatId{Struct: p.Struct()}, err
+}
+
+func (s Registrar_CrossDomainRestore) HasVatId() bool {
+	return s.Struct.HasPtr(0)
+}
+
+func (s Registrar_CrossDomainRestore) SetVatId(v persistence.VatId) error {
+	return s.Struct.SetPtr(0, v.Struct.ToPtr())
+}
+
+// NewVatId sets the vatId field to a newly
+// allocated persistence.VatId struct, preferring placement in s's segment.
+func (s Registrar_CrossDomainRestore) NewVatId() (persistence.VatId, error) {
+	ss, err := persistence.NewVatId(s.Struct.Segment())
+	if err != nil {
+		return persistence.VatId{}, err
+	}
+	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
+	return ss, err
+}
+
+func (s Registrar_CrossDomainRestore) Restorer() persistence.Restorer {
+	p, _ := s.Struct.Ptr(1)
+	return persistence.Restorer{Client: p.Interface().Client()}
+}
+
+func (s Registrar_CrossDomainRestore) HasRestorer() bool {
+	return s.Struct.HasPtr(1)
+}
+
+func (s Registrar_CrossDomainRestore) SetRestorer(v persistence.Restorer) error {
+	if !v.Client.IsValid() {
+		return s.Struct.SetPtr(1, capnp.Ptr{})
+	}
+	seg := s.Segment()
+	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
+	return s.Struct.SetPtr(1, in.ToPtr())
+}
+
+// Registrar_CrossDomainRestore_List is a list of Registrar_CrossDomainRestore.
+type Registrar_CrossDomainRestore_List struct{ capnp.List }
+
+// NewRegistrar_CrossDomainRestore creates a new list of Registrar_CrossDomainRestore.
+func NewRegistrar_CrossDomainRestore_List(s *capnp.Segment, sz int32) (Registrar_CrossDomainRestore_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
+	return Registrar_CrossDomainRestore_List{l}, err
+}
+
+func (s Registrar_CrossDomainRestore_List) At(i int) Registrar_CrossDomainRestore {
+	return Registrar_CrossDomainRestore{s.List.Struct(i)}
+}
+
+func (s Registrar_CrossDomainRestore_List) Set(i int, v Registrar_CrossDomainRestore) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Registrar_CrossDomainRestore_List) String() string {
+	str, _ := text.MarshalList(0xaa1198dd7e71b20e, s.List)
+	return str
+}
+
+// Registrar_CrossDomainRestore_Future is a wrapper for a Registrar_CrossDomainRestore promised by a client call.
+type Registrar_CrossDomainRestore_Future struct{ *capnp.Future }
+
+func (p Registrar_CrossDomainRestore_Future) Struct() (Registrar_CrossDomainRestore, error) {
+	s, err := p.Future.Struct()
+	return Registrar_CrossDomainRestore{s}, err
+}
+
+func (p Registrar_CrossDomainRestore_Future) VatId() persistence.VatId_Future {
+	return persistence.VatId_Future{Future: p.Future.Field(0, nil)}
+}
+
+func (p Registrar_CrossDomainRestore_Future) Restorer() persistence.Restorer {
+	return persistence.Restorer{Client: p.Future.Field(1, nil).Client()}
+}
+
+type Registrar_RegParams struct{ capnp.Struct }
+
+// Registrar_RegParams_TypeID is the unique identifier for the type Registrar_RegParams.
+const Registrar_RegParams_TypeID = 0xe5a84717ea75fb0d
+
+func NewRegistrar_RegParams(s *capnp.Segment) (Registrar_RegParams, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 4})
+	return Registrar_RegParams{st}, err
+}
+
+func NewRootRegistrar_RegParams(s *capnp.Segment) (Registrar_RegParams, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 4})
+	return Registrar_RegParams{st}, err
+}
+
+func ReadRootRegistrar_RegParams(msg *capnp.Message) (Registrar_RegParams, error) {
+	root, err := msg.Root()
+	return Registrar_RegParams{root.Struct()}, err
+}
+
+func (s Registrar_RegParams) String() string {
+	str, _ := text.Marshal(0xe5a84717ea75fb0d, s.Struct)
+	return str
+}
+
+func (s Registrar_RegParams) Cap() common.Identifiable {
 	p, _ := s.Struct.Ptr(0)
 	return common.Identifiable{Client: p.Interface().Client()}
 }
 
-func (s Registrar_register_Params) HasCap() bool {
+func (s Registrar_RegParams) HasCap() bool {
 	return s.Struct.HasPtr(0)
 }
 
-func (s Registrar_register_Params) SetCap(v common.Identifiable) error {
+func (s Registrar_RegParams) SetCap(v common.Identifiable) error {
 	if !v.Client.IsValid() {
 		return s.Struct.SetPtr(0, capnp.Ptr{})
 	}
@@ -1948,74 +2054,102 @@ func (s Registrar_register_Params) SetCap(v common.Identifiable) error {
 	return s.Struct.SetPtr(0, in.ToPtr())
 }
 
-func (s Registrar_register_Params) RegName() (string, error) {
+func (s Registrar_RegParams) RegName() (string, error) {
 	p, err := s.Struct.Ptr(1)
 	return p.Text(), err
 }
 
-func (s Registrar_register_Params) HasRegName() bool {
+func (s Registrar_RegParams) HasRegName() bool {
 	return s.Struct.HasPtr(1)
 }
 
-func (s Registrar_register_Params) RegNameBytes() ([]byte, error) {
+func (s Registrar_RegParams) RegNameBytes() ([]byte, error) {
 	p, err := s.Struct.Ptr(1)
 	return p.TextBytes(), err
 }
 
-func (s Registrar_register_Params) SetRegName(v string) error {
+func (s Registrar_RegParams) SetRegName(v string) error {
 	return s.Struct.SetText(1, v)
 }
 
-func (s Registrar_register_Params) CategoryId() (string, error) {
+func (s Registrar_RegParams) CategoryId() (string, error) {
 	p, err := s.Struct.Ptr(2)
 	return p.Text(), err
 }
 
-func (s Registrar_register_Params) HasCategoryId() bool {
+func (s Registrar_RegParams) HasCategoryId() bool {
 	return s.Struct.HasPtr(2)
 }
 
-func (s Registrar_register_Params) CategoryIdBytes() ([]byte, error) {
+func (s Registrar_RegParams) CategoryIdBytes() ([]byte, error) {
 	p, err := s.Struct.Ptr(2)
 	return p.TextBytes(), err
 }
 
-func (s Registrar_register_Params) SetCategoryId(v string) error {
+func (s Registrar_RegParams) SetCategoryId(v string) error {
 	return s.Struct.SetText(2, v)
 }
 
-// Registrar_register_Params_List is a list of Registrar_register_Params.
-type Registrar_register_Params_List struct{ capnp.List }
-
-// NewRegistrar_register_Params creates a new list of Registrar_register_Params.
-func NewRegistrar_register_Params_List(s *capnp.Segment, sz int32) (Registrar_register_Params_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 3}, sz)
-	return Registrar_register_Params_List{l}, err
+func (s Registrar_RegParams) XDomain() (Registrar_CrossDomainRestore, error) {
+	p, err := s.Struct.Ptr(3)
+	return Registrar_CrossDomainRestore{Struct: p.Struct()}, err
 }
 
-func (s Registrar_register_Params_List) At(i int) Registrar_register_Params {
-	return Registrar_register_Params{s.List.Struct(i)}
+func (s Registrar_RegParams) HasXDomain() bool {
+	return s.Struct.HasPtr(3)
 }
 
-func (s Registrar_register_Params_List) Set(i int, v Registrar_register_Params) error {
+func (s Registrar_RegParams) SetXDomain(v Registrar_CrossDomainRestore) error {
+	return s.Struct.SetPtr(3, v.Struct.ToPtr())
+}
+
+// NewXDomain sets the xDomain field to a newly
+// allocated Registrar_CrossDomainRestore struct, preferring placement in s's segment.
+func (s Registrar_RegParams) NewXDomain() (Registrar_CrossDomainRestore, error) {
+	ss, err := NewRegistrar_CrossDomainRestore(s.Struct.Segment())
+	if err != nil {
+		return Registrar_CrossDomainRestore{}, err
+	}
+	err = s.Struct.SetPtr(3, ss.Struct.ToPtr())
+	return ss, err
+}
+
+// Registrar_RegParams_List is a list of Registrar_RegParams.
+type Registrar_RegParams_List struct{ capnp.List }
+
+// NewRegistrar_RegParams creates a new list of Registrar_RegParams.
+func NewRegistrar_RegParams_List(s *capnp.Segment, sz int32) (Registrar_RegParams_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 4}, sz)
+	return Registrar_RegParams_List{l}, err
+}
+
+func (s Registrar_RegParams_List) At(i int) Registrar_RegParams {
+	return Registrar_RegParams{s.List.Struct(i)}
+}
+
+func (s Registrar_RegParams_List) Set(i int, v Registrar_RegParams) error {
 	return s.List.SetStruct(i, v.Struct)
 }
 
-func (s Registrar_register_Params_List) String() string {
-	str, _ := text.MarshalList(0x98ee0ca0962009bc, s.List)
+func (s Registrar_RegParams_List) String() string {
+	str, _ := text.MarshalList(0xe5a84717ea75fb0d, s.List)
 	return str
 }
 
-// Registrar_register_Params_Future is a wrapper for a Registrar_register_Params promised by a client call.
-type Registrar_register_Params_Future struct{ *capnp.Future }
+// Registrar_RegParams_Future is a wrapper for a Registrar_RegParams promised by a client call.
+type Registrar_RegParams_Future struct{ *capnp.Future }
 
-func (p Registrar_register_Params_Future) Struct() (Registrar_register_Params, error) {
+func (p Registrar_RegParams_Future) Struct() (Registrar_RegParams, error) {
 	s, err := p.Future.Struct()
-	return Registrar_register_Params{s}, err
+	return Registrar_RegParams{s}, err
 }
 
-func (p Registrar_register_Params_Future) Cap() common.Identifiable {
+func (p Registrar_RegParams_Future) Cap() common.Identifiable {
 	return common.Identifiable{Client: p.Future.Field(0, nil).Client()}
+}
+
+func (p Registrar_RegParams_Future) XDomain() Registrar_CrossDomainRestore_Future {
+	return Registrar_CrossDomainRestore_Future{Future: p.Future.Field(3, nil)}
 }
 
 type Registrar_register_Results struct{ capnp.Struct }
@@ -2061,22 +2195,28 @@ func (s Registrar_register_Results) SetUnreg(v common.Action) error {
 	return s.Struct.SetPtr(0, in.ToPtr())
 }
 
-func (s Registrar_register_Results) ReregSR() (string, error) {
+func (s Registrar_register_Results) ReregSR() (persistence.SturdyRef, error) {
 	p, err := s.Struct.Ptr(1)
-	return p.Text(), err
+	return persistence.SturdyRef{Struct: p.Struct()}, err
 }
 
 func (s Registrar_register_Results) HasReregSR() bool {
 	return s.Struct.HasPtr(1)
 }
 
-func (s Registrar_register_Results) ReregSRBytes() ([]byte, error) {
-	p, err := s.Struct.Ptr(1)
-	return p.TextBytes(), err
+func (s Registrar_register_Results) SetReregSR(v persistence.SturdyRef) error {
+	return s.Struct.SetPtr(1, v.Struct.ToPtr())
 }
 
-func (s Registrar_register_Results) SetReregSR(v string) error {
-	return s.Struct.SetText(1, v)
+// NewReregSR sets the reregSR field to a newly
+// allocated persistence.SturdyRef struct, preferring placement in s's segment.
+func (s Registrar_register_Results) NewReregSR() (persistence.SturdyRef, error) {
+	ss, err := persistence.NewSturdyRef(s.Struct.Segment())
+	if err != nil {
+		return persistence.SturdyRef{}, err
+	}
+	err = s.Struct.SetPtr(1, ss.Struct.ToPtr())
+	return ss, err
 }
 
 // Registrar_register_Results_List is a list of Registrar_register_Results.
@@ -2113,104 +2253,120 @@ func (p Registrar_register_Results_Future) Unreg() common.Action {
 	return common.Action{Client: p.Future.Field(0, nil).Client()}
 }
 
-const schema_fe1be0c39c7e8269 = "x\xda\xacV_l\x14\xd5\x17>gf\xbb\xb3\xdb." +
-	"\x94\xfb\x9b\xf2\x03BLEk\x02\x04+\x054B " +
-	"\xbb-\x10\xdaJ\xa1w\xc1?4Q\x99\xee\x0e\xcd\x92" +
-	"v\xb7\xcc\xccb\x16C\x8bb \xbc`4\x91\x10\xa4" +
-	"\x110<TP\xa0\x81\xc4D\x90\x00\x1a\x03\x84\x98\x06" +
-	"\x10\x91\xc4\x881<\xf0\x80\x8a\x82\xa2\xc2\x98{g\xef" +
-	"\xec\xed\xf6\x0f\xc4\xf0\xb6\xed|\xf7\x9c\xf3}\xe7;\xf7" +
-	"\x9e\xe9\xd5\x81\x98RS2n\x14\x00\xdd^\x12t{" +
-	"\x8e\xd6\xf7]\xdd\xf8\xbf-@\xc6#@\x09j\x003" +
-	"\xd7\x04[\x11P_\x1f\x8c\x02\xba\xa7\xae\xb4l\x88\\" +
-	"<\xbe\x15\xc8X\x06P\x18`w\xb0\x8e\x01z\x83\xaf" +
-	"\x01\xba\x1f^\xed\xba\xd1uh\xef\xb6<\x80G\x98\xa0" +
-	"\xc5\x19\xe0\x09\x8dE8\x1a~t\xdb\xae\xc8\x8d\xed@" +
-	"&0\x80\xca\x00+\xb4F\x060\xb5\x03\x80\xee\xfb'" +
-	"g\xbdr\xedZ\xc3N\xaf\x86\x00\xfb\x8e\xa1\x1d\x08\x01" +
-	"\xf7\xaf/\xa9\xb1f\xd9?\x1f\xc8\xd5\xfd\xaa\xcdaG" +
-	"\xef\xf0\xd8\x87G}\xf6B\xf0\xf6\xbb\xbb\xe4\xe4\x8f\x84" +
-	"Z\x18`J\x88\x01J\xden\x1f\xa3\xee\xde\xdf+\x03" +
-	"^\x0eq~)\x0e\xb8\xde\x7f\xf3\x99\xb9w>\xd9\x07" +
-	"\xa4\\uSov\xed<\xf5\xc3\xc4{\x00\xa8\xf7\x84" +
-	"\xce\xe8\xbd!\x0d@\xdf\x1bZ\xa4\xf7\x87\xc6\x01\xb8s" +
-	"\xf1\x8b_6\x1c\xec\xed\xcbS\xe1b\x9c\x08q\xae\xe7" +
-	"BL\x8c\x83\xd3\xed7\x8e\xac<\xde'\x17<%\xbc" +
-	"\x87\x01f\x87Y\xba#O[\xeb\x9e\xda8\xef\x18\xd0" +
-	"\xb1(\xc8\xa6\xc2\\\x8c,\x07\xe8\xfb\xff\x88\xd0\xcd\xb9" +
-	"\x13,\x82\xfb\xe9\xcc\xe0\xca\xfe\xe7^?\xe3\xa9\xa6\xbf" +
-	"\x17\xbe\xa9\xef\x0e\xb3_=a&\x9c\xff\xb9\xb8\xf6\xd9" +
-	"\xa5'\xf5\xda\xd2q\x00zC\xe9W\xfa9\xf6\xcb\xfd" +
-	"\xe6\xfb\x0d\xb8u\xe2\xe7\x17\xe5F\x1e+\xe5R\x9d." +
-	"e\xb5\xbf\xfa\xfb\xf9\xae\x1d\x976\x7f+KUS\xc6" +
-	"K\x9bW\xc6J\xbb\xbd\xe9\xadC\x7f_\xf8\xff\x95|" +
-	"\xedy\xb3\x94q/\xe4\xcaX\x88\xa6\xe0\xa6\xc3\xe9[" +
-	"\xd7\x7f\x92\xe9_\xf6\x00Wy\x88#\x93\xb6T|\xfd" +
-	"\xe7\xb4\x1b^\x0e\xce\x9eD\xa6\xb2V/yq\xd5\xda" +
-	"\xc7\x7fSo\x0d\xe2r\xa7\xec#\x1d#\x0cy\xb7l" +
-	"\x11\xea\x97#\x8c\xcc\xc7w\xd7\xef\xfb\xf9L\xeb=\xb9" +
-	"\xd6\xd3\x91\x19,Q\x7f$\x0aG]\xcblK\xd9\x8e" +
-	"\x95\x0bT'\x8c\xcet\xe7\x9cx\xfe\xef\xea\x84\xe1\x98" +
-	"m\x19+\xd7\x90^\x95\xa9j6,\xcd\xe8\xb0i@" +
-	"\x0d\x00\x04\x10\x80\x8cj\x01\xa0\x11\x15\xe9x\x05]\x81" +
-	"\x05\xb5!\x89\x11P0\x028(rm\xb2#\x95\xae" +
-	"\xee\xc8\xac5\x97\xb6\xae6\x13\x8e\xcd\xa2\x1a\x1d6\xd0" +
-	"\x90\x1fuJ\x1c\x80NV\x91.P\x90 V0\xf9" +
-	"Hm\x1d\x00\x9d\xab\"\xadW\xd0\xcd\xf0\xb3\x0dI@" +
-	"\x1bG\x036\xab\xc8\x13\x8e\x06\xecv2\xf3\x0d\xe7\xbe" +
-	"\x05X\xe6\xa0\x12p\x00\xb1x\x9e\xd8\xe4\x11\xb3\x0d'" +
-	"\x9caU{_LK\xf0c\xe1D\xf4\x85\x8f\x01\xd0" +
-	"\x98\x8at\xb1D\xb0\x81\x11\\\xa0\"mV\x90(J" +
-	"\x05*\x00\xa4\x89\x09\xbcXE\xfa\x92\x82Z\xc2\xe8D" +
-	"\xe2^\xac\xdf\xb9\xe2l\xff\x81>\x00D\x02\xd8m\x99" +
-	"mK\x8c\x0e\xd3'<b\x1bJ\x8a\x1blg;;" +
-	"3\x96c&\xe7{\xc7R\xa6'\x87\xdaa\xfb\x87\xd4" +
-	"\xe2Cf\xda\xe1\xc0\xa8\xc7\xed!\x18b`?\xe2\xa6" +
-	"\x9dmW\x9d\x01\x81\xd7I\x0d\xf1\xd0\xc9\xa5\x10\xf5\x0e" +
-	"\x88\xae\x0c\x14g\xf4}\xb2\xe5\x19\xe7x:\xad\xfda" +
-	"\xa6S\x8a\xed\x00\xd0\x8cH\x03j\x09\x80\x7f\xc3\xa3\xb8" +
-	"\x1f\x09i\x04\x85\x845Wx\x06\x00bH\x03\x88R" +
-	"\x02x\x10\xafq\xe1\x1c\xb4\xe5a\x9a\x01@\xabT\xa4" +
-	"\xd3%\xaf=Y\x97\x9f\xb0Y\x0aVf\xd3\x96\xd9\x86" +
-	"\xc4\xdd\xbc0}\xe9\xd4\x8f\x17z\x0a\xc6\xb2\xcc\xb6e" +
-	"\xf1\xff\xe6\xa1\xa14\x9d\x0al\xca\x91V)X\x9e0" +
-	"\x0a:\x8eq\xcf\x7f\xa7\xde;\xdbu\xf6\xc2\xc8m3" +
-	"\x92\xc9\x01=kw\xd8XI\x09\xea\xf2\x09*\x14\xec" +
-	"\xb6\xb3\x89\x84i\xdb\x88\xa0 \x0e\xdf\x9a\\u\xe5\xc2" +
-	"\xb4c\xe5X{\xa4\x01m\x91fQ\x88\xd6\xc4\xa6\xb6" +
-	"^E\xba\\\x1aP:\xb50\xa0C\x1a^\xb3\xccU" +
-	"\x83\xa7\xb6<-\x8f\xecp\xb5\x01\xf7@\xe1\x8d\xc3\x19" +
-	"^\xb14\xc2\x8d$6\x01\x14\xef(\xa1{@!M" +
-	"\x1a\xa2\xbf\xa9\xa0\x90\x96\xd4\xae\x06\x85\xcc\xd6P\xf1\xf7" +
-	"\x04\x14\x0f\x10\xf3\x83B&i\xae\xe8$\x0a\xa1\xb5\x94" +
-	"i\xc7$b\xe5\xec!\x88aw\xfe\x06x\x00\x97\x0e" +
-	"9q\xf9\x1bF\xb6iK\xc1\x91\xbe\xe25'\x01\xe8" +
-	",\x15il\xb8\xdbD\xdc\x1aJ\xc2\xb1\x97gD|" +
-	"vU?\xf8\x034\xa4\x95\xe4\xf9\xf7\xa6\xbfu5D" +
-	"\xf93p\xdfG`\xb0[\x87x\xe3\x1a\x0b|9]" +
-	"DR3\x07\x80NS\x91>+\xd3\x05(\x1a\x901" +
-	"\x80\xd1l\xa7mZ\xce s\x07\x86\xbb\xa9\x05\xc7\xa1" +
-	"\xa6\xa5J\xf1\xfbY\x98H\xdftE\x13\xa9\x16\xb5\xd5" +
-	"\xfboU\xb3Q\xce\x18\xfa0\x14\xb0r\x86c\xc3U" +
-	"\xc1-+\x96\"\x14\x9b\x1dy\xa7\x15\x14\xb2\x85YV" +
-	"\xac\\(\xb6P\xb2~\x1d($\xcb,+\xf6j\x14" +
-	"k\x17I\xb1s\x86\x86\xaa\xbfR\xa3Xo\xc9\xf3\x96" +
-	"7\x06\x01\x7f\x83B\xb1\x02\x91\xdaF>\x06\xaeh\x0f" +
-	"h\x19+\x17\x13\x97\xfc|\x03\xa2\x9e\xee\xb1\x82\xb9@" +
-	"K8\xb6\x0fY\xda\x0a\x95\xdc8\xb1\x82*#_\xd8" +
-	"\xc3h\x167+yS\xe4\x9e4J\xcf\xa7\x14\x1cI" +
-	"a{\xf5.\x90\x7f\x03\x00\x00\xff\xff\x8f\x1e\x95\xf8"
+func (p Registrar_register_Results_Future) ReregSR() persistence.SturdyRef_Future {
+	return persistence.SturdyRef_Future{Future: p.Future.Field(1, nil)}
+}
+
+const schema_fe1be0c39c7e8269 = "x\xda\xb4Wkl\x14\xd7\x15>g\xee\xae\xd7\xbb\xde" +
+	"\xd7\xed\x9a\x02E\xc8\xa2u\xc5C\xe0\xf2r[\x90\x91" +
+	"\xd76\x16\xb6[\x83\xefB\x1fX}0^\x0ff\x91" +
+	"w\xd7\x9e\x99\xa5\x98\x0a\x1b\x0a\x85\xa2\x0a*\xfa\xa3j" +
+	")\x88B\x15)<\x12\xb0\x05QPBP (\x01" +
+	"\x14E\x168\x84 P\x1c%D\xe2\x07\x09$\x90\x07" +
+	"\x09\x13\xdd;;\xb3\xe3\xf5\x03\"%\xff\x0cs\xee9" +
+	"\xe7\xfb\xee\xf7\x9d{v\xf6]WT\x9a\xe3\xfe\x19\x05" +
+	"`\xaf\xb9\x0b\x8c}/\xd6\xf5\x0dn\xf9\xde\x0e\xa0\x13" +
+	"\x10\xc0\x8d\x1e\x80y\x9b\x0b[\x100\xb2\xb3\xb0\x12\xd0" +
+	"8w\xbdy\x93\x7f\xe0\xcc.\xa0\xe3x\x80\xc4\x03z" +
+	"\x0b\xaby\xc0\xa9\xc2?\x01\x1a\xff\x1f\xec\xbe\xd3\xdd\xfb" +
+	"\xd4\xbf\xb2\x01\"\xc3to\x8c\x07\x94{y\x86\xff\x9e" +
+	"\x9d\xff\x87[\xb7\xea\xf7\x9a%\\\xfc{\xc2\xbb\x07\xc1" +
+	"e|q\x9e\xc9\x9d\xcb\xbf\xdc\xef,\xbe\xd2\xbb\x90\x1f" +
+	"\x95\xc5\xd1\x13\x81\x17~]\xf0\xe0\x9f\xffs\xe6\xfe\xab" +
+	"\xb7\x99\x07\xec\x16\x01\xee\x7f\xb4\x87\xc9\x81\xa3\x87\x9c\x01" +
+	"\xe7\xbd\xa2\xfd~\x11\x10\xec\xeb\xec\xbe\xf1oz\x18\xe8" +
+	"D4n\xf7\xdf\xfbi\xc5\xe7\xcf\x1e\xc9\xc2p\xfbZ" +
+	"02\xd1\xe7\x01\x88\x8c\xf3q(\xf6w\x1a\"F\xe2" +
+	"/\xdd{\xcf\xbd3\xe9\x11\x00F2\xbe\x8b\x91\xcd\xbe" +
+	"\xa9\x00\x91\x03\xbe%\x91\xd7}\xe3\x01\x8c\x0a|\xe5\xa3" +
+	"M\xc7\x0f\xf5\xf1\xcc\x161\xa7}\x02\xf7\x05\x91\xed\xf8" +
+	"lm\xf3\xc9Ug\xfa\x9c\xe8~\\tP\x10S\xc4" +
+	"{;Y\xaen\xf8\xc9\x96E\xa7\x81\x8dC\x8b\x19\xa5" +
+	"\xa8\x81\x07t\x8a\x80\xc8\xd1O\xfdl{\xd7\xcb<\x83" +
+	"\xf1\xfc\xbc\x82U\xfd\xbf\xf8\xf3Ep\x13\xde\xf1\xee\xa2" +
+	"{\x91}E\xfc\xaf\xff\x14\x1d\x03\xc7\xe7\xfc\xde\xcb\xfd" +
+	"g#\x8b\xfc\xe3\x01\"\xb5\xfeW#\x17\xf8_\xc6\x9b" +
+	"77\xe1\xaeI/\x0d8/\xf5\x94_\xf0z\xde\xcf" +
+	"{\xff\xe3'\x97\xbb\xf7\\\xdd\xfe\x96\x93\xd7Y\x01\xd1" +
+	"\xda\x82\x00o\xed\xc1\xb6\xad\xbd\x0f\xaf|\xffz\xb6w" +
+	"3\"\x19\x10\xba\xc8\x04x\x8a\xc6\x82m'R\xf7o" +
+	"\xbf\xe7\x84?`\x06\xdc\x10)\x02\x0f3\xb7\xc7/y" +
+	"\xfa\xfd\xbc\xab\x114\x04\x82?\xc0\xc8\xe4 \x8771" +
+	"\xf8\x01\xe7j\xca\x8e\xe27>\x9by\xc7lH\xc4\xdc" +
+	"\x0d\xce\xe0\"Z\xfa\x9b\xd5\xeb~\xf41\xb9?\x0c\xf8" +
+	"\xb5\xe0\xe1\xc8 O1\xefFp\x09FN\x858\xf2" +
+	"g\xbe\xdax\xe4\xc3\x8b-\x8f\x9c\xc0\x0e\x85\xe6\xf2\xae" +
+	"zC\x95`@\xb9\xa1*m\x09MW\xbb\\eq" +
+	"\xb9#\xd5\xb10\x96\xfdwY\\\xd6\x95\xb6\xb4\xdaU" +
+	"\x9fZ\x9d.m\x92U\x8f\x9c\xd4\x98\x8b\xb8\x00\\\x08" +
+	"@\x03\xcd\x00\xccO\x90M\x90\xd0\xb0b\x81\xd4\xb7\xa2" +
+	"\x1f$\xf4\x03\x0e\xcb\\\xd5\x9aL\xa4\xca\x92\xe9u\xca" +
+	"\xb2\x96\xb5J\\\xd7xV9\xa9\x01+\xb4\xb3N\x8f" +
+	"\x01\xb0i\x04\xd9b\x09)b1g\x9bVU\x03\xb0" +
+	"\x0a\x82\xacNB#-\xce\xd6\xb7\x02j\x18\x04l\"" +
+	"(\x0a\x06\x01{\xf4t\x8d\xac?\xb6\x01U\x19\xd6\x02" +
+	"\x0e\x01\x16\xcb\x02\x9b6f5;\xbb;\x9f8-\xd3" +
+	"\xd1\x91Vu\xa5\xb5\xc6d%\xa1\x98eHR\xb3\x0f" +
+	"\x91\xfcCJJ\x17\x81\x95&'\xdf\x02\xd1Cq\xc6" +
+	"\x14-\xd3N\xf4!\x8978\x80\x9a\xd1\xad\xcb\xa0\xd2" +
+	"<`\xa1\xa5\xc6@\xdd\xde\x95\x97\xfa\x8f\xf5\x01\xe0\x10" +
+	"\xdc#U\xcb\"\xee\x12\xe5<\xed\xdfE\xb9,c\xb2" +
+	"ZV\xa3\xa65mq:)'R1E\xd3=i" +
+	"UiBt\x8ai.\x00+%\xc8f;\xc44\xab" +
+	"\x01\x80\xcd$\xc8~.a\xc9:\xa1\x97\xb0\xb1\xb3\xff" +
+	"\xef\x03\xfa\xef}\x83\xbchX\x14\xd5\xf4\xb4\xaa\xa8\x00" +
+	"\x80\xd4\xa8(\xbb6u\xeb\x94\xe7\xf6\xf3\xaf\xd4\xd1\x92" +
+	"\x94\xdf\x12\x00+D\xe7\x14\xf6\xeeq\xf8>\x103\xac" +
+	"\x961\xdbs\x9a\xa8\x8a\x11S\xda\xc4\xa5\x83\x90\xa1\x1b" +
+	"\xc0>\x83\xd6\xd4\xa5\xb4\x01$\xea\xf5dK\x8b\xc6\xa2" +
+	"\xc8\\\x88\x0e\xbe`\x0c\xae\xacs\xa6\x0et\xd4\x1eK" +
+	"Su\xd6\x88\xf3%,\xc9\xa4T\xa5\x0d\xa9\xb1\xbd6" +
+	"u\xf5\xdc\xbbW\xf6e\x89\xe8Q\x15Ui[\x1e\xc3" +
+	"\xb0\xd1xs\xcb\xe4\xa9k\x92\x7f\xcb\x11\xf8\x0d\xcc1" +
+	"\x92Xfp.\x09\xb2R\x09Cq9'\x90\xb0q" +
+	"\xf9m\xf2\xe8R\xf7\xa5+c\xebQnm\x1d\"\xc6" +
+	"v]\x03p\x16\xa8\xce\x16(\x96\xb0G\xcb\xc4\xe3\x8a" +
+	"\xa6!\x82\x848\xfa\x05w\x95\x95\xd4\xa6t\xb5\x8b\xab" +
+	"\xccog\xaa\xe5\xfe\\L\x9059\xe8k\xfc!\x00" +
+	"\xab#\xc8VHH%\xa9\x18%\x00\xca8\xa8_\x12" +
+	"d\xbf\x1d\xc5\xc9\x1eUY\x9dg\x01\x0a\x18J\xc9I" +
+	"e\x98\xd9\xf3{\x03\xa1\x86\xdc\x1b\x8as\xcdf\x99_" +
+	"H\xcaZK\xd0z\xa7);\x08\x12m\xf4 \xda[" +
+	"\x11Z\xd4\xd2\xaa\xb5 \xd1\x05\x1e\x94\xec\xa5\x05\xad\x07" +
+	"\x8e+C\xa2S<\x86u\x93h\x11\xedI(Z\xd4" +
+	"\x01,\xc4_\x8e(\xf6dG\xdb\x13\xe8u\xc4Q\x92" +
+	"\x1d\x9dN\xc16\xe7\xb4i3>\xe7,\x00\x9bO\x90" +
+	"EG\x1b\x93\xd68\x94\xe2\xba\xb6\"m\xe5\xe7\xb3\xfd" +
+	"\xc9_\xac\x11\xa5\xe4\x1cl\xe6XkY\x0b\x95\xe2\xdd" +
+	"\x18\xf5\xd5\x18]\xad#<\x8a\x0d9\xbc\x02.\"\x9d" +
+	"\xb307\xc6rp\x01\xf2\x0c\x12\x06\xac\xccth\x8a" +
+	"\xaa\x0f\x13\xb7k\xb4'\xc8\xc28\x92[J%\xfb>" +
+	"s\x8e\xb4E\x97\xe7H2l\x0ceG\x1dIj\xdc" +
+	"Ca;\xbf\xcc\xed\xf2;\x82l\x8d\xe3F\x15^t" +
+	"\x15A\xd6\xee\xf0P\x82\xdf\xfd\x1a\x82L\x97\x90\x12R" +
+	"\x8c\x04\x80v\xf2\xc8v\x82l\xbd\x84\x9e\xb8\xdc1\xdc" +
+	"C=\xaa\xd2\xb6\xd4i\xa3\x91\x14\xd2\xb3\xde|M0" +
+	"\x9c\x1b\xe1y\xf3\x8c\xe4)\xd5\xfc\xdf\xd2&9\xc4/" +
+	"\xcd\x0eC+,\xc4\xe38\xd6b\xe1Bk\x8fDk" +
+	"\x19\xa6\xbb[@\xa2;\xb8\x0b\xad-\x15\xad-\x9fn" +
+	"\xdc\x00\x12\xcdp\x17Z?K\xd0\xdaTi\x82\x9f\x93" +
+	"=H\xec_$h\xfd|\xa0\xbfRMg\xbb\xec=" +
+	"\x12\xadE\x90V5\x08g\x1b\x96\xe2\xc0\x93V\xbb\xa2" +
+	"\xd6\x83\\#C\xa5\xc9K4\xe7\x17\xf0\xc4u\xcd\x0e" +
+	"Y\xd6\x02%\xc2\x0b\xd1\x1c+c\xbfF\xa3p\x16S" +
+	"J\x84\xce\x9c2kp\xac:\x8e\xe4Hs\x0b\xbfy" +
+	"\x9f_\x07\x00\x00\xff\xfff\xf8\xfb'"
 
 func init() {
 	schemas.Register(schema_fe1be0c39c7e8269,
 		0x891283e1b248bc9d,
 		0x8ebfd50c805adbc3,
 		0x96a5b17eee7ee1a3,
-		0x98ee0ca0962009bc,
 		0x9c49e6e65e34c29b,
 		0x9ffc53716151c5fa,
 		0xa092f60656bb0db4,
 		0xa9aca103106c8f05,
+		0xaa1198dd7e71b20e,
 		0xabaef93c36f2d1ea,
 		0xb2a9b080f0c4013c,
 		0xb2bf60b5817330b0,
@@ -2221,6 +2377,7 @@ func init() {
 		0xd887d79a7ed3f45f,
 		0xdb16d4fbb18486f6,
 		0xe4eaf56eb486064d,
+		0xe5a84717ea75fb0d,
 		0xee2cf8cf148921b5,
 		0xf503f3237666574e,
 		0xfe62caefab7dfdad)

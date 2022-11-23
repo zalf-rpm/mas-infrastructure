@@ -14,6 +14,7 @@
 #endif
 
 #include "common.capnp.h"
+#include "persistence.capnp.h"
 
 CAPNP_BEGIN_HEADER
 
@@ -39,7 +40,8 @@ CAPNP_DECLARE_SCHEMA(891283e1b248bc9d);
 CAPNP_DECLARE_SCHEMA(9ffc53716151c5fa);
 CAPNP_DECLARE_SCHEMA(e4eaf56eb486064d);
 CAPNP_DECLARE_SCHEMA(abaef93c36f2d1ea);
-CAPNP_DECLARE_SCHEMA(98ee0ca0962009bc);
+CAPNP_DECLARE_SCHEMA(aa1198dd7e71b20e);
+CAPNP_DECLARE_SCHEMA(e5a84717ea75fb0d);
 CAPNP_DECLARE_SCHEMA(b2a9b080f0c4013c);
 
 }  // namespace schemas
@@ -347,7 +349,8 @@ struct Registrar {
   class Server;
 #endif  // !CAPNP_LITE
 
-  struct RegisterParams;
+  struct CrossDomainRestore;
+  struct RegParams;
   struct RegisterResults;
 
   #if !CAPNP_LITE
@@ -358,15 +361,30 @@ struct Registrar {
   #endif  // !CAPNP_LITE
 };
 
-struct Registrar::RegisterParams {
-  RegisterParams() = delete;
+struct Registrar::CrossDomainRestore {
+  CrossDomainRestore() = delete;
 
   class Reader;
   class Builder;
   class Pipeline;
 
   struct _capnpPrivate {
-    CAPNP_DECLARE_STRUCT_HEADER(98ee0ca0962009bc, 0, 3)
+    CAPNP_DECLARE_STRUCT_HEADER(aa1198dd7e71b20e, 0, 2)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct Registrar::RegParams {
+  RegParams() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(e5a84717ea75fb0d, 0, 4)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
@@ -1893,7 +1911,7 @@ public:
   Client& operator=(Client& other);
   Client& operator=(Client&& other);
 
-  ::capnp::Request< ::mas::schema::registry::Registrar::RegisterParams,  ::mas::schema::registry::Registrar::RegisterResults> registerRequest(
+  ::capnp::Request< ::mas::schema::registry::Registrar::RegParams,  ::mas::schema::registry::Registrar::RegisterResults> registerRequest(
       ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
 
 protected:
@@ -1912,9 +1930,8 @@ public:
       override;
 
 protected:
-  typedef  ::mas::schema::registry::Registrar::RegisterParams RegisterParams;
   typedef  ::mas::schema::registry::Registrar::RegisterResults RegisterResults;
-  typedef ::capnp::CallContext<RegisterParams, RegisterResults> RegisterContext;
+  typedef ::capnp::CallContext< ::mas::schema::registry::Registrar::RegParams, RegisterResults> RegisterContext;
   virtual ::kj::Promise<void> register_(RegisterContext context);
 
   inline  ::mas::schema::registry::Registrar::Client thisCap() {
@@ -1928,9 +1945,106 @@ protected:
 };
 #endif  // !CAPNP_LITE
 
-class Registrar::RegisterParams::Reader {
+class Registrar::CrossDomainRestore::Reader {
 public:
-  typedef RegisterParams Reads;
+  typedef CrossDomainRestore Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  inline bool hasVatId() const;
+  inline  ::mas::schema::persistence::VatId::Reader getVatId() const;
+
+  inline bool hasRestorer() const;
+#if !CAPNP_LITE
+  inline  ::mas::schema::persistence::Restorer::Client getRestorer() const;
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class Registrar::CrossDomainRestore::Builder {
+public:
+  typedef CrossDomainRestore Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline bool hasVatId();
+  inline  ::mas::schema::persistence::VatId::Builder getVatId();
+  inline void setVatId( ::mas::schema::persistence::VatId::Reader value);
+  inline  ::mas::schema::persistence::VatId::Builder initVatId();
+  inline void adoptVatId(::capnp::Orphan< ::mas::schema::persistence::VatId>&& value);
+  inline ::capnp::Orphan< ::mas::schema::persistence::VatId> disownVatId();
+
+  inline bool hasRestorer();
+#if !CAPNP_LITE
+  inline  ::mas::schema::persistence::Restorer::Client getRestorer();
+  inline void setRestorer( ::mas::schema::persistence::Restorer::Client&& value);
+  inline void setRestorer( ::mas::schema::persistence::Restorer::Client& value);
+  inline void adoptRestorer(::capnp::Orphan< ::mas::schema::persistence::Restorer>&& value);
+  inline ::capnp::Orphan< ::mas::schema::persistence::Restorer> disownRestorer();
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class Registrar::CrossDomainRestore::Pipeline {
+public:
+  typedef CrossDomainRestore Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+  inline  ::mas::schema::persistence::VatId::Pipeline getVatId();
+  inline  ::mas::schema::persistence::Restorer::Client getRestorer();
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+class Registrar::RegParams::Reader {
+public:
+  typedef RegParams Reads;
 
   Reader() = default;
   inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
@@ -1956,6 +2070,9 @@ public:
   inline bool hasCategoryId() const;
   inline  ::capnp::Text::Reader getCategoryId() const;
 
+  inline bool hasXDomain() const;
+  inline  ::mas::schema::registry::Registrar::CrossDomainRestore::Reader getXDomain() const;
+
 private:
   ::capnp::_::StructReader _reader;
   template <typename, ::capnp::Kind>
@@ -1968,9 +2085,9 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Registrar::RegisterParams::Builder {
+class Registrar::RegParams::Builder {
 public:
-  typedef RegisterParams Builds;
+  typedef RegParams Builds;
 
   Builder() = delete;  // Deleted to discourage incorrect usage.
                        // You can explicitly initialize to nullptr instead.
@@ -2007,6 +2124,13 @@ public:
   inline void adoptCategoryId(::capnp::Orphan< ::capnp::Text>&& value);
   inline ::capnp::Orphan< ::capnp::Text> disownCategoryId();
 
+  inline bool hasXDomain();
+  inline  ::mas::schema::registry::Registrar::CrossDomainRestore::Builder getXDomain();
+  inline void setXDomain( ::mas::schema::registry::Registrar::CrossDomainRestore::Reader value);
+  inline  ::mas::schema::registry::Registrar::CrossDomainRestore::Builder initXDomain();
+  inline void adoptXDomain(::capnp::Orphan< ::mas::schema::registry::Registrar::CrossDomainRestore>&& value);
+  inline ::capnp::Orphan< ::mas::schema::registry::Registrar::CrossDomainRestore> disownXDomain();
+
 private:
   ::capnp::_::StructBuilder _builder;
   template <typename, ::capnp::Kind>
@@ -2017,15 +2141,16 @@ private:
 };
 
 #if !CAPNP_LITE
-class Registrar::RegisterParams::Pipeline {
+class Registrar::RegParams::Pipeline {
 public:
-  typedef RegisterParams Pipelines;
+  typedef RegParams Pipelines;
 
   inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
       : _typeless(kj::mv(typeless)) {}
 
   inline  ::mas::schema::common::Identifiable::Client getCap();
+  inline  ::mas::schema::registry::Registrar::CrossDomainRestore::Pipeline getXDomain();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -2057,7 +2182,7 @@ public:
 #endif  // !CAPNP_LITE
 
   inline bool hasReregSR() const;
-  inline  ::capnp::Text::Reader getReregSR() const;
+  inline  ::mas::schema::persistence::SturdyRef::Reader getReregSR() const;
 
 private:
   ::capnp::_::StructReader _reader;
@@ -2097,11 +2222,11 @@ public:
 #endif  // !CAPNP_LITE
 
   inline bool hasReregSR();
-  inline  ::capnp::Text::Builder getReregSR();
-  inline void setReregSR( ::capnp::Text::Reader value);
-  inline  ::capnp::Text::Builder initReregSR(unsigned int size);
-  inline void adoptReregSR(::capnp::Orphan< ::capnp::Text>&& value);
-  inline ::capnp::Orphan< ::capnp::Text> disownReregSR();
+  inline  ::mas::schema::persistence::SturdyRef::Builder getReregSR();
+  inline void setReregSR( ::mas::schema::persistence::SturdyRef::Reader value);
+  inline  ::mas::schema::persistence::SturdyRef::Builder initReregSR();
+  inline void adoptReregSR(::capnp::Orphan< ::mas::schema::persistence::SturdyRef>&& value);
+  inline ::capnp::Orphan< ::mas::schema::persistence::SturdyRef> disownReregSR();
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -2122,6 +2247,7 @@ public:
       : _typeless(kj::mv(typeless)) {}
 
   inline  ::mas::schema::common::Action::Client getUnreg();
+  inline  ::mas::schema::persistence::SturdyRef::Pipeline getReregSR();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -2841,111 +2967,228 @@ inline  ::mas::schema::registry::Registrar::Client& Registrar::Client::operator=
 }
 
 #endif  // !CAPNP_LITE
-inline bool Registrar::RegisterParams::Reader::hasCap() const {
+inline bool Registrar::CrossDomainRestore::Reader::hasVatId() const {
   return !_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline bool Registrar::RegisterParams::Builder::hasCap() {
+inline bool Registrar::CrossDomainRestore::Builder::hasVatId() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline  ::mas::schema::persistence::VatId::Reader Registrar::CrossDomainRestore::Reader::getVatId() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::VatId>::get(_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline  ::mas::schema::persistence::VatId::Builder Registrar::CrossDomainRestore::Builder::getVatId() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::VatId>::get(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+#if !CAPNP_LITE
+inline  ::mas::schema::persistence::VatId::Pipeline Registrar::CrossDomainRestore::Pipeline::getVatId() {
+  return  ::mas::schema::persistence::VatId::Pipeline(_typeless.getPointerField(0));
+}
+#endif  // !CAPNP_LITE
+inline void Registrar::CrossDomainRestore::Builder::setVatId( ::mas::schema::persistence::VatId::Reader value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::persistence::VatId>::set(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), value);
+}
+inline  ::mas::schema::persistence::VatId::Builder Registrar::CrossDomainRestore::Builder::initVatId() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::VatId>::init(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline void Registrar::CrossDomainRestore::Builder::adoptVatId(
+    ::capnp::Orphan< ::mas::schema::persistence::VatId>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::persistence::VatId>::adopt(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::mas::schema::persistence::VatId> Registrar::CrossDomainRestore::Builder::disownVatId() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::VatId>::disown(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+
+inline bool Registrar::CrossDomainRestore::Reader::hasRestorer() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
+}
+inline bool Registrar::CrossDomainRestore::Builder::hasRestorer() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
+}
+#if !CAPNP_LITE
+inline  ::mas::schema::persistence::Restorer::Client Registrar::CrossDomainRestore::Reader::getRestorer() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::Restorer>::get(_reader.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+inline  ::mas::schema::persistence::Restorer::Client Registrar::CrossDomainRestore::Builder::getRestorer() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::Restorer>::get(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+inline  ::mas::schema::persistence::Restorer::Client Registrar::CrossDomainRestore::Pipeline::getRestorer() {
+  return  ::mas::schema::persistence::Restorer::Client(_typeless.getPointerField(1).asCap());
+}
+inline void Registrar::CrossDomainRestore::Builder::setRestorer( ::mas::schema::persistence::Restorer::Client&& cap) {
+  ::capnp::_::PointerHelpers< ::mas::schema::persistence::Restorer>::set(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS), kj::mv(cap));
+}
+inline void Registrar::CrossDomainRestore::Builder::setRestorer( ::mas::schema::persistence::Restorer::Client& cap) {
+  ::capnp::_::PointerHelpers< ::mas::schema::persistence::Restorer>::set(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS), cap);
+}
+inline void Registrar::CrossDomainRestore::Builder::adoptRestorer(
+    ::capnp::Orphan< ::mas::schema::persistence::Restorer>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::persistence::Restorer>::adopt(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::mas::schema::persistence::Restorer> Registrar::CrossDomainRestore::Builder::disownRestorer() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::Restorer>::disown(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+#endif  // !CAPNP_LITE
+
+inline bool Registrar::RegParams::Reader::hasCap() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline bool Registrar::RegParams::Builder::hasCap() {
   return !_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
 #if !CAPNP_LITE
-inline  ::mas::schema::common::Identifiable::Client Registrar::RegisterParams::Reader::getCap() const {
+inline  ::mas::schema::common::Identifiable::Client Registrar::RegParams::Reader::getCap() const {
   return ::capnp::_::PointerHelpers< ::mas::schema::common::Identifiable>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::common::Identifiable::Client Registrar::RegisterParams::Builder::getCap() {
+inline  ::mas::schema::common::Identifiable::Client Registrar::RegParams::Builder::getCap() {
   return ::capnp::_::PointerHelpers< ::mas::schema::common::Identifiable>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::common::Identifiable::Client Registrar::RegisterParams::Pipeline::getCap() {
+inline  ::mas::schema::common::Identifiable::Client Registrar::RegParams::Pipeline::getCap() {
   return  ::mas::schema::common::Identifiable::Client(_typeless.getPointerField(0).asCap());
 }
-inline void Registrar::RegisterParams::Builder::setCap( ::mas::schema::common::Identifiable::Client&& cap) {
+inline void Registrar::RegParams::Builder::setCap( ::mas::schema::common::Identifiable::Client&& cap) {
   ::capnp::_::PointerHelpers< ::mas::schema::common::Identifiable>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(cap));
 }
-inline void Registrar::RegisterParams::Builder::setCap( ::mas::schema::common::Identifiable::Client& cap) {
+inline void Registrar::RegParams::Builder::setCap( ::mas::schema::common::Identifiable::Client& cap) {
   ::capnp::_::PointerHelpers< ::mas::schema::common::Identifiable>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), cap);
 }
-inline void Registrar::RegisterParams::Builder::adoptCap(
+inline void Registrar::RegParams::Builder::adoptCap(
     ::capnp::Orphan< ::mas::schema::common::Identifiable>&& value) {
   ::capnp::_::PointerHelpers< ::mas::schema::common::Identifiable>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::mas::schema::common::Identifiable> Registrar::RegisterParams::Builder::disownCap() {
+inline ::capnp::Orphan< ::mas::schema::common::Identifiable> Registrar::RegParams::Builder::disownCap() {
   return ::capnp::_::PointerHelpers< ::mas::schema::common::Identifiable>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 #endif  // !CAPNP_LITE
 
-inline bool Registrar::RegisterParams::Reader::hasRegName() const {
+inline bool Registrar::RegParams::Reader::hasRegName() const {
   return !_reader.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
 }
-inline bool Registrar::RegisterParams::Builder::hasRegName() {
+inline bool Registrar::RegParams::Builder::hasRegName() {
   return !_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
 }
-inline  ::capnp::Text::Reader Registrar::RegisterParams::Reader::getRegName() const {
+inline  ::capnp::Text::Reader Registrar::RegParams::Reader::getRegName() const {
   return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_reader.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
-inline  ::capnp::Text::Builder Registrar::RegisterParams::Builder::getRegName() {
+inline  ::capnp::Text::Builder Registrar::RegParams::Builder::getRegName() {
   return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
-inline void Registrar::RegisterParams::Builder::setRegName( ::capnp::Text::Reader value) {
+inline void Registrar::RegParams::Builder::setRegName( ::capnp::Text::Reader value) {
   ::capnp::_::PointerHelpers< ::capnp::Text>::set(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS), value);
 }
-inline  ::capnp::Text::Builder Registrar::RegisterParams::Builder::initRegName(unsigned int size) {
+inline  ::capnp::Text::Builder Registrar::RegParams::Builder::initRegName(unsigned int size) {
   return ::capnp::_::PointerHelpers< ::capnp::Text>::init(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS), size);
 }
-inline void Registrar::RegisterParams::Builder::adoptRegName(
+inline void Registrar::RegParams::Builder::adoptRegName(
     ::capnp::Orphan< ::capnp::Text>&& value) {
   ::capnp::_::PointerHelpers< ::capnp::Text>::adopt(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::capnp::Text> Registrar::RegisterParams::Builder::disownRegName() {
+inline ::capnp::Orphan< ::capnp::Text> Registrar::RegParams::Builder::disownRegName() {
   return ::capnp::_::PointerHelpers< ::capnp::Text>::disown(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
 
-inline bool Registrar::RegisterParams::Reader::hasCategoryId() const {
+inline bool Registrar::RegParams::Reader::hasCategoryId() const {
   return !_reader.getPointerField(
       ::capnp::bounded<2>() * ::capnp::POINTERS).isNull();
 }
-inline bool Registrar::RegisterParams::Builder::hasCategoryId() {
+inline bool Registrar::RegParams::Builder::hasCategoryId() {
   return !_builder.getPointerField(
       ::capnp::bounded<2>() * ::capnp::POINTERS).isNull();
 }
-inline  ::capnp::Text::Reader Registrar::RegisterParams::Reader::getCategoryId() const {
+inline  ::capnp::Text::Reader Registrar::RegParams::Reader::getCategoryId() const {
   return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_reader.getPointerField(
       ::capnp::bounded<2>() * ::capnp::POINTERS));
 }
-inline  ::capnp::Text::Builder Registrar::RegisterParams::Builder::getCategoryId() {
+inline  ::capnp::Text::Builder Registrar::RegParams::Builder::getCategoryId() {
   return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_builder.getPointerField(
       ::capnp::bounded<2>() * ::capnp::POINTERS));
 }
-inline void Registrar::RegisterParams::Builder::setCategoryId( ::capnp::Text::Reader value) {
+inline void Registrar::RegParams::Builder::setCategoryId( ::capnp::Text::Reader value) {
   ::capnp::_::PointerHelpers< ::capnp::Text>::set(_builder.getPointerField(
       ::capnp::bounded<2>() * ::capnp::POINTERS), value);
 }
-inline  ::capnp::Text::Builder Registrar::RegisterParams::Builder::initCategoryId(unsigned int size) {
+inline  ::capnp::Text::Builder Registrar::RegParams::Builder::initCategoryId(unsigned int size) {
   return ::capnp::_::PointerHelpers< ::capnp::Text>::init(_builder.getPointerField(
       ::capnp::bounded<2>() * ::capnp::POINTERS), size);
 }
-inline void Registrar::RegisterParams::Builder::adoptCategoryId(
+inline void Registrar::RegParams::Builder::adoptCategoryId(
     ::capnp::Orphan< ::capnp::Text>&& value) {
   ::capnp::_::PointerHelpers< ::capnp::Text>::adopt(_builder.getPointerField(
       ::capnp::bounded<2>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::capnp::Text> Registrar::RegisterParams::Builder::disownCategoryId() {
+inline ::capnp::Orphan< ::capnp::Text> Registrar::RegParams::Builder::disownCategoryId() {
   return ::capnp::_::PointerHelpers< ::capnp::Text>::disown(_builder.getPointerField(
       ::capnp::bounded<2>() * ::capnp::POINTERS));
+}
+
+inline bool Registrar::RegParams::Reader::hasXDomain() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS).isNull();
+}
+inline bool Registrar::RegParams::Builder::hasXDomain() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS).isNull();
+}
+inline  ::mas::schema::registry::Registrar::CrossDomainRestore::Reader Registrar::RegParams::Reader::getXDomain() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::registry::Registrar::CrossDomainRestore>::get(_reader.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS));
+}
+inline  ::mas::schema::registry::Registrar::CrossDomainRestore::Builder Registrar::RegParams::Builder::getXDomain() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::registry::Registrar::CrossDomainRestore>::get(_builder.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS));
+}
+#if !CAPNP_LITE
+inline  ::mas::schema::registry::Registrar::CrossDomainRestore::Pipeline Registrar::RegParams::Pipeline::getXDomain() {
+  return  ::mas::schema::registry::Registrar::CrossDomainRestore::Pipeline(_typeless.getPointerField(3));
+}
+#endif  // !CAPNP_LITE
+inline void Registrar::RegParams::Builder::setXDomain( ::mas::schema::registry::Registrar::CrossDomainRestore::Reader value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::registry::Registrar::CrossDomainRestore>::set(_builder.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS), value);
+}
+inline  ::mas::schema::registry::Registrar::CrossDomainRestore::Builder Registrar::RegParams::Builder::initXDomain() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::registry::Registrar::CrossDomainRestore>::init(_builder.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS));
+}
+inline void Registrar::RegParams::Builder::adoptXDomain(
+    ::capnp::Orphan< ::mas::schema::registry::Registrar::CrossDomainRestore>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::registry::Registrar::CrossDomainRestore>::adopt(_builder.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::mas::schema::registry::Registrar::CrossDomainRestore> Registrar::RegParams::Builder::disownXDomain() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::registry::Registrar::CrossDomainRestore>::disown(_builder.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS));
 }
 
 inline bool Registrar::RegisterResults::Reader::hasUnreg() const {
@@ -2995,29 +3238,34 @@ inline bool Registrar::RegisterResults::Builder::hasReregSR() {
   return !_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
 }
-inline  ::capnp::Text::Reader Registrar::RegisterResults::Reader::getReregSR() const {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_reader.getPointerField(
+inline  ::mas::schema::persistence::SturdyRef::Reader Registrar::RegisterResults::Reader::getReregSR() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef>::get(_reader.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
-inline  ::capnp::Text::Builder Registrar::RegisterResults::Builder::getReregSR() {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_builder.getPointerField(
+inline  ::mas::schema::persistence::SturdyRef::Builder Registrar::RegisterResults::Builder::getReregSR() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef>::get(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
-inline void Registrar::RegisterResults::Builder::setReregSR( ::capnp::Text::Reader value) {
-  ::capnp::_::PointerHelpers< ::capnp::Text>::set(_builder.getPointerField(
+#if !CAPNP_LITE
+inline  ::mas::schema::persistence::SturdyRef::Pipeline Registrar::RegisterResults::Pipeline::getReregSR() {
+  return  ::mas::schema::persistence::SturdyRef::Pipeline(_typeless.getPointerField(1));
+}
+#endif  // !CAPNP_LITE
+inline void Registrar::RegisterResults::Builder::setReregSR( ::mas::schema::persistence::SturdyRef::Reader value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef>::set(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS), value);
 }
-inline  ::capnp::Text::Builder Registrar::RegisterResults::Builder::initReregSR(unsigned int size) {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::init(_builder.getPointerField(
-      ::capnp::bounded<1>() * ::capnp::POINTERS), size);
+inline  ::mas::schema::persistence::SturdyRef::Builder Registrar::RegisterResults::Builder::initReregSR() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef>::init(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
 inline void Registrar::RegisterResults::Builder::adoptReregSR(
-    ::capnp::Orphan< ::capnp::Text>&& value) {
-  ::capnp::_::PointerHelpers< ::capnp::Text>::adopt(_builder.getPointerField(
+    ::capnp::Orphan< ::mas::schema::persistence::SturdyRef>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef>::adopt(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::capnp::Text> Registrar::RegisterResults::Builder::disownReregSR() {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::disown(_builder.getPointerField(
+inline ::capnp::Orphan< ::mas::schema::persistence::SturdyRef> Registrar::RegisterResults::Builder::disownReregSR() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef>::disown(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
 

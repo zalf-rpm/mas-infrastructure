@@ -64,4 +64,3 @@ interface Factory(Payload) extends(Common.Identifiable) {
   # return a list of the names the factory will return on a create message
   # these names are the ones to be used for the sturdy ref maps in CreateParams
 }
-

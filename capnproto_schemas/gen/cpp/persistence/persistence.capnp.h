@@ -28,10 +28,10 @@ CAPNP_DECLARE_SCHEMA(fdd799ed60c87723);
 CAPNP_DECLARE_SCHEMA(a42bd461f2a8a3c8);
 CAPNP_DECLARE_SCHEMA(cbe679a401315eb8);
 CAPNP_DECLARE_SCHEMA(c1a7daa0dc36cb65);
-CAPNP_DECLARE_SCHEMA(ffc59cb2d8a71502);
-CAPNP_DECLARE_SCHEMA(ef80b08e84155cc2);
+CAPNP_DECLARE_SCHEMA(d5e0aac4225e0343);
+CAPNP_DECLARE_SCHEMA(dc5bd1ef982cec13);
 CAPNP_DECLARE_SCHEMA(9fb6218427d92e3c);
-CAPNP_DECLARE_SCHEMA(8071b2eb61aac3f0);
+CAPNP_DECLARE_SCHEMA(c541e5764a37d73a);
 CAPNP_DECLARE_SCHEMA(da966d1d252e4d25);
 
 }  // namespace schemas
@@ -200,7 +200,7 @@ struct Persistent::SaveParams {
   class Pipeline;
 
   struct _capnpPrivate {
-    CAPNP_DECLARE_STRUCT_HEADER(ffc59cb2d8a71502, 0, 0)
+    CAPNP_DECLARE_STRUCT_HEADER(d5e0aac4225e0343, 0, 1)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
@@ -215,7 +215,7 @@ struct Persistent::SaveResults {
   class Pipeline;
 
   struct _capnpPrivate {
-    CAPNP_DECLARE_STRUCT_HEADER(ef80b08e84155cc2, 0, 2)
+    CAPNP_DECLARE_STRUCT_HEADER(dc5bd1ef982cec13, 0, 2)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
@@ -249,7 +249,7 @@ struct Restorer::RestoreParams {
   class Pipeline;
 
   struct _capnpPrivate {
-    CAPNP_DECLARE_STRUCT_HEADER(8071b2eb61aac3f0, 0, 1)
+    CAPNP_DECLARE_STRUCT_HEADER(c541e5764a37d73a, 0, 2)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
@@ -1030,9 +1030,7 @@ public:
       override;
 
 protected:
-  typedef  ::mas::schema::persistence::Persistent::SaveParams SaveParams;
-  typedef  ::mas::schema::persistence::Persistent::SaveResults SaveResults;
-  typedef ::capnp::CallContext<SaveParams, SaveResults> SaveContext;
+  typedef ::capnp::CallContext< ::mas::schema::persistence::Persistent::SaveParams,  ::mas::schema::persistence::Persistent::SaveResults> SaveContext;
   virtual ::kj::Promise<void> save(SaveContext context);
 
   inline  ::mas::schema::persistence::Persistent::Client thisCap() {
@@ -1063,6 +1061,9 @@ public:
   }
 #endif  // !CAPNP_LITE
 
+  inline bool hasSealFor() const;
+  inline  ::mas::schema::persistence::SturdyRef::Owner::Reader getSealFor() const;
+
 private:
   ::capnp::_::StructReader _reader;
   template <typename, ::capnp::Kind>
@@ -1091,6 +1092,13 @@ public:
   inline ::kj::StringTree toString() const { return asReader().toString(); }
 #endif  // !CAPNP_LITE
 
+  inline bool hasSealFor();
+  inline  ::mas::schema::persistence::SturdyRef::Owner::Builder getSealFor();
+  inline void setSealFor( ::mas::schema::persistence::SturdyRef::Owner::Reader value);
+  inline  ::mas::schema::persistence::SturdyRef::Owner::Builder initSealFor();
+  inline void adoptSealFor(::capnp::Orphan< ::mas::schema::persistence::SturdyRef::Owner>&& value);
+  inline ::capnp::Orphan< ::mas::schema::persistence::SturdyRef::Owner> disownSealFor();
+
 private:
   ::capnp::_::StructBuilder _builder;
   template <typename, ::capnp::Kind>
@@ -1109,6 +1117,7 @@ public:
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
       : _typeless(kj::mv(typeless)) {}
 
+  inline  ::mas::schema::persistence::SturdyRef::Owner::Pipeline getSealFor();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -1135,10 +1144,10 @@ public:
 #endif  // !CAPNP_LITE
 
   inline bool hasSturdyRef() const;
-  inline  ::capnp::Text::Reader getSturdyRef() const;
+  inline  ::mas::schema::persistence::SturdyRef::Reader getSturdyRef() const;
 
   inline bool hasUnsaveSR() const;
-  inline  ::capnp::Text::Reader getUnsaveSR() const;
+  inline  ::mas::schema::persistence::SturdyRef::Reader getUnsaveSR() const;
 
 private:
   ::capnp::_::StructReader _reader;
@@ -1169,18 +1178,18 @@ public:
 #endif  // !CAPNP_LITE
 
   inline bool hasSturdyRef();
-  inline  ::capnp::Text::Builder getSturdyRef();
-  inline void setSturdyRef( ::capnp::Text::Reader value);
-  inline  ::capnp::Text::Builder initSturdyRef(unsigned int size);
-  inline void adoptSturdyRef(::capnp::Orphan< ::capnp::Text>&& value);
-  inline ::capnp::Orphan< ::capnp::Text> disownSturdyRef();
+  inline  ::mas::schema::persistence::SturdyRef::Builder getSturdyRef();
+  inline void setSturdyRef( ::mas::schema::persistence::SturdyRef::Reader value);
+  inline  ::mas::schema::persistence::SturdyRef::Builder initSturdyRef();
+  inline void adoptSturdyRef(::capnp::Orphan< ::mas::schema::persistence::SturdyRef>&& value);
+  inline ::capnp::Orphan< ::mas::schema::persistence::SturdyRef> disownSturdyRef();
 
   inline bool hasUnsaveSR();
-  inline  ::capnp::Text::Builder getUnsaveSR();
-  inline void setUnsaveSR( ::capnp::Text::Reader value);
-  inline  ::capnp::Text::Builder initUnsaveSR(unsigned int size);
-  inline void adoptUnsaveSR(::capnp::Orphan< ::capnp::Text>&& value);
-  inline ::capnp::Orphan< ::capnp::Text> disownUnsaveSR();
+  inline  ::mas::schema::persistence::SturdyRef::Builder getUnsaveSR();
+  inline void setUnsaveSR( ::mas::schema::persistence::SturdyRef::Reader value);
+  inline  ::mas::schema::persistence::SturdyRef::Builder initUnsaveSR();
+  inline void adoptUnsaveSR(::capnp::Orphan< ::mas::schema::persistence::SturdyRef>&& value);
+  inline ::capnp::Orphan< ::mas::schema::persistence::SturdyRef> disownUnsaveSR();
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -1200,6 +1209,8 @@ public:
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
       : _typeless(kj::mv(typeless)) {}
 
+  inline  ::mas::schema::persistence::SturdyRef::Pipeline getSturdyRef();
+  inline  ::mas::schema::persistence::SturdyRef::Pipeline getUnsaveSR();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -1245,9 +1256,8 @@ public:
       override;
 
 protected:
-  typedef  ::mas::schema::persistence::Restorer::RestoreParams RestoreParams;
   typedef  ::mas::schema::persistence::Restorer::RestoreResults RestoreResults;
-  typedef ::capnp::CallContext<RestoreParams, RestoreResults> RestoreContext;
+  typedef ::capnp::CallContext< ::mas::schema::persistence::Restorer::RestoreParams, RestoreResults> RestoreContext;
   virtual ::kj::Promise<void> restore(RestoreContext context);
 
   inline  ::mas::schema::persistence::Restorer::Client thisCap() {
@@ -1278,8 +1288,11 @@ public:
   }
 #endif  // !CAPNP_LITE
 
-  inline bool hasSrToken() const;
-  inline  ::capnp::Text::Reader getSrToken() const;
+  inline bool hasLocalRef() const;
+  inline ::capnp::AnyPointer::Reader getLocalRef() const;
+
+  inline bool hasSealedFor() const;
+  inline  ::mas::schema::persistence::SturdyRef::Owner::Reader getSealedFor() const;
 
 private:
   ::capnp::_::StructReader _reader;
@@ -1309,12 +1322,16 @@ public:
   inline ::kj::StringTree toString() const { return asReader().toString(); }
 #endif  // !CAPNP_LITE
 
-  inline bool hasSrToken();
-  inline  ::capnp::Text::Builder getSrToken();
-  inline void setSrToken( ::capnp::Text::Reader value);
-  inline  ::capnp::Text::Builder initSrToken(unsigned int size);
-  inline void adoptSrToken(::capnp::Orphan< ::capnp::Text>&& value);
-  inline ::capnp::Orphan< ::capnp::Text> disownSrToken();
+  inline bool hasLocalRef();
+  inline ::capnp::AnyPointer::Builder getLocalRef();
+  inline ::capnp::AnyPointer::Builder initLocalRef();
+
+  inline bool hasSealedFor();
+  inline  ::mas::schema::persistence::SturdyRef::Owner::Builder getSealedFor();
+  inline void setSealedFor( ::mas::schema::persistence::SturdyRef::Owner::Reader value);
+  inline  ::mas::schema::persistence::SturdyRef::Owner::Builder initSealedFor();
+  inline void adoptSealedFor(::capnp::Orphan< ::mas::schema::persistence::SturdyRef::Owner>&& value);
+  inline ::capnp::Orphan< ::mas::schema::persistence::SturdyRef::Owner> disownSealedFor();
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -1334,6 +1351,7 @@ public:
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
       : _typeless(kj::mv(typeless)) {}
 
+  inline  ::mas::schema::persistence::SturdyRef::Owner::Pipeline getSealedFor();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -1985,6 +2003,45 @@ inline  ::mas::schema::persistence::Persistent::Client& Persistent::Client::oper
 }
 
 #endif  // !CAPNP_LITE
+inline bool Persistent::SaveParams::Reader::hasSealFor() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline bool Persistent::SaveParams::Builder::hasSealFor() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline  ::mas::schema::persistence::SturdyRef::Owner::Reader Persistent::SaveParams::Reader::getSealFor() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Owner>::get(_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline  ::mas::schema::persistence::SturdyRef::Owner::Builder Persistent::SaveParams::Builder::getSealFor() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Owner>::get(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+#if !CAPNP_LITE
+inline  ::mas::schema::persistence::SturdyRef::Owner::Pipeline Persistent::SaveParams::Pipeline::getSealFor() {
+  return  ::mas::schema::persistence::SturdyRef::Owner::Pipeline(_typeless.getPointerField(0));
+}
+#endif  // !CAPNP_LITE
+inline void Persistent::SaveParams::Builder::setSealFor( ::mas::schema::persistence::SturdyRef::Owner::Reader value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Owner>::set(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), value);
+}
+inline  ::mas::schema::persistence::SturdyRef::Owner::Builder Persistent::SaveParams::Builder::initSealFor() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Owner>::init(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline void Persistent::SaveParams::Builder::adoptSealFor(
+    ::capnp::Orphan< ::mas::schema::persistence::SturdyRef::Owner>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Owner>::adopt(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::mas::schema::persistence::SturdyRef::Owner> Persistent::SaveParams::Builder::disownSealFor() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Owner>::disown(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+
 inline bool Persistent::SaveResults::Reader::hasSturdyRef() const {
   return !_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
@@ -1993,29 +2050,34 @@ inline bool Persistent::SaveResults::Builder::hasSturdyRef() {
   return !_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline  ::capnp::Text::Reader Persistent::SaveResults::Reader::getSturdyRef() const {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_reader.getPointerField(
+inline  ::mas::schema::persistence::SturdyRef::Reader Persistent::SaveResults::Reader::getSturdyRef() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::capnp::Text::Builder Persistent::SaveResults::Builder::getSturdyRef() {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_builder.getPointerField(
+inline  ::mas::schema::persistence::SturdyRef::Builder Persistent::SaveResults::Builder::getSturdyRef() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline void Persistent::SaveResults::Builder::setSturdyRef( ::capnp::Text::Reader value) {
-  ::capnp::_::PointerHelpers< ::capnp::Text>::set(_builder.getPointerField(
+#if !CAPNP_LITE
+inline  ::mas::schema::persistence::SturdyRef::Pipeline Persistent::SaveResults::Pipeline::getSturdyRef() {
+  return  ::mas::schema::persistence::SturdyRef::Pipeline(_typeless.getPointerField(0));
+}
+#endif  // !CAPNP_LITE
+inline void Persistent::SaveResults::Builder::setSturdyRef( ::mas::schema::persistence::SturdyRef::Reader value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), value);
 }
-inline  ::capnp::Text::Builder Persistent::SaveResults::Builder::initSturdyRef(unsigned int size) {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::init(_builder.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS), size);
+inline  ::mas::schema::persistence::SturdyRef::Builder Persistent::SaveResults::Builder::initSturdyRef() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef>::init(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 inline void Persistent::SaveResults::Builder::adoptSturdyRef(
-    ::capnp::Orphan< ::capnp::Text>&& value) {
-  ::capnp::_::PointerHelpers< ::capnp::Text>::adopt(_builder.getPointerField(
+    ::capnp::Orphan< ::mas::schema::persistence::SturdyRef>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::capnp::Text> Persistent::SaveResults::Builder::disownSturdyRef() {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::disown(_builder.getPointerField(
+inline ::capnp::Orphan< ::mas::schema::persistence::SturdyRef> Persistent::SaveResults::Builder::disownSturdyRef() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 
@@ -2027,29 +2089,34 @@ inline bool Persistent::SaveResults::Builder::hasUnsaveSR() {
   return !_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
 }
-inline  ::capnp::Text::Reader Persistent::SaveResults::Reader::getUnsaveSR() const {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_reader.getPointerField(
+inline  ::mas::schema::persistence::SturdyRef::Reader Persistent::SaveResults::Reader::getUnsaveSR() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef>::get(_reader.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
-inline  ::capnp::Text::Builder Persistent::SaveResults::Builder::getUnsaveSR() {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_builder.getPointerField(
+inline  ::mas::schema::persistence::SturdyRef::Builder Persistent::SaveResults::Builder::getUnsaveSR() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef>::get(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
-inline void Persistent::SaveResults::Builder::setUnsaveSR( ::capnp::Text::Reader value) {
-  ::capnp::_::PointerHelpers< ::capnp::Text>::set(_builder.getPointerField(
+#if !CAPNP_LITE
+inline  ::mas::schema::persistence::SturdyRef::Pipeline Persistent::SaveResults::Pipeline::getUnsaveSR() {
+  return  ::mas::schema::persistence::SturdyRef::Pipeline(_typeless.getPointerField(1));
+}
+#endif  // !CAPNP_LITE
+inline void Persistent::SaveResults::Builder::setUnsaveSR( ::mas::schema::persistence::SturdyRef::Reader value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef>::set(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS), value);
 }
-inline  ::capnp::Text::Builder Persistent::SaveResults::Builder::initUnsaveSR(unsigned int size) {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::init(_builder.getPointerField(
-      ::capnp::bounded<1>() * ::capnp::POINTERS), size);
+inline  ::mas::schema::persistence::SturdyRef::Builder Persistent::SaveResults::Builder::initUnsaveSR() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef>::init(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
 inline void Persistent::SaveResults::Builder::adoptUnsaveSR(
-    ::capnp::Orphan< ::capnp::Text>&& value) {
-  ::capnp::_::PointerHelpers< ::capnp::Text>::adopt(_builder.getPointerField(
+    ::capnp::Orphan< ::mas::schema::persistence::SturdyRef>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef>::adopt(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::capnp::Text> Persistent::SaveResults::Builder::disownUnsaveSR() {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::disown(_builder.getPointerField(
+inline ::capnp::Orphan< ::mas::schema::persistence::SturdyRef> Persistent::SaveResults::Builder::disownUnsaveSR() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef>::disown(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
 
@@ -2077,38 +2144,66 @@ inline  ::mas::schema::persistence::Restorer::Client& Restorer::Client::operator
 }
 
 #endif  // !CAPNP_LITE
-inline bool Restorer::RestoreParams::Reader::hasSrToken() const {
+inline bool Restorer::RestoreParams::Reader::hasLocalRef() const {
   return !_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline bool Restorer::RestoreParams::Builder::hasSrToken() {
+inline bool Restorer::RestoreParams::Builder::hasLocalRef() {
   return !_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline  ::capnp::Text::Reader Restorer::RestoreParams::Reader::getSrToken() const {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_reader.getPointerField(
+inline ::capnp::AnyPointer::Reader Restorer::RestoreParams::Reader::getLocalRef() const {
+  return ::capnp::AnyPointer::Reader(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::capnp::Text::Builder Restorer::RestoreParams::Builder::getSrToken() {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_builder.getPointerField(
+inline ::capnp::AnyPointer::Builder Restorer::RestoreParams::Builder::getLocalRef() {
+  return ::capnp::AnyPointer::Builder(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline void Restorer::RestoreParams::Builder::setSrToken( ::capnp::Text::Reader value) {
-  ::capnp::_::PointerHelpers< ::capnp::Text>::set(_builder.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS), value);
-}
-inline  ::capnp::Text::Builder Restorer::RestoreParams::Builder::initSrToken(unsigned int size) {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::init(_builder.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS), size);
-}
-inline void Restorer::RestoreParams::Builder::adoptSrToken(
-    ::capnp::Orphan< ::capnp::Text>&& value) {
-  ::capnp::_::PointerHelpers< ::capnp::Text>::adopt(_builder.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
-}
-inline ::capnp::Orphan< ::capnp::Text> Restorer::RestoreParams::Builder::disownSrToken() {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::disown(_builder.getPointerField(
+inline ::capnp::AnyPointer::Builder Restorer::RestoreParams::Builder::initLocalRef() {
+  auto result = ::capnp::AnyPointer::Builder(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
+  result.clear();
+  return result;
+}
+
+inline bool Restorer::RestoreParams::Reader::hasSealedFor() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
+}
+inline bool Restorer::RestoreParams::Builder::hasSealedFor() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
+}
+inline  ::mas::schema::persistence::SturdyRef::Owner::Reader Restorer::RestoreParams::Reader::getSealedFor() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Owner>::get(_reader.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+inline  ::mas::schema::persistence::SturdyRef::Owner::Builder Restorer::RestoreParams::Builder::getSealedFor() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Owner>::get(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+#if !CAPNP_LITE
+inline  ::mas::schema::persistence::SturdyRef::Owner::Pipeline Restorer::RestoreParams::Pipeline::getSealedFor() {
+  return  ::mas::schema::persistence::SturdyRef::Owner::Pipeline(_typeless.getPointerField(1));
+}
+#endif  // !CAPNP_LITE
+inline void Restorer::RestoreParams::Builder::setSealedFor( ::mas::schema::persistence::SturdyRef::Owner::Reader value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Owner>::set(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS), value);
+}
+inline  ::mas::schema::persistence::SturdyRef::Owner::Builder Restorer::RestoreParams::Builder::initSealedFor() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Owner>::init(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+inline void Restorer::RestoreParams::Builder::adoptSealedFor(
+    ::capnp::Orphan< ::mas::schema::persistence::SturdyRef::Owner>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Owner>::adopt(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::mas::schema::persistence::SturdyRef::Owner> Restorer::RestoreParams::Builder::disownSealedFor() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Owner>::disown(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
 
 inline bool Restorer::RestoreResults::Reader::hasCap() const {

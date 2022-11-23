@@ -480,7 +480,7 @@ struct Params::MineralFertilization::Parameters {
   class Pipeline;
 
   struct _capnpPrivate {
-    CAPNP_DECLARE_STRUCT_HEADER(c75b5ef2e9b05c2d, 3, 2)
+    CAPNP_DECLARE_STRUCT_HEADER(c75b5ef2e9b05c2d, 3, 0)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
@@ -603,7 +603,6 @@ struct FertilizerService {
   class Server;
 #endif  // !CAPNP_LITE
 
-  template <typename T = ::capnp::AnyPointer>
   struct Entry;
   struct MineralFertilizerPartitionForParams;
   struct MineralFertilizerPartitionForResults;
@@ -626,7 +625,6 @@ struct FertilizerService {
   #endif  // !CAPNP_LITE
 };
 
-template <typename T>
 struct FertilizerService::Entry {
   Entry() = delete;
 
@@ -637,11 +635,7 @@ struct FertilizerService::Entry {
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(f54586500e2b72cd, 0, 2)
     #if !CAPNP_LITE
-    static const ::capnp::_::RawBrandedSchema::Scope brandScopes[];
-    static const ::capnp::_::RawBrandedSchema::Binding brandBindings[];
-    static const ::capnp::_::RawBrandedSchema::Dependency brandDependencies[];
-    static const ::capnp::_::RawBrandedSchema specificBrand;
-    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return ::capnp::_::ChooseBrand<_capnpPrivate, T>::brand(); }
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
   };
 };
@@ -2425,12 +2419,6 @@ public:
   }
 #endif  // !CAPNP_LITE
 
-  inline bool hasId() const;
-  inline  ::capnp::Text::Reader getId() const;
-
-  inline bool hasName() const;
-  inline  ::capnp::Text::Reader getName() const;
-
   inline double getCarbamid() const;
 
   inline double getNh4() const;
@@ -2464,20 +2452,6 @@ public:
 #if !CAPNP_LITE
   inline ::kj::StringTree toString() const { return asReader().toString(); }
 #endif  // !CAPNP_LITE
-
-  inline bool hasId();
-  inline  ::capnp::Text::Builder getId();
-  inline void setId( ::capnp::Text::Reader value);
-  inline  ::capnp::Text::Builder initId(unsigned int size);
-  inline void adoptId(::capnp::Orphan< ::capnp::Text>&& value);
-  inline ::capnp::Orphan< ::capnp::Text> disownId();
-
-  inline bool hasName();
-  inline  ::capnp::Text::Builder getName();
-  inline void setName( ::capnp::Text::Reader value);
-  inline  ::capnp::Text::Builder initName(unsigned int size);
-  inline void adoptName(::capnp::Orphan< ::capnp::Text>&& value);
-  inline ::capnp::Orphan< ::capnp::Text> disownName();
 
   inline double getCarbamid();
   inline void setCarbamid(double value);
@@ -3270,8 +3244,7 @@ protected:
 };
 #endif  // !CAPNP_LITE
 
-template <typename T>
-class FertilizerService::Entry<T>::Reader {
+class FertilizerService::Entry::Reader {
 public:
   typedef Entry Reads;
 
@@ -3288,17 +3261,12 @@ public:
   }
 #endif  // !CAPNP_LITE
 
-  template <typename T2 = ::capnp::AnyPointer>
-  typename Entry<T2>::Reader asGeneric() {
-    return typename Entry<T2>::Reader(_reader);
-  }
-
   inline bool hasInfo() const;
   inline  ::mas::schema::common::IdInformation::Reader getInfo() const;
 
   inline bool hasRef() const;
 #if !CAPNP_LITE
-  inline typename  ::mas::schema::common::ValueHolder<T>::Client getRef() const;
+  inline  ::mas::schema::common::AnyValueHolder::Client getRef() const;
 #endif  // !CAPNP_LITE
 
 private:
@@ -3313,8 +3281,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-template <typename T>
-class FertilizerService::Entry<T>::Builder {
+class FertilizerService::Entry::Builder {
 public:
   typedef Entry Builds;
 
@@ -3330,11 +3297,6 @@ public:
   inline ::kj::StringTree toString() const { return asReader().toString(); }
 #endif  // !CAPNP_LITE
 
-  template <typename T2 = ::capnp::AnyPointer>
-  typename Entry<T2>::Builder asGeneric() {
-    return typename Entry<T2>::Builder(_builder);
-  }
-
   inline bool hasInfo();
   inline  ::mas::schema::common::IdInformation::Builder getInfo();
   inline void setInfo( ::mas::schema::common::IdInformation::Reader value);
@@ -3344,11 +3306,11 @@ public:
 
   inline bool hasRef();
 #if !CAPNP_LITE
-  inline typename  ::mas::schema::common::ValueHolder<T>::Client getRef();
-  inline void setRef(typename  ::mas::schema::common::ValueHolder<T>::Client&& value);
-  inline void setRef(typename  ::mas::schema::common::ValueHolder<T>::Client& value);
-  inline void adoptRef(::capnp::Orphan< ::mas::schema::common::ValueHolder<T>>&& value);
-  inline ::capnp::Orphan< ::mas::schema::common::ValueHolder<T>> disownRef();
+  inline  ::mas::schema::common::AnyValueHolder::Client getRef();
+  inline void setRef( ::mas::schema::common::AnyValueHolder::Client&& value);
+  inline void setRef( ::mas::schema::common::AnyValueHolder::Client& value);
+  inline void adoptRef(::capnp::Orphan< ::mas::schema::common::AnyValueHolder>&& value);
+  inline ::capnp::Orphan< ::mas::schema::common::AnyValueHolder> disownRef();
 #endif  // !CAPNP_LITE
 
 private:
@@ -3361,8 +3323,7 @@ private:
 };
 
 #if !CAPNP_LITE
-template <typename T>
-class FertilizerService::Entry<T>::Pipeline {
+class FertilizerService::Entry::Pipeline {
 public:
   typedef Entry Pipelines;
 
@@ -3371,7 +3332,7 @@ public:
       : _typeless(kj::mv(typeless)) {}
 
   inline  ::mas::schema::common::IdInformation::Pipeline getInfo();
-  inline typename  ::mas::schema::common::ValueHolder<T>::Client getRef();
+  inline  ::mas::schema::common::AnyValueHolder::Client getRef();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -3785,7 +3746,7 @@ public:
 #endif  // !CAPNP_LITE
 
   inline bool hasEntries() const;
-  inline  ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>,  ::capnp::Kind::STRUCT>::Reader getEntries() const;
+  inline  ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry,  ::capnp::Kind::STRUCT>::Reader getEntries() const;
 
 private:
   ::capnp::_::StructReader _reader;
@@ -3816,11 +3777,11 @@ public:
 #endif  // !CAPNP_LITE
 
   inline bool hasEntries();
-  inline  ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>,  ::capnp::Kind::STRUCT>::Builder getEntries();
-  inline void setEntries( ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>,  ::capnp::Kind::STRUCT>::Reader value);
-  inline  ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>,  ::capnp::Kind::STRUCT>::Builder initEntries(unsigned int size);
-  inline void adoptEntries(::capnp::Orphan< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>,  ::capnp::Kind::STRUCT>>&& value);
-  inline ::capnp::Orphan< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>,  ::capnp::Kind::STRUCT>> disownEntries();
+  inline  ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry,  ::capnp::Kind::STRUCT>::Builder getEntries();
+  inline void setEntries( ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry,  ::capnp::Kind::STRUCT>::Reader value);
+  inline  ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry,  ::capnp::Kind::STRUCT>::Builder initEntries(unsigned int size);
+  inline void adoptEntries(::capnp::Orphan< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry,  ::capnp::Kind::STRUCT>>&& value);
+  inline ::capnp::Orphan< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry,  ::capnp::Kind::STRUCT>> disownEntries();
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -3937,7 +3898,7 @@ public:
 #endif  // !CAPNP_LITE
 
   inline bool hasEntries() const;
-  inline  ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry< ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters>,  ::capnp::Kind::STRUCT>::Reader getEntries() const;
+  inline  ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry,  ::capnp::Kind::STRUCT>::Reader getEntries() const;
 
 private:
   ::capnp::_::StructReader _reader;
@@ -3968,11 +3929,11 @@ public:
 #endif  // !CAPNP_LITE
 
   inline bool hasEntries();
-  inline  ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry< ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters>,  ::capnp::Kind::STRUCT>::Builder getEntries();
-  inline void setEntries( ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry< ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters>,  ::capnp::Kind::STRUCT>::Reader value);
-  inline  ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry< ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters>,  ::capnp::Kind::STRUCT>::Builder initEntries(unsigned int size);
-  inline void adoptEntries(::capnp::Orphan< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry< ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters>,  ::capnp::Kind::STRUCT>>&& value);
-  inline ::capnp::Orphan< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry< ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters>,  ::capnp::Kind::STRUCT>> disownEntries();
+  inline  ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry,  ::capnp::Kind::STRUCT>::Builder getEntries();
+  inline void setEntries( ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry,  ::capnp::Kind::STRUCT>::Reader value);
+  inline  ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry,  ::capnp::Kind::STRUCT>::Builder initEntries(unsigned int size);
+  inline void adoptEntries(::capnp::Orphan< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry,  ::capnp::Kind::STRUCT>>&& value);
+  inline ::capnp::Orphan< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry,  ::capnp::Kind::STRUCT>> disownEntries();
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -4099,7 +4060,7 @@ public:
 #endif  // !CAPNP_LITE
 
   inline bool hasFert() const;
-  inline  ::capnp::List< ::mas::schema::model::monica::Params::MineralFertilization::Parameters,  ::capnp::Kind::STRUCT>::Reader getFert() const;
+  inline  ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Reader getFert() const;
 
 private:
   ::capnp::_::StructReader _reader;
@@ -4130,11 +4091,11 @@ public:
 #endif  // !CAPNP_LITE
 
   inline bool hasFert();
-  inline  ::capnp::List< ::mas::schema::model::monica::Params::MineralFertilization::Parameters,  ::capnp::Kind::STRUCT>::Builder getFert();
-  inline void setFert( ::capnp::List< ::mas::schema::model::monica::Params::MineralFertilization::Parameters,  ::capnp::Kind::STRUCT>::Reader value);
-  inline  ::capnp::List< ::mas::schema::model::monica::Params::MineralFertilization::Parameters,  ::capnp::Kind::STRUCT>::Builder initFert(unsigned int size);
-  inline void adoptFert(::capnp::Orphan< ::capnp::List< ::mas::schema::model::monica::Params::MineralFertilization::Parameters,  ::capnp::Kind::STRUCT>>&& value);
-  inline ::capnp::Orphan< ::capnp::List< ::mas::schema::model::monica::Params::MineralFertilization::Parameters,  ::capnp::Kind::STRUCT>> disownFert();
+  inline  ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Builder getFert();
+  inline void setFert( ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Reader value);
+  inline  ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Builder initFert();
+  inline void adoptFert(::capnp::Orphan< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>&& value);
+  inline ::capnp::Orphan< ::mas::schema::model::monica::Params::MineralFertilization::Parameters> disownFert();
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -4154,6 +4115,7 @@ public:
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
       : _typeless(kj::mv(typeless)) {}
 
+  inline  ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Pipeline getFert();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -5771,74 +5733,6 @@ inline void Params::MineralFertilization::Builder::setAmount(double value) {
       ::capnp::bounded<0>() * ::capnp::ELEMENTS, value);
 }
 
-inline bool Params::MineralFertilization::Parameters::Reader::hasId() const {
-  return !_reader.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
-}
-inline bool Params::MineralFertilization::Parameters::Builder::hasId() {
-  return !_builder.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
-}
-inline  ::capnp::Text::Reader Params::MineralFertilization::Parameters::Reader::getId() const {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_reader.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS));
-}
-inline  ::capnp::Text::Builder Params::MineralFertilization::Parameters::Builder::getId() {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_builder.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS));
-}
-inline void Params::MineralFertilization::Parameters::Builder::setId( ::capnp::Text::Reader value) {
-  ::capnp::_::PointerHelpers< ::capnp::Text>::set(_builder.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS), value);
-}
-inline  ::capnp::Text::Builder Params::MineralFertilization::Parameters::Builder::initId(unsigned int size) {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::init(_builder.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS), size);
-}
-inline void Params::MineralFertilization::Parameters::Builder::adoptId(
-    ::capnp::Orphan< ::capnp::Text>&& value) {
-  ::capnp::_::PointerHelpers< ::capnp::Text>::adopt(_builder.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
-}
-inline ::capnp::Orphan< ::capnp::Text> Params::MineralFertilization::Parameters::Builder::disownId() {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::disown(_builder.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS));
-}
-
-inline bool Params::MineralFertilization::Parameters::Reader::hasName() const {
-  return !_reader.getPointerField(
-      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
-}
-inline bool Params::MineralFertilization::Parameters::Builder::hasName() {
-  return !_builder.getPointerField(
-      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
-}
-inline  ::capnp::Text::Reader Params::MineralFertilization::Parameters::Reader::getName() const {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_reader.getPointerField(
-      ::capnp::bounded<1>() * ::capnp::POINTERS));
-}
-inline  ::capnp::Text::Builder Params::MineralFertilization::Parameters::Builder::getName() {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_builder.getPointerField(
-      ::capnp::bounded<1>() * ::capnp::POINTERS));
-}
-inline void Params::MineralFertilization::Parameters::Builder::setName( ::capnp::Text::Reader value) {
-  ::capnp::_::PointerHelpers< ::capnp::Text>::set(_builder.getPointerField(
-      ::capnp::bounded<1>() * ::capnp::POINTERS), value);
-}
-inline  ::capnp::Text::Builder Params::MineralFertilization::Parameters::Builder::initName(unsigned int size) {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::init(_builder.getPointerField(
-      ::capnp::bounded<1>() * ::capnp::POINTERS), size);
-}
-inline void Params::MineralFertilization::Parameters::Builder::adoptName(
-    ::capnp::Orphan< ::capnp::Text>&& value) {
-  ::capnp::_::PointerHelpers< ::capnp::Text>::adopt(_builder.getPointerField(
-      ::capnp::bounded<1>() * ::capnp::POINTERS), kj::mv(value));
-}
-inline ::capnp::Orphan< ::capnp::Text> Params::MineralFertilization::Parameters::Builder::disownName() {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::disown(_builder.getPointerField(
-      ::capnp::bounded<1>() * ::capnp::POINTERS));
-}
-
 inline double Params::MineralFertilization::Parameters::Reader::getCarbamid() const {
   return _reader.getDataField<double>(
       ::capnp::bounded<0>() * ::capnp::ELEMENTS);
@@ -6437,129 +6331,82 @@ inline  ::mas::schema::model::monica::FertilizerService::Client& FertilizerServi
 }
 
 #endif  // !CAPNP_LITE
-template <typename T>
-inline bool FertilizerService::Entry<T>::Reader::hasInfo() const {
+inline bool FertilizerService::Entry::Reader::hasInfo() const {
   return !_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-template <typename T>
-inline bool FertilizerService::Entry<T>::Builder::hasInfo() {
+inline bool FertilizerService::Entry::Builder::hasInfo() {
   return !_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-template <typename T>
-inline  ::mas::schema::common::IdInformation::Reader FertilizerService::Entry<T>::Reader::getInfo() const {
+inline  ::mas::schema::common::IdInformation::Reader FertilizerService::Entry::Reader::getInfo() const {
   return ::capnp::_::PointerHelpers< ::mas::schema::common::IdInformation>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-template <typename T>
-inline  ::mas::schema::common::IdInformation::Builder FertilizerService::Entry<T>::Builder::getInfo() {
+inline  ::mas::schema::common::IdInformation::Builder FertilizerService::Entry::Builder::getInfo() {
   return ::capnp::_::PointerHelpers< ::mas::schema::common::IdInformation>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 #if !CAPNP_LITE
-template <typename T>
-inline  ::mas::schema::common::IdInformation::Pipeline FertilizerService::Entry<T>::Pipeline::getInfo() {
+inline  ::mas::schema::common::IdInformation::Pipeline FertilizerService::Entry::Pipeline::getInfo() {
   return  ::mas::schema::common::IdInformation::Pipeline(_typeless.getPointerField(0));
 }
 #endif  // !CAPNP_LITE
-template <typename T>
-inline void FertilizerService::Entry<T>::Builder::setInfo( ::mas::schema::common::IdInformation::Reader value) {
+inline void FertilizerService::Entry::Builder::setInfo( ::mas::schema::common::IdInformation::Reader value) {
   ::capnp::_::PointerHelpers< ::mas::schema::common::IdInformation>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), value);
 }
-template <typename T>
-inline  ::mas::schema::common::IdInformation::Builder FertilizerService::Entry<T>::Builder::initInfo() {
+inline  ::mas::schema::common::IdInformation::Builder FertilizerService::Entry::Builder::initInfo() {
   return ::capnp::_::PointerHelpers< ::mas::schema::common::IdInformation>::init(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-template <typename T>
-inline void FertilizerService::Entry<T>::Builder::adoptInfo(
+inline void FertilizerService::Entry::Builder::adoptInfo(
     ::capnp::Orphan< ::mas::schema::common::IdInformation>&& value) {
   ::capnp::_::PointerHelpers< ::mas::schema::common::IdInformation>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
-template <typename T>
-inline ::capnp::Orphan< ::mas::schema::common::IdInformation> FertilizerService::Entry<T>::Builder::disownInfo() {
+inline ::capnp::Orphan< ::mas::schema::common::IdInformation> FertilizerService::Entry::Builder::disownInfo() {
   return ::capnp::_::PointerHelpers< ::mas::schema::common::IdInformation>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 
-template <typename T>
-inline bool FertilizerService::Entry<T>::Reader::hasRef() const {
+inline bool FertilizerService::Entry::Reader::hasRef() const {
   return !_reader.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
 }
-template <typename T>
-inline bool FertilizerService::Entry<T>::Builder::hasRef() {
+inline bool FertilizerService::Entry::Builder::hasRef() {
   return !_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
 }
 #if !CAPNP_LITE
-template <typename T>
-inline typename  ::mas::schema::common::ValueHolder<T>::Client FertilizerService::Entry<T>::Reader::getRef() const {
-  return ::capnp::_::PointerHelpers< ::mas::schema::common::ValueHolder<T>>::get(_reader.getPointerField(
+inline  ::mas::schema::common::AnyValueHolder::Client FertilizerService::Entry::Reader::getRef() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::common::AnyValueHolder>::get(_reader.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
-template <typename T>
-inline typename  ::mas::schema::common::ValueHolder<T>::Client FertilizerService::Entry<T>::Builder::getRef() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::common::ValueHolder<T>>::get(_builder.getPointerField(
+inline  ::mas::schema::common::AnyValueHolder::Client FertilizerService::Entry::Builder::getRef() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::common::AnyValueHolder>::get(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
-template <typename T>
-inline typename  ::mas::schema::common::ValueHolder<T>::Client FertilizerService::Entry<T>::Pipeline::getRef() {
-  return typename  ::mas::schema::common::ValueHolder<T>::Client(_typeless.getPointerField(1).asCap());
+inline  ::mas::schema::common::AnyValueHolder::Client FertilizerService::Entry::Pipeline::getRef() {
+  return  ::mas::schema::common::AnyValueHolder::Client(_typeless.getPointerField(1).asCap());
 }
-template <typename T>
-inline void FertilizerService::Entry<T>::Builder::setRef(typename  ::mas::schema::common::ValueHolder<T>::Client&& cap) {
-  ::capnp::_::PointerHelpers< ::mas::schema::common::ValueHolder<T>>::set(_builder.getPointerField(
+inline void FertilizerService::Entry::Builder::setRef( ::mas::schema::common::AnyValueHolder::Client&& cap) {
+  ::capnp::_::PointerHelpers< ::mas::schema::common::AnyValueHolder>::set(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS), kj::mv(cap));
 }
-template <typename T>
-inline void FertilizerService::Entry<T>::Builder::setRef(typename  ::mas::schema::common::ValueHolder<T>::Client& cap) {
-  ::capnp::_::PointerHelpers< ::mas::schema::common::ValueHolder<T>>::set(_builder.getPointerField(
+inline void FertilizerService::Entry::Builder::setRef( ::mas::schema::common::AnyValueHolder::Client& cap) {
+  ::capnp::_::PointerHelpers< ::mas::schema::common::AnyValueHolder>::set(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS), cap);
 }
-template <typename T>
-inline void FertilizerService::Entry<T>::Builder::adoptRef(
-    ::capnp::Orphan< ::mas::schema::common::ValueHolder<T>>&& value) {
-  ::capnp::_::PointerHelpers< ::mas::schema::common::ValueHolder<T>>::adopt(_builder.getPointerField(
+inline void FertilizerService::Entry::Builder::adoptRef(
+    ::capnp::Orphan< ::mas::schema::common::AnyValueHolder>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::common::AnyValueHolder>::adopt(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS), kj::mv(value));
 }
-template <typename T>
-inline ::capnp::Orphan< ::mas::schema::common::ValueHolder<T>> FertilizerService::Entry<T>::Builder::disownRef() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::common::ValueHolder<T>>::disown(_builder.getPointerField(
+inline ::capnp::Orphan< ::mas::schema::common::AnyValueHolder> FertilizerService::Entry::Builder::disownRef() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::common::AnyValueHolder>::disown(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
-#endif  // !CAPNP_LITE
-
-// FertilizerService::Entry<T>
-template <typename T>
-constexpr uint16_t FertilizerService::Entry<T>::_capnpPrivate::dataWordSize;
-template <typename T>
-constexpr uint16_t FertilizerService::Entry<T>::_capnpPrivate::pointerCount;
-#if !CAPNP_LITE
-template <typename T>
-constexpr ::capnp::Kind FertilizerService::Entry<T>::_capnpPrivate::kind;
-template <typename T>
-constexpr ::capnp::_::RawSchema const* FertilizerService::Entry<T>::_capnpPrivate::schema;
-template <typename T>
-const ::capnp::_::RawBrandedSchema::Scope FertilizerService::Entry<T>::_capnpPrivate::brandScopes[] = {
-  { 0xf54586500e2b72cd, brandBindings + 0, 1, false},
-};
-template <typename T>
-const ::capnp::_::RawBrandedSchema::Binding FertilizerService::Entry<T>::_capnpPrivate::brandBindings[] = {
-  ::capnp::_::brandBindingFor<T>(),
-};
-template <typename T>
-const ::capnp::_::RawBrandedSchema::Dependency FertilizerService::Entry<T>::_capnpPrivate::brandDependencies[] = {
-  { 16777217,  ::mas::schema::common::ValueHolder<T>::_capnpPrivate::brand() },
-};
-template <typename T>
-const ::capnp::_::RawBrandedSchema FertilizerService::Entry<T>::_capnpPrivate::specificBrand = {
-  &::capnp::schemas::s_f54586500e2b72cd, brandScopes, brandDependencies,
-  1, 1, nullptr
-};
 #endif  // !CAPNP_LITE
 
 inline  ::mas::schema::model::monica::MineralFertilizer FertilizerService::MineralFertilizerPartitionForParams::Reader::getMinFert() const {
@@ -6676,29 +6523,29 @@ inline bool FertilizerService::AvailableMineralFertilizersResults::Builder::hasE
   return !_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline  ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>,  ::capnp::Kind::STRUCT>::Reader FertilizerService::AvailableMineralFertilizersResults::Reader::getEntries() const {
-  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>,  ::capnp::Kind::STRUCT>>::get(_reader.getPointerField(
+inline  ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry,  ::capnp::Kind::STRUCT>::Reader FertilizerService::AvailableMineralFertilizersResults::Reader::getEntries() const {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry,  ::capnp::Kind::STRUCT>>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>,  ::capnp::Kind::STRUCT>::Builder FertilizerService::AvailableMineralFertilizersResults::Builder::getEntries() {
-  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>,  ::capnp::Kind::STRUCT>>::get(_builder.getPointerField(
+inline  ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry,  ::capnp::Kind::STRUCT>::Builder FertilizerService::AvailableMineralFertilizersResults::Builder::getEntries() {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry,  ::capnp::Kind::STRUCT>>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline void FertilizerService::AvailableMineralFertilizersResults::Builder::setEntries( ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>,  ::capnp::Kind::STRUCT>::Reader value) {
-  ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>,  ::capnp::Kind::STRUCT>>::set(_builder.getPointerField(
+inline void FertilizerService::AvailableMineralFertilizersResults::Builder::setEntries( ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry,  ::capnp::Kind::STRUCT>::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry,  ::capnp::Kind::STRUCT>>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), value);
 }
-inline  ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>,  ::capnp::Kind::STRUCT>::Builder FertilizerService::AvailableMineralFertilizersResults::Builder::initEntries(unsigned int size) {
-  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>,  ::capnp::Kind::STRUCT>>::init(_builder.getPointerField(
+inline  ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry,  ::capnp::Kind::STRUCT>::Builder FertilizerService::AvailableMineralFertilizersResults::Builder::initEntries(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry,  ::capnp::Kind::STRUCT>>::init(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), size);
 }
 inline void FertilizerService::AvailableMineralFertilizersResults::Builder::adoptEntries(
-    ::capnp::Orphan< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>,  ::capnp::Kind::STRUCT>>&& value) {
-  ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>,  ::capnp::Kind::STRUCT>>::adopt(_builder.getPointerField(
+    ::capnp::Orphan< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry,  ::capnp::Kind::STRUCT>>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry,  ::capnp::Kind::STRUCT>>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>,  ::capnp::Kind::STRUCT>> FertilizerService::AvailableMineralFertilizersResults::Builder::disownEntries() {
-  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>,  ::capnp::Kind::STRUCT>>::disown(_builder.getPointerField(
+inline ::capnp::Orphan< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry,  ::capnp::Kind::STRUCT>> FertilizerService::AvailableMineralFertilizersResults::Builder::disownEntries() {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry,  ::capnp::Kind::STRUCT>>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 
@@ -6710,29 +6557,29 @@ inline bool FertilizerService::AvailableOrganicFertilizersResults::Builder::hasE
   return !_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline  ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry< ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters>,  ::capnp::Kind::STRUCT>::Reader FertilizerService::AvailableOrganicFertilizersResults::Reader::getEntries() const {
-  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry< ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters>,  ::capnp::Kind::STRUCT>>::get(_reader.getPointerField(
+inline  ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry,  ::capnp::Kind::STRUCT>::Reader FertilizerService::AvailableOrganicFertilizersResults::Reader::getEntries() const {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry,  ::capnp::Kind::STRUCT>>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry< ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters>,  ::capnp::Kind::STRUCT>::Builder FertilizerService::AvailableOrganicFertilizersResults::Builder::getEntries() {
-  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry< ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters>,  ::capnp::Kind::STRUCT>>::get(_builder.getPointerField(
+inline  ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry,  ::capnp::Kind::STRUCT>::Builder FertilizerService::AvailableOrganicFertilizersResults::Builder::getEntries() {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry,  ::capnp::Kind::STRUCT>>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline void FertilizerService::AvailableOrganicFertilizersResults::Builder::setEntries( ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry< ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters>,  ::capnp::Kind::STRUCT>::Reader value) {
-  ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry< ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters>,  ::capnp::Kind::STRUCT>>::set(_builder.getPointerField(
+inline void FertilizerService::AvailableOrganicFertilizersResults::Builder::setEntries( ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry,  ::capnp::Kind::STRUCT>::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry,  ::capnp::Kind::STRUCT>>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), value);
 }
-inline  ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry< ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters>,  ::capnp::Kind::STRUCT>::Builder FertilizerService::AvailableOrganicFertilizersResults::Builder::initEntries(unsigned int size) {
-  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry< ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters>,  ::capnp::Kind::STRUCT>>::init(_builder.getPointerField(
+inline  ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry,  ::capnp::Kind::STRUCT>::Builder FertilizerService::AvailableOrganicFertilizersResults::Builder::initEntries(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry,  ::capnp::Kind::STRUCT>>::init(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), size);
 }
 inline void FertilizerService::AvailableOrganicFertilizersResults::Builder::adoptEntries(
-    ::capnp::Orphan< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry< ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters>,  ::capnp::Kind::STRUCT>>&& value) {
-  ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry< ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters>,  ::capnp::Kind::STRUCT>>::adopt(_builder.getPointerField(
+    ::capnp::Orphan< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry,  ::capnp::Kind::STRUCT>>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry,  ::capnp::Kind::STRUCT>>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry< ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters>,  ::capnp::Kind::STRUCT>> FertilizerService::AvailableOrganicFertilizersResults::Builder::disownEntries() {
-  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry< ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters>,  ::capnp::Kind::STRUCT>>::disown(_builder.getPointerField(
+inline ::capnp::Orphan< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry,  ::capnp::Kind::STRUCT>> FertilizerService::AvailableOrganicFertilizersResults::Builder::disownEntries() {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::model::monica::FertilizerService::Entry,  ::capnp::Kind::STRUCT>>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 
@@ -6778,29 +6625,34 @@ inline bool FertilizerService::MineralFertilizerResults::Builder::hasFert() {
   return !_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline  ::capnp::List< ::mas::schema::model::monica::Params::MineralFertilization::Parameters,  ::capnp::Kind::STRUCT>::Reader FertilizerService::MineralFertilizerResults::Reader::getFert() const {
-  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::model::monica::Params::MineralFertilization::Parameters,  ::capnp::Kind::STRUCT>>::get(_reader.getPointerField(
+inline  ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Reader FertilizerService::MineralFertilizerResults::Reader::getFert() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::capnp::List< ::mas::schema::model::monica::Params::MineralFertilization::Parameters,  ::capnp::Kind::STRUCT>::Builder FertilizerService::MineralFertilizerResults::Builder::getFert() {
-  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::model::monica::Params::MineralFertilization::Parameters,  ::capnp::Kind::STRUCT>>::get(_builder.getPointerField(
+inline  ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Builder FertilizerService::MineralFertilizerResults::Builder::getFert() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline void FertilizerService::MineralFertilizerResults::Builder::setFert( ::capnp::List< ::mas::schema::model::monica::Params::MineralFertilization::Parameters,  ::capnp::Kind::STRUCT>::Reader value) {
-  ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::model::monica::Params::MineralFertilization::Parameters,  ::capnp::Kind::STRUCT>>::set(_builder.getPointerField(
+#if !CAPNP_LITE
+inline  ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Pipeline FertilizerService::MineralFertilizerResults::Pipeline::getFert() {
+  return  ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Pipeline(_typeless.getPointerField(0));
+}
+#endif  // !CAPNP_LITE
+inline void FertilizerService::MineralFertilizerResults::Builder::setFert( ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Reader value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), value);
 }
-inline  ::capnp::List< ::mas::schema::model::monica::Params::MineralFertilization::Parameters,  ::capnp::Kind::STRUCT>::Builder FertilizerService::MineralFertilizerResults::Builder::initFert(unsigned int size) {
-  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::model::monica::Params::MineralFertilization::Parameters,  ::capnp::Kind::STRUCT>>::init(_builder.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS), size);
+inline  ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Builder FertilizerService::MineralFertilizerResults::Builder::initFert() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>::init(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 inline void FertilizerService::MineralFertilizerResults::Builder::adoptFert(
-    ::capnp::Orphan< ::capnp::List< ::mas::schema::model::monica::Params::MineralFertilization::Parameters,  ::capnp::Kind::STRUCT>>&& value) {
-  ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::model::monica::Params::MineralFertilization::Parameters,  ::capnp::Kind::STRUCT>>::adopt(_builder.getPointerField(
+    ::capnp::Orphan< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::capnp::List< ::mas::schema::model::monica::Params::MineralFertilization::Parameters,  ::capnp::Kind::STRUCT>> FertilizerService::MineralFertilizerResults::Builder::disownFert() {
-  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::model::monica::Params::MineralFertilization::Parameters,  ::capnp::Kind::STRUCT>>::disown(_builder.getPointerField(
+inline ::capnp::Orphan< ::mas::schema::model::monica::Params::MineralFertilization::Parameters> FertilizerService::MineralFertilizerResults::Builder::disownFert() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 

@@ -22,6 +22,7 @@ capnp compile -I. -ogo:./gen/go/persistence persistence.capnp
 capnp compile -I. -ogo:./gen/go/registry registry.capnp
 capnp compile -I. -ogo:./gen/go/service service.capnp
 capnp compile -I. -ogo:./gen/go/soil soil.capnp
+capnp compile -I. -ogo:./gen/go/storage storage.capnp
 #capnp compile -I. -ogo:./gen/go/vr vr.capnp
 
 capnp compile -I. -ogo:./gen/go model/weberest/web-berest-data-import.capnp

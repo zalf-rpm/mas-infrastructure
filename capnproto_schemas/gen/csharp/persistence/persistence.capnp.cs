@@ -982,17 +982,15 @@ namespace Mas.Schema.Persistence
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x9fb6218427d92e3cUL), Proxy(typeof(Restorer_Proxy)), Skeleton(typeof(Restorer_Skeleton))]
     public interface IRestorer : IDisposable
     {
-        Task<BareProxy> Restore(string srToken, CancellationToken cancellationToken_ = default);
+        Task<BareProxy> Restore(Mas.Schema.Persistence.Restorer.RestoreParams arg_, CancellationToken cancellationToken_ = default);
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x9fb6218427d92e3cUL)]
     public class Restorer_Proxy : Proxy, IRestorer
     {
-        public Task<BareProxy> Restore(string srToken, CancellationToken cancellationToken_ = default)
+        public Task<BareProxy> Restore(Mas.Schema.Persistence.Restorer.RestoreParams arg_, CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.Restorer.Params_Restore.WRITER>();
-            var arg_ = new Mas.Schema.Persistence.Restorer.Params_Restore()
-            {SrToken = srToken};
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.Restorer.RestoreParams.WRITER>();
             arg_?.serialize(in_);
             return Impatient.MakePipelineAware(Call(11508422749279825468UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
             {
@@ -1020,8 +1018,7 @@ namespace Mas.Schema.Persistence
         {
             using (d_)
             {
-                var in_ = CapnpSerializable.Create<Mas.Schema.Persistence.Restorer.Params_Restore>(d_);
-                return Impatient.MaybeTailCall(Impl.Restore(in_.SrToken, cancellationToken_), cap =>
+                return Impatient.MaybeTailCall(Impl.Restore(CapnpSerializable.Create<Mas.Schema.Persistence.Restorer.RestoreParams>(d_), cancellationToken_), cap =>
                 {
                     var s_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.Restorer.Result_Restore.WRITER>();
                     var r_ = new Mas.Schema.Persistence.Restorer.Result_Restore{Cap = cap};
@@ -1036,20 +1033,22 @@ namespace Mas.Schema.Persistence
 
     public static class Restorer
     {
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x8071b2eb61aac3f0UL)]
-        public class Params_Restore : ICapnpSerializable
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xc541e5764a37d73aUL)]
+        public class RestoreParams : ICapnpSerializable
         {
-            public const UInt64 typeId = 0x8071b2eb61aac3f0UL;
+            public const UInt64 typeId = 0xc541e5764a37d73aUL;
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                SrToken = reader.SrToken;
+                LocalRef = CapnpSerializable.Create<object>(reader.LocalRef);
+                SealedFor = CapnpSerializable.Create<Mas.Schema.Persistence.SturdyRef.Owner>(reader.SealedFor);
                 applyDefaults();
             }
 
             public void serialize(WRITER writer)
             {
-                writer.SrToken = SrToken;
+                writer.LocalRef.SetObject(LocalRef);
+                SealedFor?.serialize(writer.SealedFor);
             }
 
             void ICapnpSerializable.Serialize(SerializerState arg_)
@@ -1061,7 +1060,13 @@ namespace Mas.Schema.Persistence
             {
             }
 
-            public string SrToken
+            public object LocalRef
+            {
+                get;
+                set;
+            }
+
+            public Mas.Schema.Persistence.SturdyRef.Owner SealedFor
             {
                 get;
                 set;
@@ -1078,20 +1083,28 @@ namespace Mas.Schema.Persistence
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public string SrToken => ctx.ReadText(0, null);
+                public DeserializerState LocalRef => ctx.StructReadPointer(0);
+                public Mas.Schema.Persistence.SturdyRef.Owner.READER SealedFor => ctx.ReadStruct(1, Mas.Schema.Persistence.SturdyRef.Owner.READER.create);
+                public bool HasSealedFor => ctx.IsStructFieldNonNull(1);
             }
 
             public class WRITER : SerializerState
             {
                 public WRITER()
                 {
-                    this.SetStruct(0, 1);
+                    this.SetStruct(0, 2);
                 }
 
-                public string SrToken
+                public DynamicSerializerState LocalRef
                 {
-                    get => this.ReadText(0, null);
-                    set => this.WriteText(0, value, null);
+                    get => BuildPointer<DynamicSerializerState>(0);
+                    set => Link(0, value);
+                }
+
+                public Mas.Schema.Persistence.SturdyRef.Owner.WRITER SealedFor
+                {
+                    get => BuildPointer<Mas.Schema.Persistence.SturdyRef.Owner.WRITER>(1);
+                    set => Link(1, value);
                 }
             }
         }

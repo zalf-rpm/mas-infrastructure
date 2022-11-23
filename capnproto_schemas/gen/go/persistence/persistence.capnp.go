@@ -743,7 +743,7 @@ type Persistent struct{ Client *capnp.Client }
 // Persistent_TypeID is the unique identifier for the type Persistent.
 const Persistent_TypeID = 0xc1a7daa0dc36cb65
 
-func (c Persistent) Save(ctx context.Context, params func(Persistent_save_Params) error) (Persistent_save_Results_Future, capnp.ReleaseFunc) {
+func (c Persistent) Save(ctx context.Context, params func(Persistent_SaveParams) error) (Persistent_SaveResults_Future, capnp.ReleaseFunc) {
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xc1a7daa0dc36cb65,
@@ -753,11 +753,11 @@ func (c Persistent) Save(ctx context.Context, params func(Persistent_save_Params
 		},
 	}
 	if params != nil {
-		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Persistent_save_Params{Struct: s}) }
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Persistent_SaveParams{Struct: s}) }
 	}
 	ans, release := c.Client.SendCall(ctx, s)
-	return Persistent_save_Results_Future{Future: ans.Future()}, release
+	return Persistent_SaveResults_Future{Future: ans.Future()}, release
 }
 
 func (c Persistent) AddRef() Persistent {
@@ -816,160 +816,208 @@ type Persistent_save struct {
 }
 
 // Args returns the call's arguments.
-func (c Persistent_save) Args() Persistent_save_Params {
-	return Persistent_save_Params{Struct: c.Call.Args()}
+func (c Persistent_save) Args() Persistent_SaveParams {
+	return Persistent_SaveParams{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
-func (c Persistent_save) AllocResults() (Persistent_save_Results, error) {
+func (c Persistent_save) AllocResults() (Persistent_SaveResults, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Persistent_save_Results{Struct: r}, err
+	return Persistent_SaveResults{Struct: r}, err
 }
 
-type Persistent_save_Params struct{ capnp.Struct }
+type Persistent_SaveParams struct{ capnp.Struct }
 
-// Persistent_save_Params_TypeID is the unique identifier for the type Persistent_save_Params.
-const Persistent_save_Params_TypeID = 0xffc59cb2d8a71502
+// Persistent_SaveParams_TypeID is the unique identifier for the type Persistent_SaveParams.
+const Persistent_SaveParams_TypeID = 0xd5e0aac4225e0343
 
-func NewPersistent_save_Params(s *capnp.Segment) (Persistent_save_Params, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Persistent_save_Params{st}, err
+func NewPersistent_SaveParams(s *capnp.Segment) (Persistent_SaveParams, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Persistent_SaveParams{st}, err
 }
 
-func NewRootPersistent_save_Params(s *capnp.Segment) (Persistent_save_Params, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Persistent_save_Params{st}, err
+func NewRootPersistent_SaveParams(s *capnp.Segment) (Persistent_SaveParams, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Persistent_SaveParams{st}, err
 }
 
-func ReadRootPersistent_save_Params(msg *capnp.Message) (Persistent_save_Params, error) {
+func ReadRootPersistent_SaveParams(msg *capnp.Message) (Persistent_SaveParams, error) {
 	root, err := msg.Root()
-	return Persistent_save_Params{root.Struct()}, err
+	return Persistent_SaveParams{root.Struct()}, err
 }
 
-func (s Persistent_save_Params) String() string {
-	str, _ := text.Marshal(0xffc59cb2d8a71502, s.Struct)
+func (s Persistent_SaveParams) String() string {
+	str, _ := text.Marshal(0xd5e0aac4225e0343, s.Struct)
 	return str
 }
 
-// Persistent_save_Params_List is a list of Persistent_save_Params.
-type Persistent_save_Params_List struct{ capnp.List }
-
-// NewPersistent_save_Params creates a new list of Persistent_save_Params.
-func NewPersistent_save_Params_List(s *capnp.Segment, sz int32) (Persistent_save_Params_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return Persistent_save_Params_List{l}, err
-}
-
-func (s Persistent_save_Params_List) At(i int) Persistent_save_Params {
-	return Persistent_save_Params{s.List.Struct(i)}
-}
-
-func (s Persistent_save_Params_List) Set(i int, v Persistent_save_Params) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Persistent_save_Params_List) String() string {
-	str, _ := text.MarshalList(0xffc59cb2d8a71502, s.List)
-	return str
-}
-
-// Persistent_save_Params_Future is a wrapper for a Persistent_save_Params promised by a client call.
-type Persistent_save_Params_Future struct{ *capnp.Future }
-
-func (p Persistent_save_Params_Future) Struct() (Persistent_save_Params, error) {
-	s, err := p.Future.Struct()
-	return Persistent_save_Params{s}, err
-}
-
-type Persistent_save_Results struct{ capnp.Struct }
-
-// Persistent_save_Results_TypeID is the unique identifier for the type Persistent_save_Results.
-const Persistent_save_Results_TypeID = 0xef80b08e84155cc2
-
-func NewPersistent_save_Results(s *capnp.Segment) (Persistent_save_Results, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Persistent_save_Results{st}, err
-}
-
-func NewRootPersistent_save_Results(s *capnp.Segment) (Persistent_save_Results, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Persistent_save_Results{st}, err
-}
-
-func ReadRootPersistent_save_Results(msg *capnp.Message) (Persistent_save_Results, error) {
-	root, err := msg.Root()
-	return Persistent_save_Results{root.Struct()}, err
-}
-
-func (s Persistent_save_Results) String() string {
-	str, _ := text.Marshal(0xef80b08e84155cc2, s.Struct)
-	return str
-}
-
-func (s Persistent_save_Results) SturdyRef() (string, error) {
+func (s Persistent_SaveParams) SealFor() (SturdyRef_Owner, error) {
 	p, err := s.Struct.Ptr(0)
-	return p.Text(), err
+	return SturdyRef_Owner{Struct: p.Struct()}, err
 }
 
-func (s Persistent_save_Results) HasSturdyRef() bool {
+func (s Persistent_SaveParams) HasSealFor() bool {
 	return s.Struct.HasPtr(0)
 }
 
-func (s Persistent_save_Results) SturdyRefBytes() ([]byte, error) {
-	p, err := s.Struct.Ptr(0)
-	return p.TextBytes(), err
+func (s Persistent_SaveParams) SetSealFor(v SturdyRef_Owner) error {
+	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
-func (s Persistent_save_Results) SetSturdyRef(v string) error {
-	return s.Struct.SetText(0, v)
+// NewSealFor sets the sealFor field to a newly
+// allocated SturdyRef_Owner struct, preferring placement in s's segment.
+func (s Persistent_SaveParams) NewSealFor() (SturdyRef_Owner, error) {
+	ss, err := NewSturdyRef_Owner(s.Struct.Segment())
+	if err != nil {
+		return SturdyRef_Owner{}, err
+	}
+	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
+	return ss, err
 }
 
-func (s Persistent_save_Results) UnsaveSR() (string, error) {
-	p, err := s.Struct.Ptr(1)
-	return p.Text(), err
+// Persistent_SaveParams_List is a list of Persistent_SaveParams.
+type Persistent_SaveParams_List struct{ capnp.List }
+
+// NewPersistent_SaveParams creates a new list of Persistent_SaveParams.
+func NewPersistent_SaveParams_List(s *capnp.Segment, sz int32) (Persistent_SaveParams_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
+	return Persistent_SaveParams_List{l}, err
 }
 
-func (s Persistent_save_Results) HasUnsaveSR() bool {
-	return s.Struct.HasPtr(1)
+func (s Persistent_SaveParams_List) At(i int) Persistent_SaveParams {
+	return Persistent_SaveParams{s.List.Struct(i)}
 }
 
-func (s Persistent_save_Results) UnsaveSRBytes() ([]byte, error) {
-	p, err := s.Struct.Ptr(1)
-	return p.TextBytes(), err
-}
-
-func (s Persistent_save_Results) SetUnsaveSR(v string) error {
-	return s.Struct.SetText(1, v)
-}
-
-// Persistent_save_Results_List is a list of Persistent_save_Results.
-type Persistent_save_Results_List struct{ capnp.List }
-
-// NewPersistent_save_Results creates a new list of Persistent_save_Results.
-func NewPersistent_save_Results_List(s *capnp.Segment, sz int32) (Persistent_save_Results_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
-	return Persistent_save_Results_List{l}, err
-}
-
-func (s Persistent_save_Results_List) At(i int) Persistent_save_Results {
-	return Persistent_save_Results{s.List.Struct(i)}
-}
-
-func (s Persistent_save_Results_List) Set(i int, v Persistent_save_Results) error {
+func (s Persistent_SaveParams_List) Set(i int, v Persistent_SaveParams) error {
 	return s.List.SetStruct(i, v.Struct)
 }
 
-func (s Persistent_save_Results_List) String() string {
-	str, _ := text.MarshalList(0xef80b08e84155cc2, s.List)
+func (s Persistent_SaveParams_List) String() string {
+	str, _ := text.MarshalList(0xd5e0aac4225e0343, s.List)
 	return str
 }
 
-// Persistent_save_Results_Future is a wrapper for a Persistent_save_Results promised by a client call.
-type Persistent_save_Results_Future struct{ *capnp.Future }
+// Persistent_SaveParams_Future is a wrapper for a Persistent_SaveParams promised by a client call.
+type Persistent_SaveParams_Future struct{ *capnp.Future }
 
-func (p Persistent_save_Results_Future) Struct() (Persistent_save_Results, error) {
+func (p Persistent_SaveParams_Future) Struct() (Persistent_SaveParams, error) {
 	s, err := p.Future.Struct()
-	return Persistent_save_Results{s}, err
+	return Persistent_SaveParams{s}, err
+}
+
+func (p Persistent_SaveParams_Future) SealFor() SturdyRef_Owner_Future {
+	return SturdyRef_Owner_Future{Future: p.Future.Field(0, nil)}
+}
+
+type Persistent_SaveResults struct{ capnp.Struct }
+
+// Persistent_SaveResults_TypeID is the unique identifier for the type Persistent_SaveResults.
+const Persistent_SaveResults_TypeID = 0xdc5bd1ef982cec13
+
+func NewPersistent_SaveResults(s *capnp.Segment) (Persistent_SaveResults, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
+	return Persistent_SaveResults{st}, err
+}
+
+func NewRootPersistent_SaveResults(s *capnp.Segment) (Persistent_SaveResults, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
+	return Persistent_SaveResults{st}, err
+}
+
+func ReadRootPersistent_SaveResults(msg *capnp.Message) (Persistent_SaveResults, error) {
+	root, err := msg.Root()
+	return Persistent_SaveResults{root.Struct()}, err
+}
+
+func (s Persistent_SaveResults) String() string {
+	str, _ := text.Marshal(0xdc5bd1ef982cec13, s.Struct)
+	return str
+}
+
+func (s Persistent_SaveResults) SturdyRef() (SturdyRef, error) {
+	p, err := s.Struct.Ptr(0)
+	return SturdyRef{Struct: p.Struct()}, err
+}
+
+func (s Persistent_SaveResults) HasSturdyRef() bool {
+	return s.Struct.HasPtr(0)
+}
+
+func (s Persistent_SaveResults) SetSturdyRef(v SturdyRef) error {
+	return s.Struct.SetPtr(0, v.Struct.ToPtr())
+}
+
+// NewSturdyRef sets the sturdyRef field to a newly
+// allocated SturdyRef struct, preferring placement in s's segment.
+func (s Persistent_SaveResults) NewSturdyRef() (SturdyRef, error) {
+	ss, err := NewSturdyRef(s.Struct.Segment())
+	if err != nil {
+		return SturdyRef{}, err
+	}
+	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
+	return ss, err
+}
+
+func (s Persistent_SaveResults) UnsaveSR() (SturdyRef, error) {
+	p, err := s.Struct.Ptr(1)
+	return SturdyRef{Struct: p.Struct()}, err
+}
+
+func (s Persistent_SaveResults) HasUnsaveSR() bool {
+	return s.Struct.HasPtr(1)
+}
+
+func (s Persistent_SaveResults) SetUnsaveSR(v SturdyRef) error {
+	return s.Struct.SetPtr(1, v.Struct.ToPtr())
+}
+
+// NewUnsaveSR sets the unsaveSR field to a newly
+// allocated SturdyRef struct, preferring placement in s's segment.
+func (s Persistent_SaveResults) NewUnsaveSR() (SturdyRef, error) {
+	ss, err := NewSturdyRef(s.Struct.Segment())
+	if err != nil {
+		return SturdyRef{}, err
+	}
+	err = s.Struct.SetPtr(1, ss.Struct.ToPtr())
+	return ss, err
+}
+
+// Persistent_SaveResults_List is a list of Persistent_SaveResults.
+type Persistent_SaveResults_List struct{ capnp.List }
+
+// NewPersistent_SaveResults creates a new list of Persistent_SaveResults.
+func NewPersistent_SaveResults_List(s *capnp.Segment, sz int32) (Persistent_SaveResults_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
+	return Persistent_SaveResults_List{l}, err
+}
+
+func (s Persistent_SaveResults_List) At(i int) Persistent_SaveResults {
+	return Persistent_SaveResults{s.List.Struct(i)}
+}
+
+func (s Persistent_SaveResults_List) Set(i int, v Persistent_SaveResults) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Persistent_SaveResults_List) String() string {
+	str, _ := text.MarshalList(0xdc5bd1ef982cec13, s.List)
+	return str
+}
+
+// Persistent_SaveResults_Future is a wrapper for a Persistent_SaveResults promised by a client call.
+type Persistent_SaveResults_Future struct{ *capnp.Future }
+
+func (p Persistent_SaveResults_Future) Struct() (Persistent_SaveResults, error) {
+	s, err := p.Future.Struct()
+	return Persistent_SaveResults{s}, err
+}
+
+func (p Persistent_SaveResults_Future) SturdyRef() SturdyRef_Future {
+	return SturdyRef_Future{Future: p.Future.Field(0, nil)}
+}
+
+func (p Persistent_SaveResults_Future) UnsaveSR() SturdyRef_Future {
+	return SturdyRef_Future{Future: p.Future.Field(1, nil)}
 }
 
 type Restorer struct{ Client *capnp.Client }
@@ -977,7 +1025,7 @@ type Restorer struct{ Client *capnp.Client }
 // Restorer_TypeID is the unique identifier for the type Restorer.
 const Restorer_TypeID = 0x9fb6218427d92e3c
 
-func (c Restorer) Restore(ctx context.Context, params func(Restorer_restore_Params) error) (Restorer_restore_Results_Future, capnp.ReleaseFunc) {
+func (c Restorer) Restore(ctx context.Context, params func(Restorer_RestoreParams) error) (Restorer_restore_Results_Future, capnp.ReleaseFunc) {
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0x9fb6218427d92e3c,
@@ -987,8 +1035,8 @@ func (c Restorer) Restore(ctx context.Context, params func(Restorer_restore_Para
 		},
 	}
 	if params != nil {
-		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Restorer_restore_Params{Struct: s}) }
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 2}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Restorer_RestoreParams{Struct: s}) }
 	}
 	ans, release := c.Client.SendCall(ctx, s)
 	return Restorer_restore_Results_Future{Future: ans.Future()}, release
@@ -1050,8 +1098,8 @@ type Restorer_restore struct {
 }
 
 // Args returns the call's arguments.
-func (c Restorer_restore) Args() Restorer_restore_Params {
-	return Restorer_restore_Params{Struct: c.Call.Args()}
+func (c Restorer_restore) Args() Restorer_RestoreParams {
+	return Restorer_RestoreParams{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
@@ -1060,77 +1108,103 @@ func (c Restorer_restore) AllocResults() (Restorer_restore_Results, error) {
 	return Restorer_restore_Results{Struct: r}, err
 }
 
-type Restorer_restore_Params struct{ capnp.Struct }
+type Restorer_RestoreParams struct{ capnp.Struct }
 
-// Restorer_restore_Params_TypeID is the unique identifier for the type Restorer_restore_Params.
-const Restorer_restore_Params_TypeID = 0x8071b2eb61aac3f0
+// Restorer_RestoreParams_TypeID is the unique identifier for the type Restorer_RestoreParams.
+const Restorer_RestoreParams_TypeID = 0xc541e5764a37d73a
 
-func NewRestorer_restore_Params(s *capnp.Segment) (Restorer_restore_Params, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Restorer_restore_Params{st}, err
+func NewRestorer_RestoreParams(s *capnp.Segment) (Restorer_RestoreParams, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
+	return Restorer_RestoreParams{st}, err
 }
 
-func NewRootRestorer_restore_Params(s *capnp.Segment) (Restorer_restore_Params, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Restorer_restore_Params{st}, err
+func NewRootRestorer_RestoreParams(s *capnp.Segment) (Restorer_RestoreParams, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
+	return Restorer_RestoreParams{st}, err
 }
 
-func ReadRootRestorer_restore_Params(msg *capnp.Message) (Restorer_restore_Params, error) {
+func ReadRootRestorer_RestoreParams(msg *capnp.Message) (Restorer_RestoreParams, error) {
 	root, err := msg.Root()
-	return Restorer_restore_Params{root.Struct()}, err
+	return Restorer_RestoreParams{root.Struct()}, err
 }
 
-func (s Restorer_restore_Params) String() string {
-	str, _ := text.Marshal(0x8071b2eb61aac3f0, s.Struct)
+func (s Restorer_RestoreParams) String() string {
+	str, _ := text.Marshal(0xc541e5764a37d73a, s.Struct)
 	return str
 }
 
-func (s Restorer_restore_Params) SrToken() (string, error) {
-	p, err := s.Struct.Ptr(0)
-	return p.Text(), err
+func (s Restorer_RestoreParams) LocalRef() (capnp.Ptr, error) {
+	return s.Struct.Ptr(0)
 }
 
-func (s Restorer_restore_Params) HasSrToken() bool {
+func (s Restorer_RestoreParams) HasLocalRef() bool {
 	return s.Struct.HasPtr(0)
 }
 
-func (s Restorer_restore_Params) SrTokenBytes() ([]byte, error) {
-	p, err := s.Struct.Ptr(0)
-	return p.TextBytes(), err
+func (s Restorer_RestoreParams) SetLocalRef(v capnp.Ptr) error {
+	return s.Struct.SetPtr(0, v)
 }
 
-func (s Restorer_restore_Params) SetSrToken(v string) error {
-	return s.Struct.SetText(0, v)
+func (s Restorer_RestoreParams) SealedFor() (SturdyRef_Owner, error) {
+	p, err := s.Struct.Ptr(1)
+	return SturdyRef_Owner{Struct: p.Struct()}, err
 }
 
-// Restorer_restore_Params_List is a list of Restorer_restore_Params.
-type Restorer_restore_Params_List struct{ capnp.List }
-
-// NewRestorer_restore_Params creates a new list of Restorer_restore_Params.
-func NewRestorer_restore_Params_List(s *capnp.Segment, sz int32) (Restorer_restore_Params_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return Restorer_restore_Params_List{l}, err
+func (s Restorer_RestoreParams) HasSealedFor() bool {
+	return s.Struct.HasPtr(1)
 }
 
-func (s Restorer_restore_Params_List) At(i int) Restorer_restore_Params {
-	return Restorer_restore_Params{s.List.Struct(i)}
+func (s Restorer_RestoreParams) SetSealedFor(v SturdyRef_Owner) error {
+	return s.Struct.SetPtr(1, v.Struct.ToPtr())
 }
 
-func (s Restorer_restore_Params_List) Set(i int, v Restorer_restore_Params) error {
+// NewSealedFor sets the sealedFor field to a newly
+// allocated SturdyRef_Owner struct, preferring placement in s's segment.
+func (s Restorer_RestoreParams) NewSealedFor() (SturdyRef_Owner, error) {
+	ss, err := NewSturdyRef_Owner(s.Struct.Segment())
+	if err != nil {
+		return SturdyRef_Owner{}, err
+	}
+	err = s.Struct.SetPtr(1, ss.Struct.ToPtr())
+	return ss, err
+}
+
+// Restorer_RestoreParams_List is a list of Restorer_RestoreParams.
+type Restorer_RestoreParams_List struct{ capnp.List }
+
+// NewRestorer_RestoreParams creates a new list of Restorer_RestoreParams.
+func NewRestorer_RestoreParams_List(s *capnp.Segment, sz int32) (Restorer_RestoreParams_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
+	return Restorer_RestoreParams_List{l}, err
+}
+
+func (s Restorer_RestoreParams_List) At(i int) Restorer_RestoreParams {
+	return Restorer_RestoreParams{s.List.Struct(i)}
+}
+
+func (s Restorer_RestoreParams_List) Set(i int, v Restorer_RestoreParams) error {
 	return s.List.SetStruct(i, v.Struct)
 }
 
-func (s Restorer_restore_Params_List) String() string {
-	str, _ := text.MarshalList(0x8071b2eb61aac3f0, s.List)
+func (s Restorer_RestoreParams_List) String() string {
+	str, _ := text.MarshalList(0xc541e5764a37d73a, s.List)
 	return str
 }
 
-// Restorer_restore_Params_Future is a wrapper for a Restorer_restore_Params promised by a client call.
-type Restorer_restore_Params_Future struct{ *capnp.Future }
+// Restorer_RestoreParams_Future is a wrapper for a Restorer_RestoreParams promised by a client call.
+type Restorer_RestoreParams_Future struct{ *capnp.Future }
 
-func (p Restorer_restore_Params_Future) Struct() (Restorer_restore_Params, error) {
+func (p Restorer_RestoreParams_Future) Struct() (Restorer_RestoreParams, error) {
 	s, err := p.Future.Struct()
-	return Restorer_restore_Params{s}, err
+	return Restorer_RestoreParams{s}, err
+}
+
+func (p Restorer_RestoreParams_Future) LocalRef() *capnp.Future {
+	return p.Future.Field(0, nil)
+}
+
+func (p Restorer_RestoreParams_Future) SealedFor() SturdyRef_Owner_Future {
+	return SturdyRef_Owner_Future{Future: p.Future.Field(1, nil)}
 }
 
 type Restorer_restore_Results struct{ capnp.Struct }
@@ -1204,90 +1278,95 @@ func (p Restorer_restore_Results_Future) Cap() *capnp.Future {
 	return p.Future.Field(0, nil)
 }
 
-const schema_855efed3475f6b26 = "x\xda\x8c\x95]h\x1cU\x14\xc7\xcf\xff\xde\x99\x9d\xad" +
-	"$lf'y\xb06\x94\xd6\xd6\xb6\xd1.\xd9\xb4D" +
-	")\x85\xd4@\x0dV\x8a{7\xb5`lj\xc7\xec\xc4" +
-	"\x0c\xd9\xecNff\x1b\x03J\x12L\xd0(U|\x11" +
-	"\x0a\x8a\x05+\x15_\x94\x80\xe2k\xabB\xa1\xf8`U" +
-	"4Q\x84\x0aZ\xf0\x035oE\xda\x91;\xbb\xd9\x99" +
-	"n\xd6\xe8\xdb\xbdg\xef\xfe\xcf9\xbf\xf31\xdd\x17\xd9" +
-	"!\x96U\xaf'\x88DNM\x04\x7f~\xf2\x9e\xf9\xeb" +
-	"\xd2\xe4,\xe9w\x81H\x85F\xb4\xefq\x9e\x07\xc1\xb0" +
-	"x\x1f!8\xfa\xc3\xf3\x9d\xbb\xc6&^$\x91\x06\x82" +
-	"{\xc6\x9f\x1c\xf8\xf2\xd6\xc9\x05:\x0c\x8d\x11\x19\x0b\xfc" +
-	"G\xe35~?\x91\xf1!\x9f\"\x04\xf6K\x8b\xbb\x95" +
-	"\xe1\xa5WIl\x06\x0fZ\x9f87\x99\x98\x1b\xf8\x9b" +
-	":\xa0\x81\xc8\xe8PV\x09\xc6\x9d\x8a|y0\xb3\xbc" +
-	"k~\xdbGo\x91\x9e\xe6\x91,\xc1\xa8(+\xc6\x9c" +
-	"\xa2\x11\x19\xcf)\x03\xc6;\xf2\x14\\~\xfb\xddU\xf3" +
-	"\xab{\xcf\x93\xbe%\x16\x91\xcad\xb4g\x94\x1e\x18o" +
-	"\x86\x7f8\x1b*[Wz\xbf?\xb7r\xe1\xe2:\xe5" +
-	"\x1b\xca/\x86\xaa\xca\x87P\x07\x8c=\xf2\x14||2" +
-	"\x8b\xf3\xd3?_!\xb1\x05J$-\xe5\xf6\xe9\xeaf" +
-	"\x18\xdb\xc2?t\xaa\xd7\x09\xc1\x0b\xb3\x9f~\xb7\xfa\xf9" +
-	"o\xcb\xa4\xa7c(\xc20\x8c\xbf\xd4\xab\xc6\xcd\xf0\xed" +
-	"\x0dUF\xb1\xf3hfg\xe7\xc4\xeb+q\xb0\x8f%" +
-	"\x86$X3!\xc1\x9e\xf9\xe2\xe5\xaf\xfd\xe1;\xaeI" +
-	"\xb0J\xa4\x16&2\x97\xb8d,&\xe4i!!\x1d" +
-	"_:\xd11\xff\xca\x07\xb3\x7f\x90\xde)\xc5\xc2\xbcm" +
-	"-\xacRE\x93\xde\xea\xa4E\x1a\xfc\xf6*a\x93\xb1" +
-	"\xac]5~\xd2\xa4\xdc5\xed}Bp\xf7\xd4\xe5S" +
-	"\xbf\x9f\xfd\xe6f\x03\xce0\xc6\xe1d\x1a\xc6DR>" +
-	"\xb6\x932N\xd6q\xe1\xdb\xa57>\x0b\xaa\xbeC0" +
-	"\x8b\xc9#\xa0\x87\x02\xc7r=\xdb\xf3-\xa54be" +
-	"FL\xa7\xe4\x1c\xc8[\x9e_v-7\xe3V\x0f;" +
-	"r\xa6kN\xc0\x13\x0aW\x88\x14\x10\xe9\xad\xfdD\"" +
-	"\xc9!\xda\x19f<\xf7Xy\xdc*\xa1\x85\x18Z\x08" +
-	"uI\x16I\x0e\xfa\x15\xb70\xad\xe5\xadQ\xd1\x82x" +
-	"\xeczO\xac/Z\xf3Q)\xf5\xd6\x03[\x1f\x9d*" +
-	"Ynp\xcc5K\x9em\x95\x08~\xdf\xa0\x8c\xa7 " +
-	"\x92\\i\x09\x820\x92=y\"\xb1\x9bC\xecgh" +
-	"\xc5\xad\xa0\x1d\xd2\x9a=@$\xee\xe3\x10\x0f0\x04~" +
-	"$\x80\xb6\xc8\x1d\x01m\x84\xbe0\xc5\x02\xda\"\xd7\xd5" +
-	"\x1f\x9a\xa5\xf1`\xa1\xe0Z\xdeV/c;\xbd2\x88" +
-	"\x1a\x8d=\x92\xc6\x0e\x0e\xd1\xcd\xa0\x03\xd5\x10\xf6\xf6G" +
-	"\x81\xcd\x14\xcbS\x96\xdb\xbb\x1f\x9b\x88a\x13a\xa6\xe2" +
-	"8\xf1{3_\xd5*p\xcb\xcd\x01B\xe1*Q}" +
-	"\xce\xb1\xd6\x97\xba\xdeOLW\xb5\x99Z\xa5\x0e!\x87" +
-	"H\x8c7\xf2\xcf[\xa3\x19Is\xab\xa4\xe1K\xddX" +
-	"\x0e\xdb\x9b\xe5p$\xc2\xa8\x9d6%\xbe\xfa\xf8\xd4(" +
-	"\x15\xcb#f1o\x8d\x12\x11\xd2\xc4\x90n\x9eM." +
-	"4\xa5\xfc\x9a\xdfj>k]\x89\xb5\xd1\xd0\xf5\xae0" +
-	"\x9f\x94g\x9e\xfe?\xc9\x0c\x86\x84\x0aR\xb1\xad\x9e\x89" +
-	"\xd9E$Np\x88\xb1X&\x964\x9e\xe2\x10E\x06" +
-	"\x9d\xb1v0\"\xdd\x96\xc6\x02\x87p\x18t\xce\xdb\xc1" +
-	"\x89\xf4\x09i\x1c\xe3\x10>Cj\xdc\x9a\xee^+\x92" +
-	"\xbcd\xe3\x97\x9e\xf8e\xdfF\xb5<n\xfa9\xd3\xc7" +
-	"X\x03\xf2\xcd\xff\xd16\xdc\x96}Y\xdf1U\xe23" +
-	"f\xd8\x84\x1e\xda\xa2\x85\xd1\xd0\xb1\x1b\xcdr\xde\xf2*" +
-	"E\xee\xdf6\xcc\xdb\xa3a\xd6FL\x07i\x85\x13\xfe" +
-	"\xad\x92\xc7M\xff\xe1\x025 \x1f\x8a\xd1]\xcb\xc4\x1e" +
-	"\x8a@\xd6\x91OJ\xa3\xc3!\x9e\x8d!\x9f\x96\xc6g" +
-	"8\xc4<C\xe0T\x9e*\xda#\x8fX\xc4#\xf4q" +
-	"c\xb6\x99\xb1\xa7\x99q}I\x94\xc6\x86\x94\xfd\x98\x91" +
-	"\xcdV\xe5\xe2\xc3\x8b\xd7'\xb6Z\xeaYe\xe5Ht" +
-	"s\x88\x83\x0c\x81W\xebD\xc2h}\xfbUJRo" +
-	"0/\x07b\x83\x8dX]%\xf0$\xc8\x96p\x9d!" +
-	"\xf6\xe5\xd5\x0fo'\xa6\xb3d\x15\xda\xde\xae\xc6\x1d'" +
-	"\xa9e\xbbb\xc3i;\xbd)\xa7\xec\xfa\xd0\x88A#" +
-	"\xa4\xc6\xca\x9e\xbf\xce\x7f\xd3!\x92[\x16\xb5-So" +
-	"\x89\xae\xa8%ROW\xec\xc2:\xa9\x0dP\x86\x9f\x0b" +
-	"\x8f\xe8\x9f\x00\x00\x00\xff\xff\x08\xe8?_"
+const schema_855efed3475f6b26 = "x\xda\x84V]h\x1cU\x14>\xe7\xde\x99\x9d]I" +
+	"\xd8\x9d\xbd\x09Bl\x08\xc6\xc6\xb4\xb1Y\xb2IM5" +
+	"\x14\xd2\xa6\xb4\xa1+\xc5\xbd\x1b\x15Lm\xec4{c" +
+	"\x96\xee\xcfdf61\xa0\xc4`E\xa3\x14\x9f*\xe6" +
+	"\xa1\xd8bA\xf1E\xf0A|U*\x14\x8a\x0f\xad\x96" +
+	"\xd2XE\x05-\x95\x16%o\"v\xe4\xcefw\xa6" +
+	"\x93m\xfbx\xcf\x9c\xfd\xcew\xbe\xf3\x9d{w\xe0o" +
+	"\xb2\x87\xa4\xd5\x1b\x11\x00\x9eU#\xee\xa1\x9f\xdf\xec\xec" +
+	"\x9d-\xbd\x03<\x89\xe8>~\xfc\xe5\xf1\xef\xefL\xbd" +
+	"\x05\xfbQ#\x00\xecE\xfa\x1b\x13t\x17\x00[\xa1\x0b" +
+	"\x80n\xe1\xdd\x95m\xca\x91/\xde\x07\xde\x81\xd4m=" +
+	"|f.\xb2<\xfe/\xb4\xa3\x86\x00\xec&]\x07d" +
+	"\xb7\xbd\xcc\xdd\xa9k\xbd'\x1e\xfd\xf2#\xd0\x93\xd4\x87" +
+	"\x05d\x07\x955\xf6\xbc\xf20\x003\x94q\xb6\xa2h" +
+	"\x00\xee\x85\x8f?]7~x\xe2\x1c\xe8[\xd0g\xa4" +
+	"\x12\x0d`hN\x19D\xb6,\xd3\xd8\xeb\x8aD\x16\x17" +
+	"\x87\xaf\x9fY\xfb\xe4\xebM\xc8?)\x7f\xb2\x9bJ/" +
+	"\x00S\xd5q\xd6\xafJ\xe4\x91\xab\xbb2\xf3\xbf\xef\xfd" +
+	"\x16\xf4G\x02\x9cj\xc8\xedj\x06\xd9v\x99\xc6zT" +
+	"\x89\xfc\xd5T\x1a\xcf-\xfeq\x11\xf8\x16T|\x1e\xb2" +
+	"\xf6\xd0\x8a\xda\x81l\xd5K>\xa5\xde\x00t\xf7\xd1\xa9" +
+	"\xee\xf3\x9f\xfdr\x05\xf4\xce\x00'\x15er!2\x86" +
+	"l1\"\x93\xab\x91Q@\xf7\xed7\xce\xff\xb8\xfe\xdd" +
+	"\xadk\xa0'\x03\"{4\xd8\xa9\xc8ev\xd6\xcb=" +
+	"\x1d\x91,z\x0e\xa5z:K\x1f\xacI\xca\xb0\x01\xf8" +
+	"Od\x12\x01\x99\xaaI0vk\xc7\x87\x7f]:|" +
+	"=T\xd9\xeb\xa9G\xcb {Z\x93hOj\x12\xed" +
+	"\xe4\xa5\xf7\xae8G\x1e\xfaU\xceW\xf1K{z\xae" +
+	"j\xdf\xb0\xb3^\xeeiM\xb6\xd4\x98'O\"\xbd\xdb" +
+	"\x0b\x18c\xcb\xd1\xcb\xecdTf\xafD?\x07t\x1f" +
+	"[\xb8p\xf4\xf6\xea\xd5\xffBC\xf3\xf8\xaa\xb1$\xb2" +
+	"\xf6\x98L\xd6c\xa3\xb0\xcf5\x85e\x17lG\x90\xf2" +
+	"\xb4HM\x1bf\xd9\x1c\x99p\xaaV~Q\xcb\x89\x19" +
+	"\xde\x82A8}0`\x88\xd6\x9c?\x16\xbdu\xa4\xeb" +
+	"\xd9\x85\xb2\xb0\xdc\xe7,\xa3l\x17D\x19\xd0\x19\x9dp" +
+	"*\x96\xc8\xf3(UZ\\WA\x00}{\x0e\x80o" +
+	"\xa3\xc8w\x12l\xc5;n\x1b\xcahz\x04\x80\xef\xa0" +
+	"\xc8\x9f\"\xe8:>\x00&\xfcr\x80\x98\x00\x1c\xb5=" +
+	"HL\xf8\xa5k\x1f\x9a\xb5\xb17\x9f\xb7\x84\xdde\xa7" +
+	"\x0a\xe6\xb0$\x01P\xe30\x06\xc0\xb7R\xe4\x03\x04u" +
+	"\xc4\x1a\x85\xfe1\x9f\xd8R\xb1\xb2 \xac\xe1\x9d\x18\x03" +
+	"\x821\xc0\xa5\xaai\x06\xcf\xcdj\xe5\x84dF\x85\xc5" +
+	"\x15\xc4\x80\xb7\xd1rk\x9fD\x16\xba\x0c\xcb(\xd9\\" +
+	"\xa1j\xc0\xfeX7\x95\xae\x8f\x01\xd1Um\xc9\xaa\xe5" +
+	"\xef\xc1,\xfa\xa5hx:91\x93\x92ZwI\xad" +
+	"\x9c,b\xb0\xc3\xeef\x1df|\x91\xb5yC\x8a\xdb" +
+	"\xf0\xfe\x86\x86\xc5\xca\xb4Q\xcc\x89\x19\x00\xc0$\x10L" +
+	"6\xef5\xeb\x85\xe2\x8e(;<\x8a\xc1}\x8bM\x06" +
+	"V v\xcc\x9d0\xe6E\xd6\xb0\x0c\xa0%\xdb;\xe4" +
+	"\x84]\x05\xad\xe8\xd4U\xa8\xff\x14\xeb?\xd3\xf5>O" +
+	"\x85\xb8m\xcc\x87$P\xc2j\x0b+U\xd7\xd6S\x16" +
+	" $C\xc6\x9fiC\x86\xb4t\xe0\x00E\xbe\x9b4" +
+	"o\xd8\x16FQ\xe4\x0fT\x00-L\xf8\xde\x0f\xd9\xac" +
+	"\xe9<&<\x0b\xe4%\x8bD\x83\x85\xd1\x07\xc0_\xa2" +
+	"\xc8g\x03,\x84\x0c\x1e\xa5\xc8\x8b\x04uB\xda\x90\x00" +
+	"\xe8\x05\x19\xccS\xe4&A\x9d\xd26\xa4\x00zI\x06" +
+	"g)r\x87`\xfc\xb8X\x1c\xa8\xbbP\x1e\xd2\xc1\xc3" +
+	"`\xf00\xb4\xc9\xacJx\x80r~\xa9\xfa\x84J\xb6" +
+	"'\x9e\xd2\xa0\xdd*\x17\"J\x91\xb7\x11\\\x92\x9a\x1c" +
+	"\xa8\xdcO\x8f\x80=^0\x9c\xac\xe1\xe0lh\x18\x1d" +
+	"\x0f\xd8:Z\x90k\xdd\xb8\x14k\xf8K\x86\xb7\xc36" +
+	"&\xfc+0T\xb9\x99-6Vh\xab\xb4[\x91z" +
+	"nk\xf4\xd5\xed\xf7\xa5M\x1b&&\x15\x0ax\x97\xd5" +
+	"\xef\xad\x94\x87\xe7l6Z\xae\x99\xd12\x01\xa3\xd9\x1b" +
+	"\x1e\x01\x9c\xc1\x84\x7f%o\xb4R-K\xb7O\xe4\xa4" +
+	"\x0d7\x7fm.\xf1\xc1<\x84|6\x19\xb0T\x9dD" +
+	"a\xd2wO\xc3gs2hR\xe4\xaf\x05|\xb6(" +
+	"\x83\xafR\xe4'\x08\xbaf\xf5X\xb10\xfd\x8c\x00\xea" +
+	"\xfb-\x18L7\x0b\x0e6\x0b\x0e\xdd\xef\xd2\xac]\xd0" +
+	"h\xcbFZ\xbcG\x02\x03\x7fd\xf4\xfd\xdd@t\x12" +
+	"\xad\x91\xee\xef\x0b\xbf\x1c\x92u\xba/p\xa9\x15\xcc\xe1" +
+	"\xb8Y\xb1\x1c\xd4\x80\xa0\x06\x18\x9f\xad\xd8\x0e\xb6\x00\xc1" +
+	"\x96\x07m\xae|\xbb\xd0\x0am@\x9f\xef\x94\xf8+\xd5" +
+	"B\xbe\x0e\xf5\x7f\x00\x00\x00\xff\xff6\x87\x91\x86"
 
 func init() {
 	schemas.Register(schema_855efed3475f6b26,
-		0x8071b2eb61aac3f0,
 		0x886d68271d83de4d,
 		0x8fb25d0428898a69,
 		0x9fb6218427d92e3c,
 		0xa42bd461f2a8a3c8,
 		0xc1a7daa0dc36cb65,
+		0xc541e5764a37d73a,
 		0xcbe679a401315eb8,
+		0xd5e0aac4225e0343,
 		0xd9eccdf2dbc48087,
 		0xda966d1d252e4d25,
+		0xdc5bd1ef982cec13,
 		0xe10a5d74d58bd18d,
-		0xef80b08e84155cc2,
 		0xfb47810671a05b0d,
-		0xfdd799ed60c87723,
-		0xffc59cb2d8a71502)
+		0xfdd799ed60c87723)
 }

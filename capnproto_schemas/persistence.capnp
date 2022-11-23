@@ -105,7 +105,7 @@ struct SturdyRef {
 
 
 interface Persistent {
-  # simplified version of persistent.capnp::Persistent interface
+  # adjusted version of persistent.capnp::Persistent interface
 
   save @0 SaveParams -> SaveResults;
   # Save a capability persistently so that it can be restored by a future connection.  Not all
@@ -150,4 +150,7 @@ interface Restorer {
   restore @0 RestoreParams -> (cap :Capability);
   # restore from the localRef in a transient sturdy ref as live capabalility
 }
+
+
+
 

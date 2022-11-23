@@ -22,6 +22,7 @@ capnp compile -I. -oc++:./gen/cpp/persistence persistence.capnp
 capnp compile -I. -oc++:./gen/cpp/registry registry.capnp
 capnp compile -I. -oc++:./gen/cpp/service service.capnp
 capnp compile -I. -oc++:./gen/cpp/soil soil.capnp
+capnp compile -I. -oc++:./gen/cpp/storage storage.capnp
 #capnp compile -I. -oc++:./gen/cpp/vr vr.capnp
 
 capnp compile -I. -oc++:./gen/cpp model/weberest/web-berest-data-import.capnp
