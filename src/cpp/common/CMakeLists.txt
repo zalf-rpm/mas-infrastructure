@@ -2,9 +2,11 @@ cmake_minimum_required(VERSION 3.12)
 project(common)
 
 set(MT_RUNTIME_LIB 1)
+add_compile_definitions(NO_MYSQL)
 
 #add_subdirectory(../util/tools/date util/date)
 add_subdirectory(../../../../util/tools/helpers util/helpers)
+add_subdirectory(../../../../util/db/db util/db)
 #add_subdirectory(../util/tools/debug util/debug)
 
 #set absolute filenames (to resolve .. in paths)
@@ -82,6 +84,7 @@ capnp_generate_cpp(CAPNP_SRCS CAPNP_HDRS
 ${CAPNP_SCHEMAS_DIR}/common.capnp 
 ${CAPNP_SCHEMAS_DIR}/date.capnp
 ${CAPNP_SCHEMAS_DIR}/persistence.capnp
+${CAPNP_SCHEMAS_DIR}/storage.capnp
 )
 message(STATUS "CAPNP_HDRS: " "${CAPNP_HDRS}")
 message(STATUS "CAPNP_SRCS: " "${CAPNP_SRCS}")
@@ -140,3 +143,26 @@ endif()
 
 #------------------------------------------------------------------------------
 
+# create storage service
+add_executable(storage_service 
+	storage_service.h
+	storage_service.cpp
+	storage_service_main.cpp
+)
+target_link_libraries(storage_service
+	${CMAKE_THREAD_LIBS_INIT}
+	${CMAKE_DL_LIBS}
+	CapnProto::capnp
+	CapnProto::capnpc
+	CapnProto::capnp-rpc
+	CapnProto::kj
+	CapnProto::kj-async
+	common_lib
+	db_lib
+)
+target_include_directories(storage_service PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+if (MSVC)
+	target_compile_options(storage_service PRIVATE "/MT$<$<CONFIG:Debug>:d>")
+endif()
+
+#------------------------------------------------------------------------------

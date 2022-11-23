@@ -5,6 +5,9 @@
 		},
 		{
 			"path": "../../../capnproto_schemas"
+		},
+		{
+			"path": "../../../../util/tools"
 		}
 	],
 	"settings": {
