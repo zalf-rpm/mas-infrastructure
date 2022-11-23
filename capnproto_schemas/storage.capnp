@@ -10,7 +10,7 @@ $Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/storage"
 using Common = import "common.capnp";
 using Persistent = import "persistence.capnp".Persistent;
 
-interface Store {
+interface Store extends(Common.Identifiable, Persistent) {
   # simple storage service interface
 
   interface Container extends(Common.Identifiable, Persistent) {

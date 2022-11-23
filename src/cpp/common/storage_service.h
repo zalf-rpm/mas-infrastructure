@@ -14,100 +14,71 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 #pragma once
 
-#include <functional>
-#include <string>
-#include <deque>
-
-#include <kj/debug.h>
-#include <kj/common.h>
 #include <kj/string.h>
-#include <kj/vector.h>
-#include <kj/map.h>
-#include <kj/memory.h>
-#include <kj/thread.h>
-#include <kj/async.h>
-
-#include <capnp/any.h>
-#include <capnp/rpc-twoparty.h>
 
 #include "common.h"
 #include "common.capnp.h"
+#include "storage.capnp.h"
 
 namespace mas {
   namespace infrastructure {
-    namespace common {
+    namespace storage {
 
-      class Reader;
-      class Writer;
-
-      typedef mas::schema::common::Channel<capnp::AnyPointer> AnyPointerChannel;
-      typedef typename mas::schema::common::Channel<capnp::AnyPointer>::Msg AnyPointerMsg;
-
-      class Channel final : public AnyPointerChannel::Server
+      class Store final : public mas::schema::storage::Store::Server
       {
       public:
-        Channel(Restorer* restorer, kj::StringPtr name, uint bufferSize);
+        Store(mas::infrastructure::common::Restorer* restorer, kj::StringPtr name);
 
-        virtual ~Channel() noexcept(false) {}
+        virtual ~Store() noexcept(false) {}
 
-        void closedReader(kj::StringPtr readerId);
+        kj::Promise<void> info(InfoContext context) override;
 
-        void closedWriter(kj::StringPtr writerId);
+        kj::Promise<void> save(SaveContext context) override;
 
-        kj::Promise<void> reader(ReaderContext context) override;
+        kj::Promise<void> newContainer(NewContainerContext context) override;
 
-        kj::Promise<void> writer(WriterContext context) override;
+        kj::Promise<void> containerWithId(ContainerWithIdContext context) override;
+
+        kj::Promise<void> listContainers(ListContainersContext context) override;
+
+        kj::Promise<void> removeContainer(RemoveContainerContext context) override;
 
       private:
-        Restorer* _restorer{nullptr};
-        kj::String _name;
-        kj::HashMap<kj::String, AnyPointerChannel::ChanReader::Client> _readers;
-        kj::HashMap<kj::String, AnyPointerChannel::ChanWriter::Client> _writers;
-        std::deque<kj::Own<kj::PromiseFulfiller<kj::Maybe<AnyPointerMsg::Reader>>>> _blockingReadFulfillers;
-        std::deque<kj::Own<kj::PromiseFulfiller<void>>> _blockingWriteFulfillers;
-        uint _bufferSize{1};
-        std::deque<kj::Own<kj::Decay<AnyPointerMsg::Reader>>> _buffer;
-        AnyPointerChannel::CloseSemantics _autoCloseSemantics {AnyPointerChannel::CloseSemantics::FBP};
-        bool _sendCloseOnEmptyBuffer{false};
-        friend class Reader;
-        friend class Writer;
+        friend class Container;
+        struct Impl;
+        kj::Own<Impl> impl;
       };
       
 
       //-----------------------------------------------------------------------------
 
-      class Reader final : public mas::schema::common::Channel<capnp::AnyPointer>::ChanReader::Server {
+      class Container final : public mas::schema::storage::Store::Container::Server {
       public:
-        Reader(Channel& c);
+        Container(Store& s, kj::StringPtr name);
 
-        virtual ~Reader() noexcept(false) {}
+        virtual ~Container() noexcept(false) {}
 
-        kj::Promise<void> read(ReadContext context) override;
+        kj::Promise<void> info(InfoContext context) override;
 
-        kj::StringPtr id() const { return _id; }
+        kj::Promise<void> save(SaveContext context) override;
+
+        kj::Promise<void> importData(ImportDataContext context) override;
+
+        kj::Promise<void> exportData(ExportDataContext context) override;
+
+        kj::Promise<void> listObjects(ListObjectsContext context) override;
+
+        kj::Promise<void> getObject(GetObjectContext context) override;
+
+        kj::Promise<void> addObject(AddObjectContext context) override;
+
+        kj::Promise<void> removeObject(RemoveObjectContext context) override;
+
+        kj::Promise<void> clear(ClearContext context) override;
 
       private:
-        Channel& _channel;
-        bool _closed{false};
-        kj::String _id;
-      };
-
-      //-----------------------------------------------------------------------------
-
-      class Writer final : public mas::schema::common::Channel<capnp::AnyPointer>::ChanWriter::Server {
-      public:
-        Writer(Channel& c);
-
-        virtual ~Writer() noexcept(false) {}
-
-        kj::Promise<void> write(WriteContext context) override;
-
-        kj::StringPtr id() const { return _id; }
-
-      private:
-        Channel& _channel;
-        bool _closed{false};
-        kj::String _id;
+        struct Impl;
+        kj::Own<Impl> impl;
       };
     }
   }

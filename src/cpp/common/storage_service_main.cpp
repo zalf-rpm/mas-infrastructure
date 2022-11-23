@@ -30,10 +30,10 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 namespace mas { namespace infrastructure { namespace common {
 
-class ChannelMain
+class StorageServiceMain
 {
 public:
-  ChannelMain(kj::ProcessContext& context) 
+  StorageServiceMain(kj::ProcessContext& context) 
   : restorer(kj::heap<Restorer>())
   , conMan(restorer.get())
   , context(context)
@@ -152,4 +152,4 @@ private:
 
 }}}
 
-KJ_MAIN(mas::infrastructure::common::ChannelMain)
+KJ_MAIN(mas::infrastructure::common::StorageServiceMain)
