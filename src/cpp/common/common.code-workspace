@@ -8,6 +8,9 @@
 		},
 		{
 			"path": "../../../../util/tools"
+		},
+		{
+			"path": "../../../../util/db"
 		}
 	],
 	"settings": {
@@ -31,7 +34,10 @@
 			"memory": "cpp",
 			"functional": "cpp",
 			"tuple": "cpp",
-			"utility": "cpp"
+			"utility": "cpp",
+			"memory_resource": "cpp",
+			"mutex": "cpp",
+			"typeinfo": "cpp"
 		}
 	}
 }

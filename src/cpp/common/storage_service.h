@@ -24,12 +24,12 @@ namespace mas {
   namespace infrastructure {
     namespace storage {
 
-      class Store final : public mas::schema::storage::Store::Server
+      class SqliteStorageService final : public mas::schema::storage::Store::Server
       {
       public:
-        Store(mas::infrastructure::common::Restorer* restorer, kj::StringPtr name);
+        SqliteStorageService(mas::infrastructure::common::Restorer* restorer, kj::StringPtr filename, kj::StringPtr name);
 
-        virtual ~Store() noexcept(false) {}
+        virtual ~SqliteStorageService() noexcept(false) {}
 
         kj::Promise<void> info(InfoContext context) override;
 
@@ -54,7 +54,7 @@ namespace mas {
 
       class Container final : public mas::schema::storage::Store::Container::Server {
       public:
-        Container(Store& s, kj::StringPtr name);
+        Container(SqliteStorageService& s, kj::StringPtr id, kj::StringPtr name, kj::StringPtr description);
 
         virtual ~Container() noexcept(false) {}
 

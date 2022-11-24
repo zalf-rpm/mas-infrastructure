@@ -6,7 +6,7 @@ add_compile_definitions(NO_MYSQL)
 
 #add_subdirectory(../util/tools/date util/date)
 add_subdirectory(../../../../util/tools/helpers util/helpers)
-add_subdirectory(../../../../util/db/db util/db)
+#add_subdirectory(../../../../util/db/db util/db)
 #add_subdirectory(../util/tools/debug util/debug)
 
 #set absolute filenames (to resolve .. in paths)
@@ -148,6 +148,8 @@ add_executable(storage_service
 	storage_service.h
 	storage_service.cpp
 	storage_service_main.cpp
+	sqlite-amalgamation-3400000/sqlite3.h
+	sqlite-amalgamation-3400000/sqlite3.c
 )
 target_link_libraries(storage_service
 	${CMAKE_THREAD_LIBS_INIT}
@@ -158,7 +160,7 @@ target_link_libraries(storage_service
 	CapnProto::kj
 	CapnProto::kj-async
 	common_lib
-	db_lib
+	#db_lib
 )
 target_include_directories(storage_service PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 if (MSVC)
