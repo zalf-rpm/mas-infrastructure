@@ -34,7 +34,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include "common.capnp.h"
 #include "cluster_admin_service.capnp.h"
 
-namespace Monica {
+namespace monica {
 
 class SlurmMonicaInstanceFactory final : public mas::rpc::Cluster::ModelInstanceFactory::Server {
 public:
@@ -100,4 +100,4 @@ public:
   kj::Promise<void> run(RunContext context) override;
 };
 
-} // namespace Monica
+} // namespace monica

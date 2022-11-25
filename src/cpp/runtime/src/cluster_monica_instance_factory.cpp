@@ -50,7 +50,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include "common.capnp.h"
 
 //using namespace std;
-using namespace Monica;
+using namespace monica;
 using namespace Tools;
 using namespace mas;
 
@@ -311,7 +311,7 @@ kj::Promise<void> RunMonicaImpl::info(InfoContext context) //override
   auto rs = context.getResults();
   rs.initInfo();
   rs.getInfo().setId("some monica_id");
-  rs.getInfo().setName("Monica capnp server");
+  rs.getInfo().setName("monica capnp server");
   rs.getInfo().setDescription("some description");
   return kj::READY_NOW;
 }
@@ -347,7 +347,7 @@ kj::Promise<void> RunMonicaImpl::run(RunContext context) //override
       }
     }
 
-    Monica::Output out;
+    monica::Output out;
     if (eda.success()) {
       env.climateData = eda.result;
 
@@ -358,7 +358,7 @@ kj::Promise<void> RunMonicaImpl::run(RunContext context) //override
         return Soil::readCapillaryRiseRates().getRate(soilTexture, distance);
       };
 
-      out = Monica::runMonica(env);
+      out = monica::runMonica(env);
     }
 
     out.errors = eda.errors;
