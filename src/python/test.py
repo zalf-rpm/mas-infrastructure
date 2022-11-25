@@ -53,6 +53,7 @@ mgmt_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "management.capnp"), imports
 service_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "service.capnp"), imports=abs_imports)
 common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
 grid_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "grid.capnp"), imports=abs_imports)
+storage_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "storage.capnp"), imports=abs_imports)
 
 capnp.remove_event_loop()
 capnp.create_event_loop(threaded=True)
@@ -209,27 +210,66 @@ def test_monica():
 def test_registry():
 
     con_man = common.ConnectionManager()
-    registry_sr = "capnp://MCowBQYDK2VwAyEAFJHQao0Dy26vAV2LmMT4lBXMtI+xebNohLBaYLvsqkc=@10.10.24.181:38101/NjJhMjYyMTEtNzBjNi00MTM4LTg2MGEtM2MwMjM0NjUyNTA2"
+    registry_sr = "capnp://MCowBQYDK2VwAyEAYSMdzsTMWEQmsd3/BMyVzC25QwngGxF2KkV4zE3TsMg=@10.10.88.68:35877/ODM0YzUzY2MtZTI2Zi00M2M4LThiZTQtNDk5ZGQzOWNiMmM5"
     registry = con_man.try_connect(registry_sr, cast_as=registry_capnp.Registry)
     print(registry.info().wait())
 
-    registrar_sr = "capnp://MCowBQYDK2VwAyEAFJHQao0Dy26vAV2LmMT4lBXMtI+xebNohLBaYLvsqkc=@10.10.24.181:38101/ZTE2YWE4ZTQtN2FhMi00YWMyLWJlMzctZmZmMTIyMzg5N2Q5"
-    registrar = con_man.try_connect(registrar_sr, cast_as=registry_capnp.Registrar)
-    print(registrar.info().wait())
+    #registrar_sr = "capnp://MCowBQYDK2VwAyEAFJHQao0Dy26vAV2LmMT4lBXMtI+xebNohLBaYLvsqkc=@10.10.24.181:38101/ZTE2YWE4ZTQtN2FhMi00YWMyLWJlMzctZmZmMTIyMzg5N2Q5"
+    #registrar = con_man.try_connect(registrar_sr, cast_as=registry_capnp.Registrar)
+    #print(registrar.info().wait())
     
-    admin_sr = "capnp://MCowBQYDK2VwAyEAFJHQao0Dy26vAV2LmMT4lBXMtI+xebNohLBaYLvsqkc=@10.10.24.181:38101/MzZiZDkwODAtNjQxYS00ZjEwLThmMDktYTcwOGY0YThkNWI5"
-    admin = con_man.try_connect(admin_sr, cast_as=service_capnp.Admin)
-    print(admin.info().wait())
+    #admin_sr = "capnp://MCowBQYDK2VwAyEAFJHQao0Dy26vAV2LmMT4lBXMtI+xebNohLBaYLvsqkc=@10.10.24.181:38101/MzZiZDkwODAtNjQxYS00ZjEwLThmMDktYTcwOGY0YThkNWI5"
+    #admin = con_man.try_connect(admin_sr, cast_as=service_capnp.Admin)
+    #print(admin.info().wait())
 
 
-    res = registrar.register(cap=admin, regName="admin", categoryId="climate").wait()
-    print(res)
+    #res = registrar.register(cap=admin, regName="admin", categoryId="climate").wait()
+    #print(res)
 
-    climate_entries = registry.entries("climate").wait().entries
+    climate_entries = registry.entries("monica").wait().entries
     for ent in climate_entries:
         print(ent.name, " ref.info:", ent.ref.info().wait())
 
     print("bla")    
+
+
+def test_cross_domain_registry():
+
+    con_man = common.ConnectionManager()
+    registry_sr = "capnp://MCowBQYDK2VwAyEAYzdObu0HAQn8uzfQhnOCtWqT7gFPWrqttbLdkf0Un8w=@localhost:10000/NjQxNDJkMzktZWI4MC00ODlhLTk2NGMtMmEyNjEwOWU3OTMy"
+    registry = con_man.try_connect(registry_sr, cast_as=registry_capnp.Registry)
+    print("registry info:", registry.info().wait())
+
+    monica = registry.entries("monica").wait().entries[0].ref.cast_as(model_capnp.EnvInstance)
+    print("monica info:", monica.info().wait())
+    monica_sr = monica.save().wait().sturdyRef
+    print("monica sr:", monica_sr)
+
+    monica_2 = con_man.try_connect(monica_sr, cast_as=model_capnp.EnvInstance)
+    print("monica2 info:", monica_2.info().wait())
+
+    print("bla")    
+
+
+def test_storage_service():
+    con_man = common.ConnectionManager()
+    service_sr = "capnp://6RH2ilZLq4zl7owvusCASHQlrOTXFZDhufFmMr_v8lw@10.10.24.181:43685/MDQ4MjczYWQtYzlmMC00YzZkLTg4YmUtNzI4MjQxOGRkMjdj"
+    service = con_man.try_connect(service_sr, cast_as=storage_capnp.Store)
+    print("service info:", service.info().wait())
+
+    new_container = service.newContainer("test-container", "test container descr").wait().container
+    info = new_container.info().wait()
+    id = info.id
+    print("new_container:", info)
+    new_container_2 = service.containerWithId(id).wait().container
+    info_2 = new_container_2.info().wait()
+    print("new_container_2:", info_2)
+
+    containers = service.listContainers().wait().containers
+    for i, c in enumerate(containers):
+        print("container", i, " info:", c.info().wait())
+
+    print("end")
 
 
 def test_grid():
@@ -310,8 +350,11 @@ def main():
 
     #test_climate_service()
 
-    test_registry()
+    #test_registry()
 
+    #test_cross_domain_registry()
+
+    test_storage_service()
 
 
     return
