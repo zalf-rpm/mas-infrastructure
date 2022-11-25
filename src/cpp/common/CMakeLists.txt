@@ -148,8 +148,8 @@ add_executable(storage_service
 	storage_service.h
 	storage_service.cpp
 	storage_service_main.cpp
-	sqlite-amalgamation-3400000/sqlite3.h
-	sqlite-amalgamation-3400000/sqlite3.c
+	sqlite/sqlite3.h
+	sqlite/sqlite3.c
 )
 target_link_libraries(storage_service
 	${CMAKE_THREAD_LIBS_INIT}

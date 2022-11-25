@@ -53,7 +53,7 @@ interface Store extends(Common.Identifiable, Persistent) {
     # remove all objects from the container
   }
 
-  newContainer    @0 Common.IdInformation -> (container :Container);
+  newContainer    @0 (name :Text, description :Text) -> (container :Container);
   # create a new container object
 
   containerWithId @1 (id :Text) -> (container :Container);

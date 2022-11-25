@@ -24,24 +24,27 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include "common.h"
 #include "sole.hpp"
 
-#include "channel.h"
+#include "storage_service.h"
 #include "common.capnp.h"
 #include "storage.capnp.h"
 
-namespace mas { namespace infrastructure { namespace common {
+namespace mas { 
+namespace infrastructure { 
+namespace storage {
 
 class StorageServiceMain
 {
 public:
-  StorageServiceMain(kj::ProcessContext& context) 
-  : restorer(kj::heap<Restorer>())
+  StorageServiceMain(kj::ProcessContext &context) 
+  : restorer(kj::heap<mas::infrastructure::common::Restorer>())
   , conMan(restorer.get())
   , context(context)
-  , ioContext(kj::setupAsyncIo()) {}
+  , ioContext(kj::setupAsyncIo()) 
+  {}
 
-  kj::MainBuilder::Validity setName(kj::StringPtr n) { name = n; return true; }
+  kj::MainBuilder::Validity setName(kj::StringPtr n) { name = kj::str(n); return true; }
 
-  kj::MainBuilder::Validity setHost(kj::StringPtr name) { host = name; return true; }
+  kj::MainBuilder::Validity setHost(kj::StringPtr name) { host = kj::str(name); return true; }
 
   kj::MainBuilder::Validity setLocalHost(kj::StringPtr h) { localHost = kj::str(h); return true; }
 
@@ -51,7 +54,7 @@ public:
 
   kj::MainBuilder::Validity setCheckIP(kj::StringPtr ip) { checkIP = kj::str(ip); return true; }
 
-  kj::MainBuilder::Validity setBufferSize(kj::StringPtr name) { bufferSize = std::max(1, std::stoi(name.cStr())); return true; }
+  kj::MainBuilder::Validity setPathToDB(kj::StringPtr path) { pathToDB = kj::str(path); return true; }
 
   kj::MainBuilder::Validity setReaderSrts(kj::StringPtr name)
   {
@@ -65,44 +68,29 @@ public:
     return true;
   }
 
-  kj::MainBuilder::Validity startChannel()
+  kj::MainBuilder::Validity startService()
   {
-    if(readerSrts.size() == 0) readerSrts.add(kj::str(sole::uuid4().str()));
-    if(writerSrts.size() == 0) writerSrts.add(kj::str(sole::uuid4().str()));
-
-    KJ_LOG(INFO, "Channel::startChannel: starting channel");
+    KJ_LOG(INFO, "starting SQLite storage service");
 
     auto& restorerRef = *restorer;
     mas::schema::persistence::Restorer::Client restorerClient = kj::mv(restorer);
-    auto channel = kj::heap<Channel>(&restorerRef, name, bufferSize);
-    auto& channelRef = *channel;
-    AnyPointerChannel::Client channelClient = kj::mv(channel);
-    KJ_LOG(INFO, "Channel::startChannel: created channel");
+    auto service = kj::heap<SqliteStorageService>(&restorerRef, pathToDB, name);
+    auto& serviceRef = *service;
+    mas::schema::storage::Store::Client serviceClient = kj::mv(service);
+    KJ_LOG(INFO, "created service");
     
-    KJ_LOG(INFO, "Channel::startChannel trying to bind to", host, port);
+    KJ_LOG(INFO, "trying to bind to", host, port);
     auto portPromise = conMan.bind(ioContext, restorerClient, host, port);
     auto succAndIP = infrastructure::common::getLocalIP(checkIP, checkPort);
     if(kj::get<0>(succAndIP)) restorerRef.setHost(kj::get<1>(succAndIP));
     else restorerRef.setHost(localHost);
     auto port = portPromise.wait(ioContext.waitScope);
     restorerRef.setPort(port);
-    KJ_LOG(INFO, "Channel::startChannel bound to", host, port);
+    KJ_LOG(INFO, "bound to", host, port);
 
     auto restorerSR = restorerRef.sturdyRefStr("");
-    auto channelSR = kj::get<0>(restorerRef.saveStr(channelClient));
-    KJ_LOG(INFO, channelSR);
-
-    for(const auto& srt : readerSrts){ 
-      auto reader = channelClient.readerRequest().send().wait(ioContext.waitScope).getR();
-      auto readerSR = kj::get<0>(restorerRef.saveStr(reader, srt.asPtr(), nullptr, false));  
-      KJ_LOG(INFO, readerSR);
-    }
-    for(const auto& srt : writerSrts){
-      auto writer = channelClient.writerRequest().send().wait(ioContext.waitScope).getW();
-      auto writerSR = kj::get<0>(restorerRef.saveStr(writer, srt.asPtr(), nullptr, false));
-      KJ_LOG(INFO, writerSR);
-    }
-
+    auto serviceSR = kj::get<0>(restorerRef.saveStr(serviceClient));
+    KJ_LOG(INFO, serviceSR);
     KJ_LOG(INFO, restorerSR);
 
     // Run forever, accepting connections and handling requests.
@@ -111,11 +99,11 @@ public:
 
   kj::MainFunc getMain()
   {
-    return kj::MainBuilder(context, "Channel v0.1", "Offers a channel service.")
+    return kj::MainBuilder(context, "SQLite Storage Service v0.1", "Offers a SQLite backed storage service.")
       .addOptionWithArg({'n', "name"}, KJ_BIND_METHOD(*this, setName),
-                        "<channel-name>", "Give channel a name.")
-      .addOptionWithArg({'b', "buffer-size"}, KJ_BIND_METHOD(*this, setBufferSize),
-                        "<buffer-size=1>", "Set buffer size of channel.")
+                        "<storage-service-name (default: SQLite Storage Service)>", "Name of service.")
+      .addOptionWithArg({'f', "filename"}, KJ_BIND_METHOD(*this, setPathToDB),
+                        "<sqlite-db-filename (default: storage_service.sqlite)>", "Path to storage service' sqlite db.")
       .addOptionWithArg({'h', "host"}, KJ_BIND_METHOD(*this, setHost),
                         "<host-IP>", "Set host IP.")
       .addOptionWithArg({'p', "port"}, KJ_BIND_METHOD(*this, setPort),
@@ -130,26 +118,29 @@ public:
                         "<Sturdy_ref_token_1,[Sturdy_ref_token_2],...>", "Create readers for given sturdy ref tokens.")
       .addOptionWithArg({'w', "writer_srts"}, KJ_BIND_METHOD(*this, setWriterSrts),
                         "<Sturdy_ref_token_1,[Sturdy_ref_token_2],...>", "Create writers for given sturdy ref tokens.")      
-      .callAfterParsing(KJ_BIND_METHOD(*this, startChannel))
+      .callAfterParsing(KJ_BIND_METHOD(*this, startService))
       .build();
   }
 
 private:
-  kj::Own<Restorer> restorer;
-  ConnectionManager conMan;
-  kj::StringPtr name;
-  kj::StringPtr host{kj::str("*")};
-  kj::String localHost{kj::str("localhost")};
-  int port{0};
-  int checkPort{0};
-  kj::String checkIP;
-  uint bufferSize{1};
-  kj::Vector<kj::String> readerSrts;
-  kj::Vector<kj::String> writerSrts;
+  kj::Own<mas::infrastructure::common::Restorer> restorer;
+  mas::infrastructure::common::ConnectionManager conMan;
   kj::ProcessContext &context;
   kj::AsyncIoContext ioContext;
+  kj::String name{kj::str("SQLite Storage Service")};
+  kj::String host{kj::str("*")};
+  kj::String localHost{kj::str("localhost")};
+  int port{0};
+  kj::String checkIP;
+  int checkPort{0};
+  kj::String pathToDB{kj::str("storage_service.sqlite")};
+  kj::Vector<kj::String> readerSrts;
+  kj::Vector<kj::String> writerSrts;
+  
 };
 
-}}}
+} // namespace storage
+} // namespace infrastructure
+} // namespace mas
 
-KJ_MAIN(mas::infrastructure::common::StorageServiceMain)
+KJ_MAIN(mas::infrastructure::storage::StorageServiceMain)
