@@ -253,7 +253,7 @@ def test_cross_domain_registry():
 
 def test_storage_service():
     con_man = common.ConnectionManager()
-    service_sr = "capnp://6RH2ilZLq4zl7owvusCASHQlrOTXFZDhufFmMr_v8lw@10.10.24.181:43685/MDQ4MjczYWQtYzlmMC00YzZkLTg4YmUtNzI4MjQxOGRkMjdj"
+    service_sr = "capnp://EgkwHzl8vyH8_0nXA-YnztWyBj6P37vu391MiWi8wh4@10.10.24.181:34361/OWFhMTM5OGItODQ4NS00OGFlLWE4YjQtNDg0ZWMwMmZlNmVj"
     service = con_man.try_connect(service_sr, cast_as=storage_capnp.Store)
     print("service info:", service.info().wait())
 
@@ -261,13 +261,39 @@ def test_storage_service():
     info = new_container.info().wait()
     id = info.id
     print("new_container:", info)
-    new_container_2 = service.containerWithId(id).wait().container
-    info_2 = new_container_2.info().wait()
-    print("new_container_2:", info_2)
 
-    containers = service.listContainers().wait().containers
-    for i, c in enumerate(containers):
-        print("container", i, " info:", c.info().wait())
+    try:
+        req = new_container.addObject_request()
+        #o = req.init("object")
+        req.object.key = "test-key"
+        #o.key = "test-key"
+        #v = o.init("value")
+        #v.textValue = "test text value"
+        req.object.value.textValue = "test text value"
+        succ = req.send().wait().success
+        print("add object:", succ)
+        succ = new_container.addObject({"key": "test-key2", "value": {"textValue": "test text value2"}}).wait().success
+        print("add object:", succ)
+        obj = new_container.getObject("test-key").wait().object
+        print("obj:", obj)
+    except Exception as e:
+        print("error:", e)
+    
+    #new_container_2 = service.containerWithId(id).wait().container
+    #info_2 = new_container_2.info().wait()
+    #print("new_container_2:", info_2)
+
+    #time.sleep(5)
+
+    #obj = new_container_2.getObject("test-key").wait().object
+    try:
+        print("obj:", obj)
+    except Exception as e:
+        print("error:", e)
+
+    #containers = service.listContainers().wait().containers
+    #for i, c in enumerate(containers):
+    #    print("container", i, " info:", c.info().wait())
 
     print("end")
 

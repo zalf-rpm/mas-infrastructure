@@ -84,6 +84,7 @@ ${CAPNP_SCHEMAS_DIR}/common.capnp
 ${CAPNP_SCHEMAS_DIR}/date.capnp
 ${CAPNP_SCHEMAS_DIR}/persistence.capnp
 ${CAPNP_SCHEMAS_DIR}/x.capnp
+${CAPNP_SCHEMAS_DIR}/storage.capnp
 )
 message(STATUS "CAPNP_HDRS: " "${CAPNP_HDRS}")
 message(STATUS "CAPNP_SRCS: " "${CAPNP_SRCS}")
@@ -208,6 +209,30 @@ target_link_libraries(test_reader_writer
 target_include_directories(test_reader_writer PRIVATE ${COMMON_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 if (MSVC)
 	target_compile_options(test_reader_writer PRIVATE "/MT$<$<CONFIG:Debug>:d>")
+endif()
+
+#------------------------------------------------------------------------------
+
+# create test_storage
+add_executable(test_storage 
+	test_storage_main.cpp
+	${CAPNP_HDRS}
+	${CAPNP_SRCS}
+)
+target_link_libraries(test_storage
+	${CMAKE_THREAD_LIBS_INIT}
+	${CMAKE_DL_LIBS}
+	CapnProto::capnp
+	CapnProto::capnpc
+	CapnProto::capnp-rpc
+	CapnProto::kj
+	CapnProto::kj-async
+	helpers_lib
+	common_lib
+)
+target_include_directories(test_storage PRIVATE ${COMMON_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+if (MSVC)
+	target_compile_options(test_storage PRIVATE "/MT$<$<CONFIG:Debug>:d>")
 endif()
 
 #------------------------------------------------------------------------------

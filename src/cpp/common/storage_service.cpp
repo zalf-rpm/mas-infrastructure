@@ -14,6 +14,9 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 #include "storage_service.h"
 
+#include <chrono>
+#include <thread>
+
 #include <kj/debug.h>
 #include <kj/thread.h>
 #include <kj/common.h>
@@ -219,22 +222,57 @@ struct Container::Impl {
 
   ~Impl() noexcept(false)  {}
 
-  void addObject(mas::schema::storage::Store::Container::Object::Reader obj) {
+  void setObjectValue(
+    mas::schema::storage::Store::Container::Object::Value::Builder b, 
+    mas::schema::storage::Store::Container::Object::Value::Reader r){
+    switch(r.which()){
+      case mas::schema::storage::Store::Container::Object::Value::BOOL_VALUE:
+        b.setBoolValue(r.getBoolValue());
+        break;
+      case mas::schema::storage::Store::Container::Object::Value::INT_VALUE:
+        b.setIntValue(r.getIntValue());
+        break;
+      case mas::schema::storage::Store::Container::Object::Value::FLOAT_VALUE:
+        b.setFloatValue(r.getFloatValue());
+        break;
+      case mas::schema::storage::Store::Container::Object::Value::TEXT_VALUE:
+        b.setTextValue(r.getTextValue());
+        break;
+      case mas::schema::storage::Store::Container::Object::Value::DATA_VALUE:
+        b.setDataValue(r.getDataValue());
+        break;
+      case mas::schema::storage::Store::Container::Object::Value::ANY_VALUE:
+        b.setAnyValue(r.getAnyValue());
+        break;
+    }
+  }
+
+  bool addObject(mas::schema::storage::Store::Container::Object::Reader obj) {
     auto insertStmt = kj::str("INSERT INTO '", id, "' (key, value) VALUES ('", obj.getKey(), "', ?);");
     sqlite3_stmt* stmt = nullptr;
     auto rc = sqlite3_prepare_v2(store.impl->db, insertStmt.cStr(), -1, &stmt, NULL);
     if(rc != SQLITE_OK) {
       KJ_LOG(ERROR, "Can't prepare statement.", insertStmt);
+      return false;
     } else {
-      auto canonical = capnp::canonicalize(obj.getValue());
-      auto canBytes = canonical.asBytes();
-      sqlite3_bind_blob(stmt, 1, canBytes.begin(), canBytes.size(), SQLITE_STATIC);
+      capnp::MallocMessageBuilder message;
+      auto builder = message.initRoot<mas::schema::storage::Store::Container::Object>();
+      builder.setKey(obj.getKey());
+      setObjectValue(builder.initValue(), obj.getValue());
+      auto flatArray = capnp::messageToFlatArray(message);
+	    auto bytes = flatArray.asBytes();
+      sqlite3_bind_blob(stmt, 1, bytes.begin(), bytes.size(), SQLITE_STATIC);//SQLITE_TRANSIENT);//SQLITE_STATIC);
+      //sqlite3_bind_int(stmt, 1, 42);
       rc = sqlite3_step(stmt);
       if(rc != SQLITE_DONE) {
         KJ_LOG(ERROR, "Can't insert object.", insertStmt);
+        return false;
       }
       sqlite3_finalize(stmt);
+      //std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+      return true;
     }
+    return false;
   }
 
   void getObject(kj::StringPtr key, mas::schema::storage::Store::Container::Object::Builder obj) {
@@ -246,17 +284,14 @@ struct Container::Impl {
     } else {
       rc = sqlite3_step(stmt);
       if(rc == SQLITE_ROW) {
-        auto bytes = kj::arrayPtr(reinterpret_cast<const capnp::word*>(sqlite3_column_blob(stmt, 0)), sqlite3_column_bytes(stmt, 0));
-        auto msg = capnp::FlatArrayMessageReader(bytes);
-        auto value = msg.getRoot<mas::schema::storage::Store::Container::Object::Value>();
+        auto bytes = kj::arrayPtr(reinterpret_cast<const kj::byte*>(sqlite3_column_blob(stmt, 0)), sqlite3_column_bytes(stmt, 0));
+        kj::ArrayInputStream ais(bytes);
+        capnp::InputStreamMessageReader message(ais);
+        auto value = message.getRoot<mas::schema::storage::Store::Container::Object::Value>();
         obj.setKey(key);
-        auto val = obj.initValue();
-        if(value.isBoolValue()) val.setBoolValue(value.getBoolValue());
-        if(value.isIntValue()) val.setIntValue(value.getIntValue());
-        if(value.isFloatValue()) val.setFloatValue(value.getFloatValue());
-        if(value.isTextValue()) val.setTextValue(value.getTextValue());
-        if(value.isDataValue()) val.setDataValue(value.getDataValue());
-        if(value.isAnyValue()) val.setAnyValue(value.getAnyValue());
+        setObjectValue(obj.initValue(), value);
+        //obj.initValue().setIntValue(42);
+        //obj.getValue().setIntValue(42);
       } else {
         KJ_LOG(ERROR, "Can't get object.", selectStmt);
       }
@@ -312,14 +347,18 @@ kj::Promise<void> Container::listObjects(ListObjectsContext context) {
 
 kj::Promise<void> Container::getObject(GetObjectContext context) {
   KJ_LOG(INFO, "getObject message received");
-  
+  auto key = context.getParams().getKey();
+  auto rs = context.getResults();
+  impl->getObject(key, rs.initObject());
   return kj::READY_NOW;
 }
 
 
 kj::Promise<void> Container::addObject(AddObjectContext context) {
   KJ_LOG(INFO, "addObject message received");
-
+  auto obj = context.getParams().getObject();
+  auto rs = context.getResults();
+  rs.setSuccess(impl->addObject(obj));
   return kj::READY_NOW;
 }
 
