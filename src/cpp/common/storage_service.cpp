@@ -25,6 +25,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <kj/map.h>
 #include <kj/memory.h>
 #include <kj/string.h>
+#include <kj/vector.h>
 #define KJ_MVCAP(var) var = kj::mv(var)
 
 #include <capnp/any.h>
@@ -88,10 +89,11 @@ struct SqliteStorageService::Impl {
 
   ContainerClient createContainer(kj::StringPtr name, kj::StringPtr description) {
     auto newId = kj::str(sole::uuid4().str().c_str());
-    auto createTableStmt = kj::str("CREATE TABLE IF NOT EXISTS '", newId, "' ("
+    auto createTableStmt = kj::str(
+      "CREATE TABLE IF NOT EXISTS '", newId, "' ("
       "'key' TEXT NOT NULL PRIMARY KEY,"
       "'value' TEXT NOT NULL"
-      ");");
+      ")");
     char* errMsg;
     // create table
     auto rc = sqlite3_exec(db, createTableStmt.cStr(), NULL, NULL, &errMsg);
@@ -102,7 +104,7 @@ struct SqliteStorageService::Impl {
 
     // insert container into containers table
     auto insertStmt = kj::str("INSERT INTO containers (id, name, description) VALUES "
-      "('", newId, "', '", name, "', '", description, "');");
+      "('", newId, "', '", name, "', '", description, "')");
     rc = sqlite3_exec(db, insertStmt.cStr(), NULL, NULL, &errMsg);
     if(rc != SQLITE_OK) {
       KJ_LOG(ERROR, "Can't insert container.", insertStmt, "Error:", errMsg);
@@ -116,6 +118,58 @@ struct SqliteStorageService::Impl {
     return kj::get<0>(entry.value);
   }
 
+  ContainerClient loadContainer(kj::StringPtr id) {
+    auto selectStmt = kj::str("SELECT id, name, description FROM 'containers' WHERE id = '", id, "';");
+    sqlite3_stmt* stmt = nullptr;
+    auto rc = sqlite3_prepare_v2(db, selectStmt.cStr(), -1, &stmt, NULL);
+    ContainerClient result(nullptr);
+    if(rc != SQLITE_OK) {
+      KJ_LOG(ERROR, "Can't prepare statement.", selectStmt);
+    } else {
+      rc = sqlite3_step(stmt);
+      if(rc == SQLITE_ROW) {
+        auto id = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+        auto name = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+        auto description = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+        auto cont = kj::heap<Container>(self, id, name, description);
+        auto ptr = cont.get();
+        ContainerClient client = kj::mv(cont);
+        auto& entry = containers.insert(kj::str(id), kj::tuple(kj::mv(client), ptr));
+        result = kj::get<0>(entry.value);
+      } else {
+        KJ_LOG(ERROR, "Can't get object.", selectStmt);
+      }
+      sqlite3_finalize(stmt);
+    }
+    return result;
+  }
+
+  kj::Vector<ContainerClient> listContainers() {
+    auto selectStmt = kj::str("SELECT id, name, description FROM 'containers'");
+    sqlite3_stmt* stmt = nullptr;
+    auto rc = sqlite3_prepare_v2(db, selectStmt.cStr(), -1, &stmt, NULL);
+    kj::Vector<ContainerClient> result;
+    if(rc != SQLITE_OK) {
+      KJ_LOG(ERROR, "Can't prepare statement.", selectStmt);
+    } else {
+      while(sqlite3_step(stmt) == SQLITE_ROW) {
+        auto id = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+        auto name = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+        auto description = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+        KJ_IF_MAYBE(entry, containers.find(id)){
+          result.add(kj::get<0>(*entry));    
+        } else {
+          auto cont = kj::heap<Container>(self, id, name, description);
+          auto ptr = cont.get();
+          ContainerClient client = kj::mv(cont);
+          auto& e = containers.insert(kj::str(id), kj::tuple(kj::mv(client), ptr));
+          result.add(kj::get<0>(e.value));
+        }
+      }
+      sqlite3_finalize(stmt);
+    }
+    return kj::mv(result);
+  }
 
   bool removeContainer(kj::StringPtr id) {
     KJ_IF_MAYBE(entry, containers.find(id)) {
@@ -140,6 +194,17 @@ struct SqliteStorageService::Impl {
     else return false;
   }
 
+  bool clearContainer(kj::StringPtr id) {
+    auto deleteStmt = kj::str("DELETE * FROM '", id, "'");
+    char* errMsg;
+    auto rc = sqlite3_exec(db, deleteStmt.cStr(), NULL, NULL, &errMsg);
+    if(rc != SQLITE_OK) {
+      KJ_LOG(ERROR, "Can't delete all data from container.", deleteStmt, "Error:", errMsg);
+      sqlite3_free(errMsg);
+      return false;
+    }
+    return true;
+  }
 
 };
 
@@ -182,6 +247,8 @@ kj::Promise<void> SqliteStorageService::containerWithId(ContainerWithIdContext c
   auto id = context.getParams().getId();
   KJ_IF_MAYBE(entry, impl->containers.find(id)) {
     context.getResults().setContainer(kj::get<0>(*entry));
+  } else {
+    context.getResults().setContainer(impl->loadContainer(id));
   }
   return kj::READY_NOW;
 }
@@ -189,7 +256,8 @@ kj::Promise<void> SqliteStorageService::containerWithId(ContainerWithIdContext c
 kj::Promise<void> SqliteStorageService::listContainers(ListContainersContext context) {
   KJ_LOG(INFO, "listContainers message received");
   auto rs = context.getResults();
-  auto list = rs.initContainers(impl->containers.size());
+  auto containers = impl->listContainers();
+  auto list = rs.initContainers(containers.size());
   size_t i = 0;
   for(auto& entry : impl->containers) {
     list.set(i++, kj::get<0>(entry.value));
@@ -251,32 +319,38 @@ struct Container::Impl {
     auto insertStmt = kj::str("INSERT INTO '", id, "' (key, value) VALUES ('", obj.getKey(), "', ?);");
     sqlite3_stmt* stmt = nullptr;
     auto rc = sqlite3_prepare_v2(store.impl->db, insertStmt.cStr(), -1, &stmt, NULL);
+    bool success = false;
     if(rc != SQLITE_OK) {
       KJ_LOG(ERROR, "Can't prepare statement.", insertStmt);
-      return false;
     } else {
       capnp::MallocMessageBuilder message;
-      auto builder = message.initRoot<mas::schema::storage::Store::Container::Object>();
-      builder.setKey(obj.getKey());
-      setObjectValue(builder.initValue(), obj.getValue());
+      auto builder = message.initRoot<mas::schema::storage::Store::Container::Object::Value>();
+      setObjectValue(builder, obj.getValue());
       auto flatArray = capnp::messageToFlatArray(message);
 	    auto bytes = flatArray.asBytes();
-      sqlite3_bind_blob(stmt, 1, bytes.begin(), bytes.size(), SQLITE_STATIC);//SQLITE_TRANSIENT);//SQLITE_STATIC);
-      //sqlite3_bind_int(stmt, 1, 42);
+      sqlite3_bind_blob(stmt, 1, bytes.begin(), bytes.size(), SQLITE_STATIC);
       rc = sqlite3_step(stmt);
-      if(rc != SQLITE_DONE) {
+      success = rc == SQLITE_DONE;
+      if(!success) {
         KJ_LOG(ERROR, "Can't insert object.", insertStmt);
-        return false;
       }
       sqlite3_finalize(stmt);
-      //std::this_thread::sleep_for(std::chrono::milliseconds(5000));
-      return true;
     }
-    return false;
+    return success;
   }
 
-  void getObject(kj::StringPtr key, mas::schema::storage::Store::Container::Object::Builder obj) {
-    auto selectStmt = kj::str("SELECT value FROM '", id, "' WHERE key = '", key, "';");
+  void setObjectFromRow(mas::schema::storage::Store::Container::Object::Builder b, sqlite3_stmt* stmt) {
+    auto key = reinterpret_cast<const char*>(sqlite3_column_blob(stmt, 0));
+    auto val = reinterpret_cast<const char*>(sqlite3_column_blob(stmt, 1));
+    auto size = sqlite3_column_bytes(stmt, 1);
+    capnp::FlatArrayMessageReader reader(kj::ArrayPtr<const capnp::word>(reinterpret_cast<const capnp::word*>(val), size/sizeof(capnp::word)));
+    auto value = reader.getRoot<mas::schema::storage::Store::Container::Object::Value>();
+    b.setKey(key);
+    setObjectValue(b.initValue(), value);
+  }
+
+  void getObject(kj::StringPtr key, mas::schema::storage::Store::Container::Object::Builder objBuilder) {
+    auto selectStmt = kj::str("SELECT key, value FROM '", id, "' WHERE key = '", key, "';");
     sqlite3_stmt* stmt = nullptr;
     auto rc = sqlite3_prepare_v2(store.impl->db, selectStmt.cStr(), -1, &stmt, NULL);
     if(rc != SQLITE_OK) {
@@ -284,14 +358,7 @@ struct Container::Impl {
     } else {
       rc = sqlite3_step(stmt);
       if(rc == SQLITE_ROW) {
-        auto bytes = kj::arrayPtr(reinterpret_cast<const kj::byte*>(sqlite3_column_blob(stmt, 0)), sqlite3_column_bytes(stmt, 0));
-        kj::ArrayInputStream ais(bytes);
-        capnp::InputStreamMessageReader message(ais);
-        auto value = message.getRoot<mas::schema::storage::Store::Container::Object::Value>();
-        obj.setKey(key);
-        setObjectValue(obj.initValue(), value);
-        //obj.initValue().setIntValue(42);
-        //obj.getValue().setIntValue(42);
+        setObjectFromRow(objBuilder, stmt);
       } else {
         KJ_LOG(ERROR, "Can't get object.", selectStmt);
       }
@@ -299,6 +366,51 @@ struct Container::Impl {
     }
   }
 
+  void listObjects(capnp::List<mas::schema::storage::Store::Container::Object, capnp::Kind::STRUCT>::Builder list) {
+    auto selectStmt = kj::str("SELECT key, value FROM '", id, "' ORDER BY key");
+    sqlite3_stmt* stmt = nullptr;
+    auto rc = sqlite3_prepare_v2(store.impl->db, selectStmt.cStr(), -1, &stmt, NULL);
+    if(rc != SQLITE_OK) {
+      KJ_LOG(ERROR, "Can't prepare statement.", selectStmt);
+    } else {
+      int i = 0;
+      while(sqlite3_step(stmt) == SQLITE_ROW && i < list.size()) {
+        setObjectFromRow(list[i++], stmt);
+      } 
+      sqlite3_finalize(stmt);
+    }
+  }
+
+  bool removeObject(kj::StringPtr key) {
+    auto deleteStmt = kj::str("DELETE FROM '", id, "' WHERE key = '", key, "'");
+    char* errMsg;
+    auto rc = sqlite3_exec(store.impl->db, deleteStmt.cStr(), NULL, NULL, &errMsg);
+    if(rc != SQLITE_OK) {
+      KJ_LOG(ERROR, "Can't delete object.", deleteStmt, "Error:", errMsg);
+      sqlite3_free(errMsg);
+      return false;
+    }
+    return true;
+  }
+
+  size_t countObjects() {
+    auto selectStmt = kj::str("SELECT count(key) FROM '", id, "'");
+    sqlite3_stmt* stmt = nullptr;
+    auto rc = sqlite3_prepare_v2(store.impl->db, selectStmt.cStr(), -1, &stmt, NULL);
+    size_t count = 0;
+    if(rc != SQLITE_OK) {
+      KJ_LOG(ERROR, "Can't prepare statement.", selectStmt);
+    } else {
+      rc = sqlite3_step(stmt);
+      if(rc == SQLITE_ROW) {
+        count = (size_t)sqlite3_column_int64(stmt, 0);
+      } else {
+        KJ_LOG(ERROR, "Can't get object.", selectStmt);
+      }
+      sqlite3_finalize(stmt);
+    }
+    return count;
+  }
 
 };
 
@@ -340,38 +452,35 @@ kj::Promise<void> Container::exportData(ExportDataContext context) {
 
 kj::Promise<void> Container::listObjects(ListObjectsContext context) {
   KJ_LOG(INFO, "listObjects message received");
-  
+  auto count = impl->countObjects();
+  impl->listObjects(context.getResults().initObjects(count));
   return kj::READY_NOW;
 }
 
 
 kj::Promise<void> Container::getObject(GetObjectContext context) {
   KJ_LOG(INFO, "getObject message received");
-  auto key = context.getParams().getKey();
-  auto rs = context.getResults();
-  impl->getObject(key, rs.initObject());
+  impl->getObject(context.getParams().getKey(), context.getResults().initObject());
   return kj::READY_NOW;
 }
 
 
 kj::Promise<void> Container::addObject(AddObjectContext context) {
   KJ_LOG(INFO, "addObject message received");
-  auto obj = context.getParams().getObject();
-  auto rs = context.getResults();
-  rs.setSuccess(impl->addObject(obj));
+  context.getResults().setSuccess(impl->addObject(context.getParams().getObject()));
   return kj::READY_NOW;
 }
 
 
 kj::Promise<void> Container::removeObject(RemoveObjectContext context) {
   KJ_LOG(INFO, "removeObject message received");
-  
+  context.getResults().setSuccess(impl->removeObject(context.getParams().getKey()));
   return kj::READY_NOW;
 }
 
 
 kj::Promise<void> Container::clear(ClearContext context) {
   KJ_LOG(INFO, "clear message received");
-  
+  context.getResults().setSuccess(impl->store.impl->clearContainer(impl->id));
   return kj::READY_NOW;
 }

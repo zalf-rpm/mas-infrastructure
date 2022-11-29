@@ -236,7 +236,7 @@ def test_registry():
 def test_cross_domain_registry():
 
     con_man = common.ConnectionManager()
-    registry_sr = "capnp://MCowBQYDK2VwAyEAYzdObu0HAQn8uzfQhnOCtWqT7gFPWrqttbLdkf0Un8w=@localhost:10000/NjQxNDJkMzktZWI4MC00ODlhLTk2NGMtMmEyNjEwOWU3OTMy"
+    registry_sr = "capnp://wmJ-RIgP0BNXM-R_y919CpLdogi9NA563OCtOGzlYRU@10.10.24.181:45007/ZjRmMDI3MmQtOWEyOS00MDZjLWE5ZjUtZGYxMjg0YzFlZDM5"
     registry = con_man.try_connect(registry_sr, cast_as=registry_capnp.Registry)
     print("registry info:", registry.info().wait())
 
@@ -253,32 +253,54 @@ def test_cross_domain_registry():
 
 def test_storage_service():
     con_man = common.ConnectionManager()
-    service_sr = "capnp://EgkwHzl8vyH8_0nXA-YnztWyBj6P37vu391MiWi8wh4@10.10.24.181:34361/OWFhMTM5OGItODQ4NS00OGFlLWE4YjQtNDg0ZWMwMmZlNmVj"
+    service_sr = "capnp://L0tlCnakfM7WBdUxKMHSzgRKS1AHmD5d23an_KS-oBI@10.10.24.181:43111/ZTdkMDEyYTktZjY0OS00MmRjLWJkNmQtZjMyMGJkODJmZTY3"
     service = con_man.try_connect(service_sr, cast_as=storage_capnp.Store)
     print("service info:", service.info().wait())
 
-    new_container = service.newContainer("test-container", "test container descr").wait().container
-    info = new_container.info().wait()
-    id = info.id
-    print("new_container:", info)
+    if(True):
+        new_container = service.newContainer("test-container xxx", "test container descr").wait().container
+        info = new_container.info().wait()
+        id = info.id
+        print("new_container:", info)
 
-    try:
-        req = new_container.addObject_request()
-        #o = req.init("object")
-        req.object.key = "test-key"
-        #o.key = "test-key"
-        #v = o.init("value")
-        #v.textValue = "test text value"
-        req.object.value.textValue = "test text value"
-        succ = req.send().wait().success
-        print("add object:", succ)
-        succ = new_container.addObject({"key": "test-key2", "value": {"textValue": "test text value2"}}).wait().success
-        print("add object:", succ)
-        obj = new_container.getObject("test-key").wait().object
-        print("obj:", obj)
-    except Exception as e:
-        print("error:", e)
-    
+        try:
+            succ = new_container.addObject({"key": "key1", "value": {"textValue": "text value1"}}).wait().success
+            print("add object:", succ)
+            succ = new_container.addObject({"key": "key2", "value": {"boolValue": True}}).wait().success
+            print("add object:", succ)
+            succ = new_container.addObject({"key": "key3", "value": {"boolValue": False}}).wait().success
+            print("add object:", succ)
+            succ = new_container.addObject({"key": "key4", "value": {"intValue": 42}}).wait().success
+            print("add object:", succ)
+            succ = new_container.addObject({"key": "key5", "value": {"floatValue": 42.444}}).wait().success
+            print("add object:", succ)
+            
+            i = common_capnp.IdInformation.new_message(id="bla", name="blub", description="blob")
+            succ = new_container.addObject({"key": "key6", "value": {"anyValue": i}}).wait().success
+            print("add object:", succ)
+
+            for obj in new_container.listObjects().wait().objects:
+                print("object:", obj)
+                if obj.key == "key6":
+                    print("anyValue:", obj.value.anyValue.as_struct(common_capnp.IdInformation))
+            #req = new_container.addObject_request()
+            #req.object.key = "test-key"
+            #req.object.value.textValue = "test text value"
+            #succ = req.send().wait().success
+            #print("add object:", succ)
+            obj = new_container.getObject("test-key").wait().object
+            print("obj:", obj)
+        except Exception as e:
+            print("error:", e)
+    if(False):
+        all_containers = service.listContainers().wait().containers
+        for cont in all_containers:
+            info = cont.info().wait()
+            print("container:", info)
+            #all_objects = cont.listObjects().wait().objects
+            #for obj in all_objects:
+            #    print("object:", obj)
+
     #new_container_2 = service.containerWithId(id).wait().container
     #info_2 = new_container_2.info().wait()
     #print("new_container_2:", info_2)
@@ -286,10 +308,10 @@ def test_storage_service():
     #time.sleep(5)
 
     #obj = new_container_2.getObject("test-key").wait().object
-    try:
-        print("obj:", obj)
-    except Exception as e:
-        print("error:", e)
+    #try:
+    #    print("obj:", obj)
+    #except Exception as e:
+    #    print("error:", e)
 
     #containers = service.listContainers().wait().containers
     #for i, c in enumerate(containers):
