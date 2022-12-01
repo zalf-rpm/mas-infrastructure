@@ -13,6 +13,7 @@ using Persistent = import "persistence.capnp".Persistent;
 interface Store extends(Common.Identifiable, Persistent) {
   # simple storage service interface
 
+  
   interface Container extends(Common.Identifiable, Persistent) {
     # a container for storing objects
 
@@ -21,35 +22,37 @@ interface Store extends(Common.Identifiable, Persistent) {
       # the key of the object
 
       value :union {
-        boolValue   @1 :Bool;
-        intValue    @2 :Int64;
-        floatValue  @3 :Float64;
-        textValue   @4 :Text;
-        dataValue   @5 :Data;
-        anyValue    @6 :AnyStruct;
+        boolValue       @1  :Bool;
+        boolListValue   @7  :List(Bool);
+        intValue        @2  :Int64;
+        intListValue    @8  :List(Int64);
+        floatValue      @3  :Float64;
+        floatListValue  @9  :List(Float64);
+        textValue       @4  :Text;
+        textListValue   @10 :List(Text);
+        dataValue       @5  :Data;
+        dataListValue   @11 :List(Data);
+        anyValue        @6  :AnyStruct;
       }
       # the value of the object
     }
-
-    importData    @0 (data :Data) -> (success :Bool);
-    # import data into the container
-
-    exportData    @1 () -> (data :Data);
-    # export data from the container
     
-    listObjects   @2 () -> (objects :List(Object));
+    export        @0 () -> (json :Text);
+    # export the container (serialized as capnp JSON)
+    
+    listObjects   @1 () -> (objects :List(Object));
     # list all objects in the container
 
-    getObject     @3 (key :Text) -> (object :Object);
+    getObject     @2 (key :Text) -> (object :Object);
     # get an object by key
 
-    addObject     @4 (object :Object) -> (success :Bool);
+    addObject     @3 (object :Object) -> (success :Bool);
     # add an object to the container
 
-    removeObject  @5 (key :Text) -> (success :Bool);
+    removeObject  @4 (key :Text) -> (success :Bool);
     # remove an object from the container
 
-    clear         @6 () -> (success :Bool);
+    clear         @5 () -> (success :Bool);
     # remove all objects from the container
   }
 
@@ -64,4 +67,20 @@ interface Store extends(Common.Identifiable, Persistent) {
 
   removeContainer @3 (id :Text) -> (success :Bool);
   # remove a container with the given id
+
+  importContainer @4 (json :Text) -> (container :Container);
+  # import container (serialized as capnp JSON)
+
+  struct ImportExportData {
+    # data to be imported or exported
+
+    info        @0 :Common.IdInformation;
+    # the id information of the container
+
+    objects     @1 :List(Container.Object);
+    # the objects in the container
+
+    isAnyValue  @2 :List(Bool);
+    # whether the object value was an anyValue which got serialized as base64 textValue
+  }
 }

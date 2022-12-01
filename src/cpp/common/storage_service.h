@@ -42,12 +42,13 @@ public:
 
   kj::Promise<void> removeContainer(RemoveContainerContext context) override;
 
+  kj::Promise<void> importContainer(ImportContainerContext context) override;
+
 private:
   friend class Container;
   struct Impl;
   kj::Own<Impl> impl;
 };
-
 
 //-----------------------------------------------------------------------------
 
@@ -61,9 +62,7 @@ public:
 
   kj::Promise<void> save(SaveContext context) override;
 
-  kj::Promise<void> importData(ImportDataContext context) override;
-
-  kj::Promise<void> exportData(ExportDataContext context) override;
+  kj::Promise<void> export_(ExportContext context) override;
 
   kj::Promise<void> listObjects(ListObjectsContext context) override;
 
@@ -76,6 +75,7 @@ public:
   kj::Promise<void> clear(ClearContext context) override;
 
 private:
+  friend class SqliteStorageService;
   struct Impl;
   kj::Own<Impl> impl;
 };

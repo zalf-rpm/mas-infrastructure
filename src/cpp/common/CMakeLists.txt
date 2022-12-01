@@ -112,6 +112,7 @@ target_link_libraries(common_lib
 	CapnProto::capnp-rpc
 	CapnProto::kj
 	CapnProto::kj-async
+	CapnProto::capnp-json
 	helpers_lib
 	unofficial-sodium::sodium unofficial-sodium::sodium_config_public
 )
