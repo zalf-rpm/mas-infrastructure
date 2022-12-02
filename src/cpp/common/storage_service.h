@@ -26,7 +26,8 @@ namespace storage {
 class SqliteStorageService final : public mas::schema::storage::Store::Server
 {
 public:
-  SqliteStorageService(mas::infrastructure::common::Restorer* restorer, kj::StringPtr filename, kj::StringPtr name);
+  SqliteStorageService(mas::infrastructure::common::Restorer* restorer, kj::StringPtr filename, 
+    kj::StringPtr name, kj::StringPtr description);
 
   virtual ~SqliteStorageService() noexcept(false);
 
@@ -44,10 +45,19 @@ public:
 
   kj::Promise<void> importContainer(ImportContainerContext context) override;
 
+  mas::schema::storage::Store::Client getClient() { return client; }
+  void setClient(mas::schema::storage::Store::Client c) { client = c; }
+
+  mas::schema::common::Action::Client getUnregisterAction() { return unregisterAction; }
+  void setUnregisterAction(mas::schema::common::Action::Client unreg) { unregisterAction = unreg; }
+
 private:
-  friend class Container;
+  mas::schema::storage::Store::Client client{nullptr};
+  mas::schema::common::Action::Client unregisterAction{nullptr};
   struct Impl;
   kj::Own<Impl> impl;
+
+  friend class Container;
 };
 
 //-----------------------------------------------------------------------------
@@ -74,10 +84,15 @@ public:
 
   kj::Promise<void> clear(ClearContext context) override;
 
+  mas::schema::storage::Store::Container::Client getClient() { return client; }
+  void setClient(mas::schema::storage::Store::Container::Client c) { client = c; }
+
 private:
-  friend class SqliteStorageService;
+  mas::schema::storage::Store::Container::Client client{nullptr};
   struct Impl;
   kj::Own<Impl> impl;
+
+  friend class SqliteStorageService;
 };
 
 } // namespace storage

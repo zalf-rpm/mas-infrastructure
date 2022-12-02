@@ -64,7 +64,8 @@ struct SqliteStorageService::Impl {
   bool isConnected{false};
   kj::HashMap<kj::String, kj::Tuple<ContainerClient, Container*>> containers;
 
-  Impl(SqliteStorageService& self, mas::infrastructure::common::Restorer* restorer, kj::StringPtr filename, kj::StringPtr name)
+  Impl(SqliteStorageService& self, mas::infrastructure::common::Restorer* restorer, kj::StringPtr filename, 
+    kj::StringPtr name, kj::StringPtr description)
     : self(self)
     , restorer(restorer)
     , name(kj::str(name))
@@ -91,9 +92,18 @@ struct SqliteStorageService::Impl {
     //addNeededSQLFunctions();
   }
 
-  
+  kj::Tuple<ContainerClient, Container*> createContainer(kj::StringPtr id, kj::StringPtr name, kj::StringPtr description) {
+    auto cont = kj::heap<Container>(self, id, name, description);
+    auto ptr = cont.get();
+    ContainerClient client = kj::mv(cont);
+    ptr->setClient(client);
+    auto& entry = containers.insert(kj::str(id), kj::tuple(kj::mv(client), ptr));
+    return kj::tuple(ContainerClient(kj::get<0>(entry.value)), ptr);
+  }
+
+
   kj::Tuple<ContainerClient, Container*> 
-  createContainer(kj::StringPtr name, kj::StringPtr description, kj::StringPtr id = nullptr) {
+  createContainerDb(kj::StringPtr name, kj::StringPtr description, kj::StringPtr id = nullptr) {
     auto newId = id == nullptr ? kj::str(sole::uuid4().str().c_str()) : kj::str(id);
     auto createTableStmt = kj::str(
       "CREATE TABLE IF NOT EXISTS '", newId, "' ("
@@ -117,11 +127,7 @@ struct SqliteStorageService::Impl {
       sqlite3_free(errMsg);
     }
 
-    auto cont = kj::heap<Container>(self, newId.asPtr(), name, description);
-    auto ptr = cont.get();
-    ContainerClient client = kj::mv(cont);
-    auto& entry = containers.insert(kj::mv(newId), kj::tuple(kj::mv(client), ptr));
-    return kj::tuple(ContainerClient(kj::get<0>(entry.value)), ptr);
+    return createContainer(newId.asPtr(), name, description);
   }
 
   ContainerClient loadContainer(kj::StringPtr id) {
@@ -137,11 +143,7 @@ struct SqliteStorageService::Impl {
         auto id = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
         auto name = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
         auto description = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
-        auto cont = kj::heap<Container>(self, id, name, description);
-        auto ptr = cont.get();
-        ContainerClient client = kj::mv(cont);
-        auto& entry = containers.insert(kj::str(id), kj::tuple(kj::mv(client), ptr));
-        result = kj::get<0>(entry.value);
+        result = kj::get<0>(createContainer(id, name, description));
       } else {
         KJ_LOG(ERROR, "Can't get object.", selectStmt);
       }
@@ -165,11 +167,7 @@ struct SqliteStorageService::Impl {
         KJ_IF_MAYBE(entry, containers.find(id)){
           result.add(kj::get<0>(*entry));    
         } else {
-          auto cont = kj::heap<Container>(self, id, name, description);
-          auto ptr = cont.get();
-          ContainerClient client = kj::mv(cont);
-          auto& e = containers.insert(kj::str(id), kj::tuple(kj::mv(client), ptr));
-          result.add(kj::get<0>(e.value));
+          result.add(kj::get<0>(createContainer(id, name, description)));
         }
       }
       sqlite3_finalize(stmt);
@@ -206,13 +204,16 @@ struct SqliteStorageService::Impl {
 //-----------------------------------------------------------------------------
 
 struct Container::Impl {
+  mas::infrastructure::common::Restorer *restorer{nullptr};
   sqlite3 *db{nullptr};
   kj::String id;
   kj::String name{kj::str("Container")};
   kj::String description;
 
-  Impl(sqlite3 *db, kj::StringPtr id, kj::StringPtr name, kj::StringPtr description)
-    : db(db)
+  Impl(mas::infrastructure::common::Restorer *restorer, sqlite3 *db, 
+    kj::StringPtr id, kj::StringPtr name, kj::StringPtr description)
+    : restorer(restorer)
+    , db(db)
     , id(kj::str(id))
     , name(kj::str(name))
     , description(kj::str(description)) {
@@ -432,8 +433,8 @@ struct Container::Impl {
 // ----------------------------------------------------------------------
 
 SqliteStorageService::SqliteStorageService(mas::infrastructure::common::Restorer* restorer, kj::StringPtr filename, 
-  kj::StringPtr name)
-: impl(kj::heap<Impl>(*this, restorer, filename, name)) {
+  kj::StringPtr name, kj::StringPtr description)
+: impl(kj::heap<Impl>(*this, restorer, filename, name, description)) {
 }
 
 SqliteStorageService::~SqliteStorageService() {}
@@ -450,10 +451,9 @@ kj::Promise<void> SqliteStorageService::info(InfoContext context) {
 
 kj::Promise<void> SqliteStorageService::save(SaveContext context) {
   KJ_LOG(INFO, "save message received");
-  // if(_restorer)
-  // {
-  //   //_restorer->save(_client, context.getResults().initSturdyRef(), context.getResults().initUnsaveSR());
-  // }
+  if(impl->restorer) {
+    impl->restorer->save(client, context.getResults().initSturdyRef(), context.getResults().initUnsaveSR());
+  }
   return kj::READY_NOW;
 }
 
@@ -461,7 +461,7 @@ kj::Promise<void> SqliteStorageService::save(SaveContext context) {
 kj::Promise<void> SqliteStorageService::newContainer(NewContainerContext context) {
   KJ_LOG(INFO, "newContainer message received");
   auto info = context.getParams();
-  context.getResults().setContainer(kj::get<0>(impl->createContainer(info.getName(), info.getDescription())));
+  context.getResults().setContainer(kj::get<0>(impl->createContainerDb(info.getName(), info.getDescription())));
   return kj::READY_NOW;
 }
 
@@ -502,7 +502,7 @@ kj::Promise<void> SqliteStorageService::importContainer(ImportContainerContext c
   capnp::MallocMessageBuilder msg;
   auto builder = msg.initRoot<mas::schema::storage::Store::ImportExportData>();
   json.decode(context.getParams().getJson(), builder);
-  auto t = impl->createContainer(builder.getInfo().getName(), builder.getInfo().getDescription(), builder.getInfo().getId());
+  auto t = impl->createContainerDb(builder.getInfo().getName(), builder.getInfo().getDescription(), builder.getInfo().getId());
   auto container = kj::get<1>(t);
   auto objs = builder.getObjects().asReader();
   auto isAnyValue = builder.getIsAnyValue().asReader();
@@ -516,7 +516,7 @@ kj::Promise<void> SqliteStorageService::importContainer(ImportContainerContext c
 // ----------------------------------------------------------------------
 
 Container::Container(SqliteStorageService& store, kj::StringPtr id, kj::StringPtr name, kj::StringPtr description)
-: impl(kj::heap<Impl>(store.impl->db, id, name, description)) {
+: impl(kj::heap<Impl>(store.impl->restorer, store.impl->db, id, name, description)) {
 }
 
 Container::~Container() {}
@@ -533,7 +533,9 @@ kj::Promise<void> Container::info(InfoContext context) {
 
 kj::Promise<void> Container::save(SaveContext context) {
   KJ_LOG(INFO, "save message received");
-  //_store->save(_client, context.getResults().initSturdyRef(), context.getResults().initUnsaveSR());
+  if(impl->restorer) {
+    impl->restorer->save(client, context.getResults().initSturdyRef(), context.getResults().initUnsaveSR());
+  }
   return kj::READY_NOW;
 }
 

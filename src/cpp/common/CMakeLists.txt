@@ -85,6 +85,7 @@ ${CAPNP_SCHEMAS_DIR}/common.capnp
 ${CAPNP_SCHEMAS_DIR}/date.capnp
 ${CAPNP_SCHEMAS_DIR}/persistence.capnp
 ${CAPNP_SCHEMAS_DIR}/storage.capnp
+${CAPNP_SCHEMAS_DIR}/registry.capnp
 )
 message(STATUS "CAPNP_HDRS: " "${CAPNP_HDRS}")
 message(STATUS "CAPNP_SRCS: " "${CAPNP_SRCS}")

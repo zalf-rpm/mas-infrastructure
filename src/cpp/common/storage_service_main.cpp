@@ -18,15 +18,15 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <kj/string.h>
 #include <kj/vector.h>
 
-#include "tools/algorithms.h"
-
 #include "rpc-connections.h"
 #include "common.h"
 #include "sole.hpp"
 
 #include "storage_service.h"
+
 #include "common.capnp.h"
 #include "storage.capnp.h"
+#include "registry.capnp.h"
 
 namespace mas { 
 namespace infrastructure { 
@@ -44,6 +44,8 @@ public:
 
   kj::MainBuilder::Validity setName(kj::StringPtr n) { name = kj::str(n); return true; }
 
+  kj::MainBuilder::Validity setDescription(kj::StringPtr d) { description = kj::str(d); return true; }
+
   kj::MainBuilder::Validity setHost(kj::StringPtr name) { host = kj::str(name); return true; }
 
   kj::MainBuilder::Validity setLocalHost(kj::StringPtr h) { localHost = kj::str(h); return true; }
@@ -56,17 +58,11 @@ public:
 
   kj::MainBuilder::Validity setPathToDB(kj::StringPtr path) { pathToDB = kj::str(path); return true; }
 
-  kj::MainBuilder::Validity setReaderSrts(kj::StringPtr name)
-  {
-    for(const auto& s : Tools::splitString(name.cStr(), ",")) readerSrts.add(kj::str(s.c_str()));
-    return true;
-  }
+  kj::MainBuilder::Validity setRegistrarSR(kj::StringPtr sr) { registrarSR = kj::str(sr); return true; }
 
-  kj::MainBuilder::Validity setWriterSrts(kj::StringPtr name)
-  {
-    for(const auto& s : Tools::splitString(name.cStr(), ",")) writerSrts.add(kj::str(s.c_str()));
-    return true;
-  }
+  kj::MainBuilder::Validity setRegName(kj::StringPtr n) { regName = kj::str(n); return true; }
+
+  kj::MainBuilder::Validity setRegCategory(kj::StringPtr cat) { regCategory = kj::str(cat); return true; }
 
   kj::MainBuilder::Validity startService()
   {
@@ -74,7 +70,7 @@ public:
 
     auto& restorerRef = *restorer;
     mas::schema::persistence::Restorer::Client restorerClient = kj::mv(restorer);
-    auto service = kj::heap<SqliteStorageService>(&restorerRef, pathToDB, name);
+    auto service = kj::heap<SqliteStorageService>(&restorerRef, pathToDB, name.asPtr(), description.asPtr());
     auto& serviceRef = *service;
     mas::schema::storage::Store::Client serviceClient = kj::mv(service);
     KJ_LOG(INFO, "created service");
@@ -93,6 +89,32 @@ public:
     KJ_LOG(INFO, serviceSR);
     KJ_LOG(INFO, restorerSR);
 
+    mas::schema::common::Action::Client unregister(nullptr);
+    //mas::schema::persistence::SturdyRef::Reader reregSR(nullptr);
+    mas::schema::registry::Registrar::Client registrar(nullptr);
+    if(registrarSR.size() > 0) {
+      KJ_LOG(INFO, "trying to register at", registrarSR);
+      registrar = conMan.tryConnectB(ioContext, registrarSR).castAs<mas::schema::registry::Registrar>();
+      auto request = registrar.registerRequest();
+      request.setCap(serviceClient);
+      request.setRegName(regName.size() == 0 ? name.asPtr() : regName.asPtr());
+      request.setCategoryId(regCategory);
+      auto xd = request.initXDomain();
+      restorerRef.setVatId(xd.initVatId());
+      xd.setRestorer(restorerClient);
+      try {
+        auto response = request.send().wait(ioContext.waitScope);
+        if(response.hasUnreg()) { 
+          unregister = response.getUnreg();
+          serviceRef.setUnregisterAction(unregister);
+        }
+        //if(response.hasReregSR()) reregSR = response.getReregSR();
+        KJ_LOG(INFO, "registered at", registrarSR);
+      } catch(kj::Exception e) {
+        KJ_LOG(ERROR, "Error sending register message to Registrar! Error", e.getDescription().cStr());
+      }
+    }
+
     // Run forever, accepting connections and handling requests.
     kj::NEVER_DONE.wait(ioContext.waitScope);
   }
@@ -102,22 +124,26 @@ public:
     return kj::MainBuilder(context, "SQLite Storage Service v0.1", "Offers a SQLite backed storage service.")
       .addOptionWithArg({'n', "name"}, KJ_BIND_METHOD(*this, setName),
                         "<storage-service-name (default: SQLite Storage Service)>", "Name of service.")
+      .addOptionWithArg({"description"}, KJ_BIND_METHOD(*this, setDescription),
+                        "<storage-service-description (default: "")>", "Description of service.")
       .addOptionWithArg({'f', "filename"}, KJ_BIND_METHOD(*this, setPathToDB),
                         "<sqlite-db-filename (default: storage_service.sqlite)>", "Path to storage service' sqlite db.")
       .addOptionWithArg({'h', "host"}, KJ_BIND_METHOD(*this, setHost),
                         "<host-IP>", "Set host IP.")
       .addOptionWithArg({'p', "port"}, KJ_BIND_METHOD(*this, setPort),
                         "<port>", "Set port.")
+      .addOptionWithArg({'r', "registrar_sr"}, KJ_BIND_METHOD(*this, setRegistrarSR),
+                        "<sturdy_ref>", "Sturdy ref to registrar.")
+      .addOptionWithArg({"reg_name"}, KJ_BIND_METHOD(*this, setRegName),
+                        "<register name (default: --name)>", "Name to register service under.")
+      .addOptionWithArg({"reg_category"}, KJ_BIND_METHOD(*this, setRegCategory),
+                        "<category (default: monica)>", "Name of the category to register at.")
       .addOptionWithArg({"local_host (default: localhost)"}, KJ_BIND_METHOD(*this, setLocalHost),
                         "<IP_or_host_address>", "Use this host for sturdy reference creation.")
       .addOptionWithArg({"check_IP"}, KJ_BIND_METHOD(*this, setCheckIP),
                         "<IPv4 (default: 8.8.8.8)>", "IP to connect to in order to find local outside IP.")
       .addOptionWithArg({"check_port"}, KJ_BIND_METHOD(*this, setCheckPort),
                         "<port (default: 53)>", "Port to connect to in order to find local outside IP.")
-      .addOptionWithArg({'r', "reader_srts"}, KJ_BIND_METHOD(*this, setReaderSrts),
-                        "<Sturdy_ref_token_1,[Sturdy_ref_token_2],...>", "Create readers for given sturdy ref tokens.")
-      .addOptionWithArg({'w', "writer_srts"}, KJ_BIND_METHOD(*this, setWriterSrts),
-                        "<Sturdy_ref_token_1,[Sturdy_ref_token_2],...>", "Create writers for given sturdy ref tokens.")      
       .callAfterParsing(KJ_BIND_METHOD(*this, startService))
       .build();
   }
@@ -128,15 +154,16 @@ private:
   kj::ProcessContext &context;
   kj::AsyncIoContext ioContext;
   kj::String name{kj::str("SQLite Storage Service")};
+  kj::String description;
   kj::String host{kj::str("*")};
   kj::String localHost{kj::str("localhost")};
   int port{0};
   kj::String checkIP;
   int checkPort{0};
   kj::String pathToDB{kj::str("storage_service.sqlite")};
-  kj::Vector<kj::String> readerSrts;
-  kj::Vector<kj::String> writerSrts;
-  
+  kj::String registrarSR;
+  kj::String regName;
+  kj::String regCategory{kj::str("storage")};
 };
 
 } // namespace storage
