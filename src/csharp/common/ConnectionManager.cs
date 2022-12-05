@@ -118,7 +118,8 @@ namespace Mas.Infrastructure.Common
                             var restorer = con.GetMain<Schema.Persistence.IRestorer>();
                             var srTokenArr = Convert.FromBase64String(srTokenBase64);
                             var srToken = System.Text.Encoding.UTF8.GetString(srTokenArr);
-                            var cap = await restorer.Restore(srToken);
+                            var cap = await restorer.Restore(new Schema.Persistence.Restorer.RestoreParams { 
+                                LocalRef=srToken });
                             return cap.Cast<TRemoteInterface>(true);
                         }
                         else

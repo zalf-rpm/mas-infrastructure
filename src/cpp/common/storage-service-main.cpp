@@ -18,11 +18,11 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <kj/string.h>
 #include <kj/vector.h>
 
-#include "rpc-connections.h"
+#include "rpc-connection-manager.h"
 #include "common.h"
 #include "sole.hpp"
 
-#include "storage_service.h"
+#include "storage-service.h"
 
 #include "common.capnp.h"
 #include "storage.capnp.h"
@@ -58,6 +58,8 @@ public:
 
   kj::MainBuilder::Validity setPathToDB(kj::StringPtr path) { pathToDB = kj::str(path); return true; }
 
+  kj::MainBuilder::Validity setRestorerContainerSR(kj::StringPtr sr) { registrarSR = kj::str(sr); return true; }
+
   kj::MainBuilder::Validity setRegistrarSR(kj::StringPtr sr) { registrarSR = kj::str(sr); return true; }
 
   kj::MainBuilder::Validity setRegName(kj::StringPtr n) { regName = kj::str(n); return true; }
@@ -73,6 +75,23 @@ public:
     auto service = kj::heap<SqliteStorageService>(&restorerRef, pathToDB, name.asPtr(), description.asPtr());
     auto& serviceRef = *service;
     mas::schema::storage::Store::Client serviceClient = kj::mv(service);
+
+    //connect to restorer container
+    mas::schema::storage::Store::Container::Client restoreContainerClient = nullptr;
+    if(restorerContainerSR.size() == 0){
+      // get a new container
+      auto req = serviceClient.newContainerRequest();
+      req.setName("Restorer data");
+      restoreContainerClient = req.send().wait(ioContext.waitScope).getContainer();
+      // set this container as the store for the restorer
+      restorerRef.setStore(restoreContainerClient);
+      // get a sturdy ref to the new container (which will also store the sturdy ref in the new container)
+      auto sr = kj::get<0>(restoreContainerClient.saveRequest().send().wait(ioContext.waitScope));
+      KJ_LOG(INFO, "Sturdyref to newly create container for restorer:", sr);
+    } else {
+      restoreContainerClient = conMan.tryConnectB(ioContext, restorerContainerSR).castAs<mas::schema::storage::Store::Container>();
+      restorerRef.setStore(restoreContainerClient);
+    }
     KJ_LOG(INFO, "created service");
     
     KJ_LOG(INFO, "trying to bind to", host, port);
@@ -132,6 +151,8 @@ public:
                         "<host-IP>", "Set host IP.")
       .addOptionWithArg({'p', "port"}, KJ_BIND_METHOD(*this, setPort),
                         "<port>", "Set port.")
+      .addOptionWithArg({'s', "storage_container_sr"}, KJ_BIND_METHOD(*this, setRestorerContainerSR),
+                        "<sturdy_ref (default: create new local container)>", "Sturdy ref to container for this restorer.")
       .addOptionWithArg({'r', "registrar_sr"}, KJ_BIND_METHOD(*this, setRegistrarSR),
                         "<sturdy_ref>", "Sturdy ref to registrar.")
       .addOptionWithArg({"reg_name"}, KJ_BIND_METHOD(*this, setRegName),
@@ -161,6 +182,7 @@ private:
   kj::String checkIP;
   int checkPort{0};
   kj::String pathToDB{kj::str("storage_service.sqlite")};
+  kj::String restorerContainerSR;
   kj::String registrarSR;
   kj::String regName;
   kj::String regCategory{kj::str("storage")};

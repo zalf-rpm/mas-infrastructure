@@ -55,10 +55,11 @@ namespace Mas.Infrastructure.ServiceRegistry
             var name = id;
             var desc = "";
             Reg regs = new();
-            var catsFilePath = "categories.json";
+            var categoriesContainerSR = "";
+            var restorerContainerSR = "";
             var tcpPort = 0;
             var readRegSRsFromStdIn = false;
-            string regFilePath = "regs.json"; //null;
+            string regFilePath = "regs.json"; 
             string checkIP = "8.8.8.8";
             int checkPort = 53;
 
@@ -66,15 +67,19 @@ namespace Mas.Infrastructure.ServiceRegistry
             {
                 try
                 {
-                    if (args[i].StartsWith("id")) id = args[i].Split('=')[1];
-                    else if (args[i].StartsWith("name")) name = args[i].Split('=')[1];
-                    else if (args[i].StartsWith("desc")) desc = args[i].Split('=')[1];
-                    else if (args[i].StartsWith("cats")) catsFilePath = args[i].Split('=')[1];
-                    else if (args[i].StartsWith("port")) tcpPort = int.Parse(args[i].Split('=')[1]);
-                    else if (args[i].StartsWith("regstdin")) readRegSRsFromStdIn = true;
-                    else if (args[i].StartsWith("regfile")) regFilePath = args[i].Split('=')[1];
-                    else if (args[i].StartsWith("check_IP")) checkIP = args[i].Split('=')[1];
-                    else if (args[i].StartsWith("check_port")) checkPort = int.Parse(args[i].Split('=')[1]);
+                    if (args[i].StartsWith("--id")) id = args[i].Split('=')[1];
+                    else if (args[i].StartsWith("--name")) name = args[i].Split('=')[1];
+                    else if (args[i].StartsWith("--description")) desc = args[i].Split('=')[1];
+                    else if (args[i].StartsWith("--categories_container_sr")) restorerContainerSR = args[i].Split('=')[1];
+                    else if (args[i].StartsWith("--restorer_container_sr")) categoriesContainerSR = args[i].Split('=')[1];
+                    else if (args[i].StartsWith("--port")) tcpPort = int.Parse(args[i].Split('=')[1]);
+                    else if (args[i].StartsWith("--registrar_sr")) regs.registry.reg_sr = args[i].Split('=')[1];
+                    else if (args[i].StartsWith("--reg_name")) regs.registry.reg_name = args[i].Split('=')[1];
+                    else if (args[i].StartsWith("--reg_category")) regs.registry.cat_id = args[i].Split('=')[1];
+                    else if (args[i].StartsWith("--regstdin")) readRegSRsFromStdIn = true;
+                    else if (args[i].StartsWith("--regfile")) regFilePath = args[i].Split('=')[1];
+                    else if (args[i].StartsWith("--check_IP")) checkIP = args[i].Split('=')[1];
+                    else if (args[i].StartsWith("--check_port")) checkPort = int.Parse(args[i].Split('=')[1]);
                 }
                 catch (System.Exception) { }
             }
@@ -99,10 +104,10 @@ namespace Mas.Infrastructure.ServiceRegistry
 
             var restorer = new Common.Restorer() { TcpHost = Common.ConnectionManager.GetLocalIPAddress(checkIP, checkPort) };
             using var conMan = new Common.ConnectionManager(restorer);
+            
             var registry = new ServiceRegistry ()
             {
                 Restorer = restorer,
-                CategoriesFilePath = catsFilePath,
                 Id = id,
                 Name = name,
                 Description = desc,
@@ -110,11 +115,22 @@ namespace Mas.Infrastructure.ServiceRegistry
             conMan.Bind(IPAddress.Any, tcpPort, restorer);
             restorer.TcpPort = conMan.Port;
             
+            try {
+                if(categoriesContainerSR != "") {
+                    await registry.SetCategoriesStorage(await conMan.Connect<Mas.Schema.Storage.Store.IContainer>(categoriesContainerSR));
+                }
+                if(restorerContainerSR != "") {
+                    restorer.StorageContainer = await conMan.Connect<Mas.Schema.Storage.Store.IContainer>(restorerContainerSR);
+                }
+            } catch(System.Exception e) { 
+                Console.WriteLine($"Exception trying to register registry SR. Exception {e}"); 
+            }
+
             Console.WriteLine("Started ServiceRegistry with these Categories:");
             foreach (var cat in registry.Categories) Console.WriteLine(cat.Id);
             var registrySturdyRef = restorer.SaveStr(BareProxy.FromImpl(registry)).Item1;
             Console.WriteLine($"registry_sr: {registrySturdyRef}");
-            //await TryRegisterService(conMan, regs.registry, registry);
+            if(regs.registry.reg_sr != "") await TryRegisterService(conMan, regs.registry, registry);
 
             var registrar = new ServiceRegistry.Registrar(registry, restorer);
             var regSturdyRef = restorer.SaveStr(BareProxy.FromImpl(registrar)).Item1;

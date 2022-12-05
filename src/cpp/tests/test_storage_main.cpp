@@ -55,14 +55,29 @@ public:
     auto cinfo = newContainer.infoRequest().send().wait(ioContext.waitScope);
     KJ_LOG(INFO, cinfo.getId(), cinfo.getName());
 
-    auto oreq = newContainer.addObjectRequest();
-    auto o = oreq.initObject();
-    o.setKey("test-key");
-    auto val = o.initValue();
-    val.setTextValue("test text value");
-    auto oprom = oreq.send().wait(ioContext.waitScope);
-    auto succ = oprom.getSuccess();
-    KJ_LOG(INFO, succ);
+    {
+      auto oreq = newContainer.addObjectRequest();
+      auto o = oreq.initObject();
+      o.setKey("test-key");
+      auto val = o.initValue();
+      val.setTextValue("test text value");
+      auto oprom = oreq.send().wait(ioContext.waitScope);
+      auto succ = oprom.getSuccess();
+      KJ_LOG(INFO, succ);
+    }
+    
+    {
+      auto oreq = newContainer.addObjectRequest();
+      auto o = oreq.initObject();
+      o.setKey("string-list");
+      auto val = o.initValue();
+      
+      val.setAnyValue(kj::heap<mas::schema::storage::AnyValue::Builder::ListValue::Builder>());
+      auto oprom = oreq.send().wait(ioContext.waitScope);
+      auto succ = oprom.getSuccess();
+      KJ_LOG(INFO, succ);
+    }
+    
 
     auto greq = newContainer.getObjectRequest();
     greq.setKey("test-key");

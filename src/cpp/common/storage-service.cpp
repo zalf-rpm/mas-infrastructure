@@ -12,7 +12,7 @@ Currently maintained by the authors.
 Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 */
 
-#include "storage_service.h"
+#include "storage-service.h"
 
 #include <chrono>
 #include <thread>

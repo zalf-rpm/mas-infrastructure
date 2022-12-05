@@ -44,7 +44,7 @@ if(MSVC)
 		  set(MSVC_TOOLSET_VERSION "") # leave unknown for future versions
 		elseif(MSVC_VERSION GREATER_EQUAL 1920)
 		  set(MSVC_TOOLSET_VERSION 142) # VS 2019
-		elseif(MSVC_VERSION GREATER_EQUAL 1910)
+		elseif(MSVC_VERSION GREATER_Echannel_mainQUAL 1910)
 		  set(MSVC_TOOLSET_VERSION 141) # VS 2017
 		elseif(MSVC_VERSION EQUAL 1900)
 		  set(MSVC_TOOLSET_VERSION 14) # VS 2015
@@ -95,17 +95,19 @@ message(STATUS "CAPNP_SRCS: " "${CAPNP_SRCS}")
 find_package(unofficial-sodium CONFIG REQUIRED)
 
 # create common_lib
-add_library(common_lib
-	common.h
-	common.cpp
-	rpc-connections.h
-	rpc-connections.cpp
+add_library(common-lib
 	channel.h
 	channel.cpp
+	common.h
+	common.cpp
+	restorer.h
+	restorer.cpp
+	rpc-connection-manager.h
+	rpc-connection-manager.cpp
 	${CAPNP_HDRS}
 	${CAPNP_SRCS}
 )
-target_link_libraries(common_lib
+target_link_libraries(common-lib
 	${CMAKE_THREAD_LIBS_INIT}
 	${CMAKE_DL_LIBS}
 	CapnProto::capnp
@@ -117,16 +119,16 @@ target_link_libraries(common_lib
 	helpers_lib
 	unofficial-sodium::sodium unofficial-sodium::sodium_config_public
 )
-target_include_directories(common_lib PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(common-lib PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 if (MSVC)
-	target_compile_options(common_lib PRIVATE "/MT$<$<CONFIG:Debug>:d>")
+	target_compile_options(common-lib PRIVATE "/MT$<$<CONFIG:Debug>:d>")
 endif()
 
 #------------------------------------------------------------------------------
 
 # create channel
 add_executable(channel 
-	channel_main.cpp
+	channel-main.cpp
 )
 target_link_libraries(channel
 	${CMAKE_THREAD_LIBS_INIT}
@@ -136,7 +138,7 @@ target_link_libraries(channel
 	CapnProto::capnp-rpc
 	CapnProto::kj
 	CapnProto::kj-async
-	common_lib
+	common-lib
 )
 target_include_directories(channel PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 if (MSVC)
@@ -146,14 +148,14 @@ endif()
 #------------------------------------------------------------------------------
 
 # create storage service
-add_executable(storage_service 
-	storage_service.h
-	storage_service.cpp
-	storage_service_main.cpp
+add_executable(storage-service 
+	storage-service.h
+	storage-service.cpp
+	storage-service-main.cpp
 	sqlite/sqlite3.h
 	sqlite/sqlite3.c
 )
-target_link_libraries(storage_service
+target_link_libraries(storage-service
 	${CMAKE_THREAD_LIBS_INIT}
 	${CMAKE_DL_LIBS}
 	CapnProto::capnp
@@ -161,12 +163,12 @@ target_link_libraries(storage_service
 	CapnProto::capnp-rpc
 	CapnProto::kj
 	CapnProto::kj-async
-	common_lib
+	common-lib
 	#db_lib
 )
-target_include_directories(storage_service PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(storage-service PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 if (MSVC)
-	target_compile_options(storage_service PRIVATE "/MT$<$<CONFIG:Debug>:d>")
+	target_compile_options(storage-service PRIVATE "/MT$<$<CONFIG:Debug>:d>")
 endif()
 
 #------------------------------------------------------------------------------

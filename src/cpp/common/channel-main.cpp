@@ -20,21 +20,23 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 #include "tools/algorithms.h"
 
-#include "rpc-connections.h"
+#include "rpc-connection-manager.h"
 #include "common.h"
 #include "sole.hpp"
 
 #include "channel.h"
 #include "common.capnp.h"
 
-namespace mas { namespace infrastructure { namespace common {
+namespace mas { 
+namespace infrastructure { 
+namespace common {
 
 class ChannelMain
 {
 public:
   ChannelMain(kj::ProcessContext& context) 
   : restorer(kj::heap<Restorer>())
-  , conMan(restorer.get())
+  , conMan(kj::heap<ConnectionManager>())
   , context(context)
   , ioContext(kj::setupAsyncIo()) {}
 
@@ -79,7 +81,7 @@ public:
     KJ_LOG(INFO, "Channel::startChannel: created channel");
     
     KJ_LOG(INFO, "Channel::startChannel trying to bind to", host, port);
-    auto portPromise = conMan.bind(ioContext, restorerClient, host, port);
+    auto portPromise = conMan->bind(ioContext, restorerClient, host, port);
     auto succAndIP = infrastructure::common::getLocalIP(checkIP, checkPort);
     if(kj::get<0>(succAndIP)) restorerRef.setHost(kj::get<1>(succAndIP));
     else restorerRef.setHost(localHost);
@@ -135,7 +137,7 @@ public:
 
 private:
   kj::Own<Restorer> restorer;
-  ConnectionManager conMan;
+  kj::Own<ConnectionManager> conMan;
   kj::StringPtr name;
   kj::StringPtr host{kj::str("*")};
   kj::String localHost{kj::str("localhost")};
@@ -149,6 +151,8 @@ private:
   kj::AsyncIoContext ioContext;
 };
 
-}}}
+} // namespace common
+} // namespace infrastructure
+} // namespace mas
 
 KJ_MAIN(mas::infrastructure::common::ChannelMain)

@@ -38,8 +38,6 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <capnp/list.h>
 #include <capnp/rpc-twoparty.h>
 
-#include <sodium.h>
-
 #include "sole.hpp"
 
 using namespace std;
@@ -48,266 +46,10 @@ using namespace mas::infrastructure::common;
 
 //-----------------------------------------------------------------------------
 
-namespace {
-
-  typedef enum _endian {little_endian, big_endian} EndianType;
-
-  EndianType checkCPUEndian()
-  {
-      unsigned short x = 0x0001;
-      unsigned char c = *(unsigned char *)(&x);
-      EndianType CPUEndian;
-      return c == 0x01 ? little_endian : big_endian;
-  }
-
-  uint64_t byteArrayToUInt64(kj::ArrayPtr<unsigned char> bytes) {
-    //constexpr bool littleEndian(std::endian::native == std::endian::little);
-    bool littleEndian = checkCPUEndian() == little_endian;
-    const int start = littleEndian ? 0 : 7;
-    const int end = littleEndian ? 8 : -1;
-    const int inc = littleEndian ? 1 : -1;
-    uint64_t value = 0;
-    for (int i = start; i != end; i += inc) {
-      value += (uint64_t)bytes[i] << (i * 8);
-    }
-    return value;
-  }
-
-  void byteArrayToUInt32(kj::ArrayPtr<unsigned char> bytes, uint32_t& value) {
-    //constexpr bool littleEndian(std::endian::native == std::endian::little);
-    bool littleEndian = checkCPUEndian() == little_endian;
-    const int start = littleEndian ? 0 : 3;
-    const int end = littleEndian ? 4 : -1;
-    const int inc = littleEndian ? 1 : -1;
-    value = 0;
-    for (int i = start; i != end; i += inc) {
-      value += (uint32_t)bytes[i] << (i * 8);
-    }
-  }
-
-  kj::Array<unsigned char> toKJArray(unsigned char* data, int len)
-  {
-    auto arr = kj::heapArray<unsigned char>(len);
-    for (int i = 0; i < len; i++) arr[i] = data[i];
-    return kj::mv(arr);
-  }
-
-  template<typename T>
-  unsigned char* fromKJArray(kj::ArrayPtr<T> arr, unsigned char* data = nullptr)
-  {
-    auto len = kj::size(arr);
-    if (data == nullptr) data = new unsigned char[len];
-    for (int i = 0; i < len; i++) data[i] = arr[i];
-    return data;
-  }
-
+Identifiable::Identifiable(kj::StringPtr id, kj::StringPtr name, kj::StringPtr description) {
+  if(id == nullptr) _id = kj::str(sole::uuid4().str().c_str());
+  if(name == nullptr) _name = kj::str(_id);
 }
-
-Restorer::Restorer() 
-{
-  if (sodium_init() == -1) {
-    throw std::runtime_error("sodium_init failed");
-  }
-
-  unsigned char signPK[crypto_sign_PUBLICKEYBYTES];
-  unsigned char signSK[crypto_sign_SECRETKEYBYTES];
-  crypto_sign_keypair(signPK, signSK);
-  _signPKArray = toKJArray(signPK, crypto_sign_PUBLICKEYBYTES);
-  _signSKArray = toKJArray(signSK, crypto_sign_SECRETKEYBYTES);
-
-  // the Curve25519 byte array is little endian
-  _vatId[0] = byteArrayToUInt64(_signPKArray.slice(0, 8));
-  _vatId[1] = byteArrayToUInt64(_signPKArray.slice(8, 16));
-  _vatId[2] = byteArrayToUInt64(_signPKArray.slice(16, 24));
-  _vatId[3] = byteArrayToUInt64(_signPKArray.slice(24, 32));
-}
-
-Restorer::~Restorer() 
-{
-}
-
-kj::Promise<void> Restorer::restore(RestoreContext context) {
-  auto params = context.getParams();
-  auto srt = params.getLocalRef().getAs<capnp::Text>();
-  kj::StringPtr ownerGuid = 
-    params.hasSealedFor() && params.getSealedFor().hasGuid() 
-    ? params.getSealedFor().getGuid()
-    : kj::StringPtr();
-  KJ_IF_MAYBE(cap, getCapFromSRToken(srt, ownerGuid)) 
-  { 
-    context.getResults().setCap(*cap);
-  }
-  return kj::READY_NOW;
-}
-
-kj::Maybe<capnp::Capability::Client> Restorer::getCapFromSRToken(kj::StringPtr srToken, kj::StringPtr ownerGuid) 
-{
-  if(ownerGuid != nullptr) 
-  {
-    // and we know about that owner
-    KJ_IF_MAYBE(ownerSignPKArray, _ownerGuidToSignPK.find(ownerGuid)) 
-    {
-      // prepare owner public key
-      unsigned char* ownerSignPK = (unsigned char*)malloc(ownerSignPKArray->size()*sizeof(unsigned char));
-      KJ_DEFER(free(ownerSignPK));
-      fromKJArray<kj::byte>(*ownerSignPKArray, ownerSignPK);
-
-      // decode owner signed sturdy ref token
-      unsigned char* signedSRToken = (unsigned char*)malloc(srToken.size() * sizeof(unsigned char));
-      KJ_DEFER(free(signedSRToken));
-      fromKJArray<const kj::byte>(srToken.asBytes(), signedSRToken);
-
-      // verify owner signed sturdy ref token
-      unsigned char* unsignedSRToken = (unsigned char*)malloc(srToken.size() * sizeof(unsigned char) + 1);
-      KJ_DEFER(free(unsignedSRToken));
-      unsigned long long unsignedSRTokenLen;
-      if(crypto_sign_open(unsignedSRToken, &unsignedSRTokenLen, signedSRToken, srToken.size(), ownerSignPK) == 0)
-      {
-        unsignedSRToken[unsignedSRTokenLen] = '\0';
-        // and that known owner was actually the one who sealed the token 
-        // we stored the vat signed sturdy ref as base64
-        kj::StringPtr unsignedSRTokenPtr((const char*)unsignedSRToken, unsignedSRTokenLen);
-        KJ_IF_MAYBE(ownerAndCap, _issuedSRTokens.find(unsignedSRTokenPtr)) 
-        {
-          if(kj::get<0>(*ownerAndCap) == ownerGuid) return kj::get<1>(*ownerAndCap);
-        }
-      }
-    }
-    // if we don't know about that owner or the owner was not the one who sealed the token
-    return nullptr;
-  }
-    
-  // if there is no owner
-  KJ_IF_MAYBE(ownerAndCap, _issuedSRTokens.find(srToken)) 
-  {
-    return kj::get<1>(*ownerAndCap);
-  }
-}
-
-kj::String Restorer::sturdyRefStr(kj::StringPtr srToken) const {
-  //KJ_DBG("signPKArray as hex:", kj::encodeHex(_signPKArray));
-  auto srTokenBase64 = kj::encodeBase64Url(srToken.asBytes());
-  auto vatIdBase64 = kj::encodeBase64Url(_signPKArray);
-  return kj::str("capnp://", vatIdBase64, "@", _host, ":", _port, srTokenBase64.size() > 0 ? "/" : "", srTokenBase64);
-}
-
-void Restorer::sturdyRef(mas::schema::persistence::SturdyRef::Builder& srb, kj::StringPtr srToken) const {
-  auto trb = srb.initTransient();
-  auto vpb = trb.initVat();
-  setVatId(vpb.initId());
-  auto ab = vpb.initAddress();
-  ab.setHost(_host);
-  ab.setPort(_port);
-  trb.initLocalRef().setAs<capnp::Text>(srToken);
-}
-
-kj::Tuple<bool, kj::String> Restorer::verifySRToken(kj::StringPtr srTokenBase64, kj::StringPtr vatIdBase64)
-{
-  auto vatIdPKArray = kj::decodeBase64(vatIdBase64.asArray());
-  unsigned char* vatIdPK = (unsigned char*)malloc(vatIdPKArray.size() * sizeof(unsigned char));
-  KJ_DEFER(free(vatIdPK));
-  fromKJArray<kj::byte>(vatIdPKArray, vatIdPK);
-
-  unsigned char* unsignedSRToken = (unsigned char*)malloc(srTokenBase64.size() * sizeof(unsigned char));
-  KJ_DEFER(free(unsignedSRToken));
-  unsigned long long unsignedSRTokenLen;
-  
-  auto srTokenArray = kj::decodeBase64(srTokenBase64.asArray());
-  unsigned char* srToken = (unsigned char*)malloc(srTokenArray.size() * sizeof(unsigned char));
-  KJ_DEFER(free(srToken));
-  fromKJArray<kj::byte>(srTokenArray, srToken);
-  return crypto_sign_open(unsignedSRToken, &unsignedSRTokenLen, srToken, srTokenArray.size(), vatIdPK) == 0
-    ? kj::tuple(true, kj::str((const char*)unsignedSRToken))
-    : kj::tuple(false, kj::str());
-}
-
-kj::String Restorer::signSRTokenByVatAndEncodeBase64(kj::StringPtr srToken)
-{
-  unsigned char* signSK = (unsigned char*)malloc(_signSKArray.size() * sizeof(unsigned char));
-  KJ_DEFER(free(signSK));
-  fromKJArray<kj::byte>(_signSKArray, signSK);
-
-  unsigned long long signedSRTokenLen = srToken.size() + crypto_sign_BYTES;
-  unsigned char* signedSRToken = (unsigned char*)malloc(signedSRTokenLen * sizeof(unsigned char));
-  KJ_DEFER(free(signedSRToken));
-  
-  crypto_sign(signedSRToken, &signedSRTokenLen, (unsigned char*)srToken.cStr(), srToken.size(), signSK);
-  //KJ_DBG("signedSRToken as hex:", kj::encodeHex(toKJArray(signedSRToken, signedSRTokenLen)));
-  return kj::encodeBase64Url(toKJArray(signedSRToken, signedSRTokenLen));
-}
-
-void Restorer::save(capnp::Capability::Client cap, 
-  mas::schema::persistence::SturdyRef::Builder sturdyRefBuilder,
-  mas::schema::persistence::SturdyRef::Builder unsaveSRBuilder,
-  kj::StringPtr fixedSRToken, kj::StringPtr sealForOwner, bool createUnsave) 
-{
-  auto srToken = fixedSRToken == nullptr ? kj::str(sole::uuid4().str()) : kj::str(fixedSRToken);
-  _issuedSRTokens.insert(kj::str(srToken), kj::tuple(kj::heapString(sealForOwner), kj::mv(cap)));
-  if(createUnsave)
-  {
-    auto unsaveSRToken = kj::str(sole::uuid4().str());
-    auto srt = kj::str(srToken);
-    auto usrt = kj::str(unsaveSRToken);
-    auto unsaveAction = kj::heap<Action>([this, KJ_MVCAP(srt), KJ_MVCAP(usrt)]() { 
-      unsave(srt); unsave(usrt);
-    }); 
-    _issuedSRTokens.insert(kj::mv(unsaveSRToken), kj::tuple(kj::heapString(sealForOwner), kj::mv(unsaveAction)));
-    sturdyRef(unsaveSRBuilder, unsaveSRToken);
-  }
-
-  sturdyRef(sturdyRefBuilder, srToken);
-}
-
-kj::Tuple<kj::String, kj::String> Restorer::saveStr(capnp::Capability::Client cap, 
-  kj::StringPtr fixedSRToken, kj::StringPtr sealForOwner, bool createUnsave) {
-    
-  auto srToken = fixedSRToken == nullptr ? kj::str(sole::uuid4().str()) : kj::str(fixedSRToken);
-  //auto vatSignedBase64SRToken = signSRTokenByVatAndEncodeBase64(srToken.asPtr());
-  _issuedSRTokens.insert(kj::str(srToken), kj::tuple(kj::heapString(sealForOwner), kj::mv(cap)));
-  kj::String unsaveSRStr;
-  if(createUnsave)
-  {
-    auto unsaveSRToken = kj::str(sole::uuid4().str());
-    //auto vatSignedBase64UnsaveSRToken = signSRTokenByVatAndEncodeBase64(unsaveSRToken.asPtr());
-    auto srt = str(srToken);
-    auto usrt = str(unsaveSRToken);
-    auto unsaveAction = kj::heap<Action>([this, KJ_MVCAP(srt), KJ_MVCAP(usrt)]() { 
-      unsave(srt); unsave(usrt);
-    }); 
-    _issuedSRTokens.insert(kj::mv(unsaveSRToken), kj::tuple(kj::heapString(sealForOwner), kj::mv(unsaveAction)));
-    //unsaveSRStr = sturdyRefStr(vatSignedBase64UnsaveSRToken);
-    unsaveSRStr = sturdyRefStr(unsaveSRToken);
-  }
-
-  //return kj::tuple(sturdyRefStr(vatSignedBase64SRToken), kj::mv(unsaveSRStr));
-  return kj::tuple(sturdyRefStr(srToken), kj::mv(unsaveSRStr));
-}
-
-void Restorer::unsave(kj::StringPtr srToken) 
-{
-  _issuedSRTokens.erase(srToken);
-}
-
-void Restorer::setOwnerSignPublicKey(kj::StringPtr ownerGuid, kj::ArrayPtr<unsigned char> ownerSignPublicKey)
-{
-  _ownerGuidToSignPK.insert(kj::heapString(ownerGuid), kj::heapArray(ownerSignPublicKey));
-}
-
-void Restorer::setVatId(mas::schema::persistence::VatId::Builder vidb) const
-{
-  vidb.setPublicKey0(_vatId[0]);
-  vidb.setPublicKey1(_vatId[1]);
-  vidb.setPublicKey2(_vatId[2]);
-  vidb.setPublicKey3(_vatId[3]);
-}
-
-//-----------------------------------------------------------------------------
-
-Identifiable::Identifiable(std::string id, std::string name, std::string description)
-  : _id(id), _name(name), _description(description) {
-    if(_id.empty()) _id = sole::uuid4().str();
-    if(_name.empty()) _name = _id;
-  }
 
 kj::Promise<void> Identifiable::info(InfoContext context) {
   auto rs = context.getResults();
@@ -319,16 +61,15 @@ kj::Promise<void> Identifiable::info(InfoContext context) {
 
 //-----------------------------------------------------------------------------
 
-CallbackImpl::CallbackImpl(std::function<void()> callback, 
+CallbackImpl::CallbackImpl(kj::Function<void()> callback, 
                            bool execCallbackOnDel,
-                           std::string id)
+                           kj::StringPtr id)
   : callback(kj::mv(callback))
   , execCallbackOnDel(execCallbackOnDel)
-  , id(id) {}
+  , id(kj::str(id)) {}
 
 CallbackImpl::~CallbackImpl() noexcept(false) {
-  if (execCallbackOnDel && !alreadyCalled)
-    callback();
+  if (execCallbackOnDel && !alreadyCalled) callback();
 }
 
 kj::Promise<void> CallbackImpl::call(CallContext context) {
@@ -360,13 +101,13 @@ kj::Promise<void> Action::do_(DoContext context) {
 //-----------------------------------------------------------------------------
 
 CapHolderImpl::CapHolderImpl(capnp::Capability::Client cap,
-                             kj::String sturdyRef,
+                             kj::StringPtr sturdyRef,
                              bool releaseOnDel,
-                             std::string id)
+                             kj::StringPtr id)
   : _cap(cap)
-  , sturdyRef(kj::mv(sturdyRef))
+  , sturdyRef(kj::str(sturdyRef))
   , releaseOnDel(releaseOnDel)
-  , id(id) {}
+  , id(kj::str(id)) {}
 
 CapHolderImpl::~CapHolderImpl() noexcept(false) {
   if (releaseOnDel && !alreadyReleased) {
@@ -400,13 +141,13 @@ kj::Promise<void> CapHolderImpl::release(ReleaseContext context) {
 //-----------------------------------------------------------------------------
 
 CapHolderListImpl::CapHolderListImpl(kj::Vector<capnp::Capability::Client>&& caps,
-                                     kj::String sturdyRef,
+                                     kj::StringPtr sturdyRef,
                                      bool releaseOnDel,
-                                     std::string id)
-  : caps(kj::mv(caps))
-  , sturdyRef(kj::mv(sturdyRef))
-  , releaseOnDel(releaseOnDel)
-  , id(id) {}
+                                     kj::StringPtr id)
+: caps(kj::mv(caps))
+, sturdyRef(kj::str(sturdyRef))
+, releaseOnDel(releaseOnDel)
+, id(kj::str(id)) {}
 
 CapHolderListImpl::~CapHolderListImpl() noexcept(false) {
   if (releaseOnDel && !alreadyReleased) {
@@ -432,11 +173,14 @@ kj::Promise<void> CapHolderListImpl::cap(CapContext context) {
 
 kj::Promise<void> CapHolderListImpl::release(ReleaseContext context) {
   if (!alreadyReleased) {
+    auto promises = kj::heapArrayBuilder<kj::Promise<void>>(caps.size());
+    int i = 0;
     for (auto cap : caps) {
       auto c = cap.castAs<mas::schema::common::CapHolder<capnp::AnyPointer>>();
-      c.releaseRequest().send().ignoreResult();
+      promises.add(c.releaseRequest().send().ignoreResult());
     }
     alreadyReleased = true;
+    return kj::joinPromises(promises.finish());
   }
   return kj::READY_NOW;
 }

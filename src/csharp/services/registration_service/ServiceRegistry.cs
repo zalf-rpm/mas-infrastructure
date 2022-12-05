@@ -27,34 +27,26 @@ namespace Mas.Infrastructure.ServiceRegistry
         public string Name { get; set; }
         public string Description { get; set; }
 
-        private ConcurrentDictionary<string, C.IdInformation> _CatId2SupportedCategories;
+        private Mas.Schema.Storage.Store.IContainer _categoriesStorage = null;
+
+        public async Task SetCategoriesStorage(Mas.Schema.Storage.Store.IContainer storage)
+        {
+            _categoriesStorage = storage;
+            var objs = await storage.ListObjects();
+            Categories = objs.Select(o => (C.IdInformation)o.Value.AnyValue).ToArray();
+        }
+
+        private ConcurrentDictionary<string, C.IdInformation> _catId2SupportedCategories;
         public C.IdInformation[] Categories
         {
-            get { return _CatId2SupportedCategories.Values.ToArray(); }
+            get { return _catId2SupportedCategories.Values.ToArray(); }
             set {
                 foreach (var cat in value)
                 {
-                    try { _CatId2SupportedCategories[cat.Id] = cat; } catch (System.Exception) { }
+                    try { _catId2SupportedCategories[cat.Id] = cat; } catch (System.Exception) { }
                 }
             }
         }
-
-        private string _categoriesFilePath = "categories.json";
-        public string CategoriesFilePath { 
-            get { return _categoriesFilePath; }
-            set {
-                _categoriesFilePath = value;
-                Categories = DeserializeCats(System.IO.File.ReadAllText(_categoriesFilePath));
-            } 
-        } 
-
-        static public C.IdInformation[] DeserializeCats(string catsJsonStr)
-        {
-            return JsonSerializer.Deserialize<C.IdInformation[]>(
-                catsJsonStr, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-            );
-        }
-
 
         public struct RegData
         {
@@ -72,7 +64,7 @@ namespace Mas.Infrastructure.ServiceRegistry
 
         public ServiceRegistry()
         {
-            _CatId2SupportedCategories = new ConcurrentDictionary<string, C.IdInformation>();
+            _catId2SupportedCategories = new ConcurrentDictionary<string, C.IdInformation>();
             _regId2Entry = new ConcurrentDictionary<string, RegData>();//Tuple<string, Registry.Entry, Common.Unregister>>();
             _savePolicy = new InterceptPersistentPolicy(this);
         }
@@ -100,7 +92,7 @@ namespace Mas.Infrastructure.ServiceRegistry
         #region implementation of Mas.R.IRegistry
         public Task<C.IdInformation> CategoryInfo(string categoryId, CancellationToken cancellationToken_ = default)
         {
-            return Task.FromResult(_CatId2SupportedCategories.GetValueOrDefault(categoryId));
+            return Task.FromResult(_catId2SupportedCategories.GetValueOrDefault(categoryId));
         }
 
         public Task<IReadOnlyList<R.Registry.Entry>> Entries(string categoryId, CancellationToken cancellationToken_ = default)
@@ -128,57 +120,58 @@ namespace Mas.Infrastructure.ServiceRegistry
 
         public Task<IReadOnlyList<C.IdInformation>> SupportedCategories(CancellationToken cancellationToken_ = default)
         {
-            return Task.FromResult<IReadOnlyList<C.IdInformation>>(_CatId2SupportedCategories.Values.ToList());
+            return Task.FromResult<IReadOnlyList<C.IdInformation>>(_catId2SupportedCategories.Values.ToList());
         }
         #endregion
 
 
-        public class Admin : R.IAdmin
-        {
+        public class Admin : R.IAdmin {
             private ServiceRegistry _registry;
 
-            public Admin(ServiceRegistry registry)
-            {
+            public Admin(ServiceRegistry registry) {
                 _registry = registry;
             }
 
             public void Dispose() { }
 
             #region implementation of Mas.C.IIdentifiable
-            public Task<C.IdInformation> Info(CancellationToken cancellationToken_ = default)
-            {
+            public Task<C.IdInformation> Info(CancellationToken cancellationToken_ = default) {
                 return Task.FromResult(new C.IdInformation()
                 { Id = "Admin_"+_registry.Id, Name = "Admin of " + _registry.Name, Description = "Admin description of " + _registry.Description });
             }
             #endregion
 
             #region implementation of Mas.Schema.Registry.IAdmin
-            public Task<bool> AddCategory(C.IdInformation category, bool upsert, CancellationToken cancellationToken_ = default)
-            {
-                if (!_registry._CatId2SupportedCategories.ContainsKey(category.Id) || upsert)
-                {
-                    _registry._CatId2SupportedCategories[category.Id] = category;
-                    return Task.FromResult(true);
+            public async Task<bool> AddCategory(C.IdInformation category, bool upsert, 
+                CancellationToken cancellationToken_ = default) {
+                if (!_registry._catId2SupportedCategories.ContainsKey(category.Id) || upsert) {
+                    _registry._catId2SupportedCategories[category.Id] = category;
+
+                    // save new category to storage
+                    if (_registry._categoriesStorage != null) {
+                        await _registry._categoriesStorage.AddObject(new S.Storage.Store.Container.Object {
+                            Key = category.Id, Value = new S.Storage.Store.Container.Object.value {
+                                AnyValue=category
+                            }
+                        });
+                    }
+                    return true;
                 }
-                return Task.FromResult(false);
+                return false;
             }
             
-            public Task<IReadOnlyList<string>> MoveObjects(IReadOnlyList<string> objectIds, string toCatId, CancellationToken cancellationToken_ = default)
-            {
+            public Task<IReadOnlyList<string>> MoveObjects(IReadOnlyList<string> objectIds, string toCatId, 
+                CancellationToken cancellationToken_ = default) {
                 // check that the move to category actually exists, else treat it as none existing
-                if (!_registry._CatId2SupportedCategories.ContainsKey(toCatId))
-                    toCatId = null;
+                if (!_registry._catId2SupportedCategories.ContainsKey(toCatId)) toCatId = null;
 
                 // if there is no category to move to, do rather nothing
                 // another option would be to remove the objects, but this is what removeObjects is for
-                if (toCatId == null)
-                    return Task.FromResult<IReadOnlyList<string>>(new List<string>());
+                if (toCatId == null) return Task.FromResult<IReadOnlyList<string>>(new List<string>());
 
                 var moved = new List<string>();
-                foreach(var oid in objectIds)
-                {
-                    try
-                    {
+                foreach(var oid in objectIds) {
+                    try {
                         _registry._regId2Entry[oid].Entry.CategoryId = toCatId;
                         moved.Add(oid);
                     }
@@ -187,62 +180,58 @@ namespace Mas.Infrastructure.ServiceRegistry
                 return Task.FromResult<IReadOnlyList<string>>(moved);
             }
 
-            public Task<R.IRegistry> Registry(CancellationToken cancellationToken_ = default)
-            {
+            public Task<R.IRegistry> Registry(CancellationToken cancellationToken_ = default) {
                 return Task.FromResult<R.IRegistry>(_registry);
             }
 
-            public Task<IReadOnlyList<C.IIdentifiable>> RemoveCategory(string categoryId, string moveObjectsToCategoryId, CancellationToken cancellationToken_ = default)
-            {
+            public async Task<IReadOnlyList<C.IIdentifiable>> RemoveCategory(string categoryId, string moveObjectsToCategoryId, 
+                CancellationToken cancellationToken_ = default) {
                 var removed = new List<C.IIdentifiable>();
                 // no category means nothing to remove
-                if (categoryId == null)
-                    return Task.FromResult<IReadOnlyList<C.IIdentifiable>>(removed);
+                if (categoryId == null) return removed;
 
                 // check that the move to category actually exists, else treat it as none existing
-                if (moveObjectsToCategoryId != null && !_registry._CatId2SupportedCategories.ContainsKey(moveObjectsToCategoryId))
+                if (moveObjectsToCategoryId != null && !_registry._catId2SupportedCategories.ContainsKey(moveObjectsToCategoryId)) {
                     moveObjectsToCategoryId = null;
+                }
 
                 // move objects from old to new category
                 // but remember objects to be removed, to remove them outside of the iterator
                 var removedIds = new List<string>();
                 foreach(var oid2entry in from p in _registry._regId2Entry 
                                      where p.Value.Entry.CategoryId == categoryId 
-                                     select p)
-                {
-                    if (moveObjectsToCategoryId == null)
-                    {
+                                     select p) {
+                    if (moveObjectsToCategoryId == null) {
                         removed.Add(Capnp.Rpc.Proxy.Share(oid2entry.Value.Entry.Ref));
                         removedIds.Add(oid2entry.Key);
-                    }
-                    else
+                    } else {
                         oid2entry.Value.Entry.CategoryId = moveObjectsToCategoryId;
+                    }
                 }
 
                 // remove remembered objects from registry
-                foreach (var oid in removedIds)
-                    _registry._regId2Entry.Remove(oid, out RegData removedValue);
+                foreach (var oid in removedIds) _registry._regId2Entry.Remove(oid, out RegData removedValue);
 
                 // finally remove the category
-                _registry._CatId2SupportedCategories.TryRemove(categoryId, out _);
+                _registry._catId2SupportedCategories.TryRemove(categoryId, out _);
 
-                return Task.FromResult<IReadOnlyList<C.IIdentifiable>>(removed);
+                // remove category from storage
+                await _registry._categoriesStorage.RemoveObject(categoryId);
+
+                return removed;
             }
 
-            public async Task<IReadOnlyList<C.IIdentifiable>> RemoveObjects(IReadOnlyList<string> objectIds, CancellationToken cancellationToken_ = default)
-            {
+            public async Task<IReadOnlyList<C.IIdentifiable>> RemoveObjects(IReadOnlyList<string> objectIds, CancellationToken cancellationToken_ = default) {
                 var removed = new List<C.IIdentifiable>();
-                foreach (var oid in objectIds)
-                {
-                    try
-                    {
+                foreach (var oid in objectIds) {
+                    try {
                         var entry = _registry._regId2Entry[oid];
                         var obj = entry.Entry.Ref;
                         await _registry._regId2Entry[oid].Unreg.Do(cancellationToken_);
-                        if (!_registry._regId2Entry.ContainsKey(oid))
+                        if (!_registry._regId2Entry.ContainsKey(oid)) {
                             removed.Add(Capnp.Rpc.Proxy.Share(entry.Entry.Ref));
-                    }
-                    catch (KeyNotFoundException) { }
+                        }
+                    } catch (KeyNotFoundException) { }
                 }
                 return removed;
             }
@@ -281,7 +270,7 @@ namespace Mas.Infrastructure.ServiceRegistry
                     return Task.FromResult<(C.IAction, P.SturdyRef)>((null, null));
 
                 // if category exists
-                if (_registry._CatId2SupportedCategories.ContainsKey(ps.CategoryId))
+                if (_registry._catId2SupportedCategories.ContainsKey(ps.CategoryId))
                 {
                     try
                     {
@@ -361,15 +350,15 @@ namespace Mas.Infrastructure.ServiceRegistry
         {
             private ulong PersistentInterfaceId;
             private ulong SaveMethodId = 0;
-            private ulong RestorerInterfaceId;
-            private ulong RestoreMethodId = 0;
+            //private ulong RestorerInterfaceId;
+            //private ulong RestoreMethodId = 0;
             private ServiceRegistry _registry;
 
             public InterceptPersistentPolicy(ServiceRegistry registry)
             {
                 _registry = registry;
                 PersistentInterfaceId = typeof(P.IPersistent).GetCustomAttribute<Capnp.TypeIdAttribute>(false)?.Id ?? 0;
-                RestorerInterfaceId = typeof(P.IRestorer).GetCustomAttribute<Capnp.TypeIdAttribute>(false)?.Id ?? 0;
+                //RestorerInterfaceId = typeof(P.IRestorer).GetCustomAttribute<Capnp.TypeIdAttribute>(false)?.Id ?? 0;
             }
 
             public bool Equals([AllowNull] IInterceptionPolicy other)
@@ -377,7 +366,7 @@ namespace Mas.Infrastructure.ServiceRegistry
                 return this.Equals(other);
             }
 
-            public async void OnCallFromAlice(CallContext callContext)
+            public void OnCallFromAlice(CallContext callContext)
             {
                 callContext.ForwardToBob();
             }
