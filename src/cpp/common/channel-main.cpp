@@ -9,6 +9,7 @@ Michael Berg <michael.berg@zalf.de>
 Maintainers:
 Currently maintained by the authors.
 
+This file is part of the ZALF model and simulation infrastructure.
 Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 */
 
@@ -40,9 +41,9 @@ public:
   , context(context)
   , ioContext(kj::setupAsyncIo()) {}
 
-  kj::MainBuilder::Validity setName(kj::StringPtr n) { name = n; return true; }
+  kj::MainBuilder::Validity setName(kj::StringPtr n) { name = kj::str(n); return true; }
 
-  kj::MainBuilder::Validity setHost(kj::StringPtr name) { host = name; return true; }
+  kj::MainBuilder::Validity setHost(kj::StringPtr name) { host = kj::str(name); return true; }
 
   kj::MainBuilder::Validity setLocalHost(kj::StringPtr h) { localHost = kj::str(h); return true; }
 
@@ -54,20 +55,20 @@ public:
 
   kj::MainBuilder::Validity setBufferSize(kj::StringPtr name) { bufferSize = std::max(1, std::stoi(name.cStr())); return true; }
 
-  kj::MainBuilder::Validity setReaderSrts(kj::StringPtr name)
-  {
-    for(const auto& s : Tools::splitString(name.cStr(), ",")) readerSrts.add(kj::str(s.c_str()));
+  kj::MainBuilder::Validity setReaderSrts(kj::StringPtr name) {
+    for(const auto& s : splitString(name, ",")){
+      KJ_LOG(INFO, s);
+      readerSrts.add(kj::str(s));
+    }
     return true;
   }
 
-  kj::MainBuilder::Validity setWriterSrts(kj::StringPtr name)
-  {
-    for(const auto& s : Tools::splitString(name.cStr(), ",")) writerSrts.add(kj::str(s.c_str()));
+  kj::MainBuilder::Validity setWriterSrts(kj::StringPtr name) {
+    for(const auto& s : splitString(name, ",")) readerSrts.add(kj::str(s));
     return true;
   }
 
-  kj::MainBuilder::Validity startChannel()
-  {
+  kj::MainBuilder::Validity startChannel() {
     if(readerSrts.size() == 0) readerSrts.add(kj::str(sole::uuid4().str()));
     if(writerSrts.size() == 0) writerSrts.add(kj::str(sole::uuid4().str()));
 
@@ -94,6 +95,7 @@ public:
     KJ_LOG(INFO, channelSR);
 
     for(const auto& srt : readerSrts){ 
+      KJ_LOG(INFO, srt);
       auto reader = channelClient.readerRequest().send().wait(ioContext.waitScope).getR();
       auto readerSR = kj::get<0>(restorerRef.saveStr(reader, srt.asPtr(), nullptr, false));  
       KJ_LOG(INFO, readerSR);
@@ -138,8 +140,8 @@ public:
 private:
   kj::Own<Restorer> restorer;
   kj::Own<ConnectionManager> conMan;
-  kj::StringPtr name;
-  kj::StringPtr host{kj::str("*")};
+  kj::String name;
+  kj::String host{kj::str("*")};
   kj::String localHost{kj::str("localhost")};
   int port{0};
   int checkPort{0};

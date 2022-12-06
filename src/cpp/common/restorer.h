@@ -15,16 +15,11 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 #pragma once
 
-#include <kj/debug.h>
-#include <kj/common.h>
-#include <kj/string.h>
-#include <kj/vector.h>
-#include <kj/map.h>
-#include <kj/tuple.h>
 #include <kj/array.h>
+#include <kj/function.h>
+#include <kj/string.h>
+#include <kj/tuple.h>
 
-#include <capnp/rpc-twoparty.h>
-#include <kj/thread.h>
 
 //#include "model.capnp.h"
 #include "common.capnp.h"
@@ -53,6 +48,8 @@ class Restorer final : public mas::schema::persistence::Restorer::Server
   mas::schema::storage::Store::Container::Client getStore();
   void setStore(mas::schema::storage::Store::Container::Client s);
 
+  void setRestoreCallback(kj::Function<capnp::Capability::Client(kj::StringPtr restoreToken)> callback);
+
   kj::String sturdyRefStr(kj::StringPtr srToken = nullptr) const;
 
   void sturdyRef(mas::schema::persistence::SturdyRef::Builder& srb, kj::StringPtr srToken) const;
@@ -61,11 +58,13 @@ class Restorer final : public mas::schema::persistence::Restorer::Server
     mas::schema::persistence::SturdyRef::Builder sturdyRefBuilder,
     mas::schema::persistence::SturdyRef::Builder unsaveSRBuilder = nullptr,
     kj::StringPtr fixedSRToken = nullptr, 
-    kj::StringPtr sealForOwner = nullptr, bool createUnsave = true);
+    kj::StringPtr sealForOwner = nullptr, bool createUnsave = true,
+    kj::StringPtr restoreToken = nullptr);
 
   kj::Tuple<kj::String, kj::String> saveStr(capnp::Capability::Client cap, 
     kj::StringPtr fixedSRToken = nullptr,
-    kj::StringPtr sealForOwner = nullptr, bool createUnsave = true);
+    kj::StringPtr sealForOwner = nullptr, bool createUnsave = true,
+    kj::StringPtr restoreToken = nullptr);
 
   void unsave(kj::StringPtr srToken);
 

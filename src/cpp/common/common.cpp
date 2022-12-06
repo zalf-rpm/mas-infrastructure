@@ -9,7 +9,7 @@ Michael Berg <michael.berg@zalf.de>
 Maintainers:
 Currently maintained by the authors.
 
-This file is part of the MONICA model.
+This file is part of the ZALF model and simulation infrastructure.
 Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 */
 
@@ -261,7 +261,20 @@ mas::infrastructure::common::copyAndSetIPAttrs(mas::schema::common::IP::Reader o
   return nullptr;
 }
 
+//-----------------------------------------------------------------------------
 
-
+kj::Vector<kj::String> mas::infrastructure::common::splitString(kj::StringPtr s, kj::StringPtr splitElements) {
+  kj::Vector<kj::String> result;
+  while(s.size() > 0) {
+    int minPos = s.size();
+    for(auto c : splitElements) {
+      KJ_IF_MAYBE(pos, s.findFirst(c)) minPos = kj::min(minPos, *pos);
+    }
+    result.add(kj::str(s.slice(0, minPos)));
+    s = s.slice(minPos + (minPos == s.size() ? 0 : 1));
+    KJ_LOG(INFO, s, minPos);
+  }
+	return kj::mv(result);
+}
 
 

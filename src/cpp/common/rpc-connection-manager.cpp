@@ -9,7 +9,7 @@ Michael Berg <michael.berg@zalf.de>
 Maintainers:
 Currently maintained by the authors.
 
-This file is part of the MONICA model.
+This file is part of the ZALF model and simulation infrastructure.
 Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 */
 
@@ -36,30 +36,23 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #define SOCKLEN_T socklen_t
 #endif
 
+#include <kj/async-io.h>
+#include <kj/debug.h>
+#include <kj/encoding.h>
+#include <kj/map.h>
+#include <kj/timer.h>
 #define KJ_MVCAP(var) var = kj::mv(var)
 
 #include <capnp/ez-rpc.h>
 #include <capnp/message.h>
 #include <capnp/rpc-twoparty.h>
 
-#include <kj/async-io.h>
-#include <kj/debug.h>
-#include <kj/encoding.h>
-#include <kj/map.h>
-//#include <kj/thread.h>
-#include <kj/timer.h>
-
 #include "common.capnp.h"
 #include "persistence.capnp.h"
 
-//#include "common/sole.hpp"
 #include "common.h"
 #include "restorer.h"
 
-using namespace std;
-using namespace mas;
-using namespace mas::schema::persistence;
-using namespace capnp;
 using namespace mas::infrastructure::common;
 
 //-----------------------------------------------------------------------------
@@ -120,7 +113,7 @@ struct ConnectionManager::Impl {
     kj::NullDisposer disposer;
 
     Impl(Restorer *restorer)
-        : tasks(eh) {
+    : tasks(eh) {
 
         if (restorer) this->restorer = kj::Own<Restorer>(restorer, disposer);
         else this->restorer = kj::heap<Restorer>();
@@ -152,10 +145,13 @@ struct ConnectionManager::Impl {
     }
 };
 
+//-----------------------------------------------------------------------------
 
 ConnectionManager::ConnectionManager(Restorer *restorer)
 : impl(kj::heap<Impl>(restorer)) {
 }
+
+ConnectionManager::~ConnectionManager() {}
 
 kj::Promise<capnp::Capability::Client> ConnectionManager::tryConnect(kj::AsyncIoContext &ioc, kj::StringPtr sturdyRefStr,
     int retryCount, int retrySecs, bool printRetryMsgs) {
@@ -215,7 +211,7 @@ kj::Promise<capnp::Capability::Client> ConnectionManager::connect(kj::AsyncIoCon
 
             if (!addressPort.size() == 0) {
                 KJ_IF_MAYBE (clientContext, impl->connections.find(addressPort)) {
-                    Capability::Client bootstrapCap = (*clientContext)->bootstrap;
+                    capnp::Capability::Client bootstrapCap = (*clientContext)->bootstrap;
 
                     // no token, just return the bootstrap capability
                     if (srTokenBase64.size() > 0) {
@@ -240,7 +236,7 @@ kj::Promise<capnp::Capability::Client> ConnectionManager::connect(kj::AsyncIoCon
                         [readerOpts, this, KJ_MVCAP(addressPort), KJ_MVCAP(srTokenBase64)]
                         (kj::Own<kj::AsyncIoStream> &&stream) {
                             auto cc = kj::heap<ClientContext>(kj::mv(stream), readerOpts);
-                            Capability::Client bootstrapCap = cc->getMain();
+                            capnp::Capability::Client bootstrapCap = cc->getMain();
                             cc->bootstrap = bootstrapCap;
                             impl->connections.insert(kj::str(addressPort), kj::mv(cc));
 
@@ -257,7 +253,7 @@ kj::Promise<capnp::Capability::Client> ConnectionManager::connect(kj::AsyncIoCon
                                     return res.getCap(); 
                                 });
                             }
-                            return kj::Promise<Capability::Client>(bootstrapCap); 
+                            return kj::Promise<capnp::Capability::Client>(bootstrapCap); 
                         }
                     );
                 }

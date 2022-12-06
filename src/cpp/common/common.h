@@ -142,6 +142,10 @@ kj::Maybe<capnp::AnyPointer::Builder>
 copyAndSetIPAttrs(schema::common::IP::Reader oldIp, schema::common::IP::Builder newIp, 
   kj::StringPtr newAttrName = nullptr);//, kj::Maybe<capnp::AnyPointer::Reader> newValue = nullptr);
 
+//-----------------------------------------------------------------------
+
+kj::Vector<kj::String> splitString(kj::StringPtr s, kj::StringPtr splitElements);
+
 } // namespace common
 } // namespace infrastructure
 } // namespace mas

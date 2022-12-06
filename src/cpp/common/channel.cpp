@@ -9,6 +9,7 @@ Michael Berg <michael.berg@zalf.de>
 Maintainers:
 Currently maintained by the authors.
 
+This file is part of the ZALF model and simulation infrastructure.
 Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 */
 

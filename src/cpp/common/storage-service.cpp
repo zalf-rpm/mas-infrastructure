@@ -9,6 +9,7 @@ Michael Berg <michael.berg@zalf.de>
 Maintainers:
 Currently maintained by the authors.
 
+This file is part of the ZALF model and simulation infrastructure.
 Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 */
 
@@ -43,6 +44,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <capnp/serialize-packed.h>
 
 #include "common.h"
+#include "restorer.h"
 #include "common/sole.hpp"
 #include "sqlite/sqlite3.h"
 
@@ -63,15 +65,20 @@ struct SqliteStorageService::Impl {
   sqlite3* db{nullptr};
   bool isConnected{false};
   kj::HashMap<kj::String, kj::Tuple<ContainerClient, Container*>> containers;
+  mas::schema::storage::Store::Client client{nullptr};
+  mas::schema::common::Action::Client unregisterAction{nullptr};
 
   Impl(SqliteStorageService& self, mas::infrastructure::common::Restorer* restorer, kj::StringPtr filename, 
     kj::StringPtr name, kj::StringPtr description)
-    : self(self)
-    , restorer(restorer)
-    , name(kj::str(name))
-    , filename(kj::str(filename)) {
+  : self(self)
+  , restorer(restorer)
+  , name(kj::str(name))
+  , filename(kj::str(filename)) {
     KJ_REQUIRE(restorer, "restorer must not be null");
     init();
+    restorer->setRestoreCallback([this](kj::StringPtr containerId){
+      return loadContainer(containerId);
+    });
   }
 
   ~Impl() noexcept(false)  {}
@@ -209,14 +216,16 @@ struct Container::Impl {
   kj::String id;
   kj::String name{kj::str("Container")};
   kj::String description;
+  mas::schema::storage::Store::Container::Client client{nullptr};
 
   Impl(mas::infrastructure::common::Restorer *restorer, sqlite3 *db, 
     kj::StringPtr id, kj::StringPtr name, kj::StringPtr description)
-    : restorer(restorer)
-    , db(db)
-    , id(kj::str(id))
-    , name(kj::str(name))
-    , description(kj::str(description)) {
+  : restorer(restorer)
+  , db(db)
+  , id(kj::str(id))
+  , name(kj::str(name))
+  , description(kj::str(description)) {
+    
   }
 
   ~Impl() noexcept(false)  {}
@@ -452,7 +461,7 @@ kj::Promise<void> SqliteStorageService::info(InfoContext context) {
 kj::Promise<void> SqliteStorageService::save(SaveContext context) {
   KJ_LOG(INFO, "save message received");
   if(impl->restorer) {
-    impl->restorer->save(client, context.getResults().initSturdyRef(), context.getResults().initUnsaveSR());
+    impl->restorer->save(impl->client, context.getResults().initSturdyRef(), context.getResults().initUnsaveSR());
   }
   return kj::READY_NOW;
 }
@@ -513,6 +522,12 @@ kj::Promise<void> SqliteStorageService::importContainer(ImportContainerContext c
   return kj::READY_NOW;
 }
 
+mas::schema::storage::Store::Client SqliteStorageService::getClient() { return impl->client; }
+void SqliteStorageService::setClient(mas::schema::storage::Store::Client c) { impl->client = c; }
+
+mas::schema::common::Action::Client SqliteStorageService::getUnregisterAction() { return impl->unregisterAction; }
+void SqliteStorageService::setUnregisterAction(mas::schema::common::Action::Client unreg) { impl->unregisterAction = unreg; }
+
 // ----------------------------------------------------------------------
 
 Container::Container(SqliteStorageService& store, kj::StringPtr id, kj::StringPtr name, kj::StringPtr description)
@@ -534,7 +549,8 @@ kj::Promise<void> Container::info(InfoContext context) {
 kj::Promise<void> Container::save(SaveContext context) {
   KJ_LOG(INFO, "save message received");
   if(impl->restorer) {
-    impl->restorer->save(client, context.getResults().initSturdyRef(), context.getResults().initUnsaveSR());
+    impl->restorer->save(impl->client, context.getResults().initSturdyRef(), context.getResults().initUnsaveSR(),
+      nullptr, nullptr, true, impl->id);
   }
   return kj::READY_NOW;
 }
@@ -593,3 +609,7 @@ kj::Promise<void> Container::clear(ClearContext context) {
   context.getResults().setSuccess(impl->clearContainer());
   return kj::READY_NOW;
 }
+
+
+mas::schema::storage::Store::Container::Client Container::getClient() { return impl->client; }
+void Container::setClient(mas::schema::storage::Store::Container::Client c) { impl->client = c; }

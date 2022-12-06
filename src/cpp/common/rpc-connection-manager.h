@@ -29,9 +29,11 @@ namespace common {
 
 class Restorer;
 
-class ConnectionManager {
+class ConnectionManager final {
 public:
 	ConnectionManager(Restorer* restorer = nullptr);
+
+	~ConnectionManager() noexcept(false);
 
 	kj::Promise<capnp::Capability::Client> tryConnect(kj::AsyncIoContext& ioc, kj::StringPtr sturdyRefStr, 
 		int retryCount = 10, int retrySecs = 5, bool printRetryMsgs = true);
@@ -47,9 +49,9 @@ public:
 private:
 	struct Impl;
 	kj::Own<Impl> impl;
-
-	//friend class Restorer;
 };
+
+//-----------------------------------------------------------------------------
 
 kj::Tuple<bool, kj::String> getLocalIP(kj::StringPtr connectToHost = "8.8.8.8", kj::uint connectToPort = 53);
 

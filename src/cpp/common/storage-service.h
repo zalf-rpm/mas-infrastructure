@@ -9,6 +9,7 @@ Michael Berg <michael.berg-mohnicke@zalf.de>
 Maintainers:
 Currently maintained by the authors.
 
+This file is part of the ZALF model and simulation infrastructure.
 Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 */
 
@@ -45,15 +46,13 @@ public:
 
   kj::Promise<void> importContainer(ImportContainerContext context) override;
 
-  mas::schema::storage::Store::Client getClient() { return client; }
-  void setClient(mas::schema::storage::Store::Client c) { client = c; }
+  mas::schema::storage::Store::Client getClient();
+  void setClient(mas::schema::storage::Store::Client c);
 
-  mas::schema::common::Action::Client getUnregisterAction() { return unregisterAction; }
-  void setUnregisterAction(mas::schema::common::Action::Client unreg) { unregisterAction = unreg; }
+  mas::schema::common::Action::Client getUnregisterAction();
+  void setUnregisterAction(mas::schema::common::Action::Client unreg);
 
 private:
-  mas::schema::storage::Store::Client client{nullptr};
-  mas::schema::common::Action::Client unregisterAction{nullptr};
   struct Impl;
   kj::Own<Impl> impl;
 
@@ -84,11 +83,10 @@ public:
 
   kj::Promise<void> clear(ClearContext context) override;
 
-  mas::schema::storage::Store::Container::Client getClient() { return client; }
-  void setClient(mas::schema::storage::Store::Container::Client c) { client = c; }
+  mas::schema::storage::Store::Container::Client getClient();
+  void setClient(mas::schema::storage::Store::Container::Client c);
 
 private:
-  mas::schema::storage::Store::Container::Client client{nullptr};
   struct Impl;
   kj::Own<Impl> impl;
 
