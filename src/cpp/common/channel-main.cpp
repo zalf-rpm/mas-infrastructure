@@ -88,17 +88,17 @@ public:
     KJ_LOG(INFO, "Channel::startChannel bound to", host, port);
 
     auto restorerSR = restorerRef.sturdyRefStr("");
-    auto channelSR = kj::get<0>(restorerRef.saveStr(channelClient));
+    auto channelSR = kj::get<0>(restorerRef.saveStr(channelClient, nullptr, nullptr, false).wait(ioContext.waitScope));
     KJ_LOG(INFO, channelSR);
 
     for(const auto& srt : readerSrts){ 
       auto reader = channelClient.readerRequest().send().wait(ioContext.waitScope).getR();
-      auto readerSR = kj::get<0>(restorerRef.saveStr(reader, srt.asPtr(), nullptr, false));  
+      auto readerSR = kj::get<0>(restorerRef.saveStr(reader, srt.asPtr(), nullptr, false).wait(ioContext.waitScope));  
       KJ_LOG(INFO, readerSR);
     }
     for(const auto& srt : writerSrts){
       auto writer = channelClient.writerRequest().send().wait(ioContext.waitScope).getW();
-      auto writerSR = kj::get<0>(restorerRef.saveStr(writer, srt.asPtr(), nullptr, false));
+      auto writerSR = kj::get<0>(restorerRef.saveStr(writer, srt.asPtr(), nullptr, false).wait(ioContext.waitScope));
       KJ_LOG(INFO, writerSR);
     }
 

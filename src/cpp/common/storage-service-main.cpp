@@ -106,7 +106,7 @@ public:
     KJ_LOG(INFO, "bound to", host, port);
 
     auto restorerSR = restorerRef.sturdyRefStr("");
-    auto serviceSR = kj::get<0>(restorerRef.saveStr(serviceClient));
+    auto serviceSR = kj::get<0>(restorerRef.saveStr(serviceClient).wait(ioContext.waitScope));
     KJ_LOG(INFO, serviceSR);
     KJ_LOG(INFO, restorerSR);
 

@@ -15,6 +15,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 #include "restorer.h"
 
+#include <kj/async.h>
 #include <kj/common.h>
 #include <kj/debug.h>
 #include <kj/encoding.h>
@@ -23,6 +24,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #define KJ_MVCAP(var) var = kj::mv(var)
 
 #include <capnp/capability.h>
+#include <capnp/compat/json.h>
 #include <capnp/message.h>
 
 #include <sodium.h>
@@ -45,6 +47,23 @@ struct Restorer::Impl {
   // a callback to the service this restorer is connected to, to restore a capability after a restart
 
   struct SRData {
+    kj::String toJson() const { 
+      return kj::str("{", 
+        "\"ownerGuid\":\"", ownerGuid, "\",",
+        "\"restoreToken\":\"", restoreToken, "\",",
+        "\"unsaveSRToken\":\"", unsaveSRToken,"\"}");
+    }
+
+    void fromJson(capnp::JsonValue::Reader json) {
+      auto obj = json.getObject();
+      for(auto field : obj) {
+        if(field.getName() == "ownerGuid") ownerGuid = kj::str(field.getValue().getString());
+        else if(field.getName() == "restoreToken") restoreToken = kj::str(field.getValue().getString());
+        else if(field.getName() == "unsaveSRToken") unsaveSRToken = kj::str(field.getValue().getString());
+      }
+      isCapSet = false;
+    }
+
     kj::String ownerGuid;
     // if not empty the owner global uid allowed to restore the capability
 
@@ -69,6 +88,8 @@ struct Restorer::Impl {
 
   mas::schema::storage::Store::Container::Client store{nullptr};
   // a capability to a store to persist the issued sturdy ref tokens
+
+  bool isStoreSet{ false };
 
   Impl() {
     if (sodium_init() == -1) {
@@ -239,7 +260,10 @@ void Restorer::setHost(kj::StringPtr h) { impl->host = kj::str(h); }
 
 
 mas::schema::storage::Store::Container::Client Restorer::getStore() { return impl->store; }
-void Restorer::setStore(mas::schema::storage::Store::Container::Client s) { impl->store = s; }
+void Restorer::setStore(mas::schema::storage::Store::Container::Client s) { 
+  impl->store = s; 
+  impl->isStoreSet = true;
+}
 
 void Restorer::setRestoreCallback(kj::Function<capnp::Capability::Client(kj::StringPtr restoreToken)> callback) {
     impl->restoreCallback = kj::mv(callback);
@@ -297,15 +321,17 @@ kj::Tuple<bool, kj::String> Restorer::verifySRToken(kj::StringPtr srTokenBase64,
 }
 
 
-
-void Restorer::save(capnp::Capability::Client cap, 
+kj::Promise<void> Restorer::save(capnp::Capability::Client cap, 
   mas::schema::persistence::SturdyRef::Builder sturdyRefBuilder,
   mas::schema::persistence::SturdyRef::Builder unsaveSRBuilder,
   kj::StringPtr fixedSRToken, kj::StringPtr sealForOwner, bool createUnsave,
   kj::StringPtr restoreToken) 
 {
+  auto storePromises = kj::heapArrayBuilder<kj::Promise<bool>>(createUnsave ? 2 : 1);
+
   auto srToken = fixedSRToken == nullptr ? kj::str(sole::uuid4().str()) : kj::str(fixedSRToken);
-  impl->issuedSRTokens.insert(kj::str(srToken), {kj::str(sealForOwner), kj::mv(cap), true, kj::str(restoreToken)});
+  auto& srEntry = impl->issuedSRTokens.insert(kj::str(srToken), 
+    {kj::str(sealForOwner), kj::mv(cap), true, kj::str(restoreToken)});
   if(createUnsave) {
     auto unsaveSRToken = kj::str(sole::uuid4().str());
     auto srt = kj::str(srToken);
@@ -313,21 +339,44 @@ void Restorer::save(capnp::Capability::Client cap,
     auto unsaveAction = kj::heap<Action>([this, KJ_MVCAP(srt), KJ_MVCAP(usrt)]() { 
       unsave(srt); unsave(usrt);
     }); 
-    impl->issuedSRTokens.insert(kj::str(unsaveSRToken), {kj::str(sealForOwner), kj::mv(unsaveAction), true, 
-      kj::str(restoreToken), kj::str(unsaveSRToken)});
+    auto &usrEntry = impl->issuedSRTokens.insert(kj::str(unsaveSRToken), 
+      {kj::str(sealForOwner), kj::mv(unsaveAction), true, kj::str(restoreToken), kj::str(unsaveSRToken)});
     sturdyRef(unsaveSRBuilder, unsaveSRToken);
+
+    if(impl->isStoreSet){
+      auto srdJson = usrEntry.value.toJson();
+      auto req = impl->store.addObjectRequest();
+      auto objb = req.initObject();
+      objb.setKey(usrEntry.value.restoreToken);
+      objb.initValue().setTextValue(srdJson);
+      storePromises.add(req.send().then([](auto resp){ return resp.getSuccess();}));
+    }
+  }
+
+  // store sturdy ref data for later restoral 
+  if(impl->isStoreSet){
+    auto srdJson = srEntry.value.toJson();
+    auto req = impl->store.addObjectRequest();
+    auto objb = req.initObject();
+    objb.setKey(srEntry.value.restoreToken);
+    objb.initValue().setTextValue(srdJson);
+    storePromises.add(req.send().then([](auto resp){ return resp.getSuccess();}));
   }
 
   sturdyRef(sturdyRefBuilder, srToken);
+
+  return kj::joinPromises(storePromises.finish()).ignoreResult();
 }
 
-kj::Tuple<kj::String, kj::String> Restorer::saveStr(capnp::Capability::Client cap, 
+kj::Promise<kj::Tuple<kj::String, kj::String>> Restorer::saveStr(capnp::Capability::Client cap, 
   kj::StringPtr fixedSRToken, kj::StringPtr sealForOwner, bool createUnsave,
   kj::StringPtr restoreToken) {
 
+  auto storePromises = kj::heapArrayBuilder<kj::Promise<bool>>(createUnsave ? 2 : 1);
+  decltype(impl->issuedSRTokens)::Entry* srEntry = nullptr;
   auto srToken = fixedSRToken == nullptr ? kj::str(sole::uuid4().str()) : kj::str(fixedSRToken);
   try {  
-    impl->issuedSRTokens.insert(kj::str(srToken), {kj::str(sealForOwner), kj::mv(cap), true, kj::str(restoreToken)});
+    srEntry = &(impl->issuedSRTokens.insert(kj::str(srToken), {kj::str(sealForOwner), kj::mv(cap), true, kj::str(restoreToken)}));
   } catch(kj::Exception e) { 
     // catch because user can supply a fixed sturdy ref token
     kj::throwRecoverableException(KJ_EXCEPTION(FAILED, srToken, "already used")); 
@@ -340,11 +389,35 @@ kj::Tuple<kj::String, kj::String> Restorer::saveStr(capnp::Capability::Client ca
     auto unsaveAction = kj::heap<Action>([this, KJ_MVCAP(srt), KJ_MVCAP(usrt)]() { 
       unsave(srt); unsave(usrt);
     }); 
-    impl->issuedSRTokens.insert(kj::str(unsaveSRToken), {kj::str(sealForOwner), kj::mv(unsaveAction), true, 
+    auto& usrEntry = impl->issuedSRTokens.insert(kj::str(unsaveSRToken), {kj::str(sealForOwner), kj::mv(unsaveAction), true, 
       kj::str(restoreToken), kj::str(unsaveSRToken)});
     unsaveSRStr = sturdyRefStr(unsaveSRToken);
+
+    if(impl->isStoreSet){
+      auto srdJson = usrEntry.value.toJson();
+      auto req = impl->store.addObjectRequest();
+      auto objb = req.initObject();
+      objb.setKey(usrEntry.value.restoreToken);
+      objb.initValue().setTextValue(srdJson);
+      storePromises.add(req.send().then([](auto resp){ return resp.getSuccess();}));
+    }
   }
-  return kj::tuple(sturdyRefStr(srToken), kj::mv(unsaveSRStr));
+
+  // store sturdy ref data for later restoral 
+  if(impl->isStoreSet && srEntry != nullptr){
+    auto srdJson = srEntry->value.toJson();
+    auto req = impl->store.addObjectRequest();
+    auto objb = req.initObject();
+    objb.setKey(srEntry->value.restoreToken);
+    objb.initValue().setTextValue(srdJson);
+    storePromises.add(req.send().then([](auto resp){ return resp.getSuccess();}));
+  }
+
+  return kj::joinPromises(storePromises.finish()).ignoreResult().then(
+    [this, KJ_MVCAP(srToken), KJ_MVCAP(unsaveSRStr)]() mutable { 
+      return kj::tuple(sturdyRefStr(srToken), kj::mv(unsaveSRStr)); 
+  });
+  //return kj::tuple(sturdyRefStr(srToken), kj::mv(unsaveSRStr));
 }
 
 void Restorer::unsave(kj::StringPtr srToken) 

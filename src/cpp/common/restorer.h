@@ -16,6 +16,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #pragma once
 
 #include <kj/array.h>
+#include <kj/async.h>
 #include <kj/function.h>
 #include <kj/string.h>
 #include <kj/tuple.h>
@@ -54,14 +55,14 @@ class Restorer final : public mas::schema::persistence::Restorer::Server
 
   void sturdyRef(mas::schema::persistence::SturdyRef::Builder& srb, kj::StringPtr srToken) const;
 
-  void save(capnp::Capability::Client cap, 
+  kj::Promise<void> save(capnp::Capability::Client cap, 
     mas::schema::persistence::SturdyRef::Builder sturdyRefBuilder,
     mas::schema::persistence::SturdyRef::Builder unsaveSRBuilder = nullptr,
     kj::StringPtr fixedSRToken = nullptr, 
     kj::StringPtr sealForOwner = nullptr, bool createUnsave = true,
     kj::StringPtr restoreToken = nullptr);
 
-  kj::Tuple<kj::String, kj::String> saveStr(capnp::Capability::Client cap, 
+  kj::Promise<kj::Tuple<kj::String, kj::String>> saveStr(capnp::Capability::Client cap, 
     kj::StringPtr fixedSRToken = nullptr,
     kj::StringPtr sealForOwner = nullptr, bool createUnsave = true,
     kj::StringPtr restoreToken = nullptr);

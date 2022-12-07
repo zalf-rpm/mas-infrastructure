@@ -461,7 +461,7 @@ kj::Promise<void> SqliteStorageService::info(InfoContext context) {
 kj::Promise<void> SqliteStorageService::save(SaveContext context) {
   KJ_LOG(INFO, "save message received");
   if(impl->restorer) {
-    impl->restorer->save(impl->client, context.getResults().initSturdyRef(), context.getResults().initUnsaveSR());
+    return impl->restorer->save(impl->client, context.getResults().initSturdyRef(), context.getResults().initUnsaveSR());
   }
   return kj::READY_NOW;
 }
@@ -549,7 +549,7 @@ kj::Promise<void> Container::info(InfoContext context) {
 kj::Promise<void> Container::save(SaveContext context) {
   KJ_LOG(INFO, "save message received");
   if(impl->restorer) {
-    impl->restorer->save(impl->client, context.getResults().initSturdyRef(), context.getResults().initUnsaveSR(),
+    return impl->restorer->save(impl->client, context.getResults().initSturdyRef(), context.getResults().initUnsaveSR(),
       nullptr, nullptr, true, impl->id);
   }
   return kj::READY_NOW;
