@@ -324,9 +324,14 @@ void Restorer::save(capnp::Capability::Client cap,
 kj::Tuple<kj::String, kj::String> Restorer::saveStr(capnp::Capability::Client cap, 
   kj::StringPtr fixedSRToken, kj::StringPtr sealForOwner, bool createUnsave,
   kj::StringPtr restoreToken) {
-    
+
   auto srToken = fixedSRToken == nullptr ? kj::str(sole::uuid4().str()) : kj::str(fixedSRToken);
-  impl->issuedSRTokens.insert(kj::str(srToken), {kj::str(sealForOwner), kj::mv(cap), true, kj::str(restoreToken)});
+  try {  
+    impl->issuedSRTokens.insert(kj::str(srToken), {kj::str(sealForOwner), kj::mv(cap), true, kj::str(restoreToken)});
+  } catch(kj::Exception e) { 
+    // catch because user can supply a fixed sturdy ref token
+    kj::throwRecoverableException(KJ_EXCEPTION(FAILED, srToken, "already used")); 
+  }
   kj::String unsaveSRStr;
   if(createUnsave) {
     auto unsaveSRToken = kj::str(sole::uuid4().str());
@@ -339,7 +344,6 @@ kj::Tuple<kj::String, kj::String> Restorer::saveStr(capnp::Capability::Client ca
       kj::str(restoreToken), kj::str(unsaveSRToken)});
     unsaveSRStr = sturdyRefStr(unsaveSRToken);
   }
-
   return kj::tuple(sturdyRefStr(srToken), kj::mv(unsaveSRStr));
 }
 

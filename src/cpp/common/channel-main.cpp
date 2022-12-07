@@ -56,15 +56,12 @@ public:
   kj::MainBuilder::Validity setBufferSize(kj::StringPtr name) { bufferSize = std::max(1, std::stoi(name.cStr())); return true; }
 
   kj::MainBuilder::Validity setReaderSrts(kj::StringPtr name) {
-    for(const auto& s : splitString(name, ",")){
-      KJ_LOG(INFO, s);
-      readerSrts.add(kj::str(s));
-    }
+    for(auto& s : splitString(name, ",")) readerSrts.add(kj::str(s));
     return true;
   }
 
   kj::MainBuilder::Validity setWriterSrts(kj::StringPtr name) {
-    for(const auto& s : splitString(name, ",")) readerSrts.add(kj::str(s));
+    for(auto& s : splitString(name, ",")) writerSrts.add(kj::str(s));
     return true;
   }
 
@@ -95,7 +92,6 @@ public:
     KJ_LOG(INFO, channelSR);
 
     for(const auto& srt : readerSrts){ 
-      KJ_LOG(INFO, srt);
       auto reader = channelClient.readerRequest().send().wait(ioContext.waitScope).getR();
       auto readerSR = kj::get<0>(restorerRef.saveStr(reader, srt.asPtr(), nullptr, false));  
       KJ_LOG(INFO, readerSR);

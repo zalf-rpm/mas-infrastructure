@@ -272,7 +272,6 @@ kj::Vector<kj::String> mas::infrastructure::common::splitString(kj::StringPtr s,
     }
     result.add(kj::str(s.slice(0, minPos)));
     s = s.slice(minPos + (minPos == s.size() ? 0 : 1));
-    KJ_LOG(INFO, s, minPos);
   }
 	return kj::mv(result);
 }
