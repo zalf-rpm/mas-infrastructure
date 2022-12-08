@@ -6,6 +6,7 @@ add_compile_definitions(NO_MYSQL)
 
 #add_subdirectory(../util/tools/date util/date)
 add_subdirectory(../../../../util/tools/helpers util/helpers)
+add_subdirectory(../../../../util/json11 util/json11)
 #add_subdirectory(../../../../util/db/db util/db)
 #add_subdirectory(../util/tools/debug util/debug)
 
@@ -76,6 +77,7 @@ GroupSources("util" "${PROJECT_SOURCE_DIR}/..")
 #------------------------------------------------------------------------------
 
 set_absolute_path(CAPNP_SCHEMAS_DIR "../../../capnproto_schemas")
+set_absolute_path(UTIL_DIR "../../../../util")
 
 find_package(CapnProto CONFIG REQUIRED)
 
@@ -117,9 +119,10 @@ target_link_libraries(common-lib
 	CapnProto::kj-async
 	CapnProto::capnp-json
 	helpers_lib
+	json11_lib
 	unofficial-sodium::sodium unofficial-sodium::sodium_config_public
 )
-target_include_directories(common-lib PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(common-lib PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${UTIL_DIR})
 if (MSVC)
 	target_compile_options(common-lib PRIVATE "/MT$<$<CONFIG:Debug>:d>")
 endif()
@@ -164,7 +167,6 @@ target_link_libraries(storage-service
 	CapnProto::kj
 	CapnProto::kj-async
 	common-lib
-	#db_lib
 )
 target_include_directories(storage-service PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 if (MSVC)

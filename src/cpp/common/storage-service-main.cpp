@@ -60,7 +60,7 @@ public:
 
   kj::MainBuilder::Validity setPathToDB(kj::StringPtr path) { pathToDB = kj::str(path); return true; }
 
-  kj::MainBuilder::Validity setRestorerContainerSR(kj::StringPtr sr) { registrarSR = kj::str(sr); return true; }
+  kj::MainBuilder::Validity setRestorerContainerSR(kj::StringPtr sr) { restorerContainerSR = kj::str(sr); return true; }
 
   kj::MainBuilder::Validity setRegistrarSR(kj::StringPtr sr) { registrarSR = kj::str(sr); return true; }
 
@@ -77,6 +77,21 @@ public:
     auto service = kj::heap<SqliteStorageService>(&restorerRef, pathToDB, name.asPtr(), description.asPtr());
     auto& serviceRef = *service;
     mas::schema::storage::Store::Client serviceClient = kj::mv(service);
+    KJ_LOG(INFO, "created service");
+    
+    KJ_LOG(INFO, "trying to bind to", host, port);
+    auto portPromise = conMan.bind(ioContext, restorerClient, host, port);
+    auto succAndIP = infrastructure::common::getLocalIP(checkIP, checkPort);
+    if(kj::get<0>(succAndIP)){
+      restorerRef.setHost(kj::get<1>(succAndIP));
+      conMan.setLocallyUsedHost(kj::get<1>(succAndIP));
+    } else {
+      restorerRef.setHost(localHost);
+      conMan.setLocallyUsedHost(localHost);
+    }
+    auto port = portPromise.wait(ioContext.waitScope);
+    restorerRef.setPort(port);
+    KJ_LOG(INFO, "bound to", host, port);
 
     //connect to restorer container
     mas::schema::storage::Store::Container::Client restoreContainerClient = nullptr;
@@ -89,22 +104,13 @@ public:
       restorerRef.setStore(restoreContainerClient);
       // get a sturdy ref to the new container (which will also store the sturdy ref in the new container)
       auto sr = kj::get<0>(restoreContainerClient.saveRequest().send().wait(ioContext.waitScope));
-      KJ_LOG(INFO, "Sturdyref to newly create container for restorer:", sr);
+      auto srStr = restorerRef.sturdyRefStr(sr.getSturdyRef().getTransient().getLocalRef().getAs<capnp::Text>());
+      KJ_LOG(INFO, "Sturdyref to newly create container for restorer:", srStr);
     } else {
       restoreContainerClient = conMan.tryConnectB(ioContext, restorerContainerSR).castAs<mas::schema::storage::Store::Container>();
       restorerRef.setStore(restoreContainerClient);
     }
-    KJ_LOG(INFO, "created service");
     
-    KJ_LOG(INFO, "trying to bind to", host, port);
-    auto portPromise = conMan.bind(ioContext, restorerClient, host, port);
-    auto succAndIP = infrastructure::common::getLocalIP(checkIP, checkPort);
-    if(kj::get<0>(succAndIP)) restorerRef.setHost(kj::get<1>(succAndIP));
-    else restorerRef.setHost(localHost);
-    auto port = portPromise.wait(ioContext.waitScope);
-    restorerRef.setPort(port);
-    KJ_LOG(INFO, "bound to", host, port);
-
     auto restorerSR = restorerRef.sturdyRefStr("");
     auto serviceSR = kj::get<0>(restorerRef.saveStr(serviceClient).wait(ioContext.waitScope));
     KJ_LOG(INFO, serviceSR);

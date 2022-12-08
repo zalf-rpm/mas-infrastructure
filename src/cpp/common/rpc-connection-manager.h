@@ -32,8 +32,10 @@ class Restorer;
 class ConnectionManager final {
 public:
 	ConnectionManager(Restorer* restorer = nullptr);
-
 	~ConnectionManager() noexcept(false);
+
+	kj::StringPtr getLocallyUsedHost() const;
+	void setLocallyUsedHost(kj::StringPtr h);
 
 	kj::Promise<capnp::Capability::Client> tryConnect(kj::AsyncIoContext& ioc, kj::StringPtr sturdyRefStr, 
 		int retryCount = 10, int retrySecs = 5, bool printRetryMsgs = true);

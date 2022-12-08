@@ -11,6 +11,9 @@
 		},
 		{
 			"path": "../../../../util/db"
+		},
+		{
+			"path": "../../../../util/json11"
 		}
 	],
 	"settings": {

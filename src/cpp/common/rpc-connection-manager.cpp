@@ -98,6 +98,9 @@ struct ServerContext {
 
 struct ConnectionManager::Impl {
 
+    kj::String locallyUsedHost;
+    int port{ 0 };
+
     struct ErrorHandler : public kj::TaskSet::ErrorHandler {
         void taskFailed(kj::Exception&& exception) override {
             kj::throwFatalException(kj::mv(exception));
@@ -120,6 +123,7 @@ struct ConnectionManager::Impl {
     }
 
     ~Impl() noexcept(false)  {}
+
 
     void acceptLoop(kj::Own<kj::ConnectionReceiver> &&listener, capnp::ReaderOptions readerOpts) {
         auto ptr = listener.get();
@@ -152,6 +156,11 @@ ConnectionManager::ConnectionManager(Restorer *restorer)
 }
 
 ConnectionManager::~ConnectionManager() {}
+
+
+kj::StringPtr ConnectionManager::getLocallyUsedHost() const { return impl->locallyUsedHost; }
+void ConnectionManager::setLocallyUsedHost(kj::StringPtr h) { impl->locallyUsedHost = kj::str(h); }
+
 
 kj::Promise<capnp::Capability::Client> ConnectionManager::tryConnect(kj::AsyncIoContext &ioc, kj::StringPtr sturdyRefStr,
     int retryCount, int retrySecs, bool printRetryMsgs) {
@@ -192,6 +201,20 @@ capnp::Capability::Client ConnectionManager::tryConnectB(kj::AsyncIoContext &ioc
 kj::Promise<capnp::Capability::Client> ConnectionManager::connect(kj::AsyncIoContext &ioc, kj::StringPtr sturdyRefStr) {
     capnp::ReaderOptions readerOpts;
 
+    auto restoreSR = [this](capnp::Capability::Client bootstrapCap, kj::StringPtr srTokenBase64) {
+        KJ_LOG(INFO, "restoring token", srTokenBase64);
+        auto srTokenArr = kj::decodeBase64(srTokenBase64);
+        kj::String srToken = kj::str(srTokenArr.asChars());
+        auto restorerClient = bootstrapCap.castAs<mas::schema::persistence::Restorer>();
+        auto req = restorerClient.restoreRequest();
+        req.initLocalRef().setAs<capnp::Text>(srToken);
+        KJ_LOG(INFO, "making restore request");
+        return req.send().then([](auto &&res) {
+            KJ_LOG(INFO, "send returned");
+            return res.getCap();
+        });
+    };
+
     // we assume that a sturdy ref url looks always like
     // capnp://vat-id_base64-curve25519-public-key@host:port/sturdy-ref-token_base64
     if (sturdyRefStr.startsWith("capnp://")) {
@@ -210,30 +233,37 @@ kj::Promise<capnp::Capability::Client> ConnectionManager::connect(kj::AsyncIoCon
             }
 
             if (!addressPort.size() == 0) {
+                if (addressPort == kj::str(impl->locallyUsedHost, ":", impl->port)) {
+                    KJ_LOG(INFO, "connecting to local server");
+                    if (srTokenBase64.size() > 0) return restoreSR(impl->serverMainInterface, srTokenBase64);
+                    else return kj::Promise<capnp::Capability::Client>(impl->serverMainInterface);
+                }
+
                 KJ_IF_MAYBE (clientContext, impl->connections.find(addressPort)) {
                     capnp::Capability::Client bootstrapCap = (*clientContext)->bootstrap;
 
                     // no token, just return the bootstrap capability
                     if (srTokenBase64.size() > 0) {
-                        KJ_LOG(INFO, "restoring token", srTokenBase64);
-                        auto srTokenArr = kj::decodeBase64(srTokenBase64);
-                        kj::String srToken = kj::str(srTokenArr.asChars());
-                        auto restorerClient = bootstrapCap.castAs<mas::schema::persistence::Restorer>();
-                        auto req = restorerClient.restoreRequest();
-                        req.initLocalRef().setAs<capnp::Text>(srToken);
-                        KJ_LOG(INFO, "making restore request");
-                        return req.send().then([](auto &&res) {
-                            KJ_LOG(INFO, "send returned");
-                            return res.getCap();
-                        });
+                        return restoreSR(bootstrapCap, srTokenBase64);
+                        // KJ_LOG(INFO, "restoring token", srTokenBase64);
+                        // auto srTokenArr = kj::decodeBase64(srTokenBase64);
+                        // kj::String srToken = kj::str(srTokenArr.asChars());
+                        // auto restorerClient = bootstrapCap.castAs<mas::schema::persistence::Restorer>();
+                        // auto req = restorerClient.restoreRequest();
+                        // req.initLocalRef().setAs<capnp::Text>(srToken);
+                        // KJ_LOG(INFO, "making restore request");
+                        // return req.send().then([](auto &&res) {
+                        //     KJ_LOG(INFO, "send returned");
+                        //     return res.getCap();
+                        // });
                     }
                     return bootstrapCap;
                 } else {
                     return ioc.provider->getNetwork().parseAddress(addressPort).then(
-                        [](kj::Own<kj::NetworkAddress> &&addr) { 
+                        [restoreSR](kj::Own<kj::NetworkAddress> &&addr) { 
                             return addr->connect().attach(kj::mv(addr)); 
                         }).then(
-                        [readerOpts, this, KJ_MVCAP(addressPort), KJ_MVCAP(srTokenBase64)]
+                        [restoreSR, readerOpts, this, KJ_MVCAP(addressPort), KJ_MVCAP(srTokenBase64)]
                         (kj::Own<kj::AsyncIoStream> &&stream) {
                             auto cc = kj::heap<ClientContext>(kj::mv(stream), readerOpts);
                             capnp::Capability::Client bootstrapCap = cc->getMain();
@@ -241,17 +271,18 @@ kj::Promise<capnp::Capability::Client> ConnectionManager::connect(kj::AsyncIoCon
                             impl->connections.insert(kj::str(addressPort), kj::mv(cc));
 
                             if (srTokenBase64.size() > 0) {
-                                KJ_LOG(INFO, "restoring token", srTokenBase64);
-                                auto srTokenArr = kj::decodeBase64(srTokenBase64);
-                                kj::String srToken = kj::str(srTokenArr.asChars());
-                                auto restorerClient = bootstrapCap.castAs<mas::schema::persistence::Restorer>();
-                                auto req = restorerClient.restoreRequest();
-                                req.initLocalRef().setAs<capnp::Text>(srToken);
-                                KJ_LOG(INFO, "making restore request");
-                                return req.send().then([](auto&& res) { 
-                                    KJ_LOG(INFO, "send returned");
-                                    return res.getCap(); 
-                                });
+                                return restoreSR(bootstrapCap, srTokenBase64);
+                                // KJ_LOG(INFO, "restoring token", srTokenBase64);
+                                // auto srTokenArr = kj::decodeBase64(srTokenBase64);
+                                // kj::String srToken = kj::str(srTokenArr.asChars());
+                                // auto restorerClient = bootstrapCap.castAs<mas::schema::persistence::Restorer>();
+                                // auto req = restorerClient.restoreRequest();
+                                // req.initLocalRef().setAs<capnp::Text>(srToken);
+                                // KJ_LOG(INFO, "making restore request");
+                                // return req.send().then([](auto&& res) { 
+                                //     KJ_LOG(INFO, "send returned");
+                                //     return res.getCap(); 
+                                // });
                             }
                             return kj::Promise<capnp::Capability::Client>(bootstrapCap); 
                         }
@@ -269,20 +300,20 @@ kj::Promise<kj::uint> ConnectionManager::bind(kj::AsyncIoContext &ioContext,
     impl->serverMainInterface = mainInterface;
 
     auto portPaf = kj::newPromiseAndFulfiller<uint>();
-    // kj::ForkedPromise<uint> portPromise = portPaf.promise.fork();
 
     auto &network = ioContext.provider->getNetwork();
     auto bindAddress = kj::str(host, port < 0 ? kj::str("") : kj::str(":", port));
 
-    impl->tasks.add(network.parseAddress(bindAddress, port)
-                  .then([portFulfiller = kj::mv(portPaf.fulfiller), this](kj::Own<kj::NetworkAddress> &&addr) mutable
-                        {
-        auto listener = addr->listen();
-        portFulfiller->fulfill(listener->getPort());
-        impl->acceptLoop(kj::mv(listener), capnp::ReaderOptions()); }));
+    impl->tasks.add(network.parseAddress(bindAddress, port).then(
+        [portFulfiller = kj::mv(portPaf.fulfiller), this](kj::Own<kj::NetworkAddress> &&addr) mutable {
+            auto listener = addr->listen();
+            impl->port = listener->getPort();
+            portFulfiller->fulfill(impl->port);
+            impl->acceptLoop(kj::mv(listener), capnp::ReaderOptions()); 
+        }
+    ));
 
     return kj::mv(portPaf.promise);
-    // return portPromise.addBranch();
 }
 
 
