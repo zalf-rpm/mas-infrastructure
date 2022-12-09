@@ -12,30 +12,58 @@ using Persistent = import "persistence.capnp".Persistent;
 
 interface Store extends(Common.Identifiable, Persistent) {
   # simple storage service interface
-
   
   interface Container extends(Common.Identifiable, Persistent) {
     # a container for storing objects
 
-    struct Object {
-      key           @0 :Text;
-      # the key of the object
+    interface Object {
+    # interface to access an object in store
 
-      value :union {
-        boolValue       @1  :Bool;
-        boolListValue   @7  :List(Bool);
-        intValue        @2  :Int64;
-        intListValue    @8  :List(Int64);
-        floatValue      @3  :Float64;
-        floatListValue  @9  :List(Float64);
-        textValue       @4  :Text;
-        textListValue   @10 :List(Text);
-        dataValue       @5  :Data;
-        dataListValue   @11 :List(Data);
-        anyValue        @6  :AnyStruct;
+      struct Value {
+        union {
+          boolValue       @0  :Bool;
+          boolListValue   @1  :List(Bool);
+          intValue        @2  :Int64;
+          intListValue    @3  :List(Int64);
+          floatValue      @4  :Float64;
+          floatListValue  @5  :List(Float64);
+          textValue       @6  :Text;
+          textListValue   @7  :List(Text);
+          dataValue       @8  :Data;
+          dataListValue   @9  :List(Data);
+          anyValue        @10 :AnyStruct;
+        }
       }
-      # the value of the object
+
+      getKey    @0 () -> (key :Text);
+      # get key
+
+      getValue  @1 () -> (value :Value);
+      # get value
+
+      setValue  @2 (value :Value) -> (success :Bool);
+      # update or set value
     }
+
+    # struct Object {
+    #   key           @0 :Text;
+    #   # the key of the object
+
+    #   value :union {
+    #     boolValue       @1  :Bool;
+    #     boolListValue   @7  :List(Bool);
+    #     intValue        @2  :Int64;
+    #     intListValue    @8  :List(Int64);
+    #     floatValue      @3  :Float64;
+    #     floatListValue  @9  :List(Float64);
+    #     textValue       @4  :Text;
+    #     textListValue   @10 :List(Text);
+    #     dataValue       @5  :Data;
+    #     dataListValue   @11 :List(Data);
+    #     anyValue        @6  :AnyStruct;
+    #   }
+    #   # the value of the object
+    # }
     
     export        @0 () -> (json :Text);
     # export the container (serialized as capnp JSON)

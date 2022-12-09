@@ -27,8 +27,8 @@ namespace storage {
 class SqliteStorageService final : public mas::schema::storage::Store::Server
 {
 public:
-  SqliteStorageService(mas::infrastructure::common::Restorer* restorer, kj::StringPtr filename, 
-    kj::StringPtr name, kj::StringPtr description);
+  SqliteStorageService(kj::StringPtr filename, kj::StringPtr name, kj::StringPtr description, 
+    mas::infrastructure::common::Restorer* restorer = nullptr);
 
   virtual ~SqliteStorageService() noexcept(false);
 
@@ -51,6 +51,10 @@ public:
 
   mas::schema::common::Action::Client getUnregisterAction();
   void setUnregisterAction(mas::schema::common::Action::Client unreg);
+
+  void setRestorer(mas::infrastructure::common::Restorer* r);
+
+  void initFromStorageContainer();
 
 private:
   struct Impl;
@@ -85,6 +89,27 @@ public:
 
   mas::schema::storage::Store::Container::Client getClient();
   void setClient(mas::schema::storage::Store::Container::Client c);
+
+private:
+  struct Impl;
+  kj::Own<Impl> impl;
+
+  friend class SqliteStorageService;
+};
+
+//-----------------------------------------------------------------------------
+
+class Object final : public mas::schema::storage::Store::Object::Server {
+public:
+  Object(SqliteStorageService& s);
+
+  virtual ~Object() noexcept(false);
+
+  kj::Promise<void> getKey(GetKeyContext context) override;
+
+  kj::Promise<void> getValue_(GetValueContext context) override;
+
+  kj::Promise<void> setValue(SetValueContext context) override;
 
 private:
   struct Impl;

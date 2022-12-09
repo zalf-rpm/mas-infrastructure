@@ -185,11 +185,12 @@ capnp::Capability::Client ConnectionManager::tryConnectB(kj::AsyncIoContext &ioc
     while (true) {
         try {
             return connect(ioc, sturdyRefStr).wait(ioc.waitScope);
-        } catch (std::exception e) {
+        } catch (kj::Exception e) {
             if (retryCount == 0) {
                 if (printRetryMsgs) KJ_LOG(INFO, "Couldn't connect to sturdy_ref at", sturdyRefStr, "!");
                 return nullptr;
             }
+            KJ_DBG(e);
             std::this_thread::sleep_for(std::chrono::milliseconds(retrySecs * 1000));
             retryCount -= 1;
             if (printRetryMsgs) KJ_LOG(INFO, "Trying to connect to", sturdyRefStr, "again in", retrySecs, "s!");

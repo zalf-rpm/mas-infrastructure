@@ -104,6 +104,8 @@ add_library(common-lib
 	common.cpp
 	restorer.h
 	restorer.cpp
+	restorable-service-main.h
+	restorable-service-main.cpp
 	rpc-connection-manager.h
 	rpc-connection-manager.cpp
 	${CAPNP_HDRS}

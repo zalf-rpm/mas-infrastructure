@@ -1,0 +1,83 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/*
+Authors:
+Michael Berg <michael.berg@zalf.de>
+
+Maintainers:
+Currently maintained by the authors.
+
+This file is part of the ZALF model and simulation infrastructure.
+Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
+*/
+
+#pragma once
+
+#include <kj/async-io.h>
+#include <kj/common.h>
+#include <kj/main.h>
+#include <kj/string.h>
+#include <kj/tuple.h>
+
+#include "common.capnp.h"
+
+#include "restorer.h"
+#include "rpc-connection-manager.h"
+
+namespace mas { 
+namespace infrastructure { 
+namespace common {
+
+class RestorableServiceMain
+{
+public:
+  RestorableServiceMain(kj::ProcessContext &context, kj::StringPtr serviceVersion,
+    kj::StringPtr serviceBriefDescription, kj::StringPtr serviceExtendedDescription = nullptr);
+
+  kj::MainBuilder::Validity setName(kj::StringPtr n);
+  kj::MainBuilder::Validity setDescription(kj::StringPtr d);
+  kj::MainBuilder::Validity setHost(kj::StringPtr name);
+  kj::MainBuilder::Validity setLocalHost(kj::StringPtr h);
+  kj::MainBuilder::Validity setPort(kj::StringPtr name);
+  kj::MainBuilder::Validity setCheckPort(kj::StringPtr portStr);
+  kj::MainBuilder::Validity setCheckIP(kj::StringPtr ip);
+  kj::MainBuilder::Validity setRestorerContainerSR(kj::StringPtr sr);
+  kj::MainBuilder::Validity setRestorerContainerId(kj::StringPtr id);
+  kj::MainBuilder::Validity setRegistrarSR(kj::StringPtr sr);
+  kj::MainBuilder::Validity setRegName(kj::StringPtr n);
+  kj::MainBuilder::Validity setRegCategory(kj::StringPtr cat);
+
+  kj::Tuple<mas::schema::persistence::Restorer::Client, Restorer*> 
+  startRestorableParts(mas::schema::common::Identifiable::Client serviceClient,
+    kj::Maybe<mas::schema::storage::Store::Container::Client> restorerContainerClient = nullptr,
+    bool initRestorerFromContainer = true);
+
+  kj::MainBuilder& addRestorableServiceOptions();
+
+protected:
+  kj::MainBuilder mainBuilder;
+  mas::schema::persistence::Restorer::Client restorerClient{nullptr};
+  mas::schema::common::Action::Client serviceUnregisterAction{nullptr};
+  Restorer* restorer{nullptr};
+  kj::Own<mas::infrastructure::common::ConnectionManager> conMan;
+  kj::ProcessContext &context;
+  kj::AsyncIoContext ioContext;
+  kj::String name{kj::str("Unnamed Service")};
+  kj::String description;
+  kj::String host{kj::str("*")};
+  kj::String localHost{kj::str("localhost")};
+  int port{0};
+  kj::String checkIP;
+  int checkPort{0};
+  kj::String restorerContainerSR;
+  kj::String restorerContainerId;
+  kj::String registrarSR;
+  kj::String regName;
+  kj::String regCategory{kj::str("unknown")};
+};
+
+} // namespace common
+} // namespace infrastructure
+} // namespace mas

@@ -191,6 +191,10 @@ struct Restorer::Impl {
             return cap;
           } catch (std::exception e) {}
         }
+      } else {
+        auto cap = restoreCallback(nullptr);
+        srData->cap = cap;
+        return cap;
       }
       return nullptr;
     };
@@ -286,17 +290,37 @@ Restorer::Restorer()
 Restorer::~Restorer() {}
 
 int Restorer::getPort() const { return impl->port; }
-void Restorer::setPort(int p) { impl->port = p; }
-
+kj::Promise<void> Restorer::setPort(int p) { 
+  impl->port = p; 
+  if(impl->isStoreSet){
+    auto req = impl->store.putObjectRequest();
+    req.setKey("port");
+    auto obj = req.initObject();
+    obj.setValue().setIntValue(p);
+    return req.send().ignoreResult();
+  }
+}
 
 kj::StringPtr Restorer::getHost() const { return impl->host; }
 void Restorer::setHost(kj::StringPtr h) { impl->host = kj::str(h); }
 
 
 mas::schema::storage::Store::Container::Client Restorer::getStore() { return impl->store; }
-void Restorer::setStore(mas::schema::storage::Store::Container::Client s) { 
+kj::Promise<void> Restorer::setStorageContainer(mas::schema::storage::Store::Container::Client s, bool initFromContainer) { 
   impl->store = s; 
   impl->isStoreSet = true;
+
+  if(initFromContainer){
+    auto req = s.getObjectRequest();
+    req.setKey("port");
+    return req.send().then([this](auto&& resp) {
+      auto obj = resp.getObject();
+      auto port = obj.getValue().getIntValue();
+      if(port != 0) impl->port = port;
+    });
+  }
+
+  return kj::READY_NOW;
 }
 
 void Restorer::setRestoreCallback(kj::Function<capnp::Capability::Client(kj::StringPtr restoreToken)> callback) {

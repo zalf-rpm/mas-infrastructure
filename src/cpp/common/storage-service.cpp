@@ -71,19 +71,15 @@ struct SqliteStorageService::Impl {
   Impl(SqliteStorageService& self, mas::infrastructure::common::Restorer* restorer, kj::StringPtr filename, 
     kj::StringPtr name, kj::StringPtr description)
   : self(self)
-  , restorer(restorer)
   , name(kj::str(name))
   , filename(kj::str(filename)) {
-    KJ_REQUIRE(restorer, "restorer must not be null");
-    init();
-    restorer->setRestoreCallback([this](kj::StringPtr containerId){
-      return loadContainer(containerId);
-    });
+    initDb();
+    setRestorer(restorer);
   }
 
   ~Impl() noexcept(false)  {}
 
-  void init() {
+  void initDb() {
     kj::String utf8Filename = kj::str(filename); // linux default codepage is utf-8 
 #ifdef WIN32
     utf8filename = kj::str(Tools::winStringSystemCodepageToutf8(filename.C_str()));
@@ -97,6 +93,16 @@ struct SqliteStorageService::Impl {
     }
 
     //addNeededSQLFunctions();
+  }
+
+  void setRestorer(mas::infrastructure::common::Restorer* restorer){ 
+    if(restorer != nullptr){
+      this->restorer = restorer; 
+      restorer->setRestoreCallback([this](kj::StringPtr containerId) -> capnp::Capability::Client {
+        if(containerId == nullptr) return client;
+        else return loadContainer(containerId);
+      });
+    }
   }
 
   kj::Tuple<ContainerClient, Container*> createContainer(kj::StringPtr id, kj::StringPtr name, kj::StringPtr description) {
@@ -370,7 +376,7 @@ struct Container::Impl {
     }
   }
 
-  void listObjects(capnp::List<mas::schema::storage::Store::Container::Object, capnp::Kind::STRUCT>::Builder list,
+  void listObjects(capnp::List<mas::schema::storage::Store::Container::Object::Client, capnp::Kind::INTERFACE>::Builder list,
     bool encodeAnyValueAsBase64Text = false,
     capnp::List<bool, capnp::Kind::PRIMITIVE>::Builder isAnyValue = nullptr) {
     auto selectStmt = kj::str("SELECT key, value FROM '", id, "' ORDER BY key");
@@ -393,6 +399,31 @@ struct Container::Impl {
       sqlite3_finalize(stmt);
     }
   }
+
+  // void listObjects(capnp::List<mas::schema::storage::Store::Container::Object, capnp::Kind::STRUCT>::Builder list,
+  //   bool encodeAnyValueAsBase64Text = false,
+  //   capnp::List<bool, capnp::Kind::PRIMITIVE>::Builder isAnyValue = nullptr) {
+  //   auto selectStmt = kj::str("SELECT key, value FROM '", id, "' ORDER BY key");
+  //   sqlite3_stmt* stmt = nullptr;
+  //   auto rc = sqlite3_prepare_v2(db, selectStmt.cStr(), -1, &stmt, NULL);
+  //   if(rc != SQLITE_OK) {
+  //     KJ_LOG(ERROR, "Can't prepare statement.", selectStmt);
+  //   } else {
+  //     int i = 0;
+  //     // in case of to be encoded any values, we need to know which ones are encoded and sizes have to match
+  //     KJ_ASSERT(!encodeAnyValueAsBase64Text || list.size() == isAnyValue.size());
+  //     while(sqlite3_step(stmt) == SQLITE_ROW && i < list.size()) {
+  //       if(encodeAnyValueAsBase64Text){
+  //         isAnyValue.set(i, setObjectFromRow(list[i], stmt, true));
+  //       } else {
+  //         setObjectFromRow(list[i], stmt);
+  //       }
+  //       i++;
+  //     } 
+  //     sqlite3_finalize(stmt);
+  //   }
+  // }
+
 
   bool removeObject(kj::StringPtr key) {
     auto deleteStmt = kj::str("DELETE FROM '", id, "' WHERE key = '", key, "'");
@@ -441,8 +472,25 @@ struct Container::Impl {
 
 // ----------------------------------------------------------------------
 
-SqliteStorageService::SqliteStorageService(mas::infrastructure::common::Restorer* restorer, kj::StringPtr filename, 
-  kj::StringPtr name, kj::StringPtr description)
+struct Container::Impl {
+  mas::infrastructure::common::Restorer *restorer{nullptr};
+  sqlite3 *db{nullptr};
+  mas::schema::storage::Store::Container::Client client{nullptr};
+
+  Impl(mas::infrastructure::common::Restorer *restorer, sqlite3 *db)
+  : restorer(restorer)
+  , db(db)
+  {}    
+
+  ~Impl() noexcept(false)  {}
+
+};
+
+
+// ----------------------------------------------------------------------
+
+SqliteStorageService::SqliteStorageService(kj::StringPtr filename, kj::StringPtr name, 
+  kj::StringPtr description, mas::infrastructure::common::Restorer* restorer)
 : impl(kj::heap<Impl>(*this, restorer, filename, name, description)) {
 }
 
@@ -527,6 +575,14 @@ void SqliteStorageService::setClient(mas::schema::storage::Store::Client c) { im
 
 mas::schema::common::Action::Client SqliteStorageService::getUnregisterAction() { return impl->unregisterAction; }
 void SqliteStorageService::setUnregisterAction(mas::schema::common::Action::Client unreg) { impl->unregisterAction = unreg; }
+
+void SqliteStorageService::setRestorer(mas::infrastructure::common::Restorer* restorer){ 
+  impl->setRestorer(restorer);
+}
+
+void SqliteStorageService::initFromStorageContainer(){
+
+}
 
 // ----------------------------------------------------------------------
 
@@ -613,3 +669,51 @@ kj::Promise<void> Container::clear(ClearContext context) {
 
 mas::schema::storage::Store::Container::Client Container::getClient() { return impl->client; }
 void Container::setClient(mas::schema::storage::Store::Container::Client c) { impl->client = c; }
+
+
+// ----------------------------------------------------------------------
+
+Object::Object(SqliteStorageService& store)
+: impl(kj::heap<Impl>(store.impl->restorer, store.impl->db)) {
+}
+
+Object::~Object() {}
+
+kj::Promise<void> Container::getKey(GetKeyContext context) {
+  KJ_LOG(INFO, "getKey message received");
+  // auto rs = context.getResults();
+  // rs.setId(impl->id);
+  // rs.setName(impl->name);
+  // rs.setDescription(impl->description);
+  return kj::READY_NOW;
+}
+
+
+kj::Promise<void> Container::getValue(GetValueContext context) {
+  KJ_LOG(INFO, "getValue message received");
+  // if(impl->restorer) {
+  //   return impl->restorer->save(impl->client, context.getResults().initSturdyRef(), context.getResults().initUnsaveSR(),
+  //     nullptr, nullptr, true, impl->id);
+  // }
+  return kj::READY_NOW;
+}
+
+
+kj::Promise<void> Container::setValue(SetValueContext context) {
+  KJ_LOG(INFO, "setValue message received");
+  // capnp::JsonCodec json;
+  // json.setPrettyPrint(true);
+  // capnp::MallocMessageBuilder msg;
+  // auto builder = msg.initRoot<mas::schema::storage::Store::ImportExportData>();
+  // auto info = builder.initInfo();
+  // info.setId(impl->id);
+  // info.setName(impl->name);
+  // info.setDescription(impl->description);
+  // // encode anyvalues as base64 text
+  // auto noOfObjects = impl->countObjects();
+  // impl->listObjects(builder.initObjects(noOfObjects), true, builder.initIsAnyValue(noOfObjects));
+  // auto expStr = json.encode(builder.asReader());
+  // context.getResults().setJson(expStr);
+  return kj::READY_NOW;
+}
+

@@ -41,13 +41,13 @@ class Restorer final : public mas::schema::persistence::Restorer::Server
   kj::Promise<void> restore(RestoreContext context) override;
 
   int getPort() const;
-  void setPort(int p);
+  kj::Promise<void> setPort(int p);
 
   kj::StringPtr getHost() const;
   void setHost(kj::StringPtr h);
   
   mas::schema::storage::Store::Container::Client getStore();
-  void setStore(mas::schema::storage::Store::Container::Client s);
+  kj::Promise<void> setStorageContainer(mas::schema::storage::Store::Container::Client s, bool initFromContainer = false);
 
   void setRestoreCallback(kj::Function<capnp::Capability::Client(kj::StringPtr restoreToken)> callback);
 
