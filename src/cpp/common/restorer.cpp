@@ -200,20 +200,21 @@ struct Restorer::Impl {
     };
     
     auto loadFromStoreAndGetCap = [this, getCap](kj::StringPtr srToken) -> kj::Promise<kj::Maybe<capnp::Capability::Client>> {
-      auto req = store.getObjectRequest();
+      auto req = store.getEntryRequest();
       req.setKey(srToken);
-      return req.send().then([this, getCap](auto&& resp) -> SRData*  {
-        auto obj = resp.getObject();
+      auto valueProm = req.send().getEntry().getValueRequest().send();
+      return valueProm.then([this, getCap, srToken](auto&& resp) -> SRData*  {
+        auto value = resp.getValue();
         //return kj::Maybe<capnp::Capability::Client>(nullptr);
         auto srData = kj::heap<SRData>();
         std::string err;
-        for(const auto& kv : json11::Json::parse(obj.getValue().getTextValue().cStr(), err).object_items()){
+        for(const auto& kv : json11::Json::parse(value.getTextValue().cStr(), err).object_items()){
           auto key = kv.first;
           if(key == "ownerGuid") srData->ownerGuid = kj::str(kv.second.string_value());
           else if(key == "restoreToken") srData->restoreToken = kj::str(kv.second.string_value());
           else if(key == "unsaveSRToken") srData->unsaveSRToken = kj::str(kv.second.string_value());
         }
-        auto& srEntry = issuedSRTokens.insert(kj::str(obj.getKey()), 
+        auto& srEntry = issuedSRTokens.insert(kj::str(srToken), 
           {kj::mv(srData->ownerGuid), nullptr, false, kj::mv(srData->restoreToken), kj::mv(srData->unsaveSRToken)});
         return &(srEntry.value);
       }).then([getCap](SRData* srData) -> kj::Maybe<capnp::Capability::Client> {
@@ -293,11 +294,11 @@ int Restorer::getPort() const { return impl->port; }
 kj::Promise<void> Restorer::setPort(int p) { 
   impl->port = p; 
   if(impl->isStoreSet){
-    auto req = impl->store.putObjectRequest();
+    auto req = impl->store.getEntryRequest();
     req.setKey("port");
-    auto obj = req.initObject();
-    obj.setValue().setIntValue(p);
-    return req.send().ignoreResult();
+    auto svReq = req.send().getEntry().setValueRequest();
+    svReq.initValue().setIntValue(p);
+    return svReq.send().ignoreResult();
   }
 }
 
@@ -311,11 +312,10 @@ kj::Promise<void> Restorer::setStorageContainer(mas::schema::storage::Store::Con
   impl->isStoreSet = true;
 
   if(initFromContainer){
-    auto req = s.getObjectRequest();
+    auto req = s.getEntryRequest();
     req.setKey("port");
-    return req.send().then([this](auto&& resp) {
-      auto obj = resp.getObject();
-      auto port = obj.getValue().getIntValue();
+    return req.send().getEntry().getValueRequest().send().then([this](auto&& resp) {
+      auto port = resp.getValue().getIntValue();
       if(port != 0) impl->port = port;
     });
   }
@@ -395,11 +395,11 @@ kj::Promise<void> Restorer::save(capnp::Capability::Client cap,
   if(impl->isStoreSet){
     auto srdJson = srEntry.value.toJson();
     KJ_DBG(srToken, srdJson);
-    auto req = impl->store.addObjectRequest();
-    auto objb = req.initObject();
-    objb.setKey(srToken);
-    objb.initValue().setTextValue(srdJson);
-    storePromises.add(req.send().then([](auto resp){ 
+    auto req = impl->store.getEntryRequest();
+    req.setKey(srToken);
+    auto svReq = req.send().getEntry().setValueRequest();
+    svReq.initValue().setTextValue(srdJson);
+    storePromises.add(svReq.send().then([](auto resp){ 
       return resp.getSuccess();
     }));
   }
@@ -418,11 +418,11 @@ kj::Promise<void> Restorer::save(capnp::Capability::Client cap,
     if(impl->isStoreSet){
       auto srdJson = usrEntry.value.toJson();
       KJ_DBG(unsaveSRToken, srdJson);
-      auto req = impl->store.addObjectRequest();
-      auto objb = req.initObject();
-      objb.setKey(unsaveSRToken);
-      objb.initValue().setTextValue(srdJson);
-      storePromises.add(req.send().then([](auto resp){ 
+      auto req = impl->store.getEntryRequest();
+      req.setKey(unsaveSRToken);
+      auto svReq = req.send().getEntry().setValueRequest();
+      svReq.initValue().setTextValue(srdJson);
+      storePromises.add(svReq.send().then([](auto resp){ 
         return resp.getSuccess();
       }));
     }
@@ -444,11 +444,13 @@ kj::Promise<kj::Tuple<kj::String, kj::String>> Restorer::saveStr(capnp::Capabili
     // store sturdy ref data for later restoral 
     if(impl->isStoreSet){
       auto srdJson = srEntry.value.toJson();
-      auto req = impl->store.addObjectRequest();
-      auto objb = req.initObject();
-      objb.setKey(srToken);
-      objb.initValue().setTextValue(srdJson);
-      storePromises.add(req.send().then([](auto resp){ return resp.getSuccess();}));
+      auto req = impl->store.getEntryRequest();
+      req.setKey(srToken);
+      auto svReq = req.send().getEntry().setValueRequest();
+      svReq.initValue().setTextValue(srdJson);
+      storePromises.add(svReq.send().then([](auto resp){ 
+        return resp.getSuccess();
+      }));
     }
   } catch(kj::Exception e) { 
     // catch because user can supply a fixed sturdy ref token
@@ -468,11 +470,13 @@ kj::Promise<kj::Tuple<kj::String, kj::String>> Restorer::saveStr(capnp::Capabili
 
     if(impl->isStoreSet){
       auto srdJson = usrEntry.value.toJson();
-      auto req = impl->store.addObjectRequest();
-      auto objb = req.initObject();
-      objb.setKey(unsaveSRToken);
-      objb.initValue().setTextValue(srdJson);
-      storePromises.add(req.send().then([](auto resp){ return resp.getSuccess();}));
+      auto req = impl->store.getEntryRequest();
+      req.setKey(unsaveSRToken);
+      auto svReq = req.send().getEntry().setValueRequest();
+      svReq.initValue().setTextValue(srdJson);
+      storePromises.add(svReq.send().then([](auto resp){ 
+        return resp.getSuccess();
+      }));
     }
   }
 

@@ -51,6 +51,106 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 //using namespace std;
 using namespace mas::infrastructure::storage;
 
+namespace _ { // private
+
+  bool setEntryValue(
+    mas::schema::storage::Store::Container::Entry::Value::Builder b, 
+    mas::schema::storage::Store::Container::Entry::Value::Reader r,
+    bool encodeAnyValueAsBase64Text = false,
+    bool decodeAnyValueFromBase64Text = false) {
+    bool wasAnyValueEncodedAsBase64Text = false;
+    switch(r.which()){
+      case mas::schema::storage::Store::Container::Entry::Value::BOOL_VALUE:
+        b.setBoolValue(r.getBoolValue());
+        break;
+      case mas::schema::storage::Store::Container::Entry::Value::BOOL_LIST_VALUE: {
+        auto lr = r.getBoolListValue();
+        auto lb = b.initBoolListValue(lr.size());
+        for(auto i : kj::indices(lr)) lb.set(i, lr[i]);
+        break;
+      }
+      case mas::schema::storage::Store::Container::Entry::Value::INT_VALUE:
+        b.setIntValue(r.getIntValue());
+        break;
+      case mas::schema::storage::Store::Container::Entry::Value::INT_LIST_VALUE: {
+        auto lr = r.getIntListValue();
+        auto lb = b.initIntListValue(lr.size());
+        for(auto i : kj::indices(lr)) lb.set(i, lr[i]);
+        break;
+      }
+      case mas::schema::storage::Store::Container::Entry::Value::FLOAT_VALUE:
+        b.setFloatValue(r.getFloatValue());
+        break;
+      case mas::schema::storage::Store::Container::Entry::Value::FLOAT_LIST_VALUE: {
+        auto lr = r.getFloatListValue();
+        auto lb = b.initFloatListValue(lr.size());
+        for(auto i : kj::indices(lr)) lb.set(i, lr[i]);
+        break;
+      }
+      case mas::schema::storage::Store::Container::Entry::Value::TEXT_VALUE:
+        if(decodeAnyValueFromBase64Text){
+          auto bytes = kj::decodeBase64(r.getTextValue().asArray());
+          kj::ArrayInputStream ais(bytes);
+          capnp::PackedMessageReader ins(ais);
+          auto value = ins.getRoot<mas::schema::storage::Store::Container::Entry::Value>();
+          b.setAnyValue(value.getAnyValue());
+        } else {
+          b.setTextValue(r.getTextValue());
+        }
+        break;
+      case mas::schema::storage::Store::Container::Entry::Value::TEXT_LIST_VALUE: {
+        auto lr = r.getTextListValue();
+        auto lb = b.initTextListValue(lr.size());
+        for(auto i : kj::indices(lr)) lb.set(i, lr[i]);
+        break;
+      }
+      case mas::schema::storage::Store::Container::Entry::Value::DATA_VALUE:
+        b.setDataValue(r.getDataValue());
+        break;
+      case mas::schema::storage::Store::Container::Entry::Value::DATA_LIST_VALUE: {
+        auto lr = r.getDataListValue();
+        auto lb = b.initDataListValue(lr.size());
+        for(auto i : kj::indices(lr)) lb.set(i, lr[i]);
+        break;
+      }
+      case mas::schema::storage::Store::Container::Entry::Value::ANY_VALUE:
+        if(encodeAnyValueAsBase64Text){
+          capnp::MallocMessageBuilder message;
+          auto builder = message.initRoot<mas::schema::storage::Store::Container::Entry::Value>();
+          //setObjectValue(builder, r);
+          builder.setAnyValue(r.getAnyValue());
+          auto sizeInBytes = message.sizeInWords()*sizeof(capnp::word);
+          kj::Array<kj::byte> bytes = kj::heapArray<kj::byte>(sizeInBytes);
+          kj::ArrayOutputStream outs(bytes);
+          capnp::writePackedMessage(outs, message);
+          auto filledBytes = outs.getArray();
+          auto base64 = kj::encodeBase64(filledBytes);
+          b.setTextValue(base64);
+          wasAnyValueEncodedAsBase64Text = true;
+        } else {
+          b.setAnyValue(r.getAnyValue());
+        }
+        break;
+    }
+    return wasAnyValueEncodedAsBase64Text;
+  }
+
+  kj::Tuple<kj::String, bool> 
+  getKeyAndSetValueFromDBRow(mas::schema::storage::Store::Container::Entry::Value::Builder b, sqlite3_stmt* stmt,
+    bool encodeAnyValueAsBase64Text = false) {
+    auto key = reinterpret_cast<const char*>(sqlite3_column_blob(stmt, 0));
+    auto val = reinterpret_cast<const char*>(sqlite3_column_blob(stmt, 1));
+    auto size = sqlite3_column_bytes(stmt, 1);
+    auto bytes = kj::arrayPtr(reinterpret_cast<const kj::byte*>(val), size);
+    kj::ArrayInputStream ais(bytes);
+    capnp::PackedMessageReader ins(ais);
+    auto value = ins.getRoot<mas::schema::storage::Store::Container::Entry::Value>();
+    return kj::tuple(kj::str(key), ::_::setEntryValue(b, value, encodeAnyValueAsBase64Text));
+  }
+
+
+} // namespace private
+
 //-----------------------------------------------------------------------------
 
 typedef mas::schema::storage::Store::Container::Client ContainerClient;
@@ -217,16 +317,19 @@ struct SqliteStorageService::Impl {
 //-----------------------------------------------------------------------------
 
 struct Container::Impl {
+  Container *self{nullptr};
   mas::infrastructure::common::Restorer *restorer{nullptr};
   sqlite3 *db{nullptr};
   kj::String id;
   kj::String name{kj::str("Container")};
   kj::String description;
   mas::schema::storage::Store::Container::Client client{nullptr};
+  kj::HashMap<kj::String, mas::schema::storage::Store::Container::Entry::Client> entries; 
 
-  Impl(mas::infrastructure::common::Restorer *restorer, sqlite3 *db, 
+  Impl(Container *self, mas::infrastructure::common::Restorer *restorer, sqlite3 *db, 
     kj::StringPtr id, kj::StringPtr name, kj::StringPtr description)
-  : restorer(restorer)
+  : self(self)
+  , restorer(restorer)
   , db(db)
   , id(kj::str(id))
   , name(kj::str(name))
@@ -235,92 +338,10 @@ struct Container::Impl {
   }
 
   ~Impl() noexcept(false)  {}
-
-  bool setObjectValue(
-    mas::schema::storage::Store::Container::Object::Value::Builder b, 
-    mas::schema::storage::Store::Container::Object::Value::Reader r,
-    bool encodeAnyValueAsBase64Text = false,
+  
+  bool addObject(kj::StringPtr key, mas::schema::storage::Store::Container::Entry::Value::Reader value,
     bool decodeAnyValueFromBase64Text = false) {
-    bool wasAnyValueEncodedAsBase64Text = false;
-    switch(r.which()){
-      case mas::schema::storage::Store::Container::Object::Value::BOOL_VALUE:
-        b.setBoolValue(r.getBoolValue());
-        break;
-      case mas::schema::storage::Store::Container::Object::Value::BOOL_LIST_VALUE: {
-        auto lr = r.getBoolListValue();
-        auto lb = b.initBoolListValue(lr.size());
-        for(auto i : kj::indices(lr)) lb.set(i, lr[i]);
-        break;
-      }
-      case mas::schema::storage::Store::Container::Object::Value::INT_VALUE:
-        b.setIntValue(r.getIntValue());
-        break;
-      case mas::schema::storage::Store::Container::Object::Value::INT_LIST_VALUE: {
-        auto lr = r.getIntListValue();
-        auto lb = b.initIntListValue(lr.size());
-        for(auto i : kj::indices(lr)) lb.set(i, lr[i]);
-        break;
-      }
-      case mas::schema::storage::Store::Container::Object::Value::FLOAT_VALUE:
-        b.setFloatValue(r.getFloatValue());
-        break;
-      case mas::schema::storage::Store::Container::Object::Value::FLOAT_LIST_VALUE: {
-        auto lr = r.getFloatListValue();
-        auto lb = b.initFloatListValue(lr.size());
-        for(auto i : kj::indices(lr)) lb.set(i, lr[i]);
-        break;
-      }
-      case mas::schema::storage::Store::Container::Object::Value::TEXT_VALUE:
-        if(decodeAnyValueFromBase64Text){
-          auto bytes = kj::decodeBase64(r.getTextValue().asArray());
-          kj::ArrayInputStream ais(bytes);
-          capnp::PackedMessageReader ins(ais);
-          auto value = ins.getRoot<mas::schema::storage::Store::Container::Object::Value>();
-          b.setAnyValue(value.getAnyValue());
-        } else {
-          b.setTextValue(r.getTextValue());
-        }
-        break;
-      case mas::schema::storage::Store::Container::Object::Value::TEXT_LIST_VALUE: {
-        auto lr = r.getTextListValue();
-        auto lb = b.initTextListValue(lr.size());
-        for(auto i : kj::indices(lr)) lb.set(i, lr[i]);
-        break;
-      }
-      case mas::schema::storage::Store::Container::Object::Value::DATA_VALUE:
-        b.setDataValue(r.getDataValue());
-        break;
-      case mas::schema::storage::Store::Container::Object::Value::DATA_LIST_VALUE: {
-        auto lr = r.getDataListValue();
-        auto lb = b.initDataListValue(lr.size());
-        for(auto i : kj::indices(lr)) lb.set(i, lr[i]);
-        break;
-      }
-      case mas::schema::storage::Store::Container::Object::Value::ANY_VALUE:
-        if(encodeAnyValueAsBase64Text){
-          capnp::MallocMessageBuilder message;
-          auto builder = message.initRoot<mas::schema::storage::Store::Container::Object::Value>();
-          //setObjectValue(builder, r);
-          builder.setAnyValue(r.getAnyValue());
-          auto sizeInBytes = message.sizeInWords()*sizeof(capnp::word);
-          kj::Array<kj::byte> bytes = kj::heapArray<kj::byte>(sizeInBytes);
-          kj::ArrayOutputStream outs(bytes);
-          capnp::writePackedMessage(outs, message);
-          auto filledBytes = outs.getArray();
-          auto base64 = kj::encodeBase64(filledBytes);
-          b.setTextValue(base64);
-          wasAnyValueEncodedAsBase64Text = true;
-        } else {
-          b.setAnyValue(r.getAnyValue());
-        }
-        break;
-    }
-    return wasAnyValueEncodedAsBase64Text;
-  }
-
-  bool addObject(mas::schema::storage::Store::Container::Object::Reader obj,
-    bool decodeAnyValueFromBase64Text = false) {
-    auto insertStmt = kj::str("INSERT INTO '", id, "' (key, value) VALUES ('", obj.getKey(), "', ?);");
+    auto insertStmt = kj::str("INSERT INTO '", id, "' (key, value) VALUES ('", key, "', ?);");
     sqlite3_stmt* stmt = nullptr;
     auto rc = sqlite3_prepare_v2(db, insertStmt.cStr(), -1, &stmt, NULL);
     bool success = false;
@@ -328,8 +349,8 @@ struct Container::Impl {
       KJ_LOG(ERROR, "Can't prepare statement.", insertStmt);
     } else {
       capnp::MallocMessageBuilder message;
-      auto builder = message.initRoot<mas::schema::storage::Store::Container::Object::Value>();
-      setObjectValue(builder, obj.getValue(), false, decodeAnyValueFromBase64Text);
+      auto builder = message.initRoot<mas::schema::storage::Store::Container::Entry::Value>();
+      ::_::setEntryValue(builder, value, false, decodeAnyValueFromBase64Text);
       auto sizeInBytes = message.sizeInWords()*sizeof(capnp::word);
       kj::Array<kj::byte> bytes = kj::heapArray<kj::byte>(sizeInBytes);
       kj::ArrayOutputStream outs(bytes);
@@ -346,39 +367,11 @@ struct Container::Impl {
     return success;
   }
 
-  bool setObjectFromRow(mas::schema::storage::Store::Container::Object::Builder b, sqlite3_stmt* stmt,
-    bool encodeAnyValueAsBase64Text = false) {
-    auto key = reinterpret_cast<const char*>(sqlite3_column_blob(stmt, 0));
-    auto val = reinterpret_cast<const char*>(sqlite3_column_blob(stmt, 1));
-    auto size = sqlite3_column_bytes(stmt, 1);
-    auto bytes = kj::arrayPtr(reinterpret_cast<const kj::byte*>(val), size);
-    kj::ArrayInputStream ais(bytes);
-    capnp::PackedMessageReader ins(ais);
-    auto value = ins.getRoot<mas::schema::storage::Store::Container::Object::Value>();
-    b.setKey(key);
-    return setObjectValue(b.initValue(), value, encodeAnyValueAsBase64Text);
-  }
-
-  void getObject(kj::StringPtr key, mas::schema::storage::Store::Container::Object::Builder objBuilder) {
-    auto selectStmt = kj::str("SELECT key, value FROM '", id, "' WHERE key = '", key, "';");
-    sqlite3_stmt* stmt = nullptr;
-    auto rc = sqlite3_prepare_v2(db, selectStmt.cStr(), -1, &stmt, NULL);
-    if(rc != SQLITE_OK) {
-      KJ_LOG(ERROR, "Can't prepare statement.", selectStmt);
-    } else {
-      rc = sqlite3_step(stmt);
-      if(rc == SQLITE_ROW) {
-        setObjectFromRow(objBuilder, stmt);
-      } else {
-        KJ_LOG(ERROR, "Can't get object.", selectStmt);
-      }
-      sqlite3_finalize(stmt);
-    }
-  }
-
-  void listObjects(capnp::List<mas::schema::storage::Store::Container::Object::Client, capnp::Kind::INTERFACE>::Builder list,
+  
+  void downloadEntries(capnp::List<mas::schema::common::Pair<capnp::Text, mas::schema::storage::Store::Container::Entry::Value>, capnp::Kind::STRUCT>::Builder list,
     bool encodeAnyValueAsBase64Text = false,
     capnp::List<bool, capnp::Kind::PRIMITIVE>::Builder isAnyValue = nullptr) {
+
     auto selectStmt = kj::str("SELECT key, value FROM '", id, "' ORDER BY key");
     sqlite3_stmt* stmt = nullptr;
     auto rc = sqlite3_prepare_v2(db, selectStmt.cStr(), -1, &stmt, NULL);
@@ -390,9 +383,12 @@ struct Container::Impl {
       KJ_ASSERT(!encodeAnyValueAsBase64Text || list.size() == isAnyValue.size());
       while(sqlite3_step(stmt) == SQLITE_ROW && i < list.size()) {
         if(encodeAnyValueAsBase64Text){
-          isAnyValue.set(i, setObjectFromRow(list[i], stmt, true));
+          auto keyAndSucc = ::_::getKeyAndSetValueFromDBRow(list[i].initSnd(), stmt, true);
+          list[i].setFst(kj::get<0>(keyAndSucc));
+          isAnyValue.set(i, kj::get<1>(keyAndSucc));
         } else {
-          setObjectFromRow(list[i], stmt);
+          auto keyAndSucc = ::_::getKeyAndSetValueFromDBRow(list[i].initSnd(), stmt);
+          list[i].setFst(kj::get<0>(keyAndSucc));
         }
         i++;
       } 
@@ -400,32 +396,37 @@ struct Container::Impl {
     }
   }
 
-  // void listObjects(capnp::List<mas::schema::storage::Store::Container::Object, capnp::Kind::STRUCT>::Builder list,
-  //   bool encodeAnyValueAsBase64Text = false,
-  //   capnp::List<bool, capnp::Kind::PRIMITIVE>::Builder isAnyValue = nullptr) {
-  //   auto selectStmt = kj::str("SELECT key, value FROM '", id, "' ORDER BY key");
-  //   sqlite3_stmt* stmt = nullptr;
-  //   auto rc = sqlite3_prepare_v2(db, selectStmt.cStr(), -1, &stmt, NULL);
-  //   if(rc != SQLITE_OK) {
-  //     KJ_LOG(ERROR, "Can't prepare statement.", selectStmt);
-  //   } else {
-  //     int i = 0;
-  //     // in case of to be encoded any values, we need to know which ones are encoded and sizes have to match
-  //     KJ_ASSERT(!encodeAnyValueAsBase64Text || list.size() == isAnyValue.size());
-  //     while(sqlite3_step(stmt) == SQLITE_ROW && i < list.size()) {
-  //       if(encodeAnyValueAsBase64Text){
-  //         isAnyValue.set(i, setObjectFromRow(list[i], stmt, true));
-  //       } else {
-  //         setObjectFromRow(list[i], stmt);
-  //       }
-  //       i++;
-  //     } 
-  //     sqlite3_finalize(stmt);
-  //   }
-  // }
+
+  void listEntries(capnp::List<mas::schema::storage::Store::Container::Entry, capnp::Kind::INTERFACE>::Builder list,
+    bool encodeAnyValueAsBase64Text = false,
+    capnp::List<bool, capnp::Kind::PRIMITIVE>::Builder isAnyValue = nullptr) {
+    auto selectStmt = kj::str("SELECT key FROM '", id, "' ORDER BY key");
+    sqlite3_stmt* stmt = nullptr;
+    auto rc = sqlite3_prepare_v2(db, selectStmt.cStr(), -1, &stmt, NULL);
+    if(rc != SQLITE_OK) {
+      KJ_LOG(ERROR, "Can't prepare statement.", selectStmt);
+    } else {
+      int i = 0;
+      // in case of to be encoded any values, we need to know which ones are encoded and sizes have to match
+      KJ_ASSERT(!encodeAnyValueAsBase64Text || list.size() == isAnyValue.size());
+      while(sqlite3_step(stmt) == SQLITE_ROW && i < list.size()) {
+        auto key = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+        // entry already cached?
+        KJ_IF_MAYBE(entry, entries.find(key)){
+          list[i] = *entry;
+        } else { // no, create one
+          mas::schema::storage::Store::Container::Entry::Client e = kj::heap<Entry>(self, key);
+          entries.insert(kj::str(key), e);
+          list[i] = e;
+        }
+        i++;
+      } 
+      sqlite3_finalize(stmt);
+    }
+  }
 
 
-  bool removeObject(kj::StringPtr key) {
+  bool removeEntry(kj::StringPtr key) {
     auto deleteStmt = kj::str("DELETE FROM '", id, "' WHERE key = '", key, "'");
     char* errMsg;
     auto rc = sqlite3_exec(db, deleteStmt.cStr(), NULL, NULL, &errMsg);
@@ -437,7 +438,8 @@ struct Container::Impl {
     return true;
   }
 
-  size_t countObjects() {
+
+  size_t countEntries() {
     auto selectStmt = kj::str("SELECT count(key) FROM '", id, "'");
     sqlite3_stmt* stmt = nullptr;
     auto rc = sqlite3_prepare_v2(db, selectStmt.cStr(), -1, &stmt, NULL);
@@ -449,7 +451,7 @@ struct Container::Impl {
       if(rc == SQLITE_ROW) {
         count = (size_t)sqlite3_column_int64(stmt, 0);
       } else {
-        KJ_LOG(ERROR, "Can't get object.", selectStmt);
+        KJ_LOG(ERROR, "Can't get entry.", selectStmt);
       }
       sqlite3_finalize(stmt);
     }
@@ -461,7 +463,7 @@ struct Container::Impl {
     char* errMsg;
     auto rc = sqlite3_exec(db, deleteStmt.cStr(), NULL, NULL, &errMsg);
     if(rc != SQLITE_OK) {
-      KJ_LOG(ERROR, "Can't delete all data from container.", deleteStmt, "Error:", errMsg);
+      KJ_LOG(ERROR, "Can't delete all entries from container.", deleteStmt, "Error:", errMsg);
       sqlite3_free(errMsg);
       return false;
     }
@@ -472,17 +474,34 @@ struct Container::Impl {
 
 // ----------------------------------------------------------------------
 
-struct Container::Impl {
-  mas::infrastructure::common::Restorer *restorer{nullptr};
-  sqlite3 *db{nullptr};
-  mas::schema::storage::Store::Container::Client client{nullptr};
+struct Entry::Impl {
+  Container::Impl *cImpl{nullptr};
+  kj::String key;
 
-  Impl(mas::infrastructure::common::Restorer *restorer, sqlite3 *db)
-  : restorer(restorer)
-  , db(db)
+  Impl(Container::Impl *ci, kj::StringPtr key)
+  : cImpl(ci)
+  , key(kj::str(key))
   {}    
 
   ~Impl() noexcept(false)  {}
+
+  void getEntryValue(mas::schema::storage::Store::Container::Entry::Value::Builder valueBuilder) {
+    auto selectStmt = kj::str("SELECT value FROM '", cImpl->id, "' WHERE key = '", key, "';");
+    sqlite3_stmt* stmt = nullptr;
+    auto rc = sqlite3_prepare_v2(cImpl->db, selectStmt.cStr(), -1, &stmt, NULL);
+    if(rc != SQLITE_OK) {
+      KJ_LOG(ERROR, "Can't prepare statement.", selectStmt);
+    } else {
+      rc = sqlite3_step(stmt);
+      if(rc == SQLITE_ROW) {
+        ::_::getKeyAndSetValueFromDBRow(valueBuilder, stmt);
+      } else {
+        KJ_LOG(ERROR, "Can't get object.", selectStmt);
+      }
+      sqlite3_finalize(stmt);
+    }
+  }
+
 
 };
 
@@ -561,10 +580,10 @@ kj::Promise<void> SqliteStorageService::importContainer(ImportContainerContext c
   json.decode(context.getParams().getJson(), builder);
   auto t = impl->createContainerDb(builder.getInfo().getName(), builder.getInfo().getDescription(), builder.getInfo().getId());
   auto container = kj::get<1>(t);
-  auto objs = builder.getObjects().asReader();
+  auto entries = builder.getEntries().asReader();
   auto isAnyValue = builder.getIsAnyValue().asReader();
-  for(auto i : kj::indices(objs)) {
-    container->impl->addObject(objs[i], isAnyValue[i]);
+  for(auto i : kj::indices(entries)) {
+    container->impl->addObject(entries[i].getFst(), entries[i].getSnd(), isAnyValue[i]);
   }
   context.getResults().setContainer(kj::get<0>(t));
   return kj::READY_NOW;
@@ -587,7 +606,7 @@ void SqliteStorageService::initFromStorageContainer(){
 // ----------------------------------------------------------------------
 
 Container::Container(SqliteStorageService& store, kj::StringPtr id, kj::StringPtr name, kj::StringPtr description)
-: impl(kj::heap<Impl>(store.impl->restorer, store.impl->db, id, name, description)) {
+: impl(kj::heap<Impl>(this, store.impl->restorer, store.impl->db, id, name, description)) {
 }
 
 Container::~Container() {}
@@ -623,39 +642,50 @@ kj::Promise<void> Container::export_(ExportContext context) {
   info.setName(impl->name);
   info.setDescription(impl->description);
   // encode anyvalues as base64 text
-  auto noOfObjects = impl->countObjects();
-  impl->listObjects(builder.initObjects(noOfObjects), true, builder.initIsAnyValue(noOfObjects));
+  auto noOfEntries = impl->countEntries();
+  impl->downloadEntries(builder.initEntries(noOfEntries), true, builder.initIsAnyValue(noOfEntries));
   auto expStr = json.encode(builder.asReader());
   context.getResults().setJson(expStr);
   return kj::READY_NOW;
 }
 
 
-kj::Promise<void> Container::listObjects(ListObjectsContext context) {
-  KJ_LOG(INFO, "listObjects message received");
-  auto count = impl->countObjects();
-  impl->listObjects(context.getResults().initObjects(count));
+kj::Promise<void> Container::downloadEntries(DownloadEntriesContext context) {
+  KJ_LOG(INFO, "downloadEntries message received");
+  auto count = impl->countEntries();
+  impl->downloadEntries(context.getResults().initEntries(count));
   return kj::READY_NOW;
 }
 
 
-kj::Promise<void> Container::getObject(GetObjectContext context) {
-  KJ_LOG(INFO, "getObject message received");
-  impl->getObject(context.getParams().getKey(), context.getResults().initObject());
+kj::Promise<void> Container::listEntries(ListEntriesContext context) {
+  KJ_LOG(INFO, "listEntries message received");
+  auto count = impl->countEntries();
+  impl->listEntries(context.getResults().initEntries(count));
   return kj::READY_NOW;
 }
 
 
-kj::Promise<void> Container::addObject(AddObjectContext context) {
-  KJ_LOG(INFO, "addObject message received");
-  context.getResults().setSuccess(impl->addObject(context.getParams().getObject()));
+kj::Promise<void> Container::getEntry(GetEntryContext context) {
+  KJ_LOG(INFO, "getEntries message received");
+  auto rs = context.getResults();
+  auto key = context.getParams().getKey();
+  KJ_IF_MAYBE(entry, impl->entries.find(key)){
+    rs.setEntry(*entry);
+    rs.setIsNew(false);
+  } else {
+    rs.setIsNew(true);
+    mas::schema::storage::Store::Container::Entry::Client newEntry = kj::heap<Entry>(this, key);
+    impl->entries.insert(kj::str(key), newEntry);
+    rs.setEntry(newEntry);
+  }
   return kj::READY_NOW;
 }
 
 
-kj::Promise<void> Container::removeObject(RemoveObjectContext context) {
+kj::Promise<void> Container::removeEntry(RemoveEntryContext context) {
   KJ_LOG(INFO, "removeObject message received");
-  context.getResults().setSuccess(impl->removeObject(context.getParams().getKey()));
+  context.getResults().setSuccess(impl->removeEntry(context.getParams().getKey()));
   return kj::READY_NOW;
 }
 
@@ -673,47 +703,30 @@ void Container::setClient(mas::schema::storage::Store::Container::Client c) { im
 
 // ----------------------------------------------------------------------
 
-Object::Object(SqliteStorageService& store)
-: impl(kj::heap<Impl>(store.impl->restorer, store.impl->db)) {
+Entry::Entry(Container *c, kj::StringPtr key)
+: impl(kj::heap<Impl>(c->impl, key)) {
 }
 
-Object::~Object() {}
+Entry::~Entry() {}
 
-kj::Promise<void> Container::getKey(GetKeyContext context) {
+kj::Promise<void> Entry::getKey(GetKeyContext context) {
   KJ_LOG(INFO, "getKey message received");
-  // auto rs = context.getResults();
-  // rs.setId(impl->id);
-  // rs.setName(impl->name);
-  // rs.setDescription(impl->description);
+  context.getResults().setKey(impl->key);
   return kj::READY_NOW;
 }
 
 
-kj::Promise<void> Container::getValue(GetValueContext context) {
+kj::Promise<void> Entry::getValue(GetValueContext context) {
   KJ_LOG(INFO, "getValue message received");
-  // if(impl->restorer) {
-  //   return impl->restorer->save(impl->client, context.getResults().initSturdyRef(), context.getResults().initUnsaveSR(),
-  //     nullptr, nullptr, true, impl->id);
-  // }
+  impl->getEntryValue(context.getResults().initValue());
   return kj::READY_NOW;
 }
 
 
-kj::Promise<void> Container::setValue(SetValueContext context) {
+kj::Promise<void> Entry::setValue(SetValueContext context) {
   KJ_LOG(INFO, "setValue message received");
-  // capnp::JsonCodec json;
-  // json.setPrettyPrint(true);
-  // capnp::MallocMessageBuilder msg;
-  // auto builder = msg.initRoot<mas::schema::storage::Store::ImportExportData>();
-  // auto info = builder.initInfo();
-  // info.setId(impl->id);
-  // info.setName(impl->name);
-  // info.setDescription(impl->description);
-  // // encode anyvalues as base64 text
-  // auto noOfObjects = impl->countObjects();
-  // impl->listObjects(builder.initObjects(noOfObjects), true, builder.initIsAnyValue(noOfObjects));
-  // auto expStr = json.encode(builder.asReader());
-  // context.getResults().setJson(expStr);
+
+
   return kj::READY_NOW;
 }
 

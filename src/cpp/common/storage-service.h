@@ -61,6 +61,7 @@ private:
   kj::Own<Impl> impl;
 
   friend class Container;
+  friend class Object;
 };
 
 //-----------------------------------------------------------------------------
@@ -77,13 +78,13 @@ public:
 
   kj::Promise<void> export_(ExportContext context) override;
 
-  kj::Promise<void> listObjects(ListObjectsContext context) override;
+  kj::Promise<void> downloadEntries(DownloadEntriesContext context) override;
 
-  kj::Promise<void> getObject(GetObjectContext context) override;
+  kj::Promise<void> listEntries(ListEntriesContext context) override;
 
-  kj::Promise<void> addObject(AddObjectContext context) override;
+  kj::Promise<void> getEntry(GetEntryContext context) override;
 
-  kj::Promise<void> removeObject(RemoveObjectContext context) override;
+  kj::Promise<void> removeEntry(RemoveEntryContext context) override;
 
   kj::Promise<void> clear(ClearContext context) override;
 
@@ -95,19 +96,20 @@ private:
   kj::Own<Impl> impl;
 
   friend class SqliteStorageService;
+  friend class Entry;
 };
 
 //-----------------------------------------------------------------------------
 
-class Object final : public mas::schema::storage::Store::Object::Server {
+class Entry final : public mas::schema::storage::Store::Container::Entry::Server {
 public:
-  Object(SqliteStorageService& s);
+  Entry(Container *container, kj::StringPtr key);
 
-  virtual ~Object() noexcept(false);
+  virtual ~Entry() noexcept(false);
 
   kj::Promise<void> getKey(GetKeyContext context) override;
 
-  kj::Promise<void> getValue_(GetValueContext context) override;
+  kj::Promise<void> getValue(GetValueContext context) override;
 
   kj::Promise<void> setValue(SetValueContext context) override;
 
