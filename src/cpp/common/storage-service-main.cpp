@@ -56,15 +56,16 @@ public:
     mas::schema::storage::Store::Client storeClient = kj::mv(store);
 
     // make sure we a storage container for the storage service itself
-    mas::schema::storage::Store::Container::Client restorerContainerClient = nullptr;
+    kj::Maybe<mas::schema::storage::Store::Container::Client> restorerContainerClient;
     // no container id or sturdy ref given, create a new container and return its id
     if(restorerContainerId.size() == 0 && restorerContainerSR.size() == 0){
       // get a new container
       auto req = storeClient.newContainerRequest();
       req.setName("Restorer data");
-      restorerContainerClient = req.send().wait(ioContext.waitScope).getContainer();
+      auto rcc = req.send().wait(ioContext.waitScope).getContainer();
       // get the id of the container
-      auto containerId = restorerContainerClient.infoRequest().send().wait(ioContext.waitScope).getId();
+      auto containerId = rcc.infoRequest().send().wait(ioContext.waitScope).getId();
+      restorerContainerClient = rcc;
       KJ_LOG(INFO, "Id of newly create container for restorer:", containerId);
     } else if(restorerContainerId.size() > 0) { // we got an container id for the local store, get container
       auto req = storeClient.containerWithIdRequest();
@@ -76,8 +77,22 @@ public:
     auto restorer = kj::get<1>(startRestorableParts(storeClient, restorerContainerClient));
     storeRef.setRestorer(restorer);
 
-    // get the sturdy ref to the storage service itself    
-    auto serviceSR = kj::get<0>(restorer->saveStr(storeClient).wait(ioContext.waitScope));
+    kj::String serviceSR;
+    KJ_IF_MAYBE(rcc, restorerContainerClient) {
+      auto req = rcc->getEntryRequest();
+      req.setKey("storage_service_sr");
+      auto res = req.send().wait(ioContext.waitScope);
+      if(!res.getIsNew()) {
+        serviceSR = kj::str(res.getEntry().getValueRequest().send().wait(ioContext.waitScope).getValue().getTextValue());
+      } else {
+        serviceSR = kj::get<0>(restorer->saveStr(storeClient).wait(ioContext.waitScope));
+        
+      }
+    } else {
+      // get the sturdy ref to the storage service itself    
+      serviceSR = kj::get<0>(restorer->saveStr(storeClient).wait(ioContext.waitScope));
+      auto req      
+    }
     KJ_LOG(INFO, serviceSR);
     KJ_LOG(INFO, "created storage service");
     

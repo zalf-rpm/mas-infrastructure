@@ -84,6 +84,8 @@ public:
 
   kj::Promise<void> getEntry(GetEntryContext context) override;
 
+  kj::Promise<void> addEntry(AddEntryContext context) override;
+
   kj::Promise<void> removeEntry(RemoveEntryContext context) override;
 
   kj::Promise<void> clear(ClearContext context) override;
@@ -103,7 +105,7 @@ private:
 
 class Entry final : public mas::schema::storage::Store::Container::Entry::Server {
 public:
-  Entry(Container *container, kj::StringPtr key);
+  Entry(Container *container, kj::StringPtr key, bool isUnset);
 
   virtual ~Entry() noexcept(false);
 

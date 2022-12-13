@@ -204,11 +204,12 @@ struct Restorer::Impl {
       req.setKey(srToken);
       auto valueProm = req.send().getEntry().getValueRequest().send();
       return valueProm.then([this, getCap, srToken](auto&& resp) -> SRData*  {
+        if(resp.getIsUnset()) return nullptr;
         auto value = resp.getValue();
-        //return kj::Maybe<capnp::Capability::Client>(nullptr);
         auto srData = kj::heap<SRData>();
         std::string err;
-        for(const auto& kv : json11::Json::parse(value.getTextValue().cStr(), err).object_items()){
+        auto json = json11::Json::parse(value.getTextValue().cStr(), err);
+        for(const auto& kv : json.object_items()){
           auto key = kv.first;
           if(key == "ownerGuid") srData->ownerGuid = kj::str(kv.second.string_value());
           else if(key == "restoreToken") srData->restoreToken = kj::str(kv.second.string_value());
@@ -300,13 +301,16 @@ kj::Promise<void> Restorer::setPort(int p) {
     svReq.initValue().setIntValue(p);
     return svReq.send().ignoreResult();
   }
+  return kj::READY_NOW;
 }
 
 kj::StringPtr Restorer::getHost() const { return impl->host; }
+
 void Restorer::setHost(kj::StringPtr h) { impl->host = kj::str(h); }
 
 
 mas::schema::storage::Store::Container::Client Restorer::getStore() { return impl->store; }
+
 kj::Promise<void> Restorer::setStorageContainer(mas::schema::storage::Store::Container::Client s, bool initFromContainer) { 
   impl->store = s; 
   impl->isStoreSet = true;
@@ -315,8 +319,7 @@ kj::Promise<void> Restorer::setStorageContainer(mas::schema::storage::Store::Con
     auto req = s.getEntryRequest();
     req.setKey("port");
     return req.send().getEntry().getValueRequest().send().then([this](auto&& resp) {
-      auto port = resp.getValue().getIntValue();
-      if(port != 0) impl->port = port;
+      if(!resp.getIsUnset()) impl->port = resp.getValue().getIntValue();
     });
   }
 

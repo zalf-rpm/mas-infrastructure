@@ -38,7 +38,7 @@ interface Store extends(Common.Identifiable, Persistent) {
       getKey    @0 () -> (key :Text);
       # get key
 
-      getValue  @1 () -> (value :Value);
+      getValue  @1 () -> (value :Value, isUnset :Bool);
       # get value
 
       setValue  @2 (value :Value) -> (success :Bool);
@@ -56,6 +56,9 @@ interface Store extends(Common.Identifiable, Persistent) {
 
     getEntry          @3 (key :Text) -> (entry :Entry, isNew :Bool);
     # get an entry by key, potentially creating a new one
+
+    addEntry          @6 (key :Text, value :Entry.Value, replaceExisting :Bool = false) -> (entry :Entry, success :Bool);
+    # add a new entry
 
     removeEntry       @4 (key :Text) -> (success :Bool);
     # remove an entry from the container

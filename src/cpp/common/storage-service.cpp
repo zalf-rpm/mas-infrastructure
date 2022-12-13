@@ -53,11 +53,13 @@ using namespace mas::infrastructure::storage;
 
 namespace _ { // private
 
+  // set entry value and return if the anyValue was encoded as base64 text
   bool setEntryValue(
     mas::schema::storage::Store::Container::Entry::Value::Builder b, 
     mas::schema::storage::Store::Container::Entry::Value::Reader r,
     bool encodeAnyValueAsBase64Text = false,
     bool decodeAnyValueFromBase64Text = false) {
+
     bool wasAnyValueEncodedAsBase64Text = false;
     switch(r.which()){
       case mas::schema::storage::Store::Container::Entry::Value::BOOL_VALUE:
@@ -135,6 +137,7 @@ namespace _ { // private
     return wasAnyValueEncodedAsBase64Text;
   }
 
+  // set entry value from db row and return the key and if the anyValue was encoded as base64 text
   kj::Tuple<kj::String, bool> 
   getKeyAndSetValueFromDBRow(mas::schema::storage::Store::Container::Entry::Value::Builder b, sqlite3_stmt* stmt,
     bool encodeAnyValueAsBase64Text = false) {
@@ -339,12 +342,13 @@ struct Container::Impl {
 
   ~Impl() noexcept(false)  {}
   
-  bool addObject(kj::StringPtr key, mas::schema::storage::Store::Container::Entry::Value::Reader value,
+  kj::Maybe<mas::schema::storage::Store::Container::Entry::Client>
+  addEntry(kj::StringPtr key, mas::schema::storage::Store::Container::Entry::Value::Reader value,
     bool decodeAnyValueFromBase64Text = false) {
     auto insertStmt = kj::str("INSERT INTO '", id, "' (key, value) VALUES ('", key, "', ?);");
     sqlite3_stmt* stmt = nullptr;
     auto rc = sqlite3_prepare_v2(db, insertStmt.cStr(), -1, &stmt, NULL);
-    bool success = false;
+    kj::Maybe<mas::schema::storage::Store::Container::Entry::Client> result;
     if(rc != SQLITE_OK) {
       KJ_LOG(ERROR, "Can't prepare statement.", insertStmt);
     } else {
@@ -358,9 +362,43 @@ struct Container::Impl {
       auto filledBytes = outs.getArray();
       sqlite3_bind_blob(stmt, 1, filledBytes.begin(), filledBytes.size(), SQLITE_STATIC);
       rc = sqlite3_step(stmt);
+      bool success = rc == SQLITE_DONE;
+      if(success){
+        using C = mas::schema::storage::Store::Container::Entry::Client;
+        C e = kj::heap<Entry>(self, key, false);
+        entries.insert(kj::str(key), C(e));
+        result = e;
+      } else {
+        KJ_LOG(ERROR, "Can't insert entry.", insertStmt);
+      }
+      sqlite3_finalize(stmt);
+    }
+    return nullptr;
+  }
+
+
+  bool updateEntry(kj::StringPtr key, mas::schema::storage::Store::Container::Entry::Value::Reader value,
+    bool decodeAnyValueFromBase64Text = false) {
+    auto updateStmt = kj::str("UPDATE '", id, "' SET value = ? WHERE key = '", key, "'");
+    sqlite3_stmt* stmt = nullptr;
+    auto rc = sqlite3_prepare_v2(db, updateStmt.cStr(), -1, &stmt, NULL);
+    bool success = false;
+    if(rc != SQLITE_OK) {
+      KJ_LOG(ERROR, "Can't prepare statement.", updateStmt);
+    } else {
+      capnp::MallocMessageBuilder message;
+      auto builder = message.initRoot<mas::schema::storage::Store::Container::Entry::Value>();
+      ::_::setEntryValue(builder, value, false, decodeAnyValueFromBase64Text);
+      auto sizeInBytes = message.sizeInWords()*sizeof(capnp::word);
+      kj::Array<kj::byte> bytes = kj::heapArray<kj::byte>(sizeInBytes);
+      kj::ArrayOutputStream outs(bytes);
+      capnp::writePackedMessage(outs, message);
+      auto filledBytes = outs.getArray();
+      sqlite3_bind_blob(stmt, 1, filledBytes.begin(), filledBytes.size(), SQLITE_STATIC);
+      rc = sqlite3_step(stmt);
       success = rc == SQLITE_DONE;
       if(!success) {
-        KJ_LOG(ERROR, "Can't insert object.", insertStmt);
+        KJ_LOG(INFO, "Can't update entry.", updateStmt);
       }
       sqlite3_finalize(stmt);
     }
@@ -415,8 +453,9 @@ struct Container::Impl {
         KJ_IF_MAYBE(entry, entries.find(key)){
           list[i] = *entry;
         } else { // no, create one
-          mas::schema::storage::Store::Container::Entry::Client e = kj::heap<Entry>(self, key);
-          entries.insert(kj::str(key), e);
+          using C = mas::schema::storage::Store::Container::Entry::Client;
+          C e = kj::heap<Entry>(self, key, false);
+          entries.insert(kj::str(key), C(e));
           list[i] = e;
         }
         i++;
@@ -477,16 +516,21 @@ struct Container::Impl {
 struct Entry::Impl {
   Container::Impl *cImpl{nullptr};
   kj::String key;
+  bool isUnset{true};
 
-  Impl(Container::Impl *ci, kj::StringPtr key)
+  Impl(Container::Impl *ci, kj::StringPtr key, bool isUnset)
   : cImpl(ci)
   , key(kj::str(key))
+  , isUnset(isUnset)
   {}    
 
   ~Impl() noexcept(false)  {}
 
-  void getEntryValue(mas::schema::storage::Store::Container::Entry::Value::Builder valueBuilder) {
-    auto selectStmt = kj::str("SELECT value FROM '", cImpl->id, "' WHERE key = '", key, "';");
+  // get entry value and return false if it didn't exist
+  bool getEntryValue(mas::schema::storage::Store::Container::Entry::Value::Builder valueBuilder) {
+
+    bool keyExists = false;
+    auto selectStmt = kj::str("SELECT key, value FROM '", cImpl->id, "' WHERE key = '", key, "';");
     sqlite3_stmt* stmt = nullptr;
     auto rc = sqlite3_prepare_v2(cImpl->db, selectStmt.cStr(), -1, &stmt, NULL);
     if(rc != SQLITE_OK) {
@@ -495,11 +539,15 @@ struct Entry::Impl {
       rc = sqlite3_step(stmt);
       if(rc == SQLITE_ROW) {
         ::_::getKeyAndSetValueFromDBRow(valueBuilder, stmt);
+        keyExists = true;
+        isUnset = false;
       } else {
-        KJ_LOG(ERROR, "Can't get object.", selectStmt);
+        KJ_LOG(INFO, "Can't get entry value.", selectStmt);
+        isUnset = true;
       }
       sqlite3_finalize(stmt);
     }
+    return keyExists;
   }
 
 
@@ -583,7 +631,7 @@ kj::Promise<void> SqliteStorageService::importContainer(ImportContainerContext c
   auto entries = builder.getEntries().asReader();
   auto isAnyValue = builder.getIsAnyValue().asReader();
   for(auto i : kj::indices(entries)) {
-    container->impl->addObject(entries[i].getFst(), entries[i].getSnd(), isAnyValue[i]);
+    container->impl->addEntry(entries[i].getFst(), entries[i].getSnd(), isAnyValue[i]);
   }
   context.getResults().setContainer(kj::get<0>(t));
   return kj::READY_NOW;
@@ -675,16 +723,42 @@ kj::Promise<void> Container::getEntry(GetEntryContext context) {
     rs.setIsNew(false);
   } else {
     rs.setIsNew(true);
-    mas::schema::storage::Store::Container::Entry::Client newEntry = kj::heap<Entry>(this, key);
-    impl->entries.insert(kj::str(key), newEntry);
+    using C = mas::schema::storage::Store::Container::Entry::Client;
+    C newEntry = kj::heap<Entry>(this, key, true);
+    impl->entries.insert(kj::str(key), C(newEntry));
     rs.setEntry(newEntry);
   }
   return kj::READY_NOW;
 }
 
 
+kj::Promise<void> Container::addEntry(AddEntryContext context) {
+  KJ_LOG(INFO, "addEntries message received");
+  auto rs = context.getResults();
+  auto ps = context.getParams();
+  auto key = ps.getKey();
+  // key already exists
+  KJ_IF_MAYBE(entry, impl->entries.find(key)){
+    if (ps.getReplaceExisting()) {
+      auto req = entry->setValueRequest();
+      req.setValue(ps.getValue());
+      return req.send().then([context, KJ_MVCAP(entry)](auto&& res) mutable {
+        context.getResults().setEntry(*entry);
+      });
+    } else {
+      context.getResults().setSuccess(false);
+    }
+  } else {
+    KJ_IF_MAYBE(entry, impl->addEntry(key, ps.getValue())){
+      rs.setEntry(*entry);
+    }
+  }
+  return kj::READY_NOW;
+}
+
+
 kj::Promise<void> Container::removeEntry(RemoveEntryContext context) {
-  KJ_LOG(INFO, "removeObject message received");
+  KJ_LOG(INFO, "removeEntry message received");
   context.getResults().setSuccess(impl->removeEntry(context.getParams().getKey()));
   return kj::READY_NOW;
 }
@@ -703,8 +777,8 @@ void Container::setClient(mas::schema::storage::Store::Container::Client c) { im
 
 // ----------------------------------------------------------------------
 
-Entry::Entry(Container *c, kj::StringPtr key)
-: impl(kj::heap<Impl>(c->impl, key)) {
+Entry::Entry(Container *c, kj::StringPtr key, bool isUnset)
+: impl(kj::heap<Impl>(c->impl, key, isUnset)) {
 }
 
 Entry::~Entry() {}
@@ -718,15 +792,16 @@ kj::Promise<void> Entry::getKey(GetKeyContext context) {
 
 kj::Promise<void> Entry::getValue(GetValueContext context) {
   KJ_LOG(INFO, "getValue message received");
-  impl->getEntryValue(context.getResults().initValue());
+  auto rs = context.getResults();
+  rs.setIsUnset(!impl->getEntryValue(rs.initValue()));
   return kj::READY_NOW;
 }
 
 
 kj::Promise<void> Entry::setValue(SetValueContext context) {
   KJ_LOG(INFO, "setValue message received");
-
-
+  if(impl->isUnset) context.getResults().setSuccess(impl->cImpl->addEntry(impl->key, context.getParams().getValue()));
+  else context.getResults().setSuccess(impl->cImpl->updateEntry(impl->key, context.getParams().getValue()));
   return kj::READY_NOW;
 }
 
