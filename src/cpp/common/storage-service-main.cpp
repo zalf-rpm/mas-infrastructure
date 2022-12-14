@@ -81,17 +81,22 @@ public:
     KJ_IF_MAYBE(rcc, restorerContainerClient) {
       auto req = rcc->getEntryRequest();
       req.setKey("storage_service_sr");
-      auto res = req.send().wait(ioContext.waitScope);
-      if(!res.getIsNew()) {
-        serviceSR = kj::str(res.getEntry().getValueRequest().send().wait(ioContext.waitScope).getValue().getTextValue());
+      auto entryProm = req.send().getEntry();
+      auto value = entryProm.getValueRequest().send().wait(ioContext.waitScope);
+      if(value.getIsUnset()) {
+        auto ssr = restorer->saveStr(storeClient).wait(ioContext.waitScope);
+        serviceSR = kj::mv(ssr.sturdyRef);
+        auto svReq = entryProm.setValueRequest();
+        svReq.initValue().setTextValue(kj::mv(ssr.srToken));
+        auto succ = svReq.send().wait(ioContext.waitScope).getSuccess();
+        KJ_LOG(INFO, "set storage service sturdy ref in restorer container: ", succ);
       } else {
-        serviceSR = kj::get<0>(restorer->saveStr(storeClient).wait(ioContext.waitScope));
-        
+        auto serviceSRToken = kj::str(value.getValue().getTextValue());
+        serviceSR = restorer->saveStr(storeClient, serviceSRToken, nullptr, false, nullptr, false).wait(ioContext.waitScope).sturdyRef;
       }
     } else {
       // get the sturdy ref to the storage service itself    
-      serviceSR = kj::get<0>(restorer->saveStr(storeClient).wait(ioContext.waitScope));
-      auto req      
+      serviceSR = restorer->saveStr(storeClient, nullptr, nullptr, false, nullptr, true).wait(ioContext.waitScope).sturdyRef;
     }
     KJ_LOG(INFO, serviceSR);
     KJ_LOG(INFO, "created storage service");

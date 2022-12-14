@@ -54,12 +54,12 @@ interface Store extends(Common.Identifiable, Persistent) {
     listEntries       @2 () -> (entries :List(Entry));
     # download all entries in the container
 
-    getEntry          @3 (key :Text) -> (entry :Entry, isNew :Bool);
-    # get an entry by key, potentially creating a new one
+    getEntry          @3 (key :Text) -> (entry :Entry);
+    # get an entry by key, potentially creating a new one (find out via entry.getValue().isUnset())
 
     addEntry          @6 (key :Text, value :Entry.Value, replaceExisting :Bool = false) -> (entry :Entry, success :Bool);
-    # add a new entry
-
+    # add a new entry, replace an existing entry if needed, return the entry and a success flag
+    
     removeEntry       @4 (key :Text) -> (success :Bool);
     # remove an entry from the container
 

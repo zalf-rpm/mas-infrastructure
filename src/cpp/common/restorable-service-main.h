@@ -48,11 +48,11 @@ public:
   kj::MainBuilder::Validity setRegistrarSR(kj::StringPtr sr);
   kj::MainBuilder::Validity setRegName(kj::StringPtr n);
   kj::MainBuilder::Validity setRegCategory(kj::StringPtr cat);
+  kj::MainBuilder::Validity setInitRestorerFromContainer(kj::StringPtr init);
 
   kj::Tuple<mas::schema::persistence::Restorer::Client, Restorer*> 
   startRestorableParts(mas::schema::common::Identifiable::Client serviceClient,
-    kj::Maybe<mas::schema::storage::Store::Container::Client> restorerContainerClient = nullptr,
-    bool initRestorerFromContainer = true);
+    kj::Maybe<mas::schema::storage::Store::Container::Client> restorerContainerClient = nullptr);
 
   kj::MainBuilder& addRestorableServiceOptions();
 
@@ -61,6 +61,7 @@ protected:
   mas::schema::persistence::Restorer::Client restorerClient{nullptr};
   mas::schema::common::Action::Client serviceUnregisterAction{nullptr};
   Restorer* restorer{nullptr};
+  bool initRestorerFromContainer{true};
   kj::Own<mas::infrastructure::common::ConnectionManager> conMan;
   kj::ProcessContext &context;
   kj::AsyncIoContext ioContext;

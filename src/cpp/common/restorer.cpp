@@ -436,16 +436,16 @@ kj::Promise<void> Restorer::save(capnp::Capability::Client cap,
   return kj::joinPromises(storePromises.finish()).ignoreResult();
 }
 
-kj::Promise<kj::Tuple<kj::String, kj::String>> Restorer::saveStr(capnp::Capability::Client cap, 
+kj::Promise<Restorer::SaveStrResult> Restorer::saveStr(capnp::Capability::Client cap, 
   kj::StringPtr fixedSRToken, kj::StringPtr sealForOwner, bool createUnsave,
-  kj::StringPtr restoreToken) {
+  kj::StringPtr restoreToken, bool storeSturdyRefs) {
 
   auto storePromises = kj::heapArrayBuilder<kj::Promise<bool>>(createUnsave ? 2 : 1);
   auto srToken = fixedSRToken == nullptr ? kj::str(sole::uuid4().str()) : kj::str(fixedSRToken);
   try {  
     auto &srEntry = impl->issuedSRTokens.insert(kj::str(srToken), {kj::str(sealForOwner), kj::mv(cap), true, kj::str(restoreToken)});
     // store sturdy ref data for later restoral 
-    if(impl->isStoreSet){
+    if(impl->isStoreSet && storeSturdyRefs){
       auto srdJson = srEntry.value.toJson();
       auto req = impl->store.getEntryRequest();
       req.setKey(srToken);
@@ -460,8 +460,9 @@ kj::Promise<kj::Tuple<kj::String, kj::String>> Restorer::saveStr(capnp::Capabili
     kj::throwRecoverableException(KJ_EXCEPTION(FAILED, srToken, "already used")); 
   }
   kj::String unsaveSRStr;
+  kj::String unsaveSRToken;
   if(createUnsave) {
-    auto unsaveSRToken = kj::str(sole::uuid4().str());
+    unsaveSRToken = kj::str(sole::uuid4().str());
     auto srt = str(srToken);
     auto usrt = str(unsaveSRToken);
     auto unsaveAction = kj::heap<Action>([this, KJ_MVCAP(srt), KJ_MVCAP(usrt)]() { 
@@ -471,7 +472,7 @@ kj::Promise<kj::Tuple<kj::String, kj::String>> Restorer::saveStr(capnp::Capabili
       kj::str(restoreToken), kj::str(unsaveSRToken)});
     unsaveSRStr = sturdyRefStr(unsaveSRToken);
 
-    if(impl->isStoreSet){
+    if(impl->isStoreSet && storeSturdyRefs){
       auto srdJson = usrEntry.value.toJson();
       auto req = impl->store.getEntryRequest();
       req.setKey(unsaveSRToken);
@@ -482,13 +483,11 @@ kj::Promise<kj::Tuple<kj::String, kj::String>> Restorer::saveStr(capnp::Capabili
       }));
     }
   }
-
   
   return kj::joinPromises(storePromises.finish()).ignoreResult().then(
-    [this, KJ_MVCAP(srToken), KJ_MVCAP(unsaveSRStr)]() mutable { 
-      return kj::tuple(sturdyRefStr(srToken), kj::mv(unsaveSRStr)); 
+    [this, KJ_MVCAP(srToken), KJ_MVCAP(unsaveSRToken)]() mutable { 
+      return SaveStrResult({sturdyRefStr(srToken), kj::mv(srToken), sturdyRefStr(unsaveSRToken), kj::mv(unsaveSRToken)}); 
   });
-  //return kj::tuple(sturdyRefStr(srToken), kj::mv(unsaveSRStr));
 }
 
 void Restorer::unsave(kj::StringPtr srToken) 

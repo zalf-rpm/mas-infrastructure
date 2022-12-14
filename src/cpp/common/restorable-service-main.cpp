@@ -56,10 +56,13 @@ kj::MainBuilder::Validity RestorableServiceMain::setRegName(kj::StringPtr n) { r
 
 kj::MainBuilder::Validity RestorableServiceMain::setRegCategory(kj::StringPtr cat) { regCategory = kj::str(cat); return true; }
 
+kj::MainBuilder::Validity RestorableServiceMain::setInitRestorerFromContainer(kj::StringPtr init) { 
+  initRestorerFromContainer = init == "true"; return true; 
+}
+
 kj::Tuple<mas::schema::persistence::Restorer::Client, Restorer*> 
 RestorableServiceMain::startRestorableParts(mas::schema::common::Identifiable::Client serviceClient,
-  kj::Maybe<mas::schema::storage::Store::Container::Client> restorerContainerClient,
-  bool initRestorerFromContainer)
+  kj::Maybe<mas::schema::storage::Store::Container::Client> restorerContainerClient)
 {
   KJ_LOG(INFO, "starting restorable service");
   

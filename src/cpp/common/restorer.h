@@ -62,10 +62,17 @@ class Restorer final : public mas::schema::persistence::Restorer::Server
     kj::StringPtr sealForOwner = nullptr, bool createUnsave = true,
     kj::StringPtr restoreToken = nullptr);
 
-  kj::Promise<kj::Tuple<kj::String, kj::String>> saveStr(capnp::Capability::Client cap, 
+  struct SaveStrResult {
+    kj::String sturdyRef;
+    kj::String srToken;
+    kj::String unsaveSR;
+    kj::String unsaveSRToken;
+  };
+  kj::Promise<SaveStrResult> saveStr(capnp::Capability::Client cap, 
     kj::StringPtr fixedSRToken = nullptr,
     kj::StringPtr sealForOwner = nullptr, bool createUnsave = true,
-    kj::StringPtr restoreToken = nullptr);
+    kj::StringPtr restoreToken = nullptr,
+    bool storeSturdyRefs = true);
 
   void unsave(kj::StringPtr srToken);
 
