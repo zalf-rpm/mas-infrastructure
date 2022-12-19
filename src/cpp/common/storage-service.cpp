@@ -365,7 +365,7 @@ struct Container::Impl {
       auto filledBytes = outs.getArray();
       sqlite3_bind_blob(stmt, 1, filledBytes.begin(), filledBytes.size(), SQLITE_STATIC);
       rc = sqlite3_step(stmt);
-      bool success = rc == SQLITE_DONE;
+      success = rc == SQLITE_DONE;
       if(!success){
         KJ_LOG(ERROR, "Can't insert entry.", insertStmt);
       }
@@ -713,7 +713,7 @@ kj::Promise<void> Container::listEntries(ListEntriesContext context) {
 
 
 kj::Promise<void> Container::getEntry(GetEntryContext context) {
-  KJ_LOG(INFO, "getEntries message received");
+  KJ_LOG(INFO, "getEntry message received");
   auto rs = context.getResults();
   auto key = context.getParams().getKey();
   KJ_IF_MAYBE(entry, impl->entries.find(key)){
@@ -729,7 +729,7 @@ kj::Promise<void> Container::getEntry(GetEntryContext context) {
 
 
 kj::Promise<void> Container::addEntry(AddEntryContext context) {
-  KJ_LOG(INFO, "addEntries message received");
+  KJ_LOG(INFO, "addEntry message received");
   auto rs = context.getResults();
   auto ps = context.getParams();
   auto key = ps.getKey();
@@ -805,6 +805,7 @@ kj::Promise<void> Entry::getValue(GetValueContext context) {
 
 kj::Promise<void> Entry::setValue(SetValueContext context) {
   KJ_LOG(INFO, "setValue message received");
+  KJ_DBG(impl->key);
   auto rs = context.getResults();
   if(impl->isUnset) {
     context.getResults().setSuccess(impl->cImpl->addEntryDB(impl->key, context.getParams().getValue()));

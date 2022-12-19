@@ -93,8 +93,11 @@ RestorableServiceMain::startRestorableParts(mas::schema::common::Identifiable::C
     restorer->setHost(localHost);
     conMan->setLocallyUsedHost(localHost);
   }
-  auto port = portPromise.wait(ioContext.waitScope);
-  restorer->setPort(port);
+  auto port = portPromise.then([this](auto port){ 
+    return restorer->setPort(port).then([port](){ 
+      return port; 
+    });
+  }).wait(ioContext.waitScope); 
   KJ_LOG(INFO, "bound to", host, port);
 
   
