@@ -48,7 +48,7 @@ kj::MainBuilder::Validity RestorableServiceMain::setCheckIP(kj::StringPtr ip) { 
 
 kj::MainBuilder::Validity RestorableServiceMain::setRestorerContainerSR(kj::StringPtr sr) { restorerContainerSR = kj::str(sr); return true; }
 
-kj::MainBuilder::Validity RestorableServiceMain::setRestorerContainerId(kj::StringPtr id) { restorerContainerId = kj::str(id); return true; }
+kj::MainBuilder::Validity RestorableServiceMain::setServiceContainerSR(kj::StringPtr sr) { serviceContainerSR = kj::str(sr); return true; }
 
 kj::MainBuilder::Validity RestorableServiceMain::setRegistrarSR(kj::StringPtr sr) { registrarSR = kj::str(sr); return true; }
 
@@ -56,34 +56,43 @@ kj::MainBuilder::Validity RestorableServiceMain::setRegName(kj::StringPtr n) { r
 
 kj::MainBuilder::Validity RestorableServiceMain::setRegCategory(kj::StringPtr cat) { regCategory = kj::str(cat); return true; }
 
-kj::MainBuilder::Validity RestorableServiceMain::setInitRestorerFromContainer(kj::StringPtr init) { 
-  initRestorerFromContainer = init == "true"; return true; 
+kj::MainBuilder::Validity RestorableServiceMain::setInitServiceFromContainer(kj::StringPtr init) { 
+  initRestorerFromContainer = init == "true"; 
+  initServiceFromContainer = init == "true";
+  return true; 
 }
 
-kj::Tuple<mas::schema::persistence::Restorer::Client, Restorer*> 
-RestorableServiceMain::startRestorableParts(mas::schema::common::Identifiable::Client serviceClient,
-  kj::Maybe<mas::schema::storage::Store::Container::Client> restorerContainerClient)
+void RestorableServiceMain::startRestorerSetup(mas::schema::common::Identifiable::Client serviceClient)
 {
-  KJ_LOG(INFO, "starting restorable service");
+  KJ_LOG(INFO, "Starting restorer setup.");
   
   auto ownedRestorer = kj::heap<mas::infrastructure::common::Restorer>();
   restorer = ownedRestorer.get();
   conMan = kj::heap<mas::infrastructure::common::ConnectionManager>(restorer);
   restorerClient = kj::mv(ownedRestorer);
   KJ_ASSERT(restorer != nullptr);
-  KJ_LOG(INFO, "created restorer");
+  KJ_LOG(INFO, "Created restorer.");
   
-  //connect to restorer container
-  KJ_IF_MAYBE(rcc, restorerContainerClient){
-    restorer->setStorageContainer(*rcc, initRestorerFromContainer).wait(ioContext.waitScope);
-  } else if(restorerContainerSR.size() > 0){
-    auto rcc_ = conMan->tryConnectB(ioContext, restorerContainerSR).castAs<mas::schema::storage::Store::Container>();
-    restorer->setStorageContainer(rcc_, initRestorerFromContainer).wait(ioContext.waitScope);
+  // if a restorer container stury ref is given, try to connect to it
+  if (restorerContainerClient == nullptr && restorerContainerSR.size() > 0) {
+    restorerContainerClient = conMan->tryConnectB(ioContext, restorerContainerSR).castAs<mas::schema::storage::Store::Container>();
   }
 
+  // if a service container sturdy ref is given, try to connect to it
+  if (serviceContainerClient == nullptr && serviceContainerSR.size() > 0) {
+    serviceContainerClient = conMan->tryConnectB(ioContext, serviceContainerSR).castAs<mas::schema::storage::Store::Container>();
+  }
+
+  // set the restorers storage container, which also will try to load a previously stored port if initRestorerFromContainer is true
+  KJ_IF_MAYBE(rcc, restorerContainerClient){ 
+    restorer->setStorageContainer(*rcc, initRestorerFromContainer).wait(ioContext.waitScope);
+  } 
+
+  // get port if init was requested
   if(initRestorerFromContainer) port = restorer->getPort();
 
-  KJ_LOG(INFO, "trying to bind to", host, port);
+  // bind restorer 
+  KJ_LOG(INFO, "Trying to bind restorer to", host, port);
   auto portPromise = conMan->bind(ioContext, restorerClient, host, port);
   auto succAndIP = infrastructure::common::getLocalIP(checkIP, checkPort);
   if(kj::get<0>(succAndIP)){
@@ -98,16 +107,16 @@ RestorableServiceMain::startRestorableParts(mas::schema::common::Identifiable::C
       return port; 
     });
   }).wait(ioContext.waitScope); 
-  KJ_LOG(INFO, "bound to", host, port);
-
+  KJ_LOG(INFO, "Bound restorer to", host, port);
   
+  // print the restorers sturdy ref
   auto restorerSR = restorer->sturdyRefStr("");
   KJ_LOG(INFO, restorerSR);
 
   //mas::schema::persistence::SturdyRef::Reader reregSR(nullptr);
   mas::schema::registry::Registrar::Client registrar(nullptr);
   if(registrarSR.size() > 0) {
-    KJ_LOG(INFO, "trying to register at", registrarSR);
+    KJ_LOG(INFO, "Trying to register service at:", registrarSR);
     registrar = conMan->tryConnectB(ioContext, registrarSR).castAs<mas::schema::registry::Registrar>();
     auto request = registrar.registerRequest();
     request.setCap(serviceClient);
@@ -120,13 +129,11 @@ RestorableServiceMain::startRestorableParts(mas::schema::common::Identifiable::C
       auto response = request.send().wait(ioContext.waitScope);
       if(response.hasUnreg()) serviceUnregisterAction = response.getUnreg();
       //if(response.hasReregSR()) reregSR = response.getReregSR();
-      KJ_LOG(INFO, "registered at", registrarSR);
+      KJ_LOG(INFO, "Registered service at:", registrarSR);
     } catch(kj::Exception e) {
       KJ_LOG(ERROR, "Error sending register message to Registrar! Error", e.getDescription().cStr());
     }
   }
-
-  return kj::tuple(mas::schema::persistence::Restorer::Client(restorerClient), restorer);
 }
 
 kj::MainBuilder& RestorableServiceMain::addRestorableServiceOptions()
@@ -136,15 +143,17 @@ kj::MainBuilder& RestorableServiceMain::addRestorableServiceOptions()
                       "<storage-service-name (default: SQLite Storage Service)>", "Name of service.")
     .addOptionWithArg({"description"}, KJ_BIND_METHOD(*this, setDescription),
                       "<storage-service-description (default: "")>", "Description of service.")
+    .addOptionWithArg({"init_from_storage"}, KJ_BIND_METHOD(*this, setInitServiceFromContainer),
+                      "<true | false (default: true)>", "Initialize service from storage.")
     .addOptionWithArg({'h', "host"}, KJ_BIND_METHOD(*this, setHost),
                       "<host-IP>", "Set host IP.")
     .addOptionWithArg({'p', "port"}, KJ_BIND_METHOD(*this, setPort),
                       "<port>", "Set port.")
-    .addOptionWithArg({'s', "storage_container_sr"}, KJ_BIND_METHOD(*this, setRestorerContainerSR),
-                      "<sturdy_ref (default: create new local container)>", "Sturdy ref to container for this restorer.")
-    .addOptionWithArg({'i', "storage_container_id"}, KJ_BIND_METHOD(*this, setRestorerContainerId),
-                      "<sturdy_ref (default: create new local container)>", "Sturdy ref to container for this restorer.")
-    .addOptionWithArg({'r', "registrar_sr"}, KJ_BIND_METHOD(*this, setRegistrarSR),
+    .addOptionWithArg({"restorer_container_sr"}, KJ_BIND_METHOD(*this, setRestorerContainerSR),
+                      "<sturdy_ref>", "Sturdy ref to container for this restorer.")
+    .addOptionWithArg({"service_container_sr"}, KJ_BIND_METHOD(*this, setServiceContainerSR),
+                      "<sturdy_ref>", "Sturdy ref to container for this service.")
+    .addOptionWithArg({"registrar_sr"}, KJ_BIND_METHOD(*this, setRegistrarSR),
                       "<sturdy_ref>", "Sturdy ref to registrar.")
     .addOptionWithArg({"reg_name"}, KJ_BIND_METHOD(*this, setRegName),
                       "<register name (default: --name)>", "Name to register service under.")

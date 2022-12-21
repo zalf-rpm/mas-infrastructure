@@ -241,24 +241,8 @@ kj::Promise<capnp::Capability::Client> ConnectionManager::connect(kj::AsyncIoCon
                 }
 
                 KJ_IF_MAYBE (clientContext, impl->connections.find(addressPort)) {
-                    capnp::Capability::Client bootstrapCap = (*clientContext)->bootstrap;
-
-                    // no token, just return the bootstrap capability
-                    if (srTokenBase64.size() > 0) {
-                        return restoreSR(bootstrapCap, srTokenBase64);
-                        // KJ_LOG(INFO, "restoring token", srTokenBase64);
-                        // auto srTokenArr = kj::decodeBase64(srTokenBase64);
-                        // kj::String srToken = kj::str(srTokenArr.asChars());
-                        // auto restorerClient = bootstrapCap.castAs<mas::schema::persistence::Restorer>();
-                        // auto req = restorerClient.restoreRequest();
-                        // req.initLocalRef().setAs<capnp::Text>(srToken);
-                        // KJ_LOG(INFO, "making restore request");
-                        // return req.send().then([](auto &&res) {
-                        //     KJ_LOG(INFO, "send returned");
-                        //     return res.getCap();
-                        // });
-                    }
-                    return bootstrapCap;
+                    if (srTokenBase64.size() > 0) return restoreSR((*clientContext)->bootstrap, srTokenBase64);
+                    return (*clientContext)->bootstrap;
                 } else {
                     return ioc.provider->getNetwork().parseAddress(addressPort).then(
                         [restoreSR](kj::Own<kj::NetworkAddress> &&addr) { 
@@ -273,17 +257,6 @@ kj::Promise<capnp::Capability::Client> ConnectionManager::connect(kj::AsyncIoCon
 
                             if (srTokenBase64.size() > 0) {
                                 return restoreSR(bootstrapCap, srTokenBase64);
-                                // KJ_LOG(INFO, "restoring token", srTokenBase64);
-                                // auto srTokenArr = kj::decodeBase64(srTokenBase64);
-                                // kj::String srToken = kj::str(srTokenArr.asChars());
-                                // auto restorerClient = bootstrapCap.castAs<mas::schema::persistence::Restorer>();
-                                // auto req = restorerClient.restoreRequest();
-                                // req.initLocalRef().setAs<capnp::Text>(srToken);
-                                // KJ_LOG(INFO, "making restore request");
-                                // return req.send().then([](auto&& res) { 
-                                //     KJ_LOG(INFO, "send returned");
-                                //     return res.getCap(); 
-                                // });
                             }
                             return kj::Promise<capnp::Capability::Client>(bootstrapCap); 
                         }

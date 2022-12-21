@@ -175,26 +175,20 @@ struct Restorer::Impl {
     
     auto getCap = [this](auto srData) -> kj::Maybe<capnp::Capability::Client> {
       if(srData->isCapSet) return srData->cap;
-      else if(srData->restoreToken.size() > 0){
-        if(srData->unsaveSRToken.size() > 0) { // restore an unsave action
-          auto srt = kj::str(srData->restoreToken);
-          auto usrt = kj::str(srData->unsaveSRToken);
-          auto unsaveAction = kj::heap<Action>([this, KJ_MVCAP(srt), KJ_MVCAP(usrt)]() { 
-            issuedSRTokens.erase(srt); issuedSRTokens.erase(usrt);
-          });
-          srData->cap = kj::mv(unsaveAction);
-          return srData->cap; 
-        } else { // restore a service object
-          try {
-            auto cap = restoreCallback(srData->restoreToken);
-            srData->cap = cap;
-            return cap;
-          } catch (std::exception e) {}
-        }
-      } else {
-        auto cap = restoreCallback(nullptr);
-        srData->cap = cap;
-        return cap;
+      else if(srData->unsaveSRToken.size() > 0) { // restore an unsave action
+        auto srt = kj::str(srData->restoreToken);
+        auto usrt = kj::str(srData->unsaveSRToken);
+        auto unsaveAction = kj::heap<Action>([this, KJ_MVCAP(srt), KJ_MVCAP(usrt)]() { 
+          issuedSRTokens.erase(srt); issuedSRTokens.erase(usrt);
+        });
+        srData->cap = kj::mv(unsaveAction);
+        return srData->cap; 
+      } else { // restore a service object
+        try {
+          auto cap = restoreCallback(srData->restoreToken);
+          srData->cap = cap;
+          return cap;
+        } catch (std::exception e) {}
       }
       return nullptr;
     };
@@ -395,7 +389,7 @@ kj::Promise<void> Restorer::save(capnp::Capability::Client cap,
   auto &srEntry = impl->issuedSRTokens.insert(kj::str(srToken), 
     {kj::str(sealForOwner), kj::mv(cap), true, kj::str(restoreToken)});
   // store sturdy ref data for later restoral 
-  if(impl->isStoreSet){
+  if(impl->isStoreSet && restoreToken != nullptr){
     auto srdJson = srEntry.value.toJson();
     KJ_DBG(srToken, srdJson);
     auto req = impl->store.getEntryRequest();
@@ -418,7 +412,7 @@ kj::Promise<void> Restorer::save(capnp::Capability::Client cap,
       {kj::str(sealForOwner), kj::mv(unsaveAction), true, kj::str(restoreToken), kj::str(unsaveSRToken)});
     sturdyRef(unsaveSRBuilder, unsaveSRToken);
 
-    if(impl->isStoreSet){
+    if(impl->isStoreSet && restoreToken != nullptr){
       auto srdJson = usrEntry.value.toJson();
       KJ_DBG(unsaveSRToken, srdJson);
       auto req = impl->store.getEntryRequest();

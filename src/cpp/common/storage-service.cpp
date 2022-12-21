@@ -174,6 +174,7 @@ struct SqliteStorageService::Impl {
   Impl(SqliteStorageService& self, mas::infrastructure::common::Restorer* restorer, kj::StringPtr filename, 
     kj::StringPtr name, kj::StringPtr description)
   : self(self)
+  , id(kj::str(sole::uuid4().str()))
   , name(kj::str(name))
   , filename(kj::str(filename)) {
     initDb();
@@ -201,9 +202,9 @@ struct SqliteStorageService::Impl {
   void setRestorer(mas::infrastructure::common::Restorer* restorer){ 
     if(restorer != nullptr){
       this->restorer = restorer; 
-      restorer->setRestoreCallback([this](kj::StringPtr containerId) -> capnp::Capability::Client {
-        if(containerId == nullptr) return client;
-        else return loadContainer(containerId);
+      restorer->setRestoreCallback([this](kj::StringPtr restoreToken) -> capnp::Capability::Client {
+        if(restoreToken == RESTORE_STORAGE_ITSELF_TOKEN_VALUE) return client;
+        else return loadContainer(restoreToken);
       });
     }
   }
@@ -448,7 +449,7 @@ struct Container::Impl {
       while(sqlite3_step(stmt) == SQLITE_ROW && i < list.size()) {
         auto key = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
         // entry already cached?
-        KJ_IF_MAYBE(entry, entries.find(key)){
+        KJ_IF_MAYBE(entry, entries.find(kj::str(key))){
           list[i] = *entry;
         } else { // no, create one
           using C = mas::schema::storage::Store::Container::Entry::Client;
@@ -643,10 +644,6 @@ void SqliteStorageService::setUnregisterAction(mas::schema::common::Action::Clie
 
 void SqliteStorageService::setRestorer(mas::infrastructure::common::Restorer* restorer){ 
   impl->setRestorer(restorer);
-}
-
-void SqliteStorageService::initFromStorageContainer(){
-
 }
 
 // ----------------------------------------------------------------------

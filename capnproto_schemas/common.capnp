@@ -163,7 +163,7 @@ struct IP {
 	# main content of IP
 }
 
-interface Channel(V) {
+interface Channel(V) extends(Identifiable, Persistent) {
   # a potentially buffered channel to transport values of type V
 
   enum CloseSemantics {

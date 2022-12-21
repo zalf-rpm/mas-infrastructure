@@ -48,9 +48,13 @@ typedef typename mas::schema::common::Channel<capnp::AnyPointer>::Msg AnyPointer
 class Channel final : public AnyPointerChannel::Server
 {
 public:
-  Channel(Restorer* restorer, kj::StringPtr name, uint bufferSize);
+  Channel(kj::StringPtr name, kj::StringPtr description, uint bufferSize, Restorer* restorer = nullptr);
 
-  virtual ~Channel() noexcept(false) {}
+  virtual ~Channel() noexcept(false);
+
+  kj::Promise<void> info(InfoContext context) override;
+
+  kj::Promise<void> save(SaveContext context) override;
 
   void closedReader(kj::StringPtr readerId);
 
@@ -60,17 +64,18 @@ public:
 
   kj::Promise<void> writer(WriterContext context) override;
 
+  AnyPointerChannel::Client getClient();
+  void setClient(AnyPointerChannel::Client c);
+
+  mas::schema::common::Action::Client getUnregisterAction();
+  void setUnregisterAction(mas::schema::common::Action::Client unreg);
+
+  void setRestorer(Restorer* r);
+
 private:
-  Restorer* _restorer{nullptr};
-  kj::String _name;
-  kj::HashMap<kj::String, AnyPointerChannel::ChanReader::Client> _readers;
-  kj::HashMap<kj::String, AnyPointerChannel::ChanWriter::Client> _writers;
-  std::deque<kj::Own<kj::PromiseFulfiller<kj::Maybe<AnyPointerMsg::Reader>>>> _blockingReadFulfillers;
-  std::deque<kj::Own<kj::PromiseFulfiller<void>>> _blockingWriteFulfillers;
-  uint _bufferSize{1};
-  std::deque<kj::Own<kj::Decay<AnyPointerMsg::Reader>>> _buffer;
-  AnyPointerChannel::CloseSemantics _autoCloseSemantics {AnyPointerChannel::CloseSemantics::FBP};
-  bool _sendCloseOnEmptyBuffer{false};
+  struct Impl;
+  kj::Own<Impl> impl;
+
   friend class Reader;
   friend class Writer;
 };

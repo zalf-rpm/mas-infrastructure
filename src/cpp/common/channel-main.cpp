@@ -24,6 +24,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include "rpc-connection-manager.h"
 #include "common.h"
 #include "sole.hpp"
+#include "restorable-service-main.h"
 
 #include "channel.h"
 #include "common.capnp.h"
@@ -32,26 +33,14 @@ namespace mas {
 namespace infrastructure { 
 namespace common {
 
-class ChannelMain
+using RSM = mas::infrastructure::common::RestorableServiceMain;
+
+class ChannelMain : public RSM
 {
 public:
   ChannelMain(kj::ProcessContext& context) 
-  : restorer(kj::heap<Restorer>())
-  , conMan(kj::heap<ConnectionManager>())
-  , context(context)
-  , ioContext(kj::setupAsyncIo()) {}
-
-  kj::MainBuilder::Validity setName(kj::StringPtr n) { name = kj::str(n); return true; }
-
-  kj::MainBuilder::Validity setHost(kj::StringPtr name) { host = kj::str(name); return true; }
-
-  kj::MainBuilder::Validity setLocalHost(kj::StringPtr h) { localHost = kj::str(h); return true; }
-
-  kj::MainBuilder::Validity setPort(kj::StringPtr name) { port = std::max(0, std::stoi(name.cStr())); return true; }
-
-  kj::MainBuilder::Validity setCheckPort(kj::StringPtr portStr) { checkPort = portStr.parseAs<int>(); return true; }
-
-  kj::MainBuilder::Validity setCheckIP(kj::StringPtr ip) { checkIP = kj::str(ip); return true; }
+  : RSM(context, "Channel v0.1", "Offers a channel service.")
+  {}
 
   kj::MainBuilder::Validity setBufferSize(kj::StringPtr name) { bufferSize = std::max(1, std::stoi(name.cStr())); return true; }
 
@@ -71,38 +60,27 @@ public:
 
     KJ_LOG(INFO, "Channel::startChannel: starting channel");
 
-    auto& restorerRef = *restorer;
-    mas::schema::persistence::Restorer::Client restorerClient = kj::mv(restorer);
-    auto channel = kj::heap<Channel>(&restorerRef, name, bufferSize);
-    auto& channelRef = *channel;
-    AnyPointerChannel::Client channelClient = kj::mv(channel);
-    KJ_LOG(INFO, "Channel::startChannel: created channel");
-    
-    KJ_LOG(INFO, "Channel::startChannel trying to bind to", host, port);
-    auto portPromise = conMan->bind(ioContext, restorerClient, host, port);
-    auto succAndIP = infrastructure::common::getLocalIP(checkIP, checkPort);
-    if(kj::get<0>(succAndIP)) restorerRef.setHost(kj::get<1>(succAndIP));
-    else restorerRef.setHost(localHost);
-    auto port = portPromise.wait(ioContext.waitScope);
-    restorerRef.setPort(port);
-    KJ_LOG(INFO, "Channel::startChannel bound to", host, port);
+    auto ownedChannel = kj::heap<Channel>(name, description, bufferSize);
+    auto channel = ownedChannel.get();
+    AnyPointerChannel::Client channelClient = kj::mv(ownedChannel);
+    KJ_LOG(INFO, "created channel");
 
-    auto restorerSR = restorerRef.sturdyRefStr("");
-    auto channelSR = restorerRef.saveStr(channelClient, nullptr, nullptr, false).wait(ioContext.waitScope).sturdyRef;
+    startRestorerSetup(channelClient);
+    channel->setRestorer(restorer);
+
+    auto channelSR = restorer->saveStr(channelClient, nullptr, nullptr, false).wait(ioContext.waitScope).sturdyRef;
     KJ_LOG(INFO, channelSR);
 
     for(const auto& srt : readerSrts){ 
       auto reader = channelClient.readerRequest().send().wait(ioContext.waitScope).getR();
-      auto readerSR = restorerRef.saveStr(reader, srt.asPtr(), nullptr, false).wait(ioContext.waitScope).sturdyRef;  
+      auto readerSR = restorer->saveStr(reader, srt, nullptr, false, nullptr, false).wait(ioContext.waitScope).sturdyRef;  
       KJ_LOG(INFO, readerSR);
     }
     for(const auto& srt : writerSrts){
       auto writer = channelClient.writerRequest().send().wait(ioContext.waitScope).getW();
-      auto writerSR = restorerRef.saveStr(writer, srt.asPtr(), nullptr, false).wait(ioContext.waitScope).sturdyRef;
+      auto writerSR = restorer->saveStr(writer, srt, nullptr, false, nullptr, false).wait(ioContext.waitScope).sturdyRef;
       KJ_LOG(INFO, writerSR);
     }
-
-    KJ_LOG(INFO, restorerSR);
 
     // Run forever, accepting connections and handling requests.
     kj::NEVER_DONE.wait(ioContext.waitScope);
@@ -110,21 +88,9 @@ public:
 
   kj::MainFunc getMain()
   {
-    return kj::MainBuilder(context, "Channel v0.1", "Offers a channel service.")
-      .addOptionWithArg({'n', "name"}, KJ_BIND_METHOD(*this, setName),
-                        "<channel-name>", "Give channel a name.")
+    return addRestorableServiceOptions()
       .addOptionWithArg({'b', "buffer-size"}, KJ_BIND_METHOD(*this, setBufferSize),
                         "<buffer-size=1>", "Set buffer size of channel.")
-      .addOptionWithArg({'h', "host"}, KJ_BIND_METHOD(*this, setHost),
-                        "<host-IP>", "Set host IP.")
-      .addOptionWithArg({'p', "port"}, KJ_BIND_METHOD(*this, setPort),
-                        "<port>", "Set port.")
-      .addOptionWithArg({"local_host (default: localhost)"}, KJ_BIND_METHOD(*this, setLocalHost),
-                        "<IP_or_host_address>", "Use this host for sturdy reference creation.")
-      .addOptionWithArg({"check_IP"}, KJ_BIND_METHOD(*this, setCheckIP),
-                        "<IPv4 (default: 8.8.8.8)>", "IP to connect to in order to find local outside IP.")
-      .addOptionWithArg({"check_port"}, KJ_BIND_METHOD(*this, setCheckPort),
-                        "<port (default: 53)>", "Port to connect to in order to find local outside IP.")
       .addOptionWithArg({'r', "reader_srts"}, KJ_BIND_METHOD(*this, setReaderSrts),
                         "<Sturdy_ref_token_1,[Sturdy_ref_token_2],...>", "Create readers for given sturdy ref tokens.")
       .addOptionWithArg({'w', "writer_srts"}, KJ_BIND_METHOD(*this, setWriterSrts),
@@ -134,19 +100,9 @@ public:
   }
 
 private:
-  kj::Own<Restorer> restorer;
-  kj::Own<ConnectionManager> conMan;
-  kj::String name;
-  kj::String host{kj::str("*")};
-  kj::String localHost{kj::str("localhost")};
-  int port{0};
-  int checkPort{0};
-  kj::String checkIP;
   uint bufferSize{1};
   kj::Vector<kj::String> readerSrts;
   kj::Vector<kj::String> writerSrts;
-  kj::ProcessContext &context;
-  kj::AsyncIoContext ioContext;
 };
 
 } // namespace common

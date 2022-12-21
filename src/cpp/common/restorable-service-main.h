@@ -44,15 +44,13 @@ public:
   kj::MainBuilder::Validity setCheckPort(kj::StringPtr portStr);
   kj::MainBuilder::Validity setCheckIP(kj::StringPtr ip);
   kj::MainBuilder::Validity setRestorerContainerSR(kj::StringPtr sr);
-  kj::MainBuilder::Validity setRestorerContainerId(kj::StringPtr id);
+  kj::MainBuilder::Validity setServiceContainerSR(kj::StringPtr sr);
   kj::MainBuilder::Validity setRegistrarSR(kj::StringPtr sr);
   kj::MainBuilder::Validity setRegName(kj::StringPtr n);
   kj::MainBuilder::Validity setRegCategory(kj::StringPtr cat);
-  kj::MainBuilder::Validity setInitRestorerFromContainer(kj::StringPtr init);
+  kj::MainBuilder::Validity setInitServiceFromContainer(kj::StringPtr init);
 
-  kj::Tuple<mas::schema::persistence::Restorer::Client, Restorer*> 
-  startRestorableParts(mas::schema::common::Identifiable::Client serviceClient,
-    kj::Maybe<mas::schema::storage::Store::Container::Client> restorerContainerClient = nullptr);
+  void startRestorerSetup(mas::schema::common::Identifiable::Client serviceClient);
 
   kj::MainBuilder& addRestorableServiceOptions();
 
@@ -62,6 +60,7 @@ protected:
   mas::schema::common::Action::Client serviceUnregisterAction{nullptr};
   Restorer* restorer{nullptr};
   bool initRestorerFromContainer{true};
+  bool initServiceFromContainer{true};
   kj::Own<mas::infrastructure::common::ConnectionManager> conMan;
   kj::ProcessContext &context;
   kj::AsyncIoContext ioContext;
@@ -72,8 +71,10 @@ protected:
   int port{0};
   kj::String checkIP;
   int checkPort{0};
+  kj::Maybe<mas::schema::storage::Store::Container::Client> restorerContainerClient;
+  kj::Maybe<mas::schema::storage::Store::Container::Client> serviceContainerClient;
   kj::String restorerContainerSR;
-  kj::String restorerContainerId;
+  kj::String serviceContainerSR;
   kj::String registrarSR;
   kj::String regName;
   kj::String regCategory{kj::str("unknown")};

@@ -24,6 +24,9 @@ namespace infrastructure {
 
 namespace storage {
 
+const char* const LAST_STORAGE_SERVICE_KEY_NAME = "last_storage_service_sr_token"; 
+const char* const RESTORE_STORAGE_ITSELF_TOKEN_VALUE = "storage_service_itself";
+
 class SqliteStorageService final : public mas::schema::storage::Store::Server
 {
 public:
