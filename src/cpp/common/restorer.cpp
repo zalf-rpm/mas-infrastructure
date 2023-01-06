@@ -41,7 +41,7 @@ using namespace mas::infrastructure::common;
 
 struct Restorer::Impl {
   kj::String host;
-  int port{ 0 };
+  uint16_t port{ 0 };
   uint64_t vatId[4]{ 0, 0, 0, 0 };
   kj::Array<unsigned char> signPKArray;
   kj::Array<unsigned char> signSKArray;
@@ -106,14 +106,18 @@ struct Restorer::Impl {
     signPKArray = toKJArray(signPK, crypto_sign_PUBLICKEYBYTES);
     signSKArray = toKJArray(signSK, crypto_sign_SECRETKEYBYTES);
 
+    setVatIdFromSignPK();
+  }
+
+  ~Impl() noexcept(false)  {}
+
+  void setVatIdFromSignPK() {
     // the Curve25519 byte array is little endian
     vatId[0] = byteArrayToUInt64(signPKArray.slice(0, 8));
     vatId[1] = byteArrayToUInt64(signPKArray.slice(8, 16));
     vatId[2] = byteArrayToUInt64(signPKArray.slice(16, 24));
     vatId[3] = byteArrayToUInt64(signPKArray.slice(24, 32));
   }
-
-  ~Impl() noexcept(false)  {}
 
   typedef enum _endian {little_endian, big_endian} EndianType;
   EndianType checkCPUEndian()
@@ -292,7 +296,7 @@ kj::Promise<void> Restorer::setPort(int p) {
     auto req = impl->store.getEntryRequest();
     req.setKey("port");
     auto svReq = req.send().getEntry().setValueRequest();
-    svReq.initValue().setIntValue(p);
+    svReq.initValue().setUint16Value(p);
     return svReq.send().ignoreResult();
   }
   return kj::READY_NOW;
@@ -310,11 +314,67 @@ kj::Promise<void> Restorer::setStorageContainer(mas::schema::storage::Store::Con
   impl->isStoreSet = true;
 
   if(initFromContainer){
-    auto req = s.getEntryRequest();
-    req.setKey("port");
-    return req.send().getEntry().getValueRequest().send().then([this](auto&& resp) {
-      if(!resp.getIsUnset()) impl->port = resp.getValue().getIntValue();
-    });
+    auto proms = kj::heapArrayBuilder<kj::Promise<void>>(3);
+
+    auto portReq = s.getEntryRequest();
+    portReq.setKey("port");
+
+    auto vatSignPKReq = s.getEntryRequest();
+    vatSignPKReq.setKey("vatSignPK");
+
+    auto vatSignSKReq = s.getEntryRequest();
+    vatSignSKReq.setKey("vatSignSK");
+    try {
+      proms.add(portReq.send().getEntry().getValueRequest().send().then([this](auto&& resp) {
+        if(!resp.getIsUnset()) impl->port = resp.getValue().getUint16Value();
+      }));
+
+      proms.add(vatSignPKReq.send().getEntry().getValueRequest().send().then([this](auto&& resp) {
+        if(!resp.getIsUnset()){
+          auto bytes = resp.getValue().getUint8ListValue();
+          auto arr = kj::heapArray<unsigned char>(bytes.size());
+          for (int i = 0; i < bytes.size(); i++) arr[i] = (unsigned char)bytes[i];
+          impl->signPKArray = kj::mv(arr);
+          impl->setVatIdFromSignPK();
+        } 
+      }));
+
+      proms.add(vatSignSKReq.send().getEntry().getValueRequest().send().then([this](auto&& resp) {
+        if(!resp.getIsUnset()){
+          auto bytes = resp.getValue().getUint8ListValue();
+          auto arr = kj::heapArray<unsigned char>(bytes.size());
+          for (int i = 0; i < bytes.size(); i++) arr[i] = (unsigned char)bytes[i];
+          impl->signSKArray = kj::mv(arr);
+        } 
+      }));
+
+    } catch(kj::Exception& e) {
+      KJ_LOG(INFO, "Couldn't initialize storage from container.", e);
+    }
+
+    return kj::joinPromises(proms.finish());
+
+  } else {
+    auto proms = kj::heapArrayBuilder<kj::Promise<void>>(2);
+
+    auto vatSignPKReq = s.addEntryRequest();
+    vatSignPKReq.setKey("vatSignPK");
+    auto pkb = vatSignPKReq.initValue().initUint8ListValue(impl->signPKArray.size());
+    for(int i = 0; i < pkb.size(); i++) pkb.set(i, impl->signPKArray[i]);
+    
+    auto vatSignSKReq = s.addEntryRequest();
+    vatSignSKReq.setKey("vatSignSK");
+    auto skb = vatSignSKReq.initValue().initUint8ListValue(impl->signSKArray.size());
+    for(int i = 0; i < skb.size(); i++) skb.set(i, impl->signPKArray[i]);
+
+    try {
+      proms.add(vatSignPKReq.send().ignoreResult());;
+      proms.add(vatSignSKReq.send().ignoreResult());
+    } catch(kj::Exception& e) {
+      KJ_LOG(INFO, "Couldn't save the VATs sign PK and SK to container.", e);
+    }
+
+    return kj::joinPromises(proms.finish());
   }
 
   return kj::READY_NOW;

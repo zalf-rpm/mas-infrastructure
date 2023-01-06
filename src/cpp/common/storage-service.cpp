@@ -71,21 +71,93 @@ namespace _ { // private
         for(auto i : kj::indices(lr)) lb.set(i, lr[i]);
         break;
       }
-      case mas::schema::storage::Store::Container::Entry::Value::INT_VALUE:
-        b.setIntValue(r.getIntValue());
+      case mas::schema::storage::Store::Container::Entry::Value::INT8_VALUE:
+        b.setInt8Value(r.getInt8Value());
         break;
-      case mas::schema::storage::Store::Container::Entry::Value::INT_LIST_VALUE: {
-        auto lr = r.getIntListValue();
-        auto lb = b.initIntListValue(lr.size());
+      case mas::schema::storage::Store::Container::Entry::Value::INT8_LIST_VALUE: {
+        auto lr = r.getInt8ListValue();
+        auto lb = b.initInt8ListValue(lr.size());
         for(auto i : kj::indices(lr)) lb.set(i, lr[i]);
         break;
       }
-      case mas::schema::storage::Store::Container::Entry::Value::FLOAT_VALUE:
-        b.setFloatValue(r.getFloatValue());
+      case mas::schema::storage::Store::Container::Entry::Value::INT16_VALUE:
+        b.setInt16Value(r.getInt16Value());
         break;
-      case mas::schema::storage::Store::Container::Entry::Value::FLOAT_LIST_VALUE: {
-        auto lr = r.getFloatListValue();
-        auto lb = b.initFloatListValue(lr.size());
+      case mas::schema::storage::Store::Container::Entry::Value::INT16_LIST_VALUE: {
+        auto lr = r.getInt16ListValue();
+        auto lb = b.initInt16ListValue(lr.size());
+        for(auto i : kj::indices(lr)) lb.set(i, lr[i]);
+        break;
+      }
+      case mas::schema::storage::Store::Container::Entry::Value::INT32_VALUE:
+        b.setInt32Value(r.getInt32Value());
+        break;
+      case mas::schema::storage::Store::Container::Entry::Value::INT32_LIST_VALUE: {
+        auto lr = r.getInt32ListValue();
+        auto lb = b.initInt32ListValue(lr.size());
+        for(auto i : kj::indices(lr)) lb.set(i, lr[i]);
+        break;
+      }
+      case mas::schema::storage::Store::Container::Entry::Value::INT64_VALUE:
+        b.setInt64Value(r.getInt64Value());
+        break;
+      case mas::schema::storage::Store::Container::Entry::Value::INT64_LIST_VALUE: {
+        auto lr = r.getInt64ListValue();
+        auto lb = b.initInt64ListValue(lr.size());
+        for(auto i : kj::indices(lr)) lb.set(i, lr[i]);
+        break;
+      }
+      case mas::schema::storage::Store::Container::Entry::Value::UINT8_VALUE:
+        b.setUint8Value(r.getUint8Value());
+        break;
+      case mas::schema::storage::Store::Container::Entry::Value::UINT8_LIST_VALUE: {
+        auto lr = r.getUint8ListValue();
+        auto lb = b.initUint8ListValue(lr.size());
+        for(auto i : kj::indices(lr)) lb.set(i, lr[i]);
+        break;
+      }
+      case mas::schema::storage::Store::Container::Entry::Value::UINT16_VALUE:
+        b.setUint16Value(r.getUint16Value());
+        break;
+      case mas::schema::storage::Store::Container::Entry::Value::UINT16_LIST_VALUE: {
+        auto lr = r.getUint16ListValue();
+        auto lb = b.initUint16ListValue(lr.size());
+        for(auto i : kj::indices(lr)) lb.set(i, lr[i]);
+        break;
+      }
+      case mas::schema::storage::Store::Container::Entry::Value::UINT32_VALUE:
+        b.setUint32Value(r.getUint32Value());
+        break;
+      case mas::schema::storage::Store::Container::Entry::Value::UINT32_LIST_VALUE: {
+        auto lr = r.getUint32ListValue();
+        auto lb = b.initUint32ListValue(lr.size());
+        for(auto i : kj::indices(lr)) lb.set(i, lr[i]);
+        break;
+      }
+      case mas::schema::storage::Store::Container::Entry::Value::UINT64_VALUE:
+        b.setUint64Value(r.getUint64Value());
+        break;
+      case mas::schema::storage::Store::Container::Entry::Value::UINT64_LIST_VALUE: {
+        auto lr = r.getUint64ListValue();
+        auto lb = b.initUint64ListValue(lr.size());
+        for(auto i : kj::indices(lr)) lb.set(i, lr[i]);
+        break;
+      }
+      case mas::schema::storage::Store::Container::Entry::Value::FLOAT32_VALUE:
+        b.setFloat32Value(r.getFloat32Value());
+        break;
+      case mas::schema::storage::Store::Container::Entry::Value::FLOAT32_LIST_VALUE: {
+        auto lr = r.getFloat32ListValue();
+        auto lb = b.initFloat32ListValue(lr.size());
+        for(auto i : kj::indices(lr)) lb.set(i, lr[i]);
+        break;
+      }
+      case mas::schema::storage::Store::Container::Entry::Value::FLOAT64_VALUE:
+        b.setFloat64Value(r.getFloat64Value());
+        break;
+      case mas::schema::storage::Store::Container::Entry::Value::FLOAT64_LIST_VALUE: {
+        auto lr = r.getFloat64ListValue();
+        auto lb = b.initFloat64ListValue(lr.size());
         for(auto i : kj::indices(lr)) lb.set(i, lr[i]);
         break;
       }

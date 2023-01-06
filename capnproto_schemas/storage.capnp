@@ -21,17 +21,33 @@ interface Store extends(Common.Identifiable, Persistent) {
 
       struct Value {
         union {
-          boolValue       @0  :Bool;
-          boolListValue   @1  :List(Bool);
-          intValue        @2  :Int64;
-          intListValue    @3  :List(Int64);
-          floatValue      @4  :Float64;
-          floatListValue  @5  :List(Float64);
-          textValue       @6  :Text;
-          textListValue   @7  :List(Text);
-          dataValue       @8  :Data;
-          dataListValue   @9  :List(Data);
-          anyValue        @10 :AnyStruct;
+          boolValue         @0  :Bool;
+          boolListValue     @1  :List(Bool);
+          int8Value         @2  :Int64;
+          int8ListValue     @3  :List(Int64);
+          int16Value        @4  :Int64;
+          int16ListValue    @5  :List(Int64);
+          int32Value        @6  :Int64;
+          int32ListValue    @7  :List(Int64);
+          int64Value        @8  :Int64;
+          int64ListValue    @9  :List(Int64);
+          uint8Value        @10 :Int64;
+          uint8ListValue    @11 :List(Int64);
+          uint16Value       @12 :Int64;
+          uint16ListValue   @13 :List(Int64);
+          uint32Value       @14 :Int64;
+          uint32ListValue   @15 :List(Int64);
+          uint64Value       @16 :Int64;
+          uint64ListValue   @17 :List(Int64);
+          float32Value      @18 :Float64;
+          float32ListValue  @19 :List(Float64);
+          float64Value      @20 :Float64;
+          float64ListValue  @21 :List(Float64);
+          textValue         @22 :Text;
+          textListValue     @23 :List(Text);
+          dataValue         @24 :Data;
+          dataListValue     @25 :List(Data);
+          anyValue          @26 :AnyStruct;
         }
       }
 

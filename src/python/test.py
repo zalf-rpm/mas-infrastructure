@@ -253,7 +253,7 @@ def test_cross_domain_registry():
 
 def test_storage_service():
     con_man = common.ConnectionManager()
-    service_sr = "capnp://MYMZ_5KMBgnfFhrkNQTfOWpb51f5LvF11BY3pXsGiKs@10.10.24.181:34073/NDIxNzhmYWEtYTk2Yy00OTcxLWEyNTEtMGU2N2MwZDdkZjY3"
+    service_sr = "capnp://RhDoACQUXuFoGWQs8ElAU6-Q0LpP4Yq5Nj6bGBebClo@10.10.24.203:36293/MzY4OGY4ZGEtNzNiMi00ZThlLTlkNDMtODUyYjJjMzE2ODkz"
     service = con_man.try_connect(service_sr, cast_as=storage_capnp.Store)
     print("service info:", service.info().wait())
 
@@ -264,33 +264,38 @@ def test_storage_service():
         print("new_container:", info)
 
         try:
-            succ = new_container.addObject({"key": "some text", "value": {"textValue": "text value1"}}).wait().success
+            succ = new_container.addEntry(key="some text", value={"textValue": "text value1"}).wait().success
             print("add object:", succ)
-            succ = new_container.addObject({"key": "a text list", "value": {"textListValue": ["eins", "zwei", "drei"]}}).wait().success
+            succ = new_container.addEntry(key="a text list", value={"textListValue": ["eins", "zwei", "drei"]}).wait().success
             print("add object:", succ)
-            succ = new_container.addObject({"key": "a bool", "value": {"boolValue": True}}).wait().success
+            succ = new_container.addEntry(key="a bool", value={"boolValue": True}).wait().success
             print("add object:", succ)
-            succ = new_container.addObject({"key": "a bool list", "value": {"boolListValue": [True, False, False, True, False]}}).wait().success
+            succ = new_container.addEntry(key="a bool list", value={"boolListValue": [True, False, False, True, False]}).wait().success
             print("add object:", succ)
-            succ = new_container.addObject({"key": "another bool", "value": {"boolValue": False}}).wait().success
+            succ = new_container.addEntry(key="another bool", value={"boolValue": False}).wait().success
             print("add object:", succ)
-            succ = new_container.addObject({"key": "an int", "value": {"intValue": 42}}).wait().success
+            succ = new_container.addEntry(key="an int", value={"intValue": 42}).wait().success
             print("add object:", succ)
-            succ = new_container.addObject({"key": "an int list", "value": {"intListValue": [1,2,3,4,55,66,192835]}}).wait().success
+            succ = new_container.addEntry(key="an int list", value={"intListValue": [1,2,3,4,55,66,192835]}).wait().success
             print("add object:", succ)
-            succ = new_container.addObject({"key": "a float", "value": {"floatValue": 42.444}}).wait().success
+            succ = new_container.addEntry(key="a float", value={"floatValue": 42.444}).wait().success
             print("add object:", succ)
-            succ = new_container.addObject({"key": "a float list", "value": {"floatListValue": [0.1, 0.22, 3.333, 4.1234, 5]}}).wait().success
+            succ = new_container.addEntry(key="a float list", value={"floatListValue": [0.1, 0.22, 3.333, 4.1234, 5]}).wait().success
             print("add object:", succ)
 
             i = common_capnp.IdInformation.new_message(id="bla", name="blub", description="blob")
-            succ = new_container.addObject({"key": "id info struct", "value": {"anyValue": i}}).wait().success
+            succ = new_container.addEntry(key="id info struct", value={"anyValue": i}).wait().success
             print("add object:", succ)
 
-            for obj in new_container.listObjects().wait().objects:
-                print("object:", obj)
-                if obj.key == "id info struct":
-                    print("anyValue:", obj.value.anyValue.as_struct(common_capnp.IdInformation))
+            for entry in new_container.downloadEntries().wait().entries:
+                print("entry:", entry)
+                if entry.fst == "id info struct":
+                    print("anyValue:", entry.snd.anyValue.as_struct(common_capnp.IdInformation))
+
+            for entry in new_container.listEntries().wait().entries:
+                print("entry:", entry)
+                if entry.getKey().wait().key == "id info struct":
+                    print("anyValue:", entry.getValue().wait().value.anyValue.as_struct(common_capnp.IdInformation))
 
             json_str = new_container.export().wait().json
             print("export:", json_str)
@@ -299,10 +304,10 @@ def test_storage_service():
 
             container = service.importContainer(json_str).wait().container
             print("container.info:", container.info().wait())
-            for obj in container.listObjects().wait().objects:
-                print("object:", obj)
-                if obj.key == "id info struct":
-                    print("anyValue:", obj.value.anyValue.as_struct(common_capnp.IdInformation))
+            for entry in container.downloadEntries().wait().objects:
+                print("entry:", entry)
+                if entry.fst == "id info struct":
+                    print("anyValue:", entry.snd.anyValue.as_struct(common_capnp.IdInformation))
 
         except Exception as e:
             print("error:", e)
