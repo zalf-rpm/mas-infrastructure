@@ -808,8 +808,9 @@ kj::Promise<void> Container::addEntry(AddEntryContext context) {
     if (ps.getReplaceExisting()) {
       auto req = entry->setValueRequest();
       req.setValue(ps.getValue());
-      return req.send().then([context, KJ_MVCAP(entry)](auto&& res) mutable {
-        context.getResults().setEntry(*entry);
+      return req.send().then([rs, KJ_MVCAP(entry)](auto&& res) mutable {
+        rs.setSuccess(true);
+        rs.setEntry(*entry);
       });
     } else {
       rs.setSuccess(false);

@@ -47,7 +47,13 @@ class Restorer final : public mas::schema::persistence::Restorer::Server
   void setHost(kj::StringPtr h);
   
   mas::schema::storage::Store::Container::Client getStore();
-  kj::Promise<void> setStorageContainer(mas::schema::storage::Store::Container::Client s, bool initFromContainer = false);
+  void setStorageContainer(mas::schema::storage::Store::Container::Client s);
+
+  kj::Promise<void> initPortFromContainer();
+  // initialize port from container if possible
+
+  kj::Promise<void> initVatIdFromContainer();
+  // initialize vatId from container if possible
 
   void setRestoreCallback(kj::Function<capnp::Capability::Client(kj::StringPtr restoreToken)> callback);
 

@@ -85,7 +85,15 @@ void RestorableServiceMain::startRestorerSetup(mas::schema::common::Identifiable
 
   // set the restorers storage container, which also will try to load a previously stored port if initRestorerFromContainer is true
   KJ_IF_MAYBE(rcc, restorerContainerClient){ 
-    restorer->setStorageContainer(*rcc, initRestorerFromContainer).wait(ioContext.waitScope);
+    restorer->setStorageContainer(*rcc);
+    if(initRestorerFromContainer){
+      auto proms = kj::heapArrayBuilder<kj::Promise<void>>(2);
+      proms.add(restorer->initPortFromContainer());
+      proms.add(restorer->initVatIdFromContainer());
+      kj::joinPromises(proms.finish()).catch_([](auto&& e){
+        KJ_LOG(ERROR, "Error while trying to init restorer from container.", e);
+      }).wait(ioContext.waitScope);
+    }  
   } 
 
   // get port if init was requested
@@ -104,8 +112,12 @@ void RestorableServiceMain::startRestorerSetup(mas::schema::common::Identifiable
   }
   auto port = portPromise.then([this](auto port){ 
     return restorer->setPort(port).then([port](){ 
-      return port; 
-    });
+        return port; 
+      }, [](auto&& e){
+        KJ_LOG(ERROR, "Error while trying to set port.", e);
+        return 0;
+      }
+    );
   }).wait(ioContext.waitScope); 
   KJ_LOG(INFO, "Bound restorer to", host, port);
   

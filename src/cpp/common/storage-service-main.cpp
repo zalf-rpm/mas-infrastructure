@@ -73,7 +73,8 @@ public:
     } else if(restorerContainerId.size() > 0) { // we got an container id for the local store, get container
       auto req = storageServiceClient.containerWithIdRequest();
       req.setId(restorerContainerId);
-      restorerContainerClient = req.send().wait(ioContext.waitScope).getContainer();
+      auto res = req.send().wait(ioContext.waitScope);
+      if(res.hasContainer()) restorerContainerClient = res.getContainer();
     } 
 
     // make sure we have a storage container for the storage service itself
@@ -90,7 +91,8 @@ public:
     } else if(serviceContainerId.size() > 0) { // we got an container id for the local store, get container
       auto req = storageServiceClient.containerWithIdRequest();
       req.setId(serviceContainerId);
-      serviceContainerClient = req.send().wait(ioContext.waitScope).getContainer();
+      auto res = req.send().wait(ioContext.waitScope);
+      if(res.hasContainer()) serviceContainerClient = res.getContainer();
     } 
 
     // start the restorer service 
@@ -104,6 +106,28 @@ public:
       req.setKey(LAST_STORAGE_SERVICE_KEY_NAME);
       auto entryProm = req.send().getEntry();
       auto value = entryProm.getValueRequest().send().wait(ioContext.waitScope);
+      serviceSR = entryProm.getValueRequest().send().then(
+        [this, entryProm, storageServiceClient](auto&& value) mutable {
+          if(value.getIsUnset()) { // there was no set last token, so we need to create a new one
+            return restorer->saveStr(storageServiceClient, nullptr, nullptr, false, RESTORE_STORAGE_ITSELF_TOKEN_VALUE, true).then(
+              [entryProm](auto&& ssr) mutable {
+                // keep the sturdy ref around for output to the user
+                // and save the actual token as the one we used
+                auto svReq = entryProm.setValueRequest();
+                svReq.initValue().setTextValue(kj::mv(ssr.srToken));
+                return svReq.send().then([KJ_MV_CAP(ssr)](auto&& res){ 
+                    KJ_LOG(INFO, "Storing sturdy ref token for service restart was successful: ", res.getSuccess());
+                  }).then([KJ_MV_CAP(ssr)]() mutable {
+                      return kj::mv(ssr.sturdyRef);
+                    });
+              });
+          } else { // there was a previously stored token, so just create a sturdy ref for output from it
+            auto serviceSRToken = kj::str(value.getValue().getTextValue());
+            return restorer->saveStr(storageServiceClient, serviceSRToken, nullptr, false, nullptr, false).then(
+              [](auto&& ssr) { return kj::mv(ssr.sturdyRef); }
+            );
+          }
+      }).wait(ioContext.waitScope);
       if(value.getIsUnset()) { // there was no set last token, so we need to create a new one
         auto ssr = restorer->saveStr(storageServiceClient, nullptr, nullptr, false, RESTORE_STORAGE_ITSELF_TOKEN_VALUE, true).wait(ioContext.waitScope);
         // keep the sturdy ref around for output to the user
