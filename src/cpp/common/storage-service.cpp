@@ -520,14 +520,14 @@ struct Container::Impl {
       KJ_ASSERT(!encodeAnyValueAsBase64Text || list.size() == isAnyValue.size());
       while(sqlite3_step(stmt) == SQLITE_ROW && i < list.size()) {
         auto key = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+        using C = mas::schema::storage::Store::Container::Entry::Client;
         // entry already cached?
         KJ_IF_MAYBE(entry, entries.find(kj::str(key))){
-          list[i] = *entry;
+          list.set(i, *entry);
         } else { // no, create one
-          using C = mas::schema::storage::Store::Container::Entry::Client;
           C e = kj::heap<Entry>(self, key, false);
-          entries.insert(kj::str(key), C(e));
-          list[i] = e;
+          entries.insert(kj::str(key), e);
+          list.set(i, e);
         }
         i++;
       } 
@@ -790,7 +790,7 @@ kj::Promise<void> Container::getEntry(GetEntryContext context) {
   } else {
     using C = mas::schema::storage::Store::Container::Entry::Client;
     C newEntry = kj::heap<Entry>(this, key, true);
-    impl->entries.insert(kj::str(key), C(newEntry));
+    impl->entries.insert(kj::str(key), newEntry);
     rs.setEntry(newEntry);
   }
   return kj::READY_NOW;
@@ -805,24 +805,25 @@ kj::Promise<void> Container::addEntry(AddEntryContext context) {
   // key already exists
   
   KJ_IF_MAYBE(entry, impl->entries.find(key)){
+    auto e = *entry;
     if (ps.getReplaceExisting()) {
       auto req = entry->setValueRequest();
       req.setValue(ps.getValue());
-      return req.send().then([rs, KJ_MVCAP(entry)](auto&& res) mutable {
+      return req.send().then([rs, e](auto&& res) mutable {
         rs.setSuccess(true);
-        rs.setEntry(*entry);
+        rs.setEntry(e);
       });
     } else {
       rs.setSuccess(false);
-      rs.setEntry(*entry);
+      rs.setEntry(e);
     }
   } else {
     if(impl->addEntryDB(key, ps.getValue())){
-      rs.setSuccess(true);
       using C = mas::schema::storage::Store::Container::Entry::Client;
       C e = kj::heap<Entry>(this, key, false);
-      impl->entries.insert(kj::str(key), C(e));
+      impl->entries.insert(kj::str(key), e);
       rs.setEntry(e);
+      rs.setSuccess(true);
     } else {
       rs.setSuccess(false);
       // keep entry null
@@ -856,7 +857,9 @@ Entry::Entry(Container *c, kj::StringPtr key, bool isUnset)
 : impl(kj::heap<Impl>(c->impl, key, isUnset)) {
 }
 
-Entry::~Entry() {}
+Entry::~Entry() {
+  KJ_LOG(INFO, "Entry destroyed");
+}
 
 kj::Promise<void> Entry::getKey(GetKeyContext context) {
   KJ_LOG(INFO, "getKey message received");
@@ -875,7 +878,6 @@ kj::Promise<void> Entry::getValue(GetValueContext context) {
 
 kj::Promise<void> Entry::setValue(SetValueContext context) {
   KJ_LOG(INFO, "setValue message received");
-  KJ_DBG(impl->key);
   auto rs = context.getResults();
   if(impl->isUnset) {
     context.getResults().setSuccess(impl->cImpl->addEntryDB(impl->key, context.getParams().getValue()));

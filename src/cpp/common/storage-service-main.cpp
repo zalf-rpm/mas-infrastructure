@@ -23,6 +23,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include "common.h"
 #include "restorer.h"
 #include "sole.hpp"
+#define KJ_MVCAP(var) var = kj::mv(var)
 
 #include "storage-service.h"
 #include "restorable-service-main.h"
@@ -104,48 +105,35 @@ public:
     KJ_IF_MAYBE(scc, serviceContainerClient) {
       auto req = scc->getEntryRequest();
       req.setKey(LAST_STORAGE_SERVICE_KEY_NAME);
-      auto entryProm = req.send().getEntry();
-      auto value = entryProm.getValueRequest().send().wait(ioContext.waitScope);
-      serviceSR = entryProm.getValueRequest().send().then(
-        [this, entryProm, storageServiceClient](auto&& value) mutable {
-          if(value.getIsUnset()) { // there was no set last token, so we need to create a new one
-            return restorer->saveStr(storageServiceClient, nullptr, nullptr, false, RESTORE_STORAGE_ITSELF_TOKEN_VALUE, true).then(
-              [entryProm](auto&& ssr) mutable {
-                // keep the sturdy ref around for output to the user
-                // and save the actual token as the one we used
-                auto svReq = entryProm.setValueRequest();
-                svReq.initValue().setTextValue(kj::mv(ssr.srToken));
-                return svReq.send().then([KJ_MV_CAP(ssr)](auto&& res){ 
-                    KJ_LOG(INFO, "Storing sturdy ref token for service restart was successful: ", res.getSuccess());
-                  }).then([KJ_MV_CAP(ssr)]() mutable {
-                      return kj::mv(ssr.sturdyRef);
+      serviceSR = req.send().then([this, storageServiceClient](auto&& entry) mutable {
+        return entry.getEntry().getValueRequest().send().then(
+          [this, KJ_MVCAP(entry), storageServiceClient](auto&& value) mutable {
+            if(value.getIsUnset()) { // there was no set last token, so we need to create a new one
+              return restorer->saveStr(storageServiceClient, nullptr, nullptr, false, RESTORE_STORAGE_ITSELF_TOKEN_VALUE, true).then(
+                [KJ_MVCAP(entry)](auto&& ssr) mutable {
+                  auto serviceSR = kj::mv(ssr.sturdyRef);
+                  // keep the sturdy ref around for output to the user
+                  // and save the actual token as the one we used
+                  auto svReq = entry.getEntry().setValueRequest();
+                  svReq.initValue().setTextValue(kj::mv(ssr.srToken));
+                  return svReq.send().then([](auto&& res){ 
+                      KJ_LOG(INFO, "Storing sturdy ref token for service restart was successful: ", res.getSuccess());
+                    }).then([KJ_MVCAP(serviceSR)]() mutable {
+                        return kj::mv(serviceSR);
                     });
-              });
-          } else { // there was a previously stored token, so just create a sturdy ref for output from it
-            auto serviceSRToken = kj::str(value.getValue().getTextValue());
-            return restorer->saveStr(storageServiceClient, serviceSRToken, nullptr, false, nullptr, false).then(
-              [](auto&& ssr) { return kj::mv(ssr.sturdyRef); }
-            );
-          }
+                });
+            } else { // there was a previously stored token, so just create a sturdy ref for output from it
+              auto serviceSRToken = kj::str(value.getValue().getTextValue());
+              return restorer->saveStr(storageServiceClient, serviceSRToken, nullptr, false, nullptr, false).then(
+                [](auto&& ssr) { return kj::mv(ssr.sturdyRef); }
+              );
+            }
+          });
       }).wait(ioContext.waitScope);
-      if(value.getIsUnset()) { // there was no set last token, so we need to create a new one
-        auto ssr = restorer->saveStr(storageServiceClient, nullptr, nullptr, false, RESTORE_STORAGE_ITSELF_TOKEN_VALUE, true).wait(ioContext.waitScope);
-        // keep the sturdy ref around for output to the user
-        serviceSR = kj::mv(ssr.sturdyRef);
-        // and save the actual token as the one we used
-        auto svReq = entryProm.setValueRequest();
-        svReq.initValue().setTextValue(kj::mv(ssr.srToken));
-        auto succ = svReq.send().wait(ioContext.waitScope).getSuccess();
-        KJ_LOG(INFO, "Storing sturdy ref token for service restart was successful: ", succ);
-      } else { // there was a previously stored token, so just create a sturdy ref for output from it
-        auto serviceSRToken = kj::str(value.getValue().getTextValue());
-        serviceSR = restorer->saveStr(storageServiceClient, serviceSRToken, nullptr, false, nullptr, false).wait(ioContext.waitScope).sturdyRef;
-      }
     } else { // we got no storage connected, so just create a new sturdy ref for this incarnation of the service
       serviceSR = restorer->saveStr(storageServiceClient, nullptr, nullptr, false, nullptr, false).wait(ioContext.waitScope).sturdyRef;
     }
     KJ_LOG(INFO, serviceSR);
-
     KJ_LOG(INFO, "Created storage service.");
     
     // Run forever, accepting connections and handling requests.
