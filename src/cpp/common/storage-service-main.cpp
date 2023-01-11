@@ -67,7 +67,7 @@ public:
     if(restorerContainerId.size() == 0 && restorerContainerSR.size() == 0){
       // get a new container
       auto req = storageServiceClient.newContainerRequest();
-      req.setName(kj::str("Restorer data (", name, ")"));
+      req.setName(kj::str("Storage services' restorer data (", name, ")"));
       auto rcc = req.send().wait(ioContext.waitScope).getContainer();
       // get the id of the container
       auto containerId = rcc.infoRequest().send().wait(ioContext.waitScope).getId();
@@ -86,7 +86,7 @@ public:
     if(serviceContainerId.size() == 0 && serviceContainerSR.size() == 0){
       // get a new container
       auto req = storageServiceClient.newContainerRequest();
-      req.setName(kj::str("Service data (", name, ")"));
+      req.setName(kj::str("Storage service data (", name, ")"));
       auto sccP = req.send().getContainer();
       // get the id of the container
       auto containerId = sccP.infoRequest().send().wait(ioContext.waitScope).getId();

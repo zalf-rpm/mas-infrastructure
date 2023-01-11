@@ -13,6 +13,8 @@ This file is part of the ZALF model and simulation infrastructure.
 Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 */
 
+#include <iostream>
+
 #include <kj/debug.h>
 #include <kj/common.h>
 #include <kj/main.h>
@@ -69,17 +71,17 @@ public:
     channel->setRestorer(restorer);
 
     auto channelSR = restorer->saveStr(channelClient, nullptr, nullptr, false).wait(ioContext.waitScope).sturdyRef;
-    KJ_LOG(INFO, channelSR);
+    if(outputSturdyRefs && channelSR.size() > 0) std::cout << "channelSR=" << channelSR.cStr() << std::endl;
 
     for(const auto& srt : readerSrts){ 
       auto reader = channelClient.readerRequest().send().wait(ioContext.waitScope).getR();
       auto readerSR = restorer->saveStr(reader, srt, nullptr, false, nullptr, false).wait(ioContext.waitScope).sturdyRef;  
-      KJ_LOG(INFO, readerSR);
+      if(outputSturdyRefs && channelSR.size() > 0) std::cout << "readerSR=" << readerSR.cStr() << std::endl;
     }
     for(const auto& srt : writerSrts){
       auto writer = channelClient.writerRequest().send().wait(ioContext.waitScope).getW();
       auto writerSR = restorer->saveStr(writer, srt, nullptr, false, nullptr, false).wait(ioContext.waitScope).sturdyRef;
-      KJ_LOG(INFO, writerSR);
+      if(outputSturdyRefs && writerSR.size() > 0) std::cout << "writerSR=" << writerSR.cStr() << std::endl;
     }
 
     // Run forever, accepting connections and handling requests.
