@@ -15,6 +15,8 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 #include "restorable-service-main.h"
 
+#include <iostream>
+
 #include <kj/debug.h>
 
 #include "common.h"
@@ -55,6 +57,8 @@ kj::MainBuilder::Validity RestorableServiceMain::setRegistrarSR(kj::StringPtr sr
 kj::MainBuilder::Validity RestorableServiceMain::setRegName(kj::StringPtr n) { regName = kj::str(n); return true; }
 
 kj::MainBuilder::Validity RestorableServiceMain::setRegCategory(kj::StringPtr cat) { regCategory = kj::str(cat); return true; }
+
+kj::MainBuilder::Validity RestorableServiceMain::setOutputSturdyRefs() { outputSturdyRefs = true; return true; }
 
 kj::MainBuilder::Validity RestorableServiceMain::setInitServiceFromContainer(kj::StringPtr init) { 
   initRestorerFromContainer = init == "true"; 
@@ -123,7 +127,7 @@ void RestorableServiceMain::startRestorerSetup(mas::schema::common::Identifiable
   
   // print the restorers sturdy ref
   auto restorerSR = restorer->sturdyRefStr("");
-  KJ_LOG(INFO, restorerSR);
+  if(outputSturdyRefs && restorerSR.size() > 0) std::cout << "restorerSR=" << restorerSR.cStr() << std::endl;
 
   //mas::schema::persistence::SturdyRef::Reader reregSR(nullptr);
   mas::schema::registry::Registrar::Client registrar(nullptr);
@@ -176,5 +180,7 @@ kj::MainBuilder& RestorableServiceMain::addRestorableServiceOptions()
     .addOptionWithArg({"check_IP"}, KJ_BIND_METHOD(*this, setCheckIP),
                       "<IPv4 (default: 8.8.8.8)>", "IP to connect to in order to find local outside IP.")
     .addOptionWithArg({"check_port"}, KJ_BIND_METHOD(*this, setCheckPort),
-                      "<port (default: 53)>", "Port to connect to in order to find local outside IP.");
+                      "<port (default: 53)>", "Port to connect to in order to find local outside IP.")
+    .addOption({"output_srs"}, KJ_BIND_METHOD(*this, setOutputSturdyRefs),
+                "Output the sturdy refs to the restorer and service to stdout.");
 }

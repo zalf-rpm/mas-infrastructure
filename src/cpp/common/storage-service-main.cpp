@@ -13,6 +13,8 @@ This file is part of the ZALF model and simulation infrastructure.
 Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 */
 
+#include <iostream>
+
 #include <kj/debug.h>
 #include <kj/common.h>
 #include <kj/main.h>
@@ -70,7 +72,8 @@ public:
       // get the id of the container
       auto containerId = rcc.infoRequest().send().wait(ioContext.waitScope).getId();
       restorerContainerClient = rcc;
-      KJ_LOG(INFO, "Id of newly create container for restorer:", containerId);
+      //KJ_LOG(INFO, "Id of newly create container for restorer:", containerId);
+      if(outputSturdyRefs && containerId.size() > 0) std::cout << "restorerContainerId=" << containerId.cStr() << std::endl;
     } else if(restorerContainerId.size() > 0) { // we got an container id for the local store, get container
       auto req = storageServiceClient.containerWithIdRequest();
       req.setId(restorerContainerId);
@@ -88,7 +91,8 @@ public:
       // get the id of the container
       auto containerId = sccP.infoRequest().send().wait(ioContext.waitScope).getId();
       serviceContainerClient = sccP;
-      KJ_LOG(INFO, "Id of newly create container for storage service:", containerId);
+      //KJ_LOG(INFO, "Id of newly create container for storage service:", containerId);
+      if(outputSturdyRefs && containerId.size() > 0) std::cout << "serviceContainerId=" << containerId.cStr() << std::endl;
     } else if(serviceContainerId.size() > 0) { // we got an container id for the local store, get container
       auto req = storageServiceClient.containerWithIdRequest();
       req.setId(serviceContainerId);
@@ -133,7 +137,7 @@ public:
     } else { // we got no storage connected, so just create a new sturdy ref for this incarnation of the service
       serviceSR = restorer->saveStr(storageServiceClient, nullptr, nullptr, false, nullptr, false).wait(ioContext.waitScope).sturdyRef;
     }
-    KJ_LOG(INFO, serviceSR);
+    if(outputSturdyRefs && serviceSR.size() > 0) std::cout << "serviceSR=" << serviceSR.cStr() << std::endl;
     KJ_LOG(INFO, "Created storage service.");
     
     // Run forever, accepting connections and handling requests.
