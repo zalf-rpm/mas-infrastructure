@@ -93,11 +93,14 @@ enum Cultivar {
 }
 
 interface Crop extends(Common.Identifiable) {
-    # represents a crop
+  # represents a crop
 
-    cultivar    @1 () -> (cult :Cultivar);
-    # what is the generic cultivar this particular crop belongs to      
+  species     @2 () -> (info :Common.IdInformation);
+  # what species is this crop
 
-    parameters  @0 () -> (params :AnyPointer);
-    # pointer to a model specific parameter struct
+  cultivar    @1 () -> (info :Common.IdInformation);
+  # what is the cultivar of this crop
+
+  parameters  @0 () -> (params :AnyPointer);
+  # pointer to a model specific parameter struct
 }

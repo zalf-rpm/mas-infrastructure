@@ -201,10 +201,10 @@ async def async_init_and_run_service(name_to_service, host=None, port=0, serve_b
         server = await async_helpers.serve(host, port, restorer)
         
         for name, s in name_to_service.items():
-            service_sr, service_unsave_sr = restorer.save(s, name_to_service_srs.get(name, None))
+            service_sr, service_unsave_sr = restorer.save_str(s, name_to_service_srs.get(name, None))
             name_to_service_srs[name] = service_sr
             print("service:", name, "sr:", service_sr)
-        print("restorer_sr:", restorer.sturdy_ref())
+        print("restorer_sr:", restorer.sturdy_ref_str())
 
         await register_services(conman, admin, reg_config)
         if run_before_enter_eventloop:
@@ -280,10 +280,10 @@ def init_and_run_service(name_to_service, host="*", port=None, serve_bootstrap=T
         restorer.port = port if port else server.port
 
         for name, s in name_to_service.items():
-            service_sr, service_unsave_sr = restorer.save(s, name_to_service_srs.get(name, None))
+            service_sr, service_unsave_sr = restorer.save_str(s, name_to_service_srs.get(name, None))
             name_to_service_srs[name] = service_sr
             print("service:", name, "sr:", service_sr)
-        print("restorer_sr:", restorer.sturdy_ref())
+        print("restorer_sr:", restorer.sturdy_ref_str())
 
         register_services(conman, admin, reg_config)
     else:

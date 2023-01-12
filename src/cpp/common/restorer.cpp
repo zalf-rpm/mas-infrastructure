@@ -355,7 +355,6 @@ kj::Promise<void> Restorer::initVatIdFromContainer() {
         auto arr = kj::heapArray<unsigned char>(bytes.size());
         for (int i = 0; i < bytes.size(); i++) arr[i] = (unsigned char)bytes[i];
         impl->signPKArray = kj::mv(arr);
-        impl->setVatIdFromSignPK();
         return kj::Promise<bool>(true);
       } 
     }));
