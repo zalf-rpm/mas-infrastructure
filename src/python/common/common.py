@@ -105,6 +105,7 @@ class Restorer(persistence_capnp.Restorer.Server):
         self.set_vat_id_from_sign_pk()
         self._owner_guid_to_sign_pk = {} # owner guid to owner owner sign public key
         self._storage_container = None
+        self._restore_callback = None
 
 
     def set_vat_id_from_sign_pk(self):
@@ -203,24 +204,60 @@ class Restorer(persistence_capnp.Restorer.Server):
 
 
     def get_cap_from_sr_token(self, sr_token, owner_guid=None):
+
+        def get_cap(sr_data): 
+            if "cap" in sr_data: 
+                return sr_data["cap"]
+            elif len(sr_data["unsaveSRToken"]) > 0: # restore an unsave action
+                unsave_action = Action(lambda: [self.unsave(sr_data["restore_token"]), self.unsave(sr_data["unsave_sr_token"])]) 
+                sr_data["cap"] = unsave_action
+                return unsave_action
+            elif self.restore_callback: # restore a service object
+                try:
+                    cap = self._restore_callback(sr_data["restoreToken"]);
+                    sr_data["cap"] = cap
+                    return cap
+                except Exception as e:
+                    pass
+            return None
+
+        def load_from_store_and_get_cap(sr_token):
+            def value_resp(resp):
+                if resp.isUnset:
+                    return None
+                value = resp.value.textValue
+                sr_data = json.loads(value)
+                self._issued_sr_tokens[sr_token] = sr_data
+                return sr_data
+            
+            value_prom = self.storage_container.getEntry(key=sr_token).send().entry.getValue().send()
+            return value_prom.then(value_resp).then(get_cap)
+
         # if there is an owner
         if owner_guid:
             # and we know about that owner
             if owner_guid in self._owner_guid_to_sign_pk:
                 try:
-                    verified_sr_token = pysodium.crypto_sign_open(sr_token, self._owner_guid_to_sign_pk[owner_guid])
+                    unsigned_sr_token = pysodium.crypto_sign_open(sr_token, self._owner_guid_to_sign_pk[owner_guid])
                 except ValueError:
                     return None
-                data = self._issued_sr_tokens.get(verified_sr_token, None)
+                data = self._issued_sr_tokens.get(unsigned_sr_token, None)
                 # and that known owner was actually the one who sealed the token 
-                if data and owner_guid == data["sealed_for"]:
-                    return data["cap"]
+                if data:
+                    if owner_guid == data["ownerGuid"]:
+                        return get_cap(data)
+                elif self.storage_container:
+                    return load_from_store_and_get_cap(unsigned_sr_token)
 
             # if we don't know about that owner or the owner was not the one who sealed the token
             return None
 
         # if there is no owner
-        return self._issued_sr_tokens.get(sr_token, None)
+        if sr_token in self._issued_sr_tokens:
+            return get_cap(self._issued_sr_tokens[sr_token])
+        elif self.storage_container:
+            return load_from_store_and_get_cap(sr_token)
+
 
 
     def sturdy_ref_str(self, sr_token=None):
@@ -253,35 +290,64 @@ class Restorer(persistence_capnp.Restorer.Server):
         }
 
 
-    def save(self, cap, fixed_sr_token=None, seal_for_owner_guid=None, create_unsave=True):
+    def save(self, cap, fixed_sr_token=None, seal_for_owner_guid=None, create_unsave=True, restore_token=None):
         sr_token = fixed_sr_token if fixed_sr_token else str(uuid.uuid4())
         sealed_for = seal_for_owner_guid if seal_for_owner_guid and seal_for_owner_guid in self._owner_guid_to_sign_pk else None
-        self._issued_sr_tokens[sr_token] = {"sealed_for": sealed_for, "cap": cap}
+        data = {"ownerGuid": sealed_for,  "restoreToken": restore_token}
+        self._issued_sr_tokens[sr_token] = {**data, "cap": cap}
+        store_proms = []
+        if self.storage_container:
+            sv_req = self.storage_container.getEntry(key=sr_token).entry.setValue_request()
+            sv_req.init("value").textValue = json.dumps(data)
+            store_proms.append(sv_req.send().then(lambda resp: resp.success))
+
         if create_unsave:
             unsave_sr_token = str(uuid.uuid4())
             unsave_action = Action(lambda: [self.unsave(sr_token), self.unsave(unsave_sr_token)]) 
-            self._issued_sr_tokens[unsave_sr_token] = {"sealed_for": sealed_for, "cap": unsave_action}
-        return (
-            self.sturdy_ref(sr_token), 
-            self.sturdy_ref(unsave_sr_token) if create_unsave else None
-        )
+            udata = {"ownerGuid": sealed_for, "restoreToken": restore_token, "unsaveSRToken": unsave_sr_token}
+            self._issued_sr_tokens[unsave_sr_token] = {**udata, "cap": unsave_action}
+            if self.storage_container:
+                sv_req = self.storage_container.getEntry(key=unsave_sr_token).entry.setValue_request()
+                sv_req.init("value").textValue = json.dumps(udata)
+                store_proms.append(sv_req.send().then(lambda resp: resp.success))
+
+        res = {
+            "sturdy_ref": self.sturdy_ref(sr_token), 
+            "unsave_sr": self.sturdy_ref(unsave_sr_token) if create_unsave else None
+        }
+        return capnp.join_promises(store_proms).then(lambda _: res)
 
 
-    def save_str(self, cap, fixed_sr_token=None, seal_for_owner_guid=None, create_unsave=True):
+    def save_str(self, cap, fixed_sr_token=None, seal_for_owner_guid=None, create_unsave=True, restore_token=None, 
+        store_sturdy_refs=True):
         sr_token = fixed_sr_token if fixed_sr_token else str(uuid.uuid4())
-        #vat_signed_sr_token = self.sign_sr_token_by_vat_and_encode_base64(sr_token)
         sealed_for = seal_for_owner_guid if seal_for_owner_guid and seal_for_owner_guid in self._owner_guid_to_sign_pk else None
-        self._issued_sr_tokens[sr_token] = {"sealed_for": sealed_for, "cap": cap}
+        data = {"ownerGuid": sealed_for,  "restoreToken": restore_token}
+        self._issued_sr_tokens[sr_token] = {**data, "cap": cap}
+        store_proms = []
+        if self.storage_container and store_sturdy_refs:
+            sv_req = self.storage_container.getEntry(key=sr_token).entry.setValue_request()
+            sv_req.init("value").textValue = json.dumps(data)
+            store_proms.append(sv_req.send().then(lambda resp: resp.success))
+
         if create_unsave:
             unsave_sr_token = str(uuid.uuid4())
             #vat_signed_unsave_sr_token = self.sign_sr_token_by_vat_and_encode_base64(unsave_sr_token)
             unsave_action = Action(lambda: [self.unsave(sr_token), self.unsave(unsave_sr_token)]) 
-            self._issued_sr_tokens[unsave_sr_token] = {"sealed_for": sealed_for, "cap": unsave_action}
-        return (
-            self.sturdy_ref_str(sr_token), #vat_signed_sr_token), 
-            #self.sturdy_ref_str(vat_signed_unsave_sr_token) if create_unsave else None
-            self.sturdy_ref_str(unsave_sr_token) if create_unsave else None
-        )
+            udata = {"ownerGuid": sealed_for, "restoreToken": restore_token, "unsaveSRToken": unsave_sr_token}
+            self._issued_sr_tokens[unsave_sr_token] = {**udata, "cap": unsave_action}
+            if self.storage_container and store_sturdy_refs:
+                sv_req = self.storage_container.getEntry(key=unsave_sr_token).entry.setValue_request()
+                sv_req.init("value").textValue = json.dumps(udata)
+                store_proms.append(sv_req.send().then(lambda resp: resp.success))
+        
+        res = {
+            "sturdy_ref": self.sturdy_ref_str(sr_token), 
+            "sr_token": sr_token,
+            "unsave_sr": self.sturdy_ref_str(unsave_sr_token) if create_unsave else None,
+            "unsave_sr_token": unsave_sr_token if create_unsave else None
+        }
+        return capnp.join_promises(store_proms).then(lambda _: res) 
 
     
     def unsave(self, sr_token, owner_guid=None): 
@@ -292,11 +358,23 @@ class Restorer(persistence_capnp.Restorer.Server):
                 verified_sr_token = pysodium.crypto_sign_open(sr_token, self._owner_guid_to_sign_pk[owner_guid])
                 data = self._issued_sr_tokens.get(verified_sr_token, None)
                 # and that known owner was actually the one who sealed the token 
-                if data and owner_guid == data["sealed_for"]:
+                if data and owner_guid == data["ownerGuid"]:
                     del self._issued_sr_tokens[verified_sr_token]
         # if there is no owner
         else:
             del self._issued_sr_tokens[sr_token]
+
+        if self.storage_container:
+            return self.storage_container.removeEntry(key=sr_token).send()
+
+
+    @property
+    def restore_callback(self):
+        return self._restore_callback
+
+    @restore_callback.setter
+    def restore_callback(self, cb):
+        self._restore_callback = cb
 
 
     #struct RestoreParams {
