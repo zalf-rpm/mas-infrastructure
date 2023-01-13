@@ -183,7 +183,8 @@ struct Restorer::Impl {
         auto srt = kj::str(srData->restoreToken);
         auto usrt = kj::str(srData->unsaveSRToken);
         auto unsaveAction = kj::heap<Action>([this, KJ_MVCAP(srt), KJ_MVCAP(usrt)]() { 
-          issuedSRTokens.erase(srt); issuedSRTokens.erase(usrt);
+          auto usrt2 = kj::str(usrt);
+          return unsave(srt).then([this, KJ_MVCAP(usrt2)](){ return unsave(usrt2); });
         });
         srData->cap = kj::mv(unsaveAction);
         return srData->cap; 
@@ -279,6 +280,17 @@ struct Restorer::Impl {
     //KJ_DBG("signedSRToken as hex:", kj::encodeHex(toKJArray(signedSRToken, signedSRTokenLen)));
     return kj::encodeBase64Url(toKJArray(signedSRToken, signedSRTokenLen));
   }
+
+  kj::Promise<void> unsave(kj::StringPtr srToken) {
+    issuedSRTokens.erase(srToken);
+    if(isStoreSet) {
+      auto req = store.removeEntryRequest();
+      req.setKey(srToken);
+      return req.send().ignoreResult();
+    }
+    return kj::READY_NOW;
+  }
+
 };
 
 //-----------------------------------------------------------------------------
@@ -422,8 +434,7 @@ void Restorer::sturdyRef(mas::schema::persistence::SturdyRef::Builder& srb, kj::
   trb.initLocalRef().setAs<capnp::Text>(srToken);
 }
 
-kj::Tuple<bool, kj::String> Restorer::verifySRToken(kj::StringPtr srTokenBase64, kj::StringPtr vatIdBase64)
-{
+kj::Tuple<bool, kj::String> Restorer::verifySRToken(kj::StringPtr srTokenBase64, kj::StringPtr vatIdBase64) {
   auto vatIdPKArray = kj::decodeBase64(vatIdBase64.asArray());
   unsigned char* vatIdPK = (unsigned char*)malloc(vatIdPKArray.size() * sizeof(unsigned char));
   KJ_DEFER(free(vatIdPK));
@@ -447,8 +458,8 @@ kj::Promise<void> Restorer::save(capnp::Capability::Client cap,
   mas::schema::persistence::SturdyRef::Builder sturdyRefBuilder,
   mas::schema::persistence::SturdyRef::Builder unsaveSRBuilder,
   kj::StringPtr fixedSRToken, kj::StringPtr sealForOwner, bool createUnsave,
-  kj::StringPtr restoreToken) 
-{
+  kj::StringPtr restoreToken) {
+
   auto storePromises = kj::heapArrayBuilder<kj::Promise<bool>>(createUnsave ? 2 : 1);
 
   auto srToken = fixedSRToken == nullptr ? kj::str(sole::uuid4().str()) : kj::str(fixedSRToken);
@@ -472,10 +483,13 @@ kj::Promise<void> Restorer::save(capnp::Capability::Client cap,
     auto srt = kj::str(srToken);
     auto usrt = kj::str(unsaveSRToken);
     auto unsaveAction = kj::heap<Action>([this, KJ_MVCAP(srt), KJ_MVCAP(usrt)]() { 
-      unsave(srt); unsave(usrt);
+      auto usrt2 = kj::str(usrt);
+      return impl->unsave(srt).then([this, KJ_MVCAP(usrt2)](){ return impl->unsave(usrt2); });
     }); 
+    // for storing the unsave data, the restoreToken is actually the srToken, because we 
+    // create the unsaveAction ourselves for the capability behind the srToken
     auto &usrEntry = impl->issuedSRTokens.insert(kj::str(unsaveSRToken), 
-      {kj::str(sealForOwner), kj::mv(unsaveAction), true, kj::str(restoreToken), kj::str(unsaveSRToken)});
+      {kj::str(sealForOwner), kj::mv(unsaveAction), true, kj::str(srToken), kj::str(unsaveSRToken)});
     sturdyRef(unsaveSRBuilder, unsaveSRToken);
 
     if(impl->isStoreSet && restoreToken != nullptr){
@@ -524,13 +538,14 @@ kj::Promise<Restorer::SaveStrResult> Restorer::saveStr(capnp::Capability::Client
   kj::String unsaveSRToken;
   if(createUnsave) {
     unsaveSRToken = kj::str(sole::uuid4().str());
-    auto srt = str(srToken);
-    auto usrt = str(unsaveSRToken);
+    auto srt = kj::str(srToken);
+    auto usrt = kj::str(unsaveSRToken);
     auto unsaveAction = kj::heap<Action>([this, KJ_MVCAP(srt), KJ_MVCAP(usrt)]() { 
-      unsave(srt); unsave(usrt);
+      auto usrt2 = kj::str(usrt);
+      return impl->unsave(srt).then([this, KJ_MVCAP(usrt2)](){ return impl->unsave(usrt2); });
     }); 
     auto& usrEntry = impl->issuedSRTokens.insert(kj::str(unsaveSRToken), {kj::str(sealForOwner), kj::mv(unsaveAction), true, 
-      kj::str(restoreToken), kj::str(unsaveSRToken)});
+      kj::str(srToken), kj::str(unsaveSRToken)});
     unsaveSRStr = sturdyRefStr(unsaveSRToken);
 
     if(impl->isStoreSet && storeSturdyRefs){
@@ -551,18 +566,15 @@ kj::Promise<Restorer::SaveStrResult> Restorer::saveStr(capnp::Capability::Client
   });
 }
 
-void Restorer::unsave(kj::StringPtr srToken) 
-{
-  impl->issuedSRTokens.erase(srToken);
+kj::Promise<void> Restorer::unsave(kj::StringPtr srToken) {
+  return impl->unsave(srToken);
 }
 
-void Restorer::setOwnerSignPublicKey(kj::StringPtr ownerGuid, kj::ArrayPtr<unsigned char> ownerSignPublicKey)
-{
+void Restorer::setOwnerSignPublicKey(kj::StringPtr ownerGuid, kj::ArrayPtr<unsigned char> ownerSignPublicKey) {
   impl->ownerGuidToSignPK.insert(kj::heapString(ownerGuid), kj::heapArray(ownerSignPublicKey));
 }
 
-void Restorer::setVatId(mas::schema::persistence::VatId::Builder vidb) const
-{
+void Restorer::setVatId(mas::schema::persistence::VatId::Builder vidb) const {
   vidb.setPublicKey0(impl->vatId[0]);
   vidb.setPublicKey1(impl->vatId[1]);
   vidb.setPublicKey2(impl->vatId[2]);

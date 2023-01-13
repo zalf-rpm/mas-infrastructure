@@ -71,7 +71,7 @@ private:
 
 class Action final : public mas::schema::common::Action::Server {
 public:
-  Action(kj::Function<void()> action, bool execActionOnDel = false, kj::StringPtr id = "<-"); 
+  Action(kj::Function<kj::Promise<void>()> action, bool execActionOnDel = false, kj::StringPtr id = "<-"); 
 
   virtual ~Action() noexcept(false);
 
@@ -79,7 +79,7 @@ public:
 
 private:
   kj::String id{ kj::str("<-") };
-  kj::Function<void()> action;
+  kj::Function<kj::Promise<void>()> action;
   bool execActionOnDel{ false };
   bool alreadyCalled{ false };
 };

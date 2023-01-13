@@ -80,7 +80,7 @@ kj::Promise<void> CallbackImpl::call(CallContext context) {
 
 //-----------------------------------------------------------------------------
 
-Action::Action(kj::Function<void()> action, 
+Action::Action(kj::Function<kj::Promise<void>()> action, 
                bool execActionOnDel,
                kj::StringPtr id)
   : action(kj::mv(action))
@@ -88,14 +88,13 @@ Action::Action(kj::Function<void()> action,
   , id(kj::str(id)) {}
 
 Action::~Action() noexcept(false) {
-  if (execActionOnDel && !alreadyCalled)
-    action();
+  //if (execActionOnDel && !alreadyCalled)
+  //  action();
 }
 
 kj::Promise<void> Action::do_(DoContext context) {
-  action();
   alreadyCalled = true;
-  return kj::READY_NOW;
+  return action();
 }
 
 //-----------------------------------------------------------------------------
