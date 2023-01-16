@@ -251,12 +251,23 @@ def test_cross_domain_registry():
     print("bla")    
 
 
-def test_storage_service():
+def test_storage_container():
     con_man = common.ConnectionManager()
-    service_sr = "capnp://RhDoACQUXuFoGWQs8ElAU6-Q0LpP4Yq5Nj6bGBebClo@10.10.24.203:36293/MzY4OGY4ZGEtNzNiMi00ZThlLTlkNDMtODUyYjJjMzE2ODkz"
+    container_sr = "capnp://jXS22bpAGSjfksa0JkDI_092-h-bdZi4lKNBBgD7kWk=@10.10.24.218:40305/ZGVjODYxYWQtZmVkOS00YjEzLWJmNjQtNWU0OGRmYzhhYmZh"
+    container = con_man.try_connect(container_sr, cast_as=storage_capnp.Store.Container)
+    print("container info:", container.info().wait())
+
+
+    print("end")    
+
+def test_storage_service():
+    test_storage_container()
+
+    con_man = common.ConnectionManager()
+    service_sr = "capnp://jXS22bpAGSjfksa0JkDI_092-h-bdZi4lKNBBgD7kWk@10.10.24.218:40305/ZWJhM2E2NWEtOGM2MS00OWQxLTk3NjAtODVlNDYyNWYyZmRj"
     service = con_man.try_connect(service_sr, cast_as=storage_capnp.Store)
     print("service info:", service.info().wait())
-
+    #'ab7b1472-5437-42ba-b65b-4285717ffe16'
     if(True):
         new_container = service.newContainer("test-container xxx", "test container descr").wait().container
         info = new_container.info().wait()
@@ -264,24 +275,22 @@ def test_storage_service():
         print("new_container:", info)
 
         try:
-            succ = new_container.addEntry(key="some text", value={"textValue": "text value1"}).wait().success
-            print("add object:", succ)
-            succ = new_container.addEntry(key="a text list", value={"textListValue": ["eins", "zwei", "drei"]}).wait().success
-            print("add object:", succ)
-            succ = new_container.addEntry(key="a bool", value={"boolValue": True}).wait().success
-            print("add object:", succ)
-            succ = new_container.addEntry(key="a bool list", value={"boolListValue": [True, False, False, True, False]}).wait().success
-            print("add object:", succ)
-            succ = new_container.addEntry(key="another bool", value={"boolValue": False}).wait().success
-            print("add object:", succ)
-            succ = new_container.addEntry(key="an int", value={"intValue": 42}).wait().success
-            print("add object:", succ)
-            succ = new_container.addEntry(key="an int list", value={"intListValue": [1,2,3,4,55,66,192835]}).wait().success
-            print("add object:", succ)
-            succ = new_container.addEntry(key="a float", value={"floatValue": 42.444}).wait().success
-            print("add object:", succ)
-            succ = new_container.addEntry(key="a float list", value={"floatListValue": [0.1, 0.22, 3.333, 4.1234, 5]}).wait().success
-            print("add object:", succ)
+            print("add text:", new_container.addEntry(key="some text", value={"textValue": "text value1"}).wait().success)
+            print("add text list:", new_container.addEntry(key="a text list", value={"textListValue": ["eins", "zwei", "drei"]}).wait().success)
+            print("add bool:", new_container.addEntry(key="a bool", value={"boolValue": True}).wait().success)
+            print("add bool list:", new_container.addEntry(key="a bool list", value={"boolListValue": [True, False, False, True, False]}).wait().success)
+            print("add int8:", new_container.addEntry(key="an int8", value={"int8Value": 42}).wait().success)
+            print("add int8 list:", new_container.addEntry(key="an int8 list", value={"int8ListValue": [1,2,3,4,55,66,127]}).wait().success)
+            print("add int16:", new_container.addEntry(key="an int16", value={"int16Value": 9999}).wait().success)
+            print("add int16 list:", new_container.addEntry(key="an int16 list", value={"int16ListValue": [1,22,333,4444,32000]}).wait().success)
+            print("add int32:", new_container.addEntry(key="an int32", value={"int32Value": 424242}).wait().success)
+            print("add int32 list:", new_container.addEntry(key="an int32 list", value={"int32ListValue": [1111,22222,333333,4444444,55555555]}).wait().success)
+            print("add int64:", new_container.addEntry(key="an int64", value={"int64Value": 424242424242}).wait().success)
+            print("add int64 list:", new_container.addEntry(key="an int64 list", value={"int64ListValue": [11111111111,2,3,4,55,66,192]}).wait().success)
+            print("add float32", new_container.addEntry(key="a float32", value={"float32Value": 42.444}).wait().success)
+            print("add float32 list:", new_container.addEntry(key="a float32 list", value={"float32ListValue": [0.1, 0.22, 3.333, 4.1234, 5]}).wait().success)
+            print("add float64", new_container.addEntry(key="a float64", value={"float64Value": 42.444}).wait().success)
+            print("add float64 list:", new_container.addEntry(key="a float64 list", value={"float64ListValue": [0.1, 0.22, 3.333, 4.1234, 5]}).wait().success)
 
             i = common_capnp.IdInformation.new_message(id="bla", name="blub", description="blob")
             succ = new_container.addEntry(key="id info struct", value={"anyValue": i}).wait().success
@@ -293,7 +302,10 @@ def test_storage_service():
                     print("anyValue:", entry.snd.anyValue.as_struct(common_capnp.IdInformation))
 
             for entry in new_container.listEntries().wait().entries:
-                print("entry:", entry)
+                key, value = capnp.join_promises([entry.getKey(), entry.getValue()]).wait()
+                #keyp = entry.getKey()
+                #value = entry.getValue().wait().value
+                print("entry:", key, value)
                 if entry.getKey().wait().key == "id info struct":
                     print("anyValue:", entry.getValue().wait().value.anyValue.as_struct(common_capnp.IdInformation))
 
@@ -304,10 +316,12 @@ def test_storage_service():
 
             container = service.importContainer(json_str).wait().container
             print("container.info:", container.info().wait())
-            for entry in container.downloadEntries().wait().objects:
+            for entry in container.downloadEntries().wait().entries:
                 print("entry:", entry)
                 if entry.fst == "id info struct":
                     print("anyValue:", entry.snd.anyValue.as_struct(common_capnp.IdInformation))
+
+            print("end")
 
         except Exception as e:
             print("error:", e)
@@ -423,6 +437,7 @@ def main():
 
     test_storage_service()
 
+    #test_storage_container()
 
     return
 

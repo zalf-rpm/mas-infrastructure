@@ -125,11 +125,11 @@ async def main(path_to_config, serve_bootstrap=True, host=None, port=None,
     
     if config["use_async"]:
         await serv.async_init_and_run_service({"service": service}, config["host"], config["port"], 
-        serve_bootstrap=config["serve_bootstrap"], restorer=restorer, conman=conman)
+        serve_bootstrap=config["serve_bootstrap"], restorer=restorer, conn_man=conman)
     else:
         
         serv.init_and_run_service({"service": service}, config["host"], config["port"], 
-            serve_bootstrap=config["serve_bootstrap"], restorer=restorer, conman=conman)
+            serve_bootstrap=config["serve_bootstrap"], restorer=restorer, conn_man=conman)
 
 #------------------------------------------------------------------------------
 

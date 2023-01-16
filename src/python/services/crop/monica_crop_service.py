@@ -349,19 +349,20 @@ async def main(path_to_monica_parameters, serve_bootstrap=True, host=None, port=
         "description": description,
         "serve_bootstrap": serve_bootstrap,
         "use_async": use_async,
+        "restorer_container_sr": "capnp://jXS22bpAGSjfksa0JkDI_092-h-bdZi4lKNBBgD7kWk=@10.10.24.218:40305/ZGVjODYxYWQtZmVkOS00YjEzLWJmNjQtNWU0OGRmYzhhYmZh",
+        "service_container_sr": None
     }
     common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
-    restorer = common.Restorer()
     service = Registry(config["path_to_monica_parameters"],
         id=config["id"], name=config["name"], description=config["description"])
     if config["use_async"]:
         await serv.async_init_and_run_service({"service": service}, config["host"], config["port"], 
-        serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
+        serve_bootstrap=config["serve_bootstrap"], restorer_container_sr=config["restorer_container_sr"])
     else:
         
         serv.init_and_run_service({"service": service}, config["host"], config["port"], 
-            serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
+            serve_bootstrap=config["serve_bootstrap"], restorer_container_sr=config["restorer_container_sr"])
 
 #------------------------------------------------------------------------------
 

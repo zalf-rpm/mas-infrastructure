@@ -192,6 +192,7 @@ struct Restorer::Impl {
         try {
           auto cap = restoreCallback(srData->restoreToken);
           srData->cap = cap;
+          srData->isCapSet = true;
           return cap;
         } catch (std::exception e) {}
       }
