@@ -169,7 +169,9 @@ async def async_init_and_run_service(name_to_service, host=None, port=0, serve_b
         if restorer_container: 
             restorer.storage_container = restorer_container
             await restorer.init_vat_id_from_container().a_wait()
-            await restorer.init_port_from_container().a_wait()
+            if not port:
+                await restorer.init_port_from_container().a_wait()
+                port = restorer.port
 
     #create and register admin with services
     admin = Admin(list(name_to_service.values()))
@@ -209,9 +211,9 @@ async def async_init_and_run_service(name_to_service, host=None, port=0, serve_b
         server = await async_helpers.serve(host, port, restorer)
         
         for name, s in name_to_service.items():
-            service_sr, service_unsave_sr = restorer.save_str(s, name_to_service_srs.get(name, None))
-            name_to_service_srs[name] = service_sr
-            print("service:", name, "sr:", service_sr)
+            res = restorer.save_str(s, name_to_service_srs.get(name, None))
+            name_to_service_srs[name] = res["sturdy_ref"]
+            print("service:", name, "sr:", res["sturdy_ref"])
         print("restorer_sr:", restorer.sturdy_ref_str())
 
         await register_services(conn_man, admin, reg_config)
@@ -228,7 +230,9 @@ async def async_init_and_run_service(name_to_service, host=None, port=0, serve_b
 #------------------------------------------------------------------------------
 
 def init_and_run_service(name_to_service, host="*", port=None, serve_bootstrap=True, restorer=None, 
-    conn_man=None, name_to_service_srs={}, run_before_enter_eventloop=None, restorer_container_sr=None, **kwargs):
+    conn_man=None, name_to_service_srs={}, run_before_enter_eventloop=None, 
+    restorer_container_sr=None, service_container_sr=None,
+    load_last_or_store_services_callback=None, **kwargs):
 
     host = host if host else "*"
 
@@ -249,11 +253,13 @@ def init_and_run_service(name_to_service, host="*", port=None, serve_bootstrap=T
         conn_man = common.ConnectionManager(restorer)
     
     if restorer and restorer_container_sr:
-        restorer_container = conn_man.try_connect(restorer_container_sr, cast_as=storage_capnp.Store.Container).wait()
+        restorer_container = conn_man.try_connect(restorer_container_sr, cast_as=storage_capnp.Store.Container)
         if restorer_container: 
             restorer.storage_container = restorer_container
             restorer.init_vat_id_from_container().wait()
-            restorer.init_port_from_container().wait()
+            if not port:
+                restorer.init_port_from_container().wait()
+                port = restorer.port
 
     #create and register admin with services
     admin = Admin(list(name_to_service.values()))
@@ -288,14 +294,20 @@ def init_and_run_service(name_to_service, host="*", port=None, serve_bootstrap=T
                     print("Couldn't connect to registrar at sturdy_ref:", reg_sr)
             except Exception as e:
                 print("Error registering service name:", name, ". Exception:", e)
-
+    
     addr = host + ((":" + str(port)) if port else "")
     if serve_bootstrap:
         server = capnp.TwoPartyServer(addr, bootstrap=restorer)
         restorer.port = port if port else server.port
+        restorer.store_port().wait()
 
+        service_container = conn_man.try_connect(service_container_sr, cast_as=storage_capnp.Store.Container)
         for name, s in name_to_service.items():
-            service_sr, service_unsave_sr = restorer.save_str(s, name_to_service_srs.get(name, None))
+            if service_container and load_last_or_store_services_callback:
+                service_sr = load_last_or_store_services_callback(service_container, name, s)
+            else:
+                service_sr = restorer.save_str(s, name_to_service_srs.get(name, None), 
+                    store_sturdy_refs=service_container is not None).wait()["sturdy_ref"]
             name_to_service_srs[name] = service_sr
             print("service:", name, "sr:", service_sr)
         print("restorer_sr:", restorer.sturdy_ref_str())

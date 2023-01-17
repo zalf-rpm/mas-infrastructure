@@ -91,17 +91,13 @@ void RestorableServiceMain::startRestorerSetup(mas::schema::common::Identifiable
   KJ_IF_MAYBE(rcc, restorerContainerClient){ 
     restorer->setStorageContainer(*rcc);
     if(initRestorerFromContainer){
-      auto proms = kj::heapArrayBuilder<kj::Promise<void>>(2);
-      proms.add(restorer->initPortFromContainer());
-      proms.add(restorer->initVatIdFromContainer());
-      kj::joinPromises(proms.finish()).catch_([](auto&& e){
-        KJ_LOG(ERROR, "Error while trying to init restorer from container.", e);
-      }).wait(ioContext.waitScope);
+      if(port == 0) { 
+        restorer->initPortFromContainer().wait(ioContext.waitScope);
+        port = restorer->getPort();
+      }
+      restorer->initVatIdFromContainer().wait(ioContext.waitScope);
     }  
   } 
-
-  // get port if init was requested
-  if(initRestorerFromContainer) port = restorer->getPort();
 
   // bind restorer 
   KJ_LOG(INFO, "Trying to bind restorer to", host, port);

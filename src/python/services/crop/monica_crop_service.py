@@ -44,8 +44,14 @@ reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=ab
 crop_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "crop.capnp"), imports=abs_imports)
 common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
 monica_params_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "model" / "monica" / "monica_params.capnp"), imports=abs_imports)
+storage_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "storage.capnp"), imports=abs_imports)
 
 #------------------------------------------------------------------------------
+
+LAST_SERVICE_SR_KEY_NAME = "last_service_sr"
+LAST_ADMIN_SR_KEY_NAME = "last_admin_sr"
+SERVICE_ITSELF_RESTORE_TOKEN = "monica_crop_service_itself"
+ADMIN_RESTORE_TOKEN = "monica_crop_service_admin"
 
 class Crop(crop_capnp.Crop.Server):
 
@@ -350,21 +356,58 @@ async def main(path_to_monica_parameters, serve_bootstrap=True, host=None, port=
         "serve_bootstrap": serve_bootstrap,
         "use_async": use_async,
         "restorer_container_sr": "capnp://jXS22bpAGSjfksa0JkDI_092-h-bdZi4lKNBBgD7kWk=@10.10.24.218:40305/ZGVjODYxYWQtZmVkOS00YjEzLWJmNjQtNWU0OGRmYzhhYmZh",
-        "service_container_sr": None
+        "service_container_sr": "capnp://jXS22bpAGSjfksa0JkDI_092-h-bdZi4lKNBBgD7kWk=@10.10.24.218:40305/ZGVjODYxYWQtZmVkOS00YjEzLWJmNjQtNWU0OGRmYzhhYmZh"
     }
     common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
+    restorer = common.Restorer()
     service = Registry(config["path_to_monica_parameters"],
         id=config["id"], name=config["name"], description=config["description"])
+
+    name_to_service = {"service": service}
+
+    def restore_callback(restore_token):
+        if restore_token == SERVICE_ITSELF_RESTORE_TOKEN:
+            return name_to_service["service"]
+        elif restore_token == ADMIN_RESTORE_TOKEN:
+            return name_to_service.get("admin", None)
+        else:
+            return None
+
+    restorer.restore_callback = restore_callback
+
+    def load_last_or_store_services(service_container, name, service):
+        (storage_key, restore_token)  = {
+            "service": (LAST_SERVICE_SR_KEY_NAME, SERVICE_ITSELF_RESTORE_TOKEN),
+            "admin": (LAST_ADMIN_SR_KEY_NAME, ADMIN_RESTORE_TOKEN)
+        }[name]
+        entry_prom = service_container.getEntry(key=storage_key).entry
+        entry_val = entry_prom.getValue().wait()
+        if entry_val.isUnset: # there was no set last token, so we need to create a new one
+            save_res = restorer.save_str(service, create_unsave=False, restore_token=restore_token, store_sturdy_refs=True).wait()
+            service_sr = save_res["sturdy_ref"]
+            # keep the sturdy ref around for output to the user
+            # and save the actual token as the one we used
+            if entry_prom.setValue(value={"textValue": save_res["sr_token"]}).wait().success:
+                return service_sr
+        else: # there was a previously stored token, so just create a sturdy ref for output from it
+            service_sr_token = entry_val.value.textValue
+            save_res = restorer.save_str(service, fixed_sr_token=service_sr_token, create_unsave=False, store_sturdy_refs=False).wait()
+            return save_res["sturdy_ref"]
+
     if config["use_async"]:
-        await serv.async_init_and_run_service({"service": service}, config["host"], config["port"], 
-        serve_bootstrap=config["serve_bootstrap"], restorer_container_sr=config["restorer_container_sr"])
+        await serv.async_init_and_run_service(name_to_service, config["host"], config["port"], 
+        serve_bootstrap=config["serve_bootstrap"], restorer=restorer,
+        restorer_container_sr=config["restorer_container_sr"],
+        service_container_sr=config["service_container_sr"])
     else:
-        
-        serv.init_and_run_service({"service": service}, config["host"], config["port"], 
-            serve_bootstrap=config["serve_bootstrap"], restorer_container_sr=config["restorer_container_sr"])
+        serv.init_and_run_service(name_to_service, config["host"], config["port"], 
+            serve_bootstrap=config["serve_bootstrap"], restorer=restorer,
+            restorer_container_sr=config["restorer_container_sr"],
+            service_container_sr=config["service_container_sr"],
+            load_last_or_store_services_callback=load_last_or_store_services)
 
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    asyncio.run(main(str(PATH_TO_REPO.parent / "monica-parameters"), serve_bootstrap=True, use_async=True)) 
+    asyncio.run(main(str(PATH_TO_REPO.parent / "monica-parameters"), serve_bootstrap=True, use_async=False)) 
