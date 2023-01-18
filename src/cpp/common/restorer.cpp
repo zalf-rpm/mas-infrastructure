@@ -243,8 +243,6 @@ struct Restorer::Impl {
         unsigned long long unsignedSRTokenLen;
         if(crypto_sign_open(unsignedSRToken, &unsignedSRTokenLen, signedSRToken, srToken.size(), ownerSignPK) == 0) {
           unsignedSRToken[unsignedSRTokenLen] = '\0';
-          // and that known owner was actually the one who sealed the token 
-          // we stored the vat signed sturdy ref as base64
           kj::StringPtr unsignedSRTokenPtr((const char*)unsignedSRToken, unsignedSRTokenLen);
           KJ_IF_MAYBE(srData, issuedSRTokens.find(unsignedSRTokenPtr)) {
             return getCap(srData);

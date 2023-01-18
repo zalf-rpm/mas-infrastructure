@@ -211,7 +211,7 @@ async def async_init_and_run_service(name_to_service, host=None, port=0, serve_b
         server = await async_helpers.serve(host, port, restorer)
         
         for name, s in name_to_service.items():
-            res = restorer.save_str(s, name_to_service_srs.get(name, None))
+            res = restorer.save_str(s, name_to_service_srs.get(name, None)).wait()
             name_to_service_srs[name] = res["sturdy_ref"]
             print("service:", name, "sr:", res["sturdy_ref"])
         print("restorer_sr:", restorer.sturdy_ref_str())

@@ -48,12 +48,13 @@ model_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "model.capnp"), imports=abs
 yieldstat_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "model" / "yieldstat" / "yieldstat.capnp"), imports=abs_imports)
 monica_state_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "model" / "monica" / "monica_state.capnp"), imports=abs_imports)
 monica_mgmt_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "model" / "monica" / "monica_management.capnp"), imports=abs_imports)
-climate_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate.capnp"), imports=abs_imports)
+climate_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate.capnp"), imports=abs_imports)
 mgmt_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "management.capnp"), imports=abs_imports)
 service_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "service.capnp"), imports=abs_imports)
 common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
 grid_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "grid.capnp"), imports=abs_imports)
 storage_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "storage.capnp"), imports=abs_imports)
+geo_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "geo.capnp"), imports=abs_imports)
 
 capnp.remove_event_loop()
 capnp.create_event_loop(threaded=True)
@@ -80,7 +81,7 @@ async def async_main():
     info = await yieldstat.info().a_wait()
     print(info)
 
-    time_series = await conMan.connect("capnp://localhost:11002", climate_data_capnp.TimeSeries)
+    time_series = await conMan.connect("capnp://localhost:11002", climate_capnp.TimeSeries)
     ts_header = (await time_series.header().a_wait()).header
     print(ts_header)
 
@@ -161,7 +162,7 @@ def test_climate_service():
     conMan = common.ConnectionManager()
     #restorer = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000", cast_as=persistence_capnp.Restorer)
     #service = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/6feaf299-d620-430b-9189-36dfccf48b3a", cast_as=climate_data_capnp.CSVTimeSeriesFactory)
-    service = conMan.try_connect("capnp://insecure@10.10.24.218:36541/7555fd1a-e413-4ec7-be5d-8f3a94825b3c", cast_as=climate_data_capnp.Service)
+    service = conMan.try_connect("capnp://ZBqDX0um4sNScl8UNX2uVJAn0M7qZ-hcxmajKzPDN8w=@10.10.24.218:39779/NDJjZmZiYmYtMWE0OS00NTIzLWJmNTUtNjc4ZDQxY2Q0MTBm", cast_as=climate_capnp.Service)
     #timeseries = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/8e7961c5-bd16-4c1d-86fd-8347dc46185e", cast_as=climate_data_capnp.TimeSeries)
     #unsave = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/ac544d7b-1f82-4bf8-9adb-cf586ae46287", cast_as=common_capnp.Action)
     #4e4fe3fb-791a-4a26-9ae1-1ce52093bda5'  row: 340/col: 288
@@ -169,6 +170,11 @@ def test_climate_service():
         print(service.info().wait())
     except Exception as e:
         print(e)
+
+    ds = service.getAvailableDatasets().wait().datasets[0].data
+    cb = ds.streamLocations().wait().locationsCallback
+    ls = cb.nextLocations(10).wait()
+    ls.locations[0].customData[0].value.as_struct(geo_capnp.RowCol)
 
     p = psutil.Process()
 
@@ -256,7 +262,6 @@ def test_storage_container():
     container_sr = "capnp://jXS22bpAGSjfksa0JkDI_092-h-bdZi4lKNBBgD7kWk=@10.10.24.218:40305/ZGVjODYxYWQtZmVkOS00YjEzLWJmNjQtNWU0OGRmYzhhYmZh"
     container = con_man.try_connect(container_sr, cast_as=storage_capnp.Store.Container)
     print("container info:", container.info().wait())
-
 
     print("end")    
 
@@ -368,7 +373,7 @@ def test_restorer():
 
 def test_climate():
     con_man = common.ConnectionManager()
-    climate = con_man.try_connect("capnp://insecure@10.10.24.210:37203/6b57e75b-dee3-4882-90ae-731a679a3653", cast_as=climate_data_capnp.Service)
+    climate = con_man.try_connect("capnp://insecure@10.10.24.210:37203/6b57e75b-dee3-4882-90ae-731a679a3653", cast_as=climate_capnp.Service)
     print(climate.info().wait())
 
 
@@ -429,13 +434,13 @@ def main():
 
     #test_fertilizer_managment_service()
 
-    #test_climate_service()
+    test_climate_service()
 
     #test_registry()
 
     #test_cross_domain_registry()
 
-    test_storage_service()
+    #test_storage_service()
 
     #test_storage_container()
 
@@ -448,7 +453,7 @@ def main():
 
 
     for i in range(1):
-        csv_timeseries_cap = capnp.TwoPartyClient("localhost:11002").bootstrap().cast_as(climate_data_capnp.TimeSeries)
+        csv_timeseries_cap = capnp.TwoPartyClient("localhost:11002").bootstrap().cast_as(climate_capnp.TimeSeries)
         header = csv_timeseries_cap.header().wait().header
         data = csv_timeseries_cap.data().wait().data
         print("i:", i, "header:", header)

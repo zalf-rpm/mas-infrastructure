@@ -137,6 +137,30 @@ interface Persistent {
 
 interface Restorer {
   # restore a capability from a sturdy ref
+  
+  #interface Save {
+  #  struct SaveParams {
+  #    cap           @0 :Capability;
+  #
+  #    fixedSRToken  @1 :AnyPointer;
+  #
+  #    sealFor       @2 :SturdyRef.Owner;
+  #
+  #    createUnsave  @3 :Bool = true;
+  #
+  #    restoreToken  @4 :AnyPointer;
+  #  }
+  #
+  #  struct SaveResults {
+  #    sturdyRef @0 :SturdyRef;
+  #    # the sturdy ref to be used to restore the capability
+  #
+  #    unsaveSR @1 :SturdyRef;
+  #    # sturdy ref refering to an Common.Action capability to unsave the referenced capability
+  #  }
+  #
+  #  save @0 SaveParams -> SaveResults;
+  #}
 
   struct RestoreParams {
     localRef @0 :AnyPointer;
@@ -145,10 +169,12 @@ interface Restorer {
     sealedFor @1 :SturdyRef.Owner;
     # the owner of the sturdy ref to be restored
     # if everybody is allowed to restore the capability, this field should be null (unset)
+    # if sealedFor is set, the localRef must be signed by the private key of the owner matching 
+    # the public key registered with the restorer service else the cabability cannot be restored
   }
 
   restore @0 RestoreParams -> (cap :Capability);
-  # restore from the localRef in a transient sturdy ref as live capabalility
+  # restore from the localRef in a transient sturdy ref as live capability
 }
 
 

@@ -144,18 +144,25 @@ struct Metadata {
 interface Dataset extends(Common.Identifiable, Persistent) {
   # represent a set of TimeSeries
 
-  metadata @0 () -> Metadata;
+  metadata            @0 () -> Metadata;
   # get metadata for these data
 
   closestTimeSeriesAt @1 (latlon :Geo.LatLonCoord) -> (timeSeries :TimeSeries);  
   # closest TimeSeries object which represents the whole time series 
   # of the climate realization at the give climate coordinate
 
-  timeSeriesAt @2 (locationId :Text) -> (timeSeries :TimeSeries);
+  timeSeriesAt        @2 (locationId :Text) -> (timeSeries :TimeSeries);
   # return time series at location 
 
-  locations @3 () -> (locations :List(Location));
+  locations           @3 () -> (locations :List(Location));
   # all the climate locations this dataset has
+
+  interface GetLocationsCallback {
+    nextLocations @0 (maxCount :Int64) -> (locations :List(Location));
+    # get the next locations, if available, but maximum maxCount locations at one time
+  }
+  streamLocations     @4 () -> (locationsCallback :GetLocationsCallback);
+  # stream locations, instead of providing all at once
 }
 
 
@@ -187,17 +194,24 @@ enum Element {
 struct Location {
   # represents a particular (even virtual) climate location
 
-  id @0 :Common.IdInformation;
+  id          @0 :Common.IdInformation;
   # id information for this location
 
-  heightNN @1 :Float32;
+  heightNN    @1 :Float32;
   # the locations height over NN
 
-  latlon @2 :Geo.LatLonCoord;
+  latlon      @2 :Geo.LatLonCoord;
   # the latitude/longitude coordinate of the location
 
-  timeSeries @3 :TimeSeries;
+  timeSeries  @3 :TimeSeries;
   # time series at this location
+
+  struct KV {
+    key   @0 :Text;
+    value @1 :AnyPointer;
+  }
+  customData  @4 :List(KV);
+  # custom data for this location, e.g. row/column in a grid etc.
 }
 
 

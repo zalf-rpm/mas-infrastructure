@@ -46,12 +46,13 @@ import services.climate.common_climate_data_capnp_impl as ccdi
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
-climate_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate.capnp"), imports=abs_imports)
+climate_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate.capnp"), imports=abs_imports)
+geo_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "geo.capnp"), imports=abs_imports)
 persistence_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "persistence.capnp"), imports=abs_imports)
 
 #------------------------------------------------------------------------------
 
-class TimeSeries(climate_data_capnp.TimeSeries.Server, common.Identifiable, common.Persistable): 
+class TimeSeries(climate_capnp.TimeSeries.Server, common.Identifiable, common.Persistable): 
 
     def __init__(self, metadata=None, location=None, path_to_csv=None, dataframe=None, csv_string=None, 
     header_map=None, supported_headers=None, pandas_csv_config={}, transform_map=None,
@@ -71,7 +72,7 @@ class TimeSeries(climate_data_capnp.TimeSeries.Server, common.Identifiable, comm
         self._location = location
 
         self._header_map = header_map
-        self._supported_headers = list(climate_data_capnp.Element.schema.enumerants.keys()) if supported_headers is None else supported_headers
+        self._supported_headers = list(climate_capnp.Element.schema.enumerants.keys()) if supported_headers is None else supported_headers
         self._pandas_csv_config_defaults = {"skip_rows": [1], "index_col": 0, "sep": ","}
         self._pandas_csv_config = {**self._pandas_csv_config_defaults, **pandas_csv_config}
         self._transform_map = transform_map
@@ -135,7 +136,7 @@ class TimeSeries(climate_data_capnp.TimeSeries.Server, common.Identifiable, comm
 
 
     def resolution_context(self, context): # -> (resolution :TimeResolution);
-        context.results.resolution = climate_data_capnp.TimeSeries.Resolution.daily
+        context.results.resolution = climate_capnp.TimeSeries.Resolution.daily
 
 
     def range_context(self, context): # -> (startDate :Date, endDate :Date);
@@ -197,7 +198,7 @@ class TimeSeries(climate_data_capnp.TimeSeries.Server, common.Identifiable, comm
 
 #------------------------------------------------------------------------------
 
-class Dataset(climate_data_capnp.Dataset.Server, common.Identifiable, common.Persistable):
+class Dataset(climate_capnp.Dataset.Server, common.Identifiable, common.Persistable):
 
     def __init__(self, metadata, path_to_rows, interpolator, rowcol_to_latlon, 
         gzipped=False, header_map=None, supported_headers=None, row_col_pattern="row-{row}/col-{col}.csv",
@@ -279,10 +280,13 @@ class Dataset(climate_data_capnp.Dataset.Server, common.Identifiable, common.Per
                 coord = self._rowcol_to_latlon[(row, col)]
             id = "r:{}/c:{}".format(row, col)
             name = "Row/Col:{}/{}|LatLon:{}/{}".format(row, col, coord["lat"], coord["lon"])
-            loc = climate_data_capnp.Location.new_message(
+            loc = climate_capnp.Location.new_message(
                 id={"id": id, "name": name, "description": ""},
                 heightNN=coord["alt"],
                 latlon={"lat": coord["lat"], "lon": coord["lon"]},
+                customData=[climate_capnp.Location.KV.new_message(
+                    key="row/col", value=geo_capnp.RowCol.new_message(row=row, col=col)
+                )]
             )
             if time_series:
                 loc.timeSeries = time_series
@@ -290,7 +294,7 @@ class Dataset(climate_data_capnp.Dataset.Server, common.Identifiable, common.Per
         return self._locations[(row, col)]
 
 
-    def locations(self, **kwargs): # locations @2 () -> (locations :List(Location));
+    def locations(self, **kwargs): # locations @3 () -> (locations :List(Location));
         # all the climate locations this dataset has
         locs = []
         if not self._all_locations_created:
@@ -305,4 +309,32 @@ class Dataset(climate_data_capnp.Dataset.Server, common.Identifiable, common.Per
             locs.extend(self._locations.values())
         return locs
 
+
+    def streamLocations(self, **kwargs): # streamLocations @4 () -> (locationsCallback :GetLocationsCallback);
+        # all the climate locations this dataset has
+
+        def create_loc(row_col, coord):
+            row, col = row_col
+            loc = self.location_at(row, col, coord)
+            ts = self.time_series_at(row, col, loc)
+            loc.timeSeries = ts
+            return loc
+
+        locs_gen = (create_loc(row_col, coord) for row_col, coord in self._rowcol_to_latlon.items())
+        return GetLocationsCallback(locs_gen)
+
+
 #------------------------------------------------------------------------------
+
+class GetLocationsCallback(climate_capnp.Dataset.GetLocationsCallback.Server):
+    def __init__(self, locations_gen):
+        self._locations_gen = locations_gen
+
+    def nextLocations(self, maxCount, **kwargs):  # nextLocations @1 (maxCount :Int64) -> (locations :List(Location));
+        l = []
+        for _ in range(maxCount):
+            try:
+                l.append(next(self._locations_gen))
+            except StopIteration:
+                break
+        return l

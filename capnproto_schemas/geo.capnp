@@ -54,14 +54,21 @@ struct Point2D {
   y @1 :Float64;
 }
 
+struct RowCol {
+  # a row and column coordinate
+  row @0 :UInt64;
+  col @1 :UInt64;
+}
+
 struct Coord {
   # an abstract geo coordinate
 
   union {
-    gk @0 :GKCoord;
-    latlon @1 :LatLonCoord;
-    utm @2 :UTMCoord;
-    p2D @3 :Point2D;
+    gk      @0 :GKCoord;
+    latlon  @1 :LatLonCoord;
+    utm     @2 :UTMCoord;
+    p2D     @3 :Point2D;
+    rowcol  @4 :RowCol;
   }
 }
 
