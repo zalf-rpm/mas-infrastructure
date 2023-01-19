@@ -250,12 +250,12 @@ class Dataset(climate_capnp.Dataset.Server, common.Identifiable, common.Persista
             time_series.name = "row: {}/col: {}".format(row, col)
             time_series.restorer = self._restorer
 
-            #print(self._process.memory_percent(memtype="rss"))
-            while len(self._creation_order) > 1 and self._process.memory_percent(memtype="rss") > self._percentage_of_main_memory_use:
-                rc = self._creation_order.popleft()
-                if rc != (row, col):
-                    self._time_series.pop(rc)
-                    #print("after pop:", self._process.memory_percent(memtype="rss"))
+        #print(self._process.memory_percent(memtype="rss"))
+        while len(self._creation_order) > 1 and self._process.memory_percent(memtype="rss") > self._percentage_of_main_memory_use:
+            rc = self._creation_order.popleft()
+            if rc != (row, col):
+                self._time_series.pop(rc)
+                #print("after pop:", self._process.memory_percent(memtype="rss"))
 
         return self._time_series[(row, col)]
 

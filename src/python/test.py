@@ -162,7 +162,7 @@ def test_climate_service():
     conMan = common.ConnectionManager()
     #restorer = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000", cast_as=persistence_capnp.Restorer)
     #service = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/6feaf299-d620-430b-9189-36dfccf48b3a", cast_as=climate_data_capnp.CSVTimeSeriesFactory)
-    service = conMan.try_connect("capnp://ZBqDX0um4sNScl8UNX2uVJAn0M7qZ-hcxmajKzPDN8w=@10.10.24.218:39779/NDJjZmZiYmYtMWE0OS00NTIzLWJmNTUtNjc4ZDQxY2Q0MTBm", cast_as=climate_capnp.Service)
+    service = conMan.try_connect("capnp://LGfIp6G7abOBmjSayIfew1-r2Nu3ftIjjd9oWK7nbIY=@10.10.24.218:38151/NWVkMDkwNDItY2ZmZC00YjBjLTlkODctZmE0NjEwNWY2Yzk4", cast_as=climate_capnp.Service)
     #timeseries = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/8e7961c5-bd16-4c1d-86fd-8347dc46185e", cast_as=climate_data_capnp.TimeSeries)
     #unsave = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/ac544d7b-1f82-4bf8-9adb-cf586ae46287", cast_as=common_capnp.Action)
     #4e4fe3fb-791a-4a26-9ae1-1ce52093bda5'  row: 340/col: 288
@@ -173,8 +173,14 @@ def test_climate_service():
 
     ds = service.getAvailableDatasets().wait().datasets[0].data
     cb = ds.streamLocations().wait().locationsCallback
-    ls = cb.nextLocations(10).wait()
-    ls.locations[0].customData[0].value.as_struct(geo_capnp.RowCol)
+    while True:
+        ls = cb.nextLocations(10).wait().locations
+        if len(ls) == 0:
+            break
+        for l in ls:
+            rc = l.customData[0].value.as_struct(geo_capnp.RowCol)
+            day0_data = l.timeSeries.data().wait().data[0]
+            print("row:", rc.row, "col:", rc.col, "day0:", day0_data)
 
     p = psutil.Process()
 
