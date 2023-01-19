@@ -162,7 +162,7 @@ def test_climate_service():
     conMan = common.ConnectionManager()
     #restorer = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000", cast_as=persistence_capnp.Restorer)
     #service = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/6feaf299-d620-430b-9189-36dfccf48b3a", cast_as=climate_data_capnp.CSVTimeSeriesFactory)
-    service = conMan.try_connect("capnp://LGfIp6G7abOBmjSayIfew1-r2Nu3ftIjjd9oWK7nbIY=@10.10.24.218:38151/NWVkMDkwNDItY2ZmZC00YjBjLTlkODctZmE0NjEwNWY2Yzk4", cast_as=climate_capnp.Service)
+    service = conMan.try_connect("capnp://SzOpxKvp2MfCwo5CKSKjvr5qBF2ZOLNJunmyZCpS-e4=@10.10.24.218:43029/MTRjNWViNzctMGJmNS00ZGEwLTkwY2QtYTE0ZmEyMTZhOTYz", cast_as=climate_capnp.Service)
     #timeseries = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/8e7961c5-bd16-4c1d-86fd-8347dc46185e", cast_as=climate_data_capnp.TimeSeries)
     #unsave = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/ac544d7b-1f82-4bf8-9adb-cf586ae46287", cast_as=common_capnp.Action)
     #4e4fe3fb-791a-4a26-9ae1-1ce52093bda5'  row: 340/col: 288
@@ -172,6 +172,8 @@ def test_climate_service():
         print(e)
 
     ds = service.getAvailableDatasets().wait().datasets[0].data
+    print(ds.save().wait())
+
     cb = ds.streamLocations().wait().locationsCallback
     while True:
         ls = cb.nextLocations(10).wait().locations
@@ -386,15 +388,15 @@ def test_climate():
 def test_channel():
     con_man = common.ConnectionManager()
     
-    writer = con_man.try_connect("capnp://insecure@10.10.24.210:44735/2c7554bc-5112-461d-a478-e95cbc905d37", cast_as=common_capnp.Writer)
-    writer.write(value=monica_state_capnp.ICData.new_message(init={"syncDate": {"day": 1, "month": 2, "year": 2022}})).wait()
+    writer = con_man.try_connect("capnp://2djJAQhpUZuiQxCllmwVBF86XNvrnNVw8JQnFomcBUM@10.10.24.218:33893/b3V0", cast_as=common_capnp.Channel.Writer)
+    writer.write(value=geo_capnp.RowCol.new_message(row=5, col=12)).wait()
     print("bla")
 
     # test channel
     #channel_sr = "capnp://insecure@10.10.24.210:37505/6c25454e-4ef9-4659-9c94-341bdd827df5"
     def writer():
         conMan = common.ConnectionManager()
-        writer = conMan.try_connect("capnp://insecure@10.10.24.210:43513/668ce2c1-f256-466d-99ce-30b01fd2b21b", cast_as=common_capnp.Writer)
+        writer = conMan.try_connect("capnp://insecure@10.10.24.210:43513/668ce2c1-f256-466d-99ce-30b01fd2b21b", cast_as=common_capnp.Channel.Writer)
         #channel = conMan.try_connect(channel_sr, cast_as=common_capnp.Channel)
         #writer = channel.writer().wait().w.as_interface(common_capnp.Writer)
         for i in range(1000):
@@ -405,7 +407,7 @@ def test_channel():
             #writer.write(value=common_capnp.X.new_message(t="world")).wait()
         #print("wrote value:", "hello", "world")
     Thread(target=writer).start()
-    reader = con_man.try_connect("capnp://insecure@10.10.24.210:34307/40daafc3-490b-4b27-a84f-6ee4c111b352", cast_as=common_capnp.Reader)
+    reader = con_man.try_connect("capnp://2djJAQhpUZuiQxCllmwVBF86XNvrnNVw8JQnFomcBUM@10.10.24.218:33893/aW4", cast_as=common_capnp.Channel.Reader)
     #channel = conMan.try_connect(channel_sr, cast_as=common_capnp.Channel)
     #reader = channel.reader().wait().r.as_interface(common_capnp.Reader)
     for i in range(1000):
@@ -436,11 +438,13 @@ def main():
             if k in config:
                 config[k] = v
 
+    test_channel()
+
     #test_monica()
 
     #test_fertilizer_managment_service()
 
-    test_climate_service()
+    #test_climate_service()
 
     #test_registry()
 

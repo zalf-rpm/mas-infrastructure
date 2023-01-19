@@ -19,7 +19,6 @@ import capnp
 import os
 from pathlib import Path
 import sys
-import threading
 
 PATH_TO_SCRIPT_DIR = Path(os.path.realpath(__file__)).parent
 PATH_TO_REPO = PATH_TO_SCRIPT_DIR.parent.parent.parent
@@ -40,7 +39,10 @@ common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=a
 
 config = {
     "in_sr": None,
-    "filepath_pattern": "out/csv_{id}.csv"
+    "id_attr": "id",
+    "from_attr": None,
+    "filepath_pattern": "csv_{id}.csv",
+    "path_to_out_dir": "out/",
 }
 common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
@@ -55,9 +57,16 @@ try:
             if msg.which() == "done":
                 break
 
-            filepath = config["filepath_pattern"].format(id=count)
+            in_ip = msg.value.as_struct(common_capnp.IP)
+            
+            id_attr = common.get_fbp_attr(in_ip, config["id_attr"])
+            id = id_attr.as_text() if id_attr else str(count)
+            content_attr = common.get_fbp_attr(in_ip, config["from_attr"])
+            content = content_attr.as_text() if content_attr else in_ip.content.as_text()
+
+            filepath = config["path_to_out_dir"] + config["filepath_pattern"].format(id=id)
             with open(filepath, "wt") as _:
-                _.write(msg.value.as_struct(common_capnp.IP).content.as_text())
+                _.write(content)
                 count += 1
             print("wrote", filepath)
 

@@ -157,8 +157,9 @@ class TimeSeries(climate_capnp.TimeSeries.Server, common.Identifiable, common.Pe
 
 
     def subrange_context(self, context): # (from :Date, to :Date) -> (timeSeries :TimeSeries);
-        from_date = ccdi.create_date(getattr(context.params, "from"))
-        to_date = ccdi.create_date(context.params.to)
+        ps = context.params
+        from_date = ccdi.create_date(getattr(ps, "from")) if ps._has("from") else self.dataframe.index[0]
+        to_date = ccdi.create_date(getattr(ps, "to")) if ps._has("to") else self.dataframe.index[-1]
 
         sub_df = self.dataframe.loc[str(from_date):str(to_date)]
 

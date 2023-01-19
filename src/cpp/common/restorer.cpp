@@ -459,7 +459,8 @@ kj::Promise<void> Restorer::save(capnp::Capability::Client cap,
   kj::StringPtr fixedSRToken, kj::StringPtr sealForOwner, bool createUnsave,
   kj::StringPtr restoreToken) {
 
-  auto storePromises = kj::heapArrayBuilder<kj::Promise<bool>>(createUnsave ? 2 : 1);
+  int promisesCount = impl->isStoreSet ? (createUnsave ? 2 : 1) : 0;
+  auto storePromises = kj::heapArrayBuilder<kj::Promise<bool>>(promisesCount);
 
   auto srToken = fixedSRToken == nullptr ? kj::str(sole::uuid4().str()) : kj::str(fixedSRToken);
   auto &srEntry = impl->issuedSRTokens.insert(kj::str(srToken), 
@@ -513,7 +514,7 @@ kj::Promise<Restorer::SaveStrResult> Restorer::saveStr(capnp::Capability::Client
   kj::StringPtr fixedSRToken, kj::StringPtr sealForOwner, bool createUnsave,
   kj::StringPtr restoreToken, bool storeSturdyRefs) {
 
-  int promisesCount = storeSturdyRefs ? (createUnsave ? 2 : 1) : 0;
+  int promisesCount = impl->isStoreSet && storeSturdyRefs ? (createUnsave ? 2 : 1) : 0;
   auto storePromises = kj::heapArrayBuilder<kj::Promise<bool>>(promisesCount);
   auto srToken = fixedSRToken == nullptr ? kj::str(sole::uuid4().str()) : kj::str(fixedSRToken);
   try {  

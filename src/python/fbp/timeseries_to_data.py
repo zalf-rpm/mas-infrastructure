@@ -44,11 +44,18 @@ climate_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate.capnp"), imports
 #------------------------------------------------------------------------------
 
 config = {
+    "in_sr": None, # string (sturdyref) | climate_capnp.TimeSeries (capability)
+    "in_type": "sturdyref", # sturdyref | capability 
+
+    "out_sr": None, # climate_capnp.TimeSeriesData (data)
+
     "to_attr": None, #"latlon",
     "from_attr": None,
-    "in_type": "sturdyref", # sturdyref | capability 
-    "in_sr": None, # string (sturdyref) | climate_capnp.TimeSeries (capability)
-    "out_sr": None # climate_capnp.TimeSeriesData (data)
+
+    "subrange_from": None, # iso-date string
+    "subrange_to": None, # iso-date string
+    "subheader": None, # precip,globrad,tavg   ... etc
+    "transposed": "false",
 }
 common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
@@ -57,6 +64,10 @@ inp = conman.try_connect(config["in_sr"], cast_as=common_capnp.Channel.Reader, r
 outp = conman.try_connect(config["out_sr"], cast_as=common_capnp.Channel.Writer, retry_secs=1)
 
 in_type = config["in_type"]
+
+def create_capnp_date(isodate):
+    py_date = date.fromisoformat(isodate)
+    return {"year": py_date.year, "month": py_date.month, "day": py_date.day}
 
 try:
     if inp and outp:
@@ -79,13 +90,29 @@ try:
                     continue
 
             tsd = climate_capnp.TimeSeriesData.new_message()
-            tsd.isTransposed = False
-            tsd.header = timeseries.header().wait().header
-            se_date = timeseries.range().wait()
+            tsd.isTransposed = config["transposed"] == "true"
+            
+            if config["subheader"]:
+                subheader = config["subheader"].split(",")
+                timeseries = timeseries.subheader(config["subheader"].split(",")).timeSeries
+            header_prom = timeseries.header()
+            
+            if config["subrange_from"] or config["subrange_to"]:
+                sr_req = timeseries.subrange_request()
+                if config["subrange_from"]:
+                    setattr(sr_req, "from", create_capnp_date(config["subrange_from"]))
+                if config["subrange_to"]:
+                    setattr(sr_req, "to", create_capnp_date(config["subrange_to"]))
+                timeseries = sr_req.send().timeSeries
+
+            se_date_prom = timeseries.range()
+            resolution_prom = timeseries.resolution().resolution
+            tsd.data = timeseries.dataT().wait().data if tsd.isTransposed else timeseries.data().wait().data
+            se_date = se_date_prom.wait()
             tsd.startDate = se_date.startDate
             tsd.endDate = se_date.endDate
-            tsd.resolution = timeseries.resolution().wait().resolution
-            tsd.data = timeseries.data().wait().data
+            tsd.resolution = resolution_prom.wait()
+            tsd.header = header_prom.wait()
 
             out_ip = common_capnp.IP.new_message()
             if not config["to_attr"]:

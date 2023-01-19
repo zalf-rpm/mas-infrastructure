@@ -243,6 +243,7 @@ interface TimeSeries extends(Common.Identifiable, Persistent) {
 
   subrange @5 (from :Date, to :Date) -> (timeSeries :TimeSeries);
   # create a subrange of the current time series
+  # if "from" or "to" are not set, creates a subrange from the start or to the end of the current time series
 
   subheader @6 (elements :List(Element)) -> (timeSeries :TimeSeries);
   # create a time series with just the given header elements
