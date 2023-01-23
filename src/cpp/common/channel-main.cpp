@@ -21,14 +21,12 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <kj/string.h>
 #include <kj/vector.h>
 
-#include "tools/algorithms.h"
-
-#include "rpc-connection-manager.h"
-#include "common.h"
-#include "sole.hpp"
-#include "restorable-service-main.h"
-
 #include "channel.h"
+#include "common.h"
+#include "restorable-service-main.h"
+#include "rpc-connection-manager.h"
+#include "sole.hpp"
+
 #include "common.capnp.h"
 
 namespace mas { 
@@ -60,7 +58,7 @@ public:
     if(readerSrts.size() == 0) readerSrts.add(kj::str(sole::uuid4().str()));
     if(writerSrts.size() == 0) writerSrts.add(kj::str(sole::uuid4().str()));
 
-    KJ_LOG(INFO, "Channel::startChannel: starting channel");
+    KJ_LOG(INFO, "starting channel");
 
     auto ownedChannel = kj::heap<Channel>(name, description, bufferSize);
     auto channel = ownedChannel.get();
@@ -86,6 +84,8 @@ public:
 
     // Run forever, accepting connections and handling requests.
     kj::NEVER_DONE.wait(ioContext.waitScope);
+    KJ_LOG(INFO, "stopped channel");
+    return true;
   }
 
   kj::MainFunc getMain()

@@ -1,14 +1,28 @@
 cmake_minimum_required(VERSION 3.12)
-project(common)
+project(Mas-infrastructure-common)
+
+message(STATUS "-> Mas-infrastructure-common")
 
 set(MT_RUNTIME_LIB 1)
 add_compile_definitions(NO_MYSQL)
 
-#add_subdirectory(../util/tools/date util/date)
-add_subdirectory(../../../../util/tools/helpers util/helpers)
-add_subdirectory(../../../../util/json11 util/json11)
-#add_subdirectory(../../../../util/db/db util/db)
-#add_subdirectory(../util/tools/debug util/debug)
+if(NOT TARGET capnp_schemas_lib)
+	message(STATUS "target: capnp_schemas_lib")
+	add_subdirectory(../../../capnproto_schemas capnproto_schemas)
+endif()
+get_target_property(capnp_schemas_interface_includes capnp_schemas_lib INTERFACE_INCLUDE_DIRECTORIES)
+
+if(NOT TARGET helpers_lib)
+	message(STATUS "target: helpers_lib")
+	add_subdirectory(../tools/helpers tools/helpers)
+endif()
+get_target_property(helpers_interface_includes helpers_lib INTERFACE_INCLUDE_DIRECTORIES)
+
+if(NOT TARGET json11_lib)
+	message(STATUS "target: json11_lib")
+	add_subdirectory(../json11 json11)
+endif()
+get_target_property(json11_interface_includes json11_lib INTERFACE_INCLUDE_DIRECTORIES)
 
 #set absolute filenames (to resolve .. in paths)
 macro(set_absolute_path var_name path)
@@ -76,28 +90,10 @@ GroupSources("util" "${PROJECT_SOURCE_DIR}/..")
 
 #------------------------------------------------------------------------------
 
-set_absolute_path(CAPNP_SCHEMAS_DIR "../../../capnproto_schemas")
-set_absolute_path(UTIL_DIR "../../../../util")
-
-find_package(CapnProto CONFIG REQUIRED)
-
-set(CAPNPC_SRC_PREFIX ${CAPNP_SCHEMAS_DIR})
-capnp_generate_cpp(CAPNP_SRCS CAPNP_HDRS 
-${CAPNP_SCHEMAS_DIR}/common.capnp 
-${CAPNP_SCHEMAS_DIR}/date.capnp
-${CAPNP_SCHEMAS_DIR}/persistence.capnp
-${CAPNP_SCHEMAS_DIR}/storage.capnp
-${CAPNP_SCHEMAS_DIR}/registry.capnp
-)
-message(STATUS "CAPNP_HDRS: " "${CAPNP_HDRS}")
-message(STATUS "CAPNP_SRCS: " "${CAPNP_SRCS}")
-
-#------------------------------------------------------------------------------
-
 find_package(unofficial-sodium CONFIG REQUIRED)
 
 # create common_lib
-add_library(common-lib
+add_library(mas_infrastructure_common_lib
 	channel.h
 	channel.cpp
 	common.h
@@ -108,25 +104,25 @@ add_library(common-lib
 	restorable-service-main.cpp
 	rpc-connection-manager.h
 	rpc-connection-manager.cpp
-	${CAPNP_HDRS}
-	${CAPNP_SRCS}
 )
-target_link_libraries(common-lib
+target_link_libraries(mas_infrastructure_common_lib
+	PUBLIC
 	${CMAKE_THREAD_LIBS_INIT}
 	${CMAKE_DL_LIBS}
-	CapnProto::capnp
-	CapnProto::capnpc
-	CapnProto::capnp-rpc
-	CapnProto::kj
-	CapnProto::kj-async
-	CapnProto::capnp-json
+	capnp_schemas_lib
 	helpers_lib
 	json11_lib
 	unofficial-sodium::sodium unofficial-sodium::sodium_config_public
 )
-target_include_directories(common-lib PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${UTIL_DIR})
+target_include_directories(mas_infrastructure_common_lib 
+	INTERFACE
+	${capnp_schemas_interface_includes}
+	${helpers_interface_includes}
+	${json11_interface_includes}
+	${CMAKE_CURRENT_SOURCE_DIR}
+)
 if (MSVC)
-	target_compile_options(common-lib PRIVATE "/MT$<$<CONFIG:Debug>:d>")
+	target_compile_options(mas_infrastructure_common_lib PRIVATE "/MT$<$<CONFIG:Debug>:d>")
 endif()
 
 #------------------------------------------------------------------------------
@@ -138,14 +134,9 @@ add_executable(channel
 target_link_libraries(channel
 	${CMAKE_THREAD_LIBS_INIT}
 	${CMAKE_DL_LIBS}
-	CapnProto::capnp
-	CapnProto::capnpc
-	CapnProto::capnp-rpc
-	CapnProto::kj
-	CapnProto::kj-async
-	common-lib
+	mas_infrastructure_common_lib
 )
-target_include_directories(channel PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+#target_include_directories(channel PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 if (MSVC)
 	target_compile_options(channel PRIVATE "/MT$<$<CONFIG:Debug>:d>")
 endif()
@@ -163,16 +154,13 @@ add_executable(storage-service
 target_link_libraries(storage-service
 	${CMAKE_THREAD_LIBS_INIT}
 	${CMAKE_DL_LIBS}
-	CapnProto::capnp
-	CapnProto::capnpc
-	CapnProto::capnp-rpc
-	CapnProto::kj
-	CapnProto::kj-async
-	common-lib
+	mas_infrastructure_common_lib
 )
-target_include_directories(storage-service PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+#target_include_directories(storage-service PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 if (MSVC)
 	target_compile_options(storage-service PRIVATE "/MT$<$<CONFIG:Debug>:d>")
 endif()
 
 #------------------------------------------------------------------------------
+
+message(STATUS "<- Mas-infrastructure-common")

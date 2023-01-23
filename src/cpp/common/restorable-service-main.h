@@ -30,6 +30,8 @@ namespace mas {
 namespace infrastructure { 
 namespace common {
 
+typedef mas::schema::common::Channel<mas::schema::common::Pair<capnp::Text, capnp::Text>> TextPairChannel;
+
 class RestorableServiceMain
 {
 public:
@@ -49,6 +51,7 @@ public:
   kj::MainBuilder::Validity setRegName(kj::StringPtr n);
   kj::MainBuilder::Validity setRegCategory(kj::StringPtr cat);
   kj::MainBuilder::Validity setOutputSturdyRefs();
+  kj::MainBuilder::Validity setOutputSRWriterSR(kj::StringPtr sr);
   kj::MainBuilder::Validity setInitServiceFromContainer(kj::StringPtr init);
 
   void startRestorerSetup(mas::schema::common::Identifiable::Client serviceClient);
@@ -80,6 +83,9 @@ protected:
   kj::String regName;
   kj::String regCategory{kj::str("unknown")};
   bool outputSturdyRefs{false};
+  kj::String outputSRWriterId{kj::str("xxx")};
+  kj::String outputSRWriterSR;
+  kj::Maybe<TextPairChannel::ChanWriter::Client> outputSRWriterClient;
 };
 
 } // namespace common

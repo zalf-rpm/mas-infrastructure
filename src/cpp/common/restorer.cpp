@@ -33,7 +33,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 #include "sole.hpp"
 #include "common.h"
-#include "json11/json11.hpp"
+#include "../json11/json11.hpp"
 
 using namespace mas::infrastructure::common;
 

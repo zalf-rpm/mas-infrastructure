@@ -19,6 +19,8 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 #include <kj/debug.h>
 
+#include "../tools/algorithms.h"
+
 #include "common.h"
 
 #include "common.capnp.h"
@@ -60,6 +62,15 @@ kj::MainBuilder::Validity RestorableServiceMain::setRegCategory(kj::StringPtr ca
 
 kj::MainBuilder::Validity RestorableServiceMain::setOutputSturdyRefs() { outputSturdyRefs = true; return true; }
 
+kj::MainBuilder::Validity RestorableServiceMain::setOutputSRWriterSR(kj::StringPtr idAndSR) { 
+  auto v = splitString(idAndSR, "|");
+  if(v.size() == 2) {
+    outputSRWriterId = kj::mv(v[0]);
+    outputSRWriterSR = kj::mv(v[1]);
+  } else if(v.size() == 1) outputSRWriterSR = kj::mv(v[0]);
+  return true; 
+}
+
 kj::MainBuilder::Validity RestorableServiceMain::setInitServiceFromContainer(kj::StringPtr init) { 
   initRestorerFromContainer = init == "true"; 
   initServiceFromContainer = init == "true";
@@ -77,6 +88,10 @@ void RestorableServiceMain::startRestorerSetup(mas::schema::common::Identifiable
   KJ_ASSERT(restorer != nullptr);
   KJ_LOG(INFO, "Created restorer.");
   
+  if (outputSRWriterSR.size() > 0) {
+    outputSRWriterClient = conMan->tryConnectB(ioContext, outputSRWriterSR).castAs<TextPairChannel::ChanWriter>();
+  }
+
   // if a restorer container stury ref is given, try to connect to it
   if (restorerContainerClient == nullptr && restorerContainerSR.size() > 0) {
     restorerContainerClient = conMan->tryConnectB(ioContext, restorerContainerSR).castAs<mas::schema::storage::Store::Container>();
@@ -124,6 +139,12 @@ void RestorableServiceMain::startRestorerSetup(mas::schema::common::Identifiable
   // print the restorers sturdy ref
   auto restorerSR = restorer->sturdyRefStr("");
   if(outputSturdyRefs && restorerSR.size() > 0) std::cout << "restorerSR=" << restorerSR.cStr() << std::endl;
+  KJ_IF_MAYBE(out, outputSRWriterClient){
+     auto req = out->writeRequest();
+     auto val = req.initValue();
+     //val.setFst("")
+     //req.send().wait(ioContext.waitScope);
+  }
 
   //mas::schema::persistence::SturdyRef::Reader reregSR(nullptr);
   mas::schema::registry::Registrar::Client registrar(nullptr);
@@ -178,5 +199,7 @@ kj::MainBuilder& RestorableServiceMain::addRestorableServiceOptions()
     .addOptionWithArg({"check_port"}, KJ_BIND_METHOD(*this, setCheckPort),
                       "<port (default: 53)>", "Port to connect to in order to find local outside IP.")
     .addOption({"output_srs"}, KJ_BIND_METHOD(*this, setOutputSturdyRefs),
-                "Output the sturdy refs to the restorer and service to stdout.");
+                "Output the sturdy refs to the restorer and service to stdout.")
+    .addOptionWithArg({"output_srs_writer_sr"}, KJ_BIND_METHOD(*this, setOutputSRWriterSR),
+                      "<ID>|<sturdy_ref>", "ID to identify and sturdy ref to an output channel writer capability.");
 }

@@ -83,7 +83,7 @@ private:
 
 //-----------------------------------------------------------------------------
 
-class Reader final : public mas::schema::common::Channel<capnp::AnyPointer>::ChanReader::Server {
+class Reader final : public AnyPointerChannel::ChanReader::Server {
 public:
   Reader(Channel& c);
 
@@ -101,7 +101,7 @@ private:
 
 //-----------------------------------------------------------------------------
 
-class Writer final : public mas::schema::common::Channel<capnp::AnyPointer>::ChanWriter::Server {
+class Writer final : public AnyPointerChannel::ChanWriter::Server {
 public:
   Writer(Channel& c);
 
