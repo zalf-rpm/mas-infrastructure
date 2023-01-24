@@ -22,8 +22,8 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 #include "json11.hpp"
 
-#include "../tools/date.h"
-#include "../tools/helper.h"
+#include "tools/date.h"
+#include "tools/helper.h"
 #include "../common/dll-exports.h"
 
 namespace Tools

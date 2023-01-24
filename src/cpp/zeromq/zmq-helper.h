@@ -20,13 +20,13 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <functional>
 #include <initializer_list>
 
-#include "../json11/json11.hpp"
+#include "json11/json11.hpp"
 
 #ifndef NO_ZMQ
 #include "zmq.hpp"
 #endif
 
-#include "../tools/date.h"
+#include "tools/date.h"
 
 namespace Tools
 {

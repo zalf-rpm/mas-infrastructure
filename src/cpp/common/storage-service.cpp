@@ -46,7 +46,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include "common.h"
 #include "restorer.h"
 #include "sole.hpp"
-#include "sqlite/sqlite3.h"
+#include "sqlite3/sqlite3.h"
 
 //using namespace std;
 using namespace mas::infrastructure::storage;

@@ -35,10 +35,10 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 #include "model/monica/soil_params.capnp.h"
 
-#include "../tools/helper.h"
-#include "../tools/algorithms.h"
+#include "tools/helper.h"
+#include "tools/algorithms.h"
 #include "conversion.h"
-#include "../tools/debug.h"
+#include "tools/debug.h"
 #include "constants.h"
 
 //using namespace Db;

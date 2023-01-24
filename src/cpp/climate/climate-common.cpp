@@ -22,7 +22,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <assert.h>
 #include <limits>
 
-#include "../tools/algorithms.h"
+#include "tools/algorithms.h"
 
 using namespace std;
 using namespace Climate;

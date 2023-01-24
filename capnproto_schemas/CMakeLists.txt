@@ -28,7 +28,12 @@ capnp_generate_cpp(CAPNP_SRCS CAPNP_HDRS
 message(STATUS "CAPNP_HDRS: " ${CAPNP_HDRS})
 message(STATUS "CAPNP_SRCS: " ${CAPNP_SRCS})	
 
-add_library(capnp_schemas_lib STATIC ${CAPNP_HDRS} ${CAPNP_SRCS})
+add_library(capnp_schemas_lib 
+	STATIC 
+	${CAPNP_HDRS} 
+	${CAPNP_SRCS}
+)
+
 target_link_libraries(capnp_schemas_lib 
 	PUBLIC 
 	CapnProto::capnp
@@ -38,10 +43,8 @@ target_link_libraries(capnp_schemas_lib
 	CapnProto::kj-async
 	CapnProto::capnp-json	
 )
-target_include_directories(capnp_schemas_lib 
-	INTERFACE
-	${CMAKE_CURRENT_BINARY_DIR}
-)
+target_include_directories(capnp_schemas_lib PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+
 if(MSVC AND MT_RUNTIME_LIB)
 	target_compile_options(capnp_schemas_lib PRIVATE "/MT$<$<CONFIG:Debug>:d>")
 endif()

@@ -10,19 +10,21 @@ if(NOT TARGET capnp_schemas_lib)
 	message(STATUS "target: capnp_schemas_lib")
 	add_subdirectory(../../../capnproto_schemas capnproto_schemas)
 endif()
-get_target_property(capnp_schemas_interface_includes capnp_schemas_lib INTERFACE_INCLUDE_DIRECTORIES)
 
 if(NOT TARGET helpers_lib)
 	message(STATUS "target: helpers_lib")
 	add_subdirectory(../tools/helpers tools/helpers)
 endif()
-get_target_property(helpers_interface_includes helpers_lib INTERFACE_INCLUDE_DIRECTORIES)
 
 if(NOT TARGET json11_lib)
 	message(STATUS "target: json11_lib")
 	add_subdirectory(../json11 json11)
 endif()
-get_target_property(json11_interface_includes json11_lib INTERFACE_INCLUDE_DIRECTORIES)
+
+if(NOT TARGET sqlite3_lib)
+	message(STATUS "target: sqlite3_lib")
+	add_subdirectory(../db/sqlite3 db/sqlite3)
+endif()
 
 #set absolute filenames (to resolve .. in paths)
 macro(set_absolute_path var_name path)
@@ -93,7 +95,7 @@ GroupSources("util" "${PROJECT_SOURCE_DIR}/..")
 find_package(unofficial-sodium CONFIG REQUIRED)
 
 # create common_lib
-add_library(mas_infrastructure_common_lib
+add_library(common_lib
 	channel.h
 	channel.cpp
 	common.h
@@ -104,25 +106,26 @@ add_library(mas_infrastructure_common_lib
 	restorable-service-main.cpp
 	rpc-connection-manager.h
 	rpc-connection-manager.cpp
+	dll-exports.h
+	sole.hpp
 )
-target_link_libraries(mas_infrastructure_common_lib
+target_link_libraries(common_lib
 	PUBLIC
 	${CMAKE_THREAD_LIBS_INIT}
 	${CMAKE_DL_LIBS}
 	capnp_schemas_lib
 	helpers_lib
 	json11_lib
-	unofficial-sodium::sodium unofficial-sodium::sodium_config_public
+	unofficial-sodium::sodium 
+	unofficial-sodium::sodium_config_public
 )
-target_include_directories(mas_infrastructure_common_lib 
-	INTERFACE
-	${capnp_schemas_interface_includes}
-	${helpers_interface_includes}
-	${json11_interface_includes}
-	${CMAKE_CURRENT_SOURCE_DIR}
+target_include_directories(common_lib 
+	PUBLIC
+	${CMAKE_CURRENT_SOURCE_DIR}     # for #include "common.h"
+	${CMAKE_CURRENT_SOURCE_DIR}/..  # for #include "common/common.h"
 )
 if (MSVC)
-	target_compile_options(mas_infrastructure_common_lib PRIVATE "/MT$<$<CONFIG:Debug>:d>")
+	target_compile_options(common_lib PRIVATE "/MT$<$<CONFIG:Debug>:d>")
 endif()
 
 #------------------------------------------------------------------------------
@@ -131,11 +134,7 @@ endif()
 add_executable(channel 
 	channel-main.cpp
 )
-target_link_libraries(channel
-	${CMAKE_THREAD_LIBS_INIT}
-	${CMAKE_DL_LIBS}
-	mas_infrastructure_common_lib
-)
+target_link_libraries(channel common_lib)
 #target_include_directories(channel PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 if (MSVC)
 	target_compile_options(channel PRIVATE "/MT$<$<CONFIG:Debug>:d>")
@@ -148,13 +147,10 @@ add_executable(storage-service
 	storage-service.h
 	storage-service.cpp
 	storage-service-main.cpp
-	sqlite/sqlite3.h
-	sqlite/sqlite3.c
 )
 target_link_libraries(storage-service
-	${CMAKE_THREAD_LIBS_INIT}
-	${CMAKE_DL_LIBS}
-	mas_infrastructure_common_lib
+	sqlite3_lib
+	common_lib
 )
 #target_include_directories(storage-service PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 if (MSVC)

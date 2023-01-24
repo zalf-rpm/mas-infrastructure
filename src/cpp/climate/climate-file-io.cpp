@@ -28,9 +28,9 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <cstdlib>
 
 #include "climate-common.h"
-#include "../tools/helper.h"
-#include "../tools/algorithms.h"
-#include "../tools/debug.h"
+#include "tools/helper.h"
+#include "tools/algorithms.h"
+#include "tools/debug.h"
 
 using namespace std;
 using namespace Tools;
@@ -38,7 +38,7 @@ using namespace Climate;
 
 CSVViaHeaderOptions::CSVViaHeaderOptions()
   : separator(",") {}
-
+  
 CSVViaHeaderOptions::CSVViaHeaderOptions(json11::Json j) {
   merge(j);
 }

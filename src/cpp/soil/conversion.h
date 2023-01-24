@@ -19,7 +19,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 #include <string>
 
-#include "../tools/helper.h"
+#include "tools/helper.h"
 
 namespace Soil {
 

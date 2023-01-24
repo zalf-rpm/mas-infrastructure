@@ -21,10 +21,10 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <string>
 #include <memory>
 
-#include "../json11/json11.hpp"
-#include "../tools/date.h"
-#include "../json11/json11-helper.h"
-#include "../tools/helper.h"
+#include "json11/json11.hpp"
+#include "json11/json11-helper.h"
+#include "tools/date.h"
+#include "tools/helper.h"
 
 //! All climate data related classes.
 namespace Climate
