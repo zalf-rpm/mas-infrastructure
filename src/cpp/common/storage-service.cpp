@@ -354,7 +354,7 @@ struct SqliteStorageService::Impl {
         auto id = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
         auto name = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
         auto description = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
-        KJ_IF_MAYBE(entry, containers.find(id)){
+        KJ_IF_MAYBE(entry, containers.find(kj::StringPtr(id))){
           result.add(kj::get<0>(*entry));    
         } else {
           result.add(kj::get<0>(createContainer(id, name, description)));
