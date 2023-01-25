@@ -117,7 +117,7 @@ target_link_libraries(common_lib
 	helpers_lib
 	json11_lib
 	unofficial-sodium::sodium 
-	unofficial-sodium::sodium_config_public
+	#unofficial-sodium::sodium_config_public
 )
 target_include_directories(common_lib 
 	PUBLIC
