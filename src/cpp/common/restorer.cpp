@@ -271,7 +271,7 @@ struct Restorer::Impl {
     KJ_DEFER(free(signSK));
     fromKJArray<kj::byte>(signSKArray, signSK);
 
-    size_t signedSRTokenLen = srToken.size() + crypto_sign_BYTES;
+    unsigned long long signedSRTokenLen = srToken.size() + crypto_sign_BYTES;
     unsigned char* signedSRToken = (unsigned char*)malloc(signedSRTokenLen * sizeof(unsigned char));
     KJ_DEFER(free(signedSRToken));
     

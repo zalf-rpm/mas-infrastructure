@@ -68,8 +68,7 @@ struct Channel::Impl {
   , id(kj::str(sole::uuid4().str()))
   , name(kj::str(name))
   , description(kj::str(description))
-  , bufferSize(std::max(1ULL, bufferSize))
-  {
+  , bufferSize(std::max(1UL, bufferSize)) {
     setRestorer(restorer);
   }
 
