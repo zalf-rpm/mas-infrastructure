@@ -156,10 +156,10 @@ struct Restorer::Impl {
   }
 
 
-  kj::Array<unsigned char> toKJArray(unsigned char* data, int len)
+  kj::Array<unsigned char> toKJArray(unsigned char* data, size_t len)
   {
     auto arr = kj::heapArray<unsigned char>(len);
-    for (int i = 0; i < len; i++) arr[i] = data[i];
+    for (size_t i = 0; i < len; i++) arr[i] = data[i];
     return kj::mv(arr);
   }
 
@@ -271,7 +271,7 @@ struct Restorer::Impl {
     KJ_DEFER(free(signSK));
     fromKJArray<kj::byte>(signSKArray, signSK);
 
-    unsigned long long signedSRTokenLen = srToken.size() + crypto_sign_BYTES;
+    size_t signedSRTokenLen = srToken.size() + crypto_sign_BYTES;
     unsigned char* signedSRToken = (unsigned char*)malloc(signedSRTokenLen * sizeof(unsigned char));
     KJ_DEFER(free(signedSRToken));
     
@@ -358,13 +358,13 @@ kj::Promise<void> Restorer::initVatIdFromContainer() {
         auto vatSignPKReq = impl->store.addEntryRequest();
         vatSignPKReq.setKey("vatSignPK");
         vatSignPKReq.setReplaceExisting(true);
-        auto pkb = vatSignPKReq.initValue().initUint8ListValue(impl->signPKArray.size());
-        for(int i = 0; i < pkb.size(); i++) pkb.set(i, impl->signPKArray[i]);
+        auto pkb = vatSignPKReq.initValue().initUint8ListValue((capnp::uint)impl->signPKArray.size());
+        for(capnp::uint i = 0; i < pkb.size(); i++) pkb.set(i, impl->signPKArray[i]);
         return vatSignPKReq.send().then([](auto&& resp){ return resp.getSuccess(); });
       } else { // ok we got a sign public key
         auto bytes = resp.getValue().getUint8ListValue();
         auto arr = kj::heapArray<unsigned char>(bytes.size());
-        for (int i = 0; i < bytes.size(); i++) arr[i] = (unsigned char)bytes[i];
+        for (capnp::uint i = 0; i < bytes.size(); i++) arr[i] = (unsigned char)bytes[i];
         impl->signPKArray = kj::mv(arr);
         return kj::Promise<bool>(true);
       } 
@@ -376,13 +376,13 @@ kj::Promise<void> Restorer::initVatIdFromContainer() {
         auto vatSignSKReq = impl->store.addEntryRequest();
         vatSignSKReq.setKey("vatSignSK");
         vatSignSKReq.setReplaceExisting(true);
-        auto skb = vatSignSKReq.initValue().initUint8ListValue(impl->signSKArray.size());
-        for(int i = 0; i < skb.size(); i++) skb.set(i, impl->signSKArray[i]);
+        auto skb = vatSignSKReq.initValue().initUint8ListValue((capnp::uint)impl->signSKArray.size());
+        for(capnp::uint i = 0; i < skb.size(); i++) skb.set(i, impl->signSKArray[i]);
         return vatSignSKReq.send().then([](auto&& resp){ return resp.getSuccess(); });
       } else { // ok we got a sign secret key
         auto bytes = resp.getValue().getUint8ListValue();
         auto arr = kj::heapArray<unsigned char>(bytes.size());
-        for (int i = 0; i < bytes.size(); i++) arr[i] = (unsigned char)bytes[i];
+        for (capnp::uint i = 0; i < bytes.size(); i++) arr[i] = (unsigned char)bytes[i];
         impl->signSKArray = kj::mv(arr);
         return kj::Promise<bool>(true);
       } 

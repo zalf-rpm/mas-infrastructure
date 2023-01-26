@@ -13,6 +13,10 @@ This file is part of the ZALF model and simulation infrastructure.
 Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 */
 
+#include "sole.hpp" 
+// moving this below storage-service.h on windows causes Problems,
+// because of IPrintDialogServices in commdlg.h defining INTERFACE as macro
+
 #include "storage-service.h"
 
 #include <chrono>
@@ -45,8 +49,8 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 #include "common.h"
 #include "restorer.h"
-#include "sole.hpp"
 #include "sqlite3/sqlite3.h"
+#include "tools/helper.h"
 
 //using namespace std;
 using namespace mas::infrastructure::storage;
@@ -68,7 +72,7 @@ namespace _ { // private
       case mas::schema::storage::Store::Container::Entry::Value::BOOL_LIST_VALUE: {
         auto lr = r.getBoolListValue();
         auto lb = b.initBoolListValue(lr.size());
-        for(auto i : kj::indices(lr)) lb.set(i, lr[i]);
+        for(auto i : kj::zeroTo<capnp::uint>(lr.size())) lb.set(i, lr[i]);
         break;
       }
       case mas::schema::storage::Store::Container::Entry::Value::INT8_VALUE:
@@ -77,7 +81,7 @@ namespace _ { // private
       case mas::schema::storage::Store::Container::Entry::Value::INT8_LIST_VALUE: {
         auto lr = r.getInt8ListValue();
         auto lb = b.initInt8ListValue(lr.size());
-        for(auto i : kj::indices(lr)) lb.set(i, lr[i]);
+        for(auto i : kj::zeroTo<capnp::uint>(lr.size())) lb.set(i, lr[i]);
         break;
       }
       case mas::schema::storage::Store::Container::Entry::Value::INT16_VALUE:
@@ -86,7 +90,7 @@ namespace _ { // private
       case mas::schema::storage::Store::Container::Entry::Value::INT16_LIST_VALUE: {
         auto lr = r.getInt16ListValue();
         auto lb = b.initInt16ListValue(lr.size());
-        for(auto i : kj::indices(lr)) lb.set(i, lr[i]);
+        for(auto i : kj::zeroTo<capnp::uint>(lr.size())) lb.set(i, lr[i]);
         break;
       }
       case mas::schema::storage::Store::Container::Entry::Value::INT32_VALUE:
@@ -95,7 +99,7 @@ namespace _ { // private
       case mas::schema::storage::Store::Container::Entry::Value::INT32_LIST_VALUE: {
         auto lr = r.getInt32ListValue();
         auto lb = b.initInt32ListValue(lr.size());
-        for(auto i : kj::indices(lr)) lb.set(i, lr[i]);
+        for(auto i : kj::zeroTo<capnp::uint>(lr.size())) lb.set(i, lr[i]);
         break;
       }
       case mas::schema::storage::Store::Container::Entry::Value::INT64_VALUE:
@@ -104,7 +108,7 @@ namespace _ { // private
       case mas::schema::storage::Store::Container::Entry::Value::INT64_LIST_VALUE: {
         auto lr = r.getInt64ListValue();
         auto lb = b.initInt64ListValue(lr.size());
-        for(auto i : kj::indices(lr)) lb.set(i, lr[i]);
+        for(auto i : kj::zeroTo<capnp::uint>(lr.size())) lb.set(i, lr[i]);
         break;
       }
       case mas::schema::storage::Store::Container::Entry::Value::UINT8_VALUE:
@@ -113,7 +117,7 @@ namespace _ { // private
       case mas::schema::storage::Store::Container::Entry::Value::UINT8_LIST_VALUE: {
         auto lr = r.getUint8ListValue();
         auto lb = b.initUint8ListValue(lr.size());
-        for(auto i : kj::indices(lr)) lb.set(i, lr[i]);
+        for(auto i : kj::zeroTo<capnp::uint>(lr.size())) lb.set(i, lr[i]);
         break;
       }
       case mas::schema::storage::Store::Container::Entry::Value::UINT16_VALUE:
@@ -122,7 +126,7 @@ namespace _ { // private
       case mas::schema::storage::Store::Container::Entry::Value::UINT16_LIST_VALUE: {
         auto lr = r.getUint16ListValue();
         auto lb = b.initUint16ListValue(lr.size());
-        for(auto i : kj::indices(lr)) lb.set(i, lr[i]);
+        for(auto i : kj::zeroTo<capnp::uint>(lr.size())) lb.set(i, lr[i]);
         break;
       }
       case mas::schema::storage::Store::Container::Entry::Value::UINT32_VALUE:
@@ -131,7 +135,7 @@ namespace _ { // private
       case mas::schema::storage::Store::Container::Entry::Value::UINT32_LIST_VALUE: {
         auto lr = r.getUint32ListValue();
         auto lb = b.initUint32ListValue(lr.size());
-        for(auto i : kj::indices(lr)) lb.set(i, lr[i]);
+        for(auto i : kj::zeroTo<capnp::uint>(lr.size())) lb.set(i, lr[i]);
         break;
       }
       case mas::schema::storage::Store::Container::Entry::Value::UINT64_VALUE:
@@ -140,7 +144,7 @@ namespace _ { // private
       case mas::schema::storage::Store::Container::Entry::Value::UINT64_LIST_VALUE: {
         auto lr = r.getUint64ListValue();
         auto lb = b.initUint64ListValue(lr.size());
-        for(auto i : kj::indices(lr)) lb.set(i, lr[i]);
+        for(auto i : kj::zeroTo<capnp::uint>(lr.size())) lb.set(i, lr[i]);
         break;
       }
       case mas::schema::storage::Store::Container::Entry::Value::FLOAT32_VALUE:
@@ -149,7 +153,7 @@ namespace _ { // private
       case mas::schema::storage::Store::Container::Entry::Value::FLOAT32_LIST_VALUE: {
         auto lr = r.getFloat32ListValue();
         auto lb = b.initFloat32ListValue(lr.size());
-        for(auto i : kj::indices(lr)) lb.set(i, lr[i]);
+        for(auto i : kj::zeroTo<capnp::uint>(lr.size())) lb.set(i, lr[i]);
         break;
       }
       case mas::schema::storage::Store::Container::Entry::Value::FLOAT64_VALUE:
@@ -158,7 +162,7 @@ namespace _ { // private
       case mas::schema::storage::Store::Container::Entry::Value::FLOAT64_LIST_VALUE: {
         auto lr = r.getFloat64ListValue();
         auto lb = b.initFloat64ListValue(lr.size());
-        for(auto i : kj::indices(lr)) lb.set(i, lr[i]);
+        for(auto i : kj::zeroTo<capnp::uint>(lr.size())) lb.set(i, lr[i]);
         break;
       }
       case mas::schema::storage::Store::Container::Entry::Value::TEXT_VALUE:
@@ -175,7 +179,7 @@ namespace _ { // private
       case mas::schema::storage::Store::Container::Entry::Value::TEXT_LIST_VALUE: {
         auto lr = r.getTextListValue();
         auto lb = b.initTextListValue(lr.size());
-        for(auto i : kj::indices(lr)) lb.set(i, lr[i]);
+        for(auto i : kj::zeroTo<capnp::uint>(lr.size())) lb.set(i, lr[i]);
         break;
       }
       case mas::schema::storage::Store::Container::Entry::Value::DATA_VALUE:
@@ -184,7 +188,7 @@ namespace _ { // private
       case mas::schema::storage::Store::Container::Entry::Value::DATA_LIST_VALUE: {
         auto lr = r.getDataListValue();
         auto lb = b.initDataListValue(lr.size());
-        for(auto i : kj::indices(lr)) lb.set(i, lr[i]);
+        for(auto i : kj::zeroTo<capnp::uint>(lr.size())) lb.set(i, lr[i]);
         break;
       }
       case mas::schema::storage::Store::Container::Entry::Value::ANY_VALUE:
@@ -258,7 +262,7 @@ struct SqliteStorageService::Impl {
   void initDb() {
     kj::String utf8Filename = kj::str(filename); // linux default codepage is utf-8 
 #ifdef WIN32
-    utf8filename = kj::str(Tools::winStringSystemCodepageToutf8(filename.C_str()));
+    utf8Filename = kj::str(Tools::winStringSystemCodepageToutf8(filename.cStr()));
 #endif
     int rc = sqlite3_open(utf8Filename.cStr(), &db);
     isConnected = rc == SQLITE_OK;
@@ -436,7 +440,7 @@ struct Container::Impl {
       kj::ArrayOutputStream outs(bytes);
       capnp::writePackedMessage(outs, message);
       auto filledBytes = outs.getArray();
-      sqlite3_bind_blob(stmt, 1, filledBytes.begin(), filledBytes.size(), SQLITE_STATIC);
+      sqlite3_bind_blob(stmt, 1, filledBytes.begin(), (int)filledBytes.size(), SQLITE_STATIC);
       rc = sqlite3_step(stmt);
       success = rc == SQLITE_DONE;
       if(!success){
@@ -465,7 +469,7 @@ struct Container::Impl {
       kj::ArrayOutputStream outs(bytes);
       capnp::writePackedMessage(outs, message);
       auto filledBytes = outs.getArray();
-      sqlite3_bind_blob(stmt, 1, filledBytes.begin(), filledBytes.size(), SQLITE_STATIC);
+      sqlite3_bind_blob(stmt, 1, filledBytes.begin(), (int)filledBytes.size(), SQLITE_STATIC);
       rc = sqlite3_step(stmt);
       success = rc == SQLITE_DONE;
       if(!success) {
@@ -487,7 +491,7 @@ struct Container::Impl {
     if(rc != SQLITE_OK) {
       KJ_LOG(ERROR, "Can't prepare statement.", selectStmt);
     } else {
-      int i = 0;
+      capnp::uint i = 0;
       // in case of to be encoded any values, we need to know which ones are encoded and sizes have to match
       KJ_ASSERT(!encodeAnyValueAsBase64Text || list.size() == isAnyValue.size());
       while(sqlite3_step(stmt) == SQLITE_ROW && i < list.size()) {
@@ -515,7 +519,7 @@ struct Container::Impl {
     if(rc != SQLITE_OK) {
       KJ_LOG(ERROR, "Can't prepare statement.", selectStmt);
     } else {
-      int i = 0;
+      capnp::uint i = 0;
       // in case of to be encoded any values, we need to know which ones are encoded and sizes have to match
       KJ_ASSERT(!encodeAnyValueAsBase64Text || list.size() == isAnyValue.size());
       while(sqlite3_step(stmt) == SQLITE_ROW && i < list.size()) {
@@ -675,8 +679,8 @@ kj::Promise<void> SqliteStorageService::listContainers(ListContainersContext con
   KJ_LOG(INFO, "listContainers message received");
   auto rs = context.getResults();
   auto containers = impl->listContainers();
-  auto list = rs.initContainers(containers.size());
-  size_t i = 0;
+  auto list = rs.initContainers((capnp::uint)containers.size());
+  capnp::uint i = 0;
   for(auto& entry : impl->containers) {
     list.set(i++, kj::get<0>(entry.value));
   }
@@ -701,7 +705,7 @@ kj::Promise<void> SqliteStorageService::importContainer(ImportContainerContext c
   auto container = kj::get<1>(t);
   auto entries = builder.getEntries().asReader();
   auto isAnyValue = builder.getIsAnyValue().asReader();
-  for(auto i : kj::indices(entries)) {
+  for(auto i : kj::zeroTo<capnp::uint>(entries.size())) {
     container->impl->addEntryDB(entries[i].getFst(), entries[i].getSnd(), isAnyValue[i]);
   }
   context.getResults().setContainer(kj::get<0>(t));
@@ -757,7 +761,7 @@ kj::Promise<void> Container::export_(ExportContext context) {
   info.setName(impl->name);
   info.setDescription(impl->description);
   // encode anyvalues as base64 text
-  auto noOfEntries = impl->countEntries();
+  auto noOfEntries = (capnp::uint)impl->countEntries();
   impl->downloadEntries(builder.initEntries(noOfEntries), true, builder.initIsAnyValue(noOfEntries));
   auto expStr = json.encode(builder.asReader());
   context.getResults().setJson(expStr);
@@ -767,7 +771,7 @@ kj::Promise<void> Container::export_(ExportContext context) {
 
 kj::Promise<void> Container::downloadEntries(DownloadEntriesContext context) {
   KJ_LOG(INFO, "downloadEntries message received");
-  auto count = impl->countEntries();
+  auto count = (capnp::uint)impl->countEntries();
   impl->downloadEntries(context.getResults().initEntries(count));
   return kj::READY_NOW;
 }
@@ -775,7 +779,7 @@ kj::Promise<void> Container::downloadEntries(DownloadEntriesContext context) {
 
 kj::Promise<void> Container::listEntries(ListEntriesContext context) {
   KJ_LOG(INFO, "listEntries message received");
-  auto count = impl->countEntries();
+  auto count = (capnp::uint)impl->countEntries();
   impl->listEntries(context.getResults().initEntries(count));
   return kj::READY_NOW;
 }

@@ -13,6 +13,8 @@ This file is part of the ZALF model and simulation infrastructure.
 Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 */
 
+#include "sole.hpp"
+
 #include <iostream>
 
 #include <kj/debug.h>
@@ -24,7 +26,6 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include "rpc-connection-manager.h"
 #include "common.h"
 #include "restorer.h"
-#include "sole.hpp"
 #define KJ_MVCAP(var) var = kj::mv(var)
 
 #include "storage-service.h"

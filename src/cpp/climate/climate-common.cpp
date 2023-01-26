@@ -359,8 +359,8 @@ DataAccessor DataAccessor::cloneForRange(size_t fromStep,
 	DataAccessor clone(*this);
 	clone._fromStep += fromStep;
 	clone._numberOfSteps = numberOfSteps;
-	clone._startDate = clone._startDate + (uint)clone._fromStep;
-	clone._endDate = clone._startDate + (uint)numberOfSteps - 1;
+	clone._startDate = clone._startDate + (uint64_t)clone._fromStep;
+	clone._endDate = clone._startDate + (uint64_t)numberOfSteps - 1;
 	return clone;
 }
 
@@ -410,7 +410,7 @@ void DataAccessor::prependOrAppendClimateData(DataAccessor other,
 	//insert all of others data before this' data
 	else if(startDate() == other.endDate() + 1)
 	{
-		for(uint i = 0; i < _acd2dataIndex.size(); i++)
+		for(uint64_t i = 0; i < _acd2dataIndex.size(); i++)
 		{
 			auto acd = ACD(i);
 			short index = _acd2dataIndex[i];
@@ -427,7 +427,7 @@ void DataAccessor::prependOrAppendClimateData(DataAccessor other,
 	//insert all of others data after this' data
 	else if(endDate() + 1 == other.startDate())
 	{
-		for(uint i = 0; i < _acd2dataIndex.size(); i++)
+		for(uint64_t i = 0; i < _acd2dataIndex.size(); i++)
 		{
 			auto acd = ACD(i);
 			short index = _acd2dataIndex[i];
@@ -452,7 +452,7 @@ void DataAccessor::prependOrAppendClimateData(DataAccessor other,
 		int prependCount = startDate() - other.startDate();
 		int appendCount = other.endDate() - endDate();
 		
-		for(uint i = 0; i < _acd2dataIndex.size(); i++)
+		for(uint64_t i = 0; i < _acd2dataIndex.size(); i++)
 		{
 			auto acd = ACD(i);
 			short index = _acd2dataIndex[i];

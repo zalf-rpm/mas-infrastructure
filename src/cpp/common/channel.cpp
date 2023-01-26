@@ -55,7 +55,7 @@ struct Channel::Impl {
   kj::HashMap<kj::String, AnyPointerChannel::ChanWriter::Client> writers;
   std::deque<kj::Own<kj::PromiseFulfiller<kj::Maybe<AnyPointerMsg::Reader>>>> blockingReadFulfillers;
   std::deque<kj::Own<kj::PromiseFulfiller<void>>> blockingWriteFulfillers;
-  uint bufferSize{1};
+  uint64_t bufferSize{1};
   std::deque<kj::Own<kj::Decay<AnyPointerMsg::Reader>>> buffer;
   AnyPointerChannel::CloseSemantics autoCloseSemantics {AnyPointerChannel::CloseSemantics::FBP};
   bool sendCloseOnEmptyBuffer{false};
@@ -63,12 +63,12 @@ struct Channel::Impl {
   mas::schema::common::Action::Client unregisterAction{nullptr};
   
   Impl(Channel& self, mas::infrastructure::common::Restorer* restorer, kj::StringPtr name, kj::StringPtr description, 
-    uint bufferSize)
+    uint64_t bufferSize)
   : self(self)
   , id(kj::str(sole::uuid4().str()))
   , name(kj::str(name))
   , description(kj::str(description))
-  , bufferSize(std::max(1U, bufferSize))
+  , bufferSize(std::max(1ULL, bufferSize))
   {
     setRestorer(restorer);
   }
@@ -89,7 +89,7 @@ struct Channel::Impl {
 
 //-----------------------------------------------------------------------------
 
-Channel::Channel(kj::StringPtr name, kj::StringPtr description, uint bufferSize, Restorer* restorer)
+Channel::Channel(kj::StringPtr name, kj::StringPtr description, uint64_t bufferSize, Restorer* restorer)
 : impl(kj::heap<Impl>(*this, restorer, name, description, bufferSize))
 {
 }

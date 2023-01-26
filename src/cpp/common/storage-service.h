@@ -20,7 +20,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 namespace mas {
 namespace infrastructure {
 
-  namespace common { class Restorer; }
+namespace common { class Restorer; }
 
 namespace storage {
 
@@ -57,7 +57,7 @@ public:
 
   void setRestorer(mas::infrastructure::common::Restorer* r);
 
-  void initFromStorageContainer();
+  //void initFromStorageContainer();
 
 private:
   struct Impl;

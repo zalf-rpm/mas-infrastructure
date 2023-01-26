@@ -338,19 +338,19 @@ namespace Tools
 	int integerRound1stDigit(int value);
 
 	template<typename ReturnType>
-	inline ReturnType shiftDecimalPointRight(double value, uint digits)
+	inline ReturnType shiftDecimalPointRight(double value, uint8_t digits)
 	{
 		return ReturnType(value * pow(10.0, digits));
 	}
 	
 	template<typename ReturnType>
-	inline ReturnType shiftDecimalPointLeft(double value, uint digits)
+	inline ReturnType shiftDecimalPointLeft(double value, uint8_t digits)
 	{
 		return ReturnType(value / pow(10.0, digits));
 	}
 	
 	//round to int but keep shifted to roundToDigits
-	int roundShiftedInt(double value, int roundToDigits);
+	int roundShiftedInt(double value, int8_t roundToDigits);
 
 	//round to given amount of digits (-digits = round to integer digits = left side of decimal point)
 	//return casted to given ReturnType
@@ -361,11 +361,11 @@ namespace Tools
 		
 		//round to full integers or digits after the decimal point
 		if(roundToDigits >= 0) 
-			return shiftDecimalPointLeft<ReturnType>(rsi, uint(roundToDigits));
+			return shiftDecimalPointLeft<ReturnType>(rsi, uint8_t(roundToDigits));
 		
 		//round to full 100s
 		if(roundToDigits < -1) 
-			return shiftDecimalPointRight<ReturnType>(rsi, uint(-roundToDigits));
+			return shiftDecimalPointRight<ReturnType>(rsi, uint8_t(-roundToDigits));
 		
 		//round to full 10s
 		return ReturnType(rsi);

@@ -13,12 +13,8 @@ This file is part of the ZALF model and simulation infrastructure.
 Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 */
 
-#include "rpc-connection-manager.h"
-
-#include <algorithm>
-#include <chrono>
-#include <thread>
-
+// moving this below storage-service.h on windows causes Problems,
+// because of IPrintDialogServices in commdlg.h defining INTERFACE as macro
 #ifdef WIN32
 //#include <winsock.h>
 #include <ws2tcpip.h>
@@ -35,6 +31,12 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #define CLOSE_SOCKET(s) close(s)
 #define SOCKLEN_T socklen_t
 #endif
+
+#include "rpc-connection-manager.h"
+
+#include <algorithm>
+#include <chrono>
+#include <thread>
 
 #include <kj/async-io.h>
 #include <kj/debug.h>
@@ -273,7 +275,7 @@ kj::Promise<kj::uint> ConnectionManager::bind(kj::AsyncIoContext &ioContext,
     capnp::Capability::Client mainInterface, kj::StringPtr host, kj::uint port) {
     impl->serverMainInterface = mainInterface;
 
-    auto portPaf = kj::newPromiseAndFulfiller<uint>();
+    auto portPaf = kj::newPromiseAndFulfiller<capnp::uint>();
 
     auto &network = ioContext.provider->getNetwork();
     auto bindAddress = kj::str(host, port < 0 ? kj::str("") : kj::str(":", port));

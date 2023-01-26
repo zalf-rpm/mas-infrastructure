@@ -25,13 +25,13 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 using namespace Tools;
 using namespace std;
 
-const std::vector<uint>* Date::_dim() {
-  static vector<uint> dim{0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+const std::vector<uint8_t>* Date::_dim() {
+  static vector<uint8_t> dim{0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
   return &dim;
 }
 
-const std::vector<uint>* Date::_ldim() {
-  static vector<uint> dim {0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+const std::vector<uint8_t>* Date::_ldim() {
+  static vector<uint8_t> dim {0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
   return &dim;
 }
 
@@ -94,9 +94,9 @@ Date::Date(uint day,
  * @param year
  * @param useLeapYears date object will support leap years
  */
-Date::Date(uint day, 
-           uint month, 
-           int year,
+Date::Date(uint8_t day, 
+           uint8_t month,
+           uint16_t year,
            bool isRelativeDate,
            bool createValidDate,
            bool useLeapYears)
@@ -113,7 +113,11 @@ Date::Date(uint day,
 
     if(month == 0) _m = 1;
     else if(month > 12) _m = 12;
-  } else if(month > 12 || month == 0 || day > dim || day == 0) _d = _m = _y = 0;
+  }
+  else if (month > 12 || month == 0 || day > dim || day == 0) {
+    _d = _m = 0;
+    _y = 0;
+  }
 }
 
 #ifdef CAPNPROTO_SERIALIZATION_SUPPORT
@@ -130,9 +134,9 @@ void Date::serialize(mas::schema::common::Date::Builder builder) const {
 }
 #endif
 
-Date Date::relativeDate(uint day, 
-                        uint month,
-                        int deltaYears,
+Date Date::relativeDate(uint8_t day,
+                        uint8_t month,
+                        uint16_t deltaYears,
                         bool useLeapYears) {
   return Date(day, month, deltaYears, true, false, useLeapYears);
 }
@@ -140,9 +144,9 @@ Date Date::relativeDate(uint day,
 Date Date::fromIsoDateString(const std::string& isoDateString,
                              bool useLeapYears) {
   if(isoDateString.size() == 10) {
-    auto year = stoul(isoDateString.substr(0, 4));
-    auto month = stoul(isoDateString.substr(5, 2));
-    auto day = stoul(isoDateString.substr(8, 2));
+    auto year = (uint16_t)stoul(isoDateString.substr(0, 4));
+    auto month = (uint8_t)stoul(isoDateString.substr(5, 2));
+    auto day = (uint8_t)stoul(isoDateString.substr(8, 2));
     //cout << day << "." << month << "." << year << endl;
 
     return year < 100
@@ -214,13 +218,13 @@ int Date::numberOfDaysTo(const Date& toDate) const {
   return nods * (reverse ? -1 : 1);
 }
 
-Date Date::withDay(uint d, bool createValidDate) {
+Date Date::withDay(uint8_t d, bool createValidDate) {
   Date t(*this);
   t.setDay(d, createValidDate);
   return t;
 }
 
-void Date::setDay(uint day, bool createValidDate) { 
+void Date::setDay(uint8_t day, bool createValidDate) {
   _d = day;
   if(createValidDate) {
     if(_d == 0) _d = 1;
@@ -228,14 +232,14 @@ void Date::setDay(uint day, bool createValidDate) {
   }
 }
 
-Date Date::withMonth(uint m, bool createValidDate) {
+Date Date::withMonth(uint8_t m, bool createValidDate) {
   Date t(*this);
   t.setMonth(m, createValidDate);
   return t;
 }
 
 
-void Date::setMonth(uint month, bool createValidDate) { 
+void Date::setMonth(uint8_t month, bool createValidDate) {
   _m = month;
   if(createValidDate) {
     if(_m == 0) _m = 1;
@@ -244,7 +248,7 @@ void Date::setMonth(uint month, bool createValidDate) {
 }
 
 
-Date Date::withYear(uint y) {
+Date Date::withYear(uint16_t y) {
   Date t(*this);
   t.setYear(y);
   return t;
@@ -306,7 +310,7 @@ std::string Date::toString(const std::string& separator,
     << separator << (month() < 10 ? "0" : "") << month();
   if(!skipYear) {
     if(isRelativeDate()) {
-      uint deltaYears = year();// -_relativeBaseYear;
+      uint16_t deltaYears = year();// -_relativeBaseYear;
       s << separator << "year"
         << (deltaYears > 0 ? "+" : "");
       if(deltaYears != 0) s << deltaYears;
@@ -319,9 +323,9 @@ std::string Date::toString(const std::string& separator,
  * @param days
  * @return a copy of 'this' date 'days' before
  */
-Date Date::operator-(uint days) const {
+Date Date::operator-(uint64_t days) const {
   Date cd(*this); //current date
-  uint ds = days; //days
+  uint64_t ds = days; //days
 
   bool isRelativeDate = cd.isRelativeDate();
 
@@ -337,7 +341,8 @@ Date Date::operator-(uint days) const {
                   false,
                   useLeapYears());
     } else {
-      cd.setDay(cd.day() - ds);
+      assert(ds <= 31);
+      cd.setDay(cd.day() - (uint8_t)ds);
       break;
     }
   }
@@ -361,22 +366,23 @@ Date Date::operator--(int) {
  * @param days
  * @return date 'days' ahead of 'this' date
  */
-Date Date::operator+(uint days) const {
+Date Date::operator+(uint64_t days) const {
   Date cd(*this); //current date
-  uint ds = days; //days
+  uint64_t ds = days; //days
 
   bool isRelativeDate = cd.isRelativeDate();
   //uint relativeBaseYear = cd.relativeBaseYear();
 
   while(true) {
-    uint delta = cd.daysInMonth(cd.month()) - cd.day() + 1;
+    uint8_t delta = cd.daysInMonth(cd.month()) - cd.day() + 1;
     if(delta <= ds) {
       ds -= delta;
 
       if(cd.month() == 12) cd = Date(1, 1, cd.year() + 1, isRelativeDate, false, useLeapYears());
       else cd = Date(1, cd.month() + 1, cd.year(), isRelativeDate, false, useLeapYears());
     } else {
-      cd.setDay(cd.day() + ds);
+      assert(ds <= 31);
+      cd.setDay(cd.day() + (uint8_t)ds);
       break;
     }
   }
@@ -400,7 +406,7 @@ bool Date::isLeapYear() const {
   return _y % 4 == 0 && (_y % 100 != 0 || _y % 400 == 0); 
 }
 
-Date Date::toAbsoluteDate(uint absYear, bool ignoreDeltaYears) const {
+Date Date::toAbsoluteDate(uint16_t absYear, bool ignoreDeltaYears) const {
   return Date(day(), month(), ignoreDeltaYears ? absYear : absYear + year(),
               false, useLeapYears());
 }

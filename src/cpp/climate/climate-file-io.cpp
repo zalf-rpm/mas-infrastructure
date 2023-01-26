@@ -292,17 +292,17 @@ Climate::readClimateDataFromCSVInputStream(std::istream& is,
         ACD acdi = header.at(i);
         bool doConvert = !convert.empty() && convert[acdi];
         switch (acdi) {
-          case day: date.setDay(stoul(r.at(i))); break;
-          case month: date.setMonth(stoul(r.at(i))); break;
-          case year: date.setYear(stoul(r.at(i))); break;
+          case day: date.setDay((uint8_t)stoul(r.at(i))); break;
+          case month: date.setMonth((uint8_t)stoul(r.at(i))); break;
+          case year: date.setYear((uint16_t)stoul(r.at(i))); break;
           case isoDate: date = Date::fromIsoDateString(r.at(i)); break;
           case deDate:
           {
             auto dmy = splitString(r.at(i), ".");
             if (dmy.size() == 3) {
-              date.setDay(stoul(dmy.at(0)));
-              date.setMonth(stoul(dmy.at(1)));
-              date.setYear(stoul(dmy.at(2)));
+              date.setDay((uint8_t)stoul(dmy.at(0)));
+              date.setMonth((uint8_t)stoul(dmy.at(1)));
+              date.setYear((uint16_t)stoul(dmy.at(2)));
             }
             break;
           }

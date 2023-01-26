@@ -48,7 +48,7 @@ typedef typename mas::schema::common::Channel<capnp::AnyPointer>::Msg AnyPointer
 class Channel final : public AnyPointerChannel::Server
 {
 public:
-  Channel(kj::StringPtr name, kj::StringPtr description, uint bufferSize, Restorer* restorer = nullptr);
+  Channel(kj::StringPtr name, kj::StringPtr description, uint64_t bufferSize, Restorer* restorer = nullptr);
 
   virtual ~Channel() noexcept(false);
 

@@ -60,9 +60,9 @@ public:
   //							bool createValidDate = false,
   //							bool useLeapYears = DEFAULT_USE_LEAP_YEARS);
 
-  Date(uint day,
-        uint month,
-        int year,
+  Date(uint8_t day,
+        uint8_t month,
+        uint16_t year,
         bool isRelativeDate = false,
         bool createValidDate = false,
         bool useLeapYears = DEFAULT_USE_LEAP_YEARS);
@@ -75,13 +75,13 @@ public:
   void deserialize(mas::schema::common::Date::Reader reader);
 #endif
 
-  static Date relativeDate(uint day,
-                            uint month,
-                            int deltaYears = 0,
+  static Date relativeDate(uint8_t day,
+                            uint8_t month,
+                            uint16_t deltaYears = 0,
                             bool useLeapYears = DEFAULT_USE_LEAP_YEARS);
 
-  static inline Date julianDate(uint julianDay,
-                                uint year,
+  static inline Date julianDate(uint16_t julianDay,
+    uint16_t year,
                                 bool isRelativeDate = false,
                                 bool useLeapYears = DEFAULT_USE_LEAP_YEARS) {
     return Date(1, 1, year, isRelativeDate, false, useLeapYears)
@@ -134,13 +134,13 @@ public:
     */
   bool operator>=(const Date& other) const { return !((*this) < other); }
 
-  Date operator-(uint days) const;
+  Date operator-(uint64_t days) const;
 
   /*!
     * @param days
     * @return change 'this' date to 'days' before
     */
-  Date & operator-=(uint days) { return (*this) = (*this) - days; }
+  Date & operator-=(uint64_t days) { return (*this) = (*this) - days; }
 
   /*!
     * prefix --
@@ -150,13 +150,13 @@ public:
 
   Date operator--(int);
 
-  Date operator+(uint days) const;
+  Date operator+(uint64_t days) const;
 
   /*!
     * @param days
     * @return 'this' date changed to 'days' ahead
     */
-  Date & operator+=(uint days) { return (*this) = (*this) + days; }
+  Date & operator+=(uint64_t days) { return (*this) = (*this) + days; }
 
   /*!
     *
@@ -182,7 +182,7 @@ public:
     * @param month
     * @return how many days has the argument month
     */
-  uint daysInMonth(uint month = 0) const {
+  uint8_t daysInMonth(uint8_t month = 0) const {
     return _daysInMonth->at(month == 0 ? this->month() : month);
   }
 
@@ -193,8 +193,8 @@ public:
     * @return how many days has the month in the argument year, month under
     * possible leap year conditions
     */
-  static uint daysInMonth(uint year,
-                            uint month,
+  static uint8_t daysInMonth(uint16_t year,
+                            uint8_t month,
                             bool useLeapYears = DEFAULT_USE_LEAP_YEARS) {
     return Date(1, 1, year, false, false, useLeapYears).daysInMonth(month);
   }
@@ -205,29 +205,29 @@ public:
   /*!
     * @return 'this' dates day
     */
-  uint day() const { return _d; }
+  uint8_t day() const { return _d; }
 
   /*!
     * set 'this' dates day
     * @param day
     */
-  void setDay(uint day,
+  void setDay(uint8_t day,
               bool createValidDate = false);
 
-  Date withDay(uint day, bool createValidDate = false);
+  Date withDay(uint8_t day, bool createValidDate = false);
 
   /*!
     * @return 'this' dates month
     */
-  uint month() const { return _m; }
+  uint8_t month() const { return _m; }
 
-  Date withMonth(uint month, bool createValidDate = false);
+  Date withMonth(uint8_t month, bool createValidDate = false);
 
   /*!
     * set 'this' dates month
     * @param month
     */
-  void setMonth(uint month, 
+  void setMonth(uint8_t month,
                 bool createValidDate = false);
 
   /*!
@@ -239,9 +239,9 @@ public:
     * set 'this' dates year
     * @param year
     */
-  void setYear(uint year) { _y = year; }
+  void setYear(uint16_t year) { _y = year; }
 
-  Date withYear(uint year);
+  Date withYear(uint16_t year);
 
   void addYears(int years) { setYear(year() + years); }
 
@@ -268,7 +268,7 @@ public:
     * @ see dayInYear(int year, int day, int month, bool useLeapYears)
     * @return julian day of day in 'this' date
     */
-  uint julianDay() const
+  uint16_t julianDay() const
   {
     return dayInYear(year(), day(), month(), _useLeapYears);
   }
@@ -277,14 +277,14 @@ public:
     * @see julianDay()
     * @return day in year of day in 'this' date
     */
-  uint dayOfYear() const { return julianDay(); }
+  uint16_t dayOfYear() const { return julianDay(); }
 
   /*!
     * @param day
     * @param month
     * @return day in year of argument day in argument month in 'this' dates year
     */
-  uint dayInYear(uint day, uint month) const
+  uint16_t dayInYear(uint8_t day, uint8_t month) const
   {
     return dayInYear(year(), day, month, _useLeapYears);
   }
@@ -297,11 +297,11 @@ public:
     * @return day in year of argument day in argument month in argument year
     * under possible leap year conditions
     */
-  static uint dayInYear(uint year,
-                          uint day,
-                          uint month,
+  static uint16_t dayInYear(uint16_t year,
+                          uint8_t day,
+                          uint8_t month,
                           bool useLeapYears = DEFAULT_USE_LEAP_YEARS) {
-    return uint(Date(day, month, year, false, false, useLeapYears)
+    return uint16_t(Date(day, month, year, false, false, useLeapYears)
       - Date(1, 1, year, false, false, useLeapYears) + 1);
   }
 
@@ -338,7 +338,7 @@ public:
   bool isAbsoluteDate() const { return !_isRelativeDate; }
 
   //! convert this year to an absolute year
-  Date toAbsoluteDate(uint absYear,
+  Date toAbsoluteDate(uint16_t absYear,
                       bool ignoreDeltaYears = false) const;
 
   Date toRelativeDate(int deltaYears = 0,
@@ -355,17 +355,17 @@ public:
 
 private:
   //! days in month (1-indexed)
-  static const std::vector<uint>* _dim();
+  static const std::vector<uint8_t>* _dim();
   //! days in month in a leap year
-static const std::vector<uint>* _ldim();
+static const std::vector<uint8_t>* _ldim();
   //! pointer to correct leap year array, depending of activated leap years
-  const std::vector<uint>* _daysInMonth{nullptr};
+  const std::vector<uint8_t>* _daysInMonth{nullptr};
 
   //! members variables for day, month, year
-  uint _d{0}, _m{0};
-  int _y{0};
+  uint8_t _d{0}, _m{0};
+  uint16_t _y{0};
   //! the choosen arbitrary leap year
-  static const int _aLeapYear = 2008;
+  static const uint16_t _aLeapYear = 2008;
 
   //! member var holding whether leap years are being used or not
   bool _useLeapYears{DEFAULT_USE_LEAP_YEARS};

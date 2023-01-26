@@ -265,7 +265,7 @@ const std::vector<E>& vectorOfEs() {
 // listBuilder has to have the same size as collection
 template<typename Collection, typename CapnpListBuilder>
 void setCapnpList(const Collection& values, CapnpListBuilder listBuilder) {
-  uint i = 0;
+  uint32_t i = 0;
   for (auto value : values) listBuilder.set(i++, value);
 }
 
@@ -274,7 +274,7 @@ void setCapnpList(const Collection& values, CapnpListBuilder listBuilder) {
 // listBuilder has to have the same size as collection
 template<typename Collection, typename CapnpListBuilder>
 void setComplexCapnpList(const Collection& values, CapnpListBuilder listBuilder) {
-  uint i = 0;
+  uint32_t i = 0;
   for (const auto& value : values) value.serialize(listBuilder[i++]);
 }
 
@@ -283,7 +283,7 @@ void setComplexCapnpList(const Collection& values, CapnpListBuilder listBuilder)
 template<typename Collection, typename CapnpListReader>
 void setFromCapnpList(Collection& values, CapnpListReader listReader) {
   values.resize(listReader.size());
-  uint i = 0;
+  uint32_t i = 0;
   for (auto value : listReader) values[i++] = value;
 }
 
@@ -292,7 +292,7 @@ void setFromCapnpList(Collection& values, CapnpListReader listReader) {
 template<typename Collection, typename CapnpListReader>
 void setFromComplexCapnpList(Collection& values, CapnpListReader listReader) {
   values.resize(listReader.size());
-  uint i = 0;
+  uint32_t i = 0;
   for (auto& value : values) value.deserialize(listReader[i++]);
 }
 

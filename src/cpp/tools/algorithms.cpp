@@ -694,17 +694,17 @@ int Tools::integerRound1stDigit(int value)
 	}
 }
 
-int Tools::roundShiftedInt(double value, int roundToDigits)
+int Tools::roundShiftedInt(double value, int8_t roundToDigits)
 {
 	int shiftDigits = roundToDigits + 1;
 
 	//round to full integers or digits after the decimal point
 	if (roundToDigits >= 0)
-		return integerRound1stDigit(shiftDecimalPointRight<int>(value, uint(shiftDigits))) / 10;
+		return integerRound1stDigit(shiftDecimalPointRight<int>(value, uint8_t(shiftDigits))) / 10;
 
 	//round to full 100s
 	if (roundToDigits < -1)
-		return integerRound1stDigit(shiftDecimalPointLeft<int>(value, uint(-shiftDigits))) / 10;
+		return integerRound1stDigit(shiftDecimalPointLeft<int>(value, uint8_t(-shiftDigits))) / 10;
 
 	//round to full 10s
 	return integerRound1stDigit(int(value));

@@ -102,7 +102,7 @@ public:
   }
 
 private:
-  uint bufferSize{1};
+  uint64_t bufferSize{1};
   kj::Vector<kj::String> readerSrts;
   kj::Vector<kj::String> writerSrts;
 };
