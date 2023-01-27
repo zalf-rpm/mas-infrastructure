@@ -62,12 +62,12 @@ kj::MainBuilder::Validity RestorableServiceMain::setRegCategory(kj::StringPtr ca
 
 kj::MainBuilder::Validity RestorableServiceMain::setOutputSturdyRefs() { outputSturdyRefs = true; return true; }
 
-kj::MainBuilder::Validity RestorableServiceMain::setOutputSRWriterSR(kj::StringPtr idAndSR) { 
+kj::MainBuilder::Validity RestorableServiceMain::setStartupInfoWriterSR(kj::StringPtr idAndSR) { 
   auto v = splitString(idAndSR, "|");
   if(v.size() == 2) {
-    outputSRWriterId = kj::mv(v[0]);
-    outputSRWriterSR = kj::mv(v[1]);
-  } else if(v.size() == 1) outputSRWriterSR = kj::mv(v[0]);
+    startupInfoWriterSRId = kj::mv(v[0]);
+    startupInfoWriterSR = kj::mv(v[1]);
+  } else if(v.size() == 1) startupInfoWriterSR = kj::mv(v[0]);
   return true; 
 }
 
@@ -88,8 +88,8 @@ void RestorableServiceMain::startRestorerSetup(mas::schema::common::Identifiable
   KJ_ASSERT(restorer != nullptr);
   KJ_LOG(INFO, "Created restorer.");
   
-  if (outputSRWriterSR.size() > 0) {
-    outputSRWriterClient = conMan->tryConnectB(ioContext, outputSRWriterSR).castAs<TextPairChannel::ChanWriter>();
+  if (startupInfoWriterSR.size() > 0) {
+    startupInfoWriterClient = conMan->tryConnectB(ioContext, startupInfoWriterSR).castAs<mas::schema::common::Channel<P>::ChanWriter>();
   }
 
   // if a restorer container stury ref is given, try to connect to it
@@ -139,13 +139,7 @@ void RestorableServiceMain::startRestorerSetup(mas::schema::common::Identifiable
   // print the restorers sturdy ref
   auto restorerSR = restorer->sturdyRefStr("");
   if(outputSturdyRefs && restorerSR.size() > 0) std::cout << "restorerSR=" << restorerSR.cStr() << std::endl;
-  KJ_IF_MAYBE(out, outputSRWriterClient){
-     auto req = out->writeRequest();
-     auto val = req.initValue();
-     //val.setFst("")
-     //req.send().wait(ioContext.waitScope);
-  }
-
+  
   //mas::schema::persistence::SturdyRef::Reader reregSR(nullptr);
   mas::schema::registry::Registrar::Client registrar(nullptr);
   if(registrarSR.size() > 0) {
@@ -200,6 +194,7 @@ kj::MainBuilder& RestorableServiceMain::addRestorableServiceOptions()
                       "<port (default: 53)>", "Port to connect to in order to find local outside IP.")
     .addOption({"output_srs"}, KJ_BIND_METHOD(*this, setOutputSturdyRefs),
                 "Output the sturdy refs to the restorer and service to stdout.")
-    .addOptionWithArg({"output_srs_writer_sr"}, KJ_BIND_METHOD(*this, setOutputSRWriterSR),
-                      "<ID>|<sturdy_ref>", "ID to identify and sturdy ref to an output channel writer capability.");
+    .addOptionWithArg({"startup_info_writer_sr"}, KJ_BIND_METHOD(*this, setStartupInfoWriterSR),
+                      "<ID>|<sturdy_ref>", "ID to identify and sturdy ref to an output channel writer capability. "
+                      "Outputs the startup info of the service to the writer capability as capnp::AnyPointer.");
 }

@@ -15,25 +15,50 @@
 # Landscape Systems Analysis at the ZALF.
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
+import capnp
+from collections import defaultdict
+import os
+from pathlib import Path
 import socket
 import subprocess as sp
 import sys
 import uuid
 
-def get_free_port():
-    with socket.socket() as s:
-        s.bind(('',0))
-        return s.getsockname()[1]
+PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent
+if str(PATH_TO_REPO) not in sys.path:
+    sys.path.insert(1, str(PATH_TO_REPO))
 
-def start_channel(path_to_channel, host, chan_port, reader_srt, writer_srt):
+PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
+if str(PATH_TO_PYTHON_CODE) not in sys.path:
+    sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
+
+PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
+abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
+
+import common.capnp_async_helpers as async_helpers
+import common.common as common
+import services.climate.csv_file_based as csv_based
+
+common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
+
+#def get_free_port():
+#    with socket.socket() as s:
+#        s.bind(('',0))
+#        return s.getsockname()[1]
+
+def start_first_channel(path_to_channel, name=None):
     return sp.Popen([
         path_to_channel, 
-        "--host={}".format(host),
-        "--name=chan_{}".format(chan_port),
-        "--port={}".format(chan_port),
-        "--reader_srts={}".format(reader_srt),
-        "--writer_srts={}".format(writer_srt),
-        "--verbose"
+        "--name=chan_{}".format(name if name else str(uuid.uuid4())),
+        "--output_srs",
+    ], stdout=sp.PIPE, text=True)
+
+
+def start_channel(path_to_channel, writer_sr, name=None):
+    return sp.Popen([
+        path_to_channel, 
+        "--name=chan_{}".format(name if name else str(uuid.uuid4())),
+        "--startup_info_writer_sr={}".format(writer_sr),
     ])
 
 config = {
@@ -56,14 +81,150 @@ if len(sys.argv) > 1 and __name__ == "__main__":
                 config[k] = v
 print(config)
 
-use_infiniband = config["use_infiniband"]
-node_hostname = socket.gethostname()
-if config["use_infiniband"]:
-    node_hostname.replace(".service", ".opa")
-node_ip = socket.gethostbyname(node_hostname)
+#use_infiniband = config["use_infiniband"]
+#node_hostname = socket.gethostname()
+#if config["use_infiniband"]:
+#    node_hostname.replace(".service", ".opa")
+#node_ip = socket.gethostbyname(node_hostname)
 
-components = []
+components = {}
 channels = []
+
+first_chan = start_first_channel(config["path_to_channel"])
+channels.append(first_chan)
+first_reader_sr = None
+first_writer_sr = None
+while True:
+    s = first_chan.stdout.readline().split("=", maxsplit=1)
+    id, sr = s if len(s) == 2 else (None, None)
+    if id and id == "readerSR":
+        first_reader_sr = sr.strip()
+    elif id and id == "writerSR":
+        first_writer_sr = sr.strip()
+    if first_reader_sr and first_writer_sr:
+        break
+
+con_man = common.ConnectionManager()
+first_reader = con_man.try_connect(first_reader_sr, cast_as=common_capnp.Channel.Reader)
+ 
+create_components = {
+    "get_climate_locations": lambda srs: sp.Popen([
+        "python", 
+        "{}/src/python/fbp/get_climate_locations.py".format(config["path_to_mas"]), 
+        "dataset_sr={}".format(config["in_dataset_sr"]),
+    ] + srs),
+    "timeseries_to_data": lambda srs: sp.Popen([
+        "python", 
+        "{}/src/python/fbp/timeseries_to_data.py".format(config["path_to_mas"]), 
+        "in_type=capability",
+        "subrange_from=2000-01-01",
+        "subrange_to=2019-12-31",
+        "subheader=tavg,globrad,precip",
+    ] + srs),
+    "aggregate_timeseries_data_monthly": lambda srs: sp.Popen([
+        "python", 
+        "{}/src/python/fbp/aggregate_timeseries_data_monthly.py".format(config["path_to_mas"]), 
+    ] + srs),
+    "write_file": lambda srs: sp.Popen([
+        "python", 
+        "{}/src/python/fbp/write_file.py".format(config["path_to_mas"]), 
+    ] + srs)
+}
+
+flow = [
+    (("get_climate_locations", "out_sr"), ("timeseries_to_data", "in_sr")),
+    (("timeseries_to_data", "out_sr"), ("aggregate_timeseries_data_monthly", "in_sr")),
+    (("aggregate_timeseries_data_monthly", "out_sr"), ("write_file", "in_sr")),
+]
+
+comp_name_to_component = defaultdict(dict)
+chan_id_to_in_out_sr_names = {} 
+
+# start all channels for the flow
+for i, (start_node, end_node) in enumerate(flow):
+    chan_id = start_node[0] + "->" + end_node[0]
+    # start channel
+    chan = start_channel(config["path_to_channel"], chan_id+"|"+first_writer_sr, name=chan_id)
+    channels.append(chan)
+
+    chan_id_to_in_out_sr_names[chan_id] = {"out": start_node[1], "in": end_node[1]}
+    comp_name_to_component[start_node[0]][start_node[1]] = None
+    comp_name_to_component[end_node[0]][end_node[1]] = None
+
+# collect channel sturdy refs in order to start components
+while True:
+    p = first_reader.read().wait().value.as_struct(common_capnp.Pair)
+    id = p.fst.as_text()
+    start_comp_name, end_comp_name = id.split("->")
+
+    # there should be code to start the components
+    if start_comp_name in create_components and end_comp_name in create_components:
+        info = p.snd.as_struct(common_capnp.Channel.StartupInfo)
+
+        start_sr_name = chan_id_to_in_out_sr_names[id]["out"]
+        end_sr_name = chan_id_to_in_out_sr_names[id]["in"]
+        comp_name_to_component[start_comp_name][start_sr_name] = "{}={}".format(start_sr_name, info.writerSRs[0])
+        comp_name_to_component[end_comp_name][end_sr_name] = "{}={}".format(end_sr_name, info.readerSRs[0])
+
+        # sturdy refs for all ports are available, start component
+        srs = comp_name_to_component[start_comp_name].values()
+        if all([sr is not None for sr in srs]):
+            components[start_comp_name] = create_components[start_comp_name](list(srs))
+
+        srs = comp_name_to_component[end_comp_name].values()
+        if all([sr is not None for sr in srs]):
+            components[start_comp_name] = create_components[start_comp_name](list(srs))
+
+        # exit loop if we started all components in the flow
+        if len(components) == len(comp_name_to_component):
+            break
+
+for component in components:
+    component.wait()
+print("aggregate_monthly_flow.py: all components finished")
+
+for channel in channels:
+    channel.terminate()
+print("aggregate_monthly_flow.py: all channels terminated")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 rs = [] # reader sturdy ref tokens
 ws = [] # writer sturdy ref tokens
 ps = [] # ports

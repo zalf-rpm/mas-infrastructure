@@ -106,9 +106,10 @@ try:
                 timeseries = sr_req.send().timeSeries
 
             se_date_prom = timeseries.range()
+            se_date = se_date_prom.wait()
             resolution_prom = timeseries.resolution().resolution
             tsd.data = timeseries.dataT().wait().data if tsd.isTransposed else timeseries.data().wait().data
-            se_date = se_date_prom.wait()
+            #se_date = se_date_prom.wait()
             tsd.startDate = se_date.startDate
             tsd.endDate = se_date.endDate
             tsd.resolution = resolution_prom.wait()

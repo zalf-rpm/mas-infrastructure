@@ -165,7 +165,7 @@ struct IP {
 
 interface Channel(V) extends(Identifiable, Persistent) {
   # a potentially buffered channel to transport values of type V
-
+  
   enum CloseSemantics {
     fbp   @0; # close channel automatically if there are no writers anymore and buffer is empty = no upstream data
     no    @1; # keep channel open until close message received
@@ -176,6 +176,25 @@ interface Channel(V) extends(Identifiable, Persistent) {
       value @0 :V;
       done  @1 :Void;
     }
+  }
+
+  struct StartupInfo {
+    # information about the startup of a channel
+
+    bufferSize @0 :UInt64;
+    # size of the buffer
+
+    closeSemantics @1 :CloseSemantics;
+    # semantics of closing the channel
+
+    channelSR @2 :Text;
+    # stury reference to the channel
+
+    readerSRs @3 :List(Text);
+    # stury references to the readers
+
+    writerSRs @4 :List(Text);
+    # stury references to the writers
   }
 
   interface Reader $Cxx.name("ChanReader") {

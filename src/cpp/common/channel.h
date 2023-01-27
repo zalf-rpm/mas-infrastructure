@@ -43,7 +43,7 @@ class Reader;
 class Writer;
 
 typedef mas::schema::common::Channel<capnp::AnyPointer> AnyPointerChannel;
-typedef typename mas::schema::common::Channel<capnp::AnyPointer>::Msg AnyPointerMsg;
+typedef typename AnyPointerChannel::Msg AnyPointerMsg;
 
 class Channel final : public AnyPointerChannel::Server
 {
