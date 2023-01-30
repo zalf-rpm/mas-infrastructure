@@ -42,7 +42,8 @@ config = {
     "id_attr": "id",
     "from_attr": None,
     "filepath_pattern": "csv_{id}.csv",
-    "path_to_out_dir": "out/",
+    "path_to_out_dir": "/home/berg/GitHub/mas-infrastructure/src/python/fbp/out/",
+    "append": "false",
 }
 common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
@@ -65,7 +66,7 @@ try:
             content = content_attr.as_text() if content_attr else in_ip.content.as_text()
 
             filepath = config["path_to_out_dir"] + config["filepath_pattern"].format(id=id)
-            with open(filepath, "wt") as _:
+            with open(filepath, "at" if config["append"] else "wt") as _:
                 _.write(content)
                 count += 1
             print("wrote", filepath)

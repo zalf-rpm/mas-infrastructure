@@ -65,7 +65,7 @@ config = {
     "hpc": False,
     "shared_in_sr": "",
     "use_infiniband": False,
-    "in_dataset_sr": "capnp://SzOpxKvp2MfCwo5CKSKjvr5qBF2ZOLNJunmyZCpS-e4=@10.10.24.218:43029/MTRjNWViNzctMGJmNS00ZGEwLTkwY2QtYTE0ZmEyMTZhOTYz",
+    "in_dataset_sr": "capnp://MsrEceYfLp80JSP4h77yj8f3Yy8i54SEatEznz5sd7A=@10.10.24.218:33089/NjAwNjdiN2EtMjUyOS00NGU0LTkyZTktMTg3ODRmZmEzM2Vh",
     "path_to_channel": "/home/berg/GitHub/mas-infrastructure/src/cpp/common/_cmake_debug/channel",
     "path_to_mas": "/home/berg/GitHub/mas-infrastructure",
     "path_to_out_dir": "/home/berg/Desktop/aggregate_monthly_out/",
@@ -125,16 +125,29 @@ create_components = {
         "python", 
         "{}/src/python/fbp/aggregate_timeseries_data_monthly.py".format(config["path_to_mas"]), 
     ] + srs),
-    "write_file": lambda srs: sp.Popen([
+    "write_file_1": lambda srs: sp.Popen([
         "python", 
         "{}/src/python/fbp/write_file.py".format(config["path_to_mas"]), 
-    ] + srs)
+        "append=true",
+    ] + srs),
+    "write_file_2": lambda srs: sp.Popen([
+        "python", 
+        "{}/src/python/fbp/write_file.py".format(config["path_to_mas"]), 
+        "append=true",
+    ] + srs),
+    "write_file_3": lambda srs: sp.Popen([
+        "python", 
+        "{}/src/python/fbp/write_file.py".format(config["path_to_mas"]),
+        "append=true",
+    ] + srs),
 }
 
 flow = [
     (("get_climate_locations", "out_sr"), ("timeseries_to_data", "in_sr")),
     (("timeseries_to_data", "out_sr"), ("aggregate_timeseries_data_monthly", "in_sr")),
-    (("aggregate_timeseries_data_monthly", "out_sr"), ("write_file", "in_sr")),
+    (("aggregate_timeseries_data_monthly", "out_sr_precip"), ("write_file_1", "in_sr")),
+    (("aggregate_timeseries_data_monthly", "out_sr_tavg"), ("write_file_2", "in_sr")),
+    (("aggregate_timeseries_data_monthly", "out_sr_globrad"), ("write_file_3", "in_sr")),
 ]
 
 comp_name_to_component = defaultdict(dict)
@@ -166,20 +179,21 @@ while True:
         comp_name_to_component[start_comp_name][start_sr_name] = "{}={}".format(start_sr_name, info.writerSRs[0])
         comp_name_to_component[end_comp_name][end_sr_name] = "{}={}".format(end_sr_name, info.readerSRs[0])
 
-        # sturdy refs for all ports are available, start component
+        # sturdy refs for all ports of start component are available
         srs = comp_name_to_component[start_comp_name].values()
         if all([sr is not None for sr in srs]):
             components[start_comp_name] = create_components[start_comp_name](list(srs))
 
+        # sturdy refs for all ports of end component are available
         srs = comp_name_to_component[end_comp_name].values()
         if all([sr is not None for sr in srs]):
-            components[start_comp_name] = create_components[start_comp_name](list(srs))
+            components[end_comp_name] = create_components[end_comp_name](list(srs))
 
         # exit loop if we started all components in the flow
         if len(components) == len(comp_name_to_component):
             break
 
-for component in components:
+for component in components.values():
     component.wait()
 print("aggregate_monthly_flow.py: all components finished")
 

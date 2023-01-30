@@ -94,26 +94,34 @@ try:
             
             if config["subheader"]:
                 subheader = config["subheader"].split(",")
-                timeseries = timeseries.subheader(config["subheader"].split(",")).timeSeries
-            header_prom = timeseries.header()
+                timeseries = timeseries.subheader(subheader).timeSeries
+            header = timeseries.header().wait().header
             
             if config["subrange_from"] or config["subrange_to"]:
                 sr_req = timeseries.subrange_request()
-                if config["subrange_from"]:
-                    setattr(sr_req, "from", create_capnp_date(config["subrange_from"]))
-                if config["subrange_to"]:
-                    setattr(sr_req, "to", create_capnp_date(config["subrange_to"]))
-                timeseries = sr_req.send().timeSeries
+                timeseries = timeseries.subrange(create_capnp_date(config["subrange_from"]), create_capnp_date(config["subrange_to"])).timeSeries
+                #if config["subrange_from"]:
+                #    setattr(sr_req, "from", create_capnp_date(config["subrange_from"]))
+                #if config["subrange_to"]:
+                #    setattr(sr_req, "to", create_capnp_date(config["subrange_to"]))
+                #timeseries = sr_req.send().timeSeries
 
+            resolution_prom = timeseries.resolution()
             se_date_prom = timeseries.range()
+            header_size = len(header)
+            ds = timeseries.dataT().wait().data if tsd.isTransposed else timeseries.data().wait().data
+            tsd.init("data", len(ds))
+            for i in range(len(ds)):
+                l = tsd.data.init(i, header_size)
+                for j in range(header_size):
+                    l[j] = ds[i][j]
             se_date = se_date_prom.wait()
-            resolution_prom = timeseries.resolution().resolution
-            tsd.data = timeseries.dataT().wait().data if tsd.isTransposed else timeseries.data().wait().data
-            #se_date = se_date_prom.wait()
             tsd.startDate = se_date.startDate
             tsd.endDate = se_date.endDate
-            tsd.resolution = resolution_prom.wait()
-            tsd.header = header_prom.wait()
+            tsd.resolution = resolution_prom.wait().resolution
+            h = tsd.init("header", len(header))
+            for i in range(len(header)):
+                h[i] = header[i]
 
             out_ip = common_capnp.IP.new_message()
             if not config["to_attr"]:
