@@ -65,7 +65,7 @@ config = {
     "hpc": False,
     "shared_in_sr": "",
     "use_infiniband": False,
-    "in_dataset_sr": "capnp://MsrEceYfLp80JSP4h77yj8f3Yy8i54SEatEznz5sd7A=@10.10.24.218:33089/NjAwNjdiN2EtMjUyOS00NGU0LTkyZTktMTg3ODRmZmEzM2Vh",
+    "in_dataset_sr": "capnp://FVgD_29xGHY2UPUabKHSA291nu6Y91qiqyZV1I2ETQU=@10.10.24.218:43487/YTQyMzQxZWUtN2Y2Yy00MzZhLWI1NTQtMDA3OGI5MmI5ZDkz",
     "path_to_channel": "/home/berg/GitHub/mas-infrastructure/src/cpp/common/_cmake_debug/channel",
     "path_to_mas": "/home/berg/GitHub/mas-infrastructure",
     "path_to_out_dir": "/home/berg/Desktop/aggregate_monthly_out/",
@@ -113,14 +113,27 @@ create_components = {
         "{}/src/python/fbp/get_climate_locations.py".format(config["path_to_mas"]), 
         "dataset_sr={}".format(config["in_dataset_sr"]),
     ] + srs),
+    # "timeseries_to_data": lambda srs: print("""
+    #     ------------------------------
+    #     timeseries_to_data srs:
+    #     """, srs, """
+    #     ------------------------------
+    #     """),
+    #"timeseries_to_data": lambda srs: sp.Popen([
+    #    "python", 
+    #    "{}/src/python/fbp/timeseries_to_data.py".format(config["path_to_mas"]), 
+    #    "in_type=capability",
+    #    "subrange_start=2000-01-01",
+    #    "subrange_end=2019-12-31",
+    #    "subheader=tavg,globrad,precip",
+    #] + srs),
     "timeseries_to_data": lambda srs: sp.Popen([
-        "python", 
-        "{}/src/python/fbp/timeseries_to_data.py".format(config["path_to_mas"]), 
-        "in_type=capability",
-        "subrange_from=2000-01-01",
-        "subrange_to=2019-12-31",
-        "subheader=tavg,globrad,precip",
-    ] + srs),
+       "{}/src/cpp/fbp/_cmake_debug/timeseries-to-data".format(config["path_to_mas"]), 
+       "--in_type=capability",
+       "--subrange_start=2000-01-01",
+       "--subrange_end=2019-12-31",
+       "--subheader=tavg,globrad,precip",
+    ] + list(map(lambda sr: "--"+sr, srs))),
     "aggregate_timeseries_data_monthly": lambda srs: sp.Popen([
         "python", 
         "{}/src/python/fbp/aggregate_timeseries_data_monthly.py".format(config["path_to_mas"]), 

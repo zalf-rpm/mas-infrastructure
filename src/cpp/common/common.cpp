@@ -193,8 +193,7 @@ kj::Promise<void> CapHolderListImpl::release(ReleaseContext context) {
 
 kj::Maybe<capnp::AnyPointer::Reader> mas::infrastructure::common::getIPAttr(mas::schema::common::IP::Reader ip, kj::StringPtr attrName)
 {
-  if(ip.hasAttributes() && attrName != nullptr)
-  {
+  if(ip.hasAttributes() && attrName != nullptr) {
     for(const auto& kv : ip.getAttributes()) if (kv.getKey() == attrName) return kv.getValue();
   }
   return nullptr;
@@ -234,12 +233,9 @@ mas::infrastructure::common::copyAndSetIPAttrs(mas::schema::common::IP::Reader o
     auto oldAttrs = oldIp.getAttributes();
     for(capnp::uint i = 0; i < oldAttrsSize; i++) {
       const auto& kv = oldAttrs[i]; 
-      KJ_IF_MAYBE(ni, newIndex) {
-        if (i != *ni) {
-          newAttrs[i].setKey(kv.getKey());
-          newAttrs[i].initValue().set(kv.getValue());
-        }
-      }
+      KJ_IF_MAYBE(ni, newIndex) if (i == *ni) continue;
+      newAttrs[i].setKey(kv.getKey());
+      newAttrs[i].initValue().set(kv.getValue());
     }
   }
   

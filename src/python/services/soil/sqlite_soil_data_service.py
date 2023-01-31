@@ -82,7 +82,7 @@ def fbp(config, service : soil_capnp.Service):
                     out_ip = common_capnp.IP.new_message()
                     if not config["to_attr"]:
                         out_ip.content = profile
-                    common.copy_fbp_attr(in_ip, out_ip, config["to_attr"], profile)
+                    common.copy_and_set_fbp_attrs(in_ip, out_ip, **({config["to_attr"]: profile} if config["to_attr"] else {}))
                     outp.write(value=out_ip).wait()
             
             outp.write(done=None).wait()

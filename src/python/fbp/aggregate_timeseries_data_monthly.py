@@ -108,12 +108,11 @@ try:
                 r = rs.split("-")[1].zfill(3)
                 c = cs.split("-")[1].zfill(3)
                 line = r + c + "," + vars[var] + "\n"
-                #in_ip.attributes[0]["value"] = var
                 out_ip = common_capnp.IP.new_message()
                 if not config["to_attr"]:
                     out_ip.content = line
-                #common.copy_fbp_attr(in_ip, out_ip, config["to_attr"], line)
-                common.copy_fbp_attr(in_ip, out_ip, "id", var)
+                updated_attrs = {"id": var} | ({config["to_attr"]: line} if config["to_attr"] else {})
+                common.copy_and_set_fbp_attrs(in_ip, out_ip, **updated_attrs)
                 outp.write(value=out_ip).wait()
 
         # close out port

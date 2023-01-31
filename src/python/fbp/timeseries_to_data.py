@@ -52,8 +52,8 @@ config = {
     "to_attr": None, #"latlon",
     "from_attr": None,
 
-    "subrange_from": None, # iso-date string
-    "subrange_to": None, # iso-date string
+    "subrange_start": None, # iso-date string
+    "subrange_end": None, # iso-date string
     "subheader": None, # precip,globrad,tavg   ... etc
     "transposed": "false",
 }
@@ -68,6 +68,12 @@ in_type = config["in_type"]
 def create_capnp_date(isodate):
     py_date = date.fromisoformat(isodate)
     return {"year": py_date.year, "month": py_date.month, "day": py_date.day}
+
+def set_capnp_date(capnp_date, isodate):
+    py_date = date.fromisoformat(isodate)
+    capnp_date.year = py_date.year
+    capnp_date.month = py_date.month
+    capnp_date.day = py_date.day
 
 try:
     if inp and outp:
@@ -97,14 +103,17 @@ try:
                 timeseries = timeseries.subheader(subheader).timeSeries
             header = timeseries.header().wait().header
             
-            if config["subrange_from"] or config["subrange_to"]:
+            if config["subrange_start"] or config["subrange_to"]:
                 sr_req = timeseries.subrange_request()
-                timeseries = timeseries.subrange(create_capnp_date(config["subrange_from"]), create_capnp_date(config["subrange_to"])).timeSeries
-                #if config["subrange_from"]:
-                #    setattr(sr_req, "from", create_capnp_date(config["subrange_from"]))
-                #if config["subrange_to"]:
-                #    setattr(sr_req, "to", create_capnp_date(config["subrange_to"]))
-                #timeseries = sr_req.send().timeSeries
+                #timeseries = timeseries.subrange(
+                #    ({"from": create_capnp_date(config["subrange_start"])} if config["subrange_start"] else {}) | 
+                #    ({"to": create_capnp_date(config["subrange_end"])} if config["subrange_end"] else {})).timeSeries               
+                #timeseries = timeseries.subrange(create_capnp_date(config["subrange_start"]), create_capnp_date(config["subrange_end"])).timeSeries
+                if config["subrange_start"]:
+                    set_capnp_date(sr_req.start, config["subrange_start"])
+                if config["subrange_end"]:
+                    set_capnp_date(sr_req.end, config["subrange_end"])
+                timeseries = sr_req.send().wait().timeSeries
 
             resolution_prom = timeseries.resolution()
             se_date_prom = timeseries.range()
@@ -126,7 +135,7 @@ try:
             out_ip = common_capnp.IP.new_message()
             if not config["to_attr"]:
                 out_ip.content = tsd
-            common.copy_fbp_attr(in_ip, out_ip, config["to_attr"], tsd)
+            common.copy_and_set_fbp_attrs(in_ip, out_ip, **({config["to_attr"]: tsd} if config["to_attr"] else {}))
             outp.write(value=out_ip).wait()
 
         # close out port

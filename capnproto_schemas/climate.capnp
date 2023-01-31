@@ -241,7 +241,7 @@ interface TimeSeries extends(Common.Identifiable, Persistent) {
   # the transposed version of the data() method = a list (the elements) of a list (the actual elements data) of data
   # e.g. [[tavg-day1, tavg-day-2, ...], [precip-day1, precip-day2, ...], [globrad-day-1, globrad-day-2, ...]]
 
-  subrange @5 (from :Date, to :Date) -> (timeSeries :TimeSeries);
+  subrange @5 (start :Date, end :Date) -> (timeSeries :TimeSeries);
   # create a subrange of the current time series
   # if "from" or "to" are not set, creates a subrange from the start or to the end of the current time series
 

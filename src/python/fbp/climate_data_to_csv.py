@@ -85,7 +85,7 @@ try:
             out_ip = common_capnp.IP.new_message()
             if not config["to_attr"]:
                 out_ip.content = csv
-            common.copy_fbp_attr(in_ip, out_ip, config["to_attr"], csv)
+            common.copy_and_set_fbp_attrs(in_ip, out_ip, **({config["to_attr"]: csv} if config["to_attr"] else {}))
             outp.write(value=out_ip).wait()
 
         # close out port

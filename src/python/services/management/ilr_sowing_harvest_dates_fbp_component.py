@@ -198,7 +198,7 @@ try:
 
             out_ip = common_capnp.IP.new_message()
             if ilr_interpolate is None or seed_harvest_cs is None:
-                common.copy_fbp_attr(in_ip, out_ip)
+                common.copy_and_set_fbp_attrs(in_ip, out_ip)
                 outp.write(value=out_ip).wait()
             else:
                 ilr_dates = mgmt_capnp.ILRDates.new_message()
@@ -277,7 +277,7 @@ try:
                         #print("dates: ", int(seed_harvest_cs), ":", ilr_dates["earliestSowing"], "<", ilr_dates["latestSowing"])
                         #print("dates: ", int(seed_harvest_cs), ":", ilr_dates["latestHarvest"])
 
-                common.copy_fbp_attr(in_ip, out_ip, config["to_attr"], ilr_dates)
+                common.copy_and_set_fbp_attrs(in_ip, out_ip, **({config["to_attr"]: ilr_dates} if config["to_attr"] else {}))
                 outp.write(value=out_ip).wait()
         
         outp.write(done=None).wait()

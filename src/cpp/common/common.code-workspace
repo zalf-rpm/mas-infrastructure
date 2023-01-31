@@ -7,13 +7,7 @@
 			"path": "../../../capnproto_schemas"
 		},
 		{
-			"path": "../../../../util/tools"
-		},
-		{
-			"path": "../../../../util/db"
-		},
-		{
-			"path": "../../../../util/json11"
+			"path": "../fbp"
 		}
 	],
 	"settings": {
