@@ -49,36 +49,39 @@ def get_fbp_attr(ip, attr_name):
     return None
 
 
-def copy_fbp_attr(old_ip, new_ip, new_attr_name=None, new_attr_value=None):
-    if not old_ip.attributes and not new_attr_name:
+def copy_and_set_fbp_attrs(old_ip, new_ip, **kwargs): 
+    # no attributes to be copied?
+    if not old_ip.attributes and len(kwargs) == 0: 
         return
 
-    # if there find index of attribute to be set
-    new_index = -1
-    if old_ip.attributes and new_attr_name:
+    # is there an old attribute to be updated?
+    attr_name_to_new_index = {}
+    if old_ip.attributes and len(kwargs) > 0: 
         for i, kv in enumerate(old_ip.attributes):
-            if kv.key == new_attr_name:
-                new_index = i
+            if kv.key in kwargs: 
+                attr_name_to_new_index[kv.key] = i
                 break
 
     # init space for attributes in new IP
     new_attrs_size = len(old_ip.attributes) if old_ip.attributes else 0
-    if new_index < 0 and new_attr_name and new_attr_value:
-        new_attrs_size += 1
-        new_index = new_attrs_size - 1
+    for k, _ in kwargs.items(): 
+        if k not in attr_name_to_new_index:
+            new_attrs_size += 1
+            attr_name_to_new_index[k] = new_attrs_size - 1
     attrs = new_ip.init("attributes", new_attrs_size)
 
     # copy old attributes
     if old_ip.attributes:
+        indices = list(attr_name_to_new_index.values())
         for i, kv in enumerate(old_ip.attributes):
-            if i != new_index:
+            if i not in indices: 
                 attrs[i].key = kv.key
                 attrs[i].value = kv.value
 
     # set new attribute if there
-    if new_index > -1:
-        attrs[new_index].key = new_attr_name
-        attrs[new_index].value = new_attr_value
+    for attr_name, new_index in attr_name_to_new_index.items():
+        attrs[new_index].key = attr_name
+        attrs[new_index].value = kwargs[attr_name] 
 
 #------------------------------------------------------------------------------
 
@@ -86,7 +89,7 @@ def update_config(config, argv, print_config=False, allow_new_keys=False):
     if len(argv) > 1:
         for arg in argv[1:]:
             k, v = arg.split("=", maxsplit=1)
-            if not allow_new_keys and k in config:
+            if allow_new_keys or k in config:
                 config[k] = v.lower() == "true" if v.lower() in ["true", "false"] else v 
         if print_config:
             print(config)
