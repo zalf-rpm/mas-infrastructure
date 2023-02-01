@@ -38,6 +38,7 @@ common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=a
 #------------------------------------------------------------------------------
 
 config = {
+    "_": "write_file.py",
     "in_sr": None,
     "id_attr": "id",
     "from_attr": None,

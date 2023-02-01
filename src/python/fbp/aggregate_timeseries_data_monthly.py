@@ -43,6 +43,7 @@ climate_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate.capnp"), imports
 #------------------------------------------------------------------------------
 
 config = {
+    "_": "aggregate_timeseries_data_monthly.py",
     "to_attr": None, 
     "from_attr": None, 
     "in_sr": None, # climate_capnp.TimeSeriesData (data)

@@ -44,9 +44,10 @@ climate_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate.capnp"), imports
 #------------------------------------------------------------------------------
 
 config = {
+    "_": "get_climate_locations.py",
     "dataset_sr": None, # sturdy ref to climate dataset
     "out_sr": None, # climate_capnp.TimeSeries (capability)
-    "noOfLocationsAtOnce": "10",
+    "no_of_locations_at_once": "10",
     "to_attr": None,
 }
 common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
@@ -60,7 +61,7 @@ try:
     if dataset and outp:
         callback = dataset.streamLocations().wait().locationsCallback
         while True:
-            ls = callback.nextLocations(int(config["noOfLocationsAtOnce"])).wait().locations
+            ls = callback.nextLocations(int(config["no_of_locations_at_once"])).wait().locations
             if len(ls) == 0:
                 break
             for l in ls:
