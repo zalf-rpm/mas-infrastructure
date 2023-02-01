@@ -43,8 +43,8 @@ config = {
     "from_attr": None,
     "filepath_pattern": "csv_{id}.csv",
     "path_to_out_dir": "/home/berg/GitHub/mas-infrastructure/src/python/fbp/out/",
-    "append": "false",
-    "debug": "false",
+    "append": False,
+    "debug": False,
 }
 common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 

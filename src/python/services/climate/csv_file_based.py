@@ -52,6 +52,8 @@ persistence_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "persistence.capnp"),
 
 #------------------------------------------------------------------------------
 
+#ID = 0
+
 class TimeSeries(climate_capnp.TimeSeries.Server, common.Identifiable, common.Persistable): 
 
     def __init__(self, metadata=None, location=None, path_to_csv=None, dataframe=None, csv_string=None, 
@@ -59,6 +61,11 @@ class TimeSeries(climate_capnp.TimeSeries.Server, common.Identifiable, common.Pe
         id=None, name=None, description=None, restorer=None):
         common.Persistable.__init__(self, restorer)
         common.Identifiable.__init__(self, id, name, description)
+
+        #global ID
+        #self.__ID = ID
+        #ID += 1
+        #print("creating Timeseries:", name, "ID:", self.__ID)
 
         if path_to_csv is None and dataframe is None and csv_string is None:
             raise Exception("Missing argument, either path_to_csv or dataframe have to be supplied!")
@@ -81,22 +88,24 @@ class TimeSeries(climate_capnp.TimeSeries.Server, common.Identifiable, common.Pe
 
 
     @classmethod
-    def from_csv_file(cls, path_to_csv, metadata=None, location=None, header_map=None, supported_headers=None, pandas_csv_config=None,
-        transform_map=None):
+    def from_csv_file(cls, path_to_csv, metadata=None, location=None, header_map=None, 
+        supported_headers=None, pandas_csv_config=None, transform_map=None,
+        id=None, name=None, description=None, restorer=None):
         return TimeSeries(metadata=metadata, location=location, path_to_csv=path_to_csv, header_map=header_map, supported_headers=supported_headers,
-            pandas_csv_config=pandas_csv_config, transform_map=transform_map)
+            pandas_csv_config=pandas_csv_config, transform_map=transform_map, id=id, name=name, description=description, restorer=restorer)
 
 
     @classmethod
-    def from_csv_string(cls, csv_string, metadata=None, location=None, header_map=None, supported_headers=None, pandas_csv_config=None,
-        transform_map=None):
+    def from_csv_string(cls, csv_string, metadata=None, location=None, header_map=None, 
+        supported_headers=None, pandas_csv_config=None, transform_map=None,
+        id=None, name=None, description=None, restorer=None):
         return TimeSeries(metadata=metadata, location=location, csv_string=csv_string, header_map=header_map, supported_headers=supported_headers,
-            pandas_csv_config=pandas_csv_config, transform_map=transform_map)
+            pandas_csv_config=pandas_csv_config, transform_map=transform_map, id=id, name=name, description=description, restorer=restorer)
 
 
     @classmethod
-    def from_dataframe(cls, dataframe, metadata=None, location=None):
-        return TimeSeries(metadata=metadata, location=location, dataframe=dataframe)
+    def from_dataframe(cls, dataframe, metadata=None, location=None, id=None, name=None, description=None, restorer=None):
+        return TimeSeries(metadata=metadata, location=location, dataframe=dataframe, id=id, name=name, description=description, restorer=restorer)
 
 
     @property
@@ -163,14 +172,16 @@ class TimeSeries(climate_capnp.TimeSeries.Server, common.Identifiable, common.Pe
 
         sub_df = self.dataframe.loc[str(start_date):str(end_date)]
 
-        context.results.timeSeries = TimeSeries.from_dataframe(sub_df, metadata=self._meta, location=self._location)
+        context.results.timeSeries = TimeSeries.from_dataframe(sub_df, metadata=self._meta, location=self._location,
+            name=self.name, description=self.description, restorer=self._restorer)
 
 
     def subheader(self, elements, **kwargs): # (elements :List(Element)) -> (timeSeries :TimeSeries);
         sub_headers = [str(e) for e in elements]
         sub_df = self.dataframe.loc[:, sub_headers]
 
-        return TimeSeries.from_dataframe(sub_df, metadata=self._meta, location=self._location)
+        return TimeSeries.from_dataframe(sub_df, metadata=self._meta, location=self._location, 
+            name=self.name, description=self.description, restorer=self._restorer)
 
 
     def metadata(self, _context, **kwargs): # metadata @7 () -> Metadata;
@@ -194,8 +205,8 @@ class TimeSeries(climate_capnp.TimeSeries.Server, common.Identifiable, common.Pe
 
 
     def __del__(self):
-        pass
-        #print("deleting timeseries")
+        #pass
+        print("deleting timeseries:", self.name, "id:", self.__ID)
 
 #------------------------------------------------------------------------------
 
@@ -204,14 +215,14 @@ class Dataset(climate_capnp.Dataset.Server, common.Identifiable, common.Persista
     def __init__(self, metadata, path_to_rows, interpolator, rowcol_to_latlon, 
         gzipped=False, header_map=None, supported_headers=None, row_col_pattern="row-{row}/col-{col}.csv",
         pandas_csv_config={}, transform_map=None, id=None, name=None, description=None, restorer=None,
-        percentage_of_main_memory_use=20):
+        percentage_of_main_memory_use=2, cache_data=True):
         common.Persistable.__init__(self, restorer)
         common.Identifiable.__init__(self, id, name, description)
 
         self._meta = metadata
         self._path_to_rows = path_to_rows
         self._interpolator = interpolator
-        self._time_series = {}
+        self._timeseries = {}
         self._creation_order = deque()
         self._locations = {}
         self._all_locations_created = False
@@ -223,6 +234,7 @@ class Dataset(climate_capnp.Dataset.Server, common.Identifiable, common.Persista
         self._transform_map = transform_map
         self._process = psutil.Process()
         self._percentage_of_main_memory_use = percentage_of_main_memory_use
+        self._cache_data = cache_data
 
 
     def metadata(self, _context, **kwargs): # metadata @0 () -> Metadata;
@@ -234,8 +246,9 @@ class Dataset(climate_capnp.Dataset.Server, common.Identifiable, common.Persista
         r.info = self._meta.info
         
 
-    def time_series_at(self, row, col, location=None):
-        if (row, col) not in self._time_series:
+    def timeseries_at(self, row, col, location=None):
+        if not self._cache_data or \
+            (row, col) not in self._timeseries:
             path_to_csv = self._path_to_rows + "/" + self._row_col_pattern.format(row=row, col=col)
             if not location:
                 location = self.location_at(row, col)
@@ -245,38 +258,45 @@ class Dataset(climate_capnp.Dataset.Server, common.Identifiable, common.Persista
                 supported_headers=self._supported_headers,
                 header_map=self._header_map,
                 pandas_csv_config=self._pandas_csv_config,
-                transform_map=self._transform_map) 
-            self._time_series[(row, col)] = time_series
-            self._creation_order.append((row, col))
-            time_series.name = "row: {}/col: {}".format(row, col)
-            time_series.restorer = self._restorer
-
+                transform_map=self._transform_map,
+                name="row: {}/col: {}".format(row, col), 
+                restorer=self._restorer) 
+            if self._cache_data:
+                self._timeseries[(row, col)] = time_series
+                self._creation_order.append((row, col))
+            
+            
         #print(self._process.memory_percent(memtype="rss"))
-        while len(self._creation_order) > 1 and self._process.memory_percent(memtype="rss") > self._percentage_of_main_memory_use:
-            rc = self._creation_order.popleft()
+        while self._cache_data and \
+            len(self._creation_order) > 1 and \
+            self._process.memory_percent(memtype="rss") > self._percentage_of_main_memory_use:
+            rc = self._creation_order[0] if len(self._creation_order) > 0  else None
             if rc != (row, col):
-                self._time_series.pop(rc)
+                rc = self._creation_order.popleft()
+                ts : TimeSeries = self._timeseries.pop(rc)
+                ts._df = None
                 #print("after pop:", self._process.memory_percent(memtype="rss"))
 
-        return self._time_series[(row, col)]
+        return self._timeseries[(row, col)] if self._cache_data else time_series
 
 
     def closestTimeSeriesAt(self, latlon, **kwargs): # (latlon :Geo.LatLonCoord) -> (timeSeries :TimeSeries);
         # closest TimeSeries object which represents the whole time series 
         # of the climate realization at the give climate coordinate
         row, col = self._interpolator(latlon.lat, latlon.lon)
-        return self.time_series_at(row, col)
+        return self.timeseries_at(row, col)
 
 
     def timeSeriesAt(self, locationId, **kwargs): # (locationId :Text) -> (timeSeries :TimeSeries);
         rs, cs = locationId.split("/")
         row = int(rs[2:])
         col = int(cs[2:])
-        return self.time_series_at(row, col)
+        return self.timeseries_at(row, col)
 
 
     def location_at(self, row, col, coord=None, time_series=None):
-        if (row, col) not in self._locations:
+        if not self._cache_data or \
+            (row, col) not in self._locations:
             if not coord:
                 coord = self._rowcol_to_latlon[(row, col)]
             id = "r:{}/c:{}".format(row, col)
@@ -291,8 +311,9 @@ class Dataset(climate_capnp.Dataset.Server, common.Identifiable, common.Persista
             )
             if time_series:
                 loc.timeSeries = time_series
-            self._locations[(row, col)] = loc
-        return self._locations[(row, col)]
+            if self._cache_data:
+                self._locations[(row, col)] = loc
+        return self._locations[(row, col)] if self._cache_data else loc
 
 
     def locations(self, **kwargs): # locations @3 () -> (locations :List(Location));
@@ -302,7 +323,7 @@ class Dataset(climate_capnp.Dataset.Server, common.Identifiable, common.Persista
             for row_col, coord in self._rowcol_to_latlon.items():
                 row, col = row_col
                 loc = self.location_at(row, col, coord)
-                ts = self.time_series_at(row, col, loc)
+                ts = self.timeseries_at(row, col, loc)
                 loc.timeSeries = ts
                 locs.append(loc)
             self._all_locations_created = True
@@ -317,7 +338,7 @@ class Dataset(climate_capnp.Dataset.Server, common.Identifiable, common.Persista
         def create_loc(row_col, coord):
             row, col = row_col
             loc = self.location_at(row, col, coord)
-            ts = self.time_series_at(row, col, loc)
+            ts = self.timeseries_at(row, col, loc)
             loc.timeSeries = ts
             return loc
 
