@@ -15,13 +15,14 @@
 # Landscape Systems Analysis at the ZALF.
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
-from collections import deque
+from collections import deque, OrderedDict
 import capnp
 import csv
 import json
 from datetime import date, timedelta
 import gzip
 import io
+import itertools
 import numpy as np
 import os
 import pandas as pd
@@ -205,8 +206,8 @@ class TimeSeries(climate_capnp.TimeSeries.Server, common.Identifiable, common.Pe
 
 
     def __del__(self):
-        #pass
-        print("deleting timeseries:", self.name, "id:", self.__ID)
+        pass
+        #print("deleting timeseries:", self.name, "id:", self.__ID)
 
 #------------------------------------------------------------------------------
 
@@ -228,7 +229,7 @@ class Dataset(climate_capnp.Dataset.Server, common.Identifiable, common.Persista
         self._all_locations_created = False
         self._header_map = header_map
         self._supported_headers = supported_headers
-        self._rowcol_to_latlon = rowcol_to_latlon
+        self._rowcol_to_latlon = OrderedDict(rowcol_to_latlon)
         self._row_col_pattern = row_col_pattern
         self._pandas_csv_config = pandas_csv_config
         self._transform_map = transform_map
@@ -252,7 +253,7 @@ class Dataset(climate_capnp.Dataset.Server, common.Identifiable, common.Persista
             path_to_csv = self._path_to_rows + "/" + self._row_col_pattern.format(row=row, col=col)
             if not location:
                 location = self.location_at(row, col)
-            time_series = TimeSeries.from_csv_file(path_to_csv, 
+            timeseries = TimeSeries.from_csv_file(path_to_csv, 
                 metadata=self._meta, 
                 location=location, 
                 supported_headers=self._supported_headers,
@@ -261,8 +262,10 @@ class Dataset(climate_capnp.Dataset.Server, common.Identifiable, common.Persista
                 transform_map=self._transform_map,
                 name="row: {}/col: {}".format(row, col), 
                 restorer=self._restorer) 
+            if location:
+                location.timeSeries = timeseries
             if self._cache_data:
-                self._timeseries[(row, col)] = time_series
+                self._timeseries[(row, col)] = timeseries
                 self._creation_order.append((row, col))
             
             
@@ -277,7 +280,7 @@ class Dataset(climate_capnp.Dataset.Server, common.Identifiable, common.Persista
                 ts._df = None
                 #print("after pop:", self._process.memory_percent(memtype="rss"))
 
-        return self._timeseries[(row, col)] if self._cache_data else time_series
+        return self._timeseries[(row, col)] if self._cache_data else timeseries
 
 
     def closestTimeSeriesAt(self, latlon, **kwargs): # (latlon :Geo.LatLonCoord) -> (timeSeries :TimeSeries);
@@ -294,12 +297,15 @@ class Dataset(climate_capnp.Dataset.Server, common.Identifiable, common.Persista
         return self.timeseries_at(row, col)
 
 
-    def location_at(self, row, col, coord=None, time_series=None):
+    def create_location_id(self, row, col):
+        return "r:{}/c:{}".format(row, col)
+
+    def location_at(self, row, col, coord=None, timeseries=None):
         if not self._cache_data or \
             (row, col) not in self._locations:
             if not coord:
                 coord = self._rowcol_to_latlon[(row, col)]
-            id = "r:{}/c:{}".format(row, col)
+            id = self.create_location_id(row, col)
             name = "Row/Col:{}/{}|LatLon:{}/{}".format(row, col, coord["lat"], coord["lon"])
             loc = climate_capnp.Location.new_message(
                 id={"id": id, "name": name, "description": ""},
@@ -309,8 +315,8 @@ class Dataset(climate_capnp.Dataset.Server, common.Identifiable, common.Persista
                     key="row/col", value=geo_capnp.RowCol.new_message(row=row, col=col)
                 )]
             )
-            if time_series:
-                loc.timeSeries = time_series
+            if timeseries:
+                loc.timeSeries = timeseries
             if self._cache_data:
                 self._locations[(row, col)] = loc
         return self._locations[(row, col)] if self._cache_data else loc
@@ -332,9 +338,9 @@ class Dataset(climate_capnp.Dataset.Server, common.Identifiable, common.Persista
         return locs
 
 
-    def streamLocations(self, **kwargs): # streamLocations @4 () -> (locationsCallback :GetLocationsCallback);
+    def streamLocations_context(self, context): # streamLocations @4 (startAfterLocationId :Text) -> (locationsCallback :GetLocationsCallback);
         # all the climate locations this dataset has
-
+        
         def create_loc(row_col, coord):
             row, col = row_col
             loc = self.location_at(row, col, coord)
@@ -342,9 +348,15 @@ class Dataset(climate_capnp.Dataset.Server, common.Identifiable, common.Persista
             loc.timeSeries = ts
             return loc
 
-        locs_gen = (create_loc(row_col, coord) for row_col, coord in self._rowcol_to_latlon.items())
-        return GetLocationsCallback(locs_gen)
-
+        locId = context.params.startAfterLocationId
+        if(locId and len(locId) > 0):
+            it = itertools.dropwhile(lambda rcll: self.create_location_id(*rcll[0]) != locId, self._rowcol_to_latlon.items())
+            next(it)
+        else:
+            it = self._rowcol_to_latlon.items()
+        
+        locs_gen = (create_loc(row_col, coord) for row_col, coord in it)
+        context.results.locationsCallback = GetLocationsCallback(locs_gen)
 
 #------------------------------------------------------------------------------
 

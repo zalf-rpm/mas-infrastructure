@@ -65,10 +65,10 @@ config = {
     "hpc": False,
     "shared_in_sr": "",
     "use_infiniband": False,
-    "in_dataset_sr": "capnp://Llas5MR-_aTMI_vgWrzq4C63Us0y-8Q3Qkjus7t6hf0=@10.10.24.218:33881/YWRjZmJkMjMtNTY3OS00MTJiLWJjZDItN2JhYzFhYjRkNjg4",
+    "in_dataset_sr": "capnp://cLjtk2UwqMkycxsGh-oskFOEvuwgAEEl6i5wEKcRQMc=@10.10.24.218:40733/NjdiNWU5N2QtZWIyMS00ZDc0LWExZjAtMjFkOWJiM2YxOGZl",
     "path_to_channel": "/home/berg/GitHub/mas-infrastructure/src/cpp/common/_cmake_debug/channel",
     "path_to_mas": "/home/berg/GitHub/mas-infrastructure",
-    "path_to_out_dir": "/home/berg/Desktop/aggregate_monthly_out/",
+    "path_to_out_dir": "/home/berg/GitHub/mas-infrastructure/src/python/fbp/out/",
     #"path_to_dwd_csvs": "/run/user/1000/gvfs/sftp:host=login01.cluster.zalf.de,user=rpm/beegfs/common/data/climate/dwd/csvs",
 }
 if len(sys.argv) > 1 and __name__ == "__main__":
@@ -112,6 +112,7 @@ create_components = {
         "python", 
         "{}/src/python/fbp/get_climate_locations.py".format(config["path_to_mas"]), 
         "dataset_sr={}".format(config["in_dataset_sr"]),
+        "continue_after_location_id=r:231/c:352",
     ] + srs),
     # "timeseries_to_data": lambda srs: print("""
     #     ------------------------------
@@ -142,16 +143,19 @@ create_components = {
         "python", 
         "{}/src/python/fbp/write_file.py".format(config["path_to_mas"]), 
         "append=true",
+        "path_to_out_dir={}".format(config["path_to_out_dir"]),
     ] + srs),
     "write_file_2": lambda srs: sp.Popen([
         "python", 
         "{}/src/python/fbp/write_file.py".format(config["path_to_mas"]), 
         "append=true",
+        "path_to_out_dir={}".format(config["path_to_out_dir"]),
     ] + srs),
     "write_file_3": lambda srs: sp.Popen([
         "python", 
         "{}/src/python/fbp/write_file.py".format(config["path_to_mas"]),
         "append=true",
+        "path_to_out_dir={}".format(config["path_to_out_dir"]),
     ] + srs),
 }
 

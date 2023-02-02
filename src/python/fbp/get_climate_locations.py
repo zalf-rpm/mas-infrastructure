@@ -49,6 +49,7 @@ config = {
     "out_sr": None, # climate_capnp.TimeSeries (capability)
     "no_of_locations_at_once": "10",
     "to_attr": None,
+    "continue_after_location_id": None
 }
 common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
@@ -59,7 +60,10 @@ outp = conman.try_connect(config["out_sr"], cast_as=common_capnp.Channel.Writer,
 
 try:
     if dataset and outp:
-        callback = dataset.streamLocations().wait().locationsCallback
+        if config["continue_after_location_id"]:
+            callback = dataset.streamLocations(config["continue_after_location_id"]).wait().locationsCallback
+        else:
+            callback = dataset.streamLocations().wait().locationsCallback
         while True:
             ls = callback.nextLocations(int(config["no_of_locations_at_once"])).wait().locations
             if len(ls) == 0:

@@ -161,8 +161,10 @@ interface Dataset extends(Common.Identifiable, Persistent) {
     nextLocations @0 (maxCount :Int64) -> (locations :List(Location));
     # get the next locations, if available, but maximum maxCount locations at one time
   }
-  streamLocations     @4 () -> (locationsCallback :GetLocationsCallback);
+  streamLocations     @4 (startAfterLocationId :Text) -> (locationsCallback :GetLocationsCallback);
   # stream locations, instead of providing all at once
+  # if startAfterLocationId is empty, start at the beginning, else after the location with that id
+  # assumes stream returns locations always in same order
 }
 
 
