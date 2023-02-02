@@ -140,7 +140,7 @@ EResult<double> Soil::KA5texture2sand(string soilType)
   else if(soilType == "UT2") x = 0.13;
   else if(soilType == "UT3") x = 0.11;
   else if(soilType == "UT4") x = 0.09;
-  else if(soilType == "UTl") x = 0.19;
+  else if(soilType == "UTL") x = 0.19;
   else if(soilType == "TT") x = 0.17;
   else if(soilType == "TL") x = 0.17;
   else if(soilType == "TU2") x = 0.12;
@@ -203,7 +203,7 @@ EResult<double> Soil::KA5texture2clay(string soilType)
   else if(soilType == "UT2") x = 0.10;
   else if(soilType == "UT3") x = 0.14;
   else if(soilType == "UT4") x = 0.21;
-  else if(soilType == "UTl") x = 0.23;
+  else if(soilType == "UTL") x = 0.23;
   else if(soilType == "TT") x = 0.82;
   else if(soilType == "TL") x = 0.55;
   else if(soilType == "TU2") x = 0.55;
