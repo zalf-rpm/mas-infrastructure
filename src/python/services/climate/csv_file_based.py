@@ -216,7 +216,7 @@ class Dataset(climate_capnp.Dataset.Server, common.Identifiable, common.Persista
     def __init__(self, metadata, path_to_rows, interpolator, rowcol_to_latlon, 
         gzipped=False, header_map=None, supported_headers=None, row_col_pattern="row-{row}/col-{col}.csv",
         pandas_csv_config={}, transform_map=None, id=None, name=None, description=None, restorer=None,
-        percentage_of_main_memory_use=2, cache_data=True):
+        percentage_of_main_memory_use=20, cache_data=True):
         common.Persistable.__init__(self, restorer)
         common.Identifiable.__init__(self, id, name, description)
 
