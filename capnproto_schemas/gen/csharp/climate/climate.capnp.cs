@@ -1378,6 +1378,7 @@ namespace Mas.Schema.Climate
         Task<Mas.Schema.Climate.ITimeSeries> ClosestTimeSeriesAt(Mas.Schema.Geo.LatLonCoord latlon, CancellationToken cancellationToken_ = default);
         Task<Mas.Schema.Climate.ITimeSeries> TimeSeriesAt(string locationId, CancellationToken cancellationToken_ = default);
         Task<IReadOnlyList<Mas.Schema.Climate.Location>> Locations(CancellationToken cancellationToken_ = default);
+        Task<Mas.Schema.Climate.Dataset.IGetLocationsCallback> StreamLocations(string startAfterLocationId, CancellationToken cancellationToken_ = default);
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xf635fdd1f05960f0UL)]
@@ -1455,6 +1456,24 @@ namespace Mas.Schema.Climate
             );
         }
 
+        public Task<Mas.Schema.Climate.Dataset.IGetLocationsCallback> StreamLocations(string startAfterLocationId, CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Climate.Dataset.Params_StreamLocations.WRITER>();
+            var arg_ = new Mas.Schema.Climate.Dataset.Params_StreamLocations()
+            {StartAfterLocationId = startAfterLocationId};
+            arg_?.serialize(in_);
+            return Impatient.MakePipelineAware(Call(17741365385218318576UL, 4, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
+            {
+                using (d_)
+                {
+                    var r_ = CapnpSerializable.Create<Mas.Schema.Climate.Dataset.Result_StreamLocations>(d_);
+                    return (r_.LocationsCallback);
+                }
+            }
+
+            );
+        }
+
         public async Task<Mas.Schema.Persistence.Persistent.SaveResults> Save(Mas.Schema.Persistence.Persistent.SaveParams arg_, CancellationToken cancellationToken_ = default)
         {
             var in_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.Persistent.SaveParams.WRITER>();
@@ -1485,7 +1504,7 @@ namespace Mas.Schema.Climate
     {
         public Dataset_Skeleton()
         {
-            SetMethodTable(Metadata, ClosestTimeSeriesAt, TimeSeriesAt, Locations);
+            SetMethodTable(Metadata, ClosestTimeSeriesAt, TimeSeriesAt, Locations, StreamLocations);
         }
 
         public override ulong InterfaceId => 17741365385218318576UL;
@@ -1553,10 +1572,206 @@ namespace Mas.Schema.Climate
                 );
             }
         }
+
+        Task<AnswerOrCounterquestion> StreamLocations(DeserializerState d_, CancellationToken cancellationToken_)
+        {
+            using (d_)
+            {
+                var in_ = CapnpSerializable.Create<Mas.Schema.Climate.Dataset.Params_StreamLocations>(d_);
+                return Impatient.MaybeTailCall(Impl.StreamLocations(in_.StartAfterLocationId, cancellationToken_), locationsCallback =>
+                {
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Climate.Dataset.Result_StreamLocations.WRITER>();
+                    var r_ = new Mas.Schema.Climate.Dataset.Result_StreamLocations{LocationsCallback = locationsCallback};
+                    r_.serialize(s_);
+                    return s_;
+                }
+
+                );
+            }
+        }
     }
 
     public static class Dataset
     {
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xd61ba043f14fe175UL), Proxy(typeof(GetLocationsCallback_Proxy)), Skeleton(typeof(GetLocationsCallback_Skeleton))]
+        public interface IGetLocationsCallback : IDisposable
+        {
+            Task<IReadOnlyList<Mas.Schema.Climate.Location>> NextLocations(long maxCount, CancellationToken cancellationToken_ = default);
+        }
+
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xd61ba043f14fe175UL)]
+        public class GetLocationsCallback_Proxy : Proxy, IGetLocationsCallback
+        {
+            public Task<IReadOnlyList<Mas.Schema.Climate.Location>> NextLocations(long maxCount, CancellationToken cancellationToken_ = default)
+            {
+                var in_ = SerializerState.CreateForRpc<Mas.Schema.Climate.Dataset.GetLocationsCallback.Params_NextLocations.WRITER>();
+                var arg_ = new Mas.Schema.Climate.Dataset.GetLocationsCallback.Params_NextLocations()
+                {MaxCount = maxCount};
+                arg_?.serialize(in_);
+                return Impatient.MakePipelineAware(Call(15428101162159563125UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
+                {
+                    using (d_)
+                    {
+                        var r_ = CapnpSerializable.Create<Mas.Schema.Climate.Dataset.GetLocationsCallback.Result_NextLocations>(d_);
+                        return (r_.Locations);
+                    }
+                }
+
+                );
+            }
+        }
+
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xd61ba043f14fe175UL)]
+        public class GetLocationsCallback_Skeleton : Skeleton<IGetLocationsCallback>
+        {
+            public GetLocationsCallback_Skeleton()
+            {
+                SetMethodTable(NextLocations);
+            }
+
+            public override ulong InterfaceId => 15428101162159563125UL;
+            Task<AnswerOrCounterquestion> NextLocations(DeserializerState d_, CancellationToken cancellationToken_)
+            {
+                using (d_)
+                {
+                    var in_ = CapnpSerializable.Create<Mas.Schema.Climate.Dataset.GetLocationsCallback.Params_NextLocations>(d_);
+                    return Impatient.MaybeTailCall(Impl.NextLocations(in_.MaxCount, cancellationToken_), locations =>
+                    {
+                        var s_ = SerializerState.CreateForRpc<Mas.Schema.Climate.Dataset.GetLocationsCallback.Result_NextLocations.WRITER>();
+                        var r_ = new Mas.Schema.Climate.Dataset.GetLocationsCallback.Result_NextLocations{Locations = locations};
+                        r_.serialize(s_);
+                        return s_;
+                    }
+
+                    );
+                }
+            }
+        }
+
+        public static class GetLocationsCallback
+        {
+            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xe64112993dc4d4e0UL)]
+            public class Params_NextLocations : ICapnpSerializable
+            {
+                public const UInt64 typeId = 0xe64112993dc4d4e0UL;
+                void ICapnpSerializable.Deserialize(DeserializerState arg_)
+                {
+                    var reader = READER.create(arg_);
+                    MaxCount = reader.MaxCount;
+                    applyDefaults();
+                }
+
+                public void serialize(WRITER writer)
+                {
+                    writer.MaxCount = MaxCount;
+                }
+
+                void ICapnpSerializable.Serialize(SerializerState arg_)
+                {
+                    serialize(arg_.Rewrap<WRITER>());
+                }
+
+                public void applyDefaults()
+                {
+                }
+
+                public long MaxCount
+                {
+                    get;
+                    set;
+                }
+
+                public struct READER
+                {
+                    readonly DeserializerState ctx;
+                    public READER(DeserializerState ctx)
+                    {
+                        this.ctx = ctx;
+                    }
+
+                    public static READER create(DeserializerState ctx) => new READER(ctx);
+                    public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                    public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                    public long MaxCount => ctx.ReadDataLong(0UL, 0L);
+                }
+
+                public class WRITER : SerializerState
+                {
+                    public WRITER()
+                    {
+                        this.SetStruct(1, 0);
+                    }
+
+                    public long MaxCount
+                    {
+                        get => this.ReadDataLong(0UL, 0L);
+                        set => this.WriteData(0UL, value, 0L);
+                    }
+                }
+            }
+
+            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xfa8540d5d8065df1UL)]
+            public class Result_NextLocations : ICapnpSerializable
+            {
+                public const UInt64 typeId = 0xfa8540d5d8065df1UL;
+                void ICapnpSerializable.Deserialize(DeserializerState arg_)
+                {
+                    var reader = READER.create(arg_);
+                    Locations = reader.Locations?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Climate.Location>(_));
+                    applyDefaults();
+                }
+
+                public void serialize(WRITER writer)
+                {
+                    writer.Locations.Init(Locations, (_s1, _v1) => _v1?.serialize(_s1));
+                }
+
+                void ICapnpSerializable.Serialize(SerializerState arg_)
+                {
+                    serialize(arg_.Rewrap<WRITER>());
+                }
+
+                public void applyDefaults()
+                {
+                }
+
+                public IReadOnlyList<Mas.Schema.Climate.Location> Locations
+                {
+                    get;
+                    set;
+                }
+
+                public struct READER
+                {
+                    readonly DeserializerState ctx;
+                    public READER(DeserializerState ctx)
+                    {
+                        this.ctx = ctx;
+                    }
+
+                    public static READER create(DeserializerState ctx) => new READER(ctx);
+                    public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                    public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                    public IReadOnlyList<Mas.Schema.Climate.Location.READER> Locations => ctx.ReadList(0).Cast(Mas.Schema.Climate.Location.READER.create);
+                    public bool HasLocations => ctx.IsStructFieldNonNull(0);
+                }
+
+                public class WRITER : SerializerState
+                {
+                    public WRITER()
+                    {
+                        this.SetStruct(0, 1);
+                    }
+
+                    public ListOfStructsSerializer<Mas.Schema.Climate.Location.WRITER> Locations
+                    {
+                        get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Climate.Location.WRITER>>(0);
+                        set => Link(0, value);
+                    }
+                }
+            }
+        }
+
         [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xb4c346906ee84815UL)]
         public class Params_Metadata : ICapnpSerializable
         {
@@ -1948,6 +2163,126 @@ namespace Mas.Schema.Climate
                 }
             }
         }
+
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xfca3f0f431b64506UL)]
+        public class Params_StreamLocations : ICapnpSerializable
+        {
+            public const UInt64 typeId = 0xfca3f0f431b64506UL;
+            void ICapnpSerializable.Deserialize(DeserializerState arg_)
+            {
+                var reader = READER.create(arg_);
+                StartAfterLocationId = reader.StartAfterLocationId;
+                applyDefaults();
+            }
+
+            public void serialize(WRITER writer)
+            {
+                writer.StartAfterLocationId = StartAfterLocationId;
+            }
+
+            void ICapnpSerializable.Serialize(SerializerState arg_)
+            {
+                serialize(arg_.Rewrap<WRITER>());
+            }
+
+            public void applyDefaults()
+            {
+            }
+
+            public string StartAfterLocationId
+            {
+                get;
+                set;
+            }
+
+            public struct READER
+            {
+                readonly DeserializerState ctx;
+                public READER(DeserializerState ctx)
+                {
+                    this.ctx = ctx;
+                }
+
+                public static READER create(DeserializerState ctx) => new READER(ctx);
+                public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                public string StartAfterLocationId => ctx.ReadText(0, null);
+            }
+
+            public class WRITER : SerializerState
+            {
+                public WRITER()
+                {
+                    this.SetStruct(0, 1);
+                }
+
+                public string StartAfterLocationId
+                {
+                    get => this.ReadText(0, null);
+                    set => this.WriteText(0, value, null);
+                }
+            }
+        }
+
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x9ebadb578b79fa06UL)]
+        public class Result_StreamLocations : ICapnpSerializable
+        {
+            public const UInt64 typeId = 0x9ebadb578b79fa06UL;
+            void ICapnpSerializable.Deserialize(DeserializerState arg_)
+            {
+                var reader = READER.create(arg_);
+                LocationsCallback = reader.LocationsCallback;
+                applyDefaults();
+            }
+
+            public void serialize(WRITER writer)
+            {
+                writer.LocationsCallback = LocationsCallback;
+            }
+
+            void ICapnpSerializable.Serialize(SerializerState arg_)
+            {
+                serialize(arg_.Rewrap<WRITER>());
+            }
+
+            public void applyDefaults()
+            {
+            }
+
+            public Mas.Schema.Climate.Dataset.IGetLocationsCallback LocationsCallback
+            {
+                get;
+                set;
+            }
+
+            public struct READER
+            {
+                readonly DeserializerState ctx;
+                public READER(DeserializerState ctx)
+                {
+                    this.ctx = ctx;
+                }
+
+                public static READER create(DeserializerState ctx) => new READER(ctx);
+                public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                public Mas.Schema.Climate.Dataset.IGetLocationsCallback LocationsCallback => ctx.ReadCap<Mas.Schema.Climate.Dataset.IGetLocationsCallback>(0);
+            }
+
+            public class WRITER : SerializerState
+            {
+                public WRITER()
+                {
+                    this.SetStruct(0, 1);
+                }
+
+                public Mas.Schema.Climate.Dataset.IGetLocationsCallback LocationsCallback
+                {
+                    get => ReadCap<Mas.Schema.Climate.Dataset.IGetLocationsCallback>(0);
+                    set => LinkObject(0, value);
+                }
+            }
+        }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xd7a67fec5f22e5a0UL)]
@@ -2057,6 +2392,7 @@ namespace Mas.Schema.Climate
             HeightNN = reader.HeightNN;
             Latlon = CapnpSerializable.Create<Mas.Schema.Geo.LatLonCoord>(reader.Latlon);
             TimeSeries = reader.TimeSeries;
+            CustomData = reader.CustomData?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Climate.Location.KV>(_));
             applyDefaults();
         }
 
@@ -2066,6 +2402,7 @@ namespace Mas.Schema.Climate
             writer.HeightNN = HeightNN;
             Latlon?.serialize(writer.Latlon);
             writer.TimeSeries = TimeSeries;
+            writer.CustomData.Init(CustomData, (_s1, _v1) => _v1?.serialize(_s1));
         }
 
         void ICapnpSerializable.Serialize(SerializerState arg_)
@@ -2101,6 +2438,12 @@ namespace Mas.Schema.Climate
             set;
         }
 
+        public IReadOnlyList<Mas.Schema.Climate.Location.KV> CustomData
+        {
+            get;
+            set;
+        }
+
         public struct READER
         {
             readonly DeserializerState ctx;
@@ -2118,13 +2461,15 @@ namespace Mas.Schema.Climate
             public Mas.Schema.Geo.LatLonCoord.READER Latlon => ctx.ReadStruct(1, Mas.Schema.Geo.LatLonCoord.READER.create);
             public bool HasLatlon => ctx.IsStructFieldNonNull(1);
             public Mas.Schema.Climate.ITimeSeries TimeSeries => ctx.ReadCap<Mas.Schema.Climate.ITimeSeries>(2);
+            public IReadOnlyList<Mas.Schema.Climate.Location.KV.READER> CustomData => ctx.ReadList(3).Cast(Mas.Schema.Climate.Location.KV.READER.create);
+            public bool HasCustomData => ctx.IsStructFieldNonNull(3);
         }
 
         public class WRITER : SerializerState
         {
             public WRITER()
             {
-                this.SetStruct(1, 3);
+                this.SetStruct(1, 4);
             }
 
             public Mas.Schema.Common.IdInformation.WRITER Id
@@ -2150,6 +2495,87 @@ namespace Mas.Schema.Climate
                 get => ReadCap<Mas.Schema.Climate.ITimeSeries>(2);
                 set => LinkObject(2, value);
             }
+
+            public ListOfStructsSerializer<Mas.Schema.Climate.Location.KV.WRITER> CustomData
+            {
+                get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Climate.Location.KV.WRITER>>(3);
+                set => Link(3, value);
+            }
+        }
+
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xc5fd13a53ae6d46aUL)]
+        public class KV : ICapnpSerializable
+        {
+            public const UInt64 typeId = 0xc5fd13a53ae6d46aUL;
+            void ICapnpSerializable.Deserialize(DeserializerState arg_)
+            {
+                var reader = READER.create(arg_);
+                Key = reader.Key;
+                Value = CapnpSerializable.Create<object>(reader.Value);
+                applyDefaults();
+            }
+
+            public void serialize(WRITER writer)
+            {
+                writer.Key = Key;
+                writer.Value.SetObject(Value);
+            }
+
+            void ICapnpSerializable.Serialize(SerializerState arg_)
+            {
+                serialize(arg_.Rewrap<WRITER>());
+            }
+
+            public void applyDefaults()
+            {
+            }
+
+            public string Key
+            {
+                get;
+                set;
+            }
+
+            public object Value
+            {
+                get;
+                set;
+            }
+
+            public struct READER
+            {
+                readonly DeserializerState ctx;
+                public READER(DeserializerState ctx)
+                {
+                    this.ctx = ctx;
+                }
+
+                public static READER create(DeserializerState ctx) => new READER(ctx);
+                public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                public string Key => ctx.ReadText(0, null);
+                public DeserializerState Value => ctx.StructReadPointer(1);
+            }
+
+            public class WRITER : SerializerState
+            {
+                public WRITER()
+                {
+                    this.SetStruct(0, 2);
+                }
+
+                public string Key
+                {
+                    get => this.ReadText(0, null);
+                    set => this.WriteText(0, value, null);
+                }
+
+                public DynamicSerializerState Value
+                {
+                    get => BuildPointer<DynamicSerializerState>(1);
+                    set => Link(1, value);
+                }
+            }
         }
     }
 
@@ -2161,7 +2587,7 @@ namespace Mas.Schema.Climate
         Task<IReadOnlyList<Mas.Schema.Climate.Element>> Header(CancellationToken cancellationToken_ = default);
         Task<IReadOnlyList<IReadOnlyList<float>>> Data(CancellationToken cancellationToken_ = default);
         Task<IReadOnlyList<IReadOnlyList<float>>> DataT(CancellationToken cancellationToken_ = default);
-        Task<Mas.Schema.Climate.ITimeSeries> Subrange(Mas.Schema.Common.Date @from, Mas.Schema.Common.Date to, CancellationToken cancellationToken_ = default);
+        Task<Mas.Schema.Climate.ITimeSeries> Subrange(Mas.Schema.Common.Date start, Mas.Schema.Common.Date end, CancellationToken cancellationToken_ = default);
         Task<Mas.Schema.Climate.ITimeSeries> Subheader(IReadOnlyList<Mas.Schema.Climate.Element> elements, CancellationToken cancellationToken_ = default);
         Task<Mas.Schema.Climate.Metadata> Metadata(CancellationToken cancellationToken_ = default);
         Task<Mas.Schema.Climate.Location> Location(CancellationToken cancellationToken_ = default);
@@ -2235,11 +2661,11 @@ namespace Mas.Schema.Climate
             }
         }
 
-        public Task<Mas.Schema.Climate.ITimeSeries> Subrange(Mas.Schema.Common.Date @from, Mas.Schema.Common.Date to, CancellationToken cancellationToken_ = default)
+        public Task<Mas.Schema.Climate.ITimeSeries> Subrange(Mas.Schema.Common.Date start, Mas.Schema.Common.Date end, CancellationToken cancellationToken_ = default)
         {
             var in_ = SerializerState.CreateForRpc<Mas.Schema.Climate.TimeSeries.Params_Subrange.WRITER>();
             var arg_ = new Mas.Schema.Climate.TimeSeries.Params_Subrange()
-            {From = @from, To = to};
+            {Start = start, End = end};
             arg_?.serialize(in_);
             return Impatient.MakePipelineAware(Call(12067007353081196008UL, 5, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
             {
@@ -2426,7 +2852,7 @@ namespace Mas.Schema.Climate
             using (d_)
             {
                 var in_ = CapnpSerializable.Create<Mas.Schema.Climate.TimeSeries.Params_Subrange>(d_);
-                return Impatient.MaybeTailCall(Impl.Subrange(in_.From, in_.To, cancellationToken_), timeSeries =>
+                return Impatient.MaybeTailCall(Impl.Subrange(in_.Start, in_.End, cancellationToken_), timeSeries =>
                 {
                     var s_ = SerializerState.CreateForRpc<Mas.Schema.Climate.TimeSeries.Result_Subrange.WRITER>();
                     var r_ = new Mas.Schema.Climate.TimeSeries.Result_Subrange{TimeSeries = timeSeries};
@@ -3047,15 +3473,15 @@ namespace Mas.Schema.Climate
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                From = CapnpSerializable.Create<Mas.Schema.Common.Date>(reader.From);
-                To = CapnpSerializable.Create<Mas.Schema.Common.Date>(reader.To);
+                Start = CapnpSerializable.Create<Mas.Schema.Common.Date>(reader.Start);
+                End = CapnpSerializable.Create<Mas.Schema.Common.Date>(reader.End);
                 applyDefaults();
             }
 
             public void serialize(WRITER writer)
             {
-                From?.serialize(writer.From);
-                To?.serialize(writer.To);
+                Start?.serialize(writer.Start);
+                End?.serialize(writer.End);
             }
 
             void ICapnpSerializable.Serialize(SerializerState arg_)
@@ -3067,13 +3493,13 @@ namespace Mas.Schema.Climate
             {
             }
 
-            public Mas.Schema.Common.Date From
+            public Mas.Schema.Common.Date Start
             {
                 get;
                 set;
             }
 
-            public Mas.Schema.Common.Date To
+            public Mas.Schema.Common.Date End
             {
                 get;
                 set;
@@ -3090,10 +3516,10 @@ namespace Mas.Schema.Climate
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Schema.Common.Date.READER From => ctx.ReadStruct(0, Mas.Schema.Common.Date.READER.create);
-                public bool HasFrom => ctx.IsStructFieldNonNull(0);
-                public Mas.Schema.Common.Date.READER To => ctx.ReadStruct(1, Mas.Schema.Common.Date.READER.create);
-                public bool HasTo => ctx.IsStructFieldNonNull(1);
+                public Mas.Schema.Common.Date.READER Start => ctx.ReadStruct(0, Mas.Schema.Common.Date.READER.create);
+                public bool HasStart => ctx.IsStructFieldNonNull(0);
+                public Mas.Schema.Common.Date.READER End => ctx.ReadStruct(1, Mas.Schema.Common.Date.READER.create);
+                public bool HasEnd => ctx.IsStructFieldNonNull(1);
             }
 
             public class WRITER : SerializerState
@@ -3103,13 +3529,13 @@ namespace Mas.Schema.Climate
                     this.SetStruct(0, 2);
                 }
 
-                public Mas.Schema.Common.Date.WRITER From
+                public Mas.Schema.Common.Date.WRITER Start
                 {
                     get => BuildPointer<Mas.Schema.Common.Date.WRITER>(0);
                     set => Link(0, value);
                 }
 
-                public Mas.Schema.Common.Date.WRITER To
+                public Mas.Schema.Common.Date.WRITER End
                 {
                     get => BuildPointer<Mas.Schema.Common.Date.WRITER>(1);
                     set => Link(1, value);
@@ -4344,11 +4770,11 @@ namespace Mas.Schema.Climate
             }
         }
 
-        public Task<Mas.Schema.Climate.ITimeSeries> Subrange(Mas.Schema.Common.Date @from, Mas.Schema.Common.Date to, CancellationToken cancellationToken_ = default)
+        public Task<Mas.Schema.Climate.ITimeSeries> Subrange(Mas.Schema.Common.Date start, Mas.Schema.Common.Date end, CancellationToken cancellationToken_ = default)
         {
             var in_ = SerializerState.CreateForRpc<Mas.Schema.Climate.TimeSeries.Params_Subrange.WRITER>();
             var arg_ = new Mas.Schema.Climate.TimeSeries.Params_Subrange()
-            {From = @from, To = to};
+            {Start = start, End = end};
             arg_?.serialize(in_);
             return Impatient.MakePipelineAware(Call(12067007353081196008UL, 5, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
             {

@@ -1,9 +1,11 @@
 {
 	"folders": [
 		{
+			"name": "python",
 			"path": "."
 		},
 		{
+			"name": "capnproto_schemas",
 			"path": "../../capnproto_schemas"
 		}
 	],

@@ -1,0 +1,21 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../tools"
+		},
+		{
+			"path": "../../../capnproto_schemas"
+		},
+		{
+			"path": "../common"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"chrono": "cpp"
+		}
+	}
+}
