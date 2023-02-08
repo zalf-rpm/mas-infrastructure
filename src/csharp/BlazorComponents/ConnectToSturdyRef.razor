@@ -167,7 +167,8 @@
         {
             if (Capability is Proxy p)
             {
-                SturdyRef = (await p.Cast<Capnp.IPersistent<String, String>>(false)?.Save(null))?.SturdyRef;
+                var sr = (await p.Cast<Mas.Schema.Persistence.IPersistent>(false)?.Save(null))?.SturdyRef;
+                SturdyRef = Mas.Infrastructure.Common.Restorer.SturdyRefStr(sr);
 
                 if (SturdyRefChanged.HasDelegate) _ = SturdyRefChanged.InvokeAsync(SturdyRef);
             }

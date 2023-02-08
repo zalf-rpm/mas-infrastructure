@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../BlazorComponents"
+		},
+		{
+			"path": "../common"
+		},
+		{
+			"path": "../../../capnproto_schemas"
+		}
+	],
+	"settings": {}
+}

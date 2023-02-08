@@ -406,6 +406,81 @@ namespace Mas.Schema.Geo
         }
     }
 
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xb0c6993e13e314adUL)]
+    public class RowCol : ICapnpSerializable
+    {
+        public const UInt64 typeId = 0xb0c6993e13e314adUL;
+        void ICapnpSerializable.Deserialize(DeserializerState arg_)
+        {
+            var reader = READER.create(arg_);
+            Row = reader.Row;
+            Col = reader.Col;
+            applyDefaults();
+        }
+
+        public void serialize(WRITER writer)
+        {
+            writer.Row = Row;
+            writer.Col = Col;
+        }
+
+        void ICapnpSerializable.Serialize(SerializerState arg_)
+        {
+            serialize(arg_.Rewrap<WRITER>());
+        }
+
+        public void applyDefaults()
+        {
+        }
+
+        public ulong Row
+        {
+            get;
+            set;
+        }
+
+        public ulong Col
+        {
+            get;
+            set;
+        }
+
+        public struct READER
+        {
+            readonly DeserializerState ctx;
+            public READER(DeserializerState ctx)
+            {
+                this.ctx = ctx;
+            }
+
+            public static READER create(DeserializerState ctx) => new READER(ctx);
+            public static implicit operator DeserializerState(READER reader) => reader.ctx;
+            public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+            public ulong Row => ctx.ReadDataULong(0UL, 0UL);
+            public ulong Col => ctx.ReadDataULong(64UL, 0UL);
+        }
+
+        public class WRITER : SerializerState
+        {
+            public WRITER()
+            {
+                this.SetStruct(2, 0);
+            }
+
+            public ulong Row
+            {
+                get => this.ReadDataULong(0UL, 0UL);
+                set => this.WriteData(0UL, value, 0UL);
+            }
+
+            public ulong Col
+            {
+                get => this.ReadDataULong(64UL, 0UL);
+                set => this.WriteData(64UL, value, 0UL);
+            }
+        }
+    }
+
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xb8f6a6192a7359f8UL)]
     public class Coord : ICapnpSerializable
     {
@@ -416,6 +491,7 @@ namespace Mas.Schema.Geo
             Latlon = 1,
             Utm = 2,
             P2D = 3,
+            Rowcol = 4,
             undefined = 65535
         }
 
@@ -435,6 +511,9 @@ namespace Mas.Schema.Geo
                     break;
                 case WHICH.P2D:
                     P2D = CapnpSerializable.Create<Mas.Schema.Geo.Point2D>(reader.P2D);
+                    break;
+                case WHICH.Rowcol:
+                    Rowcol = CapnpSerializable.Create<Mas.Schema.Geo.RowCol>(reader.Rowcol);
                     break;
             }
 
@@ -465,6 +544,9 @@ namespace Mas.Schema.Geo
                     case WHICH.P2D:
                         _content = null;
                         break;
+                    case WHICH.Rowcol:
+                        _content = null;
+                        break;
                 }
             }
         }
@@ -485,6 +567,9 @@ namespace Mas.Schema.Geo
                     break;
                 case WHICH.P2D:
                     P2D?.serialize(writer.P2D);
+                    break;
+                case WHICH.Rowcol:
+                    Rowcol?.serialize(writer.Rowcol);
                     break;
             }
         }
@@ -538,6 +623,16 @@ namespace Mas.Schema.Geo
             }
         }
 
+        public Mas.Schema.Geo.RowCol Rowcol
+        {
+            get => _which == WHICH.Rowcol ? (Mas.Schema.Geo.RowCol)_content : null;
+            set
+            {
+                _which = WHICH.Rowcol;
+                _content = value;
+            }
+        }
+
         public struct READER
         {
             readonly DeserializerState ctx;
@@ -558,6 +653,8 @@ namespace Mas.Schema.Geo
             public bool HasUtm => ctx.IsStructFieldNonNull(0);
             public Mas.Schema.Geo.Point2D.READER P2D => which == WHICH.P2D ? ctx.ReadStruct(0, Mas.Schema.Geo.Point2D.READER.create) : default;
             public bool HasP2D => ctx.IsStructFieldNonNull(0);
+            public Mas.Schema.Geo.RowCol.READER Rowcol => which == WHICH.Rowcol ? ctx.ReadStruct(0, Mas.Schema.Geo.RowCol.READER.create) : default;
+            public bool HasRowcol => ctx.IsStructFieldNonNull(0);
         }
 
         public class WRITER : SerializerState
@@ -594,6 +691,12 @@ namespace Mas.Schema.Geo
             public Mas.Schema.Geo.Point2D.WRITER P2D
             {
                 get => which == WHICH.P2D ? BuildPointer<Mas.Schema.Geo.Point2D.WRITER>(0) : default;
+                set => Link(0, value);
+            }
+
+            public Mas.Schema.Geo.RowCol.WRITER Rowcol
+            {
+                get => which == WHICH.Rowcol ? BuildPointer<Mas.Schema.Geo.RowCol.WRITER>(0) : default;
                 set => Link(0, value);
             }
         }

@@ -71,7 +71,8 @@ namespace Mas.Schema.Crop
     public interface ICrop : Mas.Schema.Common.IIdentifiable
     {
         Task<object> Parameters(CancellationToken cancellationToken_ = default);
-        Task<Mas.Schema.Crop.Cultivar> Cultivar(CancellationToken cancellationToken_ = default);
+        Task<Mas.Schema.Common.IdInformation> Cultivar(CancellationToken cancellationToken_ = default);
+        Task<Mas.Schema.Common.IdInformation> Species(CancellationToken cancellationToken_ = default);
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xe88d97a324bf5c84UL)]
@@ -95,7 +96,7 @@ namespace Mas.Schema.Crop
             );
         }
 
-        public async Task<Mas.Schema.Crop.Cultivar> Cultivar(CancellationToken cancellationToken_ = default)
+        public async Task<Mas.Schema.Common.IdInformation> Cultivar(CancellationToken cancellationToken_ = default)
         {
             var in_ = SerializerState.CreateForRpc<Mas.Schema.Crop.Crop.Params_Cultivar.WRITER>();
             var arg_ = new Mas.Schema.Crop.Crop.Params_Cultivar()
@@ -104,7 +105,20 @@ namespace Mas.Schema.Crop
             using (var d_ = await Call(16757216515467467908UL, 1, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
                 var r_ = CapnpSerializable.Create<Mas.Schema.Crop.Crop.Result_Cultivar>(d_);
-                return (r_.Cult);
+                return (r_.Info);
+            }
+        }
+
+        public async Task<Mas.Schema.Common.IdInformation> Species(CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Crop.Crop.Params_Species.WRITER>();
+            var arg_ = new Mas.Schema.Crop.Crop.Params_Species()
+            {};
+            arg_?.serialize(in_);
+            using (var d_ = await Call(16757216515467467908UL, 2, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            {
+                var r_ = CapnpSerializable.Create<Mas.Schema.Crop.Crop.Result_Species>(d_);
+                return (r_.Info);
             }
         }
 
@@ -127,7 +141,7 @@ namespace Mas.Schema.Crop
     {
         public Crop_Skeleton()
         {
-            SetMethodTable(Parameters, Cultivar);
+            SetMethodTable(Parameters, Cultivar, Species);
         }
 
         public override ulong InterfaceId => 16757216515467467908UL;
@@ -151,10 +165,26 @@ namespace Mas.Schema.Crop
         {
             using (d_)
             {
-                return Impatient.MaybeTailCall(Impl.Cultivar(cancellationToken_), cult =>
+                return Impatient.MaybeTailCall(Impl.Cultivar(cancellationToken_), info =>
                 {
                     var s_ = SerializerState.CreateForRpc<Mas.Schema.Crop.Crop.Result_Cultivar.WRITER>();
-                    var r_ = new Mas.Schema.Crop.Crop.Result_Cultivar{Cult = cult};
+                    var r_ = new Mas.Schema.Crop.Crop.Result_Cultivar{Info = info};
+                    r_.serialize(s_);
+                    return s_;
+                }
+
+                );
+            }
+        }
+
+        Task<AnswerOrCounterquestion> Species(DeserializerState d_, CancellationToken cancellationToken_)
+        {
+            using (d_)
+            {
+                return Impatient.MaybeTailCall(Impl.Species(cancellationToken_), info =>
+                {
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Crop.Crop.Result_Species.WRITER>();
+                    var r_ = new Mas.Schema.Crop.Crop.Result_Species{Info = info};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -323,13 +353,13 @@ namespace Mas.Schema.Crop
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Cult = reader.Cult;
+                Info = CapnpSerializable.Create<Mas.Schema.Common.IdInformation>(reader.Info);
                 applyDefaults();
             }
 
             public void serialize(WRITER writer)
             {
-                writer.Cult = Cult;
+                Info?.serialize(writer.Info);
             }
 
             void ICapnpSerializable.Serialize(SerializerState arg_)
@@ -341,7 +371,7 @@ namespace Mas.Schema.Crop
             {
             }
 
-            public Mas.Schema.Crop.Cultivar Cult
+            public Mas.Schema.Common.IdInformation Info
             {
                 get;
                 set;
@@ -358,20 +388,127 @@ namespace Mas.Schema.Crop
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Schema.Crop.Cultivar Cult => (Mas.Schema.Crop.Cultivar)ctx.ReadDataUShort(0UL, (ushort)0);
+                public Mas.Schema.Common.IdInformation.READER Info => ctx.ReadStruct(0, Mas.Schema.Common.IdInformation.READER.create);
+                public bool HasInfo => ctx.IsStructFieldNonNull(0);
             }
 
             public class WRITER : SerializerState
             {
                 public WRITER()
                 {
-                    this.SetStruct(1, 0);
+                    this.SetStruct(0, 1);
                 }
 
-                public Mas.Schema.Crop.Cultivar Cult
+                public Mas.Schema.Common.IdInformation.WRITER Info
                 {
-                    get => (Mas.Schema.Crop.Cultivar)this.ReadDataUShort(0UL, (ushort)0);
-                    set => this.WriteData(0UL, (ushort)value, (ushort)0);
+                    get => BuildPointer<Mas.Schema.Common.IdInformation.WRITER>(0);
+                    set => Link(0, value);
+                }
+            }
+        }
+
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xf4dd1c322a3130b4UL)]
+        public class Params_Species : ICapnpSerializable
+        {
+            public const UInt64 typeId = 0xf4dd1c322a3130b4UL;
+            void ICapnpSerializable.Deserialize(DeserializerState arg_)
+            {
+                var reader = READER.create(arg_);
+                applyDefaults();
+            }
+
+            public void serialize(WRITER writer)
+            {
+            }
+
+            void ICapnpSerializable.Serialize(SerializerState arg_)
+            {
+                serialize(arg_.Rewrap<WRITER>());
+            }
+
+            public void applyDefaults()
+            {
+            }
+
+            public struct READER
+            {
+                readonly DeserializerState ctx;
+                public READER(DeserializerState ctx)
+                {
+                    this.ctx = ctx;
+                }
+
+                public static READER create(DeserializerState ctx) => new READER(ctx);
+                public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+            }
+
+            public class WRITER : SerializerState
+            {
+                public WRITER()
+                {
+                    this.SetStruct(0, 0);
+                }
+            }
+        }
+
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xb4aa895eeede6448UL)]
+        public class Result_Species : ICapnpSerializable
+        {
+            public const UInt64 typeId = 0xb4aa895eeede6448UL;
+            void ICapnpSerializable.Deserialize(DeserializerState arg_)
+            {
+                var reader = READER.create(arg_);
+                Info = CapnpSerializable.Create<Mas.Schema.Common.IdInformation>(reader.Info);
+                applyDefaults();
+            }
+
+            public void serialize(WRITER writer)
+            {
+                Info?.serialize(writer.Info);
+            }
+
+            void ICapnpSerializable.Serialize(SerializerState arg_)
+            {
+                serialize(arg_.Rewrap<WRITER>());
+            }
+
+            public void applyDefaults()
+            {
+            }
+
+            public Mas.Schema.Common.IdInformation Info
+            {
+                get;
+                set;
+            }
+
+            public struct READER
+            {
+                readonly DeserializerState ctx;
+                public READER(DeserializerState ctx)
+                {
+                    this.ctx = ctx;
+                }
+
+                public static READER create(DeserializerState ctx) => new READER(ctx);
+                public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                public Mas.Schema.Common.IdInformation.READER Info => ctx.ReadStruct(0, Mas.Schema.Common.IdInformation.READER.create);
+                public bool HasInfo => ctx.IsStructFieldNonNull(0);
+            }
+
+            public class WRITER : SerializerState
+            {
+                public WRITER()
+                {
+                    this.SetStruct(0, 1);
+                }
+
+                public Mas.Schema.Common.IdInformation.WRITER Info
+                {
+                    get => BuildPointer<Mas.Schema.Common.IdInformation.WRITER>(0);
+                    set => Link(0, value);
                 }
             }
         }

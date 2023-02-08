@@ -2635,7 +2635,7 @@ namespace Mas.Schema.Common
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xf0c0f9413a3083beUL), Proxy(typeof(Channel_Proxy<>)), Skeleton(typeof(Channel_Skeleton<>))]
-    public interface IChannel<TV> : IDisposable where TV : class
+    public interface IChannel<TV> : Mas.Schema.Common.IIdentifiable, Mas.Schema.Persistence.IPersistent where TV : class
     {
         Task SetBufferSize(ulong size, CancellationToken cancellationToken_ = default);
         Task<Mas.Schema.Common.Channel<TV>.IReader> Reader(CancellationToken cancellationToken_ = default);
@@ -2738,6 +2738,30 @@ namespace Mas.Schema.Common
             {
                 var r_ = CapnpSerializable.Create<Mas.Schema.Common.Channel<TV>.Result_Close>(d_);
                 return;
+            }
+        }
+
+        public async Task<Mas.Schema.Persistence.Persistent.SaveResults> Save(Mas.Schema.Persistence.Persistent.SaveParams arg_, CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.Persistent.SaveParams.WRITER>();
+            arg_?.serialize(in_);
+            using (var d_ = await Call(13954362354854972261UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            {
+                var r_ = CapnpSerializable.Create<Mas.Schema.Persistence.Persistent.SaveResults>(d_);
+                return r_;
+            }
+        }
+
+        public async Task<Mas.Schema.Common.IdInformation> Info(CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Common.Identifiable.Params_Info.WRITER>();
+            var arg_ = new Mas.Schema.Common.Identifiable.Params_Info()
+            {};
+            arg_?.serialize(in_);
+            using (var d_ = await Call(12875740530987518165UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            {
+                var r_ = CapnpSerializable.Create<Mas.Schema.Common.IdInformation>(d_);
+                return r_;
             }
         }
     }
@@ -2955,6 +2979,128 @@ namespace Mas.Schema.Common
                 {
                     get => which == WHICH.Value ? BuildPointer<DynamicSerializerState>(0) : default;
                     set => Link(0, value);
+                }
+            }
+        }
+
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xb7c45baf591227b6UL)]
+        public class StartupInfo : ICapnpSerializable
+        {
+            public const UInt64 typeId = 0xb7c45baf591227b6UL;
+            void ICapnpSerializable.Deserialize(DeserializerState arg_)
+            {
+                var reader = READER.create(arg_);
+                BufferSize = reader.BufferSize;
+                CloseSemantics = reader.CloseSemantics;
+                ChannelSR = reader.ChannelSR;
+                ReaderSRs = reader.ReaderSRs;
+                WriterSRs = reader.WriterSRs;
+                applyDefaults();
+            }
+
+            public void serialize(WRITER writer)
+            {
+                writer.BufferSize = BufferSize;
+                writer.CloseSemantics = CloseSemantics;
+                writer.ChannelSR = ChannelSR;
+                writer.ReaderSRs.Init(ReaderSRs);
+                writer.WriterSRs.Init(WriterSRs);
+            }
+
+            void ICapnpSerializable.Serialize(SerializerState arg_)
+            {
+                serialize(arg_.Rewrap<WRITER>());
+            }
+
+            public void applyDefaults()
+            {
+            }
+
+            public ulong BufferSize
+            {
+                get;
+                set;
+            }
+
+            public Mas.Schema.Common.Channel<TV>.CloseSemantics CloseSemantics
+            {
+                get;
+                set;
+            }
+
+            public string ChannelSR
+            {
+                get;
+                set;
+            }
+
+            public IReadOnlyList<string> ReaderSRs
+            {
+                get;
+                set;
+            }
+
+            public IReadOnlyList<string> WriterSRs
+            {
+                get;
+                set;
+            }
+
+            public struct READER
+            {
+                readonly DeserializerState ctx;
+                public READER(DeserializerState ctx)
+                {
+                    this.ctx = ctx;
+                }
+
+                public static READER create(DeserializerState ctx) => new READER(ctx);
+                public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                public ulong BufferSize => ctx.ReadDataULong(0UL, 0UL);
+                public Mas.Schema.Common.Channel<TV>.CloseSemantics CloseSemantics => (Mas.Schema.Common.Channel<TV>.CloseSemantics)ctx.ReadDataUShort(64UL, (ushort)0);
+                public string ChannelSR => ctx.ReadText(0, null);
+                public IReadOnlyList<string> ReaderSRs => ctx.ReadList(1).CastText2();
+                public bool HasReaderSRs => ctx.IsStructFieldNonNull(1);
+                public IReadOnlyList<string> WriterSRs => ctx.ReadList(2).CastText2();
+                public bool HasWriterSRs => ctx.IsStructFieldNonNull(2);
+            }
+
+            public class WRITER : SerializerState
+            {
+                public WRITER()
+                {
+                    this.SetStruct(2, 3);
+                }
+
+                public ulong BufferSize
+                {
+                    get => this.ReadDataULong(0UL, 0UL);
+                    set => this.WriteData(0UL, value, 0UL);
+                }
+
+                public Mas.Schema.Common.Channel<TV>.CloseSemantics CloseSemantics
+                {
+                    get => (Mas.Schema.Common.Channel<TV>.CloseSemantics)this.ReadDataUShort(64UL, (ushort)0);
+                    set => this.WriteData(64UL, (ushort)value, (ushort)0);
+                }
+
+                public string ChannelSR
+                {
+                    get => this.ReadText(0, null);
+                    set => this.WriteText(0, value, null);
+                }
+
+                public ListOfTextSerializer ReaderSRs
+                {
+                    get => BuildPointer<ListOfTextSerializer>(1);
+                    set => Link(1, value);
+                }
+
+                public ListOfTextSerializer WriterSRs
+                {
+                    get => BuildPointer<ListOfTextSerializer>(2);
+                    set => Link(2, value);
                 }
             }
         }
