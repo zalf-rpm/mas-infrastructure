@@ -9,7 +9,7 @@ $Java.outerClassname("OuterA");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("test");
-$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/test");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/test");
 
 interface A {
     method @0 (param :Text) -> (res :Text);
