@@ -1,0 +1,26 @@
+go 1.19
+
+use (
+	./capnproto_schemas
+	./capnproto_schemas/gen/go/persistence
+	./capnproto_schemas/gen/go/common
+	./capnproto_schemas/gen/go/cluster
+	./capnproto_schemas/gen/go/config
+	./capnproto_schemas/gen/go/climate
+	./capnproto_schemas/gen/go/crop
+	./capnproto_schemas/gen/go/fbp
+	./capnproto_schemas/gen/go/geo
+	./capnproto_schemas/gen/go/grid
+	./capnproto_schemas/gen/go/jobs
+	./capnproto_schemas/gen/go/management
+	./capnproto_schemas/gen/go/soil
+	./capnproto_schemas/gen/go/service
+	./capnproto_schemas/gen/go/registry
+	./capnproto_schemas/gen/go/storage
+	./capnproto_schemas/gen/go/model
+	./capnproto_schemas/gen/go/model/monica
+	./capnproto_schemas/gen/go/model/weberest
+	./capnproto_schemas/gen/go/model/yieldstat
+
+
+)
