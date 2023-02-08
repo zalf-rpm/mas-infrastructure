@@ -5,7 +5,7 @@ $Cxx.namespace("mas::schema::storage");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("storage");
-$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/storage");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/storage");
 
 using Common = import "common.capnp";
 using Persistent = import "persistence.capnp".Persistent;

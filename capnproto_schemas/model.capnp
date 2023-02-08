@@ -5,7 +5,7 @@ $Cxx.namespace("mas::schema::model");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("models");
-$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/models");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/models");
 
 using Common = import "common.capnp";
 using Geo = import "geo.capnp";

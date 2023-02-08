@@ -5,7 +5,7 @@ $Cxx.namespace("mas::schema::soil");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("soil");
-$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/soil");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/soil");
 
 using Persistent = import "persistence.capnp".Persistent;
 using Restorer = import "persistence.capnp".Restorer;

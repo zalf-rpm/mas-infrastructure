@@ -7,7 +7,7 @@ $Cxx.namespace("mas::schema::frontend");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("frontend");
-$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/frontend");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/frontend");
 
 using Common = import "common.capnp";
 #using SturdyRef = import "persistence.capnp".SturdyRef;

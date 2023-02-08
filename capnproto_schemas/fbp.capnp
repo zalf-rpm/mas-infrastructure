@@ -5,7 +5,7 @@ $Cxx.namespace("mas::schema::fbp");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("fbp");
-$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/fbp");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/fbp");
 
 interface Component {
 	# act as bootstrap for component thread

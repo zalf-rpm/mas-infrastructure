@@ -5,7 +5,7 @@ $Cxx.namespace("mas::schema::crop");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("crop");
-$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/crop");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/crop");
 
 using Common = import "common.capnp";
 

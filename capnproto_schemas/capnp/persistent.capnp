@@ -25,7 +25,7 @@ $import "c++.capnp".namespace("capnp");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("persistence");
-$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/persistence");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/persistence");
 
 interface Persistent@0xc8cb212fcd9f5691(SturdyRef, Owner) {
   # Interface implemented by capabilities that outlive a single connection. A client may save()

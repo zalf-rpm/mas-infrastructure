@@ -9,7 +9,7 @@ $Java.outerClassname("WebBerestDWDImport");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("weberest");
-$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/model/weberest");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/model/weberest");
 
 interface DWLABImport {
     importData @0 (id :Text, dwla :Data, dwlb :Data) -> (id :Text, successA :Bool, successB :Bool);

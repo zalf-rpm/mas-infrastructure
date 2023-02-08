@@ -7,7 +7,7 @@ $Cxx.namespace("mas::schema::registry");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("registry");
-$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/registry");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/registry");
 
 using Common = import "common.capnp";
 using Persistence = import "persistence.capnp";

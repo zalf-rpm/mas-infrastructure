@@ -7,7 +7,7 @@ $Cxx.namespace("mas::schema::persistence");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("persistence");
-$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/persistence");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/persistence");
 
 using Common = import "common.capnp";
 
