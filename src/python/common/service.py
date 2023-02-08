@@ -299,9 +299,11 @@ def init_and_run_service(name_to_service, host="*", port=None, serve_bootstrap=T
     if serve_bootstrap:
         server = capnp.TwoPartyServer(addr, bootstrap=restorer)
         restorer.port = port if port else server.port
-        restorer.store_port().wait()
+        store_port_prom = restorer.store_port()
+        if store_port_prom:
+            store_port_prom.wait()
 
-        service_container = conn_man.try_connect(service_container_sr, cast_as=storage_capnp.Store.Container)
+        service_container = conn_man.try_connect(service_container_sr, cast_as=storage_capnp.Store.Container) if service_container_sr else None
         for name, s in name_to_service.items():
             if service_container and load_last_or_store_services_callback:
                 service_sr = load_last_or_store_services_callback(service_container, name, s)

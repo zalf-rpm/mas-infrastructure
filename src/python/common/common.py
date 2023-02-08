@@ -424,6 +424,15 @@ class Identifiable(common_capnp.Identifiable.Server):
         self._id = id if id else str(uuid.uuid4()) 
         self._name = name if name else "Unnamed_{}".format(self._id)
         self._description = description if description else ""
+        self._init_info_func = None
+
+    @property
+    def init_info_func(self):
+        return self._init_info_func
+
+    @init_info_func.setter
+    def init_info_func(self, f):
+        self._init_info_func = f
 
 
     @property
@@ -454,6 +463,8 @@ class Identifiable(common_capnp.Identifiable.Server):
 
 
     def info_context(self, context): # () -> IdInformation;
+        if self._init_info_func:
+            self._init_info_func()
         r = context.results
         r.id = self.id
         r.name = self.name
@@ -537,6 +548,9 @@ class ConnectionManager:
                         port, rest = rest.split("/") if "/" in rest else (rest, None)
                         sr_token_base64, rest = rest.split("?") if "?" in rest else (rest, None)
                         sr_token = base64.urlsafe_b64decode(sr_token_base64 + "==")
+                    else:
+                        port = rest
+                        sr_token = None
             else:
                 vat_path = sturdy_ref.transient.vat
                 vat_id_base64 = vat_path.id

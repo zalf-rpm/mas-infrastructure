@@ -41,6 +41,18 @@ class A_Impl(a_capnp.A.Server):
         return "_______________method_RESULT___________________"
 
 
+class S(a_capnp.S.Server):
+    def getCB_context(self, context):
+        context.results.cb = CB()
+
+class CB(a_capnp.CB.Server):
+    def __init__(self):
+        self.i = 0
+    def get_context(self, context):
+        context.results.res = list(range(1000000))
+        self.i += 1
+        print(self.i*8*1000000/1024/1024, "MB sent")
+
 class Server:
     def __init__(self, service):
         self._service = service
@@ -158,16 +170,24 @@ async def async_main():
 
 
 def no_async_main():
-    server = capnp.TwoPartyServer("*:11111", bootstrap=A_Impl())
+    #server = capnp.TwoPartyServer("*:11111", bootstrap=A_Impl())
+    server = capnp.TwoPartyServer("*", bootstrap=S())
+    print("port:", server.port)
     server.run_forever()
 
 
 if __name__ == '__main__':
-
-    mode = sys.argv[1] if len(sys.argv) > 1 else "client"
+    mode = sys.argv[1] if len(sys.argv) > 1 else None
     if mode == "client":
-        a_cap = capnp.TwoPartyClient("localhost:11111").bootstrap().cast_as(a_capnp.A)
-        txt = a_cap.method("______________PARAM______________").wait().res
-        print(txt)
+        #a_cap = capnp.TwoPartyClient("localhost:11111").bootstrap().cast_as(a_capnp.A)
+        #txt = a_cap.method("______________PARAM______________").wait().res
+        s = capnp.TwoPartyClient("localhost:"+sys.argv[2]).bootstrap().cast_as(a_capnp.S)
+        cb = s.getCB().wait().cb
+        i = 0
+        while True:
+            data = cb.get().wait().res
+            print(i*8*1000000/1024/1024, "MB received")
+            i += 1
     else:
-        asyncio.run(async_main())
+        #asyncio.run(async_main())
+        no_async_main()

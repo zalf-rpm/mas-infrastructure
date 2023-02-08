@@ -27,6 +27,8 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include "common/rpc-connection-manager.h"
 #include "common/common.h"
 #include "storage.capnp.h"
+#include "management.capnp.h"
+#include "registry.capnp.h"
 
 class TestServicesMain
 {
@@ -44,45 +46,33 @@ public:
   {
     KJ_LOG(INFO, "starting");
 
-    auto store = conMan.tryConnectB(ioContext, sr.asPtr()).castAs<mas::schema::storage::Store>();
-    auto info = store.infoRequest().send().wait(ioContext.waitScope);
+    auto registry = conMan.tryConnectB(ioContext, sr.asPtr()).castAs<mas::schema::registry::Registry>();
+    auto info = registry.infoRequest().send().wait(ioContext.waitScope);
     KJ_LOG(INFO, info.getId(), info.getName());
 
-    auto req = store.newContainerRequest();
-    req.setName("test-container");
-    req.setDescription("test container descr");
-    auto newContainerP = req.send().wait(ioContext.waitScope);
-    auto newContainer = newContainerP.getContainer();
-    auto cinfo = newContainer.infoRequest().send().wait(ioContext.waitScope);
-    KJ_LOG(INFO, cinfo.getId(), cinfo.getName());
+    // auto req = store.newContainerRequest();
+    // req.setName("test-container");
+    // req.setDescription("test container descr");
+    // auto newContainerP = req.send().wait(ioContext.waitScope);
+    // auto newContainer = newContainerP.getContainer();
+    // auto cinfo = newContainer.infoRequest().send().wait(ioContext.waitScope);
+    // KJ_LOG(INFO, cinfo.getId(), cinfo.getName());
 
-    {
-      auto oreq = newContainer.addEntryRequest();
-      oreq.setKey("test-key");
-      auto val = oreq.initValue();
-      val.setTextValue("test text value");
-      auto oprom = oreq.send().wait(ioContext.waitScope);
-      auto succ = oprom.getSuccess();
-      KJ_LOG(INFO, succ);
-    }
-    
     // {
     //   auto oreq = newContainer.addEntryRequest();
-    //   oreq.setKey("string-list");
+    //   oreq.setKey("test-key");
     //   auto val = oreq.initValue();
-      
-    //   val.setAnyValue(kj::heap<capnp::Text>());
+    //   val.setTextValue("test text value");
     //   auto oprom = oreq.send().wait(ioContext.waitScope);
     //   auto succ = oprom.getSuccess();
     //   KJ_LOG(INFO, succ);
     // }
     
-
-    auto greq = newContainer.getEntryRequest();
-    greq.setKey("test-key");
-    auto gprom = greq.send().wait(ioContext.waitScope);
-    auto entry = gprom.getEntry();
-    KJ_LOG(INFO, entry.getKeyRequest().send().wait(ioContext.waitScope).getKey(), entry.getValueRequest().send().wait(ioContext.waitScope).getValue().getTextValue());
+    // auto greq = newContainer.getEntryRequest();
+    // greq.setKey("test-key");
+    // auto gprom = greq.send().wait(ioContext.waitScope);
+    // auto entry = gprom.getEntry();
+    // KJ_LOG(INFO, entry.getKeyRequest().send().wait(ioContext.waitScope).getKey(), entry.getValueRequest().send().wait(ioContext.waitScope).getValue().getTextValue());
 
     //std::this_thread::sleep_for(std::chrono::milliseconds(10));
 

@@ -11,6 +11,7 @@ using Date = import "date.capnp".Date;
 using Common = import "common.capnp";
 using Geo = import "geo.capnp";
 using Crop = import "crop.capnp";
+using Persistent = import "persistence.capnp".Persistent;
 
 enum EventType {
   sowing                    @0;
@@ -104,11 +105,10 @@ struct Event {
 
 struct Params {
   struct Sowing {
-    cultivar      @0 :Crop.Cultivar;
+    cultivar      @0 :Text;
     plantDensity  @1 :UInt16 = 0;
-    
     crop          @2 :Crop.Crop;
-    # can be null then only the general cultivar is known, but no specific parameters
+    # can be null then only the general cultivar name is known, but no specific parameters
     # or a model doesn't really have or need particular parameters
   }
 
@@ -186,54 +186,19 @@ struct Params {
 	}
 
   struct MineralFertilization {
-    struct Parameters {
-      id          @0 :Text;
-      name        @1 :Text;
-      carbamid    @2 :Float64; # [%]
-      nh4         @3 :Float64; # [%]
-      no3         @4 :Float64; # [%]
-    }
-
-    partition @0 :Parameters;
-    amount    @1 :Float64;
+    fertilizer  @0 :Fertilizer;
+    amount      @1 :Float64;
   }
 
   struct NDemandFertilization {
-	  nDemand   @0 :Float64;
-    partition @1 :MineralFertilization.Parameters;
-	  depth     @2 :Float64;
-	  stage     @3 :UInt8 = 1;
+	  nDemand     @0 :Float64;
+    fertilizer  @1 :Fertilizer;
+	  depth       @2 :Float64;
+	  stage       @3 :UInt8 = 1;
   }
 
   struct OrganicFertilization {
-    struct OrganicMatterParameters {
-      aomDryMatterContent         @0  :Float64; # Dry matter content of added organic matter [kg DM kg FM-1]
-      aomNH4Content               @1  :Float64; # Ammonium content in added organic matter [kg N kg DM-1]
-      aomNO3Content               @2  :Float64; # Nitrate content in added organic matter [kg N kg DM-1]
-      aomCarbamidContent          @3  :Float64; # Carbamide content in added organic matter [kg N kg DM-1]
-
-      aomSlowDecCoeffStandard     @4  :Float64; # Decomposition rate coefficient of slow AOM at standard conditions [d-1]
-      aomFastDecCoeffStandard     @5  :Float64; # Decomposition rate coefficient of fast AOM at standard conditions [d-1]
-
-      partAOMToAOMSlow            @6  :Float64; # Part of AOM that is assigned to the slowly decomposing pool [kg kg-1]
-      partAOMToAOMFast            @7  :Float64; # Part of AOM that is assigned to the rapidly decomposing pool [kg kg-1]
-
-      cnRatioAOMSlow              @8  :Float64; # C to N ratio of the slowly decomposing AOM pool []
-      cnRatioAOMFast              @9  :Float64; # C to N ratio of the rapidly decomposing AOM pool []
-
-      partAOMSlowToSMBSlow        @10 :Float64; # Part of AOM slow consumed by slow soil microbial biomass [kg kg-1]
-      partAOMSlowToSMBFast        @11 :Float64; # Part of AOM slow consumed by fast soil microbial biomass [kg kg-1]
-
-      nConcentration              @12 :Float64;
-    }
-
-    struct Parameters {
-      params  @0 :OrganicMatterParameters;
-      id      @1 :Text;
-      name    @2 :Text;
-    }
-
-    params        @0 :Parameters;
+    fertilizer    @0 :Fertilizer;
 	  amount        @1 :Float64;
 	  incorporation @2 :Bool = false;
   }
@@ -243,25 +208,21 @@ struct Params {
   }
 
   struct Irrigation {
-    struct Parameters {
-      nitrateConcentration @0 :Float64;   # nitrate concentration [mg dm-3]
-      sulfateConcentration @1 :Float64;   # sulfate concentration [mg dm-3]
-    }
-
-    amount @0 :Float64;
-    params @1 :Parameters;
+    amount                  @0 :Float64;
+    nutrientConcentrations  @1 :List(Nutrient);
+    # if set, concentration of nutrients in water [kg m-3]
   }
 }
 
 struct Nutrient {
   enum Name {
-    urea          @0;   # carbamide / Harnstoff
+    urea          @0;   # Carbamide / Harnstoff
     ammonia       @1;   # NH4 / Ammonium
     nitrate       @2;   # NO3 / Nitrat
     phosphorus    @3;   # Phosphor
     potassium     @4;   # Kalium
     sulfate       @5;   # Schwefel
-    organiceC     @6;   # organic carbon
+    organicC      @6;   # organic carbon
     organicN      @7;   # organic nitrate
     organicP      @8;   # organic phosphorus
     organicNFast  @9;   # organic N fast fraction
@@ -269,32 +230,28 @@ struct Nutrient {
   }
 
   enum Unit {
-    percent   @0; # percent 
-    fraction  @1; # fraction
+    none          @0; # none
+    fraction      @1; # fraction
+    percent       @2; # percent 
   }
 
   nutrient  @0 :Name;
-  unit      @1 :Unit;
+  value     @1 :Float64;
+  unit      @2 :Unit;
 }
 
-interface FertilizerService extends(Common.Identifiable) {
-  # service to return predefined fertilizers
+interface Fertilizer extends(Common.Identifiable, Persistent) {
+  # represents a fertilizer
 
-  struct Entry(T) {
-    info  @0 :Common.IdInformation;
-    ref   @1 :Common.ValueHolder(T);
-  }
+  nutrients  @0 () -> (nutrients :List(Nutrient));
+  # return list of nutrients this fertilizer is made of
 
-  availableMineralFertilizers @0 () -> (list :List(Entry(List(Nutrient))));
-  # return list of all available mineral fertilizers with references to value holders
-
-  mineralFertilizer           @1 (id :Text) -> (fert :List(Nutrient));
-  
-  availableOrganicFertilizers @2 () -> (list :List(Entry(List(Nutrient))));
-  # return list of all available organic fertilizers with references to value holders
-
-  organicFertilizer           @3 (id :Text) -> (fert :List(Nutrient));
+  parameters @1 () -> (params :AnyPointer);
+  # if not null a specific parameterset for this fertilizer
+  # a tradeoff to support additional model specific parameters
 }
+
+# fertilizer service should be just a registry.capnp::Registry of the available fertilizers
 
 interface Service extends(Common.Identifiable) {
   # management service

@@ -21,8 +21,8 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <kj/main.h>
 #include <kj/string.h>
 
-#include "rpc-connections.h"
-#include "common.h"
+#include "common/rpc-connection-manager.h"
+#include "common/common.h"
 
 class TestWriterMain
 {

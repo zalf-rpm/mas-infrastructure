@@ -55,6 +55,7 @@ common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=a
 grid_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "grid.capnp"), imports=abs_imports)
 storage_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "storage.capnp"), imports=abs_imports)
 geo_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "geo.capnp"), imports=abs_imports)
+crop_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "crop.capnp"), imports=abs_imports)
 
 capnp.remove_event_loop()
 capnp.create_event_loop(threaded=True)
@@ -120,12 +121,52 @@ def x():
     
     #del s
 
-
-def test_fertilizer_managment_service():
+def test_crop_service():
     conMan = common.ConnectionManager()
-    service = conMan.try_connect("capnp://insecure@10.10.24.169:41071/b1f8e8d1-d651-4bc2-b94a-04eff31a3b97", cast_as=monica_mgmt_capnp.FertilizerService)
+    sr = "capnp://YWF7ZnUsQb6O_4eT_65vrvpR__IvoesmxocB5W92HpM=@10.10.24.218:34359/NzdkOTFiYTctMzM5OC00MjllLWFmNzAtYTkxN2MyODllYjhi"
+    x = conMan.connect("capnp://YWF7ZnUsQb6O_4eT_65vrvpR__IvoesmxocB5W92HpM=@10.10.24.218:34359")
+    service = conMan.try_connect(sr, cast_as=registry_capnp.Registry)
     try:
         print(service.info().wait())
+    except Exception as e:
+        print(e)
+
+    # mineral fertilizers
+    mes = service.availableMineralFertilizers().wait().entries
+    me = mes[0]
+    mavh = me.ref
+    mv = mavh.value().wait().val.as_struct(monica_mgmt_capnp.Params.MineralFertilization.Parameters)
+    print("mv:", mv)
+    msr = mavh.save().wait().sturdyRef
+    mavh2 = conMan.try_connect(msr, cast_as=common_capnp.AnyValueHolder)
+    mv2 = mavh2.value().wait().val.as_struct(monica_mgmt_capnp.Params.MineralFertilization.Parameters)
+    print("mv2:", mv2)
+    mv3 = service.mineralFertilizer(me.info.id).wait().fert
+    print("mv3", mv3)
+
+    # organic fertilizers
+    oes = service.availableOrganicFertilizers().wait().entries
+    oe = oes[0]
+    oavh = oe.ref
+    ov = oavh.value().wait().val.as_struct(monica_mgmt_capnp.Params.OrganicFertilization.OrganicMatterParameters)
+    print("ov:", ov)
+    osr = oavh.save().wait().sturdyRef
+    oavh2 = conMan.try_connect(osr, cast_as=common_capnp.AnyValueHolder)
+    ov2 = oavh2.value().wait().val.as_struct(monica_mgmt_capnp.Params.OrganicFertilization.OrganicMatterParameters)
+    print("ov2:", ov2)
+    ov3 = service.organicFertilizer(oe.info.id).wait().fert
+    print("ov3", ov3)
+
+    print()
+
+
+
+def test_fertilizer_service():
+    conMan = common.ConnectionManager()
+    sr = "capnp://P1NRqmXFzLkkY3FYEW3tgF5dYdsdwGso3XRJG6wHg4w=@10.10.24.218:40263/YjUxMWRmNWMtNTMwNy00YzE5LThmNjItYWJlNGE2YjUwMzk3"
+    registry = conMan.try_connect(sr, cast_as=reg_capnp.Registry)
+    try:
+        print(registry.info().wait())
     except Exception as e:
         print(e)
 
@@ -438,12 +479,14 @@ def main():
             if k in config:
                 config[k] = v
 
-    test_channel()
+    #test_channel()
+
+    #test_crop_service()
+    
+    test_fertilizer_service()
 
     #test_monica()
-
-    #test_fertilizer_managment_service()
-
+    
     #test_climate_service()
 
     #test_registry()

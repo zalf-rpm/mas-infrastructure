@@ -9,7 +9,7 @@ $Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/model/mo
 
 using Date = import "../../date.capnp".Date;
 using Params = import "monica_params.capnp";
-using Mgmt = import "../../management.capnp";
+using Mgmt = import "monica_management.capnp";
 using Action = import "../../common.capnp".Action;
 
 struct MaybeBool {

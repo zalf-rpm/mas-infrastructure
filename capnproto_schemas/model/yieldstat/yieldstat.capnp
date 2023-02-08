@@ -43,7 +43,7 @@ struct Result {
         value   @1 :Float64;
     }
 
-    cultivar    @0 :Crop.Cultivar; #
+    cultivar    @0 :Text; #
     isNoData    @1 :Bool = false; # no results for given cultivar
     values      @2 :List(ResultToValue);
 }

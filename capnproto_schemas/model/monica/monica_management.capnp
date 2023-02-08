@@ -20,51 +20,51 @@ struct ILRDates {
   latestHarvest   @4 :Date;
 }
 
-enum MineralFertilizer {
-  ahls  @0;
-  alzon @1;
-  an    @2;
-  ap    @3;
-  as    @4;
-  ash   @5;
-  cf4   @6;
-  cp1   @7;
-  cp2   @8;
-  cp3   @9;
-  npk   @10;
-  ns    @11;
-  u     @12;
-  uan   @13;
-  uas   @14;
-  uni   @15;
-}
+#enum MineralFertilizer {
+#  ahls  @0;
+#  alzon @1;
+#  an    @2;
+#  ap    @3;
+#  as    @4;
+#  ash   @5;
+#  cf4   @6;
+#  cp1   @7;
+#  cp2   @8;
+#  cp3   @9;
+#  npk   @10;
+#  ns    @11;
+#  u     @12;
+#  uan   @13;
+#  uas   @14;
+#  uni   @15;
+#}
 
-enum OrganicFertilizer {
-  ash   @0;
-  cadlm @1;
-  cam   @2;
-  cas   @3;
-  cau   @4;
-  dgdlm @5;
-  gwc   @6;
-  hodlm @7;
-  mc    @8;
-  ms    @9;
-  oic   @10;
-  pidlm @11;
-  pim   @12;
-  pis   @13;
-  piu   @14;
-  piudk @15;
-  plw   @16;
-  podlm @17;
-  pom   @18;
-  soy   @19;
-  ss    @20;
-  tudlm @21;
-  weeds @22;
-  ws    @23;
-}
+#enum OrganicFertilizer {
+#  ash   @0;
+#  cadlm @1;
+#  cam   @2;
+#  cas   @3;
+#  cau   @4;
+#  dgdlm @5;
+#  gwc   @6;
+#  hodlm @7;
+#  mc    @8;
+#  ms    @9;
+#  oic   @10;
+#  pidlm @11;
+#  pim   @12;
+#  pis   @13;
+#  piu   @14;
+#  piudk @15;
+#  plw   @16;
+#  podlm @17;
+#  pom   @18;
+#  soy   @19;
+#  ss    @20;
+#  tudlm @21;
+#  weeds @22;
+#  ws    @23;
+#}
 
 enum EventType {
   sowing                    @0;
@@ -158,9 +158,8 @@ struct Event {
 
 struct Params {
   struct Sowing {
-    cultivar      @0 :Crop.Cultivar;
+    cultivar      @0 :Text;
     plantDensity  @1 :UInt16 = 0;
-    
     crop          @2 :Crop.Crop;
     # can be null then only the general cultivar is known, but no specific parameters
     # or a model doesn't really have or need particular parameters
@@ -305,37 +304,37 @@ struct Params {
   }
 }
 
-interface FertilizerService extends(Common.Identifiable) {
-  # service to return predefined fertilizers
-
-  #struct Entry(T) {
-  #  info  @0 :Common.IdInformation;
-  #  ref   @1 :Common.ValueHolder(T);
-  #}
-
-  struct Entry {
-    info  @0 :Common.IdInformation;
-    ref   @1 :Common.AnyValueHolder;
-  }
-
-  #availableMineralFertilizers     @2 () -> (entries :List(Entry(Params.MineralFertilization.Parameters)));
-  availableMineralFertilizers     @2 () -> (entries :List(Entry));
-  # return list of all available mineral fertilizers with references to value holders
-
-  mineralFertilizer               @4 (id :Text) -> (fert :Params.MineralFertilization.Parameters);
-  
-  #availableOrganicFertilizers    @3 () -> (entries :List(Entry(Params.OrganicFertilization.OrganicMatterParameters)));
-  availableOrganicFertilizers    @3 () -> (entries :List(Entry));
-  # return list of all available organic fertilizers with references to value holders
-
-  organicFertilizer               @5 (id :Text) -> (fert :Params.OrganicFertilization.OrganicMatterParameters);
-
-  mineralFertilizerPartitionFor   @0 (minFert :MineralFertilizer) -> (partition :Params.MineralFertilization.Parameters);
-  # get mineral fertilizer parameters by name/id
-
-  organicFertilizerParametersFor  @1 (orgFert :OrganicFertilizer) -> (params :Params.OrganicFertilization.Parameters);
-  # get organic fertilizer parameters by name/id
-}
+#interface FertilizerService extends(Common.Identifiable) {
+#  # service to return predefined fertilizers
+#
+#  #struct Entry(T) {
+#  #  info  @0 :Common.IdInformation;
+#  #  ref   @1 :Common.ValueHolder(T);
+#  #}
+#
+#  struct Entry {
+#    info  @0 :Common.IdInformation;
+#    ref   @1 :Common.AnyValueHolder;
+#  }
+#
+#  #availableMineralFertilizers     @2 () -> (entries :List(Entry(Params.MineralFertilization.Parameters)));
+#  availableMineralFertilizers     @2 () -> (entries :List(Entry));
+#  # return list of all available mineral fertilizers with references to value holders
+#
+#  mineralFertilizer               @4 (id :Text) -> (fert :Params.MineralFertilization.Parameters);
+#  
+#  #availableOrganicFertilizers    @3 () -> (entries :List(Entry(Params.OrganicFertilization.OrganicMatterParameters)));
+#  availableOrganicFertilizers    @3 () -> (entries :List(Entry));
+#  # return list of all available organic fertilizers with references to value holders
+#
+#  organicFertilizer               @5 (id :Text) -> (fert :Params.OrganicFertilization.OrganicMatterParameters);
+#
+#  mineralFertilizerPartitionFor   @0 (minFert :MineralFertilizer) -> (partition :Params.MineralFertilization.Parameters);
+#  # get mineral fertilizer parameters by name/id
+#
+#  organicFertilizerParametersFor  @1 (orgFert :OrganicFertilizer) -> (params :Params.OrganicFertilization.Parameters);
+#  # get organic fertilizer parameters by name/id
+#}
 
 
 interface Service extends(Common.Identifiable) {

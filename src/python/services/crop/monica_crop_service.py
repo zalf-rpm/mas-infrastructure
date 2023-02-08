@@ -355,8 +355,8 @@ async def main(path_to_monica_parameters, serve_bootstrap=True, host=None, port=
         "description": description,
         "serve_bootstrap": serve_bootstrap,
         "use_async": use_async,
-        "restorer_container_sr": "capnp://jXS22bpAGSjfksa0JkDI_092-h-bdZi4lKNBBgD7kWk=@10.10.24.218:40305/ZGVjODYxYWQtZmVkOS00YjEzLWJmNjQtNWU0OGRmYzhhYmZh",
-        "service_container_sr": "capnp://jXS22bpAGSjfksa0JkDI_092-h-bdZi4lKNBBgD7kWk=@10.10.24.218:40305/ZGVjODYxYWQtZmVkOS00YjEzLWJmNjQtNWU0OGRmYzhhYmZh"
+        "restorer_container_sr": None, #"capnp://jXS22bpAGSjfksa0JkDI_092-h-bdZi4lKNBBgD7kWk=@10.10.24.218:40305/ZGVjODYxYWQtZmVkOS00YjEzLWJmNjQtNWU0OGRmYzhhYmZh",
+        "service_container_sr": None, #"capnp://jXS22bpAGSjfksa0JkDI_092-h-bdZi4lKNBBgD7kWk=@10.10.24.218:40305/ZGVjODYxYWQtZmVkOS00YjEzLWJmNjQtNWU0OGRmYzhhYmZh"
     }
     common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 

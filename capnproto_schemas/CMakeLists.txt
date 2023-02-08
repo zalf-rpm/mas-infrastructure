@@ -16,6 +16,7 @@ capnp_generate_cpp(CAPNP_SRCS CAPNP_HDRS
 	geo.capnp
 	management.capnp
 	model.capnp
+	model/monica/monica_management.capnp
 	model/monica/monica_params.capnp
 	model/monica/soil_params.capnp
 	model/monica/monica_state.capnp
@@ -24,6 +25,7 @@ capnp_generate_cpp(CAPNP_SRCS CAPNP_HDRS
 	soil.capnp
 	storage.capnp
 	model/yieldstat/yieldstat.capnp
+	x.capnp
 )
 message(STATUS "CAPNP_HDRS: " ${CAPNP_HDRS})
 message(STATUS "CAPNP_SRCS: " ${CAPNP_SRCS})	
