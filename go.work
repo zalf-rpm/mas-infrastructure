@@ -1,7 +1,6 @@
 go 1.19
 
 use (
-	./capnproto_schemas
 	./capnproto_schemas/gen/go/persistence
 	./capnproto_schemas/gen/go/common
 	./capnproto_schemas/gen/go/cluster
