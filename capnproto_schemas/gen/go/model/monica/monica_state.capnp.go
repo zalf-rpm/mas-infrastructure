@@ -6,7617 +6,7642 @@ import (
 	capnp "capnproto.org/go/capnp/v3"
 	text "capnproto.org/go/capnp/v3/encoding/text"
 	schemas "capnproto.org/go/capnp/v3/schemas"
-	common "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/common"
-	management "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/management"
+	common "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common"
+	management "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/management"
 	math "math"
 	strconv "strconv"
 )
 
-type MaybeBool struct{ capnp.Struct }
+type MaybeBool capnp.Struct
 
 // MaybeBool_TypeID is the unique identifier for the type MaybeBool.
 const MaybeBool_TypeID = 0xd8af9210839bc071
 
 func NewMaybeBool(s *capnp.Segment) (MaybeBool, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return MaybeBool{st}, err
+	return MaybeBool(st), err
 }
 
 func NewRootMaybeBool(s *capnp.Segment) (MaybeBool, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return MaybeBool{st}, err
+	return MaybeBool(st), err
 }
 
 func ReadRootMaybeBool(msg *capnp.Message) (MaybeBool, error) {
 	root, err := msg.Root()
-	return MaybeBool{root.Struct()}, err
+	return MaybeBool(root.Struct()), err
 }
 
 func (s MaybeBool) String() string {
-	str, _ := text.Marshal(0xd8af9210839bc071, s.Struct)
+	str, _ := text.Marshal(0xd8af9210839bc071, capnp.Struct(s))
 	return str
 }
 
+func (s MaybeBool) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (MaybeBool) DecodeFromPtr(p capnp.Ptr) MaybeBool {
+	return MaybeBool(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s MaybeBool) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s MaybeBool) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s MaybeBool) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s MaybeBool) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s MaybeBool) Value() bool {
-	return s.Struct.Bit(0)
+	return capnp.Struct(s).Bit(0)
 }
 
 func (s MaybeBool) SetValue(v bool) {
-	s.Struct.SetBit(0, v)
+	capnp.Struct(s).SetBit(0, v)
 }
 
 // MaybeBool_List is a list of MaybeBool.
-type MaybeBool_List struct{ capnp.List }
+type MaybeBool_List = capnp.StructList[MaybeBool]
 
 // NewMaybeBool creates a new list of MaybeBool.
 func NewMaybeBool_List(s *capnp.Segment, sz int32) (MaybeBool_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0}, sz)
-	return MaybeBool_List{l}, err
-}
-
-func (s MaybeBool_List) At(i int) MaybeBool { return MaybeBool{s.List.Struct(i)} }
-
-func (s MaybeBool_List) Set(i int, v MaybeBool) error { return s.List.SetStruct(i, v.Struct) }
-
-func (s MaybeBool_List) String() string {
-	str, _ := text.MarshalList(0xd8af9210839bc071, s.List)
-	return str
+	return capnp.StructList[MaybeBool](l), err
 }
 
 // MaybeBool_Future is a wrapper for a MaybeBool promised by a client call.
 type MaybeBool_Future struct{ *capnp.Future }
 
-func (p MaybeBool_Future) Struct() (MaybeBool, error) {
-	s, err := p.Future.Struct()
-	return MaybeBool{s}, err
+func (f MaybeBool_Future) Struct() (MaybeBool, error) {
+	p, err := f.Future.Ptr()
+	return MaybeBool(p.Struct()), err
 }
 
-type RuntimeState struct{ capnp.Struct }
+type RuntimeState capnp.Struct
 
 // RuntimeState_TypeID is the unique identifier for the type RuntimeState.
 const RuntimeState_TypeID = 0xd599d06dc405571a
 
 func NewRuntimeState(s *capnp.Segment) (RuntimeState, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return RuntimeState{st}, err
+	return RuntimeState(st), err
 }
 
 func NewRootRuntimeState(s *capnp.Segment) (RuntimeState, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return RuntimeState{st}, err
+	return RuntimeState(st), err
 }
 
 func ReadRootRuntimeState(msg *capnp.Message) (RuntimeState, error) {
 	root, err := msg.Root()
-	return RuntimeState{root.Struct()}, err
+	return RuntimeState(root.Struct()), err
 }
 
 func (s RuntimeState) String() string {
-	str, _ := text.Marshal(0xd599d06dc405571a, s.Struct)
+	str, _ := text.Marshal(0xd599d06dc405571a, capnp.Struct(s))
 	return str
 }
 
+func (s RuntimeState) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (RuntimeState) DecodeFromPtr(p capnp.Ptr) RuntimeState {
+	return RuntimeState(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s RuntimeState) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s RuntimeState) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s RuntimeState) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s RuntimeState) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s RuntimeState) ModelState() (MonicaModelState, error) {
-	p, err := s.Struct.Ptr(0)
-	return MonicaModelState{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return MonicaModelState(p.Struct()), err
 }
 
 func (s RuntimeState) HasModelState() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s RuntimeState) SetModelState(v MonicaModelState) error {
-	return s.Struct.SetPtr(0, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewModelState sets the modelState field to a newly
 // allocated MonicaModelState struct, preferring placement in s's segment.
 func (s RuntimeState) NewModelState() (MonicaModelState, error) {
-	ss, err := NewMonicaModelState(s.Struct.Segment())
+	ss, err := NewMonicaModelState(capnp.Struct(s).Segment())
 	if err != nil {
 		return MonicaModelState{}, err
 	}
-	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 // RuntimeState_List is a list of RuntimeState.
-type RuntimeState_List struct{ capnp.List }
+type RuntimeState_List = capnp.StructList[RuntimeState]
 
 // NewRuntimeState creates a new list of RuntimeState.
 func NewRuntimeState_List(s *capnp.Segment, sz int32) (RuntimeState_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return RuntimeState_List{l}, err
-}
-
-func (s RuntimeState_List) At(i int) RuntimeState { return RuntimeState{s.List.Struct(i)} }
-
-func (s RuntimeState_List) Set(i int, v RuntimeState) error { return s.List.SetStruct(i, v.Struct) }
-
-func (s RuntimeState_List) String() string {
-	str, _ := text.MarshalList(0xd599d06dc405571a, s.List)
-	return str
+	return capnp.StructList[RuntimeState](l), err
 }
 
 // RuntimeState_Future is a wrapper for a RuntimeState promised by a client call.
 type RuntimeState_Future struct{ *capnp.Future }
 
-func (p RuntimeState_Future) Struct() (RuntimeState, error) {
-	s, err := p.Future.Struct()
-	return RuntimeState{s}, err
+func (f RuntimeState_Future) Struct() (RuntimeState, error) {
+	p, err := f.Future.Ptr()
+	return RuntimeState(p.Struct()), err
 }
-
 func (p RuntimeState_Future) ModelState() MonicaModelState_Future {
 	return MonicaModelState_Future{Future: p.Future.Field(0, nil)}
 }
 
-type CropState struct{ capnp.Struct }
+type CropState capnp.Struct
 
 // CropState_TypeID is the unique identifier for the type CropState.
 const CropState_TypeID = 0x8b008567c93f7c7d
 
 func NewCropState(s *capnp.Segment) (CropState, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 11})
-	return CropState{st}, err
+	return CropState(st), err
 }
 
 func NewRootCropState(s *capnp.Segment) (CropState, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 11})
-	return CropState{st}, err
+	return CropState(st), err
 }
 
 func ReadRootCropState(msg *capnp.Message) (CropState, error) {
 	root, err := msg.Root()
-	return CropState{root.Struct()}, err
+	return CropState(root.Struct()), err
 }
 
 func (s CropState) String() string {
-	str, _ := text.Marshal(0x8b008567c93f7c7d, s.Struct)
+	str, _ := text.Marshal(0x8b008567c93f7c7d, capnp.Struct(s))
 	return str
 }
 
+func (s CropState) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (CropState) DecodeFromPtr(p capnp.Ptr) CropState {
+	return CropState(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s CropState) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s CropState) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s CropState) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s CropState) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s CropState) SpeciesName() (string, error) {
-	p, err := s.Struct.Ptr(1)
+	p, err := capnp.Struct(s).Ptr(1)
 	return p.Text(), err
 }
 
 func (s CropState) HasSpeciesName() bool {
-	return s.Struct.HasPtr(1)
+	return capnp.Struct(s).HasPtr(1)
 }
 
 func (s CropState) SpeciesNameBytes() ([]byte, error) {
-	p, err := s.Struct.Ptr(1)
+	p, err := capnp.Struct(s).Ptr(1)
 	return p.TextBytes(), err
 }
 
 func (s CropState) SetSpeciesName(v string) error {
-	return s.Struct.SetText(1, v)
+	return capnp.Struct(s).SetText(1, v)
 }
 
 func (s CropState) CultivarName() (string, error) {
-	p, err := s.Struct.Ptr(2)
+	p, err := capnp.Struct(s).Ptr(2)
 	return p.Text(), err
 }
 
 func (s CropState) HasCultivarName() bool {
-	return s.Struct.HasPtr(2)
+	return capnp.Struct(s).HasPtr(2)
 }
 
 func (s CropState) CultivarNameBytes() ([]byte, error) {
-	p, err := s.Struct.Ptr(2)
+	p, err := capnp.Struct(s).Ptr(2)
 	return p.TextBytes(), err
 }
 
 func (s CropState) SetCultivarName(v string) error {
-	return s.Struct.SetText(2, v)
+	return capnp.Struct(s).SetText(2, v)
 }
 
 func (s CropState) SeedDate() (common.Date, error) {
-	p, err := s.Struct.Ptr(3)
-	return common.Date{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(3)
+	return common.Date(p.Struct()), err
 }
 
 func (s CropState) HasSeedDate() bool {
-	return s.Struct.HasPtr(3)
+	return capnp.Struct(s).HasPtr(3)
 }
 
 func (s CropState) SetSeedDate(v common.Date) error {
-	return s.Struct.SetPtr(3, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(3, capnp.Struct(v).ToPtr())
 }
 
 // NewSeedDate sets the seedDate field to a newly
 // allocated common.Date struct, preferring placement in s's segment.
 func (s CropState) NewSeedDate() (common.Date, error) {
-	ss, err := common.NewDate(s.Struct.Segment())
+	ss, err := common.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
 		return common.Date{}, err
 	}
-	err = s.Struct.SetPtr(3, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(3, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s CropState) HarvestDate() (common.Date, error) {
-	p, err := s.Struct.Ptr(4)
-	return common.Date{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(4)
+	return common.Date(p.Struct()), err
 }
 
 func (s CropState) HasHarvestDate() bool {
-	return s.Struct.HasPtr(4)
+	return capnp.Struct(s).HasPtr(4)
 }
 
 func (s CropState) SetHarvestDate(v common.Date) error {
-	return s.Struct.SetPtr(4, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(4, capnp.Struct(v).ToPtr())
 }
 
 // NewHarvestDate sets the harvestDate field to a newly
 // allocated common.Date struct, preferring placement in s's segment.
 func (s CropState) NewHarvestDate() (common.Date, error) {
-	ss, err := common.NewDate(s.Struct.Segment())
+	ss, err := common.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
 		return common.Date{}, err
 	}
-	err = s.Struct.SetPtr(4, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(4, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s CropState) IsWinterCrop() (MaybeBool, error) {
-	p, err := s.Struct.Ptr(5)
-	return MaybeBool{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(5)
+	return MaybeBool(p.Struct()), err
 }
 
 func (s CropState) HasIsWinterCrop() bool {
-	return s.Struct.HasPtr(5)
+	return capnp.Struct(s).HasPtr(5)
 }
 
 func (s CropState) SetIsWinterCrop(v MaybeBool) error {
-	return s.Struct.SetPtr(5, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(5, capnp.Struct(v).ToPtr())
 }
 
 // NewIsWinterCrop sets the isWinterCrop field to a newly
 // allocated MaybeBool struct, preferring placement in s's segment.
 func (s CropState) NewIsWinterCrop() (MaybeBool, error) {
-	ss, err := NewMaybeBool(s.Struct.Segment())
+	ss, err := NewMaybeBool(capnp.Struct(s).Segment())
 	if err != nil {
 		return MaybeBool{}, err
 	}
-	err = s.Struct.SetPtr(5, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(5, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s CropState) IsPerennialCrop() (MaybeBool, error) {
-	p, err := s.Struct.Ptr(6)
-	return MaybeBool{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(6)
+	return MaybeBool(p.Struct()), err
 }
 
 func (s CropState) HasIsPerennialCrop() bool {
-	return s.Struct.HasPtr(6)
+	return capnp.Struct(s).HasPtr(6)
 }
 
 func (s CropState) SetIsPerennialCrop(v MaybeBool) error {
-	return s.Struct.SetPtr(6, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(6, capnp.Struct(v).ToPtr())
 }
 
 // NewIsPerennialCrop sets the isPerennialCrop field to a newly
 // allocated MaybeBool struct, preferring placement in s's segment.
 func (s CropState) NewIsPerennialCrop() (MaybeBool, error) {
-	ss, err := NewMaybeBool(s.Struct.Segment())
+	ss, err := NewMaybeBool(capnp.Struct(s).Segment())
 	if err != nil {
 		return MaybeBool{}, err
 	}
-	err = s.Struct.SetPtr(6, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(6, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s CropState) CuttingDates() (common.Date_List, error) {
-	p, err := s.Struct.Ptr(7)
-	return common.Date_List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(7)
+	return common.Date_List(p.List()), err
 }
 
 func (s CropState) HasCuttingDates() bool {
-	return s.Struct.HasPtr(7)
+	return capnp.Struct(s).HasPtr(7)
 }
 
 func (s CropState) SetCuttingDates(v common.Date_List) error {
-	return s.Struct.SetPtr(7, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(7, v.ToPtr())
 }
 
 // NewCuttingDates sets the cuttingDates field to a newly
 // allocated common.Date_List, preferring placement in s's segment.
 func (s CropState) NewCuttingDates(n int32) (common.Date_List, error) {
-	l, err := common.NewDate_List(s.Struct.Segment(), n)
+	l, err := common.NewDate_List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return common.Date_List{}, err
 	}
-	err = s.Struct.SetPtr(7, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(7, l.ToPtr())
 	return l, err
 }
-
 func (s CropState) CropParams() (CropParameters, error) {
-	p, err := s.Struct.Ptr(8)
-	return CropParameters{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(8)
+	return CropParameters(p.Struct()), err
 }
 
 func (s CropState) HasCropParams() bool {
-	return s.Struct.HasPtr(8)
+	return capnp.Struct(s).HasPtr(8)
 }
 
 func (s CropState) SetCropParams(v CropParameters) error {
-	return s.Struct.SetPtr(8, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(8, capnp.Struct(v).ToPtr())
 }
 
 // NewCropParams sets the cropParams field to a newly
 // allocated CropParameters struct, preferring placement in s's segment.
 func (s CropState) NewCropParams() (CropParameters, error) {
-	ss, err := NewCropParameters(s.Struct.Segment())
+	ss, err := NewCropParameters(capnp.Struct(s).Segment())
 	if err != nil {
 		return CropParameters{}, err
 	}
-	err = s.Struct.SetPtr(8, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(8, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s CropState) PerennialCropParams() (CropParameters, error) {
-	p, err := s.Struct.Ptr(9)
-	return CropParameters{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(9)
+	return CropParameters(p.Struct()), err
 }
 
 func (s CropState) HasPerennialCropParams() bool {
-	return s.Struct.HasPtr(9)
+	return capnp.Struct(s).HasPtr(9)
 }
 
 func (s CropState) SetPerennialCropParams(v CropParameters) error {
-	return s.Struct.SetPtr(9, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(9, capnp.Struct(v).ToPtr())
 }
 
 // NewPerennialCropParams sets the perennialCropParams field to a newly
 // allocated CropParameters struct, preferring placement in s's segment.
 func (s CropState) NewPerennialCropParams() (CropParameters, error) {
-	ss, err := NewCropParameters(s.Struct.Segment())
+	ss, err := NewCropParameters(capnp.Struct(s).Segment())
 	if err != nil {
 		return CropParameters{}, err
 	}
-	err = s.Struct.SetPtr(9, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(9, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s CropState) ResidueParams() (CropResidueParameters, error) {
-	p, err := s.Struct.Ptr(10)
-	return CropResidueParameters{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(10)
+	return CropResidueParameters(p.Struct()), err
 }
 
 func (s CropState) HasResidueParams() bool {
-	return s.Struct.HasPtr(10)
+	return capnp.Struct(s).HasPtr(10)
 }
 
 func (s CropState) SetResidueParams(v CropResidueParameters) error {
-	return s.Struct.SetPtr(10, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(10, capnp.Struct(v).ToPtr())
 }
 
 // NewResidueParams sets the residueParams field to a newly
 // allocated CropResidueParameters struct, preferring placement in s's segment.
 func (s CropState) NewResidueParams() (CropResidueParameters, error) {
-	ss, err := NewCropResidueParameters(s.Struct.Segment())
+	ss, err := NewCropResidueParameters(capnp.Struct(s).Segment())
 	if err != nil {
 		return CropResidueParameters{}, err
 	}
-	err = s.Struct.SetPtr(10, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(10, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s CropState) CrossCropAdaptionFactor() float64 {
-	return math.Float64frombits(s.Struct.Uint64(0) ^ 0x3ff0000000000000)
+	return math.Float64frombits(capnp.Struct(s).Uint64(0) ^ 0x3ff0000000000000)
 }
 
 func (s CropState) SetCrossCropAdaptionFactor(v float64) {
-	s.Struct.SetUint64(0, math.Float64bits(v)^0x3ff0000000000000)
+	capnp.Struct(s).SetUint64(0, math.Float64bits(v)^0x3ff0000000000000)
 }
 
 func (s CropState) AutomaticHarvest() bool {
-	return s.Struct.Bit(64)
+	return capnp.Struct(s).Bit(64)
 }
 
 func (s CropState) SetAutomaticHarvest(v bool) {
-	s.Struct.SetBit(64, v)
+	capnp.Struct(s).SetBit(64, v)
 }
 
 func (s CropState) AutomaticHarvestParams() (AutomaticHarvestParameters, error) {
-	p, err := s.Struct.Ptr(0)
-	return AutomaticHarvestParameters{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return AutomaticHarvestParameters(p.Struct()), err
 }
 
 func (s CropState) HasAutomaticHarvestParams() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s CropState) SetAutomaticHarvestParams(v AutomaticHarvestParameters) error {
-	return s.Struct.SetPtr(0, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewAutomaticHarvestParams sets the automaticHarvestParams field to a newly
 // allocated AutomaticHarvestParameters struct, preferring placement in s's segment.
 func (s CropState) NewAutomaticHarvestParams() (AutomaticHarvestParameters, error) {
-	ss, err := NewAutomaticHarvestParameters(s.Struct.Segment())
+	ss, err := NewAutomaticHarvestParameters(capnp.Struct(s).Segment())
 	if err != nil {
 		return AutomaticHarvestParameters{}, err
 	}
-	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 // CropState_List is a list of CropState.
-type CropState_List struct{ capnp.List }
+type CropState_List = capnp.StructList[CropState]
 
 // NewCropState creates a new list of CropState.
 func NewCropState_List(s *capnp.Segment, sz int32) (CropState_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 16, PointerCount: 11}, sz)
-	return CropState_List{l}, err
-}
-
-func (s CropState_List) At(i int) CropState { return CropState{s.List.Struct(i)} }
-
-func (s CropState_List) Set(i int, v CropState) error { return s.List.SetStruct(i, v.Struct) }
-
-func (s CropState_List) String() string {
-	str, _ := text.MarshalList(0x8b008567c93f7c7d, s.List)
-	return str
+	return capnp.StructList[CropState](l), err
 }
 
 // CropState_Future is a wrapper for a CropState promised by a client call.
 type CropState_Future struct{ *capnp.Future }
 
-func (p CropState_Future) Struct() (CropState, error) {
-	s, err := p.Future.Struct()
-	return CropState{s}, err
+func (f CropState_Future) Struct() (CropState, error) {
+	p, err := f.Future.Ptr()
+	return CropState(p.Struct()), err
 }
-
 func (p CropState_Future) SeedDate() common.Date_Future {
 	return common.Date_Future{Future: p.Future.Field(3, nil)}
 }
-
 func (p CropState_Future) HarvestDate() common.Date_Future {
 	return common.Date_Future{Future: p.Future.Field(4, nil)}
 }
-
 func (p CropState_Future) IsWinterCrop() MaybeBool_Future {
 	return MaybeBool_Future{Future: p.Future.Field(5, nil)}
 }
-
 func (p CropState_Future) IsPerennialCrop() MaybeBool_Future {
 	return MaybeBool_Future{Future: p.Future.Field(6, nil)}
 }
-
 func (p CropState_Future) CropParams() CropParameters_Future {
 	return CropParameters_Future{Future: p.Future.Field(8, nil)}
 }
-
 func (p CropState_Future) PerennialCropParams() CropParameters_Future {
 	return CropParameters_Future{Future: p.Future.Field(9, nil)}
 }
-
 func (p CropState_Future) ResidueParams() CropResidueParameters_Future {
 	return CropResidueParameters_Future{Future: p.Future.Field(10, nil)}
 }
-
 func (p CropState_Future) AutomaticHarvestParams() AutomaticHarvestParameters_Future {
 	return AutomaticHarvestParameters_Future{Future: p.Future.Field(0, nil)}
 }
 
-type AOMProperties struct{ capnp.Struct }
+type AOMProperties capnp.Struct
 
 // AOMProperties_TypeID is the unique identifier for the type AOMProperties.
 const AOMProperties_TypeID = 0xe3512e62df901c18
 
 func NewAOMProperties(s *capnp.Segment) (AOMProperties, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 152, PointerCount: 0})
-	return AOMProperties{st}, err
+	return AOMProperties(st), err
 }
 
 func NewRootAOMProperties(s *capnp.Segment) (AOMProperties, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 152, PointerCount: 0})
-	return AOMProperties{st}, err
+	return AOMProperties(st), err
 }
 
 func ReadRootAOMProperties(msg *capnp.Message) (AOMProperties, error) {
 	root, err := msg.Root()
-	return AOMProperties{root.Struct()}, err
+	return AOMProperties(root.Struct()), err
 }
 
 func (s AOMProperties) String() string {
-	str, _ := text.Marshal(0xe3512e62df901c18, s.Struct)
+	str, _ := text.Marshal(0xe3512e62df901c18, capnp.Struct(s))
 	return str
 }
 
+func (s AOMProperties) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (AOMProperties) DecodeFromPtr(p capnp.Ptr) AOMProperties {
+	return AOMProperties(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s AOMProperties) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s AOMProperties) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s AOMProperties) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s AOMProperties) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s AOMProperties) AomSlow() float64 {
-	return math.Float64frombits(s.Struct.Uint64(0))
+	return math.Float64frombits(capnp.Struct(s).Uint64(0))
 }
 
 func (s AOMProperties) SetAomSlow(v float64) {
-	s.Struct.SetUint64(0, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(0, math.Float64bits(v))
 }
 
 func (s AOMProperties) AomFast() float64 {
-	return math.Float64frombits(s.Struct.Uint64(8))
+	return math.Float64frombits(capnp.Struct(s).Uint64(8))
 }
 
 func (s AOMProperties) SetAomFast(v float64) {
-	s.Struct.SetUint64(8, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(8, math.Float64bits(v))
 }
 
 func (s AOMProperties) AomSlowDecRatetoSMBSlow() float64 {
-	return math.Float64frombits(s.Struct.Uint64(16))
+	return math.Float64frombits(capnp.Struct(s).Uint64(16))
 }
 
 func (s AOMProperties) SetAomSlowDecRatetoSMBSlow(v float64) {
-	s.Struct.SetUint64(16, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(16, math.Float64bits(v))
 }
 
 func (s AOMProperties) AomSlowDecRatetoSMBFast() float64 {
-	return math.Float64frombits(s.Struct.Uint64(24))
+	return math.Float64frombits(capnp.Struct(s).Uint64(24))
 }
 
 func (s AOMProperties) SetAomSlowDecRatetoSMBFast(v float64) {
-	s.Struct.SetUint64(24, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(24, math.Float64bits(v))
 }
 
 func (s AOMProperties) AomFastDecRatetoSMBSlow() float64 {
-	return math.Float64frombits(s.Struct.Uint64(32))
+	return math.Float64frombits(capnp.Struct(s).Uint64(32))
 }
 
 func (s AOMProperties) SetAomFastDecRatetoSMBSlow(v float64) {
-	s.Struct.SetUint64(32, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(32, math.Float64bits(v))
 }
 
 func (s AOMProperties) AomFastDecRatetoSMBFast() float64 {
-	return math.Float64frombits(s.Struct.Uint64(40))
+	return math.Float64frombits(capnp.Struct(s).Uint64(40))
 }
 
 func (s AOMProperties) SetAomFastDecRatetoSMBFast(v float64) {
-	s.Struct.SetUint64(40, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(40, math.Float64bits(v))
 }
 
 func (s AOMProperties) AomSlowDecCoeff() float64 {
-	return math.Float64frombits(s.Struct.Uint64(48))
+	return math.Float64frombits(capnp.Struct(s).Uint64(48))
 }
 
 func (s AOMProperties) SetAomSlowDecCoeff(v float64) {
-	s.Struct.SetUint64(48, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(48, math.Float64bits(v))
 }
 
 func (s AOMProperties) AomFastDecCoeff() float64 {
-	return math.Float64frombits(s.Struct.Uint64(56))
+	return math.Float64frombits(capnp.Struct(s).Uint64(56))
 }
 
 func (s AOMProperties) SetAomFastDecCoeff(v float64) {
-	s.Struct.SetUint64(56, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(56, math.Float64bits(v))
 }
 
 func (s AOMProperties) AomSlowDecCoeffStandard() float64 {
-	return math.Float64frombits(s.Struct.Uint64(64) ^ 0x3ff0000000000000)
+	return math.Float64frombits(capnp.Struct(s).Uint64(64) ^ 0x3ff0000000000000)
 }
 
 func (s AOMProperties) SetAomSlowDecCoeffStandard(v float64) {
-	s.Struct.SetUint64(64, math.Float64bits(v)^0x3ff0000000000000)
+	capnp.Struct(s).SetUint64(64, math.Float64bits(v)^0x3ff0000000000000)
 }
 
 func (s AOMProperties) AomFastDecCoeffStandard() float64 {
-	return math.Float64frombits(s.Struct.Uint64(72) ^ 0x3ff0000000000000)
+	return math.Float64frombits(capnp.Struct(s).Uint64(72) ^ 0x3ff0000000000000)
 }
 
 func (s AOMProperties) SetAomFastDecCoeffStandard(v float64) {
-	s.Struct.SetUint64(72, math.Float64bits(v)^0x3ff0000000000000)
+	capnp.Struct(s).SetUint64(72, math.Float64bits(v)^0x3ff0000000000000)
 }
 
 func (s AOMProperties) PartAOMSlowtoSMBSlow() float64 {
-	return math.Float64frombits(s.Struct.Uint64(80))
+	return math.Float64frombits(capnp.Struct(s).Uint64(80))
 }
 
 func (s AOMProperties) SetPartAOMSlowtoSMBSlow(v float64) {
-	s.Struct.SetUint64(80, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(80, math.Float64bits(v))
 }
 
 func (s AOMProperties) PartAOMSlowtoSMBFast() float64 {
-	return math.Float64frombits(s.Struct.Uint64(88))
+	return math.Float64frombits(capnp.Struct(s).Uint64(88))
 }
 
 func (s AOMProperties) SetPartAOMSlowtoSMBFast(v float64) {
-	s.Struct.SetUint64(88, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(88, math.Float64bits(v))
 }
 
 func (s AOMProperties) CnRatioAOMSlow() float64 {
-	return math.Float64frombits(s.Struct.Uint64(96) ^ 0x3ff0000000000000)
+	return math.Float64frombits(capnp.Struct(s).Uint64(96) ^ 0x3ff0000000000000)
 }
 
 func (s AOMProperties) SetCnRatioAOMSlow(v float64) {
-	s.Struct.SetUint64(96, math.Float64bits(v)^0x3ff0000000000000)
+	capnp.Struct(s).SetUint64(96, math.Float64bits(v)^0x3ff0000000000000)
 }
 
 func (s AOMProperties) CnRatioAOMFast() float64 {
-	return math.Float64frombits(s.Struct.Uint64(104) ^ 0x3ff0000000000000)
+	return math.Float64frombits(capnp.Struct(s).Uint64(104) ^ 0x3ff0000000000000)
 }
 
 func (s AOMProperties) SetCnRatioAOMFast(v float64) {
-	s.Struct.SetUint64(104, math.Float64bits(v)^0x3ff0000000000000)
+	capnp.Struct(s).SetUint64(104, math.Float64bits(v)^0x3ff0000000000000)
 }
 
 func (s AOMProperties) DaysAfterApplication() uint16 {
-	return s.Struct.Uint16(112)
+	return capnp.Struct(s).Uint16(112)
 }
 
 func (s AOMProperties) SetDaysAfterApplication(v uint16) {
-	s.Struct.SetUint16(112, v)
+	capnp.Struct(s).SetUint16(112, v)
 }
 
 func (s AOMProperties) AomDryMatterContent() float64 {
-	return math.Float64frombits(s.Struct.Uint64(120))
+	return math.Float64frombits(capnp.Struct(s).Uint64(120))
 }
 
 func (s AOMProperties) SetAomDryMatterContent(v float64) {
-	s.Struct.SetUint64(120, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(120, math.Float64bits(v))
 }
 
 func (s AOMProperties) AomNH4Content() float64 {
-	return math.Float64frombits(s.Struct.Uint64(128))
+	return math.Float64frombits(capnp.Struct(s).Uint64(128))
 }
 
 func (s AOMProperties) SetAomNH4Content(v float64) {
-	s.Struct.SetUint64(128, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(128, math.Float64bits(v))
 }
 
 func (s AOMProperties) AomSlowDelta() float64 {
-	return math.Float64frombits(s.Struct.Uint64(136))
+	return math.Float64frombits(capnp.Struct(s).Uint64(136))
 }
 
 func (s AOMProperties) SetAomSlowDelta(v float64) {
-	s.Struct.SetUint64(136, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(136, math.Float64bits(v))
 }
 
 func (s AOMProperties) AomFastDelta() float64 {
-	return math.Float64frombits(s.Struct.Uint64(144))
+	return math.Float64frombits(capnp.Struct(s).Uint64(144))
 }
 
 func (s AOMProperties) SetAomFastDelta(v float64) {
-	s.Struct.SetUint64(144, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(144, math.Float64bits(v))
 }
 
 func (s AOMProperties) Incorporation() bool {
-	return s.Struct.Bit(912)
+	return capnp.Struct(s).Bit(912)
 }
 
 func (s AOMProperties) SetIncorporation(v bool) {
-	s.Struct.SetBit(912, v)
+	capnp.Struct(s).SetBit(912, v)
 }
 
 func (s AOMProperties) NoVolatilization() bool {
-	return !s.Struct.Bit(913)
+	return !capnp.Struct(s).Bit(913)
 }
 
 func (s AOMProperties) SetNoVolatilization(v bool) {
-	s.Struct.SetBit(913, !v)
+	capnp.Struct(s).SetBit(913, !v)
 }
 
 // AOMProperties_List is a list of AOMProperties.
-type AOMProperties_List struct{ capnp.List }
+type AOMProperties_List = capnp.StructList[AOMProperties]
 
 // NewAOMProperties creates a new list of AOMProperties.
 func NewAOMProperties_List(s *capnp.Segment, sz int32) (AOMProperties_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 152, PointerCount: 0}, sz)
-	return AOMProperties_List{l}, err
-}
-
-func (s AOMProperties_List) At(i int) AOMProperties { return AOMProperties{s.List.Struct(i)} }
-
-func (s AOMProperties_List) Set(i int, v AOMProperties) error { return s.List.SetStruct(i, v.Struct) }
-
-func (s AOMProperties_List) String() string {
-	str, _ := text.MarshalList(0xe3512e62df901c18, s.List)
-	return str
+	return capnp.StructList[AOMProperties](l), err
 }
 
 // AOMProperties_Future is a wrapper for a AOMProperties promised by a client call.
 type AOMProperties_Future struct{ *capnp.Future }
 
-func (p AOMProperties_Future) Struct() (AOMProperties, error) {
-	s, err := p.Future.Struct()
-	return AOMProperties{s}, err
+func (f AOMProperties_Future) Struct() (AOMProperties, error) {
+	p, err := f.Future.Ptr()
+	return AOMProperties(p.Struct()), err
 }
 
-type SoilColumnState struct{ capnp.Struct }
+type SoilColumnState capnp.Struct
 
 // SoilColumnState_TypeID is the unique identifier for the type SoilColumnState.
 const SoilColumnState_TypeID = 0xef3e4198d3e35596
 
 func NewSoilColumnState(s *capnp.Segment) (SoilColumnState, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 88, PointerCount: 4})
-	return SoilColumnState{st}, err
+	return SoilColumnState(st), err
 }
 
 func NewRootSoilColumnState(s *capnp.Segment) (SoilColumnState, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 88, PointerCount: 4})
-	return SoilColumnState{st}, err
+	return SoilColumnState(st), err
 }
 
 func ReadRootSoilColumnState(msg *capnp.Message) (SoilColumnState, error) {
 	root, err := msg.Root()
-	return SoilColumnState{root.Struct()}, err
+	return SoilColumnState(root.Struct()), err
 }
 
 func (s SoilColumnState) String() string {
-	str, _ := text.Marshal(0xef3e4198d3e35596, s.Struct)
+	str, _ := text.Marshal(0xef3e4198d3e35596, capnp.Struct(s))
 	return str
 }
 
+func (s SoilColumnState) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (SoilColumnState) DecodeFromPtr(p capnp.Ptr) SoilColumnState {
+	return SoilColumnState(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s SoilColumnState) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s SoilColumnState) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s SoilColumnState) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s SoilColumnState) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s SoilColumnState) VsSurfaceWaterStorage() float64 {
-	return math.Float64frombits(s.Struct.Uint64(0))
+	return math.Float64frombits(capnp.Struct(s).Uint64(0))
 }
 
 func (s SoilColumnState) SetVsSurfaceWaterStorage(v float64) {
-	s.Struct.SetUint64(0, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(0, math.Float64bits(v))
 }
 
 func (s SoilColumnState) VsInterceptionStorage() float64 {
-	return math.Float64frombits(s.Struct.Uint64(8))
+	return math.Float64frombits(capnp.Struct(s).Uint64(8))
 }
 
 func (s SoilColumnState) SetVsInterceptionStorage(v float64) {
-	s.Struct.SetUint64(8, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(8, math.Float64bits(v))
 }
 
 func (s SoilColumnState) VmGroundwaterTable() uint16 {
-	return s.Struct.Uint16(16)
+	return capnp.Struct(s).Uint16(16)
 }
 
 func (s SoilColumnState) SetVmGroundwaterTable(v uint16) {
-	s.Struct.SetUint16(16, v)
+	capnp.Struct(s).SetUint16(16, v)
 }
 
 func (s SoilColumnState) VsFluxAtLowerBoundary() float64 {
-	return math.Float64frombits(s.Struct.Uint64(24))
+	return math.Float64frombits(capnp.Struct(s).Uint64(24))
 }
 
 func (s SoilColumnState) SetVsFluxAtLowerBoundary(v float64) {
-	s.Struct.SetUint64(24, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(24, math.Float64bits(v))
 }
 
 func (s SoilColumnState) VqCropNUptake() float64 {
-	return math.Float64frombits(s.Struct.Uint64(32))
+	return math.Float64frombits(capnp.Struct(s).Uint64(32))
 }
 
 func (s SoilColumnState) SetVqCropNUptake(v float64) {
-	s.Struct.SetUint64(32, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(32, math.Float64bits(v))
 }
 
 func (s SoilColumnState) VtSoilSurfaceTemperature() float64 {
-	return math.Float64frombits(s.Struct.Uint64(40))
+	return math.Float64frombits(capnp.Struct(s).Uint64(40))
 }
 
 func (s SoilColumnState) SetVtSoilSurfaceTemperature(v float64) {
-	s.Struct.SetUint64(40, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(40, math.Float64bits(v))
 }
 
 func (s SoilColumnState) VmSnowDepth() float64 {
-	return math.Float64frombits(s.Struct.Uint64(48))
+	return math.Float64frombits(capnp.Struct(s).Uint64(48))
 }
 
 func (s SoilColumnState) SetVmSnowDepth(v float64) {
-	s.Struct.SetUint64(48, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(48, math.Float64bits(v))
 }
 
 func (s SoilColumnState) PsMaxMineralisationDepth() float64 {
-	return math.Float64frombits(s.Struct.Uint64(56) ^ 0x3fd999999999999a)
+	return math.Float64frombits(capnp.Struct(s).Uint64(56) ^ 0x3fd999999999999a)
 }
 
 func (s SoilColumnState) SetPsMaxMineralisationDepth(v float64) {
-	s.Struct.SetUint64(56, math.Float64bits(v)^0x3fd999999999999a)
+	capnp.Struct(s).SetUint64(56, math.Float64bits(v)^0x3fd999999999999a)
 }
 
 func (s SoilColumnState) VsNumberOfOrganicLayers() float64 {
-	return math.Float64frombits(s.Struct.Uint64(64))
+	return math.Float64frombits(capnp.Struct(s).Uint64(64))
 }
 
 func (s SoilColumnState) SetVsNumberOfOrganicLayers(v float64) {
-	s.Struct.SetUint64(64, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(64, math.Float64bits(v))
 }
 
 func (s SoilColumnState) VfTopDressing() float64 {
-	return math.Float64frombits(s.Struct.Uint64(72))
+	return math.Float64frombits(capnp.Struct(s).Uint64(72))
 }
 
 func (s SoilColumnState) SetVfTopDressing(v float64) {
-	s.Struct.SetUint64(72, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(72, math.Float64bits(v))
 }
 
 func (s SoilColumnState) VfTopDressingPartition() (management.Params_MineralFertilization_Parameters, error) {
-	p, err := s.Struct.Ptr(0)
-	return management.Params_MineralFertilization_Parameters{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return management.Params_MineralFertilization_Parameters(p.Struct()), err
 }
 
 func (s SoilColumnState) HasVfTopDressingPartition() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s SoilColumnState) SetVfTopDressingPartition(v management.Params_MineralFertilization_Parameters) error {
-	return s.Struct.SetPtr(0, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewVfTopDressingPartition sets the vfTopDressingPartition field to a newly
 // allocated management.Params_MineralFertilization_Parameters struct, preferring placement in s's segment.
 func (s SoilColumnState) NewVfTopDressingPartition() (management.Params_MineralFertilization_Parameters, error) {
-	ss, err := management.NewParams_MineralFertilization_Parameters(s.Struct.Segment())
+	ss, err := management.NewParams_MineralFertilization_Parameters(capnp.Struct(s).Segment())
 	if err != nil {
 		return management.Params_MineralFertilization_Parameters{}, err
 	}
-	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s SoilColumnState) VfTopDressingDelay() uint16 {
-	return s.Struct.Uint16(18)
+	return capnp.Struct(s).Uint16(18)
 }
 
 func (s SoilColumnState) SetVfTopDressingDelay(v uint16) {
-	s.Struct.SetUint16(18, v)
+	capnp.Struct(s).SetUint16(18, v)
 }
 
 func (s SoilColumnState) CropModule() (CropModuleState, error) {
-	p, err := s.Struct.Ptr(1)
-	return CropModuleState{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(1)
+	return CropModuleState(p.Struct()), err
 }
 
 func (s SoilColumnState) HasCropModule() bool {
-	return s.Struct.HasPtr(1)
+	return capnp.Struct(s).HasPtr(1)
 }
 
 func (s SoilColumnState) SetCropModule(v CropModuleState) error {
-	return s.Struct.SetPtr(1, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
 }
 
 // NewCropModule sets the cropModule field to a newly
 // allocated CropModuleState struct, preferring placement in s's segment.
 func (s SoilColumnState) NewCropModule() (CropModuleState, error) {
-	ss, err := NewCropModuleState(s.Struct.Segment())
+	ss, err := NewCropModuleState(capnp.Struct(s).Segment())
 	if err != nil {
 		return CropModuleState{}, err
 	}
-	err = s.Struct.SetPtr(1, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s SoilColumnState) DelayedNMinApplications() (SoilColumnState_DelayedNMinApplicationParams_List, error) {
-	p, err := s.Struct.Ptr(2)
-	return SoilColumnState_DelayedNMinApplicationParams_List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(2)
+	return SoilColumnState_DelayedNMinApplicationParams_List(p.List()), err
 }
 
 func (s SoilColumnState) HasDelayedNMinApplications() bool {
-	return s.Struct.HasPtr(2)
+	return capnp.Struct(s).HasPtr(2)
 }
 
 func (s SoilColumnState) SetDelayedNMinApplications(v SoilColumnState_DelayedNMinApplicationParams_List) error {
-	return s.Struct.SetPtr(2, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(2, v.ToPtr())
 }
 
 // NewDelayedNMinApplications sets the delayedNMinApplications field to a newly
 // allocated SoilColumnState_DelayedNMinApplicationParams_List, preferring placement in s's segment.
 func (s SoilColumnState) NewDelayedNMinApplications(n int32) (SoilColumnState_DelayedNMinApplicationParams_List, error) {
-	l, err := NewSoilColumnState_DelayedNMinApplicationParams_List(s.Struct.Segment(), n)
+	l, err := NewSoilColumnState_DelayedNMinApplicationParams_List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return SoilColumnState_DelayedNMinApplicationParams_List{}, err
 	}
-	err = s.Struct.SetPtr(2, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(2, l.ToPtr())
 	return l, err
 }
-
 func (s SoilColumnState) PmCriticalMoistureDepth() float64 {
-	return math.Float64frombits(s.Struct.Uint64(80))
+	return math.Float64frombits(capnp.Struct(s).Uint64(80))
 }
 
 func (s SoilColumnState) SetPmCriticalMoistureDepth(v float64) {
-	s.Struct.SetUint64(80, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(80, math.Float64bits(v))
 }
 
 func (s SoilColumnState) Layers() (SoilLayerState_List, error) {
-	p, err := s.Struct.Ptr(3)
-	return SoilLayerState_List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(3)
+	return SoilLayerState_List(p.List()), err
 }
 
 func (s SoilColumnState) HasLayers() bool {
-	return s.Struct.HasPtr(3)
+	return capnp.Struct(s).HasPtr(3)
 }
 
 func (s SoilColumnState) SetLayers(v SoilLayerState_List) error {
-	return s.Struct.SetPtr(3, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(3, v.ToPtr())
 }
 
 // NewLayers sets the layers field to a newly
 // allocated SoilLayerState_List, preferring placement in s's segment.
 func (s SoilColumnState) NewLayers(n int32) (SoilLayerState_List, error) {
-	l, err := NewSoilLayerState_List(s.Struct.Segment(), n)
+	l, err := NewSoilLayerState_List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return SoilLayerState_List{}, err
 	}
-	err = s.Struct.SetPtr(3, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(3, l.ToPtr())
 	return l, err
 }
 
 // SoilColumnState_List is a list of SoilColumnState.
-type SoilColumnState_List struct{ capnp.List }
+type SoilColumnState_List = capnp.StructList[SoilColumnState]
 
 // NewSoilColumnState creates a new list of SoilColumnState.
 func NewSoilColumnState_List(s *capnp.Segment, sz int32) (SoilColumnState_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 88, PointerCount: 4}, sz)
-	return SoilColumnState_List{l}, err
-}
-
-func (s SoilColumnState_List) At(i int) SoilColumnState { return SoilColumnState{s.List.Struct(i)} }
-
-func (s SoilColumnState_List) Set(i int, v SoilColumnState) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s SoilColumnState_List) String() string {
-	str, _ := text.MarshalList(0xef3e4198d3e35596, s.List)
-	return str
+	return capnp.StructList[SoilColumnState](l), err
 }
 
 // SoilColumnState_Future is a wrapper for a SoilColumnState promised by a client call.
 type SoilColumnState_Future struct{ *capnp.Future }
 
-func (p SoilColumnState_Future) Struct() (SoilColumnState, error) {
-	s, err := p.Future.Struct()
-	return SoilColumnState{s}, err
+func (f SoilColumnState_Future) Struct() (SoilColumnState, error) {
+	p, err := f.Future.Ptr()
+	return SoilColumnState(p.Struct()), err
 }
-
 func (p SoilColumnState_Future) VfTopDressingPartition() management.Params_MineralFertilization_Parameters_Future {
 	return management.Params_MineralFertilization_Parameters_Future{Future: p.Future.Field(0, nil)}
 }
-
 func (p SoilColumnState_Future) CropModule() CropModuleState_Future {
 	return CropModuleState_Future{Future: p.Future.Field(1, nil)}
 }
 
-type SoilColumnState_DelayedNMinApplicationParams struct{ capnp.Struct }
+type SoilColumnState_DelayedNMinApplicationParams capnp.Struct
 
 // SoilColumnState_DelayedNMinApplicationParams_TypeID is the unique identifier for the type SoilColumnState_DelayedNMinApplicationParams.
 const SoilColumnState_DelayedNMinApplicationParams_TypeID = 0xd1edcf54f4edf638
 
 func NewSoilColumnState_DelayedNMinApplicationParams(s *capnp.Segment) (SoilColumnState_DelayedNMinApplicationParams, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 48, PointerCount: 1})
-	return SoilColumnState_DelayedNMinApplicationParams{st}, err
+	return SoilColumnState_DelayedNMinApplicationParams(st), err
 }
 
 func NewRootSoilColumnState_DelayedNMinApplicationParams(s *capnp.Segment) (SoilColumnState_DelayedNMinApplicationParams, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 48, PointerCount: 1})
-	return SoilColumnState_DelayedNMinApplicationParams{st}, err
+	return SoilColumnState_DelayedNMinApplicationParams(st), err
 }
 
 func ReadRootSoilColumnState_DelayedNMinApplicationParams(msg *capnp.Message) (SoilColumnState_DelayedNMinApplicationParams, error) {
 	root, err := msg.Root()
-	return SoilColumnState_DelayedNMinApplicationParams{root.Struct()}, err
+	return SoilColumnState_DelayedNMinApplicationParams(root.Struct()), err
 }
 
 func (s SoilColumnState_DelayedNMinApplicationParams) String() string {
-	str, _ := text.Marshal(0xd1edcf54f4edf638, s.Struct)
+	str, _ := text.Marshal(0xd1edcf54f4edf638, capnp.Struct(s))
 	return str
 }
 
+func (s SoilColumnState_DelayedNMinApplicationParams) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (SoilColumnState_DelayedNMinApplicationParams) DecodeFromPtr(p capnp.Ptr) SoilColumnState_DelayedNMinApplicationParams {
+	return SoilColumnState_DelayedNMinApplicationParams(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s SoilColumnState_DelayedNMinApplicationParams) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s SoilColumnState_DelayedNMinApplicationParams) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s SoilColumnState_DelayedNMinApplicationParams) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s SoilColumnState_DelayedNMinApplicationParams) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s SoilColumnState_DelayedNMinApplicationParams) Fp() (management.Params_MineralFertilization_Parameters, error) {
-	p, err := s.Struct.Ptr(0)
-	return management.Params_MineralFertilization_Parameters{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return management.Params_MineralFertilization_Parameters(p.Struct()), err
 }
 
 func (s SoilColumnState_DelayedNMinApplicationParams) HasFp() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s SoilColumnState_DelayedNMinApplicationParams) SetFp(v management.Params_MineralFertilization_Parameters) error {
-	return s.Struct.SetPtr(0, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewFp sets the fp field to a newly
 // allocated management.Params_MineralFertilization_Parameters struct, preferring placement in s's segment.
 func (s SoilColumnState_DelayedNMinApplicationParams) NewFp() (management.Params_MineralFertilization_Parameters, error) {
-	ss, err := management.NewParams_MineralFertilization_Parameters(s.Struct.Segment())
+	ss, err := management.NewParams_MineralFertilization_Parameters(capnp.Struct(s).Segment())
 	if err != nil {
 		return management.Params_MineralFertilization_Parameters{}, err
 	}
-	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s SoilColumnState_DelayedNMinApplicationParams) SamplingDepth() float64 {
-	return math.Float64frombits(s.Struct.Uint64(0))
+	return math.Float64frombits(capnp.Struct(s).Uint64(0))
 }
 
 func (s SoilColumnState_DelayedNMinApplicationParams) SetSamplingDepth(v float64) {
-	s.Struct.SetUint64(0, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(0, math.Float64bits(v))
 }
 
 func (s SoilColumnState_DelayedNMinApplicationParams) CropNTarget() float64 {
-	return math.Float64frombits(s.Struct.Uint64(8))
+	return math.Float64frombits(capnp.Struct(s).Uint64(8))
 }
 
 func (s SoilColumnState_DelayedNMinApplicationParams) SetCropNTarget(v float64) {
-	s.Struct.SetUint64(8, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(8, math.Float64bits(v))
 }
 
 func (s SoilColumnState_DelayedNMinApplicationParams) CropNTarget30() float64 {
-	return math.Float64frombits(s.Struct.Uint64(16))
+	return math.Float64frombits(capnp.Struct(s).Uint64(16))
 }
 
 func (s SoilColumnState_DelayedNMinApplicationParams) SetCropNTarget30(v float64) {
-	s.Struct.SetUint64(16, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(16, math.Float64bits(v))
 }
 
 func (s SoilColumnState_DelayedNMinApplicationParams) FertiliserMinApplication() float64 {
-	return math.Float64frombits(s.Struct.Uint64(24))
+	return math.Float64frombits(capnp.Struct(s).Uint64(24))
 }
 
 func (s SoilColumnState_DelayedNMinApplicationParams) SetFertiliserMinApplication(v float64) {
-	s.Struct.SetUint64(24, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(24, math.Float64bits(v))
 }
 
 func (s SoilColumnState_DelayedNMinApplicationParams) FertiliserMaxApplication() float64 {
-	return math.Float64frombits(s.Struct.Uint64(32))
+	return math.Float64frombits(capnp.Struct(s).Uint64(32))
 }
 
 func (s SoilColumnState_DelayedNMinApplicationParams) SetFertiliserMaxApplication(v float64) {
-	s.Struct.SetUint64(32, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(32, math.Float64bits(v))
 }
 
 func (s SoilColumnState_DelayedNMinApplicationParams) TopDressingDelay() float64 {
-	return math.Float64frombits(s.Struct.Uint64(40))
+	return math.Float64frombits(capnp.Struct(s).Uint64(40))
 }
 
 func (s SoilColumnState_DelayedNMinApplicationParams) SetTopDressingDelay(v float64) {
-	s.Struct.SetUint64(40, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(40, math.Float64bits(v))
 }
 
 // SoilColumnState_DelayedNMinApplicationParams_List is a list of SoilColumnState_DelayedNMinApplicationParams.
-type SoilColumnState_DelayedNMinApplicationParams_List struct{ capnp.List }
+type SoilColumnState_DelayedNMinApplicationParams_List = capnp.StructList[SoilColumnState_DelayedNMinApplicationParams]
 
 // NewSoilColumnState_DelayedNMinApplicationParams creates a new list of SoilColumnState_DelayedNMinApplicationParams.
 func NewSoilColumnState_DelayedNMinApplicationParams_List(s *capnp.Segment, sz int32) (SoilColumnState_DelayedNMinApplicationParams_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 48, PointerCount: 1}, sz)
-	return SoilColumnState_DelayedNMinApplicationParams_List{l}, err
-}
-
-func (s SoilColumnState_DelayedNMinApplicationParams_List) At(i int) SoilColumnState_DelayedNMinApplicationParams {
-	return SoilColumnState_DelayedNMinApplicationParams{s.List.Struct(i)}
-}
-
-func (s SoilColumnState_DelayedNMinApplicationParams_List) Set(i int, v SoilColumnState_DelayedNMinApplicationParams) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s SoilColumnState_DelayedNMinApplicationParams_List) String() string {
-	str, _ := text.MarshalList(0xd1edcf54f4edf638, s.List)
-	return str
+	return capnp.StructList[SoilColumnState_DelayedNMinApplicationParams](l), err
 }
 
 // SoilColumnState_DelayedNMinApplicationParams_Future is a wrapper for a SoilColumnState_DelayedNMinApplicationParams promised by a client call.
 type SoilColumnState_DelayedNMinApplicationParams_Future struct{ *capnp.Future }
 
-func (p SoilColumnState_DelayedNMinApplicationParams_Future) Struct() (SoilColumnState_DelayedNMinApplicationParams, error) {
-	s, err := p.Future.Struct()
-	return SoilColumnState_DelayedNMinApplicationParams{s}, err
+func (f SoilColumnState_DelayedNMinApplicationParams_Future) Struct() (SoilColumnState_DelayedNMinApplicationParams, error) {
+	p, err := f.Future.Ptr()
+	return SoilColumnState_DelayedNMinApplicationParams(p.Struct()), err
 }
-
 func (p SoilColumnState_DelayedNMinApplicationParams_Future) Fp() management.Params_MineralFertilization_Parameters_Future {
 	return management.Params_MineralFertilization_Parameters_Future{Future: p.Future.Field(0, nil)}
 }
 
-type SoilLayerState struct{ capnp.Struct }
+type SoilLayerState capnp.Struct
 
 // SoilLayerState_TypeID is the unique identifier for the type SoilLayerState.
 const SoilLayerState_TypeID = 0xdd1e0c7c94dc4211
 
 func NewSoilLayerState(s *capnp.Segment) (SoilLayerState, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 104, PointerCount: 2})
-	return SoilLayerState{st}, err
+	return SoilLayerState(st), err
 }
 
 func NewRootSoilLayerState(s *capnp.Segment) (SoilLayerState, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 104, PointerCount: 2})
-	return SoilLayerState{st}, err
+	return SoilLayerState(st), err
 }
 
 func ReadRootSoilLayerState(msg *capnp.Message) (SoilLayerState, error) {
 	root, err := msg.Root()
-	return SoilLayerState{root.Struct()}, err
+	return SoilLayerState(root.Struct()), err
 }
 
 func (s SoilLayerState) String() string {
-	str, _ := text.Marshal(0xdd1e0c7c94dc4211, s.Struct)
+	str, _ := text.Marshal(0xdd1e0c7c94dc4211, capnp.Struct(s))
 	return str
 }
 
+func (s SoilLayerState) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (SoilLayerState) DecodeFromPtr(p capnp.Ptr) SoilLayerState {
+	return SoilLayerState(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s SoilLayerState) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s SoilLayerState) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s SoilLayerState) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s SoilLayerState) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s SoilLayerState) LayerThickness() float64 {
-	return math.Float64frombits(s.Struct.Uint64(0) ^ 0x3fb999999999999a)
+	return math.Float64frombits(capnp.Struct(s).Uint64(0) ^ 0x3fb999999999999a)
 }
 
 func (s SoilLayerState) SetLayerThickness(v float64) {
-	s.Struct.SetUint64(0, math.Float64bits(v)^0x3fb999999999999a)
+	capnp.Struct(s).SetUint64(0, math.Float64bits(v)^0x3fb999999999999a)
 }
 
 func (s SoilLayerState) SoilWaterFlux() float64 {
-	return math.Float64frombits(s.Struct.Uint64(8))
+	return math.Float64frombits(capnp.Struct(s).Uint64(8))
 }
 
 func (s SoilLayerState) SetSoilWaterFlux(v float64) {
-	s.Struct.SetUint64(8, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(8, math.Float64bits(v))
 }
 
 func (s SoilLayerState) VoAOMPool() (AOMProperties_List, error) {
-	p, err := s.Struct.Ptr(0)
-	return AOMProperties_List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return AOMProperties_List(p.List()), err
 }
 
 func (s SoilLayerState) HasVoAOMPool() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s SoilLayerState) SetVoAOMPool(v AOMProperties_List) error {
-	return s.Struct.SetPtr(0, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
 }
 
 // NewVoAOMPool sets the voAOMPool field to a newly
 // allocated AOMProperties_List, preferring placement in s's segment.
 func (s SoilLayerState) NewVoAOMPool(n int32) (AOMProperties_List, error) {
-	l, err := NewAOMProperties_List(s.Struct.Segment(), n)
+	l, err := NewAOMProperties_List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return AOMProperties_List{}, err
 	}
-	err = s.Struct.SetPtr(0, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
 	return l, err
 }
-
 func (s SoilLayerState) SomSlow() float64 {
-	return math.Float64frombits(s.Struct.Uint64(16))
+	return math.Float64frombits(capnp.Struct(s).Uint64(16))
 }
 
 func (s SoilLayerState) SetSomSlow(v float64) {
-	s.Struct.SetUint64(16, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(16, math.Float64bits(v))
 }
 
 func (s SoilLayerState) SomFast() float64 {
-	return math.Float64frombits(s.Struct.Uint64(24))
+	return math.Float64frombits(capnp.Struct(s).Uint64(24))
 }
 
 func (s SoilLayerState) SetSomFast(v float64) {
-	s.Struct.SetUint64(24, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(24, math.Float64bits(v))
 }
 
 func (s SoilLayerState) SmbSlow() float64 {
-	return math.Float64frombits(s.Struct.Uint64(32))
+	return math.Float64frombits(capnp.Struct(s).Uint64(32))
 }
 
 func (s SoilLayerState) SetSmbSlow(v float64) {
-	s.Struct.SetUint64(32, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(32, math.Float64bits(v))
 }
 
 func (s SoilLayerState) SmbFast() float64 {
-	return math.Float64frombits(s.Struct.Uint64(40))
+	return math.Float64frombits(capnp.Struct(s).Uint64(40))
 }
 
 func (s SoilLayerState) SetSmbFast(v float64) {
-	s.Struct.SetUint64(40, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(40, math.Float64bits(v))
 }
 
 func (s SoilLayerState) SoilCarbamid() float64 {
-	return math.Float64frombits(s.Struct.Uint64(48))
+	return math.Float64frombits(capnp.Struct(s).Uint64(48))
 }
 
 func (s SoilLayerState) SetSoilCarbamid(v float64) {
-	s.Struct.SetUint64(48, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(48, math.Float64bits(v))
 }
 
 func (s SoilLayerState) SoilNH4() float64 {
-	return math.Float64frombits(s.Struct.Uint64(56) ^ 0x3f1a36e2eb1c432d)
+	return math.Float64frombits(capnp.Struct(s).Uint64(56) ^ 0x3f1a36e2eb1c432d)
 }
 
 func (s SoilLayerState) SetSoilNH4(v float64) {
-	s.Struct.SetUint64(56, math.Float64bits(v)^0x3f1a36e2eb1c432d)
+	capnp.Struct(s).SetUint64(56, math.Float64bits(v)^0x3f1a36e2eb1c432d)
 }
 
 func (s SoilLayerState) SoilNO2() float64 {
-	return math.Float64frombits(s.Struct.Uint64(64) ^ 0x3f50624dd2f1a9fc)
+	return math.Float64frombits(capnp.Struct(s).Uint64(64) ^ 0x3f50624dd2f1a9fc)
 }
 
 func (s SoilLayerState) SetSoilNO2(v float64) {
-	s.Struct.SetUint64(64, math.Float64bits(v)^0x3f50624dd2f1a9fc)
+	capnp.Struct(s).SetUint64(64, math.Float64bits(v)^0x3f50624dd2f1a9fc)
 }
 
 func (s SoilLayerState) SoilNO3() float64 {
-	return math.Float64frombits(s.Struct.Uint64(72) ^ 0x3f1a36e2eb1c432d)
+	return math.Float64frombits(capnp.Struct(s).Uint64(72) ^ 0x3f1a36e2eb1c432d)
 }
 
 func (s SoilLayerState) SetSoilNO3(v float64) {
-	s.Struct.SetUint64(72, math.Float64bits(v)^0x3f1a36e2eb1c432d)
+	capnp.Struct(s).SetUint64(72, math.Float64bits(v)^0x3f1a36e2eb1c432d)
 }
 
 func (s SoilLayerState) SoilFrozen() bool {
-	return s.Struct.Bit(640)
+	return capnp.Struct(s).Bit(640)
 }
 
 func (s SoilLayerState) SetSoilFrozen(v bool) {
-	s.Struct.SetBit(640, v)
+	capnp.Struct(s).SetBit(640, v)
 }
 
 func (s SoilLayerState) Sps() (SoilParameters, error) {
-	p, err := s.Struct.Ptr(1)
-	return SoilParameters{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(1)
+	return SoilParameters(p.Struct()), err
 }
 
 func (s SoilLayerState) HasSps() bool {
-	return s.Struct.HasPtr(1)
+	return capnp.Struct(s).HasPtr(1)
 }
 
 func (s SoilLayerState) SetSps(v SoilParameters) error {
-	return s.Struct.SetPtr(1, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
 }
 
 // NewSps sets the sps field to a newly
 // allocated SoilParameters struct, preferring placement in s's segment.
 func (s SoilLayerState) NewSps() (SoilParameters, error) {
-	ss, err := NewSoilParameters(s.Struct.Segment())
+	ss, err := NewSoilParameters(capnp.Struct(s).Segment())
 	if err != nil {
 		return SoilParameters{}, err
 	}
-	err = s.Struct.SetPtr(1, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s SoilLayerState) SoilMoistureM3() float64 {
-	return math.Float64frombits(s.Struct.Uint64(88) ^ 0x3fd0000000000000)
+	return math.Float64frombits(capnp.Struct(s).Uint64(88) ^ 0x3fd0000000000000)
 }
 
 func (s SoilLayerState) SetSoilMoistureM3(v float64) {
-	s.Struct.SetUint64(88, math.Float64bits(v)^0x3fd0000000000000)
+	capnp.Struct(s).SetUint64(88, math.Float64bits(v)^0x3fd0000000000000)
 }
 
 func (s SoilLayerState) SoilTemperature() float64 {
-	return math.Float64frombits(s.Struct.Uint64(96))
+	return math.Float64frombits(capnp.Struct(s).Uint64(96))
 }
 
 func (s SoilLayerState) SetSoilTemperature(v float64) {
-	s.Struct.SetUint64(96, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(96, math.Float64bits(v))
 }
 
 // SoilLayerState_List is a list of SoilLayerState.
-type SoilLayerState_List struct{ capnp.List }
+type SoilLayerState_List = capnp.StructList[SoilLayerState]
 
 // NewSoilLayerState creates a new list of SoilLayerState.
 func NewSoilLayerState_List(s *capnp.Segment, sz int32) (SoilLayerState_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 104, PointerCount: 2}, sz)
-	return SoilLayerState_List{l}, err
-}
-
-func (s SoilLayerState_List) At(i int) SoilLayerState { return SoilLayerState{s.List.Struct(i)} }
-
-func (s SoilLayerState_List) Set(i int, v SoilLayerState) error { return s.List.SetStruct(i, v.Struct) }
-
-func (s SoilLayerState_List) String() string {
-	str, _ := text.MarshalList(0xdd1e0c7c94dc4211, s.List)
-	return str
+	return capnp.StructList[SoilLayerState](l), err
 }
 
 // SoilLayerState_Future is a wrapper for a SoilLayerState promised by a client call.
 type SoilLayerState_Future struct{ *capnp.Future }
 
-func (p SoilLayerState_Future) Struct() (SoilLayerState, error) {
-	s, err := p.Future.Struct()
-	return SoilLayerState{s}, err
+func (f SoilLayerState_Future) Struct() (SoilLayerState, error) {
+	p, err := f.Future.Ptr()
+	return SoilLayerState(p.Struct()), err
 }
-
 func (p SoilLayerState_Future) Sps() SoilParameters_Future {
 	return SoilParameters_Future{Future: p.Future.Field(1, nil)}
 }
 
-type MonicaModelState struct{ capnp.Struct }
+type MonicaModelState capnp.Struct
 
 // MonicaModelState_TypeID is the unique identifier for the type MonicaModelState.
 const MonicaModelState_TypeID = 0xab56969492d293b3
 
 func NewMonicaModelState(s *capnp.Segment) (MonicaModelState, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 144, PointerCount: 15})
-	return MonicaModelState{st}, err
+	return MonicaModelState(st), err
 }
 
 func NewRootMonicaModelState(s *capnp.Segment) (MonicaModelState, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 144, PointerCount: 15})
-	return MonicaModelState{st}, err
+	return MonicaModelState(st), err
 }
 
 func ReadRootMonicaModelState(msg *capnp.Message) (MonicaModelState, error) {
 	root, err := msg.Root()
-	return MonicaModelState{root.Struct()}, err
+	return MonicaModelState(root.Struct()), err
 }
 
 func (s MonicaModelState) String() string {
-	str, _ := text.Marshal(0xab56969492d293b3, s.Struct)
+	str, _ := text.Marshal(0xab56969492d293b3, capnp.Struct(s))
 	return str
 }
 
+func (s MonicaModelState) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (MonicaModelState) DecodeFromPtr(p capnp.Ptr) MonicaModelState {
+	return MonicaModelState(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s MonicaModelState) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s MonicaModelState) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s MonicaModelState) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s MonicaModelState) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s MonicaModelState) SitePs() (SiteParameters, error) {
-	p, err := s.Struct.Ptr(0)
-	return SiteParameters{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return SiteParameters(p.Struct()), err
 }
 
 func (s MonicaModelState) HasSitePs() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s MonicaModelState) SetSitePs(v SiteParameters) error {
-	return s.Struct.SetPtr(0, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewSitePs sets the sitePs field to a newly
 // allocated SiteParameters struct, preferring placement in s's segment.
 func (s MonicaModelState) NewSitePs() (SiteParameters, error) {
-	ss, err := NewSiteParameters(s.Struct.Segment())
+	ss, err := NewSiteParameters(capnp.Struct(s).Segment())
 	if err != nil {
 		return SiteParameters{}, err
 	}
-	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s MonicaModelState) EnvPs() (EnvironmentParameters, error) {
-	p, err := s.Struct.Ptr(1)
-	return EnvironmentParameters{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(1)
+	return EnvironmentParameters(p.Struct()), err
 }
 
 func (s MonicaModelState) HasEnvPs() bool {
-	return s.Struct.HasPtr(1)
+	return capnp.Struct(s).HasPtr(1)
 }
 
 func (s MonicaModelState) SetEnvPs(v EnvironmentParameters) error {
-	return s.Struct.SetPtr(1, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
 }
 
 // NewEnvPs sets the envPs field to a newly
 // allocated EnvironmentParameters struct, preferring placement in s's segment.
 func (s MonicaModelState) NewEnvPs() (EnvironmentParameters, error) {
-	ss, err := NewEnvironmentParameters(s.Struct.Segment())
+	ss, err := NewEnvironmentParameters(capnp.Struct(s).Segment())
 	if err != nil {
 		return EnvironmentParameters{}, err
 	}
-	err = s.Struct.SetPtr(1, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s MonicaModelState) CropPs() (CropModuleParameters, error) {
-	p, err := s.Struct.Ptr(2)
-	return CropModuleParameters{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(2)
+	return CropModuleParameters(p.Struct()), err
 }
 
 func (s MonicaModelState) HasCropPs() bool {
-	return s.Struct.HasPtr(2)
+	return capnp.Struct(s).HasPtr(2)
 }
 
 func (s MonicaModelState) SetCropPs(v CropModuleParameters) error {
-	return s.Struct.SetPtr(2, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(2, capnp.Struct(v).ToPtr())
 }
 
 // NewCropPs sets the cropPs field to a newly
 // allocated CropModuleParameters struct, preferring placement in s's segment.
 func (s MonicaModelState) NewCropPs() (CropModuleParameters, error) {
-	ss, err := NewCropModuleParameters(s.Struct.Segment())
+	ss, err := NewCropModuleParameters(capnp.Struct(s).Segment())
 	if err != nil {
 		return CropModuleParameters{}, err
 	}
-	err = s.Struct.SetPtr(2, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(2, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s MonicaModelState) SimPs() (SimulationParameters, error) {
-	p, err := s.Struct.Ptr(3)
-	return SimulationParameters{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(3)
+	return SimulationParameters(p.Struct()), err
 }
 
 func (s MonicaModelState) HasSimPs() bool {
-	return s.Struct.HasPtr(3)
+	return capnp.Struct(s).HasPtr(3)
 }
 
 func (s MonicaModelState) SetSimPs(v SimulationParameters) error {
-	return s.Struct.SetPtr(3, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(3, capnp.Struct(v).ToPtr())
 }
 
 // NewSimPs sets the simPs field to a newly
 // allocated SimulationParameters struct, preferring placement in s's segment.
 func (s MonicaModelState) NewSimPs() (SimulationParameters, error) {
-	ss, err := NewSimulationParameters(s.Struct.Segment())
+	ss, err := NewSimulationParameters(capnp.Struct(s).Segment())
 	if err != nil {
 		return SimulationParameters{}, err
 	}
-	err = s.Struct.SetPtr(3, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(3, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s MonicaModelState) GroundwaterInformation() (MeasuredGroundwaterTableInformation, error) {
-	p, err := s.Struct.Ptr(4)
-	return MeasuredGroundwaterTableInformation{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(4)
+	return MeasuredGroundwaterTableInformation(p.Struct()), err
 }
 
 func (s MonicaModelState) HasGroundwaterInformation() bool {
-	return s.Struct.HasPtr(4)
+	return capnp.Struct(s).HasPtr(4)
 }
 
 func (s MonicaModelState) SetGroundwaterInformation(v MeasuredGroundwaterTableInformation) error {
-	return s.Struct.SetPtr(4, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(4, capnp.Struct(v).ToPtr())
 }
 
 // NewGroundwaterInformation sets the groundwaterInformation field to a newly
 // allocated MeasuredGroundwaterTableInformation struct, preferring placement in s's segment.
 func (s MonicaModelState) NewGroundwaterInformation() (MeasuredGroundwaterTableInformation, error) {
-	ss, err := NewMeasuredGroundwaterTableInformation(s.Struct.Segment())
+	ss, err := NewMeasuredGroundwaterTableInformation(capnp.Struct(s).Segment())
 	if err != nil {
 		return MeasuredGroundwaterTableInformation{}, err
 	}
-	err = s.Struct.SetPtr(4, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(4, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s MonicaModelState) SoilColumn() (SoilColumnState, error) {
-	p, err := s.Struct.Ptr(5)
-	return SoilColumnState{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(5)
+	return SoilColumnState(p.Struct()), err
 }
 
 func (s MonicaModelState) HasSoilColumn() bool {
-	return s.Struct.HasPtr(5)
+	return capnp.Struct(s).HasPtr(5)
 }
 
 func (s MonicaModelState) SetSoilColumn(v SoilColumnState) error {
-	return s.Struct.SetPtr(5, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(5, capnp.Struct(v).ToPtr())
 }
 
 // NewSoilColumn sets the soilColumn field to a newly
 // allocated SoilColumnState struct, preferring placement in s's segment.
 func (s MonicaModelState) NewSoilColumn() (SoilColumnState, error) {
-	ss, err := NewSoilColumnState(s.Struct.Segment())
+	ss, err := NewSoilColumnState(capnp.Struct(s).Segment())
 	if err != nil {
 		return SoilColumnState{}, err
 	}
-	err = s.Struct.SetPtr(5, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(5, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s MonicaModelState) SoilTemperature() (SoilTemperatureModuleState, error) {
-	p, err := s.Struct.Ptr(6)
-	return SoilTemperatureModuleState{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(6)
+	return SoilTemperatureModuleState(p.Struct()), err
 }
 
 func (s MonicaModelState) HasSoilTemperature() bool {
-	return s.Struct.HasPtr(6)
+	return capnp.Struct(s).HasPtr(6)
 }
 
 func (s MonicaModelState) SetSoilTemperature(v SoilTemperatureModuleState) error {
-	return s.Struct.SetPtr(6, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(6, capnp.Struct(v).ToPtr())
 }
 
 // NewSoilTemperature sets the soilTemperature field to a newly
 // allocated SoilTemperatureModuleState struct, preferring placement in s's segment.
 func (s MonicaModelState) NewSoilTemperature() (SoilTemperatureModuleState, error) {
-	ss, err := NewSoilTemperatureModuleState(s.Struct.Segment())
+	ss, err := NewSoilTemperatureModuleState(capnp.Struct(s).Segment())
 	if err != nil {
 		return SoilTemperatureModuleState{}, err
 	}
-	err = s.Struct.SetPtr(6, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(6, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s MonicaModelState) SoilMoisture() (SoilMoistureModuleState, error) {
-	p, err := s.Struct.Ptr(7)
-	return SoilMoistureModuleState{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(7)
+	return SoilMoistureModuleState(p.Struct()), err
 }
 
 func (s MonicaModelState) HasSoilMoisture() bool {
-	return s.Struct.HasPtr(7)
+	return capnp.Struct(s).HasPtr(7)
 }
 
 func (s MonicaModelState) SetSoilMoisture(v SoilMoistureModuleState) error {
-	return s.Struct.SetPtr(7, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(7, capnp.Struct(v).ToPtr())
 }
 
 // NewSoilMoisture sets the soilMoisture field to a newly
 // allocated SoilMoistureModuleState struct, preferring placement in s's segment.
 func (s MonicaModelState) NewSoilMoisture() (SoilMoistureModuleState, error) {
-	ss, err := NewSoilMoistureModuleState(s.Struct.Segment())
+	ss, err := NewSoilMoistureModuleState(capnp.Struct(s).Segment())
 	if err != nil {
 		return SoilMoistureModuleState{}, err
 	}
-	err = s.Struct.SetPtr(7, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(7, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s MonicaModelState) SoilOrganic() (SoilOrganicModuleState, error) {
-	p, err := s.Struct.Ptr(8)
-	return SoilOrganicModuleState{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(8)
+	return SoilOrganicModuleState(p.Struct()), err
 }
 
 func (s MonicaModelState) HasSoilOrganic() bool {
-	return s.Struct.HasPtr(8)
+	return capnp.Struct(s).HasPtr(8)
 }
 
 func (s MonicaModelState) SetSoilOrganic(v SoilOrganicModuleState) error {
-	return s.Struct.SetPtr(8, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(8, capnp.Struct(v).ToPtr())
 }
 
 // NewSoilOrganic sets the soilOrganic field to a newly
 // allocated SoilOrganicModuleState struct, preferring placement in s's segment.
 func (s MonicaModelState) NewSoilOrganic() (SoilOrganicModuleState, error) {
-	ss, err := NewSoilOrganicModuleState(s.Struct.Segment())
+	ss, err := NewSoilOrganicModuleState(capnp.Struct(s).Segment())
 	if err != nil {
 		return SoilOrganicModuleState{}, err
 	}
-	err = s.Struct.SetPtr(8, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(8, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s MonicaModelState) SoilTransport() (SoilTransportModuleState, error) {
-	p, err := s.Struct.Ptr(9)
-	return SoilTransportModuleState{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(9)
+	return SoilTransportModuleState(p.Struct()), err
 }
 
 func (s MonicaModelState) HasSoilTransport() bool {
-	return s.Struct.HasPtr(9)
+	return capnp.Struct(s).HasPtr(9)
 }
 
 func (s MonicaModelState) SetSoilTransport(v SoilTransportModuleState) error {
-	return s.Struct.SetPtr(9, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(9, capnp.Struct(v).ToPtr())
 }
 
 // NewSoilTransport sets the soilTransport field to a newly
 // allocated SoilTransportModuleState struct, preferring placement in s's segment.
 func (s MonicaModelState) NewSoilTransport() (SoilTransportModuleState, error) {
-	ss, err := NewSoilTransportModuleState(s.Struct.Segment())
+	ss, err := NewSoilTransportModuleState(capnp.Struct(s).Segment())
 	if err != nil {
 		return SoilTransportModuleState{}, err
 	}
-	err = s.Struct.SetPtr(9, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(9, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s MonicaModelState) CurrentCropModule() (CropModuleState, error) {
-	p, err := s.Struct.Ptr(10)
-	return CropModuleState{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(10)
+	return CropModuleState(p.Struct()), err
 }
 
 func (s MonicaModelState) HasCurrentCropModule() bool {
-	return s.Struct.HasPtr(10)
+	return capnp.Struct(s).HasPtr(10)
 }
 
 func (s MonicaModelState) SetCurrentCropModule(v CropModuleState) error {
-	return s.Struct.SetPtr(10, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(10, capnp.Struct(v).ToPtr())
 }
 
 // NewCurrentCropModule sets the currentCropModule field to a newly
 // allocated CropModuleState struct, preferring placement in s's segment.
 func (s MonicaModelState) NewCurrentCropModule() (CropModuleState, error) {
-	ss, err := NewCropModuleState(s.Struct.Segment())
+	ss, err := NewCropModuleState(capnp.Struct(s).Segment())
 	if err != nil {
 		return CropModuleState{}, err
 	}
-	err = s.Struct.SetPtr(10, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(10, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s MonicaModelState) SumFertiliser() float64 {
-	return math.Float64frombits(s.Struct.Uint64(40))
+	return math.Float64frombits(capnp.Struct(s).Uint64(40))
 }
 
 func (s MonicaModelState) SetSumFertiliser(v float64) {
-	s.Struct.SetUint64(40, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(40, math.Float64bits(v))
 }
 
 func (s MonicaModelState) SumOrgFertiliser() float64 {
-	return math.Float64frombits(s.Struct.Uint64(48))
+	return math.Float64frombits(capnp.Struct(s).Uint64(48))
 }
 
 func (s MonicaModelState) SetSumOrgFertiliser(v float64) {
-	s.Struct.SetUint64(48, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(48, math.Float64bits(v))
 }
 
 func (s MonicaModelState) DailySumFertiliser() float64 {
-	return math.Float64frombits(s.Struct.Uint64(56))
+	return math.Float64frombits(capnp.Struct(s).Uint64(56))
 }
 
 func (s MonicaModelState) SetDailySumFertiliser(v float64) {
-	s.Struct.SetUint64(56, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(56, math.Float64bits(v))
 }
 
 func (s MonicaModelState) DailySumOrgFertiliser() float64 {
-	return math.Float64frombits(s.Struct.Uint64(64))
+	return math.Float64frombits(capnp.Struct(s).Uint64(64))
 }
 
 func (s MonicaModelState) SetDailySumOrgFertiliser(v float64) {
-	s.Struct.SetUint64(64, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(64, math.Float64bits(v))
 }
 
 func (s MonicaModelState) DailySumOrganicFertilizerDM() float64 {
-	return math.Float64frombits(s.Struct.Uint64(72))
+	return math.Float64frombits(capnp.Struct(s).Uint64(72))
 }
 
 func (s MonicaModelState) SetDailySumOrganicFertilizerDM(v float64) {
-	s.Struct.SetUint64(72, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(72, math.Float64bits(v))
 }
 
 func (s MonicaModelState) SumOrganicFertilizerDM() float64 {
-	return math.Float64frombits(s.Struct.Uint64(80))
+	return math.Float64frombits(capnp.Struct(s).Uint64(80))
 }
 
 func (s MonicaModelState) SetSumOrganicFertilizerDM(v float64) {
-	s.Struct.SetUint64(80, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(80, math.Float64bits(v))
 }
 
 func (s MonicaModelState) HumusBalanceCarryOver() float64 {
-	return math.Float64frombits(s.Struct.Uint64(88))
+	return math.Float64frombits(capnp.Struct(s).Uint64(88))
 }
 
 func (s MonicaModelState) SetHumusBalanceCarryOver(v float64) {
-	s.Struct.SetUint64(88, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(88, math.Float64bits(v))
 }
 
 func (s MonicaModelState) DailySumIrrigationWater() float64 {
-	return math.Float64frombits(s.Struct.Uint64(96))
+	return math.Float64frombits(capnp.Struct(s).Uint64(96))
 }
 
 func (s MonicaModelState) SetDailySumIrrigationWater(v float64) {
-	s.Struct.SetUint64(96, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(96, math.Float64bits(v))
 }
 
 func (s MonicaModelState) OptCarbonExportedResidues() float64 {
-	return math.Float64frombits(s.Struct.Uint64(104))
+	return math.Float64frombits(capnp.Struct(s).Uint64(104))
 }
 
 func (s MonicaModelState) SetOptCarbonExportedResidues(v float64) {
-	s.Struct.SetUint64(104, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(104, math.Float64bits(v))
 }
 
 func (s MonicaModelState) OptCarbonReturnedResidues() float64 {
-	return math.Float64frombits(s.Struct.Uint64(112))
+	return math.Float64frombits(capnp.Struct(s).Uint64(112))
 }
 
 func (s MonicaModelState) SetOptCarbonReturnedResidues(v float64) {
-	s.Struct.SetUint64(112, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(112, math.Float64bits(v))
 }
 
 func (s MonicaModelState) CurrentStepDate() (common.Date, error) {
-	p, err := s.Struct.Ptr(11)
-	return common.Date{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(11)
+	return common.Date(p.Struct()), err
 }
 
 func (s MonicaModelState) HasCurrentStepDate() bool {
-	return s.Struct.HasPtr(11)
+	return capnp.Struct(s).HasPtr(11)
 }
 
 func (s MonicaModelState) SetCurrentStepDate(v common.Date) error {
-	return s.Struct.SetPtr(11, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(11, capnp.Struct(v).ToPtr())
 }
 
 // NewCurrentStepDate sets the currentStepDate field to a newly
 // allocated common.Date struct, preferring placement in s's segment.
 func (s MonicaModelState) NewCurrentStepDate() (common.Date, error) {
-	ss, err := common.NewDate(s.Struct.Segment())
+	ss, err := common.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
 		return common.Date{}, err
 	}
-	err = s.Struct.SetPtr(11, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(11, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s MonicaModelState) ClimateData() (capnp.PointerList, error) {
-	p, err := s.Struct.Ptr(12)
-	return capnp.PointerList{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(12)
+	return capnp.PointerList(p.List()), err
 }
 
 func (s MonicaModelState) HasClimateData() bool {
-	return s.Struct.HasPtr(12)
+	return capnp.Struct(s).HasPtr(12)
 }
 
 func (s MonicaModelState) SetClimateData(v capnp.PointerList) error {
-	return s.Struct.SetPtr(12, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(12, v.ToPtr())
 }
 
 // NewClimateData sets the climateData field to a newly
 // allocated capnp.PointerList, preferring placement in s's segment.
 func (s MonicaModelState) NewClimateData(n int32) (capnp.PointerList, error) {
-	l, err := capnp.NewPointerList(s.Struct.Segment(), n)
+	l, err := capnp.NewPointerList(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.PointerList{}, err
 	}
-	err = s.Struct.SetPtr(12, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(12, l.ToPtr())
 	return l, err
 }
-
 func (s MonicaModelState) CurrentEvents() (capnp.TextList, error) {
-	p, err := s.Struct.Ptr(13)
-	return capnp.TextList{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(13)
+	return capnp.TextList(p.List()), err
 }
 
 func (s MonicaModelState) HasCurrentEvents() bool {
-	return s.Struct.HasPtr(13)
+	return capnp.Struct(s).HasPtr(13)
 }
 
 func (s MonicaModelState) SetCurrentEvents(v capnp.TextList) error {
-	return s.Struct.SetPtr(13, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(13, v.ToPtr())
 }
 
 // NewCurrentEvents sets the currentEvents field to a newly
 // allocated capnp.TextList, preferring placement in s's segment.
 func (s MonicaModelState) NewCurrentEvents(n int32) (capnp.TextList, error) {
-	l, err := capnp.NewTextList(s.Struct.Segment(), n)
+	l, err := capnp.NewTextList(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.TextList{}, err
 	}
-	err = s.Struct.SetPtr(13, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(13, l.ToPtr())
 	return l, err
 }
-
 func (s MonicaModelState) PreviousDaysEvents() (capnp.TextList, error) {
-	p, err := s.Struct.Ptr(14)
-	return capnp.TextList{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(14)
+	return capnp.TextList(p.List()), err
 }
 
 func (s MonicaModelState) HasPreviousDaysEvents() bool {
-	return s.Struct.HasPtr(14)
+	return capnp.Struct(s).HasPtr(14)
 }
 
 func (s MonicaModelState) SetPreviousDaysEvents(v capnp.TextList) error {
-	return s.Struct.SetPtr(14, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(14, v.ToPtr())
 }
 
 // NewPreviousDaysEvents sets the previousDaysEvents field to a newly
 // allocated capnp.TextList, preferring placement in s's segment.
 func (s MonicaModelState) NewPreviousDaysEvents(n int32) (capnp.TextList, error) {
-	l, err := capnp.NewTextList(s.Struct.Segment(), n)
+	l, err := capnp.NewTextList(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.TextList{}, err
 	}
-	err = s.Struct.SetPtr(14, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(14, l.ToPtr())
 	return l, err
 }
-
 func (s MonicaModelState) ClearCropUponNextDay() bool {
-	return s.Struct.Bit(16)
+	return capnp.Struct(s).Bit(16)
 }
 
 func (s MonicaModelState) SetClearCropUponNextDay(v bool) {
-	s.Struct.SetBit(16, v)
+	capnp.Struct(s).SetBit(16, v)
 }
 
 func (s MonicaModelState) DaysWithCrop() uint16 {
-	return s.Struct.Uint16(4)
+	return capnp.Struct(s).Uint16(4)
 }
 
 func (s MonicaModelState) SetDaysWithCrop(v uint16) {
-	s.Struct.SetUint16(4, v)
+	capnp.Struct(s).SetUint16(4, v)
 }
 
 func (s MonicaModelState) AccuNStress() float64 {
-	return math.Float64frombits(s.Struct.Uint64(120))
+	return math.Float64frombits(capnp.Struct(s).Uint64(120))
 }
 
 func (s MonicaModelState) SetAccuNStress(v float64) {
-	s.Struct.SetUint64(120, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(120, math.Float64bits(v))
 }
 
 func (s MonicaModelState) AccuWaterStress() float64 {
-	return math.Float64frombits(s.Struct.Uint64(128))
+	return math.Float64frombits(capnp.Struct(s).Uint64(128))
 }
 
 func (s MonicaModelState) SetAccuWaterStress(v float64) {
-	s.Struct.SetUint64(128, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(128, math.Float64bits(v))
 }
 
 func (s MonicaModelState) AccuHeatStress() float64 {
-	return math.Float64frombits(s.Struct.Uint64(136))
+	return math.Float64frombits(capnp.Struct(s).Uint64(136))
 }
 
 func (s MonicaModelState) SetAccuHeatStress(v float64) {
-	s.Struct.SetUint64(136, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(136, math.Float64bits(v))
 }
 
 func (s MonicaModelState) AccuOxygenStress() float64 {
-	return math.Float64frombits(s.Struct.Uint64(32))
+	return math.Float64frombits(capnp.Struct(s).Uint64(32))
 }
 
 func (s MonicaModelState) SetAccuOxygenStress(v float64) {
-	s.Struct.SetUint64(32, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(32, math.Float64bits(v))
 }
 
 func (s MonicaModelState) VwAtmosphericCO2Concentration() float64 {
-	return math.Float64frombits(s.Struct.Uint64(24))
+	return math.Float64frombits(capnp.Struct(s).Uint64(24))
 }
 
 func (s MonicaModelState) SetVwAtmosphericCO2Concentration(v float64) {
-	s.Struct.SetUint64(24, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(24, math.Float64bits(v))
 }
 
 func (s MonicaModelState) VwAtmosphericO3Concentration() float64 {
-	return math.Float64frombits(s.Struct.Uint64(16))
+	return math.Float64frombits(capnp.Struct(s).Uint64(16))
 }
 
 func (s MonicaModelState) SetVwAtmosphericO3Concentration(v float64) {
-	s.Struct.SetUint64(16, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(16, math.Float64bits(v))
 }
 
 func (s MonicaModelState) VsGroundwaterDepth() float64 {
-	return math.Float64frombits(s.Struct.Uint64(8))
+	return math.Float64frombits(capnp.Struct(s).Uint64(8))
 }
 
 func (s MonicaModelState) SetVsGroundwaterDepth(v float64) {
-	s.Struct.SetUint64(8, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(8, math.Float64bits(v))
 }
 
 func (s MonicaModelState) CultivationMethodCount() uint16 {
-	return s.Struct.Uint16(0)
+	return capnp.Struct(s).Uint16(0)
 }
 
 func (s MonicaModelState) SetCultivationMethodCount(v uint16) {
-	s.Struct.SetUint16(0, v)
+	capnp.Struct(s).SetUint16(0, v)
 }
 
 // MonicaModelState_List is a list of MonicaModelState.
-type MonicaModelState_List struct{ capnp.List }
+type MonicaModelState_List = capnp.StructList[MonicaModelState]
 
 // NewMonicaModelState creates a new list of MonicaModelState.
 func NewMonicaModelState_List(s *capnp.Segment, sz int32) (MonicaModelState_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 144, PointerCount: 15}, sz)
-	return MonicaModelState_List{l}, err
-}
-
-func (s MonicaModelState_List) At(i int) MonicaModelState { return MonicaModelState{s.List.Struct(i)} }
-
-func (s MonicaModelState_List) Set(i int, v MonicaModelState) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s MonicaModelState_List) String() string {
-	str, _ := text.MarshalList(0xab56969492d293b3, s.List)
-	return str
+	return capnp.StructList[MonicaModelState](l), err
 }
 
 // MonicaModelState_Future is a wrapper for a MonicaModelState promised by a client call.
 type MonicaModelState_Future struct{ *capnp.Future }
 
-func (p MonicaModelState_Future) Struct() (MonicaModelState, error) {
-	s, err := p.Future.Struct()
-	return MonicaModelState{s}, err
+func (f MonicaModelState_Future) Struct() (MonicaModelState, error) {
+	p, err := f.Future.Ptr()
+	return MonicaModelState(p.Struct()), err
 }
-
 func (p MonicaModelState_Future) SitePs() SiteParameters_Future {
 	return SiteParameters_Future{Future: p.Future.Field(0, nil)}
 }
-
 func (p MonicaModelState_Future) EnvPs() EnvironmentParameters_Future {
 	return EnvironmentParameters_Future{Future: p.Future.Field(1, nil)}
 }
-
 func (p MonicaModelState_Future) CropPs() CropModuleParameters_Future {
 	return CropModuleParameters_Future{Future: p.Future.Field(2, nil)}
 }
-
 func (p MonicaModelState_Future) SimPs() SimulationParameters_Future {
 	return SimulationParameters_Future{Future: p.Future.Field(3, nil)}
 }
-
 func (p MonicaModelState_Future) GroundwaterInformation() MeasuredGroundwaterTableInformation_Future {
 	return MeasuredGroundwaterTableInformation_Future{Future: p.Future.Field(4, nil)}
 }
-
 func (p MonicaModelState_Future) SoilColumn() SoilColumnState_Future {
 	return SoilColumnState_Future{Future: p.Future.Field(5, nil)}
 }
-
 func (p MonicaModelState_Future) SoilTemperature() SoilTemperatureModuleState_Future {
 	return SoilTemperatureModuleState_Future{Future: p.Future.Field(6, nil)}
 }
-
 func (p MonicaModelState_Future) SoilMoisture() SoilMoistureModuleState_Future {
 	return SoilMoistureModuleState_Future{Future: p.Future.Field(7, nil)}
 }
-
 func (p MonicaModelState_Future) SoilOrganic() SoilOrganicModuleState_Future {
 	return SoilOrganicModuleState_Future{Future: p.Future.Field(8, nil)}
 }
-
 func (p MonicaModelState_Future) SoilTransport() SoilTransportModuleState_Future {
 	return SoilTransportModuleState_Future{Future: p.Future.Field(9, nil)}
 }
-
 func (p MonicaModelState_Future) CurrentCropModule() CropModuleState_Future {
 	return CropModuleState_Future{Future: p.Future.Field(10, nil)}
 }
-
 func (p MonicaModelState_Future) CurrentStepDate() common.Date_Future {
 	return common.Date_Future{Future: p.Future.Field(11, nil)}
 }
 
-type MonicaModelState_ACDToValue struct{ capnp.Struct }
+type MonicaModelState_ACDToValue capnp.Struct
 
 // MonicaModelState_ACDToValue_TypeID is the unique identifier for the type MonicaModelState_ACDToValue.
 const MonicaModelState_ACDToValue_TypeID = 0x98e203c76f83d365
 
 func NewMonicaModelState_ACDToValue(s *capnp.Segment) (MonicaModelState_ACDToValue, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0})
-	return MonicaModelState_ACDToValue{st}, err
+	return MonicaModelState_ACDToValue(st), err
 }
 
 func NewRootMonicaModelState_ACDToValue(s *capnp.Segment) (MonicaModelState_ACDToValue, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0})
-	return MonicaModelState_ACDToValue{st}, err
+	return MonicaModelState_ACDToValue(st), err
 }
 
 func ReadRootMonicaModelState_ACDToValue(msg *capnp.Message) (MonicaModelState_ACDToValue, error) {
 	root, err := msg.Root()
-	return MonicaModelState_ACDToValue{root.Struct()}, err
+	return MonicaModelState_ACDToValue(root.Struct()), err
 }
 
 func (s MonicaModelState_ACDToValue) String() string {
-	str, _ := text.Marshal(0x98e203c76f83d365, s.Struct)
+	str, _ := text.Marshal(0x98e203c76f83d365, capnp.Struct(s))
 	return str
 }
 
+func (s MonicaModelState_ACDToValue) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (MonicaModelState_ACDToValue) DecodeFromPtr(p capnp.Ptr) MonicaModelState_ACDToValue {
+	return MonicaModelState_ACDToValue(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s MonicaModelState_ACDToValue) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s MonicaModelState_ACDToValue) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s MonicaModelState_ACDToValue) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s MonicaModelState_ACDToValue) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s MonicaModelState_ACDToValue) Acd() uint16 {
-	return s.Struct.Uint16(0)
+	return capnp.Struct(s).Uint16(0)
 }
 
 func (s MonicaModelState_ACDToValue) SetAcd(v uint16) {
-	s.Struct.SetUint16(0, v)
+	capnp.Struct(s).SetUint16(0, v)
 }
 
 func (s MonicaModelState_ACDToValue) Value() float64 {
-	return math.Float64frombits(s.Struct.Uint64(8))
+	return math.Float64frombits(capnp.Struct(s).Uint64(8))
 }
 
 func (s MonicaModelState_ACDToValue) SetValue(v float64) {
-	s.Struct.SetUint64(8, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(8, math.Float64bits(v))
 }
 
 // MonicaModelState_ACDToValue_List is a list of MonicaModelState_ACDToValue.
-type MonicaModelState_ACDToValue_List struct{ capnp.List }
+type MonicaModelState_ACDToValue_List = capnp.StructList[MonicaModelState_ACDToValue]
 
 // NewMonicaModelState_ACDToValue creates a new list of MonicaModelState_ACDToValue.
 func NewMonicaModelState_ACDToValue_List(s *capnp.Segment, sz int32) (MonicaModelState_ACDToValue_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0}, sz)
-	return MonicaModelState_ACDToValue_List{l}, err
-}
-
-func (s MonicaModelState_ACDToValue_List) At(i int) MonicaModelState_ACDToValue {
-	return MonicaModelState_ACDToValue{s.List.Struct(i)}
-}
-
-func (s MonicaModelState_ACDToValue_List) Set(i int, v MonicaModelState_ACDToValue) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s MonicaModelState_ACDToValue_List) String() string {
-	str, _ := text.MarshalList(0x98e203c76f83d365, s.List)
-	return str
+	return capnp.StructList[MonicaModelState_ACDToValue](l), err
 }
 
 // MonicaModelState_ACDToValue_Future is a wrapper for a MonicaModelState_ACDToValue promised by a client call.
 type MonicaModelState_ACDToValue_Future struct{ *capnp.Future }
 
-func (p MonicaModelState_ACDToValue_Future) Struct() (MonicaModelState_ACDToValue, error) {
-	s, err := p.Future.Struct()
-	return MonicaModelState_ACDToValue{s}, err
+func (f MonicaModelState_ACDToValue_Future) Struct() (MonicaModelState_ACDToValue, error) {
+	p, err := f.Future.Ptr()
+	return MonicaModelState_ACDToValue(p.Struct()), err
 }
 
-type CropModuleState struct{ capnp.Struct }
+type CropModuleState capnp.Struct
 
 // CropModuleState_TypeID is the unique identifier for the type CropModuleState.
 const CropModuleState_TypeID = 0x811d54ac7debc21e
 
 func NewCropModuleState(s *capnp.Segment) (CropModuleState, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 1248, PointerCount: 50})
-	return CropModuleState{st}, err
+	return CropModuleState(st), err
 }
 
 func NewRootCropModuleState(s *capnp.Segment) (CropModuleState, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 1248, PointerCount: 50})
-	return CropModuleState{st}, err
+	return CropModuleState(st), err
 }
 
 func ReadRootCropModuleState(msg *capnp.Message) (CropModuleState, error) {
 	root, err := msg.Root()
-	return CropModuleState{root.Struct()}, err
+	return CropModuleState(root.Struct()), err
 }
 
 func (s CropModuleState) String() string {
-	str, _ := text.Marshal(0x811d54ac7debc21e, s.Struct)
+	str, _ := text.Marshal(0x811d54ac7debc21e, capnp.Struct(s))
 	return str
 }
 
+func (s CropModuleState) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (CropModuleState) DecodeFromPtr(p capnp.Ptr) CropModuleState {
+	return CropModuleState(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s CropModuleState) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s CropModuleState) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s CropModuleState) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s CropModuleState) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s CropModuleState) FrostKillOn() bool {
-	return s.Struct.Bit(0)
+	return capnp.Struct(s).Bit(0)
 }
 
 func (s CropModuleState) SetFrostKillOn(v bool) {
-	s.Struct.SetBit(0, v)
+	capnp.Struct(s).SetBit(0, v)
 }
 
 func (s CropModuleState) SpeciesParams() (SpeciesParameters, error) {
-	p, err := s.Struct.Ptr(47)
-	return SpeciesParameters{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(47)
+	return SpeciesParameters(p.Struct()), err
 }
 
 func (s CropModuleState) HasSpeciesParams() bool {
-	return s.Struct.HasPtr(47)
+	return capnp.Struct(s).HasPtr(47)
 }
 
 func (s CropModuleState) SetSpeciesParams(v SpeciesParameters) error {
-	return s.Struct.SetPtr(47, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(47, capnp.Struct(v).ToPtr())
 }
 
 // NewSpeciesParams sets the speciesParams field to a newly
 // allocated SpeciesParameters struct, preferring placement in s's segment.
 func (s CropModuleState) NewSpeciesParams() (SpeciesParameters, error) {
-	ss, err := NewSpeciesParameters(s.Struct.Segment())
+	ss, err := NewSpeciesParameters(capnp.Struct(s).Segment())
 	if err != nil {
 		return SpeciesParameters{}, err
 	}
-	err = s.Struct.SetPtr(47, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(47, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s CropModuleState) CultivarParams() (CultivarParameters, error) {
-	p, err := s.Struct.Ptr(48)
-	return CultivarParameters{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(48)
+	return CultivarParameters(p.Struct()), err
 }
 
 func (s CropModuleState) HasCultivarParams() bool {
-	return s.Struct.HasPtr(48)
+	return capnp.Struct(s).HasPtr(48)
 }
 
 func (s CropModuleState) SetCultivarParams(v CultivarParameters) error {
-	return s.Struct.SetPtr(48, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(48, capnp.Struct(v).ToPtr())
 }
 
 // NewCultivarParams sets the cultivarParams field to a newly
 // allocated CultivarParameters struct, preferring placement in s's segment.
 func (s CropModuleState) NewCultivarParams() (CultivarParameters, error) {
-	ss, err := NewCultivarParameters(s.Struct.Segment())
+	ss, err := NewCultivarParameters(capnp.Struct(s).Segment())
 	if err != nil {
 		return CultivarParameters{}, err
 	}
-	err = s.Struct.SetPtr(48, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(48, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s CropModuleState) ResidueParams() (CropResidueParameters, error) {
-	p, err := s.Struct.Ptr(49)
-	return CropResidueParameters{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(49)
+	return CropResidueParameters(p.Struct()), err
 }
 
 func (s CropModuleState) HasResidueParams() bool {
-	return s.Struct.HasPtr(49)
+	return capnp.Struct(s).HasPtr(49)
 }
 
 func (s CropModuleState) SetResidueParams(v CropResidueParameters) error {
-	return s.Struct.SetPtr(49, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(49, capnp.Struct(v).ToPtr())
 }
 
 // NewResidueParams sets the residueParams field to a newly
 // allocated CropResidueParameters struct, preferring placement in s's segment.
 func (s CropModuleState) NewResidueParams() (CropResidueParameters, error) {
-	ss, err := NewCropResidueParameters(s.Struct.Segment())
+	ss, err := NewCropResidueParameters(capnp.Struct(s).Segment())
 	if err != nil {
 		return CropResidueParameters{}, err
 	}
-	err = s.Struct.SetPtr(49, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(49, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s CropModuleState) IsWinterCrop() bool {
-	return s.Struct.Bit(7285)
+	return capnp.Struct(s).Bit(7285)
 }
 
 func (s CropModuleState) SetIsWinterCrop(v bool) {
-	s.Struct.SetBit(7285, v)
+	capnp.Struct(s).SetBit(7285, v)
 }
 
 func (s CropModuleState) VsLatitude() float64 {
-	return math.Float64frombits(s.Struct.Uint64(40))
+	return math.Float64frombits(capnp.Struct(s).Uint64(40))
 }
 
 func (s CropModuleState) SetVsLatitude(v float64) {
-	s.Struct.SetUint64(40, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(40, math.Float64bits(v))
 }
 
 func (s CropModuleState) AbovegroundBiomass() float64 {
-	return math.Float64frombits(s.Struct.Uint64(48))
+	return math.Float64frombits(capnp.Struct(s).Uint64(48))
 }
 
 func (s CropModuleState) SetAbovegroundBiomass(v float64) {
-	s.Struct.SetUint64(48, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(48, math.Float64bits(v))
 }
 
 func (s CropModuleState) AbovegroundBiomassOld() float64 {
-	return math.Float64frombits(s.Struct.Uint64(56))
+	return math.Float64frombits(capnp.Struct(s).Uint64(56))
 }
 
 func (s CropModuleState) SetAbovegroundBiomassOld(v float64) {
-	s.Struct.SetUint64(56, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(56, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcAbovegroundOrgan() (capnp.BitList, error) {
-	p, err := s.Struct.Ptr(0)
-	return capnp.BitList{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return capnp.BitList(p.List()), err
 }
 
 func (s CropModuleState) HasPcAbovegroundOrgan() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s CropModuleState) SetPcAbovegroundOrgan(v capnp.BitList) error {
-	return s.Struct.SetPtr(0, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
 }
 
 // NewPcAbovegroundOrgan sets the pcAbovegroundOrgan field to a newly
 // allocated capnp.BitList, preferring placement in s's segment.
 func (s CropModuleState) NewPcAbovegroundOrgan(n int32) (capnp.BitList, error) {
-	l, err := capnp.NewBitList(s.Struct.Segment(), n)
+	l, err := capnp.NewBitList(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.BitList{}, err
 	}
-	err = s.Struct.SetPtr(0, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) ActualTranspiration() float64 {
-	return math.Float64frombits(s.Struct.Uint64(64))
+	return math.Float64frombits(capnp.Struct(s).Uint64(64))
 }
 
 func (s CropModuleState) SetActualTranspiration(v float64) {
-	s.Struct.SetUint64(64, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(64, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcAssimilatePartitioningCoeff() (capnp.PointerList, error) {
-	p, err := s.Struct.Ptr(1)
-	return capnp.PointerList{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(1)
+	return capnp.PointerList(p.List()), err
 }
 
 func (s CropModuleState) HasPcAssimilatePartitioningCoeff() bool {
-	return s.Struct.HasPtr(1)
+	return capnp.Struct(s).HasPtr(1)
 }
 
 func (s CropModuleState) SetPcAssimilatePartitioningCoeff(v capnp.PointerList) error {
-	return s.Struct.SetPtr(1, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(1, v.ToPtr())
 }
 
 // NewPcAssimilatePartitioningCoeff sets the pcAssimilatePartitioningCoeff field to a newly
 // allocated capnp.PointerList, preferring placement in s's segment.
 func (s CropModuleState) NewPcAssimilatePartitioningCoeff(n int32) (capnp.PointerList, error) {
-	l, err := capnp.NewPointerList(s.Struct.Segment(), n)
+	l, err := capnp.NewPointerList(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.PointerList{}, err
 	}
-	err = s.Struct.SetPtr(1, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(1, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) PcAssimilateReallocation() float64 {
-	return math.Float64frombits(s.Struct.Uint64(72))
+	return math.Float64frombits(capnp.Struct(s).Uint64(72))
 }
 
 func (s CropModuleState) SetPcAssimilateReallocation(v float64) {
-	s.Struct.SetUint64(72, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(72, math.Float64bits(v))
 }
 
 func (s CropModuleState) Assimilates() float64 {
-	return math.Float64frombits(s.Struct.Uint64(80))
+	return math.Float64frombits(capnp.Struct(s).Uint64(80))
 }
 
 func (s CropModuleState) SetAssimilates(v float64) {
-	s.Struct.SetUint64(80, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(80, math.Float64bits(v))
 }
 
 func (s CropModuleState) AssimilationRate() float64 {
-	return math.Float64frombits(s.Struct.Uint64(88))
+	return math.Float64frombits(capnp.Struct(s).Uint64(88))
 }
 
 func (s CropModuleState) SetAssimilationRate(v float64) {
-	s.Struct.SetUint64(88, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(88, math.Float64bits(v))
 }
 
 func (s CropModuleState) AstronomicDayLenght() float64 {
-	return math.Float64frombits(s.Struct.Uint64(96))
+	return math.Float64frombits(capnp.Struct(s).Uint64(96))
 }
 
 func (s CropModuleState) SetAstronomicDayLenght(v float64) {
-	s.Struct.SetUint64(96, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(96, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcBaseDaylength() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(2)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(2)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s CropModuleState) HasPcBaseDaylength() bool {
-	return s.Struct.HasPtr(2)
+	return capnp.Struct(s).HasPtr(2)
 }
 
 func (s CropModuleState) SetPcBaseDaylength(v capnp.Float64List) error {
-	return s.Struct.SetPtr(2, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(2, v.ToPtr())
 }
 
 // NewPcBaseDaylength sets the pcBaseDaylength field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s CropModuleState) NewPcBaseDaylength(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(2, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(2, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) PcBaseTemperature() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(3)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(3)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s CropModuleState) HasPcBaseTemperature() bool {
-	return s.Struct.HasPtr(3)
+	return capnp.Struct(s).HasPtr(3)
 }
 
 func (s CropModuleState) SetPcBaseTemperature(v capnp.Float64List) error {
-	return s.Struct.SetPtr(3, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(3, v.ToPtr())
 }
 
 // NewPcBaseTemperature sets the pcBaseTemperature field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s CropModuleState) NewPcBaseTemperature(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(3, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(3, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) PcBeginSensitivePhaseHeatStress() float64 {
-	return math.Float64frombits(s.Struct.Uint64(104))
+	return math.Float64frombits(capnp.Struct(s).Uint64(104))
 }
 
 func (s CropModuleState) SetPcBeginSensitivePhaseHeatStress(v float64) {
-	s.Struct.SetUint64(104, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(104, math.Float64bits(v))
 }
 
 func (s CropModuleState) BelowgroundBiomass() float64 {
-	return math.Float64frombits(s.Struct.Uint64(112))
+	return math.Float64frombits(capnp.Struct(s).Uint64(112))
 }
 
 func (s CropModuleState) SetBelowgroundBiomass(v float64) {
-	s.Struct.SetUint64(112, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(112, math.Float64bits(v))
 }
 
 func (s CropModuleState) BelowgroundBiomassOld() float64 {
-	return math.Float64frombits(s.Struct.Uint64(120))
+	return math.Float64frombits(capnp.Struct(s).Uint64(120))
 }
 
 func (s CropModuleState) SetBelowgroundBiomassOld(v float64) {
-	s.Struct.SetUint64(120, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(120, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcCarboxylationPathway() int64 {
-	return int64(s.Struct.Uint64(128))
+	return int64(capnp.Struct(s).Uint64(128))
 }
 
 func (s CropModuleState) SetPcCarboxylationPathway(v int64) {
-	s.Struct.SetUint64(128, uint64(v))
+	capnp.Struct(s).SetUint64(128, uint64(v))
 }
 
 func (s CropModuleState) ClearDayRadiation() float64 {
-	return math.Float64frombits(s.Struct.Uint64(136))
+	return math.Float64frombits(capnp.Struct(s).Uint64(136))
 }
 
 func (s CropModuleState) SetClearDayRadiation(v float64) {
-	s.Struct.SetUint64(136, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(136, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcCo2Method() uint8 {
-	return s.Struct.Uint8(1) ^ 3
+	return capnp.Struct(s).Uint8(1) ^ 3
 }
 
 func (s CropModuleState) SetPcCo2Method(v uint8) {
-	s.Struct.SetUint8(1, v^3)
+	capnp.Struct(s).SetUint8(1, v^3)
 }
 
 func (s CropModuleState) CriticalNConcentration() float64 {
-	return math.Float64frombits(s.Struct.Uint64(144))
+	return math.Float64frombits(capnp.Struct(s).Uint64(144))
 }
 
 func (s CropModuleState) SetCriticalNConcentration(v float64) {
-	s.Struct.SetUint64(144, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(144, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcCriticalOxygenContent() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(4)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(4)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s CropModuleState) HasPcCriticalOxygenContent() bool {
-	return s.Struct.HasPtr(4)
+	return capnp.Struct(s).HasPtr(4)
 }
 
 func (s CropModuleState) SetPcCriticalOxygenContent(v capnp.Float64List) error {
-	return s.Struct.SetPtr(4, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(4, v.ToPtr())
 }
 
 // NewPcCriticalOxygenContent sets the pcCriticalOxygenContent field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s CropModuleState) NewPcCriticalOxygenContent(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(4, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(4, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) PcCriticalTemperatureHeatStress() float64 {
-	return math.Float64frombits(s.Struct.Uint64(152))
+	return math.Float64frombits(capnp.Struct(s).Uint64(152))
 }
 
 func (s CropModuleState) SetPcCriticalTemperatureHeatStress(v float64) {
-	s.Struct.SetUint64(152, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(152, math.Float64bits(v))
 }
 
 func (s CropModuleState) CropDiameter() float64 {
-	return math.Float64frombits(s.Struct.Uint64(160))
+	return math.Float64frombits(capnp.Struct(s).Uint64(160))
 }
 
 func (s CropModuleState) SetCropDiameter(v float64) {
-	s.Struct.SetUint64(160, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(160, math.Float64bits(v))
 }
 
 func (s CropModuleState) CropFrostRedux() float64 {
-	return math.Float64frombits(s.Struct.Uint64(168) ^ 0x3ff0000000000000)
+	return math.Float64frombits(capnp.Struct(s).Uint64(168) ^ 0x3ff0000000000000)
 }
 
 func (s CropModuleState) SetCropFrostRedux(v float64) {
-	s.Struct.SetUint64(168, math.Float64bits(v)^0x3ff0000000000000)
+	capnp.Struct(s).SetUint64(168, math.Float64bits(v)^0x3ff0000000000000)
 }
 
 func (s CropModuleState) CropHeatRedux() float64 {
-	return math.Float64frombits(s.Struct.Uint64(176) ^ 0x3ff0000000000000)
+	return math.Float64frombits(capnp.Struct(s).Uint64(176) ^ 0x3ff0000000000000)
 }
 
 func (s CropModuleState) SetCropHeatRedux(v float64) {
-	s.Struct.SetUint64(176, math.Float64bits(v)^0x3ff0000000000000)
+	capnp.Struct(s).SetUint64(176, math.Float64bits(v)^0x3ff0000000000000)
 }
 
 func (s CropModuleState) CropHeight() float64 {
-	return math.Float64frombits(s.Struct.Uint64(184))
+	return math.Float64frombits(capnp.Struct(s).Uint64(184))
 }
 
 func (s CropModuleState) SetCropHeight(v float64) {
-	s.Struct.SetUint64(184, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(184, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcCropHeightP1() float64 {
-	return math.Float64frombits(s.Struct.Uint64(192))
+	return math.Float64frombits(capnp.Struct(s).Uint64(192))
 }
 
 func (s CropModuleState) SetPcCropHeightP1(v float64) {
-	s.Struct.SetUint64(192, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(192, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcCropHeightP2() float64 {
-	return math.Float64frombits(s.Struct.Uint64(200))
+	return math.Float64frombits(capnp.Struct(s).Uint64(200))
 }
 
 func (s CropModuleState) SetPcCropHeightP2(v float64) {
-	s.Struct.SetUint64(200, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(200, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcCropName() (string, error) {
-	p, err := s.Struct.Ptr(5)
+	p, err := capnp.Struct(s).Ptr(5)
 	return p.Text(), err
 }
 
 func (s CropModuleState) HasPcCropName() bool {
-	return s.Struct.HasPtr(5)
+	return capnp.Struct(s).HasPtr(5)
 }
 
 func (s CropModuleState) PcCropNameBytes() ([]byte, error) {
-	p, err := s.Struct.Ptr(5)
+	p, err := capnp.Struct(s).Ptr(5)
 	return p.TextBytes(), err
 }
 
 func (s CropModuleState) SetPcCropName(v string) error {
-	return s.Struct.SetText(5, v)
+	return capnp.Struct(s).SetText(5, v)
 }
 
 func (s CropModuleState) CropNDemand() float64 {
-	return math.Float64frombits(s.Struct.Uint64(208))
+	return math.Float64frombits(capnp.Struct(s).Uint64(208))
 }
 
 func (s CropModuleState) SetCropNDemand(v float64) {
-	s.Struct.SetUint64(208, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(208, math.Float64bits(v))
 }
 
 func (s CropModuleState) CropNRedux() float64 {
-	return math.Float64frombits(s.Struct.Uint64(216) ^ 0x3ff0000000000000)
+	return math.Float64frombits(capnp.Struct(s).Uint64(216) ^ 0x3ff0000000000000)
 }
 
 func (s CropModuleState) SetCropNRedux(v float64) {
-	s.Struct.SetUint64(216, math.Float64bits(v)^0x3ff0000000000000)
+	capnp.Struct(s).SetUint64(216, math.Float64bits(v)^0x3ff0000000000000)
 }
 
 func (s CropModuleState) PcCropSpecificMaxRootingDepth() float64 {
-	return math.Float64frombits(s.Struct.Uint64(224))
+	return math.Float64frombits(capnp.Struct(s).Uint64(224))
 }
 
 func (s CropModuleState) SetPcCropSpecificMaxRootingDepth(v float64) {
-	s.Struct.SetUint64(224, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(224, math.Float64bits(v))
 }
 
 func (s CropModuleState) CropWaterUptake() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(6)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(6)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s CropModuleState) HasCropWaterUptake() bool {
-	return s.Struct.HasPtr(6)
+	return capnp.Struct(s).HasPtr(6)
 }
 
 func (s CropModuleState) SetCropWaterUptake(v capnp.Float64List) error {
-	return s.Struct.SetPtr(6, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(6, v.ToPtr())
 }
 
 // NewCropWaterUptake sets the cropWaterUptake field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s CropModuleState) NewCropWaterUptake(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(6, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(6, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) CurrentTemperatureSum() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(7)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(7)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s CropModuleState) HasCurrentTemperatureSum() bool {
-	return s.Struct.HasPtr(7)
+	return capnp.Struct(s).HasPtr(7)
 }
 
 func (s CropModuleState) SetCurrentTemperatureSum(v capnp.Float64List) error {
-	return s.Struct.SetPtr(7, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(7, v.ToPtr())
 }
 
 // NewCurrentTemperatureSum sets the currentTemperatureSum field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s CropModuleState) NewCurrentTemperatureSum(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(7, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(7, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) CurrentTotalTemperatureSum() float64 {
-	return math.Float64frombits(s.Struct.Uint64(232))
+	return math.Float64frombits(capnp.Struct(s).Uint64(232))
 }
 
 func (s CropModuleState) SetCurrentTotalTemperatureSum(v float64) {
-	s.Struct.SetUint64(232, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(232, math.Float64bits(v))
 }
 
 func (s CropModuleState) CurrentTotalTemperatureSumRoot() float64 {
-	return math.Float64frombits(s.Struct.Uint64(240))
+	return math.Float64frombits(capnp.Struct(s).Uint64(240))
 }
 
 func (s CropModuleState) SetCurrentTotalTemperatureSumRoot(v float64) {
-	s.Struct.SetUint64(240, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(240, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcCuttingDelayDays() uint16 {
-	return s.Struct.Uint16(2)
+	return capnp.Struct(s).Uint16(2)
 }
 
 func (s CropModuleState) SetPcCuttingDelayDays(v uint16) {
-	s.Struct.SetUint16(2, v)
+	capnp.Struct(s).SetUint16(2, v)
 }
 
 func (s CropModuleState) DaylengthFactor() float64 {
-	return math.Float64frombits(s.Struct.Uint64(248))
+	return math.Float64frombits(capnp.Struct(s).Uint64(248))
 }
 
 func (s CropModuleState) SetDaylengthFactor(v float64) {
-	s.Struct.SetUint64(248, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(248, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcDaylengthRequirement() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(8)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(8)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s CropModuleState) HasPcDaylengthRequirement() bool {
-	return s.Struct.HasPtr(8)
+	return capnp.Struct(s).HasPtr(8)
 }
 
 func (s CropModuleState) SetPcDaylengthRequirement(v capnp.Float64List) error {
-	return s.Struct.SetPtr(8, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(8, v.ToPtr())
 }
 
 // NewPcDaylengthRequirement sets the pcDaylengthRequirement field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s CropModuleState) NewPcDaylengthRequirement(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(8, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(8, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) DaysAfterBeginFlowering() uint16 {
-	return s.Struct.Uint16(4)
+	return capnp.Struct(s).Uint16(4)
 }
 
 func (s CropModuleState) SetDaysAfterBeginFlowering(v uint16) {
-	s.Struct.SetUint16(4, v)
+	capnp.Struct(s).SetUint16(4, v)
 }
 
 func (s CropModuleState) Declination() float64 {
-	return math.Float64frombits(s.Struct.Uint64(256))
+	return math.Float64frombits(capnp.Struct(s).Uint64(256))
 }
 
 func (s CropModuleState) SetDeclination(v float64) {
-	s.Struct.SetUint64(256, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(256, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcDefaultRadiationUseEfficiency() float64 {
-	return math.Float64frombits(s.Struct.Uint64(264))
+	return math.Float64frombits(capnp.Struct(s).Uint64(264))
 }
 
 func (s CropModuleState) SetPcDefaultRadiationUseEfficiency(v float64) {
-	s.Struct.SetUint64(264, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(264, math.Float64bits(v))
 }
 
 func (s CropModuleState) VmDepthGroundwaterTable() uint16 {
-	return s.Struct.Uint16(6)
+	return capnp.Struct(s).Uint16(6)
 }
 
 func (s CropModuleState) SetVmDepthGroundwaterTable(v uint16) {
-	s.Struct.SetUint16(6, v)
+	capnp.Struct(s).SetUint16(6, v)
 }
 
 func (s CropModuleState) PcDevelopmentAccelerationByNitrogenStress() uint64 {
-	return s.Struct.Uint64(272)
+	return capnp.Struct(s).Uint64(272)
 }
 
 func (s CropModuleState) SetPcDevelopmentAccelerationByNitrogenStress(v uint64) {
-	s.Struct.SetUint64(272, v)
+	capnp.Struct(s).SetUint64(272, v)
 }
 
 func (s CropModuleState) DevelopmentalStage() uint16 {
-	return s.Struct.Uint16(280)
+	return capnp.Struct(s).Uint16(280)
 }
 
 func (s CropModuleState) SetDevelopmentalStage(v uint16) {
-	s.Struct.SetUint16(280, v)
+	capnp.Struct(s).SetUint16(280, v)
 }
 
 func (s CropModuleState) NoOfCropSteps() uint16 {
-	return s.Struct.Uint16(282)
+	return capnp.Struct(s).Uint16(282)
 }
 
 func (s CropModuleState) SetNoOfCropSteps(v uint16) {
-	s.Struct.SetUint16(282, v)
+	capnp.Struct(s).SetUint16(282, v)
 }
 
 func (s CropModuleState) DroughtImpactOnFertility() float64 {
-	return math.Float64frombits(s.Struct.Uint64(288) ^ 0x3ff0000000000000)
+	return math.Float64frombits(capnp.Struct(s).Uint64(288) ^ 0x3ff0000000000000)
 }
 
 func (s CropModuleState) SetDroughtImpactOnFertility(v float64) {
-	s.Struct.SetUint64(288, math.Float64bits(v)^0x3ff0000000000000)
+	capnp.Struct(s).SetUint64(288, math.Float64bits(v)^0x3ff0000000000000)
 }
 
 func (s CropModuleState) PcDroughtImpactOnFertilityFactor() float64 {
-	return math.Float64frombits(s.Struct.Uint64(296))
+	return math.Float64frombits(capnp.Struct(s).Uint64(296))
 }
 
 func (s CropModuleState) SetPcDroughtImpactOnFertilityFactor(v float64) {
-	s.Struct.SetUint64(296, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(296, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcDroughtStressThreshold() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(9)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(9)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s CropModuleState) HasPcDroughtStressThreshold() bool {
-	return s.Struct.HasPtr(9)
+	return capnp.Struct(s).HasPtr(9)
 }
 
 func (s CropModuleState) SetPcDroughtStressThreshold(v capnp.Float64List) error {
-	return s.Struct.SetPtr(9, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(9, v.ToPtr())
 }
 
 // NewPcDroughtStressThreshold sets the pcDroughtStressThreshold field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s CropModuleState) NewPcDroughtStressThreshold(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(9, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(9, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) PcEmergenceFloodingControlOn() bool {
-	return s.Struct.Bit(2)
+	return capnp.Struct(s).Bit(2)
 }
 
 func (s CropModuleState) SetPcEmergenceFloodingControlOn(v bool) {
-	s.Struct.SetBit(2, v)
+	capnp.Struct(s).SetBit(2, v)
 }
 
 func (s CropModuleState) PcEmergenceMoistureControlOn() bool {
-	return s.Struct.Bit(3)
+	return capnp.Struct(s).Bit(3)
 }
 
 func (s CropModuleState) SetPcEmergenceMoistureControlOn(v bool) {
-	s.Struct.SetBit(3, v)
+	capnp.Struct(s).SetBit(3, v)
 }
 
 func (s CropModuleState) PcEndSensitivePhaseHeatStress() float64 {
-	return math.Float64frombits(s.Struct.Uint64(304))
+	return math.Float64frombits(capnp.Struct(s).Uint64(304))
 }
 
 func (s CropModuleState) SetPcEndSensitivePhaseHeatStress(v float64) {
-	s.Struct.SetUint64(304, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(304, math.Float64bits(v))
 }
 
 func (s CropModuleState) EffectiveDayLength() float64 {
-	return math.Float64frombits(s.Struct.Uint64(312))
+	return math.Float64frombits(capnp.Struct(s).Uint64(312))
 }
 
 func (s CropModuleState) SetEffectiveDayLength(v float64) {
-	s.Struct.SetUint64(312, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(312, math.Float64bits(v))
 }
 
 func (s CropModuleState) ErrorStatus() bool {
-	return s.Struct.Bit(4)
+	return capnp.Struct(s).Bit(4)
 }
 
 func (s CropModuleState) SetErrorStatus(v bool) {
-	s.Struct.SetBit(4, v)
+	capnp.Struct(s).SetBit(4, v)
 }
 
 func (s CropModuleState) ErrorMessage() (string, error) {
-	p, err := s.Struct.Ptr(10)
+	p, err := capnp.Struct(s).Ptr(10)
 	return p.Text(), err
 }
 
 func (s CropModuleState) HasErrorMessage() bool {
-	return s.Struct.HasPtr(10)
+	return capnp.Struct(s).HasPtr(10)
 }
 
 func (s CropModuleState) ErrorMessageBytes() ([]byte, error) {
-	p, err := s.Struct.Ptr(10)
+	p, err := capnp.Struct(s).Ptr(10)
 	return p.TextBytes(), err
 }
 
 func (s CropModuleState) SetErrorMessage(v string) error {
-	return s.Struct.SetText(10, v)
+	return capnp.Struct(s).SetText(10, v)
 }
 
 func (s CropModuleState) EvaporatedFromIntercept() float64 {
-	return math.Float64frombits(s.Struct.Uint64(320))
+	return math.Float64frombits(capnp.Struct(s).Uint64(320))
 }
 
 func (s CropModuleState) SetEvaporatedFromIntercept(v float64) {
-	s.Struct.SetUint64(320, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(320, math.Float64bits(v))
 }
 
 func (s CropModuleState) ExtraterrestrialRadiation() float64 {
-	return math.Float64frombits(s.Struct.Uint64(328))
+	return math.Float64frombits(capnp.Struct(s).Uint64(328))
 }
 
 func (s CropModuleState) SetExtraterrestrialRadiation(v float64) {
-	s.Struct.SetUint64(328, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(328, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcFieldConditionModifier() float64 {
-	return math.Float64frombits(s.Struct.Uint64(336))
+	return math.Float64frombits(capnp.Struct(s).Uint64(336))
 }
 
 func (s CropModuleState) SetPcFieldConditionModifier(v float64) {
-	s.Struct.SetUint64(336, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(336, math.Float64bits(v))
 }
 
 func (s CropModuleState) FinalDevelopmentalStage() uint16 {
-	return s.Struct.Uint16(284)
+	return capnp.Struct(s).Uint16(284)
 }
 
 func (s CropModuleState) SetFinalDevelopmentalStage(v uint16) {
-	s.Struct.SetUint16(284, v)
+	capnp.Struct(s).SetUint16(284, v)
 }
 
 func (s CropModuleState) FixedN() float64 {
-	return math.Float64frombits(s.Struct.Uint64(344))
+	return math.Float64frombits(capnp.Struct(s).Uint64(344))
 }
 
 func (s CropModuleState) SetFixedN(v float64) {
-	s.Struct.SetUint64(344, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(344, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcFrostDehardening() float64 {
-	return math.Float64frombits(s.Struct.Uint64(352))
+	return math.Float64frombits(capnp.Struct(s).Uint64(352))
 }
 
 func (s CropModuleState) SetPcFrostDehardening(v float64) {
-	s.Struct.SetUint64(352, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(352, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcFrostHardening() float64 {
-	return math.Float64frombits(s.Struct.Uint64(360))
+	return math.Float64frombits(capnp.Struct(s).Uint64(360))
 }
 
 func (s CropModuleState) SetPcFrostHardening(v float64) {
-	s.Struct.SetUint64(360, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(360, math.Float64bits(v))
 }
 
 func (s CropModuleState) GlobalRadiation() float64 {
-	return math.Float64frombits(s.Struct.Uint64(368))
+	return math.Float64frombits(capnp.Struct(s).Uint64(368))
 }
 
 func (s CropModuleState) SetGlobalRadiation(v float64) {
-	s.Struct.SetUint64(368, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(368, math.Float64bits(v))
 }
 
 func (s CropModuleState) GreenAreaIndex() float64 {
-	return math.Float64frombits(s.Struct.Uint64(376))
+	return math.Float64frombits(capnp.Struct(s).Uint64(376))
 }
 
 func (s CropModuleState) SetGreenAreaIndex(v float64) {
-	s.Struct.SetUint64(376, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(376, math.Float64bits(v))
 }
 
 func (s CropModuleState) GrossAssimilates() float64 {
-	return math.Float64frombits(s.Struct.Uint64(384))
+	return math.Float64frombits(capnp.Struct(s).Uint64(384))
 }
 
 func (s CropModuleState) SetGrossAssimilates(v float64) {
-	s.Struct.SetUint64(384, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(384, math.Float64bits(v))
 }
 
 func (s CropModuleState) GrossPhotosynthesis() float64 {
-	return math.Float64frombits(s.Struct.Uint64(392))
+	return math.Float64frombits(capnp.Struct(s).Uint64(392))
 }
 
 func (s CropModuleState) SetGrossPhotosynthesis(v float64) {
-	s.Struct.SetUint64(392, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(392, math.Float64bits(v))
 }
 
 func (s CropModuleState) GrossPhotosynthesisMol() float64 {
-	return math.Float64frombits(s.Struct.Uint64(400))
+	return math.Float64frombits(capnp.Struct(s).Uint64(400))
 }
 
 func (s CropModuleState) SetGrossPhotosynthesisMol(v float64) {
-	s.Struct.SetUint64(400, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(400, math.Float64bits(v))
 }
 
 func (s CropModuleState) GrossPhotosynthesisReferenceMol() float64 {
-	return math.Float64frombits(s.Struct.Uint64(408))
+	return math.Float64frombits(capnp.Struct(s).Uint64(408))
 }
 
 func (s CropModuleState) SetGrossPhotosynthesisReferenceMol(v float64) {
-	s.Struct.SetUint64(408, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(408, math.Float64bits(v))
 }
 
 func (s CropModuleState) GrossPrimaryProduction() float64 {
-	return math.Float64frombits(s.Struct.Uint64(416))
+	return math.Float64frombits(capnp.Struct(s).Uint64(416))
 }
 
 func (s CropModuleState) SetGrossPrimaryProduction(v float64) {
-	s.Struct.SetUint64(416, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(416, math.Float64bits(v))
 }
 
 func (s CropModuleState) GrowthCycleEnded() bool {
-	return s.Struct.Bit(5)
+	return capnp.Struct(s).Bit(5)
 }
 
 func (s CropModuleState) SetGrowthCycleEnded(v bool) {
-	s.Struct.SetBit(5, v)
+	capnp.Struct(s).SetBit(5, v)
 }
 
 func (s CropModuleState) GrowthRespirationAS() float64 {
-	return math.Float64frombits(s.Struct.Uint64(424))
+	return math.Float64frombits(capnp.Struct(s).Uint64(424))
 }
 
 func (s CropModuleState) SetGrowthRespirationAS(v float64) {
-	s.Struct.SetUint64(424, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(424, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcHeatSumIrrigationStart() float64 {
-	return math.Float64frombits(s.Struct.Uint64(432))
+	return math.Float64frombits(capnp.Struct(s).Uint64(432))
 }
 
 func (s CropModuleState) SetPcHeatSumIrrigationStart(v float64) {
-	s.Struct.SetUint64(432, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(432, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcHeatSumIrrigationEnd() float64 {
-	return math.Float64frombits(s.Struct.Uint64(440))
+	return math.Float64frombits(capnp.Struct(s).Uint64(440))
 }
 
 func (s CropModuleState) SetPcHeatSumIrrigationEnd(v float64) {
-	s.Struct.SetUint64(440, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(440, math.Float64bits(v))
 }
 
 func (s CropModuleState) VsHeightNN() float64 {
-	return math.Float64frombits(s.Struct.Uint64(448))
+	return math.Float64frombits(capnp.Struct(s).Uint64(448))
 }
 
 func (s CropModuleState) SetVsHeightNN(v float64) {
-	s.Struct.SetUint64(448, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(448, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcInitialKcFactor() float64 {
-	return math.Float64frombits(s.Struct.Uint64(456))
+	return math.Float64frombits(capnp.Struct(s).Uint64(456))
 }
 
 func (s CropModuleState) SetPcInitialKcFactor(v float64) {
-	s.Struct.SetUint64(456, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(456, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcInitialOrganBiomass() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(11)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(11)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s CropModuleState) HasPcInitialOrganBiomass() bool {
-	return s.Struct.HasPtr(11)
+	return capnp.Struct(s).HasPtr(11)
 }
 
 func (s CropModuleState) SetPcInitialOrganBiomass(v capnp.Float64List) error {
-	return s.Struct.SetPtr(11, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(11, v.ToPtr())
 }
 
 // NewPcInitialOrganBiomass sets the pcInitialOrganBiomass field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s CropModuleState) NewPcInitialOrganBiomass(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(11, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(11, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) PcInitialRootingDepth() float64 {
-	return math.Float64frombits(s.Struct.Uint64(464))
+	return math.Float64frombits(capnp.Struct(s).Uint64(464))
 }
 
 func (s CropModuleState) SetPcInitialRootingDepth(v float64) {
-	s.Struct.SetUint64(464, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(464, math.Float64bits(v))
 }
 
 func (s CropModuleState) InterceptionStorage() float64 {
-	return math.Float64frombits(s.Struct.Uint64(472))
+	return math.Float64frombits(capnp.Struct(s).Uint64(472))
 }
 
 func (s CropModuleState) SetInterceptionStorage(v float64) {
-	s.Struct.SetUint64(472, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(472, math.Float64bits(v))
 }
 
 func (s CropModuleState) KcFactor() float64 {
-	return math.Float64frombits(s.Struct.Uint64(480) ^ 0x3fe3333333333333)
+	return math.Float64frombits(capnp.Struct(s).Uint64(480) ^ 0x3fe3333333333333)
 }
 
 func (s CropModuleState) SetKcFactor(v float64) {
-	s.Struct.SetUint64(480, math.Float64bits(v)^0x3fe3333333333333)
+	capnp.Struct(s).SetUint64(480, math.Float64bits(v)^0x3fe3333333333333)
 }
 
 func (s CropModuleState) LeafAreaIndex() float64 {
-	return math.Float64frombits(s.Struct.Uint64(488))
+	return math.Float64frombits(capnp.Struct(s).Uint64(488))
 }
 
 func (s CropModuleState) SetLeafAreaIndex(v float64) {
-	s.Struct.SetUint64(488, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(488, math.Float64bits(v))
 }
 
 func (s CropModuleState) SunlitLeafAreaIndex() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(12)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(12)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s CropModuleState) HasSunlitLeafAreaIndex() bool {
-	return s.Struct.HasPtr(12)
+	return capnp.Struct(s).HasPtr(12)
 }
 
 func (s CropModuleState) SetSunlitLeafAreaIndex(v capnp.Float64List) error {
-	return s.Struct.SetPtr(12, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(12, v.ToPtr())
 }
 
 // NewSunlitLeafAreaIndex sets the sunlitLeafAreaIndex field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s CropModuleState) NewSunlitLeafAreaIndex(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(12, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(12, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) ShadedLeafAreaIndex() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(13)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(13)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s CropModuleState) HasShadedLeafAreaIndex() bool {
-	return s.Struct.HasPtr(13)
+	return capnp.Struct(s).HasPtr(13)
 }
 
 func (s CropModuleState) SetShadedLeafAreaIndex(v capnp.Float64List) error {
-	return s.Struct.SetPtr(13, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(13, v.ToPtr())
 }
 
 // NewShadedLeafAreaIndex sets the shadedLeafAreaIndex field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s CropModuleState) NewShadedLeafAreaIndex(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(13, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(13, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) PcLowTemperatureExposure() float64 {
-	return math.Float64frombits(s.Struct.Uint64(496))
+	return math.Float64frombits(capnp.Struct(s).Uint64(496))
 }
 
 func (s CropModuleState) SetPcLowTemperatureExposure(v float64) {
-	s.Struct.SetUint64(496, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(496, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcLimitingTemperatureHeatStress() float64 {
-	return math.Float64frombits(s.Struct.Uint64(504))
+	return math.Float64frombits(capnp.Struct(s).Uint64(504))
 }
 
 func (s CropModuleState) SetPcLimitingTemperatureHeatStress(v float64) {
-	s.Struct.SetUint64(504, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(504, math.Float64bits(v))
 }
 
 func (s CropModuleState) Lt50() float64 {
-	return math.Float64frombits(s.Struct.Uint64(512) ^ 0xc008000000000000)
+	return math.Float64frombits(capnp.Struct(s).Uint64(512) ^ 0xc008000000000000)
 }
 
 func (s CropModuleState) SetLt50(v float64) {
-	s.Struct.SetUint64(512, math.Float64bits(v)^0xc008000000000000)
+	capnp.Struct(s).SetUint64(512, math.Float64bits(v)^0xc008000000000000)
 }
 
 func (s CropModuleState) Lt50m() float64 {
-	return math.Float64frombits(s.Struct.Uint64(1240) ^ 0xc008000000000000)
+	return math.Float64frombits(capnp.Struct(s).Uint64(1240) ^ 0xc008000000000000)
 }
 
 func (s CropModuleState) SetLt50m(v float64) {
-	s.Struct.SetUint64(1240, math.Float64bits(v)^0xc008000000000000)
+	capnp.Struct(s).SetUint64(1240, math.Float64bits(v)^0xc008000000000000)
 }
 
 func (s CropModuleState) PcLt50cultivar() float64 {
-	return math.Float64frombits(s.Struct.Uint64(520))
+	return math.Float64frombits(capnp.Struct(s).Uint64(520))
 }
 
 func (s CropModuleState) SetPcLt50cultivar(v float64) {
-	s.Struct.SetUint64(520, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(520, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcLuxuryNCoeff() float64 {
-	return math.Float64frombits(s.Struct.Uint64(528))
+	return math.Float64frombits(capnp.Struct(s).Uint64(528))
 }
 
 func (s CropModuleState) SetPcLuxuryNCoeff(v float64) {
-	s.Struct.SetUint64(528, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(528, math.Float64bits(v))
 }
 
 func (s CropModuleState) MaintenanceRespirationAS() float64 {
-	return math.Float64frombits(s.Struct.Uint64(536))
+	return math.Float64frombits(capnp.Struct(s).Uint64(536))
 }
 
 func (s CropModuleState) SetMaintenanceRespirationAS(v float64) {
-	s.Struct.SetUint64(536, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(536, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcMaxAssimilationRate() float64 {
-	return math.Float64frombits(s.Struct.Uint64(544))
+	return math.Float64frombits(capnp.Struct(s).Uint64(544))
 }
 
 func (s CropModuleState) SetPcMaxAssimilationRate(v float64) {
-	s.Struct.SetUint64(544, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(544, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcMaxCropDiameter() float64 {
-	return math.Float64frombits(s.Struct.Uint64(552))
+	return math.Float64frombits(capnp.Struct(s).Uint64(552))
 }
 
 func (s CropModuleState) SetPcMaxCropDiameter(v float64) {
-	s.Struct.SetUint64(552, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(552, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcMaxCropHeight() float64 {
-	return math.Float64frombits(s.Struct.Uint64(560))
+	return math.Float64frombits(capnp.Struct(s).Uint64(560))
 }
 
 func (s CropModuleState) SetPcMaxCropHeight(v float64) {
-	s.Struct.SetUint64(560, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(560, math.Float64bits(v))
 }
 
 func (s CropModuleState) MaxNUptake() float64 {
-	return math.Float64frombits(s.Struct.Uint64(568))
+	return math.Float64frombits(capnp.Struct(s).Uint64(568))
 }
 
 func (s CropModuleState) SetMaxNUptake(v float64) {
-	s.Struct.SetUint64(568, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(568, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcMaxNUptakeParam() float64 {
-	return math.Float64frombits(s.Struct.Uint64(576))
+	return math.Float64frombits(capnp.Struct(s).Uint64(576))
 }
 
 func (s CropModuleState) SetPcMaxNUptakeParam(v float64) {
-	s.Struct.SetUint64(576, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(576, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcMaxRootingDepth() float64 {
-	return math.Float64frombits(s.Struct.Uint64(584))
+	return math.Float64frombits(capnp.Struct(s).Uint64(584))
 }
 
 func (s CropModuleState) SetPcMaxRootingDepth(v float64) {
-	s.Struct.SetUint64(584, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(584, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcMinimumNConcentration() float64 {
-	return math.Float64frombits(s.Struct.Uint64(592))
+	return math.Float64frombits(capnp.Struct(s).Uint64(592))
 }
 
 func (s CropModuleState) SetPcMinimumNConcentration(v float64) {
-	s.Struct.SetUint64(592, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(592, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcMinimumTemperatureForAssimilation() float64 {
-	return math.Float64frombits(s.Struct.Uint64(600))
+	return math.Float64frombits(capnp.Struct(s).Uint64(600))
 }
 
 func (s CropModuleState) SetPcMinimumTemperatureForAssimilation(v float64) {
-	s.Struct.SetUint64(600, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(600, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcOptimumTemperatureForAssimilation() float64 {
-	return math.Float64frombits(s.Struct.Uint64(608))
+	return math.Float64frombits(capnp.Struct(s).Uint64(608))
 }
 
 func (s CropModuleState) SetPcOptimumTemperatureForAssimilation(v float64) {
-	s.Struct.SetUint64(608, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(608, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcMaximumTemperatureForAssimilation() float64 {
-	return math.Float64frombits(s.Struct.Uint64(616))
+	return math.Float64frombits(capnp.Struct(s).Uint64(616))
 }
 
 func (s CropModuleState) SetPcMaximumTemperatureForAssimilation(v float64) {
-	s.Struct.SetUint64(616, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(616, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcMinimumTemperatureRootGrowth() float64 {
-	return math.Float64frombits(s.Struct.Uint64(624))
+	return math.Float64frombits(capnp.Struct(s).Uint64(624))
 }
 
 func (s CropModuleState) SetPcMinimumTemperatureRootGrowth(v float64) {
-	s.Struct.SetUint64(624, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(624, math.Float64bits(v))
 }
 
 func (s CropModuleState) NetMaintenanceRespiration() float64 {
-	return math.Float64frombits(s.Struct.Uint64(632))
+	return math.Float64frombits(capnp.Struct(s).Uint64(632))
 }
 
 func (s CropModuleState) SetNetMaintenanceRespiration(v float64) {
-	s.Struct.SetUint64(632, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(632, math.Float64bits(v))
 }
 
 func (s CropModuleState) NetPhotosynthesis() float64 {
-	return math.Float64frombits(s.Struct.Uint64(640))
+	return math.Float64frombits(capnp.Struct(s).Uint64(640))
 }
 
 func (s CropModuleState) SetNetPhotosynthesis(v float64) {
-	s.Struct.SetUint64(640, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(640, math.Float64bits(v))
 }
 
 func (s CropModuleState) NetPrecipitation() float64 {
-	return math.Float64frombits(s.Struct.Uint64(648))
+	return math.Float64frombits(capnp.Struct(s).Uint64(648))
 }
 
 func (s CropModuleState) SetNetPrecipitation(v float64) {
-	s.Struct.SetUint64(648, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(648, math.Float64bits(v))
 }
 
 func (s CropModuleState) NetPrimaryProduction() float64 {
-	return math.Float64frombits(s.Struct.Uint64(656))
+	return math.Float64frombits(capnp.Struct(s).Uint64(656))
 }
 
 func (s CropModuleState) SetNetPrimaryProduction(v float64) {
-	s.Struct.SetUint64(656, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(656, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcNConcentrationAbovegroundBiomass() float64 {
-	return math.Float64frombits(s.Struct.Uint64(664))
+	return math.Float64frombits(capnp.Struct(s).Uint64(664))
 }
 
 func (s CropModuleState) SetPcNConcentrationAbovegroundBiomass(v float64) {
-	s.Struct.SetUint64(664, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(664, math.Float64bits(v))
 }
 
 func (s CropModuleState) NConcentrationAbovegroundBiomass() float64 {
-	return math.Float64frombits(s.Struct.Uint64(672))
+	return math.Float64frombits(capnp.Struct(s).Uint64(672))
 }
 
 func (s CropModuleState) SetNConcentrationAbovegroundBiomass(v float64) {
-	s.Struct.SetUint64(672, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(672, math.Float64bits(v))
 }
 
 func (s CropModuleState) NConcentrationAbovegroundBiomassOld() float64 {
-	return math.Float64frombits(s.Struct.Uint64(680))
+	return math.Float64frombits(capnp.Struct(s).Uint64(680))
 }
 
 func (s CropModuleState) SetNConcentrationAbovegroundBiomassOld(v float64) {
-	s.Struct.SetUint64(680, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(680, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcNConcentrationB0() float64 {
-	return math.Float64frombits(s.Struct.Uint64(688))
+	return math.Float64frombits(capnp.Struct(s).Uint64(688))
 }
 
 func (s CropModuleState) SetPcNConcentrationB0(v float64) {
-	s.Struct.SetUint64(688, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(688, math.Float64bits(v))
 }
 
 func (s CropModuleState) NContentDeficit() float64 {
-	return math.Float64frombits(s.Struct.Uint64(696))
+	return math.Float64frombits(capnp.Struct(s).Uint64(696))
 }
 
 func (s CropModuleState) SetNContentDeficit(v float64) {
-	s.Struct.SetUint64(696, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(696, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcNConcentrationPN() float64 {
-	return math.Float64frombits(s.Struct.Uint64(704))
+	return math.Float64frombits(capnp.Struct(s).Uint64(704))
 }
 
 func (s CropModuleState) SetPcNConcentrationPN(v float64) {
-	s.Struct.SetUint64(704, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(704, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcNConcentrationRoot() float64 {
-	return math.Float64frombits(s.Struct.Uint64(712))
+	return math.Float64frombits(capnp.Struct(s).Uint64(712))
 }
 
 func (s CropModuleState) SetPcNConcentrationRoot(v float64) {
-	s.Struct.SetUint64(712, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(712, math.Float64bits(v))
 }
 
 func (s CropModuleState) NConcentrationRoot() float64 {
-	return math.Float64frombits(s.Struct.Uint64(720))
+	return math.Float64frombits(capnp.Struct(s).Uint64(720))
 }
 
 func (s CropModuleState) SetNConcentrationRoot(v float64) {
-	s.Struct.SetUint64(720, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(720, math.Float64bits(v))
 }
 
 func (s CropModuleState) NConcentrationRootOld() float64 {
-	return math.Float64frombits(s.Struct.Uint64(728))
+	return math.Float64frombits(capnp.Struct(s).Uint64(728))
 }
 
 func (s CropModuleState) SetNConcentrationRootOld(v float64) {
-	s.Struct.SetUint64(728, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(728, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcNitrogenResponseOn() bool {
-	return s.Struct.Bit(6)
+	return capnp.Struct(s).Bit(6)
 }
 
 func (s CropModuleState) SetPcNitrogenResponseOn(v bool) {
-	s.Struct.SetBit(6, v)
+	capnp.Struct(s).SetBit(6, v)
 }
 
 func (s CropModuleState) PcNumberOfDevelopmentalStages() float64 {
-	return math.Float64frombits(s.Struct.Uint64(736))
+	return math.Float64frombits(capnp.Struct(s).Uint64(736))
 }
 
 func (s CropModuleState) SetPcNumberOfDevelopmentalStages(v float64) {
-	s.Struct.SetUint64(736, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(736, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcNumberOfOrgans() float64 {
-	return math.Float64frombits(s.Struct.Uint64(744))
+	return math.Float64frombits(capnp.Struct(s).Uint64(744))
 }
 
 func (s CropModuleState) SetPcNumberOfOrgans(v float64) {
-	s.Struct.SetUint64(744, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(744, math.Float64bits(v))
 }
 
 func (s CropModuleState) NUptakeFromLayer() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(14)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(14)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s CropModuleState) HasNUptakeFromLayer() bool {
-	return s.Struct.HasPtr(14)
+	return capnp.Struct(s).HasPtr(14)
 }
 
 func (s CropModuleState) SetNUptakeFromLayer(v capnp.Float64List) error {
-	return s.Struct.SetPtr(14, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(14, v.ToPtr())
 }
 
 // NewNUptakeFromLayer sets the nUptakeFromLayer field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s CropModuleState) NewNUptakeFromLayer(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(14, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(14, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) PcOptimumTemperature() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(15)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(15)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s CropModuleState) HasPcOptimumTemperature() bool {
-	return s.Struct.HasPtr(15)
+	return capnp.Struct(s).HasPtr(15)
 }
 
 func (s CropModuleState) SetPcOptimumTemperature(v capnp.Float64List) error {
-	return s.Struct.SetPtr(15, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(15, v.ToPtr())
 }
 
 // NewPcOptimumTemperature sets the pcOptimumTemperature field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s CropModuleState) NewPcOptimumTemperature(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(15, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(15, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) OrganBiomass() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(16)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(16)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s CropModuleState) HasOrganBiomass() bool {
-	return s.Struct.HasPtr(16)
+	return capnp.Struct(s).HasPtr(16)
 }
 
 func (s CropModuleState) SetOrganBiomass(v capnp.Float64List) error {
-	return s.Struct.SetPtr(16, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(16, v.ToPtr())
 }
 
 // NewOrganBiomass sets the organBiomass field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s CropModuleState) NewOrganBiomass(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(16, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(16, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) OrganDeadBiomass() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(17)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(17)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s CropModuleState) HasOrganDeadBiomass() bool {
-	return s.Struct.HasPtr(17)
+	return capnp.Struct(s).HasPtr(17)
 }
 
 func (s CropModuleState) SetOrganDeadBiomass(v capnp.Float64List) error {
-	return s.Struct.SetPtr(17, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(17, v.ToPtr())
 }
 
 // NewOrganDeadBiomass sets the organDeadBiomass field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s CropModuleState) NewOrganDeadBiomass(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(17, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(17, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) OrganGreenBiomass() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(18)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(18)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s CropModuleState) HasOrganGreenBiomass() bool {
-	return s.Struct.HasPtr(18)
+	return capnp.Struct(s).HasPtr(18)
 }
 
 func (s CropModuleState) SetOrganGreenBiomass(v capnp.Float64List) error {
-	return s.Struct.SetPtr(18, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(18, v.ToPtr())
 }
 
 // NewOrganGreenBiomass sets the organGreenBiomass field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s CropModuleState) NewOrganGreenBiomass(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(18, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(18, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) OrganGrowthIncrement() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(19)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(19)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s CropModuleState) HasOrganGrowthIncrement() bool {
-	return s.Struct.HasPtr(19)
+	return capnp.Struct(s).HasPtr(19)
 }
 
 func (s CropModuleState) SetOrganGrowthIncrement(v capnp.Float64List) error {
-	return s.Struct.SetPtr(19, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(19, v.ToPtr())
 }
 
 // NewOrganGrowthIncrement sets the organGrowthIncrement field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s CropModuleState) NewOrganGrowthIncrement(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(19, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(19, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) PcOrganGrowthRespiration() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(20)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(20)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s CropModuleState) HasPcOrganGrowthRespiration() bool {
-	return s.Struct.HasPtr(20)
+	return capnp.Struct(s).HasPtr(20)
 }
 
 func (s CropModuleState) SetPcOrganGrowthRespiration(v capnp.Float64List) error {
-	return s.Struct.SetPtr(20, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(20, v.ToPtr())
 }
 
 // NewPcOrganGrowthRespiration sets the pcOrganGrowthRespiration field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s CropModuleState) NewPcOrganGrowthRespiration(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(20, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(20, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) PcOrganIdsForPrimaryYield() (YieldComponent_List, error) {
-	p, err := s.Struct.Ptr(21)
-	return YieldComponent_List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(21)
+	return YieldComponent_List(p.List()), err
 }
 
 func (s CropModuleState) HasPcOrganIdsForPrimaryYield() bool {
-	return s.Struct.HasPtr(21)
+	return capnp.Struct(s).HasPtr(21)
 }
 
 func (s CropModuleState) SetPcOrganIdsForPrimaryYield(v YieldComponent_List) error {
-	return s.Struct.SetPtr(21, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(21, v.ToPtr())
 }
 
 // NewPcOrganIdsForPrimaryYield sets the pcOrganIdsForPrimaryYield field to a newly
 // allocated YieldComponent_List, preferring placement in s's segment.
 func (s CropModuleState) NewPcOrganIdsForPrimaryYield(n int32) (YieldComponent_List, error) {
-	l, err := NewYieldComponent_List(s.Struct.Segment(), n)
+	l, err := NewYieldComponent_List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return YieldComponent_List{}, err
 	}
-	err = s.Struct.SetPtr(21, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(21, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) PcOrganIdsForSecondaryYield() (YieldComponent_List, error) {
-	p, err := s.Struct.Ptr(22)
-	return YieldComponent_List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(22)
+	return YieldComponent_List(p.List()), err
 }
 
 func (s CropModuleState) HasPcOrganIdsForSecondaryYield() bool {
-	return s.Struct.HasPtr(22)
+	return capnp.Struct(s).HasPtr(22)
 }
 
 func (s CropModuleState) SetPcOrganIdsForSecondaryYield(v YieldComponent_List) error {
-	return s.Struct.SetPtr(22, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(22, v.ToPtr())
 }
 
 // NewPcOrganIdsForSecondaryYield sets the pcOrganIdsForSecondaryYield field to a newly
 // allocated YieldComponent_List, preferring placement in s's segment.
 func (s CropModuleState) NewPcOrganIdsForSecondaryYield(n int32) (YieldComponent_List, error) {
-	l, err := NewYieldComponent_List(s.Struct.Segment(), n)
+	l, err := NewYieldComponent_List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return YieldComponent_List{}, err
 	}
-	err = s.Struct.SetPtr(22, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(22, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) PcOrganIdsForCutting() (YieldComponent_List, error) {
-	p, err := s.Struct.Ptr(23)
-	return YieldComponent_List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(23)
+	return YieldComponent_List(p.List()), err
 }
 
 func (s CropModuleState) HasPcOrganIdsForCutting() bool {
-	return s.Struct.HasPtr(23)
+	return capnp.Struct(s).HasPtr(23)
 }
 
 func (s CropModuleState) SetPcOrganIdsForCutting(v YieldComponent_List) error {
-	return s.Struct.SetPtr(23, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(23, v.ToPtr())
 }
 
 // NewPcOrganIdsForCutting sets the pcOrganIdsForCutting field to a newly
 // allocated YieldComponent_List, preferring placement in s's segment.
 func (s CropModuleState) NewPcOrganIdsForCutting(n int32) (YieldComponent_List, error) {
-	l, err := NewYieldComponent_List(s.Struct.Segment(), n)
+	l, err := NewYieldComponent_List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return YieldComponent_List{}, err
 	}
-	err = s.Struct.SetPtr(23, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(23, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) PcOrganMaintenanceRespiration() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(24)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(24)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s CropModuleState) HasPcOrganMaintenanceRespiration() bool {
-	return s.Struct.HasPtr(24)
+	return capnp.Struct(s).HasPtr(24)
 }
 
 func (s CropModuleState) SetPcOrganMaintenanceRespiration(v capnp.Float64List) error {
-	return s.Struct.SetPtr(24, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(24, v.ToPtr())
 }
 
 // NewPcOrganMaintenanceRespiration sets the pcOrganMaintenanceRespiration field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s CropModuleState) NewPcOrganMaintenanceRespiration(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(24, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(24, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) OrganSenescenceIncrement() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(25)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(25)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s CropModuleState) HasOrganSenescenceIncrement() bool {
-	return s.Struct.HasPtr(25)
+	return capnp.Struct(s).HasPtr(25)
 }
 
 func (s CropModuleState) SetOrganSenescenceIncrement(v capnp.Float64List) error {
-	return s.Struct.SetPtr(25, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(25, v.ToPtr())
 }
 
 // NewOrganSenescenceIncrement sets the organSenescenceIncrement field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s CropModuleState) NewOrganSenescenceIncrement(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(25, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(25, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) PcOrganSenescenceRate() (capnp.PointerList, error) {
-	p, err := s.Struct.Ptr(26)
-	return capnp.PointerList{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(26)
+	return capnp.PointerList(p.List()), err
 }
 
 func (s CropModuleState) HasPcOrganSenescenceRate() bool {
-	return s.Struct.HasPtr(26)
+	return capnp.Struct(s).HasPtr(26)
 }
 
 func (s CropModuleState) SetPcOrganSenescenceRate(v capnp.PointerList) error {
-	return s.Struct.SetPtr(26, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(26, v.ToPtr())
 }
 
 // NewPcOrganSenescenceRate sets the pcOrganSenescenceRate field to a newly
 // allocated capnp.PointerList, preferring placement in s's segment.
 func (s CropModuleState) NewPcOrganSenescenceRate(n int32) (capnp.PointerList, error) {
-	l, err := capnp.NewPointerList(s.Struct.Segment(), n)
+	l, err := capnp.NewPointerList(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.PointerList{}, err
 	}
-	err = s.Struct.SetPtr(26, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(26, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) OvercastDayRadiation() float64 {
-	return math.Float64frombits(s.Struct.Uint64(752))
+	return math.Float64frombits(capnp.Struct(s).Uint64(752))
 }
 
 func (s CropModuleState) SetOvercastDayRadiation(v float64) {
-	s.Struct.SetUint64(752, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(752, math.Float64bits(v))
 }
 
 func (s CropModuleState) OxygenDeficit() float64 {
-	return math.Float64frombits(s.Struct.Uint64(760))
+	return math.Float64frombits(capnp.Struct(s).Uint64(760))
 }
 
 func (s CropModuleState) SetOxygenDeficit(v float64) {
-	s.Struct.SetUint64(760, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(760, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcPartBiologicalNFixation() float64 {
-	return math.Float64frombits(s.Struct.Uint64(768))
+	return math.Float64frombits(capnp.Struct(s).Uint64(768))
 }
 
 func (s CropModuleState) SetPcPartBiologicalNFixation(v float64) {
-	s.Struct.SetUint64(768, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(768, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcPerennial() bool {
-	return s.Struct.Bit(7)
+	return capnp.Struct(s).Bit(7)
 }
 
 func (s CropModuleState) SetPcPerennial(v bool) {
-	s.Struct.SetBit(7, v)
+	capnp.Struct(s).SetBit(7, v)
 }
 
 func (s CropModuleState) PhotoperiodicDaylength() float64 {
-	return math.Float64frombits(s.Struct.Uint64(776))
+	return math.Float64frombits(capnp.Struct(s).Uint64(776))
 }
 
 func (s CropModuleState) SetPhotoperiodicDaylength(v float64) {
-	s.Struct.SetUint64(776, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(776, math.Float64bits(v))
 }
 
 func (s CropModuleState) PhotActRadiationMean() float64 {
-	return math.Float64frombits(s.Struct.Uint64(784))
+	return math.Float64frombits(capnp.Struct(s).Uint64(784))
 }
 
 func (s CropModuleState) SetPhotActRadiationMean(v float64) {
-	s.Struct.SetUint64(784, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(784, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcPlantDensity() float64 {
-	return math.Float64frombits(s.Struct.Uint64(792))
+	return math.Float64frombits(capnp.Struct(s).Uint64(792))
 }
 
 func (s CropModuleState) SetPcPlantDensity(v float64) {
-	s.Struct.SetUint64(792, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(792, math.Float64bits(v))
 }
 
 func (s CropModuleState) PotentialTranspiration() float64 {
-	return math.Float64frombits(s.Struct.Uint64(800))
+	return math.Float64frombits(capnp.Struct(s).Uint64(800))
 }
 
 func (s CropModuleState) SetPotentialTranspiration(v float64) {
-	s.Struct.SetUint64(800, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(800, math.Float64bits(v))
 }
 
 func (s CropModuleState) ReferenceEvapotranspiration() float64 {
-	return math.Float64frombits(s.Struct.Uint64(808))
+	return math.Float64frombits(capnp.Struct(s).Uint64(808))
 }
 
 func (s CropModuleState) SetReferenceEvapotranspiration(v float64) {
-	s.Struct.SetUint64(808, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(808, math.Float64bits(v))
 }
 
 func (s CropModuleState) RelativeTotalDevelopment() float64 {
-	return math.Float64frombits(s.Struct.Uint64(816))
+	return math.Float64frombits(capnp.Struct(s).Uint64(816))
 }
 
 func (s CropModuleState) SetRelativeTotalDevelopment(v float64) {
-	s.Struct.SetUint64(816, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(816, math.Float64bits(v))
 }
 
 func (s CropModuleState) RemainingEvapotranspiration() float64 {
-	return math.Float64frombits(s.Struct.Uint64(824))
+	return math.Float64frombits(capnp.Struct(s).Uint64(824))
 }
 
 func (s CropModuleState) SetRemainingEvapotranspiration(v float64) {
-	s.Struct.SetUint64(824, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(824, math.Float64bits(v))
 }
 
 func (s CropModuleState) ReserveAssimilatePool() float64 {
-	return math.Float64frombits(s.Struct.Uint64(832))
+	return math.Float64frombits(capnp.Struct(s).Uint64(832))
 }
 
 func (s CropModuleState) SetReserveAssimilatePool(v float64) {
-	s.Struct.SetUint64(832, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(832, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcResidueNRatio() float64 {
-	return math.Float64frombits(s.Struct.Uint64(840))
+	return math.Float64frombits(capnp.Struct(s).Uint64(840))
 }
 
 func (s CropModuleState) SetPcResidueNRatio(v float64) {
-	s.Struct.SetUint64(840, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(840, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcRespiratoryStress() float64 {
-	return math.Float64frombits(s.Struct.Uint64(848))
+	return math.Float64frombits(capnp.Struct(s).Uint64(848))
 }
 
 func (s CropModuleState) SetPcRespiratoryStress(v float64) {
-	s.Struct.SetUint64(848, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(848, math.Float64bits(v))
 }
 
 func (s CropModuleState) RootBiomass() float64 {
-	return math.Float64frombits(s.Struct.Uint64(856))
+	return math.Float64frombits(capnp.Struct(s).Uint64(856))
 }
 
 func (s CropModuleState) SetRootBiomass(v float64) {
-	s.Struct.SetUint64(856, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(856, math.Float64bits(v))
 }
 
 func (s CropModuleState) RootBiomassOld() float64 {
-	return math.Float64frombits(s.Struct.Uint64(864))
+	return math.Float64frombits(capnp.Struct(s).Uint64(864))
 }
 
 func (s CropModuleState) SetRootBiomassOld(v float64) {
-	s.Struct.SetUint64(864, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(864, math.Float64bits(v))
 }
 
 func (s CropModuleState) RootDensity() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(27)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(27)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s CropModuleState) HasRootDensity() bool {
-	return s.Struct.HasPtr(27)
+	return capnp.Struct(s).HasPtr(27)
 }
 
 func (s CropModuleState) SetRootDensity(v capnp.Float64List) error {
-	return s.Struct.SetPtr(27, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(27, v.ToPtr())
 }
 
 // NewRootDensity sets the rootDensity field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s CropModuleState) NewRootDensity(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(27, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(27, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) RootDiameter() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(28)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(28)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s CropModuleState) HasRootDiameter() bool {
-	return s.Struct.HasPtr(28)
+	return capnp.Struct(s).HasPtr(28)
 }
 
 func (s CropModuleState) SetRootDiameter(v capnp.Float64List) error {
-	return s.Struct.SetPtr(28, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(28, v.ToPtr())
 }
 
 // NewRootDiameter sets the rootDiameter field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s CropModuleState) NewRootDiameter(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(28, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(28, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) PcRootDistributionParam() float64 {
-	return math.Float64frombits(s.Struct.Uint64(872))
+	return math.Float64frombits(capnp.Struct(s).Uint64(872))
 }
 
 func (s CropModuleState) SetPcRootDistributionParam(v float64) {
-	s.Struct.SetUint64(872, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(872, math.Float64bits(v))
 }
 
 func (s CropModuleState) RootEffectivity() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(29)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(29)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s CropModuleState) HasRootEffectivity() bool {
-	return s.Struct.HasPtr(29)
+	return capnp.Struct(s).HasPtr(29)
 }
 
 func (s CropModuleState) SetRootEffectivity(v capnp.Float64List) error {
-	return s.Struct.SetPtr(29, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(29, v.ToPtr())
 }
 
 // NewRootEffectivity sets the rootEffectivity field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s CropModuleState) NewRootEffectivity(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(29, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(29, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) PcRootFormFactor() float64 {
-	return math.Float64frombits(s.Struct.Uint64(880))
+	return math.Float64frombits(capnp.Struct(s).Uint64(880))
 }
 
 func (s CropModuleState) SetPcRootFormFactor(v float64) {
-	s.Struct.SetUint64(880, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(880, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcRootGrowthLag() float64 {
-	return math.Float64frombits(s.Struct.Uint64(888))
+	return math.Float64frombits(capnp.Struct(s).Uint64(888))
 }
 
 func (s CropModuleState) SetPcRootGrowthLag(v float64) {
-	s.Struct.SetUint64(888, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(888, math.Float64bits(v))
 }
 
 func (s CropModuleState) RootingDepth() uint16 {
-	return s.Struct.Uint16(286)
+	return capnp.Struct(s).Uint16(286)
 }
 
 func (s CropModuleState) SetRootingDepth(v uint16) {
-	s.Struct.SetUint16(286, v)
+	capnp.Struct(s).SetUint16(286, v)
 }
 
 func (s CropModuleState) RootingDepthM() float64 {
-	return math.Float64frombits(s.Struct.Uint64(896))
+	return math.Float64frombits(capnp.Struct(s).Uint64(896))
 }
 
 func (s CropModuleState) SetRootingDepthM(v float64) {
-	s.Struct.SetUint64(896, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(896, math.Float64bits(v))
 }
 
 func (s CropModuleState) RootingZone() uint16 {
-	return s.Struct.Uint16(904)
+	return capnp.Struct(s).Uint16(904)
 }
 
 func (s CropModuleState) SetRootingZone(v uint16) {
-	s.Struct.SetUint16(904, v)
+	capnp.Struct(s).SetUint16(904, v)
 }
 
 func (s CropModuleState) PcRootPenetrationRate() float64 {
-	return math.Float64frombits(s.Struct.Uint64(912))
+	return math.Float64frombits(capnp.Struct(s).Uint64(912))
 }
 
 func (s CropModuleState) SetPcRootPenetrationRate(v float64) {
-	s.Struct.SetUint64(912, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(912, math.Float64bits(v))
 }
 
 func (s CropModuleState) VmSaturationDeficit() float64 {
-	return math.Float64frombits(s.Struct.Uint64(920))
+	return math.Float64frombits(capnp.Struct(s).Uint64(920))
 }
 
 func (s CropModuleState) SetVmSaturationDeficit(v float64) {
-	s.Struct.SetUint64(920, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(920, math.Float64bits(v))
 }
 
 func (s CropModuleState) SoilCoverage() float64 {
-	return math.Float64frombits(s.Struct.Uint64(928))
+	return math.Float64frombits(capnp.Struct(s).Uint64(928))
 }
 
 func (s CropModuleState) SetSoilCoverage(v float64) {
-	s.Struct.SetUint64(928, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(928, math.Float64bits(v))
 }
 
 func (s CropModuleState) VsSoilMineralNContent() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(30)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(30)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s CropModuleState) HasVsSoilMineralNContent() bool {
-	return s.Struct.HasPtr(30)
+	return capnp.Struct(s).HasPtr(30)
 }
 
 func (s CropModuleState) SetVsSoilMineralNContent(v capnp.Float64List) error {
-	return s.Struct.SetPtr(30, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(30, v.ToPtr())
 }
 
 // NewVsSoilMineralNContent sets the vsSoilMineralNContent field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s CropModuleState) NewVsSoilMineralNContent(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(30, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(30, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) SoilSpecificMaxRootingDepth() float64 {
-	return math.Float64frombits(s.Struct.Uint64(936))
+	return math.Float64frombits(capnp.Struct(s).Uint64(936))
 }
 
 func (s CropModuleState) SetSoilSpecificMaxRootingDepth(v float64) {
-	s.Struct.SetUint64(936, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(936, math.Float64bits(v))
 }
 
 func (s CropModuleState) VsSoilSpecificMaxRootingDepth() float64 {
-	return math.Float64frombits(s.Struct.Uint64(944))
+	return math.Float64frombits(capnp.Struct(s).Uint64(944))
 }
 
 func (s CropModuleState) SetVsSoilSpecificMaxRootingDepth(v float64) {
-	s.Struct.SetUint64(944, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(944, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcSpecificLeafArea() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(31)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(31)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s CropModuleState) HasPcSpecificLeafArea() bool {
-	return s.Struct.HasPtr(31)
+	return capnp.Struct(s).HasPtr(31)
 }
 
 func (s CropModuleState) SetPcSpecificLeafArea(v capnp.Float64List) error {
-	return s.Struct.SetPtr(31, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(31, v.ToPtr())
 }
 
 // NewPcSpecificLeafArea sets the pcSpecificLeafArea field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s CropModuleState) NewPcSpecificLeafArea(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(31, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(31, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) PcSpecificRootLength() float64 {
-	return math.Float64frombits(s.Struct.Uint64(952))
+	return math.Float64frombits(capnp.Struct(s).Uint64(952))
 }
 
 func (s CropModuleState) SetPcSpecificRootLength(v float64) {
-	s.Struct.SetUint64(952, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(952, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcStageAfterCut() uint16 {
-	return s.Struct.Uint16(906)
+	return capnp.Struct(s).Uint16(906)
 }
 
 func (s CropModuleState) SetPcStageAfterCut(v uint16) {
-	s.Struct.SetUint16(906, v)
+	capnp.Struct(s).SetUint16(906, v)
 }
 
 func (s CropModuleState) PcStageAtMaxDiameter() float64 {
-	return math.Float64frombits(s.Struct.Uint64(960))
+	return math.Float64frombits(capnp.Struct(s).Uint64(960))
 }
 
 func (s CropModuleState) SetPcStageAtMaxDiameter(v float64) {
-	s.Struct.SetUint64(960, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(960, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcStageAtMaxHeight() float64 {
-	return math.Float64frombits(s.Struct.Uint64(968))
+	return math.Float64frombits(capnp.Struct(s).Uint64(968))
 }
 
 func (s CropModuleState) SetPcStageAtMaxHeight(v float64) {
-	s.Struct.SetUint64(968, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(968, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcStageMaxRootNConcentration() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(32)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(32)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s CropModuleState) HasPcStageMaxRootNConcentration() bool {
-	return s.Struct.HasPtr(32)
+	return capnp.Struct(s).HasPtr(32)
 }
 
 func (s CropModuleState) SetPcStageMaxRootNConcentration(v capnp.Float64List) error {
-	return s.Struct.SetPtr(32, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(32, v.ToPtr())
 }
 
 // NewPcStageMaxRootNConcentration sets the pcStageMaxRootNConcentration field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s CropModuleState) NewPcStageMaxRootNConcentration(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(32, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(32, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) PcStageKcFactor() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(33)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(33)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s CropModuleState) HasPcStageKcFactor() bool {
-	return s.Struct.HasPtr(33)
+	return capnp.Struct(s).HasPtr(33)
 }
 
 func (s CropModuleState) SetPcStageKcFactor(v capnp.Float64List) error {
-	return s.Struct.SetPtr(33, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(33, v.ToPtr())
 }
 
 // NewPcStageKcFactor sets the pcStageKcFactor field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s CropModuleState) NewPcStageKcFactor(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(33, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(33, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) PcStageTemperatureSum() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(34)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(34)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s CropModuleState) HasPcStageTemperatureSum() bool {
-	return s.Struct.HasPtr(34)
+	return capnp.Struct(s).HasPtr(34)
 }
 
 func (s CropModuleState) SetPcStageTemperatureSum(v capnp.Float64List) error {
-	return s.Struct.SetPtr(34, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(34, v.ToPtr())
 }
 
 // NewPcStageTemperatureSum sets the pcStageTemperatureSum field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s CropModuleState) NewPcStageTemperatureSum(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(34, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(34, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) StomataResistance() float64 {
-	return math.Float64frombits(s.Struct.Uint64(976))
+	return math.Float64frombits(capnp.Struct(s).Uint64(976))
 }
 
 func (s CropModuleState) SetStomataResistance(v float64) {
-	s.Struct.SetUint64(976, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(976, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcStorageOrgan() (capnp.BitList, error) {
-	p, err := s.Struct.Ptr(35)
-	return capnp.BitList{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(35)
+	return capnp.BitList(p.List()), err
 }
 
 func (s CropModuleState) HasPcStorageOrgan() bool {
-	return s.Struct.HasPtr(35)
+	return capnp.Struct(s).HasPtr(35)
 }
 
 func (s CropModuleState) SetPcStorageOrgan(v capnp.BitList) error {
-	return s.Struct.SetPtr(35, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(35, v.ToPtr())
 }
 
 // NewPcStorageOrgan sets the pcStorageOrgan field to a newly
 // allocated capnp.BitList, preferring placement in s's segment.
 func (s CropModuleState) NewPcStorageOrgan(n int32) (capnp.BitList, error) {
-	l, err := capnp.NewBitList(s.Struct.Segment(), n)
+	l, err := capnp.NewBitList(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.BitList{}, err
 	}
-	err = s.Struct.SetPtr(35, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(35, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) StorageOrgan() uint16 {
-	return s.Struct.Uint16(908) ^ 4
+	return capnp.Struct(s).Uint16(908) ^ 4
 }
 
 func (s CropModuleState) SetStorageOrgan(v uint16) {
-	s.Struct.SetUint16(908, v^4)
+	capnp.Struct(s).SetUint16(908, v^4)
 }
 
 func (s CropModuleState) TargetNConcentration() float64 {
-	return math.Float64frombits(s.Struct.Uint64(984))
+	return math.Float64frombits(capnp.Struct(s).Uint64(984))
 }
 
 func (s CropModuleState) SetTargetNConcentration(v float64) {
-	s.Struct.SetUint64(984, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(984, math.Float64bits(v))
 }
 
 func (s CropModuleState) TimeStep() float64 {
-	return math.Float64frombits(s.Struct.Uint64(992) ^ 0x3ff0000000000000)
+	return math.Float64frombits(capnp.Struct(s).Uint64(992) ^ 0x3ff0000000000000)
 }
 
 func (s CropModuleState) SetTimeStep(v float64) {
-	s.Struct.SetUint64(992, math.Float64bits(v)^0x3ff0000000000000)
+	capnp.Struct(s).SetUint64(992, math.Float64bits(v)^0x3ff0000000000000)
 }
 
 func (s CropModuleState) TimeUnderAnoxia() uint64 {
-	return s.Struct.Uint64(1000)
+	return capnp.Struct(s).Uint64(1000)
 }
 
 func (s CropModuleState) SetTimeUnderAnoxia(v uint64) {
-	s.Struct.SetUint64(1000, v)
+	capnp.Struct(s).SetUint64(1000, v)
 }
 
 func (s CropModuleState) VsTortuosity() float64 {
-	return math.Float64frombits(s.Struct.Uint64(1008))
+	return math.Float64frombits(capnp.Struct(s).Uint64(1008))
 }
 
 func (s CropModuleState) SetVsTortuosity(v float64) {
-	s.Struct.SetUint64(1008, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(1008, math.Float64bits(v))
 }
 
 func (s CropModuleState) TotalBiomass() float64 {
-	return math.Float64frombits(s.Struct.Uint64(1016))
+	return math.Float64frombits(capnp.Struct(s).Uint64(1016))
 }
 
 func (s CropModuleState) SetTotalBiomass(v float64) {
-	s.Struct.SetUint64(1016, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(1016, math.Float64bits(v))
 }
 
 func (s CropModuleState) TotalBiomassNContent() float64 {
-	return math.Float64frombits(s.Struct.Uint64(1024))
+	return math.Float64frombits(capnp.Struct(s).Uint64(1024))
 }
 
 func (s CropModuleState) SetTotalBiomassNContent(v float64) {
-	s.Struct.SetUint64(1024, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(1024, math.Float64bits(v))
 }
 
 func (s CropModuleState) TotalCropHeatImpact() float64 {
-	return math.Float64frombits(s.Struct.Uint64(1032))
+	return math.Float64frombits(capnp.Struct(s).Uint64(1032))
 }
 
 func (s CropModuleState) SetTotalCropHeatImpact(v float64) {
-	s.Struct.SetUint64(1032, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(1032, math.Float64bits(v))
 }
 
 func (s CropModuleState) TotalNInput() float64 {
-	return math.Float64frombits(s.Struct.Uint64(1040))
+	return math.Float64frombits(capnp.Struct(s).Uint64(1040))
 }
 
 func (s CropModuleState) SetTotalNInput(v float64) {
-	s.Struct.SetUint64(1040, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(1040, math.Float64bits(v))
 }
 
 func (s CropModuleState) TotalNUptake() float64 {
-	return math.Float64frombits(s.Struct.Uint64(1048))
+	return math.Float64frombits(capnp.Struct(s).Uint64(1048))
 }
 
 func (s CropModuleState) SetTotalNUptake(v float64) {
-	s.Struct.SetUint64(1048, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(1048, math.Float64bits(v))
 }
 
 func (s CropModuleState) TotalRespired() float64 {
-	return math.Float64frombits(s.Struct.Uint64(1056))
+	return math.Float64frombits(capnp.Struct(s).Uint64(1056))
 }
 
 func (s CropModuleState) SetTotalRespired(v float64) {
-	s.Struct.SetUint64(1056, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(1056, math.Float64bits(v))
 }
 
 func (s CropModuleState) Respiration() float64 {
-	return math.Float64frombits(s.Struct.Uint64(1064))
+	return math.Float64frombits(capnp.Struct(s).Uint64(1064))
 }
 
 func (s CropModuleState) SetRespiration(v float64) {
-	s.Struct.SetUint64(1064, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(1064, math.Float64bits(v))
 }
 
 func (s CropModuleState) SumTotalNUptake() float64 {
-	return math.Float64frombits(s.Struct.Uint64(1072))
+	return math.Float64frombits(capnp.Struct(s).Uint64(1072))
 }
 
 func (s CropModuleState) SetSumTotalNUptake(v float64) {
-	s.Struct.SetUint64(1072, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(1072, math.Float64bits(v))
 }
 
 func (s CropModuleState) TotalRootLength() float64 {
-	return math.Float64frombits(s.Struct.Uint64(1080))
+	return math.Float64frombits(capnp.Struct(s).Uint64(1080))
 }
 
 func (s CropModuleState) SetTotalRootLength(v float64) {
-	s.Struct.SetUint64(1080, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(1080, math.Float64bits(v))
 }
 
 func (s CropModuleState) TotalTemperatureSum() float64 {
-	return math.Float64frombits(s.Struct.Uint64(1088))
+	return math.Float64frombits(capnp.Struct(s).Uint64(1088))
 }
 
 func (s CropModuleState) SetTotalTemperatureSum(v float64) {
-	s.Struct.SetUint64(1088, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(1088, math.Float64bits(v))
 }
 
 func (s CropModuleState) TemperatureSumToFlowering() float64 {
-	return math.Float64frombits(s.Struct.Uint64(1096))
+	return math.Float64frombits(capnp.Struct(s).Uint64(1096))
 }
 
 func (s CropModuleState) SetTemperatureSumToFlowering(v float64) {
-	s.Struct.SetUint64(1096, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(1096, math.Float64bits(v))
 }
 
 func (s CropModuleState) Transpiration() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(36)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(36)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s CropModuleState) HasTranspiration() bool {
-	return s.Struct.HasPtr(36)
+	return capnp.Struct(s).HasPtr(36)
 }
 
 func (s CropModuleState) SetTranspiration(v capnp.Float64List) error {
-	return s.Struct.SetPtr(36, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(36, v.ToPtr())
 }
 
 // NewTranspiration sets the transpiration field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s CropModuleState) NewTranspiration(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(36, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(36, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) TranspirationRedux() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(37)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(37)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s CropModuleState) HasTranspirationRedux() bool {
-	return s.Struct.HasPtr(37)
+	return capnp.Struct(s).HasPtr(37)
 }
 
 func (s CropModuleState) SetTranspirationRedux(v capnp.Float64List) error {
-	return s.Struct.SetPtr(37, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(37, v.ToPtr())
 }
 
 // NewTranspirationRedux sets the transpirationRedux field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s CropModuleState) NewTranspirationRedux(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(37, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(37, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) TranspirationDeficit() float64 {
-	return math.Float64frombits(s.Struct.Uint64(1104) ^ 0x3ff0000000000000)
+	return math.Float64frombits(capnp.Struct(s).Uint64(1104) ^ 0x3ff0000000000000)
 }
 
 func (s CropModuleState) SetTranspirationDeficit(v float64) {
-	s.Struct.SetUint64(1104, math.Float64bits(v)^0x3ff0000000000000)
+	capnp.Struct(s).SetUint64(1104, math.Float64bits(v)^0x3ff0000000000000)
 }
 
 func (s CropModuleState) VernalisationDays() float64 {
-	return math.Float64frombits(s.Struct.Uint64(1112))
+	return math.Float64frombits(capnp.Struct(s).Uint64(1112))
 }
 
 func (s CropModuleState) SetVernalisationDays(v float64) {
-	s.Struct.SetUint64(1112, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(1112, math.Float64bits(v))
 }
 
 func (s CropModuleState) VernalisationFactor() float64 {
-	return math.Float64frombits(s.Struct.Uint64(1120))
+	return math.Float64frombits(capnp.Struct(s).Uint64(1120))
 }
 
 func (s CropModuleState) SetVernalisationFactor(v float64) {
-	s.Struct.SetUint64(1120, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(1120, math.Float64bits(v))
 }
 
 func (s CropModuleState) PcVernalisationRequirement() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(38)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(38)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s CropModuleState) HasPcVernalisationRequirement() bool {
-	return s.Struct.HasPtr(38)
+	return capnp.Struct(s).HasPtr(38)
 }
 
 func (s CropModuleState) SetPcVernalisationRequirement(v capnp.Float64List) error {
-	return s.Struct.SetPtr(38, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(38, v.ToPtr())
 }
 
 // NewPcVernalisationRequirement sets the pcVernalisationRequirement field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s CropModuleState) NewPcVernalisationRequirement(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(38, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(38, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) PcWaterDeficitResponseOn() bool {
-	return s.Struct.Bit(7280)
+	return capnp.Struct(s).Bit(7280)
 }
 
 func (s CropModuleState) SetPcWaterDeficitResponseOn(v bool) {
-	s.Struct.SetBit(7280, v)
+	capnp.Struct(s).SetBit(7280, v)
 }
 
 func (s CropModuleState) DyingOut() bool {
-	return s.Struct.Bit(7281)
+	return capnp.Struct(s).Bit(7281)
 }
 
 func (s CropModuleState) SetDyingOut(v bool) {
-	s.Struct.SetBit(7281, v)
+	capnp.Struct(s).SetBit(7281, v)
 }
 
 func (s CropModuleState) AccumulatedETa() float64 {
-	return math.Float64frombits(s.Struct.Uint64(1152))
+	return math.Float64frombits(capnp.Struct(s).Uint64(1152))
 }
 
 func (s CropModuleState) SetAccumulatedETa(v float64) {
-	s.Struct.SetUint64(1152, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(1152, math.Float64bits(v))
 }
 
 func (s CropModuleState) AccumulatedTranspiration() float64 {
-	return math.Float64frombits(s.Struct.Uint64(1160))
+	return math.Float64frombits(capnp.Struct(s).Uint64(1160))
 }
 
 func (s CropModuleState) SetAccumulatedTranspiration(v float64) {
-	s.Struct.SetUint64(1160, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(1160, math.Float64bits(v))
 }
 
 func (s CropModuleState) AccumulatedPrimaryCropYield() float64 {
-	return math.Float64frombits(s.Struct.Uint64(1168))
+	return math.Float64frombits(capnp.Struct(s).Uint64(1168))
 }
 
 func (s CropModuleState) SetAccumulatedPrimaryCropYield(v float64) {
-	s.Struct.SetUint64(1168, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(1168, math.Float64bits(v))
 }
 
 func (s CropModuleState) SumExportedCutBiomass() float64 {
-	return math.Float64frombits(s.Struct.Uint64(1176))
+	return math.Float64frombits(capnp.Struct(s).Uint64(1176))
 }
 
 func (s CropModuleState) SetSumExportedCutBiomass(v float64) {
-	s.Struct.SetUint64(1176, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(1176, math.Float64bits(v))
 }
 
 func (s CropModuleState) ExportedCutBiomass() float64 {
-	return math.Float64frombits(s.Struct.Uint64(1184))
+	return math.Float64frombits(capnp.Struct(s).Uint64(1184))
 }
 
 func (s CropModuleState) SetExportedCutBiomass(v float64) {
-	s.Struct.SetUint64(1184, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(1184, math.Float64bits(v))
 }
 
 func (s CropModuleState) SumResidueCutBiomass() float64 {
-	return math.Float64frombits(s.Struct.Uint64(1192))
+	return math.Float64frombits(capnp.Struct(s).Uint64(1192))
 }
 
 func (s CropModuleState) SetSumResidueCutBiomass(v float64) {
-	s.Struct.SetUint64(1192, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(1192, math.Float64bits(v))
 }
 
 func (s CropModuleState) ResidueCutBiomass() float64 {
-	return math.Float64frombits(s.Struct.Uint64(1200))
+	return math.Float64frombits(capnp.Struct(s).Uint64(1200))
 }
 
 func (s CropModuleState) SetResidueCutBiomass(v float64) {
-	s.Struct.SetUint64(1200, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(1200, math.Float64bits(v))
 }
 
 func (s CropModuleState) CuttingDelayDays() uint16 {
-	return s.Struct.Uint16(1208)
+	return capnp.Struct(s).Uint16(1208)
 }
 
 func (s CropModuleState) SetCuttingDelayDays(v uint16) {
-	s.Struct.SetUint16(1208, v)
+	capnp.Struct(s).SetUint16(1208, v)
 }
 
 func (s CropModuleState) VsMaxEffectiveRootingDepth() float64 {
-	return math.Float64frombits(s.Struct.Uint64(1216))
+	return math.Float64frombits(capnp.Struct(s).Uint64(1216))
 }
 
 func (s CropModuleState) SetVsMaxEffectiveRootingDepth(v float64) {
-	s.Struct.SetUint64(1216, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(1216, math.Float64bits(v))
 }
 
 func (s CropModuleState) VsImpenetrableLayerDept() float64 {
-	return math.Float64frombits(s.Struct.Uint64(1224))
+	return math.Float64frombits(capnp.Struct(s).Uint64(1224))
 }
 
 func (s CropModuleState) SetVsImpenetrableLayerDept(v float64) {
-	s.Struct.SetUint64(1224, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(1224, math.Float64bits(v))
 }
 
 func (s CropModuleState) AnthesisDay() int16 {
-	return int16(s.Struct.Uint16(1210) ^ 65535)
+	return int16(capnp.Struct(s).Uint16(1210) ^ 65535)
 }
 
 func (s CropModuleState) SetAnthesisDay(v int16) {
-	s.Struct.SetUint16(1210, uint16(v)^65535)
+	capnp.Struct(s).SetUint16(1210, uint16(v)^65535)
 }
 
 func (s CropModuleState) MaturityDay() int16 {
-	return int16(s.Struct.Uint16(1212) ^ 65535)
+	return int16(capnp.Struct(s).Uint16(1212) ^ 65535)
 }
 
 func (s CropModuleState) SetMaturityDay(v int16) {
-	s.Struct.SetUint16(1212, uint16(v)^65535)
+	capnp.Struct(s).SetUint16(1212, uint16(v)^65535)
 }
 
 func (s CropModuleState) MaturityReached() bool {
-	return s.Struct.Bit(7282)
+	return capnp.Struct(s).Bit(7282)
 }
 
 func (s CropModuleState) SetMaturityReached(v bool) {
-	s.Struct.SetBit(7282, v)
+	capnp.Struct(s).SetBit(7282, v)
 }
 
 func (s CropModuleState) StepSize24() uint16 {
-	return s.Struct.Uint16(1214) ^ 24
+	return capnp.Struct(s).Uint16(1214) ^ 24
 }
 
 func (s CropModuleState) SetStepSize24(v uint16) {
-	s.Struct.SetUint16(1214, v^24)
+	capnp.Struct(s).SetUint16(1214, v^24)
 }
 
 func (s CropModuleState) StepSize240() uint16 {
-	return s.Struct.Uint16(1232) ^ 240
+	return capnp.Struct(s).Uint16(1232) ^ 240
 }
 
 func (s CropModuleState) SetStepSize240(v uint16) {
-	s.Struct.SetUint16(1232, v^240)
+	capnp.Struct(s).SetUint16(1232, v^240)
 }
 
 func (s CropModuleState) Rad24() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(39)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(39)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s CropModuleState) HasRad24() bool {
-	return s.Struct.HasPtr(39)
+	return capnp.Struct(s).HasPtr(39)
 }
 
 func (s CropModuleState) SetRad24(v capnp.Float64List) error {
-	return s.Struct.SetPtr(39, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(39, v.ToPtr())
 }
 
 // NewRad24 sets the rad24 field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s CropModuleState) NewRad24(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(39, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(39, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) Rad240() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(40)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(40)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s CropModuleState) HasRad240() bool {
-	return s.Struct.HasPtr(40)
+	return capnp.Struct(s).HasPtr(40)
 }
 
 func (s CropModuleState) SetRad240(v capnp.Float64List) error {
-	return s.Struct.SetPtr(40, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(40, v.ToPtr())
 }
 
 // NewRad240 sets the rad240 field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s CropModuleState) NewRad240(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(40, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(40, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) Tfol24() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(41)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(41)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s CropModuleState) HasTfol24() bool {
-	return s.Struct.HasPtr(41)
+	return capnp.Struct(s).HasPtr(41)
 }
 
 func (s CropModuleState) SetTfol24(v capnp.Float64List) error {
-	return s.Struct.SetPtr(41, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(41, v.ToPtr())
 }
 
 // NewTfol24 sets the tfol24 field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s CropModuleState) NewTfol24(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(41, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(41, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) Tfol240() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(42)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(42)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s CropModuleState) HasTfol240() bool {
-	return s.Struct.HasPtr(42)
+	return capnp.Struct(s).HasPtr(42)
 }
 
 func (s CropModuleState) SetTfol240(v capnp.Float64List) error {
-	return s.Struct.SetPtr(42, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(42, v.ToPtr())
 }
 
 // NewTfol240 sets the tfol240 field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s CropModuleState) NewTfol240(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(42, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(42, l.ToPtr())
 	return l, err
 }
-
 func (s CropModuleState) Index24() uint16 {
-	return s.Struct.Uint16(1234)
+	return capnp.Struct(s).Uint16(1234)
 }
 
 func (s CropModuleState) SetIndex24(v uint16) {
-	s.Struct.SetUint16(1234, v)
+	capnp.Struct(s).SetUint16(1234, v)
 }
 
 func (s CropModuleState) Index240() uint16 {
-	return s.Struct.Uint16(1236)
+	return capnp.Struct(s).Uint16(1236)
 }
 
 func (s CropModuleState) SetIndex240(v uint16) {
-	s.Struct.SetUint16(1236, v)
+	capnp.Struct(s).SetUint16(1236, v)
 }
 
 func (s CropModuleState) Full24() bool {
-	return s.Struct.Bit(7283)
+	return capnp.Struct(s).Bit(7283)
 }
 
 func (s CropModuleState) SetFull24(v bool) {
-	s.Struct.SetBit(7283, v)
+	capnp.Struct(s).SetBit(7283, v)
 }
 
 func (s CropModuleState) Full240() bool {
-	return s.Struct.Bit(7284)
+	return capnp.Struct(s).Bit(7284)
 }
 
 func (s CropModuleState) SetFull240(v bool) {
-	s.Struct.SetBit(7284, v)
+	capnp.Struct(s).SetBit(7284, v)
 }
 
 func (s CropModuleState) GuentherEmissions() (Voc_Emissions, error) {
-	p, err := s.Struct.Ptr(43)
-	return Voc_Emissions{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(43)
+	return Voc_Emissions(p.Struct()), err
 }
 
 func (s CropModuleState) HasGuentherEmissions() bool {
-	return s.Struct.HasPtr(43)
+	return capnp.Struct(s).HasPtr(43)
 }
 
 func (s CropModuleState) SetGuentherEmissions(v Voc_Emissions) error {
-	return s.Struct.SetPtr(43, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(43, capnp.Struct(v).ToPtr())
 }
 
 // NewGuentherEmissions sets the guentherEmissions field to a newly
 // allocated Voc_Emissions struct, preferring placement in s's segment.
 func (s CropModuleState) NewGuentherEmissions() (Voc_Emissions, error) {
-	ss, err := NewVoc_Emissions(s.Struct.Segment())
+	ss, err := NewVoc_Emissions(capnp.Struct(s).Segment())
 	if err != nil {
 		return Voc_Emissions{}, err
 	}
-	err = s.Struct.SetPtr(43, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(43, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s CropModuleState) JjvEmissions() (Voc_Emissions, error) {
-	p, err := s.Struct.Ptr(44)
-	return Voc_Emissions{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(44)
+	return Voc_Emissions(p.Struct()), err
 }
 
 func (s CropModuleState) HasJjvEmissions() bool {
-	return s.Struct.HasPtr(44)
+	return capnp.Struct(s).HasPtr(44)
 }
 
 func (s CropModuleState) SetJjvEmissions(v Voc_Emissions) error {
-	return s.Struct.SetPtr(44, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(44, capnp.Struct(v).ToPtr())
 }
 
 // NewJjvEmissions sets the jjvEmissions field to a newly
 // allocated Voc_Emissions struct, preferring placement in s's segment.
 func (s CropModuleState) NewJjvEmissions() (Voc_Emissions, error) {
-	ss, err := NewVoc_Emissions(s.Struct.Segment())
+	ss, err := NewVoc_Emissions(capnp.Struct(s).Segment())
 	if err != nil {
 		return Voc_Emissions{}, err
 	}
-	err = s.Struct.SetPtr(44, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(44, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s CropModuleState) VocSpecies() (Voc_SpeciesData, error) {
-	p, err := s.Struct.Ptr(45)
-	return Voc_SpeciesData{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(45)
+	return Voc_SpeciesData(p.Struct()), err
 }
 
 func (s CropModuleState) HasVocSpecies() bool {
-	return s.Struct.HasPtr(45)
+	return capnp.Struct(s).HasPtr(45)
 }
 
 func (s CropModuleState) SetVocSpecies(v Voc_SpeciesData) error {
-	return s.Struct.SetPtr(45, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(45, capnp.Struct(v).ToPtr())
 }
 
 // NewVocSpecies sets the vocSpecies field to a newly
 // allocated Voc_SpeciesData struct, preferring placement in s's segment.
 func (s CropModuleState) NewVocSpecies() (Voc_SpeciesData, error) {
-	ss, err := NewVoc_SpeciesData(s.Struct.Segment())
+	ss, err := NewVoc_SpeciesData(capnp.Struct(s).Segment())
 	if err != nil {
 		return Voc_SpeciesData{}, err
 	}
-	err = s.Struct.SetPtr(45, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(45, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s CropModuleState) CropPhotosynthesisResults() (Voc_CPData, error) {
-	p, err := s.Struct.Ptr(46)
-	return Voc_CPData{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(46)
+	return Voc_CPData(p.Struct()), err
 }
 
 func (s CropModuleState) HasCropPhotosynthesisResults() bool {
-	return s.Struct.HasPtr(46)
+	return capnp.Struct(s).HasPtr(46)
 }
 
 func (s CropModuleState) SetCropPhotosynthesisResults(v Voc_CPData) error {
-	return s.Struct.SetPtr(46, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(46, capnp.Struct(v).ToPtr())
 }
 
 // NewCropPhotosynthesisResults sets the cropPhotosynthesisResults field to a newly
 // allocated Voc_CPData struct, preferring placement in s's segment.
 func (s CropModuleState) NewCropPhotosynthesisResults() (Voc_CPData, error) {
-	ss, err := NewVoc_CPData(s.Struct.Segment())
+	ss, err := NewVoc_CPData(capnp.Struct(s).Segment())
 	if err != nil {
 		return Voc_CPData{}, err
 	}
-	err = s.Struct.SetPtr(46, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(46, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s CropModuleState) O3ShortTermDamage() float64 {
-	return math.Float64frombits(s.Struct.Uint64(1144) ^ 0x3ff0000000000000)
+	return math.Float64frombits(capnp.Struct(s).Uint64(1144) ^ 0x3ff0000000000000)
 }
 
 func (s CropModuleState) SetO3ShortTermDamage(v float64) {
-	s.Struct.SetUint64(1144, math.Float64bits(v)^0x3ff0000000000000)
+	capnp.Struct(s).SetUint64(1144, math.Float64bits(v)^0x3ff0000000000000)
 }
 
 func (s CropModuleState) O3LongTermDamage() float64 {
-	return math.Float64frombits(s.Struct.Uint64(1136) ^ 0x3ff0000000000000)
+	return math.Float64frombits(capnp.Struct(s).Uint64(1136) ^ 0x3ff0000000000000)
 }
 
 func (s CropModuleState) SetO3LongTermDamage(v float64) {
-	s.Struct.SetUint64(1136, math.Float64bits(v)^0x3ff0000000000000)
+	capnp.Struct(s).SetUint64(1136, math.Float64bits(v)^0x3ff0000000000000)
 }
 
 func (s CropModuleState) O3Senescence() float64 {
-	return math.Float64frombits(s.Struct.Uint64(1128) ^ 0x3ff0000000000000)
+	return math.Float64frombits(capnp.Struct(s).Uint64(1128) ^ 0x3ff0000000000000)
 }
 
 func (s CropModuleState) SetO3Senescence(v float64) {
-	s.Struct.SetUint64(1128, math.Float64bits(v)^0x3ff0000000000000)
+	capnp.Struct(s).SetUint64(1128, math.Float64bits(v)^0x3ff0000000000000)
 }
 
 func (s CropModuleState) O3SumUptake() float64 {
-	return math.Float64frombits(s.Struct.Uint64(32))
+	return math.Float64frombits(capnp.Struct(s).Uint64(32))
 }
 
 func (s CropModuleState) SetO3SumUptake(v float64) {
-	s.Struct.SetUint64(32, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(32, math.Float64bits(v))
 }
 
 func (s CropModuleState) O3WStomatalClosure() float64 {
-	return math.Float64frombits(s.Struct.Uint64(24) ^ 0x3ff0000000000000)
+	return math.Float64frombits(capnp.Struct(s).Uint64(24) ^ 0x3ff0000000000000)
 }
 
 func (s CropModuleState) SetO3WStomatalClosure(v float64) {
-	s.Struct.SetUint64(24, math.Float64bits(v)^0x3ff0000000000000)
+	capnp.Struct(s).SetUint64(24, math.Float64bits(v)^0x3ff0000000000000)
 }
 
 func (s CropModuleState) AssimilatePartCoeffsReduced() bool {
-	return s.Struct.Bit(1)
+	return capnp.Struct(s).Bit(1)
 }
 
 func (s CropModuleState) SetAssimilatePartCoeffsReduced(v bool) {
-	s.Struct.SetBit(1, v)
+	capnp.Struct(s).SetBit(1, v)
 }
 
 func (s CropModuleState) Ktkc() float64 {
-	return math.Float64frombits(s.Struct.Uint64(16))
+	return math.Float64frombits(capnp.Struct(s).Uint64(16))
 }
 
 func (s CropModuleState) SetKtkc(v float64) {
-	s.Struct.SetUint64(16, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(16, math.Float64bits(v))
 }
 
 func (s CropModuleState) Ktko() float64 {
-	return math.Float64frombits(s.Struct.Uint64(8))
+	return math.Float64frombits(capnp.Struct(s).Uint64(8))
 }
 
 func (s CropModuleState) SetKtko(v float64) {
-	s.Struct.SetUint64(8, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(8, math.Float64bits(v))
 }
 
 func (s CropModuleState) StemElongationEventFired() bool {
-	return s.Struct.Bit(7286)
+	return capnp.Struct(s).Bit(7286)
 }
 
 func (s CropModuleState) SetStemElongationEventFired(v bool) {
-	s.Struct.SetBit(7286, v)
+	capnp.Struct(s).SetBit(7286, v)
 }
 
 // CropModuleState_List is a list of CropModuleState.
-type CropModuleState_List struct{ capnp.List }
+type CropModuleState_List = capnp.StructList[CropModuleState]
 
 // NewCropModuleState creates a new list of CropModuleState.
 func NewCropModuleState_List(s *capnp.Segment, sz int32) (CropModuleState_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 1248, PointerCount: 50}, sz)
-	return CropModuleState_List{l}, err
-}
-
-func (s CropModuleState_List) At(i int) CropModuleState { return CropModuleState{s.List.Struct(i)} }
-
-func (s CropModuleState_List) Set(i int, v CropModuleState) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s CropModuleState_List) String() string {
-	str, _ := text.MarshalList(0x811d54ac7debc21e, s.List)
-	return str
+	return capnp.StructList[CropModuleState](l), err
 }
 
 // CropModuleState_Future is a wrapper for a CropModuleState promised by a client call.
 type CropModuleState_Future struct{ *capnp.Future }
 
-func (p CropModuleState_Future) Struct() (CropModuleState, error) {
-	s, err := p.Future.Struct()
-	return CropModuleState{s}, err
+func (f CropModuleState_Future) Struct() (CropModuleState, error) {
+	p, err := f.Future.Ptr()
+	return CropModuleState(p.Struct()), err
 }
-
 func (p CropModuleState_Future) SpeciesParams() SpeciesParameters_Future {
 	return SpeciesParameters_Future{Future: p.Future.Field(47, nil)}
 }
-
 func (p CropModuleState_Future) CultivarParams() CultivarParameters_Future {
 	return CultivarParameters_Future{Future: p.Future.Field(48, nil)}
 }
-
 func (p CropModuleState_Future) ResidueParams() CropResidueParameters_Future {
 	return CropResidueParameters_Future{Future: p.Future.Field(49, nil)}
 }
-
 func (p CropModuleState_Future) GuentherEmissions() Voc_Emissions_Future {
 	return Voc_Emissions_Future{Future: p.Future.Field(43, nil)}
 }
-
 func (p CropModuleState_Future) JjvEmissions() Voc_Emissions_Future {
 	return Voc_Emissions_Future{Future: p.Future.Field(44, nil)}
 }
-
 func (p CropModuleState_Future) VocSpecies() Voc_SpeciesData_Future {
 	return Voc_SpeciesData_Future{Future: p.Future.Field(45, nil)}
 }
-
 func (p CropModuleState_Future) CropPhotosynthesisResults() Voc_CPData_Future {
 	return Voc_CPData_Future{Future: p.Future.Field(46, nil)}
 }
 
-type SnowModuleState struct{ capnp.Struct }
+type SnowModuleState capnp.Struct
 
 // SnowModuleState_TypeID is the unique identifier for the type SnowModuleState.
 const SnowModuleState_TypeID = 0xa4da01d10b3b6acd
 
 func NewSnowModuleState(s *capnp.Segment) (SnowModuleState, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 160, PointerCount: 0})
-	return SnowModuleState{st}, err
+	return SnowModuleState(st), err
 }
 
 func NewRootSnowModuleState(s *capnp.Segment) (SnowModuleState, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 160, PointerCount: 0})
-	return SnowModuleState{st}, err
+	return SnowModuleState(st), err
 }
 
 func ReadRootSnowModuleState(msg *capnp.Message) (SnowModuleState, error) {
 	root, err := msg.Root()
-	return SnowModuleState{root.Struct()}, err
+	return SnowModuleState(root.Struct()), err
 }
 
 func (s SnowModuleState) String() string {
-	str, _ := text.Marshal(0xa4da01d10b3b6acd, s.Struct)
+	str, _ := text.Marshal(0xa4da01d10b3b6acd, capnp.Struct(s))
 	return str
 }
 
+func (s SnowModuleState) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (SnowModuleState) DecodeFromPtr(p capnp.Ptr) SnowModuleState {
+	return SnowModuleState(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s SnowModuleState) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s SnowModuleState) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s SnowModuleState) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s SnowModuleState) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s SnowModuleState) SnowDensity() float64 {
-	return math.Float64frombits(s.Struct.Uint64(8))
+	return math.Float64frombits(capnp.Struct(s).Uint64(8))
 }
 
 func (s SnowModuleState) SetSnowDensity(v float64) {
-	s.Struct.SetUint64(8, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(8, math.Float64bits(v))
 }
 
 func (s SnowModuleState) SnowDepth() float64 {
-	return math.Float64frombits(s.Struct.Uint64(16))
+	return math.Float64frombits(capnp.Struct(s).Uint64(16))
 }
 
 func (s SnowModuleState) SetSnowDepth(v float64) {
-	s.Struct.SetUint64(16, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(16, math.Float64bits(v))
 }
 
 func (s SnowModuleState) FrozenWaterInSnow() float64 {
-	return math.Float64frombits(s.Struct.Uint64(24))
+	return math.Float64frombits(capnp.Struct(s).Uint64(24))
 }
 
 func (s SnowModuleState) SetFrozenWaterInSnow(v float64) {
-	s.Struct.SetUint64(24, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(24, math.Float64bits(v))
 }
 
 func (s SnowModuleState) LiquidWaterInSnow() float64 {
-	return math.Float64frombits(s.Struct.Uint64(32))
+	return math.Float64frombits(capnp.Struct(s).Uint64(32))
 }
 
 func (s SnowModuleState) SetLiquidWaterInSnow(v float64) {
-	s.Struct.SetUint64(32, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(32, math.Float64bits(v))
 }
 
 func (s SnowModuleState) WaterToInfiltrate() float64 {
-	return math.Float64frombits(s.Struct.Uint64(40))
+	return math.Float64frombits(capnp.Struct(s).Uint64(40))
 }
 
 func (s SnowModuleState) SetWaterToInfiltrate(v float64) {
-	s.Struct.SetUint64(40, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(40, math.Float64bits(v))
 }
 
 func (s SnowModuleState) MaxSnowDepth() float64 {
-	return math.Float64frombits(s.Struct.Uint64(48))
+	return math.Float64frombits(capnp.Struct(s).Uint64(48))
 }
 
 func (s SnowModuleState) SetMaxSnowDepth(v float64) {
-	s.Struct.SetUint64(48, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(48, math.Float64bits(v))
 }
 
 func (s SnowModuleState) AccumulatedSnowDepth() float64 {
-	return math.Float64frombits(s.Struct.Uint64(56))
+	return math.Float64frombits(capnp.Struct(s).Uint64(56))
 }
 
 func (s SnowModuleState) SetAccumulatedSnowDepth(v float64) {
-	s.Struct.SetUint64(56, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(56, math.Float64bits(v))
 }
 
 func (s SnowModuleState) SnowmeltTemperature() float64 {
-	return math.Float64frombits(s.Struct.Uint64(64))
+	return math.Float64frombits(capnp.Struct(s).Uint64(64))
 }
 
 func (s SnowModuleState) SetSnowmeltTemperature(v float64) {
-	s.Struct.SetUint64(64, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(64, math.Float64bits(v))
 }
 
 func (s SnowModuleState) SnowAccumulationThresholdTemperature() float64 {
-	return math.Float64frombits(s.Struct.Uint64(72))
+	return math.Float64frombits(capnp.Struct(s).Uint64(72))
 }
 
 func (s SnowModuleState) SetSnowAccumulationThresholdTemperature(v float64) {
-	s.Struct.SetUint64(72, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(72, math.Float64bits(v))
 }
 
 func (s SnowModuleState) TemperatureLimitForLiquidWater() float64 {
-	return math.Float64frombits(s.Struct.Uint64(80))
+	return math.Float64frombits(capnp.Struct(s).Uint64(80))
 }
 
 func (s SnowModuleState) SetTemperatureLimitForLiquidWater(v float64) {
-	s.Struct.SetUint64(80, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(80, math.Float64bits(v))
 }
 
 func (s SnowModuleState) CorrectionRain() float64 {
-	return math.Float64frombits(s.Struct.Uint64(88))
+	return math.Float64frombits(capnp.Struct(s).Uint64(88))
 }
 
 func (s SnowModuleState) SetCorrectionRain(v float64) {
-	s.Struct.SetUint64(88, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(88, math.Float64bits(v))
 }
 
 func (s SnowModuleState) CorrectionSnow() float64 {
-	return math.Float64frombits(s.Struct.Uint64(96))
+	return math.Float64frombits(capnp.Struct(s).Uint64(96))
 }
 
 func (s SnowModuleState) SetCorrectionSnow(v float64) {
-	s.Struct.SetUint64(96, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(96, math.Float64bits(v))
 }
 
 func (s SnowModuleState) RefreezeTemperature() float64 {
-	return math.Float64frombits(s.Struct.Uint64(104))
+	return math.Float64frombits(capnp.Struct(s).Uint64(104))
 }
 
 func (s SnowModuleState) SetRefreezeTemperature(v float64) {
-	s.Struct.SetUint64(104, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(104, math.Float64bits(v))
 }
 
 func (s SnowModuleState) RefreezeP1() float64 {
-	return math.Float64frombits(s.Struct.Uint64(112))
+	return math.Float64frombits(capnp.Struct(s).Uint64(112))
 }
 
 func (s SnowModuleState) SetRefreezeP1(v float64) {
-	s.Struct.SetUint64(112, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(112, math.Float64bits(v))
 }
 
 func (s SnowModuleState) RefreezeP2() float64 {
-	return math.Float64frombits(s.Struct.Uint64(120))
+	return math.Float64frombits(capnp.Struct(s).Uint64(120))
 }
 
 func (s SnowModuleState) SetRefreezeP2(v float64) {
-	s.Struct.SetUint64(120, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(120, math.Float64bits(v))
 }
 
 func (s SnowModuleState) NewSnowDensityMin() float64 {
-	return math.Float64frombits(s.Struct.Uint64(128))
+	return math.Float64frombits(capnp.Struct(s).Uint64(128))
 }
 
 func (s SnowModuleState) SetNewSnowDensityMin(v float64) {
-	s.Struct.SetUint64(128, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(128, math.Float64bits(v))
 }
 
 func (s SnowModuleState) SnowMaxAdditionalDensity() float64 {
-	return math.Float64frombits(s.Struct.Uint64(136))
+	return math.Float64frombits(capnp.Struct(s).Uint64(136))
 }
 
 func (s SnowModuleState) SetSnowMaxAdditionalDensity(v float64) {
-	s.Struct.SetUint64(136, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(136, math.Float64bits(v))
 }
 
 func (s SnowModuleState) SnowPacking() float64 {
-	return math.Float64frombits(s.Struct.Uint64(144))
+	return math.Float64frombits(capnp.Struct(s).Uint64(144))
 }
 
 func (s SnowModuleState) SetSnowPacking(v float64) {
-	s.Struct.SetUint64(144, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(144, math.Float64bits(v))
 }
 
 func (s SnowModuleState) SnowRetentionCapacityMin() float64 {
-	return math.Float64frombits(s.Struct.Uint64(152))
+	return math.Float64frombits(capnp.Struct(s).Uint64(152))
 }
 
 func (s SnowModuleState) SetSnowRetentionCapacityMin(v float64) {
-	s.Struct.SetUint64(152, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(152, math.Float64bits(v))
 }
 
 func (s SnowModuleState) SnowRetentionCapacityMax() float64 {
-	return math.Float64frombits(s.Struct.Uint64(0))
+	return math.Float64frombits(capnp.Struct(s).Uint64(0))
 }
 
 func (s SnowModuleState) SetSnowRetentionCapacityMax(v float64) {
-	s.Struct.SetUint64(0, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(0, math.Float64bits(v))
 }
 
 // SnowModuleState_List is a list of SnowModuleState.
-type SnowModuleState_List struct{ capnp.List }
+type SnowModuleState_List = capnp.StructList[SnowModuleState]
 
 // NewSnowModuleState creates a new list of SnowModuleState.
 func NewSnowModuleState_List(s *capnp.Segment, sz int32) (SnowModuleState_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 160, PointerCount: 0}, sz)
-	return SnowModuleState_List{l}, err
-}
-
-func (s SnowModuleState_List) At(i int) SnowModuleState { return SnowModuleState{s.List.Struct(i)} }
-
-func (s SnowModuleState_List) Set(i int, v SnowModuleState) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s SnowModuleState_List) String() string {
-	str, _ := text.MarshalList(0xa4da01d10b3b6acd, s.List)
-	return str
+	return capnp.StructList[SnowModuleState](l), err
 }
 
 // SnowModuleState_Future is a wrapper for a SnowModuleState promised by a client call.
 type SnowModuleState_Future struct{ *capnp.Future }
 
-func (p SnowModuleState_Future) Struct() (SnowModuleState, error) {
-	s, err := p.Future.Struct()
-	return SnowModuleState{s}, err
+func (f SnowModuleState_Future) Struct() (SnowModuleState, error) {
+	p, err := f.Future.Ptr()
+	return SnowModuleState(p.Struct()), err
 }
 
-type FrostModuleState struct{ capnp.Struct }
+type FrostModuleState capnp.Struct
 
 // FrostModuleState_TypeID is the unique identifier for the type FrostModuleState.
 const FrostModuleState_TypeID = 0xb4f16ea3144d85a6
 
 func NewFrostModuleState(s *capnp.Segment) (FrostModuleState, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 72, PointerCount: 1})
-	return FrostModuleState{st}, err
+	return FrostModuleState(st), err
 }
 
 func NewRootFrostModuleState(s *capnp.Segment) (FrostModuleState, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 72, PointerCount: 1})
-	return FrostModuleState{st}, err
+	return FrostModuleState(st), err
 }
 
 func ReadRootFrostModuleState(msg *capnp.Message) (FrostModuleState, error) {
 	root, err := msg.Root()
-	return FrostModuleState{root.Struct()}, err
+	return FrostModuleState(root.Struct()), err
 }
 
 func (s FrostModuleState) String() string {
-	str, _ := text.Marshal(0xb4f16ea3144d85a6, s.Struct)
+	str, _ := text.Marshal(0xb4f16ea3144d85a6, capnp.Struct(s))
 	return str
 }
 
+func (s FrostModuleState) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (FrostModuleState) DecodeFromPtr(p capnp.Ptr) FrostModuleState {
+	return FrostModuleState(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s FrostModuleState) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s FrostModuleState) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s FrostModuleState) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s FrostModuleState) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s FrostModuleState) FrostDepth() float64 {
-	return math.Float64frombits(s.Struct.Uint64(8))
+	return math.Float64frombits(capnp.Struct(s).Uint64(8))
 }
 
 func (s FrostModuleState) SetFrostDepth(v float64) {
-	s.Struct.SetUint64(8, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(8, math.Float64bits(v))
 }
 
 func (s FrostModuleState) AccumulatedFrostDepth() float64 {
-	return math.Float64frombits(s.Struct.Uint64(16))
+	return math.Float64frombits(capnp.Struct(s).Uint64(16))
 }
 
 func (s FrostModuleState) SetAccumulatedFrostDepth(v float64) {
-	s.Struct.SetUint64(16, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(16, math.Float64bits(v))
 }
 
 func (s FrostModuleState) NegativeDegreeDays() float64 {
-	return math.Float64frombits(s.Struct.Uint64(24))
+	return math.Float64frombits(capnp.Struct(s).Uint64(24))
 }
 
 func (s FrostModuleState) SetNegativeDegreeDays(v float64) {
-	s.Struct.SetUint64(24, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(24, math.Float64bits(v))
 }
 
 func (s FrostModuleState) ThawDepth() float64 {
-	return math.Float64frombits(s.Struct.Uint64(32))
+	return math.Float64frombits(capnp.Struct(s).Uint64(32))
 }
 
 func (s FrostModuleState) SetThawDepth(v float64) {
-	s.Struct.SetUint64(32, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(32, math.Float64bits(v))
 }
 
 func (s FrostModuleState) FrostDays() uint16 {
-	return s.Struct.Uint16(40)
+	return capnp.Struct(s).Uint16(40)
 }
 
 func (s FrostModuleState) SetFrostDays(v uint16) {
-	s.Struct.SetUint16(40, v)
+	capnp.Struct(s).SetUint16(40, v)
 }
 
 func (s FrostModuleState) LambdaRedux() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(0)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s FrostModuleState) HasLambdaRedux() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s FrostModuleState) SetLambdaRedux(v capnp.Float64List) error {
-	return s.Struct.SetPtr(0, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
 }
 
 // NewLambdaRedux sets the lambdaRedux field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s FrostModuleState) NewLambdaRedux(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(0, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
 	return l, err
 }
-
 func (s FrostModuleState) TemperatureUnderSnow() float64 {
-	return math.Float64frombits(s.Struct.Uint64(48))
+	return math.Float64frombits(capnp.Struct(s).Uint64(48))
 }
 
 func (s FrostModuleState) SetTemperatureUnderSnow(v float64) {
-	s.Struct.SetUint64(48, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(48, math.Float64bits(v))
 }
 
 func (s FrostModuleState) HydraulicConductivityRedux() float64 {
-	return math.Float64frombits(s.Struct.Uint64(56))
+	return math.Float64frombits(capnp.Struct(s).Uint64(56))
 }
 
 func (s FrostModuleState) SetHydraulicConductivityRedux(v float64) {
-	s.Struct.SetUint64(56, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(56, math.Float64bits(v))
 }
 
 func (s FrostModuleState) PtTimeStep() float64 {
-	return math.Float64frombits(s.Struct.Uint64(64))
+	return math.Float64frombits(capnp.Struct(s).Uint64(64))
 }
 
 func (s FrostModuleState) SetPtTimeStep(v float64) {
-	s.Struct.SetUint64(64, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(64, math.Float64bits(v))
 }
 
 func (s FrostModuleState) PmHydraulicConductivityRedux() float64 {
-	return math.Float64frombits(s.Struct.Uint64(0))
+	return math.Float64frombits(capnp.Struct(s).Uint64(0))
 }
 
 func (s FrostModuleState) SetPmHydraulicConductivityRedux(v float64) {
-	s.Struct.SetUint64(0, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(0, math.Float64bits(v))
 }
 
 // FrostModuleState_List is a list of FrostModuleState.
-type FrostModuleState_List struct{ capnp.List }
+type FrostModuleState_List = capnp.StructList[FrostModuleState]
 
 // NewFrostModuleState creates a new list of FrostModuleState.
 func NewFrostModuleState_List(s *capnp.Segment, sz int32) (FrostModuleState_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 72, PointerCount: 1}, sz)
-	return FrostModuleState_List{l}, err
-}
-
-func (s FrostModuleState_List) At(i int) FrostModuleState { return FrostModuleState{s.List.Struct(i)} }
-
-func (s FrostModuleState_List) Set(i int, v FrostModuleState) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s FrostModuleState_List) String() string {
-	str, _ := text.MarshalList(0xb4f16ea3144d85a6, s.List)
-	return str
+	return capnp.StructList[FrostModuleState](l), err
 }
 
 // FrostModuleState_Future is a wrapper for a FrostModuleState promised by a client call.
 type FrostModuleState_Future struct{ *capnp.Future }
 
-func (p FrostModuleState_Future) Struct() (FrostModuleState, error) {
-	s, err := p.Future.Struct()
-	return FrostModuleState{s}, err
+func (f FrostModuleState_Future) Struct() (FrostModuleState, error) {
+	p, err := f.Future.Ptr()
+	return FrostModuleState(p.Struct()), err
 }
 
-type SoilMoistureModuleState struct{ capnp.Struct }
+type SoilMoistureModuleState capnp.Struct
 
 // SoilMoistureModuleState_TypeID is the unique identifier for the type SoilMoistureModuleState.
 const SoilMoistureModuleState_TypeID = 0xcd05962719bf7ec8
 
 func NewSoilMoistureModuleState(s *capnp.Segment) (SoilMoistureModuleState, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 320, PointerCount: 22})
-	return SoilMoistureModuleState{st}, err
+	return SoilMoistureModuleState(st), err
 }
 
 func NewRootSoilMoistureModuleState(s *capnp.Segment) (SoilMoistureModuleState, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 320, PointerCount: 22})
-	return SoilMoistureModuleState{st}, err
+	return SoilMoistureModuleState(st), err
 }
 
 func ReadRootSoilMoistureModuleState(msg *capnp.Message) (SoilMoistureModuleState, error) {
 	root, err := msg.Root()
-	return SoilMoistureModuleState{root.Struct()}, err
+	return SoilMoistureModuleState(root.Struct()), err
 }
 
 func (s SoilMoistureModuleState) String() string {
-	str, _ := text.Marshal(0xcd05962719bf7ec8, s.Struct)
+	str, _ := text.Marshal(0xcd05962719bf7ec8, capnp.Struct(s))
 	return str
 }
 
+func (s SoilMoistureModuleState) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (SoilMoistureModuleState) DecodeFromPtr(p capnp.Ptr) SoilMoistureModuleState {
+	return SoilMoistureModuleState(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s SoilMoistureModuleState) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s SoilMoistureModuleState) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s SoilMoistureModuleState) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s SoilMoistureModuleState) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s SoilMoistureModuleState) ModuleParams() (SoilMoistureModuleParameters, error) {
-	p, err := s.Struct.Ptr(2)
-	return SoilMoistureModuleParameters{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(2)
+	return SoilMoistureModuleParameters(p.Struct()), err
 }
 
 func (s SoilMoistureModuleState) HasModuleParams() bool {
-	return s.Struct.HasPtr(2)
+	return capnp.Struct(s).HasPtr(2)
 }
 
 func (s SoilMoistureModuleState) SetModuleParams(v SoilMoistureModuleParameters) error {
-	return s.Struct.SetPtr(2, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(2, capnp.Struct(v).ToPtr())
 }
 
 // NewModuleParams sets the moduleParams field to a newly
 // allocated SoilMoistureModuleParameters struct, preferring placement in s's segment.
 func (s SoilMoistureModuleState) NewModuleParams() (SoilMoistureModuleParameters, error) {
-	ss, err := NewSoilMoistureModuleParameters(s.Struct.Segment())
+	ss, err := NewSoilMoistureModuleParameters(capnp.Struct(s).Segment())
 	if err != nil {
 		return SoilMoistureModuleParameters{}, err
 	}
-	err = s.Struct.SetPtr(2, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(2, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s SoilMoistureModuleState) NumberOfLayers() uint16 {
-	return s.Struct.Uint16(24)
+	return capnp.Struct(s).Uint16(24)
 }
 
 func (s SoilMoistureModuleState) SetNumberOfLayers(v uint16) {
-	s.Struct.SetUint16(24, v)
+	capnp.Struct(s).SetUint16(24, v)
 }
 
 func (s SoilMoistureModuleState) VsNumberOfLayers() uint16 {
-	return s.Struct.Uint16(26)
+	return capnp.Struct(s).Uint16(26)
 }
 
 func (s SoilMoistureModuleState) SetVsNumberOfLayers(v uint16) {
-	s.Struct.SetUint16(26, v)
+	capnp.Struct(s).SetUint16(26, v)
 }
 
 func (s SoilMoistureModuleState) ActualEvaporation() float64 {
-	return math.Float64frombits(s.Struct.Uint64(32))
+	return math.Float64frombits(capnp.Struct(s).Uint64(32))
 }
 
 func (s SoilMoistureModuleState) SetActualEvaporation(v float64) {
-	s.Struct.SetUint64(32, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(32, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) ActualEvapotranspiration() float64 {
-	return math.Float64frombits(s.Struct.Uint64(40))
+	return math.Float64frombits(capnp.Struct(s).Uint64(40))
 }
 
 func (s SoilMoistureModuleState) SetActualEvapotranspiration(v float64) {
-	s.Struct.SetUint64(40, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(40, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) ActualTranspiration() float64 {
-	return math.Float64frombits(s.Struct.Uint64(48))
+	return math.Float64frombits(capnp.Struct(s).Uint64(48))
 }
 
 func (s SoilMoistureModuleState) SetActualTranspiration(v float64) {
-	s.Struct.SetUint64(48, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(48, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) AvailableWater() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(3)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(3)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilMoistureModuleState) HasAvailableWater() bool {
-	return s.Struct.HasPtr(3)
+	return capnp.Struct(s).HasPtr(3)
 }
 
 func (s SoilMoistureModuleState) SetAvailableWater(v capnp.Float64List) error {
-	return s.Struct.SetPtr(3, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(3, v.ToPtr())
 }
 
 // NewAvailableWater sets the availableWater field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilMoistureModuleState) NewAvailableWater(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(3, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(3, l.ToPtr())
 	return l, err
 }
-
 func (s SoilMoistureModuleState) CapillaryRise() float64 {
-	return math.Float64frombits(s.Struct.Uint64(56))
+	return math.Float64frombits(capnp.Struct(s).Uint64(56))
 }
 
 func (s SoilMoistureModuleState) SetCapillaryRise(v float64) {
-	s.Struct.SetUint64(56, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(56, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) CapillaryRiseRate() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(4)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(4)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilMoistureModuleState) HasCapillaryRiseRate() bool {
-	return s.Struct.HasPtr(4)
+	return capnp.Struct(s).HasPtr(4)
 }
 
 func (s SoilMoistureModuleState) SetCapillaryRiseRate(v capnp.Float64List) error {
-	return s.Struct.SetPtr(4, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(4, v.ToPtr())
 }
 
 // NewCapillaryRiseRate sets the capillaryRiseRate field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilMoistureModuleState) NewCapillaryRiseRate(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(4, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(4, l.ToPtr())
 	return l, err
 }
-
 func (s SoilMoistureModuleState) CapillaryWater() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(5)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(5)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilMoistureModuleState) HasCapillaryWater() bool {
-	return s.Struct.HasPtr(5)
+	return capnp.Struct(s).HasPtr(5)
 }
 
 func (s SoilMoistureModuleState) SetCapillaryWater(v capnp.Float64List) error {
-	return s.Struct.SetPtr(5, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(5, v.ToPtr())
 }
 
 // NewCapillaryWater sets the capillaryWater field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilMoistureModuleState) NewCapillaryWater(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(5, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(5, l.ToPtr())
 	return l, err
 }
-
 func (s SoilMoistureModuleState) CapillaryWater70() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(6)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(6)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilMoistureModuleState) HasCapillaryWater70() bool {
-	return s.Struct.HasPtr(6)
+	return capnp.Struct(s).HasPtr(6)
 }
 
 func (s SoilMoistureModuleState) SetCapillaryWater70(v capnp.Float64List) error {
-	return s.Struct.SetPtr(6, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(6, v.ToPtr())
 }
 
 // NewCapillaryWater70 sets the capillaryWater70 field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilMoistureModuleState) NewCapillaryWater70(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(6, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(6, l.ToPtr())
 	return l, err
 }
-
 func (s SoilMoistureModuleState) Evaporation() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(7)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(7)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilMoistureModuleState) HasEvaporation() bool {
-	return s.Struct.HasPtr(7)
+	return capnp.Struct(s).HasPtr(7)
 }
 
 func (s SoilMoistureModuleState) SetEvaporation(v capnp.Float64List) error {
-	return s.Struct.SetPtr(7, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(7, v.ToPtr())
 }
 
 // NewEvaporation sets the evaporation field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilMoistureModuleState) NewEvaporation(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(7, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(7, l.ToPtr())
 	return l, err
 }
-
 func (s SoilMoistureModuleState) Evapotranspiration() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(8)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(8)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilMoistureModuleState) HasEvapotranspiration() bool {
-	return s.Struct.HasPtr(8)
+	return capnp.Struct(s).HasPtr(8)
 }
 
 func (s SoilMoistureModuleState) SetEvapotranspiration(v capnp.Float64List) error {
-	return s.Struct.SetPtr(8, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(8, v.ToPtr())
 }
 
 // NewEvapotranspiration sets the evapotranspiration field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilMoistureModuleState) NewEvapotranspiration(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(8, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(8, l.ToPtr())
 	return l, err
 }
-
 func (s SoilMoistureModuleState) FieldCapacity() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(9)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(9)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilMoistureModuleState) HasFieldCapacity() bool {
-	return s.Struct.HasPtr(9)
+	return capnp.Struct(s).HasPtr(9)
 }
 
 func (s SoilMoistureModuleState) SetFieldCapacity(v capnp.Float64List) error {
-	return s.Struct.SetPtr(9, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(9, v.ToPtr())
 }
 
 // NewFieldCapacity sets the fieldCapacity field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilMoistureModuleState) NewFieldCapacity(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(9, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(9, l.ToPtr())
 	return l, err
 }
-
 func (s SoilMoistureModuleState) FluxAtLowerBoundary() float64 {
-	return math.Float64frombits(s.Struct.Uint64(64))
+	return math.Float64frombits(capnp.Struct(s).Uint64(64))
 }
 
 func (s SoilMoistureModuleState) SetFluxAtLowerBoundary(v float64) {
-	s.Struct.SetUint64(64, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(64, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) GravitationalWater() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(10)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(10)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilMoistureModuleState) HasGravitationalWater() bool {
-	return s.Struct.HasPtr(10)
+	return capnp.Struct(s).HasPtr(10)
 }
 
 func (s SoilMoistureModuleState) SetGravitationalWater(v capnp.Float64List) error {
-	return s.Struct.SetPtr(10, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(10, v.ToPtr())
 }
 
 // NewGravitationalWater sets the gravitationalWater field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilMoistureModuleState) NewGravitationalWater(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(10, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(10, l.ToPtr())
 	return l, err
 }
-
 func (s SoilMoistureModuleState) GrossPrecipitation() float64 {
-	return math.Float64frombits(s.Struct.Uint64(72))
+	return math.Float64frombits(capnp.Struct(s).Uint64(72))
 }
 
 func (s SoilMoistureModuleState) SetGrossPrecipitation(v float64) {
-	s.Struct.SetUint64(72, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(72, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) GroundwaterAdded() float64 {
-	return math.Float64frombits(s.Struct.Uint64(80))
+	return math.Float64frombits(capnp.Struct(s).Uint64(80))
 }
 
 func (s SoilMoistureModuleState) SetGroundwaterAdded(v float64) {
-	s.Struct.SetUint64(80, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(80, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) GroundwaterDischarge() float64 {
-	return math.Float64frombits(s.Struct.Uint64(88))
+	return math.Float64frombits(capnp.Struct(s).Uint64(88))
 }
 
 func (s SoilMoistureModuleState) SetGroundwaterDischarge(v float64) {
-	s.Struct.SetUint64(88, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(88, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) GroundwaterTable() uint16 {
-	return s.Struct.Uint16(28)
+	return capnp.Struct(s).Uint16(28)
 }
 
 func (s SoilMoistureModuleState) SetGroundwaterTable(v uint16) {
-	s.Struct.SetUint16(28, v)
+	capnp.Struct(s).SetUint16(28, v)
 }
 
 func (s SoilMoistureModuleState) HeatConductivity() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(11)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(11)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilMoistureModuleState) HasHeatConductivity() bool {
-	return s.Struct.HasPtr(11)
+	return capnp.Struct(s).HasPtr(11)
 }
 
 func (s SoilMoistureModuleState) SetHeatConductivity(v capnp.Float64List) error {
-	return s.Struct.SetPtr(11, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(11, v.ToPtr())
 }
 
 // NewHeatConductivity sets the heatConductivity field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilMoistureModuleState) NewHeatConductivity(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(11, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(11, l.ToPtr())
 	return l, err
 }
-
 func (s SoilMoistureModuleState) HydraulicConductivityRedux() float64 {
-	return math.Float64frombits(s.Struct.Uint64(96))
+	return math.Float64frombits(capnp.Struct(s).Uint64(96))
 }
 
 func (s SoilMoistureModuleState) SetHydraulicConductivityRedux(v float64) {
-	s.Struct.SetUint64(96, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(96, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) Infiltration() float64 {
-	return math.Float64frombits(s.Struct.Uint64(104))
+	return math.Float64frombits(capnp.Struct(s).Uint64(104))
 }
 
 func (s SoilMoistureModuleState) SetInfiltration(v float64) {
-	s.Struct.SetUint64(104, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(104, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) Interception() float64 {
-	return math.Float64frombits(s.Struct.Uint64(112))
+	return math.Float64frombits(capnp.Struct(s).Uint64(112))
 }
 
 func (s SoilMoistureModuleState) SetInterception(v float64) {
-	s.Struct.SetUint64(112, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(112, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) VcKcFactor() float64 {
-	return math.Float64frombits(s.Struct.Uint64(120) ^ 0x3fe3333333333333)
+	return math.Float64frombits(capnp.Struct(s).Uint64(120) ^ 0x3fe3333333333333)
 }
 
 func (s SoilMoistureModuleState) SetVcKcFactor(v float64) {
-	s.Struct.SetUint64(120, math.Float64bits(v)^0x3fe3333333333333)
+	capnp.Struct(s).SetUint64(120, math.Float64bits(v)^0x3fe3333333333333)
 }
 
 func (s SoilMoistureModuleState) Lambda() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(12)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(12)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilMoistureModuleState) HasLambda() bool {
-	return s.Struct.HasPtr(12)
+	return capnp.Struct(s).HasPtr(12)
 }
 
 func (s SoilMoistureModuleState) SetLambda(v capnp.Float64List) error {
-	return s.Struct.SetPtr(12, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(12, v.ToPtr())
 }
 
 // NewLambda sets the lambda field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilMoistureModuleState) NewLambda(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(12, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(12, l.ToPtr())
 	return l, err
 }
-
 func (s SoilMoistureModuleState) LambdaReduced() float64 {
-	return math.Float64frombits(s.Struct.Uint64(128))
+	return math.Float64frombits(capnp.Struct(s).Uint64(128))
 }
 
 func (s SoilMoistureModuleState) SetLambdaReduced(v float64) {
-	s.Struct.SetUint64(128, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(128, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) VsLatitude() float64 {
-	return math.Float64frombits(s.Struct.Uint64(136))
+	return math.Float64frombits(capnp.Struct(s).Uint64(136))
 }
 
 func (s SoilMoistureModuleState) SetVsLatitude(v float64) {
-	s.Struct.SetUint64(136, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(136, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) LayerThickness() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(13)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(13)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilMoistureModuleState) HasLayerThickness() bool {
-	return s.Struct.HasPtr(13)
+	return capnp.Struct(s).HasPtr(13)
 }
 
 func (s SoilMoistureModuleState) SetLayerThickness(v capnp.Float64List) error {
-	return s.Struct.SetPtr(13, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(13, v.ToPtr())
 }
 
 // NewLayerThickness sets the layerThickness field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilMoistureModuleState) NewLayerThickness(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(13, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(13, l.ToPtr())
 	return l, err
 }
-
 func (s SoilMoistureModuleState) PmLayerThickness() float64 {
-	return math.Float64frombits(s.Struct.Uint64(144))
+	return math.Float64frombits(capnp.Struct(s).Uint64(144))
 }
 
 func (s SoilMoistureModuleState) SetPmLayerThickness(v float64) {
-	s.Struct.SetUint64(144, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(144, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) PmLeachingDepth() float64 {
-	return math.Float64frombits(s.Struct.Uint64(152))
+	return math.Float64frombits(capnp.Struct(s).Uint64(152))
 }
 
 func (s SoilMoistureModuleState) SetPmLeachingDepth(v float64) {
-	s.Struct.SetUint64(152, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(152, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) PmLeachingDepthLayer() uint16 {
-	return s.Struct.Uint16(30)
+	return capnp.Struct(s).Uint16(30)
 }
 
 func (s SoilMoistureModuleState) SetPmLeachingDepthLayer(v uint16) {
-	s.Struct.SetUint16(30, v)
+	capnp.Struct(s).SetUint16(30, v)
 }
 
 func (s SoilMoistureModuleState) VwMaxAirTemperature() float64 {
-	return math.Float64frombits(s.Struct.Uint64(160))
+	return math.Float64frombits(capnp.Struct(s).Uint64(160))
 }
 
 func (s SoilMoistureModuleState) SetVwMaxAirTemperature(v float64) {
-	s.Struct.SetUint64(160, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(160, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) PmMaxPercolationRate() float64 {
-	return math.Float64frombits(s.Struct.Uint64(168))
+	return math.Float64frombits(capnp.Struct(s).Uint64(168))
 }
 
 func (s SoilMoistureModuleState) SetPmMaxPercolationRate(v float64) {
-	s.Struct.SetUint64(168, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(168, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) VwMeanAirTemperature() float64 {
-	return math.Float64frombits(s.Struct.Uint64(176))
+	return math.Float64frombits(capnp.Struct(s).Uint64(176))
 }
 
 func (s SoilMoistureModuleState) SetVwMeanAirTemperature(v float64) {
-	s.Struct.SetUint64(176, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(176, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) VwMinAirTemperature() float64 {
-	return math.Float64frombits(s.Struct.Uint64(184))
+	return math.Float64frombits(capnp.Struct(s).Uint64(184))
 }
 
 func (s SoilMoistureModuleState) SetVwMinAirTemperature(v float64) {
-	s.Struct.SetUint64(184, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(184, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) VcNetPrecipitation() float64 {
-	return math.Float64frombits(s.Struct.Uint64(192))
+	return math.Float64frombits(capnp.Struct(s).Uint64(192))
 }
 
 func (s SoilMoistureModuleState) SetVcNetPrecipitation(v float64) {
-	s.Struct.SetUint64(192, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(192, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) VwNetRadiation() float64 {
-	return math.Float64frombits(s.Struct.Uint64(200))
+	return math.Float64frombits(capnp.Struct(s).Uint64(200))
 }
 
 func (s SoilMoistureModuleState) SetVwNetRadiation(v float64) {
-	s.Struct.SetUint64(200, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(200, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) PermanentWiltingPoint() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(14)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(14)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilMoistureModuleState) HasPermanentWiltingPoint() bool {
-	return s.Struct.HasPtr(14)
+	return capnp.Struct(s).HasPtr(14)
 }
 
 func (s SoilMoistureModuleState) SetPermanentWiltingPoint(v capnp.Float64List) error {
-	return s.Struct.SetPtr(14, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(14, v.ToPtr())
 }
 
 // NewPermanentWiltingPoint sets the permanentWiltingPoint field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilMoistureModuleState) NewPermanentWiltingPoint(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(14, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(14, l.ToPtr())
 	return l, err
 }
-
 func (s SoilMoistureModuleState) VcPercentageSoilCoverage() float64 {
-	return math.Float64frombits(s.Struct.Uint64(208))
+	return math.Float64frombits(capnp.Struct(s).Uint64(208))
 }
 
 func (s SoilMoistureModuleState) SetVcPercentageSoilCoverage(v float64) {
-	s.Struct.SetUint64(208, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(208, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) PercolationRate() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(15)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(15)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilMoistureModuleState) HasPercolationRate() bool {
-	return s.Struct.HasPtr(15)
+	return capnp.Struct(s).HasPtr(15)
 }
 
 func (s SoilMoistureModuleState) SetPercolationRate(v capnp.Float64List) error {
-	return s.Struct.SetPtr(15, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(15, v.ToPtr())
 }
 
 // NewPercolationRate sets the percolationRate field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilMoistureModuleState) NewPercolationRate(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(15, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(15, l.ToPtr())
 	return l, err
 }
-
 func (s SoilMoistureModuleState) VwPrecipitation() float64 {
-	return math.Float64frombits(s.Struct.Uint64(216))
+	return math.Float64frombits(capnp.Struct(s).Uint64(216))
 }
 
 func (s SoilMoistureModuleState) SetVwPrecipitation(v float64) {
-	s.Struct.SetUint64(216, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(216, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) ReferenceEvapotranspiration() float64 {
-	return math.Float64frombits(s.Struct.Uint64(224) ^ 0x4018000000000000)
+	return math.Float64frombits(capnp.Struct(s).Uint64(224) ^ 0x4018000000000000)
 }
 
 func (s SoilMoistureModuleState) SetReferenceEvapotranspiration(v float64) {
-	s.Struct.SetUint64(224, math.Float64bits(v)^0x4018000000000000)
+	capnp.Struct(s).SetUint64(224, math.Float64bits(v)^0x4018000000000000)
 }
 
 func (s SoilMoistureModuleState) RelativeHumidity() float64 {
-	return math.Float64frombits(s.Struct.Uint64(232))
+	return math.Float64frombits(capnp.Struct(s).Uint64(232))
 }
 
 func (s SoilMoistureModuleState) SetRelativeHumidity(v float64) {
-	s.Struct.SetUint64(232, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(232, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) ResidualEvapotranspiration() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(16)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(16)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilMoistureModuleState) HasResidualEvapotranspiration() bool {
-	return s.Struct.HasPtr(16)
+	return capnp.Struct(s).HasPtr(16)
 }
 
 func (s SoilMoistureModuleState) SetResidualEvapotranspiration(v capnp.Float64List) error {
-	return s.Struct.SetPtr(16, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(16, v.ToPtr())
 }
 
 // NewResidualEvapotranspiration sets the residualEvapotranspiration field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilMoistureModuleState) NewResidualEvapotranspiration(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(16, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(16, l.ToPtr())
 	return l, err
 }
-
 func (s SoilMoistureModuleState) SaturatedHydraulicConductivity() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(17)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(17)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilMoistureModuleState) HasSaturatedHydraulicConductivity() bool {
-	return s.Struct.HasPtr(17)
+	return capnp.Struct(s).HasPtr(17)
 }
 
 func (s SoilMoistureModuleState) SetSaturatedHydraulicConductivity(v capnp.Float64List) error {
-	return s.Struct.SetPtr(17, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(17, v.ToPtr())
 }
 
 // NewSaturatedHydraulicConductivity sets the saturatedHydraulicConductivity field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilMoistureModuleState) NewSaturatedHydraulicConductivity(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(17, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(17, l.ToPtr())
 	return l, err
 }
-
 func (s SoilMoistureModuleState) SoilMoisture() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(18)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(18)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilMoistureModuleState) HasSoilMoisture() bool {
-	return s.Struct.HasPtr(18)
+	return capnp.Struct(s).HasPtr(18)
 }
 
 func (s SoilMoistureModuleState) SetSoilMoisture(v capnp.Float64List) error {
-	return s.Struct.SetPtr(18, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(18, v.ToPtr())
 }
 
 // NewSoilMoisture sets the soilMoisture field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilMoistureModuleState) NewSoilMoisture(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(18, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(18, l.ToPtr())
 	return l, err
 }
-
 func (s SoilMoistureModuleState) SoilMoisturecrit() float64 {
-	return math.Float64frombits(s.Struct.Uint64(240))
+	return math.Float64frombits(capnp.Struct(s).Uint64(240))
 }
 
 func (s SoilMoistureModuleState) SetSoilMoisturecrit(v float64) {
-	s.Struct.SetUint64(240, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(240, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) SoilMoistureDeficit() float64 {
-	return math.Float64frombits(s.Struct.Uint64(248))
+	return math.Float64frombits(capnp.Struct(s).Uint64(248))
 }
 
 func (s SoilMoistureModuleState) SetSoilMoistureDeficit(v float64) {
-	s.Struct.SetUint64(248, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(248, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) SoilPoreVolume() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(19)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(19)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilMoistureModuleState) HasSoilPoreVolume() bool {
-	return s.Struct.HasPtr(19)
+	return capnp.Struct(s).HasPtr(19)
 }
 
 func (s SoilMoistureModuleState) SetSoilPoreVolume(v capnp.Float64List) error {
-	return s.Struct.SetPtr(19, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(19, v.ToPtr())
 }
 
 // NewSoilPoreVolume sets the soilPoreVolume field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilMoistureModuleState) NewSoilPoreVolume(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(19, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(19, l.ToPtr())
 	return l, err
 }
-
 func (s SoilMoistureModuleState) VcStomataResistance() float64 {
-	return math.Float64frombits(s.Struct.Uint64(256))
+	return math.Float64frombits(capnp.Struct(s).Uint64(256))
 }
 
 func (s SoilMoistureModuleState) SetVcStomataResistance(v float64) {
-	s.Struct.SetUint64(256, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(256, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) SurfaceRoughness() float64 {
-	return math.Float64frombits(s.Struct.Uint64(264))
+	return math.Float64frombits(capnp.Struct(s).Uint64(264))
 }
 
 func (s SoilMoistureModuleState) SetSurfaceRoughness(v float64) {
-	s.Struct.SetUint64(264, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(264, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) SurfaceRunOff() float64 {
-	return math.Float64frombits(s.Struct.Uint64(272))
+	return math.Float64frombits(capnp.Struct(s).Uint64(272))
 }
 
 func (s SoilMoistureModuleState) SetSurfaceRunOff(v float64) {
-	s.Struct.SetUint64(272, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(272, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) SumSurfaceRunOff() float64 {
-	return math.Float64frombits(s.Struct.Uint64(280))
+	return math.Float64frombits(capnp.Struct(s).Uint64(280))
 }
 
 func (s SoilMoistureModuleState) SetSumSurfaceRunOff(v float64) {
-	s.Struct.SetUint64(280, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(280, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) SurfaceWaterStorage() float64 {
-	return math.Float64frombits(s.Struct.Uint64(288))
+	return math.Float64frombits(capnp.Struct(s).Uint64(288))
 }
 
 func (s SoilMoistureModuleState) SetSurfaceWaterStorage(v float64) {
-	s.Struct.SetUint64(288, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(288, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) PtTimeStep() float64 {
-	return math.Float64frombits(s.Struct.Uint64(296))
+	return math.Float64frombits(capnp.Struct(s).Uint64(296))
 }
 
 func (s SoilMoistureModuleState) SetPtTimeStep(v float64) {
-	s.Struct.SetUint64(296, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(296, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) TotalWaterRemoval() float64 {
-	return math.Float64frombits(s.Struct.Uint64(304))
+	return math.Float64frombits(capnp.Struct(s).Uint64(304))
 }
 
 func (s SoilMoistureModuleState) SetTotalWaterRemoval(v float64) {
-	s.Struct.SetUint64(304, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(304, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) Transpiration() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(20)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(20)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilMoistureModuleState) HasTranspiration() bool {
-	return s.Struct.HasPtr(20)
+	return capnp.Struct(s).HasPtr(20)
 }
 
 func (s SoilMoistureModuleState) SetTranspiration(v capnp.Float64List) error {
-	return s.Struct.SetPtr(20, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(20, v.ToPtr())
 }
 
 // NewTranspiration sets the transpiration field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilMoistureModuleState) NewTranspiration(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(20, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(20, l.ToPtr())
 	return l, err
 }
-
 func (s SoilMoistureModuleState) TranspirationDeficit() float64 {
-	return math.Float64frombits(s.Struct.Uint64(312))
+	return math.Float64frombits(capnp.Struct(s).Uint64(312))
 }
 
 func (s SoilMoistureModuleState) SetTranspirationDeficit(v float64) {
-	s.Struct.SetUint64(312, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(312, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) WaterFlux() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(21)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(21)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilMoistureModuleState) HasWaterFlux() bool {
-	return s.Struct.HasPtr(21)
+	return capnp.Struct(s).HasPtr(21)
 }
 
 func (s SoilMoistureModuleState) SetWaterFlux(v capnp.Float64List) error {
-	return s.Struct.SetPtr(21, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(21, v.ToPtr())
 }
 
 // NewWaterFlux sets the waterFlux field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilMoistureModuleState) NewWaterFlux(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(21, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(21, l.ToPtr())
 	return l, err
 }
-
 func (s SoilMoistureModuleState) VwWindSpeed() float64 {
-	return math.Float64frombits(s.Struct.Uint64(16))
+	return math.Float64frombits(capnp.Struct(s).Uint64(16))
 }
 
 func (s SoilMoistureModuleState) SetVwWindSpeed(v float64) {
-	s.Struct.SetUint64(16, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(16, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) VwWindSpeedHeight() float64 {
-	return math.Float64frombits(s.Struct.Uint64(8))
+	return math.Float64frombits(capnp.Struct(s).Uint64(8))
 }
 
 func (s SoilMoistureModuleState) SetVwWindSpeedHeight(v float64) {
-	s.Struct.SetUint64(8, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(8, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) XSACriticalSoilMoisture() float64 {
-	return math.Float64frombits(s.Struct.Uint64(0))
+	return math.Float64frombits(capnp.Struct(s).Uint64(0))
 }
 
 func (s SoilMoistureModuleState) SetXSACriticalSoilMoisture(v float64) {
-	s.Struct.SetUint64(0, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(0, math.Float64bits(v))
 }
 
 func (s SoilMoistureModuleState) SnowComponent() (SnowModuleState, error) {
-	p, err := s.Struct.Ptr(1)
-	return SnowModuleState{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(1)
+	return SnowModuleState(p.Struct()), err
 }
 
 func (s SoilMoistureModuleState) HasSnowComponent() bool {
-	return s.Struct.HasPtr(1)
+	return capnp.Struct(s).HasPtr(1)
 }
 
 func (s SoilMoistureModuleState) SetSnowComponent(v SnowModuleState) error {
-	return s.Struct.SetPtr(1, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
 }
 
 // NewSnowComponent sets the snowComponent field to a newly
 // allocated SnowModuleState struct, preferring placement in s's segment.
 func (s SoilMoistureModuleState) NewSnowComponent() (SnowModuleState, error) {
-	ss, err := NewSnowModuleState(s.Struct.Segment())
+	ss, err := NewSnowModuleState(capnp.Struct(s).Segment())
 	if err != nil {
 		return SnowModuleState{}, err
 	}
-	err = s.Struct.SetPtr(1, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s SoilMoistureModuleState) FrostComponent() (FrostModuleState, error) {
-	p, err := s.Struct.Ptr(0)
-	return FrostModuleState{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return FrostModuleState(p.Struct()), err
 }
 
 func (s SoilMoistureModuleState) HasFrostComponent() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s SoilMoistureModuleState) SetFrostComponent(v FrostModuleState) error {
-	return s.Struct.SetPtr(0, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewFrostComponent sets the frostComponent field to a newly
 // allocated FrostModuleState struct, preferring placement in s's segment.
 func (s SoilMoistureModuleState) NewFrostComponent() (FrostModuleState, error) {
-	ss, err := NewFrostModuleState(s.Struct.Segment())
+	ss, err := NewFrostModuleState(capnp.Struct(s).Segment())
 	if err != nil {
 		return FrostModuleState{}, err
 	}
-	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 // SoilMoistureModuleState_List is a list of SoilMoistureModuleState.
-type SoilMoistureModuleState_List struct{ capnp.List }
+type SoilMoistureModuleState_List = capnp.StructList[SoilMoistureModuleState]
 
 // NewSoilMoistureModuleState creates a new list of SoilMoistureModuleState.
 func NewSoilMoistureModuleState_List(s *capnp.Segment, sz int32) (SoilMoistureModuleState_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 320, PointerCount: 22}, sz)
-	return SoilMoistureModuleState_List{l}, err
-}
-
-func (s SoilMoistureModuleState_List) At(i int) SoilMoistureModuleState {
-	return SoilMoistureModuleState{s.List.Struct(i)}
-}
-
-func (s SoilMoistureModuleState_List) Set(i int, v SoilMoistureModuleState) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s SoilMoistureModuleState_List) String() string {
-	str, _ := text.MarshalList(0xcd05962719bf7ec8, s.List)
-	return str
+	return capnp.StructList[SoilMoistureModuleState](l), err
 }
 
 // SoilMoistureModuleState_Future is a wrapper for a SoilMoistureModuleState promised by a client call.
 type SoilMoistureModuleState_Future struct{ *capnp.Future }
 
-func (p SoilMoistureModuleState_Future) Struct() (SoilMoistureModuleState, error) {
-	s, err := p.Future.Struct()
-	return SoilMoistureModuleState{s}, err
+func (f SoilMoistureModuleState_Future) Struct() (SoilMoistureModuleState, error) {
+	p, err := f.Future.Ptr()
+	return SoilMoistureModuleState(p.Struct()), err
 }
-
 func (p SoilMoistureModuleState_Future) ModuleParams() SoilMoistureModuleParameters_Future {
 	return SoilMoistureModuleParameters_Future{Future: p.Future.Field(2, nil)}
 }
-
 func (p SoilMoistureModuleState_Future) SnowComponent() SnowModuleState_Future {
 	return SnowModuleState_Future{Future: p.Future.Field(1, nil)}
 }
-
 func (p SoilMoistureModuleState_Future) FrostComponent() FrostModuleState_Future {
 	return FrostModuleState_Future{Future: p.Future.Field(0, nil)}
 }
 
-type SoilOrganicModuleState struct{ capnp.Struct }
+type SoilOrganicModuleState capnp.Struct
 
 // SoilOrganicModuleState_TypeID is the unique identifier for the type SoilOrganicModuleState.
 const SoilOrganicModuleState_TypeID = 0xd594e64f6b5f461d
 
 func NewSoilOrganicModuleState(s *capnp.Segment) (SoilOrganicModuleState, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 128, PointerCount: 22})
-	return SoilOrganicModuleState{st}, err
+	return SoilOrganicModuleState(st), err
 }
 
 func NewRootSoilOrganicModuleState(s *capnp.Segment) (SoilOrganicModuleState, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 128, PointerCount: 22})
-	return SoilOrganicModuleState{st}, err
+	return SoilOrganicModuleState(st), err
 }
 
 func ReadRootSoilOrganicModuleState(msg *capnp.Message) (SoilOrganicModuleState, error) {
 	root, err := msg.Root()
-	return SoilOrganicModuleState{root.Struct()}, err
+	return SoilOrganicModuleState(root.Struct()), err
 }
 
 func (s SoilOrganicModuleState) String() string {
-	str, _ := text.Marshal(0xd594e64f6b5f461d, s.Struct)
+	str, _ := text.Marshal(0xd594e64f6b5f461d, capnp.Struct(s))
 	return str
 }
 
+func (s SoilOrganicModuleState) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (SoilOrganicModuleState) DecodeFromPtr(p capnp.Ptr) SoilOrganicModuleState {
+	return SoilOrganicModuleState(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s SoilOrganicModuleState) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s SoilOrganicModuleState) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s SoilOrganicModuleState) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s SoilOrganicModuleState) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s SoilOrganicModuleState) ModuleParams() (SoilOrganicModuleParameters, error) {
-	p, err := s.Struct.Ptr(0)
-	return SoilOrganicModuleParameters{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return SoilOrganicModuleParameters(p.Struct()), err
 }
 
 func (s SoilOrganicModuleState) HasModuleParams() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s SoilOrganicModuleState) SetModuleParams(v SoilOrganicModuleParameters) error {
-	return s.Struct.SetPtr(0, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewModuleParams sets the moduleParams field to a newly
 // allocated SoilOrganicModuleParameters struct, preferring placement in s's segment.
 func (s SoilOrganicModuleState) NewModuleParams() (SoilOrganicModuleParameters, error) {
-	ss, err := NewSoilOrganicModuleParameters(s.Struct.Segment())
+	ss, err := NewSoilOrganicModuleParameters(capnp.Struct(s).Segment())
 	if err != nil {
 		return SoilOrganicModuleParameters{}, err
 	}
-	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s SoilOrganicModuleState) VsNumberOfLayers() uint16 {
-	return s.Struct.Uint16(2)
+	return capnp.Struct(s).Uint16(2)
 }
 
 func (s SoilOrganicModuleState) SetVsNumberOfLayers(v uint16) {
-	s.Struct.SetUint16(2, v)
+	capnp.Struct(s).SetUint16(2, v)
 }
 
 func (s SoilOrganicModuleState) VsNumberOfOrganicLayers() uint16 {
-	return s.Struct.Uint16(4)
+	return capnp.Struct(s).Uint16(4)
 }
 
 func (s SoilOrganicModuleState) SetVsNumberOfOrganicLayers(v uint16) {
-	s.Struct.SetUint16(4, v)
+	capnp.Struct(s).SetUint16(4, v)
 }
 
 func (s SoilOrganicModuleState) AddedOrganicMatter() bool {
-	return s.Struct.Bit(1)
+	return capnp.Struct(s).Bit(1)
 }
 
 func (s SoilOrganicModuleState) SetAddedOrganicMatter(v bool) {
-	s.Struct.SetBit(1, v)
+	capnp.Struct(s).SetBit(1, v)
 }
 
 func (s SoilOrganicModuleState) IrrigationAmount() float64 {
-	return math.Float64frombits(s.Struct.Uint64(16))
+	return math.Float64frombits(capnp.Struct(s).Uint64(16))
 }
 
 func (s SoilOrganicModuleState) SetIrrigationAmount(v float64) {
-	s.Struct.SetUint64(16, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(16, math.Float64bits(v))
 }
 
 func (s SoilOrganicModuleState) ActAmmoniaOxidationRate() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(1)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(1)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilOrganicModuleState) HasActAmmoniaOxidationRate() bool {
-	return s.Struct.HasPtr(1)
+	return capnp.Struct(s).HasPtr(1)
 }
 
 func (s SoilOrganicModuleState) SetActAmmoniaOxidationRate(v capnp.Float64List) error {
-	return s.Struct.SetPtr(1, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(1, v.ToPtr())
 }
 
 // NewActAmmoniaOxidationRate sets the actAmmoniaOxidationRate field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilOrganicModuleState) NewActAmmoniaOxidationRate(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(1, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(1, l.ToPtr())
 	return l, err
 }
-
 func (s SoilOrganicModuleState) ActNitrificationRate() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(2)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(2)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilOrganicModuleState) HasActNitrificationRate() bool {
-	return s.Struct.HasPtr(2)
+	return capnp.Struct(s).HasPtr(2)
 }
 
 func (s SoilOrganicModuleState) SetActNitrificationRate(v capnp.Float64List) error {
-	return s.Struct.SetPtr(2, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(2, v.ToPtr())
 }
 
 // NewActNitrificationRate sets the actNitrificationRate field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilOrganicModuleState) NewActNitrificationRate(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(2, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(2, l.ToPtr())
 	return l, err
 }
-
 func (s SoilOrganicModuleState) ActDenitrificationRate() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(3)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(3)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilOrganicModuleState) HasActDenitrificationRate() bool {
-	return s.Struct.HasPtr(3)
+	return capnp.Struct(s).HasPtr(3)
 }
 
 func (s SoilOrganicModuleState) SetActDenitrificationRate(v capnp.Float64List) error {
-	return s.Struct.SetPtr(3, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(3, v.ToPtr())
 }
 
 // NewActDenitrificationRate sets the actDenitrificationRate field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilOrganicModuleState) NewActDenitrificationRate(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(3, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(3, l.ToPtr())
 	return l, err
 }
-
 func (s SoilOrganicModuleState) AomFastDeltaSum() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(4)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(4)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilOrganicModuleState) HasAomFastDeltaSum() bool {
-	return s.Struct.HasPtr(4)
+	return capnp.Struct(s).HasPtr(4)
 }
 
 func (s SoilOrganicModuleState) SetAomFastDeltaSum(v capnp.Float64List) error {
-	return s.Struct.SetPtr(4, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(4, v.ToPtr())
 }
 
 // NewAomFastDeltaSum sets the aomFastDeltaSum field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilOrganicModuleState) NewAomFastDeltaSum(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(4, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(4, l.ToPtr())
 	return l, err
 }
-
 func (s SoilOrganicModuleState) AomFastInput() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(5)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(5)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilOrganicModuleState) HasAomFastInput() bool {
-	return s.Struct.HasPtr(5)
+	return capnp.Struct(s).HasPtr(5)
 }
 
 func (s SoilOrganicModuleState) SetAomFastInput(v capnp.Float64List) error {
-	return s.Struct.SetPtr(5, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(5, v.ToPtr())
 }
 
 // NewAomFastInput sets the aomFastInput field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilOrganicModuleState) NewAomFastInput(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(5, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(5, l.ToPtr())
 	return l, err
 }
-
 func (s SoilOrganicModuleState) AomFastSum() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(6)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(6)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilOrganicModuleState) HasAomFastSum() bool {
-	return s.Struct.HasPtr(6)
+	return capnp.Struct(s).HasPtr(6)
 }
 
 func (s SoilOrganicModuleState) SetAomFastSum(v capnp.Float64List) error {
-	return s.Struct.SetPtr(6, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(6, v.ToPtr())
 }
 
 // NewAomFastSum sets the aomFastSum field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilOrganicModuleState) NewAomFastSum(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(6, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(6, l.ToPtr())
 	return l, err
 }
-
 func (s SoilOrganicModuleState) AomSlowDeltaSum() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(7)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(7)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilOrganicModuleState) HasAomSlowDeltaSum() bool {
-	return s.Struct.HasPtr(7)
+	return capnp.Struct(s).HasPtr(7)
 }
 
 func (s SoilOrganicModuleState) SetAomSlowDeltaSum(v capnp.Float64List) error {
-	return s.Struct.SetPtr(7, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(7, v.ToPtr())
 }
 
 // NewAomSlowDeltaSum sets the aomSlowDeltaSum field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilOrganicModuleState) NewAomSlowDeltaSum(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(7, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(7, l.ToPtr())
 	return l, err
 }
-
 func (s SoilOrganicModuleState) AomSlowInput() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(8)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(8)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilOrganicModuleState) HasAomSlowInput() bool {
-	return s.Struct.HasPtr(8)
+	return capnp.Struct(s).HasPtr(8)
 }
 
 func (s SoilOrganicModuleState) SetAomSlowInput(v capnp.Float64List) error {
-	return s.Struct.SetPtr(8, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(8, v.ToPtr())
 }
 
 // NewAomSlowInput sets the aomSlowInput field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilOrganicModuleState) NewAomSlowInput(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(8, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(8, l.ToPtr())
 	return l, err
 }
-
 func (s SoilOrganicModuleState) AomSlowSum() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(9)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(9)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilOrganicModuleState) HasAomSlowSum() bool {
-	return s.Struct.HasPtr(9)
+	return capnp.Struct(s).HasPtr(9)
 }
 
 func (s SoilOrganicModuleState) SetAomSlowSum(v capnp.Float64List) error {
-	return s.Struct.SetPtr(9, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(9, v.ToPtr())
 }
 
 // NewAomSlowSum sets the aomSlowSum field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilOrganicModuleState) NewAomSlowSum(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(9, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(9, l.ToPtr())
 	return l, err
 }
-
 func (s SoilOrganicModuleState) CBalance() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(10)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(10)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilOrganicModuleState) HasCBalance() bool {
-	return s.Struct.HasPtr(10)
+	return capnp.Struct(s).HasPtr(10)
 }
 
 func (s SoilOrganicModuleState) SetCBalance(v capnp.Float64List) error {
-	return s.Struct.SetPtr(10, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(10, v.ToPtr())
 }
 
 // NewCBalance sets the cBalance field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilOrganicModuleState) NewCBalance(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(10, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(10, l.ToPtr())
 	return l, err
 }
-
 func (s SoilOrganicModuleState) DecomposerRespiration() float64 {
-	return math.Float64frombits(s.Struct.Uint64(24))
+	return math.Float64frombits(capnp.Struct(s).Uint64(24))
 }
 
 func (s SoilOrganicModuleState) SetDecomposerRespiration(v float64) {
-	s.Struct.SetUint64(24, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(24, math.Float64bits(v))
 }
 
 func (s SoilOrganicModuleState) ErrorMessage() (string, error) {
-	p, err := s.Struct.Ptr(11)
+	p, err := capnp.Struct(s).Ptr(11)
 	return p.Text(), err
 }
 
 func (s SoilOrganicModuleState) HasErrorMessage() bool {
-	return s.Struct.HasPtr(11)
+	return capnp.Struct(s).HasPtr(11)
 }
 
 func (s SoilOrganicModuleState) ErrorMessageBytes() ([]byte, error) {
-	p, err := s.Struct.Ptr(11)
+	p, err := capnp.Struct(s).Ptr(11)
 	return p.TextBytes(), err
 }
 
 func (s SoilOrganicModuleState) SetErrorMessage(v string) error {
-	return s.Struct.SetText(11, v)
+	return capnp.Struct(s).SetText(11, v)
 }
 
 func (s SoilOrganicModuleState) InertSoilOrganicC() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(12)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(12)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilOrganicModuleState) HasInertSoilOrganicC() bool {
-	return s.Struct.HasPtr(12)
+	return capnp.Struct(s).HasPtr(12)
 }
 
 func (s SoilOrganicModuleState) SetInertSoilOrganicC(v capnp.Float64List) error {
-	return s.Struct.SetPtr(12, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(12, v.ToPtr())
 }
 
 // NewInertSoilOrganicC sets the inertSoilOrganicC field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilOrganicModuleState) NewInertSoilOrganicC(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(12, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(12, l.ToPtr())
 	return l, err
 }
-
 func (s SoilOrganicModuleState) N2oProduced() float64 {
-	return math.Float64frombits(s.Struct.Uint64(32))
+	return math.Float64frombits(capnp.Struct(s).Uint64(32))
 }
 
 func (s SoilOrganicModuleState) SetN2oProduced(v float64) {
-	s.Struct.SetUint64(32, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(32, math.Float64bits(v))
 }
 
 func (s SoilOrganicModuleState) N2oProducedNit() float64 {
-	return math.Float64frombits(s.Struct.Uint64(40))
+	return math.Float64frombits(capnp.Struct(s).Uint64(40))
 }
 
 func (s SoilOrganicModuleState) SetN2oProducedNit(v float64) {
-	s.Struct.SetUint64(40, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(40, math.Float64bits(v))
 }
 
 func (s SoilOrganicModuleState) N2oProducedDenit() float64 {
-	return math.Float64frombits(s.Struct.Uint64(48))
+	return math.Float64frombits(capnp.Struct(s).Uint64(48))
 }
 
 func (s SoilOrganicModuleState) SetN2oProducedDenit(v float64) {
-	s.Struct.SetUint64(48, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(48, math.Float64bits(v))
 }
 
 func (s SoilOrganicModuleState) NetEcosystemExchange() float64 {
-	return math.Float64frombits(s.Struct.Uint64(56))
+	return math.Float64frombits(capnp.Struct(s).Uint64(56))
 }
 
 func (s SoilOrganicModuleState) SetNetEcosystemExchange(v float64) {
-	s.Struct.SetUint64(56, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(56, math.Float64bits(v))
 }
 
 func (s SoilOrganicModuleState) NetEcosystemProduction() float64 {
-	return math.Float64frombits(s.Struct.Uint64(64))
+	return math.Float64frombits(capnp.Struct(s).Uint64(64))
 }
 
 func (s SoilOrganicModuleState) SetNetEcosystemProduction(v float64) {
-	s.Struct.SetUint64(64, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(64, math.Float64bits(v))
 }
 
 func (s SoilOrganicModuleState) NetNMineralisation() float64 {
-	return math.Float64frombits(s.Struct.Uint64(72))
+	return math.Float64frombits(capnp.Struct(s).Uint64(72))
 }
 
 func (s SoilOrganicModuleState) SetNetNMineralisation(v float64) {
-	s.Struct.SetUint64(72, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(72, math.Float64bits(v))
 }
 
 func (s SoilOrganicModuleState) NetNMineralisationRate() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(13)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(13)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilOrganicModuleState) HasNetNMineralisationRate() bool {
-	return s.Struct.HasPtr(13)
+	return capnp.Struct(s).HasPtr(13)
 }
 
 func (s SoilOrganicModuleState) SetNetNMineralisationRate(v capnp.Float64List) error {
-	return s.Struct.SetPtr(13, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(13, v.ToPtr())
 }
 
 // NewNetNMineralisationRate sets the netNMineralisationRate field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilOrganicModuleState) NewNetNMineralisationRate(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(13, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(13, l.ToPtr())
 	return l, err
 }
-
 func (s SoilOrganicModuleState) TotalNH3Volatilised() float64 {
-	return math.Float64frombits(s.Struct.Uint64(80))
+	return math.Float64frombits(capnp.Struct(s).Uint64(80))
 }
 
 func (s SoilOrganicModuleState) SetTotalNH3Volatilised(v float64) {
-	s.Struct.SetUint64(80, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(80, math.Float64bits(v))
 }
 
 func (s SoilOrganicModuleState) Nh3Volatilised() float64 {
-	return math.Float64frombits(s.Struct.Uint64(88))
+	return math.Float64frombits(capnp.Struct(s).Uint64(88))
 }
 
 func (s SoilOrganicModuleState) SetNh3Volatilised(v float64) {
-	s.Struct.SetUint64(88, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(88, math.Float64bits(v))
 }
 
 func (s SoilOrganicModuleState) SmbCO2EvolutionRate() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(14)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(14)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilOrganicModuleState) HasSmbCO2EvolutionRate() bool {
-	return s.Struct.HasPtr(14)
+	return capnp.Struct(s).HasPtr(14)
 }
 
 func (s SoilOrganicModuleState) SetSmbCO2EvolutionRate(v capnp.Float64List) error {
-	return s.Struct.SetPtr(14, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(14, v.ToPtr())
 }
 
 // NewSmbCO2EvolutionRate sets the smbCO2EvolutionRate field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilOrganicModuleState) NewSmbCO2EvolutionRate(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(14, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(14, l.ToPtr())
 	return l, err
 }
-
 func (s SoilOrganicModuleState) SmbFastDelta() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(15)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(15)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilOrganicModuleState) HasSmbFastDelta() bool {
-	return s.Struct.HasPtr(15)
+	return capnp.Struct(s).HasPtr(15)
 }
 
 func (s SoilOrganicModuleState) SetSmbFastDelta(v capnp.Float64List) error {
-	return s.Struct.SetPtr(15, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(15, v.ToPtr())
 }
 
 // NewSmbFastDelta sets the smbFastDelta field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilOrganicModuleState) NewSmbFastDelta(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(15, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(15, l.ToPtr())
 	return l, err
 }
-
 func (s SoilOrganicModuleState) SmbSlowDelta() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(16)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(16)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilOrganicModuleState) HasSmbSlowDelta() bool {
-	return s.Struct.HasPtr(16)
+	return capnp.Struct(s).HasPtr(16)
 }
 
 func (s SoilOrganicModuleState) SetSmbSlowDelta(v capnp.Float64List) error {
-	return s.Struct.SetPtr(16, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(16, v.ToPtr())
 }
 
 // NewSmbSlowDelta sets the smbSlowDelta field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilOrganicModuleState) NewSmbSlowDelta(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(16, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(16, l.ToPtr())
 	return l, err
 }
-
 func (s SoilOrganicModuleState) VsSoilMineralNContent() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(17)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(17)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilOrganicModuleState) HasVsSoilMineralNContent() bool {
-	return s.Struct.HasPtr(17)
+	return capnp.Struct(s).HasPtr(17)
 }
 
 func (s SoilOrganicModuleState) SetVsSoilMineralNContent(v capnp.Float64List) error {
-	return s.Struct.SetPtr(17, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(17, v.ToPtr())
 }
 
 // NewVsSoilMineralNContent sets the vsSoilMineralNContent field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilOrganicModuleState) NewVsSoilMineralNContent(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(17, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(17, l.ToPtr())
 	return l, err
 }
-
 func (s SoilOrganicModuleState) SoilOrganicC() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(18)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(18)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilOrganicModuleState) HasSoilOrganicC() bool {
-	return s.Struct.HasPtr(18)
+	return capnp.Struct(s).HasPtr(18)
 }
 
 func (s SoilOrganicModuleState) SetSoilOrganicC(v capnp.Float64List) error {
-	return s.Struct.SetPtr(18, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(18, v.ToPtr())
 }
 
 // NewSoilOrganicC sets the soilOrganicC field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilOrganicModuleState) NewSoilOrganicC(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(18, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(18, l.ToPtr())
 	return l, err
 }
-
 func (s SoilOrganicModuleState) SomFastDelta() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(19)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(19)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilOrganicModuleState) HasSomFastDelta() bool {
-	return s.Struct.HasPtr(19)
+	return capnp.Struct(s).HasPtr(19)
 }
 
 func (s SoilOrganicModuleState) SetSomFastDelta(v capnp.Float64List) error {
-	return s.Struct.SetPtr(19, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(19, v.ToPtr())
 }
 
 // NewSomFastDelta sets the somFastDelta field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilOrganicModuleState) NewSomFastDelta(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(19, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(19, l.ToPtr())
 	return l, err
 }
-
 func (s SoilOrganicModuleState) SomFastInput() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(20)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(20)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilOrganicModuleState) HasSomFastInput() bool {
-	return s.Struct.HasPtr(20)
+	return capnp.Struct(s).HasPtr(20)
 }
 
 func (s SoilOrganicModuleState) SetSomFastInput(v capnp.Float64List) error {
-	return s.Struct.SetPtr(20, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(20, v.ToPtr())
 }
 
 // NewSomFastInput sets the somFastInput field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilOrganicModuleState) NewSomFastInput(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(20, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(20, l.ToPtr())
 	return l, err
 }
-
 func (s SoilOrganicModuleState) SomSlowDelta() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(21)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(21)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilOrganicModuleState) HasSomSlowDelta() bool {
-	return s.Struct.HasPtr(21)
+	return capnp.Struct(s).HasPtr(21)
 }
 
 func (s SoilOrganicModuleState) SetSomSlowDelta(v capnp.Float64List) error {
-	return s.Struct.SetPtr(21, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(21, v.ToPtr())
 }
 
 // NewSomSlowDelta sets the somSlowDelta field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilOrganicModuleState) NewSomSlowDelta(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(21, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(21, l.ToPtr())
 	return l, err
 }
-
 func (s SoilOrganicModuleState) SumDenitrification() float64 {
-	return math.Float64frombits(s.Struct.Uint64(96))
+	return math.Float64frombits(capnp.Struct(s).Uint64(96))
 }
 
 func (s SoilOrganicModuleState) SetSumDenitrification(v float64) {
-	s.Struct.SetUint64(96, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(96, math.Float64bits(v))
 }
 
 func (s SoilOrganicModuleState) SumNetNMineralisation() float64 {
-	return math.Float64frombits(s.Struct.Uint64(104))
+	return math.Float64frombits(capnp.Struct(s).Uint64(104))
 }
 
 func (s SoilOrganicModuleState) SetSumNetNMineralisation(v float64) {
-	s.Struct.SetUint64(104, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(104, math.Float64bits(v))
 }
 
 func (s SoilOrganicModuleState) SumN2OProduced() float64 {
-	return math.Float64frombits(s.Struct.Uint64(112))
+	return math.Float64frombits(capnp.Struct(s).Uint64(112))
 }
 
 func (s SoilOrganicModuleState) SetSumN2OProduced(v float64) {
-	s.Struct.SetUint64(112, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(112, math.Float64bits(v))
 }
 
 func (s SoilOrganicModuleState) SumNH3Volatilised() float64 {
-	return math.Float64frombits(s.Struct.Uint64(120))
+	return math.Float64frombits(capnp.Struct(s).Uint64(120))
 }
 
 func (s SoilOrganicModuleState) SetSumNH3Volatilised(v float64) {
-	s.Struct.SetUint64(120, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(120, math.Float64bits(v))
 }
 
 func (s SoilOrganicModuleState) TotalDenitrification() float64 {
-	return math.Float64frombits(s.Struct.Uint64(8))
+	return math.Float64frombits(capnp.Struct(s).Uint64(8))
 }
 
 func (s SoilOrganicModuleState) SetTotalDenitrification(v float64) {
-	s.Struct.SetUint64(8, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(8, math.Float64bits(v))
 }
 
 func (s SoilOrganicModuleState) Incorporation() bool {
-	return s.Struct.Bit(0)
+	return capnp.Struct(s).Bit(0)
 }
 
 func (s SoilOrganicModuleState) SetIncorporation(v bool) {
-	s.Struct.SetBit(0, v)
+	capnp.Struct(s).SetBit(0, v)
 }
 
 // SoilOrganicModuleState_List is a list of SoilOrganicModuleState.
-type SoilOrganicModuleState_List struct{ capnp.List }
+type SoilOrganicModuleState_List = capnp.StructList[SoilOrganicModuleState]
 
 // NewSoilOrganicModuleState creates a new list of SoilOrganicModuleState.
 func NewSoilOrganicModuleState_List(s *capnp.Segment, sz int32) (SoilOrganicModuleState_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 128, PointerCount: 22}, sz)
-	return SoilOrganicModuleState_List{l}, err
-}
-
-func (s SoilOrganicModuleState_List) At(i int) SoilOrganicModuleState {
-	return SoilOrganicModuleState{s.List.Struct(i)}
-}
-
-func (s SoilOrganicModuleState_List) Set(i int, v SoilOrganicModuleState) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s SoilOrganicModuleState_List) String() string {
-	str, _ := text.MarshalList(0xd594e64f6b5f461d, s.List)
-	return str
+	return capnp.StructList[SoilOrganicModuleState](l), err
 }
 
 // SoilOrganicModuleState_Future is a wrapper for a SoilOrganicModuleState promised by a client call.
 type SoilOrganicModuleState_Future struct{ *capnp.Future }
 
-func (p SoilOrganicModuleState_Future) Struct() (SoilOrganicModuleState, error) {
-	s, err := p.Future.Struct()
-	return SoilOrganicModuleState{s}, err
+func (f SoilOrganicModuleState_Future) Struct() (SoilOrganicModuleState, error) {
+	p, err := f.Future.Ptr()
+	return SoilOrganicModuleState(p.Struct()), err
 }
-
 func (p SoilOrganicModuleState_Future) ModuleParams() SoilOrganicModuleParameters_Future {
 	return SoilOrganicModuleParameters_Future{Future: p.Future.Field(0, nil)}
 }
 
-type SoilTemperatureModuleState struct{ capnp.Struct }
+type SoilTemperatureModuleState capnp.Struct
 
 // SoilTemperatureModuleState_TypeID is the unique identifier for the type SoilTemperatureModuleState.
 const SoilTemperatureModuleState_TypeID = 0xbd3e199eb9b03758
 
 func NewSoilTemperatureModuleState(s *capnp.Segment) (SoilTemperatureModuleState, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 32, PointerCount: 14})
-	return SoilTemperatureModuleState{st}, err
+	return SoilTemperatureModuleState(st), err
 }
 
 func NewRootSoilTemperatureModuleState(s *capnp.Segment) (SoilTemperatureModuleState, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 32, PointerCount: 14})
-	return SoilTemperatureModuleState{st}, err
+	return SoilTemperatureModuleState(st), err
 }
 
 func ReadRootSoilTemperatureModuleState(msg *capnp.Message) (SoilTemperatureModuleState, error) {
 	root, err := msg.Root()
-	return SoilTemperatureModuleState{root.Struct()}, err
+	return SoilTemperatureModuleState(root.Struct()), err
 }
 
 func (s SoilTemperatureModuleState) String() string {
-	str, _ := text.Marshal(0xbd3e199eb9b03758, s.Struct)
+	str, _ := text.Marshal(0xbd3e199eb9b03758, capnp.Struct(s))
 	return str
 }
 
+func (s SoilTemperatureModuleState) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (SoilTemperatureModuleState) DecodeFromPtr(p capnp.Ptr) SoilTemperatureModuleState {
+	return SoilTemperatureModuleState(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s SoilTemperatureModuleState) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s SoilTemperatureModuleState) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s SoilTemperatureModuleState) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s SoilTemperatureModuleState) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s SoilTemperatureModuleState) SoilSurfaceTemperature() float64 {
-	return math.Float64frombits(s.Struct.Uint64(0))
+	return math.Float64frombits(capnp.Struct(s).Uint64(0))
 }
 
 func (s SoilTemperatureModuleState) SetSoilSurfaceTemperature(v float64) {
-	s.Struct.SetUint64(0, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(0, math.Float64bits(v))
 }
 
 func (s SoilTemperatureModuleState) SoilColumnVtGroundLayer() (SoilLayerState, error) {
-	p, err := s.Struct.Ptr(1)
-	return SoilLayerState{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(1)
+	return SoilLayerState(p.Struct()), err
 }
 
 func (s SoilTemperatureModuleState) HasSoilColumnVtGroundLayer() bool {
-	return s.Struct.HasPtr(1)
+	return capnp.Struct(s).HasPtr(1)
 }
 
 func (s SoilTemperatureModuleState) SetSoilColumnVtGroundLayer(v SoilLayerState) error {
-	return s.Struct.SetPtr(1, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
 }
 
 // NewSoilColumnVtGroundLayer sets the soilColumnVtGroundLayer field to a newly
 // allocated SoilLayerState struct, preferring placement in s's segment.
 func (s SoilTemperatureModuleState) NewSoilColumnVtGroundLayer() (SoilLayerState, error) {
-	ss, err := NewSoilLayerState(s.Struct.Segment())
+	ss, err := NewSoilLayerState(capnp.Struct(s).Segment())
 	if err != nil {
 		return SoilLayerState{}, err
 	}
-	err = s.Struct.SetPtr(1, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s SoilTemperatureModuleState) SoilColumnVtBottomLayer() (SoilLayerState, error) {
-	p, err := s.Struct.Ptr(2)
-	return SoilLayerState{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(2)
+	return SoilLayerState(p.Struct()), err
 }
 
 func (s SoilTemperatureModuleState) HasSoilColumnVtBottomLayer() bool {
-	return s.Struct.HasPtr(2)
+	return capnp.Struct(s).HasPtr(2)
 }
 
 func (s SoilTemperatureModuleState) SetSoilColumnVtBottomLayer(v SoilLayerState) error {
-	return s.Struct.SetPtr(2, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(2, capnp.Struct(v).ToPtr())
 }
 
 // NewSoilColumnVtBottomLayer sets the soilColumnVtBottomLayer field to a newly
 // allocated SoilLayerState struct, preferring placement in s's segment.
 func (s SoilTemperatureModuleState) NewSoilColumnVtBottomLayer() (SoilLayerState, error) {
-	ss, err := NewSoilLayerState(s.Struct.Segment())
+	ss, err := NewSoilLayerState(capnp.Struct(s).Segment())
 	if err != nil {
 		return SoilLayerState{}, err
 	}
-	err = s.Struct.SetPtr(2, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(2, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s SoilTemperatureModuleState) ModuleParams() (SoilTemperatureModuleParameters, error) {
-	p, err := s.Struct.Ptr(0)
-	return SoilTemperatureModuleParameters{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return SoilTemperatureModuleParameters(p.Struct()), err
 }
 
 func (s SoilTemperatureModuleState) HasModuleParams() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s SoilTemperatureModuleState) SetModuleParams(v SoilTemperatureModuleParameters) error {
-	return s.Struct.SetPtr(0, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewModuleParams sets the moduleParams field to a newly
 // allocated SoilTemperatureModuleParameters struct, preferring placement in s's segment.
 func (s SoilTemperatureModuleState) NewModuleParams() (SoilTemperatureModuleParameters, error) {
-	ss, err := NewSoilTemperatureModuleParameters(s.Struct.Segment())
+	ss, err := NewSoilTemperatureModuleParameters(capnp.Struct(s).Segment())
 	if err != nil {
 		return SoilTemperatureModuleParameters{}, err
 	}
-	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s SoilTemperatureModuleState) NumberOfLayers() uint16 {
-	return s.Struct.Uint16(16)
+	return capnp.Struct(s).Uint16(16)
 }
 
 func (s SoilTemperatureModuleState) SetNumberOfLayers(v uint16) {
-	s.Struct.SetUint16(16, v)
+	capnp.Struct(s).SetUint16(16, v)
 }
 
 func (s SoilTemperatureModuleState) VsNumberOfLayers() uint16 {
-	return s.Struct.Uint16(18)
+	return capnp.Struct(s).Uint16(18)
 }
 
 func (s SoilTemperatureModuleState) SetVsNumberOfLayers(v uint16) {
-	s.Struct.SetUint16(18, v)
+	capnp.Struct(s).SetUint16(18, v)
 }
 
 func (s SoilTemperatureModuleState) VsSoilMoistureConst() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(3)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(3)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilTemperatureModuleState) HasVsSoilMoistureConst() bool {
-	return s.Struct.HasPtr(3)
+	return capnp.Struct(s).HasPtr(3)
 }
 
 func (s SoilTemperatureModuleState) SetVsSoilMoistureConst(v capnp.Float64List) error {
-	return s.Struct.SetPtr(3, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(3, v.ToPtr())
 }
 
 // NewVsSoilMoistureConst sets the vsSoilMoistureConst field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilTemperatureModuleState) NewVsSoilMoistureConst(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(3, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(3, l.ToPtr())
 	return l, err
 }
-
 func (s SoilTemperatureModuleState) SoilTemperature() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(4)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(4)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilTemperatureModuleState) HasSoilTemperature() bool {
-	return s.Struct.HasPtr(4)
+	return capnp.Struct(s).HasPtr(4)
 }
 
 func (s SoilTemperatureModuleState) SetSoilTemperature(v capnp.Float64List) error {
-	return s.Struct.SetPtr(4, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(4, v.ToPtr())
 }
 
 // NewSoilTemperature sets the soilTemperature field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilTemperatureModuleState) NewSoilTemperature(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(4, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(4, l.ToPtr())
 	return l, err
 }
-
 func (s SoilTemperatureModuleState) V() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(5)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(5)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilTemperatureModuleState) HasV() bool {
-	return s.Struct.HasPtr(5)
+	return capnp.Struct(s).HasPtr(5)
 }
 
 func (s SoilTemperatureModuleState) SetV(v capnp.Float64List) error {
-	return s.Struct.SetPtr(5, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(5, v.ToPtr())
 }
 
 // NewV sets the v field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilTemperatureModuleState) NewV(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(5, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(5, l.ToPtr())
 	return l, err
 }
-
 func (s SoilTemperatureModuleState) VolumeMatrix() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(6)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(6)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilTemperatureModuleState) HasVolumeMatrix() bool {
-	return s.Struct.HasPtr(6)
+	return capnp.Struct(s).HasPtr(6)
 }
 
 func (s SoilTemperatureModuleState) SetVolumeMatrix(v capnp.Float64List) error {
-	return s.Struct.SetPtr(6, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(6, v.ToPtr())
 }
 
 // NewVolumeMatrix sets the volumeMatrix field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilTemperatureModuleState) NewVolumeMatrix(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(6, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(6, l.ToPtr())
 	return l, err
 }
-
 func (s SoilTemperatureModuleState) VolumeMatrixOld() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(7)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(7)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilTemperatureModuleState) HasVolumeMatrixOld() bool {
-	return s.Struct.HasPtr(7)
+	return capnp.Struct(s).HasPtr(7)
 }
 
 func (s SoilTemperatureModuleState) SetVolumeMatrixOld(v capnp.Float64List) error {
-	return s.Struct.SetPtr(7, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(7, v.ToPtr())
 }
 
 // NewVolumeMatrixOld sets the volumeMatrixOld field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilTemperatureModuleState) NewVolumeMatrixOld(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(7, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(7, l.ToPtr())
 	return l, err
 }
-
 func (s SoilTemperatureModuleState) B() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(8)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(8)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilTemperatureModuleState) HasB() bool {
-	return s.Struct.HasPtr(8)
+	return capnp.Struct(s).HasPtr(8)
 }
 
 func (s SoilTemperatureModuleState) SetB(v capnp.Float64List) error {
-	return s.Struct.SetPtr(8, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(8, v.ToPtr())
 }
 
 // NewB sets the b field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilTemperatureModuleState) NewB(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(8, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(8, l.ToPtr())
 	return l, err
 }
-
 func (s SoilTemperatureModuleState) MatrixPrimaryDiagonal() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(9)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(9)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilTemperatureModuleState) HasMatrixPrimaryDiagonal() bool {
-	return s.Struct.HasPtr(9)
+	return capnp.Struct(s).HasPtr(9)
 }
 
 func (s SoilTemperatureModuleState) SetMatrixPrimaryDiagonal(v capnp.Float64List) error {
-	return s.Struct.SetPtr(9, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(9, v.ToPtr())
 }
 
 // NewMatrixPrimaryDiagonal sets the matrixPrimaryDiagonal field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilTemperatureModuleState) NewMatrixPrimaryDiagonal(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(9, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(9, l.ToPtr())
 	return l, err
 }
-
 func (s SoilTemperatureModuleState) MatrixSecundaryDiagonal() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(10)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(10)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilTemperatureModuleState) HasMatrixSecundaryDiagonal() bool {
-	return s.Struct.HasPtr(10)
+	return capnp.Struct(s).HasPtr(10)
 }
 
 func (s SoilTemperatureModuleState) SetMatrixSecundaryDiagonal(v capnp.Float64List) error {
-	return s.Struct.SetPtr(10, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(10, v.ToPtr())
 }
 
 // NewMatrixSecundaryDiagonal sets the matrixSecundaryDiagonal field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilTemperatureModuleState) NewMatrixSecundaryDiagonal(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(10, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(10, l.ToPtr())
 	return l, err
 }
-
 func (s SoilTemperatureModuleState) HeatFlow() float64 {
-	return math.Float64frombits(s.Struct.Uint64(24))
+	return math.Float64frombits(capnp.Struct(s).Uint64(24))
 }
 
 func (s SoilTemperatureModuleState) SetHeatFlow(v float64) {
-	s.Struct.SetUint64(24, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(24, math.Float64bits(v))
 }
 
 func (s SoilTemperatureModuleState) HeatConductivity() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(11)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(11)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilTemperatureModuleState) HasHeatConductivity() bool {
-	return s.Struct.HasPtr(11)
+	return capnp.Struct(s).HasPtr(11)
 }
 
 func (s SoilTemperatureModuleState) SetHeatConductivity(v capnp.Float64List) error {
-	return s.Struct.SetPtr(11, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(11, v.ToPtr())
 }
 
 // NewHeatConductivity sets the heatConductivity field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilTemperatureModuleState) NewHeatConductivity(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(11, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(11, l.ToPtr())
 	return l, err
 }
-
 func (s SoilTemperatureModuleState) HeatConductivityMean() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(12)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(12)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilTemperatureModuleState) HasHeatConductivityMean() bool {
-	return s.Struct.HasPtr(12)
+	return capnp.Struct(s).HasPtr(12)
 }
 
 func (s SoilTemperatureModuleState) SetHeatConductivityMean(v capnp.Float64List) error {
-	return s.Struct.SetPtr(12, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(12, v.ToPtr())
 }
 
 // NewHeatConductivityMean sets the heatConductivityMean field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilTemperatureModuleState) NewHeatConductivityMean(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(12, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(12, l.ToPtr())
 	return l, err
 }
-
 func (s SoilTemperatureModuleState) HeatCapacity() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(13)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(13)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilTemperatureModuleState) HasHeatCapacity() bool {
-	return s.Struct.HasPtr(13)
+	return capnp.Struct(s).HasPtr(13)
 }
 
 func (s SoilTemperatureModuleState) SetHeatCapacity(v capnp.Float64List) error {
-	return s.Struct.SetPtr(13, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(13, v.ToPtr())
 }
 
 // NewHeatCapacity sets the heatCapacity field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilTemperatureModuleState) NewHeatCapacity(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(13, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(13, l.ToPtr())
 	return l, err
 }
-
 func (s SoilTemperatureModuleState) DampingFactor() float64 {
-	return math.Float64frombits(s.Struct.Uint64(8) ^ 0x3fe999999999999a)
+	return math.Float64frombits(capnp.Struct(s).Uint64(8) ^ 0x3fe999999999999a)
 }
 
 func (s SoilTemperatureModuleState) SetDampingFactor(v float64) {
-	s.Struct.SetUint64(8, math.Float64bits(v)^0x3fe999999999999a)
+	capnp.Struct(s).SetUint64(8, math.Float64bits(v)^0x3fe999999999999a)
 }
 
 // SoilTemperatureModuleState_List is a list of SoilTemperatureModuleState.
-type SoilTemperatureModuleState_List struct{ capnp.List }
+type SoilTemperatureModuleState_List = capnp.StructList[SoilTemperatureModuleState]
 
 // NewSoilTemperatureModuleState creates a new list of SoilTemperatureModuleState.
 func NewSoilTemperatureModuleState_List(s *capnp.Segment, sz int32) (SoilTemperatureModuleState_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 32, PointerCount: 14}, sz)
-	return SoilTemperatureModuleState_List{l}, err
-}
-
-func (s SoilTemperatureModuleState_List) At(i int) SoilTemperatureModuleState {
-	return SoilTemperatureModuleState{s.List.Struct(i)}
-}
-
-func (s SoilTemperatureModuleState_List) Set(i int, v SoilTemperatureModuleState) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s SoilTemperatureModuleState_List) String() string {
-	str, _ := text.MarshalList(0xbd3e199eb9b03758, s.List)
-	return str
+	return capnp.StructList[SoilTemperatureModuleState](l), err
 }
 
 // SoilTemperatureModuleState_Future is a wrapper for a SoilTemperatureModuleState promised by a client call.
 type SoilTemperatureModuleState_Future struct{ *capnp.Future }
 
-func (p SoilTemperatureModuleState_Future) Struct() (SoilTemperatureModuleState, error) {
-	s, err := p.Future.Struct()
-	return SoilTemperatureModuleState{s}, err
+func (f SoilTemperatureModuleState_Future) Struct() (SoilTemperatureModuleState, error) {
+	p, err := f.Future.Ptr()
+	return SoilTemperatureModuleState(p.Struct()), err
 }
-
 func (p SoilTemperatureModuleState_Future) SoilColumnVtGroundLayer() SoilLayerState_Future {
 	return SoilLayerState_Future{Future: p.Future.Field(1, nil)}
 }
-
 func (p SoilTemperatureModuleState_Future) SoilColumnVtBottomLayer() SoilLayerState_Future {
 	return SoilLayerState_Future{Future: p.Future.Field(2, nil)}
 }
-
 func (p SoilTemperatureModuleState_Future) ModuleParams() SoilTemperatureModuleParameters_Future {
 	return SoilTemperatureModuleParameters_Future{Future: p.Future.Field(0, nil)}
 }
 
-type SoilTransportModuleState struct{ capnp.Struct }
+type SoilTransportModuleState capnp.Struct
 
 // SoilTransportModuleState_TypeID is the unique identifier for the type SoilTransportModuleState.
 const SoilTransportModuleState_TypeID = 0xb1760f65e652e737
 
 func NewSoilTransportModuleState(s *capnp.Segment) (SoilTransportModuleState, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 48, PointerCount: 12})
-	return SoilTransportModuleState{st}, err
+	return SoilTransportModuleState(st), err
 }
 
 func NewRootSoilTransportModuleState(s *capnp.Segment) (SoilTransportModuleState, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 48, PointerCount: 12})
-	return SoilTransportModuleState{st}, err
+	return SoilTransportModuleState(st), err
 }
 
 func ReadRootSoilTransportModuleState(msg *capnp.Message) (SoilTransportModuleState, error) {
 	root, err := msg.Root()
-	return SoilTransportModuleState{root.Struct()}, err
+	return SoilTransportModuleState(root.Struct()), err
 }
 
 func (s SoilTransportModuleState) String() string {
-	str, _ := text.Marshal(0xb1760f65e652e737, s.Struct)
+	str, _ := text.Marshal(0xb1760f65e652e737, capnp.Struct(s))
 	return str
 }
 
+func (s SoilTransportModuleState) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (SoilTransportModuleState) DecodeFromPtr(p capnp.Ptr) SoilTransportModuleState {
+	return SoilTransportModuleState(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s SoilTransportModuleState) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s SoilTransportModuleState) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s SoilTransportModuleState) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s SoilTransportModuleState) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s SoilTransportModuleState) ModuleParams() (SoilTransportModuleParameters, error) {
-	p, err := s.Struct.Ptr(0)
-	return SoilTransportModuleParameters{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return SoilTransportModuleParameters(p.Struct()), err
 }
 
 func (s SoilTransportModuleState) HasModuleParams() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s SoilTransportModuleState) SetModuleParams(v SoilTransportModuleParameters) error {
-	return s.Struct.SetPtr(0, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewModuleParams sets the moduleParams field to a newly
 // allocated SoilTransportModuleParameters struct, preferring placement in s's segment.
 func (s SoilTransportModuleState) NewModuleParams() (SoilTransportModuleParameters, error) {
-	ss, err := NewSoilTransportModuleParameters(s.Struct.Segment())
+	ss, err := NewSoilTransportModuleParameters(capnp.Struct(s).Segment())
 	if err != nil {
 		return SoilTransportModuleParameters{}, err
 	}
-	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s SoilTransportModuleState) Convection() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(1)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(1)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilTransportModuleState) HasConvection() bool {
-	return s.Struct.HasPtr(1)
+	return capnp.Struct(s).HasPtr(1)
 }
 
 func (s SoilTransportModuleState) SetConvection(v capnp.Float64List) error {
-	return s.Struct.SetPtr(1, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(1, v.ToPtr())
 }
 
 // NewConvection sets the convection field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilTransportModuleState) NewConvection(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(1, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(1, l.ToPtr())
 	return l, err
 }
-
 func (s SoilTransportModuleState) CropNUptake() float64 {
-	return math.Float64frombits(s.Struct.Uint64(8))
+	return math.Float64frombits(capnp.Struct(s).Uint64(8))
 }
 
 func (s SoilTransportModuleState) SetCropNUptake(v float64) {
-	s.Struct.SetUint64(8, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(8, math.Float64bits(v))
 }
 
 func (s SoilTransportModuleState) DiffusionCoeff() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(2)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(2)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilTransportModuleState) HasDiffusionCoeff() bool {
-	return s.Struct.HasPtr(2)
+	return capnp.Struct(s).HasPtr(2)
 }
 
 func (s SoilTransportModuleState) SetDiffusionCoeff(v capnp.Float64List) error {
-	return s.Struct.SetPtr(2, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(2, v.ToPtr())
 }
 
 // NewDiffusionCoeff sets the diffusionCoeff field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilTransportModuleState) NewDiffusionCoeff(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(2, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(2, l.ToPtr())
 	return l, err
 }
-
 func (s SoilTransportModuleState) Dispersion() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(3)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(3)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilTransportModuleState) HasDispersion() bool {
-	return s.Struct.HasPtr(3)
+	return capnp.Struct(s).HasPtr(3)
 }
 
 func (s SoilTransportModuleState) SetDispersion(v capnp.Float64List) error {
-	return s.Struct.SetPtr(3, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(3, v.ToPtr())
 }
 
 // NewDispersion sets the dispersion field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilTransportModuleState) NewDispersion(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(3, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(3, l.ToPtr())
 	return l, err
 }
-
 func (s SoilTransportModuleState) DispersionCoeff() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(4)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(4)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilTransportModuleState) HasDispersionCoeff() bool {
-	return s.Struct.HasPtr(4)
+	return capnp.Struct(s).HasPtr(4)
 }
 
 func (s SoilTransportModuleState) SetDispersionCoeff(v capnp.Float64List) error {
-	return s.Struct.SetPtr(4, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(4, v.ToPtr())
 }
 
 // NewDispersionCoeff sets the dispersionCoeff field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilTransportModuleState) NewDispersionCoeff(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(4, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(4, l.ToPtr())
 	return l, err
 }
-
 func (s SoilTransportModuleState) VsLeachingDepth() float64 {
-	return math.Float64frombits(s.Struct.Uint64(16))
+	return math.Float64frombits(capnp.Struct(s).Uint64(16))
 }
 
 func (s SoilTransportModuleState) SetVsLeachingDepth(v float64) {
-	s.Struct.SetUint64(16, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(16, math.Float64bits(v))
 }
 
 func (s SoilTransportModuleState) LeachingAtBoundary() float64 {
-	return math.Float64frombits(s.Struct.Uint64(24))
+	return math.Float64frombits(capnp.Struct(s).Uint64(24))
 }
 
 func (s SoilTransportModuleState) SetLeachingAtBoundary(v float64) {
-	s.Struct.SetUint64(24, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(24, math.Float64bits(v))
 }
 
 func (s SoilTransportModuleState) VsNDeposition() float64 {
-	return math.Float64frombits(s.Struct.Uint64(32))
+	return math.Float64frombits(capnp.Struct(s).Uint64(32))
 }
 
 func (s SoilTransportModuleState) SetVsNDeposition(v float64) {
-	s.Struct.SetUint64(32, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(32, math.Float64bits(v))
 }
 
 func (s SoilTransportModuleState) VcNUptakeFromLayer() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(5)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(5)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilTransportModuleState) HasVcNUptakeFromLayer() bool {
-	return s.Struct.HasPtr(5)
+	return capnp.Struct(s).HasPtr(5)
 }
 
 func (s SoilTransportModuleState) SetVcNUptakeFromLayer(v capnp.Float64List) error {
-	return s.Struct.SetPtr(5, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(5, v.ToPtr())
 }
 
 // NewVcNUptakeFromLayer sets the vcNUptakeFromLayer field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilTransportModuleState) NewVcNUptakeFromLayer(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(5, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(5, l.ToPtr())
 	return l, err
 }
-
 func (s SoilTransportModuleState) PoreWaterVelocity() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(6)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(6)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilTransportModuleState) HasPoreWaterVelocity() bool {
-	return s.Struct.HasPtr(6)
+	return capnp.Struct(s).HasPtr(6)
 }
 
 func (s SoilTransportModuleState) SetPoreWaterVelocity(v capnp.Float64List) error {
-	return s.Struct.SetPtr(6, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(6, v.ToPtr())
 }
 
 // NewPoreWaterVelocity sets the poreWaterVelocity field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilTransportModuleState) NewPoreWaterVelocity(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(6, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(6, l.ToPtr())
 	return l, err
 }
-
 func (s SoilTransportModuleState) VsSoilMineralNContent() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(7)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(7)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilTransportModuleState) HasVsSoilMineralNContent() bool {
-	return s.Struct.HasPtr(7)
+	return capnp.Struct(s).HasPtr(7)
 }
 
 func (s SoilTransportModuleState) SetVsSoilMineralNContent(v capnp.Float64List) error {
-	return s.Struct.SetPtr(7, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(7, v.ToPtr())
 }
 
 // NewVsSoilMineralNContent sets the vsSoilMineralNContent field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilTransportModuleState) NewVsSoilMineralNContent(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(7, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(7, l.ToPtr())
 	return l, err
 }
-
 func (s SoilTransportModuleState) SoilNO3() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(8)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(8)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilTransportModuleState) HasSoilNO3() bool {
-	return s.Struct.HasPtr(8)
+	return capnp.Struct(s).HasPtr(8)
 }
 
 func (s SoilTransportModuleState) SetSoilNO3(v capnp.Float64List) error {
-	return s.Struct.SetPtr(8, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(8, v.ToPtr())
 }
 
 // NewSoilNO3 sets the soilNO3 field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilTransportModuleState) NewSoilNO3(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(8, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(8, l.ToPtr())
 	return l, err
 }
-
 func (s SoilTransportModuleState) SoilNO3aq() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(9)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(9)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilTransportModuleState) HasSoilNO3aq() bool {
-	return s.Struct.HasPtr(9)
+	return capnp.Struct(s).HasPtr(9)
 }
 
 func (s SoilTransportModuleState) SetSoilNO3aq(v capnp.Float64List) error {
-	return s.Struct.SetPtr(9, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(9, v.ToPtr())
 }
 
 // NewSoilNO3aq sets the soilNO3aq field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilTransportModuleState) NewSoilNO3aq(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(9, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(9, l.ToPtr())
 	return l, err
 }
-
 func (s SoilTransportModuleState) TimeStep() float64 {
-	return math.Float64frombits(s.Struct.Uint64(40) ^ 0x3ff0000000000000)
+	return math.Float64frombits(capnp.Struct(s).Uint64(40) ^ 0x3ff0000000000000)
 }
 
 func (s SoilTransportModuleState) SetTimeStep(v float64) {
-	s.Struct.SetUint64(40, math.Float64bits(v)^0x3ff0000000000000)
+	capnp.Struct(s).SetUint64(40, math.Float64bits(v)^0x3ff0000000000000)
 }
 
 func (s SoilTransportModuleState) TotalDispersion() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(10)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(10)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilTransportModuleState) HasTotalDispersion() bool {
-	return s.Struct.HasPtr(10)
+	return capnp.Struct(s).HasPtr(10)
 }
 
 func (s SoilTransportModuleState) SetTotalDispersion(v capnp.Float64List) error {
-	return s.Struct.SetPtr(10, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(10, v.ToPtr())
 }
 
 // NewTotalDispersion sets the totalDispersion field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilTransportModuleState) NewTotalDispersion(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(10, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(10, l.ToPtr())
 	return l, err
 }
-
 func (s SoilTransportModuleState) PercolationRate() (capnp.Float64List, error) {
-	p, err := s.Struct.Ptr(11)
-	return capnp.Float64List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(11)
+	return capnp.Float64List(p.List()), err
 }
 
 func (s SoilTransportModuleState) HasPercolationRate() bool {
-	return s.Struct.HasPtr(11)
+	return capnp.Struct(s).HasPtr(11)
 }
 
 func (s SoilTransportModuleState) SetPercolationRate(v capnp.Float64List) error {
-	return s.Struct.SetPtr(11, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(11, v.ToPtr())
 }
 
 // NewPercolationRate sets the percolationRate field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s SoilTransportModuleState) NewPercolationRate(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = s.Struct.SetPtr(11, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(11, l.ToPtr())
 	return l, err
 }
-
 func (s SoilTransportModuleState) PcMinimumAvailableN() float64 {
-	return math.Float64frombits(s.Struct.Uint64(0))
+	return math.Float64frombits(capnp.Struct(s).Uint64(0))
 }
 
 func (s SoilTransportModuleState) SetPcMinimumAvailableN(v float64) {
-	s.Struct.SetUint64(0, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(0, math.Float64bits(v))
 }
 
 // SoilTransportModuleState_List is a list of SoilTransportModuleState.
-type SoilTransportModuleState_List struct{ capnp.List }
+type SoilTransportModuleState_List = capnp.StructList[SoilTransportModuleState]
 
 // NewSoilTransportModuleState creates a new list of SoilTransportModuleState.
 func NewSoilTransportModuleState_List(s *capnp.Segment, sz int32) (SoilTransportModuleState_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 48, PointerCount: 12}, sz)
-	return SoilTransportModuleState_List{l}, err
-}
-
-func (s SoilTransportModuleState_List) At(i int) SoilTransportModuleState {
-	return SoilTransportModuleState{s.List.Struct(i)}
-}
-
-func (s SoilTransportModuleState_List) Set(i int, v SoilTransportModuleState) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s SoilTransportModuleState_List) String() string {
-	str, _ := text.MarshalList(0xb1760f65e652e737, s.List)
-	return str
+	return capnp.StructList[SoilTransportModuleState](l), err
 }
 
 // SoilTransportModuleState_Future is a wrapper for a SoilTransportModuleState promised by a client call.
 type SoilTransportModuleState_Future struct{ *capnp.Future }
 
-func (p SoilTransportModuleState_Future) Struct() (SoilTransportModuleState, error) {
-	s, err := p.Future.Struct()
-	return SoilTransportModuleState{s}, err
+func (f SoilTransportModuleState_Future) Struct() (SoilTransportModuleState, error) {
+	p, err := f.Future.Ptr()
+	return SoilTransportModuleState(p.Struct()), err
 }
-
 func (p SoilTransportModuleState_Future) ModuleParams() SoilTransportModuleParameters_Future {
 	return SoilTransportModuleParameters_Future{Future: p.Future.Field(0, nil)}
 }
 
-type ICData struct{ capnp.Struct }
+type ICData capnp.Struct
 type ICData_Which uint16
 
 const (
@@ -7644,80 +7669,94 @@ const ICData_TypeID = 0xf03d8fd1bbe75519
 
 func NewICData(s *capnp.Segment) (ICData, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0})
-	return ICData{st}, err
+	return ICData(st), err
 }
 
 func NewRootICData(s *capnp.Segment) (ICData, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0})
-	return ICData{st}, err
+	return ICData(st), err
 }
 
 func ReadRootICData(msg *capnp.Message) (ICData, error) {
 	root, err := msg.Root()
-	return ICData{root.Struct()}, err
+	return ICData(root.Struct()), err
 }
 
 func (s ICData) String() string {
-	str, _ := text.Marshal(0xf03d8fd1bbe75519, s.Struct)
+	str, _ := text.Marshal(0xf03d8fd1bbe75519, capnp.Struct(s))
 	return str
 }
 
+func (s ICData) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (ICData) DecodeFromPtr(p capnp.Ptr) ICData {
+	return ICData(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s ICData) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+
 func (s ICData) Which() ICData_Which {
-	return ICData_Which(s.Struct.Uint16(0))
+	return ICData_Which(capnp.Struct(s).Uint16(0))
+}
+func (s ICData) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s ICData) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s ICData) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
 }
 func (s ICData) SetNoCrop() {
-	s.Struct.SetUint16(0, 0)
+	capnp.Struct(s).SetUint16(0, 0)
 
 }
 
 func (s ICData) Height() float64 {
-	if s.Struct.Uint16(0) != 1 {
+	if capnp.Struct(s).Uint16(0) != 1 {
 		panic("Which() != height")
 	}
-	return math.Float64frombits(s.Struct.Uint64(8))
+	return math.Float64frombits(capnp.Struct(s).Uint64(8))
 }
 
 func (s ICData) SetHeight(v float64) {
-	s.Struct.SetUint16(0, 1)
-	s.Struct.SetUint64(8, math.Float64bits(v))
+	capnp.Struct(s).SetUint16(0, 1)
+	capnp.Struct(s).SetUint64(8, math.Float64bits(v))
 }
 
 func (s ICData) Lait() float64 {
-	if s.Struct.Uint16(0) != 2 {
+	if capnp.Struct(s).Uint16(0) != 2 {
 		panic("Which() != lait")
 	}
-	return math.Float64frombits(s.Struct.Uint64(8))
+	return math.Float64frombits(capnp.Struct(s).Uint64(8))
 }
 
 func (s ICData) SetLait(v float64) {
-	s.Struct.SetUint16(0, 2)
-	s.Struct.SetUint64(8, math.Float64bits(v))
+	capnp.Struct(s).SetUint16(0, 2)
+	capnp.Struct(s).SetUint64(8, math.Float64bits(v))
 }
 
 // ICData_List is a list of ICData.
-type ICData_List struct{ capnp.List }
+type ICData_List = capnp.StructList[ICData]
 
 // NewICData creates a new list of ICData.
 func NewICData_List(s *capnp.Segment, sz int32) (ICData_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0}, sz)
-	return ICData_List{l}, err
-}
-
-func (s ICData_List) At(i int) ICData { return ICData{s.List.Struct(i)} }
-
-func (s ICData_List) Set(i int, v ICData) error { return s.List.SetStruct(i, v.Struct) }
-
-func (s ICData_List) String() string {
-	str, _ := text.MarshalList(0xf03d8fd1bbe75519, s.List)
-	return str
+	return capnp.StructList[ICData](l), err
 }
 
 // ICData_Future is a wrapper for a ICData promised by a client call.
 type ICData_Future struct{ *capnp.Future }
 
-func (p ICData_Future) Struct() (ICData, error) {
-	s, err := p.Future.Struct()
-	return ICData{s}, err
+func (f ICData_Future) Struct() (ICData, error) {
+	p, err := f.Future.Ptr()
+	return ICData(p.Struct()), err
 }
 
 const schema_86ea47c297746539 = "x\xda\x9c\xbd\x7f\x9c\x14\xd5\x95\xf7\x7fOU\x0f=3" +
@@ -7728,862 +7767,862 @@ const schema_86ea47c297746539 = "x\xda\x9c\xbd\x7f\x9c\x14\xd5\x95\xf7\x7fOU\x0f
 	"\x0fn\xd0\xc5'\xe8\xc2.d\xc9\xae\x1a\x92h\x1e}" +
 	"}q_\xbaK\xf6e2\xdf\xd7\xe7VuwuO" +
 	"\x0f\x9a'\xffd|\x9f[\xb7o\xdd{\xcf\xb9\xe7\xdc" +
-	"{n\xd1t\xf9JeqE\xf8R\xc6\xfa\xa8b\xd2" +
-	"\xd8\xec\x97\xfe\xef]\x07\xfa\x1b\xefa\xbdM\xb4o\xec" +
-	":\xe1\xfe\xc9K7\xfe\xfa\x8fY\xc5\x920cK\xdf" +
-	"\xad\xbe\x97\xb4\xdfV\xe3\xcf\xdfT_\xbb\x94\xd1?\xdc" +
-	"\xb5-\xfa\xca\xe0}\x0f\xf46\x91\x12(<\x19%f" +
-	"\xdc\xdcG\xda\x957\xe3\xcf+n\xfe\x0f\x85\xd1\x98\xf8" +
-	"\xe7\xaf\xd8?V\xdf\xde\xcbz\x17\x932\xf67\xdf|" +
-	"\xe3\x1b{\xbeu\xcb_\xb1\x10\x8a\xa4\xba\xde&\xed\xfe" +
-	"\xae0c\xda}][\x19\x8d\xbd\xb6\xf9\xf3\x93_\xa7" +
-	"\x9f\xeeGCx\xa1nY\xf8\xad\xae{I\xfb\x08\x85" +
-	"\x97~\xd05\x18bT\xa8\xac\xb7\x89.\x09\xb4\xa4\x16" +
-	"e\x1a\xfbw\x91vM\xffe\x8c-m\xed\xffA\x98" +
-	"\xd1\xd8\xb5\xbf\xea\xfb\xa5\xa8\x1d~\x06\xc5'\x05\x8a\xd7" +
-	"\xa0\xf8\x96\xdb_%\xed\xc1\xdb\xf1\xe7\xfd\xb7\xff\xb7\xca" +
-	"h\xec/\xee\xeb\xe4\x7fn}\xf0,\x8aW\x05\x8a\x13" +
-	"\xca<\xbdi\x17i/o\xc2\x9f/n\xba\x16\xefy" +
-	"\xeb\xb5\x07\x9f\xff\xd3\x19_x\x01\xc5C\x81\xe2SQ" +
-	"\xa6W\xfc\x94\xb4\x94\xc0\x9f\x86\xb8\x1am?\xf6\xe5\x7f" +
-	"\x98q\xf9\xb7*^C\xf1\x05\x81\xe2\x97\xa2\xcc\x99\xcd" +
-	"/\x91\xf6\xc1f\xfc\xf9\xfe\xe6\xe8TFc\xcb\xff\xeb" +
-	"\xfd\x0f\xfb\x7f\xf2\xfe\xeb\xacw\x11M\x1a\xfb\xd6\xba\x9f" +
-	"\xff\xf3\xde\xd6/\xfc\x7f~c\xde\xdf\xb6Y\xd1\xea\xef" +
-	"\xc2\x9fS\xee\xfa:1\x1ak\\\xf3\xa5;\xba\x7f\xb9" +
-	"\xe7\x14j\xaf+\xad\xfd\xc5/\xff\x88\xb43_\xc6\x9f" +
-	"\xa7\xbe<V\xc9hl\xe6\xfa\x8a\xa3\xa9\x13\x8f\x9eb" +
-	"\xf5MT\xfa\xa6\x0f\xee\xdaL\xda\xe3\xbb0F\xdf\xdd" +
-	"\x15e4\xb6\xe5\xc8w\xbeR\xf7\x8d\x1f\x9cF\xddT" +
-	"2F/\xee\xea#\xed\x94,\xfc\xba,\\\xbf\xea\xec" +
-	"\x9em5\xb3\x7f\x86\xc2S\x02U+r\x18w\xddI" +
-	"Z\xc5\x03\xf8\x93\x1e\xe8F\x9fOox\xe8?6]" +
-	"\xd5\xfbs\x14\xd7J\xea~\xe4k\x0eiO}\x0d\x7f" +
-	">\xf1\xb5?C\x1f\xe6\xbb\xa1\xb7\x89&\x07*\x97\xc5" +
-	"\xdf\xff\xe6\xbd\xa4\xd1\x1e\x8c\xff\xb4=_E\xe53\xd6" +
-	"\xfd\xea\xef^\xff\xfa\x0d\xe7Y\xf1\xc4\x8d\x85U\xc6\x96" +
-	"\xae\xdd{=i\xb7\xedE\xcb\xd7\xed\xfd\x01\x1bcc" +
-	"l\xd2X\xcaN\x0a\xf3\xea\x94]a\x19\x09\xfd\xea\x94" +
-	"\x8d\xff\xfbR\xc6\xd5]qUBO[\xe9\xeb\xdb\x1c" +
-	";\xddi'\xb3\xa6\x88\x83\xb2\x1e\xa2\xf8\x93\xaa\x1ab" +
-	",D\x8ci\xf7\xcf\xd8\xc4X|\xe7\x0c\x95\xe2{f" +
-	"(T\xff\x0eq\x02\x7fx\xc6g\x18\x8b\xef\x06\xdf\x0b" +
-	"\xfe+\x85\x93\xc2\x98\xf6\x88\xe4\x0f\x81\xef\x03\xff%q" +
-	"R\x19\xd3\x1e\x9d\xf16c\xf1\xc7\xc0\x0f\x80\xffB\xe5" +
-	"\x14\"\xd2\x9e\x9a\xf1m\xc6\xe2\x07\xc0\x0f\x81\x9f\x0bq" +
-	"\xaa`L{N\xfe\xee\xb3\xe0G\xc0+*8Mb" +
-	"L{a\xc6\x17\x19\x8b\x1f\x06?\x06>i\x12\xc7\x18" +
-	"k/\xcbz\x8e\x81\x9f\x04\x0f\x879Ub\x0cg\xfc" +
-	"\x90\xb1\xf8I\xf07g(D\x95\x9c\xaa\x18\xd3~&" +
-	"\x8b\xbf\x09\xfc1\x8aWUr\xaafL\xfb\xcd\x8c\xef" +
-	"1\x16\xff\x18\xbcr\xa6B\xf5\xd5\xc4i2cZ\xc5" +
-	"\xcc\xffd,^3S\xa5\xf8r\xf0\xc9U\x9cj\x18" +
-	"\xd3\xae\x99\xf9*c\xf1\x15\xe0\xed\xe05\xd5\x9c\xa60" +
-	"\xa6\xad\x9e\x89\xe6\xc7\xc0{\xc0\xa7L\xe64\x951\xad" +
-	"s\xe6.\xc6\xe2=\xe0\x1b\xc0\xa7\xd6p\xaaeL\xbb" +
-	"m&~w\x03\xf8\x10x\xad\xc2\xa9\x8e1M\xcc\xbc" +
-	"\x97\xb1x\x12|;x\x9d\xca\xa9\x9e1\xed\xae\x99\xdf" +
-	"`,\xbe\x1d|\x1fx\xfd\x14N\x970\xb6\xf4\xd1\x99" +
-	"\x0a\xa1\x9f!8\x00\xc1%S9i\x8ciO\xcd\x94" +
-	"\xfd\x0c~\x08\\\xab\xe5\xc4\xd1\xcf3\xd1?\x87\xc0\x8f" +
-	"\x82\xf3:N\xd3\x18\xd3^\x9c\xf9#\xc6\xe2G\xc1O" +
-	"\x80O\xab\xe7t)c\xdak\xf2\x87O\x80\x9f\x05\xbf" +
-	"\x948]F\xa4\x9d\x91/|\x1a\xfc\x1c\xf8e\x97p" +
-	"\x9a\xce\x98\xf6\x96\xac\xe7\x1c\xf8y\xf0\xe9!N3\x18" +
-	"\xd3\xde\x9f\xf9\x12c\xf1\xf3\xe05\xb3\x14\xaa\x9f\xa1q" +
-	"\x9a\xc9\xd8\xd2\xaaY\xf2\x05\xeaf\xa9\x14o\x80`&" +
-	"\xe74\x8b1m\xc6\xac\xcd\x8c\xc5\xa7\x837\x83\xcf\x9a" +
-	"\xc6\xa9\x81H\x9b3\xebN\xc6\xe2M\xe0\x0b\xc1\x1b." +
-	"\xe5\xd4H\xa4]1\xcba,\xbe\x00|\x19x\xe3e" +
-	"\x9cf3\xa6-\x9e\x85\x09\xb4\x08|\x05\xf8\xec\xe9\x9c" +
-	"\"\x8ci\xd7\xc9z\x96\x83\xc7\xc0#3851\xa6" +
-	"\xb5J\xbe\x12\xbc\x03\xbc\xa9\x82\xd3\x1c\xc6\xb4\xb5\xb2\x9e" +
-	"v\xf0~\xf0939\xcdeL\xeb\x9d\x85\x8e\xe8\x01" +
-	"\xdf\x00>w\x16\xa7yD\xdam\xb2\xfc\xad\xe0I\xf0" +
-	"y\x0d\x9c\x9a\x19\xd3\xf4Y\x98YC\xe0.x\xf3$" +
-	"N-\x8ci[fa\xe4\xd3\xe0\xbb\xc1[\xc2\x9c\xe6" +
-	"C!ga\xc0v\x83?\x09>\xbf\x91\xd3\xe5\x8ci" +
-	"O\xcc\xfa)\x06\x18\xfc\x10\xf8\xe5\xb39-\xc0\x00\xcf" +
-	"\xfa\x1f(\x0c\xf81\xf0\x05\xc4\xe9\x0a(\xcc,\xa90" +
-	"\xe0'\xc1\xaf\x88p\xfa\x0c\x14F\xfe\xee\x09\xf0\xb3\xe0" +
-	"\x9f\xa9\xe4\xf4Y\xc6\xb43\xb30\x90g\xc1/\x80\x7f" +
-	"V\xe1\xb4\x901\xed\xa3Y\x18\xc8\x0b\xe0\xa1\x06\x85\xea" +
-	"\x176q\xba\x921\x8d\x1a61\xd6\xd7\x80\xf1\x05\xbe" +
-	"r\x0e\xa7\xab0\xbe\x0d\xde\xf8B\xd0\x00\xc1U*\xa7" +
-	"\xab1\xbe\x0d\xa8\xa7\x01|\x01\xf8\xd5s9-bl" +
-	"iKC\x1f\x1eX\x06\xc1J\x08\x16\xed\xe6\xb4\x981" +
-	"\xed\x86\x06\xbc\xc0J\xf0\x0e\xf0\xc5\x0frZ\x82\x81i" +
-	"\xc0\xc0\xb7\x83\xf7\x83/i\xe6\xb4\x94H\xebm\x80\xaa" +
-	"\xde\x0a\x9e\x04_\xda\xc2i\x19cK\xf5\x86j\xfc\x80" +
-	"\x09\xc1\x08\x04\xcb\xaa8]\xc3\x98\x96\x95\x0fl\x03\xdf" +
-	"\x0b~\x8d\xc2\xe9sD\xda#\x0d\xbff,\xbe\x0f\xfc" +
-	"I\xf0\xcf\xa9\x9c\xae%\xd2\x9e\x90\xfc\x00\xf8!\xf0k" +
-	"\xe7sZ\x8e\x11h\xc0\x08\x1f\x06?\x06\xbe\xfcrN" +
-	"\xd7a\x04\xe4\x0b\x1c\x03?\x09~]\x88\xd3\xf5D\xda" +
-	"\xeb\xe8\xb9\xf8\x09\xf0\xb3\xe0\xd7Ws\xfa<F\xa0\x01" +
-	"\x1ap\x1a\xfc\x1c\xf8\xe7\x17pZ\x01\x15\x93=w\x0e" +
-	"\xfc<\xf8\x8a+8\xdd\x00\x15kx\x83\xb1\xf8\x87\x0d" +
-	"*\xf55*T\x7f\xc3g8}\x811\xed\xb7\xf2\xb5" +
-	"B\x8d*\xc5\xeb\xc0\xbf\xf05NQ\xc6\xb4)\x8d\xa8" +
-	"\xa6\x0e\xbc\x01<\xfaYN+10\x8d\xd73\x16\xe7" +
-	"\xe0M\xe0+\x17rjeLklD\xf3\x9b\xc0\x17" +
-	"\x82\xb7^\xc9i\x15c\xda\x15\x8d0q\x0b\xc1\x97\x83" +
-	"\xaf\xba\x8aS\x1bLe#&\xd62\xf0\x95\xe0mW" +
-	"s\x8aa\x1c\x1b\xa1`+\xc0\xdb\xc1c\x8b8\xad\x86" +
-	"\x09\x95\xf5\xb4\x83\xf7\x83\xaf^\xcci\x0d\x14\xac\x11\xa6" +
-	"\xb2\x1f|#\xf8\x9a%\x9cndL\xbb\xbd\x11\x13t" +
-	"#\xb8\x09~\xe3RN\xed\xf0V\x1a\xe5\x8cKC\xb0" +
-	"\x0d\x82\xf6e\x9c\xd62\xa6\x8d\xca\x07\xb6\x81\xef\x04_" +
-	"[\xc1\xe9&\"\xed>\xf9\xc3;\xc1\xf7\x80\xdft\x0d" +
-	"\xa7\x9b\x89\xb4\x87\xe5\x0f\xef\x01\x7f\x0c\xfc\xe6\xcfq\xea" +
-	"\x80O\xd1\x88\x0e\xdd\x0f~\x10\xbc\xe3ZN\x9d\x8ci" +
-	"O\xcb\xfa\x0f\x82\x1f\x06\xef\\\xce\xa9\x8b1\xed\xf9F" +
-	"X\x82C\xe0G\xc1\xbb\xae\xe3\xd4\x0d\x93\xdb\x08\xd3z" +
-	"\x14\xfc\x04x\xf7dN=0\xb9\x8d\xd0\xf8\x13\xe0\xef" +
-	"\x81\xf7\\\xcf\xa9\x971\xed]\xc9\xdf\x03\xbf\x00\xde\xfb" +
-	"yN}\xd0H\xd9\xce\x0b\xe0\xa1\xd9\x0a\xd5\xf7\xad\xe0" +
-	"\x14'\xd2h\xf6M\x8c\xf5\xcd\x86F\x02\xc7o\xe0\xd4" +
-	"\xcf\x98V5\x1b\xfaR\x09\xce\xc1\xfbk8\xadcL" +
-	"\xab\x9f\x8dj8\xf8\"\xf0uS8\xdd\xc2\x98v\xa5" +
-	"\xe4\x8b\xc0;\xc0o\xf9\x02\xa7\xf5\xd0\xbb\xd9\xe8\x86\x1e" +
-	"\xf0\x0d\xe0\xeb\xa3\x9cnel\xe9m\xb3e\xffo\x84" +
-	"\xc0\x84\xe0\xd6\x95\x9cn#\xd2\x8c\xd9p\x15\x92\xe0i" +
-	"\xf0/\xb6r\xfa\"cZj6&\x84\x09>\x02\xfe" +
-	"\x07\xab8\xfd\x01\xf4Qr\x17|;\xf8\x866N\x1b" +
-	"\xb0\x16\xca\x1f\xde\x01\xfe\x10\xf8\xed1N\xb73\xa6=" +
-	"8\x1b\xfd\xf3\x10\xf8>\xf0?\\\xcd\xe9\x0f\xe1\x8a\xcc" +
-	"F?\xef\x03\x7f\x12\xfcKk8}\x09\x16t6&" +
-	"\xe8~\xf0\x83\xe0\x1bo\xe4\xb4\x11\xe38\x1b\xe3u\x00" +
-	"\xfc\x10\xb8\xde\xceI\x87^\xcbz\x0e\x81\x1f\x05\xdf\xb4" +
-	"\x96\xd3&\x8c\xa3\xe4G\xc1O\x80'n\xe2\x94\xc08" +
-	"\xce\x86\x82\x9d\x00?\x0b\x9e\xbc\x99S\x12\xae\xf2\xec\xb9" +
-	"\xe8\xa0s\x10\x9c\x87@tp\x12\xf0\xff<\xc1\x05\x08" +
-	"B\x11\x85\xea\x07:9\x0d\xc0\xd5\x8cHAMD\xa5" +
-	"\xf8t\x08\x06\xbb8\x0d2\xa6M\x8b\xc0\xd87\x80/" +
-	"\x00\x1f\xea\xe64\xc4\x98\xd6\x12\x81)X\x08\xbe\x1c\xdc" +
-	"\xe8\xe1d@'#h\xear\xf0\x18\xf8\xe6^N\x9b" +
-	"\xb1\xe8E\xa0\x021\xf0\x1e\xf0;\xfa8\xdd\x01\xf7%" +
-	"\xf2}\x8c1\xf8\x06p3\xce\xc9\xc4\x18Gf\xa2A" +
-	"I\x08\xd2\x10\xa4\xfa9\xa5\x10\x1eE\xa4q\x1d\x81`" +
-	"\x07\x04\xd6:N\x16cK\xef\xf1^a7\x04{!" +
-	"\xb0o\xe1d\xc3\x81\x8c\xc0\xac\xec\x05\xdf\x0f\x9e^\xcf" +
-	")\xcd\x98\xf6x\x04\xa3\xf3\x18\xf8\x01\xf0-\xb7r\xda" +
-	"\x02\xc7F\x96?\x00~\x08\xdc\xb9\x8d\x93\x83\xd1\x91M" +
-	"=\x04~\x14<\xf3EN\x19\x8c\x8e,\x7f\x14\xfc\x04" +
-	"\xb8\xfb\x07\x9c\\\x8cNDj\x19\xf8Y\xf0\xec$N" +
-	"YX]Y\xcfY\xf0w\xc0\x877p\x1afL\xfb" +
-	"E\x04V\xfd=\xf0\x0b\xe0[o\xe7\xb4\x15\xda'\xbb" +
-	"\xee\x02x\xa8I\xa1\xfa\x91\xa9\x9cF\xb0\x1e6\x81\x87" +
-	"\x9a`F\xc1Gk9\x8d\xc2\x8c6\xa1\xfe&\xf0\x15" +
-	"\xe0w\xd6q\xba\x13\xfeH\x13\xac\xfdr\xf0~\xf0?" +
-	"\xaa\xe7\xf4G0\x7f\xb2\x9e~\xf04\xf8\xb6K8m" +
-	"\x83\xd64a(\xd3\xe0\xbb\xc1\xef\xd28\xdd\x05\x7fA" +
-	"\xd6\xbf\x1b\xfcI\xf0/sN_\xc6lo\x82\xd6\x1c" +
-	"\x00?\x06~\xf74NwcUj\xc2T9\x0e\xfe" +
-	"\x0e\xf8\xf6K9m\xc7\xfb6\xc1\x81\x7f\x0f\xbcr\x8e" +
-	"B\xf5\xf7\\\xc6\xe9\x1ex\xc6sP\x7f\xe5\x1c\xf8e" +
-	"\xe0\xf7N\xe7t/c\xda\x9c9\xe8\x9f\x05\xe01\xf0" +
-	"\xaf\xcc\xe0\xf4\x15L\xad9\xf8\xddv\xf0$\xf8\x8e\x99" +
-	"\x9cv\xc0\x0f\x9a\x83\xfeO\x82?\x04~\xdf\x1fr\xba" +
-	"\x0fZ,\xeb\x7f\x08|\x1f\xf8\x1f\x7f\x89\xd3\x1fC\x8b" +
-	"\xe7\xc0l\xed\x05\xdf\x0f\xfe\xd5\x8d\x9c\xbe\x8ay2\x07" +
-	"\xed\x7f\x12\xfcY\xf0\x9daN;\x19\xd3\x9e\x99\x83U" +
-	"\xf5 \xf8a\xf0\xfbuN\xf7\xc3\x1a\xcf\x81\x95>\x0c" +
-	"~\x0c|\xd7&N\xbb\xd0\x0f\xf2w\x8f\x81\x9f\x04\x7f" +
-	" \xc1\xe9\x01\xf8Gs`\x85N\x80\x9f\x05\xdf\x9d\xe4" +
-	"\xb4\x1b\xf3D\xd6s\x16\xfc\x1d\xf0\x07\x05\xa7\x07\xd1o" +
-	"sd\xbf\x81_\x00\xff\xda\x00\xa7\xafa\x9e\xc8~\xf8" +
-	"\x18\xbcr\xaeB\xf5_\x1f\xe4\xf4u\xf4\xe7\\\x94\xaf" +
-	"\x99\x0b\xd5\x06\x7fh\x88\xd3CP\xed\xb9\xe8\x9f\xe9\xe0" +
-	"\xcd\xe0\x0f\x1b\x9c\x1eF?\xcf\x85^4\x81/\x04\xff" +
-	"\xc6fN\xdf\xc02<\x17fz!\xf8r\xf0o\xde" +
-	"\xc1\xe9\x9bP\xf9\xb9\xe8\x87e\xe0+\xc1\xf7\x98\x9c\xf6" +
-	"`\x19\x9e+\x97a\xf0v\xf0Gfqz\x04\xcb\xb0" +
-	",\x1f\x03\xdf\x08\xfe\xad\x06N\xdf\xc2r;\x17\xf3s" +
-	"\x03\xf8\x08\xf8\x9f\xa48\xfd\x09\xac\xf4\\X\xb9\x11\xf0" +
-	"\x1d\xe0{\x1b9\xedeL\xbbG\xb6s;\xf8>\xf0" +
-	"G-N\x8fb\x1c\xe7b>\xef\x03\x7f\x12\xfc\xdb6" +
-	"\xa7oc~\xca\xf2\xfb\xc1\x0f\x82\x7f\xe7\xeb\x9c\xbe\x03" +
-	"k,\x7f\xf7\x00\xf8!\xf0}iN\xfb\xa0\xefs1" +
-	"\x1f\x9e\x05?2W\xa1\xc5\xdf=J\x9c\xbe\x8b\x88Q" +
-	"\xbe\xc0a\x08\x8e\xe1\x81?u8\xfd)\x06Xv\xe8" +
-	"1\xf0\x93\xe0\x7f\x96\xe1\xf4g\x18`\xd9q'\xc1\xdf" +
-	"\x04\x7f\xcc\xe5\xf4\x18BF\xf9\xc3g\xc1\xdf\x01\x7f|" +
-	"6\xa7\xc71\xc0\xb2\x9ew\xc0C\xf3\x14\xaa\xff^\x96" +
-	"\xd3\xf7\xa0\xf0\xf30\x90\x95\xf3\xb0\xae\x82\xff\xf90\xa7" +
-	"?\xc7\xba:\x0f\x8a1\x1d\xbc\x19|\x7f\x84\xd3~\x0c" +
-	"\xe4<\x18\xa6f\xf0\x95\xe0Ol\xe5\xf4\x04\x06f\x1e" +
-	"&\xe2J\xf0\x8ey\x0a-\xfe\x8b\x97\x89\xd3_`\xc1" +
-	"\x9d\x87\x1ej\x87\xa0\x1f\x0f\xfc\xe5\x08\xa7\xbf\x84\x85\x90" +
-	"\x0f\xf4\x83o\x04\x7fr\x94\xd3\x93\x181\xf9\x03\x1b\xc1" +
-	"M\xf0\xa7\x9a8=\xc5\x98f\xcc\x83\xdf\x9a\x06\xdf\x0d" +
-	"\xfe\xfd9\x9c\xbe\x0f\xcb!\xeb\xdf\x09\xbe\x1f\xfc\xaf\xe6" +
-	"r\xfa+h\xd8<\xbc\xf0~\xf0#\xe0\x07\xee\xe4t" +
-	"\x00\x1d=\x0f\x16\xe8\x08\xf8q\xf0\xa7\xe7qz\x9a1" +
-	"\xed\x95y\x98Y\xc7\xc0\xcf\xe1\x05\xfe\xfa\x1f\x89\xd3_" +
-	"\x13io\xcdC\x8f\xbe\x09\xc1{x\xe0\x07\x7f\xc4\xe9" +
-	"\x07pl\xe4\x0b\xbc\x07~\x01\xfc\xe06N\x07\x89\xb4" +
-	"\x8f\xe6\xdd\x04\x87v\x9eJ}\xcd\x0a\xd5?s\x17\xa7" +
-	"g\xe0\xd0\xcav~\x8c\xe2\x95\xe0?\xfc2\xa7\x1fB" +
-	"\x93\x9aQ}\xa8\x19\x8e.\xf8\xdf\xdc\xcd\xe9o\xe0\xe8" +
-	"J^\x03>\x1d\xfc\xd9\xed\x9c\x9e\x85\x865\xe3g\xa7" +
-	"\x837\x83?w\x0f\xa7\xe700\xcd\x98\x10\xcd\xe0\x8b" +
-	"\xc0\xff\xd7\xbd\x9c\xfe\x17\x1c\xa1fL\xac\x85\xe0\xcb\xc1" +
-	"\xff\xf6+\x9c\xfe\x16\x1a&\xeb_\x06\xbe\x12\xfc\xd0\x0e" +
-	"N\x870\x90\xcd\x98\xa1+\xc0\xdb\xc1\x9f\xbf\x8f\xd3\xf3" +
-	"\xd00YO\x0c\xbc\x07\xfcG\x7f\xcc\xe9GXl\x9b" +
-	"\xf1^\x1d\xe0\xb7\x82\xff\xddW9\xfd\x1dc\xda:\xc9" +
-	"\xfb\xc17\x82\x1f\xde\xc9\xe90\xc6W\xb6s#\xb8\x09" +
-	"\xfe\xc2\xfd\x9c^\xc0\xf86\xc3\"\xa6\xc1\xb7\x81\xff}" +
-	"3\xa7\xbf\x87\xff+\xdb3\x02\xbe\x07\xfc\x1fZ8\xfd" +
-	"\x03c\xda\xc3\xcd\x98'{\xc0\x0f\x82\x1f\xd9\xc5\xe9\x08" +
-	"\x91\xf6\xb4\xec\x9f\x83\xe0\x87\xc1_|\x80\xd3\x8b\xb0\xa0" +
-	"\xcd\x18\xf7\xc3\xe0\xc7\xc0_\xda\xcd\xe9%(\x98l\xcf" +
-	"1\xf0\x93\xe0\xff{>\xa7\xff\x0d\x05kF\xa4z\x1a" +
-	"\xfc\xc3f\x85\x16\x1fM7p:\xca\x98\xf6A3L" +
-	"\xe2\x05\x08B-\x0a\xd5\xff\xfcAN/\xc3qm\xd9" +
-	"\xccX_\x0b\x1cW\xe0\xb7\xbf\xc6\xe9\x1f\x89\xb4\xaa\x16" +
-	"X\x8e\x1a\xf0\xe9\xe0o}\x9d\xd3\x8f\x89\xb4i-h" +
-	"\xcft\xf0\xe6\x16\x85\x16\xbf\xbc\xa5\x81\xd31\x0cd\x0b" +
-	"\xe6O\x13\x04\x0b\xf1\xc0?>\xc4\xe9\x15\x98\xca\x16L" +
-	"\xd0\x05\xe0\xcb\xc0\x7f\xfc0\xa7W\x19\xd3\x16\xb7\xa0=" +
-	"\xcb\xc1c\xe0\xc7\xbe\xc1\xe9\x9f\xb0\x84\xb5@\xb3\xdb\xc1" +
-	"\xfb\xc1_\xf9&\xa7\xe3P\xbc\x16(F?\xf8F\xf0" +
-	"W\xf7pz\x0d\x03\xd3\"\x15\x0f\xdc\x04\xff\xa7G8" +
-	"\xfd\x1f\x0cL\x0b:\xd4\x04\x1f\x01?\xfe-N?\x81" +
-	"\x09\x95/0\x02\xbe\x03/\xf0\xda\x06\x85\xd3\x09\xd8P" +
-	"\xf9\xc6; x\x08\x0f\xfc\x9f\xbd\x9c^\xc7\x1a\xd9\x82" +
-	"\x1e\xdd\x03\xfe\x18\xf8O\x1e\xe5\xf4\x06\"\x93\x16\xd8\xe2" +
-	"\xc7\xc0\x0f\xa0\xa2\x13\xb7+\x9c\xfe\x99H{\xaa\x05S" +
-	"\xeeI\x08\x9e\x85\xe0\xf5?T8\x9d$\xd2\x9e\x91\x82" +
-	"\x83\x10\x1c\x86\xe0\x0d\xa7\x81\xd3)\x0cr\x0b&\xdd!" +
-	"\x08\x8eB\xf0\xcf_R8\xfd\x0b\x91\xf6b\x0b\xbc\xe3" +
-	"#\x10\x1c\x87\xe0\xe4\x90\xc2\xe9_\x89\xb4WdU\xc7" +
-	" 8\x89F\x9d\xba\x9c\xd3i\x0c\x7f\xcb\x128\x18\xe0" +
-	"\xef\x80\xff\xcb\x02Ng`G[\x10g\xbe\x09\xfe1" +
-	"\xf8\xbf^\xc1\xe9\xa7\x8ci\xbf\x91\xfcC\xf0\xba\xf9\x0a" +
-	"\xd5\x9f\xfe\x0c\xa7\x7f\x83\x1a\xcf_\x05\xfb:\x1f\xc3<" +
-	"_\xa1\xc5g\x0c\x85\xd3Y\x0c\xb3\x144@\xb0\x00\x82" +
-	"\x9fnV8\xfd\x0c^\xf0|\x8c\x7f3\x04\x8b \xf8" +
-	"\xb7L\x03\xa7\x7f\x87&\xcf\xc7O,\x80`\x19\x04g" +
-	"\xdd\x06N\xff\x81\x19 \xabZ\x08\xc1r\xfc\xf6\xcf>" +
-	"\xcb\xe9M\xa8\xf8|\xe97\x83\xc7\xc0\xff}!\xa7\xb7" +
-	"03\xe6C\xf5W\x82w\x80\xff\xc7\x95\x9c\xde\x86\xa9" +
-	"\x9e/7\x8b\xc0\xfb\xc1\xdf\xbc\x8a\xd3\xcf1c\xe6C" +
-	"5o\x05O\x82\xd3\xd5\x9c\xce\xc1\x19\x9a\x0f\xd5\xdc\x08" +
-	"n\x82+\x8b8\xfd\x023f>f\xea\x10\xb8\x0b\xae" +
-	".\xe6\xf4K\xc6\xb4-\xb2|\x1a|\x1b^ \x94m" +
-	"\xe0\xf4+\xe8\xb8l\xd0\x08\x04; xw\xb8\x81\xd3" +
-	";\x98J\xf31\xb7wB\xb0\x075\xdd\xf6\x1dN\xef" +
-	"\"\xc8\x9d\x8f\xd1\xd9\x0d\xbew\xbeBc\x03\x8e\x9dq" +
-	"o6L\x166\xbb-\"\xa6\x101\xaa\xbd\xc3\xbd\xc3" +
-	"\xa6\xc9L\xa1\xc9\xde\x7f$r\xff1\xa6g2F\xca" +
-	"0u\xc5\x15=\xba\xe3\xb6\xd9b` \xd3'\x92\xd9" +
-	"pB$s\xcf\x8f\xd9K\xd7\xc7];\xa5\x93\xab\x9b" +
-	"m\xa6\x9d\xc9\xaa\x8e\xf0\xaa8r>\xca\xd8\x98\xbd4" +
-	"\x9eM\xadK\xbb,\xac\xdf!\xf2u\x0fg:t\xd7" +
-	"p\xb3LM\x16\xa0\xbe\xc9\x1e\x16\x83\x8eMY+\xb9" +
-	"\xca\xb0S\xba\x9a\xc9L,\x8cd2\xddf2/O" +
-	"'Ze\x09r\xec\xac\x95\xecv\x06U\xdd\xa2\xa9\x8c" +
-	"zT\x92m\x9d\x8a:\x12nV7\xfb\x1d\xd2\xadL" +
-	"\xdapt7l\xd8V\xb0\x06\xf9\xc6\x8a\xa9{ol" +
-	"\xb8\x86m\x19\xd6`D\xbez\xae2\xff\xff&\xfbu" +
-	"\x16=\xd5't\xd3\xb4\x13:\x1edl\\O\xb2\xb0" +
-	"+2\xe3(\xa1t\x9f\xee\x8a\xa2'\\\xc7\xb6\xec\x14" +
-	"\x19\x89\x98>\xda!\xac\xf0\xe0\x90\x1bh\xe9*=#" +
-	"b:\x8d\x9a\xc2\x1at\x87\xd8\xf8F\xa1@\xbf\xa0T" +
-	"Z8\xba\x9buH\x94)\"\x06\x0d+\xae\x0a+c" +
-	"\xb8\xc6\xb0\xe8\x19\xd23\xa2]\xe8n\xdcuD&S" +
-	"h\xcb&a\xda['\x1a\x96q\xc2q\xc3\xd2\xa6;" +
-	"\x9b\xec\x11\x1a5e\xaf\xf4Duwh\xab>J\x15" +
-	"L\xa1\x0aFc\x09S\xe8NL\x1f\xa5>=i\xa0" +
-	"\x08\x05G\xa4\xcd^\xd2)\\\x16\x1e\xb2\x934\x89)" +
-	"\x15\x93T<\xe2\x18\xae\x91\xd0M\xeaj\xb3\xad\x84\xb0" +
-	"\xdc\xa8#\xeb\x0e>'\x8b(\xba\xd9=2:(\xac" +
-	"6\xdbr\x85\xe5\x96\xe9'\xaf\xa0\xaa\x9b\xfd\"\xd7W" +
-	"e;!\xe1\xd8\xe9\x98\xa1\xa7X\xadp\x85S\x84\xd7" +
-	"8v\x86E]h\xc6Hp\xe6C\x86\xaaXd\x02" +
-	"\x911\xc8\xd4\xa2Qm\x93\x98E\x8d\xc1!\xb7g\xf1" +
-	"D\x82%%\x82.\x9d\xa9)A5L\xa1\x1a\xbfI" +
-	"]1\x91ba\xddJ\x165\xb4\xabO$\x99Z\xdc" +
-	"\x12\xaf\x8axZ\x11\x09c\xc0Ht\xea#}\xb6\xed" +
-	"b\xd2\xc7D\xda\x1d*z~\xbd\xee\x0ar\xd6\xa5]" +
-	"\xfd\x0e1\xae+\x13Y\xc7\x11\x96\xdbO\xb9~\x8c8" +
-	"\"\x9eMMTL\xb1\xdd\xa2>\x8f\xab\xd9T\xe1\xc7" +
-	"&*\x14\xcd\xa6\xd0\xbc`\x07d]\xd7\xb0h0&" +
-	"L}4\xa6\xab\xa3\x19\x0a3\x85\xc2\x8c\xc6\x92\xba\xa7" +
-	"\x1e4\xb4FO\xb8\xb6\xc3\x02\x8f\xc5\xa4\x8c\x06\xdd\xa1" +
-	">\xb1%kD\x1d\x91\x12\x96[\xda\xd8\xa4>\x9ai" +
-	"\x1dp\x85\xe2H]Yc\xda[\x85cX\x83\xac\xf0" +
-	"\x1b\"a\x1a\x96\xee\xb2\x12K\x12\x13\x03z\xd6T\xdd" +
-	"\xdc\xa4\xb6\xd6e\xc4\xea\x81\x01#a\x08+1Zh" +
-	"\xc9pJv\xf3\x8d\x8a\xb4Z[uW8\xfd\xfa&" +
-	"S\x14~\x01u\x0d\x0b\xd3\x0e\xa5\xd1\xc2\xd6DB\x98" +
-	"\xc2\x9b\xee\xabF\xbb\x0c\xd7\xb1\x07\x85%'+e\xa8" +
-	"\x8a)T%[\x85'\xd2)\x12\x96\xab\x9bqWW" +
-	"\x07E\xbeB\xcb\xee\x1e\xc0\x98\xb3H\xdc\x15\xe9@w" +
-	"9vvp\xc8]\xab\xa4\xd2z\xc2\xed\xb6\xd6\x08\xc7" +
-	"5L\xc3\x1d\xcd\x99\xa5\xdc\x84\x89\xc9\x82\xaa\xbb\xb6\xb4" +
-	"\xa0\xdf\xcdE\xfd,\xcb*\xbe:\xf5\x0f9\"3d" +
-	"\x9bIVF\x13W\xa7\x843(\x14+!\xd6\x98\xb6" +
-	"\x9d4\xacAh\xadSk\x07V\xab\xa2b\x9d\xb6\x91" +
-	"\xc1\xac(_\xccJ\xc6\x85\xa5\x94\x9a\xb6\x88lG\xbe" +
-	"\x81b`@$\\c\x98\x84ge\x07\xd5\xc0\x94\x17" +
-	"\x8ec;q\x17V;\x9b\xc9W-i\xa7\xc8\xb0\xda" +
-	"\x8c>X\xd0:1\xac\xa7mGw\x15\x91\\\xe3\xd8" +
-	"\xa9\xb5\x96+\x9c\x84H\xbb\x85\xce\x10#\xae\x83\xf1U" +
-	"\x1c\x91q\x1dC7\xcb\x1a\xbc5\x860\x93m\x8am" +
-	"%\xe5\xea\xd3i'\x8d\x01C\x04;u\xc0\xb0t3" +
-	"&\x86\x159\xc4\xb9\x11\x1e,L\x99\xe8\x801\"\x92" +
-	"]\xc1J\xb1\xf2\xc7H\x0c\xe9NRX\x86j\x0d\x96" +
-	"\x0a\xdb\xc9\x13Y\x83\x81_\x1a4\xedMh&\xf9s" +
-	"8 q\x84\xb0Z\x1d\xc1\xa2\xfaZ+)F\x02\x02" +
-	";\x93i\xcddH\xael\xae\xc8\x04\xab\x83\xacg\xc8" +
-	"&\xd7\xce\x8cZ\xee\x90\x08g\x8c\xcc\xc4\xd2h\xc6\xc8" +
-	"t\xda\xe6\xb8\x02j\xae@\xc6\xc8\xf4\x89\x01\xe1\x089" +
-	"\x17\xcc\xd2\x1fr\x0cJ\xe9\xceh\x8fc'\xa3\xd9D" +
-	"\xd1\xfa0\xe8\xd8[\xdd\xa1\xb6QJ\x98b\xb5\x95\x14" +
-	"\x98\x8f\xb9\xf1\xf5d}\x82<\x0f\xc1\xb0\xc3Vk<" +
-	"\xd0]r\x1ae\x95\xd4Z\xc71\x06e\xb7\xc4]\xdd" +
-	"q\x8bf\xbdW\x86re\xa2\x86m\xad\x0e\xd8\xe2\xe1" +
-	"\x0cl\xff\x90\xcb\xd4\xae\xe0(\xad\xb5\x0c\xd7\xd0\xc9\xbc" +
-	"9!\x15\x89\x9c2\xb2ngP\xb7V\x19\x11;\xa5" +
-	"g2\xe3u(W\xac\xbc\x0d7\xfcII^\xabm" +
-	"'\x8c\x19\x9c\x93\xde\x91\xc8\xe9\xaf\xff*cK\xe5\xff" +
-	"~\x1ee\x8c\x8d\x99B\x1fhu\x84\xce\"\xc5\x03\x9e" +
-	"\xc9Z\xa6\xe1v\x08\xf2\xc4k\xad0\xa4%\x0d\xcb\x0c" +
-	"\xe9I\x91\xfc\x84B\xe9D\x87\xbd\xb5_\xa4\x94\x9c\xb5" +
-	"_=\x92\xb63YG\x14um\x87\x912\\\xcc\xe0" +
-	"\x8b\xaf\xd7\xb5\xa6{\xcd\"\xdflU\x1e\x91f\xab\xc3" +
-	"\xbdfQ\"\xcb\xa2\xa6k\x0c\xeb\xc1\xbe\xed\xc8\x8ed" +
-	"\x9dQ\x16\xed\xf2\xdc\xbc\x9c \xa5\xa3\xbf,\x1d\xa6\xa6" +
-	"O\xe4f\x83\xd5\x1a/jO\xa7>R\x98\xee\x86\x1d" +
-	"\x91\x8e\\\xb1\xbc\xcd\xb1I\xfa\x0e\x02\xcbg\x19\x99?" +
-	"\x1b\x02\xbf<\xd2\x85U\x96\xa9w\x94T\xd5\xb5.M" +
-	"X}{tG\xa7T\xb1\xac\xcf\xb6\x09\x83\x8e1\xa7" +
-	"\xa1\xa0\xcc\xb0\x8cTVI\xe5\xbc%\xa7D\x99s%" +
-	"\xd4T\xa0O\xd7\xd8N\xab\xef\x9f\x96z\xc9\xddi\xf7" +
-	"\xf7(\xdd\xa9\x8f\xfc>\xa5\xfd\xb6\x06Jc.Go" +
-	"\x94Z\x99/h\x09\xb7\x13\xc3\xa3\x08K/\x1a\x9e\x80" +
-	"-\xb5\x84\xdb3d\xbb6\xe5\xac\x05e\x8ad\x8eH" +
-	"\x18\x946\xdcRg]\xca\x8c\x94N\x9e\xed\xc8&j" +
-	"K|K\xaf\x1f\xd5\\G\xb6\xfa\x81I9\xef\xd8\xf2" +
-	"\xbb\\-_4\x134\x8f\x9fX6\\\xecW{\xcd" +
-	"\xa0\\3\xd4U\x8b\x8a\xaa\x82\xbfK1\x01\x97\xc3e" +
-	"\x17y\xac\xa7kbam\x91\xb3\x95k y\xc2>" +
-	"[\xbd\x980b\xbb%\xed\x95\xce\x0a\x09\x0b\xa3e[" +
-	"\xb5\x19Q\xb4`weS\x9b\x84\xa3t\x0f\xc4|\xe7" +
-	"\xc5[\xd9\"X\xda2\xc1jd9\xea\x1e\x90\xa6\xb0" +
-	"\xa8\x03=\xcft\x0d9v\xaaC\x1f\x95\x8b\xe68\x1b" +
-	"\xe3M^\xcaM\xb0Z\xcc\xb0\xd2R\xb6gdmV" +
-	"[\xce\xcaJiL\xe8\x14\x18\xc3rEnt\x04\x09" +
-	"\xcb+C\x99\x09\x8a\xd8\xb4\xd5\x1dZk%\x1cQ[" +
-	"\xce\x01M'\xe4[\xc2=\x94\x8bR\xde\x0a\x95}5" +
-	"\x14]\xab$3klG\xce`g\xf46C\x98\x94" +
-	"\xcc\x15\xad\x1b\xeb\xfa\xdd\xbfOiX\xf4\xbb\x7f\xc3z" +
-	"7\xfe\xa1\xb8H\xd8VR>\x16\x16\xe6\xa7x\x8c\xe4" +
-	"cmY\xb7\x16\x86\xe7\x13\xcbw*\xbeI\xcd\xabl" +
-	"\xc4\x8b\xdb\xca\xf5\x0d\xbc7\x91I`q\x97\xfd\x83\xee" +
-	"\x99\xf0\xad\xe3$,\xafpDH\x03\\>V\xb7\x87" +
-	"\x85\x93\xd03.\xc5\xf4Q\xe9}\x15\xab\xb6-c\xc5" +
-	"\x98`\x11\xa95\x81I\xd7\xa3;\xee*C\xb1M{" +
-	"\x10\x81g\xd7\x1acd\x9c\xe7\xd6\x03O\xc4baC" +
-	"7\x0b\xd3\x1a\x06(-\x1c2\xec\xa4\x8c\xe4\xa3^\xc0" +
-	"^xl\xc8v[\x13n\x1f\xe5\xe2\x84\xdaN\xa1\x17" +
-	"\xd5j\xea\x96\x1bcQ\x19\xa5\x8f\x16\x046\xf4\x1bK" +
-	"}\xbf#73JC`\xc7\xf7\x8c\x14\xb1\x1a\x9e\xa9" +
-	"\xeb\x94\xdd\xf2p\x04V\xada\xa1\xf4#\xd2\x0ah^" +
-	"@\xad\x1c\x81\x95\xd0\xb0\x94\xc1\x8b\xd7\x94\x11\xce\xb0h" +
-	"\xa5\x9ca\x8f\x88\x1e;\xe0\xbd\xa5\x13}\"c$\xb3" +
-	"$\xba\xfa\xd0RV,I\x1b\x0e\xe9\xae\xed\x8c\xc6]" +
-	"'\x1c\xf4\xd0\x1d\xdbv\xa1C,\xac\x97\xa3Q\xbdx" +
-	"\xbb\x01\x82\x98\xb02,\x8c\xde*\x19~),\xc4\xf0" +
-	"\xe3\xa6R\x9f\x94+\xf0\xce7e\xe5f\x85\xee\xe8)" +
-	"VT\xf9\xea\x81\x01A\x08\x19\x10\x18\x95\xafb\x8dM" +
-	"N\xaaL,\x04\xd9\x8d\x0eA\x93;\xf4\xc1\xe2j\xb1" +
-	"n\xb3Z\xe9\xad\xe5\xe2\xb1<\x8e\x00w\x96\x16\xff\"" +
-	"\x0b\xdb\x96\x08\x84\x89\xa8\xbeG\x90%<\xe3]\xe2\x89" +
-	"\x0c\xa7\xe2XM\xbd\xcd&,\x0b\xe1\xe0\x0c\xcf\xd8\x86" +
-	"\xd9f\x0f\x0bV\xeb\x04]\xc2\xe1L\xdc6\xccN\x83" +
-	",\xe1\xe8fW\x9b\x1d\xf1\x96\x95R\xf7\xce6\xccx" +
-	"Z$\x94\xe2\x1d\x84\x98\x08\x07\xbdO\xaf\xb2O\xdei" +
-	"H'P\x971@F\xa2C:\x9d\xaa\xd0\xc7wt" +
-	"\xbe\x0c*\xe9\x10\xb5\xc5Z\x95\x90\x11Q+\x0d\xb8\x02" +
-	"\xe6)\x18M\xfb\x12\xb7S\x1f\xc1\\(\xde\xce)\x12" +
-	"\xc3-+\xde\x9f\x91\xc2N\xc5ky\xc1\x9d\xaa-g" +
-	"\xc4\xfc\xd27S\xce\xad\x9e\xa0\xc0'm\x98d\\;" +
-	"\xa5\xbbz\x1f!\xdequ+A\xa2\xa8E\xb6\xa3\x0f" +
-	"\xb2\xa8\x90f\xb0t\xbf3#\xa5\xa2\x9b\xd5Ji\x98" +
-	")\x15\xe1\x10\xa31Ww\x06\x85\xdb\xd5F\xc5o\x90" +
-	"\xab\xd65R\"\xee\x8a4+\x8e\xfc\x81\xd7YIA" +
-	"N\xabe\x8f\x18:\xcb\xef7\x0cg\xfam\xc7\xcd\xda" +
-	"\xac\xb6\xc8H\xb90*\x85u\xb4\x14\x13(z\xb1V" +
-	"N\xaa\"\xb1\xef\x17\xeb\xee\xdaT:\xac'J\xa4]" +
-	"k-\x16NgK\xe9\xba4\xabu\x83\xbb\xcc\x12\xf7" +
-	"\x89\x0c\x8b\xa4\x0dG$\x83\xc6JZ\xb0\xe2]\x9bL" +
-	"6%\xcd u\xe5\xb6\xb8\x8a\xeb\x81\x7f\xdd\xe1\xef\xb7" +
-	"\x16I\xfaE\x8ar\xdej8\x1e\xd8\xc7r\xfd\xa1U" +
-	"\xb2rh\xfb\xed\xdc\x0e\x12\x15\x02\xf0\x9c=e\xe5\xd7" +
-	"\xc2\x9c\x98<\xb7J$\xd5\xec\xc8\xc5\xcb\xc4\xc4@m" +
-	"a\xf9\xf2\x86nX8\x96n\x1a\x19\xbf\x84>\x1a\xf0" +
-	"\x85\x8bek\xf4D\xd8\xb5\x83\x1aq\x8b\x94+F\xc6" +
-	"o\xc1\x96\xac\x81\xd5X-\xe7\xad\xac\xd7]\xe1\xc4\x14" +
-	"\xcf\xeb\xf4\xfc<\xb8y\x81\xf0\xda^\x1a\x97K5\xab" +
-	"\xc5\xca^|P\xd0a#\xac#'\x15\xd3S\xfa\xa0" +
-	"(\x9e}\xf6\xd2\xf8\x90\xed\xb8\xfd$|9\x15=\x9d" +
-	"\x1c5\xac\xc1\xee\xac\xcb\x02\xbf\xa5'\x12\xd9T\xd6\xd4" +
-	"Y\xd4\x15\xc9\xd5\xfdzaw\xdd\x17(\xaeH\xf6\xe7" +
-	"\xd7\xb3\x92=\xfb@\x19\xdf\x9bjs\xec\xb4\xef\x1a\x05" +
-	"\xe6\x0c\xc2T\x87\\\x91l\xcb\xba\xf9\xc8\xbc\xb0\xe9\x93" +
-	"\xb6\x1dW$I\x0aK\xa2\x83L6%\x17E\xca\x0a" +
-	"O\\\xac'\x8e\\0E\x1b\xf9\x8ff\x02\x83\x96\x90" +
-	"\xdb\x9e\x831\xf2\xb6=G\xe1\x84\xe6l\xdcp\xa6S" +
-	"\x1fY=0\xa0\xc8\xad-\x91\xb7\xc6i\xb5\xc8\x1a\xaf" +
-	"M\xa5\x85%\x14\xd7\xd17\x99B\xfa\xcb\xb1\xa2\xfd*" +
-	"\xdd\xdfcaa\xcc\x17\x95)S\xd4\xb11\x19\x9d\xba" +
-	"Y\x07\xab\xdf\x04\x9c\xfa\x84\x9e\x18\x12\xc9\xc28d\\" +
-	"\x91\x8e\x1bw\x0a\xa6.Y\xe6\x19\xa1\xe9A\x1a^\xb2" +
-	"l\x91\x87\xcf3\x8a8zr\xc9\xb2\x92\x99\x15\x95p" +
-	"Q)u\x07ls\\\xd9\xbb=ZZ\xf8n\xc3J" +
-	"\x8a\x11\xef\xf7e/\xf9\xff\xbd\x88\xb1\xc0\xc6Y\xd6D" +
-	"\x85~\xbb\xef\xf6\xfesQak(+\xd0'\x0e\xad" +
-	"N\x19\x99\x0c\x945Cuc_\x18\xea\xcc6,|" +
-	"\xff\x0c&^\x1d\xa3\xb1\xcd\x9b\x87\xa5\x9c\xd5\x1a\xb6U" +
-	"\xae\xc0\xb0\xed\xad^L\x15\x10\x7f\xf5*~\xef\xdf\xfe" +
-	"\xe5\xa9\xed9q\xc2\xb1\xd3\x08\\\x95\xe06W&k" +
-	"\xba\xf2\xd7\xbe\xf7g\xff\xf2\xc0\x86U\xb5?\xc9\x95\xce" +
-	"\xa0&\x91\xe9a\x11\xf8*(\xf1\x805\xfd[?\xfe" +
-	"\xea\xa97\xf2\xf5e\xbd\x1d\x0f\x16\xed\xc9\x15\xf9\xce\xdd" +
-	"\x7fu\xddU\x1fL\xfa\xcf\\\x11\x7f\xa6\x05*y\xfd" +
-	"\x83=W/<\xfb\xf0\x8e\\\x09#\xb3^\xee\x1e\xb1" +
-	"Z(ApdS\xabM\xdbR\xbc\x9d\xb0\xd5\xc3\xc2" +
-	"r\xd7\xc0\xd4\x16\xb40b\xba\xd7,J\x05\xb7br" +
-	"\xf7XB\x17\xbb\xc7\x12wu\x97D\x0fQ\xef25" +
-	"D5\xf2\x02\xcb\xed$\xd3\x82I\xa5\xb8I\x0a\xd5\xf9" +
-	"\xf7W\x0c\xda\xc4X|\x08\xd8%\x85\xea\xc9\xbf\xbf\xb2" +
-	"\x8563\x16O\x83o\x03WT\xef\xfe\xca(\xdd\xc4" +
-	"X|\x04|\x07\xb8\x1a\xe2\x14bL\xbbG\xd6\xb3\x1d" +
-	"|7x\xa8\xc2\xbb\xbfr\xbf\xacg'\xf8\x1e\xf0\x8a" +
-	"I\xde\xfd\x95\x87\xe9^\xc6\xe2\x0f\x81\xef\x03\x9f\x14\xf6" +
-	"\xee\xaf<*\xcb\xef\x05\x7f\x16<\\\xe9\xdd_y\x86" +
-	"\xbe\xc8X\xfc \xf8a\xf0\xca*\xef\x02\xcb\xf3\xf4=" +
-	"\xc6\xe2\x87\xc1\x8f\x81WU{\x17X^&\x87\xb1\xf8" +
-	"Q\xf0\x13\xa4\x10Us\x9aL\xa4\xbdF2\xf7\x14\xf8" +
-	",\x8aO^\xe9\xdd_9C\xbb\x18\x8b\x9f\x05\x7f\x87" +
-	"\x14\x1a\xd3\xb3\xd2s0(\xd1\xae;\xc3\"\xe3\xe6\xc7" +
-	"\xff\xbf\x17\xfc\xd7K/4\xff\xf7\xcb\xc5S\xa8\x8b\x85" +
-	"\xf5\xe01Rn\xda\xd4v\x05qF\x88dL\x9eU" +
-	"2\xaa\x1b{\xb0~\xaez\xe0w\xbf\xfc\x93\xdc4\x19" +
-	"\xf2~)\xc6\xc2\xf0=\xc7\xcbK\xa6Q]\xe1\xfaV" +
-	"\xbe\x80\x17F\x91!}\x804+S&g\xfbX\xad" +
-	"\xee\x8aL!\xea\x0c\xfe\xd8\xd4\x9c\"\xe9\x8e\xceT9" +
-	"\xa5\x87^\xdc9\xe3\x87?yyW\xae\x9a\xb4\xfc!" +
-	"\x84Pm^\xc1\xb0^\xb6\xdc'+G\xc2\xb13\x99" +
-	"6\xc7V\xd2\xadI=\xed\xaf\xa2\x85\x03'o\x81\x1a" +
-	"7\x1c\x81\x85*\xa7\x11\x93&\xd2\x88N\x89:QL" +
-	"^\xed\xba\xaa\xb5-\xd6o\xdf\xa2\x87\xcd\xac\xd4\x91\xca" +
-	"\xdc%\xaf\xfa+\xe62\xd6\xdb\xacR\xef\"h\x82\xa7" +
-	"!\xf5W.a\xacw\x81J\xbd\xcb\x14\x0a\xeb\x89d" +
-	"\xce\xe0E\x86u3[p\x97>\xf1\x82Y\xdc\xb2\xb7" +
-	"\x96\\0\xeb\xedQC\xa4I\xf5\x9c\xa3\xbc\xcaX|" +
-	"\x81\xa2R|\x99RP\xcf\xc5\x0a\xd4j\x11\xf0\x0a%" +
-	"\xa0\x9e\xd7)}\x8c\xc5\x97\x83\xc7\x94\x80z\xb6*\xdf" +
-	"`,\x1e\x03\xefQ\x02\xea\xd9)y\x0f\xf8\x06%\xa0" +
-	"\x9e\xb7I\xbe\x01|H\x09\xa8\xa7P\xa0\x86I\xf0\xb4" +
-	"\x12P\xcf\x94\xf2}\x98\x05\xf0mJ@=G\x15\xa8" +
-	"\xe16\xf0\x9dJA=\x97\xde\xa7|\x86\xa0\xe7\x10\xec" +
-	"S\x02\xfa\xf9\xa8\xf2?\x8c\xc5\x1f\x03?\x00^=\xd9" +
-	"\xbb`\xf6\x94r'c\xf1'\xc1\x9f\x05\x9f\\\xe3)" +
-	"\xe83\x92\x1f\x04?\x0c^3\xc5\xbb`\xf6\xbc\xfc\xe1" +
-	"\xc3\xe0\xc7\xc0\xa7L\xf5.\x98\xbd\xac\xc0^\x1c\x05?" +
-	"\x01>\xb5\xd6\xbb`\xf6\x9a\xe4\xc7\xc1O\x83\xd7\xd6y" +
-	"\x17\xccN\xc9\x8e8\x0d~\x0e\xbc\xae\xde\xbb`\xf6\x96" +
-	"\x1c\x97w\xc0?\x04\xaf\xbfD^0\xd3>\x90\x03s" +
-	"\x1e\xfcc\xf0K4\xef~\xd9oP\xbeOU)^" +
-	"\xa3*4\x96\xb1\xec\xad}\xc2\x15\x8a\x85\x99\xdd\xa6\xa7" +
-	"\xf5\x84\xe1\x8ev\xea#\x01g\x09e\x0aaw1\x85" +
-	"OQ\xf0;\x06\x1c\xfbNa\xad\xd7\xc9\x15\xceZ+" +
-	"n\xd9\xb45/3\x8d-Y#Y^\xe6\x1d\x8d\xda" +
-	"k\xc9\x1a0LD\xb8\x810(\xa5\x8f`f\xe6\x02" +
-	"\xe8R\x0f\x0e\xbe\x99\x94\x17\x8b\xd1\xba\x940]\xca\xed" +
-	"5\x87\xb3\x8e(\x92\xb6&\x12Y\x155\xe0\xc5\xf3g" +
-	"\x97E;\x87\xe5<}yD\xb1\xc6v:\xf0:\xd1" +
-	"\xa4\xf4\x89\x0b\x8e\x9b\xed8\xf0\xcbX\xd4\xb6\xfat\xc3" +
-	"*+@k\x83;9\x8e\x10w\x8a\xf2\xed\xccI\x99" +
-	"\x1aH\x18\x08\xc0%\x81}\xed\xad\xb2\x17\xc8\xdbJB" +
-	"T_\xf4\xb6\x9d\xfaH\xab\x92\xf4\x8e\x1du3\xe6\x95" +
-	"*\x19\xe3\x1e=q\x07\x0b\x1b\x81\xf3\xc3\x09f\x87\x11" +
-	"t\xa5?\xd1\xae\x94\x9a7\xc6zC\x14\xb8\xac]O" +
-	"_\x1c\xf3-\x9e\xc9\xd4\xac\xe8\xdd\x9d\xbf\xd4\xfa\xb2z" +
-	"=c\xf1#\x98\xad\xc7U\x85h\xaegt^Q\xe1" +
-	"*\x1c\x07>\xad\xfa\x96\x10F\xe7\x94\xba\x04\x8b'\xf8" +
-	"YpE\xf1\x8c\xce\x19Y\xcdI\xf07\xc1\xe7\x90g" +
-	"t~\xa6\xca\xcb\xa5\xe0\xef\x817)\x9e\xd1yW\xfd" +
-	"5t\x07\xfcc\xf0\x88\xea\x19\x9d\xdf\xa8\xff\xc9X_" +
-	"\x08\xba\x13\x82\xedR=\x9bS\x15\xc2\xcf\x86\xc0\xeb\xc0" +
-	"C!\xcf\xe6L\x09\xa1\x99u\xe0\x0d!\xffj,\\" +
-	"\x82\x19!\xa8\xf8t\xf0\xe6\x90\x7f5\x16&gNH" +
-	"f\x88\x83/\x0c\xf9Wcar\xae\x08\xc1\xd6-\x00" +
-	"_\x06^Y\xe9\x99\x9c\xc5!i{\xc1W\x80WU" +
-	"y&\xe7\xba\x10\\\x8b\xe5\xe01\xf0\xd9!\xcf\xe4\xb4" +
-	"\x86\xe4e\x11\xf0\x1e\xf0\xeaj\xcf\xe4t\x86\xa4\xed\x05" +
-	"\xdf\x00>\xb9\xc239\xb7\xc9zn\x05O\x82\xd7L" +
-	"\xf2L\x8e.\xebI\x82\xa7\xc1\xa7\x84=\x93\x93\x0a\xa1" +
-	";\xd3\xe0\xdb\xc0\xa7Vz&g4\xf4C\xd8^\xf0" +
-	"\x9d\xe0\xb5U\xde\x95\xd6\xfbBo3\x16\xdf\x0d\xbe\x17" +
-	"\xbc\xae\xda\xbb\xd2\xfa\x88\xec\xb7\xbd\xe0\xfb\xc1\xeb'{" +
-	"WZ\x1f\x97\xf5\xec\x07?\x08~I\x0d\xa7\xcb\x18\xd3" +
-	"\x9e\x0e\xc1g:\x08~\x18\\\x9b\xe2]i}>\xf4" +
-	"\x06f\x0f\xf8qp>\xd5\xbb\xd2\xfa\x8a\xe4'\xc0\xcf" +
-	"\x82O\x9b,\xaf\xb4jgd\xff\x9f\x06?\x07~i" +
-	"\x8dw\xa3\xf5-\xd9\xcfo\xcaq\xafP\xa8\xfe\xb2)" +
-	"\x9c\x1a0\xee\x15\xf2BV\x05\xc6\x11|\xfaTN\x8d" +
-	"\x18\xc7\x0a\x99 \x0e\xbe\x12|F\x9dw\xa3\xf5\x86\x0a" +
-	"\x99 \x0e\xde\x01>S\xf1n\xb4\xae\xad\xc0\xf8\xb6\x83" +
-	"\xf7\x83\xcf\xaa\xf5n\xb4\xf6V\xc8\x1b\xaa\xe0\x1b\xc0\x1b" +
-	"\xea\xbc\x1b\xad\xb7U\xa0\x9d\xb7\x82'\xc1\x1b\xeb\xbd\x1b" +
-	"\xadz\x05\x96\xa0\x8d\xe0f\x85B\xd1\x8c\xe1\x8a\x1e\xb8" +
-	"4\xfb\xbe\xb4\xe6\x837\xfe\xee\xd1\xe7J\x82\x06\x97\x0c" +
-	"\xdb\xea\x14\xee\x90\x1dM\xb6\xd9Y\xcb\xcd{\x0e\xc2\x1a" +
-	"\x96\x0fV\xff\xfd\xfem\x97\xdf4v\xc4\x7f0*\x9d" +
-	".\x08~\x1a\x9f\xf6\xd7gN\xfc\xcb\xb9|\xd4\x93\xb9" +
-	"Q\x1ef\x91\xb4\xe4\xa5\xd1\xe8\xd6V7eg\xd2\xca" +
-	"\x90p\x8cD\xf7\xd2\xb6\xf2\x1bS\xc5\xc5\xda\xba\x97\xe4" +
-	"\xcaE\x8a6\xbf#\x19#%\xdbp\xfb\xe6i?~" +
-	"\xa2\xf6\xc0X\xae\x0d\x83~\x96\x8d\xb7\xc0\x0c\xd8N4" +
-	"\xe5=X7v\xc5\xd4\xfa\x0e\xf3\xca\xaa\x17\xf3q\x95" +
-	"\xdc\x115\xb3LMA\x9c\xbf\xdc\x1f\x10\xc3\x1e\x93\xbf" +
-	"\xed\x03?5\xff\xcd\x85@\x99N\xdb\xc80o\xa9\xa8" +
-	"+|e!P\xa0\xdb\x19\xd4Y\xd82\x12TW\xf8" +
-	"NB\xf0G\x1c\xddb\x91L\xdav\\\xaa+|4" +
-	"\xc2/\x81%\xae{dt\x90\xfc\x1c\xa0\xe0q\x98\x9f" +
-	"D\xd5F\xb9\xaf\x02\x10\xda\x90\xff\xb8F\xee7\xb2)" +
-	"\x99\xbf\xc3\"\xa6\x91\x09\xacS\x99l\xaa\xdb\x19\\#" +
-	"H\xe6\xf6d\x8a2P\x92\xbaa\x8e\xc6\xb3)\xf23" +
-	"\x7f2j\xe0\xc1\xbcP>\xee\xb8FI\xc59\xb9\"" +
-	"w,\x8d\x84_\xc7\x9d\"\xec\xc4:K~^\xb7(" +
-	"W j\xdc)\x82\x05\x86\xb2\xa9lf\x95n\x92n" +
-	"%D\x9b\xee8\x91\xd1\xee\xe1r?S\xc8\xd3\x90\x0b" +
-	"q\xe1-\xec\xb4+S\x13\x15k\xb5\xbfI\xe3\x9dP" +
-	"\x88\xc06K\xa1L\x9fp\xb3\x8eU\xae\x8c\xdf\xcfq" +
-	"rEZFFe\xe2\x9e\x84i\xa4tW\xc8\xb8H" +
-	"/9\x9c\xaa+\xacs\xb9\xc0\xc5\xabq5\x8b \x9e" +
-	"\xceG85\xb9m6G\x0c\x1bv6C1}4" +
-	"\x83\x90[\x1d_FfU\xcaM\xd4ui\xdb\xea\x12" +
-	"#\xb5nL\x1f\xcd\x07\x1cI}4\xb3\xdep\x87\xfc" +
-	"8,\xb7'\x82\xe9\xd4\x15w\x1dVt\x04\x03\xea\xa5" +
-	"\xfe\x95&EB\"3\x1c\xa3\xf1\xe2\xbc\xaaO\x0ch" +
-	"\xe2\xfe\xd4\x96\x13;\x18R\xc8\x98\xa2]\x0dQ\xbd\\" +
-	"\xde\xdf\x95\xb1\xf1{\x08j/\x90B\x8cy\xcb\xfbG" +
-	"2\xc4\xfe\x90T\xeaS\x02\xab\xfboe\x84\xfd1J" +
-	"O\x97!\x85\xff\xc5\x8ai\xd2\xd3\xe5\xf0t\x9bdH" +
-	"\xa1x\xab{\xa3\xf4\xc8\x1b\xc0\x97\xcb\x90B\xf5V\xf7" +
-	"k\xa4\x87\xbd,\x1f\x82T\x84\xbc\xd5\xbdS\x91\xd78" +
-	"\xf2\xa1\xc6$\xc5[\xde\x85\xe4\x85P#\xacz\xcb{" +
-	"J\xf9vQ\xa8Q\x19\xf2\x96\xf7QE^\xd7\x00\xdf" +
-	"!#\x8a\x0aoy\xbfG\x96\xdf\x01\xfe\x98\x8c(&" +
-	"y\xcb\xfbw\xa5g\xffX>r\x98\x1c\xf6\x96\xf7\xe7" +
-	"\x95\x1f\xe6\"\x07\x19\x09\xd4Tz\xcb\xfb)e\x15\x96" +
-	"/\xf0\xf7dDQ\xe5-\xef\xef\xca\x90KF\x02!" +
-	"x-S+8\xd5\x12i\xa4\xde\x14\xf0\xf8\xebk\xab" +
-	"\xbd\xd5\xbdJ\xc5kU\x827\x83\xd7M\xf6V\xf79" +
-	"\x927\x81\xaf@\x84\x90K\xdb\xa0T\xeb\xb0n\x98\xfa" +
-	"\xa6\xb0)\xba\x82s!k\x8a\x1e\x9d\xd5\xfa\xe1\xf3\xf2" +
-	"y\xee}\xbf\x10\xff\xf4r^9lkXz\xbe\xea" +
-	"\xf8\xedo\x99\xb6:.{<i\x0c\x0cd3\x86\xcd" +
-	"\xa2VQjv>o\xd3\xc8\xa4\x85\x93)[cN" +
-	"F\xb6\xf7\xec\xb8s\x99\xe1L\x87\xd0\x13C\x06y\xa9" +
-	"4\x81\xcd~Srk\x90Z\xddUXHt\xd5\x19" +
-	"\x0dl\xa8v\xc5D\xda\xce\xb0\x88Q\xbcf%\xbc\xe3" +
-	"\x04\x12k\xbc\xbc\x04\xb5\xcc\xd1\xa3\xed\x08O\xc3n\x11" +
-	"\xa6\x9d0\\\x1a\x1d\xdf\xaaOs\x14w7\x96\x8c\xae" +
-	"\xee\xa5\xe5N\xe8\xba\xba\x97\xea\x8c\xb6\x8c;<\x98\xe0" +
-	"\xb0G\x1e\x08\x1b\x19\x92\x9de[\xe3\x8f\xaf\x84\x93\xb0" +
-	"M\xcfC\x90\xc9\xeb\xa5\x05>\xd1\xeb\x97\x89\x87\xe3t" +
-	"\x7f\x81\x1a\xa2*\xa9\xfbU\x04\x1f\xbb\x0e\xda\xdc\x10\xd8" +
-	"\xee\x9b!\x95|:psp\xbbo\x0eA\x19\x9a\xc1" +
-	"\x17\x05\xb7\xfb\xae$(\xd5\"\xf0\x15\xc1\xed\xbe\xebH" +
-	"\xee?\x80\xc7\xe4v\x1f\xf7\x94\xbfU\xf2\x95\xe0\x1d\xa4" +
-	"\x10\xf9_\xabY+w\x07\xdb\x81\x93\x14\xf8Z\x8dN" +
-	"p\xd9\x92\xe0i\x0a|\xad&E?e,\xee\x82o" +
-	"'\xdf%\x87\xee\xdf%\x9b\xbf\x0d|'AyR\xed" +
-	"\xa3IG\xcf*\xa6\x91h\xb3\xadd\xd6?\\\xee\xab" +
-	"-$\x8d3\xff\xf2FL\xa4\x99:A\x84+{\xb3" +
-	"\xe4(\xd5\x12\x83\xf2x\x9fbb\xd0\x11\xc2K\x8f\xce" +
-	"\x87\xacCz\xb9\xe8<\x83\x85\x82Q!/\xd8\xd4S" +
-	"\x9b\x92z\x9f`\xe1d\x99\xa3'?&\xa5\xac#\xcf" +
-	"\x06\x9d\xda\xa2\xd8uH\xbe\x9ai(\xc5\xaf\xe6\x9db" +
-	"\xe5\x8f\x98\xdc~9\x07\x99*\xd2\xbf\xe7\x0aR\xc8\x12" +
-	"\xcb\xcf#\xd5\x95;b\x1d\xf9\x08\xb1BA\xacP\x09" +
-	"\xa3\xc7\x15\x85H\xf5\xa6Q\xbd\xdc\x1e\xaa\x03n\x90\xbb" +
-	"\x1fXC\x88\xb4\x19\xd26O\x07o\xce\xad-\xaa\xdc" +
-	"\xddB\x08\xd1\x0c\xbeH\xf1#GL\xa3+%/l" +
-	"o\x85*\xbdit\x9d\\[\x0a\xdb[\x15U\xde<" +
-	"jUv\x15moM\xf2C\xc4N\xb9\x0b$\xb7\xb7" +
-	"L\xb9\x86\xf8!\xa2!\xd7\x96\xa1\xfcZQ\xe9\x87\x88" +
-	"\xf7(\x97\xe4\xb6\xab\xf6\xca5\xc4\x0f\x11\x1f\x91\xef\xb5" +
-	"\x07\xfc\xa0\\C\xfc\x10\xf1iY\xcf\x81\xfc.\xd3d" +
-	"?D|Y\xd6s\x04\xfc\xac\\C\xfc\x10\xf1\x8c\\" +
-	"[\xce\x82_\x90kH\xb5\xb7\x86|$\xdf\xf7\x82\xec" +
-	"N\xb9\x86\xa8^\x88X\x8f5$^\x87E\xa1A." +
-	"\"\x93\xbdEd\x86\x8a\xf7m\x00_.\x17\x91\x1ao" +
-	"\x11\xb9F\x85\xde,\x07\xefW\x0b\x9f=\xd2zU\xb4" +
-	"\xbf\x07\xdc\x94\xdbO\xb6a\xc6\xb3\xce\x00\xe9\x09!\xc7" +
-	";\xea\x0d\xf8\xc4\xeb\xcb\x15g\x16\\\xa24\x1e=\x9f" +
-	"[_\x92z*mX\x83kXD\xee\xca\xfa\xc9\xad" +
-	"\xdf~\x14\xff{W&\xb7\xe6\x9c}%e\xdd\xe2z" +
-	"a\x8a\x97@Fu\x85o\x86\x95\x04\x06\xb2\xec*\xdb" +
-	"us\xc9fe\xcaZ2W\xad{\x80Ee\x91L" +
-	"\xe0\x88.\x9f\xc6\xe6I\x8a\x8e\xef\xa4\xa5\xb7)\x97\xdd" +
-	"\x1e\xb62eS.\x8a\xe3\x8f\xe2\x024<n\x01\xb1" +
-	"\xcdlJt\xea\xac\xd6u\x8c\x91\x89\xa4\x04a\xb7\x99" +
-	"\x1cW\xdf\xa6q\xe6]G\xd1\x1e\x87\xe4\xd1h\xcc\xd0" +
-	"#\x83\xb6\xa5\x9b\xe5\x8b\xc5\x85\x92\xc8\xca\xd4\xb2\x98\xa1" +
-	"\xcbr\xe3\x96\x8b!\xa1\xbbkL{+\x0b\x04\x1a`" +
-	"0\x1c\x94\xb3\x1c\xac\xeccEE\xbc\x04\xaar\xa5\xf4" +
-	"\xb4\xcej\x13e\xf2\x82>\x95\xad\xc9\xdd6(\xfd\xc0" +
-	"Z\x88\xd4\x10\xad\x94\x96fJ\x18*_\x13\x86\xfb\x19" +
-	"V\xa8>\xea\xafX\xd3\xc20)\x1c\xbc)\xac\x10}" +
-	"\xc1[\xb0\x1a\xc3\xd0\xa4&\xe0\x85a\x85\xea\xfc\xad\xa8" +
-	"+\xc2r/\x07x\x19j\xb9\xc1\xdf\x8aZ\x1c\x86\x13" +
-	"\xb8\x0c|%\xf8\x0a\x7f+\xea\x860\x16\xa6\x15\xe0\xed" +
-	"\xe0T\xe3\x19\x9a\xd5\xb251\xf0\x1epe\x8aoh" +
-	"\xc2\xf2\xbbe\xe0\x1b\xc2\xfez\x08Cs\x9b\xac\x7f\x03" +
-	"\xf8P\xd8\xdf_\x87\xa1\x11\xe1W\x19\x8b\x9b\xe0#a" +
-	"\x7f\x7f\x1d\x86&\x1b\x86\xc1\x1a\x01\xdf\x11\xf6\x0d\x19\x0c" +
-	"\xcd=\xf2w\xb7\x83\xef\x0b\xfb\x0b\"\x0c\xcd\xa3\xb2\x17" +
-	"\xf6\x82\xef\x0f\xfb\xce0\x0c\xcd\xe3\xf2w\xf7\x83\x1f\x09" +
-	"\xfb\xce0\x0c\xcd\x0b\xb2\x9e\xc3\xe0\xa7\xc3\xbe3\x0cC" +
-	"sJ\xb6\xff4\xf8\x87a\xdf\x19\x86\xa1\xf9@\xf6\xc3" +
-	"y\xf0\x9aJ\xdf\x19\x86\xa1\xa9\xaa\xc4\xfa_S\xa9R" +
-	"|A\xa5\xef\x0c\xc3\xd0\xb4T\xa2=\xcd\xe0++\x03" +
-	"{Q7T\xe2\xbdV\x82wT\xfa\xde0\x87\x03 " +
-	"\xeb\xe9\x00\x1f\x02\xaf\xab\xf2\xf6\xa2\x84\xe4C\xe0.x" +
-	"}\xb5\xb7\x17\xb5\xa5\x12\xedt\xc1\xb7\x83_2\xd9\xdb" +
-	"\x8b\xba\xab\x12\x86o;\xf8npm\xaa\xb7\x17u\xbf" +
-	",\xbf\x1b|/8\x9f\xec\xedE=\"\xf9^\xf0g" +
-	"\xc1\xa7\xd5x{Q\xcfT\xc2\xc18\x04~\x14\xfc\xd2" +
-	")\xde^\xd4\x8b\x95\x98?G\xc0\x8f\x83_6\xd5\xdb" +
-	"\x8bzE\xf2c\xe0'\xc1\xa7\xd7z_W{\xbd\x12" +
-	"\x0e\xc9\x09\xf0\xb3\xe03j\xbc\xbd\xa83\x95rK\x14" +
-	"\xfc<\xf8\xcc:o/\xea}\xd9o\xef\x81_\x00\x9f" +
-	"U\xef\xedE}$\xeb\xf9\xb0R\xa5\xbe*\x85\xea\x1b" +
-	"\xa6x[Q\xbf\xad\xc40~\x8c\xe2\xd3\xc1\x1b/\xf1" +
-	"\xb6\xa2\xa6U\xe1\xb5\xa6Wa\x9d\x05\x9f\xadq\x9a\x87" +
-	"u\xb6J\x06\x17\xe0\x0b\xc1#\xb5\xde\xc7\xd5\xae\xa8B" +
-	"\xb7-\x04_\x0e\xde\xc4\xbd\x8f\xab]S\x85\xe1Z\x0e" +
-	"\x1e\x03\x9f3\xcd\xfb\xb8Z\xab,\x1f\x03\xef\x01\x9f{" +
-	"\xa9\xf7q\xb5N\xc9{\xc07\x80\xcf\xbb\xcc\xfb\xb8\xda" +
-	"m\xb2\x9e\x0d\xe0C\xe0\xcd\xd3\xbd\x8f\xab\x89*9\xbc" +
-	"\xe0.x\xcb\x0c\xef\xe3j[\xaa\xf0^i\xf0m\xe0" +
-	"\xf3\xa7z\x1fW\x1b\xad\x92[\x99\xe0{\xc1/\x9f\xe9" +
-	"}\\\xed\x91*\xa8\xd1>\xf0'\xc1\x17\xd4z\x1fW" +
-	"{B\xbe\xef~\xf0#\xe0W\xcc\x92_W\xd3^\x90" +
-	"\xfc0\xf81\xf0\xcf4p\xba\x9aH{\xb9\xeam\xc6" +
-	"\xe2\xc7\xc1O\x83\x7f\xb6Q~\\M;%\xfb\xf34" +
-	"\xf89\xf0\x85u\xde\xb7\xd5\xde\xaa\xc24y\x07<T" +
-	"\xadP\xfd\x95\xf5\xde\xb7\xd5\xa8\xfa\x7f\xe0\x16U\xa3\xff" +
-	"\xc1\xaf\xba\x84\xd3R\xf4\x7f5\xa6I\x13\xf8\x0a\xf0\xab" +
-	"g\xcbo\xabi\xd7U\xa3\xfe\x15\xe0\xed\xe0\x8b\"\xde" +
-	"\xa7\xd5VW\xa3\xdf\xda\xc1\xfb\xc1\x17k\x9c>\x87u" +
-	"\xbc\x1a\xfd\xd3\x03n\x82/i\xe2t-\xfc\x19Y\xde" +
-	"\x04\x1f\x01_:\xc7\xfb\xb4ZV\xd6?\x02\xbe\x03|" +
-	"\xd9\\\xef\xd3j\xf7Tc\xbam\x07\xdf\x0d~\xcd<" +
-	"N\xd7C]d\xf9\xdd\xe0{\xc1?\xd7\xec}Z\xed" +
-	"\x11Y\xff^\xf0\xfd\xe0\xd7\xb6x\x9fV{\xbc\x1a\xd3" +
-	"\xf31\xf0\x03\xe0\xcb\xe7{\x9fV{\xaa\x1a\xe6\xe7\x00" +
-	"\xf8!\xf0\xeb\xb8\xf7m\xb5\xe7\xe4\xef>\x0b~\x02\xfc" +
-	"\xfa\xcb\xbdo\xab\xbdV\x8d\xf9s\x02\xfc,\xf8\xe7\xa7" +
-	"y\xdfV;S\x8d\xb0\xe14\xf8\x87\xd5\xb9\xdb\xd6m" +
-	"v\x8aE\xd3\xb6\x85H\xad\xae\xf0\x0d\xd7\x9c+a\xd9" +
-	"[\xdb\xecT\x9aEr%\xf2_\x9c\xf5K\x8c\xc4[" +
-	"\xe5\x05U%\xa1\x9b\xc1E\x88M\xec\xfd\xfc\xe4\xd6_" +
-	"ORg\x8d\xe57\x19\x87\xb7\xae7\xacd<MB" +
-	"$\xe5E\x13r\x03\xfb\xa9\x9e\x8c\x85E ;\xee\xff" +
-	"\xc9k\xf1\xaeV\xaf\x1e&\xef\x1a\\QntN\xa6" +
-	"\x14\xa5\x0f\x97\xa6[]\xecj\xb6\xee\xed+\x98,*" +
-	"\xbc\xe3\xb4\xd2m\x02=m\x98\xa6\xee\xb0\xc8h\x9f\x91" +
-	")\xf8\x869N\x12\xf7\xc9S\xc3\x89\x1e\x8d\x8e^\xb4" +
-	"j\xf2\xc4\xd7.\x1a\xef\x83\xe4\xee\xfey\xe9\x84\xe5\x84" +
-	"\xae\xa3S\xee\xb5\xcb\xecI\x0c\xc8K\x7fz\x1a\x1ej" +
-	"\x19\xffd\xc0\xcc\x8e\xb4\xba\x1d6m\x15\x8e\xdcx\x08" +
-	"\xeb\x81\x8d\x87AG\x1f6\\/\x10\xd7\xcd\xf5\xba[" +
-	"f\x83\xc1\xbf\x11'(ax7^\xd4\xe2\xdbp\xf9" +
-	"]\xf1\xd6\xa4w\x1b\xae\x9c,fd\x12C\xb5\xba\x13" +
-	"H\x10\x0e\x8a\xbd{\xab\x85\x19\xf1i\x9c\xb7O\x13\x1e" +
-	"\x1a\xfe\x89/+>\x0b\xc8]f+\xc1\xc3\x09\xef\xfa" +
-	"\x1cS\xf3\x9e~\xe0\x1a[\xd4\x0bfK\xdb\x91\x0fq" +
-	"#\xc9lB$/\xfe\x95\x02\x13S\xbf\x7f\xc8`\xd1" +
-	"\xc4\x1d\x96(s\x0b\xcf\x8b\x07\xfai\xc8\xf0\x0a\x04\x93" +
-	"\xc0S\x13\xed-\x95J:jQIA\xf5\xe4\xf1\xac" +
-	"\xe1\x94?\x04N\xa7:\xf5\x91\x1e\xe1\x90\xdc\x91\x91\x17" +
-	"w\x8ar\xbf\xb7\xc2'n5\xc8){v=\xbc\xb5" +
-	"\xd3\xb0&\xac{8\xd1%/K\x95\x9d:\xc3[\xbb" +
-	"\x84\xdb\xa7'Y\xd4(\xb9\x81/\x9c\x94n\x09\x8b\xdc" +
-	"\xf5\x86)\x93\xbc{lc|\xc6\xe8p\xa2\x07\x83h" +
-	")\xae>(\xe2~\x12\xba\x13\xc8\xfd\xfc4\x1bM\xc3" +
-	"[\xe5]\xae4\xe5\xeer\xfd>\x97 \x8eL_\xc9" +
-	"X\xfe\x1e\x04\xb5gSF\xb2\xf8\xdc\xdb\xcb\xff\xd1M" +
-	"\xa5\xa4\x8er\x8a\x9c\x919\xf6\xaeP\x92\xed\xfe\xd4\xf6" +
-	"gv\xd4\x9b\xda\xe5\xc2\xb8\xc0\x11\xd1\x04R\x820\xe1" +
-	"\x18\xc1[\x19E\xb2\xb2\xf9\xfc=\xb6#X\xf4\x16\x19" +
-	"\xd8\x8d\xefw\xf9\xcd\x0e\x97\xf4>/\xad<\x9cO\xc6" +
-	"\x95\x87/\xce\x80\x9e\x10}dg\x07\x87JfpN" +
-	"\xc6\"Y\xab;p[2\x93M!J\xd7)!\xfa" +
-	"\xa4d\xfc3\xeb\x09\x06t\xdc\xbd\xd3\xb2\xdb?r\xfb" +
-	"q=\xec\xb5\xd3'R\xf6\xb0N\xe6\xff[\xc6tq" +
-	"6t.\x91d\x8d\x99e42Q\x1cXy\xb18" +
-	"\x10\xb1\x7f\xca\xf2\xb2\xb0\xe4G\x07D\xb2\x0b\xfa\x93N" +
-	"\x9b\x86\xf7\xe1\x8f\x1e]\xae\xc5=D\xbd\x0d\xf9\xbc\xac" +
-	"\xe7f2\xd6{P\xa5\xde\xc3\x0a\xe5\xd2\xb2\x9ew\x18" +
-	"\xeb=\xa4R\xefQ\xff\xacBa\xac\xfe\xc5M\x8c\xf5" +
-	"\x1eQ\xa9\xf7\xb8\x7fP\xa12V\xff\x0aJ\x1eS\xa9" +
-	"\xf7\xa4\x7fJ\x11b\xac\xfe\xf5W\x19\xeb=\xadR\xef" +
-	"9\xff\x88\xa2\x82\xb1\xfa\xb7\x00\xdfQ\xa9\xf7C\x84d" +
-	"\xde\xdee\xfd\x07\xbb\x18\xeb\xfdP\xa5>RH\x1dH" +
-	"S\xdd\xd8[\xd3*\xae\xd3\xbf\xf2\xaf\x1f\xe7]\x11=" +
-	"\x956\x0dk\x90\x95\xf9\xecCW\xbf\xee\xb0\xf0\xa0p" +
-	"\xc7\xd3\xc8\xa0p\x97\x16\xee\x1d\x0e\xf8\xe7\x81\x8ap\x8a" +
-	"\xbb$x}=PF\x1f)_\xc6\xb5\xd31y\x9e" +
-	"$\xf3\x96M}\xf4\xf7I&\x89\xfb\xa7\xaa\x96\x91\x90" +
-	"\xb1z\xd4\x0b\xd61\x1c\xfb\xd5\x10-\x90\xa1zJ&" +
-	".\x98!x\xa1!x\xe9~\xa8\x9e\x0d\xc1\xbb\x1b\x01" +
-	"\xdf\x11\xf2\xce\x9b\x10\xaa\xdf#\xf3+\xb6\x03\xef\x0e\x05" +
-	"6\x05\xef\x97y\x0e\x85\xfc\x84\xdc\xa6\xe0#2\xdf\xa0" +
-	"\x90\x9f\xa0\x92\x17\xab?.\xf3\x1f\x0a\xf9\x09!\xc5\x8b" +
-	"\xd5\x9f\x96\xf5\x14\xf2\x13*\xc8\x8b\xd5\x9f\x97\xf5\x1c\x06" +
-	"?\x1d\xf2\x0f\x9c\x10\xab\x9f\x92\xcd\x94y\x08\x1f\x86\xfc" +
-	"\x03'\xc4\xea\x1f\xc8\xbc\x88\x0fe\x9eI\x85\x1fc#" +
-	"V\x9f\"\xf3\x01j*\x10\x03W\xf816b\xf5\x16" +
-	"\x99WP\xc8C@\x8c]#\xf3\x10\xe0,\xaf\x00\xbf" +
-	"\xb5\xc2\x8f\xb1\x11\xab\xaf\x93\xf5\xf4\x83\xa7+\xfc\x18\x1b" +
-	"\xb1zJ\xd6c\x82\xef\xac\xf0cl\xc4\xea\xf7\xc9z" +
-	"v\x80?\x06>\xd5?Y\xfan\xc5M\x08\x86\xc0\x0f" +
-	"\x81\xd7\xfa\xdfB\x7f\xaeB~\xc2\x1c\xfch\x85\x7f\xe2" +
-	"\x84X\xfdEY\xff\x11\xf0\xe3\xe0\xf55^\xac\xfeJ" +
-	"\x05\x9c\xf7\xe3\xe0\xef\x80_\x12\xf2b\xf5_\xc8\xbc\x88" +
-	"s\xe0\xe7\xc1\xb5\x0a/V\x7f_\xe6?\xbc\x07~\x01" +
-	"\x9cO\xf2b\xf5\x8f*\xe4\x97>\xc1C\x93\x10c\x87" +
-	"\xbdX\x9d&\xa1\x9fC\x93\xd0\x9f\xe0\x97Vz\xb1\xfa" +
-	"\x94I2o\x07\xbc\x01\xfc\xb2*/V\x9f1\x09\xe3" +
-	"\xdb\x00\xbe\x00|\xfa\x14/Vo\x91\xe5\x17\x80\xc7\xc0" +
-	"gT{\xb1z\xeb$\x04+1\xf0\x1e\xf0\x99\x93\xbd" +
-	"X\xbds\x12\xda\xd9\x01~+\xf8,?od\x9d," +
-	"\x7f+\xb8\x0b\xdeP\xeb\xc5\xea[&\xc9Tg\xf0\xdd" +
-	"\xe0\x8d~\xac~\xbf\xe4;\xc1\xf7\x83\xcf\xf6c\xf5\xc7" +
-	"'\xc9<\x19\xf0#\xe0\x91K\xbc`\xfd\x05Y\xfe0" +
-	"\xf8i\xf0&\xcd\x0b\xd6OI~\x12\xfc<\xf8\x1c\xee" +
-	"\x05\xeb\xefK\xfe\x1exe\x18A\xf64/X\xaf\x90" +
-	"{X\xa1\xdc\x8eW\xfd\xbc\x1a/Xo\x0c\x7f;\xb8" +
-	"\xe5U\xdf<\xc5\x0b\xd6\xaf\x08\xa3=\x0b\xc1\x97\x83\xb7" +
-	"L\xf5\x82\xf5k\xe4\x1ePa\xcfk~\xad\x17\xac\xdf" +
-	" \xf7\x8cV\x82w\x84\x158\x83\x09\xdbI\xdb\xf9%" +
-	"!w\xce\xed\x9db\x09\x8b\x0c\xd71\x06\x8cDI>" +
-	"\xc9\xb8\xe0\xe9\xab\xff\xfa\x83\x19\xbb\xa3\xbf\xfa\x9bB\xd2" +
-	"\xca\xc5\xf6i\xf3W\x96}s\xe3\x17)\xc4Dp\xa6" +
-	"\xbb\x9dA\x92\xb6Hw\xa5g\x9ek\x9a\xe1\xe7%\x90" +
-	"m\xb5\xa6\xecl\xd1\x95K=\xe1\xb6\xa6R\xb6\xa5\x18" +
-	"z\xf7\x88\x91\xd4\xdd\x89\\\x1f=\xe1v\xe1\xd5h\xc0" +
-	"7\xa2\xb5\xc1\xdb\xaf\x81R1a\x19.y}\xe0\x1a" +
-	"Q\xaf\xbaq\xe5\xec\xd4\x1a]~(\xc4t\xf5x6" +
-	"\xc5&(\xb0\x96\xd5Z\xe9\xac;\x814\xce\xd4\xf1\xb7" +
-	"\xd8t;\x157e\xf2\xe1\xc4U\xa3\xc0\xc4UCZ" +
-	"\xb6\xea\xc4*\xdd\xd4\xad\x84\xccH/=\xeb\x15\x09;" +
-	"\x95\xb63\xd2\x8b\x08\xdc7.\xfa\xc2\xcb\xf8o\xb9\x18" +
-	"\x96p\xdc\xb8mPn\x1d\xa1\xb6\xd2\x9a\xad%\xb6\xfc" +
-	"8\x00\x0b\x07\xe3\x85<\x8d&D\xb2+\xe0t\xe4\x04" +
-	"\x94\x10I9\x14\xc5\xdf\x1bX\x9d\xb03\xa3$/S" +
-	"\x8c \xc4\xb2\x02\xeeQ\x91\xb8\xdc\xc7L,\xe1\xc2\x01" +
-	"\x11\xe4\xe8\xa6\xbc\xa4\xa5^L8\xc1\xd0{\x17\xe8\xda" +
-	"\x97\xd2-2\x820\x8dp&\xf8^CK%gQ" +
-	"\x99\x0b\x14\xb8\xfe\x94\xda\xd4\xd6\xbdd\xf50\xd9\xa6\xbc" +
-	"0\xdb\x17.Sw&\xb5IN+V\x8b\xc1/#" +
-	"\x953\xa3\xbc\xf4\xf7\xb8\x81*3\xa9j-#\xd16" +
-	"^\x9a\xbaX\x03.:\xa93\xfe\xc4\x9d\xe0\xd9l\xaa" +
-	"X\xb3\xd4\xe2\xfb\x84]\xe8~2d\xe3\x8dL\xc9\xec" +
-	"\x83|Iw\x8f\xc3\xa2vq\xd8\x09A\xfb\xd2[l" +
-	"\xf2\x86\"#(9\xce\xfd\x99\xf0\xf2L_\xd6\x92G" +
-	"\xfa\xb59\xa7'\x94\xf7A\xa7|\x91\xb1\xde\x1a\x95z" +
-	"\xa7+~EqWg\xaa\xbc\xa9\x91\xff\xd7\x8b|\xcb" +
-	"\xf7\x89\xbf\xd3\xa9\x8fn\x12\xabl\x9b\xcc\x92\x1fY\xc2" +
-	"Xo\xa5J\xbd\\\xc9\xdd/(\xbd\xe6\x10\xba\x98\xeb" +
-	"\x06#\x1au\xf2.\xdb\x0a\xafb\"\xed\x11\xc2Z\xb0" +
-	"\x87\xe0KP\xe1r\x83\xf6]yMf\x1f\xf8\x93\xa4" +
-	"P.\x1d\xe0\x09y\x8c\xbf\x1f\xf8\x08\x15\\i\xed\x05" +
-	"Z\x05\x17\x03\xfc(\x15\xbci\xedE\xc9\x0b\xb7p|" +
-	"\x87Z{Y\xf2#\xe0\xc7\xa9\xe0Sk\xafH\x9e\xbf" +
-	"\x9dS\x1f\xf6\xf3\x01^\x93\xa9I\xc7\xc1O\xcbs\xff" +
-	"0\xa7J\"\xed\x94,_\xb8\xb6SU\xc9\xa9\x8aH" +
-	";#\xf9I\xf07\xc1\xab\xab8U\x13i?\x93\xfc" +
-	"4\xf89Rh\xf1\xe4\xed\x8aw\xff\xe7-\x99@\xf0" +
-	"&\x04\xef\xe1\x81\x1a\xf2|\xb6w\xb1R\xc7\xcf\x81\x9f" +
-	"'\xff\xdf\xa9\x99B\xa4\xbd/\xfb-\x9fB%\xff\x9d" +
-	"\x1ay\x90+\xaf/\xe5r\xa8\xc6ok\x04\x8fI\x9f" +
-	"\xcf\x1f\x93\xae\xc72\x14A\x00U\xd8\xa1\x19\xb6[\xbb" +
-	";{l\x9b\x91YHj\xcb\xff\xe3I^R\xdb\xdd" +
-	"\xbe\"\xe5\x1e\xba\xdbW\xbb\xc2\x7f{v \xf8\xdfA" +
-	"\xb9w\xee\xaa;\x9bX\xad\x9e2\x92\x81j\x0c\xb3\xab" +
-	"}\x99\xdf\xda+\xdb\x1a\xfe\xef\xdb\x9f\x9b\x89\xd6\xfa\xa9" +
-	"0~\xfe\xfb\xd8\xc7O}\xf0F\xe7\xa6\x9e\x80d\xe9" +
-	"\xf8g\xe4\x8f\xacq\xec;\x99*\xf2ND8\x93\x86" +
-	"k\xf0__\xf8\xd1\xa1\x93\xd7\xceyv\\vgT" +
-	"\x9e\x0a\xfa\xb5\x1d9\x11\xf5\xab)>\x9d\xfd\xd4\xea\x8b" +
-	"\x9et\xec\xb4\x888\xae!d\x0c\xd9\x9f\xcfd\xb8A" +
-	"\xa6u\x15R\x0ar\x1a\xd0*\xf9\x0a\xf0\xf6\\j\x02" +
-	"T`\xb5<\xaao\x07\xefW\xfclt\xa8@\xaf\xe4" +
-	"\xfd\xe0\x1b\x15?\x1b\x1d*p\xbb\xe4\x1b\xf3)\x08\x15" +
-	"\xfe\x0d\x1bCr\x13|D\xf1S_\xa0\x02Y\x99R" +
-	"\xe0\x82oW\xfc\x93>\xa8\xc0]\x92\x07n\xd2Tz" +
-	"*p\x9f\xacg'\xf8\x1e\xc5\xcfF\x87\x0a<,\xf9" +
-	"\x9eB\xda\x9b\x7f\xc1\xe6\xbb\xf2\xa6N\xe1\x82\xcd\xe4\xfc" +
-	"\x05\x9b\xef\xe7R\x19\x0e\xc9\x94\x85\x1aN5D\xdas" +
-	"2\xe5\xe2Y\xf0#2ea\x8a\xa7\x01/H^\xb8" +
-	"`3u9\xa7\xa9D\xda\xcb\xb2\x9ec\xe0'\xe5E" +
-	"\x1a\xff\x82\xcd\xeb2\x15\xe3$\xf8\x9b\xf2\"\x8d\x7f\xc1" +
-	"\xe6g25D\xa6D\xbc#/\xd2\xf8\x17l~!" +
-	"S.\xce\x81\x9f\x97\xa9$\xfe\x05\x9b\xf7%\x7f/\x97" +
-	"B\xb1X{H\xe5\xa4\x11i\x1f\xc9\x8a>TT\xea" +
-	"S\x15Z\xcc\x1fV9\x86R\xfb\xad\xb2+\x90\x87w" +
-	"\xb7^\xa22z\xb1\xca\xe4\x9d*E$\xb0\xa6\xbbv" +
-	"\xbcs\x15\x00\xbbh\x09TQTB\xae\x8d\x17\xadc" +
-	"\\\x89qu\xf8\xce]\xc2O\xa9+}\xb6\xac$\xd7" +
-	"2)\x89\xbb\xba\x95\xd4\x9dd\xf1\x9d\xb9\xc2OO\\" +
-	"(\xad;nkwg\x9cL{\xabl\\m\xb0\xd3" +
-	"\xca\x88\x8b\xfa0a\xc9\xcf\x91\xb4\xb2hwg\xe19" +
-	"\xff+\x9d\x01Y\xe1!\xff\xbe\xb9\xffiHr\xfc-" +
-	"\x0c/\xb2\xc8\xbb\xfev*\xe6\x8cv\xea\xe4\xba\xc2i" +
-	"\xb3-7\x1c\xfc\xc4\x81n\xa7\xba\xda\x97\xb5\xd9\xcc\xf7" +
-	"fJ;\xc5w6J{\xb1\x04O\x14\xf4X\xb6\xe7" +
-	"\xc4\x91i\xdc\x99\xdbY!\xa6T\x14\xad\xc1\x15\x9fr" +
-	"\x8f\xcb\xbb\x89\x93\xff\x07\xff\xea\xe9\xd7c\xb9]/\xa5" +
-	"\xec\xb6W\xef\xca\xbc\xbdzFf\xe4=\x9b_\x82s" +
-	"\xf6\xea\x05\xc9\x0bK\xaaR\xe9\xd9\xabWd\xa6^a" +
-	"\xe9\xcc\xd9\xabS\xb2|~)\xcc\xdb\xab\xb7\xe4\xca_" +
-	"X\x09s\xf6\xea]z\x95\xb1\xf8y\xf0\x8f)`\xaf" +
-	"~#S\xf8.\x80\x87\xf2\xf6\x8aH#yA.\x9f" +
-	"!\xe6\xd9+\x99\"\xf6RQ\xdap\x95\x7fa\xb7Q" +
-	"\xaa\xafL\x1b^\xa0x\x17sa\xaeZd\xa2Y\xfe" +
-	"\xfe\xa3\xfc\x87\xe5&\xcb\x0b\x90\xdf\xcee\x13\xafT\x02" +
-	"\x0b\xf6\x0d2\xcb\xb8`\xb6\xa7(\xfe?8W0\xdb" +
-	"I\xc5\xdf4\xc1\x82\xadK^\xc82\xae\xf53\xafR" +
-	"\xca\xf5\xc1\x0c1\xf8\xccr\xc3\x95\xbc\xb3\xb2\xb8\x1b\xb1" +
-	"K\xbe\xea\xe2}\x9d\x92D\xda\xfb\x10`\xa9<\x15\xbc" +
-	"\xa9\xd1\xafoRM\x11\x88z\xd7\xc8\xd3(\xea\xb0\xbd" +
-	"\xd3\xa8\x88L\xeb)<\xbcE~\x92v\x1d\x8b\xa4\x8b" +
-	">\xc51\xec\xca\xaf\xbfd\x15\xb9\x15\x1cH\xdcc\xc1" +
-	"\x8f\xa1\xca\x0bj\x82\x15}7&\x9d\xe9\xd4G:\x0d" +
-	"K\x11\xb9\x18\xc6\xb6\xbc\xc3\x13V\xe4\xa3\x9c\x91+\xf8" +
-	"\xc4Qy\xfeW\x06\xfa\xe5\xf6\"\x8bd2\xc1\x9bl" +
-	"9N\x12\xf7\xe8N\xd4\xfb\x00t\x99\xdd\xd2\xe2\xa21" +
-	"a\xaa\xfah\xbe\x87\x12\xfe}\x0b\x86n\x1b\x7f\xe1\"" +
-	"Y^{2\xac\xe0:\xe5\xb5-\xf7\xf9\xacT\xfes" +
-	"\xc6\xb9\x03\xe0\xe2\xd3\xa3\xa8\xe9\x1d\xd4\xe6k\x08&\xa2" +
-	"\x05w\xb6\xd5\x89\xb4>\xba\xb6-\xa6\xbb:\xfc\x8d\x1a" +
-	"5T36&}\xf9\xd5\xd73\xd6\xbbR\xa5\xde\x0e" +
-	"\x85\x1a\xe9wc\xfe\xbe\xf5Z\xe0\x98J\xbd=\x0a5" +
-	"*\xbf\x1d\xf3w\xae;?\xc3Xo\xbbJ\xbd\xfd\x0a" +
-	"E-[^\xdf\x9e\x14\x1d\x92\x1f7,|\x97Q/" +
-	"\x84\xc5\xff\x7f\x00\x00\x00\xff\xffN\xde\xadw"
+	"{n\xb1H\xb9|eh\xf1\x94\xf0\xa5L\xe9\xa3\x8a" +
+	"Ic\xb3_\xfa\xbfw\x1d\xe8o\xbc\x87\xf56\xd1\xbe" +
+	"\xb1\xeb\x84\xfb'/\xdd\xf8\xeb?f\x15K\xc2\x8c-" +
+	"}\xb7\xfa^\xd2~[\x8d?\x7fS}\xedRF\xff" +
+	"p\xd7\xb6\xe8+\x83\xf7=\xd0\xdbDJ\xa0\xf0d\x94" +
+	"\x98qs\x1fiW\xde\x8c?\xaf\xb8\xf9?\x14Fc" +
+	"\xe2\x9f\xbfb\xffX}{/\xeb]L\xca\xd8\xdf|" +
+	"\xf3\x8do\xec\xf9\xd6-\x7f\xc5B(\x92\xeaz\x9b\xb4" +
+	"\xfb\xbb\xc2\x8ci\xf7ume4\xf6\xda\xe6\xcfO~" +
+	"\x9d~\xba\x1f\x0d\xe1\x85\xbae\xe1\xb7\xba\xee%\xed#" +
+	"\x14^\xfaA\xd7`\x88Q\xa1\xb2\xde&\xba$\xd0\x92" +
+	"Z\x94i\xec\xdfE\xda5\xfd\x971\xb6\xb4\xb5\xff\x07" +
+	"aFc\xd7\xfe\xaa\xef\x97\xa2v\xf8\x19\x14\x9f\x14(" +
+	"^\x83\xe2[n\x7f\x95\xb4\x07o\xc7\x9f\xf7\xdf\xfe\xdf" +
+	"*\xa3\xb1\xbf\xb8\xaf\x93\xff\xb9\xf5\xc1\xb3(^\x15(" +
+	"N(\xf3\xf4\xa6]\xa4\xbd\xbc\x09\x7f\xbe\xb8\xe9Z\xbc" +
+	"\xe7\xad\xd7\x1e|\xfeOg|\xe1\x05\x14\x0f\x05\x8aO" +
+	"E\x99^\xf1S\xd2R\x02\x7f\x1a\xe2j\xb4\xfd\xd8\x97" +
+	"\xffa\xc6\xe5\xdf\xaax\x0d\xc5\x17\x04\x8a_\x8a2g" +
+	"6\xbfD\xda\x07\x9b\xf1\xe7\xfb\x9b\xa3S\x19\x8d-\xff" +
+	"\xaf\xf7?\xec\xff\xc9\xfb\xaf\xb3\xdeE4i\xec[\xeb" +
+	"~\xfe\xcf{[\xbf\xf0\xff\xf9\x8dy\x7f\xdbfE\xab" +
+	"\xbf\x0b\x7fN\xb9\xeb\xeb\xc4h\xacq\xcd\x97\xee\xe8\xfe" +
+	"\xe5\x9eS\xa8\xbd\xae\xb4\xf6\x17\xbf\xfc#\xd2\xce|\x19" +
+	"\x7f\x9e\xfa\xf2X%\xa3\xb1\x99\xeb+\x8e\xa6N<z" +
+	"\x8a\xd57Q\xe9\x9b>\xb8k3i\x8f\xef\xc2\x18}" +
+	"wW\x94\xd1\xd8\x96#\xdf\xf9J\xdd7~p\x1au" +
+	"S\xc9\x18\xbd\xb8\xab\x8f\xb4S\xb2\xf0\xeb\xb2p\xfd\xaa" +
+	"\xb3{\xb6\xd5\xcc\xfe\x19\x0aO\x09T\xad\xc8a\xdcu" +
+	"'i\x15\x0f\xe0Oz\xa0\x1b}>\xbd\xe1\xa1\xff\xd8" +
+	"tU\xef\xcfQ\\+\xa9\xfb\x91\xaf9\xa4=\xf55" +
+	"\xfc\xf9\xc4\xd7\xfe\x0c}\x98\xef\x86\xde&\x9a\x1c\xa8\\" +
+	"\x16\x7f\xff\x9b\xf7\x92F{0\xfe\xd3\xf6|\x15\x95\xcf" +
+	"X\xf7\xab\xbf{\xfd\xeb7\x9cg\xc5\x137\x16V\x19" +
+	"[\xbav\xef\xf5\xa4\xdd\xb6\x17-_\xb7\xf7\x07l\x8c" +
+	"\x8d\xb1Ic);)\xcc\xabSv\x85e$\xf4\xab" +
+	"S6\xfe\xefK\x19Ww\xc5U\x09=m\xa5\xafo" +
+	"s\xect\xa7\x9d\xcc\x9a\"\x0e\xcaz\x88\xe2O\xaaj" +
+	"\x88\xb1\x101\xa6\xdd?c\x13c\xf1\x9d3T\x8a\xef" +
+	"\x99\xa1P\xfd;\xc4\x09\xfc\xe1\x19\x9fa,\xbe\x1b|" +
+	"/\xf8\xaf\x14N\x0ac\xda#\x92?\x04\xbe\x0f\xfc\x97" +
+	"\xc4IeL{t\xc6\xdb\x8c\xc5\x1f\x03?\x00\xfe\x0b" +
+	"\x95S\x88H{j\xc6\xb7\x19\x8b\x1f\x00?\x04~." +
+	"\xc4\xa9\x821\xed9\xf9\xbb\xcf\x82\x1f\x01\xaf\xa8\xe04" +
+	"\x891\xed\x85\x19_d,~\x18\xfc\x18\xf8\xa4I\x1c" +
+	"c\xac\xbd,\xeb9\x06~\x12<\x1c\xe6T\x891\x9c" +
+	"\xf1C\xc6\xe2'\xc1\xdf\x9c\xa1\x10Ur\xaabL\xfb" +
+	"\x99,\xfe&\xf0\xc7(^U\xc9\xa9\x9a1\xed73" +
+	"\xbe\xc7X\xfcc\xf0\xca\x99\x0a\xd5W\x13\xa7\xc9\x8ci" +
+	"\x153\xff\x93\xb1x\xcdL\x95\xe2\xcb\xc1'Wq\xaa" +
+	"aL\xbbf\xe6\xab\x8c\xc5W\x80\xb7\x83\xd7Ts\x9a" +
+	"\xc2\x98\xb6z&\x9a\x1f\x03\xef\x01\x9f2\x99\xd3T\xc6" +
+	"\xb4\xce\x99\xbb\x18\x8b\xf7\x80o\x00\x9fZ\xc3\xa9\x961" +
+	"\xed\xb6\x99\xf8\xdd\x0d\xe0C\xe0\xb5\x0a\xa7:\xc641" +
+	"\xf3^\xc6\xe2I\xf0\xed\xe0u*\xa7z\xc6\xb4\xbbf" +
+	"~\x83\xb1\xf8v\xf0}\xe0\xf5S8]\xc2\xd8\xd2G" +
+	"g*\x84~\x86\xe0\x00\x04\x97L\xe5\xa41\xa6=5" +
+	"S\xf63\xf8!p\xad\x96\x13G?\xcfD\xff\x1c\x02" +
+	"?\x0a\xce\xeb8McL{q\xe6\x8f\x18\x8b\x1f\x05" +
+	"?\x01>\xad\x9e\xd3\xa5\x8ci\xaf\xc9\x1f>\x01~\x16" +
+	"\xfcR\xe2t\x19\x91vF\xbe\xf0i\xf0s\xe0\x97]" +
+	"\xc2i:c\xda[\xb2\x9es\xe0\xe7\xc1\xa7\x878\xcd" +
+	"`L{\x7f\xe6K\x8c\xc5\xcf\x83\xd7\xccR\xa8~\x86" +
+	"\xc6i&cK\xabf\xc9\x17\xa8\x9b\xa5R\xbc\x01\x82" +
+	"\x99\x9c\xd3,\xc6\xb4\x19\xb363\x16\x9f\x0e\xde\x0c>" +
+	"k\x1a\xa7\x06\"m\xce\xac;\x19\x8b7\x81/\x04o" +
+	"\xb8\x94S#\x91v\xc5,\x87\xb1\xf8\x02\xf0e\xe0\x8d" +
+	"\x97q\x9a\xcd\x98\xb6x\x16&\xd0\"\xf0\x15\xe0\xb3\xa7" +
+	"s\x8a0\xa6]'\xebY\x0e\x1e\x03\x8f\xcc\xe0\xd4\xc4" +
+	"\x98\xd6*\xf9J\xf0\x0e\xf0\xa6\x0aNs\x18\xd3\xd6\xca" +
+	"z\xda\xc1\xfb\xc1\xe7\xcc\xe44\x971\xadw\x16:\xa2" +
+	"\x07|\x03\xf8\xdcY\x9c\xe6\x11i\xb7\xc9\xf2\xb7\x82'" +
+	"\xc1\xe75pjfL\xd3gaf\x0d\x81\xbb\xe0\xcd" +
+	"\x938\xb50\xa6m\x99\x85\x91O\x83\xef\x06o\x09s" +
+	"\x9a\x0f\x85\x9c\x85\x01\xdb\x0d\xfe$\xf8\xfcFN\x973" +
+	"\xa6=1\xeb\xa7\x18`\xf0C\xe0\x97\xcf\xe6\xb4\x00\x03" +
+	"<\xeb\x7f\xa00\xe0\xc7\xc0\x17\x10\xa7+\xa00\xb3\xa4" +
+	"\xc2\x80\x9f\x04\xbf\"\xc2\xe93P\x18\xf9\xbb'\xc0\xcf" +
+	"\x82\x7f\xa6\x92\xd3g\x19\xd3\xce\xcc\xc2@\x9e\x05\xbf\x00" +
+	"\xfeY\x85\xd3B\xc6\xb4\x8ffa /\x80\x87\x1a\x14" +
+	"\xaa_\xd8\xc4\xe9J\xc64j\xd8\xc4X_\x03\xc6\x17" +
+	"\xf8\xca9\x9c\xae\xc2\xf86x\xe3\x0bA\x03\x04W\xa9" +
+	"\x9c\xae\xc6\xf86\xa0\x9e\x06\xf0\x05\xe0W\xcf\xe5\xb4\x88" +
+	"\xb1\xa5-\x0d}x`\x19\x04+!X\xb4\x9b\xd3b" +
+	"\xc6\xb4\x1b\x1a\xf0\x02+\xc1;\xc0\x17?\xc8i\x09\x06" +
+	"\xa6\x01\x03\xdf\x0e\xde\x0f\xbe\xa4\x99\xd3R\"\xad\xb7\x01" +
+	"\xaaz+x\x12|i\x0b\xa7e\x8c-\xd5\x1b\xaa\xf1" +
+	"\x03&\x04#\x10,\xab\xe2t\x0dcZV>\xb0\x0d" +
+	"|/\xf85\x0a\xa7\xcf\x11i\x8f4\xfc\x9a\xb1\xf8>" +
+	"\xf0'\xc1?\xa7r\xba\x96H{B\xf2\x03\xe0\x87\xc0" +
+	"\xaf\x9d\xcfi9F\xa0\x01#|\x18\xfc\x18\xf8\xf2\xcb" +
+	"9]\x87\x11\x90/p\x0c\xfc$\xf8u!N\xd7\x13" +
+	"i\xaf\xa3\xe7\xe2'\xc0\xcf\x82__\xcd\xe9\xf3\x18\x81" +
+	"\x06h\xc0i\xf0s\xe0\x9f_\xc0i\x05TL\xf6\xdc" +
+	"9\xf0\xf3\xe0+\xae\xe0t\x03T\xac\xe1\x0d\xc6\xe2\x1f" +
+	"6\xa8\xd4\xd7\xa8P\xfd\x0d\x9f\xe1\xf4\x05\xc6\xb4\xdf\xca" +
+	"\xd7\x0a5\xaa\x14\xaf\x03\xff\xc2\xd78E\x19\xd3\xa64" +
+	"\xa2\x9a:\xf0\x06\xf0\xe8g9\xad\xc4\xc04^\xcfX" +
+	"\x9c\x837\x81\xaf\\\xc8\xa9\x951\xad\xb1\x11\xcdo\x02" +
+	"_\x08\xdez%\xa7U\x8ciW4\xc2\xc4-\x04_" +
+	"\x0e\xbe\xea*Nm0\x95\x8d\x98X\xcb\xc0W\x82\xb7" +
+	"]\xcd)\x86ql\x84\x82\xad\x00o\x07\x8f-\xe2\xb4" +
+	"\x1a&T\xd6\xd3\x0e\xde\x0f\xbez1\xa75P\xb0F" +
+	"\x98\xca~\xf0\x8d\xe0k\x96p\xba\x911\xed\xf6FL" +
+	"\xd0\x8d\xe0&\xf8\x8dK9\xb5\xc3[i\x943.\x0d" +
+	"\xc16\x08\xda\x97qZ\xcb\x986*\x1f\xd8\x06\xbe\x13" +
+	"|m\x05\xa7\x9b\x88\xb4\xfb\xe4\x0f\xef\x04\xdf\x03~\xd3" +
+	"5\x9cn&\xd2\x1e\x96?\xbc\x07\xfc1\xf0\x9b?\xc7" +
+	"\xa9\x03>E#:t?\xf8A\xf0\x8ek9u2" +
+	"\xa6=-\xeb?\x08~\x18\xbcs9\xa7.\xc6\xb4\xe7" +
+	"\x1ba\x09\x0e\x81\x1f\x05\xef\xba\x8eS7Ln#L" +
+	"\xebQ\xf0\x13\xe0\xdd\x939\xf5\xc0\xe46B\xe3O\x80" +
+	"\xbf\x07\xdes=\xa7^\xc6\xb4w%\x7f\x0f\xfc\x02x" +
+	"\xef\xe79\xf5A#e;/\x80\x87f+T\xdf\xb7" +
+	"\x82S\x9cH\xa3\xd971\xd67\x1b\x1a\x09\x1c\xbf\x81" +
+	"S?cZ\xd5l\xe8K%8\x07\xef\xaf\xe1\xb4\x8e" +
+	"1\xad~6\xaa\xe1\xe0\x8b\xc0\xd7M\xe1t\x0bc\xda" +
+	"\x95\x92/\x02\xef\x00\xbf\xe5\x0b\x9c\xd6C\xeff\xa3\x1b" +
+	"z\xc07\x80\xaf\x8fr\xba\x95\xb1\xa5\xb7\xcd\x96\xfd\xbf" +
+	"\x11\x02\x13\x82[Wr\xba\x8dH3f\xc3UH\x82" +
+	"\xa7\xc1\xbf\xd8\xca\xe9\x8b\x8ci\xa9\xd9\x98\x10&\xf8\x08" +
+	"\xf8\x1f\xac\xe2\xf4\x07\xd0G\xc9]\xf0\xed\xe0\x1b\xda8" +
+	"m\xc0Z(\x7fx\x07\xf8C\xe0\xb7\xc78\xdd\xce\x98" +
+	"\xf6\xe0l\xf4\xcfC\xe0\xfb\xc0\xffp5\xa7?\x84+" +
+	"2\x1b\xfd\xbc\x0f\xfcI\xf0/\xad\xe1\xf4%X\xd0\xd9" +
+	"\x98\xa0\xfb\xc1\x0f\x82o\xbc\x91\xd3F\x8c\xe3l\x8c\xd7" +
+	"\x01\xf0C\xe0z;'\x1dz-\xeb9\x04~\x14|" +
+	"\xd3ZN\x9b0\x8e\x92\x1f\x05?\x01\x9e\xb8\x89S\x02" +
+	"\xe38\x1b\x0av\x02\xfc,x\xf2fNI\xb8\xca\xb3" +
+	"\xe7\xa2\x83\xceAp\x1e\x02\xd1\xc1I\xc0\xff\xf3\x04\x17" +
+	" \x08E\x14\xaa\x1f\xe8\xe44\x00W3\"\x055\x11" +
+	"\x95\xe2\xd3!\x18\xec\xe24\xc8\x986-\x02c\xdf\x00" +
+	"\xbe\x00|\xa8\x9b\xd3\x10cZK\x04\xa6`!\xf8r" +
+	"p\xa3\x87\x93\x01\x9d\x8c\xa0\xa9\xcb\xc1c\xe0\x9b{9" +
+	"m\xc6\xa2\x17\x81\x0a\xc4\xc0{\xc0\xef\xe8\xe3t\x07\xdc" +
+	"\x97\xc8\xf71\xc6\xe0\x1b\xc0\xcd8'\x13c\x1c\x99\x89" +
+	"\x06%!HC\x90\xea\xe7\x94Bx\x14\x91\xc6u\x04" +
+	"\x82\x1d\x10X\xeb8Y\x8c-\xbd\xc7{\x85\xdd\x10\xec" +
+	"\x85\xc0\xbe\x85\x93\x0d\x072\x02\xb3\xb2\x17|?xz" +
+	"=\xa74c\xda\xe3\x11\x8c\xcec\xe0\x07\xc0\xb7\xdc\xca" +
+	"i\x0b\x1c\x1bY\xfe\x00\xf8!p\xe76N\x0eFG" +
+	"6\xf5\x10\xf8Q\xf0\xcc\x179e0:\xb2\xfcQ\xf0" +
+	"\x13\xe0\xee\x1fpr1:\x11\xa9e\xe0g\xc1\xb3\x93" +
+	"8eaue=g\xc1\xdf\x01\x1f\xde\xc0i\x981" +
+	"\xed\x17\x11X\xf5\xf7\xc0/\x80o\xbd\x9d\xd3Vh\x9f" +
+	"\xec\xba\x0b\xe0\xa1&\x85\xeaG\xa6r\x1a\xc1z\xd8\x04" +
+	"\x1ej\x82\x19\x05\x1f\xad\xe54\x0a3\xda\x84\xfa\x9b\xc0" +
+	"W\x80\xdfY\xc7\xe9N\xf8#M\xb0\xf6\xcb\xc1\xfb\xc1" +
+	"\xff\xa8\x9e\xd3\x1f\xc1\xfc\xc9z\xfa\xc1\xd3\xe0\xdb.\xe1" +
+	"\xb4\x0dZ\xd3\x84\xa1L\x83\xef\x06\xbfK\xe3t\x17\xfc" +
+	"\x05Y\xffn\xf0'\xc1\xbf\xcc9}\x19\xb3\xbd\x09Z" +
+	"s\x00\xfc\x18\xf8\xdd\xd38\xdd\x8dU\xa9\x09S\xe58" +
+	"\xf8;\xe0\xdb/\xe5\xb4\x1d\xef\xdb\x04\x07\xfe=\xf0\xca" +
+	"9\x0a\xd5\xdfs\x19\xa7{\xe0\x19\xcfA\xfd\x95s\xe0" +
+	"\x97\x81\xdf;\x9d\xd3\xbd\x8cis\xe6\xa0\x7f\x16\x80\xc7" +
+	"\xc0\xbf2\x83\xd3W0\xb5\xe6\xe0w\xdb\xc1\x93\xe0;" +
+	"fr\xda\x01?h\x0e\xfa?\x09\xfe\x10\xf8}\x7f\xc8" +
+	"\xe9>h\xb1\xac\xff!\xf0}\xe0\x7f\xfc%N\x7f\x0c" +
+	"-\x9e\x03\xb3\xb5\x17|?\xf8W7r\xfa*\xe6\xc9" +
+	"\x1c\xb4\xffI\xf0g\xc1w\x869\xeddL{f\x0e" +
+	"V\xd5\x83\xe0\x87\xc1\xef\xd79\xdd\x0fk<\x07V\xfa" +
+	"0\xf81\xf0]\x9b8\xedB?\xc8\xdf=\x06~\x12" +
+	"\xfc\x81\x04\xa7\x07\xe0\x1f\xcd\x81\x15:\x01~\x16|w" +
+	"\x92\xd3n\xcc\x13Y\xcfY\xf0w\xc0\x1f\x14\x9c\x1eD" +
+	"\xbf\xcd\x91\xfd\x06~\x01\xfck\x03\x9c\xbe\x86y\"\xfb" +
+	"\xe1c\xf0\xca\xb9\x0a\xd5\x7f}\x90\xd3\xd7\xd1\x9fsQ" +
+	"\xbef.T\x1b\xfc\xa1!N\x0fA\xb5\xe7\xa2\x7f\xa6" +
+	"\x837\x83?lpz\x18\xfd<\x17z\xd1\x04\xbe\x10" +
+	"\xfc\x1b\x9b9}\x03\xcb\xf0\\\x98\xe9\x85\xe0\xcb\xc1\xbf" +
+	"y\x07\xa7oB\xe5\xe7\xa2\x1f\x96\x81\xaf\x04\xdfcr" +
+	"\xda\x83ex\xae\\\x86\xc1\xdb\xc1\x1f\x99\xc5\xe9\x11," +
+	"\xc3\xb2|\x0c|#\xf8\xb7\x1a8}\x0b\xcb\xed\\\xcc" +
+	"\xcf\x0d\xe0#\xe0\x7f\x92\xe2\xf4'\xb0\xd2sa\xe5F" +
+	"\xc0w\x80\xefm\xe4\xb4\x971\xed\x1e\xd9\xce\xed\xe0\xfb" +
+	"\xc0\x1f\xb58=\x8aq\x9c\x8b\xf9\xbc\x0f\xfcI\xf0o" +
+	"\xdb\x9c\xbe\x8d\xf9)\xcb\xef\x07?\x08\xfe\x9d\xafs\xfa" +
+	"\x0e\xac\xb1\xfc\xdd\x03\xe0\x87\xc0\xf7\xa59\xed\x83\xbe\xcf" +
+	"\xc5|x\x16\xfc\xc8\\\x85\x16\x7f\xf7(q\xfa.\"" +
+	"F\xf9\x02\x87!8\x86\x07\xfe\xd4\xe1\xf4\xa7\x18`\xd9" +
+	"\xa1\xc7\xc0O\x82\xffY\x86\xd3\x9fa\x80e\xc7\x9d\x04" +
+	"\x7f\x13\xfc1\x97\xd3c\x08\x19\xe5\x0f\x9f\x05\x7f\x07\xfc" +
+	"\xf1\xd9\x9c\x1e\xc7\x00\xcbz\xde\x01\x0f\xcdS\xa8\xfe{" +
+	"YN\xdf\x83\xc2\xcf\xc3@V\xce\xc3\xba\x0a\xfe\xe7\xc3" +
+	"\x9c\xfe\x1c\xeb\xea<(\xc6t\xf0f\xf0\xfd\x11N\xfb" +
+	"1\x90\xf3`\x98\x9a\xc1W\x82?\xb1\x95\xd3\x13\x18\x98" +
+	"y\x98\x88+\xc1;\xe6)\xb4\xf8/^&N\x7f\x81" +
+	"\x05w\x1ez\xa8\x1d\x82~<\xf0\x97#\x9c\xfe\x12\x16" +
+	"B>\xd0\x0f\xbe\x11\xfc\xc9QNOb\xc4\xe4\x0fl" +
+	"\x047\xc1\x9fj\xe2\xf4\x14c\x9a1\x0f~k\x1a|" +
+	"7\xf8\xf7\xe7p\xfa>,\x87\xac\x7f'\xf8~\xf0\xbf" +
+	"\x9a\xcb\xe9\xaf\xa0a\xf3\xf0\xc2\xfb\xc1\x8f\x80\x1f\xb8\x93" +
+	"\xd3\x01t\xf4<X\xa0#\xe0\xc7\xc1\x9f\x9e\xc7\xe9i" +
+	"\xc6\xb4W\xe6af\x1d\x03?\x87\x17\xf8\xeb\x7f$N" +
+	"\x7fM\xa4\xbd5\x0f=\xfa&\x04\xef\xe1\x81\x1f\xfc\x11" +
+	"\xa7\x1f\xc0\xb1\x91/\xf0\x1e\xf8\x05\xf0\x83\xdb8\x1d$" +
+	"\xd2>\x9aw\x13\x1c\xday*\xf55+T\xff\xcc]" +
+	"\x9c\x9e\x81C+\xdb\xf91\x8aW\x82\xff\xf0\xcb\x9c~" +
+	"\x08MjF\xf5\xa1f8\xba\xe0\x7fs7\xa7\xbf\x81" +
+	"\xa3+y\x0d\xf8t\xf0g\xb7sz\x16\x1a\xd6\x8c\x9f" +
+	"\x9d\x0e\xde\x0c\xfe\xdc=\x9c\x9e\xc3\xc04cB4\x83" +
+	"/\x02\xff_\xf7r\xfa_p\x84\x9a1\xb1\x16\x82/" +
+	"\x07\xff\xdb\xafp\xfa[h\x98\xac\x7f\x19\xf8J\xf0C" +
+	";8\x1d\xc2@6c\x86\xae\x00o\x07\x7f\xfe>N" +
+	"\xcfC\xc3d=1\xf0\x1e\xf0\x1f\xfd1\xa7\x1fa\xb1" +
+	"m\xc6{u\x80\xdf\x0a\xfew_\xe5\xf4w\x8ci\xeb" +
+	"$\xef\x07\xdf\x08~x'\xa7\xc3\x18_\xd9\xce\x8d\xe0" +
+	"&\xf8\x0b\xf7sz\x01\xe3\xdb\x0c\x8b\x98\x06\xdf\x06\xfe" +
+	"\xf7\xcd\x9c\xfe\x1e\xfe\xafl\xcf\x08\xf8\x1e\xf0\x7fh\xe1" +
+	"\xf4\x0f\x8ci\x0f7c\x9e\xec\x01?\x08~d\x17\xa7" +
+	"#D\xda\xd3\xb2\x7f\x0e\x82\x1f\x06\x7f\xf1\x01N/\xc2" +
+	"\x826c\xdc\x0f\x83\x1f\x03\x7fi7\xa7\x97\xa0`\xb2" +
+	"=\xc7\xc0O\x82\xff\xef\xf9\x9c\xfe7\x14\xac\x19\x91\xea" +
+	"i\xf0\x0f\x9b\x15Z|4\xdd\xc0\xe9(c\xda\x07\xcd" +
+	"0\x89\x17 \x08\xb5(T\xff\xf3\x079\xbd\x0c\xc7\xb5" +
+	"e3c}-p\\\x81\xdf\xfe\x1a\xa7\x7f$\xd2\xaa" +
+	"Z`9j\xc0\xa7\x83\xbf\xf5uN?&\xd2\xa6\xb5" +
+	"\xa0=\xd3\xc1\x9b[\x14Z\xfc\xf2\x96\x06N\xc70\x90" +
+	"-\x98?M\x10,\xc4\x03\xff\xf8\x10\xa7W`*[" +
+	"0A\x17\x80/\x03\xff\xf1\xc3\x9c^eL[\xdc\x82" +
+	"\xf6,\x07\x8f\x81\x1f\xfb\x06\xa7\x7f\xc2\x12\xd6\x02\xcdn" +
+	"\x07\xef\x07\x7f\xe5\x9b\x9c\x8eC\xf1Z\xa0\x18\xfd\xe0\x1b" +
+	"\xc1_\xdd\xc3\xe95\x0cL\x8bT<p\x13\xfc\x9f\x1e" +
+	"\xe1\xf4\x7f00-\xe8P\x13|\x04\xfc\xf8\xb78\xfd" +
+	"\x04&T\xbe\xc0\x08\xf8\x0e\xbc\xc0k\x1b\x14N'`" +
+	"C\xe5\x1b\xef\x80\xe0!<\xf0\x7f\xf6rz\x1dkd" +
+	"\x0bzt\x0f\xf8c\xe0?y\x94\xd3\x1b\x88LZ`" +
+	"\x8b\x1f\x03?\x80\x8aN\xdc\xaep\xfag\"\xed\xa9\x16" +
+	"L\xb9'!x\x16\x82\xd7\xffP\xe1t\x92H{F" +
+	"\x0a\x0eBp\x18\x827\x9c\x06N\xa70\xc8-\x98t" +
+	"\x87 8\x0a\xc1?\x7fI\xe1\xf4/D\xda\x8b-\xf0" +
+	"\x8e\x8f@p\x1c\x82\x93C\x0a\xa7\x7f%\xd2^\x91U" +
+	"\x1d\x83\xe0$\x1au\xearN\xa71\xfc-K\xe0`" +
+	"\x80\xbf\x03\xfe/\x0b8\x9d\x81\x1dmA\x9c\xf9&\xf8" +
+	"\xc7\xe0\xffz\x05\xa7\x9f2\xa6\xfdF\xf2\x0f\xc1\xeb\xe6" +
+	"+T\x7f\xfa3\x9c\xfe\x0dj<\x7f\x15\xec\xeb|\x0c" +
+	"\xf3|\x85\x16\x9f1\x14Ng1\xccR\xd0\x00\xc1\x02" +
+	"\x08~\xbaY\xe1\xf43x\xc1\xf31\xfe\xcd\x10,\x82" +
+	"\xe0\xdf2\x0d\x9c\xfe\x1d\x9a<\x1f?\xb1\x00\x82e\x10" +
+	"\x9cu\x1b8\xfd\x07f\x80\xacj!\x04\xcb\xf1\xdb?" +
+	"\xfb,\xa77\xa1\xe2\xf3\xa5\xdf\x0c\x1e\x03\xff\xf7\x85\x9c" +
+	"\xde\xc2\xcc\x98\x0f\xd5_\x09\xde\x01\xfe\x1fWrz\x1b" +
+	"\xa6z\xbe\xdc,\x02\xef\x07\x7f\xf3*N?\xc7\x8c\x99" +
+	"\x0f\xd5\xbc\x15<\x09NWs:\x07gh>Ts" +
+	"#\xb8\x09\xae,\xe2\xf4\x0b\xcc\x98\xf9\x98\xa9C\xe0." +
+	"\xb8\xba\x98\xd3/\x19\xd3\xb6\xc8\xf2i\xf0mx\x81P" +
+	"\xb6\x81\xd3\xaf\xa0\xe3\xb2A#\x10\xec\x80\xe0\xdd\xe1\x06" +
+	"N\xef`*\xcd\xc7\xdc\xde\x09\xc1\x1e\xd4t\xdbw8" +
+	"\xbd\x8b w>Fg7\xf8\xde\xf9\x0a\x8d\x0d8v" +
+	"\xc6\xbd\xd90Y\xd8\xec\xb6\x88\x98B\xc4\xa8\xf6\x0e\xf7" +
+	"\x0e\x9b&3\x85&{\xff\x91\xc8\xfd\xc7\x98\x9e\xc9\x18" +
+	")\xc3\xd4\x15W\xf4\xe8\x8e\xdbf\x8b\x81\x81L\x9fH" +
+	"f\xc3\x09\x91\xcc=?f/]\x1fw\xed\x94N\xae" +
+	"n\xb6\x99v&\xab:\xc2\xab\xe2\xc8\xf9(cc\xf6" +
+	"\xd2x6\xb5.\xed\xb2\xb0~\x87\xc8\xd7=\x9c\xe9\xd0" +
+	"]\xc3\xcd25Y\x80\xfa&{X\x0c:6e\xad" +
+	"\xe4*\xc3N\xe9j&3\xb10\x92\xc9t\x9b\xc9\xbc" +
+	"<\x9dh\x95%\xc8\xb1\xb3V\xb2\xdb\x19Tu\x8b\xa6" +
+	"2\xeaQI\xb6u*\xeaH\xb8Y\xdd\xecwH\xb7" +
+	"2i\xc3\xd1\xdd\xb0a[\xc1\x1a\xe4\x1b+\xa6\xee\xbd" +
+	"\xb1\xe1\x1a\xb6eX\x83\x11\xf9\xea\xb9\xca\xfc\xff\x9b\xec" +
+	"\xd7Y\xf4T\x9f\xd0M\xd3N\xe8x\x90\xb1q=\xc9" +
+	"\xc2\xae\xc8\x8c\xa3\x84\xd2}\xba+\x8a\x9ep\x1d\xdb\xb2" +
+	"Sd$b\xfah\x87\xb0\xc2\x83Cn\xa0\xa5\xab\xf4" +
+	"\x8c\x88\xe94j\x0ak\xd0\x1db\xe3\x1b\x85\x02\xfd\x82" +
+	"Ri\xe1\xe8n\xd6!Q\xa6\x88\x184\xac\xb8*\xac" +
+	"\x8c\xe1\x1a\xc3\xa2gH\xcf\x88v\xa1\xbbq\xd7\x11\x99" +
+	"L\xa1-\x9b\x84io\x9dhX\xc6\x09\xc7\x0dK\x9b" +
+	"\xeel\xb2Gh\xd4\x94\xbd\xd2\x13\xd5\xdd\xa1\xad\xfa(" +
+	"U0\x85*\x18\x8d%L\xa1;1}\x94\xfa\xf4\xa4" +
+	"\x81\"\x14\x1c\x916{I\xa7pYx\xc8N\xd2$" +
+	"\xa6TLR\xf1\x88c\xb8FB7\xa9\xab\xcd\xb6\x12" +
+	"\xc2r\xa3\x8e\xac;\xf8\x9c,\xa2\xe8f\xf7\xc8\xe8\xa0" +
+	"\xb0\xdal\xcb\x15\x96[\xa6\x9f\xbc\x82\xaan\xf6\x8b\\" +
+	"_\x95\xed\x84\x84c\xa7c\x86\x9eb\xb5\xc2\x15N\x11" +
+	"^\xe3\xd8\x19\x16u\xa1\x19#\xc1\x99\x0f\x19\xaab\x91" +
+	"\x09D\xc6 S\x8bF\xb5Mb\x165\x06\x87\xdc\x9e" +
+	"\xc5\x13\x09\x96\x94\x08\xbat\xa6\xa6\x04\xd50\x85j\xfc" +
+	"&u\xc5D\x8a\x85u+Y\xd4\xd0\xae>\x91dj" +
+	"qK\xbc*\xe2iE$\x8c\x01#\xd1\xa9\x8f\xf4\xd9" +
+	"\xb6\x8bI\x1f\x13iw\xa8\xe8\xf9\xf5\xba+\xc8Y\x97" +
+	"v\xf5;\xc4\xb8\xaeLd\x1dGXn?\xe5\xfa1" +
+	"\xe2\x88x65Q1\xc5v\x8b\xfa<\xaefS\x85" +
+	"\x1f\x9b\xa8P4\x9bB\xf3\x82\x1d\x90u]\xc3\xa2\xc1" +
+	"\x980\xf5\xd1\x98\xae\x8ef(\xcc\x14\x0a3\x1aK\xea" +
+	"\x9ez\xd0\xd0\x1a=\xe1\xda\x0e\x0b<\x16\x932\x1at" +
+	"\x87\xfa\xc4\x96\xac\x11uDJXnic\x93\xfah" +
+	"\xa6u\xc0\x15\x8a#ue\x8dio\x15\x8ea\x0d\xb2" +
+	"\xc2o\x88\x84iX\xba\xcbJ,IL\x0c\xe8YS" +
+	"us\x93\xdaZ\x97\x11\xab\x07\x06\x8c\x84!\xac\xc4h" +
+	"\xa1%\xc3)\xd9\xcd7*\xd2jm\xd5]\xe1\xf4\xeb" +
+	"\x9bLQ\xf8\x05\xd45,L;\x94F\x0b[\x13\x09" +
+	"a\x0ao\xba\xaf\x1a\xed2\\\xc7\x1e\x14\x96\x9c\xac\x94" +
+	"\xa1*\xa6P\x95l\x15\x9eH\xa7HX\xaen\xc6]" +
+	"]\x1d\x14\xf9\x0a-\xbb{\x00c\xce\"qW\xa4\x03" +
+	"\xdd\xe5\xd8\xd9\xc1!w\xad\x92J\xeb\x09\xb7\xdbZ#" +
+	"\x1c\xd70\x0dw4g\x96r\x13&&\x0b\xaa\xee\xda" +
+	"\xd2\x82~7\x17\xf5\xb3,\xab\xf8\xea\xd4?\xe4\x88\xcc" +
+	"\x90m&Y\x19M\\\x9d\x12\xce\xa0P\xac\x84Xc" +
+	"\xdav\xd2\xb0\x06\xa1\xb5N\xad\x1dX\xad\x8a\x8au\xda" +
+	"F\x06\xb3\xa2|1+\x19\x17\x96Rj\xda\"\xb2\x1d" +
+	"\xf9\x06\x8a\x81\x01\x91p\x8da\x12\x9e\x95\x1dT\x03S" +
+	"^8\x8e\xed\xc4]X\xedl&_\xb5\xa4\x9d\"\xc3" +
+	"j3\xfa`A\xeb\xc4\xb0\x9e\xb6\x1d\xddUDr\x8d" +
+	"c\xa7\xd6Z\xaep\x12\"\xed\x16:C\x8c\xb8\x0e\xc6" +
+	"WqD\xc6u\x0c\xdd,k\xf0\xd6\x18\xc2L\xb6)" +
+	"\xb6\x95\x94\xabO\xa7\x9d4\x06\x0c\x11\xec\xd4\x01\xc3\xd2" +
+	"\xcd\x98\x18V\xe4\x10\xe7Fx\xb00e\xa2\x03\xc6\x88" +
+	"Hv\x05+\xc5\xca\x1f#1\xa4;Ia\x19\xaa5" +
+	"X*l'Od\x0d\x06~i\xd0\xb47\xa1\x99\xe4" +
+	"\xcf\xe1\x80\xc4\x11\xc2ju\x04\x8b\xeak\xad\xa4\x18\x09" +
+	"\x08\xecL\xa65\x93!\xb9\xb2\xb9\"\x13\xac\x0e\xb2\x9e" +
+	"!\x9b\\;3j\xb9C\"\x9c12\x13K\xa3\x19" +
+	"#\xd3i\x9b\xe3\x0a\xa8\xb9\x02\x19#\xd3'\x06\x84#" +
+	"\xe4\\0K\x7f\xc81(\xa5;\xa3=\x8e\x9d\x8cf" +
+	"\x13E\xeb\xc3\xa0cou\x87\xdaF)a\x8a\xd5V" +
+	"R`>\xe6\xc6\xd7\x93\xf5\x09\xf2<\x04\xc3\x0e[\xad" +
+	"\xf1@w\xc9i\x94URk\x1d\xc7\x18\x94\xdd\x12w" +
+	"u\xc7-\x9a\xf5^\x19\xca\x95\x89\x1a\xb6\xb5:`\x8b" +
+	"\x873\xb0\xfdC.S\xbb\x82\xa3\xb4\xd62\\C'" +
+	"\xf3\xe6\x84T$r\xca\xc8\xba\x9dA\xddZeD\xec" +
+	"\x94\x9e\xc9\x8c\xd7\xa1\\\xb1\xf26\xdc\xf0'%y\xad" +
+	"\xb6\x9d0fpNzG\"\xa7\xbf\xfe\xab\x8c-\x95" +
+	"\xff\xfby\x9416f\x0a}\xa0\xd5\x11:\x8b\x14\x0f" +
+	"x&k\x99\x86\xdb!\xc8\x13\xaf\xb5\xc2\x90\x964," +
+	"3\xa4'E\xf2\x13\x0a\xa5\x13\x1d\xf6\xd6~\x91Rr" +
+	"\xd6~\xf5H\xda\xced\x1dQ\xd4\xb5\x1dF\xcap1" +
+	"\x83/\xbe^\xd7\x9a\xee5\x8b|\xb3UyD\x9a\xad" +
+	"\x0e\xf7\x9aE\x89,\x8b\x9a\xae1\xac\x07\xfb\xb6#;" +
+	"\x92uFY\xb4\xcbs\xf3r\x82\x94\x8e\xfe\xb2t\x98" +
+	"\x9a>\x91\x9b\x0dVk\xbc\xa8=\x9d\xfaHa\xba\x1b" +
+	"vD:r\xc5\xf26\xc7&\xe9;\x08,\x9fed" +
+	"\xfel\x08\xfc\xf2H\x17VY\xa6\xdeQRU\xd7\xba" +
+	"4a\xf5\xed\xd1\x1d\x9dR\xc5\xb2>\xdb&\x0c:\xc6" +
+	"\x9c\x86\x822\xc32RY%\x95\xf3\x96\x9c\x12e\xce" +
+	"\x95PS\x81>]c;\xad\xbe\x7fZ\xea%w\xa7" +
+	"\xdd\xdf\xa3t\xa7>\xf2\xfb\x94\xf6\xdb\x1a(\x8d\xb9\x1c" +
+	"\xbdQje\xbe\xa0%\xdcN\x0c\x8f\",\xbdhx" +
+	"\x02\xb6\xd4\x12n\xcf\x90\xed\xda\x94\xb3\x16\x94)\x929" +
+	"\"aP\xdapK\x9du)3R:y\xb6#\x9b" +
+	"\xa8-\xf1-\xbd~Ts\x1d\xd9\xea\x07&\xe5\xbcc" +
+	"\xcb\xefr\xb5|\xd1L\xd0<~b\xd9p\xb1_\xed" +
+	"5\x83r\xcdPW-*\xaa\x0a\xfe.\xc5\x04\\\x0e" +
+	"\x97]\xe4\xb1\x9e\xae\x89\x85\xb5E\xceV\xae\x81\xe4\x09" +
+	"\xfbl\xf5b\xc2\x88\xed\x96\xb4W:+$,\x8c\x96" +
+	"m\xd5fD\xd1\x82\xdd\x95Mm\x12\x8e\xd2=\x10\xf3" +
+	"\x9d\x17oe\x8b`i\xcb\x04\xab\x91\xe5\xa8{@\x9a" +
+	"\xc2\xa2\x0e\xf4<\xd35\xe4\xd8\xa9\x0e}T.\x9a\xe3" +
+	"l\x8c7y)7\xc1j1\xc3JK\xd9\x9e\x91\xb5" +
+	"Ym9++\xa51\xa1S`\x0c\xcb\x15\xb9\xd1\x11" +
+	"$,\xaf\x0ce&(b\xd3Vwh\xad\x95pD" +
+	"m9\x074\x9d\x90o\x09\xf7P.Jy+T\xf6" +
+	"\xd5Pt\xad\x92\xcc\xac\xb1\x1d9\x83\x9d\xd1\xdb\x0ca" +
+	"R2W\xb4n\xac\xebw\xff>\xa5a\xd1\xef\xfe\x0d" +
+	"\xeb\xdd\xf8\x87\xe2\"a[I\xf9XX\x98\x9f\xe21" +
+	"\x92\x8f\xb5e\xddZ\x18\x9eO,\xdf\xa9\xf8&5\xaf" +
+	"\xb2\x11/n+\xd77\xf0\xdeD&\x81\xc5]\xf6\x0f" +
+	"\xbag\xc2\xb7\x8e\x93\xb0\xbc\xc2\x11!\x0dp\xf9X\xdd" +
+	"\x1e\x16NB\xcf\xb8\x14\xd3G\xa5\xf7U\xac\xda\xb6\x8c" +
+	"\x15c\x82E\xa4\xd6\x04&]\x8f\xee\xb8\xab\x0c\xc56" +
+	"\xedA\x04\x9e]k\x8c\x91q\x9e[\x0f<\x11\x8b\x85" +
+	"\x0d\xdd,Lk\x18\xa0\xb4p\xc8\xb0\x932\x92\x8fz" +
+	"\x01{\xe1\xb1!\xdbmM\xb8}\x94\x8b\x13j;\x85" +
+	"^T\xab\xa9[n\x8cEe\x94>Z\x10\xd8\xd0o" +
+	",\xf5\xfd\x8e\xdc\xcc(\x0d\x81\x1d\xdf3R\xc4jx" +
+	"\xa6\xaeSv\xcb\xc3\x11X\xb5\x86\x85\xd2\x8fH+\xa0" +
+	"y\x01\xb5r\x04VB\xc3R\x06/^SF8\xc3" +
+	"\xa2\x95r\x86=\"z\xec\x80\xf7\x96N\xf4\x89\x8c\x91" +
+	"\xcc\x92\xe8\xeaCKY\xb1$m8\xa4\xbb\xb63\x1a" +
+	"w\x9dp\xd0Cwl\xdb\x85\x0e\xb1\xb0^\x8eF\xf5" +
+	"\xe2\xed\x06\x08b\xc2\xca\xb00z\xabd\xf8\xa5\xb0\x10" +
+	"\xc3\x8f\x9bJ}R\xae\xc0;\xdf\x94\x95\x9b\x15\xba\xa3" +
+	"\xa7XQ\xe5\xab\x07\x06\x04!d@`T\xbe\x8a5" +
+	"69\xa92\xb1\x10d7:\x04M\xee\xd0\x07\x8b\xab" +
+	"\xc5\xba\xcdj\xa5\xb7\x96\x8b\xc7\xf28\x02\xdcYZ\xfc" +
+	"\x8b,l[\"\x10&\xa2\xfa\x1eA\x96\xf0\x8cw\x89" +
+	"'2\x9c\x8ac5\xf56\x9b\xb0,\x84\x833<c" +
+	"\x1bf\x9b=,X\xad\x13t\x09\x873q\xdb0;" +
+	"\x0d\xb2\x84\xa3\x9b]mv\xc4[VJ\xdd;\xdb0" +
+	"\xe3i\x91P\x8aw\x10b\"\x1c\xf4>\xbd\xca>y" +
+	"\xa7!\x9d@]\xc6\x00\x19\x89\x0e\xe9t\xaaB\x1f\xdf" +
+	"\xd1\xf92\xa8\xa4C\xd4\x16kUBFD\xad4\xe0" +
+	"\x0a\x98\xa7`4\xedK\xdcN}\x04s\xa1x;\xa7" +
+	"H\x0c\xb7\xacx\x7fF\x0a;\x15\xaf\xe5\x05w\xaa\xb6" +
+	"\x9c\x11\xf3K\xdfL9\xb7z\x82\x02\x9f\xb4a\x92q" +
+	"\xed\x94\xee\xea}\x84x\xc7\xd5\xad\x04\x89\xa2\x16\xd9\x8e" +
+	">\xc8\xa2B\x9a\xc1\xd2\xfd\xce\x8c\x94\x8anV+\xa5" +
+	"a\xa6T\x84C\x8c\xc6\\\xdd\x19\x14nW\x1b\x15\xbf" +
+	"A\xaeZ\xd7H\x89\xb8+\xd2\xac8\xf2\x07^g%" +
+	"\x059\xad\x96=b\xe8,\xbf\xdf0\x9c\xe9\xb7\x1d7" +
+	"k\xb3\xda\"#\xe5\xc2\xa8\x14\xd6\xd1RL\xa0\xe8\xc5" +
+	"Z9\xa9\x8a\xc4\xbe_\xac\xbbkS\xe9\xb0\x9e(\x91" +
+	"v\xad\xb5X8\x9d-\xa5\xeb\xd2\xac\xd6\x0d\xee2K" +
+	"\xdc'2,\x926\x1c\x91\x0c\x1a+i\xc1\x8awm" +
+	"2\xd9\x944\x83\xd4\x95\xdb\xe2*\xae\x07\xfeu\x87\xbf" +
+	"\xdfZ$\xe9\x17)\xcay\xab\xe1x`\x1f\xcb\xf5\x87" +
+	"V\xc9\xca\xa1\xed\xb7s;HT\x08\xc0s\xf6\x94\x95" +
+	"_\x0bsb\xf2\xdc*\x91T\xb3#\x17/\x13\x13\x03" +
+	"\xb5\x85\xe5\xcb\x1b\xbaa\xe1X\xbaid\xfc\x12\xfah" +
+	"\xc0\x17.\x96\xad\xd1\x13a\xd7\x0ej\xc4-R\xae\x18" +
+	"\x19\xbf\x05[\xb2\x06Vc\xb5\x9c\xb7\xb2^w\x85\x13" +
+	"S<\xaf\xd3\xf3\xf3\xe0\xe6\x05\xc2k{i\\.\xd5" +
+	"\xac\x16+{\xf1AA\x87\x8d\xb0\x8e\x9cTLO\xe9" +
+	"\x83\xa2x\xf6\xd9K\xe3C\xb6\xe3\xf6\x93\xf0\xe5T\xf4" +
+	"tr\xd4\xb0\x06\xbb\xb3.\x0b\xfc\x96\x9eHdSY" +
+	"SgQW$W\xf7\xeb\x85\xddu_\xa0\xb8\"\xd9" +
+	"\x9f_\xcfJ\xf6\xec\x03e|o\xaa\xcd\xb1\xd3\xbek" +
+	"\x14\x983\x08S\x1drE\xb2-\xeb\xe6#\xf3\xc2\xa6" +
+	"O\xdav\\\x91$),\x89\x0e2\xd9\x94\\\x14)" +
+	"+<q\xb1\x9e8r\xc1\x14m\xe4?\x9a\x09\x0cZ" +
+	"Bn{\x0e\xc6\xc8\xdb\xf6\x1c\x85\x13\x9a\xb3q\xc3\x99" +
+	"N}d\xf5\xc0\x80\"\xb7\xb6D\xde\x1a\xa7\xd5\"k" +
+	"\xbc6\x95\x16\x96P\\G\xdfd\x0a\xe9/\xc7\x8a\xf6" +
+	"\xabt\x7f\x8f\x85\x851_T\xa6LQ\xc7\xc6dt" +
+	"\xeaf\x1d\xac~\x13p\xea\x13zbH$\x0b\xe3\x90" +
+	"qE:n\xdc)\x98\xbad\x99g\x84\xa6\x07ix" +
+	"\xc9\xb2E\x1e>\xcf(\xe2\xe8\xc9%\xcbJfVT" +
+	"\xc2E\xa5\xd4\x1d\xb0\xcdqe\xef\xf6hi\xe1\xbb\x0d" +
+	"+)F\xbc\xdf\x97\xbd\xe4\xff\xf7\"\xc6\x02\x1bgY" +
+	"\x13\x15\xfa\xed\xbe\xdb\xfb\xcfE\x85\xad\xa1\xac@\x9f8" +
+	"\xb4:ed2P\xd6\x0c\xd5\x8d}a\xa83\xdb\xb0" +
+	"\xf0\xfd3\x98xu\x8c\xc66o\x1e\x96rVk\xd8" +
+	"V\xb9\x02\xc3\xb6\xb7z1U@\xfc\xd5\xab\xf8\xbd\x7f" +
+	"\xfb\x97\xa7\xb6\xe7\xc4\x09\xc7N#pU\x82\xdb\\\x99" +
+	"\xac\xe9\xca_\xfb\xde\x9f\xfd\xcb\x03\x1bV\xd5\xfe$W" +
+	":\x83\x9aD\xa6\x87E\xe0\xab\xa0\xc4\x03\xd6\xf4o\xfd" +
+	"\xf8\xab\xa7\xde\xc8\xd7\x97\xf5v<X\xb4'W\xe4;" +
+	"w\xff\xd5uW}0\xe9?sE\xfc\x99\x16\xa8\xe4" +
+	"\xf5\x0f\xf6\\\xbd\xf0\xec\xc3;r%\x8c\xccz\xb9{" +
+	"\xc4j\xa1\x04\xc1\x91M\xad6mK\xf1v\xc2V\x0f" +
+	"\x0b\xcb]\x03S[\xd0\xc2\x88\xe9^\xb3(\x15\xdc\x8a" +
+	"\xc9\xddc\x09]\xec\x1eK\xdc\xd5]\x12=D\xbd\xcb" +
+	"\xd4\x10\xd5\xc8\x0b,\xb7\x93L\x0b&\x95\xe2&)T" +
+	"\xe7\xdf_1h\x13c\xf1!`\x97\x14\xaa'\xff\xfe" +
+	"\xca\x16\xda\xccX<\x0d\xbe\x0d\\Q\xbd\xfb+\xa3t" +
+	"\x13c\xf1\x11\xf0\x1d\xe0j\x88S\x881\xed\x1eY\xcf" +
+	"v\xf0\xdd\xe0\xa1\x0a\xef\xfe\xca\xfd\xb2\x9e\x9d\xe0{\xc0" +
+	"+&y\xf7W\x1e\xa6{\x19\x8b?\x04\xbe\x0f|R" +
+	"\xd8\xbb\xbf\xf2\xa8,\xbf\x17\xfcY\xf0p\xa5w\x7f\xe5" +
+	"\x19\xfa\"c\xf1\x83\xe0\x87\xc1+\xab\xbc\x0b,\xcf\xd3" +
+	"\xf7\x18\x8b\x1f\x06?\x06^U\xed]`y\x99\x1c\xc6" +
+	"\xe2G\xc1O\x90BT\xcdi2\x91\xf6\x1a\xc9\xdcS" +
+	"\xe0\xb3(>y\xa5w\x7f\xe5\x0c\xedb,~\x16\xfc" +
+	"\x1dRhL\xcfJ\xcf\xc1\xa0D\xbb\xee\x0c\x8b\x8c\x9b" +
+	"\x1f\xff\xff^\xf0_/\xbd\xd0\xfc\xdf/\x17O\xa1." +
+	"\x16\xd6\x83\xc7H\xb9iS\xdb\x15\xc4\x19!\x921y" +
+	"V\xc9\xa8n\xec\xc1\xfa\xb9\xea\x81\xdf\xfd\xf2Or\xd3" +
+	"d\xc8\xfb\xa5\x18\x0b\xc3\xf7\x1c//\x99Fu\x85\xeb" +
+	"[\xf9\x02^\x18E\x86\xf4\x01\xd2\xacL\x99\x9c\xedc" +
+	"\xb5\xba+2\x85\xa83\xf8cSs\x8a\xa4;:S" +
+	"\xe5\x94\x1ezq\xe7\x8c\x1f\xfe\xe4\xe5]\xb9j\xd2\xf2" +
+	"\x87\x10B\xb5y\x05\xc3z\xd9r\x9f\xac\x1c\x09\xc7\xce" +
+	"d\xda\x1c[I\xb7&\xf5\xb4\xbf\x8a\x16\x0e\x9c\xbc\x05" +
+	"j\xdcp\x04\x16\xaa\x9cFL\x9aH#:%\xeaD" +
+	"1y\xb5\xeb\xaa\xd6\xb6X\xbf}\x8b\x1e6\xb3RG" +
+	"*s\x97\xbc\xea\xaf\x98\xcbXo\xb3J\xbd\x8b\xa0\x09" +
+	"\x9e\x86\xd4_\xb9\x84\xb1\xde\x05*\xf5.S(\xac'" +
+	"\x929\x83\x17\x19\xd6\xcdl\xc1]\xfa\xc4\x0bfq\xcb" +
+	"\xdeZr\xc1\xac\xb7G\x0d\x91&\xd5s\x8e\xf2*c" +
+	"\xf1\x05\x8aJ\xf1eJA=\x17+P\xabE\xc0+" +
+	"\x94\x80z^\xa7\xf41\x16_\x0e\x1eS\x02\xea\xd9\xaa" +
+	"|\x83\xb1x\x0c\xbcG\x09\xa8g\xa7\xe4=\xe0\x1b\x94" +
+	"\x80z\xde&\xf9\x06\xf0!%\xa0\x9eB\x81\x1a&\xc1" +
+	"\xd3J@=S\xca\xf7a\x16\xc0\xb7)\x01\xf5\x1cU" +
+	"\xa0\x86\xdb\xc0w*\x05\xf5\\z\x9f\xf2\x19\x82\x9eC" +
+	"\xb0O\x09\xe8\xe7\xa3\xca\xff0\x16\x7f\x0c\xfc\x00x\xf5" +
+	"d\xef\x82\xd9S\xca\x9d\x8c\xc5\x9f\x04\x7f\x16|r\x8d" +
+	"\xa7\xa0\xcfH~\x10\xfc0x\xcd\x14\xef\x82\xd9\xf3\xf2" +
+	"\x87\x0f\x83\x1f\x03\x9f2\xd5\xbb`\xf6\xb2\x02{q\x14" +
+	"\xfc\x04\xf8\xd4Z\xef\x82\xd9k\x92\x1f\x07?\x0d^[" +
+	"\xe7]0;%;\xe24\xf89\xf0\xbaz\xef\x82\xd9" +
+	"[r\\\xde\x01\xff\x10\xbc\xfe\x12y\xc1L\xfb@\x0e" +
+	"\xccy\xf0\x8f\xc1/\xd1\xbc\xfbe\xbfA\xf9>U\xa5" +
+	"x\x8d\xaa\xd0X\xc6\xb2\xb7\xf6\x09W(\x16fv\x9b" +
+	"\x9e\xd6\x13\x86;\xda\xa9\x8f\x04\x9c%\x94)\x84\xdd\xc5" +
+	"\x14>E\xc1\xef\x18p\xec;\x85\xb5^'W8k" +
+	"\xad\xb8e\xd3\xd6\xbc\xcc4\xb6d\x8ddy\x99w4" +
+	"j\xaf%k\xc00\x11\xe1\x06\xc2\xa0\x94>\x82\x99\x99" +
+	"\x0b\xa0K=8\xf8fR^,F\xebR\xc2t)" +
+	"\xb7\xd7\x1c\xce:\xa2H\xda\x9aHdU\xd4\x80\x17\xcf" +
+	"\x9f]\x16\xed\x1c\x96\xf3\xf4\xe5\x11\xc5\x1a\xdb\xe9\xc0\xeb" +
+	"D\x93\xd2'.8n\xb6\xe3\xc0/cQ\xdb\xea\xd3" +
+	"\x0d\xab\xac\x00\xad\x0d\xee\xe48B\xdc)\xca\xb73'" +
+	"ej a \x00\x97\x04\xf6\xb5\xb7\xca^ o+" +
+	"\x09Q}\xd1\xdbv\xea#\xadJ\xd2;v\xd4\xcd\x98" +
+	"W\xaad\x8c{\xf4\xc4\x1d,l\x04\xce\x0f'\x98\x1d" +
+	"F\xd0\x95\xfeD\xbbRj\xde\x18\xeb\x0dQ\xe0\xb2v" +
+	"=}q\xcc\xb7x&S\xb3\xa2ww\xfeR\xeb\xcb" +
+	"\xea\xf5\x8c\xc5\x8f`\xb6\x1eW\x15\xa2\xb9\x9e\xd1yE" +
+	"\x85\xabp\x1c\xf8\xb4\xea[B\x18\x9dS\xea\x12,\x9e" +
+	"\xe0g\xc1\x15\xc53:gd5'\xc1\xdf\x04\x9fC" +
+	"\x9e\xd1\xf9\x99*/\x97\x82\xbf\x07\xde\xa4xF\xe7]" +
+	"\xf5\xd7\xd0\x1d\xf0\x8f\xc1#\xaagt~\xa3\xfe'c" +
+	"}!\xe8N\x08\xb6K\xf5lNU\x08?\x1b\x02\xaf" +
+	"\x03\x0f\x85<\x9b3%\x84f\xd6\x817\x84\xfc\xab\xb1" +
+	"p\x09f\x84\xa0\xe2\xd3\xc1\x9bC\xfe\xd5X\x98\x9c9" +
+	"!\x99!\x0e\xbe0\xe4_\x8d\x85\xc9\xb9\"\x04[\xb7" +
+	"\x00|\x19xe\xa5gr\x16\x87\xa4\xed\x05_\x01^" +
+	"U\xe5\x99\x9c\xebBp-\x96\x83\xc7\xc0g\x87<\x93" +
+	"\xd3\x1a\x92\x97E\xc0{\xc0\xab\xab=\x93\xd3\x19\x92\xb6" +
+	"\x17|\x03\xf8\xe4\x0a\xcf\xe4\xdc&\xeb\xb9\x15<\x09^" +
+	"3\xc939\xba\xac'\x09\x9e\x06\x9f\x12\xf6LN*" +
+	"\x84\xeeL\x83o\x03\x9fZ\xe9\x99\x9c\xd1\xd0\x0fa{" +
+	"\xc1w\x82\xd7VyWZ\xef\x0b\xbd\xcdX|7\xf8" +
+	"^\xf0\xbaj\xefJ\xeb#\xb2\xdf\xf6\x82\xef\x07\xaf\x9f" +
+	"\xec]i}\\\xd6\xb3\x1f\xfc \xf8%5\x9c.c" +
+	"L{:\x04\x9f\xe9 \xf8apm\x8aw\xa5\xf5\xf9" +
+	"\xd0\x1b\x98=\xe0\xc7\xc1\xf9T\xefJ\xeb+\x92\x9f\x00" +
+	"?\x0b>m\xb2\xbc\xd2\xaa\x9d\x91\xfd\x7f\x1a\xfc\x1c\xf8" +
+	"\xa55\xde\x8d\xd6\xb7d?\xbf)\xc7\xbdB\xa1\xfa\xcb" +
+	"\xa6pj\xc0\xb8W\xc8\x0bY\x15\x18G\xf0\xe9S9" +
+	"5b\x1c+d\x828\xf8J\xf0\x19u\xde\x8d\xd6\x1b" +
+	"*d\x828x\x07\xf8L\xc5\xbb\xd1\xba\xb6\x02\xe3\xdb" +
+	"\x0e\xde\x0f>\xab\xd6\xbb\xd1\xda[!o\xa8\x82o\x00" +
+	"o\xa8\xf3n\xb4\xdeV\x81v\xde\x0a\x9e\x04o\xac\xf7" +
+	"n\xb4\xea\x15X\x826\x82\x9b\x15\x0aE3\x86+z" +
+	"\xe0\xd2\xec\xfb\xd2\x9a\x0f\xde\xf8\xbbG\x9f+\x09\x1a\\" +
+	"2l\xabS\xb8Cv4\xd9fg-7\xef9\x08" +
+	"kX>X\xfd\xf7\xfb\xb7]~\xd3\xd8\x11\xff\xc1\xa8" +
+	"t\xba \xf8i|\xda_\x9f9\xf1/\xe7\xf2QO" +
+	"\xe6Fy\x98E\xd2\x92\x97F\xa3[[\xdd\x94\x9dI" +
+	"+C\xc21\x12\xddK\xdb\xcaoL\x15\x17k\xeb^" +
+	"\x92+\x17)\xda\xfc\x8ed\x8c\x94l\xc3\xed\x9b\xa7\xfd" +
+	"\xf8\x89\xda\x03c\xb96\x0c\xfaY6\xde\x023`;" +
+	"\xd1\x94\xf7`\xdd\xd8\x15S\xeb;\xcc+\xab^\xcc\xc7" +
+	"UrG\xd4\xcc25\x05q\xfer\x7f@\x0c{L" +
+	"\xfe\xb6\x0f\xfc\xd4\xfc7\x17\x02e:m#\xc3\xbc\xa5" +
+	"\xa2\xae\xf0\x95\x85@\x81ngPga\xcbHP]" +
+	"\xe1;\x09\xc1\x1fqt\x8bE2i\xdbq\xa9\xae\xf0" +
+	"\xd1\x08\xbf\x04\x96\xb8\xee\x91\xd1A\xf2s\x80\x82\xc7a" +
+	"~\x12U\x1b\xe5\xbe\x0a@hC\xfe\xe3\x1a\xb9\xdf\xc8" +
+	"\xa6d\xfe\x0e\x8b\x98F&\xb0Ne\xb2\xa9ngp" +
+	"\x8d \x99\xdb\x93)\xca@I\xea\x869\x1a\xcf\xa6\xc8" +
+	"\xcf\xfc\xc9\xa8\x81\x07\xf3B\xf9\xb8\xe3\x1a%\x15\xe7\xe4" +
+	"\x8a\xdc\xb14\x12~\x1dw\x8a\xb0\x13\xeb,\xf9y\xdd" +
+	"\xa2\\\x81\xa8q\xa7\x08\x16\x18\xca\xa6\xb2\x99U\xbaI" +
+	"\xba\x95\x10m\xba\xe3DF\xbb\x87\xcb\xfdL!OC" +
+	".\xc4\x85\xb7\xb0\xd3\xaeLMT\xac\xd5\xfe&\x8dw" +
+	"B!\x02\xdb,\x852}\xc2\xcd:V\xb92~?" +
+	"\xc7\xc9\x15i\x19\x19\x95\x89{\x12\xa6\x91\xd2]!\xe3" +
+	"\"\xbd\xe4p\xaa\xae\xb0\xce\xe5\x02\x17\xaf\xc6\xd5,\x82" +
+	"x:\x1f\xe1\xd4\xe4\xb6\xd9\x1c1l\xd8\xd9\x0c\xc5\xf4" +
+	"\xd1\x0cBnu|\x19\x99U)7Q\xd7\xa5m\xab" +
+	"K\x8c\xd4\xba1}4\x1fp$\xf5\xd1\xccz\xc3\x1d" +
+	"\xf2\xe3\xb0\xdc\x9e\x08\xa6SW\xdcuX\xd1\x11\x0c\xa8" +
+	"\x97\xfaW\x9a\x14\x09\x89\xccp\x8c\xc6\x8b\xf3\xaa>1" +
+	"\xa0\x89\xfbS[N\xec`H!c\x8av5D\xf5" +
+	"ry\x7fW\xc6\xc6\xef!\xa8\xbd@\x0a1\xe6-\xef" +
+	"\x1f\xc9\x10\xfbCR\xa9O\x09\xac\xee\xbf\x95\x11\xf6\xc7" +
+	"(=]\x86\x14\xfe\x17+\xa6IO\x97\xc3\xd3m\x92" +
+	"!\x85\xe2\xad\xee\x8d\xd2#o\x00_.C\x0a\xd5[" +
+	"\xdd\xaf\x91\x1e\xf6\xb2|\x08R\x11\xf2V\xf7NE^" +
+	"\xe3\xc8\x87\x1a\x93\x14oy\x17\x92\x17B\x8d\xb0\xea-" +
+	"\xef)\xe5\xdbE\xa1Fe\xc8[\xdeG\x15y]\x03" +
+	"|\x87\x8c(*\xbc\xe5\xfd\x1eY~\x07\xf8c2\xa2" +
+	"\x98\xe4-\xef\xdf\x95\x9e\xfdc\xf9\xc8ar\xd8[\xde" +
+	"\x9fW~\x98\x8b\x1cd$PS\xe9-\xef\xa7\x94U" +
+	"X\xbe\xc0\xdf\x93\x11E\x95\xb7\xbc\xbf+C.\x19\x09" +
+	"\x84\xe0\xb5L\xad\xe0TK\xa4\x91zS\xc0\xe3\xaf\xaf" +
+	"\xad\xf6V\xf7*\x15\xafU\x09\xde\x0c^7\xd9[\xdd" +
+	"\xe7H\xde\x04\xbe\x02\x11B.m\x83R\xad\xc3\xbaa" +
+	"\xea\x9b\xc2\xa6\xe8\x0a\xce\x85\xac)ztV\xeb\x87\xcf" +
+	"\xcb\xe7\xb9\xf7\xfdB\xfc\xd3\xcby\xe5\xb0\xada\xe9\xf9" +
+	"\xaa\xe3\xb7\xbfe\xda\xea\xb8\xec\xf1\xa410\x90\xcd\x18" +
+	"6\x8bZE\xa9\xd9\xf9\xbcM#\x93\x16N\xa6l\x8d" +
+	"9\x19\xd9\xde\xb3\xe3\xcee\x863\x1dBO\x0c\x19\xe4" +
+	"\xa5\xd2\x046\xfbM\xc9\xadAjuWa!\xd1U" +
+	"g4\xb0\xa1\xda\x15\x13i;\xc3\"F\xf1\x9a\x95\xf0" +
+	"\x8e\x13H\xac\xf1\xf2\x12\xd42G\x8f\xb6#<\x0d\xbb" +
+	"E\x98v\xc2pit|\xab>\xcdQ\xdc\xddX2" +
+	"\xba\xba\x97\x96;\xa1\xeb\xea^\xaa3\xda2\xee\xf0`" +
+	"\x82\xc3\x1ey ldHv\x96m\x8d?\xbe\x12N" +
+	"\xc26=\x0fA&\xaf\x97\x16\xf8D\xaf_&\x1e\x8e" +
+	"\xd3\xfd\x05j\x88\xaa\xa4\xeeW\x11|\xec:hsC" +
+	"`\xbbo\x86T\xf2\xe9\xc0\xcd\xc1\xed\xbe9\x04eh" +
+	"\x06_\x14\xdc\xee\xbb\x92\xa0T\x8b\xc0W\x04\xb7\xfb\xae" +
+	"#\xb9\xff\x00\x1e\x93\xdb}\xdcS\xfeV\xc9W\x82w" +
+	"\x90B\xe4\x7f\xadf\xad\xdc\x1dl\x07NR\xe0k5" +
+	":\xc1eK\x82\xa7)\xf0\xb5\x9a\x14\xfd\x94\xb1\xb8\x0b" +
+	"\xbe\x9d|\x97\x1c\xba\x7f\x97l\xfe6\xf0\x9d\x04\xe5I" +
+	"\xb5\x8f&\x1d=\xab\x98F\xa2\xcd\xb6\x92Y\xffp\xb9" +
+	"\xaf\xb6\x904\xce\xfc\xcb\x1b1\x91f\xea\x04\x11\xae\xec" +
+	"\xcd\x92\xa3TK\x0c\xca\xe3}\x8a\x89AG\x08/=" +
+	":\x1f\xb2\x0e\xe9\xe5\xa2\xf3\x0c\x16\x0aF\x85\xbc`S" +
+	"OmJ\xea}\x82\x85\x93e\x8e\x9e\xfc\x98\x94\xb2\x8e" +
+	"<\x1btj\x8bb\xd7!\xf9j\xa6\xa1\x14\xbf\x9aw" +
+	"\x8a\x95?br\xfb\xe5\x1cd\xaaH\xff\x9e+H!" +
+	"K,?\x8fTW\xee\x88u\xe4#\xc4\x0a\x05\xb1B" +
+	"%\x8c\x1eW\x14\"\xd5\x9bF\xf5r{\xa8\x0e\xb8A" +
+	"\xee~`\x0d!\xd2fH\xdb<\x1d\xbc9\xb7\xb6\xa8" +
+	"rw\x0b!D3\xf8\"\xc5\x8f\x1c1\x8d\xae\x94\xbc" +
+	"\xb0\xbd\x15\xaa\xf4\xa6\xd1urm)loUTy" +
+	"\xf3\xa8U\xd9U\xb4\xbd5\xc9\x0f\x11;\xe5.\x90\xdc" +
+	"\xde2\xe5\x1a\xe2\x87\x88\x86\\[\x86\xf2kE\xa5\x1f" +
+	"\"\xde\xa3\\\x92\xdb\xae\xda+\xd7\x10?D|D\xbe" +
+	"\xd7\x1e\xf0\x83r\x0d\xf1C\xc4\xa7e=\x07\xf2\xbbL" +
+	"\x93\xfd\x10\xf1eY\xcf\x11\xf0\xb3r\x0d\xf1C\xc43" +
+	"rm9\x0b~A\xae!\xd5\xde\x1a\xf2\x91|\xdf\x0b" +
+	"\xb2;\xe5\x1a\xa2z!b=\xd6\x90x\x1d\x16\x85\x06" +
+	"\xb9\x88L\xf6\x16\x91\x19*\xde\xb7\x01|\xb9\\Dj" +
+	"\xbcE\xe4\x1a\x15z\xb3\x1c\xbc_-|\xf6H\xebU" +
+	"\xd1\xfe\x1epSn?\xd9\x86\x19\xcf:\x03\xa4'\x84" +
+	"\x1c\xef\xa87\xe0\x13\xaf/W\x9cYp\x89\xd2x\xf4" +
+	"|n}I\xea\xa9\xb4a\x0d\xaea\x11\xb9+\xeb'" +
+	"\xb7~\xfbQ\xfc\xef]\x99\xdc\x9as\xf6\x95\x94u\x8b" +
+	"\xeb\x85)^\x02\x19\xd5\x15\xbe\x19V\x12\x18\xc8\xb2\xab" +
+	"l\xd7\xcd%\x9b\x95)k\xc9\\\xb5\xee\x01\x16\x95E" +
+	"2\x81#\xba|\x1a\x9b'):\xbe\x93\x96\xde\xa6\\" +
+	"v{\xd8\xca\x94M\xb9(\x8e?\x8a\x0b\xd0\xf0\xb8\x05" +
+	"\xc46\xb3)\xd1\xa9\xb3Z\xd71F&\x92\x12\x84\xdd" +
+	"fr\\}\x9b\xc6\x99w\x1dE{\x1c\x92G\xa31" +
+	"C\x8f\x0c\xda\x96n\x96/\x16\x17J\"+S\xcbb" +
+	"\x86.\xcb\x8d[.\x86\x84\xee\xae1\xed\xad,\x10h" +
+	"\x80\xc1pP\xcer\xb0\xb2\x8f\x15\x15\xf1\x12\xa8\xca\x95" +
+	"\xd2\xd3:\xabM\x94\xc9\x0b\xfaT\xb6&w\xdb\xa0\xf4" +
+	"\x03k!RC\xb4RZ\x9a)a\xa8|M\x18\xee" +
+	"gX\xa1\xfa\xa8\xbfbM\x0b\xc3\xa4p\xf0\xa6\xb0B" +
+	"\xf4\x05o\xc1j\x0cC\x93\x9a\x80\x17\x86\x15\xaa\xf3\xb7" +
+	"\xa2\xae\x08\xcb\xbd\x1c\xe0e\xa8\xe5\x06\x7f+jq\x18" +
+	"N\xe02\xf0\x95\xe0+\xfc\xad\xa8\x1b\xc2X\x98V\x80" +
+	"\xb7\x83S\x8dghV\xcb\xd6\xc4\xc0{\xc0\x95)\xbe" +
+	"\xa1\x09\xcb\xef\x96\x81o\x08\xfb\xeb!\x0c\xcdm\xb2\xfe" +
+	"\x0d\xe0Ca\x7f\x7f\x1d\x86F\x84_e,n\x82\x8f" +
+	"\x84\xfd\xfdu\x18\x9al\x18\x06k\x04|G\xd87d" +
+	"04\xf7\xc8\xdf\xdd\x0e\xbe/\xec/\x8804\x8f\xca" +
+	"^\xd8\x0b\xbe?\xec;\xc304\x8f\xcb\xdf\xdd\x0f~" +
+	"$\xec;\xc304/\xc8z\x0e\x83\x9f\x0e\xfb\xce0" +
+	"\x0c\xcd)\xd9\xfe\xd3\xe0\x1f\x86}g\x18\x86\xe6\x03\xd9" +
+	"\x0f\xe7\xc1k*}g\x18\x86\xa6\xaa\x12\xeb\x7fM\xa5" +
+	"J\xf1\x05\x95\xbe3\x0cC\xd3R\x89\xf64\x83\xaf\xac" +
+	"\x0c\xecE\xddP\x89\xf7Z\x09\xdeQ\xe9{\xc3\x1c\x0e" +
+	"\x80\xac\xa7\x03|\x08\xbc\xae\xca\xdb\x8b\x12\x92\x0f\x81\xbb" +
+	"\xe0\xf5\xd5\xde^\xd4\x96J\xb4\xd3\x05\xdf\x0e~\xc9d" +
+	"o/\xea\xaeJ\x18\xbe\xed\xe0\xbb\xc1\xb5\xa9\xde^\xd4" +
+	"\xfd\xb2\xfcn\xf0\xbd\xe0|\xb2\xb7\x17\xf5\x88\xe4{\xc1" +
+	"\x9f\x05\x9fV\xe3\xedE=S\x09\x07\xe3\x10\xf8Q\xf0" +
+	"K\xa7x{Q/Vb\xfe\x1c\x01?\x0e~\xd9T" +
+	"o/\xea\x15\xc9\x8f\x81\x9f\x04\x9f^\xeb}]\xed\xf5" +
+	"J8$'\xc0\xcf\x82\xcf\xa8\xf1\xf6\xa2\xceT\xca-" +
+	"Q\xf0\xf3\xe03\xeb\xbc\xbd\xa8\xf7e\xbf\xbd\x07~\x01" +
+	"|V\xbd\xb7\x17\xf5\x91\xac\xe7\xc3J\x95\xfa\xaa\x14\xaa" +
+	"o\x98\xe2mE\xfd\xb6\x12\xc3\xf81\x8aO\x07o\xbc" +
+	"\xc4\xdb\x8a\x9aV\x85\xd7\x9a^\x85u\x16|\xb6\xc6i" +
+	"\x1e\xd6\xd9*\x19\\\x80/\x04\x8f\xd4z\x1fW\xbb\xa2" +
+	"\x0a\xdd\xb6\x10|9x\x13\xf7>\xaevM\x15\x86k" +
+	"9x\x0c|\xce4\xef\xe3j\xad\xb2|\x0c\xbc\x07|" +
+	"\xee\xa5\xde\xc7\xd5:%\xef\x01\xdf\x00>\xef2\xef\xe3" +
+	"j\xb7\xc9z6\x80\x0f\x817O\xf7>\xae&\xaa\xe4" +
+	"\xf0\x82\xbb\xe0-3\xbc\x8f\xabm\xa9\xc2{\xa5\xc1\xb7" +
+	"\x81\xcf\x9f\xea}\\m\xb4Jne\x82\xef\x05\xbf|" +
+	"\xa6\xf7q\xb5G\xaa\xa0F\xfb\xc0\x9f\x04_P\xeb}" +
+	"\\\xed\x09\xf9\xbe\xfb\xc1\x8f\x80_1K~]M{" +
+	"A\xf2\xc3\xe0\xc7\xc0?\xd3\xc0\xe9j\"\xed\xe5\xaa\xb7" +
+	"\x19\x8b\x1f\x07?\x0d\xfe\xd9F\xf9q5\xed\x94\xec\xcf" +
+	"\xd3\xe0\xe7\xc0\x17\xd6y\xdfV{\xab\x0a\xd3\xe4\x1d\xf0" +
+	"P\xb5B\xf5W\xd6{\xdfV\xa3\xea\xff\x81[T\x8d" +
+	"\xfe\x07\xbf\xea\x12NK\xd1\xff\xd5\x98&M\xe0+\xc0" +
+	"\xaf\x9e-\xbf\xad\xa6]W\x8d\xfaW\x80\xb7\x83/\x8a" +
+	"x\x9fV[]\x8d~k\x07\xef\x07_\xacq\xfa\x1c" +
+	"\xd6\xf1j\xf4O\x0f\xb8\x09\xbe\xa4\x89\xd3\xb5\xf0gd" +
+	"y\x13|\x04|\xe9\x1c\xef\xd3jYY\xff\x08\xf8\x0e" +
+	"\xf0es\xbdO\xab\xddS\x8d\xe9\xb6\x1d|7\xf85" +
+	"\xf38]\x0fu\x91\xe5w\x83\xef\x05\xff\\\xb3\xf7i" +
+	"\xb5Gd\xfd{\xc1\xf7\x83_\xdb\xe2}Z\xed\xf1j" +
+	"L\xcf\xc7\xc0\x0f\x80/\x9f\xef}Z\xed\xa9j\x98\x9f" +
+	"\x03\xe0\x87\xc0\xaf\xe3\xde\xb7\xd5\x9e\x93\xbf\xfb,\xf8\x09" +
+	"\xf0\xeb/\xf7\xbe\xad\xf6Z5\xe6\xcf\x09\xf0\xb3\xe0\x9f" +
+	"\x9f\xe6}[\xedL5\xc2\x86\xd3\xe0\x1fV\xe7n[" +
+	"\xb7\xd9)\x16M\xdb\x16\"\xb5\xba\xc27\\s\xae\x84" +
+	"eom\xb3Si\x16\xc9\x95\xc8\x7fq\xd6/1\x12" +
+	"o\x95\x17T\x95\x84n\x06\x17!6\xb1\xf7\xf3\x93[" +
+	"\x7f=I\x9d5\x96\xdfd\x1c\xde\xba\xde\xb0\x92\xf14" +
+	"\x09\x91\x94\x17M\xc8\x0d\xec\xa7z2\x16\x16\x81\xec\xb8" +
+	"\xff'\xaf\xc5\xbbZ\xbdz\x98\xbckpE\xb9\xd19" +
+	"\x99R\x94>\\\x9anu\xb1\xab\xd9\xba\xb7\xaf`\xb2" +
+	"\xa8\xf0\x8e\xd3J\xb7\x09\xf4\xb4a\x9a\xba\xc3\"\xa3}" +
+	"F\xa6\xe0\x1b\xe68I\xdc'O\x0d'z4:z" +
+	"\xd1\xaa\xc9\x13_\xbbh\xbc\x0f\x92\xbb\xfb\xe7\xa5\x13\x96" +
+	"\x13\xba\x8eN\xb9\xd7.\xb3'1 /\xfd\xe9ix" +
+	"\xa8e\xfc\x93\x013;\xd2\xeav\xd8\xb4U8r\xe3" +
+	"!\xac\x076\x1e\x06\x1d}\xd8p\xbd@\\7\xd7\xeb" +
+	"n\x99\x0d\x06\xffF\x9c\xa0\x84\xe1\xddxQ\x8bo\xc3" +
+	"\xe5w\xc5[\x93\xdem\xb8r\xb2\x98\x91I\x0c\xd5\xea" +
+	"N A8(\xf6\xee\xad\x16f\xc4\xa7q\xde>M" +
+	"xh\xf8'\xbe\xac\xf8, w\x99\xad\x04\x0f'\xbc" +
+	"\xebsL\xcd{\xfa\x81klQ/\x98-mG>" +
+	"\xc4\x8d$\xb3\x09\x91\xbc\xf8W\x0aLL\xfd\xfe!\x83" +
+	"E\x13wX\xa2\xcc-</\x1e\xe8\xa7!\xc3+\x10" +
+	"L\x02OM\xb4\xb7T*\xe9\xa8E%\x05\xd5\x93\xc7" +
+	"\xb3\x86S\xfe\x108\x9d\xea\xd4Gz\x84CrGF" +
+	"^\xdc)\xca\xfd\xde\x0a\x9f\xb8\xd5 \xa7\xec\xd9\xf5\xf0" +
+	"\xd6N\xc3\x9a\xb0\xee\xe1D\x97\xbc,Uv\xea\x0co" +
+	"\xed\x12n\x9f\x9edQ\xa3\xe4\x06\xbepR\xba%," +
+	"r\xd7\x1b\xa6L\xf2\xee\xb1\x8d\xf1\x19\xa3\xc3\x89\x1e\x0c" +
+	"\xa2\xa5\xb8\xfa\xa0\x88\xfbI\xe8N \xf7\xf3\xd3l4" +
+	"\x0do\x95w\xb9\xd2\x94\xbb\xcb\xf5\xfb\\\x8282}" +
+	"%c\xf9{\x10\xd4\x9eM\x19\xc9\xe2so/\xffG" +
+	"7\x95\x92:\xca)rF\xe6\xd8\xbbBI\xb6\xfbS" +
+	"\xdb\x9f\xd9Qoj\x97\x0b\xe3\x02GD\x13H\x09\xc2" +
+	"\x84c\x04oe\x14\xc9\xca\xe6\xf3\xf7\xd8\x8e`\xd1[" +
+	"d`7\xbe\xdf\xe57;\\\xd2\xfb\xbc\xb4\xf2p>" +
+	"\x19W\x1e\xbe8\x03zB\xf4\x91\x9d\x1d\x1c*\x99\xc1" +
+	"9\x19\x8bd\xad\xee\xc0m\xc9L6\x85(]\xa7\x84" +
+	"\xe8\x93\x92\xf1\xcf\xac'\x18\xd0q\xf7N\xcbn\xff\xc8" +
+	"\xed\xc7\xf5\xb0\xd7N\x9fH\xd9\xc3:\x99\xffo\x19\xd3" +
+	"\xc5\xd9\xd0\xb9D\x925f\x96\xd1\xc8Dq`\xe5\xc5" +
+	"\xe2@\xc4\xfe)\xcb\xcb\xc2\x92\x1f\x1d\x10\xc9.\xe8O" +
+	":m\x1a\xde\x87?zt\xb9\x16\xf7\x10\xf56\xe4\xf3" +
+	"\xb2\x9e\x9b\xc9X\xefA\x95z\x0f+\x94K\xcbz\xde" +
+	"a\xac\xf7\x90J\xbdG\xfd\xb3\x0a\x85\xb1\xfa\x1771" +
+	"\xd6{D\xa5\xde\xe3\xfeA\x85\xcaX\xfd+(yL" +
+	"\xa5\xde\x93\xfe)E\x88\xb1\xfa\xd7_e\xac\xf7\xb4J" +
+	"\xbd\xe7\xfc#\x8a\x0a\xc6\xea\xdf\x02|G\xa5\xde\x0f\x11" +
+	"\x92y{\x97\xf5\x1f\xecb\xac\xf7C\x95\xfaH!u" +
+	" MucoM\xab\xb8N\xff\xca\xbf~\x9cwE" +
+	"\xf4T\xda4\xacAV\xe6\xb3\x0f]\xfd\xba\xc3\xc2\x83" +
+	"\xc2\x1dO#\x83\xc2]Z\xb8w8\xe0\x9f\x07*\xc2" +
+	")\xee\x92\xe0\xf5\xf5@\x19}\xa4|\x19\xd7N\xc7\xe4" +
+	"y\x92\xcc[6\xf5\xd1\xdf'\x99$\xee\x9f\xaaZF" +
+	"B\xc6\xeaQ/X\xc7p\xecWC\xb4@\x86\xea)" +
+	"\x99\xb8`\x86\xe0\x85\x86\xe0\xa5\xfb\xa1z6\x04\xefn" +
+	"\x04|G\xc8;oB\xa8~\x8f\xcc\xaf\xd8\x0e\xbc;" +
+	"\x14\xd8\x14\xbc_\xe69\x14\xf2\x13r\x9b\x82\x8f\xc8|" +
+	"\x83B~\x82J^\xac\xfe\xb8\xcc\x7f(\xe4'\x84\x14" +
+	"/V\x7fZ\xd6S\xc8O\xa8 /V\x7f^\xd6s" +
+	"\x18\xfct\xc8?pB\xac~J6S\xe6!|\x18" +
+	"\xf2\x0f\x9c\x10\xab\x7f \xf3\">\x94y&\x15~\x8c" +
+	"\x8dX}\x8a\xcc\x07\xa8\xa9@\x0c\\\xe1\xc7\xd8\x88\xd5" +
+	"[d^A!\x0f\x011v\x8d\xccC\x80\xb3\xbc\x02" +
+	"\xfc\xd6\x0a?\xc6F\xac\xbeN\xd6\xd3\x0f\x9e\xae\xf0c" +
+	"l\xc4\xea)Y\x8f\x09\xbe\xb3\xc2\x8f\xb1\x11\xab\xdf'" +
+	"\xeb\xd9\x01\xfe\x18\xf8T\xffd\xe9\xbb\x157!\x18\x02" +
+	"?\x04^\xeb\x7f\x0b\xfd\xb9\x0a\xf9\x09s\xf0\xa3\x15\xfe" +
+	"\x89\x13b\xf5\x17e\xfdG\xc0\x8f\x83\xd7\xd7x\xb1\xfa" +
+	"+\x15p\xde\x8f\x83\xbf\x03~I\xc8\x8b\xd5\x7f!\xf3" +
+	"\"\xce\x81\x9f\x07\xd7*\xbcX\xfd}\x99\xff\xf0\x1e\xf8" +
+	"\x05p>\xc9\x8b\xd5?\xaa\x90_\xfa\x04\x0fMB\x8c" +
+	"\x1d\xf6bu\x9a\x84~\x0eMB\x7f\x82_Z\xe9\xc5" +
+	"\xeaS&\xc9\xbc\x1d\xf0\x06\xf0\xcb\xaa\xbcX}\xc6$" +
+	"\x8co\x03\xf8\x02\xf0\xe9S\xbcX\xbdE\x96_\x00\x1e" +
+	"\x03\x9fQ\xed\xc5\xea\xad\x93\x10\xac\xc4\xc0{\xc0gN" +
+	"\xf6b\xf5\xceIhg\x07\xf8\xad\xe0\xb3\xfc\xbc\x91u" +
+	"\xb2\xfc\xad\xe0.xC\xad\x17\xabo\x99$S\x9d\xc1" +
+	"w\x837\xfa\xb1\xfa\xfd\x92\xef\x04\xdf\x0f>\xdb\x8f\xd5" +
+	"\x1f\x9f$\xf3d\xc0\x8f\x80G.\xf1\x82\xf5\x17d\xf9" +
+	"\xc3\xe0\xa7\xc1\x9b4/X?%\xf9I\xf0\xf3\xe0s" +
+	"\xb8\x17\xac\xbf/\xf9{\xe0\x95a\x04\xd9\xd3\xbc`\xbd" +
+	"B\xeea\x85r;^\xf5\xf3j\xbc`\xbd1\xfc\xed" +
+	"\xe0\x96W}\xf3\x14/X\xbf\"\x8c\xf6,\x04_\x0e" +
+	"\xde2\xd5\x0b\xd6\xaf\x91{@\x85=\xaf\xf9\xb5^\xb0" +
+	"~\x83\xdc3Z\x09\xde\x11V\xe0\x0c&l'm\xe7" +
+	"\x97\x84\xdc9\xb7w\x8a%,2\\\xc7\x180\x12%" +
+	"\xf9$\xe3\x82\xa7\xaf\xfe\xeb\x0ff\xec\x8e\xfe\xeao\x0a" +
+	"I+\x17\xdb\xa7\xcd_Y\xf6\xcd\x8d_\xa4\x10\x13\xc1" +
+	"\x99\xeev\x06I\xda\"\xdd\x95\x9ey\xaei\x86\x9f\x97" +
+	"@\xb6\xd5\x9a\xb2\xb3EW.\xf5\x84\xdb\x9aJ\xd9\x96" +
+	"b\xe8\xdd#FRw'r}\xf4\x84\xdb\x85W\xa3" +
+	"\x01\xdf\x88\xd6\x06o\xbf\x06J\xc5\x84e\xb8\xe4\xf5\x81" +
+	"kD\xbd\xea\xc6\x95\xb3Skt\xf9\xa1\x10\xd3\xd5\xe3" +
+	"\xd9\x14\x9b\xa0\xc0ZVk\xa5\xb3\xee\x04\xd28S\xc7" +
+	"\xdfb\xd3\xedT\xdc\x94\xc9\x87\x13W\x8d\x02\x13W\x0d" +
+	"i\xd9\xaa\x13\xabtS\xb7\x122#\xbd\xf4\xacW$" +
+	"\xecT\xda\xceH/\"p\xdf\xb8\xe8\x0b/\xe3\xbf\xe5" +
+	"bX\xc2q\xe3\xb6A\xb9u\x84\xdaJk\xb6\x96\xd8" +
+	"\xf2\xe3\x00,\x1c\x8c\x17\xf24\x9a\x10\xc9\xae\x80\xd3\x91" +
+	"\x13PB$\xe5P\x14\x7fo`u\xc2\xce\x8c\x92\xbc" +
+	"L1\x82\x10\xcb\x0a\xb8GE\xe2r\x1f3\xb1\x84\x0b" +
+	"\x07D\x90\xa3\x9b\xf2\x92\x96z1\xe1\x04C\xef]\xa0" +
+	"k_J\xb7\xc8\x08\xc24\xc2\x99\xe0{\x0d-\x95\x9c" +
+	"Ee.P\xe0\xfaSjS[\xf7\x92\xd5\xc3d\x9b" +
+	"\xf2\xc2l_\xb8L\xdd\x99\xd4&9\xadX-\x06\xbf" +
+	"\x8cT\xce\x8c\xf2\xd2\xdf\xe3\x06\xaa\xcc\xa4\xaa\xb5\x8cD" +
+	"\xdbxi\xeab\x0d\xb8\xe8\xa4\xce\xf8\x13w\x82g\xb3" +
+	"\xa9b\xcdR\x8b\xef\x13v\xa1\xfb\xc9\x90\x8d72%" +
+	"\xb3\x0f\xf2%\xdd=\x0e\x8b\xda\xc5a'\x04\xedKo" +
+	"\xb1\xc9\x1b\x8a\x8c\xa0\xe48\xf7g\xc2\xcb3}YK" +
+	"\x1e\xe9\xd7\xe6\x9c\x9eP\xde\x07\x9d\xf2E\xc6zkT" +
+	"\xea\x9d\xae\xf8\x15\xc5]\x9d\xa9\xf2\xa6F\xfe_/\xf2" +
+	"-\xdf'\xfeN\xa7>\xbaI\xac\xb2m2K~d" +
+	"\x09c\xbd\x95*\xf5r%w\xbf\xa0\xf4\x9aC\xe8b" +
+	"\xae\x1b\x8ch\xd4\xc9\xbbl+\xbc\x8a\x89\xb4G\x08k" +
+	"\xc1\x1e\x82/A\x85\xcb\x0d\xdaw\xe55\x99}\xe0O" +
+	"\x92B\xb9t\x80'\xe41\xfe~\xe0#Tp\xa5\xb5" +
+	"\x17h\x15\\\x0c\xf0\xa3T\xf0\xa6\xb5\x17%/\xdc\xc2" +
+	"\xf1\x1dj\xede\xc9\x8f\x80\x1f\xa7\x82O\xad\xbd\"y" +
+	"\xfevN}\xd8\xcf\x07xM\xa6&\x1d\x07?-\xcf" +
+	"\xfd\xc3\x9c*\x89\xb4S\xb2|\xe1\xdaNU%\xa7*" +
+	"\"\xed\x8c\xe4'\xc1\xdf\x04\xaf\xae\xe2TM\xa4\xfdL" +
+	"\xf2\xd3\xe0\xe7H\xa1\xc5\x93\xb7+\xde\xfd\x9f\xb7d\x02" +
+	"\xc1\x9b\x10\xbc\x87\x07j\xc8\xf3\xd9\xde\xc5J\x1d?\x07" +
+	"~\x9e\xfc\x7f\xa7f\x0a\x91\xf6\xbe\xec\xb7|\x0a\x95\xfc" +
+	"wj\xe4A\xae\xbc\xbe\x94\xcb\xa1\x1a\xbf\xad\x11<&" +
+	"}>\x7fL\xba\x1e\xcbP\x04\x01Ta\x87f\xd8n" +
+	"\xed\xee\xec\xb1mFf!\xa9-\xff\x8f'yIm" +
+	"w\xfb\x8a\x94{\xe8n_\xed\x0a\xff\xed\xd9\x81\xe0\x7f" +
+	"\x07\xe5\xde\xb9\xab\xeelb\xb5z\xcaH\x06\xaa1\xcc" +
+	"\xae\xf6e~k\xaflk\xf8\xbfo\x7fn&Z\xeb" +
+	"\xa7\xc2\xf8\xf9\xefc\x1f?\xf5\xc1\x1b\x9d\x9bz\x02\x92" +
+	"\xa5\xe3\x9f\x91?\xb2\xc6\xb1\xefd\xaa\xc8;\x11\xe1L" +
+	"\x1a\xae\xc1\x7f}\xe1G\x87N^;\xe7\xd9q\xd9\x9d" +
+	"Qy*\xe8\xd7v\xe4D\xd4\xaf\xa6\xf8t\xf6S\xab" +
+	"/z\xd2\xb1\xd3\"\xe2\xb8\x86\x901d\x7f>\x93\xe1" +
+	"\x06\x99\xd6UH)\xc8i@\xab\xe4+\xc0\xdbs\xa9" +
+	"\x09P\x81\xd5\xf2\xa8\xbe\x1d\xbc_\xf1\xb3\xd1\xa1\x02\xbd" +
+	"\x92\xf7\x83oT\xfclt\xa8\xc0\xed\x92o\xcc\xa7 " +
+	"T\xf87l\x0c\xc9M\xf0\x11\xc5O}\x81\x0ade" +
+	"J\x81\x0b\xbe]\xf1O\xfa\xa0\x02wI\x1e\xb8IS" +
+	"\xe9\xa9\xc0}\xb2\x9e\x9d\xe0{\x14?\x1b\x1d*\xf0\xb0" +
+	"\xe4{\x0aio\xfe\x05\x9b\xef\xca\x9b:\x85\x0b6\x93" +
+	"\xf3\x17l\xbe\x9fKe8$S\x16j8\xd5\x10i" +
+	"\xcf\xc9\x94\x8bg\xc1\x8f\xc8\x94\x85)\x9e\x06\xbc y" +
+	"\xe1\x82\xcd\xd4\xe5\x9c\xa6\x12i/\xcbz\x8e\x81\x9f\x94" +
+	"\x17i\xfc\x0b6\xaf\xcbT\x8c\x93\xe0o\xca\x8b4\xfe" +
+	"\x05\x9b\x9f\xc9\xd4\x10\x99\x12\xf1\x8e\xbcH\xe3_\xb0\xf9" +
+	"\x85L\xb98\x07~^\xa6\x92\xf8\x17l\xde\x97\xfc\xbd" +
+	"\\\x0a\xc5b\xed!\x95\x93F\xa4}$+\xfaPQ" +
+	"\xa9OUh1\x7fX\xe5\x18J\xed\xb7\xca\xae@\x1e" +
+	"\xde\xddz\x89\xca\xe8\xc5*\x93w\xaa\x14\x91\xc0\x9a\xee" +
+	"\xda\xf1\xceU\x00\xec\xa2%PEQ\x09\xb96^\xb4" +
+	"\x8eq%\xc6\xd5\xe1;w\x09?\xa5\xae\xf4\xd9\xb2\x92" +
+	"\\\xcb\xa4$\xee\xeaVRw\x92\xc5w\xe6\x0a?=" +
+	"q\xa1\xb4\xee\xb8\xad\xdd\x9dq2\xed\xad\xb2q\xb5\xc1" +
+	"N+#.\xea\xc3\x84%?G\xd2\xca\xa2\xdd\x9d\x85" +
+	"\xe7\xfc\xaft\x06d\x85\x87\xfc\xfb\xe6\xfe\xa7!\xc9\xf1" +
+	"\xb70\xbc\xc8\"\xef\xfa\xdb\xa9\x983\xda\xa9\x93\xeb\x0a" +
+	"\xa7\xcd\xb6\xdcp\xf0\x13\x07\xba\x9d\xeaj_\xd6f3" +
+	"\xdf\x9b)\xed\x14\xdf\xd9(\xed\xc5\x12<Q\xd0c\xd9" +
+	"\x9e\x13G\xa6qgng\x85\x98RQ\xb4\x06W|" +
+	"\xca=.\xef&N\xfe\x1f\xfc\xab\xa7_\x8f\xe5v\xbd" +
+	"\x94\xb2\xdb^\xbd+\xf3\xf6\xea\x19\x99\x91\xf7l~\x09" +
+	"\xce\xd9\xab\x17$/,\xa9J\xa5g\xaf^\x91\x99z" +
+	"\x85\xa53g\xafN\xc9\xf2\xf9\xa50o\xaf\xde\x92+" +
+	"\x7fa%\xcc\xd9\xabw\xe9U\xc6\xe2\xe7\xc1?\xa6\x80" +
+	"\xbd\xfa\x8dL\xe1\xbb\x00\x1e\xca\xdb+\"\x8d\xe4\x05\xb9" +
+	"|\x86\x98g\xafd\x8a\xd8KEi\xc3U\xfe\x85\xdd" +
+	"F\xa9\xbe2mx\x81\xe2]\xcc\x85\xb9j\x91\x89f" +
+	"\xf9\xfb\x8f\xf2\x1f\x96\x9b,/@~;\x97M\xbcR" +
+	"\x09,\xd87\xc8,\xe3\x82\xd9\x9e\xa2\xf8\xff\xe0\\\xc1" +
+	"l'\x15\x7f\xd3\x04\x0b\xb6.y!\xcb\xb8\xd6\xcf\xbc" +
+	"J)\xd7\x073\xc4\xe03\xcb\x0dW\xf2\xce\xca\xe2n" +
+	"\xc4.\xf9\xaa\x8b\xf7uJ\x12i\xefC\x80\xa5\xf2T" +
+	"\xf0\xa6F\xbf\xbeI5E \xea]#O\xa3\xa8\xc3" +
+	"\xf6N\xa3\"2\xad\xa7\xf0\xf0\x16\xf9I\xdau,\x92" +
+	".\xfa\x14\xc7\xb0+\xbf\xfe\x92U\xe4Vp q\x8f" +
+	"\x05?\x86*/\xa8\x09V\xf4\xdd\x98t\xa6S\x1f\xe9" +
+	"4,E\xe4b\x18\xdb\xf2\x0eOX\x91\x8frF\xae" +
+	"\xe0\x13G\xe5\xf9_\x19\xe8\x97\xdb\x8b,\x92\xc9\x04o" +
+	"\xb2\xe58I\xdc\xa3;Q\xef\x03\xd0evK\x8b\x8b" +
+	"\xc6\x84\xa9\xea\xa3\xf9\x1eJ\xf8\xf7-\x18\xbam\xfc\x85" +
+	"\x8bdy\xed\xc9\xb0\x82\xeb\x94\xd7\xb6\xdc\xe7\xb3R\xf9" +
+	"\xcf\x19\xe7\x0e\x80\x8bO\x8f\xa2\xa6wP\x9b\xaf!\x98" +
+	"\x88\x16\xdc\xd9V'\xd2\xfa\xe8\xda\xb6\x98\xee\xea\xf07" +
+	"j\xd4P\xcd\xd8\x98\xf4\xe5W_\xcfX\xefJ\x95z" +
+	";\x14j\xa4\xdf\x8d\xf9\xfb\xd6k\x81c*\xf5\xf6(" +
+	"\xd4\xa8\xfcv\xcc\xdf\xb9\xee\xfc\x0cc\xbd\xed*\xf5\xf6" +
+	"+\x14\xb5ly}{RtH~\xdc\xb0\xf0]F" +
+	"\xbd\x10\x16\xff\xff\x01\x00\x00\xff\xff\"\xb1\xad\x95"
 
 func init() {
 	schemas.Register(schema_86ea47c297746539,

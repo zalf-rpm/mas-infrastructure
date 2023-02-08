@@ -5,12 +5,14 @@ package fbp
 import (
 	capnp "capnproto.org/go/capnp/v3"
 	text "capnproto.org/go/capnp/v3/encoding/text"
+	fc "capnproto.org/go/capnp/v3/flowcontrol"
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
+	fmt "fmt"
 )
 
-type Component struct{ Client *capnp.Client }
+type Component capnp.Client
 
 // Component_TypeID is the unique identifier for the type Component.
 const Component_TypeID = 0xd717ff7d6815a6b0
@@ -26,9 +28,9 @@ func (c Component) SetupPorts(ctx context.Context, params func(Component_setupPo
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 2}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Component_setupPorts_Params{Struct: s}) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Component_setupPorts_Params(s)) }
 	}
-	ans, release := c.Client.SendCall(ctx, s)
+	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Component_setupPorts_Results_Future{Future: ans.Future()}, release
 }
 func (c Component) Stop(ctx context.Context, params func(Component_stop_Params) error) (Component_stop_Results_Future, capnp.ReleaseFunc) {
@@ -42,23 +44,78 @@ func (c Component) Stop(ctx context.Context, params func(Component_stop_Params) 
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Component_stop_Params{Struct: s}) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Component_stop_Params(s)) }
 	}
-	ans, release := c.Client.SendCall(ctx, s)
+	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Component_stop_Results_Future{Future: ans.Future()}, release
 }
 
+// String returns a string that identifies this capability for debugging
+// purposes.  Its format should not be depended on: in particular, it
+// should not be used to compare clients.  Use IsSame to compare clients
+// for equality.
+func (c Component) String() string {
+	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+}
+
+// AddRef creates a new Client that refers to the same capability as c.
+// If c is nil or has resolved to null, then AddRef returns nil.
 func (c Component) AddRef() Component {
-	return Component{
-		Client: c.Client.AddRef(),
-	}
+	return Component(capnp.Client(c).AddRef())
 }
 
+// Release releases a capability reference.  If this is the last
+// reference to the capability, then the underlying resources associated
+// with the capability will be released.
+//
+// Release will panic if c has already been released, but not if c is
+// nil or resolved to null.
 func (c Component) Release() {
-	c.Client.Release()
+	capnp.Client(c).Release()
 }
 
-// A Component_Server is a Component with a local implementation.
+// Resolve blocks until the capability is fully resolved or the Context
+// expires.
+func (c Component) Resolve(ctx context.Context) error {
+	return capnp.Client(c).Resolve(ctx)
+}
+
+func (c Component) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Client(c).EncodeAsPtr(seg)
+}
+
+func (Component) DecodeFromPtr(p capnp.Ptr) Component {
+	return Component(capnp.Client{}.DecodeFromPtr(p))
+}
+
+// IsValid reports whether c is a valid reference to a capability.
+// A reference is invalid if it is nil, has resolved to null, or has
+// been released.
+func (c Component) IsValid() bool {
+	return capnp.Client(c).IsValid()
+}
+
+// IsSame reports whether c and other refer to a capability created by the
+// same call to NewClient.  This can return false negatives if c or other
+// are not fully resolved: use Resolve if this is an issue.  If either
+// c or other are released, then IsSame panics.
+func (c Component) IsSame(other Component) bool {
+	return capnp.Client(c).IsSame(capnp.Client(other))
+}
+
+// Update the flowcontrol.FlowLimiter used to manage flow control for
+// this client. This affects all future calls, but not calls already
+// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
+// which is also the default.
+func (c Component) SetFlowLimiter(lim fc.FlowLimiter) {
+	capnp.Client(c).SetFlowLimiter(lim)
+}
+
+// Get the current flowcontrol.FlowLimiter used to manage flow control
+// for this client.
+func (c Component) GetFlowLimiter() fc.FlowLimiter {
+	return capnp.Client(c).GetFlowLimiter()
+} // A Component_Server is a Component with a local implementation.
 type Component_Server interface {
 	SetupPorts(context.Context, Component_setupPorts) error
 
@@ -66,15 +123,15 @@ type Component_Server interface {
 }
 
 // Component_NewServer creates a new Server from an implementation of Component_Server.
-func Component_NewServer(s Component_Server, policy *server.Policy) *server.Server {
+func Component_NewServer(s Component_Server) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(Component_Methods(nil, s), s, c, policy)
+	return server.New(Component_Methods(nil, s), s, c)
 }
 
 // Component_ServerToClient creates a new Client from an implementation of Component_Server.
 // The caller is responsible for calling Release on the returned Client.
-func Component_ServerToClient(s Component_Server, policy *server.Policy) Component {
-	return Component{Client: capnp.NewClient(Component_NewServer(s, policy))}
+func Component_ServerToClient(s Component_Server) Component {
+	return Component(capnp.NewClient(Component_NewServer(s)))
 }
 
 // Component_Methods appends Methods to a slice that invoke the methods on s.
@@ -119,13 +176,13 @@ type Component_setupPorts struct {
 
 // Args returns the call's arguments.
 func (c Component_setupPorts) Args() Component_setupPorts_Params {
-	return Component_setupPorts_Params{Struct: c.Call.Args()}
+	return Component_setupPorts_Params(c.Call.Args())
 }
 
 // AllocResults allocates the results struct.
 func (c Component_setupPorts) AllocResults() (Component_setupPorts_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Component_setupPorts_Results{Struct: r}, err
+	return Component_setupPorts_Results(r), err
 }
 
 // Component_stop holds the state for a server call to Component.stop.
@@ -136,373 +193,434 @@ type Component_stop struct {
 
 // Args returns the call's arguments.
 func (c Component_stop) Args() Component_stop_Params {
-	return Component_stop_Params{Struct: c.Call.Args()}
+	return Component_stop_Params(c.Call.Args())
 }
 
 // AllocResults allocates the results struct.
 func (c Component_stop) AllocResults() (Component_stop_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Component_stop_Results{Struct: r}, err
+	return Component_stop_Results(r), err
 }
 
-type Component_NameToPort struct{ capnp.Struct }
+// Component_List is a list of Component.
+type Component_List = capnp.CapList[Component]
+
+// NewComponent creates a new list of Component.
+func NewComponent_List(s *capnp.Segment, sz int32) (Component_List, error) {
+	l, err := capnp.NewPointerList(s, sz)
+	return capnp.CapList[Component](l), err
+}
+
+type Component_NameToPort capnp.Struct
 
 // Component_NameToPort_TypeID is the unique identifier for the type Component_NameToPort.
 const Component_NameToPort_TypeID = 0xf77095186c3c4f65
 
 func NewComponent_NameToPort(s *capnp.Segment) (Component_NameToPort, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Component_NameToPort{st}, err
+	return Component_NameToPort(st), err
 }
 
 func NewRootComponent_NameToPort(s *capnp.Segment) (Component_NameToPort, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Component_NameToPort{st}, err
+	return Component_NameToPort(st), err
 }
 
 func ReadRootComponent_NameToPort(msg *capnp.Message) (Component_NameToPort, error) {
 	root, err := msg.Root()
-	return Component_NameToPort{root.Struct()}, err
+	return Component_NameToPort(root.Struct()), err
 }
 
 func (s Component_NameToPort) String() string {
-	str, _ := text.Marshal(0xf77095186c3c4f65, s.Struct)
+	str, _ := text.Marshal(0xf77095186c3c4f65, capnp.Struct(s))
 	return str
 }
 
+func (s Component_NameToPort) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Component_NameToPort) DecodeFromPtr(p capnp.Ptr) Component_NameToPort {
+	return Component_NameToPort(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Component_NameToPort) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Component_NameToPort) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Component_NameToPort) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Component_NameToPort) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Component_NameToPort) Name() (string, error) {
-	p, err := s.Struct.Ptr(0)
+	p, err := capnp.Struct(s).Ptr(0)
 	return p.Text(), err
 }
 
 func (s Component_NameToPort) HasName() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s Component_NameToPort) NameBytes() ([]byte, error) {
-	p, err := s.Struct.Ptr(0)
+	p, err := capnp.Struct(s).Ptr(0)
 	return p.TextBytes(), err
 }
 
 func (s Component_NameToPort) SetName(v string) error {
-	return s.Struct.SetText(0, v)
+	return capnp.Struct(s).SetText(0, v)
 }
 
-func (s Component_NameToPort) Port() (capnp.Ptr, error) {
-	return s.Struct.Ptr(1)
+func (s Component_NameToPort) Port() capnp.Client {
+	p, _ := capnp.Struct(s).Ptr(1)
+	return p.Interface().Client()
 }
 
 func (s Component_NameToPort) HasPort() bool {
-	return s.Struct.HasPtr(1)
+	return capnp.Struct(s).HasPtr(1)
 }
 
-func (s Component_NameToPort) SetPort(v capnp.Ptr) error {
-	return s.Struct.SetPtr(1, v)
+func (s Component_NameToPort) SetPort(c capnp.Client) error {
+	if !c.IsValid() {
+		return capnp.Struct(s).SetPtr(1, capnp.Ptr{})
+	}
+	seg := s.Segment()
+	in := capnp.NewInterface(seg, seg.Message().AddCap(c))
+	return capnp.Struct(s).SetPtr(1, in.ToPtr())
 }
 
 // Component_NameToPort_List is a list of Component_NameToPort.
-type Component_NameToPort_List struct{ capnp.List }
+type Component_NameToPort_List = capnp.StructList[Component_NameToPort]
 
 // NewComponent_NameToPort creates a new list of Component_NameToPort.
 func NewComponent_NameToPort_List(s *capnp.Segment, sz int32) (Component_NameToPort_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
-	return Component_NameToPort_List{l}, err
-}
-
-func (s Component_NameToPort_List) At(i int) Component_NameToPort {
-	return Component_NameToPort{s.List.Struct(i)}
-}
-
-func (s Component_NameToPort_List) Set(i int, v Component_NameToPort) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Component_NameToPort_List) String() string {
-	str, _ := text.MarshalList(0xf77095186c3c4f65, s.List)
-	return str
+	return capnp.StructList[Component_NameToPort](l), err
 }
 
 // Component_NameToPort_Future is a wrapper for a Component_NameToPort promised by a client call.
 type Component_NameToPort_Future struct{ *capnp.Future }
 
-func (p Component_NameToPort_Future) Struct() (Component_NameToPort, error) {
-	s, err := p.Future.Struct()
-	return Component_NameToPort{s}, err
+func (f Component_NameToPort_Future) Struct() (Component_NameToPort, error) {
+	p, err := f.Future.Ptr()
+	return Component_NameToPort(p.Struct()), err
+}
+func (p Component_NameToPort_Future) Port() capnp.Client {
+	return p.Future.Field(1, nil).Client()
 }
 
-func (p Component_NameToPort_Future) Port() *capnp.Future {
-	return p.Future.Field(1, nil)
-}
-
-type Component_setupPorts_Params struct{ capnp.Struct }
+type Component_setupPorts_Params capnp.Struct
 
 // Component_setupPorts_Params_TypeID is the unique identifier for the type Component_setupPorts_Params.
 const Component_setupPorts_Params_TypeID = 0xf5b257d7fba7ed60
 
 func NewComponent_setupPorts_Params(s *capnp.Segment) (Component_setupPorts_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Component_setupPorts_Params{st}, err
+	return Component_setupPorts_Params(st), err
 }
 
 func NewRootComponent_setupPorts_Params(s *capnp.Segment) (Component_setupPorts_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Component_setupPorts_Params{st}, err
+	return Component_setupPorts_Params(st), err
 }
 
 func ReadRootComponent_setupPorts_Params(msg *capnp.Message) (Component_setupPorts_Params, error) {
 	root, err := msg.Root()
-	return Component_setupPorts_Params{root.Struct()}, err
+	return Component_setupPorts_Params(root.Struct()), err
 }
 
 func (s Component_setupPorts_Params) String() string {
-	str, _ := text.Marshal(0xf5b257d7fba7ed60, s.Struct)
+	str, _ := text.Marshal(0xf5b257d7fba7ed60, capnp.Struct(s))
 	return str
 }
 
+func (s Component_setupPorts_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Component_setupPorts_Params) DecodeFromPtr(p capnp.Ptr) Component_setupPorts_Params {
+	return Component_setupPorts_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Component_setupPorts_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Component_setupPorts_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Component_setupPorts_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Component_setupPorts_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Component_setupPorts_Params) InPorts() (Component_NameToPort_List, error) {
-	p, err := s.Struct.Ptr(0)
-	return Component_NameToPort_List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return Component_NameToPort_List(p.List()), err
 }
 
 func (s Component_setupPorts_Params) HasInPorts() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s Component_setupPorts_Params) SetInPorts(v Component_NameToPort_List) error {
-	return s.Struct.SetPtr(0, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
 }
 
 // NewInPorts sets the inPorts field to a newly
 // allocated Component_NameToPort_List, preferring placement in s's segment.
 func (s Component_setupPorts_Params) NewInPorts(n int32) (Component_NameToPort_List, error) {
-	l, err := NewComponent_NameToPort_List(s.Struct.Segment(), n)
+	l, err := NewComponent_NameToPort_List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return Component_NameToPort_List{}, err
 	}
-	err = s.Struct.SetPtr(0, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
 	return l, err
 }
-
 func (s Component_setupPorts_Params) OutPorts() (Component_NameToPort_List, error) {
-	p, err := s.Struct.Ptr(1)
-	return Component_NameToPort_List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(1)
+	return Component_NameToPort_List(p.List()), err
 }
 
 func (s Component_setupPorts_Params) HasOutPorts() bool {
-	return s.Struct.HasPtr(1)
+	return capnp.Struct(s).HasPtr(1)
 }
 
 func (s Component_setupPorts_Params) SetOutPorts(v Component_NameToPort_List) error {
-	return s.Struct.SetPtr(1, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(1, v.ToPtr())
 }
 
 // NewOutPorts sets the outPorts field to a newly
 // allocated Component_NameToPort_List, preferring placement in s's segment.
 func (s Component_setupPorts_Params) NewOutPorts(n int32) (Component_NameToPort_List, error) {
-	l, err := NewComponent_NameToPort_List(s.Struct.Segment(), n)
+	l, err := NewComponent_NameToPort_List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return Component_NameToPort_List{}, err
 	}
-	err = s.Struct.SetPtr(1, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(1, l.ToPtr())
 	return l, err
 }
 
 // Component_setupPorts_Params_List is a list of Component_setupPorts_Params.
-type Component_setupPorts_Params_List struct{ capnp.List }
+type Component_setupPorts_Params_List = capnp.StructList[Component_setupPorts_Params]
 
 // NewComponent_setupPorts_Params creates a new list of Component_setupPorts_Params.
 func NewComponent_setupPorts_Params_List(s *capnp.Segment, sz int32) (Component_setupPorts_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
-	return Component_setupPorts_Params_List{l}, err
-}
-
-func (s Component_setupPorts_Params_List) At(i int) Component_setupPorts_Params {
-	return Component_setupPorts_Params{s.List.Struct(i)}
-}
-
-func (s Component_setupPorts_Params_List) Set(i int, v Component_setupPorts_Params) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Component_setupPorts_Params_List) String() string {
-	str, _ := text.MarshalList(0xf5b257d7fba7ed60, s.List)
-	return str
+	return capnp.StructList[Component_setupPorts_Params](l), err
 }
 
 // Component_setupPorts_Params_Future is a wrapper for a Component_setupPorts_Params promised by a client call.
 type Component_setupPorts_Params_Future struct{ *capnp.Future }
 
-func (p Component_setupPorts_Params_Future) Struct() (Component_setupPorts_Params, error) {
-	s, err := p.Future.Struct()
-	return Component_setupPorts_Params{s}, err
+func (f Component_setupPorts_Params_Future) Struct() (Component_setupPorts_Params, error) {
+	p, err := f.Future.Ptr()
+	return Component_setupPorts_Params(p.Struct()), err
 }
 
-type Component_setupPorts_Results struct{ capnp.Struct }
+type Component_setupPorts_Results capnp.Struct
 
 // Component_setupPorts_Results_TypeID is the unique identifier for the type Component_setupPorts_Results.
 const Component_setupPorts_Results_TypeID = 0xda58608ec3b1dfa6
 
 func NewComponent_setupPorts_Results(s *capnp.Segment) (Component_setupPorts_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Component_setupPorts_Results{st}, err
+	return Component_setupPorts_Results(st), err
 }
 
 func NewRootComponent_setupPorts_Results(s *capnp.Segment) (Component_setupPorts_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Component_setupPorts_Results{st}, err
+	return Component_setupPorts_Results(st), err
 }
 
 func ReadRootComponent_setupPorts_Results(msg *capnp.Message) (Component_setupPorts_Results, error) {
 	root, err := msg.Root()
-	return Component_setupPorts_Results{root.Struct()}, err
+	return Component_setupPorts_Results(root.Struct()), err
 }
 
 func (s Component_setupPorts_Results) String() string {
-	str, _ := text.Marshal(0xda58608ec3b1dfa6, s.Struct)
+	str, _ := text.Marshal(0xda58608ec3b1dfa6, capnp.Struct(s))
 	return str
 }
 
+func (s Component_setupPorts_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Component_setupPorts_Results) DecodeFromPtr(p capnp.Ptr) Component_setupPorts_Results {
+	return Component_setupPorts_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Component_setupPorts_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Component_setupPorts_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Component_setupPorts_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Component_setupPorts_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+
 // Component_setupPorts_Results_List is a list of Component_setupPorts_Results.
-type Component_setupPorts_Results_List struct{ capnp.List }
+type Component_setupPorts_Results_List = capnp.StructList[Component_setupPorts_Results]
 
 // NewComponent_setupPorts_Results creates a new list of Component_setupPorts_Results.
 func NewComponent_setupPorts_Results_List(s *capnp.Segment, sz int32) (Component_setupPorts_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return Component_setupPorts_Results_List{l}, err
-}
-
-func (s Component_setupPorts_Results_List) At(i int) Component_setupPorts_Results {
-	return Component_setupPorts_Results{s.List.Struct(i)}
-}
-
-func (s Component_setupPorts_Results_List) Set(i int, v Component_setupPorts_Results) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Component_setupPorts_Results_List) String() string {
-	str, _ := text.MarshalList(0xda58608ec3b1dfa6, s.List)
-	return str
+	return capnp.StructList[Component_setupPorts_Results](l), err
 }
 
 // Component_setupPorts_Results_Future is a wrapper for a Component_setupPorts_Results promised by a client call.
 type Component_setupPorts_Results_Future struct{ *capnp.Future }
 
-func (p Component_setupPorts_Results_Future) Struct() (Component_setupPorts_Results, error) {
-	s, err := p.Future.Struct()
-	return Component_setupPorts_Results{s}, err
+func (f Component_setupPorts_Results_Future) Struct() (Component_setupPorts_Results, error) {
+	p, err := f.Future.Ptr()
+	return Component_setupPorts_Results(p.Struct()), err
 }
 
-type Component_stop_Params struct{ capnp.Struct }
+type Component_stop_Params capnp.Struct
 
 // Component_stop_Params_TypeID is the unique identifier for the type Component_stop_Params.
 const Component_stop_Params_TypeID = 0xbe5bb9ba1de54674
 
 func NewComponent_stop_Params(s *capnp.Segment) (Component_stop_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Component_stop_Params{st}, err
+	return Component_stop_Params(st), err
 }
 
 func NewRootComponent_stop_Params(s *capnp.Segment) (Component_stop_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Component_stop_Params{st}, err
+	return Component_stop_Params(st), err
 }
 
 func ReadRootComponent_stop_Params(msg *capnp.Message) (Component_stop_Params, error) {
 	root, err := msg.Root()
-	return Component_stop_Params{root.Struct()}, err
+	return Component_stop_Params(root.Struct()), err
 }
 
 func (s Component_stop_Params) String() string {
-	str, _ := text.Marshal(0xbe5bb9ba1de54674, s.Struct)
+	str, _ := text.Marshal(0xbe5bb9ba1de54674, capnp.Struct(s))
 	return str
 }
 
+func (s Component_stop_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Component_stop_Params) DecodeFromPtr(p capnp.Ptr) Component_stop_Params {
+	return Component_stop_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Component_stop_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Component_stop_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Component_stop_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Component_stop_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+
 // Component_stop_Params_List is a list of Component_stop_Params.
-type Component_stop_Params_List struct{ capnp.List }
+type Component_stop_Params_List = capnp.StructList[Component_stop_Params]
 
 // NewComponent_stop_Params creates a new list of Component_stop_Params.
 func NewComponent_stop_Params_List(s *capnp.Segment, sz int32) (Component_stop_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return Component_stop_Params_List{l}, err
-}
-
-func (s Component_stop_Params_List) At(i int) Component_stop_Params {
-	return Component_stop_Params{s.List.Struct(i)}
-}
-
-func (s Component_stop_Params_List) Set(i int, v Component_stop_Params) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Component_stop_Params_List) String() string {
-	str, _ := text.MarshalList(0xbe5bb9ba1de54674, s.List)
-	return str
+	return capnp.StructList[Component_stop_Params](l), err
 }
 
 // Component_stop_Params_Future is a wrapper for a Component_stop_Params promised by a client call.
 type Component_stop_Params_Future struct{ *capnp.Future }
 
-func (p Component_stop_Params_Future) Struct() (Component_stop_Params, error) {
-	s, err := p.Future.Struct()
-	return Component_stop_Params{s}, err
+func (f Component_stop_Params_Future) Struct() (Component_stop_Params, error) {
+	p, err := f.Future.Ptr()
+	return Component_stop_Params(p.Struct()), err
 }
 
-type Component_stop_Results struct{ capnp.Struct }
+type Component_stop_Results capnp.Struct
 
 // Component_stop_Results_TypeID is the unique identifier for the type Component_stop_Results.
 const Component_stop_Results_TypeID = 0xbe0c6a5a76e75105
 
 func NewComponent_stop_Results(s *capnp.Segment) (Component_stop_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Component_stop_Results{st}, err
+	return Component_stop_Results(st), err
 }
 
 func NewRootComponent_stop_Results(s *capnp.Segment) (Component_stop_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Component_stop_Results{st}, err
+	return Component_stop_Results(st), err
 }
 
 func ReadRootComponent_stop_Results(msg *capnp.Message) (Component_stop_Results, error) {
 	root, err := msg.Root()
-	return Component_stop_Results{root.Struct()}, err
+	return Component_stop_Results(root.Struct()), err
 }
 
 func (s Component_stop_Results) String() string {
-	str, _ := text.Marshal(0xbe0c6a5a76e75105, s.Struct)
+	str, _ := text.Marshal(0xbe0c6a5a76e75105, capnp.Struct(s))
 	return str
 }
 
+func (s Component_stop_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Component_stop_Results) DecodeFromPtr(p capnp.Ptr) Component_stop_Results {
+	return Component_stop_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Component_stop_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Component_stop_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Component_stop_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Component_stop_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+
 // Component_stop_Results_List is a list of Component_stop_Results.
-type Component_stop_Results_List struct{ capnp.List }
+type Component_stop_Results_List = capnp.StructList[Component_stop_Results]
 
 // NewComponent_stop_Results creates a new list of Component_stop_Results.
 func NewComponent_stop_Results_List(s *capnp.Segment, sz int32) (Component_stop_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return Component_stop_Results_List{l}, err
-}
-
-func (s Component_stop_Results_List) At(i int) Component_stop_Results {
-	return Component_stop_Results{s.List.Struct(i)}
-}
-
-func (s Component_stop_Results_List) Set(i int, v Component_stop_Results) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Component_stop_Results_List) String() string {
-	str, _ := text.MarshalList(0xbe0c6a5a76e75105, s.List)
-	return str
+	return capnp.StructList[Component_stop_Results](l), err
 }
 
 // Component_stop_Results_Future is a wrapper for a Component_stop_Results promised by a client call.
 type Component_stop_Results_Future struct{ *capnp.Future }
 
-func (p Component_stop_Results_Future) Struct() (Component_stop_Results, error) {
-	s, err := p.Future.Struct()
-	return Component_stop_Results{s}, err
+func (f Component_stop_Results_Future) Struct() (Component_stop_Results, error) {
+	p, err := f.Future.Ptr()
+	return Component_stop_Results(p.Struct()), err
 }
 
-type Input struct{ Client *capnp.Client }
+type Input capnp.Client
 
 // Input_TypeID is the unique identifier for the type Input.
 const Input_TypeID = 0x9f6bf783c59ae53f
@@ -518,37 +636,92 @@ func (c Input) Close(ctx context.Context, params func(Input_close_Params) error)
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Input_close_Params{Struct: s}) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Input_close_Params(s)) }
 	}
-	ans, release := c.Client.SendCall(ctx, s)
+	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Input_close_Results_Future{Future: ans.Future()}, release
 }
 
+// String returns a string that identifies this capability for debugging
+// purposes.  Its format should not be depended on: in particular, it
+// should not be used to compare clients.  Use IsSame to compare clients
+// for equality.
+func (c Input) String() string {
+	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+}
+
+// AddRef creates a new Client that refers to the same capability as c.
+// If c is nil or has resolved to null, then AddRef returns nil.
 func (c Input) AddRef() Input {
-	return Input{
-		Client: c.Client.AddRef(),
-	}
+	return Input(capnp.Client(c).AddRef())
 }
 
+// Release releases a capability reference.  If this is the last
+// reference to the capability, then the underlying resources associated
+// with the capability will be released.
+//
+// Release will panic if c has already been released, but not if c is
+// nil or resolved to null.
 func (c Input) Release() {
-	c.Client.Release()
+	capnp.Client(c).Release()
 }
 
-// A Input_Server is a Input with a local implementation.
+// Resolve blocks until the capability is fully resolved or the Context
+// expires.
+func (c Input) Resolve(ctx context.Context) error {
+	return capnp.Client(c).Resolve(ctx)
+}
+
+func (c Input) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Client(c).EncodeAsPtr(seg)
+}
+
+func (Input) DecodeFromPtr(p capnp.Ptr) Input {
+	return Input(capnp.Client{}.DecodeFromPtr(p))
+}
+
+// IsValid reports whether c is a valid reference to a capability.
+// A reference is invalid if it is nil, has resolved to null, or has
+// been released.
+func (c Input) IsValid() bool {
+	return capnp.Client(c).IsValid()
+}
+
+// IsSame reports whether c and other refer to a capability created by the
+// same call to NewClient.  This can return false negatives if c or other
+// are not fully resolved: use Resolve if this is an issue.  If either
+// c or other are released, then IsSame panics.
+func (c Input) IsSame(other Input) bool {
+	return capnp.Client(c).IsSame(capnp.Client(other))
+}
+
+// Update the flowcontrol.FlowLimiter used to manage flow control for
+// this client. This affects all future calls, but not calls already
+// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
+// which is also the default.
+func (c Input) SetFlowLimiter(lim fc.FlowLimiter) {
+	capnp.Client(c).SetFlowLimiter(lim)
+}
+
+// Get the current flowcontrol.FlowLimiter used to manage flow control
+// for this client.
+func (c Input) GetFlowLimiter() fc.FlowLimiter {
+	return capnp.Client(c).GetFlowLimiter()
+} // A Input_Server is a Input with a local implementation.
 type Input_Server interface {
 	Close(context.Context, Input_close) error
 }
 
 // Input_NewServer creates a new Server from an implementation of Input_Server.
-func Input_NewServer(s Input_Server, policy *server.Policy) *server.Server {
+func Input_NewServer(s Input_Server) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(Input_Methods(nil, s), s, c, policy)
+	return server.New(Input_Methods(nil, s), s, c)
 }
 
 // Input_ServerToClient creates a new Client from an implementation of Input_Server.
 // The caller is responsible for calling Release on the returned Client.
-func Input_ServerToClient(s Input_Server, policy *server.Policy) Input {
-	return Input{Client: capnp.NewClient(Input_NewServer(s, policy))}
+func Input_ServerToClient(s Input_Server) Input {
+	return Input(capnp.NewClient(Input_NewServer(s)))
 }
 
 // Input_Methods appends Methods to a slice that invoke the methods on s.
@@ -581,16 +754,25 @@ type Input_close struct {
 
 // Args returns the call's arguments.
 func (c Input_close) Args() Input_close_Params {
-	return Input_close_Params{Struct: c.Call.Args()}
+	return Input_close_Params(c.Call.Args())
 }
 
 // AllocResults allocates the results struct.
 func (c Input_close) AllocResults() (Input_close_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Input_close_Results{Struct: r}, err
+	return Input_close_Results(r), err
 }
 
-type Input_Reader struct{ Client *capnp.Client }
+// Input_List is a list of Input.
+type Input_List = capnp.CapList[Input]
+
+// NewInput creates a new list of Input.
+func NewInput_List(s *capnp.Segment, sz int32) (Input_List, error) {
+	l, err := capnp.NewPointerList(s, sz)
+	return capnp.CapList[Input](l), err
+}
+
+type Input_Reader capnp.Client
 
 // Input_Reader_TypeID is the unique identifier for the type Input_Reader.
 const Input_Reader_TypeID = 0xd21817ccd00e3d80
@@ -606,37 +788,92 @@ func (c Input_Reader) Read(ctx context.Context, params func(Input_Reader_read_Pa
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Input_Reader_read_Params{Struct: s}) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Input_Reader_read_Params(s)) }
 	}
-	ans, release := c.Client.SendCall(ctx, s)
+	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Input_Reader_read_Results_Future{Future: ans.Future()}, release
 }
 
+// String returns a string that identifies this capability for debugging
+// purposes.  Its format should not be depended on: in particular, it
+// should not be used to compare clients.  Use IsSame to compare clients
+// for equality.
+func (c Input_Reader) String() string {
+	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+}
+
+// AddRef creates a new Client that refers to the same capability as c.
+// If c is nil or has resolved to null, then AddRef returns nil.
 func (c Input_Reader) AddRef() Input_Reader {
-	return Input_Reader{
-		Client: c.Client.AddRef(),
-	}
+	return Input_Reader(capnp.Client(c).AddRef())
 }
 
+// Release releases a capability reference.  If this is the last
+// reference to the capability, then the underlying resources associated
+// with the capability will be released.
+//
+// Release will panic if c has already been released, but not if c is
+// nil or resolved to null.
 func (c Input_Reader) Release() {
-	c.Client.Release()
+	capnp.Client(c).Release()
 }
 
-// A Input_Reader_Server is a Input_Reader with a local implementation.
+// Resolve blocks until the capability is fully resolved or the Context
+// expires.
+func (c Input_Reader) Resolve(ctx context.Context) error {
+	return capnp.Client(c).Resolve(ctx)
+}
+
+func (c Input_Reader) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Client(c).EncodeAsPtr(seg)
+}
+
+func (Input_Reader) DecodeFromPtr(p capnp.Ptr) Input_Reader {
+	return Input_Reader(capnp.Client{}.DecodeFromPtr(p))
+}
+
+// IsValid reports whether c is a valid reference to a capability.
+// A reference is invalid if it is nil, has resolved to null, or has
+// been released.
+func (c Input_Reader) IsValid() bool {
+	return capnp.Client(c).IsValid()
+}
+
+// IsSame reports whether c and other refer to a capability created by the
+// same call to NewClient.  This can return false negatives if c or other
+// are not fully resolved: use Resolve if this is an issue.  If either
+// c or other are released, then IsSame panics.
+func (c Input_Reader) IsSame(other Input_Reader) bool {
+	return capnp.Client(c).IsSame(capnp.Client(other))
+}
+
+// Update the flowcontrol.FlowLimiter used to manage flow control for
+// this client. This affects all future calls, but not calls already
+// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
+// which is also the default.
+func (c Input_Reader) SetFlowLimiter(lim fc.FlowLimiter) {
+	capnp.Client(c).SetFlowLimiter(lim)
+}
+
+// Get the current flowcontrol.FlowLimiter used to manage flow control
+// for this client.
+func (c Input_Reader) GetFlowLimiter() fc.FlowLimiter {
+	return capnp.Client(c).GetFlowLimiter()
+} // A Input_Reader_Server is a Input_Reader with a local implementation.
 type Input_Reader_Server interface {
 	Read(context.Context, Input_Reader_read) error
 }
 
 // Input_Reader_NewServer creates a new Server from an implementation of Input_Reader_Server.
-func Input_Reader_NewServer(s Input_Reader_Server, policy *server.Policy) *server.Server {
+func Input_Reader_NewServer(s Input_Reader_Server) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(Input_Reader_Methods(nil, s), s, c, policy)
+	return server.New(Input_Reader_Methods(nil, s), s, c)
 }
 
 // Input_Reader_ServerToClient creates a new Client from an implementation of Input_Reader_Server.
 // The caller is responsible for calling Release on the returned Client.
-func Input_Reader_ServerToClient(s Input_Reader_Server, policy *server.Policy) Input_Reader {
-	return Input_Reader{Client: capnp.NewClient(Input_Reader_NewServer(s, policy))}
+func Input_Reader_ServerToClient(s Input_Reader_Server) Input_Reader {
+	return Input_Reader(capnp.NewClient(Input_Reader_NewServer(s)))
 }
 
 // Input_Reader_Methods appends Methods to a slice that invoke the methods on s.
@@ -669,142 +906,169 @@ type Input_Reader_read struct {
 
 // Args returns the call's arguments.
 func (c Input_Reader_read) Args() Input_Reader_read_Params {
-	return Input_Reader_read_Params{Struct: c.Call.Args()}
+	return Input_Reader_read_Params(c.Call.Args())
 }
 
 // AllocResults allocates the results struct.
 func (c Input_Reader_read) AllocResults() (Input_Reader_read_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Input_Reader_read_Results{Struct: r}, err
+	return Input_Reader_read_Results(r), err
 }
 
-type Input_Reader_read_Params struct{ capnp.Struct }
+// Input_Reader_List is a list of Input_Reader.
+type Input_Reader_List = capnp.CapList[Input_Reader]
+
+// NewInput_Reader creates a new list of Input_Reader.
+func NewInput_Reader_List(s *capnp.Segment, sz int32) (Input_Reader_List, error) {
+	l, err := capnp.NewPointerList(s, sz)
+	return capnp.CapList[Input_Reader](l), err
+}
+
+type Input_Reader_read_Params capnp.Struct
 
 // Input_Reader_read_Params_TypeID is the unique identifier for the type Input_Reader_read_Params.
 const Input_Reader_read_Params_TypeID = 0xad9b89c132c7c6aa
 
 func NewInput_Reader_read_Params(s *capnp.Segment) (Input_Reader_read_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Input_Reader_read_Params{st}, err
+	return Input_Reader_read_Params(st), err
 }
 
 func NewRootInput_Reader_read_Params(s *capnp.Segment) (Input_Reader_read_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Input_Reader_read_Params{st}, err
+	return Input_Reader_read_Params(st), err
 }
 
 func ReadRootInput_Reader_read_Params(msg *capnp.Message) (Input_Reader_read_Params, error) {
 	root, err := msg.Root()
-	return Input_Reader_read_Params{root.Struct()}, err
+	return Input_Reader_read_Params(root.Struct()), err
 }
 
 func (s Input_Reader_read_Params) String() string {
-	str, _ := text.Marshal(0xad9b89c132c7c6aa, s.Struct)
+	str, _ := text.Marshal(0xad9b89c132c7c6aa, capnp.Struct(s))
 	return str
 }
 
+func (s Input_Reader_read_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Input_Reader_read_Params) DecodeFromPtr(p capnp.Ptr) Input_Reader_read_Params {
+	return Input_Reader_read_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Input_Reader_read_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Input_Reader_read_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Input_Reader_read_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Input_Reader_read_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+
 // Input_Reader_read_Params_List is a list of Input_Reader_read_Params.
-type Input_Reader_read_Params_List struct{ capnp.List }
+type Input_Reader_read_Params_List = capnp.StructList[Input_Reader_read_Params]
 
 // NewInput_Reader_read_Params creates a new list of Input_Reader_read_Params.
 func NewInput_Reader_read_Params_List(s *capnp.Segment, sz int32) (Input_Reader_read_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return Input_Reader_read_Params_List{l}, err
-}
-
-func (s Input_Reader_read_Params_List) At(i int) Input_Reader_read_Params {
-	return Input_Reader_read_Params{s.List.Struct(i)}
-}
-
-func (s Input_Reader_read_Params_List) Set(i int, v Input_Reader_read_Params) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Input_Reader_read_Params_List) String() string {
-	str, _ := text.MarshalList(0xad9b89c132c7c6aa, s.List)
-	return str
+	return capnp.StructList[Input_Reader_read_Params](l), err
 }
 
 // Input_Reader_read_Params_Future is a wrapper for a Input_Reader_read_Params promised by a client call.
 type Input_Reader_read_Params_Future struct{ *capnp.Future }
 
-func (p Input_Reader_read_Params_Future) Struct() (Input_Reader_read_Params, error) {
-	s, err := p.Future.Struct()
-	return Input_Reader_read_Params{s}, err
+func (f Input_Reader_read_Params_Future) Struct() (Input_Reader_read_Params, error) {
+	p, err := f.Future.Ptr()
+	return Input_Reader_read_Params(p.Struct()), err
 }
 
-type Input_Reader_read_Results struct{ capnp.Struct }
+type Input_Reader_read_Results capnp.Struct
 
 // Input_Reader_read_Results_TypeID is the unique identifier for the type Input_Reader_read_Results.
 const Input_Reader_read_Results_TypeID = 0xd863f5e4c1939673
 
 func NewInput_Reader_read_Results(s *capnp.Segment) (Input_Reader_read_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Input_Reader_read_Results{st}, err
+	return Input_Reader_read_Results(st), err
 }
 
 func NewRootInput_Reader_read_Results(s *capnp.Segment) (Input_Reader_read_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Input_Reader_read_Results{st}, err
+	return Input_Reader_read_Results(st), err
 }
 
 func ReadRootInput_Reader_read_Results(msg *capnp.Message) (Input_Reader_read_Results, error) {
 	root, err := msg.Root()
-	return Input_Reader_read_Results{root.Struct()}, err
+	return Input_Reader_read_Results(root.Struct()), err
 }
 
 func (s Input_Reader_read_Results) String() string {
-	str, _ := text.Marshal(0xd863f5e4c1939673, s.Struct)
+	str, _ := text.Marshal(0xd863f5e4c1939673, capnp.Struct(s))
 	return str
 }
 
+func (s Input_Reader_read_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Input_Reader_read_Results) DecodeFromPtr(p capnp.Ptr) Input_Reader_read_Results {
+	return Input_Reader_read_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Input_Reader_read_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Input_Reader_read_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Input_Reader_read_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Input_Reader_read_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Input_Reader_read_Results) Value() (capnp.Ptr, error) {
-	return s.Struct.Ptr(0)
+	return capnp.Struct(s).Ptr(0)
 }
 
 func (s Input_Reader_read_Results) HasValue() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s Input_Reader_read_Results) SetValue(v capnp.Ptr) error {
-	return s.Struct.SetPtr(0, v)
+	return capnp.Struct(s).SetPtr(0, v)
 }
 
 // Input_Reader_read_Results_List is a list of Input_Reader_read_Results.
-type Input_Reader_read_Results_List struct{ capnp.List }
+type Input_Reader_read_Results_List = capnp.StructList[Input_Reader_read_Results]
 
 // NewInput_Reader_read_Results creates a new list of Input_Reader_read_Results.
 func NewInput_Reader_read_Results_List(s *capnp.Segment, sz int32) (Input_Reader_read_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return Input_Reader_read_Results_List{l}, err
-}
-
-func (s Input_Reader_read_Results_List) At(i int) Input_Reader_read_Results {
-	return Input_Reader_read_Results{s.List.Struct(i)}
-}
-
-func (s Input_Reader_read_Results_List) Set(i int, v Input_Reader_read_Results) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Input_Reader_read_Results_List) String() string {
-	str, _ := text.MarshalList(0xd863f5e4c1939673, s.List)
-	return str
+	return capnp.StructList[Input_Reader_read_Results](l), err
 }
 
 // Input_Reader_read_Results_Future is a wrapper for a Input_Reader_read_Results promised by a client call.
 type Input_Reader_read_Results_Future struct{ *capnp.Future }
 
-func (p Input_Reader_read_Results_Future) Struct() (Input_Reader_read_Results, error) {
-	s, err := p.Future.Struct()
-	return Input_Reader_read_Results{s}, err
+func (f Input_Reader_read_Results_Future) Struct() (Input_Reader_read_Results, error) {
+	p, err := f.Future.Ptr()
+	return Input_Reader_read_Results(p.Struct()), err
 }
-
 func (p Input_Reader_read_Results_Future) Value() *capnp.Future {
 	return p.Future.Field(0, nil)
 }
 
-type Input_Writer struct{ Client *capnp.Client }
+type Input_Writer capnp.Client
 
 // Input_Writer_TypeID is the unique identifier for the type Input_Writer.
 const Input_Writer_TypeID = 0xfb9b181fea82028a
@@ -820,37 +1084,92 @@ func (c Input_Writer) Write(ctx context.Context, params func(Input_Writer_write_
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Input_Writer_write_Params{Struct: s}) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Input_Writer_write_Params(s)) }
 	}
-	ans, release := c.Client.SendCall(ctx, s)
+	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Input_Writer_write_Results_Future{Future: ans.Future()}, release
 }
 
+// String returns a string that identifies this capability for debugging
+// purposes.  Its format should not be depended on: in particular, it
+// should not be used to compare clients.  Use IsSame to compare clients
+// for equality.
+func (c Input_Writer) String() string {
+	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+}
+
+// AddRef creates a new Client that refers to the same capability as c.
+// If c is nil or has resolved to null, then AddRef returns nil.
 func (c Input_Writer) AddRef() Input_Writer {
-	return Input_Writer{
-		Client: c.Client.AddRef(),
-	}
+	return Input_Writer(capnp.Client(c).AddRef())
 }
 
+// Release releases a capability reference.  If this is the last
+// reference to the capability, then the underlying resources associated
+// with the capability will be released.
+//
+// Release will panic if c has already been released, but not if c is
+// nil or resolved to null.
 func (c Input_Writer) Release() {
-	c.Client.Release()
+	capnp.Client(c).Release()
 }
 
-// A Input_Writer_Server is a Input_Writer with a local implementation.
+// Resolve blocks until the capability is fully resolved or the Context
+// expires.
+func (c Input_Writer) Resolve(ctx context.Context) error {
+	return capnp.Client(c).Resolve(ctx)
+}
+
+func (c Input_Writer) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Client(c).EncodeAsPtr(seg)
+}
+
+func (Input_Writer) DecodeFromPtr(p capnp.Ptr) Input_Writer {
+	return Input_Writer(capnp.Client{}.DecodeFromPtr(p))
+}
+
+// IsValid reports whether c is a valid reference to a capability.
+// A reference is invalid if it is nil, has resolved to null, or has
+// been released.
+func (c Input_Writer) IsValid() bool {
+	return capnp.Client(c).IsValid()
+}
+
+// IsSame reports whether c and other refer to a capability created by the
+// same call to NewClient.  This can return false negatives if c or other
+// are not fully resolved: use Resolve if this is an issue.  If either
+// c or other are released, then IsSame panics.
+func (c Input_Writer) IsSame(other Input_Writer) bool {
+	return capnp.Client(c).IsSame(capnp.Client(other))
+}
+
+// Update the flowcontrol.FlowLimiter used to manage flow control for
+// this client. This affects all future calls, but not calls already
+// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
+// which is also the default.
+func (c Input_Writer) SetFlowLimiter(lim fc.FlowLimiter) {
+	capnp.Client(c).SetFlowLimiter(lim)
+}
+
+// Get the current flowcontrol.FlowLimiter used to manage flow control
+// for this client.
+func (c Input_Writer) GetFlowLimiter() fc.FlowLimiter {
+	return capnp.Client(c).GetFlowLimiter()
+} // A Input_Writer_Server is a Input_Writer with a local implementation.
 type Input_Writer_Server interface {
 	Write(context.Context, Input_Writer_write) error
 }
 
 // Input_Writer_NewServer creates a new Server from an implementation of Input_Writer_Server.
-func Input_Writer_NewServer(s Input_Writer_Server, policy *server.Policy) *server.Server {
+func Input_Writer_NewServer(s Input_Writer_Server) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(Input_Writer_Methods(nil, s), s, c, policy)
+	return server.New(Input_Writer_Methods(nil, s), s, c)
 }
 
 // Input_Writer_ServerToClient creates a new Client from an implementation of Input_Writer_Server.
 // The caller is responsible for calling Release on the returned Client.
-func Input_Writer_ServerToClient(s Input_Writer_Server, policy *server.Policy) Input_Writer {
-	return Input_Writer{Client: capnp.NewClient(Input_Writer_NewServer(s, policy))}
+func Input_Writer_ServerToClient(s Input_Writer_Server) Input_Writer {
+	return Input_Writer(capnp.NewClient(Input_Writer_NewServer(s)))
 }
 
 // Input_Writer_Methods appends Methods to a slice that invoke the methods on s.
@@ -883,252 +1202,299 @@ type Input_Writer_write struct {
 
 // Args returns the call's arguments.
 func (c Input_Writer_write) Args() Input_Writer_write_Params {
-	return Input_Writer_write_Params{Struct: c.Call.Args()}
+	return Input_Writer_write_Params(c.Call.Args())
 }
 
 // AllocResults allocates the results struct.
 func (c Input_Writer_write) AllocResults() (Input_Writer_write_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Input_Writer_write_Results{Struct: r}, err
+	return Input_Writer_write_Results(r), err
 }
 
-type Input_Writer_write_Params struct{ capnp.Struct }
+// Input_Writer_List is a list of Input_Writer.
+type Input_Writer_List = capnp.CapList[Input_Writer]
+
+// NewInput_Writer creates a new list of Input_Writer.
+func NewInput_Writer_List(s *capnp.Segment, sz int32) (Input_Writer_List, error) {
+	l, err := capnp.NewPointerList(s, sz)
+	return capnp.CapList[Input_Writer](l), err
+}
+
+type Input_Writer_write_Params capnp.Struct
 
 // Input_Writer_write_Params_TypeID is the unique identifier for the type Input_Writer_write_Params.
 const Input_Writer_write_Params_TypeID = 0xe5a47f5477f0222d
 
 func NewInput_Writer_write_Params(s *capnp.Segment) (Input_Writer_write_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Input_Writer_write_Params{st}, err
+	return Input_Writer_write_Params(st), err
 }
 
 func NewRootInput_Writer_write_Params(s *capnp.Segment) (Input_Writer_write_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Input_Writer_write_Params{st}, err
+	return Input_Writer_write_Params(st), err
 }
 
 func ReadRootInput_Writer_write_Params(msg *capnp.Message) (Input_Writer_write_Params, error) {
 	root, err := msg.Root()
-	return Input_Writer_write_Params{root.Struct()}, err
+	return Input_Writer_write_Params(root.Struct()), err
 }
 
 func (s Input_Writer_write_Params) String() string {
-	str, _ := text.Marshal(0xe5a47f5477f0222d, s.Struct)
+	str, _ := text.Marshal(0xe5a47f5477f0222d, capnp.Struct(s))
 	return str
 }
 
+func (s Input_Writer_write_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Input_Writer_write_Params) DecodeFromPtr(p capnp.Ptr) Input_Writer_write_Params {
+	return Input_Writer_write_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Input_Writer_write_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Input_Writer_write_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Input_Writer_write_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Input_Writer_write_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Input_Writer_write_Params) Value() (capnp.Ptr, error) {
-	return s.Struct.Ptr(0)
+	return capnp.Struct(s).Ptr(0)
 }
 
 func (s Input_Writer_write_Params) HasValue() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s Input_Writer_write_Params) SetValue(v capnp.Ptr) error {
-	return s.Struct.SetPtr(0, v)
+	return capnp.Struct(s).SetPtr(0, v)
 }
 
 // Input_Writer_write_Params_List is a list of Input_Writer_write_Params.
-type Input_Writer_write_Params_List struct{ capnp.List }
+type Input_Writer_write_Params_List = capnp.StructList[Input_Writer_write_Params]
 
 // NewInput_Writer_write_Params creates a new list of Input_Writer_write_Params.
 func NewInput_Writer_write_Params_List(s *capnp.Segment, sz int32) (Input_Writer_write_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return Input_Writer_write_Params_List{l}, err
-}
-
-func (s Input_Writer_write_Params_List) At(i int) Input_Writer_write_Params {
-	return Input_Writer_write_Params{s.List.Struct(i)}
-}
-
-func (s Input_Writer_write_Params_List) Set(i int, v Input_Writer_write_Params) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Input_Writer_write_Params_List) String() string {
-	str, _ := text.MarshalList(0xe5a47f5477f0222d, s.List)
-	return str
+	return capnp.StructList[Input_Writer_write_Params](l), err
 }
 
 // Input_Writer_write_Params_Future is a wrapper for a Input_Writer_write_Params promised by a client call.
 type Input_Writer_write_Params_Future struct{ *capnp.Future }
 
-func (p Input_Writer_write_Params_Future) Struct() (Input_Writer_write_Params, error) {
-	s, err := p.Future.Struct()
-	return Input_Writer_write_Params{s}, err
+func (f Input_Writer_write_Params_Future) Struct() (Input_Writer_write_Params, error) {
+	p, err := f.Future.Ptr()
+	return Input_Writer_write_Params(p.Struct()), err
 }
-
 func (p Input_Writer_write_Params_Future) Value() *capnp.Future {
 	return p.Future.Field(0, nil)
 }
 
-type Input_Writer_write_Results struct{ capnp.Struct }
+type Input_Writer_write_Results capnp.Struct
 
 // Input_Writer_write_Results_TypeID is the unique identifier for the type Input_Writer_write_Results.
 const Input_Writer_write_Results_TypeID = 0xcd975c65ddfc7918
 
 func NewInput_Writer_write_Results(s *capnp.Segment) (Input_Writer_write_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Input_Writer_write_Results{st}, err
+	return Input_Writer_write_Results(st), err
 }
 
 func NewRootInput_Writer_write_Results(s *capnp.Segment) (Input_Writer_write_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Input_Writer_write_Results{st}, err
+	return Input_Writer_write_Results(st), err
 }
 
 func ReadRootInput_Writer_write_Results(msg *capnp.Message) (Input_Writer_write_Results, error) {
 	root, err := msg.Root()
-	return Input_Writer_write_Results{root.Struct()}, err
+	return Input_Writer_write_Results(root.Struct()), err
 }
 
 func (s Input_Writer_write_Results) String() string {
-	str, _ := text.Marshal(0xcd975c65ddfc7918, s.Struct)
+	str, _ := text.Marshal(0xcd975c65ddfc7918, capnp.Struct(s))
 	return str
 }
 
+func (s Input_Writer_write_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Input_Writer_write_Results) DecodeFromPtr(p capnp.Ptr) Input_Writer_write_Results {
+	return Input_Writer_write_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Input_Writer_write_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Input_Writer_write_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Input_Writer_write_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Input_Writer_write_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+
 // Input_Writer_write_Results_List is a list of Input_Writer_write_Results.
-type Input_Writer_write_Results_List struct{ capnp.List }
+type Input_Writer_write_Results_List = capnp.StructList[Input_Writer_write_Results]
 
 // NewInput_Writer_write_Results creates a new list of Input_Writer_write_Results.
 func NewInput_Writer_write_Results_List(s *capnp.Segment, sz int32) (Input_Writer_write_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return Input_Writer_write_Results_List{l}, err
-}
-
-func (s Input_Writer_write_Results_List) At(i int) Input_Writer_write_Results {
-	return Input_Writer_write_Results{s.List.Struct(i)}
-}
-
-func (s Input_Writer_write_Results_List) Set(i int, v Input_Writer_write_Results) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Input_Writer_write_Results_List) String() string {
-	str, _ := text.MarshalList(0xcd975c65ddfc7918, s.List)
-	return str
+	return capnp.StructList[Input_Writer_write_Results](l), err
 }
 
 // Input_Writer_write_Results_Future is a wrapper for a Input_Writer_write_Results promised by a client call.
 type Input_Writer_write_Results_Future struct{ *capnp.Future }
 
-func (p Input_Writer_write_Results_Future) Struct() (Input_Writer_write_Results, error) {
-	s, err := p.Future.Struct()
-	return Input_Writer_write_Results{s}, err
+func (f Input_Writer_write_Results_Future) Struct() (Input_Writer_write_Results, error) {
+	p, err := f.Future.Ptr()
+	return Input_Writer_write_Results(p.Struct()), err
 }
 
-type Input_close_Params struct{ capnp.Struct }
+type Input_close_Params capnp.Struct
 
 // Input_close_Params_TypeID is the unique identifier for the type Input_close_Params.
 const Input_close_Params_TypeID = 0xdf66370e686c9b09
 
 func NewInput_close_Params(s *capnp.Segment) (Input_close_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Input_close_Params{st}, err
+	return Input_close_Params(st), err
 }
 
 func NewRootInput_close_Params(s *capnp.Segment) (Input_close_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Input_close_Params{st}, err
+	return Input_close_Params(st), err
 }
 
 func ReadRootInput_close_Params(msg *capnp.Message) (Input_close_Params, error) {
 	root, err := msg.Root()
-	return Input_close_Params{root.Struct()}, err
+	return Input_close_Params(root.Struct()), err
 }
 
 func (s Input_close_Params) String() string {
-	str, _ := text.Marshal(0xdf66370e686c9b09, s.Struct)
+	str, _ := text.Marshal(0xdf66370e686c9b09, capnp.Struct(s))
 	return str
 }
 
+func (s Input_close_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Input_close_Params) DecodeFromPtr(p capnp.Ptr) Input_close_Params {
+	return Input_close_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Input_close_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Input_close_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Input_close_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Input_close_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+
 // Input_close_Params_List is a list of Input_close_Params.
-type Input_close_Params_List struct{ capnp.List }
+type Input_close_Params_List = capnp.StructList[Input_close_Params]
 
 // NewInput_close_Params creates a new list of Input_close_Params.
 func NewInput_close_Params_List(s *capnp.Segment, sz int32) (Input_close_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return Input_close_Params_List{l}, err
-}
-
-func (s Input_close_Params_List) At(i int) Input_close_Params {
-	return Input_close_Params{s.List.Struct(i)}
-}
-
-func (s Input_close_Params_List) Set(i int, v Input_close_Params) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Input_close_Params_List) String() string {
-	str, _ := text.MarshalList(0xdf66370e686c9b09, s.List)
-	return str
+	return capnp.StructList[Input_close_Params](l), err
 }
 
 // Input_close_Params_Future is a wrapper for a Input_close_Params promised by a client call.
 type Input_close_Params_Future struct{ *capnp.Future }
 
-func (p Input_close_Params_Future) Struct() (Input_close_Params, error) {
-	s, err := p.Future.Struct()
-	return Input_close_Params{s}, err
+func (f Input_close_Params_Future) Struct() (Input_close_Params, error) {
+	p, err := f.Future.Ptr()
+	return Input_close_Params(p.Struct()), err
 }
 
-type Input_close_Results struct{ capnp.Struct }
+type Input_close_Results capnp.Struct
 
 // Input_close_Results_TypeID is the unique identifier for the type Input_close_Results.
 const Input_close_Results_TypeID = 0x9d2556ab64354282
 
 func NewInput_close_Results(s *capnp.Segment) (Input_close_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Input_close_Results{st}, err
+	return Input_close_Results(st), err
 }
 
 func NewRootInput_close_Results(s *capnp.Segment) (Input_close_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Input_close_Results{st}, err
+	return Input_close_Results(st), err
 }
 
 func ReadRootInput_close_Results(msg *capnp.Message) (Input_close_Results, error) {
 	root, err := msg.Root()
-	return Input_close_Results{root.Struct()}, err
+	return Input_close_Results(root.Struct()), err
 }
 
 func (s Input_close_Results) String() string {
-	str, _ := text.Marshal(0x9d2556ab64354282, s.Struct)
+	str, _ := text.Marshal(0x9d2556ab64354282, capnp.Struct(s))
 	return str
 }
 
+func (s Input_close_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Input_close_Results) DecodeFromPtr(p capnp.Ptr) Input_close_Results {
+	return Input_close_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Input_close_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Input_close_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Input_close_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Input_close_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+
 // Input_close_Results_List is a list of Input_close_Results.
-type Input_close_Results_List struct{ capnp.List }
+type Input_close_Results_List = capnp.StructList[Input_close_Results]
 
 // NewInput_close_Results creates a new list of Input_close_Results.
 func NewInput_close_Results_List(s *capnp.Segment, sz int32) (Input_close_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return Input_close_Results_List{l}, err
-}
-
-func (s Input_close_Results_List) At(i int) Input_close_Results {
-	return Input_close_Results{s.List.Struct(i)}
-}
-
-func (s Input_close_Results_List) Set(i int, v Input_close_Results) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Input_close_Results_List) String() string {
-	str, _ := text.MarshalList(0x9d2556ab64354282, s.List)
-	return str
+	return capnp.StructList[Input_close_Results](l), err
 }
 
 // Input_close_Results_Future is a wrapper for a Input_close_Results promised by a client call.
 type Input_close_Results_Future struct{ *capnp.Future }
 
-func (p Input_close_Results_Future) Struct() (Input_close_Results, error) {
-	s, err := p.Future.Struct()
-	return Input_close_Results{s}, err
+func (f Input_close_Results_Future) Struct() (Input_close_Results, error) {
+	p, err := f.Future.Ptr()
+	return Input_close_Results(p.Struct()), err
 }
 
-type InputArray struct{ Client *capnp.Client }
+type InputArray capnp.Client
 
 // InputArray_TypeID is the unique identifier for the type InputArray.
 const InputArray_TypeID = 0x9dc72eab4c0686c7
@@ -1144,9 +1510,9 @@ func (c InputArray) Send(ctx context.Context, params func(InputArray_send_Params
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(InputArray_send_Params{Struct: s}) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(InputArray_send_Params(s)) }
 	}
-	ans, release := c.Client.SendCall(ctx, s)
+	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return InputArray_send_Results_Future{Future: ans.Future()}, release
 }
 func (c InputArray) Close(ctx context.Context, params func(InputArray_close_Params) error) (InputArray_close_Results_Future, capnp.ReleaseFunc) {
@@ -1160,23 +1526,78 @@ func (c InputArray) Close(ctx context.Context, params func(InputArray_close_Para
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(InputArray_close_Params{Struct: s}) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(InputArray_close_Params(s)) }
 	}
-	ans, release := c.Client.SendCall(ctx, s)
+	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return InputArray_close_Results_Future{Future: ans.Future()}, release
 }
 
+// String returns a string that identifies this capability for debugging
+// purposes.  Its format should not be depended on: in particular, it
+// should not be used to compare clients.  Use IsSame to compare clients
+// for equality.
+func (c InputArray) String() string {
+	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+}
+
+// AddRef creates a new Client that refers to the same capability as c.
+// If c is nil or has resolved to null, then AddRef returns nil.
 func (c InputArray) AddRef() InputArray {
-	return InputArray{
-		Client: c.Client.AddRef(),
-	}
+	return InputArray(capnp.Client(c).AddRef())
 }
 
+// Release releases a capability reference.  If this is the last
+// reference to the capability, then the underlying resources associated
+// with the capability will be released.
+//
+// Release will panic if c has already been released, but not if c is
+// nil or resolved to null.
 func (c InputArray) Release() {
-	c.Client.Release()
+	capnp.Client(c).Release()
 }
 
-// A InputArray_Server is a InputArray with a local implementation.
+// Resolve blocks until the capability is fully resolved or the Context
+// expires.
+func (c InputArray) Resolve(ctx context.Context) error {
+	return capnp.Client(c).Resolve(ctx)
+}
+
+func (c InputArray) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Client(c).EncodeAsPtr(seg)
+}
+
+func (InputArray) DecodeFromPtr(p capnp.Ptr) InputArray {
+	return InputArray(capnp.Client{}.DecodeFromPtr(p))
+}
+
+// IsValid reports whether c is a valid reference to a capability.
+// A reference is invalid if it is nil, has resolved to null, or has
+// been released.
+func (c InputArray) IsValid() bool {
+	return capnp.Client(c).IsValid()
+}
+
+// IsSame reports whether c and other refer to a capability created by the
+// same call to NewClient.  This can return false negatives if c or other
+// are not fully resolved: use Resolve if this is an issue.  If either
+// c or other are released, then IsSame panics.
+func (c InputArray) IsSame(other InputArray) bool {
+	return capnp.Client(c).IsSame(capnp.Client(other))
+}
+
+// Update the flowcontrol.FlowLimiter used to manage flow control for
+// this client. This affects all future calls, but not calls already
+// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
+// which is also the default.
+func (c InputArray) SetFlowLimiter(lim fc.FlowLimiter) {
+	capnp.Client(c).SetFlowLimiter(lim)
+}
+
+// Get the current flowcontrol.FlowLimiter used to manage flow control
+// for this client.
+func (c InputArray) GetFlowLimiter() fc.FlowLimiter {
+	return capnp.Client(c).GetFlowLimiter()
+} // A InputArray_Server is a InputArray with a local implementation.
 type InputArray_Server interface {
 	Send(context.Context, InputArray_send) error
 
@@ -1184,15 +1605,15 @@ type InputArray_Server interface {
 }
 
 // InputArray_NewServer creates a new Server from an implementation of InputArray_Server.
-func InputArray_NewServer(s InputArray_Server, policy *server.Policy) *server.Server {
+func InputArray_NewServer(s InputArray_Server) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(InputArray_Methods(nil, s), s, c, policy)
+	return server.New(InputArray_Methods(nil, s), s, c)
 }
 
 // InputArray_ServerToClient creates a new Client from an implementation of InputArray_Server.
 // The caller is responsible for calling Release on the returned Client.
-func InputArray_ServerToClient(s InputArray_Server, policy *server.Policy) InputArray {
-	return InputArray{Client: capnp.NewClient(InputArray_NewServer(s, policy))}
+func InputArray_ServerToClient(s InputArray_Server) InputArray {
+	return InputArray(capnp.NewClient(InputArray_NewServer(s)))
 }
 
 // InputArray_Methods appends Methods to a slice that invoke the methods on s.
@@ -1237,13 +1658,13 @@ type InputArray_send struct {
 
 // Args returns the call's arguments.
 func (c InputArray_send) Args() InputArray_send_Params {
-	return InputArray_send_Params{Struct: c.Call.Args()}
+	return InputArray_send_Params(c.Call.Args())
 }
 
 // AllocResults allocates the results struct.
 func (c InputArray_send) AllocResults() (InputArray_send_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return InputArray_send_Results{Struct: r}, err
+	return InputArray_send_Results(r), err
 }
 
 // InputArray_close holds the state for a server call to InputArray.close.
@@ -1254,335 +1675,382 @@ type InputArray_close struct {
 
 // Args returns the call's arguments.
 func (c InputArray_close) Args() InputArray_close_Params {
-	return InputArray_close_Params{Struct: c.Call.Args()}
+	return InputArray_close_Params(c.Call.Args())
 }
 
 // AllocResults allocates the results struct.
 func (c InputArray_close) AllocResults() (InputArray_close_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return InputArray_close_Results{Struct: r}, err
+	return InputArray_close_Results(r), err
 }
 
-type InputArray_send_Params struct{ capnp.Struct }
+// InputArray_List is a list of InputArray.
+type InputArray_List = capnp.CapList[InputArray]
+
+// NewInputArray creates a new list of InputArray.
+func NewInputArray_List(s *capnp.Segment, sz int32) (InputArray_List, error) {
+	l, err := capnp.NewPointerList(s, sz)
+	return capnp.CapList[InputArray](l), err
+}
+
+type InputArray_send_Params capnp.Struct
 
 // InputArray_send_Params_TypeID is the unique identifier for the type InputArray_send_Params.
 const InputArray_send_Params_TypeID = 0xd6f73232158ce7e9
 
 func NewInputArray_send_Params(s *capnp.Segment) (InputArray_send_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return InputArray_send_Params{st}, err
+	return InputArray_send_Params(st), err
 }
 
 func NewRootInputArray_send_Params(s *capnp.Segment) (InputArray_send_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return InputArray_send_Params{st}, err
+	return InputArray_send_Params(st), err
 }
 
 func ReadRootInputArray_send_Params(msg *capnp.Message) (InputArray_send_Params, error) {
 	root, err := msg.Root()
-	return InputArray_send_Params{root.Struct()}, err
+	return InputArray_send_Params(root.Struct()), err
 }
 
 func (s InputArray_send_Params) String() string {
-	str, _ := text.Marshal(0xd6f73232158ce7e9, s.Struct)
+	str, _ := text.Marshal(0xd6f73232158ce7e9, capnp.Struct(s))
 	return str
 }
 
+func (s InputArray_send_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (InputArray_send_Params) DecodeFromPtr(p capnp.Ptr) InputArray_send_Params {
+	return InputArray_send_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s InputArray_send_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s InputArray_send_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s InputArray_send_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s InputArray_send_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s InputArray_send_Params) At() uint8 {
-	return s.Struct.Uint8(0)
+	return capnp.Struct(s).Uint8(0)
 }
 
 func (s InputArray_send_Params) SetAt(v uint8) {
-	s.Struct.SetUint8(0, v)
+	capnp.Struct(s).SetUint8(0, v)
 }
 
 func (s InputArray_send_Params) Data() (capnp.Ptr, error) {
-	return s.Struct.Ptr(0)
+	return capnp.Struct(s).Ptr(0)
 }
 
 func (s InputArray_send_Params) HasData() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s InputArray_send_Params) SetData(v capnp.Ptr) error {
-	return s.Struct.SetPtr(0, v)
+	return capnp.Struct(s).SetPtr(0, v)
 }
 
 // InputArray_send_Params_List is a list of InputArray_send_Params.
-type InputArray_send_Params_List struct{ capnp.List }
+type InputArray_send_Params_List = capnp.StructList[InputArray_send_Params]
 
 // NewInputArray_send_Params creates a new list of InputArray_send_Params.
 func NewInputArray_send_Params_List(s *capnp.Segment, sz int32) (InputArray_send_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1}, sz)
-	return InputArray_send_Params_List{l}, err
-}
-
-func (s InputArray_send_Params_List) At(i int) InputArray_send_Params {
-	return InputArray_send_Params{s.List.Struct(i)}
-}
-
-func (s InputArray_send_Params_List) Set(i int, v InputArray_send_Params) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s InputArray_send_Params_List) String() string {
-	str, _ := text.MarshalList(0xd6f73232158ce7e9, s.List)
-	return str
+	return capnp.StructList[InputArray_send_Params](l), err
 }
 
 // InputArray_send_Params_Future is a wrapper for a InputArray_send_Params promised by a client call.
 type InputArray_send_Params_Future struct{ *capnp.Future }
 
-func (p InputArray_send_Params_Future) Struct() (InputArray_send_Params, error) {
-	s, err := p.Future.Struct()
-	return InputArray_send_Params{s}, err
+func (f InputArray_send_Params_Future) Struct() (InputArray_send_Params, error) {
+	p, err := f.Future.Ptr()
+	return InputArray_send_Params(p.Struct()), err
 }
-
 func (p InputArray_send_Params_Future) Data() *capnp.Future {
 	return p.Future.Field(0, nil)
 }
 
-type InputArray_send_Results struct{ capnp.Struct }
+type InputArray_send_Results capnp.Struct
 
 // InputArray_send_Results_TypeID is the unique identifier for the type InputArray_send_Results.
 const InputArray_send_Results_TypeID = 0xa27dca50a85ba1b3
 
 func NewInputArray_send_Results(s *capnp.Segment) (InputArray_send_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return InputArray_send_Results{st}, err
+	return InputArray_send_Results(st), err
 }
 
 func NewRootInputArray_send_Results(s *capnp.Segment) (InputArray_send_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return InputArray_send_Results{st}, err
+	return InputArray_send_Results(st), err
 }
 
 func ReadRootInputArray_send_Results(msg *capnp.Message) (InputArray_send_Results, error) {
 	root, err := msg.Root()
-	return InputArray_send_Results{root.Struct()}, err
+	return InputArray_send_Results(root.Struct()), err
 }
 
 func (s InputArray_send_Results) String() string {
-	str, _ := text.Marshal(0xa27dca50a85ba1b3, s.Struct)
+	str, _ := text.Marshal(0xa27dca50a85ba1b3, capnp.Struct(s))
 	return str
 }
 
+func (s InputArray_send_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (InputArray_send_Results) DecodeFromPtr(p capnp.Ptr) InputArray_send_Results {
+	return InputArray_send_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s InputArray_send_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s InputArray_send_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s InputArray_send_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s InputArray_send_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+
 // InputArray_send_Results_List is a list of InputArray_send_Results.
-type InputArray_send_Results_List struct{ capnp.List }
+type InputArray_send_Results_List = capnp.StructList[InputArray_send_Results]
 
 // NewInputArray_send_Results creates a new list of InputArray_send_Results.
 func NewInputArray_send_Results_List(s *capnp.Segment, sz int32) (InputArray_send_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return InputArray_send_Results_List{l}, err
-}
-
-func (s InputArray_send_Results_List) At(i int) InputArray_send_Results {
-	return InputArray_send_Results{s.List.Struct(i)}
-}
-
-func (s InputArray_send_Results_List) Set(i int, v InputArray_send_Results) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s InputArray_send_Results_List) String() string {
-	str, _ := text.MarshalList(0xa27dca50a85ba1b3, s.List)
-	return str
+	return capnp.StructList[InputArray_send_Results](l), err
 }
 
 // InputArray_send_Results_Future is a wrapper for a InputArray_send_Results promised by a client call.
 type InputArray_send_Results_Future struct{ *capnp.Future }
 
-func (p InputArray_send_Results_Future) Struct() (InputArray_send_Results, error) {
-	s, err := p.Future.Struct()
-	return InputArray_send_Results{s}, err
+func (f InputArray_send_Results_Future) Struct() (InputArray_send_Results, error) {
+	p, err := f.Future.Ptr()
+	return InputArray_send_Results(p.Struct()), err
 }
 
-type InputArray_close_Params struct{ capnp.Struct }
+type InputArray_close_Params capnp.Struct
 
 // InputArray_close_Params_TypeID is the unique identifier for the type InputArray_close_Params.
 const InputArray_close_Params_TypeID = 0xa3ea6f6acc75c72a
 
 func NewInputArray_close_Params(s *capnp.Segment) (InputArray_close_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return InputArray_close_Params{st}, err
+	return InputArray_close_Params(st), err
 }
 
 func NewRootInputArray_close_Params(s *capnp.Segment) (InputArray_close_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return InputArray_close_Params{st}, err
+	return InputArray_close_Params(st), err
 }
 
 func ReadRootInputArray_close_Params(msg *capnp.Message) (InputArray_close_Params, error) {
 	root, err := msg.Root()
-	return InputArray_close_Params{root.Struct()}, err
+	return InputArray_close_Params(root.Struct()), err
 }
 
 func (s InputArray_close_Params) String() string {
-	str, _ := text.Marshal(0xa3ea6f6acc75c72a, s.Struct)
+	str, _ := text.Marshal(0xa3ea6f6acc75c72a, capnp.Struct(s))
 	return str
 }
 
+func (s InputArray_close_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (InputArray_close_Params) DecodeFromPtr(p capnp.Ptr) InputArray_close_Params {
+	return InputArray_close_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s InputArray_close_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s InputArray_close_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s InputArray_close_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s InputArray_close_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s InputArray_close_Params) At() uint8 {
-	return s.Struct.Uint8(0)
+	return capnp.Struct(s).Uint8(0)
 }
 
 func (s InputArray_close_Params) SetAt(v uint8) {
-	s.Struct.SetUint8(0, v)
+	capnp.Struct(s).SetUint8(0, v)
 }
 
 // InputArray_close_Params_List is a list of InputArray_close_Params.
-type InputArray_close_Params_List struct{ capnp.List }
+type InputArray_close_Params_List = capnp.StructList[InputArray_close_Params]
 
 // NewInputArray_close_Params creates a new list of InputArray_close_Params.
 func NewInputArray_close_Params_List(s *capnp.Segment, sz int32) (InputArray_close_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0}, sz)
-	return InputArray_close_Params_List{l}, err
-}
-
-func (s InputArray_close_Params_List) At(i int) InputArray_close_Params {
-	return InputArray_close_Params{s.List.Struct(i)}
-}
-
-func (s InputArray_close_Params_List) Set(i int, v InputArray_close_Params) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s InputArray_close_Params_List) String() string {
-	str, _ := text.MarshalList(0xa3ea6f6acc75c72a, s.List)
-	return str
+	return capnp.StructList[InputArray_close_Params](l), err
 }
 
 // InputArray_close_Params_Future is a wrapper for a InputArray_close_Params promised by a client call.
 type InputArray_close_Params_Future struct{ *capnp.Future }
 
-func (p InputArray_close_Params_Future) Struct() (InputArray_close_Params, error) {
-	s, err := p.Future.Struct()
-	return InputArray_close_Params{s}, err
+func (f InputArray_close_Params_Future) Struct() (InputArray_close_Params, error) {
+	p, err := f.Future.Ptr()
+	return InputArray_close_Params(p.Struct()), err
 }
 
-type InputArray_close_Results struct{ capnp.Struct }
+type InputArray_close_Results capnp.Struct
 
 // InputArray_close_Results_TypeID is the unique identifier for the type InputArray_close_Results.
 const InputArray_close_Results_TypeID = 0xe8439136add88b78
 
 func NewInputArray_close_Results(s *capnp.Segment) (InputArray_close_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return InputArray_close_Results{st}, err
+	return InputArray_close_Results(st), err
 }
 
 func NewRootInputArray_close_Results(s *capnp.Segment) (InputArray_close_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return InputArray_close_Results{st}, err
+	return InputArray_close_Results(st), err
 }
 
 func ReadRootInputArray_close_Results(msg *capnp.Message) (InputArray_close_Results, error) {
 	root, err := msg.Root()
-	return InputArray_close_Results{root.Struct()}, err
+	return InputArray_close_Results(root.Struct()), err
 }
 
 func (s InputArray_close_Results) String() string {
-	str, _ := text.Marshal(0xe8439136add88b78, s.Struct)
+	str, _ := text.Marshal(0xe8439136add88b78, capnp.Struct(s))
 	return str
 }
 
+func (s InputArray_close_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (InputArray_close_Results) DecodeFromPtr(p capnp.Ptr) InputArray_close_Results {
+	return InputArray_close_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s InputArray_close_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s InputArray_close_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s InputArray_close_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s InputArray_close_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+
 // InputArray_close_Results_List is a list of InputArray_close_Results.
-type InputArray_close_Results_List struct{ capnp.List }
+type InputArray_close_Results_List = capnp.StructList[InputArray_close_Results]
 
 // NewInputArray_close_Results creates a new list of InputArray_close_Results.
 func NewInputArray_close_Results_List(s *capnp.Segment, sz int32) (InputArray_close_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return InputArray_close_Results_List{l}, err
-}
-
-func (s InputArray_close_Results_List) At(i int) InputArray_close_Results {
-	return InputArray_close_Results{s.List.Struct(i)}
-}
-
-func (s InputArray_close_Results_List) Set(i int, v InputArray_close_Results) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s InputArray_close_Results_List) String() string {
-	str, _ := text.MarshalList(0xe8439136add88b78, s.List)
-	return str
+	return capnp.StructList[InputArray_close_Results](l), err
 }
 
 // InputArray_close_Results_Future is a wrapper for a InputArray_close_Results promised by a client call.
 type InputArray_close_Results_Future struct{ *capnp.Future }
 
-func (p InputArray_close_Results_Future) Struct() (InputArray_close_Results, error) {
-	s, err := p.Future.Struct()
-	return InputArray_close_Results{s}, err
+func (f InputArray_close_Results_Future) Struct() (InputArray_close_Results, error) {
+	p, err := f.Future.Ptr()
+	return InputArray_close_Results(p.Struct()), err
 }
 
-const schema_bf602c4868dbb22f = "x\xda\x94U]h\x1cU\x14>g\xe6\xde\x99&\xa4" +
-	"\xd9\xdc\xdc\x84\xc4BY,)\x9a\xc5\xae\xcdj\x15B" +
-	"\xcb\xa6-\x18+jwB\xb1%\xf5!cvJR" +
-	"\xf7\xaf3\xb3\x8dy\x08\xb5\x11,Q#\x14Q\xa9\xa1" +
-	"\x88UZi\x09\xd8J\x1f\x0c\xa8\x14\x89\x01iE\x84" +
-	"\xda\xa2H_\x0c\xd5@A\x0b%`\xd5\x91;3w" +
-	"w\xb6\x9bR}\xca\x92s\xf6\x9c\xef\xef\xdc\xdd8\xad" +
-	"\xf4)=tg\x03\x80\x91\xa3\x9a7\xb9mS\xf6\xcc" +
-	"s\xeb\x8f\x03kA\x00\xa2\x03\xf0ir\x13\x88\xb7\xf0" +
-	"\xaa\xf6\xf4\x99\xe4\xc2q`\x8d\xaa\xf7\xf0\xb9\x9fF\x9e" +
-	"|h\xe8K\x00\xe4\x07\xc8i>\xee7\x96\xc9\x11>" +
-	"/>y\xe9\xc5\xf7\xe6_Y~\xf1\xfd\xba\xe6Y2" +
-	"\xc9\xcf\x92\x07\x00\xf8<\xe9\xe77\xfc\xe6O?\xd8\xfb" +
-	"q\xe6\x9b\x89\x13\xc0\xda\xc3\x95\x8f\\&\xad\x08\xc4K" +
-	",\x94/\xee/.}\x08F;\xca\xd2\xe7\xa2\x84|" +
-	"\x9e\xa4\x01\xbd\xd3_/\xa4.L\xcd\xcc\x02\xeb\x90\xf5" +
-	"E\xb2F|\x95\x1a\xd7\x0f\x0e\xeeo\xfa\x02X\x9b\xac" +
-	"\\\"\x8d\xa2\xe2>\xb1\xb8v\xee\xb3\xbd\xd1\xcay\xa2" +
-	"\x88J\xe7\xf8_?[\xcf\xbf{)2\xed\x18I\x88" +
-	"\xca\xcb[\x9a\xbf\xbb\xd8\xd1\xf9=\xb0\x16\xb5J\x0e\x90" +
-	"\x1f&s|\x8a\xe8|\x8a\xc4\xf9,\xe9\xe7\x97}F" +
-	"\xbf]\x7f\xa3=\x95Z\xfe!\xc4M1\x00\xde\x18\x00" +
-	"\x1f\x03\xf4>9\xd9>2\xe1u\\\xa9\x13\xe8~z" +
-	"\x82w\xd3\x0e\x00\xbe\x89\x1e\xe1ST\x8cs\xdey\xeb" +
-	"\xc2/\xb7\x86\xaf\x06\xb8\x82i\x07\xe8:1m\x9c\x0a" +
-	"\x19N^;\xfb\xd5\x9bC{~\x8cP:F{\x05" +
-	"\xf0\x86\x99\xdcH\xf3\xe3\xfb\xaeE\xec<L\x97\x80x" +
-	"\x1b\xd6\xfd>\xb6\xeb\xd0G\x8b\xd1\x99V03\xef\xcf" +
-	"|\xe9\xf5\xab\xb3\x8f\x1d\xdd\xfek\xc4\x95i\xeaK;" +
-	"t\xe3\xd4\xed+\xbb\xcf\xdd\x0a\xb6QE\x94\xca4%" +
-	"\xbe:A\x059k\xe7\xe6\\\xe7\xdb\xa5e\xd1Pe" +
-	"\xea7\xf2\xbf\xe9\x9f\xbcA\x13\x9f\xa8&z_S&" +
-	"\x97\xe2\x9d3\xb7\xeb\x945\xb59>\xaa\xe9|T\x8b" +
-	"\xf3i\xad\x9f\x9f\xd7tx\xc6\xdb\xf7B)9l\x96" +
-	"\x0aJ\xa9wG\xa1Tv\x93\xc3\xb9\xa2cu\x0dX" +
-	"q\xa7\x9cs\x9dJ\x1d\xc3\xfa\xd6\x98m\x9b\xe3\x19D" +
-	"c\x95J#\xce\xa0\x0c\x1d\xebI\x80\xc2\xd6\xeb\x88\x95" +
-	"\xb4\xa1\xa4\xce\xeeK\x81\xc2V\xeb1\xc7*d\xfb0" +
-	"\xee\xef\xea\xc3\x0cb\xdd\x1e0V!Fb\xd2\xd0\x1b" +
-	"aF{\xd3\x03\x96\x99\xb5\xec\xf4n{\xd4\xb5l\x83" +
-	"\xf8X\xa47(o\x8e1\xb1\x8f\xea+-R%!" +
-	"\xc1')\x00u\x0dX\x823:w\xe9\x09\x94\xc9\x98" +
-	"\xb6\x99G\xc7 *\x01 \x08\xc0V\xaf\x010V\xa9" +
-	"h\xb4)\xa8\x9a.j\xa0\xa0\x06\xf5\x9b\x92\x01\xe6\xa4" +
-	"m\x99Y\x7f\x8c\x9a\xafY\xb5\xbd\x98/\x15\x0bV\xc1" +
-	"M:n\xb1\x14\xa2q\x00*=z]\x8f\x0f\xc6\x01" +
-	"\xd9 \x17\x05\xaa$\xc7\xc4\x1f1'\xb6\xa2\x95\xc9P" +
-	"Da&A\xc5\xfb\xf6\xe8\x1f\xff\x8c\x9f\xca\xde\x04\x83" +
-	"(\xb8\xb5\x0d\xb1\x09\x80\xe1\x80\xb7\xa3P\xf2\x1b\x01m" +
-	"\x80Pj\xf9N\xa0<%\xc6\x12\xbe\xd41\xc1\xee\x9e" +
-	"J\x87\xb8\x85lR\xc5n\xa1b\x97\x8a\xc6F\x05\x11" +
-	"\xdb\xc4\x99\xb3\x0d\x09\x00\xe3A\x15\x8dGk\x94\x8de" +
-	"M\xd7\xc4VP\xb0\x15j\x92\x13\xa8\xa3[\x05\xd7 " +
-	"\x18=\x1b\x1c\xf4\x9e5\xf3\xd6\xaeb\xa6\x08\xaa\xed\x86" +
-	"\xd9\x95w\x87\xf2\xdcY\xcf (\xac[dW>j" +
-	"(\xdf=\xb6V\x10d\xba\xe7Xn\xb9\x94)\xda\xa0" +
-	"\xbaN\x1f\xc6\x84\x0f+\xf3\xad\xf1[\xb8\xa9\xe7\xdc\x9a" +
-	"\xdc\xa4\xaa\xb9\x89\x1f4se\xab\x8eSm*\xc2\xc5" +
-	"\xae\xd35\x90\xb6j\xcf\xf3\x8e\xf3\xcd\x981!p=" +
-	"\xa4\x9addL[7\xf3\xff\x1fR\xddM\xf8QU" +
-	"]\xe7\x9e\xb83q\xdf\xf8\xa8\xed\xdbB\xdb\xfb\x14d" +
-	"\xd2\xf7-O\x01\x18\x9bU4\xf6(xh\xb4\xe0\x7f" +
-	"\x17\x9b\x013*bK\xd5V@\xf1O\xafXv\xfd" +
-	"\x0e\x00\xb8{SD\xa8*2\x91\x89\xb4\x08\x85\xed\x06" +
-	"/Z\x05U\xa2\x1aF\xb6R\x1ac\x053oa\x13" +
-	"(\xd8\x04\x18+\x15m\x17[\x89\x0axg\"\xc3C" +
-	"\x0bd\xff\x0f\x87\xe67F\x0fM\xfe\xac\xa0\xfc-\xad" +
-	"\xbci\xbe\x87~\xf2\xfe\x0d\x00\x00\xff\xff_\xe4s\x12"
+const schema_bf602c4868dbb22f = "x\xda\x94U]h\x1c\xd5\x17?g\xe6\xde\x99$$" +
+	"\xd9\xdc\xdc\x84\xe4_(\xcb\xbf\xa4h\x16\xbb6\xabU" +
+	"\x08-\x9b\xb6`\xac\xa8\xdd\x09\xc5\x96\xd4\x87\x8c\xd9)" +
+	"I\xdd\xaf\xce\xcc6\xe6!\xd4F\xb0D\x8dRD\xa5" +
+	"\x86\"Vi\xa5%`+}0\xa0R$\x06\xa4\x15" +
+	"\x11j\x8b\"}1T\x03\x05-\x94\x80UG\xee\xcc" +
+	"\xdc\xecl7\xa5\xfa\x94%\xe7\xec9\xbf\xafsw\xe3" +
+	"\x1bJ\x1f\xe9i\xdaY\x0f\x8a\x91\xa3\x9a7\xb9mS" +
+	"\xf6\xcc3\xeb\x8f\x03kA\x00\xa2\x03\xf0ir\x13\x88" +
+	"\xb7\xf0\xb2\xf6\xe4\x99\xe4\xc2q`\x0d\xaa\xf7\xe0\xb9\x1f" +
+	"G\x1e\x7f`\xe8\x0b\x00\xe4\x07\xc8i>\xee7\x96\xc9" +
+	"\x11>/>y\xe9\xc5w\xe7_Z~\xfe\xbd\x9a\xe6" +
+	"Y2\xc9\xcf\x92\xfb\x00\xf8<\xe9\xe77\xfc\xe6O\xde" +
+	"\xdf\xfbQ\xe6\xeb\x89\x13\xc0\xda\xc3\x95\x0f]&\xad\x08" +
+	"\xc4K,\x94/\xee/.}\x00F;\xca\xd2g\xa2" +
+	"\x84|\x9e\xa4\x01\xbd\xd3_-\xa4.L\xcd\xcc\x02\xeb" +
+	"\x90\xf5E\xb2F|\x95\x1a\xd7\x0f\x0e\xeeo\xfc\x1cX" +
+	"\x9b\xac\\\"\x0d\xa2\xe2>\xb6\xb8v\xee\xd3\xbd\xd1\xca" +
+	"y\xa2\x88J\xe7\xf8\x9f?Y\xcf\xbes)2\xed\x18" +
+	"I\x88\xca\x8b[\x9a\xbf\xbd\xd8\xd1\xf9\x1d\xb0\x16\xb5B" +
+	"\x0e\x90\x1f&s|\x8a\xe8|\x8a\xc4\xf9,\xe9\xe7\x97" +
+	"}F\xbf^\x7f\xad=\x95Z\xfe>\xc4M1\x00\xde" +
+	"\x10\x00\x1f\x03\xf4>>\xd9>2\xe1u\\\xa9\x11\xe8" +
+	"\xff\xf4\x04\xef\xa6\x1d\x00|\x13=\xc2\xa7\xa8\x18\xe7\xbc" +
+	"\xfd\xe6\x85\x9fo\x0d_\x0dp\x05\xd3\x0e\xd0ub\xda" +
+	"8\x152\x9c\xbcv\xf6\xcb\xd7\x87\xf6\xfc\x10\xa1t\x8c" +
+	"\xf6\x0a\xe0\xf53\xb9\x91\xe6G\xf7]\x8b\xd8y\x98." +
+	"\x01\xf16\xac\xfbml\xd7\xa1\x0f\x17\xa33\xad`f" +
+	"\xde\x9f\xf9\xc2\xabWg\x1f9\xba\xfd\x97\x88+\xd3\xd4" +
+	"\x97v\xe8\xc6\xa9\xdbWv\x9f\xbb\x15l\xa3\x8a(\x95" +
+	"iJ|u\x82\x0ar\xd6\xce\xcd\xb9\xce\xb7J\xcb\xa2" +
+	"\xa1\xc2\xd4o\xe4\x7f\xd1?x\xbd&>QM\xf4\xbe" +
+	"\xa2L.\xc5;gn\xd7(kjs|T\xd3\xf9" +
+	"\xa8\x16\xe7\xd3Z??\xaf\xe9\xf0\x94\xb7\xef\xb9Rr" +
+	"\xd8,\x15\x94R\xef\x8eB\xa9\xec&\x87sE\xc7\xea" +
+	"\x1a\xb0\xe2N9\xe7:+u\x0c\xeb[c\xb6m\x8e" +
+	"g\x10\x8d:\x95F\x9cA\x19:\xd6\x93\x00\x85\xad\xd7" +
+	"\x11W\xd2\x86\x92:\xfb_\x0a\x14\xd6\xa4\xc7\x1c\xab\x90" +
+	"\xed\xc3\xb8\xbf\xab\x0f3\x885{\xc0\xa8C\x8c\xc4\xa4" +
+	"\xbe7\xc2\x8c\xf6\xa6\x07,3k\xd9\xe9\xdd\xf6\xa8k" +
+	"\xd9\x06\xf1\xb1HoP\xde\x1ccb\x1f\xd5W[\xa4" +
+	"JB\x82OR\x00\xea\x1a\xb0\x04gt\xee\xd2\x13(" +
+	"\x931m3\x8f\x8eAT\x02@\x10\x805\xad\x010" +
+	"\xeaT4\xda\x14TM\x175PP\x83\xdaM\xc9\x00" +
+	"s\xd2\xb6\xcc\xac?F\xcdW\xad\xda^\xcc\x97\x8a\x05" +
+	"\xab\xe0&\x1d\xb7X\x0a\xd18\x00+=zM\x8f\x0f" +
+	"\xc6\x01\xd9 \x17\x05\xaa$\xc7\xc4\x1f1'\xb6\xaa\x95" +
+	"\xc9PDa&A\xc5\xfb\xe6\xe8\xef\x7f\x8f\x9f\xca\xde" +
+	"\x04\x83(\xb8\xb5\x0d\xb1\x11\x80\xe1\x80\xb7\xa3P\xf2\x1b" +
+	"\x01m\x80Pj\xf9N\xa0<%\xc6\x12\xbe\xd41\xc1" +
+	"\xee\x9eJ\x87\xb8\x85lR\xc5n\xa1b\x97\x8a\xc6F" +
+	"\x05\x11\xdb\xc4\x99\xb3\x0d\x09\x00\xe3~\x15\x8d\x87\xab\x94" +
+	"\x8deM\xd7\xc4VP\xb0\x15\xaa\x92\x13\xa8\xa3[\x05" +
+	"\xd7 \x18=\x1b\x1c\xf4\x9e6\xf3\xd6\xaeb\xa6\x08\xaa" +
+	"\xed\x86\xd9\x95w\x87\xf2\xdcY\xcf (\xac[dW" +
+	">j(\xdf=\xb6V\x10d\xba\xe7Xn\xb9\x94)" +
+	"\xda\xa0\xbaN\x1f\xc6\x84\x0f\xab\xf3\xad\xf2[\xb8\xa9\xe7" +
+	"\xdc\xaa\xdc\xa4*\xb9\x89\x1f4se\xab\x86Su*" +
+	"\xc2\xc5\xae\xd35\x90\xb6\xaa\xcf\xf3\x8e\xf3\xcd\x981!" +
+	"p-\xa4\xaaddL[7\xf3\xff\x1dR\xcdM\xf8" +
+	"QU]\xe7\x9e\xb83q\xdf\xf8\xa8\xed\xdbB\xdb\xfb" +
+	"\x14d\xd2\xf7-O\x00\x18\x9bU4\xf6(xh\xb4" +
+	"\xe0\x7f\x17\x9b\x013*bK\xc5V@\xf1O\xafX" +
+	"v\xfd\x0e\x00\xb8{SD\xa8\x0a2\x91\x89\xb4\x08\x85" +
+	"\xed\x06/\xda\x0a\xaaD%\x8cl\xb54\xc6\x0af\xde" +
+	"\xc2FP\xb0\x110V*\xda.\xb6\x12\x15\xf0\xceD" +
+	"\x86\x87\x16\xc8\xfe/\x0e\xcdo\x8c\x1e\x9a\xfcYA\xf9" +
+	"[\xba\xf2\xa6\xf9\x1e\xfa\xc9\xfb'\x00\x00\xff\xff\xd5\xe0" +
+	"s "
 
 func init() {
 	schemas.Register(schema_bf602c4868dbb22f,

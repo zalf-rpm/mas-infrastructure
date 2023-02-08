@@ -5,10 +5,12 @@ package crop
 import (
 	capnp "capnproto.org/go/capnp/v3"
 	text "capnproto.org/go/capnp/v3/encoding/text"
+	fc "capnproto.org/go/capnp/v3/flowcontrol"
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
-	common "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/common"
+	fmt "fmt"
+	common "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common"
 )
 
 type Cultivar uint16
@@ -309,24 +311,13 @@ func CultivarFromString(c string) Cultivar {
 	}
 }
 
-type Cultivar_List struct{ capnp.List }
+type Cultivar_List = capnp.EnumList[Cultivar]
 
 func NewCultivar_List(s *capnp.Segment, sz int32) (Cultivar_List, error) {
-	l, err := capnp.NewUInt16List(s, sz)
-	return Cultivar_List{l.List}, err
+	return capnp.NewEnumList[Cultivar](s, sz)
 }
 
-func (l Cultivar_List) At(i int) Cultivar {
-	ul := capnp.UInt16List{List: l.List}
-	return Cultivar(ul.At(i))
-}
-
-func (l Cultivar_List) Set(i int, v Cultivar) {
-	ul := capnp.UInt16List{List: l.List}
-	ul.Set(i, uint16(v))
-}
-
-type Crop struct{ Client *capnp.Client }
+type Crop capnp.Client
 
 // Crop_TypeID is the unique identifier for the type Crop.
 const Crop_TypeID = 0xe88d97a324bf5c84
@@ -342,9 +333,9 @@ func (c Crop) Parameters(ctx context.Context, params func(Crop_parameters_Params
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Crop_parameters_Params{Struct: s}) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Crop_parameters_Params(s)) }
 	}
-	ans, release := c.Client.SendCall(ctx, s)
+	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Crop_parameters_Results_Future{Future: ans.Future()}, release
 }
 func (c Crop) Cultivar(ctx context.Context, params func(Crop_cultivar_Params) error) (Crop_cultivar_Results_Future, capnp.ReleaseFunc) {
@@ -358,10 +349,26 @@ func (c Crop) Cultivar(ctx context.Context, params func(Crop_cultivar_Params) er
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Crop_cultivar_Params{Struct: s}) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Crop_cultivar_Params(s)) }
 	}
-	ans, release := c.Client.SendCall(ctx, s)
+	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Crop_cultivar_Results_Future{Future: ans.Future()}, release
+}
+func (c Crop) Species(ctx context.Context, params func(Crop_species_Params) error) (Crop_species_Results_Future, capnp.ReleaseFunc) {
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0xe88d97a324bf5c84,
+			MethodID:      2,
+			InterfaceName: "crop.capnp:Crop",
+			MethodName:    "species",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Crop_species_Params(s)) }
+	}
+	ans, release := capnp.Client(c).SendCall(ctx, s)
+	return Crop_species_Results_Future{Future: ans.Future()}, release
 }
 func (c Crop) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
 	s := capnp.Send{
@@ -374,48 +381,105 @@ func (c Crop) Info(ctx context.Context, params func(common.Identifiable_info_Par
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params{Struct: s}) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
-	ans, release := c.Client.SendCall(ctx, s)
+	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
 }
 
+// String returns a string that identifies this capability for debugging
+// purposes.  Its format should not be depended on: in particular, it
+// should not be used to compare clients.  Use IsSame to compare clients
+// for equality.
+func (c Crop) String() string {
+	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+}
+
+// AddRef creates a new Client that refers to the same capability as c.
+// If c is nil or has resolved to null, then AddRef returns nil.
 func (c Crop) AddRef() Crop {
-	return Crop{
-		Client: c.Client.AddRef(),
-	}
+	return Crop(capnp.Client(c).AddRef())
 }
 
+// Release releases a capability reference.  If this is the last
+// reference to the capability, then the underlying resources associated
+// with the capability will be released.
+//
+// Release will panic if c has already been released, but not if c is
+// nil or resolved to null.
 func (c Crop) Release() {
-	c.Client.Release()
+	capnp.Client(c).Release()
 }
 
-// A Crop_Server is a Crop with a local implementation.
+// Resolve blocks until the capability is fully resolved or the Context
+// expires.
+func (c Crop) Resolve(ctx context.Context) error {
+	return capnp.Client(c).Resolve(ctx)
+}
+
+func (c Crop) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Client(c).EncodeAsPtr(seg)
+}
+
+func (Crop) DecodeFromPtr(p capnp.Ptr) Crop {
+	return Crop(capnp.Client{}.DecodeFromPtr(p))
+}
+
+// IsValid reports whether c is a valid reference to a capability.
+// A reference is invalid if it is nil, has resolved to null, or has
+// been released.
+func (c Crop) IsValid() bool {
+	return capnp.Client(c).IsValid()
+}
+
+// IsSame reports whether c and other refer to a capability created by the
+// same call to NewClient.  This can return false negatives if c or other
+// are not fully resolved: use Resolve if this is an issue.  If either
+// c or other are released, then IsSame panics.
+func (c Crop) IsSame(other Crop) bool {
+	return capnp.Client(c).IsSame(capnp.Client(other))
+}
+
+// Update the flowcontrol.FlowLimiter used to manage flow control for
+// this client. This affects all future calls, but not calls already
+// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
+// which is also the default.
+func (c Crop) SetFlowLimiter(lim fc.FlowLimiter) {
+	capnp.Client(c).SetFlowLimiter(lim)
+}
+
+// Get the current flowcontrol.FlowLimiter used to manage flow control
+// for this client.
+func (c Crop) GetFlowLimiter() fc.FlowLimiter {
+	return capnp.Client(c).GetFlowLimiter()
+} // A Crop_Server is a Crop with a local implementation.
 type Crop_Server interface {
 	Parameters(context.Context, Crop_parameters) error
 
 	Cultivar(context.Context, Crop_cultivar) error
 
+	Species(context.Context, Crop_species) error
+
 	Info(context.Context, common.Identifiable_info) error
 }
 
 // Crop_NewServer creates a new Server from an implementation of Crop_Server.
-func Crop_NewServer(s Crop_Server, policy *server.Policy) *server.Server {
+func Crop_NewServer(s Crop_Server) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(Crop_Methods(nil, s), s, c, policy)
+	return server.New(Crop_Methods(nil, s), s, c)
 }
 
 // Crop_ServerToClient creates a new Client from an implementation of Crop_Server.
 // The caller is responsible for calling Release on the returned Client.
-func Crop_ServerToClient(s Crop_Server, policy *server.Policy) Crop {
-	return Crop{Client: capnp.NewClient(Crop_NewServer(s, policy))}
+func Crop_ServerToClient(s Crop_Server) Crop {
+	return Crop(capnp.NewClient(Crop_NewServer(s)))
 }
 
 // Crop_Methods appends Methods to a slice that invoke the methods on s.
 // This can be used to create a more complicated Server.
 func Crop_Methods(methods []server.Method, s Crop_Server) []server.Method {
 	if cap(methods) == 0 {
-		methods = make([]server.Method, 0, 3)
+		methods = make([]server.Method, 0, 4)
 	}
 
 	methods = append(methods, server.Method{
@@ -444,6 +508,18 @@ func Crop_Methods(methods []server.Method, s Crop_Server) []server.Method {
 
 	methods = append(methods, server.Method{
 		Method: capnp.Method{
+			InterfaceID:   0xe88d97a324bf5c84,
+			MethodID:      2,
+			InterfaceName: "crop.capnp:Crop",
+			MethodName:    "species",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.Species(ctx, Crop_species{call})
+		},
+	})
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
 			MethodID:      0,
 			InterfaceName: "common.capnp:Identifiable",
@@ -465,13 +541,13 @@ type Crop_parameters struct {
 
 // Args returns the call's arguments.
 func (c Crop_parameters) Args() Crop_parameters_Params {
-	return Crop_parameters_Params{Struct: c.Call.Args()}
+	return Crop_parameters_Params(c.Call.Args())
 }
 
 // AllocResults allocates the results struct.
 func (c Crop_parameters) AllocResults() (Crop_parameters_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Crop_parameters_Results{Struct: r}, err
+	return Crop_parameters_Results(r), err
 }
 
 // Crop_cultivar holds the state for a server call to Crop.cultivar.
@@ -482,333 +558,578 @@ type Crop_cultivar struct {
 
 // Args returns the call's arguments.
 func (c Crop_cultivar) Args() Crop_cultivar_Params {
-	return Crop_cultivar_Params{Struct: c.Call.Args()}
+	return Crop_cultivar_Params(c.Call.Args())
 }
 
 // AllocResults allocates the results struct.
 func (c Crop_cultivar) AllocResults() (Crop_cultivar_Results, error) {
-	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Crop_cultivar_Results{Struct: r}, err
+	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Crop_cultivar_Results(r), err
 }
 
-type Crop_parameters_Params struct{ capnp.Struct }
+// Crop_species holds the state for a server call to Crop.species.
+// See server.Call for documentation.
+type Crop_species struct {
+	*server.Call
+}
+
+// Args returns the call's arguments.
+func (c Crop_species) Args() Crop_species_Params {
+	return Crop_species_Params(c.Call.Args())
+}
+
+// AllocResults allocates the results struct.
+func (c Crop_species) AllocResults() (Crop_species_Results, error) {
+	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Crop_species_Results(r), err
+}
+
+// Crop_List is a list of Crop.
+type Crop_List = capnp.CapList[Crop]
+
+// NewCrop creates a new list of Crop.
+func NewCrop_List(s *capnp.Segment, sz int32) (Crop_List, error) {
+	l, err := capnp.NewPointerList(s, sz)
+	return capnp.CapList[Crop](l), err
+}
+
+type Crop_parameters_Params capnp.Struct
 
 // Crop_parameters_Params_TypeID is the unique identifier for the type Crop_parameters_Params.
 const Crop_parameters_Params_TypeID = 0xc86e010e743c8e5b
 
 func NewCrop_parameters_Params(s *capnp.Segment) (Crop_parameters_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Crop_parameters_Params{st}, err
+	return Crop_parameters_Params(st), err
 }
 
 func NewRootCrop_parameters_Params(s *capnp.Segment) (Crop_parameters_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Crop_parameters_Params{st}, err
+	return Crop_parameters_Params(st), err
 }
 
 func ReadRootCrop_parameters_Params(msg *capnp.Message) (Crop_parameters_Params, error) {
 	root, err := msg.Root()
-	return Crop_parameters_Params{root.Struct()}, err
+	return Crop_parameters_Params(root.Struct()), err
 }
 
 func (s Crop_parameters_Params) String() string {
-	str, _ := text.Marshal(0xc86e010e743c8e5b, s.Struct)
+	str, _ := text.Marshal(0xc86e010e743c8e5b, capnp.Struct(s))
 	return str
 }
 
+func (s Crop_parameters_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Crop_parameters_Params) DecodeFromPtr(p capnp.Ptr) Crop_parameters_Params {
+	return Crop_parameters_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Crop_parameters_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Crop_parameters_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Crop_parameters_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Crop_parameters_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+
 // Crop_parameters_Params_List is a list of Crop_parameters_Params.
-type Crop_parameters_Params_List struct{ capnp.List }
+type Crop_parameters_Params_List = capnp.StructList[Crop_parameters_Params]
 
 // NewCrop_parameters_Params creates a new list of Crop_parameters_Params.
 func NewCrop_parameters_Params_List(s *capnp.Segment, sz int32) (Crop_parameters_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return Crop_parameters_Params_List{l}, err
-}
-
-func (s Crop_parameters_Params_List) At(i int) Crop_parameters_Params {
-	return Crop_parameters_Params{s.List.Struct(i)}
-}
-
-func (s Crop_parameters_Params_List) Set(i int, v Crop_parameters_Params) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Crop_parameters_Params_List) String() string {
-	str, _ := text.MarshalList(0xc86e010e743c8e5b, s.List)
-	return str
+	return capnp.StructList[Crop_parameters_Params](l), err
 }
 
 // Crop_parameters_Params_Future is a wrapper for a Crop_parameters_Params promised by a client call.
 type Crop_parameters_Params_Future struct{ *capnp.Future }
 
-func (p Crop_parameters_Params_Future) Struct() (Crop_parameters_Params, error) {
-	s, err := p.Future.Struct()
-	return Crop_parameters_Params{s}, err
+func (f Crop_parameters_Params_Future) Struct() (Crop_parameters_Params, error) {
+	p, err := f.Future.Ptr()
+	return Crop_parameters_Params(p.Struct()), err
 }
 
-type Crop_parameters_Results struct{ capnp.Struct }
+type Crop_parameters_Results capnp.Struct
 
 // Crop_parameters_Results_TypeID is the unique identifier for the type Crop_parameters_Results.
 const Crop_parameters_Results_TypeID = 0xe4fafc722d515486
 
 func NewCrop_parameters_Results(s *capnp.Segment) (Crop_parameters_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Crop_parameters_Results{st}, err
+	return Crop_parameters_Results(st), err
 }
 
 func NewRootCrop_parameters_Results(s *capnp.Segment) (Crop_parameters_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Crop_parameters_Results{st}, err
+	return Crop_parameters_Results(st), err
 }
 
 func ReadRootCrop_parameters_Results(msg *capnp.Message) (Crop_parameters_Results, error) {
 	root, err := msg.Root()
-	return Crop_parameters_Results{root.Struct()}, err
+	return Crop_parameters_Results(root.Struct()), err
 }
 
 func (s Crop_parameters_Results) String() string {
-	str, _ := text.Marshal(0xe4fafc722d515486, s.Struct)
+	str, _ := text.Marshal(0xe4fafc722d515486, capnp.Struct(s))
 	return str
 }
 
+func (s Crop_parameters_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Crop_parameters_Results) DecodeFromPtr(p capnp.Ptr) Crop_parameters_Results {
+	return Crop_parameters_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Crop_parameters_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Crop_parameters_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Crop_parameters_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Crop_parameters_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Crop_parameters_Results) Params() (capnp.Ptr, error) {
-	return s.Struct.Ptr(0)
+	return capnp.Struct(s).Ptr(0)
 }
 
 func (s Crop_parameters_Results) HasParams() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s Crop_parameters_Results) SetParams(v capnp.Ptr) error {
-	return s.Struct.SetPtr(0, v)
+	return capnp.Struct(s).SetPtr(0, v)
 }
 
 // Crop_parameters_Results_List is a list of Crop_parameters_Results.
-type Crop_parameters_Results_List struct{ capnp.List }
+type Crop_parameters_Results_List = capnp.StructList[Crop_parameters_Results]
 
 // NewCrop_parameters_Results creates a new list of Crop_parameters_Results.
 func NewCrop_parameters_Results_List(s *capnp.Segment, sz int32) (Crop_parameters_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return Crop_parameters_Results_List{l}, err
-}
-
-func (s Crop_parameters_Results_List) At(i int) Crop_parameters_Results {
-	return Crop_parameters_Results{s.List.Struct(i)}
-}
-
-func (s Crop_parameters_Results_List) Set(i int, v Crop_parameters_Results) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Crop_parameters_Results_List) String() string {
-	str, _ := text.MarshalList(0xe4fafc722d515486, s.List)
-	return str
+	return capnp.StructList[Crop_parameters_Results](l), err
 }
 
 // Crop_parameters_Results_Future is a wrapper for a Crop_parameters_Results promised by a client call.
 type Crop_parameters_Results_Future struct{ *capnp.Future }
 
-func (p Crop_parameters_Results_Future) Struct() (Crop_parameters_Results, error) {
-	s, err := p.Future.Struct()
-	return Crop_parameters_Results{s}, err
+func (f Crop_parameters_Results_Future) Struct() (Crop_parameters_Results, error) {
+	p, err := f.Future.Ptr()
+	return Crop_parameters_Results(p.Struct()), err
 }
-
 func (p Crop_parameters_Results_Future) Params() *capnp.Future {
 	return p.Future.Field(0, nil)
 }
 
-type Crop_cultivar_Params struct{ capnp.Struct }
+type Crop_cultivar_Params capnp.Struct
 
 // Crop_cultivar_Params_TypeID is the unique identifier for the type Crop_cultivar_Params.
 const Crop_cultivar_Params_TypeID = 0xf26ef117dfb4517a
 
 func NewCrop_cultivar_Params(s *capnp.Segment) (Crop_cultivar_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Crop_cultivar_Params{st}, err
+	return Crop_cultivar_Params(st), err
 }
 
 func NewRootCrop_cultivar_Params(s *capnp.Segment) (Crop_cultivar_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Crop_cultivar_Params{st}, err
+	return Crop_cultivar_Params(st), err
 }
 
 func ReadRootCrop_cultivar_Params(msg *capnp.Message) (Crop_cultivar_Params, error) {
 	root, err := msg.Root()
-	return Crop_cultivar_Params{root.Struct()}, err
+	return Crop_cultivar_Params(root.Struct()), err
 }
 
 func (s Crop_cultivar_Params) String() string {
-	str, _ := text.Marshal(0xf26ef117dfb4517a, s.Struct)
+	str, _ := text.Marshal(0xf26ef117dfb4517a, capnp.Struct(s))
 	return str
 }
 
+func (s Crop_cultivar_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Crop_cultivar_Params) DecodeFromPtr(p capnp.Ptr) Crop_cultivar_Params {
+	return Crop_cultivar_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Crop_cultivar_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Crop_cultivar_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Crop_cultivar_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Crop_cultivar_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+
 // Crop_cultivar_Params_List is a list of Crop_cultivar_Params.
-type Crop_cultivar_Params_List struct{ capnp.List }
+type Crop_cultivar_Params_List = capnp.StructList[Crop_cultivar_Params]
 
 // NewCrop_cultivar_Params creates a new list of Crop_cultivar_Params.
 func NewCrop_cultivar_Params_List(s *capnp.Segment, sz int32) (Crop_cultivar_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return Crop_cultivar_Params_List{l}, err
-}
-
-func (s Crop_cultivar_Params_List) At(i int) Crop_cultivar_Params {
-	return Crop_cultivar_Params{s.List.Struct(i)}
-}
-
-func (s Crop_cultivar_Params_List) Set(i int, v Crop_cultivar_Params) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Crop_cultivar_Params_List) String() string {
-	str, _ := text.MarshalList(0xf26ef117dfb4517a, s.List)
-	return str
+	return capnp.StructList[Crop_cultivar_Params](l), err
 }
 
 // Crop_cultivar_Params_Future is a wrapper for a Crop_cultivar_Params promised by a client call.
 type Crop_cultivar_Params_Future struct{ *capnp.Future }
 
-func (p Crop_cultivar_Params_Future) Struct() (Crop_cultivar_Params, error) {
-	s, err := p.Future.Struct()
-	return Crop_cultivar_Params{s}, err
+func (f Crop_cultivar_Params_Future) Struct() (Crop_cultivar_Params, error) {
+	p, err := f.Future.Ptr()
+	return Crop_cultivar_Params(p.Struct()), err
 }
 
-type Crop_cultivar_Results struct{ capnp.Struct }
+type Crop_cultivar_Results capnp.Struct
 
 // Crop_cultivar_Results_TypeID is the unique identifier for the type Crop_cultivar_Results.
 const Crop_cultivar_Results_TypeID = 0xbf3704bba52494ba
 
 func NewCrop_cultivar_Results(s *capnp.Segment) (Crop_cultivar_Results, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Crop_cultivar_Results{st}, err
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Crop_cultivar_Results(st), err
 }
 
 func NewRootCrop_cultivar_Results(s *capnp.Segment) (Crop_cultivar_Results, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Crop_cultivar_Results{st}, err
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Crop_cultivar_Results(st), err
 }
 
 func ReadRootCrop_cultivar_Results(msg *capnp.Message) (Crop_cultivar_Results, error) {
 	root, err := msg.Root()
-	return Crop_cultivar_Results{root.Struct()}, err
+	return Crop_cultivar_Results(root.Struct()), err
 }
 
 func (s Crop_cultivar_Results) String() string {
-	str, _ := text.Marshal(0xbf3704bba52494ba, s.Struct)
+	str, _ := text.Marshal(0xbf3704bba52494ba, capnp.Struct(s))
 	return str
 }
 
-func (s Crop_cultivar_Results) Cult() Cultivar {
-	return Cultivar(s.Struct.Uint16(0))
+func (s Crop_cultivar_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
 }
 
-func (s Crop_cultivar_Results) SetCult(v Cultivar) {
-	s.Struct.SetUint16(0, uint16(v))
+func (Crop_cultivar_Results) DecodeFromPtr(p capnp.Ptr) Crop_cultivar_Results {
+	return Crop_cultivar_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Crop_cultivar_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Crop_cultivar_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Crop_cultivar_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Crop_cultivar_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+func (s Crop_cultivar_Results) Info() (common.IdInformation, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return common.IdInformation(p.Struct()), err
+}
+
+func (s Crop_cultivar_Results) HasInfo() bool {
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Crop_cultivar_Results) SetInfo(v common.IdInformation) error {
+	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+}
+
+// NewInfo sets the info field to a newly
+// allocated common.IdInformation struct, preferring placement in s's segment.
+func (s Crop_cultivar_Results) NewInfo() (common.IdInformation, error) {
+	ss, err := common.NewIdInformation(capnp.Struct(s).Segment())
+	if err != nil {
+		return common.IdInformation{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	return ss, err
 }
 
 // Crop_cultivar_Results_List is a list of Crop_cultivar_Results.
-type Crop_cultivar_Results_List struct{ capnp.List }
+type Crop_cultivar_Results_List = capnp.StructList[Crop_cultivar_Results]
 
 // NewCrop_cultivar_Results creates a new list of Crop_cultivar_Results.
 func NewCrop_cultivar_Results_List(s *capnp.Segment, sz int32) (Crop_cultivar_Results_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0}, sz)
-	return Crop_cultivar_Results_List{l}, err
-}
-
-func (s Crop_cultivar_Results_List) At(i int) Crop_cultivar_Results {
-	return Crop_cultivar_Results{s.List.Struct(i)}
-}
-
-func (s Crop_cultivar_Results_List) Set(i int, v Crop_cultivar_Results) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Crop_cultivar_Results_List) String() string {
-	str, _ := text.MarshalList(0xbf3704bba52494ba, s.List)
-	return str
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
+	return capnp.StructList[Crop_cultivar_Results](l), err
 }
 
 // Crop_cultivar_Results_Future is a wrapper for a Crop_cultivar_Results promised by a client call.
 type Crop_cultivar_Results_Future struct{ *capnp.Future }
 
-func (p Crop_cultivar_Results_Future) Struct() (Crop_cultivar_Results, error) {
-	s, err := p.Future.Struct()
-	return Crop_cultivar_Results{s}, err
+func (f Crop_cultivar_Results_Future) Struct() (Crop_cultivar_Results, error) {
+	p, err := f.Future.Ptr()
+	return Crop_cultivar_Results(p.Struct()), err
+}
+func (p Crop_cultivar_Results_Future) Info() common.IdInformation_Future {
+	return common.IdInformation_Future{Future: p.Future.Field(0, nil)}
 }
 
-const schema_f98a24e1969df972 = "x\xda|UM\x8c\x14U\x10\xaez=3\xbd\x800" +
-	"\xcc\x16\xb0\x82\"\xa2\x83\x0a\x0a\xce\x02j$\x1aV\x10" +
-	"q\x08\x9b0\xbb\xb0\xbb\xa2\x1e\xde\xce<fZ{\xba" +
-	"\xdb\xd7=\xab\xb3\x89\xd9@T\x12\x13=\x19\xbd\xe8\x05" +
-	"\xe3\x81\x83Q\x08\x1e\xd0\x10\xb2\x07\x13\x7f\xe2a\x0f\x9b" +
-	"\xe8ac0\x9a\xe8\xc1\x03&\x1e\xd6\xb8y\xe6\xd5\xec" +
-	"0M\x8c&\x9dT}\xf5}_\xd5\xeb\x97Nui" +
-	"\x83\x18\x12\x83\xd9\xb3Y\x80\xcaP6g>\x7f\xa7\xf8" +
-	"\xd1\x17\x99G\xaeBe-\"@\xc6\x05\xd8s^\xac" +
-	"D@\xba \xf6\x03\x9ag\xdf~,Y\x83\xc1WP" +
-	"X\xdb\xe5\xe7D?B\xc6\\\xfa\xa9\xd67\xf2\xe9\xe9" +
-	"\x05(\xac\x12F/~\xf0\xee\xb5\xe2\x9b\x8b\x00H\x97" +
-	"\xc59\x9a\x15VyE\x0cd\x01\xcd\x1b\xc7+;\xf5" +
-	"\xdf\x7f\xfd\xdc\xe9\x91EK\xcd\xe76\xd9!\x0b9;" +
-	"\xe4\xb5\xe7\xae\x16?|\xef\xad_\xa1\xb0\xca\xb9\xa9\xd5" +
-	"R\xee\x0c\xa1\xeb\x02\xd0R\xee,\x9dp\x07\x00\xcct" +
-	"\xe5\xd2\x8f\x03\xd7\x83?R':\xe4\x0a\x04m\xaa:" +
-	"\x8cvUe\xe4\x04\xd1\xbe\x83\x9c\xb7\xfc\xc4\x9b\x92\xba" +
-	"8\xa2\xe2\x96\x9f\xc4\x00\x95\x8c\x93\x01\xc8 @a\xf5" +
-	"\x0e\x80J\x9f\x83\x95u\x02\xf3V\x89\xf9\xde;\x01b" +
-	"\x1e\xf0\xdf\x1d#\xa9eS%J\xc7\xc5c6\xc5\xf8" +
-	"\x86\x06\xad\xc6\x0et\xa7\xa4>\x86X\xf9\x1e\x05\x00\x9d" +
-	"\x16\xdf\xd8n\xf4\xba8\x00\x80\x82^\x15G\x00\xd0\xa1" +
-	"\xb6x\x01\x003\xd4\xe2\x98\xa5\x97\xc44\x00\xe6\xa8)" +
-	"&\x01\xd0%O\x9c\x04\xc0>Rb\x04\x00W\x90\xe4" +
-	"\xfaJz\x9e\xfb\xac\xa2\x13b7\x00\xdeB\xc3\xac[" +
-	"Me\x8ek\xe8\x10\xeb\xf3\xf4\x04\xe3\xb5\xf48\xfb\x0a" +
-	"\xf4(\xfb\xfai\x901\xd1N\xd6\xad\xa3\xed|\x9e\xf5" +
-	"\xb4M\\\x04\xc0\x0d\xb4\x8d}\x03\xb4\x95\xeb\xb7\xd2f" +
-	"q\x06\x007\xd2F\xd6o\xa2\xf5\x1co\xa3\x02\xf7\xbb" +
-	"\x9dV\xb0n3e\xb9~\x07!\xfb\xb7\xd0\x12\xda9" +
-	"w\xd2\"Z~+\xfd\x89\x96\xbf\x8b\xae\xa3\xe5\xef\xa6" +
-	"\xdf\x19\x17\xe97\xe6\xb7\xd1/\x8c\xef\xa1k\xcc\xdfK" +
-	"\x0b\xec\xbf\x8f~\xe0\xfav\x9ag\xdd\x0e\x9ac|?" +
-	"}\xc7\xba\x07\xe8k\x8e;\xe9K\xae\xef\xa2Y<\x07" +
-	"\x80\x0f\xd2,\xdas\x97\xe8\x0a\xf7\x19\xa4\xcb\x8cw\xd3" +
-	"g\x1c\xf7\xd0\x05\xf6\xed\xa5\x8f\x99\x7f\x88\xce\xdbh\xa4" +
-	"\x7f\xca>\x07\x85\x1fN)]\xd72\x8e\x8f\xaa\xf6\xb0" +
-	"\xf7\x0a\xc0\xcc2g&e\xb5!\xb5'\x01\xc0LJ" +
-	"\xed\xab\xf6h\x04y\xed\x05\xf5e8\xeeA>H\x94" +
-	"6U\xeerX\xc3\xfeN\x1fS\x0d\x93$\x0c\x0eh" +
-	"p\x87\xbd\xda2:\x1a\x82\x13\xd4\x97\xc1\xb0\x07\xd8%" +
-	"F\x1b\xe0\x86:\x99Q^\xf0b\xa8\x83-\xaa\xd9T" +
-	"\xda\x9c\xf2\x94_;\xa6$8\xbb\xf7\xa6\xc1\xc3\xa6\xae" +
-	"e\xa4\xa6\xbc\x00P\x99\xa6\xf4\xa6\xd5a-\xc1\xf1\x82" +
-	"\x0e\x18\xf5|pe]\xcd4[q\"u\xcd\x842" +
-	"9\x186\xa3\x10\xdcVP3\xa1\xe7\x8f\xc8\x9a\x17\x03" +
-	"6L\xd4\x90U\xe5w^0\x0a\x13\x99\x84\xc3!\xd6" +
-	"\x94\x96\x89\xf2\xdb[\x0eI\xed\xb7\x8d\x9d5\xee\x05\x09" +
-	"8J\x1b\xdd\xb6\xb3\xe2\xd8\x1at\xdb\x8e\x92u\xc1\xb4" +
-	"\xd2`\x0b\x91\xf6\x02\xac[\x8e\x8b\x80z&\x0eu\xbd" +
-	"\xd1j\x9a8lO*\x19\x94\xac\xf7F\x8e\xa5^\xee" +
-	"\x94R\xc0-\xf5P9e)\x03\x96{\xb9SN\x01" +
-	"\x1c\xeb\xe6c)\xc3X\xca0\x966\x8c\x81[\xbe\xc9" +
-	">\xd1\xcd'R\xf6\x89\x94}\xa2co\xd5d\xc07" +
-	"\x1e\xc7&n\xd5\xa5>\xa0\x14`\xd2\xc9\xab2@u" +
-	"\\\xcb \x8e|W\x06\xbd\xaaP#2\x09\xc3\x00\x92" +
-	"\xb0)\x93\xf0)\xcfU~\xcd$\xdaK\xbc\xaa\xf43" +
-	"\x9d\xab\xabC\xb7\xd0\xbd\xd4\x97\x1bJ&O\xb6\xb4\xd3" +
-	"j\x1a\xceG#\x0d\xae\xfd\x04\x19\x8d{\x01\xb8\xfc\x05" +
-	"\xfe\xcf\x02\xe3\xa5\xe8$qz'\xee\xeb\xed\xc4\xfd," +
-	"\x8d\xb1\x1f\x04\xf6\xa7v!.\xb7\x02\xbb\xe3\xfa\x9c," +
-	"\xf6~\x12\xd8\xdd\xf4\x85\xc1\x93 \x0a\xdb\xdd\xd4\xba\xc6" +
-	"\xee\xaf\xa6\xb0\xf9\x08\x88\xc2z\xd7t\x8f\x02\x8e\x8e\x87" +
-	"\xd0t\x975\x00\x0ca%\x83h\xe6\x9f~\xff\x99o" +
-	"\xe7>\xb9h\xef\xfd\xbfw;\xef\xe1\x18\xfe\x09\x00\x00" +
-	"\xff\xff\x8cb\x02:"
+type Crop_species_Params capnp.Struct
+
+// Crop_species_Params_TypeID is the unique identifier for the type Crop_species_Params.
+const Crop_species_Params_TypeID = 0xf4dd1c322a3130b4
+
+func NewCrop_species_Params(s *capnp.Segment) (Crop_species_Params, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	return Crop_species_Params(st), err
+}
+
+func NewRootCrop_species_Params(s *capnp.Segment) (Crop_species_Params, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	return Crop_species_Params(st), err
+}
+
+func ReadRootCrop_species_Params(msg *capnp.Message) (Crop_species_Params, error) {
+	root, err := msg.Root()
+	return Crop_species_Params(root.Struct()), err
+}
+
+func (s Crop_species_Params) String() string {
+	str, _ := text.Marshal(0xf4dd1c322a3130b4, capnp.Struct(s))
+	return str
+}
+
+func (s Crop_species_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Crop_species_Params) DecodeFromPtr(p capnp.Ptr) Crop_species_Params {
+	return Crop_species_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Crop_species_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Crop_species_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Crop_species_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Crop_species_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+
+// Crop_species_Params_List is a list of Crop_species_Params.
+type Crop_species_Params_List = capnp.StructList[Crop_species_Params]
+
+// NewCrop_species_Params creates a new list of Crop_species_Params.
+func NewCrop_species_Params_List(s *capnp.Segment, sz int32) (Crop_species_Params_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
+	return capnp.StructList[Crop_species_Params](l), err
+}
+
+// Crop_species_Params_Future is a wrapper for a Crop_species_Params promised by a client call.
+type Crop_species_Params_Future struct{ *capnp.Future }
+
+func (f Crop_species_Params_Future) Struct() (Crop_species_Params, error) {
+	p, err := f.Future.Ptr()
+	return Crop_species_Params(p.Struct()), err
+}
+
+type Crop_species_Results capnp.Struct
+
+// Crop_species_Results_TypeID is the unique identifier for the type Crop_species_Results.
+const Crop_species_Results_TypeID = 0xb4aa895eeede6448
+
+func NewCrop_species_Results(s *capnp.Segment) (Crop_species_Results, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Crop_species_Results(st), err
+}
+
+func NewRootCrop_species_Results(s *capnp.Segment) (Crop_species_Results, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Crop_species_Results(st), err
+}
+
+func ReadRootCrop_species_Results(msg *capnp.Message) (Crop_species_Results, error) {
+	root, err := msg.Root()
+	return Crop_species_Results(root.Struct()), err
+}
+
+func (s Crop_species_Results) String() string {
+	str, _ := text.Marshal(0xb4aa895eeede6448, capnp.Struct(s))
+	return str
+}
+
+func (s Crop_species_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Crop_species_Results) DecodeFromPtr(p capnp.Ptr) Crop_species_Results {
+	return Crop_species_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Crop_species_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Crop_species_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Crop_species_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Crop_species_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+func (s Crop_species_Results) Info() (common.IdInformation, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return common.IdInformation(p.Struct()), err
+}
+
+func (s Crop_species_Results) HasInfo() bool {
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Crop_species_Results) SetInfo(v common.IdInformation) error {
+	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+}
+
+// NewInfo sets the info field to a newly
+// allocated common.IdInformation struct, preferring placement in s's segment.
+func (s Crop_species_Results) NewInfo() (common.IdInformation, error) {
+	ss, err := common.NewIdInformation(capnp.Struct(s).Segment())
+	if err != nil {
+		return common.IdInformation{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	return ss, err
+}
+
+// Crop_species_Results_List is a list of Crop_species_Results.
+type Crop_species_Results_List = capnp.StructList[Crop_species_Results]
+
+// NewCrop_species_Results creates a new list of Crop_species_Results.
+func NewCrop_species_Results_List(s *capnp.Segment, sz int32) (Crop_species_Results_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
+	return capnp.StructList[Crop_species_Results](l), err
+}
+
+// Crop_species_Results_Future is a wrapper for a Crop_species_Results promised by a client call.
+type Crop_species_Results_Future struct{ *capnp.Future }
+
+func (f Crop_species_Results_Future) Struct() (Crop_species_Results, error) {
+	p, err := f.Future.Ptr()
+	return Crop_species_Results(p.Struct()), err
+}
+func (p Crop_species_Results_Future) Info() common.IdInformation_Future {
+	return common.IdInformation_Future{Future: p.Future.Field(0, nil)}
+}
+
+const schema_f98a24e1969df972 = "x\xda\xa4U]lTE\x14>g\xeen\x87\xffv" +
+	"{\xc0\x0a\x82\x88\xb6*hq[@\x02\x91\xb4\x16\x11" +
+	"\x96\xd0\xa4\xdbb)\xf8\x93Lw\x87\xed\xe8\xdd{\xaf" +
+	"s\xefV\x97\x04\x1b\x88\x9ah\xa2OF_\xf4\x05\xe3" +
+	"\x83&F%\xf8\xa0\xc6\x10\x1e\x8c?\x84\x07\xa2$j" +
+	"R\x0dF\x13y\xd0\x04\xa3\x0f%\xea\x98\x99\xed\xb6\x17" +
+	"I|1i2\xe7;\xdf\xf7\x9d3\x9d\xbd9'?" +
+	"\xc4\xfa3=K\xb7\xb6\x00+\xee\xc9\xb6\x98=\xe5\xef" +
+	"~}\xe4\xb9\xb7NA\xae\x0d\x01\xb2\xc8\x016\xa1\xc7" +
+	"\x10\x90\xb2^\x1f\xa0\xf9\xf0\xa5\xce7>\xcal=\x9d" +
+	"\x16ty\x8b\xac\xa0\xdb\x09\x1e|\xf1\x9ed\x19\x06\x9f" +
+	"5\x04\x19\xcb\x0fz\xed\x08\x19s\xea\x87\xf2\x82\xe1w" +
+	"\x8fMCn13z\xe6\xb5\x97/v>?\x03\x80" +
+	"\xb4\xc5;A;<\xab\xdc\xe6ud\x01\xcd\xb3\xfb\x8b" +
+	"\xdd\xfa\xcf+?\xa6\x9b\x14\xf9*\xdb\xe4 \xb7M\x9e" +
+	"~\xe8t\xe7\xeb\xaf\xbc\xf03\xe4\x16{W\x95\xaa\xf3" +
+	"\xe3t\x94s\x00\xaa\xf3Oi\x86w\x00\x98#\xc5S" +
+	"\xdfw\\\x0e~K\xdd\xe8\x12g\xeeF\xf9\x9e\x0d\xbd" +
+	"\xab\xa7\x7f\x9fg\xe8\x1c\xbf\x02\xda\x94t\x18m,\x89" +
+	"\xc8\x0b\xa2\xed;m\x1cG\xb2\xa4d\xdc9,\xe3\x9a" +
+	"\x9f\xc4P\xccx\x19\x80\x0c\x02\xe4\x96n\x00(.\xf0" +
+	"\xb0\xb8\x9ca\xab\x0a\x0e\x87\xd8f\xbe\xfc\xd6\xfb\xfb\xec" +
+	"Sg\xbf\x02@l\x03\xbc\xb6^\xa9\xe6'jR\xe8" +
+	"\xb9\x82\xff\xbbb$\xb4\xa8\xcaD\xea\xb8s\xc8\x86\x18" +
+	"\xcfi\xd0jlC>)\xf4\x10b\xf1kd\x00t" +
+	"\x8c}a\xab\xd13l\x00\x00\x19\x1de{\x01\xd0\xa3" +
+	":{\x14\x003Tsg\x96\x1egG\x00\xb0\x85\xaa" +
+	"l\x1c\x009)v\x08\x00\x17\x90d\xc3\x00\xb8\x90\x84" +
+	"\xcb/\xa2\x87]\x9d\xc5\xf4\x00\xeb\x05\xc0%4\xe8t" +
+	"K\xa9\xe0\xcee\xb4\xcb\xe9[\xe9^\x87\xdbh\x87\xf3" +
+	"\xe5h\x9b\xf3\xb5S\x8f\xc3D\xddN\xb7\x9c\xd6\xbb\xfb" +
+	"\xac\xa0.v\x12\x00\xaf\xa3.\xe7\xeb\xa0u.\x7f=" +
+	"\xada\xc7\x01p%\xadt\xfaU\xb4\xc2\x9d7P\xce" +
+	"\xd5[M\x0b\x9dn\x0de]\xfeFB\xe7_K\x7f" +
+	"\xa1\xeds\x13\xcd\xa0\xe5\xd7\xd1\x1fh\xf9\x9b\xe92Z" +
+	"\xfe\x16\xfa\xc5\xe1N\xba\xe4\xf8.\xfa\xc9\xe1[\xe9\xa2" +
+	"\xe3o\xa3i\xe7\xbf\x9d\xbeq\xf9\xf5t\xc1\xe96\xd0" +
+	"y\x87\xef\xa0sNw'}\xee\xcen\xfa\xc4\xe57" +
+	"\xd2\x19<\x01\x80w\xd1\x19\xb4\xf7\xce\xd3\xc7\xaeN\x0f" +
+	"}\xe0p/\xbd\xef\xceM\xf4\x9e\xf3m\xa6\xb7\x1d\xbf" +
+	"\x85\xde\xb4\xa7\x11\xfea\xfb\xb7\x93\xf9\xe1\xa4\xd4\x15-" +
+	"\xe2x\x9f\xac\x0f\xaa'\x01\xa6f93.J\x13B" +
+	"+\x01\x00f\\h_\xd6G\"h\xd5*\xa8\xcc\xc2" +
+	"\x03\x0aZ\x83DjSrUvk\xe8k\xd41\xa5" +
+	"0I\xc2`@\x03\x1fT\xe5Y\xb4/\x04/\xa8\xcc" +
+	"\x82A\x05\xd8$F&\x80\x87:\x99\x92*x,\xd4" +
+	"\xc1ZY\xadJm\x0e+\xe9\x97\x87\xa4\x00\xafws" +
+	"\x1a\xdcm*ZDrR\x05\x80\xd2T\x85:\"w" +
+	"k\x01\x9e\x0a\x1a`D\xf9\xc0EENUkq\"" +
+	"t\xd9\x84\"\xd9\x19V\xa3\x10x-(\x9bP\xf9\xc3" +
+	"\xa2\xacb\xc0\x09\x13M\x88\x92\xf4\x1b\xff`\x14&\"" +
+	"\x09\x07C,K-\x12\xe9\xd7\xd7\xee\x12\xda\xaf\x1b\xdb" +
+	"\xeb\x80\x0a\x12\xf0\xa46\xban{\xc5\xb15\xe8\xbam" +
+	"%*\xcc\xd1R\x83MDZ\x05X\xb1\x9cK\x02\xea" +
+	"\xa98\xd4\x95\x89Z\xd5\xc4a}\\\x8a o\xbds" +
+	"1\xe6\xe7c/\x9f\x02<?\x8f\x0a)K\x01\xb00" +
+	"\x1f{\x85\x14\xc0\xd1f<\x9a2\x8c\xa6\x0c\xa3i\xc3" +
+	"(\xf0\xc2U\xf6\xb1f<\x96\xb2\x8f\xa5\xecc\x0d{" +
+	"\xad,\x02\xf7\xe2ql\xe2ZE\xe8\x01)\x01\x93F" +
+	"\\\x12\x01\xca\xfdZ\x04q\xe4s\x11\xccg\x99\x1c\x16" +
+	"I\x18\x06\x90\x84U\x91\x84\xf7+.\xfd\xb2I\xb4J" +
+	"TI\xf8\x99\xc6\xd3U\xa0\x99h>\xea\x13\x13R$" +
+	"\xf7\xd5\xb4W\xab\x1a\x17\x8fD\x1a\xb8\xfd\x04\x1d:\xa0" +
+	"\x02\xe0\xee\x0b\xfc\x8f\x01\xe6\x86\xa2\x97\xc4\xe9\x99\xb8}" +
+	"~&\xf69i\x8c\xed\xc0\xb0=5\x0bq\xb6\x14\xd8" +
+	"\x19\xb7\xc4\xcb\"\x9b\xdbF\xd8\\)\xb9\xe2!`\xb9" +
+	"\x02G\x9c\xdb\x0b\xd8\xdci\xb9\x1d{\x81\xe5\xb6p\x80" +
+	"\xb9\xcd\x80\xcd\x85\x98[?\x00,\xb7\x86\x9b\xe65\xc1" +
+	"\xd3q?\x9a\xe6 \x07\x80~\x9c\x9a]\x13\xfdX\xcc" +
+	" \x9a\x0b{^=x\xf6\xfc;'\xed\xaf\xd3\xbcc" +
+	"\xcb5\x1b\xc0M\xeb\x18\x9a\x82\x7fo\x9c\xbe\x06\xffO" +
+	"\x00\x00\x00\xff\xff\xd8T=w"
 
 func init() {
 	schemas.Register(schema_f98a24e1969df972,
+		0xb4aa895eeede6448,
 		0xbf3704bba52494ba,
 		0xc86e010e743c8e5b,
 		0xdd81b0520864e2b4,
 		0xe4fafc722d515486,
 		0xe88d97a324bf5c84,
-		0xf26ef117dfb4517a)
+		0xf26ef117dfb4517a,
+		0xf4dd1c322a3130b4)
 }
