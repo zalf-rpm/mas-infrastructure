@@ -2,7 +2,7 @@
 
 using Go = import "/capnp/go.capnp";
 $Go.package("vr");
-$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/vr");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/vr");
 
 using Common = import "common.capnp";
 #using Date = import "date.capnp".Date;

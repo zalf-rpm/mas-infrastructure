@@ -5,21 +5,23 @@ package storage
 import (
 	capnp "capnproto.org/go/capnp/v3"
 	text "capnproto.org/go/capnp/v3/encoding/text"
+	fc "capnproto.org/go/capnp/v3/flowcontrol"
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
-	common "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/common"
-	persistence "github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/persistence"
+	fmt "fmt"
+	common "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common"
+	persistence "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/persistence"
 	math "math"
 	strconv "strconv"
 )
 
-type Store struct{ Client *capnp.Client }
+type Store capnp.Client
 
 // Store_TypeID is the unique identifier for the type Store.
 const Store_TypeID = 0xe69f958aa2386f06
 
-func (c Store) NewContainer(ctx context.Context, params func(common.IdInformation) error) (Store_newContainer_Results_Future, capnp.ReleaseFunc) {
+func (c Store) NewContainer(ctx context.Context, params func(Store_newContainer_Params) error) (Store_newContainer_Results_Future, capnp.ReleaseFunc) {
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xe69f958aa2386f06,
@@ -29,10 +31,10 @@ func (c Store) NewContainer(ctx context.Context, params func(common.IdInformatio
 		},
 	}
 	if params != nil {
-		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 3}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(common.IdInformation{Struct: s}) }
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 2}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_newContainer_Params(s)) }
 	}
-	ans, release := c.Client.SendCall(ctx, s)
+	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Store_newContainer_Results_Future{Future: ans.Future()}, release
 }
 func (c Store) ContainerWithId(ctx context.Context, params func(Store_containerWithId_Params) error) (Store_containerWithId_Results_Future, capnp.ReleaseFunc) {
@@ -46,9 +48,9 @@ func (c Store) ContainerWithId(ctx context.Context, params func(Store_containerW
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_containerWithId_Params{Struct: s}) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_containerWithId_Params(s)) }
 	}
-	ans, release := c.Client.SendCall(ctx, s)
+	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Store_containerWithId_Results_Future{Future: ans.Future()}, release
 }
 func (c Store) ListContainers(ctx context.Context, params func(Store_listContainers_Params) error) (Store_listContainers_Results_Future, capnp.ReleaseFunc) {
@@ -62,9 +64,9 @@ func (c Store) ListContainers(ctx context.Context, params func(Store_listContain
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_listContainers_Params{Struct: s}) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_listContainers_Params(s)) }
 	}
-	ans, release := c.Client.SendCall(ctx, s)
+	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Store_listContainers_Results_Future{Future: ans.Future()}, release
 }
 func (c Store) RemoveContainer(ctx context.Context, params func(Store_removeContainer_Params) error) (Store_removeContainer_Results_Future, capnp.ReleaseFunc) {
@@ -78,23 +80,126 @@ func (c Store) RemoveContainer(ctx context.Context, params func(Store_removeCont
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_removeContainer_Params{Struct: s}) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_removeContainer_Params(s)) }
 	}
-	ans, release := c.Client.SendCall(ctx, s)
+	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Store_removeContainer_Results_Future{Future: ans.Future()}, release
 }
-
-func (c Store) AddRef() Store {
-	return Store{
-		Client: c.Client.AddRef(),
+func (c Store) ImportContainer(ctx context.Context, params func(Store_importContainer_Params) error) (Store_importContainer_Results_Future, capnp.ReleaseFunc) {
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0xe69f958aa2386f06,
+			MethodID:      4,
+			InterfaceName: "storage.capnp:Store",
+			MethodName:    "importContainer",
+		},
 	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_importContainer_Params(s)) }
+	}
+	ans, release := capnp.Client(c).SendCall(ctx, s)
+	return Store_importContainer_Results_Future{Future: ans.Future()}, release
+}
+func (c Store) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0xb2afd1cb599c48d5,
+			MethodID:      0,
+			InterfaceName: "common.capnp:Identifiable",
+			MethodName:    "info",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
+	}
+	ans, release := capnp.Client(c).SendCall(ctx, s)
+	return common.IdInformation_Future{Future: ans.Future()}, release
+}
+func (c Store) Save(ctx context.Context, params func(persistence.Persistent_SaveParams) error) (persistence.Persistent_SaveResults_Future, capnp.ReleaseFunc) {
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0xc1a7daa0dc36cb65,
+			MethodID:      0,
+			InterfaceName: "persistence.capnp:Persistent",
+			MethodName:    "save",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams(s)) }
+	}
+	ans, release := capnp.Client(c).SendCall(ctx, s)
+	return persistence.Persistent_SaveResults_Future{Future: ans.Future()}, release
 }
 
+// String returns a string that identifies this capability for debugging
+// purposes.  Its format should not be depended on: in particular, it
+// should not be used to compare clients.  Use IsSame to compare clients
+// for equality.
+func (c Store) String() string {
+	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+}
+
+// AddRef creates a new Client that refers to the same capability as c.
+// If c is nil or has resolved to null, then AddRef returns nil.
+func (c Store) AddRef() Store {
+	return Store(capnp.Client(c).AddRef())
+}
+
+// Release releases a capability reference.  If this is the last
+// reference to the capability, then the underlying resources associated
+// with the capability will be released.
+//
+// Release will panic if c has already been released, but not if c is
+// nil or resolved to null.
 func (c Store) Release() {
-	c.Client.Release()
+	capnp.Client(c).Release()
 }
 
-// A Store_Server is a Store with a local implementation.
+// Resolve blocks until the capability is fully resolved or the Context
+// expires.
+func (c Store) Resolve(ctx context.Context) error {
+	return capnp.Client(c).Resolve(ctx)
+}
+
+func (c Store) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Client(c).EncodeAsPtr(seg)
+}
+
+func (Store) DecodeFromPtr(p capnp.Ptr) Store {
+	return Store(capnp.Client{}.DecodeFromPtr(p))
+}
+
+// IsValid reports whether c is a valid reference to a capability.
+// A reference is invalid if it is nil, has resolved to null, or has
+// been released.
+func (c Store) IsValid() bool {
+	return capnp.Client(c).IsValid()
+}
+
+// IsSame reports whether c and other refer to a capability created by the
+// same call to NewClient.  This can return false negatives if c or other
+// are not fully resolved: use Resolve if this is an issue.  If either
+// c or other are released, then IsSame panics.
+func (c Store) IsSame(other Store) bool {
+	return capnp.Client(c).IsSame(capnp.Client(other))
+}
+
+// Update the flowcontrol.FlowLimiter used to manage flow control for
+// this client. This affects all future calls, but not calls already
+// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
+// which is also the default.
+func (c Store) SetFlowLimiter(lim fc.FlowLimiter) {
+	capnp.Client(c).SetFlowLimiter(lim)
+}
+
+// Get the current flowcontrol.FlowLimiter used to manage flow control
+// for this client.
+func (c Store) GetFlowLimiter() fc.FlowLimiter {
+	return capnp.Client(c).GetFlowLimiter()
+} // A Store_Server is a Store with a local implementation.
 type Store_Server interface {
 	NewContainer(context.Context, Store_newContainer) error
 
@@ -103,25 +208,31 @@ type Store_Server interface {
 	ListContainers(context.Context, Store_listContainers) error
 
 	RemoveContainer(context.Context, Store_removeContainer) error
+
+	ImportContainer(context.Context, Store_importContainer) error
+
+	Info(context.Context, common.Identifiable_info) error
+
+	Save(context.Context, persistence.Persistent_save) error
 }
 
 // Store_NewServer creates a new Server from an implementation of Store_Server.
-func Store_NewServer(s Store_Server, policy *server.Policy) *server.Server {
+func Store_NewServer(s Store_Server) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(Store_Methods(nil, s), s, c, policy)
+	return server.New(Store_Methods(nil, s), s, c)
 }
 
 // Store_ServerToClient creates a new Client from an implementation of Store_Server.
 // The caller is responsible for calling Release on the returned Client.
-func Store_ServerToClient(s Store_Server, policy *server.Policy) Store {
-	return Store{Client: capnp.NewClient(Store_NewServer(s, policy))}
+func Store_ServerToClient(s Store_Server) Store {
+	return Store(capnp.NewClient(Store_NewServer(s)))
 }
 
 // Store_Methods appends Methods to a slice that invoke the methods on s.
 // This can be used to create a more complicated Server.
 func Store_Methods(methods []server.Method, s Store_Server) []server.Method {
 	if cap(methods) == 0 {
-		methods = make([]server.Method, 0, 4)
+		methods = make([]server.Method, 0, 7)
 	}
 
 	methods = append(methods, server.Method{
@@ -172,358 +283,15 @@ func Store_Methods(methods []server.Method, s Store_Server) []server.Method {
 		},
 	})
 
-	return methods
-}
-
-// Store_newContainer holds the state for a server call to Store.newContainer.
-// See server.Call for documentation.
-type Store_newContainer struct {
-	*server.Call
-}
-
-// Args returns the call's arguments.
-func (c Store_newContainer) Args() common.IdInformation {
-	return common.IdInformation{Struct: c.Call.Args()}
-}
-
-// AllocResults allocates the results struct.
-func (c Store_newContainer) AllocResults() (Store_newContainer_Results, error) {
-	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Store_newContainer_Results{Struct: r}, err
-}
-
-// Store_containerWithId holds the state for a server call to Store.containerWithId.
-// See server.Call for documentation.
-type Store_containerWithId struct {
-	*server.Call
-}
-
-// Args returns the call's arguments.
-func (c Store_containerWithId) Args() Store_containerWithId_Params {
-	return Store_containerWithId_Params{Struct: c.Call.Args()}
-}
-
-// AllocResults allocates the results struct.
-func (c Store_containerWithId) AllocResults() (Store_containerWithId_Results, error) {
-	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Store_containerWithId_Results{Struct: r}, err
-}
-
-// Store_listContainers holds the state for a server call to Store.listContainers.
-// See server.Call for documentation.
-type Store_listContainers struct {
-	*server.Call
-}
-
-// Args returns the call's arguments.
-func (c Store_listContainers) Args() Store_listContainers_Params {
-	return Store_listContainers_Params{Struct: c.Call.Args()}
-}
-
-// AllocResults allocates the results struct.
-func (c Store_listContainers) AllocResults() (Store_listContainers_Results, error) {
-	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Store_listContainers_Results{Struct: r}, err
-}
-
-// Store_removeContainer holds the state for a server call to Store.removeContainer.
-// See server.Call for documentation.
-type Store_removeContainer struct {
-	*server.Call
-}
-
-// Args returns the call's arguments.
-func (c Store_removeContainer) Args() Store_removeContainer_Params {
-	return Store_removeContainer_Params{Struct: c.Call.Args()}
-}
-
-// AllocResults allocates the results struct.
-func (c Store_removeContainer) AllocResults() (Store_removeContainer_Results, error) {
-	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Store_removeContainer_Results{Struct: r}, err
-}
-
-type Store_Container struct{ Client *capnp.Client }
-
-// Store_Container_TypeID is the unique identifier for the type Store_Container.
-const Store_Container_TypeID = 0x878131f45567ae62
-
-func (c Store_Container) ImportData(ctx context.Context, params func(Store_Container_importData_Params) error) (Store_Container_importData_Results_Future, capnp.ReleaseFunc) {
-	s := capnp.Send{
+	methods = append(methods, server.Method{
 		Method: capnp.Method{
-			InterfaceID:   0x878131f45567ae62,
-			MethodID:      0,
-			InterfaceName: "storage.capnp:Store.Container",
-			MethodName:    "importData",
-		},
-	}
-	if params != nil {
-		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_Container_importData_Params{Struct: s}) }
-	}
-	ans, release := c.Client.SendCall(ctx, s)
-	return Store_Container_importData_Results_Future{Future: ans.Future()}, release
-}
-func (c Store_Container) ExportData(ctx context.Context, params func(Store_Container_exportData_Params) error) (Store_Container_exportData_Results_Future, capnp.ReleaseFunc) {
-	s := capnp.Send{
-		Method: capnp.Method{
-			InterfaceID:   0x878131f45567ae62,
-			MethodID:      1,
-			InterfaceName: "storage.capnp:Store.Container",
-			MethodName:    "exportData",
-		},
-	}
-	if params != nil {
-		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_Container_exportData_Params{Struct: s}) }
-	}
-	ans, release := c.Client.SendCall(ctx, s)
-	return Store_Container_exportData_Results_Future{Future: ans.Future()}, release
-}
-func (c Store_Container) ListObjects(ctx context.Context, params func(Store_Container_listObjects_Params) error) (Store_Container_listObjects_Results_Future, capnp.ReleaseFunc) {
-	s := capnp.Send{
-		Method: capnp.Method{
-			InterfaceID:   0x878131f45567ae62,
-			MethodID:      2,
-			InterfaceName: "storage.capnp:Store.Container",
-			MethodName:    "listObjects",
-		},
-	}
-	if params != nil {
-		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_Container_listObjects_Params{Struct: s}) }
-	}
-	ans, release := c.Client.SendCall(ctx, s)
-	return Store_Container_listObjects_Results_Future{Future: ans.Future()}, release
-}
-func (c Store_Container) GetObject(ctx context.Context, params func(Store_Container_getObject_Params) error) (Store_Container_getObject_Results_Future, capnp.ReleaseFunc) {
-	s := capnp.Send{
-		Method: capnp.Method{
-			InterfaceID:   0x878131f45567ae62,
-			MethodID:      3,
-			InterfaceName: "storage.capnp:Store.Container",
-			MethodName:    "getObject",
-		},
-	}
-	if params != nil {
-		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_Container_getObject_Params{Struct: s}) }
-	}
-	ans, release := c.Client.SendCall(ctx, s)
-	return Store_Container_getObject_Results_Future{Future: ans.Future()}, release
-}
-func (c Store_Container) AddObject(ctx context.Context, params func(Store_Container_addObject_Params) error) (Store_Container_addObject_Results_Future, capnp.ReleaseFunc) {
-	s := capnp.Send{
-		Method: capnp.Method{
-			InterfaceID:   0x878131f45567ae62,
+			InterfaceID:   0xe69f958aa2386f06,
 			MethodID:      4,
-			InterfaceName: "storage.capnp:Store.Container",
-			MethodName:    "addObject",
-		},
-	}
-	if params != nil {
-		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_Container_addObject_Params{Struct: s}) }
-	}
-	ans, release := c.Client.SendCall(ctx, s)
-	return Store_Container_addObject_Results_Future{Future: ans.Future()}, release
-}
-func (c Store_Container) RemoveObject(ctx context.Context, params func(Store_Container_removeObject_Params) error) (Store_Container_removeObject_Results_Future, capnp.ReleaseFunc) {
-	s := capnp.Send{
-		Method: capnp.Method{
-			InterfaceID:   0x878131f45567ae62,
-			MethodID:      5,
-			InterfaceName: "storage.capnp:Store.Container",
-			MethodName:    "removeObject",
-		},
-	}
-	if params != nil {
-		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_Container_removeObject_Params{Struct: s}) }
-	}
-	ans, release := c.Client.SendCall(ctx, s)
-	return Store_Container_removeObject_Results_Future{Future: ans.Future()}, release
-}
-func (c Store_Container) Clear(ctx context.Context, params func(Store_Container_clear_Params) error) (Store_Container_clear_Results_Future, capnp.ReleaseFunc) {
-	s := capnp.Send{
-		Method: capnp.Method{
-			InterfaceID:   0x878131f45567ae62,
-			MethodID:      6,
-			InterfaceName: "storage.capnp:Store.Container",
-			MethodName:    "clear",
-		},
-	}
-	if params != nil {
-		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_Container_clear_Params{Struct: s}) }
-	}
-	ans, release := c.Client.SendCall(ctx, s)
-	return Store_Container_clear_Results_Future{Future: ans.Future()}, release
-}
-func (c Store_Container) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
-	s := capnp.Send{
-		Method: capnp.Method{
-			InterfaceID:   0xb2afd1cb599c48d5,
-			MethodID:      0,
-			InterfaceName: "common.capnp:Identifiable",
-			MethodName:    "info",
-		},
-	}
-	if params != nil {
-		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params{Struct: s}) }
-	}
-	ans, release := c.Client.SendCall(ctx, s)
-	return common.IdInformation_Future{Future: ans.Future()}, release
-}
-func (c Store_Container) Save(ctx context.Context, params func(persistence.Persistent_SaveParams) error) (persistence.Persistent_SaveResults_Future, capnp.ReleaseFunc) {
-	s := capnp.Send{
-		Method: capnp.Method{
-			InterfaceID:   0xc1a7daa0dc36cb65,
-			MethodID:      0,
-			InterfaceName: "persistence.capnp:Persistent",
-			MethodName:    "save",
-		},
-	}
-	if params != nil {
-		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams{Struct: s}) }
-	}
-	ans, release := c.Client.SendCall(ctx, s)
-	return persistence.Persistent_SaveResults_Future{Future: ans.Future()}, release
-}
-
-func (c Store_Container) AddRef() Store_Container {
-	return Store_Container{
-		Client: c.Client.AddRef(),
-	}
-}
-
-func (c Store_Container) Release() {
-	c.Client.Release()
-}
-
-// A Store_Container_Server is a Store_Container with a local implementation.
-type Store_Container_Server interface {
-	ImportData(context.Context, Store_Container_importData) error
-
-	ExportData(context.Context, Store_Container_exportData) error
-
-	ListObjects(context.Context, Store_Container_listObjects) error
-
-	GetObject(context.Context, Store_Container_getObject) error
-
-	AddObject(context.Context, Store_Container_addObject) error
-
-	RemoveObject(context.Context, Store_Container_removeObject) error
-
-	Clear(context.Context, Store_Container_clear) error
-
-	Info(context.Context, common.Identifiable_info) error
-
-	Save(context.Context, persistence.Persistent_save) error
-}
-
-// Store_Container_NewServer creates a new Server from an implementation of Store_Container_Server.
-func Store_Container_NewServer(s Store_Container_Server, policy *server.Policy) *server.Server {
-	c, _ := s.(server.Shutdowner)
-	return server.New(Store_Container_Methods(nil, s), s, c, policy)
-}
-
-// Store_Container_ServerToClient creates a new Client from an implementation of Store_Container_Server.
-// The caller is responsible for calling Release on the returned Client.
-func Store_Container_ServerToClient(s Store_Container_Server, policy *server.Policy) Store_Container {
-	return Store_Container{Client: capnp.NewClient(Store_Container_NewServer(s, policy))}
-}
-
-// Store_Container_Methods appends Methods to a slice that invoke the methods on s.
-// This can be used to create a more complicated Server.
-func Store_Container_Methods(methods []server.Method, s Store_Container_Server) []server.Method {
-	if cap(methods) == 0 {
-		methods = make([]server.Method, 0, 9)
-	}
-
-	methods = append(methods, server.Method{
-		Method: capnp.Method{
-			InterfaceID:   0x878131f45567ae62,
-			MethodID:      0,
-			InterfaceName: "storage.capnp:Store.Container",
-			MethodName:    "importData",
+			InterfaceName: "storage.capnp:Store",
+			MethodName:    "importContainer",
 		},
 		Impl: func(ctx context.Context, call *server.Call) error {
-			return s.ImportData(ctx, Store_Container_importData{call})
-		},
-	})
-
-	methods = append(methods, server.Method{
-		Method: capnp.Method{
-			InterfaceID:   0x878131f45567ae62,
-			MethodID:      1,
-			InterfaceName: "storage.capnp:Store.Container",
-			MethodName:    "exportData",
-		},
-		Impl: func(ctx context.Context, call *server.Call) error {
-			return s.ExportData(ctx, Store_Container_exportData{call})
-		},
-	})
-
-	methods = append(methods, server.Method{
-		Method: capnp.Method{
-			InterfaceID:   0x878131f45567ae62,
-			MethodID:      2,
-			InterfaceName: "storage.capnp:Store.Container",
-			MethodName:    "listObjects",
-		},
-		Impl: func(ctx context.Context, call *server.Call) error {
-			return s.ListObjects(ctx, Store_Container_listObjects{call})
-		},
-	})
-
-	methods = append(methods, server.Method{
-		Method: capnp.Method{
-			InterfaceID:   0x878131f45567ae62,
-			MethodID:      3,
-			InterfaceName: "storage.capnp:Store.Container",
-			MethodName:    "getObject",
-		},
-		Impl: func(ctx context.Context, call *server.Call) error {
-			return s.GetObject(ctx, Store_Container_getObject{call})
-		},
-	})
-
-	methods = append(methods, server.Method{
-		Method: capnp.Method{
-			InterfaceID:   0x878131f45567ae62,
-			MethodID:      4,
-			InterfaceName: "storage.capnp:Store.Container",
-			MethodName:    "addObject",
-		},
-		Impl: func(ctx context.Context, call *server.Call) error {
-			return s.AddObject(ctx, Store_Container_addObject{call})
-		},
-	})
-
-	methods = append(methods, server.Method{
-		Method: capnp.Method{
-			InterfaceID:   0x878131f45567ae62,
-			MethodID:      5,
-			InterfaceName: "storage.capnp:Store.Container",
-			MethodName:    "removeObject",
-		},
-		Impl: func(ctx context.Context, call *server.Call) error {
-			return s.RemoveObject(ctx, Store_Container_removeObject{call})
-		},
-	})
-
-	methods = append(methods, server.Method{
-		Method: capnp.Method{
-			InterfaceID:   0x878131f45567ae62,
-			MethodID:      6,
-			InterfaceName: "storage.capnp:Store.Container",
-			MethodName:    "clear",
-		},
-		Impl: func(ctx context.Context, call *server.Call) error {
-			return s.Clear(ctx, Store_Container_clear{call})
+			return s.ImportContainer(ctx, Store_importContainer{call})
 		},
 	})
 
@@ -554,106 +322,549 @@ func Store_Container_Methods(methods []server.Method, s Store_Container_Server) 
 	return methods
 }
 
-// Store_Container_importData holds the state for a server call to Store_Container.importData.
+// Store_newContainer holds the state for a server call to Store.newContainer.
 // See server.Call for documentation.
-type Store_Container_importData struct {
+type Store_newContainer struct {
 	*server.Call
 }
 
 // Args returns the call's arguments.
-func (c Store_Container_importData) Args() Store_Container_importData_Params {
-	return Store_Container_importData_Params{Struct: c.Call.Args()}
+func (c Store_newContainer) Args() Store_newContainer_Params {
+	return Store_newContainer_Params(c.Call.Args())
 }
 
 // AllocResults allocates the results struct.
-func (c Store_Container_importData) AllocResults() (Store_Container_importData_Results, error) {
-	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Store_Container_importData_Results{Struct: r}, err
-}
-
-// Store_Container_exportData holds the state for a server call to Store_Container.exportData.
-// See server.Call for documentation.
-type Store_Container_exportData struct {
-	*server.Call
-}
-
-// Args returns the call's arguments.
-func (c Store_Container_exportData) Args() Store_Container_exportData_Params {
-	return Store_Container_exportData_Params{Struct: c.Call.Args()}
-}
-
-// AllocResults allocates the results struct.
-func (c Store_Container_exportData) AllocResults() (Store_Container_exportData_Results, error) {
+func (c Store_newContainer) AllocResults() (Store_newContainer_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Store_Container_exportData_Results{Struct: r}, err
+	return Store_newContainer_Results(r), err
 }
 
-// Store_Container_listObjects holds the state for a server call to Store_Container.listObjects.
+// Store_containerWithId holds the state for a server call to Store.containerWithId.
 // See server.Call for documentation.
-type Store_Container_listObjects struct {
+type Store_containerWithId struct {
 	*server.Call
 }
 
 // Args returns the call's arguments.
-func (c Store_Container_listObjects) Args() Store_Container_listObjects_Params {
-	return Store_Container_listObjects_Params{Struct: c.Call.Args()}
+func (c Store_containerWithId) Args() Store_containerWithId_Params {
+	return Store_containerWithId_Params(c.Call.Args())
 }
 
 // AllocResults allocates the results struct.
-func (c Store_Container_listObjects) AllocResults() (Store_Container_listObjects_Results, error) {
+func (c Store_containerWithId) AllocResults() (Store_containerWithId_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Store_Container_listObjects_Results{Struct: r}, err
+	return Store_containerWithId_Results(r), err
 }
 
-// Store_Container_getObject holds the state for a server call to Store_Container.getObject.
+// Store_listContainers holds the state for a server call to Store.listContainers.
 // See server.Call for documentation.
-type Store_Container_getObject struct {
+type Store_listContainers struct {
 	*server.Call
 }
 
 // Args returns the call's arguments.
-func (c Store_Container_getObject) Args() Store_Container_getObject_Params {
-	return Store_Container_getObject_Params{Struct: c.Call.Args()}
+func (c Store_listContainers) Args() Store_listContainers_Params {
+	return Store_listContainers_Params(c.Call.Args())
 }
 
 // AllocResults allocates the results struct.
-func (c Store_Container_getObject) AllocResults() (Store_Container_getObject_Results, error) {
+func (c Store_listContainers) AllocResults() (Store_listContainers_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Store_Container_getObject_Results{Struct: r}, err
+	return Store_listContainers_Results(r), err
 }
 
-// Store_Container_addObject holds the state for a server call to Store_Container.addObject.
+// Store_removeContainer holds the state for a server call to Store.removeContainer.
 // See server.Call for documentation.
-type Store_Container_addObject struct {
+type Store_removeContainer struct {
 	*server.Call
 }
 
 // Args returns the call's arguments.
-func (c Store_Container_addObject) Args() Store_Container_addObject_Params {
-	return Store_Container_addObject_Params{Struct: c.Call.Args()}
+func (c Store_removeContainer) Args() Store_removeContainer_Params {
+	return Store_removeContainer_Params(c.Call.Args())
 }
 
 // AllocResults allocates the results struct.
-func (c Store_Container_addObject) AllocResults() (Store_Container_addObject_Results, error) {
+func (c Store_removeContainer) AllocResults() (Store_removeContainer_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Store_Container_addObject_Results{Struct: r}, err
+	return Store_removeContainer_Results(r), err
 }
 
-// Store_Container_removeObject holds the state for a server call to Store_Container.removeObject.
+// Store_importContainer holds the state for a server call to Store.importContainer.
 // See server.Call for documentation.
-type Store_Container_removeObject struct {
+type Store_importContainer struct {
 	*server.Call
 }
 
 // Args returns the call's arguments.
-func (c Store_Container_removeObject) Args() Store_Container_removeObject_Params {
-	return Store_Container_removeObject_Params{Struct: c.Call.Args()}
+func (c Store_importContainer) Args() Store_importContainer_Params {
+	return Store_importContainer_Params(c.Call.Args())
 }
 
 // AllocResults allocates the results struct.
-func (c Store_Container_removeObject) AllocResults() (Store_Container_removeObject_Results, error) {
+func (c Store_importContainer) AllocResults() (Store_importContainer_Results, error) {
+	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Store_importContainer_Results(r), err
+}
+
+// Store_List is a list of Store.
+type Store_List = capnp.CapList[Store]
+
+// NewStore creates a new list of Store.
+func NewStore_List(s *capnp.Segment, sz int32) (Store_List, error) {
+	l, err := capnp.NewPointerList(s, sz)
+	return capnp.CapList[Store](l), err
+}
+
+type Store_Container capnp.Client
+
+// Store_Container_TypeID is the unique identifier for the type Store_Container.
+const Store_Container_TypeID = 0x878131f45567ae62
+
+func (c Store_Container) Export(ctx context.Context, params func(Store_Container_export_Params) error) (Store_Container_export_Results_Future, capnp.ReleaseFunc) {
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0x878131f45567ae62,
+			MethodID:      0,
+			InterfaceName: "storage.capnp:Store.Container",
+			MethodName:    "export",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_Container_export_Params(s)) }
+	}
+	ans, release := capnp.Client(c).SendCall(ctx, s)
+	return Store_Container_export_Results_Future{Future: ans.Future()}, release
+}
+func (c Store_Container) DownloadEntries(ctx context.Context, params func(Store_Container_downloadEntries_Params) error) (Store_Container_downloadEntries_Results_Future, capnp.ReleaseFunc) {
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0x878131f45567ae62,
+			MethodID:      1,
+			InterfaceName: "storage.capnp:Store.Container",
+			MethodName:    "downloadEntries",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_Container_downloadEntries_Params(s)) }
+	}
+	ans, release := capnp.Client(c).SendCall(ctx, s)
+	return Store_Container_downloadEntries_Results_Future{Future: ans.Future()}, release
+}
+func (c Store_Container) ListEntries(ctx context.Context, params func(Store_Container_listEntries_Params) error) (Store_Container_listEntries_Results_Future, capnp.ReleaseFunc) {
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0x878131f45567ae62,
+			MethodID:      2,
+			InterfaceName: "storage.capnp:Store.Container",
+			MethodName:    "listEntries",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_Container_listEntries_Params(s)) }
+	}
+	ans, release := capnp.Client(c).SendCall(ctx, s)
+	return Store_Container_listEntries_Results_Future{Future: ans.Future()}, release
+}
+func (c Store_Container) GetEntry(ctx context.Context, params func(Store_Container_getEntry_Params) error) (Store_Container_getEntry_Results_Future, capnp.ReleaseFunc) {
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0x878131f45567ae62,
+			MethodID:      3,
+			InterfaceName: "storage.capnp:Store.Container",
+			MethodName:    "getEntry",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_Container_getEntry_Params(s)) }
+	}
+	ans, release := capnp.Client(c).SendCall(ctx, s)
+	return Store_Container_getEntry_Results_Future{Future: ans.Future()}, release
+}
+func (c Store_Container) RemoveEntry(ctx context.Context, params func(Store_Container_removeEntry_Params) error) (Store_Container_removeEntry_Results_Future, capnp.ReleaseFunc) {
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0x878131f45567ae62,
+			MethodID:      4,
+			InterfaceName: "storage.capnp:Store.Container",
+			MethodName:    "removeEntry",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_Container_removeEntry_Params(s)) }
+	}
+	ans, release := capnp.Client(c).SendCall(ctx, s)
+	return Store_Container_removeEntry_Results_Future{Future: ans.Future()}, release
+}
+func (c Store_Container) Clear(ctx context.Context, params func(Store_Container_clear_Params) error) (Store_Container_clear_Results_Future, capnp.ReleaseFunc) {
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0x878131f45567ae62,
+			MethodID:      5,
+			InterfaceName: "storage.capnp:Store.Container",
+			MethodName:    "clear",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_Container_clear_Params(s)) }
+	}
+	ans, release := capnp.Client(c).SendCall(ctx, s)
+	return Store_Container_clear_Results_Future{Future: ans.Future()}, release
+}
+func (c Store_Container) AddEntry(ctx context.Context, params func(Store_Container_addEntry_Params) error) (Store_Container_addEntry_Results_Future, capnp.ReleaseFunc) {
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0x878131f45567ae62,
+			MethodID:      6,
+			InterfaceName: "storage.capnp:Store.Container",
+			MethodName:    "addEntry",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 2}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_Container_addEntry_Params(s)) }
+	}
+	ans, release := capnp.Client(c).SendCall(ctx, s)
+	return Store_Container_addEntry_Results_Future{Future: ans.Future()}, release
+}
+func (c Store_Container) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0xb2afd1cb599c48d5,
+			MethodID:      0,
+			InterfaceName: "common.capnp:Identifiable",
+			MethodName:    "info",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
+	}
+	ans, release := capnp.Client(c).SendCall(ctx, s)
+	return common.IdInformation_Future{Future: ans.Future()}, release
+}
+func (c Store_Container) Save(ctx context.Context, params func(persistence.Persistent_SaveParams) error) (persistence.Persistent_SaveResults_Future, capnp.ReleaseFunc) {
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0xc1a7daa0dc36cb65,
+			MethodID:      0,
+			InterfaceName: "persistence.capnp:Persistent",
+			MethodName:    "save",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams(s)) }
+	}
+	ans, release := capnp.Client(c).SendCall(ctx, s)
+	return persistence.Persistent_SaveResults_Future{Future: ans.Future()}, release
+}
+
+// String returns a string that identifies this capability for debugging
+// purposes.  Its format should not be depended on: in particular, it
+// should not be used to compare clients.  Use IsSame to compare clients
+// for equality.
+func (c Store_Container) String() string {
+	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+}
+
+// AddRef creates a new Client that refers to the same capability as c.
+// If c is nil or has resolved to null, then AddRef returns nil.
+func (c Store_Container) AddRef() Store_Container {
+	return Store_Container(capnp.Client(c).AddRef())
+}
+
+// Release releases a capability reference.  If this is the last
+// reference to the capability, then the underlying resources associated
+// with the capability will be released.
+//
+// Release will panic if c has already been released, but not if c is
+// nil or resolved to null.
+func (c Store_Container) Release() {
+	capnp.Client(c).Release()
+}
+
+// Resolve blocks until the capability is fully resolved or the Context
+// expires.
+func (c Store_Container) Resolve(ctx context.Context) error {
+	return capnp.Client(c).Resolve(ctx)
+}
+
+func (c Store_Container) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Client(c).EncodeAsPtr(seg)
+}
+
+func (Store_Container) DecodeFromPtr(p capnp.Ptr) Store_Container {
+	return Store_Container(capnp.Client{}.DecodeFromPtr(p))
+}
+
+// IsValid reports whether c is a valid reference to a capability.
+// A reference is invalid if it is nil, has resolved to null, or has
+// been released.
+func (c Store_Container) IsValid() bool {
+	return capnp.Client(c).IsValid()
+}
+
+// IsSame reports whether c and other refer to a capability created by the
+// same call to NewClient.  This can return false negatives if c or other
+// are not fully resolved: use Resolve if this is an issue.  If either
+// c or other are released, then IsSame panics.
+func (c Store_Container) IsSame(other Store_Container) bool {
+	return capnp.Client(c).IsSame(capnp.Client(other))
+}
+
+// Update the flowcontrol.FlowLimiter used to manage flow control for
+// this client. This affects all future calls, but not calls already
+// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
+// which is also the default.
+func (c Store_Container) SetFlowLimiter(lim fc.FlowLimiter) {
+	capnp.Client(c).SetFlowLimiter(lim)
+}
+
+// Get the current flowcontrol.FlowLimiter used to manage flow control
+// for this client.
+func (c Store_Container) GetFlowLimiter() fc.FlowLimiter {
+	return capnp.Client(c).GetFlowLimiter()
+} // A Store_Container_Server is a Store_Container with a local implementation.
+type Store_Container_Server interface {
+	Export(context.Context, Store_Container_export) error
+
+	DownloadEntries(context.Context, Store_Container_downloadEntries) error
+
+	ListEntries(context.Context, Store_Container_listEntries) error
+
+	GetEntry(context.Context, Store_Container_getEntry) error
+
+	RemoveEntry(context.Context, Store_Container_removeEntry) error
+
+	Clear(context.Context, Store_Container_clear) error
+
+	AddEntry(context.Context, Store_Container_addEntry) error
+
+	Info(context.Context, common.Identifiable_info) error
+
+	Save(context.Context, persistence.Persistent_save) error
+}
+
+// Store_Container_NewServer creates a new Server from an implementation of Store_Container_Server.
+func Store_Container_NewServer(s Store_Container_Server) *server.Server {
+	c, _ := s.(server.Shutdowner)
+	return server.New(Store_Container_Methods(nil, s), s, c)
+}
+
+// Store_Container_ServerToClient creates a new Client from an implementation of Store_Container_Server.
+// The caller is responsible for calling Release on the returned Client.
+func Store_Container_ServerToClient(s Store_Container_Server) Store_Container {
+	return Store_Container(capnp.NewClient(Store_Container_NewServer(s)))
+}
+
+// Store_Container_Methods appends Methods to a slice that invoke the methods on s.
+// This can be used to create a more complicated Server.
+func Store_Container_Methods(methods []server.Method, s Store_Container_Server) []server.Method {
+	if cap(methods) == 0 {
+		methods = make([]server.Method, 0, 9)
+	}
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
+			InterfaceID:   0x878131f45567ae62,
+			MethodID:      0,
+			InterfaceName: "storage.capnp:Store.Container",
+			MethodName:    "export",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.Export(ctx, Store_Container_export{call})
+		},
+	})
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
+			InterfaceID:   0x878131f45567ae62,
+			MethodID:      1,
+			InterfaceName: "storage.capnp:Store.Container",
+			MethodName:    "downloadEntries",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.DownloadEntries(ctx, Store_Container_downloadEntries{call})
+		},
+	})
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
+			InterfaceID:   0x878131f45567ae62,
+			MethodID:      2,
+			InterfaceName: "storage.capnp:Store.Container",
+			MethodName:    "listEntries",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.ListEntries(ctx, Store_Container_listEntries{call})
+		},
+	})
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
+			InterfaceID:   0x878131f45567ae62,
+			MethodID:      3,
+			InterfaceName: "storage.capnp:Store.Container",
+			MethodName:    "getEntry",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.GetEntry(ctx, Store_Container_getEntry{call})
+		},
+	})
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
+			InterfaceID:   0x878131f45567ae62,
+			MethodID:      4,
+			InterfaceName: "storage.capnp:Store.Container",
+			MethodName:    "removeEntry",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.RemoveEntry(ctx, Store_Container_removeEntry{call})
+		},
+	})
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
+			InterfaceID:   0x878131f45567ae62,
+			MethodID:      5,
+			InterfaceName: "storage.capnp:Store.Container",
+			MethodName:    "clear",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.Clear(ctx, Store_Container_clear{call})
+		},
+	})
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
+			InterfaceID:   0x878131f45567ae62,
+			MethodID:      6,
+			InterfaceName: "storage.capnp:Store.Container",
+			MethodName:    "addEntry",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.AddEntry(ctx, Store_Container_addEntry{call})
+		},
+	})
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
+			InterfaceID:   0xb2afd1cb599c48d5,
+			MethodID:      0,
+			InterfaceName: "common.capnp:Identifiable",
+			MethodName:    "info",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.Info(ctx, common.Identifiable_info{call})
+		},
+	})
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
+			InterfaceID:   0xc1a7daa0dc36cb65,
+			MethodID:      0,
+			InterfaceName: "persistence.capnp:Persistent",
+			MethodName:    "save",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.Save(ctx, persistence.Persistent_save{call})
+		},
+	})
+
+	return methods
+}
+
+// Store_Container_export holds the state for a server call to Store_Container.export.
+// See server.Call for documentation.
+type Store_Container_export struct {
+	*server.Call
+}
+
+// Args returns the call's arguments.
+func (c Store_Container_export) Args() Store_Container_export_Params {
+	return Store_Container_export_Params(c.Call.Args())
+}
+
+// AllocResults allocates the results struct.
+func (c Store_Container_export) AllocResults() (Store_Container_export_Results, error) {
+	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Store_Container_export_Results(r), err
+}
+
+// Store_Container_downloadEntries holds the state for a server call to Store_Container.downloadEntries.
+// See server.Call for documentation.
+type Store_Container_downloadEntries struct {
+	*server.Call
+}
+
+// Args returns the call's arguments.
+func (c Store_Container_downloadEntries) Args() Store_Container_downloadEntries_Params {
+	return Store_Container_downloadEntries_Params(c.Call.Args())
+}
+
+// AllocResults allocates the results struct.
+func (c Store_Container_downloadEntries) AllocResults() (Store_Container_downloadEntries_Results, error) {
+	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Store_Container_downloadEntries_Results(r), err
+}
+
+// Store_Container_listEntries holds the state for a server call to Store_Container.listEntries.
+// See server.Call for documentation.
+type Store_Container_listEntries struct {
+	*server.Call
+}
+
+// Args returns the call's arguments.
+func (c Store_Container_listEntries) Args() Store_Container_listEntries_Params {
+	return Store_Container_listEntries_Params(c.Call.Args())
+}
+
+// AllocResults allocates the results struct.
+func (c Store_Container_listEntries) AllocResults() (Store_Container_listEntries_Results, error) {
+	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Store_Container_listEntries_Results(r), err
+}
+
+// Store_Container_getEntry holds the state for a server call to Store_Container.getEntry.
+// See server.Call for documentation.
+type Store_Container_getEntry struct {
+	*server.Call
+}
+
+// Args returns the call's arguments.
+func (c Store_Container_getEntry) Args() Store_Container_getEntry_Params {
+	return Store_Container_getEntry_Params(c.Call.Args())
+}
+
+// AllocResults allocates the results struct.
+func (c Store_Container_getEntry) AllocResults() (Store_Container_getEntry_Results, error) {
+	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Store_Container_getEntry_Results(r), err
+}
+
+// Store_Container_removeEntry holds the state for a server call to Store_Container.removeEntry.
+// See server.Call for documentation.
+type Store_Container_removeEntry struct {
+	*server.Call
+}
+
+// Args returns the call's arguments.
+func (c Store_Container_removeEntry) Args() Store_Container_removeEntry_Params {
+	return Store_Container_removeEntry_Params(c.Call.Args())
+}
+
+// AllocResults allocates the results struct.
+func (c Store_Container_removeEntry) AllocResults() (Store_Container_removeEntry_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Store_Container_removeObject_Results{Struct: r}, err
+	return Store_Container_removeEntry_Results(r), err
 }
 
 // Store_Container_clear holds the state for a server call to Store_Container.clear.
@@ -664,1802 +875,3809 @@ type Store_Container_clear struct {
 
 // Args returns the call's arguments.
 func (c Store_Container_clear) Args() Store_Container_clear_Params {
-	return Store_Container_clear_Params{Struct: c.Call.Args()}
+	return Store_Container_clear_Params(c.Call.Args())
 }
 
 // AllocResults allocates the results struct.
 func (c Store_Container_clear) AllocResults() (Store_Container_clear_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Store_Container_clear_Results{Struct: r}, err
+	return Store_Container_clear_Results(r), err
 }
 
-type Store_Container_Object struct{ capnp.Struct }
-type Store_Container_Object_value Store_Container_Object
-type Store_Container_Object_value_Which uint16
+// Store_Container_addEntry holds the state for a server call to Store_Container.addEntry.
+// See server.Call for documentation.
+type Store_Container_addEntry struct {
+	*server.Call
+}
+
+// Args returns the call's arguments.
+func (c Store_Container_addEntry) Args() Store_Container_addEntry_Params {
+	return Store_Container_addEntry_Params(c.Call.Args())
+}
+
+// AllocResults allocates the results struct.
+func (c Store_Container_addEntry) AllocResults() (Store_Container_addEntry_Results, error) {
+	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 8, PointerCount: 1})
+	return Store_Container_addEntry_Results(r), err
+}
+
+// Store_Container_List is a list of Store_Container.
+type Store_Container_List = capnp.CapList[Store_Container]
+
+// NewStore_Container creates a new list of Store_Container.
+func NewStore_Container_List(s *capnp.Segment, sz int32) (Store_Container_List, error) {
+	l, err := capnp.NewPointerList(s, sz)
+	return capnp.CapList[Store_Container](l), err
+}
+
+type Store_Container_Entry capnp.Client
+
+// Store_Container_Entry_TypeID is the unique identifier for the type Store_Container_Entry.
+const Store_Container_Entry_TypeID = 0xfa1a243e7bf478c0
+
+func (c Store_Container_Entry) GetKey(ctx context.Context, params func(Store_Container_Entry_getKey_Params) error) (Store_Container_Entry_getKey_Results_Future, capnp.ReleaseFunc) {
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0xfa1a243e7bf478c0,
+			MethodID:      0,
+			InterfaceName: "storage.capnp:Store.Container.Entry",
+			MethodName:    "getKey",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_Container_Entry_getKey_Params(s)) }
+	}
+	ans, release := capnp.Client(c).SendCall(ctx, s)
+	return Store_Container_Entry_getKey_Results_Future{Future: ans.Future()}, release
+}
+func (c Store_Container_Entry) GetValue(ctx context.Context, params func(Store_Container_Entry_getValue_Params) error) (Store_Container_Entry_getValue_Results_Future, capnp.ReleaseFunc) {
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0xfa1a243e7bf478c0,
+			MethodID:      1,
+			InterfaceName: "storage.capnp:Store.Container.Entry",
+			MethodName:    "getValue",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_Container_Entry_getValue_Params(s)) }
+	}
+	ans, release := capnp.Client(c).SendCall(ctx, s)
+	return Store_Container_Entry_getValue_Results_Future{Future: ans.Future()}, release
+}
+func (c Store_Container_Entry) SetValue(ctx context.Context, params func(Store_Container_Entry_setValue_Params) error) (Store_Container_Entry_setValue_Results_Future, capnp.ReleaseFunc) {
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0xfa1a243e7bf478c0,
+			MethodID:      2,
+			InterfaceName: "storage.capnp:Store.Container.Entry",
+			MethodName:    "setValue",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_Container_Entry_setValue_Params(s)) }
+	}
+	ans, release := capnp.Client(c).SendCall(ctx, s)
+	return Store_Container_Entry_setValue_Results_Future{Future: ans.Future()}, release
+}
+
+// String returns a string that identifies this capability for debugging
+// purposes.  Its format should not be depended on: in particular, it
+// should not be used to compare clients.  Use IsSame to compare clients
+// for equality.
+func (c Store_Container_Entry) String() string {
+	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+}
+
+// AddRef creates a new Client that refers to the same capability as c.
+// If c is nil or has resolved to null, then AddRef returns nil.
+func (c Store_Container_Entry) AddRef() Store_Container_Entry {
+	return Store_Container_Entry(capnp.Client(c).AddRef())
+}
+
+// Release releases a capability reference.  If this is the last
+// reference to the capability, then the underlying resources associated
+// with the capability will be released.
+//
+// Release will panic if c has already been released, but not if c is
+// nil or resolved to null.
+func (c Store_Container_Entry) Release() {
+	capnp.Client(c).Release()
+}
+
+// Resolve blocks until the capability is fully resolved or the Context
+// expires.
+func (c Store_Container_Entry) Resolve(ctx context.Context) error {
+	return capnp.Client(c).Resolve(ctx)
+}
+
+func (c Store_Container_Entry) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Client(c).EncodeAsPtr(seg)
+}
+
+func (Store_Container_Entry) DecodeFromPtr(p capnp.Ptr) Store_Container_Entry {
+	return Store_Container_Entry(capnp.Client{}.DecodeFromPtr(p))
+}
+
+// IsValid reports whether c is a valid reference to a capability.
+// A reference is invalid if it is nil, has resolved to null, or has
+// been released.
+func (c Store_Container_Entry) IsValid() bool {
+	return capnp.Client(c).IsValid()
+}
+
+// IsSame reports whether c and other refer to a capability created by the
+// same call to NewClient.  This can return false negatives if c or other
+// are not fully resolved: use Resolve if this is an issue.  If either
+// c or other are released, then IsSame panics.
+func (c Store_Container_Entry) IsSame(other Store_Container_Entry) bool {
+	return capnp.Client(c).IsSame(capnp.Client(other))
+}
+
+// Update the flowcontrol.FlowLimiter used to manage flow control for
+// this client. This affects all future calls, but not calls already
+// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
+// which is also the default.
+func (c Store_Container_Entry) SetFlowLimiter(lim fc.FlowLimiter) {
+	capnp.Client(c).SetFlowLimiter(lim)
+}
+
+// Get the current flowcontrol.FlowLimiter used to manage flow control
+// for this client.
+func (c Store_Container_Entry) GetFlowLimiter() fc.FlowLimiter {
+	return capnp.Client(c).GetFlowLimiter()
+} // A Store_Container_Entry_Server is a Store_Container_Entry with a local implementation.
+type Store_Container_Entry_Server interface {
+	GetKey(context.Context, Store_Container_Entry_getKey) error
+
+	GetValue(context.Context, Store_Container_Entry_getValue) error
+
+	SetValue(context.Context, Store_Container_Entry_setValue) error
+}
+
+// Store_Container_Entry_NewServer creates a new Server from an implementation of Store_Container_Entry_Server.
+func Store_Container_Entry_NewServer(s Store_Container_Entry_Server) *server.Server {
+	c, _ := s.(server.Shutdowner)
+	return server.New(Store_Container_Entry_Methods(nil, s), s, c)
+}
+
+// Store_Container_Entry_ServerToClient creates a new Client from an implementation of Store_Container_Entry_Server.
+// The caller is responsible for calling Release on the returned Client.
+func Store_Container_Entry_ServerToClient(s Store_Container_Entry_Server) Store_Container_Entry {
+	return Store_Container_Entry(capnp.NewClient(Store_Container_Entry_NewServer(s)))
+}
+
+// Store_Container_Entry_Methods appends Methods to a slice that invoke the methods on s.
+// This can be used to create a more complicated Server.
+func Store_Container_Entry_Methods(methods []server.Method, s Store_Container_Entry_Server) []server.Method {
+	if cap(methods) == 0 {
+		methods = make([]server.Method, 0, 3)
+	}
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
+			InterfaceID:   0xfa1a243e7bf478c0,
+			MethodID:      0,
+			InterfaceName: "storage.capnp:Store.Container.Entry",
+			MethodName:    "getKey",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.GetKey(ctx, Store_Container_Entry_getKey{call})
+		},
+	})
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
+			InterfaceID:   0xfa1a243e7bf478c0,
+			MethodID:      1,
+			InterfaceName: "storage.capnp:Store.Container.Entry",
+			MethodName:    "getValue",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.GetValue(ctx, Store_Container_Entry_getValue{call})
+		},
+	})
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
+			InterfaceID:   0xfa1a243e7bf478c0,
+			MethodID:      2,
+			InterfaceName: "storage.capnp:Store.Container.Entry",
+			MethodName:    "setValue",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.SetValue(ctx, Store_Container_Entry_setValue{call})
+		},
+	})
+
+	return methods
+}
+
+// Store_Container_Entry_getKey holds the state for a server call to Store_Container_Entry.getKey.
+// See server.Call for documentation.
+type Store_Container_Entry_getKey struct {
+	*server.Call
+}
+
+// Args returns the call's arguments.
+func (c Store_Container_Entry_getKey) Args() Store_Container_Entry_getKey_Params {
+	return Store_Container_Entry_getKey_Params(c.Call.Args())
+}
+
+// AllocResults allocates the results struct.
+func (c Store_Container_Entry_getKey) AllocResults() (Store_Container_Entry_getKey_Results, error) {
+	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Store_Container_Entry_getKey_Results(r), err
+}
+
+// Store_Container_Entry_getValue holds the state for a server call to Store_Container_Entry.getValue.
+// See server.Call for documentation.
+type Store_Container_Entry_getValue struct {
+	*server.Call
+}
+
+// Args returns the call's arguments.
+func (c Store_Container_Entry_getValue) Args() Store_Container_Entry_getValue_Params {
+	return Store_Container_Entry_getValue_Params(c.Call.Args())
+}
+
+// AllocResults allocates the results struct.
+func (c Store_Container_Entry_getValue) AllocResults() (Store_Container_Entry_getValue_Results, error) {
+	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 8, PointerCount: 1})
+	return Store_Container_Entry_getValue_Results(r), err
+}
+
+// Store_Container_Entry_setValue holds the state for a server call to Store_Container_Entry.setValue.
+// See server.Call for documentation.
+type Store_Container_Entry_setValue struct {
+	*server.Call
+}
+
+// Args returns the call's arguments.
+func (c Store_Container_Entry_setValue) Args() Store_Container_Entry_setValue_Params {
+	return Store_Container_Entry_setValue_Params(c.Call.Args())
+}
+
+// AllocResults allocates the results struct.
+func (c Store_Container_Entry_setValue) AllocResults() (Store_Container_Entry_setValue_Results, error) {
+	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 8, PointerCount: 0})
+	return Store_Container_Entry_setValue_Results(r), err
+}
+
+// Store_Container_Entry_List is a list of Store_Container_Entry.
+type Store_Container_Entry_List = capnp.CapList[Store_Container_Entry]
+
+// NewStore_Container_Entry creates a new list of Store_Container_Entry.
+func NewStore_Container_Entry_List(s *capnp.Segment, sz int32) (Store_Container_Entry_List, error) {
+	l, err := capnp.NewPointerList(s, sz)
+	return capnp.CapList[Store_Container_Entry](l), err
+}
+
+type Store_Container_Entry_Value capnp.Struct
+type Store_Container_Entry_Value_Which uint16
 
 const (
-	Store_Container_Object_value_Which_boolValue  Store_Container_Object_value_Which = 0
-	Store_Container_Object_value_Which_intValue   Store_Container_Object_value_Which = 1
-	Store_Container_Object_value_Which_floatValue Store_Container_Object_value_Which = 2
-	Store_Container_Object_value_Which_textValue  Store_Container_Object_value_Which = 3
-	Store_Container_Object_value_Which_dataValue  Store_Container_Object_value_Which = 4
-	Store_Container_Object_value_Which_anyValue   Store_Container_Object_value_Which = 5
+	Store_Container_Entry_Value_Which_boolValue        Store_Container_Entry_Value_Which = 0
+	Store_Container_Entry_Value_Which_boolListValue    Store_Container_Entry_Value_Which = 1
+	Store_Container_Entry_Value_Which_int8Value        Store_Container_Entry_Value_Which = 2
+	Store_Container_Entry_Value_Which_int8ListValue    Store_Container_Entry_Value_Which = 3
+	Store_Container_Entry_Value_Which_int16Value       Store_Container_Entry_Value_Which = 4
+	Store_Container_Entry_Value_Which_int16ListValue   Store_Container_Entry_Value_Which = 5
+	Store_Container_Entry_Value_Which_int32Value       Store_Container_Entry_Value_Which = 6
+	Store_Container_Entry_Value_Which_int32ListValue   Store_Container_Entry_Value_Which = 7
+	Store_Container_Entry_Value_Which_int64Value       Store_Container_Entry_Value_Which = 8
+	Store_Container_Entry_Value_Which_int64ListValue   Store_Container_Entry_Value_Which = 9
+	Store_Container_Entry_Value_Which_uint8Value       Store_Container_Entry_Value_Which = 10
+	Store_Container_Entry_Value_Which_uint8ListValue   Store_Container_Entry_Value_Which = 11
+	Store_Container_Entry_Value_Which_uint16Value      Store_Container_Entry_Value_Which = 12
+	Store_Container_Entry_Value_Which_uint16ListValue  Store_Container_Entry_Value_Which = 13
+	Store_Container_Entry_Value_Which_uint32Value      Store_Container_Entry_Value_Which = 14
+	Store_Container_Entry_Value_Which_uint32ListValue  Store_Container_Entry_Value_Which = 15
+	Store_Container_Entry_Value_Which_uint64Value      Store_Container_Entry_Value_Which = 16
+	Store_Container_Entry_Value_Which_uint64ListValue  Store_Container_Entry_Value_Which = 17
+	Store_Container_Entry_Value_Which_float32Value     Store_Container_Entry_Value_Which = 18
+	Store_Container_Entry_Value_Which_float32ListValue Store_Container_Entry_Value_Which = 19
+	Store_Container_Entry_Value_Which_float64Value     Store_Container_Entry_Value_Which = 20
+	Store_Container_Entry_Value_Which_float64ListValue Store_Container_Entry_Value_Which = 21
+	Store_Container_Entry_Value_Which_textValue        Store_Container_Entry_Value_Which = 22
+	Store_Container_Entry_Value_Which_textListValue    Store_Container_Entry_Value_Which = 23
+	Store_Container_Entry_Value_Which_dataValue        Store_Container_Entry_Value_Which = 24
+	Store_Container_Entry_Value_Which_dataListValue    Store_Container_Entry_Value_Which = 25
+	Store_Container_Entry_Value_Which_anyValue         Store_Container_Entry_Value_Which = 26
 )
 
-func (w Store_Container_Object_value_Which) String() string {
-	const s = "boolValueintValuefloatValuetextValuedataValueanyValue"
+func (w Store_Container_Entry_Value_Which) String() string {
+	const s = "boolValueboolListValueint8Valueint8ListValueint16Valueint16ListValueint32Valueint32ListValueint64Valueint64ListValueuint8Valueuint8ListValueuint16Valueuint16ListValueuint32Valueuint32ListValueuint64Valueuint64ListValuefloat32Valuefloat32ListValuefloat64Valuefloat64ListValuetextValuetextListValuedataValuedataListValueanyValue"
 	switch w {
-	case Store_Container_Object_value_Which_boolValue:
+	case Store_Container_Entry_Value_Which_boolValue:
 		return s[0:9]
-	case Store_Container_Object_value_Which_intValue:
-		return s[9:17]
-	case Store_Container_Object_value_Which_floatValue:
-		return s[17:27]
-	case Store_Container_Object_value_Which_textValue:
-		return s[27:36]
-	case Store_Container_Object_value_Which_dataValue:
-		return s[36:45]
-	case Store_Container_Object_value_Which_anyValue:
-		return s[45:53]
+	case Store_Container_Entry_Value_Which_boolListValue:
+		return s[9:22]
+	case Store_Container_Entry_Value_Which_int8Value:
+		return s[22:31]
+	case Store_Container_Entry_Value_Which_int8ListValue:
+		return s[31:44]
+	case Store_Container_Entry_Value_Which_int16Value:
+		return s[44:54]
+	case Store_Container_Entry_Value_Which_int16ListValue:
+		return s[54:68]
+	case Store_Container_Entry_Value_Which_int32Value:
+		return s[68:78]
+	case Store_Container_Entry_Value_Which_int32ListValue:
+		return s[78:92]
+	case Store_Container_Entry_Value_Which_int64Value:
+		return s[92:102]
+	case Store_Container_Entry_Value_Which_int64ListValue:
+		return s[102:116]
+	case Store_Container_Entry_Value_Which_uint8Value:
+		return s[116:126]
+	case Store_Container_Entry_Value_Which_uint8ListValue:
+		return s[126:140]
+	case Store_Container_Entry_Value_Which_uint16Value:
+		return s[140:151]
+	case Store_Container_Entry_Value_Which_uint16ListValue:
+		return s[151:166]
+	case Store_Container_Entry_Value_Which_uint32Value:
+		return s[166:177]
+	case Store_Container_Entry_Value_Which_uint32ListValue:
+		return s[177:192]
+	case Store_Container_Entry_Value_Which_uint64Value:
+		return s[192:203]
+	case Store_Container_Entry_Value_Which_uint64ListValue:
+		return s[203:218]
+	case Store_Container_Entry_Value_Which_float32Value:
+		return s[218:230]
+	case Store_Container_Entry_Value_Which_float32ListValue:
+		return s[230:246]
+	case Store_Container_Entry_Value_Which_float64Value:
+		return s[246:258]
+	case Store_Container_Entry_Value_Which_float64ListValue:
+		return s[258:274]
+	case Store_Container_Entry_Value_Which_textValue:
+		return s[274:283]
+	case Store_Container_Entry_Value_Which_textListValue:
+		return s[283:296]
+	case Store_Container_Entry_Value_Which_dataValue:
+		return s[296:305]
+	case Store_Container_Entry_Value_Which_dataListValue:
+		return s[305:318]
+	case Store_Container_Entry_Value_Which_anyValue:
+		return s[318:326]
 
 	}
-	return "Store_Container_Object_value_Which(" + strconv.FormatUint(uint64(w), 10) + ")"
+	return "Store_Container_Entry_Value_Which(" + strconv.FormatUint(uint64(w), 10) + ")"
 }
 
-// Store_Container_Object_TypeID is the unique identifier for the type Store_Container_Object.
-const Store_Container_Object_TypeID = 0xaa5c23f54650f8ae
+// Store_Container_Entry_Value_TypeID is the unique identifier for the type Store_Container_Entry_Value.
+const Store_Container_Entry_Value_TypeID = 0xe2185cc449928f5c
 
-func NewStore_Container_Object(s *capnp.Segment) (Store_Container_Object, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 2})
-	return Store_Container_Object{st}, err
+func NewStore_Container_Entry_Value(s *capnp.Segment) (Store_Container_Entry_Value, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 1})
+	return Store_Container_Entry_Value(st), err
 }
 
-func NewRootStore_Container_Object(s *capnp.Segment) (Store_Container_Object, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 2})
-	return Store_Container_Object{st}, err
+func NewRootStore_Container_Entry_Value(s *capnp.Segment) (Store_Container_Entry_Value, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 1})
+	return Store_Container_Entry_Value(st), err
 }
 
-func ReadRootStore_Container_Object(msg *capnp.Message) (Store_Container_Object, error) {
+func ReadRootStore_Container_Entry_Value(msg *capnp.Message) (Store_Container_Entry_Value, error) {
 	root, err := msg.Root()
-	return Store_Container_Object{root.Struct()}, err
+	return Store_Container_Entry_Value(root.Struct()), err
 }
 
-func (s Store_Container_Object) String() string {
-	str, _ := text.Marshal(0xaa5c23f54650f8ae, s.Struct)
+func (s Store_Container_Entry_Value) String() string {
+	str, _ := text.Marshal(0xe2185cc449928f5c, capnp.Struct(s))
 	return str
 }
 
-func (s Store_Container_Object) Key() (string, error) {
-	p, err := s.Struct.Ptr(0)
-	return p.Text(), err
+func (s Store_Container_Entry_Value) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
 }
 
-func (s Store_Container_Object) HasKey() bool {
-	return s.Struct.HasPtr(0)
+func (Store_Container_Entry_Value) DecodeFromPtr(p capnp.Ptr) Store_Container_Entry_Value {
+	return Store_Container_Entry_Value(capnp.Struct{}.DecodeFromPtr(p))
 }
 
-func (s Store_Container_Object) KeyBytes() ([]byte, error) {
-	p, err := s.Struct.Ptr(0)
-	return p.TextBytes(), err
+func (s Store_Container_Entry_Value) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
 }
 
-func (s Store_Container_Object) SetKey(v string) error {
-	return s.Struct.SetText(0, v)
+func (s Store_Container_Entry_Value) Which() Store_Container_Entry_Value_Which {
+	return Store_Container_Entry_Value_Which(capnp.Struct(s).Uint16(2))
+}
+func (s Store_Container_Entry_Value) IsValid() bool {
+	return capnp.Struct(s).IsValid()
 }
 
-func (s Store_Container_Object) Value() Store_Container_Object_value {
-	return Store_Container_Object_value(s)
+func (s Store_Container_Entry_Value) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
 }
 
-func (s Store_Container_Object_value) Which() Store_Container_Object_value_Which {
-	return Store_Container_Object_value_Which(s.Struct.Uint16(2))
+func (s Store_Container_Entry_Value) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
 }
-func (s Store_Container_Object_value) BoolValue() bool {
-	if s.Struct.Uint16(2) != 0 {
+func (s Store_Container_Entry_Value) BoolValue() bool {
+	if capnp.Struct(s).Uint16(2) != 0 {
 		panic("Which() != boolValue")
 	}
-	return s.Struct.Bit(0)
+	return capnp.Struct(s).Bit(0)
 }
 
-func (s Store_Container_Object_value) SetBoolValue(v bool) {
-	s.Struct.SetUint16(2, 0)
-	s.Struct.SetBit(0, v)
+func (s Store_Container_Entry_Value) SetBoolValue(v bool) {
+	capnp.Struct(s).SetUint16(2, 0)
+	capnp.Struct(s).SetBit(0, v)
 }
 
-func (s Store_Container_Object_value) IntValue() int64 {
-	if s.Struct.Uint16(2) != 1 {
-		panic("Which() != intValue")
+func (s Store_Container_Entry_Value) BoolListValue() (capnp.BitList, error) {
+	if capnp.Struct(s).Uint16(2) != 1 {
+		panic("Which() != boolListValue")
 	}
-	return int64(s.Struct.Uint64(8))
+	p, err := capnp.Struct(s).Ptr(0)
+	return capnp.BitList(p.List()), err
 }
 
-func (s Store_Container_Object_value) SetIntValue(v int64) {
-	s.Struct.SetUint16(2, 1)
-	s.Struct.SetUint64(8, uint64(v))
-}
-
-func (s Store_Container_Object_value) FloatValue() float64 {
-	if s.Struct.Uint16(2) != 2 {
-		panic("Which() != floatValue")
+func (s Store_Container_Entry_Value) HasBoolListValue() bool {
+	if capnp.Struct(s).Uint16(2) != 1 {
+		return false
 	}
-	return math.Float64frombits(s.Struct.Uint64(8))
+	return capnp.Struct(s).HasPtr(0)
 }
 
-func (s Store_Container_Object_value) SetFloatValue(v float64) {
-	s.Struct.SetUint16(2, 2)
-	s.Struct.SetUint64(8, math.Float64bits(v))
+func (s Store_Container_Entry_Value) SetBoolListValue(v capnp.BitList) error {
+	capnp.Struct(s).SetUint16(2, 1)
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
 }
 
-func (s Store_Container_Object_value) TextValue() (string, error) {
-	if s.Struct.Uint16(2) != 3 {
+// NewBoolListValue sets the boolListValue field to a newly
+// allocated capnp.BitList, preferring placement in s's segment.
+func (s Store_Container_Entry_Value) NewBoolListValue(n int32) (capnp.BitList, error) {
+	capnp.Struct(s).SetUint16(2, 1)
+	l, err := capnp.NewBitList(capnp.Struct(s).Segment(), n)
+	if err != nil {
+		return capnp.BitList{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	return l, err
+}
+func (s Store_Container_Entry_Value) Int8Value() int8 {
+	if capnp.Struct(s).Uint16(2) != 2 {
+		panic("Which() != int8Value")
+	}
+	return int8(capnp.Struct(s).Uint8(0))
+}
+
+func (s Store_Container_Entry_Value) SetInt8Value(v int8) {
+	capnp.Struct(s).SetUint16(2, 2)
+	capnp.Struct(s).SetUint8(0, uint8(v))
+}
+
+func (s Store_Container_Entry_Value) Int8ListValue() (capnp.Int8List, error) {
+	if capnp.Struct(s).Uint16(2) != 3 {
+		panic("Which() != int8ListValue")
+	}
+	p, err := capnp.Struct(s).Ptr(0)
+	return capnp.Int8List(p.List()), err
+}
+
+func (s Store_Container_Entry_Value) HasInt8ListValue() bool {
+	if capnp.Struct(s).Uint16(2) != 3 {
+		return false
+	}
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Store_Container_Entry_Value) SetInt8ListValue(v capnp.Int8List) error {
+	capnp.Struct(s).SetUint16(2, 3)
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+}
+
+// NewInt8ListValue sets the int8ListValue field to a newly
+// allocated capnp.Int8List, preferring placement in s's segment.
+func (s Store_Container_Entry_Value) NewInt8ListValue(n int32) (capnp.Int8List, error) {
+	capnp.Struct(s).SetUint16(2, 3)
+	l, err := capnp.NewInt8List(capnp.Struct(s).Segment(), n)
+	if err != nil {
+		return capnp.Int8List{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	return l, err
+}
+func (s Store_Container_Entry_Value) Int16Value() int16 {
+	if capnp.Struct(s).Uint16(2) != 4 {
+		panic("Which() != int16Value")
+	}
+	return int16(capnp.Struct(s).Uint16(0))
+}
+
+func (s Store_Container_Entry_Value) SetInt16Value(v int16) {
+	capnp.Struct(s).SetUint16(2, 4)
+	capnp.Struct(s).SetUint16(0, uint16(v))
+}
+
+func (s Store_Container_Entry_Value) Int16ListValue() (capnp.Int16List, error) {
+	if capnp.Struct(s).Uint16(2) != 5 {
+		panic("Which() != int16ListValue")
+	}
+	p, err := capnp.Struct(s).Ptr(0)
+	return capnp.Int16List(p.List()), err
+}
+
+func (s Store_Container_Entry_Value) HasInt16ListValue() bool {
+	if capnp.Struct(s).Uint16(2) != 5 {
+		return false
+	}
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Store_Container_Entry_Value) SetInt16ListValue(v capnp.Int16List) error {
+	capnp.Struct(s).SetUint16(2, 5)
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+}
+
+// NewInt16ListValue sets the int16ListValue field to a newly
+// allocated capnp.Int16List, preferring placement in s's segment.
+func (s Store_Container_Entry_Value) NewInt16ListValue(n int32) (capnp.Int16List, error) {
+	capnp.Struct(s).SetUint16(2, 5)
+	l, err := capnp.NewInt16List(capnp.Struct(s).Segment(), n)
+	if err != nil {
+		return capnp.Int16List{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	return l, err
+}
+func (s Store_Container_Entry_Value) Int32Value() int32 {
+	if capnp.Struct(s).Uint16(2) != 6 {
+		panic("Which() != int32Value")
+	}
+	return int32(capnp.Struct(s).Uint32(4))
+}
+
+func (s Store_Container_Entry_Value) SetInt32Value(v int32) {
+	capnp.Struct(s).SetUint16(2, 6)
+	capnp.Struct(s).SetUint32(4, uint32(v))
+}
+
+func (s Store_Container_Entry_Value) Int32ListValue() (capnp.Int32List, error) {
+	if capnp.Struct(s).Uint16(2) != 7 {
+		panic("Which() != int32ListValue")
+	}
+	p, err := capnp.Struct(s).Ptr(0)
+	return capnp.Int32List(p.List()), err
+}
+
+func (s Store_Container_Entry_Value) HasInt32ListValue() bool {
+	if capnp.Struct(s).Uint16(2) != 7 {
+		return false
+	}
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Store_Container_Entry_Value) SetInt32ListValue(v capnp.Int32List) error {
+	capnp.Struct(s).SetUint16(2, 7)
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+}
+
+// NewInt32ListValue sets the int32ListValue field to a newly
+// allocated capnp.Int32List, preferring placement in s's segment.
+func (s Store_Container_Entry_Value) NewInt32ListValue(n int32) (capnp.Int32List, error) {
+	capnp.Struct(s).SetUint16(2, 7)
+	l, err := capnp.NewInt32List(capnp.Struct(s).Segment(), n)
+	if err != nil {
+		return capnp.Int32List{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	return l, err
+}
+func (s Store_Container_Entry_Value) Int64Value() int64 {
+	if capnp.Struct(s).Uint16(2) != 8 {
+		panic("Which() != int64Value")
+	}
+	return int64(capnp.Struct(s).Uint64(8))
+}
+
+func (s Store_Container_Entry_Value) SetInt64Value(v int64) {
+	capnp.Struct(s).SetUint16(2, 8)
+	capnp.Struct(s).SetUint64(8, uint64(v))
+}
+
+func (s Store_Container_Entry_Value) Int64ListValue() (capnp.Int64List, error) {
+	if capnp.Struct(s).Uint16(2) != 9 {
+		panic("Which() != int64ListValue")
+	}
+	p, err := capnp.Struct(s).Ptr(0)
+	return capnp.Int64List(p.List()), err
+}
+
+func (s Store_Container_Entry_Value) HasInt64ListValue() bool {
+	if capnp.Struct(s).Uint16(2) != 9 {
+		return false
+	}
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Store_Container_Entry_Value) SetInt64ListValue(v capnp.Int64List) error {
+	capnp.Struct(s).SetUint16(2, 9)
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+}
+
+// NewInt64ListValue sets the int64ListValue field to a newly
+// allocated capnp.Int64List, preferring placement in s's segment.
+func (s Store_Container_Entry_Value) NewInt64ListValue(n int32) (capnp.Int64List, error) {
+	capnp.Struct(s).SetUint16(2, 9)
+	l, err := capnp.NewInt64List(capnp.Struct(s).Segment(), n)
+	if err != nil {
+		return capnp.Int64List{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	return l, err
+}
+func (s Store_Container_Entry_Value) Uint8Value() uint8 {
+	if capnp.Struct(s).Uint16(2) != 10 {
+		panic("Which() != uint8Value")
+	}
+	return capnp.Struct(s).Uint8(0)
+}
+
+func (s Store_Container_Entry_Value) SetUint8Value(v uint8) {
+	capnp.Struct(s).SetUint16(2, 10)
+	capnp.Struct(s).SetUint8(0, v)
+}
+
+func (s Store_Container_Entry_Value) Uint8ListValue() (capnp.UInt8List, error) {
+	if capnp.Struct(s).Uint16(2) != 11 {
+		panic("Which() != uint8ListValue")
+	}
+	p, err := capnp.Struct(s).Ptr(0)
+	return capnp.UInt8List(p.List()), err
+}
+
+func (s Store_Container_Entry_Value) HasUint8ListValue() bool {
+	if capnp.Struct(s).Uint16(2) != 11 {
+		return false
+	}
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Store_Container_Entry_Value) SetUint8ListValue(v capnp.UInt8List) error {
+	capnp.Struct(s).SetUint16(2, 11)
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+}
+
+// NewUint8ListValue sets the uint8ListValue field to a newly
+// allocated capnp.UInt8List, preferring placement in s's segment.
+func (s Store_Container_Entry_Value) NewUint8ListValue(n int32) (capnp.UInt8List, error) {
+	capnp.Struct(s).SetUint16(2, 11)
+	l, err := capnp.NewUInt8List(capnp.Struct(s).Segment(), n)
+	if err != nil {
+		return capnp.UInt8List{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	return l, err
+}
+func (s Store_Container_Entry_Value) Uint16Value() uint16 {
+	if capnp.Struct(s).Uint16(2) != 12 {
+		panic("Which() != uint16Value")
+	}
+	return capnp.Struct(s).Uint16(0)
+}
+
+func (s Store_Container_Entry_Value) SetUint16Value(v uint16) {
+	capnp.Struct(s).SetUint16(2, 12)
+	capnp.Struct(s).SetUint16(0, v)
+}
+
+func (s Store_Container_Entry_Value) Uint16ListValue() (capnp.UInt16List, error) {
+	if capnp.Struct(s).Uint16(2) != 13 {
+		panic("Which() != uint16ListValue")
+	}
+	p, err := capnp.Struct(s).Ptr(0)
+	return capnp.UInt16List(p.List()), err
+}
+
+func (s Store_Container_Entry_Value) HasUint16ListValue() bool {
+	if capnp.Struct(s).Uint16(2) != 13 {
+		return false
+	}
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Store_Container_Entry_Value) SetUint16ListValue(v capnp.UInt16List) error {
+	capnp.Struct(s).SetUint16(2, 13)
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+}
+
+// NewUint16ListValue sets the uint16ListValue field to a newly
+// allocated capnp.UInt16List, preferring placement in s's segment.
+func (s Store_Container_Entry_Value) NewUint16ListValue(n int32) (capnp.UInt16List, error) {
+	capnp.Struct(s).SetUint16(2, 13)
+	l, err := capnp.NewUInt16List(capnp.Struct(s).Segment(), n)
+	if err != nil {
+		return capnp.UInt16List{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	return l, err
+}
+func (s Store_Container_Entry_Value) Uint32Value() uint32 {
+	if capnp.Struct(s).Uint16(2) != 14 {
+		panic("Which() != uint32Value")
+	}
+	return capnp.Struct(s).Uint32(4)
+}
+
+func (s Store_Container_Entry_Value) SetUint32Value(v uint32) {
+	capnp.Struct(s).SetUint16(2, 14)
+	capnp.Struct(s).SetUint32(4, v)
+}
+
+func (s Store_Container_Entry_Value) Uint32ListValue() (capnp.UInt32List, error) {
+	if capnp.Struct(s).Uint16(2) != 15 {
+		panic("Which() != uint32ListValue")
+	}
+	p, err := capnp.Struct(s).Ptr(0)
+	return capnp.UInt32List(p.List()), err
+}
+
+func (s Store_Container_Entry_Value) HasUint32ListValue() bool {
+	if capnp.Struct(s).Uint16(2) != 15 {
+		return false
+	}
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Store_Container_Entry_Value) SetUint32ListValue(v capnp.UInt32List) error {
+	capnp.Struct(s).SetUint16(2, 15)
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+}
+
+// NewUint32ListValue sets the uint32ListValue field to a newly
+// allocated capnp.UInt32List, preferring placement in s's segment.
+func (s Store_Container_Entry_Value) NewUint32ListValue(n int32) (capnp.UInt32List, error) {
+	capnp.Struct(s).SetUint16(2, 15)
+	l, err := capnp.NewUInt32List(capnp.Struct(s).Segment(), n)
+	if err != nil {
+		return capnp.UInt32List{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	return l, err
+}
+func (s Store_Container_Entry_Value) Uint64Value() uint64 {
+	if capnp.Struct(s).Uint16(2) != 16 {
+		panic("Which() != uint64Value")
+	}
+	return capnp.Struct(s).Uint64(8)
+}
+
+func (s Store_Container_Entry_Value) SetUint64Value(v uint64) {
+	capnp.Struct(s).SetUint16(2, 16)
+	capnp.Struct(s).SetUint64(8, v)
+}
+
+func (s Store_Container_Entry_Value) Uint64ListValue() (capnp.UInt64List, error) {
+	if capnp.Struct(s).Uint16(2) != 17 {
+		panic("Which() != uint64ListValue")
+	}
+	p, err := capnp.Struct(s).Ptr(0)
+	return capnp.UInt64List(p.List()), err
+}
+
+func (s Store_Container_Entry_Value) HasUint64ListValue() bool {
+	if capnp.Struct(s).Uint16(2) != 17 {
+		return false
+	}
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Store_Container_Entry_Value) SetUint64ListValue(v capnp.UInt64List) error {
+	capnp.Struct(s).SetUint16(2, 17)
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+}
+
+// NewUint64ListValue sets the uint64ListValue field to a newly
+// allocated capnp.UInt64List, preferring placement in s's segment.
+func (s Store_Container_Entry_Value) NewUint64ListValue(n int32) (capnp.UInt64List, error) {
+	capnp.Struct(s).SetUint16(2, 17)
+	l, err := capnp.NewUInt64List(capnp.Struct(s).Segment(), n)
+	if err != nil {
+		return capnp.UInt64List{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	return l, err
+}
+func (s Store_Container_Entry_Value) Float32Value() float32 {
+	if capnp.Struct(s).Uint16(2) != 18 {
+		panic("Which() != float32Value")
+	}
+	return math.Float32frombits(capnp.Struct(s).Uint32(4))
+}
+
+func (s Store_Container_Entry_Value) SetFloat32Value(v float32) {
+	capnp.Struct(s).SetUint16(2, 18)
+	capnp.Struct(s).SetUint32(4, math.Float32bits(v))
+}
+
+func (s Store_Container_Entry_Value) Float32ListValue() (capnp.Float32List, error) {
+	if capnp.Struct(s).Uint16(2) != 19 {
+		panic("Which() != float32ListValue")
+	}
+	p, err := capnp.Struct(s).Ptr(0)
+	return capnp.Float32List(p.List()), err
+}
+
+func (s Store_Container_Entry_Value) HasFloat32ListValue() bool {
+	if capnp.Struct(s).Uint16(2) != 19 {
+		return false
+	}
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Store_Container_Entry_Value) SetFloat32ListValue(v capnp.Float32List) error {
+	capnp.Struct(s).SetUint16(2, 19)
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+}
+
+// NewFloat32ListValue sets the float32ListValue field to a newly
+// allocated capnp.Float32List, preferring placement in s's segment.
+func (s Store_Container_Entry_Value) NewFloat32ListValue(n int32) (capnp.Float32List, error) {
+	capnp.Struct(s).SetUint16(2, 19)
+	l, err := capnp.NewFloat32List(capnp.Struct(s).Segment(), n)
+	if err != nil {
+		return capnp.Float32List{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	return l, err
+}
+func (s Store_Container_Entry_Value) Float64Value() float64 {
+	if capnp.Struct(s).Uint16(2) != 20 {
+		panic("Which() != float64Value")
+	}
+	return math.Float64frombits(capnp.Struct(s).Uint64(8))
+}
+
+func (s Store_Container_Entry_Value) SetFloat64Value(v float64) {
+	capnp.Struct(s).SetUint16(2, 20)
+	capnp.Struct(s).SetUint64(8, math.Float64bits(v))
+}
+
+func (s Store_Container_Entry_Value) Float64ListValue() (capnp.Float64List, error) {
+	if capnp.Struct(s).Uint16(2) != 21 {
+		panic("Which() != float64ListValue")
+	}
+	p, err := capnp.Struct(s).Ptr(0)
+	return capnp.Float64List(p.List()), err
+}
+
+func (s Store_Container_Entry_Value) HasFloat64ListValue() bool {
+	if capnp.Struct(s).Uint16(2) != 21 {
+		return false
+	}
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Store_Container_Entry_Value) SetFloat64ListValue(v capnp.Float64List) error {
+	capnp.Struct(s).SetUint16(2, 21)
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+}
+
+// NewFloat64ListValue sets the float64ListValue field to a newly
+// allocated capnp.Float64List, preferring placement in s's segment.
+func (s Store_Container_Entry_Value) NewFloat64ListValue(n int32) (capnp.Float64List, error) {
+	capnp.Struct(s).SetUint16(2, 21)
+	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
+	if err != nil {
+		return capnp.Float64List{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	return l, err
+}
+func (s Store_Container_Entry_Value) TextValue() (string, error) {
+	if capnp.Struct(s).Uint16(2) != 22 {
 		panic("Which() != textValue")
 	}
-	p, err := s.Struct.Ptr(1)
+	p, err := capnp.Struct(s).Ptr(0)
 	return p.Text(), err
 }
 
-func (s Store_Container_Object_value) HasTextValue() bool {
-	if s.Struct.Uint16(2) != 3 {
+func (s Store_Container_Entry_Value) HasTextValue() bool {
+	if capnp.Struct(s).Uint16(2) != 22 {
 		return false
 	}
-	return s.Struct.HasPtr(1)
+	return capnp.Struct(s).HasPtr(0)
 }
 
-func (s Store_Container_Object_value) TextValueBytes() ([]byte, error) {
-	p, err := s.Struct.Ptr(1)
+func (s Store_Container_Entry_Value) TextValueBytes() ([]byte, error) {
+	p, err := capnp.Struct(s).Ptr(0)
 	return p.TextBytes(), err
 }
 
-func (s Store_Container_Object_value) SetTextValue(v string) error {
-	s.Struct.SetUint16(2, 3)
-	return s.Struct.SetText(1, v)
+func (s Store_Container_Entry_Value) SetTextValue(v string) error {
+	capnp.Struct(s).SetUint16(2, 22)
+	return capnp.Struct(s).SetText(0, v)
 }
 
-func (s Store_Container_Object_value) DataValue() ([]byte, error) {
-	if s.Struct.Uint16(2) != 4 {
+func (s Store_Container_Entry_Value) TextListValue() (capnp.TextList, error) {
+	if capnp.Struct(s).Uint16(2) != 23 {
+		panic("Which() != textListValue")
+	}
+	p, err := capnp.Struct(s).Ptr(0)
+	return capnp.TextList(p.List()), err
+}
+
+func (s Store_Container_Entry_Value) HasTextListValue() bool {
+	if capnp.Struct(s).Uint16(2) != 23 {
+		return false
+	}
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Store_Container_Entry_Value) SetTextListValue(v capnp.TextList) error {
+	capnp.Struct(s).SetUint16(2, 23)
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+}
+
+// NewTextListValue sets the textListValue field to a newly
+// allocated capnp.TextList, preferring placement in s's segment.
+func (s Store_Container_Entry_Value) NewTextListValue(n int32) (capnp.TextList, error) {
+	capnp.Struct(s).SetUint16(2, 23)
+	l, err := capnp.NewTextList(capnp.Struct(s).Segment(), n)
+	if err != nil {
+		return capnp.TextList{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	return l, err
+}
+func (s Store_Container_Entry_Value) DataValue() ([]byte, error) {
+	if capnp.Struct(s).Uint16(2) != 24 {
 		panic("Which() != dataValue")
 	}
-	p, err := s.Struct.Ptr(1)
+	p, err := capnp.Struct(s).Ptr(0)
 	return []byte(p.Data()), err
 }
 
-func (s Store_Container_Object_value) HasDataValue() bool {
-	if s.Struct.Uint16(2) != 4 {
+func (s Store_Container_Entry_Value) HasDataValue() bool {
+	if capnp.Struct(s).Uint16(2) != 24 {
 		return false
 	}
-	return s.Struct.HasPtr(1)
+	return capnp.Struct(s).HasPtr(0)
 }
 
-func (s Store_Container_Object_value) SetDataValue(v []byte) error {
-	s.Struct.SetUint16(2, 4)
-	return s.Struct.SetData(1, v)
+func (s Store_Container_Entry_Value) SetDataValue(v []byte) error {
+	capnp.Struct(s).SetUint16(2, 24)
+	return capnp.Struct(s).SetData(0, v)
 }
 
-func (s Store_Container_Object_value) AnyValue() (capnp.Ptr, error) {
-	if s.Struct.Uint16(2) != 5 {
+func (s Store_Container_Entry_Value) DataListValue() (capnp.DataList, error) {
+	if capnp.Struct(s).Uint16(2) != 25 {
+		panic("Which() != dataListValue")
+	}
+	p, err := capnp.Struct(s).Ptr(0)
+	return capnp.DataList(p.List()), err
+}
+
+func (s Store_Container_Entry_Value) HasDataListValue() bool {
+	if capnp.Struct(s).Uint16(2) != 25 {
+		return false
+	}
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Store_Container_Entry_Value) SetDataListValue(v capnp.DataList) error {
+	capnp.Struct(s).SetUint16(2, 25)
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+}
+
+// NewDataListValue sets the dataListValue field to a newly
+// allocated capnp.DataList, preferring placement in s's segment.
+func (s Store_Container_Entry_Value) NewDataListValue(n int32) (capnp.DataList, error) {
+	capnp.Struct(s).SetUint16(2, 25)
+	l, err := capnp.NewDataList(capnp.Struct(s).Segment(), n)
+	if err != nil {
+		return capnp.DataList{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	return l, err
+}
+func (s Store_Container_Entry_Value) AnyValue() (capnp.Struct, error) {
+	if capnp.Struct(s).Uint16(2) != 26 {
 		panic("Which() != anyValue")
 	}
-	return s.Struct.Ptr(1)
+	p, err := capnp.Struct(s).Ptr(0)
+	return p.Struct(), err
 }
 
-func (s Store_Container_Object_value) HasAnyValue() bool {
-	if s.Struct.Uint16(2) != 5 {
+func (s Store_Container_Entry_Value) HasAnyValue() bool {
+	if capnp.Struct(s).Uint16(2) != 26 {
 		return false
 	}
-	return s.Struct.HasPtr(1)
+	return capnp.Struct(s).HasPtr(0)
 }
 
-func (s Store_Container_Object_value) SetAnyValue(v capnp.Ptr) error {
-	s.Struct.SetUint16(2, 5)
-	return s.Struct.SetPtr(1, v)
+func (s Store_Container_Entry_Value) SetAnyValue(v capnp.Struct) error {
+	capnp.Struct(s).SetUint16(2, 26)
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
 }
 
-// Store_Container_Object_List is a list of Store_Container_Object.
-type Store_Container_Object_List struct{ capnp.List }
+// Store_Container_Entry_Value_List is a list of Store_Container_Entry_Value.
+type Store_Container_Entry_Value_List = capnp.StructList[Store_Container_Entry_Value]
 
-// NewStore_Container_Object creates a new list of Store_Container_Object.
-func NewStore_Container_Object_List(s *capnp.Segment, sz int32) (Store_Container_Object_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 16, PointerCount: 2}, sz)
-	return Store_Container_Object_List{l}, err
+// NewStore_Container_Entry_Value creates a new list of Store_Container_Entry_Value.
+func NewStore_Container_Entry_Value_List(s *capnp.Segment, sz int32) (Store_Container_Entry_Value_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 16, PointerCount: 1}, sz)
+	return capnp.StructList[Store_Container_Entry_Value](l), err
 }
 
-func (s Store_Container_Object_List) At(i int) Store_Container_Object {
-	return Store_Container_Object{s.List.Struct(i)}
+// Store_Container_Entry_Value_Future is a wrapper for a Store_Container_Entry_Value promised by a client call.
+type Store_Container_Entry_Value_Future struct{ *capnp.Future }
+
+func (f Store_Container_Entry_Value_Future) Struct() (Store_Container_Entry_Value, error) {
+	p, err := f.Future.Ptr()
+	return Store_Container_Entry_Value(p.Struct()), err
+}
+func (p Store_Container_Entry_Value_Future) AnyValue() *capnp.Future {
+	return p.Future.Field(0, nil)
 }
 
-func (s Store_Container_Object_List) Set(i int, v Store_Container_Object) error {
-	return s.List.SetStruct(i, v.Struct)
-}
+type Store_Container_Entry_getKey_Params capnp.Struct
 
-func (s Store_Container_Object_List) String() string {
-	str, _ := text.MarshalList(0xaa5c23f54650f8ae, s.List)
-	return str
-}
+// Store_Container_Entry_getKey_Params_TypeID is the unique identifier for the type Store_Container_Entry_getKey_Params.
+const Store_Container_Entry_getKey_Params_TypeID = 0xe0647ffea942d00a
 
-// Store_Container_Object_Future is a wrapper for a Store_Container_Object promised by a client call.
-type Store_Container_Object_Future struct{ *capnp.Future }
-
-func (p Store_Container_Object_Future) Struct() (Store_Container_Object, error) {
-	s, err := p.Future.Struct()
-	return Store_Container_Object{s}, err
-}
-
-func (p Store_Container_Object_Future) Value() Store_Container_Object_value_Future {
-	return Store_Container_Object_value_Future{p.Future}
-}
-
-// Store_Container_Object_value_Future is a wrapper for a Store_Container_Object_value promised by a client call.
-type Store_Container_Object_value_Future struct{ *capnp.Future }
-
-func (p Store_Container_Object_value_Future) Struct() (Store_Container_Object_value, error) {
-	s, err := p.Future.Struct()
-	return Store_Container_Object_value{s}, err
-}
-
-func (p Store_Container_Object_value_Future) AnyValue() *capnp.Future {
-	return p.Future.Field(1, nil)
-}
-
-type Store_Container_importData_Params struct{ capnp.Struct }
-
-// Store_Container_importData_Params_TypeID is the unique identifier for the type Store_Container_importData_Params.
-const Store_Container_importData_Params_TypeID = 0x9e138889be22cc5e
-
-func NewStore_Container_importData_Params(s *capnp.Segment) (Store_Container_importData_Params, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Store_Container_importData_Params{st}, err
-}
-
-func NewRootStore_Container_importData_Params(s *capnp.Segment) (Store_Container_importData_Params, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Store_Container_importData_Params{st}, err
-}
-
-func ReadRootStore_Container_importData_Params(msg *capnp.Message) (Store_Container_importData_Params, error) {
-	root, err := msg.Root()
-	return Store_Container_importData_Params{root.Struct()}, err
-}
-
-func (s Store_Container_importData_Params) String() string {
-	str, _ := text.Marshal(0x9e138889be22cc5e, s.Struct)
-	return str
-}
-
-func (s Store_Container_importData_Params) Data() ([]byte, error) {
-	p, err := s.Struct.Ptr(0)
-	return []byte(p.Data()), err
-}
-
-func (s Store_Container_importData_Params) HasData() bool {
-	return s.Struct.HasPtr(0)
-}
-
-func (s Store_Container_importData_Params) SetData(v []byte) error {
-	return s.Struct.SetData(0, v)
-}
-
-// Store_Container_importData_Params_List is a list of Store_Container_importData_Params.
-type Store_Container_importData_Params_List struct{ capnp.List }
-
-// NewStore_Container_importData_Params creates a new list of Store_Container_importData_Params.
-func NewStore_Container_importData_Params_List(s *capnp.Segment, sz int32) (Store_Container_importData_Params_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return Store_Container_importData_Params_List{l}, err
-}
-
-func (s Store_Container_importData_Params_List) At(i int) Store_Container_importData_Params {
-	return Store_Container_importData_Params{s.List.Struct(i)}
-}
-
-func (s Store_Container_importData_Params_List) Set(i int, v Store_Container_importData_Params) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Store_Container_importData_Params_List) String() string {
-	str, _ := text.MarshalList(0x9e138889be22cc5e, s.List)
-	return str
-}
-
-// Store_Container_importData_Params_Future is a wrapper for a Store_Container_importData_Params promised by a client call.
-type Store_Container_importData_Params_Future struct{ *capnp.Future }
-
-func (p Store_Container_importData_Params_Future) Struct() (Store_Container_importData_Params, error) {
-	s, err := p.Future.Struct()
-	return Store_Container_importData_Params{s}, err
-}
-
-type Store_Container_importData_Results struct{ capnp.Struct }
-
-// Store_Container_importData_Results_TypeID is the unique identifier for the type Store_Container_importData_Results.
-const Store_Container_importData_Results_TypeID = 0xa914844d7351c9ee
-
-func NewStore_Container_importData_Results(s *capnp.Segment) (Store_Container_importData_Results, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Store_Container_importData_Results{st}, err
-}
-
-func NewRootStore_Container_importData_Results(s *capnp.Segment) (Store_Container_importData_Results, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Store_Container_importData_Results{st}, err
-}
-
-func ReadRootStore_Container_importData_Results(msg *capnp.Message) (Store_Container_importData_Results, error) {
-	root, err := msg.Root()
-	return Store_Container_importData_Results{root.Struct()}, err
-}
-
-func (s Store_Container_importData_Results) String() string {
-	str, _ := text.Marshal(0xa914844d7351c9ee, s.Struct)
-	return str
-}
-
-func (s Store_Container_importData_Results) Success() bool {
-	return s.Struct.Bit(0)
-}
-
-func (s Store_Container_importData_Results) SetSuccess(v bool) {
-	s.Struct.SetBit(0, v)
-}
-
-// Store_Container_importData_Results_List is a list of Store_Container_importData_Results.
-type Store_Container_importData_Results_List struct{ capnp.List }
-
-// NewStore_Container_importData_Results creates a new list of Store_Container_importData_Results.
-func NewStore_Container_importData_Results_List(s *capnp.Segment, sz int32) (Store_Container_importData_Results_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0}, sz)
-	return Store_Container_importData_Results_List{l}, err
-}
-
-func (s Store_Container_importData_Results_List) At(i int) Store_Container_importData_Results {
-	return Store_Container_importData_Results{s.List.Struct(i)}
-}
-
-func (s Store_Container_importData_Results_List) Set(i int, v Store_Container_importData_Results) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Store_Container_importData_Results_List) String() string {
-	str, _ := text.MarshalList(0xa914844d7351c9ee, s.List)
-	return str
-}
-
-// Store_Container_importData_Results_Future is a wrapper for a Store_Container_importData_Results promised by a client call.
-type Store_Container_importData_Results_Future struct{ *capnp.Future }
-
-func (p Store_Container_importData_Results_Future) Struct() (Store_Container_importData_Results, error) {
-	s, err := p.Future.Struct()
-	return Store_Container_importData_Results{s}, err
-}
-
-type Store_Container_exportData_Params struct{ capnp.Struct }
-
-// Store_Container_exportData_Params_TypeID is the unique identifier for the type Store_Container_exportData_Params.
-const Store_Container_exportData_Params_TypeID = 0x93fc14178e630994
-
-func NewStore_Container_exportData_Params(s *capnp.Segment) (Store_Container_exportData_Params, error) {
+func NewStore_Container_Entry_getKey_Params(s *capnp.Segment) (Store_Container_Entry_getKey_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Store_Container_exportData_Params{st}, err
+	return Store_Container_Entry_getKey_Params(st), err
 }
 
-func NewRootStore_Container_exportData_Params(s *capnp.Segment) (Store_Container_exportData_Params, error) {
+func NewRootStore_Container_Entry_getKey_Params(s *capnp.Segment) (Store_Container_Entry_getKey_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Store_Container_exportData_Params{st}, err
+	return Store_Container_Entry_getKey_Params(st), err
 }
 
-func ReadRootStore_Container_exportData_Params(msg *capnp.Message) (Store_Container_exportData_Params, error) {
+func ReadRootStore_Container_Entry_getKey_Params(msg *capnp.Message) (Store_Container_Entry_getKey_Params, error) {
 	root, err := msg.Root()
-	return Store_Container_exportData_Params{root.Struct()}, err
+	return Store_Container_Entry_getKey_Params(root.Struct()), err
 }
 
-func (s Store_Container_exportData_Params) String() string {
-	str, _ := text.Marshal(0x93fc14178e630994, s.Struct)
+func (s Store_Container_Entry_getKey_Params) String() string {
+	str, _ := text.Marshal(0xe0647ffea942d00a, capnp.Struct(s))
 	return str
 }
 
-// Store_Container_exportData_Params_List is a list of Store_Container_exportData_Params.
-type Store_Container_exportData_Params_List struct{ capnp.List }
+func (s Store_Container_Entry_getKey_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
 
-// NewStore_Container_exportData_Params creates a new list of Store_Container_exportData_Params.
-func NewStore_Container_exportData_Params_List(s *capnp.Segment, sz int32) (Store_Container_exportData_Params_List, error) {
+func (Store_Container_Entry_getKey_Params) DecodeFromPtr(p capnp.Ptr) Store_Container_Entry_getKey_Params {
+	return Store_Container_Entry_getKey_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Store_Container_Entry_getKey_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Store_Container_Entry_getKey_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Store_Container_Entry_getKey_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Store_Container_Entry_getKey_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+
+// Store_Container_Entry_getKey_Params_List is a list of Store_Container_Entry_getKey_Params.
+type Store_Container_Entry_getKey_Params_List = capnp.StructList[Store_Container_Entry_getKey_Params]
+
+// NewStore_Container_Entry_getKey_Params creates a new list of Store_Container_Entry_getKey_Params.
+func NewStore_Container_Entry_getKey_Params_List(s *capnp.Segment, sz int32) (Store_Container_Entry_getKey_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return Store_Container_exportData_Params_List{l}, err
+	return capnp.StructList[Store_Container_Entry_getKey_Params](l), err
 }
 
-func (s Store_Container_exportData_Params_List) At(i int) Store_Container_exportData_Params {
-	return Store_Container_exportData_Params{s.List.Struct(i)}
+// Store_Container_Entry_getKey_Params_Future is a wrapper for a Store_Container_Entry_getKey_Params promised by a client call.
+type Store_Container_Entry_getKey_Params_Future struct{ *capnp.Future }
+
+func (f Store_Container_Entry_getKey_Params_Future) Struct() (Store_Container_Entry_getKey_Params, error) {
+	p, err := f.Future.Ptr()
+	return Store_Container_Entry_getKey_Params(p.Struct()), err
 }
 
-func (s Store_Container_exportData_Params_List) Set(i int, v Store_Container_exportData_Params) error {
-	return s.List.SetStruct(i, v.Struct)
-}
+type Store_Container_Entry_getKey_Results capnp.Struct
 
-func (s Store_Container_exportData_Params_List) String() string {
-	str, _ := text.MarshalList(0x93fc14178e630994, s.List)
-	return str
-}
+// Store_Container_Entry_getKey_Results_TypeID is the unique identifier for the type Store_Container_Entry_getKey_Results.
+const Store_Container_Entry_getKey_Results_TypeID = 0xdbfb7e9990643f87
 
-// Store_Container_exportData_Params_Future is a wrapper for a Store_Container_exportData_Params promised by a client call.
-type Store_Container_exportData_Params_Future struct{ *capnp.Future }
-
-func (p Store_Container_exportData_Params_Future) Struct() (Store_Container_exportData_Params, error) {
-	s, err := p.Future.Struct()
-	return Store_Container_exportData_Params{s}, err
-}
-
-type Store_Container_exportData_Results struct{ capnp.Struct }
-
-// Store_Container_exportData_Results_TypeID is the unique identifier for the type Store_Container_exportData_Results.
-const Store_Container_exportData_Results_TypeID = 0xffe4319ac401d166
-
-func NewStore_Container_exportData_Results(s *capnp.Segment) (Store_Container_exportData_Results, error) {
+func NewStore_Container_Entry_getKey_Results(s *capnp.Segment) (Store_Container_Entry_getKey_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Store_Container_exportData_Results{st}, err
+	return Store_Container_Entry_getKey_Results(st), err
 }
 
-func NewRootStore_Container_exportData_Results(s *capnp.Segment) (Store_Container_exportData_Results, error) {
+func NewRootStore_Container_Entry_getKey_Results(s *capnp.Segment) (Store_Container_Entry_getKey_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Store_Container_exportData_Results{st}, err
+	return Store_Container_Entry_getKey_Results(st), err
 }
 
-func ReadRootStore_Container_exportData_Results(msg *capnp.Message) (Store_Container_exportData_Results, error) {
+func ReadRootStore_Container_Entry_getKey_Results(msg *capnp.Message) (Store_Container_Entry_getKey_Results, error) {
 	root, err := msg.Root()
-	return Store_Container_exportData_Results{root.Struct()}, err
+	return Store_Container_Entry_getKey_Results(root.Struct()), err
 }
 
-func (s Store_Container_exportData_Results) String() string {
-	str, _ := text.Marshal(0xffe4319ac401d166, s.Struct)
+func (s Store_Container_Entry_getKey_Results) String() string {
+	str, _ := text.Marshal(0xdbfb7e9990643f87, capnp.Struct(s))
 	return str
 }
 
-func (s Store_Container_exportData_Results) Data() ([]byte, error) {
-	p, err := s.Struct.Ptr(0)
-	return []byte(p.Data()), err
+func (s Store_Container_Entry_getKey_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
 }
 
-func (s Store_Container_exportData_Results) HasData() bool {
-	return s.Struct.HasPtr(0)
+func (Store_Container_Entry_getKey_Results) DecodeFromPtr(p capnp.Ptr) Store_Container_Entry_getKey_Results {
+	return Store_Container_Entry_getKey_Results(capnp.Struct{}.DecodeFromPtr(p))
 }
 
-func (s Store_Container_exportData_Results) SetData(v []byte) error {
-	return s.Struct.SetData(0, v)
+func (s Store_Container_Entry_getKey_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Store_Container_Entry_getKey_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
 }
 
-// Store_Container_exportData_Results_List is a list of Store_Container_exportData_Results.
-type Store_Container_exportData_Results_List struct{ capnp.List }
+func (s Store_Container_Entry_getKey_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
 
-// NewStore_Container_exportData_Results creates a new list of Store_Container_exportData_Results.
-func NewStore_Container_exportData_Results_List(s *capnp.Segment, sz int32) (Store_Container_exportData_Results_List, error) {
+func (s Store_Container_Entry_getKey_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+func (s Store_Container_Entry_getKey_Results) Key() (string, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return p.Text(), err
+}
+
+func (s Store_Container_Entry_getKey_Results) HasKey() bool {
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Store_Container_Entry_getKey_Results) KeyBytes() ([]byte, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return p.TextBytes(), err
+}
+
+func (s Store_Container_Entry_getKey_Results) SetKey(v string) error {
+	return capnp.Struct(s).SetText(0, v)
+}
+
+// Store_Container_Entry_getKey_Results_List is a list of Store_Container_Entry_getKey_Results.
+type Store_Container_Entry_getKey_Results_List = capnp.StructList[Store_Container_Entry_getKey_Results]
+
+// NewStore_Container_Entry_getKey_Results creates a new list of Store_Container_Entry_getKey_Results.
+func NewStore_Container_Entry_getKey_Results_List(s *capnp.Segment, sz int32) (Store_Container_Entry_getKey_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return Store_Container_exportData_Results_List{l}, err
+	return capnp.StructList[Store_Container_Entry_getKey_Results](l), err
 }
 
-func (s Store_Container_exportData_Results_List) At(i int) Store_Container_exportData_Results {
-	return Store_Container_exportData_Results{s.List.Struct(i)}
+// Store_Container_Entry_getKey_Results_Future is a wrapper for a Store_Container_Entry_getKey_Results promised by a client call.
+type Store_Container_Entry_getKey_Results_Future struct{ *capnp.Future }
+
+func (f Store_Container_Entry_getKey_Results_Future) Struct() (Store_Container_Entry_getKey_Results, error) {
+	p, err := f.Future.Ptr()
+	return Store_Container_Entry_getKey_Results(p.Struct()), err
 }
 
-func (s Store_Container_exportData_Results_List) Set(i int, v Store_Container_exportData_Results) error {
-	return s.List.SetStruct(i, v.Struct)
-}
+type Store_Container_Entry_getValue_Params capnp.Struct
 
-func (s Store_Container_exportData_Results_List) String() string {
-	str, _ := text.MarshalList(0xffe4319ac401d166, s.List)
-	return str
-}
+// Store_Container_Entry_getValue_Params_TypeID is the unique identifier for the type Store_Container_Entry_getValue_Params.
+const Store_Container_Entry_getValue_Params_TypeID = 0x923c06d58238b290
 
-// Store_Container_exportData_Results_Future is a wrapper for a Store_Container_exportData_Results promised by a client call.
-type Store_Container_exportData_Results_Future struct{ *capnp.Future }
-
-func (p Store_Container_exportData_Results_Future) Struct() (Store_Container_exportData_Results, error) {
-	s, err := p.Future.Struct()
-	return Store_Container_exportData_Results{s}, err
-}
-
-type Store_Container_listObjects_Params struct{ capnp.Struct }
-
-// Store_Container_listObjects_Params_TypeID is the unique identifier for the type Store_Container_listObjects_Params.
-const Store_Container_listObjects_Params_TypeID = 0xdbf70a288c6933b1
-
-func NewStore_Container_listObjects_Params(s *capnp.Segment) (Store_Container_listObjects_Params, error) {
+func NewStore_Container_Entry_getValue_Params(s *capnp.Segment) (Store_Container_Entry_getValue_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Store_Container_listObjects_Params{st}, err
+	return Store_Container_Entry_getValue_Params(st), err
 }
 
-func NewRootStore_Container_listObjects_Params(s *capnp.Segment) (Store_Container_listObjects_Params, error) {
+func NewRootStore_Container_Entry_getValue_Params(s *capnp.Segment) (Store_Container_Entry_getValue_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Store_Container_listObjects_Params{st}, err
+	return Store_Container_Entry_getValue_Params(st), err
 }
 
-func ReadRootStore_Container_listObjects_Params(msg *capnp.Message) (Store_Container_listObjects_Params, error) {
+func ReadRootStore_Container_Entry_getValue_Params(msg *capnp.Message) (Store_Container_Entry_getValue_Params, error) {
 	root, err := msg.Root()
-	return Store_Container_listObjects_Params{root.Struct()}, err
+	return Store_Container_Entry_getValue_Params(root.Struct()), err
 }
 
-func (s Store_Container_listObjects_Params) String() string {
-	str, _ := text.Marshal(0xdbf70a288c6933b1, s.Struct)
+func (s Store_Container_Entry_getValue_Params) String() string {
+	str, _ := text.Marshal(0x923c06d58238b290, capnp.Struct(s))
 	return str
 }
 
-// Store_Container_listObjects_Params_List is a list of Store_Container_listObjects_Params.
-type Store_Container_listObjects_Params_List struct{ capnp.List }
+func (s Store_Container_Entry_getValue_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
 
-// NewStore_Container_listObjects_Params creates a new list of Store_Container_listObjects_Params.
-func NewStore_Container_listObjects_Params_List(s *capnp.Segment, sz int32) (Store_Container_listObjects_Params_List, error) {
+func (Store_Container_Entry_getValue_Params) DecodeFromPtr(p capnp.Ptr) Store_Container_Entry_getValue_Params {
+	return Store_Container_Entry_getValue_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Store_Container_Entry_getValue_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Store_Container_Entry_getValue_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Store_Container_Entry_getValue_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Store_Container_Entry_getValue_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+
+// Store_Container_Entry_getValue_Params_List is a list of Store_Container_Entry_getValue_Params.
+type Store_Container_Entry_getValue_Params_List = capnp.StructList[Store_Container_Entry_getValue_Params]
+
+// NewStore_Container_Entry_getValue_Params creates a new list of Store_Container_Entry_getValue_Params.
+func NewStore_Container_Entry_getValue_Params_List(s *capnp.Segment, sz int32) (Store_Container_Entry_getValue_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return Store_Container_listObjects_Params_List{l}, err
+	return capnp.StructList[Store_Container_Entry_getValue_Params](l), err
 }
 
-func (s Store_Container_listObjects_Params_List) At(i int) Store_Container_listObjects_Params {
-	return Store_Container_listObjects_Params{s.List.Struct(i)}
+// Store_Container_Entry_getValue_Params_Future is a wrapper for a Store_Container_Entry_getValue_Params promised by a client call.
+type Store_Container_Entry_getValue_Params_Future struct{ *capnp.Future }
+
+func (f Store_Container_Entry_getValue_Params_Future) Struct() (Store_Container_Entry_getValue_Params, error) {
+	p, err := f.Future.Ptr()
+	return Store_Container_Entry_getValue_Params(p.Struct()), err
 }
 
-func (s Store_Container_listObjects_Params_List) Set(i int, v Store_Container_listObjects_Params) error {
-	return s.List.SetStruct(i, v.Struct)
+type Store_Container_Entry_getValue_Results capnp.Struct
+
+// Store_Container_Entry_getValue_Results_TypeID is the unique identifier for the type Store_Container_Entry_getValue_Results.
+const Store_Container_Entry_getValue_Results_TypeID = 0xc5e6024b9f05560e
+
+func NewStore_Container_Entry_getValue_Results(s *capnp.Segment) (Store_Container_Entry_getValue_Results, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
+	return Store_Container_Entry_getValue_Results(st), err
 }
 
-func (s Store_Container_listObjects_Params_List) String() string {
-	str, _ := text.MarshalList(0xdbf70a288c6933b1, s.List)
-	return str
+func NewRootStore_Container_Entry_getValue_Results(s *capnp.Segment) (Store_Container_Entry_getValue_Results, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
+	return Store_Container_Entry_getValue_Results(st), err
 }
 
-// Store_Container_listObjects_Params_Future is a wrapper for a Store_Container_listObjects_Params promised by a client call.
-type Store_Container_listObjects_Params_Future struct{ *capnp.Future }
-
-func (p Store_Container_listObjects_Params_Future) Struct() (Store_Container_listObjects_Params, error) {
-	s, err := p.Future.Struct()
-	return Store_Container_listObjects_Params{s}, err
-}
-
-type Store_Container_listObjects_Results struct{ capnp.Struct }
-
-// Store_Container_listObjects_Results_TypeID is the unique identifier for the type Store_Container_listObjects_Results.
-const Store_Container_listObjects_Results_TypeID = 0xa028d3ba03083872
-
-func NewStore_Container_listObjects_Results(s *capnp.Segment) (Store_Container_listObjects_Results, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Store_Container_listObjects_Results{st}, err
-}
-
-func NewRootStore_Container_listObjects_Results(s *capnp.Segment) (Store_Container_listObjects_Results, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Store_Container_listObjects_Results{st}, err
-}
-
-func ReadRootStore_Container_listObjects_Results(msg *capnp.Message) (Store_Container_listObjects_Results, error) {
+func ReadRootStore_Container_Entry_getValue_Results(msg *capnp.Message) (Store_Container_Entry_getValue_Results, error) {
 	root, err := msg.Root()
-	return Store_Container_listObjects_Results{root.Struct()}, err
+	return Store_Container_Entry_getValue_Results(root.Struct()), err
 }
 
-func (s Store_Container_listObjects_Results) String() string {
-	str, _ := text.Marshal(0xa028d3ba03083872, s.Struct)
+func (s Store_Container_Entry_getValue_Results) String() string {
+	str, _ := text.Marshal(0xc5e6024b9f05560e, capnp.Struct(s))
 	return str
 }
 
-func (s Store_Container_listObjects_Results) Objects() (Store_Container_Object_List, error) {
-	p, err := s.Struct.Ptr(0)
-	return Store_Container_Object_List{List: p.List()}, err
+func (s Store_Container_Entry_getValue_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
 }
 
-func (s Store_Container_listObjects_Results) HasObjects() bool {
-	return s.Struct.HasPtr(0)
+func (Store_Container_Entry_getValue_Results) DecodeFromPtr(p capnp.Ptr) Store_Container_Entry_getValue_Results {
+	return Store_Container_Entry_getValue_Results(capnp.Struct{}.DecodeFromPtr(p))
 }
 
-func (s Store_Container_listObjects_Results) SetObjects(v Store_Container_Object_List) error {
-	return s.Struct.SetPtr(0, v.List.ToPtr())
+func (s Store_Container_Entry_getValue_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Store_Container_Entry_getValue_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
 }
 
-// NewObjects sets the objects field to a newly
-// allocated Store_Container_Object_List, preferring placement in s's segment.
-func (s Store_Container_listObjects_Results) NewObjects(n int32) (Store_Container_Object_List, error) {
-	l, err := NewStore_Container_Object_List(s.Struct.Segment(), n)
+func (s Store_Container_Entry_getValue_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Store_Container_Entry_getValue_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+func (s Store_Container_Entry_getValue_Results) Value() (Store_Container_Entry_Value, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return Store_Container_Entry_Value(p.Struct()), err
+}
+
+func (s Store_Container_Entry_getValue_Results) HasValue() bool {
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Store_Container_Entry_getValue_Results) SetValue(v Store_Container_Entry_Value) error {
+	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+}
+
+// NewValue sets the value field to a newly
+// allocated Store_Container_Entry_Value struct, preferring placement in s's segment.
+func (s Store_Container_Entry_getValue_Results) NewValue() (Store_Container_Entry_Value, error) {
+	ss, err := NewStore_Container_Entry_Value(capnp.Struct(s).Segment())
 	if err != nil {
-		return Store_Container_Object_List{}, err
+		return Store_Container_Entry_Value{}, err
 	}
-	err = s.Struct.SetPtr(0, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	return ss, err
+}
+
+func (s Store_Container_Entry_getValue_Results) IsUnset() bool {
+	return capnp.Struct(s).Bit(0)
+}
+
+func (s Store_Container_Entry_getValue_Results) SetIsUnset(v bool) {
+	capnp.Struct(s).SetBit(0, v)
+}
+
+// Store_Container_Entry_getValue_Results_List is a list of Store_Container_Entry_getValue_Results.
+type Store_Container_Entry_getValue_Results_List = capnp.StructList[Store_Container_Entry_getValue_Results]
+
+// NewStore_Container_Entry_getValue_Results creates a new list of Store_Container_Entry_getValue_Results.
+func NewStore_Container_Entry_getValue_Results_List(s *capnp.Segment, sz int32) (Store_Container_Entry_getValue_Results_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1}, sz)
+	return capnp.StructList[Store_Container_Entry_getValue_Results](l), err
+}
+
+// Store_Container_Entry_getValue_Results_Future is a wrapper for a Store_Container_Entry_getValue_Results promised by a client call.
+type Store_Container_Entry_getValue_Results_Future struct{ *capnp.Future }
+
+func (f Store_Container_Entry_getValue_Results_Future) Struct() (Store_Container_Entry_getValue_Results, error) {
+	p, err := f.Future.Ptr()
+	return Store_Container_Entry_getValue_Results(p.Struct()), err
+}
+func (p Store_Container_Entry_getValue_Results_Future) Value() Store_Container_Entry_Value_Future {
+	return Store_Container_Entry_Value_Future{Future: p.Future.Field(0, nil)}
+}
+
+type Store_Container_Entry_setValue_Params capnp.Struct
+
+// Store_Container_Entry_setValue_Params_TypeID is the unique identifier for the type Store_Container_Entry_setValue_Params.
+const Store_Container_Entry_setValue_Params_TypeID = 0xa4ff24aa7f0debaf
+
+func NewStore_Container_Entry_setValue_Params(s *capnp.Segment) (Store_Container_Entry_setValue_Params, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Store_Container_Entry_setValue_Params(st), err
+}
+
+func NewRootStore_Container_Entry_setValue_Params(s *capnp.Segment) (Store_Container_Entry_setValue_Params, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Store_Container_Entry_setValue_Params(st), err
+}
+
+func ReadRootStore_Container_Entry_setValue_Params(msg *capnp.Message) (Store_Container_Entry_setValue_Params, error) {
+	root, err := msg.Root()
+	return Store_Container_Entry_setValue_Params(root.Struct()), err
+}
+
+func (s Store_Container_Entry_setValue_Params) String() string {
+	str, _ := text.Marshal(0xa4ff24aa7f0debaf, capnp.Struct(s))
+	return str
+}
+
+func (s Store_Container_Entry_setValue_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Store_Container_Entry_setValue_Params) DecodeFromPtr(p capnp.Ptr) Store_Container_Entry_setValue_Params {
+	return Store_Container_Entry_setValue_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Store_Container_Entry_setValue_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Store_Container_Entry_setValue_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Store_Container_Entry_setValue_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Store_Container_Entry_setValue_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+func (s Store_Container_Entry_setValue_Params) Value() (Store_Container_Entry_Value, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return Store_Container_Entry_Value(p.Struct()), err
+}
+
+func (s Store_Container_Entry_setValue_Params) HasValue() bool {
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Store_Container_Entry_setValue_Params) SetValue(v Store_Container_Entry_Value) error {
+	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+}
+
+// NewValue sets the value field to a newly
+// allocated Store_Container_Entry_Value struct, preferring placement in s's segment.
+func (s Store_Container_Entry_setValue_Params) NewValue() (Store_Container_Entry_Value, error) {
+	ss, err := NewStore_Container_Entry_Value(capnp.Struct(s).Segment())
+	if err != nil {
+		return Store_Container_Entry_Value{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	return ss, err
+}
+
+// Store_Container_Entry_setValue_Params_List is a list of Store_Container_Entry_setValue_Params.
+type Store_Container_Entry_setValue_Params_List = capnp.StructList[Store_Container_Entry_setValue_Params]
+
+// NewStore_Container_Entry_setValue_Params creates a new list of Store_Container_Entry_setValue_Params.
+func NewStore_Container_Entry_setValue_Params_List(s *capnp.Segment, sz int32) (Store_Container_Entry_setValue_Params_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
+	return capnp.StructList[Store_Container_Entry_setValue_Params](l), err
+}
+
+// Store_Container_Entry_setValue_Params_Future is a wrapper for a Store_Container_Entry_setValue_Params promised by a client call.
+type Store_Container_Entry_setValue_Params_Future struct{ *capnp.Future }
+
+func (f Store_Container_Entry_setValue_Params_Future) Struct() (Store_Container_Entry_setValue_Params, error) {
+	p, err := f.Future.Ptr()
+	return Store_Container_Entry_setValue_Params(p.Struct()), err
+}
+func (p Store_Container_Entry_setValue_Params_Future) Value() Store_Container_Entry_Value_Future {
+	return Store_Container_Entry_Value_Future{Future: p.Future.Field(0, nil)}
+}
+
+type Store_Container_Entry_setValue_Results capnp.Struct
+
+// Store_Container_Entry_setValue_Results_TypeID is the unique identifier for the type Store_Container_Entry_setValue_Results.
+const Store_Container_Entry_setValue_Results_TypeID = 0xd667b97e089bae01
+
+func NewStore_Container_Entry_setValue_Results(s *capnp.Segment) (Store_Container_Entry_setValue_Results, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
+	return Store_Container_Entry_setValue_Results(st), err
+}
+
+func NewRootStore_Container_Entry_setValue_Results(s *capnp.Segment) (Store_Container_Entry_setValue_Results, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
+	return Store_Container_Entry_setValue_Results(st), err
+}
+
+func ReadRootStore_Container_Entry_setValue_Results(msg *capnp.Message) (Store_Container_Entry_setValue_Results, error) {
+	root, err := msg.Root()
+	return Store_Container_Entry_setValue_Results(root.Struct()), err
+}
+
+func (s Store_Container_Entry_setValue_Results) String() string {
+	str, _ := text.Marshal(0xd667b97e089bae01, capnp.Struct(s))
+	return str
+}
+
+func (s Store_Container_Entry_setValue_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Store_Container_Entry_setValue_Results) DecodeFromPtr(p capnp.Ptr) Store_Container_Entry_setValue_Results {
+	return Store_Container_Entry_setValue_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Store_Container_Entry_setValue_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Store_Container_Entry_setValue_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Store_Container_Entry_setValue_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Store_Container_Entry_setValue_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+func (s Store_Container_Entry_setValue_Results) Success() bool {
+	return capnp.Struct(s).Bit(0)
+}
+
+func (s Store_Container_Entry_setValue_Results) SetSuccess(v bool) {
+	capnp.Struct(s).SetBit(0, v)
+}
+
+// Store_Container_Entry_setValue_Results_List is a list of Store_Container_Entry_setValue_Results.
+type Store_Container_Entry_setValue_Results_List = capnp.StructList[Store_Container_Entry_setValue_Results]
+
+// NewStore_Container_Entry_setValue_Results creates a new list of Store_Container_Entry_setValue_Results.
+func NewStore_Container_Entry_setValue_Results_List(s *capnp.Segment, sz int32) (Store_Container_Entry_setValue_Results_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0}, sz)
+	return capnp.StructList[Store_Container_Entry_setValue_Results](l), err
+}
+
+// Store_Container_Entry_setValue_Results_Future is a wrapper for a Store_Container_Entry_setValue_Results promised by a client call.
+type Store_Container_Entry_setValue_Results_Future struct{ *capnp.Future }
+
+func (f Store_Container_Entry_setValue_Results_Future) Struct() (Store_Container_Entry_setValue_Results, error) {
+	p, err := f.Future.Ptr()
+	return Store_Container_Entry_setValue_Results(p.Struct()), err
+}
+
+type Store_Container_export_Params capnp.Struct
+
+// Store_Container_export_Params_TypeID is the unique identifier for the type Store_Container_export_Params.
+const Store_Container_export_Params_TypeID = 0x9e138889be22cc5e
+
+func NewStore_Container_export_Params(s *capnp.Segment) (Store_Container_export_Params, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	return Store_Container_export_Params(st), err
+}
+
+func NewRootStore_Container_export_Params(s *capnp.Segment) (Store_Container_export_Params, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	return Store_Container_export_Params(st), err
+}
+
+func ReadRootStore_Container_export_Params(msg *capnp.Message) (Store_Container_export_Params, error) {
+	root, err := msg.Root()
+	return Store_Container_export_Params(root.Struct()), err
+}
+
+func (s Store_Container_export_Params) String() string {
+	str, _ := text.Marshal(0x9e138889be22cc5e, capnp.Struct(s))
+	return str
+}
+
+func (s Store_Container_export_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Store_Container_export_Params) DecodeFromPtr(p capnp.Ptr) Store_Container_export_Params {
+	return Store_Container_export_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Store_Container_export_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Store_Container_export_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Store_Container_export_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Store_Container_export_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+
+// Store_Container_export_Params_List is a list of Store_Container_export_Params.
+type Store_Container_export_Params_List = capnp.StructList[Store_Container_export_Params]
+
+// NewStore_Container_export_Params creates a new list of Store_Container_export_Params.
+func NewStore_Container_export_Params_List(s *capnp.Segment, sz int32) (Store_Container_export_Params_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
+	return capnp.StructList[Store_Container_export_Params](l), err
+}
+
+// Store_Container_export_Params_Future is a wrapper for a Store_Container_export_Params promised by a client call.
+type Store_Container_export_Params_Future struct{ *capnp.Future }
+
+func (f Store_Container_export_Params_Future) Struct() (Store_Container_export_Params, error) {
+	p, err := f.Future.Ptr()
+	return Store_Container_export_Params(p.Struct()), err
+}
+
+type Store_Container_export_Results capnp.Struct
+
+// Store_Container_export_Results_TypeID is the unique identifier for the type Store_Container_export_Results.
+const Store_Container_export_Results_TypeID = 0xa914844d7351c9ee
+
+func NewStore_Container_export_Results(s *capnp.Segment) (Store_Container_export_Results, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Store_Container_export_Results(st), err
+}
+
+func NewRootStore_Container_export_Results(s *capnp.Segment) (Store_Container_export_Results, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Store_Container_export_Results(st), err
+}
+
+func ReadRootStore_Container_export_Results(msg *capnp.Message) (Store_Container_export_Results, error) {
+	root, err := msg.Root()
+	return Store_Container_export_Results(root.Struct()), err
+}
+
+func (s Store_Container_export_Results) String() string {
+	str, _ := text.Marshal(0xa914844d7351c9ee, capnp.Struct(s))
+	return str
+}
+
+func (s Store_Container_export_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Store_Container_export_Results) DecodeFromPtr(p capnp.Ptr) Store_Container_export_Results {
+	return Store_Container_export_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Store_Container_export_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Store_Container_export_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Store_Container_export_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Store_Container_export_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+func (s Store_Container_export_Results) Json() (string, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return p.Text(), err
+}
+
+func (s Store_Container_export_Results) HasJson() bool {
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Store_Container_export_Results) JsonBytes() ([]byte, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return p.TextBytes(), err
+}
+
+func (s Store_Container_export_Results) SetJson(v string) error {
+	return capnp.Struct(s).SetText(0, v)
+}
+
+// Store_Container_export_Results_List is a list of Store_Container_export_Results.
+type Store_Container_export_Results_List = capnp.StructList[Store_Container_export_Results]
+
+// NewStore_Container_export_Results creates a new list of Store_Container_export_Results.
+func NewStore_Container_export_Results_List(s *capnp.Segment, sz int32) (Store_Container_export_Results_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
+	return capnp.StructList[Store_Container_export_Results](l), err
+}
+
+// Store_Container_export_Results_Future is a wrapper for a Store_Container_export_Results promised by a client call.
+type Store_Container_export_Results_Future struct{ *capnp.Future }
+
+func (f Store_Container_export_Results_Future) Struct() (Store_Container_export_Results, error) {
+	p, err := f.Future.Ptr()
+	return Store_Container_export_Results(p.Struct()), err
+}
+
+type Store_Container_downloadEntries_Params capnp.Struct
+
+// Store_Container_downloadEntries_Params_TypeID is the unique identifier for the type Store_Container_downloadEntries_Params.
+const Store_Container_downloadEntries_Params_TypeID = 0x93fc14178e630994
+
+func NewStore_Container_downloadEntries_Params(s *capnp.Segment) (Store_Container_downloadEntries_Params, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	return Store_Container_downloadEntries_Params(st), err
+}
+
+func NewRootStore_Container_downloadEntries_Params(s *capnp.Segment) (Store_Container_downloadEntries_Params, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	return Store_Container_downloadEntries_Params(st), err
+}
+
+func ReadRootStore_Container_downloadEntries_Params(msg *capnp.Message) (Store_Container_downloadEntries_Params, error) {
+	root, err := msg.Root()
+	return Store_Container_downloadEntries_Params(root.Struct()), err
+}
+
+func (s Store_Container_downloadEntries_Params) String() string {
+	str, _ := text.Marshal(0x93fc14178e630994, capnp.Struct(s))
+	return str
+}
+
+func (s Store_Container_downloadEntries_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Store_Container_downloadEntries_Params) DecodeFromPtr(p capnp.Ptr) Store_Container_downloadEntries_Params {
+	return Store_Container_downloadEntries_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Store_Container_downloadEntries_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Store_Container_downloadEntries_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Store_Container_downloadEntries_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Store_Container_downloadEntries_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+
+// Store_Container_downloadEntries_Params_List is a list of Store_Container_downloadEntries_Params.
+type Store_Container_downloadEntries_Params_List = capnp.StructList[Store_Container_downloadEntries_Params]
+
+// NewStore_Container_downloadEntries_Params creates a new list of Store_Container_downloadEntries_Params.
+func NewStore_Container_downloadEntries_Params_List(s *capnp.Segment, sz int32) (Store_Container_downloadEntries_Params_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
+	return capnp.StructList[Store_Container_downloadEntries_Params](l), err
+}
+
+// Store_Container_downloadEntries_Params_Future is a wrapper for a Store_Container_downloadEntries_Params promised by a client call.
+type Store_Container_downloadEntries_Params_Future struct{ *capnp.Future }
+
+func (f Store_Container_downloadEntries_Params_Future) Struct() (Store_Container_downloadEntries_Params, error) {
+	p, err := f.Future.Ptr()
+	return Store_Container_downloadEntries_Params(p.Struct()), err
+}
+
+type Store_Container_downloadEntries_Results capnp.Struct
+
+// Store_Container_downloadEntries_Results_TypeID is the unique identifier for the type Store_Container_downloadEntries_Results.
+const Store_Container_downloadEntries_Results_TypeID = 0xffe4319ac401d166
+
+func NewStore_Container_downloadEntries_Results(s *capnp.Segment) (Store_Container_downloadEntries_Results, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Store_Container_downloadEntries_Results(st), err
+}
+
+func NewRootStore_Container_downloadEntries_Results(s *capnp.Segment) (Store_Container_downloadEntries_Results, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Store_Container_downloadEntries_Results(st), err
+}
+
+func ReadRootStore_Container_downloadEntries_Results(msg *capnp.Message) (Store_Container_downloadEntries_Results, error) {
+	root, err := msg.Root()
+	return Store_Container_downloadEntries_Results(root.Struct()), err
+}
+
+func (s Store_Container_downloadEntries_Results) String() string {
+	str, _ := text.Marshal(0xffe4319ac401d166, capnp.Struct(s))
+	return str
+}
+
+func (s Store_Container_downloadEntries_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Store_Container_downloadEntries_Results) DecodeFromPtr(p capnp.Ptr) Store_Container_downloadEntries_Results {
+	return Store_Container_downloadEntries_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Store_Container_downloadEntries_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Store_Container_downloadEntries_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Store_Container_downloadEntries_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Store_Container_downloadEntries_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+func (s Store_Container_downloadEntries_Results) Entries() (common.Pair_List, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return common.Pair_List(p.List()), err
+}
+
+func (s Store_Container_downloadEntries_Results) HasEntries() bool {
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Store_Container_downloadEntries_Results) SetEntries(v common.Pair_List) error {
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+}
+
+// NewEntries sets the entries field to a newly
+// allocated common.Pair_List, preferring placement in s's segment.
+func (s Store_Container_downloadEntries_Results) NewEntries(n int32) (common.Pair_List, error) {
+	l, err := common.NewPair_List(capnp.Struct(s).Segment(), n)
+	if err != nil {
+		return common.Pair_List{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
 	return l, err
 }
 
-// Store_Container_listObjects_Results_List is a list of Store_Container_listObjects_Results.
-type Store_Container_listObjects_Results_List struct{ capnp.List }
+// Store_Container_downloadEntries_Results_List is a list of Store_Container_downloadEntries_Results.
+type Store_Container_downloadEntries_Results_List = capnp.StructList[Store_Container_downloadEntries_Results]
 
-// NewStore_Container_listObjects_Results creates a new list of Store_Container_listObjects_Results.
-func NewStore_Container_listObjects_Results_List(s *capnp.Segment, sz int32) (Store_Container_listObjects_Results_List, error) {
+// NewStore_Container_downloadEntries_Results creates a new list of Store_Container_downloadEntries_Results.
+func NewStore_Container_downloadEntries_Results_List(s *capnp.Segment, sz int32) (Store_Container_downloadEntries_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return Store_Container_listObjects_Results_List{l}, err
+	return capnp.StructList[Store_Container_downloadEntries_Results](l), err
 }
 
-func (s Store_Container_listObjects_Results_List) At(i int) Store_Container_listObjects_Results {
-	return Store_Container_listObjects_Results{s.List.Struct(i)}
+// Store_Container_downloadEntries_Results_Future is a wrapper for a Store_Container_downloadEntries_Results promised by a client call.
+type Store_Container_downloadEntries_Results_Future struct{ *capnp.Future }
+
+func (f Store_Container_downloadEntries_Results_Future) Struct() (Store_Container_downloadEntries_Results, error) {
+	p, err := f.Future.Ptr()
+	return Store_Container_downloadEntries_Results(p.Struct()), err
 }
 
-func (s Store_Container_listObjects_Results_List) Set(i int, v Store_Container_listObjects_Results) error {
-	return s.List.SetStruct(i, v.Struct)
+type Store_Container_listEntries_Params capnp.Struct
+
+// Store_Container_listEntries_Params_TypeID is the unique identifier for the type Store_Container_listEntries_Params.
+const Store_Container_listEntries_Params_TypeID = 0xdbf70a288c6933b1
+
+func NewStore_Container_listEntries_Params(s *capnp.Segment) (Store_Container_listEntries_Params, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	return Store_Container_listEntries_Params(st), err
 }
 
-func (s Store_Container_listObjects_Results_List) String() string {
-	str, _ := text.MarshalList(0xa028d3ba03083872, s.List)
-	return str
+func NewRootStore_Container_listEntries_Params(s *capnp.Segment) (Store_Container_listEntries_Params, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	return Store_Container_listEntries_Params(st), err
 }
 
-// Store_Container_listObjects_Results_Future is a wrapper for a Store_Container_listObjects_Results promised by a client call.
-type Store_Container_listObjects_Results_Future struct{ *capnp.Future }
-
-func (p Store_Container_listObjects_Results_Future) Struct() (Store_Container_listObjects_Results, error) {
-	s, err := p.Future.Struct()
-	return Store_Container_listObjects_Results{s}, err
-}
-
-type Store_Container_getObject_Params struct{ capnp.Struct }
-
-// Store_Container_getObject_Params_TypeID is the unique identifier for the type Store_Container_getObject_Params.
-const Store_Container_getObject_Params_TypeID = 0xc4161d5db43ad669
-
-func NewStore_Container_getObject_Params(s *capnp.Segment) (Store_Container_getObject_Params, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Store_Container_getObject_Params{st}, err
-}
-
-func NewRootStore_Container_getObject_Params(s *capnp.Segment) (Store_Container_getObject_Params, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Store_Container_getObject_Params{st}, err
-}
-
-func ReadRootStore_Container_getObject_Params(msg *capnp.Message) (Store_Container_getObject_Params, error) {
+func ReadRootStore_Container_listEntries_Params(msg *capnp.Message) (Store_Container_listEntries_Params, error) {
 	root, err := msg.Root()
-	return Store_Container_getObject_Params{root.Struct()}, err
+	return Store_Container_listEntries_Params(root.Struct()), err
 }
 
-func (s Store_Container_getObject_Params) String() string {
-	str, _ := text.Marshal(0xc4161d5db43ad669, s.Struct)
+func (s Store_Container_listEntries_Params) String() string {
+	str, _ := text.Marshal(0xdbf70a288c6933b1, capnp.Struct(s))
 	return str
 }
 
-func (s Store_Container_getObject_Params) Key() (string, error) {
-	p, err := s.Struct.Ptr(0)
+func (s Store_Container_listEntries_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Store_Container_listEntries_Params) DecodeFromPtr(p capnp.Ptr) Store_Container_listEntries_Params {
+	return Store_Container_listEntries_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Store_Container_listEntries_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Store_Container_listEntries_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Store_Container_listEntries_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Store_Container_listEntries_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+
+// Store_Container_listEntries_Params_List is a list of Store_Container_listEntries_Params.
+type Store_Container_listEntries_Params_List = capnp.StructList[Store_Container_listEntries_Params]
+
+// NewStore_Container_listEntries_Params creates a new list of Store_Container_listEntries_Params.
+func NewStore_Container_listEntries_Params_List(s *capnp.Segment, sz int32) (Store_Container_listEntries_Params_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
+	return capnp.StructList[Store_Container_listEntries_Params](l), err
+}
+
+// Store_Container_listEntries_Params_Future is a wrapper for a Store_Container_listEntries_Params promised by a client call.
+type Store_Container_listEntries_Params_Future struct{ *capnp.Future }
+
+func (f Store_Container_listEntries_Params_Future) Struct() (Store_Container_listEntries_Params, error) {
+	p, err := f.Future.Ptr()
+	return Store_Container_listEntries_Params(p.Struct()), err
+}
+
+type Store_Container_listEntries_Results capnp.Struct
+
+// Store_Container_listEntries_Results_TypeID is the unique identifier for the type Store_Container_listEntries_Results.
+const Store_Container_listEntries_Results_TypeID = 0xa028d3ba03083872
+
+func NewStore_Container_listEntries_Results(s *capnp.Segment) (Store_Container_listEntries_Results, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Store_Container_listEntries_Results(st), err
+}
+
+func NewRootStore_Container_listEntries_Results(s *capnp.Segment) (Store_Container_listEntries_Results, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Store_Container_listEntries_Results(st), err
+}
+
+func ReadRootStore_Container_listEntries_Results(msg *capnp.Message) (Store_Container_listEntries_Results, error) {
+	root, err := msg.Root()
+	return Store_Container_listEntries_Results(root.Struct()), err
+}
+
+func (s Store_Container_listEntries_Results) String() string {
+	str, _ := text.Marshal(0xa028d3ba03083872, capnp.Struct(s))
+	return str
+}
+
+func (s Store_Container_listEntries_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Store_Container_listEntries_Results) DecodeFromPtr(p capnp.Ptr) Store_Container_listEntries_Results {
+	return Store_Container_listEntries_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Store_Container_listEntries_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Store_Container_listEntries_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Store_Container_listEntries_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Store_Container_listEntries_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+func (s Store_Container_listEntries_Results) Entries() (Store_Container_Entry_List, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return Store_Container_Entry_List(p.List()), err
+}
+
+func (s Store_Container_listEntries_Results) HasEntries() bool {
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Store_Container_listEntries_Results) SetEntries(v Store_Container_Entry_List) error {
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+}
+
+// NewEntries sets the entries field to a newly
+// allocated Store_Container_Entry_List, preferring placement in s's segment.
+func (s Store_Container_listEntries_Results) NewEntries(n int32) (Store_Container_Entry_List, error) {
+	l, err := NewStore_Container_Entry_List(capnp.Struct(s).Segment(), n)
+	if err != nil {
+		return Store_Container_Entry_List{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	return l, err
+}
+
+// Store_Container_listEntries_Results_List is a list of Store_Container_listEntries_Results.
+type Store_Container_listEntries_Results_List = capnp.StructList[Store_Container_listEntries_Results]
+
+// NewStore_Container_listEntries_Results creates a new list of Store_Container_listEntries_Results.
+func NewStore_Container_listEntries_Results_List(s *capnp.Segment, sz int32) (Store_Container_listEntries_Results_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
+	return capnp.StructList[Store_Container_listEntries_Results](l), err
+}
+
+// Store_Container_listEntries_Results_Future is a wrapper for a Store_Container_listEntries_Results promised by a client call.
+type Store_Container_listEntries_Results_Future struct{ *capnp.Future }
+
+func (f Store_Container_listEntries_Results_Future) Struct() (Store_Container_listEntries_Results, error) {
+	p, err := f.Future.Ptr()
+	return Store_Container_listEntries_Results(p.Struct()), err
+}
+
+type Store_Container_getEntry_Params capnp.Struct
+
+// Store_Container_getEntry_Params_TypeID is the unique identifier for the type Store_Container_getEntry_Params.
+const Store_Container_getEntry_Params_TypeID = 0xc4161d5db43ad669
+
+func NewStore_Container_getEntry_Params(s *capnp.Segment) (Store_Container_getEntry_Params, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Store_Container_getEntry_Params(st), err
+}
+
+func NewRootStore_Container_getEntry_Params(s *capnp.Segment) (Store_Container_getEntry_Params, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Store_Container_getEntry_Params(st), err
+}
+
+func ReadRootStore_Container_getEntry_Params(msg *capnp.Message) (Store_Container_getEntry_Params, error) {
+	root, err := msg.Root()
+	return Store_Container_getEntry_Params(root.Struct()), err
+}
+
+func (s Store_Container_getEntry_Params) String() string {
+	str, _ := text.Marshal(0xc4161d5db43ad669, capnp.Struct(s))
+	return str
+}
+
+func (s Store_Container_getEntry_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Store_Container_getEntry_Params) DecodeFromPtr(p capnp.Ptr) Store_Container_getEntry_Params {
+	return Store_Container_getEntry_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Store_Container_getEntry_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Store_Container_getEntry_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Store_Container_getEntry_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Store_Container_getEntry_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+func (s Store_Container_getEntry_Params) Key() (string, error) {
+	p, err := capnp.Struct(s).Ptr(0)
 	return p.Text(), err
 }
 
-func (s Store_Container_getObject_Params) HasKey() bool {
-	return s.Struct.HasPtr(0)
+func (s Store_Container_getEntry_Params) HasKey() bool {
+	return capnp.Struct(s).HasPtr(0)
 }
 
-func (s Store_Container_getObject_Params) KeyBytes() ([]byte, error) {
-	p, err := s.Struct.Ptr(0)
+func (s Store_Container_getEntry_Params) KeyBytes() ([]byte, error) {
+	p, err := capnp.Struct(s).Ptr(0)
 	return p.TextBytes(), err
 }
 
-func (s Store_Container_getObject_Params) SetKey(v string) error {
-	return s.Struct.SetText(0, v)
+func (s Store_Container_getEntry_Params) SetKey(v string) error {
+	return capnp.Struct(s).SetText(0, v)
 }
 
-// Store_Container_getObject_Params_List is a list of Store_Container_getObject_Params.
-type Store_Container_getObject_Params_List struct{ capnp.List }
+// Store_Container_getEntry_Params_List is a list of Store_Container_getEntry_Params.
+type Store_Container_getEntry_Params_List = capnp.StructList[Store_Container_getEntry_Params]
 
-// NewStore_Container_getObject_Params creates a new list of Store_Container_getObject_Params.
-func NewStore_Container_getObject_Params_List(s *capnp.Segment, sz int32) (Store_Container_getObject_Params_List, error) {
+// NewStore_Container_getEntry_Params creates a new list of Store_Container_getEntry_Params.
+func NewStore_Container_getEntry_Params_List(s *capnp.Segment, sz int32) (Store_Container_getEntry_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return Store_Container_getObject_Params_List{l}, err
+	return capnp.StructList[Store_Container_getEntry_Params](l), err
 }
 
-func (s Store_Container_getObject_Params_List) At(i int) Store_Container_getObject_Params {
-	return Store_Container_getObject_Params{s.List.Struct(i)}
+// Store_Container_getEntry_Params_Future is a wrapper for a Store_Container_getEntry_Params promised by a client call.
+type Store_Container_getEntry_Params_Future struct{ *capnp.Future }
+
+func (f Store_Container_getEntry_Params_Future) Struct() (Store_Container_getEntry_Params, error) {
+	p, err := f.Future.Ptr()
+	return Store_Container_getEntry_Params(p.Struct()), err
 }
 
-func (s Store_Container_getObject_Params_List) Set(i int, v Store_Container_getObject_Params) error {
-	return s.List.SetStruct(i, v.Struct)
-}
+type Store_Container_getEntry_Results capnp.Struct
 
-func (s Store_Container_getObject_Params_List) String() string {
-	str, _ := text.MarshalList(0xc4161d5db43ad669, s.List)
-	return str
-}
+// Store_Container_getEntry_Results_TypeID is the unique identifier for the type Store_Container_getEntry_Results.
+const Store_Container_getEntry_Results_TypeID = 0x9bc1d764a970b846
 
-// Store_Container_getObject_Params_Future is a wrapper for a Store_Container_getObject_Params promised by a client call.
-type Store_Container_getObject_Params_Future struct{ *capnp.Future }
-
-func (p Store_Container_getObject_Params_Future) Struct() (Store_Container_getObject_Params, error) {
-	s, err := p.Future.Struct()
-	return Store_Container_getObject_Params{s}, err
-}
-
-type Store_Container_getObject_Results struct{ capnp.Struct }
-
-// Store_Container_getObject_Results_TypeID is the unique identifier for the type Store_Container_getObject_Results.
-const Store_Container_getObject_Results_TypeID = 0x9bc1d764a970b846
-
-func NewStore_Container_getObject_Results(s *capnp.Segment) (Store_Container_getObject_Results, error) {
+func NewStore_Container_getEntry_Results(s *capnp.Segment) (Store_Container_getEntry_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Store_Container_getObject_Results{st}, err
+	return Store_Container_getEntry_Results(st), err
 }
 
-func NewRootStore_Container_getObject_Results(s *capnp.Segment) (Store_Container_getObject_Results, error) {
+func NewRootStore_Container_getEntry_Results(s *capnp.Segment) (Store_Container_getEntry_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Store_Container_getObject_Results{st}, err
+	return Store_Container_getEntry_Results(st), err
 }
 
-func ReadRootStore_Container_getObject_Results(msg *capnp.Message) (Store_Container_getObject_Results, error) {
+func ReadRootStore_Container_getEntry_Results(msg *capnp.Message) (Store_Container_getEntry_Results, error) {
 	root, err := msg.Root()
-	return Store_Container_getObject_Results{root.Struct()}, err
+	return Store_Container_getEntry_Results(root.Struct()), err
 }
 
-func (s Store_Container_getObject_Results) String() string {
-	str, _ := text.Marshal(0x9bc1d764a970b846, s.Struct)
+func (s Store_Container_getEntry_Results) String() string {
+	str, _ := text.Marshal(0x9bc1d764a970b846, capnp.Struct(s))
 	return str
 }
 
-func (s Store_Container_getObject_Results) Object() (Store_Container_Object, error) {
-	p, err := s.Struct.Ptr(0)
-	return Store_Container_Object{Struct: p.Struct()}, err
+func (s Store_Container_getEntry_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
 }
 
-func (s Store_Container_getObject_Results) HasObject() bool {
-	return s.Struct.HasPtr(0)
+func (Store_Container_getEntry_Results) DecodeFromPtr(p capnp.Ptr) Store_Container_getEntry_Results {
+	return Store_Container_getEntry_Results(capnp.Struct{}.DecodeFromPtr(p))
 }
 
-func (s Store_Container_getObject_Results) SetObject(v Store_Container_Object) error {
-	return s.Struct.SetPtr(0, v.Struct.ToPtr())
+func (s Store_Container_getEntry_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Store_Container_getEntry_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
 }
 
-// NewObject sets the object field to a newly
-// allocated Store_Container_Object struct, preferring placement in s's segment.
-func (s Store_Container_getObject_Results) NewObject() (Store_Container_Object, error) {
-	ss, err := NewStore_Container_Object(s.Struct.Segment())
-	if err != nil {
-		return Store_Container_Object{}, err
+func (s Store_Container_getEntry_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Store_Container_getEntry_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+func (s Store_Container_getEntry_Results) Entry() Store_Container_Entry {
+	p, _ := capnp.Struct(s).Ptr(0)
+	return Store_Container_Entry(p.Interface().Client())
+}
+
+func (s Store_Container_getEntry_Results) HasEntry() bool {
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Store_Container_getEntry_Results) SetEntry(v Store_Container_Entry) error {
+	if !v.IsValid() {
+		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
-	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
-	return ss, err
+	seg := s.Segment()
+	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
-// Store_Container_getObject_Results_List is a list of Store_Container_getObject_Results.
-type Store_Container_getObject_Results_List struct{ capnp.List }
+// Store_Container_getEntry_Results_List is a list of Store_Container_getEntry_Results.
+type Store_Container_getEntry_Results_List = capnp.StructList[Store_Container_getEntry_Results]
 
-// NewStore_Container_getObject_Results creates a new list of Store_Container_getObject_Results.
-func NewStore_Container_getObject_Results_List(s *capnp.Segment, sz int32) (Store_Container_getObject_Results_List, error) {
+// NewStore_Container_getEntry_Results creates a new list of Store_Container_getEntry_Results.
+func NewStore_Container_getEntry_Results_List(s *capnp.Segment, sz int32) (Store_Container_getEntry_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return Store_Container_getObject_Results_List{l}, err
+	return capnp.StructList[Store_Container_getEntry_Results](l), err
 }
 
-func (s Store_Container_getObject_Results_List) At(i int) Store_Container_getObject_Results {
-	return Store_Container_getObject_Results{s.List.Struct(i)}
+// Store_Container_getEntry_Results_Future is a wrapper for a Store_Container_getEntry_Results promised by a client call.
+type Store_Container_getEntry_Results_Future struct{ *capnp.Future }
+
+func (f Store_Container_getEntry_Results_Future) Struct() (Store_Container_getEntry_Results, error) {
+	p, err := f.Future.Ptr()
+	return Store_Container_getEntry_Results(p.Struct()), err
+}
+func (p Store_Container_getEntry_Results_Future) Entry() Store_Container_Entry {
+	return Store_Container_Entry(p.Future.Field(0, nil).Client())
 }
 
-func (s Store_Container_getObject_Results_List) Set(i int, v Store_Container_getObject_Results) error {
-	return s.List.SetStruct(i, v.Struct)
-}
+type Store_Container_removeEntry_Params capnp.Struct
 
-func (s Store_Container_getObject_Results_List) String() string {
-	str, _ := text.MarshalList(0x9bc1d764a970b846, s.List)
-	return str
-}
+// Store_Container_removeEntry_Params_TypeID is the unique identifier for the type Store_Container_removeEntry_Params.
+const Store_Container_removeEntry_Params_TypeID = 0xfde99170b27ac5ce
 
-// Store_Container_getObject_Results_Future is a wrapper for a Store_Container_getObject_Results promised by a client call.
-type Store_Container_getObject_Results_Future struct{ *capnp.Future }
-
-func (p Store_Container_getObject_Results_Future) Struct() (Store_Container_getObject_Results, error) {
-	s, err := p.Future.Struct()
-	return Store_Container_getObject_Results{s}, err
-}
-
-func (p Store_Container_getObject_Results_Future) Object() Store_Container_Object_Future {
-	return Store_Container_Object_Future{Future: p.Future.Field(0, nil)}
-}
-
-type Store_Container_addObject_Params struct{ capnp.Struct }
-
-// Store_Container_addObject_Params_TypeID is the unique identifier for the type Store_Container_addObject_Params.
-const Store_Container_addObject_Params_TypeID = 0xfde99170b27ac5ce
-
-func NewStore_Container_addObject_Params(s *capnp.Segment) (Store_Container_addObject_Params, error) {
+func NewStore_Container_removeEntry_Params(s *capnp.Segment) (Store_Container_removeEntry_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Store_Container_addObject_Params{st}, err
+	return Store_Container_removeEntry_Params(st), err
 }
 
-func NewRootStore_Container_addObject_Params(s *capnp.Segment) (Store_Container_addObject_Params, error) {
+func NewRootStore_Container_removeEntry_Params(s *capnp.Segment) (Store_Container_removeEntry_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Store_Container_addObject_Params{st}, err
+	return Store_Container_removeEntry_Params(st), err
 }
 
-func ReadRootStore_Container_addObject_Params(msg *capnp.Message) (Store_Container_addObject_Params, error) {
+func ReadRootStore_Container_removeEntry_Params(msg *capnp.Message) (Store_Container_removeEntry_Params, error) {
 	root, err := msg.Root()
-	return Store_Container_addObject_Params{root.Struct()}, err
+	return Store_Container_removeEntry_Params(root.Struct()), err
 }
 
-func (s Store_Container_addObject_Params) String() string {
-	str, _ := text.Marshal(0xfde99170b27ac5ce, s.Struct)
+func (s Store_Container_removeEntry_Params) String() string {
+	str, _ := text.Marshal(0xfde99170b27ac5ce, capnp.Struct(s))
 	return str
 }
 
-func (s Store_Container_addObject_Params) Object() (Store_Container_Object, error) {
-	p, err := s.Struct.Ptr(0)
-	return Store_Container_Object{Struct: p.Struct()}, err
+func (s Store_Container_removeEntry_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
 }
 
-func (s Store_Container_addObject_Params) HasObject() bool {
-	return s.Struct.HasPtr(0)
+func (Store_Container_removeEntry_Params) DecodeFromPtr(p capnp.Ptr) Store_Container_removeEntry_Params {
+	return Store_Container_removeEntry_Params(capnp.Struct{}.DecodeFromPtr(p))
 }
 
-func (s Store_Container_addObject_Params) SetObject(v Store_Container_Object) error {
-	return s.Struct.SetPtr(0, v.Struct.ToPtr())
+func (s Store_Container_removeEntry_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Store_Container_removeEntry_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
 }
 
-// NewObject sets the object field to a newly
-// allocated Store_Container_Object struct, preferring placement in s's segment.
-func (s Store_Container_addObject_Params) NewObject() (Store_Container_Object, error) {
-	ss, err := NewStore_Container_Object(s.Struct.Segment())
-	if err != nil {
-		return Store_Container_Object{}, err
-	}
-	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
-	return ss, err
+func (s Store_Container_removeEntry_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
 }
 
-// Store_Container_addObject_Params_List is a list of Store_Container_addObject_Params.
-type Store_Container_addObject_Params_List struct{ capnp.List }
-
-// NewStore_Container_addObject_Params creates a new list of Store_Container_addObject_Params.
-func NewStore_Container_addObject_Params_List(s *capnp.Segment, sz int32) (Store_Container_addObject_Params_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return Store_Container_addObject_Params_List{l}, err
+func (s Store_Container_removeEntry_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
 }
-
-func (s Store_Container_addObject_Params_List) At(i int) Store_Container_addObject_Params {
-	return Store_Container_addObject_Params{s.List.Struct(i)}
-}
-
-func (s Store_Container_addObject_Params_List) Set(i int, v Store_Container_addObject_Params) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Store_Container_addObject_Params_List) String() string {
-	str, _ := text.MarshalList(0xfde99170b27ac5ce, s.List)
-	return str
-}
-
-// Store_Container_addObject_Params_Future is a wrapper for a Store_Container_addObject_Params promised by a client call.
-type Store_Container_addObject_Params_Future struct{ *capnp.Future }
-
-func (p Store_Container_addObject_Params_Future) Struct() (Store_Container_addObject_Params, error) {
-	s, err := p.Future.Struct()
-	return Store_Container_addObject_Params{s}, err
-}
-
-func (p Store_Container_addObject_Params_Future) Object() Store_Container_Object_Future {
-	return Store_Container_Object_Future{Future: p.Future.Field(0, nil)}
-}
-
-type Store_Container_addObject_Results struct{ capnp.Struct }
-
-// Store_Container_addObject_Results_TypeID is the unique identifier for the type Store_Container_addObject_Results.
-const Store_Container_addObject_Results_TypeID = 0xfbd938c95f64b7bf
-
-func NewStore_Container_addObject_Results(s *capnp.Segment) (Store_Container_addObject_Results, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Store_Container_addObject_Results{st}, err
-}
-
-func NewRootStore_Container_addObject_Results(s *capnp.Segment) (Store_Container_addObject_Results, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Store_Container_addObject_Results{st}, err
-}
-
-func ReadRootStore_Container_addObject_Results(msg *capnp.Message) (Store_Container_addObject_Results, error) {
-	root, err := msg.Root()
-	return Store_Container_addObject_Results{root.Struct()}, err
-}
-
-func (s Store_Container_addObject_Results) String() string {
-	str, _ := text.Marshal(0xfbd938c95f64b7bf, s.Struct)
-	return str
-}
-
-func (s Store_Container_addObject_Results) Success() bool {
-	return s.Struct.Bit(0)
-}
-
-func (s Store_Container_addObject_Results) SetSuccess(v bool) {
-	s.Struct.SetBit(0, v)
-}
-
-// Store_Container_addObject_Results_List is a list of Store_Container_addObject_Results.
-type Store_Container_addObject_Results_List struct{ capnp.List }
-
-// NewStore_Container_addObject_Results creates a new list of Store_Container_addObject_Results.
-func NewStore_Container_addObject_Results_List(s *capnp.Segment, sz int32) (Store_Container_addObject_Results_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0}, sz)
-	return Store_Container_addObject_Results_List{l}, err
-}
-
-func (s Store_Container_addObject_Results_List) At(i int) Store_Container_addObject_Results {
-	return Store_Container_addObject_Results{s.List.Struct(i)}
-}
-
-func (s Store_Container_addObject_Results_List) Set(i int, v Store_Container_addObject_Results) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Store_Container_addObject_Results_List) String() string {
-	str, _ := text.MarshalList(0xfbd938c95f64b7bf, s.List)
-	return str
-}
-
-// Store_Container_addObject_Results_Future is a wrapper for a Store_Container_addObject_Results promised by a client call.
-type Store_Container_addObject_Results_Future struct{ *capnp.Future }
-
-func (p Store_Container_addObject_Results_Future) Struct() (Store_Container_addObject_Results, error) {
-	s, err := p.Future.Struct()
-	return Store_Container_addObject_Results{s}, err
-}
-
-type Store_Container_removeObject_Params struct{ capnp.Struct }
-
-// Store_Container_removeObject_Params_TypeID is the unique identifier for the type Store_Container_removeObject_Params.
-const Store_Container_removeObject_Params_TypeID = 0xc31c71f8d67b827b
-
-func NewStore_Container_removeObject_Params(s *capnp.Segment) (Store_Container_removeObject_Params, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Store_Container_removeObject_Params{st}, err
-}
-
-func NewRootStore_Container_removeObject_Params(s *capnp.Segment) (Store_Container_removeObject_Params, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Store_Container_removeObject_Params{st}, err
-}
-
-func ReadRootStore_Container_removeObject_Params(msg *capnp.Message) (Store_Container_removeObject_Params, error) {
-	root, err := msg.Root()
-	return Store_Container_removeObject_Params{root.Struct()}, err
-}
-
-func (s Store_Container_removeObject_Params) String() string {
-	str, _ := text.Marshal(0xc31c71f8d67b827b, s.Struct)
-	return str
-}
-
-func (s Store_Container_removeObject_Params) Key() (string, error) {
-	p, err := s.Struct.Ptr(0)
+func (s Store_Container_removeEntry_Params) Key() (string, error) {
+	p, err := capnp.Struct(s).Ptr(0)
 	return p.Text(), err
 }
 
-func (s Store_Container_removeObject_Params) HasKey() bool {
-	return s.Struct.HasPtr(0)
+func (s Store_Container_removeEntry_Params) HasKey() bool {
+	return capnp.Struct(s).HasPtr(0)
 }
 
-func (s Store_Container_removeObject_Params) KeyBytes() ([]byte, error) {
-	p, err := s.Struct.Ptr(0)
+func (s Store_Container_removeEntry_Params) KeyBytes() ([]byte, error) {
+	p, err := capnp.Struct(s).Ptr(0)
 	return p.TextBytes(), err
 }
 
-func (s Store_Container_removeObject_Params) SetKey(v string) error {
-	return s.Struct.SetText(0, v)
+func (s Store_Container_removeEntry_Params) SetKey(v string) error {
+	return capnp.Struct(s).SetText(0, v)
 }
 
-// Store_Container_removeObject_Params_List is a list of Store_Container_removeObject_Params.
-type Store_Container_removeObject_Params_List struct{ capnp.List }
+// Store_Container_removeEntry_Params_List is a list of Store_Container_removeEntry_Params.
+type Store_Container_removeEntry_Params_List = capnp.StructList[Store_Container_removeEntry_Params]
 
-// NewStore_Container_removeObject_Params creates a new list of Store_Container_removeObject_Params.
-func NewStore_Container_removeObject_Params_List(s *capnp.Segment, sz int32) (Store_Container_removeObject_Params_List, error) {
+// NewStore_Container_removeEntry_Params creates a new list of Store_Container_removeEntry_Params.
+func NewStore_Container_removeEntry_Params_List(s *capnp.Segment, sz int32) (Store_Container_removeEntry_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return Store_Container_removeObject_Params_List{l}, err
+	return capnp.StructList[Store_Container_removeEntry_Params](l), err
 }
 
-func (s Store_Container_removeObject_Params_List) At(i int) Store_Container_removeObject_Params {
-	return Store_Container_removeObject_Params{s.List.Struct(i)}
+// Store_Container_removeEntry_Params_Future is a wrapper for a Store_Container_removeEntry_Params promised by a client call.
+type Store_Container_removeEntry_Params_Future struct{ *capnp.Future }
+
+func (f Store_Container_removeEntry_Params_Future) Struct() (Store_Container_removeEntry_Params, error) {
+	p, err := f.Future.Ptr()
+	return Store_Container_removeEntry_Params(p.Struct()), err
 }
 
-func (s Store_Container_removeObject_Params_List) Set(i int, v Store_Container_removeObject_Params) error {
-	return s.List.SetStruct(i, v.Struct)
-}
+type Store_Container_removeEntry_Results capnp.Struct
 
-func (s Store_Container_removeObject_Params_List) String() string {
-	str, _ := text.MarshalList(0xc31c71f8d67b827b, s.List)
-	return str
-}
+// Store_Container_removeEntry_Results_TypeID is the unique identifier for the type Store_Container_removeEntry_Results.
+const Store_Container_removeEntry_Results_TypeID = 0xfbd938c95f64b7bf
 
-// Store_Container_removeObject_Params_Future is a wrapper for a Store_Container_removeObject_Params promised by a client call.
-type Store_Container_removeObject_Params_Future struct{ *capnp.Future }
-
-func (p Store_Container_removeObject_Params_Future) Struct() (Store_Container_removeObject_Params, error) {
-	s, err := p.Future.Struct()
-	return Store_Container_removeObject_Params{s}, err
-}
-
-type Store_Container_removeObject_Results struct{ capnp.Struct }
-
-// Store_Container_removeObject_Results_TypeID is the unique identifier for the type Store_Container_removeObject_Results.
-const Store_Container_removeObject_Results_TypeID = 0xeb6f27dfc29bffad
-
-func NewStore_Container_removeObject_Results(s *capnp.Segment) (Store_Container_removeObject_Results, error) {
+func NewStore_Container_removeEntry_Results(s *capnp.Segment) (Store_Container_removeEntry_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Store_Container_removeObject_Results{st}, err
+	return Store_Container_removeEntry_Results(st), err
 }
 
-func NewRootStore_Container_removeObject_Results(s *capnp.Segment) (Store_Container_removeObject_Results, error) {
+func NewRootStore_Container_removeEntry_Results(s *capnp.Segment) (Store_Container_removeEntry_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Store_Container_removeObject_Results{st}, err
+	return Store_Container_removeEntry_Results(st), err
 }
 
-func ReadRootStore_Container_removeObject_Results(msg *capnp.Message) (Store_Container_removeObject_Results, error) {
+func ReadRootStore_Container_removeEntry_Results(msg *capnp.Message) (Store_Container_removeEntry_Results, error) {
 	root, err := msg.Root()
-	return Store_Container_removeObject_Results{root.Struct()}, err
+	return Store_Container_removeEntry_Results(root.Struct()), err
 }
 
-func (s Store_Container_removeObject_Results) String() string {
-	str, _ := text.Marshal(0xeb6f27dfc29bffad, s.Struct)
+func (s Store_Container_removeEntry_Results) String() string {
+	str, _ := text.Marshal(0xfbd938c95f64b7bf, capnp.Struct(s))
 	return str
 }
 
-func (s Store_Container_removeObject_Results) Success() bool {
-	return s.Struct.Bit(0)
+func (s Store_Container_removeEntry_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
 }
 
-func (s Store_Container_removeObject_Results) SetSuccess(v bool) {
-	s.Struct.SetBit(0, v)
+func (Store_Container_removeEntry_Results) DecodeFromPtr(p capnp.Ptr) Store_Container_removeEntry_Results {
+	return Store_Container_removeEntry_Results(capnp.Struct{}.DecodeFromPtr(p))
 }
 
-// Store_Container_removeObject_Results_List is a list of Store_Container_removeObject_Results.
-type Store_Container_removeObject_Results_List struct{ capnp.List }
+func (s Store_Container_removeEntry_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Store_Container_removeEntry_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
 
-// NewStore_Container_removeObject_Results creates a new list of Store_Container_removeObject_Results.
-func NewStore_Container_removeObject_Results_List(s *capnp.Segment, sz int32) (Store_Container_removeObject_Results_List, error) {
+func (s Store_Container_removeEntry_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Store_Container_removeEntry_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+func (s Store_Container_removeEntry_Results) Success() bool {
+	return capnp.Struct(s).Bit(0)
+}
+
+func (s Store_Container_removeEntry_Results) SetSuccess(v bool) {
+	capnp.Struct(s).SetBit(0, v)
+}
+
+// Store_Container_removeEntry_Results_List is a list of Store_Container_removeEntry_Results.
+type Store_Container_removeEntry_Results_List = capnp.StructList[Store_Container_removeEntry_Results]
+
+// NewStore_Container_removeEntry_Results creates a new list of Store_Container_removeEntry_Results.
+func NewStore_Container_removeEntry_Results_List(s *capnp.Segment, sz int32) (Store_Container_removeEntry_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0}, sz)
-	return Store_Container_removeObject_Results_List{l}, err
+	return capnp.StructList[Store_Container_removeEntry_Results](l), err
 }
 
-func (s Store_Container_removeObject_Results_List) At(i int) Store_Container_removeObject_Results {
-	return Store_Container_removeObject_Results{s.List.Struct(i)}
+// Store_Container_removeEntry_Results_Future is a wrapper for a Store_Container_removeEntry_Results promised by a client call.
+type Store_Container_removeEntry_Results_Future struct{ *capnp.Future }
+
+func (f Store_Container_removeEntry_Results_Future) Struct() (Store_Container_removeEntry_Results, error) {
+	p, err := f.Future.Ptr()
+	return Store_Container_removeEntry_Results(p.Struct()), err
 }
 
-func (s Store_Container_removeObject_Results_List) Set(i int, v Store_Container_removeObject_Results) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Store_Container_removeObject_Results_List) String() string {
-	str, _ := text.MarshalList(0xeb6f27dfc29bffad, s.List)
-	return str
-}
-
-// Store_Container_removeObject_Results_Future is a wrapper for a Store_Container_removeObject_Results promised by a client call.
-type Store_Container_removeObject_Results_Future struct{ *capnp.Future }
-
-func (p Store_Container_removeObject_Results_Future) Struct() (Store_Container_removeObject_Results, error) {
-	s, err := p.Future.Struct()
-	return Store_Container_removeObject_Results{s}, err
-}
-
-type Store_Container_clear_Params struct{ capnp.Struct }
+type Store_Container_clear_Params capnp.Struct
 
 // Store_Container_clear_Params_TypeID is the unique identifier for the type Store_Container_clear_Params.
-const Store_Container_clear_Params_TypeID = 0xfbef00fded9c8312
+const Store_Container_clear_Params_TypeID = 0xc31c71f8d67b827b
 
 func NewStore_Container_clear_Params(s *capnp.Segment) (Store_Container_clear_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Store_Container_clear_Params{st}, err
+	return Store_Container_clear_Params(st), err
 }
 
 func NewRootStore_Container_clear_Params(s *capnp.Segment) (Store_Container_clear_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Store_Container_clear_Params{st}, err
+	return Store_Container_clear_Params(st), err
 }
 
 func ReadRootStore_Container_clear_Params(msg *capnp.Message) (Store_Container_clear_Params, error) {
 	root, err := msg.Root()
-	return Store_Container_clear_Params{root.Struct()}, err
+	return Store_Container_clear_Params(root.Struct()), err
 }
 
 func (s Store_Container_clear_Params) String() string {
-	str, _ := text.Marshal(0xfbef00fded9c8312, s.Struct)
+	str, _ := text.Marshal(0xc31c71f8d67b827b, capnp.Struct(s))
 	return str
 }
 
+func (s Store_Container_clear_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Store_Container_clear_Params) DecodeFromPtr(p capnp.Ptr) Store_Container_clear_Params {
+	return Store_Container_clear_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Store_Container_clear_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Store_Container_clear_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Store_Container_clear_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Store_Container_clear_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+
 // Store_Container_clear_Params_List is a list of Store_Container_clear_Params.
-type Store_Container_clear_Params_List struct{ capnp.List }
+type Store_Container_clear_Params_List = capnp.StructList[Store_Container_clear_Params]
 
 // NewStore_Container_clear_Params creates a new list of Store_Container_clear_Params.
 func NewStore_Container_clear_Params_List(s *capnp.Segment, sz int32) (Store_Container_clear_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return Store_Container_clear_Params_List{l}, err
-}
-
-func (s Store_Container_clear_Params_List) At(i int) Store_Container_clear_Params {
-	return Store_Container_clear_Params{s.List.Struct(i)}
-}
-
-func (s Store_Container_clear_Params_List) Set(i int, v Store_Container_clear_Params) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Store_Container_clear_Params_List) String() string {
-	str, _ := text.MarshalList(0xfbef00fded9c8312, s.List)
-	return str
+	return capnp.StructList[Store_Container_clear_Params](l), err
 }
 
 // Store_Container_clear_Params_Future is a wrapper for a Store_Container_clear_Params promised by a client call.
 type Store_Container_clear_Params_Future struct{ *capnp.Future }
 
-func (p Store_Container_clear_Params_Future) Struct() (Store_Container_clear_Params, error) {
-	s, err := p.Future.Struct()
-	return Store_Container_clear_Params{s}, err
+func (f Store_Container_clear_Params_Future) Struct() (Store_Container_clear_Params, error) {
+	p, err := f.Future.Ptr()
+	return Store_Container_clear_Params(p.Struct()), err
 }
 
-type Store_Container_clear_Results struct{ capnp.Struct }
+type Store_Container_clear_Results capnp.Struct
 
 // Store_Container_clear_Results_TypeID is the unique identifier for the type Store_Container_clear_Results.
-const Store_Container_clear_Results_TypeID = 0x883b57737fba9e54
+const Store_Container_clear_Results_TypeID = 0xeb6f27dfc29bffad
 
 func NewStore_Container_clear_Results(s *capnp.Segment) (Store_Container_clear_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Store_Container_clear_Results{st}, err
+	return Store_Container_clear_Results(st), err
 }
 
 func NewRootStore_Container_clear_Results(s *capnp.Segment) (Store_Container_clear_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Store_Container_clear_Results{st}, err
+	return Store_Container_clear_Results(st), err
 }
 
 func ReadRootStore_Container_clear_Results(msg *capnp.Message) (Store_Container_clear_Results, error) {
 	root, err := msg.Root()
-	return Store_Container_clear_Results{root.Struct()}, err
+	return Store_Container_clear_Results(root.Struct()), err
 }
 
 func (s Store_Container_clear_Results) String() string {
-	str, _ := text.Marshal(0x883b57737fba9e54, s.Struct)
+	str, _ := text.Marshal(0xeb6f27dfc29bffad, capnp.Struct(s))
 	return str
 }
 
+func (s Store_Container_clear_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Store_Container_clear_Results) DecodeFromPtr(p capnp.Ptr) Store_Container_clear_Results {
+	return Store_Container_clear_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Store_Container_clear_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Store_Container_clear_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Store_Container_clear_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Store_Container_clear_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Store_Container_clear_Results) Success() bool {
-	return s.Struct.Bit(0)
+	return capnp.Struct(s).Bit(0)
 }
 
 func (s Store_Container_clear_Results) SetSuccess(v bool) {
-	s.Struct.SetBit(0, v)
+	capnp.Struct(s).SetBit(0, v)
 }
 
 // Store_Container_clear_Results_List is a list of Store_Container_clear_Results.
-type Store_Container_clear_Results_List struct{ capnp.List }
+type Store_Container_clear_Results_List = capnp.StructList[Store_Container_clear_Results]
 
 // NewStore_Container_clear_Results creates a new list of Store_Container_clear_Results.
 func NewStore_Container_clear_Results_List(s *capnp.Segment, sz int32) (Store_Container_clear_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0}, sz)
-	return Store_Container_clear_Results_List{l}, err
-}
-
-func (s Store_Container_clear_Results_List) At(i int) Store_Container_clear_Results {
-	return Store_Container_clear_Results{s.List.Struct(i)}
-}
-
-func (s Store_Container_clear_Results_List) Set(i int, v Store_Container_clear_Results) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Store_Container_clear_Results_List) String() string {
-	str, _ := text.MarshalList(0x883b57737fba9e54, s.List)
-	return str
+	return capnp.StructList[Store_Container_clear_Results](l), err
 }
 
 // Store_Container_clear_Results_Future is a wrapper for a Store_Container_clear_Results promised by a client call.
 type Store_Container_clear_Results_Future struct{ *capnp.Future }
 
-func (p Store_Container_clear_Results_Future) Struct() (Store_Container_clear_Results, error) {
-	s, err := p.Future.Struct()
-	return Store_Container_clear_Results{s}, err
+func (f Store_Container_clear_Results_Future) Struct() (Store_Container_clear_Results, error) {
+	p, err := f.Future.Ptr()
+	return Store_Container_clear_Results(p.Struct()), err
 }
 
-type Store_newContainer_Results struct{ capnp.Struct }
+type Store_Container_addEntry_Params capnp.Struct
+
+// Store_Container_addEntry_Params_TypeID is the unique identifier for the type Store_Container_addEntry_Params.
+const Store_Container_addEntry_Params_TypeID = 0xfbef00fded9c8312
+
+func NewStore_Container_addEntry_Params(s *capnp.Segment) (Store_Container_addEntry_Params, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 2})
+	return Store_Container_addEntry_Params(st), err
+}
+
+func NewRootStore_Container_addEntry_Params(s *capnp.Segment) (Store_Container_addEntry_Params, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 2})
+	return Store_Container_addEntry_Params(st), err
+}
+
+func ReadRootStore_Container_addEntry_Params(msg *capnp.Message) (Store_Container_addEntry_Params, error) {
+	root, err := msg.Root()
+	return Store_Container_addEntry_Params(root.Struct()), err
+}
+
+func (s Store_Container_addEntry_Params) String() string {
+	str, _ := text.Marshal(0xfbef00fded9c8312, capnp.Struct(s))
+	return str
+}
+
+func (s Store_Container_addEntry_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Store_Container_addEntry_Params) DecodeFromPtr(p capnp.Ptr) Store_Container_addEntry_Params {
+	return Store_Container_addEntry_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Store_Container_addEntry_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Store_Container_addEntry_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Store_Container_addEntry_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Store_Container_addEntry_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+func (s Store_Container_addEntry_Params) Key() (string, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return p.Text(), err
+}
+
+func (s Store_Container_addEntry_Params) HasKey() bool {
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Store_Container_addEntry_Params) KeyBytes() ([]byte, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return p.TextBytes(), err
+}
+
+func (s Store_Container_addEntry_Params) SetKey(v string) error {
+	return capnp.Struct(s).SetText(0, v)
+}
+
+func (s Store_Container_addEntry_Params) Value() (Store_Container_Entry_Value, error) {
+	p, err := capnp.Struct(s).Ptr(1)
+	return Store_Container_Entry_Value(p.Struct()), err
+}
+
+func (s Store_Container_addEntry_Params) HasValue() bool {
+	return capnp.Struct(s).HasPtr(1)
+}
+
+func (s Store_Container_addEntry_Params) SetValue(v Store_Container_Entry_Value) error {
+	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
+}
+
+// NewValue sets the value field to a newly
+// allocated Store_Container_Entry_Value struct, preferring placement in s's segment.
+func (s Store_Container_addEntry_Params) NewValue() (Store_Container_Entry_Value, error) {
+	ss, err := NewStore_Container_Entry_Value(capnp.Struct(s).Segment())
+	if err != nil {
+		return Store_Container_Entry_Value{}, err
+	}
+	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
+	return ss, err
+}
+
+func (s Store_Container_addEntry_Params) ReplaceExisting() bool {
+	return capnp.Struct(s).Bit(0)
+}
+
+func (s Store_Container_addEntry_Params) SetReplaceExisting(v bool) {
+	capnp.Struct(s).SetBit(0, v)
+}
+
+// Store_Container_addEntry_Params_List is a list of Store_Container_addEntry_Params.
+type Store_Container_addEntry_Params_List = capnp.StructList[Store_Container_addEntry_Params]
+
+// NewStore_Container_addEntry_Params creates a new list of Store_Container_addEntry_Params.
+func NewStore_Container_addEntry_Params_List(s *capnp.Segment, sz int32) (Store_Container_addEntry_Params_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 2}, sz)
+	return capnp.StructList[Store_Container_addEntry_Params](l), err
+}
+
+// Store_Container_addEntry_Params_Future is a wrapper for a Store_Container_addEntry_Params promised by a client call.
+type Store_Container_addEntry_Params_Future struct{ *capnp.Future }
+
+func (f Store_Container_addEntry_Params_Future) Struct() (Store_Container_addEntry_Params, error) {
+	p, err := f.Future.Ptr()
+	return Store_Container_addEntry_Params(p.Struct()), err
+}
+func (p Store_Container_addEntry_Params_Future) Value() Store_Container_Entry_Value_Future {
+	return Store_Container_Entry_Value_Future{Future: p.Future.Field(1, nil)}
+}
+
+type Store_Container_addEntry_Results capnp.Struct
+
+// Store_Container_addEntry_Results_TypeID is the unique identifier for the type Store_Container_addEntry_Results.
+const Store_Container_addEntry_Results_TypeID = 0x883b57737fba9e54
+
+func NewStore_Container_addEntry_Results(s *capnp.Segment) (Store_Container_addEntry_Results, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
+	return Store_Container_addEntry_Results(st), err
+}
+
+func NewRootStore_Container_addEntry_Results(s *capnp.Segment) (Store_Container_addEntry_Results, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
+	return Store_Container_addEntry_Results(st), err
+}
+
+func ReadRootStore_Container_addEntry_Results(msg *capnp.Message) (Store_Container_addEntry_Results, error) {
+	root, err := msg.Root()
+	return Store_Container_addEntry_Results(root.Struct()), err
+}
+
+func (s Store_Container_addEntry_Results) String() string {
+	str, _ := text.Marshal(0x883b57737fba9e54, capnp.Struct(s))
+	return str
+}
+
+func (s Store_Container_addEntry_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Store_Container_addEntry_Results) DecodeFromPtr(p capnp.Ptr) Store_Container_addEntry_Results {
+	return Store_Container_addEntry_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Store_Container_addEntry_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Store_Container_addEntry_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Store_Container_addEntry_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Store_Container_addEntry_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+func (s Store_Container_addEntry_Results) Entry() Store_Container_Entry {
+	p, _ := capnp.Struct(s).Ptr(0)
+	return Store_Container_Entry(p.Interface().Client())
+}
+
+func (s Store_Container_addEntry_Results) HasEntry() bool {
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Store_Container_addEntry_Results) SetEntry(v Store_Container_Entry) error {
+	if !v.IsValid() {
+		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
+	}
+	seg := s.Segment()
+	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	return capnp.Struct(s).SetPtr(0, in.ToPtr())
+}
+
+func (s Store_Container_addEntry_Results) Success() bool {
+	return capnp.Struct(s).Bit(0)
+}
+
+func (s Store_Container_addEntry_Results) SetSuccess(v bool) {
+	capnp.Struct(s).SetBit(0, v)
+}
+
+// Store_Container_addEntry_Results_List is a list of Store_Container_addEntry_Results.
+type Store_Container_addEntry_Results_List = capnp.StructList[Store_Container_addEntry_Results]
+
+// NewStore_Container_addEntry_Results creates a new list of Store_Container_addEntry_Results.
+func NewStore_Container_addEntry_Results_List(s *capnp.Segment, sz int32) (Store_Container_addEntry_Results_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1}, sz)
+	return capnp.StructList[Store_Container_addEntry_Results](l), err
+}
+
+// Store_Container_addEntry_Results_Future is a wrapper for a Store_Container_addEntry_Results promised by a client call.
+type Store_Container_addEntry_Results_Future struct{ *capnp.Future }
+
+func (f Store_Container_addEntry_Results_Future) Struct() (Store_Container_addEntry_Results, error) {
+	p, err := f.Future.Ptr()
+	return Store_Container_addEntry_Results(p.Struct()), err
+}
+func (p Store_Container_addEntry_Results_Future) Entry() Store_Container_Entry {
+	return Store_Container_Entry(p.Future.Field(0, nil).Client())
+}
+
+type Store_ImportExportData capnp.Struct
+
+// Store_ImportExportData_TypeID is the unique identifier for the type Store_ImportExportData.
+const Store_ImportExportData_TypeID = 0x847d262cefd2f142
+
+func NewStore_ImportExportData(s *capnp.Segment) (Store_ImportExportData, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 3})
+	return Store_ImportExportData(st), err
+}
+
+func NewRootStore_ImportExportData(s *capnp.Segment) (Store_ImportExportData, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 3})
+	return Store_ImportExportData(st), err
+}
+
+func ReadRootStore_ImportExportData(msg *capnp.Message) (Store_ImportExportData, error) {
+	root, err := msg.Root()
+	return Store_ImportExportData(root.Struct()), err
+}
+
+func (s Store_ImportExportData) String() string {
+	str, _ := text.Marshal(0x847d262cefd2f142, capnp.Struct(s))
+	return str
+}
+
+func (s Store_ImportExportData) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Store_ImportExportData) DecodeFromPtr(p capnp.Ptr) Store_ImportExportData {
+	return Store_ImportExportData(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Store_ImportExportData) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Store_ImportExportData) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Store_ImportExportData) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Store_ImportExportData) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+func (s Store_ImportExportData) Info() (common.IdInformation, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return common.IdInformation(p.Struct()), err
+}
+
+func (s Store_ImportExportData) HasInfo() bool {
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Store_ImportExportData) SetInfo(v common.IdInformation) error {
+	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+}
+
+// NewInfo sets the info field to a newly
+// allocated common.IdInformation struct, preferring placement in s's segment.
+func (s Store_ImportExportData) NewInfo() (common.IdInformation, error) {
+	ss, err := common.NewIdInformation(capnp.Struct(s).Segment())
+	if err != nil {
+		return common.IdInformation{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	return ss, err
+}
+
+func (s Store_ImportExportData) Entries() (common.Pair_List, error) {
+	p, err := capnp.Struct(s).Ptr(1)
+	return common.Pair_List(p.List()), err
+}
+
+func (s Store_ImportExportData) HasEntries() bool {
+	return capnp.Struct(s).HasPtr(1)
+}
+
+func (s Store_ImportExportData) SetEntries(v common.Pair_List) error {
+	return capnp.Struct(s).SetPtr(1, v.ToPtr())
+}
+
+// NewEntries sets the entries field to a newly
+// allocated common.Pair_List, preferring placement in s's segment.
+func (s Store_ImportExportData) NewEntries(n int32) (common.Pair_List, error) {
+	l, err := common.NewPair_List(capnp.Struct(s).Segment(), n)
+	if err != nil {
+		return common.Pair_List{}, err
+	}
+	err = capnp.Struct(s).SetPtr(1, l.ToPtr())
+	return l, err
+}
+func (s Store_ImportExportData) IsAnyValue() (capnp.BitList, error) {
+	p, err := capnp.Struct(s).Ptr(2)
+	return capnp.BitList(p.List()), err
+}
+
+func (s Store_ImportExportData) HasIsAnyValue() bool {
+	return capnp.Struct(s).HasPtr(2)
+}
+
+func (s Store_ImportExportData) SetIsAnyValue(v capnp.BitList) error {
+	return capnp.Struct(s).SetPtr(2, v.ToPtr())
+}
+
+// NewIsAnyValue sets the isAnyValue field to a newly
+// allocated capnp.BitList, preferring placement in s's segment.
+func (s Store_ImportExportData) NewIsAnyValue(n int32) (capnp.BitList, error) {
+	l, err := capnp.NewBitList(capnp.Struct(s).Segment(), n)
+	if err != nil {
+		return capnp.BitList{}, err
+	}
+	err = capnp.Struct(s).SetPtr(2, l.ToPtr())
+	return l, err
+}
+
+// Store_ImportExportData_List is a list of Store_ImportExportData.
+type Store_ImportExportData_List = capnp.StructList[Store_ImportExportData]
+
+// NewStore_ImportExportData creates a new list of Store_ImportExportData.
+func NewStore_ImportExportData_List(s *capnp.Segment, sz int32) (Store_ImportExportData_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 3}, sz)
+	return capnp.StructList[Store_ImportExportData](l), err
+}
+
+// Store_ImportExportData_Future is a wrapper for a Store_ImportExportData promised by a client call.
+type Store_ImportExportData_Future struct{ *capnp.Future }
+
+func (f Store_ImportExportData_Future) Struct() (Store_ImportExportData, error) {
+	p, err := f.Future.Ptr()
+	return Store_ImportExportData(p.Struct()), err
+}
+func (p Store_ImportExportData_Future) Info() common.IdInformation_Future {
+	return common.IdInformation_Future{Future: p.Future.Field(0, nil)}
+}
+
+type Store_newContainer_Params capnp.Struct
+
+// Store_newContainer_Params_TypeID is the unique identifier for the type Store_newContainer_Params.
+const Store_newContainer_Params_TypeID = 0xbc4cb84d672b9bf6
+
+func NewStore_newContainer_Params(s *capnp.Segment) (Store_newContainer_Params, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
+	return Store_newContainer_Params(st), err
+}
+
+func NewRootStore_newContainer_Params(s *capnp.Segment) (Store_newContainer_Params, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
+	return Store_newContainer_Params(st), err
+}
+
+func ReadRootStore_newContainer_Params(msg *capnp.Message) (Store_newContainer_Params, error) {
+	root, err := msg.Root()
+	return Store_newContainer_Params(root.Struct()), err
+}
+
+func (s Store_newContainer_Params) String() string {
+	str, _ := text.Marshal(0xbc4cb84d672b9bf6, capnp.Struct(s))
+	return str
+}
+
+func (s Store_newContainer_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Store_newContainer_Params) DecodeFromPtr(p capnp.Ptr) Store_newContainer_Params {
+	return Store_newContainer_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Store_newContainer_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Store_newContainer_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Store_newContainer_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Store_newContainer_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+func (s Store_newContainer_Params) Name() (string, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return p.Text(), err
+}
+
+func (s Store_newContainer_Params) HasName() bool {
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Store_newContainer_Params) NameBytes() ([]byte, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return p.TextBytes(), err
+}
+
+func (s Store_newContainer_Params) SetName(v string) error {
+	return capnp.Struct(s).SetText(0, v)
+}
+
+func (s Store_newContainer_Params) Description() (string, error) {
+	p, err := capnp.Struct(s).Ptr(1)
+	return p.Text(), err
+}
+
+func (s Store_newContainer_Params) HasDescription() bool {
+	return capnp.Struct(s).HasPtr(1)
+}
+
+func (s Store_newContainer_Params) DescriptionBytes() ([]byte, error) {
+	p, err := capnp.Struct(s).Ptr(1)
+	return p.TextBytes(), err
+}
+
+func (s Store_newContainer_Params) SetDescription(v string) error {
+	return capnp.Struct(s).SetText(1, v)
+}
+
+// Store_newContainer_Params_List is a list of Store_newContainer_Params.
+type Store_newContainer_Params_List = capnp.StructList[Store_newContainer_Params]
+
+// NewStore_newContainer_Params creates a new list of Store_newContainer_Params.
+func NewStore_newContainer_Params_List(s *capnp.Segment, sz int32) (Store_newContainer_Params_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
+	return capnp.StructList[Store_newContainer_Params](l), err
+}
+
+// Store_newContainer_Params_Future is a wrapper for a Store_newContainer_Params promised by a client call.
+type Store_newContainer_Params_Future struct{ *capnp.Future }
+
+func (f Store_newContainer_Params_Future) Struct() (Store_newContainer_Params, error) {
+	p, err := f.Future.Ptr()
+	return Store_newContainer_Params(p.Struct()), err
+}
+
+type Store_newContainer_Results capnp.Struct
 
 // Store_newContainer_Results_TypeID is the unique identifier for the type Store_newContainer_Results.
 const Store_newContainer_Results_TypeID = 0xf32349bf3a9997ac
 
 func NewStore_newContainer_Results(s *capnp.Segment) (Store_newContainer_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Store_newContainer_Results{st}, err
+	return Store_newContainer_Results(st), err
 }
 
 func NewRootStore_newContainer_Results(s *capnp.Segment) (Store_newContainer_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Store_newContainer_Results{st}, err
+	return Store_newContainer_Results(st), err
 }
 
 func ReadRootStore_newContainer_Results(msg *capnp.Message) (Store_newContainer_Results, error) {
 	root, err := msg.Root()
-	return Store_newContainer_Results{root.Struct()}, err
+	return Store_newContainer_Results(root.Struct()), err
 }
 
 func (s Store_newContainer_Results) String() string {
-	str, _ := text.Marshal(0xf32349bf3a9997ac, s.Struct)
+	str, _ := text.Marshal(0xf32349bf3a9997ac, capnp.Struct(s))
 	return str
 }
 
+func (s Store_newContainer_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Store_newContainer_Results) DecodeFromPtr(p capnp.Ptr) Store_newContainer_Results {
+	return Store_newContainer_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Store_newContainer_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Store_newContainer_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Store_newContainer_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Store_newContainer_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Store_newContainer_Results) Container() Store_Container {
-	p, _ := s.Struct.Ptr(0)
-	return Store_Container{Client: p.Interface().Client()}
+	p, _ := capnp.Struct(s).Ptr(0)
+	return Store_Container(p.Interface().Client())
 }
 
 func (s Store_newContainer_Results) HasContainer() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s Store_newContainer_Results) SetContainer(v Store_Container) error {
-	if !v.Client.IsValid() {
-		return s.Struct.SetPtr(0, capnp.Ptr{})
+	if !v.IsValid() {
+		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
-	return s.Struct.SetPtr(0, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
 // Store_newContainer_Results_List is a list of Store_newContainer_Results.
-type Store_newContainer_Results_List struct{ capnp.List }
+type Store_newContainer_Results_List = capnp.StructList[Store_newContainer_Results]
 
 // NewStore_newContainer_Results creates a new list of Store_newContainer_Results.
 func NewStore_newContainer_Results_List(s *capnp.Segment, sz int32) (Store_newContainer_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return Store_newContainer_Results_List{l}, err
-}
-
-func (s Store_newContainer_Results_List) At(i int) Store_newContainer_Results {
-	return Store_newContainer_Results{s.List.Struct(i)}
-}
-
-func (s Store_newContainer_Results_List) Set(i int, v Store_newContainer_Results) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Store_newContainer_Results_List) String() string {
-	str, _ := text.MarshalList(0xf32349bf3a9997ac, s.List)
-	return str
+	return capnp.StructList[Store_newContainer_Results](l), err
 }
 
 // Store_newContainer_Results_Future is a wrapper for a Store_newContainer_Results promised by a client call.
 type Store_newContainer_Results_Future struct{ *capnp.Future }
 
-func (p Store_newContainer_Results_Future) Struct() (Store_newContainer_Results, error) {
-	s, err := p.Future.Struct()
-	return Store_newContainer_Results{s}, err
+func (f Store_newContainer_Results_Future) Struct() (Store_newContainer_Results, error) {
+	p, err := f.Future.Ptr()
+	return Store_newContainer_Results(p.Struct()), err
 }
-
 func (p Store_newContainer_Results_Future) Container() Store_Container {
-	return Store_Container{Client: p.Future.Field(0, nil).Client()}
+	return Store_Container(p.Future.Field(0, nil).Client())
 }
 
-type Store_containerWithId_Params struct{ capnp.Struct }
+type Store_containerWithId_Params capnp.Struct
 
 // Store_containerWithId_Params_TypeID is the unique identifier for the type Store_containerWithId_Params.
 const Store_containerWithId_Params_TypeID = 0xf517bec79f8d2744
 
 func NewStore_containerWithId_Params(s *capnp.Segment) (Store_containerWithId_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Store_containerWithId_Params{st}, err
+	return Store_containerWithId_Params(st), err
 }
 
 func NewRootStore_containerWithId_Params(s *capnp.Segment) (Store_containerWithId_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Store_containerWithId_Params{st}, err
+	return Store_containerWithId_Params(st), err
 }
 
 func ReadRootStore_containerWithId_Params(msg *capnp.Message) (Store_containerWithId_Params, error) {
 	root, err := msg.Root()
-	return Store_containerWithId_Params{root.Struct()}, err
+	return Store_containerWithId_Params(root.Struct()), err
 }
 
 func (s Store_containerWithId_Params) String() string {
-	str, _ := text.Marshal(0xf517bec79f8d2744, s.Struct)
+	str, _ := text.Marshal(0xf517bec79f8d2744, capnp.Struct(s))
 	return str
 }
 
+func (s Store_containerWithId_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Store_containerWithId_Params) DecodeFromPtr(p capnp.Ptr) Store_containerWithId_Params {
+	return Store_containerWithId_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Store_containerWithId_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Store_containerWithId_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Store_containerWithId_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Store_containerWithId_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Store_containerWithId_Params) Id() (string, error) {
-	p, err := s.Struct.Ptr(0)
+	p, err := capnp.Struct(s).Ptr(0)
 	return p.Text(), err
 }
 
 func (s Store_containerWithId_Params) HasId() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s Store_containerWithId_Params) IdBytes() ([]byte, error) {
-	p, err := s.Struct.Ptr(0)
+	p, err := capnp.Struct(s).Ptr(0)
 	return p.TextBytes(), err
 }
 
 func (s Store_containerWithId_Params) SetId(v string) error {
-	return s.Struct.SetText(0, v)
+	return capnp.Struct(s).SetText(0, v)
 }
 
 // Store_containerWithId_Params_List is a list of Store_containerWithId_Params.
-type Store_containerWithId_Params_List struct{ capnp.List }
+type Store_containerWithId_Params_List = capnp.StructList[Store_containerWithId_Params]
 
 // NewStore_containerWithId_Params creates a new list of Store_containerWithId_Params.
 func NewStore_containerWithId_Params_List(s *capnp.Segment, sz int32) (Store_containerWithId_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return Store_containerWithId_Params_List{l}, err
-}
-
-func (s Store_containerWithId_Params_List) At(i int) Store_containerWithId_Params {
-	return Store_containerWithId_Params{s.List.Struct(i)}
-}
-
-func (s Store_containerWithId_Params_List) Set(i int, v Store_containerWithId_Params) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Store_containerWithId_Params_List) String() string {
-	str, _ := text.MarshalList(0xf517bec79f8d2744, s.List)
-	return str
+	return capnp.StructList[Store_containerWithId_Params](l), err
 }
 
 // Store_containerWithId_Params_Future is a wrapper for a Store_containerWithId_Params promised by a client call.
 type Store_containerWithId_Params_Future struct{ *capnp.Future }
 
-func (p Store_containerWithId_Params_Future) Struct() (Store_containerWithId_Params, error) {
-	s, err := p.Future.Struct()
-	return Store_containerWithId_Params{s}, err
+func (f Store_containerWithId_Params_Future) Struct() (Store_containerWithId_Params, error) {
+	p, err := f.Future.Ptr()
+	return Store_containerWithId_Params(p.Struct()), err
 }
 
-type Store_containerWithId_Results struct{ capnp.Struct }
+type Store_containerWithId_Results capnp.Struct
 
 // Store_containerWithId_Results_TypeID is the unique identifier for the type Store_containerWithId_Results.
 const Store_containerWithId_Results_TypeID = 0xb2af26aeda5445e5
 
 func NewStore_containerWithId_Results(s *capnp.Segment) (Store_containerWithId_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Store_containerWithId_Results{st}, err
+	return Store_containerWithId_Results(st), err
 }
 
 func NewRootStore_containerWithId_Results(s *capnp.Segment) (Store_containerWithId_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Store_containerWithId_Results{st}, err
+	return Store_containerWithId_Results(st), err
 }
 
 func ReadRootStore_containerWithId_Results(msg *capnp.Message) (Store_containerWithId_Results, error) {
 	root, err := msg.Root()
-	return Store_containerWithId_Results{root.Struct()}, err
+	return Store_containerWithId_Results(root.Struct()), err
 }
 
 func (s Store_containerWithId_Results) String() string {
-	str, _ := text.Marshal(0xb2af26aeda5445e5, s.Struct)
+	str, _ := text.Marshal(0xb2af26aeda5445e5, capnp.Struct(s))
 	return str
 }
 
+func (s Store_containerWithId_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Store_containerWithId_Results) DecodeFromPtr(p capnp.Ptr) Store_containerWithId_Results {
+	return Store_containerWithId_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Store_containerWithId_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Store_containerWithId_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Store_containerWithId_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Store_containerWithId_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Store_containerWithId_Results) Container() Store_Container {
-	p, _ := s.Struct.Ptr(0)
-	return Store_Container{Client: p.Interface().Client()}
+	p, _ := capnp.Struct(s).Ptr(0)
+	return Store_Container(p.Interface().Client())
 }
 
 func (s Store_containerWithId_Results) HasContainer() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s Store_containerWithId_Results) SetContainer(v Store_Container) error {
-	if !v.Client.IsValid() {
-		return s.Struct.SetPtr(0, capnp.Ptr{})
+	if !v.IsValid() {
+		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
-	return s.Struct.SetPtr(0, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
 // Store_containerWithId_Results_List is a list of Store_containerWithId_Results.
-type Store_containerWithId_Results_List struct{ capnp.List }
+type Store_containerWithId_Results_List = capnp.StructList[Store_containerWithId_Results]
 
 // NewStore_containerWithId_Results creates a new list of Store_containerWithId_Results.
 func NewStore_containerWithId_Results_List(s *capnp.Segment, sz int32) (Store_containerWithId_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return Store_containerWithId_Results_List{l}, err
-}
-
-func (s Store_containerWithId_Results_List) At(i int) Store_containerWithId_Results {
-	return Store_containerWithId_Results{s.List.Struct(i)}
-}
-
-func (s Store_containerWithId_Results_List) Set(i int, v Store_containerWithId_Results) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Store_containerWithId_Results_List) String() string {
-	str, _ := text.MarshalList(0xb2af26aeda5445e5, s.List)
-	return str
+	return capnp.StructList[Store_containerWithId_Results](l), err
 }
 
 // Store_containerWithId_Results_Future is a wrapper for a Store_containerWithId_Results promised by a client call.
 type Store_containerWithId_Results_Future struct{ *capnp.Future }
 
-func (p Store_containerWithId_Results_Future) Struct() (Store_containerWithId_Results, error) {
-	s, err := p.Future.Struct()
-	return Store_containerWithId_Results{s}, err
+func (f Store_containerWithId_Results_Future) Struct() (Store_containerWithId_Results, error) {
+	p, err := f.Future.Ptr()
+	return Store_containerWithId_Results(p.Struct()), err
 }
-
 func (p Store_containerWithId_Results_Future) Container() Store_Container {
-	return Store_Container{Client: p.Future.Field(0, nil).Client()}
+	return Store_Container(p.Future.Field(0, nil).Client())
 }
 
-type Store_listContainers_Params struct{ capnp.Struct }
+type Store_listContainers_Params capnp.Struct
 
 // Store_listContainers_Params_TypeID is the unique identifier for the type Store_listContainers_Params.
 const Store_listContainers_Params_TypeID = 0xa466e92166fcce6e
 
 func NewStore_listContainers_Params(s *capnp.Segment) (Store_listContainers_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Store_listContainers_Params{st}, err
+	return Store_listContainers_Params(st), err
 }
 
 func NewRootStore_listContainers_Params(s *capnp.Segment) (Store_listContainers_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Store_listContainers_Params{st}, err
+	return Store_listContainers_Params(st), err
 }
 
 func ReadRootStore_listContainers_Params(msg *capnp.Message) (Store_listContainers_Params, error) {
 	root, err := msg.Root()
-	return Store_listContainers_Params{root.Struct()}, err
+	return Store_listContainers_Params(root.Struct()), err
 }
 
 func (s Store_listContainers_Params) String() string {
-	str, _ := text.Marshal(0xa466e92166fcce6e, s.Struct)
+	str, _ := text.Marshal(0xa466e92166fcce6e, capnp.Struct(s))
 	return str
 }
 
+func (s Store_listContainers_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Store_listContainers_Params) DecodeFromPtr(p capnp.Ptr) Store_listContainers_Params {
+	return Store_listContainers_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Store_listContainers_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Store_listContainers_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Store_listContainers_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Store_listContainers_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+
 // Store_listContainers_Params_List is a list of Store_listContainers_Params.
-type Store_listContainers_Params_List struct{ capnp.List }
+type Store_listContainers_Params_List = capnp.StructList[Store_listContainers_Params]
 
 // NewStore_listContainers_Params creates a new list of Store_listContainers_Params.
 func NewStore_listContainers_Params_List(s *capnp.Segment, sz int32) (Store_listContainers_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return Store_listContainers_Params_List{l}, err
-}
-
-func (s Store_listContainers_Params_List) At(i int) Store_listContainers_Params {
-	return Store_listContainers_Params{s.List.Struct(i)}
-}
-
-func (s Store_listContainers_Params_List) Set(i int, v Store_listContainers_Params) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Store_listContainers_Params_List) String() string {
-	str, _ := text.MarshalList(0xa466e92166fcce6e, s.List)
-	return str
+	return capnp.StructList[Store_listContainers_Params](l), err
 }
 
 // Store_listContainers_Params_Future is a wrapper for a Store_listContainers_Params promised by a client call.
 type Store_listContainers_Params_Future struct{ *capnp.Future }
 
-func (p Store_listContainers_Params_Future) Struct() (Store_listContainers_Params, error) {
-	s, err := p.Future.Struct()
-	return Store_listContainers_Params{s}, err
+func (f Store_listContainers_Params_Future) Struct() (Store_listContainers_Params, error) {
+	p, err := f.Future.Ptr()
+	return Store_listContainers_Params(p.Struct()), err
 }
 
-type Store_listContainers_Results struct{ capnp.Struct }
+type Store_listContainers_Results capnp.Struct
 
 // Store_listContainers_Results_TypeID is the unique identifier for the type Store_listContainers_Results.
 const Store_listContainers_Results_TypeID = 0xf82426685da256f9
 
 func NewStore_listContainers_Results(s *capnp.Segment) (Store_listContainers_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Store_listContainers_Results{st}, err
+	return Store_listContainers_Results(st), err
 }
 
 func NewRootStore_listContainers_Results(s *capnp.Segment) (Store_listContainers_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Store_listContainers_Results{st}, err
+	return Store_listContainers_Results(st), err
 }
 
 func ReadRootStore_listContainers_Results(msg *capnp.Message) (Store_listContainers_Results, error) {
 	root, err := msg.Root()
-	return Store_listContainers_Results{root.Struct()}, err
+	return Store_listContainers_Results(root.Struct()), err
 }
 
 func (s Store_listContainers_Results) String() string {
-	str, _ := text.Marshal(0xf82426685da256f9, s.Struct)
+	str, _ := text.Marshal(0xf82426685da256f9, capnp.Struct(s))
 	return str
 }
 
-func (s Store_listContainers_Results) Containers() (capnp.PointerList, error) {
-	p, err := s.Struct.Ptr(0)
-	return capnp.PointerList{List: p.List()}, err
+func (s Store_listContainers_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Store_listContainers_Results) DecodeFromPtr(p capnp.Ptr) Store_listContainers_Results {
+	return Store_listContainers_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Store_listContainers_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Store_listContainers_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Store_listContainers_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Store_listContainers_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+func (s Store_listContainers_Results) Containers() (Store_Container_List, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return Store_Container_List(p.List()), err
 }
 
 func (s Store_listContainers_Results) HasContainers() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
-func (s Store_listContainers_Results) SetContainers(v capnp.PointerList) error {
-	return s.Struct.SetPtr(0, v.List.ToPtr())
+func (s Store_listContainers_Results) SetContainers(v Store_Container_List) error {
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
 }
 
 // NewContainers sets the containers field to a newly
-// allocated capnp.PointerList, preferring placement in s's segment.
-func (s Store_listContainers_Results) NewContainers(n int32) (capnp.PointerList, error) {
-	l, err := capnp.NewPointerList(s.Struct.Segment(), n)
+// allocated Store_Container_List, preferring placement in s's segment.
+func (s Store_listContainers_Results) NewContainers(n int32) (Store_Container_List, error) {
+	l, err := NewStore_Container_List(capnp.Struct(s).Segment(), n)
 	if err != nil {
-		return capnp.PointerList{}, err
+		return Store_Container_List{}, err
 	}
-	err = s.Struct.SetPtr(0, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
 	return l, err
 }
 
 // Store_listContainers_Results_List is a list of Store_listContainers_Results.
-type Store_listContainers_Results_List struct{ capnp.List }
+type Store_listContainers_Results_List = capnp.StructList[Store_listContainers_Results]
 
 // NewStore_listContainers_Results creates a new list of Store_listContainers_Results.
 func NewStore_listContainers_Results_List(s *capnp.Segment, sz int32) (Store_listContainers_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return Store_listContainers_Results_List{l}, err
-}
-
-func (s Store_listContainers_Results_List) At(i int) Store_listContainers_Results {
-	return Store_listContainers_Results{s.List.Struct(i)}
-}
-
-func (s Store_listContainers_Results_List) Set(i int, v Store_listContainers_Results) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Store_listContainers_Results_List) String() string {
-	str, _ := text.MarshalList(0xf82426685da256f9, s.List)
-	return str
+	return capnp.StructList[Store_listContainers_Results](l), err
 }
 
 // Store_listContainers_Results_Future is a wrapper for a Store_listContainers_Results promised by a client call.
 type Store_listContainers_Results_Future struct{ *capnp.Future }
 
-func (p Store_listContainers_Results_Future) Struct() (Store_listContainers_Results, error) {
-	s, err := p.Future.Struct()
-	return Store_listContainers_Results{s}, err
+func (f Store_listContainers_Results_Future) Struct() (Store_listContainers_Results, error) {
+	p, err := f.Future.Ptr()
+	return Store_listContainers_Results(p.Struct()), err
 }
 
-type Store_removeContainer_Params struct{ capnp.Struct }
+type Store_removeContainer_Params capnp.Struct
 
 // Store_removeContainer_Params_TypeID is the unique identifier for the type Store_removeContainer_Params.
 const Store_removeContainer_Params_TypeID = 0xbfbe4f9e7fb62452
 
 func NewStore_removeContainer_Params(s *capnp.Segment) (Store_removeContainer_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Store_removeContainer_Params{st}, err
+	return Store_removeContainer_Params(st), err
 }
 
 func NewRootStore_removeContainer_Params(s *capnp.Segment) (Store_removeContainer_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Store_removeContainer_Params{st}, err
+	return Store_removeContainer_Params(st), err
 }
 
 func ReadRootStore_removeContainer_Params(msg *capnp.Message) (Store_removeContainer_Params, error) {
 	root, err := msg.Root()
-	return Store_removeContainer_Params{root.Struct()}, err
+	return Store_removeContainer_Params(root.Struct()), err
 }
 
 func (s Store_removeContainer_Params) String() string {
-	str, _ := text.Marshal(0xbfbe4f9e7fb62452, s.Struct)
+	str, _ := text.Marshal(0xbfbe4f9e7fb62452, capnp.Struct(s))
 	return str
 }
 
+func (s Store_removeContainer_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Store_removeContainer_Params) DecodeFromPtr(p capnp.Ptr) Store_removeContainer_Params {
+	return Store_removeContainer_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Store_removeContainer_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Store_removeContainer_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Store_removeContainer_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Store_removeContainer_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Store_removeContainer_Params) Id() (string, error) {
-	p, err := s.Struct.Ptr(0)
+	p, err := capnp.Struct(s).Ptr(0)
 	return p.Text(), err
 }
 
 func (s Store_removeContainer_Params) HasId() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s Store_removeContainer_Params) IdBytes() ([]byte, error) {
-	p, err := s.Struct.Ptr(0)
+	p, err := capnp.Struct(s).Ptr(0)
 	return p.TextBytes(), err
 }
 
 func (s Store_removeContainer_Params) SetId(v string) error {
-	return s.Struct.SetText(0, v)
+	return capnp.Struct(s).SetText(0, v)
 }
 
 // Store_removeContainer_Params_List is a list of Store_removeContainer_Params.
-type Store_removeContainer_Params_List struct{ capnp.List }
+type Store_removeContainer_Params_List = capnp.StructList[Store_removeContainer_Params]
 
 // NewStore_removeContainer_Params creates a new list of Store_removeContainer_Params.
 func NewStore_removeContainer_Params_List(s *capnp.Segment, sz int32) (Store_removeContainer_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return Store_removeContainer_Params_List{l}, err
-}
-
-func (s Store_removeContainer_Params_List) At(i int) Store_removeContainer_Params {
-	return Store_removeContainer_Params{s.List.Struct(i)}
-}
-
-func (s Store_removeContainer_Params_List) Set(i int, v Store_removeContainer_Params) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Store_removeContainer_Params_List) String() string {
-	str, _ := text.MarshalList(0xbfbe4f9e7fb62452, s.List)
-	return str
+	return capnp.StructList[Store_removeContainer_Params](l), err
 }
 
 // Store_removeContainer_Params_Future is a wrapper for a Store_removeContainer_Params promised by a client call.
 type Store_removeContainer_Params_Future struct{ *capnp.Future }
 
-func (p Store_removeContainer_Params_Future) Struct() (Store_removeContainer_Params, error) {
-	s, err := p.Future.Struct()
-	return Store_removeContainer_Params{s}, err
+func (f Store_removeContainer_Params_Future) Struct() (Store_removeContainer_Params, error) {
+	p, err := f.Future.Ptr()
+	return Store_removeContainer_Params(p.Struct()), err
 }
 
-type Store_removeContainer_Results struct{ capnp.Struct }
+type Store_removeContainer_Results capnp.Struct
 
 // Store_removeContainer_Results_TypeID is the unique identifier for the type Store_removeContainer_Results.
 const Store_removeContainer_Results_TypeID = 0xaa0460382685000e
 
 func NewStore_removeContainer_Results(s *capnp.Segment) (Store_removeContainer_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Store_removeContainer_Results{st}, err
+	return Store_removeContainer_Results(st), err
 }
 
 func NewRootStore_removeContainer_Results(s *capnp.Segment) (Store_removeContainer_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Store_removeContainer_Results{st}, err
+	return Store_removeContainer_Results(st), err
 }
 
 func ReadRootStore_removeContainer_Results(msg *capnp.Message) (Store_removeContainer_Results, error) {
 	root, err := msg.Root()
-	return Store_removeContainer_Results{root.Struct()}, err
+	return Store_removeContainer_Results(root.Struct()), err
 }
 
 func (s Store_removeContainer_Results) String() string {
-	str, _ := text.Marshal(0xaa0460382685000e, s.Struct)
+	str, _ := text.Marshal(0xaa0460382685000e, capnp.Struct(s))
 	return str
 }
 
+func (s Store_removeContainer_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Store_removeContainer_Results) DecodeFromPtr(p capnp.Ptr) Store_removeContainer_Results {
+	return Store_removeContainer_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Store_removeContainer_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Store_removeContainer_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Store_removeContainer_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Store_removeContainer_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Store_removeContainer_Results) Success() bool {
-	return s.Struct.Bit(0)
+	return capnp.Struct(s).Bit(0)
 }
 
 func (s Store_removeContainer_Results) SetSuccess(v bool) {
-	s.Struct.SetBit(0, v)
+	capnp.Struct(s).SetBit(0, v)
 }
 
 // Store_removeContainer_Results_List is a list of Store_removeContainer_Results.
-type Store_removeContainer_Results_List struct{ capnp.List }
+type Store_removeContainer_Results_List = capnp.StructList[Store_removeContainer_Results]
 
 // NewStore_removeContainer_Results creates a new list of Store_removeContainer_Results.
 func NewStore_removeContainer_Results_List(s *capnp.Segment, sz int32) (Store_removeContainer_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0}, sz)
-	return Store_removeContainer_Results_List{l}, err
-}
-
-func (s Store_removeContainer_Results_List) At(i int) Store_removeContainer_Results {
-	return Store_removeContainer_Results{s.List.Struct(i)}
-}
-
-func (s Store_removeContainer_Results_List) Set(i int, v Store_removeContainer_Results) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Store_removeContainer_Results_List) String() string {
-	str, _ := text.MarshalList(0xaa0460382685000e, s.List)
-	return str
+	return capnp.StructList[Store_removeContainer_Results](l), err
 }
 
 // Store_removeContainer_Results_Future is a wrapper for a Store_removeContainer_Results promised by a client call.
 type Store_removeContainer_Results_Future struct{ *capnp.Future }
 
-func (p Store_removeContainer_Results_Future) Struct() (Store_removeContainer_Results, error) {
-	s, err := p.Future.Struct()
-	return Store_removeContainer_Results{s}, err
+func (f Store_removeContainer_Results_Future) Struct() (Store_removeContainer_Results, error) {
+	p, err := f.Future.Ptr()
+	return Store_removeContainer_Results(p.Struct()), err
 }
 
-const schema_9755d0b34b9db39d = "x\xda\xacV{lT\xc5\x1a\xff\xbe9\xbb=\xdd\xdd" +
-	"\xee\xd2a{/\xdc{)\xe4ByHB\xa54\x98" +
-	"Rcv+\x8f\x08\x06\xdb\xa9\x14Bc\xc5\xd3\xed\x01" +
-	"\x16\xb7\xdd\xb2\xe7\x94g\xb0\x015\x02\x11\x13\x1f\x04y" +
-	"?B\xa2%<\xe4\xa1\x02\xe1!\x8a!\xa4Hl\x10" +
-	"\x0c\xa8\xe1\x1f\xd14FM@\"J\xcb13\xbb\xb3" +
-	"\xe7\xb4\xae\x96U\xf7\xaf=3\xbf\xf9\xe6\xf7\xfd\xbe\xc7" +
-	"|cO\xba\xc2\xa4\xc4\xfd`>\x00;\xe1\xce\xb1\xea" +
-	"\xf7\xcf\xab\xf9\xa9d\xe5K@\x0b\x14+'^\xb6k" +
-	"\xed\xfa\xed\xdf\x00`\xb0[\xbd\x19\xf4\xe4\x0e\x00(\xa5" +
-	"\xb9\xe70X\xe1\x19\x09`\xcd\xd8v\xbc\xd5\x98\xf5\xf0" +
-	"j`\x83\x11\x01\\*@\xe9\x04O=\x02\x06'{" +
-	"B\x80\xd6\x1b\x9e\xc8+\x03\x0a\xba^\x07:X\xee\xeb" +
-	"\x9eU\x08.k\xca\xd1\xe6\xb6\x86\xcf\xcflN\xee\xb8" +
-	"\x91o1\xbe\x85\xc1:q\xf4\xe9\x0bCO\xadY\x1d" +
-	"\xdc\xe6\x04\xacH\x02\xd6\x08@\xa2,W9~i\xd4" +
-	"\x0e'\xa0\xcd\xf3\x1a\x07\x1c\x13\x80\xa6\x8b]s\xff\xdf" +
-	"9w7\xd0\x02yy\xa7\xa7\x9a_\xfe\xc3yfL" +
-	"\x7f\xa1\xa0\xcd\xc9\xfb\xb2g-?z\x83\x1f\xed\x0e\xbc" +
-	"8\xa2\xec\x19\xd7\x1eV\x90\xdev{\x85[\xd4\xcb-" +
-	"\xef\xbfS5\xe5\xf6\xb0\xa7\xf6\xf0\xf3\xc4\xd6\xccM8" +
-	"\xb2\xc4;\x1a\x83\x15^\x15 \xf8\x88w1\xa0uc" +
-	"\xf2\x8ck\xfbG\x1c8\x94\xe4\x91\xf2$in\x8d0" +
-	"W]\xf4^\xeb\xb6\xcaS\xa7\x9d\x80}\xdeZ\xe1\x89" +
-	"\x00,_\xb5\xfc\xca\x9d\x85\x83>r\xbaz\xd5+\\" +
-	"\xed\x14\x80\xe8\x95\xf2#u\x85\xff>\xeb\x04x|\xcb" +
-	"8\xe0_>\x0e8X\x1a}y\x94\xf7\xe7/\x1c\x81" +
-	"\x18\xef[\xcb\xb5H\x07\x99\x06\x14k\xeb\xe1\xad\x8f\x1f" +
-	"\xfe\xb4f\x03\x8f\xf8p\xdf\xae\xe0\x18\x1f\x8f\xf8\x04\x9f" +
-	"\x8a\xc1N\x9f\x0a`\xcdy\xe2\x7f7\xbbB\xe5\xdf\x02" +
-	"\x1b\x8e\xc4\xd6\xa1\x86\xa8\x98\x83X\xda\xe1\xe3\xacK\xbf" +
-	"\xf2\xcdB@k\x9f\xb5\xf9\xc3\xeb#\xe3\xdf9e\xae" +
-	"\xf0o\xe2\xac\x98\x9f\xb3\xda\xbbac\xf9\xe9\xa9\xc3n" +
-	"9\x1d_\xe8\x9f\xc6\x01+\x04`\xd2\xc8u\xdb\xcf\x9d" +
-	"\x1ap\xdb\x09\xd8\xe9\x17\xca\xec\x13\x80_f\xee\xaa\x9b" +
-	"?\xa2\xe8\x8e\x13\xf0I\x12pU\x00N\xbf\xdf0\xe7" +
-	"|\xd9\xd5\xbbN\x0e\xfe\x80H\xa3\xff\x04B\x80\xd7\xfb" +
-	"?\xbf\xe5\xfb\xee\x1f\xef\xda\xbaL\x08\xd4r].~" +
-	"\xbc\xecP\xf3\xab\x9d\xddNI\x87\x07\x84\xa4%\xfc\xa0" +
-	"5\xb7\x03\xcfn*\xf9\xda\xea\x91\xc1\x01\x91DZ " +
-	"\x04\xb7,\xc3\x8c'\xb4yz1\x89h\xcdM\xcd\xe5" +
-	"O\x9a\xf1\x84^<1\xded\x0e\xd1\xa2Mz\x82\xb9" +
-	"\xd0\x91I\x14\xcbC\x95\xf5\x0b\xf4\x88\xc9\x06)n\x80" +
-	"t\xfe\xa3LV\xdaQ\x0b\x84\x9eW\xd1.+\x94\x1c" +
-	"\xe8I\xbe\xf7\xae\x8a$\x1di\x94\xf5A\xdb\xea\x81\xd0" +
-	"\x9d**\xe94AY}t}5\x10\xbaNE\xdb" +
-	"_\x94\x8a\xd1\x95|o\xa9\x8a\xeet\xfe\xa1\x8c(m" +
-	"\\\x00\x84\xea*\xe6H\xfd\xec^@g\x8f\x03B\xa7" +
-	"\xabV\xb4\xb19\x9e0'i\xa0\x98Z\x18-}I" +
-	"\x8f\xcfX\xd40\xb9\xc3\xa0FL#\x8c\xd6<]|" +
-	"F\x00\xcd0ZZC\x83\xe3+\xa17\xc6\x17\xe9\x95" +
-	"\xf5\xd0\x8f\x0b\x14\xc6!\x91\x98\xae%\xc2\xc8r\x11\xad" +
-	"\xcb\x8fm\x99\xdd\xdeq\xe0\x10\x00Xz\xfbC_\xee" +
-	"\xb8\xf6\xd6\x19\xfe_\xca\xef\xea-\xbfP\xbfX\x98(" +
-	"\xaa\xd6\x8d\x165f\x1a\xcc\xa5\xb8\x00\\\x08@\xfd\x8f" +
-	"\x02\xb0\\\x05Y\x01\xc1V\xa3%\x12\xd1\x0d\x03\x11\x08" +
-	"\xf2\x94\x96F}\x99\x8dJ\x1fM\xad\xa8JKh\x8d" +
-	"\x06\xc8\x03\x99\xf1\xd2iS\x10\x89\x99\x068\x89\x94\xdb" +
-	"DBq\x01\xc3|;c\x001\xdf\xc1\xc8\x9d\xf9\x06" +
-	"\x19\x04\x9b\x91\xf3\x86\xd1\xf6\x0d\xfd\x1a4SC?\x10" +
-	"\xf4\xf7mU\x06/b\x1a)\xe6\x98Q\xc2\"\x82\xad" +
-	"I\xe6\x06\x06\x00\xab\x14\xec\xe5A\xc0qW\x8f@\xf1" +
-	"\x1b\xd2\xf7\x19I\xeehd\xe1\xad\x14\x14\xb2\x0dm\x0f" +
-	"\x1a\xc9\xccK_\xf0\x97\xf3E\xc9\xcc\xb7\xb2^dt" +
-	"\x15\"\xcbM\x1b|`(\x00+R\x90\x8d%\xc8\x7f" +
-	"v\xd3\xa5c\xc6\x01Q\x9f\xd5\x97b\x1e\x10\xcc\x03\x1c" +
-	"\xb2H\x8b\xb5\xe8\x99\xa9G\xe4-\xb3\xa2\xe6\xfc\xa9\x0d" +
-	"\x19\xa9W\x03\xb0<\x05\xd9@\x82\x96\xc4\x03&\x90\xda" +
-	"\x8f\x1a \xd2\xfbU\x87GIi\xecq\xc3\x7fmq" +
-	"\x94h\x83\xe4\xddW\x1ce\xc1\x8b\xd2H\xc5\xdeiu" +
-	"\xa8m\xd5)G_5o\x97[(Y\x0c\xd9\xd8\xbc" +
-	"\x8fRHU\x98\xdd{P\x9eQ\xe3\x09]4|{" +
-	"\xc0\xc2jk\xa2-9\xcb\x17]\xff\xd25\xe5^\xfb" +
-	"s\xed\x9f\xa1|\x1a\xe9B\xdei\xa3\xbc\xeb\xcb\xc7\x10" +
-	"\xe5@A\xebV\x01\xa15\xbc\xeb\xcbY\x07\xe5\x83H" +
-	"\xa7.\x03B+x\xd7\x97\xe3\x05\x06 9\xd6\xd0\xf1" +
-	"\xfc\xdc\x18\xd5j\xd2\x17\x0b\x0a\xd0\x8f\xbb\x12\xb6s\x00" +
-	"SI\x03\xa9F\xcdQ\x10J\xd6b\xba\x1fO\x8cc" +
-	"J\x04\x08c\x15\xf6\xa9~R\xa5\xe2EZLi\xd1" +
-	"\xd9@\xc5\x95gYb\xc0\xa2\x1by\x1e\xbe\xa9 \xdb" +
-	"M\xb0\x10\xefYX\x80\x04\x80\xee\x9c\x06\xc0v(\xc8" +
-	"\xf6\x12,$\xdd|Y\x01\xa0m\xb5\x00\xecm\x05\xd9" +
-	"\x11\x82\x85J\x17_v\x01\xd0\x83\xdc\xc8;\x0a\xb2\x13" +
-	"\x04\x0b]w\xf9\xb2\x1b\x80\x1e\xe3\xcbG\x15dg\x09" +
-	"\x16\xba\x7f\xe5\xcb9\x00\xf4\x0c\xb7\xfd\x81\x82\xec\x02A" +
-	"\xab>\x1e\x8f\xcd\xd4b-\x80z\xbar\xa3M&_" +
-	"\xd2\x01\x00\xdd@\xd0\xcd\x9f\xfcX\\\xe3\xab\xa0\xb4\xe8" +
-	"\xe8\x03\x82>@\xcb\xd4\x97\x98\xf2\xb0\xcc\x19\xdeK\xe5" +
-	"\x9al\xa9Z\xd3\xd2\xb4\xc1\xfe.\x04\xc4\xfeY\x16\x82" +
-	"hiJ\xf6\xcd\xa7G<d\xcc\xd3\xed\xecwM\xf2" +
-	"o6\x85\xde}'\xfb\xa6\xf0g\x0fA&\x0djS" +
-	"\x84G9\x09+\x89\xf4\x93\xd3\x93x\xa0o\xd5\xe5\xf4" +
-	"\x91\xf9Y\xceZ\xf2\xdeCGJ\x91\xbe\xc06\x8b\x0c" +
-	"\xdd\xea\x9f\x98\x0d\x1c\xd3J\xc6D\xf8\xa3\xe9\xe0\xb7\x00" +
-	"\x00\x00\xff\xff\x9d\x0d\x19\xe4"
+type Store_importContainer_Params capnp.Struct
+
+// Store_importContainer_Params_TypeID is the unique identifier for the type Store_importContainer_Params.
+const Store_importContainer_Params_TypeID = 0xba3e5ec40217ab32
+
+func NewStore_importContainer_Params(s *capnp.Segment) (Store_importContainer_Params, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Store_importContainer_Params(st), err
+}
+
+func NewRootStore_importContainer_Params(s *capnp.Segment) (Store_importContainer_Params, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Store_importContainer_Params(st), err
+}
+
+func ReadRootStore_importContainer_Params(msg *capnp.Message) (Store_importContainer_Params, error) {
+	root, err := msg.Root()
+	return Store_importContainer_Params(root.Struct()), err
+}
+
+func (s Store_importContainer_Params) String() string {
+	str, _ := text.Marshal(0xba3e5ec40217ab32, capnp.Struct(s))
+	return str
+}
+
+func (s Store_importContainer_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Store_importContainer_Params) DecodeFromPtr(p capnp.Ptr) Store_importContainer_Params {
+	return Store_importContainer_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Store_importContainer_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Store_importContainer_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Store_importContainer_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Store_importContainer_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+func (s Store_importContainer_Params) Json() (string, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return p.Text(), err
+}
+
+func (s Store_importContainer_Params) HasJson() bool {
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Store_importContainer_Params) JsonBytes() ([]byte, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return p.TextBytes(), err
+}
+
+func (s Store_importContainer_Params) SetJson(v string) error {
+	return capnp.Struct(s).SetText(0, v)
+}
+
+// Store_importContainer_Params_List is a list of Store_importContainer_Params.
+type Store_importContainer_Params_List = capnp.StructList[Store_importContainer_Params]
+
+// NewStore_importContainer_Params creates a new list of Store_importContainer_Params.
+func NewStore_importContainer_Params_List(s *capnp.Segment, sz int32) (Store_importContainer_Params_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
+	return capnp.StructList[Store_importContainer_Params](l), err
+}
+
+// Store_importContainer_Params_Future is a wrapper for a Store_importContainer_Params promised by a client call.
+type Store_importContainer_Params_Future struct{ *capnp.Future }
+
+func (f Store_importContainer_Params_Future) Struct() (Store_importContainer_Params, error) {
+	p, err := f.Future.Ptr()
+	return Store_importContainer_Params(p.Struct()), err
+}
+
+type Store_importContainer_Results capnp.Struct
+
+// Store_importContainer_Results_TypeID is the unique identifier for the type Store_importContainer_Results.
+const Store_importContainer_Results_TypeID = 0x898f1a2675ac89cf
+
+func NewStore_importContainer_Results(s *capnp.Segment) (Store_importContainer_Results, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Store_importContainer_Results(st), err
+}
+
+func NewRootStore_importContainer_Results(s *capnp.Segment) (Store_importContainer_Results, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Store_importContainer_Results(st), err
+}
+
+func ReadRootStore_importContainer_Results(msg *capnp.Message) (Store_importContainer_Results, error) {
+	root, err := msg.Root()
+	return Store_importContainer_Results(root.Struct()), err
+}
+
+func (s Store_importContainer_Results) String() string {
+	str, _ := text.Marshal(0x898f1a2675ac89cf, capnp.Struct(s))
+	return str
+}
+
+func (s Store_importContainer_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Store_importContainer_Results) DecodeFromPtr(p capnp.Ptr) Store_importContainer_Results {
+	return Store_importContainer_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Store_importContainer_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Store_importContainer_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Store_importContainer_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Store_importContainer_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+func (s Store_importContainer_Results) Container() Store_Container {
+	p, _ := capnp.Struct(s).Ptr(0)
+	return Store_Container(p.Interface().Client())
+}
+
+func (s Store_importContainer_Results) HasContainer() bool {
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Store_importContainer_Results) SetContainer(v Store_Container) error {
+	if !v.IsValid() {
+		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
+	}
+	seg := s.Segment()
+	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	return capnp.Struct(s).SetPtr(0, in.ToPtr())
+}
+
+// Store_importContainer_Results_List is a list of Store_importContainer_Results.
+type Store_importContainer_Results_List = capnp.StructList[Store_importContainer_Results]
+
+// NewStore_importContainer_Results creates a new list of Store_importContainer_Results.
+func NewStore_importContainer_Results_List(s *capnp.Segment, sz int32) (Store_importContainer_Results_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
+	return capnp.StructList[Store_importContainer_Results](l), err
+}
+
+// Store_importContainer_Results_Future is a wrapper for a Store_importContainer_Results promised by a client call.
+type Store_importContainer_Results_Future struct{ *capnp.Future }
+
+func (f Store_importContainer_Results_Future) Struct() (Store_importContainer_Results, error) {
+	p, err := f.Future.Ptr()
+	return Store_importContainer_Results(p.Struct()), err
+}
+func (p Store_importContainer_Results_Future) Container() Store_Container {
+	return Store_Container(p.Future.Field(0, nil).Client())
+}
+
+const schema_9755d0b34b9db39d = "x\xda\xb4X\x7fpT\xd5\xf5?\xe7\xbe\xb7y\xbba" +
+	"\x7f\xe4\xf1\x9e$\xe1+f\xe0\xbb\x02R`L\x82L" +
+	"\xa4\xd5D$\xd5`\x98\xe6%\x82\x96\x11\xdb%\xfb\x88" +
+	"K7\xbbq\xdfF\x09\x8ef\xa4Z\x85\xd1\x0a\xb4\x1d" +
+	"\xab\x88Z\x06\xa7BE\x0a\xd6V\x9c\x8e?Z\x18\xcb" +
+	"\xa0V\xaa\xd8Q;c\xed\x88\xd5*b\xfc\x8d\x08\xb7" +
+	"s\xee\xdb\xfb\xf6%np\x1d\xe8?\x81\xbd\x9f\xf39" +
+	"\xf7\xde\xf3\xe3\xbes\xce\xd93\x82-j}\xe43\x03" +
+	"\x98\xf5v\xa0\x82\xcf\x1d\xfa\xdb\xe1\xe9\x93\xaf\xbf\x09t" +
+	"\x13yE\xb6i\xd3\x9a_\xdc\xf7\x16\x04\x14\x0d\xa0\xf1" +
+	"\x8d\xd044\x86B\x1a\x80q(\xb4\x1d\x90/}\xb8" +
+	"g\xe1\xc7\xf57\xde\x02\xba\xa9\x14\x85\x01\x8d\xa1\xca\x0f" +
+	"\x8dc\x95\xd5\x00\x8d\x811\xcf\xa0Q\x1f\x9e\x02\xc0/" +
+	"\xbd\xf7\xf1A\xe7\xb2o\xdf\x0a\xd6\x19\x88\x00\x01$\x9d" +
+	"g\x85W\"\xa0qN\xf8Z@\xfe\xd7\xd5\x0f\xf5O" +
+	"\x1e\x7f\xc7j\xda\\\x0a\xac\x0b/%\x81\x8d\xe1f@" +
+	"\xbevg\xd3\xaa\x03\x15\xdfY\x0fz\x1c\x01T\xc2\x9f" +
+	"\x0eoBP\xf9\xcfC\xdd?\xad6\xbf\xfc\x19\xe8g" +
+	"HdGx+!\xdf}\xacoK\xf2\xefOop" +
+	"\x11W\xe9\xaf\xdc]\xb7\x09\xa5W>;\xe9\x89\xd5\xb7" +
+	"\x1a\xf7\xfa\xa8\xcf\xd1\xa6*\xcf5\x05\x95\xc7_\x9cz" +
+	"\xbf\x9f\xba+\xbc\x9e\xa8{\x055\xf3\xfc\x97\xcb&\xbe" +
+	"\xb3l\xb3{`A=\x12\xee$\xea\xf6w#\x83[" +
+	"\xe3|\xb3{R\x97z\x90\x8e\x8a\xc6'\x82\xfa\xfe^" +
+	"\xcbYp\x93\xb9\xc5\xaf\xfb\xb4\xc8r\x12\x98\x18i\x06" +
+	"<\x16\xbdyr\xd3\x0f\xd5\xad\x96\x89R\xf5\x05\x11a" +
+	"\x8a\x05\x04\xf3\x83\xad\x97\xbe\xfa\xf0\xe4\xed;\xfd\xb6\xea" +
+	"u\x05\x06\x84@\xc3o\xaa\xd9\xee+\xcf\x7f\xdc/\xb0" +
+	"1\xb2\x98\x04\xb6\x08\x81O7|\xabg\xc1c\xed\x7f" +
+	",\x080\x12\xd8\x1b\x99K\x02\xfb#\xe4\x8e\xce\xf8\xef" +
+	"\x07\xef\xfd\xde\x13O\xfa5\xd4G\x85\x86\xf3\xa2\xa4\xe1" +
+	"\xbaU\xd7\xbd\xfc\xf9\xd5\xa7\xff\xd9g\xb9%\x84\xab<" +
+	"\xf5\xf2\x9c\xdf-\x990n\xb7\xffvm\xd1\x1cQ\x17" +
+	"\x0ajtQ\xe0\xbeK\xd8[{\xc0\x8a\x17\x83\xa1?" +
+	"\xba\x95$n\x8e\xd2\xee\xf8\xf0\x86\xe0\x0d\xbbz^." +
+	"H\x08\xedo\xb8\x02CB\xc5\x8e\xc6\xd4mS+?" +
+	"{\xcd\xb7\xbb\x1e[C\xbb\xdf\xd2\x9c\\{\xd7\x0dG" +
+	"_\xf3\x1b\x1fcw\x13U\x8f\x11\xb5\xf2\x85\xb9[\x8e" +
+	"\x0f&\xff\xe9\x8b\xa3\xfa\xd8z\xa2^q\xc7\xfa\xb6\xdd" +
+	"W\xd4\xfc\x8bve\xfc\xa9\x15\x1f_w~|\xfc\x17" +
+	"\xd0\x8a\xda\xff!6N\x8cu\xa2qN\xcc\x95?\x1c" +
+	"\x00_\x8a\xe8Q\x85o|d\xe3%\x8f\xbc\xb0\xf0N" +
+	"J\x81m\xe36\x19\x8f\x8e\x9b\x02\xd0x`\xdcEh" +
+	"\xec\xa8\xa6\x14\xd8\xc67\xfc\xe9\xf5)\xd9w\x0b) " +
+	"6\xdeR-\x9c\xf6h5\x1d\xec\xa1;\xef\x9a\xf3d" +
+	"\xdb\xff\x7f\xe47\xf9\x81\xea\xf9$\xf0\x86\x10\x987\xe5" +
+	"\xf6\xfb\x9ey\xa2\xfa\x13\xbf@\xa0F\xf8D\xaf!\x81" +
+	"#\x8b6-\xb9jr\xfc\xf3aNs\x05\xce\x13\x02" +
+	"\xde\x9d\xf43\x94b\x06\x036^]3\x09\x8d\x1bk" +
+	"\xaa\x01\x8c\xd55\xcf\x18\xa1Z\x0d\x80?\xf9\x87\xe4\x0f" +
+	"\xf66\xbdr\xd4\x7f\xe2\xa1\x1a\x91\x02X\xdb\x0c\xf8\xfa" +
+	"\xd8\x1f\xdfs\xe8\xd8\xe1\xa3\x85\x9c\x16A4\xb1V8" +
+	"zF-\xbd\x11\xcf\xefY\xb9\xb3o\xdd;\xc7\xfc\x91" +
+	"\xb0\xb7v\x0d\x09\xbcB\x0a\xf8\xb2\xfd\xb8\xfb\xee\xfa7" +
+	"\xb9_\xe0H\xedN\x12\x08\x8do\x86\xe3\xdc\xc9gs" +
+	"\x89\x1e{\xa6\xd2\x9d\xe8\xcb\xf4\xcd\xe9\xcags\xf6\xcc" +
+	"\xb6\xde\xbel.\xdf\xba\x82\xfe\xc6\xe6%\xf2\x89\x0eD" +
+	"+\xac\xa8\x00*\x02\xe8\xad\xd3\x00\xac\x16\x05\xadv\x86" +
+	":\xa2\xc8!\xbdm.\x805OA\xebA\x86:c" +
+	"&2\x00\xfd\x81\xc5\x00\xd6f\x05\xad\xa7\x18\xc6R\x99" +
+	"eY\xac\xe2/\xbe\xaa\x1c\xdfw\xc3\xbe\x97\x00\x10\xab" +
+	"\x00\x07\xedL>\x97\xb2\x1d\x8c\x02v(\x88U\xbc\xf1" +
+	"\xa2\xea3/\xfa\xc9K\xbb\x00\xa0\x05u\xac\xb3T\x86" +
+	"\xfeE\x1d\xa7XADD+\xa8\xd0\xdf*\x051\x0c" +
+	"\x0c\xab\x8a\xf1\x05H\xeax\xca\xb9 3\xb0(\x91\x06" +
+	"\xa5\xdf\x96\xfa\x11\x98\xc0\xe4\xc5\x99\xff\xe2\x17f3\xf9" +
+	"\xbaD*c\xe7,\x15\xfd\xde\xc4\x86\xba\xd6L>7" +
+	"`\x9d\xae\x04\x00\xbcW\x0d\xe5C\xa3\xef\x9f\x03L\xdf" +
+	"\xa3!z\x8f%J\xdb\xeb\xbbV\x01\xd3wh\xc8\xbc" +
+	"\xacB\xf9\xf8\xe9\x0f,\x05\xa6o\xd4P\xf1\xb2\x1a\xe5" +
+	"\x9b\xaa\xaf\x9b\x0fL_\xada\xc0\xf33\xca\x88\xd1\xaf" +
+	"'^\xbf\x86\x15\xde;\x812\xfe\xf5T\x030}\x89" +
+	"\x86\xaa\x8c\x9f\xe2\xd7A\xb7Hg\x9b\xd6l\x0b\xe7\xb6" +
+	" Of\xaf\xcd\xa4\xb3\x89$\xb6\xba~\x80\x16\xe4\xe9" +
+	"\x94\x93\xa7\x9f\xa0\xa5l\xa7\x05y\x8f-~\x0e\x08\x8f" +
+	"\xf0\x9c\xdd\x9b\xbd\xc6n\xcd\x80\x96\xcf\x0d\xb4`]w" +
+	"\xdaN\xe4Z\x90'\x92\xc9\xa2\x14y\x88\x1f\xb8\xf8\x9e" +
+	"\xef\xef\xdb\xbf}'\x00p{\xdf\xec\x7f\xdc\xff\xea\xaf" +
+	"\x9f\xa6\xffK\xdb\xab#m/L?S*\x8aw6" +
+	"\xdbN\x7f:\xefXA/\xf6\xcej\x00\xb0\xe2\x0aZ" +
+	"g3\x94\xa17\x83Bo\xaa\x82\xd6,\x86u\x14N" +
+	"\x03\xa8\x17}\x07\x88:\xe0\xa0\xd3\xdf\xddm;\x8e\xf0" +
+	"?\xfa\xfc?\xec\x0c)\x11\xf8\xdeI\xe2\x9d\xb6\xd3\xaf" +
+	"\xd1\x01T\xef\x00\x91N\x00+\xac\xa0U\xc3\x90w\x17" +
+	"$\x01s\xa8\xfb\xf3\x9d\xb6\xf4\xb6\x08\x94\xbe\xa6\xb8\xe3" +
+	"\xcc\x1e;\xbf(\x91\xee\xb7\xe3\x1d\x89\x9c\x96\xe8u\xbe" +
+	"\x8e%\xfdUpW\xbc#\x11\xcb\xf9i\xa3\xd8T\xba" +
+	"\xb0hS\xdf\x95\xc8\xa6A\x05-st\xfb}\x9d~" +
+	"7\x9e\xca\xbd\x84\x0c0\xba@\xa78\x0f\x0e;\xd0\xdc" +
+	"\xc2\x81\xe2\xec+\xef\xc3\xf0\x93EG;\x19\xed\xe0\xed" +
+	"GV\xca%z\xd1)\xcf%\xce\x08\x97\x8cf\xaak" +
+	"Hh\xc4\xb3SU\xb6\xa9:m'6\xd2\x11\xd3\x8a" +
+	"\xdac\xcb\x9dlF\xbck\xe1\xd1T\xba\x89x\xe2h" +
+	"\x9d[\xd4X^\x0a\xc8\x90\xce]\x96\xca_\xd5\x96<" +
+	"E)p\xc2,#\xe7(\xbd'a\x88\x8c}\xedp" +
+	"m\xbd\x0e\xf8\xdf\x8ci\xc57\xc3\xfb^\xcdX\x0a`" +
+	"MW\xd0jb\x18\xcb$zmo\x8b\xa4\xedt\xe7" +
+	"R}y\xd0R\xdf\xd4\x03%n2\xbex\x13%\x95" +
+	"<\xb1\xbab\x8c\x887U\xaa+;\xb7;\xea\xc4\xdd" +
+	"\xfd\xdbO*n\xaf\xfd\xc8\x1e\xf8\xca\xfe\xe5\xbdM^" +
+	"\xac~\x83\x87x\x94\xec\x18L9\x0b3\x8e\x9d\xffJ" +
+	"\x14\x96\x97\x92\xa5\xb2\xa6\x9c\x18/\xe3!*\x04\x0e\x94" +
+	"m\x9bK\xec\x01\xf7\xf5R\xf2\xa7\xd4\xe6\xa4w\xe4\x83" +
+	"\xa5\x9e\x88C\xa6A\x9b\x8a\xb4\xb4\xa2\x869\xa7c\x18" +
+	"\x07Y'@\xd7\x9bL\xc1\xae\x0f\x18\xc3\x08\x1e\xe7\xc2" +
+	"K\xc6!\x96\x03\xe8z\x8f\x80\xa0\xc20\xc2\x8eqQ" +
+	"\xad\x19\x01\x85\x18\xaa\xa2`W\x15\x01\xca\x97\xdcD\x05" +
+	"\xc0\x88(\xc4\x08\x130\x95\x00\xf5(7Q\x050\xce" +
+	"T\x16\x03t\xc5\x098\x9b\x80\xc0\x17\xdc\xc4\x00\x801" +
+	"CY\x09\xd05\x9d\x80\x8b\x15\x86\x13*\x8ep4\xb1" +
+	"\x02\xc0h\x15\x94y\x84t\x10E\xfb\x9c\x9bT\x96\x1a" +
+	"\x0b\x04\xa5\x9d\x80\xab\x88\x12\xfc\x8c(A\x00\xc3\x16\x94" +
+	"$!}D\x09}\xcaM\x0c\x01\x18\xbd\x82\x92&\xe0" +
+	"V\x02*?\xe1&V\x02\x187\x0b\xc6M\x04\xac%" +
+	"`\xcc\xc7\xdc\xc41\x00\xc6\xed\x82q\x1b\x01\x0f\x12\x10" +
+	"\xfe\x88\x9b\x18\x060\x1eP\x96\x02tm&\xe0\xb7\x04" +
+	"D>\xe4&F\x00\x8cm\xca*\x80\xae\x87\x08\xf8\x0b" +
+	"\x1d+:D\xc7\x8a\x02\x18{\x04e7!/\x10%" +
+	"\xf6\x0171\x06`<'(\xcf\x12\xf06Q\xaa\x0e" +
+	"\x13\xa5\x8a|\"(o\x12\xf2\x01Q\xf4\xf7\xb9\x89:" +
+	"\xf9DP\xde# \xa82\x9c0\xf6\x10Q\xc6\x92S" +
+	"\xd4\xe5\xe4\x14\x95\x9c\xa22\x8c\x18\xefq\x13\x0dr\x8a" +
+	"\xba\x06\xa0\xab\x8a\x80\xe9D1\xdf%\x8a\x09`\x9c%" +
+	"(S\x09\x99E\x94\xd3\xfe\xc3M<\x0d\xc0\xa8\x17\x94" +
+	"Y\x04t\x100\xee\x1dn\xe28\xb2\xbdJ\x9eo'" +
+	"\xe0r\x02\xaa\xdf\xe6&R\xaf\xb2P%\xcf_J@" +
+	"\x1f\x015\xff\xe6&\xd6\x90\xe9\x05#M\xc0\x0a\x02j" +
+	"\xdf\xe2&\xd6\x02\x18\xfd\x82\x91'`-\x01\xe3\x0fr" +
+	"\x13\xc7\x93\xe9\xd5\xf9dz\x02~I\x15\xfd\xd2l6" +
+	"M\x81\x0bh{\xd9Jk\xed)'\x0fu\"\xdbG" +
+	"\xd6\xec\xa9L\xbeIR\x180d\x85\xb5\x12\x14V\xa4" +
+	"\xd4\xcf\x96-\x80\x02\x0c\x15\xb9\xd8\x9er\xa09?\x8c" +
+	"\xa4\x14I\x8d\x0d\x92\xa4\x02CU.\x96 \xa9E\xd2" +
+	"\xecY\x92\x14\x00\x86\x01\xb9X\x82\x14(\x90\xfa\x0bW" +
+	"\x12\xa4\x0a`X!\x17K\x90*|$\xba\x14h\x04" +
+	"j\xc0P\xf3V\xdbS\xe8\xb8,\x904\xcdG\xa3k" +
+	"\xb9\xb4 0\x0cz\xab%hA\x1f\x8d.\xe6\xd2B" +
+	"\xc00\xe4\xad\x96\xa0\x85\x0a\xb4e\xe9l\x82\xb6\x83\x98" +
+	"\xb8B%0\xac,.\xb7cJ\x12=f\xa5\x9f9" +
+	"{\x96d\x8e\x01\x86c\x8a\xcb\xa5\x98c\x0a\xcc\xbc\xbd" +
+	"\"/\xe3C>\xba\xb4V\">\xc2\x05J2\x91O" +
+	"HJ\x04\x18F\x0ak%(\x91\x02%!zJ\xda" +
+	"\x1fp\xac\x8a\x808\xd6\xf7\xb8\xa3|\xa8\xb5l\xce\x16" +
+	"]Pq\x90\x17\xea\xf4\x8d\x00Ck\xf8\x85\xc5\xda\x89" +
+	"\xcb\x9e\x1b\xe9\x1f\xea\xb9\x01,S4\x9br\x94\x84r" +
+	"~\xa1\xaf[\xee6\x86\xc5\x89\x05\xca\x89\x95~\xfd*" +
+	"\xb71d\xde\xfc\x0c\xe5\xd4BO\xad\x04\xa6'\xa8\xd9" +
+	"\x94\xd3'\x8c\x82;\x09\xd3\x17\x12o\x81\x86\xaa7\xdb" +
+	"B91\xd4/ \xec\\\x8d\xcb:\x0bb\xf4\xf1i" +
+	")\x16\x7fX\xa8\x16e\xf3HR\xd0\xec\xd6\xde^\xc7" +
+	"xa\x16\x0b\x9f-\x12\x93E\xa0o\xeddzF\xb7" +
+	"`:%\x15\xf0\xb0j\xd2\xedN\x1c\x80SX\xff\x8e" +
+	",\xb1O\xb2j\x1c\xd1\xea\x94\xaaH\x16\x17\x0e<\xd5" +
+	"\x7f`%\xe7k\xaa\xfc\x07\xf77U\xcahu\x075" +
+	"\xffbH\xe2\xd5w:6\xb8\x09c\x85E\xdc\xca9" +
+	" \xca\x89\xa1n\xcd\x01\xa6\xb7R\xdc\xcaY3\xcaQ" +
+	"\xa5~\xee|`z=\xc5\xad\x9c\xee\xa2\x1cR\xeag" +
+	"\x126Akvk#w !S\xb0\x05\xb9\xe3\xff" +
+	"\xd5\x81_[h\xc9\x01\x86h\x87O\xd0}\x96\x1d1" +
+	"%F\x17\xb2\x14\xf7M\xcd&\x95\x9a\x9a5\x14\xa6f" +
+	"\x1d\x0c\x91\x99\xc8\x10\xf5\x05\xab\x00\xacv\x05\xad\xcb\x87" +
+	"\xd7\x8f\xa3\xf6\x9b9\xbb/\x9d\xe8\xb6[qE\xca\xc9" +
+	"\xa72=Pn\xf5\xeb7\x84\xac~OA!;r" +
+	"D\xd1i\xd79\xa3\xd5\xeci\xf6\xbf\x9c\x00\xfe7\x00" +
+	"\x00\xff\xff]\x12\xe6\xa7"
 
 func init() {
 	schemas.Register(schema_9755d0b34b9db39d,
+		0x847d262cefd2f142,
 		0x878131f45567ae62,
 		0x883b57737fba9e54,
+		0x898f1a2675ac89cf,
+		0x923c06d58238b290,
 		0x93fc14178e630994,
 		0x9bc1d764a970b846,
 		0x9e138889be22cc5e,
 		0xa028d3ba03083872,
 		0xa466e92166fcce6e,
+		0xa4ff24aa7f0debaf,
 		0xa914844d7351c9ee,
 		0xaa0460382685000e,
-		0xaa5c23f54650f8ae,
 		0xb2af26aeda5445e5,
+		0xba3e5ec40217ab32,
+		0xbc4cb84d672b9bf6,
 		0xbfbe4f9e7fb62452,
 		0xc31c71f8d67b827b,
 		0xc4161d5db43ad669,
+		0xc5e6024b9f05560e,
+		0xd667b97e089bae01,
 		0xdbf70a288c6933b1,
+		0xdbfb7e9990643f87,
+		0xe0647ffea942d00a,
+		0xe2185cc449928f5c,
 		0xe69f958aa2386f06,
-		0xe73a3ffcf21b4e5f,
 		0xeb6f27dfc29bffad,
 		0xf32349bf3a9997ac,
 		0xf517bec79f8d2744,
 		0xf82426685da256f9,
+		0xfa1a243e7bf478c0,
 		0xfbd938c95f64b7bf,
 		0xfbef00fded9c8312,
 		0xfde99170b27ac5ce,

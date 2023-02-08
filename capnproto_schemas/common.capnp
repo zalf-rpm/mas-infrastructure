@@ -5,7 +5,7 @@ $Cxx.namespace("mas::schema::common");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("common");
-$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/common");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common");
 
 using Persistent = import "persistence.capnp".Persistent;
 using Date = import "date.capnp".Date;

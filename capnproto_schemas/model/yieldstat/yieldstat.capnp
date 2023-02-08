@@ -5,7 +5,7 @@ $Cxx.namespace("mas::schema::model::yieldstat");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("yieldstat");
-$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/model/yieldstat");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/model/yieldstat");
 
 using Crop = import "../../crop.capnp";
 

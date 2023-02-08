@@ -5,7 +5,7 @@ $Cxx.namespace("mas::schema::grid");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("grid");
-$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/grid");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/grid");
 
 using Persistent = import "persistence.capnp".Persistent;
 using Common = import "common.capnp";

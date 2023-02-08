@@ -4,8 +4,8 @@ using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("mas::schema::soil");
 
 using Go = import "/capnp/go.capnp";
-$Go.package("soil");
-$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/soil");
+$Go.package("monica");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/soil");
 
 struct SoilCharacteristicData {
     struct Data {

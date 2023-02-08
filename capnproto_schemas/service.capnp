@@ -5,7 +5,7 @@ $Cxx.namespace("mas::schema::service");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("service");
-$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/service");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/service");
 
 using Common = import "common.capnp";
 using Restorer = import "persistence.capnp".Restorer;

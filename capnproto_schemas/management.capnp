@@ -5,7 +5,7 @@ $Cxx.namespace("mas::schema::management");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("management");
-$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/management");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/management");
 
 using Date = import "date.capnp".Date;
 using Common = import "common.capnp";

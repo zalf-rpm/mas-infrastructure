@@ -5,7 +5,7 @@ $Cxx.namespace("mas::schema::geo");
 
 using Go = import "/capnp/go.capnp";
 $Go.package("geo");
-$Go.import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/geo");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/geo");
 
 enum CoordType {
   gk @0; # Gauss-Krüger 
