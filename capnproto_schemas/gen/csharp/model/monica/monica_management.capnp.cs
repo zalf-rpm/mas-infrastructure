@@ -1836,6 +1836,8 @@ namespace Mas.Schema.Model.Monica
                 void ICapnpSerializable.Deserialize(DeserializerState arg_)
                 {
                     var reader = READER.create(arg_);
+                    Id = reader.Id;
+                    Name = reader.Name;
                     Carbamid = reader.Carbamid;
                     Nh4 = reader.Nh4;
                     No3 = reader.No3;
@@ -1844,6 +1846,8 @@ namespace Mas.Schema.Model.Monica
 
                 public void serialize(WRITER writer)
                 {
+                    writer.Id = Id;
+                    writer.Name = Name;
                     writer.Carbamid = Carbamid;
                     writer.Nh4 = Nh4;
                     writer.No3 = No3;
@@ -1856,6 +1860,18 @@ namespace Mas.Schema.Model.Monica
 
                 public void applyDefaults()
                 {
+                }
+
+                public string Id
+                {
+                    get;
+                    set;
+                }
+
+                public string Name
+                {
+                    get;
+                    set;
                 }
 
                 public double Carbamid
@@ -1887,6 +1903,8 @@ namespace Mas.Schema.Model.Monica
                     public static READER create(DeserializerState ctx) => new READER(ctx);
                     public static implicit operator DeserializerState(READER reader) => reader.ctx;
                     public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                    public string Id => ctx.ReadText(0, null);
+                    public string Name => ctx.ReadText(1, null);
                     public double Carbamid => ctx.ReadDataDouble(0UL, 0);
                     public double Nh4 => ctx.ReadDataDouble(64UL, 0);
                     public double No3 => ctx.ReadDataDouble(128UL, 0);
@@ -1896,7 +1914,19 @@ namespace Mas.Schema.Model.Monica
                 {
                     public WRITER()
                     {
-                        this.SetStruct(3, 0);
+                        this.SetStruct(3, 2);
+                    }
+
+                    public string Id
+                    {
+                        get => this.ReadText(0, null);
+                        set => this.WriteText(0, value, null);
+                    }
+
+                    public string Name
+                    {
+                        get => this.ReadText(1, null);
+                        set => this.WriteText(1, value, null);
                     }
 
                     public double Carbamid

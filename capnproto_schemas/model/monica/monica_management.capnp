@@ -240,9 +240,11 @@ struct Params {
 
   struct MineralFertilization {
     struct Parameters {
-      carbamid    @0 :Float64; # [%]
-      nh4         @1 :Float64; # [%]
-      no3         @2 :Float64; # [%]
+      id          @0 :Text;
+      name        @1 :Text;
+      carbamid    @2 :Float64; # [%]
+      nh4         @3 :Float64; # [%]
+      no3         @4 :Float64; # [%]
     }
 
     partition @0 :Parameters;
