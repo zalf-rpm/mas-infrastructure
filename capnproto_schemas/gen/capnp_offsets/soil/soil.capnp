@@ -2,7 +2,7 @@
 @0xff3f350f11891951;
 $import "/capnp/c++.capnp".namespace("mas::schema::soil");
 $import "/capnp/go.capnp".package("soil");
-$import "/capnp/go.capnp".import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/soil");
+$import "/capnp/go.capnp".import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/soil");
 enum SType @0xc2e4a3c8ff61b40a {
   unknown @0;
   ka5 @1;

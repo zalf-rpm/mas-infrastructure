@@ -2,7 +2,7 @@
 @0xf52adf98d2bbc6c0;
 $import "/capnp/c++.capnp".namespace("mas::schema::service");
 $import "/capnp/go.capnp".package("service");
-$import "/capnp/go.capnp".import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/service");
+$import "/capnp/go.capnp".import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/service");
 interface Admin @0xfec1f88b198df649 superclasses(import "/common.capnp".Identifiable) {
   heartbeat @0 () -> ();
   setTimeout @1 (seconds :UInt64) -> ();

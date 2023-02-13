@@ -1,8 +1,8 @@
 # model/monica/soil_params.capnp
 @0xf83caca0747996ab;
 $import "/capnp/c++.capnp".namespace("mas::schema::soil");
-$import "/capnp/go.capnp".package("soil");
-$import "/capnp/go.capnp".import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/soil");
+$import "/capnp/go.capnp".package("monica");
+$import "/capnp/go.capnp".import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/soil");
 struct SoilCharacteristicData @0xfc682227304e2281 {  # 0 bytes, 1 ptrs
   list @0 :List(Data);  # ptr[0]
   struct Data @0xeafaab57e025db63 {  # 8 bytes, 1 ptrs

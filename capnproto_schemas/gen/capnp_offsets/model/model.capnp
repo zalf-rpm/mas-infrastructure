@@ -2,7 +2,7 @@
 @0x9273388a9624d430;
 $import "/capnp/c++.capnp".namespace("mas::schema::model");
 $import "/capnp/go.capnp".package("models");
-$import "/capnp/go.capnp".import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/models");
+$import "/capnp/go.capnp".import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/models");
 struct XYResult @0x851d47c6ccdecf08 {  # 0 bytes, 2 ptrs
   xs @0 :List(Float64);  # ptr[0]
   ys @1 :List(Float64);  # ptr[1]

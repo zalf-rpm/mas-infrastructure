@@ -763,7 +763,7 @@ namespace Mas.Schema.Model.Monica
             PsMaxMineralisationDepth = reader.PsMaxMineralisationDepth;
             VsNumberOfOrganicLayers = reader.VsNumberOfOrganicLayers;
             VfTopDressing = reader.VfTopDressing;
-            VfTopDressingPartition = CapnpSerializable.Create<Mas.Schema.Management.Params.MineralFertilization.Parameters>(reader.VfTopDressingPartition);
+            VfTopDressingPartition = CapnpSerializable.Create<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters>(reader.VfTopDressingPartition);
             VfTopDressingDelay = reader.VfTopDressingDelay;
             CropModule = CapnpSerializable.Create<Mas.Schema.Model.Monica.CropModuleState>(reader.CropModule);
             DelayedNMinApplications = reader.DelayedNMinApplications?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Model.Monica.SoilColumnState.DelayedNMinApplicationParams>(_));
@@ -862,7 +862,7 @@ namespace Mas.Schema.Model.Monica
             set;
         }
 
-        public Mas.Schema.Management.Params.MineralFertilization.Parameters VfTopDressingPartition
+        public Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters VfTopDressingPartition
         {
             get;
             set;
@@ -919,7 +919,7 @@ namespace Mas.Schema.Model.Monica
             public double PsMaxMineralisationDepth => ctx.ReadDataDouble(448UL, 0.4);
             public double VsNumberOfOrganicLayers => ctx.ReadDataDouble(512UL, 0);
             public double VfTopDressing => ctx.ReadDataDouble(576UL, 0);
-            public Mas.Schema.Management.Params.MineralFertilization.Parameters.READER VfTopDressingPartition => ctx.ReadStruct(0, Mas.Schema.Management.Params.MineralFertilization.Parameters.READER.create);
+            public Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters.READER VfTopDressingPartition => ctx.ReadStruct(0, Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters.READER.create);
             public bool HasVfTopDressingPartition => ctx.IsStructFieldNonNull(0);
             public ushort VfTopDressingDelay => ctx.ReadDataUShort(144UL, (ushort)0);
             public Mas.Schema.Model.Monica.CropModuleState.READER CropModule => ctx.ReadStruct(1, Mas.Schema.Model.Monica.CropModuleState.READER.create);
@@ -998,9 +998,9 @@ namespace Mas.Schema.Model.Monica
                 set => this.WriteData(576UL, value, 0);
             }
 
-            public Mas.Schema.Management.Params.MineralFertilization.Parameters.WRITER VfTopDressingPartition
+            public Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters.WRITER VfTopDressingPartition
             {
-                get => BuildPointer<Mas.Schema.Management.Params.MineralFertilization.Parameters.WRITER>(0);
+                get => BuildPointer<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters.WRITER>(0);
                 set => Link(0, value);
             }
 
@@ -1042,7 +1042,7 @@ namespace Mas.Schema.Model.Monica
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Fp = CapnpSerializable.Create<Mas.Schema.Management.Params.MineralFertilization.Parameters>(reader.Fp);
+                Fp = CapnpSerializable.Create<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters>(reader.Fp);
                 SamplingDepth = reader.SamplingDepth;
                 CropNTarget = reader.CropNTarget;
                 CropNTarget30 = reader.CropNTarget30;
@@ -1072,7 +1072,7 @@ namespace Mas.Schema.Model.Monica
             {
             }
 
-            public Mas.Schema.Management.Params.MineralFertilization.Parameters Fp
+            public Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters Fp
             {
                 get;
                 set;
@@ -1125,7 +1125,7 @@ namespace Mas.Schema.Model.Monica
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Schema.Management.Params.MineralFertilization.Parameters.READER Fp => ctx.ReadStruct(0, Mas.Schema.Management.Params.MineralFertilization.Parameters.READER.create);
+                public Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters.READER Fp => ctx.ReadStruct(0, Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters.READER.create);
                 public bool HasFp => ctx.IsStructFieldNonNull(0);
                 public double SamplingDepth => ctx.ReadDataDouble(0UL, 0);
                 public double CropNTarget => ctx.ReadDataDouble(64UL, 0);
@@ -1142,9 +1142,9 @@ namespace Mas.Schema.Model.Monica
                     this.SetStruct(6, 1);
                 }
 
-                public Mas.Schema.Management.Params.MineralFertilization.Parameters.WRITER Fp
+                public Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters.WRITER Fp
                 {
-                    get => BuildPointer<Mas.Schema.Management.Params.MineralFertilization.Parameters.WRITER>(0);
+                    get => BuildPointer<Mas.Schema.Model.Monica.Params.MineralFertilization.Parameters.WRITER>(0);
                     set => Link(0, value);
                 }
 

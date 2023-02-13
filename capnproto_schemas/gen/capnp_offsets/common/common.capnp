@@ -2,7 +2,7 @@
 @0x99f1c9a775a88ac9;
 $import "/capnp/c++.capnp".namespace("mas::schema::common");
 $import "/capnp/go.capnp".package("common");
-$import "/capnp/go.capnp".import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/common");
+$import "/capnp/go.capnp".import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common");
 struct IdInformation @0xd4cb7ecbfe03dad3 {  # 0 bytes, 3 ptrs
   id @0 :Text;  # ptr[0]
   name @1 :Text;  # ptr[1]
@@ -76,7 +76,7 @@ struct IP @0xd39ff99bbab1a74e {  # 0 bytes, 2 ptrs
     value @1 :AnyPointer;  # ptr[1]
   }
 }
-interface Channel @0xf0c0f9413a3083be (V) {
+interface Channel @0xf0c0f9413a3083be (V) superclasses(Identifiable, import "/persistence.capnp".Persistent) {
   setBufferSize @0 (size :UInt64 = 1) -> ();
   reader @1 () -> (r :Reader);
   writer @2 () -> (w :Writer);
@@ -92,6 +92,13 @@ interface Channel @0xf0c0f9413a3083be (V) {
       value @0 :V;  # ptr[0], union tag = 0
       done @1 :Void;  # bits[0, 0), union tag = 1
     }
+  }
+  struct StartupInfo @0xb7c45baf591227b6 {  # 16 bytes, 3 ptrs
+    bufferSize @0 :UInt64;  # bits[0, 64)
+    closeSemantics @1 :CloseSemantics;  # bits[64, 80)
+    channelSR @2 :Text;  # ptr[0]
+    readerSRs @3 :List(Text);  # ptr[1]
+    writerSRs @4 :List(Text);  # ptr[2]
   }
   interface Reader @0x9c656810b30decd7 $import "/capnp/c++.capnp".name("ChanReader") {
     read @0 () -> Msg;

@@ -2,7 +2,7 @@
 @0xb30a3af53cea6b3e;
 $import "/capnp/c++.capnp".namespace("mas::schema::management");
 $import "/capnp/go.capnp".package("management");
-$import "/capnp/go.capnp".import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/management");
+$import "/capnp/go.capnp".import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/management");
 enum EventType @0x82a74595175b71a3 {
   sowing @0;
   automaticSowing @1;
@@ -69,10 +69,10 @@ struct Event @0x9c5dedfd679ac842 {  # 8 bytes, 4 ptrs
   }
 }
 struct Params @0x9d247c812334c917 {  # 0 bytes, 0 ptrs
-  struct Sowing @0x80ce153f3bc9a9e8 {  # 8 bytes, 1 ptrs
-    cultivar @0 :import "/crop.capnp".Cultivar;  # bits[0, 16)
-    plantDensity @1 :UInt16;  # bits[16, 32)
-    crop @2 :import "/crop.capnp".Crop;  # ptr[0]
+  struct Sowing @0x80ce153f3bc9a9e8 {  # 8 bytes, 2 ptrs
+    cultivar @0 :Text;  # ptr[0]
+    plantDensity @1 :UInt16;  # bits[0, 16)
+    crop @2 :import "/crop.capnp".Crop;  # ptr[1]
   }
   struct AutomaticSowing @0xcfcf44997e7ceab4 {  # 64 bytes, 2 ptrs
     sowing @9 :Sowing;  # ptr[1]
@@ -136,62 +136,32 @@ struct Params @0x9d247c812334c917 {  # 0 bytes, 0 ptrs
     }
   }
   struct MineralFertilization @0xd3da30ea7b25d921 {  # 8 bytes, 1 ptrs
-    partition @0 :Parameters;  # ptr[0]
+    fertilizer @0 :Fertilizer;  # ptr[0]
     amount @1 :Float64;  # bits[0, 64)
-    struct Parameters @0xfcd78361390515e1 {  # 24 bytes, 2 ptrs
-      id @0 :Text;  # ptr[0]
-      name @1 :Text;  # ptr[1]
-      carbamid @2 :Float64;  # bits[0, 64)
-      nh4 @3 :Float64;  # bits[64, 128)
-      no3 @4 :Float64;  # bits[128, 192)
-    }
   }
   struct NDemandFertilization @0x953375ac67d4f573 {  # 24 bytes, 1 ptrs
     nDemand @0 :Float64;  # bits[0, 64)
-    partition @1 :MineralFertilization.Parameters;  # ptr[0]
+    fertilizer @1 :Fertilizer;  # ptr[0]
     depth @2 :Float64;  # bits[64, 128)
     stage @3 :UInt8 = 1;  # bits[128, 136)
   }
   struct OrganicFertilization @0xe98c76fb0fb0b2cd {  # 16 bytes, 1 ptrs
-    params @0 :Parameters;  # ptr[0]
+    fertilizer @0 :Fertilizer;  # ptr[0]
     amount @1 :Float64;  # bits[0, 64)
     incorporation @2 :Bool;  # bits[64, 65)
-    struct OrganicMatterParameters @0x962b157a9dc85681 {  # 104 bytes, 0 ptrs
-      aomDryMatterContent @0 :Float64;  # bits[0, 64)
-      aomNH4Content @1 :Float64;  # bits[64, 128)
-      aomNO3Content @2 :Float64;  # bits[128, 192)
-      aomCarbamidContent @3 :Float64;  # bits[192, 256)
-      aomSlowDecCoeffStandard @4 :Float64;  # bits[256, 320)
-      aomFastDecCoeffStandard @5 :Float64;  # bits[320, 384)
-      partAOMToAOMSlow @6 :Float64;  # bits[384, 448)
-      partAOMToAOMFast @7 :Float64;  # bits[448, 512)
-      cnRatioAOMSlow @8 :Float64;  # bits[512, 576)
-      cnRatioAOMFast @9 :Float64;  # bits[576, 640)
-      partAOMSlowToSMBSlow @10 :Float64;  # bits[640, 704)
-      partAOMSlowToSMBFast @11 :Float64;  # bits[704, 768)
-      nConcentration @12 :Float64;  # bits[768, 832)
-    }
-    struct Parameters @0xb0919989cca2fd9a {  # 0 bytes, 3 ptrs
-      params @0 :OrganicMatterParameters;  # ptr[0]
-      id @1 :Text;  # ptr[1]
-      name @2 :Text;  # ptr[2]
-    }
   }
   struct Tillage @0x88a5848ef8603554 {  # 8 bytes, 0 ptrs
     depth @0 :Float64 = 0.3;  # bits[0, 64)
   }
   struct Irrigation @0x87feb816363ff43c {  # 8 bytes, 1 ptrs
     amount @0 :Float64;  # bits[0, 64)
-    params @1 :Parameters;  # ptr[0]
-    struct Parameters @0xb991be9572278e2d {  # 16 bytes, 0 ptrs
-      nitrateConcentration @0 :Float64;  # bits[0, 64)
-      sulfateConcentration @1 :Float64;  # bits[64, 128)
-    }
+    nutrientConcentrations @1 :List(Nutrient);  # ptr[0]
   }
 }
-struct Nutrient @0xaafe4332e17aa43e {  # 8 bytes, 0 ptrs
+struct Nutrient @0xaafe4332e17aa43e {  # 16 bytes, 0 ptrs
   nutrient @0 :Name;  # bits[0, 16)
-  unit @1 :Unit;  # bits[16, 32)
+  value @1 :Float64;  # bits[64, 128)
+  unit @2 :Unit;  # bits[16, 32)
   enum Name @0xbc6b579acf43fb6e {
     urea @0;
     ammonia @1;
@@ -199,26 +169,21 @@ struct Nutrient @0xaafe4332e17aa43e {  # 8 bytes, 0 ptrs
     phosphorus @3;
     potassium @4;
     sulfate @5;
-    organiceC @6;
+    organicC @6;
     organicN @7;
     organicP @8;
     organicNFast @9;
     organicNSlow @10;
   }
   enum Unit @0x987b68b57edbbdb6 {
-    percent @0;
+    none @0;
     fraction @1;
+    percent @2;
   }
 }
-interface FertilizerService @0xbbb7aeae0d097e05 superclasses(import "/common.capnp".Identifiable) {
-  availableMineralFertilizers @0 () -> (list :List(Entry(List(Nutrient))));
-  mineralFertilizer @1 (id :Text) -> (fert :List(Nutrient));
-  availableOrganicFertilizers @2 () -> (list :List(Entry(List(Nutrient))));
-  organicFertilizer @3 (id :Text) -> (fert :List(Nutrient));
-  struct Entry @0xb2df3dc668478979 (T) {  # 0 bytes, 2 ptrs
-    info @0 :import "/common.capnp".IdInformation;  # ptr[0]
-    ref @1 :import "/common.capnp".ValueHolder(T);  # ptr[1]
-  }
+interface Fertilizer @0x8c4cb8d60ae5aec7 superclasses(import "/common.capnp".Identifiable, import "/persistence.capnp".Persistent) {
+  nutrients @0 () -> (nutrients :List(Nutrient));
+  parameters @1 () -> (params :AnyPointer);
 }
 interface Service @0xc876b729b7d7f6d9 superclasses(import "/common.capnp".Identifiable) {
   managementAt @0 import "/geo.capnp".LatLonCoord -> (mgmt :List(Event));

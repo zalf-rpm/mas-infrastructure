@@ -700,7 +700,7 @@ namespace Mas.Schema.Management
             {
             }
 
-            public Mas.Schema.Crop.Cultivar Cultivar
+            public string Cultivar
             {
                 get;
                 set;
@@ -730,34 +730,34 @@ namespace Mas.Schema.Management
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Schema.Crop.Cultivar Cultivar => (Mas.Schema.Crop.Cultivar)ctx.ReadDataUShort(0UL, (ushort)0);
-                public ushort PlantDensity => ctx.ReadDataUShort(16UL, (ushort)0);
-                public Mas.Schema.Crop.ICrop Crop => ctx.ReadCap<Mas.Schema.Crop.ICrop>(0);
+                public string Cultivar => ctx.ReadText(0, null);
+                public ushort PlantDensity => ctx.ReadDataUShort(0UL, (ushort)0);
+                public Mas.Schema.Crop.ICrop Crop => ctx.ReadCap<Mas.Schema.Crop.ICrop>(1);
             }
 
             public class WRITER : SerializerState
             {
                 public WRITER()
                 {
-                    this.SetStruct(1, 1);
+                    this.SetStruct(1, 2);
                 }
 
-                public Mas.Schema.Crop.Cultivar Cultivar
+                public string Cultivar
                 {
-                    get => (Mas.Schema.Crop.Cultivar)this.ReadDataUShort(0UL, (ushort)0);
-                    set => this.WriteData(0UL, (ushort)value, (ushort)0);
+                    get => this.ReadText(0, null);
+                    set => this.WriteText(0, value, null);
                 }
 
                 public ushort PlantDensity
                 {
-                    get => this.ReadDataUShort(16UL, (ushort)0);
-                    set => this.WriteData(16UL, value, (ushort)0);
+                    get => this.ReadDataUShort(0UL, (ushort)0);
+                    set => this.WriteData(0UL, value, (ushort)0);
                 }
 
                 public Mas.Schema.Crop.ICrop Crop
                 {
-                    get => ReadCap<Mas.Schema.Crop.ICrop>(0);
-                    set => LinkObject(0, value);
+                    get => ReadCap<Mas.Schema.Crop.ICrop>(1);
+                    set => LinkObject(1, value);
                 }
             }
         }
@@ -1636,14 +1636,14 @@ namespace Mas.Schema.Management
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Partition = CapnpSerializable.Create<Mas.Schema.Management.Params.MineralFertilization.Parameters>(reader.Partition);
+                Fertilizer = reader.Fertilizer;
                 Amount = reader.Amount;
                 applyDefaults();
             }
 
             public void serialize(WRITER writer)
             {
-                Partition?.serialize(writer.Partition);
+                writer.Fertilizer = Fertilizer;
                 writer.Amount = Amount;
             }
 
@@ -1656,7 +1656,7 @@ namespace Mas.Schema.Management
             {
             }
 
-            public Mas.Schema.Management.Params.MineralFertilization.Parameters Partition
+            public Mas.Schema.Management.IFertilizer Fertilizer
             {
                 get;
                 set;
@@ -1679,8 +1679,7 @@ namespace Mas.Schema.Management
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Schema.Management.Params.MineralFertilization.Parameters.READER Partition => ctx.ReadStruct(0, Mas.Schema.Management.Params.MineralFertilization.Parameters.READER.create);
-                public bool HasPartition => ctx.IsStructFieldNonNull(0);
+                public Mas.Schema.Management.IFertilizer Fertilizer => ctx.ReadCap<Mas.Schema.Management.IFertilizer>(0);
                 public double Amount => ctx.ReadDataDouble(0UL, 0);
             }
 
@@ -1691,136 +1690,16 @@ namespace Mas.Schema.Management
                     this.SetStruct(1, 1);
                 }
 
-                public Mas.Schema.Management.Params.MineralFertilization.Parameters.WRITER Partition
+                public Mas.Schema.Management.IFertilizer Fertilizer
                 {
-                    get => BuildPointer<Mas.Schema.Management.Params.MineralFertilization.Parameters.WRITER>(0);
-                    set => Link(0, value);
+                    get => ReadCap<Mas.Schema.Management.IFertilizer>(0);
+                    set => LinkObject(0, value);
                 }
 
                 public double Amount
                 {
                     get => this.ReadDataDouble(0UL, 0);
                     set => this.WriteData(0UL, value, 0);
-                }
-            }
-
-            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xfcd78361390515e1UL)]
-            public class Parameters : ICapnpSerializable
-            {
-                public const UInt64 typeId = 0xfcd78361390515e1UL;
-                void ICapnpSerializable.Deserialize(DeserializerState arg_)
-                {
-                    var reader = READER.create(arg_);
-                    Id = reader.Id;
-                    Name = reader.Name;
-                    Carbamid = reader.Carbamid;
-                    Nh4 = reader.Nh4;
-                    No3 = reader.No3;
-                    applyDefaults();
-                }
-
-                public void serialize(WRITER writer)
-                {
-                    writer.Id = Id;
-                    writer.Name = Name;
-                    writer.Carbamid = Carbamid;
-                    writer.Nh4 = Nh4;
-                    writer.No3 = No3;
-                }
-
-                void ICapnpSerializable.Serialize(SerializerState arg_)
-                {
-                    serialize(arg_.Rewrap<WRITER>());
-                }
-
-                public void applyDefaults()
-                {
-                }
-
-                public string Id
-                {
-                    get;
-                    set;
-                }
-
-                public string Name
-                {
-                    get;
-                    set;
-                }
-
-                public double Carbamid
-                {
-                    get;
-                    set;
-                }
-
-                public double Nh4
-                {
-                    get;
-                    set;
-                }
-
-                public double No3
-                {
-                    get;
-                    set;
-                }
-
-                public struct READER
-                {
-                    readonly DeserializerState ctx;
-                    public READER(DeserializerState ctx)
-                    {
-                        this.ctx = ctx;
-                    }
-
-                    public static READER create(DeserializerState ctx) => new READER(ctx);
-                    public static implicit operator DeserializerState(READER reader) => reader.ctx;
-                    public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                    public string Id => ctx.ReadText(0, null);
-                    public string Name => ctx.ReadText(1, null);
-                    public double Carbamid => ctx.ReadDataDouble(0UL, 0);
-                    public double Nh4 => ctx.ReadDataDouble(64UL, 0);
-                    public double No3 => ctx.ReadDataDouble(128UL, 0);
-                }
-
-                public class WRITER : SerializerState
-                {
-                    public WRITER()
-                    {
-                        this.SetStruct(3, 2);
-                    }
-
-                    public string Id
-                    {
-                        get => this.ReadText(0, null);
-                        set => this.WriteText(0, value, null);
-                    }
-
-                    public string Name
-                    {
-                        get => this.ReadText(1, null);
-                        set => this.WriteText(1, value, null);
-                    }
-
-                    public double Carbamid
-                    {
-                        get => this.ReadDataDouble(0UL, 0);
-                        set => this.WriteData(0UL, value, 0);
-                    }
-
-                    public double Nh4
-                    {
-                        get => this.ReadDataDouble(64UL, 0);
-                        set => this.WriteData(64UL, value, 0);
-                    }
-
-                    public double No3
-                    {
-                        get => this.ReadDataDouble(128UL, 0);
-                        set => this.WriteData(128UL, value, 0);
-                    }
                 }
             }
         }
@@ -1833,7 +1712,7 @@ namespace Mas.Schema.Management
             {
                 var reader = READER.create(arg_);
                 NDemand = reader.NDemand;
-                Partition = CapnpSerializable.Create<Mas.Schema.Management.Params.MineralFertilization.Parameters>(reader.Partition);
+                Fertilizer = reader.Fertilizer;
                 Depth = reader.Depth;
                 Stage = reader.Stage;
                 applyDefaults();
@@ -1842,7 +1721,7 @@ namespace Mas.Schema.Management
             public void serialize(WRITER writer)
             {
                 writer.NDemand = NDemand;
-                Partition?.serialize(writer.Partition);
+                writer.Fertilizer = Fertilizer;
                 writer.Depth = Depth;
                 writer.Stage = Stage;
             }
@@ -1862,7 +1741,7 @@ namespace Mas.Schema.Management
                 set;
             }
 
-            public Mas.Schema.Management.Params.MineralFertilization.Parameters Partition
+            public Mas.Schema.Management.IFertilizer Fertilizer
             {
                 get;
                 set;
@@ -1893,8 +1772,7 @@ namespace Mas.Schema.Management
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
                 public double NDemand => ctx.ReadDataDouble(0UL, 0);
-                public Mas.Schema.Management.Params.MineralFertilization.Parameters.READER Partition => ctx.ReadStruct(0, Mas.Schema.Management.Params.MineralFertilization.Parameters.READER.create);
-                public bool HasPartition => ctx.IsStructFieldNonNull(0);
+                public Mas.Schema.Management.IFertilizer Fertilizer => ctx.ReadCap<Mas.Schema.Management.IFertilizer>(0);
                 public double Depth => ctx.ReadDataDouble(64UL, 0);
                 public byte Stage => ctx.ReadDataByte(128UL, (byte)1);
             }
@@ -1912,10 +1790,10 @@ namespace Mas.Schema.Management
                     set => this.WriteData(0UL, value, 0);
                 }
 
-                public Mas.Schema.Management.Params.MineralFertilization.Parameters.WRITER Partition
+                public Mas.Schema.Management.IFertilizer Fertilizer
                 {
-                    get => BuildPointer<Mas.Schema.Management.Params.MineralFertilization.Parameters.WRITER>(0);
-                    set => Link(0, value);
+                    get => ReadCap<Mas.Schema.Management.IFertilizer>(0);
+                    set => LinkObject(0, value);
                 }
 
                 public double Depth
@@ -1939,7 +1817,7 @@ namespace Mas.Schema.Management
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Params = CapnpSerializable.Create<Mas.Schema.Management.Params.OrganicFertilization.Parameters>(reader.Params);
+                Fertilizer = reader.Fertilizer;
                 Amount = reader.Amount;
                 Incorporation = reader.Incorporation;
                 applyDefaults();
@@ -1947,7 +1825,7 @@ namespace Mas.Schema.Management
 
             public void serialize(WRITER writer)
             {
-                Params?.serialize(writer.Params);
+                writer.Fertilizer = Fertilizer;
                 writer.Amount = Amount;
                 writer.Incorporation = Incorporation;
             }
@@ -1961,7 +1839,7 @@ namespace Mas.Schema.Management
             {
             }
 
-            public Mas.Schema.Management.Params.OrganicFertilization.Parameters Params
+            public Mas.Schema.Management.IFertilizer Fertilizer
             {
                 get;
                 set;
@@ -1991,8 +1869,7 @@ namespace Mas.Schema.Management
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Schema.Management.Params.OrganicFertilization.Parameters.READER Params => ctx.ReadStruct(0, Mas.Schema.Management.Params.OrganicFertilization.Parameters.READER.create);
-                public bool HasParams => ctx.IsStructFieldNonNull(0);
+                public Mas.Schema.Management.IFertilizer Fertilizer => ctx.ReadCap<Mas.Schema.Management.IFertilizer>(0);
                 public double Amount => ctx.ReadDataDouble(0UL, 0);
                 public bool Incorporation => ctx.ReadDataBool(64UL, false);
             }
@@ -2004,10 +1881,10 @@ namespace Mas.Schema.Management
                     this.SetStruct(2, 1);
                 }
 
-                public Mas.Schema.Management.Params.OrganicFertilization.Parameters.WRITER Params
+                public Mas.Schema.Management.IFertilizer Fertilizer
                 {
-                    get => BuildPointer<Mas.Schema.Management.Params.OrganicFertilization.Parameters.WRITER>(0);
-                    set => Link(0, value);
+                    get => ReadCap<Mas.Schema.Management.IFertilizer>(0);
+                    set => LinkObject(0, value);
                 }
 
                 public double Amount
@@ -2020,337 +1897,6 @@ namespace Mas.Schema.Management
                 {
                     get => this.ReadDataBool(64UL, false);
                     set => this.WriteData(64UL, value, false);
-                }
-            }
-
-            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x962b157a9dc85681UL)]
-            public class OrganicMatterParameters : ICapnpSerializable
-            {
-                public const UInt64 typeId = 0x962b157a9dc85681UL;
-                void ICapnpSerializable.Deserialize(DeserializerState arg_)
-                {
-                    var reader = READER.create(arg_);
-                    AomDryMatterContent = reader.AomDryMatterContent;
-                    AomNH4Content = reader.AomNH4Content;
-                    AomNO3Content = reader.AomNO3Content;
-                    AomCarbamidContent = reader.AomCarbamidContent;
-                    AomSlowDecCoeffStandard = reader.AomSlowDecCoeffStandard;
-                    AomFastDecCoeffStandard = reader.AomFastDecCoeffStandard;
-                    PartAOMToAOMSlow = reader.PartAOMToAOMSlow;
-                    PartAOMToAOMFast = reader.PartAOMToAOMFast;
-                    CnRatioAOMSlow = reader.CnRatioAOMSlow;
-                    CnRatioAOMFast = reader.CnRatioAOMFast;
-                    PartAOMSlowToSMBSlow = reader.PartAOMSlowToSMBSlow;
-                    PartAOMSlowToSMBFast = reader.PartAOMSlowToSMBFast;
-                    NConcentration = reader.NConcentration;
-                    applyDefaults();
-                }
-
-                public void serialize(WRITER writer)
-                {
-                    writer.AomDryMatterContent = AomDryMatterContent;
-                    writer.AomNH4Content = AomNH4Content;
-                    writer.AomNO3Content = AomNO3Content;
-                    writer.AomCarbamidContent = AomCarbamidContent;
-                    writer.AomSlowDecCoeffStandard = AomSlowDecCoeffStandard;
-                    writer.AomFastDecCoeffStandard = AomFastDecCoeffStandard;
-                    writer.PartAOMToAOMSlow = PartAOMToAOMSlow;
-                    writer.PartAOMToAOMFast = PartAOMToAOMFast;
-                    writer.CnRatioAOMSlow = CnRatioAOMSlow;
-                    writer.CnRatioAOMFast = CnRatioAOMFast;
-                    writer.PartAOMSlowToSMBSlow = PartAOMSlowToSMBSlow;
-                    writer.PartAOMSlowToSMBFast = PartAOMSlowToSMBFast;
-                    writer.NConcentration = NConcentration;
-                }
-
-                void ICapnpSerializable.Serialize(SerializerState arg_)
-                {
-                    serialize(arg_.Rewrap<WRITER>());
-                }
-
-                public void applyDefaults()
-                {
-                }
-
-                public double AomDryMatterContent
-                {
-                    get;
-                    set;
-                }
-
-                public double AomNH4Content
-                {
-                    get;
-                    set;
-                }
-
-                public double AomNO3Content
-                {
-                    get;
-                    set;
-                }
-
-                public double AomCarbamidContent
-                {
-                    get;
-                    set;
-                }
-
-                public double AomSlowDecCoeffStandard
-                {
-                    get;
-                    set;
-                }
-
-                public double AomFastDecCoeffStandard
-                {
-                    get;
-                    set;
-                }
-
-                public double PartAOMToAOMSlow
-                {
-                    get;
-                    set;
-                }
-
-                public double PartAOMToAOMFast
-                {
-                    get;
-                    set;
-                }
-
-                public double CnRatioAOMSlow
-                {
-                    get;
-                    set;
-                }
-
-                public double CnRatioAOMFast
-                {
-                    get;
-                    set;
-                }
-
-                public double PartAOMSlowToSMBSlow
-                {
-                    get;
-                    set;
-                }
-
-                public double PartAOMSlowToSMBFast
-                {
-                    get;
-                    set;
-                }
-
-                public double NConcentration
-                {
-                    get;
-                    set;
-                }
-
-                public struct READER
-                {
-                    readonly DeserializerState ctx;
-                    public READER(DeserializerState ctx)
-                    {
-                        this.ctx = ctx;
-                    }
-
-                    public static READER create(DeserializerState ctx) => new READER(ctx);
-                    public static implicit operator DeserializerState(READER reader) => reader.ctx;
-                    public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                    public double AomDryMatterContent => ctx.ReadDataDouble(0UL, 0);
-                    public double AomNH4Content => ctx.ReadDataDouble(64UL, 0);
-                    public double AomNO3Content => ctx.ReadDataDouble(128UL, 0);
-                    public double AomCarbamidContent => ctx.ReadDataDouble(192UL, 0);
-                    public double AomSlowDecCoeffStandard => ctx.ReadDataDouble(256UL, 0);
-                    public double AomFastDecCoeffStandard => ctx.ReadDataDouble(320UL, 0);
-                    public double PartAOMToAOMSlow => ctx.ReadDataDouble(384UL, 0);
-                    public double PartAOMToAOMFast => ctx.ReadDataDouble(448UL, 0);
-                    public double CnRatioAOMSlow => ctx.ReadDataDouble(512UL, 0);
-                    public double CnRatioAOMFast => ctx.ReadDataDouble(576UL, 0);
-                    public double PartAOMSlowToSMBSlow => ctx.ReadDataDouble(640UL, 0);
-                    public double PartAOMSlowToSMBFast => ctx.ReadDataDouble(704UL, 0);
-                    public double NConcentration => ctx.ReadDataDouble(768UL, 0);
-                }
-
-                public class WRITER : SerializerState
-                {
-                    public WRITER()
-                    {
-                        this.SetStruct(13, 0);
-                    }
-
-                    public double AomDryMatterContent
-                    {
-                        get => this.ReadDataDouble(0UL, 0);
-                        set => this.WriteData(0UL, value, 0);
-                    }
-
-                    public double AomNH4Content
-                    {
-                        get => this.ReadDataDouble(64UL, 0);
-                        set => this.WriteData(64UL, value, 0);
-                    }
-
-                    public double AomNO3Content
-                    {
-                        get => this.ReadDataDouble(128UL, 0);
-                        set => this.WriteData(128UL, value, 0);
-                    }
-
-                    public double AomCarbamidContent
-                    {
-                        get => this.ReadDataDouble(192UL, 0);
-                        set => this.WriteData(192UL, value, 0);
-                    }
-
-                    public double AomSlowDecCoeffStandard
-                    {
-                        get => this.ReadDataDouble(256UL, 0);
-                        set => this.WriteData(256UL, value, 0);
-                    }
-
-                    public double AomFastDecCoeffStandard
-                    {
-                        get => this.ReadDataDouble(320UL, 0);
-                        set => this.WriteData(320UL, value, 0);
-                    }
-
-                    public double PartAOMToAOMSlow
-                    {
-                        get => this.ReadDataDouble(384UL, 0);
-                        set => this.WriteData(384UL, value, 0);
-                    }
-
-                    public double PartAOMToAOMFast
-                    {
-                        get => this.ReadDataDouble(448UL, 0);
-                        set => this.WriteData(448UL, value, 0);
-                    }
-
-                    public double CnRatioAOMSlow
-                    {
-                        get => this.ReadDataDouble(512UL, 0);
-                        set => this.WriteData(512UL, value, 0);
-                    }
-
-                    public double CnRatioAOMFast
-                    {
-                        get => this.ReadDataDouble(576UL, 0);
-                        set => this.WriteData(576UL, value, 0);
-                    }
-
-                    public double PartAOMSlowToSMBSlow
-                    {
-                        get => this.ReadDataDouble(640UL, 0);
-                        set => this.WriteData(640UL, value, 0);
-                    }
-
-                    public double PartAOMSlowToSMBFast
-                    {
-                        get => this.ReadDataDouble(704UL, 0);
-                        set => this.WriteData(704UL, value, 0);
-                    }
-
-                    public double NConcentration
-                    {
-                        get => this.ReadDataDouble(768UL, 0);
-                        set => this.WriteData(768UL, value, 0);
-                    }
-                }
-            }
-
-            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xb0919989cca2fd9aUL)]
-            public class Parameters : ICapnpSerializable
-            {
-                public const UInt64 typeId = 0xb0919989cca2fd9aUL;
-                void ICapnpSerializable.Deserialize(DeserializerState arg_)
-                {
-                    var reader = READER.create(arg_);
-                    Params = CapnpSerializable.Create<Mas.Schema.Management.Params.OrganicFertilization.OrganicMatterParameters>(reader.Params);
-                    Id = reader.Id;
-                    Name = reader.Name;
-                    applyDefaults();
-                }
-
-                public void serialize(WRITER writer)
-                {
-                    Params?.serialize(writer.Params);
-                    writer.Id = Id;
-                    writer.Name = Name;
-                }
-
-                void ICapnpSerializable.Serialize(SerializerState arg_)
-                {
-                    serialize(arg_.Rewrap<WRITER>());
-                }
-
-                public void applyDefaults()
-                {
-                }
-
-                public Mas.Schema.Management.Params.OrganicFertilization.OrganicMatterParameters Params
-                {
-                    get;
-                    set;
-                }
-
-                public string Id
-                {
-                    get;
-                    set;
-                }
-
-                public string Name
-                {
-                    get;
-                    set;
-                }
-
-                public struct READER
-                {
-                    readonly DeserializerState ctx;
-                    public READER(DeserializerState ctx)
-                    {
-                        this.ctx = ctx;
-                    }
-
-                    public static READER create(DeserializerState ctx) => new READER(ctx);
-                    public static implicit operator DeserializerState(READER reader) => reader.ctx;
-                    public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                    public Mas.Schema.Management.Params.OrganicFertilization.OrganicMatterParameters.READER Params => ctx.ReadStruct(0, Mas.Schema.Management.Params.OrganicFertilization.OrganicMatterParameters.READER.create);
-                    public bool HasParams => ctx.IsStructFieldNonNull(0);
-                    public string Id => ctx.ReadText(1, null);
-                    public string Name => ctx.ReadText(2, null);
-                }
-
-                public class WRITER : SerializerState
-                {
-                    public WRITER()
-                    {
-                        this.SetStruct(0, 3);
-                    }
-
-                    public Mas.Schema.Management.Params.OrganicFertilization.OrganicMatterParameters.WRITER Params
-                    {
-                        get => BuildPointer<Mas.Schema.Management.Params.OrganicFertilization.OrganicMatterParameters.WRITER>(0);
-                        set => Link(0, value);
-                    }
-
-                    public string Id
-                    {
-                        get => this.ReadText(1, null);
-                        set => this.WriteText(1, value, null);
-                    }
-
-                    public string Name
-                    {
-                        get => this.ReadText(2, null);
-                        set => this.WriteText(2, value, null);
-                    }
                 }
             }
         }
@@ -2424,14 +1970,14 @@ namespace Mas.Schema.Management
             {
                 var reader = READER.create(arg_);
                 Amount = reader.Amount;
-                Params = CapnpSerializable.Create<Mas.Schema.Management.Params.Irrigation.Parameters>(reader.Params);
+                NutrientConcentrations = reader.NutrientConcentrations?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Management.Nutrient>(_));
                 applyDefaults();
             }
 
             public void serialize(WRITER writer)
             {
                 writer.Amount = Amount;
-                Params?.serialize(writer.Params);
+                writer.NutrientConcentrations.Init(NutrientConcentrations, (_s1, _v1) => _v1?.serialize(_s1));
             }
 
             void ICapnpSerializable.Serialize(SerializerState arg_)
@@ -2449,7 +1995,7 @@ namespace Mas.Schema.Management
                 set;
             }
 
-            public Mas.Schema.Management.Params.Irrigation.Parameters Params
+            public IReadOnlyList<Mas.Schema.Management.Nutrient> NutrientConcentrations
             {
                 get;
                 set;
@@ -2467,8 +2013,8 @@ namespace Mas.Schema.Management
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
                 public double Amount => ctx.ReadDataDouble(0UL, 0);
-                public Mas.Schema.Management.Params.Irrigation.Parameters.READER Params => ctx.ReadStruct(0, Mas.Schema.Management.Params.Irrigation.Parameters.READER.create);
-                public bool HasParams => ctx.IsStructFieldNonNull(0);
+                public IReadOnlyList<Mas.Schema.Management.Nutrient.READER> NutrientConcentrations => ctx.ReadList(0).Cast(Mas.Schema.Management.Nutrient.READER.create);
+                public bool HasNutrientConcentrations => ctx.IsStructFieldNonNull(0);
             }
 
             public class WRITER : SerializerState
@@ -2484,85 +2030,10 @@ namespace Mas.Schema.Management
                     set => this.WriteData(0UL, value, 0);
                 }
 
-                public Mas.Schema.Management.Params.Irrigation.Parameters.WRITER Params
+                public ListOfStructsSerializer<Mas.Schema.Management.Nutrient.WRITER> NutrientConcentrations
                 {
-                    get => BuildPointer<Mas.Schema.Management.Params.Irrigation.Parameters.WRITER>(0);
+                    get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Management.Nutrient.WRITER>>(0);
                     set => Link(0, value);
-                }
-            }
-
-            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xb991be9572278e2dUL)]
-            public class Parameters : ICapnpSerializable
-            {
-                public const UInt64 typeId = 0xb991be9572278e2dUL;
-                void ICapnpSerializable.Deserialize(DeserializerState arg_)
-                {
-                    var reader = READER.create(arg_);
-                    NitrateConcentration = reader.NitrateConcentration;
-                    SulfateConcentration = reader.SulfateConcentration;
-                    applyDefaults();
-                }
-
-                public void serialize(WRITER writer)
-                {
-                    writer.NitrateConcentration = NitrateConcentration;
-                    writer.SulfateConcentration = SulfateConcentration;
-                }
-
-                void ICapnpSerializable.Serialize(SerializerState arg_)
-                {
-                    serialize(arg_.Rewrap<WRITER>());
-                }
-
-                public void applyDefaults()
-                {
-                }
-
-                public double NitrateConcentration
-                {
-                    get;
-                    set;
-                }
-
-                public double SulfateConcentration
-                {
-                    get;
-                    set;
-                }
-
-                public struct READER
-                {
-                    readonly DeserializerState ctx;
-                    public READER(DeserializerState ctx)
-                    {
-                        this.ctx = ctx;
-                    }
-
-                    public static READER create(DeserializerState ctx) => new READER(ctx);
-                    public static implicit operator DeserializerState(READER reader) => reader.ctx;
-                    public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                    public double NitrateConcentration => ctx.ReadDataDouble(0UL, 0);
-                    public double SulfateConcentration => ctx.ReadDataDouble(64UL, 0);
-                }
-
-                public class WRITER : SerializerState
-                {
-                    public WRITER()
-                    {
-                        this.SetStruct(2, 0);
-                    }
-
-                    public double NitrateConcentration
-                    {
-                        get => this.ReadDataDouble(0UL, 0);
-                        set => this.WriteData(0UL, value, 0);
-                    }
-
-                    public double SulfateConcentration
-                    {
-                        get => this.ReadDataDouble(64UL, 0);
-                        set => this.WriteData(64UL, value, 0);
-                    }
                 }
             }
         }
@@ -2576,6 +2047,7 @@ namespace Mas.Schema.Management
         {
             var reader = READER.create(arg_);
             TheNutrient = reader.TheNutrient;
+            Value = reader.Value;
             TheUnit = reader.TheUnit;
             applyDefaults();
         }
@@ -2583,6 +2055,7 @@ namespace Mas.Schema.Management
         public void serialize(WRITER writer)
         {
             writer.TheNutrient = TheNutrient;
+            writer.Value = Value;
             writer.TheUnit = TheUnit;
         }
 
@@ -2596,6 +2069,12 @@ namespace Mas.Schema.Management
         }
 
         public Mas.Schema.Management.Nutrient.Name TheNutrient
+        {
+            get;
+            set;
+        }
+
+        public double Value
         {
             get;
             set;
@@ -2619,6 +2098,7 @@ namespace Mas.Schema.Management
             public static implicit operator DeserializerState(READER reader) => reader.ctx;
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
             public Mas.Schema.Management.Nutrient.Name TheNutrient => (Mas.Schema.Management.Nutrient.Name)ctx.ReadDataUShort(0UL, (ushort)0);
+            public double Value => ctx.ReadDataDouble(64UL, 0);
             public Mas.Schema.Management.Nutrient.Unit TheUnit => (Mas.Schema.Management.Nutrient.Unit)ctx.ReadDataUShort(16UL, (ushort)0);
         }
 
@@ -2626,13 +2106,19 @@ namespace Mas.Schema.Management
         {
             public WRITER()
             {
-                this.SetStruct(1, 0);
+                this.SetStruct(2, 0);
             }
 
             public Mas.Schema.Management.Nutrient.Name TheNutrient
             {
                 get => (Mas.Schema.Management.Nutrient.Name)this.ReadDataUShort(0UL, (ushort)0);
                 set => this.WriteData(0UL, (ushort)value, (ushort)0);
+            }
+
+            public double Value
+            {
+                get => this.ReadDataDouble(64UL, 0);
+                set => this.WriteData(64UL, value, 0);
             }
 
             public Mas.Schema.Management.Nutrient.Unit TheUnit
@@ -2651,7 +2137,7 @@ namespace Mas.Schema.Management
             phosphorus,
             potassium,
             sulfate,
-            organiceC,
+            organicC,
             organicN,
             organicP,
             organicNFast,
@@ -2661,82 +2147,61 @@ namespace Mas.Schema.Management
         [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x987b68b57edbbdb6UL)]
         public enum Unit : ushort
         {
-            percent,
-            fraction
+            none,
+            fraction,
+            percent
         }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xbbb7aeae0d097e05UL), Proxy(typeof(FertilizerService_Proxy)), Skeleton(typeof(FertilizerService_Skeleton))]
-    public interface IFertilizerService : Mas.Schema.Common.IIdentifiable
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x8c4cb8d60ae5aec7UL), Proxy(typeof(Fertilizer_Proxy)), Skeleton(typeof(Fertilizer_Skeleton))]
+    public interface IFertilizer : Mas.Schema.Common.IIdentifiable, Mas.Schema.Persistence.IPersistent
     {
-        Task<IReadOnlyList<Mas.Schema.Management.FertilizerService.Entry<IReadOnlyList<Mas.Schema.Management.Nutrient>>>> AvailableMineralFertilizers(CancellationToken cancellationToken_ = default);
-        Task<IReadOnlyList<Mas.Schema.Management.Nutrient>> MineralFertilizer(string id, CancellationToken cancellationToken_ = default);
-        Task<IReadOnlyList<Mas.Schema.Management.FertilizerService.Entry<IReadOnlyList<Mas.Schema.Management.Nutrient>>>> AvailableOrganicFertilizers(CancellationToken cancellationToken_ = default);
-        Task<IReadOnlyList<Mas.Schema.Management.Nutrient>> OrganicFertilizer(string id, CancellationToken cancellationToken_ = default);
+        Task<IReadOnlyList<Mas.Schema.Management.Nutrient>> Nutrients(CancellationToken cancellationToken_ = default);
+        Task<object> Parameters(CancellationToken cancellationToken_ = default);
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xbbb7aeae0d097e05UL)]
-    public class FertilizerService_Proxy : Proxy, IFertilizerService
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x8c4cb8d60ae5aec7UL)]
+    public class Fertilizer_Proxy : Proxy, IFertilizer
     {
-        public Task<IReadOnlyList<Mas.Schema.Management.FertilizerService.Entry<IReadOnlyList<Mas.Schema.Management.Nutrient>>>> AvailableMineralFertilizers(CancellationToken cancellationToken_ = default)
+        public async Task<IReadOnlyList<Mas.Schema.Management.Nutrient>> Nutrients(CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Schema.Management.FertilizerService.Params_AvailableMineralFertilizers.WRITER>();
-            var arg_ = new Mas.Schema.Management.FertilizerService.Params_AvailableMineralFertilizers()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Management.Fertilizer.Params_Nutrients.WRITER>();
+            var arg_ = new Mas.Schema.Management.Fertilizer.Params_Nutrients()
             {};
             arg_?.serialize(in_);
-            return Impatient.MakePipelineAware(Call(13526472068396842501UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
+            using (var d_ = await Call(10109658492985257671UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            {
+                var r_ = CapnpSerializable.Create<Mas.Schema.Management.Fertilizer.Result_Nutrients>(d_);
+                return (r_.Nutrients);
+            }
+        }
+
+        public Task<object> Parameters(CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Management.Fertilizer.Params_Parameters.WRITER>();
+            var arg_ = new Mas.Schema.Management.Fertilizer.Params_Parameters()
+            {};
+            arg_?.serialize(in_);
+            return Impatient.MakePipelineAware(Call(10109658492985257671UL, 1, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
             {
                 using (d_)
                 {
-                    var r_ = CapnpSerializable.Create<Mas.Schema.Management.FertilizerService.Result_AvailableMineralFertilizers>(d_);
-                    return (r_.List);
+                    var r_ = CapnpSerializable.Create<Mas.Schema.Management.Fertilizer.Result_Parameters>(d_);
+                    return (r_.Params);
                 }
             }
 
             );
         }
 
-        public async Task<IReadOnlyList<Mas.Schema.Management.Nutrient>> MineralFertilizer(string id, CancellationToken cancellationToken_ = default)
+        public async Task<Mas.Schema.Persistence.Persistent.SaveResults> Save(Mas.Schema.Persistence.Persistent.SaveParams arg_, CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Schema.Management.FertilizerService.Params_MineralFertilizer.WRITER>();
-            var arg_ = new Mas.Schema.Management.FertilizerService.Params_MineralFertilizer()
-            {Id = id};
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.Persistent.SaveParams.WRITER>();
             arg_?.serialize(in_);
-            using (var d_ = await Call(13526472068396842501UL, 1, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            using (var d_ = await Call(13954362354854972261UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                var r_ = CapnpSerializable.Create<Mas.Schema.Management.FertilizerService.Result_MineralFertilizer>(d_);
-                return (r_.Fert);
-            }
-        }
-
-        public Task<IReadOnlyList<Mas.Schema.Management.FertilizerService.Entry<IReadOnlyList<Mas.Schema.Management.Nutrient>>>> AvailableOrganicFertilizers(CancellationToken cancellationToken_ = default)
-        {
-            var in_ = SerializerState.CreateForRpc<Mas.Schema.Management.FertilizerService.Params_AvailableOrganicFertilizers.WRITER>();
-            var arg_ = new Mas.Schema.Management.FertilizerService.Params_AvailableOrganicFertilizers()
-            {};
-            arg_?.serialize(in_);
-            return Impatient.MakePipelineAware(Call(13526472068396842501UL, 2, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
-            {
-                using (d_)
-                {
-                    var r_ = CapnpSerializable.Create<Mas.Schema.Management.FertilizerService.Result_AvailableOrganicFertilizers>(d_);
-                    return (r_.List);
-                }
-            }
-
-            );
-        }
-
-        public async Task<IReadOnlyList<Mas.Schema.Management.Nutrient>> OrganicFertilizer(string id, CancellationToken cancellationToken_ = default)
-        {
-            var in_ = SerializerState.CreateForRpc<Mas.Schema.Management.FertilizerService.Params_OrganicFertilizer.WRITER>();
-            var arg_ = new Mas.Schema.Management.FertilizerService.Params_OrganicFertilizer()
-            {Id = id};
-            arg_?.serialize(in_);
-            using (var d_ = await Call(13526472068396842501UL, 3, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
-            {
-                var r_ = CapnpSerializable.Create<Mas.Schema.Management.FertilizerService.Result_OrganicFertilizer>(d_);
-                return (r_.Fert);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Persistence.Persistent.SaveResults>(d_);
+                return r_;
             }
         }
 
@@ -2754,23 +2219,23 @@ namespace Mas.Schema.Management
         }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xbbb7aeae0d097e05UL)]
-    public class FertilizerService_Skeleton : Skeleton<IFertilizerService>
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x8c4cb8d60ae5aec7UL)]
+    public class Fertilizer_Skeleton : Skeleton<IFertilizer>
     {
-        public FertilizerService_Skeleton()
+        public Fertilizer_Skeleton()
         {
-            SetMethodTable(AvailableMineralFertilizers, MineralFertilizer, AvailableOrganicFertilizers, OrganicFertilizer);
+            SetMethodTable(Nutrients, Parameters);
         }
 
-        public override ulong InterfaceId => 13526472068396842501UL;
-        Task<AnswerOrCounterquestion> AvailableMineralFertilizers(DeserializerState d_, CancellationToken cancellationToken_)
+        public override ulong InterfaceId => 10109658492985257671UL;
+        Task<AnswerOrCounterquestion> Nutrients(DeserializerState d_, CancellationToken cancellationToken_)
         {
             using (d_)
             {
-                return Impatient.MaybeTailCall(Impl.AvailableMineralFertilizers(cancellationToken_), list =>
+                return Impatient.MaybeTailCall(Impl.Nutrients(cancellationToken_), nutrients =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Management.FertilizerService.Result_AvailableMineralFertilizers.WRITER>();
-                    var r_ = new Mas.Schema.Management.FertilizerService.Result_AvailableMineralFertilizers{List = list};
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Management.Fertilizer.Result_Nutrients.WRITER>();
+                    var r_ = new Mas.Schema.Management.Fertilizer.Result_Nutrients{Nutrients = nutrients};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -2779,48 +2244,14 @@ namespace Mas.Schema.Management
             }
         }
 
-        Task<AnswerOrCounterquestion> MineralFertilizer(DeserializerState d_, CancellationToken cancellationToken_)
+        Task<AnswerOrCounterquestion> Parameters(DeserializerState d_, CancellationToken cancellationToken_)
         {
             using (d_)
             {
-                var in_ = CapnpSerializable.Create<Mas.Schema.Management.FertilizerService.Params_MineralFertilizer>(d_);
-                return Impatient.MaybeTailCall(Impl.MineralFertilizer(in_.Id, cancellationToken_), fert =>
+                return Impatient.MaybeTailCall(Impl.Parameters(cancellationToken_), @params =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Management.FertilizerService.Result_MineralFertilizer.WRITER>();
-                    var r_ = new Mas.Schema.Management.FertilizerService.Result_MineralFertilizer{Fert = fert};
-                    r_.serialize(s_);
-                    return s_;
-                }
-
-                );
-            }
-        }
-
-        Task<AnswerOrCounterquestion> AvailableOrganicFertilizers(DeserializerState d_, CancellationToken cancellationToken_)
-        {
-            using (d_)
-            {
-                return Impatient.MaybeTailCall(Impl.AvailableOrganicFertilizers(cancellationToken_), list =>
-                {
-                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Management.FertilizerService.Result_AvailableOrganicFertilizers.WRITER>();
-                    var r_ = new Mas.Schema.Management.FertilizerService.Result_AvailableOrganicFertilizers{List = list};
-                    r_.serialize(s_);
-                    return s_;
-                }
-
-                );
-            }
-        }
-
-        Task<AnswerOrCounterquestion> OrganicFertilizer(DeserializerState d_, CancellationToken cancellationToken_)
-        {
-            using (d_)
-            {
-                var in_ = CapnpSerializable.Create<Mas.Schema.Management.FertilizerService.Params_OrganicFertilizer>(d_);
-                return Impatient.MaybeTailCall(Impl.OrganicFertilizer(in_.Id, cancellationToken_), fert =>
-                {
-                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Management.FertilizerService.Result_OrganicFertilizer.WRITER>();
-                    var r_ = new Mas.Schema.Management.FertilizerService.Result_OrganicFertilizer{Fert = fert};
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Management.Fertilizer.Result_Parameters.WRITER>();
+                    var r_ = new Mas.Schema.Management.Fertilizer.Result_Parameters{Params = @params};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -2830,88 +2261,12 @@ namespace Mas.Schema.Management
         }
     }
 
-    public static class FertilizerService
+    public static class Fertilizer
     {
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xb2df3dc668478979UL)]
-        public class Entry<TT> : ICapnpSerializable where TT : class
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xcb5a624fdc982a1bUL)]
+        public class Params_Nutrients : ICapnpSerializable
         {
-            public const UInt64 typeId = 0xb2df3dc668478979UL;
-            void ICapnpSerializable.Deserialize(DeserializerState arg_)
-            {
-                var reader = READER.create(arg_);
-                Info = CapnpSerializable.Create<Mas.Schema.Common.IdInformation>(reader.Info);
-                Ref = reader.Ref;
-                applyDefaults();
-            }
-
-            public void serialize(WRITER writer)
-            {
-                Info?.serialize(writer.Info);
-                writer.Ref = Ref;
-            }
-
-            void ICapnpSerializable.Serialize(SerializerState arg_)
-            {
-                serialize(arg_.Rewrap<WRITER>());
-            }
-
-            public void applyDefaults()
-            {
-            }
-
-            public Mas.Schema.Common.IdInformation Info
-            {
-                get;
-                set;
-            }
-
-            public Mas.Schema.Common.IValueHolder<TT> Ref
-            {
-                get;
-                set;
-            }
-
-            public struct READER
-            {
-                readonly DeserializerState ctx;
-                public READER(DeserializerState ctx)
-                {
-                    this.ctx = ctx;
-                }
-
-                public static READER create(DeserializerState ctx) => new READER(ctx);
-                public static implicit operator DeserializerState(READER reader) => reader.ctx;
-                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Schema.Common.IdInformation.READER Info => ctx.ReadStruct(0, Mas.Schema.Common.IdInformation.READER.create);
-                public bool HasInfo => ctx.IsStructFieldNonNull(0);
-                public Mas.Schema.Common.IValueHolder<TT> Ref => ctx.ReadCap<Mas.Schema.Common.IValueHolder<TT>>(1);
-            }
-
-            public class WRITER : SerializerState
-            {
-                public WRITER()
-                {
-                    this.SetStruct(0, 2);
-                }
-
-                public Mas.Schema.Common.IdInformation.WRITER Info
-                {
-                    get => BuildPointer<Mas.Schema.Common.IdInformation.WRITER>(0);
-                    set => Link(0, value);
-                }
-
-                public Mas.Schema.Common.IValueHolder<TT> Ref
-                {
-                    get => ReadCap<Mas.Schema.Common.IValueHolder<TT>>(1);
-                    set => LinkObject(1, value);
-                }
-            }
-        }
-
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xc5292994de2615c2UL)]
-        public class Params_AvailableMineralFertilizers : ICapnpSerializable
-        {
-            public const UInt64 typeId = 0xc5292994de2615c2UL;
+            public const UInt64 typeId = 0xcb5a624fdc982a1bUL;
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
@@ -2953,20 +2308,20 @@ namespace Mas.Schema.Management
             }
         }
 
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x81b1cd5c7865e185UL)]
-        public class Result_AvailableMineralFertilizers : ICapnpSerializable
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xae2976259bce5460UL)]
+        public class Result_Nutrients : ICapnpSerializable
         {
-            public const UInt64 typeId = 0x81b1cd5c7865e185UL;
+            public const UInt64 typeId = 0xae2976259bce5460UL;
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                List = reader.List?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Management.FertilizerService.Entry<IReadOnlyList<Mas.Schema.Management.Nutrient>>>(_));
+                Nutrients = reader.Nutrients?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Management.Nutrient>(_));
                 applyDefaults();
             }
 
             public void serialize(WRITER writer)
             {
-                writer.List.Init(List, (_s1, _v1) => _v1?.serialize(_s1));
+                writer.Nutrients.Init(Nutrients, (_s1, _v1) => _v1?.serialize(_s1));
             }
 
             void ICapnpSerializable.Serialize(SerializerState arg_)
@@ -2978,7 +2333,7 @@ namespace Mas.Schema.Management
             {
             }
 
-            public IReadOnlyList<Mas.Schema.Management.FertilizerService.Entry<IReadOnlyList<Mas.Schema.Management.Nutrient>>> List
+            public IReadOnlyList<Mas.Schema.Management.Nutrient> Nutrients
             {
                 get;
                 set;
@@ -2995,8 +2350,8 @@ namespace Mas.Schema.Management
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public IReadOnlyList<Mas.Schema.Management.FertilizerService.Entry<IReadOnlyList<Mas.Schema.Management.Nutrient>>.READER> List => ctx.ReadList(0).Cast(Mas.Schema.Management.FertilizerService.Entry<IReadOnlyList<Mas.Schema.Management.Nutrient>>.READER.create);
-                public bool HasList => ctx.IsStructFieldNonNull(0);
+                public IReadOnlyList<Mas.Schema.Management.Nutrient.READER> Nutrients => ctx.ReadList(0).Cast(Mas.Schema.Management.Nutrient.READER.create);
+                public bool HasNutrients => ctx.IsStructFieldNonNull(0);
             }
 
             public class WRITER : SerializerState
@@ -3006,128 +2361,7 @@ namespace Mas.Schema.Management
                     this.SetStruct(0, 1);
                 }
 
-                public ListOfStructsSerializer<Mas.Schema.Management.FertilizerService.Entry<IReadOnlyList<Mas.Schema.Management.Nutrient>>.WRITER> List
-                {
-                    get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Management.FertilizerService.Entry<IReadOnlyList<Mas.Schema.Management.Nutrient>>.WRITER>>(0);
-                    set => Link(0, value);
-                }
-            }
-        }
-
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xb1c2fa546f41d480UL)]
-        public class Params_MineralFertilizer : ICapnpSerializable
-        {
-            public const UInt64 typeId = 0xb1c2fa546f41d480UL;
-            void ICapnpSerializable.Deserialize(DeserializerState arg_)
-            {
-                var reader = READER.create(arg_);
-                Id = reader.Id;
-                applyDefaults();
-            }
-
-            public void serialize(WRITER writer)
-            {
-                writer.Id = Id;
-            }
-
-            void ICapnpSerializable.Serialize(SerializerState arg_)
-            {
-                serialize(arg_.Rewrap<WRITER>());
-            }
-
-            public void applyDefaults()
-            {
-            }
-
-            public string Id
-            {
-                get;
-                set;
-            }
-
-            public struct READER
-            {
-                readonly DeserializerState ctx;
-                public READER(DeserializerState ctx)
-                {
-                    this.ctx = ctx;
-                }
-
-                public static READER create(DeserializerState ctx) => new READER(ctx);
-                public static implicit operator DeserializerState(READER reader) => reader.ctx;
-                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public string Id => ctx.ReadText(0, null);
-            }
-
-            public class WRITER : SerializerState
-            {
-                public WRITER()
-                {
-                    this.SetStruct(0, 1);
-                }
-
-                public string Id
-                {
-                    get => this.ReadText(0, null);
-                    set => this.WriteText(0, value, null);
-                }
-            }
-        }
-
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xd801f16b6fa39a94UL)]
-        public class Result_MineralFertilizer : ICapnpSerializable
-        {
-            public const UInt64 typeId = 0xd801f16b6fa39a94UL;
-            void ICapnpSerializable.Deserialize(DeserializerState arg_)
-            {
-                var reader = READER.create(arg_);
-                Fert = reader.Fert?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Management.Nutrient>(_));
-                applyDefaults();
-            }
-
-            public void serialize(WRITER writer)
-            {
-                writer.Fert.Init(Fert, (_s1, _v1) => _v1?.serialize(_s1));
-            }
-
-            void ICapnpSerializable.Serialize(SerializerState arg_)
-            {
-                serialize(arg_.Rewrap<WRITER>());
-            }
-
-            public void applyDefaults()
-            {
-            }
-
-            public IReadOnlyList<Mas.Schema.Management.Nutrient> Fert
-            {
-                get;
-                set;
-            }
-
-            public struct READER
-            {
-                readonly DeserializerState ctx;
-                public READER(DeserializerState ctx)
-                {
-                    this.ctx = ctx;
-                }
-
-                public static READER create(DeserializerState ctx) => new READER(ctx);
-                public static implicit operator DeserializerState(READER reader) => reader.ctx;
-                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public IReadOnlyList<Mas.Schema.Management.Nutrient.READER> Fert => ctx.ReadList(0).Cast(Mas.Schema.Management.Nutrient.READER.create);
-                public bool HasFert => ctx.IsStructFieldNonNull(0);
-            }
-
-            public class WRITER : SerializerState
-            {
-                public WRITER()
-                {
-                    this.SetStruct(0, 1);
-                }
-
-                public ListOfStructsSerializer<Mas.Schema.Management.Nutrient.WRITER> Fert
+                public ListOfStructsSerializer<Mas.Schema.Management.Nutrient.WRITER> Nutrients
                 {
                     get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Management.Nutrient.WRITER>>(0);
                     set => Link(0, value);
@@ -3135,10 +2369,10 @@ namespace Mas.Schema.Management
             }
         }
 
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x940d47081167b059UL)]
-        public class Params_AvailableOrganicFertilizers : ICapnpSerializable
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xc0032af5b7bc50e4UL)]
+        public class Params_Parameters : ICapnpSerializable
         {
-            public const UInt64 typeId = 0x940d47081167b059UL;
+            public const UInt64 typeId = 0xc0032af5b7bc50e4UL;
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
@@ -3180,20 +2414,20 @@ namespace Mas.Schema.Management
             }
         }
 
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xcb1556d28ba514afUL)]
-        public class Result_AvailableOrganicFertilizers : ICapnpSerializable
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xfd4dbbbb758bb8f7UL)]
+        public class Result_Parameters : ICapnpSerializable
         {
-            public const UInt64 typeId = 0xcb1556d28ba514afUL;
+            public const UInt64 typeId = 0xfd4dbbbb758bb8f7UL;
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                List = reader.List?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Management.FertilizerService.Entry<IReadOnlyList<Mas.Schema.Management.Nutrient>>>(_));
+                Params = CapnpSerializable.Create<object>(reader.Params);
                 applyDefaults();
             }
 
             public void serialize(WRITER writer)
             {
-                writer.List.Init(List, (_s1, _v1) => _v1?.serialize(_s1));
+                writer.Params.SetObject(Params);
             }
 
             void ICapnpSerializable.Serialize(SerializerState arg_)
@@ -3205,7 +2439,7 @@ namespace Mas.Schema.Management
             {
             }
 
-            public IReadOnlyList<Mas.Schema.Management.FertilizerService.Entry<IReadOnlyList<Mas.Schema.Management.Nutrient>>> List
+            public object Params
             {
                 get;
                 set;
@@ -3222,8 +2456,7 @@ namespace Mas.Schema.Management
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public IReadOnlyList<Mas.Schema.Management.FertilizerService.Entry<IReadOnlyList<Mas.Schema.Management.Nutrient>>.READER> List => ctx.ReadList(0).Cast(Mas.Schema.Management.FertilizerService.Entry<IReadOnlyList<Mas.Schema.Management.Nutrient>>.READER.create);
-                public bool HasList => ctx.IsStructFieldNonNull(0);
+                public DeserializerState Params => ctx.StructReadPointer(0);
             }
 
             public class WRITER : SerializerState
@@ -3233,130 +2466,9 @@ namespace Mas.Schema.Management
                     this.SetStruct(0, 1);
                 }
 
-                public ListOfStructsSerializer<Mas.Schema.Management.FertilizerService.Entry<IReadOnlyList<Mas.Schema.Management.Nutrient>>.WRITER> List
+                public DynamicSerializerState Params
                 {
-                    get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Management.FertilizerService.Entry<IReadOnlyList<Mas.Schema.Management.Nutrient>>.WRITER>>(0);
-                    set => Link(0, value);
-                }
-            }
-        }
-
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xeddbace5e62bf665UL)]
-        public class Params_OrganicFertilizer : ICapnpSerializable
-        {
-            public const UInt64 typeId = 0xeddbace5e62bf665UL;
-            void ICapnpSerializable.Deserialize(DeserializerState arg_)
-            {
-                var reader = READER.create(arg_);
-                Id = reader.Id;
-                applyDefaults();
-            }
-
-            public void serialize(WRITER writer)
-            {
-                writer.Id = Id;
-            }
-
-            void ICapnpSerializable.Serialize(SerializerState arg_)
-            {
-                serialize(arg_.Rewrap<WRITER>());
-            }
-
-            public void applyDefaults()
-            {
-            }
-
-            public string Id
-            {
-                get;
-                set;
-            }
-
-            public struct READER
-            {
-                readonly DeserializerState ctx;
-                public READER(DeserializerState ctx)
-                {
-                    this.ctx = ctx;
-                }
-
-                public static READER create(DeserializerState ctx) => new READER(ctx);
-                public static implicit operator DeserializerState(READER reader) => reader.ctx;
-                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public string Id => ctx.ReadText(0, null);
-            }
-
-            public class WRITER : SerializerState
-            {
-                public WRITER()
-                {
-                    this.SetStruct(0, 1);
-                }
-
-                public string Id
-                {
-                    get => this.ReadText(0, null);
-                    set => this.WriteText(0, value, null);
-                }
-            }
-        }
-
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x9846fdc78610c262UL)]
-        public class Result_OrganicFertilizer : ICapnpSerializable
-        {
-            public const UInt64 typeId = 0x9846fdc78610c262UL;
-            void ICapnpSerializable.Deserialize(DeserializerState arg_)
-            {
-                var reader = READER.create(arg_);
-                Fert = reader.Fert?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Management.Nutrient>(_));
-                applyDefaults();
-            }
-
-            public void serialize(WRITER writer)
-            {
-                writer.Fert.Init(Fert, (_s1, _v1) => _v1?.serialize(_s1));
-            }
-
-            void ICapnpSerializable.Serialize(SerializerState arg_)
-            {
-                serialize(arg_.Rewrap<WRITER>());
-            }
-
-            public void applyDefaults()
-            {
-            }
-
-            public IReadOnlyList<Mas.Schema.Management.Nutrient> Fert
-            {
-                get;
-                set;
-            }
-
-            public struct READER
-            {
-                readonly DeserializerState ctx;
-                public READER(DeserializerState ctx)
-                {
-                    this.ctx = ctx;
-                }
-
-                public static READER create(DeserializerState ctx) => new READER(ctx);
-                public static implicit operator DeserializerState(READER reader) => reader.ctx;
-                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public IReadOnlyList<Mas.Schema.Management.Nutrient.READER> Fert => ctx.ReadList(0).Cast(Mas.Schema.Management.Nutrient.READER.create);
-                public bool HasFert => ctx.IsStructFieldNonNull(0);
-            }
-
-            public class WRITER : SerializerState
-            {
-                public WRITER()
-                {
-                    this.SetStruct(0, 1);
-                }
-
-                public ListOfStructsSerializer<Mas.Schema.Management.Nutrient.WRITER> Fert
-                {
-                    get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Management.Nutrient.WRITER>>(0);
+                    get => BuildPointer<DynamicSerializerState>(0);
                     set => Link(0, value);
                 }
             }

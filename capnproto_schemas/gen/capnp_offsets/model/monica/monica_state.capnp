@@ -2,7 +2,7 @@
 @0x86ea47c297746539;
 $import "/capnp/c++.capnp".namespace("mas::schema::model::monica");
 $import "/capnp/go.capnp".package("monica");
-$import "/capnp/go.capnp".import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/model/monica");
+$import "/capnp/go.capnp".import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/model/monica");
 struct MaybeBool @0xd8af9210839bc071 {  # 8 bytes, 0 ptrs
   value @0 :Bool;  # bits[0, 1)
 }
@@ -58,14 +58,14 @@ struct SoilColumnState @0xef3e4198d3e35596 {  # 88 bytes, 4 ptrs
   psMaxMineralisationDepth @7 :Float64 = 0.4;  # bits[448, 512)
   vsNumberOfOrganicLayers @8 :Float64;  # bits[512, 576)
   vfTopDressing @9 :Float64;  # bits[576, 640)
-  vfTopDressingPartition @10 :import "/management.capnp".Params.MineralFertilization.Parameters;  # ptr[0]
+  vfTopDressingPartition @10 :import "/model/monica/monica_management.capnp".Params.MineralFertilization.Parameters;  # ptr[0]
   vfTopDressingDelay @11 :UInt16;  # bits[144, 160)
   cropModule @12 :CropModuleState;  # ptr[1]
   delayedNMinApplications @13 :List(DelayedNMinApplicationParams);  # ptr[2]
   pmCriticalMoistureDepth @14 :Float64;  # bits[640, 704)
   layers @15 :List(SoilLayerState);  # ptr[3]
   struct DelayedNMinApplicationParams @0xd1edcf54f4edf638 {  # 48 bytes, 1 ptrs
-    fp @0 :import "/management.capnp".Params.MineralFertilization.Parameters;  # ptr[0]
+    fp @0 :import "/model/monica/monica_management.capnp".Params.MineralFertilization.Parameters;  # ptr[0]
     samplingDepth @1 :Float64;  # bits[0, 64)
     cropNTarget @2 :Float64;  # bits[64, 128)
     cropNTarget30 @3 :Float64;  # bits[128, 192)

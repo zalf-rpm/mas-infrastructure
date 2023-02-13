@@ -2,7 +2,7 @@
 @0xbf602c4868dbb22f;
 $import "/capnp/c++.capnp".namespace("mas::schema::fbp");
 $import "/capnp/go.capnp".package("fbp");
-$import "/capnp/go.capnp".import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/fbp");
+$import "/capnp/go.capnp".import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/fbp");
 interface Component @0xd717ff7d6815a6b0 {
   setupPorts @0 (inPorts :List(NameToPort), outPorts :List(NameToPort)) -> ();
   stop @1 () -> ();

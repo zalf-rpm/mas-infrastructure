@@ -8,67 +8,8 @@ using System.Threading.Tasks;
 
 namespace Mas.Schema.Crop
 {
-    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xdd81b0520864e2b4UL)]
-    public enum Cultivar : ushort
-    {
-        alfalfaClovergrassLeyMix,
-        alfalfa,
-        bacharia,
-        barleySpring,
-        barleyWinter,
-        cloverGrassLey,
-        cottonBrMid,
-        cottonLong,
-        cottonMid,
-        cottonShort,
-        einkorn,
-        emmer,
-        fieldPea24,
-        fieldPea26,
-        grapevine,
-        maizeGrain,
-        maizeSilage,
-        mustard,
-        oatCompound,
-        oilRadish,
-        phacelia,
-        potatoModeratelyEarly,
-        rapeWinter,
-        ryeGrass,
-        ryeSilageWinter,
-        ryeSpring,
-        ryeWinter,
-        sorghum,
-        soybean0,
-        soybean00,
-        soybean000,
-        soybean0000,
-        soybeanI,
-        soybeanII,
-        soybeanIII,
-        soybeanIV,
-        soybeanV,
-        soybeanVI,
-        soybeanVII,
-        soybeanVIII,
-        soybeanIX,
-        soybeanX,
-        soybeanXI,
-        soybeanXII,
-        sudanGrass,
-        sugarBeet,
-        sugarcaneTransplant,
-        sugarcaneRatoon,
-        tomatoField,
-        triticaleSpring,
-        triticaleWinter,
-        wheatDurum,
-        wheatSpring,
-        wheatWinter
-    }
-
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xe88d97a324bf5c84UL), Proxy(typeof(Crop_Proxy)), Skeleton(typeof(Crop_Skeleton))]
-    public interface ICrop : Mas.Schema.Common.IIdentifiable
+    public interface ICrop : Mas.Schema.Common.IIdentifiable, Mas.Schema.Persistence.IPersistent
     {
         Task<object> Parameters(CancellationToken cancellationToken_ = default);
         Task<Mas.Schema.Common.IdInformation> Cultivar(CancellationToken cancellationToken_ = default);
@@ -119,6 +60,17 @@ namespace Mas.Schema.Crop
             {
                 var r_ = CapnpSerializable.Create<Mas.Schema.Crop.Crop.Result_Species>(d_);
                 return (r_.Info);
+            }
+        }
+
+        public async Task<Mas.Schema.Persistence.Persistent.SaveResults> Save(Mas.Schema.Persistence.Persistent.SaveParams arg_, CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.Persistent.SaveParams.WRITER>();
+            arg_?.serialize(in_);
+            using (var d_ = await Call(13954362354854972261UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            {
+                var r_ = CapnpSerializable.Create<Mas.Schema.Persistence.Persistent.SaveResults>(d_);
+                return r_;
             }
         }
 

@@ -2,7 +2,7 @@
 @0xb80c8fd14e523f9b;
 $import "/capnp/c++.capnp".namespace("mas::schema::model::yieldstat");
 $import "/capnp/go.capnp".package("yieldstat");
-$import "/capnp/go.capnp".import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/model/yieldstat");
+$import "/capnp/go.capnp".import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/model/yieldstat");
 enum ResultId @0xcfe218c48d227e0d {
   primaryYield @0;
   dryMatter @1;
@@ -26,10 +26,10 @@ struct RestInput @0xa47f8d65869200af {  # 24 bytes, 0 ptrs
   germanFederalStates @11 :Int8 = -1;  # bits[136, 144)
   getDryYearWaterNeed @12 :Bool;  # bits[2, 3)
 }
-struct Result @0x8db55634a0e7d054 {  # 8 bytes, 1 ptrs
-  cultivar @0 :import "/crop.capnp".Cultivar;  # bits[0, 16)
-  isNoData @1 :Bool;  # bits[16, 17)
-  values @2 :List(ResultToValue);  # ptr[0]
+struct Result @0x8db55634a0e7d054 {  # 8 bytes, 2 ptrs
+  cultivar @0 :Text;  # ptr[0]
+  isNoData @1 :Bool;  # bits[0, 1)
+  values @2 :List(ResultToValue);  # ptr[1]
   struct ResultToValue @0x8d365bd4f0136fc0 {  # 16 bytes, 0 ptrs
     id @0 :ResultId;  # bits[0, 16)
     value @1 :Float64;  # bits[64, 128)

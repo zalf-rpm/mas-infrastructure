@@ -2,7 +2,7 @@
 @0x9090542079c7fc24;
 $import "/capnp/c++.capnp".namespace("mas::schema::geo");
 $import "/capnp/go.capnp".package("geo");
-$import "/capnp/go.capnp".import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/geo");
+$import "/capnp/go.capnp".import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/geo");
 enum CoordType @0xe529b4deb322ece8 {
   gk @0;
   utm @1;
@@ -35,12 +35,17 @@ struct Point2D @0xc88fb91c1e6986e2 {  # 16 bytes, 0 ptrs
   x @0 :Float64;  # bits[0, 64)
   y @1 :Float64;  # bits[64, 128)
 }
+struct RowCol @0xb0c6993e13e314ad {  # 16 bytes, 0 ptrs
+  row @0 :UInt64;  # bits[0, 64)
+  col @1 :UInt64;  # bits[64, 128)
+}
 struct Coord @0xb8f6a6192a7359f8 {  # 8 bytes, 1 ptrs
   union {  # tag bits [0, 16)
     gk @0 :GKCoord;  # ptr[0], union tag = 0
     latlon @1 :LatLonCoord;  # ptr[0], union tag = 1
     utm @2 :UTMCoord;  # ptr[0], union tag = 2
     p2D @3 :Point2D;  # ptr[0], union tag = 3
+    rowcol @4 :RowCol;  # ptr[0], union tag = 4
   }
 }
 struct RectBounds @0xb952dbe83866da4a (CoordinateType) {  # 0 bytes, 2 ptrs

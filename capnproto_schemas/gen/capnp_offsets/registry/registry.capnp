@@ -2,7 +2,7 @@
 @0xfe1be0c39c7e8269;
 $import "/capnp/c++.capnp".namespace("mas::schema::registry");
 $import "/capnp/go.capnp".package("registry");
-$import "/capnp/go.capnp".import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/registry");
+$import "/capnp/go.capnp".import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/registry");
 interface Admin @0xf503f3237666574e superclasses(import "/common.capnp".Identifiable) {
   addCategory @0 (category :import "/common.capnp".IdInformation, upsert :Bool) -> (success :Bool);
   removeCategory @1 (categoryId :Text, moveObjectsToCategoryId :Text) -> (removedObjects :List(import "/common.capnp".Identifiable));

@@ -2,7 +2,7 @@
 @0x855efed3475f6b26;
 $import "/capnp/c++.capnp".namespace("mas::schema::persistence");
 $import "/capnp/go.capnp".package("persistence");
-$import "/capnp/go.capnp".import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/persistence");
+$import "/capnp/go.capnp".import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/persistence");
 struct VatId @0xe10a5d74d58bd18d {  # 32 bytes, 0 ptrs
   publicKey0 @0 :UInt64;  # bits[0, 64)
   publicKey1 @1 :UInt64;  # bits[64, 128)

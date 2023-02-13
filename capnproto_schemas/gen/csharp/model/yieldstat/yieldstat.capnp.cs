@@ -301,7 +301,7 @@ namespace Mas.Schema.Model.Yieldstat
         {
         }
 
-        public Mas.Schema.Crop.Cultivar Cultivar
+        public string Cultivar
         {
             get;
             set;
@@ -331,35 +331,35 @@ namespace Mas.Schema.Model.Yieldstat
             public static READER create(DeserializerState ctx) => new READER(ctx);
             public static implicit operator DeserializerState(READER reader) => reader.ctx;
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-            public Mas.Schema.Crop.Cultivar Cultivar => (Mas.Schema.Crop.Cultivar)ctx.ReadDataUShort(0UL, (ushort)0);
-            public bool IsNoData => ctx.ReadDataBool(16UL, false);
-            public IReadOnlyList<Mas.Schema.Model.Yieldstat.Result.ResultToValue.READER> Values => ctx.ReadList(0).Cast(Mas.Schema.Model.Yieldstat.Result.ResultToValue.READER.create);
-            public bool HasValues => ctx.IsStructFieldNonNull(0);
+            public string Cultivar => ctx.ReadText(0, null);
+            public bool IsNoData => ctx.ReadDataBool(0UL, false);
+            public IReadOnlyList<Mas.Schema.Model.Yieldstat.Result.ResultToValue.READER> Values => ctx.ReadList(1).Cast(Mas.Schema.Model.Yieldstat.Result.ResultToValue.READER.create);
+            public bool HasValues => ctx.IsStructFieldNonNull(1);
         }
 
         public class WRITER : SerializerState
         {
             public WRITER()
             {
-                this.SetStruct(1, 1);
+                this.SetStruct(1, 2);
             }
 
-            public Mas.Schema.Crop.Cultivar Cultivar
+            public string Cultivar
             {
-                get => (Mas.Schema.Crop.Cultivar)this.ReadDataUShort(0UL, (ushort)0);
-                set => this.WriteData(0UL, (ushort)value, (ushort)0);
+                get => this.ReadText(0, null);
+                set => this.WriteText(0, value, null);
             }
 
             public bool IsNoData
             {
-                get => this.ReadDataBool(16UL, false);
-                set => this.WriteData(16UL, value, false);
+                get => this.ReadDataBool(0UL, false);
+                set => this.WriteData(0UL, value, false);
             }
 
             public ListOfStructsSerializer<Mas.Schema.Model.Yieldstat.Result.ResultToValue.WRITER> Values
             {
-                get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Model.Yieldstat.Result.ResultToValue.WRITER>>(0);
-                set => Link(0, value);
+                get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Model.Yieldstat.Result.ResultToValue.WRITER>>(1);
+                set => Link(1, value);
             }
         }
 

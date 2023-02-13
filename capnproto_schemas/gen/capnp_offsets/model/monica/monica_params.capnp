@@ -2,7 +2,7 @@
 @0xeef9ddc7a345de6d;
 $import "/capnp/c++.capnp".namespace("mas::schema::model::monica");
 $import "/capnp/go.capnp".package("monica");
-$import "/capnp/go.capnp".import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/model/monica");
+$import "/capnp/go.capnp".import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/model/monica");
 struct CropSpec @0xa74f5574681f9d55 {  # 0 bytes, 2 ptrs
   cropParams @0 :CropParameters;  # ptr[0]
   residueParams @1 :CropResidueParameters;  # ptr[1]
@@ -133,7 +133,7 @@ struct NMinApplicationParameters @0xde7576c640b5ad18 {  # 24 bytes, 0 ptrs
   delayInDays @2 :UInt16;  # bits[128, 144)
 }
 struct CropResidueParameters @0x8491dc2c2f94f1d1 {  # 0 bytes, 3 ptrs
-  params @0 :import "/management.capnp".Params.OrganicFertilization.OrganicMatterParameters;  # ptr[0]
+  params @0 :import "/model/monica/monica_management.capnp".Params.OrganicFertilization.OrganicMatterParameters;  # ptr[0]
   species @1 :Text;  # ptr[1]
   residueType @2 :Text;  # ptr[2]
 }
@@ -157,7 +157,7 @@ struct SoilParameters @0xb42137d4b8ba3ef6 {  # 128 bytes, 1 ptrs
   soilOrganicMatter @16 :Float64 = -1;  # bits[960, 1024)
 }
 struct AutomaticIrrigationParameters @0x8890f17a143c6896 {  # 16 bytes, 1 ptrs
-  params @0 :import "/management.capnp".Params.Irrigation.Parameters;  # ptr[0]
+  params @0 :import "/model/monica/monica_management.capnp".Params.Irrigation.Parameters;  # ptr[0]
   amount @1 :Float64 = 17;  # bits[0, 64)
   threshold @2 :Float64 = 0.35;  # bits[64, 128)
 }
@@ -211,7 +211,7 @@ struct SimulationParameters @0xffac0fa5c7156a5d {  # 16 bytes, 5 ptrs
   useAutomaticIrrigation @7 :Bool;  # bits[5, 6)
   autoIrrigationParams @8 :AutomaticIrrigationParameters;  # ptr[2]
   useNMinMineralFertilisingMethod @9 :Bool;  # bits[6, 7)
-  nMinFertiliserPartition @10 :import "/management.capnp".Params.MineralFertilization.Parameters;  # ptr[3]
+  nMinFertiliserPartition @10 :import "/model/monica/monica_management.capnp".Params.MineralFertilization.Parameters;  # ptr[3]
   nMinApplicationParams @11 :NMinApplicationParameters;  # ptr[4]
   useSecondaryYields @12 :Bool = true;  # bits[7, 8)
   useAutomaticHarvestTrigger @13 :Bool;  # bits[8, 9)

@@ -2,7 +2,7 @@
 @0xa01d3ae410eb4518;
 $import "/capnp/c++.capnp".namespace("mas::schema::climate");
 $import "/capnp/go.capnp".package("climate");
-$import "/capnp/go.capnp".import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/climate");
+$import "/capnp/go.capnp".import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/climate");
 enum GCM @0xce396869eede9f10 {
   cccmaCanEsm2 @0;
   ichecEcEarth @1;
@@ -89,6 +89,10 @@ interface Dataset @0xf635fdd1f05960f0 superclasses(import "/common.capnp".Identi
   closestTimeSeriesAt @1 (latlon :import "/geo.capnp".LatLonCoord) -> (timeSeries :TimeSeries);
   timeSeriesAt @2 (locationId :Text) -> (timeSeries :TimeSeries);
   locations @3 () -> (locations :List(Location));
+  streamLocations @4 (startAfterLocationId :Text) -> (locationsCallback :GetLocationsCallback);
+  interface GetLocationsCallback @0xd61ba043f14fe175 {
+    nextLocations @0 (maxCount :Int64) -> (locations :List(Location));
+  }
 }
 struct MetaPlusData @0xd7a67fec5f22e5a0 {  # 0 bytes, 2 ptrs
   meta @0 :Metadata;  # ptr[0]
@@ -111,11 +115,16 @@ enum Element @0xe35760b4db5ab564 {
   et0 @13;
   dewpointTemp @14;
 }
-struct Location @0x85ba7385f313fe19 {  # 8 bytes, 3 ptrs
+struct Location @0x85ba7385f313fe19 {  # 8 bytes, 4 ptrs
   id @0 :import "/common.capnp".IdInformation;  # ptr[0]
   heightNN @1 :Float32;  # bits[0, 32)
   latlon @2 :import "/geo.capnp".LatLonCoord;  # ptr[1]
   timeSeries @3 :TimeSeries;  # ptr[2]
+  customData @4 :List(KV);  # ptr[3]
+  struct KV @0xc5fd13a53ae6d46a {  # 0 bytes, 2 ptrs
+    key @0 :Text;  # ptr[0]
+    value @1 :AnyPointer;  # ptr[1]
+  }
 }
 interface TimeSeries @0xa7769f40fe6e6de8 superclasses(import "/common.capnp".Identifiable, import "/persistence.capnp".Persistent) {
   resolution @0 () -> (resolution :Resolution);
@@ -123,7 +132,7 @@ interface TimeSeries @0xa7769f40fe6e6de8 superclasses(import "/common.capnp".Ide
   header @2 () -> (header :List(Element));
   data @3 () -> (data :List(List(Float32)));
   dataT @4 () -> (data :List(List(Float32)));
-  subrange @5 (from :import "/date.capnp".Date, to :import "/date.capnp".Date) -> (timeSeries :TimeSeries);
+  subrange @5 (start :import "/date.capnp".Date, end :import "/date.capnp".Date) -> (timeSeries :TimeSeries);
   subheader @6 (elements :List(Element)) -> (timeSeries :TimeSeries);
   metadata @7 () -> Metadata;
   location @8 () -> Location;

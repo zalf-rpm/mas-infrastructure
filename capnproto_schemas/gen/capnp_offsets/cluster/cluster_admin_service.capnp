@@ -2,7 +2,7 @@
 @0xf3c1b27d6da9d0fa;
 $import "/capnp/c++.capnp".namespace("mas::schema::cluster");
 $import "/capnp/go.capnp".package("cluster");
-$import "/capnp/go.capnp".import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/cluster");
+$import "/capnp/go.capnp".import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/cluster");
 struct Cluster @0xf7485d56d6f20e7d {  # 0 bytes, 0 ptrs
   interface AdminMaster @0xbf24278c65f633ce superclasses(import "/common.capnp".Identifiable) {
     registerModelInstanceFactory @0 (aModelId :Text, aFactory :ModelInstanceFactory) -> (unregister :import "/common.capnp".Callback);

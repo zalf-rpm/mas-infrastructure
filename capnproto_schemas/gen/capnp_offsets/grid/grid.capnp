@@ -2,7 +2,7 @@
 @0xd373e9739460aa23;
 $import "/capnp/c++.capnp".namespace("mas::schema::grid");
 $import "/capnp/go.capnp".package("grid");
-$import "/capnp/go.capnp".import("github.com/zalf-rpm/mas-infrastructure/capnp_schemas/gen/go/grid");
+$import "/capnp/go.capnp".import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/grid");
 enum Aggregation @0xa5ecdc7767a6b301 {
   none @0;
   avg @8;
