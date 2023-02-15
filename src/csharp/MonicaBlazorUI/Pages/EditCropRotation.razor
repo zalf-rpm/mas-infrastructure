@@ -2,8 +2,8 @@
 
 @using MudBlazor
 @using Mas.Infrastructure.Common
-@using ExtType = Mas.Schema.Management.Event.ExternalType
-@using Mgmt = Mas.Schema.Management
+@using ExtType = Mas.Schema.Model.Monica.Event.ExternalType
+@using Mgmt = Mas.Schema.Model.Monica
 @using Reg = Mas.Schema.Registry
 @using System.Linq
 
@@ -21,23 +21,24 @@
     <tbody>
         @foreach (var (i, e) in CropRotation.Select((e, i) => (i, e)))
         {
-            Func<float?, string> valid = val => null;
+            Func<float?, string?> valid = val => null;
             <tr>
                 <td>
                     <MudSelect Value=@e.which
                                T=@Mgmt.Event.WHICH
-                               ValueChanged=@(v => {
-                                                  e.which = v;
-                                                  switch (e.which)
-                                                  {
-                                                      case Mgmt.Event.WHICH.At:
-                                                          e.At = new() { Date = new() };
-                                                          break;
-                                                      case Mgmt.Event.WHICH.Between:
+                               ValueChanged=@(v => 
+                               {
+                           e.which = v;
+                           switch (e.which)
+                           {
+                           case Mgmt.Event.WHICH.At:
+                           e.At = new() { Date = new() };
+                           break;
+                           case Mgmt.Event.WHICH.Between:
                                                           e.Between = new() { Earliest = new(), Latest = new() };
                                                           break;
-                                                      case Mgmt.Event.WHICH.After:
-                                                          e.After = new();
+                           case Mgmt.Event.WHICH.After:
+                           e.After = new();
                                                           break;
                                                   }
                                               })
@@ -72,7 +73,7 @@
                             <MudSelect @bind-Value=e.After.Event
                                        T="Mgmt.Event.Type"
                                        Label="Workstep">
-                                <MudSelectItem Value=@((Mgmt.Event.Type)null)>-</MudSelectItem>
+                                <MudSelectItem Value=@((Mgmt.Event.Type?)null)>-</MudSelectItem>
                                 @foreach (var t in allMgmtEventTypes)
                                 {
                                     <MudSelectItem Value="@t">
@@ -108,15 +109,14 @@
                         }
                     </MudSelect>
                 </td>
-                <td>
-                    @switch (e.TheType)
+                <td>@switch (e.TheType)
                     {
                         case ExtType.sowing:
                             if (e.Params == null || e.Params is not Mgmt.Params.Sowing) e.Params = new Mgmt.Params.Sowing();
                             if (e.Params is Mgmt.Params.Sowing s)
                             {
                                 <EditSowing Params=@s
-                                            CropRegistryServiceCap=@(CropRegistryServiceCap == null ? null : Capnp.Rpc.Proxy.Share(CropRegistryServiceCap))/>
+                                            CropRegistryServiceCap=@(CropRegistryCap == null ? null : Capnp.Rpc.Proxy.Share(CropRegistryCap))/>
                             }
                             break;
                         case ExtType.automaticSowing:
@@ -124,7 +124,7 @@
                             if (e.Params is Mgmt.Params.AutomaticSowing sa)
                             {
                                 <EditAutomaticSowing Params=@sa
-                                                     CropRegistryServiceCap=@(CropRegistryServiceCap == null ? null : Capnp.Rpc.Proxy.Share(CropRegistryServiceCap))/>
+                                                     CropRegistryServiceCap=@(CropRegistryCap == null ? null : Capnp.Rpc.Proxy.Share(CropRegistryCap))/>
                             }
                             break;
                         case ExtType.harvest:
@@ -153,7 +153,7 @@
                             if (e.Params == null || e.Params is not Mgmt.Params.MineralFertilization) e.Params = new Mgmt.Params.MineralFertilization() { Partition = new() };
                             if (e.Params is Mgmt.Params.MineralFertilization mf)
                             {
-                                <EditMineralFertilizer FertilizerServiceCap=@(FertilizerServiceCap == null ? null : Capnp.Rpc.Proxy.Share(FertilizerServiceCap))
+                                <EditMineralFertilizer FertilizerRegistryCap=@(FertilizerRegistryCap == null ? null : Capnp.Rpc.Proxy.Share(FertilizerRegistryCap))
                                                        Params=@mf />
                             }
                             break;
@@ -161,7 +161,7 @@
                             if (e.Params == null || e.Params is not Mgmt.Params.OrganicFertilization) e.Params = new Mgmt.Params.OrganicFertilization() { Params = new() { Params = new() } };
                             if (e.Params is Mgmt.Params.OrganicFertilization of)
                             {
-                                <EditOrganicFertilizer FertilizerServiceCap=@(FertilizerServiceCap == null ? null : Capnp.Rpc.Proxy.Share(FertilizerServiceCap))
+                                <EditOrganicFertilizer FertilizerRegistryCap=@(FertilizerRegistryCap == null ? null : Capnp.Rpc.Proxy.Share(FertilizerRegistryCap))
                                                        Params=@of />
                             }
                             break;
@@ -220,10 +220,10 @@
     public List<Mgmt.Event> CropRotation { get; set; } = new();
 
     [Parameter]
-    public Mgmt.IFertilizerService FertilizerServiceCap { get; set; }
+    public Reg.IRegistry? FertilizerRegistryCap { get; set; }
 
     [Parameter]
-    public Reg.IRegistry CropRegistryServiceCap { get; set; }
+    public Reg.IRegistry? CropRegistryCap { get; set; }
 
     private System.Globalization.TextInfo textInfo = new System.Globalization.CultureInfo("de-DE", false).TextInfo;
 
@@ -242,9 +242,9 @@
 
     void IDisposable.Dispose()
     {
-        Console.WriteLine("Disposing Management.IFertilizerService cap: " + FertilizerServiceCap);
-        FertilizerServiceCap?.Dispose();
-        Console.WriteLine("Disposing EditCropRotatio.CropRegistryServiceCap cap: " + CropRegistryServiceCap);
-        CropRegistryServiceCap?.Dispose();
+        Console.WriteLine("Disposing Management.IFertilizerService cap: " + FertilizerRegistryCap);
+        FertilizerRegistryCap?.Dispose();
+        Console.WriteLine("Disposing EditCropRotatio.CropRegistryCap cap: " + CropRegistryCap);
+        CropRegistryCap?.Dispose();
     }
 }

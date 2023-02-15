@@ -3,7 +3,6 @@
 using Newtonsoft.Json.Linq;
 using System.Text;
 
-
 namespace MonicaBlazorUI.Services
 {
     public class MonicaIO
@@ -34,15 +33,15 @@ namespace MonicaBlazorUI.Services
             //_githubService = githubService;
         }
 
-        private bool oid_is_organ(dynamic oid)
+        private bool OidIsOrgan(dynamic oid)
         {
             return Convert.ToInt32(oid["organ"]) != ORGAN_UNDEFINED_ORGAN_;
         }
-        private bool oid_is_range(dynamic oid)
+        private bool OidIsRange(dynamic oid)
         {
             return (Convert.ToInt32(oid["fromLayer"]) >= 0 && Convert.ToInt32(oid["toLayer"]) >= 0);
         }
-        private string op_to_string(int op)
+        private string OpToString(int op)
         {
             if (op == OP_AVG) return "AVG";
             if (op == OP_MEDIAN) return "MEDIAN";
@@ -55,7 +54,7 @@ namespace MonicaBlazorUI.Services
 
             return "undef";
         }
-        private string organ_to_string(int organ)
+        private string OrganToString(int organ)
         {
             if (organ == ORGAN_ROOT) return "Root";
             if (organ == ORGAN_LEAF) return "Leaf";
@@ -66,22 +65,22 @@ namespace MonicaBlazorUI.Services
 
             return "undef";
         }
-        private string oid_to_string(dynamic oid, bool include_time_agg)
+        private string OidToString(dynamic oid, bool include_time_agg)
         {
             StringBuilder oss = new StringBuilder();
             oss.Append("[");
             oss.Append(oid["name"]);
-            if (oid_is_organ(oid))
+            if (OidIsOrgan(oid))
             {
-                oss.Append(", " + organ_to_string(Convert.ToInt32(oid["organ"])));
+                oss.Append(", " + OrganToString(Convert.ToInt32(oid["organ"])));
             }
-            else if (oid_is_range(oid))
+            else if (OidIsRange(oid))
             {
                 oss.Append(", [");
                 oss.Append((Convert.ToInt32(oid["fromLayer"]) + 1).ToString());
                 oss.Append(", ");
                 oss.Append((Convert.ToInt32(oid["toLayer"]) + 1).ToString());
-                oss.Append(Convert.ToInt32(oid["layerAggOp"]) != OP_NONE ? ", " + op_to_string(Convert.ToInt32(oid["layerAggOp"])) : "");
+                oss.Append(Convert.ToInt32(oid["layerAggOp"]) != OP_NONE ? ", " + OpToString(Convert.ToInt32(oid["layerAggOp"])) : "");
                 oss.Append("]");
             }
             else if (Convert.ToInt32(oid["fromLayer"]) >= 0)
@@ -90,13 +89,14 @@ namespace MonicaBlazorUI.Services
             }
             if (include_time_agg)
             {
-                oss.Append(", " + op_to_string(Convert.ToInt32(oid["timeAggOp"])));
+                oss.Append(", " + OpToString(Convert.ToInt32(oid["timeAggOp"])));
             }
             oss.Append("]");
 
             return oss.ToString();
         }
-        public JArray write_output_header_rows(JArray output_ids,
+        public JArray WriteOutputHeaderRows(
+            JArray output_ids,
             bool include_header_row = true,
             bool include_units_row = true,
             bool include_time_agg = false)
@@ -108,54 +108,56 @@ namespace MonicaBlazorUI.Services
             foreach (var __item in output_ids)
             {
                 //string key = __item.Key;
-                JObject oid = __item as JObject;
-                var from_layer = Convert.ToInt32(oid["fromLayer"]);
-                var to_layer = Convert.ToInt32(oid["toLayer"]);
-                var is_organ = oid_is_organ(oid);
-                var is_range = oid_is_range(oid) && Convert.ToInt32(oid["layerAggOp"]) == OP_NONE;
-                if (is_organ)
+                if (__item is JObject oid)
                 {
-                    // organ is being represented just by the value of fromLayer currently
-                    //to_layer = Convert.ToInt32(oid["organ"]);
-                    to_layer = from_layer = Convert.ToInt32(oid["organ"]);
-                }
-                else if (is_range)
-                {
-                    from_layer += 1;
-                    to_layer += 1;
-                }
-                else
-                {
-                    to_layer = from_layer;
-                }
-                //foreach (var i in Enumerable.Range(from_layer, to_layer + 1 - from_layer))
-                for (int i = from_layer; i <= to_layer; i++)
-                {
-                    var str1 = "";
+                    var from_layer = Convert.ToInt32(oid["fromLayer"]);
+                    var to_layer = Convert.ToInt32(oid["toLayer"]);
+                    var is_organ = OidIsOrgan(oid);
+                    var is_range = OidIsRange(oid) && Convert.ToInt32(oid["layerAggOp"]) == OP_NONE;
                     if (is_organ)
                     {
-                        // str1 += oid["displayName"].Count() == 0 ? oid["name"] + "/" + organ_to_string(Convert.ToInt32(oid["organ"])) : oid["displayName"];
-                        str1 += (oid["displayName"].ToString().Length == 0) ? oid["name"] + "/" + organ_to_string(Convert.ToInt32(oid["organ"])) : oid["displayName"];
+                        // organ is being represented just by the value of fromLayer currently
+                        //to_layer = Convert.ToInt32(oid["organ"]);
+                        to_layer = from_layer = Convert.ToInt32(oid["organ"]);
                     }
                     else if (is_range)
                     {
-                        // str1 += oid["displayName"].Count() == 0 ? oid["name"] + "_" + i.ToString() : oid["displayName"];
-                        str1 += (oid["displayName"].ToString().Length == 0) ? oid["name"] + "_" + i.ToString() : oid["displayName"];
+                        from_layer += 1;
+                        to_layer += 1;
                     }
                     else
                     {
-                        //str1 += oid["displayName"].Count() == 0 ? oid["name"] : oid["displayName"];
-                        str1 += (oid["displayName"].ToString().Length == 0) ? oid["name"] : oid["displayName"];
+                        to_layer = from_layer;
                     }
-                    row1.Add(str1);
-                    //row4.Add("j:" + oid["jsonInput"].ToString().Replace("\"", ""));
-                    var row4value = "j:" + oid["jsonInput"].ToString().Replace("\"", "");
-                    if (row4value.Contains("["))
-                        row4.Add("\"" + row4value + "\"");
-                    else
-                        row4.Add(row4value);
-                    row3.Add("m:" + oid_to_string(oid, include_time_agg));
-                    row2.Add("[" + oid["unit"] + "]");
+                    //foreach (var i in Enumerable.Range(from_layer, to_layer + 1 - from_layer))
+                    for (int i = from_layer; i <= to_layer; i++)
+                    {
+                        var str1 = "";
+                        if (is_organ)
+                        {
+                            // str1 += oid["displayName"].Count() == 0 ? oid["name"] + "/" + organ_to_string(Convert.ToInt32(oid["organ"])) : oid["displayName"];
+                            str1 += ((oid["displayName"] ?? "").ToString().Length == 0) ? oid["name"] + "/" + OrganToString(Convert.ToInt32(oid["organ"])) : oid["displayName"];
+                        }
+                        else if (is_range)
+                        {
+                            // str1 += oid["displayName"].Count() == 0 ? oid["name"] + "_" + i.ToString() : oid["displayName"];
+                            str1 += ((oid["displayName"] ?? "").ToString().Length == 0) ? oid["name"] + "_" + i.ToString() : oid["displayName"];
+                        }
+                        else
+                        {
+                            //str1 += oid["displayName"].Count() == 0 ? oid["name"] : oid["displayName"];
+                            str1 += ((oid["displayName"] ?? "").ToString().Length == 0) ? oid["name"] : oid["displayName"];
+                        }
+                        row1.Add(str1);
+                        //row4.Add("j:" + oid["jsonInput"].ToString().Replace("\"", ""));
+                        var row4value = "j:" + (oid["jsonInput"] ?? "").ToString().Replace("\"", "");
+                        if (row4value.Contains("["))
+                            row4.Add("\"" + row4value + "\"");
+                        else
+                            row4.Add(row4value);
+                        row3.Add("m:" + OidToString(oid, include_time_agg));
+                        row2.Add("[" + oid["unit"] + "]");
+                    }
                 }
             }
             var res = new JArray();
@@ -174,7 +176,7 @@ namespace MonicaBlazorUI.Services
             }
             return res;
         }
-        public JArray write_output(JArray output_ids, JArray values)
+        public JArray WriteOutput(JArray outputIds, JArray values)
         {
             var res = new JArray();
             if (values.Count > 0)
@@ -183,19 +185,16 @@ namespace MonicaBlazorUI.Services
                 {
                     var i = 0;
                     var row = new JArray();
-                    foreach (var _ in output_ids)
+                    foreach (var _ in outputIds)
                     {
                         var cju = values[i][k];
-                        if (cju is JArray)
+                        if (cju is JArray cjua)
                         {
-                            foreach (var jv_ in cju)
-                            {
-                                row.Add(jv_);
-                            }
+                            foreach (var jv_ in cjua) row.Add(jv_); 
                         }
                         else
                         {
-                            row.Add(cju);
+                            if(cju != null) row.Add(cju);
                         }
                         i += 1;
                     }
@@ -204,51 +203,51 @@ namespace MonicaBlazorUI.Services
             }
             return res;
         }
-        private  bool is_absolute_path(string p)
+        private bool IsAbsolutePath(string p)
         {
             return p.StartsWith("/") || p.Length == 2 && p[1] == ':' || p.Length > 2 && p[1] == ':' && (p[2] == '\\' || p[2] == '/');
         }
-        private  bool is_github_path(string p)
+        private bool IsGithubPath(string p)
         {
             return false;
             //return p.StartsWith("https://github.com") || p.StartsWith("http://github.com") || p.StartsWith("https://raw.githubusercontent.com");
         }
-        private  string fix_system_separator(string path)
+        private string FixSystemSeparator(string path)
         {
             path = path.Replace("\\", "/");
-            var new_path = path;
+            var newPath = path;
             while (true)
             {
-                new_path = path.Replace("//", "/");
-                if (new_path == path)
+                newPath = path.Replace("//", "/");
+                if (newPath == path)
                 {
                     break;
                 }
-                path = new_path;
+                path = newPath;
             }
-            return new_path;
+            return newPath;
         }
-        private  string replace_env_vars(string path)
+        private string ReplaceEnvVars(string path)
         {
-            var start_token = "${";
-            var end_token = "}";
-            var start_pos = path.IndexOf(start_token);
-            while (start_pos > -1)
+            var startToken = "${";
+            var endToken = "}";
+            var startPos = path.IndexOf(startToken);
+            while (startPos > -1)
             {
-                var end_pos = path.IndexOf(end_token, start_pos + 1);
-                if (end_pos > -1)
+                var endPos = path.IndexOf(endToken, startPos + 1);
+                if (endPos > -1)
                 {
-                    var name_start = start_pos + 2;
-                    var env_var_name = path.Substring(name_start, end_pos - start_pos);
-                    var env_var_content = Environment.GetEnvironmentVariable(env_var_name);
-                    if (env_var_content != null)
+                    var nameStart = startPos + 2;
+                    var envVarName = path.Substring(nameStart, endPos - startPos);
+                    var envVarContent = Environment.GetEnvironmentVariable(envVarName);
+                    if (envVarContent != null)
                     {
-                        path = path.Replace(path.Substring(start_pos, (end_pos + 1) - start_pos), env_var_content);
-                        start_pos = path.IndexOf(start_token);
+                        path = path.Replace(path.Substring(startPos, (endPos + 1) - startPos), envVarContent);
+                        startPos = path.IndexOf(startToken);
                     }
                     else
                     {
-                        start_pos = path.IndexOf(start_token, end_pos + 1);
+                        startPos = path.IndexOf(startToken, endPos + 1);
                     }
                 }
                 else
@@ -258,11 +257,11 @@ namespace MonicaBlazorUI.Services
             }
             return path;
         }
-        private  string default_value(JObject dic, string key, string @default)
+        private  string DefaultValue(JObject dic, string key, string @default)
         {
-            return dic.ContainsKey(key) ? dic[key].ToString() : @default;
+            return dic.ContainsKey(key) ? (dic[key] ?? "").ToString() : @default;
         }
-        private  JObject read_and_parse_json_file(string path, bool isGithubPath = false)
+        private  JObject ReadAndParseJsonFile(string path, bool isGithubPath = false)
         {
             var res = new JObject();
             try
@@ -289,7 +288,7 @@ namespace MonicaBlazorUI.Services
                 res.Add("errors", new JArray());
                 res.Add("success", true);
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 res.Add("result", new JObject());
                 res.Add("errors", "Error opening file with path: '" + path + "'!");
@@ -297,57 +296,61 @@ namespace MonicaBlazorUI.Services
             }
             return res;
         }
-        private  object parse_json_string(string jsonString)
+
+        private JObject ParseJsonString(string jsonString)
         {
-            var res = new JObject();
-            res.Add("result", JObject.Parse(jsonString));
-            res.Add("errors", new JArray());
-            res.Add("success", true);
-            return res;
+            return new JObject {
+                { "result", JObject.Parse(jsonString) },
+                { "errors", new JArray() },
+                { "success", true }
+            };
         }
-        private  bool is_string_type(JValue j)
+        private bool IsStringType(JValue? j)
         {
-            if (j == null)
-                return false;
+            if (j == null) return false;
             return j.Type == JTokenType.String;
         }
-        public JObject find_and_replace_references(JToken root, JToken j)
+
+        public JObject FindAndReplaceReferences(JObject? root, JToken? j)
         {
+            if (root == null || j == null) return new JObject();
+
             JObject res;
             var success = true;
             var errors = new List<string>();
-            if (j is JArray && (j as JArray).Count > 0)
+            if (j is JArray ja && ja.Count > 0)
             {
                 var arr = new List<object>();
-                var array_is_reference_function = false;
-                if (is_string_type(j[0] as JValue))
+                var arrayIsReferenceFunction = false;
+                if (j[0] is JValue j0 && IsStringType(j0))
                 {
-                    if (Contains(j[0].ToString()))
+                    if (Contains(j0.ToString()))
                     {
-                        string function = j[0].ToString();
-                        array_is_reference_function = true;
+                        string function = j0.ToString();
+                        arrayIsReferenceFunction = true;
 
                         //check for nested function invocations in the arguments
                         var funcArr = new JArray();
                         foreach (var i in j)
                         {
-                            res = find_and_replace_references(root, i);
+                            res = FindAndReplaceReferences(root, i);
                             success = success && Convert.ToBoolean(res["success"]);
                             if (!Convert.ToBoolean(res["success"]))
                             {
-                                foreach (var err in res["errors"])
+                                foreach (var err in res["errors"] ?? new JObject())
                                 {
                                     errors.Add(err.ToString());
                                 }
                             }
-                            funcArr.Add(res["result"]);
+                            var r = res["result"];
+                            if(r != null) funcArr.Add(r);
                         }
                         //invoke function
                         var jaes = GetValue(function, root, funcArr);
                         success = success && Convert.ToBoolean(jaes["success"]);
                         if (!Convert.ToBoolean(jaes["success"]))
                         {
-                            foreach (var err in jaes["errors"])
+                            foreach (var err in jaes["errors"] ?? new JObject())
                             {
                                 errors.Add(err.ToString());
                             }
@@ -355,106 +358,114 @@ namespace MonicaBlazorUI.Services
                         //if successful try to recurse into result for functions in result
                         if (Convert.ToBoolean(jaes["success"]))
                         {
-                            res = find_and_replace_references(root, jaes["result"]);
-                            success = success && Convert.ToBoolean(res["success"]);
-                            if (!Convert.ToBoolean(res["success"]))
+                            var jaesr = jaes["result"];
+                            if (jaesr != null)
                             {
-                                foreach (var err in res["errors"])
+                                res = FindAndReplaceReferences(root, jaesr);
+                                success = success && Convert.ToBoolean(res["success"]);
+                                if (!Convert.ToBoolean(res["success"]))
                                 {
-                                    errors.Add(err.ToString());
+                                    foreach (var err in res["errors"] ?? new JObject())
+                                    {
+                                        errors.Add(err.ToString());
+                                    }
                                 }
+                                return new JObject{
+                                    { "result", res["result"] },
+                                    { "errors", new JArray(errors.ToArray()) },
+                                    { "success", errors.Count == 0 }
+                                };
                             }
-                            var ccc1 = new JObject();
-                            ccc1.Add("result", res["result"]);
-                            ccc1.Add("errors", new JArray(errors.ToArray()));
-                            ccc1.Add("success", errors.Count == 0);
-                            return ccc1;
                         }
                         else
                         {
-                            var ccc1 = new JObject();
-                            ccc1.Add("result", new JArray());
-                            ccc1.Add("errors", new JArray(errors.ToArray()));
-                            ccc1.Add("success", errors.Count == 0);
-                            return ccc1;
+                            return new JObject{
+                                { "result", new JArray() },
+                                { "errors", new JArray(errors.ToArray()) },
+                                { "success", errors.Count == 0 }
+                            };
                         }
                     }
                 }
-                if (!array_is_reference_function)
+                if (!arrayIsReferenceFunction)
                 {
                     foreach (var jv in j)
                     {
-                        res = find_and_replace_references(root, jv);
+                        res = FindAndReplaceReferences(root, jv);
                         success = success && Convert.ToBoolean(res["success"]);
                         if (!Convert.ToBoolean(res["success"]))
                         {
-                            foreach (var err in res["errors"])
+                            foreach (var err in res["errors"] ?? new JObject())
                             {
                                 errors.Add(err.ToString());
                             }
                         }
-                        arr.Add(res["result"]);
+                        var r = res["result"];
+                        if (r != null) arr.Add(r);
                     }
                 }
-                var ccc2 = new JObject();
-                ccc2.Add("result", new JArray(arr.ToArray()));
-                ccc2.Add("errors", new JArray(errors.ToArray()));
-                ccc2.Add("success", errors.Count == 0);
-                return ccc2;
+                return new JObject {
+                    { "result", new JArray(arr.ToArray()) },
+                    { "errors", new JArray(errors.ToArray()) },
+                    { "success", errors.Count == 0 }
+                };
             }
-            else if (j is JObject)
+            else if (j is JObject jo)
             {
                 var obj = new JObject();
-                foreach (var item in (j as JObject))
+                foreach (var item in jo)
                 {
                     var k = item.Key;
                     var v = item.Value;
-                    var r = find_and_replace_references(root, v);
+                    var r = v != null ? FindAndReplaceReferences(root, v) : new JObject();
                     success = success && Convert.ToBoolean(r["success"]);
                     if (!Convert.ToBoolean(r["success"]))
                     {
-                        foreach (var e in r["errors"])
+                        foreach (var e in r["errors"] ?? new JObject())
                         {
                             errors.Add(e.ToString());
                         }
                     }
-                    obj.Add(k, r["result"]);
+                    var rr = r["result"];
+                    if(rr != null) obj.Add(k, rr);
                 }
-                var ccc2 = new JObject();
-                ccc2.Add("result", obj);
-                ccc2.Add("errors", new JArray(errors.ToArray()));
-                ccc2.Add("success", errors.Count == 0);
-                return ccc2;
+                return new JObject{
+                    { "result", obj },
+                    { "errors", new JArray(errors.ToArray()) },
+                    { "success", errors.Count == 0 }
+                };
             }
-            var ccc3 = new JObject();
-            ccc3.Add("result", j);
-            ccc3.Add("errors", new JArray(errors.ToArray()));
-            ccc3.Add("success", errors.Count == 0);
-            return ccc3;
+            return new JObject{
+                { "result", j },
+                { "errors", new JArray(errors.ToArray()) },
+                { "success", errors.Count == 0 }
+            };
         }
-        private  bool print_possible_errors(JObject errs, bool include_warnings = false)
+        private static bool PrintPossibleErrors(JObject errs, bool includeWarnings = false)
         {
-            if (!(bool)errs["success"])
+            var succ = errs["success"];
+            if (succ != null && !(bool)succ)
             {
-                foreach (var err in errs["errors"])
+                foreach (var err in errs["errors"] ?? new JObject())
                 {
                     Console.WriteLine(err);
                 }
             }
-            if (include_warnings && errs.ContainsKey("warnings"))
+            if (includeWarnings && errs.ContainsKey("warnings"))
             {
-                foreach (var war in errs["warnings"])
+                foreach (var war in errs["warnings"] ?? new JObject())
                 {
                     Console.WriteLine(war);
                 }
             }
-            return (bool)errs["success"];
+            return (bool)(succ ?? false);
         }
-        public JObject createEnvJsonFromJsonConfig(JObject crop_site_sim, string parametersPath)
+
+        public JObject? CreateEnvJsonFromJsonConfig(JObject cropSiteSim, string parametersPath)
         {
-            JToken jTkn;
+            JToken? jTkn;
             string key;
-            foreach (var item in crop_site_sim)
+            foreach (var item in cropSiteSim)
             {
                 key = item.Key;
                 jTkn = item.Value;
@@ -464,33 +475,34 @@ namespace MonicaBlazorUI.Services
                 }
             }
 
-            var path_to_parameters = parametersPath; //crop_site_sim["sim"]["include-file-base-path"];
+            var pathToParameters = parametersPath; //crop_site_sim["sim"]["include-file-base-path"];
             //var path_to_parameters = "Data/monica-parameters/";
 
-            var crop_site_sim2 = new JObject();
+            var cropSiteSim2 = new JObject();
 
             //collect all errors in all files and don't stop as early as possible
             var errors = new List<string>();
-            foreach (var item in crop_site_sim)
+            foreach (var item in cropSiteSim)
             {
                 key = item.Key;
                 jTkn = item.Value;
-                if (key == "climate")
-                {
-                    continue;
-                }
-                add_base_path(jTkn as JObject, path_to_parameters);
-                var res = find_and_replace_references(jTkn, jTkn);
+                if (key == "climate") continue;
+                AddBasePath(jTkn as JObject, pathToParameters);
+                var res = FindAndReplaceReferences(jTkn as JObject, jTkn);
                 if (Convert.ToBoolean(res["success"]))
                 {
-                    crop_site_sim2.Add(key, res["result"]);
+                    var rr = res["result"];
+                    if(rr != null) cropSiteSim2.Add(key, rr);
                 }
                 else
                 {
-                    var ers = res["errors"] as JArray;
-                    for (int ii = 0; ii < ers.Count; ii++)
+                    var ers = res.Value<JArray>("errors");
+                    if (ers != null)
                     {
-                        errors.Add(ers[ii].ToString());
+                        for (int ii = 0; ii < ers.Count; ii++)
+                        {
+                            errors.Add(ers[ii].ToString());
+                        }
                     }
                 }
             }
@@ -503,13 +515,22 @@ namespace MonicaBlazorUI.Services
                 }*/
                 return null;
             }
-            var cropj = crop_site_sim2["crop"];
-            var sitej = crop_site_sim2["site"];
-            var simj = crop_site_sim2["sim"];
-            var env = new JObject();
-            env.Add("type", "Env");
-            //store debug mode in env, take from sim.json, but prefer params map
-            env.Add("debugMode", simj["debug?"]);
+            var cropj = cropSiteSim2["crop"] ?? new JObject();
+            var sitej = cropSiteSim2["site"] ?? new JObject();
+            var simj = cropSiteSim2["sim"] ?? new JObject();
+            var env = new JObject
+            {
+                { "type", "Env" },
+                //store debug mode in env, take from sim.json, but prefer params map
+                { "debugMode", simj["debug?"] ?? false },
+                { "cropRotation", cropj["cropRotation"] ?? new JObject() },
+                { "cropRotations", cropj["cropRotations"] ?? new JObject() },
+                { "events", simj.Value<JObject>("output")?.Value<JArray>("events") ?? new JArray() },
+                { "pathToClimateCSV", simj["climate.csv"] ?? "" },
+                { "csvViaHeaderOptions", simj["climate.csv-options"] ?? new JObject() },
+                { "climateCSV", cropSiteSim["climate"] ?? ""}
+            };
+            env.Value<JObject>("csvViaHeaderOptions")?.Value<JValue>("latitude")?.Replace(sitej.Value<JObject>("SiteParameters")?.Value<JValue>("Latitude") ?? new JValue(0.0));
             var cpp = new JObject()
             {{
                 "type",
@@ -519,269 +540,257 @@ namespace MonicaBlazorUI.Services
                 cropj["CropParameters"]},
             {
                 "userEnvironmentParameters",
-                sitej["EnvironmentParameters"]},
+                sitej["EnvironmentParameters"] ?? new JObject()},
             {
                 "userSoilMoistureParameters",
-                sitej["SoilMoistureParameters"]},
+                sitej["SoilMoistureParameters"] ?? new JObject()},
             {
                 "userSoilTemperatureParameters",
-                sitej["SoilTemperatureParameters"]},
+                sitej["SoilTemperatureParameters"] ?? new JObject()},
             {
                 "userSoilTransportParameters",
-                sitej["SoilTransportParameters"]},
+                sitej["SoilTransportParameters"] ?? new JObject()},
             {
                 "userSoilOrganicParameters",
-                sitej["SoilOrganicParameters"]},
+                sitej["SoilOrganicParameters"] ?? new JObject()},
             {
                 "simulationParameters",
                 simj},
             {
                 "siteParameters",
-                sitej["SiteParameters"]}
+                sitej["SiteParameters"] ?? new JObject()}
             };
             env.Add("params", cpp);
-            env.Add("cropRotation", cropj["cropRotation"]);
-            env.Add("cropRotations", cropj["cropRotations"]);
-            env.Add("events", simj["output"]["events"]);
-            env.Add("pathToClimateCSV", simj["climate.csv"]);
-            env.Add("csvViaHeaderOptions", simj["climate.csv-options"]);
-            env["csvViaHeaderOptions"]["latitude"] = sitej["SiteParameters"]["Latitude"];
-            env.Add("climateCSV", crop_site_sim.ContainsKey("climate") ? crop_site_sim["climate"] : "");
             return env;
         }
 
-        private void add_base_path(JObject j, JToken base_path)
+        private void AddBasePath(JObject? j, JToken? basePath)
         {
-            if (!j.ContainsKey("include-file-base-path"))
-            {
-                j.Add("include-file-base-path", base_path);
-            }
-            else
-            {
-                j["include-file-base-path"] = base_path;
-            }
+            if (j == null || basePath == null) return;
+            if (!j.ContainsKey("include-file-base-path")) j.Add("include-file-base-path", basePath);
+            else j["include-file-base-path"] = basePath;
         }
 
-        public JObject @ref(JObject root, JArray j)
+        public JObject Ref(JObject? root, JArray? j)
         {
-            if (j != null && j.Count == 3 && is_string_type(j[1] as JValue) && is_string_type(j[2] as JValue))
+            if (root == null || j == null) return new JObject { { "success", false } };
+
+            if (j.Count == 3 && IsStringType(j[1] as JValue) && IsStringType(j[2] as JValue))
             {
                 var key1 = j[1].ToString();
                 var key2 = j[2].ToString();
-                return find_and_replace_references(root, root[key1][key2]);
+                var r12 = (root[key1] ?? new JObject())[key2];
+                if(r12 != null) return FindAndReplaceReferences(root, r12);
+                return new JObject();
 
             }
-            var res = new JObject();
-            res.Add("result", j);
-            res.Add("errors", new JArray("Couldn't resolve reference: " + j.ToString() + "!"));
-            res.Add("success", false);
-            return res;
+            return new JObject {
+                { "result", j },
+                { "errors", new JArray("Couldn't resolve reference: " + j.ToString() + "!") },
+                { "success", false }
+            };
         }
-        public JObject from_file(JObject root, JArray j)
+
+        public JObject FromFile(JObject? root, JArray? j)
         {
-            if (j != null && j.Count == 2 && is_string_type(j[1] as JValue))
+            if (root == null || j == null) return new JObject { { "success", false } };
+
+            if (j.Count == 2 && IsStringType(j.Value<JValue>(1)))
             {
-                var base_path = default_value(root, "include-file-base-path", ".");
-                var path_to_file = j[1].ToString();
+                var basePath = DefaultValue(root, "include-file-base-path", ".");
+                var pathToFile = j[1].ToString();
                 bool isGitHubPath = false;
 
-                if (is_github_path(base_path))
+                if (IsGithubPath(basePath))
                 {
                     // _githubService.SetRepoInfo(base_path);
                     // isGitHubPath = true;
                 }
                 else
                 {
-                    if (!is_absolute_path(path_to_file))
-                    {
-                        path_to_file = base_path + "/" + path_to_file;
-                    }
-
-                    path_to_file = replace_env_vars(path_to_file);
-                    path_to_file = fix_system_separator(path_to_file);
+                    if (!IsAbsolutePath(pathToFile)) pathToFile = basePath + "/" + pathToFile;
+                    pathToFile = ReplaceEnvVars(pathToFile);
+                    pathToFile = FixSystemSeparator(pathToFile);
                 }
                 // here can check if this path exists in our array,if so then replace the path with our path like: Data/upload/temp-monica-parameters/....json
-                var jo_ = read_and_parse_json_file(path_to_file, isGitHubPath);
+                var jo_ = ReadAndParseJsonFile(pathToFile, isGitHubPath);
                 if (Convert.ToBoolean(jo_["success"]) && jo_["result"] != null)
                 {
-                    var res = new JObject();
-                    res.Add("result", jo_["result"] as JToken);
-                    res.Add("errors", new JArray());
-                    res.Add("success", true);
-                    return res;
+                    return new JObject {
+                        { "result", jo_["result"] },
+                        { "errors", new JArray() },
+                        { "success", true }
+                    };
                 }
-                var res2 = new JObject();
-                res2.Add("result", j);
-                res2.Add("errors", new JArray("Couldn't include file with path: '" + path_to_file + "'!"));
-                res2.Add("success", false);
-                return res2;
+                return new JObject {
+                    {"result", j },
+                    { "errors", new JArray("Couldn't include file with path: '" + pathToFile + "'!") },
+                    { "success", false }
+                };
             }
-            var res3 = new JObject();
-            res3.Add("result", j);
-            res3.Add("errors", new JArray("Couldn't include file with function: " + j.ToString() + "!"));
-            res3.Add("success", false);
-            return res3;
+            return new JObject {
+                { "result", j },
+                { "errors", new JArray("Couldn't include file with function: " + j.ToString() + "!") },
+                { "success", false }
+            };
         }
-        public JObject ld_to_trd(JObject root, JArray j)
+
+        public JObject LdToTrd(JObject? root, JArray? j)
         {
-            if (j != null && j.Count == 3 && is_int(j[1] as JValue) && is_float(j[2] as JValue))
+            if (root == null || j == null) return new JObject { { "success", false } };
+
+            if (j.Count == 3 && IsInt(j[1] as JValue) && IsFloat(j[2] as JValue))
             {
-                var res = new JObject();
-                res.Add("result", SoilIO.bulk_density_class_to_raw_density((int)j[1], (double)j[2]));
-                res.Add("errors", new JArray());
-                res.Add("success", true);
-                return res;
+                return new JObject {
+                    { "result", SoilIO.bulk_density_class_to_raw_density((int)j[1], (double)j[2]) },
+                    { "errors", new JArray() },
+                    { "success", true }
+                };
             }
-            var res2 = new JObject();
-            res2.Add("result", j);
-            res2.Add("errors", new JArray("Couldn't convert bulk density class to raw density using function: " + j.ToString() + "!"));
-            res2.Add("success", false);
-            return res2;
+            return new JObject{
+                { "result", j },
+                { "errors", new JArray("Couldn't convert bulk density class to raw density using function: " + j.ToString() + "!") },
+                { "success", false }
+            };
         }
-        public JObject ka5_to_clay(object root, JArray j)
+
+        public JObject KA5ToClay(JObject? root, JArray? j)
         {
-            if (j != null && j.Count == 2 && is_string_type(j[1] as JValue))
+            if (root == null || j == null) return new JObject { { "success", false } };
+
+            if (j.Count == 2 && IsStringType(j[1] as JValue))
             {
-                var res = new JObject();
-                res.Add("result", SoilIO.ka5_texture_to_clay(j[1].ToString()));
-                res.Add("errors", new JArray());
-                res.Add("success", true);
-                return res;
+                return new JObject{
+                    { "result", SoilIO.ka5_texture_to_clay(j[1].ToString()) },
+                    { "errors", new JArray() },
+                    { "success", true }
+                };
             }
-            var res2 = new JObject();
-            res2.Add("result", j);
-            res2.Add("errors", new JArray("Couldn't get soil clay content from KA5 soil class: " + j.ToString() + "!"));
-            res2.Add("success", false);
-            return res2;
+            return new JObject{
+                { "result", j },
+                { "errors", new JArray("Couldn't get soil clay content from KA5 soil class: " + j.ToString() + "!") },
+                { "success", false }
+            };
         }
-        public JObject ka5_to_sand(object root, JArray j)
+
+        public JObject KA5ToSand(JObject? root, JArray? j)
         {
-            if (j != null && j.Count == 2 && is_string_type(j[1] as JValue))
+            if (root == null || j == null) return new JObject { { "success", false } };
+
+            if (j.Count == 2 && IsStringType(j[1] as JValue))
             {
-                var res = new JObject();
-                res.Add("result", SoilIO.ka5_texture_to_sand(j[1].ToString()));
-                res.Add("errors", new JArray());
-                res.Add("success", true);
-                return res;
+                return new JObject {
+                    { "result", SoilIO.ka5_texture_to_sand(j[1].ToString()) },
+                    { "errors", new JArray() },
+                    { "success", true }
+                };
             }
-            var res2 = new JObject();
-            res2.Add("result", j);
-            res2.Add("errors", new JArray("Couldn't get soil sand content from KA5 soil class: " + j.ToString() + "!"));
-            res2.Add("success", false);
-            return res2;
+            return new JObject{
+                { "result", j },
+                { "errors", new JArray("Couldn't get soil sand content from KA5 soil class: " + j.ToString() + "!") },
+                { "success", false }
+            };
         }
-        public JObject sand_clay_to_lambda(object root, JArray j)
+
+        public JObject SandClayToLambda(JObject? root, JArray? j)
         {
-            if (j != null && j.Count == 2 && is_float(j[1] as JValue) && is_float(j[2] as JValue))
+            if (root == null || j == null) return new JObject { { "success", false } };
+
+            if (j.Count == 2 && IsFloat(j[1] as JValue) && IsFloat(j[2] as JValue))
             {
-                var res = new JObject();
-                res.Add("result", SoilIO.sand_and_clay_to_lambda((double)j[1], (double)j[2]));
-                res.Add("errors", new JArray());
-                res.Add("success", true);
-                return res;
+                return new JObject {
+                    { "result", SoilIO.sand_and_clay_to_lambda((double)j[1], (double)j[2]) },
+                    { "errors", new JArray() },
+                    { "success", true }
+                };
             }
-            var res2 = new JObject();
-            res2.Add("result", j);
-            res2.Add("errors", new JArray("Couldn't get lambda value from soil sand and clay content: " + j.ToString() + "!"));
-            res2.Add("success", false);
-            return res2;
+            return new JObject {
+                { "result", j },
+                { "errors", new JArray("Couldn't get lambda value from soil sand and clay content: " + j.ToString() + "!") },
+                { "success", false }
+            };
         }
-        public JObject percent(object root, JArray j)
+
+        public JObject Percent(JObject? root, JArray? j)
         {
-            if (j != null && j.Count == 2 && is_float(j[1] as JValue))
+            if (root == null || j == null) return new JObject { { "success", false } };
+
+            if (j.Count == 2 && IsFloat(j[1] as JValue))
             {
-                var res = new JObject();
-                res.Add("result", (float)j[1] / 100.0);
-                res.Add("errors", new JArray());
-                res.Add("success", true);
-                return res;
+                return new JObject {
+                    { "result", (float)j[1] / 100.0 },
+                    { "errors", new JArray() },
+                    { "success", true }
+                };
             }
-            var res2 = new JObject();
-            res2.Add("result", j);
-            res2.Add("errors", new JArray("Couldn't convert percent to decimal percent value: " + j.ToString() + "!"));
-            res2.Add("success", false);
-            return res2;
+            return new JObject {
+                { "result", j },
+                { "errors", new JArray("Couldn't convert percent to decimal percent value: " + j.ToString() + "!") },
+                { "success", false }
+            };
         }
-        public JObject humus_to_corg(object root, JArray j)
+
+        public JObject HumusToCorg(JObject? root, JArray? j)
         {
-            if (j != null && j.Count == 2 && is_int(j[1] as JValue))
+            if (root == null || j == null) return new JObject { { "success", false } };
+
+            if (j.Count == 2 && IsInt(j[1] as JValue))
             {
-                var res = new JObject();
-                res.Add("result", SoilIO.humus_class_to_corg((int)j[1]));
-                res.Add("errors", new JArray());
-                res.Add("success", true);
-                return res;
+                return new JObject{
+                    { "result", SoilIO.humus_class_to_corg((int)j[1]) },
+                    { "errors", new JArray() },
+                    { "success", true }
+                };
             }
-            var res2 = new JObject();
-            res2.Add("result", j);
-            res2.Add("errors", new JArray("Couldn't convert humus level to corg: " + j.ToString() + "!"));
-            res2.Add("success", false);
-            return res2;
+            return new JObject {
+                { "result", j },
+                { "errors", new JArray("Couldn't convert humus level to corg: " + j.ToString() + "!") },
+                { "success", false }
+            };
         }
-        private bool is_int(JValue value)
+
+        private bool IsInt(JValue? value)
         {
-            if (value == null)
-                return false;
+            if (value == null) return false;
             return value.Type == JTokenType.Integer;
         }
-        private bool is_float(JValue value)
+        private bool IsFloat(JValue? value)
         {
-            if (value == null)
-                return false;
+            if (value == null) return false;
             return value.Type == JTokenType.Float;
         }
-        public JObject GetValue(string function, object root, object j)
+
+        public JObject GetValue(string function, JObject? root, JToken? j)
         {
-            switch (function)
+            if (root == null || j == null) return new JObject { { "success", false } };
+
+            return function switch
             {
-                case "include-from-file":
-                    return from_file(root as JObject, j as JArray);
-                case "ref":
-                    return @ref(root as JObject, j as JArray);
-                case "humus_st2corg":
-                    return humus_to_corg(root as JObject, j as JArray);
-                case "ld_eff2trd":
-                    return ld_to_trd(root as JObject, j as JArray);
-                case "bulk-density-class->raw-density":
-                    return ld_to_trd(root as JObject, j as JArray);
-                case "KA5TextureClass2clay":
-                    return ka5_to_clay(root as JObject, j as JArray);
-                case "KA5-texture-class->clay":
-                    return ka5_to_clay(root as JObject, j as JArray);
-                case "KA5TextureClass2sand":
-                    return ka5_to_sand(root as JObject, j as JArray);
-                case "KA5-texture-class->sand":
-                    return ka5_to_sand(root as JObject, j as JArray);
-                case "sandAndClay2lambda":
-                    return sand_clay_to_lambda(root as JObject, j as JArray);
-                case "sand-and-clay->lambda":
-                    return sand_clay_to_lambda(root as JObject, j as JArray);
-                case "%":
-                    return percent(root as JObject, j as JArray);
-                default:
-                    throw new Exception("invalid pattern name!");
-            }
+                "include-from-file" => FromFile(root, j as JArray),
+                "ref" => Ref(root, j as JArray),
+                "humus_st2corg" => HumusToCorg(root, j as JArray),
+                "ld_eff2trd" => LdToTrd(root, j as JArray),
+                "bulk-density-class->raw-density" => LdToTrd(root, j as JArray),
+                "KA5TextureClass2clay" => KA5ToClay(root, j as JArray),
+                "KA5-texture-class->clay" => KA5ToClay(root, j as JArray),
+                "KA5TextureClass2sand" => KA5ToSand(root, j as JArray),
+                "KA5-texture-class->sand" => KA5ToSand(root, j as JArray),
+                "sandAndClay2lambda" => SandClayToLambda(root, j as JArray),
+                "sand-and-clay->lambda" => SandClayToLambda(root, j as JArray),
+                "%" => Percent(root, j as JArray),
+                _ => throw new Exception("invalid pattern name!"),
+            };
         }
         public bool Contains(string function)
         {
-            switch (function)
+            return function switch
             {
-                case "include-from-file":
-                case "ref":
-                case "humus_st2corg":
-                case "ld_eff2trd":
-                case "bulk-density-class->raw-density":
-                case "KA5TextureClass2clay":
-                case "KA5-texture-class->clay":
-                case "KA5TextureClass2sand":
-                case "KA5-texture-class->sand":
-                case "sandAndClay2lambda":
-                case "sand-and-clay->lambda":
-                case "%":
-                    return true;
-                default:
-                    return false;
-            }
+                "include-from-file" or "ref" or "humus_st2corg" or "ld_eff2trd" or "bulk-density-class->raw-density" 
+                or "KA5TextureClass2clay" or "KA5-texture-class->clay" or "KA5TextureClass2sand" 
+                or "KA5-texture-class->sand" or "sandAndClay2lambda" 
+                or "sand-and-clay->lambda" or "%" => true,
+                _ => false,
+            };
         }
     }
 }

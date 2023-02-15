@@ -133,7 +133,7 @@ namespace Mas.Infrastructure.Common
                     {
                         _connections.TryRemove(addressPort, out _);
                     }
-                    catch(System.Exception)
+                    catch(System.Exception e)
                     {
                         _connections.TryRemove(addressPort, out _);
                         throw;

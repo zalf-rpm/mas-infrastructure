@@ -3,8 +3,8 @@
 
 @namespace Mas.Infrastructure.BlazorComponents
 
-@using ExtType = Mas.Schema.Management.Event.ExternalType
-@using Mgmt = Mas.Schema.Management
+@using ExtType = Mas.Schema.Model.Monica.Event.ExternalType
+@using Mgmt = Mas.Schema.Model.Monica
 @using Crop = Mas.Schema.Crop
 @using Reg = Mas.Schema.Registry
 @using Model = Mas.Schema.Model
@@ -83,44 +83,44 @@
             <MudItem Class=@(HideSturdyRefConnectors ? "d-none" : "") xs="12">
                 @code {
                     [Parameter]
-                    public Mgmt.IFertilizerService FertilizerServiceCap { get; set; }
+                    public Reg.IRegistry? FertilizerRegistryCap { get; set; }
 
                     [Parameter]
-                    public string FertilizerServiceSturdyRef { get; set; } = "";//"capnp://login01.cluster.zalf.de:9998";
+                    public string FertilizerRegistrySturdyRef { get; set; } = "";//"capnp://login01.cluster.zalf.de:9998";
 
                     [Parameter]
-                    public EventCallback<Mgmt.IFertilizerService> FertilizerServiceCapChanged { get; set; }
+                    public EventCallback<Reg.IRegistry> FertilizerRegistryCapChanged { get; set; }
                 }
                 <ConnectToSturdyRef Label="Persistent capability to fertilizer service (capnp://host:port/token)"
                                     CapabilityChanged=@(cap => {
                                                             if (cap == null) return;
-                                                            if (FertilizerServiceCap != cap) FertilizerServiceCap?.Dispose();
-                                                            FertilizerServiceCap = cap;
+                                                            if (FertilizerRegistryCap != cap) FertilizerRegistryCap?.Dispose();
+                                                            FertilizerRegistryCap = cap;
                                                         })
-                                    TCapnpInterface=@Mgmt.IFertilizerService
-                                    @bind-SturdyRef=FertilizerServiceSturdyRef
+                                    TCapnpInterface=@Reg.IRegistry
+                                    @bind-SturdyRef=FertilizerRegistrySturdyRef
                                     ConnectOnInit=@TryConnectOnInit>
                 </ConnectToSturdyRef>
             </MudItem>
             <MudItem Class=@(HideSturdyRefConnectors ? "d-none" : "") xs="12">
                 @code {
                     [Parameter]
-                    public Reg.IRegistry? CropRegistryServiceCap { get; set; }
+                    public Reg.IRegistry? CropRegistryCap { get; set; }
 
                     [Parameter]
-                    public string CropRegistryServiceSturdyRef { get; set; } = "";
+                    public string CropRegistrySturdyRef { get; set; } = "";
 
                     [Parameter]
-                    public EventCallback<Reg.IRegistry> CropRegistryServiceCapChanged { get; set; }
+                    public EventCallback<Reg.IRegistry> CropRegistryCapChanged { get; set; }
                 }
                 <ConnectToSturdyRef Label="Persistent capability to fertilizer service (capnp://host:port/token)"
                                     TCapnpInterface=@Reg.IRegistry
                                     CapabilityChanged=@(cap => {
                                                             if (cap == null) return;
-                                                            if (CropRegistryServiceCap != cap) CropRegistryServiceCap?.Dispose();
-                                                            CropRegistryServiceCap = cap;
+                                                            if (CropRegistryCap != cap) CropRegistryCap?.Dispose();
+                                                            CropRegistryCap = cap;
                                                         })
-                                    @bind-SturdyRef=FertilizerServiceSturdyRef
+                                    @bind-SturdyRef=CropRegistrySturdyRef
                                     ConnectOnInit=@TryConnectOnInit>
                 </ConnectToSturdyRef>
             </MudItem>
@@ -242,8 +242,8 @@
             {
                 <MudItem xs="12">
                     <EditCropRotation CropRotation=@cropRotation
-                                      FertilizerServiceCap=@(FertilizerServiceCap == null ? null : Capnp.Rpc.Proxy.Share(FertilizerServiceCap))
-                                      CropRegistryServiceCap=@(CropRegistryServiceCap == null ? null : Capnp.Rpc.Proxy.Share(CropRegistryServiceCap))/>
+                                      FertilizerRegistryCap=@(FertilizerRegistryCap == null ? null : Capnp.Rpc.Proxy.Share(FertilizerRegistryCap))
+                                      CropRegistryCap=@(CropRegistryCap == null ? null : Capnp.Rpc.Proxy.Share(CropRegistryCap))/>
                 </MudItem>
             }
         </MudGrid>
@@ -258,7 +258,7 @@
             {
                 return eventShortcut == "daily" || eventShortcut.Contains("at");
             }
-            MudTabs outputConfigTabs;
+            MudTabs? outputConfigTabs;
         }
         <MudGrid>
             <MudItem xs="12">
@@ -390,7 +390,7 @@
                                                                Label="Organ">
                                                         @foreach (Mgmt.PlantOrgan? o in Enum.GetValues(typeof(Mgmt.PlantOrgan)))
                                                         {
-                                                            <MudSelectItem Value="@o">@Capitalize(o.ToString().Replace("strukt", "struct"))</MudSelectItem>
+                                                            <MudSelectItem Value="@o">@Capitalize(o?.ToString()?.Replace("strukt", "struct") ?? "")</MudSelectItem>
                                                         }
                                                     </MudSelect>
                                                 </td>
@@ -467,14 +467,17 @@
             </MudItem>
             <MudItem xs="10">
                 <MudChipSet SelectedChipsChanged=@(cs => {
-                                                       selectedResultSection = cs.Select(c => c.Text).FirstOrDefault();
+                                                       selectedResultSection = cs.Select(c => c.Text).FirstOrDefault() ?? "";
                                                        MonicaResultsChanged = true;
                                                    })
                             Mandatory=@true
                             Filter=@true>
                     @foreach (var (s, i) in Section2Oid2Data.Keys.Select((s, i) => (s, i)))
                     {
-                        <MudChip @ref=defaultSelectedSectionChips[i] Text=@s Default=@(s == selectedResultSection)></MudChip>
+                        <MudChip @ref=defaultSelectedSectionChips[i]
+                             Text=@s 
+                             Default=@(s == selectedResultSection)>
+                        </MudChip>
                     }
                 </MudChipSet>
             </MudItem>

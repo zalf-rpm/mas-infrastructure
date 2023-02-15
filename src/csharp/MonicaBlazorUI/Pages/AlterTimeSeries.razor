@@ -5,7 +5,7 @@
 @using Climate = Mas.Schema.Climate 
 
 @code {
-    Func<float?, string> valid = val => val < 0 || val > 1 ? "[0 - 1]" : null;
+    Func<float?, string?> valid = val => val < 0 || val > 1 ? "[0 - 1]" : null;
 }
 <MudGrid>
     <MudItem xs="12">
@@ -40,9 +40,12 @@
                                 Icon=@Icons.Material.Filled.Add
                                 Label="Add"
                                 OnClick=@(async () => {
-                                                      AlterTimeSeriesWrapperCap?.Alter(newAltered, false);
-                                                      alteredElements = (await AlterTimeSeriesWrapperCap?.AlteredElements()).ToList();
-                                                      StateHasChanged();
+                                    if(AlterTimeSeriesWrapperCap != null)
+                                    {
+                                        await AlterTimeSeriesWrapperCap.Alter(newAltered, false);
+                                        alteredElements = (await AlterTimeSeriesWrapperCap.AlteredElements()).ToList();
+                                        StateHasChanged();
+                                    }
                                                   }) />
                     </MudItem>
                     <MudItem xs="4"></MudItem>
@@ -83,7 +86,9 @@
                             <MudFab Color=@Color.Secondary
                                     Icon=@Icons.Material.Filled.Save
                                     Label="Update"
-                                    OnClick=@(async () => { await AlterTimeSeriesWrapperCap?.Alter(altered, false); }) />
+                                    OnClick=@(async () => { 
+                                        if(AlterTimeSeriesWrapperCap != null) await AlterTimeSeriesWrapperCap.Alter(altered, false); 
+                                    }) />
                         </MudItem>
                         <MudItem xs="2">
                             <MudFab Color=@Color.Secondary
@@ -91,10 +96,12 @@
                                     Label="Delete"
                                     OnClick=@(async () =>
                                                       {
-                                                          AlterTimeSeriesWrapperCap?.Remove(altered.Element);
-                                                          var aes = await AlterTimeSeriesWrapperCap?.AlteredElements();
-                                                          alteredElements = aes.ToList();
-                                                          StateHasChanged();
+                                if(AlterTimeSeriesWrapperCap != null){
+                                    await AlterTimeSeriesWrapperCap.Remove(altered.Element);
+                                    var aes = await AlterTimeSeriesWrapperCap.AlteredElements();
+                                    alteredElements = aes.ToList();
+                                    StateHasChanged();
+                                }
                                                       }) />
                         </MudItem>
                         <MudItem xs="2"></MudItem>
@@ -107,7 +114,7 @@
 
 @code {
     [Parameter]
-    public Climate.IAlterTimeSeriesWrapper AlterTimeSeriesWrapperCap { get; set; }
+    public Climate.IAlterTimeSeriesWrapper? AlterTimeSeriesWrapperCap { get; set; }
 
     private List<Climate.Element> allClimateElements = new()
     {
