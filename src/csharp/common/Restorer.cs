@@ -3,6 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using Crypt = NSec.Cryptography;
@@ -65,8 +66,14 @@ namespace Mas.Infrastructure.Common
         }
 
         static public string SturdyRefStr(P.SturdyRef sturdyRef) {
-            var vatIdBase64 = Convert.ToBase64String(sturdyRef.TheTransient.Vat.Id.ToByteArray());
-            var srTokenBase64 = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(sturdyRef.TheTransient.LocalRef));
+            var id = sturdyRef.TheTransient.Vat.Id;
+            byte[] vatIdBytes = new byte[4 * 8];
+            BitConverter.GetBytes(id.PublicKey0).CopyTo(vatIdBytes, 0);
+            BitConverter.GetBytes(id.PublicKey1).CopyTo(vatIdBytes, 8);
+            BitConverter.GetBytes(id.PublicKey2).CopyTo(vatIdBytes, 16);
+            BitConverter.GetBytes(id.PublicKey3).CopyTo(vatIdBytes, 24);
+            var vatIdBase64 = Convert.ToBase64String(vatIdBytes);
+            var srTokenBase64 = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes((string)sturdyRef.TheTransient.LocalRef));
             return $"capnp://{vatIdBase64}@{sturdyRef.TheTransient.Vat.Address.Host}:{sturdyRef.TheTransient.Vat.Address.Port}/{srTokenBase64}";
         }
 

@@ -12,9 +12,10 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [CascadingParameter] 
+    MudDialogInstance? MudDialog { get; set; }
 
-    private KA5SoilTypeTriangle triangle { get; set; }
+    private KA5SoilTypeTriangle? triangle { get; set; }
 
     public struct Result
     {
@@ -27,21 +28,22 @@
         public double SandPercentRangeAvg { get; set; }
     }
 
-    private async Task SoilTextureNameSelected(bool selected)
+    private void SoilTextureNameSelected(bool selected)
     {
-        if (triangle == null) return;
-
-        MudDialog.Close(DialogResult.Ok(new Result()
+        if (triangle != null)
         {
-            SoilTextureName = triangle.SoilTextureName,
-            SiltPercentRange = triangle.SiltPercentageRange,
-            SiltPercentRangeAvg = triangle.SiltPercentageRangeAvg,
-            ClayPercentRange = triangle.ClayPercentageRange,
-            ClayPercentRangeAvg = triangle.ClayPercentageRangeAvg,
-            SandPercentRange = triangle.SandPercentageRange,
-            SandPercentRangeAvg = triangle.SandPercentageRangeAvg
-        }));
+            MudDialog?.Close(DialogResult.Ok(new Result()
+                {
+                    SoilTextureName = triangle.SoilTextureName ?? "",
+                    SiltPercentRange = triangle.SiltPercentageRange,
+                    SiltPercentRangeAvg = triangle.SiltPercentageRangeAvg,
+                    ClayPercentRange = triangle.ClayPercentageRange,
+                    ClayPercentRangeAvg = triangle.ClayPercentageRangeAvg,
+                    SandPercentRange = triangle.SandPercentageRange,
+                    SandPercentRangeAvg = triangle.SandPercentageRangeAvg
+                }));
+        }
     }
 
-    private void Cancel() => MudDialog.Cancel();
+    private void Cancel() => MudDialog?.Cancel();
 }

@@ -52,7 +52,7 @@
     {
         //Debug.WriteLine("Start OnAfterRenderAsync");
 
-        await map?.InteropObject.AddListener<MouseEvent>("click", async (e) => await OnClick(e));
+        if(map != null) await map.InteropObject.AddListener<GoogleMapsComponents.Maps.MouseEvent>("click", async (e) => await OnClick(e));
         await SetMarker(CenterLatLng.Item1, CenterLatLng.Item2);
 
         //await map1.InteropObject.AddListener("bounds_changed", OnBoundsChanged);
@@ -111,7 +111,7 @@
         });
     }
 
-    private async Task OnClick(MouseEvent e)
+    private async Task OnClick(GoogleMapsComponents.Maps.MouseEvent e)
     {
         LatLng = (e.LatLng.Lat, e.LatLng.Lng);
         if (LatLngChanged.HasDelegate) _ = LatLngChanged.InvokeAsync(LatLng);
