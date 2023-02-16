@@ -1,35 +1,23 @@
 ﻿@namespace Mas.Infrastructure.BlazorComponents
 
 @using MudBlazor
-@using Mgmt = Mas.Schema.Management
+@using Mgmt = Mas.Schema.Model.Monica
 @using Reg = Mas.Schema.Registry
 @using Crop = Mas.Schema.Crop
 
 @implements IDisposable
 
 @code {
-    Func<float?, string> valid = val => val < 0 || val > 100 ? "[0 - 100]" : null;
+    Func<float?, string?> valid = val => val < 0 || val > 100 ? "[0 - 100]" : null;
 }
 <MudCard>
     <MudCardContent>
-        @if (CropRegistryServiceCap == null)
-        {
-            <MudSelect @bind-Value=Params.Sowing.Cultivar Label="Crop.json Cultivar">
-                @foreach (Crop.Cultivar cult in Enum.GetValues(typeof(Crop.Cultivar)))
-                    {
-                    <MudSelectItem Value="@cult">@cult.ToString()</MudSelectItem>
-                    }
-            </MudSelect>
-        }
-        else
-        {
-            <MudSelect @bind-Value=Params.Sowing.Crop Label="Crop-Service Cultivar">
-                @foreach (var entry in allCultivarEntries)
-                    {
-                    <MudSelectItem Value=@entry.Ref>@entry.Name</MudSelectItem>
-                    }
-            </MudSelect>
-        }
+        <MudSelect @bind-Value=Params.Sowing.Crop Label="Crop-Service Cultivar">
+            @foreach (var entry in allCultivarEntries)
+                {
+                <MudSelectItem Value=@entry.Ref>@entry.Name</MudSelectItem>
+                }
+        </MudSelect>
         <!--
         <MudTextField @bind-Value=Params.Sowing.PlantDensity
                       Label="Plant density"
@@ -111,7 +99,7 @@
     public Mgmt.Params.AutomaticSowing Params { get; set; } = new();
 
     [Parameter]
-    public Reg.IRegistry CropRegistryServiceCap { get; set; }
+    public Reg.IRegistry? CropRegistryCap { get; set; }
 
     private bool cropRegistryCapUpdated = false;
 
@@ -119,7 +107,7 @@
 
     public override async Task SetParametersAsync(ParameterView parameters)
     {
-        cropRegistryCapUpdated = parameters.GetValueOrDefault<Reg.IRegistry>("CropRegistryServiceCap", null) != CropRegistryServiceCap;
+        cropRegistryCapUpdated = parameters.GetValueOrDefault<Reg.IRegistry?>("CropRegistryCap", null) != CropRegistryCap;
         await base.SetParametersAsync(parameters);
     }
 
@@ -130,15 +118,15 @@
 
     private async Task LoadCultivars()
     {
-        if (CropRegistryServiceCap == null) return;
+        if (CropRegistryCap == null) return;
 
-        var entries = await CropRegistryServiceCap.Entries(null);
-        allCultivarEntries = entries.OrderBy(e => $"{e.CategoryId}_{e.Name}");
+        var entries = await CropRegistryCap.Entries(null);
+        allCultivarEntries = entries.OrderBy(e => $"{e.CategoryId}/{e.Name}");
     }
 
     void IDisposable.Dispose()
     {
-        Console.WriteLine("Disposing EditAutomaticSowing.CropRegistryServiceCap cap: " + CropRegistryServiceCap);
-        CropRegistryServiceCap?.Dispose();
+        Console.WriteLine("Disposing EditAutomaticSowing.CropRegistryCap cap: " + CropRegistryCap);
+        CropRegistryCap?.Dispose();
     }
 }

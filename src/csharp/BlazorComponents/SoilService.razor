@@ -116,7 +116,7 @@
                     <tr>
                         <td>
                             <MudTextField @bind-Value=layer.Size
-                                          Validation=@((Func<float?, string>) (val => val < 0 || val > 2 ? "[0 - 2m]" : null))
+                                          Validation=@((Func<float?, string?>) (val => val < 0 || val > 2 ? "[0 - 2m]" : null))
                                           Required
                                           Adornment="Adornment.End"
                                           AdornmentText="m" />
@@ -127,7 +127,7 @@
                             if (props.Any())
                             {
                                 var prop = props.First();
-                                Func<float?, string> valid = val => null;
+                                Func<float?, string?> valid = val => null;
                                 <td>
                                     @switch (prop.Name)
                                     {
@@ -299,7 +299,7 @@
 
     public override async Task SetParametersAsync(ParameterView parameters)
     {
-        soilServiceCapUpdated = parameters.GetValueOrDefault<Soil.IService>("SoilServiceCap", null) != SoilServiceCap;
+        soilServiceCapUpdated = parameters.GetValueOrDefault<Soil.IService?>("SoilServiceCap", null) != SoilServiceCap;
         await base.SetParametersAsync(parameters);
     }
 
@@ -376,7 +376,7 @@
         switch (p.which)
         {
             case Soil.Layer.Property.WHICH.BValue: return (p.BValue ?? false) ? "true" : "false";
-            case Soil.Layer.Property.WHICH.F32Value: return p.F32Value?.ToString();
+            case Soil.Layer.Property.WHICH.F32Value: return p.F32Value?.ToString() ?? "0";
             case Soil.Layer.Property.WHICH.Type: return p.Type;
             case Soil.Layer.Property.WHICH.undefined:
             default: return "";

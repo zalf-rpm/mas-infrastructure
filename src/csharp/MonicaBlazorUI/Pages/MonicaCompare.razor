@@ -154,7 +154,7 @@
         {
             Dictionary<string, List<string>> res = new();
 
-            HashSet<string> commonSections = null;
+            HashSet<string>? commonSections = null;
             for (int i = 0; i < NoOfMonicas; i++)
             {
                 var sections = Monica2Section2Oid2Data[i].Keys;
@@ -169,7 +169,7 @@
 
             foreach (var section in commonSections)
             {
-                HashSet<string> commonCurves = null;
+                HashSet<string> commonCurves = new();
                 for (int i = 0; i < NoOfMonicas; i++)
                 {
                     var secs2curves = Monica2Section2Oid2Data[i];
@@ -178,13 +178,13 @@
                         var curves = Monica2Section2Oid2Data[i][section].Keys;
                         if (curves.Any())
                         {
-                            if (commonCurves == null) commonCurves = new(curves);
+                            if (!commonCurves.Any()) commonCurves.UnionWith(curves);
                             else commonCurves.IntersectWith(curves);
                         }
                     }
                 }
 
-                res[section] = commonCurves?.ToList();
+                res[section] = commonCurves.ToList();
             }
 
             return res;
@@ -224,9 +224,9 @@
     }
 
     private Dictionary<int, string> selectedSection = new();
-    private string commonSelectedSection;
+    private string? commonSelectedSection;
     private Dictionary<int, string> selectedCurve = new();
-    private string commonSelectedCurve;
+    private string? commonSelectedCurve;
 
     private Dictionary<string, bool> panelOpened = new() { { "compare", true } };
 

@@ -1,10 +1,10 @@
 ﻿@namespace Mas.Infrastructure.BlazorComponents
 
-@using MudBlazor
-@using Common = Mas.Schema.Common
+@using C = Mas.Schema.Common
 @using Climate = Mas.Schema.Climate
+@using MudBlazor
 
-@inject IJSRuntime JSRuntime;
+@using VT = ValueTuple<IEnumerable<Mas.Schema.Common.IdInformation>, Mas.Schema.Climate.IDataset, int>
 
 @implements IDisposable
 
@@ -20,13 +20,13 @@
         @code {
             private int _selectedDatasetId = -1;
         }
-        <MudTable T="ValueTuple<IEnumerable<Common.IdInformation>, Climate.IDataset, int>"
+        <MudTable T=@VT
                   FixedHeader=@true
                   Height=@(metaAndData.Count() == 0 ? "" : "400px")
                   Items=@metaAndData
                   Hover=@true
                   Dense=@true
-                  Filter=@(new Func<(IEnumerable<Common.IdInformation>, Climate.IDataset, int), bool>(DataFilterFunc))
+                  Filter=@(new Func<(IEnumerable<C.IdInformation>, Climate.IDataset, int), bool>(DataFilterFunc))
                   SelectedItemChanged=@(t => {
                                             _selectedDatasetId = t.Item3;
                                             selectedDataset = t.Item2;
@@ -69,7 +69,7 @@
 
 @code {
     [Parameter]
-    public Climate.IService ClimateServiceCap { get; set; }
+    public Climate.IService? ClimateServiceCap { get; set; }
 
     private bool _climateServiceCapUpdated = false;
 
@@ -98,13 +98,12 @@
 
     //private Dictionary<String, Climate.IDataset> meta2data = new Dictionary<string, Climate.IDataset>();
     private String[] metaHeadings = new String[0];
-    private IEnumerable<(IEnumerable<Common.IdInformation>, Climate.IDataset, int)> metaAndData = new List<(IEnumerable<Common.IdInformation>, Climate.IDataset, int)>();
-    private Climate.IDataset selectedDataset;
-
+    private IEnumerable<(IEnumerable<C.IdInformation>, Climate.IDataset, int)> metaAndData = new List<(IEnumerable<C.IdInformation>, Climate.IDataset, int)>();
+    private Climate.IDataset? selectedDataset;
 
     public override async Task SetParametersAsync(ParameterView parameters)
     {
-        _climateServiceCapUpdated = parameters.GetValueOrDefault<Climate.IService>("ClimateServiceCap", null) != ClimateServiceCap;
+        _climateServiceCapUpdated = parameters.GetValueOrDefault<Climate.IService?>("ClimateServiceCap", null) != ClimateServiceCap;
         await base.SetParametersAsync(parameters);
     }
 
@@ -133,7 +132,7 @@
         return "undef";
     }
 
-    private async Task CapabilityChanged(Climate.IService service)
+    private async Task CapabilityChanged(Climate.IService? service)
     {
         if (service == null) return;
 
@@ -152,7 +151,7 @@
         //dispose existing datasets
         foreach (var (_, ds, _) in metaAndData) ds?.Dispose();
 
-        var metaAndDataL = new List<(IEnumerable<Common.IdInformation>, Climate.IDataset, int)>();
+        var metaAndDataL = new List<(IEnumerable<C.IdInformation>, Climate.IDataset, int)>();
 
         var datasets = await ClimateServiceCap.GetAvailableDatasets();
         foreach (var (ds, i) in datasets.Select((ds, i) => (ds, i)))
@@ -173,7 +172,7 @@
         foreach (var (_, ds, _) in metaAndData) ds?.Dispose();
     }
 
-    private bool DataFilterFunc(ValueTuple<IEnumerable<Common.IdInformation>, Climate.IDataset, int> elem)
+    private bool DataFilterFunc(ValueTuple<IEnumerable<C.IdInformation>, Climate.IDataset, int> elem)
     {
         if (string.IsNullOrWhiteSpace(searchString))
             return true;

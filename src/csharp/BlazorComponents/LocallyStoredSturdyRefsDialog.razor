@@ -51,25 +51,25 @@
             <RowEditingTemplate>
                 <MudTd DataLabel="InterfaceId">
                     <MudTextField T=@ulong
-                                  Value=@context.InterfaceId 
+                                  Value=@context.InterfaceId
                                   ValueChanged=@(v => {
-                                                     context.InterfaceId = v;
-                                                     if(context.DefaultSelect) bookmarkWithLastDefaultSwitchedOn[context.InterfaceId] = context;
-                                                 })
-                                  Required/>
+                                  context.InterfaceId = v;
+                                  if(context.DefaultSelect) bookmarkWithLastDefaultSwitchedOn[context.InterfaceId] = context;
+                                  })
+                                  Required />
                 </MudTd>
                 <MudTd DataLabel="Auto connect?"><MudSwitch @bind-Checked=context.AutoConnect Color=@Color.Primary /></MudTd>
                 <MudTd DataLabel="Select by default?">
                     <MudSwitch T=@bool
                                Checked=@context.DefaultSelect
                                CheckedChanged=@(s =>
-                                                {
-                                                    context.DefaultSelect = s;
-                                                    bookmarkWithLastDefaultSwitchedOn[context.InterfaceId] = context;
-                                                })
+                               {
+                               context.DefaultSelect = s;
+                               bookmarkWithLastDefaultSwitchedOn[context.InterfaceId] = context;
+                               })
                                Color=@Color.Primary />
                 </MudTd>
-                <MudTd DataLabel="Petname"><MudTextField @bind-Value=context.PetName/></MudTd>
+                <MudTd DataLabel="Petname"><MudTextField @bind-Value=context.PetName /></MudTd>
                 <MudTd DataLabel="Sturdy reference"><MudTextField @bind-Value=context.SturdyRef Required /></MudTd>
                 <MudTd DataLabel="Action"></MudTd>
             </RowEditingTemplate>
@@ -81,11 +81,11 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
 
     private List<StoredSRData> bookmarks = new();
 
-    private Dictionary<ulong?, StoredSRData> bookmarkWithLastDefaultSwitchedOn = new();
+    private Dictionary<ulong, StoredSRData> bookmarkWithLastDefaultSwitchedOn = new();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -109,8 +109,11 @@
         {
             foreach (var b in bookmarks)
             {
-                var def = bookmarkWithLastDefaultSwitchedOn.GetValueOrDefault(b.InterfaceId, null);
-                if (def != null && def.DefaultSelect && b != def) b.DefaultSelect = false;
+                if (bookmarkWithLastDefaultSwitchedOn.ContainsKey(b.InterfaceId))
+                {
+                    var def = bookmarkWithLastDefaultSwitchedOn[b.InterfaceId];
+                    if (def.DefaultSelect && b != def) b.DefaultSelect = false;
+                }
             }
         }
         await SaveBookmarks();
@@ -121,7 +124,7 @@
 
     private async Task SaveBookmarks()
     {
-        var bms = bookmarks.Where(d => !string.IsNullOrEmpty(d.SturdyRef) && d.InterfaceId != null);
+        var bms = bookmarks.Where(d => !string.IsNullOrEmpty(d.SturdyRef) && d.InterfaceId != 0);
         await StoredSRData.SaveAllData(LocalStorage, bms.ToList());
     }
 
@@ -132,5 +135,5 @@
         StateHasChanged();
     }
 
-    private void Close() => MudDialog.Close();
+    private void Close() => MudDialog?.Close();
 }

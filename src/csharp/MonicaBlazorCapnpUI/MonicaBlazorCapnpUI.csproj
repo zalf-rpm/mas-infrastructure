@@ -32,10 +32,8 @@
 
   <ItemGroup>
     <ProjectReference Include="../../../capnproto_schemas/gen/csharp/capnproto_schemas_csharp.csproj" />
-    <ProjectReference Include="../Application/Application.csproj" />
     <ProjectReference Include="../BlazorComponents/BlazorComponents.csproj" />
     <ProjectReference Include="../common/common.csproj" />
-    <ProjectReference Include="../Core/Core.csproj" />
     <ProjectReference Include="../MonicaBlazorZmqUI/MonicaBlazorZmqUI.csproj" />
   </ItemGroup>
 

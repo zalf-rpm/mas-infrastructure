@@ -15,10 +15,10 @@
 @code {
 
     [Parameter]
-    public String Width { get; set; }
+    public String? Width { get; set; }
 
     [Parameter]
-    public String Height { get; set; }
+    public String? Height { get; set; }
 
     [Parameter]
     public float FillOpacity { get; set; } = 0.2F;
@@ -50,10 +50,10 @@
     [Parameter]
     public int Zoom { get; set; } = 6;
 
-    private GoogleMap map;
-    private MapOptions mapOptions;
-    private Marker currentMarker;
-    private Rectangle rectangle;
+    private GoogleMap? map;
+    private MapOptions? mapOptions;
+    private Marker? currentMarker;
+    private Rectangle? rectangle;
 
     //ElementReference MapWrapper;  //not used and can be removed from here and DOM element as well.
 
@@ -89,23 +89,26 @@
         //await map.InteropObject.AddListener<MouseEvent>("click", async (e) => await OnClick(e));
         //await SetMarker(CenterLatLng.Item1, CenterLatLng.Item2);
 
-        await map.InteropObject.AddListener<MouseEvent>("click", async (e) => await OnClick(e));
-        rectangle = await Rectangle.CreateAsync(map.JsRuntime, new RectangleOptions()
+        if(map != null)
         {
-            Draggable = true,
-            Editable = true,
-            FillColor = FillColor,
-            FillOpacity = FillOpacity,
-            Map = map.InteropObject
-        });
-        path.Clear();
+            await map.InteropObject.AddListener<MouseEvent>("click", (e) => OnClick(e));
+            rectangle = await Rectangle.CreateAsync(map.JsRuntime, new RectangleOptions()
+                {
+                    Draggable = true,
+                    Editable = true,
+                    FillColor = FillColor,
+                    FillOpacity = FillOpacity,
+                    Map = map.InteropObject
+                });
+            path.Clear();
 
-        await map.InteropObject.AddListener<MouseEvent>("mousemove", async (e) => await OnMouseMove(e));
-
+            await map.InteropObject.AddListener<MouseEvent>("mousemove", async (e) => await OnMouseMove(e));
+        }
+        
         await SetRectangle(DefaultTopLeft, DefaultBottomRight);
 
         //await map.InteropObject.AddListener<Rectangle>("bounds_changed", async (Rectangle) => await testst(Rectangle));
-        await rectangle.AddListener("bounds_changed", async () => await RectangleBoundsChanged());
+        if(rectangle != null) await rectangle.AddListener("bounds_changed", async () => await RectangleBoundsChanged());
 
         //await map1.InteropObject.AddListener("center_changed", OnCenterChanged);
 
@@ -155,7 +158,7 @@
 
     private async Task RectangleBoundsChanged()
     {
-        if (rectangle_is_drawn == true && path.Count == 0 && currentCount == 0 && rectangleBoundsChangedByParent == false)
+        if (rectangle != null && rectangle_is_drawn == true && path.Count == 0 && currentCount == 0 && rectangleBoundsChangedByParent == false)
         {
             var bounds = await rectangle.GetBounds();
             await RectangleChanged.InvokeAsync(bounds);
@@ -177,7 +180,7 @@
 
     private async Task SetRectangle((double, double) topLeft, (double, double) bottomRight)
     {
-        if (DefaultRectangle == true)
+        if (rectangle != null && DefaultRectangle == true)
         {
             var bounds = new LatLngBoundsLiteral()
             {
@@ -194,7 +197,7 @@
 
     }
 
-    private async Task OnClick(MouseEvent e)
+    private void OnClick(MouseEvent e)
     {
         path.Add(e.LatLng);
     }
@@ -202,8 +205,8 @@
     private async Task DrawRectangle()
     {
         if (rectangle_is_drawn == true && path.Count == 0) return;  // There is already a rectangle in the page and this click is on this rectangle, so do nothing.
-        // Either it's the first ever click or it's a click on an empty space while there is already a rectangle on the page.
-        // Check if it is the first click or the secound in the Wrapper
+                                                                    // Either it's the first ever click or it's a click on an empty space while there is already a rectangle on the page.
+                                                                    // Check if it is the first click or the secound in the Wrapper
         currentCount++;
 
         if (currentCount < 2) return; // if it is the first click, path is already stored, just return and wait for the secound click.
@@ -228,36 +231,40 @@
             West = path[0].Lng
         };
 
-        await rectangle.SetBounds(bounds);
-
-        // //This is how to get tha corners of our rectangle. Will be useful in other methods:
-
-        //bounds = await rectangle.GetBounds();
-        //topLeft.Lng = bounds.West;
-        //topLeft.Lat = bounds.North;
-        //topRight.Lng = bounds.East;
-        //topRight.Lat = bounds.North;
-        //bottomRight.Lng = bounds.East;
-        //bottomRight.Lat = bounds.South;
-        //bottomLeft.Lng = bounds.West;
-        //bottomLeft.Lat = bounds.South;
-
-        await RectangleChanged.InvokeAsync(bounds);
-
-        var newBounds = new LatLngBoundsLiteral()
+        if (rectangle != null)
         {
-            East = DefaultBottomRight.Item2,
-            North = DefaultTopLeft.Item1,
-            South = DefaultBottomRight.Item1,
-            West = DefaultTopLeft.Item2
-        };
 
-        await rectangle.SetBounds(newBounds);
+            await rectangle.SetBounds(bounds);
 
-        path.Clear();
-        currentCount = 0;
-        rectangle_is_drawn = true;
-        //rectangle = null;
+            // //This is how to get tha corners of our rectangle. Will be useful in other methods:
+
+            //bounds = await rectangle.GetBounds();
+            //topLeft.Lng = bounds.West;
+            //topLeft.Lat = bounds.North;
+            //topRight.Lng = bounds.East;
+            //topRight.Lat = bounds.North;
+            //bottomRight.Lng = bounds.East;
+            //bottomRight.Lat = bounds.South;
+            //bottomLeft.Lng = bounds.West;
+            //bottomLeft.Lat = bounds.South;
+
+            await RectangleChanged.InvokeAsync(bounds);
+
+            var newBounds = new LatLngBoundsLiteral()
+                {
+                    East = DefaultBottomRight.Item2,
+                    North = DefaultTopLeft.Item1,
+                    South = DefaultBottomRight.Item1,
+                    West = DefaultTopLeft.Item2
+                };
+
+            await rectangle.SetBounds(newBounds);
+
+            path.Clear();
+            currentCount = 0;
+            rectangle_is_drawn = true;
+            //rectangle = null;
+        }
     }
 
     private async Task OnMouseMove(MouseEvent e)
@@ -266,7 +273,7 @@
 
         rectangleBoundsChangedByParent = false;
 
-        if (path.Count == 1)
+        if (rectangle != null && path.Count == 1)
         {
             temp_path = e.LatLng;
 

@@ -1,14 +1,13 @@
-﻿@using System.Text;
+﻿@namespace Mas.Infrastructure.BlazorComponents
+
+@using System.Text;
 @using Allegiance.Blazor.Highcharts.Services
 @using Allegiance.Blazor.Highcharts.Charts
-@using Allegiance.Blazor.Highcharts.Constants
-@using Allegiance.Blazor.Highcharts.Options
-@using Microsoft.JSInterop
+@using Allegiance.Blazor.Highcharts.Constants;
+@using Allegiance.Blazor.Highcharts.Options;
 @using Newtonsoft.Json.Linq
 @using Newtonsoft.Json
 @using System.Text.Json
-
-@namespace Mas.Infrastructure.BlazorComponents
 
 @inject IJSRuntime jsRuntime
 @inject IChartService chartService
@@ -19,10 +18,10 @@
 
 @code {
     [Parameter]
-    public Dictionary<String, IEnumerable<float>> Data { get; set; }
+    public Dictionary<String, IEnumerable<float>>? Data { get; set; }
 
     [Parameter]
-    public IEnumerable<DateTime> Dates { get; set; }
+    public IEnumerable<DateTime>? Dates { get; set; }
 
     [Parameter]
     public String Type { get; set; } = ChartType.Line;
@@ -34,15 +33,15 @@
     public EventCallback ChartRerendered { get; set; }
 
     [Parameter]
-    public string Title { get; set; }
+    public string? Title { get; set; }
 
     [Parameter]
-    public string XAxisTitle { get; set; }
+    public string? XAxisTitle { get; set; }
 
     public class AxisConfig
     {
-        public string Title { get; set; }
-        public string Id { get; set; }
+        public string? Title { get; set; }
+        public string? Id { get; set; }
         public bool Opposite { get; set; } = false;
     }
     [Parameter]
@@ -56,7 +55,7 @@
     public class CurveConfig
     {
         public bool IsVisible { get; set; } = false;
-        public string DisplayAxisId { get; set; }
+        public string? DisplayAxisId { get; set; }
     }
     [Parameter]
     public Dictionary<string, CurveConfig> CurveName2Config { get; set; } = new();
@@ -64,17 +63,17 @@
     private string chartId = Guid.NewGuid().ToString();
     private bool chartRenderedOnce = false;
 
-    private ChartObject lineGraph;
+    private ChartObject? lineGraph;
 
     protected override void OnInitialized()
     {
         lineGraph = new ChartObject()
         {
-            Chart = new Chart(ChartType.Line, false),
-            Legend = new Legend(true, Layout.Vertical, Align.Right, VerticalAlign.Middle),
+                Chart = new Chart(ChartType.Line, false),
+                Legend = new Legend(true, Layout.Vertical, Align.Right, VerticalAlign.Middle),
             //PlotOptions = new PlotOptions(new PlotOptionsSeries(new Label(false), 2010)),
             Responsive = new Responsive(new Rule(new Condition(500),
-        new ChartOptions(new Legend(true, Layout.Vertical, Align.Right, VerticalAlign.Middle)))),
+            new ChartOptions(new Legend(true, Layout.Vertical, Align.Right, VerticalAlign.Middle)))),
             Series = new List<SeriesElement>(),
             //Subtitle = new Title("MONICA Result Data"),
             //Title = new Title(Title),
@@ -91,12 +90,12 @@
     {
         if (Data == null) return;
 
-        if (DataChanged)
+        if (DataChanged && lineGraph != null)
         {
             lineGraph.Series = new List<SeriesElement>();
 
             var noDates = Dates == null || Dates.Count() == 0;
-            var milliDates = noDates ? null : Dates.Select(d => new DateTimeOffset(d).ToUnixTimeMilliseconds());
+            var milliDates = noDates ? null : Dates?.Select(d => new DateTimeOffset(d).ToUnixTimeMilliseconds());
             lineGraph.Title = new(Title);
             lineGraph.XAxis.Type = noDates ? "linear" : "datetime";
             lineGraph.XAxis.Title = new(XAxisTitle);
@@ -106,7 +105,7 @@
                 var curveName = p.Key;
                 var ds = noDates
                     ? p.Value.Select(v => (object)v).ToList()
-                    : p.Value.Zip(milliDates).Select(z => new List<object>() { z.Second, z.First }).ToList<object>();
+                    : p.Value.Zip(milliDates!).Select(z => new List<object>() { z.Second, z.First }).ToList<object>();
 
                 bool isVisible = AllCurvesVisible || CurveName2Config.GetValueOrDefault(curveName,
                     new CurveConfig { IsVisible = i == 0 && !CurveName2Config.Any() }).IsVisible;
@@ -129,14 +128,13 @@
     private string UpdateJsonGraphOptions(string options)
     {
         var joptions = JObject.Parse(options);
-        var tt = joptions["tooltip"] as JObject;
-        tt["xDateFormat"] = "%Y-%m-%d";
+        if(joptions["tooltip"] is JObject tt) tt["xDateFormat"] = "%Y-%m-%d";
 
         if (YAxisConfigs.Any()) joptions["yAxis"] = new JArray();
         foreach (var (i, conf) in YAxisConfigs.Select((conf, i) => (i, conf)))
         {
             var axis = new YAxis(new Title(conf.Title));
-            var jstr = System.Text.Json.JsonSerializer.Serialize(axis, new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, IgnoreNullValues = true });
+            var jstr = System.Text.Json.JsonSerializer.Serialize(axis, new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
             var jobj = JObject.Parse(jstr);
             jobj["opposite"] = conf.Opposite;
 
@@ -144,21 +142,27 @@
             joptions.Value<JArray>("yAxis").Add(jobj);
         }
 
-        foreach (var c in joptions["series"])
+        var curves = joptions["series"];
+        if (curves != null)
         {
-            var curve = c as JObject;
-            var name = curve.Value<string>("name");
-            var index = name.LastIndexOf("_@");
-            if (index > 0)
+            foreach (var c in curves)
             {
-                var curveNo = int.Parse(name.Substring(index + 2));
-                curve["yAxis"] = curveNo;
-                curve["name"] = name.Substring(0, index);
-            }
-            else if (CurveName2Config.ContainsKey(name))
-            {
-                var conf = CurveName2Config[name];
-                curve["yAxis"] = _axisIdToCurveNo.GetValueOrDefault(conf.DisplayAxisId, 0);
+                if (c is JObject curve)
+                {
+                    var name = curve.Value<string>("name");
+                    var index = name.LastIndexOf("_@");
+                    if (index > 0)
+                    {
+                        var curveNo = int.Parse(name.Substring(index + 2));
+                        curve["yAxis"] = curveNo;
+                        curve["name"] = name.Substring(0, index);
+                    }
+                    else if (CurveName2Config.ContainsKey(name))
+                    {
+                        var conf = CurveName2Config[name];
+                        if (conf.DisplayAxisId != null) curve["yAxis"] = _axisIdToCurveNo.GetValueOrDefault(conf.DisplayAxisId, 0);
+                    }
+                }
             }
         }
         return joptions.ToString();

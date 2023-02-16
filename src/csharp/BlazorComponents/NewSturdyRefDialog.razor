@@ -18,13 +18,13 @@
 
 @code {
     [CascadingParameter]
-    MudDialogInstance MudDialog { get; set; }
+    MudDialogInstance? MudDialog { get; set; }
 
     [Parameter]
     public ulong InterfaceId { get; set; }
 
     [Parameter]
-    public StoredSRData EditData { get; set; }
+    public StoredSRData? EditData { get; set; }
 
     private StoredSRData editBookmark = new();
 
@@ -36,7 +36,7 @@
     private void Close()
     {
         editBookmark.InterfaceId = InterfaceId;
-        MudDialog.Close(DialogResult.Ok(editBookmark));
+        MudDialog?.Close(DialogResult.Ok(editBookmark));
     }
-    void Cancel() => MudDialog.Cancel();
+    void Cancel() => MudDialog?.Cancel();
 }

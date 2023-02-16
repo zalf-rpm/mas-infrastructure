@@ -1,7 +1,7 @@
 ﻿@namespace Mas.Infrastructure.BlazorComponents
 
 @using MudBlazor
-@using Mgmt = Mas.Schema.Management
+@using Mgmt = Mas.Schema.Model.Monica
 
 @code {
     Func<float?, string?> valid = val => val < 0 || val > 1 ? "[0 - 1]" : null;

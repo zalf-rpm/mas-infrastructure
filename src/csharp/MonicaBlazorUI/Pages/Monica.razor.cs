@@ -1,14 +1,14 @@
 ﻿using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using Newtonsoft.Json.Linq;
-using Mgmt = Mas.Schema.Management;
-using ExtType = Mas.Schema.Management.Event.ExternalType;
+using ExtType = Mas.Schema.Model.Monica.Event.ExternalType;
 using Crop = Mas.Schema.Crop;
 using Soil = Mas.Schema.Soil;
 using Mas.Infrastructure.Common;
 using Climate = Mas.Schema.Climate;
 using Model = Mas.Schema.Model;
 using Monica = Mas.Schema.Model.Monica;
+using Mgmt = Mas.Schema.Model.Monica;
 
 namespace Mas.Infrastructure.BlazorComponents
 {
@@ -17,7 +17,7 @@ namespace Mas.Infrastructure.BlazorComponents
         #region Monica capability
 
         [Parameter]
-        public Model.IEnvInstance<Schema.Common.StructuredText, Schema.Common.StructuredText> MonicaInstanceCap { get; set; }
+        public Model.IEnvInstance<Schema.Common.StructuredText, Schema.Common.StructuredText>? MonicaInstanceCap { get; set; }
         [Parameter]
         public String MonicaSturdyRef { get; set; } = "";
         [Parameter]
@@ -40,8 +40,8 @@ namespace Mas.Infrastructure.BlazorComponents
 
         #region time series capability
         [Parameter]
-        public Climate.ITimeSeries TimeSeriesCap { get; set; }
-        private Climate.IAlterTimeSeriesWrapper AlterTimeSeriesWrapperCap { get; set; }
+        public Climate.ITimeSeries? TimeSeriesCap { get; set; }
+        private Climate.IAlterTimeSeriesWrapper? AlterTimeSeriesWrapperCap { get; set; }
         [Parameter]
         public String TimeSeriesSturdyRef { get; set; } = "";
         [Parameter]
@@ -58,7 +58,7 @@ namespace Mas.Infrastructure.BlazorComponents
 
         #region time series wrapper factory capability
         [Parameter]
-        public Climate.IAlterTimeSeriesWrapperFactory TimeSeriesFactoryCap { get; set; }
+        public Climate.IAlterTimeSeriesWrapperFactory? TimeSeriesFactoryCap { get; set; }
 
         [Parameter]
         public String TimeSeriesFactorySturdyRef { get; set; } = "";// = "capnp://10.10.24.86:11006"; //"capnp://login01.cluster.zalf.de:11006";//
@@ -95,7 +95,7 @@ namespace Mas.Infrastructure.BlazorComponents
 
         #region soil service
         [Parameter]
-        public Soil.IService SoilServiceCap { get; set; }
+        public Soil.IService? SoilServiceCap { get; set; }
 
         [Parameter]
         public String SoilServiceSturdyRef { get; set; } = "";
@@ -114,12 +114,12 @@ namespace Mas.Infrastructure.BlazorComponents
 
         private List<Soil.Layer> profileLayers = new();
 
-        private SoilService soilServiceRef;
+        private SoilService? soilServiceRef;
         #endregion soil service cap
 
         #region climate service cap
         [Parameter]
-        public Climate.IService ClimateServiceCap { get; set; }
+        public Climate.IService? ClimateServiceCap { get; set; }
 
         [Parameter]
         public string ClimateServiceSturdyRef { get; set; } = "";
@@ -140,7 +140,7 @@ namespace Mas.Infrastructure.BlazorComponents
         public (double, double) LatLng { get; set; } = (52.52, 14.11);
 
         //private String monicaResult;
-        private string monicaErrorMessage;
+        private string? monicaErrorMessage;
 
         #region init
         protected override async Task OnInitializedAsync()
@@ -335,7 +335,7 @@ namespace Mas.Infrastructure.BlazorComponents
             {
                 if (oid.From.HasValue)
                 {
-                    JArray ft = null;
+                    JArray? ft = null;
                     if (oid.To.HasValue)
                     {
                         ft = new JArray { oid.From, oid.To };
@@ -349,7 +349,7 @@ namespace Mas.Infrastructure.BlazorComponents
                 }
                 else if(oid.Organ.HasValue)
                 {
-                    var a = new JArray { oid.Name, oid.Organ.ToString().Replace("strukt", "struct") };
+                    var a = new JArray { oid.Name, oid.Organ?.ToString().Replace("strukt", "struct") };
                     if (oid.TimeAgg.HasValue) a.Add(oid.TimeAgg.ToString());
                     section.Add(a);
                 }
@@ -391,9 +391,9 @@ namespace Mas.Infrastructure.BlazorComponents
             {
                 TheType = ExtType.sowing,
                 At = new() { Date = new Mas.Schema.Common.Date { Year = 0, Month = 9, Day = 23 } },
-                Params = new Mgmt.Params.Sowing { Cultivar = Crop.Cultivar.wheatWinter }
+                Params = new Mgmt.Params.Sowing { Cultivar = "winter wheat" }
             },
-            new Mas.Schema.Management.Event()
+            new Mgmt.Event()
             {
                 TheType = ExtType.harvest,
                 At = new() { Date = new Mas.Schema.Common.Date { Year = 1, Month = 7, Day = 27 } }
@@ -402,12 +402,12 @@ namespace Mas.Infrastructure.BlazorComponents
 
         private System.Globalization.TextInfo textInfo = new System.Globalization.CultureInfo("de-DE", false).TextInfo;
 
-        private string NameFromEvent(Mas.Schema.Management.Event e)
+        private string NameFromEvent(Mgmt.Event e)
         {
             var typeStr = e.TheType.ToString();
 
             var type = e.Info == null ? typeStr : Capitalize(e.Info.Name);
-            var crop = (e.Params is Mas.Schema.Management.Params.Sowing s) ? s.Cultivar.ToString() : "";
+            var crop = (e.Params is Mgmt.Params.Sowing s) ? s.Cultivar.ToString() : "";
             if (!string.IsNullOrEmpty(crop)) type = $"{type} : {crop}";
             var date = e.which == Mgmt.Event.WHICH.At ? Helper.CommonDate2IsoDateString(e.At.Date) : null;
             var amount = (e.Params is Schema.Management.Params.MineralFertilization m)
@@ -438,7 +438,7 @@ namespace Mas.Infrastructure.BlazorComponents
 
                             if(s.Crop != null)
                             {
-                                s.Cultivar = await s.Crop.Cultivar();
+                                s.Cultivar = (await s.Crop.Cultivar()).Id;
                             }
 
                             wss.Add(new JObject()
@@ -685,7 +685,7 @@ namespace Mas.Infrastructure.BlazorComponents
                 cropj["cropRotation"] = cr;
             }
 
-            var envj = RunMonica.CreateMonicaEnv(simj, cropj, sitej, null);//, new Core.Share.UserSetting(), Core.Share.Enums.MonicaParametersBasePathTypeEnum.LocalServer);
+            var envj = RunMonica.CreateMonicaEnv(simj, cropj, sitej, "");//, new Core.Share.UserSetting(), Core.Share.Enums.MonicaParametersBasePathTypeEnum.LocalServer);
 
             if (overwriteOutputConfig)
             {
@@ -695,10 +695,11 @@ namespace Mas.Infrastructure.BlazorComponents
                 //foreach (var jt in CreateEvents()) events.Add(jt);
                 var events = CreateEvents();
                 var str = events.ToString();
-                envj["events"] = events;
+                envj?.Value<JArray>("events")?.Replace(events);
             }
 
-            envj["params"]["siteParameters"]["Latitude"] = LatLng.Item1;
+            envj?.Value<JObject>("params")?.Value<JObject>("siteParameters")?.Value<JValue>("Latitude")?.Replace(LatLng.Item1);
+            //envj["params"]["siteParameters"]["Latitude"] = LatLng.Item1;
 
             var menv = new Model.Env<Schema.Common.StructuredText>()
             {
@@ -707,7 +708,7 @@ namespace Mas.Infrastructure.BlazorComponents
                 Rest = new Schema.Common.StructuredText()
                 {
                     Structure = new Schema.Common.StructuredText.structure { which = Schema.Common.StructuredText.structure.WHICH.Json },
-                    Value = envj.ToString()
+                    Value = envj?.ToString() ?? ""
                 }
             };
 
@@ -721,34 +722,43 @@ namespace Mas.Infrastructure.BlazorComponents
                 if (res == null) throw new Capnp.Rpc.RpcException("MonicaInstanceCap.Run return null result.");
                 var resj = JObject.Parse(res.Value);
                 var data = resj["data"]; //list
-                foreach (var section in data.Select(s => s.Value<JObject>()))
+                foreach (var section in data?.Select(s => s.Value<JObject>()) ?? new List<JObject>())
                 {
-                    var oids = section["outputIds"].Select(oid =>
-                    oid["displayName"].Value<String>().Length == 0
-                    ? oid["name"].Value<String>()
-                    : oid["displayName"].Value<String>());
+                    if (section == null) continue;
 
-                    var sectionName = section["origSpec"].Value<String>().Trim(new char[] { '\"' });
-                    Section2Oid2Data[sectionName] = new Dictionary<String, IEnumerable<float>>();
+                    var oids = section["outputIds"]?.Select(oid => {
+                        var dn = oid["displayName"]?.Value<String>();
+                        if (dn == null || dn.Length == 0) return oid["name"]?.Value<String>() ?? "no-name";
+                        else return dn;
+                    });
 
-                    var results = section["results"];
-                    foreach (var (name, result) in oids.Zip(results))
+                    var sectionName = section["origSpec"]?.Value<String>()?.Trim(new char[] { '\"' });
+                    if (sectionName != null)
                     {
-                        var type = result.First?.Type;
-                        switch (type ?? JTokenType.None)
-                        {
-                            case JTokenType.Integer:
-                            case JTokenType.Float: Section2Oid2Data[sectionName][name] = result.Select(v => v.Value<float>()); break;
+                        Section2Oid2Data[sectionName] = new Dictionary<String, IEnumerable<float>>();
 
-                            case JTokenType.String:
-                                try
+                        var results = section["results"];
+                        if (results != null && oids != null)
+                        {
+                            foreach (var (name, result) in oids.Zip(results))
+                            {
+                                var type = result.First?.Type;
+                                switch (type ?? JTokenType.None)
                                 {
-                                    var date = result.First?.Value<DateTime>();
-                                    if (!date.HasValue) continue;
+                                    case JTokenType.Integer:
+                                    case JTokenType.Float: Section2Oid2Data[sectionName][name] = result.Select(v => v.Value<float>()); break;
+
+                                    case JTokenType.String:
+                                        try
+                                        {
+                                            var date = result.First?.Value<DateTime>();
+                                            if (!date.HasValue) continue;
+                                        }
+                                        catch (System.FormatException) { continue; }
+                                        goto case JTokenType.Date;
+                                    case JTokenType.Date: Section2Dates[sectionName] = result.Select(v => v.Value<DateTime>()); break;
                                 }
-                                catch (System.FormatException) { continue; }
-                                goto case JTokenType.Date;
-                            case JTokenType.Date: Section2Dates[sectionName] = result.Select(v => v.Value<DateTime>()); break;
+                            }
                         }
                     }
                 }
@@ -784,8 +794,8 @@ namespace Mas.Infrastructure.BlazorComponents
             TimeSeriesFactoryCap?.Dispose();
             Console.WriteLine("Disposing SoilService SR:" + SoilServiceSturdyRef + " cap: " + SoilServiceCap);
             SoilServiceCap?.Dispose();
-            Console.WriteLine("Disposing Monica.CropRegistryServiceCap SR:" + CropRegistryServiceSturdyRef + " cap: " + CropRegistryServiceCap);
-            CropRegistryServiceCap?.Dispose();
+            Console.WriteLine("Disposing Monica.CropRegistryCap SR:" + CropRegistrySturdyRef + " cap: " + CropRegistryCap);
+            CropRegistryCap?.Dispose();
         }
         #endregion implement IDisposable
 

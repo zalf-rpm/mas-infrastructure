@@ -2,28 +2,37 @@
 
 @using MudBlazor
 @using Mas.Infrastructure.Common
+@using MoMgmt = Mas.Schema.Model.Monica
 @using Mgmt = Mas.Schema.Management
+@using Reg = Mas.Schema.Registry
 
 @implements IDisposable
 
 @code {
-    Func<float?, string> valid = val => val < 0 || val > 100 ? "[0 - 100]" : null;
+    Func<float?, string?> valid = val => val < 0 || val > 100 ? "[0 - 100]" : null;
 }
 <MudCard>
     <MudCardContent>
-        <MudSelect T="Mgmt.OrganicFertilizer?"
-                   ValueChanged=@(async f => {
-                                      if (f.HasValue && FertilizerServiceCap != null)
-                                      {
-                                          var part = await FertilizerServiceCap.OrganicFertilizerParametersFor(f.Value);
-                                          Params.Params = part;
-                                          StateHasChanged();
-                                      }
-                                  })
+        <MudSelect T="Mgmt.IFertilizer"
+                   ValueChanged=@(async fertCap => {
+                   if (fertCap != null)
+                   {
+                   var info = await fertCap.Info();
+                   if (info != null)
+                   {
+                   FertilizerId = info.Id;
+                   FertilizerName = info.Name;
+                   }
+                   Nutrients = await fertCap.Nutrients();
+                   var of = (await fertCap.Parameters()) as MoMgmt.Params.OrganicFertilization;
+                   if (of != null) Params = of;
+                   StateHasChanged();
+                   }
+                   })
                    Label="Load fertilizer parameters">
-            @foreach (Mgmt.OrganicFertilizer? ofId in Enum.GetValues(typeof(Mgmt.OrganicFertilizer)))
+            @foreach (var (name, fertCap) in name2Entry)
             {
-                <MudSelectItem Value="@ofId">@Helper.ToUpper(ofId.ToString())</MudSelectItem>
+                <MudSelectItem Value="@fertCap">@name</MudSelectItem>
             }
         </MudSelect>
         <MudTextField @bind-Value=Params.Amount
@@ -31,7 +40,6 @@
                       Adornment="Adornment.End"
                       AdornmentText="kg" />
         <MudCheckBox @bind-Checked=@Params.Incorporation Label="Incorporation" />
-
         <MudCard>
             <MudCardContent>
                 <MudTextField @bind-Value=Params.Params.Id Label="Id" />
@@ -95,14 +103,53 @@
 
 @code {
     [Parameter]
-    public Mgmt.Params.OrganicFertilization Params { get; set; } = new();
+    public MoMgmt.Params.OrganicFertilization Params { get; set; } = new();
 
     [Parameter]
-    public Mgmt.IFertilizerService FertilizerServiceCap { get; set; }
+    public IReadOnlyList<Mgmt.Nutrient> Nutrients { get; set; } = new List<Mgmt.Nutrient>();
+
+    private SortedDictionary<string, Mgmt.IFertilizer> name2Entry = new();
+
+    [Parameter]
+    public string? FertilizerId { get; set; }
+
+    [Parameter]
+    public string? FertilizerName { get; set; }
+
+    [Parameter]
+    public Reg.IRegistry? FertilizerRegistryCap { get; set; }
+
+    private string categoryId = "organic";
+
+    async void LoadFertilizers()
+    {
+        if (FertilizerRegistryCap != null)
+        {
+            var entries = await FertilizerRegistryCap.Entries(categoryId) ?? new List<Reg.Registry.Entry>();
+            foreach (var entry in entries)
+            {
+                if (entry.Ref is Mgmt.IFertilizer fert) name2Entry.Add(entry.Name, fert);
+            }
+            if (name2Entry.Count > 0)
+            {
+                var (name, fertCap) = name2Entry.First();
+                if (fertCap != null)
+                {
+                    var info = await fertCap.Info();
+                    if (info != null)
+                    {
+                        FertilizerId = info.Id;
+                        FertilizerName = info.Name;
+                    }
+                }
+
+            }
+        }
+    }
 
     void IDisposable.Dispose()
     {
-        Console.WriteLine("EditOrganicFertilizer: Disposing Management.IFertilizerService cap: " + FertilizerServiceCap);
-        FertilizerServiceCap?.Dispose();
+        Console.WriteLine("EditOrganicFertilizer: Disposing Registry.IRegistry cap: " + FertilizerRegistryCap);
+        FertilizerRegistryCap?.Dispose();
     }
 }

@@ -1,9 +1,9 @@
 ﻿@namespace Mas.Infrastructure.BlazorComponents
 
 @using System.Text;
-@using MudBlazor
 @using Climate = Mas.Schema.Climate
 @using Common = Mas.Schema.Common
+@using MudBlazor
 
 @inject IJSRuntime JsRuntime
 
@@ -143,7 +143,7 @@
 
     public override async Task SetParametersAsync(ParameterView parameters)
     {
-        timeSeriesCapUpdated = parameters.GetValueOrDefault<Climate.ITimeSeries>("TimeSeriesCap", null) != TimeSeriesCap;
+        timeSeriesCapUpdated = parameters.GetValueOrDefault<Climate.ITimeSeries?>("TimeSeriesCap", null) != TimeSeriesCap;
         await base.SetParametersAsync(parameters);
     }
 
@@ -209,10 +209,13 @@
         start = r.Start ?? start;
         end = r.End ?? end;
 
-        var sts = await TimeSeriesCap.Subrange(DateTime2CommonDate(start), DateTime2CommonDate(end));
-        //dispose the current time series cap, unless it's the initial one
-        if (TimeSeriesCap != originalTimeSeriesCap) TimeSeriesCap?.Dispose();
-        TimeSeriesCap = sts;
+        if (TimeSeriesCap != null)
+        {
+            var sts = await TimeSeriesCap.Subrange(DateTime2CommonDate(start), DateTime2CommonDate(end));
+            //dispose the current time series cap, unless it's the initial one
+            if (TimeSeriesCap != originalTimeSeriesCap) TimeSeriesCap?.Dispose();
+            TimeSeriesCap = sts;
+        }
     }
 
     private async Task LoadTimeSeriesData()

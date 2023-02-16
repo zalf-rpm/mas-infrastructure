@@ -20,7 +20,7 @@ namespace MonicaBlazorUI.Services
             _monicaIO = monicaIO;
         }
 
-        public async Task<JObject> RunMonicaAsync(List<string> files)//, UserSetting userSetting, MonicaParametersBasePathTypeEnum basePathType)
+        public async Task<JObject?> RunMonicaAsync(List<string> files)//, UserSetting userSetting, MonicaParametersBasePathTypeEnum basePathType)
         {
             //_monicaIO.UserSettings = userSetting;
 
@@ -39,11 +39,11 @@ namespace MonicaBlazorUI.Services
             return CreateMonicaEnv(simj, cropj, sitej, climateCsv); //, userSetting, basePathType);
         }
 
-        public JObject CreateMonicaEnv(JObject simj, JObject cropj, JObject sitej, string climateCsv)//, UserSetting userSetting, MonicaParametersBasePathTypeEnum basePathType)
+        public JObject? CreateMonicaEnv(JObject simj, JObject cropj, JObject sitej, string climateCsv)//, UserSetting userSetting, MonicaParametersBasePathTypeEnum basePathType)
         {
             //_monicaIO.UserSettings = userSetting;
 
-            JObject crop_site_sim = new JObject() {
+            JObject cropSiteSim = new JObject() {
                 {"sim", simj},
                 {"crop", cropj},
                 {"site", sitej},
@@ -56,7 +56,7 @@ namespace MonicaBlazorUI.Services
             // else if (basePathType == MonicaParametersBasePathTypeEnum.Github)
             //     parametersPath = userSetting.MonicaParametersPathOnGithub;
 
-            var envj = _monicaIO.createEnvJsonFromJsonConfig(crop_site_sim, parametersPath);
+            var envj = _monicaIO.CreateEnvJsonFromJsonConfig(cropSiteSim, parametersPath);
             return envj;
         }
     }

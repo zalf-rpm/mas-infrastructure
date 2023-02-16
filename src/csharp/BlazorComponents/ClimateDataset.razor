@@ -1,8 +1,8 @@
 ﻿@namespace Mas.Infrastructure.BlazorComponents
 
-@using MudBlazor
 @using Climate = Mas.Schema.Climate
 @using Geo = Mas.Schema.Geo
+@using MudBlazor
 
 @implements IDisposable
 
@@ -30,7 +30,7 @@
 
 @code {
     [Parameter]
-    public Climate.IDataset DatasetCap { get; set; }
+    public Climate.IDataset? DatasetCap { get; set; }
 
     private bool datasetCapUpdated = false;
 
@@ -49,11 +49,11 @@
     [Parameter]
     public (double, double) LatLng { get; set; } = (52.52, 14.11);
 
-    private Climate.ITimeSeries timeSeries;
+    private Climate.ITimeSeries? timeSeries;
 
     public override async Task SetParametersAsync(ParameterView parameters)
     {
-        datasetCapUpdated = parameters.GetValueOrDefault<Climate.IDataset>("DatasetCap", null) != DatasetCap;
+        datasetCapUpdated = parameters.GetValueOrDefault<Climate.IDataset?>("DatasetCap", null) != DatasetCap;
         await base.SetParametersAsync(parameters);
     }
 

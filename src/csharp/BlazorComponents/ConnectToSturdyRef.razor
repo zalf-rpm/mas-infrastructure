@@ -1,10 +1,9 @@
-﻿@using Capnp.Rpc
-@using MudBlazor
-@using Mas.Schema;
-@using System.Threading;
-@using System.Reflection;
+﻿@namespace Mas.Infrastructure.BlazorComponents
 
-@namespace Mas.Infrastructure.BlazorComponents
+@using Capnp.Rpc
+@using System.Threading
+@using System.Reflection
+@using MudBlazor
 
 @inject Mas.Infrastructure.Common.ConnectionManager ConMan
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
@@ -17,7 +16,7 @@
 <MudPaper Class="d-flex flex-row py-2 px-1">
     <MudButton Class="pa-2 mx-2"
                Variant=Variant.Filled
-               StartIcon=@Icons.Filled.Add
+               StartIcon=@Icons.Material.Filled.Add
                Color=@Color.Primary
                OnClick=@(async () => await OpenAddSturdyRefDialog())>
         Add new
@@ -33,7 +32,7 @@
         {
             <MudSelectItem Value=@b>
                 <MudElement Class="d-flex">
-                    <MudIcon Icon=@(b.AutoConnect ? Icons.Filled.CastConnected : Icons.Filled.Cast) />
+                    <MudIcon Icon=@(b.AutoConnect ? Icons.Material.Filled.CastConnected : Icons.Material.Filled.Cast) />
                     <MudText Class="ml-8" Typo=@Typo.body1>@($"{b.PetName} ({b.SturdyRef})")</MudText>
                 </MudElement>
             </MudSelectItem>
@@ -41,7 +40,7 @@
     </MudSelect>
     <MudButton Class="pa-2 mx-2"
                Variant=Variant.Filled
-               StartIcon=@Icons.Filled.Edit
+               StartIcon=@Icons.Material.Filled.Edit
                Color=@Color.Primary
                Disabled=@(selectedBookmark == null)
                OnClick=@(async () => await OpenAddSturdyRefDialog(selectedBookmark))>
@@ -78,9 +77,9 @@
 
 @code {
     [Parameter]
-    public String SturdyRef { get; set; }
+    public String? SturdyRef { get; set; }
 
-    private async Task SturdyRefValueChanged(String sr)
+    private void SturdyRefValueChanged(String sr)
     {
         SturdyRef = sr;
         if (SturdyRefChanged.HasDelegate) _ = SturdyRefChanged.InvokeAsync(sr);
@@ -93,14 +92,14 @@
     [Parameter]
     public EventCallback<String> SturdyRefChanged { get; set; }
 
-    private String buttonIcon = Icons.Filled.CastConnected;
+    private String buttonIcon = Icons.Material.Filled.CastConnected;
     private Color buttonColor = Color.Primary;
     private String buttonLabel = "Connect";
 
     private bool _showSturdyRefEdit = false;
 
     [Parameter]
-    public TCapnpInterface Capability { get; set; }
+    public TCapnpInterface? Capability { get; set; }
 
     [Parameter]
     public EventCallback<TCapnpInterface> CapabilityChanged { get; set; }
@@ -130,7 +129,7 @@
             //Console.WriteLine("ConnectToSturdyRef: current TaskSchedulerId: " + TaskScheduler.Current.Id);
             //var (mps, ops) = await (cap as Soil.IService)?.GetAllAvailableParameters(false);
 
-            buttonIcon = Icons.Filled.CastConnected;
+            buttonIcon = Icons.Material.Filled.CastConnected;
             buttonColor = Color.Success;
             buttonLabel = "Connected";
 
@@ -140,7 +139,7 @@
         {
             Console.WriteLine(e.ToString());
 
-            buttonIcon = Icons.Filled.Error;
+            buttonIcon = Icons.Material.Filled.Error;
             buttonColor = Color.Error;
             buttonLabel = "Connect failed";
 
@@ -156,7 +155,7 @@
 
     private void ClearButton()
     {
-        buttonIcon = Icons.Filled.CastConnected;
+        buttonIcon = Icons.Material.Filled.CastConnected;
         buttonColor = Color.Primary;
         buttonLabel = "Connect";
     }
@@ -167,8 +166,12 @@
         {
             if (Capability is Proxy p)
             {
-                var sr = (await p.Cast<Mas.Schema.Persistence.IPersistent>(false)?.Save(null))?.SturdyRef;
-                SturdyRef = Mas.Infrastructure.Common.Restorer.SturdyRefStr(sr);
+                var persistent = p.Cast<Mas.Schema.Persistence.IPersistent>(false);
+                if (persistent != null)
+                {
+                    var sr = (await persistent.Save(null))?.SturdyRef;
+                    SturdyRef = Mas.Infrastructure.Common.Restorer.SturdyRefStr(sr);
+                }
 
                 if (SturdyRefChanged.HasDelegate) _ = SturdyRefChanged.InvokeAsync(SturdyRef);
             }
@@ -192,12 +195,12 @@
 
     private List<StoredSRData> allBookmarks = new();
     private List<StoredSRData> bookmarks => allBookmarks.Where(b => b.InterfaceId == typeof(TCapnpInterface).GetCustomAttribute<Capnp.TypeIdAttribute>(false)?.Id).ToList();
-    private StoredSRData selectedBookmark;
+    private StoredSRData? selectedBookmark;
 
     private async Task SelectedBookmarkChanged(StoredSRData b, bool allowAutoConnect)
     {
         selectedBookmark = b;
-        await SturdyRefValueChanged(b.SturdyRef);
+        SturdyRefValueChanged(b.SturdyRef);
         if (allowAutoConnect && b.AutoConnect) await Connect();
         StateHasChanged();
     }
@@ -209,6 +212,7 @@
 
     private List<StoredSRData> hardcodedDefaultSturdyRefs = new()
     {
+        /*
         new StoredSRData
         {
             InterfaceId = 0xfe7d08d4352b0c5f,
@@ -297,11 +301,12 @@
             AutoConnect = true,
             DefaultSelect = true
         }
+        */
     };
 
     protected override async Task OnInitializedAsync()
     {
-        if (ConnectOnInit && SturdyRef.Length > 0) await Connect();
+        if (ConnectOnInit && SturdyRef != null && SturdyRef.Length > 0) await Connect();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
