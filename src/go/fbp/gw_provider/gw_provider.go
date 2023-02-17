@@ -6,7 +6,9 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/google/uuid"
@@ -14,15 +16,15 @@ import (
 )
 
 // DEFAULTS:
-const pathToChannelExe = "../../../cpp/common/_cmake_debug/channel"
+const pathToChannelExe = "../../../cpp/common/_cmake_debug/Debug/channel.exe"
 const pathToMasDefault = "../../../"
-const inDatasetSrDefault = "capnp://cLjtk2UwqMkycxsGh-oskFOEvuwgAEEl6i5wEKcRQMc=@10.10.24.218:40733/NjdiNWU5N2QtZWIyMS00ZDc0LWExZjAtMjFkOWJiM2YxOGZl"
+const inDatasetSrDefault = "capnp://cTRIF3NOxgz-u-ZtxBi-n-trlBFqVI-BIhkQWmO-_CI=@192.168.56.1:58336/YTQzOGFkNWYtODM4OS00Y2YyLTlmYmEtOTFmYjE4MWM3Yzk5"
 const pathToOutDirDefault = "../../../src/python/fbp/out/"
 
 // fbp flow groundwater provider
 func main() {
-	pathToChannel := flag.String("path", pathToChannelExe, "path to fbp channel")
-	pathToMas := flag.String("path", pathToMasDefault, "path to mas root folder")
+	pathToChannel := flag.String("pathToChannel", pathToChannelExe, "path to fbp channel")
+	pathToMas := flag.String("pathMAS", pathToMasDefault, "path to mas root folder")
 	inDatasetSr := flag.String("in_dataset_sr", inDatasetSrDefault, "input dataset sturdy ref")
 	pathToOutDir := flag.String("path_to_out_dir", pathToOutDirDefault, "path to output directory")
 	flag.Parse()
@@ -74,16 +76,25 @@ func main() {
 			return cmd
 		},
 		"timeseries_to_data": func(srs []string) *exec.Cmd {
+			// args := []string{
+			// 	fmt.Sprintf("%s/src/cpp/fbp/_cmake_debug/timeseries-to-data", *pathToMas),
+			// 	"--in_type=capability",
+			// 	"--subrange_start=2000-01-01",
+			// 	"--subrange_end=2019-12-31",
+			// 	"--subheader=tavg,globrad,precip",
+			// }
+			// for _, sr := range srs {
+			// 	args = append(args, "--"+sr)
+			// }
 			args := []string{
-				fmt.Sprintf("%s/src/cpp/fbp/_cmake_debug/timeseries-to-data", *pathToMas),
-				"--in_type=capability",
-				"--subrange_start=2000-01-01",
-				"--subrange_end=2019-12-31",
-				"--subheader=tavg,globrad,precip",
+				fmt.Sprintf("%s/src/python/fbp/timeseries_to_data.py", *pathToMas),
+				"in_type=capability",
+				"subrange_start=2000-01-01",
+				"subrange_end=2019-12-31",
+				"subheader=tavg,globrad,precip",
 			}
-			for _, sr := range srs {
-				args = append(args, "--"+sr)
-			}
+
+			args = append(args, srs...)
 			cmd := exec.Command(args[0], args[1:]...)
 
 			return cmd
@@ -172,7 +183,7 @@ func main() {
 		}
 		id := idPtr.Text()
 		//split id into conecting components
-		token := strings.SplitN(id, "->", 1)
+		token := strings.SplitN(id, "->", 2)
 		start_comp_name, end_comp_name := token[0], token[1]
 
 		// there should be code to start the components
@@ -273,7 +284,17 @@ func setupFlowChannels(pathToChannel string, firstReaderSr, firstWriterSr chan<-
 		fmt.Sprintf("--name=chan_%s", uuid.New().String()),
 		"--output_srs",
 	}
-	cmd := exec.Command(pathToChannel, args...)
+	absPath, err := filepath.Abs(pathToChannel)
+	if err != nil {
+		fmt.Printf("Failed to resolve path to channel '%v '", pathToChannel)
+		return
+	}
+	// check if file exists
+	if _, err := os.Stat(absPath); os.IsNotExist(err) {
+		fmt.Printf("File does not exist, pathToChannel: '%v'", absPath)
+	}
+
+	cmd := exec.Command(absPath, args...)
 	cmdOut, err := cmd.StdoutPipe()
 	if err != nil {
 		fmt.Printf("Failed to start channel '%v '", cmd)
@@ -287,7 +308,7 @@ func setupFlowChannels(pathToChannel string, firstReaderSr, firstWriterSr chan<-
 		// read stdout for writer and reader
 		for outScanner.Scan() {
 			text := outScanner.Text()
-			s := strings.SplitN(text, "=", 1)
+			s := strings.SplitN(text, "=", 2)
 			if len(s) == 2 {
 				id := s[0]
 				sr := s[1]
@@ -301,7 +322,10 @@ func setupFlowChannels(pathToChannel string, firstReaderSr, firstWriterSr chan<-
 			}
 		}
 	}()
-	cmd.Start()
+	err = cmd.Start()
+	if err != nil {
+		log.Fatal(err)
+	}
 	err = cmd.Wait()
 
 	if err != nil {
