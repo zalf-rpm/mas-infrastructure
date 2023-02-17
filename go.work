@@ -20,6 +20,6 @@ use (
 	./capnproto_schemas/gen/go/model/monica
 	./capnproto_schemas/gen/go/model/weberest
 	./capnproto_schemas/gen/go/model/yieldstat
-
+	./src/go/fbp/gw_provider
 
 )
