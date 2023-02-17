@@ -31,6 +31,14 @@ func TestNewSturdyRefByString(t *testing.T) {
 			want:    "capnp://iHM7vB14BUhug6woXlvLzqjJu9b29xhSQkhYLZrYz3I=@192.168.56.1:58381",
 			wantErr: false,
 		},
+		{
+			name: "failed to parse sturdyRef",
+			args: args{
+				sturdyRef: "capnp://Ga6MfZuG2SmRB-OqZy_vuUjLWB8KlTPO2lstySI2bqs@10.10.25.107:59606/M2QxN2RiMGUtYTJjZC00NWM3LWFiMjktZTk3MTMwNGNlZTc5",
+			},
+			want:    "capnp://Ga6MfZuG2SmRB-OqZy_vuUjLWB8KlTPO2lstySI2bqs=@10.10.25.107:59606/M2QxN2RiMGUtYTJjZC00NWM3LWFiMjktZTk3MTMwNGNlZTc5",
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -39,9 +47,11 @@ func TestNewSturdyRefByString(t *testing.T) {
 				t.Errorf("NewSturdyRefByString() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			sturdyRefAsString := got.String()
-			if !reflect.DeepEqual(sturdyRefAsString, tt.want) {
-				t.Errorf("NewSturdyRefByString() = %v, want %v", got, tt.want)
+			if !tt.wantErr {
+				sturdyRefAsString := got.String()
+				if !reflect.DeepEqual(sturdyRefAsString, tt.want) {
+					t.Errorf("NewSturdyRefByString() = %v, want %v", got, tt.want)
+				}
 			}
 		})
 	}
