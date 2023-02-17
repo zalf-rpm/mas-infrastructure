@@ -9,6 +9,7 @@ import (
 	"net"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"capnproto.org/go/capnp/v3"
@@ -117,6 +118,7 @@ func NewSturdyRefByString(sturdyRef string) (*SturdyRef, error) {
 		return nil, err
 	}
 	sr_token_base64 := u.Path
+	sr_token_base64 = strings.TrimPrefix(sr_token_base64, "/")
 	sr_token := []byte{}
 	if sr_token_base64 != "" {
 		sr_token, err = base64.URLEncoding.DecodeString(sr_token_base64)
