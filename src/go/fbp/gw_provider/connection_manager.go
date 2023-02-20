@@ -207,7 +207,13 @@ func (cm *ConnectionManager) connect(sturdyRef interface{}) (*capnp.Client, erro
 		restorer := persistence.Restorer(*bootstrapCap)
 		futRes, relRes := restorer.Restore(context.Background(), func(p persistence.Restorer_RestoreParams) error {
 
-			capnp.Struct(p).SetText(0, sr.localRef) // that looks like a hack
+			l, err := capnp.NewText(p.Segment(), sr.localRef)
+			if err != nil {
+				return err
+			}
+
+			err = p.SetLocalRef(l.ToPtr())
+			//err = p.SetLocalRef(sr.localRef)
 
 			// owner, err := persistence.NewSturdyRef_Owner(p.Segment())
 			// if err != nil {
@@ -216,7 +222,7 @@ func (cm *ConnectionManager) connect(sturdyRef interface{}) (*capnp.Client, erro
 			// owner.SetGuid(me) // TBD
 			// p.SetSealedFor(owner)
 
-			return nil
+			return err
 		})
 		defer relRes()
 		results, err := futRes.Struct()
