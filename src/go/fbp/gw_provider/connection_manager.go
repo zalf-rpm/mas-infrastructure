@@ -9,6 +9,7 @@ import (
 	"net"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"capnproto.org/go/capnp/v3"
@@ -17,8 +18,6 @@ import (
 )
 
 type ConnectionManager struct {
-	Restorer persistence.Restorer_Server
-
 	connStoppedChan chan string
 	connections     map[string]net.Conn
 	bootstraps      map[string]*capnp.Client
@@ -27,7 +26,6 @@ type ConnectionManager struct {
 func NewConnectionManager() *ConnectionManager {
 
 	return &ConnectionManager{
-		Restorer:        nil,
 		connStoppedChan: make(chan string),
 		connections:     make(map[string]net.Conn),
 		bootstraps:      make(map[string]*capnp.Client),
@@ -37,13 +35,11 @@ func NewConnectionManager() *ConnectionManager {
 // run the connection manager
 func (cm *ConnectionManager) Run() {
 	for {
-		select {
-		case connId := <-cm.connStoppedChan:
-			cm.connections[connId].Close()
-			cm.bootstraps[connId].Release()
-			delete(cm.connections, connId)
-			delete(cm.bootstraps, connId)
-		}
+		connId := <-cm.connStoppedChan
+		cm.connections[connId].Close()
+		cm.bootstraps[connId].Release()
+		delete(cm.connections, connId)
+		delete(cm.bootstraps, connId)
 	}
 }
 
@@ -97,8 +93,12 @@ func NewSturdyRefByString(sturdyRef string) (*SturdyRef, error) {
 	if vatIdBase64 != "" {
 		vatIdBytes, err := base64.URLEncoding.DecodeString(vatIdBase64)
 		if err != nil {
-			return nil, err
+			vatIdBytes, err = base64.URLEncoding.DecodeString(vatIdBase64 + "=")
+			if err != nil {
+				return nil, err
+			}
 		}
+
 		if len(vatIdBytes) != 32 {
 			return nil, fmt.Errorf("vatIdBytes has wrong length: %d", len(vatIdBytes))
 		}
@@ -117,6 +117,7 @@ func NewSturdyRefByString(sturdyRef string) (*SturdyRef, error) {
 		return nil, err
 	}
 	sr_token_base64 := u.Path
+	sr_token_base64 = strings.TrimPrefix(sr_token_base64, "/")
 	sr_token := []byte{}
 	if sr_token_base64 != "" {
 		sr_token, err = base64.URLEncoding.DecodeString(sr_token_base64)
@@ -163,14 +164,14 @@ func (cm *ConnectionManager) connect(sturdyRef interface{}) (*capnp.Client, erro
 	// check if sturdyRef is a string or a SturdyRef
 	var sr *SturdyRef
 	var err error
-	switch sturdyRef.(type) {
+	switch sturdyRefAsT := sturdyRef.(type) {
 	case string:
-		sr, err = NewSturdyRefByString(sturdyRef.(string))
+		sr, err = NewSturdyRefByString(sturdyRefAsT)
 		if err != nil {
 			log.Fatal(err)
 		}
 	case *SturdyRef:
-		sr = sturdyRef.(*SturdyRef)
+		sr = sturdyRefAsT
 	default:
 		log.Fatal(fmt.Errorf("sturdyRef is not a string or a SturdyRef"))
 	}
@@ -206,7 +207,13 @@ func (cm *ConnectionManager) connect(sturdyRef interface{}) (*capnp.Client, erro
 		restorer := persistence.Restorer(*bootstrapCap)
 		futRes, relRes := restorer.Restore(context.Background(), func(p persistence.Restorer_RestoreParams) error {
 
-			capnp.Struct(p).SetText(0, sr.localRef) // that looks like a hack
+			l, err := capnp.NewText(p.Segment(), sr.localRef)
+			if err != nil {
+				return err
+			}
+
+			err = p.SetLocalRef(l.ToPtr())
+			//err = p.SetLocalRef(sr.localRef)
 
 			// owner, err := persistence.NewSturdyRef_Owner(p.Segment())
 			// if err != nil {
@@ -215,9 +222,9 @@ func (cm *ConnectionManager) connect(sturdyRef interface{}) (*capnp.Client, erro
 			// owner.SetGuid(me) // TBD
 			// p.SetSealedFor(owner)
 
-			return nil
+			return err
 		})
-
+		defer relRes()
 		results, err := futRes.Struct()
 		if err != nil {
 			log.Fatal(err)
@@ -229,7 +236,6 @@ func (cm *ConnectionManager) connect(sturdyRef interface{}) (*capnp.Client, erro
 		} else {
 			log.Fatal(fmt.Errorf("failed to resolve sturdy_ref"))
 		}
-		relRes()
 	} else {
 		return bootstrapCap, nil
 	}
