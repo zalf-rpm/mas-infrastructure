@@ -247,7 +247,7 @@ class Dataset(climate_capnp.Dataset.Server, common.Identifiable, common.Persista
         r.info = self._meta.info
         
 
-    def timeseries_at(self, row, col, location=None):
+    def timeseries_at(self, row : int, col : int, location=None):
         if not self._cache_data or \
             (row, col) not in self._timeseries:
             path_to_csv = self._path_to_rows + "/" + self._row_col_pattern.format(row=row, col=col)
@@ -286,7 +286,7 @@ class Dataset(climate_capnp.Dataset.Server, common.Identifiable, common.Persista
     def closestTimeSeriesAt(self, latlon, **kwargs): # (latlon :Geo.LatLonCoord) -> (timeSeries :TimeSeries);
         # closest TimeSeries object which represents the whole time series 
         # of the climate realization at the give climate coordinate
-        row, col = self._interpolator(latlon.lat, latlon.lon)
+        row, col = map(int, self._interpolator(latlon.lat, latlon.lon))
         return self.timeseries_at(row, col)
 
 
@@ -297,10 +297,10 @@ class Dataset(climate_capnp.Dataset.Server, common.Identifiable, common.Persista
         return self.timeseries_at(row, col)
 
 
-    def create_location_id(self, row, col):
+    def create_location_id(self, row : int, col : int):
         return "r:{}/c:{}".format(row, col)
 
-    def location_at(self, row, col, coord=None, timeseries=None):
+    def location_at(self, row : int, col : int, coord=None, timeseries=None):
         if not self._cache_data or \
             (row, col) not in self._locations:
             if not coord:

@@ -17,13 +17,15 @@
 
 
 import asyncio
+import capnp
+import itertools
 import os
 from pathlib import Path
 import socket
 import sys
 import time
 
-PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent.parent.parent
+PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent
 if str(PATH_TO_REPO) not in sys.path:
     sys.path.insert(1, str(PATH_TO_REPO))
 
@@ -31,8 +33,15 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-import capnp
-import a_capnp
+import common.capnp_async_helpers as async_helpers
+import common.common as common
+
+PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
+abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
+a_capnp = capnp.load(str(PATH_TO_REPO / "src" / "python" / "a.capnp"), imports=abs_imports)
+common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
+
+#import a_capnp
 
 class A_Impl(a_capnp.A.Server):
 
@@ -47,11 +56,29 @@ class S(a_capnp.S.Server):
 
 class CB(a_capnp.CB.Server):
     def __init__(self):
-        self.i = 0
-    def get_context(self, context):
-        context.results.res = list(range(1000000))
-        self.i += 1
-        print(self.i*8*1000000/1024/1024, "MB sent")
+        self.ds = map(lambda i: D(i), range(1000000))
+
+    def getD_context(self, context):
+        try:
+            d = next(self.ds)
+            context.results.d = d
+        except StopIteration:
+            pass
+
+class D(a_capnp.D.Server):
+    def __init__(self, i):
+        self.i = i
+        self.megabytes = 10
+        self.sum = 0
+
+    def getData_context(self, context):
+        data = bytes(1024*1024*self.megabytes)
+        self.sum += round(len(data)/1024/1024)
+        context.results.data = data # = list(itertools.repeat(self.i, 1000000))
+        context.results.i = self.i
+        print("i:", self.i, self.i*self.sum, "MB sent")
+
+
 
 class Server:
     def __init__(self, service):
@@ -142,52 +169,93 @@ class Server:
 
 async def async_main():
 
-    server = "0.0.0.0"
-    port = 11111
+    if True:
+        server = await async_helpers.serve(None, 11111, S())
+        async with server:
+            await server.serve_forever()
+    else:
 
-    async def new_connection(reader, writer):
-        server = Server(A_Impl())
-        await server.myserver(reader, writer)
+        server = None#"0.0.0.0"
+        port = 11111
 
-    # Handle both IPv4 and IPv6 cases
-    try:
-        print("Try IPv4")
-        server = await asyncio.start_server(
-            new_connection,
-            server, port,
-            family=socket.AF_INET
-        )
-    except Exception:
-        print("Try IPv6")
-        server = await asyncio.start_server(
-            new_connection,
-            server, port,
-            family=socket.AF_INET6
-        )
+        async def new_connection(reader, writer):
+            #server = Server(A_Impl())
+            server = Server(S())
+            await server.myserver(reader, writer)
 
-    async with server:
-        await server.serve_forever()
+        # Handle both IPv4 and IPv6 cases
+        try:
+            print("Try IPv4")
+            server = await asyncio.start_server(
+                new_connection,
+                server, port,
+                family=socket.AF_INET
+            )
+        except Exception:
+            print("Try IPv6")
+            server = await asyncio.start_server(
+                new_connection,
+                server, port,
+                family=socket.AF_INET6
+            )
+
+        async with server:
+            await server.serve_forever()
 
 
 def no_async_main():
     #server = capnp.TwoPartyServer("*:11111", bootstrap=A_Impl())
-    server = capnp.TwoPartyServer("*", bootstrap=S())
+    server = capnp.TwoPartyServer("*:11111", bootstrap=S())
     print("port:", server.port)
     server.run_forever()
 
-
-if __name__ == '__main__':
+if False and __name__ == '__main__':
     mode = sys.argv[1] if len(sys.argv) > 1 else None
     if mode == "client":
         #a_cap = capnp.TwoPartyClient("localhost:11111").bootstrap().cast_as(a_capnp.A)
         #txt = a_cap.method("______________PARAM______________").wait().res
-        s = capnp.TwoPartyClient("localhost:"+sys.argv[2]).bootstrap().cast_as(a_capnp.S)
+        port = sys.argv[2] if len(sys.argv) > 2 else 43063
+        s = capnp.TwoPartyClient("localhost:"+str(port)).bootstrap().cast_as(a_capnp.S)
         cb = s.getCB().wait().cb
         i = 0
         while True:
-            data = cb.get().wait().res
-            print(i*8*1000000/1024/1024, "MB received")
+            d = cb.getD().wait().d
+            data = d.getData().wait().res
+            print(round(i*8*1000000/1024/1024), "MB received")
             i += 1
     else:
         #asyncio.run(async_main())
         no_async_main()
+
+if True and __name__ == '__main__':
+    mode = sys.argv[1] if len(sys.argv) > 1 else None
+    conman = common.ConnectionManager()
+    if mode == "writer":
+        s_port = sys.argv[2] 
+        w_sr = sys.argv[3]
+        s = capnp.TwoPartyClient("localhost:"+s_port).bootstrap().cast_as(a_capnp.S)
+        w = conman.try_connect(w_sr, cast_as=common_capnp.Channel.Writer, retry_secs=1)
+        cb = s.getCB().wait().cb
+        while True:
+            d = cb.getD().wait().d
+            req = w.write_request()
+            req.value = d
+            req.send().wait()
+            #w.write({"value": d}).wait()
+    elif mode == "reader":
+        r_sr = sys.argv[2]
+        r = conman.try_connect(r_sr, cast_as=common_capnp.Channel.Reader, retry_secs=1)
+        i = 0
+        while True:
+            msg = r.read().wait()
+            if msg.which() == "done":
+                break
+            d = msg.value.as_interface(a_capnp.D)
+            res = d.getData().wait()
+            i += round(len(res.data)/1024/1024)
+            print("k:", res.i, i, "MB received")
+            #print(round(i*8*1000000/1024/1024), "MB received")
+            
+    else:
+        asyncio.run(async_main())
+        #no_async_main()

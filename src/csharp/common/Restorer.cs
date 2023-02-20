@@ -31,9 +31,19 @@ namespace Mas.Infrastructure.Common
 
             var algorithm = Crypt.SignatureAlgorithm.Ed25519;
             _vatKey = Crypt.Key.Create(algorithm);
-            VatId = _vatKey.Export(Crypt.KeyBlobFormat.PkixPublicKey);
+            VatId = _vatKey.PublicKey.Export(Crypt.KeyBlobFormat.RawPublicKey);
         }
-        
+
+        static public string ToBase64Url(string base64)
+        {
+            return base64.Replace('+', '-').Replace('/', '_').Replace("=", "");
+        }
+
+        static public string FromBase64Url(string base64Url)
+        {
+            return base64Url.Replace('-', '+').Replace('_', '/').PadRight(base64Url.Length + (4 - base64Url.Length % 4) % 4, '=');
+        }
+
 
         public struct SaveRes {
             public Mas.Schema.Persistence.SturdyRef SturdyRef { get; set; }
@@ -60,9 +70,9 @@ namespace Mas.Infrastructure.Common
         }
 
         public string SturdyRefStr(string srToken) {
-            var vatIdBase64 = Convert.ToBase64String(VatId, 0, VatId.Length);
-            var srTokenBase64 = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(srToken));
-            return $"capnp://{vatIdBase64}@{TcpHost}:{TcpPort}/{srTokenBase64}";
+            var vatIdBase64Url = ToBase64Url(Convert.ToBase64String(VatId));
+            var srTokenBase64Url = ToBase64Url(Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(srToken)));
+            return $"capnp://{vatIdBase64Url}@{TcpHost}:{TcpPort}/{srTokenBase64Url}";
         }
 
         static public string SturdyRefStr(P.SturdyRef sturdyRef) {
@@ -72,9 +82,9 @@ namespace Mas.Infrastructure.Common
             BitConverter.GetBytes(id.PublicKey1).CopyTo(vatIdBytes, 8);
             BitConverter.GetBytes(id.PublicKey2).CopyTo(vatIdBytes, 16);
             BitConverter.GetBytes(id.PublicKey3).CopyTo(vatIdBytes, 24);
-            var vatIdBase64 = Convert.ToBase64String(vatIdBytes);
-            var srTokenBase64 = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes((string)sturdyRef.TheTransient.LocalRef));
-            return $"capnp://{vatIdBase64}@{sturdyRef.TheTransient.Vat.Address.Host}:{sturdyRef.TheTransient.Vat.Address.Port}/{srTokenBase64}";
+            var vatIdBase64Url = ToBase64Url(Convert.ToBase64String(vatIdBytes));
+            var srTokenBase64Url = ToBase64Url(Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes((string)sturdyRef.TheTransient.LocalRef)));
+            return $"capnp://{vatIdBase64Url}@{sturdyRef.TheTransient.Vat.Address.Host}:{sturdyRef.TheTransient.Vat.Address.Port}/{srTokenBase64Url}";
         }
 
         public void InstallCrossDomainMapping(string extSRT, P.VatId vatId, string intSRT) {
