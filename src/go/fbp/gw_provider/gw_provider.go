@@ -18,7 +18,7 @@ import (
 // DEFAULTS:
 const pathToChannelExe = "../../../cpp/common/_cmake_debug/Debug/channel.exe"
 const pathToMasDefault = "../../../"
-const inDatasetSrDefault = "capnp://cTRIF3NOxgz-u-ZtxBi-n-trlBFqVI-BIhkQWmO-_CI=@192.168.56.1:58336/YTQzOGFkNWYtODM4OS00Y2YyLTlmYmEtOTFmYjE4MWM3Yzk5"
+const inDatasetSrDefault = "capnp://p1muS1-Eqy2eA1ijBMFDA_ouQ0-gwRJmvVZS6QYB52k=@192.168.56.1:55834/MmExYjgxYjYtMWM3YS00Y2MyLWFjNTMtNzA0MzIwNGRlZThj"
 const pathToOutDirDefault = "../../../src/python/fbp/out/"
 
 // fbp flow groundwater provider
@@ -283,6 +283,7 @@ func setupFlowChannels(pathToChannel string, firstReaderSr, firstWriterSr chan<-
 	args := []string{
 		fmt.Sprintf("--name=chan_%s", uuid.New().String()),
 		"--output_srs",
+		"--verbose",
 	}
 	absPath, err := filepath.Abs(pathToChannel)
 	if err != nil {
@@ -308,6 +309,7 @@ func setupFlowChannels(pathToChannel string, firstReaderSr, firstWriterSr chan<-
 		// read stdout for writer and reader
 		for outScanner.Scan() {
 			text := outScanner.Text()
+			fmt.Println("Channel Out: ", text)
 			s := strings.SplitN(text, "=", 2)
 			if len(s) == 2 {
 				id := s[0]
@@ -316,12 +318,29 @@ func setupFlowChannels(pathToChannel string, firstReaderSr, firstWriterSr chan<-
 					firstReaderSr <- sr
 				} else if id == "writerSR" {
 					firstWriterSr <- sr
-				} else {
-					fmt.Println("Unknown id: ", id)
-				}
+				} //else {
+				// 	fmt.Println("Unknown id: ", id, sr)
+				// }
 			}
 		}
 	}()
+
+	cmdErr, err := cmd.StderrPipe()
+	if err != nil {
+		fmt.Printf("Failed to start channel '%v '", cmd)
+		return
+	}
+	outErrScanner := bufio.NewScanner(cmdErr)
+	outErrScanner.Split(bufio.ScanLines)
+
+	go func() {
+		// read stdout for writer and reader
+		for outErrScanner.Scan() {
+			text := outErrScanner.Text()
+			fmt.Println("Std ERR Out: ", text)
+		}
+	}()
+
 	err = cmd.Start()
 	if err != nil {
 		log.Fatal(err)
