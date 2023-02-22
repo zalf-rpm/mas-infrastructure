@@ -69,8 +69,8 @@
     {
         lineGraph = new ChartObject()
         {
-                Chart = new Chart(ChartType.Line, false),
-                Legend = new Legend(true, Layout.Vertical, Align.Right, VerticalAlign.Middle),
+            Chart = new Chart(ChartType.Line, false),
+            Legend = new Legend(true, Layout.Vertical, Align.Right, VerticalAlign.Middle),
             //PlotOptions = new PlotOptions(new PlotOptionsSeries(new Label(false), 2010)),
             Responsive = new Responsive(new Rule(new Condition(500),
             new ChartOptions(new Legend(true, Layout.Vertical, Align.Right, VerticalAlign.Middle)))),
@@ -81,7 +81,8 @@
             XAxis = new XAxis
             {
                 Accessibility = new Accessibility("Date / days"),
-                Type = "datetime"
+                Type = "datetime",
+                Labels = new Labels()// { Rotation = 0 },
             }
         };
     }
@@ -133,14 +134,16 @@
         if (YAxisConfigs.Any()) joptions["yAxis"] = new JArray();
         foreach (var (i, conf) in YAxisConfigs.Select((conf, i) => (i, conf)))
         {
-            var axis = new YAxis(new Title(conf.Title));
-            var jstr = System.Text.Json.JsonSerializer.Serialize(axis, new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
-            var jobj = JObject.Parse(jstr);
-            jobj["opposite"] = conf.Opposite;
-
+            var yAxis = new JObject {
+                { "title", new JObject { { "text", conf.Title } , { "style", new JObject() } } },
+                { "opposite", conf.Opposite },
+                { "labels", new JObject { { "rotation", 0 } } }
+            };
             _axisIdToCurveNo[conf.Id ?? i.ToString()] = i;
-            joptions.Value<JArray>("yAxis").Add(jobj);
+            joptions.Value<JArray>("yAxis").Add(yAxis);
         }
+
+        joptions.Value<JObject>("xAxis")?.Value<JObject>("labels")?.Add("rotation", 0);
 
         var curves = joptions["series"];
         if (curves != null)

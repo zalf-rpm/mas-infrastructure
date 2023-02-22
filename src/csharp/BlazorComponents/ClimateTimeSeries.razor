@@ -11,18 +11,39 @@
 
 <MudGrid>
     <MudItem Class=@(HideSturdyRefConnector ? "d-none" : "") xs="12">
-        <ConnectToSturdyRef Label="Persistent capability to climate timeseries (capnp://host:port/token)"
+        <ConnectToSturdyRef Label="Persistent capability to climate timeseries"
                             CapabilityChanged=@CapabilityChanged
                             TCapnpInterface=Climate.ITimeSeries>
         </ConnectToSturdyRef>
     </MudItem>
-    <MudItem xs="4">
-        <MudDateRangePicker Label="Date range" Editable=@true DateRangeChanged=@DateRangeChanged DateRange=@range />
+    <MudItem xs="2" Class="d-flex justify-center">
+        <MudDatePicker FirstDayOfWeek=@DayOfWeek.Monday Label="Start" Editable=@true Mask=@(new DateMask("0000-00-00")) DateFormat="yyyy-MM-dd" @bind-Date=@Start />
     </MudItem>
-    <MudItem xs="2">
+    <MudItem xs="2" Class="d-flex justify-center">
+        <MudDatePicker FirstDayOfWeek=@DayOfWeek.Monday Label="End" Editable=@true Mask=@(new DateMask("0000-00-00")) DateFormat="yyyy-MM-dd" @bind-Date=@End />
+    </MudItem>
+    <MudItem xs="3" Class="d-flex flex-row py-2 px-1">
+        <MudChipSet @bind-SelectedValues=@SelectedClimateElements
+                    MultiSelection=@true
+                    Filter=@true>
+            @foreach (var (e, i) in availableClimateElements.OrderBy(e => e.ToString()).Select((e, i) => (e, i)))
+            {
+                var en = e.ToString();
+                <MudChip Value=@e Text=@en Default=@DefaultSelectedClimateElements.Contains(en)>
+                </MudChip>
+            }
+        </MudChipSet>
+    </MudItem>
+    <MudItem xs="5" Class="d-flex align-stretch justify-left gap-4">
         <MudButton Variant=Variant.Filled Color=Color.Primary OnClick=@LoadTimeSeriesData>Load data</MudButton>
+        <MudButton Disabled=@(headings.Count() == 0) Variant=Variant.Filled Color=Color.Primary
+                   OnClick=@SaveTimeSeries>
+            Save data
+        </MudButton>
+        <MudButton Variant=Variant.Filled Color=Color.Primary OnClick=@RestoreInitialTimeSeriesCap>Restore initial time series</MudButton>
     </MudItem>
-    <MudItem xs="2">
+    
+    <!--<MudItem xs="2" Class="d-flex justify-center">
         <MudButton Disabled=@(headings.Count() == 0) Variant=Variant.Filled Color=Color.Primary
                    OnClick=@SaveTimeSeries>
             Save data
@@ -30,7 +51,7 @@
     </MudItem>
     <MudItem xs="3">
         <MudButton Variant=Variant.Filled Color=Color.Primary OnClick=@RestoreInitialTimeSeriesCap>Restore initial time series</MudButton>
-    </MudItem>
+    </MudItem>-->
     <MudItem xs="12">
         <MudExpansionPanels MultiExpansion=@true>
             @code {
@@ -123,8 +144,49 @@
     [Parameter]
     public bool HideSturdyRefConnector { get; set; } = false;
 
-    private DateTime start, end;
-    private DateRange? range;
+    private DateTime? start;
+    [Parameter]
+    public DateTime? Start { 
+        get => start;
+        set 
+        {
+            var oldStart = start;
+            start = value;
+            if (TimeSeriesCap != null && start.HasValue && oldStart != start && end.HasValue)
+            {
+                var updateTimeSeriesCap = async () => {
+                    var sts = await TimeSeriesCap.Subrange(DateTime2CommonDate(start.GetValueOrDefault()), DateTime2CommonDate(end.GetValueOrDefault()));
+                    //dispose the current time series cap, unless it's the initial one
+                    if (TimeSeriesCap != originalTimeSeriesCap) TimeSeriesCap?.Dispose();
+                    TimeSeriesCap = sts;
+                    await TimeSeriesUpdated();
+                };
+                updateTimeSeriesCap();
+            }
+        }
+    }
+
+    private DateTime? end;
+    [Parameter]
+    public DateTime? End { 
+        get => end;
+        set 
+        {
+            var oldEnd = end;
+            end = value;
+            if (TimeSeriesCap != null && start.HasValue && end.HasValue && oldEnd != end)
+            {
+                var updateTimeSeriesCap = async () => {
+                    var sts = await TimeSeriesCap.Subrange(DateTime2CommonDate(start.GetValueOrDefault()), DateTime2CommonDate(end.GetValueOrDefault()));
+                    //dispose the current time series cap, unless it's the initial one
+                    if (TimeSeriesCap != originalTimeSeriesCap) TimeSeriesCap?.Dispose();
+                    TimeSeriesCap = sts;
+                    await TimeSeriesUpdated();
+                };
+                updateTimeSeriesCap();
+            }
+        }
+    }
 
     private struct Element
     {
@@ -132,6 +194,37 @@
         public List<float> Data;
     }
     private String csvString = "";
+
+    [Parameter]
+    public HashSet<String> DefaultSelectedClimateElements { get; set; } = new HashSet<String>() { "tmin", "tavg", "tmax", "precip", "globrad", "wind", "relhumid" };
+
+    private IEnumerable<Climate.Element> availableClimateElements = new List<Climate.Element>();
+    //private IEnumerable<Climate.Element> chosenClimateElements = new List<Climate.Element>();
+
+    private ICollection<object>? selectedClimateElements;
+
+    public ICollection<object> SelectedClimateElements {
+        get => selectedClimateElements ?? availableClimateElements.Select(e => (object)e).ToList();
+        set {
+            selectedClimateElements = value;
+            if (TimeSeriesCap != null)
+            {
+                var updateTimeSeriesCap = async () => {
+                    var sts = await TimeSeriesCap.Subheader(selectedClimateElements.Select(e => (Climate.Element)e).ToList());
+                    //dispose the current time series cap, unless it's the initial one
+                    if (TimeSeriesCap != originalTimeSeriesCap) TimeSeriesCap?.Dispose();
+                    TimeSeriesCap = sts;
+                    await TimeSeriesUpdated();
+                };
+                updateTimeSeriesCap();
+            }
+        }
+    }
+
+
+    private IEnumerable<Climate.Element> selectedClimateElements2 { get => SelectedClimateElements.Select(e => (Climate.Element)e); } 
+
+    private MudChip[] defaultSelectedClimateElementChips = new MudChip[0];
 
     private IList<String> headings = new List<String>();
     private List<Element> data = new List<Element>();
@@ -165,7 +258,7 @@
         originalTimeSeriesCap = TimeSeriesCap; //save unrestricted cap
         componentIsTimeSeriesCapOwner = true;
 
-        //await TimeSeriesUpdated();
+        await TimeSeriesUpdated();
     }
 
     private async Task RestoreInitialTimeSeriesCap()
@@ -184,12 +277,54 @@
         var h = await TimeSeriesCap.Header();
 
         //var (s, e) = se.Result;
-        start = CommonDate2DateTime(s);
-        end = CommonDate2DateTime(e);
-        range = new DateRange(start, end);
+        Start = CommonDate2DateTime(s);
+        End = CommonDate2DateTime(e);
 
         headings = h.Select(h => h.ToString()).ToList();
+
+        availableClimateElements = h;
+        //defaultSelectedClimateElementChips = new MudChip[availableClimateElements.Count()];
+
+        //StateHasChanged();
+        //await MarkDefaultChips(defaultSelectedClimateElementChips,
+        //    cs => { chosenClimateElements = cs.Select(c => (Climate.Element)c.Tag); });
+
     }
+
+    private Task MarkDefaultChips(MudChip[] chips, Action<MudChip[]>? action = null)
+    {
+        Console.WriteLine("ClimateTimerSeries.MarkDefaultChips: ThreadId: " + Thread.CurrentThread.ManagedThreadId);
+
+        if (chips.All(c => c == null)) return Task.CompletedTask;
+
+        var selected = new List<MudChip>();
+        foreach (var c in chips)
+        {
+            c.IsSelected = c.Default ?? true;
+            if (c.IsSelected) selected.Add(c);
+        }
+        if (action != null) action(selected.ToArray());
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    /*
+
+    private async Task SelectedClimateElementsChanged(IEnumerable<MudChip> cs)
+    {
+        chosenClimateElements = cs.Select(c => (Climate.Element)c.Tag);
+        headings = chosenClimateElements.Select(e => e.ToString()).ToList();
+
+        if (TimeSeriesCap != null)
+        {
+            var sts = await TimeSeriesCap.Subheader(chosenClimateElements.ToList());
+            //dispose the current time series cap, unless it's the initial one
+            if (TimeSeriesCap != originalTimeSeriesCap) TimeSeriesCap?.Dispose();
+            TimeSeriesCap = sts;
+        }
+    }
+    */
+
 
     private DateTime CommonDate2DateTime(Common.Date d)
     {
@@ -201,38 +336,24 @@
         return new Common.Date { Year = (short)d.Year, Month = (byte)d.Month, Day = (byte)d.Day };
     }
 
-    private async Task DateRangeChanged(DateRange r)
-    {
-        if (r == null) return;
-        range = r;
-
-        start = r.Start ?? start;
-        end = r.End ?? end;
-
-        if (TimeSeriesCap != null)
-        {
-            var sts = await TimeSeriesCap.Subrange(DateTime2CommonDate(start), DateTime2CommonDate(end));
-            //dispose the current time series cap, unless it's the initial one
-            if (TimeSeriesCap != originalTimeSeriesCap) TimeSeriesCap?.Dispose();
-            TimeSeriesCap = sts;
-        }
-    }
 
     private async Task LoadTimeSeriesData()
     {
-        if (TimeSeriesCap == null) return;
+        if (TimeSeriesCap == null || !start.HasValue || !end.HasValue) return;
 
-        await TimeSeriesUpdated();
+        //await TimeSeriesUpdated();
+
+        //var sts = await TimeSeriesCap.Subheader(selectedClimateElements2.ToList());
+
+        var s = start.GetValueOrDefault();
 
         var ds = await TimeSeriesCap.Data();
-        data = ds.Select((d, i) => new Element { Date = start.AddDays(i), Data = d.ToList() }).ToList();
+        //var ds = await sts.Data();
+        data = ds.Select((d, i) => new Element { Date = s.AddDays(i), Data = d.ToList() }).ToList();
 
-        dates = data.Select((_, i) => start.AddDays(i));
+        dates = data.Select((_, i) => s.AddDays(i));
         name2Data.Clear();
-        foreach (var (header, i) in headings.Select((h, i) => (h, i)))
-        {
-            name2Data[header] = data.Select(e => e.Data[i]);
-        }
+        foreach (var (header, i) in headings.Select((h, i) => (h, i))) name2Data[header] = data.Select(e => e.Data[i]);
 
         dataChanged = true;
 
