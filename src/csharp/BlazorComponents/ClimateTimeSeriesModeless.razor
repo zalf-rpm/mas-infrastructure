@@ -1,0 +1,95 @@
+﻿@namespace Mas.Infrastructure.BlazorComponents
+
+@using System.Text;
+@using Climate = Mas.Schema.Climate
+@using Common = Mas.Schema.Common
+
+@inject IJSRuntime JsRuntime
+
+@implements IDisposable
+
+<MudStack Spacing="10">
+    <MudPaper Elevation="0" Class=@(HideSturdyRefConnector ? "d-none" : "")>
+        <ConnectToSturdyRef Label="Persistent capability to climate timeseries"
+                            CapabilityChanged=@TimeSeriesCapabilityChanged
+                            TCapnpInterface=Climate.ITimeSeries>
+        </ConnectToSturdyRef>
+    </MudPaper>
+    <MudPaper>
+        <MudExpansionPanels MultiExpansion="true">
+            @foreach (var (ts, i) in timeSeriesCaps.Select((ts, i)=>(ts, i)))
+                {
+                    <MudExpansionPanel Text=@($"{i}")>
+                        <ClimateTimeSeries Modeless=@true 
+                                            TimeSeriesCap=@ts 
+                                            HideSturdyRefConnector=@true
+                                            SubTimeSeriesCapCreated=@SubTimeSeriesCapCreated>
+                        </ClimateTimeSeries>
+                    </MudExpansionPanel>
+                }
+        </MudExpansionPanels>
+    </MudPaper>
+</MudStack>
+
+@code {
+    private Stack<Climate.ITimeSeries> timeSeriesCaps = new Stack<Climate.ITimeSeries>();
+
+    [Parameter]
+    public Climate.ITimeSeries? TimeSeriesCap { 
+        get {
+            if (timeSeriesCaps.Count == 0) return null;
+            else return timeSeriesCaps.First();
+        }
+        set {
+            if (value != null){
+                timeSeriesCaps.Clear();
+                timeSeriesCaps.Push(value);
+            } 
+        }
+    }
+    private bool timeSeriesCapUpdated = false;
+
+    private bool componentIsTimeSeriesCapOwner = false;
+
+    [Parameter]
+    public EventCallback<Climate.ITimeSeries> TimeSeriesCapChanged { get; set; }
+
+    [Parameter]
+    public bool HideSturdyRefConnector { get; set; } = false;
+
+
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        timeSeriesCapUpdated = parameters.GetValueOrDefault<Climate.ITimeSeries?>("TimeSeriesCap", null) != TimeSeriesCap;
+        await base.SetParametersAsync(parameters);
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        @* if (timeSeriesCapUpdated)
+        {
+            originalTimeSeriesCap = TimeSeriesCap; //save unrestricted cap
+            await TimeSeriesUpdated();
+        } *@
+    }
+
+    private async Task TimeSeriesCapabilityChanged(Climate.ITimeSeries? ts)
+    {
+        if (ts == null) return;
+        if (TimeSeriesCap != ts) TimeSeriesCap?.Dispose(); //free old cap
+        //if (TimeSeriesCap != ts && componentIsTimeSeriesCapOwner) TimeSeriesCap?.Dispose(); //free old cap
+        TimeSeriesCap = ts;
+        //componentIsTimeSeriesCapOwner = true;
+    }
+
+    private async Task SubTimeSeriesCapCreated(Climate.ITimeSeries? ts)
+    {
+        if (ts != null) timeSeriesCaps.Push(ts);
+    }
+
+    void IDisposable.Dispose()
+    {
+        foreach(var ts in timeSeriesCaps) ts.Dispose();
+        //if(componentIsTimeSeriesCapOwner) timeSeriesCaps.First()?.Dispose();
+    }
+}
