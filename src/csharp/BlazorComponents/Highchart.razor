@@ -96,7 +96,7 @@
             lineGraph.Series = new List<SeriesElement>();
 
             var noDates = Dates == null || Dates.Count() == 0;
-            var milliDates = noDates ? null : Dates?.Select(d => new DateTimeOffset(d).ToUnixTimeMilliseconds());
+            var milliDates = noDates ? null : Dates?.Select(d => new DateTimeOffset(new DateTime(d.Year, d.Month, d.Day, 0, 0, 0, DateTimeKind.Utc)).ToUnixTimeMilliseconds());
             lineGraph.Title = new(Title);
             lineGraph.XAxis.Type = noDates ? "linear" : "datetime";
             lineGraph.XAxis.Title = new(XAxisTitle);

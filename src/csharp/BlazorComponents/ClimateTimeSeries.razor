@@ -11,88 +11,76 @@
 
 <MudGrid>
     <MudItem Class=@(HideSturdyRefConnector ? "d-none" : "") xs="12">
-        <ConnectToSturdyRef Label="Persistent capability to climate timeseries"
-                            CapabilityChanged=@CapabilityChanged
-                            TCapnpInterface=Climate.ITimeSeries>
+        <ConnectToSturdyRef Label="Persistent capability to climate timeseries" CapabilityChanged=@CapabilityChanged
+            TCapnpInterface=Climate.ITimeSeries>
         </ConnectToSturdyRef>
     </MudItem>
     <MudItem xs="2" Class="d-flex justify-center">
-        <MudDatePicker MinDate=@Start MaxDate=@End FirstDayOfWeek=@DayOfWeek.Monday Label="Start" Editable=@true Mask=@(new DateMask("0000-00-00")) DateFormat="yyyy-MM-dd" @bind-Date=@Start />
+        <MudDatePicker MinDate=@originalStart MaxDate=@originalEnd FirstDayOfWeek=@DayOfWeek.Monday Label="Start"
+            Editable=@true Mask=@(new DateMask("0000-00-00")) DateFormat="yyyy-MM-dd" @bind-Date=@Start />
     </MudItem>
     <MudItem xs="2" Class="d-flex justify-center">
-        <MudDatePicker MinDate=@Start MaxDate=@End FirstDayOfWeek=@DayOfWeek.Monday Label="End" Editable=@true Mask=@(new DateMask("0000-00-00")) DateFormat="yyyy-MM-dd" @bind-Date=@End />
+        <MudDatePicker MinDate=@originalStart MaxDate=@originalEnd FirstDayOfWeek=@DayOfWeek.Monday Label="End"
+            Editable=@true Mask=@(new DateMask("0000-00-00")) DateFormat="yyyy-MM-dd" @bind-Date=@End />
     </MudItem>
-    <MudItem xs="3" Class="d-flex flex-row py-2 px-1">
-        <MudChipSet @bind-SelectedValues=@SelectedClimateElements
-                    MultiSelection=@true
-                    Filter=@true>
-            @foreach (var (e, i) in (availableClimateElements ?? new List<Climate.Element>()).OrderBy(e => e.ToString()).Select((e, i) => (e, i)))
+    <MudItem xs="4" Class="d-flex flex-row py-2 px-1">
+        <MudChipSet @bind-SelectedValues=@SelectedClimateElements MultiSelection=@true Filter=@true>
+            @foreach (var (e, i) in (availableClimateElements ?? new List<Climate.Element>()).OrderBy(e =>
+            e.ToString()).Select((e, i) => (e, i)))
             {
                 var en = e.ToString();
-                <MudChip Value=@e Text=@en Default=@DefaultSelectedClimateElements.Contains(en)>
+                <MudChip Size=@Size.Large Color=@Color.Default SelectedColor=@Color.Success Value=@e Text=@en
+                    Default=@DefaultSelectedClimateElements.Contains(en)>
                 </MudChip>
             }
         </MudChipSet>
     </MudItem>
-    <MudItem xs="5" Class="d-flex align-stretch justify-left gap-4">
-        <MudButton Variant=Variant.Filled Color=Color.Primary OnClick=@LoadTimeSeriesData>Load data</MudButton>
-        <MudButton Disabled=@(headings.Count() == 0) Variant=Variant.Filled Color=Color.Primary
-                   OnClick=@SaveTimeSeries>
-            Save data
-        </MudButton>
-        <MudButton Variant=Variant.Filled Color=Color.Primary OnClick=@RestoreInitialTimeSeriesCap>Restore initial time series</MudButton>
-    </MudItem>
-    
-    <!--<MudItem xs="2" Class="d-flex justify-center">
-        <MudButton Disabled=@(headings.Count() == 0) Variant=Variant.Filled Color=Color.Primary
-                   OnClick=@SaveTimeSeries>
+    <MudItem xs="4" Class="d-flex align-stretch justify-end gap-4">
+        <MudSwitch @bind-Checked=@AutoLoad Label="Auto load" Color="Color.Success" />
+        <MudButton Variant=@Variant.Filled Color=@Color.Primary OnClick=@LoadTimeSeriesData>Load data</MudButton>
+        <MudButton Disabled=@(headings.Count() == 0) Variant=Variant.Filled Color=Color.Primary OnClick=@SaveTimeSeries>
             Save data
         </MudButton>
     </MudItem>
-    <MudItem xs="3">
-        <MudButton Variant=Variant.Filled Color=Color.Primary OnClick=@RestoreInitialTimeSeriesCap>Restore initial time series</MudButton>
-    </MudItem>-->
     <MudItem xs="12">
         <MudExpansionPanels MultiExpansion=@true>
             @code {
-                private Dictionary<string, bool> panelOpened = new() { { "chart", true }, { "table", false } };
+                private Dictionary<string, bool> panelOpened = new() { { "chart", true }, { "table", false }, { "text",
+            false } };
             }
             <MudExpansionPanel @bind-IsExpanded=@panelOpened["chart"] Text="Chart">
                 @code {
                     private List<Highchart.AxisConfig> yAxisConfigs = new()
-                    {
-                        new Highchart.AxisConfig { Id = "def", Title = "Wind [m/s], Globrad [MJ/m2], Relhumid [%]" },
-                        new Highchart.AxisConfig { Id = "temps", Title = "Temp [°C]" },
-                        new Highchart.AxisConfig { Id = "precip", Title = "Precipitation [mm]", Opposite = true },
-                    };
+                {
+                new Highchart.AxisConfig { Id = "def", Title = "Wind [m/s], Globrad [MJ/m2], Relhumid [%]" },
+                new Highchart.AxisConfig { Id = "temps", Title = "Temp [°C]" },
+                new Highchart.AxisConfig { Id = "precip", Title = "Precipitation [mm]", Opposite = true },
+                };
 
                     private Dictionary<string, Highchart.CurveConfig> curveName2Config = new()
-                    {
-                        { "tmin", new Highchart.CurveConfig { DisplayAxisId = "temps" } },
-                        { "tavg", new Highchart.CurveConfig { DisplayAxisId = "temps", IsVisible = true } },
-                        { "tmax", new Highchart.CurveConfig { DisplayAxisId = "temps" } },
-                        { "precip", new Highchart.CurveConfig { DisplayAxisId = "precip", IsVisible = true } },
-                        { "globrad", new Highchart.CurveConfig { DisplayAxisId = "def" } },
-                        { "wind", new Highchart.CurveConfig { DisplayAxisId = "def" } },
-                        { "relhumid", new Highchart.CurveConfig { DisplayAxisId = "def" } }
-                    };
+                {
+                { "tmin", new Highchart.CurveConfig { DisplayAxisId = "temps" } },
+                { "tavg", new Highchart.CurveConfig { DisplayAxisId = "temps", IsVisible = true } },
+                { "tmax", new Highchart.CurveConfig { DisplayAxisId = "temps" } },
+                { "precip", new Highchart.CurveConfig { DisplayAxisId = "precip", IsVisible = true } },
+                { "globrad", new Highchart.CurveConfig { DisplayAxisId = "def" } },
+                { "wind", new Highchart.CurveConfig { DisplayAxisId = "def" } },
+                { "relhumid", new Highchart.CurveConfig { DisplayAxisId = "def" } }
+                };
                 }
-                <Highchart Title="Climate Curves"
-                           XAxisTitle="Date"
-                           YAxisConfigs=@yAxisConfigs
-                           CurveName2Config=@curveName2Config
-                           Data=@name2Data 
-                           Dates=@dates 
-                           DataChanged=@dataChanged
-                           ChartRerendered=@(() => dataChanged = false)
-                           ></Highchart>
+                <Highchart Title="Climate Curves" XAxisTitle="Date" YAxisConfigs=@yAxisConfigs
+                    CurveName2Config=@curveName2Config Data=@name2Data Dates=@dates DataChanged=@dataChanged
+                    ChartRerendered=@(() => dataChanged = false)></Highchart>
             </MudExpansionPanel>
             <MudExpansionPanel @bind-IsExpanded=@panelOpened["table"] Text="Table">
-                <MudTable T=@Element Items=@data Hover=@true Dense=@true Filter=@(new Func<Element,bool>(DataFilterFunc))>
+                <MudTable T=@Element Items=@data Hover=@true Dense=@true Filter=@(new
+                    Func<Element,bool>(DataFilterFunc))>
                     <ToolBarContent>
                         <MudText Typo=Typo.h6>Timeseries Data</MudText>
                         <MudSpacer />
-                        <MudTextField @bind-Value=searchString Placeholder="Search" Adornment=Adornment.Start AdornmentIcon=@Icons.Material.Filled.Search IconSize=Size.Medium Class="mt-0"></MudTextField>
+                        <MudTextField @bind-Value=searchString Placeholder="Search" Adornment=Adornment.Start
+                            AdornmentIcon=@Icons.Material.Filled.Search IconSize=Size.Medium Class="mt-0">
+                        </MudTextField>
                     </ToolBarContent>
                     <HeaderContent>
                         <MudTh>Date</MudTh>
@@ -115,9 +103,7 @@
                         {
                             var k = i;
                             <MudTd DataLabel=@val>
-                                <MudTextField T=@float
-                                              @bind-Value=context.Data[k]
-                                              Required />
+                                <MudTextField T=@float @bind-Value=context.Data[k] Required />
                             </MudTd>
                         }
                     </RowEditingTemplate>
@@ -126,13 +112,18 @@
                     </PagerContent>
                 </MudTable>
             </MudExpansionPanel>
+            <MudExpansionPanel Text="Text" IsExpanded=@panelOpened["text"] IsExpandedChanged=@(b => {
+                panelOpened["text"] = b; CreateCSVString(); })>
+                <MudTextField T="string" ReadOnly=@true FullWidth=@true Variant=@Variant.Outlined Text=@csvString
+                    Lines="30" />
+            </MudExpansionPanel>
         </MudExpansionPanels>
     </MudItem>
 </MudGrid>
 
 @code {
     [Parameter]
-    public bool Modeless { get; set; } = false;
+    public bool AutoLoad { get; set; } = false;
 
     [Parameter]
     public Climate.ITimeSeries? TimeSeriesCap { get; set; }
@@ -144,93 +135,25 @@
     [Parameter]
     public EventCallback<Climate.ITimeSeries> TimeSeriesCapChanged { get; set; }
 
-    // implies taking ownership of the sub time series cap
-    [Parameter]
-    public EventCallback<Climate.ITimeSeries> SubTimeSeriesCapCreated { get; set; }
-
     [Parameter]
     public bool HideSturdyRefConnector { get; set; } = false;
 
     private DateTime? start;
+    private DateTime? originalStart;
     [Parameter]
-    public DateTime? Start { 
+    public DateTime? Start
+    {
         get => start;
-        set 
-        {
-            if(Modeless)
-            {
-                if (!start.HasValue) start = value;
-                
-                if (TimeSeriesCap != null && value.HasValue && start.Value != value.Value && end.HasValue)
-                {
-                    var getSubTimeSeriesCap = async () => {
-                        var sts = await TimeSeriesCap.Subrange(DateTime2CommonDate(value.GetValueOrDefault()), DateTime2CommonDate(end.GetValueOrDefault()));
-                        if (SubTimeSeriesCapCreated.HasDelegate) _ = SubTimeSeriesCapCreated.InvokeAsync(sts);
-                        else sts?.Dispose();
-                    };
-                    getSubTimeSeriesCap();
-                }
-            }
-            else 
-            {
-                var oldStart = start;
-                start = value;
-                if (oldStart != null && TimeSeriesCap != null && start.HasValue && oldStart != start && end.HasValue)
-                {
-                    var updateTimeSeriesCap = async () => {
-                        var sts = await TimeSeriesCap.Subrange(DateTime2CommonDate(start.GetValueOrDefault()), DateTime2CommonDate(end.GetValueOrDefault()));
-                        //dispose the current time series cap, unless it's the initial one
-                        if (TimeSeriesCap != originalTimeSeriesCap) TimeSeriesCap?.Dispose();
-                        TimeSeriesCap = sts;
-                        if (TimeSeriesCapChanged.HasDelegate) _ = TimeSeriesCapChanged.InvokeAsync(sts);
-                        //if (SubTimeSeriesCapCreated.HasDelegate) _ = SubTimeSeriesCapCreated.InvokeAsync(Capnp.Rpc.Proxy.Share(sts));
-                        await UpdateTimeSeriesRange();
-                    };
-                    updateTimeSeriesCap();
-                }
-            }
-        }
+        set { start = value; updateSubTimeSeries(); }
     }
 
     private DateTime? end;
+    private DateTime? originalEnd;
     [Parameter]
-    public DateTime? End { 
+    public DateTime? End
+    {
         get => end;
-        set 
-        {
-            if(Modeless)
-            {
-                if (!end.HasValue) end = value;
-                
-                if (TimeSeriesCap != null && start.HasValue && value.HasValue && end.Value != value.Value)
-                {
-                    var getSubTimeSeriesCap = async () => {
-                        var sts = await TimeSeriesCap.Subrange(DateTime2CommonDate(start.GetValueOrDefault()), DateTime2CommonDate(value.GetValueOrDefault()));
-                        if (SubTimeSeriesCapCreated.HasDelegate) _ = SubTimeSeriesCapCreated.InvokeAsync(sts);
-                        else sts?.Dispose();
-                    };
-                    getSubTimeSeriesCap();
-                }
-            }
-            else 
-            {
-                var oldEnd = end;
-                end = value;
-                if (oldEnd != null && TimeSeriesCap != null && start.HasValue && end.HasValue && oldEnd != end)
-                {
-                    var updateTimeSeriesCap = async () => {
-                        var sts = await TimeSeriesCap.Subrange(DateTime2CommonDate(start.GetValueOrDefault()), DateTime2CommonDate(end.GetValueOrDefault()));
-                        //dispose the current time series cap, unless it's the initial one
-                        if (TimeSeriesCap != originalTimeSeriesCap) TimeSeriesCap?.Dispose();
-                        TimeSeriesCap = sts;
-                        if (TimeSeriesCapChanged.HasDelegate) _ = TimeSeriesCapChanged.InvokeAsync(sts);
-                        //if (SubTimeSeriesCapCreated.HasDelegate) _ = SubTimeSeriesCapCreated.InvokeAsync(Capnp.Rpc.Proxy.Share(sts));
-                        await UpdateTimeSeriesRange();
-                    };
-                    updateTimeSeriesCap();
-                }
-            }
-        }
+        set { end = value; updateSubTimeSeries(); }
     }
 
     private struct Element
@@ -241,62 +164,61 @@
     private String csvString = "";
 
     [Parameter]
-    public HashSet<String> DefaultSelectedClimateElements { get; set; } = new HashSet<String>() { "tmin", "tavg", "tmax", "precip", "globrad", "wind", "relhumid" };
+    public HashSet<String> DefaultSelectedClimateElements { get; set; } = new HashSet<String>() { "tmin", "tavg", "tmax",
+"precip", "globrad", "wind", "relhumid" };
 
     private IEnumerable<Climate.Element>? availableClimateElements;
-    //private IEnumerable<Climate.Element> chosenClimateElements = new List<Climate.Element>();
 
-    private ICollection<object>? selectedClimateElements;
+    private ICollection<object>? selectedClimateElementsAsObject;
 
-    public ICollection<object> SelectedClimateElements {
-        get => selectedClimateElements ?? (availableClimateElements ?? new List<Climate.Element>()).Select(e => (object)e).ToList();
-        set {
-            if(Modeless)
-            {
-                if (selectedClimateElements == null) selectedClimateElements = value;
-                
-                if (TimeSeriesCap != null && selectedClimateElements != value)
-                {
-                    var getSubTimeSeriesCap = async () => {
-                        var sts = await TimeSeriesCap.Subheader(value.Select(e => (Climate.Element)e).ToList());
-                        if (SubTimeSeriesCapCreated.HasDelegate) _ = SubTimeSeriesCapCreated.InvokeAsync(sts);
-                        else sts?.Dispose();
-                    };
-                    getSubTimeSeriesCap();
-                }
-            }
-            else 
-            {
-                selectedClimateElements = value;
-                if (TimeSeriesCap != null)
-                {
-                    var updateTimeSeriesCap = async () => {
-                        var sts = await TimeSeriesCap.Subheader(selectedClimateElements.Select(e => (Climate.Element)e).ToList());
-                        //dispose the current time series cap, unless it's the initial one
-                        if (TimeSeriesCap != originalTimeSeriesCap) TimeSeriesCap?.Dispose();
-                        TimeSeriesCap = sts;
-                        if (TimeSeriesCapChanged.HasDelegate) _ = TimeSeriesCapChanged.InvokeAsync(sts);
-                        //if (SubTimeSeriesCapCreated.HasDelegate) _ = SubTimeSeriesCapCreated.InvokeAsync(Capnp.Rpc.Proxy.Share(sts));
-                        await UpdateTimeSeriesHeader();
-                    };
-                    updateTimeSeriesCap();
-                }
-            }
-        }
+    public ICollection<object> SelectedClimateElements
+    {
+        get => selectedClimateElementsAsObject ?? (availableClimateElements ?? new List<Climate.Element>()).Select(e =>
+        (object)e).ToList();
+        set { selectedClimateElementsAsObject = value; updateSubTimeSeries(); }
     }
 
 
-    private IEnumerable<Climate.Element> selectedClimateElements2 { get => SelectedClimateElements.Select(e => (Climate.Element)e); } 
+    private IEnumerable<Climate.Element> selectedClimateElements
+    {
+        get => SelectedClimateElements.Select(e =>
+    (Climate.Element)e);
+    }
 
-    private MudChip[] defaultSelectedClimateElementChips = new MudChip[0];
-
-    private IList<String> headings = new List<String>();
+    private IEnumerable<String> headings { get => selectedClimateElements.Select(e => e.ToString()); }
     private List<Element> data = new List<Element>();
     private String? searchString;
 
     private Dictionary<String, IEnumerable<float>> name2Data = new();
     private IEnumerable<DateTime> dates = new List<DateTime>();
     private bool dataChanged = false;
+
+    private async Task updateSubTimeSeries()
+    {
+        if (originalTimeSeriesCap == null) return;
+
+        Climate.ITimeSeries? subTS = originalTimeSeriesCap;
+        if (start.HasValue && end.HasValue && (start != originalStart || end != originalEnd))
+        {
+            subTS = await originalTimeSeriesCap.Subrange(DateTime2CommonDate(start.GetValueOrDefault()),
+            DateTime2CommonDate(end.GetValueOrDefault()));
+        }
+        if (selectedClimateElements != null && availableClimateElements != null
+        && selectedClimateElements.Any() && !selectedClimateElements.SequenceEqual(availableClimateElements))
+        {
+            subTS = await subTS.Subheader(selectedClimateElements.ToList());
+        }
+
+        if (subTS != originalTimeSeriesCap)
+        {
+            //dispose the current time series cap, unless it's the initial one
+            if (TimeSeriesCap != originalTimeSeriesCap) TimeSeriesCap?.Dispose();
+            TimeSeriesCap = subTS;
+            if (TimeSeriesCapChanged.HasDelegate) TimeSeriesCapChanged.InvokeAsync(subTS);
+            if (AutoLoad) await LoadTimeSeriesData();
+        }
+    }
+
 
     public override async Task SetParametersAsync(ParameterView parameters)
     {
@@ -325,84 +247,21 @@
         await TimeSeriesUpdated();
     }
 
-    private async Task RestoreInitialTimeSeriesCap()
-    {
-        if (originalTimeSeriesCap == null) return;
-        if (originalTimeSeriesCap != TimeSeriesCap) TimeSeriesCap?.Dispose();
-        TimeSeriesCap = originalTimeSeriesCap;
-        await TimeSeriesUpdated();
-    }
-
-    private async Task TimeSeriesUpdated(bool isSubTimeSeries = false)
-    {
-        if (TimeSeriesCap == null) return;
-
-        await UpdateTimeSeriesHeader();
-        await UpdateTimeSeriesRange();
-
-        //defaultSelectedClimateElementChips = new MudChip[availableClimateElements.Count()];
-
-        //StateHasChanged();
-        //await MarkDefaultChips(defaultSelectedClimateElementChips,
-        //    cs => { chosenClimateElements = cs.Select(c => (Climate.Element)c.Tag); });
-
-    }
-
-    private async Task UpdateTimeSeriesRange()
+    private async Task TimeSeriesUpdated()
     {
         if (TimeSeriesCap == null) return;
 
         var (s, e) = await TimeSeriesCap.Range();
-        Start = CommonDate2DateTime(s);
-        End = CommonDate2DateTime(e);
-    }
-
-
-    private async Task UpdateTimeSeriesHeader()
-    {
-        if (TimeSeriesCap == null) return;
+        if (originalStart == null) originalStart = CommonDate2DateTime(s);
+        Start = originalStart;
+        if (originalEnd == null) originalEnd = CommonDate2DateTime(e);
+        End = originalEnd;
 
         var h = await TimeSeriesCap.Header();
+        if (availableClimateElements == null) availableClimateElements = h;
 
-        headings = h.Select(h => h.ToString()).ToList();
-
-        availableClimateElements = h;
+        if (AutoLoad) await LoadTimeSeriesData();
     }
-
-    private Task MarkDefaultChips(MudChip[] chips, Action<MudChip[]>? action = null)
-    {
-        Console.WriteLine("ClimateTimerSeries.MarkDefaultChips: ThreadId: " + Thread.CurrentThread.ManagedThreadId);
-
-        if (chips.All(c => c == null)) return Task.CompletedTask;
-
-        var selected = new List<MudChip>();
-        foreach (var c in chips)
-        {
-            c.IsSelected = c.Default ?? true;
-            if (c.IsSelected) selected.Add(c);
-        }
-        if (action != null) action(selected.ToArray());
-        StateHasChanged();
-        return Task.CompletedTask;
-    }
-
-    /*
-
-    private async Task SelectedClimateElementsChanged(IEnumerable<MudChip> cs)
-    {
-        chosenClimateElements = cs.Select(c => (Climate.Element)c.Tag);
-        headings = chosenClimateElements.Select(e => e.ToString()).ToList();
-
-        if (TimeSeriesCap != null)
-        {
-            var sts = await TimeSeriesCap.Subheader(chosenClimateElements.ToList());
-            //dispose the current time series cap, unless it's the initial one
-            if (TimeSeriesCap != originalTimeSeriesCap) TimeSeriesCap?.Dispose();
-            TimeSeriesCap = sts;
-        }
-    }
-    */
-
 
     private DateTime CommonDate2DateTime(Common.Date d)
     {
@@ -417,16 +276,13 @@
 
     private async Task LoadTimeSeriesData()
     {
-        if (TimeSeriesCap == null || !start.HasValue || !end.HasValue) return;
+        if (TimeSeriesCap == null || !start.HasValue || !end.HasValue || selectedClimateElementsAsObject == null) return;
 
-        //await TimeSeriesUpdated();
-
-        //var sts = await TimeSeriesCap.Subheader(selectedClimateElements2.ToList());
+        Console.WriteLine("Loading data...");
 
         var s = start.GetValueOrDefault();
 
         var ds = await TimeSeriesCap.Data();
-        //var ds = await sts.Data();
         data = ds.Select((d, i) => new Element { Date = s.AddDays(i), Data = d.ToList() }).ToList();
 
         dates = data.Select((_, i) => s.AddDays(i));
@@ -434,8 +290,13 @@
         foreach (var (header, i) in headings.Select((h, i) => (h, i))) name2Data[header] = data.Select(e => e.Data[i]);
 
         dataChanged = true;
+        StateHasChanged();
 
-        /*
+        if (panelOpened["text"]) CreateCSVString();
+    }
+
+    private void CreateCSVString()
+    {
         //create csv file
         var sb = new StringBuilder();
         sb.Append("iso-date,");
@@ -452,7 +313,6 @@
         }
 
         csvString = sb.ToString();
-        */
     }
 
     private bool DataFilterFunc(Element elem)
@@ -462,31 +322,15 @@
         if (elem.Date.ToShortDateString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
             return true;
         //if (element.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-        //    return true;
+        // return true;
         //if ($"{element.Number} {element.Position} {element.Molar}".Contains(searchString))
-        //    return true;
+        // return true;
         return false;
     }
 
     private async Task SaveTimeSeries()
     {
-        //create csv file
-        var sb = new StringBuilder();
-        sb.Append("iso-date,");
-        sb.Append(headings.Aggregate((a, e) => a + "," + e.ToString()));
-        sb.Append("\n");
-
-        var ci = new System.Globalization.CultureInfo("en-US");
-        foreach (var el in data)
-        {
-            sb.Append(el.Date.ToString("yyyy-MM-dd"));
-            sb.Append(",");
-            sb.Append(el.Data.Select(e => e.ToString(ci)).Aggregate((a, e) => a + "," + e));
-            sb.Append("\n");
-        }
-
-        var csvString = sb.ToString();
-
+        CreateCSVString();
         await JsRuntime.InvokeVoidAsync("saveAsBase64", "data.csv", Convert.ToBase64String(Encoding.UTF8.GetBytes(csvString)));
     }
 
