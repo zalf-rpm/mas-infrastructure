@@ -17,6 +17,8 @@ import (
 
 // DEFAULTS:
 const pathToChannelExe = "../../../cpp/common/_cmake_debug/Debug/channel.exe"
+
+// const pathToChannelExe = "../../../go/fbp/channel/channel.exe"
 const pathToMasDefault = "../../../"
 const inDatasetSrDefault = "capnp://p1muS1-Eqy2eA1ijBMFDA_ouQ0-gwRJmvVZS6QYB52k=@192.168.56.1:55834/MmExYjgxYjYtMWM3YS00Y2MyLWFjNTMtNzA0MzIwNGRlZThj"
 const pathToOutDirDefault = "../../../src/python/fbp/out/"
@@ -35,7 +37,16 @@ func main() {
 	go setupFlowChannels(*pathToChannel, firstReaderSr, firstWriterSr)
 
 	// wait for first reader and writer
-	first_reader_sr, first_writer_sr := <-firstReaderSr, <-firstWriterSr
+	doneFR, doneFW := false, false
+	first_reader_sr, first_writer_sr := "", ""
+	for !(doneFR && doneFW) {
+		select {
+		case first_reader_sr = <-firstReaderSr:
+			doneFR = true
+		case first_writer_sr = <-firstWriterSr:
+			doneFW = true
+		}
+	}
 	fmt.Println("first reader: ", first_reader_sr)
 	fmt.Println("first writer: ", first_writer_sr)
 
@@ -307,20 +318,23 @@ func setupFlowChannels(pathToChannel string, firstReaderSr, firstWriterSr chan<-
 
 	go func() {
 		// read stdout for writer and reader
+		channelNameReceived := 0
 		for outScanner.Scan() {
 			text := outScanner.Text()
 			fmt.Println("Channel Out: ", text)
-			s := strings.SplitN(text, "=", 2)
-			if len(s) == 2 {
-				id := s[0]
-				sr := s[1]
-				if id == "readerSR" {
-					firstReaderSr <- sr
-				} else if id == "writerSR" {
-					firstWriterSr <- sr
-				} //else {
-				// 	fmt.Println("Unknown id: ", id, sr)
-				// }
+			if channelNameReceived < 2 {
+				s := strings.SplitN(text, "=", 2)
+				if len(s) == 2 {
+					id := s[0]
+					sr := s[1]
+					if id == "readerSR" {
+						firstReaderSr <- sr
+						channelNameReceived++
+					} else if id == "writerSR" {
+						firstWriterSr <- sr
+						channelNameReceived++
+					}
+				}
 			}
 		}
 	}()

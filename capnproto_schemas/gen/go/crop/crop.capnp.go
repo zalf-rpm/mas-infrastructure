@@ -11,311 +11,8 @@ import (
 	context "context"
 	fmt "fmt"
 	common "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common"
+	persistence "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/persistence"
 )
-
-type Cultivar uint16
-
-// Cultivar_TypeID is the unique identifier for the type Cultivar.
-const Cultivar_TypeID = 0xdd81b0520864e2b4
-
-// Values of Cultivar.
-const (
-	Cultivar_alfalfaClovergrassLeyMix Cultivar = 0
-	Cultivar_alfalfa                  Cultivar = 1
-	Cultivar_bacharia                 Cultivar = 2
-	Cultivar_barleySpring             Cultivar = 3
-	Cultivar_barleyWinter             Cultivar = 4
-	Cultivar_cloverGrassLey           Cultivar = 5
-	Cultivar_cottonBrMid              Cultivar = 6
-	Cultivar_cottonLong               Cultivar = 7
-	Cultivar_cottonMid                Cultivar = 8
-	Cultivar_cottonShort              Cultivar = 9
-	Cultivar_einkorn                  Cultivar = 10
-	Cultivar_emmer                    Cultivar = 11
-	Cultivar_fieldPea24               Cultivar = 12
-	Cultivar_fieldPea26               Cultivar = 13
-	Cultivar_grapevine                Cultivar = 14
-	Cultivar_maizeGrain               Cultivar = 15
-	Cultivar_maizeSilage              Cultivar = 16
-	Cultivar_mustard                  Cultivar = 17
-	Cultivar_oatCompound              Cultivar = 18
-	Cultivar_oilRadish                Cultivar = 19
-	Cultivar_phacelia                 Cultivar = 20
-	Cultivar_potatoModeratelyEarly    Cultivar = 21
-	Cultivar_rapeWinter               Cultivar = 22
-	Cultivar_ryeGrass                 Cultivar = 23
-	Cultivar_ryeSilageWinter          Cultivar = 24
-	Cultivar_ryeSpring                Cultivar = 25
-	Cultivar_ryeWinter                Cultivar = 26
-	Cultivar_sorghum                  Cultivar = 27
-	Cultivar_soybean0                 Cultivar = 28
-	Cultivar_soybean00                Cultivar = 29
-	Cultivar_soybean000               Cultivar = 30
-	Cultivar_soybean0000              Cultivar = 31
-	Cultivar_soybeanI                 Cultivar = 32
-	Cultivar_soybeanII                Cultivar = 33
-	Cultivar_soybeanIII               Cultivar = 34
-	Cultivar_soybeanIV                Cultivar = 35
-	Cultivar_soybeanV                 Cultivar = 36
-	Cultivar_soybeanVI                Cultivar = 37
-	Cultivar_soybeanVII               Cultivar = 38
-	Cultivar_soybeanVIII              Cultivar = 39
-	Cultivar_soybeanIX                Cultivar = 40
-	Cultivar_soybeanX                 Cultivar = 41
-	Cultivar_soybeanXI                Cultivar = 42
-	Cultivar_soybeanXII               Cultivar = 43
-	Cultivar_sudanGrass               Cultivar = 44
-	Cultivar_sugarBeet                Cultivar = 45
-	Cultivar_sugarcaneTransplant      Cultivar = 46
-	Cultivar_sugarcaneRatoon          Cultivar = 47
-	Cultivar_tomatoField              Cultivar = 48
-	Cultivar_triticaleSpring          Cultivar = 49
-	Cultivar_triticaleWinter          Cultivar = 50
-	Cultivar_wheatDurum               Cultivar = 51
-	Cultivar_wheatSpring              Cultivar = 52
-	Cultivar_wheatWinter              Cultivar = 53
-)
-
-// String returns the enum's constant name.
-func (c Cultivar) String() string {
-	switch c {
-	case Cultivar_alfalfaClovergrassLeyMix:
-		return "alfalfaClovergrassLeyMix"
-	case Cultivar_alfalfa:
-		return "alfalfa"
-	case Cultivar_bacharia:
-		return "bacharia"
-	case Cultivar_barleySpring:
-		return "barleySpring"
-	case Cultivar_barleyWinter:
-		return "barleyWinter"
-	case Cultivar_cloverGrassLey:
-		return "cloverGrassLey"
-	case Cultivar_cottonBrMid:
-		return "cottonBrMid"
-	case Cultivar_cottonLong:
-		return "cottonLong"
-	case Cultivar_cottonMid:
-		return "cottonMid"
-	case Cultivar_cottonShort:
-		return "cottonShort"
-	case Cultivar_einkorn:
-		return "einkorn"
-	case Cultivar_emmer:
-		return "emmer"
-	case Cultivar_fieldPea24:
-		return "fieldPea24"
-	case Cultivar_fieldPea26:
-		return "fieldPea26"
-	case Cultivar_grapevine:
-		return "grapevine"
-	case Cultivar_maizeGrain:
-		return "maizeGrain"
-	case Cultivar_maizeSilage:
-		return "maizeSilage"
-	case Cultivar_mustard:
-		return "mustard"
-	case Cultivar_oatCompound:
-		return "oatCompound"
-	case Cultivar_oilRadish:
-		return "oilRadish"
-	case Cultivar_phacelia:
-		return "phacelia"
-	case Cultivar_potatoModeratelyEarly:
-		return "potatoModeratelyEarly"
-	case Cultivar_rapeWinter:
-		return "rapeWinter"
-	case Cultivar_ryeGrass:
-		return "ryeGrass"
-	case Cultivar_ryeSilageWinter:
-		return "ryeSilageWinter"
-	case Cultivar_ryeSpring:
-		return "ryeSpring"
-	case Cultivar_ryeWinter:
-		return "ryeWinter"
-	case Cultivar_sorghum:
-		return "sorghum"
-	case Cultivar_soybean0:
-		return "soybean0"
-	case Cultivar_soybean00:
-		return "soybean00"
-	case Cultivar_soybean000:
-		return "soybean000"
-	case Cultivar_soybean0000:
-		return "soybean0000"
-	case Cultivar_soybeanI:
-		return "soybeanI"
-	case Cultivar_soybeanII:
-		return "soybeanII"
-	case Cultivar_soybeanIII:
-		return "soybeanIII"
-	case Cultivar_soybeanIV:
-		return "soybeanIV"
-	case Cultivar_soybeanV:
-		return "soybeanV"
-	case Cultivar_soybeanVI:
-		return "soybeanVI"
-	case Cultivar_soybeanVII:
-		return "soybeanVII"
-	case Cultivar_soybeanVIII:
-		return "soybeanVIII"
-	case Cultivar_soybeanIX:
-		return "soybeanIX"
-	case Cultivar_soybeanX:
-		return "soybeanX"
-	case Cultivar_soybeanXI:
-		return "soybeanXI"
-	case Cultivar_soybeanXII:
-		return "soybeanXII"
-	case Cultivar_sudanGrass:
-		return "sudanGrass"
-	case Cultivar_sugarBeet:
-		return "sugarBeet"
-	case Cultivar_sugarcaneTransplant:
-		return "sugarcaneTransplant"
-	case Cultivar_sugarcaneRatoon:
-		return "sugarcaneRatoon"
-	case Cultivar_tomatoField:
-		return "tomatoField"
-	case Cultivar_triticaleSpring:
-		return "triticaleSpring"
-	case Cultivar_triticaleWinter:
-		return "triticaleWinter"
-	case Cultivar_wheatDurum:
-		return "wheatDurum"
-	case Cultivar_wheatSpring:
-		return "wheatSpring"
-	case Cultivar_wheatWinter:
-		return "wheatWinter"
-
-	default:
-		return ""
-	}
-}
-
-// CultivarFromString returns the enum value with a name,
-// or the zero value if there's no such value.
-func CultivarFromString(c string) Cultivar {
-	switch c {
-	case "alfalfaClovergrassLeyMix":
-		return Cultivar_alfalfaClovergrassLeyMix
-	case "alfalfa":
-		return Cultivar_alfalfa
-	case "bacharia":
-		return Cultivar_bacharia
-	case "barleySpring":
-		return Cultivar_barleySpring
-	case "barleyWinter":
-		return Cultivar_barleyWinter
-	case "cloverGrassLey":
-		return Cultivar_cloverGrassLey
-	case "cottonBrMid":
-		return Cultivar_cottonBrMid
-	case "cottonLong":
-		return Cultivar_cottonLong
-	case "cottonMid":
-		return Cultivar_cottonMid
-	case "cottonShort":
-		return Cultivar_cottonShort
-	case "einkorn":
-		return Cultivar_einkorn
-	case "emmer":
-		return Cultivar_emmer
-	case "fieldPea24":
-		return Cultivar_fieldPea24
-	case "fieldPea26":
-		return Cultivar_fieldPea26
-	case "grapevine":
-		return Cultivar_grapevine
-	case "maizeGrain":
-		return Cultivar_maizeGrain
-	case "maizeSilage":
-		return Cultivar_maizeSilage
-	case "mustard":
-		return Cultivar_mustard
-	case "oatCompound":
-		return Cultivar_oatCompound
-	case "oilRadish":
-		return Cultivar_oilRadish
-	case "phacelia":
-		return Cultivar_phacelia
-	case "potatoModeratelyEarly":
-		return Cultivar_potatoModeratelyEarly
-	case "rapeWinter":
-		return Cultivar_rapeWinter
-	case "ryeGrass":
-		return Cultivar_ryeGrass
-	case "ryeSilageWinter":
-		return Cultivar_ryeSilageWinter
-	case "ryeSpring":
-		return Cultivar_ryeSpring
-	case "ryeWinter":
-		return Cultivar_ryeWinter
-	case "sorghum":
-		return Cultivar_sorghum
-	case "soybean0":
-		return Cultivar_soybean0
-	case "soybean00":
-		return Cultivar_soybean00
-	case "soybean000":
-		return Cultivar_soybean000
-	case "soybean0000":
-		return Cultivar_soybean0000
-	case "soybeanI":
-		return Cultivar_soybeanI
-	case "soybeanII":
-		return Cultivar_soybeanII
-	case "soybeanIII":
-		return Cultivar_soybeanIII
-	case "soybeanIV":
-		return Cultivar_soybeanIV
-	case "soybeanV":
-		return Cultivar_soybeanV
-	case "soybeanVI":
-		return Cultivar_soybeanVI
-	case "soybeanVII":
-		return Cultivar_soybeanVII
-	case "soybeanVIII":
-		return Cultivar_soybeanVIII
-	case "soybeanIX":
-		return Cultivar_soybeanIX
-	case "soybeanX":
-		return Cultivar_soybeanX
-	case "soybeanXI":
-		return Cultivar_soybeanXI
-	case "soybeanXII":
-		return Cultivar_soybeanXII
-	case "sudanGrass":
-		return Cultivar_sudanGrass
-	case "sugarBeet":
-		return Cultivar_sugarBeet
-	case "sugarcaneTransplant":
-		return Cultivar_sugarcaneTransplant
-	case "sugarcaneRatoon":
-		return Cultivar_sugarcaneRatoon
-	case "tomatoField":
-		return Cultivar_tomatoField
-	case "triticaleSpring":
-		return Cultivar_triticaleSpring
-	case "triticaleWinter":
-		return Cultivar_triticaleWinter
-	case "wheatDurum":
-		return Cultivar_wheatDurum
-	case "wheatSpring":
-		return Cultivar_wheatSpring
-	case "wheatWinter":
-		return Cultivar_wheatWinter
-
-	default:
-		return 0
-	}
-}
-
-type Cultivar_List = capnp.EnumList[Cultivar]
-
-func NewCultivar_List(s *capnp.Segment, sz int32) (Cultivar_List, error) {
-	return capnp.NewEnumList[Cultivar](s, sz)
-}
 
 type Crop capnp.Client
 
@@ -385,6 +82,22 @@ func (c Crop) Info(ctx context.Context, params func(common.Identifiable_info_Par
 	}
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+}
+func (c Crop) Save(ctx context.Context, params func(persistence.Persistent_SaveParams) error) (persistence.Persistent_SaveResults_Future, capnp.ReleaseFunc) {
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0xc1a7daa0dc36cb65,
+			MethodID:      0,
+			InterfaceName: "persistence.capnp:Persistent",
+			MethodName:    "save",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams(s)) }
+	}
+	ans, release := capnp.Client(c).SendCall(ctx, s)
+	return persistence.Persistent_SaveResults_Future{Future: ans.Future()}, release
 }
 
 // String returns a string that identifies this capability for debugging
@@ -461,6 +174,8 @@ type Crop_Server interface {
 	Species(context.Context, Crop_species) error
 
 	Info(context.Context, common.Identifiable_info) error
+
+	Save(context.Context, persistence.Persistent_save) error
 }
 
 // Crop_NewServer creates a new Server from an implementation of Crop_Server.
@@ -479,7 +194,7 @@ func Crop_ServerToClient(s Crop_Server) Crop {
 // This can be used to create a more complicated Server.
 func Crop_Methods(methods []server.Method, s Crop_Server) []server.Method {
 	if cap(methods) == 0 {
-		methods = make([]server.Method, 0, 4)
+		methods = make([]server.Method, 0, 5)
 	}
 
 	methods = append(methods, server.Method{
@@ -527,6 +242,18 @@ func Crop_Methods(methods []server.Method, s Crop_Server) []server.Method {
 		},
 		Impl: func(ctx context.Context, call *server.Call) error {
 			return s.Info(ctx, common.Identifiable_info{call})
+		},
+	})
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
+			InterfaceID:   0xc1a7daa0dc36cb65,
+			MethodID:      0,
+			InterfaceName: "persistence.capnp:Persistent",
+			MethodName:    "save",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.Save(ctx, persistence.Persistent_save{call})
 		},
 	})
 
@@ -1049,85 +776,41 @@ func (p Crop_species_Results_Future) Info() common.IdInformation_Future {
 	return common.IdInformation_Future{Future: p.Future.Field(0, nil)}
 }
 
-const schema_f98a24e1969df972 = "x\xda\xa4U]lTE\x14>g\xeen\x87\xffv" +
-	"{\xc0\x0a\x82\x88\xb6*hq[@\x02\x91\xb4\x16\x11" +
-	"\x96\xd0\xa4\xdbb)\xf8\x93Lw\x87\xed\xe8\xdd{\xaf" +
-	"s\xefV\x97\x04\x1b\x88\x9ah\xa2OF_\xf4\x05\xe3" +
-	"\x83&F%\xf8\xa0\xc6\x10\x1e\x8c?\x84\x07\xa2$j" +
-	"R\x0dF\x13y\xd0\x04\xa3\x0f%\xea\x98\x99\xed\xb6\x17" +
-	"I|1i2\xe7;\xdf\xf7\x9d3\x9d\xbd9'?" +
-	"\xc4\xfa3=K\xb7\xb6\x00+\xee\xc9\xb6\x98=\xe5\xef" +
-	"~}\xe4\xb9\xb7NA\xae\x0d\x01\xb2\xc8\x016\xa1\xc7" +
-	"\x10\x90\xb2^\x1f\xa0\xf9\xf0\xa5\xce7>\xcal=\x9d" +
-	"\x16ty\x8b\xac\xa0\xdb\x09\x1e|\xf1\x9ed\x19\x06\x9f" +
-	"5\x04\x19\xcb\x0fz\xed\x08\x19s\xea\x87\xf2\x82\xe1w" +
-	"\x8fMCn13z\xe6\xb5\x97/v>?\x03\x80" +
-	"\xb4\xc5;A;<\xab\xdc\xe6ud\x01\xcd\xb3\xfb\x8b" +
-	"\xdd\xfa\xcf+?\xa6\x9b\x14\xf9*\xdb\xe4 \xb7M\x9e" +
-	"~\xe8t\xe7\xeb\xaf\xbc\xf03\xe4\x16{W\x95\xaa\xf3" +
-	"\xe3t\x94s\x00\xaa\xf3Oi\x86w\x00\x98#\xc5S" +
-	"\xdfw\\\x0e~K\xdd\xe8\x12g\xeeF\xf9\x9e\x0d\xbd" +
-	"\xab\xa7\x7f\x9fg\xe8\x1c\xbf\x02\xda\x94t\x18m,\x89" +
-	"\xc8\x0b\xa2\xed;m\x1cG\xb2\xa4d\xdc9,\xe3\x9a" +
-	"\x9f\xc4P\xccx\x19\x80\x0c\x02\xe4\x96n\x00(.\xf0" +
-	"\xb0\xb8\x9ca\xab\x0a\x0e\x87\xd8f\xbe\xfc\xd6\xfb\xfb\xec" +
-	"Sg\xbf\x02@l\x03\xbc\xb6^\xa9\xe6'jR\xe8" +
-	"\xb9\x82\xff\xbbb$\xb4\xa8\xcaD\xea\xb8s\xc8\x86\x18" +
-	"\xcfi\xd0jlC>)\xf4\x10b\xf1kd\x00t" +
-	"\x8c}a\xab\xd13l\x00\x00\x19\x1de{\x01\xd0\xa3" +
-	":{\x14\x003Tsg\x96\x1egG\x00\xb0\x85\xaa" +
-	"l\x1c\x009)v\x08\x00\x17\x90d\xc3\x00\xb8\x90\x84" +
-	"\xcb/\xa2\x87]\x9d\xc5\xf4\x00\xeb\x05\xc0%4\xe8t" +
-	"K\xa9\xe0\xcee\xb4\xcb\xe9[\xe9^\x87\xdbh\x87\xf3" +
-	"\xe5h\x9b\xf3\xb5S\x8f\xc3D\xddN\xb7\x9c\xd6\xbb\xfb" +
-	"\xac\xa0.v\x12\x00\xaf\xa3.\xe7\xeb\xa0u.\x7f=" +
-	"\xada\xc7\x01p%\xadt\xfaU\xb4\xc2\x9d7P\xce" +
-	"\xd5[M\x0b\x9dn\x0de]\xfeFB\xe7_K\x7f" +
-	"\xa1\xeds\x13\xcd\xa0\xe5\xd7\xd1\x1fh\xf9\x9b\xe92Z" +
-	"\xfe\x16\xfa\xc5\xe1N\xba\xe4\xf8.\xfa\xc9\xe1[\xe9\xa2" +
-	"\xe3o\xa3i\xe7\xbf\x9d\xbeq\xf9\xf5t\xc1\xe96\xd0" +
-	"y\x87\xef\xa0sNw'}\xee\xcen\xfa\xc4\xe57" +
-	"\xd2\x19<\x01\x80w\xd1\x19\xb4\xf7\xce\xd3\xc7\xaeN\x0f" +
-	"}\xe0p/\xbd\xef\xceM\xf4\x9e\xf3m\xa6\xb7\x1d\xbf" +
-	"\x85\xde\xb4\xa7\x11\xfea\xfb\xb7\x93\xf9\xe1\xa4\xd4\x15-" +
-	"\xe2x\x9f\xac\x0f\xaa'\x01\xa6f93.J\x13B" +
-	"+\x01\x00f\\h_\xd6G\"h\xd5*\xa8\xcc\xc2" +
-	"\x03\x0aZ\x83DjSrUvk\xe8k\xd41\xa5" +
-	"0I\xc2`@\x03\x1fT\xe5Y\xb4/\x04/\xa8\xcc" +
-	"\x82A\x05\xd8$F&\x80\x87:\x99\x92*x,\xd4" +
-	"\xc1ZY\xadJm\x0e+\xe9\x97\x87\xa4\x00\xafws" +
-	"\x1a\xdcm*ZDrR\x05\x80\xd2T\x85:\"w" +
-	"k\x01\x9e\x0a\x1a`D\xf9\xc0EENUkq\"" +
-	"t\xd9\x84\"\xd9\x19V\xa3\x10x-(\x9bP\xf9\xc3" +
-	"\xa2\xacb\xc0\x09\x13M\x88\x92\xf4\x1b\xff`\x14&\"" +
-	"\x09\x07C,K-\x12\xe9\xd7\xd7\xee\x12\xda\xaf\x1b\xdb" +
-	"\xeb\x80\x0a\x12\xf0\xa46\xban{\xc5\xb15\xe8\xbam" +
-	"%*\xcc\xd1R\x83MDZ\x05X\xb1\x9cK\x02\xea" +
-	"\xa98\xd4\x95\x89Z\xd5\xc4a}\\\x8a o\xbds" +
-	"1\xe6\xe7c/\x9f\x02<?\x8f\x0a)K\x01\xb00" +
-	"\x1f{\x85\x14\xc0\xd1f<\x9a2\x8c\xa6\x0c\xa3i\xc3" +
-	"(\xf0\xc2U\xf6\xb1f<\x96\xb2\x8f\xa5\xecc\x0d{" +
-	"\xad,\x02\xf7\xe2ql\xe2ZE\xe8\x01)\x01\x93F" +
-	"\\\x12\x01\xca\xfdZ\x04q\xe4s\x11\xccg\x99\x1c\x16" +
-	"I\x18\x06\x90\x84U\x91\x84\xf7+.\xfd\xb2I\xb4J" +
-	"TI\xf8\x99\xc6\xd3U\xa0\x99h>\xea\x13\x13R$" +
-	"\xf7\xd5\xb4W\xab\x1a\x17\x8fD\x1a\xb8\xfd\x04\x1d:\xa0" +
-	"\x02\xe0\xee\x0b\xfc\x8f\x01\xe6\x86\xa2\x97\xc4\xe9\x99\xb8}" +
-	"~&\xf69i\x8c\xed\xc0\xb0=5\x0bq\xb6\x14\xd8" +
-	"\x19\xb7\xc4\xcb\"\x9b\xdbF\xd8\\)\xb9\xe2!`\xb9" +
-	"\x02G\x9c\xdb\x0b\xd8\xdci\xb9\x1d{\x81\xe5\xb6p\x80" +
-	"\xb9\xcd\x80\xcd\x85\x98[?\x00,\xb7\x86\x9b\xe65\xc1" +
-	"\xd3q?\x9a\xe6 \x07\x80~\x9c\x9a]\x13\xfdX\xcc" +
-	" \x9a\x0b{^=x\xf6\xfc;'\xed\xaf\xd3\xbcc" +
-	"\xcb5\x1b\xc0M\xeb\x18\x9a\x82\x7fo\x9c\xbe\x06\xffO" +
-	"\x00\x00\x00\xff\xff\xd8T=w"
+const schema_f98a24e1969df972 = "x\xda\xa4\x92?h\x14A\x18\xc5\xdf\x9b\x9d\xc9%j" +
+	"\xf4\xe6V\x10E\x0baA\x0c(9E\x85\xa0\xdcE" +
+	"\x11\xa2UFl\xfc\x83p\x9c+\x1c\xc4\xcb\xb2\xb3\xb1" +
+	"\xb0P\x10\x11\x14\xb4\x12m\x0c\x08\"\x82\x8d \xd7D" +
+	"\x8b\x90J\xe1*Q\x9b\xe0\x1f\x04\x05m\x04E\x84\x04" +
+	"qd/\xd9\xcbb\xc0\xc6\xee\x83\xef\xf7\xbd7\xbc7" +
+	"\x83S\xac\xcar\xbf\xeb\x830\x89\xeaq#\xa7\xdf}" +
+	"=u\xf5a\x0b\xbaH@\xb1\x00\xec\xfc$\x05A\xff" +
+	"\x8b\xac\x80\xee\xc9\xcd\xe0\xfeS\xb9g:\x0f\xf4\xa9\x15" +
+	")\xa0U\x0a\x9c\xb8\xb17Y\xcd\xe6\xf3\x05@\xa6\xfb" +
+	"\xb2*\x11\xd2]9j\xb6\xc5\xbf\xe6?\xe6O\xd7\xab" +
+	"\x0d\xe9\xe9\xe6\xce\xe9\xe5\x93\xd3\xc1\xbd\xdb\xd7?C\xaf" +
+	"\xf4\\<7y\xebCpm\x0e\xa0?\xac.\xf9\x07" +
+	"U\x01\xf0\x87\xd53\x7fFm\x01\xdcy\xd3z\xbf\xee" +
+	"[\xf3{\xcegJ\x89\xd4\xa75X\x1e\xd8\xb1\xf1\xed" +
+	"\x8f\xa5\x8d?\xa9\xe6\xf1\xd3\xd5\xe3\xf1h{\xbd\x16y" +
+	"\xcdh\xe8@:\xdb(\xac7B\x1b\x1c\x09\xed\xc4X" +
+	"ba\xa4'\x01I@\xf7\x0f\x00\xa6\xd7\xa3Y+\xb8" +
+	"\xa6\xd1<3\xce\xa2{9\xeb\xfdn_h\xbf\x02\xc8" +
+	"\"\xb8\\\xaf>1\x964\xce\xd5\xe2\xae\xe0\x7f+F" +
+	"\xb5\xb8v6L\xc2\xd8\x06\xa3\xe9H\xfbO\xa6\xe3\xeb" +
+	"%6o;\xb4d[\xe9\xa0\x96%\x08\x96rv\\" +
+	"\x94\xc2(iVy\x8a\xa2[#\xb3\xd6\xb49\x0e\xa1" +
+	"\x0f\x15\xc8n\xf4\xcc>\x83\xdew\x18B\xef*\x00\xdd" +
+	"\xf0\x99\xfd$\xbdu?\x84\xdeTp\xd93\xe1\xc5\xb6" +
+	"J\x97e\x05\xa0\xca\x8b\x8bMTizI\xf7z\xe4" +
+	"\xce\xb1\xf6\x8bG\x8f\x01\xb8\xb0\xbd\xfb\xcd\xdd\xd9\x073" +
+	"\xe9\x9c\xbd\xb7gY\xe0\x9dp,2\xe0\xef\x82+\x0b" +
+	"\xfb?\x01\x00\x00\xff\xffQ\xef\xe0}"
 
 func init() {
 	schemas.Register(schema_f98a24e1969df972,
 		0xb4aa895eeede6448,
 		0xbf3704bba52494ba,
 		0xc86e010e743c8e5b,
-		0xdd81b0520864e2b4,
 		0xe4fafc722d515486,
 		0xe88d97a324bf5c84,
 		0xf26ef117dfb4517a,

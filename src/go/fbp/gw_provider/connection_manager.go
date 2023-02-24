@@ -198,7 +198,7 @@ func (cm *ConnectionManager) connect(sturdyRef interface{}) (*capnp.Client, erro
 		}(errC, cm.connStoppedChan, urlPath)
 
 		// get Bootstrap
-		connection := rpc.NewConn(rpc.NewPackedStreamTransport(conn), &rpc.Options{ErrorReporter: &ConnError{Out: errC}})
+		connection := rpc.NewConn(rpc.NewStreamTransport(conn), &rpc.Options{ErrorReporter: &ConnError{Out: errC}})
 		client := connection.Bootstrap(context.Background())
 		cm.bootstraps[urlPath] = &client
 	}

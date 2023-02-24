@@ -13,6 +13,7 @@ import (
 	common "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common"
 	crop "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/crop"
 	geo "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/geo"
+	persistence "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/persistence"
 	math "math"
 	strconv "strconv"
 )
@@ -837,12 +838,12 @@ type Params_Sowing capnp.Struct
 const Params_Sowing_TypeID = 0x80ce153f3bc9a9e8
 
 func NewParams_Sowing(s *capnp.Segment) (Params_Sowing, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 2})
 	return Params_Sowing(st), err
 }
 
 func NewRootParams_Sowing(s *capnp.Segment) (Params_Sowing, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 2})
 	return Params_Sowing(st), err
 }
 
@@ -878,38 +879,48 @@ func (s Params_Sowing) Message() *capnp.Message {
 func (s Params_Sowing) Segment() *capnp.Segment {
 	return capnp.Struct(s).Segment()
 }
-func (s Params_Sowing) Cultivar() crop.Cultivar {
-	return crop.Cultivar(capnp.Struct(s).Uint16(0))
+func (s Params_Sowing) Cultivar() (string, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return p.Text(), err
 }
 
-func (s Params_Sowing) SetCultivar(v crop.Cultivar) {
-	capnp.Struct(s).SetUint16(0, uint16(v))
+func (s Params_Sowing) HasCultivar() bool {
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Params_Sowing) CultivarBytes() ([]byte, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return p.TextBytes(), err
+}
+
+func (s Params_Sowing) SetCultivar(v string) error {
+	return capnp.Struct(s).SetText(0, v)
 }
 
 func (s Params_Sowing) PlantDensity() uint16 {
-	return capnp.Struct(s).Uint16(2)
+	return capnp.Struct(s).Uint16(0)
 }
 
 func (s Params_Sowing) SetPlantDensity(v uint16) {
-	capnp.Struct(s).SetUint16(2, v)
+	capnp.Struct(s).SetUint16(0, v)
 }
 
 func (s Params_Sowing) Crop() crop.Crop {
-	p, _ := capnp.Struct(s).Ptr(0)
+	p, _ := capnp.Struct(s).Ptr(1)
 	return crop.Crop(p.Interface().Client())
 }
 
 func (s Params_Sowing) HasCrop() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return capnp.Struct(s).HasPtr(1)
 }
 
 func (s Params_Sowing) SetCrop(v crop.Crop) error {
 	if !v.IsValid() {
-		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
+		return capnp.Struct(s).SetPtr(1, capnp.Ptr{})
 	}
 	seg := s.Segment()
 	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
-	return capnp.Struct(s).SetPtr(0, in.ToPtr())
+	return capnp.Struct(s).SetPtr(1, in.ToPtr())
 }
 
 // Params_Sowing_List is a list of Params_Sowing.
@@ -917,7 +928,7 @@ type Params_Sowing_List = capnp.StructList[Params_Sowing]
 
 // NewParams_Sowing creates a new list of Params_Sowing.
 func NewParams_Sowing_List(s *capnp.Segment, sz int32) (Params_Sowing_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1}, sz)
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 2}, sz)
 	return capnp.StructList[Params_Sowing](l), err
 }
 
@@ -929,7 +940,7 @@ func (f Params_Sowing_Future) Struct() (Params_Sowing, error) {
 	return Params_Sowing(p.Struct()), err
 }
 func (p Params_Sowing_Future) Crop() crop.Crop {
-	return crop.Crop(p.Future.Field(0, nil).Client())
+	return crop.Crop(p.Future.Field(1, nil).Client())
 }
 
 type Params_AutomaticSowing capnp.Struct
@@ -1927,28 +1938,22 @@ func (s Params_MineralFertilization) Message() *capnp.Message {
 func (s Params_MineralFertilization) Segment() *capnp.Segment {
 	return capnp.Struct(s).Segment()
 }
-func (s Params_MineralFertilization) Partition() (Params_MineralFertilization_Parameters, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return Params_MineralFertilization_Parameters(p.Struct()), err
+func (s Params_MineralFertilization) Fertilizer() Fertilizer {
+	p, _ := capnp.Struct(s).Ptr(0)
+	return Fertilizer(p.Interface().Client())
 }
 
-func (s Params_MineralFertilization) HasPartition() bool {
+func (s Params_MineralFertilization) HasFertilizer() bool {
 	return capnp.Struct(s).HasPtr(0)
 }
 
-func (s Params_MineralFertilization) SetPartition(v Params_MineralFertilization_Parameters) error {
-	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
-}
-
-// NewPartition sets the partition field to a newly
-// allocated Params_MineralFertilization_Parameters struct, preferring placement in s's segment.
-func (s Params_MineralFertilization) NewPartition() (Params_MineralFertilization_Parameters, error) {
-	ss, err := NewParams_MineralFertilization_Parameters(capnp.Struct(s).Segment())
-	if err != nil {
-		return Params_MineralFertilization_Parameters{}, err
+func (s Params_MineralFertilization) SetFertilizer(v Fertilizer) error {
+	if !v.IsValid() {
+		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
-	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
-	return ss, err
+	seg := s.Segment()
+	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
 func (s Params_MineralFertilization) Amount() float64 {
@@ -1975,132 +1980,8 @@ func (f Params_MineralFertilization_Future) Struct() (Params_MineralFertilizatio
 	p, err := f.Future.Ptr()
 	return Params_MineralFertilization(p.Struct()), err
 }
-func (p Params_MineralFertilization_Future) Partition() Params_MineralFertilization_Parameters_Future {
-	return Params_MineralFertilization_Parameters_Future{Future: p.Future.Field(0, nil)}
-}
-
-type Params_MineralFertilization_Parameters capnp.Struct
-
-// Params_MineralFertilization_Parameters_TypeID is the unique identifier for the type Params_MineralFertilization_Parameters.
-const Params_MineralFertilization_Parameters_TypeID = 0xfcd78361390515e1
-
-func NewParams_MineralFertilization_Parameters(s *capnp.Segment) (Params_MineralFertilization_Parameters, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 24, PointerCount: 2})
-	return Params_MineralFertilization_Parameters(st), err
-}
-
-func NewRootParams_MineralFertilization_Parameters(s *capnp.Segment) (Params_MineralFertilization_Parameters, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 24, PointerCount: 2})
-	return Params_MineralFertilization_Parameters(st), err
-}
-
-func ReadRootParams_MineralFertilization_Parameters(msg *capnp.Message) (Params_MineralFertilization_Parameters, error) {
-	root, err := msg.Root()
-	return Params_MineralFertilization_Parameters(root.Struct()), err
-}
-
-func (s Params_MineralFertilization_Parameters) String() string {
-	str, _ := text.Marshal(0xfcd78361390515e1, capnp.Struct(s))
-	return str
-}
-
-func (s Params_MineralFertilization_Parameters) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Params_MineralFertilization_Parameters) DecodeFromPtr(p capnp.Ptr) Params_MineralFertilization_Parameters {
-	return Params_MineralFertilization_Parameters(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Params_MineralFertilization_Parameters) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Params_MineralFertilization_Parameters) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Params_MineralFertilization_Parameters) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Params_MineralFertilization_Parameters) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-func (s Params_MineralFertilization_Parameters) Id() (string, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return p.Text(), err
-}
-
-func (s Params_MineralFertilization_Parameters) HasId() bool {
-	return capnp.Struct(s).HasPtr(0)
-}
-
-func (s Params_MineralFertilization_Parameters) IdBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return p.TextBytes(), err
-}
-
-func (s Params_MineralFertilization_Parameters) SetId(v string) error {
-	return capnp.Struct(s).SetText(0, v)
-}
-
-func (s Params_MineralFertilization_Parameters) Name() (string, error) {
-	p, err := capnp.Struct(s).Ptr(1)
-	return p.Text(), err
-}
-
-func (s Params_MineralFertilization_Parameters) HasName() bool {
-	return capnp.Struct(s).HasPtr(1)
-}
-
-func (s Params_MineralFertilization_Parameters) NameBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(1)
-	return p.TextBytes(), err
-}
-
-func (s Params_MineralFertilization_Parameters) SetName(v string) error {
-	return capnp.Struct(s).SetText(1, v)
-}
-
-func (s Params_MineralFertilization_Parameters) Carbamid() float64 {
-	return math.Float64frombits(capnp.Struct(s).Uint64(0))
-}
-
-func (s Params_MineralFertilization_Parameters) SetCarbamid(v float64) {
-	capnp.Struct(s).SetUint64(0, math.Float64bits(v))
-}
-
-func (s Params_MineralFertilization_Parameters) Nh4() float64 {
-	return math.Float64frombits(capnp.Struct(s).Uint64(8))
-}
-
-func (s Params_MineralFertilization_Parameters) SetNh4(v float64) {
-	capnp.Struct(s).SetUint64(8, math.Float64bits(v))
-}
-
-func (s Params_MineralFertilization_Parameters) No3() float64 {
-	return math.Float64frombits(capnp.Struct(s).Uint64(16))
-}
-
-func (s Params_MineralFertilization_Parameters) SetNo3(v float64) {
-	capnp.Struct(s).SetUint64(16, math.Float64bits(v))
-}
-
-// Params_MineralFertilization_Parameters_List is a list of Params_MineralFertilization_Parameters.
-type Params_MineralFertilization_Parameters_List = capnp.StructList[Params_MineralFertilization_Parameters]
-
-// NewParams_MineralFertilization_Parameters creates a new list of Params_MineralFertilization_Parameters.
-func NewParams_MineralFertilization_Parameters_List(s *capnp.Segment, sz int32) (Params_MineralFertilization_Parameters_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 24, PointerCount: 2}, sz)
-	return capnp.StructList[Params_MineralFertilization_Parameters](l), err
-}
-
-// Params_MineralFertilization_Parameters_Future is a wrapper for a Params_MineralFertilization_Parameters promised by a client call.
-type Params_MineralFertilization_Parameters_Future struct{ *capnp.Future }
-
-func (f Params_MineralFertilization_Parameters_Future) Struct() (Params_MineralFertilization_Parameters, error) {
-	p, err := f.Future.Ptr()
-	return Params_MineralFertilization_Parameters(p.Struct()), err
+func (p Params_MineralFertilization_Future) Fertilizer() Fertilizer {
+	return Fertilizer(p.Future.Field(0, nil).Client())
 }
 
 type Params_NDemandFertilization capnp.Struct
@@ -2158,28 +2039,22 @@ func (s Params_NDemandFertilization) SetNDemand(v float64) {
 	capnp.Struct(s).SetUint64(0, math.Float64bits(v))
 }
 
-func (s Params_NDemandFertilization) Partition() (Params_MineralFertilization_Parameters, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return Params_MineralFertilization_Parameters(p.Struct()), err
+func (s Params_NDemandFertilization) Fertilizer() Fertilizer {
+	p, _ := capnp.Struct(s).Ptr(0)
+	return Fertilizer(p.Interface().Client())
 }
 
-func (s Params_NDemandFertilization) HasPartition() bool {
+func (s Params_NDemandFertilization) HasFertilizer() bool {
 	return capnp.Struct(s).HasPtr(0)
 }
 
-func (s Params_NDemandFertilization) SetPartition(v Params_MineralFertilization_Parameters) error {
-	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
-}
-
-// NewPartition sets the partition field to a newly
-// allocated Params_MineralFertilization_Parameters struct, preferring placement in s's segment.
-func (s Params_NDemandFertilization) NewPartition() (Params_MineralFertilization_Parameters, error) {
-	ss, err := NewParams_MineralFertilization_Parameters(capnp.Struct(s).Segment())
-	if err != nil {
-		return Params_MineralFertilization_Parameters{}, err
+func (s Params_NDemandFertilization) SetFertilizer(v Fertilizer) error {
+	if !v.IsValid() {
+		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
-	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
-	return ss, err
+	seg := s.Segment()
+	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
 func (s Params_NDemandFertilization) Depth() float64 {
@@ -2214,8 +2089,8 @@ func (f Params_NDemandFertilization_Future) Struct() (Params_NDemandFertilizatio
 	p, err := f.Future.Ptr()
 	return Params_NDemandFertilization(p.Struct()), err
 }
-func (p Params_NDemandFertilization_Future) Partition() Params_MineralFertilization_Parameters_Future {
-	return Params_MineralFertilization_Parameters_Future{Future: p.Future.Field(0, nil)}
+func (p Params_NDemandFertilization_Future) Fertilizer() Fertilizer {
+	return Fertilizer(p.Future.Field(0, nil).Client())
 }
 
 type Params_OrganicFertilization capnp.Struct
@@ -2265,28 +2140,22 @@ func (s Params_OrganicFertilization) Message() *capnp.Message {
 func (s Params_OrganicFertilization) Segment() *capnp.Segment {
 	return capnp.Struct(s).Segment()
 }
-func (s Params_OrganicFertilization) Params() (Params_OrganicFertilization_Parameters, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return Params_OrganicFertilization_Parameters(p.Struct()), err
+func (s Params_OrganicFertilization) Fertilizer() Fertilizer {
+	p, _ := capnp.Struct(s).Ptr(0)
+	return Fertilizer(p.Interface().Client())
 }
 
-func (s Params_OrganicFertilization) HasParams() bool {
+func (s Params_OrganicFertilization) HasFertilizer() bool {
 	return capnp.Struct(s).HasPtr(0)
 }
 
-func (s Params_OrganicFertilization) SetParams(v Params_OrganicFertilization_Parameters) error {
-	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
-}
-
-// NewParams sets the params field to a newly
-// allocated Params_OrganicFertilization_Parameters struct, preferring placement in s's segment.
-func (s Params_OrganicFertilization) NewParams() (Params_OrganicFertilization_Parameters, error) {
-	ss, err := NewParams_OrganicFertilization_Parameters(capnp.Struct(s).Segment())
-	if err != nil {
-		return Params_OrganicFertilization_Parameters{}, err
+func (s Params_OrganicFertilization) SetFertilizer(v Fertilizer) error {
+	if !v.IsValid() {
+		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
-	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
-	return ss, err
+	seg := s.Segment()
+	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
 func (s Params_OrganicFertilization) Amount() float64 {
@@ -2321,303 +2190,8 @@ func (f Params_OrganicFertilization_Future) Struct() (Params_OrganicFertilizatio
 	p, err := f.Future.Ptr()
 	return Params_OrganicFertilization(p.Struct()), err
 }
-func (p Params_OrganicFertilization_Future) Params() Params_OrganicFertilization_Parameters_Future {
-	return Params_OrganicFertilization_Parameters_Future{Future: p.Future.Field(0, nil)}
-}
-
-type Params_OrganicFertilization_OrganicMatterParameters capnp.Struct
-
-// Params_OrganicFertilization_OrganicMatterParameters_TypeID is the unique identifier for the type Params_OrganicFertilization_OrganicMatterParameters.
-const Params_OrganicFertilization_OrganicMatterParameters_TypeID = 0x962b157a9dc85681
-
-func NewParams_OrganicFertilization_OrganicMatterParameters(s *capnp.Segment) (Params_OrganicFertilization_OrganicMatterParameters, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 104, PointerCount: 0})
-	return Params_OrganicFertilization_OrganicMatterParameters(st), err
-}
-
-func NewRootParams_OrganicFertilization_OrganicMatterParameters(s *capnp.Segment) (Params_OrganicFertilization_OrganicMatterParameters, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 104, PointerCount: 0})
-	return Params_OrganicFertilization_OrganicMatterParameters(st), err
-}
-
-func ReadRootParams_OrganicFertilization_OrganicMatterParameters(msg *capnp.Message) (Params_OrganicFertilization_OrganicMatterParameters, error) {
-	root, err := msg.Root()
-	return Params_OrganicFertilization_OrganicMatterParameters(root.Struct()), err
-}
-
-func (s Params_OrganicFertilization_OrganicMatterParameters) String() string {
-	str, _ := text.Marshal(0x962b157a9dc85681, capnp.Struct(s))
-	return str
-}
-
-func (s Params_OrganicFertilization_OrganicMatterParameters) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Params_OrganicFertilization_OrganicMatterParameters) DecodeFromPtr(p capnp.Ptr) Params_OrganicFertilization_OrganicMatterParameters {
-	return Params_OrganicFertilization_OrganicMatterParameters(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Params_OrganicFertilization_OrganicMatterParameters) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Params_OrganicFertilization_OrganicMatterParameters) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Params_OrganicFertilization_OrganicMatterParameters) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Params_OrganicFertilization_OrganicMatterParameters) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-func (s Params_OrganicFertilization_OrganicMatterParameters) AomDryMatterContent() float64 {
-	return math.Float64frombits(capnp.Struct(s).Uint64(0))
-}
-
-func (s Params_OrganicFertilization_OrganicMatterParameters) SetAomDryMatterContent(v float64) {
-	capnp.Struct(s).SetUint64(0, math.Float64bits(v))
-}
-
-func (s Params_OrganicFertilization_OrganicMatterParameters) AomNH4Content() float64 {
-	return math.Float64frombits(capnp.Struct(s).Uint64(8))
-}
-
-func (s Params_OrganicFertilization_OrganicMatterParameters) SetAomNH4Content(v float64) {
-	capnp.Struct(s).SetUint64(8, math.Float64bits(v))
-}
-
-func (s Params_OrganicFertilization_OrganicMatterParameters) AomNO3Content() float64 {
-	return math.Float64frombits(capnp.Struct(s).Uint64(16))
-}
-
-func (s Params_OrganicFertilization_OrganicMatterParameters) SetAomNO3Content(v float64) {
-	capnp.Struct(s).SetUint64(16, math.Float64bits(v))
-}
-
-func (s Params_OrganicFertilization_OrganicMatterParameters) AomCarbamidContent() float64 {
-	return math.Float64frombits(capnp.Struct(s).Uint64(24))
-}
-
-func (s Params_OrganicFertilization_OrganicMatterParameters) SetAomCarbamidContent(v float64) {
-	capnp.Struct(s).SetUint64(24, math.Float64bits(v))
-}
-
-func (s Params_OrganicFertilization_OrganicMatterParameters) AomSlowDecCoeffStandard() float64 {
-	return math.Float64frombits(capnp.Struct(s).Uint64(32))
-}
-
-func (s Params_OrganicFertilization_OrganicMatterParameters) SetAomSlowDecCoeffStandard(v float64) {
-	capnp.Struct(s).SetUint64(32, math.Float64bits(v))
-}
-
-func (s Params_OrganicFertilization_OrganicMatterParameters) AomFastDecCoeffStandard() float64 {
-	return math.Float64frombits(capnp.Struct(s).Uint64(40))
-}
-
-func (s Params_OrganicFertilization_OrganicMatterParameters) SetAomFastDecCoeffStandard(v float64) {
-	capnp.Struct(s).SetUint64(40, math.Float64bits(v))
-}
-
-func (s Params_OrganicFertilization_OrganicMatterParameters) PartAOMToAOMSlow() float64 {
-	return math.Float64frombits(capnp.Struct(s).Uint64(48))
-}
-
-func (s Params_OrganicFertilization_OrganicMatterParameters) SetPartAOMToAOMSlow(v float64) {
-	capnp.Struct(s).SetUint64(48, math.Float64bits(v))
-}
-
-func (s Params_OrganicFertilization_OrganicMatterParameters) PartAOMToAOMFast() float64 {
-	return math.Float64frombits(capnp.Struct(s).Uint64(56))
-}
-
-func (s Params_OrganicFertilization_OrganicMatterParameters) SetPartAOMToAOMFast(v float64) {
-	capnp.Struct(s).SetUint64(56, math.Float64bits(v))
-}
-
-func (s Params_OrganicFertilization_OrganicMatterParameters) CnRatioAOMSlow() float64 {
-	return math.Float64frombits(capnp.Struct(s).Uint64(64))
-}
-
-func (s Params_OrganicFertilization_OrganicMatterParameters) SetCnRatioAOMSlow(v float64) {
-	capnp.Struct(s).SetUint64(64, math.Float64bits(v))
-}
-
-func (s Params_OrganicFertilization_OrganicMatterParameters) CnRatioAOMFast() float64 {
-	return math.Float64frombits(capnp.Struct(s).Uint64(72))
-}
-
-func (s Params_OrganicFertilization_OrganicMatterParameters) SetCnRatioAOMFast(v float64) {
-	capnp.Struct(s).SetUint64(72, math.Float64bits(v))
-}
-
-func (s Params_OrganicFertilization_OrganicMatterParameters) PartAOMSlowToSMBSlow() float64 {
-	return math.Float64frombits(capnp.Struct(s).Uint64(80))
-}
-
-func (s Params_OrganicFertilization_OrganicMatterParameters) SetPartAOMSlowToSMBSlow(v float64) {
-	capnp.Struct(s).SetUint64(80, math.Float64bits(v))
-}
-
-func (s Params_OrganicFertilization_OrganicMatterParameters) PartAOMSlowToSMBFast() float64 {
-	return math.Float64frombits(capnp.Struct(s).Uint64(88))
-}
-
-func (s Params_OrganicFertilization_OrganicMatterParameters) SetPartAOMSlowToSMBFast(v float64) {
-	capnp.Struct(s).SetUint64(88, math.Float64bits(v))
-}
-
-func (s Params_OrganicFertilization_OrganicMatterParameters) NConcentration() float64 {
-	return math.Float64frombits(capnp.Struct(s).Uint64(96))
-}
-
-func (s Params_OrganicFertilization_OrganicMatterParameters) SetNConcentration(v float64) {
-	capnp.Struct(s).SetUint64(96, math.Float64bits(v))
-}
-
-// Params_OrganicFertilization_OrganicMatterParameters_List is a list of Params_OrganicFertilization_OrganicMatterParameters.
-type Params_OrganicFertilization_OrganicMatterParameters_List = capnp.StructList[Params_OrganicFertilization_OrganicMatterParameters]
-
-// NewParams_OrganicFertilization_OrganicMatterParameters creates a new list of Params_OrganicFertilization_OrganicMatterParameters.
-func NewParams_OrganicFertilization_OrganicMatterParameters_List(s *capnp.Segment, sz int32) (Params_OrganicFertilization_OrganicMatterParameters_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 104, PointerCount: 0}, sz)
-	return capnp.StructList[Params_OrganicFertilization_OrganicMatterParameters](l), err
-}
-
-// Params_OrganicFertilization_OrganicMatterParameters_Future is a wrapper for a Params_OrganicFertilization_OrganicMatterParameters promised by a client call.
-type Params_OrganicFertilization_OrganicMatterParameters_Future struct{ *capnp.Future }
-
-func (f Params_OrganicFertilization_OrganicMatterParameters_Future) Struct() (Params_OrganicFertilization_OrganicMatterParameters, error) {
-	p, err := f.Future.Ptr()
-	return Params_OrganicFertilization_OrganicMatterParameters(p.Struct()), err
-}
-
-type Params_OrganicFertilization_Parameters capnp.Struct
-
-// Params_OrganicFertilization_Parameters_TypeID is the unique identifier for the type Params_OrganicFertilization_Parameters.
-const Params_OrganicFertilization_Parameters_TypeID = 0xb0919989cca2fd9a
-
-func NewParams_OrganicFertilization_Parameters(s *capnp.Segment) (Params_OrganicFertilization_Parameters, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 3})
-	return Params_OrganicFertilization_Parameters(st), err
-}
-
-func NewRootParams_OrganicFertilization_Parameters(s *capnp.Segment) (Params_OrganicFertilization_Parameters, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 3})
-	return Params_OrganicFertilization_Parameters(st), err
-}
-
-func ReadRootParams_OrganicFertilization_Parameters(msg *capnp.Message) (Params_OrganicFertilization_Parameters, error) {
-	root, err := msg.Root()
-	return Params_OrganicFertilization_Parameters(root.Struct()), err
-}
-
-func (s Params_OrganicFertilization_Parameters) String() string {
-	str, _ := text.Marshal(0xb0919989cca2fd9a, capnp.Struct(s))
-	return str
-}
-
-func (s Params_OrganicFertilization_Parameters) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Params_OrganicFertilization_Parameters) DecodeFromPtr(p capnp.Ptr) Params_OrganicFertilization_Parameters {
-	return Params_OrganicFertilization_Parameters(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Params_OrganicFertilization_Parameters) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Params_OrganicFertilization_Parameters) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Params_OrganicFertilization_Parameters) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Params_OrganicFertilization_Parameters) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-func (s Params_OrganicFertilization_Parameters) Params() (Params_OrganicFertilization_OrganicMatterParameters, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return Params_OrganicFertilization_OrganicMatterParameters(p.Struct()), err
-}
-
-func (s Params_OrganicFertilization_Parameters) HasParams() bool {
-	return capnp.Struct(s).HasPtr(0)
-}
-
-func (s Params_OrganicFertilization_Parameters) SetParams(v Params_OrganicFertilization_OrganicMatterParameters) error {
-	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
-}
-
-// NewParams sets the params field to a newly
-// allocated Params_OrganicFertilization_OrganicMatterParameters struct, preferring placement in s's segment.
-func (s Params_OrganicFertilization_Parameters) NewParams() (Params_OrganicFertilization_OrganicMatterParameters, error) {
-	ss, err := NewParams_OrganicFertilization_OrganicMatterParameters(capnp.Struct(s).Segment())
-	if err != nil {
-		return Params_OrganicFertilization_OrganicMatterParameters{}, err
-	}
-	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
-	return ss, err
-}
-
-func (s Params_OrganicFertilization_Parameters) Id() (string, error) {
-	p, err := capnp.Struct(s).Ptr(1)
-	return p.Text(), err
-}
-
-func (s Params_OrganicFertilization_Parameters) HasId() bool {
-	return capnp.Struct(s).HasPtr(1)
-}
-
-func (s Params_OrganicFertilization_Parameters) IdBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(1)
-	return p.TextBytes(), err
-}
-
-func (s Params_OrganicFertilization_Parameters) SetId(v string) error {
-	return capnp.Struct(s).SetText(1, v)
-}
-
-func (s Params_OrganicFertilization_Parameters) Name() (string, error) {
-	p, err := capnp.Struct(s).Ptr(2)
-	return p.Text(), err
-}
-
-func (s Params_OrganicFertilization_Parameters) HasName() bool {
-	return capnp.Struct(s).HasPtr(2)
-}
-
-func (s Params_OrganicFertilization_Parameters) NameBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(2)
-	return p.TextBytes(), err
-}
-
-func (s Params_OrganicFertilization_Parameters) SetName(v string) error {
-	return capnp.Struct(s).SetText(2, v)
-}
-
-// Params_OrganicFertilization_Parameters_List is a list of Params_OrganicFertilization_Parameters.
-type Params_OrganicFertilization_Parameters_List = capnp.StructList[Params_OrganicFertilization_Parameters]
-
-// NewParams_OrganicFertilization_Parameters creates a new list of Params_OrganicFertilization_Parameters.
-func NewParams_OrganicFertilization_Parameters_List(s *capnp.Segment, sz int32) (Params_OrganicFertilization_Parameters_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 3}, sz)
-	return capnp.StructList[Params_OrganicFertilization_Parameters](l), err
-}
-
-// Params_OrganicFertilization_Parameters_Future is a wrapper for a Params_OrganicFertilization_Parameters promised by a client call.
-type Params_OrganicFertilization_Parameters_Future struct{ *capnp.Future }
-
-func (f Params_OrganicFertilization_Parameters_Future) Struct() (Params_OrganicFertilization_Parameters, error) {
-	p, err := f.Future.Ptr()
-	return Params_OrganicFertilization_Parameters(p.Struct()), err
-}
-func (p Params_OrganicFertilization_Parameters_Future) Params() Params_OrganicFertilization_OrganicMatterParameters_Future {
-	return Params_OrganicFertilization_OrganicMatterParameters_Future{Future: p.Future.Field(0, nil)}
+func (p Params_OrganicFertilization_Future) Fertilizer() Fertilizer {
+	return Fertilizer(p.Future.Field(0, nil).Client())
 }
 
 type Params_Tillage capnp.Struct
@@ -2747,28 +2321,28 @@ func (s Params_Irrigation) SetAmount(v float64) {
 	capnp.Struct(s).SetUint64(0, math.Float64bits(v))
 }
 
-func (s Params_Irrigation) Params() (Params_Irrigation_Parameters, error) {
+func (s Params_Irrigation) NutrientConcentrations() (Nutrient_List, error) {
 	p, err := capnp.Struct(s).Ptr(0)
-	return Params_Irrigation_Parameters(p.Struct()), err
+	return Nutrient_List(p.List()), err
 }
 
-func (s Params_Irrigation) HasParams() bool {
+func (s Params_Irrigation) HasNutrientConcentrations() bool {
 	return capnp.Struct(s).HasPtr(0)
 }
 
-func (s Params_Irrigation) SetParams(v Params_Irrigation_Parameters) error {
-	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+func (s Params_Irrigation) SetNutrientConcentrations(v Nutrient_List) error {
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
 }
 
-// NewParams sets the params field to a newly
-// allocated Params_Irrigation_Parameters struct, preferring placement in s's segment.
-func (s Params_Irrigation) NewParams() (Params_Irrigation_Parameters, error) {
-	ss, err := NewParams_Irrigation_Parameters(capnp.Struct(s).Segment())
+// NewNutrientConcentrations sets the nutrientConcentrations field to a newly
+// allocated Nutrient_List, preferring placement in s's segment.
+func (s Params_Irrigation) NewNutrientConcentrations(n int32) (Nutrient_List, error) {
+	l, err := NewNutrient_List(capnp.Struct(s).Segment(), n)
 	if err != nil {
-		return Params_Irrigation_Parameters{}, err
+		return Nutrient_List{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
-	return ss, err
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	return l, err
 }
 
 // Params_Irrigation_List is a list of Params_Irrigation.
@@ -2787,89 +2361,6 @@ func (f Params_Irrigation_Future) Struct() (Params_Irrigation, error) {
 	p, err := f.Future.Ptr()
 	return Params_Irrigation(p.Struct()), err
 }
-func (p Params_Irrigation_Future) Params() Params_Irrigation_Parameters_Future {
-	return Params_Irrigation_Parameters_Future{Future: p.Future.Field(0, nil)}
-}
-
-type Params_Irrigation_Parameters capnp.Struct
-
-// Params_Irrigation_Parameters_TypeID is the unique identifier for the type Params_Irrigation_Parameters.
-const Params_Irrigation_Parameters_TypeID = 0xb991be9572278e2d
-
-func NewParams_Irrigation_Parameters(s *capnp.Segment) (Params_Irrigation_Parameters, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0})
-	return Params_Irrigation_Parameters(st), err
-}
-
-func NewRootParams_Irrigation_Parameters(s *capnp.Segment) (Params_Irrigation_Parameters, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0})
-	return Params_Irrigation_Parameters(st), err
-}
-
-func ReadRootParams_Irrigation_Parameters(msg *capnp.Message) (Params_Irrigation_Parameters, error) {
-	root, err := msg.Root()
-	return Params_Irrigation_Parameters(root.Struct()), err
-}
-
-func (s Params_Irrigation_Parameters) String() string {
-	str, _ := text.Marshal(0xb991be9572278e2d, capnp.Struct(s))
-	return str
-}
-
-func (s Params_Irrigation_Parameters) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Params_Irrigation_Parameters) DecodeFromPtr(p capnp.Ptr) Params_Irrigation_Parameters {
-	return Params_Irrigation_Parameters(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Params_Irrigation_Parameters) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Params_Irrigation_Parameters) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Params_Irrigation_Parameters) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Params_Irrigation_Parameters) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-func (s Params_Irrigation_Parameters) NitrateConcentration() float64 {
-	return math.Float64frombits(capnp.Struct(s).Uint64(0))
-}
-
-func (s Params_Irrigation_Parameters) SetNitrateConcentration(v float64) {
-	capnp.Struct(s).SetUint64(0, math.Float64bits(v))
-}
-
-func (s Params_Irrigation_Parameters) SulfateConcentration() float64 {
-	return math.Float64frombits(capnp.Struct(s).Uint64(8))
-}
-
-func (s Params_Irrigation_Parameters) SetSulfateConcentration(v float64) {
-	capnp.Struct(s).SetUint64(8, math.Float64bits(v))
-}
-
-// Params_Irrigation_Parameters_List is a list of Params_Irrigation_Parameters.
-type Params_Irrigation_Parameters_List = capnp.StructList[Params_Irrigation_Parameters]
-
-// NewParams_Irrigation_Parameters creates a new list of Params_Irrigation_Parameters.
-func NewParams_Irrigation_Parameters_List(s *capnp.Segment, sz int32) (Params_Irrigation_Parameters_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0}, sz)
-	return capnp.StructList[Params_Irrigation_Parameters](l), err
-}
-
-// Params_Irrigation_Parameters_Future is a wrapper for a Params_Irrigation_Parameters promised by a client call.
-type Params_Irrigation_Parameters_Future struct{ *capnp.Future }
-
-func (f Params_Irrigation_Parameters_Future) Struct() (Params_Irrigation_Parameters, error) {
-	p, err := f.Future.Ptr()
-	return Params_Irrigation_Parameters(p.Struct()), err
-}
 
 type Nutrient capnp.Struct
 
@@ -2877,12 +2368,12 @@ type Nutrient capnp.Struct
 const Nutrient_TypeID = 0xaafe4332e17aa43e
 
 func NewNutrient(s *capnp.Segment) (Nutrient, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0})
 	return Nutrient(st), err
 }
 
 func NewRootNutrient(s *capnp.Segment) (Nutrient, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0})
 	return Nutrient(st), err
 }
 
@@ -2926,6 +2417,14 @@ func (s Nutrient) SetNutrient(v Nutrient_Name) {
 	capnp.Struct(s).SetUint16(0, uint16(v))
 }
 
+func (s Nutrient) Value() float64 {
+	return math.Float64frombits(capnp.Struct(s).Uint64(8))
+}
+
+func (s Nutrient) SetValue(v float64) {
+	capnp.Struct(s).SetUint64(8, math.Float64bits(v))
+}
+
 func (s Nutrient) Unit() Nutrient_Unit {
 	return Nutrient_Unit(capnp.Struct(s).Uint16(2))
 }
@@ -2939,7 +2438,7 @@ type Nutrient_List = capnp.StructList[Nutrient]
 
 // NewNutrient creates a new list of Nutrient.
 func NewNutrient_List(s *capnp.Segment, sz int32) (Nutrient_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0}, sz)
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0}, sz)
 	return capnp.StructList[Nutrient](l), err
 }
 
@@ -2964,7 +2463,7 @@ const (
 	Nutrient_Name_phosphorus   Nutrient_Name = 3
 	Nutrient_Name_potassium    Nutrient_Name = 4
 	Nutrient_Name_sulfate      Nutrient_Name = 5
-	Nutrient_Name_organiceC    Nutrient_Name = 6
+	Nutrient_Name_organicC     Nutrient_Name = 6
 	Nutrient_Name_organicN     Nutrient_Name = 7
 	Nutrient_Name_organicP     Nutrient_Name = 8
 	Nutrient_Name_organicNFast Nutrient_Name = 9
@@ -2986,8 +2485,8 @@ func (c Nutrient_Name) String() string {
 		return "potassium"
 	case Nutrient_Name_sulfate:
 		return "sulfate"
-	case Nutrient_Name_organiceC:
-		return "organiceC"
+	case Nutrient_Name_organicC:
+		return "organicC"
 	case Nutrient_Name_organicN:
 		return "organicN"
 	case Nutrient_Name_organicP:
@@ -3018,8 +2517,8 @@ func Nutrient_NameFromString(c string) Nutrient_Name {
 		return Nutrient_Name_potassium
 	case "sulfate":
 		return Nutrient_Name_sulfate
-	case "organiceC":
-		return Nutrient_Name_organiceC
+	case "organicC":
+		return Nutrient_Name_organicC
 	case "organicN":
 		return Nutrient_Name_organicN
 	case "organicP":
@@ -3047,17 +2546,20 @@ const Nutrient_Unit_TypeID = 0x987b68b57edbbdb6
 
 // Values of Nutrient_Unit.
 const (
-	Nutrient_Unit_percent  Nutrient_Unit = 0
+	Nutrient_Unit_none     Nutrient_Unit = 0
 	Nutrient_Unit_fraction Nutrient_Unit = 1
+	Nutrient_Unit_percent  Nutrient_Unit = 2
 )
 
 // String returns the enum's constant name.
 func (c Nutrient_Unit) String() string {
 	switch c {
-	case Nutrient_Unit_percent:
-		return "percent"
+	case Nutrient_Unit_none:
+		return "none"
 	case Nutrient_Unit_fraction:
 		return "fraction"
+	case Nutrient_Unit_percent:
+		return "percent"
 
 	default:
 		return ""
@@ -3068,10 +2570,12 @@ func (c Nutrient_Unit) String() string {
 // or the zero value if there's no such value.
 func Nutrient_UnitFromString(c string) Nutrient_Unit {
 	switch c {
-	case "percent":
-		return Nutrient_Unit_percent
+	case "none":
+		return Nutrient_Unit_none
 	case "fraction":
 		return Nutrient_Unit_fraction
+	case "percent":
+		return Nutrient_Unit_percent
 
 	default:
 		return 0
@@ -3084,76 +2588,44 @@ func NewNutrient_Unit_List(s *capnp.Segment, sz int32) (Nutrient_Unit_List, erro
 	return capnp.NewEnumList[Nutrient_Unit](s, sz)
 }
 
-type FertilizerService capnp.Client
+type Fertilizer capnp.Client
 
-// FertilizerService_TypeID is the unique identifier for the type FertilizerService.
-const FertilizerService_TypeID = 0xbbb7aeae0d097e05
+// Fertilizer_TypeID is the unique identifier for the type Fertilizer.
+const Fertilizer_TypeID = 0x8c4cb8d60ae5aec7
 
-func (c FertilizerService) AvailableMineralFertilizers(ctx context.Context, params func(FertilizerService_availableMineralFertilizers_Params) error) (FertilizerService_availableMineralFertilizers_Results_Future, capnp.ReleaseFunc) {
+func (c Fertilizer) Nutrients(ctx context.Context, params func(Fertilizer_nutrients_Params) error) (Fertilizer_nutrients_Results_Future, capnp.ReleaseFunc) {
 	s := capnp.Send{
 		Method: capnp.Method{
-			InterfaceID:   0xbbb7aeae0d097e05,
+			InterfaceID:   0x8c4cb8d60ae5aec7,
 			MethodID:      0,
-			InterfaceName: "management.capnp:FertilizerService",
-			MethodName:    "availableMineralFertilizers",
+			InterfaceName: "management.capnp:Fertilizer",
+			MethodName:    "nutrients",
 		},
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(FertilizerService_availableMineralFertilizers_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Fertilizer_nutrients_Params(s)) }
 	}
 	ans, release := capnp.Client(c).SendCall(ctx, s)
-	return FertilizerService_availableMineralFertilizers_Results_Future{Future: ans.Future()}, release
+	return Fertilizer_nutrients_Results_Future{Future: ans.Future()}, release
 }
-func (c FertilizerService) MineralFertilizer(ctx context.Context, params func(FertilizerService_mineralFertilizer_Params) error) (FertilizerService_mineralFertilizer_Results_Future, capnp.ReleaseFunc) {
+func (c Fertilizer) Parameters(ctx context.Context, params func(Fertilizer_parameters_Params) error) (Fertilizer_parameters_Results_Future, capnp.ReleaseFunc) {
 	s := capnp.Send{
 		Method: capnp.Method{
-			InterfaceID:   0xbbb7aeae0d097e05,
+			InterfaceID:   0x8c4cb8d60ae5aec7,
 			MethodID:      1,
-			InterfaceName: "management.capnp:FertilizerService",
-			MethodName:    "mineralFertilizer",
-		},
-	}
-	if params != nil {
-		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(FertilizerService_mineralFertilizer_Params(s)) }
-	}
-	ans, release := capnp.Client(c).SendCall(ctx, s)
-	return FertilizerService_mineralFertilizer_Results_Future{Future: ans.Future()}, release
-}
-func (c FertilizerService) AvailableOrganicFertilizers(ctx context.Context, params func(FertilizerService_availableOrganicFertilizers_Params) error) (FertilizerService_availableOrganicFertilizers_Results_Future, capnp.ReleaseFunc) {
-	s := capnp.Send{
-		Method: capnp.Method{
-			InterfaceID:   0xbbb7aeae0d097e05,
-			MethodID:      2,
-			InterfaceName: "management.capnp:FertilizerService",
-			MethodName:    "availableOrganicFertilizers",
+			InterfaceName: "management.capnp:Fertilizer",
+			MethodName:    "parameters",
 		},
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(FertilizerService_availableOrganicFertilizers_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Fertilizer_parameters_Params(s)) }
 	}
 	ans, release := capnp.Client(c).SendCall(ctx, s)
-	return FertilizerService_availableOrganicFertilizers_Results_Future{Future: ans.Future()}, release
+	return Fertilizer_parameters_Results_Future{Future: ans.Future()}, release
 }
-func (c FertilizerService) OrganicFertilizer(ctx context.Context, params func(FertilizerService_organicFertilizer_Params) error) (FertilizerService_organicFertilizer_Results_Future, capnp.ReleaseFunc) {
-	s := capnp.Send{
-		Method: capnp.Method{
-			InterfaceID:   0xbbb7aeae0d097e05,
-			MethodID:      3,
-			InterfaceName: "management.capnp:FertilizerService",
-			MethodName:    "organicFertilizer",
-		},
-	}
-	if params != nil {
-		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(FertilizerService_organicFertilizer_Params(s)) }
-	}
-	ans, release := capnp.Client(c).SendCall(ctx, s)
-	return FertilizerService_organicFertilizer_Results_Future{Future: ans.Future()}, release
-}
-func (c FertilizerService) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+func (c Fertilizer) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -3169,19 +2641,35 @@ func (c FertilizerService) Info(ctx context.Context, params func(common.Identifi
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
 }
+func (c Fertilizer) Save(ctx context.Context, params func(persistence.Persistent_SaveParams) error) (persistence.Persistent_SaveResults_Future, capnp.ReleaseFunc) {
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0xc1a7daa0dc36cb65,
+			MethodID:      0,
+			InterfaceName: "persistence.capnp:Persistent",
+			MethodName:    "save",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams(s)) }
+	}
+	ans, release := capnp.Client(c).SendCall(ctx, s)
+	return persistence.Persistent_SaveResults_Future{Future: ans.Future()}, release
+}
 
 // String returns a string that identifies this capability for debugging
 // purposes.  Its format should not be depended on: in particular, it
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
-func (c FertilizerService) String() string {
+func (c Fertilizer) String() string {
 	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
 // If c is nil or has resolved to null, then AddRef returns nil.
-func (c FertilizerService) AddRef() FertilizerService {
-	return FertilizerService(capnp.Client(c).AddRef())
+func (c Fertilizer) AddRef() Fertilizer {
+	return Fertilizer(capnp.Client(c).AddRef())
 }
 
 // Release releases a capability reference.  If this is the last
@@ -3190,28 +2678,28 @@ func (c FertilizerService) AddRef() FertilizerService {
 //
 // Release will panic if c has already been released, but not if c is
 // nil or resolved to null.
-func (c FertilizerService) Release() {
+func (c Fertilizer) Release() {
 	capnp.Client(c).Release()
 }
 
 // Resolve blocks until the capability is fully resolved or the Context
 // expires.
-func (c FertilizerService) Resolve(ctx context.Context) error {
+func (c Fertilizer) Resolve(ctx context.Context) error {
 	return capnp.Client(c).Resolve(ctx)
 }
 
-func (c FertilizerService) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+func (c Fertilizer) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
 	return capnp.Client(c).EncodeAsPtr(seg)
 }
 
-func (FertilizerService) DecodeFromPtr(p capnp.Ptr) FertilizerService {
-	return FertilizerService(capnp.Client{}.DecodeFromPtr(p))
+func (Fertilizer) DecodeFromPtr(p capnp.Ptr) Fertilizer {
+	return Fertilizer(capnp.Client{}.DecodeFromPtr(p))
 }
 
 // IsValid reports whether c is a valid reference to a capability.
 // A reference is invalid if it is nil, has resolved to null, or has
 // been released.
-func (c FertilizerService) IsValid() bool {
+func (c Fertilizer) IsValid() bool {
 	return capnp.Client(c).IsValid()
 }
 
@@ -3219,7 +2707,7 @@ func (c FertilizerService) IsValid() bool {
 // same call to NewClient.  This can return false negatives if c or other
 // are not fully resolved: use Resolve if this is an issue.  If either
 // c or other are released, then IsSame panics.
-func (c FertilizerService) IsSame(other FertilizerService) bool {
+func (c Fertilizer) IsSame(other Fertilizer) bool {
 	return capnp.Client(c).IsSame(capnp.Client(other))
 }
 
@@ -3227,91 +2715,65 @@ func (c FertilizerService) IsSame(other FertilizerService) bool {
 // this client. This affects all future calls, but not calls already
 // waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
 // which is also the default.
-func (c FertilizerService) SetFlowLimiter(lim fc.FlowLimiter) {
+func (c Fertilizer) SetFlowLimiter(lim fc.FlowLimiter) {
 	capnp.Client(c).SetFlowLimiter(lim)
 }
 
 // Get the current flowcontrol.FlowLimiter used to manage flow control
 // for this client.
-func (c FertilizerService) GetFlowLimiter() fc.FlowLimiter {
+func (c Fertilizer) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A FertilizerService_Server is a FertilizerService with a local implementation.
-type FertilizerService_Server interface {
-	AvailableMineralFertilizers(context.Context, FertilizerService_availableMineralFertilizers) error
+} // A Fertilizer_Server is a Fertilizer with a local implementation.
+type Fertilizer_Server interface {
+	Nutrients(context.Context, Fertilizer_nutrients) error
 
-	MineralFertilizer(context.Context, FertilizerService_mineralFertilizer) error
-
-	AvailableOrganicFertilizers(context.Context, FertilizerService_availableOrganicFertilizers) error
-
-	OrganicFertilizer(context.Context, FertilizerService_organicFertilizer) error
+	Parameters(context.Context, Fertilizer_parameters) error
 
 	Info(context.Context, common.Identifiable_info) error
+
+	Save(context.Context, persistence.Persistent_save) error
 }
 
-// FertilizerService_NewServer creates a new Server from an implementation of FertilizerService_Server.
-func FertilizerService_NewServer(s FertilizerService_Server) *server.Server {
+// Fertilizer_NewServer creates a new Server from an implementation of Fertilizer_Server.
+func Fertilizer_NewServer(s Fertilizer_Server) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(FertilizerService_Methods(nil, s), s, c)
+	return server.New(Fertilizer_Methods(nil, s), s, c)
 }
 
-// FertilizerService_ServerToClient creates a new Client from an implementation of FertilizerService_Server.
+// Fertilizer_ServerToClient creates a new Client from an implementation of Fertilizer_Server.
 // The caller is responsible for calling Release on the returned Client.
-func FertilizerService_ServerToClient(s FertilizerService_Server) FertilizerService {
-	return FertilizerService(capnp.NewClient(FertilizerService_NewServer(s)))
+func Fertilizer_ServerToClient(s Fertilizer_Server) Fertilizer {
+	return Fertilizer(capnp.NewClient(Fertilizer_NewServer(s)))
 }
 
-// FertilizerService_Methods appends Methods to a slice that invoke the methods on s.
+// Fertilizer_Methods appends Methods to a slice that invoke the methods on s.
 // This can be used to create a more complicated Server.
-func FertilizerService_Methods(methods []server.Method, s FertilizerService_Server) []server.Method {
+func Fertilizer_Methods(methods []server.Method, s Fertilizer_Server) []server.Method {
 	if cap(methods) == 0 {
-		methods = make([]server.Method, 0, 5)
+		methods = make([]server.Method, 0, 4)
 	}
 
 	methods = append(methods, server.Method{
 		Method: capnp.Method{
-			InterfaceID:   0xbbb7aeae0d097e05,
+			InterfaceID:   0x8c4cb8d60ae5aec7,
 			MethodID:      0,
-			InterfaceName: "management.capnp:FertilizerService",
-			MethodName:    "availableMineralFertilizers",
+			InterfaceName: "management.capnp:Fertilizer",
+			MethodName:    "nutrients",
 		},
 		Impl: func(ctx context.Context, call *server.Call) error {
-			return s.AvailableMineralFertilizers(ctx, FertilizerService_availableMineralFertilizers{call})
+			return s.Nutrients(ctx, Fertilizer_nutrients{call})
 		},
 	})
 
 	methods = append(methods, server.Method{
 		Method: capnp.Method{
-			InterfaceID:   0xbbb7aeae0d097e05,
+			InterfaceID:   0x8c4cb8d60ae5aec7,
 			MethodID:      1,
-			InterfaceName: "management.capnp:FertilizerService",
-			MethodName:    "mineralFertilizer",
+			InterfaceName: "management.capnp:Fertilizer",
+			MethodName:    "parameters",
 		},
 		Impl: func(ctx context.Context, call *server.Call) error {
-			return s.MineralFertilizer(ctx, FertilizerService_mineralFertilizer{call})
-		},
-	})
-
-	methods = append(methods, server.Method{
-		Method: capnp.Method{
-			InterfaceID:   0xbbb7aeae0d097e05,
-			MethodID:      2,
-			InterfaceName: "management.capnp:FertilizerService",
-			MethodName:    "availableOrganicFertilizers",
-		},
-		Impl: func(ctx context.Context, call *server.Call) error {
-			return s.AvailableOrganicFertilizers(ctx, FertilizerService_availableOrganicFertilizers{call})
-		},
-	})
-
-	methods = append(methods, server.Method{
-		Method: capnp.Method{
-			InterfaceID:   0xbbb7aeae0d097e05,
-			MethodID:      3,
-			InterfaceName: "management.capnp:FertilizerService",
-			MethodName:    "organicFertilizer",
-		},
-		Impl: func(ctx context.Context, call *server.Call) error {
-			return s.OrganicFertilizer(ctx, FertilizerService_organicFertilizer{call})
+			return s.Parameters(ctx, Fertilizer_parameters{call})
 		},
 	})
 
@@ -3327,496 +2789,192 @@ func FertilizerService_Methods(methods []server.Method, s FertilizerService_Serv
 		},
 	})
 
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
+			InterfaceID:   0xc1a7daa0dc36cb65,
+			MethodID:      0,
+			InterfaceName: "persistence.capnp:Persistent",
+			MethodName:    "save",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.Save(ctx, persistence.Persistent_save{call})
+		},
+	})
+
 	return methods
 }
 
-// FertilizerService_availableMineralFertilizers holds the state for a server call to FertilizerService.availableMineralFertilizers.
+// Fertilizer_nutrients holds the state for a server call to Fertilizer.nutrients.
 // See server.Call for documentation.
-type FertilizerService_availableMineralFertilizers struct {
+type Fertilizer_nutrients struct {
 	*server.Call
 }
 
 // Args returns the call's arguments.
-func (c FertilizerService_availableMineralFertilizers) Args() FertilizerService_availableMineralFertilizers_Params {
-	return FertilizerService_availableMineralFertilizers_Params(c.Call.Args())
+func (c Fertilizer_nutrients) Args() Fertilizer_nutrients_Params {
+	return Fertilizer_nutrients_Params(c.Call.Args())
 }
 
 // AllocResults allocates the results struct.
-func (c FertilizerService_availableMineralFertilizers) AllocResults() (FertilizerService_availableMineralFertilizers_Results, error) {
+func (c Fertilizer_nutrients) AllocResults() (Fertilizer_nutrients_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return FertilizerService_availableMineralFertilizers_Results(r), err
+	return Fertilizer_nutrients_Results(r), err
 }
 
-// FertilizerService_mineralFertilizer holds the state for a server call to FertilizerService.mineralFertilizer.
+// Fertilizer_parameters holds the state for a server call to Fertilizer.parameters.
 // See server.Call for documentation.
-type FertilizerService_mineralFertilizer struct {
+type Fertilizer_parameters struct {
 	*server.Call
 }
 
 // Args returns the call's arguments.
-func (c FertilizerService_mineralFertilizer) Args() FertilizerService_mineralFertilizer_Params {
-	return FertilizerService_mineralFertilizer_Params(c.Call.Args())
+func (c Fertilizer_parameters) Args() Fertilizer_parameters_Params {
+	return Fertilizer_parameters_Params(c.Call.Args())
 }
 
 // AllocResults allocates the results struct.
-func (c FertilizerService_mineralFertilizer) AllocResults() (FertilizerService_mineralFertilizer_Results, error) {
+func (c Fertilizer_parameters) AllocResults() (Fertilizer_parameters_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return FertilizerService_mineralFertilizer_Results(r), err
+	return Fertilizer_parameters_Results(r), err
 }
 
-// FertilizerService_availableOrganicFertilizers holds the state for a server call to FertilizerService.availableOrganicFertilizers.
-// See server.Call for documentation.
-type FertilizerService_availableOrganicFertilizers struct {
-	*server.Call
-}
+// Fertilizer_List is a list of Fertilizer.
+type Fertilizer_List = capnp.CapList[Fertilizer]
 
-// Args returns the call's arguments.
-func (c FertilizerService_availableOrganicFertilizers) Args() FertilizerService_availableOrganicFertilizers_Params {
-	return FertilizerService_availableOrganicFertilizers_Params(c.Call.Args())
-}
-
-// AllocResults allocates the results struct.
-func (c FertilizerService_availableOrganicFertilizers) AllocResults() (FertilizerService_availableOrganicFertilizers_Results, error) {
-	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return FertilizerService_availableOrganicFertilizers_Results(r), err
-}
-
-// FertilizerService_organicFertilizer holds the state for a server call to FertilizerService.organicFertilizer.
-// See server.Call for documentation.
-type FertilizerService_organicFertilizer struct {
-	*server.Call
-}
-
-// Args returns the call's arguments.
-func (c FertilizerService_organicFertilizer) Args() FertilizerService_organicFertilizer_Params {
-	return FertilizerService_organicFertilizer_Params(c.Call.Args())
-}
-
-// AllocResults allocates the results struct.
-func (c FertilizerService_organicFertilizer) AllocResults() (FertilizerService_organicFertilizer_Results, error) {
-	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return FertilizerService_organicFertilizer_Results(r), err
-}
-
-// FertilizerService_List is a list of FertilizerService.
-type FertilizerService_List = capnp.CapList[FertilizerService]
-
-// NewFertilizerService creates a new list of FertilizerService.
-func NewFertilizerService_List(s *capnp.Segment, sz int32) (FertilizerService_List, error) {
+// NewFertilizer creates a new list of Fertilizer.
+func NewFertilizer_List(s *capnp.Segment, sz int32) (Fertilizer_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
-	return capnp.CapList[FertilizerService](l), err
+	return capnp.CapList[Fertilizer](l), err
 }
 
-type FertilizerService_Entry capnp.Struct
+type Fertilizer_nutrients_Params capnp.Struct
 
-// FertilizerService_Entry_TypeID is the unique identifier for the type FertilizerService_Entry.
-const FertilizerService_Entry_TypeID = 0xb2df3dc668478979
+// Fertilizer_nutrients_Params_TypeID is the unique identifier for the type Fertilizer_nutrients_Params.
+const Fertilizer_nutrients_Params_TypeID = 0xcb5a624fdc982a1b
 
-func NewFertilizerService_Entry(s *capnp.Segment) (FertilizerService_Entry, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return FertilizerService_Entry(st), err
-}
-
-func NewRootFertilizerService_Entry(s *capnp.Segment) (FertilizerService_Entry, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return FertilizerService_Entry(st), err
-}
-
-func ReadRootFertilizerService_Entry(msg *capnp.Message) (FertilizerService_Entry, error) {
-	root, err := msg.Root()
-	return FertilizerService_Entry(root.Struct()), err
-}
-
-func (s FertilizerService_Entry) String() string {
-	str, _ := text.Marshal(0xb2df3dc668478979, capnp.Struct(s))
-	return str
-}
-
-func (s FertilizerService_Entry) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (FertilizerService_Entry) DecodeFromPtr(p capnp.Ptr) FertilizerService_Entry {
-	return FertilizerService_Entry(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s FertilizerService_Entry) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s FertilizerService_Entry) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s FertilizerService_Entry) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s FertilizerService_Entry) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-func (s FertilizerService_Entry) Info() (common.IdInformation, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return common.IdInformation(p.Struct()), err
-}
-
-func (s FertilizerService_Entry) HasInfo() bool {
-	return capnp.Struct(s).HasPtr(0)
-}
-
-func (s FertilizerService_Entry) SetInfo(v common.IdInformation) error {
-	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
-}
-
-// NewInfo sets the info field to a newly
-// allocated common.IdInformation struct, preferring placement in s's segment.
-func (s FertilizerService_Entry) NewInfo() (common.IdInformation, error) {
-	ss, err := common.NewIdInformation(capnp.Struct(s).Segment())
-	if err != nil {
-		return common.IdInformation{}, err
-	}
-	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
-	return ss, err
-}
-
-func (s FertilizerService_Entry) Ref() common.ValueHolder {
-	p, _ := capnp.Struct(s).Ptr(1)
-	return common.ValueHolder(p.Interface().Client())
-}
-
-func (s FertilizerService_Entry) HasRef() bool {
-	return capnp.Struct(s).HasPtr(1)
-}
-
-func (s FertilizerService_Entry) SetRef(v common.ValueHolder) error {
-	if !v.IsValid() {
-		return capnp.Struct(s).SetPtr(1, capnp.Ptr{})
-	}
-	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
-	return capnp.Struct(s).SetPtr(1, in.ToPtr())
-}
-
-// FertilizerService_Entry_List is a list of FertilizerService_Entry.
-type FertilizerService_Entry_List = capnp.StructList[FertilizerService_Entry]
-
-// NewFertilizerService_Entry creates a new list of FertilizerService_Entry.
-func NewFertilizerService_Entry_List(s *capnp.Segment, sz int32) (FertilizerService_Entry_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
-	return capnp.StructList[FertilizerService_Entry](l), err
-}
-
-// FertilizerService_Entry_Future is a wrapper for a FertilizerService_Entry promised by a client call.
-type FertilizerService_Entry_Future struct{ *capnp.Future }
-
-func (f FertilizerService_Entry_Future) Struct() (FertilizerService_Entry, error) {
-	p, err := f.Future.Ptr()
-	return FertilizerService_Entry(p.Struct()), err
-}
-func (p FertilizerService_Entry_Future) Info() common.IdInformation_Future {
-	return common.IdInformation_Future{Future: p.Future.Field(0, nil)}
-}
-func (p FertilizerService_Entry_Future) Ref() common.ValueHolder {
-	return common.ValueHolder(p.Future.Field(1, nil).Client())
-}
-
-type FertilizerService_availableMineralFertilizers_Params capnp.Struct
-
-// FertilizerService_availableMineralFertilizers_Params_TypeID is the unique identifier for the type FertilizerService_availableMineralFertilizers_Params.
-const FertilizerService_availableMineralFertilizers_Params_TypeID = 0xc5292994de2615c2
-
-func NewFertilizerService_availableMineralFertilizers_Params(s *capnp.Segment) (FertilizerService_availableMineralFertilizers_Params, error) {
+func NewFertilizer_nutrients_Params(s *capnp.Segment) (Fertilizer_nutrients_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return FertilizerService_availableMineralFertilizers_Params(st), err
+	return Fertilizer_nutrients_Params(st), err
 }
 
-func NewRootFertilizerService_availableMineralFertilizers_Params(s *capnp.Segment) (FertilizerService_availableMineralFertilizers_Params, error) {
+func NewRootFertilizer_nutrients_Params(s *capnp.Segment) (Fertilizer_nutrients_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return FertilizerService_availableMineralFertilizers_Params(st), err
+	return Fertilizer_nutrients_Params(st), err
 }
 
-func ReadRootFertilizerService_availableMineralFertilizers_Params(msg *capnp.Message) (FertilizerService_availableMineralFertilizers_Params, error) {
+func ReadRootFertilizer_nutrients_Params(msg *capnp.Message) (Fertilizer_nutrients_Params, error) {
 	root, err := msg.Root()
-	return FertilizerService_availableMineralFertilizers_Params(root.Struct()), err
+	return Fertilizer_nutrients_Params(root.Struct()), err
 }
 
-func (s FertilizerService_availableMineralFertilizers_Params) String() string {
-	str, _ := text.Marshal(0xc5292994de2615c2, capnp.Struct(s))
+func (s Fertilizer_nutrients_Params) String() string {
+	str, _ := text.Marshal(0xcb5a624fdc982a1b, capnp.Struct(s))
 	return str
 }
 
-func (s FertilizerService_availableMineralFertilizers_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+func (s Fertilizer_nutrients_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
 	return capnp.Struct(s).EncodeAsPtr(seg)
 }
 
-func (FertilizerService_availableMineralFertilizers_Params) DecodeFromPtr(p capnp.Ptr) FertilizerService_availableMineralFertilizers_Params {
-	return FertilizerService_availableMineralFertilizers_Params(capnp.Struct{}.DecodeFromPtr(p))
+func (Fertilizer_nutrients_Params) DecodeFromPtr(p capnp.Ptr) Fertilizer_nutrients_Params {
+	return Fertilizer_nutrients_Params(capnp.Struct{}.DecodeFromPtr(p))
 }
 
-func (s FertilizerService_availableMineralFertilizers_Params) ToPtr() capnp.Ptr {
+func (s Fertilizer_nutrients_Params) ToPtr() capnp.Ptr {
 	return capnp.Struct(s).ToPtr()
 }
-func (s FertilizerService_availableMineralFertilizers_Params) IsValid() bool {
+func (s Fertilizer_nutrients_Params) IsValid() bool {
 	return capnp.Struct(s).IsValid()
 }
 
-func (s FertilizerService_availableMineralFertilizers_Params) Message() *capnp.Message {
+func (s Fertilizer_nutrients_Params) Message() *capnp.Message {
 	return capnp.Struct(s).Message()
 }
 
-func (s FertilizerService_availableMineralFertilizers_Params) Segment() *capnp.Segment {
+func (s Fertilizer_nutrients_Params) Segment() *capnp.Segment {
 	return capnp.Struct(s).Segment()
 }
 
-// FertilizerService_availableMineralFertilizers_Params_List is a list of FertilizerService_availableMineralFertilizers_Params.
-type FertilizerService_availableMineralFertilizers_Params_List = capnp.StructList[FertilizerService_availableMineralFertilizers_Params]
+// Fertilizer_nutrients_Params_List is a list of Fertilizer_nutrients_Params.
+type Fertilizer_nutrients_Params_List = capnp.StructList[Fertilizer_nutrients_Params]
 
-// NewFertilizerService_availableMineralFertilizers_Params creates a new list of FertilizerService_availableMineralFertilizers_Params.
-func NewFertilizerService_availableMineralFertilizers_Params_List(s *capnp.Segment, sz int32) (FertilizerService_availableMineralFertilizers_Params_List, error) {
+// NewFertilizer_nutrients_Params creates a new list of Fertilizer_nutrients_Params.
+func NewFertilizer_nutrients_Params_List(s *capnp.Segment, sz int32) (Fertilizer_nutrients_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[FertilizerService_availableMineralFertilizers_Params](l), err
+	return capnp.StructList[Fertilizer_nutrients_Params](l), err
 }
 
-// FertilizerService_availableMineralFertilizers_Params_Future is a wrapper for a FertilizerService_availableMineralFertilizers_Params promised by a client call.
-type FertilizerService_availableMineralFertilizers_Params_Future struct{ *capnp.Future }
+// Fertilizer_nutrients_Params_Future is a wrapper for a Fertilizer_nutrients_Params promised by a client call.
+type Fertilizer_nutrients_Params_Future struct{ *capnp.Future }
 
-func (f FertilizerService_availableMineralFertilizers_Params_Future) Struct() (FertilizerService_availableMineralFertilizers_Params, error) {
+func (f Fertilizer_nutrients_Params_Future) Struct() (Fertilizer_nutrients_Params, error) {
 	p, err := f.Future.Ptr()
-	return FertilizerService_availableMineralFertilizers_Params(p.Struct()), err
+	return Fertilizer_nutrients_Params(p.Struct()), err
 }
 
-type FertilizerService_availableMineralFertilizers_Results capnp.Struct
+type Fertilizer_nutrients_Results capnp.Struct
 
-// FertilizerService_availableMineralFertilizers_Results_TypeID is the unique identifier for the type FertilizerService_availableMineralFertilizers_Results.
-const FertilizerService_availableMineralFertilizers_Results_TypeID = 0x81b1cd5c7865e185
+// Fertilizer_nutrients_Results_TypeID is the unique identifier for the type Fertilizer_nutrients_Results.
+const Fertilizer_nutrients_Results_TypeID = 0xae2976259bce5460
 
-func NewFertilizerService_availableMineralFertilizers_Results(s *capnp.Segment) (FertilizerService_availableMineralFertilizers_Results, error) {
+func NewFertilizer_nutrients_Results(s *capnp.Segment) (Fertilizer_nutrients_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return FertilizerService_availableMineralFertilizers_Results(st), err
+	return Fertilizer_nutrients_Results(st), err
 }
 
-func NewRootFertilizerService_availableMineralFertilizers_Results(s *capnp.Segment) (FertilizerService_availableMineralFertilizers_Results, error) {
+func NewRootFertilizer_nutrients_Results(s *capnp.Segment) (Fertilizer_nutrients_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return FertilizerService_availableMineralFertilizers_Results(st), err
+	return Fertilizer_nutrients_Results(st), err
 }
 
-func ReadRootFertilizerService_availableMineralFertilizers_Results(msg *capnp.Message) (FertilizerService_availableMineralFertilizers_Results, error) {
+func ReadRootFertilizer_nutrients_Results(msg *capnp.Message) (Fertilizer_nutrients_Results, error) {
 	root, err := msg.Root()
-	return FertilizerService_availableMineralFertilizers_Results(root.Struct()), err
+	return Fertilizer_nutrients_Results(root.Struct()), err
 }
 
-func (s FertilizerService_availableMineralFertilizers_Results) String() string {
-	str, _ := text.Marshal(0x81b1cd5c7865e185, capnp.Struct(s))
+func (s Fertilizer_nutrients_Results) String() string {
+	str, _ := text.Marshal(0xae2976259bce5460, capnp.Struct(s))
 	return str
 }
 
-func (s FertilizerService_availableMineralFertilizers_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+func (s Fertilizer_nutrients_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
 	return capnp.Struct(s).EncodeAsPtr(seg)
 }
 
-func (FertilizerService_availableMineralFertilizers_Results) DecodeFromPtr(p capnp.Ptr) FertilizerService_availableMineralFertilizers_Results {
-	return FertilizerService_availableMineralFertilizers_Results(capnp.Struct{}.DecodeFromPtr(p))
+func (Fertilizer_nutrients_Results) DecodeFromPtr(p capnp.Ptr) Fertilizer_nutrients_Results {
+	return Fertilizer_nutrients_Results(capnp.Struct{}.DecodeFromPtr(p))
 }
 
-func (s FertilizerService_availableMineralFertilizers_Results) ToPtr() capnp.Ptr {
+func (s Fertilizer_nutrients_Results) ToPtr() capnp.Ptr {
 	return capnp.Struct(s).ToPtr()
 }
-func (s FertilizerService_availableMineralFertilizers_Results) IsValid() bool {
+func (s Fertilizer_nutrients_Results) IsValid() bool {
 	return capnp.Struct(s).IsValid()
 }
 
-func (s FertilizerService_availableMineralFertilizers_Results) Message() *capnp.Message {
+func (s Fertilizer_nutrients_Results) Message() *capnp.Message {
 	return capnp.Struct(s).Message()
 }
 
-func (s FertilizerService_availableMineralFertilizers_Results) Segment() *capnp.Segment {
+func (s Fertilizer_nutrients_Results) Segment() *capnp.Segment {
 	return capnp.Struct(s).Segment()
 }
-func (s FertilizerService_availableMineralFertilizers_Results) List() (FertilizerService_Entry_List, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return FertilizerService_Entry_List(p.List()), err
-}
-
-func (s FertilizerService_availableMineralFertilizers_Results) HasList() bool {
-	return capnp.Struct(s).HasPtr(0)
-}
-
-func (s FertilizerService_availableMineralFertilizers_Results) SetList(v FertilizerService_Entry_List) error {
-	return capnp.Struct(s).SetPtr(0, v.ToPtr())
-}
-
-// NewList sets the list field to a newly
-// allocated FertilizerService_Entry_List, preferring placement in s's segment.
-func (s FertilizerService_availableMineralFertilizers_Results) NewList(n int32) (FertilizerService_Entry_List, error) {
-	l, err := NewFertilizerService_Entry_List(capnp.Struct(s).Segment(), n)
-	if err != nil {
-		return FertilizerService_Entry_List{}, err
-	}
-	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
-	return l, err
-}
-
-// FertilizerService_availableMineralFertilizers_Results_List is a list of FertilizerService_availableMineralFertilizers_Results.
-type FertilizerService_availableMineralFertilizers_Results_List = capnp.StructList[FertilizerService_availableMineralFertilizers_Results]
-
-// NewFertilizerService_availableMineralFertilizers_Results creates a new list of FertilizerService_availableMineralFertilizers_Results.
-func NewFertilizerService_availableMineralFertilizers_Results_List(s *capnp.Segment, sz int32) (FertilizerService_availableMineralFertilizers_Results_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[FertilizerService_availableMineralFertilizers_Results](l), err
-}
-
-// FertilizerService_availableMineralFertilizers_Results_Future is a wrapper for a FertilizerService_availableMineralFertilizers_Results promised by a client call.
-type FertilizerService_availableMineralFertilizers_Results_Future struct{ *capnp.Future }
-
-func (f FertilizerService_availableMineralFertilizers_Results_Future) Struct() (FertilizerService_availableMineralFertilizers_Results, error) {
-	p, err := f.Future.Ptr()
-	return FertilizerService_availableMineralFertilizers_Results(p.Struct()), err
-}
-
-type FertilizerService_mineralFertilizer_Params capnp.Struct
-
-// FertilizerService_mineralFertilizer_Params_TypeID is the unique identifier for the type FertilizerService_mineralFertilizer_Params.
-const FertilizerService_mineralFertilizer_Params_TypeID = 0xb1c2fa546f41d480
-
-func NewFertilizerService_mineralFertilizer_Params(s *capnp.Segment) (FertilizerService_mineralFertilizer_Params, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return FertilizerService_mineralFertilizer_Params(st), err
-}
-
-func NewRootFertilizerService_mineralFertilizer_Params(s *capnp.Segment) (FertilizerService_mineralFertilizer_Params, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return FertilizerService_mineralFertilizer_Params(st), err
-}
-
-func ReadRootFertilizerService_mineralFertilizer_Params(msg *capnp.Message) (FertilizerService_mineralFertilizer_Params, error) {
-	root, err := msg.Root()
-	return FertilizerService_mineralFertilizer_Params(root.Struct()), err
-}
-
-func (s FertilizerService_mineralFertilizer_Params) String() string {
-	str, _ := text.Marshal(0xb1c2fa546f41d480, capnp.Struct(s))
-	return str
-}
-
-func (s FertilizerService_mineralFertilizer_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (FertilizerService_mineralFertilizer_Params) DecodeFromPtr(p capnp.Ptr) FertilizerService_mineralFertilizer_Params {
-	return FertilizerService_mineralFertilizer_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s FertilizerService_mineralFertilizer_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s FertilizerService_mineralFertilizer_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s FertilizerService_mineralFertilizer_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s FertilizerService_mineralFertilizer_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-func (s FertilizerService_mineralFertilizer_Params) Id() (string, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return p.Text(), err
-}
-
-func (s FertilizerService_mineralFertilizer_Params) HasId() bool {
-	return capnp.Struct(s).HasPtr(0)
-}
-
-func (s FertilizerService_mineralFertilizer_Params) IdBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return p.TextBytes(), err
-}
-
-func (s FertilizerService_mineralFertilizer_Params) SetId(v string) error {
-	return capnp.Struct(s).SetText(0, v)
-}
-
-// FertilizerService_mineralFertilizer_Params_List is a list of FertilizerService_mineralFertilizer_Params.
-type FertilizerService_mineralFertilizer_Params_List = capnp.StructList[FertilizerService_mineralFertilizer_Params]
-
-// NewFertilizerService_mineralFertilizer_Params creates a new list of FertilizerService_mineralFertilizer_Params.
-func NewFertilizerService_mineralFertilizer_Params_List(s *capnp.Segment, sz int32) (FertilizerService_mineralFertilizer_Params_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[FertilizerService_mineralFertilizer_Params](l), err
-}
-
-// FertilizerService_mineralFertilizer_Params_Future is a wrapper for a FertilizerService_mineralFertilizer_Params promised by a client call.
-type FertilizerService_mineralFertilizer_Params_Future struct{ *capnp.Future }
-
-func (f FertilizerService_mineralFertilizer_Params_Future) Struct() (FertilizerService_mineralFertilizer_Params, error) {
-	p, err := f.Future.Ptr()
-	return FertilizerService_mineralFertilizer_Params(p.Struct()), err
-}
-
-type FertilizerService_mineralFertilizer_Results capnp.Struct
-
-// FertilizerService_mineralFertilizer_Results_TypeID is the unique identifier for the type FertilizerService_mineralFertilizer_Results.
-const FertilizerService_mineralFertilizer_Results_TypeID = 0xd801f16b6fa39a94
-
-func NewFertilizerService_mineralFertilizer_Results(s *capnp.Segment) (FertilizerService_mineralFertilizer_Results, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return FertilizerService_mineralFertilizer_Results(st), err
-}
-
-func NewRootFertilizerService_mineralFertilizer_Results(s *capnp.Segment) (FertilizerService_mineralFertilizer_Results, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return FertilizerService_mineralFertilizer_Results(st), err
-}
-
-func ReadRootFertilizerService_mineralFertilizer_Results(msg *capnp.Message) (FertilizerService_mineralFertilizer_Results, error) {
-	root, err := msg.Root()
-	return FertilizerService_mineralFertilizer_Results(root.Struct()), err
-}
-
-func (s FertilizerService_mineralFertilizer_Results) String() string {
-	str, _ := text.Marshal(0xd801f16b6fa39a94, capnp.Struct(s))
-	return str
-}
-
-func (s FertilizerService_mineralFertilizer_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (FertilizerService_mineralFertilizer_Results) DecodeFromPtr(p capnp.Ptr) FertilizerService_mineralFertilizer_Results {
-	return FertilizerService_mineralFertilizer_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s FertilizerService_mineralFertilizer_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s FertilizerService_mineralFertilizer_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s FertilizerService_mineralFertilizer_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s FertilizerService_mineralFertilizer_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-func (s FertilizerService_mineralFertilizer_Results) Fert() (Nutrient_List, error) {
+func (s Fertilizer_nutrients_Results) Nutrients() (Nutrient_List, error) {
 	p, err := capnp.Struct(s).Ptr(0)
 	return Nutrient_List(p.List()), err
 }
 
-func (s FertilizerService_mineralFertilizer_Results) HasFert() bool {
+func (s Fertilizer_nutrients_Results) HasNutrients() bool {
 	return capnp.Struct(s).HasPtr(0)
 }
 
-func (s FertilizerService_mineralFertilizer_Results) SetFert(v Nutrient_List) error {
+func (s Fertilizer_nutrients_Results) SetNutrients(v Nutrient_List) error {
 	return capnp.Struct(s).SetPtr(0, v.ToPtr())
 }
 
-// NewFert sets the fert field to a newly
+// NewNutrients sets the nutrients field to a newly
 // allocated Nutrient_List, preferring placement in s's segment.
-func (s FertilizerService_mineralFertilizer_Results) NewFert(n int32) (Nutrient_List, error) {
+func (s Fertilizer_nutrients_Results) NewNutrients(n int32) (Nutrient_List, error) {
 	l, err := NewNutrient_List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return Nutrient_List{}, err
@@ -3825,344 +2983,165 @@ func (s FertilizerService_mineralFertilizer_Results) NewFert(n int32) (Nutrient_
 	return l, err
 }
 
-// FertilizerService_mineralFertilizer_Results_List is a list of FertilizerService_mineralFertilizer_Results.
-type FertilizerService_mineralFertilizer_Results_List = capnp.StructList[FertilizerService_mineralFertilizer_Results]
+// Fertilizer_nutrients_Results_List is a list of Fertilizer_nutrients_Results.
+type Fertilizer_nutrients_Results_List = capnp.StructList[Fertilizer_nutrients_Results]
 
-// NewFertilizerService_mineralFertilizer_Results creates a new list of FertilizerService_mineralFertilizer_Results.
-func NewFertilizerService_mineralFertilizer_Results_List(s *capnp.Segment, sz int32) (FertilizerService_mineralFertilizer_Results_List, error) {
+// NewFertilizer_nutrients_Results creates a new list of Fertilizer_nutrients_Results.
+func NewFertilizer_nutrients_Results_List(s *capnp.Segment, sz int32) (Fertilizer_nutrients_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[FertilizerService_mineralFertilizer_Results](l), err
+	return capnp.StructList[Fertilizer_nutrients_Results](l), err
 }
 
-// FertilizerService_mineralFertilizer_Results_Future is a wrapper for a FertilizerService_mineralFertilizer_Results promised by a client call.
-type FertilizerService_mineralFertilizer_Results_Future struct{ *capnp.Future }
+// Fertilizer_nutrients_Results_Future is a wrapper for a Fertilizer_nutrients_Results promised by a client call.
+type Fertilizer_nutrients_Results_Future struct{ *capnp.Future }
 
-func (f FertilizerService_mineralFertilizer_Results_Future) Struct() (FertilizerService_mineralFertilizer_Results, error) {
+func (f Fertilizer_nutrients_Results_Future) Struct() (Fertilizer_nutrients_Results, error) {
 	p, err := f.Future.Ptr()
-	return FertilizerService_mineralFertilizer_Results(p.Struct()), err
+	return Fertilizer_nutrients_Results(p.Struct()), err
 }
 
-type FertilizerService_availableOrganicFertilizers_Params capnp.Struct
+type Fertilizer_parameters_Params capnp.Struct
 
-// FertilizerService_availableOrganicFertilizers_Params_TypeID is the unique identifier for the type FertilizerService_availableOrganicFertilizers_Params.
-const FertilizerService_availableOrganicFertilizers_Params_TypeID = 0x940d47081167b059
+// Fertilizer_parameters_Params_TypeID is the unique identifier for the type Fertilizer_parameters_Params.
+const Fertilizer_parameters_Params_TypeID = 0xc0032af5b7bc50e4
 
-func NewFertilizerService_availableOrganicFertilizers_Params(s *capnp.Segment) (FertilizerService_availableOrganicFertilizers_Params, error) {
+func NewFertilizer_parameters_Params(s *capnp.Segment) (Fertilizer_parameters_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return FertilizerService_availableOrganicFertilizers_Params(st), err
+	return Fertilizer_parameters_Params(st), err
 }
 
-func NewRootFertilizerService_availableOrganicFertilizers_Params(s *capnp.Segment) (FertilizerService_availableOrganicFertilizers_Params, error) {
+func NewRootFertilizer_parameters_Params(s *capnp.Segment) (Fertilizer_parameters_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return FertilizerService_availableOrganicFertilizers_Params(st), err
+	return Fertilizer_parameters_Params(st), err
 }
 
-func ReadRootFertilizerService_availableOrganicFertilizers_Params(msg *capnp.Message) (FertilizerService_availableOrganicFertilizers_Params, error) {
+func ReadRootFertilizer_parameters_Params(msg *capnp.Message) (Fertilizer_parameters_Params, error) {
 	root, err := msg.Root()
-	return FertilizerService_availableOrganicFertilizers_Params(root.Struct()), err
+	return Fertilizer_parameters_Params(root.Struct()), err
 }
 
-func (s FertilizerService_availableOrganicFertilizers_Params) String() string {
-	str, _ := text.Marshal(0x940d47081167b059, capnp.Struct(s))
+func (s Fertilizer_parameters_Params) String() string {
+	str, _ := text.Marshal(0xc0032af5b7bc50e4, capnp.Struct(s))
 	return str
 }
 
-func (s FertilizerService_availableOrganicFertilizers_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+func (s Fertilizer_parameters_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
 	return capnp.Struct(s).EncodeAsPtr(seg)
 }
 
-func (FertilizerService_availableOrganicFertilizers_Params) DecodeFromPtr(p capnp.Ptr) FertilizerService_availableOrganicFertilizers_Params {
-	return FertilizerService_availableOrganicFertilizers_Params(capnp.Struct{}.DecodeFromPtr(p))
+func (Fertilizer_parameters_Params) DecodeFromPtr(p capnp.Ptr) Fertilizer_parameters_Params {
+	return Fertilizer_parameters_Params(capnp.Struct{}.DecodeFromPtr(p))
 }
 
-func (s FertilizerService_availableOrganicFertilizers_Params) ToPtr() capnp.Ptr {
+func (s Fertilizer_parameters_Params) ToPtr() capnp.Ptr {
 	return capnp.Struct(s).ToPtr()
 }
-func (s FertilizerService_availableOrganicFertilizers_Params) IsValid() bool {
+func (s Fertilizer_parameters_Params) IsValid() bool {
 	return capnp.Struct(s).IsValid()
 }
 
-func (s FertilizerService_availableOrganicFertilizers_Params) Message() *capnp.Message {
+func (s Fertilizer_parameters_Params) Message() *capnp.Message {
 	return capnp.Struct(s).Message()
 }
 
-func (s FertilizerService_availableOrganicFertilizers_Params) Segment() *capnp.Segment {
+func (s Fertilizer_parameters_Params) Segment() *capnp.Segment {
 	return capnp.Struct(s).Segment()
 }
 
-// FertilizerService_availableOrganicFertilizers_Params_List is a list of FertilizerService_availableOrganicFertilizers_Params.
-type FertilizerService_availableOrganicFertilizers_Params_List = capnp.StructList[FertilizerService_availableOrganicFertilizers_Params]
+// Fertilizer_parameters_Params_List is a list of Fertilizer_parameters_Params.
+type Fertilizer_parameters_Params_List = capnp.StructList[Fertilizer_parameters_Params]
 
-// NewFertilizerService_availableOrganicFertilizers_Params creates a new list of FertilizerService_availableOrganicFertilizers_Params.
-func NewFertilizerService_availableOrganicFertilizers_Params_List(s *capnp.Segment, sz int32) (FertilizerService_availableOrganicFertilizers_Params_List, error) {
+// NewFertilizer_parameters_Params creates a new list of Fertilizer_parameters_Params.
+func NewFertilizer_parameters_Params_List(s *capnp.Segment, sz int32) (Fertilizer_parameters_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[FertilizerService_availableOrganicFertilizers_Params](l), err
+	return capnp.StructList[Fertilizer_parameters_Params](l), err
 }
 
-// FertilizerService_availableOrganicFertilizers_Params_Future is a wrapper for a FertilizerService_availableOrganicFertilizers_Params promised by a client call.
-type FertilizerService_availableOrganicFertilizers_Params_Future struct{ *capnp.Future }
+// Fertilizer_parameters_Params_Future is a wrapper for a Fertilizer_parameters_Params promised by a client call.
+type Fertilizer_parameters_Params_Future struct{ *capnp.Future }
 
-func (f FertilizerService_availableOrganicFertilizers_Params_Future) Struct() (FertilizerService_availableOrganicFertilizers_Params, error) {
+func (f Fertilizer_parameters_Params_Future) Struct() (Fertilizer_parameters_Params, error) {
 	p, err := f.Future.Ptr()
-	return FertilizerService_availableOrganicFertilizers_Params(p.Struct()), err
+	return Fertilizer_parameters_Params(p.Struct()), err
 }
 
-type FertilizerService_availableOrganicFertilizers_Results capnp.Struct
+type Fertilizer_parameters_Results capnp.Struct
 
-// FertilizerService_availableOrganicFertilizers_Results_TypeID is the unique identifier for the type FertilizerService_availableOrganicFertilizers_Results.
-const FertilizerService_availableOrganicFertilizers_Results_TypeID = 0xcb1556d28ba514af
+// Fertilizer_parameters_Results_TypeID is the unique identifier for the type Fertilizer_parameters_Results.
+const Fertilizer_parameters_Results_TypeID = 0xfd4dbbbb758bb8f7
 
-func NewFertilizerService_availableOrganicFertilizers_Results(s *capnp.Segment) (FertilizerService_availableOrganicFertilizers_Results, error) {
+func NewFertilizer_parameters_Results(s *capnp.Segment) (Fertilizer_parameters_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return FertilizerService_availableOrganicFertilizers_Results(st), err
+	return Fertilizer_parameters_Results(st), err
 }
 
-func NewRootFertilizerService_availableOrganicFertilizers_Results(s *capnp.Segment) (FertilizerService_availableOrganicFertilizers_Results, error) {
+func NewRootFertilizer_parameters_Results(s *capnp.Segment) (Fertilizer_parameters_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return FertilizerService_availableOrganicFertilizers_Results(st), err
+	return Fertilizer_parameters_Results(st), err
 }
 
-func ReadRootFertilizerService_availableOrganicFertilizers_Results(msg *capnp.Message) (FertilizerService_availableOrganicFertilizers_Results, error) {
+func ReadRootFertilizer_parameters_Results(msg *capnp.Message) (Fertilizer_parameters_Results, error) {
 	root, err := msg.Root()
-	return FertilizerService_availableOrganicFertilizers_Results(root.Struct()), err
+	return Fertilizer_parameters_Results(root.Struct()), err
 }
 
-func (s FertilizerService_availableOrganicFertilizers_Results) String() string {
-	str, _ := text.Marshal(0xcb1556d28ba514af, capnp.Struct(s))
+func (s Fertilizer_parameters_Results) String() string {
+	str, _ := text.Marshal(0xfd4dbbbb758bb8f7, capnp.Struct(s))
 	return str
 }
 
-func (s FertilizerService_availableOrganicFertilizers_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+func (s Fertilizer_parameters_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
 	return capnp.Struct(s).EncodeAsPtr(seg)
 }
 
-func (FertilizerService_availableOrganicFertilizers_Results) DecodeFromPtr(p capnp.Ptr) FertilizerService_availableOrganicFertilizers_Results {
-	return FertilizerService_availableOrganicFertilizers_Results(capnp.Struct{}.DecodeFromPtr(p))
+func (Fertilizer_parameters_Results) DecodeFromPtr(p capnp.Ptr) Fertilizer_parameters_Results {
+	return Fertilizer_parameters_Results(capnp.Struct{}.DecodeFromPtr(p))
 }
 
-func (s FertilizerService_availableOrganicFertilizers_Results) ToPtr() capnp.Ptr {
+func (s Fertilizer_parameters_Results) ToPtr() capnp.Ptr {
 	return capnp.Struct(s).ToPtr()
 }
-func (s FertilizerService_availableOrganicFertilizers_Results) IsValid() bool {
+func (s Fertilizer_parameters_Results) IsValid() bool {
 	return capnp.Struct(s).IsValid()
 }
 
-func (s FertilizerService_availableOrganicFertilizers_Results) Message() *capnp.Message {
+func (s Fertilizer_parameters_Results) Message() *capnp.Message {
 	return capnp.Struct(s).Message()
 }
 
-func (s FertilizerService_availableOrganicFertilizers_Results) Segment() *capnp.Segment {
+func (s Fertilizer_parameters_Results) Segment() *capnp.Segment {
 	return capnp.Struct(s).Segment()
 }
-func (s FertilizerService_availableOrganicFertilizers_Results) List() (FertilizerService_Entry_List, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return FertilizerService_Entry_List(p.List()), err
+func (s Fertilizer_parameters_Results) Params() (capnp.Ptr, error) {
+	return capnp.Struct(s).Ptr(0)
 }
 
-func (s FertilizerService_availableOrganicFertilizers_Results) HasList() bool {
+func (s Fertilizer_parameters_Results) HasParams() bool {
 	return capnp.Struct(s).HasPtr(0)
 }
 
-func (s FertilizerService_availableOrganicFertilizers_Results) SetList(v FertilizerService_Entry_List) error {
-	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+func (s Fertilizer_parameters_Results) SetParams(v capnp.Ptr) error {
+	return capnp.Struct(s).SetPtr(0, v)
 }
 
-// NewList sets the list field to a newly
-// allocated FertilizerService_Entry_List, preferring placement in s's segment.
-func (s FertilizerService_availableOrganicFertilizers_Results) NewList(n int32) (FertilizerService_Entry_List, error) {
-	l, err := NewFertilizerService_Entry_List(capnp.Struct(s).Segment(), n)
-	if err != nil {
-		return FertilizerService_Entry_List{}, err
-	}
-	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
-	return l, err
-}
+// Fertilizer_parameters_Results_List is a list of Fertilizer_parameters_Results.
+type Fertilizer_parameters_Results_List = capnp.StructList[Fertilizer_parameters_Results]
 
-// FertilizerService_availableOrganicFertilizers_Results_List is a list of FertilizerService_availableOrganicFertilizers_Results.
-type FertilizerService_availableOrganicFertilizers_Results_List = capnp.StructList[FertilizerService_availableOrganicFertilizers_Results]
-
-// NewFertilizerService_availableOrganicFertilizers_Results creates a new list of FertilizerService_availableOrganicFertilizers_Results.
-func NewFertilizerService_availableOrganicFertilizers_Results_List(s *capnp.Segment, sz int32) (FertilizerService_availableOrganicFertilizers_Results_List, error) {
+// NewFertilizer_parameters_Results creates a new list of Fertilizer_parameters_Results.
+func NewFertilizer_parameters_Results_List(s *capnp.Segment, sz int32) (Fertilizer_parameters_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[FertilizerService_availableOrganicFertilizers_Results](l), err
+	return capnp.StructList[Fertilizer_parameters_Results](l), err
 }
 
-// FertilizerService_availableOrganicFertilizers_Results_Future is a wrapper for a FertilizerService_availableOrganicFertilizers_Results promised by a client call.
-type FertilizerService_availableOrganicFertilizers_Results_Future struct{ *capnp.Future }
+// Fertilizer_parameters_Results_Future is a wrapper for a Fertilizer_parameters_Results promised by a client call.
+type Fertilizer_parameters_Results_Future struct{ *capnp.Future }
 
-func (f FertilizerService_availableOrganicFertilizers_Results_Future) Struct() (FertilizerService_availableOrganicFertilizers_Results, error) {
+func (f Fertilizer_parameters_Results_Future) Struct() (Fertilizer_parameters_Results, error) {
 	p, err := f.Future.Ptr()
-	return FertilizerService_availableOrganicFertilizers_Results(p.Struct()), err
+	return Fertilizer_parameters_Results(p.Struct()), err
 }
-
-type FertilizerService_organicFertilizer_Params capnp.Struct
-
-// FertilizerService_organicFertilizer_Params_TypeID is the unique identifier for the type FertilizerService_organicFertilizer_Params.
-const FertilizerService_organicFertilizer_Params_TypeID = 0xeddbace5e62bf665
-
-func NewFertilizerService_organicFertilizer_Params(s *capnp.Segment) (FertilizerService_organicFertilizer_Params, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return FertilizerService_organicFertilizer_Params(st), err
-}
-
-func NewRootFertilizerService_organicFertilizer_Params(s *capnp.Segment) (FertilizerService_organicFertilizer_Params, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return FertilizerService_organicFertilizer_Params(st), err
-}
-
-func ReadRootFertilizerService_organicFertilizer_Params(msg *capnp.Message) (FertilizerService_organicFertilizer_Params, error) {
-	root, err := msg.Root()
-	return FertilizerService_organicFertilizer_Params(root.Struct()), err
-}
-
-func (s FertilizerService_organicFertilizer_Params) String() string {
-	str, _ := text.Marshal(0xeddbace5e62bf665, capnp.Struct(s))
-	return str
-}
-
-func (s FertilizerService_organicFertilizer_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (FertilizerService_organicFertilizer_Params) DecodeFromPtr(p capnp.Ptr) FertilizerService_organicFertilizer_Params {
-	return FertilizerService_organicFertilizer_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s FertilizerService_organicFertilizer_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s FertilizerService_organicFertilizer_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s FertilizerService_organicFertilizer_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s FertilizerService_organicFertilizer_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-func (s FertilizerService_organicFertilizer_Params) Id() (string, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return p.Text(), err
-}
-
-func (s FertilizerService_organicFertilizer_Params) HasId() bool {
-	return capnp.Struct(s).HasPtr(0)
-}
-
-func (s FertilizerService_organicFertilizer_Params) IdBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return p.TextBytes(), err
-}
-
-func (s FertilizerService_organicFertilizer_Params) SetId(v string) error {
-	return capnp.Struct(s).SetText(0, v)
-}
-
-// FertilizerService_organicFertilizer_Params_List is a list of FertilizerService_organicFertilizer_Params.
-type FertilizerService_organicFertilizer_Params_List = capnp.StructList[FertilizerService_organicFertilizer_Params]
-
-// NewFertilizerService_organicFertilizer_Params creates a new list of FertilizerService_organicFertilizer_Params.
-func NewFertilizerService_organicFertilizer_Params_List(s *capnp.Segment, sz int32) (FertilizerService_organicFertilizer_Params_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[FertilizerService_organicFertilizer_Params](l), err
-}
-
-// FertilizerService_organicFertilizer_Params_Future is a wrapper for a FertilizerService_organicFertilizer_Params promised by a client call.
-type FertilizerService_organicFertilizer_Params_Future struct{ *capnp.Future }
-
-func (f FertilizerService_organicFertilizer_Params_Future) Struct() (FertilizerService_organicFertilizer_Params, error) {
-	p, err := f.Future.Ptr()
-	return FertilizerService_organicFertilizer_Params(p.Struct()), err
-}
-
-type FertilizerService_organicFertilizer_Results capnp.Struct
-
-// FertilizerService_organicFertilizer_Results_TypeID is the unique identifier for the type FertilizerService_organicFertilizer_Results.
-const FertilizerService_organicFertilizer_Results_TypeID = 0x9846fdc78610c262
-
-func NewFertilizerService_organicFertilizer_Results(s *capnp.Segment) (FertilizerService_organicFertilizer_Results, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return FertilizerService_organicFertilizer_Results(st), err
-}
-
-func NewRootFertilizerService_organicFertilizer_Results(s *capnp.Segment) (FertilizerService_organicFertilizer_Results, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return FertilizerService_organicFertilizer_Results(st), err
-}
-
-func ReadRootFertilizerService_organicFertilizer_Results(msg *capnp.Message) (FertilizerService_organicFertilizer_Results, error) {
-	root, err := msg.Root()
-	return FertilizerService_organicFertilizer_Results(root.Struct()), err
-}
-
-func (s FertilizerService_organicFertilizer_Results) String() string {
-	str, _ := text.Marshal(0x9846fdc78610c262, capnp.Struct(s))
-	return str
-}
-
-func (s FertilizerService_organicFertilizer_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (FertilizerService_organicFertilizer_Results) DecodeFromPtr(p capnp.Ptr) FertilizerService_organicFertilizer_Results {
-	return FertilizerService_organicFertilizer_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s FertilizerService_organicFertilizer_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s FertilizerService_organicFertilizer_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s FertilizerService_organicFertilizer_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s FertilizerService_organicFertilizer_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-func (s FertilizerService_organicFertilizer_Results) Fert() (Nutrient_List, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return Nutrient_List(p.List()), err
-}
-
-func (s FertilizerService_organicFertilizer_Results) HasFert() bool {
-	return capnp.Struct(s).HasPtr(0)
-}
-
-func (s FertilizerService_organicFertilizer_Results) SetFert(v Nutrient_List) error {
-	return capnp.Struct(s).SetPtr(0, v.ToPtr())
-}
-
-// NewFert sets the fert field to a newly
-// allocated Nutrient_List, preferring placement in s's segment.
-func (s FertilizerService_organicFertilizer_Results) NewFert(n int32) (Nutrient_List, error) {
-	l, err := NewNutrient_List(capnp.Struct(s).Segment(), n)
-	if err != nil {
-		return Nutrient_List{}, err
-	}
-	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
-	return l, err
-}
-
-// FertilizerService_organicFertilizer_Results_List is a list of FertilizerService_organicFertilizer_Results.
-type FertilizerService_organicFertilizer_Results_List = capnp.StructList[FertilizerService_organicFertilizer_Results]
-
-// NewFertilizerService_organicFertilizer_Results creates a new list of FertilizerService_organicFertilizer_Results.
-func NewFertilizerService_organicFertilizer_Results_List(s *capnp.Segment, sz int32) (FertilizerService_organicFertilizer_Results_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[FertilizerService_organicFertilizer_Results](l), err
-}
-
-// FertilizerService_organicFertilizer_Results_Future is a wrapper for a FertilizerService_organicFertilizer_Results promised by a client call.
-type FertilizerService_organicFertilizer_Results_Future struct{ *capnp.Future }
-
-func (f FertilizerService_organicFertilizer_Results_Future) Struct() (FertilizerService_organicFertilizer_Results, error) {
-	p, err := f.Future.Ptr()
-	return FertilizerService_organicFertilizer_Results(p.Struct()), err
+func (p Fertilizer_parameters_Results_Future) Params() *capnp.Future {
+	return p.Future.Field(0, nil)
 }
 
 type Service capnp.Client
@@ -4435,351 +3414,281 @@ func (f Service_managementAt_Results_Future) Struct() (Service_managementAt_Resu
 	return Service_managementAt_Results(p.Struct()), err
 }
 
-const schema_b30a3af53cea6b3e = "x\xda\xccz\x7ft\x14\xd7u\xff\xbd3\xbb\xac\x04\x12" +
-	"\xbb\xa3\x11_\x81\x0c^\x81\x85AJ\xe0\x0b\x08\xc7\x81" +
-	"\xc6\x11\xfaE\x90\x0eB\x1a\xad\x88\x031\xa7\x1e\xad\x9e" +
-	"\xa4\xc1\xbb3\xcb\xec\xac@\x0e\xb6\x025\xa9q!." +
-	"\x0en\x0c\xb1{\x1c;\x9c\xd4\x1c\x9a`bbpM" +
-	"bsL\x0c\xfeQ\x07\x1bNb\xa7\x8e\x8b\x1d\xa7\xb6" +
-	"Oh\xe3s\x9a\xc4\xc6\x86\xe9\xb9ofgF\xab\x1f" +
-	"I\xdd\x9e\xb6\xfc\xc3\xe8\xbe\x9f\xf7\xbe{\xef\xbb\x9f\xcf" +
-	"\xdbE\x8f\x95\xac\x08-.\xbd{&\x08\x89\xd5\x18\x9e" +
-	"d\xbf\xf3\xc8\x99?\xab\x9f\xf6\x8f_\x05e:\xa2]" +
-	"qf\xe95\xdb\xb6V?\x00a\x8c\x00\xc8\x0b\xa6^" +
-	"\x92\x97M\xa5\xaf\xeb\xa6~\x1f\xd0\xdeq\x81m\xb9\xe9" +
-	"\xc5G\xb7\x81t\x0d\x82\xd3\xa7\xee\xfc\xd4\xe5\x02\xa0|" +
-	"qj=\xa0}\xe4\xfa)\xbb:\x8f|y;HU" +
-	"\x82=\xab\xa9\xe9\xf5\x05\x7f\xfe\xec\x15\x00\xac\xdb\x10\xad" +
-	"D9\x1d\xa5\xa9\xb4\xe8\xf5\x80\xf6\xc3\x9b\xbe\\qo" +
-	"\xcbw\xb7\x83$\x09\xf6\xe7oy\xefs\xbf[>\xf9" +
-	"\x07\x00\xd4\xe95y\x88:\xd6\xe5\xa2\xf3\x10\xd0\xfe\xdc" +
-	"\xbf\xd7\x7f\xe6\xff\x1d\xbb\xf2\x97c\xed\xb0\xae5V\x89" +
-	"\xf2\xbaX\x05\x80\xccb\x9b\x01\xed\xee\xebn\xfe\xe0\xeb" +
-	"w\x1c\xb8\xb3\xa0w\x88:?\x1d\x13P~1F\x9b" +
-	"8\x13\xa3\xed\xb2\xcf\x94\x9ez\xeb\x07?\xdc\x05J\x15" +
-	"\x86\xed\x7f\xdb\xd9x\xf8\xcbo\x9f\xfbW\xa7\xf3\xbb\xb1" +
-	"{PF\x89>/\xc7n\xa4\x8dd\xbf\xf1\xa5\xaag" +
-	"~Tr7W\xce\xeb\x0cX7T\xd6\x85\xf2\xee2" +
-	"\x9awg\x19)\xb7\xf4\xe3\xab\x9e\xbcq\xef\x83w\x83" +
-	"T!\xd8\x8d\xa7\xf7\xf7_\xbe\xb8\xe1~\xea\xb9\xaf\xac" +
-	"\x0c\xe5Gx\xcf\x03e\xfd\x80\xf6\xba\xc3\xfdR\xd1\x17" +
-	"J\xf7:\x16\xe5\x0b\xbfZ\xb6D\x80\x90\x9d\xfd\xdd\xb9" +
-	"\xfeC\xb9\xba{I\x11\xb1P\xed\xb3e\x1bQ~\x9b" +
-	"\xcfs\xa1\xec_\x00\xedG\xce?\xdbv\xe1\xd8\xb2{" +
-	"A\xa9@\xf4\x97\x9c\x16\x8a \x80|\\\xbe\x04(\x9f" +
-	"\x90\xc9@\xdb\xbex\xfa\x81[\xa7}\xeao@Y\x80" +
-	"\xa5\xf6\x8bG\x0eG?\x1a\xdc\xf5\xae\xb3\xf4\xac\xf2Z" +
-	"A\xbe\xa1\x9c>\x97\x95\xbf!\x00\xda='c_{" +
-	"\xf6\xf2\xca\xfb\x82'~[\xc5{\x08(\xef\xa9 \x13" +
-	"\xfe\xf0\xc4/n?:\xf0\x95\xfb@\xaa\x14\xec\xcf\x7f" +
-	"\xe7\xd6\x0bK\x9a\xae\x1c\xa4s|\xba\xe2\x92\xfcb\x05" +
-	"\xb7u\x05\xd9\xe4\xe3\xbf\xfd\xc3\xa5\xd0\xd5s\xf6\x93\xad" +
-	"E\xdf7\xf8\xbag+jQ\xbe@\x9d\xeb^\xaf\x88" +
-	"\x93\xad=\x0d\x14\x09\xd1\xf7\x8f\x96PDD\x94?\x9c" +
-	"\xfe\x84\x8c3\xae\x07\xa8\xab\x99q7u\xf7\xcc#I" +
-	"\x81\xde4\xb7\xacV\x9e\x94\xb5\xca\xef\x82h\x0f|\xf0" +
-	"\xd3\xd5?~y\xdb\x03\xa0\xccG\xd1~\xec\xbd\xad\xb7" +
-	"\xefk~\xe9%g\x07oW>\x84\xf2\xe5J\x1a\xf0" +
-	"a%\xb9\xba\xa7\xca\xc8\x0d\xf0)\xff\xfe\xaa\x97\xe5\xe3" +
-	"W\xcd\x03\x90_\xbc\x8aL\xba\xff\xf2C/\xec\xdc\xb7" +
-	"\xe70H\x0b\xd0\xb7hX\xa4\x89\x17\xcc<\x89r\xcb" +
-	"L\x1a\xd60\x93&\xfe\xea\xb9\x06\xa3\xfb\xd2\xc9G\x83" +
-	"\x16}u\xe6\x9bd\xd1\x8b3\xc9\xa2C;\xbf0\xf0" +
-	"\x93\x1b\xde8B\x1d\xec\xf0\xed\xc5\xa5\xdf\xfb\xde\xe3\xff" +
-	"\x00a!\x12\xc3\xba\xd2Ym(\xcf\x9eE\xb3\xcd\x9a" +
-	"\xb5\x19@~zV\xd4^\xf0\xf5y\xe6\xbd?\xdas" +
-	"\x1c\x94kP\xf0\xc3\x85\xebut\x96\x89\xf2\x19>\xe0" +
-	"\xd4,\xda\xab7\xa1$\x89\xc1\xb8\xab[|u%\xca" +
-	"\x0dWWPP]\x1dAY\x8aW\x00\xd8\xfaGM" +
-	"/\xed\xbf\xf1\x96'G\x1d/\xc6/\xc9\xa5qZ\xa2" +
-	"8\x1e\xa5#\xf8e\xe3\x0d\xc7\xca\x8b\xcf\x9f\x1c\x15\xd0" +
-	"\xc7\xe3o\xca\xa7\xa8\xa7\xfct\xfc\x9b\x80\xf6\xc9i\xd7" +
-	"\xferoM\xcd\xa9\x80\xcb\x87\xab\xb8\xcbK\x9f\xfd`" +
-	"\xf2\xf1\xd8\xd7N\x8d\xed\xc4\x97\xe3\xef\xd1\xbaU\xa4\xc5" +
-	"\xff\x9fw\xd5\xdb\xf1}\xcf\xfcd\xec\x9e\x1b\xaa^\x06" +
-	"\x94\xd5*\xb2\xe6\xab\xbf\xff\xd9\xe35\x8f\x0f\x9e.\xd4" +
-	"W\xdeV\xf5\x9c\xbc\xbb\x8a\xc7l\xd5\x17\xe4\xa3U\xa4" +
-	"\xed\xf7\xcb\x0f\xfc\xd5\xcb_\x9c\xf6|\xf0l\x0eT\xf1" +
-	"\xfcv\x82\xcf\xa6<z\xdbgv[\xdf}\x01\xa4\x19" +
-	"^\x87\x05\xb3M:\xbce\xb3\xa9\x83\xe7U\xcat," +
-	"\x0aD\xad@=\xb5\xd9\x8d(\x0f\xcd&\x13\xef\x98}" +
-	"=\x85\xd7\xecW\xe7~\xe5\xbdE\xaf\xbd2fn\xfb" +
-	"\xf0\x9a\x8d(\x97VSn\x9bQMZ\xef\xdd\xff\xb0" +
-	"q\xcb\xfb\xf8\xf3\xe0\xf6\x86\xaay0\xee\xae\xa6\xd5\xd7" +
-	"\xbd\xb5\xeb\xfe\xf3\xd9\x8b\x17\x0a\xcc\xd2\x1c\x11\x10\xe5\x13" +
-	"\xd5o\xcag\xaa\xb9'\xf0\xd9\xce\xa6\xb6E\x97\xde\xfe" +
-	"\xf0[\xb4v\xb8p\xed\x9a\xb9m(\xdf0\x97g\x82" +
-	"\xb9<\xfby~\xadLG\xa1\xb0\xfb\xb7\xaf\xdd\x88\xf2" +
-	"\xd1k)$\xce_K^\xce~\xff\xa9_\xbf}\xe8" +
-	"\x17\x17\x83[\xdd4\x8f{\xf9\x8ey\xb4U/\x7f\x8e" +
-	"\xa5\xf9\x81y\x02\xca\x8f\xce\xa3\xe9\xce\xce\xa3\xbd~\xab" +
-	"\xe4\xe8\xd4\x05\xbf\xd9\xfe\xdbQ\x09\xf5\xba\xf9sPn" +
-	"\x99\xcf\xc3k\xfe\x1f\x00\xed\x87\xbe\xb5\xc2\xfcU\xf2\xd9" +
-	"\xdf\x8e\xba\x81.\xce\xafE\xf92\xef\xf9\xe1\xfc\x0e@" +
-	"\xfb\xc2\xb4\xf02\xf5/~\xf61%B\xd1?\x09\xe7" +
-	"\xa8\xa4\x9a\x93(\xd7\xd4\xd0\xe7\xdc\x1a\x9e\x91\xbc\xb9\xc6" +
-	"\xda\xf0\xb2Z\x01\xe5\x96\xda\xeb\xe9\x1a\xaa\xdd\x0c6<" +
-	"l\xa7U]\xedgi&\xe8\xd6\xc2\xa4\x9a\xd13\xcb" +
-	";USMg\x17\xd6'\x8c\xcd\x9a\xde\xdf\x89\xa8\x94" +
-	"\x88!\x80\x10\x02H-m\x00J\xb3\x88J\xa7\x80\x12" +
-	"b9\"\xa2\xd4\xbe\x11@Y-\xa2\xf2%\x01Q(" +
-	"G\x01@Z[\x0b\xa0t\x8a\xa8\xdc$\xa0\x9d\xcc\xa5" +
-	",mP5\x01\x00\xa3\xf6co\xf6\x16u\x1d\xde\xf6" +
-	":\x00b\x14\xd0\xce\xa4T\xddjf:D\xb3\x9a5" +
-	"\x84\x11\x100\x02\x18M\x9aF\x06%\xfb\x8e\x9b~\\" +
-	"\xfd\xf07w\xbfC\xbd%@o\xbf\x11o\xbf+\x99" +
-	"ii)\xedVf&\x989\xa8%\xd9BuP\xd5" +
-	"RjO\x8a\xb5k:3\xd5\x94\xdf#[\xddU\xcf" +
-	"\xb2\xb9\x94\x95UB\x9eR\xa5\xb4\xd7\"\x11\x95^\x01" +
-	"\xa3)-k\xe1T\xc0N\x111\xe6'9\x80\x15(" +
-	"a\\\x09\x09\x18\x14JX\xa1\x84\xc8\x08\xd4\xdd\x1b\x15" +
-	"H@$\xf4\xf6,\x16\xda\xb8)gY\x9a\xde\xbfP" +
-	"lZMv.\xe2\xa6\x93\xe6p]\x8bk\x01\"\xc9" +
-	"\x9c\x15M\xb1>k\x8ccj\x19d\xba\xd5=$f" +
-	"\x18\x0d]\xc4\x87\xee\\\xce\x87n\xdb\x0e\x80\x82t[" +
-	"#\x00\x8aR\xee.\x00\x0cI\xb9\xf5\x00\x18\x966\x91" +
-	"p\x92\xa4\xd1\xe6\"\xce\x7fE\xce\x7f\xc5\x92Fm\x93" +
-	"%\xb5\x0d\x00\xa7H\x1b\xba\x00\xea\xb3\xdc\x09l5g" +
-	"\x19i\xd5\xd2BI\xc7+`@5\x07Y\xd6\x82|" +
-	"Cr\x95+\x00[3M\xad_\xb54\x10\x0d}\xd8" +
-	"\xd2R)\xb5\x9f\xd9\x86\xd9\xaf\xeaZr%\xbaG\xa1" +
-	"F-\xcd\xd0\xed\xb4{@\x05b\xbd\x99\xa5U\xbd\xb7" +
-	"@<\x9ct\xcceg\x99\xf5E5\x95c\x00`g" +
-	"\xd5A\x96\xb0T\x0b\x90\x8do\xe7VwK\xa2\xa1\xd3" +
-	"q\xf9W\x91\x84\xebm\xde\x87Y\x0cD3\xab\x14y" +
-	"^Q\xb3\x1c@\xa9\x16QY$ \xf7t\x00i\x01" +
-	"\xc9\xe6\x8b\xa8,\x15\xb0^M\x1b9\xdd\xc2) \xe0" +
-	"\x14\xc0\xfa\x0c_\x0ac\xfe\xe4\x80\x18\x9b\xe8\xf4\xbb\x1d" +
-	"\xdb\x00\x9d\x9f\xeb\x8d\x88R\xe9\x12\xd7\x1b\xcb\x05\x8c\xf7" +
-	"\xb2\x8c5\xe0,a\xd7\xf1\x7f\xaf\xd4\x93\xd6\xf99\xc3" +
-	"\x85s\xba\xc7\xb0\xb0#c5\xa9f\x8f\xa1\xb7\xf7\xa7" +
-	"\xadf\xd5B\x95V\x99\xee\xad\xb2\xef\x08\x80r\xbf\x88" +
-	"\xca\xdf\x05\x02\xf9\xc0s\x00\xca!\x11\x95c\x02J\x02" +
-	"\x96\xa3\x80(\x1d\xed\x02P\x1e\x13QyJ@I\x14" +
-	"\xcaQD\x94N\xac\x07P\x9e\x14Q9-\xa0\x14\x12" +
-	"\xcb1\x84(\x9d:\x08\xa0\x9c\x16Q9'\xa0\x14\x0e" +
-	"\x95c\x18Q:\xfb2\x80\xf2s\x11\x95_\x09h\x1b" +
-	"\xee\xaePo2\xf4,3\x07\xe3*\x1d,\"\x08H" +
-	"\xc9\x8bb\xbe5\x9dQ\x85\xa4\xd5\xa1\xaf\xca\xa5s\xd9" +
-	"F5\xa5\xeaIF\x0e\xe9\xd8\x99\xf7Y\x9bU\xfb\x01" +
-	"\x19F\xfdb\x170\xcc\xefw\x93e\xb5\xde\x1c[\x05" +
-	"\"\xdb\xe4\x8d)\xf4>\x165W\x05\x9a\xd3\xea\x96." +
-	"\x1a&\xe4X\x17K\x1a\x83\xcc\\i\xaaIK3P" +
-	"\x0f\xf4q,\x1e\x1a\xcf\xe2M\xee\xbe\x90\x05B\xb9\x87" +
-	"\xc7c\xe9=\x00v\xbf\xc9\x98\xde\xae\xea\x10\xc9\x99\xcc" +
-	"\xee\xd1\x8c\xb4\x9a\xcdv\xa2i\xf4\xe6\x9c\xa5\xc6p\x14" +
-	"\x1e\xe3\x0b;\x07\x98n$\xac\xfc\xd41>uM\x17" +
-	"\x9fzn\x17\x0f\xf5\xd9m<\xd4g\xb5\x01\xd8,\xcd" +
-	"\xcc~\xa6')\"\xfaR\xc6ffj:`\xbf\xad" +
-	"\xea\xd6\x00\xcbjY\xc7\x7f\xac\x9c\xa9YCA_\xfa" +
-	"\x932j\x87k\xc9@F\xed\x8csC\x8co\xa15" +
-	"n4\x8f\x08f\xae\x89\x17lj#\x80r\x93\x88\xca" +
-	"\x80\x1fl\x8c\x1c\xafWD%\x93\xf7F\x00)M\xd1" +
-	"1 \xa2b\x917\xc6\x1co\xdcD\xc2\x94\x88\xca\x16" +
-	"\x01\x87\xdd\xdc\xe1\x1d\\F5-\xcd\xd2\x0c@\x1dc" +
-	"\xfem\xea\x04g0\xc0\x00\xe3YK\xedg8\x09\x84" +
-	"\xf0$\x0c\x9cyA\xd2]\xd8S\xcf\xac\xcd\x8c\xe9\x94" +
-	"-bX\x8e\"\x9dG\x9b\x9f\x1a$\xba\x05C\x00\xd2" +
-	"b\xca\x17\x9f\x16Q\xf9\xac\x806S\xcd\x94\xc6S$" +
-	"`\xcc\xde-\xcd\x11\x0f]\xf9\xf57\xdd\x8d\xd4\xa7T" +
-	"\x8be\xad\xd1\x0dc\x1c\x8fk\xd6\x82\xa3\xe0\x91\x94\x17" +
-	"\xb6\xab\x96\xc5L'\xb3E-ff\xc9\xdcK\xf3\xe6" +
-	"\x967\xe0C\x00\x89\x9bQ\xc4D\x0a\xf3\x09\x800/" +
-	"\x9a\x00\x89\x01\x92[$\x17\x9c\xdb\\\xde\xc4\xe5\x19\x92" +
-	"o%\xb9(r\xa5\xe5!\xdc\x0f\x90\xd8J\xf2;I" +
-	"\x1e\x0aq\xbd\xe5\x1dx\x12 q'\xc9\xf7\x92<\x1c" +
-	".\xc70\x80\xbc\x87\xcb\xf7\x92\xfcA\x92O\x9aT\x8e" +
-	"\x93\x00\xe4\x07\xf0.\x80\xc4\x83$?D\xf2H\xa4\x9c" +
-	"\x03\xfbG\xb8\xfc\x10\xc9\x8f\x91\xbc\xa8\xa8\x1c\x8b\x00\xe4" +
-	"\xa3x+@\xe21\x92?E\xf2\xe2\xe2r,\x06\x90" +
-	"Op\xf9\x93$?M\xf2\xc9\x93\xcbq2U\x92x" +
-	"\x10 q\x9a\xe4\xe7H>eJ9N\xa1\xaa\x8d\xcb" +
-	"\xcf\x91\xfc\x9fI^RR\x8e%\x00\xf2\xeb|\x9e\x7f" +
-	"\"\xf9;(\xa0\xad\x1a\xe9fs\xa8]E\xb2j\x93" +
-	"\xa1[\x11\xe6g~j]\xb3ji\x93\x01q\xdd*" +
-	"\x94w\xd4\x8d)\xa7,\xa8bZ\xeb\xa5\xc9(\xe0\x83" +
-	"\x8d\x89\x94\xb1\xb9Y`\xc9&\x83\xf5\xf5%,U\xef" +
-	"U\xcd^\x08\xf6X\xa9f\xad\x09z\x90\xcb7t\xb4" +
-	"w\xa3\xd1\xd0\xd1N\xb3\xc18m4O0\xb5\xea]" +
-	"\xe4E\x0dP\xef\x0c\x1b\xb3\x81\xc6\x14\xce\x96\xc0\x94\xb1" +
-	"\xb9\xdbH\xb47FG\x8c\x1b\xdd<b4\xdd\x02I" +
-	"\xa6[Po:\xf7@a\xb2\x9d4AJ2\x0a3" +
-	"Qu\x17\xcbF\xc7+\xed\xaa\x05\x8c\xf61\xd3\xfa\xe3" +
-	"E\x9a\x1f\xeckr\x96\xa91\xbd\xdeZ\xb8V\xd7\xac" +
-	"@Vot\x0a\xb46\x80\xe1\x0c3I\x03\xbb\xcf\xb9" +
-	"0\xf4`B\x1d\xb7\xdc\x8b&2,I\xf3\x95{\x1b" +
-	"\xbd\x8dR\xd8\x16\x11\x95;\xfcp\x94\xb6\x91p\xab\x88" +
-	"\xca\x9d\x81\xfbx\x07\xa9\xf4U\x11\x95]\x81\xfbx'" +
-	"\xe5\xca;ET\xf6R\x14\x0a\xce}\xbc\xe7.\x00e" +
-	"\xaf\x88\xca\x83\x02\xc6\xb9\xb90\xea\xe3_\xa7\xfa\x8e\x0f" +
-	"R!\x957|4\xa7k\x16F}t\xe2\x96\xe8\xc9" +
-	"\x9c\xd5a\xaef}\x80\xd4\xea\xb1gn+\xdb\x921" +
-	"L\xab\x93!7\x05U4\xaeK=\xb5nE\xc0\x1c" +
-	"\x987G\xbd\x93F\x95\x12\x0c\"&ic\x80\x8f\x92" +
-	"\xd6\xfb Q\x92j\xed\x96-\x163u5\x05\xd1\xee" +
-	"\xa1\x0c\xb3\xf37\"\x88\xfd\x8cK\x94\x99\x9e%\x8f\x92" +
-	"}\x0e\x8b\xa8<\xe9_%\xc7k\xfd\x1a\xa6T\xb0m" +
-	"\x0c@s\xe9D%\x08\xa5\xe2\x15\x12z\xf4\x94t\xa0" +
-	"\x11\x84\xd2\xd0e\x12zp_\xda\xbd\x04\x04),\xf2" +
-	"\xdc$\xe5(\xb7gDT\xb6R\"[\xc4\x13\x934" +
-	"\xb4\xdd?\xc6\xa85\x94\xa1\x12\xc5S\xd11WT\xd3" +
-	"\xfb\x0c\x8c\xd9\xaf\xbc&^y\xfe\xf6\xe7\xcf\xb9y^" +
-	"T\xad\xe1\x1e\xe7Z\x89\xab}\x163\xf3\x05e\x19\x08" +
-	"XF\x85MNo\xb0\x12\x96\x8a\xa6\xd5\xd1\xd7\xac\x0e" +
-	"\x81W5\x8d\x07\xe1@\x99\x8f\xe83\xa7R\xebr\x1f" +
-	"\xf7K-\xdb}l+\xb54\xfa0[j\xb8\xcb\x07" +
-	"\x91\xd4\xe2AN\xa9\xe1\xa0O\xf7I-\x07}\xac-" +
-	"\xb5\x1e\xf4\x19M\xa9\xbd\xd1gw\xa4\xd6\xf5.\x90\xb4" +
-	"\x1b\x0a1D\x1e24\x8c\xc2\x10\xc3n\xa4\xd8\xedc" +
-	"\xe3\x835c\xe2\x03\xbbcL\x901\xec\xd6\xd9vk" +
-	"\x00\x98\x8c_A{\xbbqv\xb9\xb0a\xb0?ah" +
-	"\xa9\xee\x08Kg\x02`\x18Qj\xa1\x1az\x95\x88J" +
-	"7\xc5l\xc8q5\x85\x8a\xe0n\x11\x95\x9b\xfd\xfbS" +
-	"\xda\xf0\x9c_\xca\xd8YCK5\xb3\x8c\x85\x03+\x0d" +
-	"\xb3a\x90\x99q\xb5_\xd3\xfb\xc7\xa8\xf2{\xd5\xa1l" +
-	"\xab\x9e0PKu\xb3t\xe6F-\xaa\xf7\x1a\x9b\xf3" +
-	"\x08\xd9v\xb0Yk\x9f\xd0\xd0c\x0c\xb2\xfc>Y:" +
-	"\x13H\xe9\xe3f5\xb4\x94\"\xc4\x00qV\\\x1b " +
-	"I\xc3\xb5\xd15T:P\xe2\x0bb\xa2\x11E\x8e\x1b" +
-	"\\\x8bk\x03E\x8e\xee\xccn9P\xdf\x9b\xddu}" +
-	"7\xbdx\xeb\xb8\x09dt\xba\x9f\xa8\xc4\xc9\xe353" +
-	"\x0b\x05\xe4\x04E\xe4\x0a\x11\x95\xd5\x81\xdd\xb5V\x06\x18" +
-	"\x8b\xfcy\xb4\xd7\xfa'\xe7\x037\x8frv#R\xeb" +
-	"\xc5\x12\x10\xb0\x040\xaa\xabi\x96\xff\xe3O\xba\x9d\xd2" +
-	"\x85\xccCu\xa7jF\xd4\xf4\x88\xcb\xa9\xd2Gz\x81" +
-	"\xc5\xc6(\xa4G\xcf\xdf\xa2[\xe6\x10p\x03\x04\x8e\xa7" +
-	"\xd6\x87\xac\x9e\x01\x16\xccq\xcf\xacW\x18/\xf7DL" +
-	"\xd6\x87\x92\xfd\x8dW\xdfx\xf7\xfe\xd2\xd3\xef\x8f ;" +
-	"\x02\xc2\x11dG\x19\x8e BP\x02l\x08\xa1\x84e" +
-	"\xd8=>\x12\xc8G`\xfe\x14\xe3,_\x9b\x06\x948" +
-	"\xe8\xbb\x93\xa7\xc4u$\xfc\xac\x88J3\xf9\x98f\x99" +
-	"\xaa\xc5\x9a\xd0\xa9\x1eL'\xcc=\x97\xcf\xe6R}\x13" +
-	"4\x8f\xbe\x9d\x0b\xac+&\x19'\x09|\x82\x1b\x97\xc4" +
-	"\xb9\xbd\x95\x98\x18\x06\xf0\x98a\xcc\xbf3I\x9b\xde\x04" +
-	"A\xda\x14A\x9f6\xc7<\x09*\xb1{@\x90\xd4\x08" +
-	"\x0a\xde#\x0a\xe6\xf9[i-\x8d[\x1bA\xd1#\"" +
-	"1\xff\x92!\xb5\xd2\xb8\x96\x88\x9d\x87^B!\x9b\x15" +
-	"afv\x05\x8e\xa2P\x18\x9a+00\xaa \x86\xdc" +
-	"Q\xa3\x101\x8d\xe2j\x9f_u\xff\xba\xe7\xcf~\xff" +
-	"H\xb0\x92\x19\xab&\xa2\xfc@'\xf7i\x1eQ\xb7\xd5" +
-	"\xf2\x9a(\xd7\xc8\xe1h\xdaa\x9e\xd8z\xce<\xa9]" +
-	"\x9cy\xda\xe00Ok\xbb8\xf3\xa4\xb4q\xe6\xa9\xbd" +
-	"\x8d3O\xad\x1b9\xf3\xd4\xb2\x11 \x9a3\x99:\xac" +
-	"\xa6\xd3\x86\xae\xa9\xc3\xeeY\xdb\x99\x01#\x9b\x190L" +
-	"\x10sY;cXj6\xab\xe5\x00\xd3\xc3\xeei\xe7" +
-	"\x15b\x80M\xf9\xef5\xa4\x82\xfb\xdd\x19\xf8^\x03\xbc" +
-	"\x0c\x0d\xfcIE\xebX\xd7hJ\xd5\xad\x0e3\xd2\xaf" +
-	"r\xb8:\x9dk\xda\xe0h\xba\xac\x96k\xbax\x09\xd7" +
-	"\xb4f\x09\xd7t\xf6r\xae\xe9\x8c%\x00Q\xd30\xac" +
-	"h\x8a\xa9}\xf1\xec\x80aX\xf1>3\xa7Y\xf5Y" +
-	"\xcb\xcc\xddb\xc5\xb3\xb9~\xd5\xfc/s\x99\x85\xc8\xbb" +
-	"\x10\xa7\xaaQ*$\xf2(5L\xc1\xb5$\x98!\x04" +
-	"\x8e\xbe\xa4\x05\xb5~V\x8f3\x1a\x891\xbf\xfcrR" +
-	"D\x94\xee\"\xef\xe6\x19wA\xb4(\xbf\xc5\\\xb0\xee" +
-	"U\xdf\xe5\x02M`\xb1\x09\xe0\xad?\x95\xab9\xb8\xbc" +
-	"\x18E\xdcGw\xbf\xb0l\xd1\xc7\xef\xff\x06\xf3\x0f\x1b" +
-	"\x92\xb4\x11\x04\xa98\xe2\x0d\x87\xa8n5X\x13\xb8\xf0" +
-	"'e7\xfe7\xf9\xe2P\xa1M\x16\xe6[H\xd9\xea" +
-	".\x16\xcfN\x84w\xd2\xfd\xe9\xc0\xd6\x02\xcf\x11\xe3," +
-	"2v\x01\x04\xdc\xa4\xde\xa3\xa4\x84=v\xbe\xd4\x00\xaa" +
-	"\x89\x94\xf9b\x08\x91\xd3\x0a\xc5\x1c\xae\x97\x10l\x9e\xce" +
-	"\xe9\x03\xa7&\x92\xa7q\xf9t\x92W\xa3\x8bZ\x04D" +
-	"y6\xa7\x15\xaaH\xfeit\x89D\x11Q\xae\xe1\xf2" +
-	"\xf9$_\x8a.\x97\x18\x02\x90\x17\xf3y\x96\x92|\x05" +
-	"\xa7\x0f\\Z\xe1\x06|\x02 \xb1\x82\xe4\xab9}\xe0" +
-	"\xd2\x0a\xad\x1c\xde\xaf&\xf9\x978}\xe0\xd2\x0ak\xb1" +
-	"\x0d \xd1M\xf2\x9bi#\xc5\x0e\xab\xb0\x01{\x00\x12" +
-	"7\x91x\x00\x05$/.\x06\x90\x19.\x0f\x92%\x94" +
-	"p\xa9\xc8\xea\xc6\x01\x93e\x07\x8cTo\xa0\xdcr*" +
-	"\xb6n\x86T\xadQ\xb1F\xb9.\x1f4\x9a\xdeIh" +
-	"\x11\xe2\xba\xd5\x90\xb81\xc8>\x8e\x96\xe7\xa1\xd3\x96\xba" +
-	"^u\xa8\x13M\x96\xd42\x89\\zDe\xb7\xa5)" +
-	"g\x9a\x04\xab\x9a\xd5\xa1N\x93\xd5;]\xbc\x0e\x16K" +
-	"\xd3\xdf\x0dH\xd5a\xa3\x9aeQ\xda\xb6\xd7\xdc\xa3f" +
-	"\x99S,\x06\xa8\x85\xe0\xc1b\xcc?u\x97\xa4r*" +
-	"N\x8c\xf9\xa0\xa2 \x8aG9SA\xd6r\xeeb\xee" +
-	"Q\x1e\x137\x11\x07\xdf\xe5g&\xaf\xdc\x0crj\x13" +
-	"\x92{\x05\x0c\xfd'\xac\xdb\xfe\xbbY\x05'SvG" +
-	"\x86\x9c\x87\x9b\"1Tb\xdb\xa3\xaa\xebR\xbcb\xbb" +
-	"\xfa\x92t\x91\x88\xca\xe7\x04\x82\xda.\x0e\xe6\xe5u\x01" +
-	"\xb2\xb45=\xd8\xea\xa1\xe9\x82*{\xfc\x80\xf7\xf0\x97" +
-	"\xfbV\xe0\x84\xb5\xb4\xcf\x04P\xee\x13Q\xf9\x8eKC" +
-	"\x10\xf8\xf96\x09\x1f\x14Q9\x94\x0fh\x00\xe9\x91\xbb" +
-	"\x02\x0f\x08!\x87$\x94\x8e>\x01\xa0\x1c\x13Qy\x86" +
-	"B9\xe6p\x13O\xf7\x00(O\x89\xa8\xbc  \x80" +
-	"s9\x9di\x04P\x9e\x11Q\xf9\xa9\xf0?\x1f-\xee" +
-	"\x83V7D\xb44\x1bi\xbdpT\x04\x1cv;`" +
-	",\xf8\x9b\x9a\x89\x9d\xbf\x10\xbe8\xceO\xb0\xcb\x83\x1a" +
-	"R\xf1\xc9\xc0\xef2J\xd7\xe71l\xbb\x18`p\x1d" +
-	"\xac\xe3~R\x84\x8c\x8dy<\xc8\xb3<\x08yV8" +
-	"\xb4Q\xbb\xe9?\xd2\xfa\x90\xc7[z\xec\x88\xd1\xf4\xa4" +
-	"af\x0c\x13\x0a\xdei>\x19?\xf7\x9fG@\xe28" +
-	"\x8f-\xc0\x8d\xe8\xff\xd0\xa9\xb8\xcb\xff\x8d\x94T|\x8f" +
-	"\xdd\xe4\xbf\x11\xd9\x1d\xde\x9b\x93\xf7\x14\x96\xcf0\x88#" +
-	"b\xce\xcb0\xdbGD\\\xc60-\xd6K1\x85 " +
-	"\x84\xb9\xfe\xee;V;:3\xaa\x801\x7f\x03\xe3>" +
-	"\xfb9\x91\x9f\xa7\xb2\xbc\x0c0\x9f\x87\xce&\xe7\xe9V" +
-	"s\x9en\x99S@op\x9en78O\xb7\xeb\x9c" +
-	"\x02Zq\x9en\x15\xe7\xe9Vq\x9en\x95\xc6\xff\xab" +
-	"\x8f\xb5\x7f\x9c\x0d\xcd\xb3\xab%\xdc\x10\xb3\xd6sC\xcc" +
-	"p\x90\x844\x07\xc0vIVN\xf7\x0d\xbb/g\x91" +
-	"\x94\xaa\x8dO\x1c\x14^;c\x11\x07\x01\xf2\xb5r," +
-	"\xf2\xb5\xd6'_\xf3\xbfj\xd8A\xder\x87\x88\xca_" +
-	"S\xd2s_~v\xcf)\xe4^\x01\xa4=$\xdc%" +
-	"\xa2r\x9f0>\x91\x90T\xcd\x1e5\xad\xf5\x06\xae\xe0" +
-	"\x88>\xb0\xd4\xff6\xea&\x80\xad#\xcd\x08\x9cN\xf5" +
-	"\x7f\xd8(U\x06~cRZ\xeb\xff\xaeM*\xae\x15" +
-	"\x9bVs\xa3s\x1e:x\xdd\xf6\xb8\xc1\xd0\xec\x05\xc3" +
-	"\xe2\x86\xc9\xe8'\x0e\xdb=\xd4\x04D2,\xe9\xdfz" +
-	"\xde\xe4\xee\xad\x97\xccY\xed\xea\x96\x86\xac\x98\xd5\xd2Z" +
-	"\x8a[\xbfK\xb5X'+d\x88\x01\xff#\x00\x00\xff" +
-	"\xff\xa1\xd3\xd4\x0e"
+const schema_b30a3af53cea6b3e = "x\xda\xccY}p\x1d\xd5u?g\xf7\xc9\xcf\xb2%" +
+	"\xbdwY\xc9\x92\xad\xd8\x0f\\3\xd8\x1aPm\xcb\xe0" +
+	"\xd8\x85\xc8\xfar-\x8dek\xf5\xe4\x1a\x0c\x9az\xf5" +
+	"t\xf5\xb4\xe6\xbd\xdd\xe7\xdd}\xb2E\x00\xc5\x1e\xdc`" +
+	"\xd7.\x13\x8a\x07\xccG\x87\x86x\xa8=N\x02N\x1c" +
+	"\x0c1\x0dd\xa0`LB\xf8j\x1b\x9at\x86\xaf6" +
+	"eB\x1bfJ!\x06\xbc\x9dsw\xdf\xee\xeaI\x02" +
+	"\xfaO'\xfe\xc7Og\xcf\xde{\xee\xb9\xe7\xfc\xce\xef" +
+	"\x9c]~\xa2r]lEu}\x03H\xe9\x06\xac\x98" +
+	"\xe5\xfe\xe6\xd8\xd9?i\xad\xfb\xf97@m@t\xeb" +
+	"\xcf\xae\xfa\xa3=7/y\x00*\xa48\x80\xf2\xc1\xdc" +
+	"\xf3\xcags\xe9\xd7\xef\xe7~\x1f\xd0=\xb9z\xee\xc1" +
+	"\xbe\x93\xd7\xef\x05v\xb1\xe4.\xec\xe8\xf8\xf5\x15\x7f\xfe" +
+	"\xdc\x05\x00l9R\xb5\x00\x95cU\xa4y\xb4j5" +
+	"\xa0\xfb\xd0\xce\xeb\xeb\x0fw=\xbc\x17\x18\x93\xdc\xaf\xdd" +
+	"\xf8\xde\xd5\x1f\xae\x9d\xf3\x03\x00RzC9E\x8a-" +
+	"\x8fV]\x86\x80\xee\xd5\xff\xddz\xd5\xbc\xd3\x17\xbeY" +
+	"n\x00\x92\xce\xbe\xea\x05\xa8\x1c\xae\xa6u\xbfU\xbd\x0b" +
+	"\xd0\x1d\xb8r\xfb\xc7\x7fu\xdb\xd1\xdb\xcb\xb4c\xa4\\" +
+	"Q#\xa1\xc2jH\xb9\xba\xa6\x15\xd0}\xee{\xef\xce" +
+	"\xf9\xc7\xd3\x1b\x0f\x02c\xf2$#\xae\xa8yKY#" +
+	"\x14\xaf\xac\xf9\xa6r\xa8\xe62\x00\x97_U\xfd\xec\xdb" +
+	"?\xf8\xd1AP/\xc6\x0a\xf7\xbf\xf6\xb7?r\xfd\xbb" +
+	"\xaf\xfd\xa7\xb7\xf2\xbe\x9a;Qy\x80^h9R\xb3" +
+	"\x95\xac\xb6\xff\xfa\xda\x8b\x9f\xf9\xfb\xaa;\x84'\x02e" +
+	"\xc0\x96\xbad?*\xcb\x92\xb4\xf6\xa5I\xf2\xc4\xaaO" +
+	"\x1b\xcfl\xbd\xeb\xc1;\x80\xd5Kn\xfb\xf3\xf7f?" +
+	"{\x7f\xf0~\xd2\xbc2y\x11*]B\xb3-\x99\xa5" +
+	"5?|-{\xa2\xd8r\x98\xce&\x97{\xa2\x98\xdc" +
+	"\x81\xca~\xa1\xbd/\xf9\xef\x80\xee\xb1\xd7\x9f\xeby\xf3" +
+	"\xf4\x9a\xc3\xa0\xd6#\x86\x0b\xd7\xc5\xe2\x08\xa0\x0c\xb2\xf3" +
+	"\x80\x8a\xc6\xc8g?z\xf2_n=5\xfa\xf5{\x80" +
+	"-\x90\xdc\xaf}\xe7\xa67Wv\\8Nnx\x9a" +
+	"\x9dW~\xc6h\xc9\xb3l3\xa0\xfb\xe9\xdf|t>" +
+	"\xb6h\xf1\xbd\xe4\x029\xbc_\xe1\x827Y\x13*\x1f" +
+	"\x90r\xcb\xfb,E.\x08\xb6T\x19b\xe8\xde\xaeX" +
+	"\\FT*\x95'\x14\xa6\xac\x06hY\xa3\xdcA\xea" +
+	"\xc1y\x18\x8bh\xd3\xda\xca\xce\xda\x9f*\xe3\xb5\x0f\x83" +
+	"\xec\x8e~\xfc\x8b\x8d?ye\xcf\x03\xa0.E\xd9\xfd" +
+	"\xe1{7\xdfz\xa4\xf3\xa5\x97<\x0b>\xac\xfd6*" +
+	"\xd5u\xf4Be\x1dEcp\x14\x95\xa1T\xb6\xe4\x93" +
+	"u\xaf(g\xeb.\x03P~-t\xb7\x0f\xfc\xfc\xbe" +
+	"K\xc7\x96}\x0f\xd8W\x10|\x97\x8e\xcf\xb3\x10P\xd9" +
+	"7\x8fb\xc5\xf8\xa4\xe3\xa5{\xb7\xdexf\x8a\x93\x1e" +
+	"\x9fw^yv\x1e\xe9?=/A\x07y\xa7\xef\xcc" +
+	"c\x1f6\xc9OyK\x09\xd3v\xd6[\x081\xf7_" +
+	"\xdb\xaf9][\xf9\xfaO\xa7\x04\xfd`\xfd[\x8a^" +
+	"Ov\xf1\xfa\xbb\x01]\xf6\xd5\x8f\xe7<\x9e\xfc\x8bg" +
+	"\xa7\xbf\xbbc\xf5\xef\x01*\xdf\xad\xa7\xbb\xfb\xe3\xcb\x1a" +
+	"\xdfM\x1dy\xe6\x1f\xa6\xd7\xaclx\x05P\xa9n\xa0" +
+	"\x03\xfc\xf2\x7f\xfe\xe9\xb1e\x8f\x8d=?5\xd8\x1b^" +
+	"P\xd64\x88`o\xf8SEk\xa8\x07p\x1b\x9b\xee" +
+	"\xf9\xd5\xe6\xa1m\xe7\"gP\x1bv\xd0\x19\xd4Go" +
+	"\xb9\xea\x90\xf3\xf0\x8b\xc0\xe6\x07\x8e\xba\xa6A8\xaa[" +
+	"\xec\x13\\\x8a\xda\x80\xb3\xcb\x00\xa3e\xbc\xa1\x1d\x95\xfd" +
+	"\xb4E\xcb\xe1\x86\xd5\x12\xa0{\xc9//\xfd\xfa{\xcb" +
+	"\xdfxu\xda\xf4\xael\xdc\x81\xca\xc2F\xb2m~#" +
+	"\x1d\xf7\xba\xb7\x0f\xde\xff\xba\xfd\xfe\x9be\xc7\xed\x8cK" +
+	"\x88\xcax\xe3[\xca>\xa1\xbcG(\xbf\x9c\xdb\x93X" +
+	"u\xebCo\xd3\xd2\x15\xe5K\xbf\xdb\xd8\x83\xca\xef\x1b" +
+	"E\xe04\x8a\x94\xfd\xd9\xc9G\x12\x9f\x8c\x1d\xfc\x0fR" +
+	"\x97\xca\xd5\x07\x17\xee@e\xe7BZ<\xbf\x90\x02&" +
+	"\xc8\xe9\xe9\xec\xae^$\xa12\x7f\x11\x85\xd7\x9aEd" +
+	"\xca}U\xa7j\xae\xf8\xed\xde\xdfMI\xf2\x07\x16-" +
+	"F\xe5\xbb\x8bh\xddc\x8b>\x02t\xbf}\xdf:\xeb" +
+	"\x9d\xccs\xbf\x9b\x02\xa1[RM\xa8\xf0\x14ij)" +
+	"\xca\xc6\x8fN\xffe\xf1\xc7?\xee\xfdlR\xc8\xa6n" +
+	"\x12!\x9b\xa2\x9b\x08\xde\x9e\xce\xc4\xa3)\x09\x95GS" +
+	"\xab\x01\x94\x97S\xbb\xc0\x85]n^3\xb4,\xcfs" +
+	"\xc9p\x9a3Z\xc1(\xac\xed\xd3,-o7\xb7\xa6" +
+	"\xcd]\xba\x91\xedCT\xab\xe4\x18@\x0c\x01XW\x0f" +
+	"\x80\xda)\xa3\xda'!b-\"\"\xeb\xdd\x01\xa0n" +
+	"\x94Q\xbdVB&a-J\x00lK\x13\x80\xda'" +
+	"\xa3z\x83\x84n\xa6\x98s\xf41\xcd\x02\x00\xac\x02\x09" +
+	"\xab\x00\xddBN3\x9cNn@\xc2\xd6\x9dq\x8c\x83" +
+	"\x84q\xc0D\xc62\x0b\xc8\xdc\xdbn\xf8\xc9\x92\x87\xee" +
+	">\xf4\x1b\x00D\x06\x18X)\x97[\xd9Qt\x1c\xdd" +
+	"\xc86\xcb\x1d\x1b\xc9\xd2\xd9bs\xb6X\xbcW\xd9\x04" +
+	"\x10\xcf\x14\x9dD\x8e\x8f8\xd3\x1c\xb4k\x8c\x1b\xce\xc0" +
+	"\xb8\\\xe0\xf4\xear\xf1\xea\xfe\xb5\xe2\xd5={\x01P" +
+	"b\xb7\xb4\x03\xa0\xcc\x8a\x07\x000\xc6\x8a\xdb\x00\xb0\x82" +
+	"\xed$\xe1,\xa6\x13\x10\xc4\xbd\xfff{\xffU2\x9d" +
+	"\x9e\xcdaZ\x0f\x00\xcee\x83\xfd\x00\xad\xb6p\xa3\xab" +
+	"\x15\x1d3\xaf9z,\xe3\xf9\x15F5k\x8c\xdb\x0e" +
+	"\x94\x1ed6\xf8\x02pu\xcb\xd2\xb3\x9a\xa3\x83l\x1a" +
+	"\x13\x8e\x9e\xcbiY\xee\x9aVV3\xf4\xccz\xe4\x96" +
+	"\xa3\xe7\xf4\x9b\xb4\x84\xa3\x9b\x86\x9b\xd7\x0dni\xb9r" +
+	"\xb1\xd1\xc9\xf3\x9a1\\&\x9e\xc8x\xeerm\xee\xfc" +
+	"\x99\x96+r\x00pmm\x8c\xa7\x1d\xcd\x01\xe43\xfb" +
+	"\xb9\xdb7I6\x0d\xe1\xe7 \"\x96\xad\x05P\x97\xc8" +
+	"\xa8.\xf7#\x02\x80]\xf1\x04\x80\xba\\Fu\xa3\x84" +
+	"\xadZ\xde,\x1a\x0e\xce\x05\x09\xe7\x12\xa4\x16\x1dK\xe7" +
+	"\x86\x83\x1d\xa6\x91\xe1\x86c\xb5jd\x99\x8d5\x80}" +
+	"2b2\x8a\xb3$\x9c\xd9\xa6\x01\xcf3@\x06\xc5<" +
+	"\x83\x10Y\xf5J\x00u\xb6\x8cj\xad\x84\xa9a^p" +
+	"F\xbd\xbd\xdd\x16\xf1\xef\xd5V:\xf3\xd4`X\xef9" +
+	"*~\x13\xb7\xbc\x03VD\x10\x11K\x95\x82\xad\xe8\x07" +
+	"\x89-\x8bc\x88\xf8XJI\xb6p\x1bH\xac.\x1e" +
+	"\x1c\x11\xd0^\x87n\x81\x8c\xe5\x0e\x07\xd9\xb2\xd7Q\x84" +
+	"\xa2\xfb\xfa\x86\xfb\xaf;\xf7\xf2\xf7O\x92%\xfc\xdcU" +
+	"\xbfz\xf0\x8d\x87\x9f\x8eZUQ~R?4\x9a7" +
+	"\x17\x9c\x0e\xcd\x1a2\x8d\xdel\xde\xe9\xd4\x1c\xd4\xc8\xd6" +
+	"\x86\xe0\xecGN\x02\xa8\xf7\xcb\xa8\xfe\x9d\x84\xac\x94\x9f" +
+	"G_\x00PO\xc8\xa8\x9e.\xe5'\";\xd5\x0f\xa0" +
+	"\xfePF\xf5)\x09\x99,\xd5\xa2\x8c\xc8\x9e\xdc\x06\xa0" +
+	"\x9e\x91Q}^B\x16\x93k1\x86\xc8\x9e=\x0e\xa0" +
+	">/\xa3\xfa\x9a\x84\xac\"V\x8b\x15\x88\xec\xe5W\x00" +
+	"\xd4\x7f\x96Q}GB\xd7\xf4\xadB\xa3\xc34ln" +
+	"\x8d\xa5\xc4\x95\"\x82\x84\x84\xb1\x94\xd3\xdd\xf9\x82&e" +
+	"\x9c\xcd\xc6\x86b\xbeh\xb7k9\xcd\xc8pJ\x12?" +
+	",Hg\x8b\xade\x019&B\"\x05X!\xca\xab" +
+	"\xc5m}\xb8\xc87\x80\xccw\x06\xef\x94g\x04OX" +
+	"\x1b\"\x8f\xf3\xda\xee~zM*\xf2~\x9e1\xc7\xb8" +
+	"\xb5\xde\xd22\x8en\xa2\x11\xd1\xf1<\x1e\x9b\xc9\xe3\x1d" +
+	"\xbe]\xc8#\xf02$0\xa2\xfaN\x007kqn" +
+	"\xf4j\x06\xc4\x8b\x16w\x87t3\xaf\xd9v\x1fZ\xe6" +
+	"p\xd1\xdbj\x9a\xf0\x15\xb8\xd3\xdc7\xca\x0d3\xed\x94" +
+	"\x96N\x8a\xa5\x97\xf5\x8b\xa5/\xed\x17\xf0sI\x8f\x80" +
+	"\x9f\x85=\x14'yne\xb9\x91\xa1,\x1d\xc9\x99\xbb" +
+	"\xb8\xa5\x1b\x80YW3\x9cQn\xeb\xb6\x17?N\xd1" +
+	"\xd2\x9d\xf1h,M9\xd9&\x1f\x19&\x01\x83\xb0 " +
+	"\xc8i\xad\x1d@\xbdAFu4\xcciN\xb11," +
+	"\xa3Z\x88\xa0|\x9ermTF\xd5\xa1(JzQ" +
+	"\xb4\x93\x849\x19\xd5\xdd\x12N\xf88\x148|\xc4\xdf" +
+	"\x16dn!\x0b\xc9\xb8\x87\xf3\xd1|\x05L\xd9\x8e\x96" +
+	"\xe58\x0b\xa4\x8aY\x18\xb9\xac2\x04o\x1ej\xe5\xce" +
+	".\xce\x0dB\xa5$\xd6\xa2L\x8e\xa4B\xb5TFu" +
+	"\x15e\x82T\x8b1\x00\xb6\x82\xb0\xear\x19\xd5\xafJ" +
+	"\xe8r\xcd\xca\xe9\x02o\x01\x93\xee!\xb6X>q\xe1" +
+	"\xdf\xee&C\x92\x80\xad9\xcd\xe1\xb63\xf5\xc14F" +
+	"l\xf2\xd2\xbd\xd5i\xdeb\xe8\x8e\xa8\x97\xc29\x0b\x9b" +
+	"\xc4\xa9\xeaz\xc4]\xb2v\x80\x84a\x1a\xdc\x1d\xf1\xa2" +
+	"\xd0\x00\x80\x89\x02\xb7\x08\x04\xbf\xb8\xbe%\xd2\x05\x9e\xa1" +
+	"\xb5k\x83[\xba\x85\xfc\xbc[F\xf5\xb6R\xb2\x03\xb0" +
+	"=$\xbcYF\xf5\xf6H\xb2\xef\xa3b\xfc\x0d\x19\xd5" +
+	"\x83\x91d\xdfO\x08p\xbb\x8c\xea]\x94\xec\x92\x97\xec" +
+	"\xdf:\x00\xa0\xde%\xa3\xfa\xa0\x84)\x91_\x98\x08\x19" +
+	", &\x00ScT9J\x97\x94(\x1a\xba\x83\x89" +
+	"\x90\xc2xJn\xa6\xe8l\xb66\xf2\x11@z\x1a\xf4" +
+	"\x88\xfeS\xbe\xbb`ZN\x1fGq|\x02q\x1f\x0a" +
+	"\x9e\xban]$x\xb1\xe4\x8eV\xef\xaa\xd5*\x8c\xd2" +
+	"*\xb6#\xd2H\xb1m!Qd\xac\xc9\xed\xda\xedp" +
+	"\xcb\xd0r\x90\x18\x18/p\xb7\x94n g\xb9\x90\xa8" +
+	"_\x09<y\x8a\xfc\xf3\x88\x8c\xea\x990\xde\x1fo\x0a" +
+	"\x01\xb2Zr]\x8c\xd0n\xf6\xe4\x02\x90\xaa\xe5\x0b$" +
+	"\x0c:.v\xb4\x1d\xa4\xea\xd8g$\x0c\xa8<;\xb4" +
+	"\x12$V!\xd7\x12\xfdbE\x8a\xbf\x82\x8c\xea\xcd\x12" +
+	"\xb2Y\xcbkq6\x00\x1b\xdf\x1b^c\xc2\x19/\x10" +
+	"\xfe\x05G\xf4\xdc\x95\xd0\x8d\x11\x13\x93\xee\xabo\xc8\x17" +
+	"\xce\xddz\xee5?\x16e\xcd\x99\x18\xf2B?\xa5\x8d" +
+	"8\xdcj\x15\xb5\xc6\xc6\x8b@\xc2\x8b\x085\x8bF\x9b" +
+	"\x93v4\xb4\x9c\xcd#\x9d\xda8\x04\x90<\x13\xeb\xa3" +
+	"\x16\x0b\xc3\xf6\x9fu\xaf\x0d\xa9=\xeb\xda\x1b\x12`\xd6" +
+	"\xd5\x1eRm\xd6v \xe4\x9d\xf4$\xe0\xf7\xac\xedx" +
+	"\xd8\xc1\xb2\xae\xe3!\xdff\xdd\xc7\xc3\xbe\x9d\xf5\xb6\x87" +
+	"-?\xeb\xde\xe6sO\xb7\xad\x9c4\x958R\xdb\x14" +
+	"\xd24\xe1g\x8a\xdb;=!\xda4-!r7O" +
+	"\xcb\xaa&|j\xe1vG\x98\xd8\xcc\xe59\xb0\xc6\xb3" +
+	"\xb2\xb9m,\x9b6\xf5\xdc@\x9c\xe7\x0b\x11\xfe\x8c\xc8" +
+	"\xba\xa8@o\x90Q\x1d\xa0\x9c\x8dy\xa1\xa6R\x85\x1d" +
+	"\x90Q\xddN9+y\xd0:\xf8B\x88\xb7\xaem\xea" +
+	"\xb9N^ppt\xbdi\xb5\x8dq+\xa5eu#" +
+	";\x0d\xb1\x19\xd6\xc6\xedn#m\xa2\x9e\x1b\xe0\xf9\xc2" +
+	"V=a\x0c\x9b\xbbJ\xf4\xda\xf5\xc8h\xf7\x88\xd46" +
+	"d\x8e\xf1\x92\x9d<_\x88\x94\xe2\x19\x11\x0e\x1d\xc1^" +
+	"\xc2\xa6\xb8\xb2)2F\xa8hJl\xd2\xf2<A " +
+	"8C\xc7\x10\xa0T\xef\xca\x88\x1bJ\xc5Dm\x0a\xfb" +
+	"\x88\x90C\x01`\"\xdc\xf2\xf3\x10(0\xc5\xc7\x98\xa9" +
+	"\x15\xb0T\xf3\xb8\xd5\\Z\xdf^\xd2\xcfSv1\xe7" +
+	"\xd8%\x0a\x09\xc0\xaa\x09\x1a\xabdT\x97F-\xc1/" +
+	"\xc1Q\xa7\xab\x0a\xe4\x15\x8a\x82\xcb\xc5)o\xf1\xaaB" +
+	"\xb1]T\x85\xbc\xd7`Pq\xc5\x18\xd3\xfaE\x831" +
+	"\xe85\x18[zD\x83\xa1\xf6\x88\x06\xa3\xb7G4\x18" +
+	"\xdd;D\x83\xd1\xb5\x03 Q\xb4\xb86\xa1\xe5\xf3\xa6" +
+	"\xa1k\x13\x86\xeeX\x9a\xc3\xdd\xc2\xa8i\x17FM\x0b" +
+	"\xe4\xa2\xed\x16LG\xb3m\xbd\x08\x98\x9f\xb0\x8b\xb9\x11" +
+	"R\xf0YS\x07E\x8b\xff{S\xe4w\xdf$yb" +
+	"\xbdf;\x91?\xd39s\xd7\xe7;\xb6Dw-{" +
+	"I_J\xa4\xc7t`C\xcd\xdff+\x9e\xd5\x04\xf3" +
+	"h\x10\x9ei\xf3<\xb3\xa6Ixf\xc5J\xe1\x99e" +
+	"+\x85g.Y+<3\x7f%@\xc22Mj\xe9" +
+	"\xb4\x91\x94=j\x9aNj\xc4*\xeaN\xab\xedX\xc5" +
+	"\x1b\x9d\x94]\xccj\xd6\x8cLAK\x10L\x96xB" +
+	"\x05\xf1\x84\x95a\xfb\"x\xc2,\xea_\x9aB\xf2\x90" +
+	"\xe2\xf4&&\xc3\xe2\xe2\x81o\x822-\xc8\xab\x197" +
+	"D\x87\xe2*\xe9\x87xuS\xd8\x9b$\x865\x87\x7f" +
+	")\x82\x91\xe6\xd6\x98Nl\xd9kt\xa81\xf9\xe4\x8e" +
+	"\x17\xd7,\xff\xf4\x83\xdfbi2\xc3\xd8\x0e\x90Xe" +
+	"<x\x1d\x12\x86\xd3\xe6\xacC5V\xd6p|\xc9\xb4" +
+	"\xe8\xd3\x12\x93./VnNs\xe9\x09\xed3m\x16" +
+	"\x95\x0e\xbbD\xc2D>\x9bw\xc2\xf4\x89\x0cC&\xa5" +
+	"O\xec\x0b\x90\x15\xc4i\x82y \xc3!\xb7\x84a@" +
+	"`\xab.\x95c\x8811\x05\xc3\x03\x00\xe9*\x941" +
+	"\xdd\x80\x842\x1e\xd8*uB\xde@\xf2%\xe8\xd3!" +
+	"\x09Q\xb9\x04-\x80\xf4\xc5$\xbf\x1c\xfd\xf6GFT" +
+	"\x96\x09\xf9R\x92\xafB\xbf\x03\x8a\x01(+\xc4:\xab" +
+	"H\xbe\x8e\xe4\xb3*D@)\xd7\xe0\x13\x00\xe9u$" +
+	"\xdfH\xf2\xf8,\x11SJ7\x1e\x07Ho$\xf9\xb5" +
+	"$\x9f\x1d\x17\x9c@\xd9\x82=\x00\xe9\x01\x92o'C" +
+	"*\x05+P\x06q\x08 }\x03\x89GQB\x0a\xa0" +
+	"J\x00\x85\xe3Z\x80\xf4v\x12\xe7PB\xea\xfe\x09\xbd" +
+	"\x07p\xd4\xe2\xf6\xa8\x99\x1b\x8e\xe0\xb8W\x0a\x068R" +
+	"\x19\xa0*@pR\x8aW\xdd\xe8#\xea\x09)\xc3i" +
+	"Ko\x8d\xf6LS\xe5%N\xb6\xbbeX\x1b\xefC" +
+	"\x8bg\xf4B\xba\x98\x9fT2vw\x14-\x8b\xf8Z" +
+	"\xa76\xdeg\xf1VO%Ppx\x9e\xfenC*" +
+	";\xed\x9a\xcd\x13dv\xf0xH\xb3\xb9W\x85\xc25" +
+	"\xb5\xe8\xc5b2\xbcu\x9f\xa1{\xa5\x0c\x93![)" +
+	"K\xa0)\xc1Tb\x06S:\x9f\xc84c[\x98\xf9" +
+	"\xa5b5\xa9k\xf8\xfc\xfe\xa5|\xd81\x13,\x0c\xc4" +
+	"\xc7\xbd\xa1\xd3l9V\xe5\xba\xde\xd6\x91\x8e\xa5\x1a/" +
+	"\xb8\xfe\xe6=\xfe(\xe5jjYJ\x94V\x14\xc52" +
+	"\x92\xe8\xeaF\xf4i@\x8cg\xac\x86\xe5)\x16P)" +
+	"\x7f\xa6\xe0%\x12;b\x01\xa8\xf7\xc8\xa8~\xc7\xaf\xd5" +
+	"\xc4c\xfe\x96\x84\x0f\xca\xa8\x9e(\xa5\x10\x00;v " +
+	"2h\x10\xf9C\xdc\xfa\x09\x00\xf5\xb4\x8c\xea3\x94<" +
+	"I\xaf\xcdxz\x08@}JF\xf5E\x09\x01<$" +
+	">KM\xe732\xaa\xbf\x90\xfe\xff\xe3\xd3\x1f\xc6\x0d" +
+	"@\\\xcf\xf3\xc9\xde\xabH\xc8\x80\x13\xbe\x02&\xa3\xdf" +
+	"u>?\xdcJ\xd4rJ\xb8E\xc8\xd1\xb6\xb2q*" +
+	"q\xa3\xb5Qn\xb4\xce\xeb\xe0T+2N\xfd\xbf\xc5" +
+	"\xa0ndL\xab`ZP6\x95\x99\xb1\xe5,\xc5\x81" +
+	" {\xe1'\xad\xca\xfe\xf0k\x18\xab\xbc\xd3\xed\x08'" +
+	"6\xee\xe6`\x02\x14\x0c\xa6JI\x858)\xb2\x83\xa4" +
+	"\xda;)\xae\xa9\x1b\xe4\xc3\x14\xb9\x08R\x85\xb0\xcf\x9f" +
+	"*\xf5\xa2\xb7\xa2F]z`@\x99\xef\xcbg+\xa5" +
+	"\xde/\xc8\xb3\xa5\"@wz\xc3]\xdd\x1b\xeer\x8f" +
+	"{\x0dz\xc3\xddAo\xb8{\x9d\xc7\xbdTo\xb8\xab" +
+	"z\xc3]\xd5\x1b\xee\xaa\xed\x7f\xa8\xe3\xdc/\x1e\x1f\x94" +
+	"\x8d&\xb6\x09G\xcc\xf7H([\x0c\xe0\xfa\x93\x08\xd1" +
+	"\x1fO\xf8s\xacxN\xd3\xbf4\xdb\xebo\xe5S\x18" +
+	"\xc0\xda\x90\xee\x94\xf7\xa6_d2\x88^?\xfc\xb6\xcc" +
+	"\x16D\xbe\x92T7\x85\x9f%Ye\x93\xdc\xb1Q\x1c" +
+	"P\x0cI\xa2h>\xe4\x07^g\x10x+\xda\xe6`" +
+	"\xa4\xcd\xf0\x1d\x98\x86x\x81gB~\x12,\xee\xf3\x93" +
+	"L\xd1\xe9\xd5v\xb7\xd9\xb2\xad\xe7\xf5\x9c\xc8\xa3~\xcd" +
+	"\xe1}\xbc||\x01\xf8\xbf\x01\x00\x00\xff\xff,w\xee" +
+	"\xa8"
 
 func init() {
 	schemas.Register(schema_b30a3af53cea6b3e,
 		0x80ce153f3bc9a9e8,
-		0x81b1cd5c7865e185,
 		0x825bb2508c0b37b2,
 		0x82a74595175b71a3,
 		0x87feb816363ff43c,
 		0x88a5848ef8603554,
+		0x8c4cb8d60ae5aec7,
 		0x8cb6b3e3c50d3665,
 		0x8f0cbec420589373,
 		0x8fa09457bc1bfc34,
-		0x940d47081167b059,
 		0x953375ac67d4f573,
 		0x9539b8e14ac7d5a9,
-		0x962b157a9dc85681,
-		0x9846fdc78610c262,
 		0x987b68b57edbbdb6,
 		0x9a221e04faf79efc,
 		0x9c5dedfd679ac842,
 		0x9d247c812334c917,
 		0x9d81d2bf4cd0f868,
 		0xaafe4332e17aa43e,
-		0xb0919989cca2fd9a,
-		0xb1c2fa546f41d480,
-		0xb2df3dc668478979,
-		0xb991be9572278e2d,
-		0xbbb7aeae0d097e05,
+		0xae2976259bce5460,
 		0xbc6b579acf43fb6e,
+		0xc0032af5b7bc50e4,
 		0xc2d50914b83d42de,
-		0xc5292994de2615c2,
 		0xc58610b90af83811,
 		0xc6c4991fe51b272f,
 		0xc876b729b7d7f6d9,
-		0xcb1556d28ba514af,
+		0xcb5a624fdc982a1b,
 		0xcca7748d367db151,
 		0xcfcf44997e7ceab4,
 		0xd3da30ea7b25d921,
-		0xd801f16b6fa39a94,
 		0xe1ed73d59c8ce359,
 		0xe3a37e340f816cd1,
 		0xe98c76fb0fb0b2cd,
-		0xeddbace5e62bf665,
 		0xeed4e55bb04289ef,
 		0xf082ec2d0eb50c9b,
 		0xf0c763e472409ba2,
-		0xfcd78361390515e1,
+		0xfd4dbbbb758bb8f7,
 		0xfec75f2ddd43431d)
 }
