@@ -228,11 +228,19 @@ kj::Promise<capnp::Capability::Client> ConnectionManager::connect(kj::AsyncIoCon
             srStr = srStr.slice(*atPos + 1);
             kj::String addressPort;
             kj::String srTokenBase64;
+            kj::String address;
+            kj::uint port = 0;
             KJ_IF_MAYBE (slashPos, srStr.findFirst('/')) {
                 addressPort = kj::str(srStr.slice(0, *slashPos));
                 srTokenBase64 = kj::str(srStr.slice(*slashPos + 1));
             } else {
                 addressPort = kj::str(srStr.slice(*atPos + 1));
+            }
+            KJ_IF_MAYBE (colonPos, addressPort.findFirst(':')) {
+                address = kj::str(addressPort.slice(0, *colonPos));
+                port = addressPort.slice(*colonPos + 1).parseAs<kj::uint>();
+            } else {
+                address = kj::str(addressPort);
             }
 
             if (!addressPort.size() == 0) {
@@ -246,7 +254,7 @@ kj::Promise<capnp::Capability::Client> ConnectionManager::connect(kj::AsyncIoCon
                     if (srTokenBase64.size() > 0) return restoreSR((*clientContext)->bootstrap, srTokenBase64);
                     return (*clientContext)->bootstrap;
                 } else {
-                    return ioc.provider->getNetwork().parseAddress(addressPort).then(
+                    return ioc.provider->getNetwork().parseAddress(address, port).then(
                         [restoreSR](kj::Own<kj::NetworkAddress> &&addr) { 
                             return addr->connect().attach(kj::mv(addr)); 
                         }).then(
