@@ -234,7 +234,7 @@ kj::Promise<capnp::Capability::Client> ConnectionManager::connect(kj::AsyncIoCon
                 addressPort = kj::str(srStr.slice(0, *slashPos));
                 srTokenBase64 = kj::str(srStr.slice(*slashPos + 1));
             } else {
-                addressPort = kj::str(srStr.slice(*atPos + 1));
+                addressPort = kj::str(srStr);
             }
             KJ_IF_MAYBE (colonPos, addressPort.findFirst(':')) {
                 address = kj::str(addressPort.slice(0, *colonPos));
