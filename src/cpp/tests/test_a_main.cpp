@@ -54,7 +54,7 @@ class AMain
 public:
   AMain(kj::ProcessContext& context) 
     : context(context)
-    //, ioContext(kj::setupAsyncIo()) 
+    , ioContext(kj::setupAsyncIo()) 
   {}
 
   kj::MainBuilder::Validity setHost(kj::StringPtr name) { host = kj::str(name); return true; }
@@ -67,13 +67,13 @@ public:
 
     A::Client a = kj::heap<AServ>();
     
-    capnp::EzRpcServer server(a, kj::str("*"), 9999);
-    auto& waitScope = server.getWaitScope();
-    kj::NEVER_DONE.wait(waitScope);
+    //capnp::EzRpcServer server(a, kj::str("*"), 9999);
+    //auto& waitScope = server.getWaitScope();
+    //kj::NEVER_DONE.wait(waitScope);
     
-    //auto portProm = conMan.bind(ioContext, kj::mv(a), host, 9999);
-    //std::cout << portProm.wait(ioContext.waitScope) << std::endl;
-    //kj::NEVER_DONE.wait(ioContext.waitScope);
+    auto portProm = conMan.bind(ioContext, kj::mv(a), host, 9999);
+    std::cout << portProm.wait(ioContext.waitScope) << std::endl;
+    kj::NEVER_DONE.wait(ioContext.waitScope);
 
     KJ_LOG(INFO, "stopping A");
     return true;
@@ -95,7 +95,7 @@ private:
   kj::String host{ kj::str("*") };
   int port{0};
   kj::ProcessContext &context;
-  //kj::AsyncIoContext ioContext;
+  kj::AsyncIoContext ioContext;
 };
 
 KJ_MAIN(AMain)
