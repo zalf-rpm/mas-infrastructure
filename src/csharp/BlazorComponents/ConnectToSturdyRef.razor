@@ -14,14 +14,14 @@
 @implements IDisposable
 
 <MudPaper Class="d-flex flex-row py-2 px-1">
-    <MudButton Class="pa-2 mx-2"
+    <MudButton xs="2" Class="pa-2 mx-2"
                Variant=Variant.Filled
                StartIcon=@Icons.Material.Filled.Add
                Color=@Color.Primary
                OnClick=@(async () => await OpenAddSturdyRefDialog())>
         Add new
     </MudButton>
-    <MudSelect Class="pa-2 mx-2"
+    <MudSelect xs="6" Class="pa-2 mx-2"
                T=@StoredSRData
                Value=@selectedBookmark
                ValueChanged=@SelectedBookmarkChanged
@@ -33,12 +33,12 @@
             <MudSelectItem Value=@b>
                 <MudElement Class="d-flex">
                     <MudIcon Icon=@(b.AutoConnect ? Icons.Material.Filled.CastConnected : Icons.Material.Filled.Cast) />
-                    <MudText Class="ml-8" Typo=@Typo.body1>@($"{b.PetName} ({b.SturdyRef})")</MudText>
+                    <MudText Class="ml-8" Typo=@Typo.body1>@($"{b.PetName}")</MudText>
                 </MudElement>
             </MudSelectItem>
         }
     </MudSelect>
-    <MudButton Class="pa-2 mx-2"
+    <MudButton xs="2" Class="pa-2 mx-2"
                Variant=Variant.Filled
                StartIcon=@Icons.Material.Filled.Edit
                Color=@Color.Primary
@@ -46,7 +46,7 @@
                OnClick=@(async () => await OpenAddSturdyRefDialog(selectedBookmark))>
         Edit
     </MudButton>
-    <MudButton Class="pa-2 mx-2"
+    <MudButton xs="2" Class="pa-2 mx-2"
                Variant=Variant.Filled
                StartIcon=@buttonIcon
                Color=@buttonColor
@@ -96,7 +96,7 @@
     private Color buttonColor = Color.Primary;
     private String buttonLabel = "Connect";
 
-    private bool _showSturdyRefEdit = false;
+    private bool showSturdyRefEdit = false;
 
     [Parameter]
     public TCapnpInterface? Capability { get; set; }
@@ -108,7 +108,7 @@
     public String Label { get; set; } = "Persistent capability";
 
     [Parameter]
-    public String HelperText { get; set; } = "capnp://host:port/token";
+    public String HelperText { get; set; } = "capnp://vatId@host:port/srToken";
 
     [Parameter]
     public EventCallback<RpcException> RpcExceptionThrown { get; set; }

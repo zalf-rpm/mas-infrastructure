@@ -69,17 +69,18 @@ namespace Mas.Infrastructure.Common
             }
         }
 
+
         public async Task<TRemoteInterface> Connect<TRemoteInterface>(string sturdyRef) where TRemoteInterface : class, IDisposable
         {
             // we assume that a sturdy ref url looks always like 
             // capnp://vat-id_base64-curve25519-public-key@host:port/sturdy-ref-token_base64
             if (sturdyRef.StartsWith("capnp://")) 
             {
-                var vatIdBase64 = "";
+                var vatIdBase64Url = "";
                 var addressPort = "";
                 var address = "";
                 var port = 0;
-                var srTokenBase64 = "";
+                var srTokenBase64Url = "";
 
                 var rest = sturdyRef.Substring(8);
                 // is unix domain socket
@@ -90,7 +91,7 @@ namespace Mas.Infrastructure.Common
                 else
                 {
                     var vatIdAndRest = rest.Split("@");
-                    if (vatIdAndRest.Length > 0) vatIdBase64 = vatIdAndRest[0];
+                    if (vatIdAndRest.Length > 0) vatIdBase64Url = vatIdAndRest[0];
                     if (vatIdAndRest[^1].Contains("/"))
                     {
                         var addressPortAndRest = vatIdAndRest[^1].Split("/");
@@ -101,7 +102,7 @@ namespace Mas.Infrastructure.Common
                             if (addressAndPort.Length > 0) address = addressAndPort[0];
                             if (addressAndPort.Length > 1) port = Int32.Parse(addressAndPort[1]);
                         }
-                        if (addressPortAndRest.Length > 1) srTokenBase64 = addressPortAndRest[1];
+                        if (addressPortAndRest.Length > 1) srTokenBase64Url = addressPortAndRest[1];
                     }
                 }
 
@@ -113,10 +114,10 @@ namespace Mas.Infrastructure.Common
                         //var con = new TcpRpcClient(address, port);
                         var con = _connections.GetOrAdd(addressPort, new TcpRpcClient(address, port));
                         await Task.WhenAll(con.WhenConnected);
-                        if (!string.IsNullOrEmpty(srTokenBase64))
+                        if (!string.IsNullOrEmpty(srTokenBase64Url))
                         {
                             var restorer = con.GetMain<Schema.Persistence.IRestorer>();
-                            var srTokenArr = Convert.FromBase64String(srTokenBase64);
+                            var srTokenArr = Convert.FromBase64String(Restorer.FromBase64Url(srTokenBase64Url));
                             var srToken = System.Text.Encoding.UTF8.GetString(srTokenArr);
                             var cap = await restorer.Restore(new Schema.Persistence.Restorer.RestoreParams { 
                                 LocalRef=srToken });

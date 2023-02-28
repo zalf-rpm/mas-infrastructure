@@ -1,0 +1,23 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../BlazorComponents"
+		},
+		{
+			"path": "../../../capnproto_schemas"
+		},
+		{
+			"path": "../MonicaBlazorUI"
+		},
+		{
+			"path": "../common"
+		},
+		{
+			"path": "../services/registration_service"
+		}
+	],
+	"settings": {}
+}

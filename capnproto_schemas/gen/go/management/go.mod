@@ -7,14 +7,14 @@ require (
 	github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common v0.0.0-20230208160538-deb034d36602
 	github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/crop v0.0.0-20230208160538-deb034d36602
 	github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/geo v0.0.0-20230208160538-deb034d36602
+	github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/persistence v0.0.0-20230208150301-1e037e4be0ba
 )
 
 replace (
 	github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common => ../common
 	github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/crop => ../crop
 	github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/geo => ../geo
+	github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/persistence => ../persistence
 )
-require (
-	github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/persistence v0.0.0-20230208150301-1e037e4be0ba // indirect
-	golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9 // indirect
-)
+
+require golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9 // indirect

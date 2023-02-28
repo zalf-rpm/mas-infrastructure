@@ -13,9 +13,9 @@ namespace Mas.Infrastructure.ServiceRegistry
     class Program
     {
         class RegData {
-            public string reg_sr { get; set; }
-            public string reg_name { get; set; }
-            public string cat_id { get; set; }
+            public string reg_sr { get; set; } = "";
+            public string reg_name { get; set; } = "";
+            public string cat_id { get; set; } = "";
             public Mas.Schema.Common.IAction unreg { get; set; }
             public Mas.Schema.Persistence.SturdyRef reregSR { get; set; }
         }
@@ -59,7 +59,7 @@ namespace Mas.Infrastructure.ServiceRegistry
             var restorerContainerSR = "";
             var tcpPort = 0;
             var readRegSRsFromStdIn = false;
-            string regFilePath = "regs.json"; 
+            string regFilePath = null;//"regs.json"; 
             string checkIP = "8.8.8.8";
             int checkPort = 53;
 
@@ -130,7 +130,7 @@ namespace Mas.Infrastructure.ServiceRegistry
             foreach (var cat in registry.Categories) Console.WriteLine(cat.Id);
             var registrySturdyRef = restorer.SaveStr(BareProxy.FromImpl(registry)).Item1;
             Console.WriteLine($"registry_sr: {registrySturdyRef}");
-            if(regs.registry.reg_sr != "") await TryRegisterService(conMan, regs.registry, registry);
+            if(regs.registry != null && regs.registry.reg_sr != "") await TryRegisterService(conMan, regs.registry, registry);
 
             var registrar = new ServiceRegistry.Registrar(registry, restorer);
             var regSturdyRef = restorer.SaveStr(BareProxy.FromImpl(registrar)).Item1;

@@ -1,5 +1,6 @@
 @0xc4b468a2826bb79b;
 
+
 using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("mas::rpc");
 
@@ -12,5 +13,9 @@ interface S {
 }
 
 interface CB {
-    get @0 () -> (res :List(UInt64));
+    getD @0 () -> (d :D);
+}
+
+interface D {
+    getData @0 () -> (i :UInt64, data :Data);#List(UInt64));
 }

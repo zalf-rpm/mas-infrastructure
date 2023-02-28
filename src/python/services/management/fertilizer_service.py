@@ -67,6 +67,8 @@ class MineralFertilizer(management_capnp.Fertilizer.Server, common.Identifiable,
                 self.id = fertj.get("id", "")
                 self.name = fertj.get("name", "")
                 self._parameters = monica_mgmt_capnp.Params.MineralFertilization.Parameters(
+                    id=self.id,
+                    name=self.name,
                     carbamid=self.get_value(fertj["Carbamid"]),
                     nh4=self.get_value(fertj["NH4"]),
                     no3=self.get_value(fertj["NO3"])
