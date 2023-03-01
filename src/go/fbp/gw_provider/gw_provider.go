@@ -24,7 +24,8 @@ const pathToMasDefault = "../../../../"
 const inDatasetSrDefault = "capnp://7nEAyfT_A2xoksqWfquXzW6zQ3MJ9TRxm1UhxoXAem4=@192.168.56.1:51560/ZWFmY2Q2OGQtOTkxYS00YWM4LTk3MGItYTY5ZTM1YjU0YmM2"
 const pathToOutDirDefault = "./out/"
 
-var python = [...]string{"conda", "run", "-n", "base", "--no-capture-output", "python"}
+var pythonWithConda = [...]string{"conda", "run", "-n", "base", "--no-capture-output", "python"}
+var pythonFromSys = [...]string{"python"}
 
 // fbp flow groundwater provider
 func main() {
@@ -32,8 +33,17 @@ func main() {
 	pathToMas := flag.String("pathMAS", pathToMasDefault, "path to mas root folder")
 	inDatasetSr := flag.String("in_dataset_sr", inDatasetSrDefault, "input dataset sturdy ref")
 	pathToOutDir := flag.String("path_to_out_dir", pathToOutDirDefault, "path to output directory")
-	flag.Parse()
+	usePythonFromConda := flag.Bool("usePythonFromConda", true, "use python from conda environment")
+	setCondaEnv := flag.String("setCondaEnv", "base", "set conda environment")
 
+	flag.Parse()
+	var python []string
+	if *usePythonFromConda {
+		python = pythonWithConda[:]
+		python[3] = *setCondaEnv
+	} else {
+		python = pythonFromSys[:]
+	}
 	// create output directory
 	if _, err := os.Stat(*pathToOutDir); os.IsNotExist(err) {
 		err = os.MkdirAll(*pathToOutDir, 0755)
