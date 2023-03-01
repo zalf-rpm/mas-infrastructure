@@ -21,8 +21,10 @@ const pathToChannelExe = "../../../cpp/common/_cmake_debug/Debug/channel.exe"
 
 // const pathToChannelExe = "../../../go/fbp/channel/channel.exe"
 const pathToMasDefault = "../../../../"
-const inDatasetSrDefault = "capnp://ipFwgkCH_o-8yWOkJb2BCGCPvfGS_NsSC7tY4QYLrZ8=@192.168.56.1:51846/MTViOTE4M2UtOTFmYy00NDZiLWIxYjYtYmEyM2E1MjA2Yzk0"
+const inDatasetSrDefault = "capnp://7nEAyfT_A2xoksqWfquXzW6zQ3MJ9TRxm1UhxoXAem4=@192.168.56.1:51560/ZWFmY2Q2OGQtOTkxYS00YWM4LTk3MGItYTY5ZTM1YjU0YmM2"
 const pathToOutDirDefault = "./out/"
+
+var python = [...]string{"conda", "run", "-n", "base", "--no-capture-output", "python"}
 
 // fbp flow groundwater provider
 func main() {
@@ -57,12 +59,12 @@ func main() {
 	// start fbp flow channels
 	firstReaderSr := make(chan string)
 	firstWriterSr := make(chan string)
-	channels := make([]chan bool, 0, len(flowList))
-	firstKill := make(chan bool)
-	channels = append(channels, firstKill)
+	channels := make([]chan bool, 0, len(flowList)) // list of channels to be closed
+	firstKill := make(chan bool)                    // signal channel for first reader and writer
+	channels = append(channels, firstKill)          // add first kill channel to list of channels to be closed
 	go setupFlowChannels(*pathToChannel, firstReaderSr, firstWriterSr, firstKill)
 
-	// wait for first reader and writer
+	// wait for the channel to print the sturdyRefs of first reader and writer
 	doneFR, doneFW := false, false
 	first_reader_sr, first_writer_sr := "", ""
 	for !(doneFR && doneFW) {
@@ -76,15 +78,7 @@ func main() {
 	fmt.Println("first reader: ", first_reader_sr)
 	fmt.Println("first writer: ", first_writer_sr)
 
-	// // convert to sturdy ref and back
-	// first_reader_srSR, _ := NewSturdyRefByString(first_reader_sr)
-	// // reset host to localhost
-	// first_reader_srSR.vat.address.host = "127.0.0.1"
-	// first_reader_sr = first_reader_srSR.String()
-	// firstWriterSrSR, _ := NewSturdyRefByString(first_writer_sr)
-	// firstWriterSrSR.vat.address.host = "127.0.0.1"
-	// first_writer_sr = firstWriterSrSR.String()
-
+	// open a connection to the first channel
 	conManager := NewConnectionManager()
 	go conManager.Run()
 
@@ -94,7 +88,7 @@ func main() {
 	}
 	firstReader := common.Channel_Reader(*first_reader)
 
-	// verify that all components exist
+	// verify that components exist
 	getComponentPath := func(module string) string {
 		executable := fmt.Sprintf("%s/%s", *pathToMas, module)
 
@@ -109,13 +103,13 @@ func main() {
 	}
 	create_components := map[string]func([]string) *exec.Cmd{
 		"get_climate_locations": func(srs []string) *exec.Cmd {
-			args := []string{
-				"python",
+			args := make([]string, len(python))
+			copy(args, python[:])
+			args = append(args,
 				getComponentPath("src/python/fbp/get_climate_locations.py"),
 				fmt.Sprintf("dataset_sr=%s", *inDatasetSr),
 				"continue_after_location_id=r:361/c:142",
-				"no_of_locations_at_once=10000",
-			}
+				"no_of_locations_at_once=10000")
 			args = append(args, srs...)
 			cmd := exec.Command(args[0], args[1:]...)
 			return cmd
@@ -131,66 +125,66 @@ func main() {
 			// for _, sr := range srs {
 			// 	args = append(args, "--"+sr)
 			// }
-			args := []string{
-				"python",
+			args := make([]string, len(python))
+			copy(args, python[:])
+			args = append(args,
 				getComponentPath("src/python/fbp/timeseries_to_data.py"),
 				"in_type=capability",
 				"subrange_start=2000-01-01",
 				"subrange_end=2019-12-31",
-				"subheader=tavg,globrad,precip",
-			}
+				"subheader=tavg,globrad,precip")
 
 			args = append(args, srs...)
 			cmd := exec.Command(args[0], args[1:]...)
-
 			return cmd
 		},
 		"aggregate_timeseries_data_monthly": func(srs []string) *exec.Cmd {
-			args := []string{
-				"python",
-				getComponentPath("src/python/fbp/aggregate_timeseries_data_monthly.py"),
-			}
+			args := make([]string, len(python))
+			copy(args, python[:])
+			args = append(args,
+				getComponentPath("src/python/fbp/aggregate_timeseries_data_monthly.py"))
 			args = append(args, srs...)
 			cmd := exec.Command(args[0], args[1:]...)
 			return cmd
 		},
 		"write_file_1": func(srs []string) *exec.Cmd {
-			args := []string{
-				"python",
+			args := make([]string, len(python))
+			copy(args, python[:])
+			args = append(args,
 				getComponentPath("src/python/fbp/write_file.py"),
 				"append=true",
-				fmt.Sprintf("path_to_out_dir=%s", *pathToOutDir),
-			}
+				fmt.Sprintf("path_to_out_dir=%s", *pathToOutDir))
 			args = append(args, srs...)
 			cmd := exec.Command(args[0], args[1:]...)
 			return cmd
 		},
 		"write_file_2": func(srs []string) *exec.Cmd {
 
-			args := []string{
-				"python",
+			args := make([]string, len(python))
+			copy(args, python[:])
+			args = append(args,
 				getComponentPath("/src/python/fbp/write_file.py"),
 				"append=true",
-				fmt.Sprintf("path_to_out_dir=%s", *pathToOutDir),
-			}
+				fmt.Sprintf("path_to_out_dir=%s", *pathToOutDir))
+
 			args = append(args, srs...)
 			cmd := exec.Command(args[0], args[1:]...)
 			return cmd
 		},
 		"write_file_3": func(srs []string) *exec.Cmd {
-			args := []string{
-				"python",
+			args := make([]string, len(python))
+			copy(args, python[:])
+			args = append(args,
 				getComponentPath("src/python/fbp/write_file.py"),
 				"append=true",
-				fmt.Sprintf("path_to_out_dir=%s", *pathToOutDir),
-			}
+				fmt.Sprintf("path_to_out_dir=%s", *pathToOutDir))
 			args = append(args, srs...)
 			cmd := exec.Command(args[0], args[1:]...)
 			return cmd
 		},
 	}
-	compNameToComponent := map[string]map[string]string{}
-	chanIdToInOutSrNames := map[string]map[string]string{}
+	compNameToComponent := map[string]map[string]string{}  // map of component name to input and output sturdy refs
+	chanIdToInOutSrNames := map[string]map[string]string{} // map of channel id to input and output sturdy ref names
 
 	// start all channels for the flow
 	for _, step := range flowList {
@@ -200,12 +194,11 @@ func main() {
 		channels = append(channels, newChan)
 		go startChannel(*pathToChannel, chan_id+"|"+first_writer_sr, chan_id, newChan)
 
-		time.Sleep(2 * time.Second)
 		chanIdToInOutSrNames[chan_id] = map[string]string{"out": step.srNameOut, "in": step.srNameIn}
 
-		compNameToComponent[step.module1] = map[string]string{step.srNameOut: ""}
+		compNameToComponent[step.module1] = make(map[string]string) //{step.srNameOut: ""}
 
-		compNameToComponent[step.module2] = map[string]string{step.srNameIn: ""}
+		compNameToComponent[step.module2] = make(map[string]string) //{step.srNameIn: ""}
 	}
 
 	// sleep for a while to let channels start
@@ -284,7 +277,7 @@ func main() {
 				}
 				return srs, notEmtpy
 			}
-
+			// start a component if all sturdy refs are available
 			if srs, notEmtpy := checkComponents(start_comp_name); notEmtpy {
 				go startComponent(start_comp_name, create_components[start_comp_name](srs), componentDone)
 				componentsStarted++
