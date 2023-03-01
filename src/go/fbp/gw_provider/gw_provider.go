@@ -37,6 +37,7 @@ func main() {
 	setCondaEnv := flag.String("setCondaEnv", "base", "set conda environment")
 
 	flag.Parse()
+	// set python command
 	var python []string
 	if *usePythonFromConda {
 		python = pythonWithConda[:]
@@ -51,7 +52,7 @@ func main() {
 			log.Fatal(err)
 		}
 	}
-
+	// create fbp flow
 	type flow struct {
 		module1   string
 		srNameOut string
@@ -111,6 +112,7 @@ func main() {
 		}
 		return executable
 	}
+	// create start functions for each component
 	create_components := map[string]func([]string) *exec.Cmd{
 		"get_climate_locations": func(srs []string) *exec.Cmd {
 			args := make([]string, len(python))
