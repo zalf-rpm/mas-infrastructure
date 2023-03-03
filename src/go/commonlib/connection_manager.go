@@ -1,4 +1,4 @@
-package main
+package commonlib
 
 import (
 	"context"
@@ -63,7 +63,11 @@ type vatId struct {
 	publicKey3 uint64
 }
 
-func NewSturdyRef(vatIds []uint64, host string, port uint16) *SturdyRef {
+func (v vatId) toSlice() []uint64 {
+	return []uint64{v.publicKey0, v.publicKey1, v.publicKey2, v.publicKey3}
+}
+
+func NewSturdyRef(vatIds []uint64, host string, port uint16, srToken string) *SturdyRef {
 	return &SturdyRef{
 		vat: vat{
 			id: vatId{
@@ -77,10 +81,10 @@ func NewSturdyRef(vatIds []uint64, host string, port uint16) *SturdyRef {
 				port: port,
 			},
 		},
-		localRef: "",
+		localRef: srToken,
 	}
-
 }
+
 func NewSturdyRefByString(sturdyRef string) (*SturdyRef, error) {
 	//  capnp://vat-id_base64-curve25519-public-key@host:port/sturdy-ref-token_base64
 
@@ -213,14 +217,6 @@ func (cm *ConnectionManager) connect(sturdyRef interface{}) (*capnp.Client, erro
 			}
 
 			err = p.SetLocalRef(l.ToPtr())
-			//err = p.SetLocalRef(sr.localRef)
-
-			// owner, err := persistence.NewSturdyRef_Owner(p.Segment())
-			// if err != nil {
-			// 	return err
-			// }
-			// owner.SetGuid(me) // TBD
-			// p.SetSealedFor(owner)
 
 			return err
 		})
@@ -267,12 +263,4 @@ func (cm *ConnectionManager) TryConnect(sr string, retry_count int, retry_secs i
 		}
 	}
 
-}
-
-type ConnError struct {
-	Out chan<- error
-}
-
-func (cerr *ConnError) ReportError(err error) {
-	cerr.Out <- err
 }

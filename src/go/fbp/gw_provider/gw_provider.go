@@ -14,6 +14,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common"
+	"github.com/zalf-rpm/mas-infrastructure/src/go/commonlib"
 )
 
 // DEFAULTS:
@@ -90,7 +91,7 @@ func main() {
 	fmt.Println("first writer: ", first_writer_sr)
 
 	// open a connection to the first channel
-	conManager := NewConnectionManager()
+	conManager := commonlib.NewConnectionManager()
 	go conManager.Run()
 
 	first_reader, err := conManager.TryConnect(first_reader_sr, 5, 5, true)
