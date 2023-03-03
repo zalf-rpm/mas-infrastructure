@@ -13,7 +13,7 @@
 
 <MudGrid>
     <MudItem Class=@(HideSturdyRefConnector ? "d-none" : "") xs="12">
-        <ConnectToSturdyRef Label="Persistent capability to soil service (capnp://host:port/token)"
+        <ConnectToSturdyRef Label="Persistent capability to soil service"
                             CapabilityChanged=@SoilServiceCapabilityChanged
                             TCapnpInterface=@Soil.IService
                             @bind-SturdyRef=@soilServiceSturdyRef
@@ -43,13 +43,28 @@
         </MudButton>
     </MudItem>
     -->
-    <MudItem xs="12" Class="d-flex flex-row py-2 px-1">
-        <MudButton Class="px-5"
-                   Variant=@Variant.Filled
+    <MudItem xs="2" Class="d-flex align-stretch"><!--Class="d-flex flex-row gap-4">-->
+        <MudStack Class="justify-center">
+            <MudSwitch @bind-Checked=@AutoLoad Label="Auto load" Color="Color.Success" />
+            <MudButton Variant=@Variant.Filled
                    Color=@Color.Primary
                    OnClick=@GetSoilProfiles>
-            Load soil profile @@ @(Math.Round(LatLng.Item1, 2))N/@(Math.Round(LatLng.Item2, 2))E with ...
-        </MudButton>
+                Load soil profile<br>@@ @(Math.Round(LatLng.Item1, 2))N/@(Math.Round(LatLng.Item2, 2))E 
+            </MudButton>
+        </MudStack>
+    </MudItem>
+    <MudItem xs="10" Class="d-flex flex-row">
+        <MudChipSet @bind-SelectedValues=@SelectedSoilProperties MultiSelection=@true Filter=@true>
+            @foreach (var (e, i) in (availableSoilProps ?? new List<Soil.PropertyName>()).OrderBy(e =>
+                e.ToString()).Select((e, i) => (e, i)))
+            {
+                var en = e.ToString();
+                <MudChip Size=@Size.Large Color=@Color.Default SelectedColor=@Color.Success Value=@e Text=@en
+                    Default=@DefaultSelectedSoilProperties.Contains(en)>
+                </MudChip>
+            }
+        </MudChipSet>
+        @*
         <MudChipSet SelectedChipsChanged=@(cs => chosenSoilPropertyNames = cs.Select(c => (Soil.PropertyName)c.Tag))
                     MultiSelection=@true
                     Filter=@true>
@@ -63,13 +78,14 @@
                 </MudChip>
             }
         </MudChipSet>
+        *@
     </MudItem>
     <MudItem xs="12">
         <MudSimpleTable>
             <thead>
                 <tr>
                     <th>Size [m]</th>
-                    @foreach (var propName in chosenSoilPropertyNames.OrderBy(p => p.ToString()))
+                    @foreach (var propName in selectedSoilProperties.OrderBy(p => p.ToString()))
                     {
                         <th>
                             @propName.ToString()
@@ -121,7 +137,7 @@
                                           Adornment="Adornment.End"
                                           AdornmentText="m" />
                         </td>
-                        @foreach (var propName in chosenSoilPropertyNames.OrderBy(p => p.ToString()))
+                        @foreach (var propName in selectedSoilProperties.OrderBy(p => p.ToString()))
                         {
                             var props = layer.Properties.Where(p => p.Name == propName);
                             if (props.Any())
@@ -257,6 +273,9 @@
 
 @code {
     [Parameter]
+    public bool AutoLoad { get; set; } = false;
+
+    [Parameter]
     public Soil.IService? SoilServiceCap { get; set; }
 
     private bool soilServiceCapUpdated = false;
@@ -274,10 +293,26 @@
     [Parameter]
     public EventCallback<List<Soil.Layer>> ProfileLayersChanged { get; set; }
 
-    private IEnumerable<Soil.PropertyName> availableSoilProps = new List<Soil.PropertyName>();
-    private IEnumerable<Soil.PropertyName> chosenSoilPropertyNames = new List<Soil.PropertyName>();
-    private MudChip[] defaultSelectedSoilPropertyNameChips = new MudChip[0];
+    private IEnumerable<Soil.PropertyName>? availableSoilProps;// = new List<Soil.PropertyName>();
+    //private IEnumerable<Soil.PropertyName> chosenSoilPropertyNames = new List<Soil.PropertyName>();
+    //private MudChip[] defaultSelectedSoilPropertyNameChips = new MudChip[0];
     //private MudChipSet chosenSoilPropertyNamesChipset;
+
+    private ICollection<object>? selectedSoilPropertiesAsObject;
+
+    public ICollection<object> SelectedSoilProperties
+    {
+        get => selectedSoilPropertiesAsObject ?? (availableSoilProps ?? new List<Soil.PropertyName>()).Select(e =>
+        (object)e).ToList();
+        set { selectedSoilPropertiesAsObject = value; 
+            //updateSubTimeSeries(); 
+        }
+    }
+
+    private IEnumerable<Soil.PropertyName> selectedSoilProperties
+    {
+        get => SelectedSoilProperties.Select(e => (Soil.PropertyName)e);
+    }
 
     [Parameter]
     public bool AllowLocalSoilPropertiesEditing { get; set; } = true;
@@ -341,11 +376,12 @@
             var (mps, ops) = await SoilServiceCap.GetAllAvailableParameters(false);
             Console.WriteLine("after GetAllAvailableParameters");
             availableSoilProps = mps.Concat(ops);
-            defaultSelectedSoilPropertyNameChips = new MudChip[availableSoilProps.Count()];
-
             StateHasChanged();
-            await MarkDefaultChips(defaultSelectedSoilPropertyNameChips,
-            cs => { chosenSoilPropertyNames = cs.Select(c => (Soil.PropertyName)c.Tag); });
+            //defaultSelectedSoilPropertyNameChips = new MudChip[availableSoilProps.Count()];
+
+            //StateHasChanged();
+            //await MarkDefaultChips(defaultSelectedSoilPropertyNameChips,
+            //cs => { chosenSoilPropertyNames = cs.Select(c => (Soil.PropertyName)c.Tag); });
         }
         catch (Capnp.Rpc.RpcException e)
         {
@@ -405,7 +441,7 @@
                 new Geo.LatLonCoord { Lat = LatLng.Item1, Lon = LatLng.Item2 },
                 new Soil.Query
                 {
-                    Mandatory = chosenSoilPropertyNames.ToArray(),
+                    Mandatory = selectedSoilProperties.ToArray(),
                     OnlyRawData = false
                 }
             );
