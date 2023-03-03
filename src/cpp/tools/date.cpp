@@ -284,8 +284,10 @@ Date Date::withAddedYears(int years) const {
 
 std::string Date::toIsoDateString(const std::string& wrapInto) const {
   ostringstream s;
-  auto y = year();// -(isRelativeDate() ? relativeBaseYear() : 0);
-  
+  int y = year();// -(isRelativeDate() ? relativeBaseYear() : 0);
+  int d = day();
+  int m = month();
+
   s << wrapInto;
   if(isRelativeDate()) {
     if(y < 10) s << "000";
@@ -293,8 +295,8 @@ std::string Date::toIsoDateString(const std::string& wrapInto) const {
     else if(y < 1000) s << "0";
   }
   s << y
-    << "-" << (month() < 10 ? "0" : "") << month()
-    << "-" << (day() < 10 ? "0" : "") << day() << wrapInto;
+    << "-" << (m < 10 ? "0" : "") << m
+    << "-" << (d < 10 ? "0" : "") << d << wrapInto;
   return s.str();
 }
 
