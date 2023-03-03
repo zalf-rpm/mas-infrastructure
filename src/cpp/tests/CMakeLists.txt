@@ -216,4 +216,23 @@ endif()
 
 #------------------------------------------------------------------------------
 
+# create test_reader_srv directly serve interface 
+add_executable(test_a 
+    test_a_main.cpp
+)
+target_link_libraries(test_a
+    ${CMAKE_THREAD_LIBS_INIT}
+    ${CMAKE_DL_LIBS}
+    capnp_schemas_lib
+    helpers_lib
+    common_lib
+)
+#target_include_directories(test_reader_srv PRIVATE ${COMMON_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+if (MSVC)
+    target_compile_options(test_a PRIVATE "/MT$<$<CONFIG:Debug>:d>")
+endif()
+
+#------------------------------------------------------------------------------
+
+
 message(STATUS "<- Mas-infrastructure-tests")

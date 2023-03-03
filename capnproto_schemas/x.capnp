@@ -11,3 +11,7 @@ interface X {
 interface Y {
     m @0 (hello :Text);
 }
+
+interface A {
+    m @0 (n :Int64) -> (r :Float64);
+}

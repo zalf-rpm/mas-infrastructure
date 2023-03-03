@@ -24,11 +24,14 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <kj/main.h>
 #include <kj/string.h>
 
+#include <capnp/ez-rpc.h>
+
 #include "common/rpc-connection-manager.h"
 #include "common/common.h"
 #include "storage.capnp.h"
 #include "management.capnp.h"
 #include "registry.capnp.h"
+#include "x.capnp.h"
 
 class TestServicesMain
 {
@@ -46,9 +49,21 @@ public:
   {
     KJ_LOG(INFO, "starting");
 
-    auto registry = conMan.tryConnectB(ioContext, sr.asPtr()).castAs<mas::schema::registry::Registry>();
-    auto info = registry.infoRequest().send().wait(ioContext.waitScope);
-    KJ_LOG(INFO, info.getId(), info.getName());
+    auto a = conMan.tryConnectB(ioContext, sr).castAs<A>();
+
+    //capnp::EzRpcClient client("localhost", 9999);
+    //auto& waitScope = client.getWaitScope();
+    //A::Client a = client.getMain<A>();
+
+    auto mReq = a.mRequest();
+    mReq.setN(5);
+    std::cout << "res: " << mReq.send().wait(ioContext.waitScope).getR() << std::endl;
+
+    std::cout << std::endl;
+
+    //auto registry = conMan.tryConnectB(ioContext, sr.asPtr()).castAs<mas::schema::registry::Registry>();
+    //auto info = registry.infoRequest().send().wait(ioContext.waitScope);
+    //KJ_LOG(INFO, info.getId(), info.getName());
 
     // auto req = store.newContainerRequest();
     // req.setName("test-container");
