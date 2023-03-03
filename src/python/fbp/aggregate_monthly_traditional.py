@@ -17,10 +17,15 @@
 
 from collections import defaultdict
 from datetime import date, timedelta
+import json
+import numpy as np
 import os
 import pandas as pd
 from pathlib import Path
 import sys
+
+from pyproj import CRS, Transformer
+from scipy.interpolate import NearestNDInterpolator
 
 PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent
 if str(PATH_TO_REPO) not in sys.path:
@@ -43,6 +48,56 @@ config = {
     "filepath_pattern": "csv_{id}.csv",
 }
 common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
+
+
+def create_mapping():
+    wgs84_crs = CRS.from_epsg(4326)
+    etrs_laea_crs = CRS.from_epsg(3035)
+    latlon_to_etrs_laea_transformer = Transformer.from_crs(wgs84_crs, etrs_laea_crs, always_xy=True)
+
+    coarse_grained = json.loads(open("/home/berg/Desktop/josepha/rowcol-to-latlon.json").read())
+    points = []
+    values = []
+    coarse_to_fine = defaultdict(lambda: 0)
+    for (row, col), (lat, lon) in coarse_grained:
+        r, h = latlon_to_etrs_laea_transformer.transform(lon, lat)
+        points.append([r, h])
+        values.append([row, col])
+    coarse_interpolate = NearestNDInterpolator(np.array(points), np.array(values))
+
+    fine_grained = []
+    with open("/home/berg/Desktop/josepha/ref.csv") as f:
+        next(f)
+        i = 0
+        for line in f:
+            _, _, x, y, cell_id = line.split(",")
+            fine_grained.append([float(x), float(y), cell_id.strip()])
+            i+=1
+            if i % 10000 == 0:
+                print(".", end="")
+        print(i, "fine grained cells")
+
+    with open("/home/berg/Desktop/josepha/mapping.csv", "wt") as _:
+        header = ["cell_id", "x", "y", "projection_cell_id"]
+        header_str = ",".join(header) + "\n"
+        _.write(header_str) 
+
+        i = 0
+        for x, y, cell_id in fine_grained:
+            r, h = coarse_interpolate(x, y)
+            coarse_to_fine[str(r).zfill(3)+str(h).zfill(3)] += 1
+            line = [cell_id, str(x), str(y), str(r).zfill(3)+str(h).zfill(3)]
+            line_str = ",".join(line) + "\n"
+            _.write(line_str)
+            i+=1
+            if i % 10000 == 0:
+                print(int(i / 10000), end=" ")
+
+    #print(coarse_to_fine)
+    print("done")
+
+#create_mapping()
+#exit()
 
 def aggregate_monthly(header : list, data : list[list[float]], start_date : date):
     grouped_data = defaultdict(lambda: defaultdict(lambda: defaultdict(list))) # var -> year -> month -> values 
