@@ -44,7 +44,7 @@ func (i *Identifiable) Info(c context.Context, ii common.Identifiable_info) erro
 }
 
 type Persistable struct {
-	SelfRestore *Restorer
+	saveChan chan *SaveMsg
 	//function to create a capability of the object
 	Cap func() capnp.Client
 }
@@ -52,7 +52,7 @@ type Persistable struct {
 // Persistent_Server interface
 func (p *Persistable) Save(c context.Context, call persistence.Persistent_save) error {
 
-	if p.SelfRestore != nil {
+	if p.saveChan != nil {
 		var owner string
 		if call.Args().HasSealFor() {
 			sealForOwner, err := call.Args().SealFor()
@@ -64,18 +64,25 @@ func (p *Persistable) Save(c context.Context, call persistence.Persistent_save) 
 				if err != nil {
 					return err
 				}
-				if _, ok := p.SelfRestore.owner[owner]; !ok {
-					return errors.New("no owner with this guid")
-				}
 			}
 		}
+
+		saveMsg := &SaveMsg{
+			persitentObj: p,
+			owner:        owner,
+			returnChan:   make(chan SaveAnswer),
+		}
+		answer := <-saveMsg.returnChan
+		if answer.err != nil {
+			return answer.err
+		}
+		sr := answer.sr
+		unsaveSr := answer.unsave
 
 		result, err := call.AllocResults()
 		if err != nil {
 			return err
 		}
-
-		sr, unsaveSr := p.SelfRestore.save(p, owner)
 
 		srl, err := result.NewSturdyRef()
 		if err != nil {
@@ -183,13 +190,17 @@ type SturdyRefToken string
 
 type Restorer struct {
 	issuedSturdyRefTokens map[SturdyRefToken]func() capnp.Client // SturdyRefToken to capability generator function
-	withdrawActions       map[SturdyRefToken]func()
+	withdrawActions       map[SturdyRefToken]*Action
 	sign_pk               *[32]byte
 	sign_sk               *[64]byte
 	host                  string
 	port                  uint16
 	restorerVatId         vatId
 	owner                 map[string]*[32]byte
+
+	restoreMsgC chan *RestoreMsg
+	saveMsgC    chan *SaveMsg
+	deleteMsgC  chan *DeleteMsg
 }
 
 // NewRestorer creates a new Restorer
@@ -214,21 +225,90 @@ func NewRestorer() Restorer {
 
 	restorer := Restorer{
 		issuedSturdyRefTokens: map[SturdyRefToken]func() capnp.Client{},
-		withdrawActions:       map[SturdyRefToken]func(){},
+		withdrawActions:       map[SturdyRefToken]*Action{},
 		sign_pk:               pub,
 		sign_sk:               priv,
 		host:                  hostname,
 		port:                  0,
 		restorerVatId:         restorerVatId,
 		owner:                 map[string]*[32]byte{},
+		restoreMsgC:           make(chan *RestoreMsg),
+		saveMsgC:              make(chan *SaveMsg),
+		deleteMsgC:            make(chan *DeleteMsg),
 	}
+
+	go restorer.messageLoop()
 	return restorer
+}
+
+func (r *Restorer) messageLoop() {
+	for {
+		select {
+		case msg := <-r.saveMsgC:
+			sr, unsave, err := r.save(msg.persitentObj, msg.owner)
+			msg.returnChan <- SaveAnswer{
+				sr:     sr,
+				unsave: unsave,
+				err:    err,
+			}
+		case msg := <-r.deleteMsgC:
+			delete(r.issuedSturdyRefTokens, SturdyRefToken(msg.srToken))
+			delete(r.withdrawActions, SturdyRefToken(msg.unsaveToken))
+		case msg := <-r.restoreMsgC:
+
+			srToken := msg.localRef
+			ownerGuid := msg.owner
+			if ownerGuid != "" {
+				out := make([]byte, 0, len([]byte(srToken)))
+				if _, ok := r.owner[ownerGuid]; !ok {
+					msg.returnChan <- RestoreAnswer{err: errors.New("no owner with this guid")}
+				}
+				sign.Open(out, []byte(srToken), r.owner[ownerGuid])
+				srToken = string(out)
+			}
+			if _, ok := r.issuedSturdyRefTokens[SturdyRefToken(srToken)]; !ok {
+				msg.returnChan <- RestoreAnswer{err: errors.New("no such token")}
+			} else {
+				cap := r.issuedSturdyRefTokens[SturdyRefToken(srToken)]()
+				msg.returnChan <- RestoreAnswer{cap: cap}
+			}
+		}
+	}
+}
+
+type RestoreMsg struct {
+	localRef string
+	owner    string
+
+	returnChan chan RestoreAnswer
+}
+
+type RestoreAnswer struct {
+	cap capnp.Client
+	err error
+}
+
+type SaveMsg struct {
+	persitentObj *Persistable
+	owner        string
+
+	returnChan chan SaveAnswer
+}
+type SaveAnswer struct {
+	sr     *SturdyRef
+	unsave *SturdyRef
+	err    error
+}
+
+type DeleteMsg struct {
+	srToken     string
+	unsaveToken string
 }
 
 // Restorer_Server interface
 func (r *Restorer) Restore(c context.Context, call persistence.Restorer_restore) error {
 
-	srToken := ""
+	ownerGuid := ""
 	if call.Args().HasSealedFor() {
 		// if call has a sealed for, then we need to open the token with the owner's key
 		// and get the local ref
@@ -236,34 +316,30 @@ func (r *Restorer) Restore(c context.Context, call persistence.Restorer_restore)
 		if err != nil {
 			return err
 		}
-		ownerGuid, err := owner.Guid()
+		ownerGuid, err = owner.Guid()
 		if err != nil {
 			return err
 		}
-		localRef, err := call.Args().LocalRef()
-		if err != nil {
-			return err
-		}
-		srToken = localRef.Text()
-		out := make([]byte, 0, len([]byte(srToken)))
-		if _, ok := r.owner[ownerGuid]; !ok {
-			return errors.New("no owner with this guid")
-		}
-		sign.Open(out, []byte(srToken), r.owner[ownerGuid])
-		srToken = string(out)
-
-	} else {
-		localRef, err := call.Args().LocalRef()
-		if err != nil {
-			return err
-		}
-		srToken = localRef.Text()
 	}
-
-	if _, ok := r.issuedSturdyRefTokens[SturdyRefToken(srToken)]; !ok {
-		return errors.New("no such token")
+	srToken := ""
+	localRef, err := call.Args().LocalRef()
+	if err != nil {
+		return err
 	}
-	cap := r.issuedSturdyRefTokens[SturdyRefToken(srToken)]()
+	srToken = localRef.Text()
+
+	restoreMsg := RestoreMsg{
+		localRef:   srToken,
+		owner:      ownerGuid,
+		returnChan: make(chan RestoreAnswer),
+	}
+	r.restoreMsgC <- &restoreMsg
+
+	answer := <-restoreMsg.returnChan
+	if answer.err != nil {
+		return answer.err
+	}
+	cap := answer.cap
 
 	results, err := call.AllocResults()
 	if err != nil {
@@ -275,14 +351,16 @@ func (r *Restorer) Restore(c context.Context, call persistence.Restorer_restore)
 }
 
 // save - saves a capability and returns a SturdyRef to it and a SturdyRef to the unsave method
-func (r *Restorer) save(persistentObj *Persistable, owner string) (sr *SturdyRef, unsaveSR *SturdyRef) {
+func (r *Restorer) save(persistentObj *Persistable, owner string) (sr *SturdyRef, unsaveSR *SturdyRef, err error) {
 
 	guid := uuid.New().String()
 	uguid := uuid.New().String()
 	if owner != "" {
+		// check if owner exists
 		if _, ok := r.owner[owner]; !ok {
-			panic("No owner with this guid")
+			return nil, nil, errors.New("no owner with this guid")
 		}
+		// sign the guid and uguid with the owner's key
 		out := make([]byte, 0, len([]byte(guid)))
 
 		sign.Open(out, []byte(guid), r.owner[owner])
@@ -292,14 +370,56 @@ func (r *Restorer) save(persistentObj *Persistable, owner string) (sr *SturdyRef
 		sign.Open(out, []byte(uguid), r.owner[owner])
 		uguid = string(out)
 	}
+	// create the SturdyRef
 	sr = NewSturdyRef(r.restorerVatId.toSlice(), r.host, r.port, guid)
+	// create the unsave/delete SturdyRef
 	unsaveSR = NewSturdyRef(r.restorerVatId.toSlice(), r.host, r.port, uguid)
 
 	r.issuedSturdyRefTokens[SturdyRefToken(guid)] = persistentObj.Cap
-	r.withdrawActions[SturdyRefToken(uguid)] = func() {
-		delete(r.issuedSturdyRefTokens, SturdyRefToken(guid))
-		delete(r.withdrawActions, SturdyRefToken(uguid))
+
+	r.withdrawActions[SturdyRefToken(uguid)] = NewAction(r.saveMsgC, func() error {
+		// delete the SturdyRef
+		deleteMsg := DeleteMsg{
+			srToken:     guid,
+			unsaveToken: uguid,
+		}
+		r.deleteMsgC <- &deleteMsg
+		return nil
+	})
+
+	return sr, unsaveSR, err
+}
+
+// Action
+type Action struct {
+	persistable *Persistable
+	do          func() error
+}
+
+func NewAction(doSave chan *SaveMsg, doAction func() error) *Action {
+
+	action := Action{
+		persistable: &Persistable{
+			saveChan: doSave,
+		},
+		do: doAction,
 	}
 
-	return sr, unsaveSR
+	restoreFunc := func() capnp.Client {
+		return capnp.Client(common.Action_ServerToClient(&action))
+	}
+	action.persistable.Cap = restoreFunc
+
+	return &action
+}
+
+// Action_Server interface
+func (a *Action) Do(c context.Context, call common.Action_do) error {
+
+	// do something
+	return a.do()
+}
+
+func (a *Action) Save(c context.Context, call persistence.Persistent_save) error {
+	return a.persistable.Save(c, call)
 }
