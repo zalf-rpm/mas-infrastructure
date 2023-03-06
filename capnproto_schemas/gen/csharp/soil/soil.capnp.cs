@@ -139,6 +139,7 @@ namespace Mas.Schema.Soil
                 F32Value = 0,
                 BValue = 1,
                 Type = 2,
+                Unset = 3,
                 undefined = 65535
             }
 
@@ -155,6 +156,9 @@ namespace Mas.Schema.Soil
                         break;
                     case WHICH.Type:
                         Type = reader.Type;
+                        break;
+                    case WHICH.Unset:
+                        which = reader.which;
                         break;
                 }
 
@@ -183,6 +187,8 @@ namespace Mas.Schema.Soil
                         case WHICH.Type:
                             _content = null;
                             break;
+                        case WHICH.Unset:
+                            break;
                     }
                 }
             }
@@ -200,6 +206,8 @@ namespace Mas.Schema.Soil
                         break;
                     case WHICH.Type:
                         writer.Type = Type;
+                        break;
+                    case WHICH.Unset:
                         break;
                 }
 
