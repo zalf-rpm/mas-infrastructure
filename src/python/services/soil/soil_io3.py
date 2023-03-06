@@ -326,13 +326,19 @@ def available_soil_parameters(con, table="soil_profile", id_col="id", only_raw_d
     mandatory = []
     optional = []
 
+    no_of_rows = 0
+    con.row_factory = sqlite3.Row
+    for row in con.cursor().execute("select count({}) from {}".format(id_col, table)):
+        no_of_rows = int(row[0])
+
     for param in params.keys():
-        con.row_factory = sqlite3.Row
+        #con.row_factory = sqlite3.Row
         q = query.format(id_col, table, param)
         for row in con.cursor().execute(q):
-            if int(row["count"]) == 0:
+            row_count = int(row["count"])
+            if row_count == 0:
                 mandatory.append(params[param])
-            else:
+            elif row_count < no_of_rows:
                 optional.append(params[param])
 
     # update mandatory list if we can derive some data
