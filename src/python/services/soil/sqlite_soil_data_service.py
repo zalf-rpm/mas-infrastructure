@@ -310,19 +310,22 @@ class Service(soil_capnp.Service.Server, common.Identifiable, common.Persistable
                     monica_param = self._capnp_prop_to_monica_param_name.get(prop, None)
                     if monica_param:
                         props[i].name = prop
-                        value = layer[monica_param]
-                        if prop == "impenetrable" or prop == "inGroundwater":
-                            props[i].bValue = value
-                        elif prop == "soilType":
-                            props[i].type = value
-                        elif prop == "sand" or prop == "clay" or prop == "silt":
-                            props[i].f32Value = value * 100.0
-                        elif prop == "sceleton" or prop == "fieldCapacity" or prop == "permanentWiltingPoint" or prop == "saturation":
-                            props[i].f32Value = value * 100.0
-                        elif prop == "soilmoisture":
-                            props[i].f32Value = value * 100.0
+                        if monica_param not in layer:
+                            props[i].unset = None
                         else:
-                            props[i].f32Value = value
+                            value = layer[monica_param]
+                            if prop == "impenetrable" or prop == "inGroundwater":
+                                props[i].bValue = value
+                            elif prop == "soilType":
+                                props[i].type = value
+                            elif prop == "sand" or prop == "clay" or prop == "silt":
+                                props[i].f32Value = value * 100.0
+                            elif prop == "sceleton" or prop == "fieldCapacity" or prop == "permanentWiltingPoint" or prop == "saturation":
+                                props[i].f32Value = value * 100.0
+                            elif prop == "soilmoisture":
+                                props[i].f32Value = value * 100.0
+                            else:
+                                props[i].f32Value = value
 
         profiles.sort(key=lambda p: p.percentageOfArea, reverse=True)
         return profiles

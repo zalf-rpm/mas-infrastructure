@@ -63,9 +63,10 @@ struct Layer {
   struct Property {
     name @0 :PropertyName; # name of the layer property
     union {
-      f32Value @1 :Float32;
-      bValue @2 :Bool;
-      type @3 :Text;
+      f32Value  @1 :Float32;
+      bValue    @2 :Bool;
+      type      @3 :Text;
+      unset     @4 :Void;
     }
   }
 
