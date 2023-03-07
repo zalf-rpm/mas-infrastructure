@@ -186,3 +186,6 @@ async def main(path_to_data, serve_bootstrap=True, host=None, port=None,
 if __name__ == '__main__':
     asyncio.run(main("/run/user/1000/gvfs/sftp:host=login01.cluster.zalf.de,user=rpm/beegfs/common/data/climate/dwd/csvs", 
         serve_bootstrap=True, use_async=True)) 
+
+
+
