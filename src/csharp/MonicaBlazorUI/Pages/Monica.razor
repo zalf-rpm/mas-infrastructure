@@ -37,10 +37,10 @@
     }
     <MudExpansionPanel @bind-IsExpanded=@panelOpened["Connections"]
                        Class=@(HideSturdyRefConnectors ? "d-none" : "")
-                       Text="Connections">
+                       Text="Service Connections">
         <MudGrid>
             <MudItem Class=@(HideSturdyRefConnectors ? "d-none" : "") xs="12">
-                <ConnectToSturdyRef Label="Persistent capability to MONICA instance (capnp://host:port/token)"
+                <ConnectToSturdyRef Label="Persistent capability to MONICA instance"
                                     CapabilityChanged=@MonicaCapabilityChanged
                                     TCapnpInterface="Model.IEnvInstance<Common.StructuredText, Common.StructuredText>"
                                     @bind-SturdyRef=MonicaSturdyRef
@@ -49,15 +49,7 @@
                 </ConnectToSturdyRef>
             </MudItem>
             <MudItem Class=@(HideSturdyRefConnectors ? "d-none" : "") xs="12">
-                <ConnectToSturdyRef Label="Persistent capability to climate time series (capnp://host:port/token)"
-                                    CapabilityChanged=@TimeSeriesCapabilityChanged
-                                    TCapnpInterface=@Climate.ITimeSeries
-                                    @bind-SturdyRef=TimeSeriesSturdyRef
-                                    ConnectOnInit=@TryConnectOnInit>
-                </ConnectToSturdyRef>
-            </MudItem>
-            <MudItem Class=@(HideSturdyRefConnectors ? "d-none" : "") xs="12">
-                <ConnectToSturdyRef Label="Persistent capability to climate time series (capnp://host:port/token)"
+                <ConnectToSturdyRef Label="Persistent capability to AlterTimeSeries service"
                                     CapabilityChanged=@TimeSeriesFactoryCapabilityChanged
                                     TCapnpInterface=@Climate.IAlterTimeSeriesWrapperFactory
                                     @bind-SturdyRef=TimeSeriesFactorySturdyRef
@@ -65,7 +57,7 @@
                 </ConnectToSturdyRef>
             </MudItem>
             <MudItem Class=@(HideSturdyRefConnectors ? "d-none" : "") xs="12">
-                <ConnectToSturdyRef Label="Persistent capability to climate time series (capnp://host:port/token)"
+                <ConnectToSturdyRef Label="Persistent capability to soil service"
                                     CapabilityChanged=@SoilServiceCapabilityChanged
                                     TCapnpInterface=@Soil.IService
                                     @bind-SturdyRef=SoilServiceSturdyRef
@@ -73,12 +65,7 @@
                 </ConnectToSturdyRef>
             </MudItem>
             <MudItem Class=@(HideSturdyRefConnectors ? "d-none" : "") xs="12">
-                <ConnectToSturdyRef Label="Persistent capability to climate time series (capnp://host:port/token)"
-                                    CapabilityChanged=@ClimateServiceCapabilityChanged
-                                    TCapnpInterface=@Climate.IService
-                                    @bind-SturdyRef=ClimateServiceSturdyRef
-                                    ConnectOnInit=@TryConnectOnInit>
-                </ConnectToSturdyRef>
+                
             </MudItem>
             <MudItem Class=@(HideSturdyRefConnectors ? "d-none" : "") xs="12">
                 @code {
@@ -91,7 +78,7 @@
                     [Parameter]
                     public EventCallback<Reg.IRegistry> FertilizerRegistryCapChanged { get; set; }
                 }
-                <ConnectToSturdyRef Label="Persistent capability to fertilizer service (capnp://host:port/token)"
+                <ConnectToSturdyRef Label="Persistent capability to fertilizer service"
                                     CapabilityChanged=@(cap => {
                                                             if (cap == null) return;
                                                             if (FertilizerRegistryCap != cap) FertilizerRegistryCap?.Dispose();
@@ -113,7 +100,7 @@
                     [Parameter]
                     public EventCallback<Reg.IRegistry> CropRegistryCapChanged { get; set; }
                 }
-                <ConnectToSturdyRef Label="Persistent capability to fertilizer service (capnp://host:port/token)"
+                <ConnectToSturdyRef Label="Persistent capability to MONICA crop service"
                                     TCapnpInterface=@Reg.IRegistry
                                     CapabilityChanged=@(cap => {
                                                             if (cap == null) return;
@@ -161,19 +148,27 @@
                       Zoom=6>
         </GeoposPicker>
     </MudExpansionPanel>
-    @if (false)
-    {
-        <MudExpansionPanel Class=@(true ? "d-none" : "")
-                           @bind-IsExpanded=@panelOpened["ClimateService"]
-                           Text="Choose climate data from service">
-            <ClimateService ClimateServiceCap=@Capnp.Rpc.Proxy.Share(ClimateServiceCap)
-                            HideSturdyRefConnector=@true
-                            HideGeoPosPicker=@true
-                            LatLng=@LatLng
-                            TimeSeriesCapChanged=@TimeSeriesCapabilityChanged>
-            </ClimateService>
-        </MudExpansionPanel>
-    }
+    <MudExpansionPanel  @bind-IsExpanded=@panelOpened["ClimateService"]
+                        Text="Choose climate data from service">
+        <MudTabs Elevation="1" Rounded=@true @bind-ActivatePanelIndex=@SelectedTimeSeriesSourceIndex>
+            @code {
+                private int SelectedTimeSeriesSourceIndex = 0;
+            }
+            <MudTabPanel Text="Single Timeseries">
+                <ClimateTimeSeries TimeSeriesCapChanged=@TimeSeriesCapabilityChanged/>
+            </MudTabPanel>
+            <MudTabPanel Text="Single Climate Dataset">
+                <ClimateDataset HideGeoPosPicker=@true
+                                LatLng=@LatLng
+                                TimeSeriesCapChanged=@TimeSeriesCapabilityChanged/>
+            </MudTabPanel>
+            <MudTabPanel Text="Climate Service">
+                <ClimateService HideGeoPosPicker=@true
+                                LatLng=@LatLng
+                                TimeSeriesCapChanged=@TimeSeriesCapabilityChanged/>
+            </MudTabPanel>
+        </MudTabs>
+    </MudExpansionPanel>
     <MudExpansionPanel @bind-IsExpanded=@panelOpened["UpdateTimeSeries"] Text=@(overwriteTimeSeriesData ? "Timeseries has been altered below." : "Timeseries has not been altered.")>
         @code {
             private bool overwriteTimeSeriesData = false;
@@ -223,7 +218,7 @@
                                  LatLng=@LatLng
                                  HideSturdyRefConnector=@true
                                  SoilServiceCap=@(SoilServiceCap == null ? null : Capnp.Rpc.Proxy.Share(SoilServiceCap))
-                                 @bind-ProfileLayers=profileLayers
+                                 @bind-SelectedLayers=profileLayers
                                  HideGeoPosPicker=@true>
                     </SoilService>
                 </MudItem>

@@ -67,7 +67,7 @@
         </MudPaper>
     </MudItem>
     <MudItem xs="12">
-        <MudTabs Elevation="1" Rounded=@true>
+        <MudTabs Elevation="1" Rounded=@true @bind-ActivatePanelIndex=@SelectedProfileIndex>
             @foreach(var (k, (profile, ProfileLayers)) in Profiles.Select((layer, k) => (k, layer)))
             {
                 <MudTabPanel Text=@($"Profile {k+1} ({Math.Round(profile.PercentageOfArea, 0)}%)")
@@ -288,8 +288,21 @@
     private String soilServiceSturdyRef = "";
 
     [Parameter]
-    public List<(Soil.Profile, List<Soil.Layer>)> Profiles { get; set; } = new();
+    public List<Soil.Layer> SelectedLayers { get; set; } = new();
+    [Parameter]
+    public EventCallback<List<Soil.Layer>> SelectedLayersChanged { get; set; }
 
+    private int selectedProfileIndex = 0;
+    private int SelectedProfileIndex { 
+        get => selectedProfileIndex;
+        set {
+            selectedProfileIndex = value;
+            if (Profiles.Count > value) SelectedLayers = Profiles[value].Item2;
+        }
+    }
+
+    [Parameter]
+    public List<(Soil.Profile, List<Soil.Layer>)> Profiles { get; set; } = new();
     [Parameter]
     public EventCallback<List<(Soil.Profile, List<Soil.Layer>)>> ProfilesChanged { get; set; }
 

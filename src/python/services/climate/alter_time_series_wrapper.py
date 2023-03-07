@@ -17,17 +17,9 @@
 
 import asyncio
 import capnp
-import csv
-import json
-from datetime import date, timedelta
-import gzip
-import io
-import numpy as np
 import os
-import pandas as pd
 from pathlib import Path
 import sys
-import time
 import uuid
 
 PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent.parent
@@ -39,10 +31,14 @@ if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
 import common.capnp_async_helpers as async_helpers
+import common_climate_data_capnp_impl as ccdi
+import common.common as common
+import common.service as serv
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 climate_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate.capnp"), imports=abs_imports)
+reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
 
 #------------------------------------------------------------------------------
 
@@ -160,9 +156,11 @@ class AlterTimeSeriesWrapper(climate_data_capnp.AlterTimeSeriesWrapper.Server):
 
 #------------------------------------------------------------------------------
 
-class AlterTimeSeriesWrapperFactory(climate_data_capnp.AlterTimeSeriesWrapperFactory.Server): 
+class AlterTimeSeriesWrapperFactory(climate_data_capnp.AlterTimeSeriesWrapperFactory.Server, common.Identifiable, common.Persistable): 
 
-    def __init__(self, id=None, name=None, description=None):
+    def __init__(self, id=None, name=None, description=None, restorer=None):
+        common.Persistable.__init__(self, restorer)
+        common.Identifiable.__init__(self, id, name, description)
         self._id = id if id else str(uuid.uuid4())
         self._name = name if name else id
         self._description = description if description else ""
@@ -189,67 +187,45 @@ class AlterTimeSeriesWrapperFactory(climate_data_capnp.AlterTimeSeriesWrapperFac
 
 #------------------------------------------------------------------------------
 
-async def async_main(serve_bootstrap=False,
-host="0.0.0.0", port=None, reg_sturdy_ref=None, id=None, name="AlterTimeSeriesWrapperFactory", description=None):
+async def main(serve_bootstrap=True, host=None, port=None, 
+    id=None, name="AlterTimeSeriesWrapperFactory", description=None, reg_sturdy_ref=None, use_async=False):
 
     config = {
+        "port": port, 
         "host": host,
-        "port": port,
         "id": id,
         "name": name,
         "description": description,
+        "serve_bootstrap": serve_bootstrap,
         "reg_sturdy_ref": reg_sturdy_ref,
-        "serve_bootstrap": str(serve_bootstrap),
         "reg_category": "climate",
+        "use_async": use_async,
     }
-    # read commandline args only if script is invoked directly from commandline
-    if len(sys.argv) > 1 and __name__ == "__main__":
-        for arg in sys.argv[1:]:
-            k, v = arg.split("=")
-            if k in config:
-                config[k] = v
-    print("config used:", config)
+    common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
-    conMan = async_helpers.ConnectionManager()
-
-    service = AlterTimeSeriesWrapperFactory(id=config["id"], name=config["name"], description=config["description"])
+    conman = async_helpers.ConnectionManager()
+    restorer = common.Restorer()
+    service = AlterTimeSeriesWrapperFactory(id=config["id"], name=config["name"], description=config["description"], restorer=restorer)
 
     if config["reg_sturdy_ref"]:
-        registrator = await conMan.try_connect(config["reg_sturdy_ref"], cast_as=reg_capnp.Registrator)
+        registrator = await conman.try_connect(config["reg_sturdy_ref"], cast_as=reg_capnp.Registrator)
         if registrator:
             unreg = await registrator.register(ref=service, categoryId=config["reg_category"]).a_wait()
             print("Registered ", config["name"], "climate service.")
             #await unreg.unregister.unregister().a_wait()
         else:
             print("Couldn't connect to registrator at sturdy_ref:", config["reg_sturdy_ref"])
-
-    if config["serve_bootstrap"].upper() == "TRUE":
-        await async_helpers.serve_forever(config["host"], config["port"], service)
+    
+    if config["use_async"]:
+        await serv.async_init_and_run_service({"service": service}, config["host"], config["port"], 
+        serve_bootstrap=config["serve_bootstrap"], restorer=restorer, conn_man=conman)
     else:
-        await conMan.manage_forever()
-
-#------------------------------------------------------------------------------
-
-def main(server="*", port=11006):
-
-    config = {
-        "port": str(port),
-        "server": server
-    }
-    # read commandline args only if script is invoked directly from commandline
-    if len(sys.argv) > 1 and __name__ == "__main__":
-        for arg in sys.argv[1:]:
-            k, v = arg.split("=")
-            if k in config:
-                config[k] = v
-    print(config)
-
-    server = capnp.TwoPartyServer(config["server"] + ":" + config["port"],
-                                  bootstrap=AlterTimeSeriesWrapperFactory())
-    server.run_forever()
+        
+        serv.init_and_run_service({"service": service}, config["host"], config["port"], 
+            serve_bootstrap=config["serve_bootstrap"], restorer=restorer, conn_man=conman)
 
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    asyncio.run(async_main(port=11006, serve_bootstrap=True))
-    #main()
+    #asyncio.run(main(serve_bootstrap=True, use_async=True))
+    asyncio.run(main(serve_bootstrap=True, use_async=True))

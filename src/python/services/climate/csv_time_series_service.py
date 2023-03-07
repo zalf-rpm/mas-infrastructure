@@ -17,12 +17,9 @@
 
 import asyncio
 import capnp
-#from datetime import date, timedelta
-#import json
 import os
 from pathlib import Path
 import sys
-import time
 
 PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent.parent
 if str(PATH_TO_REPO) not in sys.path:
@@ -44,7 +41,7 @@ abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 #------------------------------------------------------------------------------
 
 async def main(path_to_csv_file, serve_bootstrap=True, host=None, port=None, 
-    id=None, name="CSV Timeseries Service", description=None, use_async=False):
+    id=None, name="Single CSV Test Timeseries Service", description=None, use_async=False):
 
     config = {
         "path_to_csv_file": path_to_csv_file,
@@ -57,13 +54,7 @@ async def main(path_to_csv_file, serve_bootstrap=True, host=None, port=None,
         "serve_bootstrap": serve_bootstrap,
         "use_async": use_async
     }
-    # read commandline args only if script is invoked directly from commandline
-    if len(sys.argv) > 1 and __name__ == "__main__":
-        for arg in sys.argv[1:]:
-            k, v = arg.split("=")
-            if k in config:
-                config[k] = bool(v) if v.lower() in ["true", "false"] else v 
-    print(config)
+    common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
     restorer = common.Restorer()
     service = csv_based.TimeSeries.from_csv_file(config["path_to_csv_file"], \
