@@ -72,6 +72,7 @@ func (p *Persistable) Save(c context.Context, call persistence.Persistent_save) 
 			owner:        owner,
 			returnChan:   make(chan SaveAnswer),
 		}
+		p.saveChan <- saveMsg
 		answer := <-saveMsg.returnChan
 		if answer.err != nil {
 			return answer.err
@@ -204,17 +205,27 @@ type Restorer struct {
 }
 
 // NewRestorer creates a new Restorer
-func NewRestorer() Restorer {
+func NewRestorer(hostname string, port uint16) *Restorer {
 
 	// Generate a key pair for signing sturdyRefs
 	pub, priv, err := sign.GenerateKey(rand.Reader)
 	if err != nil {
 		panic(err)
 	}
-	hostname, err := os.Hostname()
-	if err != nil {
-		panic(err)
+	if hostname == "" {
+		hostname, err = os.Hostname() // fallback to hostname from os
+		if err != nil {
+			panic(err)
+		}
 	}
+	if port == 0 {
+		p, err := GetFreePort() // fallback to random port
+		if err != nil {
+			panic(err)
+		}
+		port = uint16(p)
+	}
+
 	// Create a vatId for the restorer vat from the public key
 	restorerVatId := vatId{
 		publicKey0: binary.LittleEndian.Uint64(pub[0:8]),
@@ -229,7 +240,7 @@ func NewRestorer() Restorer {
 		sign_pk:               pub,
 		sign_sk:               priv,
 		host:                  hostname,
-		port:                  0,
+		port:                  port,
 		restorerVatId:         restorerVatId,
 		owner:                 map[string]*[32]byte{},
 		restoreMsgC:           make(chan *RestoreMsg),
@@ -238,9 +249,17 @@ func NewRestorer() Restorer {
 	}
 
 	go restorer.messageLoop()
-	return restorer
+	return &restorer
 }
-
+func (r *Restorer) BootstrapSturdyRef() *SturdyRef {
+	return NewSturdyRef(r.restorerVatId.toSlice(), r.host, r.port, "")
+}
+func (r *Restorer) Host() string {
+	return r.host
+}
+func (r *Restorer) Port() uint16 {
+	return r.port
+}
 func (r *Restorer) messageLoop() {
 	for {
 		select {
