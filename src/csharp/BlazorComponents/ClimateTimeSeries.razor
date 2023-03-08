@@ -12,8 +12,7 @@
 <MudGrid>
     <MudItem Class=@(HideSturdyRefConnector ? "d-none" : "") xs="12">
         <ConnectToSturdyRef Label="Persistent capability to climate timeseries" CapabilityChanged=@CapabilityChanged
-            TCapnpInterface=Climate.ITimeSeries>
-        </ConnectToSturdyRef>
+            TCapnpInterface=Climate.ITimeSeries/>
     </MudItem>
     <MudItem xs="2" Class="d-flex justify-center">
         <MudDatePicker MinDate=@originalStart MaxDate=@originalEnd FirstDayOfWeek=@DayOfWeek.Monday Label="Start"
@@ -45,10 +44,12 @@
     <MudItem xs="12">
         <MudExpansionPanels MultiExpansion=@true>
             @code {
-                private Dictionary<string, bool> panelOpened = new() { { "chart", true }, { "table", false }, { "text",
-            false } };
+                private Dictionary<string, bool> panelOpened = new() { { "table", false }, { "text", false } };
+                
+                [CascadingParameter(Name = "ChartPanelOpened")]
+                public bool ChartPanelOpened { get; set; } = true;
             }
-            <MudExpansionPanel @bind-IsExpanded=@panelOpened["chart"] Text="Chart">
+            <MudExpansionPanel @bind-IsExpanded=@ChartPanelOpened Text="Chart">
                 @code {
                     private List<Highchart.AxisConfig> yAxisConfigs = new()
                 {
@@ -122,17 +123,20 @@
 </MudGrid>
 
 @code {
+
+
     [Parameter]
     public bool AutoLoad { get; set; } = false;
 
-    [Parameter]
-    public Climate.ITimeSeries? TimeSeriesCap { get; set; }
     private Climate.ITimeSeries? originalTimeSeriesCap;
     private bool timeSeriesCapUpdated = false;
 
     private bool componentIsTimeSeriesCapOwner = false;
 
     [Parameter]
+    public Climate.ITimeSeries? TimeSeriesCap { get; set; }
+    
+    [CascadingParameter(Name = "TimeSeriesCapChanged")]
     public EventCallback<Climate.ITimeSeries> TimeSeriesCapChanged { get; set; }
 
     [Parameter]
@@ -214,11 +218,16 @@
             //dispose the current time series cap, unless it's the initial one
             if (TimeSeriesCap != originalTimeSeriesCap) TimeSeriesCap?.Dispose();
             TimeSeriesCap = subTS;
-            if (TimeSeriesCapChanged.HasDelegate) TimeSeriesCapChanged.InvokeAsync(subTS);
+            if (TimeSeriesCapChanged.HasDelegate) _ = TimeSeriesCapChanged.InvokeAsync(subTS);
             if (AutoLoad) await LoadTimeSeriesData();
         }
     }
 
+    #region init
+    protected override async Task OnInitializedAsync()
+    {
+        Console.WriteLine("OnInitialized ClimateTimeSeries");
+    }
 
     public override async Task SetParametersAsync(ParameterView parameters)
     {
@@ -234,6 +243,7 @@
             await TimeSeriesUpdated();
         }
     }
+    #endregion
 
     private async Task CapabilityChanged(Climate.ITimeSeries? ts)
     {
@@ -243,6 +253,7 @@
         TimeSeriesCap = ts;
         originalTimeSeriesCap = TimeSeriesCap; //save unrestricted cap
         componentIsTimeSeriesCapOwner = true;
+        if (TimeSeriesCapChanged.HasDelegate) _ = TimeSeriesCapChanged.InvokeAsync(TimeSeriesCap);
 
         await TimeSeriesUpdated();
     }

@@ -44,17 +44,20 @@ reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=ab
 
 class AlterTimeSeriesWrapper(climate_data_capnp.AlterTimeSeriesWrapper.Server): 
 
-    def __init__(self, time_series, header, altered = {}):
+    def __init__(self, timeseries, header, altered = {}):
 
-        self._timeSeries = time_series
+        self._timeseries = timeseries
         self._altered = altered #dict of elem to pair (Altered, header_index, func)
-        self._cloned_time_series = []
 
         self._available_headers = header
 
 
+    def replaceWrappedTimeSeries_context(self, context): # replaceWrappedTimeSeries @4 (timeSeries :TimeSeries); 
+        self._timeseries = context.params.timeSeries
+
+
     def wrappedTimeSeries_context(self, context): # wrappedTimeSeries @0 () -> (timeSeries :TimeSeries);
-        context.results = self._timeSeries
+        context.results = self._timeseries
 
 
     def alteredElements_context(self, context): # alteredElements @7 () -> (list :List(Common.Pair(Element, Float32)));
@@ -80,7 +83,6 @@ class AlterTimeSeriesWrapper(climate_data_capnp.AlterTimeSeriesWrapper.Server):
 
             if context.params.asNewTimeSeries:
                 cts = AlterTimeSeriesWrapper(self, self._available_headers, altered)
-                self._cloned_time_series.append(cts)
                 context.results.timeSeries = cts
             else:
                 context.results.timeSeries = self
@@ -93,18 +95,18 @@ class AlterTimeSeriesWrapper(climate_data_capnp.AlterTimeSeriesWrapper.Server):
 
 
     def resolution_context(self, context): # -> (resolution :TimeResolution);
-        return self._timeSeries.resolution().then(lambda res: setattr(context.results, "resolution", res.resolution))
+        return self._timeseries.resolution().then(lambda res: setattr(context.results, "resolution", res.resolution))
 
 
     def range_context(self, context): # -> (startDate :Date, endDate :Date);
-        return self._timeSeries.range().then(lambda res: [
+        return self._timeseries.range().then(lambda res: [
             setattr(context.results, "startDate", res.startDate), 
             setattr(context.results, "endDate", res.endDate)
         ])
         
 
     def header_context(self, context): # () -> (header :List(Element));
-        return self._timeSeries.header().then(lambda h: setattr(context.results, "header", list(h.header)))
+        return self._timeseries.header().then(lambda h: setattr(context.results, "header", list(h.header)))
 
 
     def data_context(self, context): # () -> (data :List(List(Float32)));
@@ -114,7 +116,7 @@ class AlterTimeSeriesWrapper(climate_data_capnp.AlterTimeSeriesWrapper.Server):
             for i, f in index_to_func.items():
                 vs[i] = f(vs[i])
             return vs
-        return self._timeSeries.data().then(lambda res: setattr(context.results, "data", [alter(d) for d in res.data]))
+        return self._timeseries.data().then(lambda res: setattr(context.results, "data", [alter(d) for d in res.data]))
 
 
     def dataT_context(self, context): # () -> (data :List(List(Float32)));
@@ -125,28 +127,28 @@ class AlterTimeSeriesWrapper(climate_data_capnp.AlterTimeSeriesWrapper.Server):
                 return [func(val) for val in vals]
             else:
                 return list(vals)
-        return self._timeSeries.dataT().then(lambda res: setattr(context.results, "data", [alter(i, d) for i, d in enumerate(res.data)]))#alter(res.data)))
+        return self._timeseries.dataT().then(lambda res: setattr(context.results, "data", [alter(i, d) for i, d in enumerate(res.data)]))#alter(res.data)))
 
 
     def subrange_context(self, context): # (from :Date, to :Date) -> (timeSeries :TimeSeries);
         from_date = ccdi.create_date(getattr(context.params, "from"))
         to_date = ccdi.create_date(context.params.to)
-        return self._timeSeries.subrange(from_date, to_date).then(lambda res: setattr(context.results, "timeSeries", res.timeSeries))
+        return self._timeseries.subrange(from_date, to_date).then(lambda res: setattr(context.results, "timeSeries", res.timeSeries))
 
 
     def subheader_context(self, context): # (elements :List(Element)) -> (timeSeries :TimeSeries);
-        return self._timeSeries.subheader(context.params.elements).then(lambda res: setattr(context.results, "timeSeries", res.timeSeries))
+        return self._timeseries.subheader(context.params.elements).then(lambda res: setattr(context.results, "timeSeries", res.timeSeries))
 
 
     def metadata_context(self, context): # metadata @7 () -> Metadata;
-        return self._timeSeries.metadata().then(lambda res: [
+        return self._timeseries.metadata().then(lambda res: [
             setattr(context.results, "entries", list(res.entries)),
             setattr(context.results, "info", res.info)
         ])
 
 
     def location_context(self, context): # location @8 () -> Location;
-        return self._timeSeries.location().then(lambda res: [
+        return self._timeseries.location().then(lambda res: [
             setattr(context.results, "id", res.id),
             setattr(context.results, "heightNN", res.heightNN),
             setattr(context.results, "geoCoord", res.geoCoord),
@@ -164,7 +166,7 @@ class AlterTimeSeriesWrapperFactory(climate_data_capnp.AlterTimeSeriesWrapperFac
         self._id = id if id else str(uuid.uuid4())
         self._name = name if name else id
         self._description = description if description else ""
-        self._timeseries = []
+        self._wrapped_timeseries = None
 
 
     def info_context(self, context): # -> Common.IdInformation;
@@ -174,10 +176,13 @@ class AlterTimeSeriesWrapperFactory(climate_data_capnp.AlterTimeSeriesWrapperFac
         r.description = self._description
 
 
+    
+
+
     def wrap_context(self, context): # wrap @0 (timeSeries :TimeSeries) -> (wrapper :AlterTimeSeriesWrapper);
         def create_wrapper(header):
             atsw = AlterTimeSeriesWrapper(ts, header)
-            self._timeseries.append(atsw)
+            self._wrapped_timeseries = ts
             context.results.wrapper = atsw
 
         ts = context.params.timeSeries
