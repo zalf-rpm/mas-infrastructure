@@ -13,8 +13,7 @@
         <ConnectToSturdyRef Label="Persistent capability to climate service (capnp://host:port/token)"
                             CapabilityChanged=@CapabilityChanged
                             TCapnpInterface=Climate.IService
-                            @bind-SturdyRef=ClimateServiceSturdyRef>
-        </ConnectToSturdyRef>
+                            @bind-SturdyRef=ClimateServiceSturdyRef/>
     </MudItem>
     <MudItem xs="12">
         @code {
@@ -31,7 +30,8 @@
                                             _selectedDatasetId = t.Item3;
                                             selectedDataset = t.Item2;
                                             if (DatasetCapChanged.HasDelegate) _ = DatasetCapChanged.InvokeAsync(selectedDataset);
-                                            StateHasChanged(); })>
+                                            StateHasChanged(); 
+                                        })>
             <ToolBarContent>
                 <MudButton Variant=@Variant.Filled OnClick=@LoadDatasets Disabled=@(ClimateServiceCap == null)>
                     Load
@@ -58,12 +58,7 @@
         </MudTable>
     </MudItem>
     <MudItem xs="12">
-        <ClimateDataset DatasetCap=@selectedDataset 
-                        HideSturdyRefConnector=@true
-                        HideGeoPosPicker=@HideGeoPosPicker
-                        LatLng=@LatLng
-                        TimeSeriesCapChanged=@TimeSeriesCapChanged>
-        </ClimateDataset>
+        <ClimateDataset DatasetCap=@selectedDataset HideSturdyRefConnector=@true/>
     </MudItem>
 </MudGrid>
 
@@ -83,16 +78,7 @@
     public EventCallback<Climate.IDataset> DatasetCapChanged { get; set; }
 
     [Parameter]
-    public EventCallback<Climate.ITimeSeries> TimeSeriesCapChanged { get; set; }
-
-    [Parameter]
     public bool HideSturdyRefConnector { get; set; } = false;
-
-    [Parameter]
-    public bool HideGeoPosPicker { get; set; } = false;
-
-    [Parameter]
-    public (double, double) LatLng { get; set; } = (52.52, 14.11);
 
     private String searchString = "";
 
@@ -162,8 +148,6 @@
             metaAndDataL.Add((r.Select(p => p.Snd), ds.Data, i));
         }
         metaAndData = metaAndDataL;
-
-        if (ClimateServiceCapChanged.HasDelegate) _ = ClimateServiceCapChanged.InvokeAsync(ClimateServiceCap);
     }
 
     void IDisposable.Dispose()

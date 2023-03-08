@@ -10,8 +10,7 @@
     <MudItem xs="12" Class=@(HideSturdyRefConnector ? "d-none" : "")>
         <ConnectToSturdyRef Label="Persistent capability to climate dataset (capnp://host:port/token)"
                             CapabilityChanged=@CapabilityChanged
-                            TCapnpInterface=Climate.IDataset>
-        </ConnectToSturdyRef>
+                            TCapnpInterface=Climate.IDataset/>
     </MudItem>
     <MudItem xs="2" Class=@(HideGeoPosPicker ? "d-none" : "")>
         <MudText Typo=Typo.h5>Pick Geolocation - picked: @($"({Math.Round(LatLng.Item1, 2)}N/{Math.Round(LatLng.Item2, 2)}E)")</MudText>
@@ -20,33 +19,31 @@
         <GeoposPicker LatLng=@LatLng
                       LatLngChanged=@(async latLng => { LatLng = latLng; await SetClosestTimeSeries(); })
                       Width="100%" Height="400px"
-                      CenterLatLng=@LatLng>
-        </GeoposPicker>
+                      CenterLatLng=@LatLng/>
     </MudItem>
     <MudItem xs="12">
-        <ClimateTimeSeries TimeSeriesCap=@timeSeries HideSturdyRefConnector=@true></ClimateTimeSeries>
+        <ClimateTimeSeries TimeSeriesCap=@timeSeries HideSturdyRefConnector=@true/>
     </MudItem>
 </MudGrid>
 
 @code {
-    [Parameter]
-    public Climate.IDataset? DatasetCap { get; set; }
-
     private bool datasetCapUpdated = false;
 
     [Parameter]
+    public Climate.IDataset? DatasetCap { get; set; }
+    [Parameter]
     public EventCallback<Climate.IDataset> DatasetCapChanged { get; set; }
 
-    [Parameter]
+    [CascadingParameter]
     public EventCallback<Climate.ITimeSeries> TimeSeriesCapChanged { get; set; }
 
     [Parameter]
     public bool HideSturdyRefConnector { get; set; } = false;
 
-    [Parameter]
+    [CascadingParameter(Name = "HideGeoPosPicker")]
     public bool HideGeoPosPicker { get; set; } = false;
 
-    [Parameter]
+    [CascadingParameter(Name = "LatLng")]
     public (double, double) LatLng { get; set; } = (52.52, 14.11);
 
     private Climate.ITimeSeries? timeSeries;
@@ -68,6 +65,7 @@
 
         if (DatasetCap != dataset) DatasetCap?.Dispose();
         DatasetCap = dataset;
+        if (DatasetCapChanged.HasDelegate) _ = DatasetCapChanged.InvokeAsync(DatasetCap);
 
         await SetClosestTimeSeries();
     }

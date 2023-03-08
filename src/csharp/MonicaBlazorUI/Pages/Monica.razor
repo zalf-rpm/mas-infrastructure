@@ -153,19 +153,36 @@
         <MudTabs Elevation="1" Rounded=@true @bind-ActivatePanelIndex=@SelectedTimeSeriesSourceIndex>
             @code {
                 private int SelectedTimeSeriesSourceIndex = 0;
+                //private EventCallback<Climate.ITimeSeries> ec = new EventCallback(this, (Func<Climate.ITimeSeries, Task>)(TimeSeriesCapabilityChanged));
             }
             <MudTabPanel Text="Single Timeseries">
-                <ClimateTimeSeries TimeSeriesCapChanged=@TimeSeriesCapabilityChanged/>
+                <CascadingValue Value=@false Name="ChartPanelOpened">
+                    <CascadingValue Value=@(new EventCallback<Climate.ITimeSeries>(this, (Func<Climate.ITimeSeries, Task>)(TimeSeriesCapabilityChanged))) Name="TimeSeriesCapChanged">
+                        <ClimateTimeSeries/>
+                    </CascadingValue>
+                </CascadingValue>
             </MudTabPanel>
             <MudTabPanel Text="Single Climate Dataset">
-                <ClimateDataset HideGeoPosPicker=@true
-                                LatLng=@LatLng
-                                TimeSeriesCapChanged=@TimeSeriesCapabilityChanged/>
+                <CascadingValue Value=@false Name="ChartPanelOpened">
+                    <CascadingValue Value=@(new EventCallback<Climate.ITimeSeries>(this, (Func<Climate.ITimeSeries, Task>)(TimeSeriesCapabilityChanged))) Name="TimeSeriesCapChanged">
+                        <CascadingValue Value=@true Name="HideGeoPosPicker">
+                            <CascadingValue Value=@LatLng Name="LatLng">
+                                <ClimateDataset/>
+                            </CascadingValue>
+                        </CascadingValue>
+                    </CascadingValue>
+                </CascadingValue>
             </MudTabPanel>
             <MudTabPanel Text="Climate Service">
-                <ClimateService HideGeoPosPicker=@true
-                                LatLng=@LatLng
-                                TimeSeriesCapChanged=@TimeSeriesCapabilityChanged/>
+                <CascadingValue Value=@false Name="ChartPanelOpened">
+                    <CascadingValue Value=@(new EventCallback<Climate.ITimeSeries>(this, (Func<Climate.ITimeSeries, Task>)(TimeSeriesCapabilityChanged))) Name="TimeSeriesCapChanged">
+                        <CascadingValue Value=@true Name="HideGeoPosPicker">
+                            <CascadingValue Value=@LatLng Name="LatLng">
+                                <ClimateService/>
+                            </CascadingValue>
+                        </CascadingValue>
+                    </CascadingValue>
+                </CascadingValue>
             </MudTabPanel>
         </MudTabs>
     </MudExpansionPanel>
@@ -180,6 +197,7 @@
                            CheckedChanged=@(async b => {
                                                 overwriteTimeSeriesData = b;
                                                 if (AlterTimeSeriesWrapperCap == null) await WrapTimeSeries();
+                                                else if(!b) TimeSeriesCap = PlainTimeSeriesCap;
                                             })
                            Disabled=@(TimeSeriesFactoryCap == null)
                            Color=@Color.Primary

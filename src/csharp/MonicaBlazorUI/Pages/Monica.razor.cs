@@ -39,6 +39,7 @@ namespace Mas.Infrastructure.BlazorComponents
         public bool TryConnectOnInit { get; set; } = true;
 
         #region time series capability
+        private Climate.ITimeSeries? PlainTimeSeriesCap { get; set; } // plain cap if wrapper is used
         [Parameter]
         public Climate.ITimeSeries? TimeSeriesCap { get; set; }
         private Climate.IAlterTimeSeriesWrapper? AlterTimeSeriesWrapperCap { get; set; }
@@ -53,6 +54,9 @@ namespace Mas.Infrastructure.BlazorComponents
 
             if (TimeSeriesCap != timeSeries) TimeSeriesCap?.Dispose();
             TimeSeriesCap = timeSeries;
+
+            if (AlterTimeSeriesWrapperCap != null) await AlterTimeSeriesWrapperCap.ReplaceWrappedTimeSeries(Capnp.Rpc.Proxy.Share(TimeSeriesCap));
+
         }
         #endregion time series capability
 
@@ -80,15 +84,13 @@ namespace Mas.Infrastructure.BlazorComponents
 
             var wts = await TimeSeriesFactoryCap.Wrap(Capnp.Rpc.Proxy.Share(TimeSeriesCap));
             if (wts == null) return;
+            PlainTimeSeriesCap = TimeSeriesCap; //store plain time series
 
             //store wrapper cap
             if (AlterTimeSeriesWrapperCap != wts) 
                 AlterTimeSeriesWrapperCap?.Dispose();
             AlterTimeSeriesWrapperCap = wts;
 
-            //let wrapper point also to general time series, but dispose ref to old time series - just remote wrapper still holds ref
-            if (TimeSeriesCap != AlterTimeSeriesWrapperCap) 
-                TimeSeriesCap?.Dispose();
             TimeSeriesCap = AlterTimeSeriesWrapperCap;
         }
         #endregion time series wrapper factory capability
@@ -788,6 +790,11 @@ namespace Mas.Infrastructure.BlazorComponents
         {
             Console.WriteLine("Disposing Monica SR: " + MonicaSturdyRef + " cap: " + MonicaInstanceCap);
             MonicaInstanceCap?.Dispose();
+            if(PlainTimeSeriesCap != TimeSeriesCap)
+            {
+                Console.WriteLine("Disposing PlainTimeSeries SR:" + TimeSeriesSturdyRef + " cap: " + TimeSeriesCap);
+                PlainTimeSeriesCap?.Dispose();
+            }
             Console.WriteLine("Disposing TimeSeries SR:" + TimeSeriesSturdyRef + " cap: " + TimeSeriesCap);
             TimeSeriesCap?.Dispose();
             Console.WriteLine("Disposing TimeSeriesFactory SR:" + TimeSeriesFactorySturdyRef + " cap: " + TimeSeriesFactoryCap);

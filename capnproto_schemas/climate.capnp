@@ -340,6 +340,9 @@ interface AlterTimeSeriesWrapper extends(TimeSeries) {
 
   remove @3 (alteredElement :Element);
   # remove the altered element
+
+  replaceWrappedTimeSeries @4 (timeSeries :TimeSeries); 
+  # replace the wrapped time series 
 }
 
 

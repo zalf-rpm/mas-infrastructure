@@ -50,7 +50,7 @@ namespace MonicaBlazorUI.Services
                 {"climate", climateCsv}
             };
 
-            string parametersPath = string.Empty;
+            string parametersPath = "/home/berg/GitHub/monica-parameters/"; //string.Empty;
             // if (basePathType == MonicaParametersBasePathTypeEnum.LocalServer)
             //     parametersPath = MonicaConstFields.DefaultParametersPath;
             // else if (basePathType == MonicaParametersBasePathTypeEnum.Github)
