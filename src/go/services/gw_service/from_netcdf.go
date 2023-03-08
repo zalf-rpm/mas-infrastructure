@@ -7,7 +7,23 @@ import (
 
 	"github.com/batchatco/go-native-netcdf/netcdf"
 	"github.com/batchatco/go-native-netcdf/netcdf/api"
+	"github.com/google/uuid"
+	"github.com/zalf-rpm/mas-infrastructure/src/go/commonlib"
 )
+
+type gridService struct {
+	commonGrid *commonlib.Grid
+}
+
+func newGridService(restorer *commonlib.Restorer) *gridService {
+	newCommonGrid := commonlib.NewGrid(restorer, uuid.New().String(), "groundwater", "Groundwater service")
+
+	gs := gridService{
+		commonGrid: newCommonGrid,
+	}
+
+	return &gs
+}
 
 type GridCoord struct {
 	row int
