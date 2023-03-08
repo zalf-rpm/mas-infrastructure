@@ -33,14 +33,14 @@ type Grid struct {
 	GetValueLatLonAggregated func(lat, lon float64, resolution uint64, agg string, includeAggParts bool) (interface{}, []AggregationPart, error)
 }
 
-func NewGrid(saveChan chan *SaveMsg, id, name, description string) *Grid {
+func NewGrid(restorer *Restorer, id, name, description string) *Grid {
 	identifiable := &Identifiable{
 		Id:          id,
 		Name:        name,
 		Description: description,
 	}
 	persitable := &Persistable{
-		saveChan: saveChan,
+		saveChan: restorer.saveMsgC,
 	}
 	newGrid := &Grid{
 		persistable: persitable,
@@ -53,6 +53,22 @@ func NewGrid(saveChan chan *SaveMsg, id, name, description string) *Grid {
 	newGrid.persistable.Cap = restoreFunc
 
 	return newGrid
+}
+
+func (g *Grid) InitialSturdyRef() (*SturdyRef, error) {
+
+	saveMsg := &SaveMsg{
+		persitentObj: g.persistable,
+		owner:        "",
+		returnChan:   make(chan SaveAnswer),
+	}
+	g.persistable.saveChan <- saveMsg
+	answer := <-saveMsg.returnChan
+	if answer.err != nil {
+		return nil, answer.err
+	}
+	sr := answer.sr
+	return sr, nil
 }
 
 type LatLon struct {
