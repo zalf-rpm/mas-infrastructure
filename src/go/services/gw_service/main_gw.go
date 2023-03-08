@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net"
@@ -28,18 +27,29 @@ import (
 // debug grid: capnp://vat@host:port/uuid
 
 func main() {
-	port, err := commonlib.GetFreePort()
+
+	// create a restorer
+	restorer := commonlib.NewRestorer("localhost", 0) // port 0 means: use any free port
+	bootStrapSturdyRef := restorer.BootstrapSturdyRef()
+	// create a service
+	gs := newGridService(restorer)
+	// get the initial sturdy ref of that service
+	initialSturdyRef, err := gs.commonGrid.InitialSturdyRef()
 	if err != nil {
 		panic(err)
 	}
-	gs := gridService{host: "localhost", port: port}
-	l, err := net.Listen("tcp", fmt.Sprintf("%s:%d", gs.host, gs.port))
+
+	// start listening for connections
+	l, err := net.Listen("tcp", fmt.Sprintf("%s:%d", restorer.Host(), restorer.Port()))
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Printf("Service is listening on %s\n", l.Addr())
+	fmt.Printf("service grid: %s)\n", initialSturdyRef)
+	fmt.Printf("bootstrap restorer: %s )\n", bootStrapSturdyRef)
+
 	errChan := make(chan error)
-	// accept incomming connection from services we started
+	// accept incomming connection from clients
 	go func() {
 		for {
 			c, err := l.Accept()
@@ -48,7 +58,7 @@ func main() {
 				errChan <- err
 				continue
 			}
-			ServeGrid(c, &gs, errChan)
+			Serve(c, restorer, errChan)
 		}
 	}()
 
@@ -59,25 +69,10 @@ func main() {
 
 }
 
-func ServeGrid(conn net.Conn, gs *gridService, errChan chan error) {
+func Serve(conn net.Conn, restorer *commonlib.Restorer, errChan chan error) {
 
-	main := persistence.Restorer_ServerToClient(gs)
+	main := persistence.Restorer_ServerToClient(restorer)
 	// Listen for calls, using  bootstrap interface.
 	rpc.NewConn(rpc.NewPackedStreamTransport(conn), &rpc.Options{BootstrapClient: capnp.Client(main), ErrorReporter: &commonlib.ConnError{Out: errChan}})
 	// this connection will be close when the client closes the connection
-
-}
-
-type gridService struct {
-	host string
-	port int
-
-	capabilities []string
-}
-
-// type Restorer_Server interface
-
-func (gs *gridService) Restore(c context.Context, r persistence.Restorer_restore) error {
-	fmt.Printf("service: restore request from %v\n", c)
-	return nil
 }
