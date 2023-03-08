@@ -149,39 +149,6 @@ namespace Mas.Infrastructure.BlazorComponents
         {
             Console.WriteLine("OnInitialized Monica SR: " + MonicaSturdyRef);
 
-            /*
-            var query = new Uri(NavigationManager.Uri).Query;
-            var qps = QueryHelpers.ParseQuery(query);
-
-            if (MonicaSturdyRef.Length == 0) MonicaSturdyRef = qps.GetValueOrDefault("monicaSturdyRef", "");
-            if (MonicaSturdyRef.Length > 0)
-            {
-                HideSturdyRefConnectors = true;
-                TryConnectOnInit = true;
-            }
-
-            if (TimeSeriesSturdyRef.Length == 0) TimeSeriesSturdyRef = qps.GetValueOrDefault("timeSeriesSturdyRef", "");
-            if (TimeSeriesSturdyRef.Length > 0)
-            {
-                HideSturdyRefConnectors = true;
-                TryConnectOnInit = true;
-            }
-
-            if (SoilServiceSturdyRef.Length == 0) SoilServiceSturdyRef = qps.GetValueOrDefault("soilServiceSturdyRef", "");
-            if (SoilServiceSturdyRef.Length > 0)
-            {
-                HideSturdyRefConnectors = true;
-                TryConnectOnInit = true;
-            }
-
-            if (ClimateServiceSturdyRef.Length == 0) ClimateServiceSturdyRef = qps.GetValueOrDefault("climateServiceSturdyRef", "");
-            if (ClimateServiceSturdyRef.Length > 0)
-            {
-                HideSturdyRefConnectors = true;
-                TryConnectOnInit = true;
-            }
-            */
-
             simJsonTxt = File.ReadAllText("Data/sim_template.json");
             cropJsonTxt = File.ReadAllText("Data/crop_template.json");
             siteJsonTxt = File.ReadAllText("Data/site_template.json");

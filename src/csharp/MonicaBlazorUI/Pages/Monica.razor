@@ -36,442 +36,489 @@
         };
     }
     <MudExpansionPanel @bind-IsExpanded=@panelOpened["Connections"]
-                       Class=@(HideSturdyRefConnectors ? "d-none" : "")
-                       Text="Service Connections">
-        <MudGrid>
-            <MudItem Class=@(HideSturdyRefConnectors ? "d-none" : "") xs="12">
-                <ConnectToSturdyRef Label="Persistent capability to MONICA instance"
-                                    CapabilityChanged=@MonicaCapabilityChanged
-                                    TCapnpInterface="Model.IEnvInstance<Common.StructuredText, Common.StructuredText>"
-                                    @bind-SturdyRef=MonicaSturdyRef
-                                    ConnectOnInit=@TryConnectOnInit>
+                       Class=@(HideSturdyRefConnectors ? "d-none" : "")>
+        <TitleContent>
+            <div class="d-flex">
+                <MudIcon Icon="@Icons.Material.Filled.Check" class="mr-3" Color=@Color.Success></MudIcon>
+                <MudText><strong>Service Connections</strong></MudText>
+            </div>
+        </TitleContent>
+        <ChildContent>
+            <MudGrid>
+                <MudItem Class=@(HideSturdyRefConnectors ? "d-none" : "") xs="12">
+                    <ConnectToSturdyRef Label="Persistent capability to MONICA instance"
+                                        CapabilityChanged=@MonicaCapabilityChanged
+                                        TCapnpInterface="Model.IEnvInstance<Common.StructuredText, Common.StructuredText>"
+                                        @bind-SturdyRef=MonicaSturdyRef
+                                        ConnectOnInit=@TryConnectOnInit>
 
-                </ConnectToSturdyRef>
-            </MudItem>
-            <MudItem Class=@(HideSturdyRefConnectors ? "d-none" : "") xs="12">
-                <ConnectToSturdyRef Label="Persistent capability to AlterTimeSeries service"
-                                    CapabilityChanged=@TimeSeriesFactoryCapabilityChanged
-                                    TCapnpInterface=@Climate.IAlterTimeSeriesWrapperFactory
-                                    @bind-SturdyRef=TimeSeriesFactorySturdyRef
-                                    ConnectOnInit=@TryConnectOnInit>
-                </ConnectToSturdyRef>
-            </MudItem>
-            <MudItem Class=@(HideSturdyRefConnectors ? "d-none" : "") xs="12">
-                <ConnectToSturdyRef Label="Persistent capability to soil service"
-                                    CapabilityChanged=@SoilServiceCapabilityChanged
-                                    TCapnpInterface=@Soil.IService
-                                    @bind-SturdyRef=SoilServiceSturdyRef
-                                    ConnectOnInit=@TryConnectOnInit>
-                </ConnectToSturdyRef>
-            </MudItem>
-            <MudItem Class=@(HideSturdyRefConnectors ? "d-none" : "") xs="12">
-                
-            </MudItem>
-            <MudItem Class=@(HideSturdyRefConnectors ? "d-none" : "") xs="12">
+                    </ConnectToSturdyRef>
+                </MudItem>
+                <MudItem Class=@(HideSturdyRefConnectors ? "d-none" : "") xs="12">
+                    <ConnectToSturdyRef Label="Persistent capability to AlterTimeSeries service"
+                                        CapabilityChanged=@TimeSeriesFactoryCapabilityChanged
+                                        TCapnpInterface=@Climate.IAlterTimeSeriesWrapperFactory
+                                        @bind-SturdyRef=TimeSeriesFactorySturdyRef
+                                        ConnectOnInit=@TryConnectOnInit>
+                    </ConnectToSturdyRef>
+                </MudItem>
+                <MudItem Class=@(HideSturdyRefConnectors ? "d-none" : "") xs="12">
+                    @code {
+                        [Parameter]
+                        public Reg.IRegistry? FertilizerRegistryCap { get; set; }
+
+                        [Parameter]
+                        public string FertilizerRegistrySturdyRef { get; set; } = "";//"capnp://login01.cluster.zalf.de:9998";
+
+                        [Parameter]
+                        public EventCallback<Reg.IRegistry> FertilizerRegistryCapChanged { get; set; }
+                    }
+                    <ConnectToSturdyRef Label="Persistent capability to fertilizer service"
+                                        CapabilityChanged=@(cap => {
+                                                                if (cap == null) return;
+                                                                if (FertilizerRegistryCap != cap) FertilizerRegistryCap?.Dispose();
+                                                                FertilizerRegistryCap = cap;
+                                                            })
+                                        TCapnpInterface=@Reg.IRegistry
+                                        @bind-SturdyRef=FertilizerRegistrySturdyRef
+                                        ConnectOnInit=@TryConnectOnInit>
+                    </ConnectToSturdyRef>
+                </MudItem>
+                <MudItem Class=@(HideSturdyRefConnectors ? "d-none" : "") xs="12">
+                    @code {
+                        [Parameter]
+                        public Reg.IRegistry? CropRegistryCap { get; set; }
+
+                        [Parameter]
+                        public string CropRegistrySturdyRef { get; set; } = "";
+
+                        [Parameter]
+                        public EventCallback<Reg.IRegistry> CropRegistryCapChanged { get; set; }
+                    }
+                    <ConnectToSturdyRef Label="Persistent capability to MONICA crop service"
+                                        TCapnpInterface=@Reg.IRegistry
+                                        CapabilityChanged=@(cap => {
+                                                                if (cap == null) return;
+                                                                if (CropRegistryCap != cap) CropRegistryCap?.Dispose();
+                                                                CropRegistryCap = cap;
+                                                            })
+                                        @bind-SturdyRef=CropRegistrySturdyRef
+                                        ConnectOnInit=@TryConnectOnInit>
+                    </ConnectToSturdyRef>
+                </MudItem>
+            </MudGrid>
+        </ChildContent>
+    </MudExpansionPanel>
+    <MudExpansionPanel @bind-IsExpanded=@panelOpened["BaseFiles"]>
+        <TitleContent>
+            <div class="d-flex">
+                <MudIcon Icon=@Icons.Material.Filled.Check class="mr-3" Color=@Color.Success></MudIcon>
+                <MudText><strong>Base sim/crop/site.json for default soildata, output configuration and crop rotation.</strong></MudText>
+            </div>
+        </TitleContent>
+        <ChildContent>
+            <MudExpansionPanels MultiExpansion=@true>
                 @code {
-                    [Parameter]
-                    public Reg.IRegistry? FertilizerRegistryCap { get; set; }
-
-                    [Parameter]
-                    public string FertilizerRegistrySturdyRef { get; set; } = "";//"capnp://login01.cluster.zalf.de:9998";
-
-                    [Parameter]
-                    public EventCallback<Reg.IRegistry> FertilizerRegistryCapChanged { get; set; }
+                    private Dictionary<string, bool> baseFilePanelOpened = new()
+                    {
+                { "sim", false },
+                { "crop", false },
+                { "site", false },
+                { "climate", false }
+            };
                 }
-                <ConnectToSturdyRef Label="Persistent capability to fertilizer service"
-                                    CapabilityChanged=@(cap => {
-                                                            if (cap == null) return;
-                                                            if (FertilizerRegistryCap != cap) FertilizerRegistryCap?.Dispose();
-                                                            FertilizerRegistryCap = cap;
-                                                        })
-                                    TCapnpInterface=@Reg.IRegistry
-                                    @bind-SturdyRef=FertilizerRegistrySturdyRef
-                                    ConnectOnInit=@TryConnectOnInit>
-                </ConnectToSturdyRef>
-            </MudItem>
-            <MudItem Class=@(HideSturdyRefConnectors ? "d-none" : "") xs="12">
+                <MudExpansionPanel Text="sim.json" @bind-IsExpanded=@baseFilePanelOpened["sim"]>
+                    <MudTextField T=@string Variant=@Variant.Outlined @bind-Text=simJsonTxt Lines=15 />
+                </MudExpansionPanel>
+                <MudExpansionPanel Text="crop.json" @bind-IsExpanded=@baseFilePanelOpened["crop"]>
+                    <MudTextField T=@string Variant=@Variant.Outlined @bind-Text=cropJsonTxt Lines=15 />
+                </MudExpansionPanel>
+                <MudExpansionPanel Text="site.json" @bind-IsExpanded=@baseFilePanelOpened["site"]>
+                    <MudTextField T=@string Variant=@Variant.Outlined @bind-Text=siteJsonTxt Lines=15 />
+                </MudExpansionPanel>
+                <!--
+                <MudExpansionPanel Text="Base sim/crop/site.json" @bind-IsExpanded=@baseFilePanelOpened["sim"]>
+                    <MudTextField T=@string Label="sim.json" Variant=@Variant.Outlined @bind-Text=simJsonTxt Lines=10 />
+                </MudExpansionPanel>
+                    -->
+            </MudExpansionPanels>
+        </ChildContent>
+    </MudExpansionPanel>
+    <MudExpansionPanel @bind-IsExpanded=@panelOpened["Location"]>
+        <TitleContent>
+            <div class="d-flex">
+                <MudIcon Icon="@Icons.Material.Filled.Check" class="mr-3" Color=@Color.Success></MudIcon>
+                <MudText><strong>Data location</strong>@($" ({Math.Round(LatLng.Item1, 2)}N/{Math.Round(LatLng.Item2, 2)}E)")</MudText>
+            </div>
+        </TitleContent>
+        <ChildContent>
+            <GeoposPicker @bind-LatLng=LatLng
+                        Width="50%" Height="400px"
+                        CenterLatLng=@LatLng
+                        Zoom=6/>
+        </ChildContent>
+    </MudExpansionPanel>
+    <MudExpansionPanel @bind-IsExpanded=@panelOpened["ClimateService"]>
+        <TitleContent>
+            <div class="d-flex">
+                <MudIcon Icon=@(TimeSeriesCap == null ? Icons.Material.Filled.WarningAmber : Icons.Material.Filled.Check) class="mr-3" Color=@(TimeSeriesCap == null ? Color.Error : Color.Success)></MudIcon>
+                <MudText><strong>Choose climate data from service</strong></MudText>
+            </div>
+        </TitleContent>
+        <ChildContent>
+            <MudTabs Elevation="1" Rounded=@true @bind-ActivatePanelIndex=@SelectedTimeSeriesSourceIndex>
                 @code {
-                    [Parameter]
-                    public Reg.IRegistry? CropRegistryCap { get; set; }
-
-                    [Parameter]
-                    public string CropRegistrySturdyRef { get; set; } = "";
-
-                    [Parameter]
-                    public EventCallback<Reg.IRegistry> CropRegistryCapChanged { get; set; }
+                    private int SelectedTimeSeriesSourceIndex = 0;
+                    //private EventCallback<Climate.ITimeSeries> ec = new EventCallback(this, (Func<Climate.ITimeSeries, Task>)(TimeSeriesCapabilityChanged));
                 }
-                <ConnectToSturdyRef Label="Persistent capability to MONICA crop service"
-                                    TCapnpInterface=@Reg.IRegistry
-                                    CapabilityChanged=@(cap => {
-                                                            if (cap == null) return;
-                                                            if (CropRegistryCap != cap) CropRegistryCap?.Dispose();
-                                                            CropRegistryCap = cap;
-                                                        })
-                                    @bind-SturdyRef=CropRegistrySturdyRef
-                                    ConnectOnInit=@TryConnectOnInit>
-                </ConnectToSturdyRef>
-            </MudItem>
-        </MudGrid>
-    </MudExpansionPanel>
-    <MudExpansionPanel @bind-IsExpanded=@panelOpened["BaseFiles"] Text="Base sim/crop/site.json for default soildata, output configuration and crop rotation.">
-        <MudExpansionPanels MultiExpansion=@true>
-            @code {
-                private Dictionary<string, bool> baseFilePanelOpened = new()
-                {
-            { "sim", false },
-            { "crop", false },
-            { "site", false },
-            { "climate", false }
-        };
-            }
-            <MudExpansionPanel Text="sim.json" @bind-IsExpanded=@baseFilePanelOpened["sim"]>
-                <MudTextField T=@string Variant=@Variant.Outlined @bind-Text=simJsonTxt Lines=15 />
-            </MudExpansionPanel>
-            <MudExpansionPanel Text="crop.json" @bind-IsExpanded=@baseFilePanelOpened["crop"]>
-                <MudTextField T=@string Variant=@Variant.Outlined @bind-Text=cropJsonTxt Lines=15 />
-            </MudExpansionPanel>
-            <MudExpansionPanel Text="site.json" @bind-IsExpanded=@baseFilePanelOpened["site"]>
-                <MudTextField T=@string Variant=@Variant.Outlined @bind-Text=siteJsonTxt Lines=15 />
-            </MudExpansionPanel>
-            <!--
-            <MudExpansionPanel Text="Base sim/crop/site.json" @bind-IsExpanded=@baseFilePanelOpened["sim"]>
-                <MudTextField T=@string Label="sim.json" Variant=@Variant.Outlined @bind-Text=simJsonTxt Lines=10 />
-            </MudExpansionPanel>
-                -->
-        </MudExpansionPanels>
-    </MudExpansionPanel>
-    <MudExpansionPanel @bind-IsExpanded=@panelOpened["Location"]
-                       Text=@($"Data location ({Math.Round(LatLng.Item1, 2)}N/{Math.Round(LatLng.Item2, 2)}E)")>
-        <GeoposPicker @bind-LatLng=LatLng
-                      Width="50%" Height="400px"
-                      CenterLatLng=@LatLng
-                      Zoom=6>
-        </GeoposPicker>
-    </MudExpansionPanel>
-    <MudExpansionPanel  @bind-IsExpanded=@panelOpened["ClimateService"]
-                        Text="Choose climate data from service">
-        <MudTabs Elevation="1" Rounded=@true @bind-ActivatePanelIndex=@SelectedTimeSeriesSourceIndex>
-            @code {
-                private int SelectedTimeSeriesSourceIndex = 0;
-                //private EventCallback<Climate.ITimeSeries> ec = new EventCallback(this, (Func<Climate.ITimeSeries, Task>)(TimeSeriesCapabilityChanged));
-            }
-            <MudTabPanel Text="Single Timeseries">
-                <CascadingValue Value=@false Name="ChartPanelOpened">
-                    <CascadingValue Value=@(new EventCallback<Climate.ITimeSeries>(this, (Func<Climate.ITimeSeries, Task>)(TimeSeriesCapabilityChanged))) Name="TimeSeriesCapChanged">
-                        <ClimateTimeSeries/>
+                <MudTabPanel Text="Single Timeseries">
+                    <CascadingValue Value=@false Name="ChartPanelOpened">
+                        <CascadingValue Value=@(new EventCallback<Climate.ITimeSeries>(this, (Func<Climate.ITimeSeries, Task>)(TimeSeriesCapabilityChanged))) Name="TimeSeriesCapChanged">
+                            <ClimateTimeSeries/>
+                        </CascadingValue>
                     </CascadingValue>
-                </CascadingValue>
-            </MudTabPanel>
-            <MudTabPanel Text="Single Climate Dataset">
-                <CascadingValue Value=@false Name="ChartPanelOpened">
-                    <CascadingValue Value=@(new EventCallback<Climate.ITimeSeries>(this, (Func<Climate.ITimeSeries, Task>)(TimeSeriesCapabilityChanged))) Name="TimeSeriesCapChanged">
-                        <CascadingValue Value=@true Name="HideGeoPosPicker">
-                            <CascadingValue Value=@LatLng Name="LatLng">
-                                <ClimateDataset/>
+                </MudTabPanel>
+                <MudTabPanel Text="Single Climate Dataset">
+                    <CascadingValue Value=@false Name="ChartPanelOpened">
+                        <CascadingValue Value=@(new EventCallback<Climate.ITimeSeries>(this, (Func<Climate.ITimeSeries, Task>)(TimeSeriesCapabilityChanged))) Name="TimeSeriesCapChanged">
+                            <CascadingValue Value=@true Name="HideGeoPosPicker">
+                                <CascadingValue Value=@LatLng Name="LatLng">
+                                    <ClimateDataset/>
+                                </CascadingValue>
                             </CascadingValue>
                         </CascadingValue>
                     </CascadingValue>
-                </CascadingValue>
-            </MudTabPanel>
-            <MudTabPanel Text="Climate Service">
-                <CascadingValue Value=@false Name="ChartPanelOpened">
-                    <CascadingValue Value=@(new EventCallback<Climate.ITimeSeries>(this, (Func<Climate.ITimeSeries, Task>)(TimeSeriesCapabilityChanged))) Name="TimeSeriesCapChanged">
-                        <CascadingValue Value=@true Name="HideGeoPosPicker">
-                            <CascadingValue Value=@LatLng Name="LatLng">
-                                <ClimateService/>
+                </MudTabPanel>
+                <MudTabPanel Text="Climate Service">
+                    <CascadingValue Value=@false Name="ChartPanelOpened">
+                        <CascadingValue Value=@(new EventCallback<Climate.ITimeSeries>(this, (Func<Climate.ITimeSeries, Task>)(TimeSeriesCapabilityChanged))) Name="TimeSeriesCapChanged">
+                            <CascadingValue Value=@true Name="HideGeoPosPicker">
+                                <CascadingValue Value=@LatLng Name="LatLng">
+                                    <ClimateService/>
+                                </CascadingValue>
                             </CascadingValue>
                         </CascadingValue>
                     </CascadingValue>
-                </CascadingValue>
-            </MudTabPanel>
-        </MudTabs>
+                </MudTabPanel>
+            </MudTabs>
+        </ChildContent>
     </MudExpansionPanel>
-    <MudExpansionPanel @bind-IsExpanded=@panelOpened["UpdateTimeSeries"] Text=@(overwriteTimeSeriesData ? "Timeseries has been altered below." : "Timeseries has not been altered.")>
-        @code {
-            private bool overwriteTimeSeriesData = false;
-        }
-        <MudGrid>
-            <MudItem xs="12">
-                <MudSwitch Checked=@overwriteTimeSeriesData
-                           T=@bool
-                           CheckedChanged=@(async b => {
-                                                overwriteTimeSeriesData = b;
-                                                if (AlterTimeSeriesWrapperCap == null) await WrapTimeSeries();
-                                                else if(!b) TimeSeriesCap = PlainTimeSeriesCap;
-                                            })
-                           Disabled=@(TimeSeriesFactoryCap == null)
-                           Color=@Color.Primary
-                           Label="Alter timeseries" />
-            </MudItem>
-            @if (overwriteTimeSeriesData)
-            {
+    <MudExpansionPanel @bind-IsExpanded=@panelOpened["UpdateTimeSeries"]>
+        <TitleContent>
+            <div class="d-flex">
+                <MudIcon Icon=@(overwriteTimeSeriesData ? Icons.Material.Filled.Check : Icons.Material.Filled.QuestionMark) 
+                    class="mr-3" Color=@(overwriteTimeSeriesData ? Color.Success : Color.Default)/>
+                <MudText><strong>@(overwriteTimeSeriesData ? "Timeseries has been altered." : "Timeseries has not been altered.")</strong></MudText>
+            </div>
+        </TitleContent>
+        <ChildContent>
+            @code {
+                private bool overwriteTimeSeriesData = false;
+            }
+            <MudGrid>
                 <MudItem xs="12">
+                    <MudSwitch Checked=@overwriteTimeSeriesData
+                            T=@bool
+                            CheckedChanged=@(async b => {
+                                                    overwriteTimeSeriesData = b;
+                                                    if (AlterTimeSeriesWrapperCap == null) await WrapTimeSeries();
+                                                    else if(!b) TimeSeriesCap = PlainTimeSeriesCap;
+                                                })
+                            Disabled=@(TimeSeriesFactoryCap == null)
+                            Color=@Color.Primary
+                            Label="Alter timeseries" />
+                </MudItem>
+                <MudItem xs="12" Class=@(overwriteTimeSeriesData ? "" : "d-none")>
                     <AlterTimeSeries AlterTimeSeriesWrapperCap=@(AlterTimeSeriesWrapperCap == null ? null : Capnp.Rpc.Proxy.Share(AlterTimeSeriesWrapperCap)) />
                 </MudItem>
-            }
-            @if (false)
-            {
-                <MudItem xs="12">
-                    @code {
-                        private Dictionary<String, IEnumerable<float>> Name2Data = new();
-                        private IEnumerable<DateTime> Dates = new List<DateTime>();
-                    }
-                    <Highchart Data=@Name2Data Dates=@Dates></Highchart>
-                </MudItem>
-            }
-        </MudGrid>
+                @if (false)
+                {
+                    <MudItem xs="12">
+                        @code {
+                            private Dictionary<String, IEnumerable<float>> Name2Data = new();
+                            private IEnumerable<DateTime> Dates = new List<DateTime>();
+                        }
+                        <Highchart Data=@Name2Data Dates=@Dates></Highchart>
+                    </MudItem>
+                }
+            </MudGrid>
+        </ChildContent>
     </MudExpansionPanel>
-    <MudExpansionPanel @bind-IsExpanded=@panelOpened["SoilProfile"] Text=@(overwriteSoilProfile ? "Using changed soil profile below." : "Using default soil profile.")>
-        @code {
-            private bool overwriteSoilProfile = false;
-        }
-        <MudGrid>
-            <MudItem xs="12">
-                <MudSwitch @bind-Checked=overwriteSoilProfile Color=@Color.Primary Label="Change" />
-            </MudItem>
-            @if (overwriteSoilProfile)
-            {
-                <MudItem xs="12">
-                    <SoilService @ref=@soilServiceRef
-                                 LatLng=@LatLng
-                                 HideSturdyRefConnector=@true
-                                 SoilServiceCap=@(SoilServiceCap == null ? null : Capnp.Rpc.Proxy.Share(SoilServiceCap))
-                                 @bind-SelectedLayers=profileLayers
-                                 HideGeoPosPicker=@true>
-                    </SoilService>
-                </MudItem>
+    <MudExpansionPanel @bind-IsExpanded=@panelOpened["SoilProfile"]>
+        <TitleContent>
+            <div class="d-flex">
+                <MudIcon Icon=@(overwriteSoilProfile ? Icons.Material.Filled.Check : Icons.Material.Filled.QuestionMark) 
+                    class="mr-3" Color=@(overwriteSoilProfile ? Color.Success : Color.Default)/>
+                <MudText><strong>@(overwriteSoilProfile ? "Using changed soil profile below." : "Using default soil profile.")</strong></MudText>
+            </div>
+        </TitleContent>
+        <ChildContent>
+            @code {
+                private bool overwriteSoilProfile = false;
             }
-        </MudGrid>
-    </MudExpansionPanel>
-    <MudExpansionPanel @bind-IsExpanded=@panelOpened["CropRotation"] Text=@(overwriteCropRotation ? "Using changed crop rotation below." : "Using default crop rotation.")>
-        @code {
-            private bool overwriteCropRotation = false;
-        }
-        <MudGrid>
-            <MudItem xs="12">
-                <MudSwitch @bind-Checked=overwriteCropRotation Color=@Color.Primary Label="Change" />
-            </MudItem>
-            @if (overwriteCropRotation)
-            {
+            <MudGrid>
                 <MudItem xs="12">
-                    <EditCropRotation CropRotation=@cropRotation
-                                      FertilizerRegistryCap=@(FertilizerRegistryCap == null ? null : Capnp.Rpc.Proxy.Share(FertilizerRegistryCap))
-                                      CropRegistryCap=@(CropRegistryCap == null ? null : Capnp.Rpc.Proxy.Share(CropRegistryCap))/>
+                    <MudSwitch @bind-Checked=overwriteSoilProfile Color=@Color.Primary Label="Change" />
                 </MudItem>
-            }
-        </MudGrid>
+                @if (overwriteSoilProfile)
+                {
+                    <MudItem xs="12">
+                        <SoilService @ref=@soilServiceRef
+                                    LatLng=@LatLng
+                                    @bind-SelectedLayers=profileLayers
+                                    HideGeoPosPicker=@true/>
+                    </MudItem>
+                }
+            </MudGrid>
+        </ChildContent>
     </MudExpansionPanel>
-    <MudExpansionPanel @bind-IsExpanded=@panelOpened["OutputConfig"] Text=@(overwriteOutputConfig ? "Using output configuration below." : "Using default output configuration.")>
-        @code
-            {
-            bool overwriteOutputConfig = false;
-            bool showEventSelect = true;
+    <MudExpansionPanel @bind-IsExpanded=@panelOpened["CropRotation"]>
+        <TitleContent>
+            <div class="d-flex">
+                <MudIcon Icon=@(overwriteCropRotation ? Icons.Material.Filled.Check : Icons.Material.Filled.QuestionMark) 
+                    class="mr-3" Color=@(overwriteCropRotation ? Color.Success : Color.Default)/>
+                <MudText><strong>@(overwriteCropRotation ? "Using changed crop rotation below." : "Using default crop rotation.")</strong></MudText>
+            </div>
+        </TitleContent>
+        <ChildContent>
+            @code {
+                private bool overwriteCropRotation = false;
+            }
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudSwitch @bind-Checked=overwriteCropRotation Color=@Color.Primary Label="Change" />
+                </MudItem>
+                @if (overwriteCropRotation)
+                {
+                    <MudItem xs="12">
+                        <EditCropRotation CropRotation=@cropRotation
+                                        FertilizerRegistryCap=@(FertilizerRegistryCap == null ? null : Capnp.Rpc.Proxy.Share(FertilizerRegistryCap))
+                                        CropRegistryCap=@(CropRegistryCap == null ? null : Capnp.Rpc.Proxy.Share(CropRegistryCap))/>
+                    </MudItem>
+                }
+            </MudGrid>
+        </ChildContent>
+    </MudExpansionPanel>
+    <MudExpansionPanel @bind-IsExpanded=@panelOpened["OutputConfig"]>
+        <TitleContent>
+            <div class="d-flex">
+                <MudIcon Icon=@(overwriteOutputConfig ? Icons.Material.Filled.Check : Icons.Material.Filled.QuestionMark) 
+                    class="mr-3" Color=@(overwriteOutputConfig ? Color.Success : Color.Default)/>
+                <MudText><strong>@(overwriteOutputConfig ? "Using output configuration below." : "Using default output configuration.")</strong></MudText>
+            </div>
+        </TitleContent>
+        <ChildContent>
+            @code
+                {
+                bool overwriteOutputConfig = false;
+                bool showEventSelect = true;
 
-            bool isDailyEvent(string eventShortcut)
-            {
-                return eventShortcut == "daily" || eventShortcut.Contains("at");
+                bool isDailyEvent(string eventShortcut)
+                {
+                    return eventShortcut == "daily" || eventShortcut.Contains("at");
+                }
+                MudTabs? outputConfigTabs;
             }
-            MudTabs? outputConfigTabs;
-        }
-        <MudGrid>
-            <MudItem xs="12">
-                <MudSwitch @bind-Checked=@overwriteOutputConfig
-                           Color=@Color.Primary
-                           Label="Change" />
-            </MudItem>
-        </MudGrid>
-        @if (overwriteOutputConfig)
-        {
-            <MudItem xs="12">
-                <MudTabs @ref=outputConfigTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
-                    <MudTabPanel Text="new">
-                        <MudGrid>
-                            <MudItem xs="2" Class="d-flex flex-row py-2 px-1">
-                                <MudSelect T="(string, bool)"
-                                           Class=@(showEventSelect ? "" : "d-none")
-                                           Value=@(("-", false))
-                                           ValueChanged=@(p => {
-                                                              if (p.Item1 != "-")
-                                                              {
-                                                                  events.Add((p.Item1, new List<OId>() { new OId() }, p.Item2));
-                                                                  StateHasChanged();
-                                                              }
-                                                          })
-                                           Label="New Event">
-                                    <MudSelectItem Value=@(("-", false))>-</MudSelectItem>
-                                    @foreach (var eventScAndTimeAgg in eventShortcuts)
-                                    {
-                                        <MudSelectItem Value=@eventScAndTimeAgg>@eventScAndTimeAgg.Item1</MudSelectItem>
-                                    }
-                                </MudSelect>
-                                <MudTextField T=@string
-                                              Class=@(showEventSelect ? "d-none" : "")
-                                              ValueChanged=@(v => { events.Add((v, new List<OId>() { new OId() }, true)); StateHasChanged(); })
-                                              Label="New Event"
-                                              Variant="Variant.Outlined" />
-                                <MudFab Color=@Color.Secondary
-                                        Icon=@(showEventSelect ? Icons.Material.Filled.Edit : Icons.Material.Filled.Close)
-                                        OnClick=@(() => showEventSelect = !showEventSelect) />
-                            </MudItem>
-                        </MudGrid>
-                    </MudTabPanel>
-                    @foreach (var (i, p) in events.Select((p, i) => (i, p)))
-                    {
-                        var eventShortcut = p.Item1;
-                        var oids = p.Item2;
-                        var allowTimeAgg = p.Item3 || !isDailyEvent(eventShortcut);
-                        <MudTabPanel Text="@eventShortcut">
-                            <MudSimpleTable>
-                                <thead>
-                                    <tr>
-                                        <th>Output</th>
-                                        <th>(From) Layer / Organ</th>
-                                        <th>To Layer</th>
-                                        <th>Layer aggregation</th>
-                                        <th>Time aggregation</th>
-                                        <th style="width:20%">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var (k, oid) in oids.Select((oid, k) => (k, oid)))
-                                    {
-                                        <tr>
-                                            <td>
-                                                <MudSelect T=@OId
-                                                           HelperText=@(string.IsNullOrEmpty(oid.Unit) ? oid.Desc : $"{oid.Desc} [{@oid.Unit}]")
-                                                           Value=@oid
-                                                           ValueChanged=@(o => {
-                                                                      oid.Name = o.Name;
-                                                                      oid.Desc = o.Desc;
-                                                                      oid.Unit = o.Unit;
-                                                                      oid.From = o.From;
-                                                                      oid.To = o.To;
-                                                                      oid.LayerAgg = o.LayerAgg;
-                                                                      oid.TimeAgg = o.TimeAgg;
-                                                                      oid.Organ = o.Organ;
-                                                                      StateHasChanged();
-                                                                  })
-                                                           Label="Output">
-                                                    @foreach (var o in availableOIds)
-                                                    {
-                                                        <MudSelectItem Value=@o />
-                                                    }
-                                                </MudSelect>
-                                            </td>
-                                            @if (oid.From.HasValue)
-                                            {
-                                                <td>
-                                                    <MudSelect @bind-Value=oid.From
-                                                               Label="From"
-                                                               Error=@(oid.To != null && oid.From > oid.To)
-                                                               ErrorText="From > To">
-                                                        @for (int? i = 1; i <= 20; i++)
-                                                                        {
-                                                            <MudSelectItem Value=@i />
-                                                                        }
-                                                    </MudSelect>
-                                                </td>
-                                                <td>
-                                                    <MudSelect @bind-Value=oid.To
-                                                               Label="To"
-                                                               Error=@(oid.To != null && oid.To < oid.From)
-                                                               ErrorText="To < From">
-                                                        <MudSelectItem Value=@((int?)null)>-</MudSelectItem>
-                                                        @for (int? i = 1; i <= 20; i++)
-                                                                        {
-                                                            <MudSelectItem Value=@i />
-                                                                        }
-                                                    </MudSelect>
-                                                </td>
-                                                <td>
-                                                    <MudSelect Label="Aggregation"
-                                                               Disabled=@(!oid.To.HasValue)
-                                                               T="Agg?"
-                                                               @bind-Value=oid.LayerAgg>
-                                                        @foreach (Agg? agg in Enum.GetValues(typeof(Agg)))
-                                                        {
-                                                            <MudSelectItem Value=@agg />
-                                                        }
-                                                    </MudSelect>
-                                                </td>
-                                            }
-                                            else if (oid.Organ.HasValue)
-                                            {
-                                                <td>
-                                                    <MudSelect @bind-Value=oid.Organ
-                                                               T="Mgmt.PlantOrgan?"
-                                                               Label="Organ">
-                                                        @foreach (Mgmt.PlantOrgan? o in Enum.GetValues(typeof(Mgmt.PlantOrgan)))
-                                                        {
-                                                            <MudSelectItem Value="@o">@Capitalize(o?.ToString()?.Replace("strukt", "struct") ?? "")</MudSelectItem>
-                                                        }
-                                                    </MudSelect>
-                                                </td>
-                                                <td></td>
-                                                <td></td>
-                                            }
-                                            else
-                                            {
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                            }
-                                            <td>
-                                                @if (oid.TimeAgg.HasValue || allowTimeAgg)
-                                                {
-                                                    <MudSelect Label="Aggregation"
-                                                               T="Agg?"
-                                                               @bind-Value=oid.TimeAgg>
-                                                        @foreach (Agg? agg in Enum.GetValues(typeof(Agg)))
-                                                        {
-                                                            <MudSelectItem Value=@agg />
-                                                        }
-                                                    </MudSelect>
-                                                }
-                                            </td>
-                                            <td>
-                                                <MudFab Icon=@Icons.Material.Filled.ArrowUpward
-                                                        Size=@Size.Small
-                                                        Disabled=@(k == 0)
-                                                        OnClick=@(() =>
-                                                          {
-                                                              oids.Remove(oid);
-                                                              oids.Insert(Math.Max(0, k - 1), oid);
-                                                              StateHasChanged();
-                                                          }) />
-                                                <MudFab Icon=@Icons.Material.Filled.ArrowDownward
-                                                        Size=@Size.Small
-                                                        Disabled=@(k == oids.Count() - 1)
-                                                        OnClick=@(() =>
-                                                          {
-                                                              oids.Remove(oid);
-                                                              oids.Insert(Math.Min(k + 1, oids.Count()), oid);
-                                                              StateHasChanged();
-                                                          }) />
-                                                <MudFab Icon=@Icons.Material.Filled.Add
-                                                        Size=@Size.Small
-                                                        Color=@Color.Success
-                                                        OnClick=@(() =>
-                                                          {
-                                                              oids.Insert(Math.Min(k + 1, oids.Count()), new OId());
-                                                              StateHasChanged();
-                                                          }) />
-                                                <MudFab Icon=@Icons.Material.Filled.Delete
-                                                        Disabled=@(oids.Count() < 2)
-                                                        Size=@Size.Small
-                                                        Color=@Color.Error
-                                                        OnClick=@(() => { oids.Remove(oid); StateHasChanged(); }) />
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </MudSimpleTable>
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudSwitch @bind-Checked=@overwriteOutputConfig
+                            Color=@Color.Primary
+                            Label="Change" />
+                </MudItem>
+            </MudGrid>
+            @if (overwriteOutputConfig)
+            {
+                <MudItem xs="12">
+                    <MudTabs @ref=outputConfigTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+                        <MudTabPanel Text="new">
+                            <MudGrid>
+                                <MudItem xs="2" Class="d-flex flex-row py-2 px-1">
+                                    <MudSelect T="(string, bool)"
+                                            Class=@(showEventSelect ? "" : "d-none")
+                                            Value=@(("-", false))
+                                            ValueChanged=@(p => {
+                                                                if (p.Item1 != "-")
+                                                                {
+                                                                    events.Add((p.Item1, new List<OId>() { new OId() }, p.Item2));
+                                                                    StateHasChanged();
+                                                                }
+                                                            })
+                                            Label="New Event">
+                                        <MudSelectItem Value=@(("-", false))>-</MudSelectItem>
+                                        @foreach (var eventScAndTimeAgg in eventShortcuts)
+                                        {
+                                            <MudSelectItem Value=@eventScAndTimeAgg>@eventScAndTimeAgg.Item1</MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                    <MudTextField T=@string
+                                                Class=@(showEventSelect ? "d-none" : "")
+                                                ValueChanged=@(v => { events.Add((v, new List<OId>() { new OId() }, true)); StateHasChanged(); })
+                                                Label="New Event"
+                                                Variant="Variant.Outlined" />
+                                    <MudFab Color=@Color.Secondary
+                                            Icon=@(showEventSelect ? Icons.Material.Filled.Edit : Icons.Material.Filled.Close)
+                                            OnClick=@(() => showEventSelect = !showEventSelect) />
+                                </MudItem>
+                            </MudGrid>
                         </MudTabPanel>
-                    }
+                        @foreach (var (i, p) in events.Select((p, i) => (i, p)))
+                        {
+                            var eventShortcut = p.Item1;
+                            var oids = p.Item2;
+                            var allowTimeAgg = p.Item3 || !isDailyEvent(eventShortcut);
+                            <MudTabPanel Text="@eventShortcut">
+                                <MudSimpleTable>
+                                    <thead>
+                                        <tr>
+                                            <th>Output</th>
+                                            <th>(From) Layer / Organ</th>
+                                            <th>To Layer</th>
+                                            <th>Layer aggregation</th>
+                                            <th>Time aggregation</th>
+                                            <th style="width:20%">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var (k, oid) in oids.Select((oid, k) => (k, oid)))
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <MudSelect T=@OId
+                                                            HelperText=@(string.IsNullOrEmpty(oid.Unit) ? oid.Desc : $"{oid.Desc} [{@oid.Unit}]")
+                                                            Value=@oid
+                                                            ValueChanged=@(o => {
+                                                                        oid.Name = o.Name;
+                                                                        oid.Desc = o.Desc;
+                                                                        oid.Unit = o.Unit;
+                                                                        oid.From = o.From;
+                                                                        oid.To = o.To;
+                                                                        oid.LayerAgg = o.LayerAgg;
+                                                                        oid.TimeAgg = o.TimeAgg;
+                                                                        oid.Organ = o.Organ;
+                                                                        StateHasChanged();
+                                                                    })
+                                                            Label="Output">
+                                                        @foreach (var o in availableOIds)
+                                                        {
+                                                            <MudSelectItem Value=@o />
+                                                        }
+                                                    </MudSelect>
+                                                </td>
+                                                @if (oid.From.HasValue)
+                                                {
+                                                    <td>
+                                                        <MudSelect @bind-Value=oid.From
+                                                                Label="From"
+                                                                Error=@(oid.To != null && oid.From > oid.To)
+                                                                ErrorText="From > To">
+                                                            @for (int? i = 1; i <= 20; i++)
+                                                                            {
+                                                                <MudSelectItem Value=@i />
+                                                                            }
+                                                        </MudSelect>
+                                                    </td>
+                                                    <td>
+                                                        <MudSelect @bind-Value=oid.To
+                                                                Label="To"
+                                                                Error=@(oid.To != null && oid.To < oid.From)
+                                                                ErrorText="To < From">
+                                                            <MudSelectItem Value=@((int?)null)>-</MudSelectItem>
+                                                            @for (int? i = 1; i <= 20; i++)
+                                                                            {
+                                                                <MudSelectItem Value=@i />
+                                                                            }
+                                                        </MudSelect>
+                                                    </td>
+                                                    <td>
+                                                        <MudSelect Label="Aggregation"
+                                                                Disabled=@(!oid.To.HasValue)
+                                                                T="Agg?"
+                                                                @bind-Value=oid.LayerAgg>
+                                                            @foreach (Agg? agg in Enum.GetValues(typeof(Agg)))
+                                                            {
+                                                                <MudSelectItem Value=@agg />
+                                                            }
+                                                        </MudSelect>
+                                                    </td>
+                                                }
+                                                else if (oid.Organ.HasValue)
+                                                {
+                                                    <td>
+                                                        <MudSelect @bind-Value=oid.Organ
+                                                                T="Mgmt.PlantOrgan?"
+                                                                Label="Organ">
+                                                            @foreach (Mgmt.PlantOrgan? o in Enum.GetValues(typeof(Mgmt.PlantOrgan)))
+                                                            {
+                                                                <MudSelectItem Value="@o">@Capitalize(o?.ToString()?.Replace("strukt", "struct") ?? "")</MudSelectItem>
+                                                            }
+                                                        </MudSelect>
+                                                    </td>
+                                                    <td></td>
+                                                    <td></td>
+                                                }
+                                                else
+                                                {
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                }
+                                                <td>
+                                                    @if (oid.TimeAgg.HasValue || allowTimeAgg)
+                                                    {
+                                                        <MudSelect Label="Aggregation"
+                                                                T="Agg?"
+                                                                @bind-Value=oid.TimeAgg>
+                                                            @foreach (Agg? agg in Enum.GetValues(typeof(Agg)))
+                                                            {
+                                                                <MudSelectItem Value=@agg />
+                                                            }
+                                                        </MudSelect>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    <MudFab Icon=@Icons.Material.Filled.ArrowUpward
+                                                            Size=@Size.Small
+                                                            Disabled=@(k == 0)
+                                                            OnClick=@(() =>
+                                                            {
+                                                                oids.Remove(oid);
+                                                                oids.Insert(Math.Max(0, k - 1), oid);
+                                                                StateHasChanged();
+                                                            }) />
+                                                    <MudFab Icon=@Icons.Material.Filled.ArrowDownward
+                                                            Size=@Size.Small
+                                                            Disabled=@(k == oids.Count() - 1)
+                                                            OnClick=@(() =>
+                                                            {
+                                                                oids.Remove(oid);
+                                                                oids.Insert(Math.Min(k + 1, oids.Count()), oid);
+                                                                StateHasChanged();
+                                                            }) />
+                                                    <MudFab Icon=@Icons.Material.Filled.Add
+                                                            Size=@Size.Small
+                                                            Color=@Color.Success
+                                                            OnClick=@(() =>
+                                                            {
+                                                                oids.Insert(Math.Min(k + 1, oids.Count()), new OId());
+                                                                StateHasChanged();
+                                                            }) />
+                                                    <MudFab Icon=@Icons.Material.Filled.Delete
+                                                            Disabled=@(oids.Count() < 2)
+                                                            Size=@Size.Small
+                                                            Color=@Color.Error
+                                                            OnClick=@(() => { oids.Remove(oid); StateHasChanged(); }) />
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </MudSimpleTable>
+                            </MudTabPanel>
+                        }
 
-                </MudTabs>
-            </MudItem>
-        }
+                    </MudTabs>
+                </MudItem>
+            }
+        </ChildContent>
     </MudExpansionPanel>
     <MudExpansionPanel @bind-IsExpanded=@panelOpened["Results"] Text="MONICA results">
         <MudGrid>
