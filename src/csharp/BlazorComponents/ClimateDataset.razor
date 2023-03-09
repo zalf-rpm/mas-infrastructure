@@ -8,7 +8,7 @@
 
 <MudGrid>
     <MudItem xs="12" Class=@(HideSturdyRefConnector ? "d-none" : "")>
-        <ConnectToSturdyRef Label="Persistent capability to climate dataset (capnp://host:port/token)"
+        <ConnectToSturdyRef Label="Persistent capability to climate dataset"
                             CapabilityChanged=@CapabilityChanged
                             TCapnpInterface=Climate.IDataset/>
     </MudItem>

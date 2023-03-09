@@ -13,6 +13,44 @@
 
 @implements IDisposable
 
+<MudPaper Class="d-flex flex-row py-2 px-1 align-content-center">
+    <MudSelect Class="pa-2 mx-2"
+               T=@StoredSRData
+               Value=@selectedBookmark
+               ValueChanged=@SelectedBookmarkChanged
+               Label=@Label
+               Variant=@Variant.Outlined
+               OffsetY=@true>
+        @foreach (var b in bookmarks)
+        {
+            <MudSelectItem Value=@b>
+                <MudElement Class="d-flex">
+                    <MudIcon Icon=@(b.AutoConnect ? Icons.Material.Filled.CastConnected : Icons.Material.Filled.Cast) />
+                    <MudText Class="ml-8" Typo=@Typo.body1>@($"{b.PetName}")</MudText>
+                </MudElement>
+            </MudSelectItem>
+        }
+    </MudSelect>
+    <MudFab Class="pa-2 mt-2 ml-2 mr-6"
+               Variant=Variant.Filled
+               StartIcon=@connectIcon
+               Color=@(SturdyRef == null || SturdyRef.Count() == 0 ? Color.Default : connectColor)
+               Disabled=@(SturdyRef == null || SturdyRef.Count() == 0)
+               OnClick=@Connect/>
+    <MudFab Class="pa-2 mt-2 mx-2"
+               Variant=Variant.Filled
+               StartIcon=@Icons.Material.Filled.Edit
+               Color=@Color.Default
+               Disabled=@(selectedBookmark == null)
+               OnClick=@(async () => await OpenAddSturdyRefDialog(selectedBookmark))/>
+    <MudFab Class="pa-2 mt-2 mx-2"
+               Variant=Variant.Filled
+               StartIcon=@Icons.Material.Filled.Add
+               Color=@Color.Default
+               OnClick=@(async () => await OpenAddSturdyRefDialog())/>
+</MudPaper>
+
+@*
 <MudPaper Class="d-flex flex-row py-2 px-1">
     <MudButton xs="2" Class="pa-2 mx-2"
                Variant=Variant.Filled
@@ -54,26 +92,7 @@
         @buttonLabel
     </MudButton>
 </MudPaper>
-
-
-<!--
-<MudCard Class="minimize-card" Outlined="true">
-    <MudCardContent>
-        <MudTextField Class="mx-1" @bind-Value=SturdyRef Label=@Label Variant=Variant.Outlined HelperText=@HelperText></MudTextField>
-    </MudCardContent>
-    <MudCardActions>
-        <MudButton Class="mx-1" Variant=Variant.Filled StartIcon=@buttonIcon Color=@buttonColor OnClick=@Connect>@buttonLabel</MudButton>
-        <MudButton Class="mx-1" Variant=Variant.Text Color=@Color.Primary OnClick=@RetrieveSturdyRef>Retrieve</MudButton>
-    </MudCardActions>
-</MudCard>
-    -->
-<!--
-<MudPaper Class="d-flex flex-row py-2 px-1">
-    <MudButton Class="pa-2 mx-2" Variant=Variant.Filled EndIcon=@buttonEndIcon Color=@buttonColor OnClick=@Connect>@buttonLabel</MudButton>
-    <MudTextField Class="pa-2 mx-2" T=@String Value=@SturdyRef ValueChanged=@SturdyRefValueChanged Label=@Label Variant=Variant.Outlined></MudTextField>
-    <MudButton Class="pa-2 mx-2" Variant=Variant.Outlined Color=@Color.Primary OnClick=@RetrieveSturdyRef>Retrieve</MudButton>
-</MudPaper>
-    -->
+*@
 
 @code {
     [Parameter]
@@ -92,9 +111,9 @@
     [Parameter]
     public EventCallback<String> SturdyRefChanged { get; set; }
 
-    private String buttonIcon = Icons.Material.Filled.CastConnected;
-    private Color buttonColor = Color.Primary;
-    private String buttonLabel = "Connect";
+    private String connectIcon = Icons.Material.Filled.Cast;
+    private Color connectColor = Color.Default;
+    private String connectLabel = "Connect";
 
     private bool showSturdyRefEdit = false;
 
@@ -119,7 +138,7 @@
     {
         try
         {
-            buttonLabel = "Connecting ...";
+            connectLabel = "Connecting ...";
 
             Console.WriteLine("ConnectToSturdyRef<" + typeof(TCapnpInterface).ToString() + ">: ThreadId: " + Thread.CurrentThread.ManagedThreadId);
             var cap = await ConMan.Connect<TCapnpInterface>(SturdyRef);
@@ -129,19 +148,28 @@
             //Console.WriteLine("ConnectToSturdyRef: current TaskSchedulerId: " + TaskScheduler.Current.Id);
             //var (mps, ops) = await (cap as Soil.IService)?.GetAllAvailableParameters(false);
 
-            buttonIcon = Icons.Material.Filled.CastConnected;
-            buttonColor = Color.Success;
-            buttonLabel = "Connected";
+            if (Capability == null)
+            {
+                connectIcon = Icons.Material.Filled.Cast;
+                connectColor = Color.Error;
+                connectLabel = "Connect failed";
+            } 
+            else 
+            {
+                connectIcon = Icons.Material.Filled.CastConnected;
+                connectColor = Color.Success;
+                connectLabel = "Connected";
 
-            if (CapabilityChanged.HasDelegate) await CapabilityChanged.InvokeAsync(Capnp.Rpc.Proxy.Share(Capability));
+                if (CapabilityChanged.HasDelegate) _ = CapabilityChanged.InvokeAsync(Capnp.Rpc.Proxy.Share(Capability));
+            }
         }
         catch (RpcException e)
         {
             Console.WriteLine(e.ToString());
 
-            buttonIcon = Icons.Material.Filled.Error;
-            buttonColor = Color.Error;
-            buttonLabel = "Connect failed";
+            connectIcon = Icons.Material.Filled.Cast;
+            connectColor = Color.Error;
+            connectLabel = "Connect failed";
 
             if (RpcExceptionThrown.HasDelegate) _ = RpcExceptionThrown.InvokeAsync(e);
         }
@@ -155,9 +183,9 @@
 
     private void ClearButton()
     {
-        buttonIcon = Icons.Material.Filled.CastConnected;
-        buttonColor = Color.Primary;
-        buttonLabel = "Connect";
+        connectIcon = Icons.Material.Filled.Cast;
+        connectColor = Color.Default;
+        connectLabel = "Connect";
     }
 
     private async Task RetrieveSturdyRef()

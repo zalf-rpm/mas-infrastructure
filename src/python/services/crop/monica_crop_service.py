@@ -19,6 +19,7 @@
 import asyncio
 import capnp
 from collections import defaultdict
+import itertools
 import json
 import os
 from pathlib import Path
@@ -339,6 +340,9 @@ class Registry(reg_capnp.Registry.Server):
     def entries(self, categoryId, **kwargs): # entries @2 (categoryId :Text) -> (entries :List(Entry));
         if categoryId in self._species_to_cultivars:
             return self._species_to_cultivars[categoryId]
+        elif categoryId is None or len(categoryId) == 0:
+            return list(itertools.chain(*self._species_to_cultivars.values()))
+
 
 
 #------------------------------------------------------------------------------
@@ -410,4 +414,4 @@ async def main(path_to_monica_parameters, serve_bootstrap=True, host=None, port=
 #------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    asyncio.run(main(str(PATH_TO_REPO.parent / "monica-parameters"), serve_bootstrap=True, use_async=False)) 
+    asyncio.run(main(str(PATH_TO_REPO.parent / "monica-parameters"), serve_bootstrap=True, use_async=True)) 

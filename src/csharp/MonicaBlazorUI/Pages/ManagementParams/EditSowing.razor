@@ -4,30 +4,46 @@
 @using Mgmt = Mas.Schema.Model.Monica
 @using Reg = Mas.Schema.Registry
 @using Crop = Mas.Schema.Crop
+@using Common = Mas.Schema.Common
+@using Mas.Infrastructure.Common
 
 @implements IDisposable
 
 <MudCard>
     <MudCardContent>
-        <MudSelect @bind-Value=Params.Crop Label="Crop-Service Cultivar">
+        @code 
+        {
+            private void OnEntryChanged(Reg.Registry.Entry e)
+            { 
+                Params.Crop = ((Common.Identifiable_Proxy)e.Ref).Cast<Crop.ICrop>(false); 
+                currentEntry = e;
+            }
+        }
+        <MudSelect Value=currentEntry
+                    ValueChanged=@OnEntryChanged
+                    T=@Reg.Registry.Entry 
+                    Label="Crop-Service Cultivar"
+                    ToStringFunc=@(e => $"{Helper.Capitalize(e.CategoryId)}/{Helper.Capitalize(e.Name)}")>
             @foreach (var entry in allCultivarEntries)
                 {
-                <MudSelectItem Value=@entry.Ref>@entry.Name</MudSelectItem>
+                <MudSelectItem Value=@entry>
+                    @($"{Helper.Capitalize(entry.CategoryId)}/{Helper.Capitalize(entry.Name)}")
+                </MudSelectItem>
                 }
         </MudSelect>
-        <!--
-    <MudTextField @bind-Value=Params.PlantDensity
+        <MudTextField @bind-Value=Params.PlantDensity
                   Label="Plant density"
                   HelperText="> 0 overwrites plant density from species parameters"
                   Adornment="Adornment.End"
                   AdornmentText="plants m-2" />
-    -->
     </MudCardContent>
 </MudCard>
 
 @code {
     [Parameter]
     public Mgmt.Params.Sowing Params { get; set; } = new();
+
+    private Reg.Registry.Entry currentEntry = new();
 
     [Parameter]
     public Reg.IRegistry? CropRegistryCap { get; set; }
@@ -52,7 +68,7 @@
         if (CropRegistryCap == null) return;
 
         var entries = await CropRegistryCap.Entries(null);
-        allCultivarEntries = entries.OrderBy(e => $"{e.CategoryId}/{e.Name}");
+        if (entries != null) allCultivarEntries = entries.OrderBy(e => $"{e.CategoryId}/{e.Name}");
     }
 
     void IDisposable.Dispose()

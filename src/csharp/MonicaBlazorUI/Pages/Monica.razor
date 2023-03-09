@@ -113,7 +113,7 @@
         <TitleContent>
             <div class="d-flex">
                 <MudIcon Icon=@Icons.Material.Filled.Check class="mr-3" Color=@Color.Success></MudIcon>
-                <MudText><strong>Base sim/crop/site.json for default soildata, output configuration and crop rotation.</strong></MudText>
+                <MudText>Base <strong>sim/crop/site.json</strong> for default soildata, output configuration and crop rotation.</MudText>
             </div>
         </TitleContent>
         <ChildContent>
@@ -162,7 +162,7 @@
         <TitleContent>
             <div class="d-flex">
                 <MudIcon Icon=@(TimeSeriesCap == null ? Icons.Material.Filled.WarningAmber : Icons.Material.Filled.Check) class="mr-3" Color=@(TimeSeriesCap == null ? Color.Error : Color.Success)></MudIcon>
-                <MudText><strong>Choose climate data from service</strong></MudText>
+                <MudText>Choose <strong>climate data</strong>.</MudText>
             </div>
         </TitleContent>
         <ChildContent>
@@ -520,60 +520,77 @@
             }
         </ChildContent>
     </MudExpansionPanel>
-    <MudExpansionPanel @bind-IsExpanded=@panelOpened["Results"] Text="MONICA results">
-        <MudGrid>
-            <MudItem xs="2">
-                <MudButton Variant=@Variant.Filled Class="run-main" OnClick=@RunMonicaModel>Run MONICA</MudButton>
-            </MudItem>
-            <MudItem xs="10">
-                <MudChipSet SelectedChipsChanged=@(cs => {
-                                                       selectedResultSection = cs.Select(c => c.Text).FirstOrDefault() ?? "";
-                                                       MonicaResultsChanged = true;
-                                                   })
-                            Mandatory=@true
-                            Filter=@true>
-                    @foreach (var (s, i) in Section2Oid2Data.Keys.Select((s, i) => (s, i)))
-                    {
-                        <MudChip @ref=defaultSelectedSectionChips[i]
-                             Text=@s 
-                             Default=@(s == selectedResultSection)>
-                        </MudChip>
+    <MudExpansionPanel @bind-IsExpanded=@panelOpened["Results"]>
+        <TitleContent>
+            <div class="d-flex">
+                <MudIcon Icon=@Icons.Material.Filled.Start 
+                    class="mr-3" Color=@(MonicaInstanceCap == null || TimeSeriesCap == null ? Color.Error : Color.Success)/>
+                <MudText><strong>MONICA results</strong></MudText>
+            </div>
+        </TitleContent>
+        <ChildContent>
+            <MudGrid>
+                <MudItem xs="2">
+                    <MudButton Variant=@Variant.Filled Class="run-main" 
+                                OnClick=@RunMonicaModel
+                                Disabled=@(MonicaInstanceCap == null || TimeSeriesCap == null)
+                                Color=@(MonicaInstanceCap == null || TimeSeriesCap == null ? Color.Error : Color.Success)>
+                        Run MONICA
+                    </MudButton>
+                </MudItem>
+                <MudItem xs="10">
+                    <MudChipSet SelectedChipsChanged=@(cs => {
+                                                        selectedResultSection = cs.Select(c => c.Text).FirstOrDefault() ?? "";
+                                                        MonicaResultsChanged = true;
+                                                    })
+                                Mandatory=@true
+                                Filter=@true>
+                        @foreach (var (s, i) in Section2Oid2Data.Keys.Select((s, i) => (s, i)))
+                        {
+                            <MudChip @ref=defaultSelectedSectionChips[i]
+                                Text=@s 
+                                Default=@(s == selectedResultSection)>
+                            </MudChip>
+                        }
+                    </MudChipSet>
+                </MudItem>
+                <MudItem xs="12">
+                    @code {
+                        private List<Highchart.AxisConfig> yAxisConfigs = new()
+                        {
+                new Highchart.AxisConfig { Id = "def", Title = "other values" },
+                new Highchart.AxisConfig { Id = "yields", Title = "Yield [kg/ha]", Opposite = true }
+            };
+                        private Dictionary<string, Highchart.CurveConfig> curveName2Config = new()
+                        {
+                { "Yield", new Highchart.CurveConfig { DisplayAxisId = "yields", IsVisible = true } }
+            };
                     }
-                </MudChipSet>
-            </MudItem>
-            <MudItem xs="12">
-                @code {
-                    private List<Highchart.AxisConfig> yAxisConfigs = new()
-                    {
-            new Highchart.AxisConfig { Id = "def", Title = "other values" },
-            new Highchart.AxisConfig { Id = "yields", Title = "Yield [kg/ha]", Opposite = true }
-        };
-                    private Dictionary<string, Highchart.CurveConfig> curveName2Config = new()
-                    {
-            { "Yield", new Highchart.CurveConfig { DisplayAxisId = "yields", IsVisible = true } }
-        };
+                    <Highchart Title="MONICA results"
+                            XAxisTitle="Date"
+                            Data=@(Section2Oid2Data.GetValueOrDefault(selectedResultSection, new Dictionary<string, IEnumerable<float>>()))
+                            Dates=@(Section2Dates.GetValueOrDefault(selectedResultSection, new List<DateTime>()))
+                            DataChanged=@MonicaResultsChanged
+                            ChartRerendered=@(() => MonicaResultsChanged = false)
+                            YAxisConfigs=@yAxisConfigs
+                            CurveName2Config=@curveName2Config>
+                    </Highchart>
+                </MudItem>
+                <!--<MudItem xs="12">
+                                <MudCard>
+                                    <MudCardContent>
+                                        <MudText>@monicaResult</MudText>
+                                    </MudCardContent>
+                                </MudCard>
+                            </MudItem>
+                -->
+                @if(monicaErrorMessage != null && monicaErrorMessage.Count() > 0)
+                {
+                    <MudItem xs="12">
+                        <MudAlert Severity="Severity.Error">@monicaErrorMessage</MudAlert>
+                    </MudItem>
                 }
-                <Highchart Title="MONICA results"
-                           XAxisTitle="Date"
-                           Data=@(Section2Oid2Data.GetValueOrDefault(selectedResultSection, new Dictionary<string, IEnumerable<float>>()))
-                           Dates=@(Section2Dates.GetValueOrDefault(selectedResultSection, new List<DateTime>()))
-                           DataChanged=@MonicaResultsChanged
-                           ChartRerendered=@(() => MonicaResultsChanged = false)
-                           YAxisConfigs=@yAxisConfigs
-                           CurveName2Config=@curveName2Config>
-                </Highchart>
-            </MudItem>
-            <!--<MudItem xs="12">
-                            <MudCard>
-                                <MudCardContent>
-                                    <MudText>@monicaResult</MudText>
-                                </MudCardContent>
-                            </MudCard>
-                        </MudItem>
-            -->
-            <MudItem xs="12">
-                <MudAlert Severity="Severity.Error">@monicaErrorMessage</MudAlert>
-            </MudItem>
-        </MudGrid>
+            </MudGrid>
+        </ChildContent>
     </MudExpansionPanel>
 </MudExpansionPanels>

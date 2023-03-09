@@ -116,7 +116,7 @@
                             if (e.Params is Mgmt.Params.Sowing s)
                             {
                                 <EditSowing Params=@s
-                                            CropRegistryServiceCap=@(CropRegistryCap == null ? null : Capnp.Rpc.Proxy.Share(CropRegistryCap))/>
+                                            CropRegistryCap=@(CropRegistryCap == null ? null : Capnp.Rpc.Proxy.Share(CropRegistryCap))/>
                             }
                             break;
                         case ExtType.automaticSowing:
@@ -124,7 +124,7 @@
                             if (e.Params is Mgmt.Params.AutomaticSowing sa)
                             {
                                 <EditAutomaticSowing Params=@sa
-                                                     CropRegistryServiceCap=@(CropRegistryCap == null ? null : Capnp.Rpc.Proxy.Share(CropRegistryCap))/>
+                                                     CropRegistryCap=@(CropRegistryCap == null ? null : Capnp.Rpc.Proxy.Share(CropRegistryCap))/>
                             }
                             break;
                         case ExtType.harvest:
@@ -200,7 +200,7 @@
                                           }) />
                     <MudFab Icon=@Icons.Material.Filled.Add
                             Size=@Size.Small
-                            Color=@Color.Success
+                            Color=@Color.Primary
                             OnClick=@(() => {
                                               CropRotation.Insert(Math.Min(i + 1, CropRotation.Count()), new Mgmt.Event());
                                               StateHasChanged();
