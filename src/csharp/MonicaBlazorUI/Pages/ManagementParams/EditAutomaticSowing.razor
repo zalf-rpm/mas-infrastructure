@@ -96,37 +96,37 @@
 
 @code {
     [Parameter]
-    public Mgmt.Params.AutomaticSowing Params { get; set; } = new();
+    public Mgmt.Params.AutomaticSowing Params { get; set; } = new() { Sowing = new() };
 
     [Parameter]
-    public Reg.IRegistry? CropRegistryCap { get; set; }
+    public Crop.IService? CropServiceCap { get; set; }
 
-    private bool cropRegistryCapUpdated = false;
+    private bool cropServiceCapUpdated = false;
 
     private IEnumerable<Reg.Registry.Entry> allCultivarEntries = new List<Reg.Registry.Entry>();
 
     public override async Task SetParametersAsync(ParameterView parameters)
     {
-        cropRegistryCapUpdated = parameters.GetValueOrDefault<Reg.IRegistry?>("CropRegistryCap", null) != CropRegistryCap;
+        cropServiceCapUpdated = parameters.GetValueOrDefault<Reg.IRegistry?>("CropServiceCap", null) != CropServiceCap;
         await base.SetParametersAsync(parameters);
     }
 
     protected override async Task OnParametersSetAsync()
     {
-        if (cropRegistryCapUpdated) await LoadCultivars();
+        if (cropServiceCapUpdated) await LoadCultivars();
     }
 
     private async Task LoadCultivars()
     {
-        if (CropRegistryCap == null) return;
+        if (CropServiceCap == null) return;
 
-        var entries = await CropRegistryCap.Entries(null);
+        var entries = await CropServiceCap.Entries(null);
         allCultivarEntries = entries.OrderBy(e => $"{e.CategoryId}/{e.Name}");
     }
 
     void IDisposable.Dispose()
     {
-        Console.WriteLine("Disposing EditAutomaticSowing.CropRegistryCap cap: " + CropRegistryCap);
-        CropRegistryCap?.Dispose();
+        Console.WriteLine("Disposing EditAutomaticSowing.CropRegistryCap cap: " + CropServiceCap);
+        CropServiceCap?.Dispose();
     }
 }

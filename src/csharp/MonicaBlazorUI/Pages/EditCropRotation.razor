@@ -4,7 +4,8 @@
 @using Mas.Infrastructure.Common
 @using ExtType = Mas.Schema.Model.Monica.Event.ExternalType
 @using Mgmt = Mas.Schema.Model.Monica
-@using Reg = Mas.Schema.Registry
+@using GenMgmt = Mas.Schema.Management
+@using Crop = Mas.Schema.Crop
 @using System.Linq
 
 @implements IDisposable
@@ -116,7 +117,7 @@
                             if (e.Params is Mgmt.Params.Sowing s)
                             {
                                 <EditSowing Params=@s
-                                            CropRegistryCap=@(CropRegistryCap == null ? null : Capnp.Rpc.Proxy.Share(CropRegistryCap))/>
+                                            CropServiceCap=@(CropServiceCap == null ? null : Capnp.Rpc.Proxy.Share(CropServiceCap))/>
                             }
                             break;
                         case ExtType.automaticSowing:
@@ -124,7 +125,7 @@
                             if (e.Params is Mgmt.Params.AutomaticSowing sa)
                             {
                                 <EditAutomaticSowing Params=@sa
-                                                     CropRegistryCap=@(CropRegistryCap == null ? null : Capnp.Rpc.Proxy.Share(CropRegistryCap))/>
+                                                     CropServiceCap=@(CropServiceCap == null ? null : Capnp.Rpc.Proxy.Share(CropServiceCap))/>
                             }
                             break;
                         case ExtType.harvest:
@@ -153,7 +154,7 @@
                             if (e.Params == null || e.Params is not Mgmt.Params.MineralFertilization) e.Params = new Mgmt.Params.MineralFertilization() { Partition = new() };
                             if (e.Params is Mgmt.Params.MineralFertilization mf)
                             {
-                                <EditMineralFertilizer FertilizerRegistryCap=@(FertilizerRegistryCap == null ? null : Capnp.Rpc.Proxy.Share(FertilizerRegistryCap))
+                                <EditMineralFertilizer FertilizerRegistryCap=@(FertilizerServiceCap == null ? null : Capnp.Rpc.Proxy.Share(FertilizerServiceCap))
                                                        Params=@mf />
                             }
                             break;
@@ -161,7 +162,7 @@
                             if (e.Params == null || e.Params is not Mgmt.Params.OrganicFertilization) e.Params = new Mgmt.Params.OrganicFertilization() { Params = new() { Params = new() } };
                             if (e.Params is Mgmt.Params.OrganicFertilization of)
                             {
-                                <EditOrganicFertilizer FertilizerRegistryCap=@(FertilizerRegistryCap == null ? null : Capnp.Rpc.Proxy.Share(FertilizerRegistryCap))
+                                <EditOrganicFertilizer FertilizerRegistryCap=@(FertilizerServiceCap == null ? null : Capnp.Rpc.Proxy.Share(FertilizerServiceCap))
                                                        Params=@of />
                             }
                             break;
@@ -220,10 +221,10 @@
     public List<Mgmt.Event> CropRotation { get; set; } = new();
 
     [Parameter]
-    public Reg.IRegistry? FertilizerRegistryCap { get; set; }
+    public GenMgmt.IFertilizerService? FertilizerServiceCap { get; set; }
 
     [Parameter]
-    public Reg.IRegistry? CropRegistryCap { get; set; }
+    public Crop.IService? CropServiceCap { get; set; }
 
     private System.Globalization.TextInfo textInfo = new System.Globalization.CultureInfo("de-DE", false).TextInfo;
 
@@ -242,9 +243,9 @@
 
     void IDisposable.Dispose()
     {
-        Console.WriteLine("Disposing Management.IFertilizerService cap: " + FertilizerRegistryCap);
-        FertilizerRegistryCap?.Dispose();
-        Console.WriteLine("Disposing EditCropRotatio.CropRegistryCap cap: " + CropRegistryCap);
-        CropRegistryCap?.Dispose();
+        Console.WriteLine("Disposing EditCropRotation.IFertilizerService cap: " + FertilizerServiceCap);
+        FertilizerServiceCap?.Dispose();
+        Console.WriteLine("Disposing EditCropRotation.ICropServiceCap cap: " + CropServiceCap);
+        CropServiceCap?.Dispose();
     }
 }

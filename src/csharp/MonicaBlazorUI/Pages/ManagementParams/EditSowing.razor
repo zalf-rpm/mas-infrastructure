@@ -13,10 +13,12 @@
     <MudCardContent>
         @code 
         {
-            private void OnEntryChanged(Reg.Registry.Entry e)
+            private async void OnEntryChanged(Reg.Registry.Entry e)
             { 
-                Params.Crop = ((Common.Identifiable_Proxy)e.Ref).Cast<Crop.ICrop>(false); 
+                Params.Crop = Capnp.Rpc.Proxy.Share(((Common.Identifiable_Proxy)e.Ref).Cast<Crop.ICrop>(false)); 
+                //var id = (await Params.Crop.Cultivar()).Id;
                 currentEntry = e;
+                StateHasChanged();
             }
         }
         <MudSelect Value=currentEntry
@@ -46,34 +48,34 @@
     private Reg.Registry.Entry currentEntry = new();
 
     [Parameter]
-    public Reg.IRegistry? CropRegistryCap { get; set; }
+    public Crop.IService? CropServiceCap { get; set; }
 
-    private bool cropRegistryCapUpdated = false;
+    private bool cropServiceCapUpdated = false;
 
     private IEnumerable<Reg.Registry.Entry> allCultivarEntries = new List<Reg.Registry.Entry>();
 
     public override async Task SetParametersAsync(ParameterView parameters)
     {
-        cropRegistryCapUpdated = parameters.GetValueOrDefault<Reg.IRegistry?>("CropRegistryCap", null) != CropRegistryCap;
+        cropServiceCapUpdated = parameters.GetValueOrDefault<Reg.IRegistry?>("CropServiceCap", null) != CropServiceCap;
         await base.SetParametersAsync(parameters);
     }
 
     protected override async Task OnParametersSetAsync()
     {
-        if (cropRegistryCapUpdated) await LoadCultivars();
+        if (cropServiceCapUpdated) await LoadCultivars();
     }
 
     private async Task LoadCultivars()
     {
-        if (CropRegistryCap == null) return;
+        if (CropServiceCap == null) return;
 
-        var entries = await CropRegistryCap.Entries(null);
+        var entries = await CropServiceCap.Entries(null);
         if (entries != null) allCultivarEntries = entries.OrderBy(e => $"{e.CategoryId}/{e.Name}");
     }
 
     void IDisposable.Dispose()
     {
-        Console.WriteLine("Disposing EditSowing.CropRegistryCap cap: " + CropRegistryCap);
-        CropRegistryCap?.Dispose();
+        Console.WriteLine("Disposing EditSowing.CropRegistryCap cap: " + CropServiceCap);
+        CropServiceCap?.Dispose();
     }
 }

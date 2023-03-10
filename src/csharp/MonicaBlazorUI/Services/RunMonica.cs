@@ -14,10 +14,12 @@ namespace MonicaBlazorUI.Services
     public class RunMonica
     {
         private readonly MonicaIO _monicaIO;
+        private readonly IConfiguration _configuration;
 
-        public RunMonica(MonicaIO monicaIO)
+        public RunMonica(MonicaIO monicaIO, IConfiguration configuration)
         {
             _monicaIO = monicaIO;
+            _configuration = configuration;
         }
 
         public async Task<JObject?> RunMonicaAsync(List<string> files)//, UserSetting userSetting, MonicaParametersBasePathTypeEnum basePathType)
@@ -50,7 +52,10 @@ namespace MonicaBlazorUI.Services
                 {"climate", climateCsv}
             };
 
-            string parametersPath = "/home/berg/GitHub/monica-parameters/"; //string.Empty;
+            string parametersPath = _configuration.GetValue<string>("PathToMonicaParameters"); //"/home/berg/GitHub/monica-parameters/"; //string.Empty;
+            //Console.WriteLine("parametersPath: " + parametersPath);
+            //string parametersPath = "/home/berg/GitHub/monica-parameters/"; //string.Empty;
+            //string parametersPath = "C:/Users/admin_fds/MONICA/monica-parameters/"; //string.Empty;
             // if (basePathType == MonicaParametersBasePathTypeEnum.LocalServer)
             //     parametersPath = MonicaConstFields.DefaultParametersPath;
             // else if (basePathType == MonicaParametersBasePathTypeEnum.Github)

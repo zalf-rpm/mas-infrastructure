@@ -1,6 +1,6 @@
 {
   "crops": {
-    "cloverGrassLey": {
+    "clover-grass-ley": {
       "is-winter-crop": false,
       "cropParams": {
         "species": [ "include-from-file", "crops/clover-grass-ley.json" ],
@@ -8,7 +8,7 @@
       },
       "residueParams": [ "include-from-file", "crop-residues/clover-grass-ley.json" ]
     },
-    "ryeWinter": {
+    "winter-rye": {
       "is-winter-crop": true,
       "cropParams": {
         "species": [ "include-from-file", "crops/rye.json" ],
@@ -16,7 +16,7 @@
       },
       "residueParams": [ "include-from-file", "crop-residues/rye.json" ]
     },
-    "maizeSilage": {
+    "silage-maize": {
       "is-winter-crop": false,
       "cropParams": {
         "species": [ "include-from-file", "crops/maize.json" ],
@@ -24,7 +24,7 @@
       },
       "residueParams": [ "include-from-file", "crop-residues/maize.json" ]
     },
-    "potatoModeratelyEarly": {
+    "moderately-early-potato": {
       "is-winter-crop": false,
       "cropParams": {
         "species": [ "include-from-file", "crops/potato.json" ],
@@ -32,7 +32,7 @@
       },
       "residueParams": [ "include-from-file", "crop-residues/potato.json" ]
     },
-    "wheatWinter": {
+    "winter-wheat": {
       "is-winter-crop": true,
       "cropParams": {
         "species": [ "include-from-file", "crops/wheat.json" ],
@@ -42,7 +42,7 @@
 
       "residueParams": [ "include-from-file", "crop-residues/wheat.json" ]
     },
-    "barleyWinter": {
+    "winter-barley": {
       "is-winter-crop": true,
       "cropParams": {
         "species": [ "include-from-file", "crops/barley.json" ],
@@ -50,7 +50,7 @@
       },
       "residueParams": [ "include-from-file", "crop-residues/barley.json" ]
     },
-    "barleySpring": {
+    "spring-barley": {
       "is-winter-crop": false,
       "cropParams": {
         "species": [ "include-from-file", "crops/barley.json" ],
@@ -58,7 +58,7 @@
       },
       "residueParams": [ "include-from-file", "crop-residues/barley.json" ]
     },
-    "rapeWinter": {
+    "winter-rape": {
       "is-winter-crop": true,
       "cropParams": {
         "species": [ "include-from-file", "crops/rape.json" ],

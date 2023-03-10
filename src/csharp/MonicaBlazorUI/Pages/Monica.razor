@@ -4,7 +4,8 @@
 @namespace Mas.Infrastructure.BlazorComponents
 
 @using ExtType = Mas.Schema.Model.Monica.Event.ExternalType
-@using Mgmt = Mas.Schema.Model.Monica
+@using MoMgmt = Mas.Schema.Model.Monica
+@using Mgmt = Mas.Schema.Management
 @using Crop = Mas.Schema.Crop
 @using Reg = Mas.Schema.Registry
 @using Model = Mas.Schema.Model
@@ -65,44 +66,44 @@
                 <MudItem Class=@(HideSturdyRefConnectors ? "d-none" : "") xs="12">
                     @code {
                         [Parameter]
-                        public Reg.IRegistry? FertilizerRegistryCap { get; set; }
+                        public Mgmt.IFertilizerService? FertilizerServiceCap { get; set; }
 
                         [Parameter]
-                        public string FertilizerRegistrySturdyRef { get; set; } = "";//"capnp://login01.cluster.zalf.de:9998";
+                        public string FertilizerServiceSturdyRef { get; set; } = "";//"capnp://login01.cluster.zalf.de:9998";
 
                         [Parameter]
-                        public EventCallback<Reg.IRegistry> FertilizerRegistryCapChanged { get; set; }
+                        public EventCallback<Mgmt.IFertilizerService> FertilizerServiceCapChanged { get; set; }
                     }
                     <ConnectToSturdyRef Label="Persistent capability to fertilizer service"
                                         CapabilityChanged=@(cap => {
                                                                 if (cap == null) return;
-                                                                if (FertilizerRegistryCap != cap) FertilizerRegistryCap?.Dispose();
-                                                                FertilizerRegistryCap = cap;
+                                                                if (FertilizerServiceCap != cap) FertilizerServiceCap?.Dispose();
+                                                                FertilizerServiceCap = cap;
                                                             })
-                                        TCapnpInterface=@Reg.IRegistry
-                                        @bind-SturdyRef=FertilizerRegistrySturdyRef
+                                        TCapnpInterface=@Mgmt.IFertilizerService
+                                        @bind-SturdyRef=FertilizerServiceSturdyRef
                                         ConnectOnInit=@TryConnectOnInit>
                     </ConnectToSturdyRef>
                 </MudItem>
                 <MudItem Class=@(HideSturdyRefConnectors ? "d-none" : "") xs="12">
                     @code {
                         [Parameter]
-                        public Reg.IRegistry? CropRegistryCap { get; set; }
+                        public Crop.IService? CropServiceCap { get; set; }
 
                         [Parameter]
-                        public string CropRegistrySturdyRef { get; set; } = "";
+                        public string CropServiceSturdyRef { get; set; } = "";
 
                         [Parameter]
-                        public EventCallback<Reg.IRegistry> CropRegistryCapChanged { get; set; }
+                        public EventCallback<Crop.IService> CropServiceCapChanged { get; set; }
                     }
                     <ConnectToSturdyRef Label="Persistent capability to MONICA crop service"
-                                        TCapnpInterface=@Reg.IRegistry
+                                        TCapnpInterface=@Crop.IService
                                         CapabilityChanged=@(cap => {
                                                                 if (cap == null) return;
-                                                                if (CropRegistryCap != cap) CropRegistryCap?.Dispose();
-                                                                CropRegistryCap = cap;
+                                                                if (CropServiceCap != cap) CropServiceCap?.Dispose();
+                                                                CropServiceCap = cap;
                                                             })
-                                        @bind-SturdyRef=CropRegistrySturdyRef
+                                        @bind-SturdyRef=CropServiceSturdyRef
                                         ConnectOnInit=@TryConnectOnInit>
                     </ConnectToSturdyRef>
                 </MudItem>
@@ -292,8 +293,8 @@
                 {
                     <MudItem xs="12">
                         <EditCropRotation CropRotation=@cropRotation
-                                        FertilizerRegistryCap=@(FertilizerRegistryCap == null ? null : Capnp.Rpc.Proxy.Share(FertilizerRegistryCap))
-                                        CropRegistryCap=@(CropRegistryCap == null ? null : Capnp.Rpc.Proxy.Share(CropRegistryCap))/>
+                                        FertilizerServiceCap=@(FertilizerServiceCap == null ? null : Capnp.Rpc.Proxy.Share(FertilizerServiceCap))
+                                        CropServiceCap=@(CropServiceCap == null ? null : Capnp.Rpc.Proxy.Share(CropServiceCap))/>
                     </MudItem>
                 }
             </MudGrid>
@@ -445,9 +446,9 @@
                                                 {
                                                     <td>
                                                         <MudSelect @bind-Value=oid.Organ
-                                                                T="Mgmt.PlantOrgan?"
+                                                                T="MoMgmt.PlantOrgan?"
                                                                 Label="Organ">
-                                                            @foreach (Mgmt.PlantOrgan? o in Enum.GetValues(typeof(Mgmt.PlantOrgan)))
+                                                            @foreach (MoMgmt.PlantOrgan? o in Enum.GetValues(typeof(MoMgmt.PlantOrgan)))
                                                             {
                                                                 <MudSelectItem Value="@o">@Capitalize(o?.ToString()?.Replace("strukt", "struct") ?? "")</MudSelectItem>
                                                             }

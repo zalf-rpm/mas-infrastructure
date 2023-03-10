@@ -2475,6 +2475,83 @@ namespace Mas.Schema.Management
         }
     }
 
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xbbb7aeae0d097e05UL), Proxy(typeof(FertilizerService_Proxy)), Skeleton(typeof(FertilizerService_Skeleton))]
+    public interface IFertilizerService : Mas.Schema.Registry.IRegistry
+    {
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xbbb7aeae0d097e05UL)]
+    public class FertilizerService_Proxy : Proxy, IFertilizerService
+    {
+        public async Task<IReadOnlyList<Mas.Schema.Common.IdInformation>> SupportedCategories(CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Registry.Registry.Params_SupportedCategories.WRITER>();
+            var arg_ = new Mas.Schema.Registry.Registry.Params_SupportedCategories()
+            {};
+            arg_?.serialize(in_);
+            using (var d_ = await Call(14590338780428121016UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            {
+                var r_ = CapnpSerializable.Create<Mas.Schema.Registry.Registry.Result_SupportedCategories>(d_);
+                return (r_.Cats);
+            }
+        }
+
+        public async Task<Mas.Schema.Common.IdInformation> CategoryInfo(string categoryId, CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Registry.Registry.Params_CategoryInfo.WRITER>();
+            var arg_ = new Mas.Schema.Registry.Registry.Params_CategoryInfo()
+            {CategoryId = categoryId};
+            arg_?.serialize(in_);
+            using (var d_ = await Call(14590338780428121016UL, 1, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            {
+                var r_ = CapnpSerializable.Create<Mas.Schema.Common.IdInformation>(d_);
+                return r_;
+            }
+        }
+
+        public Task<IReadOnlyList<Mas.Schema.Registry.Registry.Entry>> Entries(string categoryId, CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Registry.Registry.Params_Entries.WRITER>();
+            var arg_ = new Mas.Schema.Registry.Registry.Params_Entries()
+            {CategoryId = categoryId};
+            arg_?.serialize(in_);
+            return Impatient.MakePipelineAware(Call(14590338780428121016UL, 2, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
+            {
+                using (d_)
+                {
+                    var r_ = CapnpSerializable.Create<Mas.Schema.Registry.Registry.Result_Entries>(d_);
+                    return (r_.Entries);
+                }
+            }
+
+            );
+        }
+
+        public async Task<Mas.Schema.Common.IdInformation> Info(CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Common.Identifiable.Params_Info.WRITER>();
+            var arg_ = new Mas.Schema.Common.Identifiable.Params_Info()
+            {};
+            arg_?.serialize(in_);
+            using (var d_ = await Call(12875740530987518165UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            {
+                var r_ = CapnpSerializable.Create<Mas.Schema.Common.IdInformation>(d_);
+                return r_;
+            }
+        }
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xbbb7aeae0d097e05UL)]
+    public class FertilizerService_Skeleton : Skeleton<IFertilizerService>
+    {
+        public FertilizerService_Skeleton()
+        {
+            SetMethodTable();
+        }
+
+        public override ulong InterfaceId => 13526472068396842501UL;
+    }
+
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xc876b729b7d7f6d9UL), Proxy(typeof(Service_Proxy)), Skeleton(typeof(Service_Skeleton))]
     public interface IService : Mas.Schema.Common.IIdentifiable
     {

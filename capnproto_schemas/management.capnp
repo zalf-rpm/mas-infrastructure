@@ -12,6 +12,7 @@ using Common = import "common.capnp";
 using Geo = import "geo.capnp";
 using Crop = import "crop.capnp";
 using Persistent = import "persistence.capnp".Persistent;
+using Registry = import "registry.capnp".Registry;
 
 enum EventType {
   sowing                    @0;
@@ -251,6 +252,7 @@ interface Fertilizer extends(Common.Identifiable, Persistent) {
   # a tradeoff to support additional model specific parameters
 }
 
+interface FertilizerService extends(Registry) {}
 # fertilizer service should be just a registry.capnp::Registry of the available fertilizers
 
 interface Service extends(Common.Identifiable) {

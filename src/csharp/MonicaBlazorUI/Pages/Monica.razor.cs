@@ -405,18 +405,22 @@ namespace Mas.Infrastructure.BlazorComponents
                                 cm = new JObject { { "worksteps", wss } };
                             }
 
+                            JObject? cropParams = null;
                             if(s.Crop != null)
                             {
                                 s.Cultivar = (await s.Crop.Cultivar()).Id;
+                                var cps = await s.Crop.Parameters();
+                                if (cps != null && cps is string cpss) cropParams = JObject.Parse(cpss);
                             }
 
-                            wss.Add(new JObject()
+                            var ws = new JObject()
                             {
                                 { "type", "Sowing" },
                                 { "date", Helper.CommonDate2IsoDateString(e.At.Date) },
-                                { "crop", new JArray { "ref", "crops", s.Cultivar.ToString() } },
-                                { "PlantDensity", s.PlantDensity }
-                            });
+                                { "crop", cropParams == null ? new JArray { "ref", "crops", s.Cultivar.ToString() } : cropParams },
+                            };
+                            if (s.PlantDensity > 0) ws.Add("PlantDensity", s.PlantDensity);
+                            wss.Add(ws);
                         }
                         break;
                     case ExtType.automaticSowing:
@@ -429,12 +433,20 @@ namespace Mas.Infrastructure.BlazorComponents
                                 cm = new JObject { { "worksteps", wss } };
                             }
 
-                            var o = new JObject()
+                            JObject? cropParams = null;
+                            // if(sa.Sowing.Crop != null)
+                            // {
+                            //     sa.Sowing.Cultivar = (await sa.Sowing.Crop.Cultivar()).Id;
+                            //     var cps = await sa.Sowing.Crop.Parameters();
+                            //     if (cps != null && cps is string cpss) cropParams = JObject.Parse(cpss);
+                            // }
+
+                            var ws = new JObject()
                             {
                                 { "type", "AutomaticSowing" },
                                 { "earliest-date", Helper.CommonDate2IsoDateString(e.Between.Earliest) },
                                 { "latest-date", Helper.CommonDate2IsoDateString(e.Between.Latest) },
-                                { "crop", new JArray { "ref", "crops", sa.Sowing?.Cultivar.ToString() } },
+                                { "crop", cropParams == null ? new JArray { "ref", "crops", sa.Sowing?.Cultivar.ToString() } : cropParams },
                                 { "min-temp", sa.MinTempThreshold },
                                 { "days-in-temp-window", sa.DaysInTempWindow },
                                 { "min-%-asw", sa.MinPercentASW },
@@ -444,15 +456,16 @@ namespace Mas.Infrastructure.BlazorComponents
                                 { "temp-sum-above-base-temp", sa.TempSumAboveBaseTemp },
                                 { "base-temp", sa.BaseTemp }
                             };
+                            if (sa.Sowing?.PlantDensity > 0) ws.Add("PlantDensity", sa.Sowing.PlantDensity);
                             if(sa.TheAvgSoilTemp != null)
                             {
-                                o["avg-soil-temp"] = new JObject {
+                                ws["avg-soil-temp"] = new JObject {
                                     { "depth", sa.TheAvgSoilTemp.SoilDepthForAveraging },
                                     { "days", sa.TheAvgSoilTemp.DaysInSoilTempWindow },
                                     { "Tavg", sa.TheAvgSoilTemp.SowingIfAboveAvgSoilTemp } 
                                 };
                             }
-                            wss.Add(o);
+                            wss.Add(ws);
                         }
                         break;
                     case ExtType.harvest:
@@ -768,8 +781,8 @@ namespace Mas.Infrastructure.BlazorComponents
             TimeSeriesFactoryCap?.Dispose();
             Console.WriteLine("Disposing SoilService SR:" + SoilServiceSturdyRef + " cap: " + SoilServiceCap);
             SoilServiceCap?.Dispose();
-            Console.WriteLine("Disposing Monica.CropRegistryCap SR:" + CropRegistrySturdyRef + " cap: " + CropRegistryCap);
-            CropRegistryCap?.Dispose();
+            Console.WriteLine("Disposing Monica.CropRegistryCap SR:" + CropServiceSturdyRef + " cap: " + CropServiceCap);
+            CropServiceCap?.Dispose();
         }
         #endregion implement IDisposable
 

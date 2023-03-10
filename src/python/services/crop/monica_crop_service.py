@@ -66,7 +66,7 @@ class Crop(crop_capnp.Crop.Server):
         self._params = None
         self._entry_ref = entry_ref
         self._species_info = species_info
-        self._cult_info = cult_info
+        self._cultivar_info = cult_info
 
 
     def info_context(self, context): # -> Common.IdInformation;
@@ -253,10 +253,10 @@ class Crop(crop_capnp.Crop.Server):
         return rp    
 
     def species_context(self, context): # species     @2 () -> (info :Common.IdInformation);
-        return self._species_info
+        context.results.info = self._species_info
 
     def cultivar_context(self, context): # cultivar    @1 () -> (info :Common.IdInformation);
-        return self._cultivar_info
+        context.results.info = self._cultivar_info
 
     @property
     def params(self):
@@ -277,7 +277,7 @@ class Crop(crop_capnp.Crop.Server):
                     self._params.residueParams = self.create_residue_params(j)        
 
             if cps.cultivarParams and len(cps.cultivarParams.cultivarId) > 0:
-                self._entry_ref.refInfo.name = cps.cultivarParams.cultivarId
+                self._entry_ref.name = cps.cultivarParams.cultivarId
 
         return self._params
 

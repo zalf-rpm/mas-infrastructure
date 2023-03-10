@@ -465,4 +465,81 @@ namespace Mas.Schema.Crop
             }
         }
     }
+
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x8ddcc2b6c0386bc4UL), Proxy(typeof(Service_Proxy)), Skeleton(typeof(Service_Skeleton))]
+    public interface IService : Mas.Schema.Registry.IRegistry
+    {
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x8ddcc2b6c0386bc4UL)]
+    public class Service_Proxy : Proxy, IService
+    {
+        public async Task<IReadOnlyList<Mas.Schema.Common.IdInformation>> SupportedCategories(CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Registry.Registry.Params_SupportedCategories.WRITER>();
+            var arg_ = new Mas.Schema.Registry.Registry.Params_SupportedCategories()
+            {};
+            arg_?.serialize(in_);
+            using (var d_ = await Call(14590338780428121016UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            {
+                var r_ = CapnpSerializable.Create<Mas.Schema.Registry.Registry.Result_SupportedCategories>(d_);
+                return (r_.Cats);
+            }
+        }
+
+        public async Task<Mas.Schema.Common.IdInformation> CategoryInfo(string categoryId, CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Registry.Registry.Params_CategoryInfo.WRITER>();
+            var arg_ = new Mas.Schema.Registry.Registry.Params_CategoryInfo()
+            {CategoryId = categoryId};
+            arg_?.serialize(in_);
+            using (var d_ = await Call(14590338780428121016UL, 1, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            {
+                var r_ = CapnpSerializable.Create<Mas.Schema.Common.IdInformation>(d_);
+                return r_;
+            }
+        }
+
+        public Task<IReadOnlyList<Mas.Schema.Registry.Registry.Entry>> Entries(string categoryId, CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Registry.Registry.Params_Entries.WRITER>();
+            var arg_ = new Mas.Schema.Registry.Registry.Params_Entries()
+            {CategoryId = categoryId};
+            arg_?.serialize(in_);
+            return Impatient.MakePipelineAware(Call(14590338780428121016UL, 2, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
+            {
+                using (d_)
+                {
+                    var r_ = CapnpSerializable.Create<Mas.Schema.Registry.Registry.Result_Entries>(d_);
+                    return (r_.Entries);
+                }
+            }
+
+            );
+        }
+
+        public async Task<Mas.Schema.Common.IdInformation> Info(CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Common.Identifiable.Params_Info.WRITER>();
+            var arg_ = new Mas.Schema.Common.Identifiable.Params_Info()
+            {};
+            arg_?.serialize(in_);
+            using (var d_ = await Call(12875740530987518165UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            {
+                var r_ = CapnpSerializable.Create<Mas.Schema.Common.IdInformation>(d_);
+                return r_;
+            }
+        }
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x8ddcc2b6c0386bc4UL)]
+    public class Service_Skeleton : Skeleton<IService>
+    {
+        public Service_Skeleton()
+        {
+            SetMethodTable();
+        }
+
+        public override ulong InterfaceId => 10222259344388942788UL;
+    }
 }
