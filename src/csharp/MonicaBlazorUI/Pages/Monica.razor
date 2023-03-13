@@ -172,10 +172,14 @@
                     private int SelectedTimeSeriesSourceIndex = 0;
                     //private EventCallback<Climate.ITimeSeries> ec = new EventCallback(this, (Func<Climate.ITimeSeries, Task>)(TimeSeriesCapabilityChanged));
                 }
-                <MudTabPanel Text="Single Timeseries">
+                <MudTabPanel Text="Climate Service">
                     <CascadingValue Value=@false Name="ChartPanelOpened">
                         <CascadingValue Value=@(new EventCallback<Climate.ITimeSeries>(this, (Func<Climate.ITimeSeries, Task>)(TimeSeriesCapabilityChanged))) Name="TimeSeriesCapChanged">
-                            <ClimateTimeSeries/>
+                            <CascadingValue Value=@true Name="HideGeoPosPicker">
+                                <CascadingValue Value=@LatLng Name="LatLng">
+                                    <ClimateService/>
+                                </CascadingValue>
+                            </CascadingValue>
                         </CascadingValue>
                     </CascadingValue>
                 </MudTabPanel>
@@ -190,14 +194,10 @@
                         </CascadingValue>
                     </CascadingValue>
                 </MudTabPanel>
-                <MudTabPanel Text="Climate Service">
+                <MudTabPanel Text="Single Timeseries">
                     <CascadingValue Value=@false Name="ChartPanelOpened">
                         <CascadingValue Value=@(new EventCallback<Climate.ITimeSeries>(this, (Func<Climate.ITimeSeries, Task>)(TimeSeriesCapabilityChanged))) Name="TimeSeriesCapChanged">
-                            <CascadingValue Value=@true Name="HideGeoPosPicker">
-                                <CascadingValue Value=@LatLng Name="LatLng">
-                                    <ClimateService/>
-                                </CascadingValue>
-                            </CascadingValue>
+                            <ClimateTimeSeries/>
                         </CascadingValue>
                     </CascadingValue>
                 </MudTabPanel>

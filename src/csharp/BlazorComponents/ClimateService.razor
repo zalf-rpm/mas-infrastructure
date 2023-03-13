@@ -8,10 +8,11 @@
 
 @implements IDisposable
 
+@*CapabilityChanged=@CapabilityChanged*@
 <MudGrid>
     <MudItem Class=@(HideSturdyRefConnector ? "d-none" : "") xs="12">
         <ConnectToSturdyRef Label="Persistent capability to climate service"
-                            CapabilityChanged=@CapabilityChanged
+                            @bind-Capability=@ClimateServiceCap
                             TCapnpInterface=Climate.IService
                             @bind-SturdyRef=ClimateServiceSturdyRef/>
     </MudItem>
@@ -33,12 +34,20 @@
                                             StateHasChanged(); 
                                         })>
             <ToolBarContent>
-                <MudButton Variant=@Variant.Filled OnClick=@LoadDatasets Disabled=@(ClimateServiceCap == null)>
+                <MudButton Class="mr-4" 
+                            Variant=@Variant.Filled 
+                            Color=@Color.Primary 
+                            OnClick=@LoadDatasets 
+                            Disabled=@(ClimateServiceCap == null)>
                     Load
                 </MudButton>
                 <MudText Typo=Typo.h6>Datasets</MudText>
-                <MudSpacer />
-                <MudTextField @bind-Value=searchString Placeholder="Search" Adornment=Adornment.Start AdornmentIcon=@Icons.Material.Filled.Search IconSize=Size.Medium Class="mt-0"></MudTextField>
+                <MudSpacer/>
+                <MudTextField @bind-Value=searchString 
+                                Placeholder="Search" 
+                                Adornment=Adornment.Start 
+                                AdornmentIcon=@Icons.Material.Filled.Search 
+                                IconSize=Size.Medium Class="mt-0"/>
             </ToolBarContent>
             <HeaderContent>
                 @foreach (var h in metaHeadings)
@@ -63,8 +72,21 @@
 </MudGrid>
 
 @code {
+
+    private Climate.IService? climateServiceCap;
     [Parameter]
-    public Climate.IService? ClimateServiceCap { get; set; }
+    public Climate.IService? ClimateServiceCap {
+        get => climateServiceCap; 
+        set {
+            if (climateServiceCap != value) {
+                Console.WriteLine("ClimateServiceCap.Setter");
+                climateServiceCap?.Dispose();
+                climateServiceCap = value;
+                if (ClimateServiceCapChanged.HasDelegate) _ = ClimateServiceCapChanged.InvokeAsync(Capnp.Rpc.Proxy.Share(climateServiceCap));
+                _ = LoadDatasets();
+            }
+        } 
+    }
 
     private bool _climateServiceCapUpdated = false;
 
@@ -87,16 +109,16 @@
     private IEnumerable<(IEnumerable<C.IdInformation>, Climate.IDataset, int)> metaAndData = new List<(IEnumerable<C.IdInformation>, Climate.IDataset, int)>();
     private Climate.IDataset? selectedDataset;
 
-    public override async Task SetParametersAsync(ParameterView parameters)
+    @* public override async Task SetParametersAsync(ParameterView parameters)
     {
         _climateServiceCapUpdated = parameters.GetValueOrDefault<Climate.IService?>("ClimateServiceCap", null) != ClimateServiceCap;
         await base.SetParametersAsync(parameters);
-    }
+    } *@
 
-    protected override async Task OnParametersSetAsync()
+    @* protected override async Task OnParametersSetAsync()
     {
         if (_climateServiceCapUpdated) await CapabilityChanged(ClimateServiceCap);
-    }
+    } *@
 
     public String EntryToString(Climate.Metadata.Entry entry)
     {
@@ -127,11 +149,12 @@
 
         if (ClimateServiceCapChanged.HasDelegate) _ = ClimateServiceCapChanged.InvokeAsync(ClimateServiceCap);
 
-        //await LoadDatasets();
+        _ = LoadDatasets();
     }
 
     private async Task LoadDatasets()
     {
+        Console.WriteLine("LoadDatasets");
         if (ClimateServiceCap == null) return;
 
         //dispose existing datasets
@@ -148,6 +171,8 @@
             metaAndDataL.Add((r.Select(p => p.Snd), ds.Data, i));
         }
         metaAndData = metaAndDataL;
+        
+        StateHasChanged();
     }
 
     void IDisposable.Dispose()

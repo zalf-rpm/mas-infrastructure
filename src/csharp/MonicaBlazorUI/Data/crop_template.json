@@ -79,7 +79,7 @@
         {
           "date": "0000-09-23",
           "type": "Sowing",
-          "crop": [ "ref", "crops", "wheatWinter" ]
+          "crop": [ "ref", "crops", "winter-wheat" ]
         },
         {
           "date": "0001-07-27",

@@ -9,10 +9,13 @@
 
 @implements IDisposable
 
+@*CapabilityChanged=@CapabilityChanged*@
 <MudGrid>
     <MudItem Class=@(HideSturdyRefConnector ? "d-none" : "") xs="12">
-        <ConnectToSturdyRef Label="Persistent capability to climate timeseries" CapabilityChanged=@CapabilityChanged
-            TCapnpInterface=Climate.ITimeSeries/>
+        <ConnectToSturdyRef Label="Persistent capability to climate timeseries" 
+                            @bind-Capability=@TimeSeriesCap
+                            
+                            TCapnpInterface=Climate.ITimeSeries/>
     </MudItem>
     <MudItem xs="2" Class="d-flex justify-center">
         <MudDatePicker MinDate=@originalStart MaxDate=@originalEnd FirstDayOfWeek=@DayOfWeek.Monday Label="Start"
@@ -37,7 +40,7 @@
     <MudItem xs="4" Class="d-flex align-stretch justify-end gap-4">
         <MudSwitch @bind-Checked=@AutoLoad Label="Auto load" Color="Color.Success" />
         <MudButton Variant=@Variant.Filled Color=@Color.Primary OnClick=@LoadTimeSeriesData>Load data</MudButton>
-        <MudButton Disabled=@(headings.Count() == 0) Variant=Variant.Filled Color=Color.Primary OnClick=@SaveTimeSeries>
+        <MudButton Disabled=@(headings.Count() == 0) Variant=Variant.Filled Color=@Color.Primary OnClick=@SaveTimeSeries>
             Save data
         </MudButton>
     </MudItem>
@@ -129,13 +132,35 @@
     public bool AutoLoad { get; set; } = false;
 
     private Climate.ITimeSeries? originalTimeSeriesCap;
-    private bool timeSeriesCapUpdated = false;
 
-    private bool componentIsTimeSeriesCapOwner = false;
+    private bool settingSubTimeseries = false;
 
+    private Climate.ITimeSeries? timeSeriesCap;
     [Parameter]
-    public Climate.ITimeSeries? TimeSeriesCap { get; set; }
-    
+    public Climate.ITimeSeries? TimeSeriesCap { 
+        get => timeSeriesCap; 
+        set { 
+            if (timeSeriesCap != value)
+            {
+                Console.WriteLine("TimeSeriesCap.Setter");
+                timeSeriesCap?.Dispose(); //free old cap
+                timeSeriesCap = value;    //assign new cap
+                //if not setting sub timeseries, save unrestricted cap and before that free old unrestricted cap
+                if (!settingSubTimeseries) 
+                {
+                    originalTimeSeriesCap?.Dispose();
+                    originalTimeSeriesCap = Capnp.Rpc.Proxy.Share(timeSeriesCap); //save unrestricted cap
+                } 
+                // notify listeners
+                if (TimeSeriesCapChanged.HasDelegate) _ = TimeSeriesCapChanged.InvokeAsync(Capnp.Rpc.Proxy.Share(timeSeriesCap));
+                // do whatever needs to be done after an update
+                _ = TimeSeriesUpdated(settingSubTimeseries);
+                // turn of subseries mode
+                settingSubTimeseries = false;
+            } 
+        } 
+    }
+
     [CascadingParameter(Name = "TimeSeriesCapChanged")]
     public EventCallback<Climate.ITimeSeries> TimeSeriesCapChanged { get; set; }
 
@@ -148,7 +173,7 @@
     public DateTime? Start
     {
         get => start;
-        set { start = value; updateSubTimeSeries(); }
+        set { start = value; _ = updateSubTimeSeries(); }
     }
 
     private DateTime? end;
@@ -157,7 +182,7 @@
     public DateTime? End
     {
         get => end;
-        set { end = value; updateSubTimeSeries(); }
+        set { end = value; _ = updateSubTimeSeries(); }
     }
 
     private struct Element
@@ -168,8 +193,8 @@
     private String csvString = "";
 
     [Parameter]
-    public HashSet<String> DefaultSelectedClimateElements { get; set; } = new HashSet<String>() { "tmin", "tavg", "tmax",
-"precip", "globrad", "wind", "relhumid" };
+    public HashSet<String> DefaultSelectedClimateElements { get; set; } = 
+        new HashSet<String>() { "tmin", "tavg", "tmax", "precip", "globrad", "wind", "relhumid" };
 
     private IEnumerable<Climate.Element>? availableClimateElements;
 
@@ -179,9 +204,8 @@
     {
         get => selectedClimateElementsAsObject ?? (availableClimateElements ?? new List<Climate.Element>()).Select(e =>
         (object)e).ToList();
-        set { selectedClimateElementsAsObject = value; updateSubTimeSeries(); }
+        set { selectedClimateElementsAsObject = value; _ = updateSubTimeSeries(); }
     }
-
 
     private IEnumerable<Climate.Element> selectedClimateElements
     {
@@ -199,6 +223,7 @@
 
     private async Task updateSubTimeSeries()
     {
+        Console.WriteLine("updateSubTimeSeries");
         if (originalTimeSeriesCap == null) return;
 
         Climate.ITimeSeries? subTS = originalTimeSeriesCap;
@@ -216,10 +241,11 @@
         if (subTS != originalTimeSeriesCap)
         {
             //dispose the current time series cap, unless it's the initial one
-            if (TimeSeriesCap != originalTimeSeriesCap) TimeSeriesCap?.Dispose();
+            //if (TimeSeriesCap != originalTimeSeriesCap) TimeSeriesCap?.Dispose();
+            settingSubTimeseries = true;
             TimeSeriesCap = subTS;
-            if (TimeSeriesCapChanged.HasDelegate) _ = TimeSeriesCapChanged.InvokeAsync(subTS);
-            if (AutoLoad) await LoadTimeSeriesData();
+            //if (TimeSeriesCapChanged.HasDelegate) _ = TimeSeriesCapChanged.InvokeAsync(subTS);
+            //if (AutoLoad) await LoadTimeSeriesData();
         }
     }
 
@@ -228,50 +254,24 @@
     {
         Console.WriteLine("OnInitialized ClimateTimeSeries");
     }
-
-    public override async Task SetParametersAsync(ParameterView parameters)
-    {
-        timeSeriesCapUpdated = parameters.GetValueOrDefault<Climate.ITimeSeries?>("TimeSeriesCap", null) != TimeSeriesCap;
-        await base.SetParametersAsync(parameters);
-    }
-
-    protected override async Task OnParametersSetAsync()
-    {
-        if (timeSeriesCapUpdated)
-        {
-            originalTimeSeriesCap = TimeSeriesCap; //save unrestricted cap
-            await TimeSeriesUpdated();
-        }
-    }
     #endregion
-
-    private async Task CapabilityChanged(Climate.ITimeSeries? ts)
+    
+    private async Task TimeSeriesUpdated(bool settingSubTimeseries = false)
     {
-        if (ts == null) return;
-
-        if (TimeSeriesCap != ts && componentIsTimeSeriesCapOwner) TimeSeriesCap?.Dispose(); //free old cap
-        TimeSeriesCap = ts;
-        originalTimeSeriesCap = TimeSeriesCap; //save unrestricted cap
-        componentIsTimeSeriesCapOwner = true;
-        if (TimeSeriesCapChanged.HasDelegate) _ = TimeSeriesCapChanged.InvokeAsync(TimeSeriesCap);
-
-        await TimeSeriesUpdated();
-    }
-
-    private async Task TimeSeriesUpdated()
-    {
+        Console.WriteLine("TimeSeriesUpdated");
         if (TimeSeriesCap == null) return;
 
         var (s, e) = await TimeSeriesCap.Range();
-        if (originalStart == null) originalStart = CommonDate2DateTime(s);
+        if (originalStart == null || !settingSubTimeseries) originalStart = CommonDate2DateTime(s);
         Start = originalStart;
-        if (originalEnd == null) originalEnd = CommonDate2DateTime(e);
+        if (originalEnd == null || !settingSubTimeseries) originalEnd = CommonDate2DateTime(e);
         End = originalEnd;
 
         var h = await TimeSeriesCap.Header();
         if (availableClimateElements == null) availableClimateElements = h;
 
         if (AutoLoad) await LoadTimeSeriesData();
+        StateHasChanged();
     }
 
     private DateTime CommonDate2DateTime(Common.Date d)
@@ -347,14 +347,17 @@
 
     void IDisposable.Dispose()
     {
-        //dispose the current time series cap if it's not the same as the initial one
+        TimeSeriesCap?.Dispose();
+        originalTimeSeriesCap?.Dispose();
+
+        @* //dispose the current time series cap if it's not the same as the initial one
         if (originalTimeSeriesCap != TimeSeriesCap)
         {
             TimeSeriesCap?.Dispose();
 
             //free the original cap if we are the owner
             if (componentIsTimeSeriesCapOwner) originalTimeSeriesCap?.Dispose();
-        }
+        } *@
     }
 
 }

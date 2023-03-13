@@ -6,10 +6,11 @@
 
 @implements IDisposable
 
+@*CapabilityChanged=@CapabilityChanged*@
 <MudGrid>
     <MudItem xs="12" Class=@(HideSturdyRefConnector ? "d-none" : "")>
         <ConnectToSturdyRef Label="Persistent capability to climate dataset"
-                            CapabilityChanged=@CapabilityChanged
+                            @bind-Capability=@DatasetCap
                             TCapnpInterface=Climate.IDataset/>
     </MudItem>
     <MudItem xs="2" Class=@(HideGeoPosPicker ? "d-none" : "")>
@@ -22,19 +23,32 @@
                       CenterLatLng=@LatLng/>
     </MudItem>
     <MudItem xs="12">
-        <ClimateTimeSeries TimeSeriesCap=@timeSeries HideSturdyRefConnector=@true/>
+        <ClimateTimeSeries TimeSeriesCap=@TimeSeriesCap HideSturdyRefConnector=@true/>
     </MudItem>
 </MudGrid>
 
 @code {
     private bool datasetCapUpdated = false;
 
+    private Climate.IDataset? datasetCap;
     [Parameter]
-    public Climate.IDataset? DatasetCap { get; set; }
+    public Climate.IDataset? DatasetCap { 
+        get => datasetCap;
+        set { 
+            if (datasetCap != value) 
+            {
+                Console.WriteLine("DatasetCap.Setter");
+                datasetCap?.Dispose();
+                datasetCap = value; 
+                if (DatasetCapChanged.HasDelegate) _ = DatasetCapChanged.InvokeAsync(Capnp.Rpc.Proxy.Share(DatasetCap));
+                _= SetClosestTimeSeries();
+            }
+        }
+    }
     [Parameter]
     public EventCallback<Climate.IDataset> DatasetCapChanged { get; set; }
 
-    [CascadingParameter]
+    [CascadingParameter(Name = "TimeSeriesCapChanged")]
     public EventCallback<Climate.ITimeSeries> TimeSeriesCapChanged { get; set; }
 
     [Parameter]
@@ -48,16 +62,18 @@
 
     private Climate.ITimeSeries? timeSeries;
 
-    public override async Task SetParametersAsync(ParameterView parameters)
+    private Climate.ITimeSeries? TimeSeriesCap; 
+    
+    @* public override async Task SetParametersAsync(ParameterView parameters)
     {
         datasetCapUpdated = parameters.GetValueOrDefault<Climate.IDataset?>("DatasetCap", null) != DatasetCap;
         await base.SetParametersAsync(parameters);
-    }
+    } *@
 
-    protected override async Task OnParametersSetAsync()
+    @* protected override async Task OnParametersSetAsync()
     {
         if (datasetCapUpdated) await SetClosestTimeSeries();
-    }
+    } *@
 
     private async Task CapabilityChanged(Climate.IDataset dataset)
     {
@@ -72,14 +88,18 @@
 
     private async Task SetClosestTimeSeries()
     {
+        Console.WriteLine("SetClosestTimeSeries");
         if (DatasetCap == null) return;
 
         var ts = await DatasetCap.ClosestTimeSeriesAt(new Geo.LatLonCoord { Lat = LatLng.Item1, Lon = LatLng.Item2 });
 
         if (timeSeries != ts) timeSeries?.Dispose();
         timeSeries = ts;
+        TimeSeriesCap = Capnp.Rpc.Proxy.Share(timeSeries); 
 
-        if (TimeSeriesCapChanged.HasDelegate) _ = TimeSeriesCapChanged.InvokeAsync(timeSeries);
+        if (TimeSeriesCapChanged.HasDelegate) _ = TimeSeriesCapChanged.InvokeAsync(Capnp.Rpc.Proxy.Share(timeSeries));
+
+        StateHasChanged();
     }
 
     void IDisposable.Dispose()
