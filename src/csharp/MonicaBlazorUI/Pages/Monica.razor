@@ -167,11 +167,7 @@
             </div>
         </TitleContent>
         <ChildContent>
-            <MudTabs Elevation="1" Rounded=@true @bind-ActivatePanelIndex=@SelectedTimeSeriesSourceIndex>
-                @code {
-                    private int SelectedTimeSeriesSourceIndex = 0;
-                    //private EventCallback<Climate.ITimeSeries> ec = new EventCallback(this, (Func<Climate.ITimeSeries, Task>)(TimeSeriesCapabilityChanged));
-                }
+            <MudTabs Elevation="1" Rounded=@true>
                 <MudTabPanel Text="Climate Service">
                     <CascadingValue Value=@false Name="ChartPanelOpened">
                         <CascadingValue Value=@(new EventCallback<Climate.ITimeSeries>(this, (Func<Climate.ITimeSeries, Task>)(TimeSeriesCapabilityChanged))) Name="TimeSeriesCapChanged">

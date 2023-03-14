@@ -93,11 +93,14 @@
 
         var ts = await DatasetCap.ClosestTimeSeriesAt(new Geo.LatLonCoord { Lat = LatLng.Item1, Lon = LatLng.Item2 });
 
-        if (timeSeries != ts) timeSeries?.Dispose();
-        timeSeries = ts;
-        TimeSeriesCap = Capnp.Rpc.Proxy.Share(timeSeries); 
+        //if (timeSeries != ts) timeSeries?.Dispose();
+        //timeSeries = ts;
+        if (TimeSeriesCap != ts) TimeSeriesCap?.Dispose();
+        TimeSeriesCap = ts;
+        //TimeSeriesCap = Capnp.Rpc.Proxy.Share(timeSeries); 
 
-        if (TimeSeriesCapChanged.HasDelegate) _ = TimeSeriesCapChanged.InvokeAsync(Capnp.Rpc.Proxy.Share(timeSeries));
+        //if (TimeSeriesCapChanged.HasDelegate) _ = TimeSeriesCapChanged.InvokeAsync(Capnp.Rpc.Proxy.Share(timeSeries));
+        if (TimeSeriesCapChanged.HasDelegate) _ = TimeSeriesCapChanged.InvokeAsync(Capnp.Rpc.Proxy.Share(TimeSeriesCap));
 
         StateHasChanged();
     }
@@ -105,6 +108,6 @@
     void IDisposable.Dispose()
     {
         DatasetCap?.Dispose();
-        timeSeries?.Dispose();
+        //timeSeries?.Dispose();
     }
 }

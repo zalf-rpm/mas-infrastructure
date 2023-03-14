@@ -142,6 +142,7 @@
         set { 
             if (timeSeriesCap != value)
             {
+                if(value is Capnp.Rpc.Proxy p && p.IsDisposed) return;
                 Console.WriteLine("TimeSeriesCap.Setter");
                 timeSeriesCap?.Dispose(); //free old cap
                 timeSeriesCap = value;    //assign new cap
@@ -229,8 +230,10 @@
         Climate.ITimeSeries? subTS = originalTimeSeriesCap;
         if (start.HasValue && end.HasValue && (start != originalStart || end != originalEnd))
         {
-            subTS = await originalTimeSeriesCap.Subrange(DateTime2CommonDate(start.GetValueOrDefault()),
-            DateTime2CommonDate(end.GetValueOrDefault()));
+            subTS = await originalTimeSeriesCap.Subrange(
+                DateTime2CommonDate(start.GetValueOrDefault()),
+                DateTime2CommonDate(end.GetValueOrDefault())
+            );
         }
         if (selectedClimateElements != null && availableClimateElements != null
         && selectedClimateElements.Any() && !selectedClimateElements.SequenceEqual(availableClimateElements))
@@ -263,10 +266,10 @@
 
         var (s, e) = await TimeSeriesCap.Range();
         if (originalStart == null || !settingSubTimeseries) originalStart = CommonDate2DateTime(s);
-        Start = originalStart;
+        start = settingSubTimeseries ? CommonDate2DateTime(s) : originalStart;
         if (originalEnd == null || !settingSubTimeseries) originalEnd = CommonDate2DateTime(e);
-        End = originalEnd;
-
+        end = settingSubTimeseries ? CommonDate2DateTime(e) : originalEnd;
+        
         var h = await TimeSeriesCap.Header();
         if (availableClimateElements == null) availableClimateElements = h;
 
