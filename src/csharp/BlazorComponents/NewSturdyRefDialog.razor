@@ -4,15 +4,15 @@
 
 <MudDialog>
     <DialogContent>
-        <MudTextField Value=@InterfaceId ReadOnly=@true Label="InterfaceId" />
-        <MudTextField @bind-Value=editBookmark.PetName Label="Petname" />
-        <MudTextField @bind-Value=editBookmark.SturdyRef Label="Sturdy reference" Required />
-        <MudSwitch @bind-Checked=editBookmark.AutoConnect Label="Auto-connect?" Color=@Color.Primary />
-        <MudSwitch @bind-Checked=editBookmark.DefaultSelect Label="Select by default?" Color=@Color.Primary />
+        <MudTextField Value="@InterfaceId" ReadOnly="@true" Label="InterfaceId" />
+        <MudTextField @bind-Value="editBookmark.PetName" Label="Petname" />
+        <MudTextField @bind-Value="editBookmark.SturdyRef" Label="Sturdy reference" Required />
+        <MudSwitch @bind-Checked="editBookmark.AutoConnect" Label="Auto-connect?" Color="@Color.Primary" />
+        <MudSwitch @bind-Checked="editBookmark.DefaultSelect" Label="Select by default?" Color="@Color.Primary" />
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick=@Cancel>Cancel</MudButton>
-        <MudButton Color="Color.Primary" OnClick=@Close>Add</MudButton>
+        <MudButton OnClick="@Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="@Close">Add</MudButton>
     </DialogActions>
 </MudDialog>
 

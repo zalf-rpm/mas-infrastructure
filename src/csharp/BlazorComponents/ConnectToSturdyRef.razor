@@ -15,12 +15,12 @@
 
 <MudPaper Class="d-flex flex-row py-2 px-1 align-content-center">
     <MudSelect Class="pa-2 mx-2"
-               T=@StoredSRData
-               Value=@selectedBookmark
-               ValueChanged=@SelectedBookmarkChanged
-               Label=@Label
-               Variant=@Variant.Outlined
-               OffsetY=@true>
+               T="@StoredSRData"
+               Value="@selectedBookmark"
+               ValueChanged="@SelectedBookmarkChanged"
+               Label="@Label"
+               Variant="@Variant.Outlined"
+               OffsetY="@true">
         @foreach (var b in bookmarks)
         {
             <MudSelectItem Value=@b>
@@ -32,22 +32,22 @@
         }
     </MudSelect>
     <MudFab Class="pa-2 mt-2 ml-2 mr-6"
-               Variant=Variant.Filled
-               StartIcon=@connectIcon
-               Color=@(SturdyRef == null || SturdyRef.Count() == 0 ? Color.Default : connectColor)
-               Disabled=@(SturdyRef == null || SturdyRef.Count() == 0)
-               OnClick=@Connect/>
+               Variant="Variant.Filled"
+               StartIcon="@connectIcon"
+               Color="@(SturdyRef == null || !SturdyRef.Any() ? Color.Default : connectColor)"
+               Disabled="@(SturdyRef == null || !SturdyRef.Any())"
+               OnClick="@Connect"/>
     <MudFab Class="pa-2 mt-2 mx-2"
-               Variant=Variant.Filled
-               StartIcon=@Icons.Material.Filled.Edit
-               Color=@Color.Default
-               Disabled=@(selectedBookmark == null)
-               OnClick=@(async () => await OpenAddSturdyRefDialog(selectedBookmark))/>
+               Variant="Variant.Filled"
+               StartIcon="@Icons.Material.Filled.Edit"
+               Color="@Color.Default"
+               Disabled="@(selectedBookmark == null)"
+               OnClick="@(async () => await OpenAddSturdyRefDialog(selectedBookmark))"/>
     <MudFab Class="pa-2 mt-2 mx-2"
-               Variant=Variant.Filled
-               StartIcon=@Icons.Material.Filled.Add
-               Color=@Color.Default
-               OnClick=@(async () => await OpenAddSturdyRefDialog())/>
+               Variant="Variant.Filled"
+               StartIcon="@Icons.Material.Filled.Add"
+               Color="@Color.Default"
+               OnClick="@(async () => await OpenAddSturdyRefDialog())"/>
 </MudPaper>
 
 @*
@@ -109,11 +109,11 @@
     public bool ConnectOnInit { get; set; } = false;
 
     [Parameter]
-    public EventCallback<String> SturdyRefChanged { get; set; }
+    public EventCallback<string> SturdyRefChanged { get; set; }
 
-    private String connectIcon = Icons.Material.Filled.Cast;
+    private string connectIcon = Icons.Material.Filled.Cast;
     private Color connectColor = Color.Default;
-    private String connectLabel = "Connect";
+    private string connectLabel = "Connect";
 
     private bool showSturdyRefEdit = false;
 
@@ -124,10 +124,10 @@
     public EventCallback<TCapnpInterface> CapabilityChanged { get; set; }
 
     [Parameter]
-    public String Label { get; set; } = "Persistent capability";
+    public string Label { get; set; } = "Persistent capability";
 
     [Parameter]
-    public String HelperText { get; set; } = "capnp://vatId@host:port/srToken";
+    public string HelperText { get; set; } = "capnp://vatId@host:port/srToken";
 
     [Parameter]
     public EventCallback<RpcException> RpcExceptionThrown { get; set; }

@@ -13,20 +13,20 @@
 <MudGrid>
     <MudItem Class=@(HideSturdyRefConnector ? "d-none" : "") xs="12">
         <ConnectToSturdyRef Label="Persistent capability to climate timeseries" 
-                            @bind-Capability=@TimeSeriesCap
+                            @bind-Capability="@TimeSeriesCap"
                             
-                            TCapnpInterface=Climate.ITimeSeries/>
+                            TCapnpInterface="Climate.ITimeSeries"/>
     </MudItem>
     <MudItem xs="2" Class="d-flex justify-center">
-        <MudDatePicker MinDate=@originalStart MaxDate=@originalEnd FirstDayOfWeek=@DayOfWeek.Monday Label="Start"
-            Editable=@true Mask=@(new DateMask("0000-00-00")) DateFormat="yyyy-MM-dd" @bind-Date=@Start />
+        <MudDatePicker MinDate="@originalStart" MaxDate="@originalEnd" FirstDayOfWeek="@DayOfWeek.Monday" Label="Start"
+            Editable="@true" Mask=@(new DateMask("0000-00-00")) DateFormat="yyyy-MM-dd" @bind-Date="@Start" />
     </MudItem>
     <MudItem xs="2" Class="d-flex justify-center">
-        <MudDatePicker MinDate=@originalStart MaxDate=@originalEnd FirstDayOfWeek=@DayOfWeek.Monday Label="End"
-            Editable=@true Mask=@(new DateMask("0000-00-00")) DateFormat="yyyy-MM-dd" @bind-Date=@End />
+        <MudDatePicker MinDate="@originalStart" MaxDate="@originalEnd" FirstDayOfWeek="@DayOfWeek.Monday" Label="End"
+            Editable="@true" Mask=@(new DateMask("0000-00-00")) DateFormat="yyyy-MM-dd" @bind-Date="@End" />
     </MudItem>
     <MudItem xs="4" Class="d-flex flex-row py-2 px-1">
-        <MudChipSet @bind-SelectedValues=@SelectedClimateElements MultiSelection=@true Filter=@true>
+        <MudChipSet @bind-SelectedValues="@SelectedClimateElements" MultiSelection="@true" Filter="@true">
             @foreach (var (e, i) in (availableClimateElements ?? new List<Climate.Element>()).OrderBy(e =>
                 e.ToString()).Select((e, i) => (e, i)))
             {
@@ -38,21 +38,21 @@
         </MudChipSet>
     </MudItem>
     <MudItem xs="4" Class="d-flex align-stretch justify-end gap-4">
-        <MudSwitch @bind-Checked=@AutoLoad Label="Auto load" Color="Color.Success" />
-        <MudButton Variant=@Variant.Filled Color=@Color.Primary OnClick=@LoadTimeSeriesData>Load data</MudButton>
-        <MudButton Disabled=@(headings.Count() == 0) Variant=Variant.Filled Color=@Color.Primary OnClick=@SaveTimeSeries>
+        <MudSwitch @bind-Checked="@AutoLoad" Label="Auto load" Color="Color.Success" />
+        <MudButton Variant="@Variant.Filled" Color="@Color.Primary" OnClick="@LoadTimeSeriesData">Load data</MudButton>
+        <MudButton Disabled="@(!headings.Any())" Variant="Variant.Filled" Color="@Color.Primary" OnClick="@SaveTimeSeries">
             Save data
         </MudButton>
     </MudItem>
     <MudItem xs="12">
-        <MudExpansionPanels MultiExpansion=@true>
+        <MudExpansionPanels MultiExpansion="@true">
             @code {
                 private Dictionary<string, bool> panelOpened = new() { { "table", false }, { "text", false } };
                 
                 [CascadingParameter(Name = "ChartPanelOpened")]
                 public bool ChartPanelOpened { get; set; } = true;
             }
-            <MudExpansionPanel @bind-IsExpanded=@ChartPanelOpened Text="Chart">
+            <MudExpansionPanel @bind-IsExpanded="@ChartPanelOpened" Text="Chart">
                 @code {
                     private List<Highchart.AxisConfig> yAxisConfigs = new()
                 {
@@ -72,18 +72,18 @@
                 { "relhumid", new Highchart.CurveConfig { DisplayAxisId = "def" } }
                 };
                 }
-                <Highchart Title="Climate Curves" XAxisTitle="Date" YAxisConfigs=@yAxisConfigs
-                    CurveName2Config=@curveName2Config Data=@name2Data Dates=@dates DataChanged=@dataChanged
-                    ChartRerendered=@(() => dataChanged = false)></Highchart>
+                <Highchart Title="Climate Curves" XAxisTitle="Date" YAxisConfigs="@yAxisConfigs"
+                    CurveName2Config="@curveName2Config" Data="@name2Data" Dates="@dates" DataChanged="@dataChanged"
+                    ChartRerendered="@(() => dataChanged = false)"></Highchart>
             </MudExpansionPanel>
             <MudExpansionPanel @bind-IsExpanded=@panelOpened["table"] Text="Table">
-                <MudTable T=@Element Items=@data Hover=@true Dense=@true Filter=@(new
-                    Func<Element,bool>(DataFilterFunc))>
+                <MudTable T="@Element" Items="@data" Hover="@true" Dense="@true" Filter="@(new
+                    Func<Element,bool>(DataFilterFunc))">
                     <ToolBarContent>
-                        <MudText Typo=Typo.h6>Timeseries Data</MudText>
+                        <MudText Typo="Typo.h6">Timeseries Data</MudText>
                         <MudSpacer />
-                        <MudTextField @bind-Value=searchString Placeholder="Search" Adornment=Adornment.Start
-                            AdornmentIcon=@Icons.Material.Filled.Search IconSize=Size.Medium Class="mt-0">
+                        <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start"
+                            AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0">
                         </MudTextField>
                     </ToolBarContent>
                     <HeaderContent>
@@ -118,7 +118,7 @@
             </MudExpansionPanel>
             <MudExpansionPanel Text="Text" IsExpanded=@panelOpened["text"] IsExpandedChanged=@(b => {
                 panelOpened["text"] = b; CreateCSVString(); })>
-                <MudTextField T="string" ReadOnly=@true FullWidth=@true Variant=@Variant.Outlined Text=@csvString
+                <MudTextField T="string" ReadOnly="@true" FullWidth="@true" Variant="@Variant.Outlined" Text="@csvString"
                     Lines="30" />
             </MudExpansionPanel>
         </MudExpansionPanels>
@@ -139,26 +139,25 @@
     [Parameter]
     public Climate.ITimeSeries? TimeSeriesCap { 
         get => timeSeriesCap; 
-        set { 
-            if (timeSeriesCap != value)
+        set
+        {
+            if (timeSeriesCap == value) return;
+            if(value is null or Capnp.Rpc.Proxy {IsDisposed: true }) return;
+            Console.WriteLine("TimeSeriesCap.Setter");
+            timeSeriesCap?.Dispose(); //free old cap
+            timeSeriesCap = value;    //assign new cap
+            //if not setting sub time-series, save unrestricted cap and before that free old unrestricted cap
+            if (!settingSubTimeseries) 
             {
-                if(value is Capnp.Rpc.Proxy p && p.IsDisposed) return;
-                Console.WriteLine("TimeSeriesCap.Setter");
-                timeSeriesCap?.Dispose(); //free old cap
-                timeSeriesCap = value;    //assign new cap
-                //if not setting sub timeseries, save unrestricted cap and before that free old unrestricted cap
-                if (!settingSubTimeseries) 
-                {
-                    originalTimeSeriesCap?.Dispose();
-                    originalTimeSeriesCap = Capnp.Rpc.Proxy.Share(timeSeriesCap); //save unrestricted cap
-                } 
-                // notify listeners
-                if (TimeSeriesCapChanged.HasDelegate) _ = TimeSeriesCapChanged.InvokeAsync(Capnp.Rpc.Proxy.Share(timeSeriesCap));
-                // do whatever needs to be done after an update
-                _ = TimeSeriesUpdated(settingSubTimeseries);
-                // turn of subseries mode
-                settingSubTimeseries = false;
+                originalTimeSeriesCap?.Dispose();
+                originalTimeSeriesCap = Capnp.Rpc.Proxy.Share(timeSeriesCap!); //save unrestricted cap
             } 
+            // notify listeners
+            if (TimeSeriesCapChanged.HasDelegate) _ = TimeSeriesCapChanged.InvokeAsync(Capnp.Rpc.Proxy.Share(timeSeriesCap!));
+            // do whatever needs to be done after an update
+            _ = TimeSeriesUpdated(settingSubTimeseries);
+            // turn of subseries mode
+            settingSubTimeseries = false;
         } 
     }
 

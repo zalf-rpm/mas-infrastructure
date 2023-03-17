@@ -12,42 +12,42 @@
 <MudGrid>
     <MudItem Class=@(HideSturdyRefConnector ? "d-none" : "") xs="12">
         <ConnectToSturdyRef Label="Persistent capability to climate service"
-                            @bind-Capability=@ClimateServiceCap
-                            TCapnpInterface=Climate.IService
-                            @bind-SturdyRef=ClimateServiceSturdyRef/>
+                            @bind-Capability="@ClimateServiceCap"
+                            TCapnpInterface="Climate.IService"
+                            @bind-SturdyRef="ClimateServiceSturdyRef"/>
     </MudItem>
     <MudItem xs="12">
         @code {
             private int _selectedDatasetId = -1;
         }
-        <MudTable T=@VT
-                  FixedHeader=@true
+        <MudTable T="@VT"
+                  FixedHeader="@true"
                   Height=@(metaAndData.Count() == 0 ? "" : "400px")
-                  Items=@metaAndData
-                  Hover=@true
-                  Dense=@true
-                  Filter=@(new Func<(IEnumerable<C.IdInformation>, Climate.IDataset, int), bool>(DataFilterFunc))
-                  SelectedItemChanged=@(t => {
+                  Items="@metaAndData"
+                  Hover="@true"
+                  Dense="@true"
+                  Filter="@(new Func<(IEnumerable<C.IdInformation>, Climate.IDataset, int), bool>(DataFilterFunc))"
+                  SelectedItemChanged="@(t => {
                                             _selectedDatasetId = t.Item3;
                                             selectedDataset = t.Item2;
                                             if (DatasetCapChanged.HasDelegate) _ = DatasetCapChanged.InvokeAsync(selectedDataset);
                                             StateHasChanged(); 
-                                        })>
+                                        })">
             <ToolBarContent>
                 <MudButton Class="mr-4" 
-                            Variant=@Variant.Filled 
-                            Color=@Color.Primary 
-                            OnClick=@LoadDatasets 
-                            Disabled=@(ClimateServiceCap == null)>
+                            Variant="@Variant.Filled" 
+                            Color="@Color.Primary" 
+                            OnClick="@LoadDatasets" 
+                            Disabled="@(ClimateServiceCap == null)">
                     Load
                 </MudButton>
-                <MudText Typo=Typo.h6>Datasets</MudText>
+                <MudText Typo="Typo.h6">Datasets</MudText>
                 <MudSpacer/>
-                <MudTextField @bind-Value=searchString 
+                <MudTextField @bind-Value="searchString" 
                                 Placeholder="Search" 
-                                Adornment=Adornment.Start 
-                                AdornmentIcon=@Icons.Material.Filled.Search 
-                                IconSize=Size.Medium Class="mt-0"/>
+                                Adornment="Adornment.Start" 
+                                AdornmentIcon="@Icons.Material.Filled.Search" 
+                                IconSize="Size.Medium" Class="mt-0"/>
             </ToolBarContent>
             <HeaderContent>
                 @foreach (var h in metaHeadings)
@@ -67,7 +67,7 @@
         </MudTable>
     </MudItem>
     <MudItem xs="12">
-        <ClimateDataset DatasetCap=@selectedDataset HideSturdyRefConnector=@true/>
+        <ClimateDataset DatasetCap="@selectedDataset" HideSturdyRefConnector="@true"/>
     </MudItem>
 </MudGrid>
 
@@ -77,21 +77,19 @@
     [Parameter]
     public Climate.IService? ClimateServiceCap {
         get => climateServiceCap; 
-        set {
-            if (climateServiceCap != value) {
-                Console.WriteLine("ClimateServiceCap.Setter");
-                climateServiceCap?.Dispose();
-                climateServiceCap = value;
-                if (ClimateServiceCapChanged.HasDelegate) _ = ClimateServiceCapChanged.InvokeAsync(Capnp.Rpc.Proxy.Share(climateServiceCap));
-                _ = LoadDatasets();
-            }
+        set
+        {
+            if (climateServiceCap == value) return;
+            Console.WriteLine("ClimateServiceCap.Setter");
+            climateServiceCap?.Dispose();
+            climateServiceCap = value;
+            if (ClimateServiceCapChanged.HasDelegate) _ = ClimateServiceCapChanged.InvokeAsync(Capnp.Rpc.Proxy.Share(climateServiceCap!));
+            _ = LoadDatasets();
         } 
     }
 
-    private bool _climateServiceCapUpdated = false;
-
     [Parameter]
-    public String ClimateServiceSturdyRef { get; set; } = "";
+    public string ClimateServiceSturdyRef { get; set; } = "";
 
     [Parameter]
     public EventCallback<Climate.IService> ClimateServiceCapChanged { get; set; }
@@ -102,25 +100,14 @@
     [Parameter]
     public bool HideSturdyRefConnector { get; set; } = false;
 
-    private String searchString = "";
+    private string searchString = "";
 
     //private Dictionary<String, Climate.IDataset> meta2data = new Dictionary<string, Climate.IDataset>();
-    private String[] metaHeadings = new String[0];
+    private string[] metaHeadings = Array.Empty<string>();
     private IEnumerable<(IEnumerable<C.IdInformation>, Climate.IDataset, int)> metaAndData = new List<(IEnumerable<C.IdInformation>, Climate.IDataset, int)>();
     private Climate.IDataset? selectedDataset;
 
-    @* public override async Task SetParametersAsync(ParameterView parameters)
-    {
-        _climateServiceCapUpdated = parameters.GetValueOrDefault<Climate.IService?>("ClimateServiceCap", null) != ClimateServiceCap;
-        await base.SetParametersAsync(parameters);
-    } *@
-
-    @* protected override async Task OnParametersSetAsync()
-    {
-        if (_climateServiceCapUpdated) await CapabilityChanged(ClimateServiceCap);
-    } *@
-
-    public String EntryToString(Climate.Metadata.Entry entry)
+    public string EntryToString(Climate.Metadata.Entry entry)
     {
         switch (entry.which)
         {

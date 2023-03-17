@@ -4,11 +4,11 @@
 @using GoogleMapsComponents.Maps
 
 <div @onclick="DrawRectangle">   @*For addingan ID:  @ref=MapWrapper*@
-    <GoogleMap @ref=map
+    <GoogleMap @ref="map"
                Id="map1"
-               Options=@mapOptions
-               Height=@Height
-               OnAfterInit=@OnAfterInitAsync>
+               Options="@mapOptions"
+               Height="@Height"
+               OnAfterInit="@OnAfterInitAsync">
     </GoogleMap>
 </div>
 
@@ -52,7 +52,7 @@
 
     private GoogleMap? map;
     private MapOptions? mapOptions;
-    private Marker? currentMarker;
+    //private Marker? currentMarker;
     private Rectangle? rectangle;
 
     //ElementReference MapWrapper;  //not used and can be removed from here and DOM element as well.
