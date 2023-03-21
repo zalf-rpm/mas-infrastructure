@@ -8,7 +8,7 @@ $Go.package("service");
 $Go.import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/service");
 
 using Common = import "common.capnp";
-using Restorer = import "persistence.capnp".Restorer;
+using Restorer = import "restore_resolve.capnp".Restorer;
 
 interface Admin extends(Common.Identifiable) {
   # interface to administer service

@@ -9,7 +9,8 @@ using Go = import "/capnp/go.capnp";
 $Go.package("persistence");
 $Go.import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/persistence");
 
-using Common = import "common.capnp";
+# causes cyclic include problems with the c++ code generator
+#using Common = import "common.capnp";
 
 struct VatId {
   # Taken from https://github.com/sandstorm-io/blackrock/blob/master/src/blackrock/cluster-rpc.capnp#L22
@@ -135,7 +136,7 @@ interface Persistent {
 }
 
 
-interface Restorer {
+#interface Restorer {
   # restore a capability from a sturdy ref
   
   #interface Save {
@@ -162,21 +163,18 @@ interface Restorer {
   #  save @0 SaveParams -> SaveResults;
   #}
 
-  struct RestoreParams {
-    localRef @0 :AnyPointer;
+#  struct RestoreParams {
+#    localRef @0 :AnyPointer;
     # local reference (sturdy ref token) to the capability to be restored
 
-    sealedFor @1 :SturdyRef.Owner;
+#    sealedFor @1 :SturdyRef.Owner;
     # the owner of the sturdy ref to be restored
     # if everybody is allowed to restore the capability, this field should be null (unset)
     # if sealedFor is set, the localRef must be signed by the private key of the owner matching 
-    # the public key registered with the restorer service else the cabability cannot be restored
-  }
+    # the public key registered with the restorer service else the capability cannot be restored
+#  }
 
-  restore @0 RestoreParams -> (cap :Capability);
+#  restore @0 RestoreParams -> (cap :Capability);
   # restore from the localRef in a transient sturdy ref as live capability
-}
-
-
-
+#}
 

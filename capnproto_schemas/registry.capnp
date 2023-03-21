@@ -11,6 +11,7 @@ $Go.import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/regi
 
 using Common = import "common.capnp";
 using Persistence = import "persistence.capnp";
+using Restorer = import "restore_resolve.capnp".Restorer;
 
 interface Admin extends(Common.Identifiable) {
   # administrative interface to a registry
@@ -70,7 +71,7 @@ interface Registrar extends(Common.Identifiable) {
     vatId     @0 :Persistence.VatId;
     # identify the caps Vat
 
-    restorer  @1 :Persistence.Restorer;
+    restorer  @1 :Restorer;
     # capability to the restorer
   }
 

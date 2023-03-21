@@ -159,4 +159,21 @@ endif()
 
 #------------------------------------------------------------------------------
 
+# create storage service
+add_executable(host-port-resolver-service
+		host-port-resolver.h
+		host-port-resolver.cpp
+		host-port-resolver-main.cpp
+		)
+target_link_libraries(host-port-resolver-service
+		common_lib
+		)
+#target_include_directories(storage-service PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+if (MSVC)
+	target_compile_options(host-port-resolver-service PRIVATE "/MT$<$<CONFIG:Debug>:d>")
+endif()
+
+#------------------------------------------------------------------------------
+
+
 message(STATUS "<- Mas-infrastructure-common")

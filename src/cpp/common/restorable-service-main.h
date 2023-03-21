@@ -52,7 +52,8 @@ public:
   kj::MainBuilder::Validity setStartupInfoWriterSR(kj::StringPtr sr);
   kj::MainBuilder::Validity setInitServiceFromContainer(kj::StringPtr init);
 
-  void startRestorerSetup(mas::schema::common::Identifiable::Client serviceClient);
+  // connects the restorer as bootstrap, unless serviceAasBootstrap = true
+  void startRestorerSetup(mas::schema::common::Identifiable::Client serviceClient, bool serviceAsBootstrap = false);
 
   kj::MainBuilder& addRestorableServiceOptions();
 

@@ -77,7 +77,8 @@ kj::MainBuilder::Validity RestorableServiceMain::setInitServiceFromContainer(kj:
   return true; 
 }
 
-void RestorableServiceMain::startRestorerSetup(mas::schema::common::Identifiable::Client serviceClient)
+void RestorableServiceMain::startRestorerSetup(mas::schema::common::Identifiable::Client serviceClient,
+  bool serviceAsBootstrap)
 {
   KJ_LOG(INFO, "Starting restorer setup.");
   
@@ -116,7 +117,9 @@ void RestorableServiceMain::startRestorerSetup(mas::schema::common::Identifiable
 
   // bind restorer 
   KJ_LOG(INFO, "Trying to bind restorer to", host, port);
-  auto portPromise = conMan->bind(ioContext, restorerClient, host, port);
+  auto portPromise = conMan->bind(ioContext,
+                                  serviceAsBootstrap ? serviceClient.castAs<capnp::Capability>() : restorerClient,
+                                  host, port);
   auto succAndIP = infrastructure::common::getLocalIP(checkIP, checkPort);
   if(kj::get<0>(succAndIP)){
     restorer->setHost(kj::get<1>(succAndIP));

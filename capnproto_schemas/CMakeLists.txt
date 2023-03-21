@@ -21,6 +21,7 @@ capnp_generate_cpp(CAPNP_SRCS CAPNP_HDRS
 	model/monica/soil_params.capnp
 	model/monica/monica_state.capnp
 	persistence.capnp
+	restore_resolve.capnp
 	registry.capnp
 	soil.capnp
 	storage.capnp

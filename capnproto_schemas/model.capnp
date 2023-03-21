@@ -13,7 +13,7 @@ using Climate = import "climate.capnp";
 using Soil = import "soil.capnp";
 using Mgmt = import "management.capnp";
 using Persistent = import "persistence.capnp".Persistent;
-using Restorer = import "persistence.capnp".Restorer;
+using Restorer = import "restore_resolve.capnp".Restorer;
 
 struct XYResult {
   xs @0 :List(Float64); # x axis values

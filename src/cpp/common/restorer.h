@@ -23,12 +23,10 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 //#include "model.capnp.h"
 #include "common.capnp.h"
-#include "persistence.capnp.h"
+#include "restore_resolve.capnp.h"
 #include "storage.capnp.h"
 
-namespace mas { 
-namespace infrastructure { 
-namespace common {
+namespace mas::infrastructure::common {
 
 class Restorer final : public mas::schema::persistence::Restorer::Server
 {
@@ -93,6 +91,4 @@ private:
 };
 
 
-} // namespace common
-} // namespace infrastructure
-} // namespace mas
+} // namespace mas::infrastructure::common
