@@ -39,6 +39,7 @@ struct Layer @0x984640f05b3ada4f {  # 8 bytes, 2 ptrs
       f32Value @1 :Float32;  # bits[32, 64), union tag = 0
       bValue @2 :Bool;  # bits[32, 33), union tag = 1
       type @3 :Text;  # ptr[0], union tag = 2
+      unset @4 :Void;  # bits[0, 0), union tag = 3
     }
   }
 }

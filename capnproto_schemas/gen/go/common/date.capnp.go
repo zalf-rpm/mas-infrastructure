@@ -8,106 +8,93 @@ import (
 	schemas "capnproto.org/go/capnp/v3/schemas"
 )
 
-type Date capnp.Struct
+type Date struct{ capnp.Struct }
 
 // Date_TypeID is the unique identifier for the type Date.
 const Date_TypeID = 0x97e6feac0322118d
 
 func NewDate(s *capnp.Segment) (Date, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Date(st), err
+	return Date{st}, err
 }
 
 func NewRootDate(s *capnp.Segment) (Date, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Date(st), err
+	return Date{st}, err
 }
 
 func ReadRootDate(msg *capnp.Message) (Date, error) {
 	root, err := msg.Root()
-	return Date(root.Struct()), err
+	return Date{root.Struct()}, err
 }
 
 func (s Date) String() string {
-	str, _ := text.Marshal(0x97e6feac0322118d, capnp.Struct(s))
+	str, _ := text.Marshal(0x97e6feac0322118d, s.Struct)
 	return str
 }
 
-func (s Date) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Date) DecodeFromPtr(p capnp.Ptr) Date {
-	return Date(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Date) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Date) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Date) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Date) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Date) Year() int16 {
-	return int16(capnp.Struct(s).Uint16(0))
+	return int16(s.Struct.Uint16(0))
 }
 
 func (s Date) SetYear(v int16) {
-	capnp.Struct(s).SetUint16(0, uint16(v))
+	s.Struct.SetUint16(0, uint16(v))
 }
 
 func (s Date) Month() uint8 {
-	return capnp.Struct(s).Uint8(2)
+	return s.Struct.Uint8(2)
 }
 
 func (s Date) SetMonth(v uint8) {
-	capnp.Struct(s).SetUint8(2, v)
+	s.Struct.SetUint8(2, v)
 }
 
 func (s Date) Day() uint8 {
-	return capnp.Struct(s).Uint8(3)
+	return s.Struct.Uint8(3)
 }
 
 func (s Date) SetDay(v uint8) {
-	capnp.Struct(s).SetUint8(3, v)
+	s.Struct.SetUint8(3, v)
 }
 
 // Date_List is a list of Date.
-type Date_List = capnp.StructList[Date]
+type Date_List struct{ capnp.List }
 
 // NewDate creates a new list of Date.
 func NewDate_List(s *capnp.Segment, sz int32) (Date_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0}, sz)
-	return capnp.StructList[Date](l), err
+	return Date_List{l}, err
+}
+
+func (s Date_List) At(i int) Date { return Date{s.List.Struct(i)} }
+
+func (s Date_List) Set(i int, v Date) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s Date_List) String() string {
+	str, _ := text.MarshalList(0x97e6feac0322118d, s.List)
+	return str
 }
 
 // Date_Future is a wrapper for a Date promised by a client call.
 type Date_Future struct{ *capnp.Future }
 
-func (f Date_Future) Struct() (Date, error) {
-	p, err := f.Future.Ptr()
-	return Date(p.Struct()), err
+func (p Date_Future) Struct() (Date, error) {
+	s, err := p.Future.Struct()
+	return Date{s}, err
 }
 
-const schema_e8ea2bc38b07f62a = "x\xda4\xc8\xb1J\xc3P\x14\x06\xe0\xff?\xe7\x9a\x0c" +
-	"*zIFE\xcc\x18A\xd0\xd1)`\x04\x05\x85\x1c" +
-	"\xf0\x05.&\xe0b\x12$KVq\x13g_B\xf0" +
-	"!|\x97R\xfa\x00\x1d\x9bRJ\xb7\x8f\xef\xf8\xb3p" +
-	"W\x87\x9d@\xecd/\x9a\xbe}\xa6\xbf\xab\xd9\x0fl" +
-	"\x9f\x9c\xf2e\xfc\xf5\x7f\xb1\x98\xc3\xc5@r\xca\x8f\xe4" +
-	"\x9c[\xfd\xe1v\xaa\xc3\xd0\\\xbe\x84\x9em\x7fS\x86" +
-	"\xa1AE\xda\x81:\xc0\x11\xf0w9`\x85\xd2\x1e\x85" +
-	"\x9e\x92r\x93\x0f\xd7\x80\x95J\xab\x84^4\xa5\x00\xfe" +
-	")\x03\xec^i\xcf\xc2\xa3\xb1\x09\xefT\x08\x15<{" +
-	"\xeb\xda\xe1\x95\x11\x84\x11\x18\xd7a\xdcy\x1d\x00\x00\xff" +
-	"\xffg !9"
+const schema_e8ea2bc38b07f62a = "x\xda4\xc8\xbdJ\xc3`\x14\x06\xe0\xf7='?\x83" +
+	"\x82~$\xa3\"f\x8c \xe8\xe8\x140\x82\x82B\x0e" +
+	"x\x03\x1f&\xe0b\x12$K\xd6\xac\xe2\xecM\x08^" +
+	"\x84\xf7RJ/\xa0cSJ\xe9\xf6\xf0\x9cN\x85\xdc" +
+	"\x84\x9d\x00v\x16F\xf3\xb7\xcb\xf4w\xb3\xf8\x81\x1d\x91" +
+	"s\xbe\x8e\xbf\xfe\xafVK\x041\x90\x9csJ.\xb9" +
+	"\xd7\x1f\xee\xe7\xda\x0f\xcd\xf5\x9b\xef\xd9\xf6w\xa5\x1f\x1a" +
+	"T\xa4\x1dk\x00\x04\x04\xdcC\x0eX\xa1\xb4g\xa1\xa3" +
+	"\xa4\xdc\xe5\xd3-`\xa5\xd2*\xa1\x13M)\x80{\xc9" +
+	"\x00{T\xda\xab\xf0dl\xfc'\x15B\x05/>\xba" +
+	"vxg\x04a\x04\xc6\xb5\x1f\x0f\xde\x06\x00\x00\xff\xff" +
+	"]`!+"
 
 func init() {
 	schemas.Register(schema_e8ea2bc38b07f62a,

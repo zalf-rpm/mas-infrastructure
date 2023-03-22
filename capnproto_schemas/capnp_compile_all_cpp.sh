@@ -19,7 +19,6 @@ capnp compile -I. -oc++:./gen/cpp/jobs jobs.capnp
 capnp compile -I. -oc++:./gen/cpp/management management.capnp
 capnp compile -I. -oc++:./gen/cpp/model model.capnp
 capnp compile -I. -oc++:./gen/cpp/persistence persistence.capnp
-capnp compile -I. -oc++:./gen/cpp/persistence restore_resolve.capnp
 capnp compile -I. -oc++:./gen/cpp/registry registry.capnp
 capnp compile -I. -oc++:./gen/cpp/service service.capnp
 capnp compile -I. -oc++:./gen/cpp/soil soil.capnp

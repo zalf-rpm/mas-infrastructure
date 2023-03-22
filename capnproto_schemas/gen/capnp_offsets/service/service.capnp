@@ -27,3 +27,6 @@ interface Factory @0x8ab0ecb99c269c7f (Payload) superclasses(import "/common.cap
     error @2 :Text;  # ptr[2]
   }
 }
+interface Stopable @0xe9d1be2a6e9016e5 {
+  stop @0 () -> ();
+}

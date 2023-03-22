@@ -7,13 +7,13 @@ using Go = import "/capnp/go.capnp";
 $Go.package("models");
 $Go.import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/models");
 
-using Common = import "common.capnp";
-using Geo = import "geo.capnp";
-using Climate = import "climate.capnp";
-using Soil = import "soil.capnp";
-using Mgmt = import "management.capnp";
+using Identifiable = import "common.capnp".Identifiable;
+using IdInformation = import "common.capnp".IdInformation;
+using TimeSeries = import "climate.capnp".TimeSeries;
+using SoilProfile = import "soil.capnp".Profile;
+using MgmtEvent = import "management.capnp".Event;
 using Persistent = import "persistence.capnp".Persistent;
-using Restorer = import "restore_resolve.capnp".Restorer;
+using Stopable = import "service.capnp".Stopable;
 
 struct XYResult {
   xs @0 :List(Float64); # x axis values
@@ -43,13 +43,13 @@ struct XYPlusResult {
 }
 
 
-interface ClimateInstance extends(Common.Identifiable) {
+interface ClimateInstance extends(Identifiable) {
   # an interface to run a "climate" model, which is basically using just climate data
 
-  run @0 (timeSeries :Climate.TimeSeries) -> (result :XYResult);
+  run @0 (timeSeries :TimeSeries) -> (result :XYResult);
   # run model just on a single time series
 
-  runSet @1 (dataset :List(Climate.TimeSeries)) -> (result :XYPlusResult);
+  runSet @1 (dataset :List(TimeSeries)) -> (result :XYPlusResult);
   # run model on a set of time series
 }
 
@@ -59,18 +59,18 @@ struct Env(RestInput) {
   rest @0 :RestInput;
   # rest of environment (often Common.StructuredText)
 
-  timeSeries @1 :Climate.TimeSeries;
+  timeSeries @1 :TimeSeries;
   # climate data  
 
-  soilProfile @2 :Soil.Profile;
+  soilProfile @2 :SoilProfile;
   # soil profile to use for a model run
 
-  mgmtEvents @3 :List(Mgmt.Event);
+  mgmtEvents @3 :List(MgmtEvent);
   # a list of management events
 }
 
 
-interface EnvInstance(RestInput, Output) extends(Common.Identifiable, Persistent, Common.Stopable) {
+interface EnvInstance(RestInput, Output) extends(Identifiable, Persistent, Stopable) {
   # an interface to run a model against an environment of input data
 
   run @0 (env :Env(RestInput)) -> (result :Output);
@@ -81,20 +81,24 @@ interface EnvInstance(RestInput, Output) extends(Common.Identifiable, Persistent
 interface EnvInstanceProxy(RestInput, Output) extends(EnvInstance(RestInput, Output)) {
   # the EnvInstance interface with the ability to forward run messages to registered EnvInstances
 
-  registerEnvInstance @0 (instance :EnvInstance(RestInput, Output)) -> (unregister :Common.Action);
+  interface Unregister {
+    unregister @0 () -> (success :Bool);
+  }
+
+  registerEnvInstance @0 (instance :EnvInstance(RestInput, Output)) -> (unregister :Unregister);
   # register an instance of an EnvInstance model to get jobs transparently forwarded to by the proxy
 }
 
 
-interface InstanceFactory(InstanceType) extends(Common.Identifiable) {
+interface InstanceFactory extends(Identifiable) {
   # interface to create unshared model instances 
 
-  modelInfo @0 () -> Common.IdInformation;
+  modelInfo @0 () -> IdInformation;
   # return information about the model this factory creates instances of
   
-  newInstance @1 () -> (instance :InstanceType);
+  newInstance @1 () -> (instance :Identifiable);
   # return a new instance of the model
 
-  newInstances @2 (numberOfInstances :Int16) -> (instances :List(Common.ListEntry(InstanceType)));
+  newInstances @2 (numberOfInstances :Int16) -> (instances :List(Identifiable));
   # return the requested number of model instances
 }

@@ -8,7 +8,7 @@ $Go.package("climate");
 $Go.import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/climate");
 
 using Persistent = import "persistence.capnp".Persistent;
-using Restorer = import "restore_resolve.capnp".Restorer;
+using Restorer = import "persistence.capnp".Restorer;
 using Common = import "common.capnp";
 using Model = import "model.capnp";
 using Geo = import "geo.capnp";

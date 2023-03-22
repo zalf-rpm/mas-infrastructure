@@ -5,6 +5,7 @@ $Go.package("vr");
 $Go.import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/vr");
 
 using Common = import "common.capnp";
+using Funcs = import "functions.capnp";
 #using Date = import "date.capnp".Date;
 using Geo = import "geo.capnp";
 using Registry = import "registry.capnp";
@@ -29,7 +30,7 @@ struct RT {
         params @0 () -> RegionParams;
         # return the parameters for this region
 
-        startCachingData @1 () -> (stop :Common.Callback);
+        startCachingData @1 () -> (stop :Funcs.Action);
         # start caching registered data
 
 
@@ -98,17 +99,17 @@ struct RT {
         params @0 () -> VRParams;
         # get the parameters used to create this VR
 
-        registerCoordMapping @4 (coordType :Geo.CoordType, func :Cell2Coord2Cell) -> (unregister :Common.Callback);
+        registerCoordMapping @4 (coordType :Geo.CoordType, func :Cell2Coord2Cell) -> (unregister :Funcs.Action);
         # register mapping functions
 
-        registerDataService @1 (id :Text, data :DataService) -> (unregister :Common.Callback);
+        registerDataService @1 (id :Text, data :DataService) -> (unregister :Funcs.Action);
         # a VR needs data and models to be registered, so they can be accessed
         # by users which hold a reference to the VR
 
-        registerModel @2 (model :Model) -> (unregister :Common.Callback);
+        registerModel @2 (model :Model) -> (unregister :Funcs.Action);
         # register a model to use with this VR
 
-        createSubRegion @3 RegionParams -> (unregister :Common.Callback);
+        createSubRegion @3 RegionParams -> (unregister :Funcs.Action);
         # create a (sub-)region in this VR with the given parameters
 
 

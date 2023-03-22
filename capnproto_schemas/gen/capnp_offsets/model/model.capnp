@@ -32,14 +32,17 @@ struct Env @0xb7fc866ef1127f7c (RestInput) {  # 0 bytes, 4 ptrs
   soilProfile @2 :import "/soil.capnp".Profile;  # ptr[2]
   mgmtEvents @3 :List(import "/management.capnp".Event);  # ptr[3]
 }
-interface EnvInstance @0xa5feedafa5ec5c4a (RestInput, Output) superclasses(import "/common.capnp".Identifiable, import "/persistence.capnp".Persistent, import "/common.capnp".Stopable) {
+interface EnvInstance @0xa5feedafa5ec5c4a (RestInput, Output) superclasses(import "/common.capnp".Identifiable, import "/persistence.capnp".Persistent, import "/service.capnp".Stopable) {
   run @0 (env :Env(RestInput)) -> (result :Output);
 }
 interface EnvInstanceProxy @0x87cbebfc1164a24a (RestInput, Output) superclasses(EnvInstance(RestInput, Output)) {
-  registerEnvInstance @0 (instance :EnvInstance(RestInput, Output)) -> (unregister :import "/common.capnp".Action);
+  registerEnvInstance @0 (instance :EnvInstance(RestInput, Output)) -> (unregister :Unregister);
+  interface Unregister @0xc727892bd5c66f88 {
+    unregister @0 () -> (success :Bool);
+  }
 }
-interface InstanceFactory @0xce552eef738a45ea (InstanceType) superclasses(import "/common.capnp".Identifiable) {
+interface InstanceFactory @0xce552eef738a45ea superclasses(import "/common.capnp".Identifiable) {
   modelInfo @0 () -> import "/common.capnp".IdInformation;
-  newInstance @1 () -> (instance :InstanceType);
-  newInstances @2 (numberOfInstances :Int16) -> (instances :List(import "/common.capnp".ListEntry(InstanceType)));
+  newInstance @1 () -> (instance :import "/common.capnp".Identifiable);
+  newInstances @2 (numberOfInstances :Int16) -> (instances :List(import "/common.capnp".Identifiable));
 }

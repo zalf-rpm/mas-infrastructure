@@ -22,13 +22,13 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <kj/tuple.h>
 
 #include "common.capnp.h"
+#include "fbp.capnp.h"
+#include "registry.capnp.h"
 
 #include "restorer.h"
 #include "rpc-connection-manager.h"
 
-namespace mas { 
-namespace infrastructure { 
-namespace common {
+namespace mas::infrastructure::common {
 
 class RestorableServiceMain
 {
@@ -60,7 +60,7 @@ public:
 protected:
   kj::MainBuilder mainBuilder;
   mas::schema::persistence::Restorer::Client restorerClient{nullptr};
-  mas::schema::common::Action::Client serviceUnregisterAction{nullptr};
+  mas::schema::registry::Registrar::Unregister::Client serviceUnregisterAction{nullptr};
   Restorer* restorer{nullptr};
   bool initRestorerFromContainer{true};
   bool initServiceFromContainer{true};
@@ -85,9 +85,7 @@ protected:
   kj::String startupInfoWriterSRId{kj::str("xxx")};
   kj::String startupInfoWriterSR;
   using P = mas::schema::common::Pair<capnp::Text, capnp::AnyPointer>;
-  kj::Maybe<mas::schema::common::Channel<P>::ChanWriter::Client> startupInfoWriterClient;
+  kj::Maybe<mas::schema::fbp::Channel<P>::ChanWriter::Client> startupInfoWriterClient;
 };
 
-} // namespace common
-} // namespace infrastructure
-} // namespace mas
+} // namespace mas::infrastructure::common

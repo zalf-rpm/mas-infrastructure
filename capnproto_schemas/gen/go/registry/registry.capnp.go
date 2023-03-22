@@ -5,16 +5,14 @@ package registry
 import (
 	capnp "capnproto.org/go/capnp/v3"
 	text "capnproto.org/go/capnp/v3/encoding/text"
-	fc "capnproto.org/go/capnp/v3/flowcontrol"
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
-	fmt "fmt"
 	common "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common"
 	persistence "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/persistence"
 )
 
-type Admin capnp.Client
+type Admin struct{ Client *capnp.Client }
 
 // Admin_TypeID is the unique identifier for the type Admin.
 const Admin_TypeID = 0xf503f3237666574e
@@ -30,9 +28,9 @@ func (c Admin) AddCategory(ctx context.Context, params func(Admin_addCategory_Pa
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Admin_addCategory_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Admin_addCategory_Params{Struct: s}) }
 	}
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Admin_addCategory_Results_Future{Future: ans.Future()}, release
 }
 func (c Admin) RemoveCategory(ctx context.Context, params func(Admin_removeCategory_Params) error) (Admin_removeCategory_Results_Future, capnp.ReleaseFunc) {
@@ -46,9 +44,9 @@ func (c Admin) RemoveCategory(ctx context.Context, params func(Admin_removeCateg
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 2}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Admin_removeCategory_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Admin_removeCategory_Params{Struct: s}) }
 	}
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Admin_removeCategory_Results_Future{Future: ans.Future()}, release
 }
 func (c Admin) MoveObjects(ctx context.Context, params func(Admin_moveObjects_Params) error) (Admin_moveObjects_Results_Future, capnp.ReleaseFunc) {
@@ -62,9 +60,9 @@ func (c Admin) MoveObjects(ctx context.Context, params func(Admin_moveObjects_Pa
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 2}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Admin_moveObjects_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Admin_moveObjects_Params{Struct: s}) }
 	}
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Admin_moveObjects_Results_Future{Future: ans.Future()}, release
 }
 func (c Admin) RemoveObjects(ctx context.Context, params func(Admin_removeObjects_Params) error) (Admin_removeObjects_Results_Future, capnp.ReleaseFunc) {
@@ -78,9 +76,9 @@ func (c Admin) RemoveObjects(ctx context.Context, params func(Admin_removeObject
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Admin_removeObjects_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Admin_removeObjects_Params{Struct: s}) }
 	}
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Admin_removeObjects_Results_Future{Future: ans.Future()}, release
 }
 func (c Admin) Registry(ctx context.Context, params func(Admin_registry_Params) error) (Admin_registry_Results_Future, capnp.ReleaseFunc) {
@@ -94,9 +92,9 @@ func (c Admin) Registry(ctx context.Context, params func(Admin_registry_Params) 
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Admin_registry_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Admin_registry_Params{Struct: s}) }
 	}
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Admin_registry_Results_Future{Future: ans.Future()}, release
 }
 func (c Admin) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
@@ -110,78 +108,23 @@ func (c Admin) Info(ctx context.Context, params func(common.Identifiable_info_Pa
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params{Struct: s}) }
 	}
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
 }
 
-// String returns a string that identifies this capability for debugging
-// purposes.  Its format should not be depended on: in particular, it
-// should not be used to compare clients.  Use IsSame to compare clients
-// for equality.
-func (c Admin) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
-}
-
-// AddRef creates a new Client that refers to the same capability as c.
-// If c is nil or has resolved to null, then AddRef returns nil.
 func (c Admin) AddRef() Admin {
-	return Admin(capnp.Client(c).AddRef())
+	return Admin{
+		Client: c.Client.AddRef(),
+	}
 }
 
-// Release releases a capability reference.  If this is the last
-// reference to the capability, then the underlying resources associated
-// with the capability will be released.
-//
-// Release will panic if c has already been released, but not if c is
-// nil or resolved to null.
 func (c Admin) Release() {
-	capnp.Client(c).Release()
+	c.Client.Release()
 }
 
-// Resolve blocks until the capability is fully resolved or the Context
-// expires.
-func (c Admin) Resolve(ctx context.Context) error {
-	return capnp.Client(c).Resolve(ctx)
-}
-
-func (c Admin) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Client(c).EncodeAsPtr(seg)
-}
-
-func (Admin) DecodeFromPtr(p capnp.Ptr) Admin {
-	return Admin(capnp.Client{}.DecodeFromPtr(p))
-}
-
-// IsValid reports whether c is a valid reference to a capability.
-// A reference is invalid if it is nil, has resolved to null, or has
-// been released.
-func (c Admin) IsValid() bool {
-	return capnp.Client(c).IsValid()
-}
-
-// IsSame reports whether c and other refer to a capability created by the
-// same call to NewClient.  This can return false negatives if c or other
-// are not fully resolved: use Resolve if this is an issue.  If either
-// c or other are released, then IsSame panics.
-func (c Admin) IsSame(other Admin) bool {
-	return capnp.Client(c).IsSame(capnp.Client(other))
-}
-
-// Update the flowcontrol.FlowLimiter used to manage flow control for
-// this client. This affects all future calls, but not calls already
-// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
-// which is also the default.
-func (c Admin) SetFlowLimiter(lim fc.FlowLimiter) {
-	capnp.Client(c).SetFlowLimiter(lim)
-}
-
-// Get the current flowcontrol.FlowLimiter used to manage flow control
-// for this client.
-func (c Admin) GetFlowLimiter() fc.FlowLimiter {
-	return capnp.Client(c).GetFlowLimiter()
-} // A Admin_Server is a Admin with a local implementation.
+// A Admin_Server is a Admin with a local implementation.
 type Admin_Server interface {
 	AddCategory(context.Context, Admin_addCategory) error
 
@@ -197,15 +140,15 @@ type Admin_Server interface {
 }
 
 // Admin_NewServer creates a new Server from an implementation of Admin_Server.
-func Admin_NewServer(s Admin_Server) *server.Server {
+func Admin_NewServer(s Admin_Server, policy *server.Policy) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(Admin_Methods(nil, s), s, c)
+	return server.New(Admin_Methods(nil, s), s, c, policy)
 }
 
 // Admin_ServerToClient creates a new Client from an implementation of Admin_Server.
 // The caller is responsible for calling Release on the returned Client.
-func Admin_ServerToClient(s Admin_Server) Admin {
-	return Admin(capnp.NewClient(Admin_NewServer(s)))
+func Admin_ServerToClient(s Admin_Server, policy *server.Policy) Admin {
+	return Admin{Client: capnp.NewClient(Admin_NewServer(s, policy))}
 }
 
 // Admin_Methods appends Methods to a slice that invoke the methods on s.
@@ -298,13 +241,13 @@ type Admin_addCategory struct {
 
 // Args returns the call's arguments.
 func (c Admin_addCategory) Args() Admin_addCategory_Params {
-	return Admin_addCategory_Params(c.Call.Args())
+	return Admin_addCategory_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Admin_addCategory) AllocResults() (Admin_addCategory_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Admin_addCategory_Results(r), err
+	return Admin_addCategory_Results{Struct: r}, err
 }
 
 // Admin_removeCategory holds the state for a server call to Admin.removeCategory.
@@ -315,13 +258,13 @@ type Admin_removeCategory struct {
 
 // Args returns the call's arguments.
 func (c Admin_removeCategory) Args() Admin_removeCategory_Params {
-	return Admin_removeCategory_Params(c.Call.Args())
+	return Admin_removeCategory_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Admin_removeCategory) AllocResults() (Admin_removeCategory_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Admin_removeCategory_Results(r), err
+	return Admin_removeCategory_Results{Struct: r}, err
 }
 
 // Admin_moveObjects holds the state for a server call to Admin.moveObjects.
@@ -332,13 +275,13 @@ type Admin_moveObjects struct {
 
 // Args returns the call's arguments.
 func (c Admin_moveObjects) Args() Admin_moveObjects_Params {
-	return Admin_moveObjects_Params(c.Call.Args())
+	return Admin_moveObjects_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Admin_moveObjects) AllocResults() (Admin_moveObjects_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Admin_moveObjects_Results(r), err
+	return Admin_moveObjects_Results{Struct: r}, err
 }
 
 // Admin_removeObjects holds the state for a server call to Admin.removeObjects.
@@ -349,13 +292,13 @@ type Admin_removeObjects struct {
 
 // Args returns the call's arguments.
 func (c Admin_removeObjects) Args() Admin_removeObjects_Params {
-	return Admin_removeObjects_Params(c.Call.Args())
+	return Admin_removeObjects_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Admin_removeObjects) AllocResults() (Admin_removeObjects_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Admin_removeObjects_Results(r), err
+	return Admin_removeObjects_Results{Struct: r}, err
 }
 
 // Admin_registry holds the state for a server call to Admin.registry.
@@ -366,903 +309,806 @@ type Admin_registry struct {
 
 // Args returns the call's arguments.
 func (c Admin_registry) Args() Admin_registry_Params {
-	return Admin_registry_Params(c.Call.Args())
+	return Admin_registry_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Admin_registry) AllocResults() (Admin_registry_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Admin_registry_Results(r), err
+	return Admin_registry_Results{Struct: r}, err
 }
 
-// Admin_List is a list of Admin.
-type Admin_List = capnp.CapList[Admin]
-
-// NewAdmin creates a new list of Admin.
-func NewAdmin_List(s *capnp.Segment, sz int32) (Admin_List, error) {
-	l, err := capnp.NewPointerList(s, sz)
-	return capnp.CapList[Admin](l), err
-}
-
-type Admin_addCategory_Params capnp.Struct
+type Admin_addCategory_Params struct{ capnp.Struct }
 
 // Admin_addCategory_Params_TypeID is the unique identifier for the type Admin_addCategory_Params.
 const Admin_addCategory_Params_TypeID = 0xdb16d4fbb18486f6
 
 func NewAdmin_addCategory_Params(s *capnp.Segment) (Admin_addCategory_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return Admin_addCategory_Params(st), err
+	return Admin_addCategory_Params{st}, err
 }
 
 func NewRootAdmin_addCategory_Params(s *capnp.Segment) (Admin_addCategory_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return Admin_addCategory_Params(st), err
+	return Admin_addCategory_Params{st}, err
 }
 
 func ReadRootAdmin_addCategory_Params(msg *capnp.Message) (Admin_addCategory_Params, error) {
 	root, err := msg.Root()
-	return Admin_addCategory_Params(root.Struct()), err
+	return Admin_addCategory_Params{root.Struct()}, err
 }
 
 func (s Admin_addCategory_Params) String() string {
-	str, _ := text.Marshal(0xdb16d4fbb18486f6, capnp.Struct(s))
+	str, _ := text.Marshal(0xdb16d4fbb18486f6, s.Struct)
 	return str
 }
 
-func (s Admin_addCategory_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Admin_addCategory_Params) DecodeFromPtr(p capnp.Ptr) Admin_addCategory_Params {
-	return Admin_addCategory_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Admin_addCategory_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Admin_addCategory_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Admin_addCategory_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Admin_addCategory_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Admin_addCategory_Params) Category() (common.IdInformation, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return common.IdInformation(p.Struct()), err
+	p, err := s.Struct.Ptr(0)
+	return common.IdInformation{Struct: p.Struct()}, err
 }
 
 func (s Admin_addCategory_Params) HasCategory() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Admin_addCategory_Params) SetCategory(v common.IdInformation) error {
-	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewCategory sets the category field to a newly
 // allocated common.IdInformation struct, preferring placement in s's segment.
 func (s Admin_addCategory_Params) NewCategory() (common.IdInformation, error) {
-	ss, err := common.NewIdInformation(capnp.Struct(s).Segment())
+	ss, err := common.NewIdInformation(s.Struct.Segment())
 	if err != nil {
 		return common.IdInformation{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
 	return ss, err
 }
 
 func (s Admin_addCategory_Params) Upsert() bool {
-	return capnp.Struct(s).Bit(0)
+	return s.Struct.Bit(0)
 }
 
 func (s Admin_addCategory_Params) SetUpsert(v bool) {
-	capnp.Struct(s).SetBit(0, v)
+	s.Struct.SetBit(0, v)
 }
 
 // Admin_addCategory_Params_List is a list of Admin_addCategory_Params.
-type Admin_addCategory_Params_List = capnp.StructList[Admin_addCategory_Params]
+type Admin_addCategory_Params_List struct{ capnp.List }
 
 // NewAdmin_addCategory_Params creates a new list of Admin_addCategory_Params.
 func NewAdmin_addCategory_Params_List(s *capnp.Segment, sz int32) (Admin_addCategory_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1}, sz)
-	return capnp.StructList[Admin_addCategory_Params](l), err
+	return Admin_addCategory_Params_List{l}, err
+}
+
+func (s Admin_addCategory_Params_List) At(i int) Admin_addCategory_Params {
+	return Admin_addCategory_Params{s.List.Struct(i)}
+}
+
+func (s Admin_addCategory_Params_List) Set(i int, v Admin_addCategory_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Admin_addCategory_Params_List) String() string {
+	str, _ := text.MarshalList(0xdb16d4fbb18486f6, s.List)
+	return str
 }
 
 // Admin_addCategory_Params_Future is a wrapper for a Admin_addCategory_Params promised by a client call.
 type Admin_addCategory_Params_Future struct{ *capnp.Future }
 
-func (f Admin_addCategory_Params_Future) Struct() (Admin_addCategory_Params, error) {
-	p, err := f.Future.Ptr()
-	return Admin_addCategory_Params(p.Struct()), err
+func (p Admin_addCategory_Params_Future) Struct() (Admin_addCategory_Params, error) {
+	s, err := p.Future.Struct()
+	return Admin_addCategory_Params{s}, err
 }
+
 func (p Admin_addCategory_Params_Future) Category() common.IdInformation_Future {
 	return common.IdInformation_Future{Future: p.Future.Field(0, nil)}
 }
 
-type Admin_addCategory_Results capnp.Struct
+type Admin_addCategory_Results struct{ capnp.Struct }
 
 // Admin_addCategory_Results_TypeID is the unique identifier for the type Admin_addCategory_Results.
 const Admin_addCategory_Results_TypeID = 0xbd3d832f7a7235b5
 
 func NewAdmin_addCategory_Results(s *capnp.Segment) (Admin_addCategory_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Admin_addCategory_Results(st), err
+	return Admin_addCategory_Results{st}, err
 }
 
 func NewRootAdmin_addCategory_Results(s *capnp.Segment) (Admin_addCategory_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Admin_addCategory_Results(st), err
+	return Admin_addCategory_Results{st}, err
 }
 
 func ReadRootAdmin_addCategory_Results(msg *capnp.Message) (Admin_addCategory_Results, error) {
 	root, err := msg.Root()
-	return Admin_addCategory_Results(root.Struct()), err
+	return Admin_addCategory_Results{root.Struct()}, err
 }
 
 func (s Admin_addCategory_Results) String() string {
-	str, _ := text.Marshal(0xbd3d832f7a7235b5, capnp.Struct(s))
+	str, _ := text.Marshal(0xbd3d832f7a7235b5, s.Struct)
 	return str
 }
 
-func (s Admin_addCategory_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Admin_addCategory_Results) DecodeFromPtr(p capnp.Ptr) Admin_addCategory_Results {
-	return Admin_addCategory_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Admin_addCategory_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Admin_addCategory_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Admin_addCategory_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Admin_addCategory_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Admin_addCategory_Results) Success() bool {
-	return capnp.Struct(s).Bit(0)
+	return s.Struct.Bit(0)
 }
 
 func (s Admin_addCategory_Results) SetSuccess(v bool) {
-	capnp.Struct(s).SetBit(0, v)
+	s.Struct.SetBit(0, v)
 }
 
 // Admin_addCategory_Results_List is a list of Admin_addCategory_Results.
-type Admin_addCategory_Results_List = capnp.StructList[Admin_addCategory_Results]
+type Admin_addCategory_Results_List struct{ capnp.List }
 
 // NewAdmin_addCategory_Results creates a new list of Admin_addCategory_Results.
 func NewAdmin_addCategory_Results_List(s *capnp.Segment, sz int32) (Admin_addCategory_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0}, sz)
-	return capnp.StructList[Admin_addCategory_Results](l), err
+	return Admin_addCategory_Results_List{l}, err
+}
+
+func (s Admin_addCategory_Results_List) At(i int) Admin_addCategory_Results {
+	return Admin_addCategory_Results{s.List.Struct(i)}
+}
+
+func (s Admin_addCategory_Results_List) Set(i int, v Admin_addCategory_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Admin_addCategory_Results_List) String() string {
+	str, _ := text.MarshalList(0xbd3d832f7a7235b5, s.List)
+	return str
 }
 
 // Admin_addCategory_Results_Future is a wrapper for a Admin_addCategory_Results promised by a client call.
 type Admin_addCategory_Results_Future struct{ *capnp.Future }
 
-func (f Admin_addCategory_Results_Future) Struct() (Admin_addCategory_Results, error) {
-	p, err := f.Future.Ptr()
-	return Admin_addCategory_Results(p.Struct()), err
+func (p Admin_addCategory_Results_Future) Struct() (Admin_addCategory_Results, error) {
+	s, err := p.Future.Struct()
+	return Admin_addCategory_Results{s}, err
 }
 
-type Admin_removeCategory_Params capnp.Struct
+type Admin_removeCategory_Params struct{ capnp.Struct }
 
 // Admin_removeCategory_Params_TypeID is the unique identifier for the type Admin_removeCategory_Params.
 const Admin_removeCategory_Params_TypeID = 0xd5be1b8e0180ded6
 
 func NewAdmin_removeCategory_Params(s *capnp.Segment) (Admin_removeCategory_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Admin_removeCategory_Params(st), err
+	return Admin_removeCategory_Params{st}, err
 }
 
 func NewRootAdmin_removeCategory_Params(s *capnp.Segment) (Admin_removeCategory_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Admin_removeCategory_Params(st), err
+	return Admin_removeCategory_Params{st}, err
 }
 
 func ReadRootAdmin_removeCategory_Params(msg *capnp.Message) (Admin_removeCategory_Params, error) {
 	root, err := msg.Root()
-	return Admin_removeCategory_Params(root.Struct()), err
+	return Admin_removeCategory_Params{root.Struct()}, err
 }
 
 func (s Admin_removeCategory_Params) String() string {
-	str, _ := text.Marshal(0xd5be1b8e0180ded6, capnp.Struct(s))
+	str, _ := text.Marshal(0xd5be1b8e0180ded6, s.Struct)
 	return str
 }
 
-func (s Admin_removeCategory_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Admin_removeCategory_Params) DecodeFromPtr(p capnp.Ptr) Admin_removeCategory_Params {
-	return Admin_removeCategory_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Admin_removeCategory_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Admin_removeCategory_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Admin_removeCategory_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Admin_removeCategory_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Admin_removeCategory_Params) CategoryId() (string, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.Text(), err
 }
 
 func (s Admin_removeCategory_Params) HasCategoryId() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Admin_removeCategory_Params) CategoryIdBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.TextBytes(), err
 }
 
 func (s Admin_removeCategory_Params) SetCategoryId(v string) error {
-	return capnp.Struct(s).SetText(0, v)
+	return s.Struct.SetText(0, v)
 }
 
 func (s Admin_removeCategory_Params) MoveObjectsToCategoryId() (string, error) {
-	p, err := capnp.Struct(s).Ptr(1)
+	p, err := s.Struct.Ptr(1)
 	return p.Text(), err
 }
 
 func (s Admin_removeCategory_Params) HasMoveObjectsToCategoryId() bool {
-	return capnp.Struct(s).HasPtr(1)
+	return s.Struct.HasPtr(1)
 }
 
 func (s Admin_removeCategory_Params) MoveObjectsToCategoryIdBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(1)
+	p, err := s.Struct.Ptr(1)
 	return p.TextBytes(), err
 }
 
 func (s Admin_removeCategory_Params) SetMoveObjectsToCategoryId(v string) error {
-	return capnp.Struct(s).SetText(1, v)
+	return s.Struct.SetText(1, v)
 }
 
 // Admin_removeCategory_Params_List is a list of Admin_removeCategory_Params.
-type Admin_removeCategory_Params_List = capnp.StructList[Admin_removeCategory_Params]
+type Admin_removeCategory_Params_List struct{ capnp.List }
 
 // NewAdmin_removeCategory_Params creates a new list of Admin_removeCategory_Params.
 func NewAdmin_removeCategory_Params_List(s *capnp.Segment, sz int32) (Admin_removeCategory_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
-	return capnp.StructList[Admin_removeCategory_Params](l), err
+	return Admin_removeCategory_Params_List{l}, err
+}
+
+func (s Admin_removeCategory_Params_List) At(i int) Admin_removeCategory_Params {
+	return Admin_removeCategory_Params{s.List.Struct(i)}
+}
+
+func (s Admin_removeCategory_Params_List) Set(i int, v Admin_removeCategory_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Admin_removeCategory_Params_List) String() string {
+	str, _ := text.MarshalList(0xd5be1b8e0180ded6, s.List)
+	return str
 }
 
 // Admin_removeCategory_Params_Future is a wrapper for a Admin_removeCategory_Params promised by a client call.
 type Admin_removeCategory_Params_Future struct{ *capnp.Future }
 
-func (f Admin_removeCategory_Params_Future) Struct() (Admin_removeCategory_Params, error) {
-	p, err := f.Future.Ptr()
-	return Admin_removeCategory_Params(p.Struct()), err
+func (p Admin_removeCategory_Params_Future) Struct() (Admin_removeCategory_Params, error) {
+	s, err := p.Future.Struct()
+	return Admin_removeCategory_Params{s}, err
 }
 
-type Admin_removeCategory_Results capnp.Struct
+type Admin_removeCategory_Results struct{ capnp.Struct }
 
 // Admin_removeCategory_Results_TypeID is the unique identifier for the type Admin_removeCategory_Results.
 const Admin_removeCategory_Results_TypeID = 0xa9aca103106c8f05
 
 func NewAdmin_removeCategory_Results(s *capnp.Segment) (Admin_removeCategory_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Admin_removeCategory_Results(st), err
+	return Admin_removeCategory_Results{st}, err
 }
 
 func NewRootAdmin_removeCategory_Results(s *capnp.Segment) (Admin_removeCategory_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Admin_removeCategory_Results(st), err
+	return Admin_removeCategory_Results{st}, err
 }
 
 func ReadRootAdmin_removeCategory_Results(msg *capnp.Message) (Admin_removeCategory_Results, error) {
 	root, err := msg.Root()
-	return Admin_removeCategory_Results(root.Struct()), err
+	return Admin_removeCategory_Results{root.Struct()}, err
 }
 
 func (s Admin_removeCategory_Results) String() string {
-	str, _ := text.Marshal(0xa9aca103106c8f05, capnp.Struct(s))
+	str, _ := text.Marshal(0xa9aca103106c8f05, s.Struct)
 	return str
 }
 
-func (s Admin_removeCategory_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Admin_removeCategory_Results) DecodeFromPtr(p capnp.Ptr) Admin_removeCategory_Results {
-	return Admin_removeCategory_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Admin_removeCategory_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Admin_removeCategory_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Admin_removeCategory_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Admin_removeCategory_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-func (s Admin_removeCategory_Results) RemovedObjects() (common.Identifiable_List, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return common.Identifiable_List(p.List()), err
+func (s Admin_removeCategory_Results) RemovedObjects() (capnp.PointerList, error) {
+	p, err := s.Struct.Ptr(0)
+	return capnp.PointerList{List: p.List()}, err
 }
 
 func (s Admin_removeCategory_Results) HasRemovedObjects() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
-func (s Admin_removeCategory_Results) SetRemovedObjects(v common.Identifiable_List) error {
-	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+func (s Admin_removeCategory_Results) SetRemovedObjects(v capnp.PointerList) error {
+	return s.Struct.SetPtr(0, v.List.ToPtr())
 }
 
 // NewRemovedObjects sets the removedObjects field to a newly
-// allocated common.Identifiable_List, preferring placement in s's segment.
-func (s Admin_removeCategory_Results) NewRemovedObjects(n int32) (common.Identifiable_List, error) {
-	l, err := common.NewIdentifiable_List(capnp.Struct(s).Segment(), n)
+// allocated capnp.PointerList, preferring placement in s's segment.
+func (s Admin_removeCategory_Results) NewRemovedObjects(n int32) (capnp.PointerList, error) {
+	l, err := capnp.NewPointerList(s.Struct.Segment(), n)
 	if err != nil {
-		return common.Identifiable_List{}, err
+		return capnp.PointerList{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	err = s.Struct.SetPtr(0, l.List.ToPtr())
 	return l, err
 }
 
 // Admin_removeCategory_Results_List is a list of Admin_removeCategory_Results.
-type Admin_removeCategory_Results_List = capnp.StructList[Admin_removeCategory_Results]
+type Admin_removeCategory_Results_List struct{ capnp.List }
 
 // NewAdmin_removeCategory_Results creates a new list of Admin_removeCategory_Results.
 func NewAdmin_removeCategory_Results_List(s *capnp.Segment, sz int32) (Admin_removeCategory_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Admin_removeCategory_Results](l), err
+	return Admin_removeCategory_Results_List{l}, err
+}
+
+func (s Admin_removeCategory_Results_List) At(i int) Admin_removeCategory_Results {
+	return Admin_removeCategory_Results{s.List.Struct(i)}
+}
+
+func (s Admin_removeCategory_Results_List) Set(i int, v Admin_removeCategory_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Admin_removeCategory_Results_List) String() string {
+	str, _ := text.MarshalList(0xa9aca103106c8f05, s.List)
+	return str
 }
 
 // Admin_removeCategory_Results_Future is a wrapper for a Admin_removeCategory_Results promised by a client call.
 type Admin_removeCategory_Results_Future struct{ *capnp.Future }
 
-func (f Admin_removeCategory_Results_Future) Struct() (Admin_removeCategory_Results, error) {
-	p, err := f.Future.Ptr()
-	return Admin_removeCategory_Results(p.Struct()), err
+func (p Admin_removeCategory_Results_Future) Struct() (Admin_removeCategory_Results, error) {
+	s, err := p.Future.Struct()
+	return Admin_removeCategory_Results{s}, err
 }
 
-type Admin_moveObjects_Params capnp.Struct
+type Admin_moveObjects_Params struct{ capnp.Struct }
 
 // Admin_moveObjects_Params_TypeID is the unique identifier for the type Admin_moveObjects_Params.
 const Admin_moveObjects_Params_TypeID = 0x8ebfd50c805adbc3
 
 func NewAdmin_moveObjects_Params(s *capnp.Segment) (Admin_moveObjects_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Admin_moveObjects_Params(st), err
+	return Admin_moveObjects_Params{st}, err
 }
 
 func NewRootAdmin_moveObjects_Params(s *capnp.Segment) (Admin_moveObjects_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Admin_moveObjects_Params(st), err
+	return Admin_moveObjects_Params{st}, err
 }
 
 func ReadRootAdmin_moveObjects_Params(msg *capnp.Message) (Admin_moveObjects_Params, error) {
 	root, err := msg.Root()
-	return Admin_moveObjects_Params(root.Struct()), err
+	return Admin_moveObjects_Params{root.Struct()}, err
 }
 
 func (s Admin_moveObjects_Params) String() string {
-	str, _ := text.Marshal(0x8ebfd50c805adbc3, capnp.Struct(s))
+	str, _ := text.Marshal(0x8ebfd50c805adbc3, s.Struct)
 	return str
 }
 
-func (s Admin_moveObjects_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Admin_moveObjects_Params) DecodeFromPtr(p capnp.Ptr) Admin_moveObjects_Params {
-	return Admin_moveObjects_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Admin_moveObjects_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Admin_moveObjects_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Admin_moveObjects_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Admin_moveObjects_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Admin_moveObjects_Params) ObjectIds() (capnp.TextList, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return capnp.TextList(p.List()), err
+	p, err := s.Struct.Ptr(0)
+	return capnp.TextList{List: p.List()}, err
 }
 
 func (s Admin_moveObjects_Params) HasObjectIds() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Admin_moveObjects_Params) SetObjectIds(v capnp.TextList) error {
-	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+	return s.Struct.SetPtr(0, v.List.ToPtr())
 }
 
 // NewObjectIds sets the objectIds field to a newly
 // allocated capnp.TextList, preferring placement in s's segment.
 func (s Admin_moveObjects_Params) NewObjectIds(n int32) (capnp.TextList, error) {
-	l, err := capnp.NewTextList(capnp.Struct(s).Segment(), n)
+	l, err := capnp.NewTextList(s.Struct.Segment(), n)
 	if err != nil {
 		return capnp.TextList{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	err = s.Struct.SetPtr(0, l.List.ToPtr())
 	return l, err
 }
+
 func (s Admin_moveObjects_Params) ToCatId() (string, error) {
-	p, err := capnp.Struct(s).Ptr(1)
+	p, err := s.Struct.Ptr(1)
 	return p.Text(), err
 }
 
 func (s Admin_moveObjects_Params) HasToCatId() bool {
-	return capnp.Struct(s).HasPtr(1)
+	return s.Struct.HasPtr(1)
 }
 
 func (s Admin_moveObjects_Params) ToCatIdBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(1)
+	p, err := s.Struct.Ptr(1)
 	return p.TextBytes(), err
 }
 
 func (s Admin_moveObjects_Params) SetToCatId(v string) error {
-	return capnp.Struct(s).SetText(1, v)
+	return s.Struct.SetText(1, v)
 }
 
 // Admin_moveObjects_Params_List is a list of Admin_moveObjects_Params.
-type Admin_moveObjects_Params_List = capnp.StructList[Admin_moveObjects_Params]
+type Admin_moveObjects_Params_List struct{ capnp.List }
 
 // NewAdmin_moveObjects_Params creates a new list of Admin_moveObjects_Params.
 func NewAdmin_moveObjects_Params_List(s *capnp.Segment, sz int32) (Admin_moveObjects_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
-	return capnp.StructList[Admin_moveObjects_Params](l), err
+	return Admin_moveObjects_Params_List{l}, err
+}
+
+func (s Admin_moveObjects_Params_List) At(i int) Admin_moveObjects_Params {
+	return Admin_moveObjects_Params{s.List.Struct(i)}
+}
+
+func (s Admin_moveObjects_Params_List) Set(i int, v Admin_moveObjects_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Admin_moveObjects_Params_List) String() string {
+	str, _ := text.MarshalList(0x8ebfd50c805adbc3, s.List)
+	return str
 }
 
 // Admin_moveObjects_Params_Future is a wrapper for a Admin_moveObjects_Params promised by a client call.
 type Admin_moveObjects_Params_Future struct{ *capnp.Future }
 
-func (f Admin_moveObjects_Params_Future) Struct() (Admin_moveObjects_Params, error) {
-	p, err := f.Future.Ptr()
-	return Admin_moveObjects_Params(p.Struct()), err
+func (p Admin_moveObjects_Params_Future) Struct() (Admin_moveObjects_Params, error) {
+	s, err := p.Future.Struct()
+	return Admin_moveObjects_Params{s}, err
 }
 
-type Admin_moveObjects_Results capnp.Struct
+type Admin_moveObjects_Results struct{ capnp.Struct }
 
 // Admin_moveObjects_Results_TypeID is the unique identifier for the type Admin_moveObjects_Results.
 const Admin_moveObjects_Results_TypeID = 0xd887d79a7ed3f45f
 
 func NewAdmin_moveObjects_Results(s *capnp.Segment) (Admin_moveObjects_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Admin_moveObjects_Results(st), err
+	return Admin_moveObjects_Results{st}, err
 }
 
 func NewRootAdmin_moveObjects_Results(s *capnp.Segment) (Admin_moveObjects_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Admin_moveObjects_Results(st), err
+	return Admin_moveObjects_Results{st}, err
 }
 
 func ReadRootAdmin_moveObjects_Results(msg *capnp.Message) (Admin_moveObjects_Results, error) {
 	root, err := msg.Root()
-	return Admin_moveObjects_Results(root.Struct()), err
+	return Admin_moveObjects_Results{root.Struct()}, err
 }
 
 func (s Admin_moveObjects_Results) String() string {
-	str, _ := text.Marshal(0xd887d79a7ed3f45f, capnp.Struct(s))
+	str, _ := text.Marshal(0xd887d79a7ed3f45f, s.Struct)
 	return str
 }
 
-func (s Admin_moveObjects_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Admin_moveObjects_Results) DecodeFromPtr(p capnp.Ptr) Admin_moveObjects_Results {
-	return Admin_moveObjects_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Admin_moveObjects_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Admin_moveObjects_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Admin_moveObjects_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Admin_moveObjects_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Admin_moveObjects_Results) MovedObjectIds() (capnp.TextList, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return capnp.TextList(p.List()), err
+	p, err := s.Struct.Ptr(0)
+	return capnp.TextList{List: p.List()}, err
 }
 
 func (s Admin_moveObjects_Results) HasMovedObjectIds() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Admin_moveObjects_Results) SetMovedObjectIds(v capnp.TextList) error {
-	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+	return s.Struct.SetPtr(0, v.List.ToPtr())
 }
 
 // NewMovedObjectIds sets the movedObjectIds field to a newly
 // allocated capnp.TextList, preferring placement in s's segment.
 func (s Admin_moveObjects_Results) NewMovedObjectIds(n int32) (capnp.TextList, error) {
-	l, err := capnp.NewTextList(capnp.Struct(s).Segment(), n)
+	l, err := capnp.NewTextList(s.Struct.Segment(), n)
 	if err != nil {
 		return capnp.TextList{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	err = s.Struct.SetPtr(0, l.List.ToPtr())
 	return l, err
 }
 
 // Admin_moveObjects_Results_List is a list of Admin_moveObjects_Results.
-type Admin_moveObjects_Results_List = capnp.StructList[Admin_moveObjects_Results]
+type Admin_moveObjects_Results_List struct{ capnp.List }
 
 // NewAdmin_moveObjects_Results creates a new list of Admin_moveObjects_Results.
 func NewAdmin_moveObjects_Results_List(s *capnp.Segment, sz int32) (Admin_moveObjects_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Admin_moveObjects_Results](l), err
+	return Admin_moveObjects_Results_List{l}, err
+}
+
+func (s Admin_moveObjects_Results_List) At(i int) Admin_moveObjects_Results {
+	return Admin_moveObjects_Results{s.List.Struct(i)}
+}
+
+func (s Admin_moveObjects_Results_List) Set(i int, v Admin_moveObjects_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Admin_moveObjects_Results_List) String() string {
+	str, _ := text.MarshalList(0xd887d79a7ed3f45f, s.List)
+	return str
 }
 
 // Admin_moveObjects_Results_Future is a wrapper for a Admin_moveObjects_Results promised by a client call.
 type Admin_moveObjects_Results_Future struct{ *capnp.Future }
 
-func (f Admin_moveObjects_Results_Future) Struct() (Admin_moveObjects_Results, error) {
-	p, err := f.Future.Ptr()
-	return Admin_moveObjects_Results(p.Struct()), err
+func (p Admin_moveObjects_Results_Future) Struct() (Admin_moveObjects_Results, error) {
+	s, err := p.Future.Struct()
+	return Admin_moveObjects_Results{s}, err
 }
 
-type Admin_removeObjects_Params capnp.Struct
+type Admin_removeObjects_Params struct{ capnp.Struct }
 
 // Admin_removeObjects_Params_TypeID is the unique identifier for the type Admin_removeObjects_Params.
 const Admin_removeObjects_Params_TypeID = 0x96a5b17eee7ee1a3
 
 func NewAdmin_removeObjects_Params(s *capnp.Segment) (Admin_removeObjects_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Admin_removeObjects_Params(st), err
+	return Admin_removeObjects_Params{st}, err
 }
 
 func NewRootAdmin_removeObjects_Params(s *capnp.Segment) (Admin_removeObjects_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Admin_removeObjects_Params(st), err
+	return Admin_removeObjects_Params{st}, err
 }
 
 func ReadRootAdmin_removeObjects_Params(msg *capnp.Message) (Admin_removeObjects_Params, error) {
 	root, err := msg.Root()
-	return Admin_removeObjects_Params(root.Struct()), err
+	return Admin_removeObjects_Params{root.Struct()}, err
 }
 
 func (s Admin_removeObjects_Params) String() string {
-	str, _ := text.Marshal(0x96a5b17eee7ee1a3, capnp.Struct(s))
+	str, _ := text.Marshal(0x96a5b17eee7ee1a3, s.Struct)
 	return str
 }
 
-func (s Admin_removeObjects_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Admin_removeObjects_Params) DecodeFromPtr(p capnp.Ptr) Admin_removeObjects_Params {
-	return Admin_removeObjects_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Admin_removeObjects_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Admin_removeObjects_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Admin_removeObjects_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Admin_removeObjects_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Admin_removeObjects_Params) ObjectIds() (capnp.TextList, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return capnp.TextList(p.List()), err
+	p, err := s.Struct.Ptr(0)
+	return capnp.TextList{List: p.List()}, err
 }
 
 func (s Admin_removeObjects_Params) HasObjectIds() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Admin_removeObjects_Params) SetObjectIds(v capnp.TextList) error {
-	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+	return s.Struct.SetPtr(0, v.List.ToPtr())
 }
 
 // NewObjectIds sets the objectIds field to a newly
 // allocated capnp.TextList, preferring placement in s's segment.
 func (s Admin_removeObjects_Params) NewObjectIds(n int32) (capnp.TextList, error) {
-	l, err := capnp.NewTextList(capnp.Struct(s).Segment(), n)
+	l, err := capnp.NewTextList(s.Struct.Segment(), n)
 	if err != nil {
 		return capnp.TextList{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	err = s.Struct.SetPtr(0, l.List.ToPtr())
 	return l, err
 }
 
 // Admin_removeObjects_Params_List is a list of Admin_removeObjects_Params.
-type Admin_removeObjects_Params_List = capnp.StructList[Admin_removeObjects_Params]
+type Admin_removeObjects_Params_List struct{ capnp.List }
 
 // NewAdmin_removeObjects_Params creates a new list of Admin_removeObjects_Params.
 func NewAdmin_removeObjects_Params_List(s *capnp.Segment, sz int32) (Admin_removeObjects_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Admin_removeObjects_Params](l), err
+	return Admin_removeObjects_Params_List{l}, err
+}
+
+func (s Admin_removeObjects_Params_List) At(i int) Admin_removeObjects_Params {
+	return Admin_removeObjects_Params{s.List.Struct(i)}
+}
+
+func (s Admin_removeObjects_Params_List) Set(i int, v Admin_removeObjects_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Admin_removeObjects_Params_List) String() string {
+	str, _ := text.MarshalList(0x96a5b17eee7ee1a3, s.List)
+	return str
 }
 
 // Admin_removeObjects_Params_Future is a wrapper for a Admin_removeObjects_Params promised by a client call.
 type Admin_removeObjects_Params_Future struct{ *capnp.Future }
 
-func (f Admin_removeObjects_Params_Future) Struct() (Admin_removeObjects_Params, error) {
-	p, err := f.Future.Ptr()
-	return Admin_removeObjects_Params(p.Struct()), err
+func (p Admin_removeObjects_Params_Future) Struct() (Admin_removeObjects_Params, error) {
+	s, err := p.Future.Struct()
+	return Admin_removeObjects_Params{s}, err
 }
 
-type Admin_removeObjects_Results capnp.Struct
+type Admin_removeObjects_Results struct{ capnp.Struct }
 
 // Admin_removeObjects_Results_TypeID is the unique identifier for the type Admin_removeObjects_Results.
 const Admin_removeObjects_Results_TypeID = 0xa092f60656bb0db4
 
 func NewAdmin_removeObjects_Results(s *capnp.Segment) (Admin_removeObjects_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Admin_removeObjects_Results(st), err
+	return Admin_removeObjects_Results{st}, err
 }
 
 func NewRootAdmin_removeObjects_Results(s *capnp.Segment) (Admin_removeObjects_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Admin_removeObjects_Results(st), err
+	return Admin_removeObjects_Results{st}, err
 }
 
 func ReadRootAdmin_removeObjects_Results(msg *capnp.Message) (Admin_removeObjects_Results, error) {
 	root, err := msg.Root()
-	return Admin_removeObjects_Results(root.Struct()), err
+	return Admin_removeObjects_Results{root.Struct()}, err
 }
 
 func (s Admin_removeObjects_Results) String() string {
-	str, _ := text.Marshal(0xa092f60656bb0db4, capnp.Struct(s))
+	str, _ := text.Marshal(0xa092f60656bb0db4, s.Struct)
 	return str
 }
 
-func (s Admin_removeObjects_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Admin_removeObjects_Results) DecodeFromPtr(p capnp.Ptr) Admin_removeObjects_Results {
-	return Admin_removeObjects_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Admin_removeObjects_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Admin_removeObjects_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Admin_removeObjects_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Admin_removeObjects_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-func (s Admin_removeObjects_Results) RemovedObjects() (common.Identifiable_List, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return common.Identifiable_List(p.List()), err
+func (s Admin_removeObjects_Results) RemovedObjects() (capnp.PointerList, error) {
+	p, err := s.Struct.Ptr(0)
+	return capnp.PointerList{List: p.List()}, err
 }
 
 func (s Admin_removeObjects_Results) HasRemovedObjects() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
-func (s Admin_removeObjects_Results) SetRemovedObjects(v common.Identifiable_List) error {
-	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+func (s Admin_removeObjects_Results) SetRemovedObjects(v capnp.PointerList) error {
+	return s.Struct.SetPtr(0, v.List.ToPtr())
 }
 
 // NewRemovedObjects sets the removedObjects field to a newly
-// allocated common.Identifiable_List, preferring placement in s's segment.
-func (s Admin_removeObjects_Results) NewRemovedObjects(n int32) (common.Identifiable_List, error) {
-	l, err := common.NewIdentifiable_List(capnp.Struct(s).Segment(), n)
+// allocated capnp.PointerList, preferring placement in s's segment.
+func (s Admin_removeObjects_Results) NewRemovedObjects(n int32) (capnp.PointerList, error) {
+	l, err := capnp.NewPointerList(s.Struct.Segment(), n)
 	if err != nil {
-		return common.Identifiable_List{}, err
+		return capnp.PointerList{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	err = s.Struct.SetPtr(0, l.List.ToPtr())
 	return l, err
 }
 
 // Admin_removeObjects_Results_List is a list of Admin_removeObjects_Results.
-type Admin_removeObjects_Results_List = capnp.StructList[Admin_removeObjects_Results]
+type Admin_removeObjects_Results_List struct{ capnp.List }
 
 // NewAdmin_removeObjects_Results creates a new list of Admin_removeObjects_Results.
 func NewAdmin_removeObjects_Results_List(s *capnp.Segment, sz int32) (Admin_removeObjects_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Admin_removeObjects_Results](l), err
+	return Admin_removeObjects_Results_List{l}, err
+}
+
+func (s Admin_removeObjects_Results_List) At(i int) Admin_removeObjects_Results {
+	return Admin_removeObjects_Results{s.List.Struct(i)}
+}
+
+func (s Admin_removeObjects_Results_List) Set(i int, v Admin_removeObjects_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Admin_removeObjects_Results_List) String() string {
+	str, _ := text.MarshalList(0xa092f60656bb0db4, s.List)
+	return str
 }
 
 // Admin_removeObjects_Results_Future is a wrapper for a Admin_removeObjects_Results promised by a client call.
 type Admin_removeObjects_Results_Future struct{ *capnp.Future }
 
-func (f Admin_removeObjects_Results_Future) Struct() (Admin_removeObjects_Results, error) {
-	p, err := f.Future.Ptr()
-	return Admin_removeObjects_Results(p.Struct()), err
+func (p Admin_removeObjects_Results_Future) Struct() (Admin_removeObjects_Results, error) {
+	s, err := p.Future.Struct()
+	return Admin_removeObjects_Results{s}, err
 }
 
-type Admin_registry_Params capnp.Struct
+type Admin_registry_Params struct{ capnp.Struct }
 
 // Admin_registry_Params_TypeID is the unique identifier for the type Admin_registry_Params.
 const Admin_registry_Params_TypeID = 0xee2cf8cf148921b5
 
 func NewAdmin_registry_Params(s *capnp.Segment) (Admin_registry_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Admin_registry_Params(st), err
+	return Admin_registry_Params{st}, err
 }
 
 func NewRootAdmin_registry_Params(s *capnp.Segment) (Admin_registry_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Admin_registry_Params(st), err
+	return Admin_registry_Params{st}, err
 }
 
 func ReadRootAdmin_registry_Params(msg *capnp.Message) (Admin_registry_Params, error) {
 	root, err := msg.Root()
-	return Admin_registry_Params(root.Struct()), err
+	return Admin_registry_Params{root.Struct()}, err
 }
 
 func (s Admin_registry_Params) String() string {
-	str, _ := text.Marshal(0xee2cf8cf148921b5, capnp.Struct(s))
+	str, _ := text.Marshal(0xee2cf8cf148921b5, s.Struct)
 	return str
 }
 
-func (s Admin_registry_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Admin_registry_Params) DecodeFromPtr(p capnp.Ptr) Admin_registry_Params {
-	return Admin_registry_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Admin_registry_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Admin_registry_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Admin_registry_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Admin_registry_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // Admin_registry_Params_List is a list of Admin_registry_Params.
-type Admin_registry_Params_List = capnp.StructList[Admin_registry_Params]
+type Admin_registry_Params_List struct{ capnp.List }
 
 // NewAdmin_registry_Params creates a new list of Admin_registry_Params.
 func NewAdmin_registry_Params_List(s *capnp.Segment, sz int32) (Admin_registry_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[Admin_registry_Params](l), err
+	return Admin_registry_Params_List{l}, err
+}
+
+func (s Admin_registry_Params_List) At(i int) Admin_registry_Params {
+	return Admin_registry_Params{s.List.Struct(i)}
+}
+
+func (s Admin_registry_Params_List) Set(i int, v Admin_registry_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Admin_registry_Params_List) String() string {
+	str, _ := text.MarshalList(0xee2cf8cf148921b5, s.List)
+	return str
 }
 
 // Admin_registry_Params_Future is a wrapper for a Admin_registry_Params promised by a client call.
 type Admin_registry_Params_Future struct{ *capnp.Future }
 
-func (f Admin_registry_Params_Future) Struct() (Admin_registry_Params, error) {
-	p, err := f.Future.Ptr()
-	return Admin_registry_Params(p.Struct()), err
+func (p Admin_registry_Params_Future) Struct() (Admin_registry_Params, error) {
+	s, err := p.Future.Struct()
+	return Admin_registry_Params{s}, err
 }
 
-type Admin_registry_Results capnp.Struct
+type Admin_registry_Results struct{ capnp.Struct }
 
 // Admin_registry_Results_TypeID is the unique identifier for the type Admin_registry_Results.
 const Admin_registry_Results_TypeID = 0xfe62caefab7dfdad
 
 func NewAdmin_registry_Results(s *capnp.Segment) (Admin_registry_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Admin_registry_Results(st), err
+	return Admin_registry_Results{st}, err
 }
 
 func NewRootAdmin_registry_Results(s *capnp.Segment) (Admin_registry_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Admin_registry_Results(st), err
+	return Admin_registry_Results{st}, err
 }
 
 func ReadRootAdmin_registry_Results(msg *capnp.Message) (Admin_registry_Results, error) {
 	root, err := msg.Root()
-	return Admin_registry_Results(root.Struct()), err
+	return Admin_registry_Results{root.Struct()}, err
 }
 
 func (s Admin_registry_Results) String() string {
-	str, _ := text.Marshal(0xfe62caefab7dfdad, capnp.Struct(s))
+	str, _ := text.Marshal(0xfe62caefab7dfdad, s.Struct)
 	return str
 }
 
-func (s Admin_registry_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Admin_registry_Results) DecodeFromPtr(p capnp.Ptr) Admin_registry_Results {
-	return Admin_registry_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Admin_registry_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Admin_registry_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Admin_registry_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Admin_registry_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Admin_registry_Results) Registry() Registry {
-	p, _ := capnp.Struct(s).Ptr(0)
-	return Registry(p.Interface().Client())
+	p, _ := s.Struct.Ptr(0)
+	return Registry{Client: p.Interface().Client()}
 }
 
 func (s Admin_registry_Results) HasRegistry() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Admin_registry_Results) SetRegistry(v Registry) error {
-	if !v.IsValid() {
-		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
+	if !v.Client.IsValid() {
+		return s.Struct.SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
-	return capnp.Struct(s).SetPtr(0, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
+	return s.Struct.SetPtr(0, in.ToPtr())
 }
 
 // Admin_registry_Results_List is a list of Admin_registry_Results.
-type Admin_registry_Results_List = capnp.StructList[Admin_registry_Results]
+type Admin_registry_Results_List struct{ capnp.List }
 
 // NewAdmin_registry_Results creates a new list of Admin_registry_Results.
 func NewAdmin_registry_Results_List(s *capnp.Segment, sz int32) (Admin_registry_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Admin_registry_Results](l), err
+	return Admin_registry_Results_List{l}, err
+}
+
+func (s Admin_registry_Results_List) At(i int) Admin_registry_Results {
+	return Admin_registry_Results{s.List.Struct(i)}
+}
+
+func (s Admin_registry_Results_List) Set(i int, v Admin_registry_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Admin_registry_Results_List) String() string {
+	str, _ := text.MarshalList(0xfe62caefab7dfdad, s.List)
+	return str
 }
 
 // Admin_registry_Results_Future is a wrapper for a Admin_registry_Results promised by a client call.
 type Admin_registry_Results_Future struct{ *capnp.Future }
 
-func (f Admin_registry_Results_Future) Struct() (Admin_registry_Results, error) {
-	p, err := f.Future.Ptr()
-	return Admin_registry_Results(p.Struct()), err
-}
-func (p Admin_registry_Results_Future) Registry() Registry {
-	return Registry(p.Future.Field(0, nil).Client())
+func (p Admin_registry_Results_Future) Struct() (Admin_registry_Results, error) {
+	s, err := p.Future.Struct()
+	return Admin_registry_Results{s}, err
 }
 
-type Registry capnp.Client
+func (p Admin_registry_Results_Future) Registry() Registry {
+	return Registry{Client: p.Future.Field(0, nil).Client()}
+}
+
+type Registry struct{ Client *capnp.Client }
 
 // Registry_TypeID is the unique identifier for the type Registry.
 const Registry_TypeID = 0xca7b4bd1600633b8
@@ -1278,9 +1124,9 @@ func (c Registry) SupportedCategories(ctx context.Context, params func(Registry_
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Registry_supportedCategories_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Registry_supportedCategories_Params{Struct: s}) }
 	}
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Registry_supportedCategories_Results_Future{Future: ans.Future()}, release
 }
 func (c Registry) CategoryInfo(ctx context.Context, params func(Registry_categoryInfo_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
@@ -1294,9 +1140,9 @@ func (c Registry) CategoryInfo(ctx context.Context, params func(Registry_categor
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Registry_categoryInfo_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Registry_categoryInfo_Params{Struct: s}) }
 	}
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
 }
 func (c Registry) Entries(ctx context.Context, params func(Registry_entries_Params) error) (Registry_entries_Results_Future, capnp.ReleaseFunc) {
@@ -1310,9 +1156,9 @@ func (c Registry) Entries(ctx context.Context, params func(Registry_entries_Para
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Registry_entries_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Registry_entries_Params{Struct: s}) }
 	}
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Registry_entries_Results_Future{Future: ans.Future()}, release
 }
 func (c Registry) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
@@ -1326,78 +1172,23 @@ func (c Registry) Info(ctx context.Context, params func(common.Identifiable_info
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params{Struct: s}) }
 	}
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
 }
 
-// String returns a string that identifies this capability for debugging
-// purposes.  Its format should not be depended on: in particular, it
-// should not be used to compare clients.  Use IsSame to compare clients
-// for equality.
-func (c Registry) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
-}
-
-// AddRef creates a new Client that refers to the same capability as c.
-// If c is nil or has resolved to null, then AddRef returns nil.
 func (c Registry) AddRef() Registry {
-	return Registry(capnp.Client(c).AddRef())
+	return Registry{
+		Client: c.Client.AddRef(),
+	}
 }
 
-// Release releases a capability reference.  If this is the last
-// reference to the capability, then the underlying resources associated
-// with the capability will be released.
-//
-// Release will panic if c has already been released, but not if c is
-// nil or resolved to null.
 func (c Registry) Release() {
-	capnp.Client(c).Release()
+	c.Client.Release()
 }
 
-// Resolve blocks until the capability is fully resolved or the Context
-// expires.
-func (c Registry) Resolve(ctx context.Context) error {
-	return capnp.Client(c).Resolve(ctx)
-}
-
-func (c Registry) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Client(c).EncodeAsPtr(seg)
-}
-
-func (Registry) DecodeFromPtr(p capnp.Ptr) Registry {
-	return Registry(capnp.Client{}.DecodeFromPtr(p))
-}
-
-// IsValid reports whether c is a valid reference to a capability.
-// A reference is invalid if it is nil, has resolved to null, or has
-// been released.
-func (c Registry) IsValid() bool {
-	return capnp.Client(c).IsValid()
-}
-
-// IsSame reports whether c and other refer to a capability created by the
-// same call to NewClient.  This can return false negatives if c or other
-// are not fully resolved: use Resolve if this is an issue.  If either
-// c or other are released, then IsSame panics.
-func (c Registry) IsSame(other Registry) bool {
-	return capnp.Client(c).IsSame(capnp.Client(other))
-}
-
-// Update the flowcontrol.FlowLimiter used to manage flow control for
-// this client. This affects all future calls, but not calls already
-// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
-// which is also the default.
-func (c Registry) SetFlowLimiter(lim fc.FlowLimiter) {
-	capnp.Client(c).SetFlowLimiter(lim)
-}
-
-// Get the current flowcontrol.FlowLimiter used to manage flow control
-// for this client.
-func (c Registry) GetFlowLimiter() fc.FlowLimiter {
-	return capnp.Client(c).GetFlowLimiter()
-} // A Registry_Server is a Registry with a local implementation.
+// A Registry_Server is a Registry with a local implementation.
 type Registry_Server interface {
 	SupportedCategories(context.Context, Registry_supportedCategories) error
 
@@ -1409,15 +1200,15 @@ type Registry_Server interface {
 }
 
 // Registry_NewServer creates a new Server from an implementation of Registry_Server.
-func Registry_NewServer(s Registry_Server) *server.Server {
+func Registry_NewServer(s Registry_Server, policy *server.Policy) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(Registry_Methods(nil, s), s, c)
+	return server.New(Registry_Methods(nil, s), s, c, policy)
 }
 
 // Registry_ServerToClient creates a new Client from an implementation of Registry_Server.
 // The caller is responsible for calling Release on the returned Client.
-func Registry_ServerToClient(s Registry_Server) Registry {
-	return Registry(capnp.NewClient(Registry_NewServer(s)))
+func Registry_ServerToClient(s Registry_Server, policy *server.Policy) Registry {
+	return Registry{Client: capnp.NewClient(Registry_NewServer(s, policy))}
 }
 
 // Registry_Methods appends Methods to a slice that invoke the methods on s.
@@ -1486,13 +1277,13 @@ type Registry_supportedCategories struct {
 
 // Args returns the call's arguments.
 func (c Registry_supportedCategories) Args() Registry_supportedCategories_Params {
-	return Registry_supportedCategories_Params(c.Call.Args())
+	return Registry_supportedCategories_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Registry_supportedCategories) AllocResults() (Registry_supportedCategories_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Registry_supportedCategories_Results(r), err
+	return Registry_supportedCategories_Results{Struct: r}, err
 }
 
 // Registry_categoryInfo holds the state for a server call to Registry.categoryInfo.
@@ -1503,13 +1294,13 @@ type Registry_categoryInfo struct {
 
 // Args returns the call's arguments.
 func (c Registry_categoryInfo) Args() Registry_categoryInfo_Params {
-	return Registry_categoryInfo_Params(c.Call.Args())
+	return Registry_categoryInfo_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Registry_categoryInfo) AllocResults() (common.IdInformation, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 3})
-	return common.IdInformation(r), err
+	return common.IdInformation{Struct: r}, err
 }
 
 // Registry_entries holds the state for a server call to Registry.entries.
@@ -1520,551 +1311,484 @@ type Registry_entries struct {
 
 // Args returns the call's arguments.
 func (c Registry_entries) Args() Registry_entries_Params {
-	return Registry_entries_Params(c.Call.Args())
+	return Registry_entries_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Registry_entries) AllocResults() (Registry_entries_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Registry_entries_Results(r), err
+	return Registry_entries_Results{Struct: r}, err
 }
 
-// Registry_List is a list of Registry.
-type Registry_List = capnp.CapList[Registry]
-
-// NewRegistry creates a new list of Registry.
-func NewRegistry_List(s *capnp.Segment, sz int32) (Registry_List, error) {
-	l, err := capnp.NewPointerList(s, sz)
-	return capnp.CapList[Registry](l), err
-}
-
-type Registry_Entry capnp.Struct
+type Registry_Entry struct{ capnp.Struct }
 
 // Registry_Entry_TypeID is the unique identifier for the type Registry_Entry.
 const Registry_Entry_TypeID = 0xc17987510cf7ac13
 
 func NewRegistry_Entry(s *capnp.Segment) (Registry_Entry, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 3})
-	return Registry_Entry(st), err
+	return Registry_Entry{st}, err
 }
 
 func NewRootRegistry_Entry(s *capnp.Segment) (Registry_Entry, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 3})
-	return Registry_Entry(st), err
+	return Registry_Entry{st}, err
 }
 
 func ReadRootRegistry_Entry(msg *capnp.Message) (Registry_Entry, error) {
 	root, err := msg.Root()
-	return Registry_Entry(root.Struct()), err
+	return Registry_Entry{root.Struct()}, err
 }
 
 func (s Registry_Entry) String() string {
-	str, _ := text.Marshal(0xc17987510cf7ac13, capnp.Struct(s))
+	str, _ := text.Marshal(0xc17987510cf7ac13, s.Struct)
 	return str
 }
 
-func (s Registry_Entry) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Registry_Entry) DecodeFromPtr(p capnp.Ptr) Registry_Entry {
-	return Registry_Entry(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Registry_Entry) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Registry_Entry) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Registry_Entry) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Registry_Entry) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Registry_Entry) CategoryId() (string, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.Text(), err
 }
 
 func (s Registry_Entry) HasCategoryId() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Registry_Entry) CategoryIdBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.TextBytes(), err
 }
 
 func (s Registry_Entry) SetCategoryId(v string) error {
-	return capnp.Struct(s).SetText(0, v)
+	return s.Struct.SetText(0, v)
 }
 
 func (s Registry_Entry) Ref() common.Identifiable {
-	p, _ := capnp.Struct(s).Ptr(1)
-	return common.Identifiable(p.Interface().Client())
+	p, _ := s.Struct.Ptr(1)
+	return common.Identifiable{Client: p.Interface().Client()}
 }
 
 func (s Registry_Entry) HasRef() bool {
-	return capnp.Struct(s).HasPtr(1)
+	return s.Struct.HasPtr(1)
 }
 
 func (s Registry_Entry) SetRef(v common.Identifiable) error {
-	if !v.IsValid() {
-		return capnp.Struct(s).SetPtr(1, capnp.Ptr{})
+	if !v.Client.IsValid() {
+		return s.Struct.SetPtr(1, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
-	return capnp.Struct(s).SetPtr(1, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
+	return s.Struct.SetPtr(1, in.ToPtr())
 }
 
 func (s Registry_Entry) Name() (string, error) {
-	p, err := capnp.Struct(s).Ptr(2)
+	p, err := s.Struct.Ptr(2)
 	return p.Text(), err
 }
 
 func (s Registry_Entry) HasName() bool {
-	return capnp.Struct(s).HasPtr(2)
+	return s.Struct.HasPtr(2)
 }
 
 func (s Registry_Entry) NameBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(2)
+	p, err := s.Struct.Ptr(2)
 	return p.TextBytes(), err
 }
 
 func (s Registry_Entry) SetName(v string) error {
-	return capnp.Struct(s).SetText(2, v)
+	return s.Struct.SetText(2, v)
 }
 
 // Registry_Entry_List is a list of Registry_Entry.
-type Registry_Entry_List = capnp.StructList[Registry_Entry]
+type Registry_Entry_List struct{ capnp.List }
 
 // NewRegistry_Entry creates a new list of Registry_Entry.
 func NewRegistry_Entry_List(s *capnp.Segment, sz int32) (Registry_Entry_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 3}, sz)
-	return capnp.StructList[Registry_Entry](l), err
+	return Registry_Entry_List{l}, err
+}
+
+func (s Registry_Entry_List) At(i int) Registry_Entry { return Registry_Entry{s.List.Struct(i)} }
+
+func (s Registry_Entry_List) Set(i int, v Registry_Entry) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s Registry_Entry_List) String() string {
+	str, _ := text.MarshalList(0xc17987510cf7ac13, s.List)
+	return str
 }
 
 // Registry_Entry_Future is a wrapper for a Registry_Entry promised by a client call.
 type Registry_Entry_Future struct{ *capnp.Future }
 
-func (f Registry_Entry_Future) Struct() (Registry_Entry, error) {
-	p, err := f.Future.Ptr()
-	return Registry_Entry(p.Struct()), err
-}
-func (p Registry_Entry_Future) Ref() common.Identifiable {
-	return common.Identifiable(p.Future.Field(1, nil).Client())
+func (p Registry_Entry_Future) Struct() (Registry_Entry, error) {
+	s, err := p.Future.Struct()
+	return Registry_Entry{s}, err
 }
 
-type Registry_supportedCategories_Params capnp.Struct
+func (p Registry_Entry_Future) Ref() common.Identifiable {
+	return common.Identifiable{Client: p.Future.Field(1, nil).Client()}
+}
+
+type Registry_supportedCategories_Params struct{ capnp.Struct }
 
 // Registry_supportedCategories_Params_TypeID is the unique identifier for the type Registry_supportedCategories_Params.
 const Registry_supportedCategories_Params_TypeID = 0x9c49e6e65e34c29b
 
 func NewRegistry_supportedCategories_Params(s *capnp.Segment) (Registry_supportedCategories_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Registry_supportedCategories_Params(st), err
+	return Registry_supportedCategories_Params{st}, err
 }
 
 func NewRootRegistry_supportedCategories_Params(s *capnp.Segment) (Registry_supportedCategories_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Registry_supportedCategories_Params(st), err
+	return Registry_supportedCategories_Params{st}, err
 }
 
 func ReadRootRegistry_supportedCategories_Params(msg *capnp.Message) (Registry_supportedCategories_Params, error) {
 	root, err := msg.Root()
-	return Registry_supportedCategories_Params(root.Struct()), err
+	return Registry_supportedCategories_Params{root.Struct()}, err
 }
 
 func (s Registry_supportedCategories_Params) String() string {
-	str, _ := text.Marshal(0x9c49e6e65e34c29b, capnp.Struct(s))
+	str, _ := text.Marshal(0x9c49e6e65e34c29b, s.Struct)
 	return str
 }
 
-func (s Registry_supportedCategories_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Registry_supportedCategories_Params) DecodeFromPtr(p capnp.Ptr) Registry_supportedCategories_Params {
-	return Registry_supportedCategories_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Registry_supportedCategories_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Registry_supportedCategories_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Registry_supportedCategories_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Registry_supportedCategories_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // Registry_supportedCategories_Params_List is a list of Registry_supportedCategories_Params.
-type Registry_supportedCategories_Params_List = capnp.StructList[Registry_supportedCategories_Params]
+type Registry_supportedCategories_Params_List struct{ capnp.List }
 
 // NewRegistry_supportedCategories_Params creates a new list of Registry_supportedCategories_Params.
 func NewRegistry_supportedCategories_Params_List(s *capnp.Segment, sz int32) (Registry_supportedCategories_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[Registry_supportedCategories_Params](l), err
+	return Registry_supportedCategories_Params_List{l}, err
+}
+
+func (s Registry_supportedCategories_Params_List) At(i int) Registry_supportedCategories_Params {
+	return Registry_supportedCategories_Params{s.List.Struct(i)}
+}
+
+func (s Registry_supportedCategories_Params_List) Set(i int, v Registry_supportedCategories_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Registry_supportedCategories_Params_List) String() string {
+	str, _ := text.MarshalList(0x9c49e6e65e34c29b, s.List)
+	return str
 }
 
 // Registry_supportedCategories_Params_Future is a wrapper for a Registry_supportedCategories_Params promised by a client call.
 type Registry_supportedCategories_Params_Future struct{ *capnp.Future }
 
-func (f Registry_supportedCategories_Params_Future) Struct() (Registry_supportedCategories_Params, error) {
-	p, err := f.Future.Ptr()
-	return Registry_supportedCategories_Params(p.Struct()), err
+func (p Registry_supportedCategories_Params_Future) Struct() (Registry_supportedCategories_Params, error) {
+	s, err := p.Future.Struct()
+	return Registry_supportedCategories_Params{s}, err
 }
 
-type Registry_supportedCategories_Results capnp.Struct
+type Registry_supportedCategories_Results struct{ capnp.Struct }
 
 // Registry_supportedCategories_Results_TypeID is the unique identifier for the type Registry_supportedCategories_Results.
 const Registry_supportedCategories_Results_TypeID = 0xb2bf60b5817330b0
 
 func NewRegistry_supportedCategories_Results(s *capnp.Segment) (Registry_supportedCategories_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Registry_supportedCategories_Results(st), err
+	return Registry_supportedCategories_Results{st}, err
 }
 
 func NewRootRegistry_supportedCategories_Results(s *capnp.Segment) (Registry_supportedCategories_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Registry_supportedCategories_Results(st), err
+	return Registry_supportedCategories_Results{st}, err
 }
 
 func ReadRootRegistry_supportedCategories_Results(msg *capnp.Message) (Registry_supportedCategories_Results, error) {
 	root, err := msg.Root()
-	return Registry_supportedCategories_Results(root.Struct()), err
+	return Registry_supportedCategories_Results{root.Struct()}, err
 }
 
 func (s Registry_supportedCategories_Results) String() string {
-	str, _ := text.Marshal(0xb2bf60b5817330b0, capnp.Struct(s))
+	str, _ := text.Marshal(0xb2bf60b5817330b0, s.Struct)
 	return str
 }
 
-func (s Registry_supportedCategories_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Registry_supportedCategories_Results) DecodeFromPtr(p capnp.Ptr) Registry_supportedCategories_Results {
-	return Registry_supportedCategories_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Registry_supportedCategories_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Registry_supportedCategories_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Registry_supportedCategories_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Registry_supportedCategories_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Registry_supportedCategories_Results) Cats() (common.IdInformation_List, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return common.IdInformation_List(p.List()), err
+	p, err := s.Struct.Ptr(0)
+	return common.IdInformation_List{List: p.List()}, err
 }
 
 func (s Registry_supportedCategories_Results) HasCats() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Registry_supportedCategories_Results) SetCats(v common.IdInformation_List) error {
-	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+	return s.Struct.SetPtr(0, v.List.ToPtr())
 }
 
 // NewCats sets the cats field to a newly
 // allocated common.IdInformation_List, preferring placement in s's segment.
 func (s Registry_supportedCategories_Results) NewCats(n int32) (common.IdInformation_List, error) {
-	l, err := common.NewIdInformation_List(capnp.Struct(s).Segment(), n)
+	l, err := common.NewIdInformation_List(s.Struct.Segment(), n)
 	if err != nil {
 		return common.IdInformation_List{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	err = s.Struct.SetPtr(0, l.List.ToPtr())
 	return l, err
 }
 
 // Registry_supportedCategories_Results_List is a list of Registry_supportedCategories_Results.
-type Registry_supportedCategories_Results_List = capnp.StructList[Registry_supportedCategories_Results]
+type Registry_supportedCategories_Results_List struct{ capnp.List }
 
 // NewRegistry_supportedCategories_Results creates a new list of Registry_supportedCategories_Results.
 func NewRegistry_supportedCategories_Results_List(s *capnp.Segment, sz int32) (Registry_supportedCategories_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Registry_supportedCategories_Results](l), err
+	return Registry_supportedCategories_Results_List{l}, err
+}
+
+func (s Registry_supportedCategories_Results_List) At(i int) Registry_supportedCategories_Results {
+	return Registry_supportedCategories_Results{s.List.Struct(i)}
+}
+
+func (s Registry_supportedCategories_Results_List) Set(i int, v Registry_supportedCategories_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Registry_supportedCategories_Results_List) String() string {
+	str, _ := text.MarshalList(0xb2bf60b5817330b0, s.List)
+	return str
 }
 
 // Registry_supportedCategories_Results_Future is a wrapper for a Registry_supportedCategories_Results promised by a client call.
 type Registry_supportedCategories_Results_Future struct{ *capnp.Future }
 
-func (f Registry_supportedCategories_Results_Future) Struct() (Registry_supportedCategories_Results, error) {
-	p, err := f.Future.Ptr()
-	return Registry_supportedCategories_Results(p.Struct()), err
+func (p Registry_supportedCategories_Results_Future) Struct() (Registry_supportedCategories_Results, error) {
+	s, err := p.Future.Struct()
+	return Registry_supportedCategories_Results{s}, err
 }
 
-type Registry_categoryInfo_Params capnp.Struct
+type Registry_categoryInfo_Params struct{ capnp.Struct }
 
 // Registry_categoryInfo_Params_TypeID is the unique identifier for the type Registry_categoryInfo_Params.
 const Registry_categoryInfo_Params_TypeID = 0x891283e1b248bc9d
 
 func NewRegistry_categoryInfo_Params(s *capnp.Segment) (Registry_categoryInfo_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Registry_categoryInfo_Params(st), err
+	return Registry_categoryInfo_Params{st}, err
 }
 
 func NewRootRegistry_categoryInfo_Params(s *capnp.Segment) (Registry_categoryInfo_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Registry_categoryInfo_Params(st), err
+	return Registry_categoryInfo_Params{st}, err
 }
 
 func ReadRootRegistry_categoryInfo_Params(msg *capnp.Message) (Registry_categoryInfo_Params, error) {
 	root, err := msg.Root()
-	return Registry_categoryInfo_Params(root.Struct()), err
+	return Registry_categoryInfo_Params{root.Struct()}, err
 }
 
 func (s Registry_categoryInfo_Params) String() string {
-	str, _ := text.Marshal(0x891283e1b248bc9d, capnp.Struct(s))
+	str, _ := text.Marshal(0x891283e1b248bc9d, s.Struct)
 	return str
 }
 
-func (s Registry_categoryInfo_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Registry_categoryInfo_Params) DecodeFromPtr(p capnp.Ptr) Registry_categoryInfo_Params {
-	return Registry_categoryInfo_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Registry_categoryInfo_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Registry_categoryInfo_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Registry_categoryInfo_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Registry_categoryInfo_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Registry_categoryInfo_Params) CategoryId() (string, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.Text(), err
 }
 
 func (s Registry_categoryInfo_Params) HasCategoryId() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Registry_categoryInfo_Params) CategoryIdBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.TextBytes(), err
 }
 
 func (s Registry_categoryInfo_Params) SetCategoryId(v string) error {
-	return capnp.Struct(s).SetText(0, v)
+	return s.Struct.SetText(0, v)
 }
 
 // Registry_categoryInfo_Params_List is a list of Registry_categoryInfo_Params.
-type Registry_categoryInfo_Params_List = capnp.StructList[Registry_categoryInfo_Params]
+type Registry_categoryInfo_Params_List struct{ capnp.List }
 
 // NewRegistry_categoryInfo_Params creates a new list of Registry_categoryInfo_Params.
 func NewRegistry_categoryInfo_Params_List(s *capnp.Segment, sz int32) (Registry_categoryInfo_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Registry_categoryInfo_Params](l), err
+	return Registry_categoryInfo_Params_List{l}, err
+}
+
+func (s Registry_categoryInfo_Params_List) At(i int) Registry_categoryInfo_Params {
+	return Registry_categoryInfo_Params{s.List.Struct(i)}
+}
+
+func (s Registry_categoryInfo_Params_List) Set(i int, v Registry_categoryInfo_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Registry_categoryInfo_Params_List) String() string {
+	str, _ := text.MarshalList(0x891283e1b248bc9d, s.List)
+	return str
 }
 
 // Registry_categoryInfo_Params_Future is a wrapper for a Registry_categoryInfo_Params promised by a client call.
 type Registry_categoryInfo_Params_Future struct{ *capnp.Future }
 
-func (f Registry_categoryInfo_Params_Future) Struct() (Registry_categoryInfo_Params, error) {
-	p, err := f.Future.Ptr()
-	return Registry_categoryInfo_Params(p.Struct()), err
+func (p Registry_categoryInfo_Params_Future) Struct() (Registry_categoryInfo_Params, error) {
+	s, err := p.Future.Struct()
+	return Registry_categoryInfo_Params{s}, err
 }
 
-type Registry_entries_Params capnp.Struct
+type Registry_entries_Params struct{ capnp.Struct }
 
 // Registry_entries_Params_TypeID is the unique identifier for the type Registry_entries_Params.
 const Registry_entries_Params_TypeID = 0x9ffc53716151c5fa
 
 func NewRegistry_entries_Params(s *capnp.Segment) (Registry_entries_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Registry_entries_Params(st), err
+	return Registry_entries_Params{st}, err
 }
 
 func NewRootRegistry_entries_Params(s *capnp.Segment) (Registry_entries_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Registry_entries_Params(st), err
+	return Registry_entries_Params{st}, err
 }
 
 func ReadRootRegistry_entries_Params(msg *capnp.Message) (Registry_entries_Params, error) {
 	root, err := msg.Root()
-	return Registry_entries_Params(root.Struct()), err
+	return Registry_entries_Params{root.Struct()}, err
 }
 
 func (s Registry_entries_Params) String() string {
-	str, _ := text.Marshal(0x9ffc53716151c5fa, capnp.Struct(s))
+	str, _ := text.Marshal(0x9ffc53716151c5fa, s.Struct)
 	return str
 }
 
-func (s Registry_entries_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Registry_entries_Params) DecodeFromPtr(p capnp.Ptr) Registry_entries_Params {
-	return Registry_entries_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Registry_entries_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Registry_entries_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Registry_entries_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Registry_entries_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Registry_entries_Params) CategoryId() (string, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.Text(), err
 }
 
 func (s Registry_entries_Params) HasCategoryId() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Registry_entries_Params) CategoryIdBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.TextBytes(), err
 }
 
 func (s Registry_entries_Params) SetCategoryId(v string) error {
-	return capnp.Struct(s).SetText(0, v)
+	return s.Struct.SetText(0, v)
 }
 
 // Registry_entries_Params_List is a list of Registry_entries_Params.
-type Registry_entries_Params_List = capnp.StructList[Registry_entries_Params]
+type Registry_entries_Params_List struct{ capnp.List }
 
 // NewRegistry_entries_Params creates a new list of Registry_entries_Params.
 func NewRegistry_entries_Params_List(s *capnp.Segment, sz int32) (Registry_entries_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Registry_entries_Params](l), err
+	return Registry_entries_Params_List{l}, err
+}
+
+func (s Registry_entries_Params_List) At(i int) Registry_entries_Params {
+	return Registry_entries_Params{s.List.Struct(i)}
+}
+
+func (s Registry_entries_Params_List) Set(i int, v Registry_entries_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Registry_entries_Params_List) String() string {
+	str, _ := text.MarshalList(0x9ffc53716151c5fa, s.List)
+	return str
 }
 
 // Registry_entries_Params_Future is a wrapper for a Registry_entries_Params promised by a client call.
 type Registry_entries_Params_Future struct{ *capnp.Future }
 
-func (f Registry_entries_Params_Future) Struct() (Registry_entries_Params, error) {
-	p, err := f.Future.Ptr()
-	return Registry_entries_Params(p.Struct()), err
+func (p Registry_entries_Params_Future) Struct() (Registry_entries_Params, error) {
+	s, err := p.Future.Struct()
+	return Registry_entries_Params{s}, err
 }
 
-type Registry_entries_Results capnp.Struct
+type Registry_entries_Results struct{ capnp.Struct }
 
 // Registry_entries_Results_TypeID is the unique identifier for the type Registry_entries_Results.
 const Registry_entries_Results_TypeID = 0xe4eaf56eb486064d
 
 func NewRegistry_entries_Results(s *capnp.Segment) (Registry_entries_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Registry_entries_Results(st), err
+	return Registry_entries_Results{st}, err
 }
 
 func NewRootRegistry_entries_Results(s *capnp.Segment) (Registry_entries_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Registry_entries_Results(st), err
+	return Registry_entries_Results{st}, err
 }
 
 func ReadRootRegistry_entries_Results(msg *capnp.Message) (Registry_entries_Results, error) {
 	root, err := msg.Root()
-	return Registry_entries_Results(root.Struct()), err
+	return Registry_entries_Results{root.Struct()}, err
 }
 
 func (s Registry_entries_Results) String() string {
-	str, _ := text.Marshal(0xe4eaf56eb486064d, capnp.Struct(s))
+	str, _ := text.Marshal(0xe4eaf56eb486064d, s.Struct)
 	return str
 }
 
-func (s Registry_entries_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Registry_entries_Results) DecodeFromPtr(p capnp.Ptr) Registry_entries_Results {
-	return Registry_entries_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Registry_entries_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Registry_entries_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Registry_entries_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Registry_entries_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Registry_entries_Results) Entries() (Registry_Entry_List, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return Registry_Entry_List(p.List()), err
+	p, err := s.Struct.Ptr(0)
+	return Registry_Entry_List{List: p.List()}, err
 }
 
 func (s Registry_entries_Results) HasEntries() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Registry_entries_Results) SetEntries(v Registry_Entry_List) error {
-	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+	return s.Struct.SetPtr(0, v.List.ToPtr())
 }
 
 // NewEntries sets the entries field to a newly
 // allocated Registry_Entry_List, preferring placement in s's segment.
 func (s Registry_entries_Results) NewEntries(n int32) (Registry_Entry_List, error) {
-	l, err := NewRegistry_Entry_List(capnp.Struct(s).Segment(), n)
+	l, err := NewRegistry_Entry_List(s.Struct.Segment(), n)
 	if err != nil {
 		return Registry_Entry_List{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	err = s.Struct.SetPtr(0, l.List.ToPtr())
 	return l, err
 }
 
 // Registry_entries_Results_List is a list of Registry_entries_Results.
-type Registry_entries_Results_List = capnp.StructList[Registry_entries_Results]
+type Registry_entries_Results_List struct{ capnp.List }
 
 // NewRegistry_entries_Results creates a new list of Registry_entries_Results.
 func NewRegistry_entries_Results_List(s *capnp.Segment, sz int32) (Registry_entries_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Registry_entries_Results](l), err
+	return Registry_entries_Results_List{l}, err
+}
+
+func (s Registry_entries_Results_List) At(i int) Registry_entries_Results {
+	return Registry_entries_Results{s.List.Struct(i)}
+}
+
+func (s Registry_entries_Results_List) Set(i int, v Registry_entries_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Registry_entries_Results_List) String() string {
+	str, _ := text.MarshalList(0xe4eaf56eb486064d, s.List)
+	return str
 }
 
 // Registry_entries_Results_Future is a wrapper for a Registry_entries_Results promised by a client call.
 type Registry_entries_Results_Future struct{ *capnp.Future }
 
-func (f Registry_entries_Results_Future) Struct() (Registry_entries_Results, error) {
-	p, err := f.Future.Ptr()
-	return Registry_entries_Results(p.Struct()), err
+func (p Registry_entries_Results_Future) Struct() (Registry_entries_Results, error) {
+	s, err := p.Future.Struct()
+	return Registry_entries_Results{s}, err
 }
 
-type Registrar capnp.Client
+type Registrar struct{ Client *capnp.Client }
 
 // Registrar_TypeID is the unique identifier for the type Registrar.
 const Registrar_TypeID = 0xabaef93c36f2d1ea
@@ -2080,9 +1804,9 @@ func (c Registrar) Register(ctx context.Context, params func(Registrar_RegParams
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 4}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Registrar_RegParams(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Registrar_RegParams{Struct: s}) }
 	}
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Registrar_register_Results_Future{Future: ans.Future()}, release
 }
 func (c Registrar) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
@@ -2096,78 +1820,23 @@ func (c Registrar) Info(ctx context.Context, params func(common.Identifiable_inf
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params{Struct: s}) }
 	}
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
 }
 
-// String returns a string that identifies this capability for debugging
-// purposes.  Its format should not be depended on: in particular, it
-// should not be used to compare clients.  Use IsSame to compare clients
-// for equality.
-func (c Registrar) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
-}
-
-// AddRef creates a new Client that refers to the same capability as c.
-// If c is nil or has resolved to null, then AddRef returns nil.
 func (c Registrar) AddRef() Registrar {
-	return Registrar(capnp.Client(c).AddRef())
+	return Registrar{
+		Client: c.Client.AddRef(),
+	}
 }
 
-// Release releases a capability reference.  If this is the last
-// reference to the capability, then the underlying resources associated
-// with the capability will be released.
-//
-// Release will panic if c has already been released, but not if c is
-// nil or resolved to null.
 func (c Registrar) Release() {
-	capnp.Client(c).Release()
+	c.Client.Release()
 }
 
-// Resolve blocks until the capability is fully resolved or the Context
-// expires.
-func (c Registrar) Resolve(ctx context.Context) error {
-	return capnp.Client(c).Resolve(ctx)
-}
-
-func (c Registrar) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Client(c).EncodeAsPtr(seg)
-}
-
-func (Registrar) DecodeFromPtr(p capnp.Ptr) Registrar {
-	return Registrar(capnp.Client{}.DecodeFromPtr(p))
-}
-
-// IsValid reports whether c is a valid reference to a capability.
-// A reference is invalid if it is nil, has resolved to null, or has
-// been released.
-func (c Registrar) IsValid() bool {
-	return capnp.Client(c).IsValid()
-}
-
-// IsSame reports whether c and other refer to a capability created by the
-// same call to NewClient.  This can return false negatives if c or other
-// are not fully resolved: use Resolve if this is an issue.  If either
-// c or other are released, then IsSame panics.
-func (c Registrar) IsSame(other Registrar) bool {
-	return capnp.Client(c).IsSame(capnp.Client(other))
-}
-
-// Update the flowcontrol.FlowLimiter used to manage flow control for
-// this client. This affects all future calls, but not calls already
-// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
-// which is also the default.
-func (c Registrar) SetFlowLimiter(lim fc.FlowLimiter) {
-	capnp.Client(c).SetFlowLimiter(lim)
-}
-
-// Get the current flowcontrol.FlowLimiter used to manage flow control
-// for this client.
-func (c Registrar) GetFlowLimiter() fc.FlowLimiter {
-	return capnp.Client(c).GetFlowLimiter()
-} // A Registrar_Server is a Registrar with a local implementation.
+// A Registrar_Server is a Registrar with a local implementation.
 type Registrar_Server interface {
 	Register(context.Context, Registrar_register) error
 
@@ -2175,15 +1844,15 @@ type Registrar_Server interface {
 }
 
 // Registrar_NewServer creates a new Server from an implementation of Registrar_Server.
-func Registrar_NewServer(s Registrar_Server) *server.Server {
+func Registrar_NewServer(s Registrar_Server, policy *server.Policy) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(Registrar_Methods(nil, s), s, c)
+	return server.New(Registrar_Methods(nil, s), s, c, policy)
 }
 
 // Registrar_ServerToClient creates a new Client from an implementation of Registrar_Server.
 // The caller is responsible for calling Release on the returned Client.
-func Registrar_ServerToClient(s Registrar_Server) Registrar {
-	return Registrar(capnp.NewClient(Registrar_NewServer(s)))
+func Registrar_ServerToClient(s Registrar_Server, policy *server.Policy) Registrar {
+	return Registrar{Client: capnp.NewClient(Registrar_NewServer(s, policy))}
 }
 
 // Registrar_Methods appends Methods to a slice that invoke the methods on s.
@@ -2228,497 +1897,679 @@ type Registrar_register struct {
 
 // Args returns the call's arguments.
 func (c Registrar_register) Args() Registrar_RegParams {
-	return Registrar_RegParams(c.Call.Args())
+	return Registrar_RegParams{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Registrar_register) AllocResults() (Registrar_register_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Registrar_register_Results(r), err
+	return Registrar_register_Results{Struct: r}, err
 }
 
-// Registrar_List is a list of Registrar.
-type Registrar_List = capnp.CapList[Registrar]
-
-// NewRegistrar creates a new list of Registrar.
-func NewRegistrar_List(s *capnp.Segment, sz int32) (Registrar_List, error) {
-	l, err := capnp.NewPointerList(s, sz)
-	return capnp.CapList[Registrar](l), err
-}
-
-type Registrar_CrossDomainRestore capnp.Struct
+type Registrar_CrossDomainRestore struct{ capnp.Struct }
 
 // Registrar_CrossDomainRestore_TypeID is the unique identifier for the type Registrar_CrossDomainRestore.
 const Registrar_CrossDomainRestore_TypeID = 0xaa1198dd7e71b20e
 
 func NewRegistrar_CrossDomainRestore(s *capnp.Segment) (Registrar_CrossDomainRestore, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Registrar_CrossDomainRestore(st), err
+	return Registrar_CrossDomainRestore{st}, err
 }
 
 func NewRootRegistrar_CrossDomainRestore(s *capnp.Segment) (Registrar_CrossDomainRestore, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Registrar_CrossDomainRestore(st), err
+	return Registrar_CrossDomainRestore{st}, err
 }
 
 func ReadRootRegistrar_CrossDomainRestore(msg *capnp.Message) (Registrar_CrossDomainRestore, error) {
 	root, err := msg.Root()
-	return Registrar_CrossDomainRestore(root.Struct()), err
+	return Registrar_CrossDomainRestore{root.Struct()}, err
 }
 
 func (s Registrar_CrossDomainRestore) String() string {
-	str, _ := text.Marshal(0xaa1198dd7e71b20e, capnp.Struct(s))
+	str, _ := text.Marshal(0xaa1198dd7e71b20e, s.Struct)
 	return str
 }
 
-func (s Registrar_CrossDomainRestore) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Registrar_CrossDomainRestore) DecodeFromPtr(p capnp.Ptr) Registrar_CrossDomainRestore {
-	return Registrar_CrossDomainRestore(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Registrar_CrossDomainRestore) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Registrar_CrossDomainRestore) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Registrar_CrossDomainRestore) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Registrar_CrossDomainRestore) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Registrar_CrossDomainRestore) VatId() (persistence.VatId, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return persistence.VatId(p.Struct()), err
+	p, err := s.Struct.Ptr(0)
+	return persistence.VatId{Struct: p.Struct()}, err
 }
 
 func (s Registrar_CrossDomainRestore) HasVatId() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Registrar_CrossDomainRestore) SetVatId(v persistence.VatId) error {
-	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewVatId sets the vatId field to a newly
 // allocated persistence.VatId struct, preferring placement in s's segment.
 func (s Registrar_CrossDomainRestore) NewVatId() (persistence.VatId, error) {
-	ss, err := persistence.NewVatId(capnp.Struct(s).Segment())
+	ss, err := persistence.NewVatId(s.Struct.Segment())
 	if err != nil {
 		return persistence.VatId{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
 	return ss, err
 }
 
 func (s Registrar_CrossDomainRestore) Restorer() persistence.Restorer {
-	p, _ := capnp.Struct(s).Ptr(1)
-	return persistence.Restorer(p.Interface().Client())
+	p, _ := s.Struct.Ptr(1)
+	return persistence.Restorer{Client: p.Interface().Client()}
 }
 
 func (s Registrar_CrossDomainRestore) HasRestorer() bool {
-	return capnp.Struct(s).HasPtr(1)
+	return s.Struct.HasPtr(1)
 }
 
 func (s Registrar_CrossDomainRestore) SetRestorer(v persistence.Restorer) error {
-	if !v.IsValid() {
-		return capnp.Struct(s).SetPtr(1, capnp.Ptr{})
+	if !v.Client.IsValid() {
+		return s.Struct.SetPtr(1, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
-	return capnp.Struct(s).SetPtr(1, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
+	return s.Struct.SetPtr(1, in.ToPtr())
 }
 
 // Registrar_CrossDomainRestore_List is a list of Registrar_CrossDomainRestore.
-type Registrar_CrossDomainRestore_List = capnp.StructList[Registrar_CrossDomainRestore]
+type Registrar_CrossDomainRestore_List struct{ capnp.List }
 
 // NewRegistrar_CrossDomainRestore creates a new list of Registrar_CrossDomainRestore.
 func NewRegistrar_CrossDomainRestore_List(s *capnp.Segment, sz int32) (Registrar_CrossDomainRestore_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
-	return capnp.StructList[Registrar_CrossDomainRestore](l), err
+	return Registrar_CrossDomainRestore_List{l}, err
+}
+
+func (s Registrar_CrossDomainRestore_List) At(i int) Registrar_CrossDomainRestore {
+	return Registrar_CrossDomainRestore{s.List.Struct(i)}
+}
+
+func (s Registrar_CrossDomainRestore_List) Set(i int, v Registrar_CrossDomainRestore) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Registrar_CrossDomainRestore_List) String() string {
+	str, _ := text.MarshalList(0xaa1198dd7e71b20e, s.List)
+	return str
 }
 
 // Registrar_CrossDomainRestore_Future is a wrapper for a Registrar_CrossDomainRestore promised by a client call.
 type Registrar_CrossDomainRestore_Future struct{ *capnp.Future }
 
-func (f Registrar_CrossDomainRestore_Future) Struct() (Registrar_CrossDomainRestore, error) {
-	p, err := f.Future.Ptr()
-	return Registrar_CrossDomainRestore(p.Struct()), err
+func (p Registrar_CrossDomainRestore_Future) Struct() (Registrar_CrossDomainRestore, error) {
+	s, err := p.Future.Struct()
+	return Registrar_CrossDomainRestore{s}, err
 }
+
 func (p Registrar_CrossDomainRestore_Future) VatId() persistence.VatId_Future {
 	return persistence.VatId_Future{Future: p.Future.Field(0, nil)}
 }
+
 func (p Registrar_CrossDomainRestore_Future) Restorer() persistence.Restorer {
-	return persistence.Restorer(p.Future.Field(1, nil).Client())
+	return persistence.Restorer{Client: p.Future.Field(1, nil).Client()}
 }
 
-type Registrar_RegParams capnp.Struct
+type Registrar_RegParams struct{ capnp.Struct }
 
 // Registrar_RegParams_TypeID is the unique identifier for the type Registrar_RegParams.
 const Registrar_RegParams_TypeID = 0xe5a84717ea75fb0d
 
 func NewRegistrar_RegParams(s *capnp.Segment) (Registrar_RegParams, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 4})
-	return Registrar_RegParams(st), err
+	return Registrar_RegParams{st}, err
 }
 
 func NewRootRegistrar_RegParams(s *capnp.Segment) (Registrar_RegParams, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 4})
-	return Registrar_RegParams(st), err
+	return Registrar_RegParams{st}, err
 }
 
 func ReadRootRegistrar_RegParams(msg *capnp.Message) (Registrar_RegParams, error) {
 	root, err := msg.Root()
-	return Registrar_RegParams(root.Struct()), err
+	return Registrar_RegParams{root.Struct()}, err
 }
 
 func (s Registrar_RegParams) String() string {
-	str, _ := text.Marshal(0xe5a84717ea75fb0d, capnp.Struct(s))
+	str, _ := text.Marshal(0xe5a84717ea75fb0d, s.Struct)
 	return str
 }
 
-func (s Registrar_RegParams) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Registrar_RegParams) DecodeFromPtr(p capnp.Ptr) Registrar_RegParams {
-	return Registrar_RegParams(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Registrar_RegParams) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Registrar_RegParams) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Registrar_RegParams) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Registrar_RegParams) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Registrar_RegParams) Cap() common.Identifiable {
-	p, _ := capnp.Struct(s).Ptr(0)
-	return common.Identifiable(p.Interface().Client())
+	p, _ := s.Struct.Ptr(0)
+	return common.Identifiable{Client: p.Interface().Client()}
 }
 
 func (s Registrar_RegParams) HasCap() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Registrar_RegParams) SetCap(v common.Identifiable) error {
-	if !v.IsValid() {
-		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
+	if !v.Client.IsValid() {
+		return s.Struct.SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
-	return capnp.Struct(s).SetPtr(0, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
+	return s.Struct.SetPtr(0, in.ToPtr())
 }
 
 func (s Registrar_RegParams) RegName() (string, error) {
-	p, err := capnp.Struct(s).Ptr(1)
+	p, err := s.Struct.Ptr(1)
 	return p.Text(), err
 }
 
 func (s Registrar_RegParams) HasRegName() bool {
-	return capnp.Struct(s).HasPtr(1)
+	return s.Struct.HasPtr(1)
 }
 
 func (s Registrar_RegParams) RegNameBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(1)
+	p, err := s.Struct.Ptr(1)
 	return p.TextBytes(), err
 }
 
 func (s Registrar_RegParams) SetRegName(v string) error {
-	return capnp.Struct(s).SetText(1, v)
+	return s.Struct.SetText(1, v)
 }
 
 func (s Registrar_RegParams) CategoryId() (string, error) {
-	p, err := capnp.Struct(s).Ptr(2)
+	p, err := s.Struct.Ptr(2)
 	return p.Text(), err
 }
 
 func (s Registrar_RegParams) HasCategoryId() bool {
-	return capnp.Struct(s).HasPtr(2)
+	return s.Struct.HasPtr(2)
 }
 
 func (s Registrar_RegParams) CategoryIdBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(2)
+	p, err := s.Struct.Ptr(2)
 	return p.TextBytes(), err
 }
 
 func (s Registrar_RegParams) SetCategoryId(v string) error {
-	return capnp.Struct(s).SetText(2, v)
+	return s.Struct.SetText(2, v)
 }
 
 func (s Registrar_RegParams) XDomain() (Registrar_CrossDomainRestore, error) {
-	p, err := capnp.Struct(s).Ptr(3)
-	return Registrar_CrossDomainRestore(p.Struct()), err
+	p, err := s.Struct.Ptr(3)
+	return Registrar_CrossDomainRestore{Struct: p.Struct()}, err
 }
 
 func (s Registrar_RegParams) HasXDomain() bool {
-	return capnp.Struct(s).HasPtr(3)
+	return s.Struct.HasPtr(3)
 }
 
 func (s Registrar_RegParams) SetXDomain(v Registrar_CrossDomainRestore) error {
-	return capnp.Struct(s).SetPtr(3, capnp.Struct(v).ToPtr())
+	return s.Struct.SetPtr(3, v.Struct.ToPtr())
 }
 
 // NewXDomain sets the xDomain field to a newly
 // allocated Registrar_CrossDomainRestore struct, preferring placement in s's segment.
 func (s Registrar_RegParams) NewXDomain() (Registrar_CrossDomainRestore, error) {
-	ss, err := NewRegistrar_CrossDomainRestore(capnp.Struct(s).Segment())
+	ss, err := NewRegistrar_CrossDomainRestore(s.Struct.Segment())
 	if err != nil {
 		return Registrar_CrossDomainRestore{}, err
 	}
-	err = capnp.Struct(s).SetPtr(3, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(3, ss.Struct.ToPtr())
 	return ss, err
 }
 
 // Registrar_RegParams_List is a list of Registrar_RegParams.
-type Registrar_RegParams_List = capnp.StructList[Registrar_RegParams]
+type Registrar_RegParams_List struct{ capnp.List }
 
 // NewRegistrar_RegParams creates a new list of Registrar_RegParams.
 func NewRegistrar_RegParams_List(s *capnp.Segment, sz int32) (Registrar_RegParams_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 4}, sz)
-	return capnp.StructList[Registrar_RegParams](l), err
+	return Registrar_RegParams_List{l}, err
+}
+
+func (s Registrar_RegParams_List) At(i int) Registrar_RegParams {
+	return Registrar_RegParams{s.List.Struct(i)}
+}
+
+func (s Registrar_RegParams_List) Set(i int, v Registrar_RegParams) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Registrar_RegParams_List) String() string {
+	str, _ := text.MarshalList(0xe5a84717ea75fb0d, s.List)
+	return str
 }
 
 // Registrar_RegParams_Future is a wrapper for a Registrar_RegParams promised by a client call.
 type Registrar_RegParams_Future struct{ *capnp.Future }
 
-func (f Registrar_RegParams_Future) Struct() (Registrar_RegParams, error) {
-	p, err := f.Future.Ptr()
-	return Registrar_RegParams(p.Struct()), err
+func (p Registrar_RegParams_Future) Struct() (Registrar_RegParams, error) {
+	s, err := p.Future.Struct()
+	return Registrar_RegParams{s}, err
 }
+
 func (p Registrar_RegParams_Future) Cap() common.Identifiable {
-	return common.Identifiable(p.Future.Field(0, nil).Client())
+	return common.Identifiable{Client: p.Future.Field(0, nil).Client()}
 }
 
 func (p Registrar_RegParams_Future) XDomain() Registrar_CrossDomainRestore_Future {
 	return Registrar_CrossDomainRestore_Future{Future: p.Future.Field(3, nil)}
 }
 
-type Registrar_register_Results capnp.Struct
+type Registrar_Unregister struct{ Client *capnp.Client }
+
+// Registrar_Unregister_TypeID is the unique identifier for the type Registrar_Unregister.
+const Registrar_Unregister_TypeID = 0xc7597e4462528489
+
+func (c Registrar_Unregister) Unregister(ctx context.Context, params func(Registrar_Unregister_unregister_Params) error) (Registrar_Unregister_unregister_Results_Future, capnp.ReleaseFunc) {
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0xc7597e4462528489,
+			MethodID:      0,
+			InterfaceName: "registry.capnp:Registrar.Unregister",
+			MethodName:    "unregister",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Registrar_Unregister_unregister_Params{Struct: s}) }
+	}
+	ans, release := c.Client.SendCall(ctx, s)
+	return Registrar_Unregister_unregister_Results_Future{Future: ans.Future()}, release
+}
+
+func (c Registrar_Unregister) AddRef() Registrar_Unregister {
+	return Registrar_Unregister{
+		Client: c.Client.AddRef(),
+	}
+}
+
+func (c Registrar_Unregister) Release() {
+	c.Client.Release()
+}
+
+// A Registrar_Unregister_Server is a Registrar_Unregister with a local implementation.
+type Registrar_Unregister_Server interface {
+	Unregister(context.Context, Registrar_Unregister_unregister) error
+}
+
+// Registrar_Unregister_NewServer creates a new Server from an implementation of Registrar_Unregister_Server.
+func Registrar_Unregister_NewServer(s Registrar_Unregister_Server, policy *server.Policy) *server.Server {
+	c, _ := s.(server.Shutdowner)
+	return server.New(Registrar_Unregister_Methods(nil, s), s, c, policy)
+}
+
+// Registrar_Unregister_ServerToClient creates a new Client from an implementation of Registrar_Unregister_Server.
+// The caller is responsible for calling Release on the returned Client.
+func Registrar_Unregister_ServerToClient(s Registrar_Unregister_Server, policy *server.Policy) Registrar_Unregister {
+	return Registrar_Unregister{Client: capnp.NewClient(Registrar_Unregister_NewServer(s, policy))}
+}
+
+// Registrar_Unregister_Methods appends Methods to a slice that invoke the methods on s.
+// This can be used to create a more complicated Server.
+func Registrar_Unregister_Methods(methods []server.Method, s Registrar_Unregister_Server) []server.Method {
+	if cap(methods) == 0 {
+		methods = make([]server.Method, 0, 1)
+	}
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
+			InterfaceID:   0xc7597e4462528489,
+			MethodID:      0,
+			InterfaceName: "registry.capnp:Registrar.Unregister",
+			MethodName:    "unregister",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.Unregister(ctx, Registrar_Unregister_unregister{call})
+		},
+	})
+
+	return methods
+}
+
+// Registrar_Unregister_unregister holds the state for a server call to Registrar_Unregister.unregister.
+// See server.Call for documentation.
+type Registrar_Unregister_unregister struct {
+	*server.Call
+}
+
+// Args returns the call's arguments.
+func (c Registrar_Unregister_unregister) Args() Registrar_Unregister_unregister_Params {
+	return Registrar_Unregister_unregister_Params{Struct: c.Call.Args()}
+}
+
+// AllocResults allocates the results struct.
+func (c Registrar_Unregister_unregister) AllocResults() (Registrar_Unregister_unregister_Results, error) {
+	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 8, PointerCount: 0})
+	return Registrar_Unregister_unregister_Results{Struct: r}, err
+}
+
+type Registrar_Unregister_unregister_Params struct{ capnp.Struct }
+
+// Registrar_Unregister_unregister_Params_TypeID is the unique identifier for the type Registrar_Unregister_unregister_Params.
+const Registrar_Unregister_unregister_Params_TypeID = 0xd023a1df5e372a7e
+
+func NewRegistrar_Unregister_unregister_Params(s *capnp.Segment) (Registrar_Unregister_unregister_Params, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	return Registrar_Unregister_unregister_Params{st}, err
+}
+
+func NewRootRegistrar_Unregister_unregister_Params(s *capnp.Segment) (Registrar_Unregister_unregister_Params, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	return Registrar_Unregister_unregister_Params{st}, err
+}
+
+func ReadRootRegistrar_Unregister_unregister_Params(msg *capnp.Message) (Registrar_Unregister_unregister_Params, error) {
+	root, err := msg.Root()
+	return Registrar_Unregister_unregister_Params{root.Struct()}, err
+}
+
+func (s Registrar_Unregister_unregister_Params) String() string {
+	str, _ := text.Marshal(0xd023a1df5e372a7e, s.Struct)
+	return str
+}
+
+// Registrar_Unregister_unregister_Params_List is a list of Registrar_Unregister_unregister_Params.
+type Registrar_Unregister_unregister_Params_List struct{ capnp.List }
+
+// NewRegistrar_Unregister_unregister_Params creates a new list of Registrar_Unregister_unregister_Params.
+func NewRegistrar_Unregister_unregister_Params_List(s *capnp.Segment, sz int32) (Registrar_Unregister_unregister_Params_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
+	return Registrar_Unregister_unregister_Params_List{l}, err
+}
+
+func (s Registrar_Unregister_unregister_Params_List) At(i int) Registrar_Unregister_unregister_Params {
+	return Registrar_Unregister_unregister_Params{s.List.Struct(i)}
+}
+
+func (s Registrar_Unregister_unregister_Params_List) Set(i int, v Registrar_Unregister_unregister_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Registrar_Unregister_unregister_Params_List) String() string {
+	str, _ := text.MarshalList(0xd023a1df5e372a7e, s.List)
+	return str
+}
+
+// Registrar_Unregister_unregister_Params_Future is a wrapper for a Registrar_Unregister_unregister_Params promised by a client call.
+type Registrar_Unregister_unregister_Params_Future struct{ *capnp.Future }
+
+func (p Registrar_Unregister_unregister_Params_Future) Struct() (Registrar_Unregister_unregister_Params, error) {
+	s, err := p.Future.Struct()
+	return Registrar_Unregister_unregister_Params{s}, err
+}
+
+type Registrar_Unregister_unregister_Results struct{ capnp.Struct }
+
+// Registrar_Unregister_unregister_Results_TypeID is the unique identifier for the type Registrar_Unregister_unregister_Results.
+const Registrar_Unregister_unregister_Results_TypeID = 0xa19166b9981b0854
+
+func NewRegistrar_Unregister_unregister_Results(s *capnp.Segment) (Registrar_Unregister_unregister_Results, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
+	return Registrar_Unregister_unregister_Results{st}, err
+}
+
+func NewRootRegistrar_Unregister_unregister_Results(s *capnp.Segment) (Registrar_Unregister_unregister_Results, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
+	return Registrar_Unregister_unregister_Results{st}, err
+}
+
+func ReadRootRegistrar_Unregister_unregister_Results(msg *capnp.Message) (Registrar_Unregister_unregister_Results, error) {
+	root, err := msg.Root()
+	return Registrar_Unregister_unregister_Results{root.Struct()}, err
+}
+
+func (s Registrar_Unregister_unregister_Results) String() string {
+	str, _ := text.Marshal(0xa19166b9981b0854, s.Struct)
+	return str
+}
+
+func (s Registrar_Unregister_unregister_Results) Success() bool {
+	return s.Struct.Bit(0)
+}
+
+func (s Registrar_Unregister_unregister_Results) SetSuccess(v bool) {
+	s.Struct.SetBit(0, v)
+}
+
+// Registrar_Unregister_unregister_Results_List is a list of Registrar_Unregister_unregister_Results.
+type Registrar_Unregister_unregister_Results_List struct{ capnp.List }
+
+// NewRegistrar_Unregister_unregister_Results creates a new list of Registrar_Unregister_unregister_Results.
+func NewRegistrar_Unregister_unregister_Results_List(s *capnp.Segment, sz int32) (Registrar_Unregister_unregister_Results_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0}, sz)
+	return Registrar_Unregister_unregister_Results_List{l}, err
+}
+
+func (s Registrar_Unregister_unregister_Results_List) At(i int) Registrar_Unregister_unregister_Results {
+	return Registrar_Unregister_unregister_Results{s.List.Struct(i)}
+}
+
+func (s Registrar_Unregister_unregister_Results_List) Set(i int, v Registrar_Unregister_unregister_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Registrar_Unregister_unregister_Results_List) String() string {
+	str, _ := text.MarshalList(0xa19166b9981b0854, s.List)
+	return str
+}
+
+// Registrar_Unregister_unregister_Results_Future is a wrapper for a Registrar_Unregister_unregister_Results promised by a client call.
+type Registrar_Unregister_unregister_Results_Future struct{ *capnp.Future }
+
+func (p Registrar_Unregister_unregister_Results_Future) Struct() (Registrar_Unregister_unregister_Results, error) {
+	s, err := p.Future.Struct()
+	return Registrar_Unregister_unregister_Results{s}, err
+}
+
+type Registrar_register_Results struct{ capnp.Struct }
 
 // Registrar_register_Results_TypeID is the unique identifier for the type Registrar_register_Results.
 const Registrar_register_Results_TypeID = 0xb2a9b080f0c4013c
 
 func NewRegistrar_register_Results(s *capnp.Segment) (Registrar_register_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Registrar_register_Results(st), err
+	return Registrar_register_Results{st}, err
 }
 
 func NewRootRegistrar_register_Results(s *capnp.Segment) (Registrar_register_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Registrar_register_Results(st), err
+	return Registrar_register_Results{st}, err
 }
 
 func ReadRootRegistrar_register_Results(msg *capnp.Message) (Registrar_register_Results, error) {
 	root, err := msg.Root()
-	return Registrar_register_Results(root.Struct()), err
+	return Registrar_register_Results{root.Struct()}, err
 }
 
 func (s Registrar_register_Results) String() string {
-	str, _ := text.Marshal(0xb2a9b080f0c4013c, capnp.Struct(s))
+	str, _ := text.Marshal(0xb2a9b080f0c4013c, s.Struct)
 	return str
 }
 
-func (s Registrar_register_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Registrar_register_Results) DecodeFromPtr(p capnp.Ptr) Registrar_register_Results {
-	return Registrar_register_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Registrar_register_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Registrar_register_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Registrar_register_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Registrar_register_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-func (s Registrar_register_Results) Unreg() common.Action {
-	p, _ := capnp.Struct(s).Ptr(0)
-	return common.Action(p.Interface().Client())
+func (s Registrar_register_Results) Unreg() Registrar_Unregister {
+	p, _ := s.Struct.Ptr(0)
+	return Registrar_Unregister{Client: p.Interface().Client()}
 }
 
 func (s Registrar_register_Results) HasUnreg() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
-func (s Registrar_register_Results) SetUnreg(v common.Action) error {
-	if !v.IsValid() {
-		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
+func (s Registrar_register_Results) SetUnreg(v Registrar_Unregister) error {
+	if !v.Client.IsValid() {
+		return s.Struct.SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
-	return capnp.Struct(s).SetPtr(0, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
+	return s.Struct.SetPtr(0, in.ToPtr())
 }
 
 func (s Registrar_register_Results) ReregSR() (persistence.SturdyRef, error) {
-	p, err := capnp.Struct(s).Ptr(1)
-	return persistence.SturdyRef(p.Struct()), err
+	p, err := s.Struct.Ptr(1)
+	return persistence.SturdyRef{Struct: p.Struct()}, err
 }
 
 func (s Registrar_register_Results) HasReregSR() bool {
-	return capnp.Struct(s).HasPtr(1)
+	return s.Struct.HasPtr(1)
 }
 
 func (s Registrar_register_Results) SetReregSR(v persistence.SturdyRef) error {
-	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
+	return s.Struct.SetPtr(1, v.Struct.ToPtr())
 }
 
 // NewReregSR sets the reregSR field to a newly
 // allocated persistence.SturdyRef struct, preferring placement in s's segment.
 func (s Registrar_register_Results) NewReregSR() (persistence.SturdyRef, error) {
-	ss, err := persistence.NewSturdyRef(capnp.Struct(s).Segment())
+	ss, err := persistence.NewSturdyRef(s.Struct.Segment())
 	if err != nil {
 		return persistence.SturdyRef{}, err
 	}
-	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(1, ss.Struct.ToPtr())
 	return ss, err
 }
 
 // Registrar_register_Results_List is a list of Registrar_register_Results.
-type Registrar_register_Results_List = capnp.StructList[Registrar_register_Results]
+type Registrar_register_Results_List struct{ capnp.List }
 
 // NewRegistrar_register_Results creates a new list of Registrar_register_Results.
 func NewRegistrar_register_Results_List(s *capnp.Segment, sz int32) (Registrar_register_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
-	return capnp.StructList[Registrar_register_Results](l), err
+	return Registrar_register_Results_List{l}, err
+}
+
+func (s Registrar_register_Results_List) At(i int) Registrar_register_Results {
+	return Registrar_register_Results{s.List.Struct(i)}
+}
+
+func (s Registrar_register_Results_List) Set(i int, v Registrar_register_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Registrar_register_Results_List) String() string {
+	str, _ := text.MarshalList(0xb2a9b080f0c4013c, s.List)
+	return str
 }
 
 // Registrar_register_Results_Future is a wrapper for a Registrar_register_Results promised by a client call.
 type Registrar_register_Results_Future struct{ *capnp.Future }
 
-func (f Registrar_register_Results_Future) Struct() (Registrar_register_Results, error) {
-	p, err := f.Future.Ptr()
-	return Registrar_register_Results(p.Struct()), err
+func (p Registrar_register_Results_Future) Struct() (Registrar_register_Results, error) {
+	s, err := p.Future.Struct()
+	return Registrar_register_Results{s}, err
 }
-func (p Registrar_register_Results_Future) Unreg() common.Action {
-	return common.Action(p.Future.Field(0, nil).Client())
+
+func (p Registrar_register_Results_Future) Unreg() Registrar_Unregister {
+	return Registrar_Unregister{Client: p.Future.Field(0, nil).Client()}
 }
 
 func (p Registrar_register_Results_Future) ReregSR() persistence.SturdyRef_Future {
 	return persistence.SturdyRef_Future{Future: p.Future.Field(1, nil)}
 }
 
-const schema_fe1be0c39c7e8269 = "x\xda\xb4Wkl\x14\xd7\x15>g\xee\xda\xeb]\xef" +
-	"\xebvM\x81\"d\xd1\xba\xe2!py\xb9-\xc8\xc8" +
-	"k\x1b\x0b\xdb\xad\xc1w\xa1\x0f\xac>\x18\xaf\x07\xb3\xc8" +
-	"\xbbk\xcf\xccRL\x85\x0d\x85BQ\x05\x11\xf9\x11%" +
-	"\x04D \x8a\x14\x1e\x09\xd8\x82((!(\x10\x94\x00" +
-	"\x8a\"\x0b\x1cB\x10(\x8e\x12\"\xf1\x83$\x10\xc8\x83" +
-	"\x84\x89\xee\x9d\x9d\xd9\xf1\xfa\x01\x91\x92\x7f\x869\xf7\x9c" +
-	"\xf3}\xf7\xfb\xce=;\xf3\x8e+\xe2\x9a\xe5\xff\x1d\x05" +
-	"\x89\xbd\x95\x97o\xecy\xb5\xb6w`\xd3\xcf\xb6\x01\x1d" +
-	"\x87\x00y\xe8\x06\x98\xb3\xb1\xa0\x19\x01\xc3\xdb\x0b*\x00" +
-	"\x8d3W\x9b6\xf8\xfaO\xed\x00:\x86\x07H<\xa0" +
-	"\xa7\xa0\x8a\x07\x9c(\xf8\x17\xa0\xf1\xec@\xd7\xad\xae\x9e" +
-	"\xe7\x9e\xc8\x04\x88\x0cS=Q\x1eP\xe6\xe1\x19\x9e>" +
-	"=\xf7\x1f7n\xd4\xed6K\xb8\xf8\xf7\xb8g\x17\x82" +
-	"\xcb\xf8\xe6,\x93;\x96~\xbb\xd7Y|\xb9g>?" +
-	"*\x8b\xa3\xc7\xfc\xaf\xfc9\xff\xde\xe3\xcf8s\xff\xd7" +
-	"\xd3\xc4\x03v\x8a\x80\xbc\xc7\xdaBd\xdf\xe1\x03\xce\x80" +
-	"\xb3\x1e\xd1~\x9f\x08\x08\xf4vt]{\x92\x1e\x04:" +
-	"\x1e\x8d\x9b}\xb7\x7f[\xfe\xf5\x8b\x8720\xf2\xbc\xcd" +
-	"\x18\x1e\xefu\x03\x84\xc7x9\x14\xfb;\x0d\x12#\xfe" +
-	"\x9f\xae\xddg>\x98\xf0\x00\x00\xc3i\xef\xf9\xf0F\xef" +
-	"d\x80\xf0>\xef\xa2\xf0\xdb\xde\xb1\x00F9\xbe\xf1\xd9" +
-	"\x86\xa3\x07zyf\x8b\x98\x93^\x81\xfb\x9c\xc8vt" +
-	"\xa6\xb6\xf1\xf8\x8aS\xbdNt\xbf.\xdc/\x88)\xe4" +
-	"\xbd\x1d/S\xd7\xfdf\xd3\x82\x93\xc0\xc6\xa0\xc5\x8cR" +
-	"X\xcf\x03:D@\xf8\xf0\x97>\xb6\xb5\xf3u\x9e\xc1" +
-	"xyN\xfe\x8a\xbe?\xfc\xfb<\xe4\x11\xde\xf1\xce\xc2" +
-	"\xdb\xe1=\x85\xfc\xaf\xa7\x0a\x8f\x80\xe3sn\xefe\xbe" +
-	"\xd3\xe1\x05\xbe\xb1\x00\xe1\x1a\xdf\x9b\xe1s\xfc/\xe3\xdd" +
-	"\xeb\x1bp\xc7\x84\xd7\xfa\x9d\x97z\xc2'x=\xeb\xe3" +
-	"\xbd\xff\xf3\x8b\x8b]\xbb.o}\xcf\xc9\xeb\x0c\xbfh" +
-	"m\x9e\x9f\xb7vo\xcb\xe6\x9e\xfb\x97~~5\xd3\xbb" +
-	"\x19\x91\xf0\x0b]\xa4\xfd<EC\xfe\x96c\xc9\xbb7" +
-	"?r\xc2\xef7\x03\xae\x89\x14\xfe\xfb\xe9\x9bc\x17=" +
-	"\xffq\xce\xd5\x08\x1a\xfc\x81_`xb\x80\xc3\x1b\x1f" +
-	"\xf8\x84s5i[\xd1;_M\xbfe6$b>" +
-	"\x0fL\xe3\"Z\xfc\x97\x95k~u\x87\xdc\x1d\x02\xfc" +
-	"J\xe0`x\x80\xa7\x98s-\xb0\x08\xc3'\x82\x1c\xf9" +
-	"\x0b\xdf\xad?\xf4\xe9\xf9\xe6\x07N`\x07\x82\xb3yW" +
-	"=\xc1\x0a0\xa0\xccP\x95\xd6\xb8\xa6\xab\x9d\xae\xd2\x98" +
-	"\xdc\x9el\x9f\x1f\xcd\xfc\xbb4&\xebJkJ\xed\xac" +
-	"K\xaeL\x954\xca\xaa[Nh\xccE\\\x00.\x04" +
-	"\xa0\xfe&\x00\xe6#\xc8\xc6IhX\xb1@\xeaZ\xd0" +
-	"\x07\x12\xfa\x00\x87d\xaelI\xc4\x93\xa5\x89\xd4\x1ae" +
-	"I\xf3j%\xa6k<\xab\x9c\xd0\x80\x15\xd8Y\xa7F" +
-	"\x01\xd8\x14\x82l\xa1\x84\x14\xb1\x88\xb3M+\xab\x00X" +
-	"9AV+\xa1\x91\x12g\xebZ\x005\x0c\x006\x12" +
-	"\x14\x05\x03\x80\xddz\xaaZ\xd6\x1f\xda\x80\xaa\x0ci\x01" +
-	"\x07\x01\x8bf\x80M\x19\xb5\x9a\x9d=/\x978-\xdd" +
-	"\xde\x9eRu\xa5\xa5\xdad%\xae\x98eHB\xb3\x0f" +
-	"\x91\xdcCJR\x17\x81\x15&'?\x02\xd1\x83qF" +
-	"\x15-\xddF\xf4A\x89\xd79\x80\x9a\xd1-K\xa0\xc2" +
-	"<`\xa1\xa5F\x7f\xed\xee\xe5\x17\xfa\x8e\xf4\x02\xe0 " +
-	"\xdc\xc3U\xcb \xee\x14\xe5\xdcm?E\xb9\x0cc\xb2" +
-	"ZZ\xad\xa64ma*!\xc7\x93QE\xd3\xdd)" +
-	"UiDt\x8ai6\x00+!\xc8f:\xc44\xa3" +
-	"\x1e\x80M'\xc8~/a\xf1\x1a\xa1\x97\x90\xb1\xbd\xef" +
-	"\xff\xfd\xfa\xdf\xbd\x03\xbchH\x14\xd5\xf4\x94\xaa\xa8\x00" +
-	"\x80\xd4(/\xbd2y\xf3\xa4\x97\xf6\xf2\xaf\xd4\xd1\x92" +
-	"\x94\xdb\x12\x00+@\xe7\x14\xf6\xecr\xf8\xde\x1f5\xac" +
-	"\x961\xd3s\x8a\xa8\x8a\x11UZ\xc5\xa5\x83\x90a\x1e" +
-	"\x80}\x06\xad\xa9Ki=H\xd4\xe3\xce\x94\x16\x8dE" +
-	"\x90\xb9\x10\x1d|\xc1(\\Y\xe7L\x1d\xe8\xa8=\x94" +
-	"\xa6\xaa\x8c\x11\xe7JX\x9cN\xaaJ+RckM" +
-	"\xf2\xf2\x99\x0f/\xed\xc9\x10\xd1\xad*\xaa\xd2\xba4\x8a" +
-	"!\xa3\xe1\xfa\xa6\x89\x93W%\xfe\x97%\xf0\x07\x98c" +
-	"8\xb1L\xe3\\\x12d%\x12\x06crV !\xe3" +
-	"\xe2\xfb\xe4\xc1\x85\xae\x0b\x97F\xd7\xa3\xdc\xd22H\x8c" +
-	"m\xba\x06\xe0,P\x95)P$a\xb7\x96\x8e\xc5\x14" +
-	"MC\x04\x09q\xe4\x0b\xee,-\xaeI\xeaj'W" +
-	"\x99\xcf\xceT\xc3\xfd\xb9\x90 kt\xd0\xd7\xf0K\x00" +
-	"VK\x90-\x93\x90JR\x11J\x00\x94qP\x7f$" +
-	"\xc8\xfe:\x82\x93\xdd\xaa\xb22\xc7\x02\x140\x98\x94\x13" +
-	"\xca\x10\xb3\xe7\xf6\x06B\x0d\xd97\x14g\x9b\xcd2\x9f" +
-	"\x90\x94\xb5\x96\xa0\xf5NS\xb6\x1f$\xda\xe0F\xb4\xb7" +
-	"\"\xb4\xa8\xa5\x95\xabA\xa2\xf3\xdc(\xd9K\x0bZ\x0f" +
-	"\x1cW\x86D'\xb9\x0d\xeb&\xd1\"\xda\x1dW\xb4\x88" +
-	"\x03X\x90\xbf\x1c\x11\xec\xce\x8c\xb6G\xd0\xeb\xb0\xa3$" +
-	"3:\x9d\x82m\xcaj\xd3f|\xd6i\x006\x97 " +
-	"\x8b\x8c4&\xadq(\xc5tmY\xca\xca\xcfg\xfb" +
-	"\xa3\xbfX\xc3J\xc99\xd8\xcc\xb1\xd6\xbc\x1a*\xc4\xbb" +
-	"1\xe2\xab1\xb2Z\x87y\x14\xeb\xb3x\x05\\D:" +
-	"k~v\x8ce\xe1\x02\xe4\x18$\x04X\x91n\xd7\x14" +
-	"U\x1f\"n\xd7HO\x90\x85q8\xb7\x94H\xf6}" +
-	"f\x1di\x8b.\xc7\x91d\xc8\x18\xca\x8c:\x92\xd0\xb8" +
-	"\x87Bv~\x99\xdb\xe5o\x04\xd9*\xc7\x8d*\xbc\xe8" +
-	"\x0a\x82\xac\xcd\xe1\xa18\xbf\xfbU\x04\x99.!%\xa4" +
-	"\x08\x09\x00\xed\xe0\x91m\x04\xd9Z\x09\xdd1\xb9}\xa8" +
-	"\x87\xbaU\xa5u\xb1\xd3F\xc3)\xa4{\xad\xf9\x9a`" +
-	"(;\xc2s\xe6\x19\xc9Q\xaa\xf9\xbf%\x8dr\x90_" +
-	"\x9a\x1d\x86VX\x90\xc7q\xacE\xc2\x85\xd6\x1e\x89\xd6" +
-	"2Lw6\x83D\xb7q\x17Z[*Z[>]" +
-	"\xbf\x0e$\x9a\xe6.\xb4~\x96\xa0\xb5\xa9\xd28?'" +
-	"\xbb\x91\xd8\xbfH\xd0\xfa\xf9@\xff\xa4\x9a\xcev\xd9{" +
-	"$Z\x8b \xad\xac\x17\xce6,\xc5\x81;\xa5vF" +
-	"\xac\x07\xb9Z\x86\x0a\x93\x97H\xd6/\xe0\x8e\xe9\x9a\x1d" +
-	"\xb2\xa4\x19\x8a\x85\x17\"YVF\x7f\x8dF\xe0,\xaa" +
-	"\x14\x0b\x9d9eV\xefXu\x1c\xc9\x91f\x17~\xf3" +
-	">\xbf\x0f\x00\x00\xff\xff(\x97\xfb5"
+const schema_fe1be0c39c7e8269 = "x\xda\xacWml[W\x19~\xdf{\xec\\\xdb\xb1" +
+	"c\x1fnBW*\x14e\xb3\xb4\xadZ\xb2~\x8d\xb1" +
+	"*\xc8N\x93)\x1f\x905\xc7k\x81Fl\xf4\xda\xb9" +
+	"I]\xc5vr\xefuY\x8a\xea\x14\xdanD\x88\xa1" +
+	"\"\x81\xa6R42\x14\x89\xec\x83-\xd1\x86\xf8\xd8\x98" +
+	"\xd61Mj\x7f@\xb4\x05\x18\xd3\x06\x91\xe8\x10\xfdQ" +
+	"hK\x0b\xa5\xb4w:\xf7\xfa~\xc4\x8e\xd3V\xea?" +
+	"'\xf79\xef9\xcfs\x9e\xf7\xe3l\xf0\xfb\x93\xc2F" +
+	"\xff\xbd1\x00\xf6\xaa\xbf\xce\xf8\xd1\xab=\xf3K\x87>" +
+	"1\x05\xf46\x04\xf0\xa3\x08\xb0\xf9\xaa\x98F@)\x18" +
+	"H\x00\x1ao\xbe?x0\xbc\xf8\xfa\x93@\x9b8@" +
+	"\xe0\x80\xd6\xc06\x0e\xb8/\xf05@\xe3'K\xa5\xb3" +
+	"\xa5\xb9\x99\x1f\x94\x01f\x84\x99@\x8a\x03\xe6\xcc\x08?" +
+	"<\xb1\xe5\xd1\x8f>\xea=nm\xe1\xe3\xdfO\x07\x8e" +
+	"!\xf8\x8c\xff\xbd\xc5\xe4\xf1\x87\xff\xff\xb4w\xf3\xc5\xc0" +
+	"V\xbe\xf4\x03s\xe9\xcb\x91_\x7f\xb1\xee\xd2\xf7~\xec" +
+	"\x8d\x8d\xc1A\x0e\x88\x049`G`\xddS\xbf\x1c>" +
+	":\x0d,\x8ev\xf0\x8e\xe0\xaf8\x80\x99\x00\xffwG" +
+	"cd\xfa\xf9Yo\x84\xf1\xa0\xc9\xef\x80\x09h\x98\x1f" +
+	"/}\xf0\x14}\x16\xe8Z4\xce,\x9c\xffL\xfb\xe5" +
+	"\x9f=W\xe69\x17L\xa3\xf4VP\x04\x90\xde\x08r" +
+	"\xae\xcew\x1a%F\xf6\x9b\xa5\xe3o\xfeu\xdd5\x00" +
+	"\x94ZB'\xa5\xd6\xd0\xfd\x00\xd2#\xa1ni*\xb4" +
+	"\x06\xc0h\xc7\xdf\xfe\xeb\xe0K\xb3\xf3<\xb2\xad\xdcD" +
+	"\xc8\x14\xe6H\x88G{i\x83\xf6\x8dWv\xbf>\xef" +
+	"\xa5\xbf\x14z\x86\x03\xce\x85\xf8\xd9^\xb9O\xdd\x7f\xef" +
+	"\xa1\xcf\xbd\x06\xac\xc9a\xd7R\xdf\xc7\x01\xad\xf5\x1c " +
+	"=\xff\x9f0{b\xe2\x0d\x1e\xc1\xf8\xc5\xe6\xba\xdd\x0b" +
+	"\x9f\xff\xfaI\xf0\x13~\xe2\xfe\xfa\xf3\xd2\xaez\xfek" +
+	"g\xfd\x8b\x80\xc6\xd4\xe1T\xba\xab\xb4\xebm\xa0k\x89" +
+	"K\x04p\xf3\xb9\xfa\xdbQ\xc20G^\xad\xef\x96\xee" +
+	"\xe6\xbf\xdc`\x95Li\xf8\x84\xb46\xbc\x06@j\x09" +
+	"\xbf-\xcd\xf0_Fi\xfd\xfd\x8f\xfee\xfa\x8e\xdf\x03" +
+	"\x8d\xdb\xc7\xfc~x\x9e\xdf\xf0\x1f><\x88O\xae\xfb" +
+	"\xcd\xa2\xd7=G\xc2\xe6\x05\x1e\x0ds\x0d\xbe\xfa\xefw" +
+	"J\xc7\xfe\xf8\xc4\x9f\xbc\xf7s9lR\xf4G8\xc5" +
+	"K\x8f\x1f\x9e\xbb\xf2\xee'\xdf/k`!\x1e\x88\x98" +
+	"\x06\xec\x88\xf0\x10\xfdu\x8f\xbf\x9c\xbfx\xe6o^\x19" +
+	"\xa7-\xc0\xac\x19\"r\xa5xfM\xf7OOW\\" +
+	"\xb1y\xce\xf7\"\x9fB\xe9\x1f\x11N\xfet\xe4\xef\\" +
+	"\xf3\x96\xa9\xc6\xdf\xfd\xf7\x9e\xb3\xd6\x81L\xcck\x0d\xeb" +
+	"9\x97\x87\xbe4\xbc\xef\x8e\x0b\xe4b\x95$3\x0d\xcf" +
+	"J/4p\xe4lC7JG\xa2\\\x93\x17\xae\x1e" +
+	"x\xee\x9f'\xd3\xd7\xbc\xc4\x8a\xd1M\xa6\xf1\xa2\x09\xb8" +
+	"`\xa8\xcaHV\xd3\xd5\x09_[F\x1e\xcb\x8fmM" +
+	"\x95\xffn\xcb\xc8\xba2RP'z\xf3\xc3\x85\xf8\x80" +
+	"\xac\x8arNc>\xe2\x03\xf0!\x00\x8d\x0c\x02\xb00" +
+	"Av\x9b\x80\x86\x8d\x05\xd2;\x84a\x100\x0cX\x15" +
+	"\xb9c(\x97\xcd\xb7\xe5\x0a\xfb\x94\xed\xe9\xbdJF\xd7" +
+	"xT9\xa7\x01\x0b8Q\xefN\x01\xb0\xbb\x08\xb2." +
+	"\x01)b#\xd7\x9avl\x03`\xed\x04Y\x8f\x80F" +
+	"\xc1\\\xdb;\x04\xa8a\x03\xe0\x00As\xc3\x06\xc0I" +
+	"\xbd\xd0)\xeb\xd7=\x80\xaaT\x1d\x01\x97\x11K\x95\x89" +
+	"\xdd\xb5\xeanNt\x7f\xa5pZql\xac\xa0\xea\xca" +
+	"P\xa7\xa5JV\xb1\xb6!9\xcdYD*\x17)y" +
+	"\xdd\x04&,Mn\x81\xd0\xcby\xa6\x14\xad8J\xf4" +
+	"e\x81\xf7{\x88Z\xe8\xa1\xed\x90\xb0\x16\xd8l\xa9\xb1" +
+	"\xd8s|\xd7\xa9\x85\x17\xe7\x01p5\xde\xb2\xda\xb63" +
+	"o}S\xd4\xb6\xa2\xf33\x9eJ\xf0\xad\x97\xef\xcc/" +
+	"4@\x905\x0a8\xa9\x153\x19E\xd3\x10A@\xbc" +
+	"\x0e\x9b\xb2\xa2\x13&\x1dq\xf4V\xd2\xf1U\xd1\xe9T" +
+	"\x0b\x9a\xd6U\xc8\xc9\xd9|J\xd1t\xb1\xa0*\x03\x88" +
+	"^\xb3n\x02`q\x82l\x83\xc7\xac\xad}\x00\xec\x1e" +
+	"\x82\xec\xb3\x026\xef3\xfd\x183\xbe\xb3\xf0\xedE\xfd" +
+	"\x91\xd0\x12\xdf4fn\xaa\xe9\x05UQ\x01\x00\xa9\xd1" +
+	"\xde\xf6\xde\x9d\x87[~\xfe4\xffJ=G\x12*\x8f" +
+	"\xc4\x09\xa2\xb7W\xd0c\x9e\xaa\xd2\x94\xf2\x14\xd7\xa6A" +
+	"\xc3>?\x96\x09\x14\x88\xaa\x18)e\xc4t\x18\xa0f" +
+	"\xd8\xf7\x05DQ\x99\x8f\xf8\x01\x9chhw\x0dJ\xfb" +
+	"@\xa0A\xd1\xb0\xef\x13\x00\x92\xc8|\x88\x1e%a\x15" +
+	"\x15]\x1f\x986@\xed\xba\x02n+\x97\x80-\x026" +
+	"\x9b>B\xea\x12\xb3$\x9aT\x15U\x19y8\x851" +
+	"\xa3\xff\xc3C\x9f\xbesO\xee[\xae\xb47\x91\x96+" +
+	"\xd9h}\xd9\x9bq\x01\xa3\x19\xd9\xb5N\xccx\xe7\xcf" +
+	"\xe4\xda\xa9\xd2\xa9wkY\xc7r\xaa<4\xb4\xcc\xa6" +
+	"\xa3\xba\x06p\xb3\xe6\x17*O\xdf\xfc`^W'\xb8" +
+	"\xff\xc2N\xa4\x07ye\xe8\"\xc8\x06<\xf2\xf5\xdf\x0e" +
+	"\xc0z\x08\xb2\x1d\x02RAhD\x01\x802N\xea\x0b" +
+	"\x04\xd9\x97k\xd4\x10QU\x86+\x92\x83\x02F\xf3r" +
+	"N\xa9*3\xa4V\xe2\x8b\xba\xa2\xf2\x13ZV\xb2\xbb" +
+	"1\xda\xc3\x11\xa5\x83\x96\x95\x8a\x1e\xdf%q\x00k\xd3" +
+	"\x06\xd3h\xeex\x81\x9b,\x1dX\xd8\xdc\xc2\x1e\xe9\xd0" +
+	"\x1ea({\x06\x04\xda/\":\x13%\xda\xb7F;" +
+	"\xf6\x82@\x1f\x10Qp\x06>\xb4{67\x9d@[" +
+	"D\xc36\x09\xdaw(f\x15-\xe9\xd1,\xca\xdba" +
+	"\x12'\xcb\xf5z\x95T\xb8\xd1\xfa8\xd0lV\xfc\x1b" +
+	"\xab{\xe5>\xe2\xcd\xa1A7]\x1c\x13l<\x01\xc0" +
+	"\xb6\x10d\xc9Z=\xc3\xee\x0dBF\xd7v\x14\xec\xf8" +
+	"\xbc\xd1\xddx\xfb^\xd1\xdd\xde*l\xd5\xe0\xf4^H" +
+	"\x98M\xb4f\x0b\xad\x9d@+L\x08}._\x93." +
+	"\"\xdd\xb8\xd5\xad\xb9.]\x80\x8a\x9c\x8d\x01&\x8ac" +
+	"\x9a\xa2\xea5\x9bMU?\xb69\xae\x94\xc0q\xc1\xf1" +
+	"\x81[$\x1c\xb3V\x14\x89\xea\xac)\x97b\x92\xd3x" +
+	"\xd2\xc4\x9c\xf82\xcf\xe0\xaf\x10d{<7\xaa\xf0M" +
+	"w\x13d\xa3\x9e\xb4\xce\xf2\xbb\xdfC\x90\xe9\x02RB" +
+	"\x1a\x91\x00\xd0q\x8e\x1c%\xc8\x1e\x13P\xcc\xc8c\xd5" +
+	"i=\xa9*#\x0fy3{%\x87L>f\xb5>" +
+	"\x8c\xb9\xfd\xa6\xa2\xc4\x92\x0a\xa7Z\xff\x8d\x0f\xc8\xd1e" +
+	"\x86F\x1b\x16\xe58\xce\xb5\xd1\xcc^{\xa4F\xfb}" +
+	"A\x8f\xa6A\xa0S<{\xed\x81\x1d\xed\x87\x13=\xb0" +
+	"\x1f\x04Z\xe4\xd9k?\x05\xd1\x1e\xdai\x96\xaf\x93E" +
+	"$\xce+\x10\xed'\x1b\xdd\xa9Z\x15\xc1\xe7\x8c\xd4h" +
+	"\xcf\xc4\xb4\xa3\xcf\xac\x08\x86\xed8\x10\x0b\xeaD\xd2\x9e" +
+	"\x1e:eHX\xba$\xdd|\x011\xa3k\x0ed{" +
+	"\x1a\x9a\xcd\\H\xba\xaa\xac\xde kh\x96R\x9a\xab" +
+	"\x86\xa4>\xcf\xdc\xe7\x09\x8e\xd4}\x15Y\xf7\xf9q\x00" +
+	"\x00\x00\xff\xff\x81cn\x8f"
 
 func init() {
 	schemas.Register(schema_fe1be0c39c7e8269,
@@ -2728,6 +2579,7 @@ func init() {
 		0x9c49e6e65e34c29b,
 		0x9ffc53716151c5fa,
 		0xa092f60656bb0db4,
+		0xa19166b9981b0854,
 		0xa9aca103106c8f05,
 		0xaa1198dd7e71b20e,
 		0xabaef93c36f2d1ea,
@@ -2735,7 +2587,9 @@ func init() {
 		0xb2bf60b5817330b0,
 		0xbd3d832f7a7235b5,
 		0xc17987510cf7ac13,
+		0xc7597e4462528489,
 		0xca7b4bd1600633b8,
+		0xd023a1df5e372a7e,
 		0xd5be1b8e0180ded6,
 		0xd887d79a7ed3f45f,
 		0xdb16d4fbb18486f6,

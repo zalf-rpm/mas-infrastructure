@@ -8,3 +8,5 @@ interface Crop @0xe88d97a324bf5c84 superclasses(import "/common.capnp".Identifia
   cultivar @1 () -> (info :import "/common.capnp".IdInformation);
   parameters @0 () -> (params :AnyPointer);
 }
+interface Service @0x8ddcc2b6c0386bc4 superclasses(import "/registry.capnp".Registry) {
+}

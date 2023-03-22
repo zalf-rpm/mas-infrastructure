@@ -11,7 +11,7 @@
 #endif
 
 #include "../../date.capnp.h"
-#include "../../management.capnp.h"
+#include "monica_management.capnp.h"
 #include "monica_params.capnp.h"
 
 CAPNP_BEGIN_HEADER
@@ -880,7 +880,7 @@ public:
   inline double getVfTopDressing() const;
 
   inline bool hasVfTopDressingPartition() const;
-  inline  ::mas::schema::management::Params::MineralFertilization::Parameters::Reader getVfTopDressingPartition() const;
+  inline  ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Reader getVfTopDressingPartition() const;
 
   inline  ::uint16_t getVfTopDressingDelay() const;
 
@@ -954,11 +954,11 @@ public:
   inline void setVfTopDressing(double value);
 
   inline bool hasVfTopDressingPartition();
-  inline  ::mas::schema::management::Params::MineralFertilization::Parameters::Builder getVfTopDressingPartition();
-  inline void setVfTopDressingPartition( ::mas::schema::management::Params::MineralFertilization::Parameters::Reader value);
-  inline  ::mas::schema::management::Params::MineralFertilization::Parameters::Builder initVfTopDressingPartition();
-  inline void adoptVfTopDressingPartition(::capnp::Orphan< ::mas::schema::management::Params::MineralFertilization::Parameters>&& value);
-  inline ::capnp::Orphan< ::mas::schema::management::Params::MineralFertilization::Parameters> disownVfTopDressingPartition();
+  inline  ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Builder getVfTopDressingPartition();
+  inline void setVfTopDressingPartition( ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Reader value);
+  inline  ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Builder initVfTopDressingPartition();
+  inline void adoptVfTopDressingPartition(::capnp::Orphan< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>&& value);
+  inline ::capnp::Orphan< ::mas::schema::model::monica::Params::MineralFertilization::Parameters> disownVfTopDressingPartition();
 
   inline  ::uint16_t getVfTopDressingDelay();
   inline void setVfTopDressingDelay( ::uint16_t value);
@@ -1005,7 +1005,7 @@ public:
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
       : _typeless(kj::mv(typeless)) {}
 
-  inline  ::mas::schema::management::Params::MineralFertilization::Parameters::Pipeline getVfTopDressingPartition();
+  inline  ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Pipeline getVfTopDressingPartition();
   inline  ::mas::schema::model::monica::CropModuleState::Pipeline getCropModule();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
@@ -1033,7 +1033,7 @@ public:
 #endif  // !CAPNP_LITE
 
   inline bool hasFp() const;
-  inline  ::mas::schema::management::Params::MineralFertilization::Parameters::Reader getFp() const;
+  inline  ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Reader getFp() const;
 
   inline double getSamplingDepth() const;
 
@@ -1076,11 +1076,11 @@ public:
 #endif  // !CAPNP_LITE
 
   inline bool hasFp();
-  inline  ::mas::schema::management::Params::MineralFertilization::Parameters::Builder getFp();
-  inline void setFp( ::mas::schema::management::Params::MineralFertilization::Parameters::Reader value);
-  inline  ::mas::schema::management::Params::MineralFertilization::Parameters::Builder initFp();
-  inline void adoptFp(::capnp::Orphan< ::mas::schema::management::Params::MineralFertilization::Parameters>&& value);
-  inline ::capnp::Orphan< ::mas::schema::management::Params::MineralFertilization::Parameters> disownFp();
+  inline  ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Builder getFp();
+  inline void setFp( ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Reader value);
+  inline  ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Builder initFp();
+  inline void adoptFp(::capnp::Orphan< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>&& value);
+  inline ::capnp::Orphan< ::mas::schema::model::monica::Params::MineralFertilization::Parameters> disownFp();
 
   inline double getSamplingDepth();
   inline void setSamplingDepth(double value);
@@ -1118,7 +1118,7 @@ public:
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
       : _typeless(kj::mv(typeless)) {}
 
-  inline  ::mas::schema::management::Params::MineralFertilization::Parameters::Pipeline getFp();
+  inline  ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Pipeline getFp();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -5986,34 +5986,34 @@ inline bool SoilColumnState::Builder::hasVfTopDressingPartition() {
   return !_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline  ::mas::schema::management::Params::MineralFertilization::Parameters::Reader SoilColumnState::Reader::getVfTopDressingPartition() const {
-  return ::capnp::_::PointerHelpers< ::mas::schema::management::Params::MineralFertilization::Parameters>::get(_reader.getPointerField(
+inline  ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Reader SoilColumnState::Reader::getVfTopDressingPartition() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::management::Params::MineralFertilization::Parameters::Builder SoilColumnState::Builder::getVfTopDressingPartition() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::management::Params::MineralFertilization::Parameters>::get(_builder.getPointerField(
+inline  ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Builder SoilColumnState::Builder::getVfTopDressingPartition() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 #if !CAPNP_LITE
-inline  ::mas::schema::management::Params::MineralFertilization::Parameters::Pipeline SoilColumnState::Pipeline::getVfTopDressingPartition() {
-  return  ::mas::schema::management::Params::MineralFertilization::Parameters::Pipeline(_typeless.getPointerField(0));
+inline  ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Pipeline SoilColumnState::Pipeline::getVfTopDressingPartition() {
+  return  ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Pipeline(_typeless.getPointerField(0));
 }
 #endif  // !CAPNP_LITE
-inline void SoilColumnState::Builder::setVfTopDressingPartition( ::mas::schema::management::Params::MineralFertilization::Parameters::Reader value) {
-  ::capnp::_::PointerHelpers< ::mas::schema::management::Params::MineralFertilization::Parameters>::set(_builder.getPointerField(
+inline void SoilColumnState::Builder::setVfTopDressingPartition( ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Reader value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), value);
 }
-inline  ::mas::schema::management::Params::MineralFertilization::Parameters::Builder SoilColumnState::Builder::initVfTopDressingPartition() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::management::Params::MineralFertilization::Parameters>::init(_builder.getPointerField(
+inline  ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Builder SoilColumnState::Builder::initVfTopDressingPartition() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>::init(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 inline void SoilColumnState::Builder::adoptVfTopDressingPartition(
-    ::capnp::Orphan< ::mas::schema::management::Params::MineralFertilization::Parameters>&& value) {
-  ::capnp::_::PointerHelpers< ::mas::schema::management::Params::MineralFertilization::Parameters>::adopt(_builder.getPointerField(
+    ::capnp::Orphan< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::mas::schema::management::Params::MineralFertilization::Parameters> SoilColumnState::Builder::disownVfTopDressingPartition() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::management::Params::MineralFertilization::Parameters>::disown(_builder.getPointerField(
+inline ::capnp::Orphan< ::mas::schema::model::monica::Params::MineralFertilization::Parameters> SoilColumnState::Builder::disownVfTopDressingPartition() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 
@@ -6160,34 +6160,34 @@ inline bool SoilColumnState::DelayedNMinApplicationParams::Builder::hasFp() {
   return !_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline  ::mas::schema::management::Params::MineralFertilization::Parameters::Reader SoilColumnState::DelayedNMinApplicationParams::Reader::getFp() const {
-  return ::capnp::_::PointerHelpers< ::mas::schema::management::Params::MineralFertilization::Parameters>::get(_reader.getPointerField(
+inline  ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Reader SoilColumnState::DelayedNMinApplicationParams::Reader::getFp() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::management::Params::MineralFertilization::Parameters::Builder SoilColumnState::DelayedNMinApplicationParams::Builder::getFp() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::management::Params::MineralFertilization::Parameters>::get(_builder.getPointerField(
+inline  ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Builder SoilColumnState::DelayedNMinApplicationParams::Builder::getFp() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 #if !CAPNP_LITE
-inline  ::mas::schema::management::Params::MineralFertilization::Parameters::Pipeline SoilColumnState::DelayedNMinApplicationParams::Pipeline::getFp() {
-  return  ::mas::schema::management::Params::MineralFertilization::Parameters::Pipeline(_typeless.getPointerField(0));
+inline  ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Pipeline SoilColumnState::DelayedNMinApplicationParams::Pipeline::getFp() {
+  return  ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Pipeline(_typeless.getPointerField(0));
 }
 #endif  // !CAPNP_LITE
-inline void SoilColumnState::DelayedNMinApplicationParams::Builder::setFp( ::mas::schema::management::Params::MineralFertilization::Parameters::Reader value) {
-  ::capnp::_::PointerHelpers< ::mas::schema::management::Params::MineralFertilization::Parameters>::set(_builder.getPointerField(
+inline void SoilColumnState::DelayedNMinApplicationParams::Builder::setFp( ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Reader value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), value);
 }
-inline  ::mas::schema::management::Params::MineralFertilization::Parameters::Builder SoilColumnState::DelayedNMinApplicationParams::Builder::initFp() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::management::Params::MineralFertilization::Parameters>::init(_builder.getPointerField(
+inline  ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Builder SoilColumnState::DelayedNMinApplicationParams::Builder::initFp() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>::init(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 inline void SoilColumnState::DelayedNMinApplicationParams::Builder::adoptFp(
-    ::capnp::Orphan< ::mas::schema::management::Params::MineralFertilization::Parameters>&& value) {
-  ::capnp::_::PointerHelpers< ::mas::schema::management::Params::MineralFertilization::Parameters>::adopt(_builder.getPointerField(
+    ::capnp::Orphan< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::mas::schema::management::Params::MineralFertilization::Parameters> SoilColumnState::DelayedNMinApplicationParams::Builder::disownFp() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::management::Params::MineralFertilization::Parameters>::disown(_builder.getPointerField(
+inline ::capnp::Orphan< ::mas::schema::model::monica::Params::MineralFertilization::Parameters> SoilColumnState::DelayedNMinApplicationParams::Builder::disownFp() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 

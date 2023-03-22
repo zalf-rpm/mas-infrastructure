@@ -29,23 +29,9 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 namespace mas::infrastructure::common {
 
-class HostPortResolver;
-class HPRRegistrar final : public mas::schema::persistence::HostPortResolver::Registrar::Server
-{
-public:
-  HPRRegistrar(HostPortResolver *hpr, kj::Timer& timer);
-  virtual ~HPRRegistrar() noexcept(false);
-
-  // register @0 (base64VatId :Text, host :Text, port :UInt16, alias :Text) -> (heartbeat :Capability, secsHeartbeatInterval :UInt32);
-  kj::Promise<void> register_(RegisterContext context) override;
-private:
-  HostPortResolver *hpr{nullptr};
-  kj::Timer& timer;
-};
-
 class HostPortResolver final : public mas::schema::persistence::HostPortResolver::Server
 {
-  public:
+public:
   explicit HostPortResolver(kj::Timer& timer, kj::StringPtr name, kj::StringPtr description);
   virtual ~HostPortResolver() noexcept(false);
 
@@ -59,14 +45,11 @@ class HostPortResolver final : public mas::schema::persistence::HostPortResolver
 
   void setRestorer(Restorer* r, mas::schema::persistence::Restorer::Client client);
 
+  mas::schema::persistence::HostPortResolver::Registrar::Client createRegistrar();
+
 private:
-  void addMapping(kj::StringPtr b64VatId, kj::StringPtr host, uint16_t port, kj::StringPtr alias = nullptr);
-
-  void keepAlive(kj::StringPtr b64VatId, kj::StringPtr alias = nullptr);
-
   struct Impl;
   kj::Own<Impl> impl;
-  friend class HPRRegistrar;
 };
 
 } // namespace mas::infrastructure::common

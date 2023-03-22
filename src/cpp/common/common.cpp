@@ -61,76 +61,76 @@ kj::Promise<void> Identifiable::info(InfoContext context) {
 
 //-----------------------------------------------------------------------------
 
-CallbackImpl::CallbackImpl(kj::Function<void()> callback, 
-                           bool execCallbackOnDel,
-                           kj::StringPtr id)
-  : callback(kj::mv(callback))
-  , execCallbackOnDel(execCallbackOnDel)
-  , id(kj::str(id)) {}
+// CallbackImpl::CallbackImpl(kj::Function<void()> callback, 
+//                            bool execCallbackOnDel,
+//                            kj::StringPtr id)
+//   : callback(kj::mv(callback))
+//   , execCallbackOnDel(execCallbackOnDel)
+//   , id(kj::str(id)) {}
 
-CallbackImpl::~CallbackImpl() noexcept(false) {
-  if (execCallbackOnDel && !alreadyCalled) callback();
-}
+// CallbackImpl::~CallbackImpl() noexcept(false) {
+//   if (execCallbackOnDel && !alreadyCalled) callback();
+// }
 
-kj::Promise<void> CallbackImpl::call(CallContext context) {
-  callback();
-  alreadyCalled = true;
-  return kj::READY_NOW;
-}
-
-//-----------------------------------------------------------------------------
-
-Action::Action(kj::Function<kj::Promise<void>()> action, 
-               bool execActionOnDel,
-               kj::StringPtr id)
-  : action(kj::mv(action))
-  , execActionOnDel(execActionOnDel)
-  , id(kj::str(id)) {}
-
-Action::~Action() noexcept(false) {
-  //if (execActionOnDel && !alreadyCalled)
-  //  action();
-}
-
-kj::Promise<void> Action::do_(DoContext context) {
-  alreadyCalled = true;
-  return action();
-}
+// kj::Promise<void> CallbackImpl::call(CallContext context) {
+//   callback();
+//   alreadyCalled = true;
+//   return kj::READY_NOW;
+// }
 
 //-----------------------------------------------------------------------------
 
-CapHolderImpl::CapHolderImpl(capnp::Capability::Client cap,
-                             kj::StringPtr sturdyRef,
-                             bool releaseOnDel,
-                             kj::StringPtr id)
-  : _cap(cap)
-  , sturdyRef(kj::str(sturdyRef))
-  , releaseOnDel(releaseOnDel)
-  , id(kj::str(id)) {}
+// Action::Action(kj::Function<kj::Promise<void>()> action, 
+//                bool execActionOnDel,
+//                kj::StringPtr id)
+//   : action(kj::mv(action))
+//   , execActionOnDel(execActionOnDel)
+//   , id(kj::str(id)) {}
 
-CapHolderImpl::~CapHolderImpl() noexcept(false) {
-  if (releaseOnDel && !alreadyReleased) {
-    auto c = _cap.castAs<mas::schema::common::Stopable>();
-    alreadyReleased = true;
-    c.stopRequest().send().ignoreResult();
-  }
-}
+// Action::~Action() noexcept(false) {
+//   //if (execActionOnDel && !alreadyCalled)
+//   //  action();
+// }
 
-kj::Promise<void> CapHolderImpl::cap(CapContext context) {
-  context.getResults().getObject().setAs<capnp::Capability>(_cap);
-  return kj::READY_NOW;
-}
+// kj::Promise<void> Action::do_(DoContext context) {
+//   alreadyCalled = true;
+//   return action();
+// }
 
-kj::Promise<void> CapHolderImpl::release(ReleaseContext context) {
-  if (!alreadyReleased) {
-    auto c = _cap.castAs<mas::schema::common::Stopable>();
-    return c.stopRequest().send().then([this](auto&&) {
-      cout << "capholderimpl::release" << endl;
-      alreadyReleased = true;
-                                       });
-  }
-  return kj::READY_NOW;
-}
+//-----------------------------------------------------------------------------
+
+// CapHolderImpl::CapHolderImpl(capnp::Capability::Client cap,
+//                              kj::StringPtr sturdyRef,
+//                              bool releaseOnDel,
+//                              kj::StringPtr id)
+//   : _cap(cap)
+//   , sturdyRef(kj::str(sturdyRef))
+//   , releaseOnDel(releaseOnDel)
+//   , id(kj::str(id)) {}
+
+// CapHolderImpl::~CapHolderImpl() noexcept(false) {
+//   if (releaseOnDel && !alreadyReleased) {
+//     auto c = _cap.castAs<mas::schema::common::Stopable>();
+//     alreadyReleased = true;
+//     c.stopRequest().send().ignoreResult();
+//   }
+// }
+
+// kj::Promise<void> CapHolderImpl::cap(CapContext context) {
+//   context.getResults().getObject().setAs<capnp::Capability>(_cap);
+//   return kj::READY_NOW;
+// }
+
+// kj::Promise<void> CapHolderImpl::release(ReleaseContext context) {
+//   if (!alreadyReleased) {
+//     auto c = _cap.castAs<mas::schema::common::Stopable>();
+//     return c.stopRequest().send().then([this](auto&&) {
+//       cout << "capholderimpl::release" << endl;
+//       alreadyReleased = true;
+//                                        });
+//   }
+//   return kj::READY_NOW;
+// }
 
 //kj::Promise<void> CapHolderImpl::save(SaveContext context) {
 //  context.getResults().setSturdyRef(sturdyRef);
@@ -139,50 +139,50 @@ kj::Promise<void> CapHolderImpl::release(ReleaseContext context) {
 
 //-----------------------------------------------------------------------------
 
-CapHolderListImpl::CapHolderListImpl(kj::Vector<capnp::Capability::Client>&& caps,
-                                     kj::StringPtr sturdyRef,
-                                     bool releaseOnDel,
-                                     kj::StringPtr id)
-: caps(kj::mv(caps))
-, sturdyRef(kj::str(sturdyRef))
-, releaseOnDel(releaseOnDel)
-, id(kj::str(id)) {}
+// CapHolderListImpl::CapHolderListImpl(kj::Vector<capnp::Capability::Client>&& caps,
+//                                      kj::StringPtr sturdyRef,
+//                                      bool releaseOnDel,
+//                                      kj::StringPtr id)
+// : caps(kj::mv(caps))
+// , sturdyRef(kj::str(sturdyRef))
+// , releaseOnDel(releaseOnDel)
+// , id(kj::str(id)) {}
 
-CapHolderListImpl::~CapHolderListImpl() noexcept(false) {
-  if (releaseOnDel && !alreadyReleased) {
-    for (auto cap : caps) {
-      auto c = cap.castAs<mas::schema::common::Stopable>();
-      c.stopRequest().send().ignoreResult();
-    }
-    alreadyReleased = true;
-  }
-}
+// CapHolderListImpl::~CapHolderListImpl() noexcept(false) {
+//   if (releaseOnDel && !alreadyReleased) {
+//     for (auto cap : caps) {
+//       auto c = cap.castAs<mas::schema::common::Stopable>();
+//       c.stopRequest().send().ignoreResult();
+//     }
+//     alreadyReleased = true;
+//   }
+// }
 
-kj::Promise<void> CapHolderListImpl::cap(CapContext context) {
-  auto rs = context.getResults();
-  auto list = rs.getObject().initAs<capnp::List<mas::schema::common::ListEntry<mas::schema::common::CapHolder<capnp::AnyPointer>>>>((unsigned int)caps.size());
-  int i = 0;
-  for (auto& cap : caps) {
-    auto entryB = list[i];
-    entryB.setEntry(cap.castAs<mas::schema::common::CapHolder<capnp::AnyPointer>>());
-    i++;
-  }
-  return kj::READY_NOW;
-}
+// kj::Promise<void> CapHolderListImpl::cap(CapContext context) {
+//   auto rs = context.getResults();
+//   auto list = rs.getObject().initAs<capnp::List<mas::schema::common::ListEntry<mas::schema::common::CapHolder<capnp::AnyPointer>>>>((unsigned int)caps.size());
+//   int i = 0;
+//   for (auto& cap : caps) {
+//     auto entryB = list[i];
+//     entryB.setEntry(cap.castAs<mas::schema::common::CapHolder<capnp::AnyPointer>>());
+//     i++;
+//   }
+//   return kj::READY_NOW;
+// }
 
-kj::Promise<void> CapHolderListImpl::release(ReleaseContext context) {
-  if (!alreadyReleased) {
-    auto promises = kj::heapArrayBuilder<kj::Promise<void>>(caps.size());
-    int i = 0;
-    for (auto cap : caps) {
-      auto c = cap.castAs<mas::schema::common::CapHolder<capnp::AnyPointer>>();
-      promises.add(c.releaseRequest().send().ignoreResult());
-    }
-    alreadyReleased = true;
-    return kj::joinPromises(promises.finish());
-  }
-  return kj::READY_NOW;
-}
+// kj::Promise<void> CapHolderListImpl::release(ReleaseContext context) {
+//   if (!alreadyReleased) {
+//     auto promises = kj::heapArrayBuilder<kj::Promise<void>>(caps.size());
+//     int i = 0;
+//     for (auto cap : caps) {
+//       auto c = cap.castAs<mas::schema::common::CapHolder<capnp::AnyPointer>>();
+//       promises.add(c.releaseRequest().send().ignoreResult());
+//     }
+//     alreadyReleased = true;
+//     return kj::joinPromises(promises.finish());
+//   }
+//   return kj::READY_NOW;
+// }
 
 //kj::Promise<void> CapHolderListImpl::save(SaveContext context) {
 //  context.getResults().setSturdyRef(sturdyRef);
@@ -191,7 +191,7 @@ kj::Promise<void> CapHolderListImpl::release(ReleaseContext context) {
 
 //-----------------------------------------------------------------------------
 
-kj::Maybe<capnp::AnyPointer::Reader> mas::infrastructure::common::getIPAttr(mas::schema::common::IP::Reader ip, kj::StringPtr attrName)
+kj::Maybe<capnp::AnyPointer::Reader> mas::infrastructure::common::getIPAttr(mas::schema::fbp::IP::Reader ip, kj::StringPtr attrName)
 {
   if(ip.hasAttributes() && attrName != nullptr) {
     for(const auto& kv : ip.getAttributes()) if (kv.getKey() == attrName) return kv.getValue();
@@ -200,7 +200,7 @@ kj::Maybe<capnp::AnyPointer::Reader> mas::infrastructure::common::getIPAttr(mas:
 }
 
 kj::Maybe<capnp::AnyPointer::Builder> 
-mas::infrastructure::common::copyAndSetIPAttrs(mas::schema::common::IP::Reader oldIp, mas::schema::common::IP::Builder newIp, 
+mas::infrastructure::common::copyAndSetIPAttrs(mas::schema::fbp::IP::Reader oldIp, mas::schema::fbp::IP::Builder newIp, 
         kj::StringPtr newAttrName) { //, kj::Maybe<capnp::AnyPointer::Reader> newValue)
   // if there are not attributes and nothing new to set, nothing to copy
   if (!oldIp.hasAttributes() && newAttrName == nullptr) return nullptr;

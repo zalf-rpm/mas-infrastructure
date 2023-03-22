@@ -84,6 +84,9 @@ CAPNP_DECLARE_SCHEMA(df705ef1e0b7d506);
 CAPNP_DECLARE_SCHEMA(e246d49c91fa330a);
 CAPNP_DECLARE_SCHEMA(9f35030ba55fed78);
 CAPNP_DECLARE_SCHEMA(f635fdd1f05960f0);
+CAPNP_DECLARE_SCHEMA(d61ba043f14fe175);
+CAPNP_DECLARE_SCHEMA(e64112993dc4d4e0);
+CAPNP_DECLARE_SCHEMA(fa8540d5d8065df1);
 CAPNP_DECLARE_SCHEMA(b4c346906ee84815);
 CAPNP_DECLARE_SCHEMA(b0496f3d284f4a13);
 CAPNP_DECLARE_SCHEMA(edee5faa03af6a1e);
@@ -91,6 +94,8 @@ CAPNP_DECLARE_SCHEMA(d9f867b0a2a15d7f);
 CAPNP_DECLARE_SCHEMA(e30c466e5bc2735c);
 CAPNP_DECLARE_SCHEMA(d2a02e856c28d4ba);
 CAPNP_DECLARE_SCHEMA(aa8cfcdc401d5fdd);
+CAPNP_DECLARE_SCHEMA(fca3f0f431b64506);
+CAPNP_DECLARE_SCHEMA(9ebadb578b79fa06);
 CAPNP_DECLARE_SCHEMA(d7a67fec5f22e5a0);
 CAPNP_DECLARE_SCHEMA(e35760b4db5ab564);
 enum class Element_e35760b4db5ab564: uint16_t {
@@ -112,6 +117,7 @@ enum class Element_e35760b4db5ab564: uint16_t {
 };
 CAPNP_DECLARE_ENUM(Element, e35760b4db5ab564);
 CAPNP_DECLARE_SCHEMA(85ba7385f313fe19);
+CAPNP_DECLARE_SCHEMA(c5fd13a53ae6d46a);
 CAPNP_DECLARE_SCHEMA(a7769f40fe6e6de8);
 CAPNP_DECLARE_SCHEMA(b466cacf63ec03c2);
 enum class Resolution_b466cacf63ec03c2: uint16_t {
@@ -161,6 +167,8 @@ CAPNP_DECLARE_SCHEMA(d36b1e9c2929e6e4);
 CAPNP_DECLARE_SCHEMA(c4a1ec6280be841c);
 CAPNP_DECLARE_SCHEMA(db7bfcfe4d45ff53);
 CAPNP_DECLARE_SCHEMA(f44980b23013003b);
+CAPNP_DECLARE_SCHEMA(8f08162dbd7e5068);
+CAPNP_DECLARE_SCHEMA(8b0a787e82cd94bb);
 CAPNP_DECLARE_SCHEMA(c5f12df0a2a52744);
 CAPNP_DECLARE_SCHEMA(95064806dc018bfe);
 CAPNP_DECLARE_SCHEMA(b48982ac9bcd5d11);
@@ -419,6 +427,7 @@ struct Dataset {
   class Server;
 #endif  // !CAPNP_LITE
 
+  struct GetLocationsCallback;
   struct MetadataParams;
   struct ClosestTimeSeriesAtParams;
   struct ClosestTimeSeriesAtResults;
@@ -426,6 +435,8 @@ struct Dataset {
   struct TimeSeriesAtResults;
   struct LocationsParams;
   struct LocationsResults;
+  struct StreamLocationsParams;
+  struct StreamLocationsResults;
 
   #if !CAPNP_LITE
   struct _capnpPrivate {
@@ -433,6 +444,55 @@ struct Dataset {
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
   };
   #endif  // !CAPNP_LITE
+};
+
+struct Dataset::GetLocationsCallback {
+  GetLocationsCallback() = delete;
+
+#if !CAPNP_LITE
+  class Client;
+  class Server;
+#endif  // !CAPNP_LITE
+
+  struct NextLocationsParams;
+  struct NextLocationsResults;
+
+  #if !CAPNP_LITE
+  struct _capnpPrivate {
+    CAPNP_DECLARE_INTERFACE_HEADER(d61ba043f14fe175)
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+  };
+  #endif  // !CAPNP_LITE
+};
+
+struct Dataset::GetLocationsCallback::NextLocationsParams {
+  NextLocationsParams() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(e64112993dc4d4e0, 1, 0)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct Dataset::GetLocationsCallback::NextLocationsResults {
+  NextLocationsResults() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(fa8540d5d8065df1, 0, 1)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
 };
 
 struct Dataset::MetadataParams {
@@ -540,6 +600,36 @@ struct Dataset::LocationsResults {
   };
 };
 
+struct Dataset::StreamLocationsParams {
+  StreamLocationsParams() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(fca3f0f431b64506, 0, 1)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct Dataset::StreamLocationsResults {
+  StreamLocationsResults() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(9ebadb578b79fa06, 0, 1)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
 struct MetaPlusData {
   MetaPlusData() = delete;
 
@@ -563,9 +653,25 @@ struct Location {
   class Reader;
   class Builder;
   class Pipeline;
+  struct KV;
 
   struct _capnpPrivate {
-    CAPNP_DECLARE_STRUCT_HEADER(85ba7385f313fe19, 1, 3)
+    CAPNP_DECLARE_STRUCT_HEADER(85ba7385f313fe19, 1, 4)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct Location::KV {
+  KV() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(c5fd13a53ae6d46a, 0, 2)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
@@ -1027,6 +1133,8 @@ struct AlterTimeSeriesWrapper {
   struct AlterResults;
   struct RemoveParams;
   struct RemoveResults;
+  struct ReplaceWrappedTimeSeriesParams;
+  struct ReplaceWrappedTimeSeriesResults;
 
   #if !CAPNP_LITE
   struct _capnpPrivate {
@@ -1165,6 +1273,36 @@ struct AlterTimeSeriesWrapper::RemoveResults {
 
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(f44980b23013003b, 0, 0)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesParams {
+  ReplaceWrappedTimeSeriesParams() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(8f08162dbd7e5068, 0, 1)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesResults {
+  ReplaceWrappedTimeSeriesResults() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(8b0a787e82cd94bb, 0, 0)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
@@ -2398,6 +2536,8 @@ public:
       ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
   ::capnp::Request< ::mas::schema::climate::Dataset::LocationsParams,  ::mas::schema::climate::Dataset::LocationsResults> locationsRequest(
       ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
+  ::capnp::Request< ::mas::schema::climate::Dataset::StreamLocationsParams,  ::mas::schema::climate::Dataset::StreamLocationsResults> streamLocationsRequest(
+      ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
 
 protected:
   Client() = default;
@@ -2431,6 +2571,10 @@ protected:
   typedef  ::mas::schema::climate::Dataset::LocationsResults LocationsResults;
   typedef ::capnp::CallContext<LocationsParams, LocationsResults> LocationsContext;
   virtual ::kj::Promise<void> locations(LocationsContext context);
+  typedef  ::mas::schema::climate::Dataset::StreamLocationsParams StreamLocationsParams;
+  typedef  ::mas::schema::climate::Dataset::StreamLocationsResults StreamLocationsResults;
+  typedef ::capnp::CallContext<StreamLocationsParams, StreamLocationsResults> StreamLocationsContext;
+  virtual ::kj::Promise<void> streamLocations(StreamLocationsContext context);
 
   inline  ::mas::schema::climate::Dataset::Client thisCap() {
     return ::capnp::Capability::Server::thisCap()
@@ -2440,6 +2584,216 @@ protected:
   ::capnp::Capability::Server::DispatchCallResult dispatchCallInternal(
       uint16_t methodId,
       ::capnp::CallContext< ::capnp::AnyPointer, ::capnp::AnyPointer> context);
+};
+#endif  // !CAPNP_LITE
+
+#if !CAPNP_LITE
+class Dataset::GetLocationsCallback::Client
+    : public virtual ::capnp::Capability::Client {
+public:
+  typedef GetLocationsCallback Calls;
+  typedef GetLocationsCallback Reads;
+
+  Client(decltype(nullptr));
+  explicit Client(::kj::Own< ::capnp::ClientHook>&& hook);
+  template <typename _t, typename = ::kj::EnableIf< ::kj::canConvert<_t*, Server*>()>>
+  Client(::kj::Own<_t>&& server);
+  template <typename _t, typename = ::kj::EnableIf< ::kj::canConvert<_t*, Client*>()>>
+  Client(::kj::Promise<_t>&& promise);
+  Client(::kj::Exception&& exception);
+  Client(Client&) = default;
+  Client(Client&&) = default;
+  Client& operator=(Client& other);
+  Client& operator=(Client&& other);
+
+  ::capnp::Request< ::mas::schema::climate::Dataset::GetLocationsCallback::NextLocationsParams,  ::mas::schema::climate::Dataset::GetLocationsCallback::NextLocationsResults> nextLocationsRequest(
+      ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
+
+protected:
+  Client() = default;
+};
+
+class Dataset::GetLocationsCallback::Server
+    : public virtual ::capnp::Capability::Server {
+public:
+  typedef GetLocationsCallback Serves;
+
+  ::capnp::Capability::Server::DispatchCallResult dispatchCall(
+      uint64_t interfaceId, uint16_t methodId,
+      ::capnp::CallContext< ::capnp::AnyPointer, ::capnp::AnyPointer> context)
+      override;
+
+protected:
+  typedef  ::mas::schema::climate::Dataset::GetLocationsCallback::NextLocationsParams NextLocationsParams;
+  typedef  ::mas::schema::climate::Dataset::GetLocationsCallback::NextLocationsResults NextLocationsResults;
+  typedef ::capnp::CallContext<NextLocationsParams, NextLocationsResults> NextLocationsContext;
+  virtual ::kj::Promise<void> nextLocations(NextLocationsContext context);
+
+  inline  ::mas::schema::climate::Dataset::GetLocationsCallback::Client thisCap() {
+    return ::capnp::Capability::Server::thisCap()
+        .template castAs< ::mas::schema::climate::Dataset::GetLocationsCallback>();
+  }
+
+  ::capnp::Capability::Server::DispatchCallResult dispatchCallInternal(
+      uint16_t methodId,
+      ::capnp::CallContext< ::capnp::AnyPointer, ::capnp::AnyPointer> context);
+};
+#endif  // !CAPNP_LITE
+
+class Dataset::GetLocationsCallback::NextLocationsParams::Reader {
+public:
+  typedef NextLocationsParams Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  inline  ::int64_t getMaxCount() const;
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class Dataset::GetLocationsCallback::NextLocationsParams::Builder {
+public:
+  typedef NextLocationsParams Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline  ::int64_t getMaxCount();
+  inline void setMaxCount( ::int64_t value);
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class Dataset::GetLocationsCallback::NextLocationsParams::Pipeline {
+public:
+  typedef NextLocationsParams Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+class Dataset::GetLocationsCallback::NextLocationsResults::Reader {
+public:
+  typedef NextLocationsResults Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  inline bool hasLocations() const;
+  inline  ::capnp::List< ::mas::schema::climate::Location,  ::capnp::Kind::STRUCT>::Reader getLocations() const;
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class Dataset::GetLocationsCallback::NextLocationsResults::Builder {
+public:
+  typedef NextLocationsResults Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline bool hasLocations();
+  inline  ::capnp::List< ::mas::schema::climate::Location,  ::capnp::Kind::STRUCT>::Builder getLocations();
+  inline void setLocations( ::capnp::List< ::mas::schema::climate::Location,  ::capnp::Kind::STRUCT>::Reader value);
+  inline  ::capnp::List< ::mas::schema::climate::Location,  ::capnp::Kind::STRUCT>::Builder initLocations(unsigned int size);
+  inline void adoptLocations(::capnp::Orphan< ::capnp::List< ::mas::schema::climate::Location,  ::capnp::Kind::STRUCT>>&& value);
+  inline ::capnp::Orphan< ::capnp::List< ::mas::schema::climate::Location,  ::capnp::Kind::STRUCT>> disownLocations();
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class Dataset::GetLocationsCallback::NextLocationsResults::Pipeline {
+public:
+  typedef NextLocationsResults Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
 };
 #endif  // !CAPNP_LITE
 
@@ -3001,6 +3355,173 @@ private:
 };
 #endif  // !CAPNP_LITE
 
+class Dataset::StreamLocationsParams::Reader {
+public:
+  typedef StreamLocationsParams Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  inline bool hasStartAfterLocationId() const;
+  inline  ::capnp::Text::Reader getStartAfterLocationId() const;
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class Dataset::StreamLocationsParams::Builder {
+public:
+  typedef StreamLocationsParams Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline bool hasStartAfterLocationId();
+  inline  ::capnp::Text::Builder getStartAfterLocationId();
+  inline void setStartAfterLocationId( ::capnp::Text::Reader value);
+  inline  ::capnp::Text::Builder initStartAfterLocationId(unsigned int size);
+  inline void adoptStartAfterLocationId(::capnp::Orphan< ::capnp::Text>&& value);
+  inline ::capnp::Orphan< ::capnp::Text> disownStartAfterLocationId();
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class Dataset::StreamLocationsParams::Pipeline {
+public:
+  typedef StreamLocationsParams Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+class Dataset::StreamLocationsResults::Reader {
+public:
+  typedef StreamLocationsResults Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  inline bool hasLocationsCallback() const;
+#if !CAPNP_LITE
+  inline  ::mas::schema::climate::Dataset::GetLocationsCallback::Client getLocationsCallback() const;
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class Dataset::StreamLocationsResults::Builder {
+public:
+  typedef StreamLocationsResults Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline bool hasLocationsCallback();
+#if !CAPNP_LITE
+  inline  ::mas::schema::climate::Dataset::GetLocationsCallback::Client getLocationsCallback();
+  inline void setLocationsCallback( ::mas::schema::climate::Dataset::GetLocationsCallback::Client&& value);
+  inline void setLocationsCallback( ::mas::schema::climate::Dataset::GetLocationsCallback::Client& value);
+  inline void adoptLocationsCallback(::capnp::Orphan< ::mas::schema::climate::Dataset::GetLocationsCallback>&& value);
+  inline ::capnp::Orphan< ::mas::schema::climate::Dataset::GetLocationsCallback> disownLocationsCallback();
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class Dataset::StreamLocationsResults::Pipeline {
+public:
+  typedef StreamLocationsResults Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+  inline  ::mas::schema::climate::Dataset::GetLocationsCallback::Client getLocationsCallback();
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
 class MetaPlusData::Reader {
 public:
   typedef MetaPlusData Reads;
@@ -3128,6 +3649,9 @@ public:
   inline  ::mas::schema::climate::TimeSeries::Client getTimeSeries() const;
 #endif  // !CAPNP_LITE
 
+  inline bool hasCustomData() const;
+  inline  ::capnp::List< ::mas::schema::climate::Location::KV,  ::capnp::Kind::STRUCT>::Reader getCustomData() const;
+
 private:
   ::capnp::_::StructReader _reader;
   template <typename, ::capnp::Kind>
@@ -3182,6 +3706,13 @@ public:
   inline ::capnp::Orphan< ::mas::schema::climate::TimeSeries> disownTimeSeries();
 #endif  // !CAPNP_LITE
 
+  inline bool hasCustomData();
+  inline  ::capnp::List< ::mas::schema::climate::Location::KV,  ::capnp::Kind::STRUCT>::Builder getCustomData();
+  inline void setCustomData( ::capnp::List< ::mas::schema::climate::Location::KV,  ::capnp::Kind::STRUCT>::Reader value);
+  inline  ::capnp::List< ::mas::schema::climate::Location::KV,  ::capnp::Kind::STRUCT>::Builder initCustomData(unsigned int size);
+  inline void adoptCustomData(::capnp::Orphan< ::capnp::List< ::mas::schema::climate::Location::KV,  ::capnp::Kind::STRUCT>>&& value);
+  inline ::capnp::Orphan< ::capnp::List< ::mas::schema::climate::Location::KV,  ::capnp::Kind::STRUCT>> disownCustomData();
+
 private:
   ::capnp::_::StructBuilder _builder;
   template <typename, ::capnp::Kind>
@@ -3203,6 +3734,94 @@ public:
   inline  ::mas::schema::common::IdInformation::Pipeline getId();
   inline  ::mas::schema::geo::LatLonCoord::Pipeline getLatlon();
   inline  ::mas::schema::climate::TimeSeries::Client getTimeSeries();
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+class Location::KV::Reader {
+public:
+  typedef KV Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  inline bool hasKey() const;
+  inline  ::capnp::Text::Reader getKey() const;
+
+  inline bool hasValue() const;
+  inline ::capnp::AnyPointer::Reader getValue() const;
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class Location::KV::Builder {
+public:
+  typedef KV Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline bool hasKey();
+  inline  ::capnp::Text::Builder getKey();
+  inline void setKey( ::capnp::Text::Reader value);
+  inline  ::capnp::Text::Builder initKey(unsigned int size);
+  inline void adoptKey(::capnp::Orphan< ::capnp::Text>&& value);
+  inline ::capnp::Orphan< ::capnp::Text> disownKey();
+
+  inline bool hasValue();
+  inline ::capnp::AnyPointer::Builder getValue();
+  inline ::capnp::AnyPointer::Builder initValue();
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class Location::KV::Pipeline {
+public:
+  typedef KV Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -4101,11 +4720,11 @@ public:
   }
 #endif  // !CAPNP_LITE
 
-  inline bool hasFrom() const;
-  inline  ::mas::schema::common::Date::Reader getFrom() const;
+  inline bool hasStart() const;
+  inline  ::mas::schema::common::Date::Reader getStart() const;
 
-  inline bool hasTo() const;
-  inline  ::mas::schema::common::Date::Reader getTo() const;
+  inline bool hasEnd() const;
+  inline  ::mas::schema::common::Date::Reader getEnd() const;
 
 private:
   ::capnp::_::StructReader _reader;
@@ -4135,19 +4754,19 @@ public:
   inline ::kj::StringTree toString() const { return asReader().toString(); }
 #endif  // !CAPNP_LITE
 
-  inline bool hasFrom();
-  inline  ::mas::schema::common::Date::Builder getFrom();
-  inline void setFrom( ::mas::schema::common::Date::Reader value);
-  inline  ::mas::schema::common::Date::Builder initFrom();
-  inline void adoptFrom(::capnp::Orphan< ::mas::schema::common::Date>&& value);
-  inline ::capnp::Orphan< ::mas::schema::common::Date> disownFrom();
+  inline bool hasStart();
+  inline  ::mas::schema::common::Date::Builder getStart();
+  inline void setStart( ::mas::schema::common::Date::Reader value);
+  inline  ::mas::schema::common::Date::Builder initStart();
+  inline void adoptStart(::capnp::Orphan< ::mas::schema::common::Date>&& value);
+  inline ::capnp::Orphan< ::mas::schema::common::Date> disownStart();
 
-  inline bool hasTo();
-  inline  ::mas::schema::common::Date::Builder getTo();
-  inline void setTo( ::mas::schema::common::Date::Reader value);
-  inline  ::mas::schema::common::Date::Builder initTo();
-  inline void adoptTo(::capnp::Orphan< ::mas::schema::common::Date>&& value);
-  inline ::capnp::Orphan< ::mas::schema::common::Date> disownTo();
+  inline bool hasEnd();
+  inline  ::mas::schema::common::Date::Builder getEnd();
+  inline void setEnd( ::mas::schema::common::Date::Reader value);
+  inline  ::mas::schema::common::Date::Builder initEnd();
+  inline void adoptEnd(::capnp::Orphan< ::mas::schema::common::Date>&& value);
+  inline ::capnp::Orphan< ::mas::schema::common::Date> disownEnd();
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -4167,8 +4786,8 @@ public:
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
       : _typeless(kj::mv(typeless)) {}
 
-  inline  ::mas::schema::common::Date::Pipeline getFrom();
-  inline  ::mas::schema::common::Date::Pipeline getTo();
+  inline  ::mas::schema::common::Date::Pipeline getStart();
+  inline  ::mas::schema::common::Date::Pipeline getEnd();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -5452,6 +6071,8 @@ public:
       ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
   ::capnp::Request< ::mas::schema::climate::AlterTimeSeriesWrapper::RemoveParams,  ::mas::schema::climate::AlterTimeSeriesWrapper::RemoveResults> removeRequest(
       ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
+  ::capnp::Request< ::mas::schema::climate::AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesParams,  ::mas::schema::climate::AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesResults> replaceWrappedTimeSeriesRequest(
+      ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
 
 protected:
   Client() = default;
@@ -5485,6 +6106,10 @@ protected:
   typedef  ::mas::schema::climate::AlterTimeSeriesWrapper::RemoveResults RemoveResults;
   typedef ::capnp::CallContext<RemoveParams, RemoveResults> RemoveContext;
   virtual ::kj::Promise<void> remove(RemoveContext context);
+  typedef  ::mas::schema::climate::AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesParams ReplaceWrappedTimeSeriesParams;
+  typedef  ::mas::schema::climate::AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesResults ReplaceWrappedTimeSeriesResults;
+  typedef ::capnp::CallContext<ReplaceWrappedTimeSeriesParams, ReplaceWrappedTimeSeriesResults> ReplaceWrappedTimeSeriesContext;
+  virtual ::kj::Promise<void> replaceWrappedTimeSeries(ReplaceWrappedTimeSeriesContext context);
 
   inline  ::mas::schema::climate::AlterTimeSeriesWrapper::Client thisCap() {
     return ::capnp::Capability::Server::thisCap()
@@ -6199,6 +6824,163 @@ private:
 class AlterTimeSeriesWrapper::RemoveResults::Pipeline {
 public:
   typedef RemoveResults Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+class AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesParams::Reader {
+public:
+  typedef ReplaceWrappedTimeSeriesParams Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  inline bool hasTimeSeries() const;
+#if !CAPNP_LITE
+  inline  ::mas::schema::climate::TimeSeries::Client getTimeSeries() const;
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesParams::Builder {
+public:
+  typedef ReplaceWrappedTimeSeriesParams Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline bool hasTimeSeries();
+#if !CAPNP_LITE
+  inline  ::mas::schema::climate::TimeSeries::Client getTimeSeries();
+  inline void setTimeSeries( ::mas::schema::climate::TimeSeries::Client&& value);
+  inline void setTimeSeries( ::mas::schema::climate::TimeSeries::Client& value);
+  inline void adoptTimeSeries(::capnp::Orphan< ::mas::schema::climate::TimeSeries>&& value);
+  inline ::capnp::Orphan< ::mas::schema::climate::TimeSeries> disownTimeSeries();
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesParams::Pipeline {
+public:
+  typedef ReplaceWrappedTimeSeriesParams Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+  inline  ::mas::schema::climate::TimeSeries::Client getTimeSeries();
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+class AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesResults::Reader {
+public:
+  typedef ReplaceWrappedTimeSeriesResults Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesResults::Builder {
+public:
+  typedef ReplaceWrappedTimeSeriesResults Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesResults::Pipeline {
+public:
+  typedef ReplaceWrappedTimeSeriesResults Pipelines;
 
   inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
@@ -7459,6 +8241,78 @@ inline  ::mas::schema::climate::Dataset::Client& Dataset::Client::operator=(Clie
 }
 
 #endif  // !CAPNP_LITE
+#if !CAPNP_LITE
+inline Dataset::GetLocationsCallback::Client::Client(decltype(nullptr))
+    : ::capnp::Capability::Client(nullptr) {}
+inline Dataset::GetLocationsCallback::Client::Client(
+    ::kj::Own< ::capnp::ClientHook>&& hook)
+    : ::capnp::Capability::Client(::kj::mv(hook)) {}
+template <typename _t, typename>
+inline Dataset::GetLocationsCallback::Client::Client(::kj::Own<_t>&& server)
+    : ::capnp::Capability::Client(::kj::mv(server)) {}
+template <typename _t, typename>
+inline Dataset::GetLocationsCallback::Client::Client(::kj::Promise<_t>&& promise)
+    : ::capnp::Capability::Client(::kj::mv(promise)) {}
+inline Dataset::GetLocationsCallback::Client::Client(::kj::Exception&& exception)
+    : ::capnp::Capability::Client(::kj::mv(exception)) {}
+inline  ::mas::schema::climate::Dataset::GetLocationsCallback::Client& Dataset::GetLocationsCallback::Client::operator=(Client& other) {
+  ::capnp::Capability::Client::operator=(other);
+  return *this;
+}
+inline  ::mas::schema::climate::Dataset::GetLocationsCallback::Client& Dataset::GetLocationsCallback::Client::operator=(Client&& other) {
+  ::capnp::Capability::Client::operator=(kj::mv(other));
+  return *this;
+}
+
+#endif  // !CAPNP_LITE
+inline  ::int64_t Dataset::GetLocationsCallback::NextLocationsParams::Reader::getMaxCount() const {
+  return _reader.getDataField< ::int64_t>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+
+inline  ::int64_t Dataset::GetLocationsCallback::NextLocationsParams::Builder::getMaxCount() {
+  return _builder.getDataField< ::int64_t>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+inline void Dataset::GetLocationsCallback::NextLocationsParams::Builder::setMaxCount( ::int64_t value) {
+  _builder.setDataField< ::int64_t>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, value);
+}
+
+inline bool Dataset::GetLocationsCallback::NextLocationsResults::Reader::hasLocations() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline bool Dataset::GetLocationsCallback::NextLocationsResults::Builder::hasLocations() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline  ::capnp::List< ::mas::schema::climate::Location,  ::capnp::Kind::STRUCT>::Reader Dataset::GetLocationsCallback::NextLocationsResults::Reader::getLocations() const {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::climate::Location,  ::capnp::Kind::STRUCT>>::get(_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline  ::capnp::List< ::mas::schema::climate::Location,  ::capnp::Kind::STRUCT>::Builder Dataset::GetLocationsCallback::NextLocationsResults::Builder::getLocations() {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::climate::Location,  ::capnp::Kind::STRUCT>>::get(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline void Dataset::GetLocationsCallback::NextLocationsResults::Builder::setLocations( ::capnp::List< ::mas::schema::climate::Location,  ::capnp::Kind::STRUCT>::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::climate::Location,  ::capnp::Kind::STRUCT>>::set(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), value);
+}
+inline  ::capnp::List< ::mas::schema::climate::Location,  ::capnp::Kind::STRUCT>::Builder Dataset::GetLocationsCallback::NextLocationsResults::Builder::initLocations(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::climate::Location,  ::capnp::Kind::STRUCT>>::init(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), size);
+}
+inline void Dataset::GetLocationsCallback::NextLocationsResults::Builder::adoptLocations(
+    ::capnp::Orphan< ::capnp::List< ::mas::schema::climate::Location,  ::capnp::Kind::STRUCT>>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::climate::Location,  ::capnp::Kind::STRUCT>>::adopt(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::capnp::List< ::mas::schema::climate::Location,  ::capnp::Kind::STRUCT>> Dataset::GetLocationsCallback::NextLocationsResults::Builder::disownLocations() {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::climate::Location,  ::capnp::Kind::STRUCT>>::disown(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+
 inline bool Dataset::ClosestTimeSeriesAtParams::Reader::hasLatlon() const {
   return !_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
@@ -7643,6 +8497,79 @@ inline ::capnp::Orphan< ::capnp::List< ::mas::schema::climate::Location,  ::capn
   return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::climate::Location,  ::capnp::Kind::STRUCT>>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
+
+inline bool Dataset::StreamLocationsParams::Reader::hasStartAfterLocationId() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline bool Dataset::StreamLocationsParams::Builder::hasStartAfterLocationId() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline  ::capnp::Text::Reader Dataset::StreamLocationsParams::Reader::getStartAfterLocationId() const {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline  ::capnp::Text::Builder Dataset::StreamLocationsParams::Builder::getStartAfterLocationId() {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline void Dataset::StreamLocationsParams::Builder::setStartAfterLocationId( ::capnp::Text::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::Text>::set(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), value);
+}
+inline  ::capnp::Text::Builder Dataset::StreamLocationsParams::Builder::initStartAfterLocationId(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::init(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), size);
+}
+inline void Dataset::StreamLocationsParams::Builder::adoptStartAfterLocationId(
+    ::capnp::Orphan< ::capnp::Text>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::Text>::adopt(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::capnp::Text> Dataset::StreamLocationsParams::Builder::disownStartAfterLocationId() {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::disown(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+
+inline bool Dataset::StreamLocationsResults::Reader::hasLocationsCallback() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline bool Dataset::StreamLocationsResults::Builder::hasLocationsCallback() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+#if !CAPNP_LITE
+inline  ::mas::schema::climate::Dataset::GetLocationsCallback::Client Dataset::StreamLocationsResults::Reader::getLocationsCallback() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::climate::Dataset::GetLocationsCallback>::get(_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline  ::mas::schema::climate::Dataset::GetLocationsCallback::Client Dataset::StreamLocationsResults::Builder::getLocationsCallback() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::climate::Dataset::GetLocationsCallback>::get(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline  ::mas::schema::climate::Dataset::GetLocationsCallback::Client Dataset::StreamLocationsResults::Pipeline::getLocationsCallback() {
+  return  ::mas::schema::climate::Dataset::GetLocationsCallback::Client(_typeless.getPointerField(0).asCap());
+}
+inline void Dataset::StreamLocationsResults::Builder::setLocationsCallback( ::mas::schema::climate::Dataset::GetLocationsCallback::Client&& cap) {
+  ::capnp::_::PointerHelpers< ::mas::schema::climate::Dataset::GetLocationsCallback>::set(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(cap));
+}
+inline void Dataset::StreamLocationsResults::Builder::setLocationsCallback( ::mas::schema::climate::Dataset::GetLocationsCallback::Client& cap) {
+  ::capnp::_::PointerHelpers< ::mas::schema::climate::Dataset::GetLocationsCallback>::set(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), cap);
+}
+inline void Dataset::StreamLocationsResults::Builder::adoptLocationsCallback(
+    ::capnp::Orphan< ::mas::schema::climate::Dataset::GetLocationsCallback>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::climate::Dataset::GetLocationsCallback>::adopt(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::mas::schema::climate::Dataset::GetLocationsCallback> Dataset::StreamLocationsResults::Builder::disownLocationsCallback() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::climate::Dataset::GetLocationsCallback>::disown(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+#endif  // !CAPNP_LITE
 
 inline bool MetaPlusData::Reader::hasMeta() const {
   return !_reader.getPointerField(
@@ -7852,6 +8779,97 @@ inline ::capnp::Orphan< ::mas::schema::climate::TimeSeries> Location::Builder::d
       ::capnp::bounded<2>() * ::capnp::POINTERS));
 }
 #endif  // !CAPNP_LITE
+
+inline bool Location::Reader::hasCustomData() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS).isNull();
+}
+inline bool Location::Builder::hasCustomData() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS).isNull();
+}
+inline  ::capnp::List< ::mas::schema::climate::Location::KV,  ::capnp::Kind::STRUCT>::Reader Location::Reader::getCustomData() const {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::climate::Location::KV,  ::capnp::Kind::STRUCT>>::get(_reader.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS));
+}
+inline  ::capnp::List< ::mas::schema::climate::Location::KV,  ::capnp::Kind::STRUCT>::Builder Location::Builder::getCustomData() {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::climate::Location::KV,  ::capnp::Kind::STRUCT>>::get(_builder.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS));
+}
+inline void Location::Builder::setCustomData( ::capnp::List< ::mas::schema::climate::Location::KV,  ::capnp::Kind::STRUCT>::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::climate::Location::KV,  ::capnp::Kind::STRUCT>>::set(_builder.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS), value);
+}
+inline  ::capnp::List< ::mas::schema::climate::Location::KV,  ::capnp::Kind::STRUCT>::Builder Location::Builder::initCustomData(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::climate::Location::KV,  ::capnp::Kind::STRUCT>>::init(_builder.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS), size);
+}
+inline void Location::Builder::adoptCustomData(
+    ::capnp::Orphan< ::capnp::List< ::mas::schema::climate::Location::KV,  ::capnp::Kind::STRUCT>>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::climate::Location::KV,  ::capnp::Kind::STRUCT>>::adopt(_builder.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::capnp::List< ::mas::schema::climate::Location::KV,  ::capnp::Kind::STRUCT>> Location::Builder::disownCustomData() {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::climate::Location::KV,  ::capnp::Kind::STRUCT>>::disown(_builder.getPointerField(
+      ::capnp::bounded<3>() * ::capnp::POINTERS));
+}
+
+inline bool Location::KV::Reader::hasKey() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline bool Location::KV::Builder::hasKey() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline  ::capnp::Text::Reader Location::KV::Reader::getKey() const {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline  ::capnp::Text::Builder Location::KV::Builder::getKey() {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline void Location::KV::Builder::setKey( ::capnp::Text::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::Text>::set(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), value);
+}
+inline  ::capnp::Text::Builder Location::KV::Builder::initKey(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::init(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), size);
+}
+inline void Location::KV::Builder::adoptKey(
+    ::capnp::Orphan< ::capnp::Text>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::Text>::adopt(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::capnp::Text> Location::KV::Builder::disownKey() {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::disown(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+
+inline bool Location::KV::Reader::hasValue() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
+}
+inline bool Location::KV::Builder::hasValue() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
+}
+inline ::capnp::AnyPointer::Reader Location::KV::Reader::getValue() const {
+  return ::capnp::AnyPointer::Reader(_reader.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+inline ::capnp::AnyPointer::Builder Location::KV::Builder::getValue() {
+  return ::capnp::AnyPointer::Builder(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+inline ::capnp::AnyPointer::Builder Location::KV::Builder::initValue() {
+  auto result = ::capnp::AnyPointer::Builder(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+  result.clear();
+  return result;
+}
 
 #if !CAPNP_LITE
 inline TimeSeries::Client::Client(decltype(nullptr))
@@ -8083,80 +9101,80 @@ inline ::capnp::Orphan< ::capnp::List< ::capnp::List<float,  ::capnp::Kind::PRIM
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 
-inline bool TimeSeries::SubrangeParams::Reader::hasFrom() const {
+inline bool TimeSeries::SubrangeParams::Reader::hasStart() const {
   return !_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline bool TimeSeries::SubrangeParams::Builder::hasFrom() {
+inline bool TimeSeries::SubrangeParams::Builder::hasStart() {
   return !_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline  ::mas::schema::common::Date::Reader TimeSeries::SubrangeParams::Reader::getFrom() const {
+inline  ::mas::schema::common::Date::Reader TimeSeries::SubrangeParams::Reader::getStart() const {
   return ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::common::Date::Builder TimeSeries::SubrangeParams::Builder::getFrom() {
+inline  ::mas::schema::common::Date::Builder TimeSeries::SubrangeParams::Builder::getStart() {
   return ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 #if !CAPNP_LITE
-inline  ::mas::schema::common::Date::Pipeline TimeSeries::SubrangeParams::Pipeline::getFrom() {
+inline  ::mas::schema::common::Date::Pipeline TimeSeries::SubrangeParams::Pipeline::getStart() {
   return  ::mas::schema::common::Date::Pipeline(_typeless.getPointerField(0));
 }
 #endif  // !CAPNP_LITE
-inline void TimeSeries::SubrangeParams::Builder::setFrom( ::mas::schema::common::Date::Reader value) {
+inline void TimeSeries::SubrangeParams::Builder::setStart( ::mas::schema::common::Date::Reader value) {
   ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), value);
 }
-inline  ::mas::schema::common::Date::Builder TimeSeries::SubrangeParams::Builder::initFrom() {
+inline  ::mas::schema::common::Date::Builder TimeSeries::SubrangeParams::Builder::initStart() {
   return ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::init(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline void TimeSeries::SubrangeParams::Builder::adoptFrom(
+inline void TimeSeries::SubrangeParams::Builder::adoptStart(
     ::capnp::Orphan< ::mas::schema::common::Date>&& value) {
   ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::mas::schema::common::Date> TimeSeries::SubrangeParams::Builder::disownFrom() {
+inline ::capnp::Orphan< ::mas::schema::common::Date> TimeSeries::SubrangeParams::Builder::disownStart() {
   return ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 
-inline bool TimeSeries::SubrangeParams::Reader::hasTo() const {
+inline bool TimeSeries::SubrangeParams::Reader::hasEnd() const {
   return !_reader.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
 }
-inline bool TimeSeries::SubrangeParams::Builder::hasTo() {
+inline bool TimeSeries::SubrangeParams::Builder::hasEnd() {
   return !_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
 }
-inline  ::mas::schema::common::Date::Reader TimeSeries::SubrangeParams::Reader::getTo() const {
+inline  ::mas::schema::common::Date::Reader TimeSeries::SubrangeParams::Reader::getEnd() const {
   return ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::get(_reader.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::common::Date::Builder TimeSeries::SubrangeParams::Builder::getTo() {
+inline  ::mas::schema::common::Date::Builder TimeSeries::SubrangeParams::Builder::getEnd() {
   return ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::get(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
 #if !CAPNP_LITE
-inline  ::mas::schema::common::Date::Pipeline TimeSeries::SubrangeParams::Pipeline::getTo() {
+inline  ::mas::schema::common::Date::Pipeline TimeSeries::SubrangeParams::Pipeline::getEnd() {
   return  ::mas::schema::common::Date::Pipeline(_typeless.getPointerField(1));
 }
 #endif  // !CAPNP_LITE
-inline void TimeSeries::SubrangeParams::Builder::setTo( ::mas::schema::common::Date::Reader value) {
+inline void TimeSeries::SubrangeParams::Builder::setEnd( ::mas::schema::common::Date::Reader value) {
   ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::set(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS), value);
 }
-inline  ::mas::schema::common::Date::Builder TimeSeries::SubrangeParams::Builder::initTo() {
+inline  ::mas::schema::common::Date::Builder TimeSeries::SubrangeParams::Builder::initEnd() {
   return ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::init(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
-inline void TimeSeries::SubrangeParams::Builder::adoptTo(
+inline void TimeSeries::SubrangeParams::Builder::adoptEnd(
     ::capnp::Orphan< ::mas::schema::common::Date>&& value) {
   ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::adopt(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::mas::schema::common::Date> TimeSeries::SubrangeParams::Builder::disownTo() {
+inline ::capnp::Orphan< ::mas::schema::common::Date> TimeSeries::SubrangeParams::Builder::disownEnd() {
   return ::capnp::_::PointerHelpers< ::mas::schema::common::Date>::disown(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
@@ -9104,6 +10122,45 @@ inline void AlterTimeSeriesWrapper::RemoveParams::Builder::setAlteredElement( ::
   _builder.setDataField< ::mas::schema::climate::Element>(
       ::capnp::bounded<0>() * ::capnp::ELEMENTS, value);
 }
+
+inline bool AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesParams::Reader::hasTimeSeries() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline bool AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesParams::Builder::hasTimeSeries() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+#if !CAPNP_LITE
+inline  ::mas::schema::climate::TimeSeries::Client AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesParams::Reader::getTimeSeries() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::climate::TimeSeries>::get(_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline  ::mas::schema::climate::TimeSeries::Client AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesParams::Builder::getTimeSeries() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::climate::TimeSeries>::get(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline  ::mas::schema::climate::TimeSeries::Client AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesParams::Pipeline::getTimeSeries() {
+  return  ::mas::schema::climate::TimeSeries::Client(_typeless.getPointerField(0).asCap());
+}
+inline void AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesParams::Builder::setTimeSeries( ::mas::schema::climate::TimeSeries::Client&& cap) {
+  ::capnp::_::PointerHelpers< ::mas::schema::climate::TimeSeries>::set(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(cap));
+}
+inline void AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesParams::Builder::setTimeSeries( ::mas::schema::climate::TimeSeries::Client& cap) {
+  ::capnp::_::PointerHelpers< ::mas::schema::climate::TimeSeries>::set(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), cap);
+}
+inline void AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesParams::Builder::adoptTimeSeries(
+    ::capnp::Orphan< ::mas::schema::climate::TimeSeries>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::climate::TimeSeries>::adopt(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::mas::schema::climate::TimeSeries> AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesParams::Builder::disownTimeSeries() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::climate::TimeSeries>::disown(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+#endif  // !CAPNP_LITE
 
 #if !CAPNP_LITE
 inline AlterTimeSeriesWrapperFactory::Client::Client(decltype(nullptr))

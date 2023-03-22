@@ -49,9 +49,7 @@ public:
     startRestorerSetup(resolverClient, true);
     resolver->setRestorer(restorer, restorerClient);
 
-    auto ownedRegistrar = kj::heap<HPRRegistrar>(resolver, ioContext.provider->getTimer());
-    auto registrar = ownedRegistrar.get();
-    mas::schema::persistence::HostPortResolver::Registrar::Client registrarClient = kj::mv(ownedRegistrar);
+    auto registrarClient = resolver->createRegistrar();
     KJ_LOG(INFO, "created host-port-resolver registrar");
 
     auto ssr = restorer->saveStr(registrarClient).wait(ioContext.waitScope);

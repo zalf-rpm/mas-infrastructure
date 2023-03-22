@@ -1,5 +1,6 @@
 src/csharp/publish
 
+cmake-build-debug
 _cmake_win64
 _cmake_win32
 

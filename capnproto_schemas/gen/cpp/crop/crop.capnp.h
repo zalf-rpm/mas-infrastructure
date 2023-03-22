@@ -14,75 +14,22 @@
 #endif
 
 #include "common.capnp.h"
+#include "persistence.capnp.h"
+#include "registry.capnp.h"
 
 CAPNP_BEGIN_HEADER
 
 namespace capnp {
 namespace schemas {
 
-CAPNP_DECLARE_SCHEMA(dd81b0520864e2b4);
-enum class Cultivar_dd81b0520864e2b4: uint16_t {
-  ALFALFA_CLOVERGRASS_LEY_MIX,
-  ALFALFA,
-  BACHARIA,
-  BARLEY_SPRING,
-  BARLEY_WINTER,
-  CLOVER_GRASS_LEY,
-  COTTON_BR_MID,
-  COTTON_LONG,
-  COTTON_MID,
-  COTTON_SHORT,
-  EINKORN,
-  EMMER,
-  FIELD_PEA24,
-  FIELD_PEA26,
-  GRAPEVINE,
-  MAIZE_GRAIN,
-  MAIZE_SILAGE,
-  MUSTARD,
-  OAT_COMPOUND,
-  OIL_RADISH,
-  PHACELIA,
-  POTATO_MODERATELY_EARLY,
-  RAPE_WINTER,
-  RYE_GRASS,
-  RYE_SILAGE_WINTER,
-  RYE_SPRING,
-  RYE_WINTER,
-  SORGHUM,
-  SOYBEAN0,
-  SOYBEAN00,
-  SOYBEAN000,
-  SOYBEAN0000,
-  SOYBEAN_I,
-  SOYBEAN_I_I,
-  SOYBEAN_I_I_I,
-  SOYBEAN_I_V,
-  SOYBEAN_V,
-  SOYBEAN_V_I,
-  SOYBEAN_V_I_I,
-  SOYBEAN_V_I_I_I,
-  SOYBEAN_I_X,
-  SOYBEAN_X,
-  SOYBEAN_X_I,
-  SOYBEAN_X_I_I,
-  SUDAN_GRASS,
-  SUGAR_BEET,
-  SUGARCANE_TRANSPLANT,
-  SUGARCANE_RATOON,
-  TOMATO_FIELD,
-  TRITICALE_SPRING,
-  TRITICALE_WINTER,
-  WHEAT_DURUM,
-  WHEAT_SPRING,
-  WHEAT_WINTER,
-};
-CAPNP_DECLARE_ENUM(Cultivar, dd81b0520864e2b4);
 CAPNP_DECLARE_SCHEMA(e88d97a324bf5c84);
 CAPNP_DECLARE_SCHEMA(c86e010e743c8e5b);
 CAPNP_DECLARE_SCHEMA(e4fafc722d515486);
 CAPNP_DECLARE_SCHEMA(f26ef117dfb4517a);
 CAPNP_DECLARE_SCHEMA(bf3704bba52494ba);
+CAPNP_DECLARE_SCHEMA(f4dd1c322a3130b4);
+CAPNP_DECLARE_SCHEMA(b4aa895eeede6448);
+CAPNP_DECLARE_SCHEMA(8ddcc2b6c0386bc4);
 
 }  // namespace schemas
 }  // namespace capnp
@@ -90,8 +37,6 @@ CAPNP_DECLARE_SCHEMA(bf3704bba52494ba);
 namespace mas {
 namespace schema {
 namespace crop {
-
-typedef ::capnp::schemas::Cultivar_dd81b0520864e2b4 Cultivar;
 
 struct Crop {
   Crop() = delete;
@@ -105,6 +50,8 @@ struct Crop {
   struct ParametersResults;
   struct CultivarParams;
   struct CultivarResults;
+  struct SpeciesParams;
+  struct SpeciesResults;
 
   #if !CAPNP_LITE
   struct _capnpPrivate {
@@ -167,11 +114,58 @@ struct Crop::CultivarResults {
   class Pipeline;
 
   struct _capnpPrivate {
-    CAPNP_DECLARE_STRUCT_HEADER(bf3704bba52494ba, 1, 0)
+    CAPNP_DECLARE_STRUCT_HEADER(bf3704bba52494ba, 0, 1)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
   };
+};
+
+struct Crop::SpeciesParams {
+  SpeciesParams() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(f4dd1c322a3130b4, 0, 0)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct Crop::SpeciesResults {
+  SpeciesResults() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(b4aa895eeede6448, 0, 1)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct Service {
+  Service() = delete;
+
+#if !CAPNP_LITE
+  class Client;
+  class Server;
+#endif  // !CAPNP_LITE
+
+
+  #if !CAPNP_LITE
+  struct _capnpPrivate {
+    CAPNP_DECLARE_INTERFACE_HEADER(8ddcc2b6c0386bc4)
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+  };
+  #endif  // !CAPNP_LITE
 };
 
 // =======================================================================================
@@ -179,7 +173,8 @@ struct Crop::CultivarResults {
 #if !CAPNP_LITE
 class Crop::Client
     : public virtual ::capnp::Capability::Client,
-      public virtual  ::mas::schema::common::Identifiable::Client {
+      public virtual  ::mas::schema::common::Identifiable::Client,
+      public virtual  ::mas::schema::persistence::Persistent::Client {
 public:
   typedef Crop Calls;
   typedef Crop Reads;
@@ -200,6 +195,8 @@ public:
       ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
   ::capnp::Request< ::mas::schema::crop::Crop::CultivarParams,  ::mas::schema::crop::Crop::CultivarResults> cultivarRequest(
       ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
+  ::capnp::Request< ::mas::schema::crop::Crop::SpeciesParams,  ::mas::schema::crop::Crop::SpeciesResults> speciesRequest(
+      ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
 
 protected:
   Client() = default;
@@ -207,7 +204,8 @@ protected:
 
 class Crop::Server
     : public virtual ::capnp::Capability::Server,
-      public virtual  ::mas::schema::common::Identifiable::Server {
+      public virtual  ::mas::schema::common::Identifiable::Server,
+      public virtual  ::mas::schema::persistence::Persistent::Server {
 public:
   typedef Crop Serves;
 
@@ -225,6 +223,10 @@ protected:
   typedef  ::mas::schema::crop::Crop::CultivarResults CultivarResults;
   typedef ::capnp::CallContext<CultivarParams, CultivarResults> CultivarContext;
   virtual ::kj::Promise<void> cultivar(CultivarContext context);
+  typedef  ::mas::schema::crop::Crop::SpeciesParams SpeciesParams;
+  typedef  ::mas::schema::crop::Crop::SpeciesResults SpeciesResults;
+  typedef ::capnp::CallContext<SpeciesParams, SpeciesResults> SpeciesContext;
+  virtual ::kj::Promise<void> species(SpeciesContext context);
 
   inline  ::mas::schema::crop::Crop::Client thisCap() {
     return ::capnp::Capability::Server::thisCap()
@@ -474,7 +476,8 @@ public:
   }
 #endif  // !CAPNP_LITE
 
-  inline  ::mas::schema::crop::Cultivar getCult() const;
+  inline bool hasInfo() const;
+  inline  ::mas::schema::common::IdInformation::Reader getInfo() const;
 
 private:
   ::capnp::_::StructReader _reader;
@@ -504,8 +507,12 @@ public:
   inline ::kj::StringTree toString() const { return asReader().toString(); }
 #endif  // !CAPNP_LITE
 
-  inline  ::mas::schema::crop::Cultivar getCult();
-  inline void setCult( ::mas::schema::crop::Cultivar value);
+  inline bool hasInfo();
+  inline  ::mas::schema::common::IdInformation::Builder getInfo();
+  inline void setInfo( ::mas::schema::common::IdInformation::Reader value);
+  inline  ::mas::schema::common::IdInformation::Builder initInfo();
+  inline void adoptInfo(::capnp::Orphan< ::mas::schema::common::IdInformation>&& value);
+  inline ::capnp::Orphan< ::mas::schema::common::IdInformation> disownInfo();
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -525,11 +532,214 @@ public:
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
       : _typeless(kj::mv(typeless)) {}
 
+  inline  ::mas::schema::common::IdInformation::Pipeline getInfo();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
   template <typename, ::capnp::Kind>
   friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+class Crop::SpeciesParams::Reader {
+public:
+  typedef SpeciesParams Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class Crop::SpeciesParams::Builder {
+public:
+  typedef SpeciesParams Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class Crop::SpeciesParams::Pipeline {
+public:
+  typedef SpeciesParams Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+class Crop::SpeciesResults::Reader {
+public:
+  typedef SpeciesResults Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  inline bool hasInfo() const;
+  inline  ::mas::schema::common::IdInformation::Reader getInfo() const;
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class Crop::SpeciesResults::Builder {
+public:
+  typedef SpeciesResults Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline bool hasInfo();
+  inline  ::mas::schema::common::IdInformation::Builder getInfo();
+  inline void setInfo( ::mas::schema::common::IdInformation::Reader value);
+  inline  ::mas::schema::common::IdInformation::Builder initInfo();
+  inline void adoptInfo(::capnp::Orphan< ::mas::schema::common::IdInformation>&& value);
+  inline ::capnp::Orphan< ::mas::schema::common::IdInformation> disownInfo();
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class Crop::SpeciesResults::Pipeline {
+public:
+  typedef SpeciesResults Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+  inline  ::mas::schema::common::IdInformation::Pipeline getInfo();
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+#if !CAPNP_LITE
+class Service::Client
+    : public virtual ::capnp::Capability::Client,
+      public virtual  ::mas::schema::registry::Registry::Client {
+public:
+  typedef Service Calls;
+  typedef Service Reads;
+
+  Client(decltype(nullptr));
+  explicit Client(::kj::Own< ::capnp::ClientHook>&& hook);
+  template <typename _t, typename = ::kj::EnableIf< ::kj::canConvert<_t*, Server*>()>>
+  Client(::kj::Own<_t>&& server);
+  template <typename _t, typename = ::kj::EnableIf< ::kj::canConvert<_t*, Client*>()>>
+  Client(::kj::Promise<_t>&& promise);
+  Client(::kj::Exception&& exception);
+  Client(Client&) = default;
+  Client(Client&&) = default;
+  Client& operator=(Client& other);
+  Client& operator=(Client&& other);
+
+
+protected:
+  Client() = default;
+};
+
+class Service::Server
+    : public virtual ::capnp::Capability::Server,
+      public virtual  ::mas::schema::registry::Registry::Server {
+public:
+  typedef Service Serves;
+
+  ::capnp::Capability::Server::DispatchCallResult dispatchCall(
+      uint64_t interfaceId, uint16_t methodId,
+      ::capnp::CallContext< ::capnp::AnyPointer, ::capnp::AnyPointer> context)
+      override;
+
+protected:
+
+  inline  ::mas::schema::crop::Service::Client thisCap() {
+    return ::capnp::Capability::Server::thisCap()
+        .template castAs< ::mas::schema::crop::Service>();
+  }
+
+  ::capnp::Capability::Server::DispatchCallResult dispatchCallInternal(
+      uint16_t methodId,
+      ::capnp::CallContext< ::capnp::AnyPointer, ::capnp::AnyPointer> context);
 };
 #endif  // !CAPNP_LITE
 
@@ -582,20 +792,108 @@ inline ::capnp::AnyPointer::Builder Crop::ParametersResults::Builder::initParams
   return result;
 }
 
-inline  ::mas::schema::crop::Cultivar Crop::CultivarResults::Reader::getCult() const {
-  return _reader.getDataField< ::mas::schema::crop::Cultivar>(
-      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+inline bool Crop::CultivarResults::Reader::hasInfo() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline bool Crop::CultivarResults::Builder::hasInfo() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline  ::mas::schema::common::IdInformation::Reader Crop::CultivarResults::Reader::getInfo() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::common::IdInformation>::get(_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline  ::mas::schema::common::IdInformation::Builder Crop::CultivarResults::Builder::getInfo() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::common::IdInformation>::get(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+#if !CAPNP_LITE
+inline  ::mas::schema::common::IdInformation::Pipeline Crop::CultivarResults::Pipeline::getInfo() {
+  return  ::mas::schema::common::IdInformation::Pipeline(_typeless.getPointerField(0));
+}
+#endif  // !CAPNP_LITE
+inline void Crop::CultivarResults::Builder::setInfo( ::mas::schema::common::IdInformation::Reader value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::common::IdInformation>::set(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), value);
+}
+inline  ::mas::schema::common::IdInformation::Builder Crop::CultivarResults::Builder::initInfo() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::common::IdInformation>::init(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline void Crop::CultivarResults::Builder::adoptInfo(
+    ::capnp::Orphan< ::mas::schema::common::IdInformation>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::common::IdInformation>::adopt(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::mas::schema::common::IdInformation> Crop::CultivarResults::Builder::disownInfo() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::common::IdInformation>::disown(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 
-inline  ::mas::schema::crop::Cultivar Crop::CultivarResults::Builder::getCult() {
-  return _builder.getDataField< ::mas::schema::crop::Cultivar>(
-      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+inline bool Crop::SpeciesResults::Reader::hasInfo() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline void Crop::CultivarResults::Builder::setCult( ::mas::schema::crop::Cultivar value) {
-  _builder.setDataField< ::mas::schema::crop::Cultivar>(
-      ::capnp::bounded<0>() * ::capnp::ELEMENTS, value);
+inline bool Crop::SpeciesResults::Builder::hasInfo() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline  ::mas::schema::common::IdInformation::Reader Crop::SpeciesResults::Reader::getInfo() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::common::IdInformation>::get(_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline  ::mas::schema::common::IdInformation::Builder Crop::SpeciesResults::Builder::getInfo() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::common::IdInformation>::get(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+#if !CAPNP_LITE
+inline  ::mas::schema::common::IdInformation::Pipeline Crop::SpeciesResults::Pipeline::getInfo() {
+  return  ::mas::schema::common::IdInformation::Pipeline(_typeless.getPointerField(0));
+}
+#endif  // !CAPNP_LITE
+inline void Crop::SpeciesResults::Builder::setInfo( ::mas::schema::common::IdInformation::Reader value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::common::IdInformation>::set(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), value);
+}
+inline  ::mas::schema::common::IdInformation::Builder Crop::SpeciesResults::Builder::initInfo() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::common::IdInformation>::init(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline void Crop::SpeciesResults::Builder::adoptInfo(
+    ::capnp::Orphan< ::mas::schema::common::IdInformation>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::common::IdInformation>::adopt(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::mas::schema::common::IdInformation> Crop::SpeciesResults::Builder::disownInfo() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::common::IdInformation>::disown(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 
+#if !CAPNP_LITE
+inline Service::Client::Client(decltype(nullptr))
+    : ::capnp::Capability::Client(nullptr) {}
+inline Service::Client::Client(
+    ::kj::Own< ::capnp::ClientHook>&& hook)
+    : ::capnp::Capability::Client(::kj::mv(hook)) {}
+template <typename _t, typename>
+inline Service::Client::Client(::kj::Own<_t>&& server)
+    : ::capnp::Capability::Client(::kj::mv(server)) {}
+template <typename _t, typename>
+inline Service::Client::Client(::kj::Promise<_t>&& promise)
+    : ::capnp::Capability::Client(::kj::mv(promise)) {}
+inline Service::Client::Client(::kj::Exception&& exception)
+    : ::capnp::Capability::Client(::kj::mv(exception)) {}
+inline  ::mas::schema::crop::Service::Client& Service::Client::operator=(Client& other) {
+  ::capnp::Capability::Client::operator=(other);
+  return *this;
+}
+inline  ::mas::schema::crop::Service::Client& Service::Client::operator=(Client&& other) {
+  ::capnp::Capability::Client::operator=(kj::mv(other));
+  return *this;
+}
+
+#endif  // !CAPNP_LITE
 }  // namespace
 }  // namespace
 }  // namespace

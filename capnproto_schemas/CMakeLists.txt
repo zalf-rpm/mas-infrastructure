@@ -13,6 +13,7 @@ capnp_generate_cpp(CAPNP_SRCS CAPNP_HDRS
 	cluster_admin_service.capnp
 	crop.capnp
 	date.capnp
+	fbp.capnp
 	geo.capnp
 	management.capnp
 	model.capnp
@@ -21,8 +22,8 @@ capnp_generate_cpp(CAPNP_SRCS CAPNP_HDRS
 	model/monica/soil_params.capnp
 	model/monica/monica_state.capnp
 	persistence.capnp
-	restore_resolve.capnp
 	registry.capnp
+	service.capnp
 	soil.capnp
 	storage.capnp
 	model/yieldstat/yieldstat.capnp

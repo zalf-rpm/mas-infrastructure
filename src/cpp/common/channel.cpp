@@ -60,7 +60,7 @@ struct Channel::Impl {
   AnyPointerChannel::CloseSemantics autoCloseSemantics {AnyPointerChannel::CloseSemantics::FBP};
   bool sendCloseOnEmptyBuffer{false};
   AnyPointerChannel::Client client{nullptr};
-  mas::schema::common::Action::Client unregisterAction{nullptr};
+  //mas::schema::common::Action::Client unregisterAction{nullptr};
   
   Impl(Channel& self, mas::infrastructure::common::Restorer* restorer, kj::StringPtr name, kj::StringPtr description, 
     uint64_t bufferSize)
@@ -166,8 +166,8 @@ kj::Promise<void> Channel::writer(WriterContext context){
 AnyPointerChannel::Client Channel::getClient() { return impl->client; }
 void Channel::setClient(AnyPointerChannel::Client c) { impl->client = c; }
 
-mas::schema::common::Action::Client Channel::getUnregisterAction() { return impl->unregisterAction; }
-void Channel::setUnregisterAction(mas::schema::common::Action::Client unreg) { impl->unregisterAction = unreg; }
+//mas::schema::common::Action::Client Channel::getUnregisterAction() { return impl->unregisterAction; }
+//void Channel::setUnregisterAction(mas::schema::common::Action::Client unreg) { impl->unregisterAction = unreg; }
 
 void Channel::setRestorer(mas::infrastructure::common::Restorer* restorer){ 
   impl->setRestorer(restorer);

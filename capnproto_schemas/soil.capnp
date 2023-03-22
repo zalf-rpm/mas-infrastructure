@@ -8,9 +8,8 @@ $Go.package("soil");
 $Go.import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/soil");
 
 using Persistent = import "persistence.capnp".Persistent;
-using Restorer = import "restore_resolve.capnp".Restorer;
-using Common = import "common.capnp";
-using Date = import "date.capnp";
+using Restorer = import "persistence.capnp".Restorer;
+using Identifiable = import "common.capnp".Identifiable;
 using Geo = import "geo.capnp";
 
 enum SType {
@@ -113,7 +112,7 @@ struct Profile {
 }
 
 
-interface Service extends(Common.Identifiable, Persistent) {
+interface Service extends(Identifiable, Persistent) {
   # service for soil data
 
   #interface CommonCapHolderProfile {

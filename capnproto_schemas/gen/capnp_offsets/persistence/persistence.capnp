@@ -59,3 +59,12 @@ interface Restorer @0x9fb6218427d92e3c {
     sealedFor @1 :SturdyRef.Owner;  # ptr[1]
   }
 }
+interface HostPortResolver @0xaa8d91fab6d01d9f superclasses(import "/common.capnp".Identifiable, Restorer) {
+  resolve @0 (id :Text) -> (host :Text, port :UInt16);
+  interface Registrar @0xb0caf775704690b2 {
+    register @0 (base64VatId :Text, host :Text, port :UInt16, alias :Text) -> (heartbeat :Heartbeat, secsHeartbeatInterval :UInt32);
+    interface Heartbeat @0x87de92d2d68df26f {
+      beat @0 () -> ();
+    }
+  }
+}

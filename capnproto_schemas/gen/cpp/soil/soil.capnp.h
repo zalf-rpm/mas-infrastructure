@@ -100,6 +100,7 @@ struct Layer::Property {
     F32_VALUE,
     B_VALUE,
     TYPE,
+    UNSET,
   };
 
   struct _capnpPrivate {
@@ -365,6 +366,9 @@ public:
   inline bool hasType() const;
   inline  ::capnp::Text::Reader getType() const;
 
+  inline bool isUnset() const;
+  inline  ::capnp::Void getUnset() const;
+
 private:
   ::capnp::_::StructReader _reader;
   template <typename, ::capnp::Kind>
@@ -412,6 +416,10 @@ public:
   inline  ::capnp::Text::Builder initType(unsigned int size);
   inline void adoptType(::capnp::Orphan< ::capnp::Text>&& value);
   inline ::capnp::Orphan< ::capnp::Text> disownType();
+
+  inline bool isUnset();
+  inline  ::capnp::Void getUnset();
+  inline void setUnset( ::capnp::Void value = ::capnp::VOID);
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -1352,6 +1360,32 @@ inline ::capnp::Orphan< ::capnp::Text> Layer::Property::Builder::disownType() {
               "Must check which() before get()ing a union member.");
   return ::capnp::_::PointerHelpers< ::capnp::Text>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+
+inline bool Layer::Property::Reader::isUnset() const {
+  return which() == Layer::Property::UNSET;
+}
+inline bool Layer::Property::Builder::isUnset() {
+  return which() == Layer::Property::UNSET;
+}
+inline  ::capnp::Void Layer::Property::Reader::getUnset() const {
+  KJ_IREQUIRE((which() == Layer::Property::UNSET),
+              "Must check which() before get()ing a union member.");
+  return _reader.getDataField< ::capnp::Void>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+
+inline  ::capnp::Void Layer::Property::Builder::getUnset() {
+  KJ_IREQUIRE((which() == Layer::Property::UNSET),
+              "Must check which() before get()ing a union member.");
+  return _builder.getDataField< ::capnp::Void>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+inline void Layer::Property::Builder::setUnset( ::capnp::Void value) {
+  _builder.setDataField<Layer::Property::Which>(
+      ::capnp::bounded<1>() * ::capnp::ELEMENTS, Layer::Property::UNSET);
+  _builder.setDataField< ::capnp::Void>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, value);
 }
 
 inline bool Query::Reader::hasMandatory() const {

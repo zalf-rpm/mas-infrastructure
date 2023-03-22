@@ -5,223 +5,197 @@ package models
 import (
 	capnp "capnproto.org/go/capnp/v3"
 	text "capnproto.org/go/capnp/v3/encoding/text"
-	fc "capnproto.org/go/capnp/v3/flowcontrol"
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
-	fmt "fmt"
 	climate "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/climate"
 	common "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common"
 	management "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/management"
 	persistence "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/persistence"
+	service "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/service"
 	soil "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/soil"
 )
 
-type XYResult capnp.Struct
+type XYResult struct{ capnp.Struct }
 
 // XYResult_TypeID is the unique identifier for the type XYResult.
 const XYResult_TypeID = 0x851d47c6ccdecf08
 
 func NewXYResult(s *capnp.Segment) (XYResult, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return XYResult(st), err
+	return XYResult{st}, err
 }
 
 func NewRootXYResult(s *capnp.Segment) (XYResult, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return XYResult(st), err
+	return XYResult{st}, err
 }
 
 func ReadRootXYResult(msg *capnp.Message) (XYResult, error) {
 	root, err := msg.Root()
-	return XYResult(root.Struct()), err
+	return XYResult{root.Struct()}, err
 }
 
 func (s XYResult) String() string {
-	str, _ := text.Marshal(0x851d47c6ccdecf08, capnp.Struct(s))
+	str, _ := text.Marshal(0x851d47c6ccdecf08, s.Struct)
 	return str
 }
 
-func (s XYResult) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (XYResult) DecodeFromPtr(p capnp.Ptr) XYResult {
-	return XYResult(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s XYResult) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s XYResult) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s XYResult) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s XYResult) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s XYResult) Xs() (capnp.Float64List, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return capnp.Float64List(p.List()), err
+	p, err := s.Struct.Ptr(0)
+	return capnp.Float64List{List: p.List()}, err
 }
 
 func (s XYResult) HasXs() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s XYResult) SetXs(v capnp.Float64List) error {
-	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+	return s.Struct.SetPtr(0, v.List.ToPtr())
 }
 
 // NewXs sets the xs field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s XYResult) NewXs(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
+	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	err = s.Struct.SetPtr(0, l.List.ToPtr())
 	return l, err
 }
+
 func (s XYResult) Ys() (capnp.Float64List, error) {
-	p, err := capnp.Struct(s).Ptr(1)
-	return capnp.Float64List(p.List()), err
+	p, err := s.Struct.Ptr(1)
+	return capnp.Float64List{List: p.List()}, err
 }
 
 func (s XYResult) HasYs() bool {
-	return capnp.Struct(s).HasPtr(1)
+	return s.Struct.HasPtr(1)
 }
 
 func (s XYResult) SetYs(v capnp.Float64List) error {
-	return capnp.Struct(s).SetPtr(1, v.ToPtr())
+	return s.Struct.SetPtr(1, v.List.ToPtr())
 }
 
 // NewYs sets the ys field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s XYResult) NewYs(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
+	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = capnp.Struct(s).SetPtr(1, l.ToPtr())
+	err = s.Struct.SetPtr(1, l.List.ToPtr())
 	return l, err
 }
 
 // XYResult_List is a list of XYResult.
-type XYResult_List = capnp.StructList[XYResult]
+type XYResult_List struct{ capnp.List }
 
 // NewXYResult creates a new list of XYResult.
 func NewXYResult_List(s *capnp.Segment, sz int32) (XYResult_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
-	return capnp.StructList[XYResult](l), err
+	return XYResult_List{l}, err
+}
+
+func (s XYResult_List) At(i int) XYResult { return XYResult{s.List.Struct(i)} }
+
+func (s XYResult_List) Set(i int, v XYResult) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s XYResult_List) String() string {
+	str, _ := text.MarshalList(0x851d47c6ccdecf08, s.List)
+	return str
 }
 
 // XYResult_Future is a wrapper for a XYResult promised by a client call.
 type XYResult_Future struct{ *capnp.Future }
 
-func (f XYResult_Future) Struct() (XYResult, error) {
-	p, err := f.Future.Ptr()
-	return XYResult(p.Struct()), err
+func (p XYResult_Future) Struct() (XYResult, error) {
+	s, err := p.Future.Struct()
+	return XYResult{s}, err
 }
 
-type Stat capnp.Struct
+type Stat struct{ capnp.Struct }
 
 // Stat_TypeID is the unique identifier for the type Stat.
 const Stat_TypeID = 0xa6be2e805ea10a68
 
 func NewStat(s *capnp.Segment) (Stat, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return Stat(st), err
+	return Stat{st}, err
 }
 
 func NewRootStat(s *capnp.Segment) (Stat, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return Stat(st), err
+	return Stat{st}, err
 }
 
 func ReadRootStat(msg *capnp.Message) (Stat, error) {
 	root, err := msg.Root()
-	return Stat(root.Struct()), err
+	return Stat{root.Struct()}, err
 }
 
 func (s Stat) String() string {
-	str, _ := text.Marshal(0xa6be2e805ea10a68, capnp.Struct(s))
+	str, _ := text.Marshal(0xa6be2e805ea10a68, s.Struct)
 	return str
 }
 
-func (s Stat) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Stat) DecodeFromPtr(p capnp.Ptr) Stat {
-	return Stat(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Stat) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Stat) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Stat) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Stat) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Stat) Type() Stat_Type {
-	return Stat_Type(capnp.Struct(s).Uint16(0) ^ 3)
+	return Stat_Type(s.Struct.Uint16(0) ^ 3)
 }
 
 func (s Stat) SetType(v Stat_Type) {
-	capnp.Struct(s).SetUint16(0, uint16(v)^3)
+	s.Struct.SetUint16(0, uint16(v)^3)
 }
 
 func (s Stat) Vs() (capnp.Float64List, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return capnp.Float64List(p.List()), err
+	p, err := s.Struct.Ptr(0)
+	return capnp.Float64List{List: p.List()}, err
 }
 
 func (s Stat) HasVs() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Stat) SetVs(v capnp.Float64List) error {
-	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+	return s.Struct.SetPtr(0, v.List.ToPtr())
 }
 
 // NewVs sets the vs field to a newly
 // allocated capnp.Float64List, preferring placement in s's segment.
 func (s Stat) NewVs(n int32) (capnp.Float64List, error) {
-	l, err := capnp.NewFloat64List(capnp.Struct(s).Segment(), n)
+	l, err := capnp.NewFloat64List(s.Struct.Segment(), n)
 	if err != nil {
 		return capnp.Float64List{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	err = s.Struct.SetPtr(0, l.List.ToPtr())
 	return l, err
 }
 
 // Stat_List is a list of Stat.
-type Stat_List = capnp.StructList[Stat]
+type Stat_List struct{ capnp.List }
 
 // NewStat creates a new list of Stat.
 func NewStat_List(s *capnp.Segment, sz int32) (Stat_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1}, sz)
-	return capnp.StructList[Stat](l), err
+	return Stat_List{l}, err
+}
+
+func (s Stat_List) At(i int) Stat { return Stat{s.List.Struct(i)} }
+
+func (s Stat_List) Set(i int, v Stat) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s Stat_List) String() string {
+	str, _ := text.MarshalList(0xa6be2e805ea10a68, s.List)
+	return str
 }
 
 // Stat_Future is a wrapper for a Stat promised by a client call.
 type Stat_Future struct{ *capnp.Future }
 
-func (f Stat_Future) Struct() (Stat, error) {
-	p, err := f.Future.Ptr()
-	return Stat(p.Struct()), err
+func (p Stat_Future) Struct() (Stat, error) {
+	s, err := p.Future.Struct()
+	return Stat{s}, err
 }
 
 type Stat_Type uint16
@@ -277,128 +251,127 @@ func Stat_TypeFromString(c string) Stat_Type {
 	}
 }
 
-type Stat_Type_List = capnp.EnumList[Stat_Type]
+type Stat_Type_List struct{ capnp.List }
 
 func NewStat_Type_List(s *capnp.Segment, sz int32) (Stat_Type_List, error) {
-	return capnp.NewEnumList[Stat_Type](s, sz)
+	l, err := capnp.NewUInt16List(s, sz)
+	return Stat_Type_List{l.List}, err
 }
 
-type XYPlusResult capnp.Struct
+func (l Stat_Type_List) At(i int) Stat_Type {
+	ul := capnp.UInt16List{List: l.List}
+	return Stat_Type(ul.At(i))
+}
+
+func (l Stat_Type_List) Set(i int, v Stat_Type) {
+	ul := capnp.UInt16List{List: l.List}
+	ul.Set(i, uint16(v))
+}
+
+type XYPlusResult struct{ capnp.Struct }
 
 // XYPlusResult_TypeID is the unique identifier for the type XYPlusResult.
 const XYPlusResult_TypeID = 0x8f86b66260d02d1d
 
 func NewXYPlusResult(s *capnp.Segment) (XYPlusResult, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return XYPlusResult(st), err
+	return XYPlusResult{st}, err
 }
 
 func NewRootXYPlusResult(s *capnp.Segment) (XYPlusResult, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return XYPlusResult(st), err
+	return XYPlusResult{st}, err
 }
 
 func ReadRootXYPlusResult(msg *capnp.Message) (XYPlusResult, error) {
 	root, err := msg.Root()
-	return XYPlusResult(root.Struct()), err
+	return XYPlusResult{root.Struct()}, err
 }
 
 func (s XYPlusResult) String() string {
-	str, _ := text.Marshal(0x8f86b66260d02d1d, capnp.Struct(s))
+	str, _ := text.Marshal(0x8f86b66260d02d1d, s.Struct)
 	return str
 }
 
-func (s XYPlusResult) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (XYPlusResult) DecodeFromPtr(p capnp.Ptr) XYPlusResult {
-	return XYPlusResult(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s XYPlusResult) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s XYPlusResult) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s XYPlusResult) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s XYPlusResult) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s XYPlusResult) Xy() (XYResult, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return XYResult(p.Struct()), err
+	p, err := s.Struct.Ptr(0)
+	return XYResult{Struct: p.Struct()}, err
 }
 
 func (s XYPlusResult) HasXy() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s XYPlusResult) SetXy(v XYResult) error {
-	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewXy sets the xy field to a newly
 // allocated XYResult struct, preferring placement in s's segment.
 func (s XYPlusResult) NewXy() (XYResult, error) {
-	ss, err := NewXYResult(capnp.Struct(s).Segment())
+	ss, err := NewXYResult(s.Struct.Segment())
 	if err != nil {
 		return XYResult{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
 	return ss, err
 }
 
 func (s XYPlusResult) Stats() (Stat_List, error) {
-	p, err := capnp.Struct(s).Ptr(1)
-	return Stat_List(p.List()), err
+	p, err := s.Struct.Ptr(1)
+	return Stat_List{List: p.List()}, err
 }
 
 func (s XYPlusResult) HasStats() bool {
-	return capnp.Struct(s).HasPtr(1)
+	return s.Struct.HasPtr(1)
 }
 
 func (s XYPlusResult) SetStats(v Stat_List) error {
-	return capnp.Struct(s).SetPtr(1, v.ToPtr())
+	return s.Struct.SetPtr(1, v.List.ToPtr())
 }
 
 // NewStats sets the stats field to a newly
 // allocated Stat_List, preferring placement in s's segment.
 func (s XYPlusResult) NewStats(n int32) (Stat_List, error) {
-	l, err := NewStat_List(capnp.Struct(s).Segment(), n)
+	l, err := NewStat_List(s.Struct.Segment(), n)
 	if err != nil {
 		return Stat_List{}, err
 	}
-	err = capnp.Struct(s).SetPtr(1, l.ToPtr())
+	err = s.Struct.SetPtr(1, l.List.ToPtr())
 	return l, err
 }
 
 // XYPlusResult_List is a list of XYPlusResult.
-type XYPlusResult_List = capnp.StructList[XYPlusResult]
+type XYPlusResult_List struct{ capnp.List }
 
 // NewXYPlusResult creates a new list of XYPlusResult.
 func NewXYPlusResult_List(s *capnp.Segment, sz int32) (XYPlusResult_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
-	return capnp.StructList[XYPlusResult](l), err
+	return XYPlusResult_List{l}, err
+}
+
+func (s XYPlusResult_List) At(i int) XYPlusResult { return XYPlusResult{s.List.Struct(i)} }
+
+func (s XYPlusResult_List) Set(i int, v XYPlusResult) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s XYPlusResult_List) String() string {
+	str, _ := text.MarshalList(0x8f86b66260d02d1d, s.List)
+	return str
 }
 
 // XYPlusResult_Future is a wrapper for a XYPlusResult promised by a client call.
 type XYPlusResult_Future struct{ *capnp.Future }
 
-func (f XYPlusResult_Future) Struct() (XYPlusResult, error) {
-	p, err := f.Future.Ptr()
-	return XYPlusResult(p.Struct()), err
+func (p XYPlusResult_Future) Struct() (XYPlusResult, error) {
+	s, err := p.Future.Struct()
+	return XYPlusResult{s}, err
 }
+
 func (p XYPlusResult_Future) Xy() XYResult_Future {
 	return XYResult_Future{Future: p.Future.Field(0, nil)}
 }
 
-type ClimateInstance capnp.Client
+type ClimateInstance struct{ Client *capnp.Client }
 
 // ClimateInstance_TypeID is the unique identifier for the type ClimateInstance.
 const ClimateInstance_TypeID = 0xdfcfeb783c4948fc
@@ -414,9 +387,9 @@ func (c ClimateInstance) Run(ctx context.Context, params func(ClimateInstance_ru
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(ClimateInstance_run_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(ClimateInstance_run_Params{Struct: s}) }
 	}
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return ClimateInstance_run_Results_Future{Future: ans.Future()}, release
 }
 func (c ClimateInstance) RunSet(ctx context.Context, params func(ClimateInstance_runSet_Params) error) (ClimateInstance_runSet_Results_Future, capnp.ReleaseFunc) {
@@ -430,9 +403,9 @@ func (c ClimateInstance) RunSet(ctx context.Context, params func(ClimateInstance
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(ClimateInstance_runSet_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(ClimateInstance_runSet_Params{Struct: s}) }
 	}
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return ClimateInstance_runSet_Results_Future{Future: ans.Future()}, release
 }
 func (c ClimateInstance) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
@@ -446,78 +419,23 @@ func (c ClimateInstance) Info(ctx context.Context, params func(common.Identifiab
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params{Struct: s}) }
 	}
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
 }
 
-// String returns a string that identifies this capability for debugging
-// purposes.  Its format should not be depended on: in particular, it
-// should not be used to compare clients.  Use IsSame to compare clients
-// for equality.
-func (c ClimateInstance) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
-}
-
-// AddRef creates a new Client that refers to the same capability as c.
-// If c is nil or has resolved to null, then AddRef returns nil.
 func (c ClimateInstance) AddRef() ClimateInstance {
-	return ClimateInstance(capnp.Client(c).AddRef())
+	return ClimateInstance{
+		Client: c.Client.AddRef(),
+	}
 }
 
-// Release releases a capability reference.  If this is the last
-// reference to the capability, then the underlying resources associated
-// with the capability will be released.
-//
-// Release will panic if c has already been released, but not if c is
-// nil or resolved to null.
 func (c ClimateInstance) Release() {
-	capnp.Client(c).Release()
+	c.Client.Release()
 }
 
-// Resolve blocks until the capability is fully resolved or the Context
-// expires.
-func (c ClimateInstance) Resolve(ctx context.Context) error {
-	return capnp.Client(c).Resolve(ctx)
-}
-
-func (c ClimateInstance) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Client(c).EncodeAsPtr(seg)
-}
-
-func (ClimateInstance) DecodeFromPtr(p capnp.Ptr) ClimateInstance {
-	return ClimateInstance(capnp.Client{}.DecodeFromPtr(p))
-}
-
-// IsValid reports whether c is a valid reference to a capability.
-// A reference is invalid if it is nil, has resolved to null, or has
-// been released.
-func (c ClimateInstance) IsValid() bool {
-	return capnp.Client(c).IsValid()
-}
-
-// IsSame reports whether c and other refer to a capability created by the
-// same call to NewClient.  This can return false negatives if c or other
-// are not fully resolved: use Resolve if this is an issue.  If either
-// c or other are released, then IsSame panics.
-func (c ClimateInstance) IsSame(other ClimateInstance) bool {
-	return capnp.Client(c).IsSame(capnp.Client(other))
-}
-
-// Update the flowcontrol.FlowLimiter used to manage flow control for
-// this client. This affects all future calls, but not calls already
-// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
-// which is also the default.
-func (c ClimateInstance) SetFlowLimiter(lim fc.FlowLimiter) {
-	capnp.Client(c).SetFlowLimiter(lim)
-}
-
-// Get the current flowcontrol.FlowLimiter used to manage flow control
-// for this client.
-func (c ClimateInstance) GetFlowLimiter() fc.FlowLimiter {
-	return capnp.Client(c).GetFlowLimiter()
-} // A ClimateInstance_Server is a ClimateInstance with a local implementation.
+// A ClimateInstance_Server is a ClimateInstance with a local implementation.
 type ClimateInstance_Server interface {
 	Run(context.Context, ClimateInstance_run) error
 
@@ -527,15 +445,15 @@ type ClimateInstance_Server interface {
 }
 
 // ClimateInstance_NewServer creates a new Server from an implementation of ClimateInstance_Server.
-func ClimateInstance_NewServer(s ClimateInstance_Server) *server.Server {
+func ClimateInstance_NewServer(s ClimateInstance_Server, policy *server.Policy) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(ClimateInstance_Methods(nil, s), s, c)
+	return server.New(ClimateInstance_Methods(nil, s), s, c, policy)
 }
 
 // ClimateInstance_ServerToClient creates a new Client from an implementation of ClimateInstance_Server.
 // The caller is responsible for calling Release on the returned Client.
-func ClimateInstance_ServerToClient(s ClimateInstance_Server) ClimateInstance {
-	return ClimateInstance(capnp.NewClient(ClimateInstance_NewServer(s)))
+func ClimateInstance_ServerToClient(s ClimateInstance_Server, policy *server.Policy) ClimateInstance {
+	return ClimateInstance{Client: capnp.NewClient(ClimateInstance_NewServer(s, policy))}
 }
 
 // ClimateInstance_Methods appends Methods to a slice that invoke the methods on s.
@@ -592,13 +510,13 @@ type ClimateInstance_run struct {
 
 // Args returns the call's arguments.
 func (c ClimateInstance_run) Args() ClimateInstance_run_Params {
-	return ClimateInstance_run_Params(c.Call.Args())
+	return ClimateInstance_run_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c ClimateInstance_run) AllocResults() (ClimateInstance_run_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return ClimateInstance_run_Results(r), err
+	return ClimateInstance_run_Results{Struct: r}, err
 }
 
 // ClimateInstance_runSet holds the state for a server call to ClimateInstance.runSet.
@@ -609,531 +527,479 @@ type ClimateInstance_runSet struct {
 
 // Args returns the call's arguments.
 func (c ClimateInstance_runSet) Args() ClimateInstance_runSet_Params {
-	return ClimateInstance_runSet_Params(c.Call.Args())
+	return ClimateInstance_runSet_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c ClimateInstance_runSet) AllocResults() (ClimateInstance_runSet_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return ClimateInstance_runSet_Results(r), err
+	return ClimateInstance_runSet_Results{Struct: r}, err
 }
 
-// ClimateInstance_List is a list of ClimateInstance.
-type ClimateInstance_List = capnp.CapList[ClimateInstance]
-
-// NewClimateInstance creates a new list of ClimateInstance.
-func NewClimateInstance_List(s *capnp.Segment, sz int32) (ClimateInstance_List, error) {
-	l, err := capnp.NewPointerList(s, sz)
-	return capnp.CapList[ClimateInstance](l), err
-}
-
-type ClimateInstance_run_Params capnp.Struct
+type ClimateInstance_run_Params struct{ capnp.Struct }
 
 // ClimateInstance_run_Params_TypeID is the unique identifier for the type ClimateInstance_run_Params.
 const ClimateInstance_run_Params_TypeID = 0xdf787fd9d51f235b
 
 func NewClimateInstance_run_Params(s *capnp.Segment) (ClimateInstance_run_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return ClimateInstance_run_Params(st), err
+	return ClimateInstance_run_Params{st}, err
 }
 
 func NewRootClimateInstance_run_Params(s *capnp.Segment) (ClimateInstance_run_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return ClimateInstance_run_Params(st), err
+	return ClimateInstance_run_Params{st}, err
 }
 
 func ReadRootClimateInstance_run_Params(msg *capnp.Message) (ClimateInstance_run_Params, error) {
 	root, err := msg.Root()
-	return ClimateInstance_run_Params(root.Struct()), err
+	return ClimateInstance_run_Params{root.Struct()}, err
 }
 
 func (s ClimateInstance_run_Params) String() string {
-	str, _ := text.Marshal(0xdf787fd9d51f235b, capnp.Struct(s))
+	str, _ := text.Marshal(0xdf787fd9d51f235b, s.Struct)
 	return str
 }
 
-func (s ClimateInstance_run_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (ClimateInstance_run_Params) DecodeFromPtr(p capnp.Ptr) ClimateInstance_run_Params {
-	return ClimateInstance_run_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s ClimateInstance_run_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s ClimateInstance_run_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s ClimateInstance_run_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s ClimateInstance_run_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s ClimateInstance_run_Params) TimeSeries() climate.TimeSeries {
-	p, _ := capnp.Struct(s).Ptr(0)
-	return climate.TimeSeries(p.Interface().Client())
+	p, _ := s.Struct.Ptr(0)
+	return climate.TimeSeries{Client: p.Interface().Client()}
 }
 
 func (s ClimateInstance_run_Params) HasTimeSeries() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s ClimateInstance_run_Params) SetTimeSeries(v climate.TimeSeries) error {
-	if !v.IsValid() {
-		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
+	if !v.Client.IsValid() {
+		return s.Struct.SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
-	return capnp.Struct(s).SetPtr(0, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
+	return s.Struct.SetPtr(0, in.ToPtr())
 }
 
 // ClimateInstance_run_Params_List is a list of ClimateInstance_run_Params.
-type ClimateInstance_run_Params_List = capnp.StructList[ClimateInstance_run_Params]
+type ClimateInstance_run_Params_List struct{ capnp.List }
 
 // NewClimateInstance_run_Params creates a new list of ClimateInstance_run_Params.
 func NewClimateInstance_run_Params_List(s *capnp.Segment, sz int32) (ClimateInstance_run_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[ClimateInstance_run_Params](l), err
+	return ClimateInstance_run_Params_List{l}, err
+}
+
+func (s ClimateInstance_run_Params_List) At(i int) ClimateInstance_run_Params {
+	return ClimateInstance_run_Params{s.List.Struct(i)}
+}
+
+func (s ClimateInstance_run_Params_List) Set(i int, v ClimateInstance_run_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s ClimateInstance_run_Params_List) String() string {
+	str, _ := text.MarshalList(0xdf787fd9d51f235b, s.List)
+	return str
 }
 
 // ClimateInstance_run_Params_Future is a wrapper for a ClimateInstance_run_Params promised by a client call.
 type ClimateInstance_run_Params_Future struct{ *capnp.Future }
 
-func (f ClimateInstance_run_Params_Future) Struct() (ClimateInstance_run_Params, error) {
-	p, err := f.Future.Ptr()
-	return ClimateInstance_run_Params(p.Struct()), err
-}
-func (p ClimateInstance_run_Params_Future) TimeSeries() climate.TimeSeries {
-	return climate.TimeSeries(p.Future.Field(0, nil).Client())
+func (p ClimateInstance_run_Params_Future) Struct() (ClimateInstance_run_Params, error) {
+	s, err := p.Future.Struct()
+	return ClimateInstance_run_Params{s}, err
 }
 
-type ClimateInstance_run_Results capnp.Struct
+func (p ClimateInstance_run_Params_Future) TimeSeries() climate.TimeSeries {
+	return climate.TimeSeries{Client: p.Future.Field(0, nil).Client()}
+}
+
+type ClimateInstance_run_Results struct{ capnp.Struct }
 
 // ClimateInstance_run_Results_TypeID is the unique identifier for the type ClimateInstance_run_Results.
 const ClimateInstance_run_Results_TypeID = 0xcc39e47cdead74c4
 
 func NewClimateInstance_run_Results(s *capnp.Segment) (ClimateInstance_run_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return ClimateInstance_run_Results(st), err
+	return ClimateInstance_run_Results{st}, err
 }
 
 func NewRootClimateInstance_run_Results(s *capnp.Segment) (ClimateInstance_run_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return ClimateInstance_run_Results(st), err
+	return ClimateInstance_run_Results{st}, err
 }
 
 func ReadRootClimateInstance_run_Results(msg *capnp.Message) (ClimateInstance_run_Results, error) {
 	root, err := msg.Root()
-	return ClimateInstance_run_Results(root.Struct()), err
+	return ClimateInstance_run_Results{root.Struct()}, err
 }
 
 func (s ClimateInstance_run_Results) String() string {
-	str, _ := text.Marshal(0xcc39e47cdead74c4, capnp.Struct(s))
+	str, _ := text.Marshal(0xcc39e47cdead74c4, s.Struct)
 	return str
 }
 
-func (s ClimateInstance_run_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (ClimateInstance_run_Results) DecodeFromPtr(p capnp.Ptr) ClimateInstance_run_Results {
-	return ClimateInstance_run_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s ClimateInstance_run_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s ClimateInstance_run_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s ClimateInstance_run_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s ClimateInstance_run_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s ClimateInstance_run_Results) Result() (XYResult, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return XYResult(p.Struct()), err
+	p, err := s.Struct.Ptr(0)
+	return XYResult{Struct: p.Struct()}, err
 }
 
 func (s ClimateInstance_run_Results) HasResult() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s ClimateInstance_run_Results) SetResult(v XYResult) error {
-	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewResult sets the result field to a newly
 // allocated XYResult struct, preferring placement in s's segment.
 func (s ClimateInstance_run_Results) NewResult() (XYResult, error) {
-	ss, err := NewXYResult(capnp.Struct(s).Segment())
+	ss, err := NewXYResult(s.Struct.Segment())
 	if err != nil {
 		return XYResult{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
 	return ss, err
 }
 
 // ClimateInstance_run_Results_List is a list of ClimateInstance_run_Results.
-type ClimateInstance_run_Results_List = capnp.StructList[ClimateInstance_run_Results]
+type ClimateInstance_run_Results_List struct{ capnp.List }
 
 // NewClimateInstance_run_Results creates a new list of ClimateInstance_run_Results.
 func NewClimateInstance_run_Results_List(s *capnp.Segment, sz int32) (ClimateInstance_run_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[ClimateInstance_run_Results](l), err
+	return ClimateInstance_run_Results_List{l}, err
+}
+
+func (s ClimateInstance_run_Results_List) At(i int) ClimateInstance_run_Results {
+	return ClimateInstance_run_Results{s.List.Struct(i)}
+}
+
+func (s ClimateInstance_run_Results_List) Set(i int, v ClimateInstance_run_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s ClimateInstance_run_Results_List) String() string {
+	str, _ := text.MarshalList(0xcc39e47cdead74c4, s.List)
+	return str
 }
 
 // ClimateInstance_run_Results_Future is a wrapper for a ClimateInstance_run_Results promised by a client call.
 type ClimateInstance_run_Results_Future struct{ *capnp.Future }
 
-func (f ClimateInstance_run_Results_Future) Struct() (ClimateInstance_run_Results, error) {
-	p, err := f.Future.Ptr()
-	return ClimateInstance_run_Results(p.Struct()), err
+func (p ClimateInstance_run_Results_Future) Struct() (ClimateInstance_run_Results, error) {
+	s, err := p.Future.Struct()
+	return ClimateInstance_run_Results{s}, err
 }
+
 func (p ClimateInstance_run_Results_Future) Result() XYResult_Future {
 	return XYResult_Future{Future: p.Future.Field(0, nil)}
 }
 
-type ClimateInstance_runSet_Params capnp.Struct
+type ClimateInstance_runSet_Params struct{ capnp.Struct }
 
 // ClimateInstance_runSet_Params_TypeID is the unique identifier for the type ClimateInstance_runSet_Params.
 const ClimateInstance_runSet_Params_TypeID = 0xaa9d146226037822
 
 func NewClimateInstance_runSet_Params(s *capnp.Segment) (ClimateInstance_runSet_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return ClimateInstance_runSet_Params(st), err
+	return ClimateInstance_runSet_Params{st}, err
 }
 
 func NewRootClimateInstance_runSet_Params(s *capnp.Segment) (ClimateInstance_runSet_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return ClimateInstance_runSet_Params(st), err
+	return ClimateInstance_runSet_Params{st}, err
 }
 
 func ReadRootClimateInstance_runSet_Params(msg *capnp.Message) (ClimateInstance_runSet_Params, error) {
 	root, err := msg.Root()
-	return ClimateInstance_runSet_Params(root.Struct()), err
+	return ClimateInstance_runSet_Params{root.Struct()}, err
 }
 
 func (s ClimateInstance_runSet_Params) String() string {
-	str, _ := text.Marshal(0xaa9d146226037822, capnp.Struct(s))
+	str, _ := text.Marshal(0xaa9d146226037822, s.Struct)
 	return str
 }
 
-func (s ClimateInstance_runSet_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (ClimateInstance_runSet_Params) DecodeFromPtr(p capnp.Ptr) ClimateInstance_runSet_Params {
-	return ClimateInstance_runSet_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s ClimateInstance_runSet_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s ClimateInstance_runSet_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s ClimateInstance_runSet_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s ClimateInstance_runSet_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-func (s ClimateInstance_runSet_Params) Dataset() (climate.TimeSeries_List, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return climate.TimeSeries_List(p.List()), err
+func (s ClimateInstance_runSet_Params) Dataset() (capnp.PointerList, error) {
+	p, err := s.Struct.Ptr(0)
+	return capnp.PointerList{List: p.List()}, err
 }
 
 func (s ClimateInstance_runSet_Params) HasDataset() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
-func (s ClimateInstance_runSet_Params) SetDataset(v climate.TimeSeries_List) error {
-	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+func (s ClimateInstance_runSet_Params) SetDataset(v capnp.PointerList) error {
+	return s.Struct.SetPtr(0, v.List.ToPtr())
 }
 
 // NewDataset sets the dataset field to a newly
-// allocated climate.TimeSeries_List, preferring placement in s's segment.
-func (s ClimateInstance_runSet_Params) NewDataset(n int32) (climate.TimeSeries_List, error) {
-	l, err := climate.NewTimeSeries_List(capnp.Struct(s).Segment(), n)
+// allocated capnp.PointerList, preferring placement in s's segment.
+func (s ClimateInstance_runSet_Params) NewDataset(n int32) (capnp.PointerList, error) {
+	l, err := capnp.NewPointerList(s.Struct.Segment(), n)
 	if err != nil {
-		return climate.TimeSeries_List{}, err
+		return capnp.PointerList{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	err = s.Struct.SetPtr(0, l.List.ToPtr())
 	return l, err
 }
 
 // ClimateInstance_runSet_Params_List is a list of ClimateInstance_runSet_Params.
-type ClimateInstance_runSet_Params_List = capnp.StructList[ClimateInstance_runSet_Params]
+type ClimateInstance_runSet_Params_List struct{ capnp.List }
 
 // NewClimateInstance_runSet_Params creates a new list of ClimateInstance_runSet_Params.
 func NewClimateInstance_runSet_Params_List(s *capnp.Segment, sz int32) (ClimateInstance_runSet_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[ClimateInstance_runSet_Params](l), err
+	return ClimateInstance_runSet_Params_List{l}, err
+}
+
+func (s ClimateInstance_runSet_Params_List) At(i int) ClimateInstance_runSet_Params {
+	return ClimateInstance_runSet_Params{s.List.Struct(i)}
+}
+
+func (s ClimateInstance_runSet_Params_List) Set(i int, v ClimateInstance_runSet_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s ClimateInstance_runSet_Params_List) String() string {
+	str, _ := text.MarshalList(0xaa9d146226037822, s.List)
+	return str
 }
 
 // ClimateInstance_runSet_Params_Future is a wrapper for a ClimateInstance_runSet_Params promised by a client call.
 type ClimateInstance_runSet_Params_Future struct{ *capnp.Future }
 
-func (f ClimateInstance_runSet_Params_Future) Struct() (ClimateInstance_runSet_Params, error) {
-	p, err := f.Future.Ptr()
-	return ClimateInstance_runSet_Params(p.Struct()), err
+func (p ClimateInstance_runSet_Params_Future) Struct() (ClimateInstance_runSet_Params, error) {
+	s, err := p.Future.Struct()
+	return ClimateInstance_runSet_Params{s}, err
 }
 
-type ClimateInstance_runSet_Results capnp.Struct
+type ClimateInstance_runSet_Results struct{ capnp.Struct }
 
 // ClimateInstance_runSet_Results_TypeID is the unique identifier for the type ClimateInstance_runSet_Results.
 const ClimateInstance_runSet_Results_TypeID = 0xe22282cb3449bb4a
 
 func NewClimateInstance_runSet_Results(s *capnp.Segment) (ClimateInstance_runSet_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return ClimateInstance_runSet_Results(st), err
+	return ClimateInstance_runSet_Results{st}, err
 }
 
 func NewRootClimateInstance_runSet_Results(s *capnp.Segment) (ClimateInstance_runSet_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return ClimateInstance_runSet_Results(st), err
+	return ClimateInstance_runSet_Results{st}, err
 }
 
 func ReadRootClimateInstance_runSet_Results(msg *capnp.Message) (ClimateInstance_runSet_Results, error) {
 	root, err := msg.Root()
-	return ClimateInstance_runSet_Results(root.Struct()), err
+	return ClimateInstance_runSet_Results{root.Struct()}, err
 }
 
 func (s ClimateInstance_runSet_Results) String() string {
-	str, _ := text.Marshal(0xe22282cb3449bb4a, capnp.Struct(s))
+	str, _ := text.Marshal(0xe22282cb3449bb4a, s.Struct)
 	return str
 }
 
-func (s ClimateInstance_runSet_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (ClimateInstance_runSet_Results) DecodeFromPtr(p capnp.Ptr) ClimateInstance_runSet_Results {
-	return ClimateInstance_runSet_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s ClimateInstance_runSet_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s ClimateInstance_runSet_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s ClimateInstance_runSet_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s ClimateInstance_runSet_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s ClimateInstance_runSet_Results) Result() (XYPlusResult, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return XYPlusResult(p.Struct()), err
+	p, err := s.Struct.Ptr(0)
+	return XYPlusResult{Struct: p.Struct()}, err
 }
 
 func (s ClimateInstance_runSet_Results) HasResult() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s ClimateInstance_runSet_Results) SetResult(v XYPlusResult) error {
-	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewResult sets the result field to a newly
 // allocated XYPlusResult struct, preferring placement in s's segment.
 func (s ClimateInstance_runSet_Results) NewResult() (XYPlusResult, error) {
-	ss, err := NewXYPlusResult(capnp.Struct(s).Segment())
+	ss, err := NewXYPlusResult(s.Struct.Segment())
 	if err != nil {
 		return XYPlusResult{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
 	return ss, err
 }
 
 // ClimateInstance_runSet_Results_List is a list of ClimateInstance_runSet_Results.
-type ClimateInstance_runSet_Results_List = capnp.StructList[ClimateInstance_runSet_Results]
+type ClimateInstance_runSet_Results_List struct{ capnp.List }
 
 // NewClimateInstance_runSet_Results creates a new list of ClimateInstance_runSet_Results.
 func NewClimateInstance_runSet_Results_List(s *capnp.Segment, sz int32) (ClimateInstance_runSet_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[ClimateInstance_runSet_Results](l), err
+	return ClimateInstance_runSet_Results_List{l}, err
+}
+
+func (s ClimateInstance_runSet_Results_List) At(i int) ClimateInstance_runSet_Results {
+	return ClimateInstance_runSet_Results{s.List.Struct(i)}
+}
+
+func (s ClimateInstance_runSet_Results_List) Set(i int, v ClimateInstance_runSet_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s ClimateInstance_runSet_Results_List) String() string {
+	str, _ := text.MarshalList(0xe22282cb3449bb4a, s.List)
+	return str
 }
 
 // ClimateInstance_runSet_Results_Future is a wrapper for a ClimateInstance_runSet_Results promised by a client call.
 type ClimateInstance_runSet_Results_Future struct{ *capnp.Future }
 
-func (f ClimateInstance_runSet_Results_Future) Struct() (ClimateInstance_runSet_Results, error) {
-	p, err := f.Future.Ptr()
-	return ClimateInstance_runSet_Results(p.Struct()), err
+func (p ClimateInstance_runSet_Results_Future) Struct() (ClimateInstance_runSet_Results, error) {
+	s, err := p.Future.Struct()
+	return ClimateInstance_runSet_Results{s}, err
 }
+
 func (p ClimateInstance_runSet_Results_Future) Result() XYPlusResult_Future {
 	return XYPlusResult_Future{Future: p.Future.Field(0, nil)}
 }
 
-type Env capnp.Struct
+type Env struct{ capnp.Struct }
 
 // Env_TypeID is the unique identifier for the type Env.
 const Env_TypeID = 0xb7fc866ef1127f7c
 
 func NewEnv(s *capnp.Segment) (Env, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 4})
-	return Env(st), err
+	return Env{st}, err
 }
 
 func NewRootEnv(s *capnp.Segment) (Env, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 4})
-	return Env(st), err
+	return Env{st}, err
 }
 
 func ReadRootEnv(msg *capnp.Message) (Env, error) {
 	root, err := msg.Root()
-	return Env(root.Struct()), err
+	return Env{root.Struct()}, err
 }
 
 func (s Env) String() string {
-	str, _ := text.Marshal(0xb7fc866ef1127f7c, capnp.Struct(s))
+	str, _ := text.Marshal(0xb7fc866ef1127f7c, s.Struct)
 	return str
 }
 
-func (s Env) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Env) DecodeFromPtr(p capnp.Ptr) Env {
-	return Env(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Env) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Env) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Env) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Env) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Env) Rest() (capnp.Ptr, error) {
-	return capnp.Struct(s).Ptr(0)
+	return s.Struct.Ptr(0)
 }
 
 func (s Env) HasRest() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Env) SetRest(v capnp.Ptr) error {
-	return capnp.Struct(s).SetPtr(0, v)
+	return s.Struct.SetPtr(0, v)
 }
+
 func (s Env) TimeSeries() climate.TimeSeries {
-	p, _ := capnp.Struct(s).Ptr(1)
-	return climate.TimeSeries(p.Interface().Client())
+	p, _ := s.Struct.Ptr(1)
+	return climate.TimeSeries{Client: p.Interface().Client()}
 }
 
 func (s Env) HasTimeSeries() bool {
-	return capnp.Struct(s).HasPtr(1)
+	return s.Struct.HasPtr(1)
 }
 
 func (s Env) SetTimeSeries(v climate.TimeSeries) error {
-	if !v.IsValid() {
-		return capnp.Struct(s).SetPtr(1, capnp.Ptr{})
+	if !v.Client.IsValid() {
+		return s.Struct.SetPtr(1, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
-	return capnp.Struct(s).SetPtr(1, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
+	return s.Struct.SetPtr(1, in.ToPtr())
 }
 
 func (s Env) SoilProfile() (soil.Profile, error) {
-	p, err := capnp.Struct(s).Ptr(2)
-	return soil.Profile(p.Struct()), err
+	p, err := s.Struct.Ptr(2)
+	return soil.Profile{Struct: p.Struct()}, err
 }
 
 func (s Env) HasSoilProfile() bool {
-	return capnp.Struct(s).HasPtr(2)
+	return s.Struct.HasPtr(2)
 }
 
 func (s Env) SetSoilProfile(v soil.Profile) error {
-	return capnp.Struct(s).SetPtr(2, capnp.Struct(v).ToPtr())
+	return s.Struct.SetPtr(2, v.Struct.ToPtr())
 }
 
 // NewSoilProfile sets the soilProfile field to a newly
 // allocated soil.Profile struct, preferring placement in s's segment.
 func (s Env) NewSoilProfile() (soil.Profile, error) {
-	ss, err := soil.NewProfile(capnp.Struct(s).Segment())
+	ss, err := soil.NewProfile(s.Struct.Segment())
 	if err != nil {
 		return soil.Profile{}, err
 	}
-	err = capnp.Struct(s).SetPtr(2, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(2, ss.Struct.ToPtr())
 	return ss, err
 }
 
 func (s Env) MgmtEvents() (management.Event_List, error) {
-	p, err := capnp.Struct(s).Ptr(3)
-	return management.Event_List(p.List()), err
+	p, err := s.Struct.Ptr(3)
+	return management.Event_List{List: p.List()}, err
 }
 
 func (s Env) HasMgmtEvents() bool {
-	return capnp.Struct(s).HasPtr(3)
+	return s.Struct.HasPtr(3)
 }
 
 func (s Env) SetMgmtEvents(v management.Event_List) error {
-	return capnp.Struct(s).SetPtr(3, v.ToPtr())
+	return s.Struct.SetPtr(3, v.List.ToPtr())
 }
 
 // NewMgmtEvents sets the mgmtEvents field to a newly
 // allocated management.Event_List, preferring placement in s's segment.
 func (s Env) NewMgmtEvents(n int32) (management.Event_List, error) {
-	l, err := management.NewEvent_List(capnp.Struct(s).Segment(), n)
+	l, err := management.NewEvent_List(s.Struct.Segment(), n)
 	if err != nil {
 		return management.Event_List{}, err
 	}
-	err = capnp.Struct(s).SetPtr(3, l.ToPtr())
+	err = s.Struct.SetPtr(3, l.List.ToPtr())
 	return l, err
 }
 
 // Env_List is a list of Env.
-type Env_List = capnp.StructList[Env]
+type Env_List struct{ capnp.List }
 
 // NewEnv creates a new list of Env.
 func NewEnv_List(s *capnp.Segment, sz int32) (Env_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 4}, sz)
-	return capnp.StructList[Env](l), err
+	return Env_List{l}, err
+}
+
+func (s Env_List) At(i int) Env { return Env{s.List.Struct(i)} }
+
+func (s Env_List) Set(i int, v Env) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s Env_List) String() string {
+	str, _ := text.MarshalList(0xb7fc866ef1127f7c, s.List)
+	return str
 }
 
 // Env_Future is a wrapper for a Env promised by a client call.
 type Env_Future struct{ *capnp.Future }
 
-func (f Env_Future) Struct() (Env, error) {
-	p, err := f.Future.Ptr()
-	return Env(p.Struct()), err
+func (p Env_Future) Struct() (Env, error) {
+	s, err := p.Future.Struct()
+	return Env{s}, err
 }
+
 func (p Env_Future) Rest() *capnp.Future {
 	return p.Future.Field(0, nil)
 }
+
 func (p Env_Future) TimeSeries() climate.TimeSeries {
-	return climate.TimeSeries(p.Future.Field(1, nil).Client())
+	return climate.TimeSeries{Client: p.Future.Field(1, nil).Client()}
 }
 
 func (p Env_Future) SoilProfile() soil.Profile_Future {
 	return soil.Profile_Future{Future: p.Future.Field(2, nil)}
 }
 
-type EnvInstance capnp.Client
+type EnvInstance struct{ Client *capnp.Client }
 
 // EnvInstance_TypeID is the unique identifier for the type EnvInstance.
 const EnvInstance_TypeID = 0xa5feedafa5ec5c4a
@@ -1149,9 +1015,9 @@ func (c EnvInstance) Run(ctx context.Context, params func(EnvInstance_run_Params
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(EnvInstance_run_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(EnvInstance_run_Params{Struct: s}) }
 	}
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return EnvInstance_run_Results_Future{Future: ans.Future()}, release
 }
 func (c EnvInstance) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
@@ -1165,9 +1031,9 @@ func (c EnvInstance) Info(ctx context.Context, params func(common.Identifiable_i
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params{Struct: s}) }
 	}
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
 }
 func (c EnvInstance) Save(ctx context.Context, params func(persistence.Persistent_SaveParams) error) (persistence.Persistent_SaveResults_Future, capnp.ReleaseFunc) {
@@ -1181,94 +1047,39 @@ func (c EnvInstance) Save(ctx context.Context, params func(persistence.Persisten
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams{Struct: s}) }
 	}
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return persistence.Persistent_SaveResults_Future{Future: ans.Future()}, release
 }
-func (c EnvInstance) Stop(ctx context.Context, params func(common.Stopable_stop_Params) error) (common.Stopable_stop_Results_Future, capnp.ReleaseFunc) {
+func (c EnvInstance) Stop(ctx context.Context, params func(service.Stopable_stop_Params) error) (service.Stopable_stop_Results_Future, capnp.ReleaseFunc) {
 	s := capnp.Send{
 		Method: capnp.Method{
-			InterfaceID:   0xce7e4202f09e314a,
+			InterfaceID:   0xe9d1be2a6e9016e5,
 			MethodID:      0,
-			InterfaceName: "common.capnp:Stopable",
+			InterfaceName: "service.capnp:Stopable",
 			MethodName:    "stop",
 		},
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Stopable_stop_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(service.Stopable_stop_Params{Struct: s}) }
 	}
-	ans, release := capnp.Client(c).SendCall(ctx, s)
-	return common.Stopable_stop_Results_Future{Future: ans.Future()}, release
+	ans, release := c.Client.SendCall(ctx, s)
+	return service.Stopable_stop_Results_Future{Future: ans.Future()}, release
 }
 
-// String returns a string that identifies this capability for debugging
-// purposes.  Its format should not be depended on: in particular, it
-// should not be used to compare clients.  Use IsSame to compare clients
-// for equality.
-func (c EnvInstance) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
-}
-
-// AddRef creates a new Client that refers to the same capability as c.
-// If c is nil or has resolved to null, then AddRef returns nil.
 func (c EnvInstance) AddRef() EnvInstance {
-	return EnvInstance(capnp.Client(c).AddRef())
+	return EnvInstance{
+		Client: c.Client.AddRef(),
+	}
 }
 
-// Release releases a capability reference.  If this is the last
-// reference to the capability, then the underlying resources associated
-// with the capability will be released.
-//
-// Release will panic if c has already been released, but not if c is
-// nil or resolved to null.
 func (c EnvInstance) Release() {
-	capnp.Client(c).Release()
+	c.Client.Release()
 }
 
-// Resolve blocks until the capability is fully resolved or the Context
-// expires.
-func (c EnvInstance) Resolve(ctx context.Context) error {
-	return capnp.Client(c).Resolve(ctx)
-}
-
-func (c EnvInstance) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Client(c).EncodeAsPtr(seg)
-}
-
-func (EnvInstance) DecodeFromPtr(p capnp.Ptr) EnvInstance {
-	return EnvInstance(capnp.Client{}.DecodeFromPtr(p))
-}
-
-// IsValid reports whether c is a valid reference to a capability.
-// A reference is invalid if it is nil, has resolved to null, or has
-// been released.
-func (c EnvInstance) IsValid() bool {
-	return capnp.Client(c).IsValid()
-}
-
-// IsSame reports whether c and other refer to a capability created by the
-// same call to NewClient.  This can return false negatives if c or other
-// are not fully resolved: use Resolve if this is an issue.  If either
-// c or other are released, then IsSame panics.
-func (c EnvInstance) IsSame(other EnvInstance) bool {
-	return capnp.Client(c).IsSame(capnp.Client(other))
-}
-
-// Update the flowcontrol.FlowLimiter used to manage flow control for
-// this client. This affects all future calls, but not calls already
-// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
-// which is also the default.
-func (c EnvInstance) SetFlowLimiter(lim fc.FlowLimiter) {
-	capnp.Client(c).SetFlowLimiter(lim)
-}
-
-// Get the current flowcontrol.FlowLimiter used to manage flow control
-// for this client.
-func (c EnvInstance) GetFlowLimiter() fc.FlowLimiter {
-	return capnp.Client(c).GetFlowLimiter()
-} // A EnvInstance_Server is a EnvInstance with a local implementation.
+// A EnvInstance_Server is a EnvInstance with a local implementation.
 type EnvInstance_Server interface {
 	Run(context.Context, EnvInstance_run) error
 
@@ -1276,19 +1087,19 @@ type EnvInstance_Server interface {
 
 	Save(context.Context, persistence.Persistent_save) error
 
-	Stop(context.Context, common.Stopable_stop) error
+	Stop(context.Context, service.Stopable_stop) error
 }
 
 // EnvInstance_NewServer creates a new Server from an implementation of EnvInstance_Server.
-func EnvInstance_NewServer(s EnvInstance_Server) *server.Server {
+func EnvInstance_NewServer(s EnvInstance_Server, policy *server.Policy) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(EnvInstance_Methods(nil, s), s, c)
+	return server.New(EnvInstance_Methods(nil, s), s, c, policy)
 }
 
 // EnvInstance_ServerToClient creates a new Client from an implementation of EnvInstance_Server.
 // The caller is responsible for calling Release on the returned Client.
-func EnvInstance_ServerToClient(s EnvInstance_Server) EnvInstance {
-	return EnvInstance(capnp.NewClient(EnvInstance_NewServer(s)))
+func EnvInstance_ServerToClient(s EnvInstance_Server, policy *server.Policy) EnvInstance {
+	return EnvInstance{Client: capnp.NewClient(EnvInstance_NewServer(s, policy))}
 }
 
 // EnvInstance_Methods appends Methods to a slice that invoke the methods on s.
@@ -1336,13 +1147,13 @@ func EnvInstance_Methods(methods []server.Method, s EnvInstance_Server) []server
 
 	methods = append(methods, server.Method{
 		Method: capnp.Method{
-			InterfaceID:   0xce7e4202f09e314a,
+			InterfaceID:   0xe9d1be2a6e9016e5,
 			MethodID:      0,
-			InterfaceName: "common.capnp:Stopable",
+			InterfaceName: "service.capnp:Stopable",
 			MethodName:    "stop",
 		},
 		Impl: func(ctx context.Context, call *server.Call) error {
-			return s.Stop(ctx, common.Stopable_stop{call})
+			return s.Stop(ctx, service.Stopable_stop{call})
 		},
 	})
 
@@ -1357,195 +1168,170 @@ type EnvInstance_run struct {
 
 // Args returns the call's arguments.
 func (c EnvInstance_run) Args() EnvInstance_run_Params {
-	return EnvInstance_run_Params(c.Call.Args())
+	return EnvInstance_run_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c EnvInstance_run) AllocResults() (EnvInstance_run_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return EnvInstance_run_Results(r), err
+	return EnvInstance_run_Results{Struct: r}, err
 }
 
-// EnvInstance_List is a list of EnvInstance.
-type EnvInstance_List = capnp.CapList[EnvInstance]
-
-// NewEnvInstance creates a new list of EnvInstance.
-func NewEnvInstance_List(s *capnp.Segment, sz int32) (EnvInstance_List, error) {
-	l, err := capnp.NewPointerList(s, sz)
-	return capnp.CapList[EnvInstance](l), err
-}
-
-type EnvInstance_run_Params capnp.Struct
+type EnvInstance_run_Params struct{ capnp.Struct }
 
 // EnvInstance_run_Params_TypeID is the unique identifier for the type EnvInstance_run_Params.
 const EnvInstance_run_Params_TypeID = 0x811895634b6bd959
 
 func NewEnvInstance_run_Params(s *capnp.Segment) (EnvInstance_run_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return EnvInstance_run_Params(st), err
+	return EnvInstance_run_Params{st}, err
 }
 
 func NewRootEnvInstance_run_Params(s *capnp.Segment) (EnvInstance_run_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return EnvInstance_run_Params(st), err
+	return EnvInstance_run_Params{st}, err
 }
 
 func ReadRootEnvInstance_run_Params(msg *capnp.Message) (EnvInstance_run_Params, error) {
 	root, err := msg.Root()
-	return EnvInstance_run_Params(root.Struct()), err
+	return EnvInstance_run_Params{root.Struct()}, err
 }
 
 func (s EnvInstance_run_Params) String() string {
-	str, _ := text.Marshal(0x811895634b6bd959, capnp.Struct(s))
+	str, _ := text.Marshal(0x811895634b6bd959, s.Struct)
 	return str
 }
 
-func (s EnvInstance_run_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (EnvInstance_run_Params) DecodeFromPtr(p capnp.Ptr) EnvInstance_run_Params {
-	return EnvInstance_run_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s EnvInstance_run_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s EnvInstance_run_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s EnvInstance_run_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s EnvInstance_run_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s EnvInstance_run_Params) Env() (Env, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return Env(p.Struct()), err
+	p, err := s.Struct.Ptr(0)
+	return Env{Struct: p.Struct()}, err
 }
 
 func (s EnvInstance_run_Params) HasEnv() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s EnvInstance_run_Params) SetEnv(v Env) error {
-	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewEnv sets the env field to a newly
 // allocated Env struct, preferring placement in s's segment.
 func (s EnvInstance_run_Params) NewEnv() (Env, error) {
-	ss, err := NewEnv(capnp.Struct(s).Segment())
+	ss, err := NewEnv(s.Struct.Segment())
 	if err != nil {
 		return Env{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
 	return ss, err
 }
 
 // EnvInstance_run_Params_List is a list of EnvInstance_run_Params.
-type EnvInstance_run_Params_List = capnp.StructList[EnvInstance_run_Params]
+type EnvInstance_run_Params_List struct{ capnp.List }
 
 // NewEnvInstance_run_Params creates a new list of EnvInstance_run_Params.
 func NewEnvInstance_run_Params_List(s *capnp.Segment, sz int32) (EnvInstance_run_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[EnvInstance_run_Params](l), err
+	return EnvInstance_run_Params_List{l}, err
+}
+
+func (s EnvInstance_run_Params_List) At(i int) EnvInstance_run_Params {
+	return EnvInstance_run_Params{s.List.Struct(i)}
+}
+
+func (s EnvInstance_run_Params_List) Set(i int, v EnvInstance_run_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s EnvInstance_run_Params_List) String() string {
+	str, _ := text.MarshalList(0x811895634b6bd959, s.List)
+	return str
 }
 
 // EnvInstance_run_Params_Future is a wrapper for a EnvInstance_run_Params promised by a client call.
 type EnvInstance_run_Params_Future struct{ *capnp.Future }
 
-func (f EnvInstance_run_Params_Future) Struct() (EnvInstance_run_Params, error) {
-	p, err := f.Future.Ptr()
-	return EnvInstance_run_Params(p.Struct()), err
+func (p EnvInstance_run_Params_Future) Struct() (EnvInstance_run_Params, error) {
+	s, err := p.Future.Struct()
+	return EnvInstance_run_Params{s}, err
 }
+
 func (p EnvInstance_run_Params_Future) Env() Env_Future {
 	return Env_Future{Future: p.Future.Field(0, nil)}
 }
 
-type EnvInstance_run_Results capnp.Struct
+type EnvInstance_run_Results struct{ capnp.Struct }
 
 // EnvInstance_run_Results_TypeID is the unique identifier for the type EnvInstance_run_Results.
 const EnvInstance_run_Results_TypeID = 0xa931ae5cae90ece0
 
 func NewEnvInstance_run_Results(s *capnp.Segment) (EnvInstance_run_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return EnvInstance_run_Results(st), err
+	return EnvInstance_run_Results{st}, err
 }
 
 func NewRootEnvInstance_run_Results(s *capnp.Segment) (EnvInstance_run_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return EnvInstance_run_Results(st), err
+	return EnvInstance_run_Results{st}, err
 }
 
 func ReadRootEnvInstance_run_Results(msg *capnp.Message) (EnvInstance_run_Results, error) {
 	root, err := msg.Root()
-	return EnvInstance_run_Results(root.Struct()), err
+	return EnvInstance_run_Results{root.Struct()}, err
 }
 
 func (s EnvInstance_run_Results) String() string {
-	str, _ := text.Marshal(0xa931ae5cae90ece0, capnp.Struct(s))
+	str, _ := text.Marshal(0xa931ae5cae90ece0, s.Struct)
 	return str
 }
 
-func (s EnvInstance_run_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (EnvInstance_run_Results) DecodeFromPtr(p capnp.Ptr) EnvInstance_run_Results {
-	return EnvInstance_run_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s EnvInstance_run_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s EnvInstance_run_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s EnvInstance_run_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s EnvInstance_run_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s EnvInstance_run_Results) Result() (capnp.Ptr, error) {
-	return capnp.Struct(s).Ptr(0)
+	return s.Struct.Ptr(0)
 }
 
 func (s EnvInstance_run_Results) HasResult() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s EnvInstance_run_Results) SetResult(v capnp.Ptr) error {
-	return capnp.Struct(s).SetPtr(0, v)
+	return s.Struct.SetPtr(0, v)
 }
 
 // EnvInstance_run_Results_List is a list of EnvInstance_run_Results.
-type EnvInstance_run_Results_List = capnp.StructList[EnvInstance_run_Results]
+type EnvInstance_run_Results_List struct{ capnp.List }
 
 // NewEnvInstance_run_Results creates a new list of EnvInstance_run_Results.
 func NewEnvInstance_run_Results_List(s *capnp.Segment, sz int32) (EnvInstance_run_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[EnvInstance_run_Results](l), err
+	return EnvInstance_run_Results_List{l}, err
+}
+
+func (s EnvInstance_run_Results_List) At(i int) EnvInstance_run_Results {
+	return EnvInstance_run_Results{s.List.Struct(i)}
+}
+
+func (s EnvInstance_run_Results_List) Set(i int, v EnvInstance_run_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s EnvInstance_run_Results_List) String() string {
+	str, _ := text.MarshalList(0xa931ae5cae90ece0, s.List)
+	return str
 }
 
 // EnvInstance_run_Results_Future is a wrapper for a EnvInstance_run_Results promised by a client call.
 type EnvInstance_run_Results_Future struct{ *capnp.Future }
 
-func (f EnvInstance_run_Results_Future) Struct() (EnvInstance_run_Results, error) {
-	p, err := f.Future.Ptr()
-	return EnvInstance_run_Results(p.Struct()), err
+func (p EnvInstance_run_Results_Future) Struct() (EnvInstance_run_Results, error) {
+	s, err := p.Future.Struct()
+	return EnvInstance_run_Results{s}, err
 }
+
 func (p EnvInstance_run_Results_Future) Result() *capnp.Future {
 	return p.Future.Field(0, nil)
 }
 
-type EnvInstanceProxy capnp.Client
+type EnvInstanceProxy struct{ Client *capnp.Client }
 
 // EnvInstanceProxy_TypeID is the unique identifier for the type EnvInstanceProxy.
 const EnvInstanceProxy_TypeID = 0x87cbebfc1164a24a
@@ -1561,9 +1347,9 @@ func (c EnvInstanceProxy) RegisterEnvInstance(ctx context.Context, params func(E
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(EnvInstanceProxy_registerEnvInstance_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(EnvInstanceProxy_registerEnvInstance_Params{Struct: s}) }
 	}
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return EnvInstanceProxy_registerEnvInstance_Results_Future{Future: ans.Future()}, release
 }
 func (c EnvInstanceProxy) Run(ctx context.Context, params func(EnvInstance_run_Params) error) (EnvInstance_run_Results_Future, capnp.ReleaseFunc) {
@@ -1577,9 +1363,9 @@ func (c EnvInstanceProxy) Run(ctx context.Context, params func(EnvInstance_run_P
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(EnvInstance_run_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(EnvInstance_run_Params{Struct: s}) }
 	}
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return EnvInstance_run_Results_Future{Future: ans.Future()}, release
 }
 func (c EnvInstanceProxy) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
@@ -1593,9 +1379,9 @@ func (c EnvInstanceProxy) Info(ctx context.Context, params func(common.Identifia
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params{Struct: s}) }
 	}
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
 }
 func (c EnvInstanceProxy) Save(ctx context.Context, params func(persistence.Persistent_SaveParams) error) (persistence.Persistent_SaveResults_Future, capnp.ReleaseFunc) {
@@ -1609,94 +1395,39 @@ func (c EnvInstanceProxy) Save(ctx context.Context, params func(persistence.Pers
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams{Struct: s}) }
 	}
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return persistence.Persistent_SaveResults_Future{Future: ans.Future()}, release
 }
-func (c EnvInstanceProxy) Stop(ctx context.Context, params func(common.Stopable_stop_Params) error) (common.Stopable_stop_Results_Future, capnp.ReleaseFunc) {
+func (c EnvInstanceProxy) Stop(ctx context.Context, params func(service.Stopable_stop_Params) error) (service.Stopable_stop_Results_Future, capnp.ReleaseFunc) {
 	s := capnp.Send{
 		Method: capnp.Method{
-			InterfaceID:   0xce7e4202f09e314a,
+			InterfaceID:   0xe9d1be2a6e9016e5,
 			MethodID:      0,
-			InterfaceName: "common.capnp:Stopable",
+			InterfaceName: "service.capnp:Stopable",
 			MethodName:    "stop",
 		},
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Stopable_stop_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(service.Stopable_stop_Params{Struct: s}) }
 	}
-	ans, release := capnp.Client(c).SendCall(ctx, s)
-	return common.Stopable_stop_Results_Future{Future: ans.Future()}, release
+	ans, release := c.Client.SendCall(ctx, s)
+	return service.Stopable_stop_Results_Future{Future: ans.Future()}, release
 }
 
-// String returns a string that identifies this capability for debugging
-// purposes.  Its format should not be depended on: in particular, it
-// should not be used to compare clients.  Use IsSame to compare clients
-// for equality.
-func (c EnvInstanceProxy) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
-}
-
-// AddRef creates a new Client that refers to the same capability as c.
-// If c is nil or has resolved to null, then AddRef returns nil.
 func (c EnvInstanceProxy) AddRef() EnvInstanceProxy {
-	return EnvInstanceProxy(capnp.Client(c).AddRef())
+	return EnvInstanceProxy{
+		Client: c.Client.AddRef(),
+	}
 }
 
-// Release releases a capability reference.  If this is the last
-// reference to the capability, then the underlying resources associated
-// with the capability will be released.
-//
-// Release will panic if c has already been released, but not if c is
-// nil or resolved to null.
 func (c EnvInstanceProxy) Release() {
-	capnp.Client(c).Release()
+	c.Client.Release()
 }
 
-// Resolve blocks until the capability is fully resolved or the Context
-// expires.
-func (c EnvInstanceProxy) Resolve(ctx context.Context) error {
-	return capnp.Client(c).Resolve(ctx)
-}
-
-func (c EnvInstanceProxy) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Client(c).EncodeAsPtr(seg)
-}
-
-func (EnvInstanceProxy) DecodeFromPtr(p capnp.Ptr) EnvInstanceProxy {
-	return EnvInstanceProxy(capnp.Client{}.DecodeFromPtr(p))
-}
-
-// IsValid reports whether c is a valid reference to a capability.
-// A reference is invalid if it is nil, has resolved to null, or has
-// been released.
-func (c EnvInstanceProxy) IsValid() bool {
-	return capnp.Client(c).IsValid()
-}
-
-// IsSame reports whether c and other refer to a capability created by the
-// same call to NewClient.  This can return false negatives if c or other
-// are not fully resolved: use Resolve if this is an issue.  If either
-// c or other are released, then IsSame panics.
-func (c EnvInstanceProxy) IsSame(other EnvInstanceProxy) bool {
-	return capnp.Client(c).IsSame(capnp.Client(other))
-}
-
-// Update the flowcontrol.FlowLimiter used to manage flow control for
-// this client. This affects all future calls, but not calls already
-// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
-// which is also the default.
-func (c EnvInstanceProxy) SetFlowLimiter(lim fc.FlowLimiter) {
-	capnp.Client(c).SetFlowLimiter(lim)
-}
-
-// Get the current flowcontrol.FlowLimiter used to manage flow control
-// for this client.
-func (c EnvInstanceProxy) GetFlowLimiter() fc.FlowLimiter {
-	return capnp.Client(c).GetFlowLimiter()
-} // A EnvInstanceProxy_Server is a EnvInstanceProxy with a local implementation.
+// A EnvInstanceProxy_Server is a EnvInstanceProxy with a local implementation.
 type EnvInstanceProxy_Server interface {
 	RegisterEnvInstance(context.Context, EnvInstanceProxy_registerEnvInstance) error
 
@@ -1706,19 +1437,19 @@ type EnvInstanceProxy_Server interface {
 
 	Save(context.Context, persistence.Persistent_save) error
 
-	Stop(context.Context, common.Stopable_stop) error
+	Stop(context.Context, service.Stopable_stop) error
 }
 
 // EnvInstanceProxy_NewServer creates a new Server from an implementation of EnvInstanceProxy_Server.
-func EnvInstanceProxy_NewServer(s EnvInstanceProxy_Server) *server.Server {
+func EnvInstanceProxy_NewServer(s EnvInstanceProxy_Server, policy *server.Policy) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(EnvInstanceProxy_Methods(nil, s), s, c)
+	return server.New(EnvInstanceProxy_Methods(nil, s), s, c, policy)
 }
 
 // EnvInstanceProxy_ServerToClient creates a new Client from an implementation of EnvInstanceProxy_Server.
 // The caller is responsible for calling Release on the returned Client.
-func EnvInstanceProxy_ServerToClient(s EnvInstanceProxy_Server) EnvInstanceProxy {
-	return EnvInstanceProxy(capnp.NewClient(EnvInstanceProxy_NewServer(s)))
+func EnvInstanceProxy_ServerToClient(s EnvInstanceProxy_Server, policy *server.Policy) EnvInstanceProxy {
+	return EnvInstanceProxy{Client: capnp.NewClient(EnvInstanceProxy_NewServer(s, policy))}
 }
 
 // EnvInstanceProxy_Methods appends Methods to a slice that invoke the methods on s.
@@ -1778,13 +1509,13 @@ func EnvInstanceProxy_Methods(methods []server.Method, s EnvInstanceProxy_Server
 
 	methods = append(methods, server.Method{
 		Method: capnp.Method{
-			InterfaceID:   0xce7e4202f09e314a,
+			InterfaceID:   0xe9d1be2a6e9016e5,
 			MethodID:      0,
-			InterfaceName: "common.capnp:Stopable",
+			InterfaceName: "service.capnp:Stopable",
 			MethodName:    "stop",
 		},
 		Impl: func(ctx context.Context, call *server.Call) error {
-			return s.Stop(ctx, common.Stopable_stop{call})
+			return s.Stop(ctx, service.Stopable_stop{call})
 		},
 	})
 
@@ -1799,195 +1530,376 @@ type EnvInstanceProxy_registerEnvInstance struct {
 
 // Args returns the call's arguments.
 func (c EnvInstanceProxy_registerEnvInstance) Args() EnvInstanceProxy_registerEnvInstance_Params {
-	return EnvInstanceProxy_registerEnvInstance_Params(c.Call.Args())
+	return EnvInstanceProxy_registerEnvInstance_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c EnvInstanceProxy_registerEnvInstance) AllocResults() (EnvInstanceProxy_registerEnvInstance_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return EnvInstanceProxy_registerEnvInstance_Results(r), err
+	return EnvInstanceProxy_registerEnvInstance_Results{Struct: r}, err
 }
 
-// EnvInstanceProxy_List is a list of EnvInstanceProxy.
-type EnvInstanceProxy_List = capnp.CapList[EnvInstanceProxy]
+type EnvInstanceProxy_Unregister struct{ Client *capnp.Client }
 
-// NewEnvInstanceProxy creates a new list of EnvInstanceProxy.
-func NewEnvInstanceProxy_List(s *capnp.Segment, sz int32) (EnvInstanceProxy_List, error) {
-	l, err := capnp.NewPointerList(s, sz)
-	return capnp.CapList[EnvInstanceProxy](l), err
+// EnvInstanceProxy_Unregister_TypeID is the unique identifier for the type EnvInstanceProxy_Unregister.
+const EnvInstanceProxy_Unregister_TypeID = 0xc727892bd5c66f88
+
+func (c EnvInstanceProxy_Unregister) Unregister(ctx context.Context, params func(EnvInstanceProxy_Unregister_unregister_Params) error) (EnvInstanceProxy_Unregister_unregister_Results_Future, capnp.ReleaseFunc) {
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0xc727892bd5c66f88,
+			MethodID:      0,
+			InterfaceName: "model.capnp:EnvInstanceProxy.Unregister",
+			MethodName:    "unregister",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(EnvInstanceProxy_Unregister_unregister_Params{Struct: s}) }
+	}
+	ans, release := c.Client.SendCall(ctx, s)
+	return EnvInstanceProxy_Unregister_unregister_Results_Future{Future: ans.Future()}, release
 }
 
-type EnvInstanceProxy_registerEnvInstance_Params capnp.Struct
+func (c EnvInstanceProxy_Unregister) AddRef() EnvInstanceProxy_Unregister {
+	return EnvInstanceProxy_Unregister{
+		Client: c.Client.AddRef(),
+	}
+}
+
+func (c EnvInstanceProxy_Unregister) Release() {
+	c.Client.Release()
+}
+
+// A EnvInstanceProxy_Unregister_Server is a EnvInstanceProxy_Unregister with a local implementation.
+type EnvInstanceProxy_Unregister_Server interface {
+	Unregister(context.Context, EnvInstanceProxy_Unregister_unregister) error
+}
+
+// EnvInstanceProxy_Unregister_NewServer creates a new Server from an implementation of EnvInstanceProxy_Unregister_Server.
+func EnvInstanceProxy_Unregister_NewServer(s EnvInstanceProxy_Unregister_Server, policy *server.Policy) *server.Server {
+	c, _ := s.(server.Shutdowner)
+	return server.New(EnvInstanceProxy_Unregister_Methods(nil, s), s, c, policy)
+}
+
+// EnvInstanceProxy_Unregister_ServerToClient creates a new Client from an implementation of EnvInstanceProxy_Unregister_Server.
+// The caller is responsible for calling Release on the returned Client.
+func EnvInstanceProxy_Unregister_ServerToClient(s EnvInstanceProxy_Unregister_Server, policy *server.Policy) EnvInstanceProxy_Unregister {
+	return EnvInstanceProxy_Unregister{Client: capnp.NewClient(EnvInstanceProxy_Unregister_NewServer(s, policy))}
+}
+
+// EnvInstanceProxy_Unregister_Methods appends Methods to a slice that invoke the methods on s.
+// This can be used to create a more complicated Server.
+func EnvInstanceProxy_Unregister_Methods(methods []server.Method, s EnvInstanceProxy_Unregister_Server) []server.Method {
+	if cap(methods) == 0 {
+		methods = make([]server.Method, 0, 1)
+	}
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
+			InterfaceID:   0xc727892bd5c66f88,
+			MethodID:      0,
+			InterfaceName: "model.capnp:EnvInstanceProxy.Unregister",
+			MethodName:    "unregister",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.Unregister(ctx, EnvInstanceProxy_Unregister_unregister{call})
+		},
+	})
+
+	return methods
+}
+
+// EnvInstanceProxy_Unregister_unregister holds the state for a server call to EnvInstanceProxy_Unregister.unregister.
+// See server.Call for documentation.
+type EnvInstanceProxy_Unregister_unregister struct {
+	*server.Call
+}
+
+// Args returns the call's arguments.
+func (c EnvInstanceProxy_Unregister_unregister) Args() EnvInstanceProxy_Unregister_unregister_Params {
+	return EnvInstanceProxy_Unregister_unregister_Params{Struct: c.Call.Args()}
+}
+
+// AllocResults allocates the results struct.
+func (c EnvInstanceProxy_Unregister_unregister) AllocResults() (EnvInstanceProxy_Unregister_unregister_Results, error) {
+	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 8, PointerCount: 0})
+	return EnvInstanceProxy_Unregister_unregister_Results{Struct: r}, err
+}
+
+type EnvInstanceProxy_Unregister_unregister_Params struct{ capnp.Struct }
+
+// EnvInstanceProxy_Unregister_unregister_Params_TypeID is the unique identifier for the type EnvInstanceProxy_Unregister_unregister_Params.
+const EnvInstanceProxy_Unregister_unregister_Params_TypeID = 0x82136633e6b6d8ae
+
+func NewEnvInstanceProxy_Unregister_unregister_Params(s *capnp.Segment) (EnvInstanceProxy_Unregister_unregister_Params, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	return EnvInstanceProxy_Unregister_unregister_Params{st}, err
+}
+
+func NewRootEnvInstanceProxy_Unregister_unregister_Params(s *capnp.Segment) (EnvInstanceProxy_Unregister_unregister_Params, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	return EnvInstanceProxy_Unregister_unregister_Params{st}, err
+}
+
+func ReadRootEnvInstanceProxy_Unregister_unregister_Params(msg *capnp.Message) (EnvInstanceProxy_Unregister_unregister_Params, error) {
+	root, err := msg.Root()
+	return EnvInstanceProxy_Unregister_unregister_Params{root.Struct()}, err
+}
+
+func (s EnvInstanceProxy_Unregister_unregister_Params) String() string {
+	str, _ := text.Marshal(0x82136633e6b6d8ae, s.Struct)
+	return str
+}
+
+// EnvInstanceProxy_Unregister_unregister_Params_List is a list of EnvInstanceProxy_Unregister_unregister_Params.
+type EnvInstanceProxy_Unregister_unregister_Params_List struct{ capnp.List }
+
+// NewEnvInstanceProxy_Unregister_unregister_Params creates a new list of EnvInstanceProxy_Unregister_unregister_Params.
+func NewEnvInstanceProxy_Unregister_unregister_Params_List(s *capnp.Segment, sz int32) (EnvInstanceProxy_Unregister_unregister_Params_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
+	return EnvInstanceProxy_Unregister_unregister_Params_List{l}, err
+}
+
+func (s EnvInstanceProxy_Unregister_unregister_Params_List) At(i int) EnvInstanceProxy_Unregister_unregister_Params {
+	return EnvInstanceProxy_Unregister_unregister_Params{s.List.Struct(i)}
+}
+
+func (s EnvInstanceProxy_Unregister_unregister_Params_List) Set(i int, v EnvInstanceProxy_Unregister_unregister_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s EnvInstanceProxy_Unregister_unregister_Params_List) String() string {
+	str, _ := text.MarshalList(0x82136633e6b6d8ae, s.List)
+	return str
+}
+
+// EnvInstanceProxy_Unregister_unregister_Params_Future is a wrapper for a EnvInstanceProxy_Unregister_unregister_Params promised by a client call.
+type EnvInstanceProxy_Unregister_unregister_Params_Future struct{ *capnp.Future }
+
+func (p EnvInstanceProxy_Unregister_unregister_Params_Future) Struct() (EnvInstanceProxy_Unregister_unregister_Params, error) {
+	s, err := p.Future.Struct()
+	return EnvInstanceProxy_Unregister_unregister_Params{s}, err
+}
+
+type EnvInstanceProxy_Unregister_unregister_Results struct{ capnp.Struct }
+
+// EnvInstanceProxy_Unregister_unregister_Results_TypeID is the unique identifier for the type EnvInstanceProxy_Unregister_unregister_Results.
+const EnvInstanceProxy_Unregister_unregister_Results_TypeID = 0xe91cc3866fdea82a
+
+func NewEnvInstanceProxy_Unregister_unregister_Results(s *capnp.Segment) (EnvInstanceProxy_Unregister_unregister_Results, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
+	return EnvInstanceProxy_Unregister_unregister_Results{st}, err
+}
+
+func NewRootEnvInstanceProxy_Unregister_unregister_Results(s *capnp.Segment) (EnvInstanceProxy_Unregister_unregister_Results, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
+	return EnvInstanceProxy_Unregister_unregister_Results{st}, err
+}
+
+func ReadRootEnvInstanceProxy_Unregister_unregister_Results(msg *capnp.Message) (EnvInstanceProxy_Unregister_unregister_Results, error) {
+	root, err := msg.Root()
+	return EnvInstanceProxy_Unregister_unregister_Results{root.Struct()}, err
+}
+
+func (s EnvInstanceProxy_Unregister_unregister_Results) String() string {
+	str, _ := text.Marshal(0xe91cc3866fdea82a, s.Struct)
+	return str
+}
+
+func (s EnvInstanceProxy_Unregister_unregister_Results) Success() bool {
+	return s.Struct.Bit(0)
+}
+
+func (s EnvInstanceProxy_Unregister_unregister_Results) SetSuccess(v bool) {
+	s.Struct.SetBit(0, v)
+}
+
+// EnvInstanceProxy_Unregister_unregister_Results_List is a list of EnvInstanceProxy_Unregister_unregister_Results.
+type EnvInstanceProxy_Unregister_unregister_Results_List struct{ capnp.List }
+
+// NewEnvInstanceProxy_Unregister_unregister_Results creates a new list of EnvInstanceProxy_Unregister_unregister_Results.
+func NewEnvInstanceProxy_Unregister_unregister_Results_List(s *capnp.Segment, sz int32) (EnvInstanceProxy_Unregister_unregister_Results_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0}, sz)
+	return EnvInstanceProxy_Unregister_unregister_Results_List{l}, err
+}
+
+func (s EnvInstanceProxy_Unregister_unregister_Results_List) At(i int) EnvInstanceProxy_Unregister_unregister_Results {
+	return EnvInstanceProxy_Unregister_unregister_Results{s.List.Struct(i)}
+}
+
+func (s EnvInstanceProxy_Unregister_unregister_Results_List) Set(i int, v EnvInstanceProxy_Unregister_unregister_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s EnvInstanceProxy_Unregister_unregister_Results_List) String() string {
+	str, _ := text.MarshalList(0xe91cc3866fdea82a, s.List)
+	return str
+}
+
+// EnvInstanceProxy_Unregister_unregister_Results_Future is a wrapper for a EnvInstanceProxy_Unregister_unregister_Results promised by a client call.
+type EnvInstanceProxy_Unregister_unregister_Results_Future struct{ *capnp.Future }
+
+func (p EnvInstanceProxy_Unregister_unregister_Results_Future) Struct() (EnvInstanceProxy_Unregister_unregister_Results, error) {
+	s, err := p.Future.Struct()
+	return EnvInstanceProxy_Unregister_unregister_Results{s}, err
+}
+
+type EnvInstanceProxy_registerEnvInstance_Params struct{ capnp.Struct }
 
 // EnvInstanceProxy_registerEnvInstance_Params_TypeID is the unique identifier for the type EnvInstanceProxy_registerEnvInstance_Params.
 const EnvInstanceProxy_registerEnvInstance_Params_TypeID = 0xd10259a623f95bb4
 
 func NewEnvInstanceProxy_registerEnvInstance_Params(s *capnp.Segment) (EnvInstanceProxy_registerEnvInstance_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return EnvInstanceProxy_registerEnvInstance_Params(st), err
+	return EnvInstanceProxy_registerEnvInstance_Params{st}, err
 }
 
 func NewRootEnvInstanceProxy_registerEnvInstance_Params(s *capnp.Segment) (EnvInstanceProxy_registerEnvInstance_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return EnvInstanceProxy_registerEnvInstance_Params(st), err
+	return EnvInstanceProxy_registerEnvInstance_Params{st}, err
 }
 
 func ReadRootEnvInstanceProxy_registerEnvInstance_Params(msg *capnp.Message) (EnvInstanceProxy_registerEnvInstance_Params, error) {
 	root, err := msg.Root()
-	return EnvInstanceProxy_registerEnvInstance_Params(root.Struct()), err
+	return EnvInstanceProxy_registerEnvInstance_Params{root.Struct()}, err
 }
 
 func (s EnvInstanceProxy_registerEnvInstance_Params) String() string {
-	str, _ := text.Marshal(0xd10259a623f95bb4, capnp.Struct(s))
+	str, _ := text.Marshal(0xd10259a623f95bb4, s.Struct)
 	return str
 }
 
-func (s EnvInstanceProxy_registerEnvInstance_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (EnvInstanceProxy_registerEnvInstance_Params) DecodeFromPtr(p capnp.Ptr) EnvInstanceProxy_registerEnvInstance_Params {
-	return EnvInstanceProxy_registerEnvInstance_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s EnvInstanceProxy_registerEnvInstance_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s EnvInstanceProxy_registerEnvInstance_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s EnvInstanceProxy_registerEnvInstance_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s EnvInstanceProxy_registerEnvInstance_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s EnvInstanceProxy_registerEnvInstance_Params) Instance() EnvInstance {
-	p, _ := capnp.Struct(s).Ptr(0)
-	return EnvInstance(p.Interface().Client())
+	p, _ := s.Struct.Ptr(0)
+	return EnvInstance{Client: p.Interface().Client()}
 }
 
 func (s EnvInstanceProxy_registerEnvInstance_Params) HasInstance() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s EnvInstanceProxy_registerEnvInstance_Params) SetInstance(v EnvInstance) error {
-	if !v.IsValid() {
-		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
+	if !v.Client.IsValid() {
+		return s.Struct.SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
-	return capnp.Struct(s).SetPtr(0, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
+	return s.Struct.SetPtr(0, in.ToPtr())
 }
 
 // EnvInstanceProxy_registerEnvInstance_Params_List is a list of EnvInstanceProxy_registerEnvInstance_Params.
-type EnvInstanceProxy_registerEnvInstance_Params_List = capnp.StructList[EnvInstanceProxy_registerEnvInstance_Params]
+type EnvInstanceProxy_registerEnvInstance_Params_List struct{ capnp.List }
 
 // NewEnvInstanceProxy_registerEnvInstance_Params creates a new list of EnvInstanceProxy_registerEnvInstance_Params.
 func NewEnvInstanceProxy_registerEnvInstance_Params_List(s *capnp.Segment, sz int32) (EnvInstanceProxy_registerEnvInstance_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[EnvInstanceProxy_registerEnvInstance_Params](l), err
+	return EnvInstanceProxy_registerEnvInstance_Params_List{l}, err
+}
+
+func (s EnvInstanceProxy_registerEnvInstance_Params_List) At(i int) EnvInstanceProxy_registerEnvInstance_Params {
+	return EnvInstanceProxy_registerEnvInstance_Params{s.List.Struct(i)}
+}
+
+func (s EnvInstanceProxy_registerEnvInstance_Params_List) Set(i int, v EnvInstanceProxy_registerEnvInstance_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s EnvInstanceProxy_registerEnvInstance_Params_List) String() string {
+	str, _ := text.MarshalList(0xd10259a623f95bb4, s.List)
+	return str
 }
 
 // EnvInstanceProxy_registerEnvInstance_Params_Future is a wrapper for a EnvInstanceProxy_registerEnvInstance_Params promised by a client call.
 type EnvInstanceProxy_registerEnvInstance_Params_Future struct{ *capnp.Future }
 
-func (f EnvInstanceProxy_registerEnvInstance_Params_Future) Struct() (EnvInstanceProxy_registerEnvInstance_Params, error) {
-	p, err := f.Future.Ptr()
-	return EnvInstanceProxy_registerEnvInstance_Params(p.Struct()), err
-}
-func (p EnvInstanceProxy_registerEnvInstance_Params_Future) Instance() EnvInstance {
-	return EnvInstance(p.Future.Field(0, nil).Client())
+func (p EnvInstanceProxy_registerEnvInstance_Params_Future) Struct() (EnvInstanceProxy_registerEnvInstance_Params, error) {
+	s, err := p.Future.Struct()
+	return EnvInstanceProxy_registerEnvInstance_Params{s}, err
 }
 
-type EnvInstanceProxy_registerEnvInstance_Results capnp.Struct
+func (p EnvInstanceProxy_registerEnvInstance_Params_Future) Instance() EnvInstance {
+	return EnvInstance{Client: p.Future.Field(0, nil).Client()}
+}
+
+type EnvInstanceProxy_registerEnvInstance_Results struct{ capnp.Struct }
 
 // EnvInstanceProxy_registerEnvInstance_Results_TypeID is the unique identifier for the type EnvInstanceProxy_registerEnvInstance_Results.
 const EnvInstanceProxy_registerEnvInstance_Results_TypeID = 0xdf50acfa56a9674e
 
 func NewEnvInstanceProxy_registerEnvInstance_Results(s *capnp.Segment) (EnvInstanceProxy_registerEnvInstance_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return EnvInstanceProxy_registerEnvInstance_Results(st), err
+	return EnvInstanceProxy_registerEnvInstance_Results{st}, err
 }
 
 func NewRootEnvInstanceProxy_registerEnvInstance_Results(s *capnp.Segment) (EnvInstanceProxy_registerEnvInstance_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return EnvInstanceProxy_registerEnvInstance_Results(st), err
+	return EnvInstanceProxy_registerEnvInstance_Results{st}, err
 }
 
 func ReadRootEnvInstanceProxy_registerEnvInstance_Results(msg *capnp.Message) (EnvInstanceProxy_registerEnvInstance_Results, error) {
 	root, err := msg.Root()
-	return EnvInstanceProxy_registerEnvInstance_Results(root.Struct()), err
+	return EnvInstanceProxy_registerEnvInstance_Results{root.Struct()}, err
 }
 
 func (s EnvInstanceProxy_registerEnvInstance_Results) String() string {
-	str, _ := text.Marshal(0xdf50acfa56a9674e, capnp.Struct(s))
+	str, _ := text.Marshal(0xdf50acfa56a9674e, s.Struct)
 	return str
 }
 
-func (s EnvInstanceProxy_registerEnvInstance_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (EnvInstanceProxy_registerEnvInstance_Results) DecodeFromPtr(p capnp.Ptr) EnvInstanceProxy_registerEnvInstance_Results {
-	return EnvInstanceProxy_registerEnvInstance_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s EnvInstanceProxy_registerEnvInstance_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s EnvInstanceProxy_registerEnvInstance_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s EnvInstanceProxy_registerEnvInstance_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s EnvInstanceProxy_registerEnvInstance_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-func (s EnvInstanceProxy_registerEnvInstance_Results) Unregister() common.Action {
-	p, _ := capnp.Struct(s).Ptr(0)
-	return common.Action(p.Interface().Client())
+func (s EnvInstanceProxy_registerEnvInstance_Results) Unregister() EnvInstanceProxy_Unregister {
+	p, _ := s.Struct.Ptr(0)
+	return EnvInstanceProxy_Unregister{Client: p.Interface().Client()}
 }
 
 func (s EnvInstanceProxy_registerEnvInstance_Results) HasUnregister() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
-func (s EnvInstanceProxy_registerEnvInstance_Results) SetUnregister(v common.Action) error {
-	if !v.IsValid() {
-		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
+func (s EnvInstanceProxy_registerEnvInstance_Results) SetUnregister(v EnvInstanceProxy_Unregister) error {
+	if !v.Client.IsValid() {
+		return s.Struct.SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
-	return capnp.Struct(s).SetPtr(0, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
+	return s.Struct.SetPtr(0, in.ToPtr())
 }
 
 // EnvInstanceProxy_registerEnvInstance_Results_List is a list of EnvInstanceProxy_registerEnvInstance_Results.
-type EnvInstanceProxy_registerEnvInstance_Results_List = capnp.StructList[EnvInstanceProxy_registerEnvInstance_Results]
+type EnvInstanceProxy_registerEnvInstance_Results_List struct{ capnp.List }
 
 // NewEnvInstanceProxy_registerEnvInstance_Results creates a new list of EnvInstanceProxy_registerEnvInstance_Results.
 func NewEnvInstanceProxy_registerEnvInstance_Results_List(s *capnp.Segment, sz int32) (EnvInstanceProxy_registerEnvInstance_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[EnvInstanceProxy_registerEnvInstance_Results](l), err
+	return EnvInstanceProxy_registerEnvInstance_Results_List{l}, err
+}
+
+func (s EnvInstanceProxy_registerEnvInstance_Results_List) At(i int) EnvInstanceProxy_registerEnvInstance_Results {
+	return EnvInstanceProxy_registerEnvInstance_Results{s.List.Struct(i)}
+}
+
+func (s EnvInstanceProxy_registerEnvInstance_Results_List) Set(i int, v EnvInstanceProxy_registerEnvInstance_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s EnvInstanceProxy_registerEnvInstance_Results_List) String() string {
+	str, _ := text.MarshalList(0xdf50acfa56a9674e, s.List)
+	return str
 }
 
 // EnvInstanceProxy_registerEnvInstance_Results_Future is a wrapper for a EnvInstanceProxy_registerEnvInstance_Results promised by a client call.
 type EnvInstanceProxy_registerEnvInstance_Results_Future struct{ *capnp.Future }
 
-func (f EnvInstanceProxy_registerEnvInstance_Results_Future) Struct() (EnvInstanceProxy_registerEnvInstance_Results, error) {
-	p, err := f.Future.Ptr()
-	return EnvInstanceProxy_registerEnvInstance_Results(p.Struct()), err
-}
-func (p EnvInstanceProxy_registerEnvInstance_Results_Future) Unregister() common.Action {
-	return common.Action(p.Future.Field(0, nil).Client())
+func (p EnvInstanceProxy_registerEnvInstance_Results_Future) Struct() (EnvInstanceProxy_registerEnvInstance_Results, error) {
+	s, err := p.Future.Struct()
+	return EnvInstanceProxy_registerEnvInstance_Results{s}, err
 }
 
-type InstanceFactory capnp.Client
+func (p EnvInstanceProxy_registerEnvInstance_Results_Future) Unregister() EnvInstanceProxy_Unregister {
+	return EnvInstanceProxy_Unregister{Client: p.Future.Field(0, nil).Client()}
+}
+
+type InstanceFactory struct{ Client *capnp.Client }
 
 // InstanceFactory_TypeID is the unique identifier for the type InstanceFactory.
 const InstanceFactory_TypeID = 0xce552eef738a45ea
@@ -2003,9 +1915,9 @@ func (c InstanceFactory) ModelInfo(ctx context.Context, params func(InstanceFact
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(InstanceFactory_modelInfo_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(InstanceFactory_modelInfo_Params{Struct: s}) }
 	}
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
 }
 func (c InstanceFactory) NewInstance(ctx context.Context, params func(InstanceFactory_newInstance_Params) error) (InstanceFactory_newInstance_Results_Future, capnp.ReleaseFunc) {
@@ -2019,9 +1931,9 @@ func (c InstanceFactory) NewInstance(ctx context.Context, params func(InstanceFa
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(InstanceFactory_newInstance_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(InstanceFactory_newInstance_Params{Struct: s}) }
 	}
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return InstanceFactory_newInstance_Results_Future{Future: ans.Future()}, release
 }
 func (c InstanceFactory) NewInstances(ctx context.Context, params func(InstanceFactory_newInstances_Params) error) (InstanceFactory_newInstances_Results_Future, capnp.ReleaseFunc) {
@@ -2035,9 +1947,9 @@ func (c InstanceFactory) NewInstances(ctx context.Context, params func(InstanceF
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(InstanceFactory_newInstances_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(InstanceFactory_newInstances_Params{Struct: s}) }
 	}
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return InstanceFactory_newInstances_Results_Future{Future: ans.Future()}, release
 }
 func (c InstanceFactory) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
@@ -2051,78 +1963,23 @@ func (c InstanceFactory) Info(ctx context.Context, params func(common.Identifiab
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params{Struct: s}) }
 	}
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
 }
 
-// String returns a string that identifies this capability for debugging
-// purposes.  Its format should not be depended on: in particular, it
-// should not be used to compare clients.  Use IsSame to compare clients
-// for equality.
-func (c InstanceFactory) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
-}
-
-// AddRef creates a new Client that refers to the same capability as c.
-// If c is nil or has resolved to null, then AddRef returns nil.
 func (c InstanceFactory) AddRef() InstanceFactory {
-	return InstanceFactory(capnp.Client(c).AddRef())
+	return InstanceFactory{
+		Client: c.Client.AddRef(),
+	}
 }
 
-// Release releases a capability reference.  If this is the last
-// reference to the capability, then the underlying resources associated
-// with the capability will be released.
-//
-// Release will panic if c has already been released, but not if c is
-// nil or resolved to null.
 func (c InstanceFactory) Release() {
-	capnp.Client(c).Release()
+	c.Client.Release()
 }
 
-// Resolve blocks until the capability is fully resolved or the Context
-// expires.
-func (c InstanceFactory) Resolve(ctx context.Context) error {
-	return capnp.Client(c).Resolve(ctx)
-}
-
-func (c InstanceFactory) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Client(c).EncodeAsPtr(seg)
-}
-
-func (InstanceFactory) DecodeFromPtr(p capnp.Ptr) InstanceFactory {
-	return InstanceFactory(capnp.Client{}.DecodeFromPtr(p))
-}
-
-// IsValid reports whether c is a valid reference to a capability.
-// A reference is invalid if it is nil, has resolved to null, or has
-// been released.
-func (c InstanceFactory) IsValid() bool {
-	return capnp.Client(c).IsValid()
-}
-
-// IsSame reports whether c and other refer to a capability created by the
-// same call to NewClient.  This can return false negatives if c or other
-// are not fully resolved: use Resolve if this is an issue.  If either
-// c or other are released, then IsSame panics.
-func (c InstanceFactory) IsSame(other InstanceFactory) bool {
-	return capnp.Client(c).IsSame(capnp.Client(other))
-}
-
-// Update the flowcontrol.FlowLimiter used to manage flow control for
-// this client. This affects all future calls, but not calls already
-// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
-// which is also the default.
-func (c InstanceFactory) SetFlowLimiter(lim fc.FlowLimiter) {
-	capnp.Client(c).SetFlowLimiter(lim)
-}
-
-// Get the current flowcontrol.FlowLimiter used to manage flow control
-// for this client.
-func (c InstanceFactory) GetFlowLimiter() fc.FlowLimiter {
-	return capnp.Client(c).GetFlowLimiter()
-} // A InstanceFactory_Server is a InstanceFactory with a local implementation.
+// A InstanceFactory_Server is a InstanceFactory with a local implementation.
 type InstanceFactory_Server interface {
 	ModelInfo(context.Context, InstanceFactory_modelInfo) error
 
@@ -2134,15 +1991,15 @@ type InstanceFactory_Server interface {
 }
 
 // InstanceFactory_NewServer creates a new Server from an implementation of InstanceFactory_Server.
-func InstanceFactory_NewServer(s InstanceFactory_Server) *server.Server {
+func InstanceFactory_NewServer(s InstanceFactory_Server, policy *server.Policy) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(InstanceFactory_Methods(nil, s), s, c)
+	return server.New(InstanceFactory_Methods(nil, s), s, c, policy)
 }
 
 // InstanceFactory_ServerToClient creates a new Client from an implementation of InstanceFactory_Server.
 // The caller is responsible for calling Release on the returned Client.
-func InstanceFactory_ServerToClient(s InstanceFactory_Server) InstanceFactory {
-	return InstanceFactory(capnp.NewClient(InstanceFactory_NewServer(s)))
+func InstanceFactory_ServerToClient(s InstanceFactory_Server, policy *server.Policy) InstanceFactory {
+	return InstanceFactory{Client: capnp.NewClient(InstanceFactory_NewServer(s, policy))}
 }
 
 // InstanceFactory_Methods appends Methods to a slice that invoke the methods on s.
@@ -2211,13 +2068,13 @@ type InstanceFactory_modelInfo struct {
 
 // Args returns the call's arguments.
 func (c InstanceFactory_modelInfo) Args() InstanceFactory_modelInfo_Params {
-	return InstanceFactory_modelInfo_Params(c.Call.Args())
+	return InstanceFactory_modelInfo_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c InstanceFactory_modelInfo) AllocResults() (common.IdInformation, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 3})
-	return common.IdInformation(r), err
+	return common.IdInformation{Struct: r}, err
 }
 
 // InstanceFactory_newInstance holds the state for a server call to InstanceFactory.newInstance.
@@ -2228,13 +2085,13 @@ type InstanceFactory_newInstance struct {
 
 // Args returns the call's arguments.
 func (c InstanceFactory_newInstance) Args() InstanceFactory_newInstance_Params {
-	return InstanceFactory_newInstance_Params(c.Call.Args())
+	return InstanceFactory_newInstance_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c InstanceFactory_newInstance) AllocResults() (InstanceFactory_newInstance_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return InstanceFactory_newInstance_Results(r), err
+	return InstanceFactory_newInstance_Results{Struct: r}, err
 }
 
 // InstanceFactory_newInstances holds the state for a server call to InstanceFactory.newInstances.
@@ -2245,504 +2102,462 @@ type InstanceFactory_newInstances struct {
 
 // Args returns the call's arguments.
 func (c InstanceFactory_newInstances) Args() InstanceFactory_newInstances_Params {
-	return InstanceFactory_newInstances_Params(c.Call.Args())
+	return InstanceFactory_newInstances_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c InstanceFactory_newInstances) AllocResults() (InstanceFactory_newInstances_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return InstanceFactory_newInstances_Results(r), err
+	return InstanceFactory_newInstances_Results{Struct: r}, err
 }
 
-// InstanceFactory_List is a list of InstanceFactory.
-type InstanceFactory_List = capnp.CapList[InstanceFactory]
-
-// NewInstanceFactory creates a new list of InstanceFactory.
-func NewInstanceFactory_List(s *capnp.Segment, sz int32) (InstanceFactory_List, error) {
-	l, err := capnp.NewPointerList(s, sz)
-	return capnp.CapList[InstanceFactory](l), err
-}
-
-type InstanceFactory_modelInfo_Params capnp.Struct
+type InstanceFactory_modelInfo_Params struct{ capnp.Struct }
 
 // InstanceFactory_modelInfo_Params_TypeID is the unique identifier for the type InstanceFactory_modelInfo_Params.
 const InstanceFactory_modelInfo_Params_TypeID = 0xbf49e08cc9412aaf
 
 func NewInstanceFactory_modelInfo_Params(s *capnp.Segment) (InstanceFactory_modelInfo_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return InstanceFactory_modelInfo_Params(st), err
+	return InstanceFactory_modelInfo_Params{st}, err
 }
 
 func NewRootInstanceFactory_modelInfo_Params(s *capnp.Segment) (InstanceFactory_modelInfo_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return InstanceFactory_modelInfo_Params(st), err
+	return InstanceFactory_modelInfo_Params{st}, err
 }
 
 func ReadRootInstanceFactory_modelInfo_Params(msg *capnp.Message) (InstanceFactory_modelInfo_Params, error) {
 	root, err := msg.Root()
-	return InstanceFactory_modelInfo_Params(root.Struct()), err
+	return InstanceFactory_modelInfo_Params{root.Struct()}, err
 }
 
 func (s InstanceFactory_modelInfo_Params) String() string {
-	str, _ := text.Marshal(0xbf49e08cc9412aaf, capnp.Struct(s))
+	str, _ := text.Marshal(0xbf49e08cc9412aaf, s.Struct)
 	return str
 }
 
-func (s InstanceFactory_modelInfo_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (InstanceFactory_modelInfo_Params) DecodeFromPtr(p capnp.Ptr) InstanceFactory_modelInfo_Params {
-	return InstanceFactory_modelInfo_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s InstanceFactory_modelInfo_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s InstanceFactory_modelInfo_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s InstanceFactory_modelInfo_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s InstanceFactory_modelInfo_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // InstanceFactory_modelInfo_Params_List is a list of InstanceFactory_modelInfo_Params.
-type InstanceFactory_modelInfo_Params_List = capnp.StructList[InstanceFactory_modelInfo_Params]
+type InstanceFactory_modelInfo_Params_List struct{ capnp.List }
 
 // NewInstanceFactory_modelInfo_Params creates a new list of InstanceFactory_modelInfo_Params.
 func NewInstanceFactory_modelInfo_Params_List(s *capnp.Segment, sz int32) (InstanceFactory_modelInfo_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[InstanceFactory_modelInfo_Params](l), err
+	return InstanceFactory_modelInfo_Params_List{l}, err
+}
+
+func (s InstanceFactory_modelInfo_Params_List) At(i int) InstanceFactory_modelInfo_Params {
+	return InstanceFactory_modelInfo_Params{s.List.Struct(i)}
+}
+
+func (s InstanceFactory_modelInfo_Params_List) Set(i int, v InstanceFactory_modelInfo_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s InstanceFactory_modelInfo_Params_List) String() string {
+	str, _ := text.MarshalList(0xbf49e08cc9412aaf, s.List)
+	return str
 }
 
 // InstanceFactory_modelInfo_Params_Future is a wrapper for a InstanceFactory_modelInfo_Params promised by a client call.
 type InstanceFactory_modelInfo_Params_Future struct{ *capnp.Future }
 
-func (f InstanceFactory_modelInfo_Params_Future) Struct() (InstanceFactory_modelInfo_Params, error) {
-	p, err := f.Future.Ptr()
-	return InstanceFactory_modelInfo_Params(p.Struct()), err
+func (p InstanceFactory_modelInfo_Params_Future) Struct() (InstanceFactory_modelInfo_Params, error) {
+	s, err := p.Future.Struct()
+	return InstanceFactory_modelInfo_Params{s}, err
 }
 
-type InstanceFactory_newInstance_Params capnp.Struct
+type InstanceFactory_newInstance_Params struct{ capnp.Struct }
 
 // InstanceFactory_newInstance_Params_TypeID is the unique identifier for the type InstanceFactory_newInstance_Params.
 const InstanceFactory_newInstance_Params_TypeID = 0x9ee4515395213845
 
 func NewInstanceFactory_newInstance_Params(s *capnp.Segment) (InstanceFactory_newInstance_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return InstanceFactory_newInstance_Params(st), err
+	return InstanceFactory_newInstance_Params{st}, err
 }
 
 func NewRootInstanceFactory_newInstance_Params(s *capnp.Segment) (InstanceFactory_newInstance_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return InstanceFactory_newInstance_Params(st), err
+	return InstanceFactory_newInstance_Params{st}, err
 }
 
 func ReadRootInstanceFactory_newInstance_Params(msg *capnp.Message) (InstanceFactory_newInstance_Params, error) {
 	root, err := msg.Root()
-	return InstanceFactory_newInstance_Params(root.Struct()), err
+	return InstanceFactory_newInstance_Params{root.Struct()}, err
 }
 
 func (s InstanceFactory_newInstance_Params) String() string {
-	str, _ := text.Marshal(0x9ee4515395213845, capnp.Struct(s))
+	str, _ := text.Marshal(0x9ee4515395213845, s.Struct)
 	return str
 }
 
-func (s InstanceFactory_newInstance_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (InstanceFactory_newInstance_Params) DecodeFromPtr(p capnp.Ptr) InstanceFactory_newInstance_Params {
-	return InstanceFactory_newInstance_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s InstanceFactory_newInstance_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s InstanceFactory_newInstance_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s InstanceFactory_newInstance_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s InstanceFactory_newInstance_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // InstanceFactory_newInstance_Params_List is a list of InstanceFactory_newInstance_Params.
-type InstanceFactory_newInstance_Params_List = capnp.StructList[InstanceFactory_newInstance_Params]
+type InstanceFactory_newInstance_Params_List struct{ capnp.List }
 
 // NewInstanceFactory_newInstance_Params creates a new list of InstanceFactory_newInstance_Params.
 func NewInstanceFactory_newInstance_Params_List(s *capnp.Segment, sz int32) (InstanceFactory_newInstance_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[InstanceFactory_newInstance_Params](l), err
+	return InstanceFactory_newInstance_Params_List{l}, err
+}
+
+func (s InstanceFactory_newInstance_Params_List) At(i int) InstanceFactory_newInstance_Params {
+	return InstanceFactory_newInstance_Params{s.List.Struct(i)}
+}
+
+func (s InstanceFactory_newInstance_Params_List) Set(i int, v InstanceFactory_newInstance_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s InstanceFactory_newInstance_Params_List) String() string {
+	str, _ := text.MarshalList(0x9ee4515395213845, s.List)
+	return str
 }
 
 // InstanceFactory_newInstance_Params_Future is a wrapper for a InstanceFactory_newInstance_Params promised by a client call.
 type InstanceFactory_newInstance_Params_Future struct{ *capnp.Future }
 
-func (f InstanceFactory_newInstance_Params_Future) Struct() (InstanceFactory_newInstance_Params, error) {
-	p, err := f.Future.Ptr()
-	return InstanceFactory_newInstance_Params(p.Struct()), err
+func (p InstanceFactory_newInstance_Params_Future) Struct() (InstanceFactory_newInstance_Params, error) {
+	s, err := p.Future.Struct()
+	return InstanceFactory_newInstance_Params{s}, err
 }
 
-type InstanceFactory_newInstance_Results capnp.Struct
+type InstanceFactory_newInstance_Results struct{ capnp.Struct }
 
 // InstanceFactory_newInstance_Results_TypeID is the unique identifier for the type InstanceFactory_newInstance_Results.
 const InstanceFactory_newInstance_Results_TypeID = 0xf013eda158070488
 
 func NewInstanceFactory_newInstance_Results(s *capnp.Segment) (InstanceFactory_newInstance_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return InstanceFactory_newInstance_Results(st), err
+	return InstanceFactory_newInstance_Results{st}, err
 }
 
 func NewRootInstanceFactory_newInstance_Results(s *capnp.Segment) (InstanceFactory_newInstance_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return InstanceFactory_newInstance_Results(st), err
+	return InstanceFactory_newInstance_Results{st}, err
 }
 
 func ReadRootInstanceFactory_newInstance_Results(msg *capnp.Message) (InstanceFactory_newInstance_Results, error) {
 	root, err := msg.Root()
-	return InstanceFactory_newInstance_Results(root.Struct()), err
+	return InstanceFactory_newInstance_Results{root.Struct()}, err
 }
 
 func (s InstanceFactory_newInstance_Results) String() string {
-	str, _ := text.Marshal(0xf013eda158070488, capnp.Struct(s))
+	str, _ := text.Marshal(0xf013eda158070488, s.Struct)
 	return str
 }
 
-func (s InstanceFactory_newInstance_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (InstanceFactory_newInstance_Results) DecodeFromPtr(p capnp.Ptr) InstanceFactory_newInstance_Results {
-	return InstanceFactory_newInstance_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s InstanceFactory_newInstance_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s InstanceFactory_newInstance_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s InstanceFactory_newInstance_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s InstanceFactory_newInstance_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-func (s InstanceFactory_newInstance_Results) Instance() (capnp.Ptr, error) {
-	return capnp.Struct(s).Ptr(0)
+func (s InstanceFactory_newInstance_Results) Instance() common.Identifiable {
+	p, _ := s.Struct.Ptr(0)
+	return common.Identifiable{Client: p.Interface().Client()}
 }
 
 func (s InstanceFactory_newInstance_Results) HasInstance() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
-func (s InstanceFactory_newInstance_Results) SetInstance(v capnp.Ptr) error {
-	return capnp.Struct(s).SetPtr(0, v)
+func (s InstanceFactory_newInstance_Results) SetInstance(v common.Identifiable) error {
+	if !v.Client.IsValid() {
+		return s.Struct.SetPtr(0, capnp.Ptr{})
+	}
+	seg := s.Segment()
+	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
+	return s.Struct.SetPtr(0, in.ToPtr())
 }
 
 // InstanceFactory_newInstance_Results_List is a list of InstanceFactory_newInstance_Results.
-type InstanceFactory_newInstance_Results_List = capnp.StructList[InstanceFactory_newInstance_Results]
+type InstanceFactory_newInstance_Results_List struct{ capnp.List }
 
 // NewInstanceFactory_newInstance_Results creates a new list of InstanceFactory_newInstance_Results.
 func NewInstanceFactory_newInstance_Results_List(s *capnp.Segment, sz int32) (InstanceFactory_newInstance_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[InstanceFactory_newInstance_Results](l), err
+	return InstanceFactory_newInstance_Results_List{l}, err
+}
+
+func (s InstanceFactory_newInstance_Results_List) At(i int) InstanceFactory_newInstance_Results {
+	return InstanceFactory_newInstance_Results{s.List.Struct(i)}
+}
+
+func (s InstanceFactory_newInstance_Results_List) Set(i int, v InstanceFactory_newInstance_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s InstanceFactory_newInstance_Results_List) String() string {
+	str, _ := text.MarshalList(0xf013eda158070488, s.List)
+	return str
 }
 
 // InstanceFactory_newInstance_Results_Future is a wrapper for a InstanceFactory_newInstance_Results promised by a client call.
 type InstanceFactory_newInstance_Results_Future struct{ *capnp.Future }
 
-func (f InstanceFactory_newInstance_Results_Future) Struct() (InstanceFactory_newInstance_Results, error) {
-	p, err := f.Future.Ptr()
-	return InstanceFactory_newInstance_Results(p.Struct()), err
-}
-func (p InstanceFactory_newInstance_Results_Future) Instance() *capnp.Future {
-	return p.Future.Field(0, nil)
+func (p InstanceFactory_newInstance_Results_Future) Struct() (InstanceFactory_newInstance_Results, error) {
+	s, err := p.Future.Struct()
+	return InstanceFactory_newInstance_Results{s}, err
 }
 
-type InstanceFactory_newInstances_Params capnp.Struct
+func (p InstanceFactory_newInstance_Results_Future) Instance() common.Identifiable {
+	return common.Identifiable{Client: p.Future.Field(0, nil).Client()}
+}
+
+type InstanceFactory_newInstances_Params struct{ capnp.Struct }
 
 // InstanceFactory_newInstances_Params_TypeID is the unique identifier for the type InstanceFactory_newInstances_Params.
 const InstanceFactory_newInstances_Params_TypeID = 0xd9fa9ece71d1db50
 
 func NewInstanceFactory_newInstances_Params(s *capnp.Segment) (InstanceFactory_newInstances_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return InstanceFactory_newInstances_Params(st), err
+	return InstanceFactory_newInstances_Params{st}, err
 }
 
 func NewRootInstanceFactory_newInstances_Params(s *capnp.Segment) (InstanceFactory_newInstances_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return InstanceFactory_newInstances_Params(st), err
+	return InstanceFactory_newInstances_Params{st}, err
 }
 
 func ReadRootInstanceFactory_newInstances_Params(msg *capnp.Message) (InstanceFactory_newInstances_Params, error) {
 	root, err := msg.Root()
-	return InstanceFactory_newInstances_Params(root.Struct()), err
+	return InstanceFactory_newInstances_Params{root.Struct()}, err
 }
 
 func (s InstanceFactory_newInstances_Params) String() string {
-	str, _ := text.Marshal(0xd9fa9ece71d1db50, capnp.Struct(s))
+	str, _ := text.Marshal(0xd9fa9ece71d1db50, s.Struct)
 	return str
 }
 
-func (s InstanceFactory_newInstances_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (InstanceFactory_newInstances_Params) DecodeFromPtr(p capnp.Ptr) InstanceFactory_newInstances_Params {
-	return InstanceFactory_newInstances_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s InstanceFactory_newInstances_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s InstanceFactory_newInstances_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s InstanceFactory_newInstances_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s InstanceFactory_newInstances_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s InstanceFactory_newInstances_Params) NumberOfInstances() int16 {
-	return int16(capnp.Struct(s).Uint16(0))
+	return int16(s.Struct.Uint16(0))
 }
 
 func (s InstanceFactory_newInstances_Params) SetNumberOfInstances(v int16) {
-	capnp.Struct(s).SetUint16(0, uint16(v))
+	s.Struct.SetUint16(0, uint16(v))
 }
 
 // InstanceFactory_newInstances_Params_List is a list of InstanceFactory_newInstances_Params.
-type InstanceFactory_newInstances_Params_List = capnp.StructList[InstanceFactory_newInstances_Params]
+type InstanceFactory_newInstances_Params_List struct{ capnp.List }
 
 // NewInstanceFactory_newInstances_Params creates a new list of InstanceFactory_newInstances_Params.
 func NewInstanceFactory_newInstances_Params_List(s *capnp.Segment, sz int32) (InstanceFactory_newInstances_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0}, sz)
-	return capnp.StructList[InstanceFactory_newInstances_Params](l), err
+	return InstanceFactory_newInstances_Params_List{l}, err
+}
+
+func (s InstanceFactory_newInstances_Params_List) At(i int) InstanceFactory_newInstances_Params {
+	return InstanceFactory_newInstances_Params{s.List.Struct(i)}
+}
+
+func (s InstanceFactory_newInstances_Params_List) Set(i int, v InstanceFactory_newInstances_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s InstanceFactory_newInstances_Params_List) String() string {
+	str, _ := text.MarshalList(0xd9fa9ece71d1db50, s.List)
+	return str
 }
 
 // InstanceFactory_newInstances_Params_Future is a wrapper for a InstanceFactory_newInstances_Params promised by a client call.
 type InstanceFactory_newInstances_Params_Future struct{ *capnp.Future }
 
-func (f InstanceFactory_newInstances_Params_Future) Struct() (InstanceFactory_newInstances_Params, error) {
-	p, err := f.Future.Ptr()
-	return InstanceFactory_newInstances_Params(p.Struct()), err
+func (p InstanceFactory_newInstances_Params_Future) Struct() (InstanceFactory_newInstances_Params, error) {
+	s, err := p.Future.Struct()
+	return InstanceFactory_newInstances_Params{s}, err
 }
 
-type InstanceFactory_newInstances_Results capnp.Struct
+type InstanceFactory_newInstances_Results struct{ capnp.Struct }
 
 // InstanceFactory_newInstances_Results_TypeID is the unique identifier for the type InstanceFactory_newInstances_Results.
 const InstanceFactory_newInstances_Results_TypeID = 0xaf9a1cb72ba68156
 
 func NewInstanceFactory_newInstances_Results(s *capnp.Segment) (InstanceFactory_newInstances_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return InstanceFactory_newInstances_Results(st), err
+	return InstanceFactory_newInstances_Results{st}, err
 }
 
 func NewRootInstanceFactory_newInstances_Results(s *capnp.Segment) (InstanceFactory_newInstances_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return InstanceFactory_newInstances_Results(st), err
+	return InstanceFactory_newInstances_Results{st}, err
 }
 
 func ReadRootInstanceFactory_newInstances_Results(msg *capnp.Message) (InstanceFactory_newInstances_Results, error) {
 	root, err := msg.Root()
-	return InstanceFactory_newInstances_Results(root.Struct()), err
+	return InstanceFactory_newInstances_Results{root.Struct()}, err
 }
 
 func (s InstanceFactory_newInstances_Results) String() string {
-	str, _ := text.Marshal(0xaf9a1cb72ba68156, capnp.Struct(s))
+	str, _ := text.Marshal(0xaf9a1cb72ba68156, s.Struct)
 	return str
 }
 
-func (s InstanceFactory_newInstances_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (InstanceFactory_newInstances_Results) DecodeFromPtr(p capnp.Ptr) InstanceFactory_newInstances_Results {
-	return InstanceFactory_newInstances_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s InstanceFactory_newInstances_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s InstanceFactory_newInstances_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s InstanceFactory_newInstances_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s InstanceFactory_newInstances_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-func (s InstanceFactory_newInstances_Results) Instances() (common.ListEntry_List, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return common.ListEntry_List(p.List()), err
+func (s InstanceFactory_newInstances_Results) Instances() (capnp.PointerList, error) {
+	p, err := s.Struct.Ptr(0)
+	return capnp.PointerList{List: p.List()}, err
 }
 
 func (s InstanceFactory_newInstances_Results) HasInstances() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
-func (s InstanceFactory_newInstances_Results) SetInstances(v common.ListEntry_List) error {
-	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+func (s InstanceFactory_newInstances_Results) SetInstances(v capnp.PointerList) error {
+	return s.Struct.SetPtr(0, v.List.ToPtr())
 }
 
 // NewInstances sets the instances field to a newly
-// allocated common.ListEntry_List, preferring placement in s's segment.
-func (s InstanceFactory_newInstances_Results) NewInstances(n int32) (common.ListEntry_List, error) {
-	l, err := common.NewListEntry_List(capnp.Struct(s).Segment(), n)
+// allocated capnp.PointerList, preferring placement in s's segment.
+func (s InstanceFactory_newInstances_Results) NewInstances(n int32) (capnp.PointerList, error) {
+	l, err := capnp.NewPointerList(s.Struct.Segment(), n)
 	if err != nil {
-		return common.ListEntry_List{}, err
+		return capnp.PointerList{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	err = s.Struct.SetPtr(0, l.List.ToPtr())
 	return l, err
 }
 
 // InstanceFactory_newInstances_Results_List is a list of InstanceFactory_newInstances_Results.
-type InstanceFactory_newInstances_Results_List = capnp.StructList[InstanceFactory_newInstances_Results]
+type InstanceFactory_newInstances_Results_List struct{ capnp.List }
 
 // NewInstanceFactory_newInstances_Results creates a new list of InstanceFactory_newInstances_Results.
 func NewInstanceFactory_newInstances_Results_List(s *capnp.Segment, sz int32) (InstanceFactory_newInstances_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[InstanceFactory_newInstances_Results](l), err
+	return InstanceFactory_newInstances_Results_List{l}, err
+}
+
+func (s InstanceFactory_newInstances_Results_List) At(i int) InstanceFactory_newInstances_Results {
+	return InstanceFactory_newInstances_Results{s.List.Struct(i)}
+}
+
+func (s InstanceFactory_newInstances_Results_List) Set(i int, v InstanceFactory_newInstances_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s InstanceFactory_newInstances_Results_List) String() string {
+	str, _ := text.MarshalList(0xaf9a1cb72ba68156, s.List)
+	return str
 }
 
 // InstanceFactory_newInstances_Results_Future is a wrapper for a InstanceFactory_newInstances_Results promised by a client call.
 type InstanceFactory_newInstances_Results_Future struct{ *capnp.Future }
 
-func (f InstanceFactory_newInstances_Results_Future) Struct() (InstanceFactory_newInstances_Results, error) {
-	p, err := f.Future.Ptr()
-	return InstanceFactory_newInstances_Results(p.Struct()), err
+func (p InstanceFactory_newInstances_Results_Future) Struct() (InstanceFactory_newInstances_Results, error) {
+	s, err := p.Future.Struct()
+	return InstanceFactory_newInstances_Results{s}, err
 }
 
-const schema_9273388a9624d430 = "x\xda\xacWql\x1bW\x19\xff\xbe{\xf6.@\x8a" +
-	"\xfd\xfc\x1c\xdb\x89\x12\xa2\xa6\x1e\xd0\xa2D\x0daP\"" +
-	"\xa6\xd8\x81\xacs\x90\x98\xcfY\xa6\xa4kP/\xc95" +
-	"s\xf1\x9d\x13\xdf9s\xd0\xb4\xb0J[Q4\x89i" +
-	"h\x08M]`\x93\xd2\xa9\x13[\xc4\x04\xec\x8f\xa9L" +
-	"\x0b\x0c\xd8\xb2u\x04Z\xa1\x0e\xbaN\xd1$`[\xc5" +
-	"\xf8\xb3S\xe9\xa1\xf7\xec;\x9f\x1d\x87\x04i\xca\x1f9" +
-	"?\x7f\xf7\xbd\xdf\xfb}\xbf\xef\xf7=\x1fL\xca\x09_" +
-	"\xef\x9e\xe8>\x90F~\x8c\xfe\x9b\xec\xf1K\xdf\xf9\xe6" +
-	"\xd4c\xb1\x07\x80\xc6\x10\xc0\x8fr\x10\xfb\xe6h\x1b\x02" +
-	"\xb2\x05:\x00h7\xbd\xf9\xf6\xeb\xbf;\xdc\xf1 \xd0" +
-	"f\xb4\x0f^\x88\xffh\xe9\x90\xf9(\xf8%\x19\x80\xbd" +
-	"J\x9fa\x1b\x94?\xbdA\xef\x05\xb4\x87\x9f\x9a\xa6\xd7" +
-	"\xdf_?\x05\xb4\x99Tc\x01\x82\xc8R\xa1\xf7\xd8h" +
-	"\x88\x87*\xa1\xc3\xecl(\xca\xae\x85\xa2vG\xf7\x1f" +
-	"\x8fM\xfe\xea\xa1\x1f4J~-\xf4\x1a\xf33\xfe\x84" +
-	"\x8c'\x1f:\xb4\xf7\xb1\x11\xe5\xdde\xa0\xed\x08\xe0\xe3" +
-	"@u\xf6]\x04\x9f=|\xf4\x83\x95\xd5\xab7V\x1a" +
-	"l;\xce\xd6\x98*\x92L\xb0\xc3\xecY\xf6\x15\xf6\x0a" +
-	"\x8b\xda\xf7|\xf2\xc9o\x7f\xaf\xe7\xd7g@iF\xef" +
-	"\xbe\xc8\x03_aK\xec\x0d\x16\x05`\x17\xc5\xbe\xef|" +
-	"\xf0\xc8sG\x9f\xeb=\xebe(\x19\xee\xe2\x0c\xa5\xc2" +
-	"\x9c\xa1\xae\x12\xf9\xecd\xf8\x89g\xca\xc0D\x92\xbel" +
-	"8\xc3\x03\x8a\"\xe0\xae\x07\xce|\xe1\x85\xf6\xc7W\xdd" +
-	"\x80 \xf6\xad\x84\x97x\xc0/E\xc0}\x8b\xa1\x7f\x1b" +
-	"\x0f]\x7f\xa1\x8e\x06~F\xd6\xdar\x92u\xb4p`" +
-	"\xad-\x7f\x07`{#\x01\xfbO\xcb\xe7\x1e\xd6_\xec" +
-	";\x07\x94J\xd5\xc3\x00\xb2\xd6\xc8\xf3lo\x84\x07w" +
-	"D\x16\x01\xed\xd5\x03\xc9W\x1f~'\xf5\x92\x873%" +
-	"r\x82s\xf6[\xeb\xd9\xb7\xef{\xf7\xab\xaf{A\xdf" +
-	"\x1a\x19\xe4\x98\x86\"\x1c\xd3{CK\xe6\xbfzF\xcf" +
-	"7 U\x8bl\xb29\xb1\x8b\x1e\xf9=\x1b\x8dF\xd9" +
-	"D4`\xff\xe2\xeek\xfb\xce\x8cK\x1b@;\xdcS" +
-	"\x8eF\xd7xF-\xca3\xa6\xff\xba1w~\xf9\xa3" +
-	"K\xa0\xb4\xa3\x83f#z\x92\x07\\\x16\x01\xdf\x9a9" +
-	"{\xd7G?K_\xf1f\xf0\xc7^\xe3\x01\xad1\x1e" +
-	"p\xf7\xbe\xce\x8b\x97\x16KWj@\xc7\xfa\x05h\x11" +
-	"p\xfd\xf6\xd4\xd7J\xef\xbfy\xa5\x0e4\xb2ll\x93" +
-	"\x15c\x1c\xf2\\\xec\x14{9\x16\x05\xb0\x87_L}" +
-	"i\xfdd\xd7\xa67\xdb\xcfcGx\xb6s\"\xdb\xf7" +
-	"}\xf2\xd8\x93W\xd9\x87\xde\xba]\x8e\x09\xc0\xff\x8c\x0d" +
-	"\x80-\xfe\xe6l=?\xad\xe5z\xa6T2k\xcc\xf6" +
-	"\x0f\x19\xf3)\xc3\xb4TcJ\xeb)\x14\x8dxZ-" +
-	"\xa8D7\x15\x1f\xf1\x01\xf8\x10\x80\xee\xe9\x02P\x9a\x08" +
-	"*\xdf\x90P\xd6\x8cy\x0cV\xeb\x0f\x90@\x8a\x9d\x8a" +
-	"OB\xef\"\xc5\xa8\xe2CDL\x13\xc4\x10bU\xf1" +
-	"\x00\x18\x04t! \x8706\x9e\xd1\x02f1g\xa5" +
-	"\x11\x95&w\xdf\xfdm\x00J\x9c\xa0\x92\x90\x90\"\x86" +
-	"y\x0d\xe8\xad|\xf1\x10A\xe5N\x09I\xc9\xc4O\x83" +
-	"\xd8\xe3S \xf1G\xb2P\xbf\xe2\xee$\xd5\x1d6\x1d" +
-	"(\xe4K\x0b|G\x1f\xf1\x03\xb8j@\xa7\xa8\x94>" +
-	"\x05\x90\x0cc2\x8e\xf4\x16\xd9.h3Y\xd3\xd2\x0a" +
-	"\xe8\xe4\x90\x8d)\xcd9\xba\xeb#\x02c\xa3\xc5\x04r" +
-	"B\xaa<Ti\xf3PC\xf1sJ\x13\xa7\x8d\xd3\x8d" +
-	"\xa8\x04\x1d\xf6\x9cL\x00\x18\xf2\xd7.$\x9b\x90\xfa3" +
-	"\xf4\x13\xfdvF3\xad\x941[\x04\xb4\x06\xee(Z" +
-	"\xb3E\xab\xf6\xf0c\xe3\xe9\\\xd1\xcch\x9ci\x80m" +
-	"\xb8>\xe8\xe1\xba\xfb\x8b\x00\xca\xe7\xcb\x85'\xa5\x05\x0c" +
-	"V\xbd\x15\x90\x97\xb1\xd3\xb4T\xcbe<\xe8\xed\xec\x1a" +
-	"\xee}|{\x87\xf8\xdb\xd4)+_X\xe81\xb4{" +
-	"\x9d\xa5\xf8\x00W\x9dnn[,\xa8\xd6\xc9\xf1\x7ft" +
-	"l\x8e\xd2.\x80d3&\xdb\x91v\xcbr\xa1hl" +
-	"a\xb6\xa6*\xde\xc5\x04\x0aC\xbdx\xfb\xe9\xf1\xf5\x8d" +
-	"\xd5\xe7\x01\xc0\xd6\xd6\xbf\xfc\xb7\x9f\xbe\xf5\xf4\xcb\xfcy" +
-	"\xb8w\xf9Ci\xf0\xfe\xf3\xbb\xa5Y\xa8y\xc4R-" +
-	"\x00Q\xed\xaa\xed\xe1\x81\xc0\x9d\x0b\xb3\x9a\xc38\"\xdd" +
-	"\x7f\xa0\xca\xb8Kx[\x95\xf0\x80\xb50\xab\xa1\xc7:" +
-	"\x01\xfd\x01\x02H\xe6\xb7\x95x\xc3~\xe6\xf5\x96sV" +
-	"MC\xf7W\x1a:,\xe1@A\xe8\xa1\"+O\x97" +
-	"\x86\xea\xeb\xf7\xf5\\VW-\xcd\x9b|D\xb3\x84_" +
-	"\xe8X\x93~\xb0\x92>.\xe1\xe2\xb4j\xa9\xa6f9" +
-	"\x90\xa9\xfd\x0f\xdd\xb8\x91\xf8\xc9\xfc\xd3\xf5\x1a\xf1\xef\xa0" +
-	"\x113^V\xae\xc9\xb9\xad\xee\x95\x01P\x9a\x09*c" +
-	"\x12\xdaYG-\xe8\xd1\xe4g\xfc\x89\xcb\xb7\xbd\x84k" +
-	"5V\xe5Y\xdcbU\xee\x1c\x01\xa8\x01\x88\x15v\x85" +
-	"\x16\x83.\x02\x95\xd7\xf1(A\xe5\x1eO\xe7hG\x00" +
-	"\x94i\x82\xca\xac\x84T\x92\xc2(\x01P}\x12@\xc9" +
-	"\x11TJ\x12RB\xc2H\x00h\x91GZ\x04\x95G" +
-	"$\x0c\x144\xd3\x12\x18<V*\x0aaeumD" +
-	"+d\x81hf\x1d\x87\x14\xd06\xf3\xd9\\\xba\x90?" +
-	"\x0er6\xa7a\xd0\xde\x7f:\xf9\xc3\x95\xb5\x19\xbb\xd2" +
-	"\xa6\xb6>\xa3[C\xf3\x9a\x01\xc4\xdb\xad\x83\x7fx|" +
-	"\xe6?W'NW*\x91\xf4!\xc5\x8cW\xde[u" +
-	"\xdd\xd9\xc3U\xcc\x09(\x1f\xe9\x96.\x01\xa1\x9b\xff\x93" +
-	"\xe8\xcdm\x00Hh\x07\xff\xe4\xa3-\xfd\x00\xb2\x9e5" +
-	"d]-\x11sZV\xe7g\x06tm:\xab\x1a\xff" +
-	"\xdb\x17\xc4\x97)\xe3x>\x9eV\x035\xae\xb0\x9d\x0c" +
-	"]e\xec\xa0\xf1-\xfeU\xeb7^ r\xbe f" +
-	"C\xb3\xf0\x1c\xe7V\x82\x7f~\x8b\xdcX\xbf\x7f\xfd\x02" +
-	"U2\x00\xc94\xdfhB\xc6\xeaU\x0f\x9d\x09L\x95" +
-	"I\x11\x90<\x86tNF\xc9\xbdK\xa0s\xb7\xa2\xda" +
-	"\x09\x80\xe44&-\xa4\x0f\xca\xb6sj\xc0\xbc#R" +
-	"W\x88e\xa7\xb2\x9df\x00\xef\xe4\xa9\x09\xda\xf1\xcd\x00" +
-	"o\xa4\xff\xe7Uac\x1e{\x14\"9a\xbb\xbe," +
-	"\\\xcd\xa5\xf1\xa6\xfa\x19\xcbGl\x8f39=_\x94" +
-	"]\xa3\xb6`\xc3\x95N>\xe6\xedd\x00\xa4^[\xfa" +
-	"\xd8\xc6\xa6\xe8\x9b\xdd{O\x03\xbc\x8f\x02\xf0\x9d\x94v" +
-	"\x09m\xa3\xa8Oj\x85;\x8e\xa3\xf3\x06\x9aH@B" +
-	"\xe2\xd9d\xf7\xe444\xba#\x15zb\x12\xdaE\xa3" +
-	"\xfc\x1a\x10\xad\x80\xd4>5d\xfc\xe57\x9b\x17\x9ep" +
-	"\xec\xa0f\x1e4\xea\x97\xca\xb8\xdd.\xfd\x0enS\xd3" +
-	"4\xde\xf4\\\x97\xe5k\x05o\x1a\xe7\xee\x8b\xce\xcd\x9d" +
-	"\xf6v\x81Do\xe6\xfd\xe2\xfc\x02A\xe7JK[\xfb" +
-	"A\xa2{\xc4\xf8N\xe0@y\xb6l\x95\xdf\xae&\x92" +
-	"\xa0\x8f\xec8\xf1\x82\xd5\x1fsun\xb0\x93\x1c\x1a\xfa" +
-	"\xcd\xb0\x87@\xaf|\xebGJ\x08\xf0\xbf\x01\x00\x00\xff" +
-	"\xff\xc6\xce2\xaf"
+const schema_9273388a9624d430 = "x\xda\xacW\x7fl[W\x15>\xe7]{/\x83\x14" +
+	"\xfb\xfa:\xb6\xa9\x12\x95\xa6)k3\x125\x84B\x89" +
+	"\xa8b\x07B\xe7 \x98\x9f\xb3NM\xd6\xa1\xbd$\xaf" +
+	"\x99\x87\xfd\x9c\xfa=g6\x1a\x84VZ\xb7UCT" +
+	"CC0\x95\xc2&\xb5\xa3\x13m\xc5\x846\xa1\xa9C" +
+	"-\xb0\xd1eld\xac\x12)\xa8\x9d\xaa\xf1c?\"" +
+	"\xe8\x1f\xfbcS\xdb\x87\xee\xb5\x9f\xdf\xb5\xeb6\xad\x84" +
+	"\xf2G\x9e\xaf\x8f\xcf\xfd\xee\xf7}\xe7\x9c\xfb6lW" +
+	"\xe3J\x9f?\xba\x06`\xf4\xc7\xe8\xbf\xc9\x19[\xfc\xd6" +
+	"\xd7&\x1f\x8f\xed\x02\x1aC\x00?\xaaA\xec\xdfIW" +
+	"\" +\xd3A@\xe7\xe8_\x9f\xfbg\xff\x0e\xb6\x1b" +
+	"\xe8:\x04\xf0\xf1\xefO\xd17\x10|N\xcb\xebg_" +
+	"}iK\xc7\x83@[\xd1\xd9\xf0f\xd7\x8f\xf6n\xb2" +
+	"\x1e\x03\xbf\xa2\x02\xb0\xe3\xf4\x19\xf6\x07\xca\x9fN\xd0\xfb" +
+	"\x01\x9d\x91\xa7\xa6\xe8\xc5\xf7\xe6\x1f\x02\xdaJ\xbcX\x80" +
+	" \xb2\xcd\xa1wY2\x14\x05`[C[\xd8\x91P" +
+	"\x94]\x0aE\x9d\x8e\x9e?\xdf3\xf1\xdc\x9e\x1f4K" +
+	"~)\xf4\x0a\xbb\x99\xf1'?\xe3\xc9\x877\xad~|" +
+	"T{\xfb\x00\xd0v\x01\x11\xa0\x7f'\xfb6\x878\xb2" +
+	"\xfd\xfd\x83\xc7\x96.\x1fl\xb2\xed\xdd\xec$3D\x12" +
+	"\x9dma\xbfb_`\xa7X\xd4\xb9\xf7cO~\xf3" +
+	"{\xbd/\x1e\x02\xad\x15\xe5}\x91\x07\x9eb{\xd9\x02" +
+	"\xe3H\x17\xc5\xbeo\xbd\xbf\xef\xe8\xf6\xa3}\x87e\xee" +
+	"\x86\xc3\x9d\x9c\xbb\xaf\x879w\x9d%\xf2\xe9\x89\xf0O" +
+	"\x9f\xa9\x00\x13I\xfas\xe1\xb4 W\x04\xdc\xb9\xeb\xd0" +
+	"\xad\xcf\xb7?qL\x0e8\x1c\xde\xcb\x03~#\x02\x1e" +
+	"\x98\x0b]0\xf7\\|\xbe\x81\x06.\x03[\x0a\xeff" +
+	"\x17\xc2\x1c\xd8R\xf8_\x00\xec\x83\xb6\x80\xf3\xc6\x81\xe3" +
+	"\x8f\xe6^\xe8?\x0e\x94*\xdea\x00\xd9R\xdb\xb3\xec" +
+	"\x836\x1e|\xa1m\x0e\xd09\xd6\x9d8\xf5\xe8[\xc9" +
+	"\xdfJ\x9c\xad\x8d\xdc\xc79{8\xff\xd2\xe9[\x1f\xb9" +
+	"\xe5e\xa0\x1d\xc4\xd3\x8ds\xd6O#C\xc8VGx" +
+	"\x96\x8e\xc8\x16\xb6\x93?9\xbf\xb7\x8f\x9c}\xe0\xed/" +
+	"\xbe*\x9fa,2\xc4\xcf\xa0G\xf8\x19\xde\x1d\xdek" +
+	"\xfd\xa7w\xebk\x0d\" \xdb\x159\xcf\xbe/\xb2=" +
+	"\x12y\x99\xad\x88F\x01\x9c_\xdf\xf5\xe1\x9aCc\xca" +
+	"\x02\xd0\x8e\x1a\xa7\x97\"'y\xb6\x15Q\x9e-\xf5\xb7" +
+	"\x85\x9d\xaf\x1d\xf8h\x11\xb4vt\x91\x97\xa3\xbby\xc0" +
+	"\x83\"\xe0\x1b\xd3\x87\xef\xfc\xe8\x97\xa9sr\x86#\xd1" +
+	"Wx\xc0\x09\x11p\xd7\x9aU\xa7\x17\xe7J\xe7d\xc0" +
+	"\x1fF\x07x\x00\xc6x\xc0\xc5\xdb\x92_*\xbd\xf7\xfa" +
+	"\xb9+\x00\xaf\x8d\x9dg}1\x0e\xb8'\xf6\x10\xfbN" +
+	"\x8c\x03\x1ey!\xf9\xb9\xf9\xdd\x9d\xe7\xeb4\x8e\x8d\x0b" +
+	"\x8dE\xb6\xee_\x9c\xcd\xef\xf9]\xfb;\xa0\xadC\xb7" +
+	"\x82~\x12;\xc3\x03\x8e\x88\x80\x87}\xea\xb6'\x97\xd8" +
+	"\x7f\xe5\x0c\x7f\x8a\x89\x13-\xc6\x06\xc1\x11\x7f)'\x97" +
+	"\x9f2\xb2\xbd\x93:\x991g\x06\x86\xcd\xd9\xa4i\xd9" +
+	"\xba9i\xf4\x16\x8afWJ/\xe8$gi>\xe2" +
+	"\x03\xf0!\x00]\xd1\x09\xa0\xb5\x10\xd4\xbe\xa2\xa0j\x98" +
+	"\xb3\x18\xf4\xcc\x04\x10G\x8a\xab4\x9f\x82\xf2\"\xc5\xa8" +
+	"\xe6CDL\x11\xc4\x10\xa2W>\x00\x18\x04\xacA\xb8" +
+	"\xa9\x01B\xaa\x90/\x95{\xb7\x9a\x05c:c\xd9F" +
+	"\xa1\xb7X{\x14\xc8rh\xd5~\x8b\xfc\xb7\xdb\xc6\xd2" +
+	"F\xc0*f\xed\x14\xa2\xd6R\xc3\xbc~%\x80\xd6E" +
+	"P\x8b+H\x11\xc3\x9c/\xba\x99/n\"\xa8\xdd\xa1" +
+	" )Y\xf8\x09\x10\xf8>\x0e\x0a\x7f$\xe5\xc6\x95\xda" +
+	"NJ#\xca\x00\x87\xc9O(y\x1c\xc7\x1d\x177\x10" +
+	"\xa3\xa0\xf9\x88_r!\xbaf\xa2\xf4)\x80D\x18\x13" +
+	"]H7\xaa\x8e{:t\xd3\xab\xe6\xa4\xe12Z\xab" +
+	"\x19\x01\xbf\xd9b\x1c\x05\x8a\x1a\xbd\x9e\x1a\x12\xe3\x14o" +
+	"\xd1Z\xb8\x1a\\ED-\xe8\x8a\xe2\x95$\x86\xfc\xf5" +
+	"\x0b\x89\x16\xa4\xfe4\xbdy\xc0I\x1b\x96\x9d4g\x8a" +
+	"\x80\xf6\xe0\xedE{\xa6h\xd7\xf3\xb2m,\x95-Z" +
+	"i\x83\x8b\x00p\x15\x196H2\xf4|\x16@[W" +
+	"\xf1\x13)\x951\xe8\xf5\x7f@\xee\x8eU\x96\xad\xdb5" +
+	"1\x82r\xf7\xa9\x93\xc5\xc7\xb7w5\xf9\xaa>i\xe7" +
+	"\x0b\xe5^\xd3\xb8\xdf]\xea\x1a\x14\x96\xb1\xae\xaa\xa3@" +
+	"[\xd1\xc9\x9d^\xe8\xb6bJ;\x01\x12\xad\x98hG" +
+	"\xda\xa3\xaa\x85\xa2y\x05\xb3u\xaa\xc8\x8bq\x14M\xff" +
+	"\xf4m\xfb\xc7\xe6\x17\x8e=\x0b\x00\x8e1\xff\xf9\xbf\xff" +
+	"\xfc\xcc\xd3'\xf8\xf3?\"\xfb\xcc\xee\x17\x17\xde\xb9^" +
+	"\x9a\x85\xd1Gm\xdd\x06\x10j{\xad\x19\xbb\x03w\x94" +
+	"g\x0c\x97qD\xba\xbe\xdbc\xbcF\xf8J\x8f\xf0\x80" +
+	"]\x9e1Pj\xef\x80\xfe\x00\x01$\xb3Wu\x7f\xd3" +
+	"6\xc1\xf5V\xb3v]\x9f\x18\xa8\xf6\x89\xb0\x82\x83\x05" +
+	"\xe1\x87\xaa\xad\xa4\xe2\x0f5\xea\xf7\xe5l&\xa7\xdb\x86" +
+	"\x9c|\xd4\xb0\xddb\x97\xd3\x0fU\xd3w)87\xa5" +
+	"\xdb\xbae\xd8.d\xea\xfc;g^\x8e\xffl\xf6\xe9" +
+	"F\x8f\xf8\x97\xf1\x88\xd5Uq\xae\xc5\xb9\xf5\xf6J\x03" +
+	"h\xad\x04\xb5u\x0a:\x19\xd7-hy\xfby\xda\xd6" +
+	"\xef\x87U\xb2\x84\xb5\x82\xb5\x84:\x97e;A\xed^" +
+	"\xa9\x10\x8cq\x00m\x8a\xa06\xa3 U\x940*\x00" +
+	"47\x01\xa0e\x09j%\x05)!a$\x00\xb4\xc8" +
+	"#m\x82\xda>\x05\x03\x05\xc3\xb2E\xfdJ\x0dW\xf0" +
+	"jgr\xc6\xa8Q\xc8\x001\xac\x06J(\xa0c\xe5" +
+	"3\xd9T!\xbf\x03\xd4L\xd6\xc0\xa0\xb3~\x7f\xe2\x87" +
+	"\x07ON;\xd5\xaasr\xd39{x\xd60\x81\xc8" +
+	"\xc57\xf4\xc7'\xa6/-\xdd\xbd\xbfz\xd0\x84\x0f)" +
+	"\xa6e\xb7^i\xd3U\xbd\xdc\x94\x9c\x80\xca\x916v" +
+	"\x0a\x08=\xfc\x9fB\xd7\xae\x04@B;\xf8'\x1fm" +
+	"\x1b\x00Ps\x19S\xcd\xe9%bM\xa9\xfa\xec\xf4`" +
+	"\xce\x98\xca\xe8\xe6\xb5\xcb\\|\x994w\xe4\xbbRz" +
+	"\xa0\xae\xc8}\xcb\x8c\x14\xa9\xe8\xdd\x1b)\xba\x93\x95\xd2" +
+	"q\x80D\x10\x13\x9fB\xda\xa7:E\xa9\x9f\xdfHO" +
+	"N\xe1\xf2&\xaf\xf9n\x99\x0a\xba\xa2;\xd6w3\x99" +
+	"\x175_(\xf3\xc3\xb5\x8a\xc3\xb9\xf72\xfc\xcb\x19r" +
+	"y\xfe\xbb\xf3oR-\x0d\x0aM\xaa\xe8\xdds\xd1\xbd" +
+	"1\xd0\xcd\x13\xa0\xd0\x8d**\xb5k\x11\xbaWJ\xba" +
+	"\xfe>P\xe8j\xd5q9\x07\xcc\xc7\xd1q\x8b\x08\xf8" +
+	"\xc4\x92?\x07xYU\x07\x93\xdc\x02\xaf=\xf3]y" +
+	"\xa4/*M\xa0\x9e\xa1\x91ja\xde#\x17&\x00R" +
+	"\xb9\xcb\xfc\xdf\xa6\xa0\xa8\x9b\xebo%M\xf0>\x06\xc0" +
+	"w\xd2\xda\x15t\xccbn\xc2(\xdc\xbe\x03\xdd_\xa0" +
+	"\x85\x04\x14$\xcb^\x88\x9a\x91\xd3\xb4o\x8dW\xe9\xf9" +
+	"\x8c\x82u\xeeE\xea\xddT\xea\xf8\x91\x8d[wZr" +
+	"5\xdfV\x87j\xb3]c\xca\xb2M\xa8\xce\xbcrz" +
+	"\xee\xa2\xca\xe5\x81\x9b\xd7\xbdY\xa3\xfbN@\xfb:A" +
+	"\xa1k\xb9y\xddw!t/\xcc\xf4\x93\x03\xa0\xd0\x15" +
+	"bH\xc7q\xb02A\xaea\xc0k\xcd\x1d\xc1*Y" +
+	"v\xae\x05\xbd\xd7\xca\x86\xaa\xbc\x91\x1bm\xb3\xcd\x86\xbc" +
+	"\xcd\xe6\xac\xe2\xe4\xa4aY\x88\xa0 \xde\x80\x13\x9b\xf6" +
+	"\x96\x11I\xa4\xfa\xca\x91g\x19\x05\xfc_\x00\x00\x00\xff" +
+	"\xff\xaa\xeb\x97\xc0"
 
 func init() {
 	schemas.Register(schema_9273388a9624d430,
 		0x811895634b6bd959,
+		0x82136633e6b6d8ae,
 		0x851d47c6ccdecf08,
 		0x87cbebfc1164a24a,
 		0x8f86b66260d02d1d,
@@ -2755,6 +2570,7 @@ func init() {
 		0xb7fc866ef1127f7c,
 		0xbd33bb6d8cbd9ed2,
 		0xbf49e08cc9412aaf,
+		0xc727892bd5c66f88,
 		0xcc39e47cdead74c4,
 		0xce552eef738a45ea,
 		0xd10259a623f95bb4,
@@ -2763,5 +2579,6 @@ func init() {
 		0xdf787fd9d51f235b,
 		0xdfcfeb783c4948fc,
 		0xe22282cb3449bb4a,
+		0xe91cc3866fdea82a,
 		0xf013eda158070488)
 }

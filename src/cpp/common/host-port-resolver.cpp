@@ -41,35 +41,55 @@ using namespace mas::infrastructure::common;
 
 //-----------------------------------------------------------------------------
 
-HPRRegistrar::HPRRegistrar(HostPortResolver *hpr, kj::Timer& timer) : hpr(hpr), timer(timer) {}
-
-HPRRegistrar::~HPRRegistrar() noexcept(false) {}
-
-kj::Promise<void> HPRRegistrar::register_(RegisterContext context) {
-  auto params = context.getParams();
-  if (params.hasBase64VatId() && params.hasHost() && params.getPort() > 0 && hpr != nullptr) {
-    hpr->addMapping(params.getBase64VatId(), params.getHost(), params.getPort(),
-                    params.hasAlias() ? params.getAlias() : nullptr);
-  }
-
-  kj::String b64VatId = kj::str(params.getBase64VatId());
-  kj::String alias = params.hasAlias() ? kj::str(params.getAlias()) : kj::str();
-  auto res = context.getResults();
-  auto a = kj::heap<common::Action>([this, KJ_MVCAP(b64VatId), KJ_MVCAP(alias)]() mutable {
-    if (hpr != nullptr) hpr->keepAlive(b64VatId, alias);
-    return kj::READY_NOW;
-  });
-  res.setHeartbeat(kj::mv(a));
-  res.setSecsHeartbeatInterval(10*60);
-  return kj::READY_NOW;
-}
-
-//-----------------------------------------------------------------------------
-
 struct HostPortResolver::Impl {
+
+  struct Heartbeat final : public mas::schema::persistence::HostPortResolver::Registrar::Heartbeat::Server {
+    kj::String base64VatId;
+    kj::String alias;
+    HostPortResolver &hpr;
+
+    Heartbeat(HostPortResolver &hpr, kj::StringPtr base64VatId, kj::StringPtr alias)
+        : hpr(hpr), base64VatId(kj::str(base64VatId)), alias(kj::str(alias)) {}
+
+    virtual ~Heartbeat() noexcept(false) {}
+
+    kj::Promise<void> beat(BeatContext context) override {
+      hpr.impl->keepAlive(base64VatId, alias);
+      return kj::READY_NOW;
+    }
+  };
+
+  struct Registrar final : public mas::schema::persistence::HostPortResolver::Registrar::Server {
+    HostPortResolver &hpr;
+    kj::Timer &timer;
+
+    Registrar(HostPortResolver &hpr, kj::Timer &timer) : hpr(hpr), timer(timer) {}
+    virtual ~Registrar() noexcept(false) {}
+
+    // register @0 (base64VatId :Text, host :Text, port :UInt16, alias :Text) -> (heartbeat :Capability, secsHeartbeatInterval :UInt32);
+    kj::Promise<void> register_(RegisterContext context) override {
+      auto params = context.getParams();
+      if (params.hasBase64VatId() && params.hasHost() && params.getPort() > 0) {
+        hpr.impl->addMapping(params.getBase64VatId(), params.getHost(), params.getPort(),
+                        params.hasAlias() ? params.getAlias() : nullptr);
+      }
+
+      kj::String b64VatId = kj::str(params.getBase64VatId());
+      kj::String alias = params.hasAlias() ? kj::str(params.getAlias()) : kj::str();
+      auto res = context.getResults();
+      auto a = kj::heap<Heartbeat>(hpr, b64VatId, alias);
+      res.setHeartbeat(kj::mv(a));
+      res.setSecsHeartbeatInterval(10*60);
+      return kj::READY_NOW;
+    }
+  private:
+
+  };
+
+  HostPortResolver &self;
   Restorer* restorerPtr{nullptr};
   mas::schema::persistence::Restorer::Client restorerClient{nullptr};
-  kj::Timer& timer;
+  kj::Timer &timer;
   kj::String id;
   kj::String name{kj::str("Host-Port-Resolver")};
   kj::String description;
@@ -77,19 +97,35 @@ struct HostPortResolver::Impl {
   kj::HashMap<kj::String, kj::Tuple<kj::String, uint16_t, uint8_t>> id2HostPort;
   // the mapping from id to host and port (and keep alive count, which should never get 0)
 
-  Impl(kj::Timer& timer, kj::StringPtr name, kj::StringPtr description)
-  : timer(timer)
+  Impl(HostPortResolver &self, kj::Timer& timer, kj::StringPtr name, kj::StringPtr description)
+  : self(self)
+  , timer(timer)
   , id(kj::str(sole::uuid4().str()))
   , name(kj::str(name))
   , description(kj::str(description)) {}
 
   ~Impl() noexcept(false) {}
+
+  void keepAlive(kj::StringPtr b64VatId, kj::StringPtr alias) {
+    KJ_IF_MAYBE(hp, id2HostPort.find(b64VatId)) kj::get<2>(*hp) = 1;
+    if (alias != nullptr && alias.size() > 0) KJ_IF_MAYBE(hp, id2HostPort.find(alias)) kj::get<2>(*hp) = 1;
+  }
+
+  void addMapping(kj::StringPtr b64VatId, kj::StringPtr host, uint16_t port, kj::StringPtr alias) {
+    id2HostPort.insert(kj::str(b64VatId), kj::tuple(kj::str(host), port, 1));
+    if (alias != nullptr) id2HostPort.insert(kj::str(alias), kj::tuple(kj::str(host), port, 1));
+  }
+
+  mas::schema::persistence::HostPortResolver::Registrar::Client createRegistrar() {
+    return kj::heap<Registrar>(self, timer);
+  }
+
 };
 
 //-----------------------------------------------------------------------------
 
 HostPortResolver::HostPortResolver(kj::Timer& timer, kj::StringPtr name, kj::StringPtr description)
-: impl(kj::heap<Impl>(timer, name, description)) {
+: impl(kj::heap<Impl>(*this, timer, name, description)) {
 }
 
 HostPortResolver::~HostPortResolver() {}
@@ -130,14 +166,8 @@ void HostPortResolver::setRestorer(Restorer *restorer, mas::schema::persistence:
   impl->restorerClient = client;
 }
 
-void HostPortResolver::addMapping(kj::StringPtr b64VatId, kj::StringPtr host, uint16_t port, kj::StringPtr alias) {
-  impl->id2HostPort.insert(kj::str(b64VatId), kj::tuple(kj::str(host), port, 1));
-  if (alias != nullptr) impl->id2HostPort.insert(kj::str(alias), kj::tuple(kj::str(host), port, 1));
-}
-
-void HostPortResolver::keepAlive(kj::StringPtr b64VatId, kj::StringPtr alias) {
-  KJ_IF_MAYBE(hp, impl->id2HostPort.find(b64VatId)) kj::get<2>(*hp) = 1;
-  if (alias != nullptr && alias.size() > 0) KJ_IF_MAYBE(hp, impl->id2HostPort.find(alias)) kj::get<2>(*hp) = 1;
+mas::schema::persistence::HostPortResolver::Registrar::Client HostPortResolver::createRegistrar() {
+  return impl->createRegistrar();
 }
 
 //-----------------------------------------------------------------------------

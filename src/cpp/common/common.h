@@ -28,11 +28,10 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 //#include "model.capnp.h"
 #include "common.capnp.h"
+#include "fbp.capnp.h"
 #include "persistence.capnp.h"
 
-namespace mas { 
-namespace infrastructure { 
-namespace common {
+namespace mas::infrastructure::common {
 
 class Identifiable final : public mas::schema::common::Identifiable::Server {
 public:
@@ -50,102 +49,100 @@ private:
 
 //-----------------------------------------------------------------------------
 
-class CallbackImpl final : public mas::schema::common::Callback::Server {
-public:
-  CallbackImpl(kj::Function<void()> callback, 
-              bool execCallbackOnDel = false,
-              kj::StringPtr id = "<-");
+// class CallbackImpl final : public mas::schema::common::Callback::Server {
+// public:
+//   CallbackImpl(kj::Function<void()> callback, 
+//               bool execCallbackOnDel = false,
+//               kj::StringPtr id = "<-");
 
-  virtual ~CallbackImpl() noexcept(false);
+//   virtual ~CallbackImpl() noexcept(false);
 
-  kj::Promise<void> call(CallContext context) override;
+//   kj::Promise<void> call(CallContext context) override;
 
-private:
-  kj::String id{ kj::str("<-") };
-  kj::Function<void()> callback;
-  bool execCallbackOnDel{ false };
-  bool alreadyCalled{ false };
-};
-
-//-----------------------------------------------------------------------------
-
-class Action final : public mas::schema::common::Action::Server {
-public:
-  Action(kj::Function<kj::Promise<void>()> action, bool execActionOnDel = false, kj::StringPtr id = "<-"); 
-
-  virtual ~Action() noexcept(false);
-
-  kj::Promise<void> do_(DoContext context) override;
-
-private:
-  kj::String id{ kj::str("<-") };
-  kj::Function<kj::Promise<void>()> action;
-  bool execActionOnDel{ false };
-  bool alreadyCalled{ false };
-};
+// private:
+//   kj::String id{ kj::str("<-") };
+//   kj::Function<void()> callback;
+//   bool execCallbackOnDel{ false };
+//   bool alreadyCalled{ false };
+// };
 
 //-----------------------------------------------------------------------------
 
-class CapHolderImpl final : public mas::schema::common::CapHolder<capnp::AnyPointer>::Server {
-public:
-  CapHolderImpl(capnp::Capability::Client cap,
-                kj::StringPtr sturdyRef,
-                bool releaseOnDel = false,
-                kj::StringPtr id = "-");
+// class Action final : public mas::schema::common::Action::Server {
+// public:
+//   Action(kj::Function<kj::Promise<void>()> action, bool execActionOnDel = false, kj::StringPtr id = "<-"); 
 
-  virtual ~CapHolderImpl() noexcept(false);
+//   virtual ~Action() noexcept(false);
 
-  kj::Promise<void> cap(CapContext context) override;
+//   kj::Promise<void> do_(DoContext context) override;
 
-  kj::Promise<void> release(ReleaseContext context) override;
-
-  //kj::Promise<void> save(SaveContext context) override;
-
-private:
-  kj::String id;
-  capnp::Capability::Client _cap;
-  kj::String sturdyRef;
-  bool releaseOnDel{ false };
-  bool alreadyReleased{ false };
-};
+// private:
+//   kj::String id{ kj::str("<-") };
+//   kj::Function<kj::Promise<void>()> action;
+//   bool execActionOnDel{ false };
+//   bool alreadyCalled{ false };
+// };
 
 //-----------------------------------------------------------------------------
 
-class CapHolderListImpl final : public mas::schema::common::CapHolder<capnp::AnyPointer>::Server {
-public:
-  CapHolderListImpl(kj::Vector<capnp::Capability::Client>&& caps,
-                    kj::StringPtr sturdyRef,
-                    bool releaseOnDel = false,
-                    kj::StringPtr id = "[-]");
+// class CapHolderImpl final : public mas::schema::common::CapHolder<capnp::AnyPointer>::Server {
+// public:
+//   CapHolderImpl(capnp::Capability::Client cap,
+//                 kj::StringPtr sturdyRef,
+//                 bool releaseOnDel = false,
+//                 kj::StringPtr id = "-");
 
-  virtual ~CapHolderListImpl() noexcept(false);
+//   virtual ~CapHolderImpl() noexcept(false);
 
-  kj::Promise<void> cap(CapContext context) override;
+//   kj::Promise<void> cap(CapContext context) override;
 
-  kj::Promise<void> release(ReleaseContext context) override;
+//   kj::Promise<void> release(ReleaseContext context) override;
 
-  //kj::Promise<void> save(SaveContext context) override;
+//   //kj::Promise<void> save(SaveContext context) override;
 
-private:
-  kj::String id;
-  kj::Vector<capnp::Capability::Client> caps;
-  kj::String sturdyRef;
-  bool releaseOnDel{ false };
-  bool alreadyReleased{ false };
-};
+// private:
+//   kj::String id;
+//   capnp::Capability::Client _cap;
+//   kj::String sturdyRef;
+//   bool releaseOnDel{ false };
+//   bool alreadyReleased{ false };
+// };
+
+//-----------------------------------------------------------------------------
+
+// class CapHolderListImpl final : public mas::schema::common::CapHolder<capnp::AnyPointer>::Server {
+// public:
+//   CapHolderListImpl(kj::Vector<capnp::Capability::Client>&& caps,
+//                     kj::StringPtr sturdyRef,
+//                     bool releaseOnDel = false,
+//                     kj::StringPtr id = "[-]");
+
+//   virtual ~CapHolderListImpl() noexcept(false);
+
+//   kj::Promise<void> cap(CapContext context) override;
+
+//   kj::Promise<void> release(ReleaseContext context) override;
+
+//   //kj::Promise<void> save(SaveContext context) override;
+
+// private:
+//   kj::String id;
+//   kj::Vector<capnp::Capability::Client> caps;
+//   kj::String sturdyRef;
+//   bool releaseOnDel{ false };
+//   bool alreadyReleased{ false };
+// };
 
 //-----------------------------------------------------------------------
 
-kj::Maybe<capnp::AnyPointer::Reader> getIPAttr(schema::common::IP::Reader ip, kj::StringPtr attrName);
+kj::Maybe<capnp::AnyPointer::Reader> getIPAttr(mas::schema::fbp::IP::Reader ip, kj::StringPtr attrName);
   
 kj::Maybe<capnp::AnyPointer::Builder> 
-copyAndSetIPAttrs(schema::common::IP::Reader oldIp, schema::common::IP::Builder newIp, 
+copyAndSetIPAttrs(mas::schema::fbp::IP::Reader oldIp, mas::schema::fbp::IP::Builder newIp, 
   kj::StringPtr newAttrName = nullptr);//, kj::Maybe<capnp::AnyPointer::Reader> newValue = nullptr);
 
 //-----------------------------------------------------------------------
 
 kj::Vector<kj::String> splitString(kj::StringPtr s, kj::StringPtr splitElements);
 
-} // namespace common
-} // namespace infrastructure
-} // namespace mas
+} // namespace mas::infrastructure::common

@@ -167,6 +167,7 @@ interface AlterTimeSeriesWrapper @0xe1f480ef979784b2 superclasses(TimeSeries) {
   alteredElements @1 () -> (list :List(Altered));
   alter @2 (desc :Altered, asNewTimeSeries :Bool) -> (timeSeries :TimeSeries);
   remove @3 (alteredElement :Element) -> ();
+  replaceWrappedTimeSeries @4 (timeSeries :TimeSeries) -> ();
   struct Altered @0xd085b9baf390bec5 {  # 8 bytes, 0 ptrs
     element @0 :Element;  # bits[0, 16)
     value @1 :Float32;  # bits[32, 64)

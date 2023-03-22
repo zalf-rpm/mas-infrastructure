@@ -5,111 +5,97 @@ package persistence
 import (
 	capnp "capnproto.org/go/capnp/v3"
 	text "capnproto.org/go/capnp/v3/encoding/text"
-	fc "capnproto.org/go/capnp/v3/flowcontrol"
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
-	fmt "fmt"
+	common "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common"
 	strconv "strconv"
 )
 
-type VatId capnp.Struct
+type VatId struct{ capnp.Struct }
 
 // VatId_TypeID is the unique identifier for the type VatId.
 const VatId_TypeID = 0xe10a5d74d58bd18d
 
 func NewVatId(s *capnp.Segment) (VatId, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 32, PointerCount: 0})
-	return VatId(st), err
+	return VatId{st}, err
 }
 
 func NewRootVatId(s *capnp.Segment) (VatId, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 32, PointerCount: 0})
-	return VatId(st), err
+	return VatId{st}, err
 }
 
 func ReadRootVatId(msg *capnp.Message) (VatId, error) {
 	root, err := msg.Root()
-	return VatId(root.Struct()), err
+	return VatId{root.Struct()}, err
 }
 
 func (s VatId) String() string {
-	str, _ := text.Marshal(0xe10a5d74d58bd18d, capnp.Struct(s))
+	str, _ := text.Marshal(0xe10a5d74d58bd18d, s.Struct)
 	return str
 }
 
-func (s VatId) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (VatId) DecodeFromPtr(p capnp.Ptr) VatId {
-	return VatId(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s VatId) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s VatId) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s VatId) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s VatId) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s VatId) PublicKey0() uint64 {
-	return capnp.Struct(s).Uint64(0)
+	return s.Struct.Uint64(0)
 }
 
 func (s VatId) SetPublicKey0(v uint64) {
-	capnp.Struct(s).SetUint64(0, v)
+	s.Struct.SetUint64(0, v)
 }
 
 func (s VatId) PublicKey1() uint64 {
-	return capnp.Struct(s).Uint64(8)
+	return s.Struct.Uint64(8)
 }
 
 func (s VatId) SetPublicKey1(v uint64) {
-	capnp.Struct(s).SetUint64(8, v)
+	s.Struct.SetUint64(8, v)
 }
 
 func (s VatId) PublicKey2() uint64 {
-	return capnp.Struct(s).Uint64(16)
+	return s.Struct.Uint64(16)
 }
 
 func (s VatId) SetPublicKey2(v uint64) {
-	capnp.Struct(s).SetUint64(16, v)
+	s.Struct.SetUint64(16, v)
 }
 
 func (s VatId) PublicKey3() uint64 {
-	return capnp.Struct(s).Uint64(24)
+	return s.Struct.Uint64(24)
 }
 
 func (s VatId) SetPublicKey3(v uint64) {
-	capnp.Struct(s).SetUint64(24, v)
+	s.Struct.SetUint64(24, v)
 }
 
 // VatId_List is a list of VatId.
-type VatId_List = capnp.StructList[VatId]
+type VatId_List struct{ capnp.List }
 
 // NewVatId creates a new list of VatId.
 func NewVatId_List(s *capnp.Segment, sz int32) (VatId_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 32, PointerCount: 0}, sz)
-	return capnp.StructList[VatId](l), err
+	return VatId_List{l}, err
+}
+
+func (s VatId_List) At(i int) VatId { return VatId{s.List.Struct(i)} }
+
+func (s VatId_List) Set(i int, v VatId) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s VatId_List) String() string {
+	str, _ := text.MarshalList(0xe10a5d74d58bd18d, s.List)
+	return str
 }
 
 // VatId_Future is a wrapper for a VatId promised by a client call.
 type VatId_Future struct{ *capnp.Future }
 
-func (f VatId_Future) Struct() (VatId, error) {
-	p, err := f.Future.Ptr()
-	return VatId(p.Struct()), err
+func (p VatId_Future) Struct() (VatId, error) {
+	s, err := p.Future.Struct()
+	return VatId{s}, err
 }
 
-type Address capnp.Struct
+type Address struct{ capnp.Struct }
 type Address_ip6 Address
 type Address_Which uint16
 
@@ -135,261 +121,226 @@ const Address_TypeID = 0xfb47810671a05b0d
 
 func NewAddress(s *capnp.Segment) (Address, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 24, PointerCount: 1})
-	return Address(st), err
+	return Address{st}, err
 }
 
 func NewRootAddress(s *capnp.Segment) (Address, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 24, PointerCount: 1})
-	return Address(st), err
+	return Address{st}, err
 }
 
 func ReadRootAddress(msg *capnp.Message) (Address, error) {
 	root, err := msg.Root()
-	return Address(root.Struct()), err
+	return Address{root.Struct()}, err
 }
 
 func (s Address) String() string {
-	str, _ := text.Marshal(0xfb47810671a05b0d, capnp.Struct(s))
+	str, _ := text.Marshal(0xfb47810671a05b0d, s.Struct)
 	return str
 }
 
-func (s Address) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Address) DecodeFromPtr(p capnp.Ptr) Address {
-	return Address(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Address) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-
 func (s Address) Which() Address_Which {
-	return Address_Which(capnp.Struct(s).Uint16(18))
-}
-func (s Address) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Address) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Address) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
+	return Address_Which(s.Struct.Uint16(18))
 }
 func (s Address) Ip6() Address_ip6 { return Address_ip6(s) }
 
 func (s Address) SetIp6() {
-	capnp.Struct(s).SetUint16(18, 0)
+	s.Struct.SetUint16(18, 0)
 }
 
-func (s Address_ip6) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Address_ip6) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Address_ip6) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Address_ip6) Lower64() uint64 {
-	return capnp.Struct(s).Uint64(0)
+	return s.Struct.Uint64(0)
 }
 
 func (s Address_ip6) SetLower64(v uint64) {
-	capnp.Struct(s).SetUint64(0, v)
+	s.Struct.SetUint64(0, v)
 }
 
 func (s Address_ip6) Upper64() uint64 {
-	return capnp.Struct(s).Uint64(8)
+	return s.Struct.Uint64(8)
 }
 
 func (s Address_ip6) SetUpper64(v uint64) {
-	capnp.Struct(s).SetUint64(8, v)
+	s.Struct.SetUint64(8, v)
 }
 
 func (s Address) Host() (string, error) {
-	if capnp.Struct(s).Uint16(18) != 1 {
+	if s.Struct.Uint16(18) != 1 {
 		panic("Which() != host")
 	}
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.Text(), err
 }
 
 func (s Address) HasHost() bool {
-	if capnp.Struct(s).Uint16(18) != 1 {
+	if s.Struct.Uint16(18) != 1 {
 		return false
 	}
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Address) HostBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.TextBytes(), err
 }
 
 func (s Address) SetHost(v string) error {
-	capnp.Struct(s).SetUint16(18, 1)
-	return capnp.Struct(s).SetText(0, v)
+	s.Struct.SetUint16(18, 1)
+	return s.Struct.SetText(0, v)
 }
 
 func (s Address) Port() uint16 {
-	return capnp.Struct(s).Uint16(16)
+	return s.Struct.Uint16(16)
 }
 
 func (s Address) SetPort(v uint16) {
-	capnp.Struct(s).SetUint16(16, v)
+	s.Struct.SetUint16(16, v)
 }
 
 // Address_List is a list of Address.
-type Address_List = capnp.StructList[Address]
+type Address_List struct{ capnp.List }
 
 // NewAddress creates a new list of Address.
 func NewAddress_List(s *capnp.Segment, sz int32) (Address_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 24, PointerCount: 1}, sz)
-	return capnp.StructList[Address](l), err
+	return Address_List{l}, err
+}
+
+func (s Address_List) At(i int) Address { return Address{s.List.Struct(i)} }
+
+func (s Address_List) Set(i int, v Address) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s Address_List) String() string {
+	str, _ := text.MarshalList(0xfb47810671a05b0d, s.List)
+	return str
 }
 
 // Address_Future is a wrapper for a Address promised by a client call.
 type Address_Future struct{ *capnp.Future }
 
-func (f Address_Future) Struct() (Address, error) {
-	p, err := f.Future.Ptr()
-	return Address(p.Struct()), err
+func (p Address_Future) Struct() (Address, error) {
+	s, err := p.Future.Struct()
+	return Address{s}, err
 }
+
 func (p Address_Future) Ip6() Address_ip6_Future { return Address_ip6_Future{p.Future} }
 
 // Address_ip6_Future is a wrapper for a Address_ip6 promised by a client call.
 type Address_ip6_Future struct{ *capnp.Future }
 
-func (f Address_ip6_Future) Struct() (Address_ip6, error) {
-	p, err := f.Future.Ptr()
-	return Address_ip6(p.Struct()), err
+func (p Address_ip6_Future) Struct() (Address_ip6, error) {
+	s, err := p.Future.Struct()
+	return Address_ip6{s}, err
 }
 
-type VatPath capnp.Struct
+type VatPath struct{ capnp.Struct }
 
 // VatPath_TypeID is the unique identifier for the type VatPath.
 const VatPath_TypeID = 0xd9eccdf2dbc48087
 
 func NewVatPath(s *capnp.Segment) (VatPath, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return VatPath(st), err
+	return VatPath{st}, err
 }
 
 func NewRootVatPath(s *capnp.Segment) (VatPath, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return VatPath(st), err
+	return VatPath{st}, err
 }
 
 func ReadRootVatPath(msg *capnp.Message) (VatPath, error) {
 	root, err := msg.Root()
-	return VatPath(root.Struct()), err
+	return VatPath{root.Struct()}, err
 }
 
 func (s VatPath) String() string {
-	str, _ := text.Marshal(0xd9eccdf2dbc48087, capnp.Struct(s))
+	str, _ := text.Marshal(0xd9eccdf2dbc48087, s.Struct)
 	return str
 }
 
-func (s VatPath) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (VatPath) DecodeFromPtr(p capnp.Ptr) VatPath {
-	return VatPath(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s VatPath) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s VatPath) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s VatPath) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s VatPath) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s VatPath) Id() (VatId, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return VatId(p.Struct()), err
+	p, err := s.Struct.Ptr(0)
+	return VatId{Struct: p.Struct()}, err
 }
 
 func (s VatPath) HasId() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s VatPath) SetId(v VatId) error {
-	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewId sets the id field to a newly
 // allocated VatId struct, preferring placement in s's segment.
 func (s VatPath) NewId() (VatId, error) {
-	ss, err := NewVatId(capnp.Struct(s).Segment())
+	ss, err := NewVatId(s.Struct.Segment())
 	if err != nil {
 		return VatId{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
 	return ss, err
 }
 
 func (s VatPath) Address() (Address, error) {
-	p, err := capnp.Struct(s).Ptr(1)
-	return Address(p.Struct()), err
+	p, err := s.Struct.Ptr(1)
+	return Address{Struct: p.Struct()}, err
 }
 
 func (s VatPath) HasAddress() bool {
-	return capnp.Struct(s).HasPtr(1)
+	return s.Struct.HasPtr(1)
 }
 
 func (s VatPath) SetAddress(v Address) error {
-	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
+	return s.Struct.SetPtr(1, v.Struct.ToPtr())
 }
 
 // NewAddress sets the address field to a newly
 // allocated Address struct, preferring placement in s's segment.
 func (s VatPath) NewAddress() (Address, error) {
-	ss, err := NewAddress(capnp.Struct(s).Segment())
+	ss, err := NewAddress(s.Struct.Segment())
 	if err != nil {
 		return Address{}, err
 	}
-	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(1, ss.Struct.ToPtr())
 	return ss, err
 }
 
 // VatPath_List is a list of VatPath.
-type VatPath_List = capnp.StructList[VatPath]
+type VatPath_List struct{ capnp.List }
 
 // NewVatPath creates a new list of VatPath.
 func NewVatPath_List(s *capnp.Segment, sz int32) (VatPath_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
-	return capnp.StructList[VatPath](l), err
+	return VatPath_List{l}, err
+}
+
+func (s VatPath_List) At(i int) VatPath { return VatPath{s.List.Struct(i)} }
+
+func (s VatPath_List) Set(i int, v VatPath) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s VatPath_List) String() string {
+	str, _ := text.MarshalList(0xd9eccdf2dbc48087, s.List)
+	return str
 }
 
 // VatPath_Future is a wrapper for a VatPath promised by a client call.
 type VatPath_Future struct{ *capnp.Future }
 
-func (f VatPath_Future) Struct() (VatPath, error) {
-	p, err := f.Future.Ptr()
-	return VatPath(p.Struct()), err
+func (p VatPath_Future) Struct() (VatPath, error) {
+	s, err := p.Future.Struct()
+	return VatPath{s}, err
 }
+
 func (p VatPath_Future) Id() VatId_Future {
 	return VatId_Future{Future: p.Future.Field(0, nil)}
 }
+
 func (p VatPath_Future) Address() Address_Future {
 	return Address_Future{Future: p.Future.Field(1, nil)}
 }
 
-type SturdyRef capnp.Struct
+type SturdyRef struct{ capnp.Struct }
 type SturdyRef_Which uint16
 
 const (
@@ -414,422 +365,381 @@ const SturdyRef_TypeID = 0x886d68271d83de4d
 
 func NewSturdyRef(s *capnp.Segment) (SturdyRef, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return SturdyRef(st), err
+	return SturdyRef{st}, err
 }
 
 func NewRootSturdyRef(s *capnp.Segment) (SturdyRef, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return SturdyRef(st), err
+	return SturdyRef{st}, err
 }
 
 func ReadRootSturdyRef(msg *capnp.Message) (SturdyRef, error) {
 	root, err := msg.Root()
-	return SturdyRef(root.Struct()), err
+	return SturdyRef{root.Struct()}, err
 }
 
 func (s SturdyRef) String() string {
-	str, _ := text.Marshal(0x886d68271d83de4d, capnp.Struct(s))
+	str, _ := text.Marshal(0x886d68271d83de4d, s.Struct)
 	return str
 }
 
-func (s SturdyRef) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (SturdyRef) DecodeFromPtr(p capnp.Ptr) SturdyRef {
-	return SturdyRef(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s SturdyRef) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-
 func (s SturdyRef) Which() SturdyRef_Which {
-	return SturdyRef_Which(capnp.Struct(s).Uint16(0))
-}
-func (s SturdyRef) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s SturdyRef) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s SturdyRef) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
+	return SturdyRef_Which(s.Struct.Uint16(0))
 }
 func (s SturdyRef) Transient() (SturdyRef_Transient, error) {
-	if capnp.Struct(s).Uint16(0) != 0 {
+	if s.Struct.Uint16(0) != 0 {
 		panic("Which() != transient")
 	}
-	p, err := capnp.Struct(s).Ptr(0)
-	return SturdyRef_Transient(p.Struct()), err
+	p, err := s.Struct.Ptr(0)
+	return SturdyRef_Transient{Struct: p.Struct()}, err
 }
 
 func (s SturdyRef) HasTransient() bool {
-	if capnp.Struct(s).Uint16(0) != 0 {
+	if s.Struct.Uint16(0) != 0 {
 		return false
 	}
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s SturdyRef) SetTransient(v SturdyRef_Transient) error {
-	capnp.Struct(s).SetUint16(0, 0)
-	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+	s.Struct.SetUint16(0, 0)
+	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewTransient sets the transient field to a newly
 // allocated SturdyRef_Transient struct, preferring placement in s's segment.
 func (s SturdyRef) NewTransient() (SturdyRef_Transient, error) {
-	capnp.Struct(s).SetUint16(0, 0)
-	ss, err := NewSturdyRef_Transient(capnp.Struct(s).Segment())
+	s.Struct.SetUint16(0, 0)
+	ss, err := NewSturdyRef_Transient(s.Struct.Segment())
 	if err != nil {
 		return SturdyRef_Transient{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
 	return ss, err
 }
 
 func (s SturdyRef) Stored() (SturdyRef_Stored, error) {
-	if capnp.Struct(s).Uint16(0) != 1 {
+	if s.Struct.Uint16(0) != 1 {
 		panic("Which() != stored")
 	}
-	p, err := capnp.Struct(s).Ptr(0)
-	return SturdyRef_Stored(p.Struct()), err
+	p, err := s.Struct.Ptr(0)
+	return SturdyRef_Stored{Struct: p.Struct()}, err
 }
 
 func (s SturdyRef) HasStored() bool {
-	if capnp.Struct(s).Uint16(0) != 1 {
+	if s.Struct.Uint16(0) != 1 {
 		return false
 	}
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s SturdyRef) SetStored(v SturdyRef_Stored) error {
-	capnp.Struct(s).SetUint16(0, 1)
-	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+	s.Struct.SetUint16(0, 1)
+	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewStored sets the stored field to a newly
 // allocated SturdyRef_Stored struct, preferring placement in s's segment.
 func (s SturdyRef) NewStored() (SturdyRef_Stored, error) {
-	capnp.Struct(s).SetUint16(0, 1)
-	ss, err := NewSturdyRef_Stored(capnp.Struct(s).Segment())
+	s.Struct.SetUint16(0, 1)
+	ss, err := NewSturdyRef_Stored(s.Struct.Segment())
 	if err != nil {
 		return SturdyRef_Stored{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
 	return ss, err
 }
 
 // SturdyRef_List is a list of SturdyRef.
-type SturdyRef_List = capnp.StructList[SturdyRef]
+type SturdyRef_List struct{ capnp.List }
 
 // NewSturdyRef creates a new list of SturdyRef.
 func NewSturdyRef_List(s *capnp.Segment, sz int32) (SturdyRef_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1}, sz)
-	return capnp.StructList[SturdyRef](l), err
+	return SturdyRef_List{l}, err
+}
+
+func (s SturdyRef_List) At(i int) SturdyRef { return SturdyRef{s.List.Struct(i)} }
+
+func (s SturdyRef_List) Set(i int, v SturdyRef) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s SturdyRef_List) String() string {
+	str, _ := text.MarshalList(0x886d68271d83de4d, s.List)
+	return str
 }
 
 // SturdyRef_Future is a wrapper for a SturdyRef promised by a client call.
 type SturdyRef_Future struct{ *capnp.Future }
 
-func (f SturdyRef_Future) Struct() (SturdyRef, error) {
-	p, err := f.Future.Ptr()
-	return SturdyRef(p.Struct()), err
+func (p SturdyRef_Future) Struct() (SturdyRef, error) {
+	s, err := p.Future.Struct()
+	return SturdyRef{s}, err
 }
+
 func (p SturdyRef_Future) Transient() SturdyRef_Transient_Future {
 	return SturdyRef_Transient_Future{Future: p.Future.Field(0, nil)}
 }
+
 func (p SturdyRef_Future) Stored() SturdyRef_Stored_Future {
 	return SturdyRef_Stored_Future{Future: p.Future.Field(0, nil)}
 }
 
-type SturdyRef_Owner capnp.Struct
+type SturdyRef_Owner struct{ capnp.Struct }
 
 // SturdyRef_Owner_TypeID is the unique identifier for the type SturdyRef_Owner.
 const SturdyRef_Owner_TypeID = 0xfdd799ed60c87723
 
 func NewSturdyRef_Owner(s *capnp.Segment) (SturdyRef_Owner, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return SturdyRef_Owner(st), err
+	return SturdyRef_Owner{st}, err
 }
 
 func NewRootSturdyRef_Owner(s *capnp.Segment) (SturdyRef_Owner, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return SturdyRef_Owner(st), err
+	return SturdyRef_Owner{st}, err
 }
 
 func ReadRootSturdyRef_Owner(msg *capnp.Message) (SturdyRef_Owner, error) {
 	root, err := msg.Root()
-	return SturdyRef_Owner(root.Struct()), err
+	return SturdyRef_Owner{root.Struct()}, err
 }
 
 func (s SturdyRef_Owner) String() string {
-	str, _ := text.Marshal(0xfdd799ed60c87723, capnp.Struct(s))
+	str, _ := text.Marshal(0xfdd799ed60c87723, s.Struct)
 	return str
 }
 
-func (s SturdyRef_Owner) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (SturdyRef_Owner) DecodeFromPtr(p capnp.Ptr) SturdyRef_Owner {
-	return SturdyRef_Owner(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s SturdyRef_Owner) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s SturdyRef_Owner) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s SturdyRef_Owner) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s SturdyRef_Owner) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s SturdyRef_Owner) Guid() (string, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.Text(), err
 }
 
 func (s SturdyRef_Owner) HasGuid() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s SturdyRef_Owner) GuidBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.TextBytes(), err
 }
 
 func (s SturdyRef_Owner) SetGuid(v string) error {
-	return capnp.Struct(s).SetText(0, v)
+	return s.Struct.SetText(0, v)
 }
 
 // SturdyRef_Owner_List is a list of SturdyRef_Owner.
-type SturdyRef_Owner_List = capnp.StructList[SturdyRef_Owner]
+type SturdyRef_Owner_List struct{ capnp.List }
 
 // NewSturdyRef_Owner creates a new list of SturdyRef_Owner.
 func NewSturdyRef_Owner_List(s *capnp.Segment, sz int32) (SturdyRef_Owner_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[SturdyRef_Owner](l), err
+	return SturdyRef_Owner_List{l}, err
+}
+
+func (s SturdyRef_Owner_List) At(i int) SturdyRef_Owner { return SturdyRef_Owner{s.List.Struct(i)} }
+
+func (s SturdyRef_Owner_List) Set(i int, v SturdyRef_Owner) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s SturdyRef_Owner_List) String() string {
+	str, _ := text.MarshalList(0xfdd799ed60c87723, s.List)
+	return str
 }
 
 // SturdyRef_Owner_Future is a wrapper for a SturdyRef_Owner promised by a client call.
 type SturdyRef_Owner_Future struct{ *capnp.Future }
 
-func (f SturdyRef_Owner_Future) Struct() (SturdyRef_Owner, error) {
-	p, err := f.Future.Ptr()
-	return SturdyRef_Owner(p.Struct()), err
+func (p SturdyRef_Owner_Future) Struct() (SturdyRef_Owner, error) {
+	s, err := p.Future.Struct()
+	return SturdyRef_Owner{s}, err
 }
 
-type SturdyRef_Transient capnp.Struct
+type SturdyRef_Transient struct{ capnp.Struct }
 
 // SturdyRef_Transient_TypeID is the unique identifier for the type SturdyRef_Transient.
 const SturdyRef_Transient_TypeID = 0xa42bd461f2a8a3c8
 
 func NewSturdyRef_Transient(s *capnp.Segment) (SturdyRef_Transient, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return SturdyRef_Transient(st), err
+	return SturdyRef_Transient{st}, err
 }
 
 func NewRootSturdyRef_Transient(s *capnp.Segment) (SturdyRef_Transient, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return SturdyRef_Transient(st), err
+	return SturdyRef_Transient{st}, err
 }
 
 func ReadRootSturdyRef_Transient(msg *capnp.Message) (SturdyRef_Transient, error) {
 	root, err := msg.Root()
-	return SturdyRef_Transient(root.Struct()), err
+	return SturdyRef_Transient{root.Struct()}, err
 }
 
 func (s SturdyRef_Transient) String() string {
-	str, _ := text.Marshal(0xa42bd461f2a8a3c8, capnp.Struct(s))
+	str, _ := text.Marshal(0xa42bd461f2a8a3c8, s.Struct)
 	return str
 }
 
-func (s SturdyRef_Transient) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (SturdyRef_Transient) DecodeFromPtr(p capnp.Ptr) SturdyRef_Transient {
-	return SturdyRef_Transient(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s SturdyRef_Transient) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s SturdyRef_Transient) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s SturdyRef_Transient) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s SturdyRef_Transient) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s SturdyRef_Transient) Vat() (VatPath, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return VatPath(p.Struct()), err
+	p, err := s.Struct.Ptr(0)
+	return VatPath{Struct: p.Struct()}, err
 }
 
 func (s SturdyRef_Transient) HasVat() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s SturdyRef_Transient) SetVat(v VatPath) error {
-	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewVat sets the vat field to a newly
 // allocated VatPath struct, preferring placement in s's segment.
 func (s SturdyRef_Transient) NewVat() (VatPath, error) {
-	ss, err := NewVatPath(capnp.Struct(s).Segment())
+	ss, err := NewVatPath(s.Struct.Segment())
 	if err != nil {
 		return VatPath{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
 	return ss, err
 }
 
 func (s SturdyRef_Transient) LocalRef() (capnp.Ptr, error) {
-	return capnp.Struct(s).Ptr(1)
+	return s.Struct.Ptr(1)
 }
 
 func (s SturdyRef_Transient) HasLocalRef() bool {
-	return capnp.Struct(s).HasPtr(1)
+	return s.Struct.HasPtr(1)
 }
 
 func (s SturdyRef_Transient) SetLocalRef(v capnp.Ptr) error {
-	return capnp.Struct(s).SetPtr(1, v)
+	return s.Struct.SetPtr(1, v)
 }
 
 // SturdyRef_Transient_List is a list of SturdyRef_Transient.
-type SturdyRef_Transient_List = capnp.StructList[SturdyRef_Transient]
+type SturdyRef_Transient_List struct{ capnp.List }
 
 // NewSturdyRef_Transient creates a new list of SturdyRef_Transient.
 func NewSturdyRef_Transient_List(s *capnp.Segment, sz int32) (SturdyRef_Transient_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
-	return capnp.StructList[SturdyRef_Transient](l), err
+	return SturdyRef_Transient_List{l}, err
+}
+
+func (s SturdyRef_Transient_List) At(i int) SturdyRef_Transient {
+	return SturdyRef_Transient{s.List.Struct(i)}
+}
+
+func (s SturdyRef_Transient_List) Set(i int, v SturdyRef_Transient) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s SturdyRef_Transient_List) String() string {
+	str, _ := text.MarshalList(0xa42bd461f2a8a3c8, s.List)
+	return str
 }
 
 // SturdyRef_Transient_Future is a wrapper for a SturdyRef_Transient promised by a client call.
 type SturdyRef_Transient_Future struct{ *capnp.Future }
 
-func (f SturdyRef_Transient_Future) Struct() (SturdyRef_Transient, error) {
-	p, err := f.Future.Ptr()
-	return SturdyRef_Transient(p.Struct()), err
+func (p SturdyRef_Transient_Future) Struct() (SturdyRef_Transient, error) {
+	s, err := p.Future.Struct()
+	return SturdyRef_Transient{s}, err
 }
+
 func (p SturdyRef_Transient_Future) Vat() VatPath_Future {
 	return VatPath_Future{Future: p.Future.Field(0, nil)}
 }
+
 func (p SturdyRef_Transient_Future) LocalRef() *capnp.Future {
 	return p.Future.Field(1, nil)
 }
 
-type SturdyRef_Stored capnp.Struct
+type SturdyRef_Stored struct{ capnp.Struct }
 
 // SturdyRef_Stored_TypeID is the unique identifier for the type SturdyRef_Stored.
 const SturdyRef_Stored_TypeID = 0xcbe679a401315eb8
 
 func NewSturdyRef_Stored(s *capnp.Segment) (SturdyRef_Stored, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 32, PointerCount: 0})
-	return SturdyRef_Stored(st), err
+	return SturdyRef_Stored{st}, err
 }
 
 func NewRootSturdyRef_Stored(s *capnp.Segment) (SturdyRef_Stored, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 32, PointerCount: 0})
-	return SturdyRef_Stored(st), err
+	return SturdyRef_Stored{st}, err
 }
 
 func ReadRootSturdyRef_Stored(msg *capnp.Message) (SturdyRef_Stored, error) {
 	root, err := msg.Root()
-	return SturdyRef_Stored(root.Struct()), err
+	return SturdyRef_Stored{root.Struct()}, err
 }
 
 func (s SturdyRef_Stored) String() string {
-	str, _ := text.Marshal(0xcbe679a401315eb8, capnp.Struct(s))
+	str, _ := text.Marshal(0xcbe679a401315eb8, s.Struct)
 	return str
 }
 
-func (s SturdyRef_Stored) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (SturdyRef_Stored) DecodeFromPtr(p capnp.Ptr) SturdyRef_Stored {
-	return SturdyRef_Stored(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s SturdyRef_Stored) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s SturdyRef_Stored) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s SturdyRef_Stored) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s SturdyRef_Stored) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s SturdyRef_Stored) Key0() uint64 {
-	return capnp.Struct(s).Uint64(0)
+	return s.Struct.Uint64(0)
 }
 
 func (s SturdyRef_Stored) SetKey0(v uint64) {
-	capnp.Struct(s).SetUint64(0, v)
+	s.Struct.SetUint64(0, v)
 }
 
 func (s SturdyRef_Stored) Key1() uint64 {
-	return capnp.Struct(s).Uint64(8)
+	return s.Struct.Uint64(8)
 }
 
 func (s SturdyRef_Stored) SetKey1(v uint64) {
-	capnp.Struct(s).SetUint64(8, v)
+	s.Struct.SetUint64(8, v)
 }
 
 func (s SturdyRef_Stored) Key2() uint64 {
-	return capnp.Struct(s).Uint64(16)
+	return s.Struct.Uint64(16)
 }
 
 func (s SturdyRef_Stored) SetKey2(v uint64) {
-	capnp.Struct(s).SetUint64(16, v)
+	s.Struct.SetUint64(16, v)
 }
 
 func (s SturdyRef_Stored) Key3() uint64 {
-	return capnp.Struct(s).Uint64(24)
+	return s.Struct.Uint64(24)
 }
 
 func (s SturdyRef_Stored) SetKey3(v uint64) {
-	capnp.Struct(s).SetUint64(24, v)
+	s.Struct.SetUint64(24, v)
 }
 
 // SturdyRef_Stored_List is a list of SturdyRef_Stored.
-type SturdyRef_Stored_List = capnp.StructList[SturdyRef_Stored]
+type SturdyRef_Stored_List struct{ capnp.List }
 
 // NewSturdyRef_Stored creates a new list of SturdyRef_Stored.
 func NewSturdyRef_Stored_List(s *capnp.Segment, sz int32) (SturdyRef_Stored_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 32, PointerCount: 0}, sz)
-	return capnp.StructList[SturdyRef_Stored](l), err
+	return SturdyRef_Stored_List{l}, err
+}
+
+func (s SturdyRef_Stored_List) At(i int) SturdyRef_Stored { return SturdyRef_Stored{s.List.Struct(i)} }
+
+func (s SturdyRef_Stored_List) Set(i int, v SturdyRef_Stored) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s SturdyRef_Stored_List) String() string {
+	str, _ := text.MarshalList(0xcbe679a401315eb8, s.List)
+	return str
 }
 
 // SturdyRef_Stored_Future is a wrapper for a SturdyRef_Stored promised by a client call.
 type SturdyRef_Stored_Future struct{ *capnp.Future }
 
-func (f SturdyRef_Stored_Future) Struct() (SturdyRef_Stored, error) {
-	p, err := f.Future.Ptr()
-	return SturdyRef_Stored(p.Struct()), err
+func (p SturdyRef_Stored_Future) Struct() (SturdyRef_Stored, error) {
+	s, err := p.Future.Struct()
+	return SturdyRef_Stored{s}, err
 }
 
-type Persistent capnp.Client
+type Persistent struct{ Client *capnp.Client }
 
 // Persistent_TypeID is the unique identifier for the type Persistent.
 const Persistent_TypeID = 0xc1a7daa0dc36cb65
@@ -845,92 +755,37 @@ func (c Persistent) Save(ctx context.Context, params func(Persistent_SaveParams)
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Persistent_SaveParams(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Persistent_SaveParams{Struct: s}) }
 	}
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Persistent_SaveResults_Future{Future: ans.Future()}, release
 }
 
-// String returns a string that identifies this capability for debugging
-// purposes.  Its format should not be depended on: in particular, it
-// should not be used to compare clients.  Use IsSame to compare clients
-// for equality.
-func (c Persistent) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
-}
-
-// AddRef creates a new Client that refers to the same capability as c.
-// If c is nil or has resolved to null, then AddRef returns nil.
 func (c Persistent) AddRef() Persistent {
-	return Persistent(capnp.Client(c).AddRef())
+	return Persistent{
+		Client: c.Client.AddRef(),
+	}
 }
 
-// Release releases a capability reference.  If this is the last
-// reference to the capability, then the underlying resources associated
-// with the capability will be released.
-//
-// Release will panic if c has already been released, but not if c is
-// nil or resolved to null.
 func (c Persistent) Release() {
-	capnp.Client(c).Release()
+	c.Client.Release()
 }
 
-// Resolve blocks until the capability is fully resolved or the Context
-// expires.
-func (c Persistent) Resolve(ctx context.Context) error {
-	return capnp.Client(c).Resolve(ctx)
-}
-
-func (c Persistent) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Client(c).EncodeAsPtr(seg)
-}
-
-func (Persistent) DecodeFromPtr(p capnp.Ptr) Persistent {
-	return Persistent(capnp.Client{}.DecodeFromPtr(p))
-}
-
-// IsValid reports whether c is a valid reference to a capability.
-// A reference is invalid if it is nil, has resolved to null, or has
-// been released.
-func (c Persistent) IsValid() bool {
-	return capnp.Client(c).IsValid()
-}
-
-// IsSame reports whether c and other refer to a capability created by the
-// same call to NewClient.  This can return false negatives if c or other
-// are not fully resolved: use Resolve if this is an issue.  If either
-// c or other are released, then IsSame panics.
-func (c Persistent) IsSame(other Persistent) bool {
-	return capnp.Client(c).IsSame(capnp.Client(other))
-}
-
-// Update the flowcontrol.FlowLimiter used to manage flow control for
-// this client. This affects all future calls, but not calls already
-// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
-// which is also the default.
-func (c Persistent) SetFlowLimiter(lim fc.FlowLimiter) {
-	capnp.Client(c).SetFlowLimiter(lim)
-}
-
-// Get the current flowcontrol.FlowLimiter used to manage flow control
-// for this client.
-func (c Persistent) GetFlowLimiter() fc.FlowLimiter {
-	return capnp.Client(c).GetFlowLimiter()
-} // A Persistent_Server is a Persistent with a local implementation.
+// A Persistent_Server is a Persistent with a local implementation.
 type Persistent_Server interface {
 	Save(context.Context, Persistent_save) error
 }
 
 // Persistent_NewServer creates a new Server from an implementation of Persistent_Server.
-func Persistent_NewServer(s Persistent_Server) *server.Server {
+func Persistent_NewServer(s Persistent_Server, policy *server.Policy) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(Persistent_Methods(nil, s), s, c)
+	return server.New(Persistent_Methods(nil, s), s, c, policy)
 }
 
 // Persistent_ServerToClient creates a new Client from an implementation of Persistent_Server.
 // The caller is responsible for calling Release on the returned Client.
-func Persistent_ServerToClient(s Persistent_Server) Persistent {
-	return Persistent(capnp.NewClient(Persistent_NewServer(s)))
+func Persistent_ServerToClient(s Persistent_Server, policy *server.Policy) Persistent {
+	return Persistent{Client: capnp.NewClient(Persistent_NewServer(s, policy))}
 }
 
 // Persistent_Methods appends Methods to a slice that invoke the methods on s.
@@ -963,234 +818,210 @@ type Persistent_save struct {
 
 // Args returns the call's arguments.
 func (c Persistent_save) Args() Persistent_SaveParams {
-	return Persistent_SaveParams(c.Call.Args())
+	return Persistent_SaveParams{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Persistent_save) AllocResults() (Persistent_SaveResults, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Persistent_SaveResults(r), err
+	return Persistent_SaveResults{Struct: r}, err
 }
 
-// Persistent_List is a list of Persistent.
-type Persistent_List = capnp.CapList[Persistent]
-
-// NewPersistent creates a new list of Persistent.
-func NewPersistent_List(s *capnp.Segment, sz int32) (Persistent_List, error) {
-	l, err := capnp.NewPointerList(s, sz)
-	return capnp.CapList[Persistent](l), err
-}
-
-type Persistent_SaveParams capnp.Struct
+type Persistent_SaveParams struct{ capnp.Struct }
 
 // Persistent_SaveParams_TypeID is the unique identifier for the type Persistent_SaveParams.
 const Persistent_SaveParams_TypeID = 0xd5e0aac4225e0343
 
 func NewPersistent_SaveParams(s *capnp.Segment) (Persistent_SaveParams, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Persistent_SaveParams(st), err
+	return Persistent_SaveParams{st}, err
 }
 
 func NewRootPersistent_SaveParams(s *capnp.Segment) (Persistent_SaveParams, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Persistent_SaveParams(st), err
+	return Persistent_SaveParams{st}, err
 }
 
 func ReadRootPersistent_SaveParams(msg *capnp.Message) (Persistent_SaveParams, error) {
 	root, err := msg.Root()
-	return Persistent_SaveParams(root.Struct()), err
+	return Persistent_SaveParams{root.Struct()}, err
 }
 
 func (s Persistent_SaveParams) String() string {
-	str, _ := text.Marshal(0xd5e0aac4225e0343, capnp.Struct(s))
+	str, _ := text.Marshal(0xd5e0aac4225e0343, s.Struct)
 	return str
 }
 
-func (s Persistent_SaveParams) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Persistent_SaveParams) DecodeFromPtr(p capnp.Ptr) Persistent_SaveParams {
-	return Persistent_SaveParams(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Persistent_SaveParams) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Persistent_SaveParams) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Persistent_SaveParams) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Persistent_SaveParams) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Persistent_SaveParams) SealFor() (SturdyRef_Owner, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return SturdyRef_Owner(p.Struct()), err
+	p, err := s.Struct.Ptr(0)
+	return SturdyRef_Owner{Struct: p.Struct()}, err
 }
 
 func (s Persistent_SaveParams) HasSealFor() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Persistent_SaveParams) SetSealFor(v SturdyRef_Owner) error {
-	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewSealFor sets the sealFor field to a newly
 // allocated SturdyRef_Owner struct, preferring placement in s's segment.
 func (s Persistent_SaveParams) NewSealFor() (SturdyRef_Owner, error) {
-	ss, err := NewSturdyRef_Owner(capnp.Struct(s).Segment())
+	ss, err := NewSturdyRef_Owner(s.Struct.Segment())
 	if err != nil {
 		return SturdyRef_Owner{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
 	return ss, err
 }
 
 // Persistent_SaveParams_List is a list of Persistent_SaveParams.
-type Persistent_SaveParams_List = capnp.StructList[Persistent_SaveParams]
+type Persistent_SaveParams_List struct{ capnp.List }
 
 // NewPersistent_SaveParams creates a new list of Persistent_SaveParams.
 func NewPersistent_SaveParams_List(s *capnp.Segment, sz int32) (Persistent_SaveParams_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Persistent_SaveParams](l), err
+	return Persistent_SaveParams_List{l}, err
+}
+
+func (s Persistent_SaveParams_List) At(i int) Persistent_SaveParams {
+	return Persistent_SaveParams{s.List.Struct(i)}
+}
+
+func (s Persistent_SaveParams_List) Set(i int, v Persistent_SaveParams) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Persistent_SaveParams_List) String() string {
+	str, _ := text.MarshalList(0xd5e0aac4225e0343, s.List)
+	return str
 }
 
 // Persistent_SaveParams_Future is a wrapper for a Persistent_SaveParams promised by a client call.
 type Persistent_SaveParams_Future struct{ *capnp.Future }
 
-func (f Persistent_SaveParams_Future) Struct() (Persistent_SaveParams, error) {
-	p, err := f.Future.Ptr()
-	return Persistent_SaveParams(p.Struct()), err
+func (p Persistent_SaveParams_Future) Struct() (Persistent_SaveParams, error) {
+	s, err := p.Future.Struct()
+	return Persistent_SaveParams{s}, err
 }
+
 func (p Persistent_SaveParams_Future) SealFor() SturdyRef_Owner_Future {
 	return SturdyRef_Owner_Future{Future: p.Future.Field(0, nil)}
 }
 
-type Persistent_SaveResults capnp.Struct
+type Persistent_SaveResults struct{ capnp.Struct }
 
 // Persistent_SaveResults_TypeID is the unique identifier for the type Persistent_SaveResults.
 const Persistent_SaveResults_TypeID = 0xdc5bd1ef982cec13
 
 func NewPersistent_SaveResults(s *capnp.Segment) (Persistent_SaveResults, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Persistent_SaveResults(st), err
+	return Persistent_SaveResults{st}, err
 }
 
 func NewRootPersistent_SaveResults(s *capnp.Segment) (Persistent_SaveResults, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Persistent_SaveResults(st), err
+	return Persistent_SaveResults{st}, err
 }
 
 func ReadRootPersistent_SaveResults(msg *capnp.Message) (Persistent_SaveResults, error) {
 	root, err := msg.Root()
-	return Persistent_SaveResults(root.Struct()), err
+	return Persistent_SaveResults{root.Struct()}, err
 }
 
 func (s Persistent_SaveResults) String() string {
-	str, _ := text.Marshal(0xdc5bd1ef982cec13, capnp.Struct(s))
+	str, _ := text.Marshal(0xdc5bd1ef982cec13, s.Struct)
 	return str
 }
 
-func (s Persistent_SaveResults) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Persistent_SaveResults) DecodeFromPtr(p capnp.Ptr) Persistent_SaveResults {
-	return Persistent_SaveResults(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Persistent_SaveResults) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Persistent_SaveResults) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Persistent_SaveResults) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Persistent_SaveResults) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Persistent_SaveResults) SturdyRef() (SturdyRef, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return SturdyRef(p.Struct()), err
+	p, err := s.Struct.Ptr(0)
+	return SturdyRef{Struct: p.Struct()}, err
 }
 
 func (s Persistent_SaveResults) HasSturdyRef() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Persistent_SaveResults) SetSturdyRef(v SturdyRef) error {
-	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewSturdyRef sets the sturdyRef field to a newly
 // allocated SturdyRef struct, preferring placement in s's segment.
 func (s Persistent_SaveResults) NewSturdyRef() (SturdyRef, error) {
-	ss, err := NewSturdyRef(capnp.Struct(s).Segment())
+	ss, err := NewSturdyRef(s.Struct.Segment())
 	if err != nil {
 		return SturdyRef{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
 	return ss, err
 }
 
 func (s Persistent_SaveResults) UnsaveSR() (SturdyRef, error) {
-	p, err := capnp.Struct(s).Ptr(1)
-	return SturdyRef(p.Struct()), err
+	p, err := s.Struct.Ptr(1)
+	return SturdyRef{Struct: p.Struct()}, err
 }
 
 func (s Persistent_SaveResults) HasUnsaveSR() bool {
-	return capnp.Struct(s).HasPtr(1)
+	return s.Struct.HasPtr(1)
 }
 
 func (s Persistent_SaveResults) SetUnsaveSR(v SturdyRef) error {
-	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
+	return s.Struct.SetPtr(1, v.Struct.ToPtr())
 }
 
 // NewUnsaveSR sets the unsaveSR field to a newly
 // allocated SturdyRef struct, preferring placement in s's segment.
 func (s Persistent_SaveResults) NewUnsaveSR() (SturdyRef, error) {
-	ss, err := NewSturdyRef(capnp.Struct(s).Segment())
+	ss, err := NewSturdyRef(s.Struct.Segment())
 	if err != nil {
 		return SturdyRef{}, err
 	}
-	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(1, ss.Struct.ToPtr())
 	return ss, err
 }
 
 // Persistent_SaveResults_List is a list of Persistent_SaveResults.
-type Persistent_SaveResults_List = capnp.StructList[Persistent_SaveResults]
+type Persistent_SaveResults_List struct{ capnp.List }
 
 // NewPersistent_SaveResults creates a new list of Persistent_SaveResults.
 func NewPersistent_SaveResults_List(s *capnp.Segment, sz int32) (Persistent_SaveResults_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
-	return capnp.StructList[Persistent_SaveResults](l), err
+	return Persistent_SaveResults_List{l}, err
+}
+
+func (s Persistent_SaveResults_List) At(i int) Persistent_SaveResults {
+	return Persistent_SaveResults{s.List.Struct(i)}
+}
+
+func (s Persistent_SaveResults_List) Set(i int, v Persistent_SaveResults) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Persistent_SaveResults_List) String() string {
+	str, _ := text.MarshalList(0xdc5bd1ef982cec13, s.List)
+	return str
 }
 
 // Persistent_SaveResults_Future is a wrapper for a Persistent_SaveResults promised by a client call.
 type Persistent_SaveResults_Future struct{ *capnp.Future }
 
-func (f Persistent_SaveResults_Future) Struct() (Persistent_SaveResults, error) {
-	p, err := f.Future.Ptr()
-	return Persistent_SaveResults(p.Struct()), err
+func (p Persistent_SaveResults_Future) Struct() (Persistent_SaveResults, error) {
+	s, err := p.Future.Struct()
+	return Persistent_SaveResults{s}, err
 }
+
 func (p Persistent_SaveResults_Future) SturdyRef() SturdyRef_Future {
 	return SturdyRef_Future{Future: p.Future.Field(0, nil)}
 }
+
 func (p Persistent_SaveResults_Future) UnsaveSR() SturdyRef_Future {
 	return SturdyRef_Future{Future: p.Future.Field(1, nil)}
 }
 
-type Restorer capnp.Client
+type Restorer struct{ Client *capnp.Client }
 
 // Restorer_TypeID is the unique identifier for the type Restorer.
 const Restorer_TypeID = 0x9fb6218427d92e3c
@@ -1206,92 +1037,37 @@ func (c Restorer) Restore(ctx context.Context, params func(Restorer_RestoreParam
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 2}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Restorer_RestoreParams(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Restorer_RestoreParams{Struct: s}) }
 	}
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Restorer_restore_Results_Future{Future: ans.Future()}, release
 }
 
-// String returns a string that identifies this capability for debugging
-// purposes.  Its format should not be depended on: in particular, it
-// should not be used to compare clients.  Use IsSame to compare clients
-// for equality.
-func (c Restorer) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
-}
-
-// AddRef creates a new Client that refers to the same capability as c.
-// If c is nil or has resolved to null, then AddRef returns nil.
 func (c Restorer) AddRef() Restorer {
-	return Restorer(capnp.Client(c).AddRef())
+	return Restorer{
+		Client: c.Client.AddRef(),
+	}
 }
 
-// Release releases a capability reference.  If this is the last
-// reference to the capability, then the underlying resources associated
-// with the capability will be released.
-//
-// Release will panic if c has already been released, but not if c is
-// nil or resolved to null.
 func (c Restorer) Release() {
-	capnp.Client(c).Release()
+	c.Client.Release()
 }
 
-// Resolve blocks until the capability is fully resolved or the Context
-// expires.
-func (c Restorer) Resolve(ctx context.Context) error {
-	return capnp.Client(c).Resolve(ctx)
-}
-
-func (c Restorer) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Client(c).EncodeAsPtr(seg)
-}
-
-func (Restorer) DecodeFromPtr(p capnp.Ptr) Restorer {
-	return Restorer(capnp.Client{}.DecodeFromPtr(p))
-}
-
-// IsValid reports whether c is a valid reference to a capability.
-// A reference is invalid if it is nil, has resolved to null, or has
-// been released.
-func (c Restorer) IsValid() bool {
-	return capnp.Client(c).IsValid()
-}
-
-// IsSame reports whether c and other refer to a capability created by the
-// same call to NewClient.  This can return false negatives if c or other
-// are not fully resolved: use Resolve if this is an issue.  If either
-// c or other are released, then IsSame panics.
-func (c Restorer) IsSame(other Restorer) bool {
-	return capnp.Client(c).IsSame(capnp.Client(other))
-}
-
-// Update the flowcontrol.FlowLimiter used to manage flow control for
-// this client. This affects all future calls, but not calls already
-// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
-// which is also the default.
-func (c Restorer) SetFlowLimiter(lim fc.FlowLimiter) {
-	capnp.Client(c).SetFlowLimiter(lim)
-}
-
-// Get the current flowcontrol.FlowLimiter used to manage flow control
-// for this client.
-func (c Restorer) GetFlowLimiter() fc.FlowLimiter {
-	return capnp.Client(c).GetFlowLimiter()
-} // A Restorer_Server is a Restorer with a local implementation.
+// A Restorer_Server is a Restorer with a local implementation.
 type Restorer_Server interface {
 	Restore(context.Context, Restorer_restore) error
 }
 
 // Restorer_NewServer creates a new Server from an implementation of Restorer_Server.
-func Restorer_NewServer(s Restorer_Server) *server.Server {
+func Restorer_NewServer(s Restorer_Server, policy *server.Policy) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(Restorer_Methods(nil, s), s, c)
+	return server.New(Restorer_Methods(nil, s), s, c, policy)
 }
 
 // Restorer_ServerToClient creates a new Client from an implementation of Restorer_Server.
 // The caller is responsible for calling Release on the returned Client.
-func Restorer_ServerToClient(s Restorer_Server) Restorer {
-	return Restorer(capnp.NewClient(Restorer_NewServer(s)))
+func Restorer_ServerToClient(s Restorer_Server, policy *server.Policy) Restorer {
+	return Restorer{Client: capnp.NewClient(Restorer_NewServer(s, policy))}
 }
 
 // Restorer_Methods appends Methods to a slice that invoke the methods on s.
@@ -1324,295 +1100,1096 @@ type Restorer_restore struct {
 
 // Args returns the call's arguments.
 func (c Restorer_restore) Args() Restorer_RestoreParams {
-	return Restorer_RestoreParams(c.Call.Args())
+	return Restorer_RestoreParams{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Restorer_restore) AllocResults() (Restorer_restore_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Restorer_restore_Results(r), err
+	return Restorer_restore_Results{Struct: r}, err
 }
 
-// Restorer_List is a list of Restorer.
-type Restorer_List = capnp.CapList[Restorer]
-
-// NewRestorer creates a new list of Restorer.
-func NewRestorer_List(s *capnp.Segment, sz int32) (Restorer_List, error) {
-	l, err := capnp.NewPointerList(s, sz)
-	return capnp.CapList[Restorer](l), err
-}
-
-type Restorer_RestoreParams capnp.Struct
+type Restorer_RestoreParams struct{ capnp.Struct }
 
 // Restorer_RestoreParams_TypeID is the unique identifier for the type Restorer_RestoreParams.
 const Restorer_RestoreParams_TypeID = 0xc541e5764a37d73a
 
 func NewRestorer_RestoreParams(s *capnp.Segment) (Restorer_RestoreParams, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Restorer_RestoreParams(st), err
+	return Restorer_RestoreParams{st}, err
 }
 
 func NewRootRestorer_RestoreParams(s *capnp.Segment) (Restorer_RestoreParams, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Restorer_RestoreParams(st), err
+	return Restorer_RestoreParams{st}, err
 }
 
 func ReadRootRestorer_RestoreParams(msg *capnp.Message) (Restorer_RestoreParams, error) {
 	root, err := msg.Root()
-	return Restorer_RestoreParams(root.Struct()), err
+	return Restorer_RestoreParams{root.Struct()}, err
 }
 
 func (s Restorer_RestoreParams) String() string {
-	str, _ := text.Marshal(0xc541e5764a37d73a, capnp.Struct(s))
+	str, _ := text.Marshal(0xc541e5764a37d73a, s.Struct)
 	return str
 }
 
-func (s Restorer_RestoreParams) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Restorer_RestoreParams) DecodeFromPtr(p capnp.Ptr) Restorer_RestoreParams {
-	return Restorer_RestoreParams(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Restorer_RestoreParams) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Restorer_RestoreParams) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Restorer_RestoreParams) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Restorer_RestoreParams) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Restorer_RestoreParams) LocalRef() (capnp.Ptr, error) {
-	return capnp.Struct(s).Ptr(0)
+	return s.Struct.Ptr(0)
 }
 
 func (s Restorer_RestoreParams) HasLocalRef() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Restorer_RestoreParams) SetLocalRef(v capnp.Ptr) error {
-	return capnp.Struct(s).SetPtr(0, v)
+	return s.Struct.SetPtr(0, v)
 }
+
 func (s Restorer_RestoreParams) SealedFor() (SturdyRef_Owner, error) {
-	p, err := capnp.Struct(s).Ptr(1)
-	return SturdyRef_Owner(p.Struct()), err
+	p, err := s.Struct.Ptr(1)
+	return SturdyRef_Owner{Struct: p.Struct()}, err
 }
 
 func (s Restorer_RestoreParams) HasSealedFor() bool {
-	return capnp.Struct(s).HasPtr(1)
+	return s.Struct.HasPtr(1)
 }
 
 func (s Restorer_RestoreParams) SetSealedFor(v SturdyRef_Owner) error {
-	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
+	return s.Struct.SetPtr(1, v.Struct.ToPtr())
 }
 
 // NewSealedFor sets the sealedFor field to a newly
 // allocated SturdyRef_Owner struct, preferring placement in s's segment.
 func (s Restorer_RestoreParams) NewSealedFor() (SturdyRef_Owner, error) {
-	ss, err := NewSturdyRef_Owner(capnp.Struct(s).Segment())
+	ss, err := NewSturdyRef_Owner(s.Struct.Segment())
 	if err != nil {
 		return SturdyRef_Owner{}, err
 	}
-	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(1, ss.Struct.ToPtr())
 	return ss, err
 }
 
 // Restorer_RestoreParams_List is a list of Restorer_RestoreParams.
-type Restorer_RestoreParams_List = capnp.StructList[Restorer_RestoreParams]
+type Restorer_RestoreParams_List struct{ capnp.List }
 
 // NewRestorer_RestoreParams creates a new list of Restorer_RestoreParams.
 func NewRestorer_RestoreParams_List(s *capnp.Segment, sz int32) (Restorer_RestoreParams_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
-	return capnp.StructList[Restorer_RestoreParams](l), err
+	return Restorer_RestoreParams_List{l}, err
+}
+
+func (s Restorer_RestoreParams_List) At(i int) Restorer_RestoreParams {
+	return Restorer_RestoreParams{s.List.Struct(i)}
+}
+
+func (s Restorer_RestoreParams_List) Set(i int, v Restorer_RestoreParams) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Restorer_RestoreParams_List) String() string {
+	str, _ := text.MarshalList(0xc541e5764a37d73a, s.List)
+	return str
 }
 
 // Restorer_RestoreParams_Future is a wrapper for a Restorer_RestoreParams promised by a client call.
 type Restorer_RestoreParams_Future struct{ *capnp.Future }
 
-func (f Restorer_RestoreParams_Future) Struct() (Restorer_RestoreParams, error) {
-	p, err := f.Future.Ptr()
-	return Restorer_RestoreParams(p.Struct()), err
+func (p Restorer_RestoreParams_Future) Struct() (Restorer_RestoreParams, error) {
+	s, err := p.Future.Struct()
+	return Restorer_RestoreParams{s}, err
 }
+
 func (p Restorer_RestoreParams_Future) LocalRef() *capnp.Future {
 	return p.Future.Field(0, nil)
 }
+
 func (p Restorer_RestoreParams_Future) SealedFor() SturdyRef_Owner_Future {
 	return SturdyRef_Owner_Future{Future: p.Future.Field(1, nil)}
 }
 
-type Restorer_restore_Results capnp.Struct
+type Restorer_restore_Results struct{ capnp.Struct }
 
 // Restorer_restore_Results_TypeID is the unique identifier for the type Restorer_restore_Results.
 const Restorer_restore_Results_TypeID = 0xda966d1d252e4d25
 
 func NewRestorer_restore_Results(s *capnp.Segment) (Restorer_restore_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Restorer_restore_Results(st), err
+	return Restorer_restore_Results{st}, err
 }
 
 func NewRootRestorer_restore_Results(s *capnp.Segment) (Restorer_restore_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Restorer_restore_Results(st), err
+	return Restorer_restore_Results{st}, err
 }
 
 func ReadRootRestorer_restore_Results(msg *capnp.Message) (Restorer_restore_Results, error) {
 	root, err := msg.Root()
-	return Restorer_restore_Results(root.Struct()), err
+	return Restorer_restore_Results{root.Struct()}, err
 }
 
 func (s Restorer_restore_Results) String() string {
-	str, _ := text.Marshal(0xda966d1d252e4d25, capnp.Struct(s))
+	str, _ := text.Marshal(0xda966d1d252e4d25, s.Struct)
 	return str
 }
 
-func (s Restorer_restore_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Restorer_restore_Results) DecodeFromPtr(p capnp.Ptr) Restorer_restore_Results {
-	return Restorer_restore_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Restorer_restore_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Restorer_restore_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Restorer_restore_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Restorer_restore_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-func (s Restorer_restore_Results) Cap() capnp.Client {
-	p, _ := capnp.Struct(s).Ptr(0)
-	return p.Interface().Client()
+func (s Restorer_restore_Results) Cap() (capnp.Ptr, error) {
+	return s.Struct.Ptr(0)
 }
 
 func (s Restorer_restore_Results) HasCap() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
-func (s Restorer_restore_Results) SetCap(c capnp.Client) error {
-	if !c.IsValid() {
-		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
-	}
-	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(c))
-	return capnp.Struct(s).SetPtr(0, in.ToPtr())
+func (s Restorer_restore_Results) SetCap(v capnp.Ptr) error {
+	return s.Struct.SetPtr(0, v)
 }
 
 // Restorer_restore_Results_List is a list of Restorer_restore_Results.
-type Restorer_restore_Results_List = capnp.StructList[Restorer_restore_Results]
+type Restorer_restore_Results_List struct{ capnp.List }
 
 // NewRestorer_restore_Results creates a new list of Restorer_restore_Results.
 func NewRestorer_restore_Results_List(s *capnp.Segment, sz int32) (Restorer_restore_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Restorer_restore_Results](l), err
+	return Restorer_restore_Results_List{l}, err
+}
+
+func (s Restorer_restore_Results_List) At(i int) Restorer_restore_Results {
+	return Restorer_restore_Results{s.List.Struct(i)}
+}
+
+func (s Restorer_restore_Results_List) Set(i int, v Restorer_restore_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Restorer_restore_Results_List) String() string {
+	str, _ := text.MarshalList(0xda966d1d252e4d25, s.List)
+	return str
 }
 
 // Restorer_restore_Results_Future is a wrapper for a Restorer_restore_Results promised by a client call.
 type Restorer_restore_Results_Future struct{ *capnp.Future }
 
-func (f Restorer_restore_Results_Future) Struct() (Restorer_restore_Results, error) {
-	p, err := f.Future.Ptr()
-	return Restorer_restore_Results(p.Struct()), err
-}
-func (p Restorer_restore_Results_Future) Cap() capnp.Client {
-	return p.Future.Field(0, nil).Client()
+func (p Restorer_restore_Results_Future) Struct() (Restorer_restore_Results, error) {
+	s, err := p.Future.Struct()
+	return Restorer_restore_Results{s}, err
 }
 
-const schema_855efed3475f6b26 = "x\xda\x84V]h\x1cU\x14>\xe7\xde\x99\x9d]\xc9" +
-	"\xb2;{S\x84\xd8\x10\x8c\x8dic\xb3d\x93\x9aj" +
-	"(\xa4MiCW\x8a{7*\x98\xda\xd8i\xf6\xc6" +
-	",\xdd\x9f\xc9\xcclb@\x89\xc1\x8aF)>U\xcc" +
-	"C\xb1\xc5\x82\xe2\x8b\xe0\x83\xf8\xaaT(\x14\x1fZ-" +
-	"\xa5\xb1\x8a\x0aZ*-B\xdeD\xec\xc8\x9d\xcd\xeeL" +
-	"'k\xfbx\xcf\x9c\xfd\xcew\xbe\xf3\x9d{w`\x9d" +
-	"\xecU2\xf1\x9b\x11 <\xa7F\xdc\xc3?\xbf\xd9\xd9" +
-	";[~\x07x\x0a\xd1}\xfc\xc4\xcb\xe3\xdf\xdf\x9dz" +
-	"\x0b\x0e\xa0F\x00\xd8\x8b\xf47&\xe8n\x00\xb6B\x17" +
-	"\x00\xdd\xe2\xbb+\xdb\x95\xa3_\xbc\x0f\xbc\x03\xa9\x1b?" +
-	"rv.\xb2<\xfe\x0flA\x0d\x01\xd8-\xba\x0e\xc8" +
-	"\xeex\x99{\xd2\xd7{O>\xfa\xe5G\xa0\xa7\xa8\x0f" +
-	"\x0b\xc8\x0e)k\xecy\xe5a\x00f(\xe3lE\xd1" +
-	"\x00\xdc\x8b\x1f\x7f\xban\xfc\xf0\xc4y\xd0\xb7\xa2\xcfH" +
-	"%\x1a\xc0\xd0\x9c2\x88lY\xa6\xb1\xd7\x15\x89,." +
-	"\x0d\xdf8\xbb\xf6\xc9\xd7\x9b\x90\x7fR\xfed\xb7\x94^" +
-	"\x00\xa6\xaa\xe3\xac_\x95\xc8#\xd7vg\xe7\x7f\xdf\xf7" +
-	"-\xe8\x8f\x048\xd5\x91\xb7\xa8Yd;d\x1a\xebQ" +
-	"%\xf2WS\x19<\xbf\xf8\xc7%\xe0[Q\xf1y\xc8" +
-	"\xdaC+j\x07\xb2U/\xf9\xb4z\x13\xd0\xddO\xa7" +
-	"\xba/|\xf6\xcbU\xd0;\x03\x9cT\x94\xc9\xc5\xc8\x18" +
-	"\xb2\xc5\x88L\xaeEF\x01\xdd\xb7\xdf\xb8\xf0\xe3\xfaw" +
-	"\xb7\xaf\x83\x9e\x0a\x88\xec\xd1`\xa7#W\xd89/\xf7" +
-	"LD\xb2\xe89\x9c\xee\xe9,\x7f\xb0&)\xc3\x06\xe0" +
-	"\xdf\x91I\x04d\xaa&\xc1\xd8\xed\x9d\x1f\xfeu\xf9\xc8" +
-	"\x8dPe\xaf\xa7\x1e-\x8b\xeciM\xa2=\xa9I\xb4" +
-	"S\x97\xdf\xbb\xea\x1c}\xe8W9_\xc5/\xed\xe9\xb9" +
-	"\xaa}\xc3\xcey\xb9g4\xd9Rs\x9e<\x85\xf4^" +
-	"/`\x8c-G\xaf\xb0SQ\x99\xbd\x12\xfd\x1c\xd0}" +
-	"l\xe1\xe2\xb1;\xab\xd7\xfe\x0d\x0d\xcd\xe3\xab\xc6R\xc8" +
-	"\xb6\xc4d\xb2\x1e\x1b\x85\xfd\xae),\xbbh;\x82T" +
-	"\xa6Ez\xda0+\xe6\xc8\x84S\xb3\x0a\x8bZ^\xcc" +
-	"\xf06\x0c\xc2\xe9\x83\x01C\xc4\xf3\xfeX\xf4\xf8H\xd7" +
-	"\xb3\x0b\x15a\xb9\xcfYF\xc5.\x8a\x0a\xa03:\xe1" +
-	"T-Q\xe0Q\xaa\xb4\xb9\xae\x82\x00\xfa\x8e<\x00\xdf" +
-	"N\x91\xef\"\x18\xc7\xbbn;\xcahf\x04\x80\xef\xa4" +
-	"\xc8\x9f\"\xe8:>\x00&\xfdr\x80\x98\x04\x1c\xb5=" +
-	"HL\xfa\xa5\xeb\x1fZ\xb5\xb1\xafP\xb0\x84\xdde\xa7" +
-	"\x8b\xe6\xb0$\x01P\xe70\x06\xc0\xb7Q\xe4\x03\x04u" +
-	"\xc4:\x85\xfe1\x9f\xd8R\xa9\xba \xac\xe1]\x18\x03" +
-	"\x821\xc0\xa5\x9ai\x06\xcf\xadj\xe5\x85dF\x85\xc5" +
-	"\x15\xc4\x80\xb7\xd1r\xeb\x9fD\x0e\xba\x0c\xcb(\xdb\\" +
-	"\xa1j\xc0\xfe\xd80\x95\xae\x8f\x01\xd1Um\xc9\xaa\xe7" +
-	"\xef\xc5\x1c\xfa\xa5hx:y1\x93\x96ZwI\xad" +
-	"\x9c\x1cb\xb0\xc3\xeeV\x1df}\x91\xb5yC\x8a\xdb" +
-	"\xf4\xfe\x86\x86\xa5\xea\xb4Q\xca\x8b\x19\x00\xc0\x14\x10L" +
-	"\xb5\xee5\xe7\x85\x12\x8e\xa88<\x8a\xc1}\x8bM\x06" +
-	"V v\xdc\x9d0\xe6E\xce\xb0\x0c\xa0e\xdb;\xe4" +
-	"\x85]\x03\xad\xe44Th\xfc\x14\x1b?\xd3\xf5>O" +
-	"\x85\x84m\xcc\x87$P\xc2j\x0b+\xdd\xd0\xd6S\x16" +
-	" $C\xd6\x9fiS\x86\x8ct\xe0\x00E\xbe\x87\xb4" +
-	"n\xd8\x16FI\x14\x0eV\x01-L\xfa\xde\x0f\xd9\xac" +
-	"\xe5<&<\x0b\x14$\x8bd\x93\x85\xd1\x07\xc0_\xa2" +
-	"\xc8g\x03,\x84\x0c\x1e\xa3\xc8K\x04uB\xda\x91\x00" +
-	"\xe8E\x19,P\xe4&A\x9d\xd2v\xa4\x00zY\x06" +
-	"g)r\x87`\xe2\x84X\x1ch\xb8P\x1e2\xc1\xc3" +
-	"`\xf00\xb4\xc9\xacJx\x80r~\xe9\xc6\x84\xca\xb6" +
-	"'\x9e\xd2\xa4\x1d\x97\x0b\x11\xa5\xc8\xdb\x09.IM\x0e" +
-	"V\xef\xa7G\xc0\x1e/\x18N\xcepp64\x8c\x8e" +
-	"\x07l\x1d-\xca\xb5n^\x8au\xfc%\xc3\xdba\x1b" +
-	"\x93\xfe\x15\x18\xaa\xdc\xca\x16\x1b+\xb4M\xda\xadD=" +
-	"\xb75\xfb\xea\xf6\xfb\xd2\xa6\x0d\x13S\x0a\x05\xbc\xc7\xea" +
-	"\xff\xaf\x94\x87\xe7l6Z\xbe\x95\xd1\xb2\x01\xa3\xd9\x1b" +
-	"\x1e\x01\x9c\xc1\xa4\x7f%o\xb4R\xabH\xb7O\xe4\xa5" +
-	"\x0d7\x7fm-\xf1\xa1\x02\x84|6\x19\xb0T\x83D" +
-	"q\xd2wO\xd3gs2hR\xe4\xaf\x05|\xb6(" +
-	"\x83\xafR\xe4'\x09\xbaf\xedx\xa98\xfd\x8c\x00\xea" +
-	"\xfb-\x18\xcc\xb4\x0a\x0e\xb6\x0a\x0e\xdd\xef\xd2\xac_\xd0" +
-	"h\xcbF\xda\xbcG\x02\x03\x7fd\xf4\x03\xdd@t\x12" +
-	"\xad\x93\xee\xef\x0b\xbf\x1c\x92u\xa6/p\xa9\x15\xcd\xe1" +
-	"\x84Y\xb5\x1c\xd4\x80\xa0\x06\x98\x98\xad\xda\x0e\xb6\x01\xc1" +
-	"\xb6\x07m\xae|\xbb\xd0\x0am@\x9f\xef\x94\xc4+\xb5" +
-	"b\xa1\x01\xf5_\x00\x00\x00\xff\xff\xbdw\x91\x94"
+func (p Restorer_restore_Results_Future) Cap() *capnp.Future {
+	return p.Future.Field(0, nil)
+}
+
+type HostPortResolver struct{ Client *capnp.Client }
+
+// HostPortResolver_TypeID is the unique identifier for the type HostPortResolver.
+const HostPortResolver_TypeID = 0xaa8d91fab6d01d9f
+
+func (c HostPortResolver) Resolve(ctx context.Context, params func(HostPortResolver_resolve_Params) error) (HostPortResolver_resolve_Results_Future, capnp.ReleaseFunc) {
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0xaa8d91fab6d01d9f,
+			MethodID:      0,
+			InterfaceName: "persistence.capnp:HostPortResolver",
+			MethodName:    "resolve",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(HostPortResolver_resolve_Params{Struct: s}) }
+	}
+	ans, release := c.Client.SendCall(ctx, s)
+	return HostPortResolver_resolve_Results_Future{Future: ans.Future()}, release
+}
+func (c HostPortResolver) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0xb2afd1cb599c48d5,
+			MethodID:      0,
+			InterfaceName: "common.capnp:Identifiable",
+			MethodName:    "info",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params{Struct: s}) }
+	}
+	ans, release := c.Client.SendCall(ctx, s)
+	return common.IdInformation_Future{Future: ans.Future()}, release
+}
+func (c HostPortResolver) Restore(ctx context.Context, params func(Restorer_RestoreParams) error) (Restorer_restore_Results_Future, capnp.ReleaseFunc) {
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0x9fb6218427d92e3c,
+			MethodID:      0,
+			InterfaceName: "persistence.capnp:Restorer",
+			MethodName:    "restore",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 2}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Restorer_RestoreParams{Struct: s}) }
+	}
+	ans, release := c.Client.SendCall(ctx, s)
+	return Restorer_restore_Results_Future{Future: ans.Future()}, release
+}
+
+func (c HostPortResolver) AddRef() HostPortResolver {
+	return HostPortResolver{
+		Client: c.Client.AddRef(),
+	}
+}
+
+func (c HostPortResolver) Release() {
+	c.Client.Release()
+}
+
+// A HostPortResolver_Server is a HostPortResolver with a local implementation.
+type HostPortResolver_Server interface {
+	Resolve(context.Context, HostPortResolver_resolve) error
+
+	Info(context.Context, common.Identifiable_info) error
+
+	Restore(context.Context, Restorer_restore) error
+}
+
+// HostPortResolver_NewServer creates a new Server from an implementation of HostPortResolver_Server.
+func HostPortResolver_NewServer(s HostPortResolver_Server, policy *server.Policy) *server.Server {
+	c, _ := s.(server.Shutdowner)
+	return server.New(HostPortResolver_Methods(nil, s), s, c, policy)
+}
+
+// HostPortResolver_ServerToClient creates a new Client from an implementation of HostPortResolver_Server.
+// The caller is responsible for calling Release on the returned Client.
+func HostPortResolver_ServerToClient(s HostPortResolver_Server, policy *server.Policy) HostPortResolver {
+	return HostPortResolver{Client: capnp.NewClient(HostPortResolver_NewServer(s, policy))}
+}
+
+// HostPortResolver_Methods appends Methods to a slice that invoke the methods on s.
+// This can be used to create a more complicated Server.
+func HostPortResolver_Methods(methods []server.Method, s HostPortResolver_Server) []server.Method {
+	if cap(methods) == 0 {
+		methods = make([]server.Method, 0, 3)
+	}
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
+			InterfaceID:   0xaa8d91fab6d01d9f,
+			MethodID:      0,
+			InterfaceName: "persistence.capnp:HostPortResolver",
+			MethodName:    "resolve",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.Resolve(ctx, HostPortResolver_resolve{call})
+		},
+	})
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
+			InterfaceID:   0xb2afd1cb599c48d5,
+			MethodID:      0,
+			InterfaceName: "common.capnp:Identifiable",
+			MethodName:    "info",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.Info(ctx, common.Identifiable_info{call})
+		},
+	})
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
+			InterfaceID:   0x9fb6218427d92e3c,
+			MethodID:      0,
+			InterfaceName: "persistence.capnp:Restorer",
+			MethodName:    "restore",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.Restore(ctx, Restorer_restore{call})
+		},
+	})
+
+	return methods
+}
+
+// HostPortResolver_resolve holds the state for a server call to HostPortResolver.resolve.
+// See server.Call for documentation.
+type HostPortResolver_resolve struct {
+	*server.Call
+}
+
+// Args returns the call's arguments.
+func (c HostPortResolver_resolve) Args() HostPortResolver_resolve_Params {
+	return HostPortResolver_resolve_Params{Struct: c.Call.Args()}
+}
+
+// AllocResults allocates the results struct.
+func (c HostPortResolver_resolve) AllocResults() (HostPortResolver_resolve_Results, error) {
+	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 8, PointerCount: 1})
+	return HostPortResolver_resolve_Results{Struct: r}, err
+}
+
+type HostPortResolver_Registrar struct{ Client *capnp.Client }
+
+// HostPortResolver_Registrar_TypeID is the unique identifier for the type HostPortResolver_Registrar.
+const HostPortResolver_Registrar_TypeID = 0xb0caf775704690b2
+
+func (c HostPortResolver_Registrar) Register(ctx context.Context, params func(HostPortResolver_Registrar_register_Params) error) (HostPortResolver_Registrar_register_Results_Future, capnp.ReleaseFunc) {
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0xb0caf775704690b2,
+			MethodID:      0,
+			InterfaceName: "persistence.capnp:HostPortResolver.Registrar",
+			MethodName:    "register",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 3}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(HostPortResolver_Registrar_register_Params{Struct: s}) }
+	}
+	ans, release := c.Client.SendCall(ctx, s)
+	return HostPortResolver_Registrar_register_Results_Future{Future: ans.Future()}, release
+}
+
+func (c HostPortResolver_Registrar) AddRef() HostPortResolver_Registrar {
+	return HostPortResolver_Registrar{
+		Client: c.Client.AddRef(),
+	}
+}
+
+func (c HostPortResolver_Registrar) Release() {
+	c.Client.Release()
+}
+
+// A HostPortResolver_Registrar_Server is a HostPortResolver_Registrar with a local implementation.
+type HostPortResolver_Registrar_Server interface {
+	Register(context.Context, HostPortResolver_Registrar_register) error
+}
+
+// HostPortResolver_Registrar_NewServer creates a new Server from an implementation of HostPortResolver_Registrar_Server.
+func HostPortResolver_Registrar_NewServer(s HostPortResolver_Registrar_Server, policy *server.Policy) *server.Server {
+	c, _ := s.(server.Shutdowner)
+	return server.New(HostPortResolver_Registrar_Methods(nil, s), s, c, policy)
+}
+
+// HostPortResolver_Registrar_ServerToClient creates a new Client from an implementation of HostPortResolver_Registrar_Server.
+// The caller is responsible for calling Release on the returned Client.
+func HostPortResolver_Registrar_ServerToClient(s HostPortResolver_Registrar_Server, policy *server.Policy) HostPortResolver_Registrar {
+	return HostPortResolver_Registrar{Client: capnp.NewClient(HostPortResolver_Registrar_NewServer(s, policy))}
+}
+
+// HostPortResolver_Registrar_Methods appends Methods to a slice that invoke the methods on s.
+// This can be used to create a more complicated Server.
+func HostPortResolver_Registrar_Methods(methods []server.Method, s HostPortResolver_Registrar_Server) []server.Method {
+	if cap(methods) == 0 {
+		methods = make([]server.Method, 0, 1)
+	}
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
+			InterfaceID:   0xb0caf775704690b2,
+			MethodID:      0,
+			InterfaceName: "persistence.capnp:HostPortResolver.Registrar",
+			MethodName:    "register",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.Register(ctx, HostPortResolver_Registrar_register{call})
+		},
+	})
+
+	return methods
+}
+
+// HostPortResolver_Registrar_register holds the state for a server call to HostPortResolver_Registrar.register.
+// See server.Call for documentation.
+type HostPortResolver_Registrar_register struct {
+	*server.Call
+}
+
+// Args returns the call's arguments.
+func (c HostPortResolver_Registrar_register) Args() HostPortResolver_Registrar_register_Params {
+	return HostPortResolver_Registrar_register_Params{Struct: c.Call.Args()}
+}
+
+// AllocResults allocates the results struct.
+func (c HostPortResolver_Registrar_register) AllocResults() (HostPortResolver_Registrar_register_Results, error) {
+	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 8, PointerCount: 1})
+	return HostPortResolver_Registrar_register_Results{Struct: r}, err
+}
+
+type HostPortResolver_Registrar_Heartbeat struct{ Client *capnp.Client }
+
+// HostPortResolver_Registrar_Heartbeat_TypeID is the unique identifier for the type HostPortResolver_Registrar_Heartbeat.
+const HostPortResolver_Registrar_Heartbeat_TypeID = 0x87de92d2d68df26f
+
+func (c HostPortResolver_Registrar_Heartbeat) Beat(ctx context.Context, params func(HostPortResolver_Registrar_Heartbeat_beat_Params) error) (HostPortResolver_Registrar_Heartbeat_beat_Results_Future, capnp.ReleaseFunc) {
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0x87de92d2d68df26f,
+			MethodID:      0,
+			InterfaceName: "persistence.capnp:HostPortResolver.Registrar.Heartbeat",
+			MethodName:    "beat",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(HostPortResolver_Registrar_Heartbeat_beat_Params{Struct: s}) }
+	}
+	ans, release := c.Client.SendCall(ctx, s)
+	return HostPortResolver_Registrar_Heartbeat_beat_Results_Future{Future: ans.Future()}, release
+}
+
+func (c HostPortResolver_Registrar_Heartbeat) AddRef() HostPortResolver_Registrar_Heartbeat {
+	return HostPortResolver_Registrar_Heartbeat{
+		Client: c.Client.AddRef(),
+	}
+}
+
+func (c HostPortResolver_Registrar_Heartbeat) Release() {
+	c.Client.Release()
+}
+
+// A HostPortResolver_Registrar_Heartbeat_Server is a HostPortResolver_Registrar_Heartbeat with a local implementation.
+type HostPortResolver_Registrar_Heartbeat_Server interface {
+	Beat(context.Context, HostPortResolver_Registrar_Heartbeat_beat) error
+}
+
+// HostPortResolver_Registrar_Heartbeat_NewServer creates a new Server from an implementation of HostPortResolver_Registrar_Heartbeat_Server.
+func HostPortResolver_Registrar_Heartbeat_NewServer(s HostPortResolver_Registrar_Heartbeat_Server, policy *server.Policy) *server.Server {
+	c, _ := s.(server.Shutdowner)
+	return server.New(HostPortResolver_Registrar_Heartbeat_Methods(nil, s), s, c, policy)
+}
+
+// HostPortResolver_Registrar_Heartbeat_ServerToClient creates a new Client from an implementation of HostPortResolver_Registrar_Heartbeat_Server.
+// The caller is responsible for calling Release on the returned Client.
+func HostPortResolver_Registrar_Heartbeat_ServerToClient(s HostPortResolver_Registrar_Heartbeat_Server, policy *server.Policy) HostPortResolver_Registrar_Heartbeat {
+	return HostPortResolver_Registrar_Heartbeat{Client: capnp.NewClient(HostPortResolver_Registrar_Heartbeat_NewServer(s, policy))}
+}
+
+// HostPortResolver_Registrar_Heartbeat_Methods appends Methods to a slice that invoke the methods on s.
+// This can be used to create a more complicated Server.
+func HostPortResolver_Registrar_Heartbeat_Methods(methods []server.Method, s HostPortResolver_Registrar_Heartbeat_Server) []server.Method {
+	if cap(methods) == 0 {
+		methods = make([]server.Method, 0, 1)
+	}
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
+			InterfaceID:   0x87de92d2d68df26f,
+			MethodID:      0,
+			InterfaceName: "persistence.capnp:HostPortResolver.Registrar.Heartbeat",
+			MethodName:    "beat",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.Beat(ctx, HostPortResolver_Registrar_Heartbeat_beat{call})
+		},
+	})
+
+	return methods
+}
+
+// HostPortResolver_Registrar_Heartbeat_beat holds the state for a server call to HostPortResolver_Registrar_Heartbeat.beat.
+// See server.Call for documentation.
+type HostPortResolver_Registrar_Heartbeat_beat struct {
+	*server.Call
+}
+
+// Args returns the call's arguments.
+func (c HostPortResolver_Registrar_Heartbeat_beat) Args() HostPortResolver_Registrar_Heartbeat_beat_Params {
+	return HostPortResolver_Registrar_Heartbeat_beat_Params{Struct: c.Call.Args()}
+}
+
+// AllocResults allocates the results struct.
+func (c HostPortResolver_Registrar_Heartbeat_beat) AllocResults() (HostPortResolver_Registrar_Heartbeat_beat_Results, error) {
+	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	return HostPortResolver_Registrar_Heartbeat_beat_Results{Struct: r}, err
+}
+
+type HostPortResolver_Registrar_Heartbeat_beat_Params struct{ capnp.Struct }
+
+// HostPortResolver_Registrar_Heartbeat_beat_Params_TypeID is the unique identifier for the type HostPortResolver_Registrar_Heartbeat_beat_Params.
+const HostPortResolver_Registrar_Heartbeat_beat_Params_TypeID = 0xebff70497e0ba555
+
+func NewHostPortResolver_Registrar_Heartbeat_beat_Params(s *capnp.Segment) (HostPortResolver_Registrar_Heartbeat_beat_Params, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	return HostPortResolver_Registrar_Heartbeat_beat_Params{st}, err
+}
+
+func NewRootHostPortResolver_Registrar_Heartbeat_beat_Params(s *capnp.Segment) (HostPortResolver_Registrar_Heartbeat_beat_Params, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	return HostPortResolver_Registrar_Heartbeat_beat_Params{st}, err
+}
+
+func ReadRootHostPortResolver_Registrar_Heartbeat_beat_Params(msg *capnp.Message) (HostPortResolver_Registrar_Heartbeat_beat_Params, error) {
+	root, err := msg.Root()
+	return HostPortResolver_Registrar_Heartbeat_beat_Params{root.Struct()}, err
+}
+
+func (s HostPortResolver_Registrar_Heartbeat_beat_Params) String() string {
+	str, _ := text.Marshal(0xebff70497e0ba555, s.Struct)
+	return str
+}
+
+// HostPortResolver_Registrar_Heartbeat_beat_Params_List is a list of HostPortResolver_Registrar_Heartbeat_beat_Params.
+type HostPortResolver_Registrar_Heartbeat_beat_Params_List struct{ capnp.List }
+
+// NewHostPortResolver_Registrar_Heartbeat_beat_Params creates a new list of HostPortResolver_Registrar_Heartbeat_beat_Params.
+func NewHostPortResolver_Registrar_Heartbeat_beat_Params_List(s *capnp.Segment, sz int32) (HostPortResolver_Registrar_Heartbeat_beat_Params_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
+	return HostPortResolver_Registrar_Heartbeat_beat_Params_List{l}, err
+}
+
+func (s HostPortResolver_Registrar_Heartbeat_beat_Params_List) At(i int) HostPortResolver_Registrar_Heartbeat_beat_Params {
+	return HostPortResolver_Registrar_Heartbeat_beat_Params{s.List.Struct(i)}
+}
+
+func (s HostPortResolver_Registrar_Heartbeat_beat_Params_List) Set(i int, v HostPortResolver_Registrar_Heartbeat_beat_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s HostPortResolver_Registrar_Heartbeat_beat_Params_List) String() string {
+	str, _ := text.MarshalList(0xebff70497e0ba555, s.List)
+	return str
+}
+
+// HostPortResolver_Registrar_Heartbeat_beat_Params_Future is a wrapper for a HostPortResolver_Registrar_Heartbeat_beat_Params promised by a client call.
+type HostPortResolver_Registrar_Heartbeat_beat_Params_Future struct{ *capnp.Future }
+
+func (p HostPortResolver_Registrar_Heartbeat_beat_Params_Future) Struct() (HostPortResolver_Registrar_Heartbeat_beat_Params, error) {
+	s, err := p.Future.Struct()
+	return HostPortResolver_Registrar_Heartbeat_beat_Params{s}, err
+}
+
+type HostPortResolver_Registrar_Heartbeat_beat_Results struct{ capnp.Struct }
+
+// HostPortResolver_Registrar_Heartbeat_beat_Results_TypeID is the unique identifier for the type HostPortResolver_Registrar_Heartbeat_beat_Results.
+const HostPortResolver_Registrar_Heartbeat_beat_Results_TypeID = 0x9510c22fa544a65e
+
+func NewHostPortResolver_Registrar_Heartbeat_beat_Results(s *capnp.Segment) (HostPortResolver_Registrar_Heartbeat_beat_Results, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	return HostPortResolver_Registrar_Heartbeat_beat_Results{st}, err
+}
+
+func NewRootHostPortResolver_Registrar_Heartbeat_beat_Results(s *capnp.Segment) (HostPortResolver_Registrar_Heartbeat_beat_Results, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	return HostPortResolver_Registrar_Heartbeat_beat_Results{st}, err
+}
+
+func ReadRootHostPortResolver_Registrar_Heartbeat_beat_Results(msg *capnp.Message) (HostPortResolver_Registrar_Heartbeat_beat_Results, error) {
+	root, err := msg.Root()
+	return HostPortResolver_Registrar_Heartbeat_beat_Results{root.Struct()}, err
+}
+
+func (s HostPortResolver_Registrar_Heartbeat_beat_Results) String() string {
+	str, _ := text.Marshal(0x9510c22fa544a65e, s.Struct)
+	return str
+}
+
+// HostPortResolver_Registrar_Heartbeat_beat_Results_List is a list of HostPortResolver_Registrar_Heartbeat_beat_Results.
+type HostPortResolver_Registrar_Heartbeat_beat_Results_List struct{ capnp.List }
+
+// NewHostPortResolver_Registrar_Heartbeat_beat_Results creates a new list of HostPortResolver_Registrar_Heartbeat_beat_Results.
+func NewHostPortResolver_Registrar_Heartbeat_beat_Results_List(s *capnp.Segment, sz int32) (HostPortResolver_Registrar_Heartbeat_beat_Results_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
+	return HostPortResolver_Registrar_Heartbeat_beat_Results_List{l}, err
+}
+
+func (s HostPortResolver_Registrar_Heartbeat_beat_Results_List) At(i int) HostPortResolver_Registrar_Heartbeat_beat_Results {
+	return HostPortResolver_Registrar_Heartbeat_beat_Results{s.List.Struct(i)}
+}
+
+func (s HostPortResolver_Registrar_Heartbeat_beat_Results_List) Set(i int, v HostPortResolver_Registrar_Heartbeat_beat_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s HostPortResolver_Registrar_Heartbeat_beat_Results_List) String() string {
+	str, _ := text.MarshalList(0x9510c22fa544a65e, s.List)
+	return str
+}
+
+// HostPortResolver_Registrar_Heartbeat_beat_Results_Future is a wrapper for a HostPortResolver_Registrar_Heartbeat_beat_Results promised by a client call.
+type HostPortResolver_Registrar_Heartbeat_beat_Results_Future struct{ *capnp.Future }
+
+func (p HostPortResolver_Registrar_Heartbeat_beat_Results_Future) Struct() (HostPortResolver_Registrar_Heartbeat_beat_Results, error) {
+	s, err := p.Future.Struct()
+	return HostPortResolver_Registrar_Heartbeat_beat_Results{s}, err
+}
+
+type HostPortResolver_Registrar_register_Params struct{ capnp.Struct }
+
+// HostPortResolver_Registrar_register_Params_TypeID is the unique identifier for the type HostPortResolver_Registrar_register_Params.
+const HostPortResolver_Registrar_register_Params_TypeID = 0xb5f200df6e0373e6
+
+func NewHostPortResolver_Registrar_register_Params(s *capnp.Segment) (HostPortResolver_Registrar_register_Params, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 3})
+	return HostPortResolver_Registrar_register_Params{st}, err
+}
+
+func NewRootHostPortResolver_Registrar_register_Params(s *capnp.Segment) (HostPortResolver_Registrar_register_Params, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 3})
+	return HostPortResolver_Registrar_register_Params{st}, err
+}
+
+func ReadRootHostPortResolver_Registrar_register_Params(msg *capnp.Message) (HostPortResolver_Registrar_register_Params, error) {
+	root, err := msg.Root()
+	return HostPortResolver_Registrar_register_Params{root.Struct()}, err
+}
+
+func (s HostPortResolver_Registrar_register_Params) String() string {
+	str, _ := text.Marshal(0xb5f200df6e0373e6, s.Struct)
+	return str
+}
+
+func (s HostPortResolver_Registrar_register_Params) Base64VatId() (string, error) {
+	p, err := s.Struct.Ptr(0)
+	return p.Text(), err
+}
+
+func (s HostPortResolver_Registrar_register_Params) HasBase64VatId() bool {
+	return s.Struct.HasPtr(0)
+}
+
+func (s HostPortResolver_Registrar_register_Params) Base64VatIdBytes() ([]byte, error) {
+	p, err := s.Struct.Ptr(0)
+	return p.TextBytes(), err
+}
+
+func (s HostPortResolver_Registrar_register_Params) SetBase64VatId(v string) error {
+	return s.Struct.SetText(0, v)
+}
+
+func (s HostPortResolver_Registrar_register_Params) Host() (string, error) {
+	p, err := s.Struct.Ptr(1)
+	return p.Text(), err
+}
+
+func (s HostPortResolver_Registrar_register_Params) HasHost() bool {
+	return s.Struct.HasPtr(1)
+}
+
+func (s HostPortResolver_Registrar_register_Params) HostBytes() ([]byte, error) {
+	p, err := s.Struct.Ptr(1)
+	return p.TextBytes(), err
+}
+
+func (s HostPortResolver_Registrar_register_Params) SetHost(v string) error {
+	return s.Struct.SetText(1, v)
+}
+
+func (s HostPortResolver_Registrar_register_Params) Port() uint16 {
+	return s.Struct.Uint16(0)
+}
+
+func (s HostPortResolver_Registrar_register_Params) SetPort(v uint16) {
+	s.Struct.SetUint16(0, v)
+}
+
+func (s HostPortResolver_Registrar_register_Params) Alias() (string, error) {
+	p, err := s.Struct.Ptr(2)
+	return p.Text(), err
+}
+
+func (s HostPortResolver_Registrar_register_Params) HasAlias() bool {
+	return s.Struct.HasPtr(2)
+}
+
+func (s HostPortResolver_Registrar_register_Params) AliasBytes() ([]byte, error) {
+	p, err := s.Struct.Ptr(2)
+	return p.TextBytes(), err
+}
+
+func (s HostPortResolver_Registrar_register_Params) SetAlias(v string) error {
+	return s.Struct.SetText(2, v)
+}
+
+// HostPortResolver_Registrar_register_Params_List is a list of HostPortResolver_Registrar_register_Params.
+type HostPortResolver_Registrar_register_Params_List struct{ capnp.List }
+
+// NewHostPortResolver_Registrar_register_Params creates a new list of HostPortResolver_Registrar_register_Params.
+func NewHostPortResolver_Registrar_register_Params_List(s *capnp.Segment, sz int32) (HostPortResolver_Registrar_register_Params_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 3}, sz)
+	return HostPortResolver_Registrar_register_Params_List{l}, err
+}
+
+func (s HostPortResolver_Registrar_register_Params_List) At(i int) HostPortResolver_Registrar_register_Params {
+	return HostPortResolver_Registrar_register_Params{s.List.Struct(i)}
+}
+
+func (s HostPortResolver_Registrar_register_Params_List) Set(i int, v HostPortResolver_Registrar_register_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s HostPortResolver_Registrar_register_Params_List) String() string {
+	str, _ := text.MarshalList(0xb5f200df6e0373e6, s.List)
+	return str
+}
+
+// HostPortResolver_Registrar_register_Params_Future is a wrapper for a HostPortResolver_Registrar_register_Params promised by a client call.
+type HostPortResolver_Registrar_register_Params_Future struct{ *capnp.Future }
+
+func (p HostPortResolver_Registrar_register_Params_Future) Struct() (HostPortResolver_Registrar_register_Params, error) {
+	s, err := p.Future.Struct()
+	return HostPortResolver_Registrar_register_Params{s}, err
+}
+
+type HostPortResolver_Registrar_register_Results struct{ capnp.Struct }
+
+// HostPortResolver_Registrar_register_Results_TypeID is the unique identifier for the type HostPortResolver_Registrar_register_Results.
+const HostPortResolver_Registrar_register_Results_TypeID = 0xfafc816633f98bb9
+
+func NewHostPortResolver_Registrar_register_Results(s *capnp.Segment) (HostPortResolver_Registrar_register_Results, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
+	return HostPortResolver_Registrar_register_Results{st}, err
+}
+
+func NewRootHostPortResolver_Registrar_register_Results(s *capnp.Segment) (HostPortResolver_Registrar_register_Results, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
+	return HostPortResolver_Registrar_register_Results{st}, err
+}
+
+func ReadRootHostPortResolver_Registrar_register_Results(msg *capnp.Message) (HostPortResolver_Registrar_register_Results, error) {
+	root, err := msg.Root()
+	return HostPortResolver_Registrar_register_Results{root.Struct()}, err
+}
+
+func (s HostPortResolver_Registrar_register_Results) String() string {
+	str, _ := text.Marshal(0xfafc816633f98bb9, s.Struct)
+	return str
+}
+
+func (s HostPortResolver_Registrar_register_Results) Heartbeat() HostPortResolver_Registrar_Heartbeat {
+	p, _ := s.Struct.Ptr(0)
+	return HostPortResolver_Registrar_Heartbeat{Client: p.Interface().Client()}
+}
+
+func (s HostPortResolver_Registrar_register_Results) HasHeartbeat() bool {
+	return s.Struct.HasPtr(0)
+}
+
+func (s HostPortResolver_Registrar_register_Results) SetHeartbeat(v HostPortResolver_Registrar_Heartbeat) error {
+	if !v.Client.IsValid() {
+		return s.Struct.SetPtr(0, capnp.Ptr{})
+	}
+	seg := s.Segment()
+	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
+	return s.Struct.SetPtr(0, in.ToPtr())
+}
+
+func (s HostPortResolver_Registrar_register_Results) SecsHeartbeatInterval() uint32 {
+	return s.Struct.Uint32(0)
+}
+
+func (s HostPortResolver_Registrar_register_Results) SetSecsHeartbeatInterval(v uint32) {
+	s.Struct.SetUint32(0, v)
+}
+
+// HostPortResolver_Registrar_register_Results_List is a list of HostPortResolver_Registrar_register_Results.
+type HostPortResolver_Registrar_register_Results_List struct{ capnp.List }
+
+// NewHostPortResolver_Registrar_register_Results creates a new list of HostPortResolver_Registrar_register_Results.
+func NewHostPortResolver_Registrar_register_Results_List(s *capnp.Segment, sz int32) (HostPortResolver_Registrar_register_Results_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1}, sz)
+	return HostPortResolver_Registrar_register_Results_List{l}, err
+}
+
+func (s HostPortResolver_Registrar_register_Results_List) At(i int) HostPortResolver_Registrar_register_Results {
+	return HostPortResolver_Registrar_register_Results{s.List.Struct(i)}
+}
+
+func (s HostPortResolver_Registrar_register_Results_List) Set(i int, v HostPortResolver_Registrar_register_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s HostPortResolver_Registrar_register_Results_List) String() string {
+	str, _ := text.MarshalList(0xfafc816633f98bb9, s.List)
+	return str
+}
+
+// HostPortResolver_Registrar_register_Results_Future is a wrapper for a HostPortResolver_Registrar_register_Results promised by a client call.
+type HostPortResolver_Registrar_register_Results_Future struct{ *capnp.Future }
+
+func (p HostPortResolver_Registrar_register_Results_Future) Struct() (HostPortResolver_Registrar_register_Results, error) {
+	s, err := p.Future.Struct()
+	return HostPortResolver_Registrar_register_Results{s}, err
+}
+
+func (p HostPortResolver_Registrar_register_Results_Future) Heartbeat() HostPortResolver_Registrar_Heartbeat {
+	return HostPortResolver_Registrar_Heartbeat{Client: p.Future.Field(0, nil).Client()}
+}
+
+type HostPortResolver_resolve_Params struct{ capnp.Struct }
+
+// HostPortResolver_resolve_Params_TypeID is the unique identifier for the type HostPortResolver_resolve_Params.
+const HostPortResolver_resolve_Params_TypeID = 0xe6f8966f0f2cbb33
+
+func NewHostPortResolver_resolve_Params(s *capnp.Segment) (HostPortResolver_resolve_Params, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return HostPortResolver_resolve_Params{st}, err
+}
+
+func NewRootHostPortResolver_resolve_Params(s *capnp.Segment) (HostPortResolver_resolve_Params, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return HostPortResolver_resolve_Params{st}, err
+}
+
+func ReadRootHostPortResolver_resolve_Params(msg *capnp.Message) (HostPortResolver_resolve_Params, error) {
+	root, err := msg.Root()
+	return HostPortResolver_resolve_Params{root.Struct()}, err
+}
+
+func (s HostPortResolver_resolve_Params) String() string {
+	str, _ := text.Marshal(0xe6f8966f0f2cbb33, s.Struct)
+	return str
+}
+
+func (s HostPortResolver_resolve_Params) Id() (string, error) {
+	p, err := s.Struct.Ptr(0)
+	return p.Text(), err
+}
+
+func (s HostPortResolver_resolve_Params) HasId() bool {
+	return s.Struct.HasPtr(0)
+}
+
+func (s HostPortResolver_resolve_Params) IdBytes() ([]byte, error) {
+	p, err := s.Struct.Ptr(0)
+	return p.TextBytes(), err
+}
+
+func (s HostPortResolver_resolve_Params) SetId(v string) error {
+	return s.Struct.SetText(0, v)
+}
+
+// HostPortResolver_resolve_Params_List is a list of HostPortResolver_resolve_Params.
+type HostPortResolver_resolve_Params_List struct{ capnp.List }
+
+// NewHostPortResolver_resolve_Params creates a new list of HostPortResolver_resolve_Params.
+func NewHostPortResolver_resolve_Params_List(s *capnp.Segment, sz int32) (HostPortResolver_resolve_Params_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
+	return HostPortResolver_resolve_Params_List{l}, err
+}
+
+func (s HostPortResolver_resolve_Params_List) At(i int) HostPortResolver_resolve_Params {
+	return HostPortResolver_resolve_Params{s.List.Struct(i)}
+}
+
+func (s HostPortResolver_resolve_Params_List) Set(i int, v HostPortResolver_resolve_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s HostPortResolver_resolve_Params_List) String() string {
+	str, _ := text.MarshalList(0xe6f8966f0f2cbb33, s.List)
+	return str
+}
+
+// HostPortResolver_resolve_Params_Future is a wrapper for a HostPortResolver_resolve_Params promised by a client call.
+type HostPortResolver_resolve_Params_Future struct{ *capnp.Future }
+
+func (p HostPortResolver_resolve_Params_Future) Struct() (HostPortResolver_resolve_Params, error) {
+	s, err := p.Future.Struct()
+	return HostPortResolver_resolve_Params{s}, err
+}
+
+type HostPortResolver_resolve_Results struct{ capnp.Struct }
+
+// HostPortResolver_resolve_Results_TypeID is the unique identifier for the type HostPortResolver_resolve_Results.
+const HostPortResolver_resolve_Results_TypeID = 0xfc185f518d220b8c
+
+func NewHostPortResolver_resolve_Results(s *capnp.Segment) (HostPortResolver_resolve_Results, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
+	return HostPortResolver_resolve_Results{st}, err
+}
+
+func NewRootHostPortResolver_resolve_Results(s *capnp.Segment) (HostPortResolver_resolve_Results, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
+	return HostPortResolver_resolve_Results{st}, err
+}
+
+func ReadRootHostPortResolver_resolve_Results(msg *capnp.Message) (HostPortResolver_resolve_Results, error) {
+	root, err := msg.Root()
+	return HostPortResolver_resolve_Results{root.Struct()}, err
+}
+
+func (s HostPortResolver_resolve_Results) String() string {
+	str, _ := text.Marshal(0xfc185f518d220b8c, s.Struct)
+	return str
+}
+
+func (s HostPortResolver_resolve_Results) Host() (string, error) {
+	p, err := s.Struct.Ptr(0)
+	return p.Text(), err
+}
+
+func (s HostPortResolver_resolve_Results) HasHost() bool {
+	return s.Struct.HasPtr(0)
+}
+
+func (s HostPortResolver_resolve_Results) HostBytes() ([]byte, error) {
+	p, err := s.Struct.Ptr(0)
+	return p.TextBytes(), err
+}
+
+func (s HostPortResolver_resolve_Results) SetHost(v string) error {
+	return s.Struct.SetText(0, v)
+}
+
+func (s HostPortResolver_resolve_Results) Port() uint16 {
+	return s.Struct.Uint16(0)
+}
+
+func (s HostPortResolver_resolve_Results) SetPort(v uint16) {
+	s.Struct.SetUint16(0, v)
+}
+
+// HostPortResolver_resolve_Results_List is a list of HostPortResolver_resolve_Results.
+type HostPortResolver_resolve_Results_List struct{ capnp.List }
+
+// NewHostPortResolver_resolve_Results creates a new list of HostPortResolver_resolve_Results.
+func NewHostPortResolver_resolve_Results_List(s *capnp.Segment, sz int32) (HostPortResolver_resolve_Results_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1}, sz)
+	return HostPortResolver_resolve_Results_List{l}, err
+}
+
+func (s HostPortResolver_resolve_Results_List) At(i int) HostPortResolver_resolve_Results {
+	return HostPortResolver_resolve_Results{s.List.Struct(i)}
+}
+
+func (s HostPortResolver_resolve_Results_List) Set(i int, v HostPortResolver_resolve_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s HostPortResolver_resolve_Results_List) String() string {
+	str, _ := text.MarshalList(0xfc185f518d220b8c, s.List)
+	return str
+}
+
+// HostPortResolver_resolve_Results_Future is a wrapper for a HostPortResolver_resolve_Results promised by a client call.
+type HostPortResolver_resolve_Results_Future struct{ *capnp.Future }
+
+func (p HostPortResolver_resolve_Results_Future) Struct() (HostPortResolver_resolve_Results, error) {
+	s, err := p.Future.Struct()
+	return HostPortResolver_resolve_Results{s}, err
+}
+
+const schema_855efed3475f6b26 = "x\xda\x9cW\x7fLdW\x15>\xe7\xdd\x99y3\xc3" +
+	"Lf\xde\\\x8c\x06K\x88@\xa5\xc5e\xe4WYC" +
+	"j\xa0(\xcb\x82!\xce\x1d\xdc&R\x97\xed\x83\xb9\x94" +
+	"\xb1\xc3\xcc\xf0\xde\x03Jb\xc4F\x9a\xaa\x95\xe86i" +
+	"\xa3F\xd3\x1a\xbbj\x9bljHl\\\x8d\x7f\xd8\xb4" +
+	"I\xeb\xc6DV\xb1a\xad\xad\x98tMk\x1b\x13\xfe" +
+	"Qk\xed3\xf7\xce\xbc\x1f3\xcc\xd2\x1f\xff\x10\xde}" +
+	"\xf7\x9d\xf3\x9d\xf3}\xe7\xbbwz\xb7\x02\xa3J_\xf0" +
+	"\\\x13\x00\xdb\x0a\x86\xec\xd2\xe1\xf6\x9f\xae<\xf8\xd2\xfd" +
+	"\xa0\xf5\x10{\xe7\xdb\xa7\xca\xab\xff\xfa\xed\xcf\x00p\xe0" +
+	"\xa1\xe0/\x91^\x0c\xaa\x00\xf4\xf1\xe0\x04\xdd\x15\xff\xd9" +
+	"\xd3/}\xb5\xb5ki\xf9k\xc0R\x88\xf6G\xef>" +
+	"7\xf1\x87\xb7\xe7\xee\x83qT\x15\x00z)\xf87\xfa" +
+	"l\xf0$\x00}5\xb8\x0eh\xe7\xbf\xf1\xf5\x9b\x02g" +
+	"w\xbe\x05\xac\x05\x89\x1d\xbf\xe3\xd1\x95\xd0\xbd\x13\xff\x85" +
+	"\x0f\xa0\x8a\x00t2t\x08H\xa7Cb\xe7\xdc\x8f?" +
+	"}\xe1\xe3O'\x1f\x02\xed$\x02\x04T\x80\x81\xc7C" +
+	"\xed\x0a\x04\xec[\xd3\xfb][\x1fy\xea\x11\xd0R\xc4" +
+	"K\x08H\x7f\x18\xbaJ/\x86>(\xd2\x86&\xe8A" +
+	"H\xc0{\xeeG?=\xd4\xff\xf8\xb1\xc7@\xbb\x01=" +
+	"\xacAE\xc4{>\xd4\x8ft_l\xa3{2\xe7#" +
+	"\xad\xbf\x7f\xea\xcd\xf3\xdbO\xd4G\x1e\xb8EmA:" +
+	"\xae\x8a\xd0L\x9d\xa0\x1bj\x17\x80\xd7\x1a\xad\x83x\x9f" +
+	"\x02\x0e\xac\xa8_Dz\x9f\xdc}^\x9d\xa0\xbfVU" +
+	"\x80\x97\xaf\x99\xa4\xf8\xf2\xe1\xcfY\x0f\"@\x90\x88\xfc" +
+	"\x17\xd4\xd7\x10\x90^R\xff\x0eh\xf3\xcbC/>z" +
+	"\xf5'\xbf9R\xd5\xf9\xf0k\xf4\x07\xe1.QUx" +
+	"\x82\x1e\x84EU\xc3/\x9c\x9cZ{\xe5\xb6gA\xfb" +
+	"0z\xfd\xa8V\x15\x9eB\xfa\x17\xb1\x8d\xee\x87EU" +
+	"\xbf\x98\xeb\xc3\xc76\xae]\x06v\x03\x06\xbc\x1e\xc8\x96" +
+	"~2\xd2\x82t:\"6OF\x04\x8cO\x91\xb9\xf6" +
+	"g\x9e\xf8\xeb\x1eh\xad>LA\x14\x9b[\xa3cH" +
+	"{\xa2b\xf3\xcd\xd1\x11@\xfb\xfe\xaf<\xf3\xe7\xc3\xdf" +
+	"\xbd\xbe\x0fZ\xcaG\xbd\x84A'\xa3W\xe8\x19\xb9\x97" +
+	"E\x05\x8a\x1b\xa7\xd37\xb6.?|U@\x86j\xc0" +
+	"\x8b\xd1Y\xd9\x00\x19\x8c\xbe~\xe2;\xff\xdc\xbd\xe3\xc5" +
+	"\xba\xcc\xb2\xa6\xfd\xe8\x14\xd27d\xb4We\xb4\xed\xdd" +
+	"\x07\xf6\xac\xb3\xd1\x03\xa1\xba\x80\x97Z\xd4D\xa7\x9b\x9e" +
+	"\xa6g\x9ad\xe6&Q\xd2\xc0\xafN$J\x0f\xff\xfb" +
+	"\x1ah\x1dn\xe6[b\x0f\x8a\xcc\xe31\x91\xf9\xcc\x85" +
+	"\xa6/O\x96\xed\x7f\xf8\xa4\xc6c-Bj\x97\x1e\xf8" +
+	"\xcf\xc0\xe2\xbdo\xbd\x09U\xda\xe4\xb7gc\x87\xe2\xdb" +
+	"\x95\x98\x00\xe2J\x98\xa5\x90\xd4\xca\x1f#t?v\x85" +
+	"\xbe\x12\x13P\x0ebO\x02\xda\xdflj\xdff\xe7>" +
+	"\xf4\x16\xb0\x0e_\xbc\xf8\xf7D\xbc\xe5\xb8\x88\xd7\xb1\xfe" +
+	"\xdc\x9do|\xf7\x85\xff\xd5\xe9Un|>\x9eB\xba" +
+	"\x1f\x97z\x8d\x8f@\xc9.s\xc3\xcc\x9b\x16\x0f\x16\x17" +
+	"xzA/\x17\xcb\xc3\xa7K\xa6\x95)\x19V\x96\x9b" +
+	"\xa5\xc2\x1a7\xd2Y~W\xde\xb4\x0c\xddH\x9f\xe6\xfa" +
+	"\x88a\xcds\xdd\xca \xb2\x00\x09\x02\xb8\xa5\xa33n" +
+	"\x9a\xd6\x0d\x8a\x16T\x13b\xdf(f\x10\xdd,\x8a\x97" +
+	"e\xc6Z5r\x1bj\x96/\xb2\x18\xfaAk\xfd\xbe" +
+	"\x89\x8bg=\xedi\xf1\xe1\xb6\xcf\xae\x17\xb9a\x7f\xce" +
+	"\xd0\x8bf\x9e\x17\x01\xad\x91\x19\xabd\xf0\x1c\x0b\x93@" +
+	"\xcc\xb6\x03\x08\xa0\xdd\x9c\x05`7\x11d\x83\x0a\xc6\xf1" +
+	"m\xbbY\xf4I\xeb\x1b\x06`'\x08\xb2O(h[" +
+	"^\x00Lz\xe9\x001\x098b\xca\x90\x98\xf4RW" +
+	"^4*\xe3\xb6\\\xce\xe0f\x9b\x99\xce\x97\x87\x04\x08" +
+	"\x80\x0a\x861\x00\xd6I\x90\xf5*\xa8!V \xf4\x8c" +
+	"y\xc06\x0b\xa5un\x0c\x0db\x04\x14\x8c\x00n\xae" +
+	"\x96\xcb\xfeg7\x97\xfan\x89\xa9\xf0\x92\x16\x7f:\xb3" +
+	"\xdc\\U\x0b\x96\xd9\x08q\x96\x8b\xfa\x087X\x00\xd1" +
+	"g\x03h\xd8\x95W<\x03m\xba\xa1/\x9bU\x82\x9d" +
+	"-\xe8\xcc\x9f\xa6\x8dI\x827\x8d\xca\xfeZ\x8eI=" +
+	"\xc7Y\xbe\x98\x16\x8c\xb5\x89\x8eK\xe1\xf8\xfa\xd4\xde\xa8" +
+	"OS\x1eU\xea\x9a.(rm\xa2\xcaD\xa1\xb4\xa0" +
+	"\x17\xb2|\x11\x000\x05\x0a\xa6\xa0!\x80\xda\x8e95" +
+	"{\xae\x8bY\xdb\xe9!\xa0Q\xad\xd7\x19vtF\xcd" +
+	"_\xafh\xfc(\xb20\xa2\xbdw\xfa\xfb\x9f\xbf\xbc\xfb" +
+	"\xe4\x0e\x00x\x06\x0a\xe0\xe2\x08\xbc\x13s\x09A\x9dD" +
+	"\xe4\x9d\x97\x98\xb5\x1d.\x01\xad\x0a\"\xc7\xf8=/\xd1" +
+	"\xb4)P\xb4\x88j\x1b\x12=7\x00\xa0\x96\x85\xd0\xbb" +
+	"\x92\x8d\xf3ygFOH\xc6\x93.3\xfa<\x00\xbb" +
+	"\x93 +\xf8\x98\xc9w\x03\xb0\x1cAVV\x10\x95f" +
+	"T\x00\xb4e\xb1\xb6D\x90Y\x0ajDiF\x02\xa0" +
+	"\xad\xf4\x03\xb0\x02Av\x8f\x82\xf6\xbcn\xf2\xa1\xc1\xdb" +
+	"uP\xad\xc9\x1c\xc6@\xc1\x18`b\xa9dZ\xeeC" +
+	"\xb9dX\xa8\x82\x82*`\x9b^\xc8\xeb\xa6\xf3\xaa\x91" +
+	"\x843r)a\xf1\xa2%\x99\xf0N\x9c\xc8\xac\xef\x10" +
+	"\x88\xcc\xdb3\xfa\x1a\xcf\xe8\x86\x0ed\xd9\x94\x0fb2" +
+	"@\x8cF\x95l\xe7St>s\xdd\xcb\xd4\xd7\xea\x94" +
+	"\x1d\xa8\x1f\"\xd9\xcb\xca\xc8\xc8\x81\x01\xa8S\xf7\x947" +
+	"\xf0n\x0f\xfb\x84=\xf5\x12d\xb7*\x8dulr\xbd" +
+	"\xc0s\xa7J\x80\x06&=c\xac\xf3\xa0\x86c6#" +
+	"';'P\xf8\x98\x14\x04}\x81 [\xf2\xa1\xe0\xdd" +
+	">z\x95*\x95~z5B*T\xfa\xf9M\xdc\xcd" +
+	"7z\x1d\x8b\x12\x0f}\xfe\x87~\xff\xc3\xc0\x11'\x0b" +
+	"\xd4\x13(\xf8K;\x0c-\x9bP9S\x1c\xd8q\xe1" +
+	"\x96a\x82\xacY\xc1M\xd1\x93S\xa5\xe3\xfa\xe1\x93\xc7" +
+	"\xed\xba\x95\xd1-\\\xaa#\xa3\xe5\x1d,\x99\xe4\x85\xe7" +
+	"\xbb\xd7\x82J\xfcM]\x1a\xbc\x89I\xef\x9c\xae\xcb\xdc" +
+	"H\x16Ug\x94F\\ Rmn]\xed^]\xea" +
+	"\x82^\xc6T\x80\x00\xd68\xd8\xf5;%\xe3YG\x85" +
+	"\x96m$\xb4)\x9f\xd0\xcc\xaaF\x00\x171\xe9\xdd\x0a" +
+	"\xaa\xa5\xac\x16\x85\xdag\xb2B\x86G\xdf6n\xf1d" +
+	"\x0e\xeat6\xdb\xc81f}\xee\xe0\xe8lE,\x96" +
+	"\x09\xb2/\xf9t\xb6!\x16\xef!\xc8\xb6\x14\xb4\xcb\xab" +
+	"\xf3\x85\xfc\xc2g8\x10Oo\xfe\xc5\xbeF\x8b\xfd\x8d" +
+	"\x16\x8f\xea\xf0\xb8\xabN\xd5\xe1;\xa5\"\xb1\x86\xb6\x16" +
+	"\x8f6\xa1\x94z{z_\xe7\xb4H#\x9c\xe9}\xba" +
+	"v\x96\xb7I9\\G\x09\xae\x10v\x00\xd8 A6" +
+	"\xaa\xa0\xbd\xe4\x9d.\xa8y\x07\x0f j\xd2{\x16L" +
+	"\x81\x11%\xc8\xc9\xa2\xd5\xc6\x8d5\xbd\x80aP0|" +
+	"\xdc\x0d\x08M!\x86\x98\xbc\x85\xa1\xefG\x9a6\xde\x0e" +
+	"\x8a\xa6\x84+\xc4\xf7t\xd7_\xcd\x04\xf3}\xdd\xbe\xf3" +
+	">_\x1e\xaa9\x0dj\xce\x89\xf7\xc4\xa1;{\xbe\xee" +
+	"t{\x1e\xe0Z\x80\x0f\xd3\xf5\x0f\xa5\xe3}W\\K" +
+	"\xd1\xa8\xf3\xafnO0\x89\xbbV=\xc9\xfc?\x00\x00" +
+	"\xff\xff\xc2w@\xc3"
 
 func init() {
 	schemas.Register(schema_855efed3475f6b26,
+		0x87de92d2d68df26f,
 		0x886d68271d83de4d,
 		0x8fb25d0428898a69,
+		0x9510c22fa544a65e,
 		0x9fb6218427d92e3c,
 		0xa42bd461f2a8a3c8,
+		0xaa8d91fab6d01d9f,
+		0xb0caf775704690b2,
+		0xb5f200df6e0373e6,
 		0xc1a7daa0dc36cb65,
 		0xc541e5764a37d73a,
 		0xcbe679a401315eb8,
@@ -1621,6 +2198,10 @@ func init() {
 		0xda966d1d252e4d25,
 		0xdc5bd1ef982cec13,
 		0xe10a5d74d58bd18d,
+		0xe6f8966f0f2cbb33,
+		0xebff70497e0ba555,
+		0xfafc816633f98bb9,
 		0xfb47810671a05b0d,
+		0xfc185f518d220b8c,
 		0xfdd799ed60c87723)
 }

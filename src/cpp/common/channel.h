@@ -34,6 +34,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include "common.h"
 #include "restorer.h"
 #include "common.capnp.h"
+#include "fbp.capnp.h"
 
 namespace mas {
 namespace infrastructure {
@@ -42,7 +43,7 @@ namespace common {
 class Reader;
 class Writer;
 
-typedef mas::schema::common::Channel<capnp::AnyPointer> AnyPointerChannel;
+typedef mas::schema::fbp::Channel<capnp::AnyPointer> AnyPointerChannel;
 typedef typename AnyPointerChannel::Msg AnyPointerMsg;
 
 class Channel final : public AnyPointerChannel::Server
@@ -67,8 +68,8 @@ public:
   AnyPointerChannel::Client getClient();
   void setClient(AnyPointerChannel::Client c);
 
-  mas::schema::common::Action::Client getUnregisterAction();
-  void setUnregisterAction(mas::schema::common::Action::Client unreg);
+  //mas::schema::common::Action::Client getUnregisterAction();
+  //void setUnregisterAction(mas::schema::common::Action::Client unreg);
 
   void setRestorer(Restorer* r);
 

@@ -21,6 +21,9 @@ namespace capnp {
 namespace schemas {
 
 CAPNP_DECLARE_SCHEMA(f7485d56d6f20e7d);
+CAPNP_DECLARE_SCHEMA(e8b1f7a192651bbe);
+CAPNP_DECLARE_SCHEMA(e1b78932a9f7aea3);
+CAPNP_DECLARE_SCHEMA(bba96ef3714f338f);
 CAPNP_DECLARE_SCHEMA(bf24278c65f633ce);
 CAPNP_DECLARE_SCHEMA(943b54ee6f4de610);
 CAPNP_DECLARE_SCHEMA(e7434f81e2b1e3de);
@@ -40,6 +43,12 @@ CAPNP_DECLARE_SCHEMA(c224b7ff6089b64e);
 CAPNP_DECLARE_SCHEMA(f004ae32302172c6);
 CAPNP_DECLARE_SCHEMA(b4d00b302a119de9);
 CAPNP_DECLARE_SCHEMA(bcd8dd8cea624cbb);
+CAPNP_DECLARE_SCHEMA(c9034ba2becc2a64);
+CAPNP_DECLARE_SCHEMA(d6acf080dcf2b4c8);
+CAPNP_DECLARE_SCHEMA(8ba6569cca01e84f);
+CAPNP_DECLARE_SCHEMA(815e89f778f1da6c);
+CAPNP_DECLARE_SCHEMA(a967c8b00a278896);
+CAPNP_DECLARE_SCHEMA(ddbd9a18593be0c5);
 CAPNP_DECLARE_SCHEMA(fd9959998f9f0ebe);
 CAPNP_DECLARE_SCHEMA(8bf81264d2f11274);
 CAPNP_DECLARE_SCHEMA(f468b1dc515f841c);
@@ -69,13 +78,66 @@ struct Cluster {
   class Reader;
   class Builder;
   class Pipeline;
+  struct Unregister;
   struct AdminMaster;
   struct UserMaster;
   struct Runtime;
+  struct ZmqPipelineAddresses;
+  template <typename T = ::capnp::AnyPointer>
+  struct ValueHolder;
   struct ModelInstanceFactory;
 
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(f7485d56d6f20e7d, 0, 0)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct Cluster::Unregister {
+  Unregister() = delete;
+
+#if !CAPNP_LITE
+  class Client;
+  class Server;
+#endif  // !CAPNP_LITE
+
+  struct UnregisterParams;
+  struct UnregisterResults;
+
+  #if !CAPNP_LITE
+  struct _capnpPrivate {
+    CAPNP_DECLARE_INTERFACE_HEADER(e8b1f7a192651bbe)
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+  };
+  #endif  // !CAPNP_LITE
+};
+
+struct Cluster::Unregister::UnregisterParams {
+  UnregisterParams() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(e1b78932a9f7aea3, 0, 0)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct Cluster::Unregister::UnregisterResults {
+  UnregisterResults() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(bba96ef3714f338f, 1, 0)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
@@ -385,6 +447,123 @@ struct Cluster::Runtime::ReserveNumberOfCoresResults {
     CAPNP_DECLARE_STRUCT_HEADER(bcd8dd8cea624cbb, 1, 0)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct Cluster::ZmqPipelineAddresses {
+  ZmqPipelineAddresses() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(c9034ba2becc2a64, 0, 2)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+template <typename T>
+struct Cluster::ValueHolder {
+  ValueHolder() = delete;
+
+#if !CAPNP_LITE
+  class Client;
+  class Server;
+#endif  // !CAPNP_LITE
+
+  struct ValueParams;
+  struct ValueResults;
+  struct ReleaseParams;
+  struct ReleaseResults;
+
+  #if !CAPNP_LITE
+  struct _capnpPrivate {
+    CAPNP_DECLARE_INTERFACE_HEADER(d6acf080dcf2b4c8)
+    static const ::capnp::_::RawBrandedSchema::Scope brandScopes[];
+    static const ::capnp::_::RawBrandedSchema::Binding brandBindings[];
+    static const ::capnp::_::RawBrandedSchema::Dependency brandDependencies[];
+    static const ::capnp::_::RawBrandedSchema specificBrand;
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return ::capnp::_::ChooseBrand<_capnpPrivate, T>::brand(); }
+  };
+  #endif  // !CAPNP_LITE
+};
+
+template <typename T>
+struct Cluster::ValueHolder<T>::ValueParams {
+  ValueParams() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(8ba6569cca01e84f, 0, 0)
+    #if !CAPNP_LITE
+    static const ::capnp::_::RawBrandedSchema::Scope brandScopes[];
+    static const ::capnp::_::RawBrandedSchema::Binding brandBindings[];
+    static const ::capnp::_::RawBrandedSchema specificBrand;
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return ::capnp::_::ChooseBrand<_capnpPrivate, T>::brand(); }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+template <typename T>
+struct Cluster::ValueHolder<T>::ValueResults {
+  ValueResults() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(815e89f778f1da6c, 0, 1)
+    #if !CAPNP_LITE
+    static const ::capnp::_::RawBrandedSchema::Scope brandScopes[];
+    static const ::capnp::_::RawBrandedSchema::Binding brandBindings[];
+    static const ::capnp::_::RawBrandedSchema specificBrand;
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return ::capnp::_::ChooseBrand<_capnpPrivate, T>::brand(); }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+template <typename T>
+struct Cluster::ValueHolder<T>::ReleaseParams {
+  ReleaseParams() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(a967c8b00a278896, 0, 0)
+    #if !CAPNP_LITE
+    static const ::capnp::_::RawBrandedSchema::Scope brandScopes[];
+    static const ::capnp::_::RawBrandedSchema::Binding brandBindings[];
+    static const ::capnp::_::RawBrandedSchema specificBrand;
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return ::capnp::_::ChooseBrand<_capnpPrivate, T>::brand(); }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+template <typename T>
+struct Cluster::ValueHolder<T>::ReleaseResults {
+  ReleaseResults() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(ddbd9a18593be0c5, 0, 0)
+    #if !CAPNP_LITE
+    static const ::capnp::_::RawBrandedSchema::Scope brandScopes[];
+    static const ::capnp::_::RawBrandedSchema::Binding brandBindings[];
+    static const ::capnp::_::RawBrandedSchema specificBrand;
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return ::capnp::_::ChooseBrand<_capnpPrivate, T>::brand(); }
     #endif  // !CAPNP_LITE
   };
 };
@@ -704,6 +883,206 @@ private:
 #endif  // !CAPNP_LITE
 
 #if !CAPNP_LITE
+class Cluster::Unregister::Client
+    : public virtual ::capnp::Capability::Client {
+public:
+  typedef Unregister Calls;
+  typedef Unregister Reads;
+
+  Client(decltype(nullptr));
+  explicit Client(::kj::Own< ::capnp::ClientHook>&& hook);
+  template <typename _t, typename = ::kj::EnableIf< ::kj::canConvert<_t*, Server*>()>>
+  Client(::kj::Own<_t>&& server);
+  template <typename _t, typename = ::kj::EnableIf< ::kj::canConvert<_t*, Client*>()>>
+  Client(::kj::Promise<_t>&& promise);
+  Client(::kj::Exception&& exception);
+  Client(Client&) = default;
+  Client(Client&&) = default;
+  Client& operator=(Client& other);
+  Client& operator=(Client&& other);
+
+  ::capnp::Request< ::mas::schema::cluster::Cluster::Unregister::UnregisterParams,  ::mas::schema::cluster::Cluster::Unregister::UnregisterResults> unregisterRequest(
+      ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
+
+protected:
+  Client() = default;
+};
+
+class Cluster::Unregister::Server
+    : public virtual ::capnp::Capability::Server {
+public:
+  typedef Unregister Serves;
+
+  ::capnp::Capability::Server::DispatchCallResult dispatchCall(
+      uint64_t interfaceId, uint16_t methodId,
+      ::capnp::CallContext< ::capnp::AnyPointer, ::capnp::AnyPointer> context)
+      override;
+
+protected:
+  typedef  ::mas::schema::cluster::Cluster::Unregister::UnregisterParams UnregisterParams;
+  typedef  ::mas::schema::cluster::Cluster::Unregister::UnregisterResults UnregisterResults;
+  typedef ::capnp::CallContext<UnregisterParams, UnregisterResults> UnregisterContext;
+  virtual ::kj::Promise<void> unregister(UnregisterContext context);
+
+  inline  ::mas::schema::cluster::Cluster::Unregister::Client thisCap() {
+    return ::capnp::Capability::Server::thisCap()
+        .template castAs< ::mas::schema::cluster::Cluster::Unregister>();
+  }
+
+  ::capnp::Capability::Server::DispatchCallResult dispatchCallInternal(
+      uint16_t methodId,
+      ::capnp::CallContext< ::capnp::AnyPointer, ::capnp::AnyPointer> context);
+};
+#endif  // !CAPNP_LITE
+
+class Cluster::Unregister::UnregisterParams::Reader {
+public:
+  typedef UnregisterParams Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class Cluster::Unregister::UnregisterParams::Builder {
+public:
+  typedef UnregisterParams Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class Cluster::Unregister::UnregisterParams::Pipeline {
+public:
+  typedef UnregisterParams Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+class Cluster::Unregister::UnregisterResults::Reader {
+public:
+  typedef UnregisterResults Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  inline bool getSuccess() const;
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class Cluster::Unregister::UnregisterResults::Builder {
+public:
+  typedef UnregisterResults Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline bool getSuccess();
+  inline void setSuccess(bool value);
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class Cluster::Unregister::UnregisterResults::Pipeline {
+public:
+  typedef UnregisterResults Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+#if !CAPNP_LITE
 class Cluster::AdminMaster::Client
     : public virtual ::capnp::Capability::Client,
       public virtual  ::mas::schema::common::Identifiable::Client {
@@ -879,7 +1258,7 @@ public:
 
   inline bool hasUnregister() const;
 #if !CAPNP_LITE
-  inline  ::mas::schema::common::Callback::Client getUnregister() const;
+  inline  ::mas::schema::cluster::Cluster::Unregister::Client getUnregister() const;
 #endif  // !CAPNP_LITE
 
 private:
@@ -912,11 +1291,11 @@ public:
 
   inline bool hasUnregister();
 #if !CAPNP_LITE
-  inline  ::mas::schema::common::Callback::Client getUnregister();
-  inline void setUnregister( ::mas::schema::common::Callback::Client&& value);
-  inline void setUnregister( ::mas::schema::common::Callback::Client& value);
-  inline void adoptUnregister(::capnp::Orphan< ::mas::schema::common::Callback>&& value);
-  inline ::capnp::Orphan< ::mas::schema::common::Callback> disownUnregister();
+  inline  ::mas::schema::cluster::Cluster::Unregister::Client getUnregister();
+  inline void setUnregister( ::mas::schema::cluster::Cluster::Unregister::Client&& value);
+  inline void setUnregister( ::mas::schema::cluster::Cluster::Unregister::Client& value);
+  inline void adoptUnregister(::capnp::Orphan< ::mas::schema::cluster::Cluster::Unregister>&& value);
+  inline ::capnp::Orphan< ::mas::schema::cluster::Cluster::Unregister> disownUnregister();
 #endif  // !CAPNP_LITE
 
 private:
@@ -937,7 +1316,7 @@ public:
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
       : _typeless(kj::mv(typeless)) {}
 
-  inline  ::mas::schema::common::Callback::Client getUnregister();
+  inline  ::mas::schema::cluster::Cluster::Unregister::Client getUnregister();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -1507,7 +1886,7 @@ public:
 
   inline bool hasUnregister() const;
 #if !CAPNP_LITE
-  inline  ::mas::schema::common::Callback::Client getUnregister() const;
+  inline  ::mas::schema::cluster::Cluster::Unregister::Client getUnregister() const;
 #endif  // !CAPNP_LITE
 
 private:
@@ -1540,11 +1919,11 @@ public:
 
   inline bool hasUnregister();
 #if !CAPNP_LITE
-  inline  ::mas::schema::common::Callback::Client getUnregister();
-  inline void setUnregister( ::mas::schema::common::Callback::Client&& value);
-  inline void setUnregister( ::mas::schema::common::Callback::Client& value);
-  inline void adoptUnregister(::capnp::Orphan< ::mas::schema::common::Callback>&& value);
-  inline ::capnp::Orphan< ::mas::schema::common::Callback> disownUnregister();
+  inline  ::mas::schema::cluster::Cluster::Unregister::Client getUnregister();
+  inline void setUnregister( ::mas::schema::cluster::Cluster::Unregister::Client&& value);
+  inline void setUnregister( ::mas::schema::cluster::Cluster::Unregister::Client& value);
+  inline void adoptUnregister(::capnp::Orphan< ::mas::schema::cluster::Cluster::Unregister>&& value);
+  inline ::capnp::Orphan< ::mas::schema::cluster::Cluster::Unregister> disownUnregister();
 #endif  // !CAPNP_LITE
 
 private:
@@ -1565,7 +1944,7 @@ public:
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
       : _typeless(kj::mv(typeless)) {}
 
-  inline  ::mas::schema::common::Callback::Client getUnregister();
+  inline  ::mas::schema::cluster::Cluster::Unregister::Client getUnregister();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -2186,6 +2565,511 @@ private:
 };
 #endif  // !CAPNP_LITE
 
+class Cluster::ZmqPipelineAddresses::Reader {
+public:
+  typedef ZmqPipelineAddresses Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  inline bool hasInput() const;
+  inline  ::capnp::Text::Reader getInput() const;
+
+  inline bool hasOutput() const;
+  inline  ::capnp::Text::Reader getOutput() const;
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class Cluster::ZmqPipelineAddresses::Builder {
+public:
+  typedef ZmqPipelineAddresses Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline bool hasInput();
+  inline  ::capnp::Text::Builder getInput();
+  inline void setInput( ::capnp::Text::Reader value);
+  inline  ::capnp::Text::Builder initInput(unsigned int size);
+  inline void adoptInput(::capnp::Orphan< ::capnp::Text>&& value);
+  inline ::capnp::Orphan< ::capnp::Text> disownInput();
+
+  inline bool hasOutput();
+  inline  ::capnp::Text::Builder getOutput();
+  inline void setOutput( ::capnp::Text::Reader value);
+  inline  ::capnp::Text::Builder initOutput(unsigned int size);
+  inline void adoptOutput(::capnp::Orphan< ::capnp::Text>&& value);
+  inline ::capnp::Orphan< ::capnp::Text> disownOutput();
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class Cluster::ZmqPipelineAddresses::Pipeline {
+public:
+  typedef ZmqPipelineAddresses Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+#if !CAPNP_LITE
+template <typename T>
+class Cluster::ValueHolder<T>::Client
+    : public virtual ::capnp::Capability::Client {
+public:
+  typedef ValueHolder Calls;
+  typedef ValueHolder Reads;
+
+  Client(decltype(nullptr));
+  explicit Client(::kj::Own< ::capnp::ClientHook>&& hook);
+  template <typename _t, typename = ::kj::EnableIf< ::kj::canConvert<_t*, Server*>()>>
+  Client(::kj::Own<_t>&& server);
+  template <typename _t, typename = ::kj::EnableIf< ::kj::canConvert<_t*, Client*>()>>
+  Client(::kj::Promise<_t>&& promise);
+  Client(::kj::Exception&& exception);
+  Client(Client&) = default;
+  Client(Client&&) = default;
+  Client& operator=(Client& other);
+  Client& operator=(Client&& other);
+
+  template <typename T2 = ::capnp::AnyPointer>
+  typename ValueHolder<T2>::Client asGeneric() {
+    return castAs<ValueHolder<T2>>();
+  }
+
+  CAPNP_AUTO_IF_MSVC(::capnp::Request<typename  ::mas::schema::cluster::Cluster::ValueHolder<T>::ValueParams, typename  ::mas::schema::cluster::Cluster::ValueHolder<T>::ValueResults>) valueRequest(
+      ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
+  CAPNP_AUTO_IF_MSVC(::capnp::Request<typename  ::mas::schema::cluster::Cluster::ValueHolder<T>::ReleaseParams, typename  ::mas::schema::cluster::Cluster::ValueHolder<T>::ReleaseResults>) releaseRequest(
+      ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
+
+protected:
+  Client() = default;
+};
+
+template <typename T>
+class Cluster::ValueHolder<T>::Server
+    : public virtual ::capnp::Capability::Server {
+public:
+  typedef ValueHolder Serves;
+
+  ::capnp::Capability::Server::DispatchCallResult dispatchCall(
+      uint64_t interfaceId, uint16_t methodId,
+      ::capnp::CallContext< ::capnp::AnyPointer, ::capnp::AnyPointer> context)
+      override;
+
+protected:
+  typedef typename  ::mas::schema::cluster::Cluster::ValueHolder<T>::ValueParams ValueParams;
+  typedef typename  ::mas::schema::cluster::Cluster::ValueHolder<T>::ValueResults ValueResults;
+  typedef ::capnp::CallContext<ValueParams, ValueResults> ValueContext;
+  virtual ::kj::Promise<void> value(ValueContext context);
+  typedef typename  ::mas::schema::cluster::Cluster::ValueHolder<T>::ReleaseParams ReleaseParams;
+  typedef typename  ::mas::schema::cluster::Cluster::ValueHolder<T>::ReleaseResults ReleaseResults;
+  typedef ::capnp::CallContext<ReleaseParams, ReleaseResults> ReleaseContext;
+  virtual ::kj::Promise<void> release(ReleaseContext context);
+
+  inline typename  ::mas::schema::cluster::Cluster::ValueHolder<T>::Client thisCap() {
+    return ::capnp::Capability::Server::thisCap()
+        .template castAs< ::mas::schema::cluster::Cluster::ValueHolder<T>>();
+  }
+
+  ::capnp::Capability::Server::DispatchCallResult dispatchCallInternal(
+      uint16_t methodId,
+      ::capnp::CallContext< ::capnp::AnyPointer, ::capnp::AnyPointer> context);
+};
+#endif  // !CAPNP_LITE
+
+template <typename T>
+class Cluster::ValueHolder<T>::ValueParams::Reader {
+public:
+  typedef ValueParams Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  template <typename T2 = ::capnp::AnyPointer>
+  typename ValueHolder<T2>::ValueParams::Reader asValueHolderGeneric() {
+    return typename ValueHolder<T2>::ValueParams::Reader(_reader);
+  }
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+template <typename T>
+class Cluster::ValueHolder<T>::ValueParams::Builder {
+public:
+  typedef ValueParams Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  template <typename T2 = ::capnp::AnyPointer>
+  typename ValueHolder<T2>::ValueParams::Builder asValueHolderGeneric() {
+    return typename ValueHolder<T2>::ValueParams::Builder(_builder);
+  }
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+template <typename T>
+class Cluster::ValueHolder<T>::ValueParams::Pipeline {
+public:
+  typedef ValueParams Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+template <typename T>
+class Cluster::ValueHolder<T>::ValueResults::Reader {
+public:
+  typedef ValueResults Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  template <typename T2 = ::capnp::AnyPointer>
+  typename ValueHolder<T2>::ValueResults::Reader asValueHolderGeneric() {
+    return typename ValueHolder<T2>::ValueResults::Reader(_reader);
+  }
+
+  inline bool hasVal() const;
+  inline  ::capnp::ReaderFor<T> getVal() const;
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+template <typename T>
+class Cluster::ValueHolder<T>::ValueResults::Builder {
+public:
+  typedef ValueResults Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  template <typename T2 = ::capnp::AnyPointer>
+  typename ValueHolder<T2>::ValueResults::Builder asValueHolderGeneric() {
+    return typename ValueHolder<T2>::ValueResults::Builder(_builder);
+  }
+
+  inline bool hasVal();
+  inline  ::capnp::BuilderFor<T> getVal();
+  inline void setVal( ::capnp::ReaderFor<T> value);
+  inline  ::capnp::BuilderFor<T> initVal();
+  inline  ::capnp::BuilderFor<T> initVal(unsigned int size);
+  inline void adoptVal(::capnp::Orphan<T>&& value);
+  inline ::capnp::Orphan<T> disownVal();
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+template <typename T>
+class Cluster::ValueHolder<T>::ValueResults::Pipeline {
+public:
+  typedef ValueResults Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+  inline  ::capnp::PipelineFor<T> getVal();
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+template <typename T>
+class Cluster::ValueHolder<T>::ReleaseParams::Reader {
+public:
+  typedef ReleaseParams Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  template <typename T2 = ::capnp::AnyPointer>
+  typename ValueHolder<T2>::ReleaseParams::Reader asValueHolderGeneric() {
+    return typename ValueHolder<T2>::ReleaseParams::Reader(_reader);
+  }
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+template <typename T>
+class Cluster::ValueHolder<T>::ReleaseParams::Builder {
+public:
+  typedef ReleaseParams Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  template <typename T2 = ::capnp::AnyPointer>
+  typename ValueHolder<T2>::ReleaseParams::Builder asValueHolderGeneric() {
+    return typename ValueHolder<T2>::ReleaseParams::Builder(_builder);
+  }
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+template <typename T>
+class Cluster::ValueHolder<T>::ReleaseParams::Pipeline {
+public:
+  typedef ReleaseParams Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+template <typename T>
+class Cluster::ValueHolder<T>::ReleaseResults::Reader {
+public:
+  typedef ReleaseResults Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  template <typename T2 = ::capnp::AnyPointer>
+  typename ValueHolder<T2>::ReleaseResults::Reader asValueHolderGeneric() {
+    return typename ValueHolder<T2>::ReleaseResults::Reader(_reader);
+  }
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+template <typename T>
+class Cluster::ValueHolder<T>::ReleaseResults::Builder {
+public:
+  typedef ReleaseResults Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  template <typename T2 = ::capnp::AnyPointer>
+  typename ValueHolder<T2>::ReleaseResults::Builder asValueHolderGeneric() {
+    return typename ValueHolder<T2>::ReleaseResults::Builder(_builder);
+  }
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+template <typename T>
+class Cluster::ValueHolder<T>::ReleaseResults::Pipeline {
+public:
+  typedef ReleaseResults Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
 #if !CAPNP_LITE
 class Cluster::ModelInstanceFactory::Client
     : public virtual ::capnp::Capability::Client,
@@ -2367,7 +3251,7 @@ public:
 
   inline bool hasInstance() const;
 #if !CAPNP_LITE
-  inline  ::mas::schema::common::CapHolder< ::capnp::AnyPointer>::Client getInstance() const;
+  inline  ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>::Client getInstance() const;
 #endif  // !CAPNP_LITE
 
 private:
@@ -2400,11 +3284,11 @@ public:
 
   inline bool hasInstance();
 #if !CAPNP_LITE
-  inline  ::mas::schema::common::CapHolder< ::capnp::AnyPointer>::Client getInstance();
-  inline void setInstance( ::mas::schema::common::CapHolder< ::capnp::AnyPointer>::Client&& value);
-  inline void setInstance( ::mas::schema::common::CapHolder< ::capnp::AnyPointer>::Client& value);
-  inline void adoptInstance(::capnp::Orphan< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>&& value);
-  inline ::capnp::Orphan< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>> disownInstance();
+  inline  ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>::Client getInstance();
+  inline void setInstance( ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>::Client&& value);
+  inline void setInstance( ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>::Client& value);
+  inline void adoptInstance(::capnp::Orphan< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>>&& value);
+  inline ::capnp::Orphan< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>> disownInstance();
 #endif  // !CAPNP_LITE
 
 private:
@@ -2425,7 +3309,7 @@ public:
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
       : _typeless(kj::mv(typeless)) {}
 
-  inline  ::mas::schema::common::CapHolder< ::capnp::AnyPointer>::Client getInstance();
+  inline  ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>::Client getInstance();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -2529,7 +3413,7 @@ public:
 
   inline bool hasInstances() const;
 #if !CAPNP_LITE
-  inline  ::mas::schema::common::CapHolder< ::capnp::List< ::mas::schema::common::ListEntry< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>,  ::capnp::Kind::STRUCT>>::Client getInstances() const;
+  inline  ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::List< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>,  ::capnp::Kind::INTERFACE>>::Client getInstances() const;
 #endif  // !CAPNP_LITE
 
 private:
@@ -2562,11 +3446,11 @@ public:
 
   inline bool hasInstances();
 #if !CAPNP_LITE
-  inline  ::mas::schema::common::CapHolder< ::capnp::List< ::mas::schema::common::ListEntry< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>,  ::capnp::Kind::STRUCT>>::Client getInstances();
-  inline void setInstances( ::mas::schema::common::CapHolder< ::capnp::List< ::mas::schema::common::ListEntry< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>,  ::capnp::Kind::STRUCT>>::Client&& value);
-  inline void setInstances( ::mas::schema::common::CapHolder< ::capnp::List< ::mas::schema::common::ListEntry< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>,  ::capnp::Kind::STRUCT>>::Client& value);
-  inline void adoptInstances(::capnp::Orphan< ::mas::schema::common::CapHolder< ::capnp::List< ::mas::schema::common::ListEntry< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>,  ::capnp::Kind::STRUCT>>>&& value);
-  inline ::capnp::Orphan< ::mas::schema::common::CapHolder< ::capnp::List< ::mas::schema::common::ListEntry< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>,  ::capnp::Kind::STRUCT>>> disownInstances();
+  inline  ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::List< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>,  ::capnp::Kind::INTERFACE>>::Client getInstances();
+  inline void setInstances( ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::List< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>,  ::capnp::Kind::INTERFACE>>::Client&& value);
+  inline void setInstances( ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::List< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>,  ::capnp::Kind::INTERFACE>>::Client& value);
+  inline void adoptInstances(::capnp::Orphan< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::List< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>,  ::capnp::Kind::INTERFACE>>>&& value);
+  inline ::capnp::Orphan< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::List< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>,  ::capnp::Kind::INTERFACE>>> disownInstances();
 #endif  // !CAPNP_LITE
 
 private:
@@ -2587,7 +3471,7 @@ public:
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
       : _typeless(kj::mv(typeless)) {}
 
-  inline  ::mas::schema::common::CapHolder< ::capnp::List< ::mas::schema::common::ListEntry< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>,  ::capnp::Kind::STRUCT>>::Client getInstances();
+  inline  ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::List< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>,  ::capnp::Kind::INTERFACE>>::Client getInstances();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -2691,7 +3575,7 @@ public:
 
   inline bool hasProxyAddresses() const;
 #if !CAPNP_LITE
-  inline  ::mas::schema::common::CapHolder< ::mas::schema::common::ZmqPipelineAddresses>::Client getProxyAddresses() const;
+  inline  ::mas::schema::cluster::Cluster::ValueHolder< ::mas::schema::cluster::Cluster::ZmqPipelineAddresses>::Client getProxyAddresses() const;
 #endif  // !CAPNP_LITE
 
 private:
@@ -2724,11 +3608,11 @@ public:
 
   inline bool hasProxyAddresses();
 #if !CAPNP_LITE
-  inline  ::mas::schema::common::CapHolder< ::mas::schema::common::ZmqPipelineAddresses>::Client getProxyAddresses();
-  inline void setProxyAddresses( ::mas::schema::common::CapHolder< ::mas::schema::common::ZmqPipelineAddresses>::Client&& value);
-  inline void setProxyAddresses( ::mas::schema::common::CapHolder< ::mas::schema::common::ZmqPipelineAddresses>::Client& value);
-  inline void adoptProxyAddresses(::capnp::Orphan< ::mas::schema::common::CapHolder< ::mas::schema::common::ZmqPipelineAddresses>>&& value);
-  inline ::capnp::Orphan< ::mas::schema::common::CapHolder< ::mas::schema::common::ZmqPipelineAddresses>> disownProxyAddresses();
+  inline  ::mas::schema::cluster::Cluster::ValueHolder< ::mas::schema::cluster::Cluster::ZmqPipelineAddresses>::Client getProxyAddresses();
+  inline void setProxyAddresses( ::mas::schema::cluster::Cluster::ValueHolder< ::mas::schema::cluster::Cluster::ZmqPipelineAddresses>::Client&& value);
+  inline void setProxyAddresses( ::mas::schema::cluster::Cluster::ValueHolder< ::mas::schema::cluster::Cluster::ZmqPipelineAddresses>::Client& value);
+  inline void adoptProxyAddresses(::capnp::Orphan< ::mas::schema::cluster::Cluster::ValueHolder< ::mas::schema::cluster::Cluster::ZmqPipelineAddresses>>&& value);
+  inline ::capnp::Orphan< ::mas::schema::cluster::Cluster::ValueHolder< ::mas::schema::cluster::Cluster::ZmqPipelineAddresses>> disownProxyAddresses();
 #endif  // !CAPNP_LITE
 
 private:
@@ -2749,7 +3633,7 @@ public:
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
       : _typeless(kj::mv(typeless)) {}
 
-  inline  ::mas::schema::common::CapHolder< ::mas::schema::common::ZmqPipelineAddresses>::Client getProxyAddresses();
+  inline  ::mas::schema::cluster::Cluster::ValueHolder< ::mas::schema::cluster::Cluster::ZmqPipelineAddresses>::Client getProxyAddresses();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -2853,7 +3737,7 @@ public:
 
   inline bool hasProxy() const;
 #if !CAPNP_LITE
-  inline  ::mas::schema::common::CapHolder< ::capnp::AnyPointer>::Client getProxy() const;
+  inline  ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>::Client getProxy() const;
 #endif  // !CAPNP_LITE
 
 private:
@@ -2886,11 +3770,11 @@ public:
 
   inline bool hasProxy();
 #if !CAPNP_LITE
-  inline  ::mas::schema::common::CapHolder< ::capnp::AnyPointer>::Client getProxy();
-  inline void setProxy( ::mas::schema::common::CapHolder< ::capnp::AnyPointer>::Client&& value);
-  inline void setProxy( ::mas::schema::common::CapHolder< ::capnp::AnyPointer>::Client& value);
-  inline void adoptProxy(::capnp::Orphan< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>&& value);
-  inline ::capnp::Orphan< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>> disownProxy();
+  inline  ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>::Client getProxy();
+  inline void setProxy( ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>::Client&& value);
+  inline void setProxy( ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>::Client& value);
+  inline void adoptProxy(::capnp::Orphan< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>>&& value);
+  inline ::capnp::Orphan< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>> disownProxy();
 #endif  // !CAPNP_LITE
 
 private:
@@ -2911,7 +3795,7 @@ public:
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
       : _typeless(kj::mv(typeless)) {}
 
-  inline  ::mas::schema::common::CapHolder< ::capnp::AnyPointer>::Client getProxy();
+  inline  ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>::Client getProxy();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -3187,7 +4071,7 @@ public:
 
   inline bool hasUnregister() const;
 #if !CAPNP_LITE
-  inline  ::mas::schema::common::Callback::Client getUnregister() const;
+  inline  ::mas::schema::cluster::Cluster::Unregister::Client getUnregister() const;
 #endif  // !CAPNP_LITE
 
 private:
@@ -3220,11 +4104,11 @@ public:
 
   inline bool hasUnregister();
 #if !CAPNP_LITE
-  inline  ::mas::schema::common::Callback::Client getUnregister();
-  inline void setUnregister( ::mas::schema::common::Callback::Client&& value);
-  inline void setUnregister( ::mas::schema::common::Callback::Client& value);
-  inline void adoptUnregister(::capnp::Orphan< ::mas::schema::common::Callback>&& value);
-  inline ::capnp::Orphan< ::mas::schema::common::Callback> disownUnregister();
+  inline  ::mas::schema::cluster::Cluster::Unregister::Client getUnregister();
+  inline void setUnregister( ::mas::schema::cluster::Cluster::Unregister::Client&& value);
+  inline void setUnregister( ::mas::schema::cluster::Cluster::Unregister::Client& value);
+  inline void adoptUnregister(::capnp::Orphan< ::mas::schema::cluster::Cluster::Unregister>&& value);
+  inline ::capnp::Orphan< ::mas::schema::cluster::Cluster::Unregister> disownUnregister();
 #endif  // !CAPNP_LITE
 
 private:
@@ -3245,7 +4129,7 @@ public:
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
       : _typeless(kj::mv(typeless)) {}
 
-  inline  ::mas::schema::common::Callback::Client getUnregister();
+  inline  ::mas::schema::cluster::Cluster::Unregister::Client getUnregister();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -3354,7 +4238,7 @@ public:
 
   inline bool hasCap() const;
 #if !CAPNP_LITE
-  inline  ::mas::schema::common::CapHolder< ::capnp::AnyPointer>::Client getCap() const;
+  inline  ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>::Client getCap() const;
 #endif  // !CAPNP_LITE
 
 private:
@@ -3387,11 +4271,11 @@ public:
 
   inline bool hasCap();
 #if !CAPNP_LITE
-  inline  ::mas::schema::common::CapHolder< ::capnp::AnyPointer>::Client getCap();
-  inline void setCap( ::mas::schema::common::CapHolder< ::capnp::AnyPointer>::Client&& value);
-  inline void setCap( ::mas::schema::common::CapHolder< ::capnp::AnyPointer>::Client& value);
-  inline void adoptCap(::capnp::Orphan< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>&& value);
-  inline ::capnp::Orphan< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>> disownCap();
+  inline  ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>::Client getCap();
+  inline void setCap( ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>::Client&& value);
+  inline void setCap( ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>::Client& value);
+  inline void adoptCap(::capnp::Orphan< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>>&& value);
+  inline ::capnp::Orphan< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>> disownCap();
 #endif  // !CAPNP_LITE
 
 private:
@@ -3412,7 +4296,7 @@ public:
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
       : _typeless(kj::mv(typeless)) {}
 
-  inline  ::mas::schema::common::CapHolder< ::capnp::AnyPointer>::Client getCap();
+  inline  ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>::Client getCap();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -3422,6 +4306,44 @@ private:
 #endif  // !CAPNP_LITE
 
 // =======================================================================================
+
+#if !CAPNP_LITE
+inline Cluster::Unregister::Client::Client(decltype(nullptr))
+    : ::capnp::Capability::Client(nullptr) {}
+inline Cluster::Unregister::Client::Client(
+    ::kj::Own< ::capnp::ClientHook>&& hook)
+    : ::capnp::Capability::Client(::kj::mv(hook)) {}
+template <typename _t, typename>
+inline Cluster::Unregister::Client::Client(::kj::Own<_t>&& server)
+    : ::capnp::Capability::Client(::kj::mv(server)) {}
+template <typename _t, typename>
+inline Cluster::Unregister::Client::Client(::kj::Promise<_t>&& promise)
+    : ::capnp::Capability::Client(::kj::mv(promise)) {}
+inline Cluster::Unregister::Client::Client(::kj::Exception&& exception)
+    : ::capnp::Capability::Client(::kj::mv(exception)) {}
+inline  ::mas::schema::cluster::Cluster::Unregister::Client& Cluster::Unregister::Client::operator=(Client& other) {
+  ::capnp::Capability::Client::operator=(other);
+  return *this;
+}
+inline  ::mas::schema::cluster::Cluster::Unregister::Client& Cluster::Unregister::Client::operator=(Client&& other) {
+  ::capnp::Capability::Client::operator=(kj::mv(other));
+  return *this;
+}
+
+#endif  // !CAPNP_LITE
+inline bool Cluster::Unregister::UnregisterResults::Reader::getSuccess() const {
+  return _reader.getDataField<bool>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+
+inline bool Cluster::Unregister::UnregisterResults::Builder::getSuccess() {
+  return _builder.getDataField<bool>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+inline void Cluster::Unregister::UnregisterResults::Builder::setSuccess(bool value) {
+  _builder.setDataField<bool>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, value);
+}
 
 #if !CAPNP_LITE
 inline Cluster::AdminMaster::Client::Client(decltype(nullptr))
@@ -3529,32 +4451,32 @@ inline bool Cluster::AdminMaster::RegisterModelInstanceFactoryResults::Builder::
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
 #if !CAPNP_LITE
-inline  ::mas::schema::common::Callback::Client Cluster::AdminMaster::RegisterModelInstanceFactoryResults::Reader::getUnregister() const {
-  return ::capnp::_::PointerHelpers< ::mas::schema::common::Callback>::get(_reader.getPointerField(
+inline  ::mas::schema::cluster::Cluster::Unregister::Client Cluster::AdminMaster::RegisterModelInstanceFactoryResults::Reader::getUnregister() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::Unregister>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::common::Callback::Client Cluster::AdminMaster::RegisterModelInstanceFactoryResults::Builder::getUnregister() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::common::Callback>::get(_builder.getPointerField(
+inline  ::mas::schema::cluster::Cluster::Unregister::Client Cluster::AdminMaster::RegisterModelInstanceFactoryResults::Builder::getUnregister() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::Unregister>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::common::Callback::Client Cluster::AdminMaster::RegisterModelInstanceFactoryResults::Pipeline::getUnregister() {
-  return  ::mas::schema::common::Callback::Client(_typeless.getPointerField(0).asCap());
+inline  ::mas::schema::cluster::Cluster::Unregister::Client Cluster::AdminMaster::RegisterModelInstanceFactoryResults::Pipeline::getUnregister() {
+  return  ::mas::schema::cluster::Cluster::Unregister::Client(_typeless.getPointerField(0).asCap());
 }
-inline void Cluster::AdminMaster::RegisterModelInstanceFactoryResults::Builder::setUnregister( ::mas::schema::common::Callback::Client&& cap) {
-  ::capnp::_::PointerHelpers< ::mas::schema::common::Callback>::set(_builder.getPointerField(
+inline void Cluster::AdminMaster::RegisterModelInstanceFactoryResults::Builder::setUnregister( ::mas::schema::cluster::Cluster::Unregister::Client&& cap) {
+  ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::Unregister>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(cap));
 }
-inline void Cluster::AdminMaster::RegisterModelInstanceFactoryResults::Builder::setUnregister( ::mas::schema::common::Callback::Client& cap) {
-  ::capnp::_::PointerHelpers< ::mas::schema::common::Callback>::set(_builder.getPointerField(
+inline void Cluster::AdminMaster::RegisterModelInstanceFactoryResults::Builder::setUnregister( ::mas::schema::cluster::Cluster::Unregister::Client& cap) {
+  ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::Unregister>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), cap);
 }
 inline void Cluster::AdminMaster::RegisterModelInstanceFactoryResults::Builder::adoptUnregister(
-    ::capnp::Orphan< ::mas::schema::common::Callback>&& value) {
-  ::capnp::_::PointerHelpers< ::mas::schema::common::Callback>::adopt(_builder.getPointerField(
+    ::capnp::Orphan< ::mas::schema::cluster::Cluster::Unregister>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::Unregister>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::mas::schema::common::Callback> Cluster::AdminMaster::RegisterModelInstanceFactoryResults::Builder::disownUnregister() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::common::Callback>::disown(_builder.getPointerField(
+inline ::capnp::Orphan< ::mas::schema::cluster::Cluster::Unregister> Cluster::AdminMaster::RegisterModelInstanceFactoryResults::Builder::disownUnregister() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::Unregister>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 #endif  // !CAPNP_LITE
@@ -3761,32 +4683,32 @@ inline bool Cluster::Runtime::RegisterModelInstanceFactoryResults::Builder::hasU
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
 #if !CAPNP_LITE
-inline  ::mas::schema::common::Callback::Client Cluster::Runtime::RegisterModelInstanceFactoryResults::Reader::getUnregister() const {
-  return ::capnp::_::PointerHelpers< ::mas::schema::common::Callback>::get(_reader.getPointerField(
+inline  ::mas::schema::cluster::Cluster::Unregister::Client Cluster::Runtime::RegisterModelInstanceFactoryResults::Reader::getUnregister() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::Unregister>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::common::Callback::Client Cluster::Runtime::RegisterModelInstanceFactoryResults::Builder::getUnregister() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::common::Callback>::get(_builder.getPointerField(
+inline  ::mas::schema::cluster::Cluster::Unregister::Client Cluster::Runtime::RegisterModelInstanceFactoryResults::Builder::getUnregister() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::Unregister>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::common::Callback::Client Cluster::Runtime::RegisterModelInstanceFactoryResults::Pipeline::getUnregister() {
-  return  ::mas::schema::common::Callback::Client(_typeless.getPointerField(0).asCap());
+inline  ::mas::schema::cluster::Cluster::Unregister::Client Cluster::Runtime::RegisterModelInstanceFactoryResults::Pipeline::getUnregister() {
+  return  ::mas::schema::cluster::Cluster::Unregister::Client(_typeless.getPointerField(0).asCap());
 }
-inline void Cluster::Runtime::RegisterModelInstanceFactoryResults::Builder::setUnregister( ::mas::schema::common::Callback::Client&& cap) {
-  ::capnp::_::PointerHelpers< ::mas::schema::common::Callback>::set(_builder.getPointerField(
+inline void Cluster::Runtime::RegisterModelInstanceFactoryResults::Builder::setUnregister( ::mas::schema::cluster::Cluster::Unregister::Client&& cap) {
+  ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::Unregister>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(cap));
 }
-inline void Cluster::Runtime::RegisterModelInstanceFactoryResults::Builder::setUnregister( ::mas::schema::common::Callback::Client& cap) {
-  ::capnp::_::PointerHelpers< ::mas::schema::common::Callback>::set(_builder.getPointerField(
+inline void Cluster::Runtime::RegisterModelInstanceFactoryResults::Builder::setUnregister( ::mas::schema::cluster::Cluster::Unregister::Client& cap) {
+  ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::Unregister>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), cap);
 }
 inline void Cluster::Runtime::RegisterModelInstanceFactoryResults::Builder::adoptUnregister(
-    ::capnp::Orphan< ::mas::schema::common::Callback>&& value) {
-  ::capnp::_::PointerHelpers< ::mas::schema::common::Callback>::adopt(_builder.getPointerField(
+    ::capnp::Orphan< ::mas::schema::cluster::Cluster::Unregister>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::Unregister>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::mas::schema::common::Callback> Cluster::Runtime::RegisterModelInstanceFactoryResults::Builder::disownUnregister() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::common::Callback>::disown(_builder.getPointerField(
+inline ::capnp::Orphan< ::mas::schema::cluster::Cluster::Unregister> Cluster::Runtime::RegisterModelInstanceFactoryResults::Builder::disownUnregister() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::Unregister>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 #endif  // !CAPNP_LITE
@@ -3917,6 +4839,348 @@ inline void Cluster::Runtime::ReserveNumberOfCoresResults::Builder::setReservedC
       ::capnp::bounded<0>() * ::capnp::ELEMENTS, value);
 }
 
+inline bool Cluster::ZmqPipelineAddresses::Reader::hasInput() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline bool Cluster::ZmqPipelineAddresses::Builder::hasInput() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline  ::capnp::Text::Reader Cluster::ZmqPipelineAddresses::Reader::getInput() const {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline  ::capnp::Text::Builder Cluster::ZmqPipelineAddresses::Builder::getInput() {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline void Cluster::ZmqPipelineAddresses::Builder::setInput( ::capnp::Text::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::Text>::set(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), value);
+}
+inline  ::capnp::Text::Builder Cluster::ZmqPipelineAddresses::Builder::initInput(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::init(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), size);
+}
+inline void Cluster::ZmqPipelineAddresses::Builder::adoptInput(
+    ::capnp::Orphan< ::capnp::Text>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::Text>::adopt(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::capnp::Text> Cluster::ZmqPipelineAddresses::Builder::disownInput() {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::disown(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+
+inline bool Cluster::ZmqPipelineAddresses::Reader::hasOutput() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
+}
+inline bool Cluster::ZmqPipelineAddresses::Builder::hasOutput() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
+}
+inline  ::capnp::Text::Reader Cluster::ZmqPipelineAddresses::Reader::getOutput() const {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_reader.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+inline  ::capnp::Text::Builder Cluster::ZmqPipelineAddresses::Builder::getOutput() {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+inline void Cluster::ZmqPipelineAddresses::Builder::setOutput( ::capnp::Text::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::Text>::set(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS), value);
+}
+inline  ::capnp::Text::Builder Cluster::ZmqPipelineAddresses::Builder::initOutput(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::init(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS), size);
+}
+inline void Cluster::ZmqPipelineAddresses::Builder::adoptOutput(
+    ::capnp::Orphan< ::capnp::Text>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::Text>::adopt(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::capnp::Text> Cluster::ZmqPipelineAddresses::Builder::disownOutput() {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::disown(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+
+#if !CAPNP_LITE
+template <typename T>
+inline Cluster::ValueHolder<T>::Client::Client(decltype(nullptr))
+    : ::capnp::Capability::Client(nullptr) {}
+template <typename T>
+inline Cluster::ValueHolder<T>::Client::Client(
+    ::kj::Own< ::capnp::ClientHook>&& hook)
+    : ::capnp::Capability::Client(::kj::mv(hook)) {}
+template <typename T>
+template <typename _t, typename>
+inline Cluster::ValueHolder<T>::Client::Client(::kj::Own<_t>&& server)
+    : ::capnp::Capability::Client(::kj::mv(server)) {}
+template <typename T>
+template <typename _t, typename>
+inline Cluster::ValueHolder<T>::Client::Client(::kj::Promise<_t>&& promise)
+    : ::capnp::Capability::Client(::kj::mv(promise)) {}
+template <typename T>
+inline Cluster::ValueHolder<T>::Client::Client(::kj::Exception&& exception)
+    : ::capnp::Capability::Client(::kj::mv(exception)) {}
+template <typename T>
+inline typename  ::mas::schema::cluster::Cluster::ValueHolder<T>::Client& Cluster::ValueHolder<T>::Client::operator=(Client& other) {
+  ::capnp::Capability::Client::operator=(other);
+  return *this;
+}
+template <typename T>
+inline typename  ::mas::schema::cluster::Cluster::ValueHolder<T>::Client& Cluster::ValueHolder<T>::Client::operator=(Client&& other) {
+  ::capnp::Capability::Client::operator=(kj::mv(other));
+  return *this;
+}
+
+#endif  // !CAPNP_LITE
+// Cluster::ValueHolder<T>::ValueParams
+template <typename T>
+constexpr uint16_t Cluster::ValueHolder<T>::ValueParams::_capnpPrivate::dataWordSize;
+template <typename T>
+constexpr uint16_t Cluster::ValueHolder<T>::ValueParams::_capnpPrivate::pointerCount;
+#if !CAPNP_LITE
+template <typename T>
+constexpr ::capnp::Kind Cluster::ValueHolder<T>::ValueParams::_capnpPrivate::kind;
+template <typename T>
+constexpr ::capnp::_::RawSchema const* Cluster::ValueHolder<T>::ValueParams::_capnpPrivate::schema;
+template <typename T>
+const ::capnp::_::RawBrandedSchema::Scope Cluster::ValueHolder<T>::ValueParams::_capnpPrivate::brandScopes[] = {
+  { 0xd6acf080dcf2b4c8, brandBindings + 0, 1, false},
+};
+template <typename T>
+const ::capnp::_::RawBrandedSchema::Binding Cluster::ValueHolder<T>::ValueParams::_capnpPrivate::brandBindings[] = {
+  ::capnp::_::brandBindingFor<T>(),
+};
+template <typename T>
+const ::capnp::_::RawBrandedSchema Cluster::ValueHolder<T>::ValueParams::_capnpPrivate::specificBrand = {
+  &::capnp::schemas::s_8ba6569cca01e84f, brandScopes, nullptr,
+  1, 0, nullptr
+};
+#endif  // !CAPNP_LITE
+
+template <typename T>
+inline bool Cluster::ValueHolder<T>::ValueResults::Reader::hasVal() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+template <typename T>
+inline bool Cluster::ValueHolder<T>::ValueResults::Builder::hasVal() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+template <typename T>
+inline  ::capnp::ReaderFor<T> Cluster::ValueHolder<T>::ValueResults::Reader::getVal() const {
+  return ::capnp::_::PointerHelpers<T>::get(_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+template <typename T>
+inline  ::capnp::BuilderFor<T> Cluster::ValueHolder<T>::ValueResults::Builder::getVal() {
+  return ::capnp::_::PointerHelpers<T>::get(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+#if !CAPNP_LITE
+template <typename T>
+inline  ::capnp::PipelineFor<T> Cluster::ValueHolder<T>::ValueResults::Pipeline::getVal() {
+  return  ::capnp::PipelineFor<T>(_typeless.getPointerField(0));
+}
+#endif  // !CAPNP_LITE
+template <typename T>
+inline void Cluster::ValueHolder<T>::ValueResults::Builder::setVal( ::capnp::ReaderFor<T> value) {
+  ::capnp::_::PointerHelpers<T>::set(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), value);
+}
+template <typename T>
+inline  ::capnp::BuilderFor<T> Cluster::ValueHolder<T>::ValueResults::Builder::initVal() {
+  return ::capnp::_::PointerHelpers<T>::init(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+template <typename T>
+inline  ::capnp::BuilderFor<T> Cluster::ValueHolder<T>::ValueResults::Builder::initVal(unsigned int size) {
+  return ::capnp::_::PointerHelpers<T>::init(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), size);
+}
+template <typename T>
+inline void Cluster::ValueHolder<T>::ValueResults::Builder::adoptVal(
+    ::capnp::Orphan<T>&& value) {
+  ::capnp::_::PointerHelpers<T>::adopt(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
+}
+template <typename T>
+inline ::capnp::Orphan<T> Cluster::ValueHolder<T>::ValueResults::Builder::disownVal() {
+  return ::capnp::_::PointerHelpers<T>::disown(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+
+// Cluster::ValueHolder<T>::ValueResults
+template <typename T>
+constexpr uint16_t Cluster::ValueHolder<T>::ValueResults::_capnpPrivate::dataWordSize;
+template <typename T>
+constexpr uint16_t Cluster::ValueHolder<T>::ValueResults::_capnpPrivate::pointerCount;
+#if !CAPNP_LITE
+template <typename T>
+constexpr ::capnp::Kind Cluster::ValueHolder<T>::ValueResults::_capnpPrivate::kind;
+template <typename T>
+constexpr ::capnp::_::RawSchema const* Cluster::ValueHolder<T>::ValueResults::_capnpPrivate::schema;
+template <typename T>
+const ::capnp::_::RawBrandedSchema::Scope Cluster::ValueHolder<T>::ValueResults::_capnpPrivate::brandScopes[] = {
+  { 0xd6acf080dcf2b4c8, brandBindings + 0, 1, false},
+};
+template <typename T>
+const ::capnp::_::RawBrandedSchema::Binding Cluster::ValueHolder<T>::ValueResults::_capnpPrivate::brandBindings[] = {
+  ::capnp::_::brandBindingFor<T>(),
+};
+template <typename T>
+const ::capnp::_::RawBrandedSchema Cluster::ValueHolder<T>::ValueResults::_capnpPrivate::specificBrand = {
+  &::capnp::schemas::s_815e89f778f1da6c, brandScopes, nullptr,
+  1, 0, nullptr
+};
+#endif  // !CAPNP_LITE
+
+// Cluster::ValueHolder<T>::ReleaseParams
+template <typename T>
+constexpr uint16_t Cluster::ValueHolder<T>::ReleaseParams::_capnpPrivate::dataWordSize;
+template <typename T>
+constexpr uint16_t Cluster::ValueHolder<T>::ReleaseParams::_capnpPrivate::pointerCount;
+#if !CAPNP_LITE
+template <typename T>
+constexpr ::capnp::Kind Cluster::ValueHolder<T>::ReleaseParams::_capnpPrivate::kind;
+template <typename T>
+constexpr ::capnp::_::RawSchema const* Cluster::ValueHolder<T>::ReleaseParams::_capnpPrivate::schema;
+template <typename T>
+const ::capnp::_::RawBrandedSchema::Scope Cluster::ValueHolder<T>::ReleaseParams::_capnpPrivate::brandScopes[] = {
+  { 0xd6acf080dcf2b4c8, brandBindings + 0, 1, false},
+};
+template <typename T>
+const ::capnp::_::RawBrandedSchema::Binding Cluster::ValueHolder<T>::ReleaseParams::_capnpPrivate::brandBindings[] = {
+  ::capnp::_::brandBindingFor<T>(),
+};
+template <typename T>
+const ::capnp::_::RawBrandedSchema Cluster::ValueHolder<T>::ReleaseParams::_capnpPrivate::specificBrand = {
+  &::capnp::schemas::s_a967c8b00a278896, brandScopes, nullptr,
+  1, 0, nullptr
+};
+#endif  // !CAPNP_LITE
+
+// Cluster::ValueHolder<T>::ReleaseResults
+template <typename T>
+constexpr uint16_t Cluster::ValueHolder<T>::ReleaseResults::_capnpPrivate::dataWordSize;
+template <typename T>
+constexpr uint16_t Cluster::ValueHolder<T>::ReleaseResults::_capnpPrivate::pointerCount;
+#if !CAPNP_LITE
+template <typename T>
+constexpr ::capnp::Kind Cluster::ValueHolder<T>::ReleaseResults::_capnpPrivate::kind;
+template <typename T>
+constexpr ::capnp::_::RawSchema const* Cluster::ValueHolder<T>::ReleaseResults::_capnpPrivate::schema;
+template <typename T>
+const ::capnp::_::RawBrandedSchema::Scope Cluster::ValueHolder<T>::ReleaseResults::_capnpPrivate::brandScopes[] = {
+  { 0xd6acf080dcf2b4c8, brandBindings + 0, 1, false},
+};
+template <typename T>
+const ::capnp::_::RawBrandedSchema::Binding Cluster::ValueHolder<T>::ReleaseResults::_capnpPrivate::brandBindings[] = {
+  ::capnp::_::brandBindingFor<T>(),
+};
+template <typename T>
+const ::capnp::_::RawBrandedSchema Cluster::ValueHolder<T>::ReleaseResults::_capnpPrivate::specificBrand = {
+  &::capnp::schemas::s_ddbd9a18593be0c5, brandScopes, nullptr,
+  1, 0, nullptr
+};
+#endif  // !CAPNP_LITE
+
+#if !CAPNP_LITE
+template <typename T>
+CAPNP_AUTO_IF_MSVC(::capnp::Request<typename  ::mas::schema::cluster::Cluster::ValueHolder<T>::ValueParams, typename  ::mas::schema::cluster::Cluster::ValueHolder<T>::ValueResults>)
+Cluster::ValueHolder<T>::Client::valueRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
+  return newCall<typename  ::mas::schema::cluster::Cluster::ValueHolder<T>::ValueParams, typename  ::mas::schema::cluster::Cluster::ValueHolder<T>::ValueResults>(
+      0xd6acf080dcf2b4c8ull, 0, sizeHint);
+}
+template <typename T>
+::kj::Promise<void> Cluster::ValueHolder<T>::Server::value(ValueContext) {
+  return ::capnp::Capability::Server::internalUnimplemented(
+      "cluster_admin_service.capnp:Cluster.ValueHolder", "value",
+      0xd6acf080dcf2b4c8ull, 0);
+}
+template <typename T>
+CAPNP_AUTO_IF_MSVC(::capnp::Request<typename  ::mas::schema::cluster::Cluster::ValueHolder<T>::ReleaseParams, typename  ::mas::schema::cluster::Cluster::ValueHolder<T>::ReleaseResults>)
+Cluster::ValueHolder<T>::Client::releaseRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
+  return newCall<typename  ::mas::schema::cluster::Cluster::ValueHolder<T>::ReleaseParams, typename  ::mas::schema::cluster::Cluster::ValueHolder<T>::ReleaseResults>(
+      0xd6acf080dcf2b4c8ull, 1, sizeHint);
+}
+template <typename T>
+::kj::Promise<void> Cluster::ValueHolder<T>::Server::release(ReleaseContext) {
+  return ::capnp::Capability::Server::internalUnimplemented(
+      "cluster_admin_service.capnp:Cluster.ValueHolder", "release",
+      0xd6acf080dcf2b4c8ull, 1);
+}
+template <typename T>
+::capnp::Capability::Server::DispatchCallResult Cluster::ValueHolder<T>::Server::dispatchCall(
+    uint64_t interfaceId, uint16_t methodId,
+    ::capnp::CallContext< ::capnp::AnyPointer, ::capnp::AnyPointer> context) {
+  switch (interfaceId) {
+    case 0xd6acf080dcf2b4c8ull:
+      return dispatchCallInternal(methodId, context);
+    default:
+      return internalUnimplemented("cluster_admin_service.capnp:Cluster.ValueHolder", interfaceId);
+  }
+}
+template <typename T>
+::capnp::Capability::Server::DispatchCallResult Cluster::ValueHolder<T>::Server::dispatchCallInternal(
+    uint16_t methodId,
+    ::capnp::CallContext< ::capnp::AnyPointer, ::capnp::AnyPointer> context) {
+  switch (methodId) {
+    case 0:
+      return {
+        value(::capnp::Capability::Server::internalGetTypedContext<
+            typename  ::mas::schema::cluster::Cluster::ValueHolder<T>::ValueParams, typename  ::mas::schema::cluster::Cluster::ValueHolder<T>::ValueResults>(context)),
+        false
+      };
+    case 1:
+      return {
+        release(::capnp::Capability::Server::internalGetTypedContext<
+            typename  ::mas::schema::cluster::Cluster::ValueHolder<T>::ReleaseParams, typename  ::mas::schema::cluster::Cluster::ValueHolder<T>::ReleaseResults>(context)),
+        false
+      };
+    default:
+      (void)context;
+      return ::capnp::Capability::Server::internalUnimplemented(
+          "cluster_admin_service.capnp:Cluster.ValueHolder",
+          0xd6acf080dcf2b4c8ull, methodId);
+  }
+}
+#endif  // !CAPNP_LITE
+
+// Cluster::ValueHolder<T>
+#if !CAPNP_LITE
+template <typename T>
+constexpr ::capnp::Kind Cluster::ValueHolder<T>::_capnpPrivate::kind;
+template <typename T>
+constexpr ::capnp::_::RawSchema const* Cluster::ValueHolder<T>::_capnpPrivate::schema;
+template <typename T>
+const ::capnp::_::RawBrandedSchema::Scope Cluster::ValueHolder<T>::_capnpPrivate::brandScopes[] = {
+  { 0xd6acf080dcf2b4c8, brandBindings + 0, 1, false},
+};
+template <typename T>
+const ::capnp::_::RawBrandedSchema::Binding Cluster::ValueHolder<T>::_capnpPrivate::brandBindings[] = {
+  ::capnp::_::brandBindingFor<T>(),
+};
+template <typename T>
+const ::capnp::_::RawBrandedSchema::Dependency Cluster::ValueHolder<T>::_capnpPrivate::brandDependencies[] = {
+  { 33554432,  ::mas::schema::cluster::Cluster::ValueHolder<T>::ValueParams::_capnpPrivate::brand() },
+  { 33554433,  ::mas::schema::cluster::Cluster::ValueHolder<T>::ReleaseParams::_capnpPrivate::brand() },
+  { 50331648,  ::mas::schema::cluster::Cluster::ValueHolder<T>::ValueResults::_capnpPrivate::brand() },
+  { 50331649,  ::mas::schema::cluster::Cluster::ValueHolder<T>::ReleaseResults::_capnpPrivate::brand() },
+};
+template <typename T>
+const ::capnp::_::RawBrandedSchema Cluster::ValueHolder<T>::_capnpPrivate::specificBrand = {
+  &::capnp::schemas::s_d6acf080dcf2b4c8, brandScopes, brandDependencies,
+  1, 4, nullptr
+};
+#endif  // !CAPNP_LITE
+
 #if !CAPNP_LITE
 inline Cluster::ModelInstanceFactory::Client::Client(decltype(nullptr))
     : ::capnp::Capability::Client(nullptr) {}
@@ -3950,32 +5214,32 @@ inline bool Cluster::ModelInstanceFactory::NewInstanceResults::Builder::hasInsta
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
 #if !CAPNP_LITE
-inline  ::mas::schema::common::CapHolder< ::capnp::AnyPointer>::Client Cluster::ModelInstanceFactory::NewInstanceResults::Reader::getInstance() const {
-  return ::capnp::_::PointerHelpers< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>::get(_reader.getPointerField(
+inline  ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>::Client Cluster::ModelInstanceFactory::NewInstanceResults::Reader::getInstance() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::common::CapHolder< ::capnp::AnyPointer>::Client Cluster::ModelInstanceFactory::NewInstanceResults::Builder::getInstance() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>::get(_builder.getPointerField(
+inline  ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>::Client Cluster::ModelInstanceFactory::NewInstanceResults::Builder::getInstance() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::common::CapHolder< ::capnp::AnyPointer>::Client Cluster::ModelInstanceFactory::NewInstanceResults::Pipeline::getInstance() {
-  return  ::mas::schema::common::CapHolder< ::capnp::AnyPointer>::Client(_typeless.getPointerField(0).asCap());
+inline  ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>::Client Cluster::ModelInstanceFactory::NewInstanceResults::Pipeline::getInstance() {
+  return  ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>::Client(_typeless.getPointerField(0).asCap());
 }
-inline void Cluster::ModelInstanceFactory::NewInstanceResults::Builder::setInstance( ::mas::schema::common::CapHolder< ::capnp::AnyPointer>::Client&& cap) {
-  ::capnp::_::PointerHelpers< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>::set(_builder.getPointerField(
+inline void Cluster::ModelInstanceFactory::NewInstanceResults::Builder::setInstance( ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>::Client&& cap) {
+  ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(cap));
 }
-inline void Cluster::ModelInstanceFactory::NewInstanceResults::Builder::setInstance( ::mas::schema::common::CapHolder< ::capnp::AnyPointer>::Client& cap) {
-  ::capnp::_::PointerHelpers< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>::set(_builder.getPointerField(
+inline void Cluster::ModelInstanceFactory::NewInstanceResults::Builder::setInstance( ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>::Client& cap) {
+  ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), cap);
 }
 inline void Cluster::ModelInstanceFactory::NewInstanceResults::Builder::adoptInstance(
-    ::capnp::Orphan< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>&& value) {
-  ::capnp::_::PointerHelpers< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>::adopt(_builder.getPointerField(
+    ::capnp::Orphan< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>> Cluster::ModelInstanceFactory::NewInstanceResults::Builder::disownInstance() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>::disown(_builder.getPointerField(
+inline ::capnp::Orphan< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>> Cluster::ModelInstanceFactory::NewInstanceResults::Builder::disownInstance() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 #endif  // !CAPNP_LITE
@@ -4003,32 +5267,32 @@ inline bool Cluster::ModelInstanceFactory::NewInstancesResults::Builder::hasInst
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
 #if !CAPNP_LITE
-inline  ::mas::schema::common::CapHolder< ::capnp::List< ::mas::schema::common::ListEntry< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>,  ::capnp::Kind::STRUCT>>::Client Cluster::ModelInstanceFactory::NewInstancesResults::Reader::getInstances() const {
-  return ::capnp::_::PointerHelpers< ::mas::schema::common::CapHolder< ::capnp::List< ::mas::schema::common::ListEntry< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>,  ::capnp::Kind::STRUCT>>>::get(_reader.getPointerField(
+inline  ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::List< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>,  ::capnp::Kind::INTERFACE>>::Client Cluster::ModelInstanceFactory::NewInstancesResults::Reader::getInstances() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::List< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>,  ::capnp::Kind::INTERFACE>>>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::common::CapHolder< ::capnp::List< ::mas::schema::common::ListEntry< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>,  ::capnp::Kind::STRUCT>>::Client Cluster::ModelInstanceFactory::NewInstancesResults::Builder::getInstances() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::common::CapHolder< ::capnp::List< ::mas::schema::common::ListEntry< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>,  ::capnp::Kind::STRUCT>>>::get(_builder.getPointerField(
+inline  ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::List< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>,  ::capnp::Kind::INTERFACE>>::Client Cluster::ModelInstanceFactory::NewInstancesResults::Builder::getInstances() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::List< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>,  ::capnp::Kind::INTERFACE>>>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::common::CapHolder< ::capnp::List< ::mas::schema::common::ListEntry< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>,  ::capnp::Kind::STRUCT>>::Client Cluster::ModelInstanceFactory::NewInstancesResults::Pipeline::getInstances() {
-  return  ::mas::schema::common::CapHolder< ::capnp::List< ::mas::schema::common::ListEntry< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>,  ::capnp::Kind::STRUCT>>::Client(_typeless.getPointerField(0).asCap());
+inline  ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::List< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>,  ::capnp::Kind::INTERFACE>>::Client Cluster::ModelInstanceFactory::NewInstancesResults::Pipeline::getInstances() {
+  return  ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::List< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>,  ::capnp::Kind::INTERFACE>>::Client(_typeless.getPointerField(0).asCap());
 }
-inline void Cluster::ModelInstanceFactory::NewInstancesResults::Builder::setInstances( ::mas::schema::common::CapHolder< ::capnp::List< ::mas::schema::common::ListEntry< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>,  ::capnp::Kind::STRUCT>>::Client&& cap) {
-  ::capnp::_::PointerHelpers< ::mas::schema::common::CapHolder< ::capnp::List< ::mas::schema::common::ListEntry< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>,  ::capnp::Kind::STRUCT>>>::set(_builder.getPointerField(
+inline void Cluster::ModelInstanceFactory::NewInstancesResults::Builder::setInstances( ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::List< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>,  ::capnp::Kind::INTERFACE>>::Client&& cap) {
+  ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::List< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>,  ::capnp::Kind::INTERFACE>>>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(cap));
 }
-inline void Cluster::ModelInstanceFactory::NewInstancesResults::Builder::setInstances( ::mas::schema::common::CapHolder< ::capnp::List< ::mas::schema::common::ListEntry< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>,  ::capnp::Kind::STRUCT>>::Client& cap) {
-  ::capnp::_::PointerHelpers< ::mas::schema::common::CapHolder< ::capnp::List< ::mas::schema::common::ListEntry< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>,  ::capnp::Kind::STRUCT>>>::set(_builder.getPointerField(
+inline void Cluster::ModelInstanceFactory::NewInstancesResults::Builder::setInstances( ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::List< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>,  ::capnp::Kind::INTERFACE>>::Client& cap) {
+  ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::List< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>,  ::capnp::Kind::INTERFACE>>>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), cap);
 }
 inline void Cluster::ModelInstanceFactory::NewInstancesResults::Builder::adoptInstances(
-    ::capnp::Orphan< ::mas::schema::common::CapHolder< ::capnp::List< ::mas::schema::common::ListEntry< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>,  ::capnp::Kind::STRUCT>>>&& value) {
-  ::capnp::_::PointerHelpers< ::mas::schema::common::CapHolder< ::capnp::List< ::mas::schema::common::ListEntry< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>,  ::capnp::Kind::STRUCT>>>::adopt(_builder.getPointerField(
+    ::capnp::Orphan< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::List< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>,  ::capnp::Kind::INTERFACE>>>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::List< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>,  ::capnp::Kind::INTERFACE>>>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::mas::schema::common::CapHolder< ::capnp::List< ::mas::schema::common::ListEntry< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>,  ::capnp::Kind::STRUCT>>> Cluster::ModelInstanceFactory::NewInstancesResults::Builder::disownInstances() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::common::CapHolder< ::capnp::List< ::mas::schema::common::ListEntry< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>,  ::capnp::Kind::STRUCT>>>::disown(_builder.getPointerField(
+inline ::capnp::Orphan< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::List< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>,  ::capnp::Kind::INTERFACE>>> Cluster::ModelInstanceFactory::NewInstancesResults::Builder::disownInstances() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::List< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>,  ::capnp::Kind::INTERFACE>>>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 #endif  // !CAPNP_LITE
@@ -4056,32 +5320,32 @@ inline bool Cluster::ModelInstanceFactory::NewCloudViaZmqPipelineProxiesResults:
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
 #if !CAPNP_LITE
-inline  ::mas::schema::common::CapHolder< ::mas::schema::common::ZmqPipelineAddresses>::Client Cluster::ModelInstanceFactory::NewCloudViaZmqPipelineProxiesResults::Reader::getProxyAddresses() const {
-  return ::capnp::_::PointerHelpers< ::mas::schema::common::CapHolder< ::mas::schema::common::ZmqPipelineAddresses>>::get(_reader.getPointerField(
+inline  ::mas::schema::cluster::Cluster::ValueHolder< ::mas::schema::cluster::Cluster::ZmqPipelineAddresses>::Client Cluster::ModelInstanceFactory::NewCloudViaZmqPipelineProxiesResults::Reader::getProxyAddresses() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::ValueHolder< ::mas::schema::cluster::Cluster::ZmqPipelineAddresses>>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::common::CapHolder< ::mas::schema::common::ZmqPipelineAddresses>::Client Cluster::ModelInstanceFactory::NewCloudViaZmqPipelineProxiesResults::Builder::getProxyAddresses() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::common::CapHolder< ::mas::schema::common::ZmqPipelineAddresses>>::get(_builder.getPointerField(
+inline  ::mas::schema::cluster::Cluster::ValueHolder< ::mas::schema::cluster::Cluster::ZmqPipelineAddresses>::Client Cluster::ModelInstanceFactory::NewCloudViaZmqPipelineProxiesResults::Builder::getProxyAddresses() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::ValueHolder< ::mas::schema::cluster::Cluster::ZmqPipelineAddresses>>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::common::CapHolder< ::mas::schema::common::ZmqPipelineAddresses>::Client Cluster::ModelInstanceFactory::NewCloudViaZmqPipelineProxiesResults::Pipeline::getProxyAddresses() {
-  return  ::mas::schema::common::CapHolder< ::mas::schema::common::ZmqPipelineAddresses>::Client(_typeless.getPointerField(0).asCap());
+inline  ::mas::schema::cluster::Cluster::ValueHolder< ::mas::schema::cluster::Cluster::ZmqPipelineAddresses>::Client Cluster::ModelInstanceFactory::NewCloudViaZmqPipelineProxiesResults::Pipeline::getProxyAddresses() {
+  return  ::mas::schema::cluster::Cluster::ValueHolder< ::mas::schema::cluster::Cluster::ZmqPipelineAddresses>::Client(_typeless.getPointerField(0).asCap());
 }
-inline void Cluster::ModelInstanceFactory::NewCloudViaZmqPipelineProxiesResults::Builder::setProxyAddresses( ::mas::schema::common::CapHolder< ::mas::schema::common::ZmqPipelineAddresses>::Client&& cap) {
-  ::capnp::_::PointerHelpers< ::mas::schema::common::CapHolder< ::mas::schema::common::ZmqPipelineAddresses>>::set(_builder.getPointerField(
+inline void Cluster::ModelInstanceFactory::NewCloudViaZmqPipelineProxiesResults::Builder::setProxyAddresses( ::mas::schema::cluster::Cluster::ValueHolder< ::mas::schema::cluster::Cluster::ZmqPipelineAddresses>::Client&& cap) {
+  ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::ValueHolder< ::mas::schema::cluster::Cluster::ZmqPipelineAddresses>>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(cap));
 }
-inline void Cluster::ModelInstanceFactory::NewCloudViaZmqPipelineProxiesResults::Builder::setProxyAddresses( ::mas::schema::common::CapHolder< ::mas::schema::common::ZmqPipelineAddresses>::Client& cap) {
-  ::capnp::_::PointerHelpers< ::mas::schema::common::CapHolder< ::mas::schema::common::ZmqPipelineAddresses>>::set(_builder.getPointerField(
+inline void Cluster::ModelInstanceFactory::NewCloudViaZmqPipelineProxiesResults::Builder::setProxyAddresses( ::mas::schema::cluster::Cluster::ValueHolder< ::mas::schema::cluster::Cluster::ZmqPipelineAddresses>::Client& cap) {
+  ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::ValueHolder< ::mas::schema::cluster::Cluster::ZmqPipelineAddresses>>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), cap);
 }
 inline void Cluster::ModelInstanceFactory::NewCloudViaZmqPipelineProxiesResults::Builder::adoptProxyAddresses(
-    ::capnp::Orphan< ::mas::schema::common::CapHolder< ::mas::schema::common::ZmqPipelineAddresses>>&& value) {
-  ::capnp::_::PointerHelpers< ::mas::schema::common::CapHolder< ::mas::schema::common::ZmqPipelineAddresses>>::adopt(_builder.getPointerField(
+    ::capnp::Orphan< ::mas::schema::cluster::Cluster::ValueHolder< ::mas::schema::cluster::Cluster::ZmqPipelineAddresses>>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::ValueHolder< ::mas::schema::cluster::Cluster::ZmqPipelineAddresses>>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::mas::schema::common::CapHolder< ::mas::schema::common::ZmqPipelineAddresses>> Cluster::ModelInstanceFactory::NewCloudViaZmqPipelineProxiesResults::Builder::disownProxyAddresses() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::common::CapHolder< ::mas::schema::common::ZmqPipelineAddresses>>::disown(_builder.getPointerField(
+inline ::capnp::Orphan< ::mas::schema::cluster::Cluster::ValueHolder< ::mas::schema::cluster::Cluster::ZmqPipelineAddresses>> Cluster::ModelInstanceFactory::NewCloudViaZmqPipelineProxiesResults::Builder::disownProxyAddresses() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::ValueHolder< ::mas::schema::cluster::Cluster::ZmqPipelineAddresses>>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 #endif  // !CAPNP_LITE
@@ -4109,32 +5373,32 @@ inline bool Cluster::ModelInstanceFactory::NewCloudViaProxyResults::Builder::has
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
 #if !CAPNP_LITE
-inline  ::mas::schema::common::CapHolder< ::capnp::AnyPointer>::Client Cluster::ModelInstanceFactory::NewCloudViaProxyResults::Reader::getProxy() const {
-  return ::capnp::_::PointerHelpers< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>::get(_reader.getPointerField(
+inline  ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>::Client Cluster::ModelInstanceFactory::NewCloudViaProxyResults::Reader::getProxy() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::common::CapHolder< ::capnp::AnyPointer>::Client Cluster::ModelInstanceFactory::NewCloudViaProxyResults::Builder::getProxy() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>::get(_builder.getPointerField(
+inline  ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>::Client Cluster::ModelInstanceFactory::NewCloudViaProxyResults::Builder::getProxy() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::common::CapHolder< ::capnp::AnyPointer>::Client Cluster::ModelInstanceFactory::NewCloudViaProxyResults::Pipeline::getProxy() {
-  return  ::mas::schema::common::CapHolder< ::capnp::AnyPointer>::Client(_typeless.getPointerField(0).asCap());
+inline  ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>::Client Cluster::ModelInstanceFactory::NewCloudViaProxyResults::Pipeline::getProxy() {
+  return  ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>::Client(_typeless.getPointerField(0).asCap());
 }
-inline void Cluster::ModelInstanceFactory::NewCloudViaProxyResults::Builder::setProxy( ::mas::schema::common::CapHolder< ::capnp::AnyPointer>::Client&& cap) {
-  ::capnp::_::PointerHelpers< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>::set(_builder.getPointerField(
+inline void Cluster::ModelInstanceFactory::NewCloudViaProxyResults::Builder::setProxy( ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>::Client&& cap) {
+  ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(cap));
 }
-inline void Cluster::ModelInstanceFactory::NewCloudViaProxyResults::Builder::setProxy( ::mas::schema::common::CapHolder< ::capnp::AnyPointer>::Client& cap) {
-  ::capnp::_::PointerHelpers< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>::set(_builder.getPointerField(
+inline void Cluster::ModelInstanceFactory::NewCloudViaProxyResults::Builder::setProxy( ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>::Client& cap) {
+  ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), cap);
 }
 inline void Cluster::ModelInstanceFactory::NewCloudViaProxyResults::Builder::adoptProxy(
-    ::capnp::Orphan< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>&& value) {
-  ::capnp::_::PointerHelpers< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>::adopt(_builder.getPointerField(
+    ::capnp::Orphan< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>> Cluster::ModelInstanceFactory::NewCloudViaProxyResults::Builder::disownProxy() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>::disown(_builder.getPointerField(
+inline ::capnp::Orphan< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>> Cluster::ModelInstanceFactory::NewCloudViaProxyResults::Builder::disownProxy() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 #endif  // !CAPNP_LITE
@@ -4257,32 +5521,32 @@ inline bool Cluster::ModelInstanceFactory::RegisterModelInstanceResults::Builder
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
 #if !CAPNP_LITE
-inline  ::mas::schema::common::Callback::Client Cluster::ModelInstanceFactory::RegisterModelInstanceResults::Reader::getUnregister() const {
-  return ::capnp::_::PointerHelpers< ::mas::schema::common::Callback>::get(_reader.getPointerField(
+inline  ::mas::schema::cluster::Cluster::Unregister::Client Cluster::ModelInstanceFactory::RegisterModelInstanceResults::Reader::getUnregister() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::Unregister>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::common::Callback::Client Cluster::ModelInstanceFactory::RegisterModelInstanceResults::Builder::getUnregister() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::common::Callback>::get(_builder.getPointerField(
+inline  ::mas::schema::cluster::Cluster::Unregister::Client Cluster::ModelInstanceFactory::RegisterModelInstanceResults::Builder::getUnregister() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::Unregister>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::common::Callback::Client Cluster::ModelInstanceFactory::RegisterModelInstanceResults::Pipeline::getUnregister() {
-  return  ::mas::schema::common::Callback::Client(_typeless.getPointerField(0).asCap());
+inline  ::mas::schema::cluster::Cluster::Unregister::Client Cluster::ModelInstanceFactory::RegisterModelInstanceResults::Pipeline::getUnregister() {
+  return  ::mas::schema::cluster::Cluster::Unregister::Client(_typeless.getPointerField(0).asCap());
 }
-inline void Cluster::ModelInstanceFactory::RegisterModelInstanceResults::Builder::setUnregister( ::mas::schema::common::Callback::Client&& cap) {
-  ::capnp::_::PointerHelpers< ::mas::schema::common::Callback>::set(_builder.getPointerField(
+inline void Cluster::ModelInstanceFactory::RegisterModelInstanceResults::Builder::setUnregister( ::mas::schema::cluster::Cluster::Unregister::Client&& cap) {
+  ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::Unregister>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(cap));
 }
-inline void Cluster::ModelInstanceFactory::RegisterModelInstanceResults::Builder::setUnregister( ::mas::schema::common::Callback::Client& cap) {
-  ::capnp::_::PointerHelpers< ::mas::schema::common::Callback>::set(_builder.getPointerField(
+inline void Cluster::ModelInstanceFactory::RegisterModelInstanceResults::Builder::setUnregister( ::mas::schema::cluster::Cluster::Unregister::Client& cap) {
+  ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::Unregister>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), cap);
 }
 inline void Cluster::ModelInstanceFactory::RegisterModelInstanceResults::Builder::adoptUnregister(
-    ::capnp::Orphan< ::mas::schema::common::Callback>&& value) {
-  ::capnp::_::PointerHelpers< ::mas::schema::common::Callback>::adopt(_builder.getPointerField(
+    ::capnp::Orphan< ::mas::schema::cluster::Cluster::Unregister>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::Unregister>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::mas::schema::common::Callback> Cluster::ModelInstanceFactory::RegisterModelInstanceResults::Builder::disownUnregister() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::common::Callback>::disown(_builder.getPointerField(
+inline ::capnp::Orphan< ::mas::schema::cluster::Cluster::Unregister> Cluster::ModelInstanceFactory::RegisterModelInstanceResults::Builder::disownUnregister() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::Unregister>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 #endif  // !CAPNP_LITE
@@ -4330,32 +5594,32 @@ inline bool Cluster::ModelInstanceFactory::RestoreSturdyRefResults::Builder::has
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
 #if !CAPNP_LITE
-inline  ::mas::schema::common::CapHolder< ::capnp::AnyPointer>::Client Cluster::ModelInstanceFactory::RestoreSturdyRefResults::Reader::getCap() const {
-  return ::capnp::_::PointerHelpers< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>::get(_reader.getPointerField(
+inline  ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>::Client Cluster::ModelInstanceFactory::RestoreSturdyRefResults::Reader::getCap() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::common::CapHolder< ::capnp::AnyPointer>::Client Cluster::ModelInstanceFactory::RestoreSturdyRefResults::Builder::getCap() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>::get(_builder.getPointerField(
+inline  ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>::Client Cluster::ModelInstanceFactory::RestoreSturdyRefResults::Builder::getCap() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::common::CapHolder< ::capnp::AnyPointer>::Client Cluster::ModelInstanceFactory::RestoreSturdyRefResults::Pipeline::getCap() {
-  return  ::mas::schema::common::CapHolder< ::capnp::AnyPointer>::Client(_typeless.getPointerField(0).asCap());
+inline  ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>::Client Cluster::ModelInstanceFactory::RestoreSturdyRefResults::Pipeline::getCap() {
+  return  ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>::Client(_typeless.getPointerField(0).asCap());
 }
-inline void Cluster::ModelInstanceFactory::RestoreSturdyRefResults::Builder::setCap( ::mas::schema::common::CapHolder< ::capnp::AnyPointer>::Client&& cap) {
-  ::capnp::_::PointerHelpers< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>::set(_builder.getPointerField(
+inline void Cluster::ModelInstanceFactory::RestoreSturdyRefResults::Builder::setCap( ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>::Client&& cap) {
+  ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(cap));
 }
-inline void Cluster::ModelInstanceFactory::RestoreSturdyRefResults::Builder::setCap( ::mas::schema::common::CapHolder< ::capnp::AnyPointer>::Client& cap) {
-  ::capnp::_::PointerHelpers< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>::set(_builder.getPointerField(
+inline void Cluster::ModelInstanceFactory::RestoreSturdyRefResults::Builder::setCap( ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>::Client& cap) {
+  ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), cap);
 }
 inline void Cluster::ModelInstanceFactory::RestoreSturdyRefResults::Builder::adoptCap(
-    ::capnp::Orphan< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>&& value) {
-  ::capnp::_::PointerHelpers< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>::adopt(_builder.getPointerField(
+    ::capnp::Orphan< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>> Cluster::ModelInstanceFactory::RestoreSturdyRefResults::Builder::disownCap() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::common::CapHolder< ::capnp::AnyPointer>>::disown(_builder.getPointerField(
+inline ::capnp::Orphan< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>> Cluster::ModelInstanceFactory::RestoreSturdyRefResults::Builder::disownCap() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::cluster::Cluster::ValueHolder< ::capnp::AnyPointer>>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 #endif  // !CAPNP_LITE

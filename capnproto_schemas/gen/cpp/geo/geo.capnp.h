@@ -34,6 +34,7 @@ CAPNP_DECLARE_SCHEMA(eb1acd255e40f049);
 CAPNP_DECLARE_SCHEMA(ecf1fc3039cc8ffb);
 CAPNP_DECLARE_SCHEMA(97ff7d61786091ae);
 CAPNP_DECLARE_SCHEMA(c88fb91c1e6986e2);
+CAPNP_DECLARE_SCHEMA(b0c6993e13e314ad);
 CAPNP_DECLARE_SCHEMA(b8f6a6192a7359f8);
 CAPNP_DECLARE_SCHEMA(b952dbe83866da4a);
 
@@ -127,6 +128,21 @@ struct Point2D {
   };
 };
 
+struct RowCol {
+  RowCol() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(b0c6993e13e314ad, 2, 0)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
 struct Coord {
   Coord() = delete;
 
@@ -138,6 +154,7 @@ struct Coord {
     LATLON,
     UTM,
     P2_D,
+    ROWCOL,
   };
 
   struct _capnpPrivate {
@@ -584,6 +601,87 @@ private:
 };
 #endif  // !CAPNP_LITE
 
+class RowCol::Reader {
+public:
+  typedef RowCol Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  inline  ::uint64_t getRow() const;
+
+  inline  ::uint64_t getCol() const;
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class RowCol::Builder {
+public:
+  typedef RowCol Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline  ::uint64_t getRow();
+  inline void setRow( ::uint64_t value);
+
+  inline  ::uint64_t getCol();
+  inline void setCol( ::uint64_t value);
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class RowCol::Pipeline {
+public:
+  typedef RowCol Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
 class Coord::Reader {
 public:
   typedef Coord Reads;
@@ -617,6 +715,10 @@ public:
   inline bool isP2D() const;
   inline bool hasP2D() const;
   inline  ::mas::schema::geo::Point2D::Reader getP2D() const;
+
+  inline bool isRowcol() const;
+  inline bool hasRowcol() const;
+  inline  ::mas::schema::geo::RowCol::Reader getRowcol() const;
 
 private:
   ::capnp::_::StructReader _reader;
@@ -678,6 +780,14 @@ public:
   inline  ::mas::schema::geo::Point2D::Builder initP2D();
   inline void adoptP2D(::capnp::Orphan< ::mas::schema::geo::Point2D>&& value);
   inline ::capnp::Orphan< ::mas::schema::geo::Point2D> disownP2D();
+
+  inline bool isRowcol();
+  inline bool hasRowcol();
+  inline  ::mas::schema::geo::RowCol::Builder getRowcol();
+  inline void setRowcol( ::mas::schema::geo::RowCol::Reader value);
+  inline  ::mas::schema::geo::RowCol::Builder initRowcol();
+  inline void adoptRowcol(::capnp::Orphan< ::mas::schema::geo::RowCol>&& value);
+  inline ::capnp::Orphan< ::mas::schema::geo::RowCol> disownRowcol();
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -989,6 +1099,34 @@ inline void Point2D::Builder::setY(double value) {
       ::capnp::bounded<1>() * ::capnp::ELEMENTS, value);
 }
 
+inline  ::uint64_t RowCol::Reader::getRow() const {
+  return _reader.getDataField< ::uint64_t>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+
+inline  ::uint64_t RowCol::Builder::getRow() {
+  return _builder.getDataField< ::uint64_t>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+inline void RowCol::Builder::setRow( ::uint64_t value) {
+  _builder.setDataField< ::uint64_t>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, value);
+}
+
+inline  ::uint64_t RowCol::Reader::getCol() const {
+  return _reader.getDataField< ::uint64_t>(
+      ::capnp::bounded<1>() * ::capnp::ELEMENTS);
+}
+
+inline  ::uint64_t RowCol::Builder::getCol() {
+  return _builder.getDataField< ::uint64_t>(
+      ::capnp::bounded<1>() * ::capnp::ELEMENTS);
+}
+inline void RowCol::Builder::setCol( ::uint64_t value) {
+  _builder.setDataField< ::uint64_t>(
+      ::capnp::bounded<1>() * ::capnp::ELEMENTS, value);
+}
+
 inline  ::mas::schema::geo::Coord::Which Coord::Reader::which() const {
   return _reader.getDataField<Which>(
       ::capnp::bounded<0>() * ::capnp::ELEMENTS);
@@ -1211,6 +1349,60 @@ inline ::capnp::Orphan< ::mas::schema::geo::Point2D> Coord::Builder::disownP2D()
   KJ_IREQUIRE((which() == Coord::P2_D),
               "Must check which() before get()ing a union member.");
   return ::capnp::_::PointerHelpers< ::mas::schema::geo::Point2D>::disown(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+
+inline bool Coord::Reader::isRowcol() const {
+  return which() == Coord::ROWCOL;
+}
+inline bool Coord::Builder::isRowcol() {
+  return which() == Coord::ROWCOL;
+}
+inline bool Coord::Reader::hasRowcol() const {
+  if (which() != Coord::ROWCOL) return false;
+  return !_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline bool Coord::Builder::hasRowcol() {
+  if (which() != Coord::ROWCOL) return false;
+  return !_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline  ::mas::schema::geo::RowCol::Reader Coord::Reader::getRowcol() const {
+  KJ_IREQUIRE((which() == Coord::ROWCOL),
+              "Must check which() before get()ing a union member.");
+  return ::capnp::_::PointerHelpers< ::mas::schema::geo::RowCol>::get(_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline  ::mas::schema::geo::RowCol::Builder Coord::Builder::getRowcol() {
+  KJ_IREQUIRE((which() == Coord::ROWCOL),
+              "Must check which() before get()ing a union member.");
+  return ::capnp::_::PointerHelpers< ::mas::schema::geo::RowCol>::get(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline void Coord::Builder::setRowcol( ::mas::schema::geo::RowCol::Reader value) {
+  _builder.setDataField<Coord::Which>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, Coord::ROWCOL);
+  ::capnp::_::PointerHelpers< ::mas::schema::geo::RowCol>::set(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), value);
+}
+inline  ::mas::schema::geo::RowCol::Builder Coord::Builder::initRowcol() {
+  _builder.setDataField<Coord::Which>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, Coord::ROWCOL);
+  return ::capnp::_::PointerHelpers< ::mas::schema::geo::RowCol>::init(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline void Coord::Builder::adoptRowcol(
+    ::capnp::Orphan< ::mas::schema::geo::RowCol>&& value) {
+  _builder.setDataField<Coord::Which>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, Coord::ROWCOL);
+  ::capnp::_::PointerHelpers< ::mas::schema::geo::RowCol>::adopt(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::mas::schema::geo::RowCol> Coord::Builder::disownRowcol() {
+  KJ_IREQUIRE((which() == Coord::ROWCOL),
+              "Must check which() before get()ing a union member.");
+  return ::capnp::_::PointerHelpers< ::mas::schema::geo::RowCol>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 

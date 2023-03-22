@@ -10,7 +10,6 @@ $Go.import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/mode
 using Date = import "../../date.capnp".Date;
 using Params = import "monica_params.capnp";
 using Mgmt = import "monica_management.capnp";
-using Action = import "../../common.capnp".Action;
 
 struct MaybeBool {
     value @0 :Bool;

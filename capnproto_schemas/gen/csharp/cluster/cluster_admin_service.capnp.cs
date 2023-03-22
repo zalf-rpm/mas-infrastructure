@@ -52,17 +52,174 @@ namespace Mas.Schema.Cluster
             }
         }
 
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xe8b1f7a192651bbeUL), Proxy(typeof(Unregister_Proxy)), Skeleton(typeof(Unregister_Skeleton))]
+        public interface IUnregister : IDisposable
+        {
+            Task<bool> Unregister(CancellationToken cancellationToken_ = default);
+        }
+
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xe8b1f7a192651bbeUL)]
+        public class Unregister_Proxy : Proxy, IUnregister
+        {
+            public async Task<bool> Unregister(CancellationToken cancellationToken_ = default)
+            {
+                var in_ = SerializerState.CreateForRpc<Mas.Schema.Cluster.Cluster.Unregister.Params_Unregister.WRITER>();
+                var arg_ = new Mas.Schema.Cluster.Cluster.Unregister.Params_Unregister()
+                {};
+                arg_?.serialize(in_);
+                using (var d_ = await Call(16767455160994962366UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+                {
+                    var r_ = CapnpSerializable.Create<Mas.Schema.Cluster.Cluster.Unregister.Result_Unregister>(d_);
+                    return (r_.Success);
+                }
+            }
+        }
+
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xe8b1f7a192651bbeUL)]
+        public class Unregister_Skeleton : Skeleton<IUnregister>
+        {
+            public Unregister_Skeleton()
+            {
+                SetMethodTable(Unregister);
+            }
+
+            public override ulong InterfaceId => 16767455160994962366UL;
+            Task<AnswerOrCounterquestion> Unregister(DeserializerState d_, CancellationToken cancellationToken_)
+            {
+                using (d_)
+                {
+                    return Impatient.MaybeTailCall(Impl.Unregister(cancellationToken_), success =>
+                    {
+                        var s_ = SerializerState.CreateForRpc<Mas.Schema.Cluster.Cluster.Unregister.Result_Unregister.WRITER>();
+                        var r_ = new Mas.Schema.Cluster.Cluster.Unregister.Result_Unregister{Success = success};
+                        r_.serialize(s_);
+                        return s_;
+                    }
+
+                    );
+                }
+            }
+        }
+
+        public static class Unregister
+        {
+            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xe1b78932a9f7aea3UL)]
+            public class Params_Unregister : ICapnpSerializable
+            {
+                public const UInt64 typeId = 0xe1b78932a9f7aea3UL;
+                void ICapnpSerializable.Deserialize(DeserializerState arg_)
+                {
+                    var reader = READER.create(arg_);
+                    applyDefaults();
+                }
+
+                public void serialize(WRITER writer)
+                {
+                }
+
+                void ICapnpSerializable.Serialize(SerializerState arg_)
+                {
+                    serialize(arg_.Rewrap<WRITER>());
+                }
+
+                public void applyDefaults()
+                {
+                }
+
+                public struct READER
+                {
+                    readonly DeserializerState ctx;
+                    public READER(DeserializerState ctx)
+                    {
+                        this.ctx = ctx;
+                    }
+
+                    public static READER create(DeserializerState ctx) => new READER(ctx);
+                    public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                    public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                }
+
+                public class WRITER : SerializerState
+                {
+                    public WRITER()
+                    {
+                        this.SetStruct(0, 0);
+                    }
+                }
+            }
+
+            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xbba96ef3714f338fUL)]
+            public class Result_Unregister : ICapnpSerializable
+            {
+                public const UInt64 typeId = 0xbba96ef3714f338fUL;
+                void ICapnpSerializable.Deserialize(DeserializerState arg_)
+                {
+                    var reader = READER.create(arg_);
+                    Success = reader.Success;
+                    applyDefaults();
+                }
+
+                public void serialize(WRITER writer)
+                {
+                    writer.Success = Success;
+                }
+
+                void ICapnpSerializable.Serialize(SerializerState arg_)
+                {
+                    serialize(arg_.Rewrap<WRITER>());
+                }
+
+                public void applyDefaults()
+                {
+                }
+
+                public bool Success
+                {
+                    get;
+                    set;
+                }
+
+                public struct READER
+                {
+                    readonly DeserializerState ctx;
+                    public READER(DeserializerState ctx)
+                    {
+                        this.ctx = ctx;
+                    }
+
+                    public static READER create(DeserializerState ctx) => new READER(ctx);
+                    public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                    public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                    public bool Success => ctx.ReadDataBool(0UL, false);
+                }
+
+                public class WRITER : SerializerState
+                {
+                    public WRITER()
+                    {
+                        this.SetStruct(1, 0);
+                    }
+
+                    public bool Success
+                    {
+                        get => this.ReadDataBool(0UL, false);
+                        set => this.WriteData(0UL, value, false);
+                    }
+                }
+            }
+        }
+
         [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xbf24278c65f633ceUL), Proxy(typeof(AdminMaster_Proxy)), Skeleton(typeof(AdminMaster_Skeleton))]
         public interface IAdminMaster : Mas.Schema.Common.IIdentifiable
         {
-            Task<Mas.Schema.Common.ICallback> RegisterModelInstanceFactory(string aModelId, Mas.Schema.Cluster.Cluster.IModelInstanceFactory aFactory, CancellationToken cancellationToken_ = default);
+            Task<Mas.Schema.Cluster.Cluster.IUnregister> RegisterModelInstanceFactory(string aModelId, Mas.Schema.Cluster.Cluster.IModelInstanceFactory aFactory, CancellationToken cancellationToken_ = default);
             Task<IReadOnlyList<Mas.Schema.Cluster.Cluster.IModelInstanceFactory>> AvailableModels(CancellationToken cancellationToken_ = default);
         }
 
         [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xbf24278c65f633ceUL)]
         public class AdminMaster_Proxy : Proxy, IAdminMaster
         {
-            public Task<Mas.Schema.Common.ICallback> RegisterModelInstanceFactory(string aModelId, Mas.Schema.Cluster.Cluster.IModelInstanceFactory aFactory, CancellationToken cancellationToken_ = default)
+            public Task<Mas.Schema.Cluster.Cluster.IUnregister> RegisterModelInstanceFactory(string aModelId, Mas.Schema.Cluster.Cluster.IModelInstanceFactory aFactory, CancellationToken cancellationToken_ = default)
             {
                 var in_ = SerializerState.CreateForRpc<Mas.Schema.Cluster.Cluster.AdminMaster.Params_RegisterModelInstanceFactory.WRITER>();
                 var arg_ = new Mas.Schema.Cluster.Cluster.AdminMaster.Params_RegisterModelInstanceFactory()
@@ -257,7 +414,7 @@ namespace Mas.Schema.Cluster
                 {
                 }
 
-                public Mas.Schema.Common.ICallback Unregister
+                public Mas.Schema.Cluster.Cluster.IUnregister Unregister
                 {
                     get;
                     set;
@@ -274,7 +431,7 @@ namespace Mas.Schema.Cluster
                     public static READER create(DeserializerState ctx) => new READER(ctx);
                     public static implicit operator DeserializerState(READER reader) => reader.ctx;
                     public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                    public Mas.Schema.Common.ICallback Unregister => ctx.ReadCap<Mas.Schema.Common.ICallback>(0);
+                    public Mas.Schema.Cluster.Cluster.IUnregister Unregister => ctx.ReadCap<Mas.Schema.Cluster.Cluster.IUnregister>(0);
                 }
 
                 public class WRITER : SerializerState
@@ -284,9 +441,9 @@ namespace Mas.Schema.Cluster
                         this.SetStruct(0, 1);
                     }
 
-                    public Mas.Schema.Common.ICallback Unregister
+                    public Mas.Schema.Cluster.Cluster.IUnregister Unregister
                     {
-                        get => ReadCap<Mas.Schema.Common.ICallback>(0);
+                        get => ReadCap<Mas.Schema.Cluster.Cluster.IUnregister>(0);
                         set => LinkObject(0, value);
                     }
                 }
@@ -578,7 +735,7 @@ namespace Mas.Schema.Cluster
         [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xf849848fea5c4776UL), Proxy(typeof(Runtime_Proxy)), Skeleton(typeof(Runtime_Skeleton))]
         public interface IRuntime : Mas.Schema.Common.IIdentifiable
         {
-            Task<Mas.Schema.Common.ICallback> RegisterModelInstanceFactory(string aModelId, Mas.Schema.Cluster.Cluster.IModelInstanceFactory aFactory, CancellationToken cancellationToken_ = default);
+            Task<Mas.Schema.Cluster.Cluster.IUnregister> RegisterModelInstanceFactory(string aModelId, Mas.Schema.Cluster.Cluster.IModelInstanceFactory aFactory, CancellationToken cancellationToken_ = default);
             Task<IReadOnlyList<Mas.Schema.Cluster.Cluster.IModelInstanceFactory>> AvailableModels(CancellationToken cancellationToken_ = default);
             Task<short> NumberOfCores(CancellationToken cancellationToken_ = default);
             Task<short> FreeNumberOfCores(CancellationToken cancellationToken_ = default);
@@ -588,7 +745,7 @@ namespace Mas.Schema.Cluster
         [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xf849848fea5c4776UL)]
         public class Runtime_Proxy : Proxy, IRuntime
         {
-            public Task<Mas.Schema.Common.ICallback> RegisterModelInstanceFactory(string aModelId, Mas.Schema.Cluster.Cluster.IModelInstanceFactory aFactory, CancellationToken cancellationToken_ = default)
+            public Task<Mas.Schema.Cluster.Cluster.IUnregister> RegisterModelInstanceFactory(string aModelId, Mas.Schema.Cluster.Cluster.IModelInstanceFactory aFactory, CancellationToken cancellationToken_ = default)
             {
                 var in_ = SerializerState.CreateForRpc<Mas.Schema.Cluster.Cluster.Runtime.Params_RegisterModelInstanceFactory.WRITER>();
                 var arg_ = new Mas.Schema.Cluster.Cluster.Runtime.Params_RegisterModelInstanceFactory()
@@ -871,7 +1028,7 @@ namespace Mas.Schema.Cluster
                 {
                 }
 
-                public Mas.Schema.Common.ICallback Unregister
+                public Mas.Schema.Cluster.Cluster.IUnregister Unregister
                 {
                     get;
                     set;
@@ -888,7 +1045,7 @@ namespace Mas.Schema.Cluster
                     public static READER create(DeserializerState ctx) => new READER(ctx);
                     public static implicit operator DeserializerState(READER reader) => reader.ctx;
                     public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                    public Mas.Schema.Common.ICallback Unregister => ctx.ReadCap<Mas.Schema.Common.ICallback>(0);
+                    public Mas.Schema.Cluster.Cluster.IUnregister Unregister => ctx.ReadCap<Mas.Schema.Cluster.Cluster.IUnregister>(0);
                 }
 
                 public class WRITER : SerializerState
@@ -898,9 +1055,9 @@ namespace Mas.Schema.Cluster
                         this.SetStruct(0, 1);
                     }
 
-                    public Mas.Schema.Common.ICallback Unregister
+                    public Mas.Schema.Cluster.Cluster.IUnregister Unregister
                     {
-                        get => ReadCap<Mas.Schema.Common.ICallback>(0);
+                        get => ReadCap<Mas.Schema.Cluster.Cluster.IUnregister>(0);
                         set => LinkObject(0, value);
                     }
                 }
@@ -1358,22 +1515,374 @@ namespace Mas.Schema.Cluster
             }
         }
 
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xc9034ba2becc2a64UL)]
+        public class ZmqPipelineAddresses : ICapnpSerializable
+        {
+            public const UInt64 typeId = 0xc9034ba2becc2a64UL;
+            void ICapnpSerializable.Deserialize(DeserializerState arg_)
+            {
+                var reader = READER.create(arg_);
+                Input = reader.Input;
+                Output = reader.Output;
+                applyDefaults();
+            }
+
+            public void serialize(WRITER writer)
+            {
+                writer.Input = Input;
+                writer.Output = Output;
+            }
+
+            void ICapnpSerializable.Serialize(SerializerState arg_)
+            {
+                serialize(arg_.Rewrap<WRITER>());
+            }
+
+            public void applyDefaults()
+            {
+            }
+
+            public string Input
+            {
+                get;
+                set;
+            }
+
+            public string Output
+            {
+                get;
+                set;
+            }
+
+            public struct READER
+            {
+                readonly DeserializerState ctx;
+                public READER(DeserializerState ctx)
+                {
+                    this.ctx = ctx;
+                }
+
+                public static READER create(DeserializerState ctx) => new READER(ctx);
+                public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                public string Input => ctx.ReadText(0, null);
+                public string Output => ctx.ReadText(1, null);
+            }
+
+            public class WRITER : SerializerState
+            {
+                public WRITER()
+                {
+                    this.SetStruct(0, 2);
+                }
+
+                public string Input
+                {
+                    get => this.ReadText(0, null);
+                    set => this.WriteText(0, value, null);
+                }
+
+                public string Output
+                {
+                    get => this.ReadText(1, null);
+                    set => this.WriteText(1, value, null);
+                }
+            }
+        }
+
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xd6acf080dcf2b4c8UL), Proxy(typeof(ValueHolder_Proxy<>)), Skeleton(typeof(ValueHolder_Skeleton<>))]
+        public interface IValueHolder<TT> : IDisposable where TT : class
+        {
+            Task<TT> Value(CancellationToken cancellationToken_ = default);
+            Task Release(CancellationToken cancellationToken_ = default);
+        }
+
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xd6acf080dcf2b4c8UL)]
+        public class ValueHolder_Proxy<TT> : Proxy, IValueHolder<TT> where TT : class
+        {
+            public Task<TT> Value(CancellationToken cancellationToken_ = default)
+            {
+                var in_ = SerializerState.CreateForRpc<Mas.Schema.Cluster.Cluster.ValueHolder<TT>.Params_Value.WRITER>();
+                var arg_ = new Mas.Schema.Cluster.Cluster.ValueHolder<TT>.Params_Value()
+                {};
+                arg_?.serialize(in_);
+                return Impatient.MakePipelineAware(Call(15469003256364184776UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
+                {
+                    using (d_)
+                    {
+                        var r_ = CapnpSerializable.Create<Mas.Schema.Cluster.Cluster.ValueHolder<TT>.Result_Value>(d_);
+                        return (r_.Val);
+                    }
+                }
+
+                );
+            }
+
+            public async Task Release(CancellationToken cancellationToken_ = default)
+            {
+                var in_ = SerializerState.CreateForRpc<Mas.Schema.Cluster.Cluster.ValueHolder<TT>.Params_Release.WRITER>();
+                var arg_ = new Mas.Schema.Cluster.Cluster.ValueHolder<TT>.Params_Release()
+                {};
+                arg_?.serialize(in_);
+                using (var d_ = await Call(15469003256364184776UL, 1, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+                {
+                    var r_ = CapnpSerializable.Create<Mas.Schema.Cluster.Cluster.ValueHolder<TT>.Result_Release>(d_);
+                    return;
+                }
+            }
+        }
+
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xd6acf080dcf2b4c8UL)]
+        public class ValueHolder_Skeleton<TT> : Skeleton<IValueHolder<TT>> where TT : class
+        {
+            public ValueHolder_Skeleton()
+            {
+                SetMethodTable(Value, Release);
+            }
+
+            public override ulong InterfaceId => 15469003256364184776UL;
+            Task<AnswerOrCounterquestion> Value(DeserializerState d_, CancellationToken cancellationToken_)
+            {
+                using (d_)
+                {
+                    return Impatient.MaybeTailCall(Impl.Value(cancellationToken_), val =>
+                    {
+                        var s_ = SerializerState.CreateForRpc<Mas.Schema.Cluster.Cluster.ValueHolder<TT>.Result_Value.WRITER>();
+                        var r_ = new Mas.Schema.Cluster.Cluster.ValueHolder<TT>.Result_Value{Val = val};
+                        r_.serialize(s_);
+                        return s_;
+                    }
+
+                    );
+                }
+            }
+
+            async Task<AnswerOrCounterquestion> Release(DeserializerState d_, CancellationToken cancellationToken_)
+            {
+                using (d_)
+                {
+                    await Impl.Release(cancellationToken_);
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Cluster.Cluster.ValueHolder<TT>.Result_Release.WRITER>();
+                    return s_;
+                }
+            }
+        }
+
+        public static class ValueHolder<TT>
+            where TT : class
+        {
+            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x8ba6569cca01e84fUL)]
+            public class Params_Value : ICapnpSerializable
+            {
+                public const UInt64 typeId = 0x8ba6569cca01e84fUL;
+                void ICapnpSerializable.Deserialize(DeserializerState arg_)
+                {
+                    var reader = READER.create(arg_);
+                    applyDefaults();
+                }
+
+                public void serialize(WRITER writer)
+                {
+                }
+
+                void ICapnpSerializable.Serialize(SerializerState arg_)
+                {
+                    serialize(arg_.Rewrap<WRITER>());
+                }
+
+                public void applyDefaults()
+                {
+                }
+
+                public struct READER
+                {
+                    readonly DeserializerState ctx;
+                    public READER(DeserializerState ctx)
+                    {
+                        this.ctx = ctx;
+                    }
+
+                    public static READER create(DeserializerState ctx) => new READER(ctx);
+                    public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                    public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                }
+
+                public class WRITER : SerializerState
+                {
+                    public WRITER()
+                    {
+                        this.SetStruct(0, 0);
+                    }
+                }
+            }
+
+            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x815e89f778f1da6cUL)]
+            public class Result_Value : ICapnpSerializable
+            {
+                public const UInt64 typeId = 0x815e89f778f1da6cUL;
+                void ICapnpSerializable.Deserialize(DeserializerState arg_)
+                {
+                    var reader = READER.create(arg_);
+                    Val = CapnpSerializable.Create<TT>(reader.Val);
+                    applyDefaults();
+                }
+
+                public void serialize(WRITER writer)
+                {
+                    writer.Val.SetObject(Val);
+                }
+
+                void ICapnpSerializable.Serialize(SerializerState arg_)
+                {
+                    serialize(arg_.Rewrap<WRITER>());
+                }
+
+                public void applyDefaults()
+                {
+                }
+
+                public TT Val
+                {
+                    get;
+                    set;
+                }
+
+                public struct READER
+                {
+                    readonly DeserializerState ctx;
+                    public READER(DeserializerState ctx)
+                    {
+                        this.ctx = ctx;
+                    }
+
+                    public static READER create(DeserializerState ctx) => new READER(ctx);
+                    public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                    public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                    public DeserializerState Val => ctx.StructReadPointer(0);
+                }
+
+                public class WRITER : SerializerState
+                {
+                    public WRITER()
+                    {
+                        this.SetStruct(0, 1);
+                    }
+
+                    public DynamicSerializerState Val
+                    {
+                        get => BuildPointer<DynamicSerializerState>(0);
+                        set => Link(0, value);
+                    }
+                }
+            }
+
+            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xa967c8b00a278896UL)]
+            public class Params_Release : ICapnpSerializable
+            {
+                public const UInt64 typeId = 0xa967c8b00a278896UL;
+                void ICapnpSerializable.Deserialize(DeserializerState arg_)
+                {
+                    var reader = READER.create(arg_);
+                    applyDefaults();
+                }
+
+                public void serialize(WRITER writer)
+                {
+                }
+
+                void ICapnpSerializable.Serialize(SerializerState arg_)
+                {
+                    serialize(arg_.Rewrap<WRITER>());
+                }
+
+                public void applyDefaults()
+                {
+                }
+
+                public struct READER
+                {
+                    readonly DeserializerState ctx;
+                    public READER(DeserializerState ctx)
+                    {
+                        this.ctx = ctx;
+                    }
+
+                    public static READER create(DeserializerState ctx) => new READER(ctx);
+                    public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                    public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                }
+
+                public class WRITER : SerializerState
+                {
+                    public WRITER()
+                    {
+                        this.SetStruct(0, 0);
+                    }
+                }
+            }
+
+            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xddbd9a18593be0c5UL)]
+            public class Result_Release : ICapnpSerializable
+            {
+                public const UInt64 typeId = 0xddbd9a18593be0c5UL;
+                void ICapnpSerializable.Deserialize(DeserializerState arg_)
+                {
+                    var reader = READER.create(arg_);
+                    applyDefaults();
+                }
+
+                public void serialize(WRITER writer)
+                {
+                }
+
+                void ICapnpSerializable.Serialize(SerializerState arg_)
+                {
+                    serialize(arg_.Rewrap<WRITER>());
+                }
+
+                public void applyDefaults()
+                {
+                }
+
+                public struct READER
+                {
+                    readonly DeserializerState ctx;
+                    public READER(DeserializerState ctx)
+                    {
+                        this.ctx = ctx;
+                    }
+
+                    public static READER create(DeserializerState ctx) => new READER(ctx);
+                    public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                    public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                }
+
+                public class WRITER : SerializerState
+                {
+                    public WRITER()
+                    {
+                        this.SetStruct(0, 0);
+                    }
+                }
+            }
+        }
+
         [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xfd9959998f9f0ebeUL), Proxy(typeof(ModelInstanceFactory_Proxy)), Skeleton(typeof(ModelInstanceFactory_Skeleton))]
         public interface IModelInstanceFactory : Mas.Schema.Common.IIdentifiable
         {
-            Task<Mas.Schema.Common.ICapHolder<object>> NewInstance(CancellationToken cancellationToken_ = default);
-            Task<Mas.Schema.Common.ICapHolder<IReadOnlyList<Mas.Schema.Common.ListEntry<Mas.Schema.Common.ICapHolder<object>>>>> NewInstances(short numberOfInstances, CancellationToken cancellationToken_ = default);
-            Task<Mas.Schema.Common.ICapHolder<Mas.Schema.Common.ZmqPipelineAddresses>> NewCloudViaZmqPipelineProxies(short numberOfInstances, CancellationToken cancellationToken_ = default);
-            Task<Mas.Schema.Common.ICapHolder<object>> NewCloudViaProxy(short numberOfInstances, CancellationToken cancellationToken_ = default);
+            Task<Mas.Schema.Cluster.Cluster.IValueHolder<object>> NewInstance(CancellationToken cancellationToken_ = default);
+            Task<Mas.Schema.Cluster.Cluster.IValueHolder<IReadOnlyList<Mas.Schema.Cluster.Cluster.IValueHolder<object>>>> NewInstances(short numberOfInstances, CancellationToken cancellationToken_ = default);
+            Task<Mas.Schema.Cluster.Cluster.IValueHolder<Mas.Schema.Cluster.Cluster.ZmqPipelineAddresses>> NewCloudViaZmqPipelineProxies(short numberOfInstances, CancellationToken cancellationToken_ = default);
+            Task<Mas.Schema.Cluster.Cluster.IValueHolder<object>> NewCloudViaProxy(short numberOfInstances, CancellationToken cancellationToken_ = default);
             Task<string> ModelId(CancellationToken cancellationToken_ = default);
-            Task<Mas.Schema.Common.ICallback> RegisterModelInstance(BareProxy instance, string registrationToken, CancellationToken cancellationToken_ = default);
-            Task<Mas.Schema.Common.ICapHolder<object>> RestoreSturdyRef(string sturdyRef, CancellationToken cancellationToken_ = default);
+            Task<Mas.Schema.Cluster.Cluster.IUnregister> RegisterModelInstance(BareProxy instance, string registrationToken, CancellationToken cancellationToken_ = default);
+            Task<Mas.Schema.Cluster.Cluster.IValueHolder<object>> RestoreSturdyRef(string sturdyRef, CancellationToken cancellationToken_ = default);
         }
 
         [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xfd9959998f9f0ebeUL)]
         public class ModelInstanceFactory_Proxy : Proxy, IModelInstanceFactory
         {
-            public Task<Mas.Schema.Common.ICapHolder<object>> NewInstance(CancellationToken cancellationToken_ = default)
+            public Task<Mas.Schema.Cluster.Cluster.IValueHolder<object>> NewInstance(CancellationToken cancellationToken_ = default)
             {
                 var in_ = SerializerState.CreateForRpc<Mas.Schema.Cluster.Cluster.ModelInstanceFactory.Params_NewInstance.WRITER>();
                 var arg_ = new Mas.Schema.Cluster.Cluster.ModelInstanceFactory.Params_NewInstance()
@@ -1391,7 +1900,7 @@ namespace Mas.Schema.Cluster
                 );
             }
 
-            public Task<Mas.Schema.Common.ICapHolder<IReadOnlyList<Mas.Schema.Common.ListEntry<Mas.Schema.Common.ICapHolder<object>>>>> NewInstances(short numberOfInstances, CancellationToken cancellationToken_ = default)
+            public Task<Mas.Schema.Cluster.Cluster.IValueHolder<IReadOnlyList<Mas.Schema.Cluster.Cluster.IValueHolder<object>>>> NewInstances(short numberOfInstances, CancellationToken cancellationToken_ = default)
             {
                 var in_ = SerializerState.CreateForRpc<Mas.Schema.Cluster.Cluster.ModelInstanceFactory.Params_NewInstances.WRITER>();
                 var arg_ = new Mas.Schema.Cluster.Cluster.ModelInstanceFactory.Params_NewInstances()
@@ -1409,7 +1918,7 @@ namespace Mas.Schema.Cluster
                 );
             }
 
-            public Task<Mas.Schema.Common.ICapHolder<Mas.Schema.Common.ZmqPipelineAddresses>> NewCloudViaZmqPipelineProxies(short numberOfInstances, CancellationToken cancellationToken_ = default)
+            public Task<Mas.Schema.Cluster.Cluster.IValueHolder<Mas.Schema.Cluster.Cluster.ZmqPipelineAddresses>> NewCloudViaZmqPipelineProxies(short numberOfInstances, CancellationToken cancellationToken_ = default)
             {
                 var in_ = SerializerState.CreateForRpc<Mas.Schema.Cluster.Cluster.ModelInstanceFactory.Params_NewCloudViaZmqPipelineProxies.WRITER>();
                 var arg_ = new Mas.Schema.Cluster.Cluster.ModelInstanceFactory.Params_NewCloudViaZmqPipelineProxies()
@@ -1427,7 +1936,7 @@ namespace Mas.Schema.Cluster
                 );
             }
 
-            public Task<Mas.Schema.Common.ICapHolder<object>> NewCloudViaProxy(short numberOfInstances, CancellationToken cancellationToken_ = default)
+            public Task<Mas.Schema.Cluster.Cluster.IValueHolder<object>> NewCloudViaProxy(short numberOfInstances, CancellationToken cancellationToken_ = default)
             {
                 var in_ = SerializerState.CreateForRpc<Mas.Schema.Cluster.Cluster.ModelInstanceFactory.Params_NewCloudViaProxy.WRITER>();
                 var arg_ = new Mas.Schema.Cluster.Cluster.ModelInstanceFactory.Params_NewCloudViaProxy()
@@ -1458,7 +1967,7 @@ namespace Mas.Schema.Cluster
                 }
             }
 
-            public Task<Mas.Schema.Common.ICallback> RegisterModelInstance(BareProxy instance, string registrationToken, CancellationToken cancellationToken_ = default)
+            public Task<Mas.Schema.Cluster.Cluster.IUnregister> RegisterModelInstance(BareProxy instance, string registrationToken, CancellationToken cancellationToken_ = default)
             {
                 var in_ = SerializerState.CreateForRpc<Mas.Schema.Cluster.Cluster.ModelInstanceFactory.Params_RegisterModelInstance.WRITER>();
                 var arg_ = new Mas.Schema.Cluster.Cluster.ModelInstanceFactory.Params_RegisterModelInstance()
@@ -1476,7 +1985,7 @@ namespace Mas.Schema.Cluster
                 );
             }
 
-            public Task<Mas.Schema.Common.ICapHolder<object>> RestoreSturdyRef(string sturdyRef, CancellationToken cancellationToken_ = default)
+            public Task<Mas.Schema.Cluster.Cluster.IValueHolder<object>> RestoreSturdyRef(string sturdyRef, CancellationToken cancellationToken_ = default)
             {
                 var in_ = SerializerState.CreateForRpc<Mas.Schema.Cluster.Cluster.ModelInstanceFactory.Params_RestoreSturdyRef.WRITER>();
                 var arg_ = new Mas.Schema.Cluster.Cluster.ModelInstanceFactory.Params_RestoreSturdyRef()
@@ -1707,7 +2216,7 @@ namespace Mas.Schema.Cluster
                 {
                 }
 
-                public Mas.Schema.Common.ICapHolder<object> Instance
+                public Mas.Schema.Cluster.Cluster.IValueHolder<object> Instance
                 {
                     get;
                     set;
@@ -1724,7 +2233,7 @@ namespace Mas.Schema.Cluster
                     public static READER create(DeserializerState ctx) => new READER(ctx);
                     public static implicit operator DeserializerState(READER reader) => reader.ctx;
                     public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                    public Mas.Schema.Common.ICapHolder<object> Instance => ctx.ReadCap<Mas.Schema.Common.ICapHolder<object>>(0);
+                    public Mas.Schema.Cluster.Cluster.IValueHolder<object> Instance => ctx.ReadCap<Mas.Schema.Cluster.Cluster.IValueHolder<object>>(0);
                 }
 
                 public class WRITER : SerializerState
@@ -1734,9 +2243,9 @@ namespace Mas.Schema.Cluster
                         this.SetStruct(0, 1);
                     }
 
-                    public Mas.Schema.Common.ICapHolder<object> Instance
+                    public Mas.Schema.Cluster.Cluster.IValueHolder<object> Instance
                     {
-                        get => ReadCap<Mas.Schema.Common.ICapHolder<object>>(0);
+                        get => ReadCap<Mas.Schema.Cluster.Cluster.IValueHolder<object>>(0);
                         set => LinkObject(0, value);
                     }
                 }
@@ -1827,7 +2336,7 @@ namespace Mas.Schema.Cluster
                 {
                 }
 
-                public Mas.Schema.Common.ICapHolder<IReadOnlyList<Mas.Schema.Common.ListEntry<Mas.Schema.Common.ICapHolder<object>>>> Instances
+                public Mas.Schema.Cluster.Cluster.IValueHolder<IReadOnlyList<Mas.Schema.Cluster.Cluster.IValueHolder<object>>> Instances
                 {
                     get;
                     set;
@@ -1844,7 +2353,7 @@ namespace Mas.Schema.Cluster
                     public static READER create(DeserializerState ctx) => new READER(ctx);
                     public static implicit operator DeserializerState(READER reader) => reader.ctx;
                     public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                    public Mas.Schema.Common.ICapHolder<IReadOnlyList<Mas.Schema.Common.ListEntry<Mas.Schema.Common.ICapHolder<object>>>> Instances => ctx.ReadCap<Mas.Schema.Common.ICapHolder<IReadOnlyList<Mas.Schema.Common.ListEntry<Mas.Schema.Common.ICapHolder<object>>>>>(0);
+                    public Mas.Schema.Cluster.Cluster.IValueHolder<IReadOnlyList<Mas.Schema.Cluster.Cluster.IValueHolder<object>>> Instances => ctx.ReadCap<Mas.Schema.Cluster.Cluster.IValueHolder<IReadOnlyList<Mas.Schema.Cluster.Cluster.IValueHolder<object>>>>(0);
                 }
 
                 public class WRITER : SerializerState
@@ -1854,9 +2363,9 @@ namespace Mas.Schema.Cluster
                         this.SetStruct(0, 1);
                     }
 
-                    public Mas.Schema.Common.ICapHolder<IReadOnlyList<Mas.Schema.Common.ListEntry<Mas.Schema.Common.ICapHolder<object>>>> Instances
+                    public Mas.Schema.Cluster.Cluster.IValueHolder<IReadOnlyList<Mas.Schema.Cluster.Cluster.IValueHolder<object>>> Instances
                     {
-                        get => ReadCap<Mas.Schema.Common.ICapHolder<IReadOnlyList<Mas.Schema.Common.ListEntry<Mas.Schema.Common.ICapHolder<object>>>>>(0);
+                        get => ReadCap<Mas.Schema.Cluster.Cluster.IValueHolder<IReadOnlyList<Mas.Schema.Cluster.Cluster.IValueHolder<object>>>>(0);
                         set => LinkObject(0, value);
                     }
                 }
@@ -1947,7 +2456,7 @@ namespace Mas.Schema.Cluster
                 {
                 }
 
-                public Mas.Schema.Common.ICapHolder<Mas.Schema.Common.ZmqPipelineAddresses> ProxyAddresses
+                public Mas.Schema.Cluster.Cluster.IValueHolder<Mas.Schema.Cluster.Cluster.ZmqPipelineAddresses> ProxyAddresses
                 {
                     get;
                     set;
@@ -1964,7 +2473,7 @@ namespace Mas.Schema.Cluster
                     public static READER create(DeserializerState ctx) => new READER(ctx);
                     public static implicit operator DeserializerState(READER reader) => reader.ctx;
                     public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                    public Mas.Schema.Common.ICapHolder<Mas.Schema.Common.ZmqPipelineAddresses> ProxyAddresses => ctx.ReadCap<Mas.Schema.Common.ICapHolder<Mas.Schema.Common.ZmqPipelineAddresses>>(0);
+                    public Mas.Schema.Cluster.Cluster.IValueHolder<Mas.Schema.Cluster.Cluster.ZmqPipelineAddresses> ProxyAddresses => ctx.ReadCap<Mas.Schema.Cluster.Cluster.IValueHolder<Mas.Schema.Cluster.Cluster.ZmqPipelineAddresses>>(0);
                 }
 
                 public class WRITER : SerializerState
@@ -1974,9 +2483,9 @@ namespace Mas.Schema.Cluster
                         this.SetStruct(0, 1);
                     }
 
-                    public Mas.Schema.Common.ICapHolder<Mas.Schema.Common.ZmqPipelineAddresses> ProxyAddresses
+                    public Mas.Schema.Cluster.Cluster.IValueHolder<Mas.Schema.Cluster.Cluster.ZmqPipelineAddresses> ProxyAddresses
                     {
-                        get => ReadCap<Mas.Schema.Common.ICapHolder<Mas.Schema.Common.ZmqPipelineAddresses>>(0);
+                        get => ReadCap<Mas.Schema.Cluster.Cluster.IValueHolder<Mas.Schema.Cluster.Cluster.ZmqPipelineAddresses>>(0);
                         set => LinkObject(0, value);
                     }
                 }
@@ -2067,7 +2576,7 @@ namespace Mas.Schema.Cluster
                 {
                 }
 
-                public Mas.Schema.Common.ICapHolder<object> Proxy
+                public Mas.Schema.Cluster.Cluster.IValueHolder<object> Proxy
                 {
                     get;
                     set;
@@ -2084,7 +2593,7 @@ namespace Mas.Schema.Cluster
                     public static READER create(DeserializerState ctx) => new READER(ctx);
                     public static implicit operator DeserializerState(READER reader) => reader.ctx;
                     public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                    public Mas.Schema.Common.ICapHolder<object> Proxy => ctx.ReadCap<Mas.Schema.Common.ICapHolder<object>>(0);
+                    public Mas.Schema.Cluster.Cluster.IValueHolder<object> Proxy => ctx.ReadCap<Mas.Schema.Cluster.Cluster.IValueHolder<object>>(0);
                 }
 
                 public class WRITER : SerializerState
@@ -2094,9 +2603,9 @@ namespace Mas.Schema.Cluster
                         this.SetStruct(0, 1);
                     }
 
-                    public Mas.Schema.Common.ICapHolder<object> Proxy
+                    public Mas.Schema.Cluster.Cluster.IValueHolder<object> Proxy
                     {
-                        get => ReadCap<Mas.Schema.Common.ICapHolder<object>>(0);
+                        get => ReadCap<Mas.Schema.Cluster.Cluster.IValueHolder<object>>(0);
                         set => LinkObject(0, value);
                     }
                 }
@@ -2308,7 +2817,7 @@ namespace Mas.Schema.Cluster
                 {
                 }
 
-                public Mas.Schema.Common.ICallback Unregister
+                public Mas.Schema.Cluster.Cluster.IUnregister Unregister
                 {
                     get;
                     set;
@@ -2325,7 +2834,7 @@ namespace Mas.Schema.Cluster
                     public static READER create(DeserializerState ctx) => new READER(ctx);
                     public static implicit operator DeserializerState(READER reader) => reader.ctx;
                     public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                    public Mas.Schema.Common.ICallback Unregister => ctx.ReadCap<Mas.Schema.Common.ICallback>(0);
+                    public Mas.Schema.Cluster.Cluster.IUnregister Unregister => ctx.ReadCap<Mas.Schema.Cluster.Cluster.IUnregister>(0);
                 }
 
                 public class WRITER : SerializerState
@@ -2335,9 +2844,9 @@ namespace Mas.Schema.Cluster
                         this.SetStruct(0, 1);
                     }
 
-                    public Mas.Schema.Common.ICallback Unregister
+                    public Mas.Schema.Cluster.Cluster.IUnregister Unregister
                     {
-                        get => ReadCap<Mas.Schema.Common.ICallback>(0);
+                        get => ReadCap<Mas.Schema.Cluster.Cluster.IUnregister>(0);
                         set => LinkObject(0, value);
                     }
                 }
@@ -2428,7 +2937,7 @@ namespace Mas.Schema.Cluster
                 {
                 }
 
-                public Mas.Schema.Common.ICapHolder<object> Cap
+                public Mas.Schema.Cluster.Cluster.IValueHolder<object> Cap
                 {
                     get;
                     set;
@@ -2445,7 +2954,7 @@ namespace Mas.Schema.Cluster
                     public static READER create(DeserializerState ctx) => new READER(ctx);
                     public static implicit operator DeserializerState(READER reader) => reader.ctx;
                     public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                    public Mas.Schema.Common.ICapHolder<object> Cap => ctx.ReadCap<Mas.Schema.Common.ICapHolder<object>>(0);
+                    public Mas.Schema.Cluster.Cluster.IValueHolder<object> Cap => ctx.ReadCap<Mas.Schema.Cluster.Cluster.IValueHolder<object>>(0);
                 }
 
                 public class WRITER : SerializerState
@@ -2455,9 +2964,9 @@ namespace Mas.Schema.Cluster
                         this.SetStruct(0, 1);
                     }
 
-                    public Mas.Schema.Common.ICapHolder<object> Cap
+                    public Mas.Schema.Cluster.Cluster.IValueHolder<object> Cap
                     {
-                        get => ReadCap<Mas.Schema.Common.ICapHolder<object>>(0);
+                        get => ReadCap<Mas.Schema.Cluster.Cluster.IValueHolder<object>>(0);
                         set => LinkObject(0, value);
                     }
                 }

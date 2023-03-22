@@ -10,7 +10,6 @@
 #error "Version mismatch between generated code and library headers.  You must use the same version of the Cap'n Proto compiler and library."
 #endif
 
-#include "../../crop.capnp.h"
 
 CAPNP_BEGIN_HEADER
 
@@ -67,7 +66,7 @@ struct Result {
   struct ResultToValue;
 
   struct _capnpPrivate {
-    CAPNP_DECLARE_STRUCT_HEADER(8db55634a0e7d054, 1, 1)
+    CAPNP_DECLARE_STRUCT_HEADER(8db55634a0e7d054, 1, 2)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
@@ -275,7 +274,8 @@ public:
   }
 #endif  // !CAPNP_LITE
 
-  inline  ::mas::schema::crop::Cultivar getCultivar() const;
+  inline bool hasCultivar() const;
+  inline  ::capnp::Text::Reader getCultivar() const;
 
   inline bool getIsNoData() const;
 
@@ -310,8 +310,12 @@ public:
   inline ::kj::StringTree toString() const { return asReader().toString(); }
 #endif  // !CAPNP_LITE
 
-  inline  ::mas::schema::crop::Cultivar getCultivar();
-  inline void setCultivar( ::mas::schema::crop::Cultivar value);
+  inline bool hasCultivar();
+  inline  ::capnp::Text::Builder getCultivar();
+  inline void setCultivar( ::capnp::Text::Reader value);
+  inline  ::capnp::Text::Builder initCultivar(unsigned int size);
+  inline void adoptCultivar(::capnp::Orphan< ::capnp::Text>&& value);
+  inline ::capnp::Orphan< ::capnp::Text> disownCultivar();
 
   inline bool getIsNoData();
   inline void setIsNoData(bool value);
@@ -807,66 +811,86 @@ inline void RestInput::Builder::setGetDryYearWaterNeed(bool value) {
       ::capnp::bounded<2>() * ::capnp::ELEMENTS, value);
 }
 
-inline  ::mas::schema::crop::Cultivar Result::Reader::getCultivar() const {
-  return _reader.getDataField< ::mas::schema::crop::Cultivar>(
-      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+inline bool Result::Reader::hasCultivar() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-
-inline  ::mas::schema::crop::Cultivar Result::Builder::getCultivar() {
-  return _builder.getDataField< ::mas::schema::crop::Cultivar>(
-      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+inline bool Result::Builder::hasCultivar() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline void Result::Builder::setCultivar( ::mas::schema::crop::Cultivar value) {
-  _builder.setDataField< ::mas::schema::crop::Cultivar>(
-      ::capnp::bounded<0>() * ::capnp::ELEMENTS, value);
+inline  ::capnp::Text::Reader Result::Reader::getCultivar() const {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline  ::capnp::Text::Builder Result::Builder::getCultivar() {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline void Result::Builder::setCultivar( ::capnp::Text::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::Text>::set(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), value);
+}
+inline  ::capnp::Text::Builder Result::Builder::initCultivar(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::init(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), size);
+}
+inline void Result::Builder::adoptCultivar(
+    ::capnp::Orphan< ::capnp::Text>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::Text>::adopt(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::capnp::Text> Result::Builder::disownCultivar() {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::disown(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 
 inline bool Result::Reader::getIsNoData() const {
   return _reader.getDataField<bool>(
-      ::capnp::bounded<16>() * ::capnp::ELEMENTS);
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
 }
 
 inline bool Result::Builder::getIsNoData() {
   return _builder.getDataField<bool>(
-      ::capnp::bounded<16>() * ::capnp::ELEMENTS);
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
 }
 inline void Result::Builder::setIsNoData(bool value) {
   _builder.setDataField<bool>(
-      ::capnp::bounded<16>() * ::capnp::ELEMENTS, value);
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, value);
 }
 
 inline bool Result::Reader::hasValues() const {
   return !_reader.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
 }
 inline bool Result::Builder::hasValues() {
   return !_builder.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
 }
 inline  ::capnp::List< ::mas::schema::model::yieldstat::Result::ResultToValue,  ::capnp::Kind::STRUCT>::Reader Result::Reader::getValues() const {
   return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::model::yieldstat::Result::ResultToValue,  ::capnp::Kind::STRUCT>>::get(_reader.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS));
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
 inline  ::capnp::List< ::mas::schema::model::yieldstat::Result::ResultToValue,  ::capnp::Kind::STRUCT>::Builder Result::Builder::getValues() {
   return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::model::yieldstat::Result::ResultToValue,  ::capnp::Kind::STRUCT>>::get(_builder.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS));
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
 inline void Result::Builder::setValues( ::capnp::List< ::mas::schema::model::yieldstat::Result::ResultToValue,  ::capnp::Kind::STRUCT>::Reader value) {
   ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::model::yieldstat::Result::ResultToValue,  ::capnp::Kind::STRUCT>>::set(_builder.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS), value);
+      ::capnp::bounded<1>() * ::capnp::POINTERS), value);
 }
 inline  ::capnp::List< ::mas::schema::model::yieldstat::Result::ResultToValue,  ::capnp::Kind::STRUCT>::Builder Result::Builder::initValues(unsigned int size) {
   return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::model::yieldstat::Result::ResultToValue,  ::capnp::Kind::STRUCT>>::init(_builder.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS), size);
+      ::capnp::bounded<1>() * ::capnp::POINTERS), size);
 }
 inline void Result::Builder::adoptValues(
     ::capnp::Orphan< ::capnp::List< ::mas::schema::model::yieldstat::Result::ResultToValue,  ::capnp::Kind::STRUCT>>&& value) {
   ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::model::yieldstat::Result::ResultToValue,  ::capnp::Kind::STRUCT>>::adopt(_builder.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
+      ::capnp::bounded<1>() * ::capnp::POINTERS), kj::mv(value));
 }
 inline ::capnp::Orphan< ::capnp::List< ::mas::schema::model::yieldstat::Result::ResultToValue,  ::capnp::Kind::STRUCT>> Result::Builder::disownValues() {
   return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::model::yieldstat::Result::ResultToValue,  ::capnp::Kind::STRUCT>>::disown(_builder.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS));
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
 
 inline  ::mas::schema::model::yieldstat::ResultId Result::ResultToValue::Reader::getId() const {

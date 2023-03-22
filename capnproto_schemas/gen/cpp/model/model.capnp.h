@@ -17,6 +17,7 @@
 #include "common.capnp.h"
 #include "management.capnp.h"
 #include "persistence.capnp.h"
+#include "service.capnp.h"
 #include "soil.capnp.h"
 
 CAPNP_BEGIN_HEADER
@@ -46,6 +47,9 @@ CAPNP_DECLARE_SCHEMA(a5feedafa5ec5c4a);
 CAPNP_DECLARE_SCHEMA(811895634b6bd959);
 CAPNP_DECLARE_SCHEMA(a931ae5cae90ece0);
 CAPNP_DECLARE_SCHEMA(87cbebfc1164a24a);
+CAPNP_DECLARE_SCHEMA(c727892bd5c66f88);
+CAPNP_DECLARE_SCHEMA(82136633e6b6d8ae);
+CAPNP_DECLARE_SCHEMA(e91cc3866fdea82a);
 CAPNP_DECLARE_SCHEMA(d10259a623f95bb4);
 CAPNP_DECLARE_SCHEMA(df50acfa56a9674e);
 CAPNP_DECLARE_SCHEMA(ce552eef738a45ea);
@@ -281,6 +285,7 @@ struct EnvInstanceProxy {
   class Server;
 #endif  // !CAPNP_LITE
 
+  struct Unregister;
   struct RegisterEnvInstanceParams;
   struct RegisterEnvInstanceResults;
 
@@ -294,6 +299,68 @@ struct EnvInstanceProxy {
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return ::capnp::_::ChooseBrand<_capnpPrivate, RestInput, Output>::brand(); }
   };
   #endif  // !CAPNP_LITE
+};
+
+template <typename RestInput, typename Output>
+struct EnvInstanceProxy<RestInput, Output>::Unregister {
+  Unregister() = delete;
+
+#if !CAPNP_LITE
+  class Client;
+  class Server;
+#endif  // !CAPNP_LITE
+
+  struct UnregisterParams;
+  struct UnregisterResults;
+
+  #if !CAPNP_LITE
+  struct _capnpPrivate {
+    CAPNP_DECLARE_INTERFACE_HEADER(c727892bd5c66f88)
+    static const ::capnp::_::RawBrandedSchema::Scope brandScopes[];
+    static const ::capnp::_::RawBrandedSchema::Binding brandBindings[];
+    static const ::capnp::_::RawBrandedSchema::Dependency brandDependencies[];
+    static const ::capnp::_::RawBrandedSchema specificBrand;
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return ::capnp::_::ChooseBrand<_capnpPrivate, RestInput, Output>::brand(); }
+  };
+  #endif  // !CAPNP_LITE
+};
+
+template <typename RestInput, typename Output>
+struct EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterParams {
+  UnregisterParams() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(82136633e6b6d8ae, 0, 0)
+    #if !CAPNP_LITE
+    static const ::capnp::_::RawBrandedSchema::Scope brandScopes[];
+    static const ::capnp::_::RawBrandedSchema::Binding brandBindings[];
+    static const ::capnp::_::RawBrandedSchema specificBrand;
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return ::capnp::_::ChooseBrand<_capnpPrivate, RestInput, Output>::brand(); }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+template <typename RestInput, typename Output>
+struct EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterResults {
+  UnregisterResults() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(e91cc3866fdea82a, 1, 0)
+    #if !CAPNP_LITE
+    static const ::capnp::_::RawBrandedSchema::Scope brandScopes[];
+    static const ::capnp::_::RawBrandedSchema::Binding brandBindings[];
+    static const ::capnp::_::RawBrandedSchema specificBrand;
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return ::capnp::_::ChooseBrand<_capnpPrivate, RestInput, Output>::brand(); }
+    #endif  // !CAPNP_LITE
+  };
 };
 
 template <typename RestInput, typename Output>
@@ -329,13 +396,13 @@ struct EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceResults {
     #if !CAPNP_LITE
     static const ::capnp::_::RawBrandedSchema::Scope brandScopes[];
     static const ::capnp::_::RawBrandedSchema::Binding brandBindings[];
+    static const ::capnp::_::RawBrandedSchema::Dependency brandDependencies[];
     static const ::capnp::_::RawBrandedSchema specificBrand;
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return ::capnp::_::ChooseBrand<_capnpPrivate, RestInput, Output>::brand(); }
     #endif  // !CAPNP_LITE
   };
 };
 
-template <typename InstanceType = ::capnp::AnyPointer>
 struct InstanceFactory {
   InstanceFactory() = delete;
 
@@ -353,17 +420,12 @@ struct InstanceFactory {
   #if !CAPNP_LITE
   struct _capnpPrivate {
     CAPNP_DECLARE_INTERFACE_HEADER(ce552eef738a45ea)
-    static const ::capnp::_::RawBrandedSchema::Scope brandScopes[];
-    static const ::capnp::_::RawBrandedSchema::Binding brandBindings[];
-    static const ::capnp::_::RawBrandedSchema::Dependency brandDependencies[];
-    static const ::capnp::_::RawBrandedSchema specificBrand;
-    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return ::capnp::_::ChooseBrand<_capnpPrivate, InstanceType>::brand(); }
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
   };
   #endif  // !CAPNP_LITE
 };
 
-template <typename InstanceType>
-struct InstanceFactory<InstanceType>::ModelInfoParams {
+struct InstanceFactory::ModelInfoParams {
   ModelInfoParams() = delete;
 
   class Reader;
@@ -373,16 +435,12 @@ struct InstanceFactory<InstanceType>::ModelInfoParams {
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(bf49e08cc9412aaf, 0, 0)
     #if !CAPNP_LITE
-    static const ::capnp::_::RawBrandedSchema::Scope brandScopes[];
-    static const ::capnp::_::RawBrandedSchema::Binding brandBindings[];
-    static const ::capnp::_::RawBrandedSchema specificBrand;
-    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return ::capnp::_::ChooseBrand<_capnpPrivate, InstanceType>::brand(); }
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
   };
 };
 
-template <typename InstanceType>
-struct InstanceFactory<InstanceType>::NewInstanceParams {
+struct InstanceFactory::NewInstanceParams {
   NewInstanceParams() = delete;
 
   class Reader;
@@ -392,16 +450,12 @@ struct InstanceFactory<InstanceType>::NewInstanceParams {
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(9ee4515395213845, 0, 0)
     #if !CAPNP_LITE
-    static const ::capnp::_::RawBrandedSchema::Scope brandScopes[];
-    static const ::capnp::_::RawBrandedSchema::Binding brandBindings[];
-    static const ::capnp::_::RawBrandedSchema specificBrand;
-    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return ::capnp::_::ChooseBrand<_capnpPrivate, InstanceType>::brand(); }
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
   };
 };
 
-template <typename InstanceType>
-struct InstanceFactory<InstanceType>::NewInstanceResults {
+struct InstanceFactory::NewInstanceResults {
   NewInstanceResults() = delete;
 
   class Reader;
@@ -411,16 +465,12 @@ struct InstanceFactory<InstanceType>::NewInstanceResults {
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(f013eda158070488, 0, 1)
     #if !CAPNP_LITE
-    static const ::capnp::_::RawBrandedSchema::Scope brandScopes[];
-    static const ::capnp::_::RawBrandedSchema::Binding brandBindings[];
-    static const ::capnp::_::RawBrandedSchema specificBrand;
-    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return ::capnp::_::ChooseBrand<_capnpPrivate, InstanceType>::brand(); }
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
   };
 };
 
-template <typename InstanceType>
-struct InstanceFactory<InstanceType>::NewInstancesParams {
+struct InstanceFactory::NewInstancesParams {
   NewInstancesParams() = delete;
 
   class Reader;
@@ -430,16 +480,12 @@ struct InstanceFactory<InstanceType>::NewInstancesParams {
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(d9fa9ece71d1db50, 1, 0)
     #if !CAPNP_LITE
-    static const ::capnp::_::RawBrandedSchema::Scope brandScopes[];
-    static const ::capnp::_::RawBrandedSchema::Binding brandBindings[];
-    static const ::capnp::_::RawBrandedSchema specificBrand;
-    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return ::capnp::_::ChooseBrand<_capnpPrivate, InstanceType>::brand(); }
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
   };
 };
 
-template <typename InstanceType>
-struct InstanceFactory<InstanceType>::NewInstancesResults {
+struct InstanceFactory::NewInstancesResults {
   NewInstancesResults() = delete;
 
   class Reader;
@@ -449,11 +495,7 @@ struct InstanceFactory<InstanceType>::NewInstancesResults {
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(af9a1cb72ba68156, 0, 1)
     #if !CAPNP_LITE
-    static const ::capnp::_::RawBrandedSchema::Scope brandScopes[];
-    static const ::capnp::_::RawBrandedSchema::Binding brandBindings[];
-    static const ::capnp::_::RawBrandedSchema::Dependency brandDependencies[];
-    static const ::capnp::_::RawBrandedSchema specificBrand;
-    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return ::capnp::_::ChooseBrand<_capnpPrivate, InstanceType>::brand(); }
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
   };
 };
@@ -1266,7 +1308,7 @@ class EnvInstance<RestInput, Output>::Client
     : public virtual ::capnp::Capability::Client,
       public virtual  ::mas::schema::common::Identifiable::Client,
       public virtual  ::mas::schema::persistence::Persistent::Client,
-      public virtual  ::mas::schema::common::Stopable::Client {
+      public virtual  ::mas::schema::service::Stopable::Client {
 public:
   typedef EnvInstance Calls;
   typedef EnvInstance Reads;
@@ -1300,7 +1342,7 @@ class EnvInstance<RestInput, Output>::Server
     : public virtual ::capnp::Capability::Server,
       public virtual  ::mas::schema::common::Identifiable::Server,
       public virtual  ::mas::schema::persistence::Persistent::Server,
-      public virtual  ::mas::schema::common::Stopable::Server {
+      public virtual  ::mas::schema::service::Stopable::Server {
 public:
   typedef EnvInstance Serves;
 
@@ -1579,6 +1621,239 @@ protected:
 };
 #endif  // !CAPNP_LITE
 
+#if !CAPNP_LITE
+template <typename RestInput, typename Output>
+class EnvInstanceProxy<RestInput, Output>::Unregister::Client
+    : public virtual ::capnp::Capability::Client {
+public:
+  typedef Unregister Calls;
+  typedef Unregister Reads;
+
+  Client(decltype(nullptr));
+  explicit Client(::kj::Own< ::capnp::ClientHook>&& hook);
+  template <typename _t, typename = ::kj::EnableIf< ::kj::canConvert<_t*, Server*>()>>
+  Client(::kj::Own<_t>&& server);
+  template <typename _t, typename = ::kj::EnableIf< ::kj::canConvert<_t*, Client*>()>>
+  Client(::kj::Promise<_t>&& promise);
+  Client(::kj::Exception&& exception);
+  Client(Client&) = default;
+  Client(Client&&) = default;
+  Client& operator=(Client& other);
+  Client& operator=(Client&& other);
+
+  template <typename RestInput2 = ::capnp::AnyPointer, typename Output2 = ::capnp::AnyPointer>
+  typename EnvInstanceProxy<RestInput2, Output2>::Unregister::Client asEnvInstanceProxyGeneric() {
+    return castAs<typename EnvInstanceProxy<RestInput2, Output2>::Unregister>();
+  }
+
+  CAPNP_AUTO_IF_MSVC(::capnp::Request<typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterParams, typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterResults>) unregisterRequest(
+      ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
+
+protected:
+  Client() = default;
+};
+
+template <typename RestInput, typename Output>
+class EnvInstanceProxy<RestInput, Output>::Unregister::Server
+    : public virtual ::capnp::Capability::Server {
+public:
+  typedef Unregister Serves;
+
+  ::capnp::Capability::Server::DispatchCallResult dispatchCall(
+      uint64_t interfaceId, uint16_t methodId,
+      ::capnp::CallContext< ::capnp::AnyPointer, ::capnp::AnyPointer> context)
+      override;
+
+protected:
+  typedef typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterParams UnregisterParams;
+  typedef typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterResults UnregisterResults;
+  typedef ::capnp::CallContext<UnregisterParams, UnregisterResults> UnregisterContext;
+  virtual ::kj::Promise<void> unregister(UnregisterContext context);
+
+  inline typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister::Client thisCap() {
+    return ::capnp::Capability::Server::thisCap()
+        .template castAs<typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister>();
+  }
+
+  ::capnp::Capability::Server::DispatchCallResult dispatchCallInternal(
+      uint16_t methodId,
+      ::capnp::CallContext< ::capnp::AnyPointer, ::capnp::AnyPointer> context);
+};
+#endif  // !CAPNP_LITE
+
+template <typename RestInput, typename Output>
+class EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterParams::Reader {
+public:
+  typedef UnregisterParams Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  template <typename RestInput2 = ::capnp::AnyPointer, typename Output2 = ::capnp::AnyPointer>
+  typename EnvInstanceProxy<RestInput2, Output2>::Unregister::Reader asEnvInstanceProxyGeneric() {
+    return typename EnvInstanceProxy<RestInput2, Output2>::Unregister::Reader(_reader);
+  }
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+template <typename RestInput, typename Output>
+class EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterParams::Builder {
+public:
+  typedef UnregisterParams Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  template <typename RestInput2 = ::capnp::AnyPointer, typename Output2 = ::capnp::AnyPointer>
+  typename EnvInstanceProxy<RestInput2, Output2>::Unregister::Builder asEnvInstanceProxyGeneric() {
+    return typename EnvInstanceProxy<RestInput2, Output2>::Unregister::Builder(_builder);
+  }
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+template <typename RestInput, typename Output>
+class EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterParams::Pipeline {
+public:
+  typedef UnregisterParams Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+template <typename RestInput, typename Output>
+class EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterResults::Reader {
+public:
+  typedef UnregisterResults Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  template <typename RestInput2 = ::capnp::AnyPointer, typename Output2 = ::capnp::AnyPointer>
+  typename EnvInstanceProxy<RestInput2, Output2>::Unregister::Reader asEnvInstanceProxyGeneric() {
+    return typename EnvInstanceProxy<RestInput2, Output2>::Unregister::Reader(_reader);
+  }
+
+  inline bool getSuccess() const;
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+template <typename RestInput, typename Output>
+class EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterResults::Builder {
+public:
+  typedef UnregisterResults Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  template <typename RestInput2 = ::capnp::AnyPointer, typename Output2 = ::capnp::AnyPointer>
+  typename EnvInstanceProxy<RestInput2, Output2>::Unregister::Builder asEnvInstanceProxyGeneric() {
+    return typename EnvInstanceProxy<RestInput2, Output2>::Unregister::Builder(_builder);
+  }
+
+  inline bool getSuccess();
+  inline void setSuccess(bool value);
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+template <typename RestInput, typename Output>
+class EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterResults::Pipeline {
+public:
+  typedef UnregisterResults Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
 template <typename RestInput, typename Output>
 class EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceParams::Reader {
 public:
@@ -1703,7 +1978,7 @@ public:
 
   inline bool hasUnregister() const;
 #if !CAPNP_LITE
-  inline  ::mas::schema::common::Action::Client getUnregister() const;
+  inline typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister::Client getUnregister() const;
 #endif  // !CAPNP_LITE
 
 private:
@@ -1742,11 +2017,11 @@ public:
 
   inline bool hasUnregister();
 #if !CAPNP_LITE
-  inline  ::mas::schema::common::Action::Client getUnregister();
-  inline void setUnregister( ::mas::schema::common::Action::Client&& value);
-  inline void setUnregister( ::mas::schema::common::Action::Client& value);
-  inline void adoptUnregister(::capnp::Orphan< ::mas::schema::common::Action>&& value);
-  inline ::capnp::Orphan< ::mas::schema::common::Action> disownUnregister();
+  inline typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister::Client getUnregister();
+  inline void setUnregister(typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister::Client&& value);
+  inline void setUnregister(typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister::Client& value);
+  inline void adoptUnregister(::capnp::Orphan<typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister>&& value);
+  inline ::capnp::Orphan<typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister> disownUnregister();
 #endif  // !CAPNP_LITE
 
 private:
@@ -1768,7 +2043,7 @@ public:
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
       : _typeless(kj::mv(typeless)) {}
 
-  inline  ::mas::schema::common::Action::Client getUnregister();
+  inline typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister::Client getUnregister();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -1778,8 +2053,7 @@ private:
 #endif  // !CAPNP_LITE
 
 #if !CAPNP_LITE
-template <typename InstanceType>
-class InstanceFactory<InstanceType>::Client
+class InstanceFactory::Client
     : public virtual ::capnp::Capability::Client,
       public virtual  ::mas::schema::common::Identifiable::Client {
 public:
@@ -1798,24 +2072,18 @@ public:
   Client& operator=(Client& other);
   Client& operator=(Client&& other);
 
-  template <typename InstanceType2 = ::capnp::AnyPointer>
-  typename InstanceFactory<InstanceType2>::Client asGeneric() {
-    return castAs<InstanceFactory<InstanceType2>>();
-  }
-
-  CAPNP_AUTO_IF_MSVC(::capnp::Request<typename  ::mas::schema::model::InstanceFactory<InstanceType>::ModelInfoParams,  ::mas::schema::common::IdInformation>) modelInfoRequest(
+  ::capnp::Request< ::mas::schema::model::InstanceFactory::ModelInfoParams,  ::mas::schema::common::IdInformation> modelInfoRequest(
       ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
-  CAPNP_AUTO_IF_MSVC(::capnp::Request<typename  ::mas::schema::model::InstanceFactory<InstanceType>::NewInstanceParams, typename  ::mas::schema::model::InstanceFactory<InstanceType>::NewInstanceResults>) newInstanceRequest(
+  ::capnp::Request< ::mas::schema::model::InstanceFactory::NewInstanceParams,  ::mas::schema::model::InstanceFactory::NewInstanceResults> newInstanceRequest(
       ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
-  CAPNP_AUTO_IF_MSVC(::capnp::Request<typename  ::mas::schema::model::InstanceFactory<InstanceType>::NewInstancesParams, typename  ::mas::schema::model::InstanceFactory<InstanceType>::NewInstancesResults>) newInstancesRequest(
+  ::capnp::Request< ::mas::schema::model::InstanceFactory::NewInstancesParams,  ::mas::schema::model::InstanceFactory::NewInstancesResults> newInstancesRequest(
       ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
 
 protected:
   Client() = default;
 };
 
-template <typename InstanceType>
-class InstanceFactory<InstanceType>::Server
+class InstanceFactory::Server
     : public virtual ::capnp::Capability::Server,
       public virtual  ::mas::schema::common::Identifiable::Server {
 public:
@@ -1827,21 +2095,21 @@ public:
       override;
 
 protected:
-  typedef typename  ::mas::schema::model::InstanceFactory<InstanceType>::ModelInfoParams ModelInfoParams;
+  typedef  ::mas::schema::model::InstanceFactory::ModelInfoParams ModelInfoParams;
   typedef ::capnp::CallContext<ModelInfoParams,  ::mas::schema::common::IdInformation> ModelInfoContext;
   virtual ::kj::Promise<void> modelInfo(ModelInfoContext context);
-  typedef typename  ::mas::schema::model::InstanceFactory<InstanceType>::NewInstanceParams NewInstanceParams;
-  typedef typename  ::mas::schema::model::InstanceFactory<InstanceType>::NewInstanceResults NewInstanceResults;
+  typedef  ::mas::schema::model::InstanceFactory::NewInstanceParams NewInstanceParams;
+  typedef  ::mas::schema::model::InstanceFactory::NewInstanceResults NewInstanceResults;
   typedef ::capnp::CallContext<NewInstanceParams, NewInstanceResults> NewInstanceContext;
   virtual ::kj::Promise<void> newInstance(NewInstanceContext context);
-  typedef typename  ::mas::schema::model::InstanceFactory<InstanceType>::NewInstancesParams NewInstancesParams;
-  typedef typename  ::mas::schema::model::InstanceFactory<InstanceType>::NewInstancesResults NewInstancesResults;
+  typedef  ::mas::schema::model::InstanceFactory::NewInstancesParams NewInstancesParams;
+  typedef  ::mas::schema::model::InstanceFactory::NewInstancesResults NewInstancesResults;
   typedef ::capnp::CallContext<NewInstancesParams, NewInstancesResults> NewInstancesContext;
   virtual ::kj::Promise<void> newInstances(NewInstancesContext context);
 
-  inline typename  ::mas::schema::model::InstanceFactory<InstanceType>::Client thisCap() {
+  inline  ::mas::schema::model::InstanceFactory::Client thisCap() {
     return ::capnp::Capability::Server::thisCap()
-        .template castAs< ::mas::schema::model::InstanceFactory<InstanceType>>();
+        .template castAs< ::mas::schema::model::InstanceFactory>();
   }
 
   ::capnp::Capability::Server::DispatchCallResult dispatchCallInternal(
@@ -1850,8 +2118,7 @@ protected:
 };
 #endif  // !CAPNP_LITE
 
-template <typename InstanceType>
-class InstanceFactory<InstanceType>::ModelInfoParams::Reader {
+class InstanceFactory::ModelInfoParams::Reader {
 public:
   typedef ModelInfoParams Reads;
 
@@ -1868,11 +2135,6 @@ public:
   }
 #endif  // !CAPNP_LITE
 
-  template <typename InstanceType2 = ::capnp::AnyPointer>
-  typename InstanceFactory<InstanceType2>::ModelInfoParams::Reader asInstanceFactoryGeneric() {
-    return typename InstanceFactory<InstanceType2>::ModelInfoParams::Reader(_reader);
-  }
-
 private:
   ::capnp::_::StructReader _reader;
   template <typename, ::capnp::Kind>
@@ -1885,8 +2147,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-template <typename InstanceType>
-class InstanceFactory<InstanceType>::ModelInfoParams::Builder {
+class InstanceFactory::ModelInfoParams::Builder {
 public:
   typedef ModelInfoParams Builds;
 
@@ -1902,11 +2163,6 @@ public:
   inline ::kj::StringTree toString() const { return asReader().toString(); }
 #endif  // !CAPNP_LITE
 
-  template <typename InstanceType2 = ::capnp::AnyPointer>
-  typename InstanceFactory<InstanceType2>::ModelInfoParams::Builder asInstanceFactoryGeneric() {
-    return typename InstanceFactory<InstanceType2>::ModelInfoParams::Builder(_builder);
-  }
-
 private:
   ::capnp::_::StructBuilder _builder;
   template <typename, ::capnp::Kind>
@@ -1917,8 +2173,7 @@ private:
 };
 
 #if !CAPNP_LITE
-template <typename InstanceType>
-class InstanceFactory<InstanceType>::ModelInfoParams::Pipeline {
+class InstanceFactory::ModelInfoParams::Pipeline {
 public:
   typedef ModelInfoParams Pipelines;
 
@@ -1934,8 +2189,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-template <typename InstanceType>
-class InstanceFactory<InstanceType>::NewInstanceParams::Reader {
+class InstanceFactory::NewInstanceParams::Reader {
 public:
   typedef NewInstanceParams Reads;
 
@@ -1952,11 +2206,6 @@ public:
   }
 #endif  // !CAPNP_LITE
 
-  template <typename InstanceType2 = ::capnp::AnyPointer>
-  typename InstanceFactory<InstanceType2>::NewInstanceParams::Reader asInstanceFactoryGeneric() {
-    return typename InstanceFactory<InstanceType2>::NewInstanceParams::Reader(_reader);
-  }
-
 private:
   ::capnp::_::StructReader _reader;
   template <typename, ::capnp::Kind>
@@ -1969,8 +2218,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-template <typename InstanceType>
-class InstanceFactory<InstanceType>::NewInstanceParams::Builder {
+class InstanceFactory::NewInstanceParams::Builder {
 public:
   typedef NewInstanceParams Builds;
 
@@ -1986,11 +2234,6 @@ public:
   inline ::kj::StringTree toString() const { return asReader().toString(); }
 #endif  // !CAPNP_LITE
 
-  template <typename InstanceType2 = ::capnp::AnyPointer>
-  typename InstanceFactory<InstanceType2>::NewInstanceParams::Builder asInstanceFactoryGeneric() {
-    return typename InstanceFactory<InstanceType2>::NewInstanceParams::Builder(_builder);
-  }
-
 private:
   ::capnp::_::StructBuilder _builder;
   template <typename, ::capnp::Kind>
@@ -2001,8 +2244,7 @@ private:
 };
 
 #if !CAPNP_LITE
-template <typename InstanceType>
-class InstanceFactory<InstanceType>::NewInstanceParams::Pipeline {
+class InstanceFactory::NewInstanceParams::Pipeline {
 public:
   typedef NewInstanceParams Pipelines;
 
@@ -2018,8 +2260,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-template <typename InstanceType>
-class InstanceFactory<InstanceType>::NewInstanceResults::Reader {
+class InstanceFactory::NewInstanceResults::Reader {
 public:
   typedef NewInstanceResults Reads;
 
@@ -2036,13 +2277,10 @@ public:
   }
 #endif  // !CAPNP_LITE
 
-  template <typename InstanceType2 = ::capnp::AnyPointer>
-  typename InstanceFactory<InstanceType2>::NewInstanceResults::Reader asInstanceFactoryGeneric() {
-    return typename InstanceFactory<InstanceType2>::NewInstanceResults::Reader(_reader);
-  }
-
   inline bool hasInstance() const;
-  inline  ::capnp::ReaderFor<InstanceType> getInstance() const;
+#if !CAPNP_LITE
+  inline  ::mas::schema::common::Identifiable::Client getInstance() const;
+#endif  // !CAPNP_LITE
 
 private:
   ::capnp::_::StructReader _reader;
@@ -2056,8 +2294,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-template <typename InstanceType>
-class InstanceFactory<InstanceType>::NewInstanceResults::Builder {
+class InstanceFactory::NewInstanceResults::Builder {
 public:
   typedef NewInstanceResults Builds;
 
@@ -2073,18 +2310,14 @@ public:
   inline ::kj::StringTree toString() const { return asReader().toString(); }
 #endif  // !CAPNP_LITE
 
-  template <typename InstanceType2 = ::capnp::AnyPointer>
-  typename InstanceFactory<InstanceType2>::NewInstanceResults::Builder asInstanceFactoryGeneric() {
-    return typename InstanceFactory<InstanceType2>::NewInstanceResults::Builder(_builder);
-  }
-
   inline bool hasInstance();
-  inline  ::capnp::BuilderFor<InstanceType> getInstance();
-  inline void setInstance( ::capnp::ReaderFor<InstanceType> value);
-  inline  ::capnp::BuilderFor<InstanceType> initInstance();
-  inline  ::capnp::BuilderFor<InstanceType> initInstance(unsigned int size);
-  inline void adoptInstance(::capnp::Orphan<InstanceType>&& value);
-  inline ::capnp::Orphan<InstanceType> disownInstance();
+#if !CAPNP_LITE
+  inline  ::mas::schema::common::Identifiable::Client getInstance();
+  inline void setInstance( ::mas::schema::common::Identifiable::Client&& value);
+  inline void setInstance( ::mas::schema::common::Identifiable::Client& value);
+  inline void adoptInstance(::capnp::Orphan< ::mas::schema::common::Identifiable>&& value);
+  inline ::capnp::Orphan< ::mas::schema::common::Identifiable> disownInstance();
+#endif  // !CAPNP_LITE
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -2096,8 +2329,7 @@ private:
 };
 
 #if !CAPNP_LITE
-template <typename InstanceType>
-class InstanceFactory<InstanceType>::NewInstanceResults::Pipeline {
+class InstanceFactory::NewInstanceResults::Pipeline {
 public:
   typedef NewInstanceResults Pipelines;
 
@@ -2105,7 +2337,7 @@ public:
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
       : _typeless(kj::mv(typeless)) {}
 
-  inline  ::capnp::PipelineFor<InstanceType> getInstance();
+  inline  ::mas::schema::common::Identifiable::Client getInstance();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -2114,8 +2346,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-template <typename InstanceType>
-class InstanceFactory<InstanceType>::NewInstancesParams::Reader {
+class InstanceFactory::NewInstancesParams::Reader {
 public:
   typedef NewInstancesParams Reads;
 
@@ -2132,11 +2363,6 @@ public:
   }
 #endif  // !CAPNP_LITE
 
-  template <typename InstanceType2 = ::capnp::AnyPointer>
-  typename InstanceFactory<InstanceType2>::NewInstancesParams::Reader asInstanceFactoryGeneric() {
-    return typename InstanceFactory<InstanceType2>::NewInstancesParams::Reader(_reader);
-  }
-
   inline  ::int16_t getNumberOfInstances() const;
 
 private:
@@ -2151,8 +2377,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-template <typename InstanceType>
-class InstanceFactory<InstanceType>::NewInstancesParams::Builder {
+class InstanceFactory::NewInstancesParams::Builder {
 public:
   typedef NewInstancesParams Builds;
 
@@ -2168,11 +2393,6 @@ public:
   inline ::kj::StringTree toString() const { return asReader().toString(); }
 #endif  // !CAPNP_LITE
 
-  template <typename InstanceType2 = ::capnp::AnyPointer>
-  typename InstanceFactory<InstanceType2>::NewInstancesParams::Builder asInstanceFactoryGeneric() {
-    return typename InstanceFactory<InstanceType2>::NewInstancesParams::Builder(_builder);
-  }
-
   inline  ::int16_t getNumberOfInstances();
   inline void setNumberOfInstances( ::int16_t value);
 
@@ -2186,8 +2406,7 @@ private:
 };
 
 #if !CAPNP_LITE
-template <typename InstanceType>
-class InstanceFactory<InstanceType>::NewInstancesParams::Pipeline {
+class InstanceFactory::NewInstancesParams::Pipeline {
 public:
   typedef NewInstancesParams Pipelines;
 
@@ -2203,8 +2422,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-template <typename InstanceType>
-class InstanceFactory<InstanceType>::NewInstancesResults::Reader {
+class InstanceFactory::NewInstancesResults::Reader {
 public:
   typedef NewInstancesResults Reads;
 
@@ -2221,13 +2439,10 @@ public:
   }
 #endif  // !CAPNP_LITE
 
-  template <typename InstanceType2 = ::capnp::AnyPointer>
-  typename InstanceFactory<InstanceType2>::NewInstancesResults::Reader asInstanceFactoryGeneric() {
-    return typename InstanceFactory<InstanceType2>::NewInstancesResults::Reader(_reader);
-  }
-
   inline bool hasInstances() const;
-  inline typename  ::capnp::List< ::mas::schema::common::ListEntry<InstanceType>,  ::capnp::Kind::STRUCT>::Reader getInstances() const;
+#if !CAPNP_LITE
+  inline  ::capnp::List< ::mas::schema::common::Identifiable,  ::capnp::Kind::INTERFACE>::Reader getInstances() const;
+#endif  // !CAPNP_LITE
 
 private:
   ::capnp::_::StructReader _reader;
@@ -2241,8 +2456,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-template <typename InstanceType>
-class InstanceFactory<InstanceType>::NewInstancesResults::Builder {
+class InstanceFactory::NewInstancesResults::Builder {
 public:
   typedef NewInstancesResults Builds;
 
@@ -2258,17 +2472,14 @@ public:
   inline ::kj::StringTree toString() const { return asReader().toString(); }
 #endif  // !CAPNP_LITE
 
-  template <typename InstanceType2 = ::capnp::AnyPointer>
-  typename InstanceFactory<InstanceType2>::NewInstancesResults::Builder asInstanceFactoryGeneric() {
-    return typename InstanceFactory<InstanceType2>::NewInstancesResults::Builder(_builder);
-  }
-
   inline bool hasInstances();
-  inline typename  ::capnp::List< ::mas::schema::common::ListEntry<InstanceType>,  ::capnp::Kind::STRUCT>::Builder getInstances();
-  inline void setInstances(typename  ::capnp::List< ::mas::schema::common::ListEntry<InstanceType>,  ::capnp::Kind::STRUCT>::Reader value);
-  inline typename  ::capnp::List< ::mas::schema::common::ListEntry<InstanceType>,  ::capnp::Kind::STRUCT>::Builder initInstances(unsigned int size);
-  inline void adoptInstances(::capnp::Orphan< ::capnp::List< ::mas::schema::common::ListEntry<InstanceType>,  ::capnp::Kind::STRUCT>>&& value);
-  inline ::capnp::Orphan< ::capnp::List< ::mas::schema::common::ListEntry<InstanceType>,  ::capnp::Kind::STRUCT>> disownInstances();
+#if !CAPNP_LITE
+  inline  ::capnp::List< ::mas::schema::common::Identifiable,  ::capnp::Kind::INTERFACE>::Builder getInstances();
+  inline void setInstances( ::capnp::List< ::mas::schema::common::Identifiable,  ::capnp::Kind::INTERFACE>::Reader value);
+  inline  ::capnp::List< ::mas::schema::common::Identifiable,  ::capnp::Kind::INTERFACE>::Builder initInstances(unsigned int size);
+  inline void adoptInstances(::capnp::Orphan< ::capnp::List< ::mas::schema::common::Identifiable,  ::capnp::Kind::INTERFACE>>&& value);
+  inline ::capnp::Orphan< ::capnp::List< ::mas::schema::common::Identifiable,  ::capnp::Kind::INTERFACE>> disownInstances();
+#endif  // !CAPNP_LITE
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -2280,8 +2491,7 @@ private:
 };
 
 #if !CAPNP_LITE
-template <typename InstanceType>
-class InstanceFactory<InstanceType>::NewInstancesResults::Pipeline {
+class InstanceFactory::NewInstancesResults::Pipeline {
 public:
   typedef NewInstancesResults Pipelines;
 
@@ -3105,8 +3315,8 @@ template <typename RestInput, typename Output>
       return  ::mas::schema::common::Identifiable::Server::dispatchCallInternal(methodId, context);
     case 0xc1a7daa0dc36cb65ull:
       return  ::mas::schema::persistence::Persistent::Server::dispatchCallInternal(methodId, context);
-    case 0xce7e4202f09e314aull:
-      return  ::mas::schema::common::Stopable::Server::dispatchCallInternal(methodId, context);
+    case 0xe9d1be2a6e9016e5ull:
+      return  ::mas::schema::service::Stopable::Server::dispatchCallInternal(methodId, context);
     default:
       return internalUnimplemented("model.capnp:EnvInstance", interfaceId);
   }
@@ -3189,6 +3399,177 @@ inline typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Clie
 }
 
 #endif  // !CAPNP_LITE
+#if !CAPNP_LITE
+template <typename RestInput, typename Output>
+inline EnvInstanceProxy<RestInput, Output>::Unregister::Client::Client(decltype(nullptr))
+    : ::capnp::Capability::Client(nullptr) {}
+template <typename RestInput, typename Output>
+inline EnvInstanceProxy<RestInput, Output>::Unregister::Client::Client(
+    ::kj::Own< ::capnp::ClientHook>&& hook)
+    : ::capnp::Capability::Client(::kj::mv(hook)) {}
+template <typename RestInput, typename Output>
+template <typename _t, typename>
+inline EnvInstanceProxy<RestInput, Output>::Unregister::Client::Client(::kj::Own<_t>&& server)
+    : ::capnp::Capability::Client(::kj::mv(server)) {}
+template <typename RestInput, typename Output>
+template <typename _t, typename>
+inline EnvInstanceProxy<RestInput, Output>::Unregister::Client::Client(::kj::Promise<_t>&& promise)
+    : ::capnp::Capability::Client(::kj::mv(promise)) {}
+template <typename RestInput, typename Output>
+inline EnvInstanceProxy<RestInput, Output>::Unregister::Client::Client(::kj::Exception&& exception)
+    : ::capnp::Capability::Client(::kj::mv(exception)) {}
+template <typename RestInput, typename Output>
+inline typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister::Client& EnvInstanceProxy<RestInput, Output>::Unregister::Client::operator=(Client& other) {
+  ::capnp::Capability::Client::operator=(other);
+  return *this;
+}
+template <typename RestInput, typename Output>
+inline typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister::Client& EnvInstanceProxy<RestInput, Output>::Unregister::Client::operator=(Client&& other) {
+  ::capnp::Capability::Client::operator=(kj::mv(other));
+  return *this;
+}
+
+#endif  // !CAPNP_LITE
+// EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterParams
+template <typename RestInput, typename Output>
+constexpr uint16_t EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterParams::_capnpPrivate::dataWordSize;
+template <typename RestInput, typename Output>
+constexpr uint16_t EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterParams::_capnpPrivate::pointerCount;
+#if !CAPNP_LITE
+template <typename RestInput, typename Output>
+constexpr ::capnp::Kind EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterParams::_capnpPrivate::kind;
+template <typename RestInput, typename Output>
+constexpr ::capnp::_::RawSchema const* EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterParams::_capnpPrivate::schema;
+template <typename RestInput, typename Output>
+const ::capnp::_::RawBrandedSchema::Scope EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterParams::_capnpPrivate::brandScopes[] = {
+  { 0x87cbebfc1164a24a, brandBindings + 0, 2, false},
+};
+template <typename RestInput, typename Output>
+const ::capnp::_::RawBrandedSchema::Binding EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterParams::_capnpPrivate::brandBindings[] = {
+  ::capnp::_::brandBindingFor<RestInput>(),
+  ::capnp::_::brandBindingFor<Output>(),
+};
+template <typename RestInput, typename Output>
+const ::capnp::_::RawBrandedSchema EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterParams::_capnpPrivate::specificBrand = {
+  &::capnp::schemas::s_82136633e6b6d8ae, brandScopes, nullptr,
+  1, 0, nullptr
+};
+#endif  // !CAPNP_LITE
+
+template <typename RestInput, typename Output>
+inline bool EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterResults::Reader::getSuccess() const {
+  return _reader.getDataField<bool>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+
+template <typename RestInput, typename Output>
+inline bool EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterResults::Builder::getSuccess() {
+  return _builder.getDataField<bool>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+template <typename RestInput, typename Output>
+inline void EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterResults::Builder::setSuccess(bool value) {
+  _builder.setDataField<bool>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, value);
+}
+
+// EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterResults
+template <typename RestInput, typename Output>
+constexpr uint16_t EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterResults::_capnpPrivate::dataWordSize;
+template <typename RestInput, typename Output>
+constexpr uint16_t EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterResults::_capnpPrivate::pointerCount;
+#if !CAPNP_LITE
+template <typename RestInput, typename Output>
+constexpr ::capnp::Kind EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterResults::_capnpPrivate::kind;
+template <typename RestInput, typename Output>
+constexpr ::capnp::_::RawSchema const* EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterResults::_capnpPrivate::schema;
+template <typename RestInput, typename Output>
+const ::capnp::_::RawBrandedSchema::Scope EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterResults::_capnpPrivate::brandScopes[] = {
+  { 0x87cbebfc1164a24a, brandBindings + 0, 2, false},
+};
+template <typename RestInput, typename Output>
+const ::capnp::_::RawBrandedSchema::Binding EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterResults::_capnpPrivate::brandBindings[] = {
+  ::capnp::_::brandBindingFor<RestInput>(),
+  ::capnp::_::brandBindingFor<Output>(),
+};
+template <typename RestInput, typename Output>
+const ::capnp::_::RawBrandedSchema EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterResults::_capnpPrivate::specificBrand = {
+  &::capnp::schemas::s_e91cc3866fdea82a, brandScopes, nullptr,
+  1, 0, nullptr
+};
+#endif  // !CAPNP_LITE
+
+#if !CAPNP_LITE
+template <typename RestInput, typename Output>
+CAPNP_AUTO_IF_MSVC(::capnp::Request<typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterParams, typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterResults>)
+EnvInstanceProxy<RestInput, Output>::Unregister::Client::unregisterRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
+  return newCall<typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterParams, typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterResults>(
+      0xc727892bd5c66f88ull, 0, sizeHint);
+}
+template <typename RestInput, typename Output>
+::kj::Promise<void> EnvInstanceProxy<RestInput, Output>::Unregister::Server::unregister(UnregisterContext) {
+  return ::capnp::Capability::Server::internalUnimplemented(
+      "model.capnp:EnvInstanceProxy.Unregister", "unregister",
+      0xc727892bd5c66f88ull, 0);
+}
+template <typename RestInput, typename Output>
+::capnp::Capability::Server::DispatchCallResult EnvInstanceProxy<RestInput, Output>::Unregister::Server::dispatchCall(
+    uint64_t interfaceId, uint16_t methodId,
+    ::capnp::CallContext< ::capnp::AnyPointer, ::capnp::AnyPointer> context) {
+  switch (interfaceId) {
+    case 0xc727892bd5c66f88ull:
+      return dispatchCallInternal(methodId, context);
+    default:
+      return internalUnimplemented("model.capnp:EnvInstanceProxy.Unregister", interfaceId);
+  }
+}
+template <typename RestInput, typename Output>
+::capnp::Capability::Server::DispatchCallResult EnvInstanceProxy<RestInput, Output>::Unregister::Server::dispatchCallInternal(
+    uint16_t methodId,
+    ::capnp::CallContext< ::capnp::AnyPointer, ::capnp::AnyPointer> context) {
+  switch (methodId) {
+    case 0:
+      return {
+        unregister(::capnp::Capability::Server::internalGetTypedContext<
+            typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterParams, typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterResults>(context)),
+        false
+      };
+    default:
+      (void)context;
+      return ::capnp::Capability::Server::internalUnimplemented(
+          "model.capnp:EnvInstanceProxy.Unregister",
+          0xc727892bd5c66f88ull, methodId);
+  }
+}
+#endif  // !CAPNP_LITE
+
+// EnvInstanceProxy<RestInput, Output>::Unregister
+#if !CAPNP_LITE
+template <typename RestInput, typename Output>
+constexpr ::capnp::Kind EnvInstanceProxy<RestInput, Output>::Unregister::_capnpPrivate::kind;
+template <typename RestInput, typename Output>
+constexpr ::capnp::_::RawSchema const* EnvInstanceProxy<RestInput, Output>::Unregister::_capnpPrivate::schema;
+template <typename RestInput, typename Output>
+const ::capnp::_::RawBrandedSchema::Scope EnvInstanceProxy<RestInput, Output>::Unregister::_capnpPrivate::brandScopes[] = {
+  { 0x87cbebfc1164a24a, brandBindings + 0, 2, false},
+};
+template <typename RestInput, typename Output>
+const ::capnp::_::RawBrandedSchema::Binding EnvInstanceProxy<RestInput, Output>::Unregister::_capnpPrivate::brandBindings[] = {
+  ::capnp::_::brandBindingFor<RestInput>(),
+  ::capnp::_::brandBindingFor<Output>(),
+};
+template <typename RestInput, typename Output>
+const ::capnp::_::RawBrandedSchema::Dependency EnvInstanceProxy<RestInput, Output>::Unregister::_capnpPrivate::brandDependencies[] = {
+  { 33554432,  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterParams::_capnpPrivate::brand() },
+  { 50331648,  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterResults::_capnpPrivate::brand() },
+};
+template <typename RestInput, typename Output>
+const ::capnp::_::RawBrandedSchema EnvInstanceProxy<RestInput, Output>::Unregister::_capnpPrivate::specificBrand = {
+  &::capnp::schemas::s_c727892bd5c66f88, brandScopes, brandDependencies,
+  1, 2, nullptr
+};
+#endif  // !CAPNP_LITE
+
 template <typename RestInput, typename Output>
 inline bool EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceParams::Reader::hasInstance() const {
   return !_reader.getPointerField(
@@ -3279,38 +3660,38 @@ inline bool EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceResults::Bui
 }
 #if !CAPNP_LITE
 template <typename RestInput, typename Output>
-inline  ::mas::schema::common::Action::Client EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceResults::Reader::getUnregister() const {
-  return ::capnp::_::PointerHelpers< ::mas::schema::common::Action>::get(_reader.getPointerField(
+inline typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister::Client EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceResults::Reader::getUnregister() const {
+  return ::capnp::_::PointerHelpers<typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 template <typename RestInput, typename Output>
-inline  ::mas::schema::common::Action::Client EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceResults::Builder::getUnregister() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::common::Action>::get(_builder.getPointerField(
+inline typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister::Client EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceResults::Builder::getUnregister() {
+  return ::capnp::_::PointerHelpers<typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 template <typename RestInput, typename Output>
-inline  ::mas::schema::common::Action::Client EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceResults::Pipeline::getUnregister() {
-  return  ::mas::schema::common::Action::Client(_typeless.getPointerField(0).asCap());
+inline typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister::Client EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceResults::Pipeline::getUnregister() {
+  return typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister::Client(_typeless.getPointerField(0).asCap());
 }
 template <typename RestInput, typename Output>
-inline void EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceResults::Builder::setUnregister( ::mas::schema::common::Action::Client&& cap) {
-  ::capnp::_::PointerHelpers< ::mas::schema::common::Action>::set(_builder.getPointerField(
+inline void EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceResults::Builder::setUnregister(typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister::Client&& cap) {
+  ::capnp::_::PointerHelpers<typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(cap));
 }
 template <typename RestInput, typename Output>
-inline void EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceResults::Builder::setUnregister( ::mas::schema::common::Action::Client& cap) {
-  ::capnp::_::PointerHelpers< ::mas::schema::common::Action>::set(_builder.getPointerField(
+inline void EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceResults::Builder::setUnregister(typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister::Client& cap) {
+  ::capnp::_::PointerHelpers<typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), cap);
 }
 template <typename RestInput, typename Output>
 inline void EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceResults::Builder::adoptUnregister(
-    ::capnp::Orphan< ::mas::schema::common::Action>&& value) {
-  ::capnp::_::PointerHelpers< ::mas::schema::common::Action>::adopt(_builder.getPointerField(
+    ::capnp::Orphan<typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister>&& value) {
+  ::capnp::_::PointerHelpers<typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
 template <typename RestInput, typename Output>
-inline ::capnp::Orphan< ::mas::schema::common::Action> EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceResults::Builder::disownUnregister() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::common::Action>::disown(_builder.getPointerField(
+inline ::capnp::Orphan<typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister> EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceResults::Builder::disownUnregister() {
+  return ::capnp::_::PointerHelpers<typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 #endif  // !CAPNP_LITE
@@ -3335,9 +3716,13 @@ const ::capnp::_::RawBrandedSchema::Binding EnvInstanceProxy<RestInput, Output>:
   ::capnp::_::brandBindingFor<Output>(),
 };
 template <typename RestInput, typename Output>
+const ::capnp::_::RawBrandedSchema::Dependency EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceResults::_capnpPrivate::brandDependencies[] = {
+  { 16777216,  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister::_capnpPrivate::brand() },
+};
+template <typename RestInput, typename Output>
 const ::capnp::_::RawBrandedSchema EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceResults::_capnpPrivate::specificBrand = {
-  &::capnp::schemas::s_df50acfa56a9674e, brandScopes, nullptr,
-  1, 0, nullptr
+  &::capnp::schemas::s_df50acfa56a9674e, brandScopes, brandDependencies,
+  1, 1, nullptr
 };
 #endif  // !CAPNP_LITE
 
@@ -3367,8 +3752,8 @@ template <typename RestInput, typename Output>
       return  ::mas::schema::common::Identifiable::Server::dispatchCallInternal(methodId, context);
     case 0xc1a7daa0dc36cb65ull:
       return  ::mas::schema::persistence::Persistent::Server::dispatchCallInternal(methodId, context);
-    case 0xce7e4202f09e314aull:
-      return  ::mas::schema::common::Stopable::Server::dispatchCallInternal(methodId, context);
+    case 0xe9d1be2a6e9016e5ull:
+      return  ::mas::schema::service::Stopable::Server::dispatchCallInternal(methodId, context);
     default:
       return internalUnimplemented("model.capnp:EnvInstanceProxy", interfaceId);
   }
@@ -3422,386 +3807,116 @@ const ::capnp::_::RawBrandedSchema EnvInstanceProxy<RestInput, Output>::_capnpPr
 #endif  // !CAPNP_LITE
 
 #if !CAPNP_LITE
-template <typename InstanceType>
-inline InstanceFactory<InstanceType>::Client::Client(decltype(nullptr))
+inline InstanceFactory::Client::Client(decltype(nullptr))
     : ::capnp::Capability::Client(nullptr) {}
-template <typename InstanceType>
-inline InstanceFactory<InstanceType>::Client::Client(
+inline InstanceFactory::Client::Client(
     ::kj::Own< ::capnp::ClientHook>&& hook)
     : ::capnp::Capability::Client(::kj::mv(hook)) {}
-template <typename InstanceType>
 template <typename _t, typename>
-inline InstanceFactory<InstanceType>::Client::Client(::kj::Own<_t>&& server)
+inline InstanceFactory::Client::Client(::kj::Own<_t>&& server)
     : ::capnp::Capability::Client(::kj::mv(server)) {}
-template <typename InstanceType>
 template <typename _t, typename>
-inline InstanceFactory<InstanceType>::Client::Client(::kj::Promise<_t>&& promise)
+inline InstanceFactory::Client::Client(::kj::Promise<_t>&& promise)
     : ::capnp::Capability::Client(::kj::mv(promise)) {}
-template <typename InstanceType>
-inline InstanceFactory<InstanceType>::Client::Client(::kj::Exception&& exception)
+inline InstanceFactory::Client::Client(::kj::Exception&& exception)
     : ::capnp::Capability::Client(::kj::mv(exception)) {}
-template <typename InstanceType>
-inline typename  ::mas::schema::model::InstanceFactory<InstanceType>::Client& InstanceFactory<InstanceType>::Client::operator=(Client& other) {
+inline  ::mas::schema::model::InstanceFactory::Client& InstanceFactory::Client::operator=(Client& other) {
   ::capnp::Capability::Client::operator=(other);
   return *this;
 }
-template <typename InstanceType>
-inline typename  ::mas::schema::model::InstanceFactory<InstanceType>::Client& InstanceFactory<InstanceType>::Client::operator=(Client&& other) {
+inline  ::mas::schema::model::InstanceFactory::Client& InstanceFactory::Client::operator=(Client&& other) {
   ::capnp::Capability::Client::operator=(kj::mv(other));
   return *this;
 }
 
 #endif  // !CAPNP_LITE
-// InstanceFactory<InstanceType>::ModelInfoParams
-template <typename InstanceType>
-constexpr uint16_t InstanceFactory<InstanceType>::ModelInfoParams::_capnpPrivate::dataWordSize;
-template <typename InstanceType>
-constexpr uint16_t InstanceFactory<InstanceType>::ModelInfoParams::_capnpPrivate::pointerCount;
-#if !CAPNP_LITE
-template <typename InstanceType>
-constexpr ::capnp::Kind InstanceFactory<InstanceType>::ModelInfoParams::_capnpPrivate::kind;
-template <typename InstanceType>
-constexpr ::capnp::_::RawSchema const* InstanceFactory<InstanceType>::ModelInfoParams::_capnpPrivate::schema;
-template <typename InstanceType>
-const ::capnp::_::RawBrandedSchema::Scope InstanceFactory<InstanceType>::ModelInfoParams::_capnpPrivate::brandScopes[] = {
-  { 0xce552eef738a45ea, brandBindings + 0, 1, false},
-};
-template <typename InstanceType>
-const ::capnp::_::RawBrandedSchema::Binding InstanceFactory<InstanceType>::ModelInfoParams::_capnpPrivate::brandBindings[] = {
-  ::capnp::_::brandBindingFor<InstanceType>(),
-};
-template <typename InstanceType>
-const ::capnp::_::RawBrandedSchema InstanceFactory<InstanceType>::ModelInfoParams::_capnpPrivate::specificBrand = {
-  &::capnp::schemas::s_bf49e08cc9412aaf, brandScopes, nullptr,
-  1, 0, nullptr
-};
-#endif  // !CAPNP_LITE
-
-// InstanceFactory<InstanceType>::NewInstanceParams
-template <typename InstanceType>
-constexpr uint16_t InstanceFactory<InstanceType>::NewInstanceParams::_capnpPrivate::dataWordSize;
-template <typename InstanceType>
-constexpr uint16_t InstanceFactory<InstanceType>::NewInstanceParams::_capnpPrivate::pointerCount;
-#if !CAPNP_LITE
-template <typename InstanceType>
-constexpr ::capnp::Kind InstanceFactory<InstanceType>::NewInstanceParams::_capnpPrivate::kind;
-template <typename InstanceType>
-constexpr ::capnp::_::RawSchema const* InstanceFactory<InstanceType>::NewInstanceParams::_capnpPrivate::schema;
-template <typename InstanceType>
-const ::capnp::_::RawBrandedSchema::Scope InstanceFactory<InstanceType>::NewInstanceParams::_capnpPrivate::brandScopes[] = {
-  { 0xce552eef738a45ea, brandBindings + 0, 1, false},
-};
-template <typename InstanceType>
-const ::capnp::_::RawBrandedSchema::Binding InstanceFactory<InstanceType>::NewInstanceParams::_capnpPrivate::brandBindings[] = {
-  ::capnp::_::brandBindingFor<InstanceType>(),
-};
-template <typename InstanceType>
-const ::capnp::_::RawBrandedSchema InstanceFactory<InstanceType>::NewInstanceParams::_capnpPrivate::specificBrand = {
-  &::capnp::schemas::s_9ee4515395213845, brandScopes, nullptr,
-  1, 0, nullptr
-};
-#endif  // !CAPNP_LITE
-
-template <typename InstanceType>
-inline bool InstanceFactory<InstanceType>::NewInstanceResults::Reader::hasInstance() const {
+inline bool InstanceFactory::NewInstanceResults::Reader::hasInstance() const {
   return !_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-template <typename InstanceType>
-inline bool InstanceFactory<InstanceType>::NewInstanceResults::Builder::hasInstance() {
+inline bool InstanceFactory::NewInstanceResults::Builder::hasInstance() {
   return !_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-template <typename InstanceType>
-inline  ::capnp::ReaderFor<InstanceType> InstanceFactory<InstanceType>::NewInstanceResults::Reader::getInstance() const {
-  return ::capnp::_::PointerHelpers<InstanceType>::get(_reader.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS));
-}
-template <typename InstanceType>
-inline  ::capnp::BuilderFor<InstanceType> InstanceFactory<InstanceType>::NewInstanceResults::Builder::getInstance() {
-  return ::capnp::_::PointerHelpers<InstanceType>::get(_builder.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS));
-}
 #if !CAPNP_LITE
-template <typename InstanceType>
-inline  ::capnp::PipelineFor<InstanceType> InstanceFactory<InstanceType>::NewInstanceResults::Pipeline::getInstance() {
-  return  ::capnp::PipelineFor<InstanceType>(_typeless.getPointerField(0));
-}
-#endif  // !CAPNP_LITE
-template <typename InstanceType>
-inline void InstanceFactory<InstanceType>::NewInstanceResults::Builder::setInstance( ::capnp::ReaderFor<InstanceType> value) {
-  ::capnp::_::PointerHelpers<InstanceType>::set(_builder.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS), value);
-}
-template <typename InstanceType>
-inline  ::capnp::BuilderFor<InstanceType> InstanceFactory<InstanceType>::NewInstanceResults::Builder::initInstance() {
-  return ::capnp::_::PointerHelpers<InstanceType>::init(_builder.getPointerField(
+inline  ::mas::schema::common::Identifiable::Client InstanceFactory::NewInstanceResults::Reader::getInstance() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::common::Identifiable>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-template <typename InstanceType>
-inline  ::capnp::BuilderFor<InstanceType> InstanceFactory<InstanceType>::NewInstanceResults::Builder::initInstance(unsigned int size) {
-  return ::capnp::_::PointerHelpers<InstanceType>::init(_builder.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS), size);
+inline  ::mas::schema::common::Identifiable::Client InstanceFactory::NewInstanceResults::Builder::getInstance() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::common::Identifiable>::get(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-template <typename InstanceType>
-inline void InstanceFactory<InstanceType>::NewInstanceResults::Builder::adoptInstance(
-    ::capnp::Orphan<InstanceType>&& value) {
-  ::capnp::_::PointerHelpers<InstanceType>::adopt(_builder.getPointerField(
+inline  ::mas::schema::common::Identifiable::Client InstanceFactory::NewInstanceResults::Pipeline::getInstance() {
+  return  ::mas::schema::common::Identifiable::Client(_typeless.getPointerField(0).asCap());
+}
+inline void InstanceFactory::NewInstanceResults::Builder::setInstance( ::mas::schema::common::Identifiable::Client&& cap) {
+  ::capnp::_::PointerHelpers< ::mas::schema::common::Identifiable>::set(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(cap));
+}
+inline void InstanceFactory::NewInstanceResults::Builder::setInstance( ::mas::schema::common::Identifiable::Client& cap) {
+  ::capnp::_::PointerHelpers< ::mas::schema::common::Identifiable>::set(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), cap);
+}
+inline void InstanceFactory::NewInstanceResults::Builder::adoptInstance(
+    ::capnp::Orphan< ::mas::schema::common::Identifiable>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::common::Identifiable>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
-template <typename InstanceType>
-inline ::capnp::Orphan<InstanceType> InstanceFactory<InstanceType>::NewInstanceResults::Builder::disownInstance() {
-  return ::capnp::_::PointerHelpers<InstanceType>::disown(_builder.getPointerField(
+inline ::capnp::Orphan< ::mas::schema::common::Identifiable> InstanceFactory::NewInstanceResults::Builder::disownInstance() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::common::Identifiable>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-
-// InstanceFactory<InstanceType>::NewInstanceResults
-template <typename InstanceType>
-constexpr uint16_t InstanceFactory<InstanceType>::NewInstanceResults::_capnpPrivate::dataWordSize;
-template <typename InstanceType>
-constexpr uint16_t InstanceFactory<InstanceType>::NewInstanceResults::_capnpPrivate::pointerCount;
-#if !CAPNP_LITE
-template <typename InstanceType>
-constexpr ::capnp::Kind InstanceFactory<InstanceType>::NewInstanceResults::_capnpPrivate::kind;
-template <typename InstanceType>
-constexpr ::capnp::_::RawSchema const* InstanceFactory<InstanceType>::NewInstanceResults::_capnpPrivate::schema;
-template <typename InstanceType>
-const ::capnp::_::RawBrandedSchema::Scope InstanceFactory<InstanceType>::NewInstanceResults::_capnpPrivate::brandScopes[] = {
-  { 0xce552eef738a45ea, brandBindings + 0, 1, false},
-};
-template <typename InstanceType>
-const ::capnp::_::RawBrandedSchema::Binding InstanceFactory<InstanceType>::NewInstanceResults::_capnpPrivate::brandBindings[] = {
-  ::capnp::_::brandBindingFor<InstanceType>(),
-};
-template <typename InstanceType>
-const ::capnp::_::RawBrandedSchema InstanceFactory<InstanceType>::NewInstanceResults::_capnpPrivate::specificBrand = {
-  &::capnp::schemas::s_f013eda158070488, brandScopes, nullptr,
-  1, 0, nullptr
-};
 #endif  // !CAPNP_LITE
 
-template <typename InstanceType>
-inline  ::int16_t InstanceFactory<InstanceType>::NewInstancesParams::Reader::getNumberOfInstances() const {
+inline  ::int16_t InstanceFactory::NewInstancesParams::Reader::getNumberOfInstances() const {
   return _reader.getDataField< ::int16_t>(
       ::capnp::bounded<0>() * ::capnp::ELEMENTS);
 }
 
-template <typename InstanceType>
-inline  ::int16_t InstanceFactory<InstanceType>::NewInstancesParams::Builder::getNumberOfInstances() {
+inline  ::int16_t InstanceFactory::NewInstancesParams::Builder::getNumberOfInstances() {
   return _builder.getDataField< ::int16_t>(
       ::capnp::bounded<0>() * ::capnp::ELEMENTS);
 }
-template <typename InstanceType>
-inline void InstanceFactory<InstanceType>::NewInstancesParams::Builder::setNumberOfInstances( ::int16_t value) {
+inline void InstanceFactory::NewInstancesParams::Builder::setNumberOfInstances( ::int16_t value) {
   _builder.setDataField< ::int16_t>(
       ::capnp::bounded<0>() * ::capnp::ELEMENTS, value);
 }
 
-// InstanceFactory<InstanceType>::NewInstancesParams
-template <typename InstanceType>
-constexpr uint16_t InstanceFactory<InstanceType>::NewInstancesParams::_capnpPrivate::dataWordSize;
-template <typename InstanceType>
-constexpr uint16_t InstanceFactory<InstanceType>::NewInstancesParams::_capnpPrivate::pointerCount;
-#if !CAPNP_LITE
-template <typename InstanceType>
-constexpr ::capnp::Kind InstanceFactory<InstanceType>::NewInstancesParams::_capnpPrivate::kind;
-template <typename InstanceType>
-constexpr ::capnp::_::RawSchema const* InstanceFactory<InstanceType>::NewInstancesParams::_capnpPrivate::schema;
-template <typename InstanceType>
-const ::capnp::_::RawBrandedSchema::Scope InstanceFactory<InstanceType>::NewInstancesParams::_capnpPrivate::brandScopes[] = {
-  { 0xce552eef738a45ea, brandBindings + 0, 1, false},
-};
-template <typename InstanceType>
-const ::capnp::_::RawBrandedSchema::Binding InstanceFactory<InstanceType>::NewInstancesParams::_capnpPrivate::brandBindings[] = {
-  ::capnp::_::brandBindingFor<InstanceType>(),
-};
-template <typename InstanceType>
-const ::capnp::_::RawBrandedSchema InstanceFactory<InstanceType>::NewInstancesParams::_capnpPrivate::specificBrand = {
-  &::capnp::schemas::s_d9fa9ece71d1db50, brandScopes, nullptr,
-  1, 0, nullptr
-};
-#endif  // !CAPNP_LITE
-
-template <typename InstanceType>
-inline bool InstanceFactory<InstanceType>::NewInstancesResults::Reader::hasInstances() const {
+inline bool InstanceFactory::NewInstancesResults::Reader::hasInstances() const {
   return !_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-template <typename InstanceType>
-inline bool InstanceFactory<InstanceType>::NewInstancesResults::Builder::hasInstances() {
+inline bool InstanceFactory::NewInstancesResults::Builder::hasInstances() {
   return !_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-template <typename InstanceType>
-inline typename  ::capnp::List< ::mas::schema::common::ListEntry<InstanceType>,  ::capnp::Kind::STRUCT>::Reader InstanceFactory<InstanceType>::NewInstancesResults::Reader::getInstances() const {
-  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::common::ListEntry<InstanceType>,  ::capnp::Kind::STRUCT>>::get(_reader.getPointerField(
+#if !CAPNP_LITE
+inline  ::capnp::List< ::mas::schema::common::Identifiable,  ::capnp::Kind::INTERFACE>::Reader InstanceFactory::NewInstancesResults::Reader::getInstances() const {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::common::Identifiable,  ::capnp::Kind::INTERFACE>>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-template <typename InstanceType>
-inline typename  ::capnp::List< ::mas::schema::common::ListEntry<InstanceType>,  ::capnp::Kind::STRUCT>::Builder InstanceFactory<InstanceType>::NewInstancesResults::Builder::getInstances() {
-  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::common::ListEntry<InstanceType>,  ::capnp::Kind::STRUCT>>::get(_builder.getPointerField(
+inline  ::capnp::List< ::mas::schema::common::Identifiable,  ::capnp::Kind::INTERFACE>::Builder InstanceFactory::NewInstancesResults::Builder::getInstances() {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::common::Identifiable,  ::capnp::Kind::INTERFACE>>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-template <typename InstanceType>
-inline void InstanceFactory<InstanceType>::NewInstancesResults::Builder::setInstances(typename  ::capnp::List< ::mas::schema::common::ListEntry<InstanceType>,  ::capnp::Kind::STRUCT>::Reader value) {
-  ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::common::ListEntry<InstanceType>,  ::capnp::Kind::STRUCT>>::set(_builder.getPointerField(
+inline void InstanceFactory::NewInstancesResults::Builder::setInstances( ::capnp::List< ::mas::schema::common::Identifiable,  ::capnp::Kind::INTERFACE>::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::common::Identifiable,  ::capnp::Kind::INTERFACE>>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), value);
 }
-template <typename InstanceType>
-inline typename  ::capnp::List< ::mas::schema::common::ListEntry<InstanceType>,  ::capnp::Kind::STRUCT>::Builder InstanceFactory<InstanceType>::NewInstancesResults::Builder::initInstances(unsigned int size) {
-  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::common::ListEntry<InstanceType>,  ::capnp::Kind::STRUCT>>::init(_builder.getPointerField(
+inline  ::capnp::List< ::mas::schema::common::Identifiable,  ::capnp::Kind::INTERFACE>::Builder InstanceFactory::NewInstancesResults::Builder::initInstances(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::common::Identifiable,  ::capnp::Kind::INTERFACE>>::init(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), size);
 }
-template <typename InstanceType>
-inline void InstanceFactory<InstanceType>::NewInstancesResults::Builder::adoptInstances(
-    ::capnp::Orphan< ::capnp::List< ::mas::schema::common::ListEntry<InstanceType>,  ::capnp::Kind::STRUCT>>&& value) {
-  ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::common::ListEntry<InstanceType>,  ::capnp::Kind::STRUCT>>::adopt(_builder.getPointerField(
+inline void InstanceFactory::NewInstancesResults::Builder::adoptInstances(
+    ::capnp::Orphan< ::capnp::List< ::mas::schema::common::Identifiable,  ::capnp::Kind::INTERFACE>>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::common::Identifiable,  ::capnp::Kind::INTERFACE>>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
-template <typename InstanceType>
-inline ::capnp::Orphan< ::capnp::List< ::mas::schema::common::ListEntry<InstanceType>,  ::capnp::Kind::STRUCT>> InstanceFactory<InstanceType>::NewInstancesResults::Builder::disownInstances() {
-  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::common::ListEntry<InstanceType>,  ::capnp::Kind::STRUCT>>::disown(_builder.getPointerField(
+inline ::capnp::Orphan< ::capnp::List< ::mas::schema::common::Identifiable,  ::capnp::Kind::INTERFACE>> InstanceFactory::NewInstancesResults::Builder::disownInstances() {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::common::Identifiable,  ::capnp::Kind::INTERFACE>>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-
-// InstanceFactory<InstanceType>::NewInstancesResults
-template <typename InstanceType>
-constexpr uint16_t InstanceFactory<InstanceType>::NewInstancesResults::_capnpPrivate::dataWordSize;
-template <typename InstanceType>
-constexpr uint16_t InstanceFactory<InstanceType>::NewInstancesResults::_capnpPrivate::pointerCount;
-#if !CAPNP_LITE
-template <typename InstanceType>
-constexpr ::capnp::Kind InstanceFactory<InstanceType>::NewInstancesResults::_capnpPrivate::kind;
-template <typename InstanceType>
-constexpr ::capnp::_::RawSchema const* InstanceFactory<InstanceType>::NewInstancesResults::_capnpPrivate::schema;
-template <typename InstanceType>
-const ::capnp::_::RawBrandedSchema::Scope InstanceFactory<InstanceType>::NewInstancesResults::_capnpPrivate::brandScopes[] = {
-  { 0xce552eef738a45ea, brandBindings + 0, 1, false},
-};
-template <typename InstanceType>
-const ::capnp::_::RawBrandedSchema::Binding InstanceFactory<InstanceType>::NewInstancesResults::_capnpPrivate::brandBindings[] = {
-  ::capnp::_::brandBindingFor<InstanceType>(),
-};
-template <typename InstanceType>
-const ::capnp::_::RawBrandedSchema::Dependency InstanceFactory<InstanceType>::NewInstancesResults::_capnpPrivate::brandDependencies[] = {
-  { 16777216,  ::mas::schema::common::ListEntry<InstanceType>::_capnpPrivate::brand() },
-};
-template <typename InstanceType>
-const ::capnp::_::RawBrandedSchema InstanceFactory<InstanceType>::NewInstancesResults::_capnpPrivate::specificBrand = {
-  &::capnp::schemas::s_af9a1cb72ba68156, brandScopes, brandDependencies,
-  1, 1, nullptr
-};
-#endif  // !CAPNP_LITE
-
-#if !CAPNP_LITE
-template <typename InstanceType>
-CAPNP_AUTO_IF_MSVC(::capnp::Request<typename  ::mas::schema::model::InstanceFactory<InstanceType>::ModelInfoParams,  ::mas::schema::common::IdInformation>)
-InstanceFactory<InstanceType>::Client::modelInfoRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
-  return newCall<typename  ::mas::schema::model::InstanceFactory<InstanceType>::ModelInfoParams,  ::mas::schema::common::IdInformation>(
-      0xce552eef738a45eaull, 0, sizeHint);
-}
-template <typename InstanceType>
-::kj::Promise<void> InstanceFactory<InstanceType>::Server::modelInfo(ModelInfoContext) {
-  return ::capnp::Capability::Server::internalUnimplemented(
-      "model.capnp:InstanceFactory", "modelInfo",
-      0xce552eef738a45eaull, 0);
-}
-template <typename InstanceType>
-CAPNP_AUTO_IF_MSVC(::capnp::Request<typename  ::mas::schema::model::InstanceFactory<InstanceType>::NewInstanceParams, typename  ::mas::schema::model::InstanceFactory<InstanceType>::NewInstanceResults>)
-InstanceFactory<InstanceType>::Client::newInstanceRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
-  return newCall<typename  ::mas::schema::model::InstanceFactory<InstanceType>::NewInstanceParams, typename  ::mas::schema::model::InstanceFactory<InstanceType>::NewInstanceResults>(
-      0xce552eef738a45eaull, 1, sizeHint);
-}
-template <typename InstanceType>
-::kj::Promise<void> InstanceFactory<InstanceType>::Server::newInstance(NewInstanceContext) {
-  return ::capnp::Capability::Server::internalUnimplemented(
-      "model.capnp:InstanceFactory", "newInstance",
-      0xce552eef738a45eaull, 1);
-}
-template <typename InstanceType>
-CAPNP_AUTO_IF_MSVC(::capnp::Request<typename  ::mas::schema::model::InstanceFactory<InstanceType>::NewInstancesParams, typename  ::mas::schema::model::InstanceFactory<InstanceType>::NewInstancesResults>)
-InstanceFactory<InstanceType>::Client::newInstancesRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
-  return newCall<typename  ::mas::schema::model::InstanceFactory<InstanceType>::NewInstancesParams, typename  ::mas::schema::model::InstanceFactory<InstanceType>::NewInstancesResults>(
-      0xce552eef738a45eaull, 2, sizeHint);
-}
-template <typename InstanceType>
-::kj::Promise<void> InstanceFactory<InstanceType>::Server::newInstances(NewInstancesContext) {
-  return ::capnp::Capability::Server::internalUnimplemented(
-      "model.capnp:InstanceFactory", "newInstances",
-      0xce552eef738a45eaull, 2);
-}
-template <typename InstanceType>
-::capnp::Capability::Server::DispatchCallResult InstanceFactory<InstanceType>::Server::dispatchCall(
-    uint64_t interfaceId, uint16_t methodId,
-    ::capnp::CallContext< ::capnp::AnyPointer, ::capnp::AnyPointer> context) {
-  switch (interfaceId) {
-    case 0xce552eef738a45eaull:
-      return dispatchCallInternal(methodId, context);
-    case 0xb2afd1cb599c48d5ull:
-      return  ::mas::schema::common::Identifiable::Server::dispatchCallInternal(methodId, context);
-    default:
-      return internalUnimplemented("model.capnp:InstanceFactory", interfaceId);
-  }
-}
-template <typename InstanceType>
-::capnp::Capability::Server::DispatchCallResult InstanceFactory<InstanceType>::Server::dispatchCallInternal(
-    uint16_t methodId,
-    ::capnp::CallContext< ::capnp::AnyPointer, ::capnp::AnyPointer> context) {
-  switch (methodId) {
-    case 0:
-      return {
-        modelInfo(::capnp::Capability::Server::internalGetTypedContext<
-            typename  ::mas::schema::model::InstanceFactory<InstanceType>::ModelInfoParams,  ::mas::schema::common::IdInformation>(context)),
-        false
-      };
-    case 1:
-      return {
-        newInstance(::capnp::Capability::Server::internalGetTypedContext<
-            typename  ::mas::schema::model::InstanceFactory<InstanceType>::NewInstanceParams, typename  ::mas::schema::model::InstanceFactory<InstanceType>::NewInstanceResults>(context)),
-        false
-      };
-    case 2:
-      return {
-        newInstances(::capnp::Capability::Server::internalGetTypedContext<
-            typename  ::mas::schema::model::InstanceFactory<InstanceType>::NewInstancesParams, typename  ::mas::schema::model::InstanceFactory<InstanceType>::NewInstancesResults>(context)),
-        false
-      };
-    default:
-      (void)context;
-      return ::capnp::Capability::Server::internalUnimplemented(
-          "model.capnp:InstanceFactory",
-          0xce552eef738a45eaull, methodId);
-  }
-}
-#endif  // !CAPNP_LITE
-
-// InstanceFactory<InstanceType>
-#if !CAPNP_LITE
-template <typename InstanceType>
-constexpr ::capnp::Kind InstanceFactory<InstanceType>::_capnpPrivate::kind;
-template <typename InstanceType>
-constexpr ::capnp::_::RawSchema const* InstanceFactory<InstanceType>::_capnpPrivate::schema;
-template <typename InstanceType>
-const ::capnp::_::RawBrandedSchema::Scope InstanceFactory<InstanceType>::_capnpPrivate::brandScopes[] = {
-  { 0xce552eef738a45ea, brandBindings + 0, 1, false},
-};
-template <typename InstanceType>
-const ::capnp::_::RawBrandedSchema::Binding InstanceFactory<InstanceType>::_capnpPrivate::brandBindings[] = {
-  ::capnp::_::brandBindingFor<InstanceType>(),
-};
-template <typename InstanceType>
-const ::capnp::_::RawBrandedSchema::Dependency InstanceFactory<InstanceType>::_capnpPrivate::brandDependencies[] = {
-  { 33554432,  ::mas::schema::model::InstanceFactory<InstanceType>::ModelInfoParams::_capnpPrivate::brand() },
-  { 33554433,  ::mas::schema::model::InstanceFactory<InstanceType>::NewInstanceParams::_capnpPrivate::brand() },
-  { 33554434,  ::mas::schema::model::InstanceFactory<InstanceType>::NewInstancesParams::_capnpPrivate::brand() },
-  { 50331649,  ::mas::schema::model::InstanceFactory<InstanceType>::NewInstanceResults::_capnpPrivate::brand() },
-  { 50331650,  ::mas::schema::model::InstanceFactory<InstanceType>::NewInstancesResults::_capnpPrivate::brand() },
-};
-template <typename InstanceType>
-const ::capnp::_::RawBrandedSchema InstanceFactory<InstanceType>::_capnpPrivate::specificBrand = {
-  &::capnp::schemas::s_ce552eef738a45ea, brandScopes, brandDependencies,
-  1, 5, nullptr
-};
 #endif  // !CAPNP_LITE
 
 }  // namespace

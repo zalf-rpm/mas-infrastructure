@@ -185,6 +185,8 @@ interface Fertilizer @0x8c4cb8d60ae5aec7 superclasses(import "/common.capnp".Ide
   nutrients @0 () -> (nutrients :List(Nutrient));
   parameters @1 () -> (params :AnyPointer);
 }
+interface FertilizerService @0xbbb7aeae0d097e05 superclasses(import "/registry.capnp".Registry) {
+}
 interface Service @0xc876b729b7d7f6d9 superclasses(import "/common.capnp".Identifiable) {
   managementAt @0 import "/geo.capnp".LatLonCoord -> (mgmt :List(Event));
 }

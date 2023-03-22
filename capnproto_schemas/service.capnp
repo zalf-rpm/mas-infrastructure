@@ -8,7 +8,7 @@ $Go.package("service");
 $Go.import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/service");
 
 using Common = import "common.capnp";
-using Restorer = import "restore_resolve.capnp".Restorer;
+using Restorer = import "persistence.capnp".Restorer;
 
 interface Admin extends(Common.Identifiable) {
   # interface to administer service
@@ -64,3 +64,12 @@ interface Factory(Payload) extends(Common.Identifiable) {
   # return a list of the names the factory will return on a create message
   # these names are the ones to be used for the sturdy ref maps in CreateParams
 }
+
+interface Stopable {
+  # a capability to stop something
+  stop @0 () -> ();
+}
+
+#interface Cancelable {
+#  cancel @0 () -> ();
+#}

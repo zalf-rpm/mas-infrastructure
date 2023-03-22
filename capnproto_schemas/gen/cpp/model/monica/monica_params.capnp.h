@@ -12,7 +12,7 @@
 
 #include "../../climate.capnp.h"
 #include "../../date.capnp.h"
-#include "../../management.capnp.h"
+#include "monica_management.capnp.h"
 
 CAPNP_BEGIN_HEADER
 
@@ -1893,7 +1893,7 @@ public:
 #endif  // !CAPNP_LITE
 
   inline bool hasParams() const;
-  inline  ::mas::schema::management::Params::OrganicFertilization::OrganicMatterParameters::Reader getParams() const;
+  inline  ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters::Reader getParams() const;
 
   inline bool hasSpecies() const;
   inline  ::capnp::Text::Reader getSpecies() const;
@@ -1930,11 +1930,11 @@ public:
 #endif  // !CAPNP_LITE
 
   inline bool hasParams();
-  inline  ::mas::schema::management::Params::OrganicFertilization::OrganicMatterParameters::Builder getParams();
-  inline void setParams( ::mas::schema::management::Params::OrganicFertilization::OrganicMatterParameters::Reader value);
-  inline  ::mas::schema::management::Params::OrganicFertilization::OrganicMatterParameters::Builder initParams();
-  inline void adoptParams(::capnp::Orphan< ::mas::schema::management::Params::OrganicFertilization::OrganicMatterParameters>&& value);
-  inline ::capnp::Orphan< ::mas::schema::management::Params::OrganicFertilization::OrganicMatterParameters> disownParams();
+  inline  ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters::Builder getParams();
+  inline void setParams( ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters::Reader value);
+  inline  ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters::Builder initParams();
+  inline void adoptParams(::capnp::Orphan< ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters>&& value);
+  inline ::capnp::Orphan< ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters> disownParams();
 
   inline bool hasSpecies();
   inline  ::capnp::Text::Builder getSpecies();
@@ -1968,7 +1968,7 @@ public:
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
       : _typeless(kj::mv(typeless)) {}
 
-  inline  ::mas::schema::management::Params::OrganicFertilization::OrganicMatterParameters::Pipeline getParams();
+  inline  ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters::Pipeline getParams();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -2156,7 +2156,7 @@ public:
 #endif  // !CAPNP_LITE
 
   inline bool hasParams() const;
-  inline  ::mas::schema::management::Params::Irrigation::Parameters::Reader getParams() const;
+  inline  ::mas::schema::model::monica::Params::Irrigation::Parameters::Reader getParams() const;
 
   inline double getAmount() const;
 
@@ -2191,11 +2191,11 @@ public:
 #endif  // !CAPNP_LITE
 
   inline bool hasParams();
-  inline  ::mas::schema::management::Params::Irrigation::Parameters::Builder getParams();
-  inline void setParams( ::mas::schema::management::Params::Irrigation::Parameters::Reader value);
-  inline  ::mas::schema::management::Params::Irrigation::Parameters::Builder initParams();
-  inline void adoptParams(::capnp::Orphan< ::mas::schema::management::Params::Irrigation::Parameters>&& value);
-  inline ::capnp::Orphan< ::mas::schema::management::Params::Irrigation::Parameters> disownParams();
+  inline  ::mas::schema::model::monica::Params::Irrigation::Parameters::Builder getParams();
+  inline void setParams( ::mas::schema::model::monica::Params::Irrigation::Parameters::Reader value);
+  inline  ::mas::schema::model::monica::Params::Irrigation::Parameters::Builder initParams();
+  inline void adoptParams(::capnp::Orphan< ::mas::schema::model::monica::Params::Irrigation::Parameters>&& value);
+  inline ::capnp::Orphan< ::mas::schema::model::monica::Params::Irrigation::Parameters> disownParams();
 
   inline double getAmount();
   inline void setAmount(double value);
@@ -2221,7 +2221,7 @@ public:
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
       : _typeless(kj::mv(typeless)) {}
 
-  inline  ::mas::schema::management::Params::Irrigation::Parameters::Pipeline getParams();
+  inline  ::mas::schema::model::monica::Params::Irrigation::Parameters::Pipeline getParams();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -2797,7 +2797,7 @@ public:
   inline bool getUseNMinMineralFertilisingMethod() const;
 
   inline bool hasNMinFertiliserPartition() const;
-  inline  ::mas::schema::management::Params::MineralFertilization::Parameters::Reader getNMinFertiliserPartition() const;
+  inline  ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Reader getNMinFertiliserPartition() const;
 
   inline bool hasNMinApplicationParams() const;
   inline  ::mas::schema::model::monica::NMinApplicationParameters::Reader getNMinApplicationParams() const;
@@ -2885,11 +2885,11 @@ public:
   inline void setUseNMinMineralFertilisingMethod(bool value);
 
   inline bool hasNMinFertiliserPartition();
-  inline  ::mas::schema::management::Params::MineralFertilization::Parameters::Builder getNMinFertiliserPartition();
-  inline void setNMinFertiliserPartition( ::mas::schema::management::Params::MineralFertilization::Parameters::Reader value);
-  inline  ::mas::schema::management::Params::MineralFertilization::Parameters::Builder initNMinFertiliserPartition();
-  inline void adoptNMinFertiliserPartition(::capnp::Orphan< ::mas::schema::management::Params::MineralFertilization::Parameters>&& value);
-  inline ::capnp::Orphan< ::mas::schema::management::Params::MineralFertilization::Parameters> disownNMinFertiliserPartition();
+  inline  ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Builder getNMinFertiliserPartition();
+  inline void setNMinFertiliserPartition( ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Reader value);
+  inline  ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Builder initNMinFertiliserPartition();
+  inline void adoptNMinFertiliserPartition(::capnp::Orphan< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>&& value);
+  inline ::capnp::Orphan< ::mas::schema::model::monica::Params::MineralFertilization::Parameters> disownNMinFertiliserPartition();
 
   inline bool hasNMinApplicationParams();
   inline  ::mas::schema::model::monica::NMinApplicationParameters::Builder getNMinApplicationParams();
@@ -2937,7 +2937,7 @@ public:
   inline  ::mas::schema::common::Date::Pipeline getStartDate();
   inline  ::mas::schema::common::Date::Pipeline getEndDate();
   inline  ::mas::schema::model::monica::AutomaticIrrigationParameters::Pipeline getAutoIrrigationParams();
-  inline  ::mas::schema::management::Params::MineralFertilization::Parameters::Pipeline getNMinFertiliserPartition();
+  inline  ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Pipeline getNMinFertiliserPartition();
   inline  ::mas::schema::model::monica::NMinApplicationParameters::Pipeline getNMinApplicationParams();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
@@ -7440,34 +7440,34 @@ inline bool CropResidueParameters::Builder::hasParams() {
   return !_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline  ::mas::schema::management::Params::OrganicFertilization::OrganicMatterParameters::Reader CropResidueParameters::Reader::getParams() const {
-  return ::capnp::_::PointerHelpers< ::mas::schema::management::Params::OrganicFertilization::OrganicMatterParameters>::get(_reader.getPointerField(
+inline  ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters::Reader CropResidueParameters::Reader::getParams() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::management::Params::OrganicFertilization::OrganicMatterParameters::Builder CropResidueParameters::Builder::getParams() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::management::Params::OrganicFertilization::OrganicMatterParameters>::get(_builder.getPointerField(
+inline  ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters::Builder CropResidueParameters::Builder::getParams() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 #if !CAPNP_LITE
-inline  ::mas::schema::management::Params::OrganicFertilization::OrganicMatterParameters::Pipeline CropResidueParameters::Pipeline::getParams() {
-  return  ::mas::schema::management::Params::OrganicFertilization::OrganicMatterParameters::Pipeline(_typeless.getPointerField(0));
+inline  ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters::Pipeline CropResidueParameters::Pipeline::getParams() {
+  return  ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters::Pipeline(_typeless.getPointerField(0));
 }
 #endif  // !CAPNP_LITE
-inline void CropResidueParameters::Builder::setParams( ::mas::schema::management::Params::OrganicFertilization::OrganicMatterParameters::Reader value) {
-  ::capnp::_::PointerHelpers< ::mas::schema::management::Params::OrganicFertilization::OrganicMatterParameters>::set(_builder.getPointerField(
+inline void CropResidueParameters::Builder::setParams( ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters::Reader value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), value);
 }
-inline  ::mas::schema::management::Params::OrganicFertilization::OrganicMatterParameters::Builder CropResidueParameters::Builder::initParams() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::management::Params::OrganicFertilization::OrganicMatterParameters>::init(_builder.getPointerField(
+inline  ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters::Builder CropResidueParameters::Builder::initParams() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters>::init(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 inline void CropResidueParameters::Builder::adoptParams(
-    ::capnp::Orphan< ::mas::schema::management::Params::OrganicFertilization::OrganicMatterParameters>&& value) {
-  ::capnp::_::PointerHelpers< ::mas::schema::management::Params::OrganicFertilization::OrganicMatterParameters>::adopt(_builder.getPointerField(
+    ::capnp::Orphan< ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::mas::schema::management::Params::OrganicFertilization::OrganicMatterParameters> CropResidueParameters::Builder::disownParams() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::management::Params::OrganicFertilization::OrganicMatterParameters>::disown(_builder.getPointerField(
+inline ::capnp::Orphan< ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters> CropResidueParameters::Builder::disownParams() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::model::monica::Params::OrganicFertilization::OrganicMatterParameters>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 
@@ -7805,34 +7805,34 @@ inline bool AutomaticIrrigationParameters::Builder::hasParams() {
   return !_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline  ::mas::schema::management::Params::Irrigation::Parameters::Reader AutomaticIrrigationParameters::Reader::getParams() const {
-  return ::capnp::_::PointerHelpers< ::mas::schema::management::Params::Irrigation::Parameters>::get(_reader.getPointerField(
+inline  ::mas::schema::model::monica::Params::Irrigation::Parameters::Reader AutomaticIrrigationParameters::Reader::getParams() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::model::monica::Params::Irrigation::Parameters>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::management::Params::Irrigation::Parameters::Builder AutomaticIrrigationParameters::Builder::getParams() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::management::Params::Irrigation::Parameters>::get(_builder.getPointerField(
+inline  ::mas::schema::model::monica::Params::Irrigation::Parameters::Builder AutomaticIrrigationParameters::Builder::getParams() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::model::monica::Params::Irrigation::Parameters>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 #if !CAPNP_LITE
-inline  ::mas::schema::management::Params::Irrigation::Parameters::Pipeline AutomaticIrrigationParameters::Pipeline::getParams() {
-  return  ::mas::schema::management::Params::Irrigation::Parameters::Pipeline(_typeless.getPointerField(0));
+inline  ::mas::schema::model::monica::Params::Irrigation::Parameters::Pipeline AutomaticIrrigationParameters::Pipeline::getParams() {
+  return  ::mas::schema::model::monica::Params::Irrigation::Parameters::Pipeline(_typeless.getPointerField(0));
 }
 #endif  // !CAPNP_LITE
-inline void AutomaticIrrigationParameters::Builder::setParams( ::mas::schema::management::Params::Irrigation::Parameters::Reader value) {
-  ::capnp::_::PointerHelpers< ::mas::schema::management::Params::Irrigation::Parameters>::set(_builder.getPointerField(
+inline void AutomaticIrrigationParameters::Builder::setParams( ::mas::schema::model::monica::Params::Irrigation::Parameters::Reader value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::model::monica::Params::Irrigation::Parameters>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), value);
 }
-inline  ::mas::schema::management::Params::Irrigation::Parameters::Builder AutomaticIrrigationParameters::Builder::initParams() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::management::Params::Irrigation::Parameters>::init(_builder.getPointerField(
+inline  ::mas::schema::model::monica::Params::Irrigation::Parameters::Builder AutomaticIrrigationParameters::Builder::initParams() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::model::monica::Params::Irrigation::Parameters>::init(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 inline void AutomaticIrrigationParameters::Builder::adoptParams(
-    ::capnp::Orphan< ::mas::schema::management::Params::Irrigation::Parameters>&& value) {
-  ::capnp::_::PointerHelpers< ::mas::schema::management::Params::Irrigation::Parameters>::adopt(_builder.getPointerField(
+    ::capnp::Orphan< ::mas::schema::model::monica::Params::Irrigation::Parameters>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::model::monica::Params::Irrigation::Parameters>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::mas::schema::management::Params::Irrigation::Parameters> AutomaticIrrigationParameters::Builder::disownParams() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::management::Params::Irrigation::Parameters>::disown(_builder.getPointerField(
+inline ::capnp::Orphan< ::mas::schema::model::monica::Params::Irrigation::Parameters> AutomaticIrrigationParameters::Builder::disownParams() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::model::monica::Params::Irrigation::Parameters>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 
@@ -8598,34 +8598,34 @@ inline bool SimulationParameters::Builder::hasNMinFertiliserPartition() {
   return !_builder.getPointerField(
       ::capnp::bounded<3>() * ::capnp::POINTERS).isNull();
 }
-inline  ::mas::schema::management::Params::MineralFertilization::Parameters::Reader SimulationParameters::Reader::getNMinFertiliserPartition() const {
-  return ::capnp::_::PointerHelpers< ::mas::schema::management::Params::MineralFertilization::Parameters>::get(_reader.getPointerField(
+inline  ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Reader SimulationParameters::Reader::getNMinFertiliserPartition() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>::get(_reader.getPointerField(
       ::capnp::bounded<3>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::management::Params::MineralFertilization::Parameters::Builder SimulationParameters::Builder::getNMinFertiliserPartition() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::management::Params::MineralFertilization::Parameters>::get(_builder.getPointerField(
+inline  ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Builder SimulationParameters::Builder::getNMinFertiliserPartition() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>::get(_builder.getPointerField(
       ::capnp::bounded<3>() * ::capnp::POINTERS));
 }
 #if !CAPNP_LITE
-inline  ::mas::schema::management::Params::MineralFertilization::Parameters::Pipeline SimulationParameters::Pipeline::getNMinFertiliserPartition() {
-  return  ::mas::schema::management::Params::MineralFertilization::Parameters::Pipeline(_typeless.getPointerField(3));
+inline  ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Pipeline SimulationParameters::Pipeline::getNMinFertiliserPartition() {
+  return  ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Pipeline(_typeless.getPointerField(3));
 }
 #endif  // !CAPNP_LITE
-inline void SimulationParameters::Builder::setNMinFertiliserPartition( ::mas::schema::management::Params::MineralFertilization::Parameters::Reader value) {
-  ::capnp::_::PointerHelpers< ::mas::schema::management::Params::MineralFertilization::Parameters>::set(_builder.getPointerField(
+inline void SimulationParameters::Builder::setNMinFertiliserPartition( ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Reader value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>::set(_builder.getPointerField(
       ::capnp::bounded<3>() * ::capnp::POINTERS), value);
 }
-inline  ::mas::schema::management::Params::MineralFertilization::Parameters::Builder SimulationParameters::Builder::initNMinFertiliserPartition() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::management::Params::MineralFertilization::Parameters>::init(_builder.getPointerField(
+inline  ::mas::schema::model::monica::Params::MineralFertilization::Parameters::Builder SimulationParameters::Builder::initNMinFertiliserPartition() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>::init(_builder.getPointerField(
       ::capnp::bounded<3>() * ::capnp::POINTERS));
 }
 inline void SimulationParameters::Builder::adoptNMinFertiliserPartition(
-    ::capnp::Orphan< ::mas::schema::management::Params::MineralFertilization::Parameters>&& value) {
-  ::capnp::_::PointerHelpers< ::mas::schema::management::Params::MineralFertilization::Parameters>::adopt(_builder.getPointerField(
+    ::capnp::Orphan< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>::adopt(_builder.getPointerField(
       ::capnp::bounded<3>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::mas::schema::management::Params::MineralFertilization::Parameters> SimulationParameters::Builder::disownNMinFertiliserPartition() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::management::Params::MineralFertilization::Parameters>::disown(_builder.getPointerField(
+inline ::capnp::Orphan< ::mas::schema::model::monica::Params::MineralFertilization::Parameters> SimulationParameters::Builder::disownNMinFertiliserPartition() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::model::monica::Params::MineralFertilization::Parameters>::disown(_builder.getPointerField(
       ::capnp::bounded<3>() * ::capnp::POINTERS));
 }
 

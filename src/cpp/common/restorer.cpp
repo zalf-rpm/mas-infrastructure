@@ -40,6 +40,28 @@ using namespace mas::infrastructure::common;
 //-----------------------------------------------------------------------------
 
 struct Restorer::Impl {
+
+   class Action final : public mas::schema::common::Action::Server {
+   public:
+     Action(kj::Function<kj::Promise<void>()> action, bool execActionOnDel = false, kj::StringPtr id = "<-");
+
+     virtual ~Action() noexcept(false);
+
+     kj::Promise<void> do_(DoContext context) override;
+
+   private:
+     kj::String id{ kj::str("<-") };
+     kj::Function<kj::Promise<void>()> action;
+     bool execActionOnDel{ false };
+     bool alreadyCalled{ false };
+   };
+
+
+
+
+
+
+
   kj::String host;
   uint16_t port{ 0 };
   uint64_t vatId[4]{ 0, 0, 0, 0 };

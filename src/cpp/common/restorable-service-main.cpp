@@ -24,6 +24,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include "common.h"
 
 #include "common.capnp.h"
+#include "fbp.capnp.h"
 #include "storage.capnp.h"
 #include "registry.capnp.h"
 
@@ -90,7 +91,7 @@ void RestorableServiceMain::startRestorerSetup(mas::schema::common::Identifiable
   KJ_LOG(INFO, "Created restorer.");
   
   if (startupInfoWriterSR.size() > 0) {
-    startupInfoWriterClient = conMan->tryConnectB(ioContext, startupInfoWriterSR).castAs<mas::schema::common::Channel<P>::ChanWriter>();
+    startupInfoWriterClient = conMan->tryConnectB(ioContext, startupInfoWriterSR).castAs<mas::schema::fbp::Channel<P>::ChanWriter>();
   }
 
   // if a restorer container stury ref is given, try to connect to it

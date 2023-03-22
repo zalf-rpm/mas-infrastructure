@@ -23,7 +23,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 //#include "model.capnp.h"
 #include "common.capnp.h"
-#include "restore_resolve.capnp.h"
+#include "persistence.capnp.h"
 #include "storage.capnp.h"
 
 namespace mas::infrastructure::common {
