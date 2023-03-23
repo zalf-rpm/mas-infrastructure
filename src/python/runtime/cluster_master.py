@@ -19,12 +19,12 @@ import capnp
 from collections import defaultdict
 import json
 from datetime import date, timedelta
-#import numpy as np
+# import numpy as np
 import os
-#import pandas as pd
+# import pandas as pd
 from pathlib import Path
-#from pyproj import Proj, transform
-#from scipy.interpolate import NearestNDInterpolator
+# from pyproj import Proj, transform
+# from scipy.interpolate import NearestNDInterpolator
 import sys
 import time
 import uuid
@@ -42,9 +42,11 @@ import common
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
-cluster_admin_service_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "cluster_admin_service.capnp"), imports=abs_imports) 
+cluster_admin_service_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "cluster_admin_service.capnp"),
+                                         imports=abs_imports)
 
-#------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
 
 class AdminMasterImpl(cluster_admin_service_capnp.Cluster.AdminMaster.Server):
     "Implementation of the Cluster.AdminMaster Cap'n Proto server interface."
@@ -53,11 +55,11 @@ class AdminMasterImpl(cluster_admin_service_capnp.Cluster.AdminMaster.Server):
         self._uuid4 = uuid.uuid4()
         self._factories = defaultdict(list)
 
-    def info_context(self, context): # info @0 () -> (info :IdInformation);
+    def info_context(self, context):  # info @0 () -> (info :IdInformation);
         "# interface to retrieve id information from an object"
         return {"id": str(self._uuid4), "name": "AdminMaster(" + str(self._uuid4) + ")", "description": ""}
 
-    #def unregisterFactory(self, aModelId, aFactory):
+    # def unregisterFactory(self, aModelId, aFactory):
     #   self._factories[aModelId].remove(aFactory)
 
     # registerModelInstanceFactory @0 (aModelId :Text, aFactory :ModelInstanceFactory) -> (unreg :Common.Unregister);
@@ -87,7 +89,7 @@ class UserMasterImpl(cluster_admin_service_capnp.Cluster.UserMaster.Server):
         self._uuid4 = uuid.uuid4()
         self._admin_master = admin_master
 
-    def info_context(self, context): # info @0 () -> (info :IdInformation);
+    def info_context(self, context):  # info @0 () -> (info :IdInformation);
         # interface to retrieve id information from an object
         return {"id": str(self._uuid4), "name": "UserMaster(" + str(self._uuid4) + ")", "description": ""}
 
@@ -104,13 +106,15 @@ class MultiRuntimeModelInstanceFactory(cluster_admin_service_capnp.Cluster.Model
         self._factories = factories
         self._uuid4 = uuid.uuid4()
 
-    def modelId(self, _context, **kwargs): # modelId @4 () -> (id :Text);
+    def modelId(self, _context, **kwargs):  # modelId @4 () -> (id :Text);
         "# return the id of the model this factory creates instances of"
         return self._model_id
 
-    def info_context(self, context): # info @0 () -> (info :IdInformation);
+    def info_context(self, context):  # info @0 () -> (info :IdInformation);
         # interface to retrieve id information from an object
-        return {"id": str(self._uuid4), "name": "MultiRuntimeModelInstanceFactory(" + self._model_id + ")(" + str(self._uuid4) + ")", "description": ""}
+        return {"id": str(self._uuid4),
+                "name": "MultiRuntimeModelInstanceFactory(" + self._model_id + ")(" + str(self._uuid4) + ")",
+                "description": ""}
 
     # newInstance @0 () -> (instance :AnyPointer);
     def newInstance_context(self, context):
@@ -146,9 +150,9 @@ def main():
 
     print("config:", config)
 
-    #address = parse_args().address
+    # address = parse_args().address
 
-    #server = capnp.TwoPartyServer("*:8000", bootstrap=DataServiceImpl("/home/berg/archive/data/"))
+    # server = capnp.TwoPartyServer("*:8000", bootstrap=DataServiceImpl("/home/berg/archive/data/"))
     # UserMasterImpl(AdminMasterImpl()))
     server = capnp.TwoPartyServer("*:" + config["port"], bootstrap=AdminMasterImpl())
     server.run_forever()

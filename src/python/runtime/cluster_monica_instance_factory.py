@@ -20,11 +20,11 @@ from collections import defaultdict
 import json
 import os
 from datetime import date, timedelta
-#import numpy as np
-#import pandas as pd
+# import numpy as np
+# import pandas as pd
 from pathlib import Path
-#from pyproj import Proj, transform
-#from scipy.interpolate import NearestNDInterpolator
+# from pyproj import Proj, transform
+# from scipy.interpolate import NearestNDInterpolator
 import subprocess
 import sys
 import time
@@ -44,9 +44,11 @@ PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 model_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "model.capnp"), imports=abs_imports)
 common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
-cluster_admin_service_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "cluster_admin_service.capnp"), imports=abs_imports) 
+cluster_admin_service_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "cluster_admin_service.capnp"),
+                                         imports=abs_imports)
 
-#------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
 
 class SlurmMonicaInstanceFactory(cluster_admin_service_capnp.Cluster.ModelInstanceFactory.Server):
 
@@ -85,10 +87,12 @@ class SlurmMonicaInstanceFactory(cluster_admin_service_capnp.Cluster.ModelInstan
             reg = self._registry[registration_token]
 
             # store new cap holder
-            reg["instance_caps"][proc_id] = common.CapHolderImpl(context.params.instance, instance_reg_token, lambda: reg["procs"][proc_id].terminate())
+            reg["instance_caps"][proc_id] = common.CapHolderImpl(context.params.instance, instance_reg_token,
+                                                                 lambda: reg["procs"][proc_id].terminate())
 
             # create unregister cap for instance, to get notified if instance dies
-            unreg_cap = common.CallbackImpl(lambda: self._registry.pop(registration_token, None), exec_callback_on_del=True)
+            unreg_cap = common.CallbackImpl(lambda: self._registry.pop(registration_token, None),
+                                            exec_callback_on_del=True)
             reg["unregister_caps"].append(unreg_cap)
             reg["fulfill_count"] -= 1
             if reg["fulfill_count"] == 0:
@@ -105,8 +109,9 @@ class SlurmMonicaInstanceFactory(cluster_admin_service_capnp.Cluster.ModelInstan
             reg = self._registry[registration_token]
 
             if int(proc_id) < 0:
-                context.results.cap = common.CapHolderImpl(reg["instance_caps"].values(), 
-                registration_token, lambda: self.terminate_all_procs(registration_token))
+                context.results.cap = common.CapHolderImpl(reg["instance_caps"].values(),
+                                                           registration_token,
+                                                           lambda: self.terminate_all_procs(registration_token))
             else:
                 if proc_id in reg["instance_caps"]:
                     context.results.cap = reg["instance_caps"][proc_id]
@@ -117,7 +122,8 @@ class SlurmMonicaInstanceFactory(cluster_admin_service_capnp.Cluster.ModelInstan
 
     def info(self, _context, **kwargs):  # info @0 () -> (info :IdInformation);
         # interface to retrieve id information from an object
-        return {"id": str(self._uuid4), "name": "SlurmMonicaInstanceFactory(" + str(self._uuid4) + ")", "description": ""}
+        return {"id": str(self._uuid4), "name": "SlurmMonicaInstanceFactory(" + str(self._uuid4) + ")",
+                "description": ""}
 
     # newInstance @0 () -> (instance :Capability);
     def newInstance_context(self, context):
@@ -130,7 +136,8 @@ class SlurmMonicaInstanceFactory(cluster_admin_service_capnp.Cluster.ModelInstan
         reg = self._registry[registration_token]
         reg["procs"]["0"] = monica
         reg["fulfill_count"] = 1
-        return reg["prom_fulfiller"].promise.then(lambda: setattr(context.results, "instance", self._registry[registration_token]["instance_caps"]["0"]))
+        return reg["prom_fulfiller"].promise.then(
+            lambda: setattr(context.results, "instance", self._registry[registration_token]["instance_caps"]["0"]))
 
     # newInstances @1 (numberOfInstances :Int16) -> (instances :AnyList);
     def newInstances_context(self, context):
@@ -142,7 +149,8 @@ class SlurmMonicaInstanceFactory(cluster_admin_service_capnp.Cluster.ModelInstan
         procs = {}
         for i in range(instance_count):
             monica = subprocess.Popen([self._path_to_monica_binaries + "monica-capnp-server.exe", "-i",
-                                       "-cf", "-fa", "localhost", "-fp", str(self._port), "-rt", registration_token + ":" + str(i)])
+                                       "-cf", "-fa", "localhost", "-fp", str(self._port), "-rt",
+                                       registration_token + ":" + str(i)])
             procs[str(i)] = monica
 
         reg = self._registry[registration_token]
@@ -152,7 +160,9 @@ class SlurmMonicaInstanceFactory(cluster_admin_service_capnp.Cluster.ModelInstan
         # return promise for the list of capabilities once the monicas started up and registered themselfs with the factory
         return reg["prom_fulfiller"].promise.then(lambda: setattr(context.results, "instances", \
                                                                   # common.CapHolderImpl(self._registry[registration_token]["instance_caps"]["0"], registration_token, lambda: self.terminate_all_procs(registration_token))))
-                                                                  common.CapHolderImpl([1, 2, 3], registration_token, lambda: self.terminate_all_procs(registration_token))))
+                                                                  common.CapHolderImpl([1, 2, 3], registration_token,
+                                                                                       lambda: self.terminate_all_procs(
+                                                                                           registration_token))))
 
     # newCloudViaZmqPipelineProxies @2 (numberOfInstances :Int16) -> (zmqInputAddress :Text, zmqOutputAddress :Text);
     def newCloudViaZmqPipelineProxies_context(self, context):
@@ -166,13 +176,14 @@ class SlurmMonicaInstanceFactory(cluster_admin_service_capnp.Cluster.ModelInstan
 
 
 def main():
-    #address = parse_args().address
+    # address = parse_args().address
 
     runtime_available = False
     while not runtime_available:
         try:
             # runtime = capnp.TwoPartyClient("localhost:9000").bootstrap().cast_as(
-            runtime = capnp.TwoPartyClient("10.10.24.186:9000").bootstrap().cast_as(cluster_admin_service_capnp.Cluster.Runtime)
+            runtime = capnp.TwoPartyClient("10.10.24.186:9000").bootstrap().cast_as(
+                cluster_admin_service_capnp.Cluster.Runtime)
             runtime_available = True
         except:
             # time.sleep(1)
@@ -191,7 +202,7 @@ def main():
             print(e)
             time.sleep(1)
 
-    #server = capnp.TwoPartyServer("*:8000", bootstrap=DataServiceImpl("/home/berg/archive/data/"))
+    # server = capnp.TwoPartyServer("*:8000", bootstrap=DataServiceImpl("/home/berg/archive/data/"))
     server = capnp.TwoPartyServer("*:10000", bootstrap=monicaFactory)
     server.run_forever()
 

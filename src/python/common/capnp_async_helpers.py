@@ -32,7 +32,7 @@ if str(PATH_TO_REPO) not in sys.path:
 
 PATH_TO_CAPNP_SCHEMAS = (PATH_TO_REPO / "capnproto_schemas").resolve()
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
-persistence_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "persistence.capnp"), imports=abs_imports) 
+persistence_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "persistence.capnp"), imports=abs_imports)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -40,10 +40,12 @@ logger.setLevel(logging.DEBUG)
 ch = logging.StreamHandler(sys.stdout)
 ch.setLevel(logging.DEBUG)
 
-#logger.addHandler(ch)
+
+# logger.addHandler(ch)
 
 def pr():
     print("disconnected")
+
 
 class Server:
     def __init__(self, service):
@@ -65,10 +67,10 @@ class Server:
                     if task in done:
                         data = task.result()
                     else:
-                        #print("<r", flush=True, end="")
+                        # print("<r", flush=True, end="")
                         continue
 
-                    #print("<" + str(len(data)), flush=True, end="<")
+                    # print("<" + str(len(data)), flush=True, end="<")
                     await self.server.write(data)
                     break
             except Exception as err:
@@ -78,7 +80,6 @@ class Server:
         logger.debug("socket_reader done.")
         return True
 
-
     async def socket_writer(self):
         while self.retry or self.writer.at_eof():
             try:
@@ -87,14 +88,14 @@ class Server:
                 while self.retry:
                     # Must be a wait_for so we don't block on read()
                     done, left = await asyncio.wait(left, timeout=0.1)
-                    
+
                     if task in done:
                         data = task.result()
                     else:
-                        #print("w>", flush=True, end="")
+                        # print("w>", flush=True, end="")
                         continue
 
-                    #print(">" + str(len(data)), flush=True, end=">")
+                    # print(">" + str(len(data)), flush=True, end=">")
                     self.writer.write(data.tobytes())
                     await self.writer.drain()
                     break
@@ -107,11 +108,11 @@ class Server:
 
     async def handle_connection(self, reader, writer):
         # Start TwoPartyServer using TwoWayPipe (only requires bootstrap)
-        
-        #with capnp.TwoPartyServer(bootstrap=self._service) as ss:
+
+        # with capnp.TwoPartyServer(bootstrap=self._service) as ss:
         #    self.server = ss
         self.server = capnp.TwoPartyServer(bootstrap=self._service)
-        #self._disconnect_prom = self.server.on_disconnect().then(lambda: print("disconnected"))
+        # self._disconnect_prom = self.server.on_disconnect().then(lambda: print("disconnected"))
         self.reader = reader
         self.writer = writer
         self.retry = True
@@ -130,28 +131,30 @@ class Server:
 
         # Make wait for reader/writer to finish (prevent possible resource leaks)
         await tasks
-        
-        #del self.server
-        #self.server._decref()
-        #del self.server
-        #print("finished")
+
+        # del self.server
+        # self.server._decref()
+        # del self.server
+        # print("finished")
 
     def __del__(self):
         pass
-        #print("dying")
-        #self._disconnect_prom.wait()
-        #print("died")
+        # print("dying")
+        # self._disconnect_prom.wait()
+        # print("died")
+
 
 servers = []
 
-async def serve(host, port, bootstrap):
 
+async def serve(host, port, bootstrap):
     def new_connection_factory(bootstrap):
         async def new_connection(reader, writer):
-            server = Server(bootstrap)
-            #servers.append(server)
-            await server.handle_connection(reader, writer)
-            #print("handled connection")
+            s = Server(bootstrap)
+            # servers.append(server)
+            await s.handle_connection(reader, writer)
+            # print("handled connection")
+
         return new_connection
 
     # Handle both IPv4 and IPv6 cases
@@ -173,7 +176,7 @@ async def serve(host, port, bootstrap):
         bootstrap.port = p
     except:
         pass
-    #print("serving bootstrap on interface:", h, "port:", p)
+    # print("serving bootstrap on interface:", h, "port:", p)
     return server
 
 
@@ -182,7 +185,8 @@ async def serve_forever(host, port, bootstrap):
     async with server:
         await server.serve_forever()
 
-#------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
 
 class ConnectionManager:
 
@@ -191,12 +195,10 @@ class ConnectionManager:
         self._alltasks = []
         self._restorer = restorer if restorer else common.Restorer()
 
-
     async def manage_forever(self):
         await asyncio.gather(*self._alltasks, return_exceptions=True)
 
-
-    async def connect(self, sturdy_ref, cast_as = None):
+    async def connect(self, sturdy_ref, cast_as=None):
         try:
             if type(sturdy_ref) == str:
                 # we assume that a sturdy ref url looks always like 
@@ -259,8 +261,7 @@ class ConnectionManager:
 
         return None
 
-
-    async def try_connect(self, sturdy_ref, cast_as = None, retry_count=10, retry_secs=5, print_retry_msgs=True):
+    async def try_connect(self, sturdy_ref, cast_as=None, retry_count=10, retry_secs=5, print_retry_msgs=True):
         while True:
             try:
                 return await self.connect(sturdy_ref, cast_as=cast_as)
@@ -275,11 +276,10 @@ class ConnectionManager:
                 time.sleep(retry_secs)
                 retry_secs += 1
 
-
     async def socket_reader(self, client, reader, retry_task=True):
-        '''
+        """
         Reads from asyncio socket and writes to pycapnp client interface
-        '''
+        """
 
         while True:
             data = await reader.read(4096)
@@ -303,7 +303,6 @@ class ConnectionManager:
             client.write(data)
         logger.debug("socketreader done.")
         return True
-
 
     async def socket_writer(self, client, writer, retry_task=True):
         '''
@@ -335,7 +334,8 @@ class ConnectionManager:
         logger.debug("socketwriter done.")
         return True
 
-#------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
 
 """
 async def myreader(client, reader):

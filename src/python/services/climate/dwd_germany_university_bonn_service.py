@@ -22,8 +22,8 @@ from pathlib import Path
 import sys
 import time
 
-#remote debugging via commandline
-#-m ptvsd --host 0.0.0.0 --port 14000 --wait
+# remote debugging via commandline
+# -m ptvsd --host 0.0.0.0 --port 14000 --wait
 
 PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent.parent
 if str(PATH_TO_REPO) not in sys.path:
@@ -42,12 +42,13 @@ abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
 climate_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate.capnp"), imports=abs_imports)
 
-#------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
 
 def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon):
     datasets = []
     metadata = climate_data_capnp.Metadata.new_message(
-        entries = [
+        entries=[
             {"historical": None},
             {"start": {"year": 1901, "month": 1, "day": 1}},
             {"end": {"year": 2019, "month": 12, "day": 31}}
@@ -55,33 +56,34 @@ def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon):
     )
     metadata.info = ccdi.Metadata_Info(metadata)
     datasets.append(climate_data_capnp.MetaPlusData.new_message(
-        meta=metadata, 
-        data=csv_based.Dataset(metadata, path_to_data_dir, interpolator, rowcol_to_latlon, 
-            header_map={
-                "Date": "iso-date",
-                "Precipitation": "precip",
-                "TempMin": "tmin",
-                "TempMean": "tavg",
-                "TempMax": "tmax",
-                "Radiation": "globrad",
-                "Windspeed": "wind",
-                "RelHumCalc": "relhumid"
-            },
-            supported_headers=["tmin", "tavg", "tmax", "precip", "globrad", "wind", "relhumid"],
-            row_col_pattern="{row}/daily_mean_RES1_C{col}R{row}.csv.gz",
-            pandas_csv_config={"skip_rows": 0, "sep": "\t"},
-            transform_map={
-                "relhumid": lambda rh: rh * 100.0,
-                "globrad": lambda gr: gr / 1000.0 if gr > 0 else gr
-            })
+        meta=metadata,
+        data=csv_based.Dataset(metadata, path_to_data_dir, interpolator, rowcol_to_latlon,
+                               header_map={
+                                   "Date": "iso-date",
+                                   "Precipitation": "precip",
+                                   "TempMin": "tmin",
+                                   "TempMean": "tavg",
+                                   "TempMax": "tmax",
+                                   "Radiation": "globrad",
+                                   "Windspeed": "wind",
+                                   "RelHumCalc": "relhumid"
+                               },
+                               supported_headers=["tmin", "tavg", "tmax", "precip", "globrad", "wind", "relhumid"],
+                               row_col_pattern="{row}/daily_mean_RES1_C{col}R{row}.csv.gz",
+                               pandas_csv_config={"skip_rows": 0, "sep": "\t"},
+                               transform_map={
+                                   "relhumid": lambda rh: rh * 100.0,
+                                   "globrad": lambda gr: gr / 1000.0 if gr > 0 else gr
+                               })
     ))
     return datasets
 
-#------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
 
 async def async_main(path_to_data, serve_bootstrap=False,
-host="0.0.0.0", port=None, reg_sturdy_ref=None, id=None, name="DWD/UBN - historical - 1901 - ...", description=None):
-
+                     host="0.0.0.0", port=None, reg_sturdy_ref=None, id=None, name="DWD/UBN - historical - 1901 - ...",
+                     description=None):
     config = {
         "path_to_data": path_to_data,
         "host": host,
@@ -103,8 +105,10 @@ host="0.0.0.0", port=None, reg_sturdy_ref=None, id=None, name="DWD/UBN - histori
 
     conMan = async_helpers.ConnectionManager()
 
-    interpolator, rowcol_to_latlon = ccdi.create_lat_lon_interpolator_from_json_coords_file(config["path_to_data"] + "/" + "latlon-to-rowcol.json")
-    meta_plus_data = create_meta_plus_datasets(config["path_to_data"] + "/germany_ubn_1901-2018", interpolator, rowcol_to_latlon)
+    interpolator, rowcol_to_latlon = ccdi.create_lat_lon_interpolator_from_json_coords_file(
+        config["path_to_data"] + "/" + "latlon-to-rowcol.json")
+    meta_plus_data = create_meta_plus_datasets(config["path_to_data"] + "/germany_ubn_1901-2018", interpolator,
+                                               rowcol_to_latlon)
     service = ccdi.Service(meta_plus_data, id=config["id"], name=config["name"], description=config["description"])
 
     if config["reg_sturdy_ref"]:
@@ -112,7 +116,7 @@ host="0.0.0.0", port=None, reg_sturdy_ref=None, id=None, name="DWD/UBN - histori
         if registrator:
             unreg = await registrator.register(ref=service, categoryId=config["reg_category"]).a_wait()
             print("Registered ", config["name"], "climate service.")
-            #await unreg.unregister.unregister().a_wait()
+            # await unreg.unregister.unregister().a_wait()
         else:
             print("Couldn't connect to registrator at sturdy_ref:", config["reg_sturdy_ref"])
 
@@ -121,7 +125,8 @@ host="0.0.0.0", port=None, reg_sturdy_ref=None, id=None, name="DWD/UBN - histori
     else:
         await conMan.manage_forever()
 
-#------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
 
 if __name__ == '__main__':
     asyncio.run(async_main("/beegfs/common/data/climate/dwd/csvs"))

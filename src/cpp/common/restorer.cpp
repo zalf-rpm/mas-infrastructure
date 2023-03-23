@@ -41,26 +41,19 @@ using namespace mas::infrastructure::common;
 
 struct Restorer::Impl {
 
-   class Action final : public mas::schema::common::Action::Server {
-   public:
-     Action(kj::Function<kj::Promise<void>()> action, bool execActionOnDel = false, kj::StringPtr id = "<-");
+  struct ReleaseSturdyRef final : public mas::schema::persistence::Persistent::ReleaseSturdyRef::Server {
+    kj::Function<kj::Promise<bool>()> releaseFunc;
 
-     virtual ~Action() noexcept(false);
+    ReleaseSturdyRef(kj::Function<kj::Promise<bool>()> releaseFunc) : releaseFunc(kj::mv(releaseFunc)) {}
 
-     kj::Promise<void> do_(DoContext context) override;
+    virtual ~ReleaseSturdyRef() noexcept(false) {}
 
-   private:
-     kj::String id{ kj::str("<-") };
-     kj::Function<kj::Promise<void>()> action;
-     bool execActionOnDel{ false };
-     bool alreadyCalled{ false };
-   };
-
-
-
-
-
-
+    kj::Promise<void> release(ReleaseContext context) override {
+      return releaseFunc().then([context](auto &&res) mutable {
+        context.getResults().setSuccess(res);
+      });
+    }
+  };
 
   kj::String host;
   uint16_t port{ 0 };
@@ -204,9 +197,11 @@ struct Restorer::Impl {
       else if(srData->unsaveSRToken.size() > 0) { // restore an unsave action
         auto srt = kj::str(srData->restoreToken);
         auto usrt = kj::str(srData->unsaveSRToken);
-        auto unsaveAction = kj::heap<Action>([this, KJ_MVCAP(srt), KJ_MVCAP(usrt)]() { 
+        auto unsaveAction = kj::heap<ReleaseSturdyRef>([this, KJ_MVCAP(srt), KJ_MVCAP(usrt)]() {
           auto usrt2 = kj::str(usrt);
-          return unsave(srt).then([this, KJ_MVCAP(usrt2)](){ return unsave(usrt2); });
+          return unsave(srt).then([this, KJ_MVCAP(usrt2)](auto &&success){
+            return unsave(usrt2).then([success](auto &&success2){ return success && success2; });
+          });
         });
         srData->cap = kj::mv(unsaveAction);
         return srData->cap; 
@@ -302,14 +297,14 @@ struct Restorer::Impl {
     return kj::encodeBase64Url(toKJArray(signedSRToken, signedSRTokenLen));
   }
 
-  kj::Promise<void> unsave(kj::StringPtr srToken) {
-    issuedSRTokens.erase(srToken);
+  kj::Promise<bool> unsave(kj::StringPtr srToken) {
+    bool success = issuedSRTokens.erase(srToken);
     if(isStoreSet) {
       auto req = store.removeEntryRequest();
       req.setKey(srToken);
-      return req.send().ignoreResult();
+      return req.send().then([success](auto &&res) { return res.getSuccess() && success; });
     }
-    return kj::READY_NOW;
+    return success;
   }
 
 };
@@ -504,9 +499,11 @@ kj::Promise<void> Restorer::save(capnp::Capability::Client cap,
     auto unsaveSRToken = kj::str(sole::uuid4().str());
     auto srt = kj::str(srToken);
     auto usrt = kj::str(unsaveSRToken);
-    auto unsaveAction = kj::heap<Action>([this, KJ_MVCAP(srt), KJ_MVCAP(usrt)]() { 
+    auto unsaveAction = kj::heap<Impl::ReleaseSturdyRef>([this, KJ_MVCAP(srt), KJ_MVCAP(usrt)]() {
       auto usrt2 = kj::str(usrt);
-      return impl->unsave(srt).then([this, KJ_MVCAP(usrt2)](){ return impl->unsave(usrt2); });
+      return impl->unsave(srt).then([this, KJ_MVCAP(usrt2)](auto &&success){
+        return impl->unsave(usrt2).then([success](auto &&success2) { return success && success2; });
+      });
     }); 
     // for storing the unsave data, the restoreToken is actually the srToken, because we 
     // create the unsaveAction ourselves for the capability behind the srToken
@@ -562,9 +559,11 @@ kj::Promise<Restorer::SaveStrResult> Restorer::saveStr(capnp::Capability::Client
     unsaveSRToken = kj::str(sole::uuid4().str());
     auto srt = kj::str(srToken);
     auto usrt = kj::str(unsaveSRToken);
-    auto unsaveAction = kj::heap<Action>([this, KJ_MVCAP(srt), KJ_MVCAP(usrt)]() { 
+    auto unsaveAction = kj::heap<Impl::ReleaseSturdyRef>([this, KJ_MVCAP(srt), KJ_MVCAP(usrt)]() {
       auto usrt2 = kj::str(usrt);
-      return impl->unsave(srt).then([this, KJ_MVCAP(usrt2)](){ return impl->unsave(usrt2); });
+      return impl->unsave(srt).then([this, KJ_MVCAP(usrt2)](auto success){
+        return impl->unsave(usrt2).then([success](auto success2){ return success && success2; });
+      });
     }); 
     auto& usrEntry = impl->issuedSRTokens.insert(kj::str(unsaveSRToken), {kj::str(sealForOwner), kj::mv(unsaveAction), true, 
       kj::str(srToken), kj::str(unsaveSRToken)});
@@ -588,7 +587,7 @@ kj::Promise<Restorer::SaveStrResult> Restorer::saveStr(capnp::Capability::Client
   });
 }
 
-kj::Promise<void> Restorer::unsave(kj::StringPtr srToken) {
+kj::Promise<bool> Restorer::unsave(kj::StringPtr srToken) {
   return impl->unsave(srToken);
 }
 

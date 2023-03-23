@@ -33,9 +33,10 @@ import common.common as common
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
-common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports) 
+common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
+fbp_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "fbp.capnp"), imports=abs_imports)
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 config = {
     "attr_sr": None,
@@ -47,8 +48,8 @@ config = {
 common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
 conman = common.ConnectionManager()
-attrp = conman.try_connect(config["attr_sr"], cast_as=common_capnp.Channel.Reader, retry_secs=1)
-outp = conman.try_connect(config["out_sr"], cast_as=common_capnp.Channel.Writer, retry_secs=1)
+attrp = conman.try_connect(config["attr_sr"], cast_as=fbp_capnp.Channel.Reader, retry_secs=1)
+outp = conman.try_connect(config["out_sr"], cast_as=fbp_capnp.Channel.Writer, retry_secs=1)
 skip_lines = int(config["skip_lines"])
 
 try:
@@ -57,7 +58,7 @@ try:
         msg = attrp.read().wait()
         # check for end of data from in port
         if msg.which() != "done":
-            attr_ip = msg.value.as_struct(common_capnp.IP)
+            attr_ip = msg.value.as_struct(fbp_capnp.IP)
             attr = attr_ip.content
 
     if outp:
@@ -66,17 +67,15 @@ try:
                 if skip_lines > 0:
                     skip_lines -= 1
                     continue
-                
-                out_ip = common_capnp.IP.new_message(content=line)
+
+                out_ip = fbp_capnp.IP.new_message(content=line)
                 if attr and config["to_attr"]:
                     out_ip.attributes = [{"key": config["to_attr"], "value": attr}]
                 outp.write(value=out_ip).wait()
-    
+
     outp.write(done=None).wait()
 
 except Exception as e:
     print("read_file.py ex:", e)
 
 print("read_file.py: exiting run")
-
-

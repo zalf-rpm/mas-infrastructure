@@ -34,7 +34,8 @@ import common.common as common
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
-common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports) 
+common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
+fbp_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "fbp.capnp"), imports=abs_imports)
 
 #------------------------------------------------------------------------------
 
@@ -47,8 +48,8 @@ config = {
 common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
 conman = common.ConnectionManager()
-inp = conman.try_connect(config["in_sr"], cast_as=common_capnp.Channel.Reader, retry_secs=1)
-outp = conman.try_connect(config["out_sr"], cast_as=common_capnp.Channel.Writer, retry_secs=1)
+inp = conman.try_connect(config["in_sr"], cast_as=fbp_capnp.Channel.Reader, retry_secs=1)
+outp = conman.try_connect(config["out_sr"], cast_as=fbp_capnp.Channel.Writer, retry_secs=1)
 
 cast_to = None
 if config["cast_to"] == "float":
@@ -70,7 +71,7 @@ try:
             if msg.which() == "done":
                 break
             
-            s : str = msg.value.as_struct(common_capnp.IP).content.as_text()
+            s : str = msg.value.as_struct(fbp_capnp.IP).content.as_text()
             s = s.rstrip()
             vals = s.split(config["split_at"])
             if cast_to:
@@ -78,7 +79,7 @@ try:
             #print("split_string vals:", vals)
 
             req = outp.write_request()
-            l = init_list(req.value.as_struct(common_capnp.IP).content, len(vals))
+            l = init_list(req.value.as_struct(fbp_capnp.IP).content, len(vals))
             for i, val in enumerate(vals):
                 l[i] = val
             req.send().wait()

@@ -15,8 +15,8 @@
 # Landscape Systems Analysis at the ZALF.
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
-#remote debugging via commandline
-#-m ptvsd --host 0.0.0.0 --port 14000 --wait
+# remote debugging via commandline
+# -m ptvsd --host 0.0.0.0 --port 14000 --wait
 
 import asyncio
 import capnp
@@ -37,12 +37,13 @@ if str(PATH_TO_PYTHON_CODE) not in sys.path:
 
 import common.capnp_async_helpers as async_helpers
 
-ATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
+PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
 reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "service_registry.capnp"), imports=abs_imports)
 
-#------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
 
 class Registry(reg_capnp.Service.Registry.Server):
 
@@ -50,14 +51,12 @@ class Registry(reg_capnp.Service.Registry.Server):
         self._id = id if id else uuid.uuid4()
         self._name = name if name else self._uuid
         self._description = description if description else ""
-        self._services = {} # regToken -> {"entry": {regToken, type, service}, "unreg": unreg_cap}
+        self._services = {}  # regToken -> {"entry": {regToken, type, service}, "unreg": unreg_cap}
 
-
-    def info(self): # info @0 () -> IdInformation;
+    def info(self):  # info @0 () -> IdInformation;
         return {"id": self._id, "name": self._name, "description": self._description}
 
-
-    def getAvailableServices_context(self, context): # getAvailableServices @0 QueryType -> (services :List(Entry));
+    def getAvailableServices_context(self, context):  # getAvailableServices @0 QueryType -> (services :List(Entry));
         all_services = []
         if context.params.which() == "all":
             for _, service_entry in self._services.items():
@@ -69,24 +68,25 @@ class Registry(reg_capnp.Service.Registry.Server):
 
         context.results.services = all_services
 
-    
-    def getService_context(self, context): # getService [Service] @1 (regToken :Text) -> (service :Service);
+    def getService_context(self, context):  # getService [Service] @1 (regToken :Text) -> (service :Service);
         regToken = context.params.regToken
         if regToken in self._services:
             return self._service[regToken]["entry"]["service"]
 
-
-    def registerService_context(self, context): # registerService @2 (type :Type, service :Common.Identifiable) -> (regToken :Text, unreg :Common.Registry.Unregister); 
+    def registerService_context(self,
+                                context):  # registerService @2 (type :Type, service :Common.Identifiable) -> (regToken :Text, unreg :Common.Registry.Unregister);
         ps = context.params
         serviceType = ps.type
         regToken = str(uuid.uuid4())
         unreg = Unregister(regToken, lambda: self._services.pop(regToken, None))
-        self._services[regToken] = {"entry": {"regToken": regToken, "type": serviceType, "service": ps.service}, "unreg": unreg}
+        self._services[regToken] = {"entry": {"regToken": regToken, "type": serviceType, "service": ps.service},
+                                    "unreg": unreg}
         context.results.unreg = unreg
         context.results.regToken = regToken
         print("registered service regToken:", regToken, "type:", serviceType)
 
-#------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
 
 class Unregister(common_capnp.Registry.Unregister.Server):
 
@@ -94,28 +94,27 @@ class Unregister(common_capnp.Registry.Unregister.Server):
         self._regToken = regToken
         self._removeServiceFunc = removeServiceFunc
 
-
     def __del__(self):
         self._removeServiceFunc()
         print("__del__ id:", self._regToken)
 
-
-    def unregister(self, **kwargs): # unregister @0 ();
+    def unregister(self, **kwargs):  # unregister @0 ();
         self._removeServiceFunc()
         print("unregister id:", self._regToken)
 
-#------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
 
 
 def new_connection_factory(service):
-    
     async def new_connection(reader, writer):
         server = async_helpers.Server(service)
         await server.myserver(reader, writer)
 
     return new_connection
 
-#------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
 
 async def async_main(server="0.0.0.0", port=10001, id=None, name="registry name", description=None):
     config = {
@@ -136,14 +135,14 @@ async def async_main(server="0.0.0.0", port=10001, id=None, name="registry name"
     registry = Registry(id=config["id"], name=config["name"], description=config["description"])
 
     # Handle both IPv4 and IPv6 cases
-    #try:
-    #print("Try IPv4")
+    # try:
+    # print("Try IPv4")
     server = await asyncio.start_server(
         new_connection_factory(registry),
         server, port,
         family=socket.AF_INET
     )
-    #except Exception:
+    # except Exception:
     #    print("Try IPv6")
     #    server = await asyncio.start_server(
     #        new_connection_factory(registry),
@@ -154,7 +153,8 @@ async def async_main(server="0.0.0.0", port=10001, id=None, name="registry name"
     async with server:
         await server.serve_forever()
 
-#------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
 
 def no_async_main(server="*", port=6003, id=None, name="registry name", description=None):
     config = {
@@ -172,10 +172,12 @@ def no_async_main(server="*", port=6003, id=None, name="registry name", descript
                 config[k] = v
 
     server = capnp.TwoPartyServer(config["server"] + ":" + config["port"],
-                                  bootstrap=Registry(id=config["id"], name=config["name"], description=config["description"]))
+                                  bootstrap=Registry(id=config["id"], name=config["name"],
+                                                     description=config["description"]))
     server.run_forever()
 
-#------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
 
 def main(server="*", port=10001, id=None, name=None, description=None, use_asyncio=True):
     if use_asyncio:
@@ -183,12 +185,13 @@ def main(server="*", port=10001, id=None, name=None, description=None, use_async
     else:
         no_async_main(server=server, port=port, id=id, name=name, description=description)
 
-#------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
 
 if __name__ == '__main__':
 
-    #asyncio.run(async_main())
-    #exit()
+    # asyncio.run(async_main())
+    # exit()
 
     if len(sys.argv) > 1:
         async_no_async = sys.argv[1]
@@ -198,4 +201,4 @@ if __name__ == '__main__':
     else:
         no_async_main()
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------

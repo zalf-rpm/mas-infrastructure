@@ -107,7 +107,7 @@ try:
             break
 
     con_man = common.ConnectionManager()
-    first_reader = con_man.try_connect(first_reader_sr, cast_as=common_capnp.Channel.Reader)
+    first_reader = con_man.try_connect(first_reader_sr, cast_as=fbp_capnp.Channel.Reader)
     
     create_components = {
         "get_climate_locations": lambda srs: sp.Popen([
@@ -192,7 +192,7 @@ try:
 
         # there should be code to start the components
         if start_comp_name in create_components and end_comp_name in create_components:
-            info = p.snd.as_struct(common_capnp.Channel.StartupInfo)
+            info = p.snd.as_struct(fbp_capnp.Channel.StartupInfo)
 
             start_sr_name = chan_id_to_in_out_sr_names[id]["out"]
             end_sr_name = chan_id_to_in_out_sr_names[id]["in"]

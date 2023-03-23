@@ -37,8 +37,9 @@ import common.geo as geo
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
-common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports) 
+common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
 climate_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate.capnp"), imports=abs_imports)
+fbp_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "fbp.capnp"), imports=abs_imports)
 
 #------------------------------------------------------------------------------
 
@@ -52,13 +53,13 @@ config = {
 common.update_config(config, sys.argv, print_config=True, allow_new_keys=True)
 
 conman = common.ConnectionManager()
-inp = conman.try_connect(config["in_sr"], cast_as=common_capnp.Channel.Reader, retry_secs=1)
+inp = conman.try_connect(config["in_sr"], cast_as=fbp_capnp.Channel.Reader, retry_secs=1)
 outps = {}
 for out_sr in filter(lambda k: k[:6] == "out_sr", config.keys()):
     if config[out_sr] is None:
         continue
     out_id = out_sr[7:] if len(out_sr) > 7 else "0"
-    outps[out_id] = conman.try_connect(config[out_sr], cast_as=common_capnp.Channel.Writer, retry_secs=1)
+    outps[out_id] = conman.try_connect(config[out_sr], cast_as=fbp_capnp.Channel.Writer, retry_secs=1)
 
 def capnp_date_to_py_date(capnp_date):
     return date(capnp_date.year, capnp_date.month, capnp_date.day)
@@ -94,7 +95,7 @@ try:
             if msg.which() == "done":
                 break
             
-            in_ip = msg.value.as_struct(common_capnp.IP)
+            in_ip = msg.value.as_struct(fbp_capnp.IP)
             id = common.get_fbp_attr(in_ip, "id")
             attr = common.get_fbp_attr(in_ip, config["from_attr"])
             if attr:
@@ -109,7 +110,7 @@ try:
                 r = rs.split("-")[1].zfill(3)
                 c = cs.split("-")[1].zfill(3)
                 line = r + c + "," + vars[var] + "\n"
-                out_ip = common_capnp.IP.new_message()
+                out_ip = fbp_capnp.IP.new_message()
                 if not config["to_attr"]:
                     out_ip.content = line
                 updated_attrs = {"id": var} | ({config["to_attr"]: line} if config["to_attr"] else {})

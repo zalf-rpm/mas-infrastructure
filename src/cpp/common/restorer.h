@@ -77,7 +77,7 @@ class Restorer final : public mas::schema::persistence::Restorer::Server
     kj::StringPtr restoreToken = nullptr,
     bool storeSturdyRefs = true);
 
-  kj::Promise<void> unsave(kj::StringPtr srToken);
+  kj::Promise<bool> unsave(kj::StringPtr srToken);
 
   kj::Tuple<bool, kj::String> verifySRToken(kj::StringPtr srToken, kj::StringPtr vatIdBase64);
 

@@ -245,7 +245,7 @@ struct SqliteStorageService::Impl {
   bool isConnected{false};
   kj::HashMap<kj::String, kj::Tuple<ContainerClient, Container*>> containers;
   mas::schema::storage::Store::Client client{nullptr};
-  mas::schema::common::Action::Client unregisterAction{nullptr};
+  //mas::schema::common::Action::Client unregisterAction{nullptr};
 
   Impl(SqliteStorageService& self, mas::infrastructure::common::Restorer* restorer, kj::StringPtr filename, 
     kj::StringPtr name, kj::StringPtr description)
@@ -715,8 +715,8 @@ kj::Promise<void> SqliteStorageService::importContainer(ImportContainerContext c
 mas::schema::storage::Store::Client SqliteStorageService::getClient() { return impl->client; }
 void SqliteStorageService::setClient(mas::schema::storage::Store::Client c) { impl->client = c; }
 
-mas::schema::common::Action::Client SqliteStorageService::getUnregisterAction() { return impl->unregisterAction; }
-void SqliteStorageService::setUnregisterAction(mas::schema::common::Action::Client unreg) { impl->unregisterAction = unreg; }
+//mas::schema::common::Action::Client SqliteStorageService::getUnregisterAction() { return impl->unregisterAction; }
+//void SqliteStorageService::setUnregisterAction(mas::schema::common::Action::Client unreg) { impl->unregisterAction = unreg; }
 
 void SqliteStorageService::setRestorer(mas::infrastructure::common::Restorer* restorer){ 
   impl->setRestorer(restorer);

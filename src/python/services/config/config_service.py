@@ -42,27 +42,28 @@ abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
 config_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "config.capnp"), imports=abs_imports)
 
-class Service(config_capnp.Service.Server, common.Identifiable, serv.AdministrableService): 
 
-    def __init__(self, jobs = []):
+class Service(config_capnp.Service.Server, common.Identifiable, serv.AdministrableService):
+
+    def __init__(self, jobs=[]):
         self._jobs = [{"data": data} for data in jobs]
 
-
-    def createConfig(self, **kwargs): # createConfig @0 () -> C;
+    def createConfig(self, **kwargs):  # createConfig @0 () -> C;
         print(len(self._jobs))
         try:
             return self._jobs.pop()
         except:
             return {"noFurtherJobs": True}
 
-#------------------------------------------------------------------------------
 
-async def main(use_async, path_to_csv, serve_bootstrap=True, host=None, port=None, id=None, name="Jobs Service", description=None):
+# ------------------------------------------------------------------------------
 
+async def main(use_async, path_to_csv, serve_bootstrap=True, host=None, port=None, id=None, name="Jobs Service",
+               description=None):
     config = {
         "path_to_csv": path_to_csv,
         "id_col_name": "id",
-        "port": port, 
+        "port": port,
         "host": host,
         "id": id,
         "name": name,
@@ -70,26 +71,22 @@ async def main(use_async, path_to_csv, serve_bootstrap=True, host=None, port=Non
         "serve_bootstrap": str(serve_bootstrap)
     }
     # read commandline args only if script is invoked directly from commandline
-    if len(sys.argv) > 1 and __name__ == "__main__":
-        for arg in sys.argv[1:]:
-            k, v = arg.split("=")
-            if k in config:
-                config[k] = v
-    print(config)
+    common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
     jobs = csv.read_csv(config["path_to_csv"], config["id_col_name"])
     jobs2 = [json.dumps(v) for k, v in jobs.items()]
     service = Service(jobs2)
     if use_async:
-        await serv.async_init_and_run_service({"service": service}, config["host"], config["port"], 
-        serve_bootstrap=config["serve_bootstrap"])
+        await serv.async_init_and_run_service({"service": service}, config["host"], config["port"],
+                                              serve_bootstrap=config["serve_bootstrap"])
     else:
-        
-        serv.init_and_run_service({"service": service}, config["host"], config["port"], 
-            serve_bootstrap=config["serve_bootstrap"])
 
-#------------------------------------------------------------------------------
+        serv.init_and_run_service({"service": service}, config["host"], config["port"],
+                                  serve_bootstrap=config["serve_bootstrap"])
+
+
+# ------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    asyncio.run(main(False, "/home/berg/Desktop/Koordinaten_HE_dummy_ID.csv")) 
-    asyncio.run(main(True, "/home/berg/Desktop/Koordinaten_HE_dummy_ID.csv")) #asyncio
+    asyncio.run(main(False, "/home/berg/Desktop/Koordinaten_HE_dummy_ID.csv"))
+    asyncio.run(main(True, "/home/berg/Desktop/Koordinaten_HE_dummy_ID.csv"))  # asyncio

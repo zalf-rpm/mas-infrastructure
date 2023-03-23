@@ -37,7 +37,8 @@ import common.geo as geo
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
-common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports) 
+common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
+fbp_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "fbp.capnp"), imports=abs_imports)
 geo_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "geo.capnp"), imports=abs_imports)
 climate_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate.capnp"), imports=abs_imports)
 
@@ -60,8 +61,8 @@ config = {
 common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
 conman = common.ConnectionManager()
-inp = conman.try_connect(config["in_sr"], cast_as=common_capnp.Channel.Reader, retry_secs=1)
-outp = conman.try_connect(config["out_sr"], cast_as=common_capnp.Channel.Writer, retry_secs=1)
+inp = conman.try_connect(config["in_sr"], cast_as=fbp_capnp.Channel.Reader, retry_secs=1)
+outp = conman.try_connect(config["out_sr"], cast_as=fbp_capnp.Channel.Writer, retry_secs=1)
 
 in_type = config["in_type"]
 
@@ -83,7 +84,7 @@ try:
             if msg.which() == "done":
                 break
             
-            in_ip = msg.value.as_struct(common_capnp.IP)
+            in_ip = msg.value.as_struct(fbp_capnp.IP)
             attr = common.get_fbp_attr(in_ip, config["from_attr"])
             obj = attr if attr else in_ip.content
             if in_type == "capability":
@@ -132,7 +133,7 @@ try:
             for i in range(len(header)):
                 h[i] = header[i]
 
-            out_ip = common_capnp.IP.new_message()
+            out_ip = fbp_capnp.IP.new_message()
             if not config["to_attr"]:
                 out_ip.content = tsd
             common.copy_and_set_fbp_attrs(in_ip, out_ip, **({config["to_attr"]: tsd} if config["to_attr"] else {}))

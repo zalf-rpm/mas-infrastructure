@@ -37,12 +37,12 @@ import common.service as serv
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
-climate_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate.capnp"), imports=abs_imports)
+climate_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate.capnp"), imports=abs_imports)
 reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
-class AlterTimeSeriesWrapper(climate_data_capnp.AlterTimeSeriesWrapper.Server): 
+class AlterTimeSeriesWrapper(climate_capnp.AlterTimeSeriesWrapper.Server):
 
     def __init__(self, timeseries, header, altered = {}):
 
@@ -158,7 +158,7 @@ class AlterTimeSeriesWrapper(climate_data_capnp.AlterTimeSeriesWrapper.Server):
 
 #------------------------------------------------------------------------------
 
-class AlterTimeSeriesWrapperFactory(climate_data_capnp.AlterTimeSeriesWrapperFactory.Server, common.Identifiable, common.Persistable): 
+class AlterTimeSeriesWrapperFactory(climate_capnp.AlterTimeSeriesWrapperFactory.Server, common.Identifiable, common.Persistable):
 
     def __init__(self, id=None, name=None, description=None, restorer=None):
         common.Persistable.__init__(self, restorer)

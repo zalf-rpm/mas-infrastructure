@@ -40,6 +40,7 @@ abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports) 
 geo_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "geo.capnp"), imports=abs_imports)
 climate_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate.capnp"), imports=abs_imports)
+fbp_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "fbp.capnp"), imports=abs_imports)
 
 #------------------------------------------------------------------------------
 
@@ -56,7 +57,7 @@ common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 conman = common.ConnectionManager()
 service = conman.try_connect(config["dataset_sr"], cast_as=climate_capnp.Service, retry_secs=1)
 dataset = service.getAvailableDatasets().wait().datasets[0].data
-outp = conman.try_connect(config["out_sr"], cast_as=common_capnp.Channel.Writer, retry_secs=1)
+outp = conman.try_connect(config["out_sr"], cast_as=fbp_capnp.Channel.Writer, retry_secs=1)
 
 try:
     if dataset and outp:
@@ -74,7 +75,7 @@ try:
                 if config["to_attr"]:
                     attrs.append({"key": config["to_attr"], "value": l.timeSeries})
 
-                out_ip = common_capnp.IP.new_message(attributes=attrs)
+                out_ip = fbp_capnp.IP.new_message(attributes=attrs)
                 if not config["to_attr"]:
                     out_ip.content = l.timeSeries
                 outp.write(value=out_ip).wait()

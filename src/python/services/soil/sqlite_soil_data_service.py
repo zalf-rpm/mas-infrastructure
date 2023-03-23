@@ -15,8 +15,8 @@
 # Landscape Systems Analysis at the ZALF.
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
-#remote debugging via commandline
-#-m ptvsd --host 0.0.0.0 --port 14000 --wait
+# remote debugging via commandline
+# -m ptvsd --host 0.0.0.0 --port 14000 --wait
 
 import asyncio
 import capnp
@@ -29,7 +29,7 @@ import socket
 import sqlite3
 import socket
 import sys
-#import time
+# import time
 import uuid
 
 PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent.parent
@@ -49,16 +49,18 @@ import soil_io3
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
-soil_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "soil.capnp"), imports=abs_imports) 
 common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
+fbp_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "fbp.capnp"), imports=abs_imports)
 geo_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "geo.capnp"), imports=abs_imports)
+soil_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "soil.capnp"), imports=abs_imports)
 
-#------------------------------------------------------------------------------
 
-def fbp(config, service : soil_capnp.Service):
+# ------------------------------------------------------------------------------
+
+def fbp(config, service: soil_capnp.Service):
     conman = common.ConnectionManager()
-    inp = conman.try_connect(config["in_sr"], cast_as=common_capnp.Channel.Reader, retry_secs=1)
-    outp = conman.try_connect(config["out_sr"], cast_as=common_capnp.Channel.Writer, retry_secs=1)
+    inp = conman.try_connect(config["in_sr"], cast_as=fbp_capnp.Channel.Reader, retry_secs=1)
+    outp = conman.try_connect(config["out_sr"], cast_as=fbp_capnp.Channel.Writer, retry_secs=1)
     mandatory = json.loads(config["mandatory"])
 
     try:
@@ -68,7 +70,7 @@ def fbp(config, service : soil_capnp.Service):
                 if in_msg.which() == "done":
                     break
 
-                in_ip = in_msg.value.as_struct(common_capnp.IP)
+                in_ip = in_msg.value.as_struct(fbp_capnp.IP)
                 attr = common.get_fbp_attr(in_ip, config["from_attr"])
                 if attr:
                     coord = attr.as_struct(geo_capnp.LatLonCoord)
@@ -79,12 +81,13 @@ def fbp(config, service : soil_capnp.Service):
                 if len(profiles) > 0:
                     profile = profiles[0]
 
-                    out_ip = common_capnp.IP.new_message()
+                    out_ip = fbp_capnp.IP.new_message()
                     if not config["to_attr"]:
                         out_ip.content = profile
-                    common.copy_and_set_fbp_attrs(in_ip, out_ip, **({config["to_attr"]: profile} if config["to_attr"] else {}))
+                    common.copy_and_set_fbp_attrs(in_ip, out_ip,
+                                                  **({config["to_attr"]: profile} if config["to_attr"] else {}))
                     outp.write(value=out_ip).wait()
-            
+
             outp.write(done=None).wait()
 
     except Exception as e:
@@ -93,7 +96,7 @@ def fbp(config, service : soil_capnp.Service):
     print("dwd_germany_service.py: exiting FBP component")
 
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 def set_capnp_prop_name_via_monica_name(param, name, value=None):
     "set the correct union parameter in capnp Parameters struct object given the parameter name and optionally value"
@@ -119,7 +122,7 @@ def set_capnp_prop_name_via_monica_name(param, name, value=None):
     elif name == "SoilRawDensity":
         param.rawDensity = value if value else 0.0
     elif name == "FieldCapacity":
-        param.fieldCapacity = value if value else 0.0 
+        param.fieldCapacity = value if value else 0.0
     elif name == "PermanentWiltingPoint":
         param.permanentWiltingPoint = value if value else 0.0
     elif name == "PoreVolume":
@@ -141,36 +144,39 @@ def set_capnp_prop_name_via_monica_name(param, name, value=None):
     elif name == "Thickness":
         param.size = value if value else 0.0
 
-#------------------------------------------------------------------------------
 
-CAPNP_PROP_to_MONICA_PARAM_NAME = {    
+# ------------------------------------------------------------------------------
+
+CAPNP_PROP_to_MONICA_PARAM_NAME = {
     "soilType": "KA5TextureClass",
-    "sand": "Sand", 
+    "sand": "Sand",
     "clay": "Clay",
-    "silt": "Silt", 
-    "pH": "pH", 
-    "sceleton": "Sceleton", 
-    "organicCarbon": "SoilOrganicCarbon", 
-    "organicMatter": "SoilOrganicMatter", 
-    "bulkDensity": "SoilBulkDensity", 
-    "rawDensity": "SoilRawDensity", 
-    "fieldCapacity": "FieldCapacity", 
-    "permanentWiltingPoint": "PermanentWiltingPoint", 
-    "saturation": "PoreVolume", 
-    "soilMoisture": "SoilMoisturePercentFC", 
+    "silt": "Silt",
+    "pH": "pH",
+    "sceleton": "Sceleton",
+    "organicCarbon": "SoilOrganicCarbon",
+    "organicMatter": "SoilOrganicMatter",
+    "bulkDensity": "SoilBulkDensity",
+    "rawDensity": "SoilRawDensity",
+    "fieldCapacity": "FieldCapacity",
+    "permanentWiltingPoint": "PermanentWiltingPoint",
+    "saturation": "PoreVolume",
+    "soilMoisture": "SoilMoisturePercentFC",
     "soilWaterConductivityCoefficient": "Lambda",
-    "ammonium": "SoilAmmonium", 
-    "nitrate": "SoilNitrate", 
-    "cnRatio": "CN", 
-    "inGroundwater": "is_in_groundwater", 
+    "ammonium": "SoilAmmonium",
+    "nitrate": "SoilNitrate",
+    "cnRatio": "CN",
+    "inGroundwater": "is_in_groundwater",
     "impenetrable": "is_impenetrable"
 }
 
-#------------------------------------------------------------------------------
 
-class Service(soil_capnp.Service.Server, common.Identifiable, common.Persistable, serv.AdministrableService): 
+# ------------------------------------------------------------------------------
 
-    def __init__(self, path_to_sqlite_db, path_to_ascii_grid, grid_crs, id=None, name=None, description=None, admin=None, restorer=None):
+class Service(soil_capnp.Service.Server, common.Identifiable, common.Persistable, serv.AdministrableService):
+
+    def __init__(self, path_to_sqlite_db, path_to_ascii_grid, grid_crs, id=None, name=None, description=None,
+                 admin=None, restorer=None):
         common.Identifiable.__init__(self, id, name, description)
         common.Persistable.__init__(self, restorer)
         serv.AdministrableService.__init__(self, admin)
@@ -194,8 +200,7 @@ class Service(soil_capnp.Service.Server, common.Identifiable, common.Persistable
         self._cache_derived = {}
 
         self._capnp_prop_to_monica_param_name = CAPNP_PROP_to_MONICA_PARAM_NAME
-        self._monica_param_to_capnp_prop_name = {value : key for key, value in CAPNP_PROP_to_MONICA_PARAM_NAME.items()}
-
+        self._monica_param_to_capnp_prop_name = {value: key for key, value in CAPNP_PROP_to_MONICA_PARAM_NAME.items()}
 
     @property
     def interpol_and_latlon_coords(self):
@@ -207,41 +212,40 @@ class Service(soil_capnp.Service.Server, common.Identifiable, common.Persistable
             self._interpol_and_latlon_coords = (latlon_interpol, all_latlon_coords)
         return self._interpol_and_latlon_coords
 
-
     @property
     def interpolator(self):
         return self.interpol_and_latlon_coords[0]
 
-
     @property
     def all_latlon_coords(self):
         return self.interpol_and_latlon_coords[1]
-
 
     @property
     def all_available_params_derived(self):
         if not self._all_available_params_derived:
             params = soil_io3.available_soil_parameters_group(self._con, only_raw_data=False)
             self._all_available_params_derived = {
-                "mandatory": list(filter(None, map(lambda p: self._monica_param_to_capnp_prop_name.get(p, None), params["mandatory"]))),
-                "optional": list(filter(None, map(lambda p: self._monica_param_to_capnp_prop_name.get(p, None), params["optional"])))
+                "mandatory": list(filter(None, map(lambda p: self._monica_param_to_capnp_prop_name.get(p, None),
+                                                   params["mandatory"]))),
+                "optional": list(
+                    filter(None, map(lambda p: self._monica_param_to_capnp_prop_name.get(p, None), params["optional"])))
             }
         return self._all_available_params_derived
-
 
     @property
     def all_available_params_raw(self):
         if self._all_available_params_raw is None:
             params = soil_io3.available_soil_parameters_group(self._con, only_raw_data=True)
-            #print("params:", params)
+            # print("params:", params)
             self._all_available_params_raw = {
-                "mandatory": list(filter(None, map(lambda p: self._monica_param_to_capnp_prop_name.get(p, None), params["mandatory"]))),
-                "optional": list(filter(None, map(lambda p: self._monica_param_to_capnp_prop_name.get(p, None), params["optional"])))
+                "mandatory": list(filter(None, map(lambda p: self._monica_param_to_capnp_prop_name.get(p, None),
+                                                   params["mandatory"]))),
+                "optional": list(
+                    filter(None, map(lambda p: self._monica_param_to_capnp_prop_name.get(p, None), params["optional"])))
             }
         return self._all_available_params_raw
 
-
-    def check_params_are_available(self, mandatory, optional, only_raw_data): 
+    def check_params_are_available(self, mandatory, optional, only_raw_data):
         aps = self.all_available_params_raw if only_raw_data else self.all_available_params_derived
 
         avail_mandatory = list(filter(lambda p: p in aps["mandatory"], mandatory))
@@ -249,13 +253,12 @@ class Service(soil_capnp.Service.Server, common.Identifiable, common.Persistable
         failed = len(avail_mandatory) < len(mandatory)
 
         return {
-            "failed": failed, 
+            "failed": failed,
             "mandatory": avail_mandatory,
             "optional": avail_optional
         }
 
-
-    def checkAvailableParameters_context(self, context): # checkAvailableParameters @2 Query -> Query.Result;
+    def checkAvailableParameters_context(self, context):  # checkAvailableParameters @2 Query -> Query.Result;
         p = context.params
         r = context.results
 
@@ -264,14 +267,13 @@ class Service(soil_capnp.Service.Server, common.Identifiable, common.Persistable
         r.optional = avail["optional"]
         r.failed = avail["failed"]
 
-
-    def getAllAvailableParameters_context(self, context): # getAllAvailableParameters @3 () -> (mandatory :List(PropertyName), optional :List(PropertyName));
+    def getAllAvailableParameters_context(self,
+                                          context):  # getAllAvailableParameters @3 () -> (mandatory :List(PropertyName), optional :List(PropertyName));
         r = context.results
         aps = self.all_available_params_raw if context.params.onlyRawData else self.all_available_params_derived
-        
+
         r.mandatory = aps["mandatory"]
         r.optional = aps["optional"]
-
 
     def profiles_at(self, lat, lon, avail_props, only_raw_data):
         if len(avail_props) > 0:
@@ -283,21 +285,22 @@ class Service(soil_capnp.Service.Server, common.Identifiable, common.Persistable
             if soil_id in cache:
                 sps = cache[soil_id]
             else:
-                sp_groups = soil_io3.get_soil_profile_group(self._con, int(soil_id), only_raw_data=only_raw_data, no_units=True)
+                sp_groups = soil_io3.get_soil_profile_group(self._con, int(soil_id), only_raw_data=only_raw_data,
+                                                            no_units=True)
                 # because of given soil_id we expect only one profile group (with potentially many profiles)
                 sps = sp_groups[0]
                 cache[soil_id] = sps
         else:
             return
 
-        profiles = []#results.init("profiles", len(sps[1]))
+        profiles = []  # results.init("profiles", len(sps[1]))
         profile_group_id = sps[0]
         for j, sp in enumerate(sps[1]):
-            profile = soil_capnp.Profile.new_message()#profiles[j] 
+            profile = soil_capnp.Profile.new_message()  # profiles[j]
             profiles.append(profile)
             profile.id = str(profile_group_id) + "_" + str(sp["id"])
             profile.percentageOfArea = sp["avg_range_percentage_in_group"]
-            
+
             layers = sp["layers"]
             profile.init("layers", len(layers))
             for k, layer in enumerate(layers):
@@ -330,7 +333,6 @@ class Service(soil_capnp.Service.Server, common.Identifiable, common.Persistable
         profiles.sort(key=lambda p: p.percentageOfArea, reverse=True)
         return profiles
 
-
     def available_properties(self, query):
         """
         Get all the names of the parameters requested in the query.
@@ -344,13 +346,11 @@ class Service(soil_capnp.Service.Server, common.Identifiable, common.Persistable
         names.extend(res["optional"])
         return names
 
-
-    def profilesAt(self, coord, query, **kwargs): # profilesAt @0 (coord :Geo.LatLonCoord, query :Query) -> (profiles :List(Profile));
+    def profilesAt(self, coord, query,
+                   **kwargs):  # profilesAt @0 (coord :Geo.LatLonCoord, query :Query) -> (profiles :List(Profile));
         avail_props = self.available_properties(query)
         profiles = self.profiles_at(coord.lat, coord.lon, avail_props, query.onlyRawData)
         return profiles
-
-        
 
     """
     def allLocations_context(self, context): # allLocations @1 Query -> (profiles :List(Common.Pair(Geo.LatLonCoord, List(Common.CapHolder(Profile)))));    
@@ -369,17 +369,18 @@ class Service(soil_capnp.Service.Server, common.Identifiable, common.Persistable
             self._latlon_to_capholders[latlon] = p.snd[0] #store reference, so the object won't be garbage collected immediately
     """
 
-#------------------------------------------------------------------------------
 
-async def main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs=None, grid_epsg=None, serve_bootstrap=True, host=None, port=None, 
-    id=None, name="Soil service", description=None, use_async=False):
+# ------------------------------------------------------------------------------
 
+async def main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs=None, grid_epsg=None, serve_bootstrap=True,
+               host=None, port=None,
+               id=None, name="Soil service", description=None, use_async=False):
     config = {
         "path_to_sqlite_db": path_to_sqlite_db,
         "path_to_ascii_soil_grid": path_to_ascii_soil_grid,
         "grid_crs": grid_crs,
         "grid_epsg": grid_epsg,
-        "port": port, 
+        "port": port,
         "host": host,
         "id": id,
         "name": name,
@@ -390,15 +391,15 @@ async def main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs=None, grid_e
         "in_sr": None,
         "out_sr": None,
         "mandatory": """["soilType","organicCarbon","rawDensity"]""",
-        "to_attr": None, #"soil",
-        "from_attr": None, #"latlon"
+        "to_attr": None,  # "soil",
+        "from_attr": None,  # "latlon"
     }
     # read commandline args only if script is invoked directly from commandline
     if len(sys.argv) > 1 and __name__ == "__main__":
         for arg in sys.argv[1:]:
             k, v = arg.split("=")
             if k in config:
-                config[k] = bool(v) if v.lower() in ["true", "false"] else v 
+                config[k] = bool(v) if v.lower() in ["true", "false"] else v
     print(config)
 
     if config["grid_epsg"]:
@@ -423,17 +424,18 @@ async def main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs=None, grid_e
         fbp(config, soil_capnp.Service._new_client(service))
     else:
         if config["use_async"]:
-            await serv.async_init_and_run_service({"service": service}, config["host"], config["port"], 
-            serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
+            await serv.async_init_and_run_service({"service": service}, config["host"], config["port"],
+                                                  serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
         else:
-            serv.init_and_run_service({"service": service}, config["host"], config["port"], 
-                serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
+            serv.init_and_run_service({"service": service}, config["host"], config["port"],
+                                      serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
 
-#------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    #db = str(PATH_TO_REPO / "data/soil/buek1000.sqlite")
-    #grid = str(PATH_TO_REPO / "data/soil/buek1000_1000_31469_gk5.asc")
+    # db = str(PATH_TO_REPO / "data/soil/buek1000.sqlite")
+    # grid = str(PATH_TO_REPO / "data/soil/buek1000_1000_31469_gk5.asc")
     db = str(PATH_TO_REPO / "data/soil/buek200.sqlite")
     grid = str(PATH_TO_REPO / "data/soil/buek200_1000_25832_etrs89-utm32n.asc")
-    asyncio.run(main(db, grid, use_async=True)) 
+    asyncio.run(main(db, grid, use_async=True))

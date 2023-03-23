@@ -15,7 +15,7 @@
 # Landscape Systems Analysis at the ZALF.
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
-#from datetime import date, timedelta
+# from datetime import date, timedelta
 import asyncio
 import capnp
 from collections import defaultdict
@@ -24,7 +24,7 @@ import json
 import os
 from pathlib import Path
 import sys
-#import time
+# import time
 import uuid
 
 PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent.parent
@@ -44,19 +44,22 @@ abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
 crop_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "crop.capnp"), imports=abs_imports)
 common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
-monica_params_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "model" / "monica" / "monica_params.capnp"), imports=abs_imports)
+monica_params_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "model" / "monica" / "monica_params.capnp"),
+                                 imports=abs_imports)
 storage_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "storage.capnp"), imports=abs_imports)
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 LAST_SERVICE_SR_KEY_NAME = "last_service_sr"
 LAST_ADMIN_SR_KEY_NAME = "last_admin_sr"
 SERVICE_ITSELF_RESTORE_TOKEN = "monica_crop_service_itself"
 ADMIN_RESTORE_TOKEN = "monica_crop_service_admin"
 
+
 class Crop(crop_capnp.Crop.Server):
 
-    def __init__(self, species_info, species_path, cult_info, cult_path, residue_path, entry_ref, id=None, name=None, description=None):
+    def __init__(self, species_info, species_path, cult_info, cult_path, residue_path, entry_ref, id=None, name=None,
+                 description=None):
         self._id = id if id else str(uuid.uuid4())
         self._name = name if name else id
         self._description = description if description else ""
@@ -68,17 +71,15 @@ class Crop(crop_capnp.Crop.Server):
         self._species_info = species_info
         self._cultivar_info = cult_info
 
-
-    def info_context(self, context): # -> Common.IdInformation;
+    def info_context(self, context):  # -> Common.IdInformation;
         r = context.results
         r.id = self._id
         cps = self.params.cropParams.cultivarParams
         r.name = self._name if not cps else cps.cultivarId
         r.description = self._description if not cps else cps.description
 
-
     def get_value(self, val_or_arr, expected_val_dim=0):
-            
+
         def get_dim_of_first_value(arr):
             return 1 + (get_dim_of_first_value(arr[0]) if len(arr) > 0 else 0) if type(arr) is list else 0
 
@@ -87,7 +88,6 @@ class Crop(crop_capnp.Crop.Server):
             return val_or_arr[0] if len(val_or_arr) > 0 else None
         else:
             return val_or_arr
-
 
     def create_species_params(self, j):
         sp = monica_params_capnp.SpeciesParameters.new_message()
@@ -155,14 +155,13 @@ class Crop(crop_capnp.Crop.Server):
 
         return sp
 
-
     def create_cultivar_params(self, j):
         cp = monica_params_capnp.CultivarParameters.new_message()
 
         cp.cultivarId = self.get_value(j.get("CultivarName", ""))
         cp.description = self.get_value(j.get("Description", ""))
         cp.perennial = self.get_value(j.get("Perennial", False))
-        
+
         cp.maxAssimilationRate = self.get_value(j.get("MaxAssimilationRate", 0))
         cp.maxCropHeight = self.get_value(j.get("MaxCropHeight", 0))
         cp.residueNRatio = self.get_value(j.get("ResidueNRatio", 0))
@@ -229,14 +228,13 @@ class Crop(crop_capnp.Crop.Server):
 
         return cp
 
-
     def create_residue_params(self, j):
         rp = monica_params_capnp.CropResidueParameters.new_message()
 
         ps = rp.init("params")
         rp.species = self.get_value(j.get("species", ""))
         rp.residueType = self.get_value(j.get("residueType", ""))
-        
+
         ps.aomDryMatterContent = self.get_value(j.get("AOM_DryMatterContent", 0))
         ps.aomFastDecCoeffStandard = self.get_value(j.get("AOM_FastDecCoeffStandard", 0))
         ps.aomNH4Content = self.get_value(j.get("AOM_NH4Content", 0))
@@ -249,13 +247,13 @@ class Crop(crop_capnp.Crop.Server):
         ps.partAOMSlowToSMBSlow = self.get_value(j.get("PartAOM_Slow_to_SMB_Slow", 0))
         ps.partAOMToAOMFast = self.get_value(j.get("PartAOM_to_AOM_Fast", 0))
         ps.partAOMToAOMSlow = self.get_value(j.get("PartAOM_to_AOM_Slow", 0))
-    
-        return rp    
 
-    def species_context(self, context): # species     @2 () -> (info :Common.IdInformation);
+        return rp
+
+    def species_context(self, context):  # species     @2 () -> (info :Common.IdInformation);
         context.results.info = self._species_info
 
-    def cultivar_context(self, context): # cultivar    @1 () -> (info :Common.IdInformation);
+    def cultivar_context(self, context):  # cultivar    @1 () -> (info :Common.IdInformation);
         context.results.info = self._cultivar_info
 
     @property
@@ -265,28 +263,27 @@ class Crop(crop_capnp.Crop.Server):
             cps = self._params.init("cropParams")
 
             with open(self._species_path) as _:
-                    j = json.load(_)
-                    cps.speciesParams = self.create_species_params(j)
+                j = json.load(_)
+                cps.speciesParams = self.create_species_params(j)
 
             with open(self._cult_path) as _:
-                    j = json.load(_)
-                    cps.cultivarParams = self.create_cultivar_params(j)
+                j = json.load(_)
+                cps.cultivarParams = self.create_cultivar_params(j)
 
             with open(self._residue_path) as _:
-                    j = json.load(_)
-                    self._params.residueParams = self.create_residue_params(j)        
+                j = json.load(_)
+                self._params.residueParams = self.create_residue_params(j)
 
             if cps.cultivarParams and len(cps.cultivarParams.cultivarId) > 0:
                 self._entry_ref.name = cps.cultivarParams.cultivarId
 
         return self._params
 
-
-    def parameters(self, **kwargs): # parameters @0 () -> (params :AnyPointer);
+    def parameters(self, **kwargs):  # parameters @0 () -> (params :AnyPointer);
         return self.params
 
 
-class Registry(reg_capnp.Registry.Server): 
+class Registry(reg_capnp.Registry.Server):
 
     def __init__(self, path_to_monica_parameters, id=None, name=None, description=None):
         self._id = id if id else str(uuid.uuid4())
@@ -294,7 +291,8 @@ class Registry(reg_capnp.Registry.Server):
         self._description = description if description else ""
         self._path_to_monica_params = path_to_monica_parameters
 
-        self._species_to_cultivars = defaultdict(list) # list of cultivars for a given species { species: "", ref: Crop capability } which lazily load the actual parameters on first call
+        self._species_to_cultivars = defaultdict(
+            list)  # list of cultivars for a given species { species: "", ref: Crop capability } which lazily load the actual parameters on first call
 
         crops_path = Path(self._path_to_monica_params) / "crops"
         for species_name in os.listdir(crops_path):
@@ -308,65 +306,61 @@ class Registry(reg_capnp.Registry.Server):
                     cult_path = species_path / cult_fname
                     if not os.path.isdir(cult_path):
                         entry = reg_capnp.Registry.Entry(
-                           categoryId=species_name, 
-                           name=cult_name
+                            categoryId=species_name,
+                            name=cult_name
                         )
-                        crop = Crop({"id": species_name, "name": species_name}, str(species_path) + ".json", 
-                            {"id": cult_name, "name": cult_name}, str(cult_path), str(residue_path), 
-                            entry, id=species_name+"_"+cult_name, name=species_name+"/"+cult_name)
+                        crop = Crop({"id": species_name, "name": species_name}, str(species_path) + ".json",
+                                    {"id": cult_name, "name": cult_name}, str(cult_path), str(residue_path),
+                                    entry, id=species_name + "_" + cult_name, name=species_name + "/" + cult_name)
                         entry.ref = crop
                         self._species_to_cultivars[species_name].append(entry)
 
-
-    def info_context(self, context): # -> Common.IdInformation;
+    def info_context(self, context):  # -> Common.IdInformation;
         r = context.results
         r.id = self._id
         r.name = self._name
         r.description = self._description
 
-
-    def supportedCategories(self, **kwargs): # supportedCategories @0 () -> (cats :List(Common.IdInformation));
+    def supportedCategories(self, **kwargs):  # supportedCategories @0 () -> (cats :List(Common.IdInformation));
         species_names = self._species_to_cultivars.keys()
         species_names.sort()
         return list([{"id": name, "name": name} for name in species_names])
 
-
-    def categoryInfo_context(self, context): # categoryInfo @1 (categoryId :Text) -> Common.IdInformation;
+    def categoryInfo_context(self, context):  # categoryInfo @1 (categoryId :Text) -> Common.IdInformation;
         cat_id = context.params.categoryId
         if cat_id in self._species_to_cultivars:
             return {"id": cat_id, "name": cat_id}
 
-
-    def entries(self, categoryId, **kwargs): # entries @2 (categoryId :Text) -> (entries :List(Entry));
+    def entries(self, categoryId, **kwargs):  # entries @2 (categoryId :Text) -> (entries :List(Entry));
         if categoryId in self._species_to_cultivars:
             return self._species_to_cultivars[categoryId]
         elif categoryId is None or len(categoryId) == 0:
             return list(itertools.chain(*self._species_to_cultivars.values()))
 
 
+# ------------------------------------------------------------------------------
 
-#------------------------------------------------------------------------------
-
-async def main(path_to_monica_parameters, serve_bootstrap=True, host=None, port=None, 
-    id=None, name="MONICA Crop Parameters Service", description=None, use_async=False):
-
+async def main(path_to_monica_parameters, serve_bootstrap=True, host=None, port=None,
+               id=None, name="MONICA Crop Parameters Service", description=None, use_async=False):
     config = {
         "path_to_monica_parameters": path_to_monica_parameters,
-        "port": port, 
+        "port": port,
         "host": host,
         "id": id,
         "name": name,
         "description": description,
         "serve_bootstrap": serve_bootstrap,
         "use_async": use_async,
-        "restorer_container_sr": None, #"capnp://jXS22bpAGSjfksa0JkDI_092-h-bdZi4lKNBBgD7kWk=@10.10.24.218:40305/ZGVjODYxYWQtZmVkOS00YjEzLWJmNjQtNWU0OGRmYzhhYmZh",
-        "service_container_sr": None, #"capnp://jXS22bpAGSjfksa0JkDI_092-h-bdZi4lKNBBgD7kWk=@10.10.24.218:40305/ZGVjODYxYWQtZmVkOS00YjEzLWJmNjQtNWU0OGRmYzhhYmZh"
+        "restorer_container_sr": None,
+        # "capnp://jXS22bpAGSjfksa0JkDI_092-h-bdZi4lKNBBgD7kWk=@10.10.24.218:40305/ZGVjODYxYWQtZmVkOS00YjEzLWJmNjQtNWU0OGRmYzhhYmZh",
+        "service_container_sr": None,
+        # "capnp://jXS22bpAGSjfksa0JkDI_092-h-bdZi4lKNBBgD7kWk=@10.10.24.218:40305/ZGVjODYxYWQtZmVkOS00YjEzLWJmNjQtNWU0OGRmYzhhYmZh"
     }
     common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
     restorer = common.Restorer()
     service = Registry(config["path_to_monica_parameters"],
-        id=config["id"], name=config["name"], description=config["description"])
+                       id=config["id"], name=config["name"], description=config["description"])
 
     name_to_service = {"service": service}
 
@@ -381,37 +375,40 @@ async def main(path_to_monica_parameters, serve_bootstrap=True, host=None, port=
     restorer.restore_callback = restore_callback
 
     def load_last_or_store_services(service_container, name, service):
-        (storage_key, restore_token)  = {
+        (storage_key, restore_token) = {
             "service": (LAST_SERVICE_SR_KEY_NAME, SERVICE_ITSELF_RESTORE_TOKEN),
             "admin": (LAST_ADMIN_SR_KEY_NAME, ADMIN_RESTORE_TOKEN)
         }[name]
         entry_prom = service_container.getEntry(key=storage_key).entry
         entry_val = entry_prom.getValue().wait()
-        if entry_val.isUnset: # there was no set last token, so we need to create a new one
-            save_res = restorer.save_str(service, create_unsave=False, restore_token=restore_token, store_sturdy_refs=True).wait()
+        if entry_val.isUnset:  # there was no set last token, so we need to create a new one
+            save_res = restorer.save_str(service, create_unsave=False, restore_token=restore_token,
+                                         store_sturdy_refs=True).wait()
             service_sr = save_res["sturdy_ref"]
             # keep the sturdy ref around for output to the user
             # and save the actual token as the one we used
             if entry_prom.setValue(value={"textValue": save_res["sr_token"]}).wait().success:
                 return service_sr
-        else: # there was a previously stored token, so just create a sturdy ref for output from it
+        else:  # there was a previously stored token, so just create a sturdy ref for output from it
             service_sr_token = entry_val.value.textValue
-            save_res = restorer.save_str(service, fixed_sr_token=service_sr_token, create_unsave=False, store_sturdy_refs=False).wait()
+            save_res = restorer.save_str(service, fixed_sr_token=service_sr_token, create_unsave=False,
+                                         store_sturdy_refs=False).wait()
             return save_res["sturdy_ref"]
 
     if config["use_async"]:
-        await serv.async_init_and_run_service(name_to_service, config["host"], config["port"], 
-        serve_bootstrap=config["serve_bootstrap"], restorer=restorer,
-        restorer_container_sr=config["restorer_container_sr"],
-        service_container_sr=config["service_container_sr"])
+        await serv.async_init_and_run_service(name_to_service, config["host"], config["port"],
+                                              serve_bootstrap=config["serve_bootstrap"], restorer=restorer,
+                                              restorer_container_sr=config["restorer_container_sr"],
+                                              service_container_sr=config["service_container_sr"])
     else:
-        serv.init_and_run_service(name_to_service, config["host"], config["port"], 
-            serve_bootstrap=config["serve_bootstrap"], restorer=restorer,
-            restorer_container_sr=config["restorer_container_sr"],
-            service_container_sr=config["service_container_sr"],
-            load_last_or_store_services_callback=load_last_or_store_services)
+        serv.init_and_run_service(name_to_service, config["host"], config["port"],
+                                  serve_bootstrap=config["serve_bootstrap"], restorer=restorer,
+                                  restorer_container_sr=config["restorer_container_sr"],
+                                  service_container_sr=config["service_container_sr"],
+                                  load_last_or_store_services_callback=load_last_or_store_services)
 
-#------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    asyncio.run(main(str(PATH_TO_REPO.parent / "monica-parameters"), serve_bootstrap=True, use_async=True)) 
+    asyncio.run(main(str(PATH_TO_REPO.parent / "monica-parameters"), serve_bootstrap=True, use_async=True))

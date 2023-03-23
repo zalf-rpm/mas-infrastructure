@@ -977,6 +977,163 @@ namespace Mas.Schema.Persistence
                 }
             }
         }
+
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x8f700f81169f2e52UL), Proxy(typeof(ReleaseSturdyRef_Proxy)), Skeleton(typeof(ReleaseSturdyRef_Skeleton))]
+        public interface IReleaseSturdyRef : IDisposable
+        {
+            Task<bool> Release(CancellationToken cancellationToken_ = default);
+        }
+
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x8f700f81169f2e52UL)]
+        public class ReleaseSturdyRef_Proxy : Proxy, IReleaseSturdyRef
+        {
+            public async Task<bool> Release(CancellationToken cancellationToken_ = default)
+            {
+                var in_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.Persistent.ReleaseSturdyRef.Params_Release.WRITER>();
+                var arg_ = new Mas.Schema.Persistence.Persistent.ReleaseSturdyRef.Params_Release()
+                {};
+                arg_?.serialize(in_);
+                using (var d_ = await Call(10335778191920016978UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+                {
+                    var r_ = CapnpSerializable.Create<Mas.Schema.Persistence.Persistent.ReleaseSturdyRef.Result_Release>(d_);
+                    return (r_.Success);
+                }
+            }
+        }
+
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x8f700f81169f2e52UL)]
+        public class ReleaseSturdyRef_Skeleton : Skeleton<IReleaseSturdyRef>
+        {
+            public ReleaseSturdyRef_Skeleton()
+            {
+                SetMethodTable(Release);
+            }
+
+            public override ulong InterfaceId => 10335778191920016978UL;
+            Task<AnswerOrCounterquestion> Release(DeserializerState d_, CancellationToken cancellationToken_)
+            {
+                using (d_)
+                {
+                    return Impatient.MaybeTailCall(Impl.Release(cancellationToken_), success =>
+                    {
+                        var s_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.Persistent.ReleaseSturdyRef.Result_Release.WRITER>();
+                        var r_ = new Mas.Schema.Persistence.Persistent.ReleaseSturdyRef.Result_Release{Success = success};
+                        r_.serialize(s_);
+                        return s_;
+                    }
+
+                    );
+                }
+            }
+        }
+
+        public static class ReleaseSturdyRef
+        {
+            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xa4db8c20d9807c15UL)]
+            public class Params_Release : ICapnpSerializable
+            {
+                public const UInt64 typeId = 0xa4db8c20d9807c15UL;
+                void ICapnpSerializable.Deserialize(DeserializerState arg_)
+                {
+                    var reader = READER.create(arg_);
+                    applyDefaults();
+                }
+
+                public void serialize(WRITER writer)
+                {
+                }
+
+                void ICapnpSerializable.Serialize(SerializerState arg_)
+                {
+                    serialize(arg_.Rewrap<WRITER>());
+                }
+
+                public void applyDefaults()
+                {
+                }
+
+                public struct READER
+                {
+                    readonly DeserializerState ctx;
+                    public READER(DeserializerState ctx)
+                    {
+                        this.ctx = ctx;
+                    }
+
+                    public static READER create(DeserializerState ctx) => new READER(ctx);
+                    public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                    public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                }
+
+                public class WRITER : SerializerState
+                {
+                    public WRITER()
+                    {
+                        this.SetStruct(0, 0);
+                    }
+                }
+            }
+
+            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x932d6ee32410e853UL)]
+            public class Result_Release : ICapnpSerializable
+            {
+                public const UInt64 typeId = 0x932d6ee32410e853UL;
+                void ICapnpSerializable.Deserialize(DeserializerState arg_)
+                {
+                    var reader = READER.create(arg_);
+                    Success = reader.Success;
+                    applyDefaults();
+                }
+
+                public void serialize(WRITER writer)
+                {
+                    writer.Success = Success;
+                }
+
+                void ICapnpSerializable.Serialize(SerializerState arg_)
+                {
+                    serialize(arg_.Rewrap<WRITER>());
+                }
+
+                public void applyDefaults()
+                {
+                }
+
+                public bool Success
+                {
+                    get;
+                    set;
+                }
+
+                public struct READER
+                {
+                    readonly DeserializerState ctx;
+                    public READER(DeserializerState ctx)
+                    {
+                        this.ctx = ctx;
+                    }
+
+                    public static READER create(DeserializerState ctx) => new READER(ctx);
+                    public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                    public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                    public bool Success => ctx.ReadDataBool(0UL, false);
+                }
+
+                public class WRITER : SerializerState
+                {
+                    public WRITER()
+                    {
+                        this.SetStruct(1, 0);
+                    }
+
+                    public bool Success
+                    {
+                        get => this.ReadDataBool(0UL, false);
+                        set => this.WriteData(0UL, value, false);
+                    }
+                }
+            }
+        }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x9fb6218427d92e3cUL), Proxy(typeof(Restorer_Proxy)), Skeleton(typeof(Restorer_Skeleton))]

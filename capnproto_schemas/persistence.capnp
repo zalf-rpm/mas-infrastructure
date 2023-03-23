@@ -128,6 +128,10 @@ interface Persistent {
     # sturdy ref refering to an Common.Action capability to unsave the referenced capability
   }
 
+  interface ReleaseSturdyRef {
+    release @0 () -> (success :Bool) $Go.name("releaseSR"); 
+  }
+
   #save @0 () -> (sturdyRef :Text, srToken :Text, unsaveSR :Text, unsaveSRToken :Text);
   # create a sturdy ref to be able to restore this object and 
   # optionally return another SR refering to a Common.Action object representing the action to unsave this object

@@ -34,7 +34,8 @@ import common.common as common
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
-common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports) 
+common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
+fbp_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "fbp.capnp"), imports=abs_imports)
 
 #------------------------------------------------------------------------------
 
@@ -49,7 +50,7 @@ config = {
 common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
 conman = common.ConnectionManager()
-outp = conman.try_connect(config["out_sr"], cast_as=common_capnp.Channel.Writer, retry_secs=1)
+outp = conman.try_connect(config["out_sr"], cast_as=fbp_capnp.Channel.Writer, retry_secs=1)
 
 struct_type = common.load_capnp_module(config["path_to_capnp_struct"])
 struct_fieldnames = struct_type.schema.fieldnames
@@ -90,7 +91,7 @@ try:
                         continue
 
                 if send_ids is None or (id_col in struct_fieldnames and str(val.__getattr__(id_col)) in send_ids):
-                    out_ip = common_capnp.IP.new_message()
+                    out_ip = fbp_capnp.IP.new_message()
                     if config["to_attr"]:
                         out_ip.attributes=[{"key": config["to_attr"], "value": val}]
                     else:

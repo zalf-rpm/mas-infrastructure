@@ -51,6 +51,9 @@ interface Persistent @0xc1a7daa0dc36cb65 {
     sturdyRef @0 :SturdyRef;  # ptr[0]
     unsaveSR @1 :SturdyRef;  # ptr[1]
   }
+  interface ReleaseSturdyRef @0x8f700f81169f2e52 {
+    release @0 () -> (success :Bool) $import "/capnp/go.capnp".name("releaseSR");
+  }
 }
 interface Restorer @0x9fb6218427d92e3c {
   restore @0 RestoreParams -> (cap :Capability);

@@ -15,6 +15,7 @@
 # Landscape Systems Analysis at the ZALF.
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
+import capnp
 from datetime import date, timedelta
 import json
 import numpy as np
@@ -34,9 +35,7 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-import common_climate_data_capnp_impl as ccdi
-
-import capnp
+import climate.common_climate_data_capnp_impl as ccdi
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
@@ -44,26 +43,27 @@ climate_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate.capnp"), im
 reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "service_registry.capnp"), imports=abs_imports)
 model_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "model.capnp"), imports=abs_imports)
 
-#------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
 
 class YearlyTavg(model_capnp.ClimateInstance.Server):
 
     def __init__(self):
         pass
 
-    def runSet(self, dataset, **kwargs): # (dataset :List(TimeSeries)) -> (result :XYPlusResult);
+    def runSet(self, dataset, **kwargs):  # (dataset :List(TimeSeries)) -> (result :XYPlusResult);
         pass
 
-    def run(self, timeSeries, _context, **kwargs): # (timeSeries :TimeSeries) -> (result :XYResult);
-        #return timeSeries.header().then(lambda res: setattr(_context.results, "result", {"xs": [1,2,3], "ys": [2,3,4]}))
+    def run(self, timeSeries, _context, **kwargs):  # (timeSeries :TimeSeries) -> (result :XYResult);
+        # return timeSeries.header().then(lambda res: setattr(_context.results, "result", {"xs": [1,2,3], "ys": [2,3,4]}))
         return capnp.join_promises([timeSeries.header(), timeSeries.data(), timeSeries.range()]) \
             .then(lambda res: setattr(_context.results, "result", \
-                self.calc_yearly_tavg(res[2].startDate, res[2].endDate, res[0].header, res[1].data))) 
+                                      self.calc_yearly_tavg(res[2].startDate, res[2].endDate, res[0].header,
+                                                            res[1].data)))
 
-        
     def calc_yearly_tavg(self, start_date, end_date, headers, data):
         "calculate the average temperature for all the years in the data"
-        
+
         start_date = ccdi.create_date(start_date)
         end_date = ccdi.create_date(end_date)
 
@@ -88,14 +88,16 @@ class YearlyTavg(model_capnp.ClimateInstance.Server):
 
         return {"xs": years, "ys": tavgs}
 
-#------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
 
 def main():
-    #address = parse_args().address
+    # address = parse_args().address
 
-    #server = capnp.TwoPartyServer("*:8000", bootstrap=DataServiceImpl("/home/berg/archive/data/"))
+    # server = capnp.TwoPartyServer("*:8000", bootstrap=DataServiceImpl("/home/berg/archive/data/"))
     server = capnp.TwoPartyServer("*:8000", bootstrap=YearlyTavg())
     server.run_forever()
+
 
 if __name__ == '__main__':
     main()

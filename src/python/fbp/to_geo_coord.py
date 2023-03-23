@@ -35,7 +35,8 @@ import common.geo as geo
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
-common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports) 
+common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
+fbp_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "fbp.capnp"), imports=abs_imports)
 geo_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "geo.capnp"), imports=abs_imports)
 
 #------------------------------------------------------------------------------
@@ -49,8 +50,8 @@ config = {
 common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
 conman = common.ConnectionManager()
-inp = conman.try_connect(config["in_vals_sr"], cast_as=common_capnp.Channel.Reader, retry_secs=1)
-outp = conman.try_connect(config["out_coord_sr"], cast_as=common_capnp.Channel.Writer, retry_secs=1)
+inp = conman.try_connect(config["in_vals_sr"], cast_as=fbp_capnp.Channel.Reader, retry_secs=1)
+outp = conman.try_connect(config["out_coord_sr"], cast_as=fbp_capnp.Channel.Writer, retry_secs=1)
 
 to_instance = geo.name_to_struct_instance(config["to_name"])
 list_schema_type = capnp._ListSchema(capnp.types.Float64) if config["list_type"] == "float" else capnp._ListSchema(capnp.types.Int64)
@@ -63,11 +64,11 @@ try:
             if msg.which() == "done":
                 break
             
-            vals = msg.value.as_struct(common_capnp.IP).content.as_list(list_schema_type)
+            vals = msg.value.as_struct(fbp_capnp.IP).content.as_list(list_schema_type)
             if len(vals) > 1:
                 to_coord = to_instance.copy()
                 geo.set_xy(to_coord, vals[0], vals[1])
-                outp.write(value=common_capnp.IP.new_message(content=to_coord)).wait()
+                outp.write(value=fbp_capnp.IP.new_message(content=to_coord)).wait()
             else:
                 raise Exception("Not enough values in list. Need at least two for a coordinate.")
 

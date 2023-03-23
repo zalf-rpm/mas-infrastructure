@@ -52,8 +52,8 @@ public:
   mas::schema::storage::Store::Client getClient();
   void setClient(mas::schema::storage::Store::Client c);
 
-  mas::schema::common::Action::Client getUnregisterAction();
-  void setUnregisterAction(mas::schema::common::Action::Client unreg);
+  //mas::schema::common::Action::Client getUnregisterAction();
+  //void setUnregisterAction(mas::schema::common::Action::Client unreg);
 
   void setRestorer(mas::infrastructure::common::Restorer* r);
 

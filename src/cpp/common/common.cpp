@@ -92,7 +92,7 @@ kj::Promise<void> Identifiable::info(InfoContext context) {
 //   //  action();
 // }
 
-// kj::Promise<void> Action::do_(DoContext context) {
+// kj::Promise<void> Action::do() {
 //   alreadyCalled = true;
 //   return action();
 // }

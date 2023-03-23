@@ -20,11 +20,11 @@ import json
 import sys
 import os
 from datetime import date, timedelta
-#import numpy as np
-#import pandas as pd
+# import numpy as np
+# import pandas as pd
 from pathlib import Path
-#from pyproj import Proj, transform
-#from scipy.interpolate import NearestNDInterpolator
+# from pyproj import Proj, transform
+# from scipy.interpolate import NearestNDInterpolator
 import time
 import uuid
 
@@ -40,12 +40,13 @@ import common
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
-cluster_admin_service_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "cluster_admin_service.capnp"), imports=abs_imports) 
+cluster_admin_service_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "cluster_admin_service.capnp"), imports=abs_imports)
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 def printBla(prom):
     print("bla, ", prom)
+
 
 class SlurmRuntime(cluster_admin_service_capnp.Cluster.Runtime.Server):
 
@@ -57,7 +58,7 @@ class SlurmRuntime(cluster_admin_service_capnp.Cluster.Runtime.Server):
         self._factories = {}
         self._unregs = {}
 
-    def info_context(self, context): # info @0 () -> (info :IdInformation);
+    def info_context(self, context):  # info @0 () -> (info :IdInformation);
         # interface to retrieve id information from an object
         return {"id": str(self._uuid4), "name": "SlurmRuntime(" + str(self._uuid4) + ")", "description": ""}
 
@@ -111,19 +112,20 @@ def main():
 
     print("config:", config)
 
-    #address = parse_args().address
+    # address = parse_args().address
 
     master_available = False
     while not master_available:
         try:
-            admin_master = capnp.TwoPartyClient(config["admin_master_address"]).bootstrap().cast_as(cluster_admin_service_capnp.Cluster.AdminMaster)
+            admin_master = capnp.TwoPartyClient(config["admin_master_address"]).bootstrap().cast_as(
+                cluster_admin_service_capnp.Cluster.AdminMaster)
             master_available = True
         except:
             # time.sleep(1)
             pass
 
-    #runtime = SlurmRuntime(cores=4, admin_master=admin_master)
-    #registered_ = False
+    # runtime = SlurmRuntime(cores=4, admin_master=admin_master)
+    # registered_ = False
     # while not registered_factory:
     #    try:
     #        runtime.registerModelInstanceFactory("monica_v2.1", monicaFactory).wait()
@@ -132,7 +134,7 @@ def main():
     #        time.sleep(1)
     #        pass
 
-    #server = capnp.TwoPartyServer("*:8000", bootstrap=DataServiceImpl("/home/berg/archive/data/"))
+    # server = capnp.TwoPartyServer("*:8000", bootstrap=DataServiceImpl("/home/berg/archive/data/"))
     server = capnp.TwoPartyServer("*:9000", bootstrap=SlurmRuntime(cores=4, admin_master=admin_master))
     server.run_forever()
 

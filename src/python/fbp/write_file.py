@@ -33,7 +33,8 @@ import common.common as common
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
-common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports) 
+common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
+fbp_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "fbp.capnp"), imports=abs_imports)
 
 #------------------------------------------------------------------------------
 
@@ -50,7 +51,7 @@ config = {
 common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
 conman = common.ConnectionManager()
-inp = conman.try_connect(config["in_sr"], cast_as=common_capnp.Channel.Reader, retry_secs=1)
+inp = conman.try_connect(config["in_sr"], cast_as=fbp_capnp.Channel.Reader, retry_secs=1)
 count = 0
 
 try:
@@ -60,7 +61,7 @@ try:
             if msg.which() == "done":
                 break
 
-            in_ip = msg.value.as_struct(common_capnp.IP)
+            in_ip = msg.value.as_struct(fbp_capnp.IP)
             
             id_attr = common.get_fbp_attr(in_ip, config["id_attr"])
             id = id_attr.as_text() if id_attr else str(count)

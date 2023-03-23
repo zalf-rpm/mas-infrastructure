@@ -15,8 +15,8 @@
 # Landscape Systems Analysis at the ZALF.
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
-#remote debugging via commandline
-#-m ptvsd --host 0.0.0.0 --port 14000 --wait
+# remote debugging via commandline
+# -m ptvsd --host 0.0.0.0 --port 14000 --wait
 
 import asyncio
 import capnp
@@ -27,7 +27,7 @@ import os
 from pathlib import Path
 from pyproj import CRS, Transformer
 import sys
-#import time
+# import time
 import uuid
 
 PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent.parent
@@ -46,17 +46,19 @@ import common.capnp_async_helpers as async_helpers
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
-grid_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "grid.capnp"), imports=abs_imports) 
-common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports) 
-reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
+common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
+fbp_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "fbp.capnp"), imports=abs_imports)
 geo_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "geo.capnp"), imports=abs_imports)
+grid_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "grid.capnp"), imports=abs_imports)
+reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
 
-#------------------------------------------------------------------------------
 
-def fbp(config, service : grid_capnp.Grid):
+# ------------------------------------------------------------------------------
+
+def fbp(config, service: grid_capnp.Grid):
     conman = common.ConnectionManager()
-    inp = conman.try_connect(config["in_sr"], cast_as=common_capnp.Channel.Reader, retry_secs=1)
-    outp = conman.try_connect(config["out_sr"], cast_as=common_capnp.Channel.Writer, retry_secs=1)
+    inp = conman.try_connect(config["in_sr"], cast_as=fbp_capnp.Channel.Reader, retry_secs=1)
+    outp = conman.try_connect(config["out_sr"], cast_as=fbp_capnp.Channel.Writer, retry_secs=1)
 
     try:
         if inp and outp and service:
@@ -64,8 +66,8 @@ def fbp(config, service : grid_capnp.Grid):
                 in_msg = inp.read().wait()
                 if in_msg.which() == "done":
                     break
-                
-                in_ip = in_msg.value.as_struct(common_capnp.IP)
+
+                in_ip = in_msg.value.as_struct(fbp_capnp.IP)
                 attr = common.get_fbp_attr(in_ip, config["from_attr"])
                 if attr:
                     coord = attr.as_struct(geo_capnp.LatLonCoord)
@@ -74,12 +76,12 @@ def fbp(config, service : grid_capnp.Grid):
 
                 val = service.closestValueAt(coord).wait().val
 
-                out_ip = common_capnp.IP.new_message()
+                out_ip = fbp_capnp.IP.new_message()
                 if not config["to_attr"]:
                     out_ip.content = val
                 common.copy_and_set_fbp_attrs(in_ip, out_ip, **({config["to_attr"]: val} if config["to_attr"] else {}))
                 outp.write(value=out_ip).wait()
-            
+
             outp.write(done=None).wait()
 
     except Exception as e:
@@ -88,11 +90,12 @@ def fbp(config, service : grid_capnp.Grid):
     print("ascii_grid.py: exiting FBP component")
 
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
-class Grid(grid_capnp.Grid.Server, common.Identifiable, common.Persistable, serv.AdministrableService): 
+class Grid(grid_capnp.Grid.Server, common.Identifiable, common.Persistable, serv.AdministrableService):
 
-    def __init__(self, path_to_ascii_grid, grid_crs, val_type, id=None, name=None, description=None, admin=None, restorer=None):
+    def __init__(self, path_to_ascii_grid, grid_crs, val_type, id=None, name=None, description=None, admin=None,
+                 restorer=None):
         common.Identifiable.__init__(self, id, name, description)
         common.Persistable.__init__(self, restorer)
         serv.AdministrableService.__init__(self, admin)
@@ -108,16 +111,24 @@ class Grid(grid_capnp.Grid.Server, common.Identifiable, common.Persistable, serv
         self._latlon_to_grid_crs = Transformer.from_crs(self._wgs84, grid_crs, always_xy=True)
         self._val_type = val_type
 
-        self._grid, self._metadata = grid_man.load_grid_and_metadata_from_ascii_grid(path_to_ascii_grid, datatype=val_type)
-        self._include_nodata_rowcol_interpol, _ = grid_man.create_interpolator_from_rect_grid(self._grid, self._metadata, ignore_nodata=False, row_col_value=True, no_points_to_values=True)
-        self._ignore_nodata_rowcol_interpol, _ = grid_man.create_interpolator_from_rect_grid(self._grid, self._metadata, ignore_nodata=True, row_col_value=True, no_points_to_values=True)
+        self._grid, self._metadata = grid_man.load_grid_and_metadata_from_ascii_grid(path_to_ascii_grid,
+                                                                                     datatype=val_type)
+        self._include_nodata_rowcol_interpol, _ = grid_man.create_interpolator_from_rect_grid(self._grid,
+                                                                                              self._metadata,
+                                                                                              ignore_nodata=False,
+                                                                                              row_col_value=True,
+                                                                                              no_points_to_values=True)
+        self._ignore_nodata_rowcol_interpol, _ = grid_man.create_interpolator_from_rect_grid(self._grid, self._metadata,
+                                                                                             ignore_nodata=True,
+                                                                                             row_col_value=True,
+                                                                                             no_points_to_values=True)
         self._cellsize = int(self._metadata["cellsize"])
         self._nrows = int(self._metadata["nrows"])
         self._ncols = int(self._metadata["ncols"])
-        self._nodata = int(self._metadata["nodata_value"]) if self._val_type == int else float(self._metadata["nodata_value"])
+        self._nodata = int(self._metadata["nodata_value"]) if self._val_type == int else float(
+            self._metadata["nodata_value"])
         self._xll = int(self._metadata["xllcorner"])
         self._yll = int(self._metadata["yllcorner"])
-
 
     def to_union(self, value):
         if value == self._nodata:
@@ -126,9 +137,10 @@ class Grid(grid_capnp.Grid.Server, common.Identifiable, common.Persistable, serv
             val = {"i": int(value)}
         else:
             val = {"f": float(value)}
-        return val            
+        return val
 
-    def closestValueAt(self, latlonCoord, ignoreNoData, resolution, agg, returnRowCols, includeAggParts, _context, **kwargs): # closestValueAt @0 (latlonCoord :Geo.LatLonCoord, ignoreNoData :Bool, resolution :UInt64, agg :Aggregation = none, includeAggParts :Bool = false) -> (val :Value, tl :RowCol, br :RowCol, aggParts :List(AggregationPart));
+    def closestValueAt(self, latlonCoord, ignoreNoData, resolution, agg, returnRowCols, includeAggParts, _context,
+                       **kwargs):  # closestValueAt @0 (latlonCoord :Geo.LatLonCoord, ignoreNoData :Bool, resolution :UInt64, agg :Aggregation = none, includeAggParts :Bool = false) -> (val :Value, tl :RowCol, br :RowCol, aggParts :List(AggregationPart));
         lat = latlonCoord.lat
         lon = latlonCoord.lon
 
@@ -142,7 +154,7 @@ class Grid(grid_capnp.Grid.Server, common.Identifiable, common.Persistable, serv
             val = self.to_union(value)
             rc = {"row": int(row), "col": int(col)}
             return (val, rc, rc) if returnRowCols else val
-        
+
         elif resolution % self._cellsize == 0:
 
             union_value, aggValues, tl, br = self.valueAtRowCol(int(row), int(col), resolution, agg, includeAggParts)
@@ -160,11 +172,11 @@ class Grid(grid_capnp.Grid.Server, common.Identifiable, common.Persistable, serv
                     _context.results.tl = tl
                     _context.results.br = br
                 return
-            else: 
+            else:
                 return (union_value, tl, br) if returnRowCols else union_value
 
-
-    def valueAt(self, row, col, resolution, agg, includeAggParts, _context, **kwargs): # valueAt @4 (row :UInt64, col :UInt64, resolution :UInt64, agg :Aggregation = none, includeAggParts :Bool = false) -> (val :Value, aggParts :List(AggregationPart));
+    def valueAt(self, row, col, resolution, agg, includeAggParts, _context,
+                **kwargs):  # valueAt @4 (row :UInt64, col :UInt64, resolution :UInt64, agg :Aggregation = none, includeAggParts :Bool = false) -> (val :Value, aggParts :List(AggregationPart));
 
         if resolution <= self._cellsize and row >= 0 and row < self._nrows and col >= 0 and col < self._ncols:
             value = self._grid[row, col]
@@ -181,9 +193,8 @@ class Grid(grid_capnp.Grid.Server, common.Identifiable, common.Persistable, serv
                 _context.results.aggParts = aggValues
                 _context.results.val = union_value
                 return
-            else: 
+            else:
                 return union_value
-
 
     def valueAtRowCol(self, row, col, resolution, agg, includeAggParts):
 
@@ -212,10 +223,10 @@ class Grid(grid_capnp.Grid.Server, common.Identifiable, common.Persistable, serv
                 if left_col >= 0:
                     # store top left row/col
                     outer_tl = {"row": top_row, "col": left_col}
-                    cells.append((top_row, left_col, fraction*fraction, (top_row + 1, left_col + 1))) 
+                    cells.append((top_row, left_col, fraction * fraction, (top_row + 1, left_col + 1)))
 
-                # top side
-                for i in range(1, 1 + (2*full_cell_count) + 1):
+                    # top side
+                for i in range(1, 1 + (2 * full_cell_count) + 1):
                     left_i = left_col + i
                     if 0 <= left_i and left_i <= self._ncols - 1:
                         # if not done yet, store top left row/col
@@ -226,12 +237,12 @@ class Grid(grid_capnp.Grid.Server, common.Identifiable, common.Persistable, serv
                 # top right corner
                 right_col = col + full_cell_count + 1
                 if right_col <= self._ncols - 1:
-                    cells.append((top_row, right_col, fraction*fraction, (top_row + 1, right_col - 1))) 
+                    cells.append((top_row, right_col, fraction * fraction, (top_row + 1, right_col - 1)))
 
-            # left side
+                    # left side
             left_col = col - full_cell_count - 1
             if left_col >= 0:
-                for i in range(1, 1 + (2*full_cell_count) + 1):
+                for i in range(1, 1 + (2 * full_cell_count) + 1):
                     top_i = top_row + i
                     if top_i >= 0:
                         if outer_tl is None:
@@ -245,23 +256,22 @@ class Grid(grid_capnp.Grid.Server, common.Identifiable, common.Persistable, serv
             # right side
             right_col = col + full_cell_count + 1
             if right_col <= self._ncols - 1:
-                for i in range(1, 1 + (2*full_cell_count) + 1):
+                for i in range(1, 1 + (2 * full_cell_count) + 1):
                     top_i = top_row + i
                     if top_i >= 0:
                         # store bottom right row/col
                         outer_br = {"row": top_i, "col": right_col}
                         cells.append((top_i, right_col, fraction, (top_i, right_col - 1)))
 
-
             bottom_row = row + full_cell_count + 1
             if bottom_row <= self._nrows - 1:
                 # bottom left corner
                 left_col = col - full_cell_count - 1
                 if left_col >= 0:
-                    cells.append((bottom_row, left_col, fraction*fraction, (bottom_row - 1, left_col + 1))) 
+                    cells.append((bottom_row, left_col, fraction * fraction, (bottom_row - 1, left_col + 1)))
 
-                # bottom side
-                for i in range(1, 1 + (2*full_cell_count) + 1):
+                    # bottom side
+                for i in range(1, 1 + (2 * full_cell_count) + 1):
                     left_i = left_col + i
                     if 0 <= left_i and left_i <= self._ncols - 1:
                         # store bottom right row/col
@@ -273,7 +283,7 @@ class Grid(grid_capnp.Grid.Server, common.Identifiable, common.Persistable, serv
                 if right_col <= self._ncols - 1:
                     # store bottom right row/col
                     outer_br = {"row": bottom_row, "col": right_col}
-                    cells.append((bottom_row, right_col, fraction*fraction, (bottom_row - 1, right_col - 1))) 
+                    cells.append((bottom_row, right_col, fraction * fraction, (bottom_row - 1, right_col - 1)))
 
             if outer_br is not None:
                 br = outer_br
@@ -293,12 +303,11 @@ class Grid(grid_capnp.Grid.Server, common.Identifiable, common.Persistable, serv
                         # store bottom right row col
                         inner_br = {"row": r, "col": c}
                         cells.append((r, c, 1.0, None))
-        
+
         if outer_tl is None and inner_tl is not None:
             tl = inner_tl
         if outer_br is None and inner_br is not None:
             br = inner_br
-        
 
         value = self._nodata
         values = []
@@ -309,15 +318,15 @@ class Grid(grid_capnp.Grid.Server, common.Identifiable, common.Persistable, serv
         for r, c, frac, _ in cells:
             val = self._grid[r, c]
             if agg == "none" or includeAggParts:
-                rc_to_agg_val[(r,c)] = {
-                    "value": self.to_union(val), 
+                rc_to_agg_val[(r, c)] = {
+                    "value": self.to_union(val),
                     "rowCol": {"row": r, "col": c},
                     "areaFrac": frac,
                     "iValue": 0
                 }
             if val == self._nodata:
                 continue
-            rc_to_val[(r,c)] = val
+            rc_to_val[(r, c)] = val
             values.append(val)
             weighted_values.append((val * frac, frac))
 
@@ -325,27 +334,26 @@ class Grid(grid_capnp.Grid.Server, common.Identifiable, common.Persistable, serv
         interpolated_values = []
         if str(agg)[0] == "i":
             for r, c, frac, closest_full_cell in cells:
-                
+
                 if int(frac) == 1 or closest_full_cell is None:
-                    interpolated_values.append(rc_to_val[(r,c)])
+                    interpolated_values.append(rc_to_val[(r, c)])
                     continue
 
-                (fr,fc) = closest_full_cell
+                (fr, fc) = closest_full_cell
 
                 dr = abs(r - fr)
                 dc = abs(c - fc)
 
-                full_dist = math.sqrt(dr * cellsize**2 + dc * cellsize**2)
-                half_full_dist = math.sqrt(dr * (cellsize/2)**2 + dc * (cellsize/2)**2)
-                half_short_dist = math.sqrt(dr * frac * (cellsize/2)**2 + dc * frac * (cellsize/2)**2)
+                full_dist = math.sqrt(dr * cellsize ** 2 + dc * cellsize ** 2)
+                half_full_dist = math.sqrt(dr * (cellsize / 2) ** 2 + dc * (cellsize / 2) ** 2)
+                half_short_dist = math.sqrt(dr * frac * (cellsize / 2) ** 2 + dc * frac * (cellsize / 2) ** 2)
 
-                fval = rc_to_val[(fr,fc)]
+                fval = rc_to_val[(fr, fc)]
                 interpol_value = fval * (half_full_dist + half_short_dist) / full_dist
 
                 interpolated_values.append(interpol_value)
                 if includeAggParts:
-                    rc_to_agg_val[(r,c)]["iValue"] = float(interpol_value)
-
+                    rc_to_agg_val[(r, c)]["iValue"] = float(interpol_value)
 
         if len(values) > 0:
             if agg == "avg":
@@ -376,7 +384,8 @@ class Grid(grid_capnp.Grid.Server, common.Identifiable, common.Persistable, serv
                         value = weighted_value
                         break
                     elif running_fraction / sum_fractions == 0.5:
-                        value = (weighted_value + weighted_values[i+1][0]) / 2.0  # it should be impossible to have no i+1 if == 0.5
+                        value = (weighted_value + weighted_values[i + 1][
+                            0]) / 2.0  # it should be impossible to have no i+1 if == 0.5
                         break
             elif agg == "iMedian":
                 # calc interpolated median
@@ -407,34 +416,32 @@ class Grid(grid_capnp.Grid.Server, common.Identifiable, common.Persistable, serv
 
         return (self.to_union(value), list(rc_to_agg_val.values()), tl, br)
 
-
-    def resolution(self, **kwargs): # resolution @1 () -> (res :UInt64);
+    def resolution(self, **kwargs):  # resolution @1 () -> (res :UInt64);
         return self._cellsize
 
-
-    def dimension(self, **kwargs): # dimension @2 () -> (rows :UInt64, cols :UInt64);
+    def dimension(self, **kwargs):  # dimension @2 () -> (rows :UInt64, cols :UInt64);
         return (self._nrows, self._ncols)
 
+    def noDataValue(self, **kwargs):  # noDataValue @3 () -> (nodata :Value);
+        return {"i": int(self._metadata["nodata_value"])} if self._val_type == int else {
+            "f": float(self._metadata["nodata_value"])}
 
-    def noDataValue(self, **kwargs): # noDataValue @3 () -> (nodata :Value);
-        return {"i": int(self._metadata["nodata_value"])} if self._val_type == int else {"f": float(self._metadata["nodata_value"])}
-
-
-    def latLonBounds(self, useCellCenter, **kwargs): # latLonBounds @5 (useCellCenter :Bool = false) -> (tl :Geo.LatLonCoord, tr :Geo.LatLonCoord, br :Geo.LatLonCoord, bl :Geo.LatLonCoord);
+    def latLonBounds(self, useCellCenter,
+                     **kwargs):  # latLonBounds @5 (useCellCenter :Bool = false) -> (tl :Geo.LatLonCoord, tr :Geo.LatLonCoord, br :Geo.LatLonCoord, bl :Geo.LatLonCoord);
 
         bl_x = self._xll + self._cellsize // 2 if useCellCenter else self._xll
         bl_y = self._yll + self._cellsize // 2 if useCellCenter else self._yll
         bl_lon, bl_lat = self._grid_crs_to_latlon.transform(bl_x, bl_y)
-        
+
         tl_x = bl_x
-        tl_y = bl_y + (self._nrows - 1)*self._cellsize
+        tl_y = bl_y + (self._nrows - 1) * self._cellsize
         tl_lon, tl_lat = self._grid_crs_to_latlon.transform(tl_x, tl_y)
-        
-        tr_x = tl_x + (self._ncols - 1)*self._cellsize
+
+        tr_x = tl_x + (self._ncols - 1) * self._cellsize
         tr_y = tl_y
         tr_lon, tr_lat = self._grid_crs_to_latlon.transform(tr_x, tr_y)
 
-        br_x = tr_x    
+        br_x = tr_x
         br_y = bl_y
         br_lon, br_lat = self._grid_crs_to_latlon.transform(br_x, br_y)
 
@@ -446,16 +453,15 @@ class Grid(grid_capnp.Grid.Server, common.Identifiable, common.Persistable, serv
         )
 
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
-async def main(path_to_ascii_grid, grid_crs, val_type, serve_bootstrap=True, host=None, port=None, 
-    id=None, name="Grid Service", description=None, use_async=False):
-
+async def main(path_to_ascii_grid, grid_crs, val_type, serve_bootstrap=True, host=None, port=None,
+               id=None, name="Grid Service", description=None, use_async=False):
     config = {
         "path_to_ascii_grid": path_to_ascii_grid,
         "grid_crs": grid_crs,
         "val_type": val_type,
-        "port": port, 
+        "port": port,
         "host": host,
         "id": id,
         "name": name,
@@ -465,39 +471,31 @@ async def main(path_to_ascii_grid, grid_crs, val_type, serve_bootstrap=True, hos
         "fbp": False,
         "in_sr": None,
         "out_sr": None,
-        "from_attr": None, #"latlon"
-        "to_attr": None, #"dgm",
+        "from_attr": None,  # "latlon"
+        "to_attr": None,  # "dgm",
     }
-    # read commandline args only if script is invoked directly from commandline
-    if len(sys.argv) > 1 and __name__ == "__main__":
-        for arg in sys.argv[1:]:
-            k, v = arg.split("=")
-            if k in config:
-                config[k] = bool(v) if v.lower() in ["true", "false"] else v 
-    print(config)
+    common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
     restorer = common.Restorer()
-    service = Grid(path_to_ascii_grid=config["path_to_ascii_grid"], 
-        grid_crs=geo.name_to_crs(config["grid_crs"]), val_type=int if config["val_type"] == "int" else float,
-        id=config["id"], name=config["name"], description=config["description"], restorer=restorer)
+    service = Grid(path_to_ascii_grid=config["path_to_ascii_grid"],
+                   grid_crs=geo.name_to_crs(config["grid_crs"]), val_type=int if config["val_type"] == "int" else float,
+                   id=config["id"], name=config["name"], description=config["description"], restorer=restorer)
     if config["fbp"]:
         fbp(config, grid_capnp.Grid._new_client(service))
     else:
         if config["use_async"]:
-            await serv.async_init_and_run_service({"service": service}, config["host"], config["port"], 
-            serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
+            await serv.async_init_and_run_service({"service": service}, config["host"], config["port"],
+                                                  serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
         else:
-            
-            serv.init_and_run_service({"service": service}, config["host"], config["port"], 
-                serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
 
-#------------------------------------------------------------------------------
+            serv.init_and_run_service({"service": service}, config["host"], config["port"],
+                                      serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
+
+
+# ------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    #grid = "data/geo/dem_1000_31469_gk5.asc"
+    # grid = "data/geo/dem_1000_31469_gk5.asc"
     grid = str(PATH_TO_REPO / "data/geo/slope_1000_31469_gk5.asc")
     crs = "gk5"
-    asyncio.run(main(grid, crs, "float", serve_bootstrap=True, use_async=True)) 
-
-
-
+    asyncio.run(main(grid, crs, "float", serve_bootstrap=True, use_async=True))

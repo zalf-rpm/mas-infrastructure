@@ -15,6 +15,7 @@
 # Landscape Systems Analysis at the ZALF.
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
+import capnp
 from copy import deepcopy
 from datetime import date, timedelta
 import json
@@ -35,17 +36,23 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-import capnp
-from capnproto_schemas import model_capnp, climate_data_capnp, soil_data_capnp, common_capnp
+PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
+abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
+common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
+climate_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate.capnp"), imports=abs_imports)
+soil_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "soil.capnp"), imports=abs_imports)
+model_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "model.capnp"), imports=abs_imports)
 
-#------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
 
 def test_monica(monica_cap, monica_env, time_series_cap):
     env = deepcopy(monica_env)
     env["customId"] = random.randint(0, 1000)
 
     env_struct = common_capnp.StructuredText.new_message(value=json.dumps(env), structure={"json": None})
-    res = monica_cap.run({"rest": env_struct, "timeSeries": time_series_cap}).wait().result.as_struct(common_capnp.StructuredText)
+    res = monica_cap.run({"rest": env_struct, "timeSeries": time_series_cap}).wait().result.as_struct(
+        common_capnp.StructuredText)
     assert len(res.value) > 0
     res_j = json.loads(res.value)
     assert res_j["customId"] == env["customId"]
@@ -54,5 +61,3 @@ def test_monica(monica_cap, monica_env, time_series_cap):
     run = list(filter(lambda r: r["origSpec"] == '"run"', res_j["data"]))
     assert len(run) == 1
     assert run[0]["results"][0][0] > 3500
-
-

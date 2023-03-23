@@ -234,7 +234,7 @@ if True and __name__ == '__main__':
         s_port = sys.argv[2] 
         w_sr = sys.argv[3]
         s = capnp.TwoPartyClient("localhost:"+s_port).bootstrap().cast_as(a_capnp.S)
-        w = conman.try_connect(w_sr, cast_as=common_capnp.Channel.Writer, retry_secs=1)
+        w = conman.try_connect(w_sr, cast_as=fbp_capnp.Channel.Writer, retry_secs=1)
         cb = s.getCB().wait().cb
         while True:
             d = cb.getD().wait().d
@@ -244,7 +244,7 @@ if True and __name__ == '__main__':
             #w.write({"value": d}).wait()
     elif mode == "reader":
         r_sr = sys.argv[2]
-        r = conman.try_connect(r_sr, cast_as=common_capnp.Channel.Reader, retry_secs=1)
+        r = conman.try_connect(r_sr, cast_as=fbp_capnp.Channel.Reader, retry_secs=1)
         i = 0
         while True:
             msg = r.read().wait()

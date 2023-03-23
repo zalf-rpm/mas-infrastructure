@@ -36,12 +36,13 @@ import services.model.monica_io3 as monica_io3
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
-common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports) 
+common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
+fbp_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "fbp.capnp"), imports=abs_imports)
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 config = {
-    "in_sr": None, # string (json)
+    "in_sr": None,  # string (json)
     "path_to_out_dir": "out/",
     "file_pattern": "csv_{id}.csv",
     "from_attr": None,
@@ -51,7 +52,7 @@ config = {
 common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
 conman = common.ConnectionManager()
-inp = conman.try_connect(config["in_sr"], cast_as=common_capnp.Channel.Reader, retry_secs=1)
+inp = conman.try_connect(config["in_sr"], cast_as=fbp_capnp.Channel.Reader, retry_secs=1)
 count = 0
 
 try:
@@ -61,7 +62,7 @@ try:
             if msg.which() == "done":
                 break
 
-            in_ip = msg.value.as_struct(common_capnp.IP)
+            in_ip = msg.value.as_struct(fbp_capnp.IP)
             id_attr = common.get_fbp_attr(in_ip, config["id_attr"])
             id = id_attr.as_text() if id_attr else str(count)
             out_path_attr = common.get_fbp_attr(in_ip, config["out_path_attr"])
@@ -80,7 +81,7 @@ try:
             filepath = dir + "/" + config["file_pattern"].format(id=id)
             with open(filepath, "wt") as _:
                 writer = csv.writer(_, delimiter=",")
-                
+
                 content_attr = common.get_fbp_attr(in_ip, config["from_attr"])
                 jstr = content_attr.as_text() if content_attr else in_ip.content.as_text()
                 j = json.loads(jstr)
@@ -93,9 +94,9 @@ try:
                     if len(results) > 0:
                         writer.writerow([orig_spec.replace("\"", "")])
                         for row in monica_io3.write_output_header_rows(output_ids,
-                                                                      include_header_row=True,
-                                                                      include_units_row=True,
-                                                                      include_time_agg=False):
+                                                                       include_header_row=True,
+                                                                       include_units_row=True,
+                                                                       include_time_agg=False):
                             writer.writerow(row)
 
                         for row in monica_io3.write_output(output_ids, results):
@@ -110,8 +111,3 @@ except Exception as e:
     print("write_monica_csv.py: exception:", e)
 
 print("write_monica_csv.py: exiting run")
-
-
-
-
-

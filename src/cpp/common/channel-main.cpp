@@ -28,6 +28,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include "sole.hpp"
 
 #include "common.capnp.h"
+#include "fbp.capnp.h"
 
 namespace mas { 
 namespace infrastructure { 
@@ -90,9 +91,9 @@ public:
     auto channelSR = restorer->saveStr(channelClient, nullptr, nullptr, false).wait(ioContext.waitScope).sturdyRef;
     if(outputSturdyRefs && channelSR.size() > 0) std::cout << "channelSR=" << channelSR.cStr() << std::endl;
 
-    using SI = mas::schema::common::Channel<capnp::AnyPointer>::StartupInfo;
+    using SI = mas::schema::fbp::Channel<capnp::AnyPointer>::StartupInfo;
     using P = mas::schema::common::Pair<capnp::Text, SI>;
-    using SIC = mas::schema::common::Channel<P>;
+    using SIC = mas::schema::fbp::Channel<P>;
 
     kj::Maybe<SI::Builder> startupInfo;
     kj::Maybe<capnp::Request<SIC::Msg, SIC::ChanWriter::WriteResults>> infoReq;
