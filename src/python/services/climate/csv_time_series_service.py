@@ -36,40 +36,45 @@ import services.climate.csv_file_based as csv_based
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
-#reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
 
-#------------------------------------------------------------------------------
 
-async def main(path_to_csv_file, serve_bootstrap=True, host=None, port=None, 
-    id=None, name="Single CSV Test Timeseries Service", description=None, use_async=False):
+# reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
 
+# ------------------------------------------------------------------------------
+
+async def main(path_to_csv_file, serve_bootstrap=True, host=None, port=None,
+               id=None, name="Single CSV Test Timeseries Service", description=None, use_async=False, srt=None):
     config = {
         "path_to_csv_file": path_to_csv_file,
         "id_col_name": "id",
-        "port": port, 
+        "port": port,
         "host": host,
         "id": id,
         "name": name,
         "description": description,
         "serve_bootstrap": serve_bootstrap,
-        "use_async": use_async
+        "use_async": use_async,
+        "srt": srt
     }
     common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
     restorer = common.Restorer()
-    service = csv_based.TimeSeries.from_csv_file(config["path_to_csv_file"], \
-        header_map={}, #{"windspeed": "wind"}, 
-        pandas_csv_config={} #{"sep": ";"}
-    )
+    service = csv_based.TimeSeries.from_csv_file(config["path_to_csv_file"],
+                                                 header_map={},  # {"windspeed": "wind"},
+                                                 pandas_csv_config={}  # {"sep": ";"}
+                                                 )
     if use_async:
-        await serv.async_init_and_run_service({"service": service}, config["host"], config["port"], 
-        serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
+        await serv.async_init_and_run_service({"service": service}, config["host"], config["port"],
+                                              serve_bootstrap=config["serve_bootstrap"], restorer=restorer,
+                                              name_to_service_srs={"service": config["srt"]})
     else:
-        serv.init_and_run_service({"service": service}, config["host"], config["port"], 
-            serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
+        serv.init_and_run_service({"service": service}, config["host"], config["port"],
+                                  serve_bootstrap=config["serve_bootstrap"], restorer=restorer,
+                                  name_to_service_srs={"service": config["srt"]})
 
-#------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
 
 if __name__ == '__main__':
     path = str(PATH_TO_REPO / "data/climate/climate-iso.csv")
-    asyncio.run(main(path, use_async=True)) 
+    asyncio.run(main(path, use_async=True))
