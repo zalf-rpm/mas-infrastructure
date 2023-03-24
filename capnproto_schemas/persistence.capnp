@@ -198,6 +198,6 @@ interface HostPortResolver extends(Identifiable, Restorer) {
     # if a heartbeat ist missed, the id will be unregistered
   }
 
-  resolve @0 (id :Text) -> (host :Text, port :UInt16);
+  resolve @0 (id :Text) -> (host :Text, port :UInt16) $Go.name("ResolveIdent") ;
   # resolve an id (either base64 encoded VatId or plain text alias) to a host and port
 }

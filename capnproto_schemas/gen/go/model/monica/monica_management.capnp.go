@@ -5,9 +5,11 @@ package monica
 import (
 	capnp "capnproto.org/go/capnp/v3"
 	text "capnproto.org/go/capnp/v3/encoding/text"
+	fc "capnproto.org/go/capnp/v3/flowcontrol"
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
+	fmt "fmt"
 	common "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common"
 	crop "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/crop"
 	geo "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/geo"
@@ -15,193 +17,201 @@ import (
 	strconv "strconv"
 )
 
-type ILRDates struct{ capnp.Struct }
+type ILRDates capnp.Struct
 
 // ILRDates_TypeID is the unique identifier for the type ILRDates.
 const ILRDates_TypeID = 0xa1f99f32eea02590
 
 func NewILRDates(s *capnp.Segment) (ILRDates, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 5})
-	return ILRDates{st}, err
+	return ILRDates(st), err
 }
 
 func NewRootILRDates(s *capnp.Segment) (ILRDates, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 5})
-	return ILRDates{st}, err
+	return ILRDates(st), err
 }
 
 func ReadRootILRDates(msg *capnp.Message) (ILRDates, error) {
 	root, err := msg.Root()
-	return ILRDates{root.Struct()}, err
+	return ILRDates(root.Struct()), err
 }
 
 func (s ILRDates) String() string {
-	str, _ := text.Marshal(0xa1f99f32eea02590, s.Struct)
+	str, _ := text.Marshal(0xa1f99f32eea02590, capnp.Struct(s))
 	return str
 }
 
+func (s ILRDates) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (ILRDates) DecodeFromPtr(p capnp.Ptr) ILRDates {
+	return ILRDates(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s ILRDates) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s ILRDates) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s ILRDates) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s ILRDates) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s ILRDates) Sowing() (common.Date, error) {
-	p, err := s.Struct.Ptr(0)
-	return common.Date{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return common.Date(p.Struct()), err
 }
 
 func (s ILRDates) HasSowing() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s ILRDates) SetSowing(v common.Date) error {
-	return s.Struct.SetPtr(0, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewSowing sets the sowing field to a newly
 // allocated common.Date struct, preferring placement in s's segment.
 func (s ILRDates) NewSowing() (common.Date, error) {
-	ss, err := common.NewDate(s.Struct.Segment())
+	ss, err := common.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
 		return common.Date{}, err
 	}
-	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s ILRDates) EarliestSowing() (common.Date, error) {
-	p, err := s.Struct.Ptr(1)
-	return common.Date{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(1)
+	return common.Date(p.Struct()), err
 }
 
 func (s ILRDates) HasEarliestSowing() bool {
-	return s.Struct.HasPtr(1)
+	return capnp.Struct(s).HasPtr(1)
 }
 
 func (s ILRDates) SetEarliestSowing(v common.Date) error {
-	return s.Struct.SetPtr(1, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
 }
 
 // NewEarliestSowing sets the earliestSowing field to a newly
 // allocated common.Date struct, preferring placement in s's segment.
 func (s ILRDates) NewEarliestSowing() (common.Date, error) {
-	ss, err := common.NewDate(s.Struct.Segment())
+	ss, err := common.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
 		return common.Date{}, err
 	}
-	err = s.Struct.SetPtr(1, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s ILRDates) LatestSowing() (common.Date, error) {
-	p, err := s.Struct.Ptr(2)
-	return common.Date{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(2)
+	return common.Date(p.Struct()), err
 }
 
 func (s ILRDates) HasLatestSowing() bool {
-	return s.Struct.HasPtr(2)
+	return capnp.Struct(s).HasPtr(2)
 }
 
 func (s ILRDates) SetLatestSowing(v common.Date) error {
-	return s.Struct.SetPtr(2, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(2, capnp.Struct(v).ToPtr())
 }
 
 // NewLatestSowing sets the latestSowing field to a newly
 // allocated common.Date struct, preferring placement in s's segment.
 func (s ILRDates) NewLatestSowing() (common.Date, error) {
-	ss, err := common.NewDate(s.Struct.Segment())
+	ss, err := common.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
 		return common.Date{}, err
 	}
-	err = s.Struct.SetPtr(2, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(2, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s ILRDates) Harvest() (common.Date, error) {
-	p, err := s.Struct.Ptr(3)
-	return common.Date{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(3)
+	return common.Date(p.Struct()), err
 }
 
 func (s ILRDates) HasHarvest() bool {
-	return s.Struct.HasPtr(3)
+	return capnp.Struct(s).HasPtr(3)
 }
 
 func (s ILRDates) SetHarvest(v common.Date) error {
-	return s.Struct.SetPtr(3, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(3, capnp.Struct(v).ToPtr())
 }
 
 // NewHarvest sets the harvest field to a newly
 // allocated common.Date struct, preferring placement in s's segment.
 func (s ILRDates) NewHarvest() (common.Date, error) {
-	ss, err := common.NewDate(s.Struct.Segment())
+	ss, err := common.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
 		return common.Date{}, err
 	}
-	err = s.Struct.SetPtr(3, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(3, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s ILRDates) LatestHarvest() (common.Date, error) {
-	p, err := s.Struct.Ptr(4)
-	return common.Date{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(4)
+	return common.Date(p.Struct()), err
 }
 
 func (s ILRDates) HasLatestHarvest() bool {
-	return s.Struct.HasPtr(4)
+	return capnp.Struct(s).HasPtr(4)
 }
 
 func (s ILRDates) SetLatestHarvest(v common.Date) error {
-	return s.Struct.SetPtr(4, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(4, capnp.Struct(v).ToPtr())
 }
 
 // NewLatestHarvest sets the latestHarvest field to a newly
 // allocated common.Date struct, preferring placement in s's segment.
 func (s ILRDates) NewLatestHarvest() (common.Date, error) {
-	ss, err := common.NewDate(s.Struct.Segment())
+	ss, err := common.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
 		return common.Date{}, err
 	}
-	err = s.Struct.SetPtr(4, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(4, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 // ILRDates_List is a list of ILRDates.
-type ILRDates_List struct{ capnp.List }
+type ILRDates_List = capnp.StructList[ILRDates]
 
 // NewILRDates creates a new list of ILRDates.
 func NewILRDates_List(s *capnp.Segment, sz int32) (ILRDates_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 5}, sz)
-	return ILRDates_List{l}, err
-}
-
-func (s ILRDates_List) At(i int) ILRDates { return ILRDates{s.List.Struct(i)} }
-
-func (s ILRDates_List) Set(i int, v ILRDates) error { return s.List.SetStruct(i, v.Struct) }
-
-func (s ILRDates_List) String() string {
-	str, _ := text.MarshalList(0xa1f99f32eea02590, s.List)
-	return str
+	return capnp.StructList[ILRDates](l), err
 }
 
 // ILRDates_Future is a wrapper for a ILRDates promised by a client call.
 type ILRDates_Future struct{ *capnp.Future }
 
-func (p ILRDates_Future) Struct() (ILRDates, error) {
-	s, err := p.Future.Struct()
-	return ILRDates{s}, err
+func (f ILRDates_Future) Struct() (ILRDates, error) {
+	p, err := f.Future.Ptr()
+	return ILRDates(p.Struct()), err
 }
-
 func (p ILRDates_Future) Sowing() common.Date_Future {
 	return common.Date_Future{Future: p.Future.Field(0, nil)}
 }
-
 func (p ILRDates_Future) EarliestSowing() common.Date_Future {
 	return common.Date_Future{Future: p.Future.Field(1, nil)}
 }
-
 func (p ILRDates_Future) LatestSowing() common.Date_Future {
 	return common.Date_Future{Future: p.Future.Field(2, nil)}
 }
-
 func (p ILRDates_Future) Harvest() common.Date_Future {
 	return common.Date_Future{Future: p.Future.Field(3, nil)}
 }
-
 func (p ILRDates_Future) LatestHarvest() common.Date_Future {
 	return common.Date_Future{Future: p.Future.Field(4, nil)}
 }
@@ -294,21 +304,10 @@ func EventTypeFromString(c string) EventType {
 	}
 }
 
-type EventType_List struct{ capnp.List }
+type EventType_List = capnp.EnumList[EventType]
 
 func NewEventType_List(s *capnp.Segment, sz int32) (EventType_List, error) {
-	l, err := capnp.NewUInt16List(s, sz)
-	return EventType_List{l.List}, err
-}
-
-func (l EventType_List) At(i int) EventType {
-	ul := capnp.UInt16List{List: l.List}
-	return EventType(ul.At(i))
-}
-
-func (l EventType_List) Set(i int, v EventType) {
-	ul := capnp.UInt16List{List: l.List}
-	ul.Set(i, uint16(v))
+	return capnp.NewEnumList[EventType](s, sz)
 }
 
 type PlantOrgan uint16
@@ -369,24 +368,13 @@ func PlantOrganFromString(c string) PlantOrgan {
 	}
 }
 
-type PlantOrgan_List struct{ capnp.List }
+type PlantOrgan_List = capnp.EnumList[PlantOrgan]
 
 func NewPlantOrgan_List(s *capnp.Segment, sz int32) (PlantOrgan_List, error) {
-	l, err := capnp.NewUInt16List(s, sz)
-	return PlantOrgan_List{l.List}, err
+	return capnp.NewEnumList[PlantOrgan](s, sz)
 }
 
-func (l PlantOrgan_List) At(i int) PlantOrgan {
-	ul := capnp.UInt16List{List: l.List}
-	return PlantOrgan(ul.At(i))
-}
-
-func (l PlantOrgan_List) Set(i int, v PlantOrgan) {
-	ul := capnp.UInt16List{List: l.List}
-	ul.Set(i, uint16(v))
-}
-
-type Event struct{ capnp.Struct }
+type Event capnp.Struct
 type Event_at Event
 type Event_between Event
 type Event_after Event
@@ -417,277 +405,314 @@ const Event_TypeID = 0xcf672ab379467704
 
 func NewEvent(s *capnp.Segment) (Event, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 4})
-	return Event{st}, err
+	return Event(st), err
 }
 
 func NewRootEvent(s *capnp.Segment) (Event, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 4})
-	return Event{st}, err
+	return Event(st), err
 }
 
 func ReadRootEvent(msg *capnp.Message) (Event, error) {
 	root, err := msg.Root()
-	return Event{root.Struct()}, err
+	return Event(root.Struct()), err
 }
 
 func (s Event) String() string {
-	str, _ := text.Marshal(0xcf672ab379467704, s.Struct)
+	str, _ := text.Marshal(0xcf672ab379467704, capnp.Struct(s))
 	return str
 }
 
+func (s Event) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Event) DecodeFromPtr(p capnp.Ptr) Event {
+	return Event(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Event) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+
 func (s Event) Which() Event_Which {
-	return Event_Which(s.Struct.Uint16(2))
+	return Event_Which(capnp.Struct(s).Uint16(2))
+}
+func (s Event) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Event) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Event) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
 }
 func (s Event) Type() Event_ExternalType {
-	return Event_ExternalType(s.Struct.Uint16(0))
+	return Event_ExternalType(capnp.Struct(s).Uint16(0))
 }
 
 func (s Event) SetType(v Event_ExternalType) {
-	s.Struct.SetUint16(0, uint16(v))
+	capnp.Struct(s).SetUint16(0, uint16(v))
 }
 
 func (s Event) Info() (common.IdInformation, error) {
-	p, err := s.Struct.Ptr(0)
-	return common.IdInformation{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return common.IdInformation(p.Struct()), err
 }
 
 func (s Event) HasInfo() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s Event) SetInfo(v common.IdInformation) error {
-	return s.Struct.SetPtr(0, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewInfo sets the info field to a newly
 // allocated common.IdInformation struct, preferring placement in s's segment.
 func (s Event) NewInfo() (common.IdInformation, error) {
-	ss, err := common.NewIdInformation(s.Struct.Segment())
+	ss, err := common.NewIdInformation(capnp.Struct(s).Segment())
 	if err != nil {
 		return common.IdInformation{}, err
 	}
-	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s Event) At() Event_at { return Event_at(s) }
 
 func (s Event) SetAt() {
-	s.Struct.SetUint16(2, 0)
+	capnp.Struct(s).SetUint16(2, 0)
 }
 
+func (s Event_at) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Event_at) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Event_at) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Event_at) Date() (common.Date, error) {
-	p, err := s.Struct.Ptr(1)
-	return common.Date{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(1)
+	return common.Date(p.Struct()), err
 }
 
 func (s Event_at) HasDate() bool {
-	return s.Struct.HasPtr(1)
+	return capnp.Struct(s).HasPtr(1)
 }
 
 func (s Event_at) SetDate(v common.Date) error {
-	return s.Struct.SetPtr(1, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
 }
 
 // NewDate sets the date field to a newly
 // allocated common.Date struct, preferring placement in s's segment.
 func (s Event_at) NewDate() (common.Date, error) {
-	ss, err := common.NewDate(s.Struct.Segment())
+	ss, err := common.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
 		return common.Date{}, err
 	}
-	err = s.Struct.SetPtr(1, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s Event) Between() Event_between { return Event_between(s) }
 
 func (s Event) SetBetween() {
-	s.Struct.SetUint16(2, 1)
+	capnp.Struct(s).SetUint16(2, 1)
 }
 
+func (s Event_between) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Event_between) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Event_between) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Event_between) Earliest() (common.Date, error) {
-	p, err := s.Struct.Ptr(1)
-	return common.Date{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(1)
+	return common.Date(p.Struct()), err
 }
 
 func (s Event_between) HasEarliest() bool {
-	return s.Struct.HasPtr(1)
+	return capnp.Struct(s).HasPtr(1)
 }
 
 func (s Event_between) SetEarliest(v common.Date) error {
-	return s.Struct.SetPtr(1, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
 }
 
 // NewEarliest sets the earliest field to a newly
 // allocated common.Date struct, preferring placement in s's segment.
 func (s Event_between) NewEarliest() (common.Date, error) {
-	ss, err := common.NewDate(s.Struct.Segment())
+	ss, err := common.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
 		return common.Date{}, err
 	}
-	err = s.Struct.SetPtr(1, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s Event_between) Latest() (common.Date, error) {
-	p, err := s.Struct.Ptr(2)
-	return common.Date{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(2)
+	return common.Date(p.Struct()), err
 }
 
 func (s Event_between) HasLatest() bool {
-	return s.Struct.HasPtr(2)
+	return capnp.Struct(s).HasPtr(2)
 }
 
 func (s Event_between) SetLatest(v common.Date) error {
-	return s.Struct.SetPtr(2, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(2, capnp.Struct(v).ToPtr())
 }
 
 // NewLatest sets the latest field to a newly
 // allocated common.Date struct, preferring placement in s's segment.
 func (s Event_between) NewLatest() (common.Date, error) {
-	ss, err := common.NewDate(s.Struct.Segment())
+	ss, err := common.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
 		return common.Date{}, err
 	}
-	err = s.Struct.SetPtr(2, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(2, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s Event) After() Event_after { return Event_after(s) }
 
 func (s Event) SetAfter() {
-	s.Struct.SetUint16(2, 2)
+	capnp.Struct(s).SetUint16(2, 2)
 }
 
+func (s Event_after) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Event_after) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Event_after) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Event_after) Event() (Event_Type, error) {
-	p, err := s.Struct.Ptr(1)
-	return Event_Type{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(1)
+	return Event_Type(p.Struct()), err
 }
 
 func (s Event_after) HasEvent() bool {
-	return s.Struct.HasPtr(1)
+	return capnp.Struct(s).HasPtr(1)
 }
 
 func (s Event_after) SetEvent(v Event_Type) error {
-	return s.Struct.SetPtr(1, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
 }
 
 // NewEvent sets the event field to a newly
 // allocated Event_Type struct, preferring placement in s's segment.
 func (s Event_after) NewEvent() (Event_Type, error) {
-	ss, err := NewEvent_Type(s.Struct.Segment())
+	ss, err := NewEvent_Type(capnp.Struct(s).Segment())
 	if err != nil {
 		return Event_Type{}, err
 	}
-	err = s.Struct.SetPtr(1, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s Event_after) Days() uint16 {
-	return s.Struct.Uint16(4)
+	return capnp.Struct(s).Uint16(4)
 }
 
 func (s Event_after) SetDays(v uint16) {
-	s.Struct.SetUint16(4, v)
+	capnp.Struct(s).SetUint16(4, v)
 }
 
 func (s Event) Params() (capnp.Ptr, error) {
-	return s.Struct.Ptr(3)
+	return capnp.Struct(s).Ptr(3)
 }
 
 func (s Event) HasParams() bool {
-	return s.Struct.HasPtr(3)
+	return capnp.Struct(s).HasPtr(3)
 }
 
 func (s Event) SetParams(v capnp.Ptr) error {
-	return s.Struct.SetPtr(3, v)
+	return capnp.Struct(s).SetPtr(3, v)
 }
-
 func (s Event) RunAtStartOfDay() bool {
-	return s.Struct.Bit(48)
+	return capnp.Struct(s).Bit(48)
 }
 
 func (s Event) SetRunAtStartOfDay(v bool) {
-	s.Struct.SetBit(48, v)
+	capnp.Struct(s).SetBit(48, v)
 }
 
 // Event_List is a list of Event.
-type Event_List struct{ capnp.List }
+type Event_List = capnp.StructList[Event]
 
 // NewEvent creates a new list of Event.
 func NewEvent_List(s *capnp.Segment, sz int32) (Event_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 4}, sz)
-	return Event_List{l}, err
-}
-
-func (s Event_List) At(i int) Event { return Event{s.List.Struct(i)} }
-
-func (s Event_List) Set(i int, v Event) error { return s.List.SetStruct(i, v.Struct) }
-
-func (s Event_List) String() string {
-	str, _ := text.MarshalList(0xcf672ab379467704, s.List)
-	return str
+	return capnp.StructList[Event](l), err
 }
 
 // Event_Future is a wrapper for a Event promised by a client call.
 type Event_Future struct{ *capnp.Future }
 
-func (p Event_Future) Struct() (Event, error) {
-	s, err := p.Future.Struct()
-	return Event{s}, err
+func (f Event_Future) Struct() (Event, error) {
+	p, err := f.Future.Ptr()
+	return Event(p.Struct()), err
 }
-
 func (p Event_Future) Info() common.IdInformation_Future {
 	return common.IdInformation_Future{Future: p.Future.Field(0, nil)}
 }
-
 func (p Event_Future) At() Event_at_Future { return Event_at_Future{p.Future} }
 
 // Event_at_Future is a wrapper for a Event_at promised by a client call.
 type Event_at_Future struct{ *capnp.Future }
 
-func (p Event_at_Future) Struct() (Event_at, error) {
-	s, err := p.Future.Struct()
-	return Event_at{s}, err
+func (f Event_at_Future) Struct() (Event_at, error) {
+	p, err := f.Future.Ptr()
+	return Event_at(p.Struct()), err
 }
-
 func (p Event_at_Future) Date() common.Date_Future {
 	return common.Date_Future{Future: p.Future.Field(1, nil)}
 }
-
 func (p Event_Future) Between() Event_between_Future { return Event_between_Future{p.Future} }
 
 // Event_between_Future is a wrapper for a Event_between promised by a client call.
 type Event_between_Future struct{ *capnp.Future }
 
-func (p Event_between_Future) Struct() (Event_between, error) {
-	s, err := p.Future.Struct()
-	return Event_between{s}, err
+func (f Event_between_Future) Struct() (Event_between, error) {
+	p, err := f.Future.Ptr()
+	return Event_between(p.Struct()), err
 }
-
 func (p Event_between_Future) Earliest() common.Date_Future {
 	return common.Date_Future{Future: p.Future.Field(1, nil)}
 }
-
 func (p Event_between_Future) Latest() common.Date_Future {
 	return common.Date_Future{Future: p.Future.Field(2, nil)}
 }
-
 func (p Event_Future) After() Event_after_Future { return Event_after_Future{p.Future} }
 
 // Event_after_Future is a wrapper for a Event_after promised by a client call.
 type Event_after_Future struct{ *capnp.Future }
 
-func (p Event_after_Future) Struct() (Event_after, error) {
-	s, err := p.Future.Struct()
-	return Event_after{s}, err
+func (f Event_after_Future) Struct() (Event_after, error) {
+	p, err := f.Future.Ptr()
+	return Event_after(p.Struct()), err
 }
-
 func (p Event_after_Future) Event() Event_Type_Future {
 	return Event_Type_Future{Future: p.Future.Field(1, nil)}
 }
-
 func (p Event_Future) Params() *capnp.Future {
 	return p.Future.Field(3, nil)
 }
@@ -770,21 +795,10 @@ func Event_ExternalTypeFromString(c string) Event_ExternalType {
 	}
 }
 
-type Event_ExternalType_List struct{ capnp.List }
+type Event_ExternalType_List = capnp.EnumList[Event_ExternalType]
 
 func NewEvent_ExternalType_List(s *capnp.Segment, sz int32) (Event_ExternalType_List, error) {
-	l, err := capnp.NewUInt16List(s, sz)
-	return Event_ExternalType_List{l.List}, err
-}
-
-func (l Event_ExternalType_List) At(i int) Event_ExternalType {
-	ul := capnp.UInt16List{List: l.List}
-	return Event_ExternalType(ul.At(i))
-}
-
-func (l Event_ExternalType_List) Set(i int, v Event_ExternalType) {
-	ul := capnp.UInt16List{List: l.List}
-	ul.Set(i, uint16(v))
+	return capnp.NewEnumList[Event_ExternalType](s, sz)
 }
 
 type Event_PhenoStage uint16
@@ -835,24 +849,13 @@ func Event_PhenoStageFromString(c string) Event_PhenoStage {
 	}
 }
 
-type Event_PhenoStage_List struct{ capnp.List }
+type Event_PhenoStage_List = capnp.EnumList[Event_PhenoStage]
 
 func NewEvent_PhenoStage_List(s *capnp.Segment, sz int32) (Event_PhenoStage_List, error) {
-	l, err := capnp.NewUInt16List(s, sz)
-	return Event_PhenoStage_List{l.List}, err
+	return capnp.NewEnumList[Event_PhenoStage](s, sz)
 }
 
-func (l Event_PhenoStage_List) At(i int) Event_PhenoStage {
-	ul := capnp.UInt16List{List: l.List}
-	return Event_PhenoStage(ul.At(i))
-}
-
-func (l Event_PhenoStage_List) Set(i int, v Event_PhenoStage) {
-	ul := capnp.UInt16List{List: l.List}
-	ul.Set(i, uint16(v))
-}
-
-type Event_Type struct{ capnp.Struct }
+type Event_Type capnp.Struct
 type Event_Type_Which uint16
 
 const (
@@ -877,564 +880,632 @@ const Event_Type_TypeID = 0xb91010c363e568a4
 
 func NewEvent_Type(s *capnp.Segment) (Event_Type, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Event_Type{st}, err
+	return Event_Type(st), err
 }
 
 func NewRootEvent_Type(s *capnp.Segment) (Event_Type, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Event_Type{st}, err
+	return Event_Type(st), err
 }
 
 func ReadRootEvent_Type(msg *capnp.Message) (Event_Type, error) {
 	root, err := msg.Root()
-	return Event_Type{root.Struct()}, err
+	return Event_Type(root.Struct()), err
 }
 
 func (s Event_Type) String() string {
-	str, _ := text.Marshal(0xb91010c363e568a4, s.Struct)
+	str, _ := text.Marshal(0xb91010c363e568a4, capnp.Struct(s))
 	return str
 }
 
+func (s Event_Type) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Event_Type) DecodeFromPtr(p capnp.Ptr) Event_Type {
+	return Event_Type(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Event_Type) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+
 func (s Event_Type) Which() Event_Type_Which {
-	return Event_Type_Which(s.Struct.Uint16(2))
+	return Event_Type_Which(capnp.Struct(s).Uint16(2))
+}
+func (s Event_Type) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Event_Type) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Event_Type) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
 }
 func (s Event_Type) External() Event_ExternalType {
-	if s.Struct.Uint16(2) != 0 {
+	if capnp.Struct(s).Uint16(2) != 0 {
 		panic("Which() != external")
 	}
-	return Event_ExternalType(s.Struct.Uint16(0))
+	return Event_ExternalType(capnp.Struct(s).Uint16(0))
 }
 
 func (s Event_Type) SetExternal(v Event_ExternalType) {
-	s.Struct.SetUint16(2, 0)
-	s.Struct.SetUint16(0, uint16(v))
+	capnp.Struct(s).SetUint16(2, 0)
+	capnp.Struct(s).SetUint16(0, uint16(v))
 }
 
 func (s Event_Type) Internal() Event_PhenoStage {
-	if s.Struct.Uint16(2) != 1 {
+	if capnp.Struct(s).Uint16(2) != 1 {
 		panic("Which() != internal")
 	}
-	return Event_PhenoStage(s.Struct.Uint16(0))
+	return Event_PhenoStage(capnp.Struct(s).Uint16(0))
 }
 
 func (s Event_Type) SetInternal(v Event_PhenoStage) {
-	s.Struct.SetUint16(2, 1)
-	s.Struct.SetUint16(0, uint16(v))
+	capnp.Struct(s).SetUint16(2, 1)
+	capnp.Struct(s).SetUint16(0, uint16(v))
 }
 
 // Event_Type_List is a list of Event_Type.
-type Event_Type_List struct{ capnp.List }
+type Event_Type_List = capnp.StructList[Event_Type]
 
 // NewEvent_Type creates a new list of Event_Type.
 func NewEvent_Type_List(s *capnp.Segment, sz int32) (Event_Type_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0}, sz)
-	return Event_Type_List{l}, err
-}
-
-func (s Event_Type_List) At(i int) Event_Type { return Event_Type{s.List.Struct(i)} }
-
-func (s Event_Type_List) Set(i int, v Event_Type) error { return s.List.SetStruct(i, v.Struct) }
-
-func (s Event_Type_List) String() string {
-	str, _ := text.MarshalList(0xb91010c363e568a4, s.List)
-	return str
+	return capnp.StructList[Event_Type](l), err
 }
 
 // Event_Type_Future is a wrapper for a Event_Type promised by a client call.
 type Event_Type_Future struct{ *capnp.Future }
 
-func (p Event_Type_Future) Struct() (Event_Type, error) {
-	s, err := p.Future.Struct()
-	return Event_Type{s}, err
+func (f Event_Type_Future) Struct() (Event_Type, error) {
+	p, err := f.Future.Ptr()
+	return Event_Type(p.Struct()), err
 }
 
-type Params struct{ capnp.Struct }
+type Params capnp.Struct
 
 // Params_TypeID is the unique identifier for the type Params.
 const Params_TypeID = 0xcb20e21466098705
 
 func NewParams(s *capnp.Segment) (Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Params{st}, err
+	return Params(st), err
 }
 
 func NewRootParams(s *capnp.Segment) (Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Params{st}, err
+	return Params(st), err
 }
 
 func ReadRootParams(msg *capnp.Message) (Params, error) {
 	root, err := msg.Root()
-	return Params{root.Struct()}, err
+	return Params(root.Struct()), err
 }
 
 func (s Params) String() string {
-	str, _ := text.Marshal(0xcb20e21466098705, s.Struct)
+	str, _ := text.Marshal(0xcb20e21466098705, capnp.Struct(s))
 	return str
 }
 
+func (s Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Params) DecodeFromPtr(p capnp.Ptr) Params {
+	return Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+
 // Params_List is a list of Params.
-type Params_List struct{ capnp.List }
+type Params_List = capnp.StructList[Params]
 
 // NewParams creates a new list of Params.
 func NewParams_List(s *capnp.Segment, sz int32) (Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return Params_List{l}, err
-}
-
-func (s Params_List) At(i int) Params { return Params{s.List.Struct(i)} }
-
-func (s Params_List) Set(i int, v Params) error { return s.List.SetStruct(i, v.Struct) }
-
-func (s Params_List) String() string {
-	str, _ := text.MarshalList(0xcb20e21466098705, s.List)
-	return str
+	return capnp.StructList[Params](l), err
 }
 
 // Params_Future is a wrapper for a Params promised by a client call.
 type Params_Future struct{ *capnp.Future }
 
-func (p Params_Future) Struct() (Params, error) {
-	s, err := p.Future.Struct()
-	return Params{s}, err
+func (f Params_Future) Struct() (Params, error) {
+	p, err := f.Future.Ptr()
+	return Params(p.Struct()), err
 }
 
-type Params_Sowing struct{ capnp.Struct }
+type Params_Sowing capnp.Struct
 
 // Params_Sowing_TypeID is the unique identifier for the type Params_Sowing.
 const Params_Sowing_TypeID = 0xc6880d1c13ec14dc
 
 func NewParams_Sowing(s *capnp.Segment) (Params_Sowing, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 2})
-	return Params_Sowing{st}, err
+	return Params_Sowing(st), err
 }
 
 func NewRootParams_Sowing(s *capnp.Segment) (Params_Sowing, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 2})
-	return Params_Sowing{st}, err
+	return Params_Sowing(st), err
 }
 
 func ReadRootParams_Sowing(msg *capnp.Message) (Params_Sowing, error) {
 	root, err := msg.Root()
-	return Params_Sowing{root.Struct()}, err
+	return Params_Sowing(root.Struct()), err
 }
 
 func (s Params_Sowing) String() string {
-	str, _ := text.Marshal(0xc6880d1c13ec14dc, s.Struct)
+	str, _ := text.Marshal(0xc6880d1c13ec14dc, capnp.Struct(s))
 	return str
 }
 
+func (s Params_Sowing) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Params_Sowing) DecodeFromPtr(p capnp.Ptr) Params_Sowing {
+	return Params_Sowing(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Params_Sowing) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Params_Sowing) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Params_Sowing) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Params_Sowing) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Params_Sowing) Cultivar() (string, error) {
-	p, err := s.Struct.Ptr(0)
+	p, err := capnp.Struct(s).Ptr(0)
 	return p.Text(), err
 }
 
 func (s Params_Sowing) HasCultivar() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s Params_Sowing) CultivarBytes() ([]byte, error) {
-	p, err := s.Struct.Ptr(0)
+	p, err := capnp.Struct(s).Ptr(0)
 	return p.TextBytes(), err
 }
 
 func (s Params_Sowing) SetCultivar(v string) error {
-	return s.Struct.SetText(0, v)
+	return capnp.Struct(s).SetText(0, v)
 }
 
 func (s Params_Sowing) PlantDensity() uint16 {
-	return s.Struct.Uint16(0)
+	return capnp.Struct(s).Uint16(0)
 }
 
 func (s Params_Sowing) SetPlantDensity(v uint16) {
-	s.Struct.SetUint16(0, v)
+	capnp.Struct(s).SetUint16(0, v)
 }
 
 func (s Params_Sowing) Crop() crop.Crop {
-	p, _ := s.Struct.Ptr(1)
-	return crop.Crop{Client: p.Interface().Client()}
+	p, _ := capnp.Struct(s).Ptr(1)
+	return crop.Crop(p.Interface().Client())
 }
 
 func (s Params_Sowing) HasCrop() bool {
-	return s.Struct.HasPtr(1)
+	return capnp.Struct(s).HasPtr(1)
 }
 
 func (s Params_Sowing) SetCrop(v crop.Crop) error {
-	if !v.Client.IsValid() {
-		return s.Struct.SetPtr(1, capnp.Ptr{})
+	if !v.IsValid() {
+		return capnp.Struct(s).SetPtr(1, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
-	return s.Struct.SetPtr(1, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	return capnp.Struct(s).SetPtr(1, in.ToPtr())
 }
 
 // Params_Sowing_List is a list of Params_Sowing.
-type Params_Sowing_List struct{ capnp.List }
+type Params_Sowing_List = capnp.StructList[Params_Sowing]
 
 // NewParams_Sowing creates a new list of Params_Sowing.
 func NewParams_Sowing_List(s *capnp.Segment, sz int32) (Params_Sowing_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 2}, sz)
-	return Params_Sowing_List{l}, err
-}
-
-func (s Params_Sowing_List) At(i int) Params_Sowing { return Params_Sowing{s.List.Struct(i)} }
-
-func (s Params_Sowing_List) Set(i int, v Params_Sowing) error { return s.List.SetStruct(i, v.Struct) }
-
-func (s Params_Sowing_List) String() string {
-	str, _ := text.MarshalList(0xc6880d1c13ec14dc, s.List)
-	return str
+	return capnp.StructList[Params_Sowing](l), err
 }
 
 // Params_Sowing_Future is a wrapper for a Params_Sowing promised by a client call.
 type Params_Sowing_Future struct{ *capnp.Future }
 
-func (p Params_Sowing_Future) Struct() (Params_Sowing, error) {
-	s, err := p.Future.Struct()
-	return Params_Sowing{s}, err
+func (f Params_Sowing_Future) Struct() (Params_Sowing, error) {
+	p, err := f.Future.Ptr()
+	return Params_Sowing(p.Struct()), err
 }
-
 func (p Params_Sowing_Future) Crop() crop.Crop {
-	return crop.Crop{Client: p.Future.Field(1, nil).Client()}
+	return crop.Crop(p.Future.Field(1, nil).Client())
 }
 
-type Params_AutomaticSowing struct{ capnp.Struct }
+type Params_AutomaticSowing capnp.Struct
 
 // Params_AutomaticSowing_TypeID is the unique identifier for the type Params_AutomaticSowing.
 const Params_AutomaticSowing_TypeID = 0xd1bfc1c9617d9453
 
 func NewParams_AutomaticSowing(s *capnp.Segment) (Params_AutomaticSowing, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 64, PointerCount: 2})
-	return Params_AutomaticSowing{st}, err
+	return Params_AutomaticSowing(st), err
 }
 
 func NewRootParams_AutomaticSowing(s *capnp.Segment) (Params_AutomaticSowing, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 64, PointerCount: 2})
-	return Params_AutomaticSowing{st}, err
+	return Params_AutomaticSowing(st), err
 }
 
 func ReadRootParams_AutomaticSowing(msg *capnp.Message) (Params_AutomaticSowing, error) {
 	root, err := msg.Root()
-	return Params_AutomaticSowing{root.Struct()}, err
+	return Params_AutomaticSowing(root.Struct()), err
 }
 
 func (s Params_AutomaticSowing) String() string {
-	str, _ := text.Marshal(0xd1bfc1c9617d9453, s.Struct)
+	str, _ := text.Marshal(0xd1bfc1c9617d9453, capnp.Struct(s))
 	return str
 }
 
+func (s Params_AutomaticSowing) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Params_AutomaticSowing) DecodeFromPtr(p capnp.Ptr) Params_AutomaticSowing {
+	return Params_AutomaticSowing(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Params_AutomaticSowing) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Params_AutomaticSowing) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Params_AutomaticSowing) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Params_AutomaticSowing) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Params_AutomaticSowing) Sowing() (Params_Sowing, error) {
-	p, err := s.Struct.Ptr(1)
-	return Params_Sowing{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(1)
+	return Params_Sowing(p.Struct()), err
 }
 
 func (s Params_AutomaticSowing) HasSowing() bool {
-	return s.Struct.HasPtr(1)
+	return capnp.Struct(s).HasPtr(1)
 }
 
 func (s Params_AutomaticSowing) SetSowing(v Params_Sowing) error {
-	return s.Struct.SetPtr(1, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
 }
 
 // NewSowing sets the sowing field to a newly
 // allocated Params_Sowing struct, preferring placement in s's segment.
 func (s Params_AutomaticSowing) NewSowing() (Params_Sowing, error) {
-	ss, err := NewParams_Sowing(s.Struct.Segment())
+	ss, err := NewParams_Sowing(capnp.Struct(s).Segment())
 	if err != nil {
 		return Params_Sowing{}, err
 	}
-	err = s.Struct.SetPtr(1, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s Params_AutomaticSowing) MinTempThreshold() float64 {
-	return math.Float64frombits(s.Struct.Uint64(0))
+	return math.Float64frombits(capnp.Struct(s).Uint64(0))
 }
 
 func (s Params_AutomaticSowing) SetMinTempThreshold(v float64) {
-	s.Struct.SetUint64(0, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(0, math.Float64bits(v))
 }
 
 func (s Params_AutomaticSowing) DaysInTempWindow() uint16 {
-	return s.Struct.Uint16(8)
+	return capnp.Struct(s).Uint16(8)
 }
 
 func (s Params_AutomaticSowing) SetDaysInTempWindow(v uint16) {
-	s.Struct.SetUint16(8, v)
+	capnp.Struct(s).SetUint16(8, v)
 }
 
 func (s Params_AutomaticSowing) MinPercentASW() float64 {
-	return math.Float64frombits(s.Struct.Uint64(16))
+	return math.Float64frombits(capnp.Struct(s).Uint64(16))
 }
 
 func (s Params_AutomaticSowing) SetMinPercentASW(v float64) {
-	s.Struct.SetUint64(16, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(16, math.Float64bits(v))
 }
 
 func (s Params_AutomaticSowing) MaxPercentASW() float64 {
-	return math.Float64frombits(s.Struct.Uint64(24) ^ 0x4059000000000000)
+	return math.Float64frombits(capnp.Struct(s).Uint64(24) ^ 0x4059000000000000)
 }
 
 func (s Params_AutomaticSowing) SetMaxPercentASW(v float64) {
-	s.Struct.SetUint64(24, math.Float64bits(v)^0x4059000000000000)
+	capnp.Struct(s).SetUint64(24, math.Float64bits(v)^0x4059000000000000)
 }
 
 func (s Params_AutomaticSowing) Max3dayPrecipSum() float64 {
-	return math.Float64frombits(s.Struct.Uint64(32))
+	return math.Float64frombits(capnp.Struct(s).Uint64(32))
 }
 
 func (s Params_AutomaticSowing) SetMax3dayPrecipSum(v float64) {
-	s.Struct.SetUint64(32, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(32, math.Float64bits(v))
 }
 
 func (s Params_AutomaticSowing) MaxCurrentDayPrecipSum() float64 {
-	return math.Float64frombits(s.Struct.Uint64(40))
+	return math.Float64frombits(capnp.Struct(s).Uint64(40))
 }
 
 func (s Params_AutomaticSowing) SetMaxCurrentDayPrecipSum(v float64) {
-	s.Struct.SetUint64(40, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(40, math.Float64bits(v))
 }
 
 func (s Params_AutomaticSowing) TempSumAboveBaseTemp() float64 {
-	return math.Float64frombits(s.Struct.Uint64(48))
+	return math.Float64frombits(capnp.Struct(s).Uint64(48))
 }
 
 func (s Params_AutomaticSowing) SetTempSumAboveBaseTemp(v float64) {
-	s.Struct.SetUint64(48, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(48, math.Float64bits(v))
 }
 
 func (s Params_AutomaticSowing) BaseTemp() float64 {
-	return math.Float64frombits(s.Struct.Uint64(56))
+	return math.Float64frombits(capnp.Struct(s).Uint64(56))
 }
 
 func (s Params_AutomaticSowing) SetBaseTemp(v float64) {
-	s.Struct.SetUint64(56, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(56, math.Float64bits(v))
 }
 
 func (s Params_AutomaticSowing) AvgSoilTemp() (Params_AutomaticSowing_AvgSoilTemp, error) {
-	p, err := s.Struct.Ptr(0)
-	return Params_AutomaticSowing_AvgSoilTemp{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return Params_AutomaticSowing_AvgSoilTemp(p.Struct()), err
 }
 
 func (s Params_AutomaticSowing) HasAvgSoilTemp() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s Params_AutomaticSowing) SetAvgSoilTemp(v Params_AutomaticSowing_AvgSoilTemp) error {
-	return s.Struct.SetPtr(0, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewAvgSoilTemp sets the avgSoilTemp field to a newly
 // allocated Params_AutomaticSowing_AvgSoilTemp struct, preferring placement in s's segment.
 func (s Params_AutomaticSowing) NewAvgSoilTemp() (Params_AutomaticSowing_AvgSoilTemp, error) {
-	ss, err := NewParams_AutomaticSowing_AvgSoilTemp(s.Struct.Segment())
+	ss, err := NewParams_AutomaticSowing_AvgSoilTemp(capnp.Struct(s).Segment())
 	if err != nil {
 		return Params_AutomaticSowing_AvgSoilTemp{}, err
 	}
-	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 // Params_AutomaticSowing_List is a list of Params_AutomaticSowing.
-type Params_AutomaticSowing_List struct{ capnp.List }
+type Params_AutomaticSowing_List = capnp.StructList[Params_AutomaticSowing]
 
 // NewParams_AutomaticSowing creates a new list of Params_AutomaticSowing.
 func NewParams_AutomaticSowing_List(s *capnp.Segment, sz int32) (Params_AutomaticSowing_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 64, PointerCount: 2}, sz)
-	return Params_AutomaticSowing_List{l}, err
-}
-
-func (s Params_AutomaticSowing_List) At(i int) Params_AutomaticSowing {
-	return Params_AutomaticSowing{s.List.Struct(i)}
-}
-
-func (s Params_AutomaticSowing_List) Set(i int, v Params_AutomaticSowing) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Params_AutomaticSowing_List) String() string {
-	str, _ := text.MarshalList(0xd1bfc1c9617d9453, s.List)
-	return str
+	return capnp.StructList[Params_AutomaticSowing](l), err
 }
 
 // Params_AutomaticSowing_Future is a wrapper for a Params_AutomaticSowing promised by a client call.
 type Params_AutomaticSowing_Future struct{ *capnp.Future }
 
-func (p Params_AutomaticSowing_Future) Struct() (Params_AutomaticSowing, error) {
-	s, err := p.Future.Struct()
-	return Params_AutomaticSowing{s}, err
+func (f Params_AutomaticSowing_Future) Struct() (Params_AutomaticSowing, error) {
+	p, err := f.Future.Ptr()
+	return Params_AutomaticSowing(p.Struct()), err
 }
-
 func (p Params_AutomaticSowing_Future) Sowing() Params_Sowing_Future {
 	return Params_Sowing_Future{Future: p.Future.Field(1, nil)}
 }
-
 func (p Params_AutomaticSowing_Future) AvgSoilTemp() Params_AutomaticSowing_AvgSoilTemp_Future {
 	return Params_AutomaticSowing_AvgSoilTemp_Future{Future: p.Future.Field(0, nil)}
 }
 
-type Params_AutomaticSowing_AvgSoilTemp struct{ capnp.Struct }
+type Params_AutomaticSowing_AvgSoilTemp capnp.Struct
 
 // Params_AutomaticSowing_AvgSoilTemp_TypeID is the unique identifier for the type Params_AutomaticSowing_AvgSoilTemp.
 const Params_AutomaticSowing_AvgSoilTemp_TypeID = 0x846f567433b186d1
 
 func NewParams_AutomaticSowing_AvgSoilTemp(s *capnp.Segment) (Params_AutomaticSowing_AvgSoilTemp, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 24, PointerCount: 0})
-	return Params_AutomaticSowing_AvgSoilTemp{st}, err
+	return Params_AutomaticSowing_AvgSoilTemp(st), err
 }
 
 func NewRootParams_AutomaticSowing_AvgSoilTemp(s *capnp.Segment) (Params_AutomaticSowing_AvgSoilTemp, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 24, PointerCount: 0})
-	return Params_AutomaticSowing_AvgSoilTemp{st}, err
+	return Params_AutomaticSowing_AvgSoilTemp(st), err
 }
 
 func ReadRootParams_AutomaticSowing_AvgSoilTemp(msg *capnp.Message) (Params_AutomaticSowing_AvgSoilTemp, error) {
 	root, err := msg.Root()
-	return Params_AutomaticSowing_AvgSoilTemp{root.Struct()}, err
+	return Params_AutomaticSowing_AvgSoilTemp(root.Struct()), err
 }
 
 func (s Params_AutomaticSowing_AvgSoilTemp) String() string {
-	str, _ := text.Marshal(0x846f567433b186d1, s.Struct)
+	str, _ := text.Marshal(0x846f567433b186d1, capnp.Struct(s))
 	return str
 }
 
+func (s Params_AutomaticSowing_AvgSoilTemp) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Params_AutomaticSowing_AvgSoilTemp) DecodeFromPtr(p capnp.Ptr) Params_AutomaticSowing_AvgSoilTemp {
+	return Params_AutomaticSowing_AvgSoilTemp(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Params_AutomaticSowing_AvgSoilTemp) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Params_AutomaticSowing_AvgSoilTemp) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Params_AutomaticSowing_AvgSoilTemp) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Params_AutomaticSowing_AvgSoilTemp) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Params_AutomaticSowing_AvgSoilTemp) SoilDepthForAveraging() float64 {
-	return math.Float64frombits(s.Struct.Uint64(0) ^ 0x3fd3333333333333)
+	return math.Float64frombits(capnp.Struct(s).Uint64(0) ^ 0x3fd3333333333333)
 }
 
 func (s Params_AutomaticSowing_AvgSoilTemp) SetSoilDepthForAveraging(v float64) {
-	s.Struct.SetUint64(0, math.Float64bits(v)^0x3fd3333333333333)
+	capnp.Struct(s).SetUint64(0, math.Float64bits(v)^0x3fd3333333333333)
 }
 
 func (s Params_AutomaticSowing_AvgSoilTemp) DaysInSoilTempWindow() uint16 {
-	return s.Struct.Uint16(8)
+	return capnp.Struct(s).Uint16(8)
 }
 
 func (s Params_AutomaticSowing_AvgSoilTemp) SetDaysInSoilTempWindow(v uint16) {
-	s.Struct.SetUint16(8, v)
+	capnp.Struct(s).SetUint16(8, v)
 }
 
 func (s Params_AutomaticSowing_AvgSoilTemp) SowingIfAboveAvgSoilTemp() float64 {
-	return math.Float64frombits(s.Struct.Uint64(16))
+	return math.Float64frombits(capnp.Struct(s).Uint64(16))
 }
 
 func (s Params_AutomaticSowing_AvgSoilTemp) SetSowingIfAboveAvgSoilTemp(v float64) {
-	s.Struct.SetUint64(16, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(16, math.Float64bits(v))
 }
 
 // Params_AutomaticSowing_AvgSoilTemp_List is a list of Params_AutomaticSowing_AvgSoilTemp.
-type Params_AutomaticSowing_AvgSoilTemp_List struct{ capnp.List }
+type Params_AutomaticSowing_AvgSoilTemp_List = capnp.StructList[Params_AutomaticSowing_AvgSoilTemp]
 
 // NewParams_AutomaticSowing_AvgSoilTemp creates a new list of Params_AutomaticSowing_AvgSoilTemp.
 func NewParams_AutomaticSowing_AvgSoilTemp_List(s *capnp.Segment, sz int32) (Params_AutomaticSowing_AvgSoilTemp_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 24, PointerCount: 0}, sz)
-	return Params_AutomaticSowing_AvgSoilTemp_List{l}, err
-}
-
-func (s Params_AutomaticSowing_AvgSoilTemp_List) At(i int) Params_AutomaticSowing_AvgSoilTemp {
-	return Params_AutomaticSowing_AvgSoilTemp{s.List.Struct(i)}
-}
-
-func (s Params_AutomaticSowing_AvgSoilTemp_List) Set(i int, v Params_AutomaticSowing_AvgSoilTemp) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Params_AutomaticSowing_AvgSoilTemp_List) String() string {
-	str, _ := text.MarshalList(0x846f567433b186d1, s.List)
-	return str
+	return capnp.StructList[Params_AutomaticSowing_AvgSoilTemp](l), err
 }
 
 // Params_AutomaticSowing_AvgSoilTemp_Future is a wrapper for a Params_AutomaticSowing_AvgSoilTemp promised by a client call.
 type Params_AutomaticSowing_AvgSoilTemp_Future struct{ *capnp.Future }
 
-func (p Params_AutomaticSowing_AvgSoilTemp_Future) Struct() (Params_AutomaticSowing_AvgSoilTemp, error) {
-	s, err := p.Future.Struct()
-	return Params_AutomaticSowing_AvgSoilTemp{s}, err
+func (f Params_AutomaticSowing_AvgSoilTemp_Future) Struct() (Params_AutomaticSowing_AvgSoilTemp, error) {
+	p, err := f.Future.Ptr()
+	return Params_AutomaticSowing_AvgSoilTemp(p.Struct()), err
 }
 
-type Params_Harvest struct{ capnp.Struct }
+type Params_Harvest capnp.Struct
 
 // Params_Harvest_TypeID is the unique identifier for the type Params_Harvest.
 const Params_Harvest_TypeID = 0x8feb941d70f2a468
 
 func NewParams_Harvest(s *capnp.Segment) (Params_Harvest, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return Params_Harvest{st}, err
+	return Params_Harvest(st), err
 }
 
 func NewRootParams_Harvest(s *capnp.Segment) (Params_Harvest, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return Params_Harvest{st}, err
+	return Params_Harvest(st), err
 }
 
 func ReadRootParams_Harvest(msg *capnp.Message) (Params_Harvest, error) {
 	root, err := msg.Root()
-	return Params_Harvest{root.Struct()}, err
+	return Params_Harvest(root.Struct()), err
 }
 
 func (s Params_Harvest) String() string {
-	str, _ := text.Marshal(0x8feb941d70f2a468, s.Struct)
+	str, _ := text.Marshal(0x8feb941d70f2a468, capnp.Struct(s))
 	return str
 }
 
+func (s Params_Harvest) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Params_Harvest) DecodeFromPtr(p capnp.Ptr) Params_Harvest {
+	return Params_Harvest(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Params_Harvest) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Params_Harvest) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Params_Harvest) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Params_Harvest) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Params_Harvest) Exported() bool {
-	return !s.Struct.Bit(0)
+	return !capnp.Struct(s).Bit(0)
 }
 
 func (s Params_Harvest) SetExported(v bool) {
-	s.Struct.SetBit(0, !v)
+	capnp.Struct(s).SetBit(0, !v)
 }
 
 func (s Params_Harvest) OptCarbMgmtData() (Params_Harvest_OptCarbonMgmtData, error) {
-	p, err := s.Struct.Ptr(0)
-	return Params_Harvest_OptCarbonMgmtData{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return Params_Harvest_OptCarbonMgmtData(p.Struct()), err
 }
 
 func (s Params_Harvest) HasOptCarbMgmtData() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s Params_Harvest) SetOptCarbMgmtData(v Params_Harvest_OptCarbonMgmtData) error {
-	return s.Struct.SetPtr(0, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewOptCarbMgmtData sets the optCarbMgmtData field to a newly
 // allocated Params_Harvest_OptCarbonMgmtData struct, preferring placement in s's segment.
 func (s Params_Harvest) NewOptCarbMgmtData() (Params_Harvest_OptCarbonMgmtData, error) {
-	ss, err := NewParams_Harvest_OptCarbonMgmtData(s.Struct.Segment())
+	ss, err := NewParams_Harvest_OptCarbonMgmtData(capnp.Struct(s).Segment())
 	if err != nil {
 		return Params_Harvest_OptCarbonMgmtData{}, err
 	}
-	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 // Params_Harvest_List is a list of Params_Harvest.
-type Params_Harvest_List struct{ capnp.List }
+type Params_Harvest_List = capnp.StructList[Params_Harvest]
 
 // NewParams_Harvest creates a new list of Params_Harvest.
 func NewParams_Harvest_List(s *capnp.Segment, sz int32) (Params_Harvest_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1}, sz)
-	return Params_Harvest_List{l}, err
-}
-
-func (s Params_Harvest_List) At(i int) Params_Harvest { return Params_Harvest{s.List.Struct(i)} }
-
-func (s Params_Harvest_List) Set(i int, v Params_Harvest) error { return s.List.SetStruct(i, v.Struct) }
-
-func (s Params_Harvest_List) String() string {
-	str, _ := text.MarshalList(0x8feb941d70f2a468, s.List)
-	return str
+	return capnp.StructList[Params_Harvest](l), err
 }
 
 // Params_Harvest_Future is a wrapper for a Params_Harvest promised by a client call.
 type Params_Harvest_Future struct{ *capnp.Future }
 
-func (p Params_Harvest_Future) Struct() (Params_Harvest, error) {
-	s, err := p.Future.Struct()
-	return Params_Harvest{s}, err
+func (f Params_Harvest_Future) Struct() (Params_Harvest, error) {
+	p, err := f.Future.Ptr()
+	return Params_Harvest(p.Struct()), err
 }
-
 func (p Params_Harvest_Future) OptCarbMgmtData() Params_Harvest_OptCarbonMgmtData_Future {
 	return Params_Harvest_OptCarbonMgmtData_Future{Future: p.Future.Field(0, nil)}
 }
@@ -1477,330 +1548,348 @@ func Params_Harvest_CropUsageFromString(c string) Params_Harvest_CropUsage {
 	}
 }
 
-type Params_Harvest_CropUsage_List struct{ capnp.List }
+type Params_Harvest_CropUsage_List = capnp.EnumList[Params_Harvest_CropUsage]
 
 func NewParams_Harvest_CropUsage_List(s *capnp.Segment, sz int32) (Params_Harvest_CropUsage_List, error) {
-	l, err := capnp.NewUInt16List(s, sz)
-	return Params_Harvest_CropUsage_List{l.List}, err
+	return capnp.NewEnumList[Params_Harvest_CropUsage](s, sz)
 }
 
-func (l Params_Harvest_CropUsage_List) At(i int) Params_Harvest_CropUsage {
-	ul := capnp.UInt16List{List: l.List}
-	return Params_Harvest_CropUsage(ul.At(i))
-}
-
-func (l Params_Harvest_CropUsage_List) Set(i int, v Params_Harvest_CropUsage) {
-	ul := capnp.UInt16List{List: l.List}
-	ul.Set(i, uint16(v))
-}
-
-type Params_Harvest_OptCarbonMgmtData struct{ capnp.Struct }
+type Params_Harvest_OptCarbonMgmtData capnp.Struct
 
 // Params_Harvest_OptCarbonMgmtData_TypeID is the unique identifier for the type Params_Harvest_OptCarbonMgmtData.
 const Params_Harvest_OptCarbonMgmtData_TypeID = 0xaf49ab9bbe76e375
 
 func NewParams_Harvest_OptCarbonMgmtData(s *capnp.Segment) (Params_Harvest_OptCarbonMgmtData, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 40, PointerCount: 0})
-	return Params_Harvest_OptCarbonMgmtData{st}, err
+	return Params_Harvest_OptCarbonMgmtData(st), err
 }
 
 func NewRootParams_Harvest_OptCarbonMgmtData(s *capnp.Segment) (Params_Harvest_OptCarbonMgmtData, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 40, PointerCount: 0})
-	return Params_Harvest_OptCarbonMgmtData{st}, err
+	return Params_Harvest_OptCarbonMgmtData(st), err
 }
 
 func ReadRootParams_Harvest_OptCarbonMgmtData(msg *capnp.Message) (Params_Harvest_OptCarbonMgmtData, error) {
 	root, err := msg.Root()
-	return Params_Harvest_OptCarbonMgmtData{root.Struct()}, err
+	return Params_Harvest_OptCarbonMgmtData(root.Struct()), err
 }
 
 func (s Params_Harvest_OptCarbonMgmtData) String() string {
-	str, _ := text.Marshal(0xaf49ab9bbe76e375, s.Struct)
+	str, _ := text.Marshal(0xaf49ab9bbe76e375, capnp.Struct(s))
 	return str
 }
 
+func (s Params_Harvest_OptCarbonMgmtData) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Params_Harvest_OptCarbonMgmtData) DecodeFromPtr(p capnp.Ptr) Params_Harvest_OptCarbonMgmtData {
+	return Params_Harvest_OptCarbonMgmtData(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Params_Harvest_OptCarbonMgmtData) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Params_Harvest_OptCarbonMgmtData) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Params_Harvest_OptCarbonMgmtData) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Params_Harvest_OptCarbonMgmtData) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Params_Harvest_OptCarbonMgmtData) OptCarbonConservation() bool {
-	return s.Struct.Bit(0)
+	return capnp.Struct(s).Bit(0)
 }
 
 func (s Params_Harvest_OptCarbonMgmtData) SetOptCarbonConservation(v bool) {
-	s.Struct.SetBit(0, v)
+	capnp.Struct(s).SetBit(0, v)
 }
 
 func (s Params_Harvest_OptCarbonMgmtData) CropImpactOnHumusBalance() float64 {
-	return math.Float64frombits(s.Struct.Uint64(8))
+	return math.Float64frombits(capnp.Struct(s).Uint64(8))
 }
 
 func (s Params_Harvest_OptCarbonMgmtData) SetCropImpactOnHumusBalance(v float64) {
-	s.Struct.SetUint64(8, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(8, math.Float64bits(v))
 }
 
 func (s Params_Harvest_OptCarbonMgmtData) CropUsage() Params_Harvest_CropUsage {
-	return Params_Harvest_CropUsage(s.Struct.Uint16(2) ^ 1)
+	return Params_Harvest_CropUsage(capnp.Struct(s).Uint16(2) ^ 1)
 }
 
 func (s Params_Harvest_OptCarbonMgmtData) SetCropUsage(v Params_Harvest_CropUsage) {
-	s.Struct.SetUint16(2, uint16(v)^1)
+	capnp.Struct(s).SetUint16(2, uint16(v)^1)
 }
 
 func (s Params_Harvest_OptCarbonMgmtData) ResidueHeq() float64 {
-	return math.Float64frombits(s.Struct.Uint64(16))
+	return math.Float64frombits(capnp.Struct(s).Uint64(16))
 }
 
 func (s Params_Harvest_OptCarbonMgmtData) SetResidueHeq(v float64) {
-	s.Struct.SetUint64(16, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(16, math.Float64bits(v))
 }
 
 func (s Params_Harvest_OptCarbonMgmtData) OrganicFertilizerHeq() float64 {
-	return math.Float64frombits(s.Struct.Uint64(24))
+	return math.Float64frombits(capnp.Struct(s).Uint64(24))
 }
 
 func (s Params_Harvest_OptCarbonMgmtData) SetOrganicFertilizerHeq(v float64) {
-	s.Struct.SetUint64(24, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(24, math.Float64bits(v))
 }
 
 func (s Params_Harvest_OptCarbonMgmtData) MaxResidueRecoverFraction() float64 {
-	return math.Float64frombits(s.Struct.Uint64(32))
+	return math.Float64frombits(capnp.Struct(s).Uint64(32))
 }
 
 func (s Params_Harvest_OptCarbonMgmtData) SetMaxResidueRecoverFraction(v float64) {
-	s.Struct.SetUint64(32, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(32, math.Float64bits(v))
 }
 
 // Params_Harvest_OptCarbonMgmtData_List is a list of Params_Harvest_OptCarbonMgmtData.
-type Params_Harvest_OptCarbonMgmtData_List struct{ capnp.List }
+type Params_Harvest_OptCarbonMgmtData_List = capnp.StructList[Params_Harvest_OptCarbonMgmtData]
 
 // NewParams_Harvest_OptCarbonMgmtData creates a new list of Params_Harvest_OptCarbonMgmtData.
 func NewParams_Harvest_OptCarbonMgmtData_List(s *capnp.Segment, sz int32) (Params_Harvest_OptCarbonMgmtData_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 40, PointerCount: 0}, sz)
-	return Params_Harvest_OptCarbonMgmtData_List{l}, err
-}
-
-func (s Params_Harvest_OptCarbonMgmtData_List) At(i int) Params_Harvest_OptCarbonMgmtData {
-	return Params_Harvest_OptCarbonMgmtData{s.List.Struct(i)}
-}
-
-func (s Params_Harvest_OptCarbonMgmtData_List) Set(i int, v Params_Harvest_OptCarbonMgmtData) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Params_Harvest_OptCarbonMgmtData_List) String() string {
-	str, _ := text.MarshalList(0xaf49ab9bbe76e375, s.List)
-	return str
+	return capnp.StructList[Params_Harvest_OptCarbonMgmtData](l), err
 }
 
 // Params_Harvest_OptCarbonMgmtData_Future is a wrapper for a Params_Harvest_OptCarbonMgmtData promised by a client call.
 type Params_Harvest_OptCarbonMgmtData_Future struct{ *capnp.Future }
 
-func (p Params_Harvest_OptCarbonMgmtData_Future) Struct() (Params_Harvest_OptCarbonMgmtData, error) {
-	s, err := p.Future.Struct()
-	return Params_Harvest_OptCarbonMgmtData{s}, err
+func (f Params_Harvest_OptCarbonMgmtData_Future) Struct() (Params_Harvest_OptCarbonMgmtData, error) {
+	p, err := f.Future.Ptr()
+	return Params_Harvest_OptCarbonMgmtData(p.Struct()), err
 }
 
-type Params_AutomaticHarvest struct{ capnp.Struct }
+type Params_AutomaticHarvest capnp.Struct
 
 // Params_AutomaticHarvest_TypeID is the unique identifier for the type Params_AutomaticHarvest.
 const Params_AutomaticHarvest_TypeID = 0xf805d22fabb80702
 
 func NewParams_AutomaticHarvest(s *capnp.Segment) (Params_AutomaticHarvest, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 40, PointerCount: 1})
-	return Params_AutomaticHarvest{st}, err
+	return Params_AutomaticHarvest(st), err
 }
 
 func NewRootParams_AutomaticHarvest(s *capnp.Segment) (Params_AutomaticHarvest, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 40, PointerCount: 1})
-	return Params_AutomaticHarvest{st}, err
+	return Params_AutomaticHarvest(st), err
 }
 
 func ReadRootParams_AutomaticHarvest(msg *capnp.Message) (Params_AutomaticHarvest, error) {
 	root, err := msg.Root()
-	return Params_AutomaticHarvest{root.Struct()}, err
+	return Params_AutomaticHarvest(root.Struct()), err
 }
 
 func (s Params_AutomaticHarvest) String() string {
-	str, _ := text.Marshal(0xf805d22fabb80702, s.Struct)
+	str, _ := text.Marshal(0xf805d22fabb80702, capnp.Struct(s))
 	return str
 }
 
+func (s Params_AutomaticHarvest) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Params_AutomaticHarvest) DecodeFromPtr(p capnp.Ptr) Params_AutomaticHarvest {
+	return Params_AutomaticHarvest(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Params_AutomaticHarvest) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Params_AutomaticHarvest) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Params_AutomaticHarvest) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Params_AutomaticHarvest) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Params_AutomaticHarvest) Harvest() (Params_Harvest, error) {
-	p, err := s.Struct.Ptr(0)
-	return Params_Harvest{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return Params_Harvest(p.Struct()), err
 }
 
 func (s Params_AutomaticHarvest) HasHarvest() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s Params_AutomaticHarvest) SetHarvest(v Params_Harvest) error {
-	return s.Struct.SetPtr(0, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewHarvest sets the harvest field to a newly
 // allocated Params_Harvest struct, preferring placement in s's segment.
 func (s Params_AutomaticHarvest) NewHarvest() (Params_Harvest, error) {
-	ss, err := NewParams_Harvest(s.Struct.Segment())
+	ss, err := NewParams_Harvest(capnp.Struct(s).Segment())
 	if err != nil {
 		return Params_Harvest{}, err
 	}
-	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s Params_AutomaticHarvest) MinPercentASW() float64 {
-	return math.Float64frombits(s.Struct.Uint64(0))
+	return math.Float64frombits(capnp.Struct(s).Uint64(0))
 }
 
 func (s Params_AutomaticHarvest) SetMinPercentASW(v float64) {
-	s.Struct.SetUint64(0, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(0, math.Float64bits(v))
 }
 
 func (s Params_AutomaticHarvest) MaxPercentASW() float64 {
-	return math.Float64frombits(s.Struct.Uint64(8) ^ 0x4059000000000000)
+	return math.Float64frombits(capnp.Struct(s).Uint64(8) ^ 0x4059000000000000)
 }
 
 func (s Params_AutomaticHarvest) SetMaxPercentASW(v float64) {
-	s.Struct.SetUint64(8, math.Float64bits(v)^0x4059000000000000)
+	capnp.Struct(s).SetUint64(8, math.Float64bits(v)^0x4059000000000000)
 }
 
 func (s Params_AutomaticHarvest) Max3dayPrecipSum() float64 {
-	return math.Float64frombits(s.Struct.Uint64(16))
+	return math.Float64frombits(capnp.Struct(s).Uint64(16))
 }
 
 func (s Params_AutomaticHarvest) SetMax3dayPrecipSum(v float64) {
-	s.Struct.SetUint64(16, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(16, math.Float64bits(v))
 }
 
 func (s Params_AutomaticHarvest) MaxCurrentDayPrecipSum() float64 {
-	return math.Float64frombits(s.Struct.Uint64(24))
+	return math.Float64frombits(capnp.Struct(s).Uint64(24))
 }
 
 func (s Params_AutomaticHarvest) SetMaxCurrentDayPrecipSum(v float64) {
-	s.Struct.SetUint64(24, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(24, math.Float64bits(v))
 }
 
 func (s Params_AutomaticHarvest) HarvestTime() Event_PhenoStage {
-	return Event_PhenoStage(s.Struct.Uint16(32) ^ 3)
+	return Event_PhenoStage(capnp.Struct(s).Uint16(32) ^ 3)
 }
 
 func (s Params_AutomaticHarvest) SetHarvestTime(v Event_PhenoStage) {
-	s.Struct.SetUint16(32, uint16(v)^3)
+	capnp.Struct(s).SetUint16(32, uint16(v)^3)
 }
 
 // Params_AutomaticHarvest_List is a list of Params_AutomaticHarvest.
-type Params_AutomaticHarvest_List struct{ capnp.List }
+type Params_AutomaticHarvest_List = capnp.StructList[Params_AutomaticHarvest]
 
 // NewParams_AutomaticHarvest creates a new list of Params_AutomaticHarvest.
 func NewParams_AutomaticHarvest_List(s *capnp.Segment, sz int32) (Params_AutomaticHarvest_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 40, PointerCount: 1}, sz)
-	return Params_AutomaticHarvest_List{l}, err
-}
-
-func (s Params_AutomaticHarvest_List) At(i int) Params_AutomaticHarvest {
-	return Params_AutomaticHarvest{s.List.Struct(i)}
-}
-
-func (s Params_AutomaticHarvest_List) Set(i int, v Params_AutomaticHarvest) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Params_AutomaticHarvest_List) String() string {
-	str, _ := text.MarshalList(0xf805d22fabb80702, s.List)
-	return str
+	return capnp.StructList[Params_AutomaticHarvest](l), err
 }
 
 // Params_AutomaticHarvest_Future is a wrapper for a Params_AutomaticHarvest promised by a client call.
 type Params_AutomaticHarvest_Future struct{ *capnp.Future }
 
-func (p Params_AutomaticHarvest_Future) Struct() (Params_AutomaticHarvest, error) {
-	s, err := p.Future.Struct()
-	return Params_AutomaticHarvest{s}, err
+func (f Params_AutomaticHarvest_Future) Struct() (Params_AutomaticHarvest, error) {
+	p, err := f.Future.Ptr()
+	return Params_AutomaticHarvest(p.Struct()), err
 }
-
 func (p Params_AutomaticHarvest_Future) Harvest() Params_Harvest_Future {
 	return Params_Harvest_Future{Future: p.Future.Field(0, nil)}
 }
 
-type Params_Cutting struct{ capnp.Struct }
+type Params_Cutting capnp.Struct
 
 // Params_Cutting_TypeID is the unique identifier for the type Params_Cutting.
 const Params_Cutting_TypeID = 0x8460dac6abff7ed9
 
 func NewParams_Cutting(s *capnp.Segment) (Params_Cutting, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return Params_Cutting{st}, err
+	return Params_Cutting(st), err
 }
 
 func NewRootParams_Cutting(s *capnp.Segment) (Params_Cutting, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return Params_Cutting{st}, err
+	return Params_Cutting(st), err
 }
 
 func ReadRootParams_Cutting(msg *capnp.Message) (Params_Cutting, error) {
 	root, err := msg.Root()
-	return Params_Cutting{root.Struct()}, err
+	return Params_Cutting(root.Struct()), err
 }
 
 func (s Params_Cutting) String() string {
-	str, _ := text.Marshal(0x8460dac6abff7ed9, s.Struct)
+	str, _ := text.Marshal(0x8460dac6abff7ed9, capnp.Struct(s))
 	return str
 }
 
+func (s Params_Cutting) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Params_Cutting) DecodeFromPtr(p capnp.Ptr) Params_Cutting {
+	return Params_Cutting(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Params_Cutting) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Params_Cutting) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Params_Cutting) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Params_Cutting) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Params_Cutting) CuttingSpec() (Params_Cutting_Spec_List, error) {
-	p, err := s.Struct.Ptr(0)
-	return Params_Cutting_Spec_List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return Params_Cutting_Spec_List(p.List()), err
 }
 
 func (s Params_Cutting) HasCuttingSpec() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s Params_Cutting) SetCuttingSpec(v Params_Cutting_Spec_List) error {
-	return s.Struct.SetPtr(0, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
 }
 
 // NewCuttingSpec sets the cuttingSpec field to a newly
 // allocated Params_Cutting_Spec_List, preferring placement in s's segment.
 func (s Params_Cutting) NewCuttingSpec(n int32) (Params_Cutting_Spec_List, error) {
-	l, err := NewParams_Cutting_Spec_List(s.Struct.Segment(), n)
+	l, err := NewParams_Cutting_Spec_List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return Params_Cutting_Spec_List{}, err
 	}
-	err = s.Struct.SetPtr(0, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
 	return l, err
 }
-
 func (s Params_Cutting) CutMaxAssimilationRatePercentage() float64 {
-	return math.Float64frombits(s.Struct.Uint64(0))
+	return math.Float64frombits(capnp.Struct(s).Uint64(0))
 }
 
 func (s Params_Cutting) SetCutMaxAssimilationRatePercentage(v float64) {
-	s.Struct.SetUint64(0, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(0, math.Float64bits(v))
 }
 
 // Params_Cutting_List is a list of Params_Cutting.
-type Params_Cutting_List struct{ capnp.List }
+type Params_Cutting_List = capnp.StructList[Params_Cutting]
 
 // NewParams_Cutting creates a new list of Params_Cutting.
 func NewParams_Cutting_List(s *capnp.Segment, sz int32) (Params_Cutting_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1}, sz)
-	return Params_Cutting_List{l}, err
-}
-
-func (s Params_Cutting_List) At(i int) Params_Cutting { return Params_Cutting{s.List.Struct(i)} }
-
-func (s Params_Cutting_List) Set(i int, v Params_Cutting) error { return s.List.SetStruct(i, v.Struct) }
-
-func (s Params_Cutting_List) String() string {
-	str, _ := text.MarshalList(0x8460dac6abff7ed9, s.List)
-	return str
+	return capnp.StructList[Params_Cutting](l), err
 }
 
 // Params_Cutting_Future is a wrapper for a Params_Cutting promised by a client call.
 type Params_Cutting_Future struct{ *capnp.Future }
 
-func (p Params_Cutting_Future) Struct() (Params_Cutting, error) {
-	s, err := p.Future.Struct()
-	return Params_Cutting{s}, err
+func (f Params_Cutting_Future) Struct() (Params_Cutting, error) {
+	p, err := f.Future.Ptr()
+	return Params_Cutting(p.Struct()), err
 }
 
 type Params_Cutting_CL uint16
@@ -1841,21 +1930,10 @@ func Params_Cutting_CLFromString(c string) Params_Cutting_CL {
 	}
 }
 
-type Params_Cutting_CL_List struct{ capnp.List }
+type Params_Cutting_CL_List = capnp.EnumList[Params_Cutting_CL]
 
 func NewParams_Cutting_CL_List(s *capnp.Segment, sz int32) (Params_Cutting_CL_List, error) {
-	l, err := capnp.NewUInt16List(s, sz)
-	return Params_Cutting_CL_List{l.List}, err
-}
-
-func (l Params_Cutting_CL_List) At(i int) Params_Cutting_CL {
-	ul := capnp.UInt16List{List: l.List}
-	return Params_Cutting_CL(ul.At(i))
-}
-
-func (l Params_Cutting_CL_List) Set(i int, v Params_Cutting_CL) {
-	ul := capnp.UInt16List{List: l.List}
-	ul.Set(i, uint16(v))
+	return capnp.NewEnumList[Params_Cutting_CL](s, sz)
 }
 
 type Params_Cutting_Unit uint16
@@ -1901,1030 +1979,1108 @@ func Params_Cutting_UnitFromString(c string) Params_Cutting_Unit {
 	}
 }
 
-type Params_Cutting_Unit_List struct{ capnp.List }
+type Params_Cutting_Unit_List = capnp.EnumList[Params_Cutting_Unit]
 
 func NewParams_Cutting_Unit_List(s *capnp.Segment, sz int32) (Params_Cutting_Unit_List, error) {
-	l, err := capnp.NewUInt16List(s, sz)
-	return Params_Cutting_Unit_List{l.List}, err
+	return capnp.NewEnumList[Params_Cutting_Unit](s, sz)
 }
 
-func (l Params_Cutting_Unit_List) At(i int) Params_Cutting_Unit {
-	ul := capnp.UInt16List{List: l.List}
-	return Params_Cutting_Unit(ul.At(i))
-}
-
-func (l Params_Cutting_Unit_List) Set(i int, v Params_Cutting_Unit) {
-	ul := capnp.UInt16List{List: l.List}
-	ul.Set(i, uint16(v))
-}
-
-type Params_Cutting_Spec struct{ capnp.Struct }
+type Params_Cutting_Spec capnp.Struct
 
 // Params_Cutting_Spec_TypeID is the unique identifier for the type Params_Cutting_Spec.
 const Params_Cutting_Spec_TypeID = 0xfae5dcfccbb93a23
 
 func NewParams_Cutting_Spec(s *capnp.Segment) (Params_Cutting_Spec, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 24, PointerCount: 0})
-	return Params_Cutting_Spec{st}, err
+	return Params_Cutting_Spec(st), err
 }
 
 func NewRootParams_Cutting_Spec(s *capnp.Segment) (Params_Cutting_Spec, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 24, PointerCount: 0})
-	return Params_Cutting_Spec{st}, err
+	return Params_Cutting_Spec(st), err
 }
 
 func ReadRootParams_Cutting_Spec(msg *capnp.Message) (Params_Cutting_Spec, error) {
 	root, err := msg.Root()
-	return Params_Cutting_Spec{root.Struct()}, err
+	return Params_Cutting_Spec(root.Struct()), err
 }
 
 func (s Params_Cutting_Spec) String() string {
-	str, _ := text.Marshal(0xfae5dcfccbb93a23, s.Struct)
+	str, _ := text.Marshal(0xfae5dcfccbb93a23, capnp.Struct(s))
 	return str
 }
 
+func (s Params_Cutting_Spec) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Params_Cutting_Spec) DecodeFromPtr(p capnp.Ptr) Params_Cutting_Spec {
+	return Params_Cutting_Spec(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Params_Cutting_Spec) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Params_Cutting_Spec) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Params_Cutting_Spec) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Params_Cutting_Spec) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Params_Cutting_Spec) Organ() PlantOrgan {
-	return PlantOrgan(s.Struct.Uint16(0))
+	return PlantOrgan(capnp.Struct(s).Uint16(0))
 }
 
 func (s Params_Cutting_Spec) SetOrgan(v PlantOrgan) {
-	s.Struct.SetUint16(0, uint16(v))
+	capnp.Struct(s).SetUint16(0, uint16(v))
 }
 
 func (s Params_Cutting_Spec) Value() float64 {
-	return math.Float64frombits(s.Struct.Uint64(8))
+	return math.Float64frombits(capnp.Struct(s).Uint64(8))
 }
 
 func (s Params_Cutting_Spec) SetValue(v float64) {
-	s.Struct.SetUint64(8, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(8, math.Float64bits(v))
 }
 
 func (s Params_Cutting_Spec) Unit() Params_Cutting_Unit {
-	return Params_Cutting_Unit(s.Struct.Uint16(2))
+	return Params_Cutting_Unit(capnp.Struct(s).Uint16(2))
 }
 
 func (s Params_Cutting_Spec) SetUnit(v Params_Cutting_Unit) {
-	s.Struct.SetUint16(2, uint16(v))
+	capnp.Struct(s).SetUint16(2, uint16(v))
 }
 
 func (s Params_Cutting_Spec) CutOrLeft() Params_Cutting_CL {
-	return Params_Cutting_CL(s.Struct.Uint16(4))
+	return Params_Cutting_CL(capnp.Struct(s).Uint16(4))
 }
 
 func (s Params_Cutting_Spec) SetCutOrLeft(v Params_Cutting_CL) {
-	s.Struct.SetUint16(4, uint16(v))
+	capnp.Struct(s).SetUint16(4, uint16(v))
 }
 
 func (s Params_Cutting_Spec) ExportPercentage() float64 {
-	return math.Float64frombits(s.Struct.Uint64(16) ^ 0x4059000000000000)
+	return math.Float64frombits(capnp.Struct(s).Uint64(16) ^ 0x4059000000000000)
 }
 
 func (s Params_Cutting_Spec) SetExportPercentage(v float64) {
-	s.Struct.SetUint64(16, math.Float64bits(v)^0x4059000000000000)
+	capnp.Struct(s).SetUint64(16, math.Float64bits(v)^0x4059000000000000)
 }
 
 // Params_Cutting_Spec_List is a list of Params_Cutting_Spec.
-type Params_Cutting_Spec_List struct{ capnp.List }
+type Params_Cutting_Spec_List = capnp.StructList[Params_Cutting_Spec]
 
 // NewParams_Cutting_Spec creates a new list of Params_Cutting_Spec.
 func NewParams_Cutting_Spec_List(s *capnp.Segment, sz int32) (Params_Cutting_Spec_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 24, PointerCount: 0}, sz)
-	return Params_Cutting_Spec_List{l}, err
-}
-
-func (s Params_Cutting_Spec_List) At(i int) Params_Cutting_Spec {
-	return Params_Cutting_Spec{s.List.Struct(i)}
-}
-
-func (s Params_Cutting_Spec_List) Set(i int, v Params_Cutting_Spec) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Params_Cutting_Spec_List) String() string {
-	str, _ := text.MarshalList(0xfae5dcfccbb93a23, s.List)
-	return str
+	return capnp.StructList[Params_Cutting_Spec](l), err
 }
 
 // Params_Cutting_Spec_Future is a wrapper for a Params_Cutting_Spec promised by a client call.
 type Params_Cutting_Spec_Future struct{ *capnp.Future }
 
-func (p Params_Cutting_Spec_Future) Struct() (Params_Cutting_Spec, error) {
-	s, err := p.Future.Struct()
-	return Params_Cutting_Spec{s}, err
+func (f Params_Cutting_Spec_Future) Struct() (Params_Cutting_Spec, error) {
+	p, err := f.Future.Ptr()
+	return Params_Cutting_Spec(p.Struct()), err
 }
 
-type Params_MineralFertilization struct{ capnp.Struct }
+type Params_MineralFertilization capnp.Struct
 
 // Params_MineralFertilization_TypeID is the unique identifier for the type Params_MineralFertilization.
 const Params_MineralFertilization_TypeID = 0xa363d226e178debd
 
 func NewParams_MineralFertilization(s *capnp.Segment) (Params_MineralFertilization, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return Params_MineralFertilization{st}, err
+	return Params_MineralFertilization(st), err
 }
 
 func NewRootParams_MineralFertilization(s *capnp.Segment) (Params_MineralFertilization, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return Params_MineralFertilization{st}, err
+	return Params_MineralFertilization(st), err
 }
 
 func ReadRootParams_MineralFertilization(msg *capnp.Message) (Params_MineralFertilization, error) {
 	root, err := msg.Root()
-	return Params_MineralFertilization{root.Struct()}, err
+	return Params_MineralFertilization(root.Struct()), err
 }
 
 func (s Params_MineralFertilization) String() string {
-	str, _ := text.Marshal(0xa363d226e178debd, s.Struct)
+	str, _ := text.Marshal(0xa363d226e178debd, capnp.Struct(s))
 	return str
 }
 
+func (s Params_MineralFertilization) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Params_MineralFertilization) DecodeFromPtr(p capnp.Ptr) Params_MineralFertilization {
+	return Params_MineralFertilization(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Params_MineralFertilization) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Params_MineralFertilization) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Params_MineralFertilization) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Params_MineralFertilization) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Params_MineralFertilization) Partition() (Params_MineralFertilization_Parameters, error) {
-	p, err := s.Struct.Ptr(0)
-	return Params_MineralFertilization_Parameters{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return Params_MineralFertilization_Parameters(p.Struct()), err
 }
 
 func (s Params_MineralFertilization) HasPartition() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s Params_MineralFertilization) SetPartition(v Params_MineralFertilization_Parameters) error {
-	return s.Struct.SetPtr(0, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewPartition sets the partition field to a newly
 // allocated Params_MineralFertilization_Parameters struct, preferring placement in s's segment.
 func (s Params_MineralFertilization) NewPartition() (Params_MineralFertilization_Parameters, error) {
-	ss, err := NewParams_MineralFertilization_Parameters(s.Struct.Segment())
+	ss, err := NewParams_MineralFertilization_Parameters(capnp.Struct(s).Segment())
 	if err != nil {
 		return Params_MineralFertilization_Parameters{}, err
 	}
-	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s Params_MineralFertilization) Amount() float64 {
-	return math.Float64frombits(s.Struct.Uint64(0))
+	return math.Float64frombits(capnp.Struct(s).Uint64(0))
 }
 
 func (s Params_MineralFertilization) SetAmount(v float64) {
-	s.Struct.SetUint64(0, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(0, math.Float64bits(v))
 }
 
 // Params_MineralFertilization_List is a list of Params_MineralFertilization.
-type Params_MineralFertilization_List struct{ capnp.List }
+type Params_MineralFertilization_List = capnp.StructList[Params_MineralFertilization]
 
 // NewParams_MineralFertilization creates a new list of Params_MineralFertilization.
 func NewParams_MineralFertilization_List(s *capnp.Segment, sz int32) (Params_MineralFertilization_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1}, sz)
-	return Params_MineralFertilization_List{l}, err
-}
-
-func (s Params_MineralFertilization_List) At(i int) Params_MineralFertilization {
-	return Params_MineralFertilization{s.List.Struct(i)}
-}
-
-func (s Params_MineralFertilization_List) Set(i int, v Params_MineralFertilization) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Params_MineralFertilization_List) String() string {
-	str, _ := text.MarshalList(0xa363d226e178debd, s.List)
-	return str
+	return capnp.StructList[Params_MineralFertilization](l), err
 }
 
 // Params_MineralFertilization_Future is a wrapper for a Params_MineralFertilization promised by a client call.
 type Params_MineralFertilization_Future struct{ *capnp.Future }
 
-func (p Params_MineralFertilization_Future) Struct() (Params_MineralFertilization, error) {
-	s, err := p.Future.Struct()
-	return Params_MineralFertilization{s}, err
+func (f Params_MineralFertilization_Future) Struct() (Params_MineralFertilization, error) {
+	p, err := f.Future.Ptr()
+	return Params_MineralFertilization(p.Struct()), err
 }
-
 func (p Params_MineralFertilization_Future) Partition() Params_MineralFertilization_Parameters_Future {
 	return Params_MineralFertilization_Parameters_Future{Future: p.Future.Field(0, nil)}
 }
 
-type Params_MineralFertilization_Parameters struct{ capnp.Struct }
+type Params_MineralFertilization_Parameters capnp.Struct
 
 // Params_MineralFertilization_Parameters_TypeID is the unique identifier for the type Params_MineralFertilization_Parameters.
 const Params_MineralFertilization_Parameters_TypeID = 0xc75b5ef2e9b05c2d
 
 func NewParams_MineralFertilization_Parameters(s *capnp.Segment) (Params_MineralFertilization_Parameters, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 24, PointerCount: 2})
-	return Params_MineralFertilization_Parameters{st}, err
+	return Params_MineralFertilization_Parameters(st), err
 }
 
 func NewRootParams_MineralFertilization_Parameters(s *capnp.Segment) (Params_MineralFertilization_Parameters, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 24, PointerCount: 2})
-	return Params_MineralFertilization_Parameters{st}, err
+	return Params_MineralFertilization_Parameters(st), err
 }
 
 func ReadRootParams_MineralFertilization_Parameters(msg *capnp.Message) (Params_MineralFertilization_Parameters, error) {
 	root, err := msg.Root()
-	return Params_MineralFertilization_Parameters{root.Struct()}, err
+	return Params_MineralFertilization_Parameters(root.Struct()), err
 }
 
 func (s Params_MineralFertilization_Parameters) String() string {
-	str, _ := text.Marshal(0xc75b5ef2e9b05c2d, s.Struct)
+	str, _ := text.Marshal(0xc75b5ef2e9b05c2d, capnp.Struct(s))
 	return str
 }
 
+func (s Params_MineralFertilization_Parameters) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Params_MineralFertilization_Parameters) DecodeFromPtr(p capnp.Ptr) Params_MineralFertilization_Parameters {
+	return Params_MineralFertilization_Parameters(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Params_MineralFertilization_Parameters) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Params_MineralFertilization_Parameters) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Params_MineralFertilization_Parameters) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Params_MineralFertilization_Parameters) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Params_MineralFertilization_Parameters) Id() (string, error) {
-	p, err := s.Struct.Ptr(0)
+	p, err := capnp.Struct(s).Ptr(0)
 	return p.Text(), err
 }
 
 func (s Params_MineralFertilization_Parameters) HasId() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s Params_MineralFertilization_Parameters) IdBytes() ([]byte, error) {
-	p, err := s.Struct.Ptr(0)
+	p, err := capnp.Struct(s).Ptr(0)
 	return p.TextBytes(), err
 }
 
 func (s Params_MineralFertilization_Parameters) SetId(v string) error {
-	return s.Struct.SetText(0, v)
+	return capnp.Struct(s).SetText(0, v)
 }
 
 func (s Params_MineralFertilization_Parameters) Name() (string, error) {
-	p, err := s.Struct.Ptr(1)
+	p, err := capnp.Struct(s).Ptr(1)
 	return p.Text(), err
 }
 
 func (s Params_MineralFertilization_Parameters) HasName() bool {
-	return s.Struct.HasPtr(1)
+	return capnp.Struct(s).HasPtr(1)
 }
 
 func (s Params_MineralFertilization_Parameters) NameBytes() ([]byte, error) {
-	p, err := s.Struct.Ptr(1)
+	p, err := capnp.Struct(s).Ptr(1)
 	return p.TextBytes(), err
 }
 
 func (s Params_MineralFertilization_Parameters) SetName(v string) error {
-	return s.Struct.SetText(1, v)
+	return capnp.Struct(s).SetText(1, v)
 }
 
 func (s Params_MineralFertilization_Parameters) Carbamid() float64 {
-	return math.Float64frombits(s.Struct.Uint64(0))
+	return math.Float64frombits(capnp.Struct(s).Uint64(0))
 }
 
 func (s Params_MineralFertilization_Parameters) SetCarbamid(v float64) {
-	s.Struct.SetUint64(0, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(0, math.Float64bits(v))
 }
 
 func (s Params_MineralFertilization_Parameters) Nh4() float64 {
-	return math.Float64frombits(s.Struct.Uint64(8))
+	return math.Float64frombits(capnp.Struct(s).Uint64(8))
 }
 
 func (s Params_MineralFertilization_Parameters) SetNh4(v float64) {
-	s.Struct.SetUint64(8, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(8, math.Float64bits(v))
 }
 
 func (s Params_MineralFertilization_Parameters) No3() float64 {
-	return math.Float64frombits(s.Struct.Uint64(16))
+	return math.Float64frombits(capnp.Struct(s).Uint64(16))
 }
 
 func (s Params_MineralFertilization_Parameters) SetNo3(v float64) {
-	s.Struct.SetUint64(16, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(16, math.Float64bits(v))
 }
 
 // Params_MineralFertilization_Parameters_List is a list of Params_MineralFertilization_Parameters.
-type Params_MineralFertilization_Parameters_List struct{ capnp.List }
+type Params_MineralFertilization_Parameters_List = capnp.StructList[Params_MineralFertilization_Parameters]
 
 // NewParams_MineralFertilization_Parameters creates a new list of Params_MineralFertilization_Parameters.
 func NewParams_MineralFertilization_Parameters_List(s *capnp.Segment, sz int32) (Params_MineralFertilization_Parameters_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 24, PointerCount: 2}, sz)
-	return Params_MineralFertilization_Parameters_List{l}, err
-}
-
-func (s Params_MineralFertilization_Parameters_List) At(i int) Params_MineralFertilization_Parameters {
-	return Params_MineralFertilization_Parameters{s.List.Struct(i)}
-}
-
-func (s Params_MineralFertilization_Parameters_List) Set(i int, v Params_MineralFertilization_Parameters) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Params_MineralFertilization_Parameters_List) String() string {
-	str, _ := text.MarshalList(0xc75b5ef2e9b05c2d, s.List)
-	return str
+	return capnp.StructList[Params_MineralFertilization_Parameters](l), err
 }
 
 // Params_MineralFertilization_Parameters_Future is a wrapper for a Params_MineralFertilization_Parameters promised by a client call.
 type Params_MineralFertilization_Parameters_Future struct{ *capnp.Future }
 
-func (p Params_MineralFertilization_Parameters_Future) Struct() (Params_MineralFertilization_Parameters, error) {
-	s, err := p.Future.Struct()
-	return Params_MineralFertilization_Parameters{s}, err
+func (f Params_MineralFertilization_Parameters_Future) Struct() (Params_MineralFertilization_Parameters, error) {
+	p, err := f.Future.Ptr()
+	return Params_MineralFertilization_Parameters(p.Struct()), err
 }
 
-type Params_NDemandFertilization struct{ capnp.Struct }
+type Params_NDemandFertilization capnp.Struct
 
 // Params_NDemandFertilization_TypeID is the unique identifier for the type Params_NDemandFertilization.
 const Params_NDemandFertilization_TypeID = 0xc7c14e92e0cd461c
 
 func NewParams_NDemandFertilization(s *capnp.Segment) (Params_NDemandFertilization, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 24, PointerCount: 1})
-	return Params_NDemandFertilization{st}, err
+	return Params_NDemandFertilization(st), err
 }
 
 func NewRootParams_NDemandFertilization(s *capnp.Segment) (Params_NDemandFertilization, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 24, PointerCount: 1})
-	return Params_NDemandFertilization{st}, err
+	return Params_NDemandFertilization(st), err
 }
 
 func ReadRootParams_NDemandFertilization(msg *capnp.Message) (Params_NDemandFertilization, error) {
 	root, err := msg.Root()
-	return Params_NDemandFertilization{root.Struct()}, err
+	return Params_NDemandFertilization(root.Struct()), err
 }
 
 func (s Params_NDemandFertilization) String() string {
-	str, _ := text.Marshal(0xc7c14e92e0cd461c, s.Struct)
+	str, _ := text.Marshal(0xc7c14e92e0cd461c, capnp.Struct(s))
 	return str
 }
 
+func (s Params_NDemandFertilization) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Params_NDemandFertilization) DecodeFromPtr(p capnp.Ptr) Params_NDemandFertilization {
+	return Params_NDemandFertilization(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Params_NDemandFertilization) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Params_NDemandFertilization) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Params_NDemandFertilization) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Params_NDemandFertilization) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Params_NDemandFertilization) NDemand() float64 {
-	return math.Float64frombits(s.Struct.Uint64(0))
+	return math.Float64frombits(capnp.Struct(s).Uint64(0))
 }
 
 func (s Params_NDemandFertilization) SetNDemand(v float64) {
-	s.Struct.SetUint64(0, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(0, math.Float64bits(v))
 }
 
 func (s Params_NDemandFertilization) Partition() (Params_MineralFertilization_Parameters, error) {
-	p, err := s.Struct.Ptr(0)
-	return Params_MineralFertilization_Parameters{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return Params_MineralFertilization_Parameters(p.Struct()), err
 }
 
 func (s Params_NDemandFertilization) HasPartition() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s Params_NDemandFertilization) SetPartition(v Params_MineralFertilization_Parameters) error {
-	return s.Struct.SetPtr(0, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewPartition sets the partition field to a newly
 // allocated Params_MineralFertilization_Parameters struct, preferring placement in s's segment.
 func (s Params_NDemandFertilization) NewPartition() (Params_MineralFertilization_Parameters, error) {
-	ss, err := NewParams_MineralFertilization_Parameters(s.Struct.Segment())
+	ss, err := NewParams_MineralFertilization_Parameters(capnp.Struct(s).Segment())
 	if err != nil {
 		return Params_MineralFertilization_Parameters{}, err
 	}
-	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s Params_NDemandFertilization) Depth() float64 {
-	return math.Float64frombits(s.Struct.Uint64(8))
+	return math.Float64frombits(capnp.Struct(s).Uint64(8))
 }
 
 func (s Params_NDemandFertilization) SetDepth(v float64) {
-	s.Struct.SetUint64(8, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(8, math.Float64bits(v))
 }
 
 func (s Params_NDemandFertilization) Stage() uint8 {
-	return s.Struct.Uint8(16) ^ 1
+	return capnp.Struct(s).Uint8(16) ^ 1
 }
 
 func (s Params_NDemandFertilization) SetStage(v uint8) {
-	s.Struct.SetUint8(16, v^1)
+	capnp.Struct(s).SetUint8(16, v^1)
 }
 
 // Params_NDemandFertilization_List is a list of Params_NDemandFertilization.
-type Params_NDemandFertilization_List struct{ capnp.List }
+type Params_NDemandFertilization_List = capnp.StructList[Params_NDemandFertilization]
 
 // NewParams_NDemandFertilization creates a new list of Params_NDemandFertilization.
 func NewParams_NDemandFertilization_List(s *capnp.Segment, sz int32) (Params_NDemandFertilization_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 24, PointerCount: 1}, sz)
-	return Params_NDemandFertilization_List{l}, err
-}
-
-func (s Params_NDemandFertilization_List) At(i int) Params_NDemandFertilization {
-	return Params_NDemandFertilization{s.List.Struct(i)}
-}
-
-func (s Params_NDemandFertilization_List) Set(i int, v Params_NDemandFertilization) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Params_NDemandFertilization_List) String() string {
-	str, _ := text.MarshalList(0xc7c14e92e0cd461c, s.List)
-	return str
+	return capnp.StructList[Params_NDemandFertilization](l), err
 }
 
 // Params_NDemandFertilization_Future is a wrapper for a Params_NDemandFertilization promised by a client call.
 type Params_NDemandFertilization_Future struct{ *capnp.Future }
 
-func (p Params_NDemandFertilization_Future) Struct() (Params_NDemandFertilization, error) {
-	s, err := p.Future.Struct()
-	return Params_NDemandFertilization{s}, err
+func (f Params_NDemandFertilization_Future) Struct() (Params_NDemandFertilization, error) {
+	p, err := f.Future.Ptr()
+	return Params_NDemandFertilization(p.Struct()), err
 }
-
 func (p Params_NDemandFertilization_Future) Partition() Params_MineralFertilization_Parameters_Future {
 	return Params_MineralFertilization_Parameters_Future{Future: p.Future.Field(0, nil)}
 }
 
-type Params_OrganicFertilization struct{ capnp.Struct }
+type Params_OrganicFertilization capnp.Struct
 
 // Params_OrganicFertilization_TypeID is the unique identifier for the type Params_OrganicFertilization.
 const Params_OrganicFertilization_TypeID = 0xb492838c7fed50b0
 
 func NewParams_OrganicFertilization(s *capnp.Segment) (Params_OrganicFertilization, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 1})
-	return Params_OrganicFertilization{st}, err
+	return Params_OrganicFertilization(st), err
 }
 
 func NewRootParams_OrganicFertilization(s *capnp.Segment) (Params_OrganicFertilization, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 1})
-	return Params_OrganicFertilization{st}, err
+	return Params_OrganicFertilization(st), err
 }
 
 func ReadRootParams_OrganicFertilization(msg *capnp.Message) (Params_OrganicFertilization, error) {
 	root, err := msg.Root()
-	return Params_OrganicFertilization{root.Struct()}, err
+	return Params_OrganicFertilization(root.Struct()), err
 }
 
 func (s Params_OrganicFertilization) String() string {
-	str, _ := text.Marshal(0xb492838c7fed50b0, s.Struct)
+	str, _ := text.Marshal(0xb492838c7fed50b0, capnp.Struct(s))
 	return str
 }
 
+func (s Params_OrganicFertilization) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Params_OrganicFertilization) DecodeFromPtr(p capnp.Ptr) Params_OrganicFertilization {
+	return Params_OrganicFertilization(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Params_OrganicFertilization) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Params_OrganicFertilization) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Params_OrganicFertilization) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Params_OrganicFertilization) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Params_OrganicFertilization) Params() (Params_OrganicFertilization_Parameters, error) {
-	p, err := s.Struct.Ptr(0)
-	return Params_OrganicFertilization_Parameters{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return Params_OrganicFertilization_Parameters(p.Struct()), err
 }
 
 func (s Params_OrganicFertilization) HasParams() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s Params_OrganicFertilization) SetParams(v Params_OrganicFertilization_Parameters) error {
-	return s.Struct.SetPtr(0, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewParams sets the params field to a newly
 // allocated Params_OrganicFertilization_Parameters struct, preferring placement in s's segment.
 func (s Params_OrganicFertilization) NewParams() (Params_OrganicFertilization_Parameters, error) {
-	ss, err := NewParams_OrganicFertilization_Parameters(s.Struct.Segment())
+	ss, err := NewParams_OrganicFertilization_Parameters(capnp.Struct(s).Segment())
 	if err != nil {
 		return Params_OrganicFertilization_Parameters{}, err
 	}
-	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s Params_OrganicFertilization) Amount() float64 {
-	return math.Float64frombits(s.Struct.Uint64(0))
+	return math.Float64frombits(capnp.Struct(s).Uint64(0))
 }
 
 func (s Params_OrganicFertilization) SetAmount(v float64) {
-	s.Struct.SetUint64(0, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(0, math.Float64bits(v))
 }
 
 func (s Params_OrganicFertilization) Incorporation() bool {
-	return s.Struct.Bit(64)
+	return capnp.Struct(s).Bit(64)
 }
 
 func (s Params_OrganicFertilization) SetIncorporation(v bool) {
-	s.Struct.SetBit(64, v)
+	capnp.Struct(s).SetBit(64, v)
 }
 
 // Params_OrganicFertilization_List is a list of Params_OrganicFertilization.
-type Params_OrganicFertilization_List struct{ capnp.List }
+type Params_OrganicFertilization_List = capnp.StructList[Params_OrganicFertilization]
 
 // NewParams_OrganicFertilization creates a new list of Params_OrganicFertilization.
 func NewParams_OrganicFertilization_List(s *capnp.Segment, sz int32) (Params_OrganicFertilization_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 16, PointerCount: 1}, sz)
-	return Params_OrganicFertilization_List{l}, err
-}
-
-func (s Params_OrganicFertilization_List) At(i int) Params_OrganicFertilization {
-	return Params_OrganicFertilization{s.List.Struct(i)}
-}
-
-func (s Params_OrganicFertilization_List) Set(i int, v Params_OrganicFertilization) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Params_OrganicFertilization_List) String() string {
-	str, _ := text.MarshalList(0xb492838c7fed50b0, s.List)
-	return str
+	return capnp.StructList[Params_OrganicFertilization](l), err
 }
 
 // Params_OrganicFertilization_Future is a wrapper for a Params_OrganicFertilization promised by a client call.
 type Params_OrganicFertilization_Future struct{ *capnp.Future }
 
-func (p Params_OrganicFertilization_Future) Struct() (Params_OrganicFertilization, error) {
-	s, err := p.Future.Struct()
-	return Params_OrganicFertilization{s}, err
+func (f Params_OrganicFertilization_Future) Struct() (Params_OrganicFertilization, error) {
+	p, err := f.Future.Ptr()
+	return Params_OrganicFertilization(p.Struct()), err
 }
-
 func (p Params_OrganicFertilization_Future) Params() Params_OrganicFertilization_Parameters_Future {
 	return Params_OrganicFertilization_Parameters_Future{Future: p.Future.Field(0, nil)}
 }
 
-type Params_OrganicFertilization_OrganicMatterParameters struct{ capnp.Struct }
+type Params_OrganicFertilization_OrganicMatterParameters capnp.Struct
 
 // Params_OrganicFertilization_OrganicMatterParameters_TypeID is the unique identifier for the type Params_OrganicFertilization_OrganicMatterParameters.
 const Params_OrganicFertilization_OrganicMatterParameters_TypeID = 0x95cdc661a6600137
 
 func NewParams_OrganicFertilization_OrganicMatterParameters(s *capnp.Segment) (Params_OrganicFertilization_OrganicMatterParameters, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 104, PointerCount: 0})
-	return Params_OrganicFertilization_OrganicMatterParameters{st}, err
+	return Params_OrganicFertilization_OrganicMatterParameters(st), err
 }
 
 func NewRootParams_OrganicFertilization_OrganicMatterParameters(s *capnp.Segment) (Params_OrganicFertilization_OrganicMatterParameters, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 104, PointerCount: 0})
-	return Params_OrganicFertilization_OrganicMatterParameters{st}, err
+	return Params_OrganicFertilization_OrganicMatterParameters(st), err
 }
 
 func ReadRootParams_OrganicFertilization_OrganicMatterParameters(msg *capnp.Message) (Params_OrganicFertilization_OrganicMatterParameters, error) {
 	root, err := msg.Root()
-	return Params_OrganicFertilization_OrganicMatterParameters{root.Struct()}, err
+	return Params_OrganicFertilization_OrganicMatterParameters(root.Struct()), err
 }
 
 func (s Params_OrganicFertilization_OrganicMatterParameters) String() string {
-	str, _ := text.Marshal(0x95cdc661a6600137, s.Struct)
+	str, _ := text.Marshal(0x95cdc661a6600137, capnp.Struct(s))
 	return str
 }
 
+func (s Params_OrganicFertilization_OrganicMatterParameters) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Params_OrganicFertilization_OrganicMatterParameters) DecodeFromPtr(p capnp.Ptr) Params_OrganicFertilization_OrganicMatterParameters {
+	return Params_OrganicFertilization_OrganicMatterParameters(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Params_OrganicFertilization_OrganicMatterParameters) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Params_OrganicFertilization_OrganicMatterParameters) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Params_OrganicFertilization_OrganicMatterParameters) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Params_OrganicFertilization_OrganicMatterParameters) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Params_OrganicFertilization_OrganicMatterParameters) AomDryMatterContent() float64 {
-	return math.Float64frombits(s.Struct.Uint64(0))
+	return math.Float64frombits(capnp.Struct(s).Uint64(0))
 }
 
 func (s Params_OrganicFertilization_OrganicMatterParameters) SetAomDryMatterContent(v float64) {
-	s.Struct.SetUint64(0, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(0, math.Float64bits(v))
 }
 
 func (s Params_OrganicFertilization_OrganicMatterParameters) AomNH4Content() float64 {
-	return math.Float64frombits(s.Struct.Uint64(8))
+	return math.Float64frombits(capnp.Struct(s).Uint64(8))
 }
 
 func (s Params_OrganicFertilization_OrganicMatterParameters) SetAomNH4Content(v float64) {
-	s.Struct.SetUint64(8, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(8, math.Float64bits(v))
 }
 
 func (s Params_OrganicFertilization_OrganicMatterParameters) AomNO3Content() float64 {
-	return math.Float64frombits(s.Struct.Uint64(16))
+	return math.Float64frombits(capnp.Struct(s).Uint64(16))
 }
 
 func (s Params_OrganicFertilization_OrganicMatterParameters) SetAomNO3Content(v float64) {
-	s.Struct.SetUint64(16, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(16, math.Float64bits(v))
 }
 
 func (s Params_OrganicFertilization_OrganicMatterParameters) AomCarbamidContent() float64 {
-	return math.Float64frombits(s.Struct.Uint64(24))
+	return math.Float64frombits(capnp.Struct(s).Uint64(24))
 }
 
 func (s Params_OrganicFertilization_OrganicMatterParameters) SetAomCarbamidContent(v float64) {
-	s.Struct.SetUint64(24, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(24, math.Float64bits(v))
 }
 
 func (s Params_OrganicFertilization_OrganicMatterParameters) AomSlowDecCoeffStandard() float64 {
-	return math.Float64frombits(s.Struct.Uint64(32))
+	return math.Float64frombits(capnp.Struct(s).Uint64(32))
 }
 
 func (s Params_OrganicFertilization_OrganicMatterParameters) SetAomSlowDecCoeffStandard(v float64) {
-	s.Struct.SetUint64(32, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(32, math.Float64bits(v))
 }
 
 func (s Params_OrganicFertilization_OrganicMatterParameters) AomFastDecCoeffStandard() float64 {
-	return math.Float64frombits(s.Struct.Uint64(40))
+	return math.Float64frombits(capnp.Struct(s).Uint64(40))
 }
 
 func (s Params_OrganicFertilization_OrganicMatterParameters) SetAomFastDecCoeffStandard(v float64) {
-	s.Struct.SetUint64(40, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(40, math.Float64bits(v))
 }
 
 func (s Params_OrganicFertilization_OrganicMatterParameters) PartAOMToAOMSlow() float64 {
-	return math.Float64frombits(s.Struct.Uint64(48))
+	return math.Float64frombits(capnp.Struct(s).Uint64(48))
 }
 
 func (s Params_OrganicFertilization_OrganicMatterParameters) SetPartAOMToAOMSlow(v float64) {
-	s.Struct.SetUint64(48, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(48, math.Float64bits(v))
 }
 
 func (s Params_OrganicFertilization_OrganicMatterParameters) PartAOMToAOMFast() float64 {
-	return math.Float64frombits(s.Struct.Uint64(56))
+	return math.Float64frombits(capnp.Struct(s).Uint64(56))
 }
 
 func (s Params_OrganicFertilization_OrganicMatterParameters) SetPartAOMToAOMFast(v float64) {
-	s.Struct.SetUint64(56, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(56, math.Float64bits(v))
 }
 
 func (s Params_OrganicFertilization_OrganicMatterParameters) CnRatioAOMSlow() float64 {
-	return math.Float64frombits(s.Struct.Uint64(64))
+	return math.Float64frombits(capnp.Struct(s).Uint64(64))
 }
 
 func (s Params_OrganicFertilization_OrganicMatterParameters) SetCnRatioAOMSlow(v float64) {
-	s.Struct.SetUint64(64, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(64, math.Float64bits(v))
 }
 
 func (s Params_OrganicFertilization_OrganicMatterParameters) CnRatioAOMFast() float64 {
-	return math.Float64frombits(s.Struct.Uint64(72))
+	return math.Float64frombits(capnp.Struct(s).Uint64(72))
 }
 
 func (s Params_OrganicFertilization_OrganicMatterParameters) SetCnRatioAOMFast(v float64) {
-	s.Struct.SetUint64(72, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(72, math.Float64bits(v))
 }
 
 func (s Params_OrganicFertilization_OrganicMatterParameters) PartAOMSlowToSMBSlow() float64 {
-	return math.Float64frombits(s.Struct.Uint64(80))
+	return math.Float64frombits(capnp.Struct(s).Uint64(80))
 }
 
 func (s Params_OrganicFertilization_OrganicMatterParameters) SetPartAOMSlowToSMBSlow(v float64) {
-	s.Struct.SetUint64(80, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(80, math.Float64bits(v))
 }
 
 func (s Params_OrganicFertilization_OrganicMatterParameters) PartAOMSlowToSMBFast() float64 {
-	return math.Float64frombits(s.Struct.Uint64(88))
+	return math.Float64frombits(capnp.Struct(s).Uint64(88))
 }
 
 func (s Params_OrganicFertilization_OrganicMatterParameters) SetPartAOMSlowToSMBFast(v float64) {
-	s.Struct.SetUint64(88, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(88, math.Float64bits(v))
 }
 
 func (s Params_OrganicFertilization_OrganicMatterParameters) NConcentration() float64 {
-	return math.Float64frombits(s.Struct.Uint64(96))
+	return math.Float64frombits(capnp.Struct(s).Uint64(96))
 }
 
 func (s Params_OrganicFertilization_OrganicMatterParameters) SetNConcentration(v float64) {
-	s.Struct.SetUint64(96, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(96, math.Float64bits(v))
 }
 
 // Params_OrganicFertilization_OrganicMatterParameters_List is a list of Params_OrganicFertilization_OrganicMatterParameters.
-type Params_OrganicFertilization_OrganicMatterParameters_List struct{ capnp.List }
+type Params_OrganicFertilization_OrganicMatterParameters_List = capnp.StructList[Params_OrganicFertilization_OrganicMatterParameters]
 
 // NewParams_OrganicFertilization_OrganicMatterParameters creates a new list of Params_OrganicFertilization_OrganicMatterParameters.
 func NewParams_OrganicFertilization_OrganicMatterParameters_List(s *capnp.Segment, sz int32) (Params_OrganicFertilization_OrganicMatterParameters_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 104, PointerCount: 0}, sz)
-	return Params_OrganicFertilization_OrganicMatterParameters_List{l}, err
-}
-
-func (s Params_OrganicFertilization_OrganicMatterParameters_List) At(i int) Params_OrganicFertilization_OrganicMatterParameters {
-	return Params_OrganicFertilization_OrganicMatterParameters{s.List.Struct(i)}
-}
-
-func (s Params_OrganicFertilization_OrganicMatterParameters_List) Set(i int, v Params_OrganicFertilization_OrganicMatterParameters) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Params_OrganicFertilization_OrganicMatterParameters_List) String() string {
-	str, _ := text.MarshalList(0x95cdc661a6600137, s.List)
-	return str
+	return capnp.StructList[Params_OrganicFertilization_OrganicMatterParameters](l), err
 }
 
 // Params_OrganicFertilization_OrganicMatterParameters_Future is a wrapper for a Params_OrganicFertilization_OrganicMatterParameters promised by a client call.
 type Params_OrganicFertilization_OrganicMatterParameters_Future struct{ *capnp.Future }
 
-func (p Params_OrganicFertilization_OrganicMatterParameters_Future) Struct() (Params_OrganicFertilization_OrganicMatterParameters, error) {
-	s, err := p.Future.Struct()
-	return Params_OrganicFertilization_OrganicMatterParameters{s}, err
+func (f Params_OrganicFertilization_OrganicMatterParameters_Future) Struct() (Params_OrganicFertilization_OrganicMatterParameters, error) {
+	p, err := f.Future.Ptr()
+	return Params_OrganicFertilization_OrganicMatterParameters(p.Struct()), err
 }
 
-type Params_OrganicFertilization_Parameters struct{ capnp.Struct }
+type Params_OrganicFertilization_Parameters capnp.Struct
 
 // Params_OrganicFertilization_Parameters_TypeID is the unique identifier for the type Params_OrganicFertilization_Parameters.
 const Params_OrganicFertilization_Parameters_TypeID = 0xba0c11cf818d29fd
 
 func NewParams_OrganicFertilization_Parameters(s *capnp.Segment) (Params_OrganicFertilization_Parameters, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 3})
-	return Params_OrganicFertilization_Parameters{st}, err
+	return Params_OrganicFertilization_Parameters(st), err
 }
 
 func NewRootParams_OrganicFertilization_Parameters(s *capnp.Segment) (Params_OrganicFertilization_Parameters, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 3})
-	return Params_OrganicFertilization_Parameters{st}, err
+	return Params_OrganicFertilization_Parameters(st), err
 }
 
 func ReadRootParams_OrganicFertilization_Parameters(msg *capnp.Message) (Params_OrganicFertilization_Parameters, error) {
 	root, err := msg.Root()
-	return Params_OrganicFertilization_Parameters{root.Struct()}, err
+	return Params_OrganicFertilization_Parameters(root.Struct()), err
 }
 
 func (s Params_OrganicFertilization_Parameters) String() string {
-	str, _ := text.Marshal(0xba0c11cf818d29fd, s.Struct)
+	str, _ := text.Marshal(0xba0c11cf818d29fd, capnp.Struct(s))
 	return str
 }
 
+func (s Params_OrganicFertilization_Parameters) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Params_OrganicFertilization_Parameters) DecodeFromPtr(p capnp.Ptr) Params_OrganicFertilization_Parameters {
+	return Params_OrganicFertilization_Parameters(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Params_OrganicFertilization_Parameters) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Params_OrganicFertilization_Parameters) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Params_OrganicFertilization_Parameters) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Params_OrganicFertilization_Parameters) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Params_OrganicFertilization_Parameters) Params() (Params_OrganicFertilization_OrganicMatterParameters, error) {
-	p, err := s.Struct.Ptr(0)
-	return Params_OrganicFertilization_OrganicMatterParameters{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return Params_OrganicFertilization_OrganicMatterParameters(p.Struct()), err
 }
 
 func (s Params_OrganicFertilization_Parameters) HasParams() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s Params_OrganicFertilization_Parameters) SetParams(v Params_OrganicFertilization_OrganicMatterParameters) error {
-	return s.Struct.SetPtr(0, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewParams sets the params field to a newly
 // allocated Params_OrganicFertilization_OrganicMatterParameters struct, preferring placement in s's segment.
 func (s Params_OrganicFertilization_Parameters) NewParams() (Params_OrganicFertilization_OrganicMatterParameters, error) {
-	ss, err := NewParams_OrganicFertilization_OrganicMatterParameters(s.Struct.Segment())
+	ss, err := NewParams_OrganicFertilization_OrganicMatterParameters(capnp.Struct(s).Segment())
 	if err != nil {
 		return Params_OrganicFertilization_OrganicMatterParameters{}, err
 	}
-	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s Params_OrganicFertilization_Parameters) Id() (string, error) {
-	p, err := s.Struct.Ptr(1)
+	p, err := capnp.Struct(s).Ptr(1)
 	return p.Text(), err
 }
 
 func (s Params_OrganicFertilization_Parameters) HasId() bool {
-	return s.Struct.HasPtr(1)
+	return capnp.Struct(s).HasPtr(1)
 }
 
 func (s Params_OrganicFertilization_Parameters) IdBytes() ([]byte, error) {
-	p, err := s.Struct.Ptr(1)
+	p, err := capnp.Struct(s).Ptr(1)
 	return p.TextBytes(), err
 }
 
 func (s Params_OrganicFertilization_Parameters) SetId(v string) error {
-	return s.Struct.SetText(1, v)
+	return capnp.Struct(s).SetText(1, v)
 }
 
 func (s Params_OrganicFertilization_Parameters) Name() (string, error) {
-	p, err := s.Struct.Ptr(2)
+	p, err := capnp.Struct(s).Ptr(2)
 	return p.Text(), err
 }
 
 func (s Params_OrganicFertilization_Parameters) HasName() bool {
-	return s.Struct.HasPtr(2)
+	return capnp.Struct(s).HasPtr(2)
 }
 
 func (s Params_OrganicFertilization_Parameters) NameBytes() ([]byte, error) {
-	p, err := s.Struct.Ptr(2)
+	p, err := capnp.Struct(s).Ptr(2)
 	return p.TextBytes(), err
 }
 
 func (s Params_OrganicFertilization_Parameters) SetName(v string) error {
-	return s.Struct.SetText(2, v)
+	return capnp.Struct(s).SetText(2, v)
 }
 
 // Params_OrganicFertilization_Parameters_List is a list of Params_OrganicFertilization_Parameters.
-type Params_OrganicFertilization_Parameters_List struct{ capnp.List }
+type Params_OrganicFertilization_Parameters_List = capnp.StructList[Params_OrganicFertilization_Parameters]
 
 // NewParams_OrganicFertilization_Parameters creates a new list of Params_OrganicFertilization_Parameters.
 func NewParams_OrganicFertilization_Parameters_List(s *capnp.Segment, sz int32) (Params_OrganicFertilization_Parameters_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 3}, sz)
-	return Params_OrganicFertilization_Parameters_List{l}, err
-}
-
-func (s Params_OrganicFertilization_Parameters_List) At(i int) Params_OrganicFertilization_Parameters {
-	return Params_OrganicFertilization_Parameters{s.List.Struct(i)}
-}
-
-func (s Params_OrganicFertilization_Parameters_List) Set(i int, v Params_OrganicFertilization_Parameters) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Params_OrganicFertilization_Parameters_List) String() string {
-	str, _ := text.MarshalList(0xba0c11cf818d29fd, s.List)
-	return str
+	return capnp.StructList[Params_OrganicFertilization_Parameters](l), err
 }
 
 // Params_OrganicFertilization_Parameters_Future is a wrapper for a Params_OrganicFertilization_Parameters promised by a client call.
 type Params_OrganicFertilization_Parameters_Future struct{ *capnp.Future }
 
-func (p Params_OrganicFertilization_Parameters_Future) Struct() (Params_OrganicFertilization_Parameters, error) {
-	s, err := p.Future.Struct()
-	return Params_OrganicFertilization_Parameters{s}, err
+func (f Params_OrganicFertilization_Parameters_Future) Struct() (Params_OrganicFertilization_Parameters, error) {
+	p, err := f.Future.Ptr()
+	return Params_OrganicFertilization_Parameters(p.Struct()), err
 }
-
 func (p Params_OrganicFertilization_Parameters_Future) Params() Params_OrganicFertilization_OrganicMatterParameters_Future {
 	return Params_OrganicFertilization_OrganicMatterParameters_Future{Future: p.Future.Field(0, nil)}
 }
 
-type Params_Tillage struct{ capnp.Struct }
+type Params_Tillage capnp.Struct
 
 // Params_Tillage_TypeID is the unique identifier for the type Params_Tillage.
 const Params_Tillage_TypeID = 0xaa49811a4e3e2c59
 
 func NewParams_Tillage(s *capnp.Segment) (Params_Tillage, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Params_Tillage{st}, err
+	return Params_Tillage(st), err
 }
 
 func NewRootParams_Tillage(s *capnp.Segment) (Params_Tillage, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Params_Tillage{st}, err
+	return Params_Tillage(st), err
 }
 
 func ReadRootParams_Tillage(msg *capnp.Message) (Params_Tillage, error) {
 	root, err := msg.Root()
-	return Params_Tillage{root.Struct()}, err
+	return Params_Tillage(root.Struct()), err
 }
 
 func (s Params_Tillage) String() string {
-	str, _ := text.Marshal(0xaa49811a4e3e2c59, s.Struct)
+	str, _ := text.Marshal(0xaa49811a4e3e2c59, capnp.Struct(s))
 	return str
 }
 
+func (s Params_Tillage) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Params_Tillage) DecodeFromPtr(p capnp.Ptr) Params_Tillage {
+	return Params_Tillage(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Params_Tillage) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Params_Tillage) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Params_Tillage) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Params_Tillage) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Params_Tillage) Depth() float64 {
-	return math.Float64frombits(s.Struct.Uint64(0) ^ 0x3fd3333333333333)
+	return math.Float64frombits(capnp.Struct(s).Uint64(0) ^ 0x3fd3333333333333)
 }
 
 func (s Params_Tillage) SetDepth(v float64) {
-	s.Struct.SetUint64(0, math.Float64bits(v)^0x3fd3333333333333)
+	capnp.Struct(s).SetUint64(0, math.Float64bits(v)^0x3fd3333333333333)
 }
 
 // Params_Tillage_List is a list of Params_Tillage.
-type Params_Tillage_List struct{ capnp.List }
+type Params_Tillage_List = capnp.StructList[Params_Tillage]
 
 // NewParams_Tillage creates a new list of Params_Tillage.
 func NewParams_Tillage_List(s *capnp.Segment, sz int32) (Params_Tillage_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0}, sz)
-	return Params_Tillage_List{l}, err
-}
-
-func (s Params_Tillage_List) At(i int) Params_Tillage { return Params_Tillage{s.List.Struct(i)} }
-
-func (s Params_Tillage_List) Set(i int, v Params_Tillage) error { return s.List.SetStruct(i, v.Struct) }
-
-func (s Params_Tillage_List) String() string {
-	str, _ := text.MarshalList(0xaa49811a4e3e2c59, s.List)
-	return str
+	return capnp.StructList[Params_Tillage](l), err
 }
 
 // Params_Tillage_Future is a wrapper for a Params_Tillage promised by a client call.
 type Params_Tillage_Future struct{ *capnp.Future }
 
-func (p Params_Tillage_Future) Struct() (Params_Tillage, error) {
-	s, err := p.Future.Struct()
-	return Params_Tillage{s}, err
+func (f Params_Tillage_Future) Struct() (Params_Tillage, error) {
+	p, err := f.Future.Ptr()
+	return Params_Tillage(p.Struct()), err
 }
 
-type Params_Irrigation struct{ capnp.Struct }
+type Params_Irrigation capnp.Struct
 
 // Params_Irrigation_TypeID is the unique identifier for the type Params_Irrigation.
 const Params_Irrigation_TypeID = 0xd90939a58e404ff8
 
 func NewParams_Irrigation(s *capnp.Segment) (Params_Irrigation, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return Params_Irrigation{st}, err
+	return Params_Irrigation(st), err
 }
 
 func NewRootParams_Irrigation(s *capnp.Segment) (Params_Irrigation, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return Params_Irrigation{st}, err
+	return Params_Irrigation(st), err
 }
 
 func ReadRootParams_Irrigation(msg *capnp.Message) (Params_Irrigation, error) {
 	root, err := msg.Root()
-	return Params_Irrigation{root.Struct()}, err
+	return Params_Irrigation(root.Struct()), err
 }
 
 func (s Params_Irrigation) String() string {
-	str, _ := text.Marshal(0xd90939a58e404ff8, s.Struct)
+	str, _ := text.Marshal(0xd90939a58e404ff8, capnp.Struct(s))
 	return str
 }
 
+func (s Params_Irrigation) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Params_Irrigation) DecodeFromPtr(p capnp.Ptr) Params_Irrigation {
+	return Params_Irrigation(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Params_Irrigation) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Params_Irrigation) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Params_Irrigation) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Params_Irrigation) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Params_Irrigation) Amount() float64 {
-	return math.Float64frombits(s.Struct.Uint64(0))
+	return math.Float64frombits(capnp.Struct(s).Uint64(0))
 }
 
 func (s Params_Irrigation) SetAmount(v float64) {
-	s.Struct.SetUint64(0, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(0, math.Float64bits(v))
 }
 
 func (s Params_Irrigation) Params() (Params_Irrigation_Parameters, error) {
-	p, err := s.Struct.Ptr(0)
-	return Params_Irrigation_Parameters{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return Params_Irrigation_Parameters(p.Struct()), err
 }
 
 func (s Params_Irrigation) HasParams() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s Params_Irrigation) SetParams(v Params_Irrigation_Parameters) error {
-	return s.Struct.SetPtr(0, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewParams sets the params field to a newly
 // allocated Params_Irrigation_Parameters struct, preferring placement in s's segment.
 func (s Params_Irrigation) NewParams() (Params_Irrigation_Parameters, error) {
-	ss, err := NewParams_Irrigation_Parameters(s.Struct.Segment())
+	ss, err := NewParams_Irrigation_Parameters(capnp.Struct(s).Segment())
 	if err != nil {
 		return Params_Irrigation_Parameters{}, err
 	}
-	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 // Params_Irrigation_List is a list of Params_Irrigation.
-type Params_Irrigation_List struct{ capnp.List }
+type Params_Irrigation_List = capnp.StructList[Params_Irrigation]
 
 // NewParams_Irrigation creates a new list of Params_Irrigation.
 func NewParams_Irrigation_List(s *capnp.Segment, sz int32) (Params_Irrigation_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1}, sz)
-	return Params_Irrigation_List{l}, err
-}
-
-func (s Params_Irrigation_List) At(i int) Params_Irrigation {
-	return Params_Irrigation{s.List.Struct(i)}
-}
-
-func (s Params_Irrigation_List) Set(i int, v Params_Irrigation) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Params_Irrigation_List) String() string {
-	str, _ := text.MarshalList(0xd90939a58e404ff8, s.List)
-	return str
+	return capnp.StructList[Params_Irrigation](l), err
 }
 
 // Params_Irrigation_Future is a wrapper for a Params_Irrigation promised by a client call.
 type Params_Irrigation_Future struct{ *capnp.Future }
 
-func (p Params_Irrigation_Future) Struct() (Params_Irrigation, error) {
-	s, err := p.Future.Struct()
-	return Params_Irrigation{s}, err
+func (f Params_Irrigation_Future) Struct() (Params_Irrigation, error) {
+	p, err := f.Future.Ptr()
+	return Params_Irrigation(p.Struct()), err
 }
-
 func (p Params_Irrigation_Future) Params() Params_Irrigation_Parameters_Future {
 	return Params_Irrigation_Parameters_Future{Future: p.Future.Field(0, nil)}
 }
 
-type Params_Irrigation_Parameters struct{ capnp.Struct }
+type Params_Irrigation_Parameters capnp.Struct
 
 // Params_Irrigation_Parameters_TypeID is the unique identifier for the type Params_Irrigation_Parameters.
 const Params_Irrigation_Parameters_TypeID = 0xaec9e089e87f1599
 
 func NewParams_Irrigation_Parameters(s *capnp.Segment) (Params_Irrigation_Parameters, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0})
-	return Params_Irrigation_Parameters{st}, err
+	return Params_Irrigation_Parameters(st), err
 }
 
 func NewRootParams_Irrigation_Parameters(s *capnp.Segment) (Params_Irrigation_Parameters, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0})
-	return Params_Irrigation_Parameters{st}, err
+	return Params_Irrigation_Parameters(st), err
 }
 
 func ReadRootParams_Irrigation_Parameters(msg *capnp.Message) (Params_Irrigation_Parameters, error) {
 	root, err := msg.Root()
-	return Params_Irrigation_Parameters{root.Struct()}, err
+	return Params_Irrigation_Parameters(root.Struct()), err
 }
 
 func (s Params_Irrigation_Parameters) String() string {
-	str, _ := text.Marshal(0xaec9e089e87f1599, s.Struct)
+	str, _ := text.Marshal(0xaec9e089e87f1599, capnp.Struct(s))
 	return str
 }
 
+func (s Params_Irrigation_Parameters) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Params_Irrigation_Parameters) DecodeFromPtr(p capnp.Ptr) Params_Irrigation_Parameters {
+	return Params_Irrigation_Parameters(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Params_Irrigation_Parameters) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Params_Irrigation_Parameters) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Params_Irrigation_Parameters) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Params_Irrigation_Parameters) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Params_Irrigation_Parameters) NitrateConcentration() float64 {
-	return math.Float64frombits(s.Struct.Uint64(0))
+	return math.Float64frombits(capnp.Struct(s).Uint64(0))
 }
 
 func (s Params_Irrigation_Parameters) SetNitrateConcentration(v float64) {
-	s.Struct.SetUint64(0, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(0, math.Float64bits(v))
 }
 
 func (s Params_Irrigation_Parameters) SulfateConcentration() float64 {
-	return math.Float64frombits(s.Struct.Uint64(8))
+	return math.Float64frombits(capnp.Struct(s).Uint64(8))
 }
 
 func (s Params_Irrigation_Parameters) SetSulfateConcentration(v float64) {
-	s.Struct.SetUint64(8, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(8, math.Float64bits(v))
 }
 
 // Params_Irrigation_Parameters_List is a list of Params_Irrigation_Parameters.
-type Params_Irrigation_Parameters_List struct{ capnp.List }
+type Params_Irrigation_Parameters_List = capnp.StructList[Params_Irrigation_Parameters]
 
 // NewParams_Irrigation_Parameters creates a new list of Params_Irrigation_Parameters.
 func NewParams_Irrigation_Parameters_List(s *capnp.Segment, sz int32) (Params_Irrigation_Parameters_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0}, sz)
-	return Params_Irrigation_Parameters_List{l}, err
-}
-
-func (s Params_Irrigation_Parameters_List) At(i int) Params_Irrigation_Parameters {
-	return Params_Irrigation_Parameters{s.List.Struct(i)}
-}
-
-func (s Params_Irrigation_Parameters_List) Set(i int, v Params_Irrigation_Parameters) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Params_Irrigation_Parameters_List) String() string {
-	str, _ := text.MarshalList(0xaec9e089e87f1599, s.List)
-	return str
+	return capnp.StructList[Params_Irrigation_Parameters](l), err
 }
 
 // Params_Irrigation_Parameters_Future is a wrapper for a Params_Irrigation_Parameters promised by a client call.
 type Params_Irrigation_Parameters_Future struct{ *capnp.Future }
 
-func (p Params_Irrigation_Parameters_Future) Struct() (Params_Irrigation_Parameters, error) {
-	s, err := p.Future.Struct()
-	return Params_Irrigation_Parameters{s}, err
+func (f Params_Irrigation_Parameters_Future) Struct() (Params_Irrigation_Parameters, error) {
+	p, err := f.Future.Ptr()
+	return Params_Irrigation_Parameters(p.Struct()), err
 }
 
-type Service struct{ Client *capnp.Client }
+type Service capnp.Client
 
 // Service_TypeID is the unique identifier for the type Service.
 const Service_TypeID = 0xbfda1920aff38c07
@@ -2940,9 +3096,9 @@ func (c Service) ManagementAt(ctx context.Context, params func(geo.LatLonCoord) 
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 16, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(geo.LatLonCoord{Struct: s}) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(geo.LatLonCoord(s)) }
 	}
-	ans, release := c.Client.SendCall(ctx, s)
+	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Service_managementAt_Results_Future{Future: ans.Future()}, release
 }
 func (c Service) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
@@ -2956,23 +3112,78 @@ func (c Service) Info(ctx context.Context, params func(common.Identifiable_info_
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params{Struct: s}) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
-	ans, release := c.Client.SendCall(ctx, s)
+	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
 }
 
+// String returns a string that identifies this capability for debugging
+// purposes.  Its format should not be depended on: in particular, it
+// should not be used to compare clients.  Use IsSame to compare clients
+// for equality.
+func (c Service) String() string {
+	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+}
+
+// AddRef creates a new Client that refers to the same capability as c.
+// If c is nil or has resolved to null, then AddRef returns nil.
 func (c Service) AddRef() Service {
-	return Service{
-		Client: c.Client.AddRef(),
-	}
+	return Service(capnp.Client(c).AddRef())
 }
 
+// Release releases a capability reference.  If this is the last
+// reference to the capability, then the underlying resources associated
+// with the capability will be released.
+//
+// Release will panic if c has already been released, but not if c is
+// nil or resolved to null.
 func (c Service) Release() {
-	c.Client.Release()
+	capnp.Client(c).Release()
 }
 
-// A Service_Server is a Service with a local implementation.
+// Resolve blocks until the capability is fully resolved or the Context
+// expires.
+func (c Service) Resolve(ctx context.Context) error {
+	return capnp.Client(c).Resolve(ctx)
+}
+
+func (c Service) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Client(c).EncodeAsPtr(seg)
+}
+
+func (Service) DecodeFromPtr(p capnp.Ptr) Service {
+	return Service(capnp.Client{}.DecodeFromPtr(p))
+}
+
+// IsValid reports whether c is a valid reference to a capability.
+// A reference is invalid if it is nil, has resolved to null, or has
+// been released.
+func (c Service) IsValid() bool {
+	return capnp.Client(c).IsValid()
+}
+
+// IsSame reports whether c and other refer to a capability created by the
+// same call to NewClient.  This can return false negatives if c or other
+// are not fully resolved: use Resolve if this is an issue.  If either
+// c or other are released, then IsSame panics.
+func (c Service) IsSame(other Service) bool {
+	return capnp.Client(c).IsSame(capnp.Client(other))
+}
+
+// Update the flowcontrol.FlowLimiter used to manage flow control for
+// this client. This affects all future calls, but not calls already
+// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
+// which is also the default.
+func (c Service) SetFlowLimiter(lim fc.FlowLimiter) {
+	capnp.Client(c).SetFlowLimiter(lim)
+}
+
+// Get the current flowcontrol.FlowLimiter used to manage flow control
+// for this client.
+func (c Service) GetFlowLimiter() fc.FlowLimiter {
+	return capnp.Client(c).GetFlowLimiter()
+} // A Service_Server is a Service with a local implementation.
 type Service_Server interface {
 	ManagementAt(context.Context, Service_managementAt) error
 
@@ -2980,15 +3191,15 @@ type Service_Server interface {
 }
 
 // Service_NewServer creates a new Server from an implementation of Service_Server.
-func Service_NewServer(s Service_Server, policy *server.Policy) *server.Server {
+func Service_NewServer(s Service_Server) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(Service_Methods(nil, s), s, c, policy)
+	return server.New(Service_Methods(nil, s), s, c)
 }
 
 // Service_ServerToClient creates a new Client from an implementation of Service_Server.
 // The caller is responsible for calling Release on the returned Client.
-func Service_ServerToClient(s Service_Server, policy *server.Policy) Service {
-	return Service{Client: capnp.NewClient(Service_NewServer(s, policy))}
+func Service_ServerToClient(s Service_Server) Service {
+	return Service(capnp.NewClient(Service_NewServer(s)))
 }
 
 // Service_Methods appends Methods to a slice that invoke the methods on s.
@@ -3033,350 +3244,368 @@ type Service_managementAt struct {
 
 // Args returns the call's arguments.
 func (c Service_managementAt) Args() geo.LatLonCoord {
-	return geo.LatLonCoord{Struct: c.Call.Args()}
+	return geo.LatLonCoord(c.Call.Args())
 }
 
 // AllocResults allocates the results struct.
 func (c Service_managementAt) AllocResults() (Service_managementAt_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Service_managementAt_Results{Struct: r}, err
+	return Service_managementAt_Results(r), err
 }
 
-type Service_managementAt_Results struct{ capnp.Struct }
+// Service_List is a list of Service.
+type Service_List = capnp.CapList[Service]
+
+// NewService creates a new list of Service.
+func NewService_List(s *capnp.Segment, sz int32) (Service_List, error) {
+	l, err := capnp.NewPointerList(s, sz)
+	return capnp.CapList[Service](l), err
+}
+
+type Service_managementAt_Results capnp.Struct
 
 // Service_managementAt_Results_TypeID is the unique identifier for the type Service_managementAt_Results.
 const Service_managementAt_Results_TypeID = 0xf32d7a3fdc567bdb
 
 func NewService_managementAt_Results(s *capnp.Segment) (Service_managementAt_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Service_managementAt_Results{st}, err
+	return Service_managementAt_Results(st), err
 }
 
 func NewRootService_managementAt_Results(s *capnp.Segment) (Service_managementAt_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Service_managementAt_Results{st}, err
+	return Service_managementAt_Results(st), err
 }
 
 func ReadRootService_managementAt_Results(msg *capnp.Message) (Service_managementAt_Results, error) {
 	root, err := msg.Root()
-	return Service_managementAt_Results{root.Struct()}, err
+	return Service_managementAt_Results(root.Struct()), err
 }
 
 func (s Service_managementAt_Results) String() string {
-	str, _ := text.Marshal(0xf32d7a3fdc567bdb, s.Struct)
+	str, _ := text.Marshal(0xf32d7a3fdc567bdb, capnp.Struct(s))
 	return str
 }
 
+func (s Service_managementAt_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Service_managementAt_Results) DecodeFromPtr(p capnp.Ptr) Service_managementAt_Results {
+	return Service_managementAt_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Service_managementAt_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Service_managementAt_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Service_managementAt_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Service_managementAt_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Service_managementAt_Results) Mgmt() (Event_List, error) {
-	p, err := s.Struct.Ptr(0)
-	return Event_List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return Event_List(p.List()), err
 }
 
 func (s Service_managementAt_Results) HasMgmt() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s Service_managementAt_Results) SetMgmt(v Event_List) error {
-	return s.Struct.SetPtr(0, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
 }
 
 // NewMgmt sets the mgmt field to a newly
 // allocated Event_List, preferring placement in s's segment.
 func (s Service_managementAt_Results) NewMgmt(n int32) (Event_List, error) {
-	l, err := NewEvent_List(s.Struct.Segment(), n)
+	l, err := NewEvent_List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return Event_List{}, err
 	}
-	err = s.Struct.SetPtr(0, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
 	return l, err
 }
 
 // Service_managementAt_Results_List is a list of Service_managementAt_Results.
-type Service_managementAt_Results_List struct{ capnp.List }
+type Service_managementAt_Results_List = capnp.StructList[Service_managementAt_Results]
 
 // NewService_managementAt_Results creates a new list of Service_managementAt_Results.
 func NewService_managementAt_Results_List(s *capnp.Segment, sz int32) (Service_managementAt_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return Service_managementAt_Results_List{l}, err
-}
-
-func (s Service_managementAt_Results_List) At(i int) Service_managementAt_Results {
-	return Service_managementAt_Results{s.List.Struct(i)}
-}
-
-func (s Service_managementAt_Results_List) Set(i int, v Service_managementAt_Results) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Service_managementAt_Results_List) String() string {
-	str, _ := text.MarshalList(0xf32d7a3fdc567bdb, s.List)
-	return str
+	return capnp.StructList[Service_managementAt_Results](l), err
 }
 
 // Service_managementAt_Results_Future is a wrapper for a Service_managementAt_Results promised by a client call.
 type Service_managementAt_Results_Future struct{ *capnp.Future }
 
-func (p Service_managementAt_Results_Future) Struct() (Service_managementAt_Results, error) {
-	s, err := p.Future.Struct()
-	return Service_managementAt_Results{s}, err
+func (f Service_managementAt_Results_Future) Struct() (Service_managementAt_Results, error) {
+	p, err := f.Future.Ptr()
+	return Service_managementAt_Results(p.Struct()), err
 }
 
-const schema_93337c65a295d42f = "x\xda\xccZ}t\x14\xd7u\xbfwf\x97\x95\x846" +
-	"\xabaVF`\xf0\x1a\x19\x1a\xa3\x00\x06DK\xac\x93" +
-	"T\xac>\xb0D\x91\xa5\xd1\x0a\x7fP\xe3z\xb4zZ" +
-	"\x8d\xb3;\xb3\xcc\xbe\x15\x88\xe0(Ph1\xc7\xd4\xc1" +
-	"\xc5\xf5G\x93\x16\x13\xd3\x14L\x8aML\x8f\xe1\x98\xd8" +
-	"\xb8\xb1\x83Mr\x12lrN\xed\xb8\x8d\x9b\x86\xd6\xb4" +
-	"!\xa7\xb6OO\xe2\xd4xz\xee\x9b\xdd\x9d\xd1J`" +
-	"\xc9\x7f\xf4\x94\x7fv\xb9\xef\xcd\xdb\xfb\xee\xbb\xefw\x7f" +
-	"\xf77Z\xfa_U\xab\xa4e\xc1\xc8L\x80D5\x06" +
-	"\xa79o~\xc5y\xea\x95\xb7\xee\xd9\x01\xda\"D'" +
-	"\xf8\xa7\x95\x83\xd1\x9f_\x7f\x16\x82\x18\x02h\xccL?" +
-	"\x80\xea\xce\xe9+\x01\xd4\x83\xd37\x01:\xe7\xfe\xe4\x99" +
-	"F~\x9b\xb5\x03\xb4/\xa0\xec$\xf6\xdd\xa7\xbfz\xfa" +
-	"\x85s\x10\xa0\xc9\x0b\xaa[$\xb5\xbd:\x04\xa0\xc6\xab" +
-	"\x8f\x02:CO\xbe\x9f\x9d\xbb\xef?\x1f\x9cp\xe9\xff" +
-	"\xae>\x80j8\xfcY\x00uq\x98\x96\xbe\x9b\xfd\xde" +
-	"{\xb7,|c\x1f(+$\xcf+\xc0\xc6\xbd\xe1\xd7" +
-	"P\xfdv\x98\xd6=\x14\xee\x06tV\xe2=\x7f\xa3\xbf" +
-	"\xf2\xc3\x87A\x8bc\xd8y\xba\xe7\xd2\xe8\x03\x7f\xfc\xd0" +
-	"\xb3\xae\x13\xa7\xc3\xafI\xea%\x9a\xdcx1\xfc3\x09" +
-	"\xd0\xf9\xda\x82\xfd\xbfZ\xfe\xd7\x1f>\x01\xca\x02tn" +
-	":\xff\xf0\x01\xb6\xb5\xf1\xcf!\x18\xa4)\x8b\x15\x1b\xd5" +
-	"\xb8B_\xbf\xa8\xc4\x10\xd09\xf5\xcf\x9b\xff\xe5w^" +
-	"O~sB\x9f\xef\x9cQ%\xa9#3f\x02\xa8;" +
-	"g\x90\xcf\xb8\xf2/\xae\xdb\xf7\xfc\xa1C\xc2\xe7\xd2v" +
-	"\x01\x1b/\xccx\x1fUT\xc9\xe7\xcb3V\x02:w" +
-	".\xfa\xfd[go\xeb<\\\xb6\xae\xf09\xac\x1e@" +
-	"u\x81\x98<Om\x06t\x1e\xab\x1d}\xf7\xfew^" +
-	"\xfd;\xd0V\xa2\xe4\xfc\xa6{\xd5\x9f\x1d\xbc\xb9\xf2M" +
-	"wr\\\x9d!\xa9\xba\x98\xbcA%\x1f\xf2\xff:\xfc" +
-	"\xdd\xbf|\xaa\xf3(h+0\xe89!&\xbf\xaa." +
-	"\x97\xd4\x8b4\xb9\xf1\x82z;\xed\xef\xf4\xb5#\xb7\xaf" +
-	"kz\xe1\x18(\x9f\x93\x9c\xc0\xa6\xd5#\xdfiH\xfd" +
-	"\x88<\xd6k\x8f\xa1:RK\xeb\xe6kS\x80\xce\"" +
-	"\xe9gk\xaf\xbfe\xc5w@Y yq\x03l<" +
-	"T\xbb\x1d\xd5Sb\xe6\x89\xdaG\x00\xbd\x13\xd0\x16\xa1" +
-	"T\x1e\xb3\xcb\xb5U\x92:\xf7\x1a:\xe7/^CY" +
-	"\xf1\xe4\xd0\x85\xe4?\xd4\xd4\x9c\x00\xeds\x88\x9e\x0bm" +
-	"!\x09\xb1\xf1\xcdk\xb6\xa3z\xe9\x1aZ\xfb\xe25\xb4" +
-	"\xbb\xcb\x0b\xf7l\xfb\x91R}\x12\x94\xb8\xef\x87\x822" +
-	"-\xdd5\xb3_R7\xce\xa4\xc9\x99\x99\xb4\xf4\xddw" +
-	"|\xe93_~\xea\xef\xbf[\xb6tm \x84\x00\x8d" +
-	"\xc1\xba\xdd\x08\xa8\xd6\xd6\xd1\xba\xa1\x07>8z\xfd\xac" +
-	"\xb7^\x00e\x81<fw\x1b\xeb\xeeEug\x1d-" +
-	"\xba\xad\xee\x16\xf5\xdbu3\x01\x9c\xb7\xa3\xbfT\xe7\x84" +
-	"w\xbdR\x9e\x15\x12\xb9\xf1\x8d\xba\xc7Q=.\x9ex" +
-	"\xa6\x8e\xdcX|\xd7\xd3\x17\xdf\xbf\xfb\x0f\xbfO\xf9)" +
-	"{\x19\xe5\xce\xd6f\xf5Kj~\x16}\xdd8K\xa4" +
-	"\xdc\x9c\xd5?|\xe7\xa1[O\x7f\x9f\x16\x97\xcb\xc3\xb7" +
-	"sv\x95\xa4\x1e\x9cM\x8b?1\xfb\xdf\x01\x9d\x8f\x9e" +
-	"ytf\xe4\xafn93\xf1\x1eG\xae}\x9c\xf6x" +
-	"\xff\xb5\xb4\xc7\xd2Rc2_$\xc6\xc5k\xfbQ\xbd" +
-	"|\xed\xb7@\xf6\x96\xd0\x16\xa0oZ{ $#6" +
-	"\x8e\xccY\x8f\xea\x9e9+\x01\x1a\x8f\xcfy\x90\xdc}" +
-	"\xfa\xfd\x8b{\x8e\x86\x17\xfex\\^\\\x9a\xbb\x05U" +
-	"\xbcN\x1c\xfa\xdc\xcf\xd2\xd4\x12>h\x8b\xb0\xa2<l" +
-	"\xe7\xae\xfb9\xaa\x97\xae\x9b\x09\xd0\xf8\xe1u+\xe9\xa6" +
-	"\x96\x12}B(\x9aw\x12\xd5\x9d\xf3\xe8\xee\xed\x9dG" +
-	"\xbb\xfb\xed\x1f\xd4~p\x96\xaf\xfe\xe9\xc4\x81\xb84\xcf" +
-	"\xa6@|8\x8f\xee\xd3\xb7\xe2\x0f\x1f\xfb\xea\xaf\xdb~" +
-	"1\x0eZf\xd5\x9fDuY=Ewq=]\xd3" +
-	"w\x94_\xa9/wu\\\x18w=\x96\xd5\xbf\x84j" +
-	"\xa7\x98\xd9^\xffk@\xe7\xa7_\xbe\xed\xed\xe6-\x8b" +
-	"?\x00e1B\xc1\xc7\xf7\xeagH\x80j\xe5\x0d\xf4" +
-	"\xa3R\xe8\xb9\xa7nz=\xf8\x1b\xdaM\xb0|77" +
-	"\xdf\xf0\x1f\xa8\xae\xbbA$\xc4\x0d\xe2b\xde\xd0t\xe2" +
-	"\xecGo_\xf8-]c\xd9sR\x9c\xd6\x89\xf9\xaf" +
-	"\xa1\xfa\x93\xf9\"j\xf3c\x08\x0elr2\xd6\x00K" +
-	"\xdf\x94\xb1\x82\xa6\x91\xd4o\xcaX\xf4\xf1G\x19\xdd\xd4" +
-	"S,\xc3L\xbe$\xa9g\xcdlS\x8fn\xeb\x99\xdc" +
-	"\x92\xd6<\xe7!\xc3Li\xd5\xe8\x8f\x862\xdb\x87\xba" +
-	"\xe1\x06\xcf\x07\xa5\xb2An]\x1bYg\x1a<\x92\xc8" +
-	"\xb2\xa4V!\x07\x00\x02\x08\xa0,\xec\x07\xd0n\x94Q" +
-	"k\x93\x101\x8a\x08\xb0,^\x85\x00\xdaZ\x19\xb5;" +
-	"$t\x92y\xce\x0d3\x95\x80P\x96%\xf13\x80=" +
-	"2b\x8d\xb78 \x19iZ\x97\xbe9\x9e\x93sF" +
-	"\xc6H\xeb\xdc\xb0\xcc^\x9d\xb3\x1ef'\x99\xc9\xf5\x14" +
-	"\x03\xc0\xe9 \xe1t\xc0\xd2f+&\xb3\xd9x\x9e[" +
-	"\x19\x9d\x1b\xc9\x84\xb5\xc90SK\xe2\xc3\xa9\x84e\xa4" +
-	"\xfbX&\x0b=\x88Z\xb5\xbb\x17D\xa5\xfd\x18\x80\xd6" +
-	"!\xa3\xd6'\xa1\x82\x01\xb1\x19E;\x0c\xa0\xf5\xc9\xa8" +
-	"\xdd#\xa1\"IQ\x94\x00\x94\x0d\xaf\x01h\x032j" +
-	"Y\x09\x9d\x9ce\xa4\xdbX\x96\xe3\xd0j\xcb\x8e\x0f3" +
-	";\xa6\xa7\x0c3\xe5z\xeb4\x8a\x7fo4\x03\x803" +
-	"\xa0\x8f\xe4:\xcd\x84\x85\xee\xcf\xdfnD\xcc\x01k\x13" +
-	"\x86@\xc2\x10\xd0B\xe4`\xe7\xa0\x14\xef\xb7\x86\x99\xdf" +
-	"\xcf\xf1[\x9f\xd49w\xe8\xf6p\x88\xe5\xb8V\x81\xfe" +
-	"\xe2T\xd9\xebU\x09\xa5\xf2!\xa7\xd5\xb6\xb2\xebrz" +
-	"\x0a\x909\xddY\xde\xaa\xdb\xfd\x16\x9a]\xa9\x0co\xd3" +
-	"9\xea\xc5\xd3FT\x16\xae)\x9c\xf6\x8a\xd2i+\xcb" +
-	"\xb6\x03hKe\xd4\xbe \xa1\xc36g-\x9b\xb3\x01" +
-	"\xa0c\x05)\x88\x94\xcb\x96\xbbf\x17\xba+\xea\x805" +
-	"\x9e\x03\x80X\xe3\xdb\xd7\xb4\xc9\xe6/\x1d%%$\xb8" +
-	"\x87(\x8ee\xeezZN\x99\xd5\x02\x80\x92\xa2\xd4\x03" +
-	"8\xd9B\xfe\x80\x9cb\xa3\xfd\x86\x95\xd1s\xb9PZ" +
-	"7J?X5\x99\x1f\xec\xb6S\xbai$W3\x9b" +
-	"\x1bic\x8b\xc8\xce\xa2\xb1K\xe7\x9c\xd9b\"\xe3\xcc" +
-	"\xce\xb9\x0e\xad(\xde\x10u\x03\x1e\x00H\xdc\x832&" +
-	"\xd2H\x89\xe5\xc6M5\xd0\x06H\x0c\x91\x9d\xa3\x97[" +
-	"\xeaFa\xcf\x92}+\xd9e9\x8a2\x80:\x82\x8f" +
-	"\x03$\xb6\x92}\x17\xd9\x03\x81(\x06\x88z\xe0K\x00" +
-	"\x89]d\xdfG\xf6`0\x8aA\x82Ea\xdfG\xf6" +
-	"\xfdd\x9f6-\x8a\xd3\x00\xd4o\xe0n\x80\xc4~\xb2" +
-	"\x1f!{(\x14EA\xa6\x84\xfd\x08\xd9\x9f#{E" +
-	"E\x14+\x00\xd4\xe3\xb8\x05 \xf1,\xd9_${e" +
-	"e\x14+\x01\xd4S\xc2\xfe<\xd9\xcf\x90\xbd\xaa*\x8a" +
-	"U\x00\xea\xcbx\x18 q\x86\xec\xe7\xc9>}z\x14" +
-	"\xa7\x03\xa8\xe7\x84\xfd<\xd9\xdf!{uu\x14\xab\x01" +
-	"\xd4\x7f\x12\xeb\xbcM\xf6wQBG\xb72m\xf6H" +
-	"\x97\x8e\x14\xd6V\xcb\xe4!f\xf2R\xfe\xebV\xe6\xd6" +
-	"\x8e\x15\xad\x16\xc4L^n\xefn\x9c\xd0N\xb9\xa7c" +
-	"\xc6\x18\xa0\xc5\x98<v0\x91\xb66\xb5I,\xd9j" +
-	"\xb1\xc1\xc1\x04\xd7\xcd\x01\xdd\x1e\x00\xff\x8c\xd5z\x8e_" +
-	"eFV\xb7y\xbc\xbb\xab\x0f\xadxw\x17\xad\x06W" +
-	"\x18\xa3u|cI\x827\xc3\x8aC\xb3\xfb\xd8\x84\x03" +
-	"\xf4L\xf9j\x09L[\x9b\xfa\xacDWKd\xccs" +
-	"\xe3\x87\xc7<m\xb6Z&\xdd\x04h\xb6E\xfa\x8eC" +
-	"\x94\xc0U/B\xe7\xda\xdeX\x9b\xceY\x8e\x92;Z" +
-	"\x82\xff\xfb\x9a\x00\xb4\xcd2j;\xbc\xccV\xb6m\x01" +
-	"\xd0\xbe*\xa3\xf6\x80\x0f2\xef\xbf\x17@\xdb%\xa3\xb6" +
-	"\xcf\xcbieo\x0b\x80\xf6\x80\x8c\xda\xa3^B+\x0f" +
-	"\xdb\x00\xda>\x19\xb5\xfd\x126\xbb\x98\x885\xce\x1e\xa5" +
-	"^>\xf2\xf1\xbf=R\x04\x0c\xa6\xdbi\x83\xe584" +
-	"'\xae4%M\xfe\xf2\x84\x05\x91\x89'\x8c\x0e\xe9\xf6" +
-	"0\xcb\xf1+>\xda\xa1C\xecJ3\x8aa\x0bM\x06" +
-	"?\xba\x0c\x93\xd9zz\x0c~\x00h\x01\xf4\xb1C\x05" +
-	"\xd7;E\x14\x01\xd9\xce\xf9\x8bl\xef\x04\xb0K\x91_" +
-	"$\xa3\xf6y\xc9={\x83\x1b\x16\xa0\x895\xde\x92\xae" +
-	"\xab\xcdz\xc6\xca\xfb\xb2~JP\xdb\xe1\x86h\x09\xd5" +
-	"\x88\x18\x15\x09F\x09P!\x8eT\xe9\x17p\x1b~\x08" +
-	"\xc0I\xd9\x8c\x99]\xba\x09\xa1\xbc\xcd\x9c\x02\xd0\xf6\xa0" +
-	"m\x0d\xe4\x93\xdc\xb0\xd0\x9cZ\xe5\xea3\xd2\xe9P\xe1" +
-	"\xc7\x02\xa5\xf2\x13^\x0e\xa0U\xc8\xa8E%\x8c\x0d\xb0" +
-	",\x1f\x9a\xa0\xc8N\xe9`:m\xdbH\xb9p^B" +
-	"p\x149\xee\x8b\xfea/\xd2\xa5\x1c\xff]2~\xde" +
-	"\xe5=\x8eip[\xe7\xac\x15\xdd+f\xeb\x9117" +
-	",\x97O\x0f^exJ\x0e\x17\xcf\xa3X\xa7\xa9L" +
-	"\xc7DU%\xa7\xebJ\xa1z\x8c\xb8\xcc\xd7e\xd4\xfe" +
-	"\xb6\xe84\xa2r\x90h\xcb\x11\x19\xb5\xe7\xe8bb\x14" +
-	"%D\xe58%\xd7\xb32j/\xd2\xc5\x94\xa2(#" +
-	"*\xa7\xd6\x03h\xcf\xcb\xa8\x9d\xa1\x8b)G1\x80\xa8" +
-	"\xbcL{>#\xa3v\x9e\xcaL \x8aAD\xe5\xdc" +
-	"\xeb\x00\xda?\xca\xa8\xfdB*Uz\x0b\x09mr\xcc" +
-	"\x1e\x8e\xb9X\x83 \x09&\x90\xb4\xadlg&\xabK" +
-	"I\xdemv\xe43\xf9\\\x8b\x9e\xd6\xcd\xa4\x9f\xdc%" +
-	"=6\x82\x11\x8f\xb5\x00\x06#\xb4\x84\xcdr\xc6@\x9e" +
-	"u\x80\xcc6\x96\x9e\xb1\x0a\xf5\x19\x0b\x17\x8cE\xec\x0e" +
-	"\xdfpF\xdf\xdcK\x8fIy\xd6\xcb\x92\xd60\xb3W" +
-	"\xdb\xba\x9b\x96S$V\xed\xc3\xf4\xbdg\x88\x99V," +
-	"\xc1\x0b\x09Z#n\x03]RDeA\xaf \x1f\xf3" +
-	"\xd6\x00\xa0\xac\xcc]\x03\xe0\xb0\x0c\xb3S\xccL\x12\xbf" +
-	"\x1aL[\x9b\x98m\x98\x80)G7\xf9\x10\xcb\x199" +
-	"\x91\xb5:\xcf\xdb\x06\x1f\xf1g\xf0'\xdc\x94\xb4nr" +
-	"\xc1A\x04\xe1\xa8\x13N\xc4\x1b\x84\x1377\x08'\x96" +
-	"-\x17N,\xa4\x8f\x802\xaf\x89\x82\xa8\xccZ\x0e\x10" +
-	"\xb1-\x8bG\xd2L\x1f\x8c\xe5\x86,\x8b\xc7\x06\xed\xbc" +
-	"\xc1\x9bs\xdc\xce\x7f\x89\xc7r\xf9\x94nO--'" +
-	"\"HtW\xd1'\xcf(\x95/\xf9\xfa\xf7\xf0z\xa7" +
-	"H\xa0\xe4r\x06U\xfcJ(X]\xba\x87\xed\x84x" +
-	"\xabd\xd4\xd6z(\xd8I\xb66\x19\xb5\x1e\xca\xe8U" +
-	"nFw\xd9^\xfb\xd1\x9c\x15\x0eb\x8d\xf7\xd3\x13\xa3" +
-	"\xa2a&-;k\xd9P\x96\xb2S\xc9\x8b\xbe\x91," +
-	"\x83\x02xT;\x8e\x8b\x1e>\xca\x1c\xc6\x8f\x9d\x02z" +
-	"\xaf\x19C\x9a9\xb3M=M\xa49\xe2\xf5\x9c\x80\x18" +
-	"\x11\x8e\xf9GK\x82MatJ\xad\xd0\x844\xb6\x10" +
-	"\xec\x10\xb3s\xbev\xa8,\xde%\xdc\xeb\x9c\xed\x0fx" +
-	"\xa1\xb6w5x\x8d\x93\x17\xf0\xd2\xc1\xbb\x01\x97\x8d\x01" +
-	"\xac\x06\x09\xab\x01#\xa6\x9ea\xc5\xffL)\xc2\xfa " +
-	"g\xb6(\x02\x81\x1a\x14<Wd\xb76_Fm)" +
-	"\xb9)\x09\x92\xab,n\xf0\xa2\x1ec\xf4(\xd6xR" +
-	"\x93\xebP\x84\xda\xb1R\xf359\x1a\x94`vd\xd8" +
-	"H\x16\xeaR\x10\xc0\xf9\x9f\x07\x7fp\xf3\xd2\x8f\xde\xfb" +
-	"%\x16\x15\x00E\xb9\x17$\xa52\xe4\x14\x1f\x86\x88\xc9" +
-	"\xe3|\x15\x8ar\xff\x93\x8e\xaf\xdfy\xf6\xdc\xd1cS" +
-	"\xb8\xe7\xee\xd9\x11\xcb\x91\xcdT\xd9\x11\xad\xf1N\xa3\x08" +
-	"\xf2]\xf7z\xd9\xef\x82<\x80\xb2\x8e\xe2\xd1#\xa3v" +
-	"\x97\xe8\xc8\xd3\xdc\x18\xd6m\xca\xa8\xe2!d\x09M\xda" +
-	"\x98\x09\x91\x9c\xc1G\x8aQ\x89\x10\x18\xa3\xe2\xec\xb8\xeb" +
-	"\x85\xf9\xdf|d\xcf\xbb\x02\\\xa6\x9au\x13\x91\x9f\xf2" +
-	"\xac\xf31\xca\xd9\x131Jr\x7f\xab\x8c\xda.\x09\xb1" +
-	"\x90t;i\xef;d\xd4\xbeFu\x0b]B\xb9\xa7" +
-	"\xde\xc72\x03\x92K(\xf7\xd6{,\xf3\x8aY\x98\xa4" +
-	".!c\x88\xce\xb5\x80\x09!sh\x85\xf7\xddj\xfc" +
-	"t\x15\xfb\xd66\x96\xd1\xcd\x812h\x14u\xa3\xb4i" +
-	"\x9dx\xf0]2jC\x1e\xb4\xb1^Oc(\x9dc" +
-	"\x86\x92}HF\x8d\xd3\xa6k\xdcb\xbd\x91\x8ci\x19" +
-	"\xb5\xcd\x12\x8e\x9a\xee\xcf\x8di\x0b\xaeH\x0d\xfd$\x0a" +
-	"0\x96\xa3\x8a\x86\xd3@\x0aN\x9b*\xf4\xf53\xbe\x89" +
-	"\xc9\xcc,\xdeL\xb9\x0c\xfa\xc4\xcd\x0c\x94\xf3\xd6\x12\x89" +
-	"\x07\x18O\xb1\x9b]\x12~\x15\xee\x1d\xf8\xa4\xf8\x87\xf4" +
-	"LN\xbb\x11\xd1Sl\x95\xce&O\x87T\xda\xb7{" +
-	"\x0a\xb9\xd2\xde\xe2\x89tJ|\xb7'\xba\xd1HI\xb6" +
-	"U\xe2\x87=\x89Vi?\xec\xa9\xd0J\xe7aO\xd7" +
-	"W\xbaZ<\x01S\xe9\\_\xe8R\x9c\xa2\x1a\x15(" +
-	"\xc8QP tP\x92\xa9\x8a\x06\x18-\xc8\x1cN\xf1" +
-	"\x02\x15\xd9\x8d\xcb\x1f\x9dbb\x95\x99\xbb\xcb\xb8\x90k" +
-	"\x1e%F\xad\xa7\x98Sd\xbc [\xe6$\x03\xd9>" +
-	"L]\xb3\x10\x0b=AT\xb9\xd7\xf7\xf2@Y\xef\x81" +
-	"\xab\xa248\xed\xc5\x8a\x16\xa1\x92\xe8\x08\xbe\x94pE" +
-	"\x18a\xd1\xe6\x94R\xff8]\xed\xa7e\xd4\x9e\xf7R" +
-	"\xffD\x83GI\xc3\x92\xe3\xa0O\xdeUN\xcd\x06)" +
-	",\x7fL\xc6\x92\xf8\xad\x1cl\x01)\x1c\xb8L\xc6\x92" +
-	"\xea\xaf\xecY\x0e\x92\x12\x94\x85\xbc\xa1\xe4)\xef\xb22" +
-	"j[%T\xa6-\x15\xda\x862\xb2\xdd\x03\x9b\x08\x1f" +
-	"\xc9\xb2\xf1\xf57b\x98\x83\x16\xd68o\xbc%\x7f|" +
-	"\xf6+g\xcf\x17\xab\x99\xceGE\xce33&\x8aR" +
-	"\xb1\xee\xcd\x00\x09g\x10O\xcd\x9bq\x9e\xe0:\xda\xbc" +
-	"{\xb0M\x1f\x81q\x8c\xe2\x13\x83\xdelr\x0a\x16A" +
-	"\xc5R\xb7\x87n\x12\x00\xbcm\xbb`w\xf7\xb5\x08v" +
-	"\x97\xdf-\xd8]~\xbd`w\x1b\xc98M1\x0e\x03" +
-	"`\xc8\xfd\xa8p?*\x15\x83\xc6\xaa\x14\x9d\xa8\xe9t" +
-	"eC/@\xa1\xbdv\xf4\xf2\xac,t\xc6\xa0\x8f\xcb" +
-	"J\xc7\xf0%\xd0(/d\x955a\xd29\x99\x893" +
-	"\xd7\x9c0sG\x0bJ\xb1\x93c\xfc6=\x9dgT" +
-	"#s\xfa0Kp\x9d\x13w\x9eR\xe3\xea\x97}\x85" +
-	"\xd6M\xd5\xb7\xf4\xbeR\xc1~\xa7(\xb0B\x88e\xb2" +
-	"\xda\x8dr\x00Q\x08v\x95B\x08\xabF\x19\x13uB" +
-	"\x98s\x95`\xb5V\xd8\xeb\xc8>\x1f\x0b\xbd\x92\x84\xa8" +
-	"\xce\x13\x82\xdd\xf5d_\x84\x85vIFT\x17\x0a\xfb" +
-	"\x8dd_\x81\x85\x8e)\x00\xa0.\x13\xeb\xac \xfb*" +
-	"!\xcc\x15\x04\xbb/\xe2I\x80\xc4*\xb2\xaf\x15\xc2\\" +
-	"A\xb0\xeb\x14\xc2\xd9Z\xb2\xdf!\x84\xb9\x82`\xb7\x0e" +
-	"\xd7\x00$\xfa\xc8~\x0f9R\xe9\xeau\x1b\xb0\x1f " +
-	"q\x17\x99\x87PB\x02\xe3J\x00\x95a\x93_\x86\xa4" +
-	"\xa3\xe9c\x99l\x1f\x0e\xd9,7d\xa5\x07|-\x98" +
-	"\xabS\xf71\xccdo7\xcc\x01\xa1i\x95x\x92a" +
-	"\x0aM\x1eb&\x8f'n\xf7\xf7X\xe3\xed/\xde\xb9" +
-	"J\xf46\x9b\x1b\x07\xf4\x91\x1e\xb4Y\xd2\xc8&\xf2\x19" +
-	"\xbf\x9e\xadon\xcd\xdb6C\x93\xb7\xe9#=6k" +
-	"v\xa7\x94&p\x96\xa1\xff\xc7\xb1\xdf\x1af-z\x8e" +
-	"E\xc8\xed\xd2p\xbf\x9ec\xaeD\xee\x13\xed\xfc\x07\x8b" +
-	"5\xde\xa9\x17\xeaJIS*U\x85\xb2\xba\x12\x9c\xac" +
-	"t\xd0\xecj\x07\"\xb7Joi\xaf&\xe44y\\" +
-	"\xb5\x08v\x8b\x9b\xbc*Y\xd6\x94x\\\xba\xb4\xf8\x94" +
-	"*`\xfb0\x8b\x11i\xe6Z\xc0\xad\xca\x04\"\xe1\x06" +
-	"OD\x89\x0c\xe8\x9c]\xa5\xc0N\xfamR\xb3a\xa6" +
-	"\x96\xb4\xae\xf5iC\xf5\x02\xaa*\x1b\x00B\xc9<\xf5" +
-	"\x9a\x83|\x92\x17\xd8%\x14\xc5\x12R\xea\xa9n\x14\xeb" +
-	"nt!\xd0p!\x90\xb9\x10\xb8\xc1\x85\xc0\x0d.\x04" +
-	"\xde\xe9B\xa0\xe6B\xa0\xe6B\xa0\xe6B\xa0\xd6\xf2\xff" +
-	"\x15\xf4&\xc7)\x13\xcc\xa6\xf6c\x897\x10\xe7\xf3{" +
-	"Y.\x9f\xe6\x98+*e\xfeC\x9e/a$\x93\xca" +
-	"p\xef\xc5\x9b\xef5\xa6x\xf1\xf6\xe9P\xb5C\xb7#" +
-	"\x14\x9b\x82\xea\xe4B\xa7\xf2\x18\xf5f\x8f\xca\xa8=Y" +
-	"\xe0\xac\xd4\x90<A\xc6\xfd2jG\x8a\xa0\x09\xa0\x1c" +
-	"\xda\xed\x93\xa2\x02\x059\xf8\xf8I\x00\xed9\x19\xb5\xef" +
-	"\x11\\\xd6\xb8\xaa\xd3\xe9~\x00\xedE\x19\xb5\x1fH\x08" +
-	"\xe0\xf6|\xaf\x12_\xfe\x9e\x8c\xda\x8f\xa5\xff{D*" +
-	"\xa4I\x1f\x84\x8c\x0c\x1b\xdb\x92\x07#\xf2\x18Y\xd9\xf7" +
-	"7 \x9f\xfe-W\"\xcb\x92n\xc3\xe0\xeb\x92\x96O" +
-	"\xd4%-\xf7\xba\xa4\x92\xbc\xb7\xb3\xc1'\xc6\x17\xe5\xbd" +
-	"\xfb{\xcb\xdb$De\xefnOw\x8f\x89\xdc\xc6\x88" +
-	"\xf7g\x1f.\x1b\x8a\x0dSa.\x86\"\x927\x0d\x8e" +
-	"\x11\xef\xadqA\x94H\xe6y\xb7\xbd\x96\x0d\x02\xd2h" +
-	"\xe9\x05sa\xd4}G\xd8\xc3\xb0\xfc\xcd\xae8\x9b\xff" +
-	"\x0d\x00\x00\xff\xff\x11PL\xd5"
+const schema_93337c65a295d42f = "x\xda\xccz\x7ft\x14\xd7u\xff\xbd3\xbb\xac$\xb4" +
+	"Y\x0d\xb32\x02\x83\xd7\xc8\xf0\x8dQ\x00\x03\xe2[b" +
+	"\x9d\xb8b\xf5\x03K\x14Y\x1a\xad\xf0\x0fj\\\x8fV" +
+	"O\xabqvg\x96\xd9\xb7\x0298\x0a\x14Z\xcc1" +
+	"upq\xfd\xa3I\x8b\x89i\x0a&\xc5&\xa6\xc7p" +
+	"Ll\xdc\xd8\xc1&9\x0969\xa7v\xdc\xc6MC" +
+	"k\xda\x90s\x8cOO\xe2\xd4xz\xee\x9b\xdd\x9d\xd1" +
+	"J`\xc9\x7f\xf4\x94\x7fv\xb9\xef\xcd\xdb\xfb\xee\xbb\xef" +
+	"s?\xf73Zz\xa9jU`Y82\x13\xa4D" +
+	"5\x06\xa79o\x7f\xd5y\xe6\xb5w\xee\xdd\x0e\xda\"" +
+	"D'\xf8\xa7\x95\x83\xd1_\\\x7f\x06\x82\x18\x02h\xcc" +
+	"L\xdf\x8f\xea\x8e\xe9+\x01\xd4\x03\xd37\x01:g\xff" +
+	"\xe4\xb9F~\xbb\xb5\x1d\xb4/\xa1\xec$\xf6>\xa0\xbf" +
+	"~\xea\xa5\xb3\x10\xa0\xc9\x0b\xaa[$\xb5\xbd:\x04\xa0" +
+	"\xc6\xab\x8f\x00:CO_\xca\xce\xdd\xfb\x9f\x0fO\xb8" +
+	"\xf4\x7fU\xefG5\x1c\xfe<\x80\xba8LK\xdf\xc3" +
+	"~\xef\x83[\x17\xbe\xb5\x17\x94\x15\x92\xe7\x15`\xe3\x9e" +
+	"\xf0\x1b\xa8~'L\xeb\x1e\x0cw\x03:+\xf1\xde\xbf" +
+	"\xd1_\xfb\xd1\xa3\xa0\xc51\xec<\xdbsq\xf4\xa1?" +
+	"~\xe4y\xd7\x89S\xe17$\xf5\"Mn\xbc\x10\xfe" +
+	"\xb9\x04\xe8|}\xc1\xbe_/\xff\xeb\x8f\x9e\x02e\x01" +
+	":7\x9d{t?\xdb\xd2\xf8\xe7\x10\x0c\xd2\x94\xc5\x8a" +
+	"\x8dj\\\xa1\xaf\xb7(1\x04tN\xfe\xf3\xe6\x7f\xf9" +
+	"\x7fo&\xbf5\xa1\xcfw\xcd\xa8\x92\xd4\x91\x193\x01" +
+	"\xd4\x1d3\xc8g\\\xf9\x17\xd7\xed}\xf1\xe0A\xe1s" +
+	"i\xbb\x80\x8d\xe7g\\B\x15U\xf2\xf9\xf2\x8c\x95\x80" +
+	"\xce]\x8b~\xff\xb6\xd9[;\x0f\x95\xad+|\x0e\xab" +
+	"\xfbQ] &\xcfS\x9b\x01\x9d'jG\xdf\x7f\xf0" +
+	"\xbd\xd7\xff\x0e\xb4\x95(9\xbf\xed^\xf5g\x07n\xae" +
+	"|\xdb\x9d\x1cWgH\xaa.&oP\xc9\x87\xfc\xbf" +
+	"\x0e\x7f\xef/\x9f\xe9<\x02\xda\x0a\x0czN\x88\xc9\xaf" +
+	"\xab\xcb%\xf5\x02Mn<\xaf\xdeA\xfb;u\xed\xc8" +
+	"\x1d\xeb\x9a^:\x0a\xca\x17$'\xb0i\xf5\xc8w\x1b" +
+	"R?&\x8f\xf5\xda\xa3\xa8\x8e\xd4\xd2\xba\xf9\xda\x14\xa0" +
+	"\xb3H\xfa\xf9\xda\xebo]\xf1]P\x16H^\xdc\x00" +
+	"\x1b\x0f\xd6nC\xf5\xa4\x98y\xbc\xf61@\xef\x04\xb4" +
+	"E(\x95\xc7\xecrm\x95\xa4\xce\xbd\x86\xce\xf9\x96k" +
+	"(+\x9e\x1e:\x9f\xfc\x87\x9a\x9a\xe3\xa0}\x01\xd1s" +
+	"\xa1-$!6\xbe}\xcd6T/^Ck_\xb8" +
+	"\x86vwy\xe1\xee\xad?V\xaaO\x80\x12\xf7\xfdP" +
+	"P\xa6\xa5\xbbf\xf6K\xea\xc6\x99493\x93\x96\xbe" +
+	"\xe7\xce/\x7f\xee+\xcf\xfc\xfd\xf7\xca\x96\xae\x0d\x84\x10" +
+	"\xa01X\xb7\x0b\x01\xd5\xda:Z7\xf4\xd0\x87G\xae" +
+	"\x9f\xf5\xceK\xa0,\x90\xc7\xecnc\xdd}\xa8\xee\xa8" +
+	"\xa3E\xb7\xd6\xdd\xaa~\xa7n&\x80\xf3n\xf4W\xea" +
+	"\x9c\xf0\xce\xd7\xca\xb3B\"7\xbeY\xf7$\xaa\xc7\xc4" +
+	"\x13\xcf\xd5\x91\x1b\x8b\xef~\xf6\xc2\xa5{\xfe\xf0\x07\x94" +
+	"\x9f\xb2\x97Q\xeelmV\xbf\xa4\xe6g\xd1\xd7\x8d\xb3" +
+	"D\xca\xcdY\xfd\xa3\xf7\x1e\xb9\xed\xd4\x0fhq\xb9<" +
+	"|;fWI\xea\x81\xd9\xb4\xf8S\xb3\xff\x1d\xd0\xf9" +
+	"\xf8\xb9\xc7gF\xfe\xea\xd6\xd3\x13\xefq\xe4\xda'i" +
+	"\x8f\x0f^K{,-5&\xf3Eb\\\xb8\xb6\x1f" +
+	"\xd5\xcb\xd7~\x1bdo\x09m\x01\xfa\xa6\xb5\x07B2" +
+	"b\xe3\xc8\x9c\xf5\xa8\xee\x9e\xb3\x12\xa0\xf1\xd8\x9c\x87\xc9" +
+	"\xddg/]\xd8}$\xbc\xf0'\xe3\xf2\xe2\xe2\xdc\xfb" +
+	"Q\xc5\xeb\xc4\xa1\xcf\xfd<M-\xe1\x83\xb6\x08+\xca" +
+	"\xc3v\xf6\xba_\xa0z\xf1\xba\x99\x00\x8d\x1f]\xb7\x92" +
+	"nj)\xd1'\x84\xa2y'P\xdd1\x8f\xee\xde\x9e" +
+	"y\xb4\xbb\xdf\xfdA\xed\x87g\xf8\xea\x9fM\x1c\x88\x8b" +
+	"\xf3l\x0a\xc4G\xf3\xe8>};\xfe\xe8\xd1\xaf\xfd\xa6" +
+	"\xed\x97\xe3\xa0eV\xfd\x09T\x97\xd5St\x17\xd7\xd3" +
+	"5}O\xf9\xb5\xfajW\xc7\xf9q\xd7cY\xfd+" +
+	"\xa8v\x8a\x99\xed\xf5\xbf\x01t~\xf6\x95\xdb\xdfm\xbe" +
+	"\x7f\xf1\x87\xa0,F(\xf8\xf8A\xfd\x0c\x09P\xad\xbc" +
+	"\x81~T\x0a\xbd\xf0\xccMo\x06\x7fK\xbb\x09\x96\xef" +
+	"\xe6\xe6\x1b\xfe\x03\xd5u7\x88\x84\xb8A\\\xcc\x1b\x9a" +
+	"\x8e\x9f\xf9\xf8\xdd\xf3\xbf\xa3k,{N\x8a\xd3:>" +
+	"\xff\x0dT\x7f:_Dm~\x0c\xc1\x81MN\xc6\x1a" +
+	"`\xe9\x9b2V\xd04\x92\xfaM\x19\x8b>\xfe(\xa3" +
+	"\x9bz\x8ae\x98\xc9\x97$\xf5\xac\x99m\xea\xd1m=" +
+	"\x93[\xd2\x9a\xe7<d\x98)\xad\x1a\xfd\xd1Pf\xfb" +
+	"P7\xdc\xe0\xf9\xa0T6\xc8\xadk#\xebL\x83G" +
+	"\x12Y\x96\xd4*\xe4\x00@\x00\x01\x94\x85\xfd\x00\xda\x8d" +
+	"2jm\x12\"F\x11\x01\x96\xc5\xab\x10@[+\xa3" +
+	"v\xa7\x84N2\xcf\xb9a\xa6\x12\x10\xca\xb2$~\x0e" +
+	"\xb0GF\xac\xf1\x16\x07$#M\xeb\xd27\xc7sr" +
+	"\xce\xc8\x18i\x9d\x1b\x96\xd9\xabs\xd6\xc3\xec$3\xb9" +
+	"\x9eb\x008\x1d$\x9c\x0eX\xdal\xc5d6\x1b\xcf" +
+	"s+\xa3s#\x99\xb06\x19fjI|8\x95\xb0" +
+	"\x8ct\x1f\xcbd\xa1\x07Q\xabv\xf7\x82\xa8\xb4\x1f\x05" +
+	"\xd0:d\xd4\xfa$T0 6\xa3h\x87\x00\xb4>" +
+	"\x19\xb5{%T$)\x8a\x12\x80\xb2\xe1\x0d\x00m@" +
+	"F-+\xa1\x93\xb3\x8ct\x1b\xcbr\x1cZm\xd9\xf1" +
+	"af\xc7\xf4\x94a\xa6\\o\x9dF\xf1\xef\xadf\x00" +
+	"p\x06\xf4\x91\\\xa7\x99\xb0\xd0\xfd\xf9;\x8c\x889`" +
+	"m\xc2\x10H\x18\x02Z\x88\x1c\xec\x1c\x94\xe2\xfd\xd60" +
+	"\xf3\xfb9~\xeb\x93:\xe7\x0e\xdd\x1e\x0e\xb1\x1c\xd7*" +
+	"\xd0_\x9c*{\xbd*\xa1T>\xe2\xb4\xdaVv]" +
+	"NO\x012\xa7;\xcb[u\xbb\xdfB\xb3+\x95\xe1" +
+	"m:G\xbdx\xda\x88\xca\xc25\x85\xd3^Q:m" +
+	"e\xd96\x00m\xa9\x8c\xda\x97$t\xd8\xe6\xaces" +
+	"6\x00t\xac \x05\x91r\xd9r\xd7\xecBwE\x1d" +
+	"\xb0\xc6s\x00\x10k|\xfb\x9a6\xd9\xfc\xa5\xa3\xa4\x84" +
+	"\x04\xf7\x10\xc5\xb1\xcc]O\xcb)\xb3Z\x00PR\x94" +
+	"z\x00'[\xc8\x1f\x90Sl\xb4\xdf\xb02z.\x17" +
+	"J\xebF\xe9\x07\xab&\xf3\x83\xddvJ7\x8d\xe4j" +
+	"fs#m\xdc/\xb2\xb3h\xec\xd29g\xb6\x98\xc8" +
+	"8\xb3s\xaeC+\x8a7D\xdd\x80\xfb\x01\x12\xf7\xa2" +
+	"\x8c\x894Rb\xb9qS\x0d\xb4\x01\x12Cd\xe7\xe8" +
+	"\xe5\x96\xbaQ\xd8\xb3d\xdfBvY\x8e\xa2\x0c\xa0\x8e" +
+	"\xe0\x93\x00\x89-d\xdfI\xf6@ \x8a\x01\xa2\x1e\xf8" +
+	"\x0a@b'\xd9\xf7\x92=\x18\x8cb\x90`Q\xd8\xf7" +
+	"\x92}\x1f\xd9\xa7M\x8b\xe24\x00\xf5\x9b\xb8\x0b \xb1" +
+	"\x8f\xec\x87\xc9\x1e\x0aEQ\x90)a?L\xf6\x17\xc8" +
+	"^Q\x11\xc5\x0a\x00\xf5\x18\xde\x0f\x90x\x9e\xec/\x93" +
+	"\xbd\xb22\x8a\x95\x00\xeaIa\x7f\x91\xec\xa7\xc9^U" +
+	"\x15\xc5*\x00\xf5U<\x04\x908M\xf6sd\x9f>" +
+	"=\x8a\xd3\x01\xd4\xb3\xc2~\x8e\xec\xef\x91\xbd\xba:\x8a" +
+	"\xd5\x00\xea?\x89u\xde%\xfb\xfb(\xa1\xa3[\x996" +
+	"{\xa4KG\x0ak\xabe\xf2\x103y)\xffu+" +
+	"s[\xc7\x8aV\x0bb&/\xb7w7Nh\xa7\xdc" +
+	"\xd31c\x0c\xd0bL\x1e;\x98H[\x9b\xda$\x96" +
+	"l\xb5\xd8\xe0`\x82\xeb\xe6\x80n\x0f\x80\x7f\xc6j=" +
+	"\xc7\xaf2#\xab\xdb<\xde\xdd\xd5\x87V\xbc\xbb\x8bV" +
+	"\x83+\x8c\xd1:\xbe\xb1$\xc1\x9ba\xc5\xa1\xd9}l" +
+	"\xc2\x01z\xa6|\xb5\x04\xa6\xadM}V\xa2\xab%2" +
+	"\xe6\xb9\xf1\xc3c\x9e6[-\x93n\x024\xdb\"}" +
+	"\xc7!J\xe0\xaa\x17\xa1smo\xacM\xe7,G\xc9" +
+	"\x1d-\xc1\xff\x03M\x00\xdaf\x19\xb5\xed^f+[" +
+	"\xef\x07\xd0\xbe&\xa3\xf6\x90\x0f2\x1f\xbc\x0f@\xdb)" +
+	"\xa3\xb6\xd7\xcbieO\x0b\x80\xf6\x90\x8c\xda\xe3^B" +
+	"+\x8f\xda\x00\xda^\x19\xb5}\x126\xbb\x98\x885\xce" +
+	"n\xa5^>\xfc\xc9\xbf=V\x04\x0c\xa6\xdbi\x83\xe5" +
+	"84'\xae4%M\xfe\xf2\x84\x05\x91\x89'\x8c\x0e" +
+	"\xe9\xf60\xcb\xf1+>\xda\xa1C\xecJ3\x8aa\x0b" +
+	"M\x06?\xba\x0c\x93\xd9zz\x0c~\x00h\x01\xf4\xb1" +
+	"C\x05\xd7;E\x14\x01\xd9\xce\xf9\x8bl\xef\x04\xb0K" +
+	"\x91_$\xa3\xf6E\xc9={\x83\x1b\x16\xa0\x895\xde" +
+	"\x92\xae\xab\xcdz\xc6\xca\xfb\xb2~JP\xdb\xe1\x86h" +
+	"\x09\xd5\x88\x18\x15\x09F\x09P!\x8eT\xe9\x17p\x1b" +
+	"~\x04\xc0I\xd9\x8c\x99]\xba\x09\xa1\xbc\xcd\x9c\x02\xd0" +
+	"\xf6\xa0m\x0d\xe4\x93\xdc\xb0\xd0\x9cZ\xe5\xea3\xd2\xe9" +
+	"P\xe1\xc7\x02\xa5\xf2\x13^\x0e\xa0U\xc8\xa8E%\x8c" +
+	"\x0d\xb0,\x1f\x9a\xa0\xc8N\xe9`:m\xdbH\xb9p" +
+	"^Bp\x149\xee\x8b\xfe!/\xd2\xa5\x1c\xff\xffd" +
+	"\xfc\xa2\xcb{\x1c\xd3\xe0\xb6\xceY+\xbaW\xcc\xd6#" +
+	"cnX.\x9f\x1e\xbc\xca\xf0\x94\x1c.\x9eG\xb1N" +
+	"S\x99\x8e\x89\xaaJN\xd7\x95B\xf5\x04q\x99o\xc8" +
+	"\xa8\xfdm\xd1iD\xe5\x00\xd1\x96\xc32j/\xd0\xc5" +
+	"\xc4(J\x88\xca1J\xae\xe7e\xd4^\xa6\x8b)E" +
+	"QFTN\xae\x07\xd0^\x94Q;M\x17S\x8eb" +
+	"\x00Qy\x95\xf6|ZF\xed\x1c\x95\x99@\x14\x83\x88" +
+	"\xca\xd97\x01\xb4\x7f\x94Q\xfb\xa5T\xaa\xf4\x16\x12\xda" +
+	"\xe4\x98=\x1cs\xb1\x06A\x12L i[\xd9\xceL" +
+	"V\x97\x92\xbc\xdb\xec\xc8g\xf2\xb9\x16=\xad\x9bI?" +
+	"\xb9Kzl\x04#\x1ek\x01\x0cFh\x09\x9b\xe5\x8c" +
+	"\x81<\xeb\x00\x99m,=c\x15\xea3\x16.\x18\x8b" +
+	"\xd8\x1d\xbe\xe1\x8c\xbe\xb9\x97\x1e\x93\xf2\xac\x97%\xada" +
+	"f\xaf\xb6u7-\xa7H\xac\xda\x87\xe9{\xcf\x103" +
+	"\xadX\x82\x17\x12\xb4F\xdc\x06\xba\xa4\x88\xca\x82^A" +
+	">\xe6\xad\x01@Y\x99\xbb\x06\xc0a\x19f\xa7\x98\x99" +
+	"$~5\x98\xb661\xdb0\x01S\x8en\xf2!\x96" +
+	"3r\"ku\x9e\xb7\x0d>\xe2\xcf\xe0O\xb9)i" +
+	"\xdd\xe4\x82\x83\x08\xc2Q'\x9c\x887\x08'nn\x10" +
+	"N,[.\x9cXH\x1f\x01e^\x13\x05Q\x99\xb5" +
+	"\x1c b[\x16\x8f\xa4\x99>\x18\xcb\x0dY\x16\x8f\x0d" +
+	"\xday\x837\xe7\xb8\x9d\xff2\x8f\xe5\xf2)\xdd\x9eZ" +
+	"ZND\x90\xe8\xae\xa2O\x9eQ*_\xf1\xf5\xef\xe1" +
+	"\xf5N\x91@\xc9\xe5\x0c\xaa\xf8\x95P\xb0\xbat\x0f\xdb" +
+	"\x09\xf1V\xc9\xa8\xad\xf5P\xb0\x93lm2j=\x94" +
+	"\xd1\xab\xdc\x8c\xee\xb2\xbd\xf6\xa39+\x1c\xc4\x1a\xef\xa7" +
+	"'FE\xc3LZv\xd6\xb2\xa1,e\xa7\x92\x17}" +
+	"#Y\x06\x05\xf0\xa8v\x1c\x17=|\x949\x8c\x9f8" +
+	"\x05\xf4^3\x864sf\x9bz\x9aHs\xc4\xeb9" +
+	"\x011\"\x1c\xf3\x8f\x96\x04\x9b\xc2\xe8\x94Z\xa1\x09i" +
+	"l!\xd8!f\xe7|\xedPY\xbcK\xb8\xd79\xdb" +
+	"\x1f\xf0Bm\xefj\xf0\x1a'/\xe0\xa5\x83w\x03." +
+	"\x1b\x03X\x0d\x12V\x03FL=\xc3\x8a\xff\x99R\x84" +
+	"\xf5A\xcelQ\x04\x025(x\xae\xc8nm\xbe\x8c" +
+	"\xdaRrS\x12$WY\xdc\xe0E=\xc6\xe8Q\xac" +
+	"\xf1\xa4&\xd7\xa1\x08\xb5c\xa5\xe6kr4(\xc1\xec" +
+	"\xc8\xb0\x91,\xd4\xa5 \x80\xf3\xdf\x0f\xff\xf0\xe6\xa5\x1f" +
+	"\x7f\xf0+,*\x00\x8ar\x1fHJe\xc8)>\x0c" +
+	"\x11\x93\xc7\xf9*\x14\xe5\xfe\xa7\x1d\xdf\xb8\xeb\xcc\xd9#" +
+	"G\xa7p\xcf\xdd\xb3#\x96#\x9b\xa9\xb2#Z\xe3\x9d" +
+	"F\x11\xe4\xbb\xee\xf3\xb2\xdf\x05y\x00e\x1d\xc5\xa3G" +
+	"F\xedn\xd1\x91\xa7\xb91\xac\xdb\x94Q\xc5C\xc8\x12" +
+	"\x9a\xb41\x13\"9\x83\x8f\x14\xa3\x12!0F\xc5\xd9" +
+	"~\xf7K\xf3\xbf\xf5\xd8\xee\xf7\x05\xb8L5\xeb&\"" +
+	"?\xe5Y\xe7c\x94\xb3'b\x94\xe4\xfe\x16\x19\xb5\x9d" +
+	"\x12b!\xe9v\xd0\xde\xb7\xcb\xa8}\x9d\xea\x16\xba\x84" +
+	"rw\xbd\x8fe\x06$\x97P\xee\xa9\xf7X\xe6\x15\xb3" +
+	"0I]B\xc6\x10\x9dk\x01\x13B\xe6\xd0\x0a\xef\xbb" +
+	"\xd5\xf8\xd9*\xf6mm,\xa3\x9b\x03e\xd0(\xeaF" +
+	"i\xd3:\xf1\xe0\xbbe\xd4\x86<hc\xbd\x9e\xc6P" +
+	":\xc7\x0c%\xfb\x90\x8c\x1a\xa7M\xd7\xb8\xc5z#\x19" +
+	"\xd32j\x9b%\x1c5\xdd\x9f\x1b\xd3\x16\\\x91\x1a\xfa" +
+	"I\x14`,G\x15\x0d\xa7\x81\x14\x9c6U\xe8\xebg" +
+	"|\x13\x93\x99Y\xbc\x99r\x19\xf4\x89\x9b\x19(\xe7\xad" +
+	"%\x12\x0f0\x9eb7\xbb$\xfc*\xdc;\xf0i\xf1" +
+	"\x0f\xe9\x99\x9cv#\xa2\xa7\xd8*\x9dM\x9e\x0e\xa9\xb4" +
+	"o\xf3\x14r\xa5\xbd\xc5\x13\xe9\x94\xf8.Ot\xa3\x91" +
+	"\x92l\xab\xc4\x0fy\x12\xad\xd2~\xc8S\xa1\x95\xceC" +
+	"\x9e\xae\xaft\xb5x\x02\xa6\xd2\xb9\xbe\xd0\xa58E5" +
+	"*P\x90\xa3\xa0@\xe8\xa0$S\x15\x0d0Z\x909" +
+	"\x9c\xe2\x05*\xb2\x1b\x97?:\xc5\xc4*3w\x97q" +
+	"!\xd7<J\x8cZO1\xa7\xc8xA\xb6\xccI\x06" +
+	"\xb2}\x98\xbaf!\x16z\x82\xa8r\x9f\xef\xe5\x81\xb2" +
+	"\xde\x03WEip\xda\x8b\x15-B%\xd1\x11|)" +
+	"\xe1\x8a0\xc2\xa2\xcd)\xa5\xfe1\xba\xda\xcf\xca\xa8\xbd" +
+	"\xe8\xa5\xfe\xf1\x06\x8f\x92\x86%\xc7A\x9f\xbc\xab\x9c\x9c" +
+	"\x0dRX\xfe\x84\x8c%\xf1[9\xd0\x02R8p\x99" +
+	"\x8c%\xd5_\xd9\xbd\x1c$%(\x0byC\xc9S\xde" +
+	"ee\xd4\xb6H\xa8L[*\xb4\x0ded\x9b\x076" +
+	"\x11>\x92e\xe3\xebo\xc40\x07-\xacq\xdezG" +
+	"\xfe\xe4\xccW\xcf\x9c+V3\x9d\x8f\x8a\x9cgfL" +
+	"\x14\xa5b\xdd\x9b\x01\x12\xce \x9e\x9a7\xe3<\xc1u" +
+	"\xb4y\xf7`\x9b>\x02\xe3\x18\xc5\xa7\x06\xbd\xd9\xe4\x14" +
+	",\x82\x8a\xa5n\x0f\xdd$\x00x\xeb6\xc1\xee\x1eh" +
+	"\x11\xec.\xbfK\xb0\xbb\xfcz\xc1\xee6\x92q\x9ab" +
+	"\x1c\x02\xc0\x90\xfbQ\xe1~T*\x06\x8dU):Q" +
+	"\xd3\xe9\xca\x86^\x80B{\xed\xe8\xe5YY\xe8\x8cA" +
+	"\x1f\x97\x95\x8e\xe1K\xa0Q^\xc8*k\xc2\xa4s2" +
+	"\x13g\xae9a\xe6\x8e\x16\x94b'\xc7\xf8\xedz:" +
+	"\xcf\xa8F\xe6\xf4a\x96\xe0:'\xee<\xa5\xc6\xd5/" +
+	"\xfb\x0a\xad\x9b\xaao\xe9}\xa5\x82\xfdNQ`\x85\x10" +
+	"\xcbd\xb5\x1b\xe5\x00\xa2\x10\xec*\x85\x10V\x8d2&" +
+	"\xea\x840\xe7*\xc1j\xad\xb0\xd7\x91}>\x16z%" +
+	"\x09Q\x9d'\x04\xbb\xeb\xc9\xbe\x08\x0b\xed\x92\x8c\xa8." +
+	"\x14\xf6\x1b\xc9\xbe\x02\x0b\x1dS\x00@]&\xd6YA" +
+	"\xf6UB\x98+\x08v\xb7\xe0\x09\x80\xc4*\xb2\xaf\x15" +
+	"\xc2\\A\xb0\xeb\x14\xc2\xd9Z\xb2\xdf)\x84\xb9\x82`" +
+	"\xb7\x0e\xd7\x00$\xfa\xc8~/9R\xe9\xeau\x1b\xb0" +
+	"\x1f q7\x99\x87PB\x02\xe3J\x00\x95a\x93_" +
+	"\x86\xa4\xa3\xe9c\x99l\x1f\x0e\xd9,7d\xa5\x07|" +
+	"-\x98\xabS\xf71\xccd\xef0\xcc\x01\xa1i\x95x" +
+	"\x92a\x0aM\x1eb&\x8f'\xee\xf0\xf7X\xe3\xed/" +
+	"\xdf\xb5J\xf46\x9b\x1b\x07\xf4\x91\x1e\xb4Y\xd2\xc8&" +
+	"\xf2\x19\xbf\x9e\xadon\xcd\xdb6C\x93\xb7\xe9#=" +
+	"6kv\xa7\x94&p\x96\xa1\xff\xc7\xb1\xdf\x1af-" +
+	"z\x8eE\xc8\xed\xd2p\xbf\x9ec\xaeD\xee\x13\xed\xfc" +
+	"\x07\x8b5\xde\xa9\x17\xeaJIS*U\x85\xb2\xba\x12" +
+	"\x9c\xact\xd0\xecj\x07\"\xb7Joi\xaf&\xe44" +
+	"y\\\xb5\x08v\x8b\x9b\xbc*Y\xd6\x94x\\\xba\xb4" +
+	"\xf8\x94*`\xfb0\x8b\x11i\xe6Z\xc0\xad\xca\x04\"" +
+	"\xe1\x06OD\x89\x0c\xe8\x9c]\xa5\xc0N\xfamR\xb3" +
+	"a\xa6\x96\xb4\xae\xf5iC\xf5\x02\xaa*\x1b\x00B\xc9" +
+	"<\xf5\x9a\x83|\x92\x17\xd8%\x14\xc5\x12R\xea\xa9n" +
+	"\x14\xebnt!\xd0p!\x90\xb9\x10\xb8\xc1\x85\xc0\x0d" +
+	".\x04\xde\xe5B\xa0\xe6B\xa0\xe6B\xa0\xe6B\xa0\xd6" +
+	"\xf2\x7f\x15\xf4&\xc7)\x13\xcc\xa6\xf6c\x897\x10\xe7" +
+	"\xf3{Y.\x9f\xe6\x98+*e\xfeC\x9e/a$" +
+	"\x93\xcap\xef\xc5\x9b\xef5\xa6x\xf1\xf6\xd9P\xb5C" +
+	"\xb7#\x14\x9b\x82\xea\xe4B\xa7\xf2\x04\xf5f\x8f\xcb\xa8" +
+	"=]\xe0\xac\xd4\x90<E\xc6}2j\x87\x8b\xa0\x09" +
+	"\xa0\x1c\xdc\xe5\x93\xa2\x02\x059\xf8\xd8\x09\x00\xed\x05\x19" +
+	"\xb5\xef\x13\\\xd6\xb8\xaa\xd3\xa9~\x00\xede\x19\xb5\x1f" +
+	"J\x08\xe0\xf6|\xaf\x13_\xfe\xbe\x8c\xdaO\xa4\xff}" +
+	"D*\xa4I\x1f\x84\x8c\x0c\x1b\xdb\x92\x07#\xf2\x18Y" +
+	"\xd9\xf77 \x9f\xfd-W\"\xcb\x92n\xc3\xe0\xeb\x92" +
+	"\x96O\xd4%-\xf7\xba\xa4\x92\xbc\xb7\xa3\xc1'\xc6\x17" +
+	"\xe5\xbd\x07{\xcb\xdb$De\xcf.Ow\x8f\x89\xdc" +
+	"\xc6\x88\xf7g\x1f.\x1b\x8a\x0dSa.\x86\"\x927" +
+	"\x0d\x8e\x11\xef\xadqA\x94H\xe6y\xb7\xbd\x96\x0d\x02" +
+	"\xd2h\xe9\x05sa\xd4}G\xd8\xc3\xb0\xfc\xcd\xae8" +
+	"\x9b\xff\x09\x00\x00\xff\xff\x11\x1cL\xe3"
 
 func init() {
 	schemas.Register(schema_93337c65a295d42f,
