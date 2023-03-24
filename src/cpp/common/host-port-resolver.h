@@ -45,7 +45,11 @@ public:
 
   void setRestorer(Restorer* r, mas::schema::persistence::Restorer::Client client);
 
+  void setStorageContainer(mas::schema::storage::Store::Container::Client client);
+
   mas::schema::persistence::HostPortResolver::Registrar::Client createRegistrar();
+
+  kj::Promise<void> garbageCollectMappings(bool runOnce = false);
 
 private:
   struct Impl;

@@ -65,9 +65,15 @@ interface Restorer @0x9fb6218427d92e3c {
 interface HostPortResolver @0xaa8d91fab6d01d9f superclasses(import "/common.capnp".Identifiable, Restorer) {
   resolve @0 (id :Text) -> (host :Text, port :UInt16);
   interface Registrar @0xb0caf775704690b2 {
-    register @0 (base64VatId :Text, host :Text, port :UInt16, alias :Text) -> (heartbeat :Heartbeat, secsHeartbeatInterval :UInt32);
+    register @0 RegisterParams -> (heartbeat :Heartbeat, secsHeartbeatInterval :UInt32);
     interface Heartbeat @0x87de92d2d68df26f {
       beat @0 () -> ();
+    }
+    struct RegisterParams @0xbf018f62ff460d0f {  # 8 bytes, 3 ptrs
+      base64VatId @0 :Text;  # ptr[0]
+      host @1 :Text;  # ptr[1]
+      port @2 :UInt16;  # bits[0, 16)
+      alias @3 :Text;  # ptr[2]
     }
   }
 }

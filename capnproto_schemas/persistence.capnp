@@ -191,11 +191,26 @@ interface HostPortResolver extends(Identifiable, Restorer) {
       beat @0 () -> ();
     }
 
-    register @0 (base64VatId :Text, host :Text, port :UInt16, alias :Text) -> (heartbeat :Heartbeat, secsHeartbeatInterval :UInt32);
-    # register a vat-id to a host and port and optionally an alias
-    # returns a capability which is a Common.Action to call regularly to keep the registration alive
-    # call heartbeat at least every secsHeartbeatInterval seconds
-    # if a heartbeat ist missed, the id will be unregistered
+    struct RegisterParams {
+      base64VatId @0 :Text;
+      # base64 encoded VatId of the service to register
+
+      host @1 :Text;
+      # host name or ip address of the service to register
+
+      port @2 :UInt16;
+      # port of the service to register
+
+      alias @3 :Text;
+      # optional plain text alias for the service to register
+    }
+
+    register @0 RegisterParams -> (heartbeat :Heartbeat, secsHeartbeatInterval :UInt32);
+    # Register a vat-id to a host and port and optionally an alias.
+    # Returns a Heartbeat capability to call regularly to keep the registration alive.
+    # If heartbeat is null, then the registration was not successful.
+    # Call heartbeat at least every secsHeartbeatInterval seconds.
+    # If a heartbeat ist missed, the vat-id/alias will be unregistered.
   }
 
   resolve @0 (id :Text) -> (host :Text, port :UInt16);

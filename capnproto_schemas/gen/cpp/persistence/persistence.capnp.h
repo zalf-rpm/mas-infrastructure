@@ -42,7 +42,7 @@ CAPNP_DECLARE_SCHEMA(b0caf775704690b2);
 CAPNP_DECLARE_SCHEMA(87de92d2d68df26f);
 CAPNP_DECLARE_SCHEMA(ebff70497e0ba555);
 CAPNP_DECLARE_SCHEMA(9510c22fa544a65e);
-CAPNP_DECLARE_SCHEMA(b5f200df6e0373e6);
+CAPNP_DECLARE_SCHEMA(bf018f62ff460d0f);
 CAPNP_DECLARE_SCHEMA(fafc816633f98bb9);
 CAPNP_DECLARE_SCHEMA(e6f8966f0f2cbb33);
 CAPNP_DECLARE_SCHEMA(fc185f518d220b8c);
@@ -431,7 +431,7 @@ struct HostPortResolver::Registrar::RegisterParams {
   class Pipeline;
 
   struct _capnpPrivate {
-    CAPNP_DECLARE_STRUCT_HEADER(b5f200df6e0373e6, 1, 3)
+    CAPNP_DECLARE_STRUCT_HEADER(bf018f62ff460d0f, 1, 3)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
@@ -1952,9 +1952,8 @@ public:
       override;
 
 protected:
-  typedef  ::mas::schema::persistence::HostPortResolver::Registrar::RegisterParams RegisterParams;
   typedef  ::mas::schema::persistence::HostPortResolver::Registrar::RegisterResults RegisterResults;
-  typedef ::capnp::CallContext<RegisterParams, RegisterResults> RegisterContext;
+  typedef ::capnp::CallContext< ::mas::schema::persistence::HostPortResolver::Registrar::RegisterParams, RegisterResults> RegisterContext;
   virtual ::kj::Promise<void> register_(RegisterContext context);
 
   inline  ::mas::schema::persistence::HostPortResolver::Registrar::Client thisCap() {
