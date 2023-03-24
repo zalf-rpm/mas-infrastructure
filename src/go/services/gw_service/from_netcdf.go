@@ -200,20 +200,20 @@ func loadNetCDF(inputFile string) (loadedNetCDFMeta, error) {
 	}
 	meta.boundsFromCellCenter = commonlib.LatLonBoundaries{
 		TopLeft: commonlib.LatLon{
-			Lat: float64(valLat[lenLat-1]) - meta.stepLatSize/2,
-			Lon: float64(valLon[0]) + meta.stepLonSize/2,
+			Lat: float64(valLat[lenLat-1]) + meta.stepLatSize/2,
+			Lon: float64(valLon[0]) - meta.stepLonSize/2,
 		},
 		TopRight: commonlib.LatLon{
-			Lat: float64(valLat[lenLat-1]) - meta.stepLatSize/2,
-			Lon: float64(valLon[lenLon-1]) - meta.stepLonSize/2,
+			Lat: float64(valLat[lenLat-1]) + meta.stepLatSize/2,
+			Lon: float64(valLon[lenLon-1]) + meta.stepLonSize/2,
 		},
 		BottomLeft: commonlib.LatLon{
-			Lat: float64(valLat[0]) + meta.stepLatSize/2,
-			Lon: float64(valLon[0]) + meta.stepLonSize/2,
+			Lat: float64(valLat[0]) - meta.stepLatSize/2,
+			Lon: float64(valLon[0]) - meta.stepLonSize/2,
 		},
 		BottomRight: commonlib.LatLon{
-			Lat: float64(valLat[0]) + meta.stepLatSize/2,
-			Lon: float64(valLon[lenLon-1]) - meta.stepLonSize/2,
+			Lat: float64(valLat[0]) - meta.stepLatSize/2,
+			Lon: float64(valLon[lenLon-1]) + meta.stepLonSize/2,
 		},
 	}
 
