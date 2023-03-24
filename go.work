@@ -24,5 +24,6 @@ use (
 	./src/go/fbp/gw_provider
 	./src/go/test/test_client
 	./src/go/test/test_server
-
+	./src/go/services/gw_service
+	./src/go/commonlib
 )
