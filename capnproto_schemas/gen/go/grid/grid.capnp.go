@@ -5,9 +5,11 @@ package grid
 import (
 	capnp "capnproto.org/go/capnp/v3"
 	text "capnproto.org/go/capnp/v3/encoding/text"
+	fc "capnproto.org/go/capnp/v3/flowcontrol"
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
+	fmt "fmt"
 	common "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common"
 	geo "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/geo"
 	persistence "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/persistence"
@@ -123,24 +125,13 @@ func AggregationFromString(c string) Aggregation {
 	}
 }
 
-type Aggregation_List struct{ capnp.List }
+type Aggregation_List = capnp.EnumList[Aggregation]
 
 func NewAggregation_List(s *capnp.Segment, sz int32) (Aggregation_List, error) {
-	l, err := capnp.NewUInt16List(s, sz)
-	return Aggregation_List{l.List}, err
+	return capnp.NewEnumList[Aggregation](s, sz)
 }
 
-func (l Aggregation_List) At(i int) Aggregation {
-	ul := capnp.UInt16List{List: l.List}
-	return Aggregation(ul.At(i))
-}
-
-func (l Aggregation_List) Set(i int, v Aggregation) {
-	ul := capnp.UInt16List{List: l.List}
-	ul.Set(i, uint16(v))
-}
-
-type Grid struct{ Client *capnp.Client }
+type Grid capnp.Client
 
 // Grid_TypeID is the unique identifier for the type Grid.
 const Grid_TypeID = 0xe42973b29661e3c6
@@ -155,10 +146,10 @@ func (c Grid) ClosestValueAt(ctx context.Context, params func(Grid_closestValueA
 		},
 	}
 	if params != nil {
-		s.ArgsSize = capnp.ObjectSize{DataSize: 16, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Grid_closestValueAt_Params{Struct: s}) }
+		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 2}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Grid_closestValueAt_Params(s)) }
 	}
-	ans, release := c.Client.SendCall(ctx, s)
+	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Grid_closestValueAt_Results_Future{Future: ans.Future()}, release
 }
 func (c Grid) Resolution(ctx context.Context, params func(Grid_resolution_Params) error) (Grid_resolution_Results_Future, capnp.ReleaseFunc) {
@@ -172,9 +163,9 @@ func (c Grid) Resolution(ctx context.Context, params func(Grid_resolution_Params
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Grid_resolution_Params{Struct: s}) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Grid_resolution_Params(s)) }
 	}
-	ans, release := c.Client.SendCall(ctx, s)
+	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Grid_resolution_Results_Future{Future: ans.Future()}, release
 }
 func (c Grid) Dimension(ctx context.Context, params func(Grid_dimension_Params) error) (Grid_dimension_Results_Future, capnp.ReleaseFunc) {
@@ -188,9 +179,9 @@ func (c Grid) Dimension(ctx context.Context, params func(Grid_dimension_Params) 
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Grid_dimension_Params{Struct: s}) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Grid_dimension_Params(s)) }
 	}
-	ans, release := c.Client.SendCall(ctx, s)
+	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Grid_dimension_Results_Future{Future: ans.Future()}, release
 }
 func (c Grid) NoDataValue(ctx context.Context, params func(Grid_noDataValue_Params) error) (Grid_noDataValue_Results_Future, capnp.ReleaseFunc) {
@@ -204,9 +195,9 @@ func (c Grid) NoDataValue(ctx context.Context, params func(Grid_noDataValue_Para
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Grid_noDataValue_Params{Struct: s}) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Grid_noDataValue_Params(s)) }
 	}
-	ans, release := c.Client.SendCall(ctx, s)
+	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Grid_noDataValue_Results_Future{Future: ans.Future()}, release
 }
 func (c Grid) ValueAt(ctx context.Context, params func(Grid_valueAt_Params) error) (Grid_valueAt_Results_Future, capnp.ReleaseFunc) {
@@ -219,10 +210,10 @@ func (c Grid) ValueAt(ctx context.Context, params func(Grid_valueAt_Params) erro
 		},
 	}
 	if params != nil {
-		s.ArgsSize = capnp.ObjectSize{DataSize: 32, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Grid_valueAt_Params{Struct: s}) }
+		s.ArgsSize = capnp.ObjectSize{DataSize: 24, PointerCount: 1}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Grid_valueAt_Params(s)) }
 	}
-	ans, release := c.Client.SendCall(ctx, s)
+	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Grid_valueAt_Results_Future{Future: ans.Future()}, release
 }
 func (c Grid) LatLonBounds(ctx context.Context, params func(Grid_latLonBounds_Params) error) (Grid_latLonBounds_Results_Future, capnp.ReleaseFunc) {
@@ -236,9 +227,9 @@ func (c Grid) LatLonBounds(ctx context.Context, params func(Grid_latLonBounds_Pa
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Grid_latLonBounds_Params{Struct: s}) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Grid_latLonBounds_Params(s)) }
 	}
-	ans, release := c.Client.SendCall(ctx, s)
+	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Grid_latLonBounds_Results_Future{Future: ans.Future()}, release
 }
 func (c Grid) StreamCells(ctx context.Context, params func(Grid_streamCells_Params) error) (Grid_streamCells_Results_Future, capnp.ReleaseFunc) {
@@ -252,10 +243,26 @@ func (c Grid) StreamCells(ctx context.Context, params func(Grid_streamCells_Para
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Grid_streamCells_Params{Struct: s}) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Grid_streamCells_Params(s)) }
 	}
-	ans, release := c.Client.SendCall(ctx, s)
+	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Grid_streamCells_Results_Future{Future: ans.Future()}, release
+}
+func (c Grid) Unit(ctx context.Context, params func(Grid_unit_Params) error) (Grid_unit_Results_Future, capnp.ReleaseFunc) {
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0xe42973b29661e3c6,
+			MethodID:      7,
+			InterfaceName: "grid.capnp:Grid",
+			MethodName:    "unit",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Grid_unit_Params(s)) }
+	}
+	ans, release := capnp.Client(c).SendCall(ctx, s)
+	return Grid_unit_Results_Future{Future: ans.Future()}, release
 }
 func (c Grid) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
 	s := capnp.Send{
@@ -268,9 +275,9 @@ func (c Grid) Info(ctx context.Context, params func(common.Identifiable_info_Par
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params{Struct: s}) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
-	ans, release := c.Client.SendCall(ctx, s)
+	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
 }
 func (c Grid) Save(ctx context.Context, params func(persistence.Persistent_SaveParams) error) (persistence.Persistent_SaveResults_Future, capnp.ReleaseFunc) {
@@ -284,23 +291,78 @@ func (c Grid) Save(ctx context.Context, params func(persistence.Persistent_SaveP
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams{Struct: s}) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams(s)) }
 	}
-	ans, release := c.Client.SendCall(ctx, s)
+	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return persistence.Persistent_SaveResults_Future{Future: ans.Future()}, release
 }
 
+// String returns a string that identifies this capability for debugging
+// purposes.  Its format should not be depended on: in particular, it
+// should not be used to compare clients.  Use IsSame to compare clients
+// for equality.
+func (c Grid) String() string {
+	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+}
+
+// AddRef creates a new Client that refers to the same capability as c.
+// If c is nil or has resolved to null, then AddRef returns nil.
 func (c Grid) AddRef() Grid {
-	return Grid{
-		Client: c.Client.AddRef(),
-	}
+	return Grid(capnp.Client(c).AddRef())
 }
 
+// Release releases a capability reference.  If this is the last
+// reference to the capability, then the underlying resources associated
+// with the capability will be released.
+//
+// Release will panic if c has already been released, but not if c is
+// nil or resolved to null.
 func (c Grid) Release() {
-	c.Client.Release()
+	capnp.Client(c).Release()
 }
 
-// A Grid_Server is a Grid with a local implementation.
+// Resolve blocks until the capability is fully resolved or the Context
+// expires.
+func (c Grid) Resolve(ctx context.Context) error {
+	return capnp.Client(c).Resolve(ctx)
+}
+
+func (c Grid) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Client(c).EncodeAsPtr(seg)
+}
+
+func (Grid) DecodeFromPtr(p capnp.Ptr) Grid {
+	return Grid(capnp.Client{}.DecodeFromPtr(p))
+}
+
+// IsValid reports whether c is a valid reference to a capability.
+// A reference is invalid if it is nil, has resolved to null, or has
+// been released.
+func (c Grid) IsValid() bool {
+	return capnp.Client(c).IsValid()
+}
+
+// IsSame reports whether c and other refer to a capability created by the
+// same call to NewClient.  This can return false negatives if c or other
+// are not fully resolved: use Resolve if this is an issue.  If either
+// c or other are released, then IsSame panics.
+func (c Grid) IsSame(other Grid) bool {
+	return capnp.Client(c).IsSame(capnp.Client(other))
+}
+
+// Update the flowcontrol.FlowLimiter used to manage flow control for
+// this client. This affects all future calls, but not calls already
+// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
+// which is also the default.
+func (c Grid) SetFlowLimiter(lim fc.FlowLimiter) {
+	capnp.Client(c).SetFlowLimiter(lim)
+}
+
+// Get the current flowcontrol.FlowLimiter used to manage flow control
+// for this client.
+func (c Grid) GetFlowLimiter() fc.FlowLimiter {
+	return capnp.Client(c).GetFlowLimiter()
+} // A Grid_Server is a Grid with a local implementation.
 type Grid_Server interface {
 	ClosestValueAt(context.Context, Grid_closestValueAt) error
 
@@ -316,28 +378,30 @@ type Grid_Server interface {
 
 	StreamCells(context.Context, Grid_streamCells) error
 
+	Unit(context.Context, Grid_unit) error
+
 	Info(context.Context, common.Identifiable_info) error
 
 	Save(context.Context, persistence.Persistent_save) error
 }
 
 // Grid_NewServer creates a new Server from an implementation of Grid_Server.
-func Grid_NewServer(s Grid_Server, policy *server.Policy) *server.Server {
+func Grid_NewServer(s Grid_Server) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(Grid_Methods(nil, s), s, c, policy)
+	return server.New(Grid_Methods(nil, s), s, c)
 }
 
 // Grid_ServerToClient creates a new Client from an implementation of Grid_Server.
 // The caller is responsible for calling Release on the returned Client.
-func Grid_ServerToClient(s Grid_Server, policy *server.Policy) Grid {
-	return Grid{Client: capnp.NewClient(Grid_NewServer(s, policy))}
+func Grid_ServerToClient(s Grid_Server) Grid {
+	return Grid(capnp.NewClient(Grid_NewServer(s)))
 }
 
 // Grid_Methods appends Methods to a slice that invoke the methods on s.
 // This can be used to create a more complicated Server.
 func Grid_Methods(methods []server.Method, s Grid_Server) []server.Method {
 	if cap(methods) == 0 {
-		methods = make([]server.Method, 0, 9)
+		methods = make([]server.Method, 0, 10)
 	}
 
 	methods = append(methods, server.Method{
@@ -426,6 +490,18 @@ func Grid_Methods(methods []server.Method, s Grid_Server) []server.Method {
 
 	methods = append(methods, server.Method{
 		Method: capnp.Method{
+			InterfaceID:   0xe42973b29661e3c6,
+			MethodID:      7,
+			InterfaceName: "grid.capnp:Grid",
+			MethodName:    "unit",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.Unit(ctx, Grid_unit{call})
+		},
+	})
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
 			MethodID:      0,
 			InterfaceName: "common.capnp:Identifiable",
@@ -459,13 +535,13 @@ type Grid_closestValueAt struct {
 
 // Args returns the call's arguments.
 func (c Grid_closestValueAt) Args() Grid_closestValueAt_Params {
-	return Grid_closestValueAt_Params{Struct: c.Call.Args()}
+	return Grid_closestValueAt_Params(c.Call.Args())
 }
 
 // AllocResults allocates the results struct.
 func (c Grid_closestValueAt) AllocResults() (Grid_closestValueAt_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 4})
-	return Grid_closestValueAt_Results{Struct: r}, err
+	return Grid_closestValueAt_Results(r), err
 }
 
 // Grid_resolution holds the state for a server call to Grid.resolution.
@@ -476,13 +552,13 @@ type Grid_resolution struct {
 
 // Args returns the call's arguments.
 func (c Grid_resolution) Args() Grid_resolution_Params {
-	return Grid_resolution_Params{Struct: c.Call.Args()}
+	return Grid_resolution_Params(c.Call.Args())
 }
 
 // AllocResults allocates the results struct.
 func (c Grid_resolution) AllocResults() (Grid_resolution_Results, error) {
-	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Grid_resolution_Results{Struct: r}, err
+	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Grid_resolution_Results(r), err
 }
 
 // Grid_dimension holds the state for a server call to Grid.dimension.
@@ -493,13 +569,13 @@ type Grid_dimension struct {
 
 // Args returns the call's arguments.
 func (c Grid_dimension) Args() Grid_dimension_Params {
-	return Grid_dimension_Params{Struct: c.Call.Args()}
+	return Grid_dimension_Params(c.Call.Args())
 }
 
 // AllocResults allocates the results struct.
 func (c Grid_dimension) AllocResults() (Grid_dimension_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 16, PointerCount: 0})
-	return Grid_dimension_Results{Struct: r}, err
+	return Grid_dimension_Results(r), err
 }
 
 // Grid_noDataValue holds the state for a server call to Grid.noDataValue.
@@ -510,13 +586,13 @@ type Grid_noDataValue struct {
 
 // Args returns the call's arguments.
 func (c Grid_noDataValue) Args() Grid_noDataValue_Params {
-	return Grid_noDataValue_Params{Struct: c.Call.Args()}
+	return Grid_noDataValue_Params(c.Call.Args())
 }
 
 // AllocResults allocates the results struct.
 func (c Grid_noDataValue) AllocResults() (Grid_noDataValue_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Grid_noDataValue_Results{Struct: r}, err
+	return Grid_noDataValue_Results(r), err
 }
 
 // Grid_valueAt holds the state for a server call to Grid.valueAt.
@@ -527,13 +603,13 @@ type Grid_valueAt struct {
 
 // Args returns the call's arguments.
 func (c Grid_valueAt) Args() Grid_valueAt_Params {
-	return Grid_valueAt_Params{Struct: c.Call.Args()}
+	return Grid_valueAt_Params(c.Call.Args())
 }
 
 // AllocResults allocates the results struct.
 func (c Grid_valueAt) AllocResults() (Grid_valueAt_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Grid_valueAt_Results{Struct: r}, err
+	return Grid_valueAt_Results(r), err
 }
 
 // Grid_latLonBounds holds the state for a server call to Grid.latLonBounds.
@@ -544,13 +620,13 @@ type Grid_latLonBounds struct {
 
 // Args returns the call's arguments.
 func (c Grid_latLonBounds) Args() Grid_latLonBounds_Params {
-	return Grid_latLonBounds_Params{Struct: c.Call.Args()}
+	return Grid_latLonBounds_Params(c.Call.Args())
 }
 
 // AllocResults allocates the results struct.
 func (c Grid_latLonBounds) AllocResults() (Grid_latLonBounds_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 4})
-	return Grid_latLonBounds_Results{Struct: r}, err
+	return Grid_latLonBounds_Results(r), err
 }
 
 // Grid_streamCells holds the state for a server call to Grid.streamCells.
@@ -561,16 +637,42 @@ type Grid_streamCells struct {
 
 // Args returns the call's arguments.
 func (c Grid_streamCells) Args() Grid_streamCells_Params {
-	return Grid_streamCells_Params{Struct: c.Call.Args()}
+	return Grid_streamCells_Params(c.Call.Args())
 }
 
 // AllocResults allocates the results struct.
 func (c Grid_streamCells) AllocResults() (Grid_streamCells_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Grid_streamCells_Results{Struct: r}, err
+	return Grid_streamCells_Results(r), err
 }
 
-type Grid_Value struct{ capnp.Struct }
+// Grid_unit holds the state for a server call to Grid.unit.
+// See server.Call for documentation.
+type Grid_unit struct {
+	*server.Call
+}
+
+// Args returns the call's arguments.
+func (c Grid_unit) Args() Grid_unit_Params {
+	return Grid_unit_Params(c.Call.Args())
+}
+
+// AllocResults allocates the results struct.
+func (c Grid_unit) AllocResults() (Grid_unit_Results, error) {
+	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Grid_unit_Results(r), err
+}
+
+// Grid_List is a list of Grid.
+type Grid_List = capnp.CapList[Grid]
+
+// NewGrid creates a new list of Grid.
+func NewGrid_List(s *capnp.Segment, sz int32) (Grid_List, error) {
+	l, err := capnp.NewPointerList(s, sz)
+	return capnp.CapList[Grid](l), err
+}
+
+type Grid_Value capnp.Struct
 type Grid_Value_Which uint16
 
 const (
@@ -601,296 +703,440 @@ const Grid_Value_TypeID = 0xfe2e0dfae573d9d0
 
 func NewGrid_Value(s *capnp.Segment) (Grid_Value, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0})
-	return Grid_Value{st}, err
+	return Grid_Value(st), err
 }
 
 func NewRootGrid_Value(s *capnp.Segment) (Grid_Value, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0})
-	return Grid_Value{st}, err
+	return Grid_Value(st), err
 }
 
 func ReadRootGrid_Value(msg *capnp.Message) (Grid_Value, error) {
 	root, err := msg.Root()
-	return Grid_Value{root.Struct()}, err
+	return Grid_Value(root.Struct()), err
 }
 
 func (s Grid_Value) String() string {
-	str, _ := text.Marshal(0xfe2e0dfae573d9d0, s.Struct)
+	str, _ := text.Marshal(0xfe2e0dfae573d9d0, capnp.Struct(s))
 	return str
 }
 
+func (s Grid_Value) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Grid_Value) DecodeFromPtr(p capnp.Ptr) Grid_Value {
+	return Grid_Value(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Grid_Value) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+
 func (s Grid_Value) Which() Grid_Value_Which {
-	return Grid_Value_Which(s.Struct.Uint16(8))
+	return Grid_Value_Which(capnp.Struct(s).Uint16(8))
+}
+func (s Grid_Value) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Grid_Value) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Grid_Value) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
 }
 func (s Grid_Value) F() float64 {
-	if s.Struct.Uint16(8) != 0 {
+	if capnp.Struct(s).Uint16(8) != 0 {
 		panic("Which() != f")
 	}
-	return math.Float64frombits(s.Struct.Uint64(0))
+	return math.Float64frombits(capnp.Struct(s).Uint64(0))
 }
 
 func (s Grid_Value) SetF(v float64) {
-	s.Struct.SetUint16(8, 0)
-	s.Struct.SetUint64(0, math.Float64bits(v))
+	capnp.Struct(s).SetUint16(8, 0)
+	capnp.Struct(s).SetUint64(0, math.Float64bits(v))
 }
 
 func (s Grid_Value) I() int64 {
-	if s.Struct.Uint16(8) != 1 {
+	if capnp.Struct(s).Uint16(8) != 1 {
 		panic("Which() != i")
 	}
-	return int64(s.Struct.Uint64(0))
+	return int64(capnp.Struct(s).Uint64(0))
 }
 
 func (s Grid_Value) SetI(v int64) {
-	s.Struct.SetUint16(8, 1)
-	s.Struct.SetUint64(0, uint64(v))
+	capnp.Struct(s).SetUint16(8, 1)
+	capnp.Struct(s).SetUint64(0, uint64(v))
 }
 
 func (s Grid_Value) Ui() uint64 {
-	if s.Struct.Uint16(8) != 2 {
+	if capnp.Struct(s).Uint16(8) != 2 {
 		panic("Which() != ui")
 	}
-	return s.Struct.Uint64(0)
+	return capnp.Struct(s).Uint64(0)
 }
 
 func (s Grid_Value) SetUi(v uint64) {
-	s.Struct.SetUint16(8, 2)
-	s.Struct.SetUint64(0, v)
+	capnp.Struct(s).SetUint16(8, 2)
+	capnp.Struct(s).SetUint64(0, v)
 }
 
 func (s Grid_Value) No() bool {
-	if s.Struct.Uint16(8) != 3 {
+	if capnp.Struct(s).Uint16(8) != 3 {
 		panic("Which() != no")
 	}
-	return s.Struct.Bit(0)
+	return capnp.Struct(s).Bit(0)
 }
 
 func (s Grid_Value) SetNo(v bool) {
-	s.Struct.SetUint16(8, 3)
-	s.Struct.SetBit(0, v)
+	capnp.Struct(s).SetUint16(8, 3)
+	capnp.Struct(s).SetBit(0, v)
 }
 
 // Grid_Value_List is a list of Grid_Value.
-type Grid_Value_List struct{ capnp.List }
+type Grid_Value_List = capnp.StructList[Grid_Value]
 
 // NewGrid_Value creates a new list of Grid_Value.
 func NewGrid_Value_List(s *capnp.Segment, sz int32) (Grid_Value_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0}, sz)
-	return Grid_Value_List{l}, err
-}
-
-func (s Grid_Value_List) At(i int) Grid_Value { return Grid_Value{s.List.Struct(i)} }
-
-func (s Grid_Value_List) Set(i int, v Grid_Value) error { return s.List.SetStruct(i, v.Struct) }
-
-func (s Grid_Value_List) String() string {
-	str, _ := text.MarshalList(0xfe2e0dfae573d9d0, s.List)
-	return str
+	return capnp.StructList[Grid_Value](l), err
 }
 
 // Grid_Value_Future is a wrapper for a Grid_Value promised by a client call.
 type Grid_Value_Future struct{ *capnp.Future }
 
-func (p Grid_Value_Future) Struct() (Grid_Value, error) {
-	s, err := p.Future.Struct()
-	return Grid_Value{s}, err
+func (f Grid_Value_Future) Struct() (Grid_Value, error) {
+	p, err := f.Future.Ptr()
+	return Grid_Value(p.Struct()), err
 }
 
-type Grid_RowCol struct{ capnp.Struct }
+type Grid_Resolution capnp.Struct
+type Grid_Resolution_Which uint16
+
+const (
+	Grid_Resolution_Which_meter  Grid_Resolution_Which = 0
+	Grid_Resolution_Which_degree Grid_Resolution_Which = 1
+)
+
+func (w Grid_Resolution_Which) String() string {
+	const s = "meterdegree"
+	switch w {
+	case Grid_Resolution_Which_meter:
+		return s[0:5]
+	case Grid_Resolution_Which_degree:
+		return s[5:11]
+
+	}
+	return "Grid_Resolution_Which(" + strconv.FormatUint(uint64(w), 10) + ")"
+}
+
+// Grid_Resolution_TypeID is the unique identifier for the type Grid_Resolution.
+const Grid_Resolution_TypeID = 0xa9b6fbdd27e7577b
+
+func NewGrid_Resolution(s *capnp.Segment) (Grid_Resolution, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0})
+	return Grid_Resolution(st), err
+}
+
+func NewRootGrid_Resolution(s *capnp.Segment) (Grid_Resolution, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0})
+	return Grid_Resolution(st), err
+}
+
+func ReadRootGrid_Resolution(msg *capnp.Message) (Grid_Resolution, error) {
+	root, err := msg.Root()
+	return Grid_Resolution(root.Struct()), err
+}
+
+func (s Grid_Resolution) String() string {
+	str, _ := text.Marshal(0xa9b6fbdd27e7577b, capnp.Struct(s))
+	return str
+}
+
+func (s Grid_Resolution) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Grid_Resolution) DecodeFromPtr(p capnp.Ptr) Grid_Resolution {
+	return Grid_Resolution(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Grid_Resolution) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+
+func (s Grid_Resolution) Which() Grid_Resolution_Which {
+	return Grid_Resolution_Which(capnp.Struct(s).Uint16(8))
+}
+func (s Grid_Resolution) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Grid_Resolution) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Grid_Resolution) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+func (s Grid_Resolution) Meter() int64 {
+	if capnp.Struct(s).Uint16(8) != 0 {
+		panic("Which() != meter")
+	}
+	return int64(capnp.Struct(s).Uint64(0))
+}
+
+func (s Grid_Resolution) SetMeter(v int64) {
+	capnp.Struct(s).SetUint16(8, 0)
+	capnp.Struct(s).SetUint64(0, uint64(v))
+}
+
+func (s Grid_Resolution) Degree() float64 {
+	if capnp.Struct(s).Uint16(8) != 1 {
+		panic("Which() != degree")
+	}
+	return math.Float64frombits(capnp.Struct(s).Uint64(0))
+}
+
+func (s Grid_Resolution) SetDegree(v float64) {
+	capnp.Struct(s).SetUint16(8, 1)
+	capnp.Struct(s).SetUint64(0, math.Float64bits(v))
+}
+
+// Grid_Resolution_List is a list of Grid_Resolution.
+type Grid_Resolution_List = capnp.StructList[Grid_Resolution]
+
+// NewGrid_Resolution creates a new list of Grid_Resolution.
+func NewGrid_Resolution_List(s *capnp.Segment, sz int32) (Grid_Resolution_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0}, sz)
+	return capnp.StructList[Grid_Resolution](l), err
+}
+
+// Grid_Resolution_Future is a wrapper for a Grid_Resolution promised by a client call.
+type Grid_Resolution_Future struct{ *capnp.Future }
+
+func (f Grid_Resolution_Future) Struct() (Grid_Resolution, error) {
+	p, err := f.Future.Ptr()
+	return Grid_Resolution(p.Struct()), err
+}
+
+type Grid_RowCol capnp.Struct
 
 // Grid_RowCol_TypeID is the unique identifier for the type Grid_RowCol.
 const Grid_RowCol_TypeID = 0xb9e2d85d086206ff
 
 func NewGrid_RowCol(s *capnp.Segment) (Grid_RowCol, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0})
-	return Grid_RowCol{st}, err
+	return Grid_RowCol(st), err
 }
 
 func NewRootGrid_RowCol(s *capnp.Segment) (Grid_RowCol, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0})
-	return Grid_RowCol{st}, err
+	return Grid_RowCol(st), err
 }
 
 func ReadRootGrid_RowCol(msg *capnp.Message) (Grid_RowCol, error) {
 	root, err := msg.Root()
-	return Grid_RowCol{root.Struct()}, err
+	return Grid_RowCol(root.Struct()), err
 }
 
 func (s Grid_RowCol) String() string {
-	str, _ := text.Marshal(0xb9e2d85d086206ff, s.Struct)
+	str, _ := text.Marshal(0xb9e2d85d086206ff, capnp.Struct(s))
 	return str
 }
 
+func (s Grid_RowCol) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Grid_RowCol) DecodeFromPtr(p capnp.Ptr) Grid_RowCol {
+	return Grid_RowCol(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Grid_RowCol) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Grid_RowCol) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Grid_RowCol) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Grid_RowCol) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Grid_RowCol) Row() uint64 {
-	return s.Struct.Uint64(0)
+	return capnp.Struct(s).Uint64(0)
 }
 
 func (s Grid_RowCol) SetRow(v uint64) {
-	s.Struct.SetUint64(0, v)
+	capnp.Struct(s).SetUint64(0, v)
 }
 
 func (s Grid_RowCol) Col() uint64 {
-	return s.Struct.Uint64(8)
+	return capnp.Struct(s).Uint64(8)
 }
 
 func (s Grid_RowCol) SetCol(v uint64) {
-	s.Struct.SetUint64(8, v)
+	capnp.Struct(s).SetUint64(8, v)
 }
 
 // Grid_RowCol_List is a list of Grid_RowCol.
-type Grid_RowCol_List struct{ capnp.List }
+type Grid_RowCol_List = capnp.StructList[Grid_RowCol]
 
 // NewGrid_RowCol creates a new list of Grid_RowCol.
 func NewGrid_RowCol_List(s *capnp.Segment, sz int32) (Grid_RowCol_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0}, sz)
-	return Grid_RowCol_List{l}, err
-}
-
-func (s Grid_RowCol_List) At(i int) Grid_RowCol { return Grid_RowCol{s.List.Struct(i)} }
-
-func (s Grid_RowCol_List) Set(i int, v Grid_RowCol) error { return s.List.SetStruct(i, v.Struct) }
-
-func (s Grid_RowCol_List) String() string {
-	str, _ := text.MarshalList(0xb9e2d85d086206ff, s.List)
-	return str
+	return capnp.StructList[Grid_RowCol](l), err
 }
 
 // Grid_RowCol_Future is a wrapper for a Grid_RowCol promised by a client call.
 type Grid_RowCol_Future struct{ *capnp.Future }
 
-func (p Grid_RowCol_Future) Struct() (Grid_RowCol, error) {
-	s, err := p.Future.Struct()
-	return Grid_RowCol{s}, err
+func (f Grid_RowCol_Future) Struct() (Grid_RowCol, error) {
+	p, err := f.Future.Ptr()
+	return Grid_RowCol(p.Struct()), err
 }
 
-type Grid_AggregationPart struct{ capnp.Struct }
+type Grid_AggregationPart capnp.Struct
 
 // Grid_AggregationPart_TypeID is the unique identifier for the type Grid_AggregationPart.
 const Grid_AggregationPart_TypeID = 0xac444617ef333a1d
 
 func NewGrid_AggregationPart(s *capnp.Segment) (Grid_AggregationPart, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 2})
-	return Grid_AggregationPart{st}, err
+	return Grid_AggregationPart(st), err
 }
 
 func NewRootGrid_AggregationPart(s *capnp.Segment) (Grid_AggregationPart, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 2})
-	return Grid_AggregationPart{st}, err
+	return Grid_AggregationPart(st), err
 }
 
 func ReadRootGrid_AggregationPart(msg *capnp.Message) (Grid_AggregationPart, error) {
 	root, err := msg.Root()
-	return Grid_AggregationPart{root.Struct()}, err
+	return Grid_AggregationPart(root.Struct()), err
 }
 
 func (s Grid_AggregationPart) String() string {
-	str, _ := text.Marshal(0xac444617ef333a1d, s.Struct)
+	str, _ := text.Marshal(0xac444617ef333a1d, capnp.Struct(s))
 	return str
 }
 
+func (s Grid_AggregationPart) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Grid_AggregationPart) DecodeFromPtr(p capnp.Ptr) Grid_AggregationPart {
+	return Grid_AggregationPart(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Grid_AggregationPart) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Grid_AggregationPart) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Grid_AggregationPart) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Grid_AggregationPart) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Grid_AggregationPart) Value() (Grid_Value, error) {
-	p, err := s.Struct.Ptr(0)
-	return Grid_Value{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return Grid_Value(p.Struct()), err
 }
 
 func (s Grid_AggregationPart) HasValue() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s Grid_AggregationPart) SetValue(v Grid_Value) error {
-	return s.Struct.SetPtr(0, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewValue sets the value field to a newly
 // allocated Grid_Value struct, preferring placement in s's segment.
 func (s Grid_AggregationPart) NewValue() (Grid_Value, error) {
-	ss, err := NewGrid_Value(s.Struct.Segment())
+	ss, err := NewGrid_Value(capnp.Struct(s).Segment())
 	if err != nil {
 		return Grid_Value{}, err
 	}
-	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s Grid_AggregationPart) RowCol() (Grid_RowCol, error) {
-	p, err := s.Struct.Ptr(1)
-	return Grid_RowCol{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(1)
+	return Grid_RowCol(p.Struct()), err
 }
 
 func (s Grid_AggregationPart) HasRowCol() bool {
-	return s.Struct.HasPtr(1)
+	return capnp.Struct(s).HasPtr(1)
 }
 
 func (s Grid_AggregationPart) SetRowCol(v Grid_RowCol) error {
-	return s.Struct.SetPtr(1, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
 }
 
 // NewRowCol sets the rowCol field to a newly
 // allocated Grid_RowCol struct, preferring placement in s's segment.
 func (s Grid_AggregationPart) NewRowCol() (Grid_RowCol, error) {
-	ss, err := NewGrid_RowCol(s.Struct.Segment())
+	ss, err := NewGrid_RowCol(capnp.Struct(s).Segment())
 	if err != nil {
 		return Grid_RowCol{}, err
 	}
-	err = s.Struct.SetPtr(1, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s Grid_AggregationPart) AreaFrac() float64 {
-	return math.Float64frombits(s.Struct.Uint64(0))
+	return math.Float64frombits(capnp.Struct(s).Uint64(0))
 }
 
 func (s Grid_AggregationPart) SetAreaFrac(v float64) {
-	s.Struct.SetUint64(0, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(0, math.Float64bits(v))
 }
 
 func (s Grid_AggregationPart) IValue() float64 {
-	return math.Float64frombits(s.Struct.Uint64(8))
+	return math.Float64frombits(capnp.Struct(s).Uint64(8))
 }
 
 func (s Grid_AggregationPart) SetIValue(v float64) {
-	s.Struct.SetUint64(8, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(8, math.Float64bits(v))
 }
 
 // Grid_AggregationPart_List is a list of Grid_AggregationPart.
-type Grid_AggregationPart_List struct{ capnp.List }
+type Grid_AggregationPart_List = capnp.StructList[Grid_AggregationPart]
 
 // NewGrid_AggregationPart creates a new list of Grid_AggregationPart.
 func NewGrid_AggregationPart_List(s *capnp.Segment, sz int32) (Grid_AggregationPart_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 16, PointerCount: 2}, sz)
-	return Grid_AggregationPart_List{l}, err
-}
-
-func (s Grid_AggregationPart_List) At(i int) Grid_AggregationPart {
-	return Grid_AggregationPart{s.List.Struct(i)}
-}
-
-func (s Grid_AggregationPart_List) Set(i int, v Grid_AggregationPart) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Grid_AggregationPart_List) String() string {
-	str, _ := text.MarshalList(0xac444617ef333a1d, s.List)
-	return str
+	return capnp.StructList[Grid_AggregationPart](l), err
 }
 
 // Grid_AggregationPart_Future is a wrapper for a Grid_AggregationPart promised by a client call.
 type Grid_AggregationPart_Future struct{ *capnp.Future }
 
-func (p Grid_AggregationPart_Future) Struct() (Grid_AggregationPart, error) {
-	s, err := p.Future.Struct()
-	return Grid_AggregationPart{s}, err
+func (f Grid_AggregationPart_Future) Struct() (Grid_AggregationPart, error) {
+	p, err := f.Future.Ptr()
+	return Grid_AggregationPart(p.Struct()), err
 }
-
 func (p Grid_AggregationPart_Future) Value() Grid_Value_Future {
 	return Grid_Value_Future{Future: p.Future.Field(0, nil)}
 }
-
 func (p Grid_AggregationPart_Future) RowCol() Grid_RowCol_Future {
 	return Grid_RowCol_Future{Future: p.Future.Field(1, nil)}
 }
 
-type Grid_Callback struct{ Client *capnp.Client }
+type Grid_Callback capnp.Client
 
 // Grid_Callback_TypeID is the unique identifier for the type Grid_Callback.
 const Grid_Callback_TypeID = 0xd639518280cb55d3
@@ -906,37 +1152,92 @@ func (c Grid_Callback) SendCells(ctx context.Context, params func(Grid_Callback_
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Grid_Callback_sendCells_Params{Struct: s}) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Grid_Callback_sendCells_Params(s)) }
 	}
-	ans, release := c.Client.SendCall(ctx, s)
+	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Grid_Callback_sendCells_Results_Future{Future: ans.Future()}, release
 }
 
+// String returns a string that identifies this capability for debugging
+// purposes.  Its format should not be depended on: in particular, it
+// should not be used to compare clients.  Use IsSame to compare clients
+// for equality.
+func (c Grid_Callback) String() string {
+	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+}
+
+// AddRef creates a new Client that refers to the same capability as c.
+// If c is nil or has resolved to null, then AddRef returns nil.
 func (c Grid_Callback) AddRef() Grid_Callback {
-	return Grid_Callback{
-		Client: c.Client.AddRef(),
-	}
+	return Grid_Callback(capnp.Client(c).AddRef())
 }
 
+// Release releases a capability reference.  If this is the last
+// reference to the capability, then the underlying resources associated
+// with the capability will be released.
+//
+// Release will panic if c has already been released, but not if c is
+// nil or resolved to null.
 func (c Grid_Callback) Release() {
-	c.Client.Release()
+	capnp.Client(c).Release()
 }
 
-// A Grid_Callback_Server is a Grid_Callback with a local implementation.
+// Resolve blocks until the capability is fully resolved or the Context
+// expires.
+func (c Grid_Callback) Resolve(ctx context.Context) error {
+	return capnp.Client(c).Resolve(ctx)
+}
+
+func (c Grid_Callback) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Client(c).EncodeAsPtr(seg)
+}
+
+func (Grid_Callback) DecodeFromPtr(p capnp.Ptr) Grid_Callback {
+	return Grid_Callback(capnp.Client{}.DecodeFromPtr(p))
+}
+
+// IsValid reports whether c is a valid reference to a capability.
+// A reference is invalid if it is nil, has resolved to null, or has
+// been released.
+func (c Grid_Callback) IsValid() bool {
+	return capnp.Client(c).IsValid()
+}
+
+// IsSame reports whether c and other refer to a capability created by the
+// same call to NewClient.  This can return false negatives if c or other
+// are not fully resolved: use Resolve if this is an issue.  If either
+// c or other are released, then IsSame panics.
+func (c Grid_Callback) IsSame(other Grid_Callback) bool {
+	return capnp.Client(c).IsSame(capnp.Client(other))
+}
+
+// Update the flowcontrol.FlowLimiter used to manage flow control for
+// this client. This affects all future calls, but not calls already
+// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
+// which is also the default.
+func (c Grid_Callback) SetFlowLimiter(lim fc.FlowLimiter) {
+	capnp.Client(c).SetFlowLimiter(lim)
+}
+
+// Get the current flowcontrol.FlowLimiter used to manage flow control
+// for this client.
+func (c Grid_Callback) GetFlowLimiter() fc.FlowLimiter {
+	return capnp.Client(c).GetFlowLimiter()
+} // A Grid_Callback_Server is a Grid_Callback with a local implementation.
 type Grid_Callback_Server interface {
 	SendCells(context.Context, Grid_Callback_sendCells) error
 }
 
 // Grid_Callback_NewServer creates a new Server from an implementation of Grid_Callback_Server.
-func Grid_Callback_NewServer(s Grid_Callback_Server, policy *server.Policy) *server.Server {
+func Grid_Callback_NewServer(s Grid_Callback_Server) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(Grid_Callback_Methods(nil, s), s, c, policy)
+	return server.New(Grid_Callback_Methods(nil, s), s, c)
 }
 
 // Grid_Callback_ServerToClient creates a new Client from an implementation of Grid_Callback_Server.
 // The caller is responsible for calling Release on the returned Client.
-func Grid_Callback_ServerToClient(s Grid_Callback_Server, policy *server.Policy) Grid_Callback {
-	return Grid_Callback{Client: capnp.NewClient(Grid_Callback_NewServer(s, policy))}
+func Grid_Callback_ServerToClient(s Grid_Callback_Server) Grid_Callback {
+	return Grid_Callback(capnp.NewClient(Grid_Callback_NewServer(s)))
 }
 
 // Grid_Callback_Methods appends Methods to a slice that invoke the methods on s.
@@ -969,1506 +1270,1868 @@ type Grid_Callback_sendCells struct {
 
 // Args returns the call's arguments.
 func (c Grid_Callback_sendCells) Args() Grid_Callback_sendCells_Params {
-	return Grid_Callback_sendCells_Params{Struct: c.Call.Args()}
+	return Grid_Callback_sendCells_Params(c.Call.Args())
 }
 
 // AllocResults allocates the results struct.
 func (c Grid_Callback_sendCells) AllocResults() (Grid_Callback_sendCells_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Grid_Callback_sendCells_Results{Struct: r}, err
+	return Grid_Callback_sendCells_Results(r), err
 }
 
-type Grid_Callback_sendCells_Params struct{ capnp.Struct }
+// Grid_Callback_List is a list of Grid_Callback.
+type Grid_Callback_List = capnp.CapList[Grid_Callback]
+
+// NewGrid_Callback creates a new list of Grid_Callback.
+func NewGrid_Callback_List(s *capnp.Segment, sz int32) (Grid_Callback_List, error) {
+	l, err := capnp.NewPointerList(s, sz)
+	return capnp.CapList[Grid_Callback](l), err
+}
+
+type Grid_Callback_sendCells_Params capnp.Struct
 
 // Grid_Callback_sendCells_Params_TypeID is the unique identifier for the type Grid_Callback_sendCells_Params.
 const Grid_Callback_sendCells_Params_TypeID = 0xe9b0c7718f68f6bb
 
 func NewGrid_Callback_sendCells_Params(s *capnp.Segment) (Grid_Callback_sendCells_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Grid_Callback_sendCells_Params{st}, err
+	return Grid_Callback_sendCells_Params(st), err
 }
 
 func NewRootGrid_Callback_sendCells_Params(s *capnp.Segment) (Grid_Callback_sendCells_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Grid_Callback_sendCells_Params{st}, err
+	return Grid_Callback_sendCells_Params(st), err
 }
 
 func ReadRootGrid_Callback_sendCells_Params(msg *capnp.Message) (Grid_Callback_sendCells_Params, error) {
 	root, err := msg.Root()
-	return Grid_Callback_sendCells_Params{root.Struct()}, err
+	return Grid_Callback_sendCells_Params(root.Struct()), err
 }
 
 func (s Grid_Callback_sendCells_Params) String() string {
-	str, _ := text.Marshal(0xe9b0c7718f68f6bb, s.Struct)
+	str, _ := text.Marshal(0xe9b0c7718f68f6bb, capnp.Struct(s))
 	return str
 }
 
+func (s Grid_Callback_sendCells_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Grid_Callback_sendCells_Params) DecodeFromPtr(p capnp.Ptr) Grid_Callback_sendCells_Params {
+	return Grid_Callback_sendCells_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Grid_Callback_sendCells_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Grid_Callback_sendCells_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Grid_Callback_sendCells_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Grid_Callback_sendCells_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Grid_Callback_sendCells_Params) Cells() (Grid_RowCol_List, error) {
-	p, err := s.Struct.Ptr(0)
-	return Grid_RowCol_List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return Grid_RowCol_List(p.List()), err
 }
 
 func (s Grid_Callback_sendCells_Params) HasCells() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s Grid_Callback_sendCells_Params) SetCells(v Grid_RowCol_List) error {
-	return s.Struct.SetPtr(0, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
 }
 
 // NewCells sets the cells field to a newly
 // allocated Grid_RowCol_List, preferring placement in s's segment.
 func (s Grid_Callback_sendCells_Params) NewCells(n int32) (Grid_RowCol_List, error) {
-	l, err := NewGrid_RowCol_List(s.Struct.Segment(), n)
+	l, err := NewGrid_RowCol_List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return Grid_RowCol_List{}, err
 	}
-	err = s.Struct.SetPtr(0, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
 	return l, err
 }
 
 // Grid_Callback_sendCells_Params_List is a list of Grid_Callback_sendCells_Params.
-type Grid_Callback_sendCells_Params_List struct{ capnp.List }
+type Grid_Callback_sendCells_Params_List = capnp.StructList[Grid_Callback_sendCells_Params]
 
 // NewGrid_Callback_sendCells_Params creates a new list of Grid_Callback_sendCells_Params.
 func NewGrid_Callback_sendCells_Params_List(s *capnp.Segment, sz int32) (Grid_Callback_sendCells_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return Grid_Callback_sendCells_Params_List{l}, err
-}
-
-func (s Grid_Callback_sendCells_Params_List) At(i int) Grid_Callback_sendCells_Params {
-	return Grid_Callback_sendCells_Params{s.List.Struct(i)}
-}
-
-func (s Grid_Callback_sendCells_Params_List) Set(i int, v Grid_Callback_sendCells_Params) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Grid_Callback_sendCells_Params_List) String() string {
-	str, _ := text.MarshalList(0xe9b0c7718f68f6bb, s.List)
-	return str
+	return capnp.StructList[Grid_Callback_sendCells_Params](l), err
 }
 
 // Grid_Callback_sendCells_Params_Future is a wrapper for a Grid_Callback_sendCells_Params promised by a client call.
 type Grid_Callback_sendCells_Params_Future struct{ *capnp.Future }
 
-func (p Grid_Callback_sendCells_Params_Future) Struct() (Grid_Callback_sendCells_Params, error) {
-	s, err := p.Future.Struct()
-	return Grid_Callback_sendCells_Params{s}, err
+func (f Grid_Callback_sendCells_Params_Future) Struct() (Grid_Callback_sendCells_Params, error) {
+	p, err := f.Future.Ptr()
+	return Grid_Callback_sendCells_Params(p.Struct()), err
 }
 
-type Grid_Callback_sendCells_Results struct{ capnp.Struct }
+type Grid_Callback_sendCells_Results capnp.Struct
 
 // Grid_Callback_sendCells_Results_TypeID is the unique identifier for the type Grid_Callback_sendCells_Results.
 const Grid_Callback_sendCells_Results_TypeID = 0x8e536f6e598b2579
 
 func NewGrid_Callback_sendCells_Results(s *capnp.Segment) (Grid_Callback_sendCells_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Grid_Callback_sendCells_Results{st}, err
+	return Grid_Callback_sendCells_Results(st), err
 }
 
 func NewRootGrid_Callback_sendCells_Results(s *capnp.Segment) (Grid_Callback_sendCells_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Grid_Callback_sendCells_Results{st}, err
+	return Grid_Callback_sendCells_Results(st), err
 }
 
 func ReadRootGrid_Callback_sendCells_Results(msg *capnp.Message) (Grid_Callback_sendCells_Results, error) {
 	root, err := msg.Root()
-	return Grid_Callback_sendCells_Results{root.Struct()}, err
+	return Grid_Callback_sendCells_Results(root.Struct()), err
 }
 
 func (s Grid_Callback_sendCells_Results) String() string {
-	str, _ := text.Marshal(0x8e536f6e598b2579, s.Struct)
+	str, _ := text.Marshal(0x8e536f6e598b2579, capnp.Struct(s))
 	return str
 }
 
+func (s Grid_Callback_sendCells_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Grid_Callback_sendCells_Results) DecodeFromPtr(p capnp.Ptr) Grid_Callback_sendCells_Results {
+	return Grid_Callback_sendCells_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Grid_Callback_sendCells_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Grid_Callback_sendCells_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Grid_Callback_sendCells_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Grid_Callback_sendCells_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+
 // Grid_Callback_sendCells_Results_List is a list of Grid_Callback_sendCells_Results.
-type Grid_Callback_sendCells_Results_List struct{ capnp.List }
+type Grid_Callback_sendCells_Results_List = capnp.StructList[Grid_Callback_sendCells_Results]
 
 // NewGrid_Callback_sendCells_Results creates a new list of Grid_Callback_sendCells_Results.
 func NewGrid_Callback_sendCells_Results_List(s *capnp.Segment, sz int32) (Grid_Callback_sendCells_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return Grid_Callback_sendCells_Results_List{l}, err
-}
-
-func (s Grid_Callback_sendCells_Results_List) At(i int) Grid_Callback_sendCells_Results {
-	return Grid_Callback_sendCells_Results{s.List.Struct(i)}
-}
-
-func (s Grid_Callback_sendCells_Results_List) Set(i int, v Grid_Callback_sendCells_Results) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Grid_Callback_sendCells_Results_List) String() string {
-	str, _ := text.MarshalList(0x8e536f6e598b2579, s.List)
-	return str
+	return capnp.StructList[Grid_Callback_sendCells_Results](l), err
 }
 
 // Grid_Callback_sendCells_Results_Future is a wrapper for a Grid_Callback_sendCells_Results promised by a client call.
 type Grid_Callback_sendCells_Results_Future struct{ *capnp.Future }
 
-func (p Grid_Callback_sendCells_Results_Future) Struct() (Grid_Callback_sendCells_Results, error) {
-	s, err := p.Future.Struct()
-	return Grid_Callback_sendCells_Results{s}, err
+func (f Grid_Callback_sendCells_Results_Future) Struct() (Grid_Callback_sendCells_Results, error) {
+	p, err := f.Future.Ptr()
+	return Grid_Callback_sendCells_Results(p.Struct()), err
 }
 
-type Grid_closestValueAt_Params struct{ capnp.Struct }
+type Grid_closestValueAt_Params capnp.Struct
 
 // Grid_closestValueAt_Params_TypeID is the unique identifier for the type Grid_closestValueAt_Params.
 const Grid_closestValueAt_Params_TypeID = 0xeb7e6f1c610c079a
 
 func NewGrid_closestValueAt_Params(s *capnp.Segment) (Grid_closestValueAt_Params, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 1})
-	return Grid_closestValueAt_Params{st}, err
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 2})
+	return Grid_closestValueAt_Params(st), err
 }
 
 func NewRootGrid_closestValueAt_Params(s *capnp.Segment) (Grid_closestValueAt_Params, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 1})
-	return Grid_closestValueAt_Params{st}, err
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 2})
+	return Grid_closestValueAt_Params(st), err
 }
 
 func ReadRootGrid_closestValueAt_Params(msg *capnp.Message) (Grid_closestValueAt_Params, error) {
 	root, err := msg.Root()
-	return Grid_closestValueAt_Params{root.Struct()}, err
+	return Grid_closestValueAt_Params(root.Struct()), err
 }
 
 func (s Grid_closestValueAt_Params) String() string {
-	str, _ := text.Marshal(0xeb7e6f1c610c079a, s.Struct)
+	str, _ := text.Marshal(0xeb7e6f1c610c079a, capnp.Struct(s))
 	return str
 }
 
+func (s Grid_closestValueAt_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Grid_closestValueAt_Params) DecodeFromPtr(p capnp.Ptr) Grid_closestValueAt_Params {
+	return Grid_closestValueAt_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Grid_closestValueAt_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Grid_closestValueAt_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Grid_closestValueAt_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Grid_closestValueAt_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Grid_closestValueAt_Params) LatlonCoord() (geo.LatLonCoord, error) {
-	p, err := s.Struct.Ptr(0)
-	return geo.LatLonCoord{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return geo.LatLonCoord(p.Struct()), err
 }
 
 func (s Grid_closestValueAt_Params) HasLatlonCoord() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s Grid_closestValueAt_Params) SetLatlonCoord(v geo.LatLonCoord) error {
-	return s.Struct.SetPtr(0, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewLatlonCoord sets the latlonCoord field to a newly
 // allocated geo.LatLonCoord struct, preferring placement in s's segment.
 func (s Grid_closestValueAt_Params) NewLatlonCoord() (geo.LatLonCoord, error) {
-	ss, err := geo.NewLatLonCoord(s.Struct.Segment())
+	ss, err := geo.NewLatLonCoord(capnp.Struct(s).Segment())
 	if err != nil {
 		return geo.LatLonCoord{}, err
 	}
-	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s Grid_closestValueAt_Params) IgnoreNoData() bool {
-	return !s.Struct.Bit(0)
+	return !capnp.Struct(s).Bit(0)
 }
 
 func (s Grid_closestValueAt_Params) SetIgnoreNoData(v bool) {
-	s.Struct.SetBit(0, !v)
+	capnp.Struct(s).SetBit(0, !v)
 }
 
-func (s Grid_closestValueAt_Params) Resolution() uint64 {
-	return s.Struct.Uint64(8)
+func (s Grid_closestValueAt_Params) Resolution() (Grid_Resolution, error) {
+	p, err := capnp.Struct(s).Ptr(1)
+	return Grid_Resolution(p.Struct()), err
 }
 
-func (s Grid_closestValueAt_Params) SetResolution(v uint64) {
-	s.Struct.SetUint64(8, v)
+func (s Grid_closestValueAt_Params) HasResolution() bool {
+	return capnp.Struct(s).HasPtr(1)
+}
+
+func (s Grid_closestValueAt_Params) SetResolution(v Grid_Resolution) error {
+	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
+}
+
+// NewResolution sets the resolution field to a newly
+// allocated Grid_Resolution struct, preferring placement in s's segment.
+func (s Grid_closestValueAt_Params) NewResolution() (Grid_Resolution, error) {
+	ss, err := NewGrid_Resolution(capnp.Struct(s).Segment())
+	if err != nil {
+		return Grid_Resolution{}, err
+	}
+	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
+	return ss, err
 }
 
 func (s Grid_closestValueAt_Params) Agg() Aggregation {
-	return Aggregation(s.Struct.Uint16(2))
+	return Aggregation(capnp.Struct(s).Uint16(2))
 }
 
 func (s Grid_closestValueAt_Params) SetAgg(v Aggregation) {
-	s.Struct.SetUint16(2, uint16(v))
+	capnp.Struct(s).SetUint16(2, uint16(v))
 }
 
 func (s Grid_closestValueAt_Params) ReturnRowCols() bool {
-	return s.Struct.Bit(1)
+	return capnp.Struct(s).Bit(1)
 }
 
 func (s Grid_closestValueAt_Params) SetReturnRowCols(v bool) {
-	s.Struct.SetBit(1, v)
+	capnp.Struct(s).SetBit(1, v)
 }
 
 func (s Grid_closestValueAt_Params) IncludeAggParts() bool {
-	return s.Struct.Bit(2)
+	return capnp.Struct(s).Bit(2)
 }
 
 func (s Grid_closestValueAt_Params) SetIncludeAggParts(v bool) {
-	s.Struct.SetBit(2, v)
+	capnp.Struct(s).SetBit(2, v)
 }
 
 // Grid_closestValueAt_Params_List is a list of Grid_closestValueAt_Params.
-type Grid_closestValueAt_Params_List struct{ capnp.List }
+type Grid_closestValueAt_Params_List = capnp.StructList[Grid_closestValueAt_Params]
 
 // NewGrid_closestValueAt_Params creates a new list of Grid_closestValueAt_Params.
 func NewGrid_closestValueAt_Params_List(s *capnp.Segment, sz int32) (Grid_closestValueAt_Params_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 16, PointerCount: 1}, sz)
-	return Grid_closestValueAt_Params_List{l}, err
-}
-
-func (s Grid_closestValueAt_Params_List) At(i int) Grid_closestValueAt_Params {
-	return Grid_closestValueAt_Params{s.List.Struct(i)}
-}
-
-func (s Grid_closestValueAt_Params_List) Set(i int, v Grid_closestValueAt_Params) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Grid_closestValueAt_Params_List) String() string {
-	str, _ := text.MarshalList(0xeb7e6f1c610c079a, s.List)
-	return str
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 2}, sz)
+	return capnp.StructList[Grid_closestValueAt_Params](l), err
 }
 
 // Grid_closestValueAt_Params_Future is a wrapper for a Grid_closestValueAt_Params promised by a client call.
 type Grid_closestValueAt_Params_Future struct{ *capnp.Future }
 
-func (p Grid_closestValueAt_Params_Future) Struct() (Grid_closestValueAt_Params, error) {
-	s, err := p.Future.Struct()
-	return Grid_closestValueAt_Params{s}, err
+func (f Grid_closestValueAt_Params_Future) Struct() (Grid_closestValueAt_Params, error) {
+	p, err := f.Future.Ptr()
+	return Grid_closestValueAt_Params(p.Struct()), err
 }
-
 func (p Grid_closestValueAt_Params_Future) LatlonCoord() geo.LatLonCoord_Future {
 	return geo.LatLonCoord_Future{Future: p.Future.Field(0, nil)}
 }
+func (p Grid_closestValueAt_Params_Future) Resolution() Grid_Resolution_Future {
+	return Grid_Resolution_Future{Future: p.Future.Field(1, nil)}
+}
 
-type Grid_closestValueAt_Results struct{ capnp.Struct }
+type Grid_closestValueAt_Results capnp.Struct
 
 // Grid_closestValueAt_Results_TypeID is the unique identifier for the type Grid_closestValueAt_Results.
 const Grid_closestValueAt_Results_TypeID = 0xa8bd0263833540b0
 
 func NewGrid_closestValueAt_Results(s *capnp.Segment) (Grid_closestValueAt_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 4})
-	return Grid_closestValueAt_Results{st}, err
+	return Grid_closestValueAt_Results(st), err
 }
 
 func NewRootGrid_closestValueAt_Results(s *capnp.Segment) (Grid_closestValueAt_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 4})
-	return Grid_closestValueAt_Results{st}, err
+	return Grid_closestValueAt_Results(st), err
 }
 
 func ReadRootGrid_closestValueAt_Results(msg *capnp.Message) (Grid_closestValueAt_Results, error) {
 	root, err := msg.Root()
-	return Grid_closestValueAt_Results{root.Struct()}, err
+	return Grid_closestValueAt_Results(root.Struct()), err
 }
 
 func (s Grid_closestValueAt_Results) String() string {
-	str, _ := text.Marshal(0xa8bd0263833540b0, s.Struct)
+	str, _ := text.Marshal(0xa8bd0263833540b0, capnp.Struct(s))
 	return str
 }
 
+func (s Grid_closestValueAt_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Grid_closestValueAt_Results) DecodeFromPtr(p capnp.Ptr) Grid_closestValueAt_Results {
+	return Grid_closestValueAt_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Grid_closestValueAt_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Grid_closestValueAt_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Grid_closestValueAt_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Grid_closestValueAt_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Grid_closestValueAt_Results) Val() (Grid_Value, error) {
-	p, err := s.Struct.Ptr(0)
-	return Grid_Value{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return Grid_Value(p.Struct()), err
 }
 
 func (s Grid_closestValueAt_Results) HasVal() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s Grid_closestValueAt_Results) SetVal(v Grid_Value) error {
-	return s.Struct.SetPtr(0, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewVal sets the val field to a newly
 // allocated Grid_Value struct, preferring placement in s's segment.
 func (s Grid_closestValueAt_Results) NewVal() (Grid_Value, error) {
-	ss, err := NewGrid_Value(s.Struct.Segment())
+	ss, err := NewGrid_Value(capnp.Struct(s).Segment())
 	if err != nil {
 		return Grid_Value{}, err
 	}
-	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s Grid_closestValueAt_Results) Tl() (Grid_RowCol, error) {
-	p, err := s.Struct.Ptr(1)
-	return Grid_RowCol{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(1)
+	return Grid_RowCol(p.Struct()), err
 }
 
 func (s Grid_closestValueAt_Results) HasTl() bool {
-	return s.Struct.HasPtr(1)
+	return capnp.Struct(s).HasPtr(1)
 }
 
 func (s Grid_closestValueAt_Results) SetTl(v Grid_RowCol) error {
-	return s.Struct.SetPtr(1, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
 }
 
 // NewTl sets the tl field to a newly
 // allocated Grid_RowCol struct, preferring placement in s's segment.
 func (s Grid_closestValueAt_Results) NewTl() (Grid_RowCol, error) {
-	ss, err := NewGrid_RowCol(s.Struct.Segment())
+	ss, err := NewGrid_RowCol(capnp.Struct(s).Segment())
 	if err != nil {
 		return Grid_RowCol{}, err
 	}
-	err = s.Struct.SetPtr(1, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s Grid_closestValueAt_Results) Br() (Grid_RowCol, error) {
-	p, err := s.Struct.Ptr(2)
-	return Grid_RowCol{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(2)
+	return Grid_RowCol(p.Struct()), err
 }
 
 func (s Grid_closestValueAt_Results) HasBr() bool {
-	return s.Struct.HasPtr(2)
+	return capnp.Struct(s).HasPtr(2)
 }
 
 func (s Grid_closestValueAt_Results) SetBr(v Grid_RowCol) error {
-	return s.Struct.SetPtr(2, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(2, capnp.Struct(v).ToPtr())
 }
 
 // NewBr sets the br field to a newly
 // allocated Grid_RowCol struct, preferring placement in s's segment.
 func (s Grid_closestValueAt_Results) NewBr() (Grid_RowCol, error) {
-	ss, err := NewGrid_RowCol(s.Struct.Segment())
+	ss, err := NewGrid_RowCol(capnp.Struct(s).Segment())
 	if err != nil {
 		return Grid_RowCol{}, err
 	}
-	err = s.Struct.SetPtr(2, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(2, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s Grid_closestValueAt_Results) AggParts() (Grid_AggregationPart_List, error) {
-	p, err := s.Struct.Ptr(3)
-	return Grid_AggregationPart_List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(3)
+	return Grid_AggregationPart_List(p.List()), err
 }
 
 func (s Grid_closestValueAt_Results) HasAggParts() bool {
-	return s.Struct.HasPtr(3)
+	return capnp.Struct(s).HasPtr(3)
 }
 
 func (s Grid_closestValueAt_Results) SetAggParts(v Grid_AggregationPart_List) error {
-	return s.Struct.SetPtr(3, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(3, v.ToPtr())
 }
 
 // NewAggParts sets the aggParts field to a newly
 // allocated Grid_AggregationPart_List, preferring placement in s's segment.
 func (s Grid_closestValueAt_Results) NewAggParts(n int32) (Grid_AggregationPart_List, error) {
-	l, err := NewGrid_AggregationPart_List(s.Struct.Segment(), n)
+	l, err := NewGrid_AggregationPart_List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return Grid_AggregationPart_List{}, err
 	}
-	err = s.Struct.SetPtr(3, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(3, l.ToPtr())
 	return l, err
 }
 
 // Grid_closestValueAt_Results_List is a list of Grid_closestValueAt_Results.
-type Grid_closestValueAt_Results_List struct{ capnp.List }
+type Grid_closestValueAt_Results_List = capnp.StructList[Grid_closestValueAt_Results]
 
 // NewGrid_closestValueAt_Results creates a new list of Grid_closestValueAt_Results.
 func NewGrid_closestValueAt_Results_List(s *capnp.Segment, sz int32) (Grid_closestValueAt_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 4}, sz)
-	return Grid_closestValueAt_Results_List{l}, err
-}
-
-func (s Grid_closestValueAt_Results_List) At(i int) Grid_closestValueAt_Results {
-	return Grid_closestValueAt_Results{s.List.Struct(i)}
-}
-
-func (s Grid_closestValueAt_Results_List) Set(i int, v Grid_closestValueAt_Results) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Grid_closestValueAt_Results_List) String() string {
-	str, _ := text.MarshalList(0xa8bd0263833540b0, s.List)
-	return str
+	return capnp.StructList[Grid_closestValueAt_Results](l), err
 }
 
 // Grid_closestValueAt_Results_Future is a wrapper for a Grid_closestValueAt_Results promised by a client call.
 type Grid_closestValueAt_Results_Future struct{ *capnp.Future }
 
-func (p Grid_closestValueAt_Results_Future) Struct() (Grid_closestValueAt_Results, error) {
-	s, err := p.Future.Struct()
-	return Grid_closestValueAt_Results{s}, err
+func (f Grid_closestValueAt_Results_Future) Struct() (Grid_closestValueAt_Results, error) {
+	p, err := f.Future.Ptr()
+	return Grid_closestValueAt_Results(p.Struct()), err
 }
-
 func (p Grid_closestValueAt_Results_Future) Val() Grid_Value_Future {
 	return Grid_Value_Future{Future: p.Future.Field(0, nil)}
 }
-
 func (p Grid_closestValueAt_Results_Future) Tl() Grid_RowCol_Future {
 	return Grid_RowCol_Future{Future: p.Future.Field(1, nil)}
 }
-
 func (p Grid_closestValueAt_Results_Future) Br() Grid_RowCol_Future {
 	return Grid_RowCol_Future{Future: p.Future.Field(2, nil)}
 }
 
-type Grid_resolution_Params struct{ capnp.Struct }
+type Grid_resolution_Params capnp.Struct
 
 // Grid_resolution_Params_TypeID is the unique identifier for the type Grid_resolution_Params.
 const Grid_resolution_Params_TypeID = 0xf79edcb97e1e2deb
 
 func NewGrid_resolution_Params(s *capnp.Segment) (Grid_resolution_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Grid_resolution_Params{st}, err
+	return Grid_resolution_Params(st), err
 }
 
 func NewRootGrid_resolution_Params(s *capnp.Segment) (Grid_resolution_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Grid_resolution_Params{st}, err
+	return Grid_resolution_Params(st), err
 }
 
 func ReadRootGrid_resolution_Params(msg *capnp.Message) (Grid_resolution_Params, error) {
 	root, err := msg.Root()
-	return Grid_resolution_Params{root.Struct()}, err
+	return Grid_resolution_Params(root.Struct()), err
 }
 
 func (s Grid_resolution_Params) String() string {
-	str, _ := text.Marshal(0xf79edcb97e1e2deb, s.Struct)
+	str, _ := text.Marshal(0xf79edcb97e1e2deb, capnp.Struct(s))
 	return str
 }
 
+func (s Grid_resolution_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Grid_resolution_Params) DecodeFromPtr(p capnp.Ptr) Grid_resolution_Params {
+	return Grid_resolution_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Grid_resolution_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Grid_resolution_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Grid_resolution_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Grid_resolution_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+
 // Grid_resolution_Params_List is a list of Grid_resolution_Params.
-type Grid_resolution_Params_List struct{ capnp.List }
+type Grid_resolution_Params_List = capnp.StructList[Grid_resolution_Params]
 
 // NewGrid_resolution_Params creates a new list of Grid_resolution_Params.
 func NewGrid_resolution_Params_List(s *capnp.Segment, sz int32) (Grid_resolution_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return Grid_resolution_Params_List{l}, err
-}
-
-func (s Grid_resolution_Params_List) At(i int) Grid_resolution_Params {
-	return Grid_resolution_Params{s.List.Struct(i)}
-}
-
-func (s Grid_resolution_Params_List) Set(i int, v Grid_resolution_Params) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Grid_resolution_Params_List) String() string {
-	str, _ := text.MarshalList(0xf79edcb97e1e2deb, s.List)
-	return str
+	return capnp.StructList[Grid_resolution_Params](l), err
 }
 
 // Grid_resolution_Params_Future is a wrapper for a Grid_resolution_Params promised by a client call.
 type Grid_resolution_Params_Future struct{ *capnp.Future }
 
-func (p Grid_resolution_Params_Future) Struct() (Grid_resolution_Params, error) {
-	s, err := p.Future.Struct()
-	return Grid_resolution_Params{s}, err
+func (f Grid_resolution_Params_Future) Struct() (Grid_resolution_Params, error) {
+	p, err := f.Future.Ptr()
+	return Grid_resolution_Params(p.Struct()), err
 }
 
-type Grid_resolution_Results struct{ capnp.Struct }
+type Grid_resolution_Results capnp.Struct
 
 // Grid_resolution_Results_TypeID is the unique identifier for the type Grid_resolution_Results.
 const Grid_resolution_Results_TypeID = 0x8cd7ba490778c79a
 
 func NewGrid_resolution_Results(s *capnp.Segment) (Grid_resolution_Results, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Grid_resolution_Results{st}, err
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Grid_resolution_Results(st), err
 }
 
 func NewRootGrid_resolution_Results(s *capnp.Segment) (Grid_resolution_Results, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Grid_resolution_Results{st}, err
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Grid_resolution_Results(st), err
 }
 
 func ReadRootGrid_resolution_Results(msg *capnp.Message) (Grid_resolution_Results, error) {
 	root, err := msg.Root()
-	return Grid_resolution_Results{root.Struct()}, err
+	return Grid_resolution_Results(root.Struct()), err
 }
 
 func (s Grid_resolution_Results) String() string {
-	str, _ := text.Marshal(0x8cd7ba490778c79a, s.Struct)
+	str, _ := text.Marshal(0x8cd7ba490778c79a, capnp.Struct(s))
 	return str
 }
 
-func (s Grid_resolution_Results) Res() uint64 {
-	return s.Struct.Uint64(0)
+func (s Grid_resolution_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
 }
 
-func (s Grid_resolution_Results) SetRes(v uint64) {
-	s.Struct.SetUint64(0, v)
+func (Grid_resolution_Results) DecodeFromPtr(p capnp.Ptr) Grid_resolution_Results {
+	return Grid_resolution_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Grid_resolution_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Grid_resolution_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Grid_resolution_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Grid_resolution_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+func (s Grid_resolution_Results) Res() (Grid_Resolution, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return Grid_Resolution(p.Struct()), err
+}
+
+func (s Grid_resolution_Results) HasRes() bool {
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Grid_resolution_Results) SetRes(v Grid_Resolution) error {
+	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+}
+
+// NewRes sets the res field to a newly
+// allocated Grid_Resolution struct, preferring placement in s's segment.
+func (s Grid_resolution_Results) NewRes() (Grid_Resolution, error) {
+	ss, err := NewGrid_Resolution(capnp.Struct(s).Segment())
+	if err != nil {
+		return Grid_Resolution{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	return ss, err
 }
 
 // Grid_resolution_Results_List is a list of Grid_resolution_Results.
-type Grid_resolution_Results_List struct{ capnp.List }
+type Grid_resolution_Results_List = capnp.StructList[Grid_resolution_Results]
 
 // NewGrid_resolution_Results creates a new list of Grid_resolution_Results.
 func NewGrid_resolution_Results_List(s *capnp.Segment, sz int32) (Grid_resolution_Results_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0}, sz)
-	return Grid_resolution_Results_List{l}, err
-}
-
-func (s Grid_resolution_Results_List) At(i int) Grid_resolution_Results {
-	return Grid_resolution_Results{s.List.Struct(i)}
-}
-
-func (s Grid_resolution_Results_List) Set(i int, v Grid_resolution_Results) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Grid_resolution_Results_List) String() string {
-	str, _ := text.MarshalList(0x8cd7ba490778c79a, s.List)
-	return str
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
+	return capnp.StructList[Grid_resolution_Results](l), err
 }
 
 // Grid_resolution_Results_Future is a wrapper for a Grid_resolution_Results promised by a client call.
 type Grid_resolution_Results_Future struct{ *capnp.Future }
 
-func (p Grid_resolution_Results_Future) Struct() (Grid_resolution_Results, error) {
-	s, err := p.Future.Struct()
-	return Grid_resolution_Results{s}, err
+func (f Grid_resolution_Results_Future) Struct() (Grid_resolution_Results, error) {
+	p, err := f.Future.Ptr()
+	return Grid_resolution_Results(p.Struct()), err
+}
+func (p Grid_resolution_Results_Future) Res() Grid_Resolution_Future {
+	return Grid_Resolution_Future{Future: p.Future.Field(0, nil)}
 }
 
-type Grid_dimension_Params struct{ capnp.Struct }
+type Grid_dimension_Params capnp.Struct
 
 // Grid_dimension_Params_TypeID is the unique identifier for the type Grid_dimension_Params.
 const Grid_dimension_Params_TypeID = 0xa6005af20cc08dbe
 
 func NewGrid_dimension_Params(s *capnp.Segment) (Grid_dimension_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Grid_dimension_Params{st}, err
+	return Grid_dimension_Params(st), err
 }
 
 func NewRootGrid_dimension_Params(s *capnp.Segment) (Grid_dimension_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Grid_dimension_Params{st}, err
+	return Grid_dimension_Params(st), err
 }
 
 func ReadRootGrid_dimension_Params(msg *capnp.Message) (Grid_dimension_Params, error) {
 	root, err := msg.Root()
-	return Grid_dimension_Params{root.Struct()}, err
+	return Grid_dimension_Params(root.Struct()), err
 }
 
 func (s Grid_dimension_Params) String() string {
-	str, _ := text.Marshal(0xa6005af20cc08dbe, s.Struct)
+	str, _ := text.Marshal(0xa6005af20cc08dbe, capnp.Struct(s))
 	return str
 }
 
+func (s Grid_dimension_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Grid_dimension_Params) DecodeFromPtr(p capnp.Ptr) Grid_dimension_Params {
+	return Grid_dimension_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Grid_dimension_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Grid_dimension_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Grid_dimension_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Grid_dimension_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+
 // Grid_dimension_Params_List is a list of Grid_dimension_Params.
-type Grid_dimension_Params_List struct{ capnp.List }
+type Grid_dimension_Params_List = capnp.StructList[Grid_dimension_Params]
 
 // NewGrid_dimension_Params creates a new list of Grid_dimension_Params.
 func NewGrid_dimension_Params_List(s *capnp.Segment, sz int32) (Grid_dimension_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return Grid_dimension_Params_List{l}, err
-}
-
-func (s Grid_dimension_Params_List) At(i int) Grid_dimension_Params {
-	return Grid_dimension_Params{s.List.Struct(i)}
-}
-
-func (s Grid_dimension_Params_List) Set(i int, v Grid_dimension_Params) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Grid_dimension_Params_List) String() string {
-	str, _ := text.MarshalList(0xa6005af20cc08dbe, s.List)
-	return str
+	return capnp.StructList[Grid_dimension_Params](l), err
 }
 
 // Grid_dimension_Params_Future is a wrapper for a Grid_dimension_Params promised by a client call.
 type Grid_dimension_Params_Future struct{ *capnp.Future }
 
-func (p Grid_dimension_Params_Future) Struct() (Grid_dimension_Params, error) {
-	s, err := p.Future.Struct()
-	return Grid_dimension_Params{s}, err
+func (f Grid_dimension_Params_Future) Struct() (Grid_dimension_Params, error) {
+	p, err := f.Future.Ptr()
+	return Grid_dimension_Params(p.Struct()), err
 }
 
-type Grid_dimension_Results struct{ capnp.Struct }
+type Grid_dimension_Results capnp.Struct
 
 // Grid_dimension_Results_TypeID is the unique identifier for the type Grid_dimension_Results.
 const Grid_dimension_Results_TypeID = 0xe7a46f6b1610256f
 
 func NewGrid_dimension_Results(s *capnp.Segment) (Grid_dimension_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0})
-	return Grid_dimension_Results{st}, err
+	return Grid_dimension_Results(st), err
 }
 
 func NewRootGrid_dimension_Results(s *capnp.Segment) (Grid_dimension_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0})
-	return Grid_dimension_Results{st}, err
+	return Grid_dimension_Results(st), err
 }
 
 func ReadRootGrid_dimension_Results(msg *capnp.Message) (Grid_dimension_Results, error) {
 	root, err := msg.Root()
-	return Grid_dimension_Results{root.Struct()}, err
+	return Grid_dimension_Results(root.Struct()), err
 }
 
 func (s Grid_dimension_Results) String() string {
-	str, _ := text.Marshal(0xe7a46f6b1610256f, s.Struct)
+	str, _ := text.Marshal(0xe7a46f6b1610256f, capnp.Struct(s))
 	return str
 }
 
+func (s Grid_dimension_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Grid_dimension_Results) DecodeFromPtr(p capnp.Ptr) Grid_dimension_Results {
+	return Grid_dimension_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Grid_dimension_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Grid_dimension_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Grid_dimension_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Grid_dimension_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Grid_dimension_Results) Rows() uint64 {
-	return s.Struct.Uint64(0)
+	return capnp.Struct(s).Uint64(0)
 }
 
 func (s Grid_dimension_Results) SetRows(v uint64) {
-	s.Struct.SetUint64(0, v)
+	capnp.Struct(s).SetUint64(0, v)
 }
 
 func (s Grid_dimension_Results) Cols() uint64 {
-	return s.Struct.Uint64(8)
+	return capnp.Struct(s).Uint64(8)
 }
 
 func (s Grid_dimension_Results) SetCols(v uint64) {
-	s.Struct.SetUint64(8, v)
+	capnp.Struct(s).SetUint64(8, v)
 }
 
 // Grid_dimension_Results_List is a list of Grid_dimension_Results.
-type Grid_dimension_Results_List struct{ capnp.List }
+type Grid_dimension_Results_List = capnp.StructList[Grid_dimension_Results]
 
 // NewGrid_dimension_Results creates a new list of Grid_dimension_Results.
 func NewGrid_dimension_Results_List(s *capnp.Segment, sz int32) (Grid_dimension_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0}, sz)
-	return Grid_dimension_Results_List{l}, err
-}
-
-func (s Grid_dimension_Results_List) At(i int) Grid_dimension_Results {
-	return Grid_dimension_Results{s.List.Struct(i)}
-}
-
-func (s Grid_dimension_Results_List) Set(i int, v Grid_dimension_Results) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Grid_dimension_Results_List) String() string {
-	str, _ := text.MarshalList(0xe7a46f6b1610256f, s.List)
-	return str
+	return capnp.StructList[Grid_dimension_Results](l), err
 }
 
 // Grid_dimension_Results_Future is a wrapper for a Grid_dimension_Results promised by a client call.
 type Grid_dimension_Results_Future struct{ *capnp.Future }
 
-func (p Grid_dimension_Results_Future) Struct() (Grid_dimension_Results, error) {
-	s, err := p.Future.Struct()
-	return Grid_dimension_Results{s}, err
+func (f Grid_dimension_Results_Future) Struct() (Grid_dimension_Results, error) {
+	p, err := f.Future.Ptr()
+	return Grid_dimension_Results(p.Struct()), err
 }
 
-type Grid_noDataValue_Params struct{ capnp.Struct }
+type Grid_noDataValue_Params capnp.Struct
 
 // Grid_noDataValue_Params_TypeID is the unique identifier for the type Grid_noDataValue_Params.
 const Grid_noDataValue_Params_TypeID = 0xf804a76f2ada54b6
 
 func NewGrid_noDataValue_Params(s *capnp.Segment) (Grid_noDataValue_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Grid_noDataValue_Params{st}, err
+	return Grid_noDataValue_Params(st), err
 }
 
 func NewRootGrid_noDataValue_Params(s *capnp.Segment) (Grid_noDataValue_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Grid_noDataValue_Params{st}, err
+	return Grid_noDataValue_Params(st), err
 }
 
 func ReadRootGrid_noDataValue_Params(msg *capnp.Message) (Grid_noDataValue_Params, error) {
 	root, err := msg.Root()
-	return Grid_noDataValue_Params{root.Struct()}, err
+	return Grid_noDataValue_Params(root.Struct()), err
 }
 
 func (s Grid_noDataValue_Params) String() string {
-	str, _ := text.Marshal(0xf804a76f2ada54b6, s.Struct)
+	str, _ := text.Marshal(0xf804a76f2ada54b6, capnp.Struct(s))
 	return str
 }
 
+func (s Grid_noDataValue_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Grid_noDataValue_Params) DecodeFromPtr(p capnp.Ptr) Grid_noDataValue_Params {
+	return Grid_noDataValue_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Grid_noDataValue_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Grid_noDataValue_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Grid_noDataValue_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Grid_noDataValue_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+
 // Grid_noDataValue_Params_List is a list of Grid_noDataValue_Params.
-type Grid_noDataValue_Params_List struct{ capnp.List }
+type Grid_noDataValue_Params_List = capnp.StructList[Grid_noDataValue_Params]
 
 // NewGrid_noDataValue_Params creates a new list of Grid_noDataValue_Params.
 func NewGrid_noDataValue_Params_List(s *capnp.Segment, sz int32) (Grid_noDataValue_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return Grid_noDataValue_Params_List{l}, err
-}
-
-func (s Grid_noDataValue_Params_List) At(i int) Grid_noDataValue_Params {
-	return Grid_noDataValue_Params{s.List.Struct(i)}
-}
-
-func (s Grid_noDataValue_Params_List) Set(i int, v Grid_noDataValue_Params) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Grid_noDataValue_Params_List) String() string {
-	str, _ := text.MarshalList(0xf804a76f2ada54b6, s.List)
-	return str
+	return capnp.StructList[Grid_noDataValue_Params](l), err
 }
 
 // Grid_noDataValue_Params_Future is a wrapper for a Grid_noDataValue_Params promised by a client call.
 type Grid_noDataValue_Params_Future struct{ *capnp.Future }
 
-func (p Grid_noDataValue_Params_Future) Struct() (Grid_noDataValue_Params, error) {
-	s, err := p.Future.Struct()
-	return Grid_noDataValue_Params{s}, err
+func (f Grid_noDataValue_Params_Future) Struct() (Grid_noDataValue_Params, error) {
+	p, err := f.Future.Ptr()
+	return Grid_noDataValue_Params(p.Struct()), err
 }
 
-type Grid_noDataValue_Results struct{ capnp.Struct }
+type Grid_noDataValue_Results capnp.Struct
 
 // Grid_noDataValue_Results_TypeID is the unique identifier for the type Grid_noDataValue_Results.
 const Grid_noDataValue_Results_TypeID = 0x9bc132bd2a1b1fcf
 
 func NewGrid_noDataValue_Results(s *capnp.Segment) (Grid_noDataValue_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Grid_noDataValue_Results{st}, err
+	return Grid_noDataValue_Results(st), err
 }
 
 func NewRootGrid_noDataValue_Results(s *capnp.Segment) (Grid_noDataValue_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Grid_noDataValue_Results{st}, err
+	return Grid_noDataValue_Results(st), err
 }
 
 func ReadRootGrid_noDataValue_Results(msg *capnp.Message) (Grid_noDataValue_Results, error) {
 	root, err := msg.Root()
-	return Grid_noDataValue_Results{root.Struct()}, err
+	return Grid_noDataValue_Results(root.Struct()), err
 }
 
 func (s Grid_noDataValue_Results) String() string {
-	str, _ := text.Marshal(0x9bc132bd2a1b1fcf, s.Struct)
+	str, _ := text.Marshal(0x9bc132bd2a1b1fcf, capnp.Struct(s))
 	return str
 }
 
+func (s Grid_noDataValue_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Grid_noDataValue_Results) DecodeFromPtr(p capnp.Ptr) Grid_noDataValue_Results {
+	return Grid_noDataValue_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Grid_noDataValue_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Grid_noDataValue_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Grid_noDataValue_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Grid_noDataValue_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Grid_noDataValue_Results) Nodata() (Grid_Value, error) {
-	p, err := s.Struct.Ptr(0)
-	return Grid_Value{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return Grid_Value(p.Struct()), err
 }
 
 func (s Grid_noDataValue_Results) HasNodata() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s Grid_noDataValue_Results) SetNodata(v Grid_Value) error {
-	return s.Struct.SetPtr(0, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewNodata sets the nodata field to a newly
 // allocated Grid_Value struct, preferring placement in s's segment.
 func (s Grid_noDataValue_Results) NewNodata() (Grid_Value, error) {
-	ss, err := NewGrid_Value(s.Struct.Segment())
+	ss, err := NewGrid_Value(capnp.Struct(s).Segment())
 	if err != nil {
 		return Grid_Value{}, err
 	}
-	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 // Grid_noDataValue_Results_List is a list of Grid_noDataValue_Results.
-type Grid_noDataValue_Results_List struct{ capnp.List }
+type Grid_noDataValue_Results_List = capnp.StructList[Grid_noDataValue_Results]
 
 // NewGrid_noDataValue_Results creates a new list of Grid_noDataValue_Results.
 func NewGrid_noDataValue_Results_List(s *capnp.Segment, sz int32) (Grid_noDataValue_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return Grid_noDataValue_Results_List{l}, err
-}
-
-func (s Grid_noDataValue_Results_List) At(i int) Grid_noDataValue_Results {
-	return Grid_noDataValue_Results{s.List.Struct(i)}
-}
-
-func (s Grid_noDataValue_Results_List) Set(i int, v Grid_noDataValue_Results) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Grid_noDataValue_Results_List) String() string {
-	str, _ := text.MarshalList(0x9bc132bd2a1b1fcf, s.List)
-	return str
+	return capnp.StructList[Grid_noDataValue_Results](l), err
 }
 
 // Grid_noDataValue_Results_Future is a wrapper for a Grid_noDataValue_Results promised by a client call.
 type Grid_noDataValue_Results_Future struct{ *capnp.Future }
 
-func (p Grid_noDataValue_Results_Future) Struct() (Grid_noDataValue_Results, error) {
-	s, err := p.Future.Struct()
-	return Grid_noDataValue_Results{s}, err
+func (f Grid_noDataValue_Results_Future) Struct() (Grid_noDataValue_Results, error) {
+	p, err := f.Future.Ptr()
+	return Grid_noDataValue_Results(p.Struct()), err
 }
-
 func (p Grid_noDataValue_Results_Future) Nodata() Grid_Value_Future {
 	return Grid_Value_Future{Future: p.Future.Field(0, nil)}
 }
 
-type Grid_valueAt_Params struct{ capnp.Struct }
+type Grid_valueAt_Params capnp.Struct
 
 // Grid_valueAt_Params_TypeID is the unique identifier for the type Grid_valueAt_Params.
 const Grid_valueAt_Params_TypeID = 0x948ff2bdd6e6972f
 
 func NewGrid_valueAt_Params(s *capnp.Segment) (Grid_valueAt_Params, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 32, PointerCount: 0})
-	return Grid_valueAt_Params{st}, err
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 24, PointerCount: 1})
+	return Grid_valueAt_Params(st), err
 }
 
 func NewRootGrid_valueAt_Params(s *capnp.Segment) (Grid_valueAt_Params, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 32, PointerCount: 0})
-	return Grid_valueAt_Params{st}, err
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 24, PointerCount: 1})
+	return Grid_valueAt_Params(st), err
 }
 
 func ReadRootGrid_valueAt_Params(msg *capnp.Message) (Grid_valueAt_Params, error) {
 	root, err := msg.Root()
-	return Grid_valueAt_Params{root.Struct()}, err
+	return Grid_valueAt_Params(root.Struct()), err
 }
 
 func (s Grid_valueAt_Params) String() string {
-	str, _ := text.Marshal(0x948ff2bdd6e6972f, s.Struct)
+	str, _ := text.Marshal(0x948ff2bdd6e6972f, capnp.Struct(s))
 	return str
 }
 
+func (s Grid_valueAt_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Grid_valueAt_Params) DecodeFromPtr(p capnp.Ptr) Grid_valueAt_Params {
+	return Grid_valueAt_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Grid_valueAt_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Grid_valueAt_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Grid_valueAt_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Grid_valueAt_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Grid_valueAt_Params) Row() uint64 {
-	return s.Struct.Uint64(0)
+	return capnp.Struct(s).Uint64(0)
 }
 
 func (s Grid_valueAt_Params) SetRow(v uint64) {
-	s.Struct.SetUint64(0, v)
+	capnp.Struct(s).SetUint64(0, v)
 }
 
 func (s Grid_valueAt_Params) Col() uint64 {
-	return s.Struct.Uint64(8)
+	return capnp.Struct(s).Uint64(8)
 }
 
 func (s Grid_valueAt_Params) SetCol(v uint64) {
-	s.Struct.SetUint64(8, v)
+	capnp.Struct(s).SetUint64(8, v)
 }
 
-func (s Grid_valueAt_Params) Resolution() uint64 {
-	return s.Struct.Uint64(16)
+func (s Grid_valueAt_Params) Resolution() (Grid_Resolution, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return Grid_Resolution(p.Struct()), err
 }
 
-func (s Grid_valueAt_Params) SetResolution(v uint64) {
-	s.Struct.SetUint64(16, v)
+func (s Grid_valueAt_Params) HasResolution() bool {
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Grid_valueAt_Params) SetResolution(v Grid_Resolution) error {
+	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+}
+
+// NewResolution sets the resolution field to a newly
+// allocated Grid_Resolution struct, preferring placement in s's segment.
+func (s Grid_valueAt_Params) NewResolution() (Grid_Resolution, error) {
+	ss, err := NewGrid_Resolution(capnp.Struct(s).Segment())
+	if err != nil {
+		return Grid_Resolution{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	return ss, err
 }
 
 func (s Grid_valueAt_Params) Agg() Aggregation {
-	return Aggregation(s.Struct.Uint16(24))
+	return Aggregation(capnp.Struct(s).Uint16(16))
 }
 
 func (s Grid_valueAt_Params) SetAgg(v Aggregation) {
-	s.Struct.SetUint16(24, uint16(v))
+	capnp.Struct(s).SetUint16(16, uint16(v))
 }
 
 func (s Grid_valueAt_Params) IncludeAggParts() bool {
-	return s.Struct.Bit(208)
+	return capnp.Struct(s).Bit(144)
 }
 
 func (s Grid_valueAt_Params) SetIncludeAggParts(v bool) {
-	s.Struct.SetBit(208, v)
+	capnp.Struct(s).SetBit(144, v)
 }
 
 // Grid_valueAt_Params_List is a list of Grid_valueAt_Params.
-type Grid_valueAt_Params_List struct{ capnp.List }
+type Grid_valueAt_Params_List = capnp.StructList[Grid_valueAt_Params]
 
 // NewGrid_valueAt_Params creates a new list of Grid_valueAt_Params.
 func NewGrid_valueAt_Params_List(s *capnp.Segment, sz int32) (Grid_valueAt_Params_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 32, PointerCount: 0}, sz)
-	return Grid_valueAt_Params_List{l}, err
-}
-
-func (s Grid_valueAt_Params_List) At(i int) Grid_valueAt_Params {
-	return Grid_valueAt_Params{s.List.Struct(i)}
-}
-
-func (s Grid_valueAt_Params_List) Set(i int, v Grid_valueAt_Params) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Grid_valueAt_Params_List) String() string {
-	str, _ := text.MarshalList(0x948ff2bdd6e6972f, s.List)
-	return str
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 24, PointerCount: 1}, sz)
+	return capnp.StructList[Grid_valueAt_Params](l), err
 }
 
 // Grid_valueAt_Params_Future is a wrapper for a Grid_valueAt_Params promised by a client call.
 type Grid_valueAt_Params_Future struct{ *capnp.Future }
 
-func (p Grid_valueAt_Params_Future) Struct() (Grid_valueAt_Params, error) {
-	s, err := p.Future.Struct()
-	return Grid_valueAt_Params{s}, err
+func (f Grid_valueAt_Params_Future) Struct() (Grid_valueAt_Params, error) {
+	p, err := f.Future.Ptr()
+	return Grid_valueAt_Params(p.Struct()), err
+}
+func (p Grid_valueAt_Params_Future) Resolution() Grid_Resolution_Future {
+	return Grid_Resolution_Future{Future: p.Future.Field(0, nil)}
 }
 
-type Grid_valueAt_Results struct{ capnp.Struct }
+type Grid_valueAt_Results capnp.Struct
 
 // Grid_valueAt_Results_TypeID is the unique identifier for the type Grid_valueAt_Results.
 const Grid_valueAt_Results_TypeID = 0xa21ef33efc715994
 
 func NewGrid_valueAt_Results(s *capnp.Segment) (Grid_valueAt_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Grid_valueAt_Results{st}, err
+	return Grid_valueAt_Results(st), err
 }
 
 func NewRootGrid_valueAt_Results(s *capnp.Segment) (Grid_valueAt_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Grid_valueAt_Results{st}, err
+	return Grid_valueAt_Results(st), err
 }
 
 func ReadRootGrid_valueAt_Results(msg *capnp.Message) (Grid_valueAt_Results, error) {
 	root, err := msg.Root()
-	return Grid_valueAt_Results{root.Struct()}, err
+	return Grid_valueAt_Results(root.Struct()), err
 }
 
 func (s Grid_valueAt_Results) String() string {
-	str, _ := text.Marshal(0xa21ef33efc715994, s.Struct)
+	str, _ := text.Marshal(0xa21ef33efc715994, capnp.Struct(s))
 	return str
 }
 
+func (s Grid_valueAt_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Grid_valueAt_Results) DecodeFromPtr(p capnp.Ptr) Grid_valueAt_Results {
+	return Grid_valueAt_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Grid_valueAt_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Grid_valueAt_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Grid_valueAt_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Grid_valueAt_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Grid_valueAt_Results) Val() (Grid_Value, error) {
-	p, err := s.Struct.Ptr(0)
-	return Grid_Value{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return Grid_Value(p.Struct()), err
 }
 
 func (s Grid_valueAt_Results) HasVal() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s Grid_valueAt_Results) SetVal(v Grid_Value) error {
-	return s.Struct.SetPtr(0, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewVal sets the val field to a newly
 // allocated Grid_Value struct, preferring placement in s's segment.
 func (s Grid_valueAt_Results) NewVal() (Grid_Value, error) {
-	ss, err := NewGrid_Value(s.Struct.Segment())
+	ss, err := NewGrid_Value(capnp.Struct(s).Segment())
 	if err != nil {
 		return Grid_Value{}, err
 	}
-	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s Grid_valueAt_Results) AggParts() (Grid_AggregationPart_List, error) {
-	p, err := s.Struct.Ptr(1)
-	return Grid_AggregationPart_List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(1)
+	return Grid_AggregationPart_List(p.List()), err
 }
 
 func (s Grid_valueAt_Results) HasAggParts() bool {
-	return s.Struct.HasPtr(1)
+	return capnp.Struct(s).HasPtr(1)
 }
 
 func (s Grid_valueAt_Results) SetAggParts(v Grid_AggregationPart_List) error {
-	return s.Struct.SetPtr(1, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(1, v.ToPtr())
 }
 
 // NewAggParts sets the aggParts field to a newly
 // allocated Grid_AggregationPart_List, preferring placement in s's segment.
 func (s Grid_valueAt_Results) NewAggParts(n int32) (Grid_AggregationPart_List, error) {
-	l, err := NewGrid_AggregationPart_List(s.Struct.Segment(), n)
+	l, err := NewGrid_AggregationPart_List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return Grid_AggregationPart_List{}, err
 	}
-	err = s.Struct.SetPtr(1, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(1, l.ToPtr())
 	return l, err
 }
 
 // Grid_valueAt_Results_List is a list of Grid_valueAt_Results.
-type Grid_valueAt_Results_List struct{ capnp.List }
+type Grid_valueAt_Results_List = capnp.StructList[Grid_valueAt_Results]
 
 // NewGrid_valueAt_Results creates a new list of Grid_valueAt_Results.
 func NewGrid_valueAt_Results_List(s *capnp.Segment, sz int32) (Grid_valueAt_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
-	return Grid_valueAt_Results_List{l}, err
-}
-
-func (s Grid_valueAt_Results_List) At(i int) Grid_valueAt_Results {
-	return Grid_valueAt_Results{s.List.Struct(i)}
-}
-
-func (s Grid_valueAt_Results_List) Set(i int, v Grid_valueAt_Results) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Grid_valueAt_Results_List) String() string {
-	str, _ := text.MarshalList(0xa21ef33efc715994, s.List)
-	return str
+	return capnp.StructList[Grid_valueAt_Results](l), err
 }
 
 // Grid_valueAt_Results_Future is a wrapper for a Grid_valueAt_Results promised by a client call.
 type Grid_valueAt_Results_Future struct{ *capnp.Future }
 
-func (p Grid_valueAt_Results_Future) Struct() (Grid_valueAt_Results, error) {
-	s, err := p.Future.Struct()
-	return Grid_valueAt_Results{s}, err
+func (f Grid_valueAt_Results_Future) Struct() (Grid_valueAt_Results, error) {
+	p, err := f.Future.Ptr()
+	return Grid_valueAt_Results(p.Struct()), err
 }
-
 func (p Grid_valueAt_Results_Future) Val() Grid_Value_Future {
 	return Grid_Value_Future{Future: p.Future.Field(0, nil)}
 }
 
-type Grid_latLonBounds_Params struct{ capnp.Struct }
+type Grid_latLonBounds_Params capnp.Struct
 
 // Grid_latLonBounds_Params_TypeID is the unique identifier for the type Grid_latLonBounds_Params.
 const Grid_latLonBounds_Params_TypeID = 0xf37338992466bd97
 
 func NewGrid_latLonBounds_Params(s *capnp.Segment) (Grid_latLonBounds_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Grid_latLonBounds_Params{st}, err
+	return Grid_latLonBounds_Params(st), err
 }
 
 func NewRootGrid_latLonBounds_Params(s *capnp.Segment) (Grid_latLonBounds_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Grid_latLonBounds_Params{st}, err
+	return Grid_latLonBounds_Params(st), err
 }
 
 func ReadRootGrid_latLonBounds_Params(msg *capnp.Message) (Grid_latLonBounds_Params, error) {
 	root, err := msg.Root()
-	return Grid_latLonBounds_Params{root.Struct()}, err
+	return Grid_latLonBounds_Params(root.Struct()), err
 }
 
 func (s Grid_latLonBounds_Params) String() string {
-	str, _ := text.Marshal(0xf37338992466bd97, s.Struct)
+	str, _ := text.Marshal(0xf37338992466bd97, capnp.Struct(s))
 	return str
 }
 
+func (s Grid_latLonBounds_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Grid_latLonBounds_Params) DecodeFromPtr(p capnp.Ptr) Grid_latLonBounds_Params {
+	return Grid_latLonBounds_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Grid_latLonBounds_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Grid_latLonBounds_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Grid_latLonBounds_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Grid_latLonBounds_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Grid_latLonBounds_Params) UseCellCenter() bool {
-	return s.Struct.Bit(0)
+	return capnp.Struct(s).Bit(0)
 }
 
 func (s Grid_latLonBounds_Params) SetUseCellCenter(v bool) {
-	s.Struct.SetBit(0, v)
+	capnp.Struct(s).SetBit(0, v)
 }
 
 // Grid_latLonBounds_Params_List is a list of Grid_latLonBounds_Params.
-type Grid_latLonBounds_Params_List struct{ capnp.List }
+type Grid_latLonBounds_Params_List = capnp.StructList[Grid_latLonBounds_Params]
 
 // NewGrid_latLonBounds_Params creates a new list of Grid_latLonBounds_Params.
 func NewGrid_latLonBounds_Params_List(s *capnp.Segment, sz int32) (Grid_latLonBounds_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0}, sz)
-	return Grid_latLonBounds_Params_List{l}, err
-}
-
-func (s Grid_latLonBounds_Params_List) At(i int) Grid_latLonBounds_Params {
-	return Grid_latLonBounds_Params{s.List.Struct(i)}
-}
-
-func (s Grid_latLonBounds_Params_List) Set(i int, v Grid_latLonBounds_Params) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Grid_latLonBounds_Params_List) String() string {
-	str, _ := text.MarshalList(0xf37338992466bd97, s.List)
-	return str
+	return capnp.StructList[Grid_latLonBounds_Params](l), err
 }
 
 // Grid_latLonBounds_Params_Future is a wrapper for a Grid_latLonBounds_Params promised by a client call.
 type Grid_latLonBounds_Params_Future struct{ *capnp.Future }
 
-func (p Grid_latLonBounds_Params_Future) Struct() (Grid_latLonBounds_Params, error) {
-	s, err := p.Future.Struct()
-	return Grid_latLonBounds_Params{s}, err
+func (f Grid_latLonBounds_Params_Future) Struct() (Grid_latLonBounds_Params, error) {
+	p, err := f.Future.Ptr()
+	return Grid_latLonBounds_Params(p.Struct()), err
 }
 
-type Grid_latLonBounds_Results struct{ capnp.Struct }
+type Grid_latLonBounds_Results capnp.Struct
 
 // Grid_latLonBounds_Results_TypeID is the unique identifier for the type Grid_latLonBounds_Results.
 const Grid_latLonBounds_Results_TypeID = 0xe57fce57d3443377
 
 func NewGrid_latLonBounds_Results(s *capnp.Segment) (Grid_latLonBounds_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 4})
-	return Grid_latLonBounds_Results{st}, err
+	return Grid_latLonBounds_Results(st), err
 }
 
 func NewRootGrid_latLonBounds_Results(s *capnp.Segment) (Grid_latLonBounds_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 4})
-	return Grid_latLonBounds_Results{st}, err
+	return Grid_latLonBounds_Results(st), err
 }
 
 func ReadRootGrid_latLonBounds_Results(msg *capnp.Message) (Grid_latLonBounds_Results, error) {
 	root, err := msg.Root()
-	return Grid_latLonBounds_Results{root.Struct()}, err
+	return Grid_latLonBounds_Results(root.Struct()), err
 }
 
 func (s Grid_latLonBounds_Results) String() string {
-	str, _ := text.Marshal(0xe57fce57d3443377, s.Struct)
+	str, _ := text.Marshal(0xe57fce57d3443377, capnp.Struct(s))
 	return str
 }
 
+func (s Grid_latLonBounds_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Grid_latLonBounds_Results) DecodeFromPtr(p capnp.Ptr) Grid_latLonBounds_Results {
+	return Grid_latLonBounds_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Grid_latLonBounds_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Grid_latLonBounds_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Grid_latLonBounds_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Grid_latLonBounds_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Grid_latLonBounds_Results) Tl() (geo.LatLonCoord, error) {
-	p, err := s.Struct.Ptr(0)
-	return geo.LatLonCoord{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return geo.LatLonCoord(p.Struct()), err
 }
 
 func (s Grid_latLonBounds_Results) HasTl() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s Grid_latLonBounds_Results) SetTl(v geo.LatLonCoord) error {
-	return s.Struct.SetPtr(0, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewTl sets the tl field to a newly
 // allocated geo.LatLonCoord struct, preferring placement in s's segment.
 func (s Grid_latLonBounds_Results) NewTl() (geo.LatLonCoord, error) {
-	ss, err := geo.NewLatLonCoord(s.Struct.Segment())
+	ss, err := geo.NewLatLonCoord(capnp.Struct(s).Segment())
 	if err != nil {
 		return geo.LatLonCoord{}, err
 	}
-	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s Grid_latLonBounds_Results) Tr() (geo.LatLonCoord, error) {
-	p, err := s.Struct.Ptr(1)
-	return geo.LatLonCoord{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(1)
+	return geo.LatLonCoord(p.Struct()), err
 }
 
 func (s Grid_latLonBounds_Results) HasTr() bool {
-	return s.Struct.HasPtr(1)
+	return capnp.Struct(s).HasPtr(1)
 }
 
 func (s Grid_latLonBounds_Results) SetTr(v geo.LatLonCoord) error {
-	return s.Struct.SetPtr(1, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
 }
 
 // NewTr sets the tr field to a newly
 // allocated geo.LatLonCoord struct, preferring placement in s's segment.
 func (s Grid_latLonBounds_Results) NewTr() (geo.LatLonCoord, error) {
-	ss, err := geo.NewLatLonCoord(s.Struct.Segment())
+	ss, err := geo.NewLatLonCoord(capnp.Struct(s).Segment())
 	if err != nil {
 		return geo.LatLonCoord{}, err
 	}
-	err = s.Struct.SetPtr(1, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s Grid_latLonBounds_Results) Br() (geo.LatLonCoord, error) {
-	p, err := s.Struct.Ptr(2)
-	return geo.LatLonCoord{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(2)
+	return geo.LatLonCoord(p.Struct()), err
 }
 
 func (s Grid_latLonBounds_Results) HasBr() bool {
-	return s.Struct.HasPtr(2)
+	return capnp.Struct(s).HasPtr(2)
 }
 
 func (s Grid_latLonBounds_Results) SetBr(v geo.LatLonCoord) error {
-	return s.Struct.SetPtr(2, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(2, capnp.Struct(v).ToPtr())
 }
 
 // NewBr sets the br field to a newly
 // allocated geo.LatLonCoord struct, preferring placement in s's segment.
 func (s Grid_latLonBounds_Results) NewBr() (geo.LatLonCoord, error) {
-	ss, err := geo.NewLatLonCoord(s.Struct.Segment())
+	ss, err := geo.NewLatLonCoord(capnp.Struct(s).Segment())
 	if err != nil {
 		return geo.LatLonCoord{}, err
 	}
-	err = s.Struct.SetPtr(2, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(2, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 func (s Grid_latLonBounds_Results) Bl() (geo.LatLonCoord, error) {
-	p, err := s.Struct.Ptr(3)
-	return geo.LatLonCoord{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(3)
+	return geo.LatLonCoord(p.Struct()), err
 }
 
 func (s Grid_latLonBounds_Results) HasBl() bool {
-	return s.Struct.HasPtr(3)
+	return capnp.Struct(s).HasPtr(3)
 }
 
 func (s Grid_latLonBounds_Results) SetBl(v geo.LatLonCoord) error {
-	return s.Struct.SetPtr(3, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(3, capnp.Struct(v).ToPtr())
 }
 
 // NewBl sets the bl field to a newly
 // allocated geo.LatLonCoord struct, preferring placement in s's segment.
 func (s Grid_latLonBounds_Results) NewBl() (geo.LatLonCoord, error) {
-	ss, err := geo.NewLatLonCoord(s.Struct.Segment())
+	ss, err := geo.NewLatLonCoord(capnp.Struct(s).Segment())
 	if err != nil {
 		return geo.LatLonCoord{}, err
 	}
-	err = s.Struct.SetPtr(3, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(3, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 // Grid_latLonBounds_Results_List is a list of Grid_latLonBounds_Results.
-type Grid_latLonBounds_Results_List struct{ capnp.List }
+type Grid_latLonBounds_Results_List = capnp.StructList[Grid_latLonBounds_Results]
 
 // NewGrid_latLonBounds_Results creates a new list of Grid_latLonBounds_Results.
 func NewGrid_latLonBounds_Results_List(s *capnp.Segment, sz int32) (Grid_latLonBounds_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 4}, sz)
-	return Grid_latLonBounds_Results_List{l}, err
-}
-
-func (s Grid_latLonBounds_Results_List) At(i int) Grid_latLonBounds_Results {
-	return Grid_latLonBounds_Results{s.List.Struct(i)}
-}
-
-func (s Grid_latLonBounds_Results_List) Set(i int, v Grid_latLonBounds_Results) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Grid_latLonBounds_Results_List) String() string {
-	str, _ := text.MarshalList(0xe57fce57d3443377, s.List)
-	return str
+	return capnp.StructList[Grid_latLonBounds_Results](l), err
 }
 
 // Grid_latLonBounds_Results_Future is a wrapper for a Grid_latLonBounds_Results promised by a client call.
 type Grid_latLonBounds_Results_Future struct{ *capnp.Future }
 
-func (p Grid_latLonBounds_Results_Future) Struct() (Grid_latLonBounds_Results, error) {
-	s, err := p.Future.Struct()
-	return Grid_latLonBounds_Results{s}, err
+func (f Grid_latLonBounds_Results_Future) Struct() (Grid_latLonBounds_Results, error) {
+	p, err := f.Future.Ptr()
+	return Grid_latLonBounds_Results(p.Struct()), err
 }
-
 func (p Grid_latLonBounds_Results_Future) Tl() geo.LatLonCoord_Future {
 	return geo.LatLonCoord_Future{Future: p.Future.Field(0, nil)}
 }
-
 func (p Grid_latLonBounds_Results_Future) Tr() geo.LatLonCoord_Future {
 	return geo.LatLonCoord_Future{Future: p.Future.Field(1, nil)}
 }
-
 func (p Grid_latLonBounds_Results_Future) Br() geo.LatLonCoord_Future {
 	return geo.LatLonCoord_Future{Future: p.Future.Field(2, nil)}
 }
-
 func (p Grid_latLonBounds_Results_Future) Bl() geo.LatLonCoord_Future {
 	return geo.LatLonCoord_Future{Future: p.Future.Field(3, nil)}
 }
 
-type Grid_streamCells_Params struct{ capnp.Struct }
+type Grid_streamCells_Params capnp.Struct
 
 // Grid_streamCells_Params_TypeID is the unique identifier for the type Grid_streamCells_Params.
 const Grid_streamCells_Params_TypeID = 0xd9add1b3fdcfdbba
 
 func NewGrid_streamCells_Params(s *capnp.Segment) (Grid_streamCells_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return Grid_streamCells_Params{st}, err
+	return Grid_streamCells_Params(st), err
 }
 
 func NewRootGrid_streamCells_Params(s *capnp.Segment) (Grid_streamCells_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return Grid_streamCells_Params{st}, err
+	return Grid_streamCells_Params(st), err
 }
 
 func ReadRootGrid_streamCells_Params(msg *capnp.Message) (Grid_streamCells_Params, error) {
 	root, err := msg.Root()
-	return Grid_streamCells_Params{root.Struct()}, err
+	return Grid_streamCells_Params(root.Struct()), err
 }
 
 func (s Grid_streamCells_Params) String() string {
-	str, _ := text.Marshal(0xd9add1b3fdcfdbba, s.Struct)
+	str, _ := text.Marshal(0xd9add1b3fdcfdbba, capnp.Struct(s))
 	return str
 }
 
+func (s Grid_streamCells_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Grid_streamCells_Params) DecodeFromPtr(p capnp.Ptr) Grid_streamCells_Params {
+	return Grid_streamCells_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Grid_streamCells_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Grid_streamCells_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Grid_streamCells_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Grid_streamCells_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Grid_streamCells_Params) Callback() Grid_Callback {
-	p, _ := s.Struct.Ptr(0)
-	return Grid_Callback{Client: p.Interface().Client()}
+	p, _ := capnp.Struct(s).Ptr(0)
+	return Grid_Callback(p.Interface().Client())
 }
 
 func (s Grid_streamCells_Params) HasCallback() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s Grid_streamCells_Params) SetCallback(v Grid_Callback) error {
-	if !v.Client.IsValid() {
-		return s.Struct.SetPtr(0, capnp.Ptr{})
+	if !v.IsValid() {
+		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
-	return s.Struct.SetPtr(0, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
 func (s Grid_streamCells_Params) MaxNoOfCellsPerSend() uint64 {
-	return s.Struct.Uint64(0) ^ 100
+	return capnp.Struct(s).Uint64(0) ^ 100
 }
 
 func (s Grid_streamCells_Params) SetMaxNoOfCellsPerSend(v uint64) {
-	s.Struct.SetUint64(0, v^100)
+	capnp.Struct(s).SetUint64(0, v^100)
 }
 
 // Grid_streamCells_Params_List is a list of Grid_streamCells_Params.
-type Grid_streamCells_Params_List struct{ capnp.List }
+type Grid_streamCells_Params_List = capnp.StructList[Grid_streamCells_Params]
 
 // NewGrid_streamCells_Params creates a new list of Grid_streamCells_Params.
 func NewGrid_streamCells_Params_List(s *capnp.Segment, sz int32) (Grid_streamCells_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1}, sz)
-	return Grid_streamCells_Params_List{l}, err
-}
-
-func (s Grid_streamCells_Params_List) At(i int) Grid_streamCells_Params {
-	return Grid_streamCells_Params{s.List.Struct(i)}
-}
-
-func (s Grid_streamCells_Params_List) Set(i int, v Grid_streamCells_Params) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Grid_streamCells_Params_List) String() string {
-	str, _ := text.MarshalList(0xd9add1b3fdcfdbba, s.List)
-	return str
+	return capnp.StructList[Grid_streamCells_Params](l), err
 }
 
 // Grid_streamCells_Params_Future is a wrapper for a Grid_streamCells_Params promised by a client call.
 type Grid_streamCells_Params_Future struct{ *capnp.Future }
 
-func (p Grid_streamCells_Params_Future) Struct() (Grid_streamCells_Params, error) {
-	s, err := p.Future.Struct()
-	return Grid_streamCells_Params{s}, err
+func (f Grid_streamCells_Params_Future) Struct() (Grid_streamCells_Params, error) {
+	p, err := f.Future.Ptr()
+	return Grid_streamCells_Params(p.Struct()), err
 }
-
 func (p Grid_streamCells_Params_Future) Callback() Grid_Callback {
-	return Grid_Callback{Client: p.Future.Field(0, nil).Client()}
+	return Grid_Callback(p.Future.Field(0, nil).Client())
 }
 
-type Grid_streamCells_Results struct{ capnp.Struct }
+type Grid_streamCells_Results capnp.Struct
 
 // Grid_streamCells_Results_TypeID is the unique identifier for the type Grid_streamCells_Results.
 const Grid_streamCells_Results_TypeID = 0x9b8dd52b78a7ebd2
 
 func NewGrid_streamCells_Results(s *capnp.Segment) (Grid_streamCells_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Grid_streamCells_Results{st}, err
+	return Grid_streamCells_Results(st), err
 }
 
 func NewRootGrid_streamCells_Results(s *capnp.Segment) (Grid_streamCells_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Grid_streamCells_Results{st}, err
+	return Grid_streamCells_Results(st), err
 }
 
 func ReadRootGrid_streamCells_Results(msg *capnp.Message) (Grid_streamCells_Results, error) {
 	root, err := msg.Root()
-	return Grid_streamCells_Results{root.Struct()}, err
+	return Grid_streamCells_Results(root.Struct()), err
 }
 
 func (s Grid_streamCells_Results) String() string {
-	str, _ := text.Marshal(0x9b8dd52b78a7ebd2, s.Struct)
+	str, _ := text.Marshal(0x9b8dd52b78a7ebd2, capnp.Struct(s))
 	return str
 }
 
+func (s Grid_streamCells_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Grid_streamCells_Results) DecodeFromPtr(p capnp.Ptr) Grid_streamCells_Results {
+	return Grid_streamCells_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Grid_streamCells_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Grid_streamCells_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Grid_streamCells_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Grid_streamCells_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+
 // Grid_streamCells_Results_List is a list of Grid_streamCells_Results.
-type Grid_streamCells_Results_List struct{ capnp.List }
+type Grid_streamCells_Results_List = capnp.StructList[Grid_streamCells_Results]
 
 // NewGrid_streamCells_Results creates a new list of Grid_streamCells_Results.
 func NewGrid_streamCells_Results_List(s *capnp.Segment, sz int32) (Grid_streamCells_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return Grid_streamCells_Results_List{l}, err
-}
-
-func (s Grid_streamCells_Results_List) At(i int) Grid_streamCells_Results {
-	return Grid_streamCells_Results{s.List.Struct(i)}
-}
-
-func (s Grid_streamCells_Results_List) Set(i int, v Grid_streamCells_Results) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Grid_streamCells_Results_List) String() string {
-	str, _ := text.MarshalList(0x9b8dd52b78a7ebd2, s.List)
-	return str
+	return capnp.StructList[Grid_streamCells_Results](l), err
 }
 
 // Grid_streamCells_Results_Future is a wrapper for a Grid_streamCells_Results promised by a client call.
 type Grid_streamCells_Results_Future struct{ *capnp.Future }
 
-func (p Grid_streamCells_Results_Future) Struct() (Grid_streamCells_Results, error) {
-	s, err := p.Future.Struct()
-	return Grid_streamCells_Results{s}, err
+func (f Grid_streamCells_Results_Future) Struct() (Grid_streamCells_Results, error) {
+	p, err := f.Future.Ptr()
+	return Grid_streamCells_Results(p.Struct()), err
 }
 
-const schema_d373e9739460aa23 = "x\xda\xa4Vo\x8c\x14g\x19\x7f\x9e\xf7\xdden\xef" +
-	"v\x99{\xd9E\xdb\xb3\xf6\x12<\xa2\x9c\x82\xf4\xae\x1a" +
-	"{\x1f\xdc\xbd\x1e\x96B\xbcz\xef\xe1\xb59\"I\xe7" +
-	"v\x87e\xda\xd9\x19\x98\xd9\xbd=\x8c\x16\xc1V\xdb\xe8" +
-	"II\xd0JmLij)\x06c\xa1\xad)\xe8i" +
-	"\xfbET\x8c-\x92\xb6R\xf9\xa4\"!\xd4\x98\xb6\xf1" +
-	"_\xa5\x1d\xf3\xcc\xee;\xb3\xc7\xad\x10\xd2/;\xb3\xef" +
-	"\xfb\xcc\xf3\xbe\xbf\xe7\xf7\xfc\xf9\xad\xfeZ\xb2\xc0nH" +
-	"\xbe\xaa\x03\xc8\xe7\x92\x8b\x82\x87\x8f\xcfh\xeb\x8e\xbd\xfa" +
-	"M\x90\xdd\x88\x00\x09\x0d`\xf0\xa4\xd6\x83\x80\xd9\xd3Z" +
-	"\x1e0\xd8\xbe\xfc\x1b\x93\x8e\xbb\xe1[ \xaeU\xfb\xff" +
-	"\xd16\"$\x82\x8f?\xf4\xd7W\xe6\xde\xdc\xbd\x97>" +
-	"M4\xb6\xb2g\xb5\xb7\x01\x07\xcfk\xbd\x08\x18\xfc\xfe" +
-	"\xc2\x81\x99\x8f\xbe<\xfb=\x10\xdd\xeaSL-\xa3O" +
-	"_\xec\xfd@\xff\xdc\xc0\x0b\xcd\x9d$\xd2\xd6\xf9\x8ee" +
-	"t\xea\x1b\x1dt\xea\xde\xc9m\x17?\xfd\xd6\xf5\x8f5" +
-	"\x0d\x18\x19\x88\x14#\x83\xa5\xa9:`\x80O?Q\xae" +
-	"\x9fy\xfd\x07 \xbaX\xf0\xa1\x1f\xde\xb9\xd7?\xef\x9f" +
-	"\x02\xc0\xec}\xa9c\xd9\xd9\x14\xd9?\x90\xfa:\x02\xfe" +
-	"\xe2\xe7\xb3\xcf\xa7\xdf\xdc\xf8D|\x87Jg'\xdd\xe1" +
-	"\xa9\xc2'\xbeZdsO6\x8f\x08\xb7&:\x87\xe8" +
-	"\x88M\x9d\xe7\x00\x83\x0f\x0e\x0d\xfe\xfd\xfd\xb7\xac9D" +
-	"\xf8X\xf0\xcb?\x1b\xdf9\xe2\xaf\xf8K\xf32\x9f\xe9" +
-	"b\x98\x95]\x84y\xb4\x8b\xac\x83ES\x1d\x9b\xfe\xf0" +
-	"\xa7\xa3\x97X\x87QY\x9e>\x96]\x99\xa6\xb7\x15i" +
-	"\xba\xfc\xa9\x89\x13_\xd9%oz\x05D7\x8fM\xe9" +
-	"\xf2\xe9\xdfd\xf7\x84\x86\xb3\xe9\xb5\xd9\xa3\xf4\x16\x1c\xfb" +
-	"\xe3\x8b\xef<}\xf2G\xa7\x9b\x0c5\x82\xb5?\x1dR" +
-	"t0t\x17y\x10]|^,DfWvif" +
-	"-\xc0\xe0\xba\xccq\xccn_\xfca\x80\xa0>\xb8\xe6" +
-	"\xd4\x1d\xbf\xdbq\xb6\x15\xf7\xb6\xc5\xfd\xe4n\xfbbB" +
-	"\xe2.\xef~\xdf\xdd\xee\xe3\xe7B$\xcd\x98\x8d\xeaK" +
-	"\xc8`B\xa7\xf3~\xfa\xcf-\xbb\xb7\x1d\x7f\xea|#" +
-	"%\x1a\x17:\xac\x8f\x93\xc1\x9cN\xec=\xac\xa5\x8d\xeb" +
-	"\xdc{.4=4,\xfe\xa6\x0f \xe0\xe0?\xf4;" +
-	"(7\x1e\x9a\xdb\xdc\xb7\xefS\xfe[\xady7!\xc2" +
-	"\x0c\xd8$\xc8\xc7\x85\x95\xd7\xdfs\xf4\xcc\xf7\xff\xd5\x92" +
-	"<;\xc5\x12\"\xee'\x9f\x7f\xad\xdf=\x90\xf8w\xcb" +
-	"\x8e%zh\xe7\xa5\xd3\xfe\xd9\xb73\xab\xde\xbd\x84\x83" +
-	"5Z\x02\x13Y)\x8ed'\x05\xc5vB\x9c\x83\x00" +
-	"RA\xd9\xb3J\xab\x8a\xc6V\xeel\x1dZK\xef\x9e" +
-	"\xe9\xbbv\xadj\xb9N\xdf\xb8\xe9\xd7l^\xf5e\x82" +
-	"Sn#\x80\xc8,\x03\x90\x1d\x1ce\x8e\xa1\xe6\x99>" +
-	"\xa6\x80a\x0a0\xf2\x93P~F\x0c\xdb\x9e2\x8aw" +
-	"\xaf\xf2M\xa74b\xda\xb6\x1f\xf9\x8b\x8c\x992\x9e6" +
-	"\xec\x9a9\\\xed\xcb\x8f\x19\x9eQ\xf1e.:\xf0\xcb" +
-	"t\xe0\x0cGy/C\x81\x98\xa3@\x89\x9d\xb4\xf8%" +
-	"\x8e\xf2~\x86\x82\xb1\x1c\x05X\xdc\xb7\x11@\xde\xcbQ" +
-	">\xc8P\xf0t\x0e9\xa2\x98%\xcb\xfb9\xca\xbd\x0c" +
-	"E\xe2\xa5\x1c&\x10\xc5\x9e]\x00\xf2A\x8e\xf2\x11\x02" +
-	"\xe1\xd6\x15\x08\xad\xe8\xda\x11 \x15\x07\xe0\xae\x13\x19\x18" +
-	"\xe52\xeaq\xdd\x01\xa2\x0e\x18XN\xd1\xae\x95\xcca" +
-	",\x97\xc7\x0c\xaf\xea\x03\"0\xc4\x96\xa8D\xd1\xf5\xab" +
-	"\x9eiT\xe2phvK8\"+\xc7]cT\x8d" +
-	"\xdb)(\x91U+\x09C1\x09y\xc7-\x19U\x03" +
-	"\xbbc\xe2\x01\xb1\xbb\xdd\xd9*\xc8!\x0dU\x9f\\(" +
-	"\x8f+(L}\x1c\xe5\xea\x96(\xaf\\\x0f ?\xc6" +
-	"Q\xde\xcaP\x9b6\xec6g\x18\x0a1\x00.\x06\x1c" +
-	"\xe3\x88\xddq\xcf\x00\xa4\xc5\xe8\"\xe8l\x1d\x1a.\x97" +
-	"=3_6(\xbf\xc6\x10e!\xa4\xeeh?\x002" +
-	"q\x98\x1eIq\xf0f\x00\xd4\xc4\xfee\x00\xd8)\xf6" +
-	"\xd1##\xf6\xd0\x83\x8b\x07\xc8d\x91\xd8I&(\xb6" +
-	"\xd3bBl\x1b\xa2\xe3\x85E{\xba0\xe8\xd1!&" +
-	"\xe9\x91\x12\x92\x1e]b\x1d=\xd2b\xb8\x1f@w\\" +
-	"\xc7\xd4\xeb\xc3\xd3\xe5\x1d\xf5Q\xb3d\x19\x8eV\xb1\x1c" +
-	"\xadb\xcch~\xad\xa2[\xb4a57\x8c\xe9r\xbe" +
-	"\x12\xbe\xea\xf5\x0d\xb4I?\xf5Q\xcb\xd1-\xfa\xa9\x8f" +
-	"\x1a3\xba5j\xcc,\x0cv\xc9\xaa\x98\x8eOU\xd4" +
-	"Hi\x80\x856E\xdb\xf5M\xbfz\xbb\xe2%\xdf " +
-	"FvG\xbc\x18\xc4\xcb\x178\xca--\xbc\x98=\x00" +
-	"\xf2N\x8e\xd2n\xc9~\x8b\x16K\x1c\xe5V\xca~\x9e" +
-	"C\x0e *\xc4\xa0\xdd\xa8\x93\xf6\x0c\xf2*-F}" +
-	"\xbb\xb98\xe5-\\\xbc:\xae#\x8c!\xe1M\xbe\x0d" +
-	"\xaf\x0aDz\x0b\xbe\x81v\xf8\x86b|\xa8\xe0\x11\x92" +
-	"-\x1ce\x95\xe0a\x03\x1e\xf1\x1e\xc2\x9ba\xd8\x1bf" +
-	"\xf7B\x80y\xcf\xad\x8f\xb8v;<\x9ei\xdc\xe2\x19" +
-	"E\xc2\xd3\x05\x0c\xbb\x00\xf3V\xc8\x85\xfa;/sC" +
-	"4\xf9\xf1\xd0\x1b\x81\xb8R\xf1\xd0\xe2G8\xca\x1b/" +
-	"\xd3c\x16\xf4A\xd54!\x8cS\x82'\x01\xa2I\x83" +
-	"J\x85\x081\x0eL\xa4\xb4@uV@\xbf\x80cx" +
-	"\x85vCy\xc8+~\xeb\xc5\xd7\xc7w\x0c\xef\x8d(" +
-	"nx\x0c@\xde\xc8Q\x16\x18\x06\xc5\xe8:\x80\"\x9e" +
-	"\xd8Tz\x80A\xc5\x98\xb9\xcd\xfd\xdc\xe6\x11$\xf7c" +
-	"\xa6\xb7A3\x9dR\x03\x1b\x96Z\xf2]E/\x1cs" +
-	"1?\xe2\xda\x81\x98\x13\xb1t(\xce%!v\xb5\xc8" +
-	"\x03\xb1\xbe7d\xa5\x19\xfb@e\x14S)\x15\x07M" +
-	"^\x17FL\x8d^T\xf2F\x9c\xfc\"0\xf1k\x0d" +
-	"Y4RQ\x89>1\xb7\x11\x98xVC\xaeTR" +
-	"<\xfc\xc5A\x8a\xf4~\x0d\xe3\x81\x8bJ\xb6\x89oO" +
-	"\x01\x13\xb3\x1ab$\x02Q)6\xeaOL\xd44L" +
-	"F3\x1e\x95\xe4\x10\xd6]\xc0\x84\xa1\xe1\xa2H\xd5\xa0" +
-	"\x12\x89b\x82|\x8ej\x81\xea\x0c\x90o\xf4\x86\xc2\xfc" +
-	"yT\xc0@\xf5\x17@\xfa\xa7\x06\x06hv\xcd,\xe0" +
-	"\x8e\xe9\xe83\xdb\xa8~\xd6unvA\xaf9%\xbf" +
-	"\x80\x81J\x09\xd0l\xdb/\xa0\xec@\x0c^\xbe\xf5\x91" +
-	"\xc9\x13'\x7f|\x04\x00\x02\xf3\xc4'\xcf<\xfa\xda\x81" +
-	"\x17\xa0]\xc7R\xde\xc8\x17\xcd\x11\xfd\xd2~\xd5\xf3\xde" +
-	"\xfaUO\\\xe5\x8d\xce\xf4\xdf\xdd\xbf\xbdi\xf5\xc57" +
-	"^\x8f\xda\x95\xd7fq\xaa\xedb\x9b\xcf/\xd7\xa6\x1b" +
-	"S\x11\xe7\xd5G\x7f\xbb\xc2\xee\x8f\x8bF\xf7\xdcz$" +
-	"\x81\xf4\xa2k_\x9d\x1e\x0a'\x03\xce\x9b\xec\x03\xcd\xc9" +
-	"\xde\xc7\xb0\xb7HFq\xabm\xed_m[\xed%\xe3" +
-	"d\xac\xb7\xa1\xa5\xae\x89\xbc\xef\x9b\x02\x90\xdf\xe5(\x1f" +
-	"\x8f\xeb}\xff]\x00\xf2Q\x8e\xf2\x10\x91\x839d\x88" +
-	"\xe2 I\xa9'9\xcagT\xb7E\x14\x87\xa9\xa3\x1d" +
-	"\xe2(\x9f#)\x85\x0d)\xf5\xac\x07 \x9f\xe1(\x9f" +
-	"g(\x92,\x87ID1G\xfa\xeag\x1c\xe5\xafX" +
-	"\x98\x80\xb6\xeb\x8c\xb8\xa0\xb9^\xa9\x0d%V\xd9q=" +
-	"\xf36\x17tJaRN\xc9P:]\x85\xfe\xf2\xcc" +
-	"j\xcds\xc6]\xe8\xa5\x06\xe1G\xea\xeb*t\xd9\xbc" +
-	"\xc4\x1e3<\x8d\"\xd7\xe4\x05Qd\x08f\x9a\xa3\xbc" +
-	"\x86aP\xf3M\xe2o\x04zM\xa7jz\xff\xdfi" +
-	"\x8b\x94nR}y\xa9\xd7\xec\xd0\x0b\xc7N\xa3\x016" +
-	"Gg:\x08\x1a\xb5\xb6$\xae\xb5\x0c\xbe\x1b4\x8bm" +
-	"I\\l\x19\xf6N\xb0\xb0\xda2\xfcb\xb0\xb0\xdcp" +
-	"\xb3\x9azha\x12\x18&\x01y\xcdR\x91\xe7\x8e\xab" +
-	"p\xfe/\x00\x00\xff\xffC\x15\x111"
+type Grid_unit_Params capnp.Struct
+
+// Grid_unit_Params_TypeID is the unique identifier for the type Grid_unit_Params.
+const Grid_unit_Params_TypeID = 0xbb4e4368bb6a6748
+
+func NewGrid_unit_Params(s *capnp.Segment) (Grid_unit_Params, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	return Grid_unit_Params(st), err
+}
+
+func NewRootGrid_unit_Params(s *capnp.Segment) (Grid_unit_Params, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	return Grid_unit_Params(st), err
+}
+
+func ReadRootGrid_unit_Params(msg *capnp.Message) (Grid_unit_Params, error) {
+	root, err := msg.Root()
+	return Grid_unit_Params(root.Struct()), err
+}
+
+func (s Grid_unit_Params) String() string {
+	str, _ := text.Marshal(0xbb4e4368bb6a6748, capnp.Struct(s))
+	return str
+}
+
+func (s Grid_unit_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Grid_unit_Params) DecodeFromPtr(p capnp.Ptr) Grid_unit_Params {
+	return Grid_unit_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Grid_unit_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Grid_unit_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Grid_unit_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Grid_unit_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+
+// Grid_unit_Params_List is a list of Grid_unit_Params.
+type Grid_unit_Params_List = capnp.StructList[Grid_unit_Params]
+
+// NewGrid_unit_Params creates a new list of Grid_unit_Params.
+func NewGrid_unit_Params_List(s *capnp.Segment, sz int32) (Grid_unit_Params_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
+	return capnp.StructList[Grid_unit_Params](l), err
+}
+
+// Grid_unit_Params_Future is a wrapper for a Grid_unit_Params promised by a client call.
+type Grid_unit_Params_Future struct{ *capnp.Future }
+
+func (f Grid_unit_Params_Future) Struct() (Grid_unit_Params, error) {
+	p, err := f.Future.Ptr()
+	return Grid_unit_Params(p.Struct()), err
+}
+
+type Grid_unit_Results capnp.Struct
+
+// Grid_unit_Results_TypeID is the unique identifier for the type Grid_unit_Results.
+const Grid_unit_Results_TypeID = 0xd170e76dbd9fc4fb
+
+func NewGrid_unit_Results(s *capnp.Segment) (Grid_unit_Results, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Grid_unit_Results(st), err
+}
+
+func NewRootGrid_unit_Results(s *capnp.Segment) (Grid_unit_Results, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Grid_unit_Results(st), err
+}
+
+func ReadRootGrid_unit_Results(msg *capnp.Message) (Grid_unit_Results, error) {
+	root, err := msg.Root()
+	return Grid_unit_Results(root.Struct()), err
+}
+
+func (s Grid_unit_Results) String() string {
+	str, _ := text.Marshal(0xd170e76dbd9fc4fb, capnp.Struct(s))
+	return str
+}
+
+func (s Grid_unit_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Grid_unit_Results) DecodeFromPtr(p capnp.Ptr) Grid_unit_Results {
+	return Grid_unit_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Grid_unit_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Grid_unit_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Grid_unit_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Grid_unit_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+func (s Grid_unit_Results) Unit() (string, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return p.Text(), err
+}
+
+func (s Grid_unit_Results) HasUnit() bool {
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Grid_unit_Results) UnitBytes() ([]byte, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return p.TextBytes(), err
+}
+
+func (s Grid_unit_Results) SetUnit(v string) error {
+	return capnp.Struct(s).SetText(0, v)
+}
+
+// Grid_unit_Results_List is a list of Grid_unit_Results.
+type Grid_unit_Results_List = capnp.StructList[Grid_unit_Results]
+
+// NewGrid_unit_Results creates a new list of Grid_unit_Results.
+func NewGrid_unit_Results_List(s *capnp.Segment, sz int32) (Grid_unit_Results_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
+	return capnp.StructList[Grid_unit_Results](l), err
+}
+
+// Grid_unit_Results_Future is a wrapper for a Grid_unit_Results promised by a client call.
+type Grid_unit_Results_Future struct{ *capnp.Future }
+
+func (f Grid_unit_Results_Future) Struct() (Grid_unit_Results, error) {
+	p, err := f.Future.Ptr()
+	return Grid_unit_Results(p.Struct()), err
+}
+
+const schema_d373e9739460aa23 = "x\xda\xa4W\x7f\x8c\x14g\x19~\xdf\xef\xdbev\xef" +
+	"v\xd9\xfdv\xaf\xda\xa2\xf4\x14ijOAz\xd7\x1a" +
+	"\xb9?\xdc\x85#-\x10\xc1\xfb\x0e)\x81\xd8\xa4s\xbb" +
+	"\xc32tv\x06fv\xd9C\xa5\x08\x96\xd8F\x11H" +
+	"\xa8\xf5\xdaFKSK14\xb6\xf4G\x04<-I" +
+	"c\xad\x18+\x12\xaa \x8d\xb1\x8a\x04ib(\x89\x9a" +
+	"B;\xe6\x9d\xd9\x99Yn\x17L\xf5\x9f\x9d\xb9\xef{" +
+	"\xe7}\xbf\xefy\x9f\xf7}\x9f\x9bs1^\x8c\xdd\x9a" +
+	"\xfeS\x16\x98|%>\xc5}\xe4\xd51e\xd1\xa1\xdf" +
+	"\x7f\x1bD\x16\x01\xe2\xa8\x00\x0c,OLC\xc0\xfc\xdd" +
+	"\x89\x02\xa0\xbb\xf1\xa6o\xad4\xade\xdf\x01q\x03\x02" +
+	"\xc4h\x7fSb\x15B\xcc\xfd\xcc\xc3\x7f{c\xe2\x9d" +
+	"\x1d\xbbAf\x917\xbf\xcd\xeb\x89w\x01\x07\xaa\x89^" +
+	"\x04t\x7fw~\xef\xd8\xa7Nl\x7f\xd4w\xee}\xbb" +
+	"-9\x83\xbe}\xbd\xf7#}\x13\xfdG\x1em\x0d[" +
+	"\xa5-\xcc\xd7\x93\x14v\xf7\xca\xf5\x97?\x7f\xf1\xc6'" +
+	"\x9a\x06\x8c\x0c\x1eJ22\x18O6\x00]|\xfe\xa9" +
+	"J\xe3\xf4\xdb?\x04\xd1\xcd\xdcO\xfc\xe8\x9e\xdd\xce9" +
+	"\xe78\x00\xe6\x93]\x87\xf2\xa2\x8b\xec\xd3]\xdfD\xc0" +
+	"\x9f\xffl\xfb\xcb\xa9wV=\x15\x9d\xe1BW\x17\x9d" +
+	"\xe1\xd9\xe2\xed\xdf(\xb1\x89\xa7\x9b!\xbc\xad\x93]\x83" +
+	"\x14\xe2\xcf]g\x01\xdd\xaf\xae8{\xf3\x9b\x97^\xda" +
+	"G\x17d\xee/\xfe\xa2~\xf7\x80s\xcb_a\x81\xc2" +
+	"0\x96\x7f\xad\xfbT\xfeD7]\xf9X7\x9dg\xfa" +
+	"\xe0\xc0?>|\xc7\x82\xfd\x93\x8c\xfd\x93\xcfJ1\xcc" +
+	"\xcfM\x91\xf5\xed)r\xedN\x19M\xdc\xfd\x87\xb7\x0e" +
+	"N\xb2\xa63\xe4\xd3\xe9C\xf9\xeb\xd2\xf4&\xd2\xe4y" +
+	"ae\xed\xe15CK\x0fG(\xe6\xab\xe9\xb7 \xe6" +
+	"^z\xe5\x07\x13\xd5\xb3\xeb\x8e\xb5\x80\x98\x97\xe9\xbf\x03" +
+	"\xe6\x97\xa7\x09\xc3\xe3\xcb\x8f~}\xab\x9c\xfb\x06\x88," +
+	"\x8fb\x10\xc4\xe9_\xe5\xb7x\x116\xa5\xef\xcc\xef\xa3" +
+	"7\xf7\xd0\x1f_\x7f\xef\xf9c\xcf\x9c\xa4\x13\x85)\xd9" +
+	"\x95\xf6\x980\xee\x9d#\xf4 \xba\xf9\x15\x88\xe3\xd4\xad" +
+	"\xf9\xf8\xd4\x15\x00\x03\x8b\xa6*,\xbf's3\x80\xdb" +
+	"\x18Xp|\xc5o6\x9fiEw<\xd3G\xee\xf6" +
+	"d\x08\x02\xeb\xa6\xec\x87\xee\xb5\x9e<\xebA\xd0\xccL" +
+	"=\x9b#\x83MY\x8aw\xf8\x9fkv\xac\x7f\xf5\xd9" +
+	"s>\xf3\xfc\x03\x9d\xcc\x8e\x90\xc1\x99,\xdd\xef\x11%" +
+	"\xa5~\xd4\xba\xef|pd\x0f\xea\xebD?\x02\x0eL" +
+	"\x17+\x88\x81\x0fO\xac\x9e9\xfe9\xe7b\xd3\xc4\xa7" +
+	"o\xce\xe3\xd9\xb6\x1c\xf98?\xeb\xc6\xfb\x0e\x9e\xfe\xfe" +
+	"\xbfZ(\xba/\x97#z\xbc\xf4\xa5S}\xd6\xde\xd8" +
+	"\xbf[vv\xe5\xa6\xd1\xceoO:g\xdeM\xcf~" +
+	"\xbf\x8d\x171\x8c\xe57\xe6\x0e\xe4\xb7\xe4<lsg" +
+	"\xc1\x85\xa4[\xb1\xf5\xf2\xec\x92\xba\x8e\x9b\xeb\x06\xef\xa4" +
+	"w[s,\xa3^\xd3-s\xe6\x88\xe6\xd4\x0d^s" +
+	"d\x8c\xc7\x00b\x08 \xd23\x00d\x82\xa3\xeca\xa8" +
+	"\xd8\x9a\x83\xd9\x88\x88\x80\x98\x05\x0c=\xc6\x02\x8fC\xaa" +
+	"a\x8c\xaa\xa5{g;\x9aY\x1e\xd2\x0c\xc3\x09=\x87" +
+	"\xc6,0\xde\xa0\x1aum^mfaX\xb5\xd5\xaa" +
+	"#{\xc2\xd0\x9b(\xf4\x18Gy?C\x81\xd8C\x90" +
+	"\x89-\xb4\xf85\x8e\xf2\x01\x86\xc8z(Wb\xdb*" +
+	"\x00y?G\xb9\x93\xa1\xe0\x89\x1e\xe4\x88b;\x19>" +
+	"\xc0Q\xeef(b;{0\x86(vm\x05\x90;" +
+	"9\xca\xc7\xe86V\x03\x93\xc00\x09\xa8\x94,#x" +
+	"w\x03@\x80[f\xfbu\x15\xb5R\xc1LT\xf0\x80" +
+	"\x98\x01tu\xb3d\xd4\xcb\xda<\xacT\x86U\xbb\xe6" +
+	"\x00\"0\xc4\x16xB\xc0\x9d\x9a\xad\xa9\xd5\x08\x17\xc5" +
+	"h\xc1%\xb42\xad\x05jM\xbd\x8b\xd0\x09\xadZ\xf3" +
+	"2\x18\xe5\xa5`Ze\xb5\xa6b6\xe2\xc2\xa4\xd4\xf0" +
+	"\xc9h{\xf9\xa89\xe4\"\xf0x\x0b\x016\x93\xa3\x9c" +
+	"\xd3\x02\xf7\xac\xc5\x00\xf2\xd3\x1c\xe5B\x86\xca\x06\xd5\xe8" +
+	"\x10C\x0dn\x0c\x80S\x01\x879b6\xea?\x80\xb4" +
+	"\x18\x1e\x04\xcdu\x83\xf3*\x15[+TT\xa2\xdc0" +
+	"\xa2,zI<\xd8\x07\x80L<G\x8f\xb8\xd87\x1f" +
+	"\x00\x15\xb1g\x06\x00v\x89qz\xa4\xc5.zp\xf1" +
+	" \x99L\x11[\xc8\x04\xc5FZ\x8c\x89\xf5\x83\x14^" +
+	"\xe8\xb4\x97\x11*=\x12b%=\x92B\xd2\xa3[," +
+	"\xa2GJ\xcc\xeb\x03\xc8\x98\x96\xa9e\x1a\xf36T6" +
+	"7\x96he]5\x95\xaan*UuLq\xea\xd5" +
+	"\x8cN\x1bzsC\xddP)T\xbd\xd7Lc\x19m" +
+	"\xd2Oc\x89nft\xfai,Q\xc72\xfa\x12u" +
+	"\xac\x1d\xec\xb2^\xd5L\x87\x0a\xcb\xe76@\xbbM\xc9" +
+	"\xb0\x1c\xcd\xa9\xdd\x15\xe4\xa5\xe0'Ff\xc3\xbc\xa8\x94" +
+	"\x97/s\x94kZ\xf2\xa2M\x03\x90\xf7p\x94\x06C" +
+	"\xc1\x9au\xa0\xd3b\x99\xa3\\Gu\xc0{h\x0e\x8a" +
+	"*e\xd0\xf0\x0b\xa6s\x06y\x8d\x16\xc3\x19\xd0\\\x1c" +
+	"\xb5\xdb\x17?X\xae\xc3\x12\x1fi\x16\x14\xf7\xf3\x9d\xe0" +
+	"\xb1\x94\xeb\xfa\x9c\xeb\x8f8\x97\xc6\xf7\xdd&\xe9\x88\xdb" +
+	"\x9f\xe4(oc\xd8[\xd5j\x9a\x8dq`\x18\x07," +
+	"\x94\xb5\x8a\xadi\xd8\x0d\x0c\xbb;\xf1\xdb\xe3V\x93Z" +
+	"\xaa]\x03\x8a\xd7\x02e\x7f'(\x07#(\x83\x8e\xa2" +
+	"\x13hk8\xca\x1a!\x89>\x92D1\x0f\xc91\x86" +
+	"\xbd^!\xb5cY\xb0\xad\xc6\x90et\x82\xce\xd6\xd4" +
+	";l\xb5D\xd05\x8f_\xd0\xbd\xb4\xb7\xdd\x06\x83\xdb" +
+	"\x14F<oM\xd0\xaeY\xa73\"\xc8\xae\xda\xd8\xda" +
+	"\x12S7\xf5\x1aqSQ\xab\xceUvG4'S" +
+	"\x9f\xd4z\xfa\xa2\xd6\x93!#L\x01\xc3T\xa7\x00\xc1" +
+	"$\x00/\x111\x1e\x07\x08\x07)\x06ZN\x88\x11`" +
+	"\"\xa9\xb8\xc1\xb8\x00t\x8a8\x8c\xff\xa5uRM\xf1" +
+	"\xaa\xd3\x8a\xcc\xe2\x08\x04\x0f\x18Dq\xeb\x13\x00\xf26" +
+	"\x8e\xb2\xc8\xd0-\x85\xc7\x01\x14\x91 \xa16\x02\xe8V" +
+	"\xd5\xb1\xa5\xd6\x17W\x0f!\xb9\x1f\xd6\xece\x8af\x96" +
+	"}\xf0\xb0\xdcR\xbbAz@\xf6 F\x04\x10\x1f\xef" +
+	"\x8ff\x85\x98\xbe*b\x80\x98>\x18\x15\x89\xb8ak" +
+	"\x8b\x14\xbaaq\xaf\xc7\x01w\xa4e\xe84\xd3\xee\x06" +
+	"df\x01\x9b#8\xe5\xc7<,\x03\xcd\x81\x81z\x14" +
+	"\x17\xbe\x02L\x9cS\x90\x85Z\x02\x03Q-\xde\\\x05" +
+	"L\x9cP\x90\x07\"4R=\xe25\xca\xc1\x11\x05#" +
+	"\xa5\x81\x81*\x16/\x8e\x02\x13\xcf(\x88\xa1\xc8\xc6@" +
+	"\x10\x8b=\xf3\x81\x89\x87\x14\x8c\x87\xe2\x06\x03\xad%\x1e" +
+	"\\\x0bLlQpJ(\xe70\xd0\xe0\xa2N>\xab" +
+	"\x0a*\xa1\xa0\xc4@@R\xf7fb\xb9\xe2\x06\xbd\x11" +
+	"\x0a~w,^9\x9b\x8b\xe8\x06\x1d\x16\x90\xfe\x0aF" +
+	"&(F]+\xe2\xe6\x0d\xe1g\x86Z\xfb\x82e\xce" +
+	"\xb7 S7\xcbN\x11\xdd\x80H\xa0\x18\x86S\xf4i" +
+	"\\D\x99@tO,|l\xe5\xd1c?>\x00\x00" +
+	"\xaev\xf4\xb3\xa7\x1f?\xb5\xf7\x08tj\xdd\x81Sr" +
+	"\x19\xd5IK\xb7\x99\xf6\xff5\xeeiQ\x0f\xf2[\xf4" +
+	"\xa5\x1d\xbf\x9e;\xe7\xf2\x85\xb7\xc3\xbemwX\x1c\xed" +
+	"\xb8\xd8\xe1\xf3k\xcd+_\x1e\xe0\x15\xc5\xd5\xd7\xa9\xed" +
+	"\xf4E\x15\x97\xb1\xad\x86\x13\xf4\x9aL\xc92\x9c\xb6\xc6" +
+	"s-\x85\xe8\x8dH\xbc\xa2\xcf\xf47\xfb\xccL\x86\xbd" +
+	"%2\x8afNkw\x9d\xda\xe9.\x93\xe6\xeap\xaf" +
+	"\xaf.\xaf\x0f\xbd\x8f\x8f\x02\xc8\xefq\x94OF\xcdb" +
+	"\xcfZ\x00\xf98G\xb9\x9f\x92\x83~r\xf6\x91\xba|" +
+	"\x9a\xa3|!\x98\x05\x88\xe29\xea\xb7\xfb9\xca\x9f\x90" +
+	"\xbaD_]\xbeh\x03\xc8\x178\xca\x97\x19\x8a8\xeb" +
+	"\xc18\xa2\x98 \xc9\xf9S\x8e\xf2\x97\xcc\xe3\xa1a\x99" +
+	"C\x16(\x96]\xee\x90\x12\xbdbZ\xb6\xb6\xd4\x82\x0c" +
+	"1\x99$d\xdc\xd3\x90\xff\x93$\xb5\xb5Z\xdd6G" +
+	",\xe8\xa5n\xe2\x84\x82\xf4\x03H\xd5+(\xde\x1c\x14" +
+	"A\x86\x10E\x9a.\x9c\xe2(\xafg\xe8\xd6\x1d\x8d2" +
+	"9\x04\xbd\x9aI#\xfb\xaaN[\xfe\xe1h&\xfd\xda" +
+	"\xea\xb7\xd9\xe8\xdb\xc7\xa3\xdf:\x9b#>\x90\x14j." +
+	"\xaa\xbaHRh\xb9\xa8\xec\xd2\xec=\xb7\xbd\xee\xd2\xfc" +
+	"\xb2\xdb^x\xb8:\x98\xce\xa8\x07\"\x84\xd7\xf5\x80\xd9" +
+	"\xdc\xb4\x82{\xfe'\x00\x00\xff\xff\xe8G\x8d\xc7"
 
 func init() {
 	schemas.Register(schema_d373e9739460aa23,
@@ -2481,8 +3144,11 @@ func init() {
 		0xa5ecdc7767a6b301,
 		0xa6005af20cc08dbe,
 		0xa8bd0263833540b0,
+		0xa9b6fbdd27e7577b,
 		0xac444617ef333a1d,
 		0xb9e2d85d086206ff,
+		0xbb4e4368bb6a6748,
+		0xd170e76dbd9fc4fb,
 		0xd639518280cb55d3,
 		0xd9add1b3fdcfdbba,
 		0xe42973b29661e3c6,

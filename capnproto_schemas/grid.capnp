@@ -44,8 +44,14 @@ interface Grid extends(Common.Identifiable, Persistent) {
       f  @0 :Float64;
       i  @1 :Int64;
       ui @2 :UInt64;
-      no @3 :Bool;
+      no @3 :Bool; # no data
     }
+  }
+  struct Resolution {
+    union {
+      meter @0 :Int64;
+      degree @1 :Float64;
+      }
   }
 
   struct RowCol {
@@ -62,7 +68,7 @@ interface Grid extends(Common.Identifiable, Persistent) {
 
   closestValueAt @0 (latlonCoord :Geo.LatLonCoord, 
                      ignoreNoData :Bool = true, 
-                     resolution :UInt64 = 0, 
+                     resolution :Resolution, 
                      agg :Aggregation = none, 
                      returnRowCols :Bool = false, 
                      includeAggParts :Bool = false) 
@@ -75,7 +81,7 @@ interface Grid extends(Common.Identifiable, Persistent) {
   # agg is set to none and no aggregation can happen.
 
   valueAt @4 (row :UInt64, col :UInt64, 
-              resolution :UInt64, 
+              resolution :Resolution, 
               agg :Aggregation = none,
               includeAggParts :Bool = false) 
               -> (val :Value, aggParts :List(AggregationPart));
@@ -83,7 +89,7 @@ interface Grid extends(Common.Identifiable, Persistent) {
   # If resolution is lower, but agg is none, then val will be null or 0 default and aggParts will be returned.
   # includeAggParts returns the intermediate aggregation in any case
 
-  resolution @1 () -> (res :UInt64);
+  resolution @1 () -> (res :Resolution);
   # which resolution is this grid using
 
   dimension @2 () -> (rows :UInt64, cols :UInt64);
@@ -101,5 +107,7 @@ interface Grid extends(Common.Identifiable, Persistent) {
 
   streamCells @6 (callback :Callback, maxNoOfCellsPerSend :UInt64 = 100) -> ();
   # stream all cells to client in chunks of maxNoOfCellsPerSend
+  
+  unit @7 () -> (unit :Text);
 }
 
