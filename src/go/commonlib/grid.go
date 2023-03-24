@@ -19,7 +19,8 @@ type Grid struct {
 	persistable *Persistable
 	info        *Identifiable
 
-	GridResolution       uint64
+	GridResolution       Resolution
+	GridUnit             string
 	NumRows              uint64
 	NumCols              uint64
 	NoDataType           interface{} // valid types are int64, float64, bool, uint64
@@ -29,8 +30,55 @@ type Grid struct {
 	// functions that need to be implemented to use the grid capnp interface
 	GetValueRowCol           func(row, col uint64) (interface{}, error)
 	GetValueLatLon           func(lat, lon float64) (interface{}, RowCol, RowCol, error)
-	GetValueRowColAggregated func(row, col uint64, resolution uint64, agg string, includeAggParts bool) (interface{}, []AggregationPart, error)
-	GetValueLatLonAggregated func(lat, lon float64, resolution uint64, agg string, includeAggParts bool) (interface{}, []AggregationPart, error)
+	GetValueRowColAggregated func(row, col uint64, resolution Resolution, agg string, includeAggParts bool) (interface{}, []AggregationPart, error)
+	GetValueLatLonAggregated func(lat, lon float64, resolution Resolution, agg string, includeAggParts bool) (interface{}, []AggregationPart, error)
+}
+
+type Resolution struct {
+	Value interface{}
+}
+
+func (g Grid) IsComparable(r Resolution) bool {
+	_, rIsInt := r.Value.(int64)
+	_, rIsfloat := r.Value.(float64)
+
+	if _, isInt := g.GridResolution.Value.(int64); isInt && rIsInt {
+		return true
+	}
+	if _, isFloat := g.GridResolution.Value.(float64); isFloat && rIsfloat {
+		return true
+	}
+
+	return false
+}
+
+// Compare compares two resolutions
+// 1 means r is bigger than other
+// -1 means r is smaller than other
+// 0 means r is equal to other
+func (r Resolution) Compare(other Resolution) int {
+
+	switch rVal := r.Value.(type) {
+	case int64:
+		val := rVal - other.Value.(int64)
+		if val > 0 {
+			return 1
+		} else if val < 0 {
+			return -1
+		} else {
+			return 0
+		}
+	case float64:
+		val := rVal - other.Value.(float64)
+		if val > 0 {
+			return 1
+		} else if val < 0 {
+			return -1
+		} else {
+			return 0
+		}
+	}
+	return -1
 }
 
 func NewGrid(restorer *Restorer, id, name, description string) *Grid {
@@ -101,7 +149,20 @@ func (g *Grid) ClosestValueAt(c context.Context, call grid.Grid_closestValueAt) 
 	}
 	lat := latLon.Lat()
 	lon := latLon.Lon()
-	resolution := call.Args().Resolution()
+	resolutionMsg, err := call.Args().Resolution()
+	if err != nil {
+		return err
+	}
+	var resolution Resolution = Resolution{}
+	if resolutionMsg.Which() == grid.Grid_Resolution_Which_meter {
+		resolution.Value = resolutionMsg.Meter()
+	}
+	if resolutionMsg.Which() == grid.Grid_Resolution_Which_degree {
+		resolution.Value = resolutionMsg.Degree()
+	}
+	if !g.IsComparable(resolution) {
+		return errors.New("Resolution is not comparable")
+	}
 	agg := call.Args().Agg()
 	includeAggParts := call.Args().IncludeAggParts()
 	ignoreNoData := call.Args().IgnoreNoData()
@@ -115,7 +176,7 @@ func (g *Grid) ClosestValueAt(c context.Context, call grid.Grid_closestValueAt) 
 	var aggrParts []AggregationPart
 	var topLeftrowCol RowCol
 	var bottomRightRowCol RowCol
-	if resolution >= g.GridResolution {
+	if g.GridResolution.Compare(resolution) >= 0 {
 		// get value from grid (lat, lon)
 		if g.GetValueLatLon == nil {
 			return errors.New("Grid.GetValueLatLon is not implemented")
@@ -124,9 +185,9 @@ func (g *Grid) ClosestValueAt(c context.Context, call grid.Grid_closestValueAt) 
 		if err != nil {
 			return err
 		}
-	} else if resolution < g.GridResolution && agg.String() == "none" {
+	} else if g.GridResolution.Compare(resolution) < 0 && agg.String() == "none" {
 		returnVal = 0
-	} else if resolution < g.GridResolution && agg.String() != "none" {
+	} else if g.GridResolution.Compare(resolution) < 0 && agg.String() != "none" {
 
 		// call grid implementation of aggregation
 		if g.GetValueLatLonAggregated == nil {
@@ -199,13 +260,22 @@ func (g *Grid) ClosestValueAt(c context.Context, call grid.Grid_closestValueAt) 
 	}
 	return nil
 }
+
 func (g *Grid) Resolution(c context.Context, call grid.Grid_resolution) error {
 	result, err := call.AllocResults()
 	if err != nil {
 		return err
 	}
-	result.SetRes(g.GridResolution)
-	return nil
+	res, err := result.NewRes()
+	if err != nil {
+		return err
+	}
+	if val, ok := g.GridResolution.Value.(float64); ok {
+		res.SetDegree(val)
+	} else if val, ok := g.GridResolution.Value.(int64); ok {
+		res.SetMeter(val)
+	}
+	return result.SetRes(res)
 }
 
 func (g *Grid) Dimension(c context.Context, call grid.Grid_dimension) error {
@@ -238,7 +308,21 @@ func (g *Grid) ValueAt(c context.Context, call grid.Grid_valueAt) error {
 
 	row := call.Args().Row()
 	col := call.Args().Col()
-	resolution := call.Args().Resolution()
+	resolutionMsg, err := call.Args().Resolution()
+	if err != nil {
+		return err
+	}
+
+	var resolution Resolution = Resolution{}
+	if resolutionMsg.Which() == grid.Grid_Resolution_Which_meter {
+		resolution.Value = resolutionMsg.Meter()
+	}
+	if resolutionMsg.Which() == grid.Grid_Resolution_Which_degree {
+		resolution.Value = resolutionMsg.Degree()
+	}
+	if !g.IsComparable(resolution) {
+		return errors.New("Resolution is not comparable")
+	}
 	agg := call.Args().Agg()
 	includeAggParts := call.Args().IncludeAggParts()
 
@@ -248,7 +332,7 @@ func (g *Grid) ValueAt(c context.Context, call grid.Grid_valueAt) error {
 	}
 	var returnVal interface{}
 	var aggrParts []AggregationPart
-	if resolution >= g.GridResolution {
+	if g.GridResolution.Compare(resolution) >= 0 {
 		if g.GetValueRowCol == nil {
 			return errors.New("Grid.GetValueRowCol is not implemented")
 		}
@@ -257,9 +341,9 @@ func (g *Grid) ValueAt(c context.Context, call grid.Grid_valueAt) error {
 		if err != nil {
 			return err
 		}
-	} else if resolution < g.GridResolution && agg.String() == "none" {
+	} else if g.GridResolution.Compare(resolution) < 0 && agg.String() == "none" {
 		returnVal = 0
-	} else if resolution < g.GridResolution && agg.String() != "none" {
+	} else if g.GridResolution.Compare(resolution) < 0 && agg.String() != "none" {
 
 		if g.GetValueRowColAggregated == nil {
 			return errors.New("Grid.GetValueRowColAggregated is not implemented")
@@ -312,6 +396,15 @@ func (g *Grid) ValueAt(c context.Context, call grid.Grid_valueAt) error {
 	return nil
 }
 
+func (g *Grid) Unit(c context.Context, call grid.Grid_unit) error {
+
+	result, err := call.AllocResults()
+	if err != nil {
+		return err
+	}
+
+	return result.SetUnit(g.GridUnit)
+}
 func SetGridValue(gV grid.Grid_Value, val interface{}) error {
 	switch val := val.(type) {
 	case int64:

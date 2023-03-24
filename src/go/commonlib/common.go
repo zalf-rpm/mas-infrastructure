@@ -191,7 +191,7 @@ type SturdyRefToken string
 
 type Restorer struct {
 	issuedSturdyRefTokens map[SturdyRefToken]func() capnp.Client // SturdyRefToken to capability generator function
-	withdrawActions       map[SturdyRefToken]*Action
+	withdrawActions       map[SturdyRefToken]*ReleaseSturdyRefAction
 	sign_pk               *[32]byte
 	sign_sk               *[64]byte
 	host                  string
@@ -236,7 +236,7 @@ func NewRestorer(hostname string, port uint16) *Restorer {
 
 	restorer := Restorer{
 		issuedSturdyRefTokens: map[SturdyRefToken]func() capnp.Client{},
-		withdrawActions:       map[SturdyRefToken]*Action{},
+		withdrawActions:       map[SturdyRefToken]*ReleaseSturdyRefAction{},
 		sign_pk:               pub,
 		sign_sk:               priv,
 		host:                  hostname,
@@ -409,15 +409,15 @@ func (r *Restorer) save(persistentObj *Persistable, owner string) (sr *SturdyRef
 	return sr, unsaveSR, err
 }
 
-// Action
-type Action struct {
+// ReleaseSturdyRefAction
+type ReleaseSturdyRefAction struct {
 	persistable *Persistable
 	do          func() error
 }
 
-func NewAction(doSave chan *SaveMsg, doAction func() error) *Action {
+func NewAction(doSave chan *SaveMsg, doAction func() error) *ReleaseSturdyRefAction {
 
-	action := Action{
+	action := ReleaseSturdyRefAction{
 		persistable: &Persistable{
 			saveChan: doSave,
 		},
@@ -425,20 +425,20 @@ func NewAction(doSave chan *SaveMsg, doAction func() error) *Action {
 	}
 
 	restoreFunc := func() capnp.Client {
-		return capnp.Client(common.Action_ServerToClient(&action))
+		return capnp.Client(persistence.Persistent_ReleaseSturdyRef_ServerToClient(&action))
 	}
 	action.persistable.Cap = restoreFunc
 
 	return &action
 }
 
-// Action_Server interface
-func (a *Action) Do(c context.Context, call common.Action_do) error {
+// ReleaseSturdyRef_Server interface
+func (a *ReleaseSturdyRefAction) ReleaseSR(c context.Context, call persistence.Persistent_ReleaseSturdyRef_releaseSR) error {
 
 	// do something
 	return a.do()
 }
 
-func (a *Action) Save(c context.Context, call persistence.Persistent_save) error {
+func (a *ReleaseSturdyRefAction) Save(c context.Context, call persistence.Persistent_save) error {
 	return a.persistable.Save(c, call)
 }

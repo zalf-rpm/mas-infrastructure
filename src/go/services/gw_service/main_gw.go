@@ -22,9 +22,7 @@ import (
 
 // Provide inital capabilites to the client
 //service: service sr: capnp://vat@host:port/uuid
-//service: admin sr: capnp://vat@host:port/uuid
 //restorer_sr: capnp://vat@host:port
-// debug grid: capnp://vat@host:port/uuid
 
 func main() {
 
@@ -45,8 +43,8 @@ func main() {
 		log.Fatal(err)
 	}
 	fmt.Printf("Service is listening on %s\n", l.Addr())
-	fmt.Printf("service grid: %s)\n", initialSturdyRef)
-	fmt.Printf("bootstrap restorer: %s )\n", bootStrapSturdyRef)
+	fmt.Printf("service: service sr: %s)\n", initialSturdyRef)
+	fmt.Printf("restorer_sr: %s )\n", bootStrapSturdyRef)
 
 	errChan := make(chan error)
 	// accept incomming connection from clients

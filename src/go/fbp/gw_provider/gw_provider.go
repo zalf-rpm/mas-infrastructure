@@ -14,6 +14,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common"
+	"github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/fbp"
 	"github.com/zalf-rpm/mas-infrastructure/src/go/commonlib"
 )
 
@@ -98,7 +99,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	firstReader := common.Channel_Reader(*first_reader)
+	firstReader := fbp.Channel_Reader(*first_reader)
 
 	// verify that components exist
 	getComponentPath := func(module string) string {
@@ -222,7 +223,7 @@ func main() {
 	componentDone := make(chan bool)
 	for {
 		// read from channels pairs of (component tuples, StartupInfo)
-		fut, rel := firstReader.Read(context.Background(), func(c common.Channel_Reader_read_Params) error {
+		fut, rel := firstReader.Read(context.Background(), func(c fbp.Channel_Reader_read_Params) error {
 			return nil
 		})
 		defer rel()
@@ -253,7 +254,7 @@ func main() {
 			if err != nil {
 				log.Fatal(err)
 			}
-			info := common.Channel_StartupInfo(infoPtr.Struct())
+			info := fbp.Channel_StartupInfo(infoPtr.Struct())
 
 			start_sr_name := chanIdToInOutSrNames[id]["out"]
 			end_sr_name := chanIdToInOutSrNames[id]["in"]
