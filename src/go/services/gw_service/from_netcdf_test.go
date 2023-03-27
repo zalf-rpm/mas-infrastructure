@@ -132,3 +132,79 @@ func Test_loadNetCDF(t *testing.T) {
 		})
 	}
 }
+
+func Test_gridService_GetValueLatLon(t *testing.T) {
+	type args struct {
+		inLat float64
+		inLon float64
+	}
+
+	meta, err := loadNetCDF(testNC_EURASIA)
+	if err != nil {
+		t.Errorf("loadNetCDF() error = %v", err)
+		return
+	}
+	defer (*meta.data).Close()
+
+	newCommonGrid := &commonlib.Grid{
+		GridResolution:       commonlib.Resolution{},
+		GridUnit:             "",
+		NumRows:              0,
+		NumCols:              0,
+		NoDataType:           t,
+		Bounds:               commonlib.LatLonBoundaries{},
+		BoundsFromCellCenter: commonlib.LatLonBoundaries{},
+	}
+	gs := &gridService{
+		commonGrid: newCommonGrid,
+	}
+	gs.data = meta.data
+	gs.startLatIdx = meta.startLatIdx
+	gs.startLonIdx = meta.startLonIdx
+	gs.stepLatSize = meta.stepLatSize
+	gs.stepLonSize = meta.stepLonSize
+	gs.commonGrid.NumRows = uint64(meta.numRows)
+	gs.commonGrid.NumCols = uint64(meta.numCols)
+	gs.commonGrid.GridResolution = meta.gridResolution
+	gs.commonGrid.GridUnit = meta.gridUnit
+	gs.commonGrid.NoDataType = meta.noDataType
+	gs.commonGrid.Bounds = meta.bounds
+	gs.commonGrid.BoundsFromCellCenter = meta.boundsFromCellCenter
+	gs.timeValues = meta.timeValues
+
+	tests := []struct {
+		name  string
+		gs    *gridService
+		args  args
+		want  float64
+		want1 int64
+		want2 int64
+	}{
+		{
+			name: "testNC_EURASIA_Oderbruch",
+			gs:   gs,
+			args: args{
+				inLat: 52.583039, // 52.583039, 14.533146
+				inLon: 14.533146,
+			},
+			want:  0,
+			want1: 6309,
+			want2: 3423,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			//gw, iLat, iLon := tt.gs.GetValueLatLon(tt.args.nc, tt.args.inLat, tt.args.inLon)
+			gw, iLat, iLon := tt.gs.GetValueLatLon(tt.args.inLat, tt.args.inLon)
+			if gw != tt.want {
+				t.Errorf("gridService.GetValueLatLon() got = %v, want %v", gw, tt.want)
+			}
+			if iLat != tt.want1 {
+				t.Errorf("gridService.GetValueLatLon() got1 = %v, want %v", iLat, tt.want1)
+			}
+			if iLon != tt.want2 {
+				t.Errorf("gridService.GetValueLatLon() got2 = %v, want %v", iLon, tt.want2)
+			}
+		})
+	}
+}
