@@ -1411,17 +1411,15 @@ namespace Mas.Schema.Persistence
         [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xb0caf775704690b2UL), Proxy(typeof(Registrar_Proxy)), Skeleton(typeof(Registrar_Skeleton))]
         public interface IRegistrar : IDisposable
         {
-            Task<(Mas.Schema.Persistence.HostPortResolver.Registrar.IHeartbeat, uint)> Register(string base64VatId, string host, ushort port, string @alias, CancellationToken cancellationToken_ = default);
+            Task<(Mas.Schema.Persistence.HostPortResolver.Registrar.IHeartbeat, uint)> Register(Mas.Schema.Persistence.HostPortResolver.Registrar.RegisterParams arg_, CancellationToken cancellationToken_ = default);
         }
 
         [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xb0caf775704690b2UL)]
         public class Registrar_Proxy : Proxy, IRegistrar
         {
-            public Task<(Mas.Schema.Persistence.HostPortResolver.Registrar.IHeartbeat, uint)> Register(string base64VatId, string host, ushort port, string @alias, CancellationToken cancellationToken_ = default)
+            public Task<(Mas.Schema.Persistence.HostPortResolver.Registrar.IHeartbeat, uint)> Register(Mas.Schema.Persistence.HostPortResolver.Registrar.RegisterParams arg_, CancellationToken cancellationToken_ = default)
             {
-                var in_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.HostPortResolver.Registrar.Params_Register.WRITER>();
-                var arg_ = new Mas.Schema.Persistence.HostPortResolver.Registrar.Params_Register()
-                {Base64VatId = base64VatId, Host = host, Port = port, Alias = @alias};
+                var in_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.HostPortResolver.Registrar.RegisterParams.WRITER>();
                 arg_?.serialize(in_);
                 return Impatient.MakePipelineAware(Call(12739266579737776306UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
                 {
@@ -1449,8 +1447,7 @@ namespace Mas.Schema.Persistence
             {
                 using (d_)
                 {
-                    var in_ = CapnpSerializable.Create<Mas.Schema.Persistence.HostPortResolver.Registrar.Params_Register>(d_);
-                    return Impatient.MaybeTailCall(Impl.Register(in_.Base64VatId, in_.Host, in_.Port, in_.Alias, cancellationToken_), (heartbeat, secsHeartbeatInterval) =>
+                    return Impatient.MaybeTailCall(Impl.Register(CapnpSerializable.Create<Mas.Schema.Persistence.HostPortResolver.Registrar.RegisterParams>(d_), cancellationToken_), (heartbeat, secsHeartbeatInterval) =>
                     {
                         var s_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.HostPortResolver.Registrar.Result_Register.WRITER>();
                         var r_ = new Mas.Schema.Persistence.HostPortResolver.Registrar.Result_Register{Heartbeat = heartbeat, SecsHeartbeatInterval = secsHeartbeatInterval};
@@ -1601,10 +1598,10 @@ namespace Mas.Schema.Persistence
                 }
             }
 
-            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xb5f200df6e0373e6UL)]
-            public class Params_Register : ICapnpSerializable
+            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xbf018f62ff460d0fUL)]
+            public class RegisterParams : ICapnpSerializable
             {
-                public const UInt64 typeId = 0xb5f200df6e0373e6UL;
+                public const UInt64 typeId = 0xbf018f62ff460d0fUL;
                 void ICapnpSerializable.Deserialize(DeserializerState arg_)
                 {
                     var reader = READER.create(arg_);

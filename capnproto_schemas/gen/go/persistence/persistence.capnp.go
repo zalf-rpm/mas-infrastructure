@@ -2039,7 +2039,7 @@ type HostPortResolver_Registrar capnp.Client
 // HostPortResolver_Registrar_TypeID is the unique identifier for the type HostPortResolver_Registrar.
 const HostPortResolver_Registrar_TypeID = 0xb0caf775704690b2
 
-func (c HostPortResolver_Registrar) Register(ctx context.Context, params func(HostPortResolver_Registrar_register_Params) error) (HostPortResolver_Registrar_register_Results_Future, capnp.ReleaseFunc) {
+func (c HostPortResolver_Registrar) Register(ctx context.Context, params func(HostPortResolver_Registrar_RegisterParams) error) (HostPortResolver_Registrar_register_Results_Future, capnp.ReleaseFunc) {
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb0caf775704690b2,
@@ -2470,20 +2470,20 @@ func (f HostPortResolver_Registrar_Heartbeat_beat_Results_Future) Struct() (Host
 
 type HostPortResolver_Registrar_register_Params capnp.Struct
 
-// HostPortResolver_Registrar_register_Params_TypeID is the unique identifier for the type HostPortResolver_Registrar_register_Params.
-const HostPortResolver_Registrar_register_Params_TypeID = 0xb5f200df6e0373e6
+// HostPortResolver_Registrar_RegisterParams_TypeID is the unique identifier for the type HostPortResolver_Registrar_RegisterParams.
+const HostPortResolver_Registrar_RegisterParams_TypeID = 0xbf018f62ff460d0f
 
-func NewHostPortResolver_Registrar_register_Params(s *capnp.Segment) (HostPortResolver_Registrar_register_Params, error) {
+func NewHostPortResolver_Registrar_RegisterParams(s *capnp.Segment) (HostPortResolver_Registrar_RegisterParams, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 3})
 	return HostPortResolver_Registrar_register_Params(st), err
 }
 
-func NewRootHostPortResolver_Registrar_register_Params(s *capnp.Segment) (HostPortResolver_Registrar_register_Params, error) {
+func NewRootHostPortResolver_Registrar_RegisterParams(s *capnp.Segment) (HostPortResolver_Registrar_RegisterParams, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 3})
 	return HostPortResolver_Registrar_register_Params(st), err
 }
 
-func ReadRootHostPortResolver_Registrar_register_Params(msg *capnp.Message) (HostPortResolver_Registrar_register_Params, error) {
+func ReadRootHostPortResolver_Registrar_RegisterParams(msg *capnp.Message) (HostPortResolver_Registrar_RegisterParams, error) {
 	root, err := msg.Root()
 	return HostPortResolver_Registrar_register_Params(root.Struct()), err
 }
@@ -2580,14 +2580,14 @@ func (s HostPortResolver_Registrar_register_Params) SetAlias(v string) error {
 // HostPortResolver_Registrar_register_Params_List is a list of HostPortResolver_Registrar_register_Params.
 type HostPortResolver_Registrar_register_Params_List = capnp.StructList[HostPortResolver_Registrar_register_Params]
 
-// NewHostPortResolver_Registrar_register_Params creates a new list of HostPortResolver_Registrar_register_Params.
-func NewHostPortResolver_Registrar_register_Params_List(s *capnp.Segment, sz int32) (HostPortResolver_Registrar_register_Params_List, error) {
+// NewHostPortResolver_Registrar_RegisterParams creates a new list of HostPortResolver_Registrar_RegisterParams.
+func NewHostPortResolver_Registrar_RegisterParams_List(s *capnp.Segment, sz int32) (HostPortResolver_Registrar_RegisterParams_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 3}, sz)
 	return capnp.StructList[HostPortResolver_Registrar_register_Params](l), err
 }
 
-// HostPortResolver_Registrar_register_Params_Future is a wrapper for a HostPortResolver_Registrar_register_Params promised by a client call.
-type HostPortResolver_Registrar_register_Params_Future struct{ *capnp.Future }
+// HostPortResolver_Registrar_RegisterParams_Future is a wrapper for a HostPortResolver_Registrar_RegisterParams promised by a client call.
+type HostPortResolver_Registrar_RegisterParams_Future struct{ *capnp.Future }
 
 func (f HostPortResolver_Registrar_register_Params_Future) Struct() (HostPortResolver_Registrar_register_Params, error) {
 	p, err := f.Future.Ptr()
@@ -2995,7 +2995,7 @@ func init() {
 		0xa4db8c20d9807c15,
 		0xaa8d91fab6d01d9f,
 		0xb0caf775704690b2,
-		0xb5f200df6e0373e6,
+		0xbf018f62ff460d0f,
 		0xc1a7daa0dc36cb65,
 		0xc541e5764a37d73a,
 		0xcbe679a401315eb8,

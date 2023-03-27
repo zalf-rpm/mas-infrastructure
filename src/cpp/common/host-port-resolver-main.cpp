@@ -48,6 +48,7 @@ public:
 
     startRestorerSetup(resolverClient, true);
     resolver->setRestorer(restorer, restorerClient);
+    KJ_IF_MAYBE(scc, serviceContainerClient) resolver->setStorageContainer(*scc);
 
     auto registrarClient = resolver->createRegistrar();
     KJ_LOG(INFO, "created host-port-resolver registrar");
@@ -55,8 +56,9 @@ public:
     auto ssr = restorer->saveStr(registrarClient).wait(ioContext.waitScope);
     if(outputSturdyRefs) std::cout << "registrarSR=" << ssr.sturdyRef.cStr() << std::endl;
 
-    // Run forever, accepting connections and handling requests.
-    kj::NEVER_DONE.wait(ioContext.waitScope);
+    // Run forever, using regularly cleaning mappings, accepting connections and handling requests.
+    auto gcmProm = resolver->garbageCollectMappings();
+    gcmProm.then([](){ return kj::NEVER_DONE; }).wait(ioContext.waitScope);
     KJ_LOG(INFO, "stopped host-port-resolver service");
     return true;
   }
