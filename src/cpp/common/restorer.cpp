@@ -250,9 +250,11 @@ struct Restorer::Impl {
         fromKJArray<kj::byte>(*ownerSignPKArray, ownerSignPK);
 
         // decode owner signed sturdy ref token
+        // because of signing assume the sr token has been encoded base64
+        auto srTokenArr = kj::decodeBase64(srToken);
         auto signedSRToken = (unsigned char*)malloc(srToken.size() * sizeof(unsigned char));
         KJ_DEFER(free(signedSRToken));
-        fromKJArray<const kj::byte>(srToken.asBytes(), signedSRToken);
+        fromKJArray<const kj::byte>(srTokenArr, signedSRToken);
 
         // verify owner signed sturdy ref token
         auto unsignedSRToken = (unsigned char*)malloc(srToken.size() * sizeof(unsigned char) + 1);

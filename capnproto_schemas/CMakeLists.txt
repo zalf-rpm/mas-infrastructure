@@ -4,6 +4,7 @@ project(MAS-infrastructure-capnp-schemas)
 message(STATUS "-> MAS-infrastructure-capnp-schemas")
 
 find_package(CapnProto CONFIG REQUIRED)
+find_package(ZLIB)
 
 set(CAPNPC_SRC_PREFIX ${CAPNP_SCHEMAS_DIR})
 
@@ -45,6 +46,8 @@ target_link_libraries(capnp_schemas_lib
 	CapnProto::capnp-rpc
 	CapnProto::kj
 	CapnProto::kj-async
+	CapnProto::kj-http
+	CapnProto::kj-gzip
 	CapnProto::capnp-json	
 )
 target_include_directories(capnp_schemas_lib PUBLIC ${CMAKE_CURRENT_BINARY_DIR})

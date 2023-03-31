@@ -97,7 +97,7 @@ public:
 
   kj::MainFunc getMain()
   {
-    return kj::MainBuilder(context, "Test store v0.1", "test storage service")
+    return kj::MainBuilder(context, "Test services v0.1", "test services")
       .addOptionWithArg({'n', "name"}, KJ_BIND_METHOD(*this, setName),
                         "<name>", "Give test a name.")
       .expectArg("<sturdy_ref>", KJ_BIND_METHOD(*this, setSr))

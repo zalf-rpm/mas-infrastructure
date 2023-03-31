@@ -43,6 +43,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <kj/encoding.h>
 #include <kj/map.h>
 #include <kj/timer.h>
+#include <kj/compat/url.h>
 #define KJ_MVCAP(var) var = kj::mv(var)
 
 #include <capnp/ez-rpc.h>
@@ -201,82 +202,111 @@ capnp::Capability::Client ConnectionManager::tryConnectB(kj::AsyncIoContext &ioc
     }
 }
 
-kj::Promise<capnp::Capability::Client> ConnectionManager::connect(kj::AsyncIoContext &ioc, kj::StringPtr sturdyRefStr) {
-    capnp::ReaderOptions readerOpts;
-
-    auto restoreSR = [this](capnp::Capability::Client bootstrapCap, kj::StringPtr srTokenBase64) {
-        KJ_LOG(INFO, "restoring token", srTokenBase64);
-        auto srTokenArr = kj::decodeBase64(srTokenBase64);
-        kj::String srToken = kj::str(srTokenArr.asChars());
+kj::Promise<capnp::Capability::Client> ConnectionManager::connect(kj::AsyncIoContext &ioc, kj::Url url) {
+  auto restoreSR =
+      [](capnp::Capability::Client bootstrapCap, kj::StringPtr srToken, kj::StringPtr ownerGuid) {
+        KJ_LOG(INFO, "restoring token", srToken);
         auto restorerClient = bootstrapCap.castAs<mas::schema::persistence::Restorer>();
         auto req = restorerClient.restoreRequest();
         req.initLocalRef().setAs<capnp::Text>(srToken);
         KJ_LOG(INFO, "making restore request");
         return req.send().then([](auto &&res) {
-            KJ_LOG(INFO, "send returned");
-            return res.getCap();
+          KJ_LOG(INFO, "send returned");
+          return res.getCap();
         });
-    };
+      };
 
-    // we assume that a sturdy ref url looks always like
-    // capnp://vat-id_base64-curve25519-public-key@host:port/sturdy-ref-token_base64
-    if (sturdyRefStr.startsWith("capnp://")) {
-        auto srStr = sturdyRefStr.slice(8);
-        // right now we only support tcp connections
-        KJ_IF_MAYBE (atPos, srStr.findFirst('@')) {
-            auto vatIdBase64 = sturdyRefStr.slice(0, *atPos);
-            srStr = srStr.slice(*atPos + 1);
-            kj::String addressPort;
-            kj::String srTokenBase64;
-            kj::String address;
-            kj::uint port = 0;
-            KJ_IF_MAYBE (slashPos, srStr.findFirst('/')) {
-                addressPort = kj::str(srStr.slice(0, *slashPos));
-                srTokenBase64 = kj::str(srStr.slice(*slashPos + 1));
-            } else {
-                addressPort = kj::str(srStr);
-            }
-            KJ_IF_MAYBE (colonPos, addressPort.findFirst(':')) {
-                address = kj::str(addressPort.slice(0, *colonPos));
-                port = addressPort.slice(*colonPos + 1).parseAs<kj::uint>();
-            } else {
-                address = kj::str(addressPort);
-            }
+  auto connectTo =
+      [this, &ioc, restoreSR](kj::Url url, kj::StringPtr host, kj::uint port, kj::StringPtr ownerGuid) mutable {
+        KJ_IF_MAYBE (clientContext, impl->connections.find(host)) {
+          if (url.path.size() > 0) return restoreSR((*clientContext)->bootstrap, url.path[0], ownerGuid);
+          return kj::Promise<capnp::Capability::Client>((*clientContext)->bootstrap);
+        } else {
+          return ioc.provider->getNetwork().parseAddress(host, port).then(
+              [restoreSR](kj::Own<kj::NetworkAddress> &&addr) {
+                return addr->connect().attach(kj::mv(addr));
+              }).then(
+              [restoreSR, this, KJ_MVCAP(host), KJ_MVCAP(url), KJ_MVCAP(ownerGuid)](
+                  kj::Own<kj::AsyncIoStream> &&stream) {
+                capnp::ReaderOptions readerOpts;
+                auto cc = kj::heap<ClientContext>(kj::mv(stream), readerOpts);
+                capnp::Capability::Client bootstrapCap = cc->getMain();
+                cc->bootstrap = bootstrapCap;
+                impl->connections.insert(kj::str(host), kj::mv(cc));
 
-            if (!addressPort.size() == 0) {
-                if (addressPort == kj::str(impl->locallyUsedHost, ":", impl->port)) {
-                    KJ_LOG(INFO, "connecting to local server");
-                    if (srTokenBase64.size() > 0) return restoreSR(impl->serverMainInterface, srTokenBase64);
-                    else return kj::Promise<capnp::Capability::Client>(impl->serverMainInterface);
+                if (url.path.size() > 0) {
+                  return restoreSR(bootstrapCap, url.path[0], ownerGuid);
                 }
-
-                KJ_IF_MAYBE (clientContext, impl->connections.find(addressPort)) {
-                    if (srTokenBase64.size() > 0) return restoreSR((*clientContext)->bootstrap, srTokenBase64);
-                    return (*clientContext)->bootstrap;
-                } else {
-                    return ioc.provider->getNetwork().parseAddress(address, port).then(
-                        [restoreSR](kj::Own<kj::NetworkAddress> &&addr) { 
-                            return addr->connect().attach(kj::mv(addr)); 
-                        }).then(
-                        [restoreSR, readerOpts, this, KJ_MVCAP(addressPort), KJ_MVCAP(srTokenBase64)]
-                        (kj::Own<kj::AsyncIoStream> &&stream) {
-                            auto cc = kj::heap<ClientContext>(kj::mv(stream), readerOpts);
-                            capnp::Capability::Client bootstrapCap = cc->getMain();
-                            cc->bootstrap = bootstrapCap;
-                            impl->connections.insert(kj::str(addressPort), kj::mv(cc));
-
-                            if (srTokenBase64.size() > 0) {
-                                return restoreSR(bootstrapCap, srTokenBase64);
-                            }
-                            return kj::Promise<capnp::Capability::Client>(bootstrapCap); 
-                        }
-                    );
-                }
-            }
+                return kj::Promise<capnp::Capability::Client>(bootstrapCap);
+              }
+          );
         }
+      };
+
+  // we assume that a sturdy ref url looks always like
+  // capnp://vat-id_base64-curve25519-public-key@host:port/sturdy-ref-token_base64_if_owner_signed
+  // ?owner_guid=optional_owner_global_unique_id
+  // &b_iid=optional_bootstrap_interface_id
+  // &sr_iid=optional_the_sturdy_refs_remote_interface_id
+  if (url.scheme != "capnp") return nullptr;
+
+  kj::StringPtr ownerGuid;
+  uint64_t bootstrapInterfaceId = 0;
+  uint64_t sturdyRefInterfaceId = 0;
+  for (const auto &qp: url.query) {
+    if (qp.name == "owner_guid") ownerGuid = qp.value;
+    if (qp.name == "b_iid") bootstrapInterfaceId = qp.value.parseAs<uint64_t>();
+    if (qp.name == "sr_iid") sturdyRefInterfaceId = qp.value.parseAs<uint64_t>();
+  }
+
+  if (url.host == kj::str(impl->locallyUsedHost, ":", impl->port)) {
+    KJ_LOG(INFO, "connecting to local server");
+    if (url.path.size() > 0) return restoreSR(impl->serverMainInterface, url.path[0], ownerGuid);
+    else return kj::Promise<capnp::Capability::Client>(impl->serverMainInterface);
+  }
+
+  //parse port out of host address because under windows parseAddress below seams to have problems
+  //with the host address containing the port
+  //do both, let kj parse the host address for a port, but additionally provide the port hint
+  //kj::String address;
+  kj::uint port = 0;
+  KJ_IF_MAYBE (colonPos, url.host.findFirst(':')) {
+    //address = kj::str(addressPort.slice(0, *colonPos));
+    port = url.host.slice(*colonPos + 1).parseAs<kj::uint>();
+  }
+
+  // is a host port resolver
+  if (bootstrapInterfaceId == 0xaa8d91fab6d01d9f) {
+    auto bsUrl = url.clone();
+    bsUrl.path.clear();
+    bsUrl.query.clear();
+    kj::StringPtr aliasOrBase64VatId;
+    KJ_IF_MAYBE(info, bsUrl.userInfo) {
+      aliasOrBase64VatId = info->username;
     }
 
-    return nullptr;
+    return connect(ioc, kj::mv(bsUrl)).then(
+        [KJ_MVCAP(aliasOrBase64VatId), KJ_MVCAP(url), KJ_MVCAP(ownerGuid), connectTo](
+            capnp::Capability::Client &&resolverCap) mutable {
+          auto client = resolverCap.castAs<mas::schema::persistence::HostPortResolver>();
+          auto req = client.resolveRequest();
+          req.setId(aliasOrBase64VatId);
+          return req.send().then([KJ_MVCAP(ownerGuid), connectTo, KJ_MVCAP(url)](
+              auto &&resp) mutable {
+            return connectTo(kj::mv(url), kj::str(resp.getHost(), ":", resp.getPort()), resp.getPort(), ownerGuid);
+          });
+        });
+  }
+  //else
+  return connectTo(kj::mv(url), url.host, port, ownerGuid);
+}
+
+kj::Promise<capnp::Capability::Client> ConnectionManager::connect(kj::AsyncIoContext &ioc, kj::StringPtr sturdyRefStr) {
+  KJ_IF_MAYBE(url, kj::Url::tryParse(sturdyRefStr)) {
+    if (url->scheme != "capnp") return nullptr;
+    return connect(ioc, kj::mv(*url));
+  }
+  return nullptr;
 }
 
 kj::Promise<kj::uint> ConnectionManager::bind(kj::AsyncIoContext &ioContext,

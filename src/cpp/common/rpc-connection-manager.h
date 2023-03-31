@@ -18,14 +18,10 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <kj/async-io.h>
 #include <kj/string.h>
 #include <kj/tuple.h>
-
+#include <kj/compat/url.h>
 #include <capnp/capability.h>
 
-namespace mas {
-namespace infrastructure {
-namespace common {
-
-//-----------------------------------------------------------------------------
+namespace mas::infrastructure::common {
 
 class Restorer;
 
@@ -43,6 +39,7 @@ public:
 	capnp::Capability::Client tryConnectB(kj::AsyncIoContext& ioc, kj::StringPtr sturdyRefStr, 
 		int retryCount = 10, int retrySecs = 5, bool printRetryMsgs = true);
 
+  kj::Promise<capnp::Capability::Client> connect(kj::AsyncIoContext &ioc, kj::Url sturdyRefUrl);
 	kj::Promise<capnp::Capability::Client> connect(kj::AsyncIoContext& ioContext, kj::StringPtr sturdyRefStr);
 
 	kj::Promise<kj::uint> bind(kj::AsyncIoContext& ioContext, 
@@ -53,10 +50,6 @@ private:
 	kj::Own<Impl> impl;
 };
 
-//-----------------------------------------------------------------------------
-
 kj::Tuple<bool, kj::String> getLocalIP(kj::StringPtr connectToHost = "8.8.8.8", kj::uint connectToPort = 53);
 
-} // namespace common
-} // namespace infrastructure
-} // namespace mas
+} // namespace mas::infrastructure::common
