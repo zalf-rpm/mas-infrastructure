@@ -491,23 +491,30 @@ def test_some():
     print(ps)
 
 
+def test_resolver():
+    con_man = common.ConnectionManager()
+
+    sr = "capnp://G3ZrazIRADIFcDD16qI65aVCXuXMrqRrRRvGeeaHKKc@10.10.24.229:42425/NDcwMzI5Y2MtYjI3Ni00NDZlLWE3MjgtMWJmZjhjMmI2YzVl"
+    resolver = con_man.try_connect(sr, cast_as=persistence_capnp.HostPortResolver)
+    
+    print(resolver.info().wait())
+
+
+
 def main():
     config = {
         "port": "6003",
         "server": "localhost"
     }
-    # read commandline args only if script is invoked directly from commandline
-    if len(sys.argv) > 1 and __name__ == "__main__":
-        for arg in sys.argv[1:]:
-            k, v = arg.split("=")
-            if k in config:
-                config[k] = v
+    common.update_config(config, sys.argv, print_config=True, allow_new_keys=True)
+
+    test_resolver()
 
     # test_channel()
 
     # test_crop_service()
 
-    test_fertilizer_service()
+    #test_fertilizer_service()
 
     # test_monica()
 

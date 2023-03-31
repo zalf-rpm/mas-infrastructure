@@ -394,13 +394,7 @@ async def main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs=None, grid_e
         "to_attr": None,  # "soil",
         "from_attr": None,  # "latlon"
     }
-    # read commandline args only if script is invoked directly from commandline
-    if len(sys.argv) > 1 and __name__ == "__main__":
-        for arg in sys.argv[1:]:
-            k, v = arg.split("=")
-            if k in config:
-                config[k] = bool(v) if v.lower() in ["true", "false"] else v
-    print(config)
+    common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
     if config["grid_epsg"]:
         grid_crs = CRS.from_epsg(int(config["grid_epsg"]))
