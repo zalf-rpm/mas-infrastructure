@@ -257,7 +257,7 @@ func (gs *gridService) setupCallbacks() {
 			return nil, commonlib.RowCol{}, commonlib.RowCol{}, fmt.Errorf("lon %f is out of bounds", lon)
 		}
 
-		gw, ilat, ilon := gs.GetValueLatLon(gs.data, lat, lon)
+		gw, ilat, ilon := gs.GetValueLatLon(lat, lon)
 
 		return gw, commonlib.RowCol{
 				Row: uint64(ilat),
@@ -335,19 +335,19 @@ func max(a, b int64) int64 {
 	return b
 }
 
-func (gs *gridService) GetValueLatLon(nc *api.Group, inLat, inLon float64) (float64, int64, int64) {
+func (gs *gridService) GetValueLatLon(inLat, inLon float64) (float64, int64, int64) {
 
 	// calculate index of lat and lon in gwValues
 	iLat := ((gs.startLatIdx) + int64(inLat/gs.stepLatSize))
 	iLon := ((gs.startLonIdx) + int64(inLon/gs.stepLonSize))
 
-	iLatMin := min(iLat-10, 0)
-	iLatMax := max(iLat+10, int64(gs.commonGrid.NumRows-1))
-	iLonMin := min(iLon-10, 0)
-	iLonMax := max(iLon+10, int64(gs.commonGrid.NumCols-1))
+	iLatMin := max(iLat-10, 0)
+	iLatMax := min(iLat+10, int64(gs.commonGrid.NumRows-1))
+	iLonMin := max(iLon-10, 0)
+	iLonMax := min(iLon+10, int64(gs.commonGrid.NumCols-1))
 
 	// latitudes
-	latVar, err := (*nc).GetVarGetter("lat")
+	latVar, err := (*gs.data).GetVarGetter("lat")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -359,7 +359,7 @@ func (gs *gridService) GetValueLatLon(nc *api.Group, inLat, inLon float64) (floa
 	}
 	valLat := valsLat.([]float32)
 	// longitude
-	lonVar, err := (*nc).GetVarGetter("lon")
+	lonVar, err := (*gs.data).GetVarGetter("lon")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -369,20 +369,22 @@ func (gs *gridService) GetValueLatLon(nc *api.Group, inLat, inLon float64) (floa
 		log.Fatal(err)
 	}
 	valLon := valsLon.([]float32)
+	// check if lat and lon of a neibor is closer, to correct rounding errors
+	iLat = isNeiborCloser(valLat, iLatMax-iLat, inLat)
+	iLon = isNeiborCloser(valLon, iLonMax-iLon, inLon)
+	iLat = iLat + iLatMin
+	iLon = iLon + iLonMin
+
 	// ground water
-	WTDVar, err := (*nc).GetVarGetter("WTD")
+	WTDVar, err := (*gs.data).GetVarGetter("WTD")
 	if err != nil {
 		log.Fatal(err)
 	}
-	valsWTD, err := WTDVar.GetSlice(0, 0) //WTDVar.Values()
+	valsWTD, err := WTDVar.GetSlice(0, 1) // WTDVar.Values()
 	if err != nil {
 		log.Fatal(err)
 	}
 	valWTD := valsWTD.([][][]int16)
-
-	// check if lat and lon of a neibor is closer, to correct rounding errors
-	iLat = isNeiborCloser(valLat, iLat, inLat)
-	iLon = isNeiborCloser(valLon, iLon, inLon)
 
 	scaleFactor := 1.0
 	if val, ok := WTDVar.Attributes().Get("scale_factor"); ok {
@@ -394,11 +396,11 @@ func (gs *gridService) GetValueLatLon(nc *api.Group, inLat, inLon float64) (floa
 	}
 
 	// mask for valid data
-	maskVar, err := (*nc).GetVarGetter("mask")
+	maskVar, err := (*gs.data).GetVarGetter("mask")
 	if err != nil {
 		log.Fatal(err)
 	}
-	valsMask, err := maskVar.GetSlice(iLat, iLat) //maskVar.Values()
+	valsMask, err := maskVar.GetSlice(iLat, iLat+1) // maskVar.Values()
 	if err != nil {
 		log.Fatal(err)
 	}
