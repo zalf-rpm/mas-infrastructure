@@ -44,7 +44,7 @@ struct HostPortResolver::Impl {
     Heartbeat(HostPortResolver::Impl &hprImpl, kj::StringPtr base64VatId, kj::StringPtr alias)
         : hprImpl(hprImpl), base64VatId(kj::str(base64VatId)), alias(kj::str(alias)) {}
 
-    virtual ~Heartbeat() noexcept(false) {}
+    virtual ~Heartbeat() noexcept(false) = default;
 
     kj::Promise<void> beat(BeatContext context) override {
       hprImpl.keepAlive(base64VatId, alias);
@@ -57,7 +57,7 @@ struct HostPortResolver::Impl {
     kj::Timer &timer;
 
     Registrar(HostPortResolver::Impl &hprImpl, kj::Timer &timer) : hprImpl(hprImpl), timer(timer) {}
-    virtual ~Registrar() noexcept(false) {}
+    virtual ~Registrar() noexcept(false) = default;
 
     // register @0 (base64VatId :Text, host :Text, port :UInt16, alias :Text) -> (heartbeat :Capability, secsHeartbeatInterval :UInt32);
     kj::Promise<void> register_(RegisterContext context) override {
@@ -101,7 +101,7 @@ struct HostPortResolver::Impl {
   , name(kj::str(name))
   , description(kj::str(description)) {}
 
-  ~Impl() noexcept(false) {}
+  ~Impl() noexcept(false) = default;
 
   kj::Promise<void> garbageCollectMappings(bool runOnce = false) {
     KJ_DBG("garbageCollectMappings", runOnce, count++);
@@ -112,7 +112,8 @@ struct HostPortResolver::Impl {
       else if(aliveCount > 0) kj::get<2>(entry.value) = aliveCount - 1;
     }
 
-    auto proms = kj::heapArrayBuilder<kj::Promise<bool>>(toBeGarbageCollectedKeys.size() + (runOnce ? 0 : 1));
+    auto proms = kj::heapArrayBuilder<kj::Promise<bool>>(
+        (isContainerSet ? toBeGarbageCollectedKeys.size() : 0) + (runOnce ? 0 : 1));
     for(kj::StringPtr key : toBeGarbageCollectedKeys) {
       if (isContainerSet){
         auto req = containerClient.removeEntryRequest();
@@ -190,7 +191,7 @@ HostPortResolver::HostPortResolver(kj::Timer& timer, kj::StringPtr name, kj::Str
 : impl(kj::heap<Impl>(*this, timer, name, description)) {
 }
 
-HostPortResolver::~HostPortResolver() {}
+HostPortResolver::~HostPortResolver() noexcept(false) = default;
 
 kj::Promise<void> HostPortResolver::info(InfoContext context) {
   KJ_LOG(INFO, "info message received");
