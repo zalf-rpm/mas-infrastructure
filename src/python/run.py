@@ -59,12 +59,10 @@ grid_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "grid.capnp"), imports=abs_i
 storage_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "storage.capnp"), imports=abs_imports)
 geo_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "geo.capnp"), imports=abs_imports)
 crop_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "crop.capnp"), imports=abs_imports)
+fbp_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "fbp.capnp"), imports=abs_imports)
 
 capnp.remove_event_loop()
 capnp.create_event_loop(threaded=True)
-
-
-# ------------------------------------------------------------------------------
 
 async def async_main():
     config = {
@@ -129,7 +127,7 @@ def x():
     # del s
 
 
-def test_crop_service():
+def run_crop_service():
     conMan = common.ConnectionManager()
     sr = "capnp://YWF7ZnUsQb6O_4eT_65vrvpR__IvoesmxocB5W92HpM=@10.10.24.218:34359/NzdkOTFiYTctMzM5OC00MjllLWFmNzAtYTkxN2MyODllYjhi"
     x = conMan.connect("capnp://YWF7ZnUsQb6O_4eT_65vrvpR__IvoesmxocB5W92HpM=@10.10.24.218:34359")
@@ -168,7 +166,7 @@ def test_crop_service():
     print()
 
 
-def test_fertilizer_service():
+def run_fertilizer_service():
     conMan = common.ConnectionManager()
     sr = "capnp://P1NRqmXFzLkkY3FYEW3tgF5dYdsdwGso3XRJG6wHg4w=@10.10.24.218:40263/YjUxMWRmNWMtNTMwNy00YzE5LThmNjItYWJlNGE2YjUwMzk3"
     registry = conMan.try_connect(sr, cast_as=reg_capnp.Registry)
@@ -178,7 +176,7 @@ def test_fertilizer_service():
         print(e)
 
     # mineral fertilizers
-    mes = service.availableMineralFertilizers().wait().entries
+    mes = registry.availableMineralFertilizers().wait().entries
     me = mes[0]
     mavh = me.ref
     mv = mavh.value().wait().val.as_struct(monica_mgmt_capnp.Params.MineralFertilization.Parameters)
@@ -187,11 +185,11 @@ def test_fertilizer_service():
     mavh2 = conMan.try_connect(msr, cast_as=common_capnp.AnyValueHolder)
     mv2 = mavh2.value().wait().val.as_struct(monica_mgmt_capnp.Params.MineralFertilization.Parameters)
     print("mv2:", mv2)
-    mv3 = service.mineralFertilizer(me.info.id).wait().fert
+    mv3 = registry.mineralFertilizer(me.info.id).wait().fert
     print("mv3", mv3)
 
     # organic fertilizers
-    oes = service.availableOrganicFertilizers().wait().entries
+    oes = registry.availableOrganicFertilizers().wait().entries
     oe = oes[0]
     oavh = oe.ref
     ov = oavh.value().wait().val.as_struct(monica_mgmt_capnp.Params.OrganicFertilization.OrganicMatterParameters)
@@ -200,13 +198,13 @@ def test_fertilizer_service():
     oavh2 = conMan.try_connect(osr, cast_as=common_capnp.AnyValueHolder)
     ov2 = oavh2.value().wait().val.as_struct(monica_mgmt_capnp.Params.OrganicFertilization.OrganicMatterParameters)
     print("ov2:", ov2)
-    ov3 = service.organicFertilizer(oe.info.id).wait().fert
+    ov3 = registry.organicFertilizer(oe.info.id).wait().fert
     print("ov3", ov3)
 
     print()
 
 
-def test_climate_service():
+def run_climate_service():
     conMan = common.ConnectionManager()
     # restorer = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000", cast_as=persistence_capnp.Restorer)
     # service = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/6feaf299-d620-430b-9189-36dfccf48b3a", cast_as=climate_data_capnp.CSVTimeSeriesFactory)
@@ -260,7 +258,7 @@ def test_climate_service():
     print()
 
 
-def test_monica():
+def run_monica():
     con_man = common.ConnectionManager()
     sr = "capnp://8TwMtyGcNgiSBLXps4xRi6ymeDinAINWSrzcWJyI0Uc@10.10.24.181:41075/NzVkNzc3OTMtZjA2My00YmRkLTlkNWYtNjM2NDg1MDdjODg5"
     monica = con_man.try_connect(sr, cast_as=model_capnp.EnvInstance)
@@ -270,7 +268,7 @@ def test_monica():
     print(monica.info().wait())
 
 
-def test_registry():
+def run_registry():
     con_man = common.ConnectionManager()
     registry_sr = "capnp://MCowBQYDK2VwAyEAYSMdzsTMWEQmsd3/BMyVzC25QwngGxF2KkV4zE3TsMg=@10.10.88.68:35877/ODM0YzUzY2MtZTI2Zi00M2M4LThiZTQtNDk5ZGQzOWNiMmM5"
     registry = con_man.try_connect(registry_sr, cast_as=registry_capnp.Registry)
@@ -294,7 +292,7 @@ def test_registry():
     print("bla")
 
 
-def test_cross_domain_registry():
+def run_cross_domain_registry():
     con_man = common.ConnectionManager()
     registry_sr = "capnp://wmJ-RIgP0BNXM-R_y919CpLdogi9NA563OCtOGzlYRU@10.10.24.181:45007/ZjRmMDI3MmQtOWEyOS00MDZjLWE5ZjUtZGYxMjg0YzFlZDM5"
     registry = con_man.try_connect(registry_sr, cast_as=registry_capnp.Registry)
@@ -311,7 +309,7 @@ def test_cross_domain_registry():
     print("bla")
 
 
-def test_storage_container():
+def run_storage_container():
     con_man = common.ConnectionManager()
     container_sr = "capnp://jXS22bpAGSjfksa0JkDI_092-h-bdZi4lKNBBgD7kWk=@10.10.24.218:40305/ZGVjODYxYWQtZmVkOS00YjEzLWJmNjQtNWU0OGRmYzhhYmZh"
     container = con_man.try_connect(container_sr, cast_as=storage_capnp.Store.Container)
@@ -320,8 +318,8 @@ def test_storage_container():
     print("end")
 
 
-def test_storage_service():
-    test_storage_container()
+def run_storage_service():
+    run_storage_container()
 
     con_man = common.ConnectionManager()
     service_sr = "capnp://jXS22bpAGSjfksa0JkDI_092-h-bdZi4lKNBBgD7kWk@10.10.24.218:40305/ZWJhM2E2NWEtOGM2MS00OWQxLTk3NjAtODVlNDYyNWYyZmRj"
@@ -423,7 +421,7 @@ def test_storage_service():
     print("end")
 
 
-def test_grid():
+def run_grid():
     con_man = common.ConnectionManager()
     grid = con_man.try_connect("capnp://insecure@10.10.24.210:39875/2fa47702-f112-4628-b72c-7754e457d3a2",
                                cast_as=grid_capnp.Grid)
@@ -431,20 +429,20 @@ def test_grid():
     value = grid.valueAt(coord={'lat': 50.02045903295569, 'lon': 8.449222632820296}).wait()
 
 
-def test_restorer():
+def run_restorer():
     con_man = common.ConnectionManager()
     restorer = con_man.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000", cast_as=persistence_capnp.Restorer)
     print(restorer.info().wait())
 
 
-def test_climate():
+def run_climate():
     con_man = common.ConnectionManager()
     climate = con_man.try_connect("capnp://insecure@10.10.24.210:37203/6b57e75b-dee3-4882-90ae-731a679a3653",
                                   cast_as=climate_capnp.Service)
     print(climate.info().wait())
 
 
-def test_channel():
+def run_channel():
     con_man = common.ConnectionManager()
 
     writer = con_man.try_connect("capnp://2djJAQhpUZuiQxCllmwVBF86XNvrnNVw8JQnFomcBUM@10.10.24.218:33893/b3V0",
@@ -481,7 +479,7 @@ def test_channel():
     # print("read value:", value)
 
 
-def test_some():
+def run_some():
     con_man = common.ConnectionManager()
 
     soil = con_man.try_connect("capnp://insecure@10.10.24.210:39341/9c15ad6f-0778-4bea-b91e-b015453188b9",
@@ -491,14 +489,26 @@ def test_some():
     print(ps)
 
 
-def test_resolver():
+def run_resolver():
     con_man = common.ConnectionManager()
 
-    sr = "capnp://G3ZrazIRADIFcDD16qI65aVCXuXMrqRrRRvGeeaHKKc@10.10.24.229:42425/NDcwMzI5Y2MtYjI3Ni00NDZlLWE3MjgtMWJmZjhjMmI2YzVl"
+    sr = "capnp://2nQ6wFu_2FkJZYn6peo0TL9Ki9JH_Z71LDFcKNjqFM0@10.10.24.250:46643"
     resolver = con_man.try_connect(sr, cast_as=persistence_capnp.HostPortResolver)
     
     print(resolver.info().wait())
 
+
+def run_resolver_registrar():
+    con_man = common.ConnectionManager()
+
+    sr = "capnp://2nQ6wFu_2FkJZYn6peo0TL9Ki9JH_Z71LDFcKNjqFM0@10.10.24.250:46643/MjQ0NmUzODgtMGQ1Zi00NGRjLTlhZjUtNGZlNDI5YTMzZmEz"
+    registrar = con_man.try_connect(sr, cast_as=persistence_capnp.HostPortResolver.Registrar)
+    hb = registrar.register(base64VatId="2nQ6wFu_2FkJZYn6peo0TL9Ki9JH_Z71LDFcKNjqFM0", host="10.10.24.250", port=46643,
+                            alias="resolver").wait()
+    print("let heart beat every", hb.secsHeartbeatInterval)
+    hb.heartbeat.beat().wait()
+
+    print(registrar.info().wait())
 
 
 def main():
@@ -508,25 +518,26 @@ def main():
     }
     common.update_config(config, sys.argv, print_config=True, allow_new_keys=True)
 
-    test_resolver()
+    run_resolver()
+    #run_resolver_registrar()
 
-    # test_channel()
+    # run_channel()
 
-    # test_crop_service()
+    # run_crop_service()
 
-    #test_fertilizer_service()
+    #run_fertilizer_service()
 
-    # test_monica()
+    # run_monica()
 
-    # test_climate_service()
+    # run_climate_service()
 
-    # test_registry()
+    # run_registry()
 
-    # test_cross_domain_registry()
+    # run_cross_domain_registry()
 
-    # test_storage_service()
+    # run_storage_service()
 
-    # test_storage_container()
+    # run_storage_container()
 
     return
 

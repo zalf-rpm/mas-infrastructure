@@ -36,7 +36,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 class TestServicesMain
 {
 public:
-  TestServicesMain(kj::ProcessContext &context) 
+  explicit TestServicesMain(kj::ProcessContext &context)
   : context(context), 
   ioContext(kj::setupAsyncIo()) 
   {}
