@@ -2,6 +2,7 @@ package main
 
 import (
 	"math"
+	"reflect"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -171,6 +172,10 @@ func Test_gridService_GetValueLatLon(t *testing.T) {
 	gs.commonGrid.Bounds = meta.bounds
 	gs.commonGrid.BoundsFromCellCenter = meta.boundsFromCellCenter
 	gs.timeValues = meta.timeValues
+	gs.wdt = meta.wdt
+	gs.scaleFactor = meta.scaleFactor
+	gs.add_offset = meta.add_offset
+	gs.mask = meta.mask
 
 	tests := []struct {
 		name  string
@@ -181,7 +186,7 @@ func Test_gridService_GetValueLatLon(t *testing.T) {
 		want2 int64
 	}{
 		{
-			name: "testNC_EURASIA_Oderbruch",
+			name: "testNC_EURASIA_Oderbruch_latlon",
 			gs:   gs,
 			args: args{
 				inLat: 52.583039, // 52.583039, 14.533146
@@ -204,6 +209,81 @@ func Test_gridService_GetValueLatLon(t *testing.T) {
 			}
 			if iLon != tt.want2 {
 				t.Errorf("gridService.GetValueLatLon() got2 = %v, want %v", iLon, tt.want2)
+			}
+		})
+	}
+}
+
+func Test_gridService_GetValueRowCol(t *testing.T) {
+	type args struct {
+		row uint64
+		col uint64
+	}
+	meta, err := loadNetCDF(testNC_EURASIA)
+	if err != nil {
+		t.Errorf("loadNetCDF() error = %v", err)
+		return
+	}
+	defer (*meta.data).Close()
+
+	newCommonGrid := &commonlib.Grid{
+		GridResolution:       commonlib.Resolution{},
+		GridUnit:             "",
+		NumRows:              0,
+		NumCols:              0,
+		NoDataType:           t,
+		Bounds:               commonlib.LatLonBoundaries{},
+		BoundsFromCellCenter: commonlib.LatLonBoundaries{},
+	}
+	gs := &gridService{
+		commonGrid: newCommonGrid,
+	}
+	gs.data = meta.data
+	gs.startLatIdx = meta.startLatIdx
+	gs.startLonIdx = meta.startLonIdx
+	gs.stepLatSize = meta.stepLatSize
+	gs.stepLonSize = meta.stepLonSize
+	gs.commonGrid.NumRows = uint64(meta.numRows)
+	gs.commonGrid.NumCols = uint64(meta.numCols)
+	gs.commonGrid.GridResolution = meta.gridResolution
+	gs.commonGrid.GridUnit = meta.gridUnit
+	gs.commonGrid.NoDataType = meta.noDataType
+	gs.commonGrid.Bounds = meta.bounds
+	gs.commonGrid.BoundsFromCellCenter = meta.boundsFromCellCenter
+	gs.timeValues = meta.timeValues
+	gs.wdt = meta.wdt
+	gs.scaleFactor = meta.scaleFactor
+	gs.add_offset = meta.add_offset
+	gs.mask = meta.mask
+
+	tests := []struct {
+		name    string
+		gs      *gridService
+		args    args
+		want    interface{}
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+		{
+			name: "testNC_EURASIA_Oderbruch_rowcol",
+			gs:   gs,
+			args: args{
+				row: 6309,
+				col: 3423,
+			},
+			want:    0.0,
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.gs.GetValueRowCol(tt.args.row, tt.args.col)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("gridService.GetValueRowCol() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("gridService.GetValueRowCol() = %v, want %v", got, tt.want)
 			}
 		})
 	}
