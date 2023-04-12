@@ -20,6 +20,7 @@ use (
 	./capnproto_schemas/gen/go/service
 	./capnproto_schemas/gen/go/soil
 	./capnproto_schemas/gen/go/storage
+	./capnproto_schemas/gen/go/common_date
 	./src/go/fbp/channel
 	./src/go/fbp/gw_provider
 	./src/go/test/test_client
