@@ -9,7 +9,6 @@ import (
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
-	fmt "fmt"
 	common "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common"
 	persistence "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/persistence"
 	registry "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/registry"
@@ -21,6 +20,7 @@ type Crop capnp.Client
 const Crop_TypeID = 0xe88d97a324bf5c84
 
 func (c Crop) Parameters(ctx context.Context, params func(Crop_parameters_Params) error) (Crop_parameters_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xe88d97a324bf5c84,
@@ -33,10 +33,14 @@ func (c Crop) Parameters(ctx context.Context, params func(Crop_parameters_Params
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Crop_parameters_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Crop_parameters_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Crop) Cultivar(ctx context.Context, params func(Crop_cultivar_Params) error) (Crop_cultivar_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xe88d97a324bf5c84,
@@ -49,10 +53,14 @@ func (c Crop) Cultivar(ctx context.Context, params func(Crop_cultivar_Params) er
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Crop_cultivar_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Crop_cultivar_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Crop) Species(ctx context.Context, params func(Crop_species_Params) error) (Crop_species_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xe88d97a324bf5c84,
@@ -65,10 +73,14 @@ func (c Crop) Species(ctx context.Context, params func(Crop_species_Params) erro
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Crop_species_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Crop_species_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Crop) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -81,10 +93,14 @@ func (c Crop) Info(ctx context.Context, params func(common.Identifiable_info_Par
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
 }
+
 func (c Crop) Save(ctx context.Context, params func(persistence.Persistent_SaveParams) error) (persistence.Persistent_SaveResults_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xc1a7daa0dc36cb65,
@@ -97,8 +113,14 @@ func (c Crop) Save(ctx context.Context, params func(persistence.Persistent_SaveP
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return persistence.Persistent_SaveResults_Future{Future: ans.Future()}, release
+
+}
+
+func (c Crop) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -106,7 +128,7 @@ func (c Crop) Save(ctx context.Context, params func(persistence.Persistent_SaveP
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Crop) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Crop(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -166,7 +188,9 @@ func (c Crop) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Crop) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Crop_Server is a Crop with a local implementation.
+}
+
+// A Crop_Server is a Crop with a local implementation.
 type Crop_Server interface {
 	Parameters(context.Context, Crop_parameters) error
 
@@ -783,6 +807,7 @@ type Service capnp.Client
 const Service_TypeID = 0x8ddcc2b6c0386bc4
 
 func (c Service) SupportedCategories(ctx context.Context, params func(registry.Registry_supportedCategories_Params) error) (registry.Registry_supportedCategories_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xca7b4bd1600633b8,
@@ -795,10 +820,14 @@ func (c Service) SupportedCategories(ctx context.Context, params func(registry.R
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(registry.Registry_supportedCategories_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return registry.Registry_supportedCategories_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Service) CategoryInfo(ctx context.Context, params func(registry.Registry_categoryInfo_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xca7b4bd1600633b8,
@@ -811,10 +840,14 @@ func (c Service) CategoryInfo(ctx context.Context, params func(registry.Registry
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(registry.Registry_categoryInfo_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
 }
+
 func (c Service) Entries(ctx context.Context, params func(registry.Registry_entries_Params) error) (registry.Registry_entries_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xca7b4bd1600633b8,
@@ -827,10 +860,14 @@ func (c Service) Entries(ctx context.Context, params func(registry.Registry_entr
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(registry.Registry_entries_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return registry.Registry_entries_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Service) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -843,8 +880,14 @@ func (c Service) Info(ctx context.Context, params func(common.Identifiable_info_
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
+}
+
+func (c Service) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -852,7 +895,7 @@ func (c Service) Info(ctx context.Context, params func(common.Identifiable_info_
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Service) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Service(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -912,7 +955,9 @@ func (c Service) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Service) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Service_Server is a Service with a local implementation.
+}
+
+// A Service_Server is a Service with a local implementation.
 type Service_Server interface {
 	SupportedCategories(context.Context, registry.Registry_supportedCategories) error
 
@@ -1036,14 +1081,19 @@ const schema_f98a24e1969df972 = "x\xda\xa4\x92Mh\x13]\x14\x86\xdfs\xef\xe4N\xf9"
 	"\xc3\xe3(D\xc0\x9f\x82\x0b3\xf5\xdf\x01\x00\x00\xff\xff" +
 	"\xc5\xd7\xfe\x09"
 
-func init() {
-	schemas.Register(schema_f98a24e1969df972,
-		0x8ddcc2b6c0386bc4,
-		0xb4aa895eeede6448,
-		0xbf3704bba52494ba,
-		0xc86e010e743c8e5b,
-		0xe4fafc722d515486,
-		0xe88d97a324bf5c84,
-		0xf26ef117dfb4517a,
-		0xf4dd1c322a3130b4)
+func RegisterSchema(reg *schemas.Registry) {
+	reg.Register(&schemas.Schema{
+		String: schema_f98a24e1969df972,
+		Nodes: []uint64{
+			0x8ddcc2b6c0386bc4,
+			0xb4aa895eeede6448,
+			0xbf3704bba52494ba,
+			0xc86e010e743c8e5b,
+			0xe4fafc722d515486,
+			0xe88d97a324bf5c84,
+			0xf26ef117dfb4517a,
+			0xf4dd1c322a3130b4,
+		},
+		Compressed: true,
+	})
 }

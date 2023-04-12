@@ -4,8 +4,8 @@ using Cxx = import "/capnp/c++.capnp";
 $Cxx.namespace("mas::schema::common");
 
 using Go = import "/capnp/go.capnp";
-$Go.package("common");
-$Go.import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common");
+$Go.package("common_date");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common_date");
 
 struct Date {
   # A standard Gregorian calendar date.

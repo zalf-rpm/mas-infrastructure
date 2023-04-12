@@ -9,7 +9,6 @@ import (
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
-	fmt "fmt"
 	climate "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/climate"
 	common "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common"
 	management "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/management"
@@ -405,6 +404,7 @@ type ClimateInstance capnp.Client
 const ClimateInstance_TypeID = 0xdfcfeb783c4948fc
 
 func (c ClimateInstance) Run(ctx context.Context, params func(ClimateInstance_run_Params) error) (ClimateInstance_run_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xdfcfeb783c4948fc,
@@ -417,10 +417,14 @@ func (c ClimateInstance) Run(ctx context.Context, params func(ClimateInstance_ru
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(ClimateInstance_run_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return ClimateInstance_run_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c ClimateInstance) RunSet(ctx context.Context, params func(ClimateInstance_runSet_Params) error) (ClimateInstance_runSet_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xdfcfeb783c4948fc,
@@ -433,10 +437,14 @@ func (c ClimateInstance) RunSet(ctx context.Context, params func(ClimateInstance
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(ClimateInstance_runSet_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return ClimateInstance_runSet_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c ClimateInstance) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -449,8 +457,14 @@ func (c ClimateInstance) Info(ctx context.Context, params func(common.Identifiab
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
+}
+
+func (c ClimateInstance) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -458,7 +472,7 @@ func (c ClimateInstance) Info(ctx context.Context, params func(common.Identifiab
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c ClimateInstance) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "ClimateInstance(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -518,7 +532,9 @@ func (c ClimateInstance) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c ClimateInstance) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A ClimateInstance_Server is a ClimateInstance with a local implementation.
+}
+
+// A ClimateInstance_Server is a ClimateInstance with a local implementation.
 type ClimateInstance_Server interface {
 	Run(context.Context, ClimateInstance_run) error
 
@@ -689,7 +705,7 @@ func (s ClimateInstance_run_Params) SetTimeSeries(v climate.TimeSeries) error {
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -1055,7 +1071,7 @@ func (s Env) SetTimeSeries(v climate.TimeSeries) error {
 		return capnp.Struct(s).SetPtr(1, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(1, in.ToPtr())
 }
 
@@ -1140,6 +1156,7 @@ type EnvInstance capnp.Client
 const EnvInstance_TypeID = 0xa5feedafa5ec5c4a
 
 func (c EnvInstance) Run(ctx context.Context, params func(EnvInstance_run_Params) error) (EnvInstance_run_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa5feedafa5ec5c4a,
@@ -1152,10 +1169,14 @@ func (c EnvInstance) Run(ctx context.Context, params func(EnvInstance_run_Params
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(EnvInstance_run_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return EnvInstance_run_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c EnvInstance) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -1168,10 +1189,14 @@ func (c EnvInstance) Info(ctx context.Context, params func(common.Identifiable_i
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
 }
+
 func (c EnvInstance) Save(ctx context.Context, params func(persistence.Persistent_SaveParams) error) (persistence.Persistent_SaveResults_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xc1a7daa0dc36cb65,
@@ -1184,10 +1209,14 @@ func (c EnvInstance) Save(ctx context.Context, params func(persistence.Persisten
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return persistence.Persistent_SaveResults_Future{Future: ans.Future()}, release
+
 }
+
 func (c EnvInstance) Stop(ctx context.Context, params func(service.Stopable_stop_Params) error) (service.Stopable_stop_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xe9d1be2a6e9016e5,
@@ -1200,8 +1229,14 @@ func (c EnvInstance) Stop(ctx context.Context, params func(service.Stopable_stop
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(service.Stopable_stop_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return service.Stopable_stop_Results_Future{Future: ans.Future()}, release
+
+}
+
+func (c EnvInstance) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -1209,7 +1244,7 @@ func (c EnvInstance) Stop(ctx context.Context, params func(service.Stopable_stop
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c EnvInstance) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "EnvInstance(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -1269,7 +1304,9 @@ func (c EnvInstance) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c EnvInstance) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A EnvInstance_Server is a EnvInstance with a local implementation.
+}
+
+// A EnvInstance_Server is a EnvInstance with a local implementation.
 type EnvInstance_Server interface {
 	Run(context.Context, EnvInstance_run) error
 
@@ -1552,6 +1589,7 @@ type EnvInstanceProxy capnp.Client
 const EnvInstanceProxy_TypeID = 0x87cbebfc1164a24a
 
 func (c EnvInstanceProxy) RegisterEnvInstance(ctx context.Context, params func(EnvInstanceProxy_registerEnvInstance_Params) error) (EnvInstanceProxy_registerEnvInstance_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0x87cbebfc1164a24a,
@@ -1564,10 +1602,14 @@ func (c EnvInstanceProxy) RegisterEnvInstance(ctx context.Context, params func(E
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(EnvInstanceProxy_registerEnvInstance_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return EnvInstanceProxy_registerEnvInstance_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c EnvInstanceProxy) Run(ctx context.Context, params func(EnvInstance_run_Params) error) (EnvInstance_run_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa5feedafa5ec5c4a,
@@ -1580,10 +1622,14 @@ func (c EnvInstanceProxy) Run(ctx context.Context, params func(EnvInstance_run_P
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(EnvInstance_run_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return EnvInstance_run_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c EnvInstanceProxy) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -1596,10 +1642,14 @@ func (c EnvInstanceProxy) Info(ctx context.Context, params func(common.Identifia
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
 }
+
 func (c EnvInstanceProxy) Save(ctx context.Context, params func(persistence.Persistent_SaveParams) error) (persistence.Persistent_SaveResults_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xc1a7daa0dc36cb65,
@@ -1612,10 +1662,14 @@ func (c EnvInstanceProxy) Save(ctx context.Context, params func(persistence.Pers
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return persistence.Persistent_SaveResults_Future{Future: ans.Future()}, release
+
 }
+
 func (c EnvInstanceProxy) Stop(ctx context.Context, params func(service.Stopable_stop_Params) error) (service.Stopable_stop_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xe9d1be2a6e9016e5,
@@ -1628,8 +1682,14 @@ func (c EnvInstanceProxy) Stop(ctx context.Context, params func(service.Stopable
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(service.Stopable_stop_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return service.Stopable_stop_Results_Future{Future: ans.Future()}, release
+
+}
+
+func (c EnvInstanceProxy) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -1637,7 +1697,7 @@ func (c EnvInstanceProxy) Stop(ctx context.Context, params func(service.Stopable
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c EnvInstanceProxy) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "EnvInstanceProxy(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -1697,7 +1757,9 @@ func (c EnvInstanceProxy) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c EnvInstanceProxy) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A EnvInstanceProxy_Server is a EnvInstanceProxy with a local implementation.
+}
+
+// A EnvInstanceProxy_Server is a EnvInstanceProxy with a local implementation.
 type EnvInstanceProxy_Server interface {
 	RegisterEnvInstance(context.Context, EnvInstanceProxy_registerEnvInstance) error
 
@@ -1824,6 +1886,7 @@ type EnvInstanceProxy_Unregister capnp.Client
 const EnvInstanceProxy_Unregister_TypeID = 0xc727892bd5c66f88
 
 func (c EnvInstanceProxy_Unregister) Unregister(ctx context.Context, params func(EnvInstanceProxy_Unregister_unregister_Params) error) (EnvInstanceProxy_Unregister_unregister_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xc727892bd5c66f88,
@@ -1836,8 +1899,14 @@ func (c EnvInstanceProxy_Unregister) Unregister(ctx context.Context, params func
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(EnvInstanceProxy_Unregister_unregister_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return EnvInstanceProxy_Unregister_unregister_Results_Future{Future: ans.Future()}, release
+
+}
+
+func (c EnvInstanceProxy_Unregister) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -1845,7 +1914,7 @@ func (c EnvInstanceProxy_Unregister) Unregister(ctx context.Context, params func
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c EnvInstanceProxy_Unregister) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "EnvInstanceProxy_Unregister(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -1905,7 +1974,9 @@ func (c EnvInstanceProxy_Unregister) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c EnvInstanceProxy_Unregister) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A EnvInstanceProxy_Unregister_Server is a EnvInstanceProxy_Unregister with a local implementation.
+}
+
+// A EnvInstanceProxy_Unregister_Server is a EnvInstanceProxy_Unregister with a local implementation.
 type EnvInstanceProxy_Unregister_Server interface {
 	Unregister(context.Context, EnvInstanceProxy_Unregister_unregister) error
 }
@@ -2168,7 +2239,7 @@ func (s EnvInstanceProxy_registerEnvInstance_Params) SetInstance(v EnvInstance) 
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -2253,7 +2324,7 @@ func (s EnvInstanceProxy_registerEnvInstance_Results) SetUnregister(v EnvInstanc
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -2283,6 +2354,7 @@ type InstanceFactory capnp.Client
 const InstanceFactory_TypeID = 0xce552eef738a45ea
 
 func (c InstanceFactory) ModelInfo(ctx context.Context, params func(InstanceFactory_modelInfo_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xce552eef738a45ea,
@@ -2295,10 +2367,14 @@ func (c InstanceFactory) ModelInfo(ctx context.Context, params func(InstanceFact
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(InstanceFactory_modelInfo_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
 }
+
 func (c InstanceFactory) NewInstance(ctx context.Context, params func(InstanceFactory_newInstance_Params) error) (InstanceFactory_newInstance_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xce552eef738a45ea,
@@ -2311,10 +2387,14 @@ func (c InstanceFactory) NewInstance(ctx context.Context, params func(InstanceFa
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(InstanceFactory_newInstance_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return InstanceFactory_newInstance_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c InstanceFactory) NewInstances(ctx context.Context, params func(InstanceFactory_newInstances_Params) error) (InstanceFactory_newInstances_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xce552eef738a45ea,
@@ -2327,10 +2407,14 @@ func (c InstanceFactory) NewInstances(ctx context.Context, params func(InstanceF
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(InstanceFactory_newInstances_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return InstanceFactory_newInstances_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c InstanceFactory) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -2343,8 +2427,14 @@ func (c InstanceFactory) Info(ctx context.Context, params func(common.Identifiab
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
+}
+
+func (c InstanceFactory) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -2352,7 +2442,7 @@ func (c InstanceFactory) Info(ctx context.Context, params func(common.Identifiab
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c InstanceFactory) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "InstanceFactory(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -2412,7 +2502,9 @@ func (c InstanceFactory) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c InstanceFactory) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A InstanceFactory_Server is a InstanceFactory with a local implementation.
+}
+
+// A InstanceFactory_Server is a InstanceFactory with a local implementation.
 type InstanceFactory_Server interface {
 	ModelInfo(context.Context, InstanceFactory_modelInfo) error
 
@@ -2744,7 +2836,7 @@ func (s InstanceFactory_newInstance_Results) SetInstance(v common.Identifiable) 
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -3042,31 +3134,36 @@ const schema_9273388a9624d430 = "x\xda\xacW\x7fl[W\x15>\xe7]{/\x83\x04" +
 	"{\xcb\x88$Rm\xe5\xc8\xb3\x8c\x02\xfe?\x00\x00\xff" +
 	"\xff\x88\x98\x97\xce"
 
-func init() {
-	schemas.Register(schema_9273388a9624d430,
-		0x811895634b6bd959,
-		0x82136633e6b6d8ae,
-		0x851d47c6ccdecf08,
-		0x87cbebfc1164a24a,
-		0x8f86b66260d02d1d,
-		0x9ee4515395213845,
-		0xa5feedafa5ec5c4a,
-		0xa6be2e805ea10a68,
-		0xa931ae5cae90ece0,
-		0xaa9d146226037822,
-		0xaf9a1cb72ba68156,
-		0xb7fc866ef1127f7c,
-		0xbd33bb6d8cbd9ed2,
-		0xbf49e08cc9412aaf,
-		0xc727892bd5c66f88,
-		0xcc39e47cdead74c4,
-		0xce552eef738a45ea,
-		0xd10259a623f95bb4,
-		0xd9fa9ece71d1db50,
-		0xdf50acfa56a9674e,
-		0xdf787fd9d51f235b,
-		0xdfcfeb783c4948fc,
-		0xe22282cb3449bb4a,
-		0xe91cc3866fdea82a,
-		0xf013eda158070488)
+func RegisterSchema(reg *schemas.Registry) {
+	reg.Register(&schemas.Schema{
+		String: schema_9273388a9624d430,
+		Nodes: []uint64{
+			0x811895634b6bd959,
+			0x82136633e6b6d8ae,
+			0x851d47c6ccdecf08,
+			0x87cbebfc1164a24a,
+			0x8f86b66260d02d1d,
+			0x9ee4515395213845,
+			0xa5feedafa5ec5c4a,
+			0xa6be2e805ea10a68,
+			0xa931ae5cae90ece0,
+			0xaa9d146226037822,
+			0xaf9a1cb72ba68156,
+			0xb7fc866ef1127f7c,
+			0xbd33bb6d8cbd9ed2,
+			0xbf49e08cc9412aaf,
+			0xc727892bd5c66f88,
+			0xcc39e47cdead74c4,
+			0xce552eef738a45ea,
+			0xd10259a623f95bb4,
+			0xd9fa9ece71d1db50,
+			0xdf50acfa56a9674e,
+			0xdf787fd9d51f235b,
+			0xdfcfeb783c4948fc,
+			0xe22282cb3449bb4a,
+			0xe91cc3866fdea82a,
+			0xf013eda158070488,
+		},
+		Compressed: true,
+	})
 }

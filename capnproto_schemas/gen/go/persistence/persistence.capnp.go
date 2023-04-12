@@ -9,7 +9,6 @@ import (
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
-	fmt "fmt"
 	common "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common"
 	strconv "strconv"
 )
@@ -836,6 +835,7 @@ type Persistent capnp.Client
 const Persistent_TypeID = 0xc1a7daa0dc36cb65
 
 func (c Persistent) Save(ctx context.Context, params func(Persistent_SaveParams) error) (Persistent_SaveResults_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xc1a7daa0dc36cb65,
@@ -848,8 +848,14 @@ func (c Persistent) Save(ctx context.Context, params func(Persistent_SaveParams)
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Persistent_SaveParams(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Persistent_SaveResults_Future{Future: ans.Future()}, release
+
+}
+
+func (c Persistent) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -857,7 +863,7 @@ func (c Persistent) Save(ctx context.Context, params func(Persistent_SaveParams)
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Persistent) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Persistent(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -917,7 +923,9 @@ func (c Persistent) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Persistent) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Persistent_Server is a Persistent with a local implementation.
+}
+
+// A Persistent_Server is a Persistent with a local implementation.
 type Persistent_Server interface {
 	Save(context.Context, Persistent_save) error
 }
@@ -1197,6 +1205,7 @@ type Persistent_ReleaseSturdyRef capnp.Client
 const Persistent_ReleaseSturdyRef_TypeID = 0x8f700f81169f2e52
 
 func (c Persistent_ReleaseSturdyRef) ReleaseSR(ctx context.Context, params func(Persistent_ReleaseSturdyRef_releaseSR_Params) error) (Persistent_ReleaseSturdyRef_releaseSR_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0x8f700f81169f2e52,
@@ -1209,8 +1218,14 @@ func (c Persistent_ReleaseSturdyRef) ReleaseSR(ctx context.Context, params func(
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Persistent_ReleaseSturdyRef_releaseSR_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Persistent_ReleaseSturdyRef_releaseSR_Results_Future{Future: ans.Future()}, release
+
+}
+
+func (c Persistent_ReleaseSturdyRef) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -1218,7 +1233,7 @@ func (c Persistent_ReleaseSturdyRef) ReleaseSR(ctx context.Context, params func(
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Persistent_ReleaseSturdyRef) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Persistent_ReleaseSturdyRef(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -1278,7 +1293,9 @@ func (c Persistent_ReleaseSturdyRef) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Persistent_ReleaseSturdyRef) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Persistent_ReleaseSturdyRef_Server is a Persistent_ReleaseSturdyRef with a local implementation.
+}
+
+// A Persistent_ReleaseSturdyRef_Server is a Persistent_ReleaseSturdyRef with a local implementation.
 type Persistent_ReleaseSturdyRef_Server interface {
 	ReleaseSR(context.Context, Persistent_ReleaseSturdyRef_releaseSR) error
 }
@@ -1486,6 +1503,7 @@ type Restorer capnp.Client
 const Restorer_TypeID = 0x9fb6218427d92e3c
 
 func (c Restorer) Restore(ctx context.Context, params func(Restorer_RestoreParams) error) (Restorer_restore_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0x9fb6218427d92e3c,
@@ -1498,8 +1516,14 @@ func (c Restorer) Restore(ctx context.Context, params func(Restorer_RestoreParam
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 2}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Restorer_RestoreParams(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Restorer_restore_Results_Future{Future: ans.Future()}, release
+
+}
+
+func (c Restorer) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -1507,7 +1531,7 @@ func (c Restorer) Restore(ctx context.Context, params func(Restorer_RestoreParam
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Restorer) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Restorer(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -1567,7 +1591,9 @@ func (c Restorer) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Restorer) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Restorer_Server is a Restorer with a local implementation.
+}
+
+// A Restorer_Server is a Restorer with a local implementation.
 type Restorer_Server interface {
 	Restore(context.Context, Restorer_restore) error
 }
@@ -1798,7 +1824,7 @@ func (s Restorer_restore_Results) SetCap(c capnp.Client) error {
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(c))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(c))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -1828,6 +1854,7 @@ type HostPortResolver capnp.Client
 const HostPortResolver_TypeID = 0xaa8d91fab6d01d9f
 
 func (c HostPortResolver) ResolveIdent(ctx context.Context, params func(HostPortResolver_ResolveIdent_Params) error) (HostPortResolver_ResolveIdent_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xaa8d91fab6d01d9f,
@@ -1840,10 +1867,14 @@ func (c HostPortResolver) ResolveIdent(ctx context.Context, params func(HostPort
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(HostPortResolver_ResolveIdent_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return HostPortResolver_ResolveIdent_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c HostPortResolver) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -1856,10 +1887,14 @@ func (c HostPortResolver) Info(ctx context.Context, params func(common.Identifia
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
 }
+
 func (c HostPortResolver) Restore(ctx context.Context, params func(Restorer_RestoreParams) error) (Restorer_restore_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0x9fb6218427d92e3c,
@@ -1872,8 +1907,14 @@ func (c HostPortResolver) Restore(ctx context.Context, params func(Restorer_Rest
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 2}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Restorer_RestoreParams(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Restorer_restore_Results_Future{Future: ans.Future()}, release
+
+}
+
+func (c HostPortResolver) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -1881,7 +1922,7 @@ func (c HostPortResolver) Restore(ctx context.Context, params func(Restorer_Rest
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c HostPortResolver) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "HostPortResolver(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -1941,7 +1982,9 @@ func (c HostPortResolver) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c HostPortResolver) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A HostPortResolver_Server is a HostPortResolver with a local implementation.
+}
+
+// A HostPortResolver_Server is a HostPortResolver with a local implementation.
 type HostPortResolver_Server interface {
 	ResolveIdent(context.Context, HostPortResolver_ResolveIdent) error
 
@@ -2040,6 +2083,7 @@ type HostPortResolver_Registrar capnp.Client
 const HostPortResolver_Registrar_TypeID = 0xb0caf775704690b2
 
 func (c HostPortResolver_Registrar) Register(ctx context.Context, params func(HostPortResolver_Registrar_RegisterParams) error) (HostPortResolver_Registrar_register_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb0caf775704690b2,
@@ -2052,8 +2096,14 @@ func (c HostPortResolver_Registrar) Register(ctx context.Context, params func(Ho
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 3}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(HostPortResolver_Registrar_RegisterParams(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return HostPortResolver_Registrar_register_Results_Future{Future: ans.Future()}, release
+
+}
+
+func (c HostPortResolver_Registrar) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -2061,7 +2111,7 @@ func (c HostPortResolver_Registrar) Register(ctx context.Context, params func(Ho
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c HostPortResolver_Registrar) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "HostPortResolver_Registrar(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -2121,7 +2171,9 @@ func (c HostPortResolver_Registrar) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c HostPortResolver_Registrar) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A HostPortResolver_Registrar_Server is a HostPortResolver_Registrar with a local implementation.
+}
+
+// A HostPortResolver_Registrar_Server is a HostPortResolver_Registrar with a local implementation.
 type HostPortResolver_Registrar_Server interface {
 	Register(context.Context, HostPortResolver_Registrar_register) error
 }
@@ -2192,6 +2244,7 @@ type HostPortResolver_Registrar_Heartbeat capnp.Client
 const HostPortResolver_Registrar_Heartbeat_TypeID = 0x87de92d2d68df26f
 
 func (c HostPortResolver_Registrar_Heartbeat) Beat(ctx context.Context, params func(HostPortResolver_Registrar_Heartbeat_beat_Params) error) (HostPortResolver_Registrar_Heartbeat_beat_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0x87de92d2d68df26f,
@@ -2204,8 +2257,14 @@ func (c HostPortResolver_Registrar_Heartbeat) Beat(ctx context.Context, params f
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(HostPortResolver_Registrar_Heartbeat_beat_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return HostPortResolver_Registrar_Heartbeat_beat_Results_Future{Future: ans.Future()}, release
+
+}
+
+func (c HostPortResolver_Registrar_Heartbeat) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -2213,7 +2272,7 @@ func (c HostPortResolver_Registrar_Heartbeat) Beat(ctx context.Context, params f
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c HostPortResolver_Registrar_Heartbeat) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "HostPortResolver_Registrar_Heartbeat(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -2273,7 +2332,9 @@ func (c HostPortResolver_Registrar_Heartbeat) SetFlowLimiter(lim fc.FlowLimiter)
 // for this client.
 func (c HostPortResolver_Registrar_Heartbeat) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A HostPortResolver_Registrar_Heartbeat_Server is a HostPortResolver_Registrar_Heartbeat with a local implementation.
+}
+
+// A HostPortResolver_Registrar_Heartbeat_Server is a HostPortResolver_Registrar_Heartbeat with a local implementation.
 type HostPortResolver_Registrar_Heartbeat_Server interface {
 	Beat(context.Context, HostPortResolver_Registrar_Heartbeat_beat) error
 }
@@ -2655,7 +2716,7 @@ func (s HostPortResolver_Registrar_register_Results) SetHeartbeat(v HostPortReso
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -2983,32 +3044,37 @@ const schema_855efed3475f6b26 = "x\xda\x9c\x97ol[W\x15\xc0\xcfy\xd7\xf1\xb3\x13"
 	"\xfa\x150\x89\xbb\xcb\x0a\x99\xff\x05\x00\x00\xff\xff\xaf;" +
 	"\xe3."
 
-func init() {
-	schemas.Register(schema_855efed3475f6b26,
-		0x87de92d2d68df26f,
-		0x886d68271d83de4d,
-		0x8f700f81169f2e52,
-		0x8fb25d0428898a69,
-		0x932d6ee32410e853,
-		0x9510c22fa544a65e,
-		0x9fb6218427d92e3c,
-		0xa42bd461f2a8a3c8,
-		0xa4db8c20d9807c15,
-		0xaa8d91fab6d01d9f,
-		0xb0caf775704690b2,
-		0xbf018f62ff460d0f,
-		0xc1a7daa0dc36cb65,
-		0xc541e5764a37d73a,
-		0xcbe679a401315eb8,
-		0xd5e0aac4225e0343,
-		0xd9eccdf2dbc48087,
-		0xda966d1d252e4d25,
-		0xdc5bd1ef982cec13,
-		0xe10a5d74d58bd18d,
-		0xe6f8966f0f2cbb33,
-		0xebff70497e0ba555,
-		0xfafc816633f98bb9,
-		0xfb47810671a05b0d,
-		0xfc185f518d220b8c,
-		0xfdd799ed60c87723)
+func RegisterSchema(reg *schemas.Registry) {
+	reg.Register(&schemas.Schema{
+		String: schema_855efed3475f6b26,
+		Nodes: []uint64{
+			0x87de92d2d68df26f,
+			0x886d68271d83de4d,
+			0x8f700f81169f2e52,
+			0x8fb25d0428898a69,
+			0x932d6ee32410e853,
+			0x9510c22fa544a65e,
+			0x9fb6218427d92e3c,
+			0xa42bd461f2a8a3c8,
+			0xa4db8c20d9807c15,
+			0xaa8d91fab6d01d9f,
+			0xb0caf775704690b2,
+			0xbf018f62ff460d0f,
+			0xc1a7daa0dc36cb65,
+			0xc541e5764a37d73a,
+			0xcbe679a401315eb8,
+			0xd5e0aac4225e0343,
+			0xd9eccdf2dbc48087,
+			0xda966d1d252e4d25,
+			0xdc5bd1ef982cec13,
+			0xe10a5d74d58bd18d,
+			0xe6f8966f0f2cbb33,
+			0xebff70497e0ba555,
+			0xfafc816633f98bb9,
+			0xfb47810671a05b0d,
+			0xfc185f518d220b8c,
+			0xfdd799ed60c87723,
+		},
+		Compressed: true,
+	})
 }

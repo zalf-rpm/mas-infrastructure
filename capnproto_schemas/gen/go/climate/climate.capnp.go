@@ -9,8 +9,8 @@ import (
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
-	fmt "fmt"
 	common "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common"
+	common_date "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common_date"
 	geo "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/geo"
 	persistence "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/persistence"
 	math "math"
@@ -480,7 +480,7 @@ func (s Metadata) SetInfo(v Metadata_Information) error {
 		return capnp.Struct(s).SetPtr(1, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(1, in.ToPtr())
 }
 
@@ -510,6 +510,7 @@ type Metadata_Supported capnp.Client
 const Metadata_Supported_TypeID = 0xab06444b30722e01
 
 func (c Metadata_Supported) Categories(ctx context.Context, params func(Metadata_Supported_categories_Params) error) (Metadata_Supported_categories_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xab06444b30722e01,
@@ -522,10 +523,14 @@ func (c Metadata_Supported) Categories(ctx context.Context, params func(Metadata
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Metadata_Supported_categories_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Metadata_Supported_categories_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Metadata_Supported) SupportedValues(ctx context.Context, params func(Metadata_Supported_supportedValues_Params) error) (Metadata_Supported_supportedValues_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xab06444b30722e01,
@@ -538,8 +543,14 @@ func (c Metadata_Supported) SupportedValues(ctx context.Context, params func(Met
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Metadata_Supported_supportedValues_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Metadata_Supported_supportedValues_Results_Future{Future: ans.Future()}, release
+
+}
+
+func (c Metadata_Supported) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -547,7 +558,7 @@ func (c Metadata_Supported) SupportedValues(ctx context.Context, params func(Met
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Metadata_Supported) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Metadata_Supported(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -607,7 +618,9 @@ func (c Metadata_Supported) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Metadata_Supported) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Metadata_Supported_Server is a Metadata_Supported with a local implementation.
+}
+
+// A Metadata_Supported_Server is a Metadata_Supported with a local implementation.
 type Metadata_Supported_Server interface {
 	Categories(context.Context, Metadata_Supported_categories) error
 
@@ -1165,12 +1178,12 @@ func (s Metadata_Value) SetBool(v bool) {
 	capnp.Struct(s).SetBit(64, v)
 }
 
-func (s Metadata_Value) Date() (common.Date, error) {
+func (s Metadata_Value) Date() (common_date.Date, error) {
 	if capnp.Struct(s).Uint16(0) != 4 {
 		panic("Which() != date")
 	}
 	p, err := capnp.Struct(s).Ptr(0)
-	return common.Date(p.Struct()), err
+	return common_date.Date(p.Struct()), err
 }
 
 func (s Metadata_Value) HasDate() bool {
@@ -1180,18 +1193,18 @@ func (s Metadata_Value) HasDate() bool {
 	return capnp.Struct(s).HasPtr(0)
 }
 
-func (s Metadata_Value) SetDate(v common.Date) error {
+func (s Metadata_Value) SetDate(v common_date.Date) error {
 	capnp.Struct(s).SetUint16(0, 4)
 	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewDate sets the date field to a newly
-// allocated common.Date struct, preferring placement in s's segment.
-func (s Metadata_Value) NewDate() (common.Date, error) {
+// allocated common_date.Date struct, preferring placement in s's segment.
+func (s Metadata_Value) NewDate() (common_date.Date, error) {
 	capnp.Struct(s).SetUint16(0, 4)
-	ss, err := common.NewDate(capnp.Struct(s).Segment())
+	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common.Date{}, err
+		return common_date.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
@@ -1213,8 +1226,8 @@ func (f Metadata_Value_Future) Struct() (Metadata_Value, error) {
 	p, err := f.Future.Ptr()
 	return Metadata_Value(p.Struct()), err
 }
-func (p Metadata_Value_Future) Date() common.Date_Future {
-	return common.Date_Future{Future: p.Future.Field(0, nil)}
+func (p Metadata_Value_Future) Date() common_date.Date_Future {
+	return common_date.Date_Future{Future: p.Future.Field(0, nil)}
 }
 
 type Metadata_Entry capnp.Struct
@@ -1426,12 +1439,12 @@ func (s Metadata_Entry) SetVersion(v string) error {
 	return capnp.Struct(s).SetText(0, v)
 }
 
-func (s Metadata_Entry) Start() (common.Date, error) {
+func (s Metadata_Entry) Start() (common_date.Date, error) {
 	if capnp.Struct(s).Uint16(2) != 7 {
 		panic("Which() != start")
 	}
 	p, err := capnp.Struct(s).Ptr(0)
-	return common.Date(p.Struct()), err
+	return common_date.Date(p.Struct()), err
 }
 
 func (s Metadata_Entry) HasStart() bool {
@@ -1441,29 +1454,29 @@ func (s Metadata_Entry) HasStart() bool {
 	return capnp.Struct(s).HasPtr(0)
 }
 
-func (s Metadata_Entry) SetStart(v common.Date) error {
+func (s Metadata_Entry) SetStart(v common_date.Date) error {
 	capnp.Struct(s).SetUint16(2, 7)
 	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewStart sets the start field to a newly
-// allocated common.Date struct, preferring placement in s's segment.
-func (s Metadata_Entry) NewStart() (common.Date, error) {
+// allocated common_date.Date struct, preferring placement in s's segment.
+func (s Metadata_Entry) NewStart() (common_date.Date, error) {
 	capnp.Struct(s).SetUint16(2, 7)
-	ss, err := common.NewDate(capnp.Struct(s).Segment())
+	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common.Date{}, err
+		return common_date.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
-func (s Metadata_Entry) End() (common.Date, error) {
+func (s Metadata_Entry) End() (common_date.Date, error) {
 	if capnp.Struct(s).Uint16(2) != 8 {
 		panic("Which() != end")
 	}
 	p, err := capnp.Struct(s).Ptr(0)
-	return common.Date(p.Struct()), err
+	return common_date.Date(p.Struct()), err
 }
 
 func (s Metadata_Entry) HasEnd() bool {
@@ -1473,18 +1486,18 @@ func (s Metadata_Entry) HasEnd() bool {
 	return capnp.Struct(s).HasPtr(0)
 }
 
-func (s Metadata_Entry) SetEnd(v common.Date) error {
+func (s Metadata_Entry) SetEnd(v common_date.Date) error {
 	capnp.Struct(s).SetUint16(2, 8)
 	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewEnd sets the end field to a newly
-// allocated common.Date struct, preferring placement in s's segment.
-func (s Metadata_Entry) NewEnd() (common.Date, error) {
+// allocated common_date.Date struct, preferring placement in s's segment.
+func (s Metadata_Entry) NewEnd() (common_date.Date, error) {
 	capnp.Struct(s).SetUint16(2, 8)
-	ss, err := common.NewDate(capnp.Struct(s).Segment())
+	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common.Date{}, err
+		return common_date.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
@@ -1551,11 +1564,11 @@ func (f Metadata_Entry_Future) Struct() (Metadata_Entry, error) {
 func (p Metadata_Entry_Future) EnsMem() EnsembleMember_Future {
 	return EnsembleMember_Future{Future: p.Future.Field(0, nil)}
 }
-func (p Metadata_Entry_Future) Start() common.Date_Future {
-	return common.Date_Future{Future: p.Future.Field(0, nil)}
+func (p Metadata_Entry_Future) Start() common_date.Date_Future {
+	return common_date.Date_Future{Future: p.Future.Field(0, nil)}
 }
-func (p Metadata_Entry_Future) End() common.Date_Future {
-	return common.Date_Future{Future: p.Future.Field(0, nil)}
+func (p Metadata_Entry_Future) End() common_date.Date_Future {
+	return common_date.Date_Future{Future: p.Future.Field(0, nil)}
 }
 
 type Metadata_Information capnp.Client
@@ -1564,6 +1577,7 @@ type Metadata_Information capnp.Client
 const Metadata_Information_TypeID = 0xc781edeab8160cb7
 
 func (c Metadata_Information) ForOne(ctx context.Context, params func(Metadata_Information_forOne_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xc781edeab8160cb7,
@@ -1576,10 +1590,14 @@ func (c Metadata_Information) ForOne(ctx context.Context, params func(Metadata_I
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Metadata_Information_forOne_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
 }
+
 func (c Metadata_Information) ForAll(ctx context.Context, params func(Metadata_Information_forAll_Params) error) (Metadata_Information_forAll_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xc781edeab8160cb7,
@@ -1592,8 +1610,14 @@ func (c Metadata_Information) ForAll(ctx context.Context, params func(Metadata_I
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Metadata_Information_forAll_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Metadata_Information_forAll_Results_Future{Future: ans.Future()}, release
+
+}
+
+func (c Metadata_Information) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -1601,7 +1625,7 @@ func (c Metadata_Information) ForAll(ctx context.Context, params func(Metadata_I
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Metadata_Information) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Metadata_Information(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -1661,7 +1685,9 @@ func (c Metadata_Information) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Metadata_Information) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Metadata_Information_Server is a Metadata_Information with a local implementation.
+}
+
+// A Metadata_Information_Server is a Metadata_Information with a local implementation.
 type Metadata_Information_Server interface {
 	ForOne(context.Context, Metadata_Information_forOne) error
 
@@ -2007,6 +2033,7 @@ type Dataset capnp.Client
 const Dataset_TypeID = 0xf635fdd1f05960f0
 
 func (c Dataset) Metadata(ctx context.Context, params func(Dataset_metadata_Params) error) (Metadata_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xf635fdd1f05960f0,
@@ -2019,10 +2046,14 @@ func (c Dataset) Metadata(ctx context.Context, params func(Dataset_metadata_Para
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Dataset_metadata_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Metadata_Future{Future: ans.Future()}, release
+
 }
+
 func (c Dataset) ClosestTimeSeriesAt(ctx context.Context, params func(Dataset_closestTimeSeriesAt_Params) error) (Dataset_closestTimeSeriesAt_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xf635fdd1f05960f0,
@@ -2035,10 +2066,14 @@ func (c Dataset) ClosestTimeSeriesAt(ctx context.Context, params func(Dataset_cl
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Dataset_closestTimeSeriesAt_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Dataset_closestTimeSeriesAt_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Dataset) TimeSeriesAt(ctx context.Context, params func(Dataset_timeSeriesAt_Params) error) (Dataset_timeSeriesAt_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xf635fdd1f05960f0,
@@ -2051,10 +2086,14 @@ func (c Dataset) TimeSeriesAt(ctx context.Context, params func(Dataset_timeSerie
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Dataset_timeSeriesAt_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Dataset_timeSeriesAt_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Dataset) Locations(ctx context.Context, params func(Dataset_locations_Params) error) (Dataset_locations_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xf635fdd1f05960f0,
@@ -2067,10 +2106,14 @@ func (c Dataset) Locations(ctx context.Context, params func(Dataset_locations_Pa
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Dataset_locations_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Dataset_locations_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Dataset) StreamLocations(ctx context.Context, params func(Dataset_streamLocations_Params) error) (Dataset_streamLocations_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xf635fdd1f05960f0,
@@ -2083,10 +2126,14 @@ func (c Dataset) StreamLocations(ctx context.Context, params func(Dataset_stream
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Dataset_streamLocations_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Dataset_streamLocations_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Dataset) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -2099,10 +2146,14 @@ func (c Dataset) Info(ctx context.Context, params func(common.Identifiable_info_
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
 }
+
 func (c Dataset) Save(ctx context.Context, params func(persistence.Persistent_SaveParams) error) (persistence.Persistent_SaveResults_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xc1a7daa0dc36cb65,
@@ -2115,8 +2166,14 @@ func (c Dataset) Save(ctx context.Context, params func(persistence.Persistent_Sa
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return persistence.Persistent_SaveResults_Future{Future: ans.Future()}, release
+
+}
+
+func (c Dataset) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -2124,7 +2181,7 @@ func (c Dataset) Save(ctx context.Context, params func(persistence.Persistent_Sa
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Dataset) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Dataset(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -2184,7 +2241,9 @@ func (c Dataset) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Dataset) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Dataset_Server is a Dataset with a local implementation.
+}
+
+// A Dataset_Server is a Dataset with a local implementation.
 type Dataset_Server interface {
 	Metadata(context.Context, Dataset_metadata) error
 
@@ -2407,6 +2466,7 @@ type Dataset_GetLocationsCallback capnp.Client
 const Dataset_GetLocationsCallback_TypeID = 0xd61ba043f14fe175
 
 func (c Dataset_GetLocationsCallback) NextLocations(ctx context.Context, params func(Dataset_GetLocationsCallback_nextLocations_Params) error) (Dataset_GetLocationsCallback_nextLocations_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xd61ba043f14fe175,
@@ -2419,8 +2479,14 @@ func (c Dataset_GetLocationsCallback) NextLocations(ctx context.Context, params 
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Dataset_GetLocationsCallback_nextLocations_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Dataset_GetLocationsCallback_nextLocations_Results_Future{Future: ans.Future()}, release
+
+}
+
+func (c Dataset_GetLocationsCallback) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -2428,7 +2494,7 @@ func (c Dataset_GetLocationsCallback) NextLocations(ctx context.Context, params 
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Dataset_GetLocationsCallback) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Dataset_GetLocationsCallback(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -2488,7 +2554,9 @@ func (c Dataset_GetLocationsCallback) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Dataset_GetLocationsCallback) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Dataset_GetLocationsCallback_Server is a Dataset_GetLocationsCallback with a local implementation.
+}
+
+// A Dataset_GetLocationsCallback_Server is a Dataset_GetLocationsCallback with a local implementation.
 type Dataset_GetLocationsCallback_Server interface {
 	NextLocations(context.Context, Dataset_GetLocationsCallback_nextLocations) error
 }
@@ -2930,7 +2998,7 @@ func (s Dataset_closestTimeSeriesAt_Results) SetTimeSeries(v TimeSeries) error {
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -3097,7 +3165,7 @@ func (s Dataset_timeSeriesAt_Results) SetTimeSeries(v TimeSeries) error {
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -3417,7 +3485,7 @@ func (s Dataset_streamLocations_Results) SetLocationsCallback(v Dataset_GetLocat
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -3526,7 +3594,7 @@ func (s MetaPlusData) SetData(v Dataset) error {
 		return capnp.Struct(s).SetPtr(1, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(1, in.ToPtr())
 }
 
@@ -3779,7 +3847,7 @@ func (s Location) SetTimeSeries(v TimeSeries) error {
 		return capnp.Struct(s).SetPtr(2, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(2, in.ToPtr())
 }
 
@@ -3936,6 +4004,7 @@ type TimeSeries capnp.Client
 const TimeSeries_TypeID = 0xa7769f40fe6e6de8
 
 func (c TimeSeries) Resolution(ctx context.Context, params func(TimeSeries_resolution_Params) error) (TimeSeries_resolution_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa7769f40fe6e6de8,
@@ -3948,10 +4017,14 @@ func (c TimeSeries) Resolution(ctx context.Context, params func(TimeSeries_resol
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_resolution_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return TimeSeries_resolution_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c TimeSeries) Range(ctx context.Context, params func(TimeSeries_range_Params) error) (TimeSeries_range_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa7769f40fe6e6de8,
@@ -3964,10 +4037,14 @@ func (c TimeSeries) Range(ctx context.Context, params func(TimeSeries_range_Para
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_range_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return TimeSeries_range_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c TimeSeries) Header(ctx context.Context, params func(TimeSeries_header_Params) error) (TimeSeries_header_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa7769f40fe6e6de8,
@@ -3980,10 +4057,14 @@ func (c TimeSeries) Header(ctx context.Context, params func(TimeSeries_header_Pa
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_header_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return TimeSeries_header_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c TimeSeries) Data(ctx context.Context, params func(TimeSeries_data_Params) error) (TimeSeries_data_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa7769f40fe6e6de8,
@@ -3996,10 +4077,14 @@ func (c TimeSeries) Data(ctx context.Context, params func(TimeSeries_data_Params
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_data_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return TimeSeries_data_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c TimeSeries) DataT(ctx context.Context, params func(TimeSeries_dataT_Params) error) (TimeSeries_dataT_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa7769f40fe6e6de8,
@@ -4012,10 +4097,14 @@ func (c TimeSeries) DataT(ctx context.Context, params func(TimeSeries_dataT_Para
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_dataT_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return TimeSeries_dataT_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c TimeSeries) Subrange(ctx context.Context, params func(TimeSeries_subrange_Params) error) (TimeSeries_subrange_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa7769f40fe6e6de8,
@@ -4028,10 +4117,14 @@ func (c TimeSeries) Subrange(ctx context.Context, params func(TimeSeries_subrang
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 2}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_subrange_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return TimeSeries_subrange_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c TimeSeries) Subheader(ctx context.Context, params func(TimeSeries_subheader_Params) error) (TimeSeries_subheader_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa7769f40fe6e6de8,
@@ -4044,10 +4137,14 @@ func (c TimeSeries) Subheader(ctx context.Context, params func(TimeSeries_subhea
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_subheader_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return TimeSeries_subheader_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c TimeSeries) Metadata(ctx context.Context, params func(TimeSeries_metadata_Params) error) (Metadata_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa7769f40fe6e6de8,
@@ -4060,10 +4157,14 @@ func (c TimeSeries) Metadata(ctx context.Context, params func(TimeSeries_metadat
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_metadata_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Metadata_Future{Future: ans.Future()}, release
+
 }
+
 func (c TimeSeries) Location(ctx context.Context, params func(TimeSeries_location_Params) error) (Location_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa7769f40fe6e6de8,
@@ -4076,10 +4177,14 @@ func (c TimeSeries) Location(ctx context.Context, params func(TimeSeries_locatio
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_location_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Location_Future{Future: ans.Future()}, release
+
 }
+
 func (c TimeSeries) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -4092,10 +4197,14 @@ func (c TimeSeries) Info(ctx context.Context, params func(common.Identifiable_in
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
 }
+
 func (c TimeSeries) Save(ctx context.Context, params func(persistence.Persistent_SaveParams) error) (persistence.Persistent_SaveResults_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xc1a7daa0dc36cb65,
@@ -4108,8 +4217,14 @@ func (c TimeSeries) Save(ctx context.Context, params func(persistence.Persistent
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return persistence.Persistent_SaveResults_Future{Future: ans.Future()}, release
+
+}
+
+func (c TimeSeries) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -4117,7 +4232,7 @@ func (c TimeSeries) Save(ctx context.Context, params func(persistence.Persistent
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c TimeSeries) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "TimeSeries(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -4177,7 +4292,9 @@ func (c TimeSeries) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c TimeSeries) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A TimeSeries_Server is a TimeSeries with a local implementation.
+}
+
+// A TimeSeries_Server is a TimeSeries with a local implementation.
 type TimeSeries_Server interface {
 	Resolution(context.Context, TimeSeries_resolution) error
 
@@ -4811,49 +4928,49 @@ func (s TimeSeries_range_Results) Message() *capnp.Message {
 func (s TimeSeries_range_Results) Segment() *capnp.Segment {
 	return capnp.Struct(s).Segment()
 }
-func (s TimeSeries_range_Results) StartDate() (common.Date, error) {
+func (s TimeSeries_range_Results) StartDate() (common_date.Date, error) {
 	p, err := capnp.Struct(s).Ptr(0)
-	return common.Date(p.Struct()), err
+	return common_date.Date(p.Struct()), err
 }
 
 func (s TimeSeries_range_Results) HasStartDate() bool {
 	return capnp.Struct(s).HasPtr(0)
 }
 
-func (s TimeSeries_range_Results) SetStartDate(v common.Date) error {
+func (s TimeSeries_range_Results) SetStartDate(v common_date.Date) error {
 	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewStartDate sets the startDate field to a newly
-// allocated common.Date struct, preferring placement in s's segment.
-func (s TimeSeries_range_Results) NewStartDate() (common.Date, error) {
-	ss, err := common.NewDate(capnp.Struct(s).Segment())
+// allocated common_date.Date struct, preferring placement in s's segment.
+func (s TimeSeries_range_Results) NewStartDate() (common_date.Date, error) {
+	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common.Date{}, err
+		return common_date.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
-func (s TimeSeries_range_Results) EndDate() (common.Date, error) {
+func (s TimeSeries_range_Results) EndDate() (common_date.Date, error) {
 	p, err := capnp.Struct(s).Ptr(1)
-	return common.Date(p.Struct()), err
+	return common_date.Date(p.Struct()), err
 }
 
 func (s TimeSeries_range_Results) HasEndDate() bool {
 	return capnp.Struct(s).HasPtr(1)
 }
 
-func (s TimeSeries_range_Results) SetEndDate(v common.Date) error {
+func (s TimeSeries_range_Results) SetEndDate(v common_date.Date) error {
 	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
 }
 
 // NewEndDate sets the endDate field to a newly
-// allocated common.Date struct, preferring placement in s's segment.
-func (s TimeSeries_range_Results) NewEndDate() (common.Date, error) {
-	ss, err := common.NewDate(capnp.Struct(s).Segment())
+// allocated common_date.Date struct, preferring placement in s's segment.
+func (s TimeSeries_range_Results) NewEndDate() (common_date.Date, error) {
+	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common.Date{}, err
+		return common_date.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
 	return ss, err
@@ -4875,11 +4992,11 @@ func (f TimeSeries_range_Results_Future) Struct() (TimeSeries_range_Results, err
 	p, err := f.Future.Ptr()
 	return TimeSeries_range_Results(p.Struct()), err
 }
-func (p TimeSeries_range_Results_Future) StartDate() common.Date_Future {
-	return common.Date_Future{Future: p.Future.Field(0, nil)}
+func (p TimeSeries_range_Results_Future) StartDate() common_date.Date_Future {
+	return common_date.Date_Future{Future: p.Future.Field(0, nil)}
 }
-func (p TimeSeries_range_Results_Future) EndDate() common.Date_Future {
-	return common.Date_Future{Future: p.Future.Field(1, nil)}
+func (p TimeSeries_range_Results_Future) EndDate() common_date.Date_Future {
+	return common_date.Date_Future{Future: p.Future.Field(1, nil)}
 }
 
 type TimeSeries_header_Params capnp.Struct
@@ -5388,49 +5505,49 @@ func (s TimeSeries_subrange_Params) Message() *capnp.Message {
 func (s TimeSeries_subrange_Params) Segment() *capnp.Segment {
 	return capnp.Struct(s).Segment()
 }
-func (s TimeSeries_subrange_Params) Start() (common.Date, error) {
+func (s TimeSeries_subrange_Params) Start() (common_date.Date, error) {
 	p, err := capnp.Struct(s).Ptr(0)
-	return common.Date(p.Struct()), err
+	return common_date.Date(p.Struct()), err
 }
 
 func (s TimeSeries_subrange_Params) HasStart() bool {
 	return capnp.Struct(s).HasPtr(0)
 }
 
-func (s TimeSeries_subrange_Params) SetStart(v common.Date) error {
+func (s TimeSeries_subrange_Params) SetStart(v common_date.Date) error {
 	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewStart sets the start field to a newly
-// allocated common.Date struct, preferring placement in s's segment.
-func (s TimeSeries_subrange_Params) NewStart() (common.Date, error) {
-	ss, err := common.NewDate(capnp.Struct(s).Segment())
+// allocated common_date.Date struct, preferring placement in s's segment.
+func (s TimeSeries_subrange_Params) NewStart() (common_date.Date, error) {
+	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common.Date{}, err
+		return common_date.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
-func (s TimeSeries_subrange_Params) End() (common.Date, error) {
+func (s TimeSeries_subrange_Params) End() (common_date.Date, error) {
 	p, err := capnp.Struct(s).Ptr(1)
-	return common.Date(p.Struct()), err
+	return common_date.Date(p.Struct()), err
 }
 
 func (s TimeSeries_subrange_Params) HasEnd() bool {
 	return capnp.Struct(s).HasPtr(1)
 }
 
-func (s TimeSeries_subrange_Params) SetEnd(v common.Date) error {
+func (s TimeSeries_subrange_Params) SetEnd(v common_date.Date) error {
 	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
 }
 
 // NewEnd sets the end field to a newly
-// allocated common.Date struct, preferring placement in s's segment.
-func (s TimeSeries_subrange_Params) NewEnd() (common.Date, error) {
-	ss, err := common.NewDate(capnp.Struct(s).Segment())
+// allocated common_date.Date struct, preferring placement in s's segment.
+func (s TimeSeries_subrange_Params) NewEnd() (common_date.Date, error) {
+	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common.Date{}, err
+		return common_date.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
 	return ss, err
@@ -5452,11 +5569,11 @@ func (f TimeSeries_subrange_Params_Future) Struct() (TimeSeries_subrange_Params,
 	p, err := f.Future.Ptr()
 	return TimeSeries_subrange_Params(p.Struct()), err
 }
-func (p TimeSeries_subrange_Params_Future) Start() common.Date_Future {
-	return common.Date_Future{Future: p.Future.Field(0, nil)}
+func (p TimeSeries_subrange_Params_Future) Start() common_date.Date_Future {
+	return common_date.Date_Future{Future: p.Future.Field(0, nil)}
 }
-func (p TimeSeries_subrange_Params_Future) End() common.Date_Future {
-	return common.Date_Future{Future: p.Future.Field(1, nil)}
+func (p TimeSeries_subrange_Params_Future) End() common_date.Date_Future {
+	return common_date.Date_Future{Future: p.Future.Field(1, nil)}
 }
 
 type TimeSeries_subrange_Results capnp.Struct
@@ -5520,7 +5637,7 @@ func (s TimeSeries_subrange_Results) SetTimeSeries(v TimeSeries) error {
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -5693,7 +5810,7 @@ func (s TimeSeries_subheader_Results) SetTimeSeries(v TimeSeries) error {
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -5948,49 +6065,49 @@ func (s TimeSeriesData) NewHeader(n int32) (Element_List, error) {
 	err = capnp.Struct(s).SetPtr(1, l.ToPtr())
 	return l, err
 }
-func (s TimeSeriesData) StartDate() (common.Date, error) {
+func (s TimeSeriesData) StartDate() (common_date.Date, error) {
 	p, err := capnp.Struct(s).Ptr(2)
-	return common.Date(p.Struct()), err
+	return common_date.Date(p.Struct()), err
 }
 
 func (s TimeSeriesData) HasStartDate() bool {
 	return capnp.Struct(s).HasPtr(2)
 }
 
-func (s TimeSeriesData) SetStartDate(v common.Date) error {
+func (s TimeSeriesData) SetStartDate(v common_date.Date) error {
 	return capnp.Struct(s).SetPtr(2, capnp.Struct(v).ToPtr())
 }
 
 // NewStartDate sets the startDate field to a newly
-// allocated common.Date struct, preferring placement in s's segment.
-func (s TimeSeriesData) NewStartDate() (common.Date, error) {
-	ss, err := common.NewDate(capnp.Struct(s).Segment())
+// allocated common_date.Date struct, preferring placement in s's segment.
+func (s TimeSeriesData) NewStartDate() (common_date.Date, error) {
+	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common.Date{}, err
+		return common_date.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(2, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
-func (s TimeSeriesData) EndDate() (common.Date, error) {
+func (s TimeSeriesData) EndDate() (common_date.Date, error) {
 	p, err := capnp.Struct(s).Ptr(3)
-	return common.Date(p.Struct()), err
+	return common_date.Date(p.Struct()), err
 }
 
 func (s TimeSeriesData) HasEndDate() bool {
 	return capnp.Struct(s).HasPtr(3)
 }
 
-func (s TimeSeriesData) SetEndDate(v common.Date) error {
+func (s TimeSeriesData) SetEndDate(v common_date.Date) error {
 	return capnp.Struct(s).SetPtr(3, capnp.Struct(v).ToPtr())
 }
 
 // NewEndDate sets the endDate field to a newly
-// allocated common.Date struct, preferring placement in s's segment.
-func (s TimeSeriesData) NewEndDate() (common.Date, error) {
-	ss, err := common.NewDate(capnp.Struct(s).Segment())
+// allocated common_date.Date struct, preferring placement in s's segment.
+func (s TimeSeriesData) NewEndDate() (common_date.Date, error) {
+	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common.Date{}, err
+		return common_date.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(3, capnp.Struct(ss).ToPtr())
 	return ss, err
@@ -6020,11 +6137,11 @@ func (f TimeSeriesData_Future) Struct() (TimeSeriesData, error) {
 	p, err := f.Future.Ptr()
 	return TimeSeriesData(p.Struct()), err
 }
-func (p TimeSeriesData_Future) StartDate() common.Date_Future {
-	return common.Date_Future{Future: p.Future.Field(2, nil)}
+func (p TimeSeriesData_Future) StartDate() common_date.Date_Future {
+	return common_date.Date_Future{Future: p.Future.Field(2, nil)}
 }
-func (p TimeSeriesData_Future) EndDate() common.Date_Future {
-	return common.Date_Future{Future: p.Future.Field(3, nil)}
+func (p TimeSeriesData_Future) EndDate() common_date.Date_Future {
+	return common_date.Date_Future{Future: p.Future.Field(3, nil)}
 }
 
 type Service capnp.Client
@@ -6033,6 +6150,7 @@ type Service capnp.Client
 const Service_TypeID = 0xfe7d08d4352b0c5f
 
 func (c Service) GetAvailableDatasets(ctx context.Context, params func(Service_getAvailableDatasets_Params) error) (Service_getAvailableDatasets_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xfe7d08d4352b0c5f,
@@ -6045,10 +6163,14 @@ func (c Service) GetAvailableDatasets(ctx context.Context, params func(Service_g
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Service_getAvailableDatasets_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Service_getAvailableDatasets_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Service) GetDatasetsFor(ctx context.Context, params func(Service_getDatasetsFor_Params) error) (Service_getDatasetsFor_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xfe7d08d4352b0c5f,
@@ -6061,10 +6183,14 @@ func (c Service) GetDatasetsFor(ctx context.Context, params func(Service_getData
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Service_getDatasetsFor_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Service_getDatasetsFor_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Service) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -6077,10 +6203,14 @@ func (c Service) Info(ctx context.Context, params func(common.Identifiable_info_
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
 }
+
 func (c Service) Save(ctx context.Context, params func(persistence.Persistent_SaveParams) error) (persistence.Persistent_SaveResults_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xc1a7daa0dc36cb65,
@@ -6093,8 +6223,14 @@ func (c Service) Save(ctx context.Context, params func(persistence.Persistent_Sa
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return persistence.Persistent_SaveResults_Future{Future: ans.Future()}, release
+
+}
+
+func (c Service) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -6102,7 +6238,7 @@ func (c Service) Save(ctx context.Context, params func(persistence.Persistent_Sa
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Service) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Service(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -6162,7 +6298,9 @@ func (c Service) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Service) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Service_Server is a Service with a local implementation.
+}
+
+// A Service_Server is a Service with a local implementation.
 type Service_Server interface {
 	GetAvailableDatasets(context.Context, Service_getAvailableDatasets) error
 
@@ -6624,6 +6762,7 @@ type CSVTimeSeriesFactory capnp.Client
 const CSVTimeSeriesFactory_TypeID = 0xa418c26cc59929d9
 
 func (c CSVTimeSeriesFactory) Create(ctx context.Context, params func(CSVTimeSeriesFactory_create_Params) error) (CSVTimeSeriesFactory_create_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa418c26cc59929d9,
@@ -6636,10 +6775,14 @@ func (c CSVTimeSeriesFactory) Create(ctx context.Context, params func(CSVTimeSer
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 2}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(CSVTimeSeriesFactory_create_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return CSVTimeSeriesFactory_create_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c CSVTimeSeriesFactory) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -6652,8 +6795,14 @@ func (c CSVTimeSeriesFactory) Info(ctx context.Context, params func(common.Ident
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
+}
+
+func (c CSVTimeSeriesFactory) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -6661,7 +6810,7 @@ func (c CSVTimeSeriesFactory) Info(ctx context.Context, params func(common.Ident
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c CSVTimeSeriesFactory) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "CSVTimeSeriesFactory(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -6721,7 +6870,9 @@ func (c CSVTimeSeriesFactory) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c CSVTimeSeriesFactory) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A CSVTimeSeriesFactory_Server is a CSVTimeSeriesFactory with a local implementation.
+}
+
+// A CSVTimeSeriesFactory_Server is a CSVTimeSeriesFactory with a local implementation.
 type CSVTimeSeriesFactory_Server interface {
 	Create(context.Context, CSVTimeSeriesFactory_create) error
 
@@ -7091,7 +7242,7 @@ func (s CSVTimeSeriesFactory_create_Results) SetTimeseries(v TimeSeries) error {
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -7139,6 +7290,7 @@ type AlterTimeSeriesWrapper capnp.Client
 const AlterTimeSeriesWrapper_TypeID = 0xe1f480ef979784b2
 
 func (c AlterTimeSeriesWrapper) WrappedTimeSeries(ctx context.Context, params func(AlterTimeSeriesWrapper_wrappedTimeSeries_Params) error) (AlterTimeSeriesWrapper_wrappedTimeSeries_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xe1f480ef979784b2,
@@ -7151,10 +7303,14 @@ func (c AlterTimeSeriesWrapper) WrappedTimeSeries(ctx context.Context, params fu
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(AlterTimeSeriesWrapper_wrappedTimeSeries_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return AlterTimeSeriesWrapper_wrappedTimeSeries_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c AlterTimeSeriesWrapper) AlteredElements(ctx context.Context, params func(AlterTimeSeriesWrapper_alteredElements_Params) error) (AlterTimeSeriesWrapper_alteredElements_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xe1f480ef979784b2,
@@ -7167,10 +7323,14 @@ func (c AlterTimeSeriesWrapper) AlteredElements(ctx context.Context, params func
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(AlterTimeSeriesWrapper_alteredElements_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return AlterTimeSeriesWrapper_alteredElements_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c AlterTimeSeriesWrapper) Alter(ctx context.Context, params func(AlterTimeSeriesWrapper_alter_Params) error) (AlterTimeSeriesWrapper_alter_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xe1f480ef979784b2,
@@ -7183,10 +7343,14 @@ func (c AlterTimeSeriesWrapper) Alter(ctx context.Context, params func(AlterTime
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(AlterTimeSeriesWrapper_alter_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return AlterTimeSeriesWrapper_alter_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c AlterTimeSeriesWrapper) Remove(ctx context.Context, params func(AlterTimeSeriesWrapper_remove_Params) error) (AlterTimeSeriesWrapper_remove_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xe1f480ef979784b2,
@@ -7199,10 +7363,14 @@ func (c AlterTimeSeriesWrapper) Remove(ctx context.Context, params func(AlterTim
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(AlterTimeSeriesWrapper_remove_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return AlterTimeSeriesWrapper_remove_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c AlterTimeSeriesWrapper) ReplaceWrappedTimeSeries(ctx context.Context, params func(AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params) error) (AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xe1f480ef979784b2,
@@ -7215,10 +7383,14 @@ func (c AlterTimeSeriesWrapper) ReplaceWrappedTimeSeries(ctx context.Context, pa
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c AlterTimeSeriesWrapper) Resolution(ctx context.Context, params func(TimeSeries_resolution_Params) error) (TimeSeries_resolution_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa7769f40fe6e6de8,
@@ -7231,10 +7403,14 @@ func (c AlterTimeSeriesWrapper) Resolution(ctx context.Context, params func(Time
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_resolution_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return TimeSeries_resolution_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c AlterTimeSeriesWrapper) Range(ctx context.Context, params func(TimeSeries_range_Params) error) (TimeSeries_range_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa7769f40fe6e6de8,
@@ -7247,10 +7423,14 @@ func (c AlterTimeSeriesWrapper) Range(ctx context.Context, params func(TimeSerie
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_range_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return TimeSeries_range_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c AlterTimeSeriesWrapper) Header(ctx context.Context, params func(TimeSeries_header_Params) error) (TimeSeries_header_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa7769f40fe6e6de8,
@@ -7263,10 +7443,14 @@ func (c AlterTimeSeriesWrapper) Header(ctx context.Context, params func(TimeSeri
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_header_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return TimeSeries_header_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c AlterTimeSeriesWrapper) Data(ctx context.Context, params func(TimeSeries_data_Params) error) (TimeSeries_data_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa7769f40fe6e6de8,
@@ -7279,10 +7463,14 @@ func (c AlterTimeSeriesWrapper) Data(ctx context.Context, params func(TimeSeries
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_data_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return TimeSeries_data_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c AlterTimeSeriesWrapper) DataT(ctx context.Context, params func(TimeSeries_dataT_Params) error) (TimeSeries_dataT_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa7769f40fe6e6de8,
@@ -7295,10 +7483,14 @@ func (c AlterTimeSeriesWrapper) DataT(ctx context.Context, params func(TimeSerie
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_dataT_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return TimeSeries_dataT_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c AlterTimeSeriesWrapper) Subrange(ctx context.Context, params func(TimeSeries_subrange_Params) error) (TimeSeries_subrange_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa7769f40fe6e6de8,
@@ -7311,10 +7503,14 @@ func (c AlterTimeSeriesWrapper) Subrange(ctx context.Context, params func(TimeSe
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 2}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_subrange_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return TimeSeries_subrange_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c AlterTimeSeriesWrapper) Subheader(ctx context.Context, params func(TimeSeries_subheader_Params) error) (TimeSeries_subheader_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa7769f40fe6e6de8,
@@ -7327,10 +7523,14 @@ func (c AlterTimeSeriesWrapper) Subheader(ctx context.Context, params func(TimeS
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_subheader_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return TimeSeries_subheader_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c AlterTimeSeriesWrapper) Metadata(ctx context.Context, params func(TimeSeries_metadata_Params) error) (Metadata_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa7769f40fe6e6de8,
@@ -7343,10 +7543,14 @@ func (c AlterTimeSeriesWrapper) Metadata(ctx context.Context, params func(TimeSe
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_metadata_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Metadata_Future{Future: ans.Future()}, release
+
 }
+
 func (c AlterTimeSeriesWrapper) Location(ctx context.Context, params func(TimeSeries_location_Params) error) (Location_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa7769f40fe6e6de8,
@@ -7359,10 +7563,14 @@ func (c AlterTimeSeriesWrapper) Location(ctx context.Context, params func(TimeSe
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_location_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Location_Future{Future: ans.Future()}, release
+
 }
+
 func (c AlterTimeSeriesWrapper) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -7375,10 +7583,14 @@ func (c AlterTimeSeriesWrapper) Info(ctx context.Context, params func(common.Ide
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
 }
+
 func (c AlterTimeSeriesWrapper) Save(ctx context.Context, params func(persistence.Persistent_SaveParams) error) (persistence.Persistent_SaveResults_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xc1a7daa0dc36cb65,
@@ -7391,8 +7603,14 @@ func (c AlterTimeSeriesWrapper) Save(ctx context.Context, params func(persistenc
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return persistence.Persistent_SaveResults_Future{Future: ans.Future()}, release
+
+}
+
+func (c AlterTimeSeriesWrapper) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -7400,7 +7618,7 @@ func (c AlterTimeSeriesWrapper) Save(ctx context.Context, params func(persistenc
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c AlterTimeSeriesWrapper) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "AlterTimeSeriesWrapper(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -7460,7 +7678,9 @@ func (c AlterTimeSeriesWrapper) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c AlterTimeSeriesWrapper) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A AlterTimeSeriesWrapper_Server is a AlterTimeSeriesWrapper with a local implementation.
+}
+
+// A AlterTimeSeriesWrapper_Server is a AlterTimeSeriesWrapper with a local implementation.
 type AlterTimeSeriesWrapper_Server interface {
 	WrappedTimeSeries(context.Context, AlterTimeSeriesWrapper_wrappedTimeSeries) error
 
@@ -8061,7 +8281,7 @@ func (s AlterTimeSeriesWrapper_wrappedTimeSeries_Results) SetTimeSeries(v TimeSe
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -8398,7 +8618,7 @@ func (s AlterTimeSeriesWrapper_alter_Results) SetTimeSeries(v TimeSeries) error 
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -8620,7 +8840,7 @@ func (s AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params) SetTimeSeries(v 
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -8715,6 +8935,7 @@ type AlterTimeSeriesWrapperFactory capnp.Client
 const AlterTimeSeriesWrapperFactory_TypeID = 0xc5f12df0a2a52744
 
 func (c AlterTimeSeriesWrapperFactory) Wrap(ctx context.Context, params func(AlterTimeSeriesWrapperFactory_wrap_Params) error) (AlterTimeSeriesWrapperFactory_wrap_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xc5f12df0a2a52744,
@@ -8727,10 +8948,14 @@ func (c AlterTimeSeriesWrapperFactory) Wrap(ctx context.Context, params func(Alt
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(AlterTimeSeriesWrapperFactory_wrap_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return AlterTimeSeriesWrapperFactory_wrap_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c AlterTimeSeriesWrapperFactory) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -8743,8 +8968,14 @@ func (c AlterTimeSeriesWrapperFactory) Info(ctx context.Context, params func(com
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
+}
+
+func (c AlterTimeSeriesWrapperFactory) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -8752,7 +8983,7 @@ func (c AlterTimeSeriesWrapperFactory) Info(ctx context.Context, params func(com
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c AlterTimeSeriesWrapperFactory) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "AlterTimeSeriesWrapperFactory(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -8812,7 +9043,9 @@ func (c AlterTimeSeriesWrapperFactory) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c AlterTimeSeriesWrapperFactory) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A AlterTimeSeriesWrapperFactory_Server is a AlterTimeSeriesWrapperFactory with a local implementation.
+}
+
+// A AlterTimeSeriesWrapperFactory_Server is a AlterTimeSeriesWrapperFactory with a local implementation.
 type AlterTimeSeriesWrapperFactory_Server interface {
 	Wrap(context.Context, AlterTimeSeriesWrapperFactory_wrap) error
 
@@ -8952,7 +9185,7 @@ func (s AlterTimeSeriesWrapperFactory_wrap_Params) SetTimeSeries(v TimeSeries) e
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -9037,7 +9270,7 @@ func (s AlterTimeSeriesWrapperFactory_wrap_Results) SetWrapper(v AlterTimeSeries
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -9404,84 +9637,89 @@ const schema_a01d3ae410eb4518 = "x\xda\xac[}x\x14\xd5\xb9\x7f\xdf\x99$\xcbG`" +
 	"\xeb\xf6\xe8\xa0\xde\xe9\xd2\x9d\xa7\xf5\xf6u\xe9\x92\x0eU" +
 	"\xff\x1f\x00\x00\xff\xff\xbd\x1d\xc7\xc8"
 
-func init() {
-	schemas.Register(schema_a01d3ae410eb4518,
-		0x804cca489405d451,
-		0x85af7fea06d0820c,
-		0x85ba7385f313fe19,
-		0x8671dec53083e351,
-		0x8976146f144fa050,
-		0x8b0a787e82cd94bb,
-		0x8cc364dee8f693b8,
-		0x8e78986bc45d7dcd,
-		0x8ef30778310c94cc,
-		0x8f08162dbd7e5068,
-		0x8fd77002ae8a97a1,
-		0x916880859435c6e8,
-		0x95064806dc018bfe,
-		0x95887677293b5682,
-		0x9c3d3448d73eeae9,
-		0x9d7d1f83dda3e6db,
-		0x9ebadb578b79fa06,
-		0x9f35030ba55fed78,
-		0xa418c26cc59929d9,
-		0xa7769f40fe6e6de8,
-		0xaa8cfcdc401d5fdd,
-		0xab06444b30722e01,
-		0xb0496f3d284f4a13,
-		0xb466cacf63ec03c2,
-		0xb48982ac9bcd5d11,
-		0xb4c346906ee84815,
-		0xb5dd785107c358ca,
-		0xb9ec27f476022c1b,
-		0xc2e0dec0a6ea94fb,
-		0xc3238163cae880df,
-		0xc48e24c968a234db,
-		0xc4a1ec6280be841c,
-		0xc5f12df0a2a52744,
-		0xc5fd13a53ae6d46a,
-		0xc6d2329c05f7e208,
-		0xc781edeab8160cb7,
-		0xc8caacd1cd5da434,
-		0xcb329eb01b0fa313,
-		0xcba0220cda41869e,
-		0xcd0eadd9a1a66ed6,
-		0xcd95f79174b0eab0,
-		0xce2cc4225c956634,
-		0xce396869eede9f10,
-		0xcfaa8d2601750547,
-		0xd085b9baf390bec5,
-		0xd2a02e856c28d4ba,
-		0xd36b1e9c2929e6e4,
-		0xd3780ae416347aee,
-		0xd61ba043f14fe175,
-		0xd7a67fec5f22e5a0,
-		0xd9f867b0a2a15d7f,
-		0xdb7bfcfe4d45ff53,
-		0xdd5b75b5bc711766,
-		0xdf705ef1e0b7d506,
-		0xe0a71ff36670f715,
-		0xe1f480ef979784b2,
-		0xe246d49c91fa330a,
-		0xe30c466e5bc2735c,
-		0xe31f26eed9fb36a9,
-		0xe35760b4db5ab564,
-		0xe49e838ea9c34b40,
-		0xe64112993dc4d4e0,
-		0xea3f0519d272fdd1,
-		0xeba81ca9f46690b8,
-		0xedee5faa03af6a1e,
-		0xefefafebc8ae5534,
-		0xeff8f923b1853525,
-		0xf1c1ccf59bc6964f,
-		0xf44980b23013003b,
-		0xf635fdd1f05960f0,
-		0xf7dfe7147d09b732,
-		0xf8aa5b6fe2496fee,
-		0xfa8540d5d8065df1,
-		0xfb2eddb58f90f7aa,
-		0xfb36d2e966556db0,
-		0xfca3f0f431b64506,
-		0xfe7d08d4352b0c5f,
-		0xff6bcf0c6b23c916)
+func RegisterSchema(reg *schemas.Registry) {
+	reg.Register(&schemas.Schema{
+		String: schema_a01d3ae410eb4518,
+		Nodes: []uint64{
+			0x804cca489405d451,
+			0x85af7fea06d0820c,
+			0x85ba7385f313fe19,
+			0x8671dec53083e351,
+			0x8976146f144fa050,
+			0x8b0a787e82cd94bb,
+			0x8cc364dee8f693b8,
+			0x8e78986bc45d7dcd,
+			0x8ef30778310c94cc,
+			0x8f08162dbd7e5068,
+			0x8fd77002ae8a97a1,
+			0x916880859435c6e8,
+			0x95064806dc018bfe,
+			0x95887677293b5682,
+			0x9c3d3448d73eeae9,
+			0x9d7d1f83dda3e6db,
+			0x9ebadb578b79fa06,
+			0x9f35030ba55fed78,
+			0xa418c26cc59929d9,
+			0xa7769f40fe6e6de8,
+			0xaa8cfcdc401d5fdd,
+			0xab06444b30722e01,
+			0xb0496f3d284f4a13,
+			0xb466cacf63ec03c2,
+			0xb48982ac9bcd5d11,
+			0xb4c346906ee84815,
+			0xb5dd785107c358ca,
+			0xb9ec27f476022c1b,
+			0xc2e0dec0a6ea94fb,
+			0xc3238163cae880df,
+			0xc48e24c968a234db,
+			0xc4a1ec6280be841c,
+			0xc5f12df0a2a52744,
+			0xc5fd13a53ae6d46a,
+			0xc6d2329c05f7e208,
+			0xc781edeab8160cb7,
+			0xc8caacd1cd5da434,
+			0xcb329eb01b0fa313,
+			0xcba0220cda41869e,
+			0xcd0eadd9a1a66ed6,
+			0xcd95f79174b0eab0,
+			0xce2cc4225c956634,
+			0xce396869eede9f10,
+			0xcfaa8d2601750547,
+			0xd085b9baf390bec5,
+			0xd2a02e856c28d4ba,
+			0xd36b1e9c2929e6e4,
+			0xd3780ae416347aee,
+			0xd61ba043f14fe175,
+			0xd7a67fec5f22e5a0,
+			0xd9f867b0a2a15d7f,
+			0xdb7bfcfe4d45ff53,
+			0xdd5b75b5bc711766,
+			0xdf705ef1e0b7d506,
+			0xe0a71ff36670f715,
+			0xe1f480ef979784b2,
+			0xe246d49c91fa330a,
+			0xe30c466e5bc2735c,
+			0xe31f26eed9fb36a9,
+			0xe35760b4db5ab564,
+			0xe49e838ea9c34b40,
+			0xe64112993dc4d4e0,
+			0xea3f0519d272fdd1,
+			0xeba81ca9f46690b8,
+			0xedee5faa03af6a1e,
+			0xefefafebc8ae5534,
+			0xeff8f923b1853525,
+			0xf1c1ccf59bc6964f,
+			0xf44980b23013003b,
+			0xf635fdd1f05960f0,
+			0xf7dfe7147d09b732,
+			0xf8aa5b6fe2496fee,
+			0xfa8540d5d8065df1,
+			0xfb2eddb58f90f7aa,
+			0xfb36d2e966556db0,
+			0xfca3f0f431b64506,
+			0xfe7d08d4352b0c5f,
+			0xff6bcf0c6b23c916,
+		},
+		Compressed: true,
+	})
 }

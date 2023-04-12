@@ -9,7 +9,6 @@ import (
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
-	fmt "fmt"
 	common "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common"
 	geo "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/geo"
 	persistence "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/persistence"
@@ -818,6 +817,7 @@ type Service capnp.Client
 const Service_TypeID = 0xa09aa71427dc64e1
 
 func (c Service) CheckAvailableParameters(ctx context.Context, params func(Query) error) (Query_Result_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa09aa71427dc64e1,
@@ -830,10 +830,14 @@ func (c Service) CheckAvailableParameters(ctx context.Context, params func(Query
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 2}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Query(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Query_Result_Future{Future: ans.Future()}, release
+
 }
+
 func (c Service) GetAllAvailableParameters(ctx context.Context, params func(Service_getAllAvailableParameters_Params) error) (Service_getAllAvailableParameters_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa09aa71427dc64e1,
@@ -846,10 +850,14 @@ func (c Service) GetAllAvailableParameters(ctx context.Context, params func(Serv
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Service_getAllAvailableParameters_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Service_getAllAvailableParameters_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Service) ProfilesAt(ctx context.Context, params func(Service_profilesAt_Params) error) (Service_profilesAt_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa09aa71427dc64e1,
@@ -862,10 +870,14 @@ func (c Service) ProfilesAt(ctx context.Context, params func(Service_profilesAt_
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 2}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Service_profilesAt_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Service_profilesAt_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Service) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -878,10 +890,14 @@ func (c Service) Info(ctx context.Context, params func(common.Identifiable_info_
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
 }
+
 func (c Service) Save(ctx context.Context, params func(persistence.Persistent_SaveParams) error) (persistence.Persistent_SaveResults_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xc1a7daa0dc36cb65,
@@ -894,8 +910,14 @@ func (c Service) Save(ctx context.Context, params func(persistence.Persistent_Sa
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return persistence.Persistent_SaveResults_Future{Future: ans.Future()}, release
+
+}
+
+func (c Service) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -903,7 +925,7 @@ func (c Service) Save(ctx context.Context, params func(persistence.Persistent_Sa
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Service) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Service(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -963,7 +985,9 @@ func (c Service) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Service) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Service_Server is a Service with a local implementation.
+}
+
+// A Service_Server is a Service with a local implementation.
 type Service_Server interface {
 	CheckAvailableParameters(context.Context, Service_checkAvailableParameters) error
 
@@ -1602,18 +1626,23 @@ const schema_ff3f350f11891951 = "x\xda\xacVmlTY\x19~\xdfsg\xe6N\xe7" +
 	"\x92\xe3\x94x\xb7\x94\xf3\x05oL\xd2\xc5\xc4\xb5\x8d\x80" +
 	"\x86]\x0c\x07\xcf\x7f\x02\x00\x00\xff\xff\xc5\xb1\xcbJ"
 
-func init() {
-	schemas.Register(schema_ff3f350f11891951,
-		0x8dec5fd8eb3e7c27,
-		0x92f4b81bcfdb71b0,
-		0x984640f05b3ada4f,
-		0x98a2bf8e6ad97ee3,
-		0x9e391ae1c6cd2567,
-		0xa0915e668c9317ad,
-		0xa09aa71427dc64e1,
-		0xbd4065087e22ca0d,
-		0xbf4e1b07ad88943f,
-		0xc2e4a3c8ff61b40a,
-		0xdb97e739bf9693c1,
-		0xff67c2a593419c29)
+func RegisterSchema(reg *schemas.Registry) {
+	reg.Register(&schemas.Schema{
+		String: schema_ff3f350f11891951,
+		Nodes: []uint64{
+			0x8dec5fd8eb3e7c27,
+			0x92f4b81bcfdb71b0,
+			0x984640f05b3ada4f,
+			0x98a2bf8e6ad97ee3,
+			0x9e391ae1c6cd2567,
+			0xa0915e668c9317ad,
+			0xa09aa71427dc64e1,
+			0xbd4065087e22ca0d,
+			0xbf4e1b07ad88943f,
+			0xc2e4a3c8ff61b40a,
+			0xdb97e739bf9693c1,
+			0xff67c2a593419c29,
+		},
+		Compressed: true,
+	})
 }

@@ -1,6 +1,6 @@
-module github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/config
+module github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common_date
 
-go 1.19
+go 1.20
 
 require capnproto.org/go/capnp/v3 v3.0.0-alpha.27
 

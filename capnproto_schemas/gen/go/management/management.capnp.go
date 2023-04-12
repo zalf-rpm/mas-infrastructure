@@ -9,8 +9,8 @@ import (
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
-	fmt "fmt"
 	common "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common"
+	common_date "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common_date"
 	crop "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/crop"
 	geo "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/geo"
 	persistence "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/persistence"
@@ -301,25 +301,25 @@ func (s Event_at) Message() *capnp.Message {
 func (s Event_at) Segment() *capnp.Segment {
 	return capnp.Struct(s).Segment()
 }
-func (s Event_at) Date() (common.Date, error) {
+func (s Event_at) Date() (common_date.Date, error) {
 	p, err := capnp.Struct(s).Ptr(1)
-	return common.Date(p.Struct()), err
+	return common_date.Date(p.Struct()), err
 }
 
 func (s Event_at) HasDate() bool {
 	return capnp.Struct(s).HasPtr(1)
 }
 
-func (s Event_at) SetDate(v common.Date) error {
+func (s Event_at) SetDate(v common_date.Date) error {
 	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
 }
 
 // NewDate sets the date field to a newly
-// allocated common.Date struct, preferring placement in s's segment.
-func (s Event_at) NewDate() (common.Date, error) {
-	ss, err := common.NewDate(capnp.Struct(s).Segment())
+// allocated common_date.Date struct, preferring placement in s's segment.
+func (s Event_at) NewDate() (common_date.Date, error) {
+	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common.Date{}, err
+		return common_date.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
 	return ss, err
@@ -342,49 +342,49 @@ func (s Event_between) Message() *capnp.Message {
 func (s Event_between) Segment() *capnp.Segment {
 	return capnp.Struct(s).Segment()
 }
-func (s Event_between) Earliest() (common.Date, error) {
+func (s Event_between) Earliest() (common_date.Date, error) {
 	p, err := capnp.Struct(s).Ptr(1)
-	return common.Date(p.Struct()), err
+	return common_date.Date(p.Struct()), err
 }
 
 func (s Event_between) HasEarliest() bool {
 	return capnp.Struct(s).HasPtr(1)
 }
 
-func (s Event_between) SetEarliest(v common.Date) error {
+func (s Event_between) SetEarliest(v common_date.Date) error {
 	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
 }
 
 // NewEarliest sets the earliest field to a newly
-// allocated common.Date struct, preferring placement in s's segment.
-func (s Event_between) NewEarliest() (common.Date, error) {
-	ss, err := common.NewDate(capnp.Struct(s).Segment())
+// allocated common_date.Date struct, preferring placement in s's segment.
+func (s Event_between) NewEarliest() (common_date.Date, error) {
+	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common.Date{}, err
+		return common_date.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
-func (s Event_between) Latest() (common.Date, error) {
+func (s Event_between) Latest() (common_date.Date, error) {
 	p, err := capnp.Struct(s).Ptr(2)
-	return common.Date(p.Struct()), err
+	return common_date.Date(p.Struct()), err
 }
 
 func (s Event_between) HasLatest() bool {
 	return capnp.Struct(s).HasPtr(2)
 }
 
-func (s Event_between) SetLatest(v common.Date) error {
+func (s Event_between) SetLatest(v common_date.Date) error {
 	return capnp.Struct(s).SetPtr(2, capnp.Struct(v).ToPtr())
 }
 
 // NewLatest sets the latest field to a newly
-// allocated common.Date struct, preferring placement in s's segment.
-func (s Event_between) NewLatest() (common.Date, error) {
-	ss, err := common.NewDate(capnp.Struct(s).Segment())
+// allocated common_date.Date struct, preferring placement in s's segment.
+func (s Event_between) NewLatest() (common_date.Date, error) {
+	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common.Date{}, err
+		return common_date.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(2, capnp.Struct(ss).ToPtr())
 	return ss, err
@@ -486,8 +486,8 @@ func (f Event_at_Future) Struct() (Event_at, error) {
 	p, err := f.Future.Ptr()
 	return Event_at(p.Struct()), err
 }
-func (p Event_at_Future) Date() common.Date_Future {
-	return common.Date_Future{Future: p.Future.Field(1, nil)}
+func (p Event_at_Future) Date() common_date.Date_Future {
+	return common_date.Date_Future{Future: p.Future.Field(1, nil)}
 }
 func (p Event_Future) Between() Event_between_Future { return Event_between_Future{p.Future} }
 
@@ -498,11 +498,11 @@ func (f Event_between_Future) Struct() (Event_between, error) {
 	p, err := f.Future.Ptr()
 	return Event_between(p.Struct()), err
 }
-func (p Event_between_Future) Earliest() common.Date_Future {
-	return common.Date_Future{Future: p.Future.Field(1, nil)}
+func (p Event_between_Future) Earliest() common_date.Date_Future {
+	return common_date.Date_Future{Future: p.Future.Field(1, nil)}
 }
-func (p Event_between_Future) Latest() common.Date_Future {
-	return common.Date_Future{Future: p.Future.Field(2, nil)}
+func (p Event_between_Future) Latest() common_date.Date_Future {
+	return common_date.Date_Future{Future: p.Future.Field(2, nil)}
 }
 func (p Event_Future) After() Event_after_Future { return Event_after_Future{p.Future} }
 
@@ -920,7 +920,7 @@ func (s Params_Sowing) SetCrop(v crop.Crop) error {
 		return capnp.Struct(s).SetPtr(1, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(1, in.ToPtr())
 }
 
@@ -1953,7 +1953,7 @@ func (s Params_MineralFertilization) SetFertilizer(v Fertilizer) error {
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -2054,7 +2054,7 @@ func (s Params_NDemandFertilization) SetFertilizer(v Fertilizer) error {
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -2155,7 +2155,7 @@ func (s Params_OrganicFertilization) SetFertilizer(v Fertilizer) error {
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -2595,6 +2595,7 @@ type Fertilizer capnp.Client
 const Fertilizer_TypeID = 0x8c4cb8d60ae5aec7
 
 func (c Fertilizer) Nutrients(ctx context.Context, params func(Fertilizer_nutrients_Params) error) (Fertilizer_nutrients_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0x8c4cb8d60ae5aec7,
@@ -2607,10 +2608,14 @@ func (c Fertilizer) Nutrients(ctx context.Context, params func(Fertilizer_nutrie
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Fertilizer_nutrients_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Fertilizer_nutrients_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Fertilizer) Parameters(ctx context.Context, params func(Fertilizer_parameters_Params) error) (Fertilizer_parameters_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0x8c4cb8d60ae5aec7,
@@ -2623,10 +2628,14 @@ func (c Fertilizer) Parameters(ctx context.Context, params func(Fertilizer_param
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Fertilizer_parameters_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Fertilizer_parameters_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Fertilizer) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -2639,10 +2648,14 @@ func (c Fertilizer) Info(ctx context.Context, params func(common.Identifiable_in
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
 }
+
 func (c Fertilizer) Save(ctx context.Context, params func(persistence.Persistent_SaveParams) error) (persistence.Persistent_SaveResults_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xc1a7daa0dc36cb65,
@@ -2655,8 +2668,14 @@ func (c Fertilizer) Save(ctx context.Context, params func(persistence.Persistent
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return persistence.Persistent_SaveResults_Future{Future: ans.Future()}, release
+
+}
+
+func (c Fertilizer) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -2664,7 +2683,7 @@ func (c Fertilizer) Save(ctx context.Context, params func(persistence.Persistent
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Fertilizer) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Fertilizer(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -2724,7 +2743,9 @@ func (c Fertilizer) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Fertilizer) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Fertilizer_Server is a Fertilizer with a local implementation.
+}
+
+// A Fertilizer_Server is a Fertilizer with a local implementation.
 type Fertilizer_Server interface {
 	Nutrients(context.Context, Fertilizer_nutrients) error
 
@@ -3151,6 +3172,7 @@ type FertilizerService capnp.Client
 const FertilizerService_TypeID = 0xbbb7aeae0d097e05
 
 func (c FertilizerService) SupportedCategories(ctx context.Context, params func(registry.Registry_supportedCategories_Params) error) (registry.Registry_supportedCategories_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xca7b4bd1600633b8,
@@ -3163,10 +3185,14 @@ func (c FertilizerService) SupportedCategories(ctx context.Context, params func(
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(registry.Registry_supportedCategories_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return registry.Registry_supportedCategories_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c FertilizerService) CategoryInfo(ctx context.Context, params func(registry.Registry_categoryInfo_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xca7b4bd1600633b8,
@@ -3179,10 +3205,14 @@ func (c FertilizerService) CategoryInfo(ctx context.Context, params func(registr
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(registry.Registry_categoryInfo_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
 }
+
 func (c FertilizerService) Entries(ctx context.Context, params func(registry.Registry_entries_Params) error) (registry.Registry_entries_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xca7b4bd1600633b8,
@@ -3195,10 +3225,14 @@ func (c FertilizerService) Entries(ctx context.Context, params func(registry.Reg
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(registry.Registry_entries_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return registry.Registry_entries_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c FertilizerService) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -3211,8 +3245,14 @@ func (c FertilizerService) Info(ctx context.Context, params func(common.Identifi
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
+}
+
+func (c FertilizerService) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -3220,7 +3260,7 @@ func (c FertilizerService) Info(ctx context.Context, params func(common.Identifi
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c FertilizerService) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "FertilizerService(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -3280,7 +3320,9 @@ func (c FertilizerService) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c FertilizerService) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A FertilizerService_Server is a FertilizerService with a local implementation.
+}
+
+// A FertilizerService_Server is a FertilizerService with a local implementation.
 type FertilizerService_Server interface {
 	SupportedCategories(context.Context, registry.Registry_supportedCategories) error
 
@@ -3376,6 +3418,7 @@ type Service capnp.Client
 const Service_TypeID = 0xc876b729b7d7f6d9
 
 func (c Service) ManagementAt(ctx context.Context, params func(geo.LatLonCoord) error) (Service_managementAt_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xc876b729b7d7f6d9,
@@ -3388,10 +3431,14 @@ func (c Service) ManagementAt(ctx context.Context, params func(geo.LatLonCoord) 
 		s.ArgsSize = capnp.ObjectSize{DataSize: 16, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(geo.LatLonCoord(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Service_managementAt_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Service) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -3404,8 +3451,14 @@ func (c Service) Info(ctx context.Context, params func(common.Identifiable_info_
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
+}
+
+func (c Service) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -3413,7 +3466,7 @@ func (c Service) Info(ctx context.Context, params func(common.Identifiable_info_
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Service) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Service(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -3473,7 +3526,9 @@ func (c Service) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Service) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Service_Server is a Service with a local implementation.
+}
+
+// A Service_Server is a Service with a local implementation.
 type Service_Server interface {
 	ManagementAt(context.Context, Service_managementAt) error
 
@@ -3882,43 +3937,48 @@ const schema_b30a3af53cea6b3e = "x\xda\xccY}p\x15U\x96?\xa7\xfb=\x1eAB" +
 	"\xfa\xae\x16Gv\x8c\x9c\x91\x15y\xd4\xab\xbb\xbc\x87\x97" +
 	"O>\x00\xff7\x00\x00\xff\xff\x00\x0f\x0e\x8a"
 
-func init() {
-	schemas.Register(schema_b30a3af53cea6b3e,
-		0x80ce153f3bc9a9e8,
-		0x825bb2508c0b37b2,
-		0x82a74595175b71a3,
-		0x87feb816363ff43c,
-		0x88a5848ef8603554,
-		0x8c4cb8d60ae5aec7,
-		0x8cb6b3e3c50d3665,
-		0x8f0cbec420589373,
-		0x8fa09457bc1bfc34,
-		0x953375ac67d4f573,
-		0x9539b8e14ac7d5a9,
-		0x987b68b57edbbdb6,
-		0x9a221e04faf79efc,
-		0x9c5dedfd679ac842,
-		0x9d247c812334c917,
-		0x9d81d2bf4cd0f868,
-		0xaafe4332e17aa43e,
-		0xae2976259bce5460,
-		0xbbb7aeae0d097e05,
-		0xbc6b579acf43fb6e,
-		0xc0032af5b7bc50e4,
-		0xc2d50914b83d42de,
-		0xc58610b90af83811,
-		0xc6c4991fe51b272f,
-		0xc876b729b7d7f6d9,
-		0xcb5a624fdc982a1b,
-		0xcca7748d367db151,
-		0xcfcf44997e7ceab4,
-		0xd3da30ea7b25d921,
-		0xe1ed73d59c8ce359,
-		0xe3a37e340f816cd1,
-		0xe98c76fb0fb0b2cd,
-		0xeed4e55bb04289ef,
-		0xf082ec2d0eb50c9b,
-		0xf0c763e472409ba2,
-		0xfd4dbbbb758bb8f7,
-		0xfec75f2ddd43431d)
+func RegisterSchema(reg *schemas.Registry) {
+	reg.Register(&schemas.Schema{
+		String: schema_b30a3af53cea6b3e,
+		Nodes: []uint64{
+			0x80ce153f3bc9a9e8,
+			0x825bb2508c0b37b2,
+			0x82a74595175b71a3,
+			0x87feb816363ff43c,
+			0x88a5848ef8603554,
+			0x8c4cb8d60ae5aec7,
+			0x8cb6b3e3c50d3665,
+			0x8f0cbec420589373,
+			0x8fa09457bc1bfc34,
+			0x953375ac67d4f573,
+			0x9539b8e14ac7d5a9,
+			0x987b68b57edbbdb6,
+			0x9a221e04faf79efc,
+			0x9c5dedfd679ac842,
+			0x9d247c812334c917,
+			0x9d81d2bf4cd0f868,
+			0xaafe4332e17aa43e,
+			0xae2976259bce5460,
+			0xbbb7aeae0d097e05,
+			0xbc6b579acf43fb6e,
+			0xc0032af5b7bc50e4,
+			0xc2d50914b83d42de,
+			0xc58610b90af83811,
+			0xc6c4991fe51b272f,
+			0xc876b729b7d7f6d9,
+			0xcb5a624fdc982a1b,
+			0xcca7748d367db151,
+			0xcfcf44997e7ceab4,
+			0xd3da30ea7b25d921,
+			0xe1ed73d59c8ce359,
+			0xe3a37e340f816cd1,
+			0xe98c76fb0fb0b2cd,
+			0xeed4e55bb04289ef,
+			0xf082ec2d0eb50c9b,
+			0xf0c763e472409ba2,
+			0xfd4dbbbb758bb8f7,
+			0xfec75f2ddd43431d,
+		},
+		Compressed: true,
+	})
 }

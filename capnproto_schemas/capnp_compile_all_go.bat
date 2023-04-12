@@ -9,7 +9,7 @@ capnp compile -I. -ogo:./gen/go/cluster cluster_admin_service.capnp
 capnp compile -I. -ogo:./gen/go/common common.capnp
 capnp compile -I. -ogo:./gen/go/config config.capnp
 capnp compile -I. -ogo:./gen/go/crop crop.capnp
-capnp compile -I. -ogo:./gen/go/common date.capnp
+capnp compile -I. -ogo:./gen/go/common_date date.capnp
 capnp compile -I. -ogo:./gen/go/fbp fbp.capnp
 rem capnp compile -I. -ogo:./gen/go/frontend frontend.capnp
 capnp compile -I. -ogo:./gen/go/geo geo.capnp

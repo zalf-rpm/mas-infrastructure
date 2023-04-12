@@ -9,7 +9,6 @@ import (
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
-	fmt "fmt"
 	common "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common"
 	persistence "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/persistence"
 )
@@ -20,6 +19,7 @@ type Admin capnp.Client
 const Admin_TypeID = 0xf503f3237666574e
 
 func (c Admin) AddCategory(ctx context.Context, params func(Admin_addCategory_Params) error) (Admin_addCategory_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xf503f3237666574e,
@@ -32,10 +32,14 @@ func (c Admin) AddCategory(ctx context.Context, params func(Admin_addCategory_Pa
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Admin_addCategory_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Admin_addCategory_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Admin) RemoveCategory(ctx context.Context, params func(Admin_removeCategory_Params) error) (Admin_removeCategory_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xf503f3237666574e,
@@ -48,10 +52,14 @@ func (c Admin) RemoveCategory(ctx context.Context, params func(Admin_removeCateg
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 2}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Admin_removeCategory_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Admin_removeCategory_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Admin) MoveObjects(ctx context.Context, params func(Admin_moveObjects_Params) error) (Admin_moveObjects_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xf503f3237666574e,
@@ -64,10 +72,14 @@ func (c Admin) MoveObjects(ctx context.Context, params func(Admin_moveObjects_Pa
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 2}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Admin_moveObjects_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Admin_moveObjects_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Admin) RemoveObjects(ctx context.Context, params func(Admin_removeObjects_Params) error) (Admin_removeObjects_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xf503f3237666574e,
@@ -80,10 +92,14 @@ func (c Admin) RemoveObjects(ctx context.Context, params func(Admin_removeObject
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Admin_removeObjects_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Admin_removeObjects_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Admin) Registry(ctx context.Context, params func(Admin_registry_Params) error) (Admin_registry_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xf503f3237666574e,
@@ -96,10 +112,14 @@ func (c Admin) Registry(ctx context.Context, params func(Admin_registry_Params) 
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Admin_registry_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Admin_registry_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Admin) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -112,8 +132,14 @@ func (c Admin) Info(ctx context.Context, params func(common.Identifiable_info_Pa
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
+}
+
+func (c Admin) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -121,7 +147,7 @@ func (c Admin) Info(ctx context.Context, params func(common.Identifiable_info_Pa
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Admin) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Admin(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -181,7 +207,9 @@ func (c Admin) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Admin) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Admin_Server is a Admin with a local implementation.
+}
+
+// A Admin_Server is a Admin with a local implementation.
 type Admin_Server interface {
 	AddCategory(context.Context, Admin_addCategory) error
 
@@ -1238,7 +1266,7 @@ func (s Admin_registry_Results) SetRegistry(v Registry) error {
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -1268,6 +1296,7 @@ type Registry capnp.Client
 const Registry_TypeID = 0xca7b4bd1600633b8
 
 func (c Registry) SupportedCategories(ctx context.Context, params func(Registry_supportedCategories_Params) error) (Registry_supportedCategories_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xca7b4bd1600633b8,
@@ -1280,10 +1309,14 @@ func (c Registry) SupportedCategories(ctx context.Context, params func(Registry_
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Registry_supportedCategories_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Registry_supportedCategories_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Registry) CategoryInfo(ctx context.Context, params func(Registry_categoryInfo_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xca7b4bd1600633b8,
@@ -1296,10 +1329,14 @@ func (c Registry) CategoryInfo(ctx context.Context, params func(Registry_categor
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Registry_categoryInfo_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
 }
+
 func (c Registry) Entries(ctx context.Context, params func(Registry_entries_Params) error) (Registry_entries_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xca7b4bd1600633b8,
@@ -1312,10 +1349,14 @@ func (c Registry) Entries(ctx context.Context, params func(Registry_entries_Para
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Registry_entries_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Registry_entries_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Registry) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -1328,8 +1369,14 @@ func (c Registry) Info(ctx context.Context, params func(common.Identifiable_info
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
+}
+
+func (c Registry) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -1337,7 +1384,7 @@ func (c Registry) Info(ctx context.Context, params func(common.Identifiable_info
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Registry) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Registry(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -1397,7 +1444,9 @@ func (c Registry) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Registry) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Registry_Server is a Registry with a local implementation.
+}
+
+// A Registry_Server is a Registry with a local implementation.
 type Registry_Server interface {
 	SupportedCategories(context.Context, Registry_supportedCategories) error
 
@@ -1617,7 +1666,7 @@ func (s Registry_Entry) SetRef(v common.Identifiable) error {
 		return capnp.Struct(s).SetPtr(1, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(1, in.ToPtr())
 }
 
@@ -2070,6 +2119,7 @@ type Registrar capnp.Client
 const Registrar_TypeID = 0xabaef93c36f2d1ea
 
 func (c Registrar) Register(ctx context.Context, params func(Registrar_RegParams) error) (Registrar_register_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xabaef93c36f2d1ea,
@@ -2082,10 +2132,14 @@ func (c Registrar) Register(ctx context.Context, params func(Registrar_RegParams
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 4}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Registrar_RegParams(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Registrar_register_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Registrar) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -2098,8 +2152,14 @@ func (c Registrar) Info(ctx context.Context, params func(common.Identifiable_inf
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
+}
+
+func (c Registrar) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -2107,7 +2167,7 @@ func (c Registrar) Info(ctx context.Context, params func(common.Identifiable_inf
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Registrar) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Registrar(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -2167,7 +2227,9 @@ func (c Registrar) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Registrar) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Registrar_Server is a Registrar with a local implementation.
+}
+
+// A Registrar_Server is a Registrar with a local implementation.
 type Registrar_Server interface {
 	Register(context.Context, Registrar_register) error
 
@@ -2331,7 +2393,7 @@ func (s Registrar_CrossDomainRestore) SetRestorer(v persistence.Restorer) error 
 		return capnp.Struct(s).SetPtr(1, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(1, in.ToPtr())
 }
 
@@ -2419,7 +2481,7 @@ func (s Registrar_RegParams) SetCap(v common.Identifiable) error {
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -2513,6 +2575,7 @@ type Registrar_Unregister capnp.Client
 const Registrar_Unregister_TypeID = 0xc7597e4462528489
 
 func (c Registrar_Unregister) Unregister(ctx context.Context, params func(Registrar_Unregister_unregister_Params) error) (Registrar_Unregister_unregister_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xc7597e4462528489,
@@ -2525,8 +2588,14 @@ func (c Registrar_Unregister) Unregister(ctx context.Context, params func(Regist
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Registrar_Unregister_unregister_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Registrar_Unregister_unregister_Results_Future{Future: ans.Future()}, release
+
+}
+
+func (c Registrar_Unregister) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -2534,7 +2603,7 @@ func (c Registrar_Unregister) Unregister(ctx context.Context, params func(Regist
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Registrar_Unregister) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Registrar_Unregister(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -2594,7 +2663,9 @@ func (c Registrar_Unregister) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Registrar_Unregister) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Registrar_Unregister_Server is a Registrar_Unregister with a local implementation.
+}
+
+// A Registrar_Unregister_Server is a Registrar_Unregister with a local implementation.
 type Registrar_Unregister_Server interface {
 	Unregister(context.Context, Registrar_Unregister_unregister) error
 }
@@ -2857,7 +2928,7 @@ func (s Registrar_register_Results) SetUnreg(v Registrar_Unregister) error {
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -3017,31 +3088,36 @@ const schema_fe1be0c39c7e8269 = "x\xda\xacWml[W\x19~\xdf{\xec\\\xdb\xb1" +
 	"\x1a\x92\xfa<s\x9f'8R\xf7Ud\xdd\xe7\xc7\x01" +
 	"\x00\x00\xff\xffWZn\x9d"
 
-func init() {
-	schemas.Register(schema_fe1be0c39c7e8269,
-		0x891283e1b248bc9d,
-		0x8ebfd50c805adbc3,
-		0x96a5b17eee7ee1a3,
-		0x9c49e6e65e34c29b,
-		0x9ffc53716151c5fa,
-		0xa092f60656bb0db4,
-		0xa19166b9981b0854,
-		0xa9aca103106c8f05,
-		0xaa1198dd7e71b20e,
-		0xabaef93c36f2d1ea,
-		0xb2a9b080f0c4013c,
-		0xb2bf60b5817330b0,
-		0xbd3d832f7a7235b5,
-		0xc17987510cf7ac13,
-		0xc7597e4462528489,
-		0xca7b4bd1600633b8,
-		0xd023a1df5e372a7e,
-		0xd5be1b8e0180ded6,
-		0xd887d79a7ed3f45f,
-		0xdb16d4fbb18486f6,
-		0xe4eaf56eb486064d,
-		0xe5a84717ea75fb0d,
-		0xee2cf8cf148921b5,
-		0xf503f3237666574e,
-		0xfe62caefab7dfdad)
+func RegisterSchema(reg *schemas.Registry) {
+	reg.Register(&schemas.Schema{
+		String: schema_fe1be0c39c7e8269,
+		Nodes: []uint64{
+			0x891283e1b248bc9d,
+			0x8ebfd50c805adbc3,
+			0x96a5b17eee7ee1a3,
+			0x9c49e6e65e34c29b,
+			0x9ffc53716151c5fa,
+			0xa092f60656bb0db4,
+			0xa19166b9981b0854,
+			0xa9aca103106c8f05,
+			0xaa1198dd7e71b20e,
+			0xabaef93c36f2d1ea,
+			0xb2a9b080f0c4013c,
+			0xb2bf60b5817330b0,
+			0xbd3d832f7a7235b5,
+			0xc17987510cf7ac13,
+			0xc7597e4462528489,
+			0xca7b4bd1600633b8,
+			0xd023a1df5e372a7e,
+			0xd5be1b8e0180ded6,
+			0xd887d79a7ed3f45f,
+			0xdb16d4fbb18486f6,
+			0xe4eaf56eb486064d,
+			0xe5a84717ea75fb0d,
+			0xee2cf8cf148921b5,
+			0xf503f3237666574e,
+			0xfe62caefab7dfdad,
+		},
+		Compressed: true,
+	})
 }

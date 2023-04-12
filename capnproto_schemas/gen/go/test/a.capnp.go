@@ -9,7 +9,6 @@ import (
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
-	fmt "fmt"
 )
 
 type A capnp.Client
@@ -18,6 +17,7 @@ type A capnp.Client
 const A_TypeID = 0xba9eff6fb3abc84f
 
 func (c A) Method(ctx context.Context, params func(A_method_Params) error) (A_method_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xba9eff6fb3abc84f,
@@ -30,8 +30,14 @@ func (c A) Method(ctx context.Context, params func(A_method_Params) error) (A_me
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(A_method_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return A_method_Results_Future{Future: ans.Future()}, release
+
+}
+
+func (c A) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -39,7 +45,7 @@ func (c A) Method(ctx context.Context, params func(A_method_Params) error) (A_me
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c A) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "A(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -99,7 +105,9 @@ func (c A) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c A) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A A_Server is a A with a local implementation.
+}
+
+// A A_Server is a A with a local implementation.
 type A_Server interface {
 	Method(context.Context, A_method) error
 }
@@ -345,9 +353,14 @@ const schema_c4b468a2826bb79b = "x\xda\x128\xe0\xc0b\xc8\xab\xce\xc2\xc0\x14h\xc
 	"\xec\x95/\x00I\xc3l\x06\x04\x00\x00\xff\xff)\xb1K" +
 	"\xb5"
 
-func init() {
-	schemas.Register(schema_c4b468a2826bb79b,
-		0x9e2108f9306a75ef,
-		0xba9eff6fb3abc84f,
-		0xc506e9c0e16825f7)
+func RegisterSchema(reg *schemas.Registry) {
+	reg.Register(&schemas.Schema{
+		String: schema_c4b468a2826bb79b,
+		Nodes: []uint64{
+			0x9e2108f9306a75ef,
+			0xba9eff6fb3abc84f,
+			0xc506e9c0e16825f7,
+		},
+		Compressed: true,
+	})
 }

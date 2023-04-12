@@ -6,7 +6,7 @@ import (
 	capnp "capnproto.org/go/capnp/v3"
 	text "capnproto.org/go/capnp/v3/encoding/text"
 	schemas "capnproto.org/go/capnp/v3/schemas"
-	common "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common"
+	common_date "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common_date"
 	math "math"
 	strconv "strconv"
 )
@@ -257,49 +257,49 @@ func (s CropState) SetCultivarName(v string) error {
 	return capnp.Struct(s).SetText(2, v)
 }
 
-func (s CropState) SeedDate() (common.Date, error) {
+func (s CropState) SeedDate() (common_date.Date, error) {
 	p, err := capnp.Struct(s).Ptr(3)
-	return common.Date(p.Struct()), err
+	return common_date.Date(p.Struct()), err
 }
 
 func (s CropState) HasSeedDate() bool {
 	return capnp.Struct(s).HasPtr(3)
 }
 
-func (s CropState) SetSeedDate(v common.Date) error {
+func (s CropState) SetSeedDate(v common_date.Date) error {
 	return capnp.Struct(s).SetPtr(3, capnp.Struct(v).ToPtr())
 }
 
 // NewSeedDate sets the seedDate field to a newly
-// allocated common.Date struct, preferring placement in s's segment.
-func (s CropState) NewSeedDate() (common.Date, error) {
-	ss, err := common.NewDate(capnp.Struct(s).Segment())
+// allocated common_date.Date struct, preferring placement in s's segment.
+func (s CropState) NewSeedDate() (common_date.Date, error) {
+	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common.Date{}, err
+		return common_date.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(3, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
-func (s CropState) HarvestDate() (common.Date, error) {
+func (s CropState) HarvestDate() (common_date.Date, error) {
 	p, err := capnp.Struct(s).Ptr(4)
-	return common.Date(p.Struct()), err
+	return common_date.Date(p.Struct()), err
 }
 
 func (s CropState) HasHarvestDate() bool {
 	return capnp.Struct(s).HasPtr(4)
 }
 
-func (s CropState) SetHarvestDate(v common.Date) error {
+func (s CropState) SetHarvestDate(v common_date.Date) error {
 	return capnp.Struct(s).SetPtr(4, capnp.Struct(v).ToPtr())
 }
 
 // NewHarvestDate sets the harvestDate field to a newly
-// allocated common.Date struct, preferring placement in s's segment.
-func (s CropState) NewHarvestDate() (common.Date, error) {
-	ss, err := common.NewDate(capnp.Struct(s).Segment())
+// allocated common_date.Date struct, preferring placement in s's segment.
+func (s CropState) NewHarvestDate() (common_date.Date, error) {
+	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common.Date{}, err
+		return common_date.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(4, capnp.Struct(ss).ToPtr())
 	return ss, err
@@ -353,25 +353,25 @@ func (s CropState) NewIsPerennialCrop() (MaybeBool, error) {
 	return ss, err
 }
 
-func (s CropState) CuttingDates() (common.Date_List, error) {
+func (s CropState) CuttingDates() (common_date.Date_List, error) {
 	p, err := capnp.Struct(s).Ptr(7)
-	return common.Date_List(p.List()), err
+	return common_date.Date_List(p.List()), err
 }
 
 func (s CropState) HasCuttingDates() bool {
 	return capnp.Struct(s).HasPtr(7)
 }
 
-func (s CropState) SetCuttingDates(v common.Date_List) error {
+func (s CropState) SetCuttingDates(v common_date.Date_List) error {
 	return capnp.Struct(s).SetPtr(7, v.ToPtr())
 }
 
 // NewCuttingDates sets the cuttingDates field to a newly
-// allocated common.Date_List, preferring placement in s's segment.
-func (s CropState) NewCuttingDates(n int32) (common.Date_List, error) {
-	l, err := common.NewDate_List(capnp.Struct(s).Segment(), n)
+// allocated common_date.Date_List, preferring placement in s's segment.
+func (s CropState) NewCuttingDates(n int32) (common_date.Date_List, error) {
+	l, err := common_date.NewDate_List(capnp.Struct(s).Segment(), n)
 	if err != nil {
-		return common.Date_List{}, err
+		return common_date.Date_List{}, err
 	}
 	err = capnp.Struct(s).SetPtr(7, l.ToPtr())
 	return l, err
@@ -504,11 +504,11 @@ func (f CropState_Future) Struct() (CropState, error) {
 	p, err := f.Future.Ptr()
 	return CropState(p.Struct()), err
 }
-func (p CropState_Future) SeedDate() common.Date_Future {
-	return common.Date_Future{Future: p.Future.Field(3, nil)}
+func (p CropState_Future) SeedDate() common_date.Date_Future {
+	return common_date.Date_Future{Future: p.Future.Field(3, nil)}
 }
-func (p CropState_Future) HarvestDate() common.Date_Future {
-	return common.Date_Future{Future: p.Future.Field(4, nil)}
+func (p CropState_Future) HarvestDate() common_date.Date_Future {
+	return common_date.Date_Future{Future: p.Future.Field(4, nil)}
 }
 func (p CropState_Future) IsWinterCrop() MaybeBool_Future {
 	return MaybeBool_Future{Future: p.Future.Field(5, nil)}
@@ -1770,25 +1770,25 @@ func (s MonicaModelState) SetOptCarbonReturnedResidues(v float64) {
 	capnp.Struct(s).SetUint64(112, math.Float64bits(v))
 }
 
-func (s MonicaModelState) CurrentStepDate() (common.Date, error) {
+func (s MonicaModelState) CurrentStepDate() (common_date.Date, error) {
 	p, err := capnp.Struct(s).Ptr(11)
-	return common.Date(p.Struct()), err
+	return common_date.Date(p.Struct()), err
 }
 
 func (s MonicaModelState) HasCurrentStepDate() bool {
 	return capnp.Struct(s).HasPtr(11)
 }
 
-func (s MonicaModelState) SetCurrentStepDate(v common.Date) error {
+func (s MonicaModelState) SetCurrentStepDate(v common_date.Date) error {
 	return capnp.Struct(s).SetPtr(11, capnp.Struct(v).ToPtr())
 }
 
 // NewCurrentStepDate sets the currentStepDate field to a newly
-// allocated common.Date struct, preferring placement in s's segment.
-func (s MonicaModelState) NewCurrentStepDate() (common.Date, error) {
-	ss, err := common.NewDate(capnp.Struct(s).Segment())
+// allocated common_date.Date struct, preferring placement in s's segment.
+func (s MonicaModelState) NewCurrentStepDate() (common_date.Date, error) {
+	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common.Date{}, err
+		return common_date.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(11, capnp.Struct(ss).ToPtr())
 	return ss, err
@@ -1992,8 +1992,8 @@ func (p MonicaModelState_Future) SoilTransport() SoilTransportModuleState_Future
 func (p MonicaModelState_Future) CurrentCropModule() CropModuleState_Future {
 	return CropModuleState_Future{Future: p.Future.Field(10, nil)}
 }
-func (p MonicaModelState_Future) CurrentStepDate() common.Date_Future {
-	return common.Date_Future{Future: p.Future.Field(11, nil)}
+func (p MonicaModelState_Future) CurrentStepDate() common_date.Date_Future {
+	return common_date.Date_Future{Future: p.Future.Field(11, nil)}
 }
 
 type MonicaModelState_ACDToValue capnp.Struct
@@ -8623,23 +8623,28 @@ const schema_86ea47c297746539 = "x\xda\x9c\xbd\x7f\x9c\x14\xd5\x95\xf7\x7fOU\x0f
 	"\xf6+\x14\xb5ly}{RtH~\xdc\xb0\xf0]" +
 	"F\xbd\x10\x16\xff\xff\x01\x00\x00\xff\xff\xe2\x14\xae\xe7"
 
-func init() {
-	schemas.Register(schema_86ea47c297746539,
-		0x811d54ac7debc21e,
-		0x8b008567c93f7c7d,
-		0x98e203c76f83d365,
-		0xa4da01d10b3b6acd,
-		0xab56969492d293b3,
-		0xb1760f65e652e737,
-		0xb4f16ea3144d85a6,
-		0xbd3e199eb9b03758,
-		0xcd05962719bf7ec8,
-		0xd1edcf54f4edf638,
-		0xd594e64f6b5f461d,
-		0xd599d06dc405571a,
-		0xd8af9210839bc071,
-		0xdd1e0c7c94dc4211,
-		0xe3512e62df901c18,
-		0xef3e4198d3e35596,
-		0xf03d8fd1bbe75519)
+func RegisterSchema(reg *schemas.Registry) {
+	reg.Register(&schemas.Schema{
+		String: schema_86ea47c297746539,
+		Nodes: []uint64{
+			0x811d54ac7debc21e,
+			0x8b008567c93f7c7d,
+			0x98e203c76f83d365,
+			0xa4da01d10b3b6acd,
+			0xab56969492d293b3,
+			0xb1760f65e652e737,
+			0xb4f16ea3144d85a6,
+			0xbd3e199eb9b03758,
+			0xcd05962719bf7ec8,
+			0xd1edcf54f4edf638,
+			0xd594e64f6b5f461d,
+			0xd599d06dc405571a,
+			0xd8af9210839bc071,
+			0xdd1e0c7c94dc4211,
+			0xe3512e62df901c18,
+			0xef3e4198d3e35596,
+			0xf03d8fd1bbe75519,
+		},
+		Compressed: true,
+	})
 }

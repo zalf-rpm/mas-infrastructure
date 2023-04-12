@@ -9,7 +9,6 @@ import (
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
-	fmt "fmt"
 	common "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common"
 	persistence "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/persistence"
 	strconv "strconv"
@@ -220,6 +219,7 @@ type Channel capnp.Client
 const Channel_TypeID = 0x9c62c32b2ff2b1e8
 
 func (c Channel) SetBufferSize(ctx context.Context, params func(Channel_setBufferSize_Params) error) (Channel_setBufferSize_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0x9c62c32b2ff2b1e8,
@@ -232,10 +232,14 @@ func (c Channel) SetBufferSize(ctx context.Context, params func(Channel_setBuffe
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Channel_setBufferSize_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Channel_setBufferSize_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Channel) Reader(ctx context.Context, params func(Channel_reader_Params) error) (Channel_reader_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0x9c62c32b2ff2b1e8,
@@ -248,10 +252,14 @@ func (c Channel) Reader(ctx context.Context, params func(Channel_reader_Params) 
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Channel_reader_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Channel_reader_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Channel) Writer(ctx context.Context, params func(Channel_writer_Params) error) (Channel_writer_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0x9c62c32b2ff2b1e8,
@@ -264,10 +272,14 @@ func (c Channel) Writer(ctx context.Context, params func(Channel_writer_Params) 
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Channel_writer_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Channel_writer_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Channel) Endpoints(ctx context.Context, params func(Channel_endpoints_Params) error) (Channel_endpoints_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0x9c62c32b2ff2b1e8,
@@ -280,10 +292,14 @@ func (c Channel) Endpoints(ctx context.Context, params func(Channel_endpoints_Pa
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Channel_endpoints_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Channel_endpoints_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Channel) SetAutoCloseSemantics(ctx context.Context, params func(Channel_setAutoCloseSemantics_Params) error) (Channel_setAutoCloseSemantics_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0x9c62c32b2ff2b1e8,
@@ -296,10 +312,14 @@ func (c Channel) SetAutoCloseSemantics(ctx context.Context, params func(Channel_
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Channel_setAutoCloseSemantics_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Channel_setAutoCloseSemantics_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Channel) Close(ctx context.Context, params func(Channel_close_Params) error) (Channel_close_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0x9c62c32b2ff2b1e8,
@@ -312,10 +332,14 @@ func (c Channel) Close(ctx context.Context, params func(Channel_close_Params) er
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Channel_close_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Channel_close_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Channel) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -328,10 +352,14 @@ func (c Channel) Info(ctx context.Context, params func(common.Identifiable_info_
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
 }
+
 func (c Channel) Save(ctx context.Context, params func(persistence.Persistent_SaveParams) error) (persistence.Persistent_SaveResults_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xc1a7daa0dc36cb65,
@@ -344,8 +372,14 @@ func (c Channel) Save(ctx context.Context, params func(persistence.Persistent_Sa
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return persistence.Persistent_SaveResults_Future{Future: ans.Future()}, release
+
+}
+
+func (c Channel) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -353,7 +387,7 @@ func (c Channel) Save(ctx context.Context, params func(persistence.Persistent_Sa
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Channel) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Channel(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -413,7 +447,9 @@ func (c Channel) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Channel) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Channel_Server is a Channel with a local implementation.
+}
+
+// A Channel_Server is a Channel with a local implementation.
 type Channel_Server interface {
 	SetBufferSize(context.Context, Channel_setBufferSize) error
 
@@ -968,6 +1004,7 @@ type Channel_Reader capnp.Client
 const Channel_Reader_TypeID = 0x8bc69192f3bc97cc
 
 func (c Channel_Reader) Read(ctx context.Context, params func(Channel_Reader_read_Params) error) (Channel_Msg_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0x8bc69192f3bc97cc,
@@ -980,10 +1017,14 @@ func (c Channel_Reader) Read(ctx context.Context, params func(Channel_Reader_rea
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Channel_Reader_read_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Channel_Msg_Future{Future: ans.Future()}, release
+
 }
+
 func (c Channel_Reader) Close(ctx context.Context, params func(Channel_Reader_close_Params) error) (Channel_Reader_close_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0x8bc69192f3bc97cc,
@@ -996,8 +1037,14 @@ func (c Channel_Reader) Close(ctx context.Context, params func(Channel_Reader_cl
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Channel_Reader_close_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Channel_Reader_close_Results_Future{Future: ans.Future()}, release
+
+}
+
+func (c Channel_Reader) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -1005,7 +1052,7 @@ func (c Channel_Reader) Close(ctx context.Context, params func(Channel_Reader_cl
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Channel_Reader) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Channel_Reader(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -1065,7 +1112,9 @@ func (c Channel_Reader) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Channel_Reader) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Channel_Reader_Server is a Channel_Reader with a local implementation.
+}
+
+// A Channel_Reader_Server is a Channel_Reader with a local implementation.
 type Channel_Reader_Server interface {
 	Read(context.Context, Channel_Reader_read) error
 
@@ -1362,6 +1411,7 @@ type Channel_Writer capnp.Client
 const Channel_Writer_TypeID = 0xf7fec613b4a8c79f
 
 func (c Channel_Writer) Write(ctx context.Context, params func(Channel_Msg) error) (Channel_Writer_write_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xf7fec613b4a8c79f,
@@ -1374,10 +1424,14 @@ func (c Channel_Writer) Write(ctx context.Context, params func(Channel_Msg) erro
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Channel_Msg(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Channel_Writer_write_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Channel_Writer) Close(ctx context.Context, params func(Channel_Writer_close_Params) error) (Channel_Writer_close_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xf7fec613b4a8c79f,
@@ -1390,8 +1444,14 @@ func (c Channel_Writer) Close(ctx context.Context, params func(Channel_Writer_cl
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Channel_Writer_close_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Channel_Writer_close_Results_Future{Future: ans.Future()}, release
+
+}
+
+func (c Channel_Writer) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -1399,7 +1459,7 @@ func (c Channel_Writer) Close(ctx context.Context, params func(Channel_Writer_cl
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Channel_Writer) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Channel_Writer(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -1459,7 +1519,9 @@ func (c Channel_Writer) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Channel_Writer) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Channel_Writer_Server is a Channel_Writer with a local implementation.
+}
+
+// A Channel_Writer_Server is a Channel_Writer with a local implementation.
 type Channel_Writer_Server interface {
 	Write(context.Context, Channel_Writer_write) error
 
@@ -2013,7 +2075,7 @@ func (s Channel_reader_Results) SetR(v Channel_Reader) error {
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -2163,7 +2225,7 @@ func (s Channel_writer_Results) SetW(v Channel_Writer) error {
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -2313,7 +2375,7 @@ func (s Channel_endpoints_Results) SetR(v Channel_Reader) error {
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -2331,7 +2393,7 @@ func (s Channel_endpoints_Results) SetW(v Channel_Writer) error {
 		return capnp.Struct(s).SetPtr(1, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(1, in.ToPtr())
 }
 
@@ -2740,32 +2802,37 @@ const schema_bf602c4868dbb22f = "x\xda\xbcW}l\x1bg\x1d\xfe=w\xe7\x9e\x1d\x9f" +
 	"C\xff\xe8^\xac\xd2R/V\x9f\xc6\xff\x0d\x00\x00\xff" +
 	"\xff\x16\xb5\x8a\x07"
 
-func init() {
-	schemas.Register(schema_bf602c4868dbb22f,
-		0x8bc69192f3bc97cc,
-		0x92101e3b7a761333,
-		0x9428ea64f18c41c8,
-		0x95d8ad01c1113d9c,
-		0x9c62c32b2ff2b1e8,
-		0x9e9e5391e0c499e6,
-		0xa8d787cae7e0b243,
-		0xaf0a1dc4709a5ccf,
-		0xb135ffc9ccc9eca6,
-		0xb3fe08a1bf53821a,
-		0xb47b53679e985c7e,
-		0xb49836b545583add,
-		0xbadc988dda3d1e50,
-		0xbe611d34e368e109,
-		0xc0335d99db8b2ba5,
-		0xc0fc6e5a3fcb3206,
-		0xcb02dc91e18e58c9,
-		0xcc079ad60f1363b7,
-		0xce9f24b8ec149524,
-		0xd23f817e914373d8,
-		0xd5b512f4bcd0aa2e,
-		0xe3d7a3237f175028,
-		0xe607c9dd64da04c4,
-		0xf37401d21f8d97bb,
-		0xf7fec613b4a8c79f,
-		0xfe6a08d5e0712c23)
+func RegisterSchema(reg *schemas.Registry) {
+	reg.Register(&schemas.Schema{
+		String: schema_bf602c4868dbb22f,
+		Nodes: []uint64{
+			0x8bc69192f3bc97cc,
+			0x92101e3b7a761333,
+			0x9428ea64f18c41c8,
+			0x95d8ad01c1113d9c,
+			0x9c62c32b2ff2b1e8,
+			0x9e9e5391e0c499e6,
+			0xa8d787cae7e0b243,
+			0xaf0a1dc4709a5ccf,
+			0xb135ffc9ccc9eca6,
+			0xb3fe08a1bf53821a,
+			0xb47b53679e985c7e,
+			0xb49836b545583add,
+			0xbadc988dda3d1e50,
+			0xbe611d34e368e109,
+			0xc0335d99db8b2ba5,
+			0xc0fc6e5a3fcb3206,
+			0xcb02dc91e18e58c9,
+			0xcc079ad60f1363b7,
+			0xce9f24b8ec149524,
+			0xd23f817e914373d8,
+			0xd5b512f4bcd0aa2e,
+			0xe3d7a3237f175028,
+			0xe607c9dd64da04c4,
+			0xf37401d21f8d97bb,
+			0xf7fec613b4a8c79f,
+			0xfe6a08d5e0712c23,
+		},
+		Compressed: true,
+	})
 }

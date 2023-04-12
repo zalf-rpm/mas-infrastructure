@@ -9,8 +9,8 @@ import (
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
-	fmt "fmt"
 	common "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common"
+	common_date "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common_date"
 	crop "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/crop"
 	geo "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/geo"
 	math "math"
@@ -64,121 +64,121 @@ func (s ILRDates) Message() *capnp.Message {
 func (s ILRDates) Segment() *capnp.Segment {
 	return capnp.Struct(s).Segment()
 }
-func (s ILRDates) Sowing() (common.Date, error) {
+func (s ILRDates) Sowing() (common_date.Date, error) {
 	p, err := capnp.Struct(s).Ptr(0)
-	return common.Date(p.Struct()), err
+	return common_date.Date(p.Struct()), err
 }
 
 func (s ILRDates) HasSowing() bool {
 	return capnp.Struct(s).HasPtr(0)
 }
 
-func (s ILRDates) SetSowing(v common.Date) error {
+func (s ILRDates) SetSowing(v common_date.Date) error {
 	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewSowing sets the sowing field to a newly
-// allocated common.Date struct, preferring placement in s's segment.
-func (s ILRDates) NewSowing() (common.Date, error) {
-	ss, err := common.NewDate(capnp.Struct(s).Segment())
+// allocated common_date.Date struct, preferring placement in s's segment.
+func (s ILRDates) NewSowing() (common_date.Date, error) {
+	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common.Date{}, err
+		return common_date.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
-func (s ILRDates) EarliestSowing() (common.Date, error) {
+func (s ILRDates) EarliestSowing() (common_date.Date, error) {
 	p, err := capnp.Struct(s).Ptr(1)
-	return common.Date(p.Struct()), err
+	return common_date.Date(p.Struct()), err
 }
 
 func (s ILRDates) HasEarliestSowing() bool {
 	return capnp.Struct(s).HasPtr(1)
 }
 
-func (s ILRDates) SetEarliestSowing(v common.Date) error {
+func (s ILRDates) SetEarliestSowing(v common_date.Date) error {
 	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
 }
 
 // NewEarliestSowing sets the earliestSowing field to a newly
-// allocated common.Date struct, preferring placement in s's segment.
-func (s ILRDates) NewEarliestSowing() (common.Date, error) {
-	ss, err := common.NewDate(capnp.Struct(s).Segment())
+// allocated common_date.Date struct, preferring placement in s's segment.
+func (s ILRDates) NewEarliestSowing() (common_date.Date, error) {
+	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common.Date{}, err
+		return common_date.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
-func (s ILRDates) LatestSowing() (common.Date, error) {
+func (s ILRDates) LatestSowing() (common_date.Date, error) {
 	p, err := capnp.Struct(s).Ptr(2)
-	return common.Date(p.Struct()), err
+	return common_date.Date(p.Struct()), err
 }
 
 func (s ILRDates) HasLatestSowing() bool {
 	return capnp.Struct(s).HasPtr(2)
 }
 
-func (s ILRDates) SetLatestSowing(v common.Date) error {
+func (s ILRDates) SetLatestSowing(v common_date.Date) error {
 	return capnp.Struct(s).SetPtr(2, capnp.Struct(v).ToPtr())
 }
 
 // NewLatestSowing sets the latestSowing field to a newly
-// allocated common.Date struct, preferring placement in s's segment.
-func (s ILRDates) NewLatestSowing() (common.Date, error) {
-	ss, err := common.NewDate(capnp.Struct(s).Segment())
+// allocated common_date.Date struct, preferring placement in s's segment.
+func (s ILRDates) NewLatestSowing() (common_date.Date, error) {
+	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common.Date{}, err
+		return common_date.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(2, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
-func (s ILRDates) Harvest() (common.Date, error) {
+func (s ILRDates) Harvest() (common_date.Date, error) {
 	p, err := capnp.Struct(s).Ptr(3)
-	return common.Date(p.Struct()), err
+	return common_date.Date(p.Struct()), err
 }
 
 func (s ILRDates) HasHarvest() bool {
 	return capnp.Struct(s).HasPtr(3)
 }
 
-func (s ILRDates) SetHarvest(v common.Date) error {
+func (s ILRDates) SetHarvest(v common_date.Date) error {
 	return capnp.Struct(s).SetPtr(3, capnp.Struct(v).ToPtr())
 }
 
 // NewHarvest sets the harvest field to a newly
-// allocated common.Date struct, preferring placement in s's segment.
-func (s ILRDates) NewHarvest() (common.Date, error) {
-	ss, err := common.NewDate(capnp.Struct(s).Segment())
+// allocated common_date.Date struct, preferring placement in s's segment.
+func (s ILRDates) NewHarvest() (common_date.Date, error) {
+	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common.Date{}, err
+		return common_date.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(3, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
-func (s ILRDates) LatestHarvest() (common.Date, error) {
+func (s ILRDates) LatestHarvest() (common_date.Date, error) {
 	p, err := capnp.Struct(s).Ptr(4)
-	return common.Date(p.Struct()), err
+	return common_date.Date(p.Struct()), err
 }
 
 func (s ILRDates) HasLatestHarvest() bool {
 	return capnp.Struct(s).HasPtr(4)
 }
 
-func (s ILRDates) SetLatestHarvest(v common.Date) error {
+func (s ILRDates) SetLatestHarvest(v common_date.Date) error {
 	return capnp.Struct(s).SetPtr(4, capnp.Struct(v).ToPtr())
 }
 
 // NewLatestHarvest sets the latestHarvest field to a newly
-// allocated common.Date struct, preferring placement in s's segment.
-func (s ILRDates) NewLatestHarvest() (common.Date, error) {
-	ss, err := common.NewDate(capnp.Struct(s).Segment())
+// allocated common_date.Date struct, preferring placement in s's segment.
+func (s ILRDates) NewLatestHarvest() (common_date.Date, error) {
+	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common.Date{}, err
+		return common_date.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(4, capnp.Struct(ss).ToPtr())
 	return ss, err
@@ -200,20 +200,20 @@ func (f ILRDates_Future) Struct() (ILRDates, error) {
 	p, err := f.Future.Ptr()
 	return ILRDates(p.Struct()), err
 }
-func (p ILRDates_Future) Sowing() common.Date_Future {
-	return common.Date_Future{Future: p.Future.Field(0, nil)}
+func (p ILRDates_Future) Sowing() common_date.Date_Future {
+	return common_date.Date_Future{Future: p.Future.Field(0, nil)}
 }
-func (p ILRDates_Future) EarliestSowing() common.Date_Future {
-	return common.Date_Future{Future: p.Future.Field(1, nil)}
+func (p ILRDates_Future) EarliestSowing() common_date.Date_Future {
+	return common_date.Date_Future{Future: p.Future.Field(1, nil)}
 }
-func (p ILRDates_Future) LatestSowing() common.Date_Future {
-	return common.Date_Future{Future: p.Future.Field(2, nil)}
+func (p ILRDates_Future) LatestSowing() common_date.Date_Future {
+	return common_date.Date_Future{Future: p.Future.Field(2, nil)}
 }
-func (p ILRDates_Future) Harvest() common.Date_Future {
-	return common.Date_Future{Future: p.Future.Field(3, nil)}
+func (p ILRDates_Future) Harvest() common_date.Date_Future {
+	return common_date.Date_Future{Future: p.Future.Field(3, nil)}
 }
-func (p ILRDates_Future) LatestHarvest() common.Date_Future {
-	return common.Date_Future{Future: p.Future.Field(4, nil)}
+func (p ILRDates_Future) LatestHarvest() common_date.Date_Future {
+	return common_date.Date_Future{Future: p.Future.Field(4, nil)}
 }
 
 type EventType uint16
@@ -498,25 +498,25 @@ func (s Event_at) Message() *capnp.Message {
 func (s Event_at) Segment() *capnp.Segment {
 	return capnp.Struct(s).Segment()
 }
-func (s Event_at) Date() (common.Date, error) {
+func (s Event_at) Date() (common_date.Date, error) {
 	p, err := capnp.Struct(s).Ptr(1)
-	return common.Date(p.Struct()), err
+	return common_date.Date(p.Struct()), err
 }
 
 func (s Event_at) HasDate() bool {
 	return capnp.Struct(s).HasPtr(1)
 }
 
-func (s Event_at) SetDate(v common.Date) error {
+func (s Event_at) SetDate(v common_date.Date) error {
 	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
 }
 
 // NewDate sets the date field to a newly
-// allocated common.Date struct, preferring placement in s's segment.
-func (s Event_at) NewDate() (common.Date, error) {
-	ss, err := common.NewDate(capnp.Struct(s).Segment())
+// allocated common_date.Date struct, preferring placement in s's segment.
+func (s Event_at) NewDate() (common_date.Date, error) {
+	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common.Date{}, err
+		return common_date.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
 	return ss, err
@@ -539,49 +539,49 @@ func (s Event_between) Message() *capnp.Message {
 func (s Event_between) Segment() *capnp.Segment {
 	return capnp.Struct(s).Segment()
 }
-func (s Event_between) Earliest() (common.Date, error) {
+func (s Event_between) Earliest() (common_date.Date, error) {
 	p, err := capnp.Struct(s).Ptr(1)
-	return common.Date(p.Struct()), err
+	return common_date.Date(p.Struct()), err
 }
 
 func (s Event_between) HasEarliest() bool {
 	return capnp.Struct(s).HasPtr(1)
 }
 
-func (s Event_between) SetEarliest(v common.Date) error {
+func (s Event_between) SetEarliest(v common_date.Date) error {
 	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
 }
 
 // NewEarliest sets the earliest field to a newly
-// allocated common.Date struct, preferring placement in s's segment.
-func (s Event_between) NewEarliest() (common.Date, error) {
-	ss, err := common.NewDate(capnp.Struct(s).Segment())
+// allocated common_date.Date struct, preferring placement in s's segment.
+func (s Event_between) NewEarliest() (common_date.Date, error) {
+	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common.Date{}, err
+		return common_date.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
-func (s Event_between) Latest() (common.Date, error) {
+func (s Event_between) Latest() (common_date.Date, error) {
 	p, err := capnp.Struct(s).Ptr(2)
-	return common.Date(p.Struct()), err
+	return common_date.Date(p.Struct()), err
 }
 
 func (s Event_between) HasLatest() bool {
 	return capnp.Struct(s).HasPtr(2)
 }
 
-func (s Event_between) SetLatest(v common.Date) error {
+func (s Event_between) SetLatest(v common_date.Date) error {
 	return capnp.Struct(s).SetPtr(2, capnp.Struct(v).ToPtr())
 }
 
 // NewLatest sets the latest field to a newly
-// allocated common.Date struct, preferring placement in s's segment.
-func (s Event_between) NewLatest() (common.Date, error) {
-	ss, err := common.NewDate(capnp.Struct(s).Segment())
+// allocated common_date.Date struct, preferring placement in s's segment.
+func (s Event_between) NewLatest() (common_date.Date, error) {
+	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common.Date{}, err
+		return common_date.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(2, capnp.Struct(ss).ToPtr())
 	return ss, err
@@ -683,8 +683,8 @@ func (f Event_at_Future) Struct() (Event_at, error) {
 	p, err := f.Future.Ptr()
 	return Event_at(p.Struct()), err
 }
-func (p Event_at_Future) Date() common.Date_Future {
-	return common.Date_Future{Future: p.Future.Field(1, nil)}
+func (p Event_at_Future) Date() common_date.Date_Future {
+	return common_date.Date_Future{Future: p.Future.Field(1, nil)}
 }
 func (p Event_Future) Between() Event_between_Future { return Event_between_Future{p.Future} }
 
@@ -695,11 +695,11 @@ func (f Event_between_Future) Struct() (Event_between, error) {
 	p, err := f.Future.Ptr()
 	return Event_between(p.Struct()), err
 }
-func (p Event_between_Future) Earliest() common.Date_Future {
-	return common.Date_Future{Future: p.Future.Field(1, nil)}
+func (p Event_between_Future) Earliest() common_date.Date_Future {
+	return common_date.Date_Future{Future: p.Future.Field(1, nil)}
 }
-func (p Event_between_Future) Latest() common.Date_Future {
-	return common.Date_Future{Future: p.Future.Field(2, nil)}
+func (p Event_between_Future) Latest() common_date.Date_Future {
+	return common_date.Date_Future{Future: p.Future.Field(2, nil)}
 }
 func (p Event_Future) After() Event_after_Future { return Event_after_Future{p.Future} }
 
@@ -1117,7 +1117,7 @@ func (s Params_Sowing) SetCrop(v crop.Crop) error {
 		return capnp.Struct(s).SetPtr(1, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(1, in.ToPtr())
 }
 
@@ -3086,6 +3086,7 @@ type Service capnp.Client
 const Service_TypeID = 0xbfda1920aff38c07
 
 func (c Service) ManagementAt(ctx context.Context, params func(geo.LatLonCoord) error) (Service_managementAt_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xbfda1920aff38c07,
@@ -3098,10 +3099,14 @@ func (c Service) ManagementAt(ctx context.Context, params func(geo.LatLonCoord) 
 		s.ArgsSize = capnp.ObjectSize{DataSize: 16, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(geo.LatLonCoord(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Service_managementAt_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Service) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -3114,8 +3119,14 @@ func (c Service) Info(ctx context.Context, params func(common.Identifiable_info_
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
+}
+
+func (c Service) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -3123,7 +3134,7 @@ func (c Service) Info(ctx context.Context, params func(common.Identifiable_info_
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Service) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Service(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -3183,7 +3194,9 @@ func (c Service) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Service) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Service_Server is a Service with a local implementation.
+}
+
+// A Service_Server is a Service with a local implementation.
 type Service_Server interface {
 	ManagementAt(context.Context, Service_managementAt) error
 
@@ -3607,39 +3620,44 @@ const schema_93337c65a295d42f = "x\xda\xccz\x7ft\x14\xd7u\xff\xbd3\xbb\xac$\xb4"
 	"\xd2h\xe9\x05sa\xd4}G\xd8\xc3\xb0\xfc\xcd\xae8" +
 	"\x9b\xff\x09\x00\x00\xff\xff\x11\x1cL\xe3"
 
-func init() {
-	schemas.Register(schema_93337c65a295d42f,
-		0x8460dac6abff7ed9,
-		0x846f567433b186d1,
-		0x8feb941d70f2a468,
-		0x94d32947f136655e,
-		0x95cdc661a6600137,
-		0xa1f99f32eea02590,
-		0xa363d226e178debd,
-		0xa9a9bc941e963701,
-		0xaa49811a4e3e2c59,
-		0xaec9e089e87f1599,
-		0xaf49ab9bbe76e375,
-		0xb2bf3a5557791bc1,
-		0xb33447204cdf022c,
-		0xb492838c7fed50b0,
-		0xb91010c363e568a4,
-		0xba0c11cf818d29fd,
-		0xbeb6ab7b0e6b585e,
-		0xbfda1920aff38c07,
-		0xc6880d1c13ec14dc,
-		0xc75b5ef2e9b05c2d,
-		0xc7c14e92e0cd461c,
-		0xc8479e0f1798b1fc,
-		0xcb20e21466098705,
-		0xcf672ab379467704,
-		0xd0290daf8de9f2b0,
-		0xd1bfc1c9617d9453,
-		0xd90939a58e404ff8,
-		0xdb4674cbf3154bfa,
-		0xe444f780b29541a7,
-		0xe5484dc513ee11e0,
-		0xf32d7a3fdc567bdb,
-		0xf805d22fabb80702,
-		0xfae5dcfccbb93a23)
+func RegisterSchema(reg *schemas.Registry) {
+	reg.Register(&schemas.Schema{
+		String: schema_93337c65a295d42f,
+		Nodes: []uint64{
+			0x8460dac6abff7ed9,
+			0x846f567433b186d1,
+			0x8feb941d70f2a468,
+			0x94d32947f136655e,
+			0x95cdc661a6600137,
+			0xa1f99f32eea02590,
+			0xa363d226e178debd,
+			0xa9a9bc941e963701,
+			0xaa49811a4e3e2c59,
+			0xaec9e089e87f1599,
+			0xaf49ab9bbe76e375,
+			0xb2bf3a5557791bc1,
+			0xb33447204cdf022c,
+			0xb492838c7fed50b0,
+			0xb91010c363e568a4,
+			0xba0c11cf818d29fd,
+			0xbeb6ab7b0e6b585e,
+			0xbfda1920aff38c07,
+			0xc6880d1c13ec14dc,
+			0xc75b5ef2e9b05c2d,
+			0xc7c14e92e0cd461c,
+			0xc8479e0f1798b1fc,
+			0xcb20e21466098705,
+			0xcf672ab379467704,
+			0xd0290daf8de9f2b0,
+			0xd1bfc1c9617d9453,
+			0xd90939a58e404ff8,
+			0xdb4674cbf3154bfa,
+			0xe444f780b29541a7,
+			0xe5484dc513ee11e0,
+			0xf32d7a3fdc567bdb,
+			0xf805d22fabb80702,
+			0xfae5dcfccbb93a23,
+		},
+		Compressed: true,
+	})
 }

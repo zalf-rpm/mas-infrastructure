@@ -9,7 +9,6 @@ import (
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
-	fmt "fmt"
 	common "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common"
 	persistence "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/persistence"
 	math "math"
@@ -22,6 +21,7 @@ type Store capnp.Client
 const Store_TypeID = 0xe69f958aa2386f06
 
 func (c Store) NewContainer(ctx context.Context, params func(Store_newContainer_Params) error) (Store_newContainer_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xe69f958aa2386f06,
@@ -34,10 +34,14 @@ func (c Store) NewContainer(ctx context.Context, params func(Store_newContainer_
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 2}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_newContainer_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Store_newContainer_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Store) ContainerWithId(ctx context.Context, params func(Store_containerWithId_Params) error) (Store_containerWithId_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xe69f958aa2386f06,
@@ -50,10 +54,14 @@ func (c Store) ContainerWithId(ctx context.Context, params func(Store_containerW
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_containerWithId_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Store_containerWithId_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Store) ListContainers(ctx context.Context, params func(Store_listContainers_Params) error) (Store_listContainers_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xe69f958aa2386f06,
@@ -66,10 +74,14 @@ func (c Store) ListContainers(ctx context.Context, params func(Store_listContain
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_listContainers_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Store_listContainers_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Store) RemoveContainer(ctx context.Context, params func(Store_removeContainer_Params) error) (Store_removeContainer_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xe69f958aa2386f06,
@@ -82,10 +94,14 @@ func (c Store) RemoveContainer(ctx context.Context, params func(Store_removeCont
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_removeContainer_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Store_removeContainer_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Store) ImportContainer(ctx context.Context, params func(Store_importContainer_Params) error) (Store_importContainer_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xe69f958aa2386f06,
@@ -98,10 +114,14 @@ func (c Store) ImportContainer(ctx context.Context, params func(Store_importCont
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_importContainer_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Store_importContainer_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Store) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -114,10 +134,14 @@ func (c Store) Info(ctx context.Context, params func(common.Identifiable_info_Pa
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
 }
+
 func (c Store) Save(ctx context.Context, params func(persistence.Persistent_SaveParams) error) (persistence.Persistent_SaveResults_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xc1a7daa0dc36cb65,
@@ -130,8 +154,14 @@ func (c Store) Save(ctx context.Context, params func(persistence.Persistent_Save
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return persistence.Persistent_SaveResults_Future{Future: ans.Future()}, release
+
+}
+
+func (c Store) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -139,7 +169,7 @@ func (c Store) Save(ctx context.Context, params func(persistence.Persistent_Save
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Store) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Store(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -199,7 +229,9 @@ func (c Store) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Store) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Store_Server is a Store with a local implementation.
+}
+
+// A Store_Server is a Store with a local implementation.
 type Store_Server interface {
 	NewContainer(context.Context, Store_newContainer) error
 
@@ -422,6 +454,7 @@ type Store_Container capnp.Client
 const Store_Container_TypeID = 0x878131f45567ae62
 
 func (c Store_Container) Export(ctx context.Context, params func(Store_Container_export_Params) error) (Store_Container_export_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0x878131f45567ae62,
@@ -434,10 +467,14 @@ func (c Store_Container) Export(ctx context.Context, params func(Store_Container
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_Container_export_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Store_Container_export_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Store_Container) DownloadEntries(ctx context.Context, params func(Store_Container_downloadEntries_Params) error) (Store_Container_downloadEntries_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0x878131f45567ae62,
@@ -450,10 +487,14 @@ func (c Store_Container) DownloadEntries(ctx context.Context, params func(Store_
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_Container_downloadEntries_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Store_Container_downloadEntries_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Store_Container) ListEntries(ctx context.Context, params func(Store_Container_listEntries_Params) error) (Store_Container_listEntries_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0x878131f45567ae62,
@@ -466,10 +507,14 @@ func (c Store_Container) ListEntries(ctx context.Context, params func(Store_Cont
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_Container_listEntries_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Store_Container_listEntries_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Store_Container) GetEntry(ctx context.Context, params func(Store_Container_getEntry_Params) error) (Store_Container_getEntry_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0x878131f45567ae62,
@@ -482,10 +527,14 @@ func (c Store_Container) GetEntry(ctx context.Context, params func(Store_Contain
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_Container_getEntry_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Store_Container_getEntry_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Store_Container) RemoveEntry(ctx context.Context, params func(Store_Container_removeEntry_Params) error) (Store_Container_removeEntry_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0x878131f45567ae62,
@@ -498,10 +547,14 @@ func (c Store_Container) RemoveEntry(ctx context.Context, params func(Store_Cont
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_Container_removeEntry_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Store_Container_removeEntry_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Store_Container) Clear(ctx context.Context, params func(Store_Container_clear_Params) error) (Store_Container_clear_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0x878131f45567ae62,
@@ -514,10 +567,14 @@ func (c Store_Container) Clear(ctx context.Context, params func(Store_Container_
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_Container_clear_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Store_Container_clear_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Store_Container) AddEntry(ctx context.Context, params func(Store_Container_addEntry_Params) error) (Store_Container_addEntry_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0x878131f45567ae62,
@@ -530,10 +587,14 @@ func (c Store_Container) AddEntry(ctx context.Context, params func(Store_Contain
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 2}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_Container_addEntry_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Store_Container_addEntry_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Store_Container) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -546,10 +607,14 @@ func (c Store_Container) Info(ctx context.Context, params func(common.Identifiab
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
 }
+
 func (c Store_Container) Save(ctx context.Context, params func(persistence.Persistent_SaveParams) error) (persistence.Persistent_SaveResults_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xc1a7daa0dc36cb65,
@@ -562,8 +627,14 @@ func (c Store_Container) Save(ctx context.Context, params func(persistence.Persi
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return persistence.Persistent_SaveResults_Future{Future: ans.Future()}, release
+
+}
+
+func (c Store_Container) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -571,7 +642,7 @@ func (c Store_Container) Save(ctx context.Context, params func(persistence.Persi
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Store_Container) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Store_Container(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -631,7 +702,9 @@ func (c Store_Container) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Store_Container) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Store_Container_Server is a Store_Container with a local implementation.
+}
+
+// A Store_Container_Server is a Store_Container with a local implementation.
 type Store_Container_Server interface {
 	Export(context.Context, Store_Container_export) error
 
@@ -916,6 +989,7 @@ type Store_Container_Entry capnp.Client
 const Store_Container_Entry_TypeID = 0xfa1a243e7bf478c0
 
 func (c Store_Container_Entry) GetKey(ctx context.Context, params func(Store_Container_Entry_getKey_Params) error) (Store_Container_Entry_getKey_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xfa1a243e7bf478c0,
@@ -928,10 +1002,14 @@ func (c Store_Container_Entry) GetKey(ctx context.Context, params func(Store_Con
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_Container_Entry_getKey_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Store_Container_Entry_getKey_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Store_Container_Entry) GetValue(ctx context.Context, params func(Store_Container_Entry_getValue_Params) error) (Store_Container_Entry_getValue_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xfa1a243e7bf478c0,
@@ -944,10 +1022,14 @@ func (c Store_Container_Entry) GetValue(ctx context.Context, params func(Store_C
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_Container_Entry_getValue_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Store_Container_Entry_getValue_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Store_Container_Entry) SetValue(ctx context.Context, params func(Store_Container_Entry_setValue_Params) error) (Store_Container_Entry_setValue_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xfa1a243e7bf478c0,
@@ -960,8 +1042,14 @@ func (c Store_Container_Entry) SetValue(ctx context.Context, params func(Store_C
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Store_Container_Entry_setValue_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Store_Container_Entry_setValue_Results_Future{Future: ans.Future()}, release
+
+}
+
+func (c Store_Container_Entry) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -969,7 +1057,7 @@ func (c Store_Container_Entry) SetValue(ctx context.Context, params func(Store_C
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Store_Container_Entry) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Store_Container_Entry(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -1029,7 +1117,9 @@ func (c Store_Container_Entry) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Store_Container_Entry) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Store_Container_Entry_Server is a Store_Container_Entry with a local implementation.
+}
+
+// A Store_Container_Entry_Server is a Store_Container_Entry with a local implementation.
 type Store_Container_Entry_Server interface {
 	GetKey(context.Context, Store_Container_Entry_getKey) error
 
@@ -2990,7 +3080,7 @@ func (s Store_Container_getEntry_Results) SetEntry(v Store_Container_Entry) erro
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -3483,7 +3573,7 @@ func (s Store_Container_addEntry_Results) SetEntry(v Store_Container_Entry) erro
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -3814,7 +3904,7 @@ func (s Store_newContainer_Results) SetContainer(v Store_Container) error {
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -3981,7 +4071,7 @@ func (s Store_containerWithId_Results) SetContainer(v Store_Container) error {
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -4455,7 +4545,7 @@ func (s Store_importContainer_Results) SetContainer(v Store_Container) error {
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -4645,41 +4735,46 @@ const schema_9755d0b34b9db39d = "x\xda\xb4X\x7fpT\xd5\xf5?\xe7\xbe\xb7y\xbba" +
 	"D\xd1i\xd79\xa3\xd5\xeci\xf6\xbf\x9c\x00\xfe7\x00" +
 	"\x00\xff\xff]\x12\xe6\xa7"
 
-func init() {
-	schemas.Register(schema_9755d0b34b9db39d,
-		0x847d262cefd2f142,
-		0x878131f45567ae62,
-		0x883b57737fba9e54,
-		0x898f1a2675ac89cf,
-		0x923c06d58238b290,
-		0x93fc14178e630994,
-		0x9bc1d764a970b846,
-		0x9e138889be22cc5e,
-		0xa028d3ba03083872,
-		0xa466e92166fcce6e,
-		0xa4ff24aa7f0debaf,
-		0xa914844d7351c9ee,
-		0xaa0460382685000e,
-		0xb2af26aeda5445e5,
-		0xba3e5ec40217ab32,
-		0xbc4cb84d672b9bf6,
-		0xbfbe4f9e7fb62452,
-		0xc31c71f8d67b827b,
-		0xc4161d5db43ad669,
-		0xc5e6024b9f05560e,
-		0xd667b97e089bae01,
-		0xdbf70a288c6933b1,
-		0xdbfb7e9990643f87,
-		0xe0647ffea942d00a,
-		0xe2185cc449928f5c,
-		0xe69f958aa2386f06,
-		0xeb6f27dfc29bffad,
-		0xf32349bf3a9997ac,
-		0xf517bec79f8d2744,
-		0xf82426685da256f9,
-		0xfa1a243e7bf478c0,
-		0xfbd938c95f64b7bf,
-		0xfbef00fded9c8312,
-		0xfde99170b27ac5ce,
-		0xffe4319ac401d166)
+func RegisterSchema(reg *schemas.Registry) {
+	reg.Register(&schemas.Schema{
+		String: schema_9755d0b34b9db39d,
+		Nodes: []uint64{
+			0x847d262cefd2f142,
+			0x878131f45567ae62,
+			0x883b57737fba9e54,
+			0x898f1a2675ac89cf,
+			0x923c06d58238b290,
+			0x93fc14178e630994,
+			0x9bc1d764a970b846,
+			0x9e138889be22cc5e,
+			0xa028d3ba03083872,
+			0xa466e92166fcce6e,
+			0xa4ff24aa7f0debaf,
+			0xa914844d7351c9ee,
+			0xaa0460382685000e,
+			0xb2af26aeda5445e5,
+			0xba3e5ec40217ab32,
+			0xbc4cb84d672b9bf6,
+			0xbfbe4f9e7fb62452,
+			0xc31c71f8d67b827b,
+			0xc4161d5db43ad669,
+			0xc5e6024b9f05560e,
+			0xd667b97e089bae01,
+			0xdbf70a288c6933b1,
+			0xdbfb7e9990643f87,
+			0xe0647ffea942d00a,
+			0xe2185cc449928f5c,
+			0xe69f958aa2386f06,
+			0xeb6f27dfc29bffad,
+			0xf32349bf3a9997ac,
+			0xf517bec79f8d2744,
+			0xf82426685da256f9,
+			0xfa1a243e7bf478c0,
+			0xfbd938c95f64b7bf,
+			0xfbef00fded9c8312,
+			0xfde99170b27ac5ce,
+			0xffe4319ac401d166,
+		},
+		Compressed: true,
+	})
 }

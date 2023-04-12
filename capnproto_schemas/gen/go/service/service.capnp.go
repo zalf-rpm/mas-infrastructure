@@ -9,7 +9,6 @@ import (
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
-	fmt "fmt"
 	common "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common"
 )
 
@@ -19,6 +18,7 @@ type Admin capnp.Client
 const Admin_TypeID = 0xfec1f88b198df649
 
 func (c Admin) Heartbeat(ctx context.Context, params func(Admin_heartbeat_Params) error) (Admin_heartbeat_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xfec1f88b198df649,
@@ -31,10 +31,14 @@ func (c Admin) Heartbeat(ctx context.Context, params func(Admin_heartbeat_Params
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Admin_heartbeat_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Admin_heartbeat_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Admin) SetTimeout(ctx context.Context, params func(Admin_setTimeout_Params) error) (Admin_setTimeout_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xfec1f88b198df649,
@@ -47,10 +51,14 @@ func (c Admin) SetTimeout(ctx context.Context, params func(Admin_setTimeout_Para
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Admin_setTimeout_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Admin_setTimeout_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Admin) Stop(ctx context.Context, params func(Admin_stop_Params) error) (Admin_stop_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xfec1f88b198df649,
@@ -63,10 +71,14 @@ func (c Admin) Stop(ctx context.Context, params func(Admin_stop_Params) error) (
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Admin_stop_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Admin_stop_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Admin) Identities(ctx context.Context, params func(Admin_identities_Params) error) (Admin_identities_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xfec1f88b198df649,
@@ -79,10 +91,14 @@ func (c Admin) Identities(ctx context.Context, params func(Admin_identities_Para
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Admin_identities_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Admin_identities_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Admin) UpdateIdentity(ctx context.Context, params func(Admin_updateIdentity_Params) error) (Admin_updateIdentity_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xfec1f88b198df649,
@@ -95,10 +111,14 @@ func (c Admin) UpdateIdentity(ctx context.Context, params func(Admin_updateIdent
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 2}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Admin_updateIdentity_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Admin_updateIdentity_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Admin) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -111,8 +131,14 @@ func (c Admin) Info(ctx context.Context, params func(common.Identifiable_info_Pa
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
+}
+
+func (c Admin) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -120,7 +146,7 @@ func (c Admin) Info(ctx context.Context, params func(common.Identifiable_info_Pa
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Admin) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Admin(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -180,7 +206,9 @@ func (c Admin) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Admin) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Admin_Server is a Admin with a local implementation.
+}
+
+// A Admin_Server is a Admin with a local implementation.
 type Admin_Server interface {
 	Heartbeat(context.Context, Admin_heartbeat) error
 
@@ -1113,6 +1141,7 @@ type SimpleFactory capnp.Client
 const SimpleFactory_TypeID = 0xaba5829222c213cb
 
 func (c SimpleFactory) Create(ctx context.Context, params func(SimpleFactory_create_Params) error) (SimpleFactory_create_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xaba5829222c213cb,
@@ -1125,10 +1154,14 @@ func (c SimpleFactory) Create(ctx context.Context, params func(SimpleFactory_cre
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(SimpleFactory_create_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return SimpleFactory_create_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c SimpleFactory) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -1141,8 +1174,14 @@ func (c SimpleFactory) Info(ctx context.Context, params func(common.Identifiable
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
+}
+
+func (c SimpleFactory) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -1150,7 +1189,7 @@ func (c SimpleFactory) Info(ctx context.Context, params func(common.Identifiable
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c SimpleFactory) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "SimpleFactory(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -1210,7 +1249,9 @@ func (c SimpleFactory) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c SimpleFactory) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A SimpleFactory_Server is a SimpleFactory with a local implementation.
+}
+
+// A SimpleFactory_Server is a SimpleFactory with a local implementation.
 type SimpleFactory_Server interface {
 	Create(context.Context, SimpleFactory_create) error
 
@@ -1448,6 +1489,7 @@ type Factory capnp.Client
 const Factory_TypeID = 0x8ab0ecb99c269c7f
 
 func (c Factory) Create(ctx context.Context, params func(Factory_CreateParams) error) (Factory_AccessInfo_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0x8ab0ecb99c269c7f,
@@ -1460,10 +1502,14 @@ func (c Factory) Create(ctx context.Context, params func(Factory_CreateParams) e
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 2}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Factory_CreateParams(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Factory_AccessInfo_Future{Future: ans.Future()}, release
+
 }
+
 func (c Factory) ServiceInterfaceNames(ctx context.Context, params func(Factory_serviceInterfaceNames_Params) error) (Factory_serviceInterfaceNames_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0x8ab0ecb99c269c7f,
@@ -1476,10 +1522,14 @@ func (c Factory) ServiceInterfaceNames(ctx context.Context, params func(Factory_
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Factory_serviceInterfaceNames_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Factory_serviceInterfaceNames_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Factory) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -1492,8 +1542,14 @@ func (c Factory) Info(ctx context.Context, params func(common.Identifiable_info_
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
+}
+
+func (c Factory) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -1501,7 +1557,7 @@ func (c Factory) Info(ctx context.Context, params func(common.Identifiable_info_
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Factory) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Factory(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -1561,7 +1617,9 @@ func (c Factory) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Factory) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Factory_Server is a Factory with a local implementation.
+}
+
+// A Factory_Server is a Factory with a local implementation.
 type Factory_Server interface {
 	Create(context.Context, Factory_create) error
 
@@ -1842,7 +1900,7 @@ func (s Factory_AccessInfo) SetAdminCap(c capnp.Client) error {
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(c))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(c))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 func (s Factory_AccessInfo) ServiceCaps() (common.Identifiable_List, error) {
@@ -2065,6 +2123,7 @@ type Stopable capnp.Client
 const Stopable_TypeID = 0xe9d1be2a6e9016e5
 
 func (c Stopable) Stop(ctx context.Context, params func(Stopable_stop_Params) error) (Stopable_stop_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xe9d1be2a6e9016e5,
@@ -2077,8 +2136,14 @@ func (c Stopable) Stop(ctx context.Context, params func(Stopable_stop_Params) er
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Stopable_stop_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Stopable_stop_Results_Future{Future: ans.Future()}, release
+
+}
+
+func (c Stopable) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -2086,7 +2151,7 @@ func (c Stopable) Stop(ctx context.Context, params func(Stopable_stop_Params) er
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Stopable) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Stopable(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -2146,7 +2211,9 @@ func (c Stopable) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Stopable) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Stopable_Server is a Stopable with a local implementation.
+}
+
+// A Stopable_Server is a Stopable with a local implementation.
 type Stopable_Server interface {
 	Stop(context.Context, Stopable_stop) error
 }
@@ -2431,28 +2498,33 @@ const schema_f52adf98d2bbc6c0 = "x\xda\x94Vkl\x14U\x14>gf\xe7Q\x04\xba" +
 	"\x80\xd7\xad\x06t\x98f\xa0\xdeS\xcd]f\xe4\x9d\xd8" +
 	"\xcd\xad\x96\x7f\x03\x00\x00\xff\xffw\xccf\xf6"
 
-func init() {
-	schemas.Register(schema_f52adf98d2bbc6c0,
-		0x89a33828e0de1eaa,
-		0x8ab0ecb99c269c7f,
-		0x96368058e2cef1ac,
-		0x9abf358a691110fd,
-		0xa8296fdc60dcb6dd,
-		0xa962c127b5dccf05,
-		0xaba5829222c213cb,
-		0xb15e79db08e2ab2c,
-		0xb9816a53df7cb62e,
-		0xc2b88517ccaa9197,
-		0xce2a1a063e759787,
-		0xd2e4f20669b7b705,
-		0xd4d567352ab3882a,
-		0xd627f31bdae7f234,
-		0xd6fd194a1ac74bc1,
-		0xdc8472f9b668ba83,
-		0xddc3d3cd37ef5b78,
-		0xe01c2290ae549759,
-		0xe9d1be2a6e9016e5,
-		0xf5423d8578dbb398,
-		0xfec1f88b198df649,
-		0xff4271628d295896)
+func RegisterSchema(reg *schemas.Registry) {
+	reg.Register(&schemas.Schema{
+		String: schema_f52adf98d2bbc6c0,
+		Nodes: []uint64{
+			0x89a33828e0de1eaa,
+			0x8ab0ecb99c269c7f,
+			0x96368058e2cef1ac,
+			0x9abf358a691110fd,
+			0xa8296fdc60dcb6dd,
+			0xa962c127b5dccf05,
+			0xaba5829222c213cb,
+			0xb15e79db08e2ab2c,
+			0xb9816a53df7cb62e,
+			0xc2b88517ccaa9197,
+			0xce2a1a063e759787,
+			0xd2e4f20669b7b705,
+			0xd4d567352ab3882a,
+			0xd627f31bdae7f234,
+			0xd6fd194a1ac74bc1,
+			0xdc8472f9b668ba83,
+			0xddc3d3cd37ef5b78,
+			0xe01c2290ae549759,
+			0xe9d1be2a6e9016e5,
+			0xf5423d8578dbb398,
+			0xfec1f88b198df649,
+			0xff4271628d295896,
+		},
+		Compressed: true,
+	})
 }

@@ -9,7 +9,6 @@ import (
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
-	fmt "fmt"
 	common "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common"
 	persistence "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/persistence"
 )
@@ -106,6 +105,7 @@ type Service capnp.Client
 const Service_TypeID = 0xb8745454d013cbf0
 
 func (c Service) NextJob(ctx context.Context, params func(Service_nextJob_Params) error) (Service_nextJob_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb8745454d013cbf0,
@@ -118,10 +118,14 @@ func (c Service) NextJob(ctx context.Context, params func(Service_nextJob_Params
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Service_nextJob_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Service_nextJob_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Service) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -134,10 +138,14 @@ func (c Service) Info(ctx context.Context, params func(common.Identifiable_info_
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
 }
+
 func (c Service) Save(ctx context.Context, params func(persistence.Persistent_SaveParams) error) (persistence.Persistent_SaveResults_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xc1a7daa0dc36cb65,
@@ -150,8 +158,14 @@ func (c Service) Save(ctx context.Context, params func(persistence.Persistent_Sa
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return persistence.Persistent_SaveResults_Future{Future: ans.Future()}, release
+
+}
+
+func (c Service) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -159,7 +173,7 @@ func (c Service) Save(ctx context.Context, params func(persistence.Persistent_Sa
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Service) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Service(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -219,7 +233,9 @@ func (c Service) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Service) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Service_Server is a Service with a local implementation.
+}
+
+// A Service_Server is a Service with a local implementation.
 type Service_Server interface {
 	NextJob(context.Context, Service_nextJob) error
 
@@ -494,10 +510,15 @@ const schema_e7e7e2edc72e660c = "x\xda|\x8f\xb1k\x14A\x18\xc5\xdf\xdb\x99u\x17b"
 	"\x8c\x06\x8cV\xf2\x94\x8d\x7f\xac\xc8\x06\xf8_b\xdb\x16" +
 	"\xf6&\xcb_\x01\x00\x00\xff\xffs\xad\x8f\x9b"
 
-func init() {
-	schemas.Register(schema_e7e7e2edc72e660c,
-		0xa05b60b71ca38848,
-		0xb8745454d013cbf0,
-		0xe067ec22521ebebb,
-		0xea3ba97e764a031c)
+func RegisterSchema(reg *schemas.Registry) {
+	reg.Register(&schemas.Schema{
+		String: schema_e7e7e2edc72e660c,
+		Nodes: []uint64{
+			0xa05b60b71ca38848,
+			0xb8745454d013cbf0,
+			0xe067ec22521ebebb,
+			0xea3ba97e764a031c,
+		},
+		Compressed: true,
+	})
 }

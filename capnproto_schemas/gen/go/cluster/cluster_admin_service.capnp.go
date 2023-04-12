@@ -9,7 +9,6 @@ import (
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
-	fmt "fmt"
 	common "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common"
 )
 
@@ -84,6 +83,7 @@ type Cluster_Unregister capnp.Client
 const Cluster_Unregister_TypeID = 0xe8b1f7a192651bbe
 
 func (c Cluster_Unregister) Unregister(ctx context.Context, params func(Cluster_Unregister_unregister_Params) error) (Cluster_Unregister_unregister_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xe8b1f7a192651bbe,
@@ -96,8 +96,14 @@ func (c Cluster_Unregister) Unregister(ctx context.Context, params func(Cluster_
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_Unregister_unregister_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Cluster_Unregister_unregister_Results_Future{Future: ans.Future()}, release
+
+}
+
+func (c Cluster_Unregister) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -105,7 +111,7 @@ func (c Cluster_Unregister) Unregister(ctx context.Context, params func(Cluster_
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Cluster_Unregister) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Cluster_Unregister(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -165,7 +171,9 @@ func (c Cluster_Unregister) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Cluster_Unregister) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Cluster_Unregister_Server is a Cluster_Unregister with a local implementation.
+}
+
+// A Cluster_Unregister_Server is a Cluster_Unregister with a local implementation.
 type Cluster_Unregister_Server interface {
 	Unregister(context.Context, Cluster_Unregister_unregister) error
 }
@@ -373,6 +381,7 @@ type Cluster_AdminMaster capnp.Client
 const Cluster_AdminMaster_TypeID = 0xbf24278c65f633ce
 
 func (c Cluster_AdminMaster) RegisterModelInstanceFactory(ctx context.Context, params func(Cluster_AdminMaster_registerModelInstanceFactory_Params) error) (Cluster_AdminMaster_registerModelInstanceFactory_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xbf24278c65f633ce,
@@ -385,10 +394,14 @@ func (c Cluster_AdminMaster) RegisterModelInstanceFactory(ctx context.Context, p
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 2}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_AdminMaster_registerModelInstanceFactory_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Cluster_AdminMaster_registerModelInstanceFactory_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Cluster_AdminMaster) AvailableModels(ctx context.Context, params func(Cluster_AdminMaster_availableModels_Params) error) (Cluster_AdminMaster_availableModels_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xbf24278c65f633ce,
@@ -401,10 +414,14 @@ func (c Cluster_AdminMaster) AvailableModels(ctx context.Context, params func(Cl
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_AdminMaster_availableModels_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Cluster_AdminMaster_availableModels_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Cluster_AdminMaster) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -417,8 +434,14 @@ func (c Cluster_AdminMaster) Info(ctx context.Context, params func(common.Identi
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
+}
+
+func (c Cluster_AdminMaster) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -426,7 +449,7 @@ func (c Cluster_AdminMaster) Info(ctx context.Context, params func(common.Identi
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Cluster_AdminMaster) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Cluster_AdminMaster(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -486,7 +509,9 @@ func (c Cluster_AdminMaster) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Cluster_AdminMaster) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Cluster_AdminMaster_Server is a Cluster_AdminMaster with a local implementation.
+}
+
+// A Cluster_AdminMaster_Server is a Cluster_AdminMaster with a local implementation.
 type Cluster_AdminMaster_Server interface {
 	RegisterModelInstanceFactory(context.Context, Cluster_AdminMaster_registerModelInstanceFactory) error
 
@@ -675,7 +700,7 @@ func (s Cluster_AdminMaster_registerModelInstanceFactory_Params) SetAFactory(v C
 		return capnp.Struct(s).SetPtr(1, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(1, in.ToPtr())
 }
 
@@ -760,7 +785,7 @@ func (s Cluster_AdminMaster_registerModelInstanceFactory_Results) SetUnregister(
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -943,6 +968,7 @@ type Cluster_UserMaster capnp.Client
 const Cluster_UserMaster_TypeID = 0xec42c6df28354b60
 
 func (c Cluster_UserMaster) AvailableModels(ctx context.Context, params func(Cluster_UserMaster_availableModels_Params) error) (Cluster_UserMaster_availableModels_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xec42c6df28354b60,
@@ -955,10 +981,14 @@ func (c Cluster_UserMaster) AvailableModels(ctx context.Context, params func(Clu
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_UserMaster_availableModels_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Cluster_UserMaster_availableModels_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Cluster_UserMaster) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -971,8 +1001,14 @@ func (c Cluster_UserMaster) Info(ctx context.Context, params func(common.Identif
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
+}
+
+func (c Cluster_UserMaster) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -980,7 +1016,7 @@ func (c Cluster_UserMaster) Info(ctx context.Context, params func(common.Identif
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Cluster_UserMaster) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Cluster_UserMaster(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -1040,7 +1076,9 @@ func (c Cluster_UserMaster) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Cluster_UserMaster) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Cluster_UserMaster_Server is a Cluster_UserMaster with a local implementation.
+}
+
+// A Cluster_UserMaster_Server is a Cluster_UserMaster with a local implementation.
 type Cluster_UserMaster_Server interface {
 	AvailableModels(context.Context, Cluster_UserMaster_availableModels) error
 
@@ -1278,6 +1316,7 @@ type Cluster_Runtime capnp.Client
 const Cluster_Runtime_TypeID = 0xf849848fea5c4776
 
 func (c Cluster_Runtime) RegisterModelInstanceFactory(ctx context.Context, params func(Cluster_Runtime_registerModelInstanceFactory_Params) error) (Cluster_Runtime_registerModelInstanceFactory_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xf849848fea5c4776,
@@ -1290,10 +1329,14 @@ func (c Cluster_Runtime) RegisterModelInstanceFactory(ctx context.Context, param
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 2}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_Runtime_registerModelInstanceFactory_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Cluster_Runtime_registerModelInstanceFactory_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Cluster_Runtime) AvailableModels(ctx context.Context, params func(Cluster_Runtime_availableModels_Params) error) (Cluster_Runtime_availableModels_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xf849848fea5c4776,
@@ -1306,10 +1349,14 @@ func (c Cluster_Runtime) AvailableModels(ctx context.Context, params func(Cluste
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_Runtime_availableModels_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Cluster_Runtime_availableModels_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Cluster_Runtime) NumberOfCores(ctx context.Context, params func(Cluster_Runtime_numberOfCores_Params) error) (Cluster_Runtime_numberOfCores_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xf849848fea5c4776,
@@ -1322,10 +1369,14 @@ func (c Cluster_Runtime) NumberOfCores(ctx context.Context, params func(Cluster_
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_Runtime_numberOfCores_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Cluster_Runtime_numberOfCores_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Cluster_Runtime) FreeNumberOfCores(ctx context.Context, params func(Cluster_Runtime_freeNumberOfCores_Params) error) (Cluster_Runtime_freeNumberOfCores_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xf849848fea5c4776,
@@ -1338,10 +1389,14 @@ func (c Cluster_Runtime) FreeNumberOfCores(ctx context.Context, params func(Clus
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_Runtime_freeNumberOfCores_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Cluster_Runtime_freeNumberOfCores_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Cluster_Runtime) ReserveNumberOfCores(ctx context.Context, params func(Cluster_Runtime_reserveNumberOfCores_Params) error) (Cluster_Runtime_reserveNumberOfCores_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xf849848fea5c4776,
@@ -1354,10 +1409,14 @@ func (c Cluster_Runtime) ReserveNumberOfCores(ctx context.Context, params func(C
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_Runtime_reserveNumberOfCores_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Cluster_Runtime_reserveNumberOfCores_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Cluster_Runtime) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -1370,8 +1429,14 @@ func (c Cluster_Runtime) Info(ctx context.Context, params func(common.Identifiab
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
+}
+
+func (c Cluster_Runtime) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -1379,7 +1444,7 @@ func (c Cluster_Runtime) Info(ctx context.Context, params func(common.Identifiab
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Cluster_Runtime) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Cluster_Runtime(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -1439,7 +1504,9 @@ func (c Cluster_Runtime) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Cluster_Runtime) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Cluster_Runtime_Server is a Cluster_Runtime with a local implementation.
+}
+
+// A Cluster_Runtime_Server is a Cluster_Runtime with a local implementation.
 type Cluster_Runtime_Server interface {
 	RegisterModelInstanceFactory(context.Context, Cluster_Runtime_registerModelInstanceFactory) error
 
@@ -1721,7 +1788,7 @@ func (s Cluster_Runtime_registerModelInstanceFactory_Params) SetAFactory(v Clust
 		return capnp.Struct(s).SetPtr(1, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(1, in.ToPtr())
 }
 
@@ -1806,7 +1873,7 @@ func (s Cluster_Runtime_registerModelInstanceFactory_Results) SetUnregister(v Cl
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -2525,6 +2592,7 @@ type Cluster_ValueHolder capnp.Client
 const Cluster_ValueHolder_TypeID = 0xd6acf080dcf2b4c8
 
 func (c Cluster_ValueHolder) Value(ctx context.Context, params func(Cluster_ValueHolder_value_Params) error) (Cluster_ValueHolder_value_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xd6acf080dcf2b4c8,
@@ -2537,10 +2605,14 @@ func (c Cluster_ValueHolder) Value(ctx context.Context, params func(Cluster_Valu
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_ValueHolder_value_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Cluster_ValueHolder_value_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Cluster_ValueHolder) ReleaseValue(ctx context.Context, params func(Cluster_ValueHolder_releaseValue_Params) error) (Cluster_ValueHolder_releaseValue_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xd6acf080dcf2b4c8,
@@ -2553,8 +2625,14 @@ func (c Cluster_ValueHolder) ReleaseValue(ctx context.Context, params func(Clust
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_ValueHolder_releaseValue_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Cluster_ValueHolder_releaseValue_Results_Future{Future: ans.Future()}, release
+
+}
+
+func (c Cluster_ValueHolder) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -2562,7 +2640,7 @@ func (c Cluster_ValueHolder) ReleaseValue(ctx context.Context, params func(Clust
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Cluster_ValueHolder) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Cluster_ValueHolder(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -2622,7 +2700,9 @@ func (c Cluster_ValueHolder) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Cluster_ValueHolder) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Cluster_ValueHolder_Server is a Cluster_ValueHolder with a local implementation.
+}
+
+// A Cluster_ValueHolder_Server is a Cluster_ValueHolder with a local implementation.
 type Cluster_ValueHolder_Server interface {
 	Value(context.Context, Cluster_ValueHolder_value) error
 
@@ -2998,6 +3078,7 @@ type Cluster_ModelInstanceFactory capnp.Client
 const Cluster_ModelInstanceFactory_TypeID = 0xfd9959998f9f0ebe
 
 func (c Cluster_ModelInstanceFactory) NewInstance(ctx context.Context, params func(Cluster_ModelInstanceFactory_newInstance_Params) error) (Cluster_ModelInstanceFactory_newInstance_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xfd9959998f9f0ebe,
@@ -3010,10 +3091,14 @@ func (c Cluster_ModelInstanceFactory) NewInstance(ctx context.Context, params fu
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_ModelInstanceFactory_newInstance_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Cluster_ModelInstanceFactory_newInstance_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Cluster_ModelInstanceFactory) NewInstances(ctx context.Context, params func(Cluster_ModelInstanceFactory_newInstances_Params) error) (Cluster_ModelInstanceFactory_newInstances_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xfd9959998f9f0ebe,
@@ -3026,10 +3111,14 @@ func (c Cluster_ModelInstanceFactory) NewInstances(ctx context.Context, params f
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_ModelInstanceFactory_newInstances_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Cluster_ModelInstanceFactory_newInstances_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Cluster_ModelInstanceFactory) NewCloudViaZmqPipelineProxies(ctx context.Context, params func(Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params) error) (Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xfd9959998f9f0ebe,
@@ -3044,10 +3133,14 @@ func (c Cluster_ModelInstanceFactory) NewCloudViaZmqPipelineProxies(ctx context.
 			return params(Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params(s))
 		}
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Cluster_ModelInstanceFactory) NewCloudViaProxy(ctx context.Context, params func(Cluster_ModelInstanceFactory_newCloudViaProxy_Params) error) (Cluster_ModelInstanceFactory_newCloudViaProxy_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xfd9959998f9f0ebe,
@@ -3060,10 +3153,14 @@ func (c Cluster_ModelInstanceFactory) NewCloudViaProxy(ctx context.Context, para
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_ModelInstanceFactory_newCloudViaProxy_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Cluster_ModelInstanceFactory_newCloudViaProxy_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Cluster_ModelInstanceFactory) ModelId(ctx context.Context, params func(Cluster_ModelInstanceFactory_modelId_Params) error) (Cluster_ModelInstanceFactory_modelId_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xfd9959998f9f0ebe,
@@ -3076,10 +3173,14 @@ func (c Cluster_ModelInstanceFactory) ModelId(ctx context.Context, params func(C
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_ModelInstanceFactory_modelId_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Cluster_ModelInstanceFactory_modelId_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Cluster_ModelInstanceFactory) RegisterModelInstance(ctx context.Context, params func(Cluster_ModelInstanceFactory_registerModelInstance_Params) error) (Cluster_ModelInstanceFactory_registerModelInstance_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xfd9959998f9f0ebe,
@@ -3094,10 +3195,14 @@ func (c Cluster_ModelInstanceFactory) RegisterModelInstance(ctx context.Context,
 			return params(Cluster_ModelInstanceFactory_registerModelInstance_Params(s))
 		}
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Cluster_ModelInstanceFactory_registerModelInstance_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Cluster_ModelInstanceFactory) RestoreSturdyRef(ctx context.Context, params func(Cluster_ModelInstanceFactory_restoreSturdyRef_Params) error) (Cluster_ModelInstanceFactory_restoreSturdyRef_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xfd9959998f9f0ebe,
@@ -3110,10 +3215,14 @@ func (c Cluster_ModelInstanceFactory) RestoreSturdyRef(ctx context.Context, para
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_ModelInstanceFactory_restoreSturdyRef_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Cluster_ModelInstanceFactory_restoreSturdyRef_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Cluster_ModelInstanceFactory) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -3126,8 +3235,14 @@ func (c Cluster_ModelInstanceFactory) Info(ctx context.Context, params func(comm
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
+}
+
+func (c Cluster_ModelInstanceFactory) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -3135,7 +3250,7 @@ func (c Cluster_ModelInstanceFactory) Info(ctx context.Context, params func(comm
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Cluster_ModelInstanceFactory) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Cluster_ModelInstanceFactory(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -3195,7 +3310,9 @@ func (c Cluster_ModelInstanceFactory) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Cluster_ModelInstanceFactory) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Cluster_ModelInstanceFactory_Server is a Cluster_ModelInstanceFactory with a local implementation.
+}
+
+// A Cluster_ModelInstanceFactory_Server is a Cluster_ModelInstanceFactory with a local implementation.
 type Cluster_ModelInstanceFactory_Server interface {
 	NewInstance(context.Context, Cluster_ModelInstanceFactory_newInstance) error
 
@@ -3586,7 +3703,7 @@ func (s Cluster_ModelInstanceFactory_newInstance_Results) SetInstance(v Cluster_
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -3743,7 +3860,7 @@ func (s Cluster_ModelInstanceFactory_newInstances_Results) SetInstances(v Cluste
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -3900,7 +4017,7 @@ func (s Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results) SetP
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -4057,7 +4174,7 @@ func (s Cluster_ModelInstanceFactory_newCloudViaProxy_Results) SetProxy(v Cluste
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -4289,7 +4406,7 @@ func (s Cluster_ModelInstanceFactory_registerModelInstance_Params) SetInstance(c
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(c))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(c))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 func (s Cluster_ModelInstanceFactory_registerModelInstance_Params) RegistrationToken() (string, error) {
@@ -4391,7 +4508,7 @@ func (s Cluster_ModelInstanceFactory_registerModelInstance_Results) SetUnregiste
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -4558,7 +4675,7 @@ func (s Cluster_ModelInstanceFactory_restoreSturdyRef_Results) SetCap(v Cluster_
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -4739,50 +4856,55 @@ const schema_f3c1b27d6da9d0fa = "x\xda\xbcY}pT\xd5\x15?\xe7\xed\x86\x97l>" +
 	"k5$\xab\x92Rl@\xfe7\x00\x00\xff\xff\x94v" +
 	"\xa3\xc0"
 
-func init() {
-	schemas.Register(schema_f3c1b27d6da9d0fa,
-		0x815e89f778f1da6c,
-		0x8b5d8251cf57c316,
-		0x8ba6569cca01e84f,
-		0x8bf81264d2f11274,
-		0x93bdb3f5b6eecd29,
-		0x943b54ee6f4de610,
-		0x985d83a2e2d7e204,
-		0x9a80efc085eae065,
-		0x9b3d2c0c5054766c,
-		0xa0669b656ba6cc8e,
-		0xa81053c61d4d995c,
-		0xa8dfab7b88664bd4,
-		0xa967c8b00a278896,
-		0xb147e4fbf7081bda,
-		0xb4d00b302a119de9,
-		0xbaf979a1f5673019,
-		0xbba96ef3714f338f,
-		0xbcacf6dde70da193,
-		0xbcd8dd8cea624cbb,
-		0xbea41d4487c101c4,
-		0xbf24278c65f633ce,
-		0xc224b7ff6089b64e,
-		0xc3668a8f7946ce88,
-		0xc9034ba2becc2a64,
-		0xca8fb2a4c16e5f08,
-		0xd4bece01a7c4008f,
-		0xd6acf080dcf2b4c8,
-		0xd88a3f78cce2bc7d,
-		0xddbd9a18593be0c5,
-		0xe1b78932a9f7aea3,
-		0xe3cf5a40e703e6da,
-		0xe4b6ea2bfbc474d8,
-		0xe5cdfbf0462c5cfd,
-		0xe6b2589f9a250d7f,
-		0xe7434f81e2b1e3de,
-		0xe8b1f7a192651bbe,
-		0xec42c6df28354b60,
-		0xf004ae32302172c6,
-		0xf468b1dc515f841c,
-		0xf7485d56d6f20e7d,
-		0xf849848fea5c4776,
-		0xfd9959998f9f0ebe,
-		0xfe35aabe121add1a,
-		0xfea4c3f998b67621)
+func RegisterSchema(reg *schemas.Registry) {
+	reg.Register(&schemas.Schema{
+		String: schema_f3c1b27d6da9d0fa,
+		Nodes: []uint64{
+			0x815e89f778f1da6c,
+			0x8b5d8251cf57c316,
+			0x8ba6569cca01e84f,
+			0x8bf81264d2f11274,
+			0x93bdb3f5b6eecd29,
+			0x943b54ee6f4de610,
+			0x985d83a2e2d7e204,
+			0x9a80efc085eae065,
+			0x9b3d2c0c5054766c,
+			0xa0669b656ba6cc8e,
+			0xa81053c61d4d995c,
+			0xa8dfab7b88664bd4,
+			0xa967c8b00a278896,
+			0xb147e4fbf7081bda,
+			0xb4d00b302a119de9,
+			0xbaf979a1f5673019,
+			0xbba96ef3714f338f,
+			0xbcacf6dde70da193,
+			0xbcd8dd8cea624cbb,
+			0xbea41d4487c101c4,
+			0xbf24278c65f633ce,
+			0xc224b7ff6089b64e,
+			0xc3668a8f7946ce88,
+			0xc9034ba2becc2a64,
+			0xca8fb2a4c16e5f08,
+			0xd4bece01a7c4008f,
+			0xd6acf080dcf2b4c8,
+			0xd88a3f78cce2bc7d,
+			0xddbd9a18593be0c5,
+			0xe1b78932a9f7aea3,
+			0xe3cf5a40e703e6da,
+			0xe4b6ea2bfbc474d8,
+			0xe5cdfbf0462c5cfd,
+			0xe6b2589f9a250d7f,
+			0xe7434f81e2b1e3de,
+			0xe8b1f7a192651bbe,
+			0xec42c6df28354b60,
+			0xf004ae32302172c6,
+			0xf468b1dc515f841c,
+			0xf7485d56d6f20e7d,
+			0xf849848fea5c4776,
+			0xfd9959998f9f0ebe,
+			0xfe35aabe121add1a,
+			0xfea4c3f998b67621,
+		},
+		Compressed: true,
+	})
 }

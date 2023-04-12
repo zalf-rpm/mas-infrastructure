@@ -731,12 +731,17 @@ const schema_b80c8fd14e523f9b = "x\xda\x8c\x93O\x8c\x14E\x1b\xc6\xdf\xa7\xaag{a"
 	"Y\x1b~\x9f3&\xb8@u?\x0d\xe2\xa8\x9c\xdb\xe4" +
 	"\xb9\x87O\xfd\x13\x00\x00\xff\xff\xda\xc9\xa0\xdd"
 
-func init() {
-	schemas.Register(schema_b80c8fd14e523f9b,
-		0x8d365bd4f0136fc0,
-		0x8db55634a0e7d054,
-		0x932a681f81b4be19,
-		0xa008c533888c3a5e,
-		0xa47f8d65869200af,
-		0xcfe218c48d227e0d)
+func RegisterSchema(reg *schemas.Registry) {
+	reg.Register(&schemas.Schema{
+		String: schema_b80c8fd14e523f9b,
+		Nodes: []uint64{
+			0x8d365bd4f0136fc0,
+			0x8db55634a0e7d054,
+			0x932a681f81b4be19,
+			0xa008c533888c3a5e,
+			0xa47f8d65869200af,
+			0xcfe218c48d227e0d,
+		},
+		Compressed: true,
+	})
 }

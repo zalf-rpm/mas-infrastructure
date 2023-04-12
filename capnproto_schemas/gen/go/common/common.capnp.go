@@ -9,7 +9,6 @@ import (
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
-	fmt "fmt"
 	strconv "strconv"
 )
 
@@ -137,6 +136,7 @@ type Identifiable capnp.Client
 const Identifiable_TypeID = 0xb2afd1cb599c48d5
 
 func (c Identifiable) Info(ctx context.Context, params func(Identifiable_info_Params) error) (IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -149,8 +149,14 @@ func (c Identifiable) Info(ctx context.Context, params func(Identifiable_info_Pa
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Identifiable_info_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return IdInformation_Future{Future: ans.Future()}, release
+
+}
+
+func (c Identifiable) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -158,7 +164,7 @@ func (c Identifiable) Info(ctx context.Context, params func(Identifiable_info_Pa
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Identifiable) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Identifiable(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -218,7 +224,9 @@ func (c Identifiable) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Identifiable) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Identifiable_Server is a Identifiable with a local implementation.
+}
+
+// A Identifiable_Server is a Identifiable with a local implementation.
 type Identifiable_Server interface {
 	Info(context.Context, Identifiable_info) error
 }
@@ -624,12 +632,17 @@ const schema_99f1c9a775a88ac9 = "x\xdad\x921L\x13_\x1c\xc7\xbf\xdf\xf7z=\xfe" +
 	"\xa3\x0b\x10C\xf7\xedz\xa3\xd3o\xf47\x0at\xfe\x04" +
 	"\x00\x00\xff\xff{\xba\xee\xb6"
 
-func init() {
-	schemas.Register(schema_99f1c9a775a88ac9,
-		0x9d8aa1cf1e49deb1,
-		0xb2afd1cb599c48d5,
-		0xb9d4864725174733,
-		0xd4cb7ecbfe03dad3,
-		0xe8cbf552b1c262cc,
-		0xed6c098b67cad454)
+func RegisterSchema(reg *schemas.Registry) {
+	reg.Register(&schemas.Schema{
+		String: schema_99f1c9a775a88ac9,
+		Nodes: []uint64{
+			0x9d8aa1cf1e49deb1,
+			0xb2afd1cb599c48d5,
+			0xb9d4864725174733,
+			0xd4cb7ecbfe03dad3,
+			0xe8cbf552b1c262cc,
+			0xed6c098b67cad454,
+		},
+		Compressed: true,
+	})
 }

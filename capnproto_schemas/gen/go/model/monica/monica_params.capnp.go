@@ -7,7 +7,7 @@ import (
 	text "capnproto.org/go/capnp/v3/encoding/text"
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	climate "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/climate"
-	common "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common"
+	common_date "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common_date"
 	math "math"
 )
 
@@ -2900,25 +2900,25 @@ func (s MeasuredGroundwaterTableInformation_DateToValue) Message() *capnp.Messag
 func (s MeasuredGroundwaterTableInformation_DateToValue) Segment() *capnp.Segment {
 	return capnp.Struct(s).Segment()
 }
-func (s MeasuredGroundwaterTableInformation_DateToValue) Date() (common.Date, error) {
+func (s MeasuredGroundwaterTableInformation_DateToValue) Date() (common_date.Date, error) {
 	p, err := capnp.Struct(s).Ptr(0)
-	return common.Date(p.Struct()), err
+	return common_date.Date(p.Struct()), err
 }
 
 func (s MeasuredGroundwaterTableInformation_DateToValue) HasDate() bool {
 	return capnp.Struct(s).HasPtr(0)
 }
 
-func (s MeasuredGroundwaterTableInformation_DateToValue) SetDate(v common.Date) error {
+func (s MeasuredGroundwaterTableInformation_DateToValue) SetDate(v common_date.Date) error {
 	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewDate sets the date field to a newly
-// allocated common.Date struct, preferring placement in s's segment.
-func (s MeasuredGroundwaterTableInformation_DateToValue) NewDate() (common.Date, error) {
-	ss, err := common.NewDate(capnp.Struct(s).Segment())
+// allocated common_date.Date struct, preferring placement in s's segment.
+func (s MeasuredGroundwaterTableInformation_DateToValue) NewDate() (common_date.Date, error) {
+	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common.Date{}, err
+		return common_date.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
@@ -2948,8 +2948,8 @@ func (f MeasuredGroundwaterTableInformation_DateToValue_Future) Struct() (Measur
 	p, err := f.Future.Ptr()
 	return MeasuredGroundwaterTableInformation_DateToValue(p.Struct()), err
 }
-func (p MeasuredGroundwaterTableInformation_DateToValue_Future) Date() common.Date_Future {
-	return common.Date_Future{Future: p.Future.Field(0, nil)}
+func (p MeasuredGroundwaterTableInformation_DateToValue_Future) Date() common_date.Date_Future {
+	return common_date.Date_Future{Future: p.Future.Field(0, nil)}
 }
 
 type SimulationParameters capnp.Struct
@@ -2999,49 +2999,49 @@ func (s SimulationParameters) Message() *capnp.Message {
 func (s SimulationParameters) Segment() *capnp.Segment {
 	return capnp.Struct(s).Segment()
 }
-func (s SimulationParameters) StartDate() (common.Date, error) {
+func (s SimulationParameters) StartDate() (common_date.Date, error) {
 	p, err := capnp.Struct(s).Ptr(0)
-	return common.Date(p.Struct()), err
+	return common_date.Date(p.Struct()), err
 }
 
 func (s SimulationParameters) HasStartDate() bool {
 	return capnp.Struct(s).HasPtr(0)
 }
 
-func (s SimulationParameters) SetStartDate(v common.Date) error {
+func (s SimulationParameters) SetStartDate(v common_date.Date) error {
 	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewStartDate sets the startDate field to a newly
-// allocated common.Date struct, preferring placement in s's segment.
-func (s SimulationParameters) NewStartDate() (common.Date, error) {
-	ss, err := common.NewDate(capnp.Struct(s).Segment())
+// allocated common_date.Date struct, preferring placement in s's segment.
+func (s SimulationParameters) NewStartDate() (common_date.Date, error) {
+	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common.Date{}, err
+		return common_date.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
-func (s SimulationParameters) EndDate() (common.Date, error) {
+func (s SimulationParameters) EndDate() (common_date.Date, error) {
 	p, err := capnp.Struct(s).Ptr(1)
-	return common.Date(p.Struct()), err
+	return common_date.Date(p.Struct()), err
 }
 
 func (s SimulationParameters) HasEndDate() bool {
 	return capnp.Struct(s).HasPtr(1)
 }
 
-func (s SimulationParameters) SetEndDate(v common.Date) error {
+func (s SimulationParameters) SetEndDate(v common_date.Date) error {
 	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
 }
 
 // NewEndDate sets the endDate field to a newly
-// allocated common.Date struct, preferring placement in s's segment.
-func (s SimulationParameters) NewEndDate() (common.Date, error) {
-	ss, err := common.NewDate(capnp.Struct(s).Segment())
+// allocated common_date.Date struct, preferring placement in s's segment.
+func (s SimulationParameters) NewEndDate() (common_date.Date, error) {
+	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
 	if err != nil {
-		return common.Date{}, err
+		return common_date.Date{}, err
 	}
 	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
 	return ss, err
@@ -3239,11 +3239,11 @@ func (f SimulationParameters_Future) Struct() (SimulationParameters, error) {
 	p, err := f.Future.Ptr()
 	return SimulationParameters(p.Struct()), err
 }
-func (p SimulationParameters_Future) StartDate() common.Date_Future {
-	return common.Date_Future{Future: p.Future.Field(0, nil)}
+func (p SimulationParameters_Future) StartDate() common_date.Date_Future {
+	return common_date.Date_Future{Future: p.Future.Field(0, nil)}
 }
-func (p SimulationParameters_Future) EndDate() common.Date_Future {
-	return common.Date_Future{Future: p.Future.Field(1, nil)}
+func (p SimulationParameters_Future) EndDate() common_date.Date_Future {
+	return common_date.Date_Future{Future: p.Future.Field(1, nil)}
 }
 func (p SimulationParameters_Future) AutoIrrigationParams() AutomaticIrrigationParameters_Future {
 	return AutomaticIrrigationParameters_Future{Future: p.Future.Field(2, nil)}
@@ -6781,41 +6781,46 @@ const schema_eef9ddc7a345de6d = "x\xda\x9c\x9c}\x9c\x14\xe5\x9d\xe0\x9f_U\xbf\xc
 	"N\xa7kZ\xa9o<\xb9\xff\x17\x00\x00\xff\xff\x0d3" +
 	"\xe9\xfc"
 
-func init() {
-	schemas.Register(schema_eef9ddc7a345de6d,
-		0x80d5a7b782142e87,
-		0x81b8ffeeb01d76f7,
-		0x8491dc2c2f94f1d1,
-		0x8890f17a143c6896,
-		0x8ac5cfb21988c168,
-		0x990bdcf2be83b604,
-		0xa74f5574681f9d55,
-		0xb3e73f8c19afd787,
-		0xb42137d4b8ba3ef6,
-		0xb599bbd2f1465f9c,
-		0xb87956e2953771db,
-		0xc0ff4a277ca4be0a,
-		0xc1092d6c4c110e29,
-		0xc281c6e5be483337,
-		0xc5cb65e585742338,
-		0xc5f724bd00c2f628,
-		0xc8aeb5222ac5ef40,
-		0xcdff1b0306ea58cf,
-		0xce5b0091fd9acb21,
-		0xcf0f425c8bd69fa2,
-		0xd11f8d1479e2f010,
-		0xd2d587c796186e8b,
-		0xd9ed2c1c754d683e,
-		0xdbfe301c0ddefe4e,
-		0xde7576c640b5ad18,
-		0xe4d6d0d9ae1553da,
-		0xe68d439455fd9cce,
-		0xe82d760b257daddb,
-		0xea9236083718fdc2,
-		0xee0b04cc3f52f33c,
-		0xf0c41d021228d929,
-		0xf206f12e39ab7f9b,
-		0xf246442c7aee0af5,
-		0xf95db11410e33efc,
-		0xffac0fa5c7156a5d)
+func RegisterSchema(reg *schemas.Registry) {
+	reg.Register(&schemas.Schema{
+		String: schema_eef9ddc7a345de6d,
+		Nodes: []uint64{
+			0x80d5a7b782142e87,
+			0x81b8ffeeb01d76f7,
+			0x8491dc2c2f94f1d1,
+			0x8890f17a143c6896,
+			0x8ac5cfb21988c168,
+			0x990bdcf2be83b604,
+			0xa74f5574681f9d55,
+			0xb3e73f8c19afd787,
+			0xb42137d4b8ba3ef6,
+			0xb599bbd2f1465f9c,
+			0xb87956e2953771db,
+			0xc0ff4a277ca4be0a,
+			0xc1092d6c4c110e29,
+			0xc281c6e5be483337,
+			0xc5cb65e585742338,
+			0xc5f724bd00c2f628,
+			0xc8aeb5222ac5ef40,
+			0xcdff1b0306ea58cf,
+			0xce5b0091fd9acb21,
+			0xcf0f425c8bd69fa2,
+			0xd11f8d1479e2f010,
+			0xd2d587c796186e8b,
+			0xd9ed2c1c754d683e,
+			0xdbfe301c0ddefe4e,
+			0xde7576c640b5ad18,
+			0xe4d6d0d9ae1553da,
+			0xe68d439455fd9cce,
+			0xe82d760b257daddb,
+			0xea9236083718fdc2,
+			0xee0b04cc3f52f33c,
+			0xf0c41d021228d929,
+			0xf206f12e39ab7f9b,
+			0xf246442c7aee0af5,
+			0xf95db11410e33efc,
+			0xffac0fa5c7156a5d,
+		},
+		Compressed: true,
+	})
 }

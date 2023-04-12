@@ -9,7 +9,6 @@ import (
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
-	fmt "fmt"
 )
 
 type DWLABImport capnp.Client
@@ -18,6 +17,7 @@ type DWLABImport capnp.Client
 const DWLABImport_TypeID = 0xa1a4ad9d143eaa6f
 
 func (c DWLABImport) ImportData(ctx context.Context, params func(DWLABImport_importData_Params) error) (DWLABImport_importData_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa1a4ad9d143eaa6f,
@@ -30,8 +30,14 @@ func (c DWLABImport) ImportData(ctx context.Context, params func(DWLABImport_imp
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 3}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(DWLABImport_importData_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return DWLABImport_importData_Results_Future{Future: ans.Future()}, release
+
+}
+
+func (c DWLABImport) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -39,7 +45,7 @@ func (c DWLABImport) ImportData(ctx context.Context, params func(DWLABImport_imp
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c DWLABImport) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "DWLABImport(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -99,7 +105,9 @@ func (c DWLABImport) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c DWLABImport) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A DWLABImport_Server is a DWLABImport with a local implementation.
+}
+
+// A DWLABImport_Server is a DWLABImport with a local implementation.
 type DWLABImport_Server interface {
 	ImportData(context.Context, DWLABImport_importData) error
 }
@@ -395,9 +403,14 @@ const schema_c4b468a2826bb79b = "x\xda\xac\x90?\xab\x13A\x14\xc5\xcf\xb9\xb3y\xa
 	"=\x08\xbd|\x19l\x97?\x01\x00\x00\xff\xff\"\xdc\x99" +
 	"\xf8"
 
-func init() {
-	schemas.Register(schema_c4b468a2826bb79b,
-		0xa1a4ad9d143eaa6f,
-		0xb9bc568c49fcca07,
-		0xeb03972caa23c7d2)
+func RegisterSchema(reg *schemas.Registry) {
+	reg.Register(&schemas.Schema{
+		String: schema_c4b468a2826bb79b,
+		Nodes: []uint64{
+			0xa1a4ad9d143eaa6f,
+			0xb9bc568c49fcca07,
+			0xeb03972caa23c7d2,
+		},
+		Compressed: true,
+	})
 }

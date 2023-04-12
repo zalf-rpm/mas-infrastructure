@@ -9,7 +9,6 @@ import (
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
-	fmt "fmt"
 	common "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common"
 	geo "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/geo"
 	persistence "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/persistence"
@@ -137,6 +136,7 @@ type Grid capnp.Client
 const Grid_TypeID = 0xe42973b29661e3c6
 
 func (c Grid) ClosestValueAt(ctx context.Context, params func(Grid_closestValueAt_Params) error) (Grid_closestValueAt_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xe42973b29661e3c6,
@@ -149,10 +149,14 @@ func (c Grid) ClosestValueAt(ctx context.Context, params func(Grid_closestValueA
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 2}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Grid_closestValueAt_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Grid_closestValueAt_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Grid) Resolution(ctx context.Context, params func(Grid_resolution_Params) error) (Grid_resolution_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xe42973b29661e3c6,
@@ -165,10 +169,14 @@ func (c Grid) Resolution(ctx context.Context, params func(Grid_resolution_Params
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Grid_resolution_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Grid_resolution_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Grid) Dimension(ctx context.Context, params func(Grid_dimension_Params) error) (Grid_dimension_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xe42973b29661e3c6,
@@ -181,10 +189,14 @@ func (c Grid) Dimension(ctx context.Context, params func(Grid_dimension_Params) 
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Grid_dimension_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Grid_dimension_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Grid) NoDataValue(ctx context.Context, params func(Grid_noDataValue_Params) error) (Grid_noDataValue_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xe42973b29661e3c6,
@@ -197,10 +209,14 @@ func (c Grid) NoDataValue(ctx context.Context, params func(Grid_noDataValue_Para
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Grid_noDataValue_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Grid_noDataValue_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Grid) ValueAt(ctx context.Context, params func(Grid_valueAt_Params) error) (Grid_valueAt_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xe42973b29661e3c6,
@@ -213,10 +229,14 @@ func (c Grid) ValueAt(ctx context.Context, params func(Grid_valueAt_Params) erro
 		s.ArgsSize = capnp.ObjectSize{DataSize: 24, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Grid_valueAt_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Grid_valueAt_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Grid) LatLonBounds(ctx context.Context, params func(Grid_latLonBounds_Params) error) (Grid_latLonBounds_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xe42973b29661e3c6,
@@ -229,10 +249,14 @@ func (c Grid) LatLonBounds(ctx context.Context, params func(Grid_latLonBounds_Pa
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Grid_latLonBounds_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Grid_latLonBounds_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Grid) StreamCells(ctx context.Context, params func(Grid_streamCells_Params) error) (Grid_streamCells_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xe42973b29661e3c6,
@@ -245,10 +269,14 @@ func (c Grid) StreamCells(ctx context.Context, params func(Grid_streamCells_Para
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Grid_streamCells_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Grid_streamCells_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Grid) Unit(ctx context.Context, params func(Grid_unit_Params) error) (Grid_unit_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xe42973b29661e3c6,
@@ -261,10 +289,14 @@ func (c Grid) Unit(ctx context.Context, params func(Grid_unit_Params) error) (Gr
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Grid_unit_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Grid_unit_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Grid) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -277,10 +309,14 @@ func (c Grid) Info(ctx context.Context, params func(common.Identifiable_info_Par
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
 }
+
 func (c Grid) Save(ctx context.Context, params func(persistence.Persistent_SaveParams) error) (persistence.Persistent_SaveResults_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xc1a7daa0dc36cb65,
@@ -293,8 +329,14 @@ func (c Grid) Save(ctx context.Context, params func(persistence.Persistent_SaveP
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return persistence.Persistent_SaveResults_Future{Future: ans.Future()}, release
+
+}
+
+func (c Grid) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -302,7 +344,7 @@ func (c Grid) Save(ctx context.Context, params func(persistence.Persistent_SaveP
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Grid) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Grid(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -362,7 +404,9 @@ func (c Grid) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Grid) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Grid_Server is a Grid with a local implementation.
+}
+
+// A Grid_Server is a Grid with a local implementation.
 type Grid_Server interface {
 	ClosestValueAt(context.Context, Grid_closestValueAt) error
 
@@ -1142,6 +1186,7 @@ type Grid_Callback capnp.Client
 const Grid_Callback_TypeID = 0xd639518280cb55d3
 
 func (c Grid_Callback) SendCells(ctx context.Context, params func(Grid_Callback_sendCells_Params) error) (Grid_Callback_sendCells_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xd639518280cb55d3,
@@ -1154,8 +1199,14 @@ func (c Grid_Callback) SendCells(ctx context.Context, params func(Grid_Callback_
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Grid_Callback_sendCells_Params(s)) }
 	}
+
 	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Grid_Callback_sendCells_Results_Future{Future: ans.Future()}, release
+
+}
+
+func (c Grid_Callback) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
 // String returns a string that identifies this capability for debugging
@@ -1163,7 +1214,7 @@ func (c Grid_Callback) SendCells(ctx context.Context, params func(Grid_Callback_
 // should not be used to compare clients.  Use IsSame to compare clients
 // for equality.
 func (c Grid_Callback) String() string {
-	return fmt.Sprintf("%T(%v)", c, capnp.Client(c))
+	return "Grid_Callback(" + capnp.Client(c).String() + ")"
 }
 
 // AddRef creates a new Client that refers to the same capability as c.
@@ -1223,7 +1274,9 @@ func (c Grid_Callback) SetFlowLimiter(lim fc.FlowLimiter) {
 // for this client.
 func (c Grid_Callback) GetFlowLimiter() fc.FlowLimiter {
 	return capnp.Client(c).GetFlowLimiter()
-} // A Grid_Callback_Server is a Grid_Callback with a local implementation.
+}
+
+// A Grid_Callback_Server is a Grid_Callback with a local implementation.
 type Grid_Callback_Server interface {
 	SendCells(context.Context, Grid_Callback_sendCells) error
 }
@@ -2760,7 +2813,7 @@ func (s Grid_streamCells_Params) SetCallback(v Grid_Callback) error {
 		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(capnp.Client(v)))
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
 	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
@@ -3133,31 +3186,36 @@ const schema_d373e9739460aa23 = "x\xda\xa4W\x7f\x8c\x14g\x19~\xdf\xef\xdbev\xef"
 	"\xb2\xdb^x\xb8:\x98\xce\xa8\x07\"\x84\xd7\xf5\x80\xd9" +
 	"\xdc\xb4\x82{\xfe'\x00\x00\xff\xff\xe8G\x8d\xc7"
 
-func init() {
-	schemas.Register(schema_d373e9739460aa23,
-		0x8cd7ba490778c79a,
-		0x8e536f6e598b2579,
-		0x948ff2bdd6e6972f,
-		0x9b8dd52b78a7ebd2,
-		0x9bc132bd2a1b1fcf,
-		0xa21ef33efc715994,
-		0xa5ecdc7767a6b301,
-		0xa6005af20cc08dbe,
-		0xa8bd0263833540b0,
-		0xa9b6fbdd27e7577b,
-		0xac444617ef333a1d,
-		0xb9e2d85d086206ff,
-		0xbb4e4368bb6a6748,
-		0xd170e76dbd9fc4fb,
-		0xd639518280cb55d3,
-		0xd9add1b3fdcfdbba,
-		0xe42973b29661e3c6,
-		0xe57fce57d3443377,
-		0xe7a46f6b1610256f,
-		0xe9b0c7718f68f6bb,
-		0xeb7e6f1c610c079a,
-		0xf37338992466bd97,
-		0xf79edcb97e1e2deb,
-		0xf804a76f2ada54b6,
-		0xfe2e0dfae573d9d0)
+func RegisterSchema(reg *schemas.Registry) {
+	reg.Register(&schemas.Schema{
+		String: schema_d373e9739460aa23,
+		Nodes: []uint64{
+			0x8cd7ba490778c79a,
+			0x8e536f6e598b2579,
+			0x948ff2bdd6e6972f,
+			0x9b8dd52b78a7ebd2,
+			0x9bc132bd2a1b1fcf,
+			0xa21ef33efc715994,
+			0xa5ecdc7767a6b301,
+			0xa6005af20cc08dbe,
+			0xa8bd0263833540b0,
+			0xa9b6fbdd27e7577b,
+			0xac444617ef333a1d,
+			0xb9e2d85d086206ff,
+			0xbb4e4368bb6a6748,
+			0xd170e76dbd9fc4fb,
+			0xd639518280cb55d3,
+			0xd9add1b3fdcfdbba,
+			0xe42973b29661e3c6,
+			0xe57fce57d3443377,
+			0xe7a46f6b1610256f,
+			0xe9b0c7718f68f6bb,
+			0xeb7e6f1c610c079a,
+			0xf37338992466bd97,
+			0xf79edcb97e1e2deb,
+			0xf804a76f2ada54b6,
+			0xfe2e0dfae573d9d0,
+		},
+		Compressed: true,
+	})
 }
