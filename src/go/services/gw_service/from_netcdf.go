@@ -21,6 +21,10 @@ type gridService struct {
 	stepLatSize float64
 	stepLonSize float64
 	timeValues  []float32
+	wdt         [][][]int16
+	scaleFactor float64
+	add_offset  float64
+	mask        [][]int8
 }
 
 func newGridService(restorer *commonlib.Restorer) *gridService {
@@ -37,6 +41,7 @@ func newGridService(restorer *commonlib.Restorer) *gridService {
 	newCommonGrid := commonlib.NewGrid(restorer, uuid.New().String(), *name, *description)
 	gs := &gridService{
 		commonGrid: newCommonGrid,
+		wdt:        nil,
 	}
 	meta, err := loadNetCDF(*fileLocation)
 	gs.data = meta.data
@@ -52,7 +57,10 @@ func newGridService(restorer *commonlib.Restorer) *gridService {
 	gs.commonGrid.Bounds = meta.bounds
 	gs.commonGrid.BoundsFromCellCenter = meta.boundsFromCellCenter
 	gs.timeValues = meta.timeValues
-
+	gs.wdt = meta.wdt
+	gs.scaleFactor = meta.scaleFactor
+	gs.add_offset = meta.add_offset
+	gs.mask = meta.mask
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -74,6 +82,10 @@ type loadedNetCDFMeta struct {
 	bounds               commonlib.LatLonBoundaries
 	boundsFromCellCenter commonlib.LatLonBoundaries
 	timeValues           []float32
+	wdt                  [][][]int16
+	scaleFactor          float64
+	add_offset           float64
+	mask                 [][]int8
 }
 
 // load a netcdf file, print credentials
@@ -93,6 +105,10 @@ func loadNetCDF(inputFile string) (loadedNetCDFMeta, error) {
 		bounds:               commonlib.LatLonBoundaries{},
 		boundsFromCellCenter: commonlib.LatLonBoundaries{},
 		timeValues:           []float32{},
+		wdt:                  [][][]int16{},
+		scaleFactor:          1.0,
+		add_offset:           0.0,
+		mask:                 [][]int8{},
 	}
 
 	// Open the file
@@ -243,6 +259,35 @@ func loadNetCDF(inputFile string) (loadedNetCDFMeta, error) {
 		}
 	}
 	meta.timeValues = timeValues
+
+	WTDVar, err := (nc).GetVarGetter("WTD")
+	if err != nil {
+		log.Fatal(err)
+	}
+	valsWTD, err := WTDVar.GetSlice(0, 1) // get first time step only
+	if err != nil {
+		log.Fatal(err)
+	}
+	valWTD := valsWTD.([][][]int16)
+	meta.wdt = valWTD
+
+	if val, ok := WTDVar.Attributes().Get("scale_factor"); ok {
+		meta.scaleFactor = val.(float64)
+	}
+
+	if val, ok := WTDVar.Attributes().Get("add_offset"); ok {
+		meta.add_offset = val.(float64)
+	}
+	// mask for valid data
+	maskVar, err := (nc).GetVarGetter("mask")
+	if err != nil {
+		log.Fatal(err)
+	}
+	valsMask, err := maskVar.Values()
+	if err != nil {
+		log.Fatal(err)
+	}
+	meta.mask = valsMask.([][]int8)
 	return meta, nil
 }
 
@@ -268,7 +313,7 @@ func (gs *gridService) setupCallbacks() {
 			}, nil
 	}
 	gs.commonGrid.GetValueRowCol = func(row, col uint64) (interface{}, error) {
-		val, err := gs.GetValueRowCol(gs.data, row, col)
+		val, err := gs.GetValueRowCol(row, col)
 		return val, err
 	}
 
@@ -351,7 +396,6 @@ func (gs *gridService) GetValueLatLon(inLat, inLon float64) (float64, int64, int
 	if err != nil {
 		log.Fatal(err)
 	}
-	//lenLat := latVar.Len()
 
 	valsLat, err := latVar.GetSlice(iLatMin, iLatMax) // latVar.Values()
 	if err != nil {
@@ -363,7 +407,7 @@ func (gs *gridService) GetValueLatLon(inLat, inLon float64) (float64, int64, int
 	if err != nil {
 		log.Fatal(err)
 	}
-	//lenLon := lonVar.Len()
+
 	valsLon, err := lonVar.GetSlice(iLonMin, iLonMax) // lonVar.Values()
 	if err != nil {
 		log.Fatal(err)
@@ -375,84 +419,26 @@ func (gs *gridService) GetValueLatLon(inLat, inLon float64) (float64, int64, int
 	iLat = iLat + iLatMin
 	iLon = iLon + iLonMin
 
-	// ground water
-	WTDVar, err := (*gs.data).GetVarGetter("WTD")
-	if err != nil {
-		log.Fatal(err)
-	}
-	valsWTD, err := WTDVar.GetSlice(0, 1) // WTDVar.Values()
-	if err != nil {
-		log.Fatal(err)
-	}
-	valWTD := valsWTD.([][][]int16)
-
-	scaleFactor := 1.0
-	if val, ok := WTDVar.Attributes().Get("scale_factor"); ok {
-		scaleFactor = val.(float64)
-	}
-	var add_offset float64 = 0.0
-	if val, ok := WTDVar.Attributes().Get("add_offset"); ok {
-		add_offset = val.(float64)
-	}
-
-	// mask for valid data
-	maskVar, err := (*gs.data).GetVarGetter("mask")
-	if err != nil {
-		log.Fatal(err)
-	}
-	valsMask, err := maskVar.GetSlice(iLat, iLat+1) // maskVar.Values()
-	if err != nil {
-		log.Fatal(err)
-	}
 	var gw float64
-	if valsMask.([][]int8)[iLat][iLon] == 1 {
-		value := valWTD[0][iLat][iLon]
-		gw = math.Ceil((float64(value)*scaleFactor + add_offset))
+	if gs.mask[iLat][iLon] == 1 {
+		value := gs.wdt[0][iLat][iLon]
+		gw = math.Ceil((float64(value)*gs.scaleFactor + gs.add_offset))
 	} else {
 		gw = 2
 	}
 	return gw, iLat, iLon
 }
 
-func (gs *gridService) GetValueRowCol(nc *api.Group, row, col uint64) (interface{}, error) {
+func (gs *gridService) GetValueRowCol(row, col uint64) (interface{}, error) {
 	// check if row and col are in range
 	if row >= gs.commonGrid.NumRows || col >= gs.commonGrid.NumCols {
 		return nil, errors.New("row or col out of range")
 	}
 
-	// ground water
-	WTDVar, err := (*nc).GetVarGetter("WTD")
-	if err != nil {
-		log.Fatal(err)
-	}
-	valsWTD, err := WTDVar.GetSlice(0, 0) //WTDVar.Values()
-	if err != nil {
-		log.Fatal(err)
-	}
-	valWTD := valsWTD.([][][]int16)
-
-	scaleFactor := 1.0
-	if val, ok := WTDVar.Attributes().Get("scale_factor"); ok {
-		scaleFactor = val.(float64)
-	}
-	var add_offset float64 = 0.0
-	if val, ok := WTDVar.Attributes().Get("add_offset"); ok {
-		add_offset = val.(float64)
-	}
-
-	// mask for valid data
-	maskVar, err := (*nc).GetVarGetter("mask")
-	if err != nil {
-		log.Fatal(err)
-	}
-	valsMask, err := maskVar.GetSlice(int64(row), int64(row)) //maskVar.Values()
-	if err != nil {
-		log.Fatal(err)
-	}
 	var gw float64
-	if valsMask.([][]int8)[row][col] == 1 {
-		value := valWTD[0][row][col]
-		gw = math.Ceil((float64(value)*scaleFactor + add_offset))
+	if gs.mask[row][col] == 1 {
+		value := gs.wdt[0][row][col]
+		gw = math.Ceil((float64(value)*gs.scaleFactor + gs.add_offset))
 	} else {
 		gw = 2
 	}
