@@ -6,11 +6,13 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"sort"
 
 	"github.com/batchatco/go-native-netcdf/netcdf"
 	"github.com/batchatco/go-native-netcdf/netcdf/api"
 	"github.com/google/uuid"
 	"github.com/zalf-rpm/mas-infrastructure/src/go/commonlib"
+	"gonum.org/v1/gonum/stat"
 )
 
 type gridService struct {
@@ -458,6 +460,13 @@ func (gs *gridService) GetValueLatLonAggregated(inLat, inLon float64, resolution
 	if inLon <= gs.commonGrid.Bounds.TopLeft.Lon || inLon >= gs.commonGrid.Bounds.BottomRight.Lon {
 		return nil, nil, fmt.Errorf("lon %f is out of bounds", inLon)
 	}
+
+	aggVal := 0.0
+	if agg == "none" {
+		gw, _, _ := gs.GetValueLatLon(inLat, inLon)
+		aggVal = gw
+	}
+
 	latTop := inLat
 	latBottom := inLat
 	lonLeft := inLon
@@ -488,9 +497,8 @@ func (gs *gridService) GetValueLatLonAggregated(inLat, inLon float64, resolution
 	if err != nil {
 		log.Fatal(err)
 	}
-	//lenLat := latVar.Len()
 
-	valsLat, err := latVar.GetSlice(iLatMin, iLatMax) // latVar.Values()
+	valsLat, err := latVar.GetSlice(iLatMin, iLatMax)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -500,80 +508,65 @@ func (gs *gridService) GetValueLatLonAggregated(inLat, inLon float64, resolution
 	if err != nil {
 		log.Fatal(err)
 	}
-	//lenLon := lonVar.Len()
-	valsLon, err := lonVar.GetSlice(iLonMin, iLonMax) // lonVar.Values()
+
+	valsLon, err := lonVar.GetSlice(iLonMin, iLonMax)
 	if err != nil {
 		log.Fatal(err)
 	}
 	valLon := valsLon.([]float32)
 
 	// check if lat and lon of a neibor is closer, to correct rounding errors
-	iLatTop = isNeiborCloser(valLat, iLatTop, inLon)
-	iLatBottom = isNeiborCloser(valLat, iLatBottom, inLon)
-	iLonLeft = isNeiborCloser(valLon, iLonLeft, inLon)
-	iLonRight = isNeiborCloser(valLon, iLonRight, inLon)
+	iLatTop = isNeiborCloser(valLat, iLatMax-iLatTop, latTop)
+	iLatBottom = isNeiborCloser(valLat, iLatMax-iLatBottom, latBottom)
+	iLonLeft = isNeiborCloser(valLon, iLonMax-iLonLeft, lonLeft)
+	iLonRight = isNeiborCloser(valLon, iLonMax-iLonRight, lonRight)
+	iLatTop = iLatTop + iLatMin
+	iLatBottom = iLatBottom + iLatMin
+	iLonLeft = iLonLeft + iLonMin
+	iLonRight = iLonRight + iLonMin
 
-	// ground water
-	WTDVar, err := (*nc).GetVarGetter("WTD")
-	if err != nil {
-		log.Fatal(err)
-	}
-	valsWTD, err := WTDVar.GetSlice(0, 0) //WTDVar.Values()
-	if err != nil {
-		log.Fatal(err)
-	}
-	valWTD := valsWTD.([][][]int16)
-
-	scaleFactor := 1.0
-	if val, ok := WTDVar.Attributes().Get("scale_factor"); ok {
-		scaleFactor = val.(float64)
-	}
-	var add_offset float64 = 0.0
-	if val, ok := WTDVar.Attributes().Get("add_offset"); ok {
-		add_offset = val.(float64)
-	}
-
-	// mask for valid data
-	maskVar, err := (*nc).GetVarGetter("mask")
-	if err != nil {
-		log.Fatal(err)
-	}
-	valsMask, err := maskVar.GetSlice(iLatTop, iLatBottom) //maskVar.Values()
-	if err != nil {
-		log.Fatal(err)
-	}
 	gwList := make([]commonlib.AggregationPart, 0, 1)
 	for iLat := iLatTop; iLat <= iLatBottom; iLat++ {
 		for iLon := iLonLeft; iLon <= iLonRight; iLon++ {
-			if valsMask.([][]int8)[iLat][iLon] == 1 {
-				value := valWTD[0][iLat][iLon]
-				gw := math.Ceil((float64(value)*scaleFactor + add_offset))
+
+			if gs.mask[iLat][iLon] == 1 {
+				areaWeight := 1.0
+
+				value := gs.wdt[0][iLat][iLon]
+				gw := math.Ceil((float64(value)*gs.scaleFactor + gs.add_offset))
 				gwList = append(gwList, commonlib.AggregationPart{
 					OriginalValue: gw,
 					RowColTuple: commonlib.RowCol{
 						Row: uint64(iLat),
 						Col: uint64(iLon),
 					},
-					AreaWeight: 1,
+					AreaWeight: areaWeight,
+				})
+			} else {
+				gwList = append(gwList, commonlib.AggregationPart{
+					OriginalValue: gs.commonGrid.NoDataType,
+					RowColTuple: commonlib.RowCol{
+						Row: uint64(iLat),
+						Col: uint64(iLon),
+					},
+					AreaWeight: 0.0,
 				})
 			}
 		}
 	}
-	if len(gwList) > 0 {
-		aggPart := make([]commonlib.AggregationPart, 0, len(gwList))
-		for _, gw := range gwList {
-			aggPart = append(aggPart, commonlib.AggregationPart{
-				OriginalValue: gw,
-				RowColTuple:   commonlib.RowCol{},
-				AreaWeight:    0,
-			})
-		}
-		return 1, []commonlib.AggregationPart{}, nil
-
-	} else {
-		return 2, nil, nil
+	if len(gwList) == 0 {
+		// no data found
+		return gs.commonGrid.NoDataType, nil, nil
 	}
-
+	if agg != "none" {
+		// aggregate
+		aggVal, err = aggregate(agg, gwList, gs.commonGrid.NoDataType)
+		if err != nil {
+			return nil, nil, err
+		}
+		return aggVal, gwList, nil
+	}
+	return aggVal, gwList, nil
 }
 
 func (gs *gridService) createGWTimeSeries(nc *api.Group, inLat, inLon float64) float64 {
@@ -698,4 +691,198 @@ func (gs *gridService) createGWTimeSeries(nc *api.Group, inLat, inLon float64) f
 		gw = 0
 	}
 	return gw
+}
+
+func aggregate(aggType string, unfilteredValues []commonlib.AggregationPart, noVal interface{}) (float64, error) {
+
+	// avg       @8;   # average of cell values
+	// wAvg      @1;   # area weighted average
+	// iAvg      @6;   # interpolated average
+	// median    @9;   # median of cell values
+	// wMedian   @2;   # area weighted median
+	// iMedian   @7;   # interpolated median
+	// min       @3;   # minimum
+	// wMin      @12;  # area weighted minimum
+	// iMin      @13;  # interpolated minimum
+	// max       @4;   # maximum
+	// wMax      @14;  # area weighted maximum
+	// iMax      @15;  # interpolated maximum
+	// sum       @5;   # sum of all cells values
+	// wSum      @10;  # area weighted sum
+	// iSum      @11;  # interpolated sum
+
+	// filter values
+	// remove invalid values
+	values := make([]float64, 0, len(unfilteredValues))
+	weightsValues := make([]float64, 0, len(unfilteredValues))
+
+	for _, val := range unfilteredValues {
+		gw := val.OriginalValue.(float64)
+		if gw != noVal &&
+			!math.IsInf(gw, 0) && !math.IsNaN(gw) {
+			values = append(values, gw)
+			weightsValues = append(weightsValues, val.AreaWeight)
+		}
+	}
+	if len(values) == 0 {
+		return 0.0, errors.New("no valid values")
+	}
+	result := 0.0
+	switch aggType {
+	case "avg":
+		result = avg(values)
+	case "wAvg":
+		result = wAvg(values, weightsValues)
+	case "iAvg":
+		result = iAvg(values)
+	case "median":
+		result = median(values)
+	case "wMedian":
+		result = wMedian(values, weightsValues)
+	case "iMedian":
+		result = iMedian(values)
+	case "min":
+		result = minVal(values)
+	case "wMin":
+		result = wMin(values, weightsValues)
+	case "iMin":
+		result = iMin(values)
+	case "max":
+		result = maxVal(values)
+	case "wMax":
+		result = wMax(values, weightsValues)
+	case "iMax":
+		result = iMax(values)
+	case "sum":
+		result = sum(values)
+	case "wSum":
+		result = wSum(values, weightsValues)
+	case "iSum":
+		result = iSum(values)
+	}
+	if math.IsInf(result, 0) || math.IsNaN(result) {
+		return result, fmt.Errorf("invalid result: %v", result)
+	}
+
+	return result, nil
+}
+
+func iSum(values []float64) float64 {
+	panic("unimplemented")
+}
+
+func wSum(values, weightsValues []float64) float64 {
+	wValues := make([]float64, len(values))
+	for i, v := range values {
+		wValues[i] = v * weightsValues[i]
+	}
+	return sum(wValues)
+}
+
+func sum(values []float64) float64 {
+	var sum float64
+	for _, v := range values {
+		sum += v
+	}
+	return sum
+}
+
+func iMax(values []float64) float64 {
+	panic("unimplemented")
+}
+
+func wMax(values, weightsValues []float64) float64 {
+	wValues := make([]float64, len(values))
+	for i, v := range values {
+		wValues[i] = v * weightsValues[i]
+	}
+	return maxVal(wValues)
+}
+
+func maxVal(values []float64) float64 {
+	var max float64
+	for i, v := range values {
+		if i == 0 || v > max {
+			max = v
+		}
+	}
+	return max
+}
+
+func minVal(values []float64) float64 {
+	var min float64
+	for i, v := range values {
+		if i == 0 || v < min {
+			min = v
+		}
+	}
+	return min
+}
+
+func iMin(values []float64) float64 {
+	panic("unimplemented")
+}
+
+func wMin(values, weightsValues []float64) float64 {
+	wValues := make([]float64, len(values))
+	for i, v := range values {
+		wValues[i] = v * weightsValues[i]
+	}
+	return minVal(wValues)
+}
+
+func iMedian(values []float64) float64 {
+
+	median := stat.Quantile(0.5, stat.LinInterp, values, nil)
+	return median
+}
+
+func wMedian(values, weightsValues []float64) float64 {
+	// weighted median
+	// https://en.wikipedia.org/wiki/Weighted_median
+	//https://www.gonum.org/post/intro_to_stats_with_gonum/
+
+	sortedValues, sortedWeights := sortWeightsAndValues(values, weightsValues)
+	median := stat.Quantile(0.5, stat.Empirical, sortedValues, sortedWeights)
+	return median
+}
+
+func sortWeightsAndValues(values, weights []float64) ([]float64, []float64) {
+	type pair struct {
+		value  float64
+		weight float64
+	}
+	pairs := make([]pair, len(values))
+	for i, v := range values {
+		pairs[i] = pair{v, weights[i]}
+	}
+	sort.Slice(pairs, func(i, j int) bool {
+		return pairs[i].value < pairs[j].value
+	})
+	sortedValues := make([]float64, len(values))
+	sortedWeights := make([]float64, len(values))
+	for i, p := range pairs {
+		sortedValues[i] = p.value
+		sortedWeights[i] = p.weight
+	}
+	return sortedValues, sortedWeights
+}
+
+func median(values []float64) float64 {
+	sort.Float64s(values)
+	median := stat.Quantile(0.5, stat.Empirical, values, nil)
+	return median
+}
+
+func iAvg(values []float64) float64 {
+	panic("unimplemented")
+}
+
+func wAvg(values, weightsValues []float64) float64 {
+	return stat.Mean(values, weightsValues)
+}
+
+func avg(values []float64) float64 {
+
+	return stat.Mean(values, nil)
 }

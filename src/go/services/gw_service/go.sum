@@ -25,8 +25,11 @@ github.com/zalf-rpm/mas-infrastructure/src/go/commonlib v0.0.0-20230324104523-84
 github.com/zalf-rpm/mas-infrastructure/src/go/commonlib v0.0.0-20230324104523-84603c6779f4/go.mod h1:uoItNwOznnNJCOaIM1OVbaoBFIgE6GX6+tYXiq5jRvc=
 golang.org/x/crypto v0.6.0 h1:qfktjS5LUO+fFKeJXZ+ikTRijMmljikvG68fpMMruSc=
 golang.org/x/crypto v0.6.0/go.mod h1:OFC/31mSvZgRz0V1QTNCzfAI1aIRzbiufJtkMIlEp58=
+golang.org/x/exp v0.0.0-20191002040644-a1355ae1e2c3 h1:n9HxLrNxWWtEb1cA950nuEEj3QnKbtsCJ6KjcgisNUs=
 golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9 h1:SQFwaSi55rU7vdNs9Yr0Z324VNlrF+0wMqRXT4St8ck=
 golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
+gonum.org/v1/gonum v0.12.0 h1:xKuo6hzt+gMav00meVPUlXwSdoEJP46BR+wdxQEFK2o=
+gonum.org/v1/gonum v0.12.0/go.mod h1:73TDxJfAAHeA8Mk9mf8NlIppyhQNo5GLTcYeqgo2lvY=
 gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c h1:dUUwHk2QECo/6vqA44rthZ8ie2QXMNeKRTHCNY2nXvo=
 zenhack.net/go/util v0.0.0-20230218002511-744d2d6d1739 h1:/QnbZBURrZUFvnxB4wDyRrPsWzh2KWbJ6AjUjohCHJ8=
 zenhack.net/go/util v0.0.0-20230218002511-744d2d6d1739/go.mod h1:0lafdGg7tDb7RcXASgmJmRbLFLkAxu328+KGIs7icDE=

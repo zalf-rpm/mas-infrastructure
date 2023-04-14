@@ -28,3 +28,4 @@ use (
 	./src/go/services/gw_service
 	./src/go/commonlib
 )
+replace capnproto.org/go/capnp/v3 => C:/Users/sschulz/go/src/capnproto.org/go/capnp/go-capnproto2

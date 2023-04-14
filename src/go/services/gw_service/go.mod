@@ -9,6 +9,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/persistence v0.0.0-20230324104523-84603c6779f4
 	github.com/zalf-rpm/mas-infrastructure/src/go/commonlib v0.0.0-20230324104523-84603c6779f4
+	gonum.org/v1/gonum v0.12.0
 )
 
 require (
