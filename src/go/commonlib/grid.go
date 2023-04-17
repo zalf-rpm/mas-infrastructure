@@ -138,7 +138,7 @@ type AggregationPart struct {
 	OriginalValue     interface{} // valid types are int64, float64, bool, uint64
 	RowColTuple       RowCol
 	AreaWeight        float64
-	interpolatedValue float64
+	InterpolatedValue float64
 }
 
 // Grid_Server interface
@@ -209,7 +209,7 @@ func (g *Grid) ClosestValueAt(c context.Context, call grid.Grid_closestValueAt) 
 					return err
 				}
 				aggPart.SetAreaFrac(aggrParts[i].AreaWeight)
-				aggPart.SetIValue(aggrParts[i].interpolatedValue)
+				aggPart.SetIValue(aggrParts[i].InterpolatedValue)
 				origVal, err := aggPart.NewValue()
 				if err != nil {
 					return err
@@ -373,7 +373,7 @@ func (g *Grid) ValueAt(c context.Context, call grid.Grid_valueAt) error {
 				aggPart.SetRowCol(rowCol)
 
 				aggPart.SetAreaFrac(part.AreaWeight)
-				aggPart.SetIValue(part.interpolatedValue)
+				aggPart.SetIValue(part.InterpolatedValue)
 				val, err := aggPart.NewValue()
 				if err != nil {
 					return err

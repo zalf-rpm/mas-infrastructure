@@ -7,6 +7,7 @@ import (
 	"log"
 	"math"
 	"sort"
+	"strings"
 
 	"github.com/batchatco/go-native-netcdf/netcdf"
 	"github.com/batchatco/go-native-netcdf/netcdf/api"
@@ -447,7 +448,7 @@ func (gs *gridService) GetValueRowCol(row, col uint64) (interface{}, error) {
 	return gw, nil
 }
 
-func (gs *gridService) GetValueLatLonAggregated(inLat, inLon float64, resolution commonlib.Resolution, agg string, includeAggParts bool) (interface{}, []commonlib.AggregationPart, error) {
+func (gs *gridService) GetValueLatLonAggregated(inLat, inLon float64, resolution commonlib.Resolution, agg string, includeAggParts bool) (interface{}, []*commonlib.AggregationPart, error) {
 	nc := gs.data
 	val, ok := resolution.Value.(float64)
 	if !ok {
@@ -525,16 +526,74 @@ func (gs *gridService) GetValueLatLonAggregated(inLat, inLon float64, resolution
 	iLonLeft = iLonLeft + iLonMin
 	iLonRight = iLonRight + iLonMin
 
-	gwList := make([]commonlib.AggregationPart, 0, 1)
+	cellSize := gs.stepLonSize * gs.stepLatSize
+	// calculate area weight
+	calcAreaWeight := func(ilat, ilon int64) float64 {
+
+		// check if lat and lon are on the edge of the grid
+		if (iLatBottom != iLatTop && (ilat == iLatBottom || ilat == iLatTop)) ||
+			(iLonLeft != iLonRight && (ilon == iLonLeft || ilon == iLonRight)) {
+
+			lenLat := 1.0
+			lenLon := 1.0
+			if ilat == iLatBottom {
+				latBottomCenter := valLat[ilat-iLatMin] + float32(gs.stepLatSize)/2
+				lenLat = math.Abs(float64(latBottomCenter) - latBottom)
+			}
+			if ilat == iLatTop {
+				latTopCenter := valLat[ilat-iLatMin] - float32(gs.stepLatSize)/2
+				lenLat = math.Abs(float64(latTopCenter) - latTop)
+			}
+			if ilon == iLonLeft {
+				lonLeftCenter := valLon[ilon-iLonMin] + float32(gs.stepLonSize)/2
+				lenLon = math.Abs(float64(lonLeftCenter) - lonLeft)
+			}
+			if ilon == iLonRight {
+				lonRightCenter := valLon[ilon-iLonMin] - float32(gs.stepLonSize)/2
+				lenLon = math.Abs(float64(lonRightCenter) - lonRight)
+			}
+
+			return lenLat * lenLon / cellSize
+		}
+		return 1.0
+	}
+	closestFullCell := func(ilat, ilon int64) (int64, int64, bool) {
+		if iLatBottom == iLatTop || iLonLeft == iLonRight {
+			return -1, -1, false
+		}
+		// check if lat and lon are on the edge of the grid
+		if ilat == iLatBottom || ilat == iLatTop || ilon == iLonLeft || ilon == iLonRight {
+			var celliLat, celliLon int64 = ilat, ilon
+			if ilat == iLatBottom {
+				celliLat = ilat + 1
+			}
+			if ilat == iLatTop {
+				celliLat = ilat - 1
+			}
+
+			if ilon == iLonLeft {
+				celliLon = ilon + 1
+			}
+			if ilon == iLonRight {
+				celliLon = ilon - 1
+			}
+			return celliLat, celliLon, true
+		}
+
+		return -1, -1, false
+	}
+
+	// calculate area weight for each grid cell
+	gwList := make([]*commonlib.AggregationPart, 0, 1)
 	for iLat := iLatTop; iLat <= iLatBottom; iLat++ {
 		for iLon := iLonLeft; iLon <= iLonRight; iLon++ {
 
 			if gs.mask[iLat][iLon] == 1 {
-				areaWeight := 1.0
+				areaWeight := calcAreaWeight(iLat, iLon)
 
 				value := gs.wdt[0][iLat][iLon]
 				gw := math.Ceil((float64(value)*gs.scaleFactor + gs.add_offset))
-				gwList = append(gwList, commonlib.AggregationPart{
+				gwList = append(gwList, &commonlib.AggregationPart{
 					OriginalValue: gw,
 					RowColTuple: commonlib.RowCol{
 						Row: uint64(iLat),
@@ -543,7 +602,7 @@ func (gs *gridService) GetValueLatLonAggregated(inLat, inLon float64, resolution
 					AreaWeight: areaWeight,
 				})
 			} else {
-				gwList = append(gwList, commonlib.AggregationPart{
+				gwList = append(gwList, &commonlib.AggregationPart{
 					OriginalValue: gs.commonGrid.NoDataType,
 					RowColTuple: commonlib.RowCol{
 						Row: uint64(iLat),
@@ -559,12 +618,30 @@ func (gs *gridService) GetValueLatLonAggregated(inLat, inLon float64, resolution
 		return gs.commonGrid.NoDataType, nil, nil
 	}
 	if agg != "none" {
-		// aggregate
-		aggVal, err = aggregate(agg, gwList, gs.commonGrid.NoDataType)
-		if err != nil {
-			return nil, nil, err
+		if strings.HasPrefix(agg, "i") {
+			// interpolate
+			for _, gwEntry := range gwList {
+				if gwEntry.AreaWeight > 0.0 && gwEntry.AreaWeight < 1.0 {
+					if filat, filon, found := closestFullCell(int64(gwEntry.RowColTuple.Row), int64(gwEntry.RowColTuple.Col)); found {
+						dr := math.Abs(float64(int64(gwEntry.RowColTuple.Row) - filat))
+						dc := math.Abs(float64(int64(gwEntry.RowColTuple.Col) - filon))
+						full_dist := math.Sqrt(dr*cellSize*cellSize + dc*cellSize*cellSize)
+						half_full_dist := math.Sqrt(dr*(cellSize/2)*(cellSize/2) + dc*(cellSize/2)*(cellSize/2))
+						half_short_dist := math.Sqrt(dr*gwEntry.AreaWeight*(cellSize/2)*(cellSize/2) + dc*gwEntry.AreaWeight*(cellSize/2)*(cellSize/2))
+
+						interpol_value := gwEntry.OriginalValue.(float64) * (half_full_dist + half_short_dist) / full_dist
+						gwEntry.InterpolatedValue = interpol_value
+					}
+				}
+			}
+		} else {
+			// aggregate
+			aggVal, err = aggregate(agg, gwList, gs.commonGrid.NoDataType)
+			if err != nil {
+				return nil, nil, err
+			}
+			return aggVal, gwList, nil
 		}
-		return aggVal, gwList, nil
 	}
 	return aggVal, gwList, nil
 }
@@ -693,7 +770,7 @@ func (gs *gridService) createGWTimeSeries(nc *api.Group, inLat, inLon float64) f
 	return gw
 }
 
-func aggregate(aggType string, unfilteredValues []commonlib.AggregationPart, noVal interface{}) (float64, error) {
+func aggregate(aggType string, unfilteredValues []*commonlib.AggregationPart, noVal interface{}) (float64, error) {
 
 	// avg       @8;   # average of cell values
 	// wAvg      @1;   # area weighted average
