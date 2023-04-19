@@ -487,11 +487,11 @@ func (gs *gridService) GetValueLatLonAggregated(inLat, inLon float64, resolution
 	iLonLeft := ((gs.startLonIdx) + int64(lonLeft/gs.stepLonSize))
 	iLonRight := ((gs.startLonIdx) + int64(lonRight/gs.stepLonSize))
 
-	iLatMin := min(iLatBottom-10, 0)
-	iLatMax := max(iLatTop+10, int64(gs.commonGrid.NumRows-1))
+	iLatMin := max(iLatBottom-10, 0)
+	iLatMax := min(iLatTop+10, int64(gs.commonGrid.NumRows-1))
 
-	iLonMin := min(iLonLeft-10, 0)
-	iLonMax := max(iLonRight+10, int64(gs.commonGrid.NumCols-1))
+	iLonMin := max(iLonLeft-10, 0)
+	iLonMax := min(iLonRight+10, int64(gs.commonGrid.NumCols-1))
 
 	// latitudes
 	latVar, err := (*nc).GetVarGetter("lat")
