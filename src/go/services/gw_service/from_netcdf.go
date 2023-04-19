@@ -631,143 +631,21 @@ func (gs *gridService) GetValueLatLonAggregated(inLat, inLon float64, resolution
 
 						interpol_value := gwEntry.OriginalValue.(float64) * (half_full_dist + half_short_dist) / full_dist
 						gwEntry.InterpolatedValue = interpol_value
+						continue
 					}
 				}
+				gwEntry.InterpolatedValue = gwEntry.OriginalValue.(float64)
 			}
-		} else {
-			// aggregate
-			aggVal, err = aggregate(agg, gwList, gs.commonGrid.NoDataType)
-			if err != nil {
-				return nil, nil, err
-			}
-			return aggVal, gwList, nil
 		}
+		// aggregate
+		aggVal, err = aggregate(agg, gwList, gs.commonGrid.NoDataType)
+		if err != nil {
+			return nil, nil, err
+		}
+		return aggVal, gwList, nil
+
 	}
 	return aggVal, gwList, nil
-}
-
-func (gs *gridService) createGWTimeSeries(nc *api.Group, inLat, inLon float64) float64 {
-
-	// time
-	timeVar, err := (*nc).GetVarGetter("time")
-	if err != nil {
-		log.Fatal(err)
-
-	}
-	valsTime, err := timeVar.Values()
-	if err != nil {
-		log.Fatal(err)
-	}
-	var timeValues []float32
-	switch timeVar.GoType() {
-	case "float32":
-		timeValues = valsTime.([]float32)
-	case "int8":
-		timeValuesInt := valsTime.([]int8)
-		timeValues = make([]float32, 0, len(timeValuesInt))
-		for _, val := range timeValuesInt {
-			timeValues = append(timeValues, float32(val))
-		}
-	}
-
-	// latitudes
-	latVar, err := (*nc).GetVarGetter("lat")
-	if err != nil {
-		log.Fatal(err)
-	}
-	lenLat := latVar.Len()
-	valsLat, err := latVar.Values()
-	if err != nil {
-		log.Fatal(err)
-	}
-	valLat := valsLat.([]float32)
-	// longitude
-	lonVar, err := (*nc).GetVarGetter("lon")
-	if err != nil {
-		log.Fatal(err)
-	}
-	lenLon := lonVar.Len()
-	valsLon, err := lonVar.Values()
-	if err != nil {
-		log.Fatal(err)
-	}
-	valLon := valsLon.([]float32)
-	// ground water
-	WTDVar, err := (*nc).GetVarGetter("WTD")
-	if err != nil {
-		log.Fatal(err)
-	}
-	valsWTD, err := WTDVar.Values()
-	if err != nil {
-		log.Fatal(err)
-	}
-	valWTD := valsWTD.([][][]int16)
-	scaleFactor := 1.0
-	if val, ok := WTDVar.Attributes().Get("scale_factor"); ok {
-		scaleFactor = val.(float64)
-	}
-	var add_offset float64 = 0.0
-	if val, ok := WTDVar.Attributes().Get("add_offset"); ok {
-		add_offset = val.(float64)
-	}
-
-	// mask for valid data
-	maskVar, err := (*nc).GetVarGetter("mask")
-	if err != nil {
-		log.Fatal(err)
-	}
-	valsMask, err := maskVar.Values()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	gwValues := make([][]float64, lenLat)
-	min, max := 0.0, 0.0
-	init := false
-
-	for iLat := int64(0); iLat < lenLat; iLat++ {
-		gwValues[iLat] = make([]float64, lenLon)
-		for iLon := int64(0); iLon < lenLon; iLon++ {
-			// check against mask (1 = valid, 0 = invalid)
-			if valsMask.([][]int8)[iLat][iLon] == 1 {
-				timeSlice := make([]float64, len(timeValues))
-				for iTime := 0; iTime < len(timeValues); iTime++ {
-					value := valWTD[iTime][iLat][iLon]
-					timeSlice[iTime] = math.Ceil((float64(value)*scaleFactor + add_offset))
-
-					if !init {
-						min = timeSlice[iTime]
-						max = timeSlice[iTime]
-						init = true
-					}
-					if timeSlice[iTime] < min {
-						min = timeSlice[iTime]
-					}
-					if timeSlice[iTime] > max {
-						max = timeSlice[iTime]
-					}
-					gwValues[iLat][iLon] = timeSlice[iTime]
-				}
-			} else {
-				gwValues[iLat][iLon] = 2 // invalid
-
-			}
-		}
-	}
-
-	// calculate index of lat and lon in gwValues
-	iLat := ((gs.startLatIdx) + int64(inLat/gs.stepLatSize))
-	iLon := ((gs.startLonIdx) + int64(inLon/gs.stepLonSize))
-
-	// check if lat and lon of a neibor is closer, to correct rounding errors
-	iLat = isNeiborCloser(valLat, iLat, inLat)
-	iLon = isNeiborCloser(valLon, iLon, inLon)
-
-	gw := gwValues[iLat][iLon] * -1
-	if gw < 0 {
-		gw = 0
-	}
-	return gw
 }
 
 func aggregate(aggType string, unfilteredValues []*commonlib.AggregationPart, noVal interface{}) (float64, error) {
@@ -792,12 +670,13 @@ func aggregate(aggType string, unfilteredValues []*commonlib.AggregationPart, no
 	// remove invalid values
 	values := make([]float64, 0, len(unfilteredValues))
 	weightsValues := make([]float64, 0, len(unfilteredValues))
-
+	interpolValues := make([]float64, 0, len(unfilteredValues))
 	for _, val := range unfilteredValues {
 		gw := val.OriginalValue.(float64)
 		if gw != noVal &&
 			!math.IsInf(gw, 0) && !math.IsNaN(gw) {
 			values = append(values, gw)
+			interpolValues = append(interpolValues, val.InterpolatedValue)
 			weightsValues = append(weightsValues, val.AreaWeight)
 		}
 	}
@@ -811,31 +690,31 @@ func aggregate(aggType string, unfilteredValues []*commonlib.AggregationPart, no
 	case "wAvg":
 		result = wAvg(values, weightsValues)
 	case "iAvg":
-		result = iAvg(values)
+		result = iAvg(interpolValues)
 	case "median":
 		result = median(values)
 	case "wMedian":
 		result = wMedian(values, weightsValues)
 	case "iMedian":
-		result = iMedian(values)
+		result = iMedian(interpolValues)
 	case "min":
 		result = minVal(values)
 	case "wMin":
 		result = wMin(values, weightsValues)
 	case "iMin":
-		result = iMin(values)
+		result = iMin(interpolValues)
 	case "max":
 		result = maxVal(values)
 	case "wMax":
 		result = wMax(values, weightsValues)
 	case "iMax":
-		result = iMax(values)
+		result = iMax(interpolValues)
 	case "sum":
 		result = sum(values)
 	case "wSum":
 		result = wSum(values, weightsValues)
 	case "iSum":
-		result = iSum(values)
+		result = iSum(interpolValues)
 	}
 	if math.IsInf(result, 0) || math.IsNaN(result) {
 		return result, fmt.Errorf("invalid result: %v", result)
@@ -845,7 +724,7 @@ func aggregate(aggType string, unfilteredValues []*commonlib.AggregationPart, no
 }
 
 func iSum(values []float64) float64 {
-	panic("unimplemented")
+	return sum(values)
 }
 
 func wSum(values, weightsValues []float64) float64 {
@@ -865,7 +744,7 @@ func sum(values []float64) float64 {
 }
 
 func iMax(values []float64) float64 {
-	panic("unimplemented")
+	return maxVal(values)
 }
 
 func wMax(values, weightsValues []float64) float64 {
@@ -897,7 +776,7 @@ func minVal(values []float64) float64 {
 }
 
 func iMin(values []float64) float64 {
-	panic("unimplemented")
+	return minVal(values)
 }
 
 func wMin(values, weightsValues []float64) float64 {
@@ -909,9 +788,7 @@ func wMin(values, weightsValues []float64) float64 {
 }
 
 func iMedian(values []float64) float64 {
-
-	median := stat.Quantile(0.5, stat.LinInterp, values, nil)
-	return median
+	return median(values)
 }
 
 func wMedian(values, weightsValues []float64) float64 {
@@ -952,7 +829,7 @@ func median(values []float64) float64 {
 }
 
 func iAvg(values []float64) float64 {
-	panic("unimplemented")
+	return avg(values)
 }
 
 func wAvg(values, weightsValues []float64) float64 {
