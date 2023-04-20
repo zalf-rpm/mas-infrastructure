@@ -94,12 +94,13 @@ struct HostPortResolver::Impl {
   kj::HashMap<kj::String, kj::Tuple<kj::String, uint16_t, uint8_t>> id2HostPort;
   // the mapping from id to host and port (and keep alive count, which should never get 0)
 
-  Impl(HostPortResolver &self, kj::Timer& timer, kj::StringPtr name, kj::StringPtr description)
+  Impl(HostPortResolver &self, kj::Timer& timer, kj::StringPtr name, kj::StringPtr description, uint32_t secsKeepAliveTimeout)
   : self(self)
   , timer(timer)
   , id(kj::str(sole::uuid4().str()))
   , name(kj::str(name))
-  , description(kj::str(description)) {}
+  , description(kj::str(description))
+  , secsKeepAliveTimeout(secsKeepAliveTimeout * kj::SECONDS) {}
 
   ~Impl() noexcept(false) = default;
 
@@ -187,8 +188,8 @@ struct HostPortResolver::Impl {
   }
 };
 
-HostPortResolver::HostPortResolver(kj::Timer& timer, kj::StringPtr name, kj::StringPtr description)
-: impl(kj::heap<Impl>(*this, timer, name, description)) {
+HostPortResolver::HostPortResolver(kj::Timer& timer, kj::StringPtr name, kj::StringPtr description, uint32_t secsKeepAliveTimeout)
+: impl(kj::heap<Impl>(*this, timer, name, description, secsKeepAliveTimeout)) {
 }
 
 HostPortResolver::~HostPortResolver() noexcept(false) = default;

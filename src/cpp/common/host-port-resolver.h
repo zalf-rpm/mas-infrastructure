@@ -32,7 +32,7 @@ namespace mas::infrastructure::common {
 class HostPortResolver final : public mas::schema::persistence::HostPortResolver::Server
 {
 public:
-  explicit HostPortResolver(kj::Timer& timer, kj::StringPtr name, kj::StringPtr description);
+  explicit HostPortResolver(kj::Timer& timer, kj::StringPtr name, kj::StringPtr description, uint32_t secsKeepAliveTimeout);
   virtual ~HostPortResolver() noexcept(false);
 
   kj::Promise<void> info(InfoContext context) override;
