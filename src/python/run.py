@@ -492,23 +492,26 @@ def run_some():
 def run_resolver():
     con_man = common.ConnectionManager()
 
-    sr = "capnp://2nQ6wFu_2FkJZYn6peo0TL9Ki9JH_Z71LDFcKNjqFM0@10.10.24.250:46643"
+    sr = "capnp://lpfbBZeidvkWtZXsnOO6PgNXXXHrNZi-f8yBluWkIaQ@10.10.24.250:39345"
     resolver = con_man.try_connect(sr, cast_as=persistence_capnp.HostPortResolver)
-    
-    print(resolver.info().wait())
-
+    hp = resolver.resolve("resolver").wait()
+    print(hp)
 
 def run_resolver_registrar():
     con_man = common.ConnectionManager()
 
-    sr = "capnp://2nQ6wFu_2FkJZYn6peo0TL9Ki9JH_Z71LDFcKNjqFM0@10.10.24.250:46643/MjQ0NmUzODgtMGQ1Zi00NGRjLTlhZjUtNGZlNDI5YTMzZmEz"
+    sr = "capnp://lpfbBZeidvkWtZXsnOO6PgNXXXHrNZi-f8yBluWkIaQ@10.10.24.250:39345/OGE1NjlmYWEtMDE5ZS00OTVhLWJhMGMtODNiNDJiZjZmZWZk"
     registrar = con_man.try_connect(sr, cast_as=persistence_capnp.HostPortResolver.Registrar)
-    hb = registrar.register(base64VatId="2nQ6wFu_2FkJZYn6peo0TL9Ki9JH_Z71LDFcKNjqFM0", host="10.10.24.250", port=46643,
+    hb = registrar.register(base64VatId="lpfbBZeidvkWtZXsnOO6PgNXXXHrNZi-f8yBluWkIaQ", host="10.10.24.250", port=39345,
                             alias="resolver").wait()
-    print("let heart beat every", hb.secsHeartbeatInterval)
-    hb.heartbeat.beat().wait()
+    print("let heart beat every", hb.secsHeartbeatInterval, "seconds")
+    def beat():
+        while True:
+            print("beat")
+            hb.heartbeat.beat().wait()
+            time.sleep(5)
 
-    print(registrar.info().wait())
+    return Thread(target=beat).start()
 
 
 def main():
@@ -518,8 +521,12 @@ def main():
     }
     common.update_config(config, sys.argv, print_config=True, allow_new_keys=True)
 
-    run_resolver()
-    #run_resolver_registrar()
+    #run_resolver()
+    hb_thread = run_resolver_registrar()
+
+    while True:
+        print(".", end="")
+        time.sleep(1)
 
     # run_channel()
 
