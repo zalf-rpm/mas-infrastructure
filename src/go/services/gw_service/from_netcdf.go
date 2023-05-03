@@ -356,17 +356,19 @@ func findStartLatLon(valLat, valLon []float32, lenLat, lenLon int64) (int64, int
 
 func isNeiborCloser(arr []float32, idx int64, val float64) int64 {
 
+	currentDistance := math.Abs(float64(arr[idx]) - val)
 	if idx+1 < int64(len(arr)) {
-		next := math.Abs(float64(arr[idx])-val) > math.Abs(float64(arr[idx+1])-val)
-		if next {
+		nextDistance := math.Abs(float64(arr[idx+1]) - val)
+		if nextDistance < currentDistance {
 			return idx + 1
 		}
 	}
 	if idx > 0 {
-		prev := math.Abs(float64(arr[idx])-val) > math.Abs(float64(arr[idx-1])-val)
-		if prev {
+		prevDistance := math.Abs(float64(arr[idx-1]) - val)
+		if prevDistance < currentDistance {
 			return idx - 1
 		}
+
 	}
 	return idx
 }
@@ -417,8 +419,8 @@ func (gs *gridService) GetValueLatLon(inLat, inLon float64) (float64, int64, int
 	}
 	valLon := valsLon.([]float32)
 	// check if lat and lon of a neibor is closer, to correct rounding errors
-	iLat = isNeiborCloser(valLat, iLatMax-iLat, inLat)
-	iLon = isNeiborCloser(valLon, iLonMax-iLon, inLon)
+	iLat = isNeiborCloser(valLat, int64(len(valLat))-iLatMax-iLat, inLat)
+	iLon = isNeiborCloser(valLon, int64(len(valLon))-iLonMax-iLon, inLon)
 	iLat = iLat + iLatMin
 	iLon = iLon + iLonMin
 
@@ -517,10 +519,15 @@ func (gs *gridService) GetValueLatLonAggregated(inLat, inLon float64, resolution
 	valLon := valsLon.([]float32)
 
 	// check if lat and lon of a neibor is closer, to correct rounding errors
-	iLatTop = isNeiborCloser(valLat, iLatMax-iLatTop, latTop)
-	iLatBottom = isNeiborCloser(valLat, iLatMax-iLatBottom, latBottom)
-	iLonLeft = isNeiborCloser(valLon, iLonMax-iLonLeft, lonLeft)
-	iLonRight = isNeiborCloser(valLon, iLonMax-iLonRight, lonRight)
+
+	iLatTop = isNeiborCloser(valLat, int64(len(valLat))-(iLatMax-iLatTop), latTop)
+	iLatBottom = isNeiborCloser(valLat, int64(len(valLat))-(iLatMax-iLatBottom), latBottom)
+	iLonLeft = isNeiborCloser(valLon, int64(len(valLon))-(iLonMax-iLonLeft), lonLeft)
+	iLonRight = isNeiborCloser(valLon, int64(len(valLon))-(iLonMax-iLonRight), lonRight)
+	latBottomC := valLat[iLatBottom]
+	latTopC := valLat[iLatTop]
+	lonLeftC := valLon[iLonLeft]
+	lonRightC := valLon[iLonRight]
 	iLatTop = iLatTop + iLatMin
 	iLatBottom = iLatBottom + iLatMin
 	iLonLeft = iLonLeft + iLonMin
@@ -534,26 +541,36 @@ func (gs *gridService) GetValueLatLonAggregated(inLat, inLon float64, resolution
 		if (iLatBottom != iLatTop && (ilat == iLatBottom || ilat == iLatTop)) ||
 			(iLonLeft != iLonRight && (ilon == iLonLeft || ilon == iLonRight)) {
 
-			lenLat := 1.0
-			lenLon := 1.0
+			lenLat := gs.stepLatSize
+			lenLon := gs.stepLonSize
 			if ilat == iLatBottom {
-				latBottomCenter := valLat[ilat-iLatMin] + float32(gs.stepLatSize)/2
-				lenLat = math.Abs(float64(latBottomCenter) - latBottom)
+				latBottomEdge := latBottomC + float32(gs.stepLatSize)/2
+				lenLat = math.Abs(float64(latBottomEdge) - latBottom)
 			}
 			if ilat == iLatTop {
-				latTopCenter := valLat[ilat-iLatMin] - float32(gs.stepLatSize)/2
-				lenLat = math.Abs(float64(latTopCenter) - latTop)
+				latTopEdge := latTopC - float32(gs.stepLatSize)/2
+				lenLat = math.Abs(float64(latTopEdge) - latTop)
 			}
 			if ilon == iLonLeft {
-				lonLeftCenter := valLon[ilon-iLonMin] + float32(gs.stepLonSize)/2
-				lenLon = math.Abs(float64(lonLeftCenter) - lonLeft)
+				lonLeftEdge := lonLeftC + float32(gs.stepLonSize)/2
+				lenLon = math.Abs(float64(lonLeftEdge) - lonLeft)
 			}
 			if ilon == iLonRight {
-				lonRightCenter := valLon[ilon-iLonMin] - float32(gs.stepLonSize)/2
-				lenLon = math.Abs(float64(lonRightCenter) - lonRight)
+				lonRightEdge := lonRightC - float32(gs.stepLonSize)/2
+				lenLon = math.Abs(float64(lonRightEdge) - lonRight)
+			}
+			// impressions
+			if lenLat > gs.stepLatSize {
+				lenLat = gs.stepLatSize
+			}
+			if lenLon > gs.stepLonSize {
+				lenLon = gs.stepLonSize
+			}
+			if lenLat*lenLon > cellSize {
+				return 1.0 // this should not happen
 			}
 
-			return lenLat * lenLon / cellSize
+			return (lenLat * lenLon) / cellSize
 		}
 		return 1.0
 	}
@@ -585,7 +602,7 @@ func (gs *gridService) GetValueLatLonAggregated(inLat, inLon float64, resolution
 
 	// calculate area weight for each grid cell
 	gwList := make([]*commonlib.AggregationPart, 0, 1)
-	for iLat := iLatTop; iLat <= iLatBottom; iLat++ {
+	for iLat := iLatBottom; iLat <= iLatTop; iLat++ {
 		for iLon := iLonLeft; iLon <= iLonRight; iLon++ {
 
 			if gs.mask[iLat][iLon] == 1 {
