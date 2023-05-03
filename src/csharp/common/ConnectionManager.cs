@@ -14,7 +14,7 @@ namespace Mas.Infrastructure.Common
 
         private Restorer _restorer;
 
-        public ushort Port { get { return (ushort)_server.Port; } }
+        public ushort Port => (ushort)_server.Port;
 
         public ConnectionManager(Restorer restorer = null) 
         {
@@ -27,14 +27,12 @@ namespace Mas.Infrastructure.Common
         public static string GetLocalIPAddress(string connectToHost = "8.8.8.8", int connectToPort = 53)
         {
             var localIP = "127.0.0.1";
-            try 
+            try
             {
-                using (Socket socket = new (AddressFamily.InterNetwork, SocketType.Stream, 0))
-                {
-                    socket.Connect(connectToHost, connectToPort);
-                    IPEndPoint endPoint = socket.LocalEndPoint as IPEndPoint;
-                    localIP = endPoint.Address.ToString();
-                }
+                using Socket socket = new (AddressFamily.InterNetwork, SocketType.Stream, 0);
+                socket.Connect(connectToHost, connectToPort);
+                var endPoint = socket.LocalEndPoint as IPEndPoint;
+                localIP = endPoint.Address.ToString();
             } catch(System.Exception e) { 
                 Console.WriteLine(e.Message);
             }
@@ -74,80 +72,63 @@ namespace Mas.Infrastructure.Common
         {
             // we assume that a sturdy ref url looks always like 
             // capnp://vat-id_base64-curve25519-public-key@host:port/sturdy-ref-token_base64
-            if (sturdyRef.StartsWith("capnp://")) 
-            {
-                var vatIdBase64Url = "";
-                var addressPort = "";
-                var address = "";
-                var port = 0;
-                var srTokenBase64Url = "";
+            if (!sturdyRef.StartsWith("capnp://")) return null;
+            var vatIdBase64Url = "";
+            var addressPort = "";
+            var address = "";
+            var port = 0;
+            var srTokenBase64Url = "";
 
-                var rest = sturdyRef.Substring(8);
-                // is unix domain socket
-                if (rest.StartsWith("/"))
-                {
-                    rest = rest.Substring(1);
-                } 
-                else
-                {
-                    var vatIdAndRest = rest.Split("@");
-                    if (vatIdAndRest.Length > 0) vatIdBase64Url = vatIdAndRest[0];
-                    if (vatIdAndRest[^1].Contains("/"))
-                    {
-                        var addressPortAndRest = vatIdAndRest[^1].Split("/");
-                        if (addressPortAndRest.Length > 0)
-                        {
-                            addressPort = addressPortAndRest[0];
-                            var addressAndPort = addressPort.Split(":");
-                            if (addressAndPort.Length > 0) address = addressAndPort[0];
-                            if (addressAndPort.Length > 1) port = Int32.Parse(addressAndPort[1]);
-                        }
-                        if (addressPortAndRest.Length > 1) srTokenBase64Url = addressPortAndRest[1];
+            var rest = sturdyRef[8..];
+            // is unix domain socket
+            if (rest.StartsWith("/")) rest = rest[1..];  
+            else {
+                var vatIdAndRest = rest.Split("@");
+                if (vatIdAndRest.Length > 0) vatIdBase64Url = vatIdAndRest[0];
+                if (vatIdAndRest[^1].Contains('/')) {
+                    var addressPortAndRest = vatIdAndRest[^1].Split("/");
+                    if (addressPortAndRest.Length > 0) {
+                        addressPort = addressPortAndRest[0];
+                        var addressAndPort = addressPort.Split(":");
+                        if (addressAndPort.Length > 0) address = addressAndPort[0];
+                        if (addressAndPort.Length > 1) port = Int32.Parse(addressAndPort[1]);
                     }
+                    if (addressPortAndRest.Length > 1) srTokenBase64Url = addressPortAndRest[1];
                 }
+            }
 
-                if(addressPort.Length > 0)
-                {
-                    try
-                    {
-                        //Console.WriteLine("ConnectionManager: ThreadId: " + Thread.CurrentThread.ManagedThreadId);
-                        //var con = new TcpRpcClient(address, port);
-                        var con = _connections.GetOrAdd(addressPort, new TcpRpcClient(address, port));
-                        await Task.WhenAll(con.WhenConnected);
-                        if (!string.IsNullOrEmpty(srTokenBase64Url))
-                        {
-                            var restorer = con.GetMain<Schema.Persistence.IRestorer>();
-                            var srTokenArr = Convert.FromBase64String(Restorer.FromBase64Url(srTokenBase64Url));
-                            var srToken = System.Text.Encoding.UTF8.GetString(srTokenArr);
-                            var cap = await restorer.Restore(new Schema.Persistence.Restorer.RestoreParams { 
-                                LocalRef=srToken });
-                            return cap.Cast<TRemoteInterface>(true);
-                        }
-                        else
-                        {
-                            var bootstrap = con.GetMain<TRemoteInterface>();
-                            //Console.WriteLine("ConnectionManager: current TaskSchedulerId: " + TaskScheduler.Current.Id);
-                            return bootstrap;
-                        }
-                    }
-                    catch(ArgumentOutOfRangeException)
-                    {
-                        _connections.TryRemove(addressPort, out _);
-                    }
-                    catch(System.Exception e)
-                    {
-                        _connections.TryRemove(addressPort, out _);
-                        throw;
-                    }
+            if (addressPort.Length <= 0) return null;
+            try {
+                //Console.WriteLine("ConnectionManager: ThreadId: " + Thread.CurrentThread.ManagedThreadId);
+                //var con = new TcpRpcClient(address, port);
+                var con = _connections.GetOrAdd(addressPort, new TcpRpcClient(address, port));
+                await con.WhenConnected;
+                if (!string.IsNullOrEmpty(srTokenBase64Url)) {
+                    var restorer = con.GetMain<Schema.Persistence.IRestorer>();
+                    var srTokenArr = Convert.FromBase64String(Restorer.FromBase64Url(srTokenBase64Url));
+                    var srToken = System.Text.Encoding.UTF8.GetString(srTokenArr);
+                    var cap = await restorer.Restore(new Schema.Persistence.Restorer.RestoreParams { 
+                        LocalRef=srToken });
+                    return cap.Cast<TRemoteInterface>(true);
+                } else {
+                    var bootstrap = con.GetMain<TRemoteInterface>();
+                    //Console.WriteLine("ConnectionManager: current TaskSchedulerId: " + TaskScheduler.Current.Id);
+                    return bootstrap;
                 }
+            }
+            catch(ArgumentOutOfRangeException) {
+                _connections.TryRemove(addressPort, out _);
+            }
+            catch(System.Exception e) {
+                _connections.TryRemove(addressPort, out _);
+                throw;
             }
             return null;
         }
 
         public void Bind(IPAddress address, int tcpPort, object bootstrap)
         {
-            if (_server != null)
-                _server.Dispose();
+            _server?.Dispose();
 
             _server = new TcpRpcServer();
             _server.AddBuffering();

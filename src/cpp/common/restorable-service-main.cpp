@@ -142,7 +142,9 @@ void RestorableServiceMain::startRestorerSetup(mas::schema::common::Identifiable
   
   // print the restorers sturdy ref
   auto restorerSR = restorer->sturdyRefStr("");
-  if(outputSturdyRefs && restorerSR.size() > 0) std::cout << "restorerSR=" << restorerSR.cStr() << std::endl;
+  if (outputSturdyRefs && restorerSR.size() > 0) {
+    std::cout << (serviceAsBootstrap ? "serviceSR=" : "restorerSR=") << restorerSR.cStr() << std::endl;
+  }
   
   //mas::schema::persistence::SturdyRef::Reader reregSR(nullptr);
   mas::schema::registry::Registrar::Client registrar(nullptr);

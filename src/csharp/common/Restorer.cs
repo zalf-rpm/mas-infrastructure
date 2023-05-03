@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
+using Mas.Schema.Climate;
 using Crypt = NSec.Cryptography;
 using P = Mas.Schema.Persistence;
 
@@ -34,12 +35,12 @@ namespace Mas.Infrastructure.Common
             VatId = _vatKey.PublicKey.Export(Crypt.KeyBlobFormat.RawPublicKey);
         }
 
-        static public string ToBase64Url(string base64)
+        public static string ToBase64Url(string base64)
         {
             return base64.Replace('+', '-').Replace('/', '_').Replace("=", "");
         }
 
-        static public string FromBase64Url(string base64Url)
+        public static string FromBase64Url(string base64Url)
         {
             return base64Url.Replace('-', '+').Replace('_', '/').PadRight(base64Url.Length + (4 - base64Url.Length % 4) % 4, '=');
         }
@@ -52,16 +53,35 @@ namespace Mas.Infrastructure.Common
             //public string SRToken { get; set; }
             //public string UnsaveSR { get; set; } 
             //public string UnsaveSRToken { get; set; }
-            public Action UnsaveAction { get; set; }
+            public ReleaseSturdyRef UnsaveAction { get; set; }
         }
 
-        public (string, string) SaveStr(Capnp.Rpc.Proxy proxy, string fixedSrToken = null, string sealForOwner = null, 
-            bool includeUnsave = true) {
+        
+        public class ReleaseSturdyRef : Mas.Schema.Persistence.Persistent.IReleaseSturdyRef {
+            private readonly Func<Task<bool>> _releaseFunc;
+
+            public ReleaseSturdyRef(Func<Task<bool>> func) {
+                _releaseFunc = func;
+            }
+
+            public Task<bool> Release(CancellationToken cancellationToken_ = default) {
+                return _releaseFunc();
+            }
+
+            public void Dispose()
+            {
+            }
+        }
+        
+        
+        
+        public (string, string) SaveStr(Capnp.Rpc.Proxy proxy, string fixedSrToken = null, 
+            string sealForOwner = null, bool includeUnsave = true) {
             var srToken = fixedSrToken ?? System.Guid.NewGuid().ToString();
             _srToken2Capability[srToken] = proxy;
             if(includeUnsave) {
                 var unsaveSRToken = System.Guid.NewGuid().ToString();
-                var unsaveAction = new Action(() => { Unsave(srToken); Unsave(unsaveSRToken); }); 
+                var unsaveAction = new ReleaseSturdyRef(async () => await Unsave(srToken) && await Unsave(unsaveSRToken)); 
                 _srToken2Capability[unsaveSRToken] = BareProxy.FromImpl(unsaveAction);
                 return (SturdyRefStr(srToken), SturdyRefStr(unsaveSRToken));
             } else {
@@ -77,7 +97,7 @@ namespace Mas.Infrastructure.Common
 
         static public string SturdyRefStr(P.SturdyRef sturdyRef) {
             var id = sturdyRef.TheTransient.Vat.Id;
-            byte[] vatIdBytes = new byte[4 * 8];
+            var vatIdBytes = new byte[4 * 8];
             BitConverter.GetBytes(id.PublicKey0).CopyTo(vatIdBytes, 0);
             BitConverter.GetBytes(id.PublicKey1).CopyTo(vatIdBytes, 8);
             BitConverter.GetBytes(id.PublicKey2).CopyTo(vatIdBytes, 16);
@@ -99,7 +119,7 @@ namespace Mas.Infrastructure.Common
 
             if(includeUnsave) {
                 var unsaveSRToken = System.Guid.NewGuid().ToString();
-                var unsaveAction = new Action(() => { Unsave(srToken); Unsave(unsaveSRToken); }); 
+                var unsaveAction = new ReleaseSturdyRef(async () => await Unsave(srToken) && await Unsave(unsaveSRToken));
                 _srToken2Capability[unsaveSRToken] = BareProxy.FromImpl(unsaveAction);
                 return new SaveRes { 
                     SturdyRef = SturdyRef(srToken), 
@@ -141,14 +161,15 @@ namespace Mas.Infrastructure.Common
             };
         }
 
-        public void Unsave(string srToken) {
-            _srToken2Capability.TryRemove(srToken, out _);
+        public Task<bool> Unsave(string srToken) {
+            return Task.FromResult(_srToken2Capability.TryRemove(srToken, out _));
         }
 
         public void AddOrUpdateCrossDomainRestore(P.VatId vatId, P.IRestorer restorer) {
             _vatId2Restorer.AddOrUpdate(
                 (vatId.PublicKey0, vatId.PublicKey1, vatId.PublicKey2, vatId.PublicKey3), 
-                (k) => restorer, (k,oldRestorer) => { oldRestorer?.Dispose(); return restorer; });
+                (k) => restorer, 
+                (k,oldRestorer) => { oldRestorer?.Dispose(); return restorer; });
         }
 
 
@@ -183,6 +204,7 @@ namespace Mas.Infrastructure.Common
         #endregion
 
         public void Dispose() {
+            GC.SuppressFinalize(this);
             // dispose sturdy ref caps
             //foreach (var sr2p in _srToken2Capability)
             //    sr2p.Value?.Dispose();

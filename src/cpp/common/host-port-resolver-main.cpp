@@ -34,14 +34,21 @@ namespace mas::infrastructure::common {
 class HostPortResolverMain : public RestorableServiceMain
 {
 public:
-    HostPortResolverMain(kj::ProcessContext& context)
-  : RestorableServiceMain(context, "Host-Port-Resolver v0.1", "Offers a service to resolves other services current host and port.")
-  {}
+  explicit HostPortResolverMain(kj::ProcessContext &context)
+      : RestorableServiceMain(context, "Host-Port-Resolver v0.1",
+                              "Offers a service to resolves other services current host and port.") {}
+
+
+  kj::MainBuilder::Validity setSecsKeepAliveTimeout(kj::StringPtr name) {
+    secsKeepAliveTimeout = kj::max(0, name.parseAs<uint32_t>());
+    return true;
+  }
 
   kj::MainBuilder::Validity startService() {
     KJ_LOG(INFO, "starting host-port-resolver service");
 
-    auto ownedResolver = kj::heap<HostPortResolver>(ioContext.provider->getTimer(), name, description);
+    auto ownedResolver = kj::heap<HostPortResolver>(
+        ioContext.provider->getTimer(), name, description, secsKeepAliveTimeout);
     auto resolver = ownedResolver.get();
     mas::schema::persistence::HostPortResolver::Client resolverClient = kj::mv(ownedResolver);
     KJ_LOG(INFO, "created host-port-resolver");
@@ -58,7 +65,8 @@ public:
 
     // Run forever, using regularly cleaning mappings, accepting connections and handling requests.
     auto gcmProm = resolver->garbageCollectMappings();
-    gcmProm.then([](){ return kj::NEVER_DONE; }).wait(ioContext.waitScope);
+    gcmProm.then([](){ return kj::NEVER_DONE; },
+                 [](auto &&ex){ KJ_LOG(INFO, ex); return kj::NEVER_DONE; }).wait(ioContext.waitScope);
     KJ_LOG(INFO, "stopped host-port-resolver service");
     return true;
   }
@@ -66,9 +74,14 @@ public:
   kj::MainFunc getMain()
   {
     return addRestorableServiceOptions()
-      .callAfterParsing(KJ_BIND_METHOD(*this, startService))
+        .callAfterParsing(KJ_BIND_METHOD(*this, startService))
+        .addOptionWithArg({'t', "secs_keep_alive_timeout"}, KJ_BIND_METHOD(*this, setSecsKeepAliveTimeout),
+                          "<secs_keep_alive_timeout (default: 600s (= 10min))>",
+                          "Set timeout in seconds before an service mapping will be removed.")
       .build();
   }
+
+  uint32_t secsKeepAliveTimeout{600};
 };
 
 } // namespace mas::infrastructure::common
