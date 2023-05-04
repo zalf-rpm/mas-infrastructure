@@ -732,6 +732,8 @@ func aggregate(aggType string, unfilteredValues []*commonlib.AggregationPart, no
 		result = wSum(values, weightsValues)
 	case "iSum":
 		result = iSum(interpolValues)
+	default:
+		return 0.0, fmt.Errorf("unknown aggregation type: %v", aggType)
 	}
 	if math.IsInf(result, 0) || math.IsNaN(result) {
 		return result, fmt.Errorf("invalid result: %v", result)

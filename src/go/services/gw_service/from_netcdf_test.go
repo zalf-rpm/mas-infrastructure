@@ -345,13 +345,13 @@ func Test_gridService_GetValueLatLonAggregated(t *testing.T) {
 	}{
 
 		{
-			name: "testNC_EURASIA_Oderbruch_latlon_agg_mean",
+			name: "testNC_EURASIA_Oderbruch_latlon_agg_iavg",
 			gs:   gs,
 			args: args{
 				inLat:           52.583039,
 				inLon:           14.533146,
 				resolution:      commonlib.Resolution{Value: gs.commonGrid.GridResolution.Value.(float64) * 2},
-				agg:             "mean",
+				agg:             "iAvg",
 				includeAggParts: false,
 			},
 			want: 0.0,
@@ -454,9 +454,186 @@ func Test_gridService_GetValueLatLonAggregated(t *testing.T) {
 			if math.Abs(sumWeightsGot-sumWeightsWant) > 0.001 {
 				t.Errorf("gridService.GetValueLatLonAggregated() got1 = %v, want %v", sumWeightsGot, sumWeightsWant)
 			}
-			// if !reflect.DeepEqual(got1, tt.want1) {
-			// 	t.Errorf("gridService.GetValueLatLonAggregated() got1 = %v, want %v", got1, tt.want1)
-			// }
+		})
+	}
+}
+
+func Test_aggregate(t *testing.T) {
+	type args struct {
+		aggType          string
+		unfilteredValues []*commonlib.AggregationPart
+		noVal            interface{}
+	}
+	aggList := []*commonlib.AggregationPart{
+		{
+			OriginalValue:     -1.0,
+			RowColTuple:       commonlib.RowCol{},
+			AreaWeight:        1.0,
+			InterpolatedValue: 0,
+		},
+		{
+			OriginalValue:     -2.0,
+			RowColTuple:       commonlib.RowCol{},
+			AreaWeight:        0.25,
+			InterpolatedValue: 0,
+		},
+		{
+			OriginalValue:     -2.0,
+			RowColTuple:       commonlib.RowCol{},
+			AreaWeight:        0.25,
+			InterpolatedValue: 0,
+		},
+		{
+			OriginalValue:     -3.0,
+			RowColTuple:       commonlib.RowCol{},
+			AreaWeight:        0.25,
+			InterpolatedValue: 0,
+		},
+		{
+			OriginalValue:     -5.0,
+			RowColTuple:       commonlib.RowCol{},
+			AreaWeight:        0.25,
+			InterpolatedValue: 0,
+		},
+	}
+
+	tests := []struct {
+		name    string
+		args    args
+		want    float64
+		wantErr bool
+	}{
+		// test error cases
+		{
+			name: "aggType: not existing",
+			args: args{
+				aggType: "mean",
+				unfilteredValues: []*commonlib.AggregationPart{
+					{
+						OriginalValue:     -1.0,
+						RowColTuple:       commonlib.RowCol{},
+						AreaWeight:        1.0,
+						InterpolatedValue: 0.0,
+					},
+				},
+				noVal: 2,
+			},
+			want:    -1.0,
+			wantErr: true,
+		},
+		{
+			name: "aggType:avg",
+			args: args{
+				aggType:          "avg",
+				unfilteredValues: aggList,
+				noVal:            2,
+			},
+			want:    -2.6,
+			wantErr: false,
+		},
+		{
+			name: "aggType:wAvg",
+			args: args{
+				aggType:          "wAvg",
+				unfilteredValues: aggList,
+				noVal:            2,
+			},
+			want:    -1.5,
+			wantErr: false,
+		},
+		{
+			name: "aggType:sum",
+			args: args{
+				aggType:          "sum",
+				unfilteredValues: aggList,
+				noVal:            2,
+			},
+			want:    -13.0,
+			wantErr: false,
+		},
+		{
+			name: "aggType:wSum",
+			args: args{
+				aggType:          "wSum",
+				unfilteredValues: aggList,
+				noVal:            2,
+			},
+			want:    -3.0,
+			wantErr: false,
+		},
+		{
+			name: "aggType:max",
+			args: args{
+				aggType:          "max",
+				unfilteredValues: aggList,
+				noVal:            2,
+			},
+			want:    -5.0,
+			wantErr: false,
+		},
+		{
+			name: "aggType:min",
+			args: args{
+				aggType:          "min",
+				unfilteredValues: aggList,
+				noVal:            2,
+			},
+			want:    -1.0,
+			wantErr: false,
+		},
+		{
+			name: "aggType:wMin",
+			args: args{
+				aggType:          "wMin",
+				unfilteredValues: aggList,
+				noVal:            2,
+			},
+			want:    -0.5,
+			wantErr: false,
+		},
+		{
+			name: "aggType:wMax",
+			args: args{
+				aggType:          "wMax",
+				unfilteredValues: aggList,
+				noVal:            2,
+			},
+			want:    -1.25,
+			wantErr: false,
+		},
+		{
+			name: "aggType:median",
+			args: args{
+				aggType:          "median",
+				unfilteredValues: aggList,
+				noVal:            2,
+			},
+			want:    -2.0,
+			wantErr: false,
+		},
+		{
+			name: "aggType:wmedian",
+			args: args{
+				aggType:          "wMedian",
+				unfilteredValues: aggList,
+				noVal:            2,
+			},
+			want:    -1.0,
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := aggregate(tt.args.aggType, tt.args.unfilteredValues, tt.args.noVal)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("aggregate() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			} else if (err != nil) == tt.wantErr {
+				return
+			}
+			if got != tt.want {
+				t.Errorf("aggregate() = %v, want %v", got, tt.want)
+			}
 		})
 	}
 }
