@@ -637,3 +637,172 @@ func Test_aggregate(t *testing.T) {
 		})
 	}
 }
+
+func Test_gridService_GetValueRowColAggregated(t *testing.T) {
+	type args struct {
+		row             uint64
+		col             uint64
+		resolution      commonlib.Resolution
+		agg             string
+		includeAggParts bool
+	}
+
+	meta, err := loadNetCDF(testNC_EURASIA)
+	if err != nil {
+		t.Errorf("loadNetCDF() error = %v", err)
+		return
+	}
+	defer (*meta.data).Close()
+
+	newCommonGrid := &commonlib.Grid{
+		GridResolution:       commonlib.Resolution{},
+		GridUnit:             "",
+		NumRows:              0,
+		NumCols:              0,
+		NoDataType:           t,
+		Bounds:               commonlib.LatLonBoundaries{},
+		BoundsFromCellCenter: commonlib.LatLonBoundaries{},
+	}
+	gs := &gridService{
+		commonGrid: newCommonGrid,
+	}
+	gs.data = meta.data
+	gs.startLatIdx = meta.startLatIdx
+	gs.startLonIdx = meta.startLonIdx
+	gs.stepLatSize = meta.stepLatSize
+	gs.stepLonSize = meta.stepLonSize
+	gs.commonGrid.NumRows = uint64(meta.numRows)
+	gs.commonGrid.NumCols = uint64(meta.numCols)
+	gs.commonGrid.GridResolution = meta.gridResolution
+	gs.commonGrid.GridUnit = meta.gridUnit
+	gs.commonGrid.NoDataType = meta.noDataType
+	gs.commonGrid.Bounds = meta.bounds
+	gs.commonGrid.BoundsFromCellCenter = meta.boundsFromCellCenter
+	gs.timeValues = meta.timeValues
+	gs.wdt = meta.wdt
+	gs.scaleFactor = meta.scaleFactor
+	gs.add_offset = meta.add_offset
+	gs.mask = meta.mask
+
+	sumWeights := func(parts []*commonlib.AggregationPart) float64 {
+		sum := 0.0
+		for _, part := range parts {
+			sum += part.AreaWeight
+		}
+		return sum
+	}
+	tests := []struct {
+		name    string
+		gs      *gridService
+		args    args
+		want    interface{}
+		want1   []*commonlib.AggregationPart
+		wantErr bool
+	}{
+		{
+			name: "testNC_EURASIA_Oderbruch_rowCol_agg_avg",
+			gs:   gs,
+			args: args{
+				row:             6310,
+				col:             3423,
+				resolution:      commonlib.Resolution{Value: gs.commonGrid.GridResolution.Value.(float64) * 2},
+				agg:             "avg",
+				includeAggParts: false,
+			},
+			want: -4.0 / 9.0,
+			want1: []*commonlib.AggregationPart{
+				{
+					OriginalValue: 0.0,
+					RowColTuple: commonlib.RowCol{
+						Row: 6308,
+						Col: 3422,
+					},
+					AreaWeight:        0.25,
+					InterpolatedValue: 0.0,
+				}, {
+					OriginalValue: 0.0,
+					RowColTuple: commonlib.RowCol{
+						Row: 6308,
+						Col: 3423,
+					},
+					AreaWeight:        0.5,
+					InterpolatedValue: 0.0,
+				}, {
+					OriginalValue: 0.0,
+					RowColTuple: commonlib.RowCol{
+						Row: 6308,
+						Col: 3424,
+					},
+					AreaWeight:        0.25,
+					InterpolatedValue: 0.0,
+				}, {
+					OriginalValue: 0.0,
+					RowColTuple: commonlib.RowCol{
+						Row: 6309,
+						Col: 3422,
+					},
+					AreaWeight:        0.5,
+					InterpolatedValue: 0.0,
+				}, {
+					OriginalValue: -1.0,
+					RowColTuple: commonlib.RowCol{
+						Row: 6309,
+						Col: 3423,
+					},
+					AreaWeight:        1.0,
+					InterpolatedValue: 0.0,
+				}, {
+					OriginalValue: -2.0,
+					RowColTuple: commonlib.RowCol{
+						Row: 6309,
+						Col: 3424,
+					},
+					AreaWeight:        0.5,
+					InterpolatedValue: 0.0,
+				}, {
+					OriginalValue: 0.0,
+					RowColTuple: commonlib.RowCol{
+						Row: 6310,
+						Col: 3422,
+					},
+					AreaWeight:        0.25,
+					InterpolatedValue: 0.0,
+				}, {
+					OriginalValue: 0.0,
+					RowColTuple: commonlib.RowCol{
+						Row: 6310,
+						Col: 3423,
+					},
+					AreaWeight:        0.5,
+					InterpolatedValue: 0.0,
+				}, {
+					OriginalValue: -1.0,
+					RowColTuple: commonlib.RowCol{
+						Row: 6310,
+						Col: 3424,
+					},
+					AreaWeight:        0.25,
+					InterpolatedValue: 0.0,
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, got1, err := tt.gs.GetValueRowColAggregated(tt.args.row, tt.args.col, tt.args.resolution, tt.args.agg, tt.args.includeAggParts)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("gridService.GetValueLatLonAggregated() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("gridService.GetValueLatLonAggregated() got = %v, want %v", got, tt.want)
+			}
+			sumWeightsGot := sumWeights(got1)
+			sumWeightsWant := sumWeights(tt.want1)
+			if math.Abs(sumWeightsGot-sumWeightsWant) > 0.001 {
+				t.Errorf("gridService.GetValueLatLonAggregated() got1 = %v, want %v", sumWeightsGot, sumWeightsWant)
+			}
+		})
+
+	}
+}

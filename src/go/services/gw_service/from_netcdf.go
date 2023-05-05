@@ -319,8 +319,10 @@ func (gs *gridService) setupCallbacks() {
 		val, err := gs.GetValueRowCol(row, col)
 		return val, err
 	}
-
+	gs.commonGrid.GetValueLatLonAggregated = gs.GetValueLatLonAggregated
+	gs.commonGrid.GetValueRowColAggregated = gs.GetValueRowColAggregated
 }
+
 func findStartLatLon(valLat, valLon []float32, lenLat, lenLon int64) (int64, int64) {
 
 	nearestToMiddle := func(val []float32, len int64, grads float64) int64 {
@@ -663,6 +665,35 @@ func (gs *gridService) GetValueLatLonAggregated(inLat, inLon float64, resolution
 
 	}
 	return aggVal, gwList, nil
+}
+
+func (gs *gridService) GetValueRowColAggregated(row uint64, col uint64, resolution commonlib.Resolution, agg string, includeAggParts bool) (interface{}, []*commonlib.AggregationPart, error) {
+
+	latVar, err := (*gs.data).GetVarGetter("lat")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	valsLat, err := latVar.GetSlice(int64(row), int64(row+1))
+	if err != nil {
+		log.Fatal(err)
+	}
+	valLat := valsLat.([]float32)
+	// longitude
+	lonVar, err := (*gs.data).GetVarGetter("lon")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	valsLon, err := lonVar.GetSlice(int64(col), int64(col+1))
+	if err != nil {
+		log.Fatal(err)
+	}
+	valLon := valsLon.([]float32)
+
+	iLat, iLon := float64(valLat[0]), float64(valLon[0])
+	val, list, err := gs.GetValueLatLonAggregated(iLat, iLon, resolution, agg, includeAggParts)
+	return val, list, err
 }
 
 func aggregate(aggType string, unfilteredValues []*commonlib.AggregationPart, noVal interface{}) (float64, error) {
