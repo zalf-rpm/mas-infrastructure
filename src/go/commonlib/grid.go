@@ -30,8 +30,8 @@ type Grid struct {
 	// functions that need to be implemented to use the grid capnp interface
 	GetValueRowCol           func(row, col uint64) (interface{}, error)
 	GetValueLatLon           func(lat, lon float64) (interface{}, RowCol, RowCol, error)
-	GetValueRowColAggregated func(row, col uint64, resolution Resolution, agg string, includeAggParts bool) (interface{}, []AggregationPart, error)
-	GetValueLatLonAggregated func(lat, lon float64, resolution Resolution, agg string, includeAggParts bool) (interface{}, []AggregationPart, error)
+	GetValueRowColAggregated func(row, col uint64, resolution Resolution, agg string, includeAggParts bool) (interface{}, []*AggregationPart, error)
+	GetValueLatLonAggregated func(lat, lon float64, resolution Resolution, agg string, includeAggParts bool) (interface{}, []*AggregationPart, error)
 }
 
 type Resolution struct {
@@ -173,7 +173,7 @@ func (g *Grid) ClosestValueAt(c context.Context, call grid.Grid_closestValueAt) 
 		return err
 	}
 	var returnVal interface{}
-	var aggrParts []AggregationPart
+	var aggrParts []*AggregationPart
 	var topLeftrowCol RowCol
 	var bottomRightRowCol RowCol
 	if g.GridResolution.Compare(resolution) >= 0 {
@@ -331,7 +331,7 @@ func (g *Grid) ValueAt(c context.Context, call grid.Grid_valueAt) error {
 		return err
 	}
 	var returnVal interface{}
-	var aggrParts []AggregationPart
+	var aggrParts []*AggregationPart
 	if g.GridResolution.Compare(resolution) >= 0 {
 		if g.GetValueRowCol == nil {
 			return errors.New("Grid.GetValueRowCol is not implemented")
