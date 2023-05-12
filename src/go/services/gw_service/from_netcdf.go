@@ -321,6 +321,35 @@ func (gs *gridService) setupCallbacks() {
 	}
 	gs.commonGrid.GetValueLatLonAggregated = gs.GetValueLatLonAggregated
 	gs.commonGrid.GetValueRowColAggregated = gs.GetValueRowColAggregated
+	gs.commonGrid.RowColToLatLon = func(row, col uint64) (commonlib.LatLon, error) {
+
+		// latitudes
+		latVar, err := (*gs.data).GetVarGetter("lat")
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		valsLat, err := latVar.GetSlice(int64(row), int64(row))
+		if err != nil {
+			log.Fatal(err)
+		}
+		valLat := valsLat.([]float32)
+		// longitude
+		lonVar, err := (*gs.data).GetVarGetter("lon")
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		valsLon, err := lonVar.GetSlice(int64(col), int64(col))
+		if err != nil {
+			log.Fatal(err)
+		}
+		valLon := valsLon.([]float32)
+		return commonlib.LatLon{
+			Lat: float64(valLat[0]),
+			Lon: float64(valLon[0]),
+		}, nil
+	}
 }
 
 func findStartLatLon(valLat, valLon []float32, lenLat, lenLon int64) (int64, int64) {
