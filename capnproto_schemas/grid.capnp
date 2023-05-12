@@ -66,6 +66,12 @@ interface Grid extends(Common.Identifiable, Persistent) {
     iValue    @3 :Float64; # interpolated value
   }
 
+  struct Location {
+    latLonCoord @0 :Geo.LatLonCoord;
+    rowCol      @1 :RowCol;
+    value       @2 :Value;
+  }
+
   closestValueAt @0 (latlonCoord :Geo.LatLonCoord, 
                      ignoreNoData :Bool = true, 
                      resolution :Resolution, 
@@ -102,11 +108,13 @@ interface Grid extends(Common.Identifiable, Persistent) {
   # return the lat lon boundary of the grid
 
   interface Callback {
-    sendCells @0 (cells :List(RowCol)) -> ();
+    sendCells @0 (maxCount :Int64) -> (locations :List(Location));
+     # send next locations, if available, but maximum maxCount locations at one time
   }
 
-  streamCells @6 (callback :Callback, maxNoOfCellsPerSend :UInt64 = 100) -> ();
-  # stream all cells to client in chunks of maxNoOfCellsPerSend
+  streamCells @6 (topLeft :RowCol, bottomRight:RowCol) -> (callback :Callback);
+  # stream all cells to client in a given rectangle, top left and bottom right corner
+  # to get the whole grid, leave both corners null 
   
   unit @7 () -> (unit :Text);
 }
