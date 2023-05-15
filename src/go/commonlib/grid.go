@@ -3,6 +3,7 @@ package commonlib
 import (
 	"context"
 	"errors"
+	"math"
 
 	"capnproto.org/go/capnp/v3"
 	"github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common"
@@ -28,10 +29,11 @@ type Grid struct {
 	BoundsFromCellCenter LatLonBoundaries
 
 	// functions that need to be implemented to use the grid capnp interface
+	RowColToLatLon           func(row, col uint64) (LatLon, error)
 	GetValueRowCol           func(row, col uint64) (interface{}, error)
 	GetValueLatLon           func(lat, lon float64) (interface{}, RowCol, RowCol, error)
-	GetValueRowColAggregated func(row, col uint64, resolution Resolution, agg string, includeAggParts bool) (interface{}, []AggregationPart, error)
-	GetValueLatLonAggregated func(lat, lon float64, resolution Resolution, agg string, includeAggParts bool) (interface{}, []AggregationPart, error)
+	GetValueRowColAggregated func(row, col uint64, resolution Resolution, agg string, includeAggParts bool) (interface{}, []*AggregationPart, error)
+	GetValueLatLonAggregated func(lat, lon float64, resolution Resolution, agg string, includeAggParts bool) (interface{}, []*AggregationPart, error)
 }
 
 type Resolution struct {
@@ -173,7 +175,7 @@ func (g *Grid) ClosestValueAt(c context.Context, call grid.Grid_closestValueAt) 
 		return err
 	}
 	var returnVal interface{}
-	var aggrParts []AggregationPart
+	var aggrParts []*AggregationPart
 	var topLeftrowCol RowCol
 	var bottomRightRowCol RowCol
 	if g.GridResolution.Compare(resolution) >= 0 {
@@ -331,7 +333,7 @@ func (g *Grid) ValueAt(c context.Context, call grid.Grid_valueAt) error {
 		return err
 	}
 	var returnVal interface{}
-	var aggrParts []AggregationPart
+	var aggrParts []*AggregationPart
 	if g.GridResolution.Compare(resolution) >= 0 {
 		if g.GetValueRowCol == nil {
 			return errors.New("Grid.GetValueRowCol is not implemented")
@@ -521,6 +523,48 @@ func (g *Grid) LatLonBounds(c context.Context, call grid.Grid_latLonBounds) erro
 }
 func (g *Grid) StreamCells(c context.Context, call grid.Grid_streamCells) error {
 
+	streamingCallback := &StreamingCallback{}
+	if call.Args().HasTopLeft() {
+		tl, err := call.Args().TopLeft()
+		if err != nil {
+			return err
+		}
+		streamingCallback.topLeft.Row = tl.Row()
+		streamingCallback.topLeft.Col = tl.Col()
+	} else {
+		streamingCallback.topLeft.Row = 0
+		streamingCallback.topLeft.Col = 0
+	}
+	if call.Args().HasBottomRight() {
+		br, err := call.Args().BottomRight()
+		if err != nil {
+			return err
+		}
+		streamingCallback.bottomRight.Row = br.Row()
+		streamingCallback.bottomRight.Col = br.Col()
+	} else {
+		streamingCallback.bottomRight.Row = g.NumRows - 1
+		streamingCallback.bottomRight.Col = g.NumCols - 1
+	}
+	if streamingCallback.topLeft.Row > streamingCallback.bottomRight.Row {
+		return errors.New("topLeft.Row > bottomRight.Row")
+	}
+	if streamingCallback.topLeft.Col > streamingCallback.bottomRight.Col {
+		return errors.New("topLeft.Col > bottomRight.Col")
+	}
+	streamingCallback.currIndexRow = streamingCallback.topLeft.Row
+	streamingCallback.currIndexCol = streamingCallback.topLeft.Col
+
+	result, err := call.AllocResults()
+	if err != nil {
+		return err
+	}
+
+	sc := grid.Grid_Callback_ServerToClient(streamingCallback)
+	err = result.SetCallback(sc)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -532,4 +576,101 @@ func (g *Grid) Info(c context.Context, call common.Identifiable_info) error {
 // Persistence_Server interface
 func (g *Grid) Save(c context.Context, call persistence.Persistent_save) error {
 	return g.persistable.Save(c, call)
+}
+
+type StreamingCallback struct {
+	topLeft      RowCol
+	bottomRight  RowCol
+	currIndexRow uint64
+	currIndexCol uint64
+	g            *Grid
+}
+
+func (cs *StreamingCallback) SendCells(ctx context.Context, call grid.Grid_Callback_sendCells) error {
+
+	maxNumCells := call.Args().MaxCount()
+	if maxNumCells <= 0 {
+		return errors.New("maxNumCells <= 0")
+	}
+
+	result, err := call.AllocResults()
+	if err != nil {
+		return err
+	}
+	// calculate the number of cells to send
+	numCellsToSend := uint64(0)
+	if cs.currIndexRow != cs.bottomRight.Row || cs.currIndexCol != cs.bottomRight.Col {
+
+		fullRows := (cs.bottomRight.Row - cs.currIndexRow) * (cs.bottomRight.Col - cs.topLeft.Col + 1)
+		partialRow := cs.bottomRight.Col - cs.currIndexCol + 1
+		numCellsToSend = fullRows + partialRow
+	}
+	if numCellsToSend > uint64(maxNumCells) {
+		numCellsToSend = uint64(maxNumCells)
+	}
+	if numCellsToSend == 0 {
+		return nil
+	}
+	if numCellsToSend > math.MaxInt32 {
+		return errors.New("numCellsToSend > Int32.MaxValue")
+	}
+	locList, err := result.NewLocations(int32(numCellsToSend))
+	if err != nil {
+		return err
+	}
+
+	index := -1
+	currRow := cs.currIndexRow
+	currCol := cs.currIndexCol
+	for ; index < int(maxNumCells-1) && currRow <= cs.bottomRight.Row; currRow++ {
+		for ; index < int(maxNumCells-1) && currCol <= cs.bottomRight.Col; currCol++ {
+			index++
+			loc, err := grid.NewGrid_Location(locList.Segment())
+			if err != nil {
+				return err
+			}
+
+			rowCol, err := loc.NewRowCol()
+			if err != nil {
+				return err
+			}
+			rowCol.SetRow(currRow)
+			rowCol.SetCol(currCol)
+
+			val, err := loc.NewValue()
+			if err != nil {
+				return err
+			}
+
+			iVal, err := cs.g.GetValueRowCol(currRow, currCol)
+			if err != nil {
+				return err
+			}
+			err = SetGridValue(val, iVal)
+			if err != nil {
+				return err
+			}
+			latLon, err := loc.NewLatLonCoord()
+			if err != nil {
+				return err
+			}
+			latLonCoords, err := cs.g.RowColToLatLon(currRow, currCol)
+			if err != nil {
+				return err
+			}
+			latLon.SetLat(latLonCoords.Lat)
+			latLon.SetLon(latLonCoords.Lon)
+
+			err = locList.Set(index, loc)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	err = result.SetLocations(locList)
+
+	cs.currIndexRow = currRow
+	cs.currIndexCol = currCol
+	return err
 }

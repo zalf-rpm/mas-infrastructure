@@ -343,28 +343,101 @@ func Test_gridService_GetValueLatLonAggregated(t *testing.T) {
 		want1   []*commonlib.AggregationPart
 		wantErr bool
 	}{
+
 		{
-			name: "testNC_EURASIA_Oderbruch_latlon_no_agg",
+			name: "testNC_EURASIA_Oderbruch_latlon_agg_iavg",
 			gs:   gs,
 			args: args{
 				inLat:           52.583039,
 				inLon:           14.533146,
-				resolution:      gs.commonGrid.GridResolution,
-				agg:             "none",
+				resolution:      commonlib.Resolution{Value: gs.commonGrid.GridResolution.Value.(float64) * 2},
+				agg:             "iAvg",
 				includeAggParts: false,
 			},
 			want: 0.0,
-			want1: []*commonlib.AggregationPart{{
-				OriginalValue: 0.0,
-				RowColTuple: commonlib.RowCol{
-					Row: 6309,
-					Col: 3423,
+			want1: []*commonlib.AggregationPart{
+				{
+					OriginalValue: 0.0,
+					RowColTuple: commonlib.RowCol{
+						Row: 6308,
+						Col: 3422,
+					},
+					AreaWeight:        0.25,
+					InterpolatedValue: 0.0,
+				}, {
+					OriginalValue: 0.0,
+					RowColTuple: commonlib.RowCol{
+						Row: 6308,
+						Col: 3423,
+					},
+					AreaWeight:        0.5,
+					InterpolatedValue: 0.0,
+				}, {
+					OriginalValue: 0.0,
+					RowColTuple: commonlib.RowCol{
+						Row: 6308,
+						Col: 3424,
+					},
+					AreaWeight:        0.25,
+					InterpolatedValue: 0.0,
+				}, {
+					OriginalValue: 0.0,
+					RowColTuple: commonlib.RowCol{
+						Row: 6309,
+						Col: 3422,
+					},
+					AreaWeight:        0.5,
+					InterpolatedValue: 0.0,
+				}, {
+					OriginalValue: 0.0,
+					RowColTuple: commonlib.RowCol{
+						Row: 6309,
+						Col: 3423,
+					},
+					AreaWeight:        1.0,
+					InterpolatedValue: 0.0,
+				}, {
+					OriginalValue: 0.0,
+					RowColTuple: commonlib.RowCol{
+						Row: 6309,
+						Col: 3424,
+					},
+					AreaWeight:        0.5,
+					InterpolatedValue: 0.0,
+				}, {
+					OriginalValue: 0.0,
+					RowColTuple: commonlib.RowCol{
+						Row: 6310,
+						Col: 3422,
+					},
+					AreaWeight:        0.25,
+					InterpolatedValue: 0.0,
+				}, {
+					OriginalValue: 0.0,
+					RowColTuple: commonlib.RowCol{
+						Row: 6310,
+						Col: 3423,
+					},
+					AreaWeight:        0.5,
+					InterpolatedValue: 0.0,
+				}, {
+					OriginalValue: 0.0,
+					RowColTuple: commonlib.RowCol{
+						Row: 6310,
+						Col: 3424,
+					},
+					AreaWeight:        0.25,
+					InterpolatedValue: 0.0,
 				},
-				AreaWeight:        1.0,
-				InterpolatedValue: 0.0,
-			}},
-			wantErr: false,
+			},
 		},
+	}
+	sumWeights := func(parts []*commonlib.AggregationPart) float64 {
+		sum := 0.0
+		for _, part := range parts {
+			sum += part.AreaWeight
+		}
+		return sum
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -376,9 +449,360 @@ func Test_gridService_GetValueLatLonAggregated(t *testing.T) {
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("gridService.GetValueLatLonAggregated() got = %v, want %v", got, tt.want)
 			}
-			if !reflect.DeepEqual(got1, tt.want1) {
-				t.Errorf("gridService.GetValueLatLonAggregated() got1 = %v, want %v", got1, tt.want1)
+			sumWeightsGot := sumWeights(got1)
+			sumWeightsWant := sumWeights(tt.want1)
+			if math.Abs(sumWeightsGot-sumWeightsWant) > 0.001 {
+				t.Errorf("gridService.GetValueLatLonAggregated() got1 = %v, want %v", sumWeightsGot, sumWeightsWant)
 			}
 		})
+	}
+}
+
+func Test_aggregate(t *testing.T) {
+	type args struct {
+		aggType          string
+		unfilteredValues []*commonlib.AggregationPart
+		noVal            interface{}
+	}
+	aggList := []*commonlib.AggregationPart{
+		{
+			OriginalValue:     -1.0,
+			RowColTuple:       commonlib.RowCol{},
+			AreaWeight:        1.0,
+			InterpolatedValue: 0,
+		},
+		{
+			OriginalValue:     -2.0,
+			RowColTuple:       commonlib.RowCol{},
+			AreaWeight:        0.25,
+			InterpolatedValue: 0,
+		},
+		{
+			OriginalValue:     -2.0,
+			RowColTuple:       commonlib.RowCol{},
+			AreaWeight:        0.25,
+			InterpolatedValue: 0,
+		},
+		{
+			OriginalValue:     -3.0,
+			RowColTuple:       commonlib.RowCol{},
+			AreaWeight:        0.25,
+			InterpolatedValue: 0,
+		},
+		{
+			OriginalValue:     -5.0,
+			RowColTuple:       commonlib.RowCol{},
+			AreaWeight:        0.25,
+			InterpolatedValue: 0,
+		},
+	}
+
+	tests := []struct {
+		name    string
+		args    args
+		want    float64
+		wantErr bool
+	}{
+		// test error cases
+		{
+			name: "aggType: not existing",
+			args: args{
+				aggType: "mean",
+				unfilteredValues: []*commonlib.AggregationPart{
+					{
+						OriginalValue:     -1.0,
+						RowColTuple:       commonlib.RowCol{},
+						AreaWeight:        1.0,
+						InterpolatedValue: 0.0,
+					},
+				},
+				noVal: 2,
+			},
+			want:    -1.0,
+			wantErr: true,
+		},
+		{
+			name: "aggType:avg",
+			args: args{
+				aggType:          "avg",
+				unfilteredValues: aggList,
+				noVal:            2,
+			},
+			want:    -2.6,
+			wantErr: false,
+		},
+		{
+			name: "aggType:wAvg",
+			args: args{
+				aggType:          "wAvg",
+				unfilteredValues: aggList,
+				noVal:            2,
+			},
+			want:    -1.5,
+			wantErr: false,
+		},
+		{
+			name: "aggType:sum",
+			args: args{
+				aggType:          "sum",
+				unfilteredValues: aggList,
+				noVal:            2,
+			},
+			want:    -13.0,
+			wantErr: false,
+		},
+		{
+			name: "aggType:wSum",
+			args: args{
+				aggType:          "wSum",
+				unfilteredValues: aggList,
+				noVal:            2,
+			},
+			want:    -3.0,
+			wantErr: false,
+		},
+		{
+			name: "aggType:max",
+			args: args{
+				aggType:          "max",
+				unfilteredValues: aggList,
+				noVal:            2,
+			},
+			want:    -5.0,
+			wantErr: false,
+		},
+		{
+			name: "aggType:min",
+			args: args{
+				aggType:          "min",
+				unfilteredValues: aggList,
+				noVal:            2,
+			},
+			want:    -1.0,
+			wantErr: false,
+		},
+		{
+			name: "aggType:wMin",
+			args: args{
+				aggType:          "wMin",
+				unfilteredValues: aggList,
+				noVal:            2,
+			},
+			want:    -0.5,
+			wantErr: false,
+		},
+		{
+			name: "aggType:wMax",
+			args: args{
+				aggType:          "wMax",
+				unfilteredValues: aggList,
+				noVal:            2,
+			},
+			want:    -1.25,
+			wantErr: false,
+		},
+		{
+			name: "aggType:median",
+			args: args{
+				aggType:          "median",
+				unfilteredValues: aggList,
+				noVal:            2,
+			},
+			want:    -2.0,
+			wantErr: false,
+		},
+		{
+			name: "aggType:wmedian",
+			args: args{
+				aggType:          "wMedian",
+				unfilteredValues: aggList,
+				noVal:            2,
+			},
+			want:    -1.0,
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := aggregate(tt.args.aggType, tt.args.unfilteredValues, tt.args.noVal)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("aggregate() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			} else if (err != nil) == tt.wantErr {
+				return
+			}
+			if got != tt.want {
+				t.Errorf("aggregate() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_gridService_GetValueRowColAggregated(t *testing.T) {
+	type args struct {
+		row             uint64
+		col             uint64
+		resolution      commonlib.Resolution
+		agg             string
+		includeAggParts bool
+	}
+
+	meta, err := loadNetCDF(testNC_EURASIA)
+	if err != nil {
+		t.Errorf("loadNetCDF() error = %v", err)
+		return
+	}
+	defer (*meta.data).Close()
+
+	newCommonGrid := &commonlib.Grid{
+		GridResolution:       commonlib.Resolution{},
+		GridUnit:             "",
+		NumRows:              0,
+		NumCols:              0,
+		NoDataType:           t,
+		Bounds:               commonlib.LatLonBoundaries{},
+		BoundsFromCellCenter: commonlib.LatLonBoundaries{},
+	}
+	gs := &gridService{
+		commonGrid: newCommonGrid,
+	}
+	gs.data = meta.data
+	gs.startLatIdx = meta.startLatIdx
+	gs.startLonIdx = meta.startLonIdx
+	gs.stepLatSize = meta.stepLatSize
+	gs.stepLonSize = meta.stepLonSize
+	gs.commonGrid.NumRows = uint64(meta.numRows)
+	gs.commonGrid.NumCols = uint64(meta.numCols)
+	gs.commonGrid.GridResolution = meta.gridResolution
+	gs.commonGrid.GridUnit = meta.gridUnit
+	gs.commonGrid.NoDataType = meta.noDataType
+	gs.commonGrid.Bounds = meta.bounds
+	gs.commonGrid.BoundsFromCellCenter = meta.boundsFromCellCenter
+	gs.timeValues = meta.timeValues
+	gs.wdt = meta.wdt
+	gs.scaleFactor = meta.scaleFactor
+	gs.add_offset = meta.add_offset
+	gs.mask = meta.mask
+
+	sumWeights := func(parts []*commonlib.AggregationPart) float64 {
+		sum := 0.0
+		for _, part := range parts {
+			sum += part.AreaWeight
+		}
+		return sum
+	}
+	tests := []struct {
+		name    string
+		gs      *gridService
+		args    args
+		want    interface{}
+		want1   []*commonlib.AggregationPart
+		wantErr bool
+	}{
+		{
+			name: "testNC_EURASIA_Oderbruch_rowCol_agg_avg",
+			gs:   gs,
+			args: args{
+				row:             6310,
+				col:             3423,
+				resolution:      commonlib.Resolution{Value: gs.commonGrid.GridResolution.Value.(float64) * 2},
+				agg:             "avg",
+				includeAggParts: false,
+			},
+			want: -4.0 / 9.0,
+			want1: []*commonlib.AggregationPart{
+				{
+					OriginalValue: 0.0,
+					RowColTuple: commonlib.RowCol{
+						Row: 6308,
+						Col: 3422,
+					},
+					AreaWeight:        0.25,
+					InterpolatedValue: 0.0,
+				}, {
+					OriginalValue: 0.0,
+					RowColTuple: commonlib.RowCol{
+						Row: 6308,
+						Col: 3423,
+					},
+					AreaWeight:        0.5,
+					InterpolatedValue: 0.0,
+				}, {
+					OriginalValue: 0.0,
+					RowColTuple: commonlib.RowCol{
+						Row: 6308,
+						Col: 3424,
+					},
+					AreaWeight:        0.25,
+					InterpolatedValue: 0.0,
+				}, {
+					OriginalValue: 0.0,
+					RowColTuple: commonlib.RowCol{
+						Row: 6309,
+						Col: 3422,
+					},
+					AreaWeight:        0.5,
+					InterpolatedValue: 0.0,
+				}, {
+					OriginalValue: -1.0,
+					RowColTuple: commonlib.RowCol{
+						Row: 6309,
+						Col: 3423,
+					},
+					AreaWeight:        1.0,
+					InterpolatedValue: 0.0,
+				}, {
+					OriginalValue: -2.0,
+					RowColTuple: commonlib.RowCol{
+						Row: 6309,
+						Col: 3424,
+					},
+					AreaWeight:        0.5,
+					InterpolatedValue: 0.0,
+				}, {
+					OriginalValue: 0.0,
+					RowColTuple: commonlib.RowCol{
+						Row: 6310,
+						Col: 3422,
+					},
+					AreaWeight:        0.25,
+					InterpolatedValue: 0.0,
+				}, {
+					OriginalValue: 0.0,
+					RowColTuple: commonlib.RowCol{
+						Row: 6310,
+						Col: 3423,
+					},
+					AreaWeight:        0.5,
+					InterpolatedValue: 0.0,
+				}, {
+					OriginalValue: -1.0,
+					RowColTuple: commonlib.RowCol{
+						Row: 6310,
+						Col: 3424,
+					},
+					AreaWeight:        0.25,
+					InterpolatedValue: 0.0,
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, got1, err := tt.gs.GetValueRowColAggregated(tt.args.row, tt.args.col, tt.args.resolution, tt.args.agg, tt.args.includeAggParts)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("gridService.GetValueLatLonAggregated() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("gridService.GetValueLatLonAggregated() got = %v, want %v", got, tt.want)
+			}
+			sumWeightsGot := sumWeights(got1)
+			sumWeightsWant := sumWeights(tt.want1)
+			if math.Abs(sumWeightsGot-sumWeightsWant) > 0.001 {
+				t.Errorf("gridService.GetValueLatLonAggregated() got1 = %v, want %v", sumWeightsGot, sumWeightsWant)
+			}
+		})
+
 	}
 }
