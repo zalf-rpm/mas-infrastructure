@@ -65,11 +65,12 @@ enum RCP {
 }
 
 struct EnsembleMember {
-  # r<N>i<M>p<L>
+  # r<N>i<M>p<L>f<F>
 
   r @0 :UInt16; # realization number
   i @1 :UInt16; # initialization method indicator
   p @2 :UInt16; # perturbed physics number 
+  f @3 :UInt16; # forcing number
 }
 
 struct Metadata {
@@ -178,18 +179,21 @@ enum Element {
   tmin @0; # [°C] minimum temperature
   tavg @1; # [°C] average temperature
   tmax @2; # [°C] maximum temperature
-  precip @3; # [mm] precipitation
-  globrad @4; # [MJ m-2 d-1] global radiation
+  precip @3; # [mm] [kg m-2] precipitation
+  globrad @4; # [MJ m-2] global radiation
   wind @5; # [m s-1] windspeed
   sunhours @6; # [-] sunshine hours
   cloudamount @7; # [% 0-100] cloudcover
   relhumid @8; # [% 0-100] relative humidity
   airpress @9; # [hPa] air pressure
-  vaporpress @10; # [kPa] vapor pressure
+  vaporpress @10; # [hPa] vapor pressure
   co2 @11; # [ppm] atmospheric CO2 concentration
   o3 @12; # [ppm] atmospheric O3 concentration
   et0 @13; # [] 
-  dewpointTemp @14; # [°C]
+  dewpointTemp @14; # dew point temperature [°C]
+  specificHumidity @15; # [g kg-1] = [(g water vapor) (kg air)-1]
+  snowfallFlux @16; # [mm] [kg m-2] snowfall flux
+  surfaceDownwellingLongwaveRadiation @17; # [MJ m-2] surface downwelling longwave radiation
 }
 
 

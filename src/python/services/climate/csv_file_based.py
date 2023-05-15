@@ -205,8 +205,6 @@ class TimeSeries(climate_capnp.TimeSeries.Server, common.Identifiable, common.Pe
         # print("deleting timeseries:", self.name, "id:", self.__ID)
 
 
-# ------------------------------------------------------------------------------
-
 class Dataset(climate_capnp.Dataset.Server, common.Identifiable, common.Persistable):
 
     def __init__(self, metadata, path_to_rows, interpolator, rowcol_to_latlon,
@@ -348,8 +346,6 @@ class Dataset(climate_capnp.Dataset.Server, common.Identifiable, common.Persista
         locs_gen = (create_loc(row_col, coord) for row_col, coord in it)
         context.results.locationsCallback = GetLocationsCallback(locs_gen)
 
-
-# ------------------------------------------------------------------------------
 
 class GetLocationsCallback(climate_capnp.Dataset.GetLocationsCallback.Server):
     def __init__(self, locations_gen):

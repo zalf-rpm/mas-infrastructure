@@ -49,8 +49,6 @@ climate_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate.capnp"), imports
 geo_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "geo.capnp"), imports=abs_imports)
 
 
-# ------------------------------------------------------------------------------
-
 def read_header(path_to_ascii_grid_file):
     "read metadata from esri ascii grid file"
     metadata = {}
@@ -64,8 +62,6 @@ def read_header(path_to_ascii_grid_file):
                 metadata[sline[0].strip().lower()] = float(sline[1].strip())
     return metadata, header_str
 
-
-# ------------------------------------------------------------------------------
 
 def create_ascii_grid_interpolator(arr, meta, ignore_nodata=True):
     "read an ascii grid into a map, without the no-data values"
@@ -97,8 +93,6 @@ def create_ascii_grid_interpolator(arr, meta, ignore_nodata=True):
     return NearestNDInterpolator(np.array(points), np.array(values))
 
 
-# ------------------------------------------------------------------------------
-
 def read_file_and_create_interpolator(path_to_grid, dtype=int, skiprows=6, confirm_creation=False):
     "read file and metadata and create interpolator"
 
@@ -109,8 +103,6 @@ def read_file_and_create_interpolator(path_to_grid, dtype=int, skiprows=6, confi
         print("created interpolator from:", path_to_grid)
     return (interpolate, grid, metadata)
 
-
-# ------------------------------------------------------------------------------
 
 def name_to_crs(name):
     if not hasattr(name_to_crs, "d"):
@@ -124,8 +116,6 @@ def name_to_crs(name):
         }
     return name_to_crs.d.get(name, None)
 
-
-# ------------------------------------------------------------------------------
 
 def create_lat_lon_interpolator_from_json_coords_file(path_to_json_coords_file):
     """
@@ -149,8 +139,6 @@ def create_lat_lon_interpolator_from_json_coords_file(path_to_json_coords_file):
         return (NearestNDInterpolator(np.array(points), np.array(values)), cdict)
 
 
-# ------------------------------------------------------------------------------
-
 def lat_lon_interpolator(path_to_latlon_to_rowcol_json_file):
     "create an interpolator for the macsur grid"
     if not hasattr(lat_lon_interpolator, "interpol"):
@@ -158,8 +146,6 @@ def lat_lon_interpolator(path_to_latlon_to_rowcol_json_file):
             path_to_latlon_to_rowcol_json_file)
     return lat_lon_interpolator.interpol
 
-
-# ------------------------------------------------------------------------------
 
 def string_to_gcm(gcm_str):
     if not hasattr(string_to_gcm, "d"):
@@ -178,8 +164,6 @@ def string_to_gcm(gcm_str):
         }
     return string_to_gcm.d.get(gcm_str, None)
 
-
-# ------------------------------------------------------------------------------
 
 def gcm_to_info(gcm):
     if not hasattr(gcm_to_info, "d"):
@@ -200,8 +184,6 @@ def gcm_to_info(gcm):
     return gcm_to_info.d.get(gcm.raw, None)
 
 
-# ------------------------------------------------------------------------------
-
 def string_to_rcm(rcm_str):
     if not hasattr(string_to_rcm, "d"):
         string_to_rcm.d = {
@@ -215,8 +197,6 @@ def string_to_rcm(rcm_str):
         }
     return string_to_rcm.d.get(rcm_str, None)
 
-
-# ------------------------------------------------------------------------------
 
 def rcm_to_info(rcm):
     if not hasattr(rcm_to_info, "d"):
@@ -234,41 +214,35 @@ def rcm_to_info(rcm):
     return rcm_to_info.d.get(rcm.raw, None)
 
 
-# ------------------------------------------------------------------------------
-
 def string_to_ensmem(ensmem_str):
     # split r<N>i<M>p<L>
-    sr, sip = ensmem_str[1:].split("i")
-    si, sp = sip.split("p")
-    return {"r": int(sr), "i": int(si), "p": int(sp)}
+    sr, sipf = ensmem_str[1:].split("i")
+    si, spf = sipf.split("p")
+    sp, sf = (spf if "f" in spf else spf + "f0").split("f")
+    return {"r": int(sr), "i": int(si), "p": int(sp), "f": int(sf)}
 
-
-# ------------------------------------------------------------------------------
 
 def ensmem_to_info(ensmem):
-    # r<N>i<M>p<L>
+    # r<N>i<M>p<L>f<F>
     id = "r{r}i{i}p{p}".format(r=ensmem.r, i=ensmem.i, p=ensmem.p)
     description = "Realization: #{r}, Initialization: #{i}, Pertubation: #{p}".format(r=ensmem.r, i=ensmem.i,
                                                                                       p=ensmem.p)
+    if ensmem.f > 0:
+        id = id + "f{f}".format(f=ensmem.f)
+        description = description + ", Forcing: #{f}".format(f=ensmem.f)
     return {"id": id, "name": id, "description": description}
 
-
-# ------------------------------------------------------------------------------
 
 def date_to_info(d):
     iso = d.isoformat()[:10]
     return {"id": iso, "name": iso, "description": ""}
 
 
-# ------------------------------------------------------------------------------
-
 def rcp_or_ssp_to_info(xxp):
     id = str(xxp)
     name = id[:3].upper() + id[3:]
     return {"id": id, "name": name, "description": ""}
 
-
-# ------------------------------------------------------------------------------
 
 def access_entries(which):
     if not hasattr(access_entries, "d"):
@@ -288,8 +262,6 @@ def access_entries(which):
     return access_entries.d.get(which, None)
 
 
-# ------------------------------------------------------------------------------
-
 def create_entry_map(entries):
     entry_to_value = {}
     for e in entries:
@@ -299,13 +271,9 @@ def create_entry_map(entries):
     return entry_to_value
 
 
-# ------------------------------------------------------------------------------
-
 def create_date(capnp_date):
     return date(capnp_date.year, capnp_date.month, capnp_date.day)
 
-
-# ------------------------------------------------------------------------------
 
 def create_capnp_date(py_date):
     return {
@@ -314,8 +282,6 @@ def create_capnp_date(py_date):
         "day": py_date.day if py_date else 0
     }
 
-
-# ------------------------------------------------------------------------------
 
 class Metadata_Info(climate_capnp.Metadata.Information.Server):
 
@@ -357,8 +323,6 @@ class Metadata_Info(climate_capnp.Metadata.Information.Server):
         return id_infos
 
 
-# ------------------------------------------------------------------------------
-
 class Service(climate_capnp.Service.Server, common.Identifiable, common.Persistable, serv.AdministrableService):
 
     def __init__(self, meta_plus_datasets, id=None, name=None, description=None, admin=None, restorer=None):
@@ -387,4 +351,3 @@ class Service(climate_capnp.Service.Server, common.Identifiable, common.Persista
         datasets = map(lambda mds: mds.data, meta_plus_datasets)
         return list(datasets)
 
-# ------------------------------------------------------------------------------
