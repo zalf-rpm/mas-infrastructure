@@ -523,7 +523,13 @@ func (g *Grid) LatLonBounds(c context.Context, call grid.Grid_latLonBounds) erro
 }
 func (g *Grid) StreamCells(c context.Context, call grid.Grid_streamCells) error {
 
-	streamingCallback := &StreamingCallback{}
+	streamingCallback := &StreamingCallback{
+		topLeft:      RowCol{},
+		bottomRight:  RowCol{},
+		currIndexRow: 0,
+		currIndexCol: 0,
+		g:            g,
+	}
 	if call.Args().HasTopLeft() {
 		tl, err := call.Args().TopLeft()
 		if err != nil {
