@@ -16,6 +16,8 @@ import (
 	"gonum.org/v1/gonum/stat"
 )
 
+const testNC_EURASIA = "EURASIA_WTD_annualmean.nc"
+
 type gridService struct {
 	commonGrid  *commonlib.Grid
 	data        *api.Group
@@ -32,7 +34,7 @@ type gridService struct {
 
 func newGridService(restorer *commonlib.Restorer) *gridService {
 
-	fileLocation := flag.String("netcdf", "", "netcdf file to load")
+	fileLocation := flag.String("netcdf", testNC_EURASIA, "netcdf file to load")
 	description := flag.String("description", "Groundwater service", "description of the netcdf file")
 	name := flag.String("name", "groundwater", "name of the service")
 	flag.Parse()
@@ -321,35 +323,37 @@ func (gs *gridService) setupCallbacks() {
 	}
 	gs.commonGrid.GetValueLatLonAggregated = gs.GetValueLatLonAggregated
 	gs.commonGrid.GetValueRowColAggregated = gs.GetValueRowColAggregated
-	gs.commonGrid.RowColToLatLon = func(row, col uint64) (commonlib.LatLon, error) {
+	gs.commonGrid.RowColToLatLon = gs.rowColToLatLon
+}
 
-		// latitudes
-		latVar, err := (*gs.data).GetVarGetter("lat")
-		if err != nil {
-			log.Fatal(err)
-		}
+func (gs *gridService) rowColToLatLon(row, col uint64) (commonlib.LatLon, error) {
 
-		valsLat, err := latVar.GetSlice(int64(row), int64(row))
-		if err != nil {
-			log.Fatal(err)
-		}
-		valLat := valsLat.([]float32)
-		// longitude
-		lonVar, err := (*gs.data).GetVarGetter("lon")
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		valsLon, err := lonVar.GetSlice(int64(col), int64(col))
-		if err != nil {
-			log.Fatal(err)
-		}
-		valLon := valsLon.([]float32)
-		return commonlib.LatLon{
-			Lat: float64(valLat[0]),
-			Lon: float64(valLon[0]),
-		}, nil
+	// latitudes
+	latVar, err := (*gs.data).GetVarGetter("lat")
+	if err != nil {
+		log.Fatal(err)
 	}
+
+	valsLat, err := latVar.GetSlice(int64(row), int64(row+1))
+	if err != nil {
+		log.Fatal(err)
+	}
+	valLat := valsLat.([]float32)
+	// longitude
+	lonVar, err := (*gs.data).GetVarGetter("lon")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	valsLon, err := lonVar.GetSlice(int64(col), int64(col+1))
+	if err != nil {
+		log.Fatal(err)
+	}
+	valLon := valsLon.([]float32)
+	return commonlib.LatLon{
+		Lat: float64(valLat[0]),
+		Lon: float64(valLon[0]),
+	}, nil
 }
 
 func findStartLatLon(valLat, valLon []float32, lenLat, lenLon int64) (int64, int64) {
