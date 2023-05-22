@@ -71,6 +71,6 @@ func Serve(conn net.Conn, restorer *commonlib.Restorer, errChan chan error) {
 
 	main := persistence.Restorer_ServerToClient(restorer)
 	// Listen for calls, using  bootstrap interface.
-	rpc.NewConn(rpc.NewPackedStreamTransport(conn), &rpc.Options{BootstrapClient: capnp.Client(main), ErrorReporter: &commonlib.ConnError{Out: errChan}})
+	rpc.NewConn(rpc.NewStreamTransport(conn), &rpc.Options{BootstrapClient: capnp.Client(main), ErrorReporter: &commonlib.ConnError{Out: errChan}})
 	// this connection will be close when the client closes the connection
 }
