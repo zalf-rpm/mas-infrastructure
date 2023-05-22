@@ -12,11 +12,6 @@ import (
 )
 
 func TestServe(t *testing.T) {
-	type args struct {
-		conn     net.Conn
-		restorer *commonlib.Restorer
-		errChan  chan error
-	}
 
 	// create a restorer
 	restorer := commonlib.NewRestorer("localhost", 0) // port 0 means: use any free port
@@ -58,8 +53,33 @@ func TestServe(t *testing.T) {
 	gridClient := grid.Grid(*initialSdr)
 
 	// TODO: test all fuctions of the grid service interface
+	var maxRows uint64 = 10
+	var maxCols uint64 = 10
+	t.Run("dimension", func(t *testing.T) {
+		result, rel := gridClient.Dimension(context.Background(), func(p grid.Grid_dimension_Params) error {
+			fmt.Println("dimension")
+			return nil
+		})
+		defer rel()
+		results, err := result.Struct()
+		assert.NoError(t, err)
+		maxRows = results.Rows()
+		assert.Equal(t, 9960, maxRows)
+		maxCols = results.Cols()
+		assert.Equal(t, 23280, maxCols)
+	})
+
 	t.Run("stream", func(t *testing.T) {
 		result, rel := gridClient.StreamCells(context.Background(), func(p grid.Grid_streamCells_Params) error {
+			topleft, err := p.NewTopLeft()
+			assert.NoError(t, err)
+			topleft.SetRow(0)
+			topleft.SetCol(0)
+			bottomright, err := p.NewBottomRight()
+			assert.NoError(t, err)
+			bottomright.SetRow(maxRows - 1)
+			bottomright.SetCol(maxCols - 1)
+
 			fmt.Println("StreamCells")
 			return nil
 		})
@@ -67,7 +87,39 @@ func TestServe(t *testing.T) {
 		results, err := result.Struct()
 		assert.NoError(t, err)
 		assert.True(t, results.HasCallback())
+		callBack := results.Callback()
+		assert.NotNil(t, callBack)
 
+		counter := 0
+		for {
+			resFut, release := callBack.SendCells(context.Background(), func(p grid.Grid_Callback_sendCells_Params) error {
+				p.SetMaxCount(10000)
+				fmt.Println("StreamCells callback")
+				return nil
+			})
+
+			res, err := resFut.Struct()
+			assert.NoError(t, err)
+			if res.HasLocations() == false {
+				break
+			}
+
+			locations, err := res.Locations()
+			assert.NoError(t, err)
+			for i := 0; i < locations.Len(); i++ {
+				loc := locations.At(i)
+				assert.NotNil(t, loc)
+				assert.True(t, loc.HasRowCol())
+				assert.True(t, loc.HasValue())
+				assert.True(t, loc.HasLatLonCoord())
+				counter++
+				// TODO: check if the values are correct
+			}
+			release()
+		}
+		if counter != 9960*23280+1 {
+			t.Errorf("counter is %d, expected %d", counter, 9960*23280+1)
+		}
 	})
 
 }
