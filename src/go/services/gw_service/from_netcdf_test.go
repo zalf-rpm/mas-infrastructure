@@ -9,8 +9,6 @@ import (
 	"github.com/zalf-rpm/mas-infrastructure/src/go/commonlib"
 )
 
-const testNC_EURASIA = "EURASIA_WTD_annualmean.nc"
-
 func Test_loadNetCDF(t *testing.T) {
 	type args struct {
 		inputFile string
@@ -804,5 +802,96 @@ func Test_gridService_GetValueRowColAggregated(t *testing.T) {
 			}
 		})
 
+	}
+}
+
+func Test_gridService_rowColToLatLon(t *testing.T) {
+
+	meta, err := loadNetCDF(testNC_EURASIA)
+	if err != nil {
+		t.Errorf("loadNetCDF() error = %v", err)
+		return
+	}
+	defer (*meta.data).Close()
+
+	newCommonGrid := &commonlib.Grid{
+		GridResolution:       commonlib.Resolution{},
+		GridUnit:             "",
+		NumRows:              0,
+		NumCols:              0,
+		NoDataType:           t,
+		Bounds:               commonlib.LatLonBoundaries{},
+		BoundsFromCellCenter: commonlib.LatLonBoundaries{},
+	}
+	gs := &gridService{
+		commonGrid: newCommonGrid,
+	}
+	gs.data = meta.data
+	gs.startLatIdx = meta.startLatIdx
+	gs.startLonIdx = meta.startLonIdx
+	gs.stepLatSize = meta.stepLatSize
+	gs.stepLonSize = meta.stepLonSize
+	gs.commonGrid.NumRows = uint64(meta.numRows)
+	gs.commonGrid.NumCols = uint64(meta.numCols)
+	gs.commonGrid.GridResolution = meta.gridResolution
+	gs.commonGrid.GridUnit = meta.gridUnit
+	gs.commonGrid.NoDataType = meta.noDataType
+	gs.commonGrid.Bounds = meta.bounds
+	gs.commonGrid.BoundsFromCellCenter = meta.boundsFromCellCenter
+	gs.timeValues = meta.timeValues
+	gs.wdt = meta.wdt
+	gs.scaleFactor = meta.scaleFactor
+	gs.add_offset = meta.add_offset
+	gs.mask = meta.mask
+
+	type args struct {
+		row uint64
+		col uint64
+	}
+	tests := []struct {
+		name    string
+		gs      *gridService
+		args    args
+		want    commonlib.LatLon
+		wantErr bool
+	}{
+		{
+			name: "testNC_EURASIA_latlon_top_left",
+			gs:   gs,
+			args: args{
+				row: 0,
+				col: 0,
+			},
+			want: commonlib.LatLon{
+				Lat: 0.004166666883975267,
+				Lon: -13.995833396911621,
+			},
+			wantErr: false,
+		},
+		{
+			name: "testNC_EURASIA_latlon_bottom_right",
+			gs:   gs,
+			args: args{
+				row: uint64(meta.numRows - 1),
+				col: uint64(meta.numCols - 1),
+			},
+			want: commonlib.LatLon{
+				Lat: 82.9955062866211,
+				Lon: 179.99505615234375,
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.gs.rowColToLatLon(tt.args.row, tt.args.col)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("gridService.rowColToLatLon() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("gridService.rowColToLatLon() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }
