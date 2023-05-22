@@ -264,4 +264,19 @@ kj::Vector<kj::String> mas::infrastructure::common::splitString(kj::StringPtr s,
 	return kj::mv(result);
 }
 
+kj::String mas::infrastructure::common::trimString(kj::StringPtr s, kj::StringPtr whitespaces)
+{
+  string str(s.cStr());
+  string ws(whitespaces.cStr());
+  size_t found;
+  found = str.find_last_not_of(ws);
+  if (found != string::npos)
+    str.erase(found + 1);
+  found = str.find_first_not_of(ws);
+  if (found != string::npos)
+    str.erase(0, found);
+  return kj::str(str);
+}
+
+
 

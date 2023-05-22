@@ -33,7 +33,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 namespace mas::infrastructure::common {
 
-class Identifiable final : public mas::schema::common::Identifiable::Server {
+class Identifiable : public mas::schema::common::Identifiable::Server {
 public:
   Identifiable(kj::StringPtr id = nullptr, kj::StringPtr name = nullptr, kj::StringPtr description = nullptr);
 
@@ -144,5 +144,7 @@ copyAndSetIPAttrs(mas::schema::fbp::IP::Reader oldIp, mas::schema::fbp::IP::Buil
 //-----------------------------------------------------------------------
 
 kj::Vector<kj::String> splitString(kj::StringPtr s, kj::StringPtr splitElements);
+
+kj::String trimString(kj::StringPtr s, kj::StringPtr whitespaces);
 
 } // namespace mas::infrastructure::common

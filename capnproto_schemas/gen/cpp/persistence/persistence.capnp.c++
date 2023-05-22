@@ -1023,7 +1023,7 @@ const ::capnp::_::RawSchema s_da966d1d252e4d25 = {
   0, 1, i_da966d1d252e4d25, nullptr, nullptr, { &s_da966d1d252e4d25, nullptr, nullptr, 0, 0, nullptr }
 };
 #endif  // !CAPNP_LITE
-static const ::capnp::_::AlignedData<38> b_aa8d91fab6d01d9f = {
+static const ::capnp::_::AlignedData<48> b_aa8d91fab6d01d9f = {
   {   0,   0,   0,   0,   5,   0,   6,   0,
     159,  29, 208, 182, 250, 145, 141, 170,
      18,   0,   0,   0,   3,   0,   0,   0,
@@ -1034,7 +1034,7 @@ static const ::capnp::_::AlignedData<38> b_aa8d91fab6d01d9f = {
      37,   0,   0,   0,  23,   0,   0,   0,
       0,   0,   0,   0,   0,   0,   0,   0,
      49,   0,   0,   0,  71,   0,   0,   0,
-     89,   0,   0,   0,  39,   0,   0,   0,
+    129,   0,   0,   0,  39,   0,   0,   0,
       0,   0,   0,   0,   0,   0,   0,   0,
     112, 101, 114, 115, 105, 115, 116, 101,
     110,  99, 101,  46,  99,  97, 112, 110,
@@ -1051,11 +1051,21 @@ static const ::capnp::_::AlignedData<38> b_aa8d91fab6d01d9f = {
      51, 187,  44,  15, 111, 150, 248, 230,
     140,  11,  34, 141,  81,  95,  24, 252,
      17,   0,   0,   0,  66,   0,   0,   0,
+     17,   0,   0,   0,  31,   0,   0,   0,
       0,   0,   0,   0,   0,   0,   0,   0,
       0,   0,   0,   0,   0,   0,   0,   0,
-      0,   0,   0,   0,   0,   0,   0,   0,
-      5,   0,   0,   0,   7,   0,   0,   0,
+     45,   0,   0,   0,   7,   0,   0,   0,
     114, 101, 115, 111, 108, 118, 101,   0,
+      4,   0,   0,   0,   1,   0,   2,   0,
+    241, 141,  47,  23,  18,  96, 185, 194,
+      4,   0,   0,   0,   2,   0,   1,   0,
+     20,   0,   0,   0,   0,   0,   1,   0,
+     12,   0,   0,   0,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
+      1,   0,   0,   0, 106,   0,   0,   0,
+     82, 101, 115, 111, 108, 118, 101,  73,
+    100, 101, 110, 116,   0,   0,   0,   0,
+      0,   0,   0,   0,   0,   0,   0,   0,
       0,   0,   0,   0,   0,   0,   1,   0,
       8,   0,   0,   0,   1,   0,   1,   0,
     213,  72, 156,  89, 203, 209, 175, 178,
@@ -1073,7 +1083,7 @@ static const ::capnp::_::RawSchema* const d_aa8d91fab6d01d9f[] = {
 };
 static const uint16_t m_aa8d91fab6d01d9f[] = {0};
 const ::capnp::_::RawSchema s_aa8d91fab6d01d9f = {
-  0xaa8d91fab6d01d9f, b_aa8d91fab6d01d9f.words, 38, d_aa8d91fab6d01d9f, m_aa8d91fab6d01d9f,
+  0xaa8d91fab6d01d9f, b_aa8d91fab6d01d9f.words, 48, d_aa8d91fab6d01d9f, m_aa8d91fab6d01d9f,
   4, 1, nullptr, nullptr, nullptr, { &s_aa8d91fab6d01d9f, nullptr, nullptr, 0, 0, nullptr }
 };
 #endif  // !CAPNP_LITE

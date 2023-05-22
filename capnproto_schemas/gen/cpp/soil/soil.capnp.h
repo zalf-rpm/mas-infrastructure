@@ -56,12 +56,19 @@ CAPNP_DECLARE_SCHEMA(984640f05b3ada4f);
 CAPNP_DECLARE_SCHEMA(92f4b81bcfdb71b0);
 CAPNP_DECLARE_SCHEMA(bd4065087e22ca0d);
 CAPNP_DECLARE_SCHEMA(bf4e1b07ad88943f);
+CAPNP_DECLARE_SCHEMA(df4bbf1c883a8790);
 CAPNP_DECLARE_SCHEMA(ff67c2a593419c29);
+CAPNP_DECLARE_SCHEMA(e704b695746374e2);
+CAPNP_DECLARE_SCHEMA(8d2a23f8fd1b9151);
 CAPNP_DECLARE_SCHEMA(a09aa71427dc64e1);
+CAPNP_DECLARE_SCHEMA(f4f8ab568ffbc939);
+CAPNP_DECLARE_SCHEMA(81da248df613bc05);
+CAPNP_DECLARE_SCHEMA(9f7ae4c2748bddf8);
 CAPNP_DECLARE_SCHEMA(8dec5fd8eb3e7c27);
 CAPNP_DECLARE_SCHEMA(98a2bf8e6ad97ee3);
 CAPNP_DECLARE_SCHEMA(db97e739bf9693c1);
 CAPNP_DECLARE_SCHEMA(a0915e668c9317ad);
+CAPNP_DECLARE_SCHEMA(d1a74147c92b7957);
 
 }  // namespace schemas
 }  // namespace capnp
@@ -142,15 +149,64 @@ struct Query::Result {
   };
 };
 
-struct Profile {
-  Profile() = delete;
+struct ProfileData {
+  ProfileData() = delete;
 
   class Reader;
   class Builder;
   class Pipeline;
 
   struct _capnpPrivate {
-    CAPNP_DECLARE_STRUCT_HEADER(ff67c2a593419c29, 1, 2)
+    CAPNP_DECLARE_STRUCT_HEADER(df4bbf1c883a8790, 1, 1)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct Profile {
+  Profile() = delete;
+
+#if !CAPNP_LITE
+  class Client;
+  class Server;
+#endif  // !CAPNP_LITE
+
+  struct DataParams;
+  struct GeoLocationParams;
+
+  #if !CAPNP_LITE
+  struct _capnpPrivate {
+    CAPNP_DECLARE_INTERFACE_HEADER(ff67c2a593419c29)
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+  };
+  #endif  // !CAPNP_LITE
+};
+
+struct Profile::DataParams {
+  DataParams() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(e704b695746374e2, 0, 0)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct Profile::GeoLocationParams {
+  GeoLocationParams() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(8d2a23f8fd1b9151, 0, 0)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
@@ -165,10 +221,12 @@ struct Service {
   class Server;
 #endif  // !CAPNP_LITE
 
+  struct Stream;
   struct GetAllAvailableParametersParams;
   struct GetAllAvailableParametersResults;
-  struct ProfilesAtParams;
-  struct ProfilesAtResults;
+  struct ClosestProfilesAtParams;
+  struct ClosestProfilesAtResults;
+  struct StreamAllProfilesResults;
 
   #if !CAPNP_LITE
   struct _capnpPrivate {
@@ -176,6 +234,55 @@ struct Service {
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
   };
   #endif  // !CAPNP_LITE
+};
+
+struct Service::Stream {
+  Stream() = delete;
+
+#if !CAPNP_LITE
+  class Client;
+  class Server;
+#endif  // !CAPNP_LITE
+
+  struct NextProfilesParams;
+  struct NextProfilesResults;
+
+  #if !CAPNP_LITE
+  struct _capnpPrivate {
+    CAPNP_DECLARE_INTERFACE_HEADER(f4f8ab568ffbc939)
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+  };
+  #endif  // !CAPNP_LITE
+};
+
+struct Service::Stream::NextProfilesParams {
+  NextProfilesParams() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(81da248df613bc05, 1, 0)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct Service::Stream::NextProfilesResults {
+  NextProfilesResults() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(9f7ae4c2748bddf8, 0, 1)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
 };
 
 struct Service::GetAllAvailableParametersParams {
@@ -208,8 +315,8 @@ struct Service::GetAllAvailableParametersResults {
   };
 };
 
-struct Service::ProfilesAtParams {
-  ProfilesAtParams() = delete;
+struct Service::ClosestProfilesAtParams {
+  ClosestProfilesAtParams() = delete;
 
   class Reader;
   class Builder;
@@ -223,8 +330,8 @@ struct Service::ProfilesAtParams {
   };
 };
 
-struct Service::ProfilesAtResults {
-  ProfilesAtResults() = delete;
+struct Service::ClosestProfilesAtResults {
+  ClosestProfilesAtResults() = delete;
 
   class Reader;
   class Builder;
@@ -232,6 +339,21 @@ struct Service::ProfilesAtResults {
 
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(a0915e668c9317ad, 0, 1)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct Service::StreamAllProfilesResults {
+  StreamAllProfilesResults() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(d1a74147c92b7957, 0, 1)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
@@ -643,9 +765,9 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Profile::Reader {
+class ProfileData::Reader {
 public:
-  typedef Profile Reads;
+  typedef ProfileData Reads;
 
   Reader() = default;
   inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
@@ -665,9 +787,6 @@ public:
 
   inline float getPercentageOfArea() const;
 
-  inline bool hasId() const;
-  inline  ::capnp::Text::Reader getId() const;
-
 private:
   ::capnp::_::StructReader _reader;
   template <typename, ::capnp::Kind>
@@ -680,9 +799,9 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Profile::Builder {
+class ProfileData::Builder {
 public:
-  typedef Profile Builds;
+  typedef ProfileData Builds;
 
   Builder() = delete;  // Deleted to discourage incorrect usage.
                        // You can explicitly initialize to nullptr instead.
@@ -706,12 +825,137 @@ public:
   inline float getPercentageOfArea();
   inline void setPercentageOfArea(float value);
 
-  inline bool hasId();
-  inline  ::capnp::Text::Builder getId();
-  inline void setId( ::capnp::Text::Reader value);
-  inline  ::capnp::Text::Builder initId(unsigned int size);
-  inline void adoptId(::capnp::Orphan< ::capnp::Text>&& value);
-  inline ::capnp::Orphan< ::capnp::Text> disownId();
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class ProfileData::Pipeline {
+public:
+  typedef ProfileData Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+#if !CAPNP_LITE
+class Profile::Client
+    : public virtual ::capnp::Capability::Client,
+      public virtual  ::mas::schema::common::Identifiable::Client,
+      public virtual  ::mas::schema::persistence::Persistent::Client {
+public:
+  typedef Profile Calls;
+  typedef Profile Reads;
+
+  Client(decltype(nullptr));
+  explicit Client(::kj::Own< ::capnp::ClientHook>&& hook);
+  template <typename _t, typename = ::kj::EnableIf< ::kj::canConvert<_t*, Server*>()>>
+  Client(::kj::Own<_t>&& server);
+  template <typename _t, typename = ::kj::EnableIf< ::kj::canConvert<_t*, Client*>()>>
+  Client(::kj::Promise<_t>&& promise);
+  Client(::kj::Exception&& exception);
+  Client(Client&) = default;
+  Client(Client&&) = default;
+  Client& operator=(Client& other);
+  Client& operator=(Client&& other);
+
+  ::capnp::Request< ::mas::schema::soil::Profile::DataParams,  ::mas::schema::soil::ProfileData> dataRequest(
+      ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
+  ::capnp::Request< ::mas::schema::soil::Profile::GeoLocationParams,  ::mas::schema::geo::LatLonCoord> geoLocationRequest(
+      ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
+
+protected:
+  Client() = default;
+};
+
+class Profile::Server
+    : public virtual ::capnp::Capability::Server,
+      public virtual  ::mas::schema::common::Identifiable::Server,
+      public virtual  ::mas::schema::persistence::Persistent::Server {
+public:
+  typedef Profile Serves;
+
+  ::capnp::Capability::Server::DispatchCallResult dispatchCall(
+      uint64_t interfaceId, uint16_t methodId,
+      ::capnp::CallContext< ::capnp::AnyPointer, ::capnp::AnyPointer> context)
+      override;
+
+protected:
+  typedef  ::mas::schema::soil::Profile::DataParams DataParams;
+  typedef ::capnp::CallContext<DataParams,  ::mas::schema::soil::ProfileData> DataContext;
+  virtual ::kj::Promise<void> data(DataContext context);
+  typedef  ::mas::schema::soil::Profile::GeoLocationParams GeoLocationParams;
+  typedef ::capnp::CallContext<GeoLocationParams,  ::mas::schema::geo::LatLonCoord> GeoLocationContext;
+  virtual ::kj::Promise<void> geoLocation(GeoLocationContext context);
+
+  inline  ::mas::schema::soil::Profile::Client thisCap() {
+    return ::capnp::Capability::Server::thisCap()
+        .template castAs< ::mas::schema::soil::Profile>();
+  }
+
+  ::capnp::Capability::Server::DispatchCallResult dispatchCallInternal(
+      uint16_t methodId,
+      ::capnp::CallContext< ::capnp::AnyPointer, ::capnp::AnyPointer> context);
+};
+#endif  // !CAPNP_LITE
+
+class Profile::DataParams::Reader {
+public:
+  typedef DataParams Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class Profile::DataParams::Builder {
+public:
+  typedef DataParams Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -723,9 +967,80 @@ private:
 };
 
 #if !CAPNP_LITE
-class Profile::Pipeline {
+class Profile::DataParams::Pipeline {
 public:
-  typedef Profile Pipelines;
+  typedef DataParams Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+class Profile::GeoLocationParams::Reader {
+public:
+  typedef GeoLocationParams Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class Profile::GeoLocationParams::Builder {
+public:
+  typedef GeoLocationParams Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class Profile::GeoLocationParams::Pipeline {
+public:
+  typedef GeoLocationParams Pipelines;
 
   inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
@@ -764,7 +1079,9 @@ public:
       ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
   ::capnp::Request< ::mas::schema::soil::Service::GetAllAvailableParametersParams,  ::mas::schema::soil::Service::GetAllAvailableParametersResults> getAllAvailableParametersRequest(
       ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
-  ::capnp::Request< ::mas::schema::soil::Service::ProfilesAtParams,  ::mas::schema::soil::Service::ProfilesAtResults> profilesAtRequest(
+  ::capnp::Request< ::mas::schema::soil::Service::ClosestProfilesAtParams,  ::mas::schema::soil::Service::ClosestProfilesAtResults> closestProfilesAtRequest(
+      ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
+  ::capnp::Request< ::mas::schema::soil::Query,  ::mas::schema::soil::Service::StreamAllProfilesResults> streamAllProfilesRequest(
       ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
 
 protected:
@@ -790,10 +1107,13 @@ protected:
   typedef  ::mas::schema::soil::Service::GetAllAvailableParametersResults GetAllAvailableParametersResults;
   typedef ::capnp::CallContext<GetAllAvailableParametersParams, GetAllAvailableParametersResults> GetAllAvailableParametersContext;
   virtual ::kj::Promise<void> getAllAvailableParameters(GetAllAvailableParametersContext context);
-  typedef  ::mas::schema::soil::Service::ProfilesAtParams ProfilesAtParams;
-  typedef  ::mas::schema::soil::Service::ProfilesAtResults ProfilesAtResults;
-  typedef ::capnp::CallContext<ProfilesAtParams, ProfilesAtResults> ProfilesAtContext;
-  virtual ::kj::Promise<void> profilesAt(ProfilesAtContext context);
+  typedef  ::mas::schema::soil::Service::ClosestProfilesAtParams ClosestProfilesAtParams;
+  typedef  ::mas::schema::soil::Service::ClosestProfilesAtResults ClosestProfilesAtResults;
+  typedef ::capnp::CallContext<ClosestProfilesAtParams, ClosestProfilesAtResults> ClosestProfilesAtContext;
+  virtual ::kj::Promise<void> closestProfilesAt(ClosestProfilesAtContext context);
+  typedef  ::mas::schema::soil::Service::StreamAllProfilesResults StreamAllProfilesResults;
+  typedef ::capnp::CallContext< ::mas::schema::soil::Query, StreamAllProfilesResults> StreamAllProfilesContext;
+  virtual ::kj::Promise<void> streamAllProfiles(StreamAllProfilesContext context);
 
   inline  ::mas::schema::soil::Service::Client thisCap() {
     return ::capnp::Capability::Server::thisCap()
@@ -803,6 +1123,220 @@ protected:
   ::capnp::Capability::Server::DispatchCallResult dispatchCallInternal(
       uint16_t methodId,
       ::capnp::CallContext< ::capnp::AnyPointer, ::capnp::AnyPointer> context);
+};
+#endif  // !CAPNP_LITE
+
+#if !CAPNP_LITE
+class Service::Stream::Client
+    : public virtual ::capnp::Capability::Client {
+public:
+  typedef Stream Calls;
+  typedef Stream Reads;
+
+  Client(decltype(nullptr));
+  explicit Client(::kj::Own< ::capnp::ClientHook>&& hook);
+  template <typename _t, typename = ::kj::EnableIf< ::kj::canConvert<_t*, Server*>()>>
+  Client(::kj::Own<_t>&& server);
+  template <typename _t, typename = ::kj::EnableIf< ::kj::canConvert<_t*, Client*>()>>
+  Client(::kj::Promise<_t>&& promise);
+  Client(::kj::Exception&& exception);
+  Client(Client&) = default;
+  Client(Client&&) = default;
+  Client& operator=(Client& other);
+  Client& operator=(Client&& other);
+
+  ::capnp::Request< ::mas::schema::soil::Service::Stream::NextProfilesParams,  ::mas::schema::soil::Service::Stream::NextProfilesResults> nextProfilesRequest(
+      ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
+
+protected:
+  Client() = default;
+};
+
+class Service::Stream::Server
+    : public virtual ::capnp::Capability::Server {
+public:
+  typedef Stream Serves;
+
+  ::capnp::Capability::Server::DispatchCallResult dispatchCall(
+      uint64_t interfaceId, uint16_t methodId,
+      ::capnp::CallContext< ::capnp::AnyPointer, ::capnp::AnyPointer> context)
+      override;
+
+protected:
+  typedef  ::mas::schema::soil::Service::Stream::NextProfilesParams NextProfilesParams;
+  typedef  ::mas::schema::soil::Service::Stream::NextProfilesResults NextProfilesResults;
+  typedef ::capnp::CallContext<NextProfilesParams, NextProfilesResults> NextProfilesContext;
+  virtual ::kj::Promise<void> nextProfiles(NextProfilesContext context);
+
+  inline  ::mas::schema::soil::Service::Stream::Client thisCap() {
+    return ::capnp::Capability::Server::thisCap()
+        .template castAs< ::mas::schema::soil::Service::Stream>();
+  }
+
+  ::capnp::Capability::Server::DispatchCallResult dispatchCallInternal(
+      uint16_t methodId,
+      ::capnp::CallContext< ::capnp::AnyPointer, ::capnp::AnyPointer> context);
+};
+#endif  // !CAPNP_LITE
+
+class Service::Stream::NextProfilesParams::Reader {
+public:
+  typedef NextProfilesParams Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  inline  ::int64_t getMaxCount() const;
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class Service::Stream::NextProfilesParams::Builder {
+public:
+  typedef NextProfilesParams Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline  ::int64_t getMaxCount();
+  inline void setMaxCount( ::int64_t value);
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class Service::Stream::NextProfilesParams::Pipeline {
+public:
+  typedef NextProfilesParams Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+class Service::Stream::NextProfilesResults::Reader {
+public:
+  typedef NextProfilesResults Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  inline bool hasProfiles() const;
+#if !CAPNP_LITE
+  inline  ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::INTERFACE>::Reader getProfiles() const;
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class Service::Stream::NextProfilesResults::Builder {
+public:
+  typedef NextProfilesResults Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline bool hasProfiles();
+#if !CAPNP_LITE
+  inline  ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::INTERFACE>::Builder getProfiles();
+  inline void setProfiles( ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::INTERFACE>::Reader value);
+  inline  ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::INTERFACE>::Builder initProfiles(unsigned int size);
+  inline void adoptProfiles(::capnp::Orphan< ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::INTERFACE>>&& value);
+  inline ::capnp::Orphan< ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::INTERFACE>> disownProfiles();
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class Service::Stream::NextProfilesResults::Pipeline {
+public:
+  typedef NextProfilesResults Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
 };
 #endif  // !CAPNP_LITE
 
@@ -975,9 +1509,9 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Service::ProfilesAtParams::Reader {
+class Service::ClosestProfilesAtParams::Reader {
 public:
-  typedef ProfilesAtParams Reads;
+  typedef ClosestProfilesAtParams Reads;
 
   Reader() = default;
   inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
@@ -1010,9 +1544,9 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Service::ProfilesAtParams::Builder {
+class Service::ClosestProfilesAtParams::Builder {
 public:
-  typedef ProfilesAtParams Builds;
+  typedef ClosestProfilesAtParams Builds;
 
   Builder() = delete;  // Deleted to discourage incorrect usage.
                        // You can explicitly initialize to nullptr instead.
@@ -1050,9 +1584,9 @@ private:
 };
 
 #if !CAPNP_LITE
-class Service::ProfilesAtParams::Pipeline {
+class Service::ClosestProfilesAtParams::Pipeline {
 public:
-  typedef ProfilesAtParams Pipelines;
+  typedef ClosestProfilesAtParams Pipelines;
 
   inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
@@ -1068,9 +1602,9 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class Service::ProfilesAtResults::Reader {
+class Service::ClosestProfilesAtResults::Reader {
 public:
-  typedef ProfilesAtResults Reads;
+  typedef ClosestProfilesAtResults Reads;
 
   Reader() = default;
   inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
@@ -1086,7 +1620,9 @@ public:
 #endif  // !CAPNP_LITE
 
   inline bool hasProfiles() const;
-  inline  ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::STRUCT>::Reader getProfiles() const;
+#if !CAPNP_LITE
+  inline  ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::INTERFACE>::Reader getProfiles() const;
+#endif  // !CAPNP_LITE
 
 private:
   ::capnp::_::StructReader _reader;
@@ -1100,9 +1636,9 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class Service::ProfilesAtResults::Builder {
+class Service::ClosestProfilesAtResults::Builder {
 public:
-  typedef ProfilesAtResults Builds;
+  typedef ClosestProfilesAtResults Builds;
 
   Builder() = delete;  // Deleted to discourage incorrect usage.
                        // You can explicitly initialize to nullptr instead.
@@ -1117,11 +1653,13 @@ public:
 #endif  // !CAPNP_LITE
 
   inline bool hasProfiles();
-  inline  ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::STRUCT>::Builder getProfiles();
-  inline void setProfiles( ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::STRUCT>::Reader value);
-  inline  ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::STRUCT>::Builder initProfiles(unsigned int size);
-  inline void adoptProfiles(::capnp::Orphan< ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::STRUCT>>&& value);
-  inline ::capnp::Orphan< ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::STRUCT>> disownProfiles();
+#if !CAPNP_LITE
+  inline  ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::INTERFACE>::Builder getProfiles();
+  inline void setProfiles( ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::INTERFACE>::Reader value);
+  inline  ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::INTERFACE>::Builder initProfiles(unsigned int size);
+  inline void adoptProfiles(::capnp::Orphan< ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::INTERFACE>>&& value);
+  inline ::capnp::Orphan< ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::INTERFACE>> disownProfiles();
+#endif  // !CAPNP_LITE
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -1133,14 +1671,100 @@ private:
 };
 
 #if !CAPNP_LITE
-class Service::ProfilesAtResults::Pipeline {
+class Service::ClosestProfilesAtResults::Pipeline {
 public:
-  typedef ProfilesAtResults Pipelines;
+  typedef ClosestProfilesAtResults Pipelines;
 
   inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
       : _typeless(kj::mv(typeless)) {}
 
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+class Service::StreamAllProfilesResults::Reader {
+public:
+  typedef StreamAllProfilesResults Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  inline bool hasAllProfiles() const;
+#if !CAPNP_LITE
+  inline  ::mas::schema::soil::Service::Stream::Client getAllProfiles() const;
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class Service::StreamAllProfilesResults::Builder {
+public:
+  typedef StreamAllProfilesResults Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline bool hasAllProfiles();
+#if !CAPNP_LITE
+  inline  ::mas::schema::soil::Service::Stream::Client getAllProfiles();
+  inline void setAllProfiles( ::mas::schema::soil::Service::Stream::Client&& value);
+  inline void setAllProfiles( ::mas::schema::soil::Service::Stream::Client& value);
+  inline void adoptAllProfiles(::capnp::Orphan< ::mas::schema::soil::Service::Stream>&& value);
+  inline ::capnp::Orphan< ::mas::schema::soil::Service::Stream> disownAllProfiles();
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class Service::StreamAllProfilesResults::Pipeline {
+public:
+  typedef StreamAllProfilesResults Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+  inline  ::mas::schema::soil::Service::Stream::Client getAllProfiles();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -1568,88 +2192,78 @@ inline ::capnp::Orphan< ::capnp::List< ::mas::schema::soil::PropertyName,  ::cap
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
 
-inline bool Profile::Reader::hasLayers() const {
+inline bool ProfileData::Reader::hasLayers() const {
   return !_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline bool Profile::Builder::hasLayers() {
+inline bool ProfileData::Builder::hasLayers() {
   return !_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline  ::capnp::List< ::mas::schema::soil::Layer,  ::capnp::Kind::STRUCT>::Reader Profile::Reader::getLayers() const {
+inline  ::capnp::List< ::mas::schema::soil::Layer,  ::capnp::Kind::STRUCT>::Reader ProfileData::Reader::getLayers() const {
   return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::soil::Layer,  ::capnp::Kind::STRUCT>>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::capnp::List< ::mas::schema::soil::Layer,  ::capnp::Kind::STRUCT>::Builder Profile::Builder::getLayers() {
+inline  ::capnp::List< ::mas::schema::soil::Layer,  ::capnp::Kind::STRUCT>::Builder ProfileData::Builder::getLayers() {
   return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::soil::Layer,  ::capnp::Kind::STRUCT>>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline void Profile::Builder::setLayers( ::capnp::List< ::mas::schema::soil::Layer,  ::capnp::Kind::STRUCT>::Reader value) {
+inline void ProfileData::Builder::setLayers( ::capnp::List< ::mas::schema::soil::Layer,  ::capnp::Kind::STRUCT>::Reader value) {
   ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::soil::Layer,  ::capnp::Kind::STRUCT>>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), value);
 }
-inline  ::capnp::List< ::mas::schema::soil::Layer,  ::capnp::Kind::STRUCT>::Builder Profile::Builder::initLayers(unsigned int size) {
+inline  ::capnp::List< ::mas::schema::soil::Layer,  ::capnp::Kind::STRUCT>::Builder ProfileData::Builder::initLayers(unsigned int size) {
   return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::soil::Layer,  ::capnp::Kind::STRUCT>>::init(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), size);
 }
-inline void Profile::Builder::adoptLayers(
+inline void ProfileData::Builder::adoptLayers(
     ::capnp::Orphan< ::capnp::List< ::mas::schema::soil::Layer,  ::capnp::Kind::STRUCT>>&& value) {
   ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::soil::Layer,  ::capnp::Kind::STRUCT>>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::capnp::List< ::mas::schema::soil::Layer,  ::capnp::Kind::STRUCT>> Profile::Builder::disownLayers() {
+inline ::capnp::Orphan< ::capnp::List< ::mas::schema::soil::Layer,  ::capnp::Kind::STRUCT>> ProfileData::Builder::disownLayers() {
   return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::soil::Layer,  ::capnp::Kind::STRUCT>>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 
-inline float Profile::Reader::getPercentageOfArea() const {
+inline float ProfileData::Reader::getPercentageOfArea() const {
   return _reader.getDataField<float>(
       ::capnp::bounded<0>() * ::capnp::ELEMENTS, 1120403456u);
 }
 
-inline float Profile::Builder::getPercentageOfArea() {
+inline float ProfileData::Builder::getPercentageOfArea() {
   return _builder.getDataField<float>(
       ::capnp::bounded<0>() * ::capnp::ELEMENTS, 1120403456u);
 }
-inline void Profile::Builder::setPercentageOfArea(float value) {
+inline void ProfileData::Builder::setPercentageOfArea(float value) {
   _builder.setDataField<float>(
       ::capnp::bounded<0>() * ::capnp::ELEMENTS, value, 1120403456u);
 }
 
-inline bool Profile::Reader::hasId() const {
-  return !_reader.getPointerField(
-      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
+#if !CAPNP_LITE
+inline Profile::Client::Client(decltype(nullptr))
+    : ::capnp::Capability::Client(nullptr) {}
+inline Profile::Client::Client(
+    ::kj::Own< ::capnp::ClientHook>&& hook)
+    : ::capnp::Capability::Client(::kj::mv(hook)) {}
+template <typename _t, typename>
+inline Profile::Client::Client(::kj::Own<_t>&& server)
+    : ::capnp::Capability::Client(::kj::mv(server)) {}
+template <typename _t, typename>
+inline Profile::Client::Client(::kj::Promise<_t>&& promise)
+    : ::capnp::Capability::Client(::kj::mv(promise)) {}
+inline Profile::Client::Client(::kj::Exception&& exception)
+    : ::capnp::Capability::Client(::kj::mv(exception)) {}
+inline  ::mas::schema::soil::Profile::Client& Profile::Client::operator=(Client& other) {
+  ::capnp::Capability::Client::operator=(other);
+  return *this;
 }
-inline bool Profile::Builder::hasId() {
-  return !_builder.getPointerField(
-      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
-}
-inline  ::capnp::Text::Reader Profile::Reader::getId() const {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_reader.getPointerField(
-      ::capnp::bounded<1>() * ::capnp::POINTERS));
-}
-inline  ::capnp::Text::Builder Profile::Builder::getId() {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_builder.getPointerField(
-      ::capnp::bounded<1>() * ::capnp::POINTERS));
-}
-inline void Profile::Builder::setId( ::capnp::Text::Reader value) {
-  ::capnp::_::PointerHelpers< ::capnp::Text>::set(_builder.getPointerField(
-      ::capnp::bounded<1>() * ::capnp::POINTERS), value);
-}
-inline  ::capnp::Text::Builder Profile::Builder::initId(unsigned int size) {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::init(_builder.getPointerField(
-      ::capnp::bounded<1>() * ::capnp::POINTERS), size);
-}
-inline void Profile::Builder::adoptId(
-    ::capnp::Orphan< ::capnp::Text>&& value) {
-  ::capnp::_::PointerHelpers< ::capnp::Text>::adopt(_builder.getPointerField(
-      ::capnp::bounded<1>() * ::capnp::POINTERS), kj::mv(value));
-}
-inline ::capnp::Orphan< ::capnp::Text> Profile::Builder::disownId() {
-  return ::capnp::_::PointerHelpers< ::capnp::Text>::disown(_builder.getPointerField(
-      ::capnp::bounded<1>() * ::capnp::POINTERS));
+inline  ::mas::schema::soil::Profile::Client& Profile::Client::operator=(Client&& other) {
+  ::capnp::Capability::Client::operator=(kj::mv(other));
+  return *this;
 }
 
+#endif  // !CAPNP_LITE
 #if !CAPNP_LITE
 inline Service::Client::Client(decltype(nullptr))
     : ::capnp::Capability::Client(nullptr) {}
@@ -1674,6 +2288,80 @@ inline  ::mas::schema::soil::Service::Client& Service::Client::operator=(Client&
 }
 
 #endif  // !CAPNP_LITE
+#if !CAPNP_LITE
+inline Service::Stream::Client::Client(decltype(nullptr))
+    : ::capnp::Capability::Client(nullptr) {}
+inline Service::Stream::Client::Client(
+    ::kj::Own< ::capnp::ClientHook>&& hook)
+    : ::capnp::Capability::Client(::kj::mv(hook)) {}
+template <typename _t, typename>
+inline Service::Stream::Client::Client(::kj::Own<_t>&& server)
+    : ::capnp::Capability::Client(::kj::mv(server)) {}
+template <typename _t, typename>
+inline Service::Stream::Client::Client(::kj::Promise<_t>&& promise)
+    : ::capnp::Capability::Client(::kj::mv(promise)) {}
+inline Service::Stream::Client::Client(::kj::Exception&& exception)
+    : ::capnp::Capability::Client(::kj::mv(exception)) {}
+inline  ::mas::schema::soil::Service::Stream::Client& Service::Stream::Client::operator=(Client& other) {
+  ::capnp::Capability::Client::operator=(other);
+  return *this;
+}
+inline  ::mas::schema::soil::Service::Stream::Client& Service::Stream::Client::operator=(Client&& other) {
+  ::capnp::Capability::Client::operator=(kj::mv(other));
+  return *this;
+}
+
+#endif  // !CAPNP_LITE
+inline  ::int64_t Service::Stream::NextProfilesParams::Reader::getMaxCount() const {
+  return _reader.getDataField< ::int64_t>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, 100ll);
+}
+
+inline  ::int64_t Service::Stream::NextProfilesParams::Builder::getMaxCount() {
+  return _builder.getDataField< ::int64_t>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, 100ll);
+}
+inline void Service::Stream::NextProfilesParams::Builder::setMaxCount( ::int64_t value) {
+  _builder.setDataField< ::int64_t>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, value, 100ll);
+}
+
+inline bool Service::Stream::NextProfilesResults::Reader::hasProfiles() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline bool Service::Stream::NextProfilesResults::Builder::hasProfiles() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+#if !CAPNP_LITE
+inline  ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::INTERFACE>::Reader Service::Stream::NextProfilesResults::Reader::getProfiles() const {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::INTERFACE>>::get(_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline  ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::INTERFACE>::Builder Service::Stream::NextProfilesResults::Builder::getProfiles() {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::INTERFACE>>::get(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline void Service::Stream::NextProfilesResults::Builder::setProfiles( ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::INTERFACE>::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::INTERFACE>>::set(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), value);
+}
+inline  ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::INTERFACE>::Builder Service::Stream::NextProfilesResults::Builder::initProfiles(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::INTERFACE>>::init(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), size);
+}
+inline void Service::Stream::NextProfilesResults::Builder::adoptProfiles(
+    ::capnp::Orphan< ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::INTERFACE>>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::INTERFACE>>::adopt(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::INTERFACE>> Service::Stream::NextProfilesResults::Builder::disownProfiles() {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::INTERFACE>>::disown(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+#endif  // !CAPNP_LITE
+
 inline bool Service::GetAllAvailableParametersParams::Reader::getOnlyRawData() const {
   return _reader.getDataField<bool>(
       ::capnp::bounded<0>() * ::capnp::ELEMENTS);
@@ -1764,117 +2452,158 @@ inline ::capnp::Orphan< ::capnp::List< ::mas::schema::soil::PropertyName,  ::cap
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
 
-inline bool Service::ProfilesAtParams::Reader::hasCoord() const {
+inline bool Service::ClosestProfilesAtParams::Reader::hasCoord() const {
   return !_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline bool Service::ProfilesAtParams::Builder::hasCoord() {
+inline bool Service::ClosestProfilesAtParams::Builder::hasCoord() {
   return !_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline  ::mas::schema::geo::LatLonCoord::Reader Service::ProfilesAtParams::Reader::getCoord() const {
+inline  ::mas::schema::geo::LatLonCoord::Reader Service::ClosestProfilesAtParams::Reader::getCoord() const {
   return ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::geo::LatLonCoord::Builder Service::ProfilesAtParams::Builder::getCoord() {
+inline  ::mas::schema::geo::LatLonCoord::Builder Service::ClosestProfilesAtParams::Builder::getCoord() {
   return ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 #if !CAPNP_LITE
-inline  ::mas::schema::geo::LatLonCoord::Pipeline Service::ProfilesAtParams::Pipeline::getCoord() {
+inline  ::mas::schema::geo::LatLonCoord::Pipeline Service::ClosestProfilesAtParams::Pipeline::getCoord() {
   return  ::mas::schema::geo::LatLonCoord::Pipeline(_typeless.getPointerField(0));
 }
 #endif  // !CAPNP_LITE
-inline void Service::ProfilesAtParams::Builder::setCoord( ::mas::schema::geo::LatLonCoord::Reader value) {
+inline void Service::ClosestProfilesAtParams::Builder::setCoord( ::mas::schema::geo::LatLonCoord::Reader value) {
   ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), value);
 }
-inline  ::mas::schema::geo::LatLonCoord::Builder Service::ProfilesAtParams::Builder::initCoord() {
+inline  ::mas::schema::geo::LatLonCoord::Builder Service::ClosestProfilesAtParams::Builder::initCoord() {
   return ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::init(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline void Service::ProfilesAtParams::Builder::adoptCoord(
+inline void Service::ClosestProfilesAtParams::Builder::adoptCoord(
     ::capnp::Orphan< ::mas::schema::geo::LatLonCoord>&& value) {
   ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::mas::schema::geo::LatLonCoord> Service::ProfilesAtParams::Builder::disownCoord() {
+inline ::capnp::Orphan< ::mas::schema::geo::LatLonCoord> Service::ClosestProfilesAtParams::Builder::disownCoord() {
   return ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 
-inline bool Service::ProfilesAtParams::Reader::hasQuery() const {
+inline bool Service::ClosestProfilesAtParams::Reader::hasQuery() const {
   return !_reader.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
 }
-inline bool Service::ProfilesAtParams::Builder::hasQuery() {
+inline bool Service::ClosestProfilesAtParams::Builder::hasQuery() {
   return !_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
 }
-inline  ::mas::schema::soil::Query::Reader Service::ProfilesAtParams::Reader::getQuery() const {
+inline  ::mas::schema::soil::Query::Reader Service::ClosestProfilesAtParams::Reader::getQuery() const {
   return ::capnp::_::PointerHelpers< ::mas::schema::soil::Query>::get(_reader.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::soil::Query::Builder Service::ProfilesAtParams::Builder::getQuery() {
+inline  ::mas::schema::soil::Query::Builder Service::ClosestProfilesAtParams::Builder::getQuery() {
   return ::capnp::_::PointerHelpers< ::mas::schema::soil::Query>::get(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
 #if !CAPNP_LITE
-inline  ::mas::schema::soil::Query::Pipeline Service::ProfilesAtParams::Pipeline::getQuery() {
+inline  ::mas::schema::soil::Query::Pipeline Service::ClosestProfilesAtParams::Pipeline::getQuery() {
   return  ::mas::schema::soil::Query::Pipeline(_typeless.getPointerField(1));
 }
 #endif  // !CAPNP_LITE
-inline void Service::ProfilesAtParams::Builder::setQuery( ::mas::schema::soil::Query::Reader value) {
+inline void Service::ClosestProfilesAtParams::Builder::setQuery( ::mas::schema::soil::Query::Reader value) {
   ::capnp::_::PointerHelpers< ::mas::schema::soil::Query>::set(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS), value);
 }
-inline  ::mas::schema::soil::Query::Builder Service::ProfilesAtParams::Builder::initQuery() {
+inline  ::mas::schema::soil::Query::Builder Service::ClosestProfilesAtParams::Builder::initQuery() {
   return ::capnp::_::PointerHelpers< ::mas::schema::soil::Query>::init(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
-inline void Service::ProfilesAtParams::Builder::adoptQuery(
+inline void Service::ClosestProfilesAtParams::Builder::adoptQuery(
     ::capnp::Orphan< ::mas::schema::soil::Query>&& value) {
   ::capnp::_::PointerHelpers< ::mas::schema::soil::Query>::adopt(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::mas::schema::soil::Query> Service::ProfilesAtParams::Builder::disownQuery() {
+inline ::capnp::Orphan< ::mas::schema::soil::Query> Service::ClosestProfilesAtParams::Builder::disownQuery() {
   return ::capnp::_::PointerHelpers< ::mas::schema::soil::Query>::disown(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
 
-inline bool Service::ProfilesAtResults::Reader::hasProfiles() const {
+inline bool Service::ClosestProfilesAtResults::Reader::hasProfiles() const {
   return !_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline bool Service::ProfilesAtResults::Builder::hasProfiles() {
+inline bool Service::ClosestProfilesAtResults::Builder::hasProfiles() {
   return !_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline  ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::STRUCT>::Reader Service::ProfilesAtResults::Reader::getProfiles() const {
-  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::STRUCT>>::get(_reader.getPointerField(
+#if !CAPNP_LITE
+inline  ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::INTERFACE>::Reader Service::ClosestProfilesAtResults::Reader::getProfiles() const {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::INTERFACE>>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::STRUCT>::Builder Service::ProfilesAtResults::Builder::getProfiles() {
-  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::STRUCT>>::get(_builder.getPointerField(
+inline  ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::INTERFACE>::Builder Service::ClosestProfilesAtResults::Builder::getProfiles() {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::INTERFACE>>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline void Service::ProfilesAtResults::Builder::setProfiles( ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::STRUCT>::Reader value) {
-  ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::STRUCT>>::set(_builder.getPointerField(
+inline void Service::ClosestProfilesAtResults::Builder::setProfiles( ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::INTERFACE>::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::INTERFACE>>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), value);
 }
-inline  ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::STRUCT>::Builder Service::ProfilesAtResults::Builder::initProfiles(unsigned int size) {
-  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::STRUCT>>::init(_builder.getPointerField(
+inline  ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::INTERFACE>::Builder Service::ClosestProfilesAtResults::Builder::initProfiles(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::INTERFACE>>::init(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), size);
 }
-inline void Service::ProfilesAtResults::Builder::adoptProfiles(
-    ::capnp::Orphan< ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::STRUCT>>&& value) {
-  ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::STRUCT>>::adopt(_builder.getPointerField(
+inline void Service::ClosestProfilesAtResults::Builder::adoptProfiles(
+    ::capnp::Orphan< ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::INTERFACE>>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::INTERFACE>>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::STRUCT>> Service::ProfilesAtResults::Builder::disownProfiles() {
-  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::STRUCT>>::disown(_builder.getPointerField(
+inline ::capnp::Orphan< ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::INTERFACE>> Service::ClosestProfilesAtResults::Builder::disownProfiles() {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::soil::Profile,  ::capnp::Kind::INTERFACE>>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
+#endif  // !CAPNP_LITE
+
+inline bool Service::StreamAllProfilesResults::Reader::hasAllProfiles() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline bool Service::StreamAllProfilesResults::Builder::hasAllProfiles() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+#if !CAPNP_LITE
+inline  ::mas::schema::soil::Service::Stream::Client Service::StreamAllProfilesResults::Reader::getAllProfiles() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::soil::Service::Stream>::get(_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline  ::mas::schema::soil::Service::Stream::Client Service::StreamAllProfilesResults::Builder::getAllProfiles() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::soil::Service::Stream>::get(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline  ::mas::schema::soil::Service::Stream::Client Service::StreamAllProfilesResults::Pipeline::getAllProfiles() {
+  return  ::mas::schema::soil::Service::Stream::Client(_typeless.getPointerField(0).asCap());
+}
+inline void Service::StreamAllProfilesResults::Builder::setAllProfiles( ::mas::schema::soil::Service::Stream::Client&& cap) {
+  ::capnp::_::PointerHelpers< ::mas::schema::soil::Service::Stream>::set(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(cap));
+}
+inline void Service::StreamAllProfilesResults::Builder::setAllProfiles( ::mas::schema::soil::Service::Stream::Client& cap) {
+  ::capnp::_::PointerHelpers< ::mas::schema::soil::Service::Stream>::set(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), cap);
+}
+inline void Service::StreamAllProfilesResults::Builder::adoptAllProfiles(
+    ::capnp::Orphan< ::mas::schema::soil::Service::Stream>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::soil::Service::Stream>::adopt(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::mas::schema::soil::Service::Stream> Service::StreamAllProfilesResults::Builder::disownAllProfiles() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::soil::Service::Stream>::disown(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+#endif  // !CAPNP_LITE
 
 }  // namespace
 }  // namespace

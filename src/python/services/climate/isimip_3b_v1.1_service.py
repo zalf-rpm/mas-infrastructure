@@ -46,8 +46,6 @@ reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=ab
 climate_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate.capnp"), imports=abs_imports)
 
 
-# ------------------------------------------------------------------------------
-
 def create_meta_plus_datasets(path_to_config, config, interpolator, rowcol_to_latlon, restorer):
     general = config["general"]
     conf_datasets = config["datasets"]
@@ -139,8 +137,6 @@ async def main(path_to_config, serve_bootstrap=True, host=None, port=None,
         serv.init_and_run_service({"service": service}, config["host"], config["port"],
                                   serve_bootstrap=config["serve_bootstrap"], restorer=restorer, conn_man=conman)
 
-
-# ------------------------------------------------------------------------------
 
 if __name__ == '__main__':
     # asyncio.run(main("/beegfs/common/data/climate/isimip/3b_v1.1_CMIP6", serve_bootstrap=True, use_async=True))
