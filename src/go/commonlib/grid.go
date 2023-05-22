@@ -558,6 +558,13 @@ func (g *Grid) StreamCells(c context.Context, call grid.Grid_streamCells) error 
 	if streamingCallback.topLeft.Col > streamingCallback.bottomRight.Col {
 		return errors.New("topLeft.Col > bottomRight.Col")
 	}
+	if streamingCallback.bottomRight.Row >= g.NumRows {
+		return errors.New("bottomRight.Row >= NumRows")
+	}
+	if streamingCallback.bottomRight.Col >= g.NumCols {
+		return errors.New("bottomRight.Col >= NumCols")
+	}
+
 	streamingCallback.currIndexRow = streamingCallback.topLeft.Row
 	streamingCallback.currIndexCol = streamingCallback.topLeft.Col
 
