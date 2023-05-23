@@ -51,6 +51,7 @@ struct CSVViaHeaderOptions : public Tools::Json11Serializable {
   int lineNoOfDataStart{-2};
   int lineNoOfDataEnd{-1};
   double latitude{0};
+  std::vector<std::string> header;
   std::map<std::string, std::string> headerName2ACDName;
   std::map<std::string, std::pair<std::string, double>> convert;
   std::map<Climate::ACD, std::function<double(double)>> convertFn;
@@ -68,11 +69,12 @@ readClimateDataFromCSVInputStreamViaHeaders(kj::InputStream &inputStream,
 
 Tools::EResult<Climate::DataAccessor>
 readClimateDataFromCSVFileViaHeaders(std::string pathToFile,
-                                     CSVViaHeaderOptions options = CSVViaHeaderOptions());
+                                     const CSVViaHeaderOptions& options = CSVViaHeaderOptions(),
+                                     bool strictDateChecking = true);
 
 Tools::EResult<Climate::DataAccessor>
 readClimateDataFromCSVFilesViaHeaders(const std::vector<std::string>& pathsToFiles,
-                                      CSVViaHeaderOptions options = CSVViaHeaderOptions());
+                                      const CSVViaHeaderOptions& options = CSVViaHeaderOptions());
 
 Tools::EResult<Climate::DataAccessor>
 readClimateDataFromCSVStringViaHeaders(const std::string& csvString,
@@ -81,7 +83,7 @@ readClimateDataFromCSVStringViaHeaders(const std::string& csvString,
 Tools::EResult<Climate::DataAccessor>
 readClimateDataFromCSVInputStream(std::istream &inputStream,
                                   std::vector<ACD> header,
-                                  CSVViaHeaderOptions options,
+                                  const CSVViaHeaderOptions& options,
                                   bool strictDateChecking = true);
 
 Tools::EResult<Climate::DataAccessor>

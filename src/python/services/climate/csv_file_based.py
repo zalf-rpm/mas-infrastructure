@@ -52,8 +52,6 @@ geo_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "geo.capnp"), imports=abs_imp
 persistence_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "persistence.capnp"), imports=abs_imports)
 
 
-# ------------------------------------------------------------------------------
-
 # ID = 0
 
 class TimeSeries(climate_capnp.TimeSeries.Server, common.Identifiable, common.Persistable):

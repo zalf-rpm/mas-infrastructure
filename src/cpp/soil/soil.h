@@ -35,16 +35,16 @@ namespace Soil
 //! @author Claas Nendel, Michael Berg 
 struct SoilParameters : public Tools::Json11Serializable
 {
-  SoilParameters() {}
+  SoilParameters() = default;
 
-  SoilParameters(json11::Json object);
+  explicit SoilParameters(json11::Json object);
 
   void serialize(mas::schema::model::monica::SoilParameters::Builder builder) const;
   void deserialize(mas::schema::model::monica::SoilParameters::Reader reader);
 
-  virtual Tools::Errors merge(json11::Json j);
+  Tools::Errors merge(json11::Json j) override;
 
-  virtual json11::Json to_json() const;
+  json11::Json to_json() const override;
 
   //! Soil layer's silt content [kg kg-1] (Schluff)
   double vs_SoilSiltContent() const { return (1.0 - vs_SoilSandContent - vs_SoilClayContent); }
@@ -64,9 +64,9 @@ struct SoilParameters : public Tools::Json11Serializable
   double vs_SoilOrganicMatter() const;
   void set_vs_SoilOrganicMatter(double som) { _vs_SoilOrganicMatter = som; }
 
-  double sandAndClay2lambda(double sand, double clay);
+  static double sandAndClay2lambda(double sand, double clay);
 
-  bool isValid();
+  bool isValid() const;
 
   // members
   double vs_SoilSandContent{-1.0}; //!< Soil layer's sand content [kg kg-1] //{0.4}
@@ -96,16 +96,16 @@ private:
 class CapillaryRiseRates
 {
 public:
-  CapillaryRiseRates() {}
-  ~CapillaryRiseRates() {}
+  CapillaryRiseRates() = default;
+  ~CapillaryRiseRates() = default;
 
   //Adds a capillary rise rate to data structure.
-  void addRate(std::string bodart, size_t distance, double value);
+  void addRate(const std::string& soilType, size_t distance, double value);
 
   //Returns capillary rise rate for given soil type and distance to ground water.
-  double getRate(std::string bodart, size_t distance) const;
+  double getRate(const std::string& soilType, size_t distance) const;
 
-  std::map<size_t, double> getMap(std::string bodart) const;
+  std::map<size_t, double> getMap(const std::string& soilType) const;
 
   //Returns number of elements of internal map data structure.
   size_t size() const { return cap_rates_map.size(); }
@@ -125,7 +125,7 @@ std::pair<SoilPMs, Tools::Errors> createSoilPMs(const Tools::J11Array& jsonSoilP
 //std::string soilProfileId2KA5Layers(const std::string& abstractDbSchema,
 //																		int soilProfileId);
 
-const SoilPMsPtr soilParametersFromHermesFile(int soilId,
+SoilPMsPtr soilParametersFromHermesFile(int soilId,
                                               const std::string& pathToFile,
                                               int layerThicknessCm,
                                               int maxDepthCm,
@@ -134,15 +134,15 @@ const SoilPMsPtr soilParametersFromHermesFile(int soilId,
 
 struct RPSCDRes
 {
-  RPSCDRes() {}
-  RPSCDRes(bool initialized) : initialized(initialized) {}
+  RPSCDRes() = default;
+  explicit RPSCDRes(bool initialized) : initialized(initialized) {}
   double sat{ 0.0 }; // [m3 m-3]
   double fc{ 0.0 };  // [m3 m-3]
   double pwp{ 0.0 }; // [m3 m-3]
   bool initialized{ false };
 };
-RPSCDRes readPrincipalSoilCharacteristicData(std::string KA5TextureClass, double rawDensity);
-RPSCDRes readSoilCharacteristicModifier(std::string KA5TextureClass, double organicMatter);
+RPSCDRes readPrincipalSoilCharacteristicData(const std::string& KA5TextureClass, double rawDensity);
+RPSCDRes readSoilCharacteristicModifier(const std::string& KA5TextureClass, double organicMatter);
 
 void soilCharacteristicsKA5(SoilParameters&);
 

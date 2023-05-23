@@ -41,7 +41,7 @@ import common.common as common
 import services.climate.csv_file_based as csv_based
 
 reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
-soil_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "soil.capnp"), imports=abs_imports)
+soil_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "soil.capnp"), imports=abs_imports)
 registry_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
 persistence_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "persistence.capnp"), imports=abs_imports)
 model_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "model.capnp"), imports=abs_imports)
@@ -126,6 +126,28 @@ def x():
 
     # del s
 
+
+def run_soil_service():
+    con_man = common.ConnectionManager()
+    sr = "capnp://e2KN9bj7I_5uaTflLY_SmR9sMVPIbacbyLho3CmOuJA=@10.10.25.30:33863/ZjMxYzg4MmMtZDg3OS00ZjdhLTkzOGItYWRjMmY1MTMxNGNh"
+    service = con_man.try_connect(sr, cast_as=soil_capnp.Service)
+    try:
+        print(service.info().wait())
+    except Exception as e:
+        print(e)
+
+    ps = service.closestProfilesAt(coord={"lat": 52.52, "lon": 14.11},
+                                   query={"mandatory": ["soilType", "organicCarbon", "rawDensity"]}).wait()
+    print(ps)
+    p0 = ps.profiles[0]
+    print(p0.geoLocation().wait())
+    d = p0.data().wait()
+    print(d)
+    sr = p0.save().wait()
+    print(sr)
+
+    # mineral fertilizers
+    print("bla")
 
 def run_crop_service():
     conMan = common.ConnectionManager()
@@ -522,11 +544,13 @@ def main():
     common.update_config(config, sys.argv, print_config=True, allow_new_keys=True)
 
     #run_resolver()
-    hb_thread = run_resolver_registrar()
+    #hb_thread = run_resolver_registrar()
 
-    while True:
-        print(".", end="")
-        time.sleep(1)
+    #while True:
+    #    print(".", end="")
+    #    time.sleep(1)
+
+    run_soil_service()
 
     # run_channel()
 

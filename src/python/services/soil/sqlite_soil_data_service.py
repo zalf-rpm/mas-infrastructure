@@ -55,8 +55,6 @@ geo_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "geo.capnp"), imports=abs_imp
 soil_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "soil.capnp"), imports=abs_imports)
 
 
-# ------------------------------------------------------------------------------
-
 def fbp(config, service: soil_capnp.Service):
     conman = common.ConnectionManager()
     inp = conman.try_connect(config["in_sr"], cast_as=fbp_capnp.Channel.Reader, retry_secs=1)
@@ -95,8 +93,6 @@ def fbp(config, service: soil_capnp.Service):
 
     print("dwd_germany_service.py: exiting FBP component")
 
-
-# ------------------------------------------------------------------------------
 
 def set_capnp_prop_name_via_monica_name(param, name, value=None):
     "set the correct union parameter in capnp Parameters struct object given the parameter name and optionally value"
@@ -145,8 +141,6 @@ def set_capnp_prop_name_via_monica_name(param, name, value=None):
         param.size = value if value else 0.0
 
 
-# ------------------------------------------------------------------------------
-
 CAPNP_PROP_to_MONICA_PARAM_NAME = {
     "soilType": "KA5TextureClass",
     "sand": "Sand",
@@ -171,7 +165,33 @@ CAPNP_PROP_to_MONICA_PARAM_NAME = {
 }
 
 
-# ------------------------------------------------------------------------------
+class Profile(soil_capnp.Profile.Server, common.Identifiable, common.Persistable):
+
+    def __init__(self, data, lat, lon, id=None, name=None, description=None, restorer=None):
+        common.Identifiable.__init__(self, id, name, description)
+        common.Persistable.__init__(self, restorer)
+        self._data = data
+        self._lat = lat
+        self._lon = lon
+
+    @property
+    def data(self):
+        return self._data
+
+    def data_context(self, context):
+        # data @0() -> ProfileData;
+
+        ls = context.results.init("layers", len(self._data.layers))
+        for i, l in enumerate(self._data.layers):
+            ls[i] = l
+        context.results.percentageOfArea = self._data.percentageOfArea
+
+    def geoLocation_context(self, context):
+        # geoLocation @1() -> Geo.LatLonCoord;
+
+        context.results.lat = self._lat
+        context.results.lon = self._lon
+
 
 class Service(soil_capnp.Service.Server, common.Identifiable, common.Persistable, serv.AdministrableService):
 
@@ -190,8 +210,6 @@ class Service(soil_capnp.Service.Server, common.Identifiable, common.Persistable
         self._all_available_params_derived = None
 
         self._interpol_and_latlon_coords = None
-        self._all_latlon_coords = None
-        self._latlon_to_capholders = {}
 
         self._id = str(id if id else uuid.uuid4())
         self._name = name if name else self._path_to_sqlite_db
@@ -258,7 +276,9 @@ class Service(soil_capnp.Service.Server, common.Identifiable, common.Persistable
             "optional": avail_optional
         }
 
-    def checkAvailableParameters_context(self, context):  # checkAvailableParameters @2 Query -> Query.Result;
+    def checkAvailableParameters_context(self, context):
+        # checkAvailableParameters @2 Query -> Query.Result;
+
         p = context.params
         r = context.results
 
@@ -267,8 +287,9 @@ class Service(soil_capnp.Service.Server, common.Identifiable, common.Persistable
         r.optional = avail["optional"]
         r.failed = avail["failed"]
 
-    def getAllAvailableParameters_context(self,
-                                          context):  # getAllAvailableParameters @3 () -> (mandatory :List(PropertyName), optional :List(PropertyName));
+    def getAllAvailableParameters_context(self, context):
+        # getAllAvailableParameters @3 () -> (mandatory :List(PropertyName), optional :List(PropertyName));
+
         r = context.results
         aps = self.all_available_params_raw if context.params.onlyRawData else self.all_available_params_derived
 
@@ -296,15 +317,15 @@ class Service(soil_capnp.Service.Server, common.Identifiable, common.Persistable
         profiles = []  # results.init("profiles", len(sps[1]))
         profile_group_id = sps[0]
         for j, sp in enumerate(sps[1]):
-            profile = soil_capnp.Profile.new_message()  # profiles[j]
-            profiles.append(profile)
-            profile.id = str(profile_group_id) + "_" + str(sp["id"])
-            profile.percentageOfArea = sp["avg_range_percentage_in_group"]
+            profile_data = soil_capnp.ProfileData.new_message()  # profiles[j]
+            profiles.append(Profile(profile_data, lat, lon, id=str(profile_group_id) + "_" + str(sp["id"]),
+                                    restorer=self.restorer))
+            profile_data.percentageOfArea = sp["avg_range_percentage_in_group"]
 
             layers = sp["layers"]
-            profile.init("layers", len(layers))
+            profile_data.init("layers", len(layers))
             for k, layer in enumerate(layers):
-                l = profile.layers[k]
+                l = profile_data.layers[k]
                 l.size = layer["Thickness"]
                 if "description" in sp:
                     l.description = layer["description"]
@@ -330,7 +351,7 @@ class Service(soil_capnp.Service.Server, common.Identifiable, common.Persistable
                             else:
                                 props[i].f32Value = value
 
-        profiles.sort(key=lambda p: p.percentageOfArea, reverse=True)
+        profiles.sort(key=lambda p: p.data.percentageOfArea, reverse=True)
         return profiles
 
     def available_properties(self, query):
@@ -346,31 +367,43 @@ class Service(soil_capnp.Service.Server, common.Identifiable, common.Persistable
         names.extend(res["optional"])
         return names
 
-    def profilesAt(self, coord, query,
-                   **kwargs):  # profilesAt @0 (coord :Geo.LatLonCoord, query :Query) -> (profiles :List(Profile));
+    def closestProfilesAt_context(self, context):
+        # closestProfilesAt @0 (coord :Geo.LatLonCoord, query :Query) -> (profiles :List(Profile));
+
+        query = context.params.query
+        coord = context.params.coord
         avail_props = self.available_properties(query)
-        profiles = self.profiles_at(coord.lat, coord.lon, avail_props, query.onlyRawData)
-        return profiles
+        context.results.profiles = self.profiles_at(coord.lat, coord.lon, avail_props, query.onlyRawData)
 
-    """
-    def allLocations_context(self, context): # allLocations @1 Query -> (profiles :List(Common.Pair(Geo.LatLonCoord, List(Common.CapHolder(Profile)))));    
-        r = context.results
-        q = context.params
+    def streamAllProfiles_context(self, context):
+        # streamAllProfiles @3 Query -> (allProfiles :Stream);
 
-        names = self.queried_names(q)
+        query = context.params.query
+        avail_props = self.available_properties(query)
 
-        r.init("profiles", len(self.all_latlon_coords))
-        for i, latlon in enumerate(self.all_latlon_coords):
-            p = r.profiles[i]
-            p.fst.lat = latlon[0]
-            p.fst.lon = latlon[1]
-            pchs = p.init("snd", 1)
-            pchs[0] = ProfileCapHolder(self, latlon, names, q.onlyRawData, self._latlon_to_capholders)
-            self._latlon_to_capholders[latlon] = p.snd[0] #store reference, so the object won't be garbage collected immediately
-    """
+        def create_profiles(lat, lon):
+            profiles = self.profiles_at(lat, lon, avail_props, query.onlyRawData)
+            return profiles
+
+        profiles_gen = (create_profiles(lat, lon) for lat, lon in self.all_latlon_coords)
+        context.results.locationsCallback = Stream(profiles_gen)
 
 
-# ------------------------------------------------------------------------------
+class Stream(soil_capnp.Service.Stream.Server):
+    def __init__(self, stream_gen):
+        self._stream_gen = stream_gen
+
+    def nextProfiles(self, maxCount, **kwargs):
+        # nextProfiles @0 (maxCount :Int64 = 100) -> (profiles :List(Profile));
+
+        ps = []
+        for _ in range(maxCount):
+            try:
+                ps.append(next(self._stream_gen))
+            except StopIteration:
+                break
+        return ps
+
 
 async def main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs=None, grid_epsg=None, serve_bootstrap=True,
                host=None, port=None,
@@ -424,8 +457,6 @@ async def main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs=None, grid_e
             serv.init_and_run_service({"service": service}, config["host"], config["port"],
                                       serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
 
-
-# ------------------------------------------------------------------------------
 
 if __name__ == '__main__':
     # db = str(PATH_TO_REPO / "data/soil/buek1000.sqlite")

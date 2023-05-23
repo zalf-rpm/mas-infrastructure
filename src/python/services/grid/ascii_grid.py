@@ -53,8 +53,6 @@ grid_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "grid.capnp"), imports=abs_i
 reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
 
 
-# ------------------------------------------------------------------------------
-
 def fbp(config, service: grid_capnp.Grid):
     conman = common.ConnectionManager()
     inp = conman.try_connect(config["in_sr"], cast_as=fbp_capnp.Channel.Reader, retry_secs=1)
@@ -89,8 +87,6 @@ def fbp(config, service: grid_capnp.Grid):
 
     print("ascii_grid.py: exiting FBP component")
 
-
-# ------------------------------------------------------------------------------
 
 class Grid(grid_capnp.Grid.Server, common.Identifiable, common.Persistable, serv.AdministrableService):
 
@@ -452,8 +448,6 @@ class Grid(grid_capnp.Grid.Server, common.Identifiable, common.Persistable, serv
             {"lat": bl_lat, "lon": bl_lon}
         )
 
-
-# ------------------------------------------------------------------------------
 
 async def main(path_to_ascii_grid, grid_crs, val_type, serve_bootstrap=True, host=None, port=None,
                id=None, name="Grid Service", description=None, use_async=False):

@@ -20,7 +20,6 @@ from scipy.interpolate import NearestNDInterpolator
 from pyproj import CRS, Transformer
 from datetime import date, timedelta
 
-#------------------------------------------------------------------------------
 
 def read_header(path_to_ascii_grid_file):
     "read metadata from esri ascii grid file"
@@ -35,7 +34,6 @@ def read_header(path_to_ascii_grid_file):
                 metadata[sline[0].strip().lower()] = float(sline[1].strip())
     return metadata, header_str
 
-#------------------------------------------------------------------------------
 
 def create_interpolator_from_rect_grid(grid, metadata, ignore_nodata=True, transform_func=None, row_col_value=False, no_points_to_values=False):
     """Create an interpolator from the given grid.
@@ -79,7 +77,6 @@ def create_interpolator_from_rect_grid(grid, metadata, ignore_nodata=True, trans
 
     return (NearestNDInterpolator(np.array(points), np.array(values)), None if no_points_to_values else points_to_values)
     
-#------------------------------------------------------------------------------
 
 def interpolate_from_latlon(interpolator, interpolator_crs):
     input_crs = CRS.from_epsg(4326)
@@ -91,7 +88,6 @@ def interpolate_from_latlon(interpolator, interpolator_crs):
 
     return interpol
 
-#------------------------------------------------------------------------------
 
 def rect_coordinates_to_latlon(rect_crs, coords):
     latlon_crs = CRS.from_epsg(4326)

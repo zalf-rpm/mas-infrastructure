@@ -134,7 +134,7 @@ class Restorer(persistence_capnp.Restorer.Server):
         self._owner_guid_to_sign_pk = {}  # owner guid to owner owner sign public key
         self._storage_container = None
         self._restore_callback = None
-        self._vat_id = None
+        #self._vat_id = None
 
     def set_vat_id_from_sign_pk(self):
         self._vat_id = [
@@ -509,10 +509,12 @@ class Persistable(persistence_capnp.Persistent.Server):
         self._restorer = r
 
     def save_context(self, context):  # save @0 () -> (sturdyRef :Text, unsaveSR :Text);
+        def save_res(res):
+            context.results.sturdyRef = res["sturdy_ref"]
+            context.results.unsaveSR = res["unsave_sr"]
+
         if self.restorer:
-            sr, unsave_sr = self.restorer.save(self)
-            context.results.sturdyRef = sr
-            context.results.unsaveSR = unsave_sr
+            return self.restorer.save(self).then(save_res)
 
 
 class ConnectionManager:

@@ -20,18 +20,15 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <sstream>
 #include <iostream>
 #include <fstream>
-#include <cmath>
 #include <utility>
 #include <cassert>
 #include <mutex>
-#include <ctime>
 #include <cstdlib>
 
 #include <kj/filesystem.h>
 #include "kj/compat/gzip.h"
 
 #include "climate-common.h"
-#include "tools/helper.h"
 #include "tools/algorithms.h"
 #include "tools/debug.h"
 
@@ -49,37 +46,51 @@ CSVViaHeaderOptions::CSVViaHeaderOptions(json11::Json j) {
 }
 
 Tools::Errors CSVViaHeaderOptions::merge(json11::Json j) {
+  Tools::Errors errors;
+
   map<string, string> headerNames;
-  for (auto p : j["header-to-acd-names"].object_items()) {
-    if (p.second.is_array()
-        && p.second.array_items().size() == 3) {
+  for (const auto& p : j["header-to-acd-names"].object_items()) {
+    if (p.second.is_array() && p.second.array_items().size() == 3) {
       headerNames[p.first] = p.second[0].string_value();
       convert[p.first] = make_pair(p.second[1].string_value(), p.second[2].number_value());
     } else {
       headerNames[p.first] = p.second.string_value();
     }
   }
+  headerName2ACDName = headerNames;
+  set_string_valueD(separator, j, "csv-separator", ",");
 
   set_iso_date_value(startDate, j, "start-date");
   set_iso_date_value(endDate, j, "end-date");
 
   set_double_value(latitude, j, "latitude");
+  //is being used and necessary when globrad is not available and calculated from sunshine hours
 
-  set_string_valueD(separator, j, "csv-separator", ",");
-  noOfHeaderLines = int_valueD(j, "no-of-climate-file-header-lines", noOfHeaderLines);
-  lineNoOfHeaderLine = int_valueD(j, "line-no-of-header-line", lineNoOfHeaderLine);
   lineNoOfDataStart = int_valueD(j, "line-no-of-data-start", lineNoOfDataStart);
+
+  set_string_vector(header, j, "header");
+  if (header.empty()) {
+    noOfHeaderLines = int_valueD(j, "no-of-climate-file-header-lines", noOfHeaderLines);
+    lineNoOfHeaderLine = int_valueD(j, "line-no-of-header-line", lineNoOfHeaderLine);
+    if (lineNoOfHeaderLine < 0) lineNoOfHeaderLine = 1;
+    if (lineNoOfDataStart < 0) lineNoOfDataStart = lineNoOfHeaderLine + noOfHeaderLines;
+  } else {
+    lineNoOfHeaderLine = -1;
+    if (lineNoOfDataStart < 0) lineNoOfDataStart = 1;
+  }
+
   lineNoOfDataEnd = int_valueD(j, "line-no-of-data-end", lineNoOfDataEnd);
-  if (lineNoOfHeaderLine < 0) lineNoOfHeaderLine = 1;
-  if (lineNoOfDataStart < 0) lineNoOfDataStart = lineNoOfHeaderLine + noOfHeaderLines;
-  headerName2ACDName = headerNames;
+  if (lineNoOfDataEnd > 0 && lineNoOfDataEnd < lineNoOfDataStart){
+    lineNoOfDataEnd = -1;
+    errors.appendWarning("line-no-of-data-end must be greater than line-no-of-data-start. Ignoring line-no-of-data-end.");
+  }
 
   return{};
 }
 
 json11::Json CSVViaHeaderOptions::to_json() const {
   J11Object headerNames;
-  for (auto p : headerName2ACDName) {
+  for (const auto& p : headerName2ACDName) {
     auto it = convert.find(p.first);
     if (it != convert.end()) {
       headerNames[p.first] = J11Array{ p.second, it->second.first, it->second.second };
@@ -102,6 +113,7 @@ json11::Json CSVViaHeaderOptions::to_json() const {
   ,{"line-no-of-data-end", lineNoOfDataEnd}
   ,{"header-to-acd-names", headerNames}
   ,{"latitude", latitude}
+  ,{"header", header}
   };
 }
 
@@ -115,12 +127,11 @@ Climate::readClimateDataFromCSVInputStreamViaHeaders(istream& is,
 
   vector<ACD> header;
   string s;
-  if (options.noOfHeaderLines > 0){
+  if (options.noOfHeaderLines > 0 || !options.header.empty()){
     for (int i = 1; i <= options.lineNoOfHeaderLine; ++i) getline(is, s);
 
-    vector<string> r = splitString(s, options.separator);
-    if (r.back().empty())
-      r.pop_back();
+    vector<string> r = options.header.empty() ? splitString(s, options.separator) : options.header;
+    if (r.back().empty()) r.pop_back();
 
     //remove possible \r at the end of the last element, when reading Windows files under linux
     if (r.back().back() == '\r') r.back().pop_back();
@@ -153,36 +164,32 @@ Climate::readClimateDataFromCSVInputStreamViaHeaders(istream& is,
     return {DataAccessor(), oss.str()};
   }
 
-  return readClimateDataFromCSVInputStream(is.seekg(0),
-                                           header,
-                                           options,
-                                           strictDateChecking);
+  return readClimateDataFromCSVInputStream(is.seekg(0), header, options, strictDateChecking);
 }
 
 Tools::EResult<Climate::DataAccessor>
 Climate::readClimateDataFromCSVFileViaHeaders(std::string pathToFile,
-                                              CSVViaHeaderOptions options) {
+                                              const CSVViaHeaderOptions& options,
+                                              bool strictDateChecking) {
   pathToFile = fixSystemSeparator(pathToFile);
   if (pathToFile.substr(pathToFile.size() - 3) == ".gz") {
     auto fs = kj::newDiskFilesystem();
     auto file = isAbsolutePath(pathToFile)
-                ? fs->getRoot().openFile(kj::Path::parse(pathToFile), kj::WriteMode::CREATE | kj::WriteMode::MODIFY)
-                : fs->getRoot().openFile(fs->getCurrentPath().eval(pathToFile),
+                ? fs->getRoot().openFile(fs->getCurrentPath().eval(pathToFile),
+                                         kj::WriteMode::CREATE | kj::WriteMode::MODIFY)
+                : fs->getRoot().openFile(kj::Path::parse(pathToFile),
                                          kj::WriteMode::CREATE | kj::WriteMode::MODIFY);
 #ifdef _WIN32
     KJ_IF_MAYBE(fh, file->getWin32Handle()){
-      kj::AutoCloseHandle ach(*fh);
-      kj::HandleInputStream his(kj::mv(ach));
+      kj::HandleInputStream his(*fh);
       kj::GzipInputStream gis(his);
       auto all = gis.readAllText();
       std::istringstream iss(all.cStr()
       return readClimateDataFromCSVInputStreamViaHeaders(iss, options);
     }
 #else
-    auto fh = file->getWin32Handle();
     KJ_IF_MAYBE(fd, file->getFd()) {
-      kj::AutoCloseFd acf(*fd);
-      kj::FdInputStream fis(kj::mv(acf));
+      kj::FdInputStream fis(*fd);
       kj::GzipInputStream gis(fis);
       auto all = gis.readAllText();
       std::istringstream iss(all.cStr());
@@ -206,20 +213,12 @@ Climate::readClimateDataFromCSVFileViaHeaders(std::string pathToFile,
 
 Tools::EResult<Climate::DataAccessor>
 Climate::readClimateDataFromCSVFilesViaHeaders(const std::vector<std::string>& pathsToFiles,
-                                               CSVViaHeaderOptions options) {
+                                               const CSVViaHeaderOptions& options) {
   Errors es;
   Climate::DataAccessor finalDA;
 
-  for (auto pathToFile : pathsToFiles) {
-    pathToFile = fixSystemSeparator(pathToFile);
-    ifstream ifs(pathToFile.c_str());
-    if (!ifs.good()) {
-      stringstream oss;
-      oss << "Could not open climate file " << pathToFile << ".";
-      return {DataAccessor(), oss.str()};
-    }
-
-    auto eda = readClimateDataFromCSVInputStreamViaHeaders(ifs, options, false);
+  for (const auto& pathToFile : pathsToFiles) {
+    auto eda = readClimateDataFromCSVFileViaHeaders(pathToFile, options, false);
 
     if (!finalDA.isValid()) {
       finalDA = eda.result;
@@ -233,7 +232,7 @@ Climate::readClimateDataFromCSVFilesViaHeaders(const std::vector<std::string>& p
     int noOfDays = options.endDate - options.startDate + 1;
     if (finalDA.noOfStepsPossible() < size_t(noOfDays)) {
       stringstream oss;
-      oss << "Read timeseries data between " << options.startDate.toIsoDateString()
+      oss << "Read time-series data between " << options.startDate.toIsoDateString()
         << " and " << options.endDate.toIsoDateString()
         << " (" << noOfDays << " days) is incomplete. There are just "
         << finalDA.noOfStepsPossible() << " days in read dataset.";
@@ -249,33 +248,24 @@ Tools::EResult<Climate::DataAccessor>
 Climate::readClimateDataFromCSVStringViaHeaders(const std::string& csvString,
                                                 CSVViaHeaderOptions options) {
   istringstream iss(csvString);
-  if (!iss.good()) {
-    return {DataAccessor(), "Could not access input string stream!"};
-  }
-
-  return readClimateDataFromCSVInputStreamViaHeaders(iss, options);
+  if (!iss.good()) return {DataAccessor(), "Could not access input string stream!"};
+  return readClimateDataFromCSVInputStreamViaHeaders(iss, kj::mv(options));
 }
 
 
 Tools::EResult<Climate::DataAccessor>
 Climate::readClimateDataFromCSVInputStream(std::istream& is,
                                            std::vector<ACD> header,
-                                           CSVViaHeaderOptions options,
+                                           const CSVViaHeaderOptions& options,
                                            bool strictDateChecking) {
   Errors es;
 
   string separator = options.separator;
   Date startDate = options.startDate;
   Date endDate = options.endDate;
-  size_t noOfHeaderLines = options.noOfHeaderLines;
   std::map<ACD, std::function<double(double)>> convert = options.convertFn;
 
-  if (!is.good()) {
-    return {DataAccessor(), "Climate data error: Couldn't read climate data! (Input stream not good.)"};
-  }
-
-  //if(header.empty())
-  //	header = defaultHeader();
+  if (!is.good()) return {DataAccessor(), "Climate data error: Couldn't read climate data! (Input stream not good.)"};
 
   bool isStartDateValid = startDate.isValid();
   bool isEndDateValid = endDate.isValid();
@@ -283,28 +273,14 @@ Climate::readClimateDataFromCSVInputStream(std::istream& is,
   //we store all data in a map to also manage csv files with wrong order
   map<Date, map<ACD, double>> data;
 
-  //skip header line(s) and 
-  //save first header line to compare for repeated headers
-  string headerLine;
-  vector<string> startOfHeaderLines;
-  while (noOfHeaderLines-- > 0) {
-    getline(is, headerLine);
-    startOfHeaderLines.push_back(headerLine.substr(0, 10));
-  }
-
   string s;
+  int lineNo = 1;
   while (getline(is, s)) {
-    //skip (repeated) headers
-    bool isRepeatedHeader = false;
-    for (const auto& startOfHeaderLine : startOfHeaderLines) {
-      if (s.substr(0, 10) == startOfHeaderLine) {
-        isRepeatedHeader = true;
-        break;
-      }
-    }
-
-    if (isRepeatedHeader)
+    if (lineNo < options.lineNoOfDataStart) {
+      ++lineNo;
       continue;
+    }
+    if (options.lineNoOfDataEnd > 0 && lineNo > options.lineNoOfDataEnd) break;
 
     vector<string> r = splitString(s, separator);
     if (r.back().empty()) r.pop_back();
@@ -325,7 +301,6 @@ Climate::readClimateDataFromCSVInputStream(std::istream& is,
     }
 
     Date date;
-    //map<ACD, double> vs;
     vector<bool> usedVs(availableClimateDataSize(), false);
     vector<double> vs(availableClimateDataSize(), false);
     try {
@@ -364,15 +339,7 @@ Climate::readClimateDataFromCSVInputStream(std::istream& is,
     }
 
     if (isStartDateValid && date < startDate) continue;
-
     if (isEndDateValid && date > endDate) continue;
-
-    //cout 
-    //	<< "[" << date.day() << "." << date.month() << "." << date.year() 
-    //	<< "] -> [";
-    //for(auto p : vs)
-    //	cout << "(" << availableClimateData2Name(p.first) << ", " << p.second << ") ";
-    //cout << "]" << endl;
 
     if (!date.isValid()) {
       stringstream oss;
@@ -382,7 +349,6 @@ Climate::readClimateDataFromCSVInputStream(std::istream& is,
       continue;
     }
 
-    //std::cout << usedVs[tmin]  << "\t" << usedVs[tmax] << "\t" << usedVs[wind] << "\t" << usedVs[globrad] << "\t" << usedVs[et0] << "\t" << usedVs[relhumid] << endl;
     if (!usedVs[tmin] ||
         !usedVs[tmax] ||
         !usedVs[precip]) {
@@ -411,10 +377,7 @@ Climate::readClimateDataFromCSVInputStream(std::istream& is,
     }
 
     map<ACD, double> vsm;
-    for (size_t i = 0, size = usedVs.size(); i < size; i++) {
-      if (usedVs[i]) vsm[ACD(i)] = vs[i];
-    }
-
+    for (size_t i = 0, size = usedVs.size(); i < size; i++) if (usedVs[i]) vsm[ACD(i)] = vs[i];
     assert(vsm.size() >= 5);
     data[date] = vsm;
   }
@@ -443,9 +406,7 @@ Climate::readClimateDataFromCSVInputStream(std::istream& is,
   // rewrite data into vectors of single elements
   map<ACD, vector<double>> daData;
   for (Date d = startDate, ed = endDate; d <= ed; d++) {
-    for (auto p : data[d]) {
-      daData[p.first].push_back(p.second);
-    }
+    for (const auto& p : data[d]) daData[p.first].push_back(p.second);
   }
 
   // check if all vectors have the same length
