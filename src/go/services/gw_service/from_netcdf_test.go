@@ -157,7 +157,6 @@ func Test_gridService_GetValueLatLon(t *testing.T) {
 	gs := &gridService{
 		commonGrid: newCommonGrid,
 	}
-	gs.data = meta.data
 	gs.startLatIdx = meta.startLatIdx
 	gs.startLonIdx = meta.startLonIdx
 	gs.stepLatSize = meta.stepLatSize
@@ -174,6 +173,8 @@ func Test_gridService_GetValueLatLon(t *testing.T) {
 	gs.scaleFactor = meta.scaleFactor
 	gs.add_offset = meta.add_offset
 	gs.mask = meta.mask
+	gs.latitudes = meta.latitudes
+	gs.longitudes = meta.longitudes
 
 	tests := []struct {
 		name  string
@@ -236,7 +237,6 @@ func Test_gridService_GetValueRowCol(t *testing.T) {
 	gs := &gridService{
 		commonGrid: newCommonGrid,
 	}
-	gs.data = meta.data
 	gs.startLatIdx = meta.startLatIdx
 	gs.startLonIdx = meta.startLonIdx
 	gs.stepLatSize = meta.stepLatSize
@@ -253,6 +253,8 @@ func Test_gridService_GetValueRowCol(t *testing.T) {
 	gs.scaleFactor = meta.scaleFactor
 	gs.add_offset = meta.add_offset
 	gs.mask = meta.mask
+	gs.latitudes = meta.latitudes
+	gs.longitudes = meta.longitudes
 
 	tests := []struct {
 		name    string
@@ -315,7 +317,6 @@ func Test_gridService_GetValueLatLonAggregated(t *testing.T) {
 	gs := &gridService{
 		commonGrid: newCommonGrid,
 	}
-	gs.data = meta.data
 	gs.startLatIdx = meta.startLatIdx
 	gs.startLonIdx = meta.startLonIdx
 	gs.stepLatSize = meta.stepLatSize
@@ -332,6 +333,8 @@ func Test_gridService_GetValueLatLonAggregated(t *testing.T) {
 	gs.scaleFactor = meta.scaleFactor
 	gs.add_offset = meta.add_offset
 	gs.mask = meta.mask
+	gs.latitudes = meta.latitudes
+	gs.longitudes = meta.longitudes
 
 	tests := []struct {
 		name    string
@@ -352,7 +355,7 @@ func Test_gridService_GetValueLatLonAggregated(t *testing.T) {
 				agg:             "iAvg",
 				includeAggParts: false,
 			},
-			want: 0.0,
+			want: -0.5103697920913863,
 			want1: []*commonlib.AggregationPart{
 				{
 					OriginalValue: 0.0,
@@ -664,7 +667,6 @@ func Test_gridService_GetValueRowColAggregated(t *testing.T) {
 	gs := &gridService{
 		commonGrid: newCommonGrid,
 	}
-	gs.data = meta.data
 	gs.startLatIdx = meta.startLatIdx
 	gs.startLonIdx = meta.startLonIdx
 	gs.stepLatSize = meta.stepLatSize
@@ -681,6 +683,8 @@ func Test_gridService_GetValueRowColAggregated(t *testing.T) {
 	gs.scaleFactor = meta.scaleFactor
 	gs.add_offset = meta.add_offset
 	gs.mask = meta.mask
+	gs.latitudes = meta.latitudes
+	gs.longitudes = meta.longitudes
 
 	sumWeights := func(parts []*commonlib.AggregationPart) float64 {
 		sum := 0.0
@@ -826,7 +830,6 @@ func Test_gridService_rowColToLatLon(t *testing.T) {
 	gs := &gridService{
 		commonGrid: newCommonGrid,
 	}
-	gs.data = meta.data
 	gs.startLatIdx = meta.startLatIdx
 	gs.startLonIdx = meta.startLonIdx
 	gs.stepLatSize = meta.stepLatSize
@@ -843,6 +846,8 @@ func Test_gridService_rowColToLatLon(t *testing.T) {
 	gs.scaleFactor = meta.scaleFactor
 	gs.add_offset = meta.add_offset
 	gs.mask = meta.mask
+	gs.latitudes = meta.latitudes
+	gs.longitudes = meta.longitudes
 
 	type args struct {
 		row uint64

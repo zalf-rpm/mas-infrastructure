@@ -20,7 +20,6 @@ const testNC_EURASIA = "EURASIA_WTD_annualmean.nc"
 
 type gridService struct {
 	commonGrid  *commonlib.Grid
-	data        *api.Group
 	startLatIdx int64
 	startLonIdx int64
 	stepLatSize float64
@@ -30,6 +29,8 @@ type gridService struct {
 	scaleFactor float64
 	add_offset  float64
 	mask        [][]int8
+	latitudes   []float32
+	longitudes  []float32
 }
 
 func newGridService(restorer *commonlib.Restorer) *gridService {
@@ -49,7 +50,6 @@ func newGridService(restorer *commonlib.Restorer) *gridService {
 		wdt:        nil,
 	}
 	meta, err := loadNetCDF(*fileLocation)
-	gs.data = meta.data
 	gs.startLatIdx = meta.startLatIdx
 	gs.startLonIdx = meta.startLonIdx
 	gs.stepLatSize = meta.stepLatSize
@@ -66,6 +66,8 @@ func newGridService(restorer *commonlib.Restorer) *gridService {
 	gs.scaleFactor = meta.scaleFactor
 	gs.add_offset = meta.add_offset
 	gs.mask = meta.mask
+	gs.latitudes = meta.latitudes
+	gs.longitudes = meta.longitudes
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -91,6 +93,8 @@ type loadedNetCDFMeta struct {
 	scaleFactor          float64
 	add_offset           float64
 	mask                 [][]int8
+	latitudes            []float32
+	longitudes           []float32
 }
 
 // load a netcdf file, print credentials
@@ -114,6 +118,8 @@ func loadNetCDF(inputFile string) (loadedNetCDFMeta, error) {
 		scaleFactor:          1.0,
 		add_offset:           0.0,
 		mask:                 [][]int8{},
+		latitudes:            []float32{},
+		longitudes:           []float32{},
 	}
 
 	// Open the file
@@ -177,6 +183,7 @@ func loadNetCDF(inputFile string) (loadedNetCDFMeta, error) {
 		log.Fatal(err)
 	}
 	valLat := valsLat.([]float32)
+	meta.latitudes = valLat
 	// longitude
 	lonVar, err := nc.GetVarGetter("lon")
 	if err != nil {
@@ -188,6 +195,7 @@ func loadNetCDF(inputFile string) (loadedNetCDFMeta, error) {
 		log.Fatal(err)
 	}
 	valLon := valsLon.([]float32)
+	meta.longitudes = valLon
 
 	meta.startLatIdx, meta.startLonIdx = findStartLatLon(valLat, valLon, lenLat, lenLon)
 	meta.stepLatSize = math.Abs(float64(valLat[0] - valLat[1]))
@@ -328,31 +336,13 @@ func (gs *gridService) setupCallbacks() {
 
 func (gs *gridService) rowColToLatLon(row, col uint64) (commonlib.LatLon, error) {
 
-	// latitudes
-	latVar, err := (*gs.data).GetVarGetter("lat")
-	if err != nil {
-		log.Fatal(err)
+	if row >= gs.commonGrid.NumRows || col >= gs.commonGrid.NumCols {
+		return commonlib.LatLon{}, errors.New("row or col out of range")
 	}
 
-	valsLat, err := latVar.GetSlice(int64(row), int64(row+1))
-	if err != nil {
-		log.Fatal(err)
-	}
-	valLat := valsLat.([]float32)
-	// longitude
-	lonVar, err := (*gs.data).GetVarGetter("lon")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	valsLon, err := lonVar.GetSlice(int64(col), int64(col+1))
-	if err != nil {
-		log.Fatal(err)
-	}
-	valLon := valsLon.([]float32)
 	return commonlib.LatLon{
-		Lat: float64(valLat[0]),
-		Lon: float64(valLon[0]),
+		Lat: float64(gs.latitudes[row]),
+		Lon: float64(gs.longitudes[col]),
 	}, nil
 }
 
@@ -426,38 +416,9 @@ func (gs *gridService) GetValueLatLon(inLat, inLon float64) (float64, int64, int
 	iLat := ((gs.startLatIdx) + int64(inLat/gs.stepLatSize))
 	iLon := ((gs.startLonIdx) + int64(inLon/gs.stepLonSize))
 
-	iLatMin := max(iLat-10, 0)
-	iLatMax := min(iLat+10, int64(gs.commonGrid.NumRows-1))
-	iLonMin := max(iLon-10, 0)
-	iLonMax := min(iLon+10, int64(gs.commonGrid.NumCols-1))
-
-	// latitudes
-	latVar, err := (*gs.data).GetVarGetter("lat")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	valsLat, err := latVar.GetSlice(iLatMin, iLatMax) // latVar.Values()
-	if err != nil {
-		log.Fatal(err)
-	}
-	valLat := valsLat.([]float32)
-	// longitude
-	lonVar, err := (*gs.data).GetVarGetter("lon")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	valsLon, err := lonVar.GetSlice(iLonMin, iLonMax) // lonVar.Values()
-	if err != nil {
-		log.Fatal(err)
-	}
-	valLon := valsLon.([]float32)
 	// check if lat and lon of a neibor is closer, to correct rounding errors
-	iLat = isNeiborCloser(valLat, int64(len(valLat))-iLatMax-iLat, inLat)
-	iLon = isNeiborCloser(valLon, int64(len(valLon))-iLonMax-iLon, inLon)
-	iLat = iLat + iLatMin
-	iLon = iLon + iLonMin
+	iLat = isNeiborCloser(gs.latitudes, iLat, inLat)
+	iLon = isNeiborCloser(gs.longitudes, iLon, inLon)
 
 	var gw float64
 	if gs.mask[iLat][iLon] == 1 {
@@ -486,7 +447,6 @@ func (gs *gridService) GetValueRowCol(row, col uint64) (interface{}, error) {
 }
 
 func (gs *gridService) GetValueLatLonAggregated(inLat, inLon float64, resolution commonlib.Resolution, agg string, includeAggParts bool) (interface{}, []*commonlib.AggregationPart, error) {
-	nc := gs.data
 	val, ok := resolution.Value.(float64)
 	if !ok {
 		return nil, nil, errors.New("resolution is not a float64")
@@ -524,49 +484,16 @@ func (gs *gridService) GetValueLatLonAggregated(inLat, inLon float64, resolution
 	iLonLeft := ((gs.startLonIdx) + int64(lonLeft/gs.stepLonSize))
 	iLonRight := ((gs.startLonIdx) + int64(lonRight/gs.stepLonSize))
 
-	iLatMin := max(iLatBottom-10, 0)
-	iLatMax := min(iLatTop+10, int64(gs.commonGrid.NumRows-1))
-
-	iLonMin := max(iLonLeft-10, 0)
-	iLonMax := min(iLonRight+10, int64(gs.commonGrid.NumCols-1))
-
-	// latitudes
-	latVar, err := (*nc).GetVarGetter("lat")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	valsLat, err := latVar.GetSlice(iLatMin, iLatMax)
-	if err != nil {
-		log.Fatal(err)
-	}
-	valLat := valsLat.([]float32)
-	// longitude
-	lonVar, err := (*nc).GetVarGetter("lon")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	valsLon, err := lonVar.GetSlice(iLonMin, iLonMax)
-	if err != nil {
-		log.Fatal(err)
-	}
-	valLon := valsLon.([]float32)
-
 	// check if lat and lon of a neibor is closer, to correct rounding errors
 
-	iLatTop = isNeiborCloser(valLat, int64(len(valLat))-(iLatMax-iLatTop), latTop)
-	iLatBottom = isNeiborCloser(valLat, int64(len(valLat))-(iLatMax-iLatBottom), latBottom)
-	iLonLeft = isNeiborCloser(valLon, int64(len(valLon))-(iLonMax-iLonLeft), lonLeft)
-	iLonRight = isNeiborCloser(valLon, int64(len(valLon))-(iLonMax-iLonRight), lonRight)
-	latBottomC := valLat[iLatBottom]
-	latTopC := valLat[iLatTop]
-	lonLeftC := valLon[iLonLeft]
-	lonRightC := valLon[iLonRight]
-	iLatTop = iLatTop + iLatMin
-	iLatBottom = iLatBottom + iLatMin
-	iLonLeft = iLonLeft + iLonMin
-	iLonRight = iLonRight + iLonMin
+	iLatTop = isNeiborCloser(gs.latitudes, iLatTop, latTop)
+	iLatBottom = isNeiborCloser(gs.latitudes, iLatBottom, latBottom)
+	iLonLeft = isNeiborCloser(gs.longitudes, iLonLeft, lonLeft)
+	iLonRight = isNeiborCloser(gs.longitudes, iLonRight, lonRight)
+	latBottomC := gs.latitudes[iLatBottom]
+	latTopC := gs.latitudes[iLatTop]
+	lonLeftC := gs.longitudes[iLonLeft]
+	lonRightC := gs.longitudes[iLonRight]
 
 	cellSize := gs.stepLonSize * gs.stepLatSize
 	// calculate area weight
@@ -690,7 +617,7 @@ func (gs *gridService) GetValueLatLonAggregated(inLat, inLon float64, resolution
 			}
 		}
 		// aggregate
-		aggVal, err = aggregate(agg, gwList, gs.commonGrid.NoDataType)
+		aggVal, err := aggregate(agg, gwList, gs.commonGrid.NoDataType)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -702,29 +629,12 @@ func (gs *gridService) GetValueLatLonAggregated(inLat, inLon float64, resolution
 
 func (gs *gridService) GetValueRowColAggregated(row uint64, col uint64, resolution commonlib.Resolution, agg string, includeAggParts bool) (interface{}, []*commonlib.AggregationPart, error) {
 
-	latVar, err := (*gs.data).GetVarGetter("lat")
-	if err != nil {
-		log.Fatal(err)
+	// check if row and col are in range
+	if row >= gs.commonGrid.NumRows || col >= gs.commonGrid.NumCols {
+		return nil, nil, errors.New("row or col out of range")
 	}
 
-	valsLat, err := latVar.GetSlice(int64(row), int64(row+1))
-	if err != nil {
-		log.Fatal(err)
-	}
-	valLat := valsLat.([]float32)
-	// longitude
-	lonVar, err := (*gs.data).GetVarGetter("lon")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	valsLon, err := lonVar.GetSlice(int64(col), int64(col+1))
-	if err != nil {
-		log.Fatal(err)
-	}
-	valLon := valsLon.([]float32)
-
-	iLat, iLon := float64(valLat[0]), float64(valLon[0])
+	iLat, iLon := float64(gs.latitudes[row]), float64(gs.longitudes[col])
 	val, list, err := gs.GetValueLatLonAggregated(iLat, iLon, resolution, agg, includeAggParts)
 	return val, list, err
 }
