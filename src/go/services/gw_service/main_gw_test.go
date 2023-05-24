@@ -208,6 +208,52 @@ func TestServe(t *testing.T) {
 		}
 	})
 
+	t.Run("valueAt", func(t *testing.T) {
+		result, rel := gridClient.ValueAt(context.Background(), func(p grid.Grid_valueAt_Params) error {
+			fmt.Println("valueAt")
+			p.SetRow(6310)
+			p.SetCol(3423)
+			return nil
+		})
+		defer rel()
+		results, err := result.Struct()
+		assert.NoError(t, err)
+		assert.True(t, results.HasVal())
+		val, err := results.Val()
+		assert.NoError(t, err)
+		if val.Which() == grid.Grid_Value_Which_f {
+			assert.Equal(t, -1.0, val.F())
+		} else if val.Which() == grid.Grid_Value_Which_i {
+			assert.Equal(t, int64(-1), val.I())
+		}
+	})
+
+	t.Run("closestValueAt", func(t *testing.T) {
+		result, rel := gridClient.ClosestValueAt(context.Background(), func(p grid.Grid_closestValueAt_Params) error {
+			fmt.Println("closestValueAt")
+			coord, err := p.NewLatlonCoord()
+			assert.NoError(t, err)
+			coord.SetLat(52.583039)
+			coord.SetLon(14.533146)
+			p.SetAgg(grid.Aggregation_iAvg)
+			res, err := p.NewResolution()
+			assert.NoError(t, err)
+			res.SetDegree(0.008333206176757812 * 2)
+			return nil
+		})
+		defer rel()
+		results, err := result.Struct()
+		assert.NoError(t, err)
+		assert.True(t, results.HasVal())
+		val, err := results.Val()
+		assert.NoError(t, err)
+		if val.Which() == grid.Grid_Value_Which_f {
+			assert.Equal(t, -0.5103697920913863, val.F())
+		} else {
+			assert.Fail(t, "expected float value")
+		}
+	})
+
 	t.Run("stream", func(t *testing.T) {
 		result, rel := gridClient.StreamCells(context.Background(), func(p grid.Grid_streamCells_Params) error {
 			topleft, err := p.NewTopLeft()
