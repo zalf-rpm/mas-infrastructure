@@ -151,19 +151,25 @@ func (g *Grid) ClosestValueAt(c context.Context, call grid.Grid_closestValueAt) 
 	}
 	lat := latLon.Lat()
 	lon := latLon.Lon()
-	resolutionMsg, err := call.Args().Resolution()
-	if err != nil {
-		return err
-	}
+
 	var resolution Resolution = Resolution{}
-	if resolutionMsg.Which() == grid.Grid_Resolution_Which_meter {
-		resolution.Value = resolutionMsg.Meter()
-	}
-	if resolutionMsg.Which() == grid.Grid_Resolution_Which_degree {
-		resolution.Value = resolutionMsg.Degree()
-	}
-	if !g.IsComparable(resolution) {
-		return errors.New("Resolution is not comparable")
+	if call.Args().HasResolution() {
+		resolutionMsg, err := call.Args().Resolution()
+		if err != nil {
+			return err
+		}
+
+		if resolutionMsg.Which() == grid.Grid_Resolution_Which_meter {
+			resolution.Value = resolutionMsg.Meter()
+		}
+		if resolutionMsg.Which() == grid.Grid_Resolution_Which_degree {
+			resolution.Value = resolutionMsg.Degree()
+		}
+		if !g.IsComparable(resolution) {
+			return errors.New("Resolution is not comparable")
+		}
+	} else {
+		resolution = g.GridResolution
 	}
 	agg := call.Args().Agg()
 	includeAggParts := call.Args().IncludeAggParts()
@@ -310,20 +316,26 @@ func (g *Grid) ValueAt(c context.Context, call grid.Grid_valueAt) error {
 
 	row := call.Args().Row()
 	col := call.Args().Col()
-	resolutionMsg, err := call.Args().Resolution()
-	if err != nil {
-		return err
-	}
 
 	var resolution Resolution = Resolution{}
-	if resolutionMsg.Which() == grid.Grid_Resolution_Which_meter {
-		resolution.Value = resolutionMsg.Meter()
-	}
-	if resolutionMsg.Which() == grid.Grid_Resolution_Which_degree {
-		resolution.Value = resolutionMsg.Degree()
-	}
-	if !g.IsComparable(resolution) {
-		return errors.New("Resolution is not comparable")
+	if call.Args().HasResolution() {
+
+		resolutionMsg, err := call.Args().Resolution()
+		if err != nil {
+			return err
+		}
+
+		if resolutionMsg.Which() == grid.Grid_Resolution_Which_meter {
+			resolution.Value = resolutionMsg.Meter()
+		}
+		if resolutionMsg.Which() == grid.Grid_Resolution_Which_degree {
+			resolution.Value = resolutionMsg.Degree()
+		}
+		if !g.IsComparable(resolution) {
+			return errors.New("Resolution is not comparable")
+		}
+	} else {
+		resolution = g.GridResolution
 	}
 	agg := call.Args().Agg()
 	includeAggParts := call.Args().IncludeAggParts()
