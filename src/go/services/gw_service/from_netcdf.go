@@ -208,8 +208,8 @@ func loadNetCDF(inputFile string) (loadedNetCDFMeta, error) {
 	meta.gridResolution = commonlib.Resolution{
 		Value: meta.stepLonSize,
 	}
-	meta.gridUnit = "degrees"
-	meta.bounds = commonlib.LatLonBoundaries{
+	meta.gridUnit = "degree"
+	meta.boundsFromCellCenter = commonlib.LatLonBoundaries{
 		TopLeft: commonlib.LatLon{
 			Lat: float64(valLat[lenLat-1]),
 			Lon: float64(valLon[0]),
@@ -227,7 +227,7 @@ func loadNetCDF(inputFile string) (loadedNetCDFMeta, error) {
 			Lon: float64(valLon[lenLon-1]),
 		},
 	}
-	meta.boundsFromCellCenter = commonlib.LatLonBoundaries{
+	meta.bounds = commonlib.LatLonBoundaries{
 		TopLeft: commonlib.LatLon{
 			Lat: float64(valLat[lenLat-1]) + meta.stepLatSize/2,
 			Lon: float64(valLon[0]) - meta.stepLonSize/2,

@@ -35,9 +35,9 @@ func Test_loadNetCDF(t *testing.T) {
 				gridResolution: commonlib.Resolution{
 					Value: 0.008333206176757812, //0,008333206176757812
 				},
-				gridUnit:   "degrees",
+				gridUnit:   "degree",
 				noDataType: 2,
-				bounds: commonlib.LatLonBoundaries{
+				boundsFromCellCenter: commonlib.LatLonBoundaries{
 					TopLeft: commonlib.LatLon{
 						Lat: 82.9955062866211,    //82,9955062866211
 						Lon: -13.995833396911621, //-13,995833396911621
@@ -55,7 +55,7 @@ func Test_loadNetCDF(t *testing.T) {
 						Lon: 179.99505615234375,
 					},
 				},
-				boundsFromCellCenter: commonlib.LatLonBoundaries{
+				bounds: commonlib.LatLonBoundaries{
 					TopLeft: commonlib.LatLon{
 						Lat: 82.9955062866211 + 0.008333299309015274/2,
 						Lon: -13.995833396911621 - 0.008333206176757812/2,
@@ -80,8 +80,7 @@ func Test_loadNetCDF(t *testing.T) {
 	}
 	opt := cmp.Comparer(func(x, y float64) bool {
 		delta := math.Abs(x - y)
-		mean := math.Abs(x+y) / 2.0
-		return delta/mean < 0.00001
+		return delta < 0.00001
 	})
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -92,7 +91,7 @@ func Test_loadNetCDF(t *testing.T) {
 			}
 			defer (*got.data).Close()
 
-			if !cmp.Equal(got.bounds, tt.want.bounds) {
+			if !cmp.Equal(got.bounds, tt.want.bounds, opt) {
 				t.Errorf("loadNetCDF()Bounds = %v, want %v", got.bounds, tt.want.bounds)
 			}
 			if !cmp.Equal(tt.want.boundsFromCellCenter, got.boundsFromCellCenter, opt) {
