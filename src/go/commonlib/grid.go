@@ -691,6 +691,7 @@ func (cs *StreamingCallback) SendCells(ctx context.Context, call grid.Grid_Callb
 				return err
 			}
 		}
+		currCol = cs.topLeft.Col
 	}
 
 	err = result.SetLocations(locList)
