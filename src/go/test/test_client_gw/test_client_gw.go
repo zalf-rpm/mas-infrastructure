@@ -161,10 +161,7 @@ func main() {
 					value = val.F()
 					img.Set(int(col), int(maxRows-row), ToColor(value*(-1), noData*(-1), 0, 10, &grad))
 
-				} else if val.Which() == grid.Grid_Value_Which_i {
-					value = float64(val.I())
 				}
-
 			}
 			release()
 		}
