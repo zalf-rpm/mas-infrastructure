@@ -43,8 +43,8 @@ func main() {
 		log.Fatal(err)
 	}
 	fmt.Printf("Service is listening on %s\n", l.Addr())
-	fmt.Printf("service: service sr: %s)\n", initialSturdyRef)
-	fmt.Printf("restorer_sr: %s )\n", bootStrapSturdyRef)
+	fmt.Printf("service: service sr: %s\n", initialSturdyRef)
+	fmt.Printf("restorer_sr: %s \n", bootStrapSturdyRef)
 
 	errChan := make(chan error)
 	// accept incomming connection from clients
