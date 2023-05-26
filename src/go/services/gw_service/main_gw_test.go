@@ -6,8 +6,10 @@ import (
 	"net"
 	"testing"
 
+	"capnproto.org/go/capnp/v3"
 	"github.com/stretchr/testify/assert"
 	"github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/grid"
+	"github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/persistence"
 	"github.com/zalf-rpm/mas-infrastructure/src/go/commonlib"
 )
 
@@ -28,13 +30,15 @@ func TestServe(t *testing.T) {
 		assert.NoError(t, err)
 
 		for {
+			main := persistence.Restorer_ServerToClient(restorer)
+			defer main.Release()
 			c, err := l.Accept()
 			fmt.Printf("service: request from %v\n", c.RemoteAddr())
 			if err != nil {
 				errChan <- err
 				continue
 			}
-			Serve(c, restorer, errChan)
+			Serve(c, capnp.Client(main.AddRef()), errChan)
 		}
 	}()
 

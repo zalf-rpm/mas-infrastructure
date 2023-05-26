@@ -165,8 +165,29 @@ func main() {
 			}
 			release()
 		}
+		callBack.Release()
 	}
 	relStream()
+
+	resultUnit, relUnit := gridClient.Unit(context.Background(), func(p grid.Grid_unit_Params) error {
+		fmt.Println("unit")
+		return nil
+	})
+	resultsUnit, err := resultUnit.Struct()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	if resultsUnit.HasUnit() {
+		unit, err := resultsUnit.Unit()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println(unit)
+	}
+	relUnit()
+
 	gridClient.Release()
 	saveImg(img, *imgFileName)
 }

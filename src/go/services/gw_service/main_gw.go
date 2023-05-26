@@ -13,13 +13,9 @@ import (
 
 // a capnproto service
 // implementing the grid interface
-// serves groundwater data
+// serves groundwater data from netcdf file
 
-// TODO:
-// implement capnp service interface
-// implement loading code for gw data from netcdf files
-// implement test client
-
+// After loading the netcdf file, the service will provide the following information to the client:
 // Provide inital capabilites to the client
 //service: service sr: capnp://vat@host:port/uuid
 //restorer_sr: capnp://vat@host:port
@@ -49,6 +45,8 @@ func main() {
 	errChan := make(chan error)
 	// accept incomming connection from clients
 	go func() {
+		main := persistence.Restorer_ServerToClient(restorer)
+		defer main.Release()
 		for {
 			c, err := l.Accept()
 			fmt.Printf("service: request from %v\n", c.RemoteAddr())
@@ -56,8 +54,9 @@ func main() {
 				errChan <- err
 				continue
 			}
-			Serve(c, restorer, errChan)
+			Serve(c, capnp.Client(main.AddRef()), errChan)
 		}
+
 	}()
 
 	for {
@@ -67,10 +66,9 @@ func main() {
 
 }
 
-func Serve(conn net.Conn, restorer *commonlib.Restorer, errChan chan error) {
+func Serve(conn net.Conn, boot capnp.Client, errChan chan error) {
 
-	main := persistence.Restorer_ServerToClient(restorer)
 	// Listen for calls, using  bootstrap interface.
-	rpc.NewConn(rpc.NewStreamTransport(conn), &rpc.Options{BootstrapClient: capnp.Client(main), ErrorReporter: &commonlib.ConnError{Out: errChan}})
+	rpc.NewConn(rpc.NewStreamTransport(conn), &rpc.Options{BootstrapClient: boot, ErrorReporter: &commonlib.ConnError{Out: errChan}})
 	// this connection will be close when the client closes the connection
 }
