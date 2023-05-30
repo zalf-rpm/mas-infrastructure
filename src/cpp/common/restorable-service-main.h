@@ -64,9 +64,9 @@ protected:
   Restorer* restorer{nullptr};
   bool initRestorerFromContainer{true};
   bool initServiceFromContainer{true};
-  kj::Own<mas::infrastructure::common::ConnectionManager> conMan;
   kj::ProcessContext &context;
   kj::AsyncIoContext ioContext;
+  kj::Own<mas::infrastructure::common::ConnectionManager> conMan;
   kj::String name{kj::str("Unnamed Service")};
   kj::String description;
   kj::String host{kj::str("*")};

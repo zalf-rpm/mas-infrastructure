@@ -34,7 +34,7 @@ RestorableServiceMain::RestorableServiceMain(kj::ProcessContext &context, kj::St
   kj::StringPtr serviceBriefDescription, kj::StringPtr serviceExtendedDescription) 
 : mainBuilder(context, serviceVersion, serviceBriefDescription, serviceExtendedDescription)
 , context(context)
-, ioContext(kj::setupAsyncIo()) 
+, ioContext(kj::setupAsyncIo())
 {}
 
 kj::MainBuilder::Validity RestorableServiceMain::setName(kj::StringPtr n) { name = kj::str(n); return true; }
@@ -85,23 +85,23 @@ void RestorableServiceMain::startRestorerSetup(mas::schema::common::Identifiable
   
   auto ownedRestorer = kj::heap<mas::infrastructure::common::Restorer>();
   restorer = ownedRestorer.get();
-  conMan = kj::heap<mas::infrastructure::common::ConnectionManager>(restorer);
+  conMan = kj::heap<mas::infrastructure::common::ConnectionManager>(ioContext, restorer);
   restorerClient = kj::mv(ownedRestorer);
   KJ_ASSERT(restorer != nullptr);
   KJ_LOG(INFO, "Created restorer.");
   
   if (startupInfoWriterSR.size() > 0) {
-    startupInfoWriterClient = conMan->tryConnectB(ioContext, startupInfoWriterSR).castAs<mas::schema::fbp::Channel<P>::ChanWriter>();
+    startupInfoWriterClient = conMan->tryConnectB(startupInfoWriterSR).castAs<mas::schema::fbp::Channel<P>::ChanWriter>();
   }
 
   // if a restorer container stury ref is given, try to connect to it
   if (restorerContainerClient == nullptr && restorerContainerSR.size() > 0) {
-    restorerContainerClient = conMan->tryConnectB(ioContext, restorerContainerSR).castAs<mas::schema::storage::Store::Container>();
+    restorerContainerClient = conMan->tryConnectB(restorerContainerSR).castAs<mas::schema::storage::Store::Container>();
   }
 
   // if a service container sturdy ref is given, try to connect to it
   if (serviceContainerClient == nullptr && serviceContainerSR.size() > 0) {
-    serviceContainerClient = conMan->tryConnectB(ioContext, serviceContainerSR).castAs<mas::schema::storage::Store::Container>();
+    serviceContainerClient = conMan->tryConnectB(serviceContainerSR).castAs<mas::schema::storage::Store::Container>();
   }
 
   // set the restorers storage container, which also will try to load a previously stored port if initRestorerFromContainer is true
@@ -118,9 +118,8 @@ void RestorableServiceMain::startRestorerSetup(mas::schema::common::Identifiable
 
   // bind restorer 
   KJ_LOG(INFO, "Trying to bind restorer to", host, port);
-  auto portPromise = conMan->bind(ioContext,
-                                  serviceAsBootstrap ? serviceClient.castAs<capnp::Capability>() : restorerClient,
-                                  host, port);
+  auto portPromise = conMan->bind(serviceAsBootstrap
+      ? serviceClient.castAs<capnp::Capability>() : restorerClient, host, port);
   auto succAndIP = infrastructure::common::getLocalIP(checkIP, checkPort);
   if(kj::get<0>(succAndIP)){
     restorer->setHost(kj::get<1>(succAndIP));
@@ -150,7 +149,7 @@ void RestorableServiceMain::startRestorerSetup(mas::schema::common::Identifiable
   mas::schema::registry::Registrar::Client registrar(nullptr);
   if(registrarSR.size() > 0) {
     KJ_LOG(INFO, "Trying to register service at:", registrarSR);
-    registrar = conMan->tryConnectB(ioContext, registrarSR).castAs<mas::schema::registry::Registrar>();
+    registrar = conMan->tryConnectB(registrarSR).castAs<mas::schema::registry::Registrar>();
     auto request = registrar.registerRequest();
     request.setCap(serviceClient);
     request.setRegName(regName.size() == 0 ? name.asPtr() : regName.asPtr());
