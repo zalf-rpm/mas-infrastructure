@@ -184,7 +184,7 @@ Climate::readClimateDataFromCSVFileViaHeaders(std::string pathToFile,
       kj::HandleInputStream his(*fh);
       kj::GzipInputStream gis(his);
       auto all = gis.readAllText();
-      std::istringstream iss(all.cStr()
+      std::istringstream iss(all.cStr());
       return readClimateDataFromCSVInputStreamViaHeaders(iss, options);
     }
 #else

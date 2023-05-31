@@ -320,7 +320,8 @@ kj::Promise<kj::uint> ConnectionManager::bind(capnp::Capability::Client mainInte
       [portFulfiller = kj::mv(portPaf.fulfiller), this](kj::Own<kj::NetworkAddress> &&addr) mutable {
         auto listener = addr->listen();
         impl->port = listener->getPort();
-        portFulfiller->fulfill(kj::uint(impl->port));
+        auto port = impl->port;
+        portFulfiller->fulfill(kj::mv(port));
         impl->acceptLoop(kj::mv(listener), capnp::ReaderOptions());
       }
   ));
