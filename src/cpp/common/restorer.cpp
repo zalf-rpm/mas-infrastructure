@@ -124,7 +124,7 @@ struct Restorer::Impl {
     setVatIdFromSignPK();
   }
 
-  ~Impl() noexcept(false)  {}
+  ~Impl() noexcept(false)  = default;
 
   void setVatIdFromSignPK() {
     // the Curve25519 byte array is little endian
@@ -135,7 +135,7 @@ struct Restorer::Impl {
   }
 
   typedef enum _endian {little_endian, big_endian} EndianType;
-  EndianType checkCPUEndian()
+  static EndianType checkCPUEndian()
   {
       unsigned short x = 0x0001;
       unsigned char c = *(unsigned char *)(&x);
@@ -144,7 +144,7 @@ struct Restorer::Impl {
   }
 
 
-  uint64_t byteArrayToUInt64(kj::ArrayPtr<unsigned char> bytes) {
+  static uint64_t byteArrayToUInt64(kj::ArrayPtr<unsigned char> bytes) {
     //constexpr bool littleEndian(std::endian::native == std::endian::little);
     bool littleEndian = checkCPUEndian() == little_endian;
     const int start = littleEndian ? 0 : 7;
@@ -158,7 +158,7 @@ struct Restorer::Impl {
   }
 
 
-  void byteArrayToUInt32(kj::ArrayPtr<unsigned char> bytes, uint32_t& value) {
+  static void byteArrayToUInt32(kj::ArrayPtr<unsigned char> bytes, uint32_t& value) {
     //constexpr bool littleEndian(std::endian::native == std::endian::little);
     bool littleEndian = checkCPUEndian() == little_endian;
     const int start = littleEndian ? 0 : 3;
@@ -171,7 +171,7 @@ struct Restorer::Impl {
   }
 
 
-  kj::Array<unsigned char> toKJArray(unsigned char* data, size_t len)
+  static kj::Array<unsigned char> toKJArray(unsigned char* data, size_t len)
   {
     auto arr = kj::heapArray<unsigned char>(len);
     for (size_t i = 0; i < len; i++) arr[i] = data[i];
@@ -317,7 +317,7 @@ Restorer::Restorer()
 : impl(kj::heap<Impl>()) {
 }
 
-Restorer::~Restorer() {}
+Restorer::~Restorer() noexcept(false) = default;
 
 int Restorer::getPort() const { return impl->port; }
 kj::Promise<void> Restorer::setPort(int p) { 

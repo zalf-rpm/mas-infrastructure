@@ -21,7 +21,9 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 //#include "common/common-typedefs.h"
 
 #ifdef CAPNPROTO_SERIALIZATION_SUPPORT
+
 #include "date.capnp.h"
+
 #endif
 
 #ifdef DSS_NO_LEAP_YEAR_BY_DEFAULT
@@ -44,15 +46,15 @@ namespace Tools {
   * implementation might not stand up to professional needs.
   * @author Michael Berg
   */
-class  Date {
+class Date {
 public:
   //static const uint defaultRelativeBaseYear = 2000;
 
 public:
   Date(bool useLeapYears = DEFAULT_USE_LEAP_YEARS);
 
-  Date(const std::string& isoDateString,
-        bool useLeapYears = DEFAULT_USE_LEAP_YEARS);
+  Date(const std::string &isoDateString,
+       bool useLeapYears = DEFAULT_USE_LEAP_YEARS);
 
   //explicit Date(uint day,
   //							Month month,
@@ -61,58 +63,64 @@ public:
   //							bool useLeapYears = DEFAULT_USE_LEAP_YEARS);
 
   Date(uint8_t day,
-        uint8_t month,
-        uint16_t year,
-        bool isRelativeDate = false,
-        bool createValidDate = false,
-        bool useLeapYears = DEFAULT_USE_LEAP_YEARS);
+       uint8_t month,
+       uint16_t year,
+       bool isRelativeDate = false,
+       bool createValidDate = false,
+       bool useLeapYears = DEFAULT_USE_LEAP_YEARS);
 
 #ifdef CAPNPROTO_SERIALIZATION_SUPPORT
+
   Date(mas::schema::common::Date::Reader reader) { deserialize(reader); }
 
   void serialize(mas::schema::common::Date::Builder builder) const;
 
   void deserialize(mas::schema::common::Date::Reader reader);
+
 #endif
 
   static Date relativeDate(uint8_t day,
-                            uint8_t month,
-                            uint16_t deltaYears = 0,
-                            bool useLeapYears = DEFAULT_USE_LEAP_YEARS);
+                           uint8_t month,
+                           uint16_t deltaYears = 0,
+                           bool useLeapYears = DEFAULT_USE_LEAP_YEARS);
 
   static inline Date julianDate(uint16_t julianDay,
-    uint16_t year,
+                                uint16_t year,
                                 bool isRelativeDate = false,
                                 bool useLeapYears = DEFAULT_USE_LEAP_YEARS) {
     return Date(1, 1, year, isRelativeDate, false, useLeapYears)
-        + (julianDay - 1);
+           + (julianDay - 1);
   }
 
-  static Date fromIsoDateString(const std::string& isoDateString,
+  static Date fromIsoDateString(const std::string &isoDateString,
                                 bool useLeapYears = DEFAULT_USE_LEAP_YEARS);
 
-  Date(const Date& other);
+  Date(const Date &other) = default;
+
+  Date(Date &&other) noexcept;
 
   /*!
     * @return true if this is a valid date (not default constructed)
     */
   bool isValid() const { return _d > 0; }
 
-  Date & operator=(const Date& other);
+  Date &operator=(const Date &other);
 
-  bool operator<(const Date& other) const;
+  Date &operator=(Date &&other) noexcept;
+
+  bool operator<(const Date &other) const;
 
   /*!
     * compare two dates for equality
     * @param other the other date
     * @return true if both dates match exactly
     */
-  bool operator==(const Date& other) const {
+  bool operator==(const Date &other) const {
     return year() == other.year() && month() == other.month()
-      && day() == other.day() && isRelativeDate() == other.isRelativeDate();
+           && day() == other.day() && isRelativeDate() == other.isRelativeDate();
   }
 
-  bool operator!=(const Date& other) const { return !(*this == other); }
+  bool operator!=(const Date &other) const { return !(*this == other); }
 
   /*!
     * compare if 'this' date is equal to the other date or lies before the
@@ -120,19 +128,19 @@ public:
     * @param other
     * @return
     */
-  bool operator<=(const Date& other) const { return (*this) < other || (*this) == other; }
+  bool operator<=(const Date &other) const { return (*this) < other || (*this) == other; }
 
   /*!
     * @param other
     * @return true if 'this' date lies after the argument date
     */
-  bool operator>(const Date& other) const { return !((*this) <= other); }
+  bool operator>(const Date &other) const { return !((*this) <= other); }
 
   /*!
     * @param other
     * @return true if 'this' date is equal to or lies after the argument date
     */
-  bool operator>=(const Date& other) const { return !((*this) < other); }
+  bool operator>=(const Date &other) const { return !((*this) < other); }
 
   Date operator-(uint64_t days) const;
 
@@ -140,13 +148,13 @@ public:
     * @param days
     * @return change 'this' date to 'days' before
     */
-  Date & operator-=(uint64_t days) { return (*this) = (*this) - days; }
+  Date &operator-=(uint64_t days) { return (*this) = (*this) - days; }
 
   /*!
     * prefix --
     * @see Date& operator-=(int days)
     */
-  Date & operator--() { return operator-=(1); }
+  Date &operator--() { return operator-=(1); }
 
   Date operator--(int);
 
@@ -156,13 +164,13 @@ public:
     * @param days
     * @return 'this' date changed to 'days' ahead
     */
-  Date & operator+=(uint64_t days) { return (*this) = (*this) + days; }
+  Date &operator+=(uint64_t days) { return (*this) = (*this) + days; }
 
   /*!
     *
     * @return 'this' date changed to one day ahead
     */
-  Date & operator++() { return operator+=(1); }
+  Date &operator++() { return operator+=(1); }
 
   Date operator++(int);
 
@@ -171,7 +179,7 @@ public:
     * @param other date
     * @return difference in days between the two days
     */
-  int operator-(const Date& other) const { return other.numberOfDaysTo(*this); }
+  int operator-(const Date &other) const { return other.numberOfDaysTo(*this); }
 
   /*!
     * @return if 'this' dates year is a leap year
@@ -194,13 +202,13 @@ public:
     * possible leap year conditions
     */
   static uint8_t daysInMonth(uint16_t year,
-                            uint8_t month,
-                            bool useLeapYears = DEFAULT_USE_LEAP_YEARS) {
+                             uint8_t month,
+                             bool useLeapYears = DEFAULT_USE_LEAP_YEARS) {
     return Date(1, 1, year, false, false, useLeapYears).daysInMonth(month);
   }
 
 
-  int numberOfDaysTo(const Date& toDate) const;
+  int numberOfDaysTo(const Date &toDate) const;
 
   /*!
     * @return 'this' dates day
@@ -248,14 +256,14 @@ public:
   Date withAddedYears(int years) const;
 
   //return mysql compatible string representation of 'this' date
-  std::string toMysqlString(const std::string& wrapInto = "'") const {
+  std::string toMysqlString(const std::string &wrapInto = "'") const {
     return toIsoDateString(wrapInto);
   }
 
-  std::string toIsoDateString(const std::string& wrapInto = "") const;
+  std::string toIsoDateString(const std::string &wrapInto = "") const;
 
-  std::string toString(const std::string& separator = ".",
-                        bool skipYear = false) const;
+  std::string toString(const std::string &separator = ".",
+                       bool skipYear = false) const;
 
   /*!
     * @return some leap year for use in calculations
@@ -268,8 +276,7 @@ public:
     * @ see dayInYear(int year, int day, int month, bool useLeapYears)
     * @return julian day of day in 'this' date
     */
-  uint16_t julianDay() const
-  {
+  uint16_t julianDay() const {
     return dayInYear(year(), day(), month(), _useLeapYears);
   }
 
@@ -284,8 +291,7 @@ public:
     * @param month
     * @return day in year of argument day in argument month in 'this' dates year
     */
-  uint16_t dayInYear(uint8_t day, uint8_t month) const
-  {
+  uint16_t dayInYear(uint8_t day, uint8_t month) const {
     return dayInYear(year(), day, month, _useLeapYears);
   }
 
@@ -298,11 +304,11 @@ public:
     * under possible leap year conditions
     */
   static uint16_t dayInYear(uint16_t year,
-                          uint8_t day,
-                          uint8_t month,
-                          bool useLeapYears = DEFAULT_USE_LEAP_YEARS) {
+                            uint8_t day,
+                            uint8_t month,
+                            bool useLeapYears = DEFAULT_USE_LEAP_YEARS) {
     return uint16_t(Date(day, month, year, false, false, useLeapYears)
-      - Date(1, 1, year, false, false, useLeapYears) + 1);
+                    - Date(1, 1, year, false, false, useLeapYears) + 1);
   }
 
   /*!
@@ -323,8 +329,7 @@ public:
   /*!
     * @return date representing the end of 'this' dates month
     */
-  Date endOfMonth() const
-  {
+  Date endOfMonth() const {
     return Date(daysInMonth(month()), month(), year());
   }
 
@@ -355,11 +360,13 @@ public:
 
 private:
   //! days in month (1-indexed)
-  static const std::vector<uint8_t>* _dim();
+  static const std::vector<uint8_t> *_dim();
+
   //! days in month in a leap year
-static const std::vector<uint8_t>* _ldim();
+  static const std::vector<uint8_t> *_ldim();
+
   //! pointer to correct leap year array, depending of activated leap years
-  const std::vector<uint8_t>* _daysInMonth{nullptr};
+  const std::vector<uint8_t> *_daysInMonth{nullptr};
 
   //! members variables for day, month, year
   uint8_t _d{0}, _m{0};
@@ -374,12 +381,12 @@ static const std::vector<uint8_t>* _ldim();
   bool _isRelativeDate{false};
 };
 
-inline Date fromMysqlString(const char* mysqlDateString,
+inline Date fromMysqlString(const char *mysqlDateString,
                             bool useLeapYears = true) {
   return Date::fromIsoDateString(mysqlDateString, useLeapYears);
 }
 
-inline Date fromMysqlString(const std::string& mysqlDateString,
+inline Date fromMysqlString(const std::string &mysqlDateString,
                             bool useLeapYears = true) {
   return Date::fromIsoDateString(mysqlDateString, useLeapYears);
 }

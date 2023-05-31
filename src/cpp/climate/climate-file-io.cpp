@@ -218,12 +218,14 @@ Climate::readClimateDataFromCSVFilesViaHeaders(const std::vector<std::string>& p
   Climate::DataAccessor finalDA;
 
   for (const auto& pathToFile : pathsToFiles) {
+    if (pathToFile.find("capnp") == 0) continue; // skip capnproto sturdy refs
+
     auto eda = readClimateDataFromCSVFileViaHeaders(pathToFile, options, false);
 
     if (!finalDA.isValid()) {
-      finalDA = eda.result;
+      finalDA = kj::mv(eda.result);
     } else {
-      finalDA.prependOrAppendClimateData(eda.result, true);
+      finalDA.mergeClimateData(kj::mv(eda.result), true);
     }
     if (eda.failure()) es.append(eda);
   }

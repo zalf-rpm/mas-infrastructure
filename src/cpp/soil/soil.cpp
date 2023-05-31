@@ -380,8 +380,6 @@ double SoilParameters::sandAndClay2lambda(double sand, double clay) {
   return ::sandAndClay2lambda(sand, clay);
 }
 
-//------------------------------------------------------------------------------
-
 std::pair<SoilPMs, Errors> Soil::createSoilPMs(const J11Array &jsonSoilPMs) {
   Errors errors;
 
@@ -468,8 +466,6 @@ string Soil::soilProfileId2KA5Layers(const string& abstractDbSchema,
   return "Soil profile database not found!";
 }
 */
-
-//------------------------------------------------------------------------------
 
 SoilPMsPtr Soil::soilParametersFromHermesFile(int soilId,
                                                     const string &pathToFile,

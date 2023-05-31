@@ -21,6 +21,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <istream>
 
 #include "kj/io.h"
+#include "kj/function.h"
 
 #include "json11/json11-helper.h"
 #include "tools/helper.h"
@@ -86,11 +87,6 @@ readClimateDataFromCSVInputStream(std::istream &inputStream,
                                   const CSVViaHeaderOptions& options,
                                   bool strictDateChecking = true);
 
-Tools::EResult<Climate::DataAccessor>
-readClimateDataFromCSVInputStream(kj::InputStream &inputStream,
-                                  std::vector<ACD> header,
-                                  CSVViaHeaderOptions options,
-                                  bool strictDateChecking = true);
 } // namespace Climate
 
 extern "C" DLL_API char *Climate_readClimateDataFromCSVStringViaHeaders(const char *csvString, const char *options);

@@ -27,8 +27,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include "tools/helper.h"
 
 //! All climate data related classes.
-namespace Climate
-{
+namespace Climate {
 /*!
   * All abstract climate elements which are currently supported by the
   * Climate classes. A user of the classes has to specify its requested
@@ -38,62 +37,59 @@ namespace Climate
   * Attention: skip should always be the last element in this list as the index of skipped
   * is used for the calculation of the ACDSize. 
   */
-enum AvailableClimateData
-{
-  day = 0, 
-  month, 
-  year, 
-  tmin, 
-  tavg, 
-  tmax, 
-  precip, 
-  precipOrig, 
-  globrad, 
+enum AvailableClimateData {
+  day = 0,
+  month,
+  year,
+  tmin,
+  tavg,
+  tmax,
+  precip,
+  precipOrig,
+  globrad,
   wind,
-  sunhours, 
-  cloudamount, 
-  relhumid, 
-  airpress, 
-  vaporpress, 
-  isoDate, 
-  deDate, 
+  sunhours,
+  cloudamount,
+  relhumid,
+  airpress,
+  vaporpress,
+  isoDate,
+  deDate,
   co2,
   o3,
   et0,
-  skip		
+  skip
 };
 
 //! just a shortcut to the quite long name
 typedef AvailableClimateData ACD;
 
-inline std::map<std::string, ACD> name2acd()
-{
-  return 
-  {{"day", day}
-  ,{"month", month}
-  ,{"year", year}
-  ,{"tmin", tmin}
-  ,{"tavg", tavg}
-  ,{"tmax", tmax}
-  ,{"precip", precip}
-  ,{"precip-orig", precipOrig}
-  ,{"globrad", globrad}
-  ,{"wind", wind}
-  ,{"windspeed", wind}
-  ,{"sunhours", sunhours}
-  ,{"cloudamount", cloudamount}
-  ,{"relhumid", relhumid}
-  ,{"airpress", airpress}
-  ,{"vaporpress", vaporpress}
-  ,{"co2", co2}
-  ,{"o3", o3}
-  ,{"iso-date", isoDate}
-  ,{"de-date", deDate}
-  ,{"skip", skip}
-  ,{"et0", et0}
-  };
+inline std::map<std::string, ACD> name2acd() {
+  return
+      {{"day",         day},
+       {"month",       month},
+       {"year",        year},
+       {"tmin",        tmin},
+       {"tavg",        tavg},
+       {"tmax",        tmax},
+       {"precip",      precip},
+       {"precip-orig", precipOrig},
+       {"globrad",     globrad},
+       {"wind",        wind},
+       {"windspeed",   wind},
+       {"sunhours",    sunhours},
+       {"cloudamount", cloudamount},
+       {"relhumid",    relhumid},
+       {"airpress",    airpress},
+       {"vaporpress",  vaporpress},
+       {"co2",         co2},
+       {"o3",          o3},
+       {"iso-date",    isoDate},
+       {"de-date",     deDate},
+       {"skip",        skip},
+       {"et0",         et0}
+      };
 };
-
 
 
 /*!
@@ -140,8 +136,7 @@ availableClimateData2UserSqliteDBColNameAndScaleFactor(AvailableClimateData col)
   * @param col available climate data element
   * @return column name of climate data element in Star database
   */
-inline std::string availableClimateData2StarDBColName(AvailableClimateData col)
-{
+inline std::string availableClimateData2StarDBColName(AvailableClimateData col) {
   return availableClimateData2WettRegDBColName(col);
 }
 
@@ -152,8 +147,7 @@ inline std::string availableClimateData2StarDBColName(AvailableClimateData col)
   * @param col available climate data element
   * @return column name of climate data element in default db
   */
-inline std::string availableClimateData2DBColName(AvailableClimateData col)
-{
+inline std::string availableClimateData2DBColName(AvailableClimateData col) {
   return availableClimateData2WettRegDBColName(col);
 }
 
@@ -161,44 +155,47 @@ std::string availableClimateData2Name(AvailableClimateData col);
 
 std::string availableClimateData2unit(AvailableClimateData col);
 
-//----------------------------------------------------------------------------
+struct YearRange {
+  YearRange() : fromYear(0), toYear(0) {}
 
-struct YearRange
-{
-YearRange() : fromYear(0), toYear(0) {}
-YearRange(int f, int t) : fromYear(f), toYear(t) {}
-int fromYear, toYear;
-bool isValid() const { return fromYear > 0 && toYear > 0; }
+  YearRange(int f, int t) : fromYear(f), toYear(t) {}
+
+  int fromYear, toYear;
+
+  bool isValid() const { return fromYear > 0 && toYear > 0; }
 };
 
 YearRange snapToRaster(YearRange yr, int raster = 5);
 
-//----------------------------------------------------------------------------
-
 //! deep copied access to a range of climate data
-class DataAccessor : public Tools::Json11Serializable
-{
+class DataAccessor : public Tools::Json11Serializable {
 public:
   DataAccessor();
 
-  DataAccessor(const Tools::Date& startDate, 
-                const Tools::Date& endDate);
+  DataAccessor(Tools::Date startDate,
+               Tools::Date endDate);
 
-  DataAccessor(const DataAccessor& other);
+  DataAccessor(const DataAccessor &other);
+
+  DataAccessor(DataAccessor &&other) noexcept;
 
   DataAccessor(json11::Json object);
+
+  DataAccessor& operator=(const DataAccessor &other);
+
+  DataAccessor& operator=(DataAccessor &&other) noexcept;
 
   virtual Tools::Errors merge(json11::Json j);
 
   virtual json11::Json to_json() const;
 
-  ~DataAccessor(){}
+  ~DataAccessor() = default;
 
-bool isValid() const { return noOfStepsPossible() > 0; }
+  bool isValid() const { return noOfStepsPossible() > 0; }
 
-double dataForTimestep(AvailableClimateData acd, 
-                          std::size_t stepNo,
-                          double default_ = 0.0) const;
+  double dataForTimestep(AvailableClimateData acd,
+                         std::size_t stepNo,
+                         double default_ = 0.0) const;
 
   Tools::Maybe<double> dataForTimestepM(AvailableClimateData acd,
                                         std::size_t stepNo) const;
@@ -208,53 +205,46 @@ double dataForTimestep(AvailableClimateData acd,
 
   std::vector<double> dataAsVector(AvailableClimateData acd) const;
 
-DataAccessor cloneForRange(std::size_t fromStep,
-                std::size_t numberOfSteps) const;
+  DataAccessor cloneForRange(std::size_t fromStep,
+                             std::size_t numberOfSteps) const;
 
-std::size_t noOfStepsPossible() const { return _numberOfSteps; }
+  std::size_t noOfStepsPossible() const { return _numberOfSteps; }
 
   Tools::Date startDate() const { return _startDate; }
 
   Tools::Date endDate() const { return _endDate; }
 
-Tools::Date dateForStep(std::size_t stepNo) const { return _startDate + int(stepNo); }
+  Tools::Date dateForStep(std::size_t stepNo) const { return _startDate + int(stepNo); }
 
-unsigned int julianDayForStep(std::size_t stepNo) const { return dateForStep(stepNo).julianDay(); }
+  unsigned int julianDayForStep(std::size_t stepNo) const { return dateForStep(stepNo).julianDay(); }
 
-  void addClimateData(AvailableClimateData acd,
-            const std::vector<double>& data);
+  void addClimateData(AvailableClimateData acd, const std::vector<double> &data);
 
-  void addClimateData(AvailableClimateData acd,
-    const std::vector<double>&& data);
+  void addClimateData(AvailableClimateData acd, const std::vector<double> &&data);
 
-  void prependOrAppendClimateData(DataAccessor other,
-                                  bool replaceOverlappingData = true);
+  void mergeClimateData(DataAccessor other, bool replaceOverlappingData = true);
 
-void addOrReplaceClimateData(AvailableClimateData acd,
-                const std::vector<double>& data);
+  void addOrReplaceClimateData(AvailableClimateData acd, const std::vector<double> &data);
 
-bool hasAvailableClimateData(AvailableClimateData acd) const
-{
-  return _acd2dataIndex[acd] >= 0;
-}
+  bool hasAvailableClimateData(AvailableClimateData acd) const { return _acd2dataIndex[acd] >= 0; }
 
 private: //state
   Tools::Date _startDate;
   Tools::Date _endDate;
 
-typedef std::vector<std::vector<double>> VVD;
-std::shared_ptr<VVD> _data;
+  typedef std::vector<std::vector<double>> VVD;
+  std::shared_ptr<VVD> _data;
 
   //! offsets to actual available climate data enum numbers
   std::vector<short> _acd2dataIndex;
 
-std::size_t _fromStep;
-std::size_t _numberOfSteps;
+  std::size_t _fromStep{0};
+  std::size_t _numberOfSteps{0};
 };
 
 
 inline double potentialEvaporationTW(double globRad_Jpcm2, double tavg, double fk = 1) {
-  return (globRad_Jpcm2 + 93 * fk)*(tavg + 22) / (150 * (tavg + 123));
+  return (globRad_Jpcm2 + 93 * fk) * (tavg + 22) / (150 * (tavg + 123));
 }
 
 inline double climaticWaterBalanceTW(double precip_mm, double globRad_Jpcm2, double tavg, double fk = 1) {

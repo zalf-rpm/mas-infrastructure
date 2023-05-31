@@ -28,7 +28,7 @@ class Restorer;
 class ConnectionManager final {
 public:
 	explicit ConnectionManager(kj::AsyncIoContext &ioc, Restorer *restorer = nullptr);
-	~ConnectionManager() noexcept(false) = default;
+	~ConnectionManager() noexcept(false);
 
 	kj::StringPtr getLocallyUsedHost() const;
 	void setLocallyUsedHost(kj::StringPtr h);
@@ -49,9 +49,7 @@ public:
 private:
   struct Impl;
 	kj::Own<Impl> impl;
-  friend constexpr bool _kj_internal_isPolymorphic(ConnectionManager::Impl *);
 };
-KJ_DECLARE_NON_POLYMORPHIC(ConnectionManager::Impl);
 
 kj::Tuple<bool, kj::String> getLocalIP(kj::StringPtr connectToHost = "8.8.8.8", kj::uint connectToPort = 53U);
 
