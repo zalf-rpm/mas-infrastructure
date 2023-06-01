@@ -24,6 +24,7 @@ import pysodium
 import socket
 import sys
 import time
+import urllib.parse as urlp
 import uuid
 
 PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent
@@ -93,23 +94,32 @@ def update_config(config, argv, print_config=False, allow_new_keys=False):
             print(config)
 
 
-def sturdy_ref_str(sign_pk, host, port, sr_token=None):
-    sr_token_base64 = base64.urlsafe_b64encode(sr_token.encode("utf-8")).decode("utf-8") if sr_token else None
-    return "capnp://{vat_id}@{host}:{port}{sr_token}".format(
-        vat_id=base64.urlsafe_b64encode(sign_pk).decode("utf-8"),
+#def sign_sr_token_by_sk_and_encode_base64(self, sr_token):
+#   return base64.urlsafe_b64encode(pysodium.crypto_sign(sr_token, self._sign_pk))
+
+
+def sturdy_ref_str(vat_sign_pk, host, port, sr_token=None, owner_guid=None):
+    # encode sr_token base64, if we have an owner
+    if owner_guid and sr_token:
+        sr_token = base64.urlsafe_b64encode(sr_token.encode("utf-8")).decode("utf-8")
+    return "capnp://{vat_id}@{host}:{port}{sr_token}{add_params}{owner_guid}".format(
+        vat_id=base64.urlsafe_b64encode(vat_sign_pk).decode("utf-8"),
         host=host,
         port=port,
-        sr_token="/" + sr_token_base64 if sr_token_base64 else "")
+        sr_token="/" + sr_token if sr_token else "",
+        add_params="?" if owner_guid else "",
+        owner_guid=owner_guid if owner_guid else ""
+    )
 
 
-def sturdy_ref_str_from_sr(sturdy_ref):
+def sturdy_ref_str_from_sr(sturdy_ref, owner_guid=None):
     sign_pk = bytearray(32)
     sign_pk[0:8] = sturdy_ref.transient.vat.id.publicKey0.to_bytes(8, byteorder=sys.byteorder, signed=False)
     sign_pk[8:16] = sturdy_ref.transient.vat.id.publicKey1.to_bytes(8, byteorder=sys.byteorder, signed=False)
     sign_pk[16:24] = sturdy_ref.transient.vat.id.publicKey2.to_bytes(8, byteorder=sys.byteorder, signed=False)
     sign_pk[24:32] = sturdy_ref.transient.vat.id.publicKey3.to_bytes(8, byteorder=sys.byteorder, signed=False)
     return sturdy_ref_str(sign_pk, sturdy_ref.transient.vat.address.host, sturdy_ref.transient.vat.address.port,
-                          sturdy_ref.transient.localRef.as_text())
+                          sturdy_ref.transient.localRef.as_text(), owner_guid=owner_guid)
 
 
 class ReleaseSturdyRef(persistence_capnp.Persistent.ReleaseSturdyRef.Server):
@@ -134,7 +144,7 @@ class Restorer(persistence_capnp.Restorer.Server):
         self._owner_guid_to_sign_pk = {}  # owner guid to owner owner sign public key
         self._storage_container = None
         self._restore_callback = None
-        self._vat_id = None
+        #self._vat_id = None
 
     def set_vat_id_from_sign_pk(self):
         self._vat_id = [
@@ -223,17 +233,17 @@ class Restorer(persistence_capnp.Restorer.Server):
     def set_owner_guid(self, owner_guid, owner_sign_pk):
         self._owner_guid_to_sign_pk[owner_guid] = owner_sign_pk
 
-    def verify_sr_token(self, sr_token_base64, vat_id_base64):
-        # https://stackoverflow.com/questions/2941995/python-ignore-incorrect-padding-error-when-base64-decoding
-        vat_id = base64.urlsafe_b64decode(vat_id_base64 + "==")
-        try:
-            sr_token = base64.urlsafe_b64decode(sr_token_base64 + "==")
-            return (True, pysodium.crypto_sign_open(sr_token, vat_id))
-        except ValueError:
-            return (False, None)
+    #def verify_sr_token(self, sr_token_base64, vat_id_base64):
+    #    # https://stackoverflow.com/questions/2941995/python-ignore-incorrect-padding-error-when-base64-decoding
+    #    vat_id = base64.urlsafe_b64decode(vat_id_base64 + "==")
+    #    try:
+    #        sr_token = base64.urlsafe_b64decode(sr_token_base64 + "==")
+    #        return (True, pysodium.crypto_sign_open(sr_token, vat_id))
+    #    except ValueError:
+    #        return (False, None)
 
-    def sign_sr_token_by_vat_and_encode_base64(self, sr_token):
-        return base64.urlsafe_b64encode(pysodium.crypto_sign(sr_token, self._sign_pk))
+    #def sign_sr_token_by_vat_and_encode_base64(self, sr_token):
+    #    return base64.urlsafe_b64encode(pysodium.crypto_sign(sr_token, self._sign_pk))
 
     def get_cap_from_sr_token(self, sr_token, owner_guid=None):
 
@@ -293,11 +303,17 @@ class Restorer(persistence_capnp.Restorer.Server):
         elif self.storage_container:
             return load_from_store_and_get_cap(sr_token)
 
-    def sturdy_ref_str(self, sr_token=None):
-        return sturdy_ref_str(self._sign_pk, self.host, self.port, sr_token)
+    def sturdy_ref_str(self, sr_token=None, owner_guid=None):
+        if owner_guid and sr_token:
+            owner_pk = self._owner_guid_to_sign_pk[owner_guid]
+            sr_token = pysodium.crypto_sign(sr_token, owner_pk)
+        return sturdy_ref_str(self._sign_pk, self.host, self.port, sr_token, owner_guid=owner_guid)
 
-    def sturdy_ref(self, sr_token=None):
+    def sturdy_ref(self, sr_token=None, owner_guid=None):
         # if seal_for_owner_guid: then encrypt sr_token with seal_for_owner_guids stored public key
+        if owner_guid and sr_token:
+            owner_pk = self._owner_guid_to_sign_pk[owner_guid]
+            sr_token = pysodium.crypto_sign(sr_token, owner_pk)
         return {
             "transient": {
                 "vat": {
@@ -341,8 +357,8 @@ class Restorer(persistence_capnp.Restorer.Server):
                 store_proms.append(sv_req.send().then(lambda resp: resp.success))
 
         res = {
-            "sturdy_ref": self.sturdy_ref(sr_token),
-            "unsave_sr": self.sturdy_ref(unsave_sr_token) if create_unsave else None
+            "sturdy_ref": self.sturdy_ref(sr_token, owner_guid=sealed_for),
+            "unsave_sr": self.sturdy_ref(unsave_sr_token, owner_guid=sealed_for) if create_unsave else None
         }
         return capnp.join_promises(store_proms).then(lambda _: res)
 
@@ -373,9 +389,9 @@ class Restorer(persistence_capnp.Restorer.Server):
                 store_proms.append(sv_req.send().then(lambda resp: resp.success))
 
         res = {
-            "sturdy_ref": self.sturdy_ref_str(sr_token),
+            "sturdy_ref": self.sturdy_ref_str(sr_token, owner_guid=sealed_for),
             "sr_token": sr_token,
-            "unsave_sr": self.sturdy_ref_str(unsave_sr_token) if create_unsave else None,
+            "unsave_sr": self.sturdy_ref_str(unsave_sr_token, owner_guid=sealed_for) if create_unsave else None,
             "unsave_sr_token": unsave_sr_token if create_unsave else None
         }
         return capnp.join_promises(store_proms).then(lambda _: res)
@@ -412,9 +428,9 @@ class Restorer(persistence_capnp.Restorer.Server):
     #   sealedFor @1 :SturdyRef.Owner;
     # }
     def restore_context(self, context):  # restore @0 RestoreParams -> (cap :Capability);
-        sf = context.params.sealedFor
+        owner_guid = context.params.sealedFor
         sr_token = context.params.localRef.as_text()
-        context.results.cap = self.get_cap_from_sr_token(sr_token, owner_guid=sf.guid if sf else None)
+        context.results.cap = self.get_cap_from_sr_token(sr_token, owner_guid=owner_guid.guid if owner_guid else None)
 
 
 class Identifiable(common_capnp.Identifiable.Server):
@@ -509,10 +525,12 @@ class Persistable(persistence_capnp.Persistent.Server):
         self._restorer = r
 
     def save_context(self, context):  # save @0 () -> (sturdyRef :Text, unsaveSR :Text);
+        def save_res(res):
+            context.results.sturdyRef = res["sturdy_ref"]
+            context.results.unsaveSR = res["unsave_sr"]
+
         if self.restorer:
-            sr, unsave_sr = self.restorer.save(self)
-            context.results.sturdyRef = sr
-            context.results.unsaveSR = unsave_sr
+            return self.restorer.save(self).then(save_res)
 
 
 class ConnectionManager:
@@ -523,28 +541,44 @@ class ConnectionManager:
 
     def connect(self, sturdy_ref, cast_as=None):
         try:
+            host = None
+            port = None
+            sr_token = None
+            owner_guid = None
+            bootstrap_interface_id = None
+            sturdy_ref_interface_id = None
+
             if type(sturdy_ref) == str:
-                # we assume that a sturdy ref url looks always like 
+                # we assume that a sturdy ref url looks always like
+                # capnp://vat-id_base64-curve25519-public-key@host:port/sturdy-ref-token_base64_if_owner_signed
+                # ?owner_guid = optional_owner_global_unique_id
+                # & b_iid = optional_bootstrap_interface_id
+                # & sr_iid = optional_the_sturdy_refs_remote_interface_id
                 # capnp://vat-id_base64-curve25519-public-key@host:port/sturdy-ref-token_base64
-                if sturdy_ref[:8] == "capnp://":
-                    rest = sturdy_ref[8:]
-                    vat_id_base64, rest = rest.split("@") if "@" in rest else (None, rest)
-                    host, rest = rest.split(":")
-                    if "/" in rest:
-                        port, rest = rest.split("/") if "/" in rest else (rest, None)
-                        sr_token_base64, rest = rest.split("?") if "?" in rest else (rest, None)
-                        sr_token = base64.urlsafe_b64decode(sr_token_base64 + "==")
-                    else:
-                        port = rest
-                        sr_token = None
+                url = urlp.urlparse(sturdy_ref)
+
+                if url.scheme == "capnp":
+                    #vat_id_base64 = url.username
+                    host = url.hostname
+                    port = url.port
+                    if len(url.query) > 0:
+                        q = urlp.parse_qs(url.query)
+                        owner_guid = q.get("owner_guid", None)
+                        bootstrap_interface_id = q.get("b_iid", None)
+                        sturdy_ref_interface_id = q.get("sr_iid", None)
+                    if len(url.path) > 1:
+                        sr_token = url.path[1:]
+                        # sr_token is base64 encoded if there's an owner (because of signing)
+                        if owner_guid:
+                            sr_token = base64.urlsafe_b64decode(sr_token + "==")
             else:
                 vat_path = sturdy_ref.transient.vat
-                vat_id_base64 = vat_path.id
+                #vat_id = vat_path.id
                 host = vat_path.address.host
                 port = vat_path.address.port
                 sr_token = sturdy_ref.transient.localRef.as_text()
 
-            host_port = "{}:{}".format(host, port)
+            host_port = str(host) + (":" + str(port) if port else "")
             if host_port in self._connections:
                 bootstrap_cap = self._connections[host_port]
             else:
@@ -603,8 +637,6 @@ class ConnectionManager:
 #         self._already_called = True
 
 
-# ------------------------------------------------------------------------------
-
 # interface Action
 # class Action(common_capnp.Action.Server):
 #
@@ -623,8 +655,6 @@ class ConnectionManager:
 #         self._action(*self._args, **self._kwargs)
 #         self._already_executed = True
 
-
-# ------------------------------------------------------------------------------
 
 # interface ValueHolder(T)
 # class ValueHolder(common_capnp.ValueHolder.Server, Persistable):
@@ -655,8 +685,6 @@ class ConnectionManager:
 #         context.results.val = self.val
 
 
-# ------------------------------------------------------------------------------
-
 # interface CapHolder(Object)
 # class CapHolderImpl(common_capnp.CapHolder.Server, Identifiable):
 #
@@ -678,8 +706,6 @@ class ConnectionManager:
 #         self._cleanup_on_del = True
 
 
-# ------------------------------------------------------------------------------
-
 # class IdentifiableHolder(common_capnp.IdentifiableHolder.Server, Identifiable):
 #
 #     def __init__(self, cap, cleanup_func, cleanup_on_del=False):
@@ -699,8 +725,6 @@ class ConnectionManager:
 #         self._cleanup_func()
 #         self._cleanup_on_del = True
 
-
-# ------------------------------------------------------------------------------
 
 # interface PersistCapHolder(Object) extends(CapHolder(Object), Persistent.Persistent(Text, Text)) {
 """
@@ -729,8 +753,6 @@ class PersistCapHolderImpl(common_capnp.PersistCapHolder.Server):
 """
 
 
-# ------------------------------------------------------------------------------
-
 def load_capnp_module(path_and_type, def_type="Text"):
     capnp_type = def_type
     if path_and_type:
@@ -743,8 +765,6 @@ def load_capnp_module(path_and_type, def_type="Text"):
             capnp_type = p_and_t[0]
     return capnp_type
 
-
-# ------------------------------------------------------------------------------
 
 def load_capnp_modules(id_to_path_and_type, def_type="Text"):
     id_to_type = {}

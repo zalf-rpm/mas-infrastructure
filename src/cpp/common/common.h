@@ -26,20 +26,31 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <capnp/rpc-twoparty.h>
 #include <kj/thread.h>
 
-//#include "model.capnp.h"
 #include "common.capnp.h"
 #include "fbp.capnp.h"
 #include "persistence.capnp.h"
 
 namespace mas::infrastructure::common {
 
-class Identifiable final : public mas::schema::common::Identifiable::Server {
+class Identifiable : public mas::schema::common::Identifiable::Server {
 public:
-  Identifiable(kj::StringPtr id = nullptr, kj::StringPtr name = nullptr, kj::StringPtr description = nullptr);
+  explicit Identifiable(kj::StringPtr id = nullptr, kj::StringPtr name = nullptr, kj::StringPtr description = nullptr);
 
-  virtual ~Identifiable() noexcept(false) {}
+  virtual ~Identifiable() noexcept(false) = default;
 
   kj::Promise<void> info(InfoContext context) override;
+
+  kj::StringPtr getId() const { return _id; }
+
+  void setId(kj::StringPtr id) { _id = kj::str(id); }
+
+  kj::StringPtr getName() const { return _name; }
+
+  void setName(kj::StringPtr name) { _name = kj::str(name); }
+
+  kj::StringPtr getDescription() const { return _description; }
+
+  void setDescription(kj::StringPtr description) { _description = kj::str(description); }
 
 private:
   kj::String _id;
@@ -133,15 +144,12 @@ private:
 //   bool alreadyReleased{ false };
 // };
 
-//-----------------------------------------------------------------------
 
 kj::Maybe<capnp::AnyPointer::Reader> getIPAttr(mas::schema::fbp::IP::Reader ip, kj::StringPtr attrName);
   
 kj::Maybe<capnp::AnyPointer::Builder> 
 copyAndSetIPAttrs(mas::schema::fbp::IP::Reader oldIp, mas::schema::fbp::IP::Builder newIp, 
   kj::StringPtr newAttrName = nullptr);//, kj::Maybe<capnp::AnyPointer::Reader> newValue = nullptr);
-
-//-----------------------------------------------------------------------
 
 kj::Vector<kj::String> splitString(kj::StringPtr s, kj::StringPtr splitElements);
 

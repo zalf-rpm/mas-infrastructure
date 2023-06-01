@@ -125,7 +125,7 @@ interface Persistent {
     sturdyRef @0 :SturdyRef;
 
     unsaveSR  @1 :SturdyRef;
-    # sturdy ref refering to an Common.Action capability to unsave the referenced capability
+    # sturdy ref referring to an ReleaseSturdyRef capability to unsave the referenced capability
   }
 
   interface ReleaseSturdyRef {

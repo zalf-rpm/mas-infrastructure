@@ -15,45 +15,45 @@ using Geo = import "geo.capnp";
 enum SType {
   # soil types
 
-  unknown @0; # marks an unknown soiltype
-  ka5 @1; # KA5 classification
+  unknown @0; # marks an unknown soil type
+  ka5     @1; # KA5 classification
 }
 
 enum PropertyName {
   # layer properties
 
-  soilType @0; # soil type
+  soilType                          @0; # soil type
 
-  sand @1; # [%] sand content
-  clay @2; # [%] clay content
-  silt @3; # [%] silt content
-  
-  pH @4; # pH value
-  
-  sceleton @5; # [vol%] sceleton
-  
-  organicCarbon @6; # [mass%] soil organic carbon
-  organicMatter @7; # [mass%] soil organic matter
-  
-  bulkDensity @8; # [kg m-3] soil bulk density
-  rawDensity @9; # [kg m-3] soil raw density
+  sand                              @1; # [%] sand content
+  clay                              @2; # [%] clay content
+  silt                              @3; # [%] silt content
 
-  fieldCapacity @10; # [vol%]
-  permanentWiltingPoint @11; # [vol%]
-  saturation @12; # [vol%]
+  pH                                @4; # pH value
 
-  soilMoisture @13; # [%] initial soilmoisture in this layer
+  sceleton                          @5; # [vol%] sceleton
 
-  soilWaterConductivityCoefficient @14; # [] lambda value
+  organicCarbon                     @6; # [mass%] soil organic carbon
+  organicMatter                     @7; # [mass%] soil organic matter
 
-  ammonium @15; # [kg NH4-N m-3] soil ammonium content
-  nitrate @16; # [kg NO3-N m-3] soil nitrate content
+  bulkDensity                       @8; # [kg m-3] soil bulk density
+  rawDensity                        @9; # [kg m-3] soil raw density
 
-  cnRatio @17; # [] C/N ratio
+  fieldCapacity                     @10; # [vol%]
+  permanentWiltingPoint             @11; # [vol%]
+  saturation                        @12; # [vol%]
 
-  inGroundwater @18; # lies layer in/below groundwater level
+  soilMoisture                      @13; # [%] initial soil moisture in this layer
 
-  impenetrable @19; # can layer be penetrated by plant
+  soilWaterConductivityCoefficient  @14; # [] lambda value
+
+  ammonium                          @15; # [kg NH4-N m-3] soil ammonium content
+  nitrate                           @16; # [kg NO3-N m-3] soil nitrate content
+
+  cnRatio                           @17; # [] C/N ratio
+
+  inGroundwater                     @18; # lies layer in/below groundwater level
+
+  impenetrable                      @19; # can layer be penetrated by plant
 }
 
 struct Layer {
@@ -70,11 +70,11 @@ struct Layer {
   }
 
   # a layer consists of a list of soil parameters
-  properties @0 :List(Property);
+  properties    @0 :List(Property);
 
-  size @1 :Float32; # [m]
+  size          @1 :Float32; # [m]
 
-  description @2 :Text; # some human understandable description of the layer
+  description   @2 :Text; # some human understandable description of the layer
 }
 
 
@@ -85,25 +85,21 @@ struct Query {
   struct Result {
     # tell if the query failed and return the available parameters
     
-    failed @0 :Bool; # some mandatory params where not available
-    mandatory @1 :List(PropertyName); # the mandatory parameters which where available
-    optional @2 :List(PropertyName); # the optional parameters which where available
+    failed      @0 :Bool; # some mandatory params where not available
+    mandatory   @1 :List(PropertyName); # the mandatory parameters which where available
+    optional    @2 :List(PropertyName); # the optional parameters which where available
   }
 
-  mandatory @0 :List(PropertyName); # these parameters are really needed
-  optional @1 :List(PropertyName); # these parameters are optional
+  mandatory     @0 :List(PropertyName); # these parameters are really needed
+  optional      @1 :List(PropertyName); # these parameters are optional
   
-  onlyRawData @2 :Bool = true; 
+  onlyRawData   @2 :Bool = true;
   # just return data which are physically available from the data source
   # if set to false, data can be generated from the raw data to allow more 
   # params to be available mandatory
 }
 
-
-struct Profile {
-  id                @2 :Text; 
-  # optional identity of the profile
-
+struct ProfileData {
   layers            @0 :List(Layer);
   # a soil profile is a list of layers
 
@@ -111,15 +107,18 @@ struct Profile {
   # how many percent of some area are represented by this soil profile
 }
 
+interface Profile extends (Identifiable, Persistent) {
+  # a capability to a soil profile
+
+  data        @0 () -> ProfileData;
+  # the data of the profile
+
+  geoLocation @1 () -> Geo.LatLonCoord;
+  # the geo location of the profile
+}
 
 interface Service extends(Identifiable, Persistent) {
   # service for soil data
-
-  #interface CommonCapHolderProfile {
-    # interface as replacement for Common.CapHolder(Profile) at the moment, as pycapnp doesn't support generic interfaces currently
-  #  cap @0 () -> (object :Profile);
-  #  release @1 ();
-  #}
 
   checkAvailableParameters @0 Query -> Query.Result;
   # check if the parameters given in Query are available
@@ -127,15 +126,15 @@ interface Service extends(Identifiable, Persistent) {
   getAllAvailableParameters @1 (onlyRawData :Bool) -> (mandatory :List(PropertyName), optional :List(PropertyName));
   # get all the available parameters in this service
 
-  profilesAt @2 (coord :Geo.LatLonCoord, query :Query) -> (profiles :List(Profile));
-  # Get soil profiles at a given geo coordinate. This might be multiple profiles if a profile doesn't cover 100% of the area
+  closestProfilesAt @2 (coord :Geo.LatLonCoord, query :Query) -> (profiles :List(Profile));
+  # Get soil profiles closest to a given geo coordinate. This might be multiple profiles if a profile doesn't cover 100% of the area.
 
-  #allProfiles @1 Query -> (profiles :List(Common.Pair(Geo.LatLonCoord, List(CommonCapHolderProfile)))); #List(Common.CapHolder(Profile)))));
-  # Get a list of capabilities back to all available soil profiles
-  # returned is a list of pairs of the geo coord and a list of capabilitites to the profiles at this geo coord
+  interface Stream {
+    nextProfiles @0 (maxCount :Int64 = 100) -> (profiles :List(Profile));
+    # receive next batch of profiles, if available, but maximum maxCount profiles at one time
+  }
 
-  #allLocations @4 Query -> (profiles :List(Common.Pair(Geo.LatLonCoord, List(CommonCapHolderProfile)))); #List(Common.CapHolder(Profile)))));
-  # Get a list of capabilities back to all locations and the available soil profiles there
-  # returned is a list of pairs of the geo coord and a list of capabilitites to the profiles at this geo coord
+  streamAllProfiles @3 Query -> (allProfiles :Stream);
+  # stream all profiles to client in batches
 }
 

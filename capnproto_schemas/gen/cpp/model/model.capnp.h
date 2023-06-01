@@ -1202,7 +1202,9 @@ public:
 #endif  // !CAPNP_LITE
 
   inline bool hasSoilProfile() const;
-  inline  ::mas::schema::soil::Profile::Reader getSoilProfile() const;
+#if !CAPNP_LITE
+  inline  ::mas::schema::soil::Profile::Client getSoilProfile() const;
+#endif  // !CAPNP_LITE
 
   inline bool hasMgmtEvents() const;
   inline  ::capnp::List< ::mas::schema::management::Event,  ::capnp::Kind::STRUCT>::Reader getMgmtEvents() const;
@@ -1259,11 +1261,13 @@ public:
 #endif  // !CAPNP_LITE
 
   inline bool hasSoilProfile();
-  inline  ::mas::schema::soil::Profile::Builder getSoilProfile();
-  inline void setSoilProfile( ::mas::schema::soil::Profile::Reader value);
-  inline  ::mas::schema::soil::Profile::Builder initSoilProfile();
+#if !CAPNP_LITE
+  inline  ::mas::schema::soil::Profile::Client getSoilProfile();
+  inline void setSoilProfile( ::mas::schema::soil::Profile::Client&& value);
+  inline void setSoilProfile( ::mas::schema::soil::Profile::Client& value);
   inline void adoptSoilProfile(::capnp::Orphan< ::mas::schema::soil::Profile>&& value);
   inline ::capnp::Orphan< ::mas::schema::soil::Profile> disownSoilProfile();
+#endif  // !CAPNP_LITE
 
   inline bool hasMgmtEvents();
   inline  ::capnp::List< ::mas::schema::management::Event,  ::capnp::Kind::STRUCT>::Builder getMgmtEvents();
@@ -1293,7 +1297,7 @@ public:
 
   inline  ::capnp::PipelineFor<RestInput> getRest();
   inline  ::mas::schema::climate::TimeSeries::Client getTimeSeries();
-  inline  ::mas::schema::soil::Profile::Pipeline getSoilProfile();
+  inline  ::mas::schema::soil::Profile::Client getSoilProfile();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -2998,31 +3002,30 @@ inline bool Env<RestInput>::Builder::hasSoilProfile() {
   return !_builder.getPointerField(
       ::capnp::bounded<2>() * ::capnp::POINTERS).isNull();
 }
+#if !CAPNP_LITE
 template <typename RestInput>
-inline  ::mas::schema::soil::Profile::Reader Env<RestInput>::Reader::getSoilProfile() const {
+inline  ::mas::schema::soil::Profile::Client Env<RestInput>::Reader::getSoilProfile() const {
   return ::capnp::_::PointerHelpers< ::mas::schema::soil::Profile>::get(_reader.getPointerField(
       ::capnp::bounded<2>() * ::capnp::POINTERS));
 }
 template <typename RestInput>
-inline  ::mas::schema::soil::Profile::Builder Env<RestInput>::Builder::getSoilProfile() {
+inline  ::mas::schema::soil::Profile::Client Env<RestInput>::Builder::getSoilProfile() {
   return ::capnp::_::PointerHelpers< ::mas::schema::soil::Profile>::get(_builder.getPointerField(
       ::capnp::bounded<2>() * ::capnp::POINTERS));
 }
-#if !CAPNP_LITE
 template <typename RestInput>
-inline  ::mas::schema::soil::Profile::Pipeline Env<RestInput>::Pipeline::getSoilProfile() {
-  return  ::mas::schema::soil::Profile::Pipeline(_typeless.getPointerField(2));
+inline  ::mas::schema::soil::Profile::Client Env<RestInput>::Pipeline::getSoilProfile() {
+  return  ::mas::schema::soil::Profile::Client(_typeless.getPointerField(2).asCap());
 }
-#endif  // !CAPNP_LITE
 template <typename RestInput>
-inline void Env<RestInput>::Builder::setSoilProfile( ::mas::schema::soil::Profile::Reader value) {
+inline void Env<RestInput>::Builder::setSoilProfile( ::mas::schema::soil::Profile::Client&& cap) {
   ::capnp::_::PointerHelpers< ::mas::schema::soil::Profile>::set(_builder.getPointerField(
-      ::capnp::bounded<2>() * ::capnp::POINTERS), value);
+      ::capnp::bounded<2>() * ::capnp::POINTERS), kj::mv(cap));
 }
 template <typename RestInput>
-inline  ::mas::schema::soil::Profile::Builder Env<RestInput>::Builder::initSoilProfile() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::soil::Profile>::init(_builder.getPointerField(
-      ::capnp::bounded<2>() * ::capnp::POINTERS));
+inline void Env<RestInput>::Builder::setSoilProfile( ::mas::schema::soil::Profile::Client& cap) {
+  ::capnp::_::PointerHelpers< ::mas::schema::soil::Profile>::set(_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS), cap);
 }
 template <typename RestInput>
 inline void Env<RestInput>::Builder::adoptSoilProfile(
@@ -3035,6 +3038,7 @@ inline ::capnp::Orphan< ::mas::schema::soil::Profile> Env<RestInput>::Builder::d
   return ::capnp::_::PointerHelpers< ::mas::schema::soil::Profile>::disown(_builder.getPointerField(
       ::capnp::bounded<2>() * ::capnp::POINTERS));
 }
+#endif  // !CAPNP_LITE
 
 template <typename RestInput>
 inline bool Env<RestInput>::Reader::hasMgmtEvents() const {

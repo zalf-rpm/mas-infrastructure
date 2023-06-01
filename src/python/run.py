@@ -41,7 +41,7 @@ import common.common as common
 import services.climate.csv_file_based as csv_based
 
 reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
-soil_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "soil.capnp"), imports=abs_imports)
+soil_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "soil.capnp"), imports=abs_imports)
 registry_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
 persistence_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "persistence.capnp"), imports=abs_imports)
 model_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "model.capnp"), imports=abs_imports)
@@ -126,6 +126,29 @@ def x():
 
     # del s
 
+
+def run_soil_service():
+    con_man = common.ConnectionManager()
+    sr = "capnp://HvQI253JOzL1nNVvf3IvHLl2HN6qjv86aGgFxXiT1ds=@10.10.24.24:42851/e20504a7-942f-4b04-82b6-cabea3a92f88"
+    service = con_man.try_connect(sr, cast_as=soil_capnp.Service)
+    try:
+        print(service.info().wait())
+    except Exception as e:
+        print(e)
+
+    ps = service.closestProfilesAt(coord={"lat": 52.52, "lon": 14.11},
+                                   query={"mandatory": ["soilType", "organicCarbon", "rawDensity"]}).wait()
+    print(ps)
+    p0 = ps.profiles[0]
+    print(p0.geoLocation().wait())
+    d = p0.data().wait()
+    print(d)
+    sr = p0.save().wait().sturdyRef
+    sr_str = common.sturdy_ref_str_from_sr(sr)
+    print("first profile sr:", sr_str)
+
+    # mineral fertilizers
+    print("bla")
 
 def run_crop_service():
     conMan = common.ConnectionManager()
@@ -483,7 +506,7 @@ def run_some():
     con_man = common.ConnectionManager()
 
     soil = con_man.try_connect("capnp://insecure@10.10.24.210:39341/9c15ad6f-0778-4bea-b91e-b015453188b9",
-                               cast_as=soil_data_capnp.Service)
+                               cast_as=soil_capnp.Service)
     ps = soil.profilesAt(coord={'lat': 50.02045903295569, 'lon': 8.449222632820296},
                          query={"mandatory": ["soilType", "organicCarbon", "rawDensity"]}).wait()
     print(ps)
@@ -522,11 +545,13 @@ def main():
     common.update_config(config, sys.argv, print_config=True, allow_new_keys=True)
 
     #run_resolver()
-    hb_thread = run_resolver_registrar()
+    #hb_thread = run_resolver_registrar()
 
-    while True:
-        print(".", end="")
-        time.sleep(1)
+    #while True:
+    #    print(".", end="")
+    #    time.sleep(1)
+
+    run_soil_service()
 
     # run_channel()
 

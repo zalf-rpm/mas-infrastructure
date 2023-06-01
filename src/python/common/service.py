@@ -49,8 +49,6 @@ reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=ab
 storage_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "storage.capnp"), imports=abs_imports)
 
 
-# ------------------------------------------------------------------------------
-
 class AdministrableService:
 
     def __init__(self, admin=None):
@@ -68,8 +66,6 @@ class AdministrableService:
         if self.admin:
             self.admin.heartbeat_context(None)
 
-
-# ------------------------------------------------------------------------------
 
 class Admin(service_capnp.Admin.Server, common.Identifiable):
 
@@ -135,8 +131,6 @@ class Admin(service_capnp.Admin.Server, common.Identifiable):
                 s.name = ni.name
                 s.description = ni.description
 
-
-# ------------------------------------------------------------------------------
 
 async def async_init_and_run_service(name_to_service, host=None, port=0, serve_bootstrap=True, restorer=None,
                                      conn_man=None, name_to_service_srs={}, run_before_enter_eventloop=None,
@@ -222,8 +216,6 @@ async def async_init_and_run_service(name_to_service, host=None, port=0, serve_b
             run_before_enter_eventloop()
         await conn_man.manage_forever()
 
-
-# ------------------------------------------------------------------------------
 
 def init_and_run_service(name_to_service, host="*", port=None, serve_bootstrap=True, restorer=None,
                          conn_man=None, name_to_service_srs={}, run_before_enter_eventloop=None,

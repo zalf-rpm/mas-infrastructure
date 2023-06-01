@@ -44,8 +44,6 @@ using namespace std;
 //using namespace Tools;
 using namespace mas::infrastructure::common;
 
-//-----------------------------------------------------------------------------
-
 Identifiable::Identifiable(kj::StringPtr id, kj::StringPtr name, kj::StringPtr description) {
   if(id == nullptr) _id = kj::str(sole::uuid4().str().c_str());
   if(name == nullptr) _name = kj::str(_id);
@@ -58,8 +56,6 @@ kj::Promise<void> Identifiable::info(InfoContext context) {
   rs.setDescription(_description);
   return kj::READY_NOW;
 }
-
-//-----------------------------------------------------------------------------
 
 // CallbackImpl::CallbackImpl(kj::Function<void()> callback, 
 //                            bool execCallbackOnDel,
@@ -78,8 +74,6 @@ kj::Promise<void> Identifiable::info(InfoContext context) {
 //   return kj::READY_NOW;
 // }
 
-//-----------------------------------------------------------------------------
-
 // Action::Action(kj::Function<kj::Promise<void>()> action, 
 //                bool execActionOnDel,
 //                kj::StringPtr id)
@@ -96,8 +90,6 @@ kj::Promise<void> Identifiable::info(InfoContext context) {
 //   alreadyCalled = true;
 //   return action();
 // }
-
-//-----------------------------------------------------------------------------
 
 // CapHolderImpl::CapHolderImpl(capnp::Capability::Client cap,
 //                              kj::StringPtr sturdyRef,
@@ -136,8 +128,6 @@ kj::Promise<void> Identifiable::info(InfoContext context) {
 //  context.getResults().setSturdyRef(sturdyRef);
 //  return kj::READY_NOW;
 //}
-
-//-----------------------------------------------------------------------------
 
 // CapHolderListImpl::CapHolderListImpl(kj::Vector<capnp::Capability::Client>&& caps,
 //                                      kj::StringPtr sturdyRef,
@@ -188,8 +178,6 @@ kj::Promise<void> Identifiable::info(InfoContext context) {
 //  context.getResults().setSturdyRef(sturdyRef);
 //  return kj::READY_NOW;
 //}
-
-//-----------------------------------------------------------------------------
 
 kj::Maybe<capnp::AnyPointer::Reader> mas::infrastructure::common::getIPAttr(mas::schema::fbp::IP::Reader ip, kj::StringPtr attrName)
 {
@@ -249,8 +237,6 @@ mas::infrastructure::common::copyAndSetIPAttrs(mas::schema::fbp::IP::Reader oldI
   return nullptr;
 }
 
-//-----------------------------------------------------------------------------
-
 kj::Vector<kj::String> mas::infrastructure::common::splitString(kj::StringPtr s, kj::StringPtr splitElements) {
   kj::Vector<kj::String> result;
   while(s.size() > 0) {
@@ -263,5 +249,6 @@ kj::Vector<kj::String> mas::infrastructure::common::splitString(kj::StringPtr s,
   }
 	return kj::mv(result);
 }
+
 
 

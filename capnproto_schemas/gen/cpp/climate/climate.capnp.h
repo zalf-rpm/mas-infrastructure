@@ -114,6 +114,9 @@ enum class Element_e35760b4db5ab564: uint16_t {
   O3,
   ET0,
   DEWPOINT_TEMP,
+  SPECIFIC_HUMIDITY,
+  SNOWFALL_FLUX,
+  SURFACE_DOWNWELLING_LONGWAVE_RADIATION,
 };
 CAPNP_DECLARE_ENUM(Element, e35760b4db5ab564);
 CAPNP_DECLARE_SCHEMA(85ba7385f313fe19);
@@ -1383,6 +1386,8 @@ public:
 
   inline  ::uint16_t getP() const;
 
+  inline  ::uint16_t getF() const;
+
 private:
   ::capnp::_::StructReader _reader;
   template <typename, ::capnp::Kind>
@@ -1419,6 +1424,9 @@ public:
 
   inline  ::uint16_t getP();
   inline void setP( ::uint16_t value);
+
+  inline  ::uint16_t getF();
+  inline void setF( ::uint16_t value);
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -7263,6 +7271,20 @@ inline  ::uint16_t EnsembleMember::Builder::getP() {
 inline void EnsembleMember::Builder::setP( ::uint16_t value) {
   _builder.setDataField< ::uint16_t>(
       ::capnp::bounded<2>() * ::capnp::ELEMENTS, value);
+}
+
+inline  ::uint16_t EnsembleMember::Reader::getF() const {
+  return _reader.getDataField< ::uint16_t>(
+      ::capnp::bounded<3>() * ::capnp::ELEMENTS);
+}
+
+inline  ::uint16_t EnsembleMember::Builder::getF() {
+  return _builder.getDataField< ::uint16_t>(
+      ::capnp::bounded<3>() * ::capnp::ELEMENTS);
+}
+inline void EnsembleMember::Builder::setF( ::uint16_t value) {
+  _builder.setDataField< ::uint16_t>(
+      ::capnp::bounded<3>() * ::capnp::ELEMENTS, value);
 }
 
 inline bool Metadata::Reader::hasEntries() const {

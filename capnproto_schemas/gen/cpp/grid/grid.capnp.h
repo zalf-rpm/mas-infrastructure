@@ -44,8 +44,10 @@ enum class Aggregation_a5ecdc7767a6b301: uint16_t {
 CAPNP_DECLARE_ENUM(Aggregation, a5ecdc7767a6b301);
 CAPNP_DECLARE_SCHEMA(e42973b29661e3c6);
 CAPNP_DECLARE_SCHEMA(fe2e0dfae573d9d0);
+CAPNP_DECLARE_SCHEMA(a9b6fbdd27e7577b);
 CAPNP_DECLARE_SCHEMA(b9e2d85d086206ff);
 CAPNP_DECLARE_SCHEMA(ac444617ef333a1d);
+CAPNP_DECLARE_SCHEMA(b55ccf1b9ef18d64);
 CAPNP_DECLARE_SCHEMA(d639518280cb55d3);
 CAPNP_DECLARE_SCHEMA(e9b0c7718f68f6bb);
 CAPNP_DECLARE_SCHEMA(8e536f6e598b2579);
@@ -63,6 +65,8 @@ CAPNP_DECLARE_SCHEMA(f37338992466bd97);
 CAPNP_DECLARE_SCHEMA(e57fce57d3443377);
 CAPNP_DECLARE_SCHEMA(d9add1b3fdcfdbba);
 CAPNP_DECLARE_SCHEMA(9b8dd52b78a7ebd2);
+CAPNP_DECLARE_SCHEMA(bb4e4368bb6a6748);
+CAPNP_DECLARE_SCHEMA(d170e76dbd9fc4fb);
 
 }  // namespace schemas
 }  // namespace capnp
@@ -82,8 +86,10 @@ struct Grid {
 #endif  // !CAPNP_LITE
 
   struct Value;
+  struct Resolution;
   struct RowCol;
   struct AggregationPart;
+  struct Location;
   struct Callback;
   struct ClosestValueAtParams;
   struct ClosestValueAtResults;
@@ -99,6 +105,8 @@ struct Grid {
   struct LatLonBoundsResults;
   struct StreamCellsParams;
   struct StreamCellsResults;
+  struct UnitParams;
+  struct UnitResults;
 
   #if !CAPNP_LITE
   struct _capnpPrivate {
@@ -123,6 +131,25 @@ struct Grid::Value {
 
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(fe2e0dfae573d9d0, 2, 0)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct Grid::Resolution {
+  Resolution() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+  enum Which: uint16_t {
+    METER,
+    DEGREE,
+  };
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(a9b6fbdd27e7577b, 2, 0)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
@@ -159,6 +186,21 @@ struct Grid::AggregationPart {
   };
 };
 
+struct Grid::Location {
+  Location() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(b55ccf1b9ef18d64, 0, 3)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
 struct Grid::Callback {
   Callback() = delete;
 
@@ -186,7 +228,7 @@ struct Grid::Callback::SendCellsParams {
   class Pipeline;
 
   struct _capnpPrivate {
-    CAPNP_DECLARE_STRUCT_HEADER(e9b0c7718f68f6bb, 0, 1)
+    CAPNP_DECLARE_STRUCT_HEADER(e9b0c7718f68f6bb, 1, 0)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
@@ -201,7 +243,7 @@ struct Grid::Callback::SendCellsResults {
   class Pipeline;
 
   struct _capnpPrivate {
-    CAPNP_DECLARE_STRUCT_HEADER(8e536f6e598b2579, 0, 0)
+    CAPNP_DECLARE_STRUCT_HEADER(8e536f6e598b2579, 0, 1)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
@@ -216,7 +258,7 @@ struct Grid::ClosestValueAtParams {
   class Pipeline;
 
   struct _capnpPrivate {
-    CAPNP_DECLARE_STRUCT_HEADER(eb7e6f1c610c079a, 2, 1)
+    CAPNP_DECLARE_STRUCT_HEADER(eb7e6f1c610c079a, 1, 2)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
@@ -261,7 +303,7 @@ struct Grid::ResolutionResults {
   class Pipeline;
 
   struct _capnpPrivate {
-    CAPNP_DECLARE_STRUCT_HEADER(8cd7ba490778c79a, 1, 0)
+    CAPNP_DECLARE_STRUCT_HEADER(8cd7ba490778c79a, 0, 1)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
@@ -336,7 +378,7 @@ struct Grid::ValueAtParams {
   class Pipeline;
 
   struct _capnpPrivate {
-    CAPNP_DECLARE_STRUCT_HEADER(948ff2bdd6e6972f, 4, 0)
+    CAPNP_DECLARE_STRUCT_HEADER(948ff2bdd6e6972f, 3, 1)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
@@ -396,7 +438,7 @@ struct Grid::StreamCellsParams {
   class Pipeline;
 
   struct _capnpPrivate {
-    CAPNP_DECLARE_STRUCT_HEADER(d9add1b3fdcfdbba, 1, 1)
+    CAPNP_DECLARE_STRUCT_HEADER(d9add1b3fdcfdbba, 0, 2)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
@@ -411,7 +453,37 @@ struct Grid::StreamCellsResults {
   class Pipeline;
 
   struct _capnpPrivate {
-    CAPNP_DECLARE_STRUCT_HEADER(9b8dd52b78a7ebd2, 0, 0)
+    CAPNP_DECLARE_STRUCT_HEADER(9b8dd52b78a7ebd2, 0, 1)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct Grid::UnitParams {
+  UnitParams() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(bb4e4368bb6a6748, 0, 0)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct Grid::UnitResults {
+  UnitResults() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(d170e76dbd9fc4fb, 0, 1)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
@@ -454,6 +526,8 @@ public:
   ::capnp::Request< ::mas::schema::grid::Grid::LatLonBoundsParams,  ::mas::schema::grid::Grid::LatLonBoundsResults> latLonBoundsRequest(
       ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
   ::capnp::Request< ::mas::schema::grid::Grid::StreamCellsParams,  ::mas::schema::grid::Grid::StreamCellsResults> streamCellsRequest(
+      ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
+  ::capnp::Request< ::mas::schema::grid::Grid::UnitParams,  ::mas::schema::grid::Grid::UnitResults> unitRequest(
       ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
 
 protected:
@@ -501,6 +575,10 @@ protected:
   typedef  ::mas::schema::grid::Grid::StreamCellsResults StreamCellsResults;
   typedef ::capnp::CallContext<StreamCellsParams, StreamCellsResults> StreamCellsContext;
   virtual ::kj::Promise<void> streamCells(StreamCellsContext context);
+  typedef  ::mas::schema::grid::Grid::UnitParams UnitParams;
+  typedef  ::mas::schema::grid::Grid::UnitResults UnitResults;
+  typedef ::capnp::CallContext<UnitParams, UnitResults> UnitContext;
+  virtual ::kj::Promise<void> unit(UnitContext context);
 
   inline  ::mas::schema::grid::Grid::Client thisCap() {
     return ::capnp::Capability::Server::thisCap()
@@ -601,6 +679,93 @@ private:
 class Grid::Value::Pipeline {
 public:
   typedef Value Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+class Grid::Resolution::Reader {
+public:
+  typedef Resolution Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  inline Which which() const;
+  inline bool isMeter() const;
+  inline  ::int64_t getMeter() const;
+
+  inline bool isDegree() const;
+  inline double getDegree() const;
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class Grid::Resolution::Builder {
+public:
+  typedef Resolution Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline Which which();
+  inline bool isMeter();
+  inline  ::int64_t getMeter();
+  inline void setMeter( ::int64_t value);
+
+  inline bool isDegree();
+  inline double getDegree();
+  inline void setDegree(double value);
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class Grid::Resolution::Pipeline {
+public:
+  typedef Resolution Pipelines;
 
   inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
@@ -798,6 +963,110 @@ private:
 };
 #endif  // !CAPNP_LITE
 
+class Grid::Location::Reader {
+public:
+  typedef Location Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  inline bool hasLatLonCoord() const;
+  inline  ::mas::schema::geo::LatLonCoord::Reader getLatLonCoord() const;
+
+  inline bool hasRowCol() const;
+  inline  ::mas::schema::grid::Grid::RowCol::Reader getRowCol() const;
+
+  inline bool hasValue() const;
+  inline  ::mas::schema::grid::Grid::Value::Reader getValue() const;
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class Grid::Location::Builder {
+public:
+  typedef Location Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline bool hasLatLonCoord();
+  inline  ::mas::schema::geo::LatLonCoord::Builder getLatLonCoord();
+  inline void setLatLonCoord( ::mas::schema::geo::LatLonCoord::Reader value);
+  inline  ::mas::schema::geo::LatLonCoord::Builder initLatLonCoord();
+  inline void adoptLatLonCoord(::capnp::Orphan< ::mas::schema::geo::LatLonCoord>&& value);
+  inline ::capnp::Orphan< ::mas::schema::geo::LatLonCoord> disownLatLonCoord();
+
+  inline bool hasRowCol();
+  inline  ::mas::schema::grid::Grid::RowCol::Builder getRowCol();
+  inline void setRowCol( ::mas::schema::grid::Grid::RowCol::Reader value);
+  inline  ::mas::schema::grid::Grid::RowCol::Builder initRowCol();
+  inline void adoptRowCol(::capnp::Orphan< ::mas::schema::grid::Grid::RowCol>&& value);
+  inline ::capnp::Orphan< ::mas::schema::grid::Grid::RowCol> disownRowCol();
+
+  inline bool hasValue();
+  inline  ::mas::schema::grid::Grid::Value::Builder getValue();
+  inline void setValue( ::mas::schema::grid::Grid::Value::Reader value);
+  inline  ::mas::schema::grid::Grid::Value::Builder initValue();
+  inline void adoptValue(::capnp::Orphan< ::mas::schema::grid::Grid::Value>&& value);
+  inline ::capnp::Orphan< ::mas::schema::grid::Grid::Value> disownValue();
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class Grid::Location::Pipeline {
+public:
+  typedef Location Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+  inline  ::mas::schema::geo::LatLonCoord::Pipeline getLatLonCoord();
+  inline  ::mas::schema::grid::Grid::RowCol::Pipeline getRowCol();
+  inline  ::mas::schema::grid::Grid::Value::Pipeline getValue();
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
 #if !CAPNP_LITE
 class Grid::Callback::Client
     : public virtual ::capnp::Capability::Client {
@@ -868,8 +1137,7 @@ public:
   }
 #endif  // !CAPNP_LITE
 
-  inline bool hasCells() const;
-  inline  ::capnp::List< ::mas::schema::grid::Grid::RowCol,  ::capnp::Kind::STRUCT>::Reader getCells() const;
+  inline  ::int64_t getMaxCount() const;
 
 private:
   ::capnp::_::StructReader _reader;
@@ -899,12 +1167,8 @@ public:
   inline ::kj::StringTree toString() const { return asReader().toString(); }
 #endif  // !CAPNP_LITE
 
-  inline bool hasCells();
-  inline  ::capnp::List< ::mas::schema::grid::Grid::RowCol,  ::capnp::Kind::STRUCT>::Builder getCells();
-  inline void setCells( ::capnp::List< ::mas::schema::grid::Grid::RowCol,  ::capnp::Kind::STRUCT>::Reader value);
-  inline  ::capnp::List< ::mas::schema::grid::Grid::RowCol,  ::capnp::Kind::STRUCT>::Builder initCells(unsigned int size);
-  inline void adoptCells(::capnp::Orphan< ::capnp::List< ::mas::schema::grid::Grid::RowCol,  ::capnp::Kind::STRUCT>>&& value);
-  inline ::capnp::Orphan< ::capnp::List< ::mas::schema::grid::Grid::RowCol,  ::capnp::Kind::STRUCT>> disownCells();
+  inline  ::int64_t getMaxCount();
+  inline void setMaxCount( ::int64_t value);
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -949,6 +1213,9 @@ public:
   }
 #endif  // !CAPNP_LITE
 
+  inline bool hasLocations() const;
+  inline  ::capnp::List< ::mas::schema::grid::Grid::Location,  ::capnp::Kind::STRUCT>::Reader getLocations() const;
+
 private:
   ::capnp::_::StructReader _reader;
   template <typename, ::capnp::Kind>
@@ -976,6 +1243,13 @@ public:
 #if !CAPNP_LITE
   inline ::kj::StringTree toString() const { return asReader().toString(); }
 #endif  // !CAPNP_LITE
+
+  inline bool hasLocations();
+  inline  ::capnp::List< ::mas::schema::grid::Grid::Location,  ::capnp::Kind::STRUCT>::Builder getLocations();
+  inline void setLocations( ::capnp::List< ::mas::schema::grid::Grid::Location,  ::capnp::Kind::STRUCT>::Reader value);
+  inline  ::capnp::List< ::mas::schema::grid::Grid::Location,  ::capnp::Kind::STRUCT>::Builder initLocations(unsigned int size);
+  inline void adoptLocations(::capnp::Orphan< ::capnp::List< ::mas::schema::grid::Grid::Location,  ::capnp::Kind::STRUCT>>&& value);
+  inline ::capnp::Orphan< ::capnp::List< ::mas::schema::grid::Grid::Location,  ::capnp::Kind::STRUCT>> disownLocations();
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -1025,7 +1299,8 @@ public:
 
   inline bool getIgnoreNoData() const;
 
-  inline  ::uint64_t getResolution() const;
+  inline bool hasResolution() const;
+  inline  ::mas::schema::grid::Grid::Resolution::Reader getResolution() const;
 
   inline  ::mas::schema::grid::Aggregation getAgg() const;
 
@@ -1071,8 +1346,12 @@ public:
   inline bool getIgnoreNoData();
   inline void setIgnoreNoData(bool value);
 
-  inline  ::uint64_t getResolution();
-  inline void setResolution( ::uint64_t value);
+  inline bool hasResolution();
+  inline  ::mas::schema::grid::Grid::Resolution::Builder getResolution();
+  inline void setResolution( ::mas::schema::grid::Grid::Resolution::Reader value);
+  inline  ::mas::schema::grid::Grid::Resolution::Builder initResolution();
+  inline void adoptResolution(::capnp::Orphan< ::mas::schema::grid::Grid::Resolution>&& value);
+  inline ::capnp::Orphan< ::mas::schema::grid::Grid::Resolution> disownResolution();
 
   inline  ::mas::schema::grid::Aggregation getAgg();
   inline void setAgg( ::mas::schema::grid::Aggregation value);
@@ -1102,6 +1381,7 @@ public:
       : _typeless(kj::mv(typeless)) {}
 
   inline  ::mas::schema::geo::LatLonCoord::Pipeline getLatlonCoord();
+  inline  ::mas::schema::grid::Grid::Resolution::Pipeline getResolution();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -1312,7 +1592,8 @@ public:
   }
 #endif  // !CAPNP_LITE
 
-  inline  ::uint64_t getRes() const;
+  inline bool hasRes() const;
+  inline  ::mas::schema::grid::Grid::Resolution::Reader getRes() const;
 
 private:
   ::capnp::_::StructReader _reader;
@@ -1342,8 +1623,12 @@ public:
   inline ::kj::StringTree toString() const { return asReader().toString(); }
 #endif  // !CAPNP_LITE
 
-  inline  ::uint64_t getRes();
-  inline void setRes( ::uint64_t value);
+  inline bool hasRes();
+  inline  ::mas::schema::grid::Grid::Resolution::Builder getRes();
+  inline void setRes( ::mas::schema::grid::Grid::Resolution::Reader value);
+  inline  ::mas::schema::grid::Grid::Resolution::Builder initRes();
+  inline void adoptRes(::capnp::Orphan< ::mas::schema::grid::Grid::Resolution>&& value);
+  inline ::capnp::Orphan< ::mas::schema::grid::Grid::Resolution> disownRes();
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -1363,6 +1648,7 @@ public:
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
       : _typeless(kj::mv(typeless)) {}
 
+  inline  ::mas::schema::grid::Grid::Resolution::Pipeline getRes();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -1697,7 +1983,8 @@ public:
 
   inline  ::uint64_t getCol() const;
 
-  inline  ::uint64_t getResolution() const;
+  inline bool hasResolution() const;
+  inline  ::mas::schema::grid::Grid::Resolution::Reader getResolution() const;
 
   inline  ::mas::schema::grid::Aggregation getAgg() const;
 
@@ -1737,8 +2024,12 @@ public:
   inline  ::uint64_t getCol();
   inline void setCol( ::uint64_t value);
 
-  inline  ::uint64_t getResolution();
-  inline void setResolution( ::uint64_t value);
+  inline bool hasResolution();
+  inline  ::mas::schema::grid::Grid::Resolution::Builder getResolution();
+  inline void setResolution( ::mas::schema::grid::Grid::Resolution::Reader value);
+  inline  ::mas::schema::grid::Grid::Resolution::Builder initResolution();
+  inline void adoptResolution(::capnp::Orphan< ::mas::schema::grid::Grid::Resolution>&& value);
+  inline ::capnp::Orphan< ::mas::schema::grid::Grid::Resolution> disownResolution();
 
   inline  ::mas::schema::grid::Aggregation getAgg();
   inline void setAgg( ::mas::schema::grid::Aggregation value);
@@ -1764,6 +2055,7 @@ public:
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
       : _typeless(kj::mv(typeless)) {}
 
+  inline  ::mas::schema::grid::Grid::Resolution::Pipeline getResolution();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -2072,12 +2364,11 @@ public:
   }
 #endif  // !CAPNP_LITE
 
-  inline bool hasCallback() const;
-#if !CAPNP_LITE
-  inline  ::mas::schema::grid::Grid::Callback::Client getCallback() const;
-#endif  // !CAPNP_LITE
+  inline bool hasTopLeft() const;
+  inline  ::mas::schema::grid::Grid::RowCol::Reader getTopLeft() const;
 
-  inline  ::uint64_t getMaxNoOfCellsPerSend() const;
+  inline bool hasBottomRight() const;
+  inline  ::mas::schema::grid::Grid::RowCol::Reader getBottomRight() const;
 
 private:
   ::capnp::_::StructReader _reader;
@@ -2107,17 +2398,19 @@ public:
   inline ::kj::StringTree toString() const { return asReader().toString(); }
 #endif  // !CAPNP_LITE
 
-  inline bool hasCallback();
-#if !CAPNP_LITE
-  inline  ::mas::schema::grid::Grid::Callback::Client getCallback();
-  inline void setCallback( ::mas::schema::grid::Grid::Callback::Client&& value);
-  inline void setCallback( ::mas::schema::grid::Grid::Callback::Client& value);
-  inline void adoptCallback(::capnp::Orphan< ::mas::schema::grid::Grid::Callback>&& value);
-  inline ::capnp::Orphan< ::mas::schema::grid::Grid::Callback> disownCallback();
-#endif  // !CAPNP_LITE
+  inline bool hasTopLeft();
+  inline  ::mas::schema::grid::Grid::RowCol::Builder getTopLeft();
+  inline void setTopLeft( ::mas::schema::grid::Grid::RowCol::Reader value);
+  inline  ::mas::schema::grid::Grid::RowCol::Builder initTopLeft();
+  inline void adoptTopLeft(::capnp::Orphan< ::mas::schema::grid::Grid::RowCol>&& value);
+  inline ::capnp::Orphan< ::mas::schema::grid::Grid::RowCol> disownTopLeft();
 
-  inline  ::uint64_t getMaxNoOfCellsPerSend();
-  inline void setMaxNoOfCellsPerSend( ::uint64_t value);
+  inline bool hasBottomRight();
+  inline  ::mas::schema::grid::Grid::RowCol::Builder getBottomRight();
+  inline void setBottomRight( ::mas::schema::grid::Grid::RowCol::Reader value);
+  inline  ::mas::schema::grid::Grid::RowCol::Builder initBottomRight();
+  inline void adoptBottomRight(::capnp::Orphan< ::mas::schema::grid::Grid::RowCol>&& value);
+  inline ::capnp::Orphan< ::mas::schema::grid::Grid::RowCol> disownBottomRight();
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -2137,7 +2430,8 @@ public:
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
       : _typeless(kj::mv(typeless)) {}
 
-  inline  ::mas::schema::grid::Grid::Callback::Client getCallback();
+  inline  ::mas::schema::grid::Grid::RowCol::Pipeline getTopLeft();
+  inline  ::mas::schema::grid::Grid::RowCol::Pipeline getBottomRight();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -2161,6 +2455,11 @@ public:
   inline ::kj::StringTree toString() const {
     return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
   }
+#endif  // !CAPNP_LITE
+
+  inline bool hasCallback() const;
+#if !CAPNP_LITE
+  inline  ::mas::schema::grid::Grid::Callback::Client getCallback() const;
 #endif  // !CAPNP_LITE
 
 private:
@@ -2191,6 +2490,15 @@ public:
   inline ::kj::StringTree toString() const { return asReader().toString(); }
 #endif  // !CAPNP_LITE
 
+  inline bool hasCallback();
+#if !CAPNP_LITE
+  inline  ::mas::schema::grid::Grid::Callback::Client getCallback();
+  inline void setCallback( ::mas::schema::grid::Grid::Callback::Client&& value);
+  inline void setCallback( ::mas::schema::grid::Grid::Callback::Client& value);
+  inline void adoptCallback(::capnp::Orphan< ::mas::schema::grid::Grid::Callback>&& value);
+  inline ::capnp::Orphan< ::mas::schema::grid::Grid::Callback> disownCallback();
+#endif  // !CAPNP_LITE
+
 private:
   ::capnp::_::StructBuilder _builder;
   template <typename, ::capnp::Kind>
@@ -2204,6 +2512,159 @@ private:
 class Grid::StreamCellsResults::Pipeline {
 public:
   typedef StreamCellsResults Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+  inline  ::mas::schema::grid::Grid::Callback::Client getCallback();
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+class Grid::UnitParams::Reader {
+public:
+  typedef UnitParams Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class Grid::UnitParams::Builder {
+public:
+  typedef UnitParams Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class Grid::UnitParams::Pipeline {
+public:
+  typedef UnitParams Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+class Grid::UnitResults::Reader {
+public:
+  typedef UnitResults Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  inline bool hasUnit() const;
+  inline  ::capnp::Text::Reader getUnit() const;
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class Grid::UnitResults::Builder {
+public:
+  typedef UnitResults Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline bool hasUnit();
+  inline  ::capnp::Text::Builder getUnit();
+  inline void setUnit( ::capnp::Text::Reader value);
+  inline  ::capnp::Text::Builder initUnit(unsigned int size);
+  inline void adoptUnit(::capnp::Orphan< ::capnp::Text>&& value);
+  inline ::capnp::Orphan< ::capnp::Text> disownUnit();
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class Grid::UnitResults::Pipeline {
+public:
+  typedef UnitResults Pipelines;
 
   inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
@@ -2356,6 +2817,67 @@ inline void Grid::Value::Builder::setNo(bool value) {
       ::capnp::bounded<0>() * ::capnp::ELEMENTS, value);
 }
 
+inline  ::mas::schema::grid::Grid::Resolution::Which Grid::Resolution::Reader::which() const {
+  return _reader.getDataField<Which>(
+      ::capnp::bounded<4>() * ::capnp::ELEMENTS);
+}
+inline  ::mas::schema::grid::Grid::Resolution::Which Grid::Resolution::Builder::which() {
+  return _builder.getDataField<Which>(
+      ::capnp::bounded<4>() * ::capnp::ELEMENTS);
+}
+
+inline bool Grid::Resolution::Reader::isMeter() const {
+  return which() == Grid::Resolution::METER;
+}
+inline bool Grid::Resolution::Builder::isMeter() {
+  return which() == Grid::Resolution::METER;
+}
+inline  ::int64_t Grid::Resolution::Reader::getMeter() const {
+  KJ_IREQUIRE((which() == Grid::Resolution::METER),
+              "Must check which() before get()ing a union member.");
+  return _reader.getDataField< ::int64_t>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+
+inline  ::int64_t Grid::Resolution::Builder::getMeter() {
+  KJ_IREQUIRE((which() == Grid::Resolution::METER),
+              "Must check which() before get()ing a union member.");
+  return _builder.getDataField< ::int64_t>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+inline void Grid::Resolution::Builder::setMeter( ::int64_t value) {
+  _builder.setDataField<Grid::Resolution::Which>(
+      ::capnp::bounded<4>() * ::capnp::ELEMENTS, Grid::Resolution::METER);
+  _builder.setDataField< ::int64_t>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, value);
+}
+
+inline bool Grid::Resolution::Reader::isDegree() const {
+  return which() == Grid::Resolution::DEGREE;
+}
+inline bool Grid::Resolution::Builder::isDegree() {
+  return which() == Grid::Resolution::DEGREE;
+}
+inline double Grid::Resolution::Reader::getDegree() const {
+  KJ_IREQUIRE((which() == Grid::Resolution::DEGREE),
+              "Must check which() before get()ing a union member.");
+  return _reader.getDataField<double>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+
+inline double Grid::Resolution::Builder::getDegree() {
+  KJ_IREQUIRE((which() == Grid::Resolution::DEGREE),
+              "Must check which() before get()ing a union member.");
+  return _builder.getDataField<double>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+inline void Grid::Resolution::Builder::setDegree(double value) {
+  _builder.setDataField<Grid::Resolution::Which>(
+      ::capnp::bounded<4>() * ::capnp::ELEMENTS, Grid::Resolution::DEGREE);
+  _builder.setDataField<double>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, value);
+}
+
 inline  ::uint64_t Grid::RowCol::Reader::getRow() const {
   return _reader.getDataField< ::uint64_t>(
       ::capnp::bounded<0>() * ::capnp::ELEMENTS);
@@ -2490,6 +3012,123 @@ inline void Grid::AggregationPart::Builder::setIValue(double value) {
       ::capnp::bounded<1>() * ::capnp::ELEMENTS, value);
 }
 
+inline bool Grid::Location::Reader::hasLatLonCoord() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline bool Grid::Location::Builder::hasLatLonCoord() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline  ::mas::schema::geo::LatLonCoord::Reader Grid::Location::Reader::getLatLonCoord() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::get(_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline  ::mas::schema::geo::LatLonCoord::Builder Grid::Location::Builder::getLatLonCoord() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::get(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+#if !CAPNP_LITE
+inline  ::mas::schema::geo::LatLonCoord::Pipeline Grid::Location::Pipeline::getLatLonCoord() {
+  return  ::mas::schema::geo::LatLonCoord::Pipeline(_typeless.getPointerField(0));
+}
+#endif  // !CAPNP_LITE
+inline void Grid::Location::Builder::setLatLonCoord( ::mas::schema::geo::LatLonCoord::Reader value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::set(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), value);
+}
+inline  ::mas::schema::geo::LatLonCoord::Builder Grid::Location::Builder::initLatLonCoord() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::init(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline void Grid::Location::Builder::adoptLatLonCoord(
+    ::capnp::Orphan< ::mas::schema::geo::LatLonCoord>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::adopt(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::mas::schema::geo::LatLonCoord> Grid::Location::Builder::disownLatLonCoord() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::geo::LatLonCoord>::disown(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+
+inline bool Grid::Location::Reader::hasRowCol() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
+}
+inline bool Grid::Location::Builder::hasRowCol() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
+}
+inline  ::mas::schema::grid::Grid::RowCol::Reader Grid::Location::Reader::getRowCol() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::RowCol>::get(_reader.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+inline  ::mas::schema::grid::Grid::RowCol::Builder Grid::Location::Builder::getRowCol() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::RowCol>::get(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+#if !CAPNP_LITE
+inline  ::mas::schema::grid::Grid::RowCol::Pipeline Grid::Location::Pipeline::getRowCol() {
+  return  ::mas::schema::grid::Grid::RowCol::Pipeline(_typeless.getPointerField(1));
+}
+#endif  // !CAPNP_LITE
+inline void Grid::Location::Builder::setRowCol( ::mas::schema::grid::Grid::RowCol::Reader value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::RowCol>::set(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS), value);
+}
+inline  ::mas::schema::grid::Grid::RowCol::Builder Grid::Location::Builder::initRowCol() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::RowCol>::init(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+inline void Grid::Location::Builder::adoptRowCol(
+    ::capnp::Orphan< ::mas::schema::grid::Grid::RowCol>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::RowCol>::adopt(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::mas::schema::grid::Grid::RowCol> Grid::Location::Builder::disownRowCol() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::RowCol>::disown(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+
+inline bool Grid::Location::Reader::hasValue() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS).isNull();
+}
+inline bool Grid::Location::Builder::hasValue() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS).isNull();
+}
+inline  ::mas::schema::grid::Grid::Value::Reader Grid::Location::Reader::getValue() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::Value>::get(_reader.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS));
+}
+inline  ::mas::schema::grid::Grid::Value::Builder Grid::Location::Builder::getValue() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::Value>::get(_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS));
+}
+#if !CAPNP_LITE
+inline  ::mas::schema::grid::Grid::Value::Pipeline Grid::Location::Pipeline::getValue() {
+  return  ::mas::schema::grid::Grid::Value::Pipeline(_typeless.getPointerField(2));
+}
+#endif  // !CAPNP_LITE
+inline void Grid::Location::Builder::setValue( ::mas::schema::grid::Grid::Value::Reader value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::Value>::set(_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS), value);
+}
+inline  ::mas::schema::grid::Grid::Value::Builder Grid::Location::Builder::initValue() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::Value>::init(_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS));
+}
+inline void Grid::Location::Builder::adoptValue(
+    ::capnp::Orphan< ::mas::schema::grid::Grid::Value>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::Value>::adopt(_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::mas::schema::grid::Grid::Value> Grid::Location::Builder::disownValue() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::Value>::disown(_builder.getPointerField(
+      ::capnp::bounded<2>() * ::capnp::POINTERS));
+}
+
 #if !CAPNP_LITE
 inline Grid::Callback::Client::Client(decltype(nullptr))
     : ::capnp::Capability::Client(nullptr) {}
@@ -2514,37 +3153,51 @@ inline  ::mas::schema::grid::Grid::Callback::Client& Grid::Callback::Client::ope
 }
 
 #endif  // !CAPNP_LITE
-inline bool Grid::Callback::SendCellsParams::Reader::hasCells() const {
+inline  ::int64_t Grid::Callback::SendCellsParams::Reader::getMaxCount() const {
+  return _reader.getDataField< ::int64_t>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+
+inline  ::int64_t Grid::Callback::SendCellsParams::Builder::getMaxCount() {
+  return _builder.getDataField< ::int64_t>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+inline void Grid::Callback::SendCellsParams::Builder::setMaxCount( ::int64_t value) {
+  _builder.setDataField< ::int64_t>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, value);
+}
+
+inline bool Grid::Callback::SendCellsResults::Reader::hasLocations() const {
   return !_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline bool Grid::Callback::SendCellsParams::Builder::hasCells() {
+inline bool Grid::Callback::SendCellsResults::Builder::hasLocations() {
   return !_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline  ::capnp::List< ::mas::schema::grid::Grid::RowCol,  ::capnp::Kind::STRUCT>::Reader Grid::Callback::SendCellsParams::Reader::getCells() const {
-  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::grid::Grid::RowCol,  ::capnp::Kind::STRUCT>>::get(_reader.getPointerField(
+inline  ::capnp::List< ::mas::schema::grid::Grid::Location,  ::capnp::Kind::STRUCT>::Reader Grid::Callback::SendCellsResults::Reader::getLocations() const {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::grid::Grid::Location,  ::capnp::Kind::STRUCT>>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::capnp::List< ::mas::schema::grid::Grid::RowCol,  ::capnp::Kind::STRUCT>::Builder Grid::Callback::SendCellsParams::Builder::getCells() {
-  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::grid::Grid::RowCol,  ::capnp::Kind::STRUCT>>::get(_builder.getPointerField(
+inline  ::capnp::List< ::mas::schema::grid::Grid::Location,  ::capnp::Kind::STRUCT>::Builder Grid::Callback::SendCellsResults::Builder::getLocations() {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::grid::Grid::Location,  ::capnp::Kind::STRUCT>>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline void Grid::Callback::SendCellsParams::Builder::setCells( ::capnp::List< ::mas::schema::grid::Grid::RowCol,  ::capnp::Kind::STRUCT>::Reader value) {
-  ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::grid::Grid::RowCol,  ::capnp::Kind::STRUCT>>::set(_builder.getPointerField(
+inline void Grid::Callback::SendCellsResults::Builder::setLocations( ::capnp::List< ::mas::schema::grid::Grid::Location,  ::capnp::Kind::STRUCT>::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::grid::Grid::Location,  ::capnp::Kind::STRUCT>>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), value);
 }
-inline  ::capnp::List< ::mas::schema::grid::Grid::RowCol,  ::capnp::Kind::STRUCT>::Builder Grid::Callback::SendCellsParams::Builder::initCells(unsigned int size) {
-  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::grid::Grid::RowCol,  ::capnp::Kind::STRUCT>>::init(_builder.getPointerField(
+inline  ::capnp::List< ::mas::schema::grid::Grid::Location,  ::capnp::Kind::STRUCT>::Builder Grid::Callback::SendCellsResults::Builder::initLocations(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::grid::Grid::Location,  ::capnp::Kind::STRUCT>>::init(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), size);
 }
-inline void Grid::Callback::SendCellsParams::Builder::adoptCells(
-    ::capnp::Orphan< ::capnp::List< ::mas::schema::grid::Grid::RowCol,  ::capnp::Kind::STRUCT>>&& value) {
-  ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::grid::Grid::RowCol,  ::capnp::Kind::STRUCT>>::adopt(_builder.getPointerField(
+inline void Grid::Callback::SendCellsResults::Builder::adoptLocations(
+    ::capnp::Orphan< ::capnp::List< ::mas::schema::grid::Grid::Location,  ::capnp::Kind::STRUCT>>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::grid::Grid::Location,  ::capnp::Kind::STRUCT>>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::capnp::List< ::mas::schema::grid::Grid::RowCol,  ::capnp::Kind::STRUCT>> Grid::Callback::SendCellsParams::Builder::disownCells() {
-  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::grid::Grid::RowCol,  ::capnp::Kind::STRUCT>>::disown(_builder.getPointerField(
+inline ::capnp::Orphan< ::capnp::List< ::mas::schema::grid::Grid::Location,  ::capnp::Kind::STRUCT>> Grid::Callback::SendCellsResults::Builder::disownLocations() {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::mas::schema::grid::Grid::Location,  ::capnp::Kind::STRUCT>>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 
@@ -2601,18 +3254,43 @@ inline void Grid::ClosestValueAtParams::Builder::setIgnoreNoData(bool value) {
       ::capnp::bounded<0>() * ::capnp::ELEMENTS, value, true);
 }
 
-inline  ::uint64_t Grid::ClosestValueAtParams::Reader::getResolution() const {
-  return _reader.getDataField< ::uint64_t>(
-      ::capnp::bounded<1>() * ::capnp::ELEMENTS);
+inline bool Grid::ClosestValueAtParams::Reader::hasResolution() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
 }
-
-inline  ::uint64_t Grid::ClosestValueAtParams::Builder::getResolution() {
-  return _builder.getDataField< ::uint64_t>(
-      ::capnp::bounded<1>() * ::capnp::ELEMENTS);
+inline bool Grid::ClosestValueAtParams::Builder::hasResolution() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
 }
-inline void Grid::ClosestValueAtParams::Builder::setResolution( ::uint64_t value) {
-  _builder.setDataField< ::uint64_t>(
-      ::capnp::bounded<1>() * ::capnp::ELEMENTS, value);
+inline  ::mas::schema::grid::Grid::Resolution::Reader Grid::ClosestValueAtParams::Reader::getResolution() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::Resolution>::get(_reader.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+inline  ::mas::schema::grid::Grid::Resolution::Builder Grid::ClosestValueAtParams::Builder::getResolution() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::Resolution>::get(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+#if !CAPNP_LITE
+inline  ::mas::schema::grid::Grid::Resolution::Pipeline Grid::ClosestValueAtParams::Pipeline::getResolution() {
+  return  ::mas::schema::grid::Grid::Resolution::Pipeline(_typeless.getPointerField(1));
+}
+#endif  // !CAPNP_LITE
+inline void Grid::ClosestValueAtParams::Builder::setResolution( ::mas::schema::grid::Grid::Resolution::Reader value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::Resolution>::set(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS), value);
+}
+inline  ::mas::schema::grid::Grid::Resolution::Builder Grid::ClosestValueAtParams::Builder::initResolution() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::Resolution>::init(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+inline void Grid::ClosestValueAtParams::Builder::adoptResolution(
+    ::capnp::Orphan< ::mas::schema::grid::Grid::Resolution>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::Resolution>::adopt(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::mas::schema::grid::Grid::Resolution> Grid::ClosestValueAtParams::Builder::disownResolution() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::Resolution>::disown(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
 
 inline  ::mas::schema::grid::Aggregation Grid::ClosestValueAtParams::Reader::getAgg() const {
@@ -2808,18 +3486,43 @@ inline ::capnp::Orphan< ::capnp::List< ::mas::schema::grid::Grid::AggregationPar
       ::capnp::bounded<3>() * ::capnp::POINTERS));
 }
 
-inline  ::uint64_t Grid::ResolutionResults::Reader::getRes() const {
-  return _reader.getDataField< ::uint64_t>(
-      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+inline bool Grid::ResolutionResults::Reader::hasRes() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-
-inline  ::uint64_t Grid::ResolutionResults::Builder::getRes() {
-  return _builder.getDataField< ::uint64_t>(
-      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+inline bool Grid::ResolutionResults::Builder::hasRes() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline void Grid::ResolutionResults::Builder::setRes( ::uint64_t value) {
-  _builder.setDataField< ::uint64_t>(
-      ::capnp::bounded<0>() * ::capnp::ELEMENTS, value);
+inline  ::mas::schema::grid::Grid::Resolution::Reader Grid::ResolutionResults::Reader::getRes() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::Resolution>::get(_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline  ::mas::schema::grid::Grid::Resolution::Builder Grid::ResolutionResults::Builder::getRes() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::Resolution>::get(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+#if !CAPNP_LITE
+inline  ::mas::schema::grid::Grid::Resolution::Pipeline Grid::ResolutionResults::Pipeline::getRes() {
+  return  ::mas::schema::grid::Grid::Resolution::Pipeline(_typeless.getPointerField(0));
+}
+#endif  // !CAPNP_LITE
+inline void Grid::ResolutionResults::Builder::setRes( ::mas::schema::grid::Grid::Resolution::Reader value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::Resolution>::set(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), value);
+}
+inline  ::mas::schema::grid::Grid::Resolution::Builder Grid::ResolutionResults::Builder::initRes() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::Resolution>::init(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline void Grid::ResolutionResults::Builder::adoptRes(
+    ::capnp::Orphan< ::mas::schema::grid::Grid::Resolution>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::Resolution>::adopt(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::mas::schema::grid::Grid::Resolution> Grid::ResolutionResults::Builder::disownRes() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::Resolution>::disown(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 
 inline  ::uint64_t Grid::DimensionResults::Reader::getRows() const {
@@ -2917,46 +3620,71 @@ inline void Grid::ValueAtParams::Builder::setCol( ::uint64_t value) {
       ::capnp::bounded<1>() * ::capnp::ELEMENTS, value);
 }
 
-inline  ::uint64_t Grid::ValueAtParams::Reader::getResolution() const {
-  return _reader.getDataField< ::uint64_t>(
-      ::capnp::bounded<2>() * ::capnp::ELEMENTS);
+inline bool Grid::ValueAtParams::Reader::hasResolution() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-
-inline  ::uint64_t Grid::ValueAtParams::Builder::getResolution() {
-  return _builder.getDataField< ::uint64_t>(
-      ::capnp::bounded<2>() * ::capnp::ELEMENTS);
+inline bool Grid::ValueAtParams::Builder::hasResolution() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline void Grid::ValueAtParams::Builder::setResolution( ::uint64_t value) {
-  _builder.setDataField< ::uint64_t>(
-      ::capnp::bounded<2>() * ::capnp::ELEMENTS, value);
+inline  ::mas::schema::grid::Grid::Resolution::Reader Grid::ValueAtParams::Reader::getResolution() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::Resolution>::get(_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline  ::mas::schema::grid::Grid::Resolution::Builder Grid::ValueAtParams::Builder::getResolution() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::Resolution>::get(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+#if !CAPNP_LITE
+inline  ::mas::schema::grid::Grid::Resolution::Pipeline Grid::ValueAtParams::Pipeline::getResolution() {
+  return  ::mas::schema::grid::Grid::Resolution::Pipeline(_typeless.getPointerField(0));
+}
+#endif  // !CAPNP_LITE
+inline void Grid::ValueAtParams::Builder::setResolution( ::mas::schema::grid::Grid::Resolution::Reader value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::Resolution>::set(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), value);
+}
+inline  ::mas::schema::grid::Grid::Resolution::Builder Grid::ValueAtParams::Builder::initResolution() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::Resolution>::init(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline void Grid::ValueAtParams::Builder::adoptResolution(
+    ::capnp::Orphan< ::mas::schema::grid::Grid::Resolution>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::Resolution>::adopt(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::mas::schema::grid::Grid::Resolution> Grid::ValueAtParams::Builder::disownResolution() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::Resolution>::disown(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 
 inline  ::mas::schema::grid::Aggregation Grid::ValueAtParams::Reader::getAgg() const {
   return _reader.getDataField< ::mas::schema::grid::Aggregation>(
-      ::capnp::bounded<12>() * ::capnp::ELEMENTS);
+      ::capnp::bounded<8>() * ::capnp::ELEMENTS);
 }
 
 inline  ::mas::schema::grid::Aggregation Grid::ValueAtParams::Builder::getAgg() {
   return _builder.getDataField< ::mas::schema::grid::Aggregation>(
-      ::capnp::bounded<12>() * ::capnp::ELEMENTS);
+      ::capnp::bounded<8>() * ::capnp::ELEMENTS);
 }
 inline void Grid::ValueAtParams::Builder::setAgg( ::mas::schema::grid::Aggregation value) {
   _builder.setDataField< ::mas::schema::grid::Aggregation>(
-      ::capnp::bounded<12>() * ::capnp::ELEMENTS, value);
+      ::capnp::bounded<8>() * ::capnp::ELEMENTS, value);
 }
 
 inline bool Grid::ValueAtParams::Reader::getIncludeAggParts() const {
   return _reader.getDataField<bool>(
-      ::capnp::bounded<208>() * ::capnp::ELEMENTS);
+      ::capnp::bounded<144>() * ::capnp::ELEMENTS);
 }
 
 inline bool Grid::ValueAtParams::Builder::getIncludeAggParts() {
   return _builder.getDataField<bool>(
-      ::capnp::bounded<208>() * ::capnp::ELEMENTS);
+      ::capnp::bounded<144>() * ::capnp::ELEMENTS);
 }
 inline void Grid::ValueAtParams::Builder::setIncludeAggParts(bool value) {
   _builder.setDataField<bool>(
-      ::capnp::bounded<208>() * ::capnp::ELEMENTS, value);
+      ::capnp::bounded<144>() * ::capnp::ELEMENTS, value);
 }
 
 inline bool Grid::ValueAtResults::Reader::hasVal() const {
@@ -3202,57 +3930,155 @@ inline ::capnp::Orphan< ::mas::schema::geo::LatLonCoord> Grid::LatLonBoundsResul
       ::capnp::bounded<3>() * ::capnp::POINTERS));
 }
 
-inline bool Grid::StreamCellsParams::Reader::hasCallback() const {
+inline bool Grid::StreamCellsParams::Reader::hasTopLeft() const {
   return !_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline bool Grid::StreamCellsParams::Builder::hasCallback() {
+inline bool Grid::StreamCellsParams::Builder::hasTopLeft() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline  ::mas::schema::grid::Grid::RowCol::Reader Grid::StreamCellsParams::Reader::getTopLeft() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::RowCol>::get(_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline  ::mas::schema::grid::Grid::RowCol::Builder Grid::StreamCellsParams::Builder::getTopLeft() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::RowCol>::get(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+#if !CAPNP_LITE
+inline  ::mas::schema::grid::Grid::RowCol::Pipeline Grid::StreamCellsParams::Pipeline::getTopLeft() {
+  return  ::mas::schema::grid::Grid::RowCol::Pipeline(_typeless.getPointerField(0));
+}
+#endif  // !CAPNP_LITE
+inline void Grid::StreamCellsParams::Builder::setTopLeft( ::mas::schema::grid::Grid::RowCol::Reader value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::RowCol>::set(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), value);
+}
+inline  ::mas::schema::grid::Grid::RowCol::Builder Grid::StreamCellsParams::Builder::initTopLeft() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::RowCol>::init(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline void Grid::StreamCellsParams::Builder::adoptTopLeft(
+    ::capnp::Orphan< ::mas::schema::grid::Grid::RowCol>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::RowCol>::adopt(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::mas::schema::grid::Grid::RowCol> Grid::StreamCellsParams::Builder::disownTopLeft() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::RowCol>::disown(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+
+inline bool Grid::StreamCellsParams::Reader::hasBottomRight() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
+}
+inline bool Grid::StreamCellsParams::Builder::hasBottomRight() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
+}
+inline  ::mas::schema::grid::Grid::RowCol::Reader Grid::StreamCellsParams::Reader::getBottomRight() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::RowCol>::get(_reader.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+inline  ::mas::schema::grid::Grid::RowCol::Builder Grid::StreamCellsParams::Builder::getBottomRight() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::RowCol>::get(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+#if !CAPNP_LITE
+inline  ::mas::schema::grid::Grid::RowCol::Pipeline Grid::StreamCellsParams::Pipeline::getBottomRight() {
+  return  ::mas::schema::grid::Grid::RowCol::Pipeline(_typeless.getPointerField(1));
+}
+#endif  // !CAPNP_LITE
+inline void Grid::StreamCellsParams::Builder::setBottomRight( ::mas::schema::grid::Grid::RowCol::Reader value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::RowCol>::set(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS), value);
+}
+inline  ::mas::schema::grid::Grid::RowCol::Builder Grid::StreamCellsParams::Builder::initBottomRight() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::RowCol>::init(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+inline void Grid::StreamCellsParams::Builder::adoptBottomRight(
+    ::capnp::Orphan< ::mas::schema::grid::Grid::RowCol>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::RowCol>::adopt(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::mas::schema::grid::Grid::RowCol> Grid::StreamCellsParams::Builder::disownBottomRight() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::RowCol>::disown(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
+}
+
+inline bool Grid::StreamCellsResults::Reader::hasCallback() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline bool Grid::StreamCellsResults::Builder::hasCallback() {
   return !_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
 #if !CAPNP_LITE
-inline  ::mas::schema::grid::Grid::Callback::Client Grid::StreamCellsParams::Reader::getCallback() const {
+inline  ::mas::schema::grid::Grid::Callback::Client Grid::StreamCellsResults::Reader::getCallback() const {
   return ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::Callback>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::grid::Grid::Callback::Client Grid::StreamCellsParams::Builder::getCallback() {
+inline  ::mas::schema::grid::Grid::Callback::Client Grid::StreamCellsResults::Builder::getCallback() {
   return ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::Callback>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::grid::Grid::Callback::Client Grid::StreamCellsParams::Pipeline::getCallback() {
+inline  ::mas::schema::grid::Grid::Callback::Client Grid::StreamCellsResults::Pipeline::getCallback() {
   return  ::mas::schema::grid::Grid::Callback::Client(_typeless.getPointerField(0).asCap());
 }
-inline void Grid::StreamCellsParams::Builder::setCallback( ::mas::schema::grid::Grid::Callback::Client&& cap) {
+inline void Grid::StreamCellsResults::Builder::setCallback( ::mas::schema::grid::Grid::Callback::Client&& cap) {
   ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::Callback>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(cap));
 }
-inline void Grid::StreamCellsParams::Builder::setCallback( ::mas::schema::grid::Grid::Callback::Client& cap) {
+inline void Grid::StreamCellsResults::Builder::setCallback( ::mas::schema::grid::Grid::Callback::Client& cap) {
   ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::Callback>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), cap);
 }
-inline void Grid::StreamCellsParams::Builder::adoptCallback(
+inline void Grid::StreamCellsResults::Builder::adoptCallback(
     ::capnp::Orphan< ::mas::schema::grid::Grid::Callback>&& value) {
   ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::Callback>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::mas::schema::grid::Grid::Callback> Grid::StreamCellsParams::Builder::disownCallback() {
+inline ::capnp::Orphan< ::mas::schema::grid::Grid::Callback> Grid::StreamCellsResults::Builder::disownCallback() {
   return ::capnp::_::PointerHelpers< ::mas::schema::grid::Grid::Callback>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 #endif  // !CAPNP_LITE
 
-inline  ::uint64_t Grid::StreamCellsParams::Reader::getMaxNoOfCellsPerSend() const {
-  return _reader.getDataField< ::uint64_t>(
-      ::capnp::bounded<0>() * ::capnp::ELEMENTS, 100ull);
+inline bool Grid::UnitResults::Reader::hasUnit() const {
+  return !_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-
-inline  ::uint64_t Grid::StreamCellsParams::Builder::getMaxNoOfCellsPerSend() {
-  return _builder.getDataField< ::uint64_t>(
-      ::capnp::bounded<0>() * ::capnp::ELEMENTS, 100ull);
+inline bool Grid::UnitResults::Builder::hasUnit() {
+  return !_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline void Grid::StreamCellsParams::Builder::setMaxNoOfCellsPerSend( ::uint64_t value) {
-  _builder.setDataField< ::uint64_t>(
-      ::capnp::bounded<0>() * ::capnp::ELEMENTS, value, 100ull);
+inline  ::capnp::Text::Reader Grid::UnitResults::Reader::getUnit() const {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline  ::capnp::Text::Builder Grid::UnitResults::Builder::getUnit() {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline void Grid::UnitResults::Builder::setUnit( ::capnp::Text::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::Text>::set(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), value);
+}
+inline  ::capnp::Text::Builder Grid::UnitResults::Builder::initUnit(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::init(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), size);
+}
+inline void Grid::UnitResults::Builder::adoptUnit(
+    ::capnp::Orphan< ::capnp::Text>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::Text>::adopt(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::capnp::Text> Grid::UnitResults::Builder::disownUnit() {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::disown(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 
 }  // namespace

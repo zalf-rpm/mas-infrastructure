@@ -27,29 +27,30 @@ class Restorer;
 
 class ConnectionManager final {
 public:
-	ConnectionManager(Restorer* restorer = nullptr);
+	explicit ConnectionManager(kj::AsyncIoContext &ioc, Restorer *restorer = nullptr);
 	~ConnectionManager() noexcept(false);
 
 	kj::StringPtr getLocallyUsedHost() const;
 	void setLocallyUsedHost(kj::StringPtr h);
 
-	kj::Promise<capnp::Capability::Client> tryConnect(kj::AsyncIoContext& ioc, kj::StringPtr sturdyRefStr, 
+	kj::Promise<capnp::Capability::Client> tryConnect(kj::StringPtr sturdyRefStr,
 		int retryCount = 10, int retrySecs = 5, bool printRetryMsgs = true);
 
-	capnp::Capability::Client tryConnectB(kj::AsyncIoContext& ioc, kj::StringPtr sturdyRefStr, 
+	capnp::Capability::Client tryConnectB(kj::StringPtr sturdyRefStr,
 		int retryCount = 10, int retrySecs = 5, bool printRetryMsgs = true);
 
-  kj::Promise<capnp::Capability::Client> connect(kj::AsyncIoContext &ioc, kj::Url sturdyRefUrl);
-	kj::Promise<capnp::Capability::Client> connect(kj::AsyncIoContext& ioContext, kj::StringPtr sturdyRefStr);
+  kj::Promise<capnp::Capability::Client> connect(kj::Url sturdyRefUrl);
+	kj::Promise<capnp::Capability::Client> connect(kj::StringPtr sturdyRefStr);
 
-	kj::Promise<kj::uint> bind(kj::AsyncIoContext& ioContext, 
-		capnp::Capability::Client mainInterface, kj::StringPtr host, kj::uint port = 0U);
+	kj::Promise<kj::uint> bind(capnp::Capability::Client mainInterface, kj::StringPtr host, kj::uint port = 0U);
+
+  kj::AsyncIoContext& ioContext() const;
 
 private:
-	struct Impl;
+  struct Impl;
 	kj::Own<Impl> impl;
 };
 
-kj::Tuple<bool, kj::String> getLocalIP(kj::StringPtr connectToHost = "8.8.8.8", kj::uint connectToPort = 53);
+kj::Tuple<bool, kj::String> getLocalIP(kj::StringPtr connectToHost = "8.8.8.8", kj::uint connectToPort = 53U);
 
 } // namespace mas::infrastructure::common
