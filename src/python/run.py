@@ -129,7 +129,7 @@ def x():
 
 def run_soil_service():
     con_man = common.ConnectionManager()
-    sr = "capnp://e2KN9bj7I_5uaTflLY_SmR9sMVPIbacbyLho3CmOuJA=@10.10.25.30:33863/ZjMxYzg4MmMtZDg3OS00ZjdhLTkzOGItYWRjMmY1MTMxNGNh"
+    sr = "capnp://HvQI253JOzL1nNVvf3IvHLl2HN6qjv86aGgFxXiT1ds=@10.10.24.24:42851/e20504a7-942f-4b04-82b6-cabea3a92f88"
     service = con_man.try_connect(sr, cast_as=soil_capnp.Service)
     try:
         print(service.info().wait())
@@ -143,8 +143,9 @@ def run_soil_service():
     print(p0.geoLocation().wait())
     d = p0.data().wait()
     print(d)
-    sr = p0.save().wait()
-    print(sr)
+    sr = p0.save().wait().sturdyRef
+    sr_str = common.sturdy_ref_str_from_sr(sr)
+    print("first profile sr:", sr_str)
 
     # mineral fertilizers
     print("bla")
@@ -505,7 +506,7 @@ def run_some():
     con_man = common.ConnectionManager()
 
     soil = con_man.try_connect("capnp://insecure@10.10.24.210:39341/9c15ad6f-0778-4bea-b91e-b015453188b9",
-                               cast_as=soil_data_capnp.Service)
+                               cast_as=soil_capnp.Service)
     ps = soil.profilesAt(coord={'lat': 50.02045903295569, 'lon': 8.449222632820296},
                          query={"mandatory": ["soilType", "organicCarbon", "rawDensity"]}).wait()
     print(ps)
