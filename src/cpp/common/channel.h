@@ -36,9 +36,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include "common.capnp.h"
 #include "fbp.capnp.h"
 
-namespace mas {
-namespace infrastructure {
-namespace common {
+namespace mas::infrastructure::common {
 
 class Reader;
 class Writer;
@@ -51,7 +49,7 @@ class Channel final : public AnyPointerChannel::Server
 public:
   Channel(kj::StringPtr name, kj::StringPtr description, uint64_t bufferSize, Restorer* restorer = nullptr);
 
-  virtual ~Channel() noexcept(false);
+  ~Channel();
 
   kj::Promise<void> info(InfoContext context) override;
 
@@ -81,14 +79,11 @@ private:
   friend class Writer;
 };
 
-
-//-----------------------------------------------------------------------------
-
 class Reader final : public AnyPointerChannel::ChanReader::Server {
 public:
   Reader(Channel& c);
 
-  virtual ~Reader() noexcept(false) {}
+  ~Reader() = default;
 
   kj::Promise<void> read(ReadContext context) override;
 
@@ -100,13 +95,11 @@ private:
   kj::String _id;
 };
 
-//-----------------------------------------------------------------------------
-
 class Writer final : public AnyPointerChannel::ChanWriter::Server {
 public:
-  Writer(Channel& c);
+  explicit Writer(Channel& c);
 
-  virtual ~Writer() noexcept(false) {}
+  ~Writer() = default;
 
   kj::Promise<void> write(WriteContext context) override;
 
@@ -118,6 +111,4 @@ private:
   kj::String _id;
 };
 
-} // namespace common
-} // namespace infrastructure
-} // namespace mas
+} // namespace mas::infrastructure::common

@@ -37,8 +37,6 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 using namespace mas::infrastructure::common;
 
-//-----------------------------------------------------------------------------
-
 struct Restorer::Impl {
 
   struct ReleaseSturdyRef final : public mas::schema::persistence::Persistent::ReleaseSturdyRef::Server {
@@ -46,7 +44,7 @@ struct Restorer::Impl {
 
     ReleaseSturdyRef(kj::Function<kj::Promise<bool>()> releaseFunc) : releaseFunc(kj::mv(releaseFunc)) {}
 
-    virtual ~ReleaseSturdyRef() noexcept(false) {}
+    virtual ~ReleaseSturdyRef() = default;
 
     kj::Promise<void> release(ReleaseContext context) override {
       return releaseFunc().then([context](auto &&res) mutable {
@@ -124,7 +122,7 @@ struct Restorer::Impl {
     setVatIdFromSignPK();
   }
 
-  ~Impl() noexcept(false)  = default;
+  ~Impl() = default;
 
   void setVatIdFromSignPK() {
     // the Curve25519 byte array is little endian
@@ -317,7 +315,7 @@ Restorer::Restorer()
 : impl(kj::heap<Impl>()) {
 }
 
-Restorer::~Restorer() noexcept(false) = default;
+Restorer::~Restorer() = default;
 
 int Restorer::getPort() const { return impl->port; }
 kj::Promise<void> Restorer::setPort(int p) { 

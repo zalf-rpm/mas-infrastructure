@@ -44,7 +44,7 @@ struct HostPortResolver::Impl {
     Heartbeat(HostPortResolver::Impl &hprImpl, kj::StringPtr base64VatId, kj::StringPtr alias)
         : hprImpl(hprImpl), base64VatId(kj::str(base64VatId)), alias(kj::str(alias)) {}
 
-    virtual ~Heartbeat() noexcept(false) = default;
+    virtual ~Heartbeat() = default;
 
     kj::Promise<void> beat(BeatContext context) override {
       hprImpl.keepAlive(base64VatId, alias);
@@ -57,7 +57,7 @@ struct HostPortResolver::Impl {
     kj::Timer &timer;
 
     Registrar(HostPortResolver::Impl &hprImpl, kj::Timer &timer) : hprImpl(hprImpl), timer(timer) {}
-    virtual ~Registrar() noexcept(false) = default;
+    virtual ~Registrar() = default;
 
     // register @0 (base64VatId :Text, host :Text, port :UInt16, alias :Text) -> (heartbeat :Capability, secsHeartbeatInterval :UInt32);
     kj::Promise<void> register_(RegisterContext context) override {
@@ -102,7 +102,7 @@ struct HostPortResolver::Impl {
   , description(kj::str(description))
   , secsKeepAliveTimeout(secsKeepAliveTimeout * kj::SECONDS) {}
 
-  ~Impl() noexcept(false) = default;
+  ~Impl() = default;
 
   kj::Promise<void> garbageCollectMappings(bool runOnce = false) {
     KJ_DBG("garbageCollectMappings", runOnce, count++);
@@ -192,7 +192,7 @@ HostPortResolver::HostPortResolver(kj::Timer& timer, kj::StringPtr name, kj::Str
 : impl(kj::heap<Impl>(*this, timer, name, description, secsKeepAliveTimeout)) {
 }
 
-HostPortResolver::~HostPortResolver() noexcept(false) = default;
+HostPortResolver::~HostPortResolver() = default;
 
 kj::Promise<void> HostPortResolver::info(InfoContext context) {
   KJ_LOG(INFO, "info message received");

@@ -257,7 +257,7 @@ struct SqliteStorageService::Impl {
     setRestorer(restorer);
   }
 
-  ~Impl() noexcept(false)  {}
+  ~Impl() = default;
 
   void initDb() {
     kj::String utf8Filename = kj::str(filename); // linux default codepage is utf-8 
@@ -418,7 +418,7 @@ struct Container::Impl {
     
   }
 
-  ~Impl() noexcept(false)  {}
+  ~Impl() = default;
 
 
   bool addEntryDB(kj::StringPtr key, mas::schema::storage::Store::Container::Entry::Value::Reader value,
@@ -599,7 +599,7 @@ struct Entry::Impl {
   , isUnset(isUnset)
   {}    
 
-  ~Impl() noexcept(false)  {}
+  ~Impl() = default;
 
   // get entry value and return false if it didn't exist
   bool getEntryValue(mas::schema::storage::Store::Container::Entry::Value::Builder valueBuilder) {
@@ -636,8 +636,8 @@ SqliteStorageService::SqliteStorageService(kj::StringPtr filename, kj::StringPtr
 : impl(kj::heap<Impl>(*this, restorer, filename, name, description)) {
 }
 
-SqliteStorageService::~SqliteStorageService() {}
-  
+SqliteStorageService::~SqliteStorageService() = default;
+
 kj::Promise<void> SqliteStorageService::info(InfoContext context) {
   KJ_LOG(INFO, "info message received");
   auto rs = context.getResults();
@@ -727,8 +727,6 @@ void SqliteStorageService::setRestorer(mas::infrastructure::common::Restorer* re
 Container::Container(SqliteStorageService& store, kj::StringPtr id, kj::StringPtr name, kj::StringPtr description)
 : impl(kj::heap<Impl>(this, store.impl->restorer, store.impl->db, id, name, description)) {
 }
-
-Container::~Container() {}
 
 kj::Promise<void> Container::info(InfoContext context) {
   KJ_LOG(INFO, "info message received");

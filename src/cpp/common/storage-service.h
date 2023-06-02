@@ -17,23 +17,21 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 #include "storage.capnp.h"
 
-namespace mas {
-namespace infrastructure {
+namespace mas::infrastructure {
 
 namespace common { class Restorer; }
 
 namespace storage {
 
-const char* const LAST_STORAGE_SERVICE_KEY_NAME = "last_storage_service_sr_token"; 
-const char* const RESTORE_STORAGE_ITSELF_TOKEN_VALUE = "storage_service_itself";
+const char *const LAST_STORAGE_SERVICE_KEY_NAME = "last_storage_service_sr_token";
+const char *const RESTORE_STORAGE_ITSELF_TOKEN_VALUE = "storage_service_itself";
 
-class SqliteStorageService final : public mas::schema::storage::Store::Server
-{
+class SqliteStorageService final : public mas::schema::storage::Store::Server {
 public:
-  SqliteStorageService(kj::StringPtr filename, kj::StringPtr name, kj::StringPtr description, 
-    mas::infrastructure::common::Restorer* restorer = nullptr);
+  SqliteStorageService(kj::StringPtr filename, kj::StringPtr name, kj::StringPtr description,
+                       mas::infrastructure::common::Restorer *restorer = nullptr);
 
-  virtual ~SqliteStorageService() noexcept(false);
+  ~SqliteStorageService();
 
   kj::Promise<void> info(InfoContext context) override;
 
@@ -50,12 +48,13 @@ public:
   kj::Promise<void> importContainer(ImportContainerContext context) override;
 
   mas::schema::storage::Store::Client getClient();
+
   void setClient(mas::schema::storage::Store::Client c);
 
   //mas::schema::common::Action::Client getUnregisterAction();
   //void setUnregisterAction(mas::schema::common::Action::Client unreg);
 
-  void setRestorer(mas::infrastructure::common::Restorer* r);
+  void setRestorer(mas::infrastructure::common::Restorer *r);
 
   //void initFromStorageContainer();
 
@@ -64,16 +63,15 @@ private:
   kj::Own<Impl> impl;
 
   friend class Container;
+
   friend class Object;
 };
 
-//-----------------------------------------------------------------------------
-
 class Container final : public mas::schema::storage::Store::Container::Server {
 public:
-  Container(SqliteStorageService& s, kj::StringPtr id, kj::StringPtr name, kj::StringPtr description);
+  Container(SqliteStorageService &s, kj::StringPtr id, kj::StringPtr name, kj::StringPtr description);
 
-  virtual ~Container() noexcept(false);
+  virtual ~Container() = default;
 
   kj::Promise<void> info(InfoContext context) override;
 
@@ -94,6 +92,7 @@ public:
   kj::Promise<void> clear(ClearContext context) override;
 
   mas::schema::storage::Store::Container::Client getClient();
+
   void setClient(mas::schema::storage::Store::Container::Client c);
 
 private:
@@ -101,10 +100,9 @@ private:
   kj::Own<Impl> impl;
 
   friend class SqliteStorageService;
+
   friend class Entry;
 };
-
-//-----------------------------------------------------------------------------
 
 class Entry final : public mas::schema::storage::Store::Container::Entry::Server {
 public:
@@ -126,5 +124,4 @@ private:
 };
 
 } // namespace storage
-} // namespace infrastructure
-} // namespace mas
+} // namespace mas::infrastructure

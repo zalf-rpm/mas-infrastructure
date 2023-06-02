@@ -32,11 +32,11 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 namespace mas::infrastructure::common {
 
-class Identifiable : public mas::schema::common::Identifiable::Server {
+class Identifiable final : public mas::schema::common::Identifiable::Server {
 public:
   explicit Identifiable(kj::StringPtr id = nullptr, kj::StringPtr name = nullptr, kj::StringPtr description = nullptr);
 
-  virtual ~Identifiable() = default;
+  ~Identifiable() = default;
 
   kj::Promise<void> info(InfoContext context) override;
 
@@ -57,8 +57,6 @@ private:
   kj::String _name;
   kj::String _description;
 };
-
-//-----------------------------------------------------------------------------
 
 // class CallbackImpl final : public mas::schema::common::Callback::Server {
 // public:

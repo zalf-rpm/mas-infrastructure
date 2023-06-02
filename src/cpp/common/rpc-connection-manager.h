@@ -28,7 +28,7 @@ class Restorer;
 class ConnectionManager final {
 public:
 	explicit ConnectionManager(kj::AsyncIoContext &ioc, Restorer *restorer = nullptr);
-	~ConnectionManager() noexcept(false);
+	~ConnectionManager();
 
 	kj::StringPtr getLocallyUsedHost() const;
 	void setLocallyUsedHost(kj::StringPtr h);

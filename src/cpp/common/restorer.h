@@ -32,7 +32,7 @@ class Restorer final : public mas::schema::persistence::Restorer::Server
 {
   public:
   Restorer();
-  virtual ~Restorer() noexcept(false);
+  ~Restorer();
 
   // restore @0 (srToken :Text) -> (cap :Capability);
   kj::Promise<void> restore(RestoreContext context) override;
@@ -89,6 +89,5 @@ private:
   struct Impl;
   kj::Own<Impl> impl;
 };
-
 
 } // namespace mas::infrastructure::common

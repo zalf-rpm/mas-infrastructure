@@ -119,7 +119,7 @@ struct ConnectionManager::Impl {
     else this->restorer = kj::heap<Restorer>();
   }
 
-  ~Impl() noexcept(false) {};
+  ~Impl() = default;
 
   void acceptLoop(kj::Own<kj::ConnectionReceiver> &&listener, capnp::ReaderOptions readerOpts) {
     auto ptr = listener.get();
@@ -151,7 +151,7 @@ ConnectionManager::ConnectionManager(kj::AsyncIoContext &ioc, Restorer *restorer
     : impl(kj::heap<Impl>(ioc, restorer)) {
 }
 
-ConnectionManager::~ConnectionManager() noexcept(false) = default;
+ConnectionManager::~ConnectionManager() = default;
 
 kj::AsyncIoContext& ConnectionManager::ioContext() const {
   KJ_REQUIRE_NONNULL(impl->ioContext);
