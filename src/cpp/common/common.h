@@ -36,7 +36,7 @@ class Identifiable : public mas::schema::common::Identifiable::Server {
 public:
   explicit Identifiable(kj::StringPtr id = nullptr, kj::StringPtr name = nullptr, kj::StringPtr description = nullptr);
 
-  virtual ~Identifiable() noexcept(false) = default;
+  virtual ~Identifiable() = default;
 
   kj::Promise<void> info(InfoContext context) override;
 
