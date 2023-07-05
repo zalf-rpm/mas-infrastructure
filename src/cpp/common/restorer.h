@@ -58,12 +58,13 @@ class Restorer final : public mas::schema::persistence::Restorer::Server
 
   void sturdyRef(mas::schema::persistence::SturdyRef::Builder& srb, kj::StringPtr srToken) const;
 
-  kj::Promise<void> save(capnp::Capability::Client cap, 
-    mas::schema::persistence::SturdyRef::Builder sturdyRefBuilder,
-    mas::schema::persistence::SturdyRef::Builder unsaveSRBuilder = nullptr,
-    kj::StringPtr fixedSRToken = nullptr, 
-    kj::StringPtr sealForOwner = nullptr, bool createUnsave = true,
-    kj::StringPtr restoreToken = nullptr);
+  kj::Promise<void> save(capnp::Capability::Client cap,
+                         mas::schema::persistence::SturdyRef::Builder sturdyRefBuilder,
+                         mas::schema::persistence::SturdyRef::Builder unsaveSRBuilder = nullptr,
+                         kj::StringPtr fixedSRToken = nullptr,
+                         kj::StringPtr sealForOwnerGuid = nullptr,
+                         bool createUnsave = true,
+                         kj::StringPtr restoreToken = nullptr);
 
   struct SaveStrResult {
     kj::String sturdyRef;
@@ -71,11 +72,12 @@ class Restorer final : public mas::schema::persistence::Restorer::Server
     kj::String unsaveSR;
     kj::String unsaveSRToken;
   };
-  kj::Promise<SaveStrResult> saveStr(capnp::Capability::Client cap, 
-    kj::StringPtr fixedSRToken = nullptr,
-    kj::StringPtr sealForOwner = nullptr, bool createUnsave = true,
-    kj::StringPtr restoreToken = nullptr,
-    bool storeSturdyRefs = true);
+  kj::Promise<SaveStrResult> saveStr(capnp::Capability::Client cap,
+                                     kj::StringPtr fixedSRToken = nullptr,
+                                     kj::StringPtr sealForOwnerGuid = nullptr,
+                                     bool createUnsave = true,
+                                     kj::StringPtr restoreToken = nullptr,
+                                     bool storeSturdyRefs = true);
 
   kj::Promise<bool> unsave(kj::StringPtr srToken);
 

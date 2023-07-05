@@ -208,7 +208,7 @@ kj::Promise<capnp::Capability::Client> ConnectionManager::connect(kj::Url url) {
         KJ_LOG(INFO, "restoring token", srToken);
         auto restorerClient = bootstrapCap.castAs<mas::schema::persistence::Restorer>();
         auto req = restorerClient.restoreRequest();
-        req.initLocalRef().setAs<capnp::Text>(srToken);
+        req.initLocalRef().setText(srToken);
         KJ_LOG(INFO, "making restore request");
         return req.send().then([](auto &&res) {
           KJ_LOG(INFO, "send returned");

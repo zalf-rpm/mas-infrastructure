@@ -97,6 +97,7 @@ struct Restorer::Impl {
     // set to the unsave sr token if the cap was an unsave action
     // in that case the restore token is the sr token of the associated capability
   };
+
   kj::HashMap<kj::String, SRData> issuedSRTokens;
   // the sturdy ref tokens issued by this restorer
 
@@ -188,7 +189,7 @@ struct Restorer::Impl {
 
 
   kj::Promise<kj::Maybe<capnp::Capability::Client>> getCapFromSRToken(
-    kj::StringPtr srToken, kj::StringPtr ownerGuid = kj::StringPtr()) {
+    mas::schema::persistence::SturdyRef::Token::Reader srToken, kj::StringPtr ownerGuid = kj::StringPtr()) {
     
     auto getCap = [this](auto srData) -> kj::Maybe<capnp::Capability::Client> {
       if(srData->isCapSet) return srData->cap;
@@ -214,7 +215,9 @@ struct Restorer::Impl {
       return nullptr;
     };
     
-    auto loadFromStoreAndGetCap = [this, getCap](kj::StringPtr srToken) -> kj::Promise<kj::Maybe<capnp::Capability::Client>> {
+    auto loadFromStoreAndGetCap =
+        [this, getCap](kj::StringPtr srToken, kj::StringPtr ownerGuid = nullptr)
+        -> kj::Promise<kj::Maybe<capnp::Capability::Client>> {
       auto req = store.getEntryRequest();
       req.setKey(srToken);
       auto valueProm = req.send().getEntry().getValueRequest().send();
@@ -230,16 +233,21 @@ struct Restorer::Impl {
           else if(key == "restoreToken") srData->restoreToken = kj::str(kv.second.string_value());
           else if(key == "unsaveSRToken") srData->unsaveSRToken = kj::str(kv.second.string_value());
         }
-        auto& srEntry = issuedSRTokens.insert(kj::str(srToken), 
-          {kj::mv(srData->ownerGuid), nullptr, false, kj::mv(srData->restoreToken), kj::mv(srData->unsaveSRToken)});
+        auto& srEntry = issuedSRTokens.insert(kj::str(srToken), {
+          kj::mv(srData->ownerGuid),
+          nullptr,
+          false,
+          kj::mv(srData->restoreToken),
+          kj::mv(srData->unsaveSRToken)
+        });
         return &(srEntry.value);
-      }).then([getCap](SRData* srData) -> kj::Maybe<capnp::Capability::Client> {
-        if(srData != nullptr) return getCap(srData);
+      }).then([getCap, ownerGuid](SRData* srData) -> kj::Maybe<capnp::Capability::Client> {
+        if(srData != nullptr && srData->ownerGuid == ownerGuid) return getCap(srData);
         else return {nullptr};
       });
     };
 
-    if(ownerGuid != nullptr) {
+    if(ownerGuid != nullptr && srToken.hasData()) {
       // and we know about that owner
       KJ_IF_MAYBE(ownerSignPKArray, ownerGuidToSignPK.find(ownerGuid)) {
         // prepare owner public key
@@ -249,34 +257,39 @@ struct Restorer::Impl {
 
         // decode owner signed sturdy ref token
         // because of signing assume the sr token has been encoded base64
-        auto srTokenArr = kj::decodeBase64(srToken);
-        auto signedSRToken = (unsigned char*)malloc(srToken.size() * sizeof(unsigned char));
+        auto charArr = srToken.getData().asChars();
+        auto srTokenArr = kj::decodeBase64(charArr);
+        auto signedSRToken = (unsigned char*)malloc(charArr.size() * sizeof(unsigned char));
         KJ_DEFER(free(signedSRToken));
         fromKJArray<const kj::byte>(srTokenArr, signedSRToken);
 
         // verify owner signed sturdy ref token
-        auto unsignedSRToken = (unsigned char*)malloc(srToken.size() * sizeof(unsigned char) + 1);
+        auto unsignedSRToken = (unsigned char*)malloc(charArr.size() * sizeof(unsigned char) + 1);
         KJ_DEFER(free(unsignedSRToken));
         unsigned long long unsignedSRTokenLen;
-        if(crypto_sign_open(unsignedSRToken, &unsignedSRTokenLen, signedSRToken, srToken.size(), ownerSignPK) == 0) {
+        if(crypto_sign_open(unsignedSRToken, &unsignedSRTokenLen, signedSRToken, charArr.size(),
+                            ownerSignPK) == 0) {
           unsignedSRToken[unsignedSRTokenLen] = '\0';
           kj::StringPtr unsignedSRTokenPtr((const char*)unsignedSRToken, unsignedSRTokenLen);
           KJ_IF_MAYBE(srData, issuedSRTokens.find(unsignedSRTokenPtr)) {
-            return getCap(srData);
+            // check if the stored owner is the claimed owner
+            if (srData->ownerGuid == ownerGuid) return getCap(srData);
           } else if(isStoreSet) { // try to load from store
-            return loadFromStoreAndGetCap(unsignedSRTokenPtr);
+            return loadFromStoreAndGetCap(unsignedSRTokenPtr, ownerGuid);
           }
         }
       }
       // if we don't know about that owner or the owner was not the one who sealed the token
       return nullptr;
     }
-      
-    // if there is no owner
-    KJ_IF_MAYBE(srData, issuedSRTokens.find(srToken)) {
-      return getCap(srData);
-    } else if(isStoreSet) { // try to load from store
-      return loadFromStoreAndGetCap(srToken);
+
+    if (srToken.hasText()) {
+      // if there is no owner
+      KJ_IF_MAYBE(srData, issuedSRTokens.find(srToken.getText())) {
+        return getCap(srData);
+      } else if (isStoreSet) { // try to load from store
+        return loadFromStoreAndGetCap(srToken.getText());
+      }
     }
 
     return nullptr;
@@ -308,8 +321,6 @@ struct Restorer::Impl {
   }
 
 };
-
-//-----------------------------------------------------------------------------
 
 Restorer::Restorer()
 : impl(kj::heap<Impl>()) {
@@ -420,10 +431,10 @@ void Restorer::setRestoreCallback(kj::Function<capnp::Capability::Client(kj::Str
 
 kj::Promise<void> Restorer::restore(RestoreContext context) {
   auto params = context.getParams();
-  auto srt = params.getLocalRef().getAs<capnp::Text>();
+  auto srt = params.getLocalRef();
   kj::StringPtr ownerGuid = 
-    params.hasSealedFor() && params.getSealedFor().hasGuid() 
-    ? params.getSealedFor().getGuid()
+    params.hasSealedBy() && params.getSealedBy().hasGuid()
+    ? params.getSealedBy().getGuid()
     : kj::StringPtr();
   return impl->getCapFromSRToken(srt, ownerGuid).then([context](auto&& maybeCap) mutable {
     KJ_IF_MAYBE(cap, maybeCap) { 
@@ -435,9 +446,10 @@ kj::Promise<void> Restorer::restore(RestoreContext context) {
 
 kj::String Restorer::sturdyRefStr(kj::StringPtr srToken) const {
   //KJ_DBG("signPKArray as hex:", kj::encodeHex(_signPKArray));
-  auto srTokenBase64 = kj::encodeBase64Url(srToken.asBytes());
+  //auto srTokenBase64 = kj::encodeBase64Url(srToken.asBytes());
   auto vatIdBase64 = kj::encodeBase64Url(impl->signPKArray);
-  return kj::str("capnp://", vatIdBase64, "@", impl->host, ":", impl->port, srTokenBase64.size() > 0 ? "/" : "", srTokenBase64);
+  return kj::str("capnp://", vatIdBase64, "@", impl->host, ":", impl->port,
+                 srToken == nullptr ? "" : "/", srToken == nullptr ? "" : srToken);
 }
 
 void Restorer::sturdyRef(mas::schema::persistence::SturdyRef::Builder& srb, kj::StringPtr srToken) const {
@@ -447,7 +459,7 @@ void Restorer::sturdyRef(mas::schema::persistence::SturdyRef::Builder& srb, kj::
   auto ab = vpb.initAddress();
   ab.setHost(impl->host);
   ab.setPort(impl->port);
-  trb.initLocalRef().setAs<capnp::Text>(srToken);
+  trb.initLocalRef().setText(srToken);
 }
 
 kj::Tuple<bool, kj::String> Restorer::verifySRToken(kj::StringPtr srTokenBase64, kj::StringPtr vatIdBase64) {
@@ -470,18 +482,24 @@ kj::Tuple<bool, kj::String> Restorer::verifySRToken(kj::StringPtr srTokenBase64,
 }
 
 
-kj::Promise<void> Restorer::save(capnp::Capability::Client cap, 
-  mas::schema::persistence::SturdyRef::Builder sturdyRefBuilder,
-  mas::schema::persistence::SturdyRef::Builder unsaveSRBuilder,
-  kj::StringPtr fixedSRToken, kj::StringPtr sealForOwner, bool createUnsave,
-  kj::StringPtr restoreToken) {
+kj::Promise<void> Restorer::save(capnp::Capability::Client cap,
+                                 mas::schema::persistence::SturdyRef::Builder sturdyRefBuilder,
+                                 mas::schema::persistence::SturdyRef::Builder unsaveSRBuilder,
+                                 kj::StringPtr fixedSRToken,
+                                 kj::StringPtr sealForOwnerGuid,
+                                 bool createUnsave,
+                                 kj::StringPtr restoreToken) {
 
   int promisesCount = impl->isStoreSet ? (createUnsave ? 2 : 1) : 0;
   auto storePromises = kj::heapArrayBuilder<kj::Promise<bool>>(promisesCount);
 
   auto srToken = fixedSRToken == nullptr ? kj::str(sole::uuid4().str()) : kj::str(fixedSRToken);
-  auto &srEntry = impl->issuedSRTokens.insert(kj::str(srToken), 
-    {kj::str(sealForOwner), kj::mv(cap), true, kj::str(restoreToken)});
+  auto &srEntry = impl->issuedSRTokens.insert(kj::str(srToken), {
+    kj::str(sealForOwnerGuid),
+    kj::mv(cap),
+    true,
+    kj::str(restoreToken)
+  });
   // store sturdy ref data for later restoral 
   if(impl->isStoreSet && restoreToken != nullptr){
     auto srdJson = srEntry.value.toJson();
@@ -499,7 +517,8 @@ kj::Promise<void> Restorer::save(capnp::Capability::Client cap,
     auto unsaveSRToken = kj::str(sole::uuid4().str());
     auto srt = kj::str(srToken);
     auto usrt = kj::str(unsaveSRToken);
-    auto unsaveAction = kj::heap<Impl::ReleaseSturdyRef>([this, KJ_MVCAP(srt), KJ_MVCAP(usrt)]() {
+    auto unsaveAction = kj::heap<Impl::ReleaseSturdyRef>(
+        [this, KJ_MVCAP(srt), KJ_MVCAP(usrt)]() {
       auto usrt2 = kj::str(usrt);
       return impl->unsave(srt).then([this, KJ_MVCAP(usrt2)](auto &&success){
         return impl->unsave(usrt2).then([success](auto &&success2) { return success && success2; });
@@ -507,8 +526,13 @@ kj::Promise<void> Restorer::save(capnp::Capability::Client cap,
     }); 
     // for storing the unsave data, the restoreToken is actually the srToken, because we 
     // create the unsaveAction ourselves for the capability behind the srToken
-    auto &usrEntry = impl->issuedSRTokens.insert(kj::str(unsaveSRToken), 
-      {kj::str(sealForOwner), kj::mv(unsaveAction), true, kj::str(srToken), kj::str(unsaveSRToken)});
+    auto &usrEntry = impl->issuedSRTokens.insert(kj::str(unsaveSRToken), {
+        kj::str(sealForOwnerGuid),
+        kj::mv(unsaveAction),
+        true,
+        kj::str(srToken),
+        kj::str(unsaveSRToken)
+    });
     sturdyRef(unsaveSRBuilder, unsaveSRToken);
 
     if(impl->isStoreSet && restoreToken != nullptr){
@@ -529,27 +553,32 @@ kj::Promise<void> Restorer::save(capnp::Capability::Client cap,
   return kj::joinPromises(storePromises.finish()).ignoreResult();
 }
 
-kj::Promise<Restorer::SaveStrResult> Restorer::saveStr(capnp::Capability::Client cap, 
-  kj::StringPtr fixedSRToken, kj::StringPtr sealForOwner, bool createUnsave,
-  kj::StringPtr restoreToken, bool storeSturdyRefs) {
-
+kj::Promise<Restorer::SaveStrResult>
+Restorer::saveStr(capnp::Capability::Client cap, kj::StringPtr fixedSRToken,
+                  kj::StringPtr sealForOwnerGuid, bool createUnsave,
+                  kj::StringPtr restoreToken, bool storeSturdyRefs) {
   int promisesCount = impl->isStoreSet && storeSturdyRefs ? (createUnsave ? 2 : 1) : 0;
   auto storePromises = kj::heapArrayBuilder<kj::Promise<bool>>(promisesCount);
   auto srToken = fixedSRToken == nullptr ? kj::str(sole::uuid4().str()) : kj::str(fixedSRToken);
-  try {  
-    auto &srEntry = impl->issuedSRTokens.insert(kj::str(srToken), {kj::str(sealForOwner), kj::mv(cap), true, kj::str(restoreToken)});
-    // store sturdy ref data for later restoral 
-    if(impl->isStoreSet && storeSturdyRefs){
+  try {
+    auto &srEntry = impl->issuedSRTokens.insert(kj::str(srToken), {
+        kj::str(sealForOwnerGuid),
+        kj::mv(cap),
+        true,
+        kj::str(restoreToken)
+    });
+    // store sturdy ref data for later restoral
+    if (impl->isStoreSet && storeSturdyRefs) {
       auto srdJson = srEntry.value.toJson();
       auto req = impl->store.getEntryRequest();
       req.setKey(srToken);
       auto svReq = req.send().getEntry().setValueRequest();
       svReq.initValue().setTextValue(srdJson);
-      storePromises.add(svReq.send().then([](auto resp){ 
+      storePromises.add(svReq.send().then([](auto resp) {
         return resp.getSuccess();
       }));
     }
-  } catch(kj::Exception e) { 
+  } catch(const kj::Exception& e) {
     // catch because user can supply a fixed sturdy ref token
     kj::throwRecoverableException(KJ_EXCEPTION(FAILED, srToken, "already used")); 
   }
@@ -564,9 +593,14 @@ kj::Promise<Restorer::SaveStrResult> Restorer::saveStr(capnp::Capability::Client
       return impl->unsave(srt).then([this, KJ_MVCAP(usrt2)](auto success){
         return impl->unsave(usrt2).then([success](auto success2){ return success && success2; });
       });
-    }); 
-    auto& usrEntry = impl->issuedSRTokens.insert(kj::str(unsaveSRToken), {kj::str(sealForOwner), kj::mv(unsaveAction), true, 
-      kj::str(srToken), kj::str(unsaveSRToken)});
+    });
+    auto &usrEntry = impl->issuedSRTokens.insert(kj::str(unsaveSRToken), {
+        kj::str(sealForOwnerGuid),
+        kj::mv(unsaveAction),
+        true,
+        kj::str(srToken),
+        kj::str(unsaveSRToken)
+    });
     unsaveSRStr = sturdyRefStr(unsaveSRToken);
 
     if(impl->isStoreSet && storeSturdyRefs){
@@ -582,8 +616,9 @@ kj::Promise<Restorer::SaveStrResult> Restorer::saveStr(capnp::Capability::Client
   }
   
   return kj::joinPromises(storePromises.finish()).ignoreResult().then(
-    [this, KJ_MVCAP(srToken), KJ_MVCAP(unsaveSRToken)]() mutable { 
-      return SaveStrResult({sturdyRefStr(srToken), kj::mv(srToken), sturdyRefStr(unsaveSRToken), kj::mv(unsaveSRToken)}); 
+    [this, KJ_MVCAP(srToken), KJ_MVCAP(unsaveSRToken)]() mutable {
+      return SaveStrResult({sturdyRefStr(srToken), kj::mv(srToken),
+                            sturdyRefStr(unsaveSRToken), kj::mv(unsaveSRToken)});
   });
 }
 
@@ -601,6 +636,4 @@ void Restorer::setVatId(mas::schema::persistence::VatId::Builder vidb) const {
   vidb.setPublicKey2(impl->vatId[2]);
   vidb.setPublicKey3(impl->vatId[3]);
 }
-
-//-----------------------------------------------------------------------------
 

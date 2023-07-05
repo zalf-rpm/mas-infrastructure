@@ -206,8 +206,8 @@ kj::Promise<void> HostPortResolver::info(InfoContext context) {
 kj::Promise<void> HostPortResolver::restore(RestoreContext context) {
   auto req = impl->restorerClient.restoreRequest();
   auto params = context.getParams();
-  req.getLocalRef().set(params.getLocalRef());
-  if (params.hasSealedFor()) req.setSealedFor(params.getSealedFor());
+  req.setLocalRef(params.getLocalRef());
+  if (params.hasSealedBy()) req.setSealedBy(params.getSealedBy());
   return req.send().then([context](auto &&resp) mutable {
     context.getResults().setCap(resp.getCap());
   });

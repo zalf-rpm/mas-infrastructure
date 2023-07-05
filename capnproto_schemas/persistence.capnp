@@ -60,7 +60,6 @@ struct VatPath {
   address @1 :Address;
 }
 
-
 struct SturdyRef {
   # Adapted from https://github.com/sandstorm-io/blackrock/blob/master/src/blackrock/cluster-rpc.capnp#L67
   # Parameterization of SturdyRef 
@@ -78,6 +77,12 @@ struct SturdyRef {
     stored @1 :Stored;
   }
 
+  struct Token {
+    union {
+      text @0 :Text; # token as text, e.g. UUID4
+      data @1 :Data; # token as data, e.g. owner signed text
+    }
+  }
 
   struct Transient {
     # Reference to an object hosted by some specific vat in the cluster, which will eventually
@@ -86,10 +91,9 @@ struct SturdyRef {
     vat @0 :VatPath;
     # The vat where the object is located.
 
-    localRef @1 :AnyPointer;
+    localRef @1 :Token;
     # A SturdyRef in the format defined by the vat.
   }
-
 
   struct Stored {
     # Reference to an object in long-term storage.
@@ -123,6 +127,7 @@ interface Persistent {
   }
   struct SaveResults {
     sturdyRef @0 :SturdyRef;
+    # the actual sturdy reference
 
     unsaveSR  @1 :SturdyRef;
     # sturdy ref referring to an ReleaseSturdyRef capability to unsave the referenced capability
@@ -131,48 +136,19 @@ interface Persistent {
   interface ReleaseSturdyRef {
     release @0 () -> (success :Bool) $Go.name("releaseSR"); 
   }
-
-  #save @0 () -> (sturdyRef :Text, srToken :Text, unsaveSR :Text, unsaveSRToken :Text);
-  # create a sturdy ref to be able to restore this object and 
-  # optionally return another SR refering to a Common.Action object representing the action to unsave this object
-  # the actual sturdy ref tokens needed for the restorer service are optionally supplied as well
 }
 
 interface Restorer {
   # restore a capability from a sturdy ref
-  
-  #interface Save {
-  #  struct SaveParams {
-  #    cap           @0 :Capability;
-  #
-  #    fixedSRToken  @1 :AnyPointer;
-  #
-  #    sealFor       @2 :SturdyRef.Owner;
-  #
-  #    createUnsave  @3 :Bool = true;
-  #
-  #    restoreToken  @4 :AnyPointer;
-  #  }
-  #
-  #  struct SaveResults {
-  #    sturdyRef @0 :SturdyRef;
-  #    # the sturdy ref to be used to restore the capability
-  #
-  #    unsaveSR @1 :SturdyRef;
-  #    # sturdy ref refering to an Common.Action capability to unsave the referenced capability
-  #  }
-  #
-  #  save @0 SaveParams -> SaveResults;
-  #}
 
   struct RestoreParams {
-    localRef @0 :AnyPointer;
+    localRef @0 :SturdyRef.Token;
     # local reference (sturdy ref token) to the capability to be restored
 
-    sealedFor @1 :SturdyRef.Owner;
+    sealedBy @1 :SturdyRef.Owner;
     # the owner of the sturdy ref to be restored
     # if everybody is allowed to restore the capability, this field should be null (unset)
-    # if sealedFor is set, the localRef must be signed by the private key of the owner matching 
+    # if sealedBy is set, the localRef must be signed by the private key of the owner matching
     # the public key registered with the restorer service else the capability cannot be restored
   }
 
