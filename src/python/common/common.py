@@ -136,7 +136,7 @@ class Restorer(persistence_capnp.Restorer.Server):
         self._sign_pk, self._sign_sk = pysodium.crypto_sign_keypair()
         #self._box_pk, self._box_sk = pysodium.crypto_box_keypair()
         self.set_vat_id_from_sign_pk()
-        self._owner_guid_to_box_pk = {}  # owner guid to owner box public key
+        self._owner_guid_to_sign_pk = {}  # owner guid to owner box public key
         self._storage_container = None
         self._restore_callback = None
         #self._vat_id = None
@@ -226,7 +226,7 @@ class Restorer(persistence_capnp.Restorer.Server):
             lambda read_keys: self.set_vat_id_from_sign_pk() if read_keys[0] and read_keys[1] else None)
 
     def set_owner_guid(self, owner_guid, owner_box_pk):
-        self._owner_guid_to_box_pk[owner_guid] = owner_box_pk
+        self._owner_guid_to_sign_pk[owner_guid] = owner_box_pk
 
     #def verify_sr_token(self, sr_token_base64, vat_id_base64):
     #    # https://stackoverflow.com/questions/2941995/python-ignore-incorrect-padding-error-when-base64-decoding
@@ -281,9 +281,9 @@ class Restorer(persistence_capnp.Restorer.Server):
         # if there is an owner
         if owner_guid:
             # and we know about that owner
-            if owner_guid in self._owner_guid_to_box_pk:
+            if owner_guid in self._owner_guid_to_sign_pk:
                 try:
-                    unsigned_sr_token = pysodium.crypto_sign_open(sr_token, self._owner_guid_to_box_pk[owner_guid])
+                    unsigned_sr_token = pysodium.crypto_sign_open(sr_token, self._owner_guid_to_sign_pk[owner_guid])
                 except ValueError:
                     return None
                 data = self._issued_sr_tokens.get(unsigned_sr_token, None)
@@ -395,8 +395,8 @@ class Restorer(persistence_capnp.Restorer.Server):
         # if there is an owner
         if owner_guid:
             # and we know about that owner
-            if owner_guid in self._owner_guid_to_box_pk:
-                verified_sr_token = pysodium.crypto_sign_open(sr_token, self._owner_guid_to_box_pk[owner_guid])
+            if owner_guid in self._owner_guid_to_sign_pk:
+                verified_sr_token = pysodium.crypto_sign_open(sr_token, self._owner_guid_to_sign_pk[owner_guid])
                 data = self._issued_sr_tokens.get(verified_sr_token, None)
                 # and that known owner was actually the one who sealed the token 
                 if data and owner_guid == data["ownerGuid"]:
@@ -419,11 +419,11 @@ class Restorer(persistence_capnp.Restorer.Server):
         self._restore_callback = cb
 
     # struct RestoreParams {
-    #   localRef @0 :AnyPointer;
-    #   sealedFor @1 :SturdyRef.Owner;
+    #   localRef @0 :SturdyRef.Token;
+    #   sealedBy @1 :SturdyRef.Owner;
     # }
     def restore_context(self, context):  # restore @0 RestoreParams -> (cap :Capability);
-        owner_guid = context.params.sealedFor
+        owner_guid = context.params.sealedBy
         sr_token = context.params.localRef.as_text()
         context.results.cap = self.get_cap_from_sr_token(sr_token, owner_guid=owner_guid.guid if owner_guid else None)
 

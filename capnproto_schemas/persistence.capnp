@@ -72,10 +72,11 @@ struct SturdyRef {
     # globally unique id, could also be an email address or domain name
   }
 
-  union {
-    transient @0 :Transient;
-    stored @1 :Stored;
-  }
+  transient @0 :Transient;
+  #union {
+  #  transient @0 :Transient;
+  #  stored @1 :Stored; # maybe use this later, not supported right now
+  #}
 
   struct Token {
     union {
@@ -95,16 +96,16 @@ struct SturdyRef {
     # A SturdyRef in the format defined by the vat.
   }
 
-  struct Stored {
-    # Reference to an object in long-term storage.
-
-    key0 @0 :UInt64;
-    key1 @1 :UInt64;
-    key2 @2 :UInt64;
-    key3 @3 :UInt64;
-    # 256-bit object key. This both identifies the object and may serve as a symmetric key for
-    # decrypting the object.
-  }
+  #struct Stored {
+  #  # Reference to an object in long-term storage.
+  #
+  #  key0 @0 :UInt64;
+  #  key1 @1 :UInt64;
+  #  key2 @2 :UInt64;
+  #  key3 @3 :UInt64;
+  #  # 256-bit object key. This both identifies the object and may serve as a symmetric key for
+  #  # decrypting the object.
+  #}
 }
 
 
