@@ -453,13 +453,12 @@ kj::String Restorer::sturdyRefStr(kj::StringPtr srToken) const {
 }
 
 void Restorer::sturdyRef(mas::schema::persistence::SturdyRef::Builder& srb, kj::StringPtr srToken) const {
-  auto trb = srb.initTransient();
-  auto vpb = trb.initVat();
+  auto vpb = srb.initVat();
   setVatId(vpb.initId());
   auto ab = vpb.initAddress();
   ab.setHost(impl->host);
   ab.setPort(impl->port);
-  trb.initLocalRef().setText(srToken);
+  srb.initLocalRef().setText(srToken);
 }
 
 kj::Tuple<bool, kj::String> Restorer::verifySRToken(kj::StringPtr srTokenBase64, kj::StringPtr vatIdBase64) {

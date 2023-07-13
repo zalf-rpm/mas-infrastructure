@@ -545,7 +545,7 @@ class ConnectionManager:
 
             if type(sturdy_ref) == str:
                 # we assume that a sturdy ref url looks always like
-                # capnp://vat-id_base64-curve25519-public-key@host:port/sturdy-ref-token_base64_if_owner_signed
+                # capnp://vat-id_base64-curve25519-public-key@host:port/sturdy-ref-token
                 # ?owner_guid = optional_owner_global_unique_id
                 # & b_iid = optional_bootstrap_interface_id
                 # & sr_iid = optional_the_sturdy_refs_remote_interface_id
