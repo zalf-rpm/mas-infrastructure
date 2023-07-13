@@ -72,40 +72,18 @@ struct SturdyRef {
     # globally unique id, could also be an email address or domain name
   }
 
-  transient @0 :Transient;
-  #union {
-  #  transient @0 :Transient;
-  #  stored @1 :Stored; # maybe use this later, not supported right now
-  #}
+  vat @0 :VatPath;
+  # The vat where the object is located.
+
+  localRef @1 :Token;
+  # A SturdyRef in the format defined by the vat.
 
   struct Token {
     union {
       text @0 :Text; # token as text, e.g. UUID4
-      data @1 :Data; # token as data, e.g. owner signed text
+      data @1 :Data; # token as data, e.g. owner signed text (e.g. UUID4)
     }
   }
-
-  struct Transient {
-    # Reference to an object hosted by some specific vat in the cluster, which will eventually
-    # become invalid when that vat is taken out of rotation.
-
-    vat @0 :VatPath;
-    # The vat where the object is located.
-
-    localRef @1 :Token;
-    # A SturdyRef in the format defined by the vat.
-  }
-
-  #struct Stored {
-  #  # Reference to an object in long-term storage.
-  #
-  #  key0 @0 :UInt64;
-  #  key1 @1 :UInt64;
-  #  key2 @2 :UInt64;
-  #  key3 @3 :UInt64;
-  #  # 256-bit object key. This both identifies the object and may serve as a symmetric key for
-  #  # decrypting the object.
-  #}
 }
 
 
