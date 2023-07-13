@@ -1,6 +1,7 @@
 package commonlib
 
 import (
+	"fmt"
 	"net"
 	"strings"
 )
@@ -8,14 +9,6 @@ import (
 // check if an ip address is IPV6
 func IsIpv6(ip string) bool {
 	return strings.Contains(ip, ":")
-}
-
-type ConnError struct {
-	Out chan<- error
-}
-
-func (cerr *ConnError) ReportError(err error) {
-	cerr.Out <- err
 }
 
 func GetFreePort() (port int, err error) {
@@ -28,4 +21,24 @@ func GetFreePort() (port int, err error) {
 		}
 	}
 	return
+}
+
+type ConnError struct {
+	Out chan<- error
+	Msg chan<- string
+}
+
+// Logger interface
+func (cerr *ConnError) Debug(message string, args ...any) {
+	cerr.Msg <- message
+}
+func (cerr *ConnError) Info(message string, args ...any) {
+	cerr.Msg <- message
+}
+func (cerr *ConnError) Warn(message string, args ...any) {
+	cerr.Msg <- message
+}
+
+func (cerr *ConnError) Error(message string, args ...any) {
+	cerr.Out <- fmt.Errorf(message)
 }

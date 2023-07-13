@@ -191,18 +191,24 @@ func (cm *ConnectionManager) connect(sturdyRef interface{}) (*capnp.Client, erro
 		cm.connections[urlPath] = conn
 
 		errC := make(chan error)
-		go func(errChan <-chan error, stopChan chan<- string, urlPath string) {
+		msgC := make(chan string)
+		go func(errChan <-chan error, msgChan <-chan string, stopChan chan<- string, urlPath string) {
 
-			// program terminated by connection error
-			err := <-errChan
-			if err != nil {
-				fmt.Println(err)
-				stopChan <- urlPath
+			for {
+				select {
+				case err := <-errChan:
+					fmt.Println(err)
+					// program terminated by connection error
+					stopChan <- urlPath
+					return
+				case msg := <-msgChan:
+					fmt.Println(msg)
+				}
 			}
-		}(errC, cm.connStoppedChan, urlPath)
+		}(errC, msgC, cm.connStoppedChan, urlPath)
 
 		// get Bootstrap
-		connection := rpc.NewConn(rpc.NewStreamTransport(conn), &rpc.Options{ErrorReporter: &ConnError{Out: errC}})
+		connection := rpc.NewConn(rpc.NewStreamTransport(conn), &rpc.Options{Logger: &ConnError{Out: errC}})
 		client := connection.Bootstrap(context.Background())
 		cm.bootstraps[urlPath] = &client
 	}
@@ -211,12 +217,15 @@ func (cm *ConnectionManager) connect(sturdyRef interface{}) (*capnp.Client, erro
 		restorer := persistence.Restorer(*bootstrapCap)
 		futRes, relRes := restorer.Restore(context.Background(), func(p persistence.Restorer_RestoreParams) error {
 
-			l, err := capnp.NewText(p.Segment(), sr.localRef)
+			strT, err := persistence.NewSturdyRef_Token(p.Segment())
 			if err != nil {
 				return err
 			}
-
-			err = p.SetLocalRef(l.ToPtr())
+			err = strT.SetText(sr.localRef)
+			if err != nil {
+				return err
+			}
+			err = p.SetLocalRef(strT)
 
 			return err
 		})

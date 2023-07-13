@@ -48,7 +48,8 @@ func main() {
 	server := A_Server{}
 	client := test.A_ServerToClient(&server)
 	errorChan := make(chan error)
-	conn := rpc.NewConn(rpc.NewPackedStreamTransport(c), &rpc.Options{BootstrapClient: capnp.Client(client), ErrorReporter: &ConnError{Out: errorChan}})
+	msgChan := make(chan string)
+	conn := rpc.NewConn(rpc.NewPackedStreamTransport(c), &rpc.Options{BootstrapClient: capnp.Client(client), Logger: &ConnError{Out: errorChan, Msg: msgChan}})
 	defer conn.Close()
 
 	fmt.Println("Bootstraping" + c.RemoteAddr().String())
@@ -60,14 +61,28 @@ func main() {
 		case err := <-errorChan:
 			fmt.Println("Error reported:", err)
 			return
+		case msg := <-msgChan:
+			fmt.Println("Message reported:", msg)
 		}
 	}
 }
 
 type ConnError struct {
 	Out chan<- error
+	Msg chan<- string
 }
 
-func (cerr *ConnError) ReportError(err error) {
-	cerr.Out <- err
+// Logger interface
+func (cerr *ConnError) Debug(message string, args ...any) {
+	cerr.Msg <- message
+}
+func (cerr *ConnError) Info(message string, args ...any) {
+	cerr.Msg <- message
+}
+func (cerr *ConnError) Warn(message string, args ...any) {
+	cerr.Msg <- message
+}
+
+func (cerr *ConnError) Error(message string, args ...any) {
+	cerr.Out <- fmt.Errorf(message)
 }

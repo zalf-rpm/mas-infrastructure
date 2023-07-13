@@ -136,11 +136,15 @@ func (*Persistable) sturdyRefToMessage(srl persistence.SturdyRef, sr *SturdyRef)
 	if err != nil {
 		return true, err
 	}
-	l, err := capnp.NewText(transient.Segment(), sr.localRef)
+	strT, err := persistence.NewSturdyRef_Token(transient.Segment())
 	if err != nil {
 		return true, err
 	}
-	err = transient.SetLocalRef(l.ToPtr())
+	err = strT.SetText(sr.localRef)
+	if err != nil {
+		return true, err
+	}
+	err = transient.SetLocalRef(strT)
 	if err != nil {
 		return true, err
 	}
@@ -275,15 +279,18 @@ func (r *Restorer) messageLoop() {
 			delete(r.withdrawActions, SturdyRefToken(msg.unsaveToken))
 		case msg := <-r.restoreMsgC:
 
-			srToken := msg.localRef
+			srTokenbytes := msg.localRef
+			srToken := ""
 			ownerGuid := msg.owner
 			if ownerGuid != "" {
 				out := make([]byte, 0, len([]byte(srToken)))
 				if _, ok := r.owner[ownerGuid]; !ok {
 					msg.returnChan <- RestoreAnswer{err: errors.New("no owner with this guid")}
 				}
-				sign.Open(out, []byte(srToken), r.owner[ownerGuid])
+				sign.Open(out, srTokenbytes, r.owner[ownerGuid])
 				srToken = string(out)
+			} else {
+				srToken = string(srTokenbytes)
 			}
 			if _, ok := r.issuedSturdyRefTokens[SturdyRefToken(srToken)]; !ok {
 				msg.returnChan <- RestoreAnswer{err: errors.New("no such token")}
@@ -296,7 +303,7 @@ func (r *Restorer) messageLoop() {
 }
 
 type RestoreMsg struct {
-	localRef string
+	localRef []byte // srToken
 	owner    string
 
 	returnChan chan RestoreAnswer
@@ -328,10 +335,10 @@ type DeleteMsg struct {
 func (r *Restorer) Restore(c context.Context, call persistence.Restorer_restore) error {
 
 	ownerGuid := ""
-	if call.Args().HasSealedFor() {
-		// if call has a sealed for, then we need to open the token with the owner's key
+	if call.Args().HasSealedBy() {
+		// if call has a sealed by, then we need to open the token with the owner's key
 		// and get the local ref
-		owner, err := call.Args().SealedFor()
+		owner, err := call.Args().SealedBy()
 		if err != nil {
 			return err
 		}
@@ -340,15 +347,28 @@ func (r *Restorer) Restore(c context.Context, call persistence.Restorer_restore)
 			return err
 		}
 	}
-	srToken := ""
+	var srTokenBytes []byte
 	localRef, err := call.Args().LocalRef()
 	if err != nil {
 		return err
 	}
-	srToken = localRef.Text()
+	if localRef.HasText() {
+		srToken, err := localRef.Text()
+		if err != nil {
+			return err
+		}
+		// string to byte array
+		srTokenBytes = []byte(srToken)
+
+	} else if localRef.HasData() {
+		srTokenBytes, err = localRef.Data()
+		if err != nil {
+			return err
+		}
+	}
 
 	restoreMsg := RestoreMsg{
-		localRef:   srToken,
+		localRef:   srTokenBytes,
 		owner:      ownerGuid,
 		returnChan: make(chan RestoreAnswer),
 	}
