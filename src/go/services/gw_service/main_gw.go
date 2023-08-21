@@ -43,6 +43,7 @@ func main() {
 	fmt.Printf("restorer_sr: %s \n", bootStrapSturdyRef)
 
 	errChan := make(chan error)
+	msgChan := make(chan string)
 	// accept incomming connection from clients
 	go func() {
 		main := persistence.Restorer_ServerToClient(restorer)
@@ -54,21 +55,25 @@ func main() {
 				errChan <- err
 				continue
 			}
-			Serve(c, capnp.Client(main.AddRef()), errChan)
+			Serve(c, capnp.Client(main.AddRef()), errChan, msgChan)
 		}
 
 	}()
 
 	for {
-		err := <-errChan
-		fmt.Println(err)
+		select {
+		case msg := <-msgChan:
+			fmt.Println(msg)
+		case err := <-errChan:
+			fmt.Println(err)
+		}
 	}
 
 }
 
-func Serve(conn net.Conn, boot capnp.Client, errChan chan error) {
+func Serve(conn net.Conn, boot capnp.Client, errChan chan error, msgChan chan string) {
 
 	// Listen for calls, using  bootstrap interface.
-	rpc.NewConn(rpc.NewStreamTransport(conn), &rpc.Options{BootstrapClient: boot, ErrorReporter: &commonlib.ConnError{Out: errChan}})
+	rpc.NewConn(rpc.NewStreamTransport(conn), &rpc.Options{BootstrapClient: boot, Logger: &commonlib.ConnError{Out: errChan, Msg: msgChan}})
 	// this connection will be close when the client closes the connection
 }

@@ -20,8 +20,9 @@ func main() {
 		log.Fatal(err)
 	}
 	defer conn.Close()
+
 	// establish connection to registry
-	connection := rpc.NewConn(rpc.NewPackedStreamTransport(conn), &rpc.Options{ErrorReporter: &ConnError{}})
+	connection := rpc.NewConn(rpc.NewPackedStreamTransport(conn), &rpc.Options{Logger: &ConnError{}})
 	defer connection.Close()
 	// get ModelRunController Bootstrap
 	a := test.A(connection.Bootstrap(context.Background()))
@@ -48,6 +49,21 @@ func main() {
 }
 
 type ConnError struct {
+}
+
+// Logger interface
+func (cerr *ConnError) Debug(message string, args ...any) {
+	fmt.Println(message)
+}
+func (cerr *ConnError) Info(message string, args ...any) {
+	fmt.Println(message)
+}
+func (cerr *ConnError) Warn(message string, args ...any) {
+	fmt.Println(message)
+}
+
+func (cerr *ConnError) Error(message string, args ...any) {
+	fmt.Println(message)
 }
 
 func (cerr *ConnError) ReportError(err error) {

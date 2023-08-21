@@ -390,35 +390,17 @@ func (p VatPath_Future) Address() Address_Future {
 }
 
 type SturdyRef capnp.Struct
-type SturdyRef_Which uint16
-
-const (
-	SturdyRef_Which_transient SturdyRef_Which = 0
-	SturdyRef_Which_stored    SturdyRef_Which = 1
-)
-
-func (w SturdyRef_Which) String() string {
-	const s = "transientstored"
-	switch w {
-	case SturdyRef_Which_transient:
-		return s[0:9]
-	case SturdyRef_Which_stored:
-		return s[9:15]
-
-	}
-	return "SturdyRef_Which(" + strconv.FormatUint(uint64(w), 10) + ")"
-}
 
 // SturdyRef_TypeID is the unique identifier for the type SturdyRef.
 const SturdyRef_TypeID = 0x886d68271d83de4d
 
 func NewSturdyRef(s *capnp.Segment) (SturdyRef, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
 	return SturdyRef(st), err
 }
 
 func NewRootSturdyRef(s *capnp.Segment) (SturdyRef, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
 	return SturdyRef(st), err
 }
 
@@ -443,10 +425,6 @@ func (SturdyRef) DecodeFromPtr(p capnp.Ptr) SturdyRef {
 func (s SturdyRef) ToPtr() capnp.Ptr {
 	return capnp.Struct(s).ToPtr()
 }
-
-func (s SturdyRef) Which() SturdyRef_Which {
-	return SturdyRef_Which(capnp.Struct(s).Uint16(0))
-}
 func (s SturdyRef) IsValid() bool {
 	return capnp.Struct(s).IsValid()
 }
@@ -459,64 +437,24 @@ func (s SturdyRef) Segment() *capnp.Segment {
 	return capnp.Struct(s).Segment()
 }
 func (s SturdyRef) Transient() (SturdyRef_Transient, error) {
-	if capnp.Struct(s).Uint16(0) != 0 {
-		panic("Which() != transient")
-	}
 	p, err := capnp.Struct(s).Ptr(0)
 	return SturdyRef_Transient(p.Struct()), err
 }
 
 func (s SturdyRef) HasTransient() bool {
-	if capnp.Struct(s).Uint16(0) != 0 {
-		return false
-	}
 	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s SturdyRef) SetTransient(v SturdyRef_Transient) error {
-	capnp.Struct(s).SetUint16(0, 0)
 	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewTransient sets the transient field to a newly
 // allocated SturdyRef_Transient struct, preferring placement in s's segment.
 func (s SturdyRef) NewTransient() (SturdyRef_Transient, error) {
-	capnp.Struct(s).SetUint16(0, 0)
 	ss, err := NewSturdyRef_Transient(capnp.Struct(s).Segment())
 	if err != nil {
 		return SturdyRef_Transient{}, err
-	}
-	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
-	return ss, err
-}
-
-func (s SturdyRef) Stored() (SturdyRef_Stored, error) {
-	if capnp.Struct(s).Uint16(0) != 1 {
-		panic("Which() != stored")
-	}
-	p, err := capnp.Struct(s).Ptr(0)
-	return SturdyRef_Stored(p.Struct()), err
-}
-
-func (s SturdyRef) HasStored() bool {
-	if capnp.Struct(s).Uint16(0) != 1 {
-		return false
-	}
-	return capnp.Struct(s).HasPtr(0)
-}
-
-func (s SturdyRef) SetStored(v SturdyRef_Stored) error {
-	capnp.Struct(s).SetUint16(0, 1)
-	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
-}
-
-// NewStored sets the stored field to a newly
-// allocated SturdyRef_Stored struct, preferring placement in s's segment.
-func (s SturdyRef) NewStored() (SturdyRef_Stored, error) {
-	capnp.Struct(s).SetUint16(0, 1)
-	ss, err := NewSturdyRef_Stored(capnp.Struct(s).Segment())
-	if err != nil {
-		return SturdyRef_Stored{}, err
 	}
 	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
@@ -527,7 +465,7 @@ type SturdyRef_List = capnp.StructList[SturdyRef]
 
 // NewSturdyRef creates a new list of SturdyRef.
 func NewSturdyRef_List(s *capnp.Segment, sz int32) (SturdyRef_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1}, sz)
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
 	return capnp.StructList[SturdyRef](l), err
 }
 
@@ -540,9 +478,6 @@ func (f SturdyRef_Future) Struct() (SturdyRef, error) {
 }
 func (p SturdyRef_Future) Transient() SturdyRef_Transient_Future {
 	return SturdyRef_Transient_Future{Future: p.Future.Field(0, nil)}
-}
-func (p SturdyRef_Future) Stored() SturdyRef_Stored_Future {
-	return SturdyRef_Stored_Future{Future: p.Future.Field(0, nil)}
 }
 
 type SturdyRef_Owner capnp.Struct
@@ -627,6 +562,137 @@ func (f SturdyRef_Owner_Future) Struct() (SturdyRef_Owner, error) {
 	return SturdyRef_Owner(p.Struct()), err
 }
 
+type SturdyRef_Token capnp.Struct
+type SturdyRef_Token_Which uint16
+
+const (
+	SturdyRef_Token_Which_text SturdyRef_Token_Which = 0
+	SturdyRef_Token_Which_data SturdyRef_Token_Which = 1
+)
+
+func (w SturdyRef_Token_Which) String() string {
+	const s = "textdata"
+	switch w {
+	case SturdyRef_Token_Which_text:
+		return s[0:4]
+	case SturdyRef_Token_Which_data:
+		return s[4:8]
+
+	}
+	return "SturdyRef_Token_Which(" + strconv.FormatUint(uint64(w), 10) + ")"
+}
+
+// SturdyRef_Token_TypeID is the unique identifier for the type SturdyRef_Token.
+const SturdyRef_Token_TypeID = 0xfa412bb47f11b488
+
+func NewSturdyRef_Token(s *capnp.Segment) (SturdyRef_Token, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
+	return SturdyRef_Token(st), err
+}
+
+func NewRootSturdyRef_Token(s *capnp.Segment) (SturdyRef_Token, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
+	return SturdyRef_Token(st), err
+}
+
+func ReadRootSturdyRef_Token(msg *capnp.Message) (SturdyRef_Token, error) {
+	root, err := msg.Root()
+	return SturdyRef_Token(root.Struct()), err
+}
+
+func (s SturdyRef_Token) String() string {
+	str, _ := text.Marshal(0xfa412bb47f11b488, capnp.Struct(s))
+	return str
+}
+
+func (s SturdyRef_Token) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (SturdyRef_Token) DecodeFromPtr(p capnp.Ptr) SturdyRef_Token {
+	return SturdyRef_Token(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s SturdyRef_Token) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+
+func (s SturdyRef_Token) Which() SturdyRef_Token_Which {
+	return SturdyRef_Token_Which(capnp.Struct(s).Uint16(0))
+}
+func (s SturdyRef_Token) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s SturdyRef_Token) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s SturdyRef_Token) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+func (s SturdyRef_Token) Text() (string, error) {
+	if capnp.Struct(s).Uint16(0) != 0 {
+		panic("Which() != text")
+	}
+	p, err := capnp.Struct(s).Ptr(0)
+	return p.Text(), err
+}
+
+func (s SturdyRef_Token) HasText() bool {
+	if capnp.Struct(s).Uint16(0) != 0 {
+		return false
+	}
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s SturdyRef_Token) TextBytes() ([]byte, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return p.TextBytes(), err
+}
+
+func (s SturdyRef_Token) SetText(v string) error {
+	capnp.Struct(s).SetUint16(0, 0)
+	return capnp.Struct(s).SetText(0, v)
+}
+
+func (s SturdyRef_Token) Data() ([]byte, error) {
+	if capnp.Struct(s).Uint16(0) != 1 {
+		panic("Which() != data")
+	}
+	p, err := capnp.Struct(s).Ptr(0)
+	return []byte(p.Data()), err
+}
+
+func (s SturdyRef_Token) HasData() bool {
+	if capnp.Struct(s).Uint16(0) != 1 {
+		return false
+	}
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s SturdyRef_Token) SetData(v []byte) error {
+	capnp.Struct(s).SetUint16(0, 1)
+	return capnp.Struct(s).SetData(0, v)
+}
+
+// SturdyRef_Token_List is a list of SturdyRef_Token.
+type SturdyRef_Token_List = capnp.StructList[SturdyRef_Token]
+
+// NewSturdyRef_Token creates a new list of SturdyRef_Token.
+func NewSturdyRef_Token_List(s *capnp.Segment, sz int32) (SturdyRef_Token_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1}, sz)
+	return capnp.StructList[SturdyRef_Token](l), err
+}
+
+// SturdyRef_Token_Future is a wrapper for a SturdyRef_Token promised by a client call.
+type SturdyRef_Token_Future struct{ *capnp.Future }
+
+func (f SturdyRef_Token_Future) Struct() (SturdyRef_Token, error) {
+	p, err := f.Future.Ptr()
+	return SturdyRef_Token(p.Struct()), err
+}
+
 type SturdyRef_Transient capnp.Struct
 
 // SturdyRef_Transient_TypeID is the unique identifier for the type SturdyRef_Transient.
@@ -698,16 +764,28 @@ func (s SturdyRef_Transient) NewVat() (VatPath, error) {
 	return ss, err
 }
 
-func (s SturdyRef_Transient) LocalRef() (capnp.Ptr, error) {
-	return capnp.Struct(s).Ptr(1)
+func (s SturdyRef_Transient) LocalRef() (SturdyRef_Token, error) {
+	p, err := capnp.Struct(s).Ptr(1)
+	return SturdyRef_Token(p.Struct()), err
 }
 
 func (s SturdyRef_Transient) HasLocalRef() bool {
 	return capnp.Struct(s).HasPtr(1)
 }
 
-func (s SturdyRef_Transient) SetLocalRef(v capnp.Ptr) error {
-	return capnp.Struct(s).SetPtr(1, v)
+func (s SturdyRef_Transient) SetLocalRef(v SturdyRef_Token) error {
+	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
+}
+
+// NewLocalRef sets the localRef field to a newly
+// allocated SturdyRef_Token struct, preferring placement in s's segment.
+func (s SturdyRef_Transient) NewLocalRef() (SturdyRef_Token, error) {
+	ss, err := NewSturdyRef_Token(capnp.Struct(s).Segment())
+	if err != nil {
+		return SturdyRef_Token{}, err
+	}
+	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
+	return ss, err
 }
 
 // SturdyRef_Transient_List is a list of SturdyRef_Transient.
@@ -729,104 +807,8 @@ func (f SturdyRef_Transient_Future) Struct() (SturdyRef_Transient, error) {
 func (p SturdyRef_Transient_Future) Vat() VatPath_Future {
 	return VatPath_Future{Future: p.Future.Field(0, nil)}
 }
-func (p SturdyRef_Transient_Future) LocalRef() *capnp.Future {
-	return p.Future.Field(1, nil)
-}
-
-type SturdyRef_Stored capnp.Struct
-
-// SturdyRef_Stored_TypeID is the unique identifier for the type SturdyRef_Stored.
-const SturdyRef_Stored_TypeID = 0xcbe679a401315eb8
-
-func NewSturdyRef_Stored(s *capnp.Segment) (SturdyRef_Stored, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 32, PointerCount: 0})
-	return SturdyRef_Stored(st), err
-}
-
-func NewRootSturdyRef_Stored(s *capnp.Segment) (SturdyRef_Stored, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 32, PointerCount: 0})
-	return SturdyRef_Stored(st), err
-}
-
-func ReadRootSturdyRef_Stored(msg *capnp.Message) (SturdyRef_Stored, error) {
-	root, err := msg.Root()
-	return SturdyRef_Stored(root.Struct()), err
-}
-
-func (s SturdyRef_Stored) String() string {
-	str, _ := text.Marshal(0xcbe679a401315eb8, capnp.Struct(s))
-	return str
-}
-
-func (s SturdyRef_Stored) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (SturdyRef_Stored) DecodeFromPtr(p capnp.Ptr) SturdyRef_Stored {
-	return SturdyRef_Stored(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s SturdyRef_Stored) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s SturdyRef_Stored) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s SturdyRef_Stored) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s SturdyRef_Stored) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-func (s SturdyRef_Stored) Key0() uint64 {
-	return capnp.Struct(s).Uint64(0)
-}
-
-func (s SturdyRef_Stored) SetKey0(v uint64) {
-	capnp.Struct(s).SetUint64(0, v)
-}
-
-func (s SturdyRef_Stored) Key1() uint64 {
-	return capnp.Struct(s).Uint64(8)
-}
-
-func (s SturdyRef_Stored) SetKey1(v uint64) {
-	capnp.Struct(s).SetUint64(8, v)
-}
-
-func (s SturdyRef_Stored) Key2() uint64 {
-	return capnp.Struct(s).Uint64(16)
-}
-
-func (s SturdyRef_Stored) SetKey2(v uint64) {
-	capnp.Struct(s).SetUint64(16, v)
-}
-
-func (s SturdyRef_Stored) Key3() uint64 {
-	return capnp.Struct(s).Uint64(24)
-}
-
-func (s SturdyRef_Stored) SetKey3(v uint64) {
-	capnp.Struct(s).SetUint64(24, v)
-}
-
-// SturdyRef_Stored_List is a list of SturdyRef_Stored.
-type SturdyRef_Stored_List = capnp.StructList[SturdyRef_Stored]
-
-// NewSturdyRef_Stored creates a new list of SturdyRef_Stored.
-func NewSturdyRef_Stored_List(s *capnp.Segment, sz int32) (SturdyRef_Stored_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 32, PointerCount: 0}, sz)
-	return capnp.StructList[SturdyRef_Stored](l), err
-}
-
-// SturdyRef_Stored_Future is a wrapper for a SturdyRef_Stored promised by a client call.
-type SturdyRef_Stored_Future struct{ *capnp.Future }
-
-func (f SturdyRef_Stored_Future) Struct() (SturdyRef_Stored, error) {
-	p, err := f.Future.Ptr()
-	return SturdyRef_Stored(p.Struct()), err
+func (p SturdyRef_Transient_Future) LocalRef() SturdyRef_Token_Future {
+	return SturdyRef_Token_Future{Future: p.Future.Field(1, nil)}
 }
 
 type Persistent capnp.Client
@@ -1705,33 +1687,46 @@ func (s Restorer_RestoreParams) Message() *capnp.Message {
 func (s Restorer_RestoreParams) Segment() *capnp.Segment {
 	return capnp.Struct(s).Segment()
 }
-func (s Restorer_RestoreParams) LocalRef() (capnp.Ptr, error) {
-	return capnp.Struct(s).Ptr(0)
+func (s Restorer_RestoreParams) LocalRef() (SturdyRef_Token, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return SturdyRef_Token(p.Struct()), err
 }
 
 func (s Restorer_RestoreParams) HasLocalRef() bool {
 	return capnp.Struct(s).HasPtr(0)
 }
 
-func (s Restorer_RestoreParams) SetLocalRef(v capnp.Ptr) error {
-	return capnp.Struct(s).SetPtr(0, v)
+func (s Restorer_RestoreParams) SetLocalRef(v SturdyRef_Token) error {
+	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
-func (s Restorer_RestoreParams) SealedFor() (SturdyRef_Owner, error) {
+
+// NewLocalRef sets the localRef field to a newly
+// allocated SturdyRef_Token struct, preferring placement in s's segment.
+func (s Restorer_RestoreParams) NewLocalRef() (SturdyRef_Token, error) {
+	ss, err := NewSturdyRef_Token(capnp.Struct(s).Segment())
+	if err != nil {
+		return SturdyRef_Token{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	return ss, err
+}
+
+func (s Restorer_RestoreParams) SealedBy() (SturdyRef_Owner, error) {
 	p, err := capnp.Struct(s).Ptr(1)
 	return SturdyRef_Owner(p.Struct()), err
 }
 
-func (s Restorer_RestoreParams) HasSealedFor() bool {
+func (s Restorer_RestoreParams) HasSealedBy() bool {
 	return capnp.Struct(s).HasPtr(1)
 }
 
-func (s Restorer_RestoreParams) SetSealedFor(v SturdyRef_Owner) error {
+func (s Restorer_RestoreParams) SetSealedBy(v SturdyRef_Owner) error {
 	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
 }
 
-// NewSealedFor sets the sealedFor field to a newly
+// NewSealedBy sets the sealedBy field to a newly
 // allocated SturdyRef_Owner struct, preferring placement in s's segment.
-func (s Restorer_RestoreParams) NewSealedFor() (SturdyRef_Owner, error) {
+func (s Restorer_RestoreParams) NewSealedBy() (SturdyRef_Owner, error) {
 	ss, err := NewSturdyRef_Owner(capnp.Struct(s).Segment())
 	if err != nil {
 		return SturdyRef_Owner{}, err
@@ -1756,10 +1751,10 @@ func (f Restorer_RestoreParams_Future) Struct() (Restorer_RestoreParams, error) 
 	p, err := f.Future.Ptr()
 	return Restorer_RestoreParams(p.Struct()), err
 }
-func (p Restorer_RestoreParams_Future) LocalRef() *capnp.Future {
-	return p.Future.Field(0, nil)
+func (p Restorer_RestoreParams_Future) LocalRef() SturdyRef_Token_Future {
+	return SturdyRef_Token_Future{Future: p.Future.Field(0, nil)}
 }
-func (p Restorer_RestoreParams_Future) SealedFor() SturdyRef_Owner_Future {
+func (p Restorer_RestoreParams_Future) SealedBy() SturdyRef_Owner_Future {
 	return SturdyRef_Owner_Future{Future: p.Future.Field(1, nil)}
 }
 
@@ -2920,129 +2915,127 @@ func (f HostPortResolver_ResolveIdent_Results_Future) Struct() (HostPortResolver
 	return HostPortResolver_ResolveIdent_Results(p.Struct()), err
 }
 
-const schema_855efed3475f6b26 = "x\xda\x9c\x97ol[W\x15\xc0\xcfy\xd7\xf1\xb3\x13" +
-	";\xce\xcdM\x19\x84E\x864ckh\xbc&\xa9R" +
-	"VMJ\x1bHS\x07U\xf8\xbe\xd0I\xedh\xd7\x97" +
-	"\xf8f\xf1\xe6\xd8\xee{\xcf\xe92Md\x15C\x83m" +
-	"Qa\xc0D\x11\xa8C\xb4\x80&\xa1\xa1JL\x044" +
-	"M\xadVi\xa2\xaaD\x0bej7&6\xb4\x01c" +
-	"\x13\"\x12\x82\x8em\x0f\xddg?\xdfg\xd7\xcd\xca\xbe" +
-	"Dy\xf7\x9dw\xfe\xfe\xce9\xd7\x9bH\xcb\xb6\xd0`" +
-	"\xfc\xb9\x18h\xfc\xdb-a\xb7\xb8\xba\xfc\x87\x0b\x8f\xbf" +
-	"\xf20\xd0\x01\xe2\x9e\xfc\xc6\x8eR\xf9\xdf\xbf\xf99\x00" +
-	"\x0e\x8f\x87\x7f\x85l_X\x07`{\xc2\x13\xec\xb0\xfc" +
-	"\xcf\xdd\xf5\xcaWzn\x9e\x9b\xff\x1a\xf0ND\xf7S" +
-	"\xf7\xde5\xf1\xbb\xf7\xf7\x7f\x15\xc6Q\xd7\x00X.\xfc" +
-	"\x1a+\x87\xb7\x00\xb0\xa3\xe1C\x80\xae\x91:\xf6\x91\xc3" +
-	"\x89\xd2\x11\xa0=\xc4\x15gG^~\xf2\xf2ONI" +
-	"\xddW\xc2\x16\xb2\xb8.uG\xf5\x09\xb6G\xfe\xe7\xe6" +
-	"\x1e\xf9\xfa-\xa1}'\x8f\x00\xefF\xe2\xc6\xef|\xf2" +
-	"`\xf8\xf0\xc4\x7fa\x1d\xea\x08\xc0\xb6\xeb\xab\x80l\\" +
-	"\x97z\xa7\xfe\xda\xd1\xf7\xe7\xc2\xc0\xb7\x80\xa7\x10\x01B" +
-	":\xc0\xf0\x0f\xf5U\x04d\xbf\xd0G\x01\xdd\xfd?\xfe" +
-	"\xdc\x89[Ow|\x07\xe8\x16\xff\xfdE\xbdW\x83\x90" +
-	"{{\xea\xd2\xcd\x0f}\xf2\x99c@;\x89\xf2\x1f\x90" +
-	"\x9d\xd3/\xb3K\xfa\x0d\x00\xecu}\x82\xc5#\xd2\xa3" +
-	"\x17~\xf4\xd3U\xf3\xf7\x9f>\x0e\xf4FT\xa1\xb7h" +
-	"R\xdf\xbf\xf4!d-R\x8caD:\xb5\xee\x81\x07" +
-	"/}\xe2\xb1\x97\x8e\x03M\xf96\xcd\xc8\x9b\x08!\xf7" +
-	"X\xcfo\x9fy\xe7\x9b\xcbO5\xda\x1c\xde\x1d\xe9F" +
-	"&\"\xd2\xe8\xc1\xc8\x04;\x15\xb9\x19@\xd5\x80\xae'" +
-	"\xeaS\xc0\xe1\x95\xc8=\xc8\xceI\x19\xf6\xb7\xc8\x04[" +
-	"\x17\x95.&\xe2;\xdc\xe9#\xf8\x1c\xf0\x01D\xf5m" +
-	"\x0b\x91\xf6\xdf\x8b\xbc\x86\xeccR\x8e\xad\x8b\xfe\x05P" +
-	"\xd5\xa01\xfa\xb7\xa3o\xb2+QY\xb9\x0d\xad\x13\x8c" +
-	"\xb7J\xd5[_\xdc2\xb9\xf0\xfa\xf63@?\x8e*" +
-	"o\x95\xe8ok\x9dD\xb6K\x8a\xb1t\xab\x8c\xfe\x97" +
-	"\xfb\x07\xf1\xf8\xe2\x1bg\x81\xdf\x88!\x95+/\x0d?" +
-	"k\xedF\xf6\xac'\xbc\xd2*\xdd\xf8,\xd9\xdf\xfb\xfc" +
-	"S\x7f\xba\x08\xb4'\xe0S\x0bJ\xe1\xe5\xb61d?" +
-	"h\x93\xc2G\xdbd-\x1f~\xf0\xf9\x97V\xcf\xbdu" +
-	"\x09hg\x808\xcf\x0d\xb6\xd2v\x81\x9d\xf1dO\xb5" +
-	"I/n\xda\x95\xba\xa9g\xfe\x89\xcb\xd2e\xa8*\xec" +
-	"\x89\xed\x95`l\x88Ie\xec\xad\x8d\xdf\xfd\xc7\xf9;" +
-	"_n\xb0\xec\xc5\x94\x8eM\"\xdb\x17\xf3\x80\x8fIm" +
-	"\xcb\xe7\x1f\xbd\xe8\xeck}U\xc2\x1eR\xa6eL\xec" +
-	"\xd9\xd8iv\xc6\x93=\x15\x93!\x0d\xffzc\xa2\xf8" +
-	"\xc4\x7f\xde\x00\xba\xbef\xf9D\xfcq\x0f\xc9\xb8\xb4\xbc" +
-	"\xfbD\xdb\x97\xd3%\xf7\xefA$\xe3\xdd\x12\xc9\x95G" +
-	"\xaf\x0c\xcf\x1e~\xf7\x1d\xaf\x84\xfe\xb7\xe7\xe2\x1e\xce\xaf" +
-	"\xc6\xa5#\xb5^\xe0\x9dH\xea\xbb\x0e\xa3,\xdd~\x81" +
-	"\xedn\x97\xae\xf0\xf6\xa7\x01\xdd\xc7\xdaz\x97\xf9]\x1f" +
-	"}\x17\xf8\xfa\x80\xbe\xf6\xefI}\x7fl\x97\xfa\xd6\x1f" +
-	"z\xe1\xc0\xdbG_|\xaf\x81kO\xf0\xb6D'\xb2" +
-	"tB\xaa\x1bO\x8c\xc2\xfdnIXv\xcevDK" +
-	"aF\xa4f\xccR\xa1\xb4ug\xd1v2E\xcb1" +
-	"\x84]\xcc/\x08+e\x88\xbbs\xb6c\x99Vj\xa7" +
-	"0G-gZ\x98N\x06\x91\x87H\x0b@-t\xf4" +
-	"\xdb\x92\xd2~\xd0h\x8b\x9e\x90r\xdb0\x83X\xb3\xa2" +
-	")+SN\xd9\xca.\xea\x86\x98\xe51\x0c:M\x87" +
-	"\x02\x9d\x197\x14{4\xbe5\xf9\x85C\x05a\xb9_" +
-	"\xb4\xcc\x82\x9d\x13\x05@gt\xca)Z\"\xcb#$" +
-	"\x14s\xdd\x10\x02\xd0\x0d\x06\x00\xbf\x85 \xdf\xaca\x1c" +
-	"\xdfw\xbbd\x9e\xe8\xe0V\x00\xbe\x91 \xff\x8c\x86\xae" +
-	"\xa3\x14`\x872\x07\x88\x1d\x80\xa3\xb6\xa7\x12;\x94\xe9" +
-	"\xca\x8bZ\x18!\x15F\xa6zTpR\x86\xc8\x0b\xd3" +
-	"\x162\xb0dv\xd1\x10\xb3*G\xfe\xf4@\x7f\xb6Q" +
-	":Fi\x12\x90\x0e\xe8KV\xe5;\x1eB\xcd\xfd\xe7" +
-	"\xf2\xad7t\x1eX9\x0d<\xa4\xe1\xf6.\xc4\x18\x00" +
-	"E\xc3\xad\xcaL\x01\x1a\x00\xd7\xcc\xe9\xf6l\xd6\x12v" +
-	"\xd2N\xe5J#2#\x00\x95\x84\x8c\x01\xf0>\x82|" +
-	"\x93\x86\x14\xb1\x92\x8f\x811\x95\xa5\xa5|\xf1\x90\xb0F" +
-	"6c\x144\x8c\x02.\x95K\xa5\xe0s\xcdV\xf8\x83" +
-	"\x02\xf7\xe2NU\xbd\xed3D\xd2.\xe7\x1d\x9b\x87j" +
-	"\xbe\xc4\xa5\xd9\x08A\xde\xa5\xe1\x92]\x9e\x99\x11\xb6\x8d" +
-	"\x08\x1ab\xc0\x8c~\xbd0VXL\xc9?}\x86\xb0" +
-	"\xcbz\xde\xb1\x9b%\xc6\x10\xb2\xa6DX<\x84\x18\x18" +
-	"}h\xb9\x95W\"\x03I\xd32\xe7\xedj\xc1|\x11" +
-	"\xf4g\x0e\xa5c\x1e\xd4KVE\xbe\xbe\x06\xa4\x91k" +
-	"\x99\x05IiRR\xe65K\xa0\x1c\xbd\xcd\xca1\xa9" +
-	"\xf0\xd4\x17L\x89em4V\xe9\xcb\x17g\xcc\xbc!" +
-	"f\x01\x00;A\xc3\xce\x0f_\x98\x8c\x99\x90\xc16\xf3" +
-	"\xbf>\xe1~\xca\xd4\xdaB\xc3\xf5K\x00hU\xd3\xe5" +
-	"\xcfG\xf4\xa7S=\xdf^\xe9\xd6\xe0\xfb\x1e\xb7Z\xde" +
-	"4$\xb2\xa2\xe0H\xc4y\x04\xd1\xbd\xb8\xf3\xfb{\xce" +
-	"\x9e\x7f\xfa$\x00\xa8\x1d\x05\xd0\xac\x11\x9b\x83\x92\x90\xa4" +
-	"x\xaa\xd4M(j\xa8\xbdJ\xa3\xf7\xbb>G\x80N" +
-	"54a\xc1h&\x88\x83/\x8f\xfe4\xa7t\x124" +
-	"\x1a\xd5]\xcb\xff\xa0\xb1-\xc3\xd7\xc5\xb0o/cZ" +
-	"\xba9oKP:j\xa0\x98\xd3\x00\xfc\x00A\x9e\x0f" +
-	"\x80\x92\xeb\x07\xe0Y\x82\xbc\xa4!j]\xa8\x01\xd0y" +
-	"y6G\x90;\x1aR\xa2u!\x01\xa0\x07\x87\x00x" +
-	"\x9e \xbfOCw\xda\xb4\xc5\xc8\xe6;L\xd0\x9dt" +
-	"\x16c\xa0a\x0c01W\xb4\x9d\xdaC\xa9h9\xa8" +
-	"\x83\x86:`\xd2\xcc\xe7L\xdb\x7f\xd5\xac\xa3*\x94%" +
-	"$f\xde\xfcVK\x9f\xee\x0d\xeca:\x1d\xb8&\xd2" +
-	"G\xdc)sA\xc8\xcc\x02\x99\xb7\xbd\x07\xd9\xb5\xe0\xb5" +
-	"\xad\x0f+\xfa\xb4\x02T\xb3\xef\xebF_om\xc3\xd8" +
-	"\xe6BC'\x86\x1a\x9b\xdeKw\xa5\xc5\xbd\x8a\x024" +
-	"t\xe3\xa4\x9a\x83\xb5$\x0f\xca\x15\xb2\x89 \xbf]k" +
-	"\xdew\xb60\xf3\"\xbb\xa3\x08ha\x87Z^\x0d{" +
-	"\xa2\xe9X\x98\xf2&Q\xb6\xa1\xd4\xb2\x82_\"\xc8\xe7" +
-	"\x02^\x88\xfe@\xfd\xb5j\xad\x83\xf5\xa7\x84Tj\x1d" +
-	"\x04 q\xafX\xdc\xe4On\xf90\x18|\x18\x0a>" +
-	"\x0c_5\xe0\x9bo6\xbfj\xf36TvZ\xf3i" +
-	".\xcc\xfc\x8e\xe2Z\xf9\x08\xf0s\x87\xe9dL\x07\xe7" +
-	"\x1a\x8a\xd1\xfd\x01\x9b\x8a\xe4\xe4^\xae]\xdd*\xfa\x97" +
-	"Lo\xef\xd9\xd8\xa1\xeeR\xd7\xde\xd85,\xaa\x93\xdc" +
-	"[\x1cyR\xbf\xa5zU\\\xfa\x8cY\xc2\xce\x10\x01" +
-	"\xac\x9b\xb8\xd7\xce\x94\xa7\xcf\xb9\x1a4\xa3\x19h\x93\x01" +
-	"\xd0\xec*#\x80\xb3\xd8\xa1nn\xd5P\xca\x05I\xfb" +
-	"\x94!1\xbc\xfam\xf3\x14\xa7\xb3\xd0\xc0\xd9\xdef#" +
-	"eo`|\xf8\x9c\x1d\x94\x87%\x82\xfc\x81\x00g\x8b" +
-	"\xf2\xf0>\x82\xfc!\x0d\xddRy:\x9f\x9b\xf9\xbc\x00" +
-	"\xa2x\x0b\x1e\x0e6;\x1cjvx5\x87k]G" +
-	"\xab\xfb\xa4\xcf#\x12\xeb\xca\xd6\xad\xca&Ii\x9c_" +
-	"\x1f\xea^!\xcd\x90\xc0\xae\xbc\xbe\xc1\xee\xef\x05u\x07" +
-	"jNB\x0d\x84\x93\x00|3A\xbeMCwNm" +
-	"$\xa4js\x01\"\xf5f\xcf\x8c-}D\xcf\xc9t" +
-	"\xc1I\x0ak\xc1\xccc\x044\x8c\xc0\x1a\x17C\xf4\xf6" +
-	"K\xcc\xbb)#\xaa_\xe4t\xbc\x174\xaaE*\x85" +
-	"\x1f\xe8o\xbc>\xcb\xca\x0f\xf6\x07\xee'\xb9\xd2H\xdd" +
-	"\xba\xa8[$\xffW\x0dk\xbd\x17\xc8N\xbf\x9a\x01\xb5" +
-	"\x11\x10\xf0\xe9\xda[k\xed\xb9+\x7f:\xa0\xd50\xbf" +
-	"\xfa\x150\x89\xbb\xcb\x0a\x99\xff\x05\x00\x00\xff\xff\xaf;" +
-	"\xe3."
+const schema_855efed3475f6b26 = "x\xda\x9cW}l\x1b\xe5\x19\x7f\x9e;\xc7g\xc7v" +
+	"\xec\xd7o: #\xf2\x96\xa6+\x0d\x8di\xe3.\x9d" +
+	"\x10S\x9blm\x9aLh~/\x0c\x89\xa2\x96^\xe2" +
+	"7\xc4\xd4\xb1\xdd\xbbs\xda X\x88F\xc5g\xd4\x95" +
+	"\xadh\x9d\x86\x0a\x1a\xddV\xa4\x89Q!\xa4n\xaaP" +
+	"+\x90\xd8\x10\xd2\xd2\xad\xa0\x14\x866\xa6}\x88\x81\xa6" +
+	"\xe5\x9fm\x1dp\xd3{\xf6\xf9\xbd\x187m\xf9'\xca" +
+	"\xbd\xf7\xdc\xf3\xf1\xfb\xfd\x9e\xe7y\xbd\xe1\xcd\xc0\xd6\xc0" +
+	"\xc6\xd8\xcbQP\xd8\xf7[\x82Nii\xfe\xcdsO" +
+	"\xbc\xfb\x10\x90^\xd59\xf9\xdd\xed\xe5\xca\xbf\x7f\xf3\x0b" +
+	"\x00\xccl\x0b\xfe\x12\xe9\xae\xa0\x06@\xef\x08\x0e\xd19" +
+	"\xf1\x9fs\xeb\xbb\xdf\xe9\\;9\xf50\x90$:_" +
+	"\xda{\xd7\xd0\xef>\xd9}\x10ZPX\xe5\x83\xef\xd1" +
+	"Jp3\x00=\x1a\xdc\x02\xe8\xe8\xe9c\x9f\x9b\x8b\x97" +
+	"\x0f\x01\xe9T\x1d\xfez\xff;O_\xf8\xe9\x19\xe1\xf9" +
+	"t\xd0D\xba\xe0z~#8D;5\xe19\xff\xe8" +
+	"#7\x04v\x9d<\x04\xac\x03U'v\xe7\xd3\xfb\x82" +
+	"sC\xff\x83U\xa8!\x00m\xd1\x96\x00iX\xdb\x0f" +
+	"\xe8\x8c\xfe=\xd1\xfd\xe7b\xef\xf7\x80\xa5\x11\x01\x02\x1a" +
+	"@\x86kK\x08Hg4\x11x\xf7O\xbe~\xfc\xa6" +
+	"\xb3\x89#@6{\xef\x8fj]\x0a\x04\x9c[\xd2\x8b" +
+	"k\x1f\xfc\xe2K\xc7\x80$U\x99> =\xac]\xa0" +
+	"Oi\xd7\x00\xd0\x13\xda\x10]p3z\xed\xc7?[" +
+	"2~\x7f\xe3\xb3@\xaeGYx\x8b\"\xfc\x9d\xd2\xfa" +
+	"\x90\xfeZ\x98\xd1W\xdd\xa4V\xdd\xf7\xc0\xe2\x17\x1e\x7f" +
+	"\xfbY i/\xe6\x9a\xd0\xfb\x08\x01\xe7X\xe7o_" +
+	"\xbaxx\xfe\xb9\xc6\x98\x99\xebB\x1dH\xd7\x85D\xd0" +
+	"/\x87\x86\xe8\xc1\xd0Z\x00\xc9\x00Y\xad\xcaO\x013" +
+	"\xf7\x87\xeeAzX\xd8\xd0\x9f\x87\x86\xe8bH\xa4\x18" +
+	"\x8fmw\xc6\x0e\xe1\xcb\xc0z\x11\xe5\xb7-\xaa\x88\x7f" +
+	"&\xf4\x1e\xd2?\x08;\xba\x18\xfa\x1b\xa0\xe4\xa0\xb1\xfa" +
+	"\x17\xc2\xef\xd3\xd3a\xc1\xdc\x87\xe1!\xba\xaaU\xb8\xbe" +
+	"\xf9\xad\xcd#\xd3\x7f\x19x\x15\xc8\xe7Q\xe2V\xad\xfe" +
+	"\xe3\xf0\x08R\"\xcch\xacUT\xff5uw\xd7+" +
+	"\xcf\xfd\xf1<\x90N_\x18W\x16\x99}\xad\x83H\xe7" +
+	"\\\xe3\xfb[\x05=\x0f=\xf0\xca\xdbKo|\xb0\xd8" +
+	"\xa0!\xe1\x99>\xd5z\x8e\x9epm\x8f\xbb\x8e\xd7\xdc" +
+	"\x9a^\xd39\xf5\xe4\x05\x91\x05\xd4\x1cbd\xa7\xe0:" +
+	"\x16\x11\xce\xe8\x07\xeb\x7f\xf0\xcf\x85;\xdfi\x88\xec\xa6" +
+	"\xd9\x1b\x19A:\x10\x11\xde\xbe\x1a\x11\xde\xe6\x17\x1e;" +
+	"o\xefj\xfd\x13\xb0$\x06dh\xc1\x16}&r\x96" +
+	"\x9epm\x8fG\x04X\x99_\xad\x8f\x97\x9e\xfc\xcf_" +
+	"\x81\xac\xaeG~$\xfa\x84\x88|4*\"\x7f\xebx" +
+	"\xe4\xdb\xc3e\xe7\x1f>\x95\x9d\x8av\x08\x95=\xfc\"" +
+	"\x99}\xf1\xc6\x81\x8b\xc0\xaeG\x9fr\xb6\xa1\xa6\x00d" +
+	"^\x88&\x91\x9e\x89\x8aH\xa7\xa3\"\xabS\x8f\xfd7" +
+	"31\xf7\xd1E\x97D/\xd4u1W\xd0\xbd1a" +
+	"Q\xef\x06\x96D\x1fs\xc2!\x86\xe9\x91\xd89\xfaL" +
+	"\xccE/\xf6<\xa0\xf3x\xa4k\x9e\xddu\xedG\xc0" +
+	"V\xfb\xfc\xb5\xfdP\xf8[\xd7&\xfc\xad\xde\xff\xda\x9e" +
+	"\x0f\x8f\xbe\xf5q\x83\xb2]\xc3\x83mI\xa4G\xda\x84" +
+	"\xbb\xc3m[\xe0^\xa7\xccM+o\xd9\xbc\xa58\xce" +
+	"\xd3\xe3F\xb9X\xbeyG\xc9\xb2\xb3%\xd3\xd6\xb9U" +
+	"*Ls3\xad\xf3\xbb\xf3\x96m\x1afz\x077\xb6" +
+	"\x98\xf6\x187\xec,\"\x0b\xa8-\x00u\xa4\xd0kL" +
+	"Bz@!-Z\\\xd8m\xc5,b=\x8a\"\xa3" +
+	"\x8c\xda\x1537\xa3\xe9|\x82E\xd1\x9f4\xe9\x93\x10" +
+	"\x93X\x9f\xafQ\xc3z\xea\x9b\xfb\x8b\xdcL\xddV\xda" +
+	"\xcb\x8b\xcem\xa6Q\xb4\xf2\xbc\x08h\xb3\x80\x1a\x00\x08" +
+	" \x00\x89\xe9\x00,\xaa\"\xbbVA\xc7\x96&\x98\x90" +
+	"\x9e\x001\x012\xab\x80\xcc*[;*\xdai\x9d\x17" +
+	"\xb8aq\x91g*7\xa3\xf3\x09Y\xb27\x0e\xd0\x1b" +
+	"V\x84\x0c\x12\x92\x02$\xbd\xda\xacY\xfd\x8e\x05Pq" +
+	"\xfe5\x7f\xd35\xc9=\xa7\xce\x02\x0b(8\xd0\x8e\x18" +
+	"\x05 \xa8;5\x9bQ@\x1d\xe0\x92\x10\x0d\xe4r&" +
+	"\xb7RV:_\xeeg\xa1z\x85\xeb\x06\x01X\xb7\x8a" +
+	"l\x83\x82\x04\xb1]\xc8\x80\xf4\x8a\xc3\x1bTd\x9b\x14" +
+	"\x9c-\x94\xf6s\xb3\x7f\x13\x86A\xc10\xe0l\xa5\\" +
+	"\xf6?\xd7c\x05/W\xb8[w\xba\x96m\xb7\xceS" +
+	"V\xa5`[~\xb4E\xd8\x90\x8a\xac]\xc1Y\xab2" +
+	">\xce-\x0b\x11\x14D_\x18\xedJ\xb5U\x95VZ" +
+	"\xfc\xe9\xd6\xb9U\xd1\x0a\xb6\xd5\x0c\x18\x9d[v\xc9T" +
+	"\xb9\xc9\x02\x88\xbeY\x86\xa6S}\xc5\xb3\x902Lc" +
+	"\xca\xaa\x11\xe6\x99\xa07q\x08\x19t5:kV\xed" +
+	"\x97s\xa06\xcaT\xa0 \xe4\x96\x12br\xb5\xef\xa3" +
+	"\xa3\xab\x19\x1d#\x00l\xbd\x8a\xec+\x0aj\xd3\x86P" +
+	"_}0\xd6\xd4W(\x8d\x1b\x05\x9dO\x00\x00&\xa4" +
+	"\xe4\x1b\xb4y\x95\x14e\x8d\xb8(\xbbY%\xcb\xa1\xf7" +
+	"\xc0\x93\x1b\x09u\xc7#\x03\xd0\xac\x01\xe7\xcdI\xf4\xc6" +
+	"\xcer\xa5\xbb$\xae\xa0\xf4{\x9c\x1a\xd1\xc3\x10\xcf\xf1" +
+	"\xa2-\xc4\xceB\x88\xce\xf9\x1d?\xba\xe3\xf5\x85\xe7O" +
+	"\x02\x80\\?\x00\xcdZ\xb2\xb9d\xe2B3\xae+y" +
+	"\xc5\x09\xebre\x92\xf0\xbd\x8e\xa7(@\xbbV\x1a7" +
+	"aK\xd6/\x0c\xcf\x1e\xbd1M\xc8\x08($\xac9" +
+	"\xa6\xf7Ac\x83\x06\xafH\xcd^\xbc\xacaj\xc6\x94" +
+	"%$\x93\xa8K\xc6\x18\x03`{Td\x05\x9fd\xf2" +
+	"=\x00,\xa7\"++\x88J;*\x00dJ\x9cM" +
+	"\xaa\xc8l\x05\x89\xaa\xb4\xa3\x0a@\xf6\xf5\x01\xb0\x82\x8a" +
+	"\xec\x80\x82\xce\x98a\xf1\xfeM\xb7\x1b\xa0\xd9\xc39\x8c" +
+	"\x82\x82Q\xc0\xf8d\xc9\xb2\xeb\x0f\xe5\x92i\xa3\x06\x0a" +
+	"j\x80)\xa3\x907,\xefU\xb3\xde\xaa\xaa,.d" +
+	"\xe6\x0ef\xb9\xfc\xc9N\xdf>&c\xbe\x1b y\xd4" +
+	"\x195\xa6\xb9@\x16\xd4)\xcb}\x10\xfd\x0bn\x03{" +
+	"bEO\xad\x005\xf4=\xdf\xe8\xf9\xad\xaf\x0e\xcb\x98" +
+	"n\xe8\xc9@c\xfb\xbbpW\x9b\xdde\x14\xa0\xa1/" +
+	"G\xe4D\xac\x83\xbcQ\x1cnP\x91\xdd\xa2\\\xae\x03" +
+	"-n\x14xnp\xa6\xfa\xb6\xbe\x9f\xaehwxh" +
+	"LYP\xdd\x1a\xcd\xe7%7\x0a\xdbK\xe6\x0a\xde}" +
+	"\xbc\xdcn\xd8Y\xc3\xc6\xc9\x86\";.\xb3\x0b\xd4|" +
+	"\x0e\x13\xf2jT\xf5?k\xb8\x9b\xc5\xc2\x84\xbc|\\" +
+	"\xba\xae:\xdc\xb5Y\xe9\x8e\xe6\x82\xba|\x0ft\xc9\xba" +
+	"\xb4q\xa3\x8c\xc9\x80\x0a\x88\xc9+B\xca\xf5g\x7f\x9a" +
+	"@\xfdr\x04Z5E\x01N`B^uj\xa5T" +
+	"\x8aBE\xa3z\x95\xc0\xc6\xb7\xcd!\x1e\xceAC\xab" +
+	"\xeel\xd6\xaa;}m\xa9\xd4zu\x9f8,\xab\xc8" +
+	"\xee\x13\xbd\xaaV{uF\x1c\x1eP\x91=\xa8\xa0S" +
+	"\xae\x8c\x15\xf2\xe3\xdf\xe0\xa0\xcel\x90\xbbX\x1enl" +
+	"v\xd8\xd7\xec0\xf3\xa9U\xbe\xd2\xfd\xad6\xa7\xbb]" +
+	"E\xe22\xda:$mB)\x8ds\xe13mn\x11" +
+	"Fm\xbe\x83|\xdb\xb4\xb4\x97c\xb1Fx\xd4q\xaa" +
+	"\x8c\xf7H5\xc7\xf0\x13\xa7&\xe7\x1e\xa9\x83\xb8\xcd\x0f" +
+	"\xc8\xc9\x963l\x03c\xa0`\x0c\xaev>{\xe3]" +
+	"^j\x9a\x0b\xaf\xae\xbb\x93\x00l\x93\x8al\xab\x82\xce" +
+	"\xa4\\,H\xe4\x02\x02D\xe2\x0e\x8eqK@\x82." +
+	"&\xc3E;\xc5\xcdi\xa3\x80!P0\x04+\xdc\xf4" +
+	"\xd0]\x13Q\x17\x0fD\xf9\x9b\x99l\xeb\x02\x85(\xa1" +
+	"\xaa\xce\xfcpTA\x12B\xdb\xd8\xe3\xbbp\xe4\xcb\xfd" +
+	"\xcb\xa6\xfe\xb2}pU\x92\xa9\xb7\xba\x0f\x1d\x1fI\xf5" +
+	"\x89\xe3\xa7\xe8\x92\xcbgeE\x88\xab=\x9a\x0d\xe3\xb2" +
+	"G\xea3~wE*\xf4\xff\x01\x00\x00\xff\xff\x9a\x01" +
+	"\xd6\xe7"
 
 func RegisterSchema(reg *schemas.Registry) {
 	reg.Register(&schemas.Schema{
@@ -3062,7 +3055,6 @@ func RegisterSchema(reg *schemas.Registry) {
 			0xbf018f62ff460d0f,
 			0xc1a7daa0dc36cb65,
 			0xc541e5764a37d73a,
-			0xcbe679a401315eb8,
 			0xd5e0aac4225e0343,
 			0xd9eccdf2dbc48087,
 			0xda966d1d252e4d25,
@@ -3070,6 +3062,7 @@ func RegisterSchema(reg *schemas.Registry) {
 			0xe10a5d74d58bd18d,
 			0xe6f8966f0f2cbb33,
 			0xebff70497e0ba555,
+			0xfa412bb47f11b488,
 			0xfafc816633f98bb9,
 			0xfb47810671a05b0d,
 			0xfc185f518d220b8c,

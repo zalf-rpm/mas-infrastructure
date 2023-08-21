@@ -1,5 +1,5 @@
-capnproto.org/go/capnp/v3 v3.0.0-alpha.27 h1:DxFjKAyTGgGI2gG1ITM9ajp7DYqgeb9B1mcZ4wNvWlM=
-capnproto.org/go/capnp/v3 v3.0.0-alpha.27/go.mod h1:wvLs5WEA1WVb/uQyL/HNXUp81kBPjjKbx68N7TtkorQ=
+capnproto.org/go/capnp/v3 v3.0.0-alpha-29 h1:ICLhiy4Jmp0d7hLQO+HzFAVIft/oxpPAUPV8tqx+eUE=
+capnproto.org/go/capnp/v3 v3.0.0-alpha-29/go.mod h1:+ysMHvOh1EWNOyorxJWs1omhRFiDoKxKkWQACp54jKM=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/google/uuid v1.3.0 h1:t6JiXgmwXMjEs8VusXIJk2BXHsn+wx8BZdTaoZ5fu7I=
 github.com/google/uuid v1.3.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
@@ -25,8 +25,8 @@ github.com/zalf-rpm/mas-infrastructure/src/go/commonlib v0.0.0-20230524165149-d3
 github.com/zalf-rpm/mas-infrastructure/src/go/commonlib v0.0.0-20230524165149-d3911264967f/go.mod h1:yYhNkFGfKWRUAj6LvB9pIUfh6EiRFHjnsqkqs5ekDc0=
 golang.org/x/crypto v0.6.0 h1:qfktjS5LUO+fFKeJXZ+ikTRijMmljikvG68fpMMruSc=
 golang.org/x/crypto v0.6.0/go.mod h1:OFC/31mSvZgRz0V1QTNCzfAI1aIRzbiufJtkMIlEp58=
-golang.org/x/sync v0.1.0 h1:wsuoTGHzEhffawBOhz5CYhcrV4IdKZbEyZjBMuTp12o=
-golang.org/x/sync v0.1.0/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
+golang.org/x/sync v0.3.0 h1:ftCYgMx6zT/asHUrPw8BLLscYtGznsLAnjq5RH9P66E=
+golang.org/x/sync v0.3.0/go.mod h1:FU7BRWz2tNW+3quACPkgCx/L+uEAv1htQ0V83Z9Rj+Y=
 gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
-zenhack.net/go/util v0.0.0-20230407221818-ef608d25cf61 h1:yFruEx97FKOfapC6xduBhaL2KlMn8IUD7IP56g1vNxo=
-zenhack.net/go/util v0.0.0-20230407221818-ef608d25cf61/go.mod h1:1LtNdPAs8WH+BTcQiZAOo2MIKD/5jyK/u7sZ9ZPe5SE=
+zenhack.net/go/util v0.0.0-20230607025951-8b02fee814ae h1:MjNLCVT0QYNmXStslQk+ugtOvFCVpC7H6mWtkEI2PxI=
+zenhack.net/go/util v0.0.0-20230607025951-8b02fee814ae/go.mod h1:1LtNdPAs8WH+BTcQiZAOo2MIKD/5jyK/u7sZ9ZPe5SE=

@@ -24,7 +24,7 @@ func TestServe(t *testing.T) {
 	assert.NoError(t, err)
 	t.Log("StrudyRef:", initialSturdyRef)
 	errChan := make(chan error)
-
+	msgChan := make(chan string)
 	go func() {
 		l, err := net.Listen("tcp", fmt.Sprintf("%s:%d", restorer.Host(), restorer.Port()))
 		assert.NoError(t, err)
@@ -38,14 +38,18 @@ func TestServe(t *testing.T) {
 				errChan <- err
 				continue
 			}
-			Serve(c, capnp.Client(main.AddRef()), errChan)
+			Serve(c, capnp.Client(main.AddRef()), errChan, msgChan)
 		}
 	}()
 
 	go func() {
 		for {
-			err := <-errChan
-			fmt.Println(err)
+			select {
+			case err := <-errChan:
+				assert.NoError(t, err)
+			case msg := <-msgChan:
+				t.Log(msg)
+			}
 		}
 	}()
 

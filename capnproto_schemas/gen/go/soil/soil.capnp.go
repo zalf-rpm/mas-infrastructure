@@ -698,87 +698,69 @@ func (f Query_Result_Future) Struct() (Query_Result, error) {
 	return Query_Result(p.Struct()), err
 }
 
-type Profile capnp.Struct
+type ProfileData capnp.Struct
 
-// Profile_TypeID is the unique identifier for the type Profile.
-const Profile_TypeID = 0xff67c2a593419c29
+// ProfileData_TypeID is the unique identifier for the type ProfileData.
+const ProfileData_TypeID = 0xdf4bbf1c883a8790
 
-func NewProfile(s *capnp.Segment) (Profile, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 2})
-	return Profile(st), err
+func NewProfileData(s *capnp.Segment) (ProfileData, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
+	return ProfileData(st), err
 }
 
-func NewRootProfile(s *capnp.Segment) (Profile, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 2})
-	return Profile(st), err
+func NewRootProfileData(s *capnp.Segment) (ProfileData, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
+	return ProfileData(st), err
 }
 
-func ReadRootProfile(msg *capnp.Message) (Profile, error) {
+func ReadRootProfileData(msg *capnp.Message) (ProfileData, error) {
 	root, err := msg.Root()
-	return Profile(root.Struct()), err
+	return ProfileData(root.Struct()), err
 }
 
-func (s Profile) String() string {
-	str, _ := text.Marshal(0xff67c2a593419c29, capnp.Struct(s))
+func (s ProfileData) String() string {
+	str, _ := text.Marshal(0xdf4bbf1c883a8790, capnp.Struct(s))
 	return str
 }
 
-func (s Profile) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+func (s ProfileData) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
 	return capnp.Struct(s).EncodeAsPtr(seg)
 }
 
-func (Profile) DecodeFromPtr(p capnp.Ptr) Profile {
-	return Profile(capnp.Struct{}.DecodeFromPtr(p))
+func (ProfileData) DecodeFromPtr(p capnp.Ptr) ProfileData {
+	return ProfileData(capnp.Struct{}.DecodeFromPtr(p))
 }
 
-func (s Profile) ToPtr() capnp.Ptr {
+func (s ProfileData) ToPtr() capnp.Ptr {
 	return capnp.Struct(s).ToPtr()
 }
-func (s Profile) IsValid() bool {
+func (s ProfileData) IsValid() bool {
 	return capnp.Struct(s).IsValid()
 }
 
-func (s Profile) Message() *capnp.Message {
+func (s ProfileData) Message() *capnp.Message {
 	return capnp.Struct(s).Message()
 }
 
-func (s Profile) Segment() *capnp.Segment {
+func (s ProfileData) Segment() *capnp.Segment {
 	return capnp.Struct(s).Segment()
 }
-func (s Profile) Id() (string, error) {
-	p, err := capnp.Struct(s).Ptr(1)
-	return p.Text(), err
-}
-
-func (s Profile) HasId() bool {
-	return capnp.Struct(s).HasPtr(1)
-}
-
-func (s Profile) IdBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(1)
-	return p.TextBytes(), err
-}
-
-func (s Profile) SetId(v string) error {
-	return capnp.Struct(s).SetText(1, v)
-}
-
-func (s Profile) Layers() (Layer_List, error) {
+func (s ProfileData) Layers() (Layer_List, error) {
 	p, err := capnp.Struct(s).Ptr(0)
 	return Layer_List(p.List()), err
 }
 
-func (s Profile) HasLayers() bool {
+func (s ProfileData) HasLayers() bool {
 	return capnp.Struct(s).HasPtr(0)
 }
 
-func (s Profile) SetLayers(v Layer_List) error {
+func (s ProfileData) SetLayers(v Layer_List) error {
 	return capnp.Struct(s).SetPtr(0, v.ToPtr())
 }
 
 // NewLayers sets the layers field to a newly
 // allocated Layer_List, preferring placement in s's segment.
-func (s Profile) NewLayers(n int32) (Layer_List, error) {
+func (s ProfileData) NewLayers(n int32) (Layer_List, error) {
 	l, err := NewLayer_List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return Layer_List{}, err
@@ -786,29 +768,439 @@ func (s Profile) NewLayers(n int32) (Layer_List, error) {
 	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
 	return l, err
 }
-func (s Profile) PercentageOfArea() float32 {
+func (s ProfileData) PercentageOfArea() float32 {
 	return math.Float32frombits(capnp.Struct(s).Uint32(0) ^ 0x42c80000)
 }
 
-func (s Profile) SetPercentageOfArea(v float32) {
+func (s ProfileData) SetPercentageOfArea(v float32) {
 	capnp.Struct(s).SetUint32(0, math.Float32bits(v)^0x42c80000)
 }
 
+// ProfileData_List is a list of ProfileData.
+type ProfileData_List = capnp.StructList[ProfileData]
+
+// NewProfileData creates a new list of ProfileData.
+func NewProfileData_List(s *capnp.Segment, sz int32) (ProfileData_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1}, sz)
+	return capnp.StructList[ProfileData](l), err
+}
+
+// ProfileData_Future is a wrapper for a ProfileData promised by a client call.
+type ProfileData_Future struct{ *capnp.Future }
+
+func (f ProfileData_Future) Struct() (ProfileData, error) {
+	p, err := f.Future.Ptr()
+	return ProfileData(p.Struct()), err
+}
+
+type Profile capnp.Client
+
+// Profile_TypeID is the unique identifier for the type Profile.
+const Profile_TypeID = 0xff67c2a593419c29
+
+func (c Profile) Data(ctx context.Context, params func(Profile_data_Params) error) (ProfileData_Future, capnp.ReleaseFunc) {
+
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0xff67c2a593419c29,
+			MethodID:      0,
+			InterfaceName: "soil.capnp:Profile",
+			MethodName:    "data",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Profile_data_Params(s)) }
+	}
+
+	ans, release := capnp.Client(c).SendCall(ctx, s)
+	return ProfileData_Future{Future: ans.Future()}, release
+
+}
+
+func (c Profile) GeoLocation(ctx context.Context, params func(Profile_geoLocation_Params) error) (geo.LatLonCoord_Future, capnp.ReleaseFunc) {
+
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0xff67c2a593419c29,
+			MethodID:      1,
+			InterfaceName: "soil.capnp:Profile",
+			MethodName:    "geoLocation",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Profile_geoLocation_Params(s)) }
+	}
+
+	ans, release := capnp.Client(c).SendCall(ctx, s)
+	return geo.LatLonCoord_Future{Future: ans.Future()}, release
+
+}
+
+func (c Profile) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0xb2afd1cb599c48d5,
+			MethodID:      0,
+			InterfaceName: "common.capnp:Identifiable",
+			MethodName:    "info",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
+	}
+
+	ans, release := capnp.Client(c).SendCall(ctx, s)
+	return common.IdInformation_Future{Future: ans.Future()}, release
+
+}
+
+func (c Profile) Save(ctx context.Context, params func(persistence.Persistent_SaveParams) error) (persistence.Persistent_SaveResults_Future, capnp.ReleaseFunc) {
+
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0xc1a7daa0dc36cb65,
+			MethodID:      0,
+			InterfaceName: "persistence.capnp:Persistent",
+			MethodName:    "save",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams(s)) }
+	}
+
+	ans, release := capnp.Client(c).SendCall(ctx, s)
+	return persistence.Persistent_SaveResults_Future{Future: ans.Future()}, release
+
+}
+
+func (c Profile) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
+}
+
+// String returns a string that identifies this capability for debugging
+// purposes.  Its format should not be depended on: in particular, it
+// should not be used to compare clients.  Use IsSame to compare clients
+// for equality.
+func (c Profile) String() string {
+	return "Profile(" + capnp.Client(c).String() + ")"
+}
+
+// AddRef creates a new Client that refers to the same capability as c.
+// If c is nil or has resolved to null, then AddRef returns nil.
+func (c Profile) AddRef() Profile {
+	return Profile(capnp.Client(c).AddRef())
+}
+
+// Release releases a capability reference.  If this is the last
+// reference to the capability, then the underlying resources associated
+// with the capability will be released.
+//
+// Release will panic if c has already been released, but not if c is
+// nil or resolved to null.
+func (c Profile) Release() {
+	capnp.Client(c).Release()
+}
+
+// Resolve blocks until the capability is fully resolved or the Context
+// expires.
+func (c Profile) Resolve(ctx context.Context) error {
+	return capnp.Client(c).Resolve(ctx)
+}
+
+func (c Profile) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Client(c).EncodeAsPtr(seg)
+}
+
+func (Profile) DecodeFromPtr(p capnp.Ptr) Profile {
+	return Profile(capnp.Client{}.DecodeFromPtr(p))
+}
+
+// IsValid reports whether c is a valid reference to a capability.
+// A reference is invalid if it is nil, has resolved to null, or has
+// been released.
+func (c Profile) IsValid() bool {
+	return capnp.Client(c).IsValid()
+}
+
+// IsSame reports whether c and other refer to a capability created by the
+// same call to NewClient.  This can return false negatives if c or other
+// are not fully resolved: use Resolve if this is an issue.  If either
+// c or other are released, then IsSame panics.
+func (c Profile) IsSame(other Profile) bool {
+	return capnp.Client(c).IsSame(capnp.Client(other))
+}
+
+// Update the flowcontrol.FlowLimiter used to manage flow control for
+// this client. This affects all future calls, but not calls already
+// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
+// which is also the default.
+func (c Profile) SetFlowLimiter(lim fc.FlowLimiter) {
+	capnp.Client(c).SetFlowLimiter(lim)
+}
+
+// Get the current flowcontrol.FlowLimiter used to manage flow control
+// for this client.
+func (c Profile) GetFlowLimiter() fc.FlowLimiter {
+	return capnp.Client(c).GetFlowLimiter()
+}
+
+// A Profile_Server is a Profile with a local implementation.
+type Profile_Server interface {
+	Data(context.Context, Profile_data) error
+
+	GeoLocation(context.Context, Profile_geoLocation) error
+
+	Info(context.Context, common.Identifiable_info) error
+
+	Save(context.Context, persistence.Persistent_save) error
+}
+
+// Profile_NewServer creates a new Server from an implementation of Profile_Server.
+func Profile_NewServer(s Profile_Server) *server.Server {
+	c, _ := s.(server.Shutdowner)
+	return server.New(Profile_Methods(nil, s), s, c)
+}
+
+// Profile_ServerToClient creates a new Client from an implementation of Profile_Server.
+// The caller is responsible for calling Release on the returned Client.
+func Profile_ServerToClient(s Profile_Server) Profile {
+	return Profile(capnp.NewClient(Profile_NewServer(s)))
+}
+
+// Profile_Methods appends Methods to a slice that invoke the methods on s.
+// This can be used to create a more complicated Server.
+func Profile_Methods(methods []server.Method, s Profile_Server) []server.Method {
+	if cap(methods) == 0 {
+		methods = make([]server.Method, 0, 4)
+	}
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
+			InterfaceID:   0xff67c2a593419c29,
+			MethodID:      0,
+			InterfaceName: "soil.capnp:Profile",
+			MethodName:    "data",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.Data(ctx, Profile_data{call})
+		},
+	})
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
+			InterfaceID:   0xff67c2a593419c29,
+			MethodID:      1,
+			InterfaceName: "soil.capnp:Profile",
+			MethodName:    "geoLocation",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.GeoLocation(ctx, Profile_geoLocation{call})
+		},
+	})
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
+			InterfaceID:   0xb2afd1cb599c48d5,
+			MethodID:      0,
+			InterfaceName: "common.capnp:Identifiable",
+			MethodName:    "info",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.Info(ctx, common.Identifiable_info{call})
+		},
+	})
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
+			InterfaceID:   0xc1a7daa0dc36cb65,
+			MethodID:      0,
+			InterfaceName: "persistence.capnp:Persistent",
+			MethodName:    "save",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.Save(ctx, persistence.Persistent_save{call})
+		},
+	})
+
+	return methods
+}
+
+// Profile_data holds the state for a server call to Profile.data.
+// See server.Call for documentation.
+type Profile_data struct {
+	*server.Call
+}
+
+// Args returns the call's arguments.
+func (c Profile_data) Args() Profile_data_Params {
+	return Profile_data_Params(c.Call.Args())
+}
+
+// AllocResults allocates the results struct.
+func (c Profile_data) AllocResults() (ProfileData, error) {
+	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 8, PointerCount: 1})
+	return ProfileData(r), err
+}
+
+// Profile_geoLocation holds the state for a server call to Profile.geoLocation.
+// See server.Call for documentation.
+type Profile_geoLocation struct {
+	*server.Call
+}
+
+// Args returns the call's arguments.
+func (c Profile_geoLocation) Args() Profile_geoLocation_Params {
+	return Profile_geoLocation_Params(c.Call.Args())
+}
+
+// AllocResults allocates the results struct.
+func (c Profile_geoLocation) AllocResults() (geo.LatLonCoord, error) {
+	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 16, PointerCount: 0})
+	return geo.LatLonCoord(r), err
+}
+
 // Profile_List is a list of Profile.
-type Profile_List = capnp.StructList[Profile]
+type Profile_List = capnp.CapList[Profile]
 
 // NewProfile creates a new list of Profile.
 func NewProfile_List(s *capnp.Segment, sz int32) (Profile_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 2}, sz)
-	return capnp.StructList[Profile](l), err
+	l, err := capnp.NewPointerList(s, sz)
+	return capnp.CapList[Profile](l), err
 }
 
-// Profile_Future is a wrapper for a Profile promised by a client call.
-type Profile_Future struct{ *capnp.Future }
+type Profile_data_Params capnp.Struct
 
-func (f Profile_Future) Struct() (Profile, error) {
+// Profile_data_Params_TypeID is the unique identifier for the type Profile_data_Params.
+const Profile_data_Params_TypeID = 0xe704b695746374e2
+
+func NewProfile_data_Params(s *capnp.Segment) (Profile_data_Params, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	return Profile_data_Params(st), err
+}
+
+func NewRootProfile_data_Params(s *capnp.Segment) (Profile_data_Params, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	return Profile_data_Params(st), err
+}
+
+func ReadRootProfile_data_Params(msg *capnp.Message) (Profile_data_Params, error) {
+	root, err := msg.Root()
+	return Profile_data_Params(root.Struct()), err
+}
+
+func (s Profile_data_Params) String() string {
+	str, _ := text.Marshal(0xe704b695746374e2, capnp.Struct(s))
+	return str
+}
+
+func (s Profile_data_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Profile_data_Params) DecodeFromPtr(p capnp.Ptr) Profile_data_Params {
+	return Profile_data_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Profile_data_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Profile_data_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Profile_data_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Profile_data_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+
+// Profile_data_Params_List is a list of Profile_data_Params.
+type Profile_data_Params_List = capnp.StructList[Profile_data_Params]
+
+// NewProfile_data_Params creates a new list of Profile_data_Params.
+func NewProfile_data_Params_List(s *capnp.Segment, sz int32) (Profile_data_Params_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
+	return capnp.StructList[Profile_data_Params](l), err
+}
+
+// Profile_data_Params_Future is a wrapper for a Profile_data_Params promised by a client call.
+type Profile_data_Params_Future struct{ *capnp.Future }
+
+func (f Profile_data_Params_Future) Struct() (Profile_data_Params, error) {
 	p, err := f.Future.Ptr()
-	return Profile(p.Struct()), err
+	return Profile_data_Params(p.Struct()), err
+}
+
+type Profile_geoLocation_Params capnp.Struct
+
+// Profile_geoLocation_Params_TypeID is the unique identifier for the type Profile_geoLocation_Params.
+const Profile_geoLocation_Params_TypeID = 0x8d2a23f8fd1b9151
+
+func NewProfile_geoLocation_Params(s *capnp.Segment) (Profile_geoLocation_Params, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	return Profile_geoLocation_Params(st), err
+}
+
+func NewRootProfile_geoLocation_Params(s *capnp.Segment) (Profile_geoLocation_Params, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	return Profile_geoLocation_Params(st), err
+}
+
+func ReadRootProfile_geoLocation_Params(msg *capnp.Message) (Profile_geoLocation_Params, error) {
+	root, err := msg.Root()
+	return Profile_geoLocation_Params(root.Struct()), err
+}
+
+func (s Profile_geoLocation_Params) String() string {
+	str, _ := text.Marshal(0x8d2a23f8fd1b9151, capnp.Struct(s))
+	return str
+}
+
+func (s Profile_geoLocation_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Profile_geoLocation_Params) DecodeFromPtr(p capnp.Ptr) Profile_geoLocation_Params {
+	return Profile_geoLocation_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Profile_geoLocation_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Profile_geoLocation_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Profile_geoLocation_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Profile_geoLocation_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+
+// Profile_geoLocation_Params_List is a list of Profile_geoLocation_Params.
+type Profile_geoLocation_Params_List = capnp.StructList[Profile_geoLocation_Params]
+
+// NewProfile_geoLocation_Params creates a new list of Profile_geoLocation_Params.
+func NewProfile_geoLocation_Params_List(s *capnp.Segment, sz int32) (Profile_geoLocation_Params_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
+	return capnp.StructList[Profile_geoLocation_Params](l), err
+}
+
+// Profile_geoLocation_Params_Future is a wrapper for a Profile_geoLocation_Params promised by a client call.
+type Profile_geoLocation_Params_Future struct{ *capnp.Future }
+
+func (f Profile_geoLocation_Params_Future) Struct() (Profile_geoLocation_Params, error) {
+	p, err := f.Future.Ptr()
+	return Profile_geoLocation_Params(p.Struct()), err
 }
 
 type Service capnp.Client
@@ -856,23 +1248,43 @@ func (c Service) GetAllAvailableParameters(ctx context.Context, params func(Serv
 
 }
 
-func (c Service) ProfilesAt(ctx context.Context, params func(Service_profilesAt_Params) error) (Service_profilesAt_Results_Future, capnp.ReleaseFunc) {
+func (c Service) ClosestProfilesAt(ctx context.Context, params func(Service_closestProfilesAt_Params) error) (Service_closestProfilesAt_Results_Future, capnp.ReleaseFunc) {
 
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa09aa71427dc64e1,
 			MethodID:      2,
 			InterfaceName: "soil.capnp:Service",
-			MethodName:    "profilesAt",
+			MethodName:    "closestProfilesAt",
 		},
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 2}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Service_profilesAt_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Service_closestProfilesAt_Params(s)) }
 	}
 
 	ans, release := capnp.Client(c).SendCall(ctx, s)
-	return Service_profilesAt_Results_Future{Future: ans.Future()}, release
+	return Service_closestProfilesAt_Results_Future{Future: ans.Future()}, release
+
+}
+
+func (c Service) StreamAllProfiles(ctx context.Context, params func(Query) error) (Service_streamAllProfiles_Results_Future, capnp.ReleaseFunc) {
+
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0xa09aa71427dc64e1,
+			MethodID:      3,
+			InterfaceName: "soil.capnp:Service",
+			MethodName:    "streamAllProfiles",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 2}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Query(s)) }
+	}
+
+	ans, release := capnp.Client(c).SendCall(ctx, s)
+	return Service_streamAllProfiles_Results_Future{Future: ans.Future()}, release
 
 }
 
@@ -993,7 +1405,9 @@ type Service_Server interface {
 
 	GetAllAvailableParameters(context.Context, Service_getAllAvailableParameters) error
 
-	ProfilesAt(context.Context, Service_profilesAt) error
+	ClosestProfilesAt(context.Context, Service_closestProfilesAt) error
+
+	StreamAllProfiles(context.Context, Service_streamAllProfiles) error
 
 	Info(context.Context, common.Identifiable_info) error
 
@@ -1016,7 +1430,7 @@ func Service_ServerToClient(s Service_Server) Service {
 // This can be used to create a more complicated Server.
 func Service_Methods(methods []server.Method, s Service_Server) []server.Method {
 	if cap(methods) == 0 {
-		methods = make([]server.Method, 0, 5)
+		methods = make([]server.Method, 0, 6)
 	}
 
 	methods = append(methods, server.Method{
@@ -1048,10 +1462,22 @@ func Service_Methods(methods []server.Method, s Service_Server) []server.Method 
 			InterfaceID:   0xa09aa71427dc64e1,
 			MethodID:      2,
 			InterfaceName: "soil.capnp:Service",
-			MethodName:    "profilesAt",
+			MethodName:    "closestProfilesAt",
 		},
 		Impl: func(ctx context.Context, call *server.Call) error {
-			return s.ProfilesAt(ctx, Service_profilesAt{call})
+			return s.ClosestProfilesAt(ctx, Service_closestProfilesAt{call})
+		},
+	})
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
+			InterfaceID:   0xa09aa71427dc64e1,
+			MethodID:      3,
+			InterfaceName: "soil.capnp:Service",
+			MethodName:    "streamAllProfiles",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.StreamAllProfiles(ctx, Service_streamAllProfiles{call})
 		},
 	})
 
@@ -1116,21 +1542,38 @@ func (c Service_getAllAvailableParameters) AllocResults() (Service_getAllAvailab
 	return Service_getAllAvailableParameters_Results(r), err
 }
 
-// Service_profilesAt holds the state for a server call to Service.profilesAt.
+// Service_closestProfilesAt holds the state for a server call to Service.closestProfilesAt.
 // See server.Call for documentation.
-type Service_profilesAt struct {
+type Service_closestProfilesAt struct {
 	*server.Call
 }
 
 // Args returns the call's arguments.
-func (c Service_profilesAt) Args() Service_profilesAt_Params {
-	return Service_profilesAt_Params(c.Call.Args())
+func (c Service_closestProfilesAt) Args() Service_closestProfilesAt_Params {
+	return Service_closestProfilesAt_Params(c.Call.Args())
 }
 
 // AllocResults allocates the results struct.
-func (c Service_profilesAt) AllocResults() (Service_profilesAt_Results, error) {
+func (c Service_closestProfilesAt) AllocResults() (Service_closestProfilesAt_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Service_profilesAt_Results(r), err
+	return Service_closestProfilesAt_Results(r), err
+}
+
+// Service_streamAllProfiles holds the state for a server call to Service.streamAllProfiles.
+// See server.Call for documentation.
+type Service_streamAllProfiles struct {
+	*server.Call
+}
+
+// Args returns the call's arguments.
+func (c Service_streamAllProfiles) Args() Query {
+	return Query(c.Call.Args())
+}
+
+// AllocResults allocates the results struct.
+func (c Service_streamAllProfiles) AllocResults() (Service_streamAllProfiles_Results, error) {
+	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Service_streamAllProfiles_Results(r), err
 }
 
 // Service_List is a list of Service.
@@ -1140,6 +1583,327 @@ type Service_List = capnp.CapList[Service]
 func NewService_List(s *capnp.Segment, sz int32) (Service_List, error) {
 	l, err := capnp.NewPointerList(s, sz)
 	return capnp.CapList[Service](l), err
+}
+
+type Service_Stream capnp.Client
+
+// Service_Stream_TypeID is the unique identifier for the type Service_Stream.
+const Service_Stream_TypeID = 0xf4f8ab568ffbc939
+
+func (c Service_Stream) NextProfiles(ctx context.Context, params func(Service_Stream_nextProfiles_Params) error) (Service_Stream_nextProfiles_Results_Future, capnp.ReleaseFunc) {
+
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0xf4f8ab568ffbc939,
+			MethodID:      0,
+			InterfaceName: "soil.capnp:Service.Stream",
+			MethodName:    "nextProfiles",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 0}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Service_Stream_nextProfiles_Params(s)) }
+	}
+
+	ans, release := capnp.Client(c).SendCall(ctx, s)
+	return Service_Stream_nextProfiles_Results_Future{Future: ans.Future()}, release
+
+}
+
+func (c Service_Stream) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
+}
+
+// String returns a string that identifies this capability for debugging
+// purposes.  Its format should not be depended on: in particular, it
+// should not be used to compare clients.  Use IsSame to compare clients
+// for equality.
+func (c Service_Stream) String() string {
+	return "Service_Stream(" + capnp.Client(c).String() + ")"
+}
+
+// AddRef creates a new Client that refers to the same capability as c.
+// If c is nil or has resolved to null, then AddRef returns nil.
+func (c Service_Stream) AddRef() Service_Stream {
+	return Service_Stream(capnp.Client(c).AddRef())
+}
+
+// Release releases a capability reference.  If this is the last
+// reference to the capability, then the underlying resources associated
+// with the capability will be released.
+//
+// Release will panic if c has already been released, but not if c is
+// nil or resolved to null.
+func (c Service_Stream) Release() {
+	capnp.Client(c).Release()
+}
+
+// Resolve blocks until the capability is fully resolved or the Context
+// expires.
+func (c Service_Stream) Resolve(ctx context.Context) error {
+	return capnp.Client(c).Resolve(ctx)
+}
+
+func (c Service_Stream) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Client(c).EncodeAsPtr(seg)
+}
+
+func (Service_Stream) DecodeFromPtr(p capnp.Ptr) Service_Stream {
+	return Service_Stream(capnp.Client{}.DecodeFromPtr(p))
+}
+
+// IsValid reports whether c is a valid reference to a capability.
+// A reference is invalid if it is nil, has resolved to null, or has
+// been released.
+func (c Service_Stream) IsValid() bool {
+	return capnp.Client(c).IsValid()
+}
+
+// IsSame reports whether c and other refer to a capability created by the
+// same call to NewClient.  This can return false negatives if c or other
+// are not fully resolved: use Resolve if this is an issue.  If either
+// c or other are released, then IsSame panics.
+func (c Service_Stream) IsSame(other Service_Stream) bool {
+	return capnp.Client(c).IsSame(capnp.Client(other))
+}
+
+// Update the flowcontrol.FlowLimiter used to manage flow control for
+// this client. This affects all future calls, but not calls already
+// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
+// which is also the default.
+func (c Service_Stream) SetFlowLimiter(lim fc.FlowLimiter) {
+	capnp.Client(c).SetFlowLimiter(lim)
+}
+
+// Get the current flowcontrol.FlowLimiter used to manage flow control
+// for this client.
+func (c Service_Stream) GetFlowLimiter() fc.FlowLimiter {
+	return capnp.Client(c).GetFlowLimiter()
+}
+
+// A Service_Stream_Server is a Service_Stream with a local implementation.
+type Service_Stream_Server interface {
+	NextProfiles(context.Context, Service_Stream_nextProfiles) error
+}
+
+// Service_Stream_NewServer creates a new Server from an implementation of Service_Stream_Server.
+func Service_Stream_NewServer(s Service_Stream_Server) *server.Server {
+	c, _ := s.(server.Shutdowner)
+	return server.New(Service_Stream_Methods(nil, s), s, c)
+}
+
+// Service_Stream_ServerToClient creates a new Client from an implementation of Service_Stream_Server.
+// The caller is responsible for calling Release on the returned Client.
+func Service_Stream_ServerToClient(s Service_Stream_Server) Service_Stream {
+	return Service_Stream(capnp.NewClient(Service_Stream_NewServer(s)))
+}
+
+// Service_Stream_Methods appends Methods to a slice that invoke the methods on s.
+// This can be used to create a more complicated Server.
+func Service_Stream_Methods(methods []server.Method, s Service_Stream_Server) []server.Method {
+	if cap(methods) == 0 {
+		methods = make([]server.Method, 0, 1)
+	}
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
+			InterfaceID:   0xf4f8ab568ffbc939,
+			MethodID:      0,
+			InterfaceName: "soil.capnp:Service.Stream",
+			MethodName:    "nextProfiles",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.NextProfiles(ctx, Service_Stream_nextProfiles{call})
+		},
+	})
+
+	return methods
+}
+
+// Service_Stream_nextProfiles holds the state for a server call to Service_Stream.nextProfiles.
+// See server.Call for documentation.
+type Service_Stream_nextProfiles struct {
+	*server.Call
+}
+
+// Args returns the call's arguments.
+func (c Service_Stream_nextProfiles) Args() Service_Stream_nextProfiles_Params {
+	return Service_Stream_nextProfiles_Params(c.Call.Args())
+}
+
+// AllocResults allocates the results struct.
+func (c Service_Stream_nextProfiles) AllocResults() (Service_Stream_nextProfiles_Results, error) {
+	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Service_Stream_nextProfiles_Results(r), err
+}
+
+// Service_Stream_List is a list of Service_Stream.
+type Service_Stream_List = capnp.CapList[Service_Stream]
+
+// NewService_Stream creates a new list of Service_Stream.
+func NewService_Stream_List(s *capnp.Segment, sz int32) (Service_Stream_List, error) {
+	l, err := capnp.NewPointerList(s, sz)
+	return capnp.CapList[Service_Stream](l), err
+}
+
+type Service_Stream_nextProfiles_Params capnp.Struct
+
+// Service_Stream_nextProfiles_Params_TypeID is the unique identifier for the type Service_Stream_nextProfiles_Params.
+const Service_Stream_nextProfiles_Params_TypeID = 0x81da248df613bc05
+
+func NewService_Stream_nextProfiles_Params(s *capnp.Segment) (Service_Stream_nextProfiles_Params, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
+	return Service_Stream_nextProfiles_Params(st), err
+}
+
+func NewRootService_Stream_nextProfiles_Params(s *capnp.Segment) (Service_Stream_nextProfiles_Params, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
+	return Service_Stream_nextProfiles_Params(st), err
+}
+
+func ReadRootService_Stream_nextProfiles_Params(msg *capnp.Message) (Service_Stream_nextProfiles_Params, error) {
+	root, err := msg.Root()
+	return Service_Stream_nextProfiles_Params(root.Struct()), err
+}
+
+func (s Service_Stream_nextProfiles_Params) String() string {
+	str, _ := text.Marshal(0x81da248df613bc05, capnp.Struct(s))
+	return str
+}
+
+func (s Service_Stream_nextProfiles_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Service_Stream_nextProfiles_Params) DecodeFromPtr(p capnp.Ptr) Service_Stream_nextProfiles_Params {
+	return Service_Stream_nextProfiles_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Service_Stream_nextProfiles_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Service_Stream_nextProfiles_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Service_Stream_nextProfiles_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Service_Stream_nextProfiles_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+func (s Service_Stream_nextProfiles_Params) MaxCount() int64 {
+	return int64(capnp.Struct(s).Uint64(0) ^ 100)
+}
+
+func (s Service_Stream_nextProfiles_Params) SetMaxCount(v int64) {
+	capnp.Struct(s).SetUint64(0, uint64(v)^100)
+}
+
+// Service_Stream_nextProfiles_Params_List is a list of Service_Stream_nextProfiles_Params.
+type Service_Stream_nextProfiles_Params_List = capnp.StructList[Service_Stream_nextProfiles_Params]
+
+// NewService_Stream_nextProfiles_Params creates a new list of Service_Stream_nextProfiles_Params.
+func NewService_Stream_nextProfiles_Params_List(s *capnp.Segment, sz int32) (Service_Stream_nextProfiles_Params_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0}, sz)
+	return capnp.StructList[Service_Stream_nextProfiles_Params](l), err
+}
+
+// Service_Stream_nextProfiles_Params_Future is a wrapper for a Service_Stream_nextProfiles_Params promised by a client call.
+type Service_Stream_nextProfiles_Params_Future struct{ *capnp.Future }
+
+func (f Service_Stream_nextProfiles_Params_Future) Struct() (Service_Stream_nextProfiles_Params, error) {
+	p, err := f.Future.Ptr()
+	return Service_Stream_nextProfiles_Params(p.Struct()), err
+}
+
+type Service_Stream_nextProfiles_Results capnp.Struct
+
+// Service_Stream_nextProfiles_Results_TypeID is the unique identifier for the type Service_Stream_nextProfiles_Results.
+const Service_Stream_nextProfiles_Results_TypeID = 0x9f7ae4c2748bddf8
+
+func NewService_Stream_nextProfiles_Results(s *capnp.Segment) (Service_Stream_nextProfiles_Results, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Service_Stream_nextProfiles_Results(st), err
+}
+
+func NewRootService_Stream_nextProfiles_Results(s *capnp.Segment) (Service_Stream_nextProfiles_Results, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Service_Stream_nextProfiles_Results(st), err
+}
+
+func ReadRootService_Stream_nextProfiles_Results(msg *capnp.Message) (Service_Stream_nextProfiles_Results, error) {
+	root, err := msg.Root()
+	return Service_Stream_nextProfiles_Results(root.Struct()), err
+}
+
+func (s Service_Stream_nextProfiles_Results) String() string {
+	str, _ := text.Marshal(0x9f7ae4c2748bddf8, capnp.Struct(s))
+	return str
+}
+
+func (s Service_Stream_nextProfiles_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Service_Stream_nextProfiles_Results) DecodeFromPtr(p capnp.Ptr) Service_Stream_nextProfiles_Results {
+	return Service_Stream_nextProfiles_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Service_Stream_nextProfiles_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Service_Stream_nextProfiles_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Service_Stream_nextProfiles_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Service_Stream_nextProfiles_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+func (s Service_Stream_nextProfiles_Results) Profiles() (Profile_List, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return Profile_List(p.List()), err
+}
+
+func (s Service_Stream_nextProfiles_Results) HasProfiles() bool {
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Service_Stream_nextProfiles_Results) SetProfiles(v Profile_List) error {
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+}
+
+// NewProfiles sets the profiles field to a newly
+// allocated Profile_List, preferring placement in s's segment.
+func (s Service_Stream_nextProfiles_Results) NewProfiles(n int32) (Profile_List, error) {
+	l, err := NewProfile_List(capnp.Struct(s).Segment(), n)
+	if err != nil {
+		return Profile_List{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	return l, err
+}
+
+// Service_Stream_nextProfiles_Results_List is a list of Service_Stream_nextProfiles_Results.
+type Service_Stream_nextProfiles_Results_List = capnp.StructList[Service_Stream_nextProfiles_Results]
+
+// NewService_Stream_nextProfiles_Results creates a new list of Service_Stream_nextProfiles_Results.
+func NewService_Stream_nextProfiles_Results_List(s *capnp.Segment, sz int32) (Service_Stream_nextProfiles_Results_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
+	return capnp.StructList[Service_Stream_nextProfiles_Results](l), err
+}
+
+// Service_Stream_nextProfiles_Results_Future is a wrapper for a Service_Stream_nextProfiles_Results promised by a client call.
+type Service_Stream_nextProfiles_Results_Future struct{ *capnp.Future }
+
+func (f Service_Stream_nextProfiles_Results_Future) Struct() (Service_Stream_nextProfiles_Results, error) {
+	p, err := f.Future.Ptr()
+	return Service_Stream_nextProfiles_Results(p.Struct()), err
 }
 
 type Service_getAllAvailableParameters_Params capnp.Struct
@@ -1325,69 +2089,69 @@ func (f Service_getAllAvailableParameters_Results_Future) Struct() (Service_getA
 	return Service_getAllAvailableParameters_Results(p.Struct()), err
 }
 
-type Service_profilesAt_Params capnp.Struct
+type Service_closestProfilesAt_Params capnp.Struct
 
-// Service_profilesAt_Params_TypeID is the unique identifier for the type Service_profilesAt_Params.
-const Service_profilesAt_Params_TypeID = 0xdb97e739bf9693c1
+// Service_closestProfilesAt_Params_TypeID is the unique identifier for the type Service_closestProfilesAt_Params.
+const Service_closestProfilesAt_Params_TypeID = 0xdb97e739bf9693c1
 
-func NewService_profilesAt_Params(s *capnp.Segment) (Service_profilesAt_Params, error) {
+func NewService_closestProfilesAt_Params(s *capnp.Segment) (Service_closestProfilesAt_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Service_profilesAt_Params(st), err
+	return Service_closestProfilesAt_Params(st), err
 }
 
-func NewRootService_profilesAt_Params(s *capnp.Segment) (Service_profilesAt_Params, error) {
+func NewRootService_closestProfilesAt_Params(s *capnp.Segment) (Service_closestProfilesAt_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Service_profilesAt_Params(st), err
+	return Service_closestProfilesAt_Params(st), err
 }
 
-func ReadRootService_profilesAt_Params(msg *capnp.Message) (Service_profilesAt_Params, error) {
+func ReadRootService_closestProfilesAt_Params(msg *capnp.Message) (Service_closestProfilesAt_Params, error) {
 	root, err := msg.Root()
-	return Service_profilesAt_Params(root.Struct()), err
+	return Service_closestProfilesAt_Params(root.Struct()), err
 }
 
-func (s Service_profilesAt_Params) String() string {
+func (s Service_closestProfilesAt_Params) String() string {
 	str, _ := text.Marshal(0xdb97e739bf9693c1, capnp.Struct(s))
 	return str
 }
 
-func (s Service_profilesAt_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+func (s Service_closestProfilesAt_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
 	return capnp.Struct(s).EncodeAsPtr(seg)
 }
 
-func (Service_profilesAt_Params) DecodeFromPtr(p capnp.Ptr) Service_profilesAt_Params {
-	return Service_profilesAt_Params(capnp.Struct{}.DecodeFromPtr(p))
+func (Service_closestProfilesAt_Params) DecodeFromPtr(p capnp.Ptr) Service_closestProfilesAt_Params {
+	return Service_closestProfilesAt_Params(capnp.Struct{}.DecodeFromPtr(p))
 }
 
-func (s Service_profilesAt_Params) ToPtr() capnp.Ptr {
+func (s Service_closestProfilesAt_Params) ToPtr() capnp.Ptr {
 	return capnp.Struct(s).ToPtr()
 }
-func (s Service_profilesAt_Params) IsValid() bool {
+func (s Service_closestProfilesAt_Params) IsValid() bool {
 	return capnp.Struct(s).IsValid()
 }
 
-func (s Service_profilesAt_Params) Message() *capnp.Message {
+func (s Service_closestProfilesAt_Params) Message() *capnp.Message {
 	return capnp.Struct(s).Message()
 }
 
-func (s Service_profilesAt_Params) Segment() *capnp.Segment {
+func (s Service_closestProfilesAt_Params) Segment() *capnp.Segment {
 	return capnp.Struct(s).Segment()
 }
-func (s Service_profilesAt_Params) Coord() (geo.LatLonCoord, error) {
+func (s Service_closestProfilesAt_Params) Coord() (geo.LatLonCoord, error) {
 	p, err := capnp.Struct(s).Ptr(0)
 	return geo.LatLonCoord(p.Struct()), err
 }
 
-func (s Service_profilesAt_Params) HasCoord() bool {
+func (s Service_closestProfilesAt_Params) HasCoord() bool {
 	return capnp.Struct(s).HasPtr(0)
 }
 
-func (s Service_profilesAt_Params) SetCoord(v geo.LatLonCoord) error {
+func (s Service_closestProfilesAt_Params) SetCoord(v geo.LatLonCoord) error {
 	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewCoord sets the coord field to a newly
 // allocated geo.LatLonCoord struct, preferring placement in s's segment.
-func (s Service_profilesAt_Params) NewCoord() (geo.LatLonCoord, error) {
+func (s Service_closestProfilesAt_Params) NewCoord() (geo.LatLonCoord, error) {
 	ss, err := geo.NewLatLonCoord(capnp.Struct(s).Segment())
 	if err != nil {
 		return geo.LatLonCoord{}, err
@@ -1396,22 +2160,22 @@ func (s Service_profilesAt_Params) NewCoord() (geo.LatLonCoord, error) {
 	return ss, err
 }
 
-func (s Service_profilesAt_Params) Query() (Query, error) {
+func (s Service_closestProfilesAt_Params) Query() (Query, error) {
 	p, err := capnp.Struct(s).Ptr(1)
 	return Query(p.Struct()), err
 }
 
-func (s Service_profilesAt_Params) HasQuery() bool {
+func (s Service_closestProfilesAt_Params) HasQuery() bool {
 	return capnp.Struct(s).HasPtr(1)
 }
 
-func (s Service_profilesAt_Params) SetQuery(v Query) error {
+func (s Service_closestProfilesAt_Params) SetQuery(v Query) error {
 	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
 }
 
 // NewQuery sets the query field to a newly
 // allocated Query struct, preferring placement in s's segment.
-func (s Service_profilesAt_Params) NewQuery() (Query, error) {
+func (s Service_closestProfilesAt_Params) NewQuery() (Query, error) {
 	ss, err := NewQuery(capnp.Struct(s).Segment())
 	if err != nil {
 		return Query{}, err
@@ -1420,92 +2184,92 @@ func (s Service_profilesAt_Params) NewQuery() (Query, error) {
 	return ss, err
 }
 
-// Service_profilesAt_Params_List is a list of Service_profilesAt_Params.
-type Service_profilesAt_Params_List = capnp.StructList[Service_profilesAt_Params]
+// Service_closestProfilesAt_Params_List is a list of Service_closestProfilesAt_Params.
+type Service_closestProfilesAt_Params_List = capnp.StructList[Service_closestProfilesAt_Params]
 
-// NewService_profilesAt_Params creates a new list of Service_profilesAt_Params.
-func NewService_profilesAt_Params_List(s *capnp.Segment, sz int32) (Service_profilesAt_Params_List, error) {
+// NewService_closestProfilesAt_Params creates a new list of Service_closestProfilesAt_Params.
+func NewService_closestProfilesAt_Params_List(s *capnp.Segment, sz int32) (Service_closestProfilesAt_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
-	return capnp.StructList[Service_profilesAt_Params](l), err
+	return capnp.StructList[Service_closestProfilesAt_Params](l), err
 }
 
-// Service_profilesAt_Params_Future is a wrapper for a Service_profilesAt_Params promised by a client call.
-type Service_profilesAt_Params_Future struct{ *capnp.Future }
+// Service_closestProfilesAt_Params_Future is a wrapper for a Service_closestProfilesAt_Params promised by a client call.
+type Service_closestProfilesAt_Params_Future struct{ *capnp.Future }
 
-func (f Service_profilesAt_Params_Future) Struct() (Service_profilesAt_Params, error) {
+func (f Service_closestProfilesAt_Params_Future) Struct() (Service_closestProfilesAt_Params, error) {
 	p, err := f.Future.Ptr()
-	return Service_profilesAt_Params(p.Struct()), err
+	return Service_closestProfilesAt_Params(p.Struct()), err
 }
-func (p Service_profilesAt_Params_Future) Coord() geo.LatLonCoord_Future {
+func (p Service_closestProfilesAt_Params_Future) Coord() geo.LatLonCoord_Future {
 	return geo.LatLonCoord_Future{Future: p.Future.Field(0, nil)}
 }
-func (p Service_profilesAt_Params_Future) Query() Query_Future {
+func (p Service_closestProfilesAt_Params_Future) Query() Query_Future {
 	return Query_Future{Future: p.Future.Field(1, nil)}
 }
 
-type Service_profilesAt_Results capnp.Struct
+type Service_closestProfilesAt_Results capnp.Struct
 
-// Service_profilesAt_Results_TypeID is the unique identifier for the type Service_profilesAt_Results.
-const Service_profilesAt_Results_TypeID = 0xa0915e668c9317ad
+// Service_closestProfilesAt_Results_TypeID is the unique identifier for the type Service_closestProfilesAt_Results.
+const Service_closestProfilesAt_Results_TypeID = 0xa0915e668c9317ad
 
-func NewService_profilesAt_Results(s *capnp.Segment) (Service_profilesAt_Results, error) {
+func NewService_closestProfilesAt_Results(s *capnp.Segment) (Service_closestProfilesAt_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Service_profilesAt_Results(st), err
+	return Service_closestProfilesAt_Results(st), err
 }
 
-func NewRootService_profilesAt_Results(s *capnp.Segment) (Service_profilesAt_Results, error) {
+func NewRootService_closestProfilesAt_Results(s *capnp.Segment) (Service_closestProfilesAt_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Service_profilesAt_Results(st), err
+	return Service_closestProfilesAt_Results(st), err
 }
 
-func ReadRootService_profilesAt_Results(msg *capnp.Message) (Service_profilesAt_Results, error) {
+func ReadRootService_closestProfilesAt_Results(msg *capnp.Message) (Service_closestProfilesAt_Results, error) {
 	root, err := msg.Root()
-	return Service_profilesAt_Results(root.Struct()), err
+	return Service_closestProfilesAt_Results(root.Struct()), err
 }
 
-func (s Service_profilesAt_Results) String() string {
+func (s Service_closestProfilesAt_Results) String() string {
 	str, _ := text.Marshal(0xa0915e668c9317ad, capnp.Struct(s))
 	return str
 }
 
-func (s Service_profilesAt_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+func (s Service_closestProfilesAt_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
 	return capnp.Struct(s).EncodeAsPtr(seg)
 }
 
-func (Service_profilesAt_Results) DecodeFromPtr(p capnp.Ptr) Service_profilesAt_Results {
-	return Service_profilesAt_Results(capnp.Struct{}.DecodeFromPtr(p))
+func (Service_closestProfilesAt_Results) DecodeFromPtr(p capnp.Ptr) Service_closestProfilesAt_Results {
+	return Service_closestProfilesAt_Results(capnp.Struct{}.DecodeFromPtr(p))
 }
 
-func (s Service_profilesAt_Results) ToPtr() capnp.Ptr {
+func (s Service_closestProfilesAt_Results) ToPtr() capnp.Ptr {
 	return capnp.Struct(s).ToPtr()
 }
-func (s Service_profilesAt_Results) IsValid() bool {
+func (s Service_closestProfilesAt_Results) IsValid() bool {
 	return capnp.Struct(s).IsValid()
 }
 
-func (s Service_profilesAt_Results) Message() *capnp.Message {
+func (s Service_closestProfilesAt_Results) Message() *capnp.Message {
 	return capnp.Struct(s).Message()
 }
 
-func (s Service_profilesAt_Results) Segment() *capnp.Segment {
+func (s Service_closestProfilesAt_Results) Segment() *capnp.Segment {
 	return capnp.Struct(s).Segment()
 }
-func (s Service_profilesAt_Results) Profiles() (Profile_List, error) {
+func (s Service_closestProfilesAt_Results) Profiles() (Profile_List, error) {
 	p, err := capnp.Struct(s).Ptr(0)
 	return Profile_List(p.List()), err
 }
 
-func (s Service_profilesAt_Results) HasProfiles() bool {
+func (s Service_closestProfilesAt_Results) HasProfiles() bool {
 	return capnp.Struct(s).HasPtr(0)
 }
 
-func (s Service_profilesAt_Results) SetProfiles(v Profile_List) error {
+func (s Service_closestProfilesAt_Results) SetProfiles(v Profile_List) error {
 	return capnp.Struct(s).SetPtr(0, v.ToPtr())
 }
 
 // NewProfiles sets the profiles field to a newly
 // allocated Profile_List, preferring placement in s's segment.
-func (s Service_profilesAt_Results) NewProfiles(n int32) (Profile_List, error) {
+func (s Service_closestProfilesAt_Results) NewProfiles(n int32) (Profile_List, error) {
 	l, err := NewProfile_List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return Profile_List{}, err
@@ -1514,133 +2278,247 @@ func (s Service_profilesAt_Results) NewProfiles(n int32) (Profile_List, error) {
 	return l, err
 }
 
-// Service_profilesAt_Results_List is a list of Service_profilesAt_Results.
-type Service_profilesAt_Results_List = capnp.StructList[Service_profilesAt_Results]
+// Service_closestProfilesAt_Results_List is a list of Service_closestProfilesAt_Results.
+type Service_closestProfilesAt_Results_List = capnp.StructList[Service_closestProfilesAt_Results]
 
-// NewService_profilesAt_Results creates a new list of Service_profilesAt_Results.
-func NewService_profilesAt_Results_List(s *capnp.Segment, sz int32) (Service_profilesAt_Results_List, error) {
+// NewService_closestProfilesAt_Results creates a new list of Service_closestProfilesAt_Results.
+func NewService_closestProfilesAt_Results_List(s *capnp.Segment, sz int32) (Service_closestProfilesAt_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Service_profilesAt_Results](l), err
+	return capnp.StructList[Service_closestProfilesAt_Results](l), err
 }
 
-// Service_profilesAt_Results_Future is a wrapper for a Service_profilesAt_Results promised by a client call.
-type Service_profilesAt_Results_Future struct{ *capnp.Future }
+// Service_closestProfilesAt_Results_Future is a wrapper for a Service_closestProfilesAt_Results promised by a client call.
+type Service_closestProfilesAt_Results_Future struct{ *capnp.Future }
 
-func (f Service_profilesAt_Results_Future) Struct() (Service_profilesAt_Results, error) {
+func (f Service_closestProfilesAt_Results_Future) Struct() (Service_closestProfilesAt_Results, error) {
 	p, err := f.Future.Ptr()
-	return Service_profilesAt_Results(p.Struct()), err
+	return Service_closestProfilesAt_Results(p.Struct()), err
 }
 
-const schema_ff3f350f11891951 = "x\xda\xacVmlTY\x19~\xdfsg\xe6N\xe7" +
-	"c\xa7\xc7\xdbd]6\x9b1\x1b\x0c\x0b\xc96\xb4\xb8" +
-	"\x9a6\xd1vh\xab\xd8,\xbbs\xea\xc7\x0a\xb2\xba\xa7" +
-	"3g\xba\x97\xde\xb9wz\xef\x99v\xc7\xf0e\xc2\x0f" +
-	"h@A@\x81\x80A\x0c!\x984(\xd1D\x7f\x10" +
-	"\xd2&(\x82\xc4@B\"\x1f\xfe j\x88\x91\x1f\x9a" +
-	"\xf8O\xf0\x9833wfZ0\xc6\x84_g\xee\x99" +
-	"\xf7\xbe\xe7}\x9e\xf3\xbc\xcf{\xd7?5\x86#}\xe9" +
-	"\xa9\x14\x10v(\x1aSkv|\xeeo\x7f\xf8\xe6\xe3" +
-	"\x83\xc0,D\x80\x88\x09\xb0\xe1\x95\xd8Y\x04\xb4\xd6\xc6" +
-	"\x86\x00\xd5Og\xee\xff\xfe\xd5_\xfe\xf3{\xc0(\xa2" +
-	"z\xf7\xde\xe0\xd7\xff>\xfc\xf9\xe30\x86f\x04\xd1\xda" +
-	"\x1c\xbbmm\x89\xe9\x97\xbe\x12\xcb\"t\x04\xb0$\xa2" +
-	"b\xaf\xec\xa7\x99\xb7\x86\x14D\x89\x09`\xd9\xe6\xbc5" +
-	"c\xbe\x0c`\xed4/\x02\xaa?\xed\xba\xbb\xfd;W" +
-	"\xce\x1e\x07j!4b6\xbc\x19\xff\x89>\xfc\xb3\xf1" +
-	"9@5\xf5\xc9\x9b\xbf~\xb8j\xe0\x87@\x93\xa4\x9d" +
-	"\x0c\xd0Z\x8c/Y\xbf\x8d\xeb\xf8\xab\xf1G\xfa\xdc\x85" +
-	"\x97\x8f\x1c(}\xe3\xf0\x99f*\xd4\x7f\xf5%\xfau" +
-	"\xaa\x81\x84\xc6\xf1\xb0\xf8`M\xcf\xf9\x93g\x80&\x8d" +
-	"e\xa9\xca\x89\x93V5\xa1\xcb\x9bI\xfc\xc6\x8a&\xd7" +
-	"\x00\xa8\xf4\xf5\xd7w\xc5\xc5\xf0\xe5\xe7\xa2x\x9a\x98\xb7" +
-	"\xa2I\x8d\"\x9d\xd4(\x86\x8e\xee[0_}\xe7J" +
-	"\x83\xa1\xd6\xab\x8d\xe0[\xc9%\xebnR\xff\xbaS\x0f" +
-	"N\xfc\x9c\xabk?\xfe\xf3\xd23\x88\x8e\xa5\xe6\xad\xd3" +
-	")\x1dx\"\xf5\x19@\xb5x\xe4\xfbW\x06\x1e\xfd\xe0" +
-	"~'7\xa7S\xeb4\xa0s)\xcd\xcd\xdaS\xb9#" +
-	"\xe7\x96\xa6\xd4sk\xc4\xf4I\xab+\xad\x7fE\xd3\x17" +
-	"AA\x97\x0a<\xdb\xe9-\xf0J\xd4\xad\x0c~I\xf8" +
-	"\xb3vA\xf4N\x09\x99s\x9c\xdc,\xb7\x1d>\xe9\x88" +
-	"<\xf7yYH\xe1\x07\xab\xf3\xdc7y9`\x11#" +
-	"\x02\x10A\x00\x9a\x9e\x04`)\x03\xd9\xc7\x09*\xcfu" +
-	"j\x13|n\x14L.9\"\x10\xd4w\x10\x1eA\xdc" +
-	"\xca\xe0\xdb\xbc&\xfc\xde\xbc\xefU\x84/\xb1\x96Gd" +
-	"=\xad\\;\xd7\x01\xb0\x8f\x0cd{\x09\xbe\x86Ja" +
-	"\x8f\xd6\x1e\xfd\xf68\x00\xdbc ;@\xf05\xf2o" +
-	"\xf5\x89\x1e$\x00t\xff \x00\xdbk ;D0m" +
-	"<U=h\x00\xd0\x83:\xc7>\x03\xd9Q\x82\xe9\xc8" +
-	"\x13\xd5\x83\x11\x00z\xb8\x1f\x80\x1d0\x90\x1d'\x98q" +
-	"yY`\xa6-\"@\xcc\x00\xaa\xd2\x86\xfe\xafr\xa7" +
-	"*\x00\x00\x13@0\x0184Y\xdf\x09\x91dd\xad" +
-	"\"0\x05\x04S\x80\xd9\xaa\x1b\x08\x09\xb1\x16<\x0c\xe1" +
-	"\x01\xb0\x08vt\x08\xc5q\xd5D\\\x83:[!\xe0" +
-	"\xb1\xad\x00l\xd4@\xf6\x01Al\xa2}_\x03\xf8\x9a" +
-	"\x81\xacH\x90\x12l`\xe5\x9a\xe5\x0f\x0cd\x0eAU" +
-	"i\xe4\xb2\xc1\x10\x01\xbe\x04\x987\x10\xbb\xdb\xc7\x01\xea" +
-	"\xcdL`\x7fK\x848TQ\x04\x05\xdf\xaeH0m" +
-	"\xcf\x0d\x11\xfc\x9fw?!\x82L\xd5\x91\x01\x8b\xb7\xea" +
-	"_;\x01\xc0\xde0\x90\x8d\x12\xa4!\x80\x9c\xbe\xaea" +
-	"\x03\xd96\x82\xaa\xcc\xdd\"\x97\x9e\x0fX\x0bK]\xce" +
-	"\xfcK\x80\xca\xabH\xdbs\xb9\xa3\x99\xff\xafA\x9d*" +
-	"\x0a\xd9|\x87\x97\x05h\x0d\xe5\xeb,\xfdu\\\x07\xd3" +
-	"\xbf\xac\x03@B\xff\xa8\x17\x83\xde\xd1K\x84\xde\\\x05" +
-	"\x80QzU\x87\xc4\xe8\xa2\x0f\x80&\xbd\xac\x978\xfd" +
-	"\xd5$\x00v\xd1_l\xd57O\x7f\xa67\x93t\xe1" +
-	"\x12\x00\xa6\xe8\x82\xdeL\xd3\x0b\xdbum}\xe7\x12\x08" +
-	"\x80\x19\xba\xa0\xd3t\xd3\x0b\x1b\x01\x90\xd2\x1f\xe9\xe5c" +
-	"\xf4\x84~\xd1\xa2\xc7\xb6\x03\xd4\xab\xfdr\xad\xa2\xc5\x94" +
-	"\x09\xb8[\xcc\x14\x1c^\xcb\x04\xb6#\x8d\xca&\x15\x14" +
-	"\x84#\xa4\xe7\x02\x80\xf2\xfc)\xee\xda\x85\x11\xc8r\x7f" +
-	"\xd2s\xc3\xe7\xcd\x90\xe5R\x0a_MV\x9d\xe9Q\xe1" +
-	"\x06`\xda\xb2\xa6|>\xa7\x1fl0dM\x95l\xe1" +
-	"\x14Gx\x05\xb2\xbc\xa0\xff\xac\x08\xbf\xcc]\xe1\xa2|" +
-	"\xcfv\xa4\xedNe\xf3\x9e\xedJ\x15pY\xf5\xb9\x16" +
-	"\x8c\xe7\xd6+\xdb\xec\xd9\x01dd\xd5\x17\xf5\xc7\xf7\xb8" +
-	"\x14\x86?\xe2\xb9\xc5jA\xda\xb3\xb6\xac\x8dx\xa2T" +
-	"\xb2\x0b\xb6p%\x80\xe2\xe5\xb2\xe7\xda\xd52\x00\xecv" +
-	"m\xe9s)v\x17\xdc\x09.mO\xd9\xee\x17|\xaf" +
-	"\xea\x16!;\xc7u\xb9v\xb9\"\\!}\xc8h\xf9" +
-	"\xb4n\xcd\xe8\x90X\xc5\xf7J\xb6#\x82\x9c\\=!" +
-	"\xb2A]S\x1d\x862\xde4\x947\x1aR\xaf\x87v" +
-	"(\xa3\xbb\xedp+\x94\x81\xe1\x19FAhQ\xa4\x8c" +
-	"h\x87gc\xe8\xc7\x94]\x07B\x99\x89\xd8\x9ar\x18" +
-	"N\x1c:v\x1b\x08\x1d3\x91\xb4\x8c\x16\xc3\x11B\x07" +
-	"\xb6\x02\xa1}\xa6*|(\x0a\xd3\xb9YNV\xb6\x08" +
-	"\xc00\xaa\xb0\x81\xc8\xca\x0e\xc2`\xb8\x03\x90\x91\x93\xc3" +
-	"\xc8\xe2\x88\xea\xce\xa6S[n\xdc\xbaxI\x8bA\xdc" +
-	"\xf8\xf4\x833\xf7\xce/BSB!,V\x15~\xad" +
-	"\xe9+\xad\xb9BqphBh\xfe:-e\xa2m" +
-	")\xad\x96|_s\xba\xcd@\xf6\x11A$=H\x10" +
-	"iU[\x8a4\x90\xedy\xa1m\xfa\xcc\x08\x88>3" +
-	"\x03\xea`z\x1b\x95C\xe3\xa2Z\xd5\x0f6\xbd\xe3\xed" +
-	"\xb6!~Q#\xda\xb4\xd2\x10\xc7\x9b\x86\xb8\x83\xe0P" +
-	"\x89\xdb\x8e(\xb6\xe6\xcd\x8b\xf7\x9c\xba\xb2\x1a\xed\xac\xeb" +
-	"\x8d\xd7K\xa0\x1b\xebn\xd3\xf5:\xc0\xee\xaa;\xedz" +
-	"s\xae9\xcd\xdf\xfa_\x92\xcf\xf3\x8c\xafGh\x87\x8b" +
-	"\xea\xe1\xb4\xda@\xb6\xbe\xe3\xca\xde\xecoZ\xeb\xa7\x08" +
-	"f\x0b\x9e\xe7\x17\xb1[\xfd\xeb\xbb\xbf\x1bX\xff\xe4\x1f" +
-	"\x8f\xf5\xc1\xdd\x80\xd9\x19\xcd$v\xb7?.\x1a\xfb\xcb" +
-	"\xea\xce\xeb\xa3\x0d\xa7\xd9\x11\x11\xc4\xe5Dok(\x02" +
-	"\x11\xe9\x96\xf9\xa6J>$\xd8\xdd\xe4Y\xacj\x0f\x9e" +
-	"!GO\xb7\x8e\x91\xd3\xfa\xa8k\xd2U\x11~A\xb8" +
-	"\x92\xe3\x94x\xb7\x94\xf3\x05oL\xd2\xc5\xc4\xb5\x8d\x80" +
-	"\x86]\x0c\x07\xcf\x7f\x02\x00\x00\xff\xff\xc5\xb1\xcbJ"
+type Service_streamAllProfiles_Results capnp.Struct
+
+// Service_streamAllProfiles_Results_TypeID is the unique identifier for the type Service_streamAllProfiles_Results.
+const Service_streamAllProfiles_Results_TypeID = 0xd1a74147c92b7957
+
+func NewService_streamAllProfiles_Results(s *capnp.Segment) (Service_streamAllProfiles_Results, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Service_streamAllProfiles_Results(st), err
+}
+
+func NewRootService_streamAllProfiles_Results(s *capnp.Segment) (Service_streamAllProfiles_Results, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return Service_streamAllProfiles_Results(st), err
+}
+
+func ReadRootService_streamAllProfiles_Results(msg *capnp.Message) (Service_streamAllProfiles_Results, error) {
+	root, err := msg.Root()
+	return Service_streamAllProfiles_Results(root.Struct()), err
+}
+
+func (s Service_streamAllProfiles_Results) String() string {
+	str, _ := text.Marshal(0xd1a74147c92b7957, capnp.Struct(s))
+	return str
+}
+
+func (s Service_streamAllProfiles_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Service_streamAllProfiles_Results) DecodeFromPtr(p capnp.Ptr) Service_streamAllProfiles_Results {
+	return Service_streamAllProfiles_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Service_streamAllProfiles_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Service_streamAllProfiles_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Service_streamAllProfiles_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Service_streamAllProfiles_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+func (s Service_streamAllProfiles_Results) AllProfiles() Service_Stream {
+	p, _ := capnp.Struct(s).Ptr(0)
+	return Service_Stream(p.Interface().Client())
+}
+
+func (s Service_streamAllProfiles_Results) HasAllProfiles() bool {
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Service_streamAllProfiles_Results) SetAllProfiles(v Service_Stream) error {
+	if !v.IsValid() {
+		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
+	}
+	seg := s.Segment()
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
+	return capnp.Struct(s).SetPtr(0, in.ToPtr())
+}
+
+// Service_streamAllProfiles_Results_List is a list of Service_streamAllProfiles_Results.
+type Service_streamAllProfiles_Results_List = capnp.StructList[Service_streamAllProfiles_Results]
+
+// NewService_streamAllProfiles_Results creates a new list of Service_streamAllProfiles_Results.
+func NewService_streamAllProfiles_Results_List(s *capnp.Segment, sz int32) (Service_streamAllProfiles_Results_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
+	return capnp.StructList[Service_streamAllProfiles_Results](l), err
+}
+
+// Service_streamAllProfiles_Results_Future is a wrapper for a Service_streamAllProfiles_Results promised by a client call.
+type Service_streamAllProfiles_Results_Future struct{ *capnp.Future }
+
+func (f Service_streamAllProfiles_Results_Future) Struct() (Service_streamAllProfiles_Results, error) {
+	p, err := f.Future.Ptr()
+	return Service_streamAllProfiles_Results(p.Struct()), err
+}
+func (p Service_streamAllProfiles_Results_Future) AllProfiles() Service_Stream {
+	return Service_Stream(p.Future.Field(0, nil).Client())
+}
+
+const schema_ff3f350f11891951 = "x\xda\xacW\x7f\x8c\x14w\x15\x7fof\x97\xb9_\xbb" +
+	"s_\xe7\x0c\x16l\xd6\xd4kh1^\xf8a5\\" +
+	"\xa2{\xcb\x1dB\x11\xda\x9d\xab\x16\xa9\xad\xf6{\xbb\xdf" +
+	";\xe7\x98\x9dYf\xbe\xcb\xb1\xa4\x94\x92\xd4\x14\x10l" +
+	")E)\xa9\x0a5\x84\xa0^\xaa\x8d5j$\x84K" +
+	"4\xa5\x95\xd4\x92\\\xa2\xb4\xc4Tk\x88\xb1\x7fh\xd2" +
+	"\x18b\x8b_\xf3fwv\x87;44\xe1\xaf\xf9\xf5" +
+	"\xbe\xef\xbd\xcf\xfb\xf1yo\x96\xfd>5\x94Z\x9ey" +
+	"-\x0b\x9a\xfd\xe3\xf4\x02\x95\xfe\xb5\xf5\xaf\x03\xfd\x17w" +
+	"\x83\xbd\x08\x11 e\x00\xac\xdch\x04\x08hm6\xf2" +
+	"\x80\xca>\xb8\xf8\xea\x95\x8f/=\x00\xcc\x8a\xbf\xef4" +
+	"V \xa4\xd4\x92G>\xf7\xf7?|\xed\x9d\x03`[" +
+	"\xad\xa3\xc2x\x9e\x8e\xd6\xa2\xa3?\xd9\xfa\xc6k\x8b\x7f" +
+	"\xf1\xee\xd3`3Du\xef\xc5\xc1\xaf\xfcc\xe8\xf3G" +
+	"`\x0d\x1a)D\xebY\xe3\x82u\xc2\xa0C\xc7\x8d\x1c" +
+	"BB\xc0\xeeFT\xf6-{\x99yW^AZ3" +
+	"\x00\xac\x97:\xf6Y\xa7;\x16\x02X\xe7:^\x00T" +
+	"\x7fy\xf4\x8f\x93\xdf:\xf3\xfc\x91\x86[\x91\xcc\xcaz" +
+	"\xe7\x0f\xc9\xf8\xde\xce)@5q\xfb\xf9\xdf\xbe\xb5h" +
+	"\xd5\xf7\x80ukme\x80V\xa6k\xc6\xfap\x17\xc9" +
+	"\xb3\xae\xcbd\xf7\xca\xa5o\xca\x99\xb7w|\x1f\xd8\"" +
+	"R\x85\x11\xc4\xee\x1d\x91\xaan\xc21\xbd\xf0\xd0\xfe\xf1" +
+	"\xaf\x1e<\xd6\xb4\x15\x09\x9c\xee\x9e$\x81s\x91\xc0[" +
+	"\xe57\x97\xf4\x9d<z\x0cX\xb7~\x8d\xad\xab\xddG" +
+	"\xadt\xcfB\x80\x95\x99\x1e\x03\xad\xd9\x9e%\x00*\xf3" +
+	"\xcam\x8fv\x88\xa1\xd3\xd7\xc5y\xbeg\x9f5K'" +
+	"\xacK=\x843\xff\xcc\x9eic\xf1=g\x1a1l" +
+	"\x1dm\x08\x1f\xcf\xccX\xa72tw\"C\xc2]?" +
+	"\xe3\xea\xe5\x1f\xbc=3\x0f\xb3\xc8\xee\xb3*Y\x12t" +
+	"\xb2\x9f\x01T\x9b\xea\x9f8\xb7\xb6p\xf2\xf5$\xa2J" +
+	"6BT\xcf\x12\xa2\xb3\x87\xbe}f\xd5\xe5\xef\xbc\x91" +
+	"\x0c\xefw\xb3c$p*K\xe1}\xea\x89\xc1=\x1f" +
+	"=\xf3\x85?\xcd\x05A\xaa\xac\xb4\xf9++c\xd2]" +
+	"\xa7I\xc2\x7f\x96%y\xf8\xe7\xa9\xcb\xed\x1a\xb2v\x9a" +
+	"\xff\x86\x94Zu\xee\xbd'\xef\xff\xd1\x95w\x81Yz" +
+	";\x8a\x80\x167/X\x95H\x83c\xae\xb5\x0e\xd3\x9d" +
+	"\xba\xf3\xb9\xc2\xa1\x133\x13j^\x94w\x9aG\xado" +
+	"D\xc2\xbb\xcd'\xacYs\x09(\xe8P\xa1\xef\xb8\x03" +
+	"%^My\xd5\xc1\xfbD\xb0\xcd)\x89\x81\xfbd " +
+	"xe\xc0\x13\xdbe1\xf0\xc7\x1dW\x84\xfd\xc5\x1c\x0f" +
+	"x%\xb4Sz\x0a \x85\x88,\xb3\x1e\xc0\xee\xd1\xd1" +
+	"\xfe\x88\x86\xaa\xc2\xb7\x0f\xfb5O\x02\x00\xa6A\xc34" +
+	"\x96\x01Z\xcau\xaf:\xd8\xd440!\xfc\x0d~\x89" +
+	"K\xc7\xf7b\xa5-\xb9t\xc2\x89\x09!\x0b\xae[\xd8" +
+	"\xc6\x1d\x97\x8f\xb9\xa2H\x92B\x8a \xec/\xf2\xc0H" +
+	"\xb8\x02\xc02c\x09W|\xcf\xad\x8f\xf2\xa9\x110\xb8" +
+	"\xe4\x88\xa0!\x95olB\xf3\xaa\x83\x1bx]\x04\x03" +
+	"\xc5\xc0\xaf\x8a@b\xbd\x88h\xf7\xb5t\xed\\\x0a`" +
+	"o\xd7\xd1~\\\xc3[Q)\xec\xa3\xb6e\xbb\x09\xed" +
+	"c:\xda\xfb5\xbcU\xfb\x8f\xfaX\x1fj\x00l\xef" +
+	" \x80\xfd\xb8\x8e\xf6S\x1af\xf4\xab\xaa\x0fu\x00v" +
+	"\x80t\xec\xd1\xd1~F\xc3L\xea}\xd5\x87)\x00v" +
+	"p\x05\x80\xbd_G\xfb\x88\x86\xa6\xc7+\x02\xcdv\xff" +
+	"\x01\xa2\x09\xa8\xc6W\xae\xb8\x9f\xbb5Aq\xec\x02\x0d" +
+	"\xbb\x00\xf3c\xd1\x9b\x18\x89)\xebU\x81=\xa0a\x0f" +
+	"`\xae\xe6\x85B\xc2\x82\x16<\x8c\xe1\x01\xd8)L\x90" +
+	"\x0b\xc3\xf5\xaa\x89\xb8\x0eQ\xb4b\xc0k\x1e\x00\xb0G" +
+	"t\xb4\x1f\xd6\x10\x9bh\x1f\"\x00_\xd6\xd1.k\xc8" +
+	"4l`\xe5\x14\xe5\x87u\xb4]\x0dU\xb5\xa1\xcb\x01" +
+	"]\x84\x98\x05,\xea\x88\xbdms\x80\xf4\xd2\x0c\x9d\x1d" +
+	"\"\xc6\xa1\xca\",\x05NU\x82\xe1\xf8^\x8c\xe0\x03" +
+	"\xe6~T\x84f\xcd\x95\xa1\xdd\xd1\xf2\xff\xceQ\x00\xfb" +
+	"\x0e\x1d\xed\x11\x0dY\x0c\xa0@\xe9\x1a\xd2\xd1~0*" +
+	"N\xaf\xcc\xa5\x1f\x00\xd6cW\xaf\x8d|\x16P\xf9U" +
+	"*I\xeeR\xe4\xff\xa7P\xb2\x8a\xe2h\xde\xc3+\x02" +
+	"\xa8\x86\x8aQ\x94\xfe\xb6\x9e\x84\xd9_\x97\x02\xa0\xc6." +
+	"\xd1Eg\xb3tI\xb1\xf3\x8b\xa8=\xd8oHd\x01" +
+	";\x1b\x00\xa0\xc1N\xd3\xa5\x83\xfdr\x0c\x00;\xd9K" +
+	"\x0fP\xe6\xd9O\xe9e7\x9b~\x11\x00{\xd84\xbd" +
+	"\xcc\xb0S\x93\xe4\xdb\xf2\x13]\x08\x80&\x9b&5\xbd" +
+	"\xec\xd4j\x00d\xec8]>\xc4\x9e\xa5\x83\x16;<" +
+	"\xd9l\xbf/\xd6\xabTLf\xc8\xbd\xb2Yry\xdd" +
+	"\x0c\x1dW\xea\xd5u*,\x09WH\xdf\x03\x00\xe5\x07" +
+	"\x13\xdcsJ\xc3\x90\xe3\xc1\x98\xef\xc5\xcf\x1b!\xc7\xa5" +
+	"\x14\x81\x1a\xab\xb9[F\x84\x17\x82\xe1\xc8\xba\x0a\xf8\x14" +
+	"=8\xa0\xcb\xba\x1aw\x84[\x1e\xe6U\xc8\xf1\x12}" +
+	"\xac\x8a\xa0\xc2=\xe1\xa1\xdc\xe4\xb8\xd2\xf1&rE\xdf" +
+	"\xf1\xa4\x0a\xb9\xac\x05\x9c\x0a\xc6\xf7\"\xcf6\xfaN\x08" +
+	"\xa6\xac\x05\"z\xdc\xc4\xa5\xd0\x83a\xdf+\xd7J\xd2" +
+	"\xd9\xe6\xc8\xfa\xb0/\xc6\xc7\x9d\x92#\x88V\x14\xafT" +
+	"|\xcf\xa9U\x00`\x97\xe7\xc8\x80K\xb1\xab\xe4\x8d\x12" +
+	"\x91(\xc7[\x1b\xf85\xaf\x0c\xb9)N\xee:\x95\xaa" +
+	"\xf0\x84\x0c\xc0\xa4\xf2\xb9a\x8e\x1b\xcd\x8b0*\xae\x04" +
+	"\xb3\xc4$wG\xa3\xe6#\xc1D\x89\xb06\xdf\xce)" +
+	"\x91\xa4\xb1\x92\xeb\x87\"l\x19*\xc8v\x1d\xdf\x0cS" +
+	"\x18\x9b\xd2K\"\xea\xfa\xf6\xc0\xc0\xc1|\x03\xa9\xdd\xab" +
+	"\xa7\x13S\x15\xe3\x89\xc9\xb6\xbe\x02\x1a\xdbj \xb66" +
+	"\x15\x8c\xb7\x06&.\x80\xc6\x84\x81Zk\xd2a<\xe5" +
+	"\xd9\xe6\xa7Ac_2Po\xeb\x8c\xe7%\xbb\x9b\xbe" +
+	"\xad1T\xe9\xeb\xa2\xb4\xa5\xb0\x8dks\xfb\x18`\x08" +
+	"U\xdc\xe5\xda\xdc6\xc7p\x08U\x1c3\x8c\x83\x86r" +
+	"\x08U\x18\x81)\xb8\xe86\x83I\xb2v\x07\xa2\x9a]" +
+	"\xf7\xdc\xe6W_\x7f\xe1E*g\xf1\xea\xa7\xdf<v" +
+	"\xf1\xe4YH\xcc \x0a\x92]\x13A\xbd\xc9\x8c\xad\x95" +
+	"\x81b4\x1a%>I\x8a\xa3mRl\x91\xcaC\x94" +
+	"\xa1\x07u\xb4\xb7k\x88Z\x1fj\x88\xacF\xa4(u" +
+	"\xb4\x1f\xbb\xa9D3o\x88\xa5\xe7M\xb1\x08\xcc@\xc3" +
+	"\xf3\x88\x7f\x12\xde\x0f6\xd9oC\x9b\xd2\xef&D\xeb" +
+	"\xe6R\xfa\xfa&\xa5?\xa2a~\x9c;\xae(\xb7&" +
+	"\xe6\xcdg\xcd\xa8N\x1b\x84D\xfevD.\xb0\xd5\x11" +
+	"_v\xde\x06\xb0\xab\xe6m\xf1\xfc)\xcf\xd8\xc2\xef\xba" +
+	"n\x1f\xc5\xd9w\xdb-{\x9d>J.\x03\xbc)\x0b" +
+	"\x86+Bd\xed\xce \x9b7\xdc\xad\xf1\xc6\x91\x18:" +
+	"4\xcb\xfbu\xb4\x97%\xea\xe3\x93+\x9a\x93\xe8S\x1a" +
+	"\xe6J\xbe\x1f\x94\xb1W\xbd\xf7\xe4\xefV-{\xff\x9f" +
+	"\xef\x90\xc5^\xc0\xdcVJ\x1b\xf6\xb6\x97\xd4\xc6\xfbk" +
+	"\x82\x14\x99\xce\xbbb\x84K\x1eE\xaamw\xb0iw" +
+	"\xa8\x99YD\xf6\xd9}\xedl\xe7]\x1a\xfe\x89\x89\xdc" +
+	"\xfa]h\xe6\xa2*\x82\x92\xf0$\xc7\x09q\xefx!" +
+	"\x10\xbc\xb1h\x9c\xedzy\xf5\xfc\xf9\x16-le." +
+	"y\x7f\xbex\xed\xa6\xa6\xcd\xa5R\xac\x90\xa3\xa9\x88d" +
+	"\xe2\xbf%\x8c\xff\x19\x18\x9b\x04\x8du\x1a*\xa6[0" +
+	")\xb2CX\xc4\xeb\x00\xd7]\xd1\x00M\xba\xe2\xa5\x18" +
+	"\xe3U\x9a-_\x0a\x1a\xbb\x9d\x08+\xfe\xe9\xc28\xc6" +
+	"\xec\x961\xd0\x183L\xf29b\x98\xc6\xae\x19m\x1c" +
+	"\xff\x9f'\xfe\x1b\x00\x00\xff\xff\xae\xce\xf3S"
 
 func RegisterSchema(reg *schemas.Registry) {
 	reg.Register(&schemas.Schema{
 		String: schema_ff3f350f11891951,
 		Nodes: []uint64{
+			0x81da248df613bc05,
+			0x8d2a23f8fd1b9151,
 			0x8dec5fd8eb3e7c27,
 			0x92f4b81bcfdb71b0,
 			0x984640f05b3ada4f,
 			0x98a2bf8e6ad97ee3,
 			0x9e391ae1c6cd2567,
+			0x9f7ae4c2748bddf8,
 			0xa0915e668c9317ad,
 			0xa09aa71427dc64e1,
 			0xbd4065087e22ca0d,
 			0xbf4e1b07ad88943f,
 			0xc2e4a3c8ff61b40a,
+			0xd1a74147c92b7957,
 			0xdb97e739bf9693c1,
+			0xdf4bbf1c883a8790,
+			0xe704b695746374e2,
+			0xf4f8ab568ffbc939,
 			0xff67c2a593419c29,
 		},
 		Compressed: true,
