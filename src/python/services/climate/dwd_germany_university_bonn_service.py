@@ -36,6 +36,8 @@ if str(PATH_TO_PYTHON_CODE) not in sys.path:
 import common.capnp_async_helpers as async_helpers
 import common_climate_data_capnp_impl as ccdi
 import csv_file_based as csv_based
+import common.common as common
+import common.service as serv
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
@@ -43,9 +45,7 @@ reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=ab
 climate_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate.capnp"), imports=abs_imports)
 
 
-# ------------------------------------------------------------------------------
-
-def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon):
+def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon, restorer):
     datasets = []
     metadata = climate_data_capnp.Metadata.new_message(
         entries=[
@@ -55,6 +55,12 @@ def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon):
         ]
     )
     metadata.info = ccdi.Metadata_Info(metadata)
+    transform_map = {
+        "globrad": lambda gr: gr / 1000.0 if gr > 0 else gr
+    }
+    if "germany_ubn_1901-2018" in path_to_data_dir:
+        transform_map["relhumid"] = lambda rh: rh * 100.0
+
     datasets.append(climate_data_capnp.MetaPlusData.new_message(
         meta=metadata,
         data=csv_based.Dataset(metadata, path_to_data_dir, interpolator, rowcol_to_latlon,
@@ -71,19 +77,16 @@ def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon):
                                supported_headers=["tmin", "tavg", "tmax", "precip", "globrad", "wind", "relhumid"],
                                row_col_pattern="{row}/daily_mean_RES1_C{col}R{row}.csv.gz",
                                pandas_csv_config={"skip_rows": 0, "sep": "\t"},
-                               transform_map={
-                                   "relhumid": lambda rh: rh * 100.0,
-                                   "globrad": lambda gr: gr / 1000.0 if gr > 0 else gr
-                               })
+                               transform_map=transform_map,
+                               restorer=restorer)
     ))
     return datasets
 
 
-# ------------------------------------------------------------------------------
+async def main(path_to_data, bonn_data_subdir, serve_bootstrap=True, host=None, port=None,
+               id=None, name="DWD/UBN - historical - 1901 - ...", description=None,
+               reg_sturdy_ref=None, use_async=False):
 
-async def async_main(path_to_data, serve_bootstrap=False,
-                     host="0.0.0.0", port=None, reg_sturdy_ref=None, id=None, name="DWD/UBN - historical - 1901 - ...",
-                     description=None):
     config = {
         "path_to_data": path_to_data,
         "host": host,
@@ -94,25 +97,21 @@ async def async_main(path_to_data, serve_bootstrap=False,
         "reg_sturdy_ref": reg_sturdy_ref,
         "serve_bootstrap": str(serve_bootstrap),
         "reg_category": "climate",
+        "use_async": use_async,
     }
-    # read commandline args only if script is invoked directly from commandline
-    if len(sys.argv) > 1 and __name__ == "__main__":
-        for arg in sys.argv[1:]:
-            k, v = arg.split("=")
-            if k in config:
-                config[k] = v
-    print("config used:", config)
+    common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
-    conMan = async_helpers.ConnectionManager()
-
+    con_man = async_helpers.ConnectionManager()
+    restorer = common.Restorer()
     interpolator, rowcol_to_latlon = ccdi.create_lat_lon_interpolator_from_json_coords_file(
-        config["path_to_data"] + "/" + "latlon-to-rowcol.json")
-    meta_plus_data = create_meta_plus_datasets(config["path_to_data"] + "/germany_ubn_1901-2018", interpolator,
-                                               rowcol_to_latlon)
-    service = ccdi.Service(meta_plus_data, id=config["id"], name=config["name"], description=config["description"])
+        config["path_to_data"] + "latlon-to-rowcol.json")
+    meta_plus_data = create_meta_plus_datasets(config["path_to_data"] + bonn_data_subdir, interpolator,
+                                               rowcol_to_latlon, restorer)
+    service = ccdi.Service(meta_plus_data, id=config["id"], name=config["name"], description=config["description"],
+                           restorer=restorer)
 
     if config["reg_sturdy_ref"]:
-        registrator = await conMan.try_connect(config["reg_sturdy_ref"], cast_as=reg_capnp.Registrator)
+        registrator = await con_man.try_connect(config["reg_sturdy_ref"], cast_as=reg_capnp.Registrator)
         if registrator:
             unreg = await registrator.register(ref=service, categoryId=config["reg_category"]).a_wait()
             print("Registered ", config["name"], "climate service.")
@@ -120,13 +119,20 @@ async def async_main(path_to_data, serve_bootstrap=False,
         else:
             print("Couldn't connect to registrator at sturdy_ref:", config["reg_sturdy_ref"])
 
-    if config["serve_bootstrap"].upper() == "TRUE":
-        await async_helpers.serve_forever(config["host"], config["port"], service)
+    if config["use_async"]:
+        await serv.async_init_and_run_service({"service": service}, config["host"], config["port"],
+                                              serve_bootstrap=config["serve_bootstrap"], restorer=restorer,
+                                              conn_man=con_man)
     else:
-        await conMan.manage_forever()
 
+        serv.init_and_run_service({"service": service}, config["host"], config["port"],
+                                  serve_bootstrap=config["serve_bootstrap"], restorer=restorer, conn_man=con_man)
 
-# ------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    asyncio.run(async_main("/beegfs/common/data/climate/dwd/csvs"))
+    #asyncio.run(main("/beegfs/common/data/climate/dwd/csvs/", "germany_ubn_1901-2018",
+    #                 serve_bootstrap=True, use_async=True))
+    asyncio.run(
+        main("/run/user/1000/gvfs/sftp:host=login01.cluster.zalf.de,user=rpm/beegfs/common/data/climate/dwd/csvs/",
+             "germany_ubn_1991-2022",
+             serve_bootstrap=True, use_async=True))

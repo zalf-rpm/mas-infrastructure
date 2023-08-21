@@ -23,6 +23,7 @@ from pathlib import Path
 import socket
 import sys
 import time
+import urllib.parse as urlp
 
 import common.common as common
 
@@ -200,20 +201,39 @@ class ConnectionManager:
 
     async def connect(self, sturdy_ref, cast_as=None):
         try:
+            host = None
+            port = None
+            sr_token = None
+            owner_guid = None
+            bootstrap_interface_id = None
+            sturdy_ref_interface_id = None
+
             if type(sturdy_ref) == str:
-                # we assume that a sturdy ref url looks always like 
+                # we assume that a sturdy ref url looks always like
+                # capnp://vat-id_base64-curve25519-public-key@host:port/sturdy-ref-token
+                # ?owner_guid = optional_owner_global_unique_id
+                # & b_iid = optional_bootstrap_interface_id
+                # & sr_iid = optional_the_sturdy_refs_remote_interface_id
                 # capnp://vat-id_base64-curve25519-public-key@host:port/sturdy-ref-token_base64
-                if sturdy_ref[:8] == "capnp://":
-                    rest = sturdy_ref[8:]
-                    vat_id_base64, rest = rest.split("@") if "@" in rest else (None, rest)
-                    host, rest = rest.split(":")
-                    if "/" in rest:
-                        port, rest = rest.split("/") if "/" in rest else (rest, None)
-                        sr_token_base64, rest = rest.split("?") if "?" in rest else (rest, None)
-                        sr_token = base64.urlsafe_b64decode(sr_token_base64 + "==")
+                url = urlp.urlparse(sturdy_ref)
+
+                if url.scheme == "capnp":
+                    # vat_id_base64 = url.username
+                    host = url.hostname
+                    port = url.port
+                    if len(url.query) > 0:
+                        q = urlp.parse_qs(url.query)
+                        owner_guid = q.get("owner_guid", None)
+                        bootstrap_interface_id = q.get("b_iid", None)
+                        sturdy_ref_interface_id = q.get("sr_iid", None)
+                    if len(url.path) > 1:
+                        sr_token = url.path[1:]
+                        # sr_token is base64 encoded if there's an owner (because of signing)
+                        if owner_guid:
+                            sr_token = base64.urlsafe_b64decode(sr_token + "==")
             else:
-                vat_path = sturdy_ref.transient.vat
-                vat_id_base64 = vat_path.id
+                vat_path = sturdy_ref.vat
+                # vat_id = vat_path.id
                 host = vat_path.address.host
                 port = vat_path.address.port
                 sr_token = sturdy_ref.transient.localRef.as_text()

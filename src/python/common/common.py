@@ -283,7 +283,7 @@ class Restorer(persistence_capnp.Restorer.Server):
             # and we know about that owner
             if owner_guid in self._owner_guid_to_sign_pk:
                 try:
-                    unsigned_sr_token = pysodium.crypto_sign_open(sr_token, self._owner_guid_to_sign_pk[owner_guid])
+                    unsigned_sr_token = pysodium.crypto_sign_open(sr_token.data, self._owner_guid_to_sign_pk[owner_guid])
                 except ValueError:
                     return None
                 data = self._issued_sr_tokens.get(unsigned_sr_token, None)
@@ -298,10 +298,10 @@ class Restorer(persistence_capnp.Restorer.Server):
             return None
 
         # if there is no owner
-        if sr_token in self._issued_sr_tokens:
-            return get_cap(self._issued_sr_tokens[sr_token])
+        if sr_token.text in self._issued_sr_tokens:
+            return get_cap(self._issued_sr_tokens[sr_token.text])
         elif self.storage_container:
-            return load_from_store_and_get_cap(sr_token)
+            return load_from_store_and_get_cap(sr_token.text)
 
     def sturdy_ref_str(self, sr_token=None):
         return sturdy_ref_str(self._sign_pk, self.host, self.port, sr_token)
@@ -424,8 +424,8 @@ class Restorer(persistence_capnp.Restorer.Server):
     # }
     def restore_context(self, context):  # restore @0 RestoreParams -> (cap :Capability);
         owner_guid = context.params.sealedBy
-        sr_token = context.params.localRef.as_text()
-        context.results.cap = self.get_cap_from_sr_token(sr_token, owner_guid=owner_guid.guid if owner_guid else None)
+        context.results.cap = self.get_cap_from_sr_token(context.params.localRef,
+                                                         owner_guid=owner_guid.guid if owner_guid else None)
 
 
 class Identifiable(common_capnp.Identifiable.Server):
@@ -571,7 +571,7 @@ class ConnectionManager:
                 #vat_id = vat_path.id
                 host = vat_path.address.host
                 port = vat_path.address.port
-                sr_token = sturdy_ref.transient.localRef.as_text()
+                sr_token = sturdy_ref.localRef.text
 
             host_port = str(host) + (":" + str(port) if port else "")
             if host_port in self._connections:
@@ -582,9 +582,10 @@ class ConnectionManager:
 
             if sr_token:
                 restorer = bootstrap_cap.cast_as(persistence_capnp.Restorer)
-                res_req = restorer.restore_request()
-                res_req.localRef = sr_token
-                dyn_obj_reader = res_req.send().wait().cap
+                dyn_obj_reader = restorer.restore(localRef={"text": sr_token}).wait().cap
+                #res_req = restorer.restore_request()
+                #res_req.localRef = {"text": sr_token}
+                #dyn_obj_reader = res_req.send().wait().cap
                 if dyn_obj_reader is not None:
                     return dyn_obj_reader.as_interface(cast_as) if cast_as else dyn_obj_reader
             else:
