@@ -35,9 +35,8 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-import common.capnp_async_helpers as async_helpers
 import common.common as common
-import common.service as serv
+import lib.common.service as serv
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]

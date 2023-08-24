@@ -15,12 +15,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 #include "channel.h"
 
-#include <iostream>
-#include <fstream>
-#include <string>
 #include <tuple>
-#include <vector>
-#include <algorithm>
 
 #include <kj/debug.h>
 #include <kj/thread.h>
@@ -28,23 +23,17 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <kj/async.h>
 #include <kj/exception.h>
 
-#define KJ_MVCAP(var) var = kj::mv(var)
-
 #include <capnp/capability.h>
-#include <capnp/ez-rpc.h>
 #include <capnp/message.h>
 #include <capnp/schema.h>
 #include <capnp/dynamic.h>
-#include <capnp/list.h>
-#include <capnp/rpc-twoparty.h>
-#include <capnp/any.h>
+
+#define KJ_MVCAP(var) var = kj::mv(var)
 
 #include "sole.hpp"
 
 using namespace std;
 using namespace mas::infrastructure::common;
-
-//-----------------------------------------------------------------------------
 
 struct Channel::Impl {
   Channel &self;
@@ -83,8 +72,6 @@ struct Channel::Impl {
   }
 
 };
-
-//-----------------------------------------------------------------------------
 
 Channel::Channel(kj::StringPtr name, kj::StringPtr description, uint64_t bufferSize, Restorer *restorer)
     : impl(kj::heap<Impl>(*this, restorer, name, description, bufferSize)) {
@@ -170,8 +157,6 @@ void Channel::setRestorer(mas::infrastructure::common::Restorer *restorer) {
   impl->setRestorer(restorer);
 }
 
-//-----------------------------------------------------------------------------
-
 Reader::Reader(Channel &c)
     : _channel(c), _id(kj::str(sole::uuid4().str())) {}
 
@@ -182,7 +167,7 @@ kj::Promise<void> Reader::read(ReadContext context) {
   auto &b = c.impl->buffer;
 
   // buffer not empty, send next value
-  if (b.size() > 0) {
+  if (!b.empty()) {
     auto &&v = b.back();
     context.getResults().setValue(v.get()->getValue());
     b.pop_back();
@@ -230,10 +215,15 @@ kj::Promise<void> Reader::read(ReadContext context) {
   return kj::READY_NOW;
 }
 
-//-----------------------------------------------------------------------------
+kj::Promise<void> Reader::close(CloseContext context) {
+  _channel.closedReader(id());
+  return kj::READY_NOW;
+}
+
 
 Writer::Writer(Channel &c)
     : _channel(c), _id(kj::str(sole::uuid4().str())) {}
+
 
 kj::Promise<void> Writer::write(WriteContext context) {
   KJ_REQUIRE(!_closed, "Writer already closed.", _closed);
@@ -245,7 +235,7 @@ kj::Promise<void> Writer::write(WriteContext context) {
   // if we received a done, this writer can be removed
   if (v.isDone()) {
     c.closedWriter(id());
-  } else if (c.impl->blockingReadFulfillers.size() > 0) { // there's a reader waiting
+  } else if (!c.impl->blockingReadFulfillers.empty()) { // there's a reader waiting
     auto &&brf = c.impl->blockingReadFulfillers.back();
     brf->fulfill(v);
     c.impl->blockingReadFulfillers.pop_back();
@@ -262,5 +252,10 @@ kj::Promise<void> Writer::write(WriteContext context) {
     });
   }
 
+  return kj::READY_NOW;
+}
+
+kj::Promise<void> Writer::close(CloseContext context) {
+  _channel.closedWriter(id());
   return kj::READY_NOW;
 }

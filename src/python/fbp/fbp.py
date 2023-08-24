@@ -18,10 +18,8 @@
 #remote debugging via commandline
 #-m ptvsd --host 0.0.0.0 --port 14000 --wait
 
-import asyncio
-from multiprocessing import connection
 import capnp
-from collections import deque, defaultdict
+from collections import deque
 import os
 from pathlib import Path
 import sys
@@ -42,7 +40,6 @@ if str(PATH_TO_PYTHON_CODE) not in sys.path:
 #else:
 
 import common.common as common
-import common.service as serv
 import common.capnp_async_helpers as async_helpers
 
 PATH_TO_CAPNP_SCHEMAS = (PATH_TO_REPO / "capnproto_schemas").resolve()

@@ -22,8 +22,6 @@ import capnp
 import os
 from pathlib import Path
 import sys
-import time
-import uuid
 
 PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent.parent
 if str(PATH_TO_REPO) not in sys.path:
@@ -35,8 +33,8 @@ if str(PATH_TO_PYTHON_CODE) not in sys.path:
 
 import common.capnp_async_helpers as async_helpers
 import common.common as common
-import common.service as serv
-import services.climate.csv_file_based as csv_based
+import lib.common.service as serv
+import lib.climate.csv_file_based as csv_based
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]

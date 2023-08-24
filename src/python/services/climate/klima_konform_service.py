@@ -17,17 +17,13 @@
 
 import asyncio
 import capnp
-from collections import defaultdict
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from netCDF4 import Dataset
-import numpy as np
 import os
 from pathlib import Path
-from numpy.core.fromnumeric import shape
-from pyproj import CRS, Transformer
+from pyproj import Transformer
 from scipy.interpolate import NearestNDInterpolator
 import sys
-import time
 
 # remote debugging via commandline
 # -m ptvsd --host 0.0.0.0 --port 14000 --wait
@@ -43,7 +39,7 @@ if str(PATH_TO_PYTHON_CODE) not in sys.path:
 import common.geo as geo
 
 import common.capnp_async_helpers as async_helpers
-import common_climate_data_capnp_impl as ccdi
+import lib.climate.common_climate_data_capnp_impl as ccdi
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]

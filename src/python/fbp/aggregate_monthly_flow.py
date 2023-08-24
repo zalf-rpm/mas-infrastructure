@@ -19,7 +19,6 @@ import capnp
 from collections import defaultdict
 import os
 from pathlib import Path
-import socket
 import subprocess as sp
 import sys
 import uuid
@@ -35,9 +34,7 @@ if str(PATH_TO_PYTHON_CODE) not in sys.path:
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 
-import common.capnp_async_helpers as async_helpers
 import common.common as common
-import services.climate.csv_file_based as csv_based
 
 common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
 

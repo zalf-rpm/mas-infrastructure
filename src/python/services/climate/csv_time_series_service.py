@@ -16,7 +16,6 @@
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 import asyncio
-import capnp
 import os
 from pathlib import Path
 import sys
@@ -25,14 +24,13 @@ PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent.pare
 if str(PATH_TO_REPO) not in sys.path:
     sys.path.insert(1, str(PATH_TO_REPO))
 
-PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
+PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python/lib"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-import common.capnp_async_helpers as async_helpers
-import common.common as common
-import common.service as serv
-import services.climate.csv_file_based as csv_based
+from common import common
+from common import service as serv
+from climate import csv_file_based as csv_based
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
@@ -40,7 +38,6 @@ abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 
 # reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
 
-# ------------------------------------------------------------------------------
 
 async def main(path_to_csv_file, serve_bootstrap=True, host=None, port=None,
                id=None, name="Single CSV Test Timeseries Service", description=None, use_async=False, srt=None):

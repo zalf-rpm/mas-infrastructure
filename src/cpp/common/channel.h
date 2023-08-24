@@ -87,6 +87,8 @@ public:
 
   kj::Promise<void> read(ReadContext context) override;
 
+  kj::Promise<void> close(CloseContext context) override;
+
   kj::StringPtr id() const { return _id; }
 
 private:
@@ -102,6 +104,8 @@ public:
   ~Writer() = default;
 
   kj::Promise<void> write(WriteContext context) override;
+
+  kj::Promise<void> close(CloseContext context) override;
 
   kj::StringPtr id() const { return _id; }
 

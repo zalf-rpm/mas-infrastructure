@@ -32,8 +32,8 @@ namespace Mas.Infrastructure.ServiceRegistry
         public async Task SetCategoriesStorage(Mas.Schema.Storage.Store.IContainer storage)
         {
             _categoriesStorage = storage;
-            var objs = await storage.ListObjects();
-            Categories = objs.Select(o => (C.IdInformation)o.Value.AnyValue).ToArray();
+            //var objs = await storage.ListObjects();
+            //Categories = objs.Select(o => (C.IdInformation)o.Value.AnyValue).ToArray();
         }
 
         private ConcurrentDictionary<string, C.IdInformation> _catId2SupportedCategories;
@@ -147,6 +147,7 @@ namespace Mas.Infrastructure.ServiceRegistry
                 if (!_registry._catId2SupportedCategories.ContainsKey(category.Id) || upsert) {
                     _registry._catId2SupportedCategories[category.Id] = category;
 
+                    /*
                     // save new category to storage
                     if (_registry._categoriesStorage != null) {
                         await _registry._categoriesStorage.AddObject(new S.Storage.Store.Container.Object {
@@ -155,6 +156,7 @@ namespace Mas.Infrastructure.ServiceRegistry
                             }
                         });
                     }
+                    */
                     return true;
                 }
                 return false;
@@ -216,7 +218,7 @@ namespace Mas.Infrastructure.ServiceRegistry
                 _registry._catId2SupportedCategories.TryRemove(categoryId, out _);
 
                 // remove category from storage
-                await _registry._categoriesStorage.RemoveObject(categoryId);
+                //await _registry._categoriesStorage.RemoveObject(categoryId);
 
                 return removed;
             }

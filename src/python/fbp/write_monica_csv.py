@@ -32,7 +32,7 @@ if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
 import common.common as common
-import services.model.monica_io3 as monica_io3
+import lib.model.monica_io3 as monica_io3
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]

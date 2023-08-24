@@ -15,7 +15,6 @@
 # Landscape Systems Analysis at the ZALF.
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
-import asyncio
 from random import random
 import capnp
 from pathlib import Path
@@ -38,7 +37,7 @@ abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 
 import common.capnp_async_helpers as async_helpers
 import common.common as common
-import services.climate.csv_file_based as csv_based
+import lib.climate.csv_file_based as csv_based
 
 reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
 soil_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "soil.capnp"), imports=abs_imports)
@@ -231,9 +230,8 @@ def run_climate_service():
     conMan = common.ConnectionManager()
     # restorer = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000", cast_as=persistence_capnp.Restorer)
     # service = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/6feaf299-d620-430b-9189-36dfccf48b3a", cast_as=climate_data_capnp.CSVTimeSeriesFactory)
-    service = conMan.try_connect(
-        "capnp://SzOpxKvp2MfCwo5CKSKjvr5qBF2ZOLNJunmyZCpS-e4=@10.10.24.218:43029/MTRjNWViNzctMGJmNS00ZGEwLTkwY2QtYTE0ZmEyMTZhOTYz",
-        cast_as=climate_capnp.Service)
+    sr = "capnp://dPMyvPtC1mNl_8wTf5VOZAg0PGVlOe-bgra7H7_Casg=@10.10.25.25:42465/07384792-46a8-4796-88e5-de0bb86e4790"
+    service = conMan.try_connect(sr, cast_as=climate_capnp.Service)
     # timeseries = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/8e7961c5-bd16-4c1d-86fd-8347dc46185e", cast_as=climate_data_capnp.TimeSeries)
     # unsave = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/ac544d7b-1f82-4bf8-9adb-cf586ae46287", cast_as=common_capnp.Action)
     # 4e4fe3fb-791a-4a26-9ae1-1ce52093bda5'  row: 340/col: 288
@@ -243,6 +241,8 @@ def run_climate_service():
         print(e)
 
     ds = service.getAvailableDatasets().wait().datasets[0].data
+    ds.closestTimeSeriesAt({"lat": 52.675, "lon": 12.706}).wait()
+
     print(ds.save().wait())
 
     cb = ds.streamLocations().wait().locationsCallback
@@ -468,10 +468,27 @@ def run_climate():
 def run_channel():
     con_man = common.ConnectionManager()
 
-    writer = con_man.try_connect("capnp://2djJAQhpUZuiQxCllmwVBF86XNvrnNVw8JQnFomcBUM@10.10.24.218:33893/b3V0",
-                                 cast_as=fbp_capnp.Channel.Writer)
-    writer.write(value=geo_capnp.RowCol.new_message(row=5, col=12)).wait()
-    print("bla")
+    #wsr = "capnp://InIKxDrmz3tcRCEfObZRhTTuCoqpV7YpyukI3DKyyMY@10.10.25.25:42321/a0055054-7df3-493c-a5dd-ff8e64cef97f"
+    #writer = con_man.try_connect(wsr, cast_as=fbp_capnp.Channel.Writer)
+    #writer.write(value="hello1").wait()
+    #print("wrote hello")
+    #writer.write(value="hello2").wait()
+    #writer.write(value="hello3").wait()
+    #writer.write(value="hello4").wait()
+    #return
+
+    rsr = "capnp://InIKxDrmz3tcRCEfObZRhTTuCoqpV7YpyukI3DKyyMY@10.10.25.25:42321/0f9808d6-ac48-4fc0-bedc-de51f570081d"
+    reader = con_man.try_connect(rsr, cast_as=fbp_capnp.Channel.Reader)
+    msg = reader.read().wait()
+    print("read", msg.value.as_text())
+    return
+
+    for _ in range(100):
+        writer.write(value="hello").wait()
+        print("wrote hello")
+        msg = reader.read().wait()
+        print("read", msg.value.as_text())
+    return
 
     # test channel
     # channel_sr = "capnp://insecure@10.10.24.210:37505/6c25454e-4ef9-4659-9c94-341bdd827df5"
@@ -551,13 +568,15 @@ def main():
     #    print(".", end="")
     #    time.sleep(1)
 
-    run_soil_service()
+    run_climate_service()
+
+    # run_soil_service()
 
     # run_channel()
 
     # run_crop_service()
 
-    #run_fertilizer_service()
+    # run_fertilizer_service()
 
     # run_monica()
 

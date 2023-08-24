@@ -17,15 +17,9 @@
 
 import asyncio
 import capnp
-from datetime import date, timedelta
-import io
-import json
 import os
 from pathlib import Path
-import string
 import sys
-import time
-import uuid
 
 # remote debugging via commandline
 # -m ptvsd --host 0.0.0.0 --port 14000 --wait
@@ -38,11 +32,10 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-import common.capnp_async_helpers as async_helpers
-import common_climate_data_capnp_impl as ccdi
+import lib.climate.common_climate_data_capnp_impl as ccdi
 import common.common as common
-import common.service as serv
-import csv_file_based as csv_based
+import lib.common.service as serv
+import lib.climate.csv_file_based as csv_based
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]

@@ -20,12 +20,10 @@
 
 import asyncio
 import capnp
-import json
-import logging
 import math
 import os
 from pathlib import Path
-from pyproj import CRS, Transformer
+from pyproj import Transformer
 import sys
 # import time
 import uuid
@@ -41,8 +39,7 @@ if str(PATH_TO_PYTHON_CODE) not in sys.path:
 import common.common as common
 import common.rect_ascii_grid_management as grid_man
 import common.geo as geo
-import common.service as serv
-import common.capnp_async_helpers as async_helpers
+import lib.common.service as serv
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
