@@ -36,18 +36,15 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-import common.geo as geo
-
-import common.capnp_async_helpers as async_helpers
-import lib.climate.common_climate_data_capnp_impl as ccdi
+from pkgs.common import geo
+from pkgs.common import capnp_async_helpers as async_helpers
+from pkgs.climate import common_climate_data_capnp_impl as ccdi
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
 climate_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate.capnp"), imports=abs_imports)
 
-
-# ------------------------------------------------------------------------------
 
 class TimeSeries(climate_data_capnp.TimeSeries.Server):
 
@@ -114,8 +111,6 @@ class TimeSeries(climate_data_capnp.TimeSeries.Server):
             r.heightNN = self._location.heightNN
             r.latlon = self._location.latlon
 
-
-# ------------------------------------------------------------------------------
 
 class DatasetImpl(climate_data_capnp.Dataset.Server):
 
@@ -294,8 +289,6 @@ class DatasetImpl(climate_data_capnp.Dataset.Server):
         return locs
 
 
-# ------------------------------------------------------------------------------
-
 async def async_main(path_to_nc_files, region="sn", serve_bootstrap=False,
                      host="0.0.0.0", port=None, reg_sturdy_ref=None, id=None, name="Klima Konform", description=None):
     config = {
@@ -338,8 +331,6 @@ async def async_main(path_to_nc_files, region="sn", serve_bootstrap=False,
     else:
         await conMan.manage_forever()
 
-
-# ------------------------------------------------------------------------------
 
 if __name__ == '__main__':
     asyncio.run(async_main("/home/berg/Schreibtisch/klima_konform/sn", region="sn", serve_bootstrap=True, port=8888))

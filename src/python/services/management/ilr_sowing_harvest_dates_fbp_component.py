@@ -37,8 +37,8 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-import common.common as common
-import common.geo as geo
+from pkgs.common import common
+from pkgs.common import geo
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
@@ -47,8 +47,6 @@ fbp_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "fbp.capnp"), imports=abs_imp
 geo_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "geo.capnp"), imports=abs_imports)
 mgmt_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "management.capnp"), imports=abs_imports)
 
-
-# ----------------------------------------------------------------------------------------------
 
 def create_seed_harvest_geoGrid_interpolator_and_read_data(path_to_csv_file, wgs84_crs, target_crs,
                                                            ilr_seed_harvest_data):
@@ -152,8 +150,6 @@ def create_seed_harvest_geoGrid_interpolator_and_read_data(path_to_csv_file, wgs
 
         ilr_seed_harvest_data[crop_id]["interpolate"] = NearestNDInterpolator(np.array(points), np.array(values))
 
-
-# ------------------------------------------------------------------------------
 
 config = {
     "crop_ids": "WW,SW,WB",  # ALF,CLALF,GM,PO,SB,SBee,SM,SU,SW,SWR,WB,WG_test,WR,WRa,WW

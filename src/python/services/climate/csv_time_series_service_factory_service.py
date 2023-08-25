@@ -31,10 +31,10 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-import common.capnp_async_helpers as async_helpers
-import common.common as common
-import lib.common.service as serv
-import lib.climate.csv_file_based as csv_based
+from pkgs.common import capnp_async_helpers as async_helpers
+from pkgs.common import common
+from pkgs.common import service as serv
+from pkgs.climate import csv_file_based as csv_based
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
@@ -43,8 +43,6 @@ service_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "service.capnp"), imports
 reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
 persistence_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "persistence.capnp"), imports=abs_imports)
 
-
-# ------------------------------------------------------------------------------
 
 class Factory(climate_data_capnp.CSVTimeSeriesFactory.Server, common.Factory):
 
@@ -91,8 +89,6 @@ class Factory(climate_data_capnp.CSVTimeSeriesFactory.Server, common.Factory):
                 self.refesh_timeout()
 
 
-# ------------------------------------------------------------------------------
-
 def main(serve_bootstrap=True, host="*", port=10000, reg_sturdy_ref=None):
     config = {
         "port": port,
@@ -134,8 +130,6 @@ def main(serve_bootstrap=True, host="*", port=10000, reg_sturdy_ref=None):
     server.run_forever()
 
 
-# ------------------------------------------------------------------------------
-# "0.0.0.0"
 async def async_main(serve_bootstrap=True, host=None, port=10000, reg_sturdy_ref=None):
     config = {
         "host": host,
@@ -182,8 +176,6 @@ async def async_main(serve_bootstrap=True, host=None, port=10000, reg_sturdy_ref
     else:
         await conMan.manage_forever()
 
-
-# ------------------------------------------------------------------------------
 
 if __name__ == '__main__':
     # main()

@@ -30,9 +30,12 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-import common.common as common
-import lib.common.service as serv
-import lib.common.csv as csv
+from pkgs.common import csv
+from pkgs.common import capnp_async_helpers as async_helpers
+from pkgs.climate import common_climate_data_capnp_impl as ccdi
+from pkgs.climate import csv_file_based as csv_based
+from pkgs.common import common
+from pkgs.common import service as serv
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]

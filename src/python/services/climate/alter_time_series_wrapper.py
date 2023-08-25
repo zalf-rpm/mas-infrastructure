@@ -30,17 +30,16 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-import common.capnp_async_helpers as async_helpers
-import lib.climate.common_climate_data_capnp_impl as ccdi
-import common.common as common
-import lib.common.service as serv
+from pkgs.common import capnp_async_helpers as async_helpers
+from pkgs.climate import common_climate_data_capnp_impl as ccdi
+from pkgs.common import common
+from pkgs.common import service as serv
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 climate_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate.capnp"), imports=abs_imports)
 reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
 
-# ------------------------------------------------------------------------------
 
 class AlterTimeSeriesWrapper(climate_capnp.AlterTimeSeriesWrapper.Server):
 
@@ -156,8 +155,6 @@ class AlterTimeSeriesWrapper(climate_capnp.AlterTimeSeriesWrapper.Server):
         ])
 
 
-#------------------------------------------------------------------------------
-
 class AlterTimeSeriesWrapperFactory(climate_capnp.AlterTimeSeriesWrapperFactory.Server, common.Identifiable, common.Persistable):
 
     def __init__(self, id=None, name=None, description=None, restorer=None):
@@ -176,9 +173,6 @@ class AlterTimeSeriesWrapperFactory(climate_capnp.AlterTimeSeriesWrapperFactory.
         r.description = self._description
 
 
-    
-
-
     def wrap_context(self, context): # wrap @0 (timeSeries :TimeSeries) -> (wrapper :AlterTimeSeriesWrapper);
         def create_wrapper(header):
             atsw = AlterTimeSeriesWrapper(ts, header)
@@ -189,8 +183,6 @@ class AlterTimeSeriesWrapperFactory(climate_capnp.AlterTimeSeriesWrapperFactory.
         if ts:
             return ts.header().then(lambda h: create_wrapper(list(h.header)))
 
-
-#------------------------------------------------------------------------------
 
 async def main(serve_bootstrap=True, host=None, port=None, 
     id=None, name="AlterTimeSeriesWrapperFactory", description=None, reg_sturdy_ref=None, use_async=False):
@@ -229,7 +221,6 @@ async def main(serve_bootstrap=True, host=None, port=None,
         serv.init_and_run_service({"service": service}, config["host"], config["port"], 
             serve_bootstrap=config["serve_bootstrap"], restorer=restorer, conn_man=conman)
 
-#------------------------------------------------------------------------------
 
 if __name__ == '__main__':
     #asyncio.run(main(serve_bootstrap=True, use_async=True))

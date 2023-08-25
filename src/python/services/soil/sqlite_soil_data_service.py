@@ -37,11 +37,11 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-import common.common as common
-import common.rect_ascii_grid_management as grid_man
-import common.geo as geo
-import lib.common.service as serv
-import lib.soil.soil_io3
+from pkgs.common import common
+from pkgs.common import rect_ascii_grid_management as grid_man
+from pkgs.common import geo
+from pkgs.common import service as serv
+import pkgs.soil.soil_io3
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]

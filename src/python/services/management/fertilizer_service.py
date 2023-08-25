@@ -33,8 +33,8 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-import common.common as common
-import lib.common.service as serv
+from pkgs.common import common
+from pkgs.common import service as serv
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
@@ -44,8 +44,6 @@ management_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "management.capnp"), i
 monica_mgmt_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "model" / "monica" / "monica_management.capnp"),
                                imports=abs_imports)
 
-
-# ------------------------------------------------------------------------------
 
 class MineralFertilizer(management_capnp.Fertilizer.Server, common.Identifiable, common.Persistable):
 
@@ -184,8 +182,6 @@ class Service(reg_capnp.Registry.Server, common.Identifiable, common.Persistable
         return ferts
 
 
-# ------------------------------------------------------------------------------
-
 async def main(path_to_monica_parameters, serve_bootstrap=True, host=None, port=None,
                id=None, name="MONICA Parameters Fertilizer Service", description=None, use_async=False):
     config = {
@@ -212,8 +208,6 @@ async def main(path_to_monica_parameters, serve_bootstrap=True, host=None, port=
         serv.init_and_run_service({"service": service}, config["host"], config["port"],
                                   serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
 
-
-# ------------------------------------------------------------------------------
 
 if __name__ == '__main__':
     asyncio.run(main("../monica-parameters", serve_bootstrap=True, use_async=True))

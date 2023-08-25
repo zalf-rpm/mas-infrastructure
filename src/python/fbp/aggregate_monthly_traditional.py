@@ -35,7 +35,7 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-import common.common as common
+from pkgs.common import common
 
 config = {
     "path_to_rows_dir": "/beegfs/common/data/climate/dwd/csvs/germany",

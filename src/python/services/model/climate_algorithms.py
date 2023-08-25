@@ -35,7 +35,7 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-import climate.common_climate_data_capnp_impl as ccdi
+from pkgs.climate import common_climate_data_capnp_impl as ccdi
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
@@ -43,8 +43,6 @@ climate_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate.capnp"), im
 reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "service_registry.capnp"), imports=abs_imports)
 model_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "model.capnp"), imports=abs_imports)
 
-
-# ------------------------------------------------------------------------------
 
 class YearlyTavg(model_capnp.ClimateInstance.Server):
 
@@ -88,8 +86,6 @@ class YearlyTavg(model_capnp.ClimateInstance.Server):
 
         return {"xs": years, "ys": tavgs}
 
-
-# ------------------------------------------------------------------------------
 
 def main():
     # address = parse_args().address

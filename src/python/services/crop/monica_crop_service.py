@@ -35,8 +35,8 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-import common.common as common
-import lib.common.service as serv
+from pkgs.common import common
+from pkgs.common import service as serv
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
@@ -47,7 +47,6 @@ monica_params_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "model" / "monica" 
                                  imports=abs_imports)
 storage_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "storage.capnp"), imports=abs_imports)
 
-# ------------------------------------------------------------------------------
 
 LAST_SERVICE_SR_KEY_NAME = "last_service_sr"
 LAST_ADMIN_SR_KEY_NAME = "last_admin_sr"
@@ -337,8 +336,6 @@ class Registry(reg_capnp.Registry.Server):
             return list(itertools.chain(*self._species_to_cultivars.values()))
 
 
-# ------------------------------------------------------------------------------
-
 async def main(path_to_monica_parameters, serve_bootstrap=True, host=None, port=None,
                id=None, name="MONICA Crop Parameters Service", description=None, use_async=False):
     config = {
@@ -406,8 +403,6 @@ async def main(path_to_monica_parameters, serve_bootstrap=True, host=None, port=
                                   service_container_sr=config["service_container_sr"],
                                   load_last_or_store_services_callback=load_last_or_store_services)
 
-
-# ------------------------------------------------------------------------------
 
 if __name__ == '__main__':
     asyncio.run(main(str(PATH_TO_REPO.parent / "monica-parameters"), serve_bootstrap=True, use_async=True))
