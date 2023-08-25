@@ -32,10 +32,10 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-import lib.climate.common_climate_data_capnp_impl as ccdi
-import common.common as common
-import lib.common.service as serv
-import lib.climate.csv_file_based as csv_based
+from pkgs.climate import common_climate_data_capnp_impl as ccdi
+from pkgs.common import common as common
+from pkgs.common import service as serv
+from pkgs.climate import csv_file_based as csv_based
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
@@ -45,8 +45,6 @@ fbp_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "fbp.capnp"), imports=abs_imp
 geo_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "geo.capnp"), imports=abs_imports)
 reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
 
-
-# ------------------------------------------------------------------------------
 
 def fbp(config: dict, service: ccdi.Service):
     conman = common.ConnectionManager()
@@ -111,8 +109,6 @@ def fbp(config: dict, service: ccdi.Service):
     print("dwd_germany_service.py: exiting FBP component")
 
 
-# ------------------------------------------------------------------------------
-
 def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon, restorer):
     datasets = []
     metadata = climate_capnp.Metadata.new_message(
@@ -134,8 +130,6 @@ def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon, 
     ))
     return datasets
 
-
-# ------------------------------------------------------------------------------
 
 async def main(path_to_data, serve_bootstrap=True, host=None, port=None,
                id=None, name="DWD - historical - 1991-2019", description=None, use_async=False):
@@ -178,8 +172,6 @@ async def main(path_to_data, serve_bootstrap=True, host=None, port=None,
             serv.init_and_run_service({"service": service}, config["host"], config["port"],
                                       serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
 
-
-# ------------------------------------------------------------------------------
 
 if __name__ == '__main__':
     asyncio.run(

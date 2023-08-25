@@ -35,19 +35,14 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-#if str(PATH_TO_SCRIPT_DIR) in sys.path:
-    
-#else:
-
-import common.common as common
-import common.capnp_async_helpers as async_helpers
+from pkgs.common import common
+from pkgs.common import capnp_async_helpers as async_helpers
 
 PATH_TO_CAPNP_SCHEMAS = (PATH_TO_REPO / "capnproto_schemas").resolve()
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 fbp_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "fbp.capnp"), imports=abs_imports)
 common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
 
-#--------------------------------------------------------------------------------------
 
 class Input(fbp_capnp.Input.Server, common.Identifiable, common.Persistable): 
 

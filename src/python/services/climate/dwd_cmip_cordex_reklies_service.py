@@ -32,17 +32,15 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-import common.capnp_async_helpers as async_helpers
-import lib.climate.common_climate_data_capnp_impl as ccdi
-import lib.climate.csv_file_based as csv_based
+from pkgs.common import capnp_async_helpers as async_helpers
+from pkgs.climate import common_climate_data_capnp_impl as ccdi
+from pkgs.climate import csv_file_based as csv_based
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
 climate_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate.capnp"), imports=abs_imports)
 
-
-# ------------------------------------------------------------------------------
 
 def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon):
     datasets = []
@@ -80,8 +78,6 @@ def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon):
                                             ))
     return datasets
 
-
-# ------------------------------------------------------------------------------
 
 async def async_main(path_to_data, serve_bootstrap=False,
                      host="0.0.0.0", port=None, reg_sturdy_ref=None, id=None, name="DWD - CMIP Cordex Reklies",
@@ -126,8 +122,6 @@ async def async_main(path_to_data, serve_bootstrap=False,
     else:
         await conMan.manage_forever()
 
-
-# ------------------------------------------------------------------------------
 
 if __name__ == '__main__':
     asyncio.run(async_main("/beegfs/common/data/climate/dwd/cmip_cordex_reklies"))

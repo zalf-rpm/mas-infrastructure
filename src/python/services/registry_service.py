@@ -35,15 +35,13 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-import common.capnp_async_helpers as async_helpers
+from pkgs.common import capnp_async_helpers as async_helpers
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
 reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "service_registry.capnp"), imports=abs_imports)
 
-
-# ------------------------------------------------------------------------------
 
 class Registry(reg_capnp.Service.Registry.Server):
 
@@ -86,8 +84,6 @@ class Registry(reg_capnp.Service.Registry.Server):
         print("registered service regToken:", regToken, "type:", serviceType)
 
 
-# ------------------------------------------------------------------------------
-
 class Unregister(common_capnp.Registry.Unregister.Server):
 
     def __init__(self, regToken, removeServiceFunc):
@@ -103,9 +99,6 @@ class Unregister(common_capnp.Registry.Unregister.Server):
         print("unregister id:", self._regToken)
 
 
-# ------------------------------------------------------------------------------
-
-
 def new_connection_factory(service):
     async def new_connection(reader, writer):
         server = async_helpers.Server(service)
@@ -113,8 +106,6 @@ def new_connection_factory(service):
 
     return new_connection
 
-
-# ------------------------------------------------------------------------------
 
 async def async_main(server="0.0.0.0", port=10001, id=None, name="registry name", description=None):
     config = {
@@ -154,8 +145,6 @@ async def async_main(server="0.0.0.0", port=10001, id=None, name="registry name"
         await server.serve_forever()
 
 
-# ------------------------------------------------------------------------------
-
 def no_async_main(server="*", port=6003, id=None, name="registry name", description=None):
     config = {
         "port": str(port),
@@ -177,16 +166,12 @@ def no_async_main(server="*", port=6003, id=None, name="registry name", descript
     server.run_forever()
 
 
-# ------------------------------------------------------------------------------
-
 def main(server="*", port=10001, id=None, name=None, description=None, use_asyncio=True):
     if use_asyncio:
         asyncio.run(async_main(server=server, port=port, id=id, name=name, description=description))
     else:
         no_async_main(server=server, port=port, id=id, name=name, description=description)
 
-
-# ------------------------------------------------------------------------------
 
 if __name__ == '__main__':
 
@@ -201,4 +186,3 @@ if __name__ == '__main__':
     else:
         no_async_main()
 
-# ------------------------------------------------------------------------------

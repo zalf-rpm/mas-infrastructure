@@ -30,9 +30,9 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-import common.common as common
-import lib.common.service as serv
-import lib.common.csv as csv
+from pkgs.common import common
+from pkgs.common import service as serv
+from pkgs.common import csv
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
@@ -86,8 +86,6 @@ async def main(path_to_csv, serve_bootstrap=True, host=None, port=None,
         serv.init_and_run_service({"service": service}, config["host"], config["port"],
                                   serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
 
-
-# ------------------------------------------------------------------------------
 
 if __name__ == '__main__':
     asyncio.run(main("/home/berg/Desktop/Koordinaten_HE_dummy_ID.csv", use_async=True))
