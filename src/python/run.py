@@ -229,7 +229,7 @@ def run_climate_service():
     conMan = common.ConnectionManager()
     # restorer = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000", cast_as=persistence_capnp.Restorer)
     # service = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/6feaf299-d620-430b-9189-36dfccf48b3a", cast_as=climate_data_capnp.CSVTimeSeriesFactory)
-    sr = "capnp://dPMyvPtC1mNl_8wTf5VOZAg0PGVlOe-bgra7H7_Casg=@10.10.25.25:42465/07384792-46a8-4796-88e5-de0bb86e4790"
+    sr = "capnp://sVmjK6TZ_-dlUG3CtK5jesEw7gb4a1UTLwpHxqCKp0o=@10.10.25.25:40857/2676128f-c42a-4fa6-b71c-32de1823f1d9"
     service = conMan.try_connect(sr, cast_as=climate_capnp.Service)
     # timeseries = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/8e7961c5-bd16-4c1d-86fd-8347dc46185e", cast_as=climate_data_capnp.TimeSeries)
     # unsave = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/ac544d7b-1f82-4bf8-9adb-cf586ae46287", cast_as=common_capnp.Action)
@@ -239,8 +239,11 @@ def run_climate_service():
     except Exception as e:
         print(e)
 
+    #lat, lon = 51.295972, 9.829111  # Fahrenbach
+    #lat, lon = 51.383333, 9.900000  # Neu-Eichenberg
+    lat, lon = 52.516598, 14.121966  # Müncheberg
     ds = service.getAvailableDatasets().wait().datasets[0].data
-    ds.closestTimeSeriesAt({"lat": 52.675, "lon": 12.706}).wait()
+    ds.closestTimeSeriesAt({"lat": lat, "lon": lon}).wait()
 
     print(ds.save().wait())
 

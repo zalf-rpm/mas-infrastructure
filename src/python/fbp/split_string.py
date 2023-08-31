@@ -40,9 +40,9 @@ fbp_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "fbp.capnp"), imports=abs_imp
 
 config = {
     "split_at": ",",
-    "cast_to": "text", # text | float | int
-    "in_sr": None, # string
-    "out_sr": None # list[text | float | int]
+    "cast_to": "text",  # text | float | int
+    "in_sr": None,  # string
+    "out_sr": None  # list[text | float | int]
 }
 common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 

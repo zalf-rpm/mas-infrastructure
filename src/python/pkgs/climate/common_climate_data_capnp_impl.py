@@ -298,11 +298,11 @@ class Service(climate_capnp.Service.Server, common.Identifiable, common.Persista
         self._meta_plus_datasets = meta_plus_datasets
 
     def getAvailableDatasets(self, **kwargs):  # getAvailableDatasets @0 () -> (datasets :List(MetaPlusData));
-        "get a list of all available datasets"
+        """get a list of all available datasets"""
         return self._meta_plus_datasets
 
     def getDatasetsFor(self, template, **kwargs):  # getDatasets @1 (template :Metadata) -> (datasets :List(Dataset));
-        "get a reference to the simulation with given id"
+        """get a reference to the simulation with given id"""
         search_entry_to_value = create_entry_map(template.entries)
 
         def contains_search_entries(mds):
