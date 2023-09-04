@@ -19,6 +19,7 @@ import asyncio
 import capnp
 from datetime import date, timedelta
 from netCDF4 import Dataset as NCDataset
+import numpy as np
 import os
 from pathlib import Path
 from pyproj import Transformer
@@ -115,48 +116,85 @@ class TimeSeries(climate_data_capnp.TimeSeries.Server):
 class Dataset(climate_data_capnp.Dataset.Server):
 
     def __init__(self, historic_dataset_sr, path_to_historic_nc_files, path_to_6month_forecast_nc_files, metadata=None):
-        self.historic_elem_to_data = {
-            "tmax": {"var": "Tagesmaximum_Temperatur", "convf": lambda v: v - - 273.15,
-                     "ds": NCDataset(path_to_historic_nc_files + "/zalf_hurs_amber_2023_v1-0.nc")},  # -> °C
-            "tavg": {"var": "Tagesmittel_Temperatur", "convf": lambda v: v - - 273.15,
-                     "ds": NCDataset(path_to_historic_nc_files + "/zalf_hurs_amber_2023_v1-0.nc")},  # -> °C
-            "tmin": {"var": "TagesminimumTemperatur", "convf": lambda v: v - - 273.15,
-                     "ds": NCDataset(path_to_historic_nc_files + "/zalf_hurs_amber_2023_v1-0.nc")},  # -> °C
-            "precip": {"var": "pr", "convf": lambda v: v * 60 * 60 * 24,
-                       "ds": NCDataset(path_to_historic_nc_files + "/zalf_pr_amber_2023_v1-0.nc")},  # -> mm
-            "globrad": {"var": "rsds", "convf": lambda v: v * 60 * 60 * 24 / 1000000,
-                        "ds": NCDataset(path_to_historic_nc_files + "/zalf_rsds_amber_2023_v1-0.nc")},  # -> MJ/m2/d
-            "wind": {"var": "sfcWind", "convf": lambda v: v,
-                     "ds": NCDataset(path_to_historic_nc_files + "/zalf_sfcwind_amber_2023_v1-0.nc")},  # -> m/s
-            "relhumid": {"var": "hurs", "convf": lambda v: v,
-                         "ds": NCDataset(path_to_historic_nc_files + "/zalf_hurs_amber_2023_v1-0.nc")}  # -> %
-        }
+        self.year_to_historic_elem_to_data = {}
+        for year in range(2022, 2023+1):
+            self.year_to_historic_elem_to_data[year] = {
+                "tmax": {"var": "tasmax", "convf": lambda v: v - - 273.15,
+                         "ds": NCDataset(path_to_historic_nc_files + f"/zalf_tasmax_amber_{year}_v1-0.nc")},  # -> °C
+                "tavg": {"var": "tas", "convf": lambda v: v - - 273.15,
+                         "ds": NCDataset(path_to_historic_nc_files + f"/zalf_tas_amber_{year}_v1-0.nc")},  # -> °C
+                "tmin": {"var": "tasmin", "convf": lambda v: v - - 273.15,
+                         "ds": NCDataset(path_to_historic_nc_files + f"/zalf_tasmin_amber_{year}_v1-0.nc")},  # -> °C
+                "precip": {"var": "pr", "convf": lambda v: v * 60 * 60 * 24,
+                           "ds": NCDataset(path_to_historic_nc_files + f"/zalf_pr_amber_{year}_v1-0.nc")},  # -> mm
+                "globrad": {"var": "rsds", "convf": lambda v: v * 60 * 60 * 24 / 1000000,
+                            "ds": NCDataset(path_to_historic_nc_files + f"/zalf_rsds_amber_{year}_v1-0.nc")},  # -> MJ/m2/d
+                "wind": {"var": "sfcWind", "convf": lambda v: v,
+                         "ds": NCDataset(path_to_historic_nc_files + f"/zalf_sfcwind_amber_{year}_v1-0.nc")},  # -> m/s
+                "relhumid": {"var": "hurs", "convf": lambda v: v,
+                             "ds": NCDataset(path_to_historic_nc_files + f"/zalf_hurs_amber_{year}_v1-0.nc")}  # -> %
+            }
 
+        fc_ensmem = "r1i1p1"
+        fc_start_date = "2022-11-01".replace("-", "")
+        fc_end_date = "2023-04-30".replace("-", "")
         self.forecast_elem_to_data = {
-            "tmax": {"var": "tx", "convf": 1.0, "ds": NCDataset(path_to_6month_forecast_nc_files + "/Temperatur_max.nc")},  # -> °C
-            "tavg": {"var": "tmean", "convf": 1.0, "ds": NCDataset(path_to_6month_forecast_nc_files + "/Temperatur_mean.nc")},
-            # -> °C
-            "tmin": {"var": "tn", "convf": 1.0, "ds": NCDataset(path_to_6month_forecast_nc_files + "/Temperatur_min.nc")},  # -> °C
-            "precip": {"var": "p", "convf": 1.0, "ds": NCDataset(path_to_6month_forecast_nc_files + "/Niederschlag.nc")},  # -> mm
-            "relhumid": {"var": "rh", "convf": 1.0, "ds": NCDataset(path_to_6month_forecast_nc_files + "/Relative_Feuchte.nc")},
-            # -> %
-            "globrad": {"var": "gr", "convf": 3.6, "ds": NCDataset(path_to_6month_forecast_nc_files + "/Globalstrahlung.nc")},
-            # -> MJ/m2/d
-            "wind": {"var": "wind", "convf": 1.0, "ds": NCDataset(path_to_6month_forecast_nc_files + "/Windgeschwindigkeit.nc")}
-            # -> m/s
+            "tmax": {"var": "tasmax", "convf": lambda v: v - - 273.15,
+                     "ds": NCDataset(path_to_historic_nc_files + f"/tasmax_day_GCFS21--DWD-EPISODES2022--DE-0075x005_sfc20221101_{fc_ensmem}_{fc_start_date}-{fc_end_date}.nc")},  # -> °C
+            "tavg": {"var": "tas", "convf": lambda v: v - - 273.15,
+                     "ds": NCDataset(path_to_historic_nc_files + f"/tas_day_GCFS21--DWD-EPISODES2022--DE-0075x005_sfc20221101_{fc_ensmem}_{fc_start_date}-{fc_end_date}.nc")},  # -> °C
+            "tmin": {"var": "tasmin", "convf": lambda v: v - - 273.15,
+                     "ds": NCDataset(path_to_historic_nc_files + f"/tasmin_day_GCFS21--DWD-EPISODES2022--DE-0075x005_sfc20221101_{fc_ensmem}_{fc_start_date}-{fc_end_date}.nc")},  # -> °C
+            "precip": {"var": "pr", "convf": lambda v: v * 60 * 60 * 24,
+                       "ds": NCDataset(path_to_historic_nc_files + f"/pr_day_GCFS21--DWD-EPISODES2022--DE-0075x005_sfc20221101_{fc_ensmem}_{fc_start_date}-{fc_end_date}.nc")},  # -> mm
+            "globrad": {"var": "rsds", "convf": lambda v: v * 60 * 60 * 24 / 1000000,
+                        "ds": NCDataset(path_to_historic_nc_files + f"/rsds_day_GCFS21--DWD-EPISODES2022--DE-0075x005_sfc20221101_{fc_ensmem}_{fc_start_date}-{fc_end_date}.nc")},  # -> MJ/m2/d
+            "wind": {"var": "sfcWind", "convf": lambda v: v,
+                     "ds": NCDataset(path_to_historic_nc_files + f"/sfcWind_day_GCFS21--DWD-EPISODES2022--DE-0075x005_sfc20221101_{fc_ensmem}_{fc_start_date}-{fc_end_date}.nc")},  # -> m/s
+            "relhumid": {"var": "hurs", "convf": lambda v: v,
+                         "ds": NCDataset(path_to_historic_nc_files + f"/hurs_day_GCFS21--DWD-EPISODES2022--DE-0075x005_sfc20221101_{fc_ensmem}_{fc_start_date}-{fc_end_date}.nc")}  # -> %
         }
 
-        no_of_days = self._elem_to_data["tavg"]["ds"]["time"].shape[0] if "tavg" in self._elem_to_data else 0
+        no_of_days = 0
+        years = list(sorted(self.year_to_historic_elem_to_data.keys()))
+        hist_dss = {}
+        for year in years:
+            tavg = self.year_to_historic_elem_to_data[year].get("tavg", None)
+            if tavg:
+                hist_dss[year] = tavg["ds"]
+                no_of_days += np.ma.count(tavg["ds"]["tas"], axis=0)
+
+        hist_ll0s = {}
+        for year, ds in hist_dss.items():
+            if ds:
+                hist_ll0s[year] = {
+                    "lat_0": ds["lat"][0],
+                    "lat_res": ds["lat"][0] - ds["lat"][1],
+                    "lon_0": ds["lon"][0],
+                    "lon_res": ds["lat"][1] - ds["lon"][0]
+                }
+
+        fc_tavg_ds = self.forecast_elem_to_data["tavg"]["ds"] if "tavg" in self.forecast_elem_to_data else None
+        no_of_days += fc_tavg_ds["time"].shape[0] if fc_tavg_ds else 0
+        fc_ll_0 = {
+            "lat_0": fc_tavg_ds["lat"][0],
+            "lat_res": fc_tavg_ds["lat"][0] - fc_tavg_ds["lat"][1],
+            "lon_0": fc_tavg_ds["lon"][0],
+            "lon_res": fc_tavg_ds["lat"][1] - fc_tavg_ds["lon"][0]
+        } if fc_tavg_ds else None
+
         self._meta = climate_data_capnp.Metadata.new_message(
             entries=[
                 {"historical": None},
-                {"start": ccdi.create_capnp_date(date(1961, 1, 1))},
-                {"end": ccdi.create_capnp_date(date(1961, 1, 1) + timedelta(days=no_of_days - 1))}
+                {"start": ccdi.create_capnp_date(date(years[0], 1, 1))},
+                {"end": ccdi.create_capnp_date(date(years[0], 1, 1) + timedelta(days=no_of_days - 1))}
             ])
         self._time_series = {}
         self._locations = {}
         self._all_locations_created = False
         self._rowcol_to_gk4_rh = {}
+
+
 
         latlon_crs = geo.name_to_crs("latlon")
         gk4_crs = geo.name_to_crs("gk4")
@@ -221,6 +259,12 @@ class Dataset(climate_data_capnp.Dataset.Server):
         # closest TimeSeries object which represents the whole time series 
         # of the climate realization at the give climate coordinate
         lat, lon = (latlon.lat, latlon.lon)
+
+
+
+
+
+
         gk4_r, gk4_h = self._latlon_to_gk4_transformer.transform(lon, lat)
         row, col = self._interpolator(gk4_r, gk4_h)
         return self.time_series_at(row, col)
