@@ -69,7 +69,7 @@ try:
             if len(ls) == 0:
                 break
             for l in ls:
-                rc = l.customData[0].value.as_struct(geo_capnp.RowCol)
+                rc = l.customData[0].value
                 attrs = [{"key": "id", "value": "row-{}_col-{}".format(rc.row, rc.col)}]
                 if config["to_attr"]:
                     attrs.append({"key": config["to_attr"], "value": l.timeSeries})

@@ -253,7 +253,7 @@ def run_climate_service():
         if len(ls) == 0:
             break
         for l in ls:
-            rc = l.customData[0].value.as_struct(geo_capnp.RowCol)
+            rc = l.customData[0].value
             day0_data = l.timeSeries.data().wait().data[0]
             print("row:", rc.row, "col:", rc.col, "day0:", day0_data)
 

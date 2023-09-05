@@ -37,9 +37,9 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-from pkgs.common import geo
-from pkgs.common import capnp_async_helpers as async_helpers
+from pkgs.common import common
 from pkgs.climate import common_climate_data_capnp_impl as ccdi
+from pkgs.common import service as serv
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
@@ -47,17 +47,43 @@ reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=ab
 climate_data_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate.capnp"), imports=abs_imports)
 
 
-class TimeSeries(climate_data_capnp.TimeSeries.Server):
+class MultiTimeSeries(climate_data_capnp.TimeSeries.Server):
 
-    def __init__(self, data_t, header, metadata=None, location=None):
+    def __init__(self, data_t, header, start_date, metadata=None, location=None):
         self._data_t = data_t
         self._data = None
         self._header = header
         self._meta = metadata
         self._location = location
         no_of_days = len(data_t[0]) if len(data_t) > 0 else 0
-        self._start_date = date(1961, 1, 1)
+        self._start_date = start_date
         self._end_date = date(1961, 1, 1) + timedelta(days=no_of_days - 1)
+
+    def append_data(self, data_t, start_date):
+        no_of_days = len(data_t[0]) if len(data_t) > 0 else 0
+        end_date = start_date + timedelta(days=no_of_days - 1)
+        new_data_t = []
+        if start_date <= self._end_date:
+            td = self._end_date - start_date + 1
+            for ds, ds_ in zip(self._data_t, data_t):
+                new_data_t.append(ds[:-td.days] + ds_)
+        elif start_date == self._end_date + timedelta(days=1):
+            for ds, ds_ in zip(self._data_t, data_t):
+                new_data_t.append(ds + ds_)
+        elif end_date >= self._start_date:
+            td = end_date - self.start_date + 1
+            for ds, ds_ in zip(self._data_t, data_t):
+                new_data_t.append(ds_ + ds[td.days:])
+        elif end_date == self._start_date - timedelta(days=1):
+            for ds, ds_ in zip(self._data_t, data_t):
+                new_data_t.append(ds_ + ds)
+        else:
+            raise Exception("MultiTimeSeries.append_data would produce gaps in time-series")
+
+        self._data_t = new_data_t
+        no_of_days = len(data_t[0]) if len(data_t) > 0 else 0
+        self._end_date = self._start_date + timedelta(days=no_of_days - 1)
+        self._data = None
 
     def resolution_context(self, context):  # -> (resolution :TimeResolution);
         context.results.resolution = climate_data_capnp.TimeSeries.Resolution.daily
@@ -84,7 +110,8 @@ class TimeSeries(climate_data_capnp.TimeSeries.Server):
         start_i = (from_date - self._start_date).days
         end_i = (to_date - self._start_date).days
         sub_data_t = [ds[start_i: end_i + 1] for ds in self._data_t]
-        context.results.timeSeries = TimeSeries(sub_data_t, self._header, metadata=self._meta, location=self._location)
+        context.results.timeSeries = MultiTimeSeries(sub_data_t, self._header, from_date, metadata=self._meta,
+                                                     location=self._location)
 
     def subheader(self, elements, **kwargs):  # (elements :List(Element)) -> (timeSeries :TimeSeries);
         sub_header = [str(e) for e in elements]
@@ -92,10 +119,10 @@ class TimeSeries(climate_data_capnp.TimeSeries.Server):
         for i, elem in enumerate(self._header):
             if elem in sub_header:
                 sub_data_t.append(self._data_t[i])
-        return TimeSeries(sub_data_t, sub_header, metadata=self._meta, location=self._location)
+        return MultiTimeSeries(sub_data_t, sub_header, self._start_date, metadata=self._meta, location=self._location)
 
     def metadata(self, _context, **kwargs):  # metadata @7 () -> Metadata;
-        "the metadata for this time series"
+        """the metadata for this time series"""
         if self._meta:
             r = _context.results
             r.init("entries", len(self._meta.entries))
@@ -104,7 +131,7 @@ class TimeSeries(climate_data_capnp.TimeSeries.Server):
             r.info = self._meta.info
 
     def location(self, _context, **kwargs):  # location @8 () -> Location;
-        "location of this time series"
+        """location of this time series"""
         r = _context.results
         r.timeSeries = self
         if self._location:
@@ -117,7 +144,7 @@ class Dataset(climate_data_capnp.Dataset.Server):
 
     def __init__(self, historic_dataset_sr, path_to_historic_nc_files, path_to_6month_forecast_nc_files, metadata=None):
         self.year_to_historic_elem_to_data = {}
-        for year in range(2022, 2023+1):
+        for year in range(2022, 2023 + 1):
             self.year_to_historic_elem_to_data[year] = {
                 "tmax": {"var": "tasmax", "convf": lambda v: v - - 273.15,
                          "ds": NCDataset(path_to_historic_nc_files + f"/zalf_tasmax_amber_{year}_v1-0.nc")},  # -> °C
@@ -128,7 +155,8 @@ class Dataset(climate_data_capnp.Dataset.Server):
                 "precip": {"var": "pr", "convf": lambda v: v * 60 * 60 * 24,
                            "ds": NCDataset(path_to_historic_nc_files + f"/zalf_pr_amber_{year}_v1-0.nc")},  # -> mm
                 "globrad": {"var": "rsds", "convf": lambda v: v * 60 * 60 * 24 / 1000000,
-                            "ds": NCDataset(path_to_historic_nc_files + f"/zalf_rsds_amber_{year}_v1-0.nc")},  # -> MJ/m2/d
+                            "ds": NCDataset(path_to_historic_nc_files + f"/zalf_rsds_amber_{year}_v1-0.nc")},
+                # -> MJ/m2/d
                 "wind": {"var": "sfcWind", "convf": lambda v: v,
                          "ds": NCDataset(path_to_historic_nc_files + f"/zalf_sfcwind_amber_{year}_v1-0.nc")},  # -> m/s
                 "relhumid": {"var": "hurs", "convf": lambda v: v,
@@ -137,22 +165,37 @@ class Dataset(climate_data_capnp.Dataset.Server):
 
         fc_ensmem = "r1i1p1"
         fc_start_date = "2022-11-01".replace("-", "")
+        self.fc_start_date = date.fromisoformat("2022-11-01")
         fc_end_date = "2023-04-30".replace("-", "")
         self.forecast_elem_to_data = {
             "tmax": {"var": "tasmax", "convf": lambda v: v - - 273.15,
-                     "ds": NCDataset(path_to_historic_nc_files + f"/tasmax_day_GCFS21--DWD-EPISODES2022--DE-0075x005_sfc20221101_{fc_ensmem}_{fc_start_date}-{fc_end_date}.nc")},  # -> °C
+                     "ds": NCDataset(
+                         path_to_6month_forecast_nc_files + f"/tasmax_day_GCFS21--DWD-EPISODES2022--DE-0075x005_sfc20221101_{fc_ensmem}_{fc_start_date}-{fc_end_date}.nc")},
+            # -> °C
             "tavg": {"var": "tas", "convf": lambda v: v - - 273.15,
-                     "ds": NCDataset(path_to_historic_nc_files + f"/tas_day_GCFS21--DWD-EPISODES2022--DE-0075x005_sfc20221101_{fc_ensmem}_{fc_start_date}-{fc_end_date}.nc")},  # -> °C
+                     "ds": NCDataset(
+                         path_to_6month_forecast_nc_files + f"/tas_day_GCFS21--DWD-EPISODES2022--DE-0075x005_sfc20221101_{fc_ensmem}_{fc_start_date}-{fc_end_date}.nc")},
+            # -> °C
             "tmin": {"var": "tasmin", "convf": lambda v: v - - 273.15,
-                     "ds": NCDataset(path_to_historic_nc_files + f"/tasmin_day_GCFS21--DWD-EPISODES2022--DE-0075x005_sfc20221101_{fc_ensmem}_{fc_start_date}-{fc_end_date}.nc")},  # -> °C
+                     "ds": NCDataset(
+                         path_to_6month_forecast_nc_files + f"/tasmin_day_GCFS21--DWD-EPISODES2022--DE-0075x005_sfc20221101_{fc_ensmem}_{fc_start_date}-{fc_end_date}.nc")},
+            # -> °C
             "precip": {"var": "pr", "convf": lambda v: v * 60 * 60 * 24,
-                       "ds": NCDataset(path_to_historic_nc_files + f"/pr_day_GCFS21--DWD-EPISODES2022--DE-0075x005_sfc20221101_{fc_ensmem}_{fc_start_date}-{fc_end_date}.nc")},  # -> mm
+                       "ds": NCDataset(
+                           path_to_6month_forecast_nc_files + f"/pr_day_GCFS21--DWD-EPISODES2022--DE-0075x005_sfc20221101_{fc_ensmem}_{fc_start_date}-{fc_end_date}.nc")},
+            # -> mm
             "globrad": {"var": "rsds", "convf": lambda v: v * 60 * 60 * 24 / 1000000,
-                        "ds": NCDataset(path_to_historic_nc_files + f"/rsds_day_GCFS21--DWD-EPISODES2022--DE-0075x005_sfc20221101_{fc_ensmem}_{fc_start_date}-{fc_end_date}.nc")},  # -> MJ/m2/d
+                        "ds": NCDataset(
+                            path_to_6month_forecast_nc_files + f"/rsds_day_GCFS21--DWD-EPISODES2022--DE-0075x005_sfc20221101_{fc_ensmem}_{fc_start_date}-{fc_end_date}.nc")},
+            # -> MJ/m2/d
             "wind": {"var": "sfcWind", "convf": lambda v: v,
-                     "ds": NCDataset(path_to_historic_nc_files + f"/sfcWind_day_GCFS21--DWD-EPISODES2022--DE-0075x005_sfc20221101_{fc_ensmem}_{fc_start_date}-{fc_end_date}.nc")},  # -> m/s
+                     "ds": NCDataset(
+                         path_to_6month_forecast_nc_files + f"/sfcWind_day_GCFS21--DWD-EPISODES2022--DE-0075x005_sfc20221101_{fc_ensmem}_{fc_start_date}-{fc_end_date}.nc")},
+            # -> m/s
             "relhumid": {"var": "hurs", "convf": lambda v: v,
-                         "ds": NCDataset(path_to_historic_nc_files + f"/hurs_day_GCFS21--DWD-EPISODES2022--DE-0075x005_sfc20221101_{fc_ensmem}_{fc_start_date}-{fc_end_date}.nc")}  # -> %
+                         "ds": NCDataset(
+                             path_to_6month_forecast_nc_files + f"/hurs_day_GCFS21--DWD-EPISODES2022--DE-0075x005_sfc20221101_{fc_ensmem}_{fc_start_date}-{fc_end_date}.nc")}
+            # -> %
         }
 
         no_of_days = 0
@@ -164,23 +207,27 @@ class Dataset(climate_data_capnp.Dataset.Server):
                 hist_dss[year] = tavg["ds"]
                 no_of_days += np.ma.count(tavg["ds"]["tas"], axis=0)
 
-        hist_ll0s = {}
+        self.hist_ll0rs = {}
         for year, ds in hist_dss.items():
             if ds:
-                hist_ll0s[year] = {
+                self.hist_ll0rs[year] = {
                     "lat_0": ds["lat"][0],
                     "lat_res": ds["lat"][0] - ds["lat"][1],
+                    "no_rows": len(ds["lat"]),
                     "lon_0": ds["lon"][0],
-                    "lon_res": ds["lat"][1] - ds["lon"][0]
+                    "lon_res": ds["lon"][1] - ds["lon"][0],
+                    "no_cols": len(ds["lon"]),
                 }
 
         fc_tavg_ds = self.forecast_elem_to_data["tavg"]["ds"] if "tavg" in self.forecast_elem_to_data else None
         no_of_days += fc_tavg_ds["time"].shape[0] if fc_tavg_ds else 0
-        fc_ll_0 = {
+        self.fc_ll0r = {
             "lat_0": fc_tavg_ds["lat"][0],
             "lat_res": fc_tavg_ds["lat"][0] - fc_tavg_ds["lat"][1],
+            "no_rows": len(fc_tavg_ds["lat"]),
             "lon_0": fc_tavg_ds["lon"][0],
-            "lon_res": fc_tavg_ds["lat"][1] - fc_tavg_ds["lon"][0]
+            "lon_res": fc_tavg_ds["lon"][1] - fc_tavg_ds["lon"][0],
+            "no_cols": len(fc_tavg_ds["lon"]),
         } if fc_tavg_ds else None
 
         self._meta = climate_data_capnp.Metadata.new_message(
@@ -192,15 +239,6 @@ class Dataset(climate_data_capnp.Dataset.Server):
         self._time_series = {}
         self._locations = {}
         self._all_locations_created = False
-        self._rowcol_to_gk4_rh = {}
-
-
-
-        latlon_crs = geo.name_to_crs("latlon")
-        gk4_crs = geo.name_to_crs("gk4")
-        self._latlon_to_gk4_transformer = Transformer.from_crs(latlon_crs, gk4_crs, always_xy=True)
-        self._gk4_to_latlon_transformer = Transformer.from_crs(gk4_crs, latlon_crs, always_xy=True)
-        self._interpolator = self.create_interpolator()
 
     def metadata(self, _context, **kwargs):  # metadata @0 () -> Metadata;
         # get metadata for these data 
@@ -210,153 +248,131 @@ class Dataset(climate_data_capnp.Dataset.Server):
             r.entries[i] = e
         r.info = self._meta.info
 
-    def create_interpolator(self):
-        "read an ascii grid into a map, without the no-data values"
+    def time_series_at(self, lat, lon, location=None):
+        ilat = int(round(lat, 2)*100)
+        ilon = int(round(lon, 2)*100)
 
-        tavg = self._elem_to_data["tavg"]
-        ds = tavg["ds"]
-
-        gk4_coords = []
-        row_cols = []
-
-        # first day
-        arr = ds[tavg["var"]][0]
-        xs = ds["x"]
-        ys = ds["y"]
-
-        nrows = ys.shape[0]
-        ncols = xs.shape[0]
-
-        for row in range(nrows):
-            for col in range(ncols):
-                if arr.mask[row, col]:
-                    continue
-                r_gk4 = int(xs[col])
-                h_gk4 = int(ys[row])
-                gk4_coords.append([r_gk4, h_gk4])
-                row_cols.append((row, col))
-                self._rowcol_to_gk4_rh[(row, col)] = (r_gk4, h_gk4)
-                # print "row:", row, "col:", col, "lat:", lat, "lon:", lon, "val:", values[i]
-            # print row,
-
-        return NearestNDInterpolator(gk4_coords, row_cols)
-
-    def time_series_at(self, row, col, location=None):
-        if (row, col) not in self._time_series:
-            data_t = list([list(map(float, data["ds"][data["var"]][:, row, col] * data["convf"])) for data in
-                           self._elem_to_data.values()])
-
+        if (ilat, ilon) not in self._time_series:
             if not location:
-                location = self.location_at(row, col)
+                location = self.location_at(lat, lon)
 
-            timeSeries = TimeSeries(data_t, list(self._elem_to_data.keys()), metadata=self._meta, location=location)
+            def col(ll0r):
+                return int((lon - ll0r["lon_0"]) / ll0r["lon_res"])
 
-            self._time_series[(row, col)] = timeSeries
+            def row(ll0r):
+                return int((ll0r["lat_0"] - lat) / ll0r["lat_res"])
 
-        return self._time_series[(row, col)]
+            def create_data_t(elem_to_data):
+                return list(
+                    [list(map(lambda v: float(data["convf"](v)), data["ds"][data["var"]][:, row, col])) for data in
+                     elem_to_data.values()])
+
+            time_series = None
+            for year in sorted(self.hist_ll0rs.keys()):
+                ll0r = self.hist_ll0r[year]
+                c = col(ll0r)
+                r = row(ll0r)
+                if 0 <= r < ll0r["no_rows"] and 0 <= c < ll0r["no_cols"]:
+                    elem_to_data = self.year_to_historic_elem_to_data[year]
+                    data_t = create_data_t(elem_to_data)
+                    start_date = date(year, 1, 1)
+                    if time_series:
+                        time_series.append_data(data_t, start_date)
+                    else:
+                        time_series = MultiTimeSeries(data_t, list(elem_to_data.keys()), start_date,
+                                                      metadata=self._meta, location=location)
+
+            c = col(self.fc_ll0r)
+            r = row(self.fc_ll0r)
+            if 0 <= r < self.fc_ll0r["no_rows"] and 0 <= c < self.fc_ll0r["no_cols"]:
+                elem_to_data = self.forecast_elem_to_data
+                data_t = create_data_t(elem_to_data)
+                start_date = self.fc_start_date
+                if time_series:
+                    time_series.append_data(data_t, start_date)
+                else:
+                    time_series = MultiTimeSeries(data_t, list(elem_to_data.keys()), start_date,
+                                                  metadata=self._meta, location=location)
+
+            self._time_series[(ilat, ilon)] = time_series
+
+        return self._time_series[(ilat, ilon)]
 
     def closestTimeSeriesAt(self, latlon, **kwargs):  # (latlon :Geo.LatLonCoord) -> (timeSeries :TimeSeries);
         # closest TimeSeries object which represents the whole time series 
         # of the climate realization at the give climate coordinate
         lat, lon = (latlon.lat, latlon.lon)
-
-
-
-
-
-
-        gk4_r, gk4_h = self._latlon_to_gk4_transformer.transform(lon, lat)
-        row, col = self._interpolator(gk4_r, gk4_h)
-        return self.time_series_at(row, col)
+        return self.time_series_at(lat, lon)
 
     def timeSeriesAt(self, locationId, **kwargs):  # (locationId :Text) -> (timeSeries :TimeSeries);
-        rs, cs = locationId.split("/")
-        row = int(rs[2:])
-        col = int(cs[2:])
-        return self.time_series_at(row, col)
+        lat_s, lon_s = locationId.split("/")
+        lat = float(lat_s[4:])
+        lon = float(lon_s[4:])
+        return self.time_series_at(lat, lon)
 
-    def location_at(self, row, col, ll_coord=None, time_series=None):
-        if (row, col) not in self._locations:
-            if not ll_coord:
-                gk4_r, gk4_h = self._rowcol_to_gk4_rh[(row, col)]
-                lonlat = self._gk4_to_latlon_transformer.transform(gk4_r, gk4_h)
-                ll_coord = {"lat": lonlat[1], "lon": lonlat[0], "alt": -9999}
-            id = "r:{}/c:{}".format(row, col)
-            name = "Row/Col:{}/{}|LatLon:{}/{}".format(row, col, ll_coord["lat"], ll_coord["lon"])
-            loc = climate_data_capnp.Location.new_message(
-                id={"id": id, "name": name, "description": ""},
-                heightNN=ll_coord["alt"],
-                latlon={"lat": ll_coord["lat"], "lon": ll_coord["lon"]}
-            )
-            if time_series:
-                loc.timeSeries = time_series
-            self._locations[(row, col)] = loc
-        return self._locations[(row, col)]
+    def location_at(self, lat, lon, alt=None, time_series=None):
+        id = f"lat:{lat}/lon:{lon}"
+        name = f"LatLon:{lat}/{lon}"
+        loc = climate_data_capnp.Location.new_message(
+            id={"id": id, "name": name, "description": ""},
+            heightNN=alt,
+            latlon={"lat": lat, "lon": lon}
+        )
+        if time_series:
+            loc.timeSeries = time_series
+        return loc
 
     def locations(self, **kwargs):  # locations @2 () -> (locations :List(Location));
         # all the climate locations this dataset has
         locs = []
-        if not self._all_locations_created:
-            for (row, col), (gk4_r, gk4_h) in self._rowcol_to_gk4_rh.items():
-                lon, lat = self._gk4_to_latlon_transformer(gk4_r, gk4_h)
-                ll_coord = {"lat": lat, "lon": lon, "alt": -9999}
-                # row, col = row_col
-                loc = self.location_at(row, col, ll_coord)
-                ts = self.time_series_at(row, col, loc)
-                loc.timeSeries = ts
-                locs.append(loc)
-            self._all_locations_created = True
-        else:
-            locs.extend(self._locations.values())
+        #if not self._all_locations_created:
+        #    for (row, col), (gk4_r, gk4_h) in self._rowcol_to_gk4_rh.items():
+        #        lon, lat = self._gk4_to_latlon_transformer(gk4_r, gk4_h)
+        #        ll_coord = {"lat": lat, "lon": lon, "alt": -9999}
+        #        # row, col = row_col
+        #        loc = self.location_at(row, col, ll_coord)
+        #        ts = self.time_series_at(row, col, loc)
+        #        loc.timeSeries = ts
+        #        locs.append(loc)
+        #    self._all_locations_created = True
+        #else:
+        #    locs.extend(self._locations.values())
         return locs
 
 
-async def async_main(historic_dataset_sr, path_to_historic_nc_files, path_to_6month_forecast_nc_files, serve_bootstrap=False,
-                     host="0.0.0.0", port=None, reg_sturdy_ref=None, id=None, name="Spreewasser N", description=None):
+async def main(historic_dataset_sr, path_to_historic_nc_files, path_to_6month_forecast_nc_files,
+               serve_bootstrap=True, host=None, port=None,
+               id=None, name="Spreewasser N", description=None, use_async=False, srt=None):
     config = {
         "historic_dataset_sr": historic_dataset_sr,
         "path_to_historic_nc_files": path_to_historic_nc_files,
         "path_to_6month_forecast_nc_files": path_to_6month_forecast_nc_files,
-        "host": host,
         "port": port,
+        "host": host,
         "id": id,
         "name": name,
         "description": description,
-        "reg_sturdy_ref": reg_sturdy_ref,
-        "serve_bootstrap": str(serve_bootstrap),
-        "reg_category": "climate",
+        "serve_bootstrap": serve_bootstrap,
+        "use_async": use_async,
+        "srt": srt
     }
-    # read commandline args only if script is invoked directly from commandline
-    if len(sys.argv) > 1 and __name__ == "__main__":
-        for arg in sys.argv[1:]:
-            k, v = arg.split("=")
-            if k in config:
-                config[k] = v
-    print("config used:", config)
+    common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
-    conMan = async_helpers.ConnectionManager()
-
-    # interpolator, rowcol_to_latlon = ccdi.create_lat_lon_interpolator_from_json_coords_file(config["path_to_data"] + "/" + "latlon-to-rowcol.json")
-    # meta_plus_data = create_meta_plus_datasets(config["path_to_data"], interpolator, rowcol_to_latlon)
+    restorer = common.Restorer()
     service = Dataset(historic_dataset_sr, path_to_historic_nc_files, path_to_6month_forecast_nc_files)
 
-    if config["reg_sturdy_ref"]:
-        registrator = await conMan.try_connect(config["reg_sturdy_ref"], cast_as=reg_capnp.Registrator)
-        if registrator:
-            unreg = await registrator.register(ref=service, categoryId=config["reg_category"]).a_wait()
-            print("Registered ", config["name"], "climate service.")
-            # await unreg.unregister.unregister().a_wait()
-        else:
-            print("Couldn't connect to registrator at sturdy_ref:", config["reg_sturdy_ref"])
-
-    if config["serve_bootstrap"].upper() == "TRUE":
-        await async_helpers.serve_forever(config["host"], config["port"], service)
+    if use_async:
+        await serv.async_init_and_run_service({"service": service}, config["host"], config["port"],
+                                              serve_bootstrap=config["serve_bootstrap"], restorer=restorer,
+                                              name_to_service_srs={"service": config["srt"]})
     else:
-        await conMan.manage_forever()
+        serv.init_and_run_service({"service": service}, config["host"], config["port"],
+                                  serve_bootstrap=config["serve_bootstrap"], restorer=restorer,
+                                  name_to_service_srs={"service": config["srt"]})
 
 
 if __name__ == '__main__':
-    asyncio.run(async_main("????",
-                           "/home/berg/Desktop/roland/DWD_SpreeWasser_N/",
-                           "/home/berg/Desktop/roland/DWD_6_month_forecast/",
-                           serve_bootstrap=True))
+    asyncio.run(main("????",
+                     "/home/berg/Desktop/roland/DWD_SpreeWasser_N/",
+                     "/home/berg/Desktop/roland/DWD_6_month_forecast/",
+                     use_async=True))
