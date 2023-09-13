@@ -140,26 +140,42 @@ class MultiTimeSeries(climate_data_capnp.TimeSeries.Server):
             r.latlon = self._location.latlon
 
 
+def kelvin_to_degree_celcius(degree_kelvin):
+    return degree_kelvin - 273.15
+
+
+def mm_per_sec_to_mm_per_day(precip):
+    return precip * 60 * 60 * 24
+
+
+def j_per_m2_sec_to_mj_per_day(gr):
+    return gr * 60 * 60 * 24 / 1000000
+
+
+def identity(v):
+    return v
+
+
 class Dataset(climate_data_capnp.Dataset.Server):
 
     def __init__(self, historic_dataset_sr, path_to_historic_nc_files, path_to_6month_forecast_nc_files, metadata=None):
         self.year_to_historic_elem_to_data = {}
         for year in range(2022, 2023 + 1):
             self.year_to_historic_elem_to_data[year] = {
-                "tmax": {"var": "tasmax", "convf": lambda v: v - - 273.15,
+                "tmax": {"var": "tasmax", "convf": identity,
                          "ds": NCDataset(path_to_historic_nc_files + f"/zalf_tasmax_amber_{year}_v1-0.nc")},  # -> °C
-                "tavg": {"var": "tas", "convf": lambda v: v - - 273.15,
+                "tavg": {"var": "tas", "convf": identity,
                          "ds": NCDataset(path_to_historic_nc_files + f"/zalf_tas_amber_{year}_v1-0.nc")},  # -> °C
-                "tmin": {"var": "tasmin", "convf": lambda v: v - - 273.15,
+                "tmin": {"var": "tasmin", "convf": identity,
                          "ds": NCDataset(path_to_historic_nc_files + f"/zalf_tasmin_amber_{year}_v1-0.nc")},  # -> °C
-                "precip": {"var": "pr", "convf": lambda v: v * 60 * 60 * 24,
+                "precip": {"var": "pr", "convf": identity,  #mm_per_sec_to_mm_per_day,
                            "ds": NCDataset(path_to_historic_nc_files + f"/zalf_pr_amber_{year}_v1-0.nc")},  # -> mm
-                "globrad": {"var": "rsds", "convf": lambda v: v * 60 * 60 * 24 / 1000000,
+                "globrad": {"var": "rsds", "convf": j_per_m2_sec_to_mj_per_day,
                             "ds": NCDataset(path_to_historic_nc_files + f"/zalf_rsds_amber_{year}_v1-0.nc")},
                 # -> MJ/m2/d
-                "wind": {"var": "sfcWind", "convf": lambda v: v,
+                "wind": {"var": "sfcWind", "convf": identity,
                          "ds": NCDataset(path_to_historic_nc_files + f"/zalf_sfcwind_amber_{year}_v1-0.nc")},  # -> m/s
-                "relhumid": {"var": "hurs", "convf": lambda v: v,
+                "relhumid": {"var": "hurs", "convf": identity,
                              "ds": NCDataset(path_to_historic_nc_files + f"/zalf_hurs_amber_{year}_v1-0.nc")}  # -> %
             }
 
@@ -168,31 +184,31 @@ class Dataset(climate_data_capnp.Dataset.Server):
         self.fc_start_date = date.fromisoformat("2022-11-01")
         fc_end_date = "2023-04-30".replace("-", "")
         self.forecast_elem_to_data = {
-            "tmax": {"var": "tasmax", "convf": lambda v: v - - 273.15,
+            "tmax": {"var": "tasmax", "convf": kelvin_to_degree_celcius,
                      "ds": NCDataset(
                          path_to_6month_forecast_nc_files + f"/tasmax_day_GCFS21--DWD-EPISODES2022--DE-0075x005_sfc20221101_{fc_ensmem}_{fc_start_date}-{fc_end_date}.nc")},
             # -> °C
-            "tavg": {"var": "tas", "convf": lambda v: v - - 273.15,
+            "tavg": {"var": "tas", "convf": kelvin_to_degree_celcius,
                      "ds": NCDataset(
                          path_to_6month_forecast_nc_files + f"/tas_day_GCFS21--DWD-EPISODES2022--DE-0075x005_sfc20221101_{fc_ensmem}_{fc_start_date}-{fc_end_date}.nc")},
             # -> °C
-            "tmin": {"var": "tasmin", "convf": lambda v: v - - 273.15,
+            "tmin": {"var": "tasmin", "convf": kelvin_to_degree_celcius,
                      "ds": NCDataset(
                          path_to_6month_forecast_nc_files + f"/tasmin_day_GCFS21--DWD-EPISODES2022--DE-0075x005_sfc20221101_{fc_ensmem}_{fc_start_date}-{fc_end_date}.nc")},
             # -> °C
-            "precip": {"var": "pr", "convf": lambda v: v * 60 * 60 * 24,
+            "precip": {"var": "pr", "convf": mm_per_sec_to_mm_per_day,
                        "ds": NCDataset(
                            path_to_6month_forecast_nc_files + f"/pr_day_GCFS21--DWD-EPISODES2022--DE-0075x005_sfc20221101_{fc_ensmem}_{fc_start_date}-{fc_end_date}.nc")},
             # -> mm
-            "globrad": {"var": "rsds", "convf": lambda v: v * 60 * 60 * 24 / 1000000,
+            "globrad": {"var": "rsds", "convf": j_per_m2_sec_to_mj_per_day,
                         "ds": NCDataset(
                             path_to_6month_forecast_nc_files + f"/rsds_day_GCFS21--DWD-EPISODES2022--DE-0075x005_sfc20221101_{fc_ensmem}_{fc_start_date}-{fc_end_date}.nc")},
             # -> MJ/m2/d
-            "wind": {"var": "sfcWind", "convf": lambda v: v,
+            "wind": {"var": "sfcWind", "convf": identity,
                      "ds": NCDataset(
                          path_to_6month_forecast_nc_files + f"/sfcWind_day_GCFS21--DWD-EPISODES2022--DE-0075x005_sfc20221101_{fc_ensmem}_{fc_start_date}-{fc_end_date}.nc")},
             # -> m/s
-            "relhumid": {"var": "hurs", "convf": lambda v: v,
+            "relhumid": {"var": "hurs", "convf": identity,
                          "ds": NCDataset(
                              path_to_6month_forecast_nc_files + f"/hurs_day_GCFS21--DWD-EPISODES2022--DE-0075x005_sfc20221101_{fc_ensmem}_{fc_start_date}-{fc_end_date}.nc")}
             # -> %
@@ -205,7 +221,7 @@ class Dataset(climate_data_capnp.Dataset.Server):
             tavg = self.year_to_historic_elem_to_data[year].get("tavg", None)
             if tavg:
                 hist_dss[year] = tavg["ds"]
-                no_of_days += np.ma.count(tavg["ds"]["tas"], axis=0)
+                no_of_days += np.ma.count(tavg["ds"]["tas"][:, 300, 300])
 
         self.hist_ll0rs = {}
         for year, ds in hist_dss.items():
@@ -223,7 +239,7 @@ class Dataset(climate_data_capnp.Dataset.Server):
         no_of_days += fc_tavg_ds["time"].shape[0] if fc_tavg_ds else 0
         self.fc_ll0r = {
             "lat_0": fc_tavg_ds["lat"][0],
-            "lat_res": fc_tavg_ds["lat"][0] - fc_tavg_ds["lat"][1],
+            "lat_res": fc_tavg_ds["lat"][1] - fc_tavg_ds["lat"][0],
             "no_rows": len(fc_tavg_ds["lat"]),
             "lon_0": fc_tavg_ds["lon"][0],
             "lon_res": fc_tavg_ds["lon"][1] - fc_tavg_ds["lon"][0],
@@ -234,7 +250,7 @@ class Dataset(climate_data_capnp.Dataset.Server):
             entries=[
                 {"historical": None},
                 {"start": ccdi.create_capnp_date(date(years[0], 1, 1))},
-                {"end": ccdi.create_capnp_date(date(years[0], 1, 1) + timedelta(days=no_of_days - 1))}
+                {"end": ccdi.create_capnp_date(date(years[0], 1, 1) + timedelta(days=int(no_of_days) - 1))}
             ])
         self._time_series = {}
         self._locations = {}
@@ -262,19 +278,19 @@ class Dataset(climate_data_capnp.Dataset.Server):
             def row(ll0r):
                 return int((ll0r["lat_0"] - lat) / ll0r["lat_res"])
 
-            def create_data_t(elem_to_data):
+            def create_data_t(elem_to_data, row, col):
                 return list(
                     [list(map(lambda v: float(data["convf"](v)), data["ds"][data["var"]][:, row, col])) for data in
                      elem_to_data.values()])
 
             time_series = None
             for year in sorted(self.hist_ll0rs.keys()):
-                ll0r = self.hist_ll0r[year]
+                ll0r = self.hist_ll0rs[year]
                 c = col(ll0r)
                 r = row(ll0r)
                 if 0 <= r < ll0r["no_rows"] and 0 <= c < ll0r["no_cols"]:
                     elem_to_data = self.year_to_historic_elem_to_data[year]
-                    data_t = create_data_t(elem_to_data)
+                    data_t = create_data_t(elem_to_data, r, c)
                     start_date = date(year, 1, 1)
                     if time_series:
                         time_series.append_data(data_t, start_date)
@@ -310,7 +326,7 @@ class Dataset(climate_data_capnp.Dataset.Server):
         lon = float(lon_s[4:])
         return self.time_series_at(lat, lon)
 
-    def location_at(self, lat, lon, alt=None, time_series=None):
+    def location_at(self, lat, lon, alt=0, time_series=None):
         id = f"lat:{lat}/lon:{lon}"
         name = f"LatLon:{lat}/{lon}"
         loc = climate_data_capnp.Location.new_message(

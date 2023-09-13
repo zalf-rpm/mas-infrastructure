@@ -283,6 +283,57 @@ def run_climate_service():
     print()
 
 
+def check_climate_dataset_service():
+    conMan = common.ConnectionManager()
+    sr = "capnp://dL9xa9lrakyJ6AphXxZsAII3I9D34HsznBEsW2XCNEg=@10.10.25.25:43633/d2cde023-e9bd-4396-9148-23527d234cea"
+    service = conMan.try_connect(sr, cast_as=climate_capnp.Dataset)
+    try:
+        print(service.info().wait())
+    except Exception as e:
+        print(e)
+
+    lat, lon = 52.516598, 14.121966  # Müncheberg
+    ds = service.closestTimeSeriesAt({"lat": lat, "lon": lon}).wait()
+
+
+
+
+    cb = ds.streamLocations().wait().locationsCallback
+    while True:
+        ls = cb.nextLocations(10).wait().locations
+        if len(ls) == 0:
+            break
+        for l in ls:
+            rc = l.customData[0].value
+            day0_data = l.timeSeries.data().wait().data[0]
+            print("row:", rc.row, "col:", rc.col, "day0:", day0_data)
+
+    p = psutil.Process()
+
+    for ds in service.getAvailableDatasets().wait().datasets:
+        ds_data = ds.data
+        print(ds_data.info().wait())
+        print(ds.meta)
+        # tss = []
+        for lat in range(45, 55):
+            for lon in range(8, 15):
+                ts = ds_data.closestTimeSeriesAt({"lat": lat, "lon": lon}).wait().timeSeries
+                ts.data().wait()
+                # tss.append(ts)
+                print(ts.info().wait())
+                # print(p.memory_percent())
+
+    # unsave = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/49ec71b8-a525-4c38-b137-58e1eafc0c1c", cast_as=common_capnp.Action)
+    # unsave.do().wait()
+
+    with open("../../data/climate/climate-iso.csv", "r") as _:
+        csv_data = _.read()
+
+    res = service.create(csvData=csv_data, config={}).wait()
+
+    print()
+
+
 def run_monica():
     con_man = common.ConnectionManager()
     sr = "capnp://8TwMtyGcNgiSBLXps4xRi6ymeDinAINWSrzcWJyI0Uc@10.10.24.181:41075/NzVkNzc3OTMtZjA2My00YmRkLTlkNWYtNjM2NDg1MDdjODg5"
@@ -570,7 +621,9 @@ def main():
     #    print(".", end="")
     #    time.sleep(1)
 
-    run_climate_service()
+    check_climate_dataset_service()
+
+    #run_climate_service()
 
     # run_soil_service()
 
