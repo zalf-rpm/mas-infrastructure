@@ -22,9 +22,9 @@ struct SoilCharacteristicModifier {
     struct Data {
         soilType        @0 :Text;
         organicMatter   @1 :Float32;    # %
-        airCapacity     @2 :UInt8;      # %      
-        fieldCapacity   @3 :UInt8;      # %
-        nFieldCapacity  @4 :UInt8;      # %
+        airCapacity     @2 :Int8;       # %
+        fieldCapacity   @3 :Int8;       # %
+        nFieldCapacity  @4 :Int8;       # %
 
     }
     list @0 :List(Data);
