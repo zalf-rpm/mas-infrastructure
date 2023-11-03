@@ -57,7 +57,7 @@ class MultiTimeSeries(climate_data_capnp.TimeSeries.Server):
         self._location = location
         no_of_days = len(data_t[0]) if len(data_t) > 0 else 0
         self._start_date = start_date
-        self._end_date = date(1961, 1, 1) + timedelta(days=no_of_days - 1)
+        self._end_date = start_date + timedelta(days=no_of_days - 1)
 
     def append_data(self, data_t, start_date):
         no_of_days = len(data_t[0]) if len(data_t) > 0 else 0
@@ -66,22 +66,30 @@ class MultiTimeSeries(climate_data_capnp.TimeSeries.Server):
         if start_date <= self._end_date:
             td = self._end_date - start_date + 1
             for ds, ds_ in zip(self._data_t, data_t):
-                new_data_t.append(ds[:-td.days] + ds_)
+                nds = list(ds[:-td.days])
+                nds.extend(ds_)
+                new_data_t.append(nds)
         elif start_date == self._end_date + timedelta(days=1):
             for ds, ds_ in zip(self._data_t, data_t):
-                new_data_t.append(ds + ds_)
+                nds = list(ds)
+                nds.extend(ds_)
+                new_data_t.append(nds)
         elif end_date >= self._start_date:
             td = end_date - self.start_date + 1
             for ds, ds_ in zip(self._data_t, data_t):
-                new_data_t.append(ds_ + ds[td.days:])
+                nds = list(ds_)
+                nds.extend(ds[td.days:])
+                new_data_t.append(nds)
         elif end_date == self._start_date - timedelta(days=1):
             for ds, ds_ in zip(self._data_t, data_t):
-                new_data_t.append(ds_ + ds)
+                nds = list(ds_)
+                nds.extend(ds)
+                new_data_t.append(nds)
         else:
             raise Exception("MultiTimeSeries.append_data would produce gaps in time-series")
 
         self._data_t = new_data_t
-        no_of_days = len(data_t[0]) if len(data_t) > 0 else 0
+        no_of_days = len(self._data_t[0]) if len(self._data_t) > 0 else 0
         self._end_date = self._start_date + timedelta(days=no_of_days - 1)
         self._data = None
 
@@ -273,14 +281,14 @@ class Dataset(climate_data_capnp.Dataset.Server):
                 location = self.location_at(lat, lon)
 
             def col(ll0r):
-                return int((lon - ll0r["lon_0"]) / ll0r["lon_res"])
+                return int(abs((lon - ll0r["lon_0"]) / ll0r["lon_res"]))
 
             def row(ll0r):
-                return int((ll0r["lat_0"] - lat) / ll0r["lat_res"])
+                return int(abs((ll0r["lat_0"] - lat) / ll0r["lat_res"]))
 
             def create_data_t(elem_to_data, row, col):
                 return list(
-                    [list(map(lambda v: float(data["convf"](v)), data["ds"][data["var"]][:, row, col])) for data in
+                    [list(map(lambda v: float(data["convf"](v)), data["ds"][data["var"]][:, row, col].compressed())) for data in
                      elem_to_data.values()])
 
             time_series = None
@@ -302,7 +310,7 @@ class Dataset(climate_data_capnp.Dataset.Server):
             r = row(self.fc_ll0r)
             if 0 <= r < self.fc_ll0r["no_rows"] and 0 <= c < self.fc_ll0r["no_cols"]:
                 elem_to_data = self.forecast_elem_to_data
-                data_t = create_data_t(elem_to_data)
+                data_t = create_data_t(elem_to_data, r, c)
                 start_date = self.fc_start_date
                 if time_series:
                     time_series.append_data(data_t, start_date)
