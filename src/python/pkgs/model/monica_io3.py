@@ -174,6 +174,23 @@ def write_output(output_ids, values, round_ids=None):
     return out
 
 
+def write_output_obj(output_ids, values, round_ids={}):
+    "write actual output lines"
+    out = []
+    for obj in values:
+        row = []
+        for oid in output_ids:
+            oid_name = oid["displayName"] if len(oid["displayName"]) > 0 else oid["name"]
+            j__ = obj.get(oid_name, "")
+            if isinstance(j__, list):
+                for jv_ in j__:
+                    row.append(round(jv_, round_ids[oid_name]) if oid_name in round_ids else jv_)
+            else:
+                row.append(round(j__, round_ids[oid_name]) if oid_name in round_ids else j__)
+        out.append(row)
+    return out
+
+
 def is_absolute_path(p):
     "is absolute path"
     return p.startswith("/") \
