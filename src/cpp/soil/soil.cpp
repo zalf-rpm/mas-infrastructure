@@ -93,14 +93,24 @@ SoilParameters::SoilParameters(json11::Json j) {
 Errors SoilParameters::merge(json11::Json j) {
   Errors es;
 
-  set_double_value(vs_SoilSandContent, j, "Sand");
-  set_double_value(vs_SoilClayContent, j, "Clay");
+  auto transformIfPercent = [&](const string& key) -> std::function<double(double)> {
+    const auto& value = j[key];
+    if(value.is_array() && value.array_items().size() > 1
+    && value[1].is_string() && trim(value[1].string_value()) == "%") {
+      return [](double v) { return v / 100.0; };
+    }
+    return identity<double>;
+  };
+
+  set_double_value(vs_SoilSandContent, j, "Sand", transformIfPercent("Sand"));
+  set_double_value(vs_SoilClayContent, j, "Clay", transformIfPercent("Clay"));
   set_double_value(vs_SoilpH, j, "pH");
-  set_double_value(vs_SoilStoneContent, j, "Sceleton");
+  set_double_value(vs_SoilStoneContent, j, "Sceleton", transformIfPercent("Sceleton"));
   set_double_value(vs_Lambda, j, "Lambda");
-  set_double_value(vs_FieldCapacity, j, "FieldCapacity");
-  set_double_value(vs_Saturation, j, "PoreVolume");
-  set_double_value(vs_PermanentWiltingPoint, j, "PermanentWiltingPoint");
+  set_double_value(vs_FieldCapacity, j, "FieldCapacity", transformIfPercent("FieldCapacity"));
+  set_double_value(vs_Saturation, j, "PoreVolume", transformIfPercent("PoreVolume"));
+  set_double_value(vs_PermanentWiltingPoint, j, "PermanentWiltingPoint",
+                   transformIfPercent("PermanentWiltingPoint"));
   set_string_value(vs_SoilTexture, j, "KA5TextureClass");
   set_double_value(vs_SoilAmmonium, j, "SoilAmmonium");
   set_double_value(vs_SoilNitrate, j, "SoilNitrate");
@@ -110,10 +120,15 @@ Errors SoilParameters::merge(json11::Json j) {
   set_double_value(_vs_SoilBulkDensity, j, "SoilBulkDensity");
   set_double_value(_vs_SoilOrganicCarbon, j, "SoilOrganicCarbon",
                    [](double soc) { return soc / 100.0; });
-  set_double_value(_vs_SoilOrganicMatter, j, "SoilOrganicMatter");
+  set_double_value(_vs_SoilOrganicMatter, j, "SoilOrganicMatter",
+                   transformIfPercent("SoilOrganicMatter"));
 
+  auto st = vs_SoilTexture;
   // use internally just uppercase chars
   vs_SoilTexture = Tools::toUpper(vs_SoilTexture);
+  if (KA5texture2sand(vs_SoilTexture).failure()) {
+    es.appendError(kj::str("KA5TextureClass (", st, ") is unknown.").cStr());
+  }
 
   if (vs_SoilSandContent < 0 && !vs_SoilTexture.empty()) {
     auto res = KA5texture2sand(vs_SoilTexture);
@@ -155,6 +170,45 @@ Errors SoilParameters::merge(json11::Json j) {
 
   if (vs_Lambda < 0) vs_Lambda = sandAndClay2lambda(vs_SoilSandContent, vs_SoilClayContent);
 
+  if (vs_SoilSandContent < 0 || vs_SoilSandContent > 1.0){
+    es.appendError(kj::str("Sand content (", vs_SoilSandContent, ") is out of bounds [0, 1].").cStr());
+  }
+  if (vs_SoilClayContent < 0 || vs_SoilClayContent > 1.0){
+    es.appendError(kj::str("Clay content (", vs_SoilClayContent, ") is out of bounds [0, 1].").cStr());
+  }
+  if (vs_SoilpH < 0 || vs_SoilpH > 14){
+    es.appendError(kj::str("pH value (", vs_SoilpH, ") is out of bounds [0, 14].").cStr());
+  }
+  if (vs_SoilStoneContent < 0 || vs_SoilStoneContent > 1.0){
+    es.appendError(kj::str("Sceleton (", vs_SoilStoneContent, ") is out of bounds [0, 1].").cStr());
+  }
+  if (vs_FieldCapacity < 0 || vs_FieldCapacity > 1.0){
+    es.appendError(kj::str("FieldCapacity (", vs_FieldCapacity, ") is out of bounds [0, 1].").cStr());
+  }
+  if (vs_Saturation < 0 || vs_Saturation > 1.0){
+    es.appendError(kj::str("PoreVolume (", vs_Saturation, ") is out of bounds [0, 1].").cStr());
+  }
+  if (vs_PermanentWiltingPoint < 0 || vs_PermanentWiltingPoint > 1.0){
+    es.appendError(kj::str("PermanentWiltingPoint (", vs_PermanentWiltingPoint, ") is out of bounds [0, 1].").cStr());
+  }
+  if (vs_SoilMoisturePercentFC < 0 || vs_SoilMoisturePercentFC > 100){
+    es.appendError(kj::str("SoilMoisturePercentFC (", vs_SoilMoisturePercentFC, ") is out of bounds [0, 100].").cStr());
+  }
+  if (_vs_SoilRawDensity < 0 || _vs_SoilRawDensity > 2000){
+    es.appendWarning(kj::str("SoilRawDensity (", _vs_SoilRawDensity, ") is out of bounds [0, 2000].").cStr());
+  }
+  if (_vs_SoilBulkDensity < 0 || _vs_SoilBulkDensity > 2000){
+    es.appendWarning(kj::str("SoilBulkDensity (", _vs_SoilBulkDensity, ") is out of bounds [0, 2000].").cStr());
+  }
+  if (_vs_SoilOrganicMatter < 0 && (_vs_SoilOrganicCarbon < 0 || _vs_SoilOrganicCarbon > 100)){
+    es.appendError(kj::str("SoilOrganicCarbon content (", _vs_SoilOrganicCarbon, ") is out of bounds [0, 100].").cStr());
+  }
+  set_double_value(_vs_SoilOrganicMatter, j, "SoilOrganicMatter",
+                   transformIfPercent("SoilOrganicMatter"));
+  if (_vs_SoilOrganicCarbon < 0 && (_vs_SoilOrganicMatter < 0 || _vs_SoilOrganicMatter > 1.0)){
+    es.appendError(kj::str("SoilOrganicMatter content (", _vs_SoilOrganicMatter, ") is out of bounds [0, 1].").cStr());
+  }
+
   return es;
 }
 
@@ -179,8 +233,6 @@ json11::Json SoilParameters::to_json() const {
       {"SoilOrganicMatter",     J11Array{_vs_SoilOrganicMatter, "mass% [0-1]"}},
       {"SoilMoisturePercentFC", J11Array{vs_SoilMoisturePercentFC, "% [0-100]"}}};
 }
-
-//----------------------------------------------------------------------------------
 
 void CapillaryRiseRates::addRate(const std::string& soilType, size_t distance, double value) {
   //    std::cout << "Add cap rate: " << bodart.c_str() << "\tdist: " << distance << "\tvalue: " << value << std::endl;
@@ -263,8 +315,6 @@ const CapillaryRiseRates &Soil::readCapillaryRiseRates() {
 
   return cap_rates;
 }
-
-//------------------------------------------------------------------------------
 
 bool SoilParameters::isValid() const {
   bool is_valid = true;
@@ -383,17 +433,32 @@ double SoilParameters::sandAndClay2lambda(double sand, double clay) {
 std::pair<SoilPMs, Errors> Soil::createSoilPMs(const J11Array &jsonSoilPMs) {
   Errors errors;
 
+  auto transformIfNotMeters = [&](const Json &j, const string& key) -> std::function<double(double)> {
+    const auto& value = j[key];
+    if(value.is_array() && value.array_items().size() > 1 && value[1].is_string()) {
+      auto unit = trim(value[1].string_value());
+      if (unit == "mm") return [](double v) { return v / 1000.0; };
+      else if (unit == "cm") return [](double v) { return v / 100.0; };
+      else if (unit == "dm") return [](double v) { return v / 10.0; };
+      else return identity<double>;
+    }
+    return identity<double>;
+  };
+
   SoilPMs soilPMs;
   int layerCount = 0;
   for (size_t spi = 0, spsCount = jsonSoilPMs.size(); spi < spsCount; spi++) {
     const Json& sp = jsonSoilPMs.at(spi);
 
+
+
     //repeat layers if there is an associated Thickness parameter
     string err;
     int repeatLayer = 1;
     if (!sp["Thickness"].is_null()) {
-      repeatLayer = min(20 - layerCount,
-                        max(1, Tools::roundRT<int>(double_valueD(sp, "Thickness", 0.1) * 10.0, 0)));
+      auto transf = transformIfNotMeters(sp, "Thickness");
+      auto noOfLayers = Tools::roundRT<int>(transf(double_valueD(sp, "Thickness", 0.1)) * 10.0, 0);
+      repeatLayer = min(max(1, noOfLayers), 20 - layerCount);
     }
 
     //simply repeat the last layer as often as necessary to fill the 20 layers
@@ -412,8 +477,6 @@ std::pair<SoilPMs, Errors> Soil::createSoilPMs(const J11Array &jsonSoilPMs) {
 
   return make_pair(soilPMs, errors);
 }
-
-//-----------------------------------------------------------------------------
 
 /*
 string Soil::soilProfileId2KA5Layers(const string& abstractDbSchema,

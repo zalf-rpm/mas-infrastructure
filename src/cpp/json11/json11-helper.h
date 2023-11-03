@@ -242,13 +242,13 @@ void set_double_valueD(double &var,
                        const json11::Json &j,
                        const std::string &key,
                        double def = 0.0,
-                       std::function<double(double)> transf = identity<double>,
+                       const std::function<double(double)>& transf = identity<double>,
                        bool useDefault = true);
 
 inline void set_double_value(double &var,
                              const json11::Json &j,
                              const std::string &key,
-                             std::function<double(double)> transf = identity<double>) {
+                             const std::function<double(double)>& transf = identity<double>) {
   set_double_valueD(var, j, key, 0.0, transf, false);
 }
 
