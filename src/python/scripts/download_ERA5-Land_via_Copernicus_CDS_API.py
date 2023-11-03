@@ -1,4 +1,5 @@
 import cdsapi
+import os.path
 import sys
 
 config = {
@@ -33,9 +34,9 @@ accu_vars = [
 
 for year in range(1950, 2023):
     for inst_var in inst_vars:
-        if year == 2022 and inst_var == "2m_temperature":
-            continue
         download_filepath = f"{config['path_to_out_dir']}/{inst_var}_{year}.netcdf.zip"
+        if os.path.exists(download_filepath):
+            continue
         c.retrieve(
             "reanalysis-era5-land",
             {
@@ -59,9 +60,9 @@ for year in range(1950, 2023):
         print("downloaded:", download_filepath)
 
     for accu_var in accu_vars:
-        if year == 2022 and accu_var == "total_precipitation":
-            continue
         download_filepath = f"{config['path_to_out_dir']}/{accu_var}_{year}.netcdf.zip"
+        if os.path.exists(download_filepath):
+            continue
         c.retrieve(
             "reanalysis-era5-land",
             {
