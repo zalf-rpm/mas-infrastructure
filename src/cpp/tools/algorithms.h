@@ -42,9 +42,9 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 namespace Tools
 {
-	std::vector<std::string> splitString(std::string s, 
-																			 std::string splitElements, 
-																			 std::pair<std::string, std::string> tokenDelimiters = std::make_pair("", ""),
+	std::vector<std::string> splitString(const std::string& s,
+																			 const std::string& splitElements,
+																			 const std::pair<std::string, std::string>& tokenDelimiters = std::make_pair("", ""),
 																			 bool removeDelimiters = false);
 
 	int createRandomNumber();
