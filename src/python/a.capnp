@@ -6,6 +6,7 @@ $Cxx.namespace("mas::rpc");
 
 interface A {
     method @0 (param :Text) -> (res :Text);
+    m @1 (id :UInt64) -> (count :UInt64);
 }
 
 interface S {
