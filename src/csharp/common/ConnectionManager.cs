@@ -71,13 +71,13 @@ namespace Mas.Infrastructure.Common
         public async Task<TRemoteInterface> Connect<TRemoteInterface>(string sturdyRef) where TRemoteInterface : class, IDisposable
         {
             // we assume that a sturdy ref url looks always like 
-            // capnp://vat-id_base64-curve25519-public-key@host:port/sturdy-ref-token_base64
+            // capnp://vat-id_base64-curve25519-public-key@host:port/sturdy-ref-token
             if (!sturdyRef.StartsWith("capnp://")) return null;
             var vatIdBase64Url = "";
             var addressPort = "";
             var address = "";
             var port = 0;
-            var srTokenBase64Url = "";
+            var srToken = "";
 
             var rest = sturdyRef[8..];
             // is unix domain socket
@@ -93,7 +93,7 @@ namespace Mas.Infrastructure.Common
                         if (addressAndPort.Length > 0) address = addressAndPort[0];
                         if (addressAndPort.Length > 1) port = Int32.Parse(addressAndPort[1]);
                     }
-                    if (addressPortAndRest.Length > 1) srTokenBase64Url = addressPortAndRest[1];
+                    if (addressPortAndRest.Length > 1) srToken = addressPortAndRest[1];
                 }
             }
 
@@ -103,12 +103,12 @@ namespace Mas.Infrastructure.Common
                 //var con = new TcpRpcClient(address, port);
                 var con = _connections.GetOrAdd(addressPort, new TcpRpcClient(address, port));
                 await con.WhenConnected;
-                if (!string.IsNullOrEmpty(srTokenBase64Url)) {
+                if (!string.IsNullOrEmpty(srToken)) {
                     var restorer = con.GetMain<Schema.Persistence.IRestorer>();
-                    var srTokenArr = Convert.FromBase64String(Restorer.FromBase64Url(srTokenBase64Url));
-                    var srToken = System.Text.Encoding.UTF8.GetString(srTokenArr);
+                    //var srTokenArr = Convert.FromBase64String(Restorer.FromBase64Url(srToken));
+                    //var srToken = System.Text.Encoding.UTF8.GetString(srTokenArr);
                     var cap = await restorer.Restore(new Schema.Persistence.Restorer.RestoreParams { 
-                        LocalRef=srToken });
+                        LocalRef=new Schema.Persistence.SturdyRef.Token { Text = srToken }});
                     return cap.Cast<TRemoteInterface>(true);
                 } else {
                     var bootstrap = con.GetMain<TRemoteInterface>();

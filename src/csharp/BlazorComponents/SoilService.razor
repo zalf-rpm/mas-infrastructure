@@ -68,10 +68,10 @@
     </MudItem>
     <MudItem xs="12">
         <MudTabs Elevation="1" Rounded="@true" @bind-ActivatePanelIndex="@SelectedProfileIndex">
-            @foreach(var (k, (profile, ProfileLayers)) in Profiles.Select((layer, k) => (k, layer)))
+            @foreach(var (k, (profileId, profile, ProfileLayers)) in Profiles.Select((layer, k) => (k, layer)))
             {
                 <MudTabPanel Text=@($"Profile {k+1} ({Math.Round(profile.PercentageOfArea, 0)}%)")
-                    Tooltip=@($"Profile ID: {profile.Id}")
+                    Tooltip=@($"Profile ID: {profileId}")
                     Icon=@Icons.Material.Filled.Layers>
                     <MudSimpleTable>
                         <thead>
@@ -297,14 +297,14 @@
         get => selectedProfileIndex;
         set {
             selectedProfileIndex = value;
-            if (Profiles.Count > value) SelectedLayers = Profiles[value].Item2;
+            if (Profiles.Count > value) SelectedLayers = Profiles[value].Item3;
         }
     }
 
     [Parameter]
-    public List<(Soil.Profile, List<Soil.Layer>)> Profiles { get; set; } = new();
+    public List<(string, Soil.ProfileData, List<Soil.Layer>)> Profiles { get; set; } = new();
     [Parameter]
-    public EventCallback<List<(Soil.Profile, List<Soil.Layer>)>> ProfilesChanged { get; set; }
+    public EventCallback<List<(string, Soil.ProfileData, List<Soil.Layer>)>> ProfilesChanged { get; set; }
 
     #region mandatory soil properties
     private IEnumerable<Soil.PropertyName>? availableMandatorySoilProps;
@@ -453,7 +453,7 @@
 
         try
         {
-            var profiles = await SoilServiceCap.ProfilesAt(
+            var profiles = await SoilServiceCap.ClosestProfilesAt(
                 new Geo.LatLonCoord { Lat = LatLng.Item1, Lon = LatLng.Item2 },
                 new Soil.Query
                 {
@@ -468,12 +468,11 @@
                 Profiles.Clear();
                 foreach(var profile in profiles)
                 {
-                    List<Soil.Layer> layers = new();
-                    foreach (var l in profile.Layers)
-                    {
-                        layers.Add(l);
-                    }
-                    Profiles.Add((profile, layers));
+                    var pd = await profile.Data();
+                    var info = await profile.Info();
+                    if (pd == null) continue;
+                    List<Soil.Layer> layers = pd.Layers.ToList();
+                    Profiles.Add((info.Id, pd, layers));
                 }
                 
                 if (ProfilesChanged.HasDelegate) _ = ProfilesChanged.InvokeAsync(Profiles);

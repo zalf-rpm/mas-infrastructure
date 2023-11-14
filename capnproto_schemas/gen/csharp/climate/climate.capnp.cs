@@ -69,6 +69,7 @@ namespace Mas.Schema.Climate
             R = reader.R;
             I = reader.I;
             P = reader.P;
+            F = reader.F;
             applyDefaults();
         }
 
@@ -77,6 +78,7 @@ namespace Mas.Schema.Climate
             writer.R = R;
             writer.I = I;
             writer.P = P;
+            writer.F = F;
         }
 
         void ICapnpSerializable.Serialize(SerializerState arg_)
@@ -106,6 +108,12 @@ namespace Mas.Schema.Climate
             set;
         }
 
+        public ushort F
+        {
+            get;
+            set;
+        }
+
         public struct READER
         {
             readonly DeserializerState ctx;
@@ -120,6 +128,7 @@ namespace Mas.Schema.Climate
             public ushort R => ctx.ReadDataUShort(0UL, (ushort)0);
             public ushort I => ctx.ReadDataUShort(16UL, (ushort)0);
             public ushort P => ctx.ReadDataUShort(32UL, (ushort)0);
+            public ushort F => ctx.ReadDataUShort(48UL, (ushort)0);
         }
 
         public class WRITER : SerializerState
@@ -145,6 +154,12 @@ namespace Mas.Schema.Climate
             {
                 get => this.ReadDataUShort(32UL, (ushort)0);
                 set => this.WriteData(32UL, value, (ushort)0);
+            }
+
+            public ushort F
+            {
+                get => this.ReadDataUShort(48UL, (ushort)0);
+                set => this.WriteData(48UL, value, (ushort)0);
             }
         }
     }
@@ -2378,7 +2393,10 @@ namespace Mas.Schema.Climate
         co2,
         o3,
         et0,
-        dewpointTemp
+        dewpointTemp,
+        specificHumidity,
+        snowfallFlux,
+        surfaceDownwellingLongwaveRadiation
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x85ba7385f313fe19UL)]

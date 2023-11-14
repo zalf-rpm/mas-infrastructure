@@ -294,19 +294,19 @@ namespace Mas.Schema.Soil
                 set;
             }
 
-            public byte AirCapacity
+            public sbyte AirCapacity
             {
                 get;
                 set;
             }
 
-            public byte FieldCapacity
+            public sbyte FieldCapacity
             {
                 get;
                 set;
             }
 
-            public byte NFieldCapacity
+            public sbyte NFieldCapacity
             {
                 get;
                 set;
@@ -325,9 +325,9 @@ namespace Mas.Schema.Soil
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
                 public string SoilType => ctx.ReadText(0, null);
                 public float OrganicMatter => ctx.ReadDataFloat(0UL, 0F);
-                public byte AirCapacity => ctx.ReadDataByte(32UL, (byte)0);
-                public byte FieldCapacity => ctx.ReadDataByte(40UL, (byte)0);
-                public byte NFieldCapacity => ctx.ReadDataByte(48UL, (byte)0);
+                public sbyte AirCapacity => ctx.ReadDataSByte(32UL, (sbyte)0);
+                public sbyte FieldCapacity => ctx.ReadDataSByte(40UL, (sbyte)0);
+                public sbyte NFieldCapacity => ctx.ReadDataSByte(48UL, (sbyte)0);
             }
 
             public class WRITER : SerializerState
@@ -349,22 +349,22 @@ namespace Mas.Schema.Soil
                     set => this.WriteData(0UL, value, 0F);
                 }
 
-                public byte AirCapacity
+                public sbyte AirCapacity
                 {
-                    get => this.ReadDataByte(32UL, (byte)0);
-                    set => this.WriteData(32UL, value, (byte)0);
+                    get => this.ReadDataSByte(32UL, (sbyte)0);
+                    set => this.WriteData(32UL, value, (sbyte)0);
                 }
 
-                public byte FieldCapacity
+                public sbyte FieldCapacity
                 {
-                    get => this.ReadDataByte(40UL, (byte)0);
-                    set => this.WriteData(40UL, value, (byte)0);
+                    get => this.ReadDataSByte(40UL, (sbyte)0);
+                    set => this.WriteData(40UL, value, (sbyte)0);
                 }
 
-                public byte NFieldCapacity
+                public sbyte NFieldCapacity
                 {
-                    get => this.ReadDataByte(48UL, (byte)0);
-                    set => this.WriteData(48UL, value, (byte)0);
+                    get => this.ReadDataSByte(48UL, (sbyte)0);
+                    set => this.WriteData(48UL, value, (sbyte)0);
                 }
             }
         }

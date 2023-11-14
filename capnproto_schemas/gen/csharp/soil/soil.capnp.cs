@@ -502,16 +502,15 @@ namespace Mas.Schema.Soil
         }
     }
 
-    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xff67c2a593419c29UL)]
-    public class Profile : ICapnpSerializable
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xdf4bbf1c883a8790UL)]
+    public class ProfileData : ICapnpSerializable
     {
-        public const UInt64 typeId = 0xff67c2a593419c29UL;
+        public const UInt64 typeId = 0xdf4bbf1c883a8790UL;
         void ICapnpSerializable.Deserialize(DeserializerState arg_)
         {
             var reader = READER.create(arg_);
             Layers = reader.Layers?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Soil.Layer>(_));
             PercentageOfArea = reader.PercentageOfArea;
-            Id = reader.Id;
             applyDefaults();
         }
 
@@ -519,7 +518,6 @@ namespace Mas.Schema.Soil
         {
             writer.Layers.Init(Layers, (_s1, _v1) => _v1?.serialize(_s1));
             writer.PercentageOfArea = PercentageOfArea;
-            writer.Id = Id;
         }
 
         void ICapnpSerializable.Serialize(SerializerState arg_)
@@ -544,12 +542,6 @@ namespace Mas.Schema.Soil
         }
 
         = 100F;
-        public string Id
-        {
-            get;
-            set;
-        }
-
         public struct READER
         {
             readonly DeserializerState ctx;
@@ -564,14 +556,13 @@ namespace Mas.Schema.Soil
             public IReadOnlyList<Mas.Schema.Soil.Layer.READER> Layers => ctx.ReadList(0).Cast(Mas.Schema.Soil.Layer.READER.create);
             public bool HasLayers => ctx.IsStructFieldNonNull(0);
             public float PercentageOfArea => ctx.ReadDataFloat(0UL, 100F);
-            public string Id => ctx.ReadText(1, null);
         }
 
         public class WRITER : SerializerState
         {
             public WRITER()
             {
-                this.SetStruct(1, 2);
+                this.SetStruct(1, 1);
             }
 
             public ListOfStructsSerializer<Mas.Schema.Soil.Layer.WRITER> Layers
@@ -585,11 +576,199 @@ namespace Mas.Schema.Soil
                 get => this.ReadDataFloat(0UL, 100F);
                 set => this.WriteData(0UL, value, 100F);
             }
+        }
+    }
 
-            public string Id
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xff67c2a593419c29UL), Proxy(typeof(Profile_Proxy)), Skeleton(typeof(Profile_Skeleton))]
+    public interface IProfile : Mas.Schema.Common.IIdentifiable, Mas.Schema.Persistence.IPersistent
+    {
+        Task<Mas.Schema.Soil.ProfileData> Data(CancellationToken cancellationToken_ = default);
+        Task<Mas.Schema.Geo.LatLonCoord> GeoLocation(CancellationToken cancellationToken_ = default);
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xff67c2a593419c29UL)]
+    public class Profile_Proxy : Proxy, IProfile
+    {
+        public async Task<Mas.Schema.Soil.ProfileData> Data(CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Soil.Profile.Params_Data.WRITER>();
+            var arg_ = new Mas.Schema.Soil.Profile.Params_Data()
+            {};
+            arg_?.serialize(in_);
+            using (var d_ = await Call(18403892418668764201UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
-                get => this.ReadText(1, null);
-                set => this.WriteText(1, value, null);
+                var r_ = CapnpSerializable.Create<Mas.Schema.Soil.ProfileData>(d_);
+                return r_;
+            }
+        }
+
+        public async Task<Mas.Schema.Geo.LatLonCoord> GeoLocation(CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Soil.Profile.Params_GeoLocation.WRITER>();
+            var arg_ = new Mas.Schema.Soil.Profile.Params_GeoLocation()
+            {};
+            arg_?.serialize(in_);
+            using (var d_ = await Call(18403892418668764201UL, 1, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            {
+                var r_ = CapnpSerializable.Create<Mas.Schema.Geo.LatLonCoord>(d_);
+                return r_;
+            }
+        }
+
+        public async Task<Mas.Schema.Persistence.Persistent.SaveResults> Save(Mas.Schema.Persistence.Persistent.SaveParams arg_, CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Persistence.Persistent.SaveParams.WRITER>();
+            arg_?.serialize(in_);
+            using (var d_ = await Call(13954362354854972261UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            {
+                var r_ = CapnpSerializable.Create<Mas.Schema.Persistence.Persistent.SaveResults>(d_);
+                return r_;
+            }
+        }
+
+        public async Task<Mas.Schema.Common.IdInformation> Info(CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Common.Identifiable.Params_Info.WRITER>();
+            var arg_ = new Mas.Schema.Common.Identifiable.Params_Info()
+            {};
+            arg_?.serialize(in_);
+            using (var d_ = await Call(12875740530987518165UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            {
+                var r_ = CapnpSerializable.Create<Mas.Schema.Common.IdInformation>(d_);
+                return r_;
+            }
+        }
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xff67c2a593419c29UL)]
+    public class Profile_Skeleton : Skeleton<IProfile>
+    {
+        public Profile_Skeleton()
+        {
+            SetMethodTable(Data, GeoLocation);
+        }
+
+        public override ulong InterfaceId => 18403892418668764201UL;
+        Task<AnswerOrCounterquestion> Data(DeserializerState d_, CancellationToken cancellationToken_)
+        {
+            using (d_)
+            {
+                return Impatient.MaybeTailCall(Impl.Data(cancellationToken_), r_ =>
+                {
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Soil.ProfileData.WRITER>();
+                    r_.serialize(s_);
+                    return s_;
+                }
+
+                );
+            }
+        }
+
+        Task<AnswerOrCounterquestion> GeoLocation(DeserializerState d_, CancellationToken cancellationToken_)
+        {
+            using (d_)
+            {
+                return Impatient.MaybeTailCall(Impl.GeoLocation(cancellationToken_), r_ =>
+                {
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Geo.LatLonCoord.WRITER>();
+                    r_.serialize(s_);
+                    return s_;
+                }
+
+                );
+            }
+        }
+    }
+
+    public static class Profile
+    {
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xe704b695746374e2UL)]
+        public class Params_Data : ICapnpSerializable
+        {
+            public const UInt64 typeId = 0xe704b695746374e2UL;
+            void ICapnpSerializable.Deserialize(DeserializerState arg_)
+            {
+                var reader = READER.create(arg_);
+                applyDefaults();
+            }
+
+            public void serialize(WRITER writer)
+            {
+            }
+
+            void ICapnpSerializable.Serialize(SerializerState arg_)
+            {
+                serialize(arg_.Rewrap<WRITER>());
+            }
+
+            public void applyDefaults()
+            {
+            }
+
+            public struct READER
+            {
+                readonly DeserializerState ctx;
+                public READER(DeserializerState ctx)
+                {
+                    this.ctx = ctx;
+                }
+
+                public static READER create(DeserializerState ctx) => new READER(ctx);
+                public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+            }
+
+            public class WRITER : SerializerState
+            {
+                public WRITER()
+                {
+                    this.SetStruct(0, 0);
+                }
+            }
+        }
+
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x8d2a23f8fd1b9151UL)]
+        public class Params_GeoLocation : ICapnpSerializable
+        {
+            public const UInt64 typeId = 0x8d2a23f8fd1b9151UL;
+            void ICapnpSerializable.Deserialize(DeserializerState arg_)
+            {
+                var reader = READER.create(arg_);
+                applyDefaults();
+            }
+
+            public void serialize(WRITER writer)
+            {
+            }
+
+            void ICapnpSerializable.Serialize(SerializerState arg_)
+            {
+                serialize(arg_.Rewrap<WRITER>());
+            }
+
+            public void applyDefaults()
+            {
+            }
+
+            public struct READER
+            {
+                readonly DeserializerState ctx;
+                public READER(DeserializerState ctx)
+                {
+                    this.ctx = ctx;
+                }
+
+                public static READER create(DeserializerState ctx) => new READER(ctx);
+                public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+            }
+
+            public class WRITER : SerializerState
+            {
+                public WRITER()
+                {
+                    this.SetStruct(0, 0);
+                }
             }
         }
     }
@@ -599,7 +778,8 @@ namespace Mas.Schema.Soil
     {
         Task<Mas.Schema.Soil.Query.Result> CheckAvailableParameters(Mas.Schema.Soil.Query arg_, CancellationToken cancellationToken_ = default);
         Task<(IReadOnlyList<Mas.Schema.Soil.PropertyName>, IReadOnlyList<Mas.Schema.Soil.PropertyName>)> GetAllAvailableParameters(bool onlyRawData, CancellationToken cancellationToken_ = default);
-        Task<IReadOnlyList<Mas.Schema.Soil.Profile>> ProfilesAt(Mas.Schema.Geo.LatLonCoord coord, Mas.Schema.Soil.Query query, CancellationToken cancellationToken_ = default);
+        Task<IReadOnlyList<Mas.Schema.Soil.IProfile>> ClosestProfilesAt(Mas.Schema.Geo.LatLonCoord coord, Mas.Schema.Soil.Query query, CancellationToken cancellationToken_ = default);
+        Task<Mas.Schema.Soil.Service.IStream> StreamAllProfiles(Mas.Schema.Soil.Query arg_, CancellationToken cancellationToken_ = default);
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xa09aa71427dc64e1UL)]
@@ -629,17 +809,38 @@ namespace Mas.Schema.Soil
             }
         }
 
-        public async Task<IReadOnlyList<Mas.Schema.Soil.Profile>> ProfilesAt(Mas.Schema.Geo.LatLonCoord coord, Mas.Schema.Soil.Query query, CancellationToken cancellationToken_ = default)
+        public Task<IReadOnlyList<Mas.Schema.Soil.IProfile>> ClosestProfilesAt(Mas.Schema.Geo.LatLonCoord coord, Mas.Schema.Soil.Query query, CancellationToken cancellationToken_ = default)
         {
-            var in_ = SerializerState.CreateForRpc<Mas.Schema.Soil.Service.Params_ProfilesAt.WRITER>();
-            var arg_ = new Mas.Schema.Soil.Service.Params_ProfilesAt()
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Soil.Service.Params_ClosestProfilesAt.WRITER>();
+            var arg_ = new Mas.Schema.Soil.Service.Params_ClosestProfilesAt()
             {Coord = coord, Query = query};
             arg_?.serialize(in_);
-            using (var d_ = await Call(11572745897491850465UL, 2, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            return Impatient.MakePipelineAware(Call(11572745897491850465UL, 2, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
             {
-                var r_ = CapnpSerializable.Create<Mas.Schema.Soil.Service.Result_ProfilesAt>(d_);
-                return (r_.Profiles);
+                using (d_)
+                {
+                    var r_ = CapnpSerializable.Create<Mas.Schema.Soil.Service.Result_ClosestProfilesAt>(d_);
+                    return (r_.Profiles);
+                }
             }
+
+            );
+        }
+
+        public Task<Mas.Schema.Soil.Service.IStream> StreamAllProfiles(Mas.Schema.Soil.Query arg_, CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Soil.Query.WRITER>();
+            arg_?.serialize(in_);
+            return Impatient.MakePipelineAware(Call(11572745897491850465UL, 3, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
+            {
+                using (d_)
+                {
+                    var r_ = CapnpSerializable.Create<Mas.Schema.Soil.Service.Result_StreamAllProfiles>(d_);
+                    return (r_.AllProfiles);
+                }
+            }
+
+            );
         }
 
         public async Task<Mas.Schema.Persistence.Persistent.SaveResults> Save(Mas.Schema.Persistence.Persistent.SaveParams arg_, CancellationToken cancellationToken_ = default)
@@ -672,7 +873,7 @@ namespace Mas.Schema.Soil
     {
         public Service_Skeleton()
         {
-            SetMethodTable(CheckAvailableParameters, GetAllAvailableParameters, ProfilesAt);
+            SetMethodTable(CheckAvailableParameters, GetAllAvailableParameters, ClosestProfilesAt, StreamAllProfiles);
         }
 
         public override ulong InterfaceId => 11572745897491850465UL;
@@ -708,15 +909,31 @@ namespace Mas.Schema.Soil
             }
         }
 
-        Task<AnswerOrCounterquestion> ProfilesAt(DeserializerState d_, CancellationToken cancellationToken_)
+        Task<AnswerOrCounterquestion> ClosestProfilesAt(DeserializerState d_, CancellationToken cancellationToken_)
         {
             using (d_)
             {
-                var in_ = CapnpSerializable.Create<Mas.Schema.Soil.Service.Params_ProfilesAt>(d_);
-                return Impatient.MaybeTailCall(Impl.ProfilesAt(in_.Coord, in_.Query, cancellationToken_), profiles =>
+                var in_ = CapnpSerializable.Create<Mas.Schema.Soil.Service.Params_ClosestProfilesAt>(d_);
+                return Impatient.MaybeTailCall(Impl.ClosestProfilesAt(in_.Coord, in_.Query, cancellationToken_), profiles =>
                 {
-                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Soil.Service.Result_ProfilesAt.WRITER>();
-                    var r_ = new Mas.Schema.Soil.Service.Result_ProfilesAt{Profiles = profiles};
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Soil.Service.Result_ClosestProfilesAt.WRITER>();
+                    var r_ = new Mas.Schema.Soil.Service.Result_ClosestProfilesAt{Profiles = profiles};
+                    r_.serialize(s_);
+                    return s_;
+                }
+
+                );
+            }
+        }
+
+        Task<AnswerOrCounterquestion> StreamAllProfiles(DeserializerState d_, CancellationToken cancellationToken_)
+        {
+            using (d_)
+            {
+                return Impatient.MaybeTailCall(Impl.StreamAllProfiles(CapnpSerializable.Create<Mas.Schema.Soil.Query>(d_), cancellationToken_), allProfiles =>
+                {
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Soil.Service.Result_StreamAllProfiles.WRITER>();
+                    var r_ = new Mas.Schema.Soil.Service.Result_StreamAllProfiles{AllProfiles = allProfiles};
                     r_.serialize(s_);
                     return s_;
                 }
@@ -728,6 +945,186 @@ namespace Mas.Schema.Soil
 
     public static class Service
     {
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xf4f8ab568ffbc939UL), Proxy(typeof(Stream_Proxy)), Skeleton(typeof(Stream_Skeleton))]
+        public interface IStream : IDisposable
+        {
+            Task<IReadOnlyList<Mas.Schema.Soil.IProfile>> NextProfiles(long maxCount, CancellationToken cancellationToken_ = default);
+        }
+
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xf4f8ab568ffbc939UL)]
+        public class Stream_Proxy : Proxy, IStream
+        {
+            public Task<IReadOnlyList<Mas.Schema.Soil.IProfile>> NextProfiles(long maxCount, CancellationToken cancellationToken_ = default)
+            {
+                var in_ = SerializerState.CreateForRpc<Mas.Schema.Soil.Service.Stream.Params_NextProfiles.WRITER>();
+                var arg_ = new Mas.Schema.Soil.Service.Stream.Params_NextProfiles()
+                {MaxCount = maxCount};
+                arg_?.serialize(in_);
+                return Impatient.MakePipelineAware(Call(17652047127749839161UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
+                {
+                    using (d_)
+                    {
+                        var r_ = CapnpSerializable.Create<Mas.Schema.Soil.Service.Stream.Result_NextProfiles>(d_);
+                        return (r_.Profiles);
+                    }
+                }
+
+                );
+            }
+        }
+
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xf4f8ab568ffbc939UL)]
+        public class Stream_Skeleton : Skeleton<IStream>
+        {
+            public Stream_Skeleton()
+            {
+                SetMethodTable(NextProfiles);
+            }
+
+            public override ulong InterfaceId => 17652047127749839161UL;
+            Task<AnswerOrCounterquestion> NextProfiles(DeserializerState d_, CancellationToken cancellationToken_)
+            {
+                using (d_)
+                {
+                    var in_ = CapnpSerializable.Create<Mas.Schema.Soil.Service.Stream.Params_NextProfiles>(d_);
+                    return Impatient.MaybeTailCall(Impl.NextProfiles(in_.MaxCount, cancellationToken_), profiles =>
+                    {
+                        var s_ = SerializerState.CreateForRpc<Mas.Schema.Soil.Service.Stream.Result_NextProfiles.WRITER>();
+                        var r_ = new Mas.Schema.Soil.Service.Stream.Result_NextProfiles{Profiles = profiles};
+                        r_.serialize(s_);
+                        return s_;
+                    }
+
+                    );
+                }
+            }
+        }
+
+        public static class Stream
+        {
+            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x81da248df613bc05UL)]
+            public class Params_NextProfiles : ICapnpSerializable
+            {
+                public const UInt64 typeId = 0x81da248df613bc05UL;
+                void ICapnpSerializable.Deserialize(DeserializerState arg_)
+                {
+                    var reader = READER.create(arg_);
+                    MaxCount = reader.MaxCount;
+                    applyDefaults();
+                }
+
+                public void serialize(WRITER writer)
+                {
+                    writer.MaxCount = MaxCount;
+                }
+
+                void ICapnpSerializable.Serialize(SerializerState arg_)
+                {
+                    serialize(arg_.Rewrap<WRITER>());
+                }
+
+                public void applyDefaults()
+                {
+                }
+
+                public long MaxCount
+                {
+                    get;
+                    set;
+                }
+
+                = 100L;
+                public struct READER
+                {
+                    readonly DeserializerState ctx;
+                    public READER(DeserializerState ctx)
+                    {
+                        this.ctx = ctx;
+                    }
+
+                    public static READER create(DeserializerState ctx) => new READER(ctx);
+                    public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                    public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                    public long MaxCount => ctx.ReadDataLong(0UL, 100L);
+                }
+
+                public class WRITER : SerializerState
+                {
+                    public WRITER()
+                    {
+                        this.SetStruct(1, 0);
+                    }
+
+                    public long MaxCount
+                    {
+                        get => this.ReadDataLong(0UL, 100L);
+                        set => this.WriteData(0UL, value, 100L);
+                    }
+                }
+            }
+
+            [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x9f7ae4c2748bddf8UL)]
+            public class Result_NextProfiles : ICapnpSerializable
+            {
+                public const UInt64 typeId = 0x9f7ae4c2748bddf8UL;
+                void ICapnpSerializable.Deserialize(DeserializerState arg_)
+                {
+                    var reader = READER.create(arg_);
+                    Profiles = reader.Profiles;
+                    applyDefaults();
+                }
+
+                public void serialize(WRITER writer)
+                {
+                    writer.Profiles.Init(Profiles);
+                }
+
+                void ICapnpSerializable.Serialize(SerializerState arg_)
+                {
+                    serialize(arg_.Rewrap<WRITER>());
+                }
+
+                public void applyDefaults()
+                {
+                }
+
+                public IReadOnlyList<Mas.Schema.Soil.IProfile> Profiles
+                {
+                    get;
+                    set;
+                }
+
+                public struct READER
+                {
+                    readonly DeserializerState ctx;
+                    public READER(DeserializerState ctx)
+                    {
+                        this.ctx = ctx;
+                    }
+
+                    public static READER create(DeserializerState ctx) => new READER(ctx);
+                    public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                    public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                    public IReadOnlyList<Mas.Schema.Soil.IProfile> Profiles => ctx.ReadCapList<Mas.Schema.Soil.IProfile>(0);
+                    public bool HasProfiles => ctx.IsStructFieldNonNull(0);
+                }
+
+                public class WRITER : SerializerState
+                {
+                    public WRITER()
+                    {
+                        this.SetStruct(0, 1);
+                    }
+
+                    public ListOfCapsSerializer<Mas.Schema.Soil.IProfile> Profiles
+                    {
+                        get => BuildPointer<ListOfCapsSerializer<Mas.Schema.Soil.IProfile>>(0);
+                        set => Link(0, value);
+                    }
+                }
+            }
+        }
+
         [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x8dec5fd8eb3e7c27UL)]
         public class Params_GetAllAvailableParameters : ICapnpSerializable
         {
@@ -866,7 +1263,7 @@ namespace Mas.Schema.Soil
         }
 
         [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xdb97e739bf9693c1UL)]
-        public class Params_ProfilesAt : ICapnpSerializable
+        public class Params_ClosestProfilesAt : ICapnpSerializable
         {
             public const UInt64 typeId = 0xdb97e739bf9693c1UL;
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
@@ -943,19 +1340,19 @@ namespace Mas.Schema.Soil
         }
 
         [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xa0915e668c9317adUL)]
-        public class Result_ProfilesAt : ICapnpSerializable
+        public class Result_ClosestProfilesAt : ICapnpSerializable
         {
             public const UInt64 typeId = 0xa0915e668c9317adUL;
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Profiles = reader.Profiles?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Soil.Profile>(_));
+                Profiles = reader.Profiles;
                 applyDefaults();
             }
 
             public void serialize(WRITER writer)
             {
-                writer.Profiles.Init(Profiles, (_s1, _v1) => _v1?.serialize(_s1));
+                writer.Profiles.Init(Profiles);
             }
 
             void ICapnpSerializable.Serialize(SerializerState arg_)
@@ -967,7 +1364,7 @@ namespace Mas.Schema.Soil
             {
             }
 
-            public IReadOnlyList<Mas.Schema.Soil.Profile> Profiles
+            public IReadOnlyList<Mas.Schema.Soil.IProfile> Profiles
             {
                 get;
                 set;
@@ -984,7 +1381,7 @@ namespace Mas.Schema.Soil
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public IReadOnlyList<Mas.Schema.Soil.Profile.READER> Profiles => ctx.ReadList(0).Cast(Mas.Schema.Soil.Profile.READER.create);
+                public IReadOnlyList<Mas.Schema.Soil.IProfile> Profiles => ctx.ReadCapList<Mas.Schema.Soil.IProfile>(0);
                 public bool HasProfiles => ctx.IsStructFieldNonNull(0);
             }
 
@@ -995,10 +1392,70 @@ namespace Mas.Schema.Soil
                     this.SetStruct(0, 1);
                 }
 
-                public ListOfStructsSerializer<Mas.Schema.Soil.Profile.WRITER> Profiles
+                public ListOfCapsSerializer<Mas.Schema.Soil.IProfile> Profiles
                 {
-                    get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Soil.Profile.WRITER>>(0);
+                    get => BuildPointer<ListOfCapsSerializer<Mas.Schema.Soil.IProfile>>(0);
                     set => Link(0, value);
+                }
+            }
+        }
+
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xd1a74147c92b7957UL)]
+        public class Result_StreamAllProfiles : ICapnpSerializable
+        {
+            public const UInt64 typeId = 0xd1a74147c92b7957UL;
+            void ICapnpSerializable.Deserialize(DeserializerState arg_)
+            {
+                var reader = READER.create(arg_);
+                AllProfiles = reader.AllProfiles;
+                applyDefaults();
+            }
+
+            public void serialize(WRITER writer)
+            {
+                writer.AllProfiles = AllProfiles;
+            }
+
+            void ICapnpSerializable.Serialize(SerializerState arg_)
+            {
+                serialize(arg_.Rewrap<WRITER>());
+            }
+
+            public void applyDefaults()
+            {
+            }
+
+            public Mas.Schema.Soil.Service.IStream AllProfiles
+            {
+                get;
+                set;
+            }
+
+            public struct READER
+            {
+                readonly DeserializerState ctx;
+                public READER(DeserializerState ctx)
+                {
+                    this.ctx = ctx;
+                }
+
+                public static READER create(DeserializerState ctx) => new READER(ctx);
+                public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                public Mas.Schema.Soil.Service.IStream AllProfiles => ctx.ReadCap<Mas.Schema.Soil.Service.IStream>(0);
+            }
+
+            public class WRITER : SerializerState
+            {
+                public WRITER()
+                {
+                    this.SetStruct(0, 1);
+                }
+
+                public Mas.Schema.Soil.Service.IStream AllProfiles
+                {
+                    get => ReadCap<Mas.Schema.Soil.Service.IStream>(0);
+                    set => LinkObject(0, value);
                 }
             }
         }

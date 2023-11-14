@@ -418,63 +418,18 @@ namespace Mas.Schema.Persistence
     public class SturdyRef : ICapnpSerializable
     {
         public const UInt64 typeId = 0x886d68271d83de4dUL;
-        public enum WHICH : ushort
-        {
-            TheTransient = 0,
-            TheStored = 1,
-            undefined = 65535
-        }
-
         void ICapnpSerializable.Deserialize(DeserializerState arg_)
         {
             var reader = READER.create(arg_);
-            switch (reader.which)
-            {
-                case WHICH.TheTransient:
-                    TheTransient = CapnpSerializable.Create<Mas.Schema.Persistence.SturdyRef.Transient>(reader.TheTransient);
-                    break;
-                case WHICH.TheStored:
-                    TheStored = CapnpSerializable.Create<Mas.Schema.Persistence.SturdyRef.Stored>(reader.TheStored);
-                    break;
-            }
-
+            Vat = CapnpSerializable.Create<Mas.Schema.Persistence.VatPath>(reader.Vat);
+            LocalRef = CapnpSerializable.Create<Mas.Schema.Persistence.SturdyRef.Token>(reader.LocalRef);
             applyDefaults();
-        }
-
-        private WHICH _which = WHICH.undefined;
-        private object _content;
-        public WHICH which
-        {
-            get => _which;
-            set
-            {
-                if (value == _which)
-                    return;
-                _which = value;
-                switch (value)
-                {
-                    case WHICH.TheTransient:
-                        _content = null;
-                        break;
-                    case WHICH.TheStored:
-                        _content = null;
-                        break;
-                }
-            }
         }
 
         public void serialize(WRITER writer)
         {
-            writer.which = which;
-            switch (which)
-            {
-                case WHICH.TheTransient:
-                    TheTransient?.serialize(writer.TheTransient);
-                    break;
-                case WHICH.TheStored:
-                    TheStored?.serialize(writer.TheStored);
-                    break;
-            }
+            Vat?.serialize(writer.Vat);
+            LocalRef?.serialize(writer.LocalRef);
         }
 
         void ICapnpSerializable.Serialize(SerializerState arg_)
@@ -486,24 +441,16 @@ namespace Mas.Schema.Persistence
         {
         }
 
-        public Mas.Schema.Persistence.SturdyRef.Transient TheTransient
+        public Mas.Schema.Persistence.VatPath Vat
         {
-            get => _which == WHICH.TheTransient ? (Mas.Schema.Persistence.SturdyRef.Transient)_content : null;
-            set
-            {
-                _which = WHICH.TheTransient;
-                _content = value;
-            }
+            get;
+            set;
         }
 
-        public Mas.Schema.Persistence.SturdyRef.Stored TheStored
+        public Mas.Schema.Persistence.SturdyRef.Token LocalRef
         {
-            get => _which == WHICH.TheStored ? (Mas.Schema.Persistence.SturdyRef.Stored)_content : null;
-            set
-            {
-                _which = WHICH.TheStored;
-                _content = value;
-            }
+            get;
+            set;
         }
 
         public struct READER
@@ -517,36 +464,29 @@ namespace Mas.Schema.Persistence
             public static READER create(DeserializerState ctx) => new READER(ctx);
             public static implicit operator DeserializerState(READER reader) => reader.ctx;
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-            public WHICH which => (WHICH)ctx.ReadDataUShort(0U, (ushort)0);
-            public Mas.Schema.Persistence.SturdyRef.Transient.READER TheTransient => which == WHICH.TheTransient ? ctx.ReadStruct(0, Mas.Schema.Persistence.SturdyRef.Transient.READER.create) : default;
-            public bool HasTheTransient => ctx.IsStructFieldNonNull(0);
-            public Mas.Schema.Persistence.SturdyRef.Stored.READER TheStored => which == WHICH.TheStored ? ctx.ReadStruct(0, Mas.Schema.Persistence.SturdyRef.Stored.READER.create) : default;
-            public bool HasTheStored => ctx.IsStructFieldNonNull(0);
+            public Mas.Schema.Persistence.VatPath.READER Vat => ctx.ReadStruct(0, Mas.Schema.Persistence.VatPath.READER.create);
+            public bool HasVat => ctx.IsStructFieldNonNull(0);
+            public Mas.Schema.Persistence.SturdyRef.Token.READER LocalRef => ctx.ReadStruct(1, Mas.Schema.Persistence.SturdyRef.Token.READER.create);
+            public bool HasLocalRef => ctx.IsStructFieldNonNull(1);
         }
 
         public class WRITER : SerializerState
         {
             public WRITER()
             {
-                this.SetStruct(1, 1);
+                this.SetStruct(0, 2);
             }
 
-            public WHICH which
+            public Mas.Schema.Persistence.VatPath.WRITER Vat
             {
-                get => (WHICH)this.ReadDataUShort(0U, (ushort)0);
-                set => this.WriteData(0U, (ushort)value, (ushort)0);
-            }
-
-            public Mas.Schema.Persistence.SturdyRef.Transient.WRITER TheTransient
-            {
-                get => which == WHICH.TheTransient ? BuildPointer<Mas.Schema.Persistence.SturdyRef.Transient.WRITER>(0) : default;
+                get => BuildPointer<Mas.Schema.Persistence.VatPath.WRITER>(0);
                 set => Link(0, value);
             }
 
-            public Mas.Schema.Persistence.SturdyRef.Stored.WRITER TheStored
+            public Mas.Schema.Persistence.SturdyRef.Token.WRITER LocalRef
             {
-                get => which == WHICH.TheStored ? BuildPointer<Mas.Schema.Persistence.SturdyRef.Stored.WRITER>(0) : default;
-                set => Link(0, value);
+                get => BuildPointer<Mas.Schema.Persistence.SturdyRef.Token.WRITER>(1);
+                set => Link(1, value);
             }
         }
 
@@ -610,22 +550,67 @@ namespace Mas.Schema.Persistence
             }
         }
 
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xa42bd461f2a8a3c8UL)]
-        public class Transient : ICapnpSerializable
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xfa412bb47f11b488UL)]
+        public class Token : ICapnpSerializable
         {
-            public const UInt64 typeId = 0xa42bd461f2a8a3c8UL;
+            public const UInt64 typeId = 0xfa412bb47f11b488UL;
+            public enum WHICH : ushort
+            {
+                Text = 0,
+                Data = 1,
+                undefined = 65535
+            }
+
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Vat = CapnpSerializable.Create<Mas.Schema.Persistence.VatPath>(reader.Vat);
-                LocalRef = CapnpSerializable.Create<object>(reader.LocalRef);
+                switch (reader.which)
+                {
+                    case WHICH.Text:
+                        Text = reader.Text;
+                        break;
+                    case WHICH.Data:
+                        Data = reader.Data;
+                        break;
+                }
+
                 applyDefaults();
+            }
+
+            private WHICH _which = WHICH.undefined;
+            private object _content;
+            public WHICH which
+            {
+                get => _which;
+                set
+                {
+                    if (value == _which)
+                        return;
+                    _which = value;
+                    switch (value)
+                    {
+                        case WHICH.Text:
+                            _content = null;
+                            break;
+                        case WHICH.Data:
+                            _content = null;
+                            break;
+                    }
+                }
             }
 
             public void serialize(WRITER writer)
             {
-                Vat?.serialize(writer.Vat);
-                writer.LocalRef.SetObject(LocalRef);
+                writer.which = which;
+                switch (which)
+                {
+                    case WHICH.Text:
+                        writer.Text = Text;
+                        break;
+                    case WHICH.Data:
+                        writer.Data.Init(Data);
+                        break;
+                }
             }
 
             void ICapnpSerializable.Serialize(SerializerState arg_)
@@ -637,16 +622,24 @@ namespace Mas.Schema.Persistence
             {
             }
 
-            public Mas.Schema.Persistence.VatPath Vat
+            public string Text
             {
-                get;
-                set;
+                get => _which == WHICH.Text ? (string)_content : null;
+                set
+                {
+                    _which = WHICH.Text;
+                    _content = value;
+                }
             }
 
-            public object LocalRef
+            public IReadOnlyList<byte> Data
             {
-                get;
-                set;
+                get => _which == WHICH.Data ? (IReadOnlyList<byte>)_content : null;
+                set
+                {
+                    _which = WHICH.Data;
+                    _content = value;
+                }
             }
 
             public struct READER
@@ -660,133 +653,34 @@ namespace Mas.Schema.Persistence
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public Mas.Schema.Persistence.VatPath.READER Vat => ctx.ReadStruct(0, Mas.Schema.Persistence.VatPath.READER.create);
-                public bool HasVat => ctx.IsStructFieldNonNull(0);
-                public DeserializerState LocalRef => ctx.StructReadPointer(1);
+                public WHICH which => (WHICH)ctx.ReadDataUShort(0U, (ushort)0);
+                public string Text => which == WHICH.Text ? ctx.ReadText(0, null) : default;
+                public IReadOnlyList<byte> Data => which == WHICH.Data ? ctx.ReadList(0).CastByte() : default;
             }
 
             public class WRITER : SerializerState
             {
                 public WRITER()
                 {
-                    this.SetStruct(0, 2);
+                    this.SetStruct(1, 1);
                 }
 
-                public Mas.Schema.Persistence.VatPath.WRITER Vat
+                public WHICH which
                 {
-                    get => BuildPointer<Mas.Schema.Persistence.VatPath.WRITER>(0);
+                    get => (WHICH)this.ReadDataUShort(0U, (ushort)0);
+                    set => this.WriteData(0U, (ushort)value, (ushort)0);
+                }
+
+                public string Text
+                {
+                    get => which == WHICH.Text ? this.ReadText(0, null) : default;
+                    set => this.WriteText(0, value, null);
+                }
+
+                public ListOfPrimitivesSerializer<byte> Data
+                {
+                    get => which == WHICH.Data ? BuildPointer<ListOfPrimitivesSerializer<byte>>(0) : default;
                     set => Link(0, value);
-                }
-
-                public DynamicSerializerState LocalRef
-                {
-                    get => BuildPointer<DynamicSerializerState>(1);
-                    set => Link(1, value);
-                }
-            }
-        }
-
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xcbe679a401315eb8UL)]
-        public class Stored : ICapnpSerializable
-        {
-            public const UInt64 typeId = 0xcbe679a401315eb8UL;
-            void ICapnpSerializable.Deserialize(DeserializerState arg_)
-            {
-                var reader = READER.create(arg_);
-                Key0 = reader.Key0;
-                Key1 = reader.Key1;
-                Key2 = reader.Key2;
-                Key3 = reader.Key3;
-                applyDefaults();
-            }
-
-            public void serialize(WRITER writer)
-            {
-                writer.Key0 = Key0;
-                writer.Key1 = Key1;
-                writer.Key2 = Key2;
-                writer.Key3 = Key3;
-            }
-
-            void ICapnpSerializable.Serialize(SerializerState arg_)
-            {
-                serialize(arg_.Rewrap<WRITER>());
-            }
-
-            public void applyDefaults()
-            {
-            }
-
-            public ulong Key0
-            {
-                get;
-                set;
-            }
-
-            public ulong Key1
-            {
-                get;
-                set;
-            }
-
-            public ulong Key2
-            {
-                get;
-                set;
-            }
-
-            public ulong Key3
-            {
-                get;
-                set;
-            }
-
-            public struct READER
-            {
-                readonly DeserializerState ctx;
-                public READER(DeserializerState ctx)
-                {
-                    this.ctx = ctx;
-                }
-
-                public static READER create(DeserializerState ctx) => new READER(ctx);
-                public static implicit operator DeserializerState(READER reader) => reader.ctx;
-                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public ulong Key0 => ctx.ReadDataULong(0UL, 0UL);
-                public ulong Key1 => ctx.ReadDataULong(64UL, 0UL);
-                public ulong Key2 => ctx.ReadDataULong(128UL, 0UL);
-                public ulong Key3 => ctx.ReadDataULong(192UL, 0UL);
-            }
-
-            public class WRITER : SerializerState
-            {
-                public WRITER()
-                {
-                    this.SetStruct(4, 0);
-                }
-
-                public ulong Key0
-                {
-                    get => this.ReadDataULong(0UL, 0UL);
-                    set => this.WriteData(0UL, value, 0UL);
-                }
-
-                public ulong Key1
-                {
-                    get => this.ReadDataULong(64UL, 0UL);
-                    set => this.WriteData(64UL, value, 0UL);
-                }
-
-                public ulong Key2
-                {
-                    get => this.ReadDataULong(128UL, 0UL);
-                    set => this.WriteData(128UL, value, 0UL);
-                }
-
-                public ulong Key3
-                {
-                    get => this.ReadDataULong(192UL, 0UL);
-                    set => this.WriteData(192UL, value, 0UL);
                 }
             }
         }
@@ -1197,15 +1091,15 @@ namespace Mas.Schema.Persistence
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                LocalRef = CapnpSerializable.Create<object>(reader.LocalRef);
-                SealedFor = CapnpSerializable.Create<Mas.Schema.Persistence.SturdyRef.Owner>(reader.SealedFor);
+                LocalRef = CapnpSerializable.Create<Mas.Schema.Persistence.SturdyRef.Token>(reader.LocalRef);
+                SealedBy = CapnpSerializable.Create<Mas.Schema.Persistence.SturdyRef.Owner>(reader.SealedBy);
                 applyDefaults();
             }
 
             public void serialize(WRITER writer)
             {
-                writer.LocalRef.SetObject(LocalRef);
-                SealedFor?.serialize(writer.SealedFor);
+                LocalRef?.serialize(writer.LocalRef);
+                SealedBy?.serialize(writer.SealedBy);
             }
 
             void ICapnpSerializable.Serialize(SerializerState arg_)
@@ -1217,13 +1111,13 @@ namespace Mas.Schema.Persistence
             {
             }
 
-            public object LocalRef
+            public Mas.Schema.Persistence.SturdyRef.Token LocalRef
             {
                 get;
                 set;
             }
 
-            public Mas.Schema.Persistence.SturdyRef.Owner SealedFor
+            public Mas.Schema.Persistence.SturdyRef.Owner SealedBy
             {
                 get;
                 set;
@@ -1240,9 +1134,10 @@ namespace Mas.Schema.Persistence
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public DeserializerState LocalRef => ctx.StructReadPointer(0);
-                public Mas.Schema.Persistence.SturdyRef.Owner.READER SealedFor => ctx.ReadStruct(1, Mas.Schema.Persistence.SturdyRef.Owner.READER.create);
-                public bool HasSealedFor => ctx.IsStructFieldNonNull(1);
+                public Mas.Schema.Persistence.SturdyRef.Token.READER LocalRef => ctx.ReadStruct(0, Mas.Schema.Persistence.SturdyRef.Token.READER.create);
+                public bool HasLocalRef => ctx.IsStructFieldNonNull(0);
+                public Mas.Schema.Persistence.SturdyRef.Owner.READER SealedBy => ctx.ReadStruct(1, Mas.Schema.Persistence.SturdyRef.Owner.READER.create);
+                public bool HasSealedBy => ctx.IsStructFieldNonNull(1);
             }
 
             public class WRITER : SerializerState
@@ -1252,13 +1147,13 @@ namespace Mas.Schema.Persistence
                     this.SetStruct(0, 2);
                 }
 
-                public DynamicSerializerState LocalRef
+                public Mas.Schema.Persistence.SturdyRef.Token.WRITER LocalRef
                 {
-                    get => BuildPointer<DynamicSerializerState>(0);
+                    get => BuildPointer<Mas.Schema.Persistence.SturdyRef.Token.WRITER>(0);
                     set => Link(0, value);
                 }
 
-                public Mas.Schema.Persistence.SturdyRef.Owner.WRITER SealedFor
+                public Mas.Schema.Persistence.SturdyRef.Owner.WRITER SealedBy
                 {
                     get => BuildPointer<Mas.Schema.Persistence.SturdyRef.Owner.WRITER>(1);
                     set => Link(1, value);

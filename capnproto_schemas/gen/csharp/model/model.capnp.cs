@@ -598,7 +598,7 @@ namespace Mas.Schema.Model
             var reader = READER.create(arg_);
             Rest = CapnpSerializable.Create<TRestInput>(reader.Rest);
             TimeSeries = reader.TimeSeries;
-            SoilProfile = CapnpSerializable.Create<Mas.Schema.Soil.Profile>(reader.SoilProfile);
+            SoilProfile = reader.SoilProfile;
             MgmtEvents = reader.MgmtEvents?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Management.Event>(_));
             applyDefaults();
         }
@@ -607,7 +607,7 @@ namespace Mas.Schema.Model
         {
             writer.Rest.SetObject(Rest);
             writer.TimeSeries = TimeSeries;
-            SoilProfile?.serialize(writer.SoilProfile);
+            writer.SoilProfile = SoilProfile;
             writer.MgmtEvents.Init(MgmtEvents, (_s1, _v1) => _v1?.serialize(_s1));
         }
 
@@ -632,7 +632,7 @@ namespace Mas.Schema.Model
             set;
         }
 
-        public Mas.Schema.Soil.Profile SoilProfile
+        public Mas.Schema.Soil.IProfile SoilProfile
         {
             get;
             set;
@@ -657,8 +657,7 @@ namespace Mas.Schema.Model
             public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
             public DeserializerState Rest => ctx.StructReadPointer(0);
             public Mas.Schema.Climate.ITimeSeries TimeSeries => ctx.ReadCap<Mas.Schema.Climate.ITimeSeries>(1);
-            public Mas.Schema.Soil.Profile.READER SoilProfile => ctx.ReadStruct(2, Mas.Schema.Soil.Profile.READER.create);
-            public bool HasSoilProfile => ctx.IsStructFieldNonNull(2);
+            public Mas.Schema.Soil.IProfile SoilProfile => ctx.ReadCap<Mas.Schema.Soil.IProfile>(2);
             public IReadOnlyList<Mas.Schema.Management.Event.READER> MgmtEvents => ctx.ReadList(3).Cast(Mas.Schema.Management.Event.READER.create);
             public bool HasMgmtEvents => ctx.IsStructFieldNonNull(3);
         }
@@ -682,10 +681,10 @@ namespace Mas.Schema.Model
                 set => LinkObject(1, value);
             }
 
-            public Mas.Schema.Soil.Profile.WRITER SoilProfile
+            public Mas.Schema.Soil.IProfile SoilProfile
             {
-                get => BuildPointer<Mas.Schema.Soil.Profile.WRITER>(2);
-                set => Link(2, value);
+                get => ReadCap<Mas.Schema.Soil.IProfile>(2);
+                set => LinkObject(2, value);
             }
 
             public ListOfStructsSerializer<Mas.Schema.Management.Event.WRITER> MgmtEvents

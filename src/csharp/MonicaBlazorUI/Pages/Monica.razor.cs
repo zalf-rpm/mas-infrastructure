@@ -5,6 +5,9 @@ using ExtType = Mas.Schema.Model.Monica.Event.ExternalType;
 using Crop = Mas.Schema.Crop;
 using Soil = Mas.Schema.Soil;
 using Mas.Infrastructure.Common;
+using Mas.Schema.Common;
+using Mas.Schema.Geo;
+using Mas.Schema.Persistence;
 using Climate = Mas.Schema.Climate;
 using Model = Mas.Schema.Model;
 using Monica = Mas.Schema.Model.Monica;
@@ -19,7 +22,7 @@ namespace Mas.Infrastructure.BlazorComponents
         [Parameter]
         public Model.IEnvInstance<Schema.Common.StructuredText, Schema.Common.StructuredText>? MonicaInstanceCap { get; set; }
         [Parameter]
-        public String MonicaSturdyRef { get; set; } = "";
+        public string MonicaSturdyRef { get; set; } = "";
         [Parameter]
         public EventCallback<Model.IEnvInstance<Schema.Common.StructuredText, Schema.Common.StructuredText>> MonicaInstanceCapChanged { get; set; }
 
@@ -44,7 +47,7 @@ namespace Mas.Infrastructure.BlazorComponents
         public Climate.ITimeSeries? TimeSeriesCap { get; set; }
         private Climate.IAlterTimeSeriesWrapper? AlterTimeSeriesWrapperCap { get; set; }
         [Parameter]
-        public String TimeSeriesSturdyRef { get; set; } = "";
+        public string TimeSeriesSturdyRef { get; set; } = "";
         [Parameter]
         public EventCallback<Climate.ITimeSeries> TimeSeriesCapChanged { get; set; }
 
@@ -65,7 +68,7 @@ namespace Mas.Infrastructure.BlazorComponents
         public Climate.IAlterTimeSeriesWrapperFactory? TimeSeriesFactoryCap { get; set; }
 
         [Parameter]
-        public String TimeSeriesFactorySturdyRef { get; set; } = "";// = "capnp://10.10.24.86:11006"; //"capnp://login01.cluster.zalf.de:11006";//
+        public string TimeSeriesFactorySturdyRef { get; set; } = "";// = "capnp://10.10.24.86:11006"; //"capnp://login01.cluster.zalf.de:11006";//
 
         [Parameter]
         public EventCallback<Climate.IAlterTimeSeriesWrapperFactory> TimeSeriesFactoryCapChanged { get; set; }
@@ -100,7 +103,7 @@ namespace Mas.Infrastructure.BlazorComponents
         public Soil.IService? SoilServiceCap { get; set; }
 
         [Parameter]
-        public String SoilServiceSturdyRef { get; set; } = "";
+        public string SoilServiceSturdyRef { get; set; } = "";
 
         [Parameter]
         public EventCallback<Climate.ITimeSeries> SoilServiceCapChanged { get; set; }
@@ -141,7 +144,7 @@ namespace Mas.Infrastructure.BlazorComponents
         [Parameter]
         public (double, double) LatLng { get; set; } = (52.52, 14.11);
 
-        //private String monicaResult;
+        //private string monicaResult;
         private string? monicaErrorMessage;
 
         #region init
@@ -264,7 +267,7 @@ namespace Mas.Infrastructure.BlazorComponents
         }
         private OId editOId = OId.Out("");
 
-        private List<(String, List<OId>, bool)> events = new() 
+        private List<(string, List<OId>, bool)> events = new() 
         { 
             ("daily", new List<OId> { 
                 OId.Out("Date"), OId.Out("Crop"), OId.Out("Stage"), OId.Out("Yield"), 
@@ -273,7 +276,7 @@ namespace Mas.Infrastructure.BlazorComponents
             }, false) 
         };
 
-        private List<(String, bool)> eventShortcuts = new() 
+        private List<(string, bool)> eventShortcuts = new() 
         { 
             ("daily", false), 
             ("crop", true), 
@@ -630,28 +633,58 @@ namespace Mas.Infrastructure.BlazorComponents
 
         #region run monica
         [Parameter]
-        public EventCallback<(Dictionary<String, IEnumerable<DateTime>>, Dictionary<String, Dictionary<String, IEnumerable<float>>>)> ResultChanged { get; set; }
+        public EventCallback<(Dictionary<string, IEnumerable<DateTime>>, Dictionary<string, Dictionary<string, IEnumerable<float>>>)> ResultChanged { get; set; }
 
         private MudChip[] defaultSelectedSectionChips = new MudChip[1];
 
-        private Dictionary<String, Dictionary<String, IEnumerable<float>>> Section2Oid2Data = new();
+        private Dictionary<string, Dictionary<string, IEnumerable<float>>> Section2Oid2Data = new();
 
-        private Dictionary<String, IEnumerable<DateTime>> Section2Dates = new();
+        private Dictionary<string, IEnumerable<DateTime>> Section2Dates = new();
 
-        private String selectedResultSection = "";
+        private string selectedResultSection = "";
 
-        private String simJsonTxt = "";
-        private String cropJsonTxt = "";
-        private String siteJsonTxt = "";
-        //private String climateCsv = "";
+        private string simJsonTxt = "";
+        private string cropJsonTxt = "";
+        private string siteJsonTxt = "";
+        //private string climateCsv = "";
 
         private bool MonicaResultsChanged = false;
 
+        private class SoilProfile : Soil.IProfile
+        {
+            public List<Soil.Layer> Layers { get; set; } = new();
+            
+            public void Dispose()
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task<Persistent.SaveResults> Save(Persistent.SaveParams arg_, CancellationToken cancellationToken_ = default)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task<IdInformation> Info(CancellationToken cancellationToken_ = default)
+            {
+                throw new NotImplementedException();
+            }
+
+            public async Task<Soil.ProfileData> Data(CancellationToken cancellationToken_ = default)
+            {
+                return new Soil.ProfileData { Layers = Layers };
+            }
+
+            public Task<LatLonCoord> GeoLocation(CancellationToken cancellationToken_ = default)
+            {
+                throw new NotImplementedException();
+            }
+        }
+        
         private async Task RunMonicaModel()
         {
             if (MonicaInstanceCap == null || TimeSeriesCap == null) return;
 
-            //var files = new List<String> {
+            //var files = new List<string> {
             //    "Data-Full/sim-min.json", "Data-Full/crop-min.json", "Data-Full/site-min.json", "Data-Full/climate-min.csv"
             //};
 
@@ -686,7 +719,7 @@ namespace Mas.Infrastructure.BlazorComponents
             var menv = new Model.Env<Schema.Common.StructuredText>()
             {
                 TimeSeries = Capnp.Rpc.Proxy.Share(TimeSeriesCap),
-                SoilProfile = overwriteSoilProfile && profileLayers.Any() ? new Soil.Profile() { Layers = profileLayers } : null,
+                SoilProfile = overwriteSoilProfile && profileLayers.Any() ? new SoilProfile() { Layers = profileLayers } : null,
                 Rest = new Schema.Common.StructuredText()
                 {
                     Structure = new Schema.Common.StructuredText.structure { which = Schema.Common.StructuredText.structure.WHICH.Json },
@@ -709,15 +742,15 @@ namespace Mas.Infrastructure.BlazorComponents
                     if (section == null) continue;
 
                     var oids = section["outputIds"]?.Select(oid => {
-                        var dn = oid["displayName"]?.Value<String>();
-                        if (dn == null || dn.Length == 0) return oid["name"]?.Value<String>() ?? "no-name";
+                        var dn = oid["displayName"]?.Value<string>();
+                        if (dn == null || dn.Length == 0) return oid["name"]?.Value<string>() ?? "no-name";
                         else return dn;
                     });
 
-                    var sectionName = section["origSpec"]?.Value<String>()?.Trim(new char[] { '\"' });
+                    var sectionName = section["origSpec"]?.Value<string>()?.Trim(new char[] { '\"' });
                     if (sectionName != null)
                     {
-                        Section2Oid2Data[sectionName] = new Dictionary<String, IEnumerable<float>>();
+                        Section2Oid2Data[sectionName] = new Dictionary<string, IEnumerable<float>>();
 
                         var results = section["results"];
                         if (results != null && oids != null)

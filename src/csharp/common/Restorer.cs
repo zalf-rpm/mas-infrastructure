@@ -96,15 +96,15 @@ namespace Mas.Infrastructure.Common
         }
 
         static public string SturdyRefStr(P.SturdyRef sturdyRef) {
-            var id = sturdyRef.TheTransient.Vat.Id;
+            var id = sturdyRef.Vat.Id;
             var vatIdBytes = new byte[4 * 8];
             BitConverter.GetBytes(id.PublicKey0).CopyTo(vatIdBytes, 0);
             BitConverter.GetBytes(id.PublicKey1).CopyTo(vatIdBytes, 8);
             BitConverter.GetBytes(id.PublicKey2).CopyTo(vatIdBytes, 16);
             BitConverter.GetBytes(id.PublicKey3).CopyTo(vatIdBytes, 24);
             var vatIdBase64Url = ToBase64Url(Convert.ToBase64String(vatIdBytes));
-            var srTokenBase64Url = ToBase64Url(Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes((string)sturdyRef.TheTransient.LocalRef)));
-            return $"capnp://{vatIdBase64Url}@{sturdyRef.TheTransient.Vat.Address.Host}:{sturdyRef.TheTransient.Vat.Address.Port}/{srTokenBase64Url}";
+            //var srTokenBase64Url = ToBase64Url(Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes((string)sturdyRef.TheTransient.LocalRef)));
+            return $"capnp://{vatIdBase64Url}@{sturdyRef.Vat.Address.Host}:{sturdyRef.Vat.Address.Port}/{sturdyRef.LocalRef.Text}";
         }
 
         public void InstallCrossDomainMapping(string extSRT, P.VatId vatId, string intSRT) {
@@ -142,22 +142,20 @@ namespace Mas.Infrastructure.Common
             var vid = VatId;
             if(!BitConverter.IsLittleEndian) Array.Reverse(vid, 0, vid.Length);
 
-            return new Schema.Persistence.SturdyRef() {
-                TheTransient = new Schema.Persistence.SturdyRef.Transient(){
-                    Vat = new Schema.Persistence.VatPath {
-                        Id = new Schema.Persistence.VatId {
-                            PublicKey0 = BitConverter.ToUInt64(vid, 0),
-                            PublicKey1 = BitConverter.ToUInt64(vid, 8),
-                            PublicKey2 = BitConverter.ToUInt64(vid, 16),
-                            PublicKey3 = BitConverter.ToUInt64(vid, 24)
-                        },
-                        Address = new Schema.Persistence.Address {
-                            Host = TcpHost,
-                            Port = TcpPort
-                        }
+            return new Schema.Persistence.SturdyRef {
+                Vat = new Schema.Persistence.VatPath {
+                    Id = new Schema.Persistence.VatId {
+                        PublicKey0 = BitConverter.ToUInt64(vid, 0),
+                        PublicKey1 = BitConverter.ToUInt64(vid, 8),
+                        PublicKey2 = BitConverter.ToUInt64(vid, 16),
+                        PublicKey3 = BitConverter.ToUInt64(vid, 24)
                     },
-                    LocalRef = srToken
-                }
+                    Address = new Schema.Persistence.Address {
+                        Host = TcpHost,
+                        Port = TcpPort
+                    }
+                },
+                LocalRef = new Schema.Persistence.SturdyRef.Token { Text = srToken }
             };
         }
 
@@ -176,30 +174,31 @@ namespace Mas.Infrastructure.Common
         #region implementation of Mas.Schema.Persistence.Restorer
         public async Task<BareProxy> Restore(Mas.Schema.Persistence.Restorer.RestoreParams ps, 
             CancellationToken cancellationToken_ = default) {
-            var ds = (Capnp.DeserializerState)ps.LocalRef; 
-            var srToken = Capnp.CapnpSerializable.Create<string>(ds);
+            //var ds = (Capnp.DeserializerState)ps.LocalRef.Text; 
+            var srToken = ps.LocalRef.Text; //Capnp.CapnpSerializable.Create<string>(ds);
             //var sealedFor = ps.SealedFor;
 
             // is cross domain restore? then always query the remote restorer
-            if (_extSRT2VatIdAndIntSRT.ContainsKey(srToken)){
-                var (vatId, intSRT) = _extSRT2VatIdAndIntSRT[srToken];
+            if (_extSRT2VatIdAndIntSRT.TryGetValue(srToken, out var value)){
+                var (vatId, intSRT) = value;
                 if (_vatId2Restorer.TryGetValue(vatId, out var restorer)) {
-                    return await restorer.Restore(new Mas.Schema.Persistence.Restorer.RestoreParams{ LocalRef=intSRT});
+                    return await restorer.Restore(new Mas.Schema.Persistence.Restorer.RestoreParams
+                    {
+                        LocalRef=new Mas.Schema.Persistence.SturdyRef.Token { Text = intSRT }
+                    }, cancellationToken_);
                 }
             }
 
             // no remote restorer for cross domain available or just a normal restore
-            if (_srToken2Capability.ContainsKey(srToken)) {
-                var cap = _srToken2Capability[srToken];
-                if (cap is BareProxy bareProxy) {
-                    return Proxy.Share(bareProxy);
-                } else {
-                    var sharedProxy = Proxy.Share(cap);
-                    var bareProxy2 = new BareProxy(sharedProxy.ConsumedCap);
-                    return bareProxy2;// Proxy.Share(_srToken2Proxy[srToken]));
-                }
+            if (!_srToken2Capability.ContainsKey(srToken)) return null;
+            var cap = _srToken2Capability[srToken];
+            if (cap is BareProxy bareProxy) {
+                return Proxy.Share(bareProxy);
+            } else {
+                var sharedProxy = Proxy.Share(cap);
+                var bareProxy2 = new BareProxy(sharedProxy.ConsumedCap);
+                return bareProxy2;// Proxy.Share(_srToken2Proxy[srToken]));
             }
-            return null;
         }
         #endregion
 

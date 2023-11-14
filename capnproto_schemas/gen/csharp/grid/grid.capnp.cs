@@ -32,19 +32,20 @@ namespace Mas.Schema.Grid
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xe42973b29661e3c6UL), Proxy(typeof(Grid_Proxy)), Skeleton(typeof(Grid_Skeleton))]
     public interface IGrid : Mas.Schema.Common.IIdentifiable, Mas.Schema.Persistence.IPersistent
     {
-        Task<(Mas.Schema.Grid.Grid.Value, Mas.Schema.Grid.Grid.RowCol, Mas.Schema.Grid.Grid.RowCol, IReadOnlyList<Mas.Schema.Grid.Grid.AggregationPart>)> ClosestValueAt(Mas.Schema.Geo.LatLonCoord latlonCoord, bool ignoreNoData, ulong resolution, Mas.Schema.Grid.Aggregation agg, bool returnRowCols, bool includeAggParts, CancellationToken cancellationToken_ = default);
-        Task<ulong> Resolution(CancellationToken cancellationToken_ = default);
+        Task<(Mas.Schema.Grid.Grid.Value, Mas.Schema.Grid.Grid.RowCol, Mas.Schema.Grid.Grid.RowCol, IReadOnlyList<Mas.Schema.Grid.Grid.AggregationPart>)> ClosestValueAt(Mas.Schema.Geo.LatLonCoord latlonCoord, bool ignoreNoData, Mas.Schema.Grid.Grid.Resolution resolution, Mas.Schema.Grid.Aggregation agg, bool returnRowCols, bool includeAggParts, CancellationToken cancellationToken_ = default);
+        Task<Mas.Schema.Grid.Grid.Resolution> Resolution(CancellationToken cancellationToken_ = default);
         Task<(ulong, ulong)> Dimension(CancellationToken cancellationToken_ = default);
         Task<Mas.Schema.Grid.Grid.Value> NoDataValue(CancellationToken cancellationToken_ = default);
-        Task<(Mas.Schema.Grid.Grid.Value, IReadOnlyList<Mas.Schema.Grid.Grid.AggregationPart>)> ValueAt(ulong row, ulong col, ulong resolution, Mas.Schema.Grid.Aggregation agg, bool includeAggParts, CancellationToken cancellationToken_ = default);
+        Task<(Mas.Schema.Grid.Grid.Value, IReadOnlyList<Mas.Schema.Grid.Grid.AggregationPart>)> ValueAt(ulong row, ulong col, Mas.Schema.Grid.Grid.Resolution resolution, Mas.Schema.Grid.Aggregation agg, bool includeAggParts, CancellationToken cancellationToken_ = default);
         Task<(Mas.Schema.Geo.LatLonCoord, Mas.Schema.Geo.LatLonCoord, Mas.Schema.Geo.LatLonCoord, Mas.Schema.Geo.LatLonCoord)> LatLonBounds(bool useCellCenter, CancellationToken cancellationToken_ = default);
-        Task StreamCells(Mas.Schema.Grid.Grid.ICallback callback, ulong maxNoOfCellsPerSend, CancellationToken cancellationToken_ = default);
+        Task<Mas.Schema.Grid.Grid.ICallback> StreamCells(Mas.Schema.Grid.Grid.RowCol topLeft, Mas.Schema.Grid.Grid.RowCol bottomRight, CancellationToken cancellationToken_ = default);
+        Task<string> Unit(CancellationToken cancellationToken_ = default);
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xe42973b29661e3c6UL)]
     public class Grid_Proxy : Proxy, IGrid
     {
-        public async Task<(Mas.Schema.Grid.Grid.Value, Mas.Schema.Grid.Grid.RowCol, Mas.Schema.Grid.Grid.RowCol, IReadOnlyList<Mas.Schema.Grid.Grid.AggregationPart>)> ClosestValueAt(Mas.Schema.Geo.LatLonCoord latlonCoord, bool ignoreNoData, ulong resolution, Mas.Schema.Grid.Aggregation agg, bool returnRowCols, bool includeAggParts, CancellationToken cancellationToken_ = default)
+        public async Task<(Mas.Schema.Grid.Grid.Value, Mas.Schema.Grid.Grid.RowCol, Mas.Schema.Grid.Grid.RowCol, IReadOnlyList<Mas.Schema.Grid.Grid.AggregationPart>)> ClosestValueAt(Mas.Schema.Geo.LatLonCoord latlonCoord, bool ignoreNoData, Mas.Schema.Grid.Grid.Resolution resolution, Mas.Schema.Grid.Aggregation agg, bool returnRowCols, bool includeAggParts, CancellationToken cancellationToken_ = default)
         {
             var in_ = SerializerState.CreateForRpc<Mas.Schema.Grid.Grid.Params_ClosestValueAt.WRITER>();
             var arg_ = new Mas.Schema.Grid.Grid.Params_ClosestValueAt()
@@ -57,7 +58,7 @@ namespace Mas.Schema.Grid
             }
         }
 
-        public async Task<ulong> Resolution(CancellationToken cancellationToken_ = default)
+        public async Task<Mas.Schema.Grid.Grid.Resolution> Resolution(CancellationToken cancellationToken_ = default)
         {
             var in_ = SerializerState.CreateForRpc<Mas.Schema.Grid.Grid.Params_Resolution.WRITER>();
             var arg_ = new Mas.Schema.Grid.Grid.Params_Resolution()
@@ -96,7 +97,7 @@ namespace Mas.Schema.Grid
             }
         }
 
-        public async Task<(Mas.Schema.Grid.Grid.Value, IReadOnlyList<Mas.Schema.Grid.Grid.AggregationPart>)> ValueAt(ulong row, ulong col, ulong resolution, Mas.Schema.Grid.Aggregation agg, bool includeAggParts, CancellationToken cancellationToken_ = default)
+        public async Task<(Mas.Schema.Grid.Grid.Value, IReadOnlyList<Mas.Schema.Grid.Grid.AggregationPart>)> ValueAt(ulong row, ulong col, Mas.Schema.Grid.Grid.Resolution resolution, Mas.Schema.Grid.Aggregation agg, bool includeAggParts, CancellationToken cancellationToken_ = default)
         {
             var in_ = SerializerState.CreateForRpc<Mas.Schema.Grid.Grid.Params_ValueAt.WRITER>();
             var arg_ = new Mas.Schema.Grid.Grid.Params_ValueAt()
@@ -122,16 +123,34 @@ namespace Mas.Schema.Grid
             }
         }
 
-        public async Task StreamCells(Mas.Schema.Grid.Grid.ICallback callback, ulong maxNoOfCellsPerSend, CancellationToken cancellationToken_ = default)
+        public Task<Mas.Schema.Grid.Grid.ICallback> StreamCells(Mas.Schema.Grid.Grid.RowCol topLeft, Mas.Schema.Grid.Grid.RowCol bottomRight, CancellationToken cancellationToken_ = default)
         {
             var in_ = SerializerState.CreateForRpc<Mas.Schema.Grid.Grid.Params_StreamCells.WRITER>();
             var arg_ = new Mas.Schema.Grid.Grid.Params_StreamCells()
-            {Callback = callback, MaxNoOfCellsPerSend = maxNoOfCellsPerSend};
+            {TopLeft = topLeft, BottomRight = bottomRight};
             arg_?.serialize(in_);
-            using (var d_ = await Call(16440799125557076934UL, 6, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            return Impatient.MakePipelineAware(Call(16440799125557076934UL, 6, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_), d_ =>
             {
-                var r_ = CapnpSerializable.Create<Mas.Schema.Grid.Grid.Result_StreamCells>(d_);
-                return;
+                using (d_)
+                {
+                    var r_ = CapnpSerializable.Create<Mas.Schema.Grid.Grid.Result_StreamCells>(d_);
+                    return (r_.Callback);
+                }
+            }
+
+            );
+        }
+
+        public async Task<string> Unit(CancellationToken cancellationToken_ = default)
+        {
+            var in_ = SerializerState.CreateForRpc<Mas.Schema.Grid.Grid.Params_Unit.WRITER>();
+            var arg_ = new Mas.Schema.Grid.Grid.Params_Unit()
+            {};
+            arg_?.serialize(in_);
+            using (var d_ = await Call(16440799125557076934UL, 7, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
+            {
+                var r_ = CapnpSerializable.Create<Mas.Schema.Grid.Grid.Result_Unit>(d_);
+                return (r_.Unit);
             }
         }
 
@@ -165,7 +184,7 @@ namespace Mas.Schema.Grid
     {
         public Grid_Skeleton()
         {
-            SetMethodTable(ClosestValueAt, Resolution, Dimension, NoDataValue, ValueAt, LatLonBounds, StreamCells);
+            SetMethodTable(ClosestValueAt, Resolution, Dimension, NoDataValue, ValueAt, LatLonBounds, StreamCells, Unit);
         }
 
         public override ulong InterfaceId => 16440799125557076934UL;
@@ -268,14 +287,36 @@ namespace Mas.Schema.Grid
             }
         }
 
-        async Task<AnswerOrCounterquestion> StreamCells(DeserializerState d_, CancellationToken cancellationToken_)
+        Task<AnswerOrCounterquestion> StreamCells(DeserializerState d_, CancellationToken cancellationToken_)
         {
             using (d_)
             {
                 var in_ = CapnpSerializable.Create<Mas.Schema.Grid.Grid.Params_StreamCells>(d_);
-                await Impl.StreamCells(in_.Callback, in_.MaxNoOfCellsPerSend, cancellationToken_);
-                var s_ = SerializerState.CreateForRpc<Mas.Schema.Grid.Grid.Result_StreamCells.WRITER>();
-                return s_;
+                return Impatient.MaybeTailCall(Impl.StreamCells(in_.TopLeft, in_.BottomRight, cancellationToken_), callback =>
+                {
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Grid.Grid.Result_StreamCells.WRITER>();
+                    var r_ = new Mas.Schema.Grid.Grid.Result_StreamCells{Callback = callback};
+                    r_.serialize(s_);
+                    return s_;
+                }
+
+                );
+            }
+        }
+
+        Task<AnswerOrCounterquestion> Unit(DeserializerState d_, CancellationToken cancellationToken_)
+        {
+            using (d_)
+            {
+                return Impatient.MaybeTailCall(Impl.Unit(cancellationToken_), unit =>
+                {
+                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Grid.Grid.Result_Unit.WRITER>();
+                    var r_ = new Mas.Schema.Grid.Grid.Result_Unit{Unit = unit};
+                    r_.serialize(s_);
+                    return s_;
+                }
+
+                );
             }
         }
     }
@@ -471,6 +512,141 @@ namespace Mas.Schema.Grid
             }
         }
 
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xa9b6fbdd27e7577bUL)]
+        public class Resolution : ICapnpSerializable
+        {
+            public const UInt64 typeId = 0xa9b6fbdd27e7577bUL;
+            public enum WHICH : ushort
+            {
+                Meter = 0,
+                Degree = 1,
+                undefined = 65535
+            }
+
+            void ICapnpSerializable.Deserialize(DeserializerState arg_)
+            {
+                var reader = READER.create(arg_);
+                switch (reader.which)
+                {
+                    case WHICH.Meter:
+                        Meter = reader.Meter;
+                        break;
+                    case WHICH.Degree:
+                        Degree = reader.Degree;
+                        break;
+                }
+
+                applyDefaults();
+            }
+
+            private WHICH _which = WHICH.undefined;
+            private object _content;
+            public WHICH which
+            {
+                get => _which;
+                set
+                {
+                    if (value == _which)
+                        return;
+                    _which = value;
+                    switch (value)
+                    {
+                        case WHICH.Meter:
+                            _content = 0;
+                            break;
+                        case WHICH.Degree:
+                            _content = 0;
+                            break;
+                    }
+                }
+            }
+
+            public void serialize(WRITER writer)
+            {
+                writer.which = which;
+                switch (which)
+                {
+                    case WHICH.Meter:
+                        writer.Meter = Meter.Value;
+                        break;
+                    case WHICH.Degree:
+                        writer.Degree = Degree.Value;
+                        break;
+                }
+            }
+
+            void ICapnpSerializable.Serialize(SerializerState arg_)
+            {
+                serialize(arg_.Rewrap<WRITER>());
+            }
+
+            public void applyDefaults()
+            {
+            }
+
+            public long? Meter
+            {
+                get => _which == WHICH.Meter ? (long? )_content : null;
+                set
+                {
+                    _which = WHICH.Meter;
+                    _content = value;
+                }
+            }
+
+            public double? Degree
+            {
+                get => _which == WHICH.Degree ? (double? )_content : null;
+                set
+                {
+                    _which = WHICH.Degree;
+                    _content = value;
+                }
+            }
+
+            public struct READER
+            {
+                readonly DeserializerState ctx;
+                public READER(DeserializerState ctx)
+                {
+                    this.ctx = ctx;
+                }
+
+                public static READER create(DeserializerState ctx) => new READER(ctx);
+                public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                public WHICH which => (WHICH)ctx.ReadDataUShort(64U, (ushort)0);
+                public long Meter => which == WHICH.Meter ? ctx.ReadDataLong(0UL, 0L) : default;
+                public double Degree => which == WHICH.Degree ? ctx.ReadDataDouble(0UL, 0) : default;
+            }
+
+            public class WRITER : SerializerState
+            {
+                public WRITER()
+                {
+                    this.SetStruct(2, 0);
+                }
+
+                public WHICH which
+                {
+                    get => (WHICH)this.ReadDataUShort(64U, (ushort)0);
+                    set => this.WriteData(64U, (ushort)value, (ushort)0);
+                }
+
+                public long Meter
+                {
+                    get => which == WHICH.Meter ? this.ReadDataLong(0UL, 0L) : default;
+                    set => this.WriteData(0UL, value, 0L);
+                }
+
+                public double Degree
+                {
+                    get => which == WHICH.Degree ? this.ReadDataDouble(0UL, 0) : default;
+                    set => this.WriteData(0UL, value, 0);
+                }
+            }
+        }
+
         [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xb9e2d85d086206ffUL)]
         public class RowCol : ICapnpSerializable
         {
@@ -653,25 +829,118 @@ namespace Mas.Schema.Grid
             }
         }
 
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xb55ccf1b9ef18d64UL)]
+        public class Location : ICapnpSerializable
+        {
+            public const UInt64 typeId = 0xb55ccf1b9ef18d64UL;
+            void ICapnpSerializable.Deserialize(DeserializerState arg_)
+            {
+                var reader = READER.create(arg_);
+                LatLonCoord = CapnpSerializable.Create<Mas.Schema.Geo.LatLonCoord>(reader.LatLonCoord);
+                RowCol = CapnpSerializable.Create<Mas.Schema.Grid.Grid.RowCol>(reader.RowCol);
+                Value = CapnpSerializable.Create<Mas.Schema.Grid.Grid.Value>(reader.Value);
+                applyDefaults();
+            }
+
+            public void serialize(WRITER writer)
+            {
+                LatLonCoord?.serialize(writer.LatLonCoord);
+                RowCol?.serialize(writer.RowCol);
+                Value?.serialize(writer.Value);
+            }
+
+            void ICapnpSerializable.Serialize(SerializerState arg_)
+            {
+                serialize(arg_.Rewrap<WRITER>());
+            }
+
+            public void applyDefaults()
+            {
+            }
+
+            public Mas.Schema.Geo.LatLonCoord LatLonCoord
+            {
+                get;
+                set;
+            }
+
+            public Mas.Schema.Grid.Grid.RowCol RowCol
+            {
+                get;
+                set;
+            }
+
+            public Mas.Schema.Grid.Grid.Value Value
+            {
+                get;
+                set;
+            }
+
+            public struct READER
+            {
+                readonly DeserializerState ctx;
+                public READER(DeserializerState ctx)
+                {
+                    this.ctx = ctx;
+                }
+
+                public static READER create(DeserializerState ctx) => new READER(ctx);
+                public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                public Mas.Schema.Geo.LatLonCoord.READER LatLonCoord => ctx.ReadStruct(0, Mas.Schema.Geo.LatLonCoord.READER.create);
+                public bool HasLatLonCoord => ctx.IsStructFieldNonNull(0);
+                public Mas.Schema.Grid.Grid.RowCol.READER RowCol => ctx.ReadStruct(1, Mas.Schema.Grid.Grid.RowCol.READER.create);
+                public bool HasRowCol => ctx.IsStructFieldNonNull(1);
+                public Mas.Schema.Grid.Grid.Value.READER Value => ctx.ReadStruct(2, Mas.Schema.Grid.Grid.Value.READER.create);
+                public bool HasValue => ctx.IsStructFieldNonNull(2);
+            }
+
+            public class WRITER : SerializerState
+            {
+                public WRITER()
+                {
+                    this.SetStruct(0, 3);
+                }
+
+                public Mas.Schema.Geo.LatLonCoord.WRITER LatLonCoord
+                {
+                    get => BuildPointer<Mas.Schema.Geo.LatLonCoord.WRITER>(0);
+                    set => Link(0, value);
+                }
+
+                public Mas.Schema.Grid.Grid.RowCol.WRITER RowCol
+                {
+                    get => BuildPointer<Mas.Schema.Grid.Grid.RowCol.WRITER>(1);
+                    set => Link(1, value);
+                }
+
+                public Mas.Schema.Grid.Grid.Value.WRITER Value
+                {
+                    get => BuildPointer<Mas.Schema.Grid.Grid.Value.WRITER>(2);
+                    set => Link(2, value);
+                }
+            }
+        }
+
         [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xd639518280cb55d3UL), Proxy(typeof(Callback_Proxy)), Skeleton(typeof(Callback_Skeleton))]
         public interface ICallback : IDisposable
         {
-            Task SendCells(IReadOnlyList<Mas.Schema.Grid.Grid.RowCol> cells, CancellationToken cancellationToken_ = default);
+            Task<IReadOnlyList<Mas.Schema.Grid.Grid.Location>> SendCells(long maxCount, CancellationToken cancellationToken_ = default);
         }
 
         [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xd639518280cb55d3UL)]
         public class Callback_Proxy : Proxy, ICallback
         {
-            public async Task SendCells(IReadOnlyList<Mas.Schema.Grid.Grid.RowCol> cells, CancellationToken cancellationToken_ = default)
+            public async Task<IReadOnlyList<Mas.Schema.Grid.Grid.Location>> SendCells(long maxCount, CancellationToken cancellationToken_ = default)
             {
                 var in_ = SerializerState.CreateForRpc<Mas.Schema.Grid.Grid.Callback.Params_SendCells.WRITER>();
                 var arg_ = new Mas.Schema.Grid.Grid.Callback.Params_SendCells()
-                {Cells = cells};
+                {MaxCount = maxCount};
                 arg_?.serialize(in_);
                 using (var d_ = await Call(15436458818737493459UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
                 {
                     var r_ = CapnpSerializable.Create<Mas.Schema.Grid.Grid.Callback.Result_SendCells>(d_);
-                    return;
+                    return (r_.Locations);
                 }
             }
         }
@@ -685,14 +954,20 @@ namespace Mas.Schema.Grid
             }
 
             public override ulong InterfaceId => 15436458818737493459UL;
-            async Task<AnswerOrCounterquestion> SendCells(DeserializerState d_, CancellationToken cancellationToken_)
+            Task<AnswerOrCounterquestion> SendCells(DeserializerState d_, CancellationToken cancellationToken_)
             {
                 using (d_)
                 {
                     var in_ = CapnpSerializable.Create<Mas.Schema.Grid.Grid.Callback.Params_SendCells>(d_);
-                    await Impl.SendCells(in_.Cells, cancellationToken_);
-                    var s_ = SerializerState.CreateForRpc<Mas.Schema.Grid.Grid.Callback.Result_SendCells.WRITER>();
-                    return s_;
+                    return Impatient.MaybeTailCall(Impl.SendCells(in_.MaxCount, cancellationToken_), locations =>
+                    {
+                        var s_ = SerializerState.CreateForRpc<Mas.Schema.Grid.Grid.Callback.Result_SendCells.WRITER>();
+                        var r_ = new Mas.Schema.Grid.Grid.Callback.Result_SendCells{Locations = locations};
+                        r_.serialize(s_);
+                        return s_;
+                    }
+
+                    );
                 }
             }
         }
@@ -706,13 +981,13 @@ namespace Mas.Schema.Grid
                 void ICapnpSerializable.Deserialize(DeserializerState arg_)
                 {
                     var reader = READER.create(arg_);
-                    Cells = reader.Cells?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Grid.Grid.RowCol>(_));
+                    MaxCount = reader.MaxCount;
                     applyDefaults();
                 }
 
                 public void serialize(WRITER writer)
                 {
-                    writer.Cells.Init(Cells, (_s1, _v1) => _v1?.serialize(_s1));
+                    writer.MaxCount = MaxCount;
                 }
 
                 void ICapnpSerializable.Serialize(SerializerState arg_)
@@ -724,7 +999,7 @@ namespace Mas.Schema.Grid
                 {
                 }
 
-                public IReadOnlyList<Mas.Schema.Grid.Grid.RowCol> Cells
+                public long MaxCount
                 {
                     get;
                     set;
@@ -741,21 +1016,20 @@ namespace Mas.Schema.Grid
                     public static READER create(DeserializerState ctx) => new READER(ctx);
                     public static implicit operator DeserializerState(READER reader) => reader.ctx;
                     public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                    public IReadOnlyList<Mas.Schema.Grid.Grid.RowCol.READER> Cells => ctx.ReadList(0).Cast(Mas.Schema.Grid.Grid.RowCol.READER.create);
-                    public bool HasCells => ctx.IsStructFieldNonNull(0);
+                    public long MaxCount => ctx.ReadDataLong(0UL, 0L);
                 }
 
                 public class WRITER : SerializerState
                 {
                     public WRITER()
                     {
-                        this.SetStruct(0, 1);
+                        this.SetStruct(1, 0);
                     }
 
-                    public ListOfStructsSerializer<Mas.Schema.Grid.Grid.RowCol.WRITER> Cells
+                    public long MaxCount
                     {
-                        get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Grid.Grid.RowCol.WRITER>>(0);
-                        set => Link(0, value);
+                        get => this.ReadDataLong(0UL, 0L);
+                        set => this.WriteData(0UL, value, 0L);
                     }
                 }
             }
@@ -767,11 +1041,13 @@ namespace Mas.Schema.Grid
                 void ICapnpSerializable.Deserialize(DeserializerState arg_)
                 {
                     var reader = READER.create(arg_);
+                    Locations = reader.Locations?.ToReadOnlyList(_ => CapnpSerializable.Create<Mas.Schema.Grid.Grid.Location>(_));
                     applyDefaults();
                 }
 
                 public void serialize(WRITER writer)
                 {
+                    writer.Locations.Init(Locations, (_s1, _v1) => _v1?.serialize(_s1));
                 }
 
                 void ICapnpSerializable.Serialize(SerializerState arg_)
@@ -781,6 +1057,12 @@ namespace Mas.Schema.Grid
 
                 public void applyDefaults()
                 {
+                }
+
+                public IReadOnlyList<Mas.Schema.Grid.Grid.Location> Locations
+                {
+                    get;
+                    set;
                 }
 
                 public struct READER
@@ -794,13 +1076,21 @@ namespace Mas.Schema.Grid
                     public static READER create(DeserializerState ctx) => new READER(ctx);
                     public static implicit operator DeserializerState(READER reader) => reader.ctx;
                     public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                    public IReadOnlyList<Mas.Schema.Grid.Grid.Location.READER> Locations => ctx.ReadList(0).Cast(Mas.Schema.Grid.Grid.Location.READER.create);
+                    public bool HasLocations => ctx.IsStructFieldNonNull(0);
                 }
 
                 public class WRITER : SerializerState
                 {
                     public WRITER()
                     {
-                        this.SetStruct(0, 0);
+                        this.SetStruct(0, 1);
+                    }
+
+                    public ListOfStructsSerializer<Mas.Schema.Grid.Grid.Location.WRITER> Locations
+                    {
+                        get => BuildPointer<ListOfStructsSerializer<Mas.Schema.Grid.Grid.Location.WRITER>>(0);
+                        set => Link(0, value);
                     }
                 }
             }
@@ -815,7 +1105,7 @@ namespace Mas.Schema.Grid
                 var reader = READER.create(arg_);
                 LatlonCoord = CapnpSerializable.Create<Mas.Schema.Geo.LatLonCoord>(reader.LatlonCoord);
                 IgnoreNoData = reader.IgnoreNoData;
-                Resolution = reader.Resolution;
+                Resolution = CapnpSerializable.Create<Mas.Schema.Grid.Grid.Resolution>(reader.Resolution);
                 Agg = reader.Agg;
                 ReturnRowCols = reader.ReturnRowCols;
                 IncludeAggParts = reader.IncludeAggParts;
@@ -826,7 +1116,7 @@ namespace Mas.Schema.Grid
             {
                 LatlonCoord?.serialize(writer.LatlonCoord);
                 writer.IgnoreNoData = IgnoreNoData;
-                writer.Resolution = Resolution;
+                Resolution?.serialize(writer.Resolution);
                 writer.Agg = Agg;
                 writer.ReturnRowCols = ReturnRowCols;
                 writer.IncludeAggParts = IncludeAggParts;
@@ -854,13 +1144,12 @@ namespace Mas.Schema.Grid
             }
 
             = true;
-            public ulong Resolution
+            public Mas.Schema.Grid.Grid.Resolution Resolution
             {
                 get;
                 set;
             }
 
-            = 0UL;
             public Mas.Schema.Grid.Aggregation Agg
             {
                 get;
@@ -896,7 +1185,8 @@ namespace Mas.Schema.Grid
                 public Mas.Schema.Geo.LatLonCoord.READER LatlonCoord => ctx.ReadStruct(0, Mas.Schema.Geo.LatLonCoord.READER.create);
                 public bool HasLatlonCoord => ctx.IsStructFieldNonNull(0);
                 public bool IgnoreNoData => ctx.ReadDataBool(0UL, true);
-                public ulong Resolution => ctx.ReadDataULong(64UL, 0UL);
+                public Mas.Schema.Grid.Grid.Resolution.READER Resolution => ctx.ReadStruct(1, Mas.Schema.Grid.Grid.Resolution.READER.create);
+                public bool HasResolution => ctx.IsStructFieldNonNull(1);
                 public Mas.Schema.Grid.Aggregation Agg => (Mas.Schema.Grid.Aggregation)ctx.ReadDataUShort(16UL, (ushort)0);
                 public bool ReturnRowCols => ctx.ReadDataBool(1UL, false);
                 public bool IncludeAggParts => ctx.ReadDataBool(2UL, false);
@@ -906,7 +1196,7 @@ namespace Mas.Schema.Grid
             {
                 public WRITER()
                 {
-                    this.SetStruct(2, 1);
+                    this.SetStruct(1, 2);
                 }
 
                 public Mas.Schema.Geo.LatLonCoord.WRITER LatlonCoord
@@ -921,10 +1211,10 @@ namespace Mas.Schema.Grid
                     set => this.WriteData(0UL, value, true);
                 }
 
-                public ulong Resolution
+                public Mas.Schema.Grid.Grid.Resolution.WRITER Resolution
                 {
-                    get => this.ReadDataULong(64UL, 0UL);
-                    set => this.WriteData(64UL, value, 0UL);
+                    get => BuildPointer<Mas.Schema.Grid.Grid.Resolution.WRITER>(1);
+                    set => Link(1, value);
                 }
 
                 public Mas.Schema.Grid.Aggregation Agg
@@ -1108,13 +1398,13 @@ namespace Mas.Schema.Grid
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                Res = reader.Res;
+                Res = CapnpSerializable.Create<Mas.Schema.Grid.Grid.Resolution>(reader.Res);
                 applyDefaults();
             }
 
             public void serialize(WRITER writer)
             {
-                writer.Res = Res;
+                Res?.serialize(writer.Res);
             }
 
             void ICapnpSerializable.Serialize(SerializerState arg_)
@@ -1126,7 +1416,7 @@ namespace Mas.Schema.Grid
             {
             }
 
-            public ulong Res
+            public Mas.Schema.Grid.Grid.Resolution Res
             {
                 get;
                 set;
@@ -1143,20 +1433,21 @@ namespace Mas.Schema.Grid
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public ulong Res => ctx.ReadDataULong(0UL, 0UL);
+                public Mas.Schema.Grid.Grid.Resolution.READER Res => ctx.ReadStruct(0, Mas.Schema.Grid.Grid.Resolution.READER.create);
+                public bool HasRes => ctx.IsStructFieldNonNull(0);
             }
 
             public class WRITER : SerializerState
             {
                 public WRITER()
                 {
-                    this.SetStruct(1, 0);
+                    this.SetStruct(0, 1);
                 }
 
-                public ulong Res
+                public Mas.Schema.Grid.Grid.Resolution.WRITER Res
                 {
-                    get => this.ReadDataULong(0UL, 0UL);
-                    set => this.WriteData(0UL, value, 0UL);
+                    get => BuildPointer<Mas.Schema.Grid.Grid.Resolution.WRITER>(0);
+                    set => Link(0, value);
                 }
             }
         }
@@ -1396,7 +1687,7 @@ namespace Mas.Schema.Grid
                 var reader = READER.create(arg_);
                 Row = reader.Row;
                 Col = reader.Col;
-                Resolution = reader.Resolution;
+                Resolution = CapnpSerializable.Create<Mas.Schema.Grid.Grid.Resolution>(reader.Resolution);
                 Agg = reader.Agg;
                 IncludeAggParts = reader.IncludeAggParts;
                 applyDefaults();
@@ -1406,7 +1697,7 @@ namespace Mas.Schema.Grid
             {
                 writer.Row = Row;
                 writer.Col = Col;
-                writer.Resolution = Resolution;
+                Resolution?.serialize(writer.Resolution);
                 writer.Agg = Agg;
                 writer.IncludeAggParts = IncludeAggParts;
             }
@@ -1432,7 +1723,7 @@ namespace Mas.Schema.Grid
                 set;
             }
 
-            public ulong Resolution
+            public Mas.Schema.Grid.Grid.Resolution Resolution
             {
                 get;
                 set;
@@ -1465,16 +1756,17 @@ namespace Mas.Schema.Grid
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
                 public ulong Row => ctx.ReadDataULong(0UL, 0UL);
                 public ulong Col => ctx.ReadDataULong(64UL, 0UL);
-                public ulong Resolution => ctx.ReadDataULong(128UL, 0UL);
-                public Mas.Schema.Grid.Aggregation Agg => (Mas.Schema.Grid.Aggregation)ctx.ReadDataUShort(192UL, (ushort)0);
-                public bool IncludeAggParts => ctx.ReadDataBool(208UL, false);
+                public Mas.Schema.Grid.Grid.Resolution.READER Resolution => ctx.ReadStruct(0, Mas.Schema.Grid.Grid.Resolution.READER.create);
+                public bool HasResolution => ctx.IsStructFieldNonNull(0);
+                public Mas.Schema.Grid.Aggregation Agg => (Mas.Schema.Grid.Aggregation)ctx.ReadDataUShort(128UL, (ushort)0);
+                public bool IncludeAggParts => ctx.ReadDataBool(144UL, false);
             }
 
             public class WRITER : SerializerState
             {
                 public WRITER()
                 {
-                    this.SetStruct(4, 0);
+                    this.SetStruct(3, 1);
                 }
 
                 public ulong Row
@@ -1489,22 +1781,22 @@ namespace Mas.Schema.Grid
                     set => this.WriteData(64UL, value, 0UL);
                 }
 
-                public ulong Resolution
+                public Mas.Schema.Grid.Grid.Resolution.WRITER Resolution
                 {
-                    get => this.ReadDataULong(128UL, 0UL);
-                    set => this.WriteData(128UL, value, 0UL);
+                    get => BuildPointer<Mas.Schema.Grid.Grid.Resolution.WRITER>(0);
+                    set => Link(0, value);
                 }
 
                 public Mas.Schema.Grid.Aggregation Agg
                 {
-                    get => (Mas.Schema.Grid.Aggregation)this.ReadDataUShort(192UL, (ushort)0);
-                    set => this.WriteData(192UL, (ushort)value, (ushort)0);
+                    get => (Mas.Schema.Grid.Aggregation)this.ReadDataUShort(128UL, (ushort)0);
+                    set => this.WriteData(128UL, (ushort)value, (ushort)0);
                 }
 
                 public bool IncludeAggParts
                 {
-                    get => this.ReadDataBool(208UL, false);
-                    set => this.WriteData(208UL, value, false);
+                    get => this.ReadDataBool(144UL, false);
+                    set => this.WriteData(144UL, value, false);
                 }
             }
         }
@@ -1763,15 +2055,90 @@ namespace Mas.Schema.Grid
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
+                TopLeft = CapnpSerializable.Create<Mas.Schema.Grid.Grid.RowCol>(reader.TopLeft);
+                BottomRight = CapnpSerializable.Create<Mas.Schema.Grid.Grid.RowCol>(reader.BottomRight);
+                applyDefaults();
+            }
+
+            public void serialize(WRITER writer)
+            {
+                TopLeft?.serialize(writer.TopLeft);
+                BottomRight?.serialize(writer.BottomRight);
+            }
+
+            void ICapnpSerializable.Serialize(SerializerState arg_)
+            {
+                serialize(arg_.Rewrap<WRITER>());
+            }
+
+            public void applyDefaults()
+            {
+            }
+
+            public Mas.Schema.Grid.Grid.RowCol TopLeft
+            {
+                get;
+                set;
+            }
+
+            public Mas.Schema.Grid.Grid.RowCol BottomRight
+            {
+                get;
+                set;
+            }
+
+            public struct READER
+            {
+                readonly DeserializerState ctx;
+                public READER(DeserializerState ctx)
+                {
+                    this.ctx = ctx;
+                }
+
+                public static READER create(DeserializerState ctx) => new READER(ctx);
+                public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                public Mas.Schema.Grid.Grid.RowCol.READER TopLeft => ctx.ReadStruct(0, Mas.Schema.Grid.Grid.RowCol.READER.create);
+                public bool HasTopLeft => ctx.IsStructFieldNonNull(0);
+                public Mas.Schema.Grid.Grid.RowCol.READER BottomRight => ctx.ReadStruct(1, Mas.Schema.Grid.Grid.RowCol.READER.create);
+                public bool HasBottomRight => ctx.IsStructFieldNonNull(1);
+            }
+
+            public class WRITER : SerializerState
+            {
+                public WRITER()
+                {
+                    this.SetStruct(0, 2);
+                }
+
+                public Mas.Schema.Grid.Grid.RowCol.WRITER TopLeft
+                {
+                    get => BuildPointer<Mas.Schema.Grid.Grid.RowCol.WRITER>(0);
+                    set => Link(0, value);
+                }
+
+                public Mas.Schema.Grid.Grid.RowCol.WRITER BottomRight
+                {
+                    get => BuildPointer<Mas.Schema.Grid.Grid.RowCol.WRITER>(1);
+                    set => Link(1, value);
+                }
+            }
+        }
+
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x9b8dd52b78a7ebd2UL)]
+        public class Result_StreamCells : ICapnpSerializable
+        {
+            public const UInt64 typeId = 0x9b8dd52b78a7ebd2UL;
+            void ICapnpSerializable.Deserialize(DeserializerState arg_)
+            {
+                var reader = READER.create(arg_);
                 Callback = reader.Callback;
-                MaxNoOfCellsPerSend = reader.MaxNoOfCellsPerSend;
                 applyDefaults();
             }
 
             public void serialize(WRITER writer)
             {
                 writer.Callback = Callback;
-                writer.MaxNoOfCellsPerSend = MaxNoOfCellsPerSend;
             }
 
             void ICapnpSerializable.Serialize(SerializerState arg_)
@@ -1789,13 +2156,6 @@ namespace Mas.Schema.Grid
                 set;
             }
 
-            public ulong MaxNoOfCellsPerSend
-            {
-                get;
-                set;
-            }
-
-            = 100UL;
             public struct READER
             {
                 readonly DeserializerState ctx;
@@ -1808,14 +2168,13 @@ namespace Mas.Schema.Grid
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
                 public Mas.Schema.Grid.Grid.ICallback Callback => ctx.ReadCap<Mas.Schema.Grid.Grid.ICallback>(0);
-                public ulong MaxNoOfCellsPerSend => ctx.ReadDataULong(0UL, 100UL);
             }
 
             public class WRITER : SerializerState
             {
                 public WRITER()
                 {
-                    this.SetStruct(1, 1);
+                    this.SetStruct(0, 1);
                 }
 
                 public Mas.Schema.Grid.Grid.ICallback Callback
@@ -1823,19 +2182,13 @@ namespace Mas.Schema.Grid
                     get => ReadCap<Mas.Schema.Grid.Grid.ICallback>(0);
                     set => LinkObject(0, value);
                 }
-
-                public ulong MaxNoOfCellsPerSend
-                {
-                    get => this.ReadDataULong(0UL, 100UL);
-                    set => this.WriteData(0UL, value, 100UL);
-                }
             }
         }
 
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x9b8dd52b78a7ebd2UL)]
-        public class Result_StreamCells : ICapnpSerializable
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xbb4e4368bb6a6748UL)]
+        public class Params_Unit : ICapnpSerializable
         {
-            public const UInt64 typeId = 0x9b8dd52b78a7ebd2UL;
+            public const UInt64 typeId = 0xbb4e4368bb6a6748UL;
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
@@ -1873,6 +2226,66 @@ namespace Mas.Schema.Grid
                 public WRITER()
                 {
                     this.SetStruct(0, 0);
+                }
+            }
+        }
+
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xd170e76dbd9fc4fbUL)]
+        public class Result_Unit : ICapnpSerializable
+        {
+            public const UInt64 typeId = 0xd170e76dbd9fc4fbUL;
+            void ICapnpSerializable.Deserialize(DeserializerState arg_)
+            {
+                var reader = READER.create(arg_);
+                Unit = reader.Unit;
+                applyDefaults();
+            }
+
+            public void serialize(WRITER writer)
+            {
+                writer.Unit = Unit;
+            }
+
+            void ICapnpSerializable.Serialize(SerializerState arg_)
+            {
+                serialize(arg_.Rewrap<WRITER>());
+            }
+
+            public void applyDefaults()
+            {
+            }
+
+            public string Unit
+            {
+                get;
+                set;
+            }
+
+            public struct READER
+            {
+                readonly DeserializerState ctx;
+                public READER(DeserializerState ctx)
+                {
+                    this.ctx = ctx;
+                }
+
+                public static READER create(DeserializerState ctx) => new READER(ctx);
+                public static implicit operator DeserializerState(READER reader) => reader.ctx;
+                public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
+                public string Unit => ctx.ReadText(0, null);
+            }
+
+            public class WRITER : SerializerState
+            {
+                public WRITER()
+                {
+                    this.SetStruct(0, 1);
+                }
+
+                public string Unit
+                {
+                    get => this.ReadText(0, null);
+                    set => this.WriteText(0, value, null);
                 }
             }
         }
