@@ -64,7 +64,7 @@ class MultiTimeSeries(climate_data_capnp.TimeSeries.Server):
         end_date = start_date + timedelta(days=no_of_days - 1)
         new_data_t = []
         if start_date <= self._end_date:
-            td = self._end_date - start_date + 1
+            td = (self._end_date - start_date) + timedelta(days=1)
             for ds, ds_ in zip(self._data_t, data_t):
                 nds = list(ds[:-td.days])
                 nds.extend(ds_)
@@ -75,7 +75,7 @@ class MultiTimeSeries(climate_data_capnp.TimeSeries.Server):
                 nds.extend(ds_)
                 new_data_t.append(nds)
         elif end_date >= self._start_date:
-            td = end_date - self.start_date + 1
+            td = (end_date - self.start_date) + timedelta(days=1)
             for ds, ds_ in zip(self._data_t, data_t):
                 nds = list(ds_)
                 nds.extend(ds[td.days:])
