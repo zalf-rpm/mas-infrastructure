@@ -126,9 +126,6 @@ Errors SoilParameters::merge(json11::Json j) {
   auto st = vs_SoilTexture;
   // use internally just uppercase chars
   vs_SoilTexture = Tools::toUpper(vs_SoilTexture);
-  if (KA5texture2sand(vs_SoilTexture).failure()) {
-    es.appendError(kj::str("KA5TextureClass (", st, ") is unknown.").cStr());
-  }
 
   if (vs_SoilSandContent < 0 && !vs_SoilTexture.empty()) {
     auto res = KA5texture2sand(vs_SoilTexture);
@@ -170,6 +167,9 @@ Errors SoilParameters::merge(json11::Json j) {
 
   if (vs_Lambda < 0) vs_Lambda = sandAndClay2lambda(vs_SoilSandContent, vs_SoilClayContent);
 
+  if (KA5texture2sand(vs_SoilTexture).failure()) {
+    es.appendError(kj::str("KA5TextureClass (", st, ") is unknown.").cStr());
+  }
   if (vs_SoilSandContent < 0 || vs_SoilSandContent > 1.0){
     es.appendError(kj::str("Sand content (", vs_SoilSandContent, ") is out of bounds [0, 1].").cStr());
   }
@@ -203,8 +203,6 @@ Errors SoilParameters::merge(json11::Json j) {
   if (_vs_SoilOrganicMatter < 0 && (_vs_SoilOrganicCarbon < 0 || _vs_SoilOrganicCarbon > 100)){
     es.appendError(kj::str("SoilOrganicCarbon content (", _vs_SoilOrganicCarbon, ") is out of bounds [0, 100].").cStr());
   }
-  set_double_value(_vs_SoilOrganicMatter, j, "SoilOrganicMatter",
-                   transformIfPercent("SoilOrganicMatter"));
   if (_vs_SoilOrganicCarbon < 0 && (_vs_SoilOrganicMatter < 0 || _vs_SoilOrganicMatter > 1.0)){
     es.appendError(kj::str("SoilOrganicMatter content (", _vs_SoilOrganicMatter, ") is out of bounds [0, 1].").cStr());
   }
