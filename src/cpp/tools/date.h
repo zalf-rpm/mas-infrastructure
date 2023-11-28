@@ -95,6 +95,9 @@ public:
   static Date fromIsoDateString(const std::string &isoDateString,
                                 bool useLeapYears = DEFAULT_USE_LEAP_YEARS);
 
+  static Date fromPatternDateString(const std::string &isoDateString, const std::string &pattern,
+                                    bool useLeapYears = DEFAULT_USE_LEAP_YEARS);
+
   Date(const Date &other) = default;
 
   Date(Date &&other) noexcept;

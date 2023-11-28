@@ -56,6 +56,7 @@ struct CSVViaHeaderOptions : public Tools::Json11Serializable {
   std::map<std::string, std::string> headerName2ACDName;
   std::map<std::string, std::pair<std::string, double>> convert;
   std::map<Climate::ACD, std::function<double(double)>> convertFn;
+  std::string datePattern;
 };
 
 Tools::EResult<Climate::DataAccessor>

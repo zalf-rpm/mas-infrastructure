@@ -53,6 +53,11 @@ Tools::Errors CSVViaHeaderOptions::merge(json11::Json j) {
     if (p.second.is_array() && p.second.array_items().size() == 3) {
       headerNames[p.first] = p.second[0].string_value();
       convert[p.first] = make_pair(p.second[1].string_value(), p.second[2].number_value());
+    } else if (p.second.is_array() && p.second.array_items().size() == 2) {
+      if (p.second[0].string_value() == "pattern-date"){
+        headerNames[p.first] = p.second[0].string_value();
+        datePattern = p.second[1].string_value();
+      }
     } else {
       headerNames[p.first] = p.second.string_value();
     }
@@ -312,6 +317,7 @@ Climate::readClimateDataFromCSVInputStream(std::istream& is,
           case month: date.setMonth((uint8_t)stoul(r.at(i))); break;
           case year: date.setYear((uint16_t)stoul(r.at(i))); break;
           case isoDate: date = Date::fromIsoDateString(r.at(i)); break;
+          case patternDate: date = Date::fromPatternDateString(r.at(i), options.datePattern); break;
           case deDate:
           {
             auto dmy = splitString(r.at(i), ".");

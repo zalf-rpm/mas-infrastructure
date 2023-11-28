@@ -58,7 +58,8 @@ enum AvailableClimateData {
   co2,
   o3,
   et0,
-  skip
+  skip,
+  patternDate
 };
 
 //! just a shortcut to the quite long name
@@ -87,7 +88,8 @@ inline std::map<std::string, ACD> name2acd() {
        {"iso-date",    isoDate},
        {"de-date",     deDate},
        {"skip",        skip},
-       {"et0",         et0}
+       {"et0",         et0},
+       {"pattern-date", patternDate}
       };
 };
 
