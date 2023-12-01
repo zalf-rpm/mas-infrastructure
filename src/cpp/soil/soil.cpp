@@ -146,33 +146,38 @@ Errors SoilParameters::merge(json11::Json j) {
   // restrict sceleton to 80%, else FC, PWP and SAT could be calculated too low, so that the water transport algorithm gets instable
   if (vs_SoilStoneContent > 0) vs_SoilStoneContent = min(vs_SoilStoneContent, 0.8);
 
-  auto res = vs_SoilTexture.empty()
-             ? fcSatPwpFromVanGenuchten(vs_SoilSandContent,
-                                        vs_SoilClayContent,
-                                        vs_SoilStoneContent,
-                                        vs_SoilBulkDensity(),
-                                        vs_SoilOrganicCarbon())
-             : fcSatPwpFromKA5textureClass(vs_SoilTexture,
-                                           vs_SoilStoneContent,
-                                           vs_SoilRawDensity(),
-                                           vs_SoilOrganicMatter());
-  if (vs_FieldCapacity < 0) vs_FieldCapacity = res.fc;
-  if (vs_Saturation < 0) vs_Saturation = res.sat;
-  if (vs_PermanentWiltingPoint < 0) vs_PermanentWiltingPoint = res.pwp;
+  if (vs_FieldCapacity < 0 || vs_Saturation < 0 || vs_PermanentWiltingPoint < 0) {
+    auto res = vs_SoilTexture.empty()
+               ? fcSatPwpFromVanGenuchten(vs_SoilSandContent,
+                                          vs_SoilClayContent,
+                                          vs_SoilStoneContent,
+                                          vs_SoilBulkDensity(),
+                                          vs_SoilOrganicCarbon())
+               : fcSatPwpFromKA5textureClass(vs_SoilTexture,
+                                             vs_SoilStoneContent,
+                                             vs_SoilRawDensity(),
+                                             vs_SoilOrganicMatter());
+    if (vs_FieldCapacity < 0) vs_FieldCapacity = res.fc;
+    if (vs_Saturation < 0) vs_Saturation = res.sat;
+    if (vs_PermanentWiltingPoint < 0) vs_PermanentWiltingPoint = res.pwp;
+  }
+  bool fcSatPwpSet = vs_FieldCapacity > 0 && vs_Saturation > 0 && vs_PermanentWiltingPoint > 0;
 
   // restrict FC, PWP and SAT else the water transport algorithm gets instable
   vs_FieldCapacity = max(0.08, vs_FieldCapacity);
   vs_PermanentWiltingPoint = max(0.05, vs_PermanentWiltingPoint);
   vs_Saturation = max(0.1, vs_Saturation);
 
-  if (vs_Lambda < 0) vs_Lambda = sandAndClay2lambda(vs_SoilSandContent, vs_SoilClayContent);
+  if (vs_Lambda < 0 && vs_SoilSandContent > 0 && vs_SoilClayContent > 0) {
+    vs_Lambda = sandAndClay2lambda(vs_SoilSandContent, vs_SoilClayContent);
+  }
 
-  if (KA5texture2sand(vs_SoilTexture).failure()) {
+  if (!vs_SoilTexture.empty() && KA5texture2sand(vs_SoilTexture).failure()) {
     es.appendError(kj::str("KA5TextureClass (", st, ") is unknown.").cStr());
   }
-  if (vs_SoilSandContent < 0 || vs_SoilSandContent > 1.0){
-    es.appendError(kj::str("Sand content (", vs_SoilSandContent, ") is out of bounds [0, 1].").cStr());
-  }
+  //if (vs_SoilSandContent < 0 || vs_SoilSandContent > 1.0){
+  //  es.appendError(kj::str("Sand content (", vs_SoilSandContent, ") is out of bounds [0, 1].").cStr());
+  //}
   if (vs_SoilClayContent < 0 || vs_SoilClayContent > 1.0){
     es.appendError(kj::str("Clay content (", vs_SoilClayContent, ") is out of bounds [0, 1].").cStr());
   }
@@ -200,8 +205,8 @@ Errors SoilParameters::merge(json11::Json j) {
   if (_vs_SoilBulkDensity < 0 || _vs_SoilBulkDensity > 2000){
     es.appendWarning(kj::str("SoilBulkDensity (", _vs_SoilBulkDensity, ") is out of bounds [0, 2000].").cStr());
   }
-  if (_vs_SoilOrganicMatter < 0 && (_vs_SoilOrganicCarbon < 0 || _vs_SoilOrganicCarbon > 100)){
-    es.appendError(kj::str("SoilOrganicCarbon content (", _vs_SoilOrganicCarbon, ") is out of bounds [0, 100].").cStr());
+  if (_vs_SoilOrganicMatter < 0 && (_vs_SoilOrganicCarbon < 0 || _vs_SoilOrganicCarbon > 1.0)){
+    es.appendError(kj::str("SoilOrganicCarbon content (", _vs_SoilOrganicCarbon, ") is out of bounds [0, 1].").cStr());
   }
   if (_vs_SoilOrganicCarbon < 0 && (_vs_SoilOrganicMatter < 0 || _vs_SoilOrganicMatter > 1.0)){
     es.appendError(kj::str("SoilOrganicMatter content (", _vs_SoilOrganicMatter, ") is out of bounds [0, 1].").cStr());
@@ -428,7 +433,7 @@ double SoilParameters::sandAndClay2lambda(double sand, double clay) {
   return ::sandAndClay2lambda(sand, clay);
 }
 
-std::pair<SoilPMs, Errors> Soil::createSoilPMs(const J11Array &jsonSoilPMs) {
+std::pair<SoilPMs, Errors> Soil::createSoilPMs(const J11Array &jsonSoilPMs, double layerThickness, int numberOfLayers) {
   Errors errors;
 
   auto transformIfNotMeters = [&](const Json &j, const string& key) -> std::function<double(double)> {
@@ -448,19 +453,18 @@ std::pair<SoilPMs, Errors> Soil::createSoilPMs(const J11Array &jsonSoilPMs) {
   for (size_t spi = 0, spsCount = jsonSoilPMs.size(); spi < spsCount; spi++) {
     const Json& sp = jsonSoilPMs.at(spi);
 
-
-
     //repeat layers if there is an associated Thickness parameter
     string err;
     int repeatLayer = 1;
     if (!sp["Thickness"].is_null()) {
       auto transf = transformIfNotMeters(sp, "Thickness");
-      auto noOfLayers = Tools::roundRT<int>(transf(double_valueD(sp, "Thickness", 0.1)) * 10.0, 0);
-      repeatLayer = min(max(1, noOfLayers), 20 - layerCount);
+      auto lt = transf(double_valueD(sp, "Thickness", layerThickness));
+      auto noOfMonicaLayers = Tools::roundRT<int>(lt / layerThickness, 0);
+      repeatLayer = min(max(1, noOfMonicaLayers), numberOfLayers - layerCount);
     }
 
     //simply repeat the last layer as often as necessary to fill the 20 layers
-    if (spi + 1 == spsCount) repeatLayer = 20 - layerCount;
+    if (spi + 1 == spsCount) repeatLayer = numberOfLayers - layerCount;
 
     for (int i = 1; i <= repeatLayer; i++) {
       SoilParameters sps;

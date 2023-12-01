@@ -119,7 +119,8 @@ const CapillaryRiseRates& readCapillaryRiseRates();
 typedef std::vector<SoilParameters> SoilPMs;
 typedef std::shared_ptr<SoilPMs> SoilPMsPtr;
 
-std::pair<SoilPMs, Tools::Errors> createSoilPMs(const Tools::J11Array& jsonSoilPMs);
+std::pair<SoilPMs, Tools::Errors> createSoilPMs(const Tools::J11Array& jsonSoilPMs, double layerThickness = 0.1,
+                                                int numberOfLayers = 20);
 
 //! creates a concatenated string of the KA5 soil-textures making up the soil-profile with the given id
 //std::string soilProfileId2KA5Layers(const std::string& abstractDbSchema,

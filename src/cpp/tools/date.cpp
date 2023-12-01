@@ -158,11 +158,13 @@ Date Date::fromPatternDateString(const std::string &dateString, const std::strin
   std::string year_str;
   std::string month_str;
   std::string day_str;
+  bool isDOY = false;
   for (int i = 0; i < pattern.size() && i < dateString.size(); i++){
     switch (pattern[i]) {
       case 'Y':
       case 'y':
-        year_str.push_back(dateString[i]);
+        if (isDOY) day_str.push_back(dateString[i]);
+        else year_str.push_back(dateString[i]);
         break;
       case 'M':
       case 'm':
@@ -172,17 +174,29 @@ Date Date::fromPatternDateString(const std::string &dateString, const std::strin
       case 'd':
         day_str.push_back(dateString[i]);
         break;
+      case 'O':
+      case 'o':
+        day_str.push_back(dateString[i]);
+        isDOY = true;
+        break;
     }
   }
 
-  auto year = (uint16_t) stoul(year_str);
-  auto month = (uint8_t) stoul(month_str);
-  auto day = (uint8_t) stoul(day_str);
-  //cout << day << "." << month << "." << year << endl;
+  if (isDOY) {
+    auto year = (uint16_t) stoul(year_str);
+    auto doy = (uint16_t) stoul(day_str);
+    //cout << day << "." << month << "." << year << endl;
+    return julianDate(doy, year, year < 100, useLeapYears);
+  } else {
+    auto year = (uint16_t) stoul(year_str);
+    auto month = (uint8_t) stoul(month_str);
+    auto day = (uint8_t) stoul(day_str);
+    //cout << day << "." << month << "." << year << endl;
 
-  return year < 100
-         ? relativeDate(day, month, year, useLeapYears)
-         : Date(day, month, year, false, false, useLeapYears);
+    return year < 100
+           ? relativeDate(day, month, year, useLeapYears)
+           : Date(day, month, year, false, false, useLeapYears);
+  }
 }
 
 Date::Date(Date &&other) noexcept
