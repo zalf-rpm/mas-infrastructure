@@ -1,0 +1,19 @@
+﻿@page "/demos/performance"
+@layout DemoLayout
+@inherits PerformanceCompoent
+@inject LayoutData LayoutData
+
+@code {
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        LayoutData.Title = "Performance";
+        LayoutData.Info = "This diagram contains 100 nodes and 50 links";
+        LayoutData.DataChanged();
+    }
+}
+
+<CascadingValue Value="diagram">
+    <DiagramCanvas></DiagramCanvas>
+</CascadingValue>

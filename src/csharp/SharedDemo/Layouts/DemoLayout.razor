@@ -1,0 +1,113 @@
+﻿@inherits LayoutComponentBase
+@inject LayoutData LayoutData
+
+@code {
+    private bool collapseNavMenu = false;
+
+    private string NavMenuCssClass => collapseNavMenu ? "toggled" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        LayoutData.OnDataChanged = () => StateHasChanged();
+    }
+}
+
+@if (LayoutData.Info != null)
+{
+    <div class="floating alert alert-primary" role="alert">
+        <h4 class="alert-heading">@LayoutData.Title</h4>
+        <p>@((MarkupString)LayoutData.Info)</p>
+    </div>
+}
+
+<div class="d-flex @NavMenuCssClass" id="wrapper">
+    <div class="bg-light border-right" id="sidebar-wrapper">
+        <div class="sidebar-heading">Demos</div>
+        <ul class="list-group list-group-flush">
+            <DemoMenu Href="demos/simple" Text="Simple" />
+            <DemoMenu Href="demos/locked" Text="Locked" />
+            <DemoMenu Href="demos/events" Text="Events" />
+            <DemoMenu Href="demos/dynamic-insertions" Text="Dynamic insertions" />
+            <DemoMenu Href="demos/performance" Text="Performance" />
+            <DemoMenu Href="demos/zoomtofit" Text="Zoom to fit" />
+            <DemoMenu Href="demos/snaptogrid" Text="Snap to Grid" />
+            <DemoMenu Href="demos/drag-and-drop" Text="Drag & Drop" />
+            <DemoMenu Text="Nodes">
+                <li>
+                    <a href="nodes/svg" class="list-group-item list-group-item-action bg-light">SVG</a>
+                </li>
+                <li>
+                    <a href="nodes/portless-links" class="list-group-item list-group-item-action bg-light">Portless Links</a>
+                </li>
+            </DemoMenu>
+            <DemoMenu Text="Links">
+                <li>
+                    <a href="links/snapping" class="list-group-item list-group-item-action bg-light">Snapping</a>
+                </li>
+                <li>
+                    <a href="links/labels" class="list-group-item list-group-item-action bg-light">Labels</a>
+                </li>
+                <li>
+                    <a href="links/vertices" class="list-group-item list-group-item-action bg-light">Vertices</a>
+                </li>
+                <li>
+                    <a href="links/markers" class="list-group-item list-group-item-action bg-light">Markers</a>
+                </li>
+                <li>
+                    <a href="links/routers" class="list-group-item list-group-item-action bg-light">Routers</a>
+                </li>
+                <li>
+                    <a href="links/path-generators" class="list-group-item list-group-item-action bg-light">Path generators</a>
+                </li>
+            </DemoMenu>
+            <DemoMenu Text="Groups">
+                <li>
+                    <a href="demos/groups" class="list-group-item list-group-item-action bg-light">Simple</a>
+                </li>
+                <li>
+                    <a href="demos/groups-factory" class="list-group-item list-group-item-action bg-light">Factory</a>
+                </li>
+                <li>
+                    <a href="demos/groups-dynamic" class="list-group-item list-group-item-action bg-light">Dynamic</a>
+                </li>
+                <li>
+                    <a href="demos/groups-custom-shortcut" class="list-group-item list-group-item-action bg-light">Custom shortcut</a>
+                </li>
+            </DemoMenu>
+            <DemoMenu Text="Customization">
+                <li>
+                    <a href="demos/custom-node" class="list-group-item list-group-item-action bg-light">Custom node</a>
+                </li>
+                <li>
+                    <a href="demos/custom-link" class="list-group-item list-group-item-action bg-light">Custom link</a>
+                </li>
+                <li>
+                    <a href="demos/custom-port" class="list-group-item list-group-item-action bg-light">Custom port</a>
+                </li>
+                <li>
+                    <a href="demos/custom-group" class="list-group-item list-group-item-action bg-light">Custom group</a>
+                </li>
+            </DemoMenu>
+            <DemoMenu Text="Algorithms">
+                <li>
+                    <a href="demos/reconnect-links" class="list-group-item list-group-item-action bg-light">Reconnect links</a>
+                </li>
+            </DemoMenu>
+        </ul>
+    </div>
+    <div id="page-content-wrapper">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+            <button class="btn btn-primary" id="menu-toggle" @onclick="ToggleNavMenu">Toggle Menu</button>
+        </nav>
+        <div class="diagram-container">
+            @Body
+        </div>
+    </div>
+</div>

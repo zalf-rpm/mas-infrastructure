@@ -1,0 +1,425 @@
+﻿@page "/customization"
+@inherits DocPage
+@inject LayoutData LayoutData
+
+@code {
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        LayoutData.Title = "Customization";
+        LayoutData.Icon = "fa-sliders-h";
+        LayoutData.Date = "August 14th, 2020";
+        LayoutData.DataChanged();
+    }
+}
+
+<div class="doc-content col-md-9 col-12 order-1">
+    <div class="content-inner">
+        <section id="custom-nodes" class="doc-section">
+            <h2 class="section-title">Custom nodes</h2>
+            <p>
+                In Z.Blazor.Diagrams, everything is a <code>Model</code>, this makes it easier to handle (de)serialization and customization by inheritance.<br />
+                In order to customize nodes, you'll have to create a new Model, as well as the Blazor component for it.
+            </p>
+            <div id="create-node-model" class="section-block">
+                <h3 class="block-title">Creating a model</h3>
+                <p>
+                    First, we'll create a new model for our node, which will contain all the data needed.<br />
+                    Our custom node will be used to add two numbers together.
+                </p>
+                <pre><code class="language-csharp line-numbers">public class AddTwoNumbersNode : NodeModel
+{
+    public AddTwoNumbersNode(Point position = null) : base(position) { }
+
+    public double FirstNumber { get; set; }
+    public double SecondNumber { get; set; }
+
+    // Here, you can put whatever you want, such as a method that does the addition
+}</code></pre>
+            </div>
+            <div id="create-node-component" class="section-block">
+                <h3 class="block-title">Creating a component</h3>
+                <p>
+                    Second, we'll create a component <code>AddTwoNumbersComponent</code> that handles our new type of nodes.
+                </p>
+                <pre><code class="language-markup line-numbers">@@using Blazor.Diagrams.Components.Renderers;
+
+&#x3C;div class=&#x22;card&#x22; style=&#x22;width: 250px;&#x22;&#x3E;
+    &#x3C;div class=&#x22;card-body&#x22;&#x3E;
+        &#x3C;h5 class=&#x22;card-title&#x22;&#x3E;Add&#x3C;/h5&#x3E;
+        &#x3C;div class=&#x22;form-group&#x22;&#x3E;
+            &#x3C;input type=&#x22;number&#x22; class=&#x22;form-control&#x22; @@bind-value=&#x22;Node.FirstNumber&#x22; placeholder=&#x22;Number 1&#x22; /&#x3E;
+        &#x3C;/div&#x3E;
+        &#x3C;div class=&#x22;form-group&#x22;&#x3E;
+            &#x3C;input type=&#x22;number&#x22; class=&#x22;form-control&#x22; @@bind-value=&#x22;Node.SecondNumber&#x22; placeholder=&#x22;Number 2&#x22; /&#x3E;
+        &#x3C;/div&#x3E;
+    &#x3C;/div&#x3E;
+    @@foreach (var port in Node.Ports)
+    {
+        &#x3C;!-- Default ports --&#x3E;
+        &#x3C;PortRenderer Port=&#x22;port&#x22; /&#x3E;
+    }
+&#x3C;/div&#x3E;
+
+@@code {
+    [Parameter]
+    public BotAnswerNode Node { get; set; }
+}</code></pre>
+                <ol class="list">
+                    <li>Your component will be wrapped in a <code>div.node</code> element in order to position it.</li>
+                    <li>You are always in charge of rendering the ports, and you must use <code>PortRenderer</code>.</li>
+                    <li>The <code>BotAnswerNode Node</code> will come from the parent.</li>
+                </ol>
+            </div>
+            <div id="register-custom-node" class="section-block">
+                <h3 class="block-title">Registering the custom node</h3>
+                <p>
+                    Lastly, we'll register the custom node and its component in the <code>Diagram</code>:
+                </p>
+                <pre><code class="language-csharp line-numbers">private Diagram Diagram { get; private set; }
+
+protected override void OnInitialized()
+{
+    base.OnInitialized();
+
+    Diagram = new Diagram();
+    Diagram.RegisterModelComponent&lt;AddTwoNumbersNode, AddTwoNumbersComponent&gt;();
+}</code></pre>
+                <p>This tells the Diagram manager to render a <code>AddTwoNumbersComponent</code> for every node of type <code>AddTwoNumbersNode</code>.</p>
+            </div>
+        </section>
+        <section id="custom-ports" class="doc-section">
+            <h2 class="section-title">Custom ports</h2>
+            <p>
+                In order to customize ports, you'll only need to create a new Model.<br />
+                Since nodes control their ports, it's up to them to style the ports.
+            </p>
+            <div id="create-port-model" class="section-block">
+                <h3 class="block-title">Creating a model</h3>
+                <p>
+                    First, we'll create a new model for our port, which will contain all the data needed.
+                </p>
+                <pre><code class="language-csharp line-numbers">public class ColoredPort : PortModel
+{
+    public ColoredPort(NodeModel parent, PortAlignment alignment, bool isRed) : base(parent, alignment, null, null)
+    {
+        IsRed = isRed;
+    }
+
+    public bool IsRed { get; set; }
+
+    public override bool CanAttachTo(PortModel port)
+    {
+        // Checks for same-node/port attachements
+        if (!base.CanAttachTo(port))
+            return false;
+
+        // Only able to attach to the same port type
+        if (!(port is ColoredPort cp))
+            return false;
+
+        return IsRed == cp.IsRed;
+    }
+}</code></pre>
+                <p>As you can see in the example, we can override the method <code>CanAttachTo</code> in order to add extra checks.</p>
+            </div>
+            <div id="style-custom-port" class="section-block">
+                <h3 class="block-title">Styling the custom ports</h3>
+                <p>
+                    Second, we'll create a custom node component <code>ColoredNodeWidget</code> that will help us style our custom ports.
+                </p>
+                <pre><code class="language-markup line-numbers">&#x3C;div class=&#x22;colored-node @@(Node.Selected ? &#x22; selected&#x22; : &#x22;&#x22;)&#x22;&#x3E;
+    &#x3C;div&#x3E;N&#x3C;/div&#x3E;
+    @@foreach (var port in Node.Ports.Cast&#x3C;ColoredPort&#x3E;()) // Notice the cast
+    {
+        &#x3C;PortRenderer Port=&#x22;port&#x22; Class=&#x22;@@(port.IsRed ? &#x22;red&#x22; : &#x22;blue&#x22;)&#x22;&#x3E;
+            @@* You can put custom content here (e.g. custom components) *@@
+        &#x3C;/PortRenderer&#x3E;
+    }
+&#x3C;/div&#x3E;
+
+@@code {
+    [Parameter]
+    public NodeModel Node { get; set; }
+}</code></pre>
+                <p>And for the CSS:</p>
+                <pre><code class="language-css line-numbers">.colored-node {
+    border: 2px solid black;
+    text-align: center;
+}
+
+    .colored-node.selected {
+        border-color: blue;
+    }
+
+    .colored-node .port {
+        width: 30px;
+        height: 30px;
+    }
+
+        .colored-node .port.blue {
+            background-color: blue;
+        }
+
+        .colored-node .port.red {
+            background-color: red;
+        }</code></pre>
+            </div>
+            <div id="using-custom-port" class="section-block">
+                <h3 class="block-title">Using the custom ports</h3>
+                <p>
+                    Lastly, we'll put everything together:
+                </p>
+                <pre><code class="language-csharp line-numbers">private readonly Diagram _diagram = new Diagram();
+
+protected override void OnInitialized()
+{
+    base.OnInitialized();
+
+    _diagram.Options.DefaultNodeComponent = typeof(ColoredNodeWidget);
+
+    var node1 = NewNode(50, 50);
+    var node2 = NewNode(300, 300);
+    _diagram.Nodes.Add(node1);
+    _diagram.Nodes.Add(node2);
+    _diagram.Nodes.Add(NewNode(500, 50));
+
+    _diagram.Links.Add(new LinkModel(node1.GetPort(PortAlignment.Top), node2.GetPort(PortAlignment.Top)));
+}
+
+private NodeModel NewNode(double x, double y)
+{
+    var node = new NodeModel(new Point(x, y));
+    node.AddPort(new ColoredPort(node, PortAlignment.Top, true));
+    node.AddPort(new ColoredPort(node, PortAlignment.Left, false));
+    return node;
+}</code></pre>
+                <p>As you you can see, you can instanciate your custom ports however you want and just pass them to <code>AddPort</code>.</p>
+            </div>
+        </section>
+        <section id="custom-links" class="doc-section">
+            <h2 class="section-title">Custom links</h2>
+            <p>
+                Creating custom links is pretty much the same as custom nodes.
+            </p>
+            <div id="create-link-model" class="section-block">
+                <h3 class="block-title">Creating a model</h3>
+                <p>
+                    First, we'll create a new model for our link.
+                </p>
+                <pre><code class="language-csharp line-numbers">public class ThickLink : LinkModel
+{
+    public ThickLink(PortModel sourcePort, PortModel targetPort = null) : base(sourcePort, targetPort) { }
+
+    // Add relevant data here if you need to
+}</code></pre>
+                <p>
+                    In Z.Blazor.Diagrams, links only hold information such as the source and target ports for now.
+                </p>
+            </div>
+            <div id="create-link-component" class="section-block">
+                <h3 class="block-title">Creating a component</h3>
+                <p>
+                    Second, we'll create a component <code>ThickLinkWidget</code> that handles our new type of links.
+                </p>
+                <pre><code class="language-markup line-numbers">@@code {
+    [Parameter]
+    public LinkModel Link { get; set; }
+}
+
+&#x3C;line x1=&#x22;@@Link.GetMiddleSourceX().ToInvariantString()&#x22;
+      y1=&#x22;@@Link.GetMiddleSourceY().ToInvariantString()&#x22;
+      x2=&#x22;@@Link.GetTargetX().ToInvariantString()&#x22;
+      y2=&#x22;@@Link.GetTargetY().ToInvariantString()&#x22;
+      stroke=&#x22;@@(Link.Selected ? &#x22;red&#x22; : &#x22;blue&#x22;)&#x22;
+      stroke-width=&#x22;6&#x22; /&#x3E;</code></pre>
+                <ul>
+                    <li>All the <code>GetX</code> methods are extension methods available in <code>Blazor.Diagrams.Core.Extensions.LinkModelExtensions</code>.</li>
+                    <li>The <code>ToInvariantString</code> method is used to make sure numbers are formatted using a dot.</li>
+                </ul>
+            </div>
+            <div id="register-custom-link" class="section-block">
+                <h3 class="block-title">Registering the custom link</h3>
+                <p>
+                    Lastly, we'll register the custom link and its component in the <code>Diagram</code>:
+                </p>
+                <pre><code class="language-csharp line-numbers">protected override void OnInitialized()
+{
+    base.OnInitialized();
+
+    _diagram.RegisterModelComponent&#x3C;ThickLink, ThickLinkWidget&#x3E;();
+    // Also usable: _diagram.Options.Links.DefaultLinkComponent = typeof(ThickLink);
+
+    var node1 = NewNode(50, 50);
+    var node2 = NewNode(300, 300);
+    var node3 = NewNode(500, 50);
+
+    _diagram.Nodes.Add(node1);
+    _diagram.Nodes.Add(node2);
+    _diagram.Nodes.Add(node3);
+
+    _diagram.Links.Add(new ThickLink(node1.GetPort(PortAlignment.Right), node2.GetPort(PortAlignment.Left)));
+    _diagram.Links.Add(new ThickLink(node2.GetPort(PortAlignment.Right), node3.GetPort(PortAlignment.Left)));
+}
+
+private NodeModel NewNode(double x, double y)
+{
+    var node = new NodeModel(new Point(x, y));
+    node.AddPort(PortAlignment.Bottom);
+    node.AddPort(PortAlignment.Top);
+    node.AddPort(PortAlignment.Left);
+    node.AddPort(PortAlignment.Right);
+    return node;
+}</code></pre>
+                <p>
+                    As you can see, you can either set the <code>DefaultLinkComponent</code> option so that every new
+                    link is rendered as a <code>ThickLinkWidget</code>, or specify the type of the link everytime you call
+                    <code>Diagram.AddLink</code>.
+                </p>
+            </div>
+        </section>
+        <section id="custom-groups" class="doc-section">
+            <h2 class="section-title">Custom groups</h2>
+            <p>
+                Creating custom groups is almost the same as creating custom nodes, except for some specifics.
+            </p>
+            <div id="create-group-model" class="section-block">
+                <h3 class="block-title">Creating a model</h3>
+                <p>
+                    First, we'll create a new model for our group.
+                </p>
+                <pre><code class="language-csharp line-numbers">public class CustomGroupModel : GroupModel
+{
+    public CustomGroupModel(Diagram diagram, NodeModel[] children, string title, byte padding = 30)
+        : base(diagram, children, padding)
+    {
+        Title = title;
+    }
+
+    public string Title { get; }
+}</code></pre>
+                <p>
+                    You can add whatever properties you might need. You can also change the value of the padding, which is used when calculating the position/size of the group.
+                </p>
+            </div>
+            <div id="create-group-component" class="section-block">
+                <h3 class="block-title">Creating a component</h3>
+                <p>
+                    Second, we'll create a component <code>CustomGroupWidget</code> that handles our new type of links.
+                </p>
+                <pre><code class="language-markup line-numbers">@@using Blazor.Diagrams.Components.Renderers;
+                    
+&lt;GroupContainer Group=&quot;Group&quot; Class=&quot;custom&quot;&gt;
+    &lt;span class=&quot;title&quot;&gt;@@Group.Title&lt;/span&gt;
+    &lt;GroupLinks&gt;&lt;/GroupLinks&gt;
+    &lt;GroupNodes&gt;&lt;/GroupNodes&gt;
+
+    @@foreach (var port in Group.Ports)
+    {
+        &lt;PortRenderer Port=&quot;port&quot; Class=&quot;group-port&quot;&gt;&lt;/PortRenderer&gt;
+    }
+&lt;/GroupContainer&gt;
+
+@@code {
+    [Parameter] public CustomGroupModel Group { get; set; }
+}</code></pre>
+                <ul>
+                    <li>It is mandatory to wrap everything in a <code>GroupContainer</code> component so that everything works properly, such as the group's position, moving it, etc..</li>
+                    <li>
+                        It is mandatory to add both <code>GroupLinks</code> and <code>GroupNodes</code> as direct children of the container.
+                        This will render the appropriate layers and populate/configure them properly.
+                    </li>
+                    <li>As with custom nodes, you are in charge of rendering the ports.</li>
+                </ul>
+
+                For any custom content, you can add it wherever you want, as long as it's inside the container like our title <code>span</code>.<br />
+                As with everything else, the component can be styled using CSS. Here is the styling of the custom group in the demos:
+                <pre><code class="language-css line-numbers">.group.custom {
+    outline: 2px solid black;
+    background-color: #6fbb6e;
+}
+
+    .group.custom > span.title {
+        padding: 20px;
+        position: absolute;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #eee;
+        border: 2px solid black;
+        border-radius: 50%;
+        background-color: #6fbb6e;
+        font-weight: bold;
+        text-transform: uppercase;
+    }</code></pre>
+            </div>
+            <div id="register-custom-group" class="section-block">
+                <h3 class="block-title">Registering the custom group</h3>
+                <p>
+                    Lastly, we'll register the custom link and its component in the <code>Diagram</code>:
+                </p>
+                <pre><code class="language-csharp line-numbers">protected override void OnInitialized()
+{
+    base.OnInitialized();
+                    
+    _diagram.RegisterModelComponent&lt;CustomGroupModel, CustomGroupWidget&gt;();
+
+    var node1 = NewNode(50, 50);
+    var node2 = NewNode(300, 300);
+    var node3 = NewNode(500, 100);
+
+    _diagram.Nodes.Add(new [] { node1, node2, node3 });
+    _diagram.AddGroup(new CustomGroupModel(new[] { node2, node3 }, &quot;Group 1&quot;));
+
+    _diagram.Links.Add(new LinkModel(node1.GetPort(PortAlignment.Right), node2.GetPort(PortAlignment.Left)));
+    _diagram.Links.Add(new LinkModel(node2.GetPort(PortAlignment.Right), node3.GetPort(PortAlignment.Bottom)));
+}
+
+private NodeModel NewNode(double x, double y)
+{
+    var node = new NodeModel(new Point(x, y));
+    node.AddPort(PortAlignment.Bottom);
+    node.AddPort(PortAlignment.Top);
+    node.AddPort(PortAlignment.Left);
+    node.AddPort(PortAlignment.Right);
+    return node;
+}</code></pre>
+            </div>
+            <p>
+                Here's how it would look like:
+            </p>
+            <img src="_content/SharedDemo/img/CustomGroupDisplay.png" alt="Custom Group Display" />
+        </section>
+    </div>
+</div>
+
+<div class="doc-sidebar col-md-3 col-12 order-0 d-none d-md-flex">
+    <div id="doc-nav" class="doc-nav">
+        <nav id="doc-menu" class="nav doc-menu flex-column sticky">
+            <a class="nav-link scrollto" href="#custom-nodes">Custom nodes</a>
+            <nav class="doc-sub-menu nav flex-column">
+                <a class="nav-link scrollto" href="#create-node-model">Creating a model</a>
+                <a class="nav-link scrollto" href="#create-node-component">Creating a component</a>
+                <a class="nav-link scrollto" href="#register-custom-node">Registering the custom node</a>
+            </nav>
+            <a class="nav-link scrollto" href="#custom-ports">Custom ports</a>
+            <nav class="doc-sub-menu nav flex-column">
+                <a class="nav-link scrollto" href="#create-port-model">Creating a model</a>
+                <a class="nav-link scrollto" href="#style-custom-port">Styling the custom ports</a>
+                <a class="nav-link scrollto" href="#using-custom-port">Using the custom ports</a>
+            </nav>
+            <a class="nav-link scrollto" href="#custom-links">Custom links</a>
+            <nav class="doc-sub-menu nav flex-column">
+                <a class="nav-link scrollto" href="#create-link-model">Creating a model</a>
+                <a class="nav-link scrollto" href="#create-link-component">Creating a component</a>
+                <a class="nav-link scrollto" href="#register-custom-link">Registering the custom link</a>
+            </nav>
+            <a class="nav-link scrollto" href="#custom-groups">Custom groups</a>
+            <nav class="doc-sub-menu nav flex-column">
+                <a class="nav-link scrollto" href="#create-group-model">Creating a model</a>
+                <a class="nav-link scrollto" href="#create-group-component">Creating a component</a>
+                <a class="nav-link scrollto" href="#register-custom-group">Registering the custom group</a>
+            </nav>
+        </nav>
+    </div>
+</div>
