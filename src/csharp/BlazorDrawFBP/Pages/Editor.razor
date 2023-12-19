@@ -1,0 +1,30 @@
+@page "/"
+@page "/editor"
+@namespace BlazorDrawFBP.Pages
+
+@using Blazor.Diagrams.Components.Widgets
+
+<MudGrid>
+    <MudItem xs="12">
+        <MudButton Variant="Variant.Filled" @onclick="AddNode">Add Node</MudButton>
+        <MudButton Variant="Variant.Filled" @onclick="RemoveNode">Remove Node</MudButton>
+        <MudButton Variant="Variant.Filled" @onclick="AddPort">Add port</MudButton>
+    </MudItem>
+    <MudItem xs="12">
+        <div class="diagram-container">
+            <CascadingValue Value="Diagram" IsFixed="true">
+                <DiagramCanvas>
+                    <Widgets>
+                        <NavigatorWidget Width="200" Height="120" Class="border border-black bg-white absolute"
+                                         Style="bottom: 15px; right: 15px;"/>
+                    </Widgets>
+                </DiagramCanvas>
+            </CascadingValue>
+        </div>
+    </MudItem>
+</MudGrid>
+
+@code
+{
+
+}
