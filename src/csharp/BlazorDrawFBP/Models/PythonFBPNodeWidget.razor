@@ -1,0 +1,64 @@
+@using Blazor.Diagrams.Components.Renderers;
+@using BlazorDrawFBP.Models;
+
+<div>
+    <MudCard>
+        <MudCardHeader>
+            <CardHeaderAvatar>
+                <MudAvatar Color="Color.Secondary">Py</MudAvatar>
+            </CardHeaderAvatar>
+            <CardHeaderContent>
+                <MudTextField @bind-Value="Node.UserId" Label="User ID" Variant="Variant.Outlined"/>
+                @* <MudText Typo="Typo.body1">@Node.Id</MudText> *@
+                <MudText Typo="Typo.body2">@Node.ShortDescription</MudText>
+            </CardHeaderContent>
+            <CardHeaderActions>
+                <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Default"/>
+            </CardHeaderActions>
+        </MudCardHeader>
+        @* <MudCardMedia Image="images/pilars.jpg" Height="250" /> *@
+        <MudCardContent>
+            <MudTextField T="string" @bind-Value="Node.PathToPythonFile" Label="Path to .py file" Variant="Variant.Outlined"/>
+            <MudTextField T="string" @bind-Value="Node.CmdParamString" Lines="5" Label="Script Parameters" Variant="Variant.Outlined"/>
+            @* <MudTable Items="@Node.CmdParameters" Dense="@true" Hover="@true" ReadOnly="@false" *@
+            @*           CommitEditTooltip="Commit Change" *@
+            @*           OnCommitEditClick="@(() => Console.WriteLine("bla"))" *@
+            @*           IsEditRowSwitchingBlocked="@false" *@
+            @*           ApplyButtonPosition="@TableApplyButtonPosition.End" *@
+            @*           EditButtonPosition="@TableEditButtonPosition.End" EditTrigger="@TableEditTrigger.RowClick"> *@
+            @*     <ToolBarContent> *@
+            @*         <MudIconButton @onclick="Node.AddEmptyCmdParam" Icon="@Icons.Material.Filled.Add" Color="Color.Default"/> *@
+            @*     </ToolBarContent> *@
+            @*     <ColGroup> *@
+            @*         <col style="width:50%;"/> *@
+            @*         <col style="width:50%;"/> *@
+            @*     </ColGroup> *@
+            @*     <HeaderContent> *@
+            @*         <MudTh>Key</MudTh> *@
+            @*         <MudTh>Value</MudTh> *@
+            @*     </HeaderContent> *@
+            @*     <RowTemplate> *@
+            @*         <MudTd DataLabel="Name">@context.Name</MudTd> *@
+            @*         <MudTd DataLabel="Value">@context.Value</MudTd> *@
+            @*     </RowTemplate> *@
+            @*     <RowEditingTemplate> *@
+            @*         <MudTd DataLabel="Name"> *@
+            @*             <MudTextField @bind-Value="@context.Name" Required/> *@
+            @*         </MudTd> *@
+            @*         <MudTd DataLabel="Value"> *@
+            @*             <MudTextField @bind-Value="@context.Value" Required/> *@
+            @*         </MudTd> *@
+            @*     </RowEditingTemplate> *@
+            @* </MudTable> *@
+        </MudCardContent>
+    </MudCard>
+
+    @foreach (var port in Node.Ports)
+    {
+        <PortRenderer @key="port" Port="port"/>
+    }
+</div>
+
+@code {
+    [Parameter] public PythonFBPNode Node { get; set; } = null!;
+}

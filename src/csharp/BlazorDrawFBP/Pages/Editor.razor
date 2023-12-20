@@ -3,12 +3,15 @@
 @namespace BlazorDrawFBP.Pages
 
 @using Blazor.Diagrams.Components.Widgets
+@using BlazorDrawFBP.Models
 
 <MudGrid>
     <MudItem xs="12">
         <MudButton Variant="Variant.Filled" @onclick="AddNode">Add Node</MudButton>
+        <MudButton Variant="Variant.Filled" @onclick="AddDefaultNode">Add default Node</MudButton>
         <MudButton Variant="Variant.Filled" @onclick="RemoveNode">Remove Node</MudButton>
-        <MudButton Variant="Variant.Filled" @onclick="AddPort">Add port</MudButton>
+        <MudButton Variant="Variant.Filled" @onclick="() => AddPort(CapnpFBPPortModel.PortType.In)">Add IN port</MudButton>
+        <MudButton Variant="Variant.Filled" @onclick="() => AddPort(CapnpFBPPortModel.PortType.Out)">Add OUT port</MudButton>
     </MudItem>
     <MudItem xs="12">
         <div class="diagram-container">
