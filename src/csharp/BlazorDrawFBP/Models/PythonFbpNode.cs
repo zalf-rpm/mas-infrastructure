@@ -6,9 +6,9 @@ namespace BlazorDrawFBP.Models;
 using Blazor.Diagrams.Core.Geometry;
 using Blazor.Diagrams.Core.Models;
 
-public class PythonFBPNode : NodeModel
+public class PythonFbpNode : NodeModel
 {
-    public PythonFBPNode(Point position = null) : base(position) { }
+    public PythonFbpNode(Point position = null) : base(position) { }
     
     public string UserId { get; set; }
     public string ShortDescription { get; set; }

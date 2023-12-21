@@ -1,0 +1,147 @@
+/*div {*/
+/*    width: 230px;*/
+/*    outline: 1px solid black;*/
+/*    padding: 20px;*/
+/*    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);*/
+/*}*/
+
+/*div > h5 {*/
+/*    font-weight: 600;*/
+/*    text-transform: uppercase;*/
+/*    margin-bottom: 10px;*/
+/*}*/
+
+/*div > input[type=number] {*/
+/*    padding: 3px;*/
+/*    border-radius: 3px;*/
+/*    border: 1px solid black;*/
+/*    margin-bottom: 8px;*/
+/*}*/
+
+::deep .diagram-port {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    margin: -10px;
+    background-color: #f5f5f5;
+    border: 1px solid #d4d4d4;
+    cursor: pointer;
+
+    justify-content: center;
+    align-content: center;
+    display: inline-flex;
+    padding: 0px;
+    font-size: 10px;
+    line-height: 1.7em;
+}
+
+::deep .diagram-port:hover, .diagram-port.has-links {
+    background-color: black;
+}
+
+::deep .diagram-port.top {
+    border-radius: 50%;
+    top: 0px;
+    left: 50%;
+}
+::deep .diagram-port.top.in {
+    border-radius: 20% 20% 50% 50%;
+}
+::deep .diagram-port.top.out {
+    border-radius: 50% 50% 20% 20%;
+}
+
+::deep .diagram-port.topleft {
+    border-radius: 50%;
+    top: 0px;
+    left: 0px;
+}
+::deep .diagram-port.topleft.in {
+    border-radius: 20% 20% 50% 50%;
+    rotate: -45deg;
+}
+::deep .diagram-port.topleft.out {
+    border-radius: 50% 50% 20% 20%;
+    rotate: -45deg;
+}
+
+::deep .diagram-port.topright {
+    border-radius: 50%;
+    top: 0px;
+    right: 0px;
+}
+::deep .diagram-port.topright.in {
+    border-radius: 20% 20% 50% 50%;
+    rotate: 45deg;
+}
+::deep .diagram-port.topright.out {
+    border-radius: 50% 50% 20% 20%;
+    rotate: 45deg;
+}
+
+::deep .diagram-port.bottom {
+    border-radius: 50%;
+    bottom: 0px;
+    left: 50%;
+}
+::deep .diagram-port.bottom.in {
+    border-radius: 50% 50% 20% 20%;
+}
+::deep .diagram-port.bottom.out {
+    border-radius: 20% 20% 50% 50%;
+}
+
+::deep .diagram-port.bottomleft {
+    border-radius: 50%;
+    bottom: 0px;
+    left: 0px;
+}
+::deep .diagram-port.bottomleft.in {
+    border-radius: 50% 50% 20% 20%;
+    rotate: 45deg;
+}
+::deep .diagram-port.bottomleft.out {
+    border-radius: 20% 20% 50% 50%;
+    rotate: 45deg;
+}
+
+::deep .diagram-port.bottomright {
+    border-radius: 50%;
+    bottom: 0px;
+    right: 0px;
+}
+::deep .diagram-port.bottomright.in {
+    border-radius: 50% 50% 20% 20%;
+    rotate: -45deg;
+}
+::deep .diagram-port.bottomright.out {
+    border-radius: 20% 20% 50% 50%;
+    rotate: -45deg;
+}
+
+::deep .diagram-port.left {
+    border-radius: 50%;
+    left: 0px;
+    top: 50%;
+}
+::deep .diagram-port.left.in {
+    border-radius: 20% 50% 50% 20%;
+}
+::deep .diagram-port.left.out {
+    border-radius: 50% 20% 20% 50%;
+}
+
+::deep .diagram-port.right {
+    border-radius: 50%;
+    right: 0px;
+    top: 50%;
+}
+::deep .diagram-port.right.in {
+    border-radius: 50% 20% 20% 50%;
+}
+::deep .diagram-port.right.out {
+    border-radius: 20% 50% 50% 20%;
+}
+
+
+

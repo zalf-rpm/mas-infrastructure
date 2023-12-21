@@ -3,3 +3,11 @@
     height: 600px;    
     border: 1px solid black; /* Just visual */
 }
+
+::deep .diagram-node.selected {
+    border: 1px solid #6e9fd4;
+}
+
+/*::deep .diagram-node .selected .port {*/
+/*    border: 1px solid #6e9fd4;*/
+/*}*/

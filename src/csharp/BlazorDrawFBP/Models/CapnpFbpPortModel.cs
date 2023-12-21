@@ -4,7 +4,7 @@ using Blazor.Diagrams.Core.Models.Base;
 
 namespace BlazorDrawFBP.Models;
 
-public class CapnpFBPPortModel : PortModel
+public class CapnpFbpPortModel : PortModel
 {
     public enum PortType
     {
@@ -14,13 +14,13 @@ public class CapnpFBPPortModel : PortModel
 
     public PortType ThePortType { get; }
     
-    public CapnpFBPPortModel(NodeModel parent, PortType thePortType, PortAlignment alignment = PortAlignment.Bottom,
+    public CapnpFbpPortModel(NodeModel parent, PortType thePortType, PortAlignment alignment = PortAlignment.Bottom,
         Point position = null, Size size = null) : base(parent, alignment, position, size)
     {
         ThePortType = thePortType;
     }
 
-    public CapnpFBPPortModel(string id, NodeModel parent, PortType thePortType, PortAlignment alignment = PortAlignment.Bottom,
+    public CapnpFbpPortModel(string id, NodeModel parent, PortType thePortType, PortAlignment alignment = PortAlignment.Bottom,
         Point position = null, Size size = null) : base(id, parent, alignment, position, size)
     {
         ThePortType = thePortType;
@@ -31,7 +31,7 @@ public class CapnpFBPPortModel : PortModel
         // default constraints
         if (!base.CanAttachTo(other)) return false;
 
-        if (other is not CapnpFBPPortModel otherPort) return false;
+        if (other is not CapnpFbpPortModel otherPort) return false;
 
         // Only link Ins with Outs
         return ThePortType != otherPort.ThePortType;

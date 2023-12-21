@@ -1,5 +1,6 @@
 @using Blazor.Diagrams.Components.Renderers;
 @using BlazorDrawFBP.Models;
+@using BlazorDrawFBP.Renderers
 
 <div>
     <MudCard>
@@ -55,10 +56,15 @@
 
     @foreach (var port in Node.Ports)
     {
-        <PortRenderer @key="port" Port="port"/>
+        if (port is CapnpFbpPortModel capnpPort) 
+        {
+            <CapnpFbpPortRenderer @key="port" Port="capnpPort">
+                @capnpPort.ThePortType.ToString().ToUpper()[0]
+            </CapnpFbpPortRenderer>
+        }
     }
 </div>
 
 @code {
-    [Parameter] public PythonFBPNode Node { get; set; } = null!;
+    [Parameter] public PythonFbpNode Node { get; set; } = null!;
 }

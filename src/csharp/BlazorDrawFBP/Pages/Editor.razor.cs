@@ -34,7 +34,7 @@ namespace BlazorDrawFBP.Pages
 
             Diagram = new BlazorDiagram(options);
 
-            Diagram.RegisterComponent<PythonFBPNode, PythonFBPNodeWidget>();
+            Diagram.RegisterComponent<PythonFbpNode, PythonFbpNodeWidget>();
             Diagram.RegisterComponent<AddTwoNumbersNode, AddTwoNumbersWidget>();
 
             RegisterEvents();
@@ -81,16 +81,16 @@ namespace BlazorDrawFBP.Pages
 
             Diagram.Links.Added += (l) =>
             {
-                if (l.Source.Model is CapnpFBPPortModel pm)
+                if (l.Source.Model is CapnpFbpPortModel pm)
                 {
                     switch (pm.ThePortType)
                     {
-                        case CapnpFBPPortModel.PortType.In:
+                        case CapnpFbpPortModel.PortType.In:
                             l.Labels.Add(new LinkLabelModel(l, "IN", 50));
                             l.Labels.Add(new LinkLabelModel(l, "OUT", -50));
                             l.SourceMarker = LinkMarker.Arrow;
                             break;
-                        case CapnpFBPPortModel.PortType.Out:
+                        case CapnpFbpPortModel.PortType.Out:
                             l.Labels.Add(new LinkLabelModel(l, "OUT", 50));
                             l.Labels.Add(new LinkLabelModel(l, "IN", -50));
                             l.TargetMarker = LinkMarker.Arrow;
@@ -149,7 +149,7 @@ namespace BlazorDrawFBP.Pages
         {
             var x = Random.Next(0, (int)Diagram.Container.Width - 120);
             var y = Random.Next(0, (int)Diagram.Container.Height - 100);
-            var node = new PythonFBPNode(new Point(x, y));
+            var node = new PythonFbpNode(new Point(x, y));
             Diagram.Nodes.Add(node);
         }
 
@@ -167,7 +167,7 @@ namespace BlazorDrawFBP.Pages
             Diagram.Nodes.Remove(node);
         }
         
-        protected void AddPort(CapnpFBPPortModel.PortType portType)
+        protected void AddPort(CapnpFbpPortModel.PortType portType)
         {
             var node = Diagram.Nodes.FirstOrDefault(n => n.Selected);
             if (node == null) return;
@@ -175,7 +175,7 @@ namespace BlazorDrawFBP.Pages
             foreach(PortAlignment portAlignment in Enum.GetValues(typeof(PortAlignment)))
             {
                 if (node.GetPort(portAlignment) != null) continue;
-                var port = new CapnpFBPPortModel(node, portType, portAlignment);
+                var port = new CapnpFbpPortModel(node, portType, portAlignment);
                 node.AddPort(port);
                 node.Refresh();
                 break;
