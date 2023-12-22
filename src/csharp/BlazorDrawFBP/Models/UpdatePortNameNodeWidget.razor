@@ -1,0 +1,54 @@
+@using Blazor.Diagrams.Components.Renderers;
+@using BlazorDrawFBP.Models;
+
+<div>
+    <MudTextField Required 
+                  T="@string" 
+                  @bind-Value="@Node.Model.Content"
+                  AutoFocus="@true"
+                  Label="@Node.Label" 
+                  Variant="@Variant.Outlined"
+                  OnBlur="@OnBlur"
+                  OnKeyUp="@OnKeyUp"/>
+</div>
+
+@code {
+    [Parameter] public UpdatePortNameNode Node { get; set; } = null!;
+
+    bool _alreadyRemoved = false;
+    // string _oldValue = null; 
+    
+    void OnBlur(FocusEventArgs e)
+    {
+        // Console.WriteLine("OnBlur");
+        if (_alreadyRemoved) return;
+        Node.Model.Refresh();
+        Node.Container.Nodes.Remove(Node);
+    }
+
+    void OnKeyUp(KeyboardEventArgs e)
+    {
+        // Console.WriteLine("OnKeyUp Enter pressed");
+        if (e.Key != "Enter") return;
+        Node.Container.Nodes.Remove(Node);
+        _alreadyRemoved = true;
+    }
+    
+    // gets called after the OnChange event, so we can just revert the change
+    // void OnClearButtonClick()
+    // {
+    //     if (_oldValue == null) return;
+    //     Node.Model.Content = _oldValue;
+    //     Node.Model.Refresh();
+    //     Node.Container.Nodes.Remove(Node);
+    //     _alreadyRemoved = true;
+    //     Console.WriteLine("OnClearButtonClick");
+    // }
+    
+    // void OnChange(string newValue)
+    // {
+    //     _oldValue ??= Node.Model.Content;
+    //     Node.Model.Content = newValue;
+    //     // Console.WriteLine("OnChange newValue: " + newValue);
+    // }
+}

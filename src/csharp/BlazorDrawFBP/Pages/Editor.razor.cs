@@ -16,14 +16,14 @@ namespace BlazorDrawFBP.Pages
     {
         private static readonly Random Random = new();
         private BlazorDiagram Diagram { get; set; } = null!;
-        private readonly List<string> events = new List<string>();
-        
+        //private readonly List<string> events = new List<string>();
+
         protected override void OnInitialized()
         {
             var options = new BlazorDiagramOptions
             {
                 AllowMultiSelection = true,
-                Zoom = { Enabled = true,},
+                Zoom = { Enabled = true, },
                 Links =
                 {
                     DefaultRouter = new NormalRouter(),
@@ -35,14 +35,14 @@ namespace BlazorDrawFBP.Pages
             Diagram = new BlazorDiagram(options);
 
             Diagram.RegisterComponent<PythonFbpNode, PythonFbpNodeWidget>();
-            Diagram.RegisterComponent<AddTwoNumbersNode, AddTwoNumbersWidget>();
+            Diagram.RegisterComponent<UpdatePortNameNode, UpdatePortNameNodeWidget>();
 
             RegisterEvents();
-            
-            var node = Diagram.Nodes.Add(new AddTwoNumbersNode(new Point(80, 80)));
-            node.AddPort(PortAlignment.Top);
-            node.AddPort(PortAlignment.Bottom);
-            
+
+            // var node = Diagram.Nodes.Add(new AddTwoNumbersNode(new Point(80, 80)));
+            // node.AddPort(PortAlignment.Top);
+            // node.AddPort(PortAlignment.Bottom);
+
             // var firstNode = Diagram.Nodes.Add(new NodeModel(position: new Point(50, 50))
             // {
             //     Title = "Node 1"
@@ -61,23 +61,23 @@ namespace BlazorDrawFBP.Pages
             // var targetAnchor = new SinglePortAnchor(leftPort);
             // var link = Diagram.Links.Add(new LinkModel(sourceAnchor, targetAnchor));
         }
-        
+
         private void RegisterEvents()
         {
-            Diagram.Changed += () =>
-            {
-                events.Add("Changed");
-                StateHasChanged();
-            };
+            // Diagram.Changed += () =>
+            // {
+            //     events.Add("Changed");
+            //     StateHasChanged();
+            // };
 
-            Diagram.Nodes.Added += (n) => events.Add($"NodesAdded, NodeId={n.Id}");
-            Diagram.Nodes.Removed += (n) => events.Add($"NodesRemoved, NodeId={n.Id}");
+            // Diagram.Nodes.Added += (n) => events.Add($"NodesAdded, NodeId={n.Id}");
+            // Diagram.Nodes.Removed += (n) => events.Add($"NodesRemoved, NodeId={n.Id}");
 
-            Diagram.SelectionChanged += (m) =>
-            {
-                events.Add($"SelectionChanged, Id={m.Id}, Type={m.GetType().Name}, Selected={m.Selected}");
-                StateHasChanged();
-            };
+            // Diagram.SelectionChanged += (m) =>
+            // {
+            //     events.Add($"SelectionChanged, Id={m.Id}, Type={m.GetType().Name}, Selected={m.Selected}");
+            //     StateHasChanged();
+            // };
 
             Diagram.Links.Added += (l) =>
             {
@@ -86,65 +86,89 @@ namespace BlazorDrawFBP.Pages
                     switch (pm.ThePortType)
                     {
                         case CapnpFbpPortModel.PortType.In:
-                            l.Labels.Add(new LinkLabelModel(l, "IN", 50));
-                            l.Labels.Add(new LinkLabelModel(l, "OUT", -50));
+                            l.Labels.Add(new LinkLabelModel(l, "IN", 40));
+                            l.Labels.Add(new LinkLabelModel(l, "OUT", -40));
                             l.SourceMarker = LinkMarker.Arrow;
                             break;
                         case CapnpFbpPortModel.PortType.Out:
-                            l.Labels.Add(new LinkLabelModel(l, "OUT", 50));
-                            l.Labels.Add(new LinkLabelModel(l, "IN", -50));
+                            l.Labels.Add(new LinkLabelModel(l, "OUT", 40));
+                            l.Labels.Add(new LinkLabelModel(l, "IN", -40));
                             l.TargetMarker = LinkMarker.Arrow;
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
                 }
-                
-                Console.WriteLine($"Links.Added, LinkId={l.Id}, Source={l.Source}, Target={l.Target}");
-                events.Add($"Links.Added, LinkId={l.Id}");
+
+                // Console.WriteLine($"Links.Added, LinkId={l.Id}, Source={l.Source}, Target={l.Target}");
+                // events.Add($"Links.Added, LinkId={l.Id}");
             };
 
-            Diagram.Links.Removed += (l) => events.Add($"Links.Removed, LinkId={l.Id}");
+            // Diagram.Links.Removed += (l) => events.Add($"Links.Removed, LinkId={l.Id}");
 
-            Diagram.PointerDown += (m, e) =>
-            {
-                events.Add($"MouseDown, Type={m?.GetType().Name}, ModelId={m?.Id}");
-                StateHasChanged();
-            };
+            // Diagram.PointerDown += (m, e) =>
+            // {
+            //     //Console.WriteLine($"MouseDown, Type={m?.GetType().Name}, ModelId={m?.Id}, Position=({e.ClientX}/{e.ClientY}");
+            //     events.Add($"MouseDown, Type={m?.GetType().Name}, ModelId={m?.Id}");
+            //     StateHasChanged();
+            // };
 
-            Diagram.PointerUp += (m, e) =>
-            {
-                events.Add($"MouseUp, Type={m?.GetType().Name}, ModelId={m?.Id}");
-                StateHasChanged();
-            };
+            // Diagram.PointerUp += (m, e) =>
+            // {
+            //     events.Add($"MouseUp, Type={m?.GetType().Name}, ModelId={m?.Id}");
+            //     StateHasChanged();
+            // };
 
-            Diagram.PointerEnter += (m, e) =>
-            {
-                events.Add($"TouchStart, Type={m?.GetType().Name}, ModelId={m?.Id}");
-                StateHasChanged();
-            };
+            // Diagram.PointerEnter += (m, e) =>
+            // {
+            //     //Console.WriteLine($"TouchStart, Type={m?.GetType().Name}, ModelId={m?.Id}, Position=({e.ClientX}/{e.ClientY}");
+            //     events.Add($"TouchStart, Type={m?.GetType().Name}, ModelId={m?.Id}");
+            //     StateHasChanged();
+            // };
 
-            Diagram.PointerLeave += (m, e) =>
-            {
-                events.Add($"TouchEnd, Type={m?.GetType().Name}, ModelId={m?.Id}");
-                StateHasChanged();
-            };
+            // Diagram.PointerLeave += (m, e) =>
+            // {
+            //     events.Add($"TouchEnd, Type={m?.GetType().Name}, ModelId={m?.Id}");
+            //     StateHasChanged();
+            // };
 
-            Diagram.PointerClick += (m, e) =>
-            {
-                events.Add($"MouseClick, Type={m?.GetType().Name}, ModelId={m?.Id}");
-                StateHasChanged();
-            };
+            // Diagram.PointerClick += (m, e) =>
+            // {
+            //     events.Add($"MouseClick, Type={m?.GetType().Name}, ModelId={m?.Id}");
+            //     StateHasChanged();
+            // };
 
             Diagram.PointerDoubleClick += (m, e) =>
             {
-                Console.WriteLine($"MouseDoubleClick, Type={m?.GetType().Name}, ModelId={m?.Id}");
-                events.Add($"MouseDoubleClick, Type={m?.GetType().Name}, ModelId={m?.Id}");
+                if (m is LinkModel link)
+                {
+                    if (link.Source.Model is CapnpFbpPortModel source &&
+                        link.Target.Model is CapnpFbpPortModel target)
+                    {
+                        var relativePt = Diagram.GetRelativeMousePoint(e.ClientX, e.ClientY);
+
+                        // find closest port, assuming the user will click on the label he actually wants to change
+                        var sourceToPoint = relativePt.DistanceTo(source.MiddlePosition);
+                        var targetToPoint = relativePt.DistanceTo(target.MiddlePosition);
+                        var labelIndex = sourceToPoint < targetToPoint ? 0 : 1; 
+                        var node = new UpdatePortNameNode(relativePt)
+                        {
+                            Label = $"Change {link.Labels[labelIndex].Content}",
+                            Model = link.Labels[labelIndex],
+                            Container = Diagram
+                        };
+                        Diagram.Nodes.Add(node);
+                    }
+                }
+
+                // Console.WriteLine(
+                //     $"MouseDoubleClick, Type={m?.GetType().Name}, ModelId={m?.Id}, Position=({e.ClientX}/{e.ClientY}");
+                // events.Add($"MouseDoubleClick, Type={m?.GetType().Name}, ModelId={m?.Id}");
                 StateHasChanged();
             };
         }
-        
-        
+
+
         protected void AddNode()
         {
             var x = Random.Next(0, (int)Diagram.Container.Width - 120);
@@ -159,27 +183,27 @@ namespace BlazorDrawFBP.Pages
             var y = Random.Next(0, (int)Diagram.Container.Height - 100);
             Diagram.Nodes.Add(new NodeModel(new Point(x, y)));
         }
-        
+
         protected void RemoveNode()
         {
             var node = Diagram.Nodes.FirstOrDefault(n => n.Selected);
             if (node == null) return;
             Diagram.Nodes.Remove(node);
         }
-        
+
         protected void AddPort(CapnpFbpPortModel.PortType portType)
         {
             var node = Diagram.Nodes.FirstOrDefault(n => n.Selected);
             if (node == null) return;
 
-            foreach(PortAlignment portAlignment in Enum.GetValues(typeof(PortAlignment)))
+            foreach (PortAlignment portAlignment in Enum.GetValues(typeof(PortAlignment)))
             {
                 if (node.GetPort(portAlignment) != null) continue;
                 var port = new CapnpFbpPortModel(node, portType, portAlignment);
                 node.AddPort(port);
                 node.Refresh();
                 break;
-            }            
+            }
         }
 
         protected void RemovePort()
