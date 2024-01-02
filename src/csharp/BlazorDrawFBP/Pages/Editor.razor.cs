@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using Blazor.Diagrams;
 using Blazor.Diagrams.Core.Anchors;
 using Blazor.Diagrams.Core.Geometry;
@@ -9,6 +11,9 @@ using Blazor.Diagrams.Core.PathGenerators;
 using Blazor.Diagrams.Core.Routers;
 using Blazor.Diagrams.Options;
 using BlazorDrawFBP.Models;
+using Microsoft.AspNetCore.Components.Web;
+using Newtonsoft.Json.Linq;
+using SharedDemo.Demos;
 
 namespace BlazorDrawFBP.Pages
 {
@@ -18,6 +23,8 @@ namespace BlazorDrawFBP.Pages
         private BlazorDiagram Diagram { get; set; } = null!;
         //private readonly List<string> events = new List<string>();
 
+        private JObject _nodeConfigs = null!;
+        
         protected override void OnInitialized()
         {
             var options = new BlazorDiagramOptions
@@ -34,6 +41,9 @@ namespace BlazorDrawFBP.Pages
 
             Diagram = new BlazorDiagram(options);
 
+            var nodeConfigs = File.ReadAllText("Data/node_configs.json");
+            _nodeConfigs = JObject.Parse(nodeConfigs);
+            
             Diagram.RegisterComponent<PythonFbpNode, PythonFbpNodeWidget>();
             Diagram.RegisterComponent<UpdatePortNameNode, UpdatePortNameNodeWidget>();
 
@@ -86,14 +96,26 @@ namespace BlazorDrawFBP.Pages
                     switch (pm.ThePortType)
                     {
                         case CapnpFbpPortModel.PortType.In:
-                            l.Labels.Add(new LinkLabelModel(l, "IN", 40));
+                            l.Labels.Add(new LinkLabelModel(l, pm.Name, 40));
                             l.Labels.Add(new LinkLabelModel(l, "OUT", -40));
                             l.SourceMarker = LinkMarker.Arrow;
+                            l.TargetChanged += (link, oldTarget, newTarget) =>
+                            {
+                                if (newTarget.Model is not CapnpFbpPortModel outPort) return;
+                                link.Labels[1].Content = outPort.Name;
+                                link.Refresh();
+                            };
                             break;
                         case CapnpFbpPortModel.PortType.Out:
-                            l.Labels.Add(new LinkLabelModel(l, "OUT", 40));
+                            l.Labels.Add(new LinkLabelModel(l, pm.Name, 40));
                             l.Labels.Add(new LinkLabelModel(l, "IN", -40));
                             l.TargetMarker = LinkMarker.Arrow;
+                            l.TargetChanged += (link, oldTarget, newTarget) =>
+                            {
+                                if (newTarget.Model is not CapnpFbpPortModel inPort) return;
+                                link.Labels[1].Content = inPort.Name;
+                                link.Refresh();
+                            };
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
@@ -168,11 +190,15 @@ namespace BlazorDrawFBP.Pages
             };
         }
 
-
         protected void AddNode()
         {
             var x = Random.Next(0, (int)Diagram.Container.Width - 120);
             var y = Random.Next(0, (int)Diagram.Container.Height - 100);
+            AddNode(x, y);
+        }
+
+        protected void AddNode(double x, double y)
+        {
             var node = new PythonFbpNode(new Point(x, y));
             Diagram.Nodes.Add(node);
         }
@@ -236,5 +262,85 @@ namespace BlazorDrawFBP.Pages
             var targetPort = node2.Ports[Random.Next(0, node2.Ports.Count)];
             Diagram.Links.Add(new LinkModel(sourcePort, targetPort));
         }
+        
+        private string _draggedNodeType;
+        private string _draggedNodeName;
+        
+        private void OnNodeDragStart(string nodeType, string nodeName)
+        {
+            _draggedNodeType = nodeType;
+            _draggedNodeName = nodeName;
+        }
+
+        private void OnNodeDrop(DragEventArgs e)
+        {
+            if (_draggedNodeType == null) // Unkown item
+                return;
+
+            var position = Diagram.GetRelativeMousePoint(e.ClientX, e.ClientY);
+            switch (_draggedNodeType)
+            {
+                case "PythonFbpNode":
+                {
+                    _nodeConfigs.TryGetValue(_draggedNodeName, out var nodeConfig);
+                    if (nodeConfig == null) return;
+
+                    var cmdParams = new StringBuilder();
+                    foreach(var param in nodeConfig["cmd_params"] ?? new JArray())
+                    {
+                        var paramName = param["name"];
+                        if (paramName == null) continue;
+                        cmdParams.Append(paramName);
+                        cmdParams.Append('=');
+                        if (param["default"] != null)
+                        {
+                            cmdParams.Append(param["default"]);
+                        }
+                        cmdParams.AppendLine();
+                    }
+                    var node = new PythonFbpNode(new Point(position.X, position.Y))
+                    {
+                        PathToPythonFile = nodeConfig["path"]?.ToString() ?? "",
+                        ShortDescription = nodeConfig["description"]?.ToString() ?? "",
+                        CmdParamString = cmdParams.ToString()
+                    };
+                    var noOfInputs = nodeConfig["inputs"]?.Count() ?? 0;
+                    var offsetsMap = new Dictionary<int, List<int>>();
+                    offsetsMap.Add(1, new List<int> { 0 });
+                    offsetsMap.Add(2, new List<int> { -30, 30 });
+                    offsetsMap.Add(3, new List<int> { -30, 0, 30 });
+                    offsetsMap.Add(4, new List<int> { -30, -10, 10, 30 });
+                    offsetsMap.Add(5, new List<int> { -40, -20, 0, 20, 40 });
+                    offsetsMap.Add(6, new List<int> { -40, -20, -10, 10, 20, 40 });
+                    offsetsMap.Add(7, new List<int> { -40, -20, -10, 0, 10, 20, 40 });
+                    offsetsMap.Add(8, new List<int> { -50, -30, -20, -10, 10, 20, 30, 50 });
+                    offsetsMap.Add(9, new List<int> { -50, -30, -20, -10, 0, 10, 20, 30, 50 });
+                    offsetsMap.Add(10, new List<int> { -50, -40, -30, -20, -10, 10, 20, 30, 40, 50 });
+                    offsetsMap.Add(11, new List<int> { -50, -40, -30, -20, -10, 0, 10, 20, 30, 40, 50 });
+                    var offsets = offsetsMap[noOfInputs].AsEnumerable();
+                    foreach(var input in nodeConfig["inputs"] ?? new JArray())
+                    {
+                        var port = new CapnpFbpPortModel(node, CapnpFbpPortModel.PortType.In, PortAlignment.Top)
+                        {
+                            Name = input["name"]?.ToString() ?? "IN",
+                            Offset = offsets.FirstOrDefault();
+                        };
+                        node.AddPort(port);
+                    }
+                    foreach(var output in nodeConfig["outputs"] ?? new JArray())
+                    {
+                        var port = new CapnpFbpPortModel(node, CapnpFbpPortModel.PortType.Out, PortAlignment.Right)
+                        {
+                            Name = output["name"]?.ToString() ?? "OUT",
+                        };
+                        node.AddPort(port);
+                    }
+                    Diagram.Nodes.Add(node);
+                    break;
+                }
+            }
+            _draggedNodeType = null;
+        }
+        
     }
 }

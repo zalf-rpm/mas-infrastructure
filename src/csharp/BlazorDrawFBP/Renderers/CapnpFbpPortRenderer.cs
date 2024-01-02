@@ -68,11 +68,19 @@ public class CapnpFbpPortRenderer : ComponentBase, IDisposable
     {
         if (!this.Port.Visible)
             return;
+        
+        var offsetString = "";
+        if (Port.Offset != 0)
+        {
+            offsetString = "offset-" + (Port.Offset < 0 ? "m" : "") + (int)Math.Round(Math.Abs(Port.Offset) / 10.0) * 10;
+        }
+        
         builder.OpenElement(0, _isParentSvg ? "g" : "div");
         builder.AddAttribute(1, "style", Style);
         builder.AddAttribute(2, "class",
-            $"diagram-port {Port.Alignment.ToString().ToLower()} {Port.ThePortType.ToString().ToLower()} " +
-            (Port.Links.Count > 0 ? "has-links" : "") + " " + Class);
+            "diagram-port " + Port.Alignment.ToString().ToLower() + " " + 
+            Port.ThePortType.ToString().ToLower() + " " +
+            offsetString + " " + (Port.Links.Count > 0 ? "has-links" : "") + " " + Class);
         builder.AddAttribute(3, "data-port-id", Port.Id);
         builder.AddAttribute<PointerEventArgs>(4, "onpointerdown",
             EventCallback.Factory.Create<PointerEventArgs>((object)this,

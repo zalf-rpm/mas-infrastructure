@@ -13,22 +13,80 @@
     padding: 0px;
     font-size: 10px;
     line-height: 1.7em;
+    text-align: center;
 }
 
 ::deep .diagram-port:hover, .diagram-port.has-links {
     background-color: black;
 }
 
+::deep .diagram-port.top.offset-m50 {
+    border-radius: 50%;
+    top: 0px;
+    left: 0%;
+}
+::deep .diagram-port.top.offset-m40 {
+    border-radius: 50%;
+    top: 0px;
+    left: 10%;
+}
+::deep .diagram-port.top.offset-m30 {
+    border-radius: 50%;
+    top: 0px;
+    left: 20%;
+}
+::deep .diagram-port.top.offset-m20 {
+    border-radius: 50%;
+    top: 0px;
+    left: 30%;
+}
+::deep .diagram-port.top.offset-m10 {
+    border-radius: 50%;
+    top: 0px;
+    left: 40%;
+}
 ::deep .diagram-port.top {
     border-radius: 50%;
     top: 0px;
     left: 50%;
 }
+::deep .diagram-port.top.offset-10 {
+    border-radius: 50%;
+    top: 0px;
+    left: 60%;
+}
+::deep .diagram-port.top.offset-20 {
+    border-radius: 50%;
+    top: 0px;
+    left: 70%;
+}
+::deep .diagram-port.top.offset-30 {
+    border-radius: 50%;
+    top: 0px;
+    left: 80%;
+}
+::deep .diagram-port.top.offset-40 {
+    border-radius: 50%;
+    top: 0px;
+    left: 90%;
+}
+::deep .diagram-port.top.offset-50 {
+    border-radius: 50%;
+    top: 0px;
+    left: 100%;
+}
+
 ::deep .diagram-port.top.in {
     border-radius: 20% 20% 50% 50%;
 }
 ::deep .diagram-port.top.out {
     border-radius: 50% 50% 20% 20%;
+}
+
+::deep .diagram-port.left.offset-m50 {
+    border-radius: 50%;
+    top: 0px;
+    left: 0px;
 }
 
 ::deep .diagram-port.topleft {

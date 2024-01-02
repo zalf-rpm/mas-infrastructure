@@ -1,0 +1,116 @@
+{
+  "a.py": {
+    "type": "PythonFbpNode",
+    "path": "/home/berg/GitHub/bgr_flow/bgr_flow_components/a.py",
+    "cmd_params": [],
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "out"
+      }
+    ]
+  },
+  "b.py": {
+    "type": "PythonFbpNode",
+    "path": "/home/berg/GitHub/bgr_flow/bgr_flow_components/b.py",
+    "cmd_params": [],
+    "inputs": [
+      {
+        "name": "in"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "out"
+      }
+    ]
+  },
+  "c.py": {
+    "type": "PythonFbpNode",
+    "path": "/home/berg/GitHub/bgr_flow/bgr_flow_components/c.py",
+    "cmd_params": [],
+    "inputs": [
+      {
+        "name": "in"
+      }
+    ],
+    "outputs": []
+  },
+  "console.py": {
+    "type": "PythonFbpNode",
+    "path": "/home/berg/GitHub/bgr_flow/bgr_flow_components/console.py",
+    "inputs": [
+      {
+        "name": "in"
+      }
+    ],
+    "outputs": []
+  },
+  "read_file.py": {
+    "description": "Read a file into a string",
+    "type": "PythonFbpNode",
+    "path": "/home/berg/GitHub/mas-infrastructure/src/python/fbp/read_file.py",
+    "cmd_params": [
+      {"name": "file", "type": "string", "description": "File to read"},
+      {"name": "to_attr", "type": "string", "description": "attribute name (key) to which attach read IP on attr_sr"},
+      {"name": "skip_lines", "type": "int", "default": 0, "description": "Number of lines to skip"}
+    ],
+    "inputs": [
+      {
+        "name": "attr",
+        "optional": true,
+        "description": "attributes to attach to new IP"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "out"
+      }
+    ]
+  },
+  "write_file.py": {
+    "description": "Write a string to a file",
+    "type": "PythonFbpNode",
+    "path": "/home/berg/GitHub/mas-infrastructure/src/python/fbp/write_file.py",
+    "cmd_params": [
+      {"name": "file", "type": "string", "description": "File to read"},
+      {"name": "id_attr", "type": "string", "default": "id", "description": "attribute to get file id from"},
+      {"name": "from_attr", "type": "string", "default": null, "description": "read content from given attribute"},
+      {"name": "filepath_pattern", "type": "string", "default": "file_{id}.txt", "description": "pattern for file path"},
+      {"name": "path_to_out_dir", "type": "string", "default": "./", "description": "where to write files"},
+      {"name": "append", "type": "bool", "default": false, "description": "append to existing file"},
+      {"name": "debug", "type": "bool", "default": false, "description": "output debug info about written file"}
+    ],
+    "inputs": [
+      {
+        "name": "in",
+        "description": "file content to write"
+      }
+    ],
+    "outputs": []
+  },
+  "split_string.py": {
+    "description": "Split a string into a list of strings",
+    "type": "PythonFbpNode",
+    "path": "/home/berg/GitHub/mas-infrastructure/src/python/fbp/split_string.py",
+    "cmd_params": [
+      {"name": "split_at", "type": "string", "description": "split IP at in_sr at this token"},
+      {
+        "name": "cast_to", "type": "string", "options": ["text", "float", "int"], 
+        "description": "cast split elements to this type"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "in",
+        "description": "string to split"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "out",
+        "description": "a list of split elements"
+      }
+    ]
+  }
+}

@@ -4,17 +4,65 @@
 
 @using Blazor.Diagrams.Components.Widgets
 @using BlazorDrawFBP.Models
+@using Newtonsoft.Json.Linq
+@using MudBlazor
 
 <MudGrid>
-    <MudItem xs="12">
-        <MudButton Variant="Variant.Filled" @onclick="AddNode">Add Node</MudButton>
-        <MudButton Variant="Variant.Filled" @onclick="AddDefaultNode">Add default Node</MudButton>
-        <MudButton Variant="Variant.Filled" @onclick="RemoveNode">Remove Node</MudButton>
-        <MudButton Variant="Variant.Filled" @onclick="() => AddPort(CapnpFbpPortModel.PortType.In)">Add IN port</MudButton>
-        <MudButton Variant="Variant.Filled" @onclick="() => AddPort(CapnpFbpPortModel.PortType.Out)">Add OUT port</MudButton>
+    <MudItem xs="2">
+        <MudPaper Height="90vh" Class="overflow-scroll">
+            <MudStack>
+                @foreach (var nc in _nodeConfigs)
+                {
+                    if (nc.Value is not JObject jobj) continue;
+
+                    var nodeType = jobj["type"]?.ToString();
+                    if (nodeType == null) continue;
+                    var desc = jobj["description"]?.ToString() ?? "";
+
+                    <MudCard>
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudText>@nc.Key</MudText>
+                                <MudText Typo="Typo.body2">@desc</MudText>
+                            </CardHeaderContent>
+                            <CardHeaderActions>
+                                <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Default"/>
+                            </CardHeaderActions>
+                        </MudCardHeader>
+                        @* <MudCardMedia Image="/img/DefaultNodeWidget.png" Height="100"/> *@
+                        <MudCardContent>
+                            <MudTooltip Text="@nc.Key">
+                                <MudImage Src="/img/DefaultNodeWidget.png"
+                                          Alt="Capnp node"
+                                          Class="rounded-lg"
+                                          draggable="@true"
+                                          @ondragstart="() => OnNodeDragStart(nodeType, nc.Key)"/>
+                            </MudTooltip>
+                        </MudCardContent>
+                    </MudCard>
+                    @* <MudPaper> *@
+                    @*     <MudTooltip Text="@nc.Key"> *@
+                    @*         <MudImage Src="/img/DefaultNodeWidget.png" *@
+                    @*                   Alt="Capnp node" *@
+                    @*                   Class="rounded-lg" *@
+                    @*                   draggable="true" *@
+                    @*                   @ondragstart="() => OnDragStart(nodeType)"/> *@
+                    @*     </MudTooltip> *@
+                    @*     <MudText Typo="@Typo.body2">@nc.Key</MudText> *@
+                    @* </MudPaper> *@
+                }
+                @* <MudFab StartIcon="@Icons.Material.Filled.Remove" Label="Node" @onclick="RemoveNode"/> *@
+                <MudFab StartIcon="@Icons.Material.Filled.Add" Label="IN Port" @onclick="() => AddPort(CapnpFbpPortModel.PortType.In)"/>
+                <MudFab StartIcon="@Icons.Material.Filled.Remove" Label="OUT Port" @onclick="() => AddPort(CapnpFbpPortModel.PortType.Out)"/>
+                @* <MudButton Variant="Variant.Filled" @onclick="AddDefaultNode">Add default Node</MudButton> *@
+                @* <MudButton Variant="Variant.Filled" @onclick="RemoveNode">Remove Node</MudButton> *@
+                @* <MudButton Variant="Variant.Filled" @onclick="() => AddPort(CapnpFbpPortModel.PortType.In)">Add IN port</MudButton> *@
+                @* <MudButton Variant="Variant.Filled" @onclick="() => AddPort(CapnpFbpPortModel.PortType.Out)">Add OUT port</MudButton> *@
+            </MudStack>
+        </MudPaper>
     </MudItem>
-    <MudItem xs="12">
-        <div class="diagram-container">
+    <MudItem xs="10">
+        <MudPaper Height="90vh" Outlined="true" class="diagram-container" ondragover="event.preventDefault();" @ondrop="OnNodeDrop">
             <CascadingValue Value="Diagram" IsFixed="true">
                 <DiagramCanvas>
                     <Widgets>
@@ -23,11 +71,9 @@
                     </Widgets>
                 </DiagramCanvas>
             </CascadingValue>
-        </div>
+        </MudPaper>
+        @* <div > *@
+        @*      *@
+        @* </div> *@
     </MudItem>
 </MudGrid>
-
-@code
-{
-
-}

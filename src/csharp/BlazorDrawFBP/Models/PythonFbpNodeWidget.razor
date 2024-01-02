@@ -59,7 +59,7 @@
         if (port is CapnpFbpPortModel capnpPort) 
         {
             <CapnpFbpPortRenderer @key="port" Port="capnpPort">
-                @capnpPort.ThePortType.ToString().ToUpper()[0]
+                @($"{capnpPort.ThePortType.ToString().ToUpper()[0]} {capnpPort.Name}") 
             </CapnpFbpPortRenderer>
         }
     }
