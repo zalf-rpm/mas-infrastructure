@@ -11,6 +11,8 @@
     <MudItem xs="2">
         <MudPaper Height="90vh" Class="overflow-scroll">
             <MudStack>
+                <MudFab StartIcon="@Icons.Material.Filled.Delete" Label="Remove Node" @onclick="RemoveNode"/>
+                <MudFab StartIcon="@Icons.Material.Filled.Download" Label="Download" @onclick="Download"/>
                 @foreach (var nc in _nodeConfigs)
                 {
                     if (nc.Value is not JObject jobj) continue;
@@ -52,8 +54,8 @@
                     @* </MudPaper> *@
                 }
                 @* <MudFab StartIcon="@Icons.Material.Filled.Remove" Label="Node" @onclick="RemoveNode"/> *@
-                <MudFab StartIcon="@Icons.Material.Filled.Add" Label="IN Port" @onclick="() => AddPort(CapnpFbpPortModel.PortType.In)"/>
-                <MudFab StartIcon="@Icons.Material.Filled.Remove" Label="OUT Port" @onclick="() => AddPort(CapnpFbpPortModel.PortType.Out)"/>
+                @* <MudFab StartIcon="@Icons.Material.Filled.Add" Label="IN Port" @onclick="() => AddPort(CapnpFbpPortModel.PortType.In)"/> *@
+                @* <MudFab StartIcon="@Icons.Material.Filled.Remove" Label="OUT Port" @onclick="() => AddPort(CapnpFbpPortModel.PortType.Out)"/> *@
                 @* <MudButton Variant="Variant.Filled" @onclick="AddDefaultNode">Add default Node</MudButton> *@
                 @* <MudButton Variant="Variant.Filled" @onclick="RemoveNode">Remove Node</MudButton> *@
                 @* <MudButton Variant="Variant.Filled" @onclick="() => AddPort(CapnpFbpPortModel.PortType.In)">Add IN port</MudButton> *@
@@ -66,7 +68,9 @@
             <CascadingValue Value="Diagram" IsFixed="true">
                 <DiagramCanvas>
                     <Widgets>
-                        <NavigatorWidget Width="200" Height="120" Class="border border-black bg-white absolute"
+                        <NavigatorWidget Width="200" 
+                                         Height="120" 
+                                         Class="border border-black bg-white absolute"
                                          Style="bottom: 15px; right: 15px;"/>
                     </Widgets>
                 </DiagramCanvas>

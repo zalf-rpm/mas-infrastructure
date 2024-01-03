@@ -217,6 +217,13 @@ namespace BlazorDrawFBP.Pages
             Diagram.Nodes.Remove(node);
         }
 
+        protected void Download()
+        {
+            var node = Diagram.Nodes.FirstOrDefault(n => n.Selected);
+            if (node == null) return;
+            Diagram.Nodes.Remove(node);
+        }
+        
         protected void AddPort(CapnpFbpPortModel.PortType portType)
         {
             var node = Diagram.Nodes.FirstOrDefault(n => n.Selected);
@@ -304,34 +311,37 @@ namespace BlazorDrawFBP.Pages
                         ShortDescription = nodeConfig["description"]?.ToString() ?? "",
                         CmdParamString = cmdParams.ToString()
                     };
-                    var noOfInputs = nodeConfig["inputs"]?.Count() ?? 0;
-                    var offsetsMap = new Dictionary<int, List<int>>();
-                    offsetsMap.Add(1, new List<int> { 0 });
-                    offsetsMap.Add(2, new List<int> { -30, 30 });
-                    offsetsMap.Add(3, new List<int> { -30, 0, 30 });
-                    offsetsMap.Add(4, new List<int> { -30, -10, 10, 30 });
-                    offsetsMap.Add(5, new List<int> { -40, -20, 0, 20, 40 });
-                    offsetsMap.Add(6, new List<int> { -40, -20, -10, 10, 20, 40 });
-                    offsetsMap.Add(7, new List<int> { -40, -20, -10, 0, 10, 20, 40 });
-                    offsetsMap.Add(8, new List<int> { -50, -30, -20, -10, 10, 20, 30, 50 });
-                    offsetsMap.Add(9, new List<int> { -50, -30, -20, -10, 0, 10, 20, 30, 50 });
-                    offsetsMap.Add(10, new List<int> { -50, -40, -30, -20, -10, 10, 20, 30, 40, 50 });
-                    offsetsMap.Add(11, new List<int> { -50, -40, -30, -20, -10, 0, 10, 20, 30, 40, 50 });
-                    var offsets = offsetsMap[noOfInputs].AsEnumerable();
-                    foreach(var input in nodeConfig["inputs"] ?? new JArray())
+
+                    foreach(var (i, input) in (nodeConfig["inputs"] ?? new JArray()).
+                            Select((inp, i) => (i, inp)))
                     {
-                        var port = new CapnpFbpPortModel(node, CapnpFbpPortModel.PortType.In, PortAlignment.Top)
+                        var alignment = i switch
+                        {
+                            10 => PortAlignment.TopLeft,
+                            > 10 => PortAlignment.Top,
+                            _ => PortAlignment.Left
+                        };
+                        var port = new CapnpFbpPortModel(node, CapnpFbpPortModel.PortType.In, alignment)
                         {
                             Name = input["name"]?.ToString() ?? "IN",
-                            Offset = offsets.FirstOrDefault();
+                            OrderNo = i > 10 ? i-11 : i,
                         };
                         node.AddPort(port);
                     }
-                    foreach(var output in nodeConfig["outputs"] ?? new JArray())
+
+                    foreach(var (i, output) in (nodeConfig["outputs"] ?? new JArray()).
+                            Select((outp, i) => (i, outp)))
                     {
-                        var port = new CapnpFbpPortModel(node, CapnpFbpPortModel.PortType.Out, PortAlignment.Right)
+                        var alignment = i switch
+                        {
+                            10 => PortAlignment.BottomRight,
+                            > 10 => PortAlignment.Bottom,
+                            _ => PortAlignment.Right
+                        };
+                        var port = new CapnpFbpPortModel(node, CapnpFbpPortModel.PortType.Out, alignment)
                         {
                             Name = output["name"]?.ToString() ?? "OUT",
+                            OrderNo = i > 10 ? i-11 : i,
                         };
                         node.AddPort(port);
                     }

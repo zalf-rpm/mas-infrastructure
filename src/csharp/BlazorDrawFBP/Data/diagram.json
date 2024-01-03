@@ -1,0 +1,23 @@
+{
+  "version": "0.1",
+  "name": "test",
+  "node_config": "node_configs.json",
+  "nodes": [
+    {
+      "node_id": "a.py",
+      "user_id": "a",
+      "location": {"x": 0, "y": 0}
+    },
+    {
+      "node_id": "c.py",
+      "user_id": "c",
+      "location": {"x": 0, "y": 0}
+    }
+  ],
+  "links": [
+    {
+      "source": {"node_id": "a.py", "port": "out"},
+      "target": {"node_id": "b.py", "port": "in"}
+    }
+  ]
+}

@@ -36,8 +36,6 @@ abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
 common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
 fbp_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "fbp.capnp"), imports=abs_imports)
 
-#------------------------------------------------------------------------------
-
 config = {
     "_": "write_file.py",
     "in_sr": None,
