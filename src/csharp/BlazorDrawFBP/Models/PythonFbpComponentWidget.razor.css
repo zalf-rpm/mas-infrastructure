@@ -1,3 +1,7 @@
+.diagram-node.selected {
+    border: 1px solid #6e9fd4;
+}
+
 ::deep .diagram-port {
     position: absolute;
     width: 20px;

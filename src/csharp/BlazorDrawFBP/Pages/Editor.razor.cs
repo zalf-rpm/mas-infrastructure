@@ -11,7 +11,9 @@ using Blazor.Diagrams.Core.PathGenerators;
 using Blazor.Diagrams.Core.Routers;
 using Blazor.Diagrams.Options;
 using BlazorDrawFBP.Models;
+using Mas.Schema.Climate;
 using Microsoft.AspNetCore.Components.Web;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SharedDemo.Demos;
 
@@ -23,7 +25,8 @@ namespace BlazorDrawFBP.Pages
         private BlazorDiagram Diagram { get; set; } = null!;
         //private readonly List<string> events = new List<string>();
 
-        private JObject _nodeConfigs = null!;
+        private JObject _components = null!;
+        private Dictionary<string, JObject> _componentDict = new();
         
         protected override void OnInitialized()
         {
@@ -41,10 +44,19 @@ namespace BlazorDrawFBP.Pages
 
             Diagram = new BlazorDiagram(options);
 
-            var nodeConfigs = File.ReadAllText("Data/node_configs.json");
-            _nodeConfigs = JObject.Parse(nodeConfigs);
-            
-            Diagram.RegisterComponent<PythonFbpNode, PythonFbpNodeWidget>();
+            _components = JObject.Parse(File.ReadAllText("Data/components.json"));
+            foreach (var (cat, value) in _components)
+            {
+                if (value is not JArray components) continue;
+                foreach (var component in components)
+                {
+                    if (component is not JObject comp ||
+                        comp["id"] == null) continue;
+                    _componentDict.Add(comp["id"].ToString(), comp);
+                }
+            }
+
+            Diagram.RegisterComponent<PythonFbpComponentModel, PythonFbpComponentWidget>();
             Diagram.RegisterComponent<UpdatePortNameNode, UpdatePortNameNodeWidget>();
 
             RegisterEvents();
@@ -199,7 +211,7 @@ namespace BlazorDrawFBP.Pages
 
         protected void AddNode(double x, double y)
         {
-            var node = new PythonFbpNode(new Point(x, y));
+            var node = new PythonFbpComponentModel(new Point(x, y));
             Diagram.Nodes.Add(node);
         }
 
@@ -217,11 +229,108 @@ namespace BlazorDrawFBP.Pages
             Diagram.Nodes.Remove(node);
         }
 
-        protected void Download()
+        protected void LoadDiagram()
         {
-            var node = Diagram.Nodes.FirstOrDefault(n => n.Selected);
-            if (node == null) return;
-            Diagram.Nodes.Remove(node);
+            var dia = JObject.Parse(File.ReadAllText("Data/diagram_new.json"));
+            var oldNodeIdToNewNode = new Dictionary<string, NodeModel>();
+            foreach (var node in dia["nodes"] ?? new JArray())
+            {
+                if (node is not JObject obj) continue;
+
+                var position = new Point(obj["location"]?["x"]?.Value<double>() ?? 0, 
+                    obj["location"]?["y"]?.Value<double>() ?? 0);
+                var component = _componentDict[obj["component_id"]?.ToString() ?? ""];
+                var diaNode = AddFbpNode(position, component, obj);
+                oldNodeIdToNewNode.Add(obj["node_id"]?.ToString() ?? "", diaNode);
+            }
+
+            foreach (var link in dia["links"] ?? new JArray())
+            {
+                if (link["source"] is not JObject source || link["target"] is not JObject target) continue;
+                
+                var sourcePortName = source["port"]?.ToString();
+                var targetPortName = target["port"]?.ToString();
+                if (sourcePortName == null || targetPortName == null) continue;
+                
+                var sourceNode = oldNodeIdToNewNode[source["node_id"]?.ToString() ?? ""];
+                var targetNode = oldNodeIdToNewNode[target["node_id"]?.ToString() ?? ""];
+                if (sourceNode == null || sourceNode.Ports.Count == 0 || 
+                    targetNode == null || targetNode.Ports.Count == 0) continue;
+
+                var sourcePort = sourceNode.Ports.Where(p => 
+                        p is CapnpFbpPortModel capnpPort && capnpPort.Name == sourcePortName)
+                    .DefaultIfEmpty(null).First();
+                var targetPort = targetNode.Ports.Where(p => 
+                        p is CapnpFbpPortModel capnpPort && capnpPort.Name == targetPortName)
+                    .DefaultIfEmpty(null).First();
+                if (sourcePort == null || targetPort == null) continue;
+                Diagram.Links.Add(new LinkModel(sourcePort, targetPort));
+            }
+        }
+        
+        protected void SaveDiagram()
+        {
+            var dia = JObject.Parse(File.ReadAllText("Data/diagram_template.json"));
+            HashSet<string> linkSet = new();
+            foreach(var node in Diagram.Nodes)
+            {
+                if (node is not PythonFbpComponentModel fbpNode) continue;
+
+                var cmdParams = new JObject();
+                foreach (var line in fbpNode.CmdParamString.Split('\n'))
+                {
+                    var kv = line.Split('=');
+                    cmdParams.Add(kv[0].Trim(), kv.Length == 2 ? kv[1].Trim() : "");
+                }
+                var jn = new JObject()
+                {
+                    { "node_id", fbpNode.Id },
+                    { "component_id", fbpNode.ComponentId },
+                    { "user_name", fbpNode.UserName },
+                    { "location", new JObject() { { "x", fbpNode.Position.X }, { "y", fbpNode.Position.Y } } },
+                    {
+                        "data", new JObject()
+                        {
+                            { "path", fbpNode.PathToPythonFile },
+                            { "cmd_params", cmdParams }
+                        }
+                    }
+                };
+                if (dia["nodes"] is JArray nodes) nodes.Add(jn);
+
+                foreach (var pl in node.PortLinks)
+                {
+                    if (!pl.IsAttached) continue;
+
+                    if (pl.Source.Model is not CapnpFbpPortModel sourceCapnpPort ||
+                        pl.Target.Model is not CapnpFbpPortModel targetCapnpPort) continue;
+
+                    var checkS = $"{sourceCapnpPort.Parent.Id}.{sourceCapnpPort.Name}";
+                    var checkT = $"{targetCapnpPort.Parent.Id}.{targetCapnpPort.Name}";
+                    if (linkSet.Contains($"{checkS}->{checkT}") ||
+                        linkSet.Contains($"{checkT}->{checkS}")) continue;
+                    else linkSet.Add($"{checkS}->{checkT}");
+
+                    var jl = new JObject()
+                    {
+                        { "source", new JObject()
+                            {
+                                { "node_id", sourceCapnpPort.Parent.Id }, 
+                                { "port", sourceCapnpPort.Name }
+                            } 
+                        },
+                        { "target", new JObject()
+                            {
+                                { "node_id", targetCapnpPort.Parent.Id }, 
+                                { "port", targetCapnpPort.Name }
+                            } 
+                        }
+                    };
+                    if (dia["links"] is JArray links) links.Add(jl);
+                }
+            }
+            
+            File.WriteAllText("Data/diagram_new.json", dia.ToString());
         }
         
         protected void AddPort(CapnpFbpPortModel.PortType portType)
@@ -270,49 +379,52 @@ namespace BlazorDrawFBP.Pages
             Diagram.Links.Add(new LinkModel(sourcePort, targetPort));
         }
         
-        private string _draggedNodeType;
-        private string _draggedNodeName;
+        private JObject _draggedComponent;
         
-        private void OnNodeDragStart(string nodeType, string nodeName)
+        private void OnNodeDragStart(JObject component)//string nodeType, string nodeName)
         {
-            _draggedNodeType = nodeType;
-            _draggedNodeName = nodeName;
+            _draggedComponent = component;
         }
 
         private void OnNodeDrop(DragEventArgs e)
         {
-            if (_draggedNodeType == null) // Unkown item
-                return;
-
+            if (_draggedComponent == null) return;
             var position = Diagram.GetRelativeMousePoint(e.ClientX, e.ClientY);
-            switch (_draggedNodeType)
+            AddFbpNode(position, _draggedComponent);
+            _draggedComponent = null;
+        }
+        
+        private NodeModel AddFbpNode(Point position, JObject component, JObject initNode = null)
+        {
+            var initData = initNode == null ? new JObject() : initNode["data"] as JObject ?? new JObject();
+            
+            switch (component["type"]?.ToString())
             {
+                case null:
+                    return null;
                 case "PythonFbpNode":
                 {
-                    _nodeConfigs.TryGetValue(_draggedNodeName, out var nodeConfig);
-                    if (nodeConfig == null) return;
-
                     var cmdParams = new StringBuilder();
-                    foreach(var param in nodeConfig["cmd_params"] ?? new JArray())
+                    var initCmdParams = initData["cmd_params"] as JObject ?? new JObject();
+                    foreach(var param in component["cmd_params"] ?? new JArray())
                     {
                         var paramName = param["name"];
                         if (paramName == null) continue;
                         cmdParams.Append(paramName);
                         cmdParams.Append('=');
-                        if (param["default"] != null)
-                        {
-                            cmdParams.Append(param["default"]);
-                        }
+                        //if(initCmdParams[paramName]) 
+                        cmdParams.Append(initCmdParams[paramName] ?? param["default"] ?? "");
                         cmdParams.AppendLine();
                     }
-                    var node = new PythonFbpNode(new Point(position.X, position.Y))
+                    var node = new PythonFbpComponentModel(new Point(position.X, position.Y))
                     {
-                        PathToPythonFile = nodeConfig["path"]?.ToString() ?? "",
-                        ShortDescription = nodeConfig["description"]?.ToString() ?? "",
+                        ComponentId = component["id"]?.ToString() ?? "",
+                        PathToPythonFile = initData["path"]?.ToString() ?? component["path"]?.ToString() ?? "",
+                        ShortDescription = component["description"]?.ToString() ?? "",
                         CmdParamString = cmdParams.ToString()
                     };
 
-                    foreach(var (i, input) in (nodeConfig["inputs"] ?? new JArray()).
+                    foreach(var (i, input) in (component["inputs"] ?? new JArray()).
                             Select((inp, i) => (i, inp)))
                     {
                         var alignment = i switch
@@ -329,7 +441,7 @@ namespace BlazorDrawFBP.Pages
                         node.AddPort(port);
                     }
 
-                    foreach(var (i, output) in (nodeConfig["outputs"] ?? new JArray()).
+                    foreach(var (i, output) in (component["outputs"] ?? new JArray()).
                             Select((outp, i) => (i, outp)))
                     {
                         var alignment = i switch
@@ -346,11 +458,11 @@ namespace BlazorDrawFBP.Pages
                         node.AddPort(port);
                     }
                     Diagram.Nodes.Add(node);
-                    break;
+                    return node;
                 }
             }
-            _draggedNodeType = null;
+
+            return null;
         }
-        
     }
 }

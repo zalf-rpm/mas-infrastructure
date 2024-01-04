@@ -1,23 +1,27 @@
 {
   "version": "0.1",
   "name": "test",
-  "node_config": "node_configs.json",
+  "components": "components.json",
   "nodes": [
     {
-      "node_id": "a.py",
-      "user_id": "a",
-      "location": {"x": 0, "y": 0}
+      "node_id": "__a",
+      "component_id": "a.py",
+      "user_name": "a",
+      "location": {"x": 0, "y": 0},
+      "data": {}
     },
     {
-      "node_id": "c.py",
-      "user_id": "c",
-      "location": {"x": 0, "y": 0}
+      "node_id": "__c",
+      "component_id": "c.py",
+      "user_name": "c",
+      "location": {"x": 0, "y": 0},
+      "data": {}
     }
   ],
   "links": [
     {
-      "source": {"node_id": "a.py", "port": "out"},
-      "target": {"node_id": "b.py", "port": "in"}
+      "source": {"node_id": "__a", "port": "out"},
+      "target": {"node_id": "__b", "port": "in"}
     }
   ]
 }

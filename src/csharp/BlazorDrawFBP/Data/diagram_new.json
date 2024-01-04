@@ -1,0 +1,49 @@
+{
+  "version": "0.1",
+  "name": "",
+  "components": "components.json",
+  "nodes": [
+    {
+      "node_id": "f319b010-ed99-49c7-b30b-b47e98bb8e9c",
+      "component_id": "a.py",
+      "user_name": null,
+      "location": {
+        "x": 272.84375,
+        "y": 234.0
+      },
+      "data": {
+        "path": "/home/berg/GitHub/bgr_flow/bgr_flow_components/a.py",
+        "cmd_params": {
+          "": ""
+        }
+      }
+    },
+    {
+      "node_id": "b23f4d8f-b46d-4bc1-8ce2-754fd9944aa5",
+      "component_id": "c.py",
+      "user_name": null,
+      "location": {
+        "x": 1002.84375,
+        "y": 257.0
+      },
+      "data": {
+        "path": "/home/berg/GitHub/bgr_flow/bgr_flow_components/c.py",
+        "cmd_params": {
+          "": ""
+        }
+      }
+    }
+  ],
+  "links": [
+    {
+      "source": {
+        "node_id": "f319b010-ed99-49c7-b30b-b47e98bb8e9c",
+        "port": "out"
+      },
+      "target": {
+        "node_id": "b23f4d8f-b46d-4bc1-8ce2-754fd9944aa5",
+        "port": "in"
+      }
+    }
+  ]
+}

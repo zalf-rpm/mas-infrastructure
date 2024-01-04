@@ -10,7 +10,7 @@
                 <MudAvatar Color="Color.Secondary">Py</MudAvatar>
             </CardHeaderAvatar>
             <CardHeaderContent>
-                <MudTextField @bind-Value="Node.UserId" Label="User ID" Variant="Variant.Outlined"/>
+                <MudTextField @bind-Value="Node.UserName" Label="User ID" Variant="Variant.Outlined"/>
                 @* <MudText Typo="Typo.body1">@Node.Id</MudText> *@
                 <MudText Typo="Typo.body2">@Node.ShortDescription</MudText>
             </CardHeaderContent>
@@ -90,7 +90,7 @@
 </div>
 
 @code {
-    [Parameter] public PythonFbpNode Node { get; set; } = null!;
+    [Parameter] public PythonFbpComponentModel Node { get; set; } = null!;
     
     private readonly Dictionary<int, List<int>> _leftRightOffsetsMap = new ()
     {
