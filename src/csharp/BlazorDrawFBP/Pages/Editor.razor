@@ -7,6 +7,8 @@
 @using Newtonsoft.Json.Linq
 @using MudBlazor
 
+@inject IJSRuntime JsRuntime
+
 <div>
     <MudGrid>
         <MudItem xs="2">
@@ -14,51 +16,74 @@
                 <MudExpansionPanels MultiExpansion="true" Dense="true">
                     <MudExpansionPanel Text="Actions" IsInitiallyExpanded="true">
                         <MudStack>
-                            <MudFab StartIcon="@Icons.Material.Filled.Delete" Label="Remove Node" @onclick="RemoveNode"/>
-                            <MudFab StartIcon="@Icons.Material.Filled.Upload" Label="Load" @onclick="LoadDiagram"/>
-                            <MudFab StartIcon="@Icons.Material.Filled.Download" Label="Save" @onclick="SaveDiagram"/>
+                            <MudButton StartIcon="@Icons.Material.Filled.Delete"
+                                       Variant="@Variant.Filled"
+                                       Color="@Color.Warning"
+                                       FullWidth="true"
+                                       @onclick="RemoveNode">
+                                Remove Node
+                            </MudButton>
+                            <MudFileUpload T="IBrowserFile" FilesChanged="LoadDiagram">
+                                <ButtonTemplate>
+                                    <MudButton StartIcon="@Icons.Material.Filled.Upload"
+                                               Variant="@Variant.Filled"
+                                               HtmlTag="label"
+                                               Color="@Color.Primary"
+                                               FullWidth="true"
+                                               for="@context.Id">
+                                        Load Diagram
+                                    </MudButton>
+                                </ButtonTemplate>
+                            </MudFileUpload>
+                            <MudButton StartIcon="@Icons.Material.Filled.Download"
+                                       Variant="@Variant.Filled"
+                                       Color="@Color.Primary"
+                                       FullWidth="true"
+                                       @onclick="SaveDiagram">
+                                Save Diagram
+                            </MudButton>
                         </MudStack>
                     </MudExpansionPanel>
-                        @foreach (var (cat, value) in _components)
-                        {
-                            <MudExpansionPanel Text="@cat" IsInitiallyExpanded="false">
-                                <MudStack>
-                                    @foreach (var component in value as JArray ?? new JArray())
-                                    {
-                                        if (component is not JObject obj) continue;
-            
-                                        var componentId = obj["id"]?.ToString();
-                                        var nodeType = obj["type"]?.ToString();
-                                        if (nodeType == null || componentId == null) continue;
-                                        
-                                        var desc = obj["description"]?.ToString() ?? "";
-            
-                                        <MudCard>
-                                            <MudCardHeader>
-                                                <CardHeaderContent>
-                                                    <MudText>@componentId</MudText>
-                                                    <MudText Typo="Typo.body1" >(@cat)</MudText>
-                                                    <MudText Typo="Typo.body2">@desc</MudText>
-                                                </CardHeaderContent>
-                                                <CardHeaderActions>
-                                                    <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Default"/>
-                                                </CardHeaderActions>
-                                            </MudCardHeader>
-                                            @* <MudCardMedia Image="/img/DefaultNodeWidget.png" Height="100"/> *@
-                                            <MudCardContent>
-                                                <MudTooltip Text="@componentId">
-                                                    <MudImage Src="/img/DefaultNodeWidget.png"
-                                                              Alt="Capnp node"
-                                                              Class="rounded-lg"
-                                                              draggable="@true"
-                                                              @ondragstart="() => OnNodeDragStart(obj)"/>
-                                                </MudTooltip>
-                                            </MudCardContent>
-                                        </MudCard>
-                                    }
-                             </MudStack>
-                            </MudExpansionPanel>
-                        }
+                    @foreach (var (cat, value) in _components)
+                    {
+                        <MudExpansionPanel Text="@cat" IsInitiallyExpanded="false">
+                            <MudStack>
+                                @foreach (var component in value as JArray ?? new JArray())
+                                {
+                                    if (component is not JObject obj) continue;
+        
+                                    var componentId = obj["id"]?.ToString();
+                                    var nodeType = obj["type"]?.ToString();
+                                    if (nodeType == null || componentId == null) continue;
+                                    
+                                    var desc = obj["description"]?.ToString() ?? "";
+        
+                                    <MudCard>
+                                        <MudCardHeader>
+                                            <CardHeaderContent>
+                                                <MudText>@componentId</MudText>
+                                                <MudText Typo="Typo.body1" >(@cat)</MudText>
+                                                <MudText Typo="Typo.body2">@desc</MudText>
+                                            </CardHeaderContent>
+                                            <CardHeaderActions>
+                                                <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Default"/>
+                                            </CardHeaderActions>
+                                        </MudCardHeader>
+                                        @* <MudCardMedia Image="/img/DefaultNodeWidget.png" Height="100"/> *@
+                                        <MudCardContent>
+                                            <MudTooltip Text="@componentId">
+                                                <MudImage Src="/img/DefaultNodeWidget.png"
+                                                          Alt="Capnp node"
+                                                          Class="rounded-lg"
+                                                          draggable="@true"
+                                                          @ondragstart="() => OnNodeDragStart(obj)"/>
+                                            </MudTooltip>
+                                        </MudCardContent>
+                                    </MudCard>
+                                }
+                         </MudStack>
+                        </MudExpansionPanel>
+                    }
                 </MudExpansionPanels>
                 @* <MudStack> *@
                 @*     <MudFab StartIcon="@Icons.Material.Filled.Delete" Label="Remove Node" @onclick="RemoveNode"/> *@

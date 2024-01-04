@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Blazor.Diagrams;
 using Blazor.Diagrams.Core.Anchors;
 using Blazor.Diagrams.Core.Geometry;
@@ -12,7 +13,9 @@ using Blazor.Diagrams.Core.Routers;
 using Blazor.Diagrams.Options;
 using BlazorDrawFBP.Models;
 using Mas.Schema.Climate;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SharedDemo.Demos;
@@ -229,9 +232,12 @@ namespace BlazorDrawFBP.Pages
             Diagram.Nodes.Remove(node);
         }
 
-        protected void LoadDiagram()
+        protected async Task LoadDiagram(IBrowserFile file)
         {
-            var dia = JObject.Parse(File.ReadAllText("Data/diagram_new.json"));
+            var s = file.OpenReadStream();
+            if (s.Length > 1*1024*1024) return; // 1 MB
+            var dia = JObject.Parse(await new StreamReader(s).ReadToEndAsync());
+            //var dia = JObject.Parse(File.ReadAllText("Data/diagram_new.json"));
             var oldNodeIdToNewNode = new Dictionary<string, NodeModel>();
             foreach (var node in dia["nodes"] ?? new JArray())
             {
@@ -268,7 +274,7 @@ namespace BlazorDrawFBP.Pages
             }
         }
         
-        protected void SaveDiagram()
+        protected async Task SaveDiagram()
         {
             var dia = JObject.Parse(File.ReadAllText("Data/diagram_template.json"));
             HashSet<string> linkSet = new();
@@ -330,7 +336,9 @@ namespace BlazorDrawFBP.Pages
                 }
             }
             
-            File.WriteAllText("Data/diagram_new.json", dia.ToString());
+            //File.WriteAllText("Data/diagram_new.json", dia.ToString());
+            await JsRuntime.InvokeVoidAsync("saveAsBase64", "diagram.json", 
+                Convert.ToBase64String(Encoding.UTF8.GetBytes(dia.ToString())));
         }
         
         protected void AddPort(CapnpFbpPortModel.PortType portType)
