@@ -286,6 +286,87 @@ namespace BlazorDrawFBP.Pages
                 foreach (var line in fbpNode.CmdParamString.Split('\n'))
                 {
                     var kv = line.Split('=');
+                    var k = kv[0].Trim();
+                    var v = kv[1].Trim();
+                    if(k.Length > 0 && v.Length > 0) cmdParams.Add(k, v);
+                }
+                var jn = new JObject()
+                {
+                    { "node_id", fbpNode.Id },
+                    { "component_id", fbpNode.ComponentId },
+                    { "user_name", fbpNode.UserName },
+                    { "location", new JObject() { { "x", fbpNode.Position.X }, { "y", fbpNode.Position.Y } } },
+                    {
+                        "data", new JObject()
+                        {
+                            { "path", fbpNode.PathToPythonFile },
+                            { "cmd_params", cmdParams }
+                        }
+                    }
+                };
+                if (dia["nodes"] is JArray nodes) nodes.Add(jn);
+
+                foreach (var pl in node.PortLinks)
+                {
+                    if (!pl.IsAttached) continue;
+
+                    if (pl.Source.Model is not CapnpFbpPortModel sourceCapnpPort ||
+                        pl.Target.Model is not CapnpFbpPortModel targetCapnpPort) continue;
+
+                    // make sure the source port is the out port
+                    // because BlazorDiagrams doesn't care about the direction of the link
+                    var outPort = sourceCapnpPort.ThePortType == CapnpFbpPortModel.PortType.Out
+                        ? sourceCapnpPort
+                        : targetCapnpPort;
+                    var inPort = targetCapnpPort.ThePortType == CapnpFbpPortModel.PortType.In
+                        ? targetCapnpPort
+                        : sourceCapnpPort;
+                    
+                    // make sure the link is only stored once
+                    var checkOut = $"{outPort.Parent.Id}.{outPort.Name}";
+                    var checkIn = $"{inPort.Parent.Id}.{inPort.Name}";
+                    if (linkSet.Contains($"{checkOut}->{checkIn}") ||
+                        linkSet.Contains($"{checkIn}->{checkOut}")) continue;
+                    else linkSet.Add($"{checkOut}->{checkIn}");
+
+                    // for storing the links use the naming convention of BlazorDiagrams (source and target)
+                    // but the direction of the link is determined by the port type and FBP convention
+                    var jl = new JObject()
+                    {
+                        { "source", new JObject()
+                            {
+                                { "node_id", sourceCapnpPort.Parent.Id }, 
+                                { "port", sourceCapnpPort.Name }
+                            } 
+                        },
+                        { "target", new JObject()
+                            {
+                                { "node_id", targetCapnpPort.Parent.Id }, 
+                                { "port", targetCapnpPort.Name }
+                            } 
+                        }
+                    };
+                    if (dia["links"] is JArray links) links.Add(jl);
+                }
+            }
+            
+            //File.WriteAllText("Data/diagram_new.json", dia.ToString());
+            await JsRuntime.InvokeVoidAsync("saveAsBase64", "diagram.json", 
+                Convert.ToBase64String(Encoding.UTF8.GetBytes(dia.ToString())));
+        }
+        
+        protected async Task CreatePythonFlow()
+        {
+            var dia = JObject.Parse(File.ReadAllText("Data/diagram_template.json"));
+            HashSet<string> linkSet = new();
+            foreach(var node in Diagram.Nodes)
+            {
+                if (node is not PythonFbpComponentModel fbpNode) continue;
+
+                var cmdParams = new JObject();
+                foreach (var line in fbpNode.CmdParamString.Split('\n'))
+                {
+                    var kv = line.Split('=');
                     cmdParams.Add(kv[0].Trim(), kv.Length == 2 ? kv[1].Trim() : "");
                 }
                 var jn = new JObject()

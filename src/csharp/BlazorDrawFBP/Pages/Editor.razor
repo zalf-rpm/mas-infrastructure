@@ -13,9 +13,9 @@
     <MudGrid>
         <MudItem xs="2">
             <MudPaper Height="90vh" Class="overflow-scroll">
-                <MudExpansionPanels MultiExpansion="true" Dense="true">
+                <MudExpansionPanels MultiExpansion="true">
                     <MudExpansionPanel Text="Actions" IsInitiallyExpanded="true">
-                        <MudStack>
+                        <MudStack Spacing="1">
                             <MudButton StartIcon="@Icons.Material.Filled.Delete"
                                        Variant="@Variant.Filled"
                                        Color="@Color.Warning"
@@ -23,7 +23,9 @@
                                        @onclick="RemoveNode">
                                 Remove Node
                             </MudButton>
-                            <MudFileUpload T="IBrowserFile" FilesChanged="LoadDiagram">
+                            <MudFileUpload T="IBrowserFile" 
+                                           FilesChanged="LoadDiagram"
+                                           Style="margin-top:0;">
                                 <ButtonTemplate>
                                     <MudButton StartIcon="@Icons.Material.Filled.Upload"
                                                Variant="@Variant.Filled"
@@ -42,12 +44,19 @@
                                        @onclick="SaveDiagram">
                                 Save Diagram
                             </MudButton>
+                            <MudButton StartIcon="@Icons.Material.Filled.Download"
+                                       Variant="@Variant.Filled"
+                                       Color="@Color.Primary"
+                                       FullWidth="true"
+                                       @onclick="CreatePythonFlow">
+                                Create Flow
+                            </MudButton>
                         </MudStack>
                     </MudExpansionPanel>
                     @foreach (var (cat, value) in _components)
                     {
                         <MudExpansionPanel Text="@cat" IsInitiallyExpanded="false">
-                            <MudStack>
+                            <MudStack Spacing="1">
                                 @foreach (var component in value as JArray ?? new JArray())
                                 {
                                     if (component is not JObject obj) continue;
