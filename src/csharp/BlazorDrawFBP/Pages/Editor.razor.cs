@@ -36,7 +36,7 @@ namespace BlazorDrawFBP.Pages
             var options = new BlazorDiagramOptions
             {
                 AllowMultiSelection = true,
-                Zoom = { Enabled = true, },
+                Zoom = { Enabled = true, Inverse = true },
                 Links =
                 {
                     DefaultRouter = new NormalRouter(),

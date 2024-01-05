@@ -4,6 +4,10 @@
     border: 1px solid black; /* Just visual */
 }
 
+::deep .diagram-node {
+    min-width: max-content;
+}
+
 ::deep .diagram-node.selected {
     border: 1px solid #6e9fd4;
 }

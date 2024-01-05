@@ -564,7 +564,7 @@ class ConnectionManager:
                         if owner_guid:
                             sr_token = base64.urlsafe_b64decode(sr_token + "==")
             else:
-                vat_path = sturdy_ref.transient.vat
+                vat_path = sturdy_ref.vat
                 #vat_id = vat_path.id
                 host = vat_path.address.host
                 port = vat_path.address.port

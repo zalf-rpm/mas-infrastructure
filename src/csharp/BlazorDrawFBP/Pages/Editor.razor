@@ -94,66 +94,6 @@
                         </MudExpansionPanel>
                     }
                 </MudExpansionPanels>
-                @* <MudStack> *@
-                @*     <MudFab StartIcon="@Icons.Material.Filled.Delete" Label="Remove Node" @onclick="RemoveNode"/> *@
-                @*     <MudFab StartIcon="@Icons.Material.Filled.Upload" Label="Load" @onclick="LoadDiagram"/> *@
-                @*     <MudFab StartIcon="@Icons.Material.Filled.Download" Label="Save" @onclick="SaveDiagram"/> *@
-                @*     @foreach (var (cat, value) in _components) *@
-                @*     { *@
-                @*         if (value is not JArray components) continue; *@
-                @* *@
-                @*         foreach (var component in components) *@
-                @*         { *@
-                @*             if (component is not JObject jobj) continue; *@
-                @* *@
-                @*             var componentId = jobj["id"]?.ToString(); *@
-                @*             var nodeType = jobj["type"]?.ToString(); *@
-                @*             if (nodeType == null || componentId == null) continue; *@
-                @*              *@
-                @*             var desc = jobj["description"]?.ToString() ?? ""; *@
-                @* *@
-                @*             <MudCard> *@
-                @*                 <MudCardHeader> *@
-                @*                     <CardHeaderContent> *@
-                @*                         <MudText>@componentId</MudText> *@
-                @*                         <MudText Typo="Typo.body1" >(@cat)</MudText> *@
-                @*                         <MudText Typo="Typo.body2">@desc</MudText> *@
-                @*                     </CardHeaderContent> *@
-                @*                     <CardHeaderActions> *@
-                @*                         <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Default"/> *@
-                @*                     </CardHeaderActions> *@
-                @*                 </MudCardHeader> *@
-                @*                 $1$ <MudCardMedia Image="/img/DefaultNodeWidget.png" Height="100"/> #1# *@
-                @*                 <MudCardContent> *@
-                @*                     <MudTooltip Text="@componentId"> *@
-                @*                         <MudImage Src="/img/DefaultNodeWidget.png" *@
-                @*                                   Alt="Capnp node" *@
-                @*                                   Class="rounded-lg" *@
-                @*                                   draggable="@true" *@
-                @*                                   @ondragstart="() => OnNodeDragStart(jobj)"/> *@
-                @*                     </MudTooltip> *@
-                @*                 </MudCardContent> *@
-                @*             </MudCard> *@
-                @*             $1$ <MudPaper> #1# *@
-                @*             $1$     <MudTooltip Text="@nc.Key"> #1# *@
-                @*             $1$         <MudImage Src="/img/DefaultNodeWidget.png" #1# *@
-                @*             $1$                   Alt="Capnp node" #1# *@
-                @*             $1$                   Class="rounded-lg" #1# *@
-                @*             $1$                   draggable="true" #1# *@
-                @*             $1$                   @ondragstart="() => OnDragStart(nodeType)"/> #1# *@
-                @*             $1$     </MudTooltip> #1# *@
-                @*             $1$     <MudText Typo="@Typo.body2">@nc.Key</MudText> #1# *@
-                @*             $1$ </MudPaper> #1# *@
-                @*         } *@
-                @*     } *@
-                @*     $1$ <MudFab StartIcon="@Icons.Material.Filled.Remove" Label="Node" @onclick="RemoveNode"/> #1# *@
-                @*     $1$ <MudFab StartIcon="@Icons.Material.Filled.Add" Label="IN Port" @onclick="() => AddPort(CapnpFbpPortModel.PortType.In)"/> #1# *@
-                @*     $1$ <MudFab StartIcon="@Icons.Material.Filled.Remove" Label="OUT Port" @onclick="() => AddPort(CapnpFbpPortModel.PortType.Out)"/> #1# *@
-                @*     $1$ <MudButton Variant="Variant.Filled" @onclick="AddDefaultNode">Add default Node</MudButton> #1# *@
-                @*     $1$ <MudButton Variant="Variant.Filled" @onclick="RemoveNode">Remove Node</MudButton> #1# *@
-                @*     $1$ <MudButton Variant="Variant.Filled" @onclick="() => AddPort(CapnpFbpPortModel.PortType.In)">Add IN port</MudButton> #1# *@
-                @*     $1$ <MudButton Variant="Variant.Filled" @onclick="() => AddPort(CapnpFbpPortModel.PortType.Out)">Add OUT port</MudButton> #1# *@
-                @* </MudStack> *@
             </MudPaper>
         </MudItem>
         <MudItem xs="10">
