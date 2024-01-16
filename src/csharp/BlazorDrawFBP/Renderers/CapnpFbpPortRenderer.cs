@@ -72,7 +72,8 @@ public class CapnpFbpPortRenderer : ComponentBase, IDisposable
         var offsetString = "";
         if (Port.Offset != 0)
         {
-            offsetString = "offset-" + (Port.Offset < 0 ? "m" : "") + (int)Math.Round(Math.Abs(Port.Offset) / 10.0) * 10;
+            offsetString = "offset-" + (Port.Offset < 0 ? "m" : "") + 
+                           (int)Math.Round(Math.Abs(Port.Offset) / 10.0) * 10;
         }
         
         builder.OpenElement(0, _isParentSvg ? "g" : "div");
@@ -82,13 +83,11 @@ public class CapnpFbpPortRenderer : ComponentBase, IDisposable
             Port.ThePortType.ToString().ToLower() + " " +
             offsetString + " " + (Port.Links.Count > 0 ? "has-links" : "") + " " + Class);
         builder.AddAttribute(3, "data-port-id", Port.Id);
-        builder.AddAttribute<PointerEventArgs>(4, "onpointerdown",
-            EventCallback.Factory.Create<PointerEventArgs>((object)this,
-                new Action<PointerEventArgs>(OnPointerDown)));
+        builder.AddAttribute(4, "onpointerdown",
+            EventCallback.Factory.Create<PointerEventArgs>((object)this, OnPointerDown));
         builder.AddEventStopPropagationAttribute(5, "onpointerdown", true);
-        builder.AddAttribute<PointerEventArgs>(6, "onpointerup",
-            EventCallback.Factory.Create<PointerEventArgs>((object)this,
-                new Action<PointerEventArgs>(OnPointerUp)));
+        builder.AddAttribute(6, "onpointerup",
+            EventCallback.Factory.Create<PointerEventArgs>((object)this, OnPointerUp));
         builder.AddEventStopPropagationAttribute(7, "onpointerup", true);
         builder.AddElementReferenceCapture(8, (Action<ElementReference>)(value => _element = value));
         builder.AddContent(9, ChildContent);

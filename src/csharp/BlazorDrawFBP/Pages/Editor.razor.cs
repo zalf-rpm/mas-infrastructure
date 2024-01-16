@@ -6,11 +6,14 @@ using System.Text;
 using System.Threading.Tasks;
 using Blazor.Diagrams;
 using Blazor.Diagrams.Core.Anchors;
+using Blazor.Diagrams.Core.Controls;
+using Blazor.Diagrams.Core.Controls.Default;
 using Blazor.Diagrams.Core.Geometry;
 using Blazor.Diagrams.Core.Models;
 using Blazor.Diagrams.Core.PathGenerators;
 using Blazor.Diagrams.Core.Routers;
 using Blazor.Diagrams.Options;
+using BlazorDrawFBP.Controls;
 using BlazorDrawFBP.Models;
 using Mas.Schema.Climate;
 using Microsoft.AspNetCore.Components.Forms;
@@ -61,6 +64,9 @@ namespace BlazorDrawFBP.Pages
 
             Diagram.RegisterComponent<PythonFbpComponentModel, PythonFbpComponentWidget>();
             Diagram.RegisterComponent<UpdatePortNameNode, UpdatePortNameNodeWidget>();
+            Diagram.RegisterComponent<NodeInformationControl, NodeInformationControlWidget>();
+            Diagram.RegisterComponent<LinkInformationControl, LinkInformationControlWidget>();
+            Diagram.RegisterComponent<AddPortControl, AddPortControlWidget>();
 
             RegisterEvents();
 
@@ -106,6 +112,7 @@ namespace BlazorDrawFBP.Pages
 
             Diagram.Links.Added += (l) =>
             {
+                Diagram.Controls.AddFor(l, ControlsType.OnHover).Add(new LinkInformationControl());
                 if (l.Source.Model is CapnpFbpPortModel pm)
                 {
                     switch (pm.ThePortType)
@@ -512,7 +519,11 @@ namespace BlazorDrawFBP.Pages
                         ShortDescription = component["description"]?.ToString() ?? "",
                         CmdParamString = cmdParams.ToString()
                     };
-
+                    //Diagram.Controls.AddFor(node, ControlsType.OnHover).Add(new BoundaryControl());
+                    //Diagram.Controls.AddFor(node).Add(new NodeInformationControl());
+                    //Diagram.Controls.AddFor(node, ControlsType.OnHover).Add(new NodeInformationControl());
+                    Diagram.Controls.AddFor(node).Add(new AddPortControl(0.5, 0));
+                    
                     foreach(var (i, input) in (component["inputs"] ?? new JArray()).
                             Select((inp, i) => (i, inp)))
                     {
@@ -528,8 +539,9 @@ namespace BlazorDrawFBP.Pages
                             OrderNo = i > 10 ? i-11 : i,
                         };
                         node.AddPort(port);
+                        //Diagram.Controls.AddFor(port, ControlsType.OnHover).Add(new NodeInformationControl());
                     }
-
+                    
                     foreach(var (i, output) in (component["outputs"] ?? new JArray()).
                             Select((outp, i) => (i, outp)))
                     {

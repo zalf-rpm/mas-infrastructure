@@ -1,0 +1,20 @@
+@using Blazor.Diagrams.Core.Models.Base;
+@using BlazorDrawFBP.Models;;
+
+<div style="background-color: #eee; width: @(Link.Width)px; padding: 5px;">
+    <div>Width: @Link.Width</div>
+    <div>Color: @Link.Color</div>
+    <div>LLabel: @Link.Labels[0].Content</div>
+    <div>RLabel: @Link.Labels[1].Content</div>
+</div>
+
+@code
+{
+    [Parameter]
+    public LinkInformationControl Control { get; set; } = null!;
+
+    [Parameter]
+    public Model Model { get; set; } = null!;
+
+    public LinkModel Link => (Model as LinkModel)!;
+}

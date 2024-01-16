@@ -1,0 +1,14 @@
+@using Blazor.Diagrams.Core.Models.Base;
+
+<div>
+    <MudFab StartIcon="@Icons.Material.Filled.Add" Label="Port"/>
+</div>
+
+@code
+{
+    [Parameter]
+    public AddPortControl Control { get; set; } = null!;
+
+    [Parameter]
+    public Model Model { get; set; } = null!;
+}
