@@ -39,55 +39,56 @@ public class CapnpFbpPortRenderer : ComponentBase, IDisposable
 
     public void Dispose()
     {
-        this.Port.Changed -= new Action<Model>(this.OnPortChanged);
-        this.Port.VisibilityChanged -= new Action<Model>(this.OnPortChanged);
+        Port.Changed -= OnPortChanged;
+        Port.VisibilityChanged -= OnPortChanged;
     }
 
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        this.Port.Changed += new Action<Model>(this.OnPortChanged);
-        this.Port.VisibilityChanged += new Action<Model>(this.OnPortChanged);
+        Port.Changed += OnPortChanged;
+        Port.VisibilityChanged += OnPortChanged;
     }
 
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
-        this._isParentSvg = this.Port.Parent is SvgNodeModel;
+        _isParentSvg = Port.Parent is SvgNodeModel;
     }
 
     protected override bool ShouldRender()
     {
-        if (!this._shouldRender)
+        if (!_shouldRender)
             return false;
-        this._shouldRender = false;
+        _shouldRender = false;
         return true;
     }
 
     protected override void BuildRenderTree(RenderTreeBuilder builder)
     {
-        if (!this.Port.Visible)
+        if (!Port.Visible)
             return;
         
-        var offsetString = "";
-        if (Port.Offset != 0)
-        {
-            offsetString = "offset-" + (Port.Offset < 0 ? "m" : "") + 
-                           (int)Math.Round(Math.Abs(Port.Offset) / 10.0) * 10;
-        }
-        
+        // var offsetString = "";
+        // if (Port.Offset != 0)
+        // {
+        //     offsetString = "offset-" + (Port.Offset < 0 ? "m" : "") + 
+        //                    (int)Math.Round(Math.Abs(Port.Offset) / 10.0) * 10;
+        // }
+        //
         builder.OpenElement(0, _isParentSvg ? "g" : "div");
         builder.AddAttribute(1, "style", Style);
         builder.AddAttribute(2, "class",
             "diagram-port " + Port.Alignment.ToString().ToLower() + " " + 
             Port.ThePortType.ToString().ToLower() + " " +
-            offsetString + " " + (Port.Links.Count > 0 ? "has-links" : "") + " " + Class);
+            //offsetString + " " + 
+            (Port.Links.Count > 0 ? "has-links" : "") + " " + Class);
         builder.AddAttribute(3, "data-port-id", Port.Id);
         builder.AddAttribute(4, "onpointerdown",
-            EventCallback.Factory.Create<PointerEventArgs>((object)this, OnPointerDown));
+            EventCallback.Factory.Create<PointerEventArgs>(this, OnPointerDown));
         builder.AddEventStopPropagationAttribute(5, "onpointerdown", true);
         builder.AddAttribute(6, "onpointerup",
-            EventCallback.Factory.Create<PointerEventArgs>((object)this, OnPointerUp));
+            EventCallback.Factory.Create<PointerEventArgs>(this, OnPointerUp));
         builder.AddEventStopPropagationAttribute(7, "onpointerup", true);
         builder.AddElementReferenceCapture(8, (Action<ElementReference>)(value => _element = value));
         builder.AddContent(9, ChildContent);
@@ -103,7 +104,7 @@ public class CapnpFbpPortRenderer : ComponentBase, IDisposable
 
     private void OnPointerDown(PointerEventArgs e)
     {
-        BlazorDiagram.TriggerPointerDown((Model)Port, EventsExtensions.ToCore(e));
+        BlazorDiagram.TriggerPointerDown(Port, EventsExtensions.ToCore(e));
     }
 
     private void OnPointerUp(PointerEventArgs e)

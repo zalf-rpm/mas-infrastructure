@@ -64,9 +64,11 @@ namespace BlazorDrawFBP.Pages
 
             Diagram.RegisterComponent<PythonFbpComponentModel, PythonFbpComponentWidget>();
             Diagram.RegisterComponent<UpdatePortNameNode, UpdatePortNameNodeWidget>();
+            Diagram.RegisterComponent<PortOptionsNode, PortOptionsNodeWidget>();
             Diagram.RegisterComponent<NodeInformationControl, NodeInformationControlWidget>();
             Diagram.RegisterComponent<LinkInformationControl, LinkInformationControlWidget>();
             Diagram.RegisterComponent<AddPortControl, AddPortControlWidget>();
+            Diagram.RegisterComponent<RemovePortControl, RemovePortControlWidget>();
 
             RegisterEvents();
 
@@ -176,11 +178,27 @@ namespace BlazorDrawFBP.Pages
             //     StateHasChanged();
             // };
 
-            // Diagram.PointerClick += (m, e) =>
-            // {
-            //     events.Add($"MouseClick, Type={m?.GetType().Name}, ModelId={m?.Id}");
-            //     StateHasChanged();
-            // };
+            Diagram.PointerClick += (m, e) =>
+            {
+                if (m is CapnpFbpPortModel port)
+                {
+                    var relativePt = Diagram.GetRelativeMousePoint(e.ClientX, e.ClientY);
+
+                    // find closest port, assuming the user will click on the label he actually wants to change
+                    var node = new PortOptionsNode(relativePt)
+                    {
+                        Label = $"Change {port.Name}",
+                        PortModel = port,
+                        NodeModel = port.Parent as PythonFbpComponentModel,
+                        Container = Diagram
+                    };
+                    Diagram.Nodes.Add(node);
+                }
+                
+                //Console.WriteLine($"MouseClick, Type={m?.GetType().Name}, ModelId={m?.Id}, Position=({e.ClientX}/{e.ClientY}");
+                //events.Add($"MouseClick, Type={m?.GetType().Name}, ModelId={m?.Id}");
+                StateHasChanged();
+            };
 
             Diagram.PointerDoubleClick += (m, e) =>
             {
@@ -364,69 +382,69 @@ namespace BlazorDrawFBP.Pages
         
         protected async Task CreatePythonFlow()
         {
-            var dia = JObject.Parse(File.ReadAllText("Data/diagram_template.json"));
-            HashSet<string> linkSet = new();
-            foreach(var node in Diagram.Nodes)
-            {
-                if (node is not PythonFbpComponentModel fbpNode) continue;
-
-                var cmdParams = new JObject();
-                foreach (var line in fbpNode.CmdParamString.Split('\n'))
-                {
-                    var kv = line.Split('=');
-                    cmdParams.Add(kv[0].Trim(), kv.Length == 2 ? kv[1].Trim() : "");
-                }
-                var jn = new JObject()
-                {
-                    { "node_id", fbpNode.Id },
-                    { "component_id", fbpNode.ComponentId },
-                    { "user_name", fbpNode.UserName },
-                    { "location", new JObject() { { "x", fbpNode.Position.X }, { "y", fbpNode.Position.Y } } },
-                    {
-                        "data", new JObject()
-                        {
-                            { "path", fbpNode.PathToPythonFile },
-                            { "cmd_params", cmdParams }
-                        }
-                    }
-                };
-                if (dia["nodes"] is JArray nodes) nodes.Add(jn);
-
-                foreach (var pl in node.PortLinks)
-                {
-                    if (!pl.IsAttached) continue;
-
-                    if (pl.Source.Model is not CapnpFbpPortModel sourceCapnpPort ||
-                        pl.Target.Model is not CapnpFbpPortModel targetCapnpPort) continue;
-
-                    var checkS = $"{sourceCapnpPort.Parent.Id}.{sourceCapnpPort.Name}";
-                    var checkT = $"{targetCapnpPort.Parent.Id}.{targetCapnpPort.Name}";
-                    if (linkSet.Contains($"{checkS}->{checkT}") ||
-                        linkSet.Contains($"{checkT}->{checkS}")) continue;
-                    else linkSet.Add($"{checkS}->{checkT}");
-
-                    var jl = new JObject()
-                    {
-                        { "source", new JObject()
-                            {
-                                { "node_id", sourceCapnpPort.Parent.Id }, 
-                                { "port", sourceCapnpPort.Name }
-                            } 
-                        },
-                        { "target", new JObject()
-                            {
-                                { "node_id", targetCapnpPort.Parent.Id }, 
-                                { "port", targetCapnpPort.Name }
-                            } 
-                        }
-                    };
-                    if (dia["links"] is JArray links) links.Add(jl);
-                }
-            }
-            
-            //File.WriteAllText("Data/diagram_new.json", dia.ToString());
-            await JsRuntime.InvokeVoidAsync("saveAsBase64", "diagram.json", 
-                Convert.ToBase64String(Encoding.UTF8.GetBytes(dia.ToString())));
+            // var dia = JObject.Parse(File.ReadAllText("Data/diagram_template.json"));
+            // HashSet<string> linkSet = new();
+            // foreach(var node in Diagram.Nodes)
+            // {
+            //     if (node is not PythonFbpComponentModel fbpNode) continue;
+            //
+            //     var cmdParams = new JObject();
+            //     foreach (var line in fbpNode.CmdParamString.Split('\n'))
+            //     {
+            //         var kv = line.Split('=');
+            //         cmdParams.Add(kv[0].Trim(), kv.Length == 2 ? kv[1].Trim() : "");
+            //     }
+            //     var jn = new JObject()
+            //     {
+            //         { "node_id", fbpNode.Id },
+            //         { "component_id", fbpNode.ComponentId },
+            //         { "user_name", fbpNode.UserName },
+            //         { "location", new JObject() { { "x", fbpNode.Position.X }, { "y", fbpNode.Position.Y } } },
+            //         {
+            //             "data", new JObject()
+            //             {
+            //                 { "path", fbpNode.PathToPythonFile },
+            //                 { "cmd_params", cmdParams }
+            //             }
+            //         }
+            //     };
+            //     if (dia["nodes"] is JArray nodes) nodes.Add(jn);
+            //
+            //     foreach (var pl in node.PortLinks)
+            //     {
+            //         if (!pl.IsAttached) continue;
+            //
+            //         if (pl.Source.Model is not CapnpFbpPortModel sourceCapnpPort ||
+            //             pl.Target.Model is not CapnpFbpPortModel targetCapnpPort) continue;
+            //
+            //         var checkS = $"{sourceCapnpPort.Parent.Id}.{sourceCapnpPort.Name}";
+            //         var checkT = $"{targetCapnpPort.Parent.Id}.{targetCapnpPort.Name}";
+            //         if (linkSet.Contains($"{checkS}->{checkT}") ||
+            //             linkSet.Contains($"{checkT}->{checkS}")) continue;
+            //         else linkSet.Add($"{checkS}->{checkT}");
+            //
+            //         var jl = new JObject()
+            //         {
+            //             { "source", new JObject()
+            //                 {
+            //                     { "node_id", sourceCapnpPort.Parent.Id }, 
+            //                     { "port", sourceCapnpPort.Name }
+            //                 } 
+            //             },
+            //             { "target", new JObject()
+            //                 {
+            //                     { "node_id", targetCapnpPort.Parent.Id }, 
+            //                     { "port", targetCapnpPort.Name }
+            //                 } 
+            //             }
+            //         };
+            //         if (dia["links"] is JArray links) links.Add(jl);
+            //     }
+            // }
+            //
+            // //File.WriteAllText("Data/diagram_new.json", dia.ToString());
+            // await JsRuntime.InvokeVoidAsync("saveAsBase64", "diagram.json", 
+            //     Convert.ToBase64String(Encoding.UTF8.GetBytes(dia.ToString())));
         }
         
         protected void AddPort(CapnpFbpPortModel.PortType portType)
@@ -519,44 +537,32 @@ namespace BlazorDrawFBP.Pages
                         ShortDescription = component["description"]?.ToString() ?? "",
                         CmdParamString = cmdParams.ToString()
                     };
-                    //Diagram.Controls.AddFor(node, ControlsType.OnHover).Add(new BoundaryControl());
-                    //Diagram.Controls.AddFor(node).Add(new NodeInformationControl());
-                    //Diagram.Controls.AddFor(node, ControlsType.OnHover).Add(new NodeInformationControl());
-                    Diagram.Controls.AddFor(node).Add(new AddPortControl(0.5, 0));
+
+                    Diagram.Controls.AddFor(node).Add(new AddPortControl(0.1, -0.2)
+                    {
+                        Label = "In-Port",
+                        PortType = CapnpFbpPortModel.PortType.In,
+                        NodeModel = node,
+                    });
+                    Diagram.Controls.AddFor(node).Add(new AddPortControl(0.5, -0.2)
+                    {
+                        Label = "Out-Port",
+                        PortType = CapnpFbpPortModel.PortType.Out,
+                        NodeModel = node,
+                    });
                     
                     foreach(var (i, input) in (component["inputs"] ?? new JArray()).
                             Select((inp, i) => (i, inp)))
                     {
-                        var alignment = i switch
-                        {
-                            10 => PortAlignment.TopLeft,
-                            > 10 => PortAlignment.Top,
-                            _ => PortAlignment.Left
-                        };
-                        var port = new CapnpFbpPortModel(node, CapnpFbpPortModel.PortType.In, alignment)
-                        {
-                            Name = input["name"]?.ToString() ?? "IN",
-                            OrderNo = i > 10 ? i-11 : i,
-                        };
-                        node.AddPort(port);
-                        //Diagram.Controls.AddFor(port, ControlsType.OnHover).Add(new NodeInformationControl());
+                        AddPortControl.CreateAndAddPort(node, CapnpFbpPortModel.PortType.In, i, 
+                            input["name"]?.ToString());
                     }
                     
                     foreach(var (i, output) in (component["outputs"] ?? new JArray()).
                             Select((outp, i) => (i, outp)))
                     {
-                        var alignment = i switch
-                        {
-                            10 => PortAlignment.BottomRight,
-                            > 10 => PortAlignment.Bottom,
-                            _ => PortAlignment.Right
-                        };
-                        var port = new CapnpFbpPortModel(node, CapnpFbpPortModel.PortType.Out, alignment)
-                        {
-                            Name = output["name"]?.ToString() ?? "OUT",
-                            OrderNo = i > 10 ? i-11 : i,
-                        };
-                        node.AddPort(port);
+                        AddPortControl.CreateAndAddPort(node, CapnpFbpPortModel.PortType.Out, i, 
+                            output["name"]?.ToString());
                     }
                     Diagram.Nodes.Add(node);
                     return node;

@@ -77,11 +77,12 @@
             var style = capnpPort.Alignment switch
             {
                 PortAlignment.Left => $"top: {50 + offsets[capnpPort.OrderNo]}%;",
-                PortAlignment.Top => $"left: {50 + offsets[capnpPort.OrderNo]}%;",
+                PortAlignment.Top => $"left: {50 + offsets[capnpPort.OrderNo - 11]}%;",
                 PortAlignment.Right => $"top: {50 + offsets[capnpPort.OrderNo]}%;",
-                PortAlignment.Bottom => $"left: {50 + offsets[capnpPort.OrderNo]}%;",
+                PortAlignment.Bottom => $"left: {50 + offsets[capnpPort.OrderNo - 11]}%;",
                 _ => ""
             };
+            Console.WriteLine(capnpPort.ThePortType.ToString() + " OrderNo: " + capnpPort.OrderNo + " -> " + style);
             <CapnpFbpPortRenderer @key="port" Port="capnpPort" Style="@style">
                 @($"{capnpPort.ThePortType.ToString().ToUpper()[0]} {capnpPort.Name}") 
             </CapnpFbpPortRenderer>

@@ -1,0 +1,61 @@
+@using Blazor.Diagrams.Components.Renderers;
+@using BlazorDrawFBP.Models;
+
+<div>
+    <MudFab Style="position: absolute; right: -20px; top: -20px; overflow: visible; transform: scale(0.5);" 
+            OnClick="RemoveWidget"
+            Color="Color.Error"
+            Size="Size.Small"
+            StartIcon="@Icons.Material.Filled.Close"/>
+    <MudButton StartIcon="@Icons.Material.Filled.Delete"
+               Variant="@Variant.Filled"
+               Color="@Color.Warning"
+               FullWidth="true"
+               @onclick="RemovePort">
+        Remove Port
+    </MudButton>
+    <MudTextField Required
+                  T="@string"
+                  @bind-Value="@Node.PortModel.Name"
+                  AutoFocus="@false"
+                  Label="@Node.Label"
+                  Variant="@Variant.Outlined"
+                  OnBlur="@OnBlur"
+                  OnKeyUp="@OnKeyUp"/>
+</div>
+
+@code {
+    [Parameter] public PortOptionsNode Node { get; set; } = null!;
+
+    bool _alreadyRemoved = false;
+
+    protected void RemovePort()
+    {
+        Node.NodeModel?.RemovePort(Node.PortModel);
+        Node.Container.Links.Remove(Node.PortModel.Links.ToArray());
+        Node.NodeModel?.Refresh();
+        Node.Container.Nodes.Remove(Node);
+        StateHasChanged();
+    }
+    
+    void RemoveWidget()
+    {
+        Node.Container.Nodes.Remove(Node);
+    }
+    
+    void OnBlur(FocusEventArgs e)
+    {
+        // Console.WriteLine("OnBlur");
+        if (_alreadyRemoved) return;
+        Node.PortModel.Refresh();
+        Node.Container.Nodes.Remove(Node);
+    }
+
+    void OnKeyUp(KeyboardEventArgs e)
+    {
+        // Console.WriteLine("OnKeyUp Enter pressed");
+        if (e.Key != "Enter") return;
+        Node.Container.Nodes.Remove(Node);
+        _alreadyRemoved = true;
+    }
+}

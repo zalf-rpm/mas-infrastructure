@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using Blazor.Diagrams.Core;
 using Blazor.Diagrams.Core.Controls;
@@ -7,13 +8,19 @@ using Blazor.Diagrams.Core.Geometry;
 using Blazor.Diagrams.Core.Models;
 using Blazor.Diagrams.Core.Models.Base;
 using Blazor.Diagrams.Core.Positions;
+using BlazorDrawFBP.Models;
 
 namespace BlazorDrawFBP.Controls;
 
 public class AddPortControl : ExecutableControl
 {
     private readonly IPositionProvider _positionProvider;
+    public string Label { get; set; } = "Port";
 
+    public CapnpFbpPortModel.PortType PortType { get; set; } = CapnpFbpPortModel.PortType.In;
+
+    public PythonFbpComponentModel NodeModel { get; set; } = null;
+    
     public AddPortControl(double x, double y, double offsetX = 0.0, double offsetY = 0.0)
         : this((IPositionProvider)new BoundsBasedPositionProvider(x, y, offsetX, offsetY))
     {
@@ -21,55 +28,60 @@ public class AddPortControl : ExecutableControl
 
     public AddPortControl(IPositionProvider positionProvider)
     {
-        this._positionProvider = positionProvider;
+        _positionProvider = positionProvider;
     }
 
-    public override Point? GetPosition(Model model) => this._positionProvider.GetPosition(model);
+    public override Point GetPosition(Model model) => _positionProvider.GetPosition(model);
 
     public override async ValueTask OnPointerDown(Diagram diagram, Model model, PointerEventArgs _)
     {
-        if (!await AddPortControl.ShouldDeleteModel(diagram, model))
-            return;
-        AddPortControl.DeleteModel(diagram, model);
-    }
-
-    private static void DeleteModel(Diagram diagram, Model model)
-    {
-        switch (model)
+        var ports = 
+            NodeModel.Ports.Where(p => p is CapnpFbpPortModel cp && cp.ThePortType == PortType)
+            .OrderBy(p => p is CapnpFbpPortModel cp ? cp.OrderNo : 0);
+        if (ports.Any())
         {
-            case GroupModel group:
-                diagram.Groups.Delete(group);
-                break;
-            case NodeModel nodeModel:
-                diagram.Nodes.Remove(nodeModel);
-                break;
-            case BaseLinkModel baseLinkModel:
-                diagram.Links.Remove(baseLinkModel);
-                break;
+            if (ports.Last() is CapnpFbpPortModel lastPort)
+            {
+                var newOrderNo = lastPort.OrderNo + 1;
+                CreateAndAddPort(NodeModel, PortType, newOrderNo);
+            }
+            NodeModel.RefreshAll();
         }
     }
 
-    private static async ValueTask<bool> ShouldDeleteModel(Diagram diagram, Model model)
+    public static CapnpFbpPortModel CreateAndAddPort(PythonFbpComponentModel node,
+        CapnpFbpPortModel.PortType portType, int orderNo, string name = null)
     {
-        if (model.Locked)
-            return false;
-        bool flag;
-        switch (model)
+        var alignment = PortAlignmentForOrderNo(portType, orderNo);
+        var port = new CapnpFbpPortModel(node, portType, alignment)
         {
-            case GroupModel groupModel:
-                flag = await diagram.Options.Constraints.ShouldDeleteGroup(groupModel);
-                break;
-            case NodeModel nodeModel:
-                flag = await diagram.Options.Constraints.ShouldDeleteNode(nodeModel);
-                break;
-            case BaseLinkModel baseLinkModel:
-                flag = await diagram.Options.Constraints.ShouldDeleteLink(baseLinkModel);
-                break;
-            default:
-                flag = false;
-                break;
+            Name = name ?? (portType == CapnpFbpPortModel.PortType.In ? "IN" : "OUT"),
+            OrderNo = orderNo,
+        };
+        node.AddPort(port);
+        node.RefreshAll();
+        return port;
+    }
+    
+    private static PortAlignment PortAlignmentForOrderNo(CapnpFbpPortModel.PortType portType, int orderNo)
+    {
+        if (portType == CapnpFbpPortModel.PortType.In)
+        {
+            return orderNo switch
+            {
+                10 => PortAlignment.TopLeft,
+                > 10 => PortAlignment.Top,
+                _ => PortAlignment.Left
+            };
         }
-
-        return flag;
+        else
+        {
+            return orderNo switch
+            {
+                10 => PortAlignment.BottomRight,
+                > 10 => PortAlignment.Bottom,
+                _ => PortAlignment.Right
+            };
+        }
     }
 }
