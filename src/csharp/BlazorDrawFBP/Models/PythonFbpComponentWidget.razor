@@ -57,36 +57,56 @@
     
     @foreach (var port in Node.Ports)
     {
-        var portCount = GetPortCount(port.Alignment);
-        var offsets = port.Alignment switch
+        if (port is not CapnpFbpPortModel capnpPort) continue;
+
+        capnpPort.Alignment = capnpPort.ThePortType switch
         {
-            PortAlignment.Left => _leftRightOffsetsMap[portCount + GetPortCount(PortAlignment.TopLeft)],
-            PortAlignment.Right => _leftRightOffsetsMap[portCount + GetPortCount(PortAlignment.BottomRight)],
+            CapnpFbpPortModel.PortType.In => capnpPort.OrderNo switch
+            {
+                10 => PortAlignment.TopLeft,
+                > 10 => PortAlignment.Top,
+                _ => PortAlignment.Left
+            },
+            CapnpFbpPortModel.PortType.Out => capnpPort.OrderNo switch
+            {
+                10 => PortAlignment.BottomRight,
+                > 10 => PortAlignment.Bottom,
+                _ => PortAlignment.Right
+            },
+            _ => throw new ArgumentOutOfRangeException()
+        };
+
+        var portCount = Node.Ports.Where(p =>
+        {
+            if (p is CapnpFbpPortModel cp) return cp.ThePortType == capnpPort.ThePortType;
+            return false;
+        }).Count();
+        var offsets = capnpPort.Alignment switch
+        {
+            PortAlignment.Left => _leftRightOffsetsMap[Math.Min(portCount, 11)],
+            PortAlignment.Right => _leftRightOffsetsMap[Math.Min(portCount, 11)],
             PortAlignment.Top => _topBottomOffsets,
             PortAlignment.Bottom => _topBottomOffsets,
             _ => new List<int>()
         };
-        if (port.Alignment is PortAlignment.Right or PortAlignment.Bottom)
+        if (capnpPort.Alignment is PortAlignment.Right or PortAlignment.Bottom)
         {
             offsets = new List<int>(offsets);
             offsets.Reverse();
         };
         
-        if (port is CapnpFbpPortModel capnpPort)
+        var style = capnpPort.Alignment switch
         {
-            var style = capnpPort.Alignment switch
-            {
-                PortAlignment.Left => $"top: {50 + offsets[capnpPort.OrderNo]}%;",
-                PortAlignment.Top => $"left: {50 + offsets[capnpPort.OrderNo - 11]}%;",
-                PortAlignment.Right => $"top: {50 + offsets[capnpPort.OrderNo]}%;",
-                PortAlignment.Bottom => $"left: {50 + offsets[capnpPort.OrderNo - 11]}%;",
-                _ => ""
-            };
-            Console.WriteLine(capnpPort.ThePortType.ToString() + " OrderNo: " + capnpPort.OrderNo + " -> " + style);
-            <CapnpFbpPortRenderer @key="port" Port="capnpPort" Style="@style">
-                @($"{capnpPort.ThePortType.ToString().ToUpper()[0]} {capnpPort.Name}") 
-            </CapnpFbpPortRenderer>
-        }
+            PortAlignment.Left => $"top: {50 + offsets[capnpPort.OrderNo]}%;",
+            PortAlignment.Top => $"left: {50 + offsets[capnpPort.OrderNo - 11]}%;",
+            PortAlignment.Right => $"top: {50 + offsets[capnpPort.OrderNo]}%;",
+            PortAlignment.Bottom => $"left: {50 + offsets[capnpPort.OrderNo - 11]}%;",
+            _ => ""
+        };
+        // Console.WriteLine(capnpPort.ThePortType.ToString() + " OrderNo: " + capnpPort.OrderNo + " -> " + style);
+        <CapnpFbpPortRenderer @key="port" Port="capnpPort" Style="@style">
+            @($"{capnpPort.ThePortType.ToString().ToUpper()[0]} {capnpPort.Name}") 
+        </CapnpFbpPortRenderer>
     }
 </div>
 
@@ -110,23 +130,4 @@
     private readonly List<int> _topBottomOffsets = new () {-40, -30, -20, -10, 0, 10, 20, 30, 40};
 
     private readonly Dictionary<PortAlignment, int> _portCounts = new();
-
-    private int GetPortCount(PortAlignment alignment)
-    {
-        return Node.Ports.Where(p => {
-            if (p is CapnpFbpPortModel m) return m.Alignment == alignment;
-            return false;
-        }).Count();
-    }
-    
-    private int GetPortCountCached(PortAlignment alignment)
-    {
-        if (_portCounts.TryGetValue(alignment, out var count)) return count;
-        var newCount = Node.Ports.Where(p => {
-            if (p is CapnpFbpPortModel m) return m.Alignment == alignment;
-            return false;
-        }).Count();
-        _portCounts.Add(alignment, newCount);
-        return newCount;
-    }
 }

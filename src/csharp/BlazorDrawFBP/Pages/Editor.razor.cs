@@ -68,7 +68,7 @@ namespace BlazorDrawFBP.Pages
             Diagram.RegisterComponent<NodeInformationControl, NodeInformationControlWidget>();
             Diagram.RegisterComponent<LinkInformationControl, LinkInformationControlWidget>();
             Diagram.RegisterComponent<AddPortControl, AddPortControlWidget>();
-            Diagram.RegisterComponent<RemovePortControl, RemovePortControlWidget>();
+            Diagram.RegisterComponent<RemoveProcessControl, RemoveProcessControlWidget>();
 
             RegisterEvents();
 
@@ -538,18 +538,19 @@ namespace BlazorDrawFBP.Pages
                         CmdParamString = cmdParams.ToString()
                     };
 
-                    Diagram.Controls.AddFor(node).Add(new AddPortControl(0.1, -0.2)
+                    Diagram.Controls.AddFor(node).Add(new AddPortControl(0.0, -0.2)
                     {
                         Label = "In-Port",
                         PortType = CapnpFbpPortModel.PortType.In,
                         NodeModel = node,
                     });
-                    Diagram.Controls.AddFor(node).Add(new AddPortControl(0.5, -0.2)
+                    Diagram.Controls.AddFor(node).Add(new AddPortControl(0.31, -0.2)
                     {
                         Label = "Out-Port",
                         PortType = CapnpFbpPortModel.PortType.Out,
                         NodeModel = node,
                     });
+                    Diagram.Controls.AddFor(node).Add(new RemoveProcessControl(0.67, -0.2));
                     
                     foreach(var (i, input) in (component["inputs"] ?? new JArray()).
                             Select((inp, i) => (i, inp)))

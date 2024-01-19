@@ -1,0 +1,14 @@
+@using Blazor.Diagrams.Core.Models.Base;
+
+<div>
+    <MudFab Size="Size.Small" Color="Color.Warning" StartIcon="@Icons.Material.Filled.Delete" Label="Process"/>
+</div>
+
+@code
+{
+    [Parameter]
+    public RemoveProcessControl Control { get; set; } = null!;
+
+    [Parameter]
+    public Model Model { get; set; } = null!;
+}

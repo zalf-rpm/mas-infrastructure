@@ -52,6 +52,7 @@ public class AddPortControl : ExecutableControl
     public static CapnpFbpPortModel CreateAndAddPort(PythonFbpComponentModel node,
         CapnpFbpPortModel.PortType portType, int orderNo, string name = null)
     {
+        if (orderNo > 19) return null;
         var alignment = PortAlignmentForOrderNo(portType, orderNo);
         var port = new CapnpFbpPortModel(node, portType, alignment)
         {

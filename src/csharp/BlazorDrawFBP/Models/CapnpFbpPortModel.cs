@@ -19,6 +19,8 @@ public class CapnpFbpPortModel : PortModel
     // e.g. if alignment is left, 50 means move port to the edge down, -50 to the edge up
     public int Offset { get; set; } = 0;
     
+    public new PortAlignment Alignment { get; set; } = PortAlignment.Left;
+    
     // order of the port in the list of ports with the same alignment
     public int OrderNo { get; set; } = 0;
     
