@@ -1,8 +1,10 @@
 {
   "generic": [
     {
-      "id": "empty.py",
-      "type": "PythonFbpNode",
+      "id": null,
+      "type": "CapnpFbpComponent",
+      "description": "Generic component",
+      "interpreter": null,
       "path": "",
       "cmd_params": [],
       "inputs": [
@@ -20,7 +22,8 @@
   "minimal": [
     {
       "id": "a.py",
-      "type": "PythonFbpNode",
+      "type": "CapnpFbpComponent",
+      "interpreter": "python",
       "path": "/home/berg/GitHub/bgr_flow/bgr_flow_components/a.py",
       "cmd_params": [],
       "inputs": [],
@@ -32,7 +35,8 @@
     },
     {
       "id": "b.py",
-      "type": "PythonFbpNode",
+      "type": "CapnpFbpComponent",
+      "interpreter": "python",
       "path": "/home/berg/GitHub/bgr_flow/bgr_flow_components/b.py",
       "cmd_params": [],
       "inputs": [
@@ -48,7 +52,8 @@
     },
     {
       "id": "c.py",
-      "type": "PythonFbpNode",
+      "type": "CapnpFbpComponent",
+      "interpreter": "python",
       "path": "/home/berg/GitHub/bgr_flow/bgr_flow_components/c.py",
       "cmd_params": [],
       "inputs": [
@@ -62,7 +67,8 @@
   "console I/O": [
     {
       "id": "console.py",
-      "type": "PythonFbpNode",
+      "type": "CapnpFbpComponent",
+      "interpreter": "python",
       "path": "/home/berg/GitHub/bgr_flow/bgr_flow_components/console.py",
       "inputs": [
         {
@@ -76,7 +82,8 @@
     {
       "id": "read_file.py",
       "description": "Read a file into a string",
-      "type": "PythonFbpNode",
+      "type": "CapnpFbpComponent",
+      "interpreter": "python",
       "path": "/home/berg/GitHub/mas-infrastructure/src/python/fbp/read_file.py",
       "cmd_params": [
         {"name": "file", "type": "string", "description": "File to read"},
@@ -99,7 +106,8 @@
     {
       "id": "write_file.py",
       "description": "Write a string to a file",
-      "type": "PythonFbpNode",
+      "type": "CapnpFbpComponent",
+      "interpreter": "python",
       "path": "/home/berg/GitHub/mas-infrastructure/src/python/fbp/write_file.py",
       "cmd_params": [
         {"name": "file", "type": "string", "description": "File to read"},
@@ -123,7 +131,8 @@
     {
       "id": "split_string.py",
       "description": "Split a string into a list of strings",
-      "type": "PythonFbpNode",
+      "type": "CapnpFbpComponent",
+      "interpreter": "python",
       "path": "/home/berg/GitHub/mas-infrastructure/src/python/fbp/split_string.py",
       "cmd_params": [
         {"name": "split_at", "type": "string", "description": "split IP at in_sr at this token"},
@@ -149,7 +158,8 @@
   "test": [
     {
       "id": "a1.py",
-      "type": "PythonFbpNode",
+      "type": "CapnpFbpComponent",
+      "interpreter": "python",
       "path": "/home/berg/GitHub/bgr_flow/bgr_flow_components/a.py",
       "cmd_params": [],
       "inputs": [{"name": "in-1"}],
@@ -157,7 +167,8 @@
     },
     {
       "id": "a2.py",
-      "type": "PythonFbpNode",
+      "type": "CapnpFbpComponent",
+      "interpreter": "python",
       "path": "/home/berg/GitHub/bgr_flow/bgr_flow_components/a.py",
       "cmd_params": [],
       "inputs": [{"name": "in-1"},{"name": "in-2"}],
@@ -165,7 +176,8 @@
     },
     {
       "id": "a3.py",
-      "type": "PythonFbpNode",
+      "type": "CapnpFbpComponent",
+      "interpreter": "python",
       "path": "/home/berg/GitHub/bgr_flow/bgr_flow_components/a.py",
       "cmd_params": [],
       "inputs": [{"name": "in-1"},{"name": "in-2"},{"name": "in-3"}],
@@ -173,7 +185,8 @@
     },
     {
       "id": "a4.py",
-      "type": "PythonFbpNode",
+      "type": "CapnpFbpComponent",
+      "interpreter": "python",
       "path": "/home/berg/GitHub/bgr_flow/bgr_flow_components/a.py",
       "cmd_params": [],
       "inputs": [{"name": "in-1"},{"name": "in-2"},{"name": "in-3"},{"name": "in-4"}],
@@ -181,7 +194,8 @@
     },
     {
       "id": "a5.py",
-      "type": "PythonFbpNode",
+      "type": "CapnpFbpComponent",
+      "interpreter": "python",
       "path": "/home/berg/GitHub/bgr_flow/bgr_flow_components/a.py",
       "cmd_params": [],
       "inputs": [{"name": "in-1"},{"name": "in-2"},{"name": "in-3"},{"name": "in-4"},{"name": "in-5"}],
@@ -189,7 +203,8 @@
     },
     {
       "id": "a6.py",
-      "type": "PythonFbpNode",
+      "type": "CapnpFbpComponent",
+      "interpreter": "python",
       "path": "/home/berg/GitHub/bgr_flow/bgr_flow_components/a.py",
       "cmd_params": [],
       "inputs": [{"name": "in-1"},{"name": "in-2"},{"name": "in-3"},{"name": "in-4"},{"name": "in-5"},{"name": "in-6"}],
@@ -197,7 +212,8 @@
     },
     {
       "id": "a7.py",
-      "type": "PythonFbpNode",
+      "type": "CapnpFbpComponent",
+      "interpreter": "python",
       "path": "/home/berg/GitHub/bgr_flow/bgr_flow_components/a.py",
       "cmd_params": [],
       "inputs": [{"name": "in-1"},{"name": "in-2"},{"name": "in-3"},{"name": "in-4"},{"name": "in-5"},{"name": "in-6"},{"name": "in-7"}],
@@ -205,7 +221,8 @@
     },
     {
       "id": "a8.py",
-      "type": "PythonFbpNode",
+      "type": "CapnpFbpComponent",
+      "interpreter": "python",
       "path": "/home/berg/GitHub/bgr_flow/bgr_flow_components/a.py",
       "cmd_params": [],
       "inputs": [{"name": "in-1"},{"name": "in-2"},{"name": "in-3"},{"name": "in-4"},{"name": "in-5"},{"name": "in-6"},{"name": "in-7"},{"name": "in-8"}],
@@ -213,7 +230,8 @@
     },
     {
       "id": "a9.py",
-      "type": "PythonFbpNode",
+      "type": "CapnpFbpComponent",
+      "interpreter": "python",
       "path": "/home/berg/GitHub/bgr_flow/bgr_flow_components/a.py",
       "cmd_params": [],
       "inputs": [{"name": "in-1"},{"name": "in-2"},{"name": "in-3"},{"name": "in-4"},{"name": "in-5"},{"name": "in-6"},{"name": "in-7"},{"name": "in-8"},{"name": "in-9"}],
@@ -221,7 +239,8 @@
     },
     {
       "id": "a10.py",
-      "type": "PythonFbpNode",
+      "type": "CapnpFbpComponent",
+      "interpreter": "python",
       "path": "/home/berg/GitHub/bgr_flow/bgr_flow_components/a.py",
       "cmd_params": [],
       "inputs": [{"name": "in-1"},{"name": "in-2"},{"name": "in-3"},{"name": "in-4"},{"name": "in-5"},{"name": "in-6"},{"name": "in-7"},{"name": "in-8"},{"name": "in-9"},{"name": "in-10"}],
@@ -229,7 +248,8 @@
     },
     {
       "id": "a11.py",
-      "type": "PythonFbpNode",
+      "type": "CapnpFbpComponent",
+      "interpreter": "python",
       "path": "/home/berg/GitHub/bgr_flow/bgr_flow_components/a.py",
       "cmd_params": [],
       "inputs": [{"name": "in-1"},{"name": "in-2"},{"name": "in-3"},{"name": "in-4"},{"name": "in-5"},{"name": "in-6"},{"name": "in-7"},{"name": "in-8"},{"name": "in-9"},{"name": "in-10"},{"name": "in-11"}],
@@ -237,7 +257,8 @@
     },
     {
       "id": "a12.py",
-      "type": "PythonFbpNode",
+      "type": "CapnpFbpComponent",
+      "interpreter": "python",
       "path": "/home/berg/GitHub/bgr_flow/bgr_flow_components/a.py",
       "cmd_params": [],
       "inputs": [{"name": "in-1"},{"name": "in-2"},{"name": "in-3"},{"name": "in-4"},{"name": "in-5"},{"name": "in-6"},{"name": "in-7"},{"name": "in-8"},{"name": "in-9"},{"name": "in-10"},{"name": "in-11"},{"name": "in-12"}],
@@ -245,7 +266,8 @@
     },
     {
       "id": "a13.py",
-      "type": "PythonFbpNode",
+      "type": "CapnpFbpComponent",
+      "interpreter": "python",
       "path": "/home/berg/GitHub/bgr_flow/bgr_flow_components/a.py",
       "cmd_params": [],
       "inputs": [{"name": "in-1"},{"name": "in-2"},{"name": "in-3"},{"name": "in-4"},{"name": "in-5"},{"name": "in-6"},{"name": "in-7"},{"name": "in-8"},{"name": "in-9"},{"name": "in-10"},{"name": "in-11"},{"name": "in-12"},{"name": "in-13"}],
@@ -253,7 +275,8 @@
     },
     {
       "id": "a14.py",
-      "type": "PythonFbpNode",
+      "type": "CapnpFbpComponent",
+      "interpreter": "python",
       "path": "/home/berg/GitHub/bgr_flow/bgr_flow_components/a.py",
       "cmd_params": [],
       "inputs": [{"name": "in-1"},{"name": "in-2"},{"name": "in-3"},{"name": "in-4"},{"name": "in-5"},{"name": "in-6"},{"name": "in-7"},{"name": "in-8"},{"name": "in-9"},{"name": "in-10"},{"name": "in-11"},{"name": "in-12"},{"name": "in-13"},{"name": "in-14"}],
@@ -261,7 +284,8 @@
     },
     {
       "id": "a15.py",
-      "type": "PythonFbpNode",
+      "type": "CapnpFbpComponent",
+      "interpreter": "python",
       "path": "/home/berg/GitHub/bgr_flow/bgr_flow_components/a.py",
       "cmd_params": [],
       "inputs": [{"name": "in-1"},{"name": "in-2"},{"name": "in-3"},{"name": "in-4"},{"name": "in-5"},{"name": "in-6"},{"name": "in-7"},{"name": "in-8"},{"name": "in-9"},{"name": "in-10"},{"name": "in-11"},{"name": "in-12"},{"name": "in-13"},{"name": "in-14"},{"name": "in-15"}],
@@ -269,7 +293,8 @@
     },
     {
       "id": "a16.py",
-      "type": "PythonFbpNode",
+      "type": "CapnpFbpComponent",
+      "interpreter": "python",
       "path": "/home/berg/GitHub/bgr_flow/bgr_flow_components/a.py",
       "cmd_params": [],
       "inputs": [{"name": "in-1"},{"name": "in-2"},{"name": "in-3"},{"name": "in-4"},{"name": "in-5"},{"name": "in-6"},{"name": "in-7"},{"name": "in-8"},{"name": "in-9"},{"name": "in-10"},{"name": "in-11"},{"name": "in-12"},{"name": "in-13"},{"name": "in-14"},{"name": "in-15"},{"name": "in-16"}],
@@ -277,7 +302,8 @@
     },
     {
       "id": "a17.py",
-      "type": "PythonFbpNode",
+      "type": "CapnpFbpComponent",
+      "interpreter": "python",
       "path": "/home/berg/GitHub/bgr_flow/bgr_flow_components/a.py",
       "cmd_params": [],
       "inputs": [{"name": "in-1"},{"name": "in-2"},{"name": "in-3"},{"name": "in-4"},{"name": "in-5"},{"name": "in-6"},{"name": "in-7"},{"name": "in-8"},{"name": "in-9"},{"name": "in-10"},{"name": "in-11"},{"name": "in-12"},{"name": "in-13"},{"name": "in-14"},{"name": "in-15"},{"name": "in-16"},{"name": "in-17"}],
@@ -285,7 +311,8 @@
     },
     {
       "id": "a18.py",
-      "type": "PythonFbpNode",
+      "type": "CapnpFbpComponent",
+      "interpreter": "python",
       "path": "/home/berg/GitHub/bgr_flow/bgr_flow_components/a.py",
       "cmd_params": [],
       "inputs": [{"name": "in-1"},{"name": "in-2"},{"name": "in-3"},{"name": "in-4"},{"name": "in-5"},{"name": "in-6"},{"name": "in-7"},{"name": "in-8"},{"name": "in-9"},{"name": "in-10"},{"name": "in-11"},{"name": "in-12"},{"name": "in-13"},{"name": "in-14"},{"name": "in-15"},{"name": "in-16"},{"name": "in-17"},{"name": "in-18"}],
@@ -293,7 +320,8 @@
     },
     {
       "id": "a19.py",
-      "type": "PythonFbpNode",
+      "type": "CapnpFbpComponent",
+      "interpreter": "python",
       "path": "/home/berg/GitHub/bgr_flow/bgr_flow_components/a.py",
       "cmd_params": [],
       "inputs": [{"name": "in-1"},{"name": "in-2"},{"name": "in-3"},{"name": "in-4"},{"name": "in-5"},{"name": "in-6"},{"name": "in-7"},{"name": "in-8"},{"name": "in-9"},{"name": "in-10"},{"name": "in-11"},{"name": "in-12"},{"name": "in-13"},{"name": "in-14"},{"name": "in-15"},{"name": "in-16"},{"name": "in-17"},{"name": "in-18"},{"name": "in-19"}],
@@ -301,7 +329,8 @@
     },
     {
       "id": "a20.py",
-      "type": "PythonFbpNode",
+      "type": "CapnpFbpComponent",
+      "interpreter": "python",
       "path": "/home/berg/GitHub/bgr_flow/bgr_flow_components/a.py",
       "cmd_params": [],
       "inputs": [{"name": "in-1"},{"name": "in-2"},{"name": "in-3"},{"name": "in-4"},{"name": "in-5"},{"name": "in-6"},{"name": "in-7"},{"name": "in-8"},{"name": "in-9"},{"name": "in-10"},{"name": "in-11"},{"name": "in-12"},{"name": "in-13"},{"name": "in-14"},{"name": "in-15"},{"name": "in-16"},{"name": "in-17"},{"name": "in-18"},{"name": "in-19"},{"name": "in-20"}],

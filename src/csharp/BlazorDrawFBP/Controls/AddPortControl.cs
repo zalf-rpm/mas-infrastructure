@@ -19,7 +19,7 @@ public class AddPortControl : ExecutableControl
 
     public CapnpFbpPortModel.PortType PortType { get; set; } = CapnpFbpPortModel.PortType.In;
 
-    public PythonFbpComponentModel NodeModel { get; set; } = null;
+    public CapnpFbpComponentModel NodeModel { get; set; } = null;
     
     public AddPortControl(double x, double y, double offsetX = 0.0, double offsetY = 0.0)
         : this((IPositionProvider)new BoundsBasedPositionProvider(x, y, offsetX, offsetY))
@@ -49,7 +49,7 @@ public class AddPortControl : ExecutableControl
         }
     }
 
-    public static CapnpFbpPortModel CreateAndAddPort(PythonFbpComponentModel node,
+    public static CapnpFbpPortModel CreateAndAddPort(CapnpFbpComponentModel node,
         CapnpFbpPortModel.PortType portType, int orderNo, string name = null)
     {
         if (orderNo > 19) return null;

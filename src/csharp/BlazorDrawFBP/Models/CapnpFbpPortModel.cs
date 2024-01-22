@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using Blazor.Diagrams.Core.Geometry;
 using Blazor.Diagrams.Core.Models;
 using Blazor.Diagrams.Core.Models.Base;
@@ -15,14 +17,12 @@ public class CapnpFbpPortModel : PortModel
     public PortType ThePortType { get; }
     public string Name { get; set; }
     
-    // depending on the alignment move port to the left or right or up or down
-    // e.g. if alignment is left, 50 means move port to the edge down, -50 to the edge up
-    public int Offset { get; set; } = 0;
-    
     public new PortAlignment Alignment { get; set; } = PortAlignment.Left;
     
     // order of the port in the list of ports with the same alignment
     public int OrderNo { get; set; } = 0;
+
+    //public IEnumerable<LinkLabelModel> LinkLabelModels => Links.SelectMany(l => l.Labels.Where(l => l.));
     
     public CapnpFbpPortModel(NodeModel parent, PortType thePortType, PortAlignment alignment = PortAlignment.Bottom,
         Point position = null, Size size = null) : base(parent, alignment, position, size)

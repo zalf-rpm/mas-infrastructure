@@ -6,16 +6,23 @@ namespace BlazorDrawFBP.Models;
 using Blazor.Diagrams.Core.Geometry;
 using Blazor.Diagrams.Core.Models;
 
-public class PythonFbpComponentModel : NodeModel
+public class CapnpFbpComponentModel : NodeModel
 {
-    public PythonFbpComponentModel(Point position = null) : base(position) { }
+    public CapnpFbpComponentModel(Point position = null) : base(position) {}
     
     // the id of component
     public string ComponentId { get; set; }
-    public string UserName { get; set; }
+    public string ProcessName { get; set; }
     public string ShortDescription { get; set; }
-    public string PathToPythonFile { get; set; }
+    public string PathToFile { get; set; }
 
+    public bool Editable { get; set; } = true;
+    
+    public static int ProcessNo { get; set; } = 0;
+    
+    // if null PathToFile is a standalone executable, else a script needing the interpreter
+    public string PathToInterpreter { get; set; } = null;
+    
     // public struct CmdParam
     // {
     //     public string Name { get; set; }

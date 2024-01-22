@@ -1,7 +1,13 @@
 @using Blazor.Diagrams.Core.Models.Base;
 
 <div>
-    <MudFab Size="Size.Small" Color="Color.Success" StartIcon="@Icons.Material.Filled.Add" Label="@Control.Label"/>
+    @if (Control.NodeModel.Editable)
+    {
+        <MudFab Size="Size.Small"
+                Color="Color.Success"
+                StartIcon="@Icons.Material.Filled.Add"
+                Label="@Control.Label"/>
+    }
 </div>
 
 @code

@@ -7,20 +7,43 @@
     <MudCard>
         <MudCardHeader>
             <CardHeaderAvatar>
-                <MudAvatar Color="Color.Secondary">Py</MudAvatar>
+                <MudAvatar Color="Color.Secondary"
+                           >@InterpreterShortcut(Node.PathToInterpreter)</MudAvatar>
             </CardHeaderAvatar>
             <CardHeaderContent>
-                <MudTextField @bind-Value="Node.UserName" Label="User ID" Variant="Variant.Outlined"/>
-                @* <MudText Typo="Typo.body1">@Node.Id</MudText> *@
-                <MudText Typo="Typo.body2">@Node.ShortDescription</MudText>
+                <MudTextField @bind-Value="Node.ProcessName" Label="Process name" Variant="Variant.Outlined"/>
+                @if (Node.Editable)
+                {
+                    <MudTextField @bind-Value="Node.ShortDescription" Label="Short description" Variant="Variant.Outlined"/>
+                } else 
+                {
+                    @if (Node.ShortDescription.Length > 0)
+                    {
+                        <MudDivider DividerType="DividerType.Middle" Class="my-3"/>
+                    }
+                    <MudText Typo="Typo.body2">@Node.ShortDescription</MudText>
+                }
             </CardHeaderContent>
             <CardHeaderActions>
-                <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Default"/>
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" 
+                               Color="Color.Default"
+                               OnClick="() => Node.Editable = !Node.Editable"/>
             </CardHeaderActions>
         </MudCardHeader>
         @* <MudCardMedia Image="images/pilars.jpg" Height="250" /> *@
         <MudCardContent>
-            <MudTextField T="string" @bind-Value="Node.PathToPythonFile" Label="Path to .py file" Variant="Variant.Outlined"/>
+            @if (Node.Editable)
+            {
+                <MudTextField T="string" 
+                              @bind-Value="Node.PathToInterpreter" 
+                              Label="Path to interpreter" 
+                              Variant="Variant.Outlined"/>
+                <MudTextField T="string" 
+                              @bind-Value="Node.PathToFile" 
+                              Label="Path to .py file" 
+                              Variant="Variant.Outlined"/>
+                <MudDivider DividerType="DividerType.Middle" Class="my-3"/>
+            }
             <MudTextField T="string" @bind-Value="Node.CmdParamString" Lines="5" Label="Script Parameters" Variant="Variant.Outlined"/>
             @* <MudTable Items="@Node.CmdParameters" Dense="@true" Hover="@true" ReadOnly="@false" *@
             @*           CommitEditTooltip="Commit Change" *@
@@ -111,7 +134,7 @@
 </div>
 
 @code {
-    [Parameter] public PythonFbpComponentModel Node { get; set; } = null!;
+    [Parameter] public CapnpFbpComponentModel Node { get; set; } = null!;
     
     private readonly Dictionary<int, List<int>> _leftRightOffsetsMap = new ()
     {
@@ -130,4 +153,15 @@
     private readonly List<int> _topBottomOffsets = new () {-40, -30, -20, -10, 0, 10, 20, 30, 40};
 
     private readonly Dictionary<PortAlignment, int> _portCounts = new();
+
+    static string InterpreterShortcut(string path)
+    {
+        if (path == null) return "Exe";
+        if (path.Contains("python")) return "Py";
+        if (path.Contains("python3")) return "Py3";
+        if (path.Contains("node")) return "Js";
+        return "";
+    }
+    
+    
 }
