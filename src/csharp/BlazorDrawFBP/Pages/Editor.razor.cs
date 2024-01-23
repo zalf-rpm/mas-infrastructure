@@ -96,13 +96,14 @@ namespace BlazorDrawFBP.Pages
             Diagram.Links.Added += (l) =>
             {
                 Diagram.Controls.AddFor(l, ControlsType.OnHover).Add(new LinkInformationControl());
-                if (l.Source.Model is CapnpFbpPortModel pm)
+                if (l.Source.Model is CapnpFbpPortModel sourcePort)
                 {
-                    switch (pm.ThePortType)
+                    var targetPort = l.Target.Model as CapnpFbpPortModel;
+                    switch (sourcePort.ThePortType)
                     {
                         case CapnpFbpPortModel.PortType.In:
-                            l.Labels.Add(new LinkLabelModel(l, pm.Name, 40));
-                            l.Labels.Add(new LinkLabelModel(l, "OUT", -40));
+                            l.Labels.Add(new LinkLabelModel(l, sourcePort.Name, 40));
+                            l.Labels.Add(new LinkLabelModel(l, targetPort?.Name ?? "OUT", -40));
                             l.SourceMarker = LinkMarker.Arrow;
                             l.TargetChanged += (link, oldTarget, newTarget) =>
                             {
@@ -112,8 +113,8 @@ namespace BlazorDrawFBP.Pages
                             };
                             break;
                         case CapnpFbpPortModel.PortType.Out:
-                            l.Labels.Add(new LinkLabelModel(l, pm.Name, 40));
-                            l.Labels.Add(new LinkLabelModel(l, "IN", -40));
+                            l.Labels.Add(new LinkLabelModel(l, sourcePort.Name, 40));
+                            l.Labels.Add(new LinkLabelModel(l, targetPort?.Name ?? "IN", -40));
                             l.TargetMarker = LinkMarker.Arrow;
                             l.TargetChanged += (link, oldTarget, newTarget) =>
                             {
@@ -244,7 +245,6 @@ namespace BlazorDrawFBP.Pages
             var s = file.OpenReadStream();
             if (s.Length > 1*1024*1024) return; // 1 MB
             var dia = JObject.Parse(await new StreamReader(s).ReadToEndAsync());
-            //var dia = JObject.Parse(File.ReadAllText("Data/diagram_new.json"));
             var oldNodeIdToNewNode = new Dictionary<string, NodeModel>();
             foreach (var node in dia["nodes"] ?? new JArray())
             {
@@ -255,8 +255,8 @@ namespace BlazorDrawFBP.Pages
                 
                 var component = obj["id"]?.Type switch
                 {
-                    null => obj["component_data"] as JObject,
-                    JTokenType.Null => obj["component_data"] as JObject,
+                    null => obj["inline_component"] as JObject,
+                    JTokenType.Null => obj["inline_component"] as JObject,
                     _ => _componentDict[obj["id"]?.ToString() ?? ""]
                 } ?? new JObject() { { "type", "CapnpFbpComponent" } };
                 var diaNode = AddFbpNode(position, component, obj);
@@ -306,7 +306,6 @@ namespace BlazorDrawFBP.Pages
                 var jn = new JObject()
                 {
                     { "node_id", fbpNode.Id },
-                    { "component_id", fbpNode.ComponentId },
                     { "process_name", fbpNode.ProcessName },
                     { "location", new JObject() { { "x", fbpNode.Position.X }, { "y", fbpNode.Position.Y } } },
                     { "editable", fbpNode.Editable },
@@ -317,7 +316,7 @@ namespace BlazorDrawFBP.Pages
                         }
                     }
                 };
-                if (fbpNode.ComponentId == null)
+                if (string.IsNullOrEmpty(fbpNode.ComponentId) || !_componentDict.ContainsKey(fbpNode.ComponentId))
                 {
                     // create inputs
                     var inputs = fbpNode.Ports.Where(p => p is CapnpFbpPortModel cp 
@@ -331,8 +330,9 @@ namespace BlazorDrawFBP.Pages
                         .Select(p => p as CapnpFbpPortModel)
                         .Select(p => new JObject() { { "name", p!.Name } });
                     
-                    jn.Add("component_data", new JObject()
+                    jn.Add("inline_component", new JObject()
                     {
+                        { "id", fbpNode.ComponentId },
                         { "type", "CapnpFbpComponent" },
                         { "interpreter", fbpNode.PathToInterpreter },
                         { "description", fbpNode.ShortDescription },
@@ -340,6 +340,10 @@ namespace BlazorDrawFBP.Pages
                         { "outputs", new JArray(outputs) },
                         { "path", fbpNode.PathToFile }
                     });
+                }
+                else
+                {
+                    jn.Add("component_id", fbpNode.ComponentId);
                 }
                 if (dia["nodes"] is JArray nodes) nodes.Add(jn);
 
@@ -486,14 +490,15 @@ namespace BlazorDrawFBP.Pages
                 {
                     var cmdParams = new StringBuilder();
                     var initCmdParams = initData["cmd_params"] as JObject ?? new JObject();
-                    foreach(var param in component["cmd_params"] ?? new JArray())
+                    var compCmdParams = component["cmd_params"] as JObject ?? new JObject();
+                    var cmdParamNames = ((IDictionary<string, JToken>)compCmdParams).Keys.ToHashSet();
+                        cmdParamNames.UnionWith(((IDictionary<string, JToken>)initCmdParams).Keys.ToHashSet());
+                    foreach(var paramName in cmdParamNames)
                     {
-                        var paramName = param["name"]?.ToString();
-                        if (paramName == null) continue;
                         cmdParams.Append(paramName);
                         cmdParams.Append('=');
                         //if(initCmdParams[paramName]) 
-                        cmdParams.Append(initCmdParams.GetValue(paramName) ?? param["default"] ?? "");
+                        cmdParams.Append(initCmdParams.GetValue(paramName) ?? compCmdParams["default"] ?? "");
                         cmdParams.AppendLine();
                     }
 
@@ -503,11 +508,11 @@ namespace BlazorDrawFBP.Pages
                         JTokenType.Null => null,
                         _ => component["id"]?.ToString()
                     };
-                    var procName = initNode != null ? initNode["process_name"]?.Type switch
+                    var procName = initNode?.GetValue("process_name")?.Type switch
                     {
                         JTokenType.Null => null,
-                        _ => initNode["process_name"]?.ToString()
-                    } : null;
+                        _ => initNode?.GetValue("process_name")?.ToString()
+                    };
                     var node = new CapnpFbpComponentModel(new Point(position.X, position.Y))
                     {
                         ComponentId = compId,

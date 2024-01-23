@@ -14,7 +14,8 @@
                 <MudTextField @bind-Value="Node.ProcessName" Label="Process name" Variant="Variant.Outlined"/>
                 @if (Node.Editable)
                 {
-                    <MudTextField @bind-Value="Node.ShortDescription" Label="Short description" Variant="Variant.Outlined"/>
+                    <MudTextField @bind-Value="Node.ComponentId" Label="Component ID" Variant="Variant.Outlined"/>
+                    <MudTextField @bind-Value="Node.ShortDescription" Label="Description" Variant="Variant.Outlined"/>
                 } else 
                 {
                     @if (Node.ShortDescription.Length > 0)
