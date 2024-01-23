@@ -140,19 +140,32 @@
         Node.Container.Nodes.Remove(Node);
     }
 
+    void UpdateLinkNames()
+    {
+        foreach (var link in Node.PortModel.Links)
+        {
+            var labelIndex = 0;
+            if (link.Source.Model == Node.PortModel) labelIndex = 0;
+            else if (link.Target.Model == Node.PortModel) labelIndex = 1;
+            link.Labels[labelIndex].Content = Node.PortModel.Name;
+            link.Labels[labelIndex].Refresh();
+        }
+    }
+    
     void OnBlur(FocusEventArgs e)
     {
-        // Console.WriteLine("OnBlur");
         if (_alreadyRemoved) return;
         Node.PortModel.Refresh();
         Node.Container.Nodes.Remove(Node);
+        UpdateLinkNames();
     }
 
     void OnKeyUp(KeyboardEventArgs e)
     {
-        // Console.WriteLine("OnKeyUp Enter pressed");
         if (e.Key != "Enter") return;
         Node.Container.Nodes.Remove(Node);
+        Node.PortModel.Refresh();
+        UpdateLinkNames();
         _alreadyRemoved = true;
     }
 

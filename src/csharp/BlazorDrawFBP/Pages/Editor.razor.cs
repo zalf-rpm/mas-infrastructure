@@ -5,7 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Blazor.Diagrams;
+using Blazor.Diagrams.Core;
 using Blazor.Diagrams.Core.Anchors;
+using Blazor.Diagrams.Core.Behaviors;
 using Blazor.Diagrams.Core.Controls;
 using Blazor.Diagrams.Core.Controls.Default;
 using Blazor.Diagrams.Core.Geometry;
@@ -49,7 +51,10 @@ namespace BlazorDrawFBP.Pages
             };
 
             Diagram = new BlazorDiagram(options);
-
+            var ksb = Diagram.GetBehavior<KeyboardShortcutsBehavior>();
+            ksb?.RemoveShortcut("Delete", false, false, false);
+            ksb?.SetShortcut("Delete", false, true, false, KeyboardShortcutsDefaults.DeleteSelection);
+            
             _components = JObject.Parse(File.ReadAllText("Data/components.json"));
             foreach (var (cat, value) in _components)
             {
@@ -69,28 +74,6 @@ namespace BlazorDrawFBP.Pages
             Diagram.RegisterComponent<RemoveProcessControl, RemoveProcessControlWidget>();
 
             RegisterEvents();
-
-            // var node = Diagram.Nodes.Add(new AddTwoNumbersNode(new Point(80, 80)));
-            // node.AddPort(PortAlignment.Top);
-            // node.AddPort(PortAlignment.Bottom);
-
-            // var firstNode = Diagram.Nodes.Add(new NodeModel(position: new Point(50, 50))
-            // {
-            //     Title = "Node 1"
-            // });
-            // var secondNode = Diagram.Nodes.Add(new NodeModel(position: new Point(200, 100))
-            // {
-            //     Title = "Node 2"
-            // });
-            // var leftPort = secondNode.AddPort(PortAlignment.Left);
-            // var rightPort = secondNode.AddPort(PortAlignment.Right);
-            //
-            // // The connection point will be the intersection of
-            // // a line going from the target to the center of the source
-            // var sourceAnchor = new ShapeIntersectionAnchor(firstNode);
-            // // The connection point will be the port's position
-            // var targetAnchor = new SinglePortAnchor(leftPort);
-            // var link = Diagram.Links.Add(new LinkModel(sourceAnchor, targetAnchor));
         }
 
         private void RegisterEvents()
@@ -272,6 +255,7 @@ namespace BlazorDrawFBP.Pages
                 
                 var component = obj["id"]?.Type switch
                 {
+                    null => obj["component_data"] as JObject,
                     JTokenType.Null => obj["component_data"] as JObject,
                     _ => _componentDict[obj["id"]?.ToString() ?? ""]
                 } ?? new JObject() { { "type", "CapnpFbpComponent" } };
@@ -325,6 +309,7 @@ namespace BlazorDrawFBP.Pages
                     { "component_id", fbpNode.ComponentId },
                     { "process_name", fbpNode.ProcessName },
                     { "location", new JObject() { { "x", fbpNode.Position.X }, { "y", fbpNode.Position.Y } } },
+                    { "editable", fbpNode.Editable },
                     {
                         "data", new JObject()
                         {
@@ -531,7 +516,7 @@ namespace BlazorDrawFBP.Pages
                         PathToFile = pathToFile,
                         ShortDescription = component["description"]?.ToString() ?? "",
                         CmdParamString = cmdParams.ToString(),
-                        Editable = pathToFile.Length == 0
+                        Editable = initNode?.GetValue("editable")?.Value<bool>() ?? pathToFile.Length == 0
                     };
 
                     Diagram.Controls.AddFor(node).Add(new AddPortControl(0.2, -0.2, -33)
