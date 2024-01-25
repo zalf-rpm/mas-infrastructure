@@ -229,7 +229,7 @@ def run_climate_service():
     conMan = common.ConnectionManager()
     # restorer = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000", cast_as=persistence_capnp.Restorer)
     # service = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/6feaf299-d620-430b-9189-36dfccf48b3a", cast_as=climate_data_capnp.CSVTimeSeriesFactory)
-    sr = "capnp://sVmjK6TZ_-dlUG3CtK5jesEw7gb4a1UTLwpHxqCKp0o=@10.10.25.25:40857/2676128f-c42a-4fa6-b71c-32de1823f1d9"
+    sr = "capnp://oJFG9RpPIAr48Q9395drwGRSFMGKIZ3idmtV5m4RHMw=@10.10.25.31:44447/72ccf0a8-c192-41ed-9f0d-4c9629a5bb09"
     service = conMan.try_connect(sr, cast_as=climate_capnp.Service)
     # timeseries = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/8e7961c5-bd16-4c1d-86fd-8347dc46185e", cast_as=climate_data_capnp.TimeSeries)
     # unsave = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/ac544d7b-1f82-4bf8-9adb-cf586ae46287", cast_as=common_capnp.Action)
@@ -285,7 +285,7 @@ def run_climate_service():
 
 def check_climate_dataset_service():
     conMan = common.ConnectionManager()
-    sr = "capnp://dL9xa9lrakyJ6AphXxZsAII3I9D34HsznBEsW2XCNEg=@10.10.25.25:43633/d2cde023-e9bd-4396-9148-23527d234cea"
+    sr = "capnp://RVIAERC9hxIviWwuPIcsy5BgngjI7B3AMOtFroI3pww=@10.10.25.31:43377/66a945ed-9fa2-4643-9c1e-5de6c440b559"
     service = conMan.try_connect(sr, cast_as=climate_capnp.Dataset)
     try:
         print(service.info().wait())

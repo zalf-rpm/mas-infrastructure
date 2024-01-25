@@ -1,6 +1,11 @@
 {
   "generic": [
     {
+      "id": "IIP",
+      "type": "CapnpFbpIIP",
+      "description": "Initial Information Packet"
+    },
+    {
       "id": null,
       "type": "CapnpFbpComponent",
       "description": "Generic component",

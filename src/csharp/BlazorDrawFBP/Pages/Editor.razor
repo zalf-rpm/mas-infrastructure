@@ -55,7 +55,7 @@
                     </MudExpansionPanel>
                     @foreach (var (cat, value) in _components)
                     {
-                        <MudExpansionPanel Text="@cat" IsInitiallyExpanded="false">
+                        <MudExpansionPanel Text="@cat" IsInitiallyExpanded="@(cat == "generic")">
                             <MudStack Spacing="1">
                                 @foreach (var component in value as JArray ?? new JArray())
                                 {

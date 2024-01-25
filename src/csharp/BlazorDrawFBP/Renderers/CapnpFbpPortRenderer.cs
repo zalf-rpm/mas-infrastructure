@@ -69,13 +69,6 @@ public class CapnpFbpPortRenderer : ComponentBase, IDisposable
         if (!Port.Visible)
             return;
         
-        // var offsetString = "";
-        // if (Port.Offset != 0)
-        // {
-        //     offsetString = "offset-" + (Port.Offset < 0 ? "m" : "") + 
-        //                    (int)Math.Round(Math.Abs(Port.Offset) / 10.0) * 10;
-        // }
-        //
         builder.OpenElement(0, _isParentSvg ? "g" : "div");
         builder.AddAttribute(1, "style", Style);
         builder.AddAttribute(2, "class",
@@ -110,17 +103,16 @@ public class CapnpFbpPortRenderer : ComponentBase, IDisposable
     private void OnPointerUp(PointerEventArgs e)
     {
         BlazorDiagram.TriggerPointerUp(
-            e.PointerType == "mouse" ? (Model)Port : (Model)FindPortOn(e.ClientX, e.ClientY),
+            e.PointerType == "mouse" ? Port : FindPortOn(e.ClientX, e.ClientY),
             EventsExtensions.ToCore(e));
     }
 
     private PortModel FindPortOn(double clientX, double clientY)
     {
         foreach (var portOn in BlazorDiagram.Nodes
-                     .SelectMany<NodeModel,
-                         PortModel>((Func<NodeModel, IEnumerable<PortModel>>)(n => (IEnumerable<PortModel>)n.Ports))
-                     .Union<PortModel>(BlazorDiagram.Groups.SelectMany<GroupModel, PortModel>(
-                         (Func<GroupModel, IEnumerable<PortModel>>)(g => (IEnumerable<PortModel>)g.Ports))))
+                     .SelectMany((Func<NodeModel, IEnumerable<PortModel>>)(n => n.Ports))
+                     .Union(BlazorDiagram.Groups.SelectMany(
+                         (Func<GroupModel, IEnumerable<PortModel>>)(g => g.Ports))))
         {
             if (!portOn.Initialized) continue;
             var relativeMousePoint = BlazorDiagram.GetRelativeMousePoint(clientX, clientY);
@@ -136,7 +128,7 @@ public class CapnpFbpPortRenderer : ComponentBase, IDisposable
         Point pan;
         if (BlazorDiagram.Container == null)
         {
-            pan = (Point)null;
+            pan = null;
         }
         else
         {
@@ -153,12 +145,12 @@ public class CapnpFbpPortRenderer : ComponentBase, IDisposable
             {
                 _shouldRefreshPort = false;
                 Port.RefreshAll();
-                pan = (Point)null;
+                pan = null;
             }
             else
             {
                 Port.RefreshLinks();
-                pan = (Point)null;
+                pan = null;
             }
         }
     }
@@ -171,7 +163,7 @@ public class CapnpFbpPortRenderer : ComponentBase, IDisposable
         if (portRenderer.Port.Initialized)
         {
             portRenderer._shouldRender = true;
-            await portRenderer.InvokeAsync(new Action(portRenderer.StateHasChanged));
+            await portRenderer.InvokeAsync(portRenderer.StateHasChanged);
         }
         else
             await portRenderer.UpdateDimensions();

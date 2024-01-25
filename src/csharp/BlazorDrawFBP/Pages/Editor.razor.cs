@@ -15,6 +15,7 @@ using Blazor.Diagrams.Core.Models;
 using Blazor.Diagrams.Core.PathGenerators;
 using Blazor.Diagrams.Core.Routers;
 using Blazor.Diagrams.Options;
+using BlazorDrawFBP.Behaviors;
 using BlazorDrawFBP.Controls;
 using BlazorDrawFBP.Models;
 using Mas.Schema.Climate;
@@ -65,15 +66,21 @@ namespace BlazorDrawFBP.Pages
                 }
             }
 
-            Diagram.RegisterComponent<CapnpFbpComponentModel, PythonFbpComponentWidget>();
+            Diagram.RegisterComponent<CapnpFbpComponentModel, CapnpFbpComponentWidget>();
+            Diagram.RegisterComponent<CapnpFbpIipModel, CapnpFbpIipWidget>();
             Diagram.RegisterComponent<UpdatePortNameNode, UpdatePortNameNodeWidget>();
             Diagram.RegisterComponent<PortOptionsNode, PortOptionsNodeWidget>();
             Diagram.RegisterComponent<NodeInformationControl, NodeInformationControlWidget>();
             Diagram.RegisterComponent<LinkInformationControl, LinkInformationControlWidget>();
             Diagram.RegisterComponent<AddPortControl, AddPortControlWidget>();
             Diagram.RegisterComponent<RemoveProcessControl, RemoveProcessControlWidget>();
-
+            Diagram.RegisterComponent<RemoveLinkControl, RemoveLinkControlWidget>();
+            Diagram.RegisterComponent<LinkModel, FbpLinkWidget>(true);
             RegisterEvents();
+            
+            //var oldDragNewLinkBehavior = Diagram.GetBehavior<DragNewLinkBehavior>()!;
+            Diagram.UnregisterBehavior<DragNewLinkBehavior>();
+            Diagram.RegisterBehavior(new FbpDragNewLinkBehavior(Diagram));
         }
 
         private void RegisterEvents()
@@ -95,36 +102,54 @@ namespace BlazorDrawFBP.Pages
 
             Diagram.Links.Added += (l) =>
             {
-                Diagram.Controls.AddFor(l, ControlsType.OnHover).Add(new LinkInformationControl());
-                if (l.Source.Model is CapnpFbpPortModel sourcePort)
+                Diagram.Controls.AddFor(l).Add(new RemoveLinkControl(0.5, 0.5));
+                switch (l.Source.Model)
                 {
-                    var targetPort = l.Target.Model as CapnpFbpPortModel;
-                    switch (sourcePort.ThePortType)
+                    case CapnpFbpPortModel sourcePort:
                     {
-                        case CapnpFbpPortModel.PortType.In:
-                            l.Labels.Add(new LinkLabelModel(l, sourcePort.Name, 40));
-                            l.Labels.Add(new LinkLabelModel(l, targetPort?.Name ?? "OUT", -40));
-                            l.SourceMarker = LinkMarker.Arrow;
-                            l.TargetChanged += (link, oldTarget, newTarget) =>
-                            {
-                                if (newTarget.Model is not CapnpFbpPortModel outPort) return;
-                                link.Labels[1].Content = outPort.Name;
-                                link.Refresh();
-                            };
-                            break;
-                        case CapnpFbpPortModel.PortType.Out:
-                            l.Labels.Add(new LinkLabelModel(l, sourcePort.Name, 40));
-                            l.Labels.Add(new LinkLabelModel(l, targetPort?.Name ?? "IN", -40));
-                            l.TargetMarker = LinkMarker.Arrow;
-                            l.TargetChanged += (link, oldTarget, newTarget) =>
-                            {
-                                if (newTarget.Model is not CapnpFbpPortModel inPort) return;
-                                link.Labels[1].Content = inPort.Name;
-                                link.Refresh();
-                            };
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
+                        var targetPort = l.Target.Model as CapnpFbpPortModel;
+                        switch (sourcePort.ThePortType)
+                        {
+                            case CapnpFbpPortModel.PortType.In:
+                                l.Labels.Add(new LinkLabelModel(l, sourcePort.Name, 40));
+                                l.Labels.Add(new LinkLabelModel(l, targetPort?.Name ?? "OUT", -40));
+                                l.SourceMarker = LinkMarker.Arrow;
+                                l.TargetChanged += (link, oldTarget, newTarget) =>
+                                {
+                                    if (newTarget.Model is not CapnpFbpPortModel outPort) return;
+                                    link.Labels[1].Content = outPort.Name;
+                                    link.Refresh();
+                                };
+                                break;
+                            case CapnpFbpPortModel.PortType.Out:
+                                l.Labels.Add(new LinkLabelModel(l, sourcePort.Name, 40));
+                                l.Labels.Add(new LinkLabelModel(l, targetPort?.Name ?? "IN", -40));
+                                l.TargetMarker = LinkMarker.Arrow;
+                                l.TargetChanged += (link, oldTarget, newTarget) =>
+                                {
+                                    if (newTarget.Model is not CapnpFbpPortModel inPort) return;
+                                    link.Labels[1].Content = inPort.Name;
+                                    link.Refresh();
+                                };
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException();
+                        }
+
+                        break;
+                    }
+                    case CapnpFbpIipPortModel:
+                    {
+                        var targetPort = l.Target.Model as CapnpFbpPortModel;
+                        l.Labels.Add(new LinkLabelModel(l, targetPort?.Name ?? "IN", -40));
+                        l.TargetMarker = LinkMarker.Arrow;
+                        l.TargetChanged += (link, oldTarget, newTarget) =>
+                        {
+                            if (newTarget.Model is not CapnpFbpPortModel inPort) return;
+                            link.Labels[0].Content = inPort.Name;
+                            link.Refresh();
+                        };
+                        break;
                     }
                 }
 
@@ -552,6 +577,20 @@ namespace BlazorDrawFBP.Pages
                             output["name"]?.ToString());
                     }
                     Diagram.Nodes.Add(node);
+                    return node;
+                }
+                case "CapnpFbpIIP":
+                {
+                    var node = new CapnpFbpIipModel(new Point(position.X, position.Y));
+                    Diagram.Nodes.Add(node);
+                    Diagram.Controls.AddFor(node).Add(new RemoveProcessControl(0.5, -0.5, -20));
+                    var port = new CapnpFbpIipPortModel(node, PortAlignment.Top);
+                    node.AddPort(port);
+                    port.Refresh();
+                    node.AddPort(new CapnpFbpIipPortModel(node, PortAlignment.Bottom));
+                    node.AddPort(new CapnpFbpIipPortModel(node, PortAlignment.Left));
+                    node.AddPort(new CapnpFbpIipPortModel(node, PortAlignment.Right));
+                    node.RefreshAll();
                     return node;
                 }
             }

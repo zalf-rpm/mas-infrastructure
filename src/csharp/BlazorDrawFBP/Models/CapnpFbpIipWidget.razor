@@ -1,0 +1,19 @@
+@using Blazor.Diagrams.Components.Renderers;
+@using BlazorDrawFBP.Models;
+@using BlazorDrawFBP.Renderers
+@using System.Text
+
+<div>
+    <MudTextField T="string" @bind-Value="Node.Content" Lines="3" Label="IIP content" Variant="Variant.Outlined"/>
+
+    @foreach (var port in Node.Ports)
+    {
+        if (port is not CapnpFbpIipPortModel iipPort) continue;
+        <PortRenderer Port="iipPort" Class="default"/>
+    }
+</div>
+
+@code 
+{
+    [Parameter] public CapnpFbpIipModel Node { get; set; }
+}
