@@ -278,11 +278,11 @@ namespace BlazorDrawFBP.Pages
                 var position = new Point(obj["location"]?["x"]?.Value<double>() ?? 0, 
                     obj["location"]?["y"]?.Value<double>() ?? 0);
                 
-                var component = obj["id"]?.Type switch
+                var component = obj["component_id"]?.Type switch
                 {
                     null => obj["inline_component"] as JObject,
                     JTokenType.Null => obj["inline_component"] as JObject,
-                    _ => _componentDict[obj["id"]?.ToString() ?? ""]
+                    _ => _componentDict[obj["component_id"]?.ToString() ?? ""]
                 } ?? new JObject() { { "type", "CapnpFbpComponent" } };
                 var diaNode = AddFbpNode(position, component, obj);
                 oldNodeIdToNewNode.Add(obj["node_id"]?.ToString() ?? "", diaNode);
@@ -307,6 +307,10 @@ namespace BlazorDrawFBP.Pages
                 var targetPort = targetNode.Ports.Where(p => 
                         p is CapnpFbpPortModel capnpPort && capnpPort.Name == targetPortName)
                     .DefaultIfEmpty(null).First();
+                // might be an IIP
+                sourcePort ??= sourceNode.Ports.Where(p =>
+                        p is CapnpFbpIipPortModel iipPort && iipPort.Alignment.ToString() == sourcePortName)
+                    .DefaultIfEmpty(null).First();
                 if (sourcePort == null || targetPort == null) continue;
                 Diagram.Links.Add(new LinkModel(sourcePort, targetPort));
             }
@@ -314,105 +318,167 @@ namespace BlazorDrawFBP.Pages
         
         protected async Task SaveDiagram()
         {
-            var dia = JObject.Parse(File.ReadAllText("Data/diagram_template.json"));
+            var dia = JObject.Parse(await File.ReadAllTextAsync("Data/diagram_template.json"));
             HashSet<string> linkSet = new();
             foreach(var node in Diagram.Nodes)
             {
-                if (node is not CapnpFbpComponentModel fbpNode) continue;
-
-                var cmdParams = new JObject();
-                foreach (var line in fbpNode.CmdParamString.Split('\n'))
+                switch (node)
                 {
-                    var kv = line.Split('=');
-                    var k = kv[0].Trim();
-                    var v = kv.Length == 2 ? kv[1].Trim() : "";
-                    if(k.Length > 0 && v.Length > 0) cmdParams.Add(k, v);
-                }
-                var jn = new JObject()
-                {
-                    { "node_id", fbpNode.Id },
-                    { "process_name", fbpNode.ProcessName },
-                    { "location", new JObject() { { "x", fbpNode.Position.X }, { "y", fbpNode.Position.Y } } },
-                    { "editable", fbpNode.Editable },
+                    case CapnpFbpComponentModel fbpNode:
                     {
-                        "data", new JObject()
+                        var cmdParams = new JObject();
+                        foreach (var line in fbpNode.CmdParamString.Split('\n'))
                         {
-                            { "cmd_params", cmdParams }
+                            var kv = line.Split('=');
+                            var k = kv[0].Trim();
+                            var v = kv.Length == 2 ? kv[1].Trim() : "";
+                            if (k.Length > 0 && v.Length > 0) cmdParams.Add(k, v);
                         }
-                    }
-                };
-                if (string.IsNullOrEmpty(fbpNode.ComponentId) || !_componentDict.ContainsKey(fbpNode.ComponentId))
-                {
-                    // create inputs
-                    var inputs = fbpNode.Ports.Where(p => p is CapnpFbpPortModel cp 
-                                                          && cp.ThePortType == CapnpFbpPortModel.PortType.In)
-                        .Select(p => p as CapnpFbpPortModel)
-                        .Select(p => new JObject() { { "name", p!.Name } });
-                    
-                    //create outputs
-                    var outputs = fbpNode.Ports.Where(p => p is CapnpFbpPortModel cp 
-                                                           && cp.ThePortType == CapnpFbpPortModel.PortType.Out)
-                        .Select(p => p as CapnpFbpPortModel)
-                        .Select(p => new JObject() { { "name", p!.Name } });
-                    
-                    jn.Add("inline_component", new JObject()
-                    {
-                        { "id", fbpNode.ComponentId },
-                        { "type", "CapnpFbpComponent" },
-                        { "interpreter", fbpNode.PathToInterpreter },
-                        { "description", fbpNode.ShortDescription },
-                        { "inputs", new JArray(inputs) },
-                        { "outputs", new JArray(outputs) },
-                        { "path", fbpNode.PathToFile }
-                    });
-                }
-                else
-                {
-                    jn.Add("component_id", fbpNode.ComponentId);
-                }
-                if (dia["nodes"] is JArray nodes) nodes.Add(jn);
 
+                        var jn = new JObject()
+                        {
+                            { "node_id", fbpNode.Id },
+                            { "process_name", fbpNode.ProcessName },
+                            { "location", new JObject() { { "x", fbpNode.Position.X }, { "y", fbpNode.Position.Y } } },
+                            { "editable", fbpNode.Editable },
+                            {
+                                "data", new JObject()
+                                {
+                                    { "cmd_params", cmdParams }
+                                }
+                            }
+                        };
+                        if (string.IsNullOrEmpty(fbpNode.ComponentId) ||
+                            !_componentDict.ContainsKey(fbpNode.ComponentId))
+                        {
+                            // create inputs
+                            var inputs = fbpNode.Ports.Where(p => p is CapnpFbpPortModel cp
+                                                                  && cp.ThePortType == CapnpFbpPortModel.PortType.In)
+                                .Select(p => p as CapnpFbpPortModel)
+                                .Select(p => new JObject() { { "name", p!.Name } });
+
+                            //create outputs
+                            var outputs = fbpNode.Ports.Where(p => p is CapnpFbpPortModel cp
+                                                                   && cp.ThePortType == CapnpFbpPortModel.PortType.Out)
+                                .Select(p => p as CapnpFbpPortModel)
+                                .Select(p => new JObject() { { "name", p!.Name } });
+
+                            jn.Add("inline_component", new JObject()
+                            {
+                                { "id", fbpNode.ComponentId },
+                                { "type", "CapnpFbpComponent" },
+                                { "interpreter", fbpNode.PathToInterpreter },
+                                { "description", fbpNode.ShortDescription },
+                                { "inputs", new JArray(inputs) },
+                                { "outputs", new JArray(outputs) },
+                                { "path", fbpNode.PathToFile }
+                            });
+                        }
+                        else
+                        {
+                            jn.Add("component_id", fbpNode.ComponentId);
+                        }
+
+                        if (dia["nodes"] is JArray nodes) nodes.Add(jn);
+
+                        break;
+                    }
+                    case CapnpFbpIipModel iipNode:
+                    {
+                        var jn = new JObject()
+                        {
+                            { "node_id", iipNode.Id },
+                            { "component_id", iipNode.ComponentId },
+                            { "location", new JObject() { { "x", iipNode.Position.X }, { "y", iipNode.Position.Y } } },
+                            {
+                                "data", new JObject()
+                                {
+                                    { "content", iipNode.Content }
+                                }
+                            },
+                        };
+                        if (dia["nodes"] is JArray nodes) nodes.Add(jn);
+                        break;
+                    }
+                    default:
+                        continue;
+                }
+                
                 foreach (var pl in node.PortLinks)
                 {
                     if (!pl.IsAttached) continue;
 
-                    if (pl.Source.Model is not CapnpFbpPortModel sourceCapnpPort ||
-                        pl.Target.Model is not CapnpFbpPortModel targetCapnpPort) continue;
-
-                    // make sure the source port is the out port
-                    // because BlazorDiagrams doesn't care about the direction of the link
-                    var outPort = sourceCapnpPort.ThePortType == CapnpFbpPortModel.PortType.Out
-                        ? sourceCapnpPort
-                        : targetCapnpPort;
-                    var inPort = targetCapnpPort.ThePortType == CapnpFbpPortModel.PortType.In
-                        ? targetCapnpPort
-                        : sourceCapnpPort;
-                    
-                    // make sure the link is only stored once
-                    var checkOut = $"{outPort.Parent.Id}.{outPort.Name}";
-                    var checkIn = $"{inPort.Parent.Id}.{inPort.Name}";
-                    if (linkSet.Contains($"{checkOut}->{checkIn}") ||
-                        linkSet.Contains($"{checkIn}->{checkOut}")) continue;
-                    else linkSet.Add($"{checkOut}->{checkIn}");
-
-                    // for storing the links use the naming convention of BlazorDiagrams (source and target)
-                    // but the direction of the link is determined by the port type and FBP convention
-                    var jl = new JObject()
+                    switch (pl.Target.Model)
                     {
-                        { "source", new JObject()
+                        case CapnpFbpIipPortModel:
+                            continue;
+                        case CapnpFbpPortModel targetCapnpPort 
+                            when pl.Source.Model is CapnpFbpIipPortModel sourceIipPort:
+                        {
+                            var jl = new JObject()
                             {
-                                { "node_id", sourceCapnpPort.Parent.Id }, 
-                                { "port", sourceCapnpPort.Name }
-                            } 
-                        },
-                        { "target", new JObject()
-                            {
-                                { "node_id", targetCapnpPort.Parent.Id }, 
-                                { "port", targetCapnpPort.Name }
-                            } 
+                                {
+                                    "source", new JObject()
+                                    {
+                                        { "node_id", sourceIipPort.Parent.Id },
+                                        { "port", sourceIipPort.Alignment.ToString() }
+                                    }
+                                },
+                                {
+                                    "target", new JObject()
+                                    {
+                                        { "node_id", targetCapnpPort.Parent.Id },
+                                        { "port", targetCapnpPort.Name }
+                                    }
+                                }
+                            };
+                            if (dia["links"] is JArray links) links.Add(jl);
+                            break;
                         }
-                    };
-                    if (dia["links"] is JArray links) links.Add(jl);
+                        case CapnpFbpPortModel targetCapnpPort:
+                        {
+                            if (pl.Source.Model is CapnpFbpPortModel sourceCapnpPort)
+                            {
+                                // make sure the source port is the out port
+                                // because BlazorDiagrams doesn't care about the direction of the link
+                                var outPort = sourceCapnpPort.ThePortType == CapnpFbpPortModel.PortType.Out
+                                    ? sourceCapnpPort
+                                    : targetCapnpPort;
+                                var inPort = targetCapnpPort.ThePortType == CapnpFbpPortModel.PortType.In
+                                    ? targetCapnpPort
+                                    : sourceCapnpPort;
+
+                                // make sure the link is only stored once
+                                var checkOut = $"{outPort.Parent.Id}.{outPort.Name}";
+                                var checkIn = $"{inPort.Parent.Id}.{inPort.Name}";
+                                if (linkSet.Contains($"{checkOut}->{checkIn}") ||
+                                    linkSet.Contains($"{checkIn}->{checkOut}")) continue;
+                                else linkSet.Add($"{checkOut}->{checkIn}");
+
+                                // for storing the links use the naming convention of BlazorDiagrams (source and target)
+                                // but the direction of the link is determined by the port type and FBP convention
+                                var jl = new JObject()
+                                {
+                                    {
+                                        "source", new JObject()
+                                        {
+                                            { "node_id", sourceCapnpPort.Parent.Id },
+                                            { "port", sourceCapnpPort.Name }
+                                        }
+                                    },
+                                    {
+                                        "target", new JObject()
+                                        {
+                                            { "node_id", targetCapnpPort.Parent.Id },
+                                            { "port", targetCapnpPort.Name }
+                                        }
+                                    }
+                                };
+                                if (dia["links"] is JArray links) links.Add(jl);
+                            }
+                            break;
+                        }
+                    }
                 }
             }
             
@@ -581,12 +647,19 @@ namespace BlazorDrawFBP.Pages
                 }
                 case "CapnpFbpIIP":
                 {
-                    var node = new CapnpFbpIipModel(new Point(position.X, position.Y));
+                    var compId = component["id"]?.Type switch
+                    {
+                        JTokenType.Null => null,
+                        _ => component["id"]?.ToString()
+                    };
+                    var node = new CapnpFbpIipModel(new Point(position.X, position.Y))
+                    {
+                        ComponentId = compId,
+                        Content = initData["content"]?.ToString() ?? ""
+                    };
                     Diagram.Nodes.Add(node);
                     Diagram.Controls.AddFor(node).Add(new RemoveProcessControl(0.5, -0.5, -20));
-                    var port = new CapnpFbpIipPortModel(node, PortAlignment.Top);
-                    node.AddPort(port);
-                    port.Refresh();
+                    node.AddPort(new CapnpFbpIipPortModel(node, PortAlignment.Top));
                     node.AddPort(new CapnpFbpIipPortModel(node, PortAlignment.Bottom));
                     node.AddPort(new CapnpFbpIipPortModel(node, PortAlignment.Left));
                     node.AddPort(new CapnpFbpIipPortModel(node, PortAlignment.Right));

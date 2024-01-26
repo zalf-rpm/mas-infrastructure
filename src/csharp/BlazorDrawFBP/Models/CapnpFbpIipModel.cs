@@ -10,5 +10,7 @@ public class CapnpFbpIipModel : NodeModel
 {
     public CapnpFbpIipModel(Point position = null) : base(position) {}
     
+    public string ComponentId { get; set; }
+    
     public string Content { get; set; }
 }
