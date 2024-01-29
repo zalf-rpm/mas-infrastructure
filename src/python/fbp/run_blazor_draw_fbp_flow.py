@@ -58,16 +58,19 @@ def start_channel(path_to_channel, writer_sr, name=None):
     return sp.Popen([
         path_to_channel, 
         "--name=chan_{}".format(name if name else str(uuid.uuid4())),
+        #"--verbose",
         "--startup_info_writer_sr={}".format(writer_sr),
     ])
+
 
 config = {
     "hpc": False,
     "use_infiniband": False,
-    "path_to_flow": "/home/berg/GitHub/mas-infrastructure/src/csharp/BlazorDrawFBP/Data/diagram.json",
+    "path_to_flow": "/home/berg/Downloads/test2.json",
     "path_to_channel": "/home/berg/GitHub/mas-infrastructure/src/cpp/common/_cmake_debug/channel",
     "path_to_out_dir": "/home/berg/GitHub/mas-infrastructure/src/python/fbp/out/",
 }
+
 if len(sys.argv) > 1 and __name__ == "__main__":
     for arg in sys.argv[1:]:
         k,v = arg.split("=", maxsplit=1)
@@ -110,10 +113,19 @@ with open(path_to_components, "r") as _:
 
 # a mapping of node_id to lambdas for process creation
 process_id_to_Popen_args = {}
+iip_process_ids = set()
 for node_id, node in node_id_to_node.items():
     component = component_id_to_component[node["component_id"]]
+    if not component:
+        component = node["inline_component"]
+    if not component:
+        continue
+    # we will send IIPs directly on the channel to the receiving process
+    if component.get("type", "") == "CapnpFbpIIP":
+        iip_process_ids.add(node_id)
+        continue
     # args
-    args = ["python", node["data"]["path"]]
+    args = ([component["interpreter"]] if "interpreter" in component else []) + [component["path"]]
     for k, v in node["data"]["cmd_params"].items():
         args.append(f"{k}={v}")
     process_id_to_Popen_args[node_id] = args
@@ -163,17 +175,32 @@ try:
         in_process_id, in_port_name = in_process_and_port.split(".")
 
         # there should be code to start the components
-        if (out_process_id in process_id_to_Popen_args and
-                in_process_id in process_id_to_Popen_args):
+        if ((out_process_id in process_id_to_Popen_args or out_process_id in iip_process_ids)
+                and in_process_id in process_id_to_Popen_args):
             info = p.snd.as_struct(fbp_capnp.Channel.StartupInfo)
 
-            process_id_to_process_srs[out_process_id][out_port_name] = f"{out_port_name}_sr={info.writerSRs[0]}"
-            process_id_to_process_srs[in_process_id][in_port_name] = f"{in_port_name}_sr={info.readerSRs[0]}"
+            if out_process_id in iip_process_ids:
+                out_writer = con_man.try_connect(info.writerSRs[0], cast_as=fbp_capnp.Channel.Writer)
+                content = node_id_to_node[out_process_id]["data"]["content"]
+                out_ip = fbp_capnp.IP.new_message(content=content)
+                out_writer.write(value=out_ip).wait()
+                out_writer.write(done=None).wait()
+                out_writer.close().wait()
+                del out_writer
+                # not needed anymore since we sent the IIP
+                del process_id_to_process_srs[out_process_id]
+            else:
+                process_id_to_process_srs[out_process_id][out_port_name] = \
+                    f"{out_port_name}_out_sr={info.writerSRs[0]}".replace('out_out_', 'out_')
+            process_id_to_process_srs[in_process_id][in_port_name] = \
+                f"{in_port_name}_in_sr={info.readerSRs[0]}".replace('in_in_', 'in_')
 
             # sturdy refs for all ports of start component are available
-            srs = process_id_to_process_srs[out_process_id].values()
-            if all([sr is not None for sr in srs]):
-                process_id_to_process[out_process_id] = sp.Popen(process_id_to_Popen_args[out_process_id] + list(srs))
+            # check for a non IIP process_id if the process can be started
+            if out_process_id not in iip_process_ids:
+                srs = process_id_to_process_srs[out_process_id].values()
+                if all([sr is not None for sr in srs]):
+                    process_id_to_process[out_process_id] = sp.Popen(process_id_to_Popen_args[out_process_id] + list(srs))
 
             # sturdy refs for all ports of end component are available
             srs = process_id_to_process_srs[in_process_id].values()
