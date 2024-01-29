@@ -521,19 +521,20 @@ def run_climate():
 def run_channel():
     con_man = common.ConnectionManager()
 
-    #wsr = "capnp://InIKxDrmz3tcRCEfObZRhTTuCoqpV7YpyukI3DKyyMY@10.10.25.25:42321/a0055054-7df3-493c-a5dd-ff8e64cef97f"
-    #writer = con_man.try_connect(wsr, cast_as=fbp_capnp.Channel.Writer)
-    #writer.write(value="hello1").wait()
-    #print("wrote hello")
+    wsr = "capnp://CXftuCfpkPxYa0sA2XKAym02xC3Tzl43lcgoBzYpueY@10.10.25.180:46811/f94a1059-ae7b-414d-ba8a-7d193f33437f"
+    writer = con_man.try_connect(wsr, cast_as=fbp_capnp.Channel.Writer)
+    out_ip = fbp_capnp.IP.new_message(content="hello1")
+    writer.write(value=out_ip).wait()
+    print("wrote hello")
     #writer.write(value="hello2").wait()
     #writer.write(value="hello3").wait()
     #writer.write(value="hello4").wait()
     #return
 
-    rsr = "capnp://InIKxDrmz3tcRCEfObZRhTTuCoqpV7YpyukI3DKyyMY@10.10.25.25:42321/0f9808d6-ac48-4fc0-bedc-de51f570081d"
+    rsr = "capnp://CXftuCfpkPxYa0sA2XKAym02xC3Tzl43lcgoBzYpueY@10.10.25.180:46811/8c2c5bc4-8faa-4e5d-8229-727f8d3236b6"
     reader = con_man.try_connect(rsr, cast_as=fbp_capnp.Channel.Reader)
-    msg = reader.read().wait()
-    print("read", msg.value.as_text())
+    msg = reader.read().wait().value.as_struct(fbp_capnp.IP)
+    print("read", msg.content.as_text())
     return
 
     for _ in range(100):
@@ -621,13 +622,13 @@ def main():
     #    print(".", end="")
     #    time.sleep(1)
 
-    check_climate_dataset_service()
+    #check_climate_dataset_service()
 
     #run_climate_service()
 
     # run_soil_service()
 
-    # run_channel()
+    run_channel()
 
     # run_crop_service()
 
