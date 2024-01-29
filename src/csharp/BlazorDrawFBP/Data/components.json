@@ -74,7 +74,7 @@
       "id": "console.py",
       "type": "CapnpFbpComponent",
       "interpreter": "python",
-      "path": "/home/berg/GitHub/bgr_flow/bgr_flow_components/console.py",
+      "path": "/home/berg/GitHub/mas-infrastructure/src/python/fbp/console.py",
       "inputs": [
         {
           "name": "in"
