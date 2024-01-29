@@ -49,13 +49,13 @@ interface Channel(V) extends(Identifiable, Persistent) {
     # semantics of closing the channel
 
     channelSR @2 :Text;
-    # stury reference to the channel
+    # sturdy reference to the channel
 
     readerSRs @3 :List(Text);
-    # stury references to the readers
+    # sturdy references to the readers
 
     writerSRs @4 :List(Text);
-    # stury references to the writers
+    # sturdy references to the writers
   }
 
   interface Reader $Cxx.name("ChanReader") {
