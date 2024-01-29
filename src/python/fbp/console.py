@@ -39,7 +39,7 @@ fbp_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "fbp.capnp"), imports=abs_imp
 
 
 config = {
-    "in_sr": "capnp://insecure@10.10.24.210:9999/r1234",#None,
+    "in_sr": None,
 }
 common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
@@ -52,12 +52,13 @@ try:
             msg = inp.read().wait()
             if msg.which() == "done":
                 break
-            print(msg.value.as_text(), flush=True, end="")
+            in_ip = msg.value.as_struct(fbp_capnp.IP)
+            print(in_ip.content.as_text(), flush=True, end="")
 
 except Exception as e:
-    print("console.py ex:", e)
+    print(f"{__file__} ex:", e)
 
-print("console.py: exiting run")
+print(f"{__file__}: exiting run")
 
 
 
