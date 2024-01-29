@@ -408,76 +408,85 @@ namespace BlazorDrawFBP.Pages
                 {
                     if (!pl.IsAttached) continue;
 
+                    CapnpFbpIipPortModel outIipPort = null;
+                    CapnpFbpPortModel outCapnpPort = null;
+                    CapnpFbpPortModel inCapnpPort = null;
                     switch (pl.Target.Model)
                     {
-                        case CapnpFbpIipPortModel:
-                            continue;
-                        case CapnpFbpPortModel targetCapnpPort 
+                        case CapnpFbpIipPortModel targetIipPort
+                            when pl.Source.Model is CapnpFbpPortModel sourceCapnpPort:
+                            outIipPort = targetIipPort;
+                            inCapnpPort = sourceCapnpPort;
+                            break;
+                        case CapnpFbpPortModel targetCapnpPort
                             when pl.Source.Model is CapnpFbpIipPortModel sourceIipPort:
                         {
-                            var jl = new JObject()
-                            {
-                                {
-                                    "source", new JObject()
-                                    {
-                                        { "node_id", sourceIipPort.Parent.Id },
-                                        { "port", sourceIipPort.Alignment.ToString() }
-                                    }
-                                },
-                                {
-                                    "target", new JObject()
-                                    {
-                                        { "node_id", targetCapnpPort.Parent.Id },
-                                        { "port", targetCapnpPort.Name }
-                                    }
-                                }
-                            };
-                            if (dia["links"] is JArray links) links.Add(jl);
+                            outIipPort = sourceIipPort;
+                            inCapnpPort = targetCapnpPort;
                             break;
                         }
-                        case CapnpFbpPortModel targetCapnpPort:
+                        case CapnpFbpPortModel targetCapnpPort
+                            when pl.Source.Model is CapnpFbpPortModel sourceCapnpPort:
+                            outCapnpPort = sourceCapnpPort;
+                            inCapnpPort = targetCapnpPort;
+                            break;
+                    }
+
+                    if (outIipPort != null && inCapnpPort != null)
+                    {
+                        // make sure the link is only stored once
+                        var checkOut = $"{outIipPort.Parent.Id}.{outIipPort.Alignment.ToString()}";
+                        var checkIn = $"{inCapnpPort.Parent.Id}.{inCapnpPort.Name}";
+                        if (linkSet.Contains($"{checkOut}->{checkIn}") ||
+                            linkSet.Contains($"{checkIn}->{checkOut}")) continue;
+                        linkSet.Add($"{checkOut}->{checkIn}");
+
+                        var jl = new JObject()
                         {
-                            if (pl.Source.Model is CapnpFbpPortModel sourceCapnpPort)
                             {
-                                // make sure the source port is the out port
-                                // because BlazorDiagrams doesn't care about the direction of the link
-                                var outPort = sourceCapnpPort.ThePortType == CapnpFbpPortModel.PortType.Out
-                                    ? sourceCapnpPort
-                                    : targetCapnpPort;
-                                var inPort = targetCapnpPort.ThePortType == CapnpFbpPortModel.PortType.In
-                                    ? targetCapnpPort
-                                    : sourceCapnpPort;
-
-                                // make sure the link is only stored once
-                                var checkOut = $"{outPort.Parent.Id}.{outPort.Name}";
-                                var checkIn = $"{inPort.Parent.Id}.{inPort.Name}";
-                                if (linkSet.Contains($"{checkOut}->{checkIn}") ||
-                                    linkSet.Contains($"{checkIn}->{checkOut}")) continue;
-                                else linkSet.Add($"{checkOut}->{checkIn}");
-
-                                // for storing the links use the naming convention of BlazorDiagrams (source and target)
-                                // but the direction of the link is determined by the port type and FBP convention
-                                var jl = new JObject()
+                                "source", new JObject()
                                 {
-                                    {
-                                        "source", new JObject()
-                                        {
-                                            { "node_id", sourceCapnpPort.Parent.Id },
-                                            { "port", sourceCapnpPort.Name }
-                                        }
-                                    },
-                                    {
-                                        "target", new JObject()
-                                        {
-                                            { "node_id", targetCapnpPort.Parent.Id },
-                                            { "port", targetCapnpPort.Name }
-                                        }
-                                    }
-                                };
-                                if (dia["links"] is JArray links) links.Add(jl);
+                                    { "node_id", outIipPort.Parent.Id },
+                                    { "port", outIipPort.Alignment.ToString() }
+                                }
+                            },
+                            {
+                                "target", new JObject()
+                                {
+                                    { "node_id", inCapnpPort.Parent.Id },
+                                    { "port", inCapnpPort.Name }
+                                }
                             }
-                            break;
-                        }
+                        };
+                        if (dia["links"] is JArray links) links.Add(jl);
+                    } 
+                    else if (outCapnpPort != null && inCapnpPort != null)
+                    {
+                        // make sure the link is only stored once
+                        var checkOut = $"{outCapnpPort.Parent.Id}.{outCapnpPort.Name}";
+                        var checkIn = $"{inCapnpPort.Parent.Id}.{inCapnpPort.Name}";
+                        if (linkSet.Contains($"{checkOut}->{checkIn}") ||
+                            linkSet.Contains($"{checkIn}->{checkOut}")) continue;
+                        linkSet.Add($"{checkOut}->{checkIn}");
+
+                        var jl = new JObject()
+                        {
+                            {
+                                "source", new JObject()
+                                {
+                                    { "node_id", outCapnpPort.Parent.Id },
+                                    { "port", outCapnpPort.Name }
+                                }
+                            },
+                            {
+                                "target", new JObject()
+                                {
+                                    { "node_id", inCapnpPort.Parent.Id },
+                                    { "port", inCapnpPort.Name }
+                                }
+                            }
+                        };
+                        if (dia["links"] is JArray links) links.Add(jl);
                     }
                 }
             }
