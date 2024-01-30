@@ -22,7 +22,7 @@ public class AddPortControl : ExecutableControl
     public CapnpFbpComponentModel NodeModel { get; set; } = null;
     
     public AddPortControl(double x, double y, double offsetX = 0.0, double offsetY = 0.0)
-        : this((IPositionProvider)new BoundsBasedPositionProvider(x, y, offsetX, offsetY))
+        : this(new BoundsBasedPositionProvider(x, y, offsetX, offsetY))
     {
     }
 

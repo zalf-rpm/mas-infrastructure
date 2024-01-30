@@ -66,7 +66,7 @@ def start_channel(path_to_channel, writer_sr, name=None):
 config = {
     "hpc": False,
     "use_infiniband": False,
-    "path_to_flow": "/home/berg/Downloads/test2.json",
+    "path_to_flow": "/home/berg/Downloads/test3.json",
     "path_to_channel": "/home/berg/GitHub/mas-infrastructure/src/cpp/common/_cmake_debug/channel",
     "path_to_out_dir": "/home/berg/GitHub/mas-infrastructure/src/python/fbp/out/",
 }

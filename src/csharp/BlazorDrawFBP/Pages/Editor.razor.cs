@@ -73,6 +73,7 @@ namespace BlazorDrawFBP.Pages
             Diagram.RegisterComponent<NodeInformationControl, NodeInformationControlWidget>();
             Diagram.RegisterComponent<LinkInformationControl, LinkInformationControlWidget>();
             Diagram.RegisterComponent<AddPortControl, AddPortControlWidget>();
+            Diagram.RegisterComponent<ToggleEditNodeControl, ToggleEditNodeControlWidget>();
             Diagram.RegisterComponent<RemoveProcessControl, RemoveProcessControlWidget>();
             Diagram.RegisterComponent<RemoveLinkControl, RemoveLinkControlWidget>();
             Diagram.RegisterComponent<LinkModel, FbpLinkWidget>(true);
@@ -624,19 +625,23 @@ namespace BlazorDrawFBP.Pages
                         Editable = initNode?.GetValue("editable")?.Value<bool>() ?? pathToFile.Length == 0
                     };
 
-                    Diagram.Controls.AddFor(node).Add(new AddPortControl(0.2, -0.2, -33)
+                    Diagram.Controls.AddFor(node).Add(new AddPortControl(0.2, 0, -33, -50)
                     {
                         Label = "IN",
                         PortType = CapnpFbpPortModel.PortType.In,
                         NodeModel = node,
                     });
-                    Diagram.Controls.AddFor(node).Add(new AddPortControl(0.8, -0.2, -41)
+                    Diagram.Controls.AddFor(node).Add(new AddPortControl(0.8, 0, -41, -50)
                     {
                         Label = "OUT",
                         PortType = CapnpFbpPortModel.PortType.Out,
                         NodeModel = node,
                     });
-                    Diagram.Controls.AddFor(node).Add(new RemoveProcessControl(0.5, -0.2, -20));
+                    Diagram.Controls.AddFor(node).Add(new RemoveProcessControl(0.5, 0, -20, -50));
+                    Diagram.Controls.AddFor(node).Add(new ToggleEditNodeControl(1.1, 0, -20, -50)
+                    {
+                        NodeModel = node
+                    });
                     
                     foreach(var (i, input) in (component["inputs"] ?? new JArray()).
                             Select((inp, i) => (i, inp)))
@@ -667,7 +672,7 @@ namespace BlazorDrawFBP.Pages
                         Content = initData["content"]?.ToString() ?? ""
                     };
                     Diagram.Nodes.Add(node);
-                    Diagram.Controls.AddFor(node).Add(new RemoveProcessControl(0.5, -0.5, -20));
+                    Diagram.Controls.AddFor(node).Add(new RemoveProcessControl(0.5, 0, -20, -50));
                     node.AddPort(new CapnpFbpIipPortModel(node, PortAlignment.Top));
                     node.AddPort(new CapnpFbpIipPortModel(node, PortAlignment.Bottom));
                     node.AddPort(new CapnpFbpIipPortModel(node, PortAlignment.Left));

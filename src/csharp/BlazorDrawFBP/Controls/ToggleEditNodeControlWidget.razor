@@ -1,0 +1,16 @@
+@using Blazor.Diagrams.Core.Models.Base;
+
+<div>
+    <MudFab Size="Size.Small"
+            Color="Color.Primary"
+            StartIcon="@Icons.Material.Filled.Edit"/>
+</div>
+
+@code
+{
+    [Parameter]
+    public ToggleEditNodeControl Control { get; set; } = null!;
+
+    [Parameter]
+    public Model Model { get; set; } = null!;
+}
