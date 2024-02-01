@@ -113,6 +113,7 @@ with open(path_to_components, "r") as _:
 
 # a mapping of node_id to lambdas for process creation
 process_id_to_Popen_args = {}
+process_id_to_parallel_count = {}
 iip_process_ids = set()
 for node_id, node in node_id_to_node.items():
     component = component_id_to_component[node["component_id"]]
@@ -124,6 +125,8 @@ for node_id, node in node_id_to_node.items():
     if component.get("type", "") == "CapnpFbpIIP":
         iip_process_ids.add(node_id)
         continue
+    if "parallel_processes" in node:
+        process_id_to_parallel_count[node_id] = node["parallel_processes"]
     # args
     args = ([component["interpreter"]] if "interpreter" in component else []) + [component["path"]]
     for k, v in node["data"]["cmd_params"].items():
@@ -200,12 +203,14 @@ try:
             if out_process_id not in iip_process_ids:
                 srs = process_id_to_process_srs[out_process_id].values()
                 if all([sr is not None for sr in srs]):
-                    process_id_to_process[out_process_id] = sp.Popen(process_id_to_Popen_args[out_process_id] + list(srs))
+                    for i in range(process_id_to_parallel_count.get(out_process_id, 1)):
+                        process_id_to_process[out_process_id] = sp.Popen(process_id_to_Popen_args[out_process_id] + list(srs))
 
             # sturdy refs for all ports of end component are available
             srs = process_id_to_process_srs[in_process_id].values()
             if all([sr is not None for sr in srs]):
-                process_id_to_process[in_process_id] = sp.Popen(process_id_to_Popen_args[in_process_id] + list(srs))
+                for i in range(process_id_to_parallel_count.get(in_process_id, 1)):
+                    process_id_to_process[in_process_id] = sp.Popen(process_id_to_Popen_args[in_process_id] + list(srs))
 
             # exit loop if we started all components in the flow
             if len(process_id_to_process) == len(process_id_to_process_srs):

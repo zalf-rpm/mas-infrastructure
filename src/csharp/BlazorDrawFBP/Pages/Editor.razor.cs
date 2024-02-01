@@ -342,6 +342,7 @@ namespace BlazorDrawFBP.Pages
                             { "process_name", fbpNode.ProcessName },
                             { "location", new JObject() { { "x", fbpNode.Position.X }, { "y", fbpNode.Position.Y } } },
                             { "editable", fbpNode.Editable },
+                            { "parallel_processes", fbpNode.InParallelCount },
                             {
                                 "data", new JObject()
                                 {
@@ -622,7 +623,8 @@ namespace BlazorDrawFBP.Pages
                         PathToFile = pathToFile,
                         ShortDescription = component["description"]?.ToString() ?? "",
                         CmdParamString = cmdParams.ToString(),
-                        Editable = initNode?.GetValue("editable")?.Value<bool>() ?? pathToFile.Length == 0
+                        Editable = initNode?.GetValue("editable")?.Value<bool>() ?? pathToFile.Length == 0,
+                        InParallelCount = initNode?.GetValue("parallel_processes")?.Value<int>() ?? 1
                     };
 
                     Diagram.Controls.AddFor(node).Add(new AddPortControl(0.2, 0, -33, -50)
