@@ -16,6 +16,8 @@ public class CapnpFbpComponentModel : NodeModel
     public string ShortDescription { get; set; }
     public string PathToFile { get; set; }
 
+    public int InParallelCount { get; set; } = 1;
+    
     public bool Editable { get; set; } = true;
     
     public static int ProcessNo { get; set; } = 0;
