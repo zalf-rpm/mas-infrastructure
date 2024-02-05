@@ -497,7 +497,13 @@ namespace BlazorDrawFBP.Pages
             await JsRuntime.InvokeVoidAsync("saveAsBase64", "diagram.json", 
                 Convert.ToBase64String(Encoding.UTF8.GetBytes(dia.ToString())));
         }
-        
+
+        protected async Task ClearDiagram()
+        {
+            Diagram.Nodes.Clear();
+            Diagram.Refresh();
+        }
+
         protected async Task CreatePythonFlow()
         {
             // var dia = JObject.Parse(File.ReadAllText("Data/diagram_template.json"));

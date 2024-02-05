@@ -141,13 +141,10 @@
 @code {
     [Parameter] public CapnpFbpComponentModel Node { get; set; } = null!;
 
-    private bool _parallelOn = false;
     private bool ParallelOn
     {
-        get => Node.InParallelCount > 1; //_parallelOn;
-        set =>
-            //_parallelOn = value;
-            Node.InParallelCount = value ? 2 : 1;
+        get => Node.InParallelCount > 1;
+        set => Node.InParallelCount = value ? 2 : 1;
     }
 
     private readonly Dictionary<int, List<int>> _leftRightOffsetsMap = new()
