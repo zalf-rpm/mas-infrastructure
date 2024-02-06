@@ -66,7 +66,7 @@ def start_channel(path_to_channel, writer_sr, name=None):
 config = {
     "hpc": False,
     "use_infiniband": False,
-    "path_to_flow": "/home/berg/Downloads/test3.json",
+    "path_to_flow": "/home/berg/Downloads/calibration_4.json",
     "path_to_channel": "/home/berg/GitHub/mas-infrastructure/src/cpp/common/_cmake_debug/channel",
     "path_to_out_dir": "/home/berg/GitHub/mas-infrastructure/src/python/fbp/out/",
 }
@@ -116,7 +116,7 @@ process_id_to_Popen_args = {}
 process_id_to_parallel_count = {}
 iip_process_ids = set()
 for node_id, node in node_id_to_node.items():
-    component = component_id_to_component[node["component_id"]]
+    component = component_id_to_component.get(node["component_id"], None) if "component_id" in node else None
     if not component:
         component = node["inline_component"]
     if not component:
@@ -128,9 +128,12 @@ for node_id, node in node_id_to_node.items():
     if "parallel_processes" in node:
         process_id_to_parallel_count[node_id] = node["parallel_processes"]
     # args
-    args = ([component["interpreter"]] if "interpreter" in component else []) + [component["path"]]
+    args = []
+    if "interpreter" in component and len(component["interpreter"]) > 0:
+        args.append(component["interpreter"])
+    args.append(component["path"])
     for k, v in node["data"]["cmd_params"].items():
-        args.append(f"{k}={v}")
+        args.append(f"--{k}={v}")
     process_id_to_Popen_args[node_id] = args
 
 process_id_to_process = {}
@@ -194,9 +197,9 @@ try:
                 del process_id_to_process_srs[out_process_id]
             else:
                 process_id_to_process_srs[out_process_id][out_port_name] = \
-                    f"{out_port_name}_out_sr={info.writerSRs[0]}".replace('out_out_', 'out_')
+                    f"--{out_port_name}_out_sr={info.writerSRs[0]}".replace('out_out_', 'out_')
             process_id_to_process_srs[in_process_id][in_port_name] = \
-                f"{in_port_name}_in_sr={info.readerSRs[0]}".replace('in_in_', 'in_')
+                f"--{in_port_name}_in_sr={info.readerSRs[0]}".replace('in_in_', 'in_')
 
             # sturdy refs for all ports of start component are available
             # check for a non IIP process_id if the process can be started

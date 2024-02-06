@@ -85,6 +85,8 @@ def update_config(config, argv, print_config=False, allow_new_keys=False):
     if len(argv) > 1:
         for arg in argv[1:]:
             k, v = arg.split("=", maxsplit=1)
+            if len(k) > 1 and k[:2] == "--":
+                k = k[2:]
             if allow_new_keys or k in config:
                 config[k] = v.lower() == "true" if v.lower() in ["true", "false"] else v
         if print_config:
@@ -532,6 +534,9 @@ class ConnectionManager:
         self._restorer = restorer if restorer else Restorer()
 
     def connect(self, sturdy_ref, cast_as=None):
+        if not sturdy_ref:
+            return None
+
         try:
             host = None
             port = None
@@ -589,7 +594,7 @@ class ConnectionManager:
                 return bootstrap_cap.cast_as(cast_as) if cast_as else bootstrap_cap
 
         except Exception as e:
-            print("Exception in common.py::ConnectionManager.connect: {}".format(e))
+            print(f"{__file__} ex: {e}")
             return None
 
         return None
