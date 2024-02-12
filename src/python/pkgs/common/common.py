@@ -84,7 +84,10 @@ def copy_and_set_fbp_attrs(old_ip, new_ip, **kwargs):
 def update_config(config, argv, print_config=False, allow_new_keys=False):
     if len(argv) > 1:
         for arg in argv[1:]:
-            k, v = arg.split("=", maxsplit=1)
+            kv = arg.split("=", maxsplit=1)
+            if len(kv) < 2:
+                continue
+            k, v = kv
             if len(k) > 1 and k[:2] == "--":
                 k = k[2:]
             if allow_new_keys or k in config:
@@ -545,7 +548,7 @@ class ConnectionManager:
             bootstrap_interface_id = None
             sturdy_ref_interface_id = None
 
-            if type(sturdy_ref) == str:
+            if isinstance(sturdy_ref, str):
                 # we assume that a sturdy ref url looks always like
                 # capnp://vat-id_base64-curve25519-public-key@host:port/sturdy-ref-token
                 # ?owner_guid = optional_owner_global_unique_id
@@ -594,7 +597,7 @@ class ConnectionManager:
                 return bootstrap_cap.cast_as(cast_as) if cast_as else bootstrap_cap
 
         except Exception as e:
-            print(f"{__file__} ex: {e}")
+            print(f"{__file__} Exception: {e}")
             return None
 
         return None
@@ -607,13 +610,16 @@ class ConnectionManager:
                 print(e)
                 if retry_count == 0:
                     if print_retry_msgs:
-                        print("Couldn't connect to sturdy_ref at {}!".format(sturdy_ref))
+                        print(f"Couldn't connect to sturdy_ref at {sturdy_ref}!")
                     return None
                 retry_count -= 1
                 if print_retry_msgs:
-                    print("Trying to connect to {} again in {} secs!".format(sturdy_ref, retry_secs))
+                    print(f"Trying to connect to {sturdy_ref} again in {retry_secs} secs!")
                 time.sleep(retry_secs)
                 retry_secs += 1
+
+
+
 
 
 # interface Callback

@@ -45,6 +45,47 @@ fbp_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "fbp.capnp"), imports=abs_imp
 reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
 
 
+def connect_ports(config: dict, connection_manager=None):
+    if not connection_manager:
+        connection_manager = common.ConnectionManager()
+    ports = {}
+    for k, v in config.items():
+        if k.endswith("in_sr"):
+            port_name = k[:-6]
+            if len(port_name) == 0:
+                port_name = "in"
+            elif port_name[:-1] == "_":
+                port_name = port_name[:-1]
+            if v is None:
+                ports[port_name] = None
+            else:
+                ports[port_name] = connection_manager.try_connect(v, cast_as=fbp_capnp.Channel.Reader, retry_secs=1)
+        elif k.endswith("out_sr"):
+            port_name = k[:-7]
+            if len(port_name) == 0:
+                port_name = "out"
+            elif port_name[:-1] == "_":
+                port_name = port_name[:-1]
+            if v is None:
+                ports[port_name] = None
+            else:
+                ports[port_name] = connection_manager.try_connect(v, cast_as=fbp_capnp.Channel.Writer, retry_secs=1)
+        elif k.endswith("out_srs"):
+            port_name = k[:-8]
+            if len(port_name) == 0:
+                port_name = "out"
+            elif port_name[:-1] == "_":
+                port_name = port_name[:-1]
+            if v is None:
+                ports[port_name] = None
+            else:
+                ports[port_name] = []
+                for out_sr in v.split("|"):
+                    ports[port_name].append(connection_manager.try_connect(out_sr, cast_as=fbp_capnp.Channel.Writer,
+                                                                       retry_secs=1))
+    return ports
+
+
 class Channel(fbp_capnp.Channel.Server, common.Identifiable, common.Persistable, serv.AdministrableService):
 
     def __init__(self, buffer_size=1, auto_close_semantics="fbp",
