@@ -5,7 +5,6 @@ package monica
 import (
 	capnp "capnproto.org/go/capnp/v3"
 	text "capnproto.org/go/capnp/v3/encoding/text"
-	schemas "capnproto.org/go/capnp/v3/schemas"
 	climate "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/climate"
 	common_date "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common_date"
 	math "math"
@@ -6780,47 +6779,3 @@ const schema_eef9ddc7a345de6d = "x\xda\x9c\x9c}\x9c\x14\xe5\x9d\xe0\x9f_U\xbf\xc
 	"\x8cB\x00^(kkY\xd7T\xa3O\x95*\xfe\xd9" +
 	"N\xa7kZ\xa9o<\xb9\xff\x17\x00\x00\xff\xff\x0d3" +
 	"\xe9\xfc"
-
-func RegisterSchema(reg *schemas.Registry) {
-	reg.Register(&schemas.Schema{
-		String: schema_eef9ddc7a345de6d,
-		Nodes: []uint64{
-			0x80d5a7b782142e87,
-			0x81b8ffeeb01d76f7,
-			0x8491dc2c2f94f1d1,
-			0x8890f17a143c6896,
-			0x8ac5cfb21988c168,
-			0x990bdcf2be83b604,
-			0xa74f5574681f9d55,
-			0xb3e73f8c19afd787,
-			0xb42137d4b8ba3ef6,
-			0xb599bbd2f1465f9c,
-			0xb87956e2953771db,
-			0xc0ff4a277ca4be0a,
-			0xc1092d6c4c110e29,
-			0xc281c6e5be483337,
-			0xc5cb65e585742338,
-			0xc5f724bd00c2f628,
-			0xc8aeb5222ac5ef40,
-			0xcdff1b0306ea58cf,
-			0xce5b0091fd9acb21,
-			0xcf0f425c8bd69fa2,
-			0xd11f8d1479e2f010,
-			0xd2d587c796186e8b,
-			0xd9ed2c1c754d683e,
-			0xdbfe301c0ddefe4e,
-			0xde7576c640b5ad18,
-			0xe4d6d0d9ae1553da,
-			0xe68d439455fd9cce,
-			0xe82d760b257daddb,
-			0xea9236083718fdc2,
-			0xee0b04cc3f52f33c,
-			0xf0c41d021228d929,
-			0xf206f12e39ab7f9b,
-			0xf246442c7aee0af5,
-			0xf95db11410e33efc,
-			0xffac0fa5c7156a5d,
-		},
-		Compressed: true,
-	})
-}
