@@ -49,6 +49,7 @@ def connect_ports(config: dict, connection_manager=None):
     if not connection_manager:
         connection_manager = common.ConnectionManager()
     ports = {}
+    out_ports = {}
     for k, v in config.items():
         if k.endswith("in_sr"):
             port_name = k[:-6]
@@ -70,6 +71,7 @@ def connect_ports(config: dict, connection_manager=None):
                 ports[port_name] = None
             else:
                 ports[port_name] = connection_manager.try_connect(v, cast_as=fbp_capnp.Channel.Writer, retry_secs=1)
+                out_ports[port_name] = ports[port_name]
         elif k.endswith("out_srs"):
             port_name = k[:-8]
             if len(port_name) == 0:
@@ -83,7 +85,25 @@ def connect_ports(config: dict, connection_manager=None):
                 for out_sr in v.split("|"):
                     ports[port_name].append(connection_manager.try_connect(out_sr, cast_as=fbp_capnp.Channel.Writer,
                                                                        retry_secs=1))
-    return ports
+                out_ports[port_name] = ports[port_name]
+
+    def close_ports():
+        for name, ps in out_ports.items():
+            # is an array out port
+            if isinstance(ps, list):
+                for i, p in enumerate(ps):
+                    try:
+                        p.close().wait()
+                    except Exception as e:
+                        print(f"{__file__} Exception closing port {name}({i}): {e}")
+            # is a single out port
+            else:
+                try:
+                    ps.close().wait()
+                except Exception as e:
+                    print(f"{__file__} Exception closing port {name}: {e}")
+
+    return ports, close_ports
 
 
 class Channel(fbp_capnp.Channel.Server, common.Identifiable, common.Persistable, serv.AdministrableService):
