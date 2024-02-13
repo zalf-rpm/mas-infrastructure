@@ -87,21 +87,27 @@ def connect_ports(config: dict, connection_manager=None):
                                                                        retry_secs=1))
                 out_ports[port_name] = ports[port_name]
 
-    def close_ports():
+    def close_ports(print_info=False, print_exception=True):
         for name, ps in out_ports.items():
             # is an array out port
             if isinstance(ps, list):
                 for i, p in enumerate(ps):
                     try:
                         p.close().wait()
+                        if print_info:
+                            print(f"{os.path.basename(__file__)}: closed array out port '{name}[{i}]'")
                     except Exception as e:
-                        print(f"{__file__} Exception closing port {name}({i}): {e}")
+                        if print_exception:
+                            print(f"{os.path.basename(__file__)}: Exception closing array out port '{name}[{i}]': {e}")
             # is a single out port
             else:
                 try:
                     ps.close().wait()
+                    if print_info:
+                        print(f"{os.path.basename(__file__)}: closed out port '{name}'")
                 except Exception as e:
-                    print(f"{__file__} Exception closing port {name}: {e}")
+                    if print_exception:
+                        print(f"{os.path.basename(__file__)}: Exception closing out port '{name}': {e}")
 
     return ports, close_ports
 
