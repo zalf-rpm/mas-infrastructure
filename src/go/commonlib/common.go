@@ -132,11 +132,7 @@ func (*Persistable) sturdyRefToMessage(srl persistence.SturdyRef, sr *SturdyRef)
 	// if err != nil {
 	// 	return true, err
 	// }
-	transient, err := srl.NewTransient()
-	if err != nil {
-		return true, err
-	}
-	strT, err := persistence.NewSturdyRef_Token(transient.Segment())
+	strT, err := srl.NewLocalRef()
 	if err != nil {
 		return true, err
 	}
@@ -144,11 +140,11 @@ func (*Persistable) sturdyRefToMessage(srl persistence.SturdyRef, sr *SturdyRef)
 	if err != nil {
 		return true, err
 	}
-	err = transient.SetLocalRef(strT)
+	err = srl.SetLocalRef(strT)
 	if err != nil {
 		return true, err
 	}
-	vat, err := transient.NewVat()
+	vat, err := srl.NewVat()
 	if err != nil {
 		return true, err
 	}
@@ -180,11 +176,7 @@ func (*Persistable) sturdyRefToMessage(srl persistence.SturdyRef, sr *SturdyRef)
 	if err != nil {
 		return true, err
 	}
-	err = transient.SetVat(vat)
-	if err != nil {
-		return true, err
-	}
-	err = srl.SetTransient(transient)
+	err = srl.SetVat(vat)
 	if err != nil {
 		return true, err
 	}
