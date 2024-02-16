@@ -27,6 +27,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <capnp/message.h>
 #include <capnp/schema.h>
 #include <capnp/dynamic.h>
+#include <iostream>
 
 #define KJ_MVCAP(var) var = kj::mv(var)
 
@@ -104,23 +105,28 @@ void Channel::closedReader(kj::StringPtr readerId) {
   // now that all readers disconnected, turn of auto-closing readers
   if (kj::size(impl->readers) == 0) impl->sendCloseOnEmptyBuffer = false;
   KJ_LOG(INFO, "number of readers left:", kj::size(impl->readers));
+  //cout << "Channel::closedReader: number of readers left:" << kj::size(impl->readers) << endl;
 }
 
 void Channel::closedWriter(kj::StringPtr writerId) {
   impl->writers.erase(writerId);
   KJ_LOG(INFO, "number of writers left:", kj::size(impl->writers), impl->autoCloseSemantics);
+  //cout << "Channel::closedWriter: number of writers left:" << kj::size(impl->writers) << " FBP Close semantics: " << (impl->autoCloseSemantics == AnyPointerChannel::CloseSemantics::FBP ? "true" : "false")  << endl;
+  //cout << "Channel::closedWriter:number of readers:" << kj::size(impl->readers) << " FBP Close semantics: " << (impl->autoCloseSemantics == AnyPointerChannel::CloseSemantics::FBP)  << endl;
 
   if (impl->autoCloseSemantics == AnyPointerChannel::CloseSemantics::FBP && kj::size(impl->writers) == 0) {
     impl->sendCloseOnEmptyBuffer = true;
     KJ_LOG(INFO, "FBP semantics and no writers left -> sending done to readers");
+    //cout << "Channel::closedWriter: FBP semantics and no writers left -> sending done to readers" << endl;
 
     // as we just received a done message which should be distributed and would
     // fill the buffer, unblock all readers, so they send the done message
     while (kj::size(impl->blockingReadFulfillers) > 0) {
       auto &brf = impl->blockingReadFulfillers.back();
-      brf->fulfill(kj::Maybe<AnyPointerMsg::Reader>());
+      brf->fulfill(nullptr);//kj::Maybe<AnyPointerMsg::Reader>());
       impl->blockingReadFulfillers.pop_back();
       KJ_LOG(INFO, "sent done to reader on last finished writer");
+      //cout << "Channel::closedWriter: sent done to reader on last finished writer" << endl;
     }
     KJ_LOG(INFO, kj::size(impl->blockingReadFulfillers));
     KJ_LOG(INFO, kj::size(impl->blockingWriteFulfillers));
@@ -182,6 +188,7 @@ kj::Promise<void> Reader::read(ReadContext context) {
     // buffer is empty, but we are supposed to close down
     if (c.impl->sendCloseOnEmptyBuffer) {
       context.getResults().setDone();
+      //cout << "Reader::read: sending done to reader" << endl;
       c.closedReader(id());
 
       // if there are other readers waiting close them as well
@@ -200,6 +207,7 @@ kj::Promise<void> Reader::read(ReadContext context) {
           //KJ_DBG("setResults");
           context.getResults().setDone();
           KJ_LOG(INFO, "promise_lambda: sending done to reader");
+          //cout << "Reader::read: promise_lambda: sending done to reader" << endl;
           _channel.closedReader(id());
         } else {
           KJ_IF_MAYBE(m, msg) {
@@ -216,6 +224,7 @@ kj::Promise<void> Reader::read(ReadContext context) {
 }
 
 kj::Promise<void> Reader::close(CloseContext context) {
+  //cout << "Reader::close: received close message id: " << id().cStr() << endl;
   _channel.closedReader(id());
   return kj::READY_NOW;
 }
@@ -234,6 +243,7 @@ kj::Promise<void> Writer::write(WriteContext context) {
 
   // if we received a done, this writer can be removed
   if (v.isDone()) {
+    //cout << "Writer::write: received done message id: " << id().cStr() << endl;
     c.closedWriter(id());
   } else if (!c.impl->blockingReadFulfillers.empty()) { // there's a reader waiting
     auto &&brf = c.impl->blockingReadFulfillers.back();
@@ -256,6 +266,7 @@ kj::Promise<void> Writer::write(WriteContext context) {
 }
 
 kj::Promise<void> Writer::close(CloseContext context) {
+  //cout << "Writer::close: received close message id: " << id().cStr() << endl;
   _channel.closedWriter(id());
   return kj::READY_NOW;
 }
