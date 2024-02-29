@@ -22,8 +22,9 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <string>
 #include <vector>
 #include <map>
-#include <functional>
 #include <iostream>
+
+#include "kj/function.h"
 
 #include "model/monica/monica_params.capnp.h"
 
@@ -32,6 +33,11 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 namespace Soil
 {
+
+std::function<double(double)> transformIfPercent(const json11::Json &j, const std::string &key);
+
+std::function<double(double)> transformIfNotMeters(const json11::Json &j, const std::string& key);
+
 //! @author Claas Nendel, Michael Berg 
 struct SoilParameters : public Tools::Json11Serializable
 {
@@ -83,6 +89,7 @@ struct SoilParameters : public Tools::Json11Serializable
   double vs_Soil_CN_Ratio{10.0};
   double vs_SoilMoisturePercentFC{100.0};
 
+  double thickness{0};  // layer thickness in m
 private:
   double _vs_SoilRawDensity{-1.0}; //!< [kg m-3]
   double _vs_SoilBulkDensity{-1.0}; //!< [kg m-3]
@@ -119,8 +126,10 @@ const CapillaryRiseRates& readCapillaryRiseRates();
 typedef std::vector<SoilParameters> SoilPMs;
 typedef std::shared_ptr<SoilPMs> SoilPMsPtr;
 
-std::pair<SoilPMs, Tools::Errors> createSoilPMs(const Tools::J11Array& jsonSoilPMs, double layerThickness = 0.1,
-                                                int numberOfLayers = 20);
+std::pair<SoilPMs, Tools::Errors> createEqualSizedSoilPMs(const Tools::J11Array& jsonSoilPMs, double layerThickness = 0.1,
+                                                          int numberOfLayers = 20);
+
+std::pair<SoilPMs, Tools::Errors> createSoilPMs(const Tools::J11Array &jsonSoilPMs);
 
 //! creates a concatenated string of the KA5 soil-textures making up the soil-profile with the given id
 //std::string soilProfileId2KA5Layers(const std::string& abstractDbSchema,
@@ -163,5 +172,7 @@ FcSatPwp fcSatPwpFromVanGenuchten(double sandContent,
                                   double stoneContent,
                                   double soilBulkDensity,
                                   double soilOrganicCarbon);
+
+
 
 } // namespace Soil
