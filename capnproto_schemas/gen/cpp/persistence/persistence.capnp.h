@@ -9,7 +9,9 @@
 #include <capnp/capability.h>
 #endif  // !CAPNP_LITE
 
-#if CAPNP_VERSION != 10000
+#ifndef CAPNP_VERSION
+#error "CAPNP_VERSION is not defined, is capnp/generated-header-support.h missing?"
+#elif CAPNP_VERSION != 1000001
 #error "Version mismatch between generated code and library headers.  You must use the same version of the Cap'n Proto compiler and library."
 #endif
 
@@ -26,8 +28,7 @@ CAPNP_DECLARE_SCHEMA(8fb25d0428898a69);
 CAPNP_DECLARE_SCHEMA(d9eccdf2dbc48087);
 CAPNP_DECLARE_SCHEMA(886d68271d83de4d);
 CAPNP_DECLARE_SCHEMA(fdd799ed60c87723);
-CAPNP_DECLARE_SCHEMA(a42bd461f2a8a3c8);
-CAPNP_DECLARE_SCHEMA(cbe679a401315eb8);
+CAPNP_DECLARE_SCHEMA(fa412bb47f11b488);
 CAPNP_DECLARE_SCHEMA(c1a7daa0dc36cb65);
 CAPNP_DECLARE_SCHEMA(d5e0aac4225e0343);
 CAPNP_DECLARE_SCHEMA(dc5bd1ef982cec13);
@@ -125,16 +126,11 @@ struct SturdyRef {
   class Reader;
   class Builder;
   class Pipeline;
-  enum Which: uint16_t {
-    TRANSIENT,
-    STORED,
-  };
   struct Owner;
-  struct Transient;
-  struct Stored;
+  struct Token;
 
   struct _capnpPrivate {
-    CAPNP_DECLARE_STRUCT_HEADER(886d68271d83de4d, 1, 1)
+    CAPNP_DECLARE_STRUCT_HEADER(886d68271d83de4d, 0, 2)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
@@ -156,30 +152,19 @@ struct SturdyRef::Owner {
   };
 };
 
-struct SturdyRef::Transient {
-  Transient() = delete;
+struct SturdyRef::Token {
+  Token() = delete;
 
   class Reader;
   class Builder;
   class Pipeline;
-
-  struct _capnpPrivate {
-    CAPNP_DECLARE_STRUCT_HEADER(a42bd461f2a8a3c8, 0, 2)
-    #if !CAPNP_LITE
-    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
-    #endif  // !CAPNP_LITE
+  enum Which: uint16_t {
+    TEXT,
+    DATA,
   };
-};
-
-struct SturdyRef::Stored {
-  Stored() = delete;
-
-  class Reader;
-  class Builder;
-  class Pipeline;
 
   struct _capnpPrivate {
-    CAPNP_DECLARE_STRUCT_HEADER(cbe679a401315eb8, 4, 0)
+    CAPNP_DECLARE_STRUCT_HEADER(fa412bb47f11b488, 1, 1)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
@@ -864,14 +849,11 @@ public:
   }
 #endif  // !CAPNP_LITE
 
-  inline Which which() const;
-  inline bool isTransient() const;
-  inline bool hasTransient() const;
-  inline  ::mas::schema::persistence::SturdyRef::Transient::Reader getTransient() const;
+  inline bool hasVat() const;
+  inline  ::mas::schema::persistence::VatPath::Reader getVat() const;
 
-  inline bool isStored() const;
-  inline bool hasStored() const;
-  inline  ::mas::schema::persistence::SturdyRef::Stored::Reader getStored() const;
+  inline bool hasLocalRef() const;
+  inline  ::mas::schema::persistence::SturdyRef::Token::Reader getLocalRef() const;
 
 private:
   ::capnp::_::StructReader _reader;
@@ -901,22 +883,19 @@ public:
   inline ::kj::StringTree toString() const { return asReader().toString(); }
 #endif  // !CAPNP_LITE
 
-  inline Which which();
-  inline bool isTransient();
-  inline bool hasTransient();
-  inline  ::mas::schema::persistence::SturdyRef::Transient::Builder getTransient();
-  inline void setTransient( ::mas::schema::persistence::SturdyRef::Transient::Reader value);
-  inline  ::mas::schema::persistence::SturdyRef::Transient::Builder initTransient();
-  inline void adoptTransient(::capnp::Orphan< ::mas::schema::persistence::SturdyRef::Transient>&& value);
-  inline ::capnp::Orphan< ::mas::schema::persistence::SturdyRef::Transient> disownTransient();
+  inline bool hasVat();
+  inline  ::mas::schema::persistence::VatPath::Builder getVat();
+  inline void setVat( ::mas::schema::persistence::VatPath::Reader value);
+  inline  ::mas::schema::persistence::VatPath::Builder initVat();
+  inline void adoptVat(::capnp::Orphan< ::mas::schema::persistence::VatPath>&& value);
+  inline ::capnp::Orphan< ::mas::schema::persistence::VatPath> disownVat();
 
-  inline bool isStored();
-  inline bool hasStored();
-  inline  ::mas::schema::persistence::SturdyRef::Stored::Builder getStored();
-  inline void setStored( ::mas::schema::persistence::SturdyRef::Stored::Reader value);
-  inline  ::mas::schema::persistence::SturdyRef::Stored::Builder initStored();
-  inline void adoptStored(::capnp::Orphan< ::mas::schema::persistence::SturdyRef::Stored>&& value);
-  inline ::capnp::Orphan< ::mas::schema::persistence::SturdyRef::Stored> disownStored();
+  inline bool hasLocalRef();
+  inline  ::mas::schema::persistence::SturdyRef::Token::Builder getLocalRef();
+  inline void setLocalRef( ::mas::schema::persistence::SturdyRef::Token::Reader value);
+  inline  ::mas::schema::persistence::SturdyRef::Token::Builder initLocalRef();
+  inline void adoptLocalRef(::capnp::Orphan< ::mas::schema::persistence::SturdyRef::Token>&& value);
+  inline ::capnp::Orphan< ::mas::schema::persistence::SturdyRef::Token> disownLocalRef();
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -936,6 +915,8 @@ public:
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
       : _typeless(kj::mv(typeless)) {}
 
+  inline  ::mas::schema::persistence::VatPath::Pipeline getVat();
+  inline  ::mas::schema::persistence::SturdyRef::Token::Pipeline getLocalRef();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -1025,9 +1006,9 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class SturdyRef::Transient::Reader {
+class SturdyRef::Token::Reader {
 public:
-  typedef Transient Reads;
+  typedef Token Reads;
 
   Reader() = default;
   inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
@@ -1042,102 +1023,14 @@ public:
   }
 #endif  // !CAPNP_LITE
 
-  inline bool hasVat() const;
-  inline  ::mas::schema::persistence::VatPath::Reader getVat() const;
+  inline Which which() const;
+  inline bool isText() const;
+  inline bool hasText() const;
+  inline  ::capnp::Text::Reader getText() const;
 
-  inline bool hasLocalRef() const;
-  inline ::capnp::AnyPointer::Reader getLocalRef() const;
-
-private:
-  ::capnp::_::StructReader _reader;
-  template <typename, ::capnp::Kind>
-  friend struct ::capnp::ToDynamic_;
-  template <typename, ::capnp::Kind>
-  friend struct ::capnp::_::PointerHelpers;
-  template <typename, ::capnp::Kind>
-  friend struct ::capnp::List;
-  friend class ::capnp::MessageBuilder;
-  friend class ::capnp::Orphanage;
-};
-
-class SturdyRef::Transient::Builder {
-public:
-  typedef Transient Builds;
-
-  Builder() = delete;  // Deleted to discourage incorrect usage.
-                       // You can explicitly initialize to nullptr instead.
-  inline Builder(decltype(nullptr)) {}
-  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
-  inline operator Reader() const { return Reader(_builder.asReader()); }
-  inline Reader asReader() const { return *this; }
-
-  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
-#if !CAPNP_LITE
-  inline ::kj::StringTree toString() const { return asReader().toString(); }
-#endif  // !CAPNP_LITE
-
-  inline bool hasVat();
-  inline  ::mas::schema::persistence::VatPath::Builder getVat();
-  inline void setVat( ::mas::schema::persistence::VatPath::Reader value);
-  inline  ::mas::schema::persistence::VatPath::Builder initVat();
-  inline void adoptVat(::capnp::Orphan< ::mas::schema::persistence::VatPath>&& value);
-  inline ::capnp::Orphan< ::mas::schema::persistence::VatPath> disownVat();
-
-  inline bool hasLocalRef();
-  inline ::capnp::AnyPointer::Builder getLocalRef();
-  inline ::capnp::AnyPointer::Builder initLocalRef();
-
-private:
-  ::capnp::_::StructBuilder _builder;
-  template <typename, ::capnp::Kind>
-  friend struct ::capnp::ToDynamic_;
-  friend class ::capnp::Orphanage;
-  template <typename, ::capnp::Kind>
-  friend struct ::capnp::_::PointerHelpers;
-};
-
-#if !CAPNP_LITE
-class SturdyRef::Transient::Pipeline {
-public:
-  typedef Transient Pipelines;
-
-  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
-  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
-      : _typeless(kj::mv(typeless)) {}
-
-  inline  ::mas::schema::persistence::VatPath::Pipeline getVat();
-private:
-  ::capnp::AnyPointer::Pipeline _typeless;
-  friend class ::capnp::PipelineHook;
-  template <typename, ::capnp::Kind>
-  friend struct ::capnp::ToDynamic_;
-};
-#endif  // !CAPNP_LITE
-
-class SturdyRef::Stored::Reader {
-public:
-  typedef Stored Reads;
-
-  Reader() = default;
-  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
-
-  inline ::capnp::MessageSize totalSize() const {
-    return _reader.totalSize().asPublic();
-  }
-
-#if !CAPNP_LITE
-  inline ::kj::StringTree toString() const {
-    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
-  }
-#endif  // !CAPNP_LITE
-
-  inline  ::uint64_t getKey0() const;
-
-  inline  ::uint64_t getKey1() const;
-
-  inline  ::uint64_t getKey2() const;
-
-  inline  ::uint64_t getKey3() const;
+  inline bool isData() const;
+  inline bool hasData() const;
+  inline  ::capnp::Data::Reader getData() const;
 
 private:
   ::capnp::_::StructReader _reader;
@@ -1151,9 +1044,9 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class SturdyRef::Stored::Builder {
+class SturdyRef::Token::Builder {
 public:
-  typedef Stored Builds;
+  typedef Token Builds;
 
   Builder() = delete;  // Deleted to discourage incorrect usage.
                        // You can explicitly initialize to nullptr instead.
@@ -1167,17 +1060,22 @@ public:
   inline ::kj::StringTree toString() const { return asReader().toString(); }
 #endif  // !CAPNP_LITE
 
-  inline  ::uint64_t getKey0();
-  inline void setKey0( ::uint64_t value);
+  inline Which which();
+  inline bool isText();
+  inline bool hasText();
+  inline  ::capnp::Text::Builder getText();
+  inline void setText( ::capnp::Text::Reader value);
+  inline  ::capnp::Text::Builder initText(unsigned int size);
+  inline void adoptText(::capnp::Orphan< ::capnp::Text>&& value);
+  inline ::capnp::Orphan< ::capnp::Text> disownText();
 
-  inline  ::uint64_t getKey1();
-  inline void setKey1( ::uint64_t value);
-
-  inline  ::uint64_t getKey2();
-  inline void setKey2( ::uint64_t value);
-
-  inline  ::uint64_t getKey3();
-  inline void setKey3( ::uint64_t value);
+  inline bool isData();
+  inline bool hasData();
+  inline  ::capnp::Data::Builder getData();
+  inline void setData( ::capnp::Data::Reader value);
+  inline  ::capnp::Data::Builder initData(unsigned int size);
+  inline void adoptData(::capnp::Orphan< ::capnp::Data>&& value);
+  inline ::capnp::Orphan< ::capnp::Data> disownData();
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -1189,9 +1087,9 @@ private:
 };
 
 #if !CAPNP_LITE
-class SturdyRef::Stored::Pipeline {
+class SturdyRef::Token::Pipeline {
 public:
-  typedef Stored Pipelines;
+  typedef Token Pipelines;
 
   inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
@@ -1701,10 +1599,10 @@ public:
 #endif  // !CAPNP_LITE
 
   inline bool hasLocalRef() const;
-  inline ::capnp::AnyPointer::Reader getLocalRef() const;
+  inline  ::mas::schema::persistence::SturdyRef::Token::Reader getLocalRef() const;
 
-  inline bool hasSealedFor() const;
-  inline  ::mas::schema::persistence::SturdyRef::Owner::Reader getSealedFor() const;
+  inline bool hasSealedBy() const;
+  inline  ::mas::schema::persistence::SturdyRef::Owner::Reader getSealedBy() const;
 
 private:
   ::capnp::_::StructReader _reader;
@@ -1735,15 +1633,18 @@ public:
 #endif  // !CAPNP_LITE
 
   inline bool hasLocalRef();
-  inline ::capnp::AnyPointer::Builder getLocalRef();
-  inline ::capnp::AnyPointer::Builder initLocalRef();
+  inline  ::mas::schema::persistence::SturdyRef::Token::Builder getLocalRef();
+  inline void setLocalRef( ::mas::schema::persistence::SturdyRef::Token::Reader value);
+  inline  ::mas::schema::persistence::SturdyRef::Token::Builder initLocalRef();
+  inline void adoptLocalRef(::capnp::Orphan< ::mas::schema::persistence::SturdyRef::Token>&& value);
+  inline ::capnp::Orphan< ::mas::schema::persistence::SturdyRef::Token> disownLocalRef();
 
-  inline bool hasSealedFor();
-  inline  ::mas::schema::persistence::SturdyRef::Owner::Builder getSealedFor();
-  inline void setSealedFor( ::mas::schema::persistence::SturdyRef::Owner::Reader value);
-  inline  ::mas::schema::persistence::SturdyRef::Owner::Builder initSealedFor();
-  inline void adoptSealedFor(::capnp::Orphan< ::mas::schema::persistence::SturdyRef::Owner>&& value);
-  inline ::capnp::Orphan< ::mas::schema::persistence::SturdyRef::Owner> disownSealedFor();
+  inline bool hasSealedBy();
+  inline  ::mas::schema::persistence::SturdyRef::Owner::Builder getSealedBy();
+  inline void setSealedBy( ::mas::schema::persistence::SturdyRef::Owner::Reader value);
+  inline  ::mas::schema::persistence::SturdyRef::Owner::Builder initSealedBy();
+  inline void adoptSealedBy(::capnp::Orphan< ::mas::schema::persistence::SturdyRef::Owner>&& value);
+  inline ::capnp::Orphan< ::mas::schema::persistence::SturdyRef::Owner> disownSealedBy();
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -1763,7 +1664,8 @@ public:
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
       : _typeless(kj::mv(typeless)) {}
 
-  inline  ::mas::schema::persistence::SturdyRef::Owner::Pipeline getSealedFor();
+  inline  ::mas::schema::persistence::SturdyRef::Token::Pipeline getLocalRef();
+  inline  ::mas::schema::persistence::SturdyRef::Owner::Pipeline getSealedBy();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -2790,121 +2692,82 @@ inline ::capnp::Orphan< ::mas::schema::persistence::Address> VatPath::Builder::d
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
 
-inline  ::mas::schema::persistence::SturdyRef::Which SturdyRef::Reader::which() const {
-  return _reader.getDataField<Which>(
-      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
-}
-inline  ::mas::schema::persistence::SturdyRef::Which SturdyRef::Builder::which() {
-  return _builder.getDataField<Which>(
-      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
-}
-
-inline bool SturdyRef::Reader::isTransient() const {
-  return which() == SturdyRef::TRANSIENT;
-}
-inline bool SturdyRef::Builder::isTransient() {
-  return which() == SturdyRef::TRANSIENT;
-}
-inline bool SturdyRef::Reader::hasTransient() const {
-  if (which() != SturdyRef::TRANSIENT) return false;
+inline bool SturdyRef::Reader::hasVat() const {
   return !_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline bool SturdyRef::Builder::hasTransient() {
-  if (which() != SturdyRef::TRANSIENT) return false;
+inline bool SturdyRef::Builder::hasVat() {
   return !_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline  ::mas::schema::persistence::SturdyRef::Transient::Reader SturdyRef::Reader::getTransient() const {
-  KJ_IREQUIRE((which() == SturdyRef::TRANSIENT),
-              "Must check which() before get()ing a union member.");
-  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Transient>::get(_reader.getPointerField(
+inline  ::mas::schema::persistence::VatPath::Reader SturdyRef::Reader::getVat() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::VatPath>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::persistence::SturdyRef::Transient::Builder SturdyRef::Builder::getTransient() {
-  KJ_IREQUIRE((which() == SturdyRef::TRANSIENT),
-              "Must check which() before get()ing a union member.");
-  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Transient>::get(_builder.getPointerField(
+inline  ::mas::schema::persistence::VatPath::Builder SturdyRef::Builder::getVat() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::VatPath>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline void SturdyRef::Builder::setTransient( ::mas::schema::persistence::SturdyRef::Transient::Reader value) {
-  _builder.setDataField<SturdyRef::Which>(
-      ::capnp::bounded<0>() * ::capnp::ELEMENTS, SturdyRef::TRANSIENT);
-  ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Transient>::set(_builder.getPointerField(
+#if !CAPNP_LITE
+inline  ::mas::schema::persistence::VatPath::Pipeline SturdyRef::Pipeline::getVat() {
+  return  ::mas::schema::persistence::VatPath::Pipeline(_typeless.getPointerField(0));
+}
+#endif  // !CAPNP_LITE
+inline void SturdyRef::Builder::setVat( ::mas::schema::persistence::VatPath::Reader value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::persistence::VatPath>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), value);
 }
-inline  ::mas::schema::persistence::SturdyRef::Transient::Builder SturdyRef::Builder::initTransient() {
-  _builder.setDataField<SturdyRef::Which>(
-      ::capnp::bounded<0>() * ::capnp::ELEMENTS, SturdyRef::TRANSIENT);
-  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Transient>::init(_builder.getPointerField(
+inline  ::mas::schema::persistence::VatPath::Builder SturdyRef::Builder::initVat() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::VatPath>::init(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline void SturdyRef::Builder::adoptTransient(
-    ::capnp::Orphan< ::mas::schema::persistence::SturdyRef::Transient>&& value) {
-  _builder.setDataField<SturdyRef::Which>(
-      ::capnp::bounded<0>() * ::capnp::ELEMENTS, SturdyRef::TRANSIENT);
-  ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Transient>::adopt(_builder.getPointerField(
+inline void SturdyRef::Builder::adoptVat(
+    ::capnp::Orphan< ::mas::schema::persistence::VatPath>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::persistence::VatPath>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::mas::schema::persistence::SturdyRef::Transient> SturdyRef::Builder::disownTransient() {
-  KJ_IREQUIRE((which() == SturdyRef::TRANSIENT),
-              "Must check which() before get()ing a union member.");
-  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Transient>::disown(_builder.getPointerField(
+inline ::capnp::Orphan< ::mas::schema::persistence::VatPath> SturdyRef::Builder::disownVat() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::VatPath>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 
-inline bool SturdyRef::Reader::isStored() const {
-  return which() == SturdyRef::STORED;
-}
-inline bool SturdyRef::Builder::isStored() {
-  return which() == SturdyRef::STORED;
-}
-inline bool SturdyRef::Reader::hasStored() const {
-  if (which() != SturdyRef::STORED) return false;
+inline bool SturdyRef::Reader::hasLocalRef() const {
   return !_reader.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
 }
-inline bool SturdyRef::Builder::hasStored() {
-  if (which() != SturdyRef::STORED) return false;
+inline bool SturdyRef::Builder::hasLocalRef() {
   return !_builder.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
 }
-inline  ::mas::schema::persistence::SturdyRef::Stored::Reader SturdyRef::Reader::getStored() const {
-  KJ_IREQUIRE((which() == SturdyRef::STORED),
-              "Must check which() before get()ing a union member.");
-  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Stored>::get(_reader.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS));
+inline  ::mas::schema::persistence::SturdyRef::Token::Reader SturdyRef::Reader::getLocalRef() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Token>::get(_reader.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::persistence::SturdyRef::Stored::Builder SturdyRef::Builder::getStored() {
-  KJ_IREQUIRE((which() == SturdyRef::STORED),
-              "Must check which() before get()ing a union member.");
-  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Stored>::get(_builder.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS));
+inline  ::mas::schema::persistence::SturdyRef::Token::Builder SturdyRef::Builder::getLocalRef() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Token>::get(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
-inline void SturdyRef::Builder::setStored( ::mas::schema::persistence::SturdyRef::Stored::Reader value) {
-  _builder.setDataField<SturdyRef::Which>(
-      ::capnp::bounded<0>() * ::capnp::ELEMENTS, SturdyRef::STORED);
-  ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Stored>::set(_builder.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS), value);
+#if !CAPNP_LITE
+inline  ::mas::schema::persistence::SturdyRef::Token::Pipeline SturdyRef::Pipeline::getLocalRef() {
+  return  ::mas::schema::persistence::SturdyRef::Token::Pipeline(_typeless.getPointerField(1));
 }
-inline  ::mas::schema::persistence::SturdyRef::Stored::Builder SturdyRef::Builder::initStored() {
-  _builder.setDataField<SturdyRef::Which>(
-      ::capnp::bounded<0>() * ::capnp::ELEMENTS, SturdyRef::STORED);
-  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Stored>::init(_builder.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS));
+#endif  // !CAPNP_LITE
+inline void SturdyRef::Builder::setLocalRef( ::mas::schema::persistence::SturdyRef::Token::Reader value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Token>::set(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS), value);
 }
-inline void SturdyRef::Builder::adoptStored(
-    ::capnp::Orphan< ::mas::schema::persistence::SturdyRef::Stored>&& value) {
-  _builder.setDataField<SturdyRef::Which>(
-      ::capnp::bounded<0>() * ::capnp::ELEMENTS, SturdyRef::STORED);
-  ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Stored>::adopt(_builder.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
+inline  ::mas::schema::persistence::SturdyRef::Token::Builder SturdyRef::Builder::initLocalRef() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Token>::init(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
-inline ::capnp::Orphan< ::mas::schema::persistence::SturdyRef::Stored> SturdyRef::Builder::disownStored() {
-  KJ_IREQUIRE((which() == SturdyRef::STORED),
-              "Must check which() before get()ing a union member.");
-  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Stored>::disown(_builder.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS));
+inline void SturdyRef::Builder::adoptLocalRef(
+    ::capnp::Orphan< ::mas::schema::persistence::SturdyRef::Token>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Token>::adopt(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::mas::schema::persistence::SturdyRef::Token> SturdyRef::Builder::disownLocalRef() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Token>::disown(_builder.getPointerField(
+      ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
 
 inline bool SturdyRef::Owner::Reader::hasGuid() const {
@@ -2941,122 +2804,121 @@ inline ::capnp::Orphan< ::capnp::Text> SturdyRef::Owner::Builder::disownGuid() {
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 
-inline bool SturdyRef::Transient::Reader::hasVat() const {
+inline  ::mas::schema::persistence::SturdyRef::Token::Which SturdyRef::Token::Reader::which() const {
+  return _reader.getDataField<Which>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+inline  ::mas::schema::persistence::SturdyRef::Token::Which SturdyRef::Token::Builder::which() {
+  return _builder.getDataField<Which>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+
+inline bool SturdyRef::Token::Reader::isText() const {
+  return which() == SturdyRef::Token::TEXT;
+}
+inline bool SturdyRef::Token::Builder::isText() {
+  return which() == SturdyRef::Token::TEXT;
+}
+inline bool SturdyRef::Token::Reader::hasText() const {
+  if (which() != SturdyRef::Token::TEXT) return false;
   return !_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline bool SturdyRef::Transient::Builder::hasVat() {
+inline bool SturdyRef::Token::Builder::hasText() {
+  if (which() != SturdyRef::Token::TEXT) return false;
   return !_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline  ::mas::schema::persistence::VatPath::Reader SturdyRef::Transient::Reader::getVat() const {
-  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::VatPath>::get(_reader.getPointerField(
+inline  ::capnp::Text::Reader SturdyRef::Token::Reader::getText() const {
+  KJ_IREQUIRE((which() == SturdyRef::Token::TEXT),
+              "Must check which() before get()ing a union member.");
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::persistence::VatPath::Builder SturdyRef::Transient::Builder::getVat() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::VatPath>::get(_builder.getPointerField(
+inline  ::capnp::Text::Builder SturdyRef::Token::Builder::getText() {
+  KJ_IREQUIRE((which() == SturdyRef::Token::TEXT),
+              "Must check which() before get()ing a union member.");
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-#if !CAPNP_LITE
-inline  ::mas::schema::persistence::VatPath::Pipeline SturdyRef::Transient::Pipeline::getVat() {
-  return  ::mas::schema::persistence::VatPath::Pipeline(_typeless.getPointerField(0));
-}
-#endif  // !CAPNP_LITE
-inline void SturdyRef::Transient::Builder::setVat( ::mas::schema::persistence::VatPath::Reader value) {
-  ::capnp::_::PointerHelpers< ::mas::schema::persistence::VatPath>::set(_builder.getPointerField(
+inline void SturdyRef::Token::Builder::setText( ::capnp::Text::Reader value) {
+  _builder.setDataField<SturdyRef::Token::Which>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, SturdyRef::Token::TEXT);
+  ::capnp::_::PointerHelpers< ::capnp::Text>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), value);
 }
-inline  ::mas::schema::persistence::VatPath::Builder SturdyRef::Transient::Builder::initVat() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::VatPath>::init(_builder.getPointerField(
-      ::capnp::bounded<0>() * ::capnp::POINTERS));
+inline  ::capnp::Text::Builder SturdyRef::Token::Builder::initText(unsigned int size) {
+  _builder.setDataField<SturdyRef::Token::Which>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, SturdyRef::Token::TEXT);
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::init(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), size);
 }
-inline void SturdyRef::Transient::Builder::adoptVat(
-    ::capnp::Orphan< ::mas::schema::persistence::VatPath>&& value) {
-  ::capnp::_::PointerHelpers< ::mas::schema::persistence::VatPath>::adopt(_builder.getPointerField(
+inline void SturdyRef::Token::Builder::adoptText(
+    ::capnp::Orphan< ::capnp::Text>&& value) {
+  _builder.setDataField<SturdyRef::Token::Which>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, SturdyRef::Token::TEXT);
+  ::capnp::_::PointerHelpers< ::capnp::Text>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::mas::schema::persistence::VatPath> SturdyRef::Transient::Builder::disownVat() {
-  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::VatPath>::disown(_builder.getPointerField(
+inline ::capnp::Orphan< ::capnp::Text> SturdyRef::Token::Builder::disownText() {
+  KJ_IREQUIRE((which() == SturdyRef::Token::TEXT),
+              "Must check which() before get()ing a union member.");
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 
-inline bool SturdyRef::Transient::Reader::hasLocalRef() const {
+inline bool SturdyRef::Token::Reader::isData() const {
+  return which() == SturdyRef::Token::DATA;
+}
+inline bool SturdyRef::Token::Builder::isData() {
+  return which() == SturdyRef::Token::DATA;
+}
+inline bool SturdyRef::Token::Reader::hasData() const {
+  if (which() != SturdyRef::Token::DATA) return false;
   return !_reader.getPointerField(
-      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline bool SturdyRef::Transient::Builder::hasLocalRef() {
+inline bool SturdyRef::Token::Builder::hasData() {
+  if (which() != SturdyRef::Token::DATA) return false;
   return !_builder.getPointerField(
-      ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline ::capnp::AnyPointer::Reader SturdyRef::Transient::Reader::getLocalRef() const {
-  return ::capnp::AnyPointer::Reader(_reader.getPointerField(
-      ::capnp::bounded<1>() * ::capnp::POINTERS));
+inline  ::capnp::Data::Reader SturdyRef::Token::Reader::getData() const {
+  KJ_IREQUIRE((which() == SturdyRef::Token::DATA),
+              "Must check which() before get()ing a union member.");
+  return ::capnp::_::PointerHelpers< ::capnp::Data>::get(_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline ::capnp::AnyPointer::Builder SturdyRef::Transient::Builder::getLocalRef() {
-  return ::capnp::AnyPointer::Builder(_builder.getPointerField(
-      ::capnp::bounded<1>() * ::capnp::POINTERS));
+inline  ::capnp::Data::Builder SturdyRef::Token::Builder::getData() {
+  KJ_IREQUIRE((which() == SturdyRef::Token::DATA),
+              "Must check which() before get()ing a union member.");
+  return ::capnp::_::PointerHelpers< ::capnp::Data>::get(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline ::capnp::AnyPointer::Builder SturdyRef::Transient::Builder::initLocalRef() {
-  auto result = ::capnp::AnyPointer::Builder(_builder.getPointerField(
-      ::capnp::bounded<1>() * ::capnp::POINTERS));
-  result.clear();
-  return result;
+inline void SturdyRef::Token::Builder::setData( ::capnp::Data::Reader value) {
+  _builder.setDataField<SturdyRef::Token::Which>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, SturdyRef::Token::DATA);
+  ::capnp::_::PointerHelpers< ::capnp::Data>::set(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), value);
 }
-
-inline  ::uint64_t SturdyRef::Stored::Reader::getKey0() const {
-  return _reader.getDataField< ::uint64_t>(
-      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+inline  ::capnp::Data::Builder SturdyRef::Token::Builder::initData(unsigned int size) {
+  _builder.setDataField<SturdyRef::Token::Which>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, SturdyRef::Token::DATA);
+  return ::capnp::_::PointerHelpers< ::capnp::Data>::init(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), size);
 }
-
-inline  ::uint64_t SturdyRef::Stored::Builder::getKey0() {
-  return _builder.getDataField< ::uint64_t>(
-      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+inline void SturdyRef::Token::Builder::adoptData(
+    ::capnp::Orphan< ::capnp::Data>&& value) {
+  _builder.setDataField<SturdyRef::Token::Which>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, SturdyRef::Token::DATA);
+  ::capnp::_::PointerHelpers< ::capnp::Data>::adopt(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline void SturdyRef::Stored::Builder::setKey0( ::uint64_t value) {
-  _builder.setDataField< ::uint64_t>(
-      ::capnp::bounded<0>() * ::capnp::ELEMENTS, value);
-}
-
-inline  ::uint64_t SturdyRef::Stored::Reader::getKey1() const {
-  return _reader.getDataField< ::uint64_t>(
-      ::capnp::bounded<1>() * ::capnp::ELEMENTS);
-}
-
-inline  ::uint64_t SturdyRef::Stored::Builder::getKey1() {
-  return _builder.getDataField< ::uint64_t>(
-      ::capnp::bounded<1>() * ::capnp::ELEMENTS);
-}
-inline void SturdyRef::Stored::Builder::setKey1( ::uint64_t value) {
-  _builder.setDataField< ::uint64_t>(
-      ::capnp::bounded<1>() * ::capnp::ELEMENTS, value);
-}
-
-inline  ::uint64_t SturdyRef::Stored::Reader::getKey2() const {
-  return _reader.getDataField< ::uint64_t>(
-      ::capnp::bounded<2>() * ::capnp::ELEMENTS);
-}
-
-inline  ::uint64_t SturdyRef::Stored::Builder::getKey2() {
-  return _builder.getDataField< ::uint64_t>(
-      ::capnp::bounded<2>() * ::capnp::ELEMENTS);
-}
-inline void SturdyRef::Stored::Builder::setKey2( ::uint64_t value) {
-  _builder.setDataField< ::uint64_t>(
-      ::capnp::bounded<2>() * ::capnp::ELEMENTS, value);
-}
-
-inline  ::uint64_t SturdyRef::Stored::Reader::getKey3() const {
-  return _reader.getDataField< ::uint64_t>(
-      ::capnp::bounded<3>() * ::capnp::ELEMENTS);
-}
-
-inline  ::uint64_t SturdyRef::Stored::Builder::getKey3() {
-  return _builder.getDataField< ::uint64_t>(
-      ::capnp::bounded<3>() * ::capnp::ELEMENTS);
-}
-inline void SturdyRef::Stored::Builder::setKey3( ::uint64_t value) {
-  _builder.setDataField< ::uint64_t>(
-      ::capnp::bounded<3>() * ::capnp::ELEMENTS, value);
+inline ::capnp::Orphan< ::capnp::Data> SturdyRef::Token::Builder::disownData() {
+  KJ_IREQUIRE((which() == SturdyRef::Token::DATA),
+              "Must check which() before get()ing a union member.");
+  return ::capnp::_::PointerHelpers< ::capnp::Data>::disown(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 
 #if !CAPNP_LITE
@@ -3270,56 +3132,72 @@ inline bool Restorer::RestoreParams::Builder::hasLocalRef() {
   return !_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline ::capnp::AnyPointer::Reader Restorer::RestoreParams::Reader::getLocalRef() const {
-  return ::capnp::AnyPointer::Reader(_reader.getPointerField(
+inline  ::mas::schema::persistence::SturdyRef::Token::Reader Restorer::RestoreParams::Reader::getLocalRef() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Token>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline ::capnp::AnyPointer::Builder Restorer::RestoreParams::Builder::getLocalRef() {
-  return ::capnp::AnyPointer::Builder(_builder.getPointerField(
+inline  ::mas::schema::persistence::SturdyRef::Token::Builder Restorer::RestoreParams::Builder::getLocalRef() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Token>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline ::capnp::AnyPointer::Builder Restorer::RestoreParams::Builder::initLocalRef() {
-  auto result = ::capnp::AnyPointer::Builder(_builder.getPointerField(
+#if !CAPNP_LITE
+inline  ::mas::schema::persistence::SturdyRef::Token::Pipeline Restorer::RestoreParams::Pipeline::getLocalRef() {
+  return  ::mas::schema::persistence::SturdyRef::Token::Pipeline(_typeless.getPointerField(0));
+}
+#endif  // !CAPNP_LITE
+inline void Restorer::RestoreParams::Builder::setLocalRef( ::mas::schema::persistence::SturdyRef::Token::Reader value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Token>::set(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), value);
+}
+inline  ::mas::schema::persistence::SturdyRef::Token::Builder Restorer::RestoreParams::Builder::initLocalRef() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Token>::init(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
-  result.clear();
-  return result;
+}
+inline void Restorer::RestoreParams::Builder::adoptLocalRef(
+    ::capnp::Orphan< ::mas::schema::persistence::SturdyRef::Token>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Token>::adopt(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::mas::schema::persistence::SturdyRef::Token> Restorer::RestoreParams::Builder::disownLocalRef() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Token>::disown(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 
-inline bool Restorer::RestoreParams::Reader::hasSealedFor() const {
+inline bool Restorer::RestoreParams::Reader::hasSealedBy() const {
   return !_reader.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
 }
-inline bool Restorer::RestoreParams::Builder::hasSealedFor() {
+inline bool Restorer::RestoreParams::Builder::hasSealedBy() {
   return !_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS).isNull();
 }
-inline  ::mas::schema::persistence::SturdyRef::Owner::Reader Restorer::RestoreParams::Reader::getSealedFor() const {
+inline  ::mas::schema::persistence::SturdyRef::Owner::Reader Restorer::RestoreParams::Reader::getSealedBy() const {
   return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Owner>::get(_reader.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
-inline  ::mas::schema::persistence::SturdyRef::Owner::Builder Restorer::RestoreParams::Builder::getSealedFor() {
+inline  ::mas::schema::persistence::SturdyRef::Owner::Builder Restorer::RestoreParams::Builder::getSealedBy() {
   return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Owner>::get(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
 #if !CAPNP_LITE
-inline  ::mas::schema::persistence::SturdyRef::Owner::Pipeline Restorer::RestoreParams::Pipeline::getSealedFor() {
+inline  ::mas::schema::persistence::SturdyRef::Owner::Pipeline Restorer::RestoreParams::Pipeline::getSealedBy() {
   return  ::mas::schema::persistence::SturdyRef::Owner::Pipeline(_typeless.getPointerField(1));
 }
 #endif  // !CAPNP_LITE
-inline void Restorer::RestoreParams::Builder::setSealedFor( ::mas::schema::persistence::SturdyRef::Owner::Reader value) {
+inline void Restorer::RestoreParams::Builder::setSealedBy( ::mas::schema::persistence::SturdyRef::Owner::Reader value) {
   ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Owner>::set(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS), value);
 }
-inline  ::mas::schema::persistence::SturdyRef::Owner::Builder Restorer::RestoreParams::Builder::initSealedFor() {
+inline  ::mas::schema::persistence::SturdyRef::Owner::Builder Restorer::RestoreParams::Builder::initSealedBy() {
   return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Owner>::init(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }
-inline void Restorer::RestoreParams::Builder::adoptSealedFor(
+inline void Restorer::RestoreParams::Builder::adoptSealedBy(
     ::capnp::Orphan< ::mas::schema::persistence::SturdyRef::Owner>&& value) {
   ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Owner>::adopt(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::mas::schema::persistence::SturdyRef::Owner> Restorer::RestoreParams::Builder::disownSealedFor() {
+inline ::capnp::Orphan< ::mas::schema::persistence::SturdyRef::Owner> Restorer::RestoreParams::Builder::disownSealedBy() {
   return ::capnp::_::PointerHelpers< ::mas::schema::persistence::SturdyRef::Owner>::disown(_builder.getPointerField(
       ::capnp::bounded<1>() * ::capnp::POINTERS));
 }

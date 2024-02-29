@@ -9,7 +9,9 @@
 #include <capnp/capability.h>
 #endif  // !CAPNP_LITE
 
-#if CAPNP_VERSION != 10000
+#ifndef CAPNP_VERSION
+#error "CAPNP_VERSION is not defined, is capnp/generated-header-support.h missing?"
+#elif CAPNP_VERSION != 1000001
 #error "Version mismatch between generated code and library headers.  You must use the same version of the Cap'n Proto compiler and library."
 #endif
 
@@ -4939,15 +4941,19 @@ inline typename  ::mas::schema::cluster::Cluster::ValueHolder<T>::Client& Cluste
 
 #endif  // !CAPNP_LITE
 // Cluster::ValueHolder<T>::ValueParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename T>
 constexpr uint16_t Cluster::ValueHolder<T>::ValueParams::_capnpPrivate::dataWordSize;
 template <typename T>
 constexpr uint16_t Cluster::ValueHolder<T>::ValueParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename T>
 constexpr ::capnp::Kind Cluster::ValueHolder<T>::ValueParams::_capnpPrivate::kind;
 template <typename T>
 constexpr ::capnp::_::RawSchema const* Cluster::ValueHolder<T>::ValueParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename T>
 const ::capnp::_::RawBrandedSchema::Scope Cluster::ValueHolder<T>::ValueParams::_capnpPrivate::brandScopes[] = {
   { 0xd6acf080dcf2b4c8, brandBindings + 0, 1, false},
@@ -5017,15 +5023,19 @@ inline ::capnp::Orphan<T> Cluster::ValueHolder<T>::ValueResults::Builder::disown
 }
 
 // Cluster::ValueHolder<T>::ValueResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename T>
 constexpr uint16_t Cluster::ValueHolder<T>::ValueResults::_capnpPrivate::dataWordSize;
 template <typename T>
 constexpr uint16_t Cluster::ValueHolder<T>::ValueResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename T>
 constexpr ::capnp::Kind Cluster::ValueHolder<T>::ValueResults::_capnpPrivate::kind;
 template <typename T>
 constexpr ::capnp::_::RawSchema const* Cluster::ValueHolder<T>::ValueResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename T>
 const ::capnp::_::RawBrandedSchema::Scope Cluster::ValueHolder<T>::ValueResults::_capnpPrivate::brandScopes[] = {
   { 0xd6acf080dcf2b4c8, brandBindings + 0, 1, false},
@@ -5042,15 +5052,19 @@ const ::capnp::_::RawBrandedSchema Cluster::ValueHolder<T>::ValueResults::_capnp
 #endif  // !CAPNP_LITE
 
 // Cluster::ValueHolder<T>::ReleaseParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename T>
 constexpr uint16_t Cluster::ValueHolder<T>::ReleaseParams::_capnpPrivate::dataWordSize;
 template <typename T>
 constexpr uint16_t Cluster::ValueHolder<T>::ReleaseParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename T>
 constexpr ::capnp::Kind Cluster::ValueHolder<T>::ReleaseParams::_capnpPrivate::kind;
 template <typename T>
 constexpr ::capnp::_::RawSchema const* Cluster::ValueHolder<T>::ReleaseParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename T>
 const ::capnp::_::RawBrandedSchema::Scope Cluster::ValueHolder<T>::ReleaseParams::_capnpPrivate::brandScopes[] = {
   { 0xd6acf080dcf2b4c8, brandBindings + 0, 1, false},
@@ -5067,15 +5081,19 @@ const ::capnp::_::RawBrandedSchema Cluster::ValueHolder<T>::ReleaseParams::_capn
 #endif  // !CAPNP_LITE
 
 // Cluster::ValueHolder<T>::ReleaseResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename T>
 constexpr uint16_t Cluster::ValueHolder<T>::ReleaseResults::_capnpPrivate::dataWordSize;
 template <typename T>
 constexpr uint16_t Cluster::ValueHolder<T>::ReleaseResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename T>
 constexpr ::capnp::Kind Cluster::ValueHolder<T>::ReleaseResults::_capnpPrivate::kind;
 template <typename T>
 constexpr ::capnp::_::RawSchema const* Cluster::ValueHolder<T>::ReleaseResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename T>
 const ::capnp::_::RawBrandedSchema::Scope Cluster::ValueHolder<T>::ReleaseResults::_capnpPrivate::brandScopes[] = {
   { 0xd6acf080dcf2b4c8, brandBindings + 0, 1, false},
@@ -5096,7 +5114,7 @@ template <typename T>
 CAPNP_AUTO_IF_MSVC(::capnp::Request<typename  ::mas::schema::cluster::Cluster::ValueHolder<T>::ValueParams, typename  ::mas::schema::cluster::Cluster::ValueHolder<T>::ValueResults>)
 Cluster::ValueHolder<T>::Client::valueRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall<typename  ::mas::schema::cluster::Cluster::ValueHolder<T>::ValueParams, typename  ::mas::schema::cluster::Cluster::ValueHolder<T>::ValueResults>(
-      0xd6acf080dcf2b4c8ull, 0, sizeHint);
+      0xd6acf080dcf2b4c8ull, 0, sizeHint, {false});
 }
 template <typename T>
 ::kj::Promise<void> Cluster::ValueHolder<T>::Server::value(ValueContext) {
@@ -5108,7 +5126,7 @@ template <typename T>
 CAPNP_AUTO_IF_MSVC(::capnp::Request<typename  ::mas::schema::cluster::Cluster::ValueHolder<T>::ReleaseParams, typename  ::mas::schema::cluster::Cluster::ValueHolder<T>::ReleaseResults>)
 Cluster::ValueHolder<T>::Client::releaseRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall<typename  ::mas::schema::cluster::Cluster::ValueHolder<T>::ReleaseParams, typename  ::mas::schema::cluster::Cluster::ValueHolder<T>::ReleaseResults>(
-      0xd6acf080dcf2b4c8ull, 1, sizeHint);
+      0xd6acf080dcf2b4c8ull, 1, sizeHint, {true});
 }
 template <typename T>
 ::kj::Promise<void> Cluster::ValueHolder<T>::Server::release(ReleaseContext) {
@@ -5136,12 +5154,14 @@ template <typename T>
       return {
         value(::capnp::Capability::Server::internalGetTypedContext<
             typename  ::mas::schema::cluster::Cluster::ValueHolder<T>::ValueParams, typename  ::mas::schema::cluster::Cluster::ValueHolder<T>::ValueResults>(context)),
+        false,
         false
       };
     case 1:
       return {
         release(::capnp::Capability::Server::internalGetTypedContext<
             typename  ::mas::schema::cluster::Cluster::ValueHolder<T>::ReleaseParams, typename  ::mas::schema::cluster::Cluster::ValueHolder<T>::ReleaseResults>(context)),
+        false,
         false
       };
     default:
@@ -5155,10 +5175,12 @@ template <typename T>
 
 // Cluster::ValueHolder<T>
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename T>
 constexpr ::capnp::Kind Cluster::ValueHolder<T>::_capnpPrivate::kind;
 template <typename T>
 constexpr ::capnp::_::RawSchema const* Cluster::ValueHolder<T>::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename T>
 const ::capnp::_::RawBrandedSchema::Scope Cluster::ValueHolder<T>::_capnpPrivate::brandScopes[] = {
   { 0xd6acf080dcf2b4c8, brandBindings + 0, 1, false},

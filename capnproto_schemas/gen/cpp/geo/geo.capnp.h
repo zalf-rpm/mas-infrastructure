@@ -6,7 +6,9 @@
 #include <capnp/generated-header-support.h>
 #include <kj/windows-sanity.h>
 
-#if CAPNP_VERSION != 10000
+#ifndef CAPNP_VERSION
+#error "CAPNP_VERSION is not defined, is capnp/generated-header-support.h missing?"
+#elif CAPNP_VERSION != 1000001
 #error "Version mismatch between generated code and library headers.  You must use the same version of the Cap'n Proto compiler and library."
 #endif
 
@@ -1513,15 +1515,19 @@ inline ::capnp::Orphan<CoordinateType> RectBounds<CoordinateType>::Builder::diso
 }
 
 // RectBounds<CoordinateType>
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename CoordinateType>
 constexpr uint16_t RectBounds<CoordinateType>::_capnpPrivate::dataWordSize;
 template <typename CoordinateType>
 constexpr uint16_t RectBounds<CoordinateType>::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename CoordinateType>
 constexpr ::capnp::Kind RectBounds<CoordinateType>::_capnpPrivate::kind;
 template <typename CoordinateType>
 constexpr ::capnp::_::RawSchema const* RectBounds<CoordinateType>::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename CoordinateType>
 const ::capnp::_::RawBrandedSchema::Scope RectBounds<CoordinateType>::_capnpPrivate::brandScopes[] = {
   { 0xb952dbe83866da4a, brandBindings + 0, 1, false},

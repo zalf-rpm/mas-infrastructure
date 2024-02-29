@@ -59,7 +59,7 @@ static const uint16_t m_fc682227304e2281[] = {0};
 static const uint16_t i_fc682227304e2281[] = {0};
 const ::capnp::_::RawSchema s_fc682227304e2281 = {
   0xfc682227304e2281, b_fc682227304e2281.words, 43, d_fc682227304e2281, m_fc682227304e2281,
-  1, 1, i_fc682227304e2281, nullptr, nullptr, { &s_fc682227304e2281, nullptr, nullptr, 0, 0, nullptr }
+  1, 1, i_fc682227304e2281, nullptr, nullptr, { &s_fc682227304e2281, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<102> b_eafaab57e025db63 = {
@@ -172,7 +172,7 @@ static const uint16_t m_eafaab57e025db63[] = {2, 3, 4, 1, 0};
 static const uint16_t i_eafaab57e025db63[] = {0, 1, 2, 3, 4};
 const ::capnp::_::RawSchema s_eafaab57e025db63 = {
   0xeafaab57e025db63, b_eafaab57e025db63.words, 102, nullptr, m_eafaab57e025db63,
-  0, 5, i_eafaab57e025db63, nullptr, nullptr, { &s_eafaab57e025db63, nullptr, nullptr, 0, 0, nullptr }
+  0, 5, i_eafaab57e025db63, nullptr, nullptr, { &s_eafaab57e025db63, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<44> b_e4eb0a9bb0e5bb53 = {
@@ -230,7 +230,7 @@ static const uint16_t m_e4eb0a9bb0e5bb53[] = {0};
 static const uint16_t i_e4eb0a9bb0e5bb53[] = {0};
 const ::capnp::_::RawSchema s_e4eb0a9bb0e5bb53 = {
   0xe4eb0a9bb0e5bb53, b_e4eb0a9bb0e5bb53.words, 44, d_e4eb0a9bb0e5bb53, m_e4eb0a9bb0e5bb53,
-  1, 1, i_e4eb0a9bb0e5bb53, nullptr, nullptr, { &s_e4eb0a9bb0e5bb53, nullptr, nullptr, 0, 0, nullptr }
+  1, 1, i_e4eb0a9bb0e5bb53, nullptr, nullptr, { &s_e4eb0a9bb0e5bb53, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<102> b_a968a46ccde8b1b4 = {
@@ -343,7 +343,7 @@ static const uint16_t m_a968a46ccde8b1b4[] = {2, 3, 4, 1, 0};
 static const uint16_t i_a968a46ccde8b1b4[] = {0, 1, 2, 3, 4};
 const ::capnp::_::RawSchema s_a968a46ccde8b1b4 = {
   0xa968a46ccde8b1b4, b_a968a46ccde8b1b4.words, 102, nullptr, m_a968a46ccde8b1b4,
-  0, 5, i_a968a46ccde8b1b4, nullptr, nullptr, { &s_a968a46ccde8b1b4, nullptr, nullptr, 0, 0, nullptr }
+  0, 5, i_a968a46ccde8b1b4, nullptr, nullptr, { &s_a968a46ccde8b1b4, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<43> b_9b169bc96bb3d24b = {
@@ -400,7 +400,7 @@ static const uint16_t m_9b169bc96bb3d24b[] = {0};
 static const uint16_t i_9b169bc96bb3d24b[] = {0};
 const ::capnp::_::RawSchema s_9b169bc96bb3d24b = {
   0x9b169bc96bb3d24b, b_9b169bc96bb3d24b.words, 43, d_9b169bc96bb3d24b, m_9b169bc96bb3d24b,
-  1, 1, i_9b169bc96bb3d24b, nullptr, nullptr, { &s_9b169bc96bb3d24b, nullptr, nullptr, 0, 0, nullptr }
+  1, 1, i_9b169bc96bb3d24b, nullptr, nullptr, { &s_9b169bc96bb3d24b, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<68> b_b78a89c58fad885d = {
@@ -479,7 +479,7 @@ static const uint16_t m_b78a89c58fad885d[] = {1, 2, 0};
 static const uint16_t i_b78a89c58fad885d[] = {0, 1, 2};
 const ::capnp::_::RawSchema s_b78a89c58fad885d = {
   0xb78a89c58fad885d, b_b78a89c58fad885d.words, 68, nullptr, m_b78a89c58fad885d,
-  0, 3, i_b78a89c58fad885d, nullptr, nullptr, { &s_b78a89c58fad885d, nullptr, nullptr, 0, 0, nullptr }
+  0, 3, i_b78a89c58fad885d, nullptr, nullptr, { &s_b78a89c58fad885d, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 }  // namespace schemas
@@ -492,51 +492,75 @@ namespace schema {
 namespace soil {
 
 // SoilCharacteristicData
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t SoilCharacteristicData::_capnpPrivate::dataWordSize;
 constexpr uint16_t SoilCharacteristicData::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind SoilCharacteristicData::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* SoilCharacteristicData::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // SoilCharacteristicData::Data
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t SoilCharacteristicData::Data::_capnpPrivate::dataWordSize;
 constexpr uint16_t SoilCharacteristicData::Data::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind SoilCharacteristicData::Data::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* SoilCharacteristicData::Data::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // SoilCharacteristicModifier
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t SoilCharacteristicModifier::_capnpPrivate::dataWordSize;
 constexpr uint16_t SoilCharacteristicModifier::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind SoilCharacteristicModifier::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* SoilCharacteristicModifier::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // SoilCharacteristicModifier::Data
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t SoilCharacteristicModifier::Data::_capnpPrivate::dataWordSize;
 constexpr uint16_t SoilCharacteristicModifier::Data::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind SoilCharacteristicModifier::Data::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* SoilCharacteristicModifier::Data::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // CapillaryRiseRate
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t CapillaryRiseRate::_capnpPrivate::dataWordSize;
 constexpr uint16_t CapillaryRiseRate::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind CapillaryRiseRate::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* CapillaryRiseRate::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // CapillaryRiseRate::Data
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t CapillaryRiseRate::Data::_capnpPrivate::dataWordSize;
 constexpr uint16_t CapillaryRiseRate::Data::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind CapillaryRiseRate::Data::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* CapillaryRiseRate::Data::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 

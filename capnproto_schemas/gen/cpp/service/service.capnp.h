@@ -9,7 +9,9 @@
 #include <capnp/capability.h>
 #endif  // !CAPNP_LITE
 
-#if CAPNP_VERSION != 10000
+#ifndef CAPNP_VERSION
+#error "CAPNP_VERSION is not defined, is capnp/generated-header-support.h missing?"
+#elif CAPNP_VERSION != 1000001
 #error "Version mismatch between generated code and library headers.  You must use the same version of the Cap'n Proto compiler and library."
 #endif
 
@@ -2491,15 +2493,19 @@ inline ::capnp::Orphan<Payload> Factory<Payload>::CreateParams::Builder::disownM
 }
 
 // Factory<Payload>::CreateParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename Payload>
 constexpr uint16_t Factory<Payload>::CreateParams::_capnpPrivate::dataWordSize;
 template <typename Payload>
 constexpr uint16_t Factory<Payload>::CreateParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename Payload>
 constexpr ::capnp::Kind Factory<Payload>::CreateParams::_capnpPrivate::kind;
 template <typename Payload>
 constexpr ::capnp::_::RawSchema const* Factory<Payload>::CreateParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename Payload>
 const ::capnp::_::RawBrandedSchema::Scope Factory<Payload>::CreateParams::_capnpPrivate::brandScopes[] = {
   { 0x8ab0ecb99c269c7f, brandBindings + 0, 1, false},
@@ -2654,15 +2660,19 @@ inline ::capnp::Orphan< ::capnp::Text> Factory<Payload>::AccessInfo::Builder::di
 }
 
 // Factory<Payload>::AccessInfo
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename Payload>
 constexpr uint16_t Factory<Payload>::AccessInfo::_capnpPrivate::dataWordSize;
 template <typename Payload>
 constexpr uint16_t Factory<Payload>::AccessInfo::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename Payload>
 constexpr ::capnp::Kind Factory<Payload>::AccessInfo::_capnpPrivate::kind;
 template <typename Payload>
 constexpr ::capnp::_::RawSchema const* Factory<Payload>::AccessInfo::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename Payload>
 const ::capnp::_::RawBrandedSchema::Scope Factory<Payload>::AccessInfo::_capnpPrivate::brandScopes[] = {
   { 0x8ab0ecb99c269c7f, brandBindings + 0, 1, false},
@@ -2679,15 +2689,19 @@ const ::capnp::_::RawBrandedSchema Factory<Payload>::AccessInfo::_capnpPrivate::
 #endif  // !CAPNP_LITE
 
 // Factory<Payload>::ServiceInterfaceNamesParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename Payload>
 constexpr uint16_t Factory<Payload>::ServiceInterfaceNamesParams::_capnpPrivate::dataWordSize;
 template <typename Payload>
 constexpr uint16_t Factory<Payload>::ServiceInterfaceNamesParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename Payload>
 constexpr ::capnp::Kind Factory<Payload>::ServiceInterfaceNamesParams::_capnpPrivate::kind;
 template <typename Payload>
 constexpr ::capnp::_::RawSchema const* Factory<Payload>::ServiceInterfaceNamesParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename Payload>
 const ::capnp::_::RawBrandedSchema::Scope Factory<Payload>::ServiceInterfaceNamesParams::_capnpPrivate::brandScopes[] = {
   { 0x8ab0ecb99c269c7f, brandBindings + 0, 1, false},
@@ -2751,15 +2765,19 @@ inline ::capnp::Orphan< ::capnp::List< ::capnp::Text,  ::capnp::Kind::BLOB>> Fac
 }
 
 // Factory<Payload>::ServiceInterfaceNamesResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename Payload>
 constexpr uint16_t Factory<Payload>::ServiceInterfaceNamesResults::_capnpPrivate::dataWordSize;
 template <typename Payload>
 constexpr uint16_t Factory<Payload>::ServiceInterfaceNamesResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename Payload>
 constexpr ::capnp::Kind Factory<Payload>::ServiceInterfaceNamesResults::_capnpPrivate::kind;
 template <typename Payload>
 constexpr ::capnp::_::RawSchema const* Factory<Payload>::ServiceInterfaceNamesResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename Payload>
 const ::capnp::_::RawBrandedSchema::Scope Factory<Payload>::ServiceInterfaceNamesResults::_capnpPrivate::brandScopes[] = {
   { 0x8ab0ecb99c269c7f, brandBindings + 0, 1, false},
@@ -2780,7 +2798,7 @@ template <typename Payload>
 CAPNP_AUTO_IF_MSVC(::capnp::Request<typename  ::mas::schema::service::Factory<Payload>::CreateParams, typename  ::mas::schema::service::Factory<Payload>::AccessInfo>)
 Factory<Payload>::Client::createRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall<typename  ::mas::schema::service::Factory<Payload>::CreateParams, typename  ::mas::schema::service::Factory<Payload>::AccessInfo>(
-      0x8ab0ecb99c269c7full, 0, sizeHint);
+      0x8ab0ecb99c269c7full, 0, sizeHint, {false});
 }
 template <typename Payload>
 ::kj::Promise<void> Factory<Payload>::Server::create(CreateContext) {
@@ -2792,7 +2810,7 @@ template <typename Payload>
 CAPNP_AUTO_IF_MSVC(::capnp::Request<typename  ::mas::schema::service::Factory<Payload>::ServiceInterfaceNamesParams, typename  ::mas::schema::service::Factory<Payload>::ServiceInterfaceNamesResults>)
 Factory<Payload>::Client::serviceInterfaceNamesRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall<typename  ::mas::schema::service::Factory<Payload>::ServiceInterfaceNamesParams, typename  ::mas::schema::service::Factory<Payload>::ServiceInterfaceNamesResults>(
-      0x8ab0ecb99c269c7full, 1, sizeHint);
+      0x8ab0ecb99c269c7full, 1, sizeHint, {true});
 }
 template <typename Payload>
 ::kj::Promise<void> Factory<Payload>::Server::serviceInterfaceNames(ServiceInterfaceNamesContext) {
@@ -2822,12 +2840,14 @@ template <typename Payload>
       return {
         create(::capnp::Capability::Server::internalGetTypedContext<
             typename  ::mas::schema::service::Factory<Payload>::CreateParams, typename  ::mas::schema::service::Factory<Payload>::AccessInfo>(context)),
+        false,
         false
       };
     case 1:
       return {
         serviceInterfaceNames(::capnp::Capability::Server::internalGetTypedContext<
             typename  ::mas::schema::service::Factory<Payload>::ServiceInterfaceNamesParams, typename  ::mas::schema::service::Factory<Payload>::ServiceInterfaceNamesResults>(context)),
+        false,
         false
       };
     default:
@@ -2841,10 +2861,12 @@ template <typename Payload>
 
 // Factory<Payload>
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename Payload>
 constexpr ::capnp::Kind Factory<Payload>::_capnpPrivate::kind;
 template <typename Payload>
 constexpr ::capnp::_::RawSchema const* Factory<Payload>::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename Payload>
 const ::capnp::_::RawBrandedSchema::Scope Factory<Payload>::_capnpPrivate::brandScopes[] = {
   { 0x8ab0ecb99c269c7f, brandBindings + 0, 1, false},

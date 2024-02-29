@@ -15,7 +15,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 */
 
 #include <iostream> //cout
-#ifdef WIN32
+#ifdef _WIN32
 #include <windows.h>
 #include <time.h>
 #define sleep(x) Sleep((x)*1000)

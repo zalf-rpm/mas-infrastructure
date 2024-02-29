@@ -9,7 +9,9 @@
 #include <capnp/capability.h>
 #endif  // !CAPNP_LITE
 
-#if CAPNP_VERSION != 10000
+#ifndef CAPNP_VERSION
+#error "CAPNP_VERSION is not defined, is capnp/generated-header-support.h missing?"
+#elif CAPNP_VERSION != 1000001
 #error "Version mismatch between generated code and library headers.  You must use the same version of the Cap'n Proto compiler and library."
 #endif
 
@@ -1022,15 +1024,19 @@ inline ::capnp::Orphan<S> Pair<F, S>::Builder::disownSnd() {
 }
 
 // Pair<F, S>
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename F, typename S>
 constexpr uint16_t Pair<F, S>::_capnpPrivate::dataWordSize;
 template <typename F, typename S>
 constexpr uint16_t Pair<F, S>::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename F, typename S>
 constexpr ::capnp::Kind Pair<F, S>::_capnpPrivate::kind;
 template <typename F, typename S>
 constexpr ::capnp::_::RawSchema const* Pair<F, S>::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename F, typename S>
 const ::capnp::_::RawBrandedSchema::Scope Pair<F, S>::_capnpPrivate::brandScopes[] = {
   { 0xb9d4864725174733, brandBindings + 0, 2, false},

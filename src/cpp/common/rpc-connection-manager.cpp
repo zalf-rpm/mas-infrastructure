@@ -15,7 +15,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 // moving this below storage-service.h on windows causes Problems,
 // because of IPrintDialogServices in commdlg.h defining INTERFACE as macro
-#ifdef WIN32
+#ifdef _WIN32
 //#include <winsock.h>
 #include <ws2tcpip.h>
 #define CLOSE_SOCKET(s) closesocket(s)

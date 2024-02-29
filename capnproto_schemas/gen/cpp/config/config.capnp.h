@@ -9,7 +9,9 @@
 #include <capnp/capability.h>
 #endif  // !CAPNP_LITE
 
-#if CAPNP_VERSION != 10000
+#ifndef CAPNP_VERSION
+#error "CAPNP_VERSION is not defined, is capnp/generated-header-support.h missing?"
+#elif CAPNP_VERSION != 1000001
 #error "Version mismatch between generated code and library headers.  You must use the same version of the Cap'n Proto compiler and library."
 #endif
 
@@ -373,15 +375,19 @@ inline typename  ::mas::schema::config::Service<C>::Client& Service<C>::Client::
 
 #endif  // !CAPNP_LITE
 // Service<C>::NextConfigParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename C>
 constexpr uint16_t Service<C>::NextConfigParams::_capnpPrivate::dataWordSize;
 template <typename C>
 constexpr uint16_t Service<C>::NextConfigParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename C>
 constexpr ::capnp::Kind Service<C>::NextConfigParams::_capnpPrivate::kind;
 template <typename C>
 constexpr ::capnp::_::RawSchema const* Service<C>::NextConfigParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename C>
 const ::capnp::_::RawBrandedSchema::Scope Service<C>::NextConfigParams::_capnpPrivate::brandScopes[] = {
   { 0x860d660620aefcda, brandBindings + 0, 1, false},
@@ -468,15 +474,19 @@ inline void Service<C>::NextConfigResults::Builder::setNoFurtherConfigs(bool val
 }
 
 // Service<C>::NextConfigResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename C>
 constexpr uint16_t Service<C>::NextConfigResults::_capnpPrivate::dataWordSize;
 template <typename C>
 constexpr uint16_t Service<C>::NextConfigResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename C>
 constexpr ::capnp::Kind Service<C>::NextConfigResults::_capnpPrivate::kind;
 template <typename C>
 constexpr ::capnp::_::RawSchema const* Service<C>::NextConfigResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename C>
 const ::capnp::_::RawBrandedSchema::Scope Service<C>::NextConfigResults::_capnpPrivate::brandScopes[] = {
   { 0x860d660620aefcda, brandBindings + 0, 1, false},
@@ -497,7 +507,7 @@ template <typename C>
 CAPNP_AUTO_IF_MSVC(::capnp::Request<typename  ::mas::schema::config::Service<C>::NextConfigParams, typename  ::mas::schema::config::Service<C>::NextConfigResults>)
 Service<C>::Client::nextConfigRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall<typename  ::mas::schema::config::Service<C>::NextConfigParams, typename  ::mas::schema::config::Service<C>::NextConfigResults>(
-      0x860d660620aefcdaull, 0, sizeHint);
+      0x860d660620aefcdaull, 0, sizeHint, {false});
 }
 template <typename C>
 ::kj::Promise<void> Service<C>::Server::nextConfig(NextConfigContext) {
@@ -525,6 +535,7 @@ template <typename C>
       return {
         nextConfig(::capnp::Capability::Server::internalGetTypedContext<
             typename  ::mas::schema::config::Service<C>::NextConfigParams, typename  ::mas::schema::config::Service<C>::NextConfigResults>(context)),
+        false,
         false
       };
     default:
@@ -538,10 +549,12 @@ template <typename C>
 
 // Service<C>
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename C>
 constexpr ::capnp::Kind Service<C>::_capnpPrivate::kind;
 template <typename C>
 constexpr ::capnp::_::RawSchema const* Service<C>::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename C>
 const ::capnp::_::RawBrandedSchema::Scope Service<C>::_capnpPrivate::brandScopes[] = {
   { 0x860d660620aefcda, brandBindings + 0, 1, false},

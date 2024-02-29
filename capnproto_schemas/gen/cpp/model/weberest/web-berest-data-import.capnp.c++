@@ -49,7 +49,7 @@ static const ::capnp::_::RawSchema* const d_a1a4ad9d143eaa6f[] = {
 static const uint16_t m_a1a4ad9d143eaa6f[] = {0};
 const ::capnp::_::RawSchema s_a1a4ad9d143eaa6f = {
   0xa1a4ad9d143eaa6f, b_a1a4ad9d143eaa6f.words, 33, d_a1a4ad9d143eaa6f, m_a1a4ad9d143eaa6f,
-  2, 1, nullptr, nullptr, nullptr, { &s_a1a4ad9d143eaa6f, nullptr, nullptr, 0, 0, nullptr }
+  2, 1, nullptr, nullptr, nullptr, { &s_a1a4ad9d143eaa6f, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<68> b_eb03972caa23c7d2 = {
@@ -128,7 +128,7 @@ static const uint16_t m_eb03972caa23c7d2[] = {1, 2, 0};
 static const uint16_t i_eb03972caa23c7d2[] = {0, 1, 2};
 const ::capnp::_::RawSchema s_eb03972caa23c7d2 = {
   0xeb03972caa23c7d2, b_eb03972caa23c7d2.words, 68, nullptr, m_eb03972caa23c7d2,
-  0, 3, i_eb03972caa23c7d2, nullptr, nullptr, { &s_eb03972caa23c7d2, nullptr, nullptr, 0, 0, nullptr }
+  0, 3, i_eb03972caa23c7d2, nullptr, nullptr, { &s_eb03972caa23c7d2, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<70> b_b9bc568c49fcca07 = {
@@ -209,7 +209,7 @@ static const uint16_t m_b9bc568c49fcca07[] = {0, 1, 2};
 static const uint16_t i_b9bc568c49fcca07[] = {0, 1, 2};
 const ::capnp::_::RawSchema s_b9bc568c49fcca07 = {
   0xb9bc568c49fcca07, b_b9bc568c49fcca07.words, 70, nullptr, m_b9bc568c49fcca07,
-  0, 3, i_b9bc568c49fcca07, nullptr, nullptr, { &s_b9bc568c49fcca07, nullptr, nullptr, 0, 0, nullptr }
+  0, 3, i_b9bc568c49fcca07, nullptr, nullptr, { &s_b9bc568c49fcca07, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 }  // namespace schemas
@@ -226,7 +226,7 @@ namespace weberest {
 ::capnp::Request< ::mas::schema::model::weberest::DWLABImport::ImportDataParams,  ::mas::schema::model::weberest::DWLABImport::ImportDataResults>
 DWLABImport::Client::importDataRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall< ::mas::schema::model::weberest::DWLABImport::ImportDataParams,  ::mas::schema::model::weberest::DWLABImport::ImportDataResults>(
-      0xa1a4ad9d143eaa6full, 0, sizeHint);
+      0xa1a4ad9d143eaa6full, 0, sizeHint, {true});
 }
 ::kj::Promise<void> DWLABImport::Server::importData(ImportDataContext) {
   return ::capnp::Capability::Server::internalUnimplemented(
@@ -251,6 +251,7 @@ DWLABImport::Client::importDataRequest(::kj::Maybe< ::capnp::MessageSize> sizeHi
       return {
         importData(::capnp::Capability::Server::internalGetTypedContext<
              ::mas::schema::model::weberest::DWLABImport::ImportDataParams,  ::mas::schema::model::weberest::DWLABImport::ImportDataResults>(context)),
+        false,
         false
       };
     default:
@@ -264,24 +265,34 @@ DWLABImport::Client::importDataRequest(::kj::Maybe< ::capnp::MessageSize> sizeHi
 
 // DWLABImport
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind DWLABImport::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* DWLABImport::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // DWLABImport::ImportDataParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t DWLABImport::ImportDataParams::_capnpPrivate::dataWordSize;
 constexpr uint16_t DWLABImport::ImportDataParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind DWLABImport::ImportDataParams::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* DWLABImport::ImportDataParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // DWLABImport::ImportDataResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t DWLABImport::ImportDataResults::_capnpPrivate::dataWordSize;
 constexpr uint16_t DWLABImport::ImportDataResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind DWLABImport::ImportDataResults::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* DWLABImport::ImportDataResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 

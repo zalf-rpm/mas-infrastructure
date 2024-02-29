@@ -74,7 +74,7 @@ static const uint16_t m_97e6feac0322118d[] = {2, 1, 0};
 static const uint16_t i_97e6feac0322118d[] = {0, 1, 2};
 const ::capnp::_::RawSchema s_97e6feac0322118d = {
   0x97e6feac0322118d, b_97e6feac0322118d.words, 61, nullptr, m_97e6feac0322118d,
-  0, 3, i_97e6feac0322118d, nullptr, nullptr, { &s_97e6feac0322118d, nullptr, nullptr, 0, 0, nullptr }
+  0, 3, i_97e6feac0322118d, nullptr, nullptr, { &s_97e6feac0322118d, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 }  // namespace schemas
@@ -87,11 +87,15 @@ namespace schema {
 namespace common {
 
 // Date
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t Date::_capnpPrivate::dataWordSize;
 constexpr uint16_t Date::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Date::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Date::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 

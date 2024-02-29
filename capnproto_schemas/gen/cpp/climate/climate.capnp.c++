@@ -89,7 +89,7 @@ static const ::capnp::_::AlignedData<77> b_ce396869eede9f10 = {
 static const uint16_t m_ce396869eede9f10[] = {0, 5, 10, 1, 6, 2, 3, 11, 7, 4, 8, 9};
 const ::capnp::_::RawSchema s_ce396869eede9f10 = {
   0xce396869eede9f10, b_ce396869eede9f10.words, 77, nullptr, m_ce396869eede9f10,
-  0, 12, nullptr, nullptr, nullptr, { &s_ce396869eede9f10, nullptr, nullptr, 0, 0, nullptr }
+  0, 12, nullptr, nullptr, nullptr, { &s_ce396869eede9f10, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 CAPNP_DEFINE_ENUM(GCM_ce396869eede9f10, ce396869eede9f10);
@@ -153,7 +153,7 @@ static const ::capnp::_::AlignedData<53> b_8671dec53083e351 = {
 static const uint16_t m_8671dec53083e351[] = {4, 0, 1, 2, 5, 3, 6};
 const ::capnp::_::RawSchema s_8671dec53083e351 = {
   0x8671dec53083e351, b_8671dec53083e351.words, 53, nullptr, m_8671dec53083e351,
-  0, 7, nullptr, nullptr, nullptr, { &s_8671dec53083e351, nullptr, nullptr, 0, 0, nullptr }
+  0, 7, nullptr, nullptr, nullptr, { &s_8671dec53083e351, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 CAPNP_DEFINE_ENUM(RCM_8671dec53083e351, 8671dec53083e351);
@@ -201,7 +201,7 @@ static const ::capnp::_::AlignedData<37> b_d3780ae416347aee = {
 static const uint16_t m_d3780ae416347aee[] = {0, 1, 2, 3, 4};
 const ::capnp::_::RawSchema s_d3780ae416347aee = {
   0xd3780ae416347aee, b_d3780ae416347aee.words, 37, nullptr, m_d3780ae416347aee,
-  0, 5, nullptr, nullptr, nullptr, { &s_d3780ae416347aee, nullptr, nullptr, 0, 0, nullptr }
+  0, 5, nullptr, nullptr, nullptr, { &s_d3780ae416347aee, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 CAPNP_DEFINE_ENUM(SSP_d3780ae416347aee, d3780ae416347aee);
@@ -257,7 +257,7 @@ static const ::capnp::_::AlignedData<45> b_8ef30778310c94cc = {
 static const uint16_t m_8ef30778310c94cc[] = {0, 1, 2, 3, 4, 5, 6};
 const ::capnp::_::RawSchema s_8ef30778310c94cc = {
   0x8ef30778310c94cc, b_8ef30778310c94cc.words, 45, nullptr, m_8ef30778310c94cc,
-  0, 7, nullptr, nullptr, nullptr, { &s_8ef30778310c94cc, nullptr, nullptr, 0, 0, nullptr }
+  0, 7, nullptr, nullptr, nullptr, { &s_8ef30778310c94cc, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 CAPNP_DEFINE_ENUM(RCP_8ef30778310c94cc, 8ef30778310c94cc);
@@ -347,7 +347,7 @@ static const uint16_t m_c8caacd1cd5da434[] = {3, 1, 2, 0};
 static const uint16_t i_c8caacd1cd5da434[] = {0, 1, 2, 3};
 const ::capnp::_::RawSchema s_c8caacd1cd5da434 = {
   0xc8caacd1cd5da434, b_c8caacd1cd5da434.words, 78, nullptr, m_c8caacd1cd5da434,
-  0, 4, i_c8caacd1cd5da434, nullptr, nullptr, { &s_c8caacd1cd5da434, nullptr, nullptr, 0, 0, nullptr }
+  0, 4, i_c8caacd1cd5da434, nullptr, nullptr, { &s_c8caacd1cd5da434, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<65> b_fb36d2e966556db0 = {
@@ -427,7 +427,7 @@ static const uint16_t m_fb36d2e966556db0[] = {0, 1};
 static const uint16_t i_fb36d2e966556db0[] = {0, 1};
 const ::capnp::_::RawSchema s_fb36d2e966556db0 = {
   0xfb36d2e966556db0, b_fb36d2e966556db0.words, 65, d_fb36d2e966556db0, m_fb36d2e966556db0,
-  2, 2, i_fb36d2e966556db0, nullptr, nullptr, { &s_fb36d2e966556db0, nullptr, nullptr, 0, 0, nullptr }
+  2, 2, i_fb36d2e966556db0, nullptr, nullptr, { &s_fb36d2e966556db0, nullptr, nullptr, 0, 0, nullptr }, true
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<42> b_ab06444b30722e01 = {
@@ -485,7 +485,7 @@ static const ::capnp::_::RawSchema* const d_ab06444b30722e01[] = {
 static const uint16_t m_ab06444b30722e01[] = {0, 1};
 const ::capnp::_::RawSchema s_ab06444b30722e01 = {
   0xab06444b30722e01, b_ab06444b30722e01.words, 42, d_ab06444b30722e01, m_ab06444b30722e01,
-  4, 2, nullptr, nullptr, nullptr, { &s_ab06444b30722e01, nullptr, nullptr, 0, 0, nullptr }
+  4, 2, nullptr, nullptr, nullptr, { &s_ab06444b30722e01, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<19> b_95887677293b5682 = {
@@ -513,7 +513,7 @@ static const ::capnp::_::AlignedData<19> b_95887677293b5682 = {
 #if !CAPNP_LITE
 const ::capnp::_::RawSchema s_95887677293b5682 = {
   0x95887677293b5682, b_95887677293b5682.words, 19, nullptr, nullptr,
-  0, 0, nullptr, nullptr, nullptr, { &s_95887677293b5682, nullptr, nullptr, 0, 0, nullptr }
+  0, 0, nullptr, nullptr, nullptr, { &s_95887677293b5682, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<39> b_e49e838ea9c34b40 = {
@@ -566,7 +566,7 @@ static const uint16_t m_e49e838ea9c34b40[] = {0};
 static const uint16_t i_e49e838ea9c34b40[] = {0};
 const ::capnp::_::RawSchema s_e49e838ea9c34b40 = {
   0xe49e838ea9c34b40, b_e49e838ea9c34b40.words, 39, d_e49e838ea9c34b40, m_e49e838ea9c34b40,
-  1, 1, i_e49e838ea9c34b40, nullptr, nullptr, { &s_e49e838ea9c34b40, nullptr, nullptr, 0, 0, nullptr }
+  1, 1, i_e49e838ea9c34b40, nullptr, nullptr, { &s_e49e838ea9c34b40, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<35> b_c6d2329c05f7e208 = {
@@ -612,7 +612,7 @@ static const uint16_t m_c6d2329c05f7e208[] = {0};
 static const uint16_t i_c6d2329c05f7e208[] = {0};
 const ::capnp::_::RawSchema s_c6d2329c05f7e208 = {
   0xc6d2329c05f7e208, b_c6d2329c05f7e208.words, 35, nullptr, m_c6d2329c05f7e208,
-  0, 1, i_c6d2329c05f7e208, nullptr, nullptr, { &s_c6d2329c05f7e208, nullptr, nullptr, 0, 0, nullptr }
+  0, 1, i_c6d2329c05f7e208, nullptr, nullptr, { &s_c6d2329c05f7e208, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<40> b_e0a71ff36670f715 = {
@@ -666,7 +666,7 @@ static const uint16_t m_e0a71ff36670f715[] = {0};
 static const uint16_t i_e0a71ff36670f715[] = {0};
 const ::capnp::_::RawSchema s_e0a71ff36670f715 = {
   0xe0a71ff36670f715, b_e0a71ff36670f715.words, 40, d_e0a71ff36670f715, m_e0a71ff36670f715,
-  1, 1, i_e0a71ff36670f715, nullptr, nullptr, { &s_e0a71ff36670f715, nullptr, nullptr, 0, 0, nullptr }
+  1, 1, i_e0a71ff36670f715, nullptr, nullptr, { &s_e0a71ff36670f715, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<93> b_c48e24c968a234db = {
@@ -773,7 +773,7 @@ static const uint16_t m_c48e24c968a234db[] = {3, 4, 1, 2, 0};
 static const uint16_t i_c48e24c968a234db[] = {0, 1, 2, 3, 4};
 const ::capnp::_::RawSchema s_c48e24c968a234db = {
   0xc48e24c968a234db, b_c48e24c968a234db.words, 93, d_c48e24c968a234db, m_c48e24c968a234db,
-  1, 5, i_c48e24c968a234db, nullptr, nullptr, { &s_c48e24c968a234db, nullptr, nullptr, 0, 0, nullptr }
+  1, 5, i_c48e24c968a234db, nullptr, nullptr, { &s_c48e24c968a234db, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<201> b_85af7fea06d0820c = {
@@ -993,7 +993,7 @@ static const uint16_t m_85af7fea06d0820c[] = {9, 11, 8, 5, 0, 2, 10, 1, 3, 4, 7,
 static const uint16_t i_85af7fea06d0820c[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
 const ::capnp::_::RawSchema s_85af7fea06d0820c = {
   0x85af7fea06d0820c, b_85af7fea06d0820c.words, 201, d_85af7fea06d0820c, m_85af7fea06d0820c,
-  6, 12, i_85af7fea06d0820c, nullptr, nullptr, { &s_85af7fea06d0820c, nullptr, nullptr, 0, 0, nullptr }
+  6, 12, i_85af7fea06d0820c, nullptr, nullptr, { &s_85af7fea06d0820c, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<40> b_c781edeab8160cb7 = {
@@ -1049,7 +1049,7 @@ static const ::capnp::_::RawSchema* const d_c781edeab8160cb7[] = {
 static const uint16_t m_c781edeab8160cb7[] = {1, 0};
 const ::capnp::_::RawSchema s_c781edeab8160cb7 = {
   0xc781edeab8160cb7, b_c781edeab8160cb7.words, 40, d_c781edeab8160cb7, m_c781edeab8160cb7,
-  4, 2, nullptr, nullptr, nullptr, { &s_c781edeab8160cb7, nullptr, nullptr, 0, 0, nullptr }
+  4, 2, nullptr, nullptr, nullptr, { &s_c781edeab8160cb7, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<35> b_df705ef1e0b7d506 = {
@@ -1098,7 +1098,7 @@ static const uint16_t m_df705ef1e0b7d506[] = {0};
 static const uint16_t i_df705ef1e0b7d506[] = {0};
 const ::capnp::_::RawSchema s_df705ef1e0b7d506 = {
   0xdf705ef1e0b7d506, b_df705ef1e0b7d506.words, 35, d_df705ef1e0b7d506, m_df705ef1e0b7d506,
-  1, 1, i_df705ef1e0b7d506, nullptr, nullptr, { &s_df705ef1e0b7d506, nullptr, nullptr, 0, 0, nullptr }
+  1, 1, i_df705ef1e0b7d506, nullptr, nullptr, { &s_df705ef1e0b7d506, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<19> b_e246d49c91fa330a = {
@@ -1126,7 +1126,7 @@ static const ::capnp::_::AlignedData<19> b_e246d49c91fa330a = {
 #if !CAPNP_LITE
 const ::capnp::_::RawSchema s_e246d49c91fa330a = {
   0xe246d49c91fa330a, b_e246d49c91fa330a.words, 19, nullptr, nullptr,
-  0, 0, nullptr, nullptr, nullptr, { &s_e246d49c91fa330a, nullptr, nullptr, 0, 0, nullptr }
+  0, 0, nullptr, nullptr, nullptr, { &s_e246d49c91fa330a, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<57> b_9f35030ba55fed78 = {
@@ -1200,7 +1200,7 @@ KJ_CONSTEXPR(const) ::capnp::_::RawBrandedSchema::Dependency bd_9f35030ba55fed78
 };
 const ::capnp::_::RawSchema s_9f35030ba55fed78 = {
   0x9f35030ba55fed78, b_9f35030ba55fed78.words, 57, d_9f35030ba55fed78, m_9f35030ba55fed78,
-  1, 1, i_9f35030ba55fed78, nullptr, nullptr, { &s_9f35030ba55fed78, nullptr, bd_9f35030ba55fed78, 0, sizeof(bd_9f35030ba55fed78) / sizeof(bd_9f35030ba55fed78[0]), nullptr }
+  1, 1, i_9f35030ba55fed78, nullptr, nullptr, { &s_9f35030ba55fed78, nullptr, bd_9f35030ba55fed78, 0, sizeof(bd_9f35030ba55fed78) / sizeof(bd_9f35030ba55fed78[0]), nullptr }, true
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<83> b_f635fdd1f05960f0 = {
@@ -1307,7 +1307,7 @@ static const ::capnp::_::RawSchema* const d_f635fdd1f05960f0[] = {
 static const uint16_t m_f635fdd1f05960f0[] = {1, 3, 0, 4, 2};
 const ::capnp::_::RawSchema s_f635fdd1f05960f0 = {
   0xf635fdd1f05960f0, b_f635fdd1f05960f0.words, 83, d_f635fdd1f05960f0, m_f635fdd1f05960f0,
-  12, 5, nullptr, nullptr, nullptr, { &s_f635fdd1f05960f0, nullptr, nullptr, 0, 0, nullptr }
+  12, 5, nullptr, nullptr, nullptr, { &s_f635fdd1f05960f0, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<32> b_d61ba043f14fe175 = {
@@ -1353,7 +1353,7 @@ static const ::capnp::_::RawSchema* const d_d61ba043f14fe175[] = {
 static const uint16_t m_d61ba043f14fe175[] = {0};
 const ::capnp::_::RawSchema s_d61ba043f14fe175 = {
   0xd61ba043f14fe175, b_d61ba043f14fe175.words, 32, d_d61ba043f14fe175, m_d61ba043f14fe175,
-  2, 1, nullptr, nullptr, nullptr, { &s_d61ba043f14fe175, nullptr, nullptr, 0, 0, nullptr }
+  2, 1, nullptr, nullptr, nullptr, { &s_d61ba043f14fe175, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<37> b_e64112993dc4d4e0 = {
@@ -1401,7 +1401,7 @@ static const uint16_t m_e64112993dc4d4e0[] = {0};
 static const uint16_t i_e64112993dc4d4e0[] = {0};
 const ::capnp::_::RawSchema s_e64112993dc4d4e0 = {
   0xe64112993dc4d4e0, b_e64112993dc4d4e0.words, 37, nullptr, m_e64112993dc4d4e0,
-  0, 1, i_e64112993dc4d4e0, nullptr, nullptr, { &s_e64112993dc4d4e0, nullptr, nullptr, 0, 0, nullptr }
+  0, 1, i_e64112993dc4d4e0, nullptr, nullptr, { &s_e64112993dc4d4e0, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<42> b_fa8540d5d8065df1 = {
@@ -1457,7 +1457,7 @@ static const uint16_t m_fa8540d5d8065df1[] = {0};
 static const uint16_t i_fa8540d5d8065df1[] = {0};
 const ::capnp::_::RawSchema s_fa8540d5d8065df1 = {
   0xfa8540d5d8065df1, b_fa8540d5d8065df1.words, 42, d_fa8540d5d8065df1, m_fa8540d5d8065df1,
-  1, 1, i_fa8540d5d8065df1, nullptr, nullptr, { &s_fa8540d5d8065df1, nullptr, nullptr, 0, 0, nullptr }
+  1, 1, i_fa8540d5d8065df1, nullptr, nullptr, { &s_fa8540d5d8065df1, nullptr, nullptr, 0, 0, nullptr }, true
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<17> b_b4c346906ee84815 = {
@@ -1483,7 +1483,7 @@ static const ::capnp::_::AlignedData<17> b_b4c346906ee84815 = {
 #if !CAPNP_LITE
 const ::capnp::_::RawSchema s_b4c346906ee84815 = {
   0xb4c346906ee84815, b_b4c346906ee84815.words, 17, nullptr, nullptr,
-  0, 0, nullptr, nullptr, nullptr, { &s_b4c346906ee84815, nullptr, nullptr, 0, 0, nullptr }
+  0, 0, nullptr, nullptr, nullptr, { &s_b4c346906ee84815, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<35> b_b0496f3d284f4a13 = {
@@ -1532,7 +1532,7 @@ static const uint16_t m_b0496f3d284f4a13[] = {0};
 static const uint16_t i_b0496f3d284f4a13[] = {0};
 const ::capnp::_::RawSchema s_b0496f3d284f4a13 = {
   0xb0496f3d284f4a13, b_b0496f3d284f4a13.words, 35, d_b0496f3d284f4a13, m_b0496f3d284f4a13,
-  1, 1, i_b0496f3d284f4a13, nullptr, nullptr, { &s_b0496f3d284f4a13, nullptr, nullptr, 0, 0, nullptr }
+  1, 1, i_b0496f3d284f4a13, nullptr, nullptr, { &s_b0496f3d284f4a13, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<36> b_edee5faa03af6a1e = {
@@ -1582,7 +1582,7 @@ static const uint16_t m_edee5faa03af6a1e[] = {0};
 static const uint16_t i_edee5faa03af6a1e[] = {0};
 const ::capnp::_::RawSchema s_edee5faa03af6a1e = {
   0xedee5faa03af6a1e, b_edee5faa03af6a1e.words, 36, d_edee5faa03af6a1e, m_edee5faa03af6a1e,
-  1, 1, i_edee5faa03af6a1e, nullptr, nullptr, { &s_edee5faa03af6a1e, nullptr, nullptr, 0, 0, nullptr }
+  1, 1, i_edee5faa03af6a1e, nullptr, nullptr, { &s_edee5faa03af6a1e, nullptr, nullptr, 0, 0, nullptr }, true
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<35> b_d9f867b0a2a15d7f = {
@@ -1628,7 +1628,7 @@ static const uint16_t m_d9f867b0a2a15d7f[] = {0};
 static const uint16_t i_d9f867b0a2a15d7f[] = {0};
 const ::capnp::_::RawSchema s_d9f867b0a2a15d7f = {
   0xd9f867b0a2a15d7f, b_d9f867b0a2a15d7f.words, 35, nullptr, m_d9f867b0a2a15d7f,
-  0, 1, i_d9f867b0a2a15d7f, nullptr, nullptr, { &s_d9f867b0a2a15d7f, nullptr, nullptr, 0, 0, nullptr }
+  0, 1, i_d9f867b0a2a15d7f, nullptr, nullptr, { &s_d9f867b0a2a15d7f, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<35> b_e30c466e5bc2735c = {
@@ -1677,7 +1677,7 @@ static const uint16_t m_e30c466e5bc2735c[] = {0};
 static const uint16_t i_e30c466e5bc2735c[] = {0};
 const ::capnp::_::RawSchema s_e30c466e5bc2735c = {
   0xe30c466e5bc2735c, b_e30c466e5bc2735c.words, 35, d_e30c466e5bc2735c, m_e30c466e5bc2735c,
-  1, 1, i_e30c466e5bc2735c, nullptr, nullptr, { &s_e30c466e5bc2735c, nullptr, nullptr, 0, 0, nullptr }
+  1, 1, i_e30c466e5bc2735c, nullptr, nullptr, { &s_e30c466e5bc2735c, nullptr, nullptr, 0, 0, nullptr }, true
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<17> b_d2a02e856c28d4ba = {
@@ -1703,7 +1703,7 @@ static const ::capnp::_::AlignedData<17> b_d2a02e856c28d4ba = {
 #if !CAPNP_LITE
 const ::capnp::_::RawSchema s_d2a02e856c28d4ba = {
   0xd2a02e856c28d4ba, b_d2a02e856c28d4ba.words, 17, nullptr, nullptr,
-  0, 0, nullptr, nullptr, nullptr, { &s_d2a02e856c28d4ba, nullptr, nullptr, 0, 0, nullptr }
+  0, 0, nullptr, nullptr, nullptr, { &s_d2a02e856c28d4ba, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<38> b_aa8cfcdc401d5fdd = {
@@ -1755,7 +1755,7 @@ static const uint16_t m_aa8cfcdc401d5fdd[] = {0};
 static const uint16_t i_aa8cfcdc401d5fdd[] = {0};
 const ::capnp::_::RawSchema s_aa8cfcdc401d5fdd = {
   0xaa8cfcdc401d5fdd, b_aa8cfcdc401d5fdd.words, 38, d_aa8cfcdc401d5fdd, m_aa8cfcdc401d5fdd,
-  1, 1, i_aa8cfcdc401d5fdd, nullptr, nullptr, { &s_aa8cfcdc401d5fdd, nullptr, nullptr, 0, 0, nullptr }
+  1, 1, i_aa8cfcdc401d5fdd, nullptr, nullptr, { &s_aa8cfcdc401d5fdd, nullptr, nullptr, 0, 0, nullptr }, true
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<36> b_fca3f0f431b64506 = {
@@ -1802,7 +1802,7 @@ static const uint16_t m_fca3f0f431b64506[] = {0};
 static const uint16_t i_fca3f0f431b64506[] = {0};
 const ::capnp::_::RawSchema s_fca3f0f431b64506 = {
   0xfca3f0f431b64506, b_fca3f0f431b64506.words, 36, nullptr, m_fca3f0f431b64506,
-  0, 1, i_fca3f0f431b64506, nullptr, nullptr, { &s_fca3f0f431b64506, nullptr, nullptr, 0, 0, nullptr }
+  0, 1, i_fca3f0f431b64506, nullptr, nullptr, { &s_fca3f0f431b64506, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<36> b_9ebadb578b79fa06 = {
@@ -1852,7 +1852,7 @@ static const uint16_t m_9ebadb578b79fa06[] = {0};
 static const uint16_t i_9ebadb578b79fa06[] = {0};
 const ::capnp::_::RawSchema s_9ebadb578b79fa06 = {
   0x9ebadb578b79fa06, b_9ebadb578b79fa06.words, 36, d_9ebadb578b79fa06, m_9ebadb578b79fa06,
-  1, 1, i_9ebadb578b79fa06, nullptr, nullptr, { &s_9ebadb578b79fa06, nullptr, nullptr, 0, 0, nullptr }
+  1, 1, i_9ebadb578b79fa06, nullptr, nullptr, { &s_9ebadb578b79fa06, nullptr, nullptr, 0, 0, nullptr }, true
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<48> b_d7a67fec5f22e5a0 = {
@@ -1915,7 +1915,7 @@ static const uint16_t m_d7a67fec5f22e5a0[] = {1, 0};
 static const uint16_t i_d7a67fec5f22e5a0[] = {0, 1};
 const ::capnp::_::RawSchema s_d7a67fec5f22e5a0 = {
   0xd7a67fec5f22e5a0, b_d7a67fec5f22e5a0.words, 48, d_d7a67fec5f22e5a0, m_d7a67fec5f22e5a0,
-  2, 2, i_d7a67fec5f22e5a0, nullptr, nullptr, { &s_d7a67fec5f22e5a0, nullptr, nullptr, 0, 0, nullptr }
+  2, 2, i_d7a67fec5f22e5a0, nullptr, nullptr, { &s_d7a67fec5f22e5a0, nullptr, nullptr, 0, 0, nullptr }, true
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<102> b_e35760b4db5ab564 = {
@@ -2027,7 +2027,7 @@ static const ::capnp::_::AlignedData<102> b_e35760b4db5ab564 = {
 static const uint16_t m_e35760b4db5ab564[] = {9, 7, 11, 14, 13, 4, 12, 3, 8, 16, 15, 6, 17, 1, 2, 0, 10, 5};
 const ::capnp::_::RawSchema s_e35760b4db5ab564 = {
   0xe35760b4db5ab564, b_e35760b4db5ab564.words, 102, nullptr, m_e35760b4db5ab564,
-  0, 18, nullptr, nullptr, nullptr, { &s_e35760b4db5ab564, nullptr, nullptr, 0, 0, nullptr }
+  0, 18, nullptr, nullptr, nullptr, { &s_e35760b4db5ab564, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 CAPNP_DEFINE_ENUM(Element_e35760b4db5ab564, e35760b4db5ab564);
@@ -2147,7 +2147,7 @@ static const uint16_t m_85ba7385f313fe19[] = {4, 1, 0, 2, 3};
 static const uint16_t i_85ba7385f313fe19[] = {0, 1, 2, 3, 4};
 const ::capnp::_::RawSchema s_85ba7385f313fe19 = {
   0x85ba7385f313fe19, b_85ba7385f313fe19.words, 102, d_85ba7385f313fe19, m_85ba7385f313fe19,
-  4, 5, i_85ba7385f313fe19, nullptr, nullptr, { &s_85ba7385f313fe19, nullptr, nullptr, 0, 0, nullptr }
+  4, 5, i_85ba7385f313fe19, nullptr, nullptr, { &s_85ba7385f313fe19, nullptr, nullptr, 0, 0, nullptr }, true
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<48> b_c5fd13a53ae6d46a = {
@@ -2206,7 +2206,7 @@ static const uint16_t m_c5fd13a53ae6d46a[] = {0, 1};
 static const uint16_t i_c5fd13a53ae6d46a[] = {0, 1};
 const ::capnp::_::RawSchema s_c5fd13a53ae6d46a = {
   0xc5fd13a53ae6d46a, b_c5fd13a53ae6d46a.words, 48, nullptr, m_c5fd13a53ae6d46a,
-  0, 2, i_c5fd13a53ae6d46a, nullptr, nullptr, { &s_c5fd13a53ae6d46a, nullptr, nullptr, 0, 0, nullptr }
+  0, 2, i_c5fd13a53ae6d46a, nullptr, nullptr, { &s_c5fd13a53ae6d46a, nullptr, nullptr, 0, 0, nullptr }, true
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<122> b_a7769f40fe6e6de8 = {
@@ -2360,7 +2360,7 @@ static const ::capnp::_::RawSchema* const d_a7769f40fe6e6de8[] = {
 static const uint16_t m_a7769f40fe6e6de8[] = {3, 4, 2, 8, 7, 1, 0, 6, 5};
 const ::capnp::_::RawSchema s_a7769f40fe6e6de8 = {
   0xa7769f40fe6e6de8, b_a7769f40fe6e6de8.words, 122, d_a7769f40fe6e6de8, m_a7769f40fe6e6de8,
-  20, 9, nullptr, nullptr, nullptr, { &s_a7769f40fe6e6de8, nullptr, nullptr, 0, 0, nullptr }
+  20, 9, nullptr, nullptr, nullptr, { &s_a7769f40fe6e6de8, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<27> b_b466cacf63ec03c2 = {
@@ -2397,7 +2397,7 @@ static const ::capnp::_::AlignedData<27> b_b466cacf63ec03c2 = {
 static const uint16_t m_b466cacf63ec03c2[] = {0, 1};
 const ::capnp::_::RawSchema s_b466cacf63ec03c2 = {
   0xb466cacf63ec03c2, b_b466cacf63ec03c2.words, 27, nullptr, m_b466cacf63ec03c2,
-  0, 2, nullptr, nullptr, nullptr, { &s_b466cacf63ec03c2, nullptr, nullptr, 0, 0, nullptr }
+  0, 2, nullptr, nullptr, nullptr, { &s_b466cacf63ec03c2, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 CAPNP_DEFINE_ENUM(Resolution_b466cacf63ec03c2, b466cacf63ec03c2);
@@ -2425,7 +2425,7 @@ static const ::capnp::_::AlignedData<18> b_ea3f0519d272fdd1 = {
 #if !CAPNP_LITE
 const ::capnp::_::RawSchema s_ea3f0519d272fdd1 = {
   0xea3f0519d272fdd1, b_ea3f0519d272fdd1.words, 18, nullptr, nullptr,
-  0, 0, nullptr, nullptr, nullptr, { &s_ea3f0519d272fdd1, nullptr, nullptr, 0, 0, nullptr }
+  0, 0, nullptr, nullptr, nullptr, { &s_ea3f0519d272fdd1, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<35> b_cd0eadd9a1a66ed6 = {
@@ -2474,7 +2474,7 @@ static const uint16_t m_cd0eadd9a1a66ed6[] = {0};
 static const uint16_t i_cd0eadd9a1a66ed6[] = {0};
 const ::capnp::_::RawSchema s_cd0eadd9a1a66ed6 = {
   0xcd0eadd9a1a66ed6, b_cd0eadd9a1a66ed6.words, 35, d_cd0eadd9a1a66ed6, m_cd0eadd9a1a66ed6,
-  1, 1, i_cd0eadd9a1a66ed6, nullptr, nullptr, { &s_cd0eadd9a1a66ed6, nullptr, nullptr, 0, 0, nullptr }
+  1, 1, i_cd0eadd9a1a66ed6, nullptr, nullptr, { &s_cd0eadd9a1a66ed6, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<17> b_ff6bcf0c6b23c916 = {
@@ -2500,7 +2500,7 @@ static const ::capnp::_::AlignedData<17> b_ff6bcf0c6b23c916 = {
 #if !CAPNP_LITE
 const ::capnp::_::RawSchema s_ff6bcf0c6b23c916 = {
   0xff6bcf0c6b23c916, b_ff6bcf0c6b23c916.words, 17, nullptr, nullptr,
-  0, 0, nullptr, nullptr, nullptr, { &s_ff6bcf0c6b23c916, nullptr, nullptr, 0, 0, nullptr }
+  0, 0, nullptr, nullptr, nullptr, { &s_ff6bcf0c6b23c916, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<49> b_b9ec27f476022c1b = {
@@ -2563,7 +2563,7 @@ static const uint16_t m_b9ec27f476022c1b[] = {1, 0};
 static const uint16_t i_b9ec27f476022c1b[] = {0, 1};
 const ::capnp::_::RawSchema s_b9ec27f476022c1b = {
   0xb9ec27f476022c1b, b_b9ec27f476022c1b.words, 49, d_b9ec27f476022c1b, m_b9ec27f476022c1b,
-  1, 2, i_b9ec27f476022c1b, nullptr, nullptr, { &s_b9ec27f476022c1b, nullptr, nullptr, 0, 0, nullptr }
+  1, 2, i_b9ec27f476022c1b, nullptr, nullptr, { &s_b9ec27f476022c1b, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<17> b_8fd77002ae8a97a1 = {
@@ -2589,7 +2589,7 @@ static const ::capnp::_::AlignedData<17> b_8fd77002ae8a97a1 = {
 #if !CAPNP_LITE
 const ::capnp::_::RawSchema s_8fd77002ae8a97a1 = {
   0x8fd77002ae8a97a1, b_8fd77002ae8a97a1.words, 17, nullptr, nullptr,
-  0, 0, nullptr, nullptr, nullptr, { &s_8fd77002ae8a97a1, nullptr, nullptr, 0, 0, nullptr }
+  0, 0, nullptr, nullptr, nullptr, { &s_8fd77002ae8a97a1, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<37> b_8976146f144fa050 = {
@@ -2640,7 +2640,7 @@ static const uint16_t m_8976146f144fa050[] = {0};
 static const uint16_t i_8976146f144fa050[] = {0};
 const ::capnp::_::RawSchema s_8976146f144fa050 = {
   0x8976146f144fa050, b_8976146f144fa050.words, 37, d_8976146f144fa050, m_8976146f144fa050,
-  1, 1, i_8976146f144fa050, nullptr, nullptr, { &s_8976146f144fa050, nullptr, nullptr, 0, 0, nullptr }
+  1, 1, i_8976146f144fa050, nullptr, nullptr, { &s_8976146f144fa050, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<17> b_8e78986bc45d7dcd = {
@@ -2666,7 +2666,7 @@ static const ::capnp::_::AlignedData<17> b_8e78986bc45d7dcd = {
 #if !CAPNP_LITE
 const ::capnp::_::RawSchema s_8e78986bc45d7dcd = {
   0x8e78986bc45d7dcd, b_8e78986bc45d7dcd.words, 17, nullptr, nullptr,
-  0, 0, nullptr, nullptr, nullptr, { &s_8e78986bc45d7dcd, nullptr, nullptr, 0, 0, nullptr }
+  0, 0, nullptr, nullptr, nullptr, { &s_8e78986bc45d7dcd, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<41> b_9c3d3448d73eeae9 = {
@@ -2718,7 +2718,7 @@ static const uint16_t m_9c3d3448d73eeae9[] = {0};
 static const uint16_t i_9c3d3448d73eeae9[] = {0};
 const ::capnp::_::RawSchema s_9c3d3448d73eeae9 = {
   0x9c3d3448d73eeae9, b_9c3d3448d73eeae9.words, 41, nullptr, m_9c3d3448d73eeae9,
-  0, 1, i_9c3d3448d73eeae9, nullptr, nullptr, { &s_9c3d3448d73eeae9, nullptr, nullptr, 0, 0, nullptr }
+  0, 1, i_9c3d3448d73eeae9, nullptr, nullptr, { &s_9c3d3448d73eeae9, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<17> b_eff8f923b1853525 = {
@@ -2744,7 +2744,7 @@ static const ::capnp::_::AlignedData<17> b_eff8f923b1853525 = {
 #if !CAPNP_LITE
 const ::capnp::_::RawSchema s_eff8f923b1853525 = {
   0xeff8f923b1853525, b_eff8f923b1853525.words, 17, nullptr, nullptr,
-  0, 0, nullptr, nullptr, nullptr, { &s_eff8f923b1853525, nullptr, nullptr, 0, 0, nullptr }
+  0, 0, nullptr, nullptr, nullptr, { &s_eff8f923b1853525, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<41> b_c2e0dec0a6ea94fb = {
@@ -2796,7 +2796,7 @@ static const uint16_t m_c2e0dec0a6ea94fb[] = {0};
 static const uint16_t i_c2e0dec0a6ea94fb[] = {0};
 const ::capnp::_::RawSchema s_c2e0dec0a6ea94fb = {
   0xc2e0dec0a6ea94fb, b_c2e0dec0a6ea94fb.words, 41, nullptr, m_c2e0dec0a6ea94fb,
-  0, 1, i_c2e0dec0a6ea94fb, nullptr, nullptr, { &s_c2e0dec0a6ea94fb, nullptr, nullptr, 0, 0, nullptr }
+  0, 1, i_c2e0dec0a6ea94fb, nullptr, nullptr, { &s_c2e0dec0a6ea94fb, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<49> b_f8aa5b6fe2496fee = {
@@ -2859,7 +2859,7 @@ static const uint16_t m_f8aa5b6fe2496fee[] = {1, 0};
 static const uint16_t i_f8aa5b6fe2496fee[] = {0, 1};
 const ::capnp::_::RawSchema s_f8aa5b6fe2496fee = {
   0xf8aa5b6fe2496fee, b_f8aa5b6fe2496fee.words, 49, d_f8aa5b6fe2496fee, m_f8aa5b6fe2496fee,
-  1, 2, i_f8aa5b6fe2496fee, nullptr, nullptr, { &s_f8aa5b6fe2496fee, nullptr, nullptr, 0, 0, nullptr }
+  1, 2, i_f8aa5b6fe2496fee, nullptr, nullptr, { &s_f8aa5b6fe2496fee, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<35> b_f7dfe7147d09b732 = {
@@ -2908,7 +2908,7 @@ static const uint16_t m_f7dfe7147d09b732[] = {0};
 static const uint16_t i_f7dfe7147d09b732[] = {0};
 const ::capnp::_::RawSchema s_f7dfe7147d09b732 = {
   0xf7dfe7147d09b732, b_f7dfe7147d09b732.words, 35, d_f7dfe7147d09b732, m_f7dfe7147d09b732,
-  1, 1, i_f7dfe7147d09b732, nullptr, nullptr, { &s_f7dfe7147d09b732, nullptr, nullptr, 0, 0, nullptr }
+  1, 1, i_f7dfe7147d09b732, nullptr, nullptr, { &s_f7dfe7147d09b732, nullptr, nullptr, 0, 0, nullptr }, true
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<39> b_8cc364dee8f693b8 = {
@@ -2961,7 +2961,7 @@ static const uint16_t m_8cc364dee8f693b8[] = {0};
 static const uint16_t i_8cc364dee8f693b8[] = {0};
 const ::capnp::_::RawSchema s_8cc364dee8f693b8 = {
   0x8cc364dee8f693b8, b_8cc364dee8f693b8.words, 39, d_8cc364dee8f693b8, m_8cc364dee8f693b8,
-  1, 1, i_8cc364dee8f693b8, nullptr, nullptr, { &s_8cc364dee8f693b8, nullptr, nullptr, 0, 0, nullptr }
+  1, 1, i_8cc364dee8f693b8, nullptr, nullptr, { &s_8cc364dee8f693b8, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<35> b_c3238163cae880df = {
@@ -3010,7 +3010,7 @@ static const uint16_t m_c3238163cae880df[] = {0};
 static const uint16_t i_c3238163cae880df[] = {0};
 const ::capnp::_::RawSchema s_c3238163cae880df = {
   0xc3238163cae880df, b_c3238163cae880df.words, 35, d_c3238163cae880df, m_c3238163cae880df,
-  1, 1, i_c3238163cae880df, nullptr, nullptr, { &s_c3238163cae880df, nullptr, nullptr, 0, 0, nullptr }
+  1, 1, i_c3238163cae880df, nullptr, nullptr, { &s_c3238163cae880df, nullptr, nullptr, 0, 0, nullptr }, true
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<18> b_ce2cc4225c956634 = {
@@ -3037,7 +3037,7 @@ static const ::capnp::_::AlignedData<18> b_ce2cc4225c956634 = {
 #if !CAPNP_LITE
 const ::capnp::_::RawSchema s_ce2cc4225c956634 = {
   0xce2cc4225c956634, b_ce2cc4225c956634.words, 18, nullptr, nullptr,
-  0, 0, nullptr, nullptr, nullptr, { &s_ce2cc4225c956634, nullptr, nullptr, 0, 0, nullptr }
+  0, 0, nullptr, nullptr, nullptr, { &s_ce2cc4225c956634, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<18> b_cb329eb01b0fa313 = {
@@ -3064,7 +3064,7 @@ static const ::capnp::_::AlignedData<18> b_cb329eb01b0fa313 = {
 #if !CAPNP_LITE
 const ::capnp::_::RawSchema s_cb329eb01b0fa313 = {
   0xcb329eb01b0fa313, b_cb329eb01b0fa313.words, 18, nullptr, nullptr,
-  0, 0, nullptr, nullptr, nullptr, { &s_cb329eb01b0fa313, nullptr, nullptr, 0, 0, nullptr }
+  0, 0, nullptr, nullptr, nullptr, { &s_cb329eb01b0fa313, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<123> b_f1c1ccf59bc6964f = {
@@ -3203,7 +3203,7 @@ static const uint16_t m_f1c1ccf59bc6964f[] = {0, 4, 2, 1, 5, 3};
 static const uint16_t i_f1c1ccf59bc6964f[] = {0, 1, 2, 3, 4, 5};
 const ::capnp::_::RawSchema s_f1c1ccf59bc6964f = {
   0xf1c1ccf59bc6964f, b_f1c1ccf59bc6964f.words, 123, d_f1c1ccf59bc6964f, m_f1c1ccf59bc6964f,
-  3, 6, i_f1c1ccf59bc6964f, nullptr, nullptr, { &s_f1c1ccf59bc6964f, nullptr, nullptr, 0, 0, nullptr }
+  3, 6, i_f1c1ccf59bc6964f, nullptr, nullptr, { &s_f1c1ccf59bc6964f, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<45> b_fe7d08d4352b0c5f = {
@@ -3266,7 +3266,7 @@ static const ::capnp::_::RawSchema* const d_fe7d08d4352b0c5f[] = {
 static const uint16_t m_fe7d08d4352b0c5f[] = {0, 1};
 const ::capnp::_::RawSchema s_fe7d08d4352b0c5f = {
   0xfe7d08d4352b0c5f, b_fe7d08d4352b0c5f.words, 45, d_fe7d08d4352b0c5f, m_fe7d08d4352b0c5f,
-  6, 2, nullptr, nullptr, nullptr, { &s_fe7d08d4352b0c5f, nullptr, nullptr, 0, 0, nullptr }
+  6, 2, nullptr, nullptr, nullptr, { &s_fe7d08d4352b0c5f, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<19> b_804cca489405d451 = {
@@ -3294,7 +3294,7 @@ static const ::capnp::_::AlignedData<19> b_804cca489405d451 = {
 #if !CAPNP_LITE
 const ::capnp::_::RawSchema s_804cca489405d451 = {
   0x804cca489405d451, b_804cca489405d451.words, 19, nullptr, nullptr,
-  0, 0, nullptr, nullptr, nullptr, { &s_804cca489405d451, nullptr, nullptr, 0, 0, nullptr }
+  0, 0, nullptr, nullptr, nullptr, { &s_804cca489405d451, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<40> b_916880859435c6e8 = {
@@ -3348,7 +3348,7 @@ static const uint16_t m_916880859435c6e8[] = {0};
 static const uint16_t i_916880859435c6e8[] = {0};
 const ::capnp::_::RawSchema s_916880859435c6e8 = {
   0x916880859435c6e8, b_916880859435c6e8.words, 40, d_916880859435c6e8, m_916880859435c6e8,
-  1, 1, i_916880859435c6e8, nullptr, nullptr, { &s_916880859435c6e8, nullptr, nullptr, 0, 0, nullptr }
+  1, 1, i_916880859435c6e8, nullptr, nullptr, { &s_916880859435c6e8, nullptr, nullptr, 0, 0, nullptr }, true
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<35> b_9d7d1f83dda3e6db = {
@@ -3397,7 +3397,7 @@ static const uint16_t m_9d7d1f83dda3e6db[] = {0};
 static const uint16_t i_9d7d1f83dda3e6db[] = {0};
 const ::capnp::_::RawSchema s_9d7d1f83dda3e6db = {
   0x9d7d1f83dda3e6db, b_9d7d1f83dda3e6db.words, 35, d_9d7d1f83dda3e6db, m_9d7d1f83dda3e6db,
-  1, 1, i_9d7d1f83dda3e6db, nullptr, nullptr, { &s_9d7d1f83dda3e6db, nullptr, nullptr, 0, 0, nullptr }
+  1, 1, i_9d7d1f83dda3e6db, nullptr, nullptr, { &s_9d7d1f83dda3e6db, nullptr, nullptr, 0, 0, nullptr }, true
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<39> b_cd95f79174b0eab0 = {
@@ -3450,7 +3450,7 @@ static const uint16_t m_cd95f79174b0eab0[] = {0};
 static const uint16_t i_cd95f79174b0eab0[] = {0};
 const ::capnp::_::RawSchema s_cd95f79174b0eab0 = {
   0xcd95f79174b0eab0, b_cd95f79174b0eab0.words, 39, d_cd95f79174b0eab0, m_cd95f79174b0eab0,
-  1, 1, i_cd95f79174b0eab0, nullptr, nullptr, { &s_cd95f79174b0eab0, nullptr, nullptr, 0, 0, nullptr }
+  1, 1, i_cd95f79174b0eab0, nullptr, nullptr, { &s_cd95f79174b0eab0, nullptr, nullptr, 0, 0, nullptr }, true
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<36> b_a418c26cc59929d9 = {
@@ -3501,7 +3501,7 @@ static const ::capnp::_::RawSchema* const d_a418c26cc59929d9[] = {
 static const uint16_t m_a418c26cc59929d9[] = {0};
 const ::capnp::_::RawSchema s_a418c26cc59929d9 = {
   0xa418c26cc59929d9, b_a418c26cc59929d9.words, 36, d_a418c26cc59929d9, m_a418c26cc59929d9,
-  3, 1, nullptr, nullptr, nullptr, { &s_a418c26cc59929d9, nullptr, nullptr, 0, 0, nullptr }
+  3, 1, nullptr, nullptr, nullptr, { &s_a418c26cc59929d9, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<109> b_eba81ca9f46690b8 = {
@@ -3627,7 +3627,7 @@ KJ_CONSTEXPR(const) ::capnp::_::RawBrandedSchema::Dependency bd_eba81ca9f46690b8
 };
 const ::capnp::_::RawSchema s_eba81ca9f46690b8 = {
   0xeba81ca9f46690b8, b_eba81ca9f46690b8.words, 109, d_eba81ca9f46690b8, m_eba81ca9f46690b8,
-  1, 4, i_eba81ca9f46690b8, nullptr, nullptr, { &s_eba81ca9f46690b8, nullptr, bd_eba81ca9f46690b8, 0, sizeof(bd_eba81ca9f46690b8) / sizeof(bd_eba81ca9f46690b8[0]), nullptr }
+  1, 4, i_eba81ca9f46690b8, nullptr, nullptr, { &s_eba81ca9f46690b8, nullptr, bd_eba81ca9f46690b8, 0, sizeof(bd_eba81ca9f46690b8) / sizeof(bd_eba81ca9f46690b8[0]), nullptr }, true
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<50> b_cfaa8d2601750547 = {
@@ -3691,7 +3691,7 @@ static const uint16_t m_cfaa8d2601750547[] = {1, 0};
 static const uint16_t i_cfaa8d2601750547[] = {0, 1};
 const ::capnp::_::RawSchema s_cfaa8d2601750547 = {
   0xcfaa8d2601750547, b_cfaa8d2601750547.words, 50, d_cfaa8d2601750547, m_cfaa8d2601750547,
-  1, 2, i_cfaa8d2601750547, nullptr, nullptr, { &s_cfaa8d2601750547, nullptr, nullptr, 0, 0, nullptr }
+  1, 2, i_cfaa8d2601750547, nullptr, nullptr, { &s_cfaa8d2601750547, nullptr, nullptr, 0, 0, nullptr }, true
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<51> b_efefafebc8ae5534 = {
@@ -3756,7 +3756,7 @@ static const uint16_t m_efefafebc8ae5534[] = {1, 0};
 static const uint16_t i_efefafebc8ae5534[] = {0, 1};
 const ::capnp::_::RawSchema s_efefafebc8ae5534 = {
   0xefefafebc8ae5534, b_efefafebc8ae5534.words, 51, d_efefafebc8ae5534, m_efefafebc8ae5534,
-  1, 2, i_efefafebc8ae5534, nullptr, nullptr, { &s_efefafebc8ae5534, nullptr, nullptr, 0, 0, nullptr }
+  1, 2, i_efefafebc8ae5534, nullptr, nullptr, { &s_efefafebc8ae5534, nullptr, nullptr, 0, 0, nullptr }, true
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<85> b_e1f480ef979784b2 = {
@@ -3864,7 +3864,7 @@ static const ::capnp::_::RawSchema* const d_e1f480ef979784b2[] = {
 static const uint16_t m_e1f480ef979784b2[] = {2, 1, 3, 4, 0};
 const ::capnp::_::RawSchema s_e1f480ef979784b2 = {
   0xe1f480ef979784b2, b_e1f480ef979784b2.words, 85, d_e1f480ef979784b2, m_e1f480ef979784b2,
-  11, 5, nullptr, nullptr, nullptr, { &s_e1f480ef979784b2, nullptr, nullptr, 0, 0, nullptr }
+  11, 5, nullptr, nullptr, nullptr, { &s_e1f480ef979784b2, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<65> b_d085b9baf390bec5 = {
@@ -3944,7 +3944,7 @@ static const uint16_t m_d085b9baf390bec5[] = {0, 2, 1};
 static const uint16_t i_d085b9baf390bec5[] = {0, 1, 2};
 const ::capnp::_::RawSchema s_d085b9baf390bec5 = {
   0xd085b9baf390bec5, b_d085b9baf390bec5.words, 65, d_d085b9baf390bec5, m_d085b9baf390bec5,
-  2, 3, i_d085b9baf390bec5, nullptr, nullptr, { &s_d085b9baf390bec5, nullptr, nullptr, 0, 0, nullptr }
+  2, 3, i_d085b9baf390bec5, nullptr, nullptr, { &s_d085b9baf390bec5, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<28> b_b5dd785107c358ca = {
@@ -3982,7 +3982,7 @@ static const ::capnp::_::AlignedData<28> b_b5dd785107c358ca = {
 static const uint16_t m_b5dd785107c358ca[] = {0, 1};
 const ::capnp::_::RawSchema s_b5dd785107c358ca = {
   0xb5dd785107c358ca, b_b5dd785107c358ca.words, 28, nullptr, m_b5dd785107c358ca,
-  0, 2, nullptr, nullptr, nullptr, { &s_b5dd785107c358ca, nullptr, nullptr, 0, 0, nullptr }
+  0, 2, nullptr, nullptr, nullptr, { &s_b5dd785107c358ca, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 CAPNP_DEFINE_ENUM(AlterType_b5dd785107c358ca, b5dd785107c358ca);
@@ -4012,7 +4012,7 @@ static const ::capnp::_::AlignedData<20> b_e31f26eed9fb36a9 = {
 #if !CAPNP_LITE
 const ::capnp::_::RawSchema s_e31f26eed9fb36a9 = {
   0xe31f26eed9fb36a9, b_e31f26eed9fb36a9.words, 20, nullptr, nullptr,
-  0, 0, nullptr, nullptr, nullptr, { &s_e31f26eed9fb36a9, nullptr, nullptr, 0, 0, nullptr }
+  0, 0, nullptr, nullptr, nullptr, { &s_e31f26eed9fb36a9, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<37> b_fb2eddb58f90f7aa = {
@@ -4063,7 +4063,7 @@ static const uint16_t m_fb2eddb58f90f7aa[] = {0};
 static const uint16_t i_fb2eddb58f90f7aa[] = {0};
 const ::capnp::_::RawSchema s_fb2eddb58f90f7aa = {
   0xfb2eddb58f90f7aa, b_fb2eddb58f90f7aa.words, 37, d_fb2eddb58f90f7aa, m_fb2eddb58f90f7aa,
-  1, 1, i_fb2eddb58f90f7aa, nullptr, nullptr, { &s_fb2eddb58f90f7aa, nullptr, nullptr, 0, 0, nullptr }
+  1, 1, i_fb2eddb58f90f7aa, nullptr, nullptr, { &s_fb2eddb58f90f7aa, nullptr, nullptr, 0, 0, nullptr }, true
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<20> b_cba0220cda41869e = {
@@ -4092,7 +4092,7 @@ static const ::capnp::_::AlignedData<20> b_cba0220cda41869e = {
 #if !CAPNP_LITE
 const ::capnp::_::RawSchema s_cba0220cda41869e = {
   0xcba0220cda41869e, b_cba0220cda41869e.words, 20, nullptr, nullptr,
-  0, 0, nullptr, nullptr, nullptr, { &s_cba0220cda41869e, nullptr, nullptr, 0, 0, nullptr }
+  0, 0, nullptr, nullptr, nullptr, { &s_cba0220cda41869e, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<40> b_dd5b75b5bc711766 = {
@@ -4146,7 +4146,7 @@ static const uint16_t m_dd5b75b5bc711766[] = {0};
 static const uint16_t i_dd5b75b5bc711766[] = {0};
 const ::capnp::_::RawSchema s_dd5b75b5bc711766 = {
   0xdd5b75b5bc711766, b_dd5b75b5bc711766.words, 40, d_dd5b75b5bc711766, m_dd5b75b5bc711766,
-  1, 1, i_dd5b75b5bc711766, nullptr, nullptr, { &s_dd5b75b5bc711766, nullptr, nullptr, 0, 0, nullptr }
+  1, 1, i_dd5b75b5bc711766, nullptr, nullptr, { &s_dd5b75b5bc711766, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<51> b_d36b1e9c2929e6e4 = {
@@ -4211,7 +4211,7 @@ static const uint16_t m_d36b1e9c2929e6e4[] = {1, 0};
 static const uint16_t i_d36b1e9c2929e6e4[] = {0, 1};
 const ::capnp::_::RawSchema s_d36b1e9c2929e6e4 = {
   0xd36b1e9c2929e6e4, b_d36b1e9c2929e6e4.words, 51, d_d36b1e9c2929e6e4, m_d36b1e9c2929e6e4,
-  1, 2, i_d36b1e9c2929e6e4, nullptr, nullptr, { &s_d36b1e9c2929e6e4, nullptr, nullptr, 0, 0, nullptr }
+  1, 2, i_d36b1e9c2929e6e4, nullptr, nullptr, { &s_d36b1e9c2929e6e4, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<36> b_c4a1ec6280be841c = {
@@ -4261,7 +4261,7 @@ static const uint16_t m_c4a1ec6280be841c[] = {0};
 static const uint16_t i_c4a1ec6280be841c[] = {0};
 const ::capnp::_::RawSchema s_c4a1ec6280be841c = {
   0xc4a1ec6280be841c, b_c4a1ec6280be841c.words, 36, d_c4a1ec6280be841c, m_c4a1ec6280be841c,
-  1, 1, i_c4a1ec6280be841c, nullptr, nullptr, { &s_c4a1ec6280be841c, nullptr, nullptr, 0, 0, nullptr }
+  1, 1, i_c4a1ec6280be841c, nullptr, nullptr, { &s_c4a1ec6280be841c, nullptr, nullptr, 0, 0, nullptr }, true
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<36> b_db7bfcfe4d45ff53 = {
@@ -4311,7 +4311,7 @@ static const uint16_t m_db7bfcfe4d45ff53[] = {0};
 static const uint16_t i_db7bfcfe4d45ff53[] = {0};
 const ::capnp::_::RawSchema s_db7bfcfe4d45ff53 = {
   0xdb7bfcfe4d45ff53, b_db7bfcfe4d45ff53.words, 36, d_db7bfcfe4d45ff53, m_db7bfcfe4d45ff53,
-  1, 1, i_db7bfcfe4d45ff53, nullptr, nullptr, { &s_db7bfcfe4d45ff53, nullptr, nullptr, 0, 0, nullptr }
+  1, 1, i_db7bfcfe4d45ff53, nullptr, nullptr, { &s_db7bfcfe4d45ff53, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<19> b_f44980b23013003b = {
@@ -4339,7 +4339,7 @@ static const ::capnp::_::AlignedData<19> b_f44980b23013003b = {
 #if !CAPNP_LITE
 const ::capnp::_::RawSchema s_f44980b23013003b = {
   0xf44980b23013003b, b_f44980b23013003b.words, 19, nullptr, nullptr,
-  0, 0, nullptr, nullptr, nullptr, { &s_f44980b23013003b, nullptr, nullptr, 0, 0, nullptr }
+  0, 0, nullptr, nullptr, nullptr, { &s_f44980b23013003b, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<38> b_8f08162dbd7e5068 = {
@@ -4391,7 +4391,7 @@ static const uint16_t m_8f08162dbd7e5068[] = {0};
 static const uint16_t i_8f08162dbd7e5068[] = {0};
 const ::capnp::_::RawSchema s_8f08162dbd7e5068 = {
   0x8f08162dbd7e5068, b_8f08162dbd7e5068.words, 38, d_8f08162dbd7e5068, m_8f08162dbd7e5068,
-  1, 1, i_8f08162dbd7e5068, nullptr, nullptr, { &s_8f08162dbd7e5068, nullptr, nullptr, 0, 0, nullptr }
+  1, 1, i_8f08162dbd7e5068, nullptr, nullptr, { &s_8f08162dbd7e5068, nullptr, nullptr, 0, 0, nullptr }, true
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<21> b_8b0a787e82cd94bb = {
@@ -4421,7 +4421,7 @@ static const ::capnp::_::AlignedData<21> b_8b0a787e82cd94bb = {
 #if !CAPNP_LITE
 const ::capnp::_::RawSchema s_8b0a787e82cd94bb = {
   0x8b0a787e82cd94bb, b_8b0a787e82cd94bb.words, 21, nullptr, nullptr,
-  0, 0, nullptr, nullptr, nullptr, { &s_8b0a787e82cd94bb, nullptr, nullptr, 0, 0, nullptr }
+  0, 0, nullptr, nullptr, nullptr, { &s_8b0a787e82cd94bb, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<33> b_c5f12df0a2a52744 = {
@@ -4469,7 +4469,7 @@ static const ::capnp::_::RawSchema* const d_c5f12df0a2a52744[] = {
 static const uint16_t m_c5f12df0a2a52744[] = {0};
 const ::capnp::_::RawSchema s_c5f12df0a2a52744 = {
   0xc5f12df0a2a52744, b_c5f12df0a2a52744.words, 33, d_c5f12df0a2a52744, m_c5f12df0a2a52744,
-  3, 1, nullptr, nullptr, nullptr, { &s_c5f12df0a2a52744, nullptr, nullptr, 0, 0, nullptr }
+  3, 1, nullptr, nullptr, nullptr, { &s_c5f12df0a2a52744, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<36> b_95064806dc018bfe = {
@@ -4519,7 +4519,7 @@ static const uint16_t m_95064806dc018bfe[] = {0};
 static const uint16_t i_95064806dc018bfe[] = {0};
 const ::capnp::_::RawSchema s_95064806dc018bfe = {
   0x95064806dc018bfe, b_95064806dc018bfe.words, 36, d_95064806dc018bfe, m_95064806dc018bfe,
-  1, 1, i_95064806dc018bfe, nullptr, nullptr, { &s_95064806dc018bfe, nullptr, nullptr, 0, 0, nullptr }
+  1, 1, i_95064806dc018bfe, nullptr, nullptr, { &s_95064806dc018bfe, nullptr, nullptr, 0, 0, nullptr }, true
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<36> b_b48982ac9bcd5d11 = {
@@ -4569,7 +4569,7 @@ static const uint16_t m_b48982ac9bcd5d11[] = {0};
 static const uint16_t i_b48982ac9bcd5d11[] = {0};
 const ::capnp::_::RawSchema s_b48982ac9bcd5d11 = {
   0xb48982ac9bcd5d11, b_b48982ac9bcd5d11.words, 36, d_b48982ac9bcd5d11, m_b48982ac9bcd5d11,
-  1, 1, i_b48982ac9bcd5d11, nullptr, nullptr, { &s_b48982ac9bcd5d11, nullptr, nullptr, 0, 0, nullptr }
+  1, 1, i_b48982ac9bcd5d11, nullptr, nullptr, { &s_b48982ac9bcd5d11, nullptr, nullptr, 0, 0, nullptr }, true
 };
 #endif  // !CAPNP_LITE
 }  // namespace schemas
@@ -4582,26 +4582,34 @@ namespace schema {
 namespace climate {
 
 // EnsembleMember
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t EnsembleMember::_capnpPrivate::dataWordSize;
 constexpr uint16_t EnsembleMember::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind EnsembleMember::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* EnsembleMember::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // Metadata
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t Metadata::_capnpPrivate::dataWordSize;
 constexpr uint16_t Metadata::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Metadata::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Metadata::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 #if !CAPNP_LITE
 ::capnp::Request< ::mas::schema::climate::Metadata::Supported::CategoriesParams,  ::mas::schema::climate::Metadata::Supported::CategoriesResults>
 Metadata::Supported::Client::categoriesRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall< ::mas::schema::climate::Metadata::Supported::CategoriesParams,  ::mas::schema::climate::Metadata::Supported::CategoriesResults>(
-      0xab06444b30722e01ull, 0, sizeHint);
+      0xab06444b30722e01ull, 0, sizeHint, {true});
 }
 ::kj::Promise<void> Metadata::Supported::Server::categories(CategoriesContext) {
   return ::capnp::Capability::Server::internalUnimplemented(
@@ -4611,7 +4619,7 @@ Metadata::Supported::Client::categoriesRequest(::kj::Maybe< ::capnp::MessageSize
 ::capnp::Request< ::mas::schema::climate::Metadata::Supported::SupportedValuesParams,  ::mas::schema::climate::Metadata::Supported::SupportedValuesResults>
 Metadata::Supported::Client::supportedValuesRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall< ::mas::schema::climate::Metadata::Supported::SupportedValuesParams,  ::mas::schema::climate::Metadata::Supported::SupportedValuesResults>(
-      0xab06444b30722e01ull, 1, sizeHint);
+      0xab06444b30722e01ull, 1, sizeHint, {true});
 }
 ::kj::Promise<void> Metadata::Supported::Server::supportedValues(SupportedValuesContext) {
   return ::capnp::Capability::Server::internalUnimplemented(
@@ -4636,12 +4644,14 @@ Metadata::Supported::Client::supportedValuesRequest(::kj::Maybe< ::capnp::Messag
       return {
         categories(::capnp::Capability::Server::internalGetTypedContext<
              ::mas::schema::climate::Metadata::Supported::CategoriesParams,  ::mas::schema::climate::Metadata::Supported::CategoriesResults>(context)),
+        false,
         false
       };
     case 1:
       return {
         supportedValues(::capnp::Capability::Server::internalGetTypedContext<
              ::mas::schema::climate::Metadata::Supported::SupportedValuesParams,  ::mas::schema::climate::Metadata::Supported::SupportedValuesResults>(context)),
+        false,
         false
       };
     default:
@@ -4655,63 +4665,89 @@ Metadata::Supported::Client::supportedValuesRequest(::kj::Maybe< ::capnp::Messag
 
 // Metadata::Supported
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Metadata::Supported::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Metadata::Supported::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // Metadata::Supported::CategoriesParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t Metadata::Supported::CategoriesParams::_capnpPrivate::dataWordSize;
 constexpr uint16_t Metadata::Supported::CategoriesParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Metadata::Supported::CategoriesParams::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Metadata::Supported::CategoriesParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // Metadata::Supported::CategoriesResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t Metadata::Supported::CategoriesResults::_capnpPrivate::dataWordSize;
 constexpr uint16_t Metadata::Supported::CategoriesResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Metadata::Supported::CategoriesResults::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Metadata::Supported::CategoriesResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // Metadata::Supported::SupportedValuesParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t Metadata::Supported::SupportedValuesParams::_capnpPrivate::dataWordSize;
 constexpr uint16_t Metadata::Supported::SupportedValuesParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Metadata::Supported::SupportedValuesParams::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Metadata::Supported::SupportedValuesParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // Metadata::Supported::SupportedValuesResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t Metadata::Supported::SupportedValuesResults::_capnpPrivate::dataWordSize;
 constexpr uint16_t Metadata::Supported::SupportedValuesResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Metadata::Supported::SupportedValuesResults::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Metadata::Supported::SupportedValuesResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // Metadata::Value
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t Metadata::Value::_capnpPrivate::dataWordSize;
 constexpr uint16_t Metadata::Value::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Metadata::Value::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Metadata::Value::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // Metadata::Entry
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t Metadata::Entry::_capnpPrivate::dataWordSize;
 constexpr uint16_t Metadata::Entry::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Metadata::Entry::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Metadata::Entry::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 #if !CAPNP_LITE
 ::capnp::Request< ::mas::schema::climate::Metadata::Information::ForOneParams,  ::mas::schema::common::IdInformation>
 Metadata::Information::Client::forOneRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall< ::mas::schema::climate::Metadata::Information::ForOneParams,  ::mas::schema::common::IdInformation>(
-      0xc781edeab8160cb7ull, 0, sizeHint);
+      0xc781edeab8160cb7ull, 0, sizeHint, {true});
 }
 ::kj::Promise<void> Metadata::Information::Server::forOne(ForOneContext) {
   return ::capnp::Capability::Server::internalUnimplemented(
@@ -4721,7 +4757,7 @@ Metadata::Information::Client::forOneRequest(::kj::Maybe< ::capnp::MessageSize> 
 ::capnp::Request< ::mas::schema::climate::Metadata::Information::ForAllParams,  ::mas::schema::climate::Metadata::Information::ForAllResults>
 Metadata::Information::Client::forAllRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall< ::mas::schema::climate::Metadata::Information::ForAllParams,  ::mas::schema::climate::Metadata::Information::ForAllResults>(
-      0xc781edeab8160cb7ull, 1, sizeHint);
+      0xc781edeab8160cb7ull, 1, sizeHint, {false});
 }
 ::kj::Promise<void> Metadata::Information::Server::forAll(ForAllContext) {
   return ::capnp::Capability::Server::internalUnimplemented(
@@ -4746,12 +4782,14 @@ Metadata::Information::Client::forAllRequest(::kj::Maybe< ::capnp::MessageSize> 
       return {
         forOne(::capnp::Capability::Server::internalGetTypedContext<
              ::mas::schema::climate::Metadata::Information::ForOneParams,  ::mas::schema::common::IdInformation>(context)),
+        false,
         false
       };
     case 1:
       return {
         forAll(::capnp::Capability::Server::internalGetTypedContext<
              ::mas::schema::climate::Metadata::Information::ForAllParams,  ::mas::schema::climate::Metadata::Information::ForAllResults>(context)),
+        false,
         false
       };
     default:
@@ -4765,39 +4803,53 @@ Metadata::Information::Client::forAllRequest(::kj::Maybe< ::capnp::MessageSize> 
 
 // Metadata::Information
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Metadata::Information::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Metadata::Information::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // Metadata::Information::ForOneParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t Metadata::Information::ForOneParams::_capnpPrivate::dataWordSize;
 constexpr uint16_t Metadata::Information::ForOneParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Metadata::Information::ForOneParams::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Metadata::Information::ForOneParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // Metadata::Information::ForAllParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t Metadata::Information::ForAllParams::_capnpPrivate::dataWordSize;
 constexpr uint16_t Metadata::Information::ForAllParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Metadata::Information::ForAllParams::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Metadata::Information::ForAllParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // Metadata::Information::ForAllResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t Metadata::Information::ForAllResults::_capnpPrivate::dataWordSize;
 constexpr uint16_t Metadata::Information::ForAllResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Metadata::Information::ForAllResults::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Metadata::Information::ForAllResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 #if !CAPNP_LITE
 ::capnp::Request< ::mas::schema::climate::Dataset::MetadataParams,  ::mas::schema::climate::Metadata>
 Dataset::Client::metadataRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall< ::mas::schema::climate::Dataset::MetadataParams,  ::mas::schema::climate::Metadata>(
-      0xf635fdd1f05960f0ull, 0, sizeHint);
+      0xf635fdd1f05960f0ull, 0, sizeHint, {false});
 }
 ::kj::Promise<void> Dataset::Server::metadata(MetadataContext) {
   return ::capnp::Capability::Server::internalUnimplemented(
@@ -4807,7 +4859,7 @@ Dataset::Client::metadataRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
 ::capnp::Request< ::mas::schema::climate::Dataset::ClosestTimeSeriesAtParams,  ::mas::schema::climate::Dataset::ClosestTimeSeriesAtResults>
 Dataset::Client::closestTimeSeriesAtRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall< ::mas::schema::climate::Dataset::ClosestTimeSeriesAtParams,  ::mas::schema::climate::Dataset::ClosestTimeSeriesAtResults>(
-      0xf635fdd1f05960f0ull, 1, sizeHint);
+      0xf635fdd1f05960f0ull, 1, sizeHint, {false});
 }
 ::kj::Promise<void> Dataset::Server::closestTimeSeriesAt(ClosestTimeSeriesAtContext) {
   return ::capnp::Capability::Server::internalUnimplemented(
@@ -4817,7 +4869,7 @@ Dataset::Client::closestTimeSeriesAtRequest(::kj::Maybe< ::capnp::MessageSize> s
 ::capnp::Request< ::mas::schema::climate::Dataset::TimeSeriesAtParams,  ::mas::schema::climate::Dataset::TimeSeriesAtResults>
 Dataset::Client::timeSeriesAtRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall< ::mas::schema::climate::Dataset::TimeSeriesAtParams,  ::mas::schema::climate::Dataset::TimeSeriesAtResults>(
-      0xf635fdd1f05960f0ull, 2, sizeHint);
+      0xf635fdd1f05960f0ull, 2, sizeHint, {false});
 }
 ::kj::Promise<void> Dataset::Server::timeSeriesAt(TimeSeriesAtContext) {
   return ::capnp::Capability::Server::internalUnimplemented(
@@ -4827,7 +4879,7 @@ Dataset::Client::timeSeriesAtRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint
 ::capnp::Request< ::mas::schema::climate::Dataset::LocationsParams,  ::mas::schema::climate::Dataset::LocationsResults>
 Dataset::Client::locationsRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall< ::mas::schema::climate::Dataset::LocationsParams,  ::mas::schema::climate::Dataset::LocationsResults>(
-      0xf635fdd1f05960f0ull, 3, sizeHint);
+      0xf635fdd1f05960f0ull, 3, sizeHint, {false});
 }
 ::kj::Promise<void> Dataset::Server::locations(LocationsContext) {
   return ::capnp::Capability::Server::internalUnimplemented(
@@ -4837,7 +4889,7 @@ Dataset::Client::locationsRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
 ::capnp::Request< ::mas::schema::climate::Dataset::StreamLocationsParams,  ::mas::schema::climate::Dataset::StreamLocationsResults>
 Dataset::Client::streamLocationsRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall< ::mas::schema::climate::Dataset::StreamLocationsParams,  ::mas::schema::climate::Dataset::StreamLocationsResults>(
-      0xf635fdd1f05960f0ull, 4, sizeHint);
+      0xf635fdd1f05960f0ull, 4, sizeHint, {false});
 }
 ::kj::Promise<void> Dataset::Server::streamLocations(StreamLocationsContext) {
   return ::capnp::Capability::Server::internalUnimplemented(
@@ -4866,30 +4918,35 @@ Dataset::Client::streamLocationsRequest(::kj::Maybe< ::capnp::MessageSize> sizeH
       return {
         metadata(::capnp::Capability::Server::internalGetTypedContext<
              ::mas::schema::climate::Dataset::MetadataParams,  ::mas::schema::climate::Metadata>(context)),
+        false,
         false
       };
     case 1:
       return {
         closestTimeSeriesAt(::capnp::Capability::Server::internalGetTypedContext<
              ::mas::schema::climate::Dataset::ClosestTimeSeriesAtParams,  ::mas::schema::climate::Dataset::ClosestTimeSeriesAtResults>(context)),
+        false,
         false
       };
     case 2:
       return {
         timeSeriesAt(::capnp::Capability::Server::internalGetTypedContext<
              ::mas::schema::climate::Dataset::TimeSeriesAtParams,  ::mas::schema::climate::Dataset::TimeSeriesAtResults>(context)),
+        false,
         false
       };
     case 3:
       return {
         locations(::capnp::Capability::Server::internalGetTypedContext<
              ::mas::schema::climate::Dataset::LocationsParams,  ::mas::schema::climate::Dataset::LocationsResults>(context)),
+        false,
         false
       };
     case 4:
       return {
         streamLocations(::capnp::Capability::Server::internalGetTypedContext<
              ::mas::schema::climate::Dataset::StreamLocationsParams,  ::mas::schema::climate::Dataset::StreamLocationsResults>(context)),
+        false,
         false
       };
     default:
@@ -4903,15 +4960,17 @@ Dataset::Client::streamLocationsRequest(::kj::Maybe< ::capnp::MessageSize> sizeH
 
 // Dataset
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Dataset::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Dataset::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 #if !CAPNP_LITE
 ::capnp::Request< ::mas::schema::climate::Dataset::GetLocationsCallback::NextLocationsParams,  ::mas::schema::climate::Dataset::GetLocationsCallback::NextLocationsResults>
 Dataset::GetLocationsCallback::Client::nextLocationsRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall< ::mas::schema::climate::Dataset::GetLocationsCallback::NextLocationsParams,  ::mas::schema::climate::Dataset::GetLocationsCallback::NextLocationsResults>(
-      0xd61ba043f14fe175ull, 0, sizeHint);
+      0xd61ba043f14fe175ull, 0, sizeHint, {false});
 }
 ::kj::Promise<void> Dataset::GetLocationsCallback::Server::nextLocations(NextLocationsContext) {
   return ::capnp::Capability::Server::internalUnimplemented(
@@ -4936,6 +4995,7 @@ Dataset::GetLocationsCallback::Client::nextLocationsRequest(::kj::Maybe< ::capnp
       return {
         nextLocations(::capnp::Capability::Server::internalGetTypedContext<
              ::mas::schema::climate::Dataset::GetLocationsCallback::NextLocationsParams,  ::mas::schema::climate::Dataset::GetLocationsCallback::NextLocationsResults>(context)),
+        false,
         false
       };
     default:
@@ -4949,127 +5009,185 @@ Dataset::GetLocationsCallback::Client::nextLocationsRequest(::kj::Maybe< ::capnp
 
 // Dataset::GetLocationsCallback
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Dataset::GetLocationsCallback::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Dataset::GetLocationsCallback::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // Dataset::GetLocationsCallback::NextLocationsParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t Dataset::GetLocationsCallback::NextLocationsParams::_capnpPrivate::dataWordSize;
 constexpr uint16_t Dataset::GetLocationsCallback::NextLocationsParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Dataset::GetLocationsCallback::NextLocationsParams::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Dataset::GetLocationsCallback::NextLocationsParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // Dataset::GetLocationsCallback::NextLocationsResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t Dataset::GetLocationsCallback::NextLocationsResults::_capnpPrivate::dataWordSize;
 constexpr uint16_t Dataset::GetLocationsCallback::NextLocationsResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Dataset::GetLocationsCallback::NextLocationsResults::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Dataset::GetLocationsCallback::NextLocationsResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // Dataset::MetadataParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t Dataset::MetadataParams::_capnpPrivate::dataWordSize;
 constexpr uint16_t Dataset::MetadataParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Dataset::MetadataParams::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Dataset::MetadataParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // Dataset::ClosestTimeSeriesAtParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t Dataset::ClosestTimeSeriesAtParams::_capnpPrivate::dataWordSize;
 constexpr uint16_t Dataset::ClosestTimeSeriesAtParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Dataset::ClosestTimeSeriesAtParams::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Dataset::ClosestTimeSeriesAtParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // Dataset::ClosestTimeSeriesAtResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t Dataset::ClosestTimeSeriesAtResults::_capnpPrivate::dataWordSize;
 constexpr uint16_t Dataset::ClosestTimeSeriesAtResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Dataset::ClosestTimeSeriesAtResults::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Dataset::ClosestTimeSeriesAtResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // Dataset::TimeSeriesAtParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t Dataset::TimeSeriesAtParams::_capnpPrivate::dataWordSize;
 constexpr uint16_t Dataset::TimeSeriesAtParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Dataset::TimeSeriesAtParams::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Dataset::TimeSeriesAtParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // Dataset::TimeSeriesAtResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t Dataset::TimeSeriesAtResults::_capnpPrivate::dataWordSize;
 constexpr uint16_t Dataset::TimeSeriesAtResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Dataset::TimeSeriesAtResults::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Dataset::TimeSeriesAtResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // Dataset::LocationsParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t Dataset::LocationsParams::_capnpPrivate::dataWordSize;
 constexpr uint16_t Dataset::LocationsParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Dataset::LocationsParams::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Dataset::LocationsParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // Dataset::LocationsResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t Dataset::LocationsResults::_capnpPrivate::dataWordSize;
 constexpr uint16_t Dataset::LocationsResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Dataset::LocationsResults::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Dataset::LocationsResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // Dataset::StreamLocationsParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t Dataset::StreamLocationsParams::_capnpPrivate::dataWordSize;
 constexpr uint16_t Dataset::StreamLocationsParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Dataset::StreamLocationsParams::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Dataset::StreamLocationsParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // Dataset::StreamLocationsResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t Dataset::StreamLocationsResults::_capnpPrivate::dataWordSize;
 constexpr uint16_t Dataset::StreamLocationsResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Dataset::StreamLocationsResults::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Dataset::StreamLocationsResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // MetaPlusData
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t MetaPlusData::_capnpPrivate::dataWordSize;
 constexpr uint16_t MetaPlusData::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind MetaPlusData::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* MetaPlusData::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // Location
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t Location::_capnpPrivate::dataWordSize;
 constexpr uint16_t Location::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Location::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Location::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // Location::KV
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t Location::KV::_capnpPrivate::dataWordSize;
 constexpr uint16_t Location::KV::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Location::KV::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Location::KV::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 #if !CAPNP_LITE
 ::capnp::Request< ::mas::schema::climate::TimeSeries::ResolutionParams,  ::mas::schema::climate::TimeSeries::ResolutionResults>
 TimeSeries::Client::resolutionRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall< ::mas::schema::climate::TimeSeries::ResolutionParams,  ::mas::schema::climate::TimeSeries::ResolutionResults>(
-      0xa7769f40fe6e6de8ull, 0, sizeHint);
+      0xa7769f40fe6e6de8ull, 0, sizeHint, {true});
 }
 ::kj::Promise<void> TimeSeries::Server::resolution(ResolutionContext) {
   return ::capnp::Capability::Server::internalUnimplemented(
@@ -5079,7 +5197,7 @@ TimeSeries::Client::resolutionRequest(::kj::Maybe< ::capnp::MessageSize> sizeHin
 ::capnp::Request< ::mas::schema::climate::TimeSeries::RangeParams,  ::mas::schema::climate::TimeSeries::RangeResults>
 TimeSeries::Client::rangeRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall< ::mas::schema::climate::TimeSeries::RangeParams,  ::mas::schema::climate::TimeSeries::RangeResults>(
-      0xa7769f40fe6e6de8ull, 1, sizeHint);
+      0xa7769f40fe6e6de8ull, 1, sizeHint, {true});
 }
 ::kj::Promise<void> TimeSeries::Server::range(RangeContext) {
   return ::capnp::Capability::Server::internalUnimplemented(
@@ -5089,7 +5207,7 @@ TimeSeries::Client::rangeRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
 ::capnp::Request< ::mas::schema::climate::TimeSeries::HeaderParams,  ::mas::schema::climate::TimeSeries::HeaderResults>
 TimeSeries::Client::headerRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall< ::mas::schema::climate::TimeSeries::HeaderParams,  ::mas::schema::climate::TimeSeries::HeaderResults>(
-      0xa7769f40fe6e6de8ull, 2, sizeHint);
+      0xa7769f40fe6e6de8ull, 2, sizeHint, {true});
 }
 ::kj::Promise<void> TimeSeries::Server::header(HeaderContext) {
   return ::capnp::Capability::Server::internalUnimplemented(
@@ -5099,7 +5217,7 @@ TimeSeries::Client::headerRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
 ::capnp::Request< ::mas::schema::climate::TimeSeries::DataParams,  ::mas::schema::climate::TimeSeries::DataResults>
 TimeSeries::Client::dataRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall< ::mas::schema::climate::TimeSeries::DataParams,  ::mas::schema::climate::TimeSeries::DataResults>(
-      0xa7769f40fe6e6de8ull, 3, sizeHint);
+      0xa7769f40fe6e6de8ull, 3, sizeHint, {true});
 }
 ::kj::Promise<void> TimeSeries::Server::data(DataContext) {
   return ::capnp::Capability::Server::internalUnimplemented(
@@ -5109,7 +5227,7 @@ TimeSeries::Client::dataRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
 ::capnp::Request< ::mas::schema::climate::TimeSeries::DataTParams,  ::mas::schema::climate::TimeSeries::DataTResults>
 TimeSeries::Client::dataTRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall< ::mas::schema::climate::TimeSeries::DataTParams,  ::mas::schema::climate::TimeSeries::DataTResults>(
-      0xa7769f40fe6e6de8ull, 4, sizeHint);
+      0xa7769f40fe6e6de8ull, 4, sizeHint, {true});
 }
 ::kj::Promise<void> TimeSeries::Server::dataT(DataTContext) {
   return ::capnp::Capability::Server::internalUnimplemented(
@@ -5119,7 +5237,7 @@ TimeSeries::Client::dataTRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
 ::capnp::Request< ::mas::schema::climate::TimeSeries::SubrangeParams,  ::mas::schema::climate::TimeSeries::SubrangeResults>
 TimeSeries::Client::subrangeRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall< ::mas::schema::climate::TimeSeries::SubrangeParams,  ::mas::schema::climate::TimeSeries::SubrangeResults>(
-      0xa7769f40fe6e6de8ull, 5, sizeHint);
+      0xa7769f40fe6e6de8ull, 5, sizeHint, {false});
 }
 ::kj::Promise<void> TimeSeries::Server::subrange(SubrangeContext) {
   return ::capnp::Capability::Server::internalUnimplemented(
@@ -5129,7 +5247,7 @@ TimeSeries::Client::subrangeRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint)
 ::capnp::Request< ::mas::schema::climate::TimeSeries::SubheaderParams,  ::mas::schema::climate::TimeSeries::SubheaderResults>
 TimeSeries::Client::subheaderRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall< ::mas::schema::climate::TimeSeries::SubheaderParams,  ::mas::schema::climate::TimeSeries::SubheaderResults>(
-      0xa7769f40fe6e6de8ull, 6, sizeHint);
+      0xa7769f40fe6e6de8ull, 6, sizeHint, {false});
 }
 ::kj::Promise<void> TimeSeries::Server::subheader(SubheaderContext) {
   return ::capnp::Capability::Server::internalUnimplemented(
@@ -5139,7 +5257,7 @@ TimeSeries::Client::subheaderRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint
 ::capnp::Request< ::mas::schema::climate::TimeSeries::MetadataParams,  ::mas::schema::climate::Metadata>
 TimeSeries::Client::metadataRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall< ::mas::schema::climate::TimeSeries::MetadataParams,  ::mas::schema::climate::Metadata>(
-      0xa7769f40fe6e6de8ull, 7, sizeHint);
+      0xa7769f40fe6e6de8ull, 7, sizeHint, {false});
 }
 ::kj::Promise<void> TimeSeries::Server::metadata(MetadataContext) {
   return ::capnp::Capability::Server::internalUnimplemented(
@@ -5149,7 +5267,7 @@ TimeSeries::Client::metadataRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint)
 ::capnp::Request< ::mas::schema::climate::TimeSeries::LocationParams,  ::mas::schema::climate::Location>
 TimeSeries::Client::locationRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall< ::mas::schema::climate::TimeSeries::LocationParams,  ::mas::schema::climate::Location>(
-      0xa7769f40fe6e6de8ull, 8, sizeHint);
+      0xa7769f40fe6e6de8ull, 8, sizeHint, {false});
 }
 ::kj::Promise<void> TimeSeries::Server::location(LocationContext) {
   return ::capnp::Capability::Server::internalUnimplemented(
@@ -5178,54 +5296,63 @@ TimeSeries::Client::locationRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint)
       return {
         resolution(::capnp::Capability::Server::internalGetTypedContext<
              ::mas::schema::climate::TimeSeries::ResolutionParams,  ::mas::schema::climate::TimeSeries::ResolutionResults>(context)),
+        false,
         false
       };
     case 1:
       return {
         range(::capnp::Capability::Server::internalGetTypedContext<
              ::mas::schema::climate::TimeSeries::RangeParams,  ::mas::schema::climate::TimeSeries::RangeResults>(context)),
+        false,
         false
       };
     case 2:
       return {
         header(::capnp::Capability::Server::internalGetTypedContext<
              ::mas::schema::climate::TimeSeries::HeaderParams,  ::mas::schema::climate::TimeSeries::HeaderResults>(context)),
+        false,
         false
       };
     case 3:
       return {
         data(::capnp::Capability::Server::internalGetTypedContext<
              ::mas::schema::climate::TimeSeries::DataParams,  ::mas::schema::climate::TimeSeries::DataResults>(context)),
+        false,
         false
       };
     case 4:
       return {
         dataT(::capnp::Capability::Server::internalGetTypedContext<
              ::mas::schema::climate::TimeSeries::DataTParams,  ::mas::schema::climate::TimeSeries::DataTResults>(context)),
+        false,
         false
       };
     case 5:
       return {
         subrange(::capnp::Capability::Server::internalGetTypedContext<
              ::mas::schema::climate::TimeSeries::SubrangeParams,  ::mas::schema::climate::TimeSeries::SubrangeResults>(context)),
+        false,
         false
       };
     case 6:
       return {
         subheader(::capnp::Capability::Server::internalGetTypedContext<
              ::mas::schema::climate::TimeSeries::SubheaderParams,  ::mas::schema::climate::TimeSeries::SubheaderResults>(context)),
+        false,
         false
       };
     case 7:
       return {
         metadata(::capnp::Capability::Server::internalGetTypedContext<
              ::mas::schema::climate::TimeSeries::MetadataParams,  ::mas::schema::climate::Metadata>(context)),
+        false,
         false
       };
     case 8:
       return {
         location(::capnp::Capability::Server::internalGetTypedContext<
              ::mas::schema::climate::TimeSeries::LocationParams,  ::mas::schema::climate::Location>(context)),
+        false,
         false
       };
     default:
@@ -5239,151 +5366,221 @@ TimeSeries::Client::locationRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint)
 
 // TimeSeries
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind TimeSeries::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* TimeSeries::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // TimeSeries::ResolutionParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t TimeSeries::ResolutionParams::_capnpPrivate::dataWordSize;
 constexpr uint16_t TimeSeries::ResolutionParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind TimeSeries::ResolutionParams::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* TimeSeries::ResolutionParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // TimeSeries::ResolutionResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t TimeSeries::ResolutionResults::_capnpPrivate::dataWordSize;
 constexpr uint16_t TimeSeries::ResolutionResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind TimeSeries::ResolutionResults::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* TimeSeries::ResolutionResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // TimeSeries::RangeParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t TimeSeries::RangeParams::_capnpPrivate::dataWordSize;
 constexpr uint16_t TimeSeries::RangeParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind TimeSeries::RangeParams::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* TimeSeries::RangeParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // TimeSeries::RangeResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t TimeSeries::RangeResults::_capnpPrivate::dataWordSize;
 constexpr uint16_t TimeSeries::RangeResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind TimeSeries::RangeResults::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* TimeSeries::RangeResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // TimeSeries::HeaderParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t TimeSeries::HeaderParams::_capnpPrivate::dataWordSize;
 constexpr uint16_t TimeSeries::HeaderParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind TimeSeries::HeaderParams::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* TimeSeries::HeaderParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // TimeSeries::HeaderResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t TimeSeries::HeaderResults::_capnpPrivate::dataWordSize;
 constexpr uint16_t TimeSeries::HeaderResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind TimeSeries::HeaderResults::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* TimeSeries::HeaderResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // TimeSeries::DataParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t TimeSeries::DataParams::_capnpPrivate::dataWordSize;
 constexpr uint16_t TimeSeries::DataParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind TimeSeries::DataParams::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* TimeSeries::DataParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // TimeSeries::DataResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t TimeSeries::DataResults::_capnpPrivate::dataWordSize;
 constexpr uint16_t TimeSeries::DataResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind TimeSeries::DataResults::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* TimeSeries::DataResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // TimeSeries::DataTParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t TimeSeries::DataTParams::_capnpPrivate::dataWordSize;
 constexpr uint16_t TimeSeries::DataTParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind TimeSeries::DataTParams::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* TimeSeries::DataTParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // TimeSeries::DataTResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t TimeSeries::DataTResults::_capnpPrivate::dataWordSize;
 constexpr uint16_t TimeSeries::DataTResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind TimeSeries::DataTResults::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* TimeSeries::DataTResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // TimeSeries::SubrangeParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t TimeSeries::SubrangeParams::_capnpPrivate::dataWordSize;
 constexpr uint16_t TimeSeries::SubrangeParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind TimeSeries::SubrangeParams::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* TimeSeries::SubrangeParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // TimeSeries::SubrangeResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t TimeSeries::SubrangeResults::_capnpPrivate::dataWordSize;
 constexpr uint16_t TimeSeries::SubrangeResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind TimeSeries::SubrangeResults::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* TimeSeries::SubrangeResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // TimeSeries::SubheaderParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t TimeSeries::SubheaderParams::_capnpPrivate::dataWordSize;
 constexpr uint16_t TimeSeries::SubheaderParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind TimeSeries::SubheaderParams::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* TimeSeries::SubheaderParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // TimeSeries::SubheaderResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t TimeSeries::SubheaderResults::_capnpPrivate::dataWordSize;
 constexpr uint16_t TimeSeries::SubheaderResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind TimeSeries::SubheaderResults::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* TimeSeries::SubheaderResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // TimeSeries::MetadataParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t TimeSeries::MetadataParams::_capnpPrivate::dataWordSize;
 constexpr uint16_t TimeSeries::MetadataParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind TimeSeries::MetadataParams::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* TimeSeries::MetadataParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // TimeSeries::LocationParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t TimeSeries::LocationParams::_capnpPrivate::dataWordSize;
 constexpr uint16_t TimeSeries::LocationParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind TimeSeries::LocationParams::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* TimeSeries::LocationParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // TimeSeriesData
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t TimeSeriesData::_capnpPrivate::dataWordSize;
 constexpr uint16_t TimeSeriesData::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind TimeSeriesData::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* TimeSeriesData::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 #if !CAPNP_LITE
 ::capnp::Request< ::mas::schema::climate::Service::GetAvailableDatasetsParams,  ::mas::schema::climate::Service::GetAvailableDatasetsResults>
 Service::Client::getAvailableDatasetsRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall< ::mas::schema::climate::Service::GetAvailableDatasetsParams,  ::mas::schema::climate::Service::GetAvailableDatasetsResults>(
-      0xfe7d08d4352b0c5full, 0, sizeHint);
+      0xfe7d08d4352b0c5full, 0, sizeHint, {false});
 }
 ::kj::Promise<void> Service::Server::getAvailableDatasets(GetAvailableDatasetsContext) {
   return ::capnp::Capability::Server::internalUnimplemented(
@@ -5393,7 +5590,7 @@ Service::Client::getAvailableDatasetsRequest(::kj::Maybe< ::capnp::MessageSize> 
 ::capnp::Request< ::mas::schema::climate::Service::GetDatasetsForParams,  ::mas::schema::climate::Service::GetDatasetsForResults>
 Service::Client::getDatasetsForRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall< ::mas::schema::climate::Service::GetDatasetsForParams,  ::mas::schema::climate::Service::GetDatasetsForResults>(
-      0xfe7d08d4352b0c5full, 1, sizeHint);
+      0xfe7d08d4352b0c5full, 1, sizeHint, {false});
 }
 ::kj::Promise<void> Service::Server::getDatasetsFor(GetDatasetsForContext) {
   return ::capnp::Capability::Server::internalUnimplemented(
@@ -5422,12 +5619,14 @@ Service::Client::getDatasetsForRequest(::kj::Maybe< ::capnp::MessageSize> sizeHi
       return {
         getAvailableDatasets(::capnp::Capability::Server::internalGetTypedContext<
              ::mas::schema::climate::Service::GetAvailableDatasetsParams,  ::mas::schema::climate::Service::GetAvailableDatasetsResults>(context)),
+        false,
         false
       };
     case 1:
       return {
         getDatasetsFor(::capnp::Capability::Server::internalGetTypedContext<
              ::mas::schema::climate::Service::GetDatasetsForParams,  ::mas::schema::climate::Service::GetDatasetsForResults>(context)),
+        false,
         false
       };
     default:
@@ -5441,47 +5640,65 @@ Service::Client::getDatasetsForRequest(::kj::Maybe< ::capnp::MessageSize> sizeHi
 
 // Service
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Service::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Service::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // Service::GetAvailableDatasetsParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t Service::GetAvailableDatasetsParams::_capnpPrivate::dataWordSize;
 constexpr uint16_t Service::GetAvailableDatasetsParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Service::GetAvailableDatasetsParams::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Service::GetAvailableDatasetsParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // Service::GetAvailableDatasetsResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t Service::GetAvailableDatasetsResults::_capnpPrivate::dataWordSize;
 constexpr uint16_t Service::GetAvailableDatasetsResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Service::GetAvailableDatasetsResults::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Service::GetAvailableDatasetsResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // Service::GetDatasetsForParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t Service::GetDatasetsForParams::_capnpPrivate::dataWordSize;
 constexpr uint16_t Service::GetDatasetsForParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Service::GetDatasetsForParams::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Service::GetDatasetsForParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // Service::GetDatasetsForResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t Service::GetDatasetsForResults::_capnpPrivate::dataWordSize;
 constexpr uint16_t Service::GetDatasetsForResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Service::GetDatasetsForResults::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Service::GetDatasetsForResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 #if !CAPNP_LITE
 ::capnp::Request< ::mas::schema::climate::CSVTimeSeriesFactory::CreateParams,  ::mas::schema::climate::CSVTimeSeriesFactory::CreateResults>
 CSVTimeSeriesFactory::Client::createRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall< ::mas::schema::climate::CSVTimeSeriesFactory::CreateParams,  ::mas::schema::climate::CSVTimeSeriesFactory::CreateResults>(
-      0xa418c26cc59929d9ull, 0, sizeHint);
+      0xa418c26cc59929d9ull, 0, sizeHint, {false});
 }
 ::kj::Promise<void> CSVTimeSeriesFactory::Server::create(CreateContext) {
   return ::capnp::Capability::Server::internalUnimplemented(
@@ -5508,6 +5725,7 @@ CSVTimeSeriesFactory::Client::createRequest(::kj::Maybe< ::capnp::MessageSize> s
       return {
         create(::capnp::Capability::Server::internalGetTypedContext<
              ::mas::schema::climate::CSVTimeSeriesFactory::CreateParams,  ::mas::schema::climate::CSVTimeSeriesFactory::CreateResults>(context)),
+        false,
         false
       };
     default:
@@ -5521,39 +5739,53 @@ CSVTimeSeriesFactory::Client::createRequest(::kj::Maybe< ::capnp::MessageSize> s
 
 // CSVTimeSeriesFactory
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind CSVTimeSeriesFactory::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* CSVTimeSeriesFactory::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // CSVTimeSeriesFactory::CSVConfig
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t CSVTimeSeriesFactory::CSVConfig::_capnpPrivate::dataWordSize;
 constexpr uint16_t CSVTimeSeriesFactory::CSVConfig::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind CSVTimeSeriesFactory::CSVConfig::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* CSVTimeSeriesFactory::CSVConfig::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // CSVTimeSeriesFactory::CreateParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t CSVTimeSeriesFactory::CreateParams::_capnpPrivate::dataWordSize;
 constexpr uint16_t CSVTimeSeriesFactory::CreateParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind CSVTimeSeriesFactory::CreateParams::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* CSVTimeSeriesFactory::CreateParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // CSVTimeSeriesFactory::CreateResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t CSVTimeSeriesFactory::CreateResults::_capnpPrivate::dataWordSize;
 constexpr uint16_t CSVTimeSeriesFactory::CreateResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind CSVTimeSeriesFactory::CreateResults::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* CSVTimeSeriesFactory::CreateResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 #if !CAPNP_LITE
 ::capnp::Request< ::mas::schema::climate::AlterTimeSeriesWrapper::WrappedTimeSeriesParams,  ::mas::schema::climate::AlterTimeSeriesWrapper::WrappedTimeSeriesResults>
 AlterTimeSeriesWrapper::Client::wrappedTimeSeriesRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall< ::mas::schema::climate::AlterTimeSeriesWrapper::WrappedTimeSeriesParams,  ::mas::schema::climate::AlterTimeSeriesWrapper::WrappedTimeSeriesResults>(
-      0xe1f480ef979784b2ull, 0, sizeHint);
+      0xe1f480ef979784b2ull, 0, sizeHint, {false});
 }
 ::kj::Promise<void> AlterTimeSeriesWrapper::Server::wrappedTimeSeries(WrappedTimeSeriesContext) {
   return ::capnp::Capability::Server::internalUnimplemented(
@@ -5563,7 +5795,7 @@ AlterTimeSeriesWrapper::Client::wrappedTimeSeriesRequest(::kj::Maybe< ::capnp::M
 ::capnp::Request< ::mas::schema::climate::AlterTimeSeriesWrapper::AlteredElementsParams,  ::mas::schema::climate::AlterTimeSeriesWrapper::AlteredElementsResults>
 AlterTimeSeriesWrapper::Client::alteredElementsRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall< ::mas::schema::climate::AlterTimeSeriesWrapper::AlteredElementsParams,  ::mas::schema::climate::AlterTimeSeriesWrapper::AlteredElementsResults>(
-      0xe1f480ef979784b2ull, 1, sizeHint);
+      0xe1f480ef979784b2ull, 1, sizeHint, {true});
 }
 ::kj::Promise<void> AlterTimeSeriesWrapper::Server::alteredElements(AlteredElementsContext) {
   return ::capnp::Capability::Server::internalUnimplemented(
@@ -5573,7 +5805,7 @@ AlterTimeSeriesWrapper::Client::alteredElementsRequest(::kj::Maybe< ::capnp::Mes
 ::capnp::Request< ::mas::schema::climate::AlterTimeSeriesWrapper::AlterParams,  ::mas::schema::climate::AlterTimeSeriesWrapper::AlterResults>
 AlterTimeSeriesWrapper::Client::alterRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall< ::mas::schema::climate::AlterTimeSeriesWrapper::AlterParams,  ::mas::schema::climate::AlterTimeSeriesWrapper::AlterResults>(
-      0xe1f480ef979784b2ull, 2, sizeHint);
+      0xe1f480ef979784b2ull, 2, sizeHint, {false});
 }
 ::kj::Promise<void> AlterTimeSeriesWrapper::Server::alter(AlterContext) {
   return ::capnp::Capability::Server::internalUnimplemented(
@@ -5583,7 +5815,7 @@ AlterTimeSeriesWrapper::Client::alterRequest(::kj::Maybe< ::capnp::MessageSize> 
 ::capnp::Request< ::mas::schema::climate::AlterTimeSeriesWrapper::RemoveParams,  ::mas::schema::climate::AlterTimeSeriesWrapper::RemoveResults>
 AlterTimeSeriesWrapper::Client::removeRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall< ::mas::schema::climate::AlterTimeSeriesWrapper::RemoveParams,  ::mas::schema::climate::AlterTimeSeriesWrapper::RemoveResults>(
-      0xe1f480ef979784b2ull, 3, sizeHint);
+      0xe1f480ef979784b2ull, 3, sizeHint, {true});
 }
 ::kj::Promise<void> AlterTimeSeriesWrapper::Server::remove(RemoveContext) {
   return ::capnp::Capability::Server::internalUnimplemented(
@@ -5593,7 +5825,7 @@ AlterTimeSeriesWrapper::Client::removeRequest(::kj::Maybe< ::capnp::MessageSize>
 ::capnp::Request< ::mas::schema::climate::AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesParams,  ::mas::schema::climate::AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesResults>
 AlterTimeSeriesWrapper::Client::replaceWrappedTimeSeriesRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall< ::mas::schema::climate::AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesParams,  ::mas::schema::climate::AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesResults>(
-      0xe1f480ef979784b2ull, 4, sizeHint);
+      0xe1f480ef979784b2ull, 4, sizeHint, {true});
 }
 ::kj::Promise<void> AlterTimeSeriesWrapper::Server::replaceWrappedTimeSeries(ReplaceWrappedTimeSeriesContext) {
   return ::capnp::Capability::Server::internalUnimplemented(
@@ -5624,30 +5856,35 @@ AlterTimeSeriesWrapper::Client::replaceWrappedTimeSeriesRequest(::kj::Maybe< ::c
       return {
         wrappedTimeSeries(::capnp::Capability::Server::internalGetTypedContext<
              ::mas::schema::climate::AlterTimeSeriesWrapper::WrappedTimeSeriesParams,  ::mas::schema::climate::AlterTimeSeriesWrapper::WrappedTimeSeriesResults>(context)),
+        false,
         false
       };
     case 1:
       return {
         alteredElements(::capnp::Capability::Server::internalGetTypedContext<
              ::mas::schema::climate::AlterTimeSeriesWrapper::AlteredElementsParams,  ::mas::schema::climate::AlterTimeSeriesWrapper::AlteredElementsResults>(context)),
+        false,
         false
       };
     case 2:
       return {
         alter(::capnp::Capability::Server::internalGetTypedContext<
              ::mas::schema::climate::AlterTimeSeriesWrapper::AlterParams,  ::mas::schema::climate::AlterTimeSeriesWrapper::AlterResults>(context)),
+        false,
         false
       };
     case 3:
       return {
         remove(::capnp::Capability::Server::internalGetTypedContext<
              ::mas::schema::climate::AlterTimeSeriesWrapper::RemoveParams,  ::mas::schema::climate::AlterTimeSeriesWrapper::RemoveResults>(context)),
+        false,
         false
       };
     case 4:
       return {
         replaceWrappedTimeSeries(::capnp::Capability::Server::internalGetTypedContext<
              ::mas::schema::climate::AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesParams,  ::mas::schema::climate::AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesResults>(context)),
+        false,
         false
       };
     default:
@@ -5661,103 +5898,149 @@ AlterTimeSeriesWrapper::Client::replaceWrappedTimeSeriesRequest(::kj::Maybe< ::c
 
 // AlterTimeSeriesWrapper
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind AlterTimeSeriesWrapper::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* AlterTimeSeriesWrapper::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // AlterTimeSeriesWrapper::Altered
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t AlterTimeSeriesWrapper::Altered::_capnpPrivate::dataWordSize;
 constexpr uint16_t AlterTimeSeriesWrapper::Altered::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind AlterTimeSeriesWrapper::Altered::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* AlterTimeSeriesWrapper::Altered::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // AlterTimeSeriesWrapper::WrappedTimeSeriesParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t AlterTimeSeriesWrapper::WrappedTimeSeriesParams::_capnpPrivate::dataWordSize;
 constexpr uint16_t AlterTimeSeriesWrapper::WrappedTimeSeriesParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind AlterTimeSeriesWrapper::WrappedTimeSeriesParams::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* AlterTimeSeriesWrapper::WrappedTimeSeriesParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // AlterTimeSeriesWrapper::WrappedTimeSeriesResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t AlterTimeSeriesWrapper::WrappedTimeSeriesResults::_capnpPrivate::dataWordSize;
 constexpr uint16_t AlterTimeSeriesWrapper::WrappedTimeSeriesResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind AlterTimeSeriesWrapper::WrappedTimeSeriesResults::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* AlterTimeSeriesWrapper::WrappedTimeSeriesResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // AlterTimeSeriesWrapper::AlteredElementsParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t AlterTimeSeriesWrapper::AlteredElementsParams::_capnpPrivate::dataWordSize;
 constexpr uint16_t AlterTimeSeriesWrapper::AlteredElementsParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind AlterTimeSeriesWrapper::AlteredElementsParams::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* AlterTimeSeriesWrapper::AlteredElementsParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // AlterTimeSeriesWrapper::AlteredElementsResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t AlterTimeSeriesWrapper::AlteredElementsResults::_capnpPrivate::dataWordSize;
 constexpr uint16_t AlterTimeSeriesWrapper::AlteredElementsResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind AlterTimeSeriesWrapper::AlteredElementsResults::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* AlterTimeSeriesWrapper::AlteredElementsResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // AlterTimeSeriesWrapper::AlterParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t AlterTimeSeriesWrapper::AlterParams::_capnpPrivate::dataWordSize;
 constexpr uint16_t AlterTimeSeriesWrapper::AlterParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind AlterTimeSeriesWrapper::AlterParams::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* AlterTimeSeriesWrapper::AlterParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // AlterTimeSeriesWrapper::AlterResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t AlterTimeSeriesWrapper::AlterResults::_capnpPrivate::dataWordSize;
 constexpr uint16_t AlterTimeSeriesWrapper::AlterResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind AlterTimeSeriesWrapper::AlterResults::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* AlterTimeSeriesWrapper::AlterResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // AlterTimeSeriesWrapper::RemoveParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t AlterTimeSeriesWrapper::RemoveParams::_capnpPrivate::dataWordSize;
 constexpr uint16_t AlterTimeSeriesWrapper::RemoveParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind AlterTimeSeriesWrapper::RemoveParams::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* AlterTimeSeriesWrapper::RemoveParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // AlterTimeSeriesWrapper::RemoveResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t AlterTimeSeriesWrapper::RemoveResults::_capnpPrivate::dataWordSize;
 constexpr uint16_t AlterTimeSeriesWrapper::RemoveResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind AlterTimeSeriesWrapper::RemoveResults::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* AlterTimeSeriesWrapper::RemoveResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesParams::_capnpPrivate::dataWordSize;
 constexpr uint16_t AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesParams::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesResults::_capnpPrivate::dataWordSize;
 constexpr uint16_t AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesResults::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* AlterTimeSeriesWrapper::ReplaceWrappedTimeSeriesResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 #if !CAPNP_LITE
 ::capnp::Request< ::mas::schema::climate::AlterTimeSeriesWrapperFactory::WrapParams,  ::mas::schema::climate::AlterTimeSeriesWrapperFactory::WrapResults>
 AlterTimeSeriesWrapperFactory::Client::wrapRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall< ::mas::schema::climate::AlterTimeSeriesWrapperFactory::WrapParams,  ::mas::schema::climate::AlterTimeSeriesWrapperFactory::WrapResults>(
-      0xc5f12df0a2a52744ull, 0, sizeHint);
+      0xc5f12df0a2a52744ull, 0, sizeHint, {false});
 }
 ::kj::Promise<void> AlterTimeSeriesWrapperFactory::Server::wrap(WrapContext) {
   return ::capnp::Capability::Server::internalUnimplemented(
@@ -5784,6 +6067,7 @@ AlterTimeSeriesWrapperFactory::Client::wrapRequest(::kj::Maybe< ::capnp::Message
       return {
         wrap(::capnp::Capability::Server::internalGetTypedContext<
              ::mas::schema::climate::AlterTimeSeriesWrapperFactory::WrapParams,  ::mas::schema::climate::AlterTimeSeriesWrapperFactory::WrapResults>(context)),
+        false,
         false
       };
     default:
@@ -5797,24 +6081,34 @@ AlterTimeSeriesWrapperFactory::Client::wrapRequest(::kj::Maybe< ::capnp::Message
 
 // AlterTimeSeriesWrapperFactory
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind AlterTimeSeriesWrapperFactory::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* AlterTimeSeriesWrapperFactory::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // AlterTimeSeriesWrapperFactory::WrapParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t AlterTimeSeriesWrapperFactory::WrapParams::_capnpPrivate::dataWordSize;
 constexpr uint16_t AlterTimeSeriesWrapperFactory::WrapParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind AlterTimeSeriesWrapperFactory::WrapParams::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* AlterTimeSeriesWrapperFactory::WrapParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // AlterTimeSeriesWrapperFactory::WrapResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t AlterTimeSeriesWrapperFactory::WrapResults::_capnpPrivate::dataWordSize;
 constexpr uint16_t AlterTimeSeriesWrapperFactory::WrapResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind AlterTimeSeriesWrapperFactory::WrapResults::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* AlterTimeSeriesWrapperFactory::WrapResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 

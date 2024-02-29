@@ -20,9 +20,9 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <iostream>
 #include <string>
 #include <fstream>
-#include <assert.h>
+#include <cassert>
 #include <sys/stat.h> // stat
-#ifdef WIN32
+#ifdef _WIN32
 #include <direct.h>   // _mkdir
 #include <Windows.h>
 #endif
@@ -101,7 +101,7 @@ bool Tools::isAbsolutePath(const std::string& path) {
 //-----------------------------------------------------------------------------
 
 string Tools::fixSystemSeparator(string path) { 
-#ifdef WIN32
+#ifdef _WIN32
   auto pos = path.find("/");
   while (pos != string::npos) {
     path.replace(pos, 1, "\\");
@@ -127,7 +127,7 @@ string Tools::fixSystemSeparator(string path) {
 bool Tools::ensureDirExists(const string& path) {
   string fullpath = fixSystemSeparator(path);
 
-#ifdef WIN32
+#ifdef _WIN32
   int ret = _mkdir(fullpath.c_str());
 #else
   mode_t mode = 0755;
@@ -140,7 +140,7 @@ bool Tools::ensureDirExists(const string& path) {
       fullpath = rimRight(fullpath, "/\\");
       size_t pos = fullpath.find_last_of('/');
       if (pos == std::string::npos) {
-#ifdef WIN32
+#ifdef _WIN32
         pos = fullpath.find_last_of('\\');
         if (pos == std::string::npos) {
           return false;
@@ -212,7 +212,7 @@ Tools::rimRight(const std::string& str, const std::string& charSet) {
 
 bool Tools::directoryExist(const std::string& path) {
   string fullpath = fixSystemSeparator(path);
-#ifdef WIN32
+#ifdef _WIN32
   struct _stat info;
   if (_stat(fullpath.c_str(), &info) != 0) {
     return false;
@@ -242,7 +242,7 @@ string Tools::replace(std::string s, std::string findStr, std::string replStr) {
 //-----------------------------------------------------------------------------
 
 std::string Tools::winStringSystemCodepageToutf8(const std::string& codepage_str) {
-#ifdef WIN32
+#ifdef _WIN32
   int cplen = (int)codepage_str.length();
   int size = MultiByteToWideChar(CP_ACP, 0, codepage_str.c_str(),
     cplen, nullptr, 0);

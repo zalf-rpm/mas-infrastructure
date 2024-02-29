@@ -30,6 +30,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <cassert>
 #include <functional>
 #include <limits>
+#include <cstdint>
 
 //#include "common/common-typedefs.h"
 

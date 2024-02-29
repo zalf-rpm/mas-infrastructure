@@ -63,7 +63,7 @@ static const uint16_t m_a05b60b71ca38848[] = {0, 1};
 static const uint16_t i_a05b60b71ca38848[] = {0, 1};
 const ::capnp::_::RawSchema s_a05b60b71ca38848 = {
   0xa05b60b71ca38848, b_a05b60b71ca38848.words, 50, nullptr, m_a05b60b71ca38848,
-  0, 2, i_a05b60b71ca38848, nullptr, nullptr, { &s_a05b60b71ca38848, nullptr, nullptr, 0, 0, nullptr }
+  0, 2, i_a05b60b71ca38848, nullptr, nullptr, { &s_a05b60b71ca38848, nullptr, nullptr, 0, 0, nullptr }, true
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<32> b_b8745454d013cbf0 = {
@@ -111,7 +111,7 @@ static const ::capnp::_::RawSchema* const d_b8745454d013cbf0[] = {
 static const uint16_t m_b8745454d013cbf0[] = {0};
 const ::capnp::_::RawSchema s_b8745454d013cbf0 = {
   0xb8745454d013cbf0, b_b8745454d013cbf0.words, 32, d_b8745454d013cbf0, m_b8745454d013cbf0,
-  4, 1, nullptr, nullptr, nullptr, { &s_b8745454d013cbf0, nullptr, nullptr, 0, 0, nullptr }
+  4, 1, nullptr, nullptr, nullptr, { &s_b8745454d013cbf0, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<17> b_ea3ba97e764a031c = {
@@ -137,7 +137,7 @@ static const ::capnp::_::AlignedData<17> b_ea3ba97e764a031c = {
 #if !CAPNP_LITE
 const ::capnp::_::RawSchema s_ea3ba97e764a031c = {
   0xea3ba97e764a031c, b_ea3ba97e764a031c.words, 17, nullptr, nullptr,
-  0, 0, nullptr, nullptr, nullptr, { &s_ea3ba97e764a031c, nullptr, nullptr, 0, 0, nullptr }
+  0, 0, nullptr, nullptr, nullptr, { &s_ea3ba97e764a031c, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<33> b_e067ec22521ebebb = {
@@ -184,7 +184,7 @@ static const uint16_t m_e067ec22521ebebb[] = {0};
 static const uint16_t i_e067ec22521ebebb[] = {0};
 const ::capnp::_::RawSchema s_e067ec22521ebebb = {
   0xe067ec22521ebebb, b_e067ec22521ebebb.words, 33, d_e067ec22521ebebb, m_e067ec22521ebebb,
-  1, 1, i_e067ec22521ebebb, nullptr, nullptr, { &s_e067ec22521ebebb, nullptr, nullptr, 0, 0, nullptr }
+  1, 1, i_e067ec22521ebebb, nullptr, nullptr, { &s_e067ec22521ebebb, nullptr, nullptr, 0, 0, nullptr }, true
 };
 #endif  // !CAPNP_LITE
 }  // namespace schemas
@@ -200,7 +200,7 @@ namespace jobs {
 ::capnp::Request< ::mas::schema::jobs::Service::NextJobParams,  ::mas::schema::jobs::Service::NextJobResults>
 Service::Client::nextJobRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall< ::mas::schema::jobs::Service::NextJobParams,  ::mas::schema::jobs::Service::NextJobResults>(
-      0xb8745454d013cbf0ull, 0, sizeHint);
+      0xb8745454d013cbf0ull, 0, sizeHint, {false});
 }
 ::kj::Promise<void> Service::Server::nextJob(NextJobContext) {
   return ::capnp::Capability::Server::internalUnimplemented(
@@ -229,6 +229,7 @@ Service::Client::nextJobRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
       return {
         nextJob(::capnp::Capability::Server::internalGetTypedContext<
              ::mas::schema::jobs::Service::NextJobParams,  ::mas::schema::jobs::Service::NextJobResults>(context)),
+        false,
         false
       };
     default:
@@ -242,24 +243,34 @@ Service::Client::nextJobRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
 
 // Service
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Service::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Service::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // Service::NextJobParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t Service::NextJobParams::_capnpPrivate::dataWordSize;
 constexpr uint16_t Service::NextJobParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Service::NextJobParams::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Service::NextJobParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // Service::NextJobResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t Service::NextJobResults::_capnpPrivate::dataWordSize;
 constexpr uint16_t Service::NextJobResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Service::NextJobResults::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Service::NextJobResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 

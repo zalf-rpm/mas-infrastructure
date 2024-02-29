@@ -18,7 +18,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 #define NO_MYSQL
 #ifndef NO_MYSQL
-#ifdef WIN32
+#ifdef _WIN32
 #ifdef WINSOCK2
 #include <WinSock2.h>
 #else

@@ -43,7 +43,7 @@ static const ::capnp::_::RawSchema* const d_ba9eff6fb3abc84f[] = {
 static const uint16_t m_ba9eff6fb3abc84f[] = {0};
 const ::capnp::_::RawSchema s_ba9eff6fb3abc84f = {
   0xba9eff6fb3abc84f, b_ba9eff6fb3abc84f.words, 27, d_ba9eff6fb3abc84f, m_ba9eff6fb3abc84f,
-  2, 1, nullptr, nullptr, nullptr, { &s_ba9eff6fb3abc84f, nullptr, nullptr, 0, 0, nullptr }
+  2, 1, nullptr, nullptr, nullptr, { &s_ba9eff6fb3abc84f, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<31> b_c506e9c0e16825f7 = {
@@ -85,7 +85,7 @@ static const uint16_t m_c506e9c0e16825f7[] = {0};
 static const uint16_t i_c506e9c0e16825f7[] = {0};
 const ::capnp::_::RawSchema s_c506e9c0e16825f7 = {
   0xc506e9c0e16825f7, b_c506e9c0e16825f7.words, 31, nullptr, m_c506e9c0e16825f7,
-  0, 1, i_c506e9c0e16825f7, nullptr, nullptr, { &s_c506e9c0e16825f7, nullptr, nullptr, 0, 0, nullptr }
+  0, 1, i_c506e9c0e16825f7, nullptr, nullptr, { &s_c506e9c0e16825f7, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<32> b_9e2108f9306a75ef = {
@@ -128,7 +128,7 @@ static const uint16_t m_9e2108f9306a75ef[] = {0};
 static const uint16_t i_9e2108f9306a75ef[] = {0};
 const ::capnp::_::RawSchema s_9e2108f9306a75ef = {
   0x9e2108f9306a75ef, b_9e2108f9306a75ef.words, 32, nullptr, m_9e2108f9306a75ef,
-  0, 1, i_9e2108f9306a75ef, nullptr, nullptr, { &s_9e2108f9306a75ef, nullptr, nullptr, 0, 0, nullptr }
+  0, 1, i_9e2108f9306a75ef, nullptr, nullptr, { &s_9e2108f9306a75ef, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 }  // namespace schemas
@@ -144,7 +144,7 @@ namespace test {
 ::capnp::Request< ::mas::rpc::test::A::MethodParams,  ::mas::rpc::test::A::MethodResults>
 A::Client::methodRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall< ::mas::rpc::test::A::MethodParams,  ::mas::rpc::test::A::MethodResults>(
-      0xba9eff6fb3abc84full, 0, sizeHint);
+      0xba9eff6fb3abc84full, 0, sizeHint, {true});
 }
 ::kj::Promise<void> A::Server::method(MethodContext) {
   return ::capnp::Capability::Server::internalUnimplemented(
@@ -169,6 +169,7 @@ A::Client::methodRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
       return {
         method(::capnp::Capability::Server::internalGetTypedContext<
              ::mas::rpc::test::A::MethodParams,  ::mas::rpc::test::A::MethodResults>(context)),
+        false,
         false
       };
     default:
@@ -182,24 +183,34 @@ A::Client::methodRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
 
 // A
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind A::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* A::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // A::MethodParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t A::MethodParams::_capnpPrivate::dataWordSize;
 constexpr uint16_t A::MethodParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind A::MethodParams::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* A::MethodParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // A::MethodResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t A::MethodResults::_capnpPrivate::dataWordSize;
 constexpr uint16_t A::MethodResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind A::MethodResults::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* A::MethodResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 

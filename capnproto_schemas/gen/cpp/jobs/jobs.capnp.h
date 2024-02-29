@@ -9,7 +9,9 @@
 #include <capnp/capability.h>
 #endif  // !CAPNP_LITE
 
-#if CAPNP_VERSION != 10000
+#ifndef CAPNP_VERSION
+#error "CAPNP_VERSION is not defined, is capnp/generated-header-support.h missing?"
+#elif CAPNP_VERSION != 1000001
 #error "Version mismatch between generated code and library headers.  You must use the same version of the Cap'n Proto compiler and library."
 #endif
 
@@ -487,15 +489,19 @@ inline void Job<Payload>::Builder::setNoFurtherJobs(bool value) {
 }
 
 // Job<Payload>
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename Payload>
 constexpr uint16_t Job<Payload>::_capnpPrivate::dataWordSize;
 template <typename Payload>
 constexpr uint16_t Job<Payload>::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename Payload>
 constexpr ::capnp::Kind Job<Payload>::_capnpPrivate::kind;
 template <typename Payload>
 constexpr ::capnp::_::RawSchema const* Job<Payload>::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename Payload>
 const ::capnp::_::RawBrandedSchema::Scope Job<Payload>::_capnpPrivate::brandScopes[] = {
   { 0xa05b60b71ca38848, brandBindings + 0, 1, false},

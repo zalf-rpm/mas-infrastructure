@@ -75,7 +75,7 @@ static const ::capnp::_::RawSchema* const d_e88d97a324bf5c84[] = {
 static const uint16_t m_e88d97a324bf5c84[] = {1, 0, 2};
 const ::capnp::_::RawSchema s_e88d97a324bf5c84 = {
   0xe88d97a324bf5c84, b_e88d97a324bf5c84.words, 53, d_e88d97a324bf5c84, m_e88d97a324bf5c84,
-  8, 3, nullptr, nullptr, nullptr, { &s_e88d97a324bf5c84, nullptr, nullptr, 0, 0, nullptr }
+  8, 3, nullptr, nullptr, nullptr, { &s_e88d97a324bf5c84, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<17> b_c86e010e743c8e5b = {
@@ -101,7 +101,7 @@ static const ::capnp::_::AlignedData<17> b_c86e010e743c8e5b = {
 #if !CAPNP_LITE
 const ::capnp::_::RawSchema s_c86e010e743c8e5b = {
   0xc86e010e743c8e5b, b_c86e010e743c8e5b.words, 17, nullptr, nullptr,
-  0, 0, nullptr, nullptr, nullptr, { &s_c86e010e743c8e5b, nullptr, nullptr, 0, 0, nullptr }
+  0, 0, nullptr, nullptr, nullptr, { &s_c86e010e743c8e5b, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<33> b_e4fafc722d515486 = {
@@ -145,7 +145,7 @@ static const uint16_t m_e4fafc722d515486[] = {0};
 static const uint16_t i_e4fafc722d515486[] = {0};
 const ::capnp::_::RawSchema s_e4fafc722d515486 = {
   0xe4fafc722d515486, b_e4fafc722d515486.words, 33, nullptr, m_e4fafc722d515486,
-  0, 1, i_e4fafc722d515486, nullptr, nullptr, { &s_e4fafc722d515486, nullptr, nullptr, 0, 0, nullptr }
+  0, 1, i_e4fafc722d515486, nullptr, nullptr, { &s_e4fafc722d515486, nullptr, nullptr, 0, 0, nullptr }, true
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<16> b_f26ef117dfb4517a = {
@@ -170,7 +170,7 @@ static const ::capnp::_::AlignedData<16> b_f26ef117dfb4517a = {
 #if !CAPNP_LITE
 const ::capnp::_::RawSchema s_f26ef117dfb4517a = {
   0xf26ef117dfb4517a, b_f26ef117dfb4517a.words, 16, nullptr, nullptr,
-  0, 0, nullptr, nullptr, nullptr, { &s_f26ef117dfb4517a, nullptr, nullptr, 0, 0, nullptr }
+  0, 0, nullptr, nullptr, nullptr, { &s_f26ef117dfb4517a, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<33> b_bf3704bba52494ba = {
@@ -217,7 +217,7 @@ static const uint16_t m_bf3704bba52494ba[] = {0};
 static const uint16_t i_bf3704bba52494ba[] = {0};
 const ::capnp::_::RawSchema s_bf3704bba52494ba = {
   0xbf3704bba52494ba, b_bf3704bba52494ba.words, 33, d_bf3704bba52494ba, m_bf3704bba52494ba,
-  1, 1, i_bf3704bba52494ba, nullptr, nullptr, { &s_bf3704bba52494ba, nullptr, nullptr, 0, 0, nullptr }
+  1, 1, i_bf3704bba52494ba, nullptr, nullptr, { &s_bf3704bba52494ba, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<16> b_f4dd1c322a3130b4 = {
@@ -242,7 +242,7 @@ static const ::capnp::_::AlignedData<16> b_f4dd1c322a3130b4 = {
 #if !CAPNP_LITE
 const ::capnp::_::RawSchema s_f4dd1c322a3130b4 = {
   0xf4dd1c322a3130b4, b_f4dd1c322a3130b4.words, 16, nullptr, nullptr,
-  0, 0, nullptr, nullptr, nullptr, { &s_f4dd1c322a3130b4, nullptr, nullptr, 0, 0, nullptr }
+  0, 0, nullptr, nullptr, nullptr, { &s_f4dd1c322a3130b4, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<32> b_b4aa895eeede6448 = {
@@ -288,7 +288,7 @@ static const uint16_t m_b4aa895eeede6448[] = {0};
 static const uint16_t i_b4aa895eeede6448[] = {0};
 const ::capnp::_::RawSchema s_b4aa895eeede6448 = {
   0xb4aa895eeede6448, b_b4aa895eeede6448.words, 32, d_b4aa895eeede6448, m_b4aa895eeede6448,
-  1, 1, i_b4aa895eeede6448, nullptr, nullptr, { &s_b4aa895eeede6448, nullptr, nullptr, 0, 0, nullptr }
+  1, 1, i_b4aa895eeede6448, nullptr, nullptr, { &s_b4aa895eeede6448, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<20> b_8ddcc2b6c0386bc4 = {
@@ -320,7 +320,7 @@ static const ::capnp::_::RawSchema* const d_8ddcc2b6c0386bc4[] = {
 };
 const ::capnp::_::RawSchema s_8ddcc2b6c0386bc4 = {
   0x8ddcc2b6c0386bc4, b_8ddcc2b6c0386bc4.words, 20, d_8ddcc2b6c0386bc4, nullptr,
-  1, 0, nullptr, nullptr, nullptr, { &s_8ddcc2b6c0386bc4, nullptr, nullptr, 0, 0, nullptr }
+  1, 0, nullptr, nullptr, nullptr, { &s_8ddcc2b6c0386bc4, nullptr, nullptr, 0, 0, nullptr }, false
 };
 #endif  // !CAPNP_LITE
 }  // namespace schemas
@@ -336,7 +336,7 @@ namespace crop {
 ::capnp::Request< ::mas::schema::crop::Crop::ParametersParams,  ::mas::schema::crop::Crop::ParametersResults>
 Crop::Client::parametersRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall< ::mas::schema::crop::Crop::ParametersParams,  ::mas::schema::crop::Crop::ParametersResults>(
-      0xe88d97a324bf5c84ull, 0, sizeHint);
+      0xe88d97a324bf5c84ull, 0, sizeHint, {false});
 }
 ::kj::Promise<void> Crop::Server::parameters(ParametersContext) {
   return ::capnp::Capability::Server::internalUnimplemented(
@@ -346,7 +346,7 @@ Crop::Client::parametersRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
 ::capnp::Request< ::mas::schema::crop::Crop::CultivarParams,  ::mas::schema::crop::Crop::CultivarResults>
 Crop::Client::cultivarRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall< ::mas::schema::crop::Crop::CultivarParams,  ::mas::schema::crop::Crop::CultivarResults>(
-      0xe88d97a324bf5c84ull, 1, sizeHint);
+      0xe88d97a324bf5c84ull, 1, sizeHint, {true});
 }
 ::kj::Promise<void> Crop::Server::cultivar(CultivarContext) {
   return ::capnp::Capability::Server::internalUnimplemented(
@@ -356,7 +356,7 @@ Crop::Client::cultivarRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
 ::capnp::Request< ::mas::schema::crop::Crop::SpeciesParams,  ::mas::schema::crop::Crop::SpeciesResults>
 Crop::Client::speciesRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall< ::mas::schema::crop::Crop::SpeciesParams,  ::mas::schema::crop::Crop::SpeciesResults>(
-      0xe88d97a324bf5c84ull, 2, sizeHint);
+      0xe88d97a324bf5c84ull, 2, sizeHint, {true});
 }
 ::kj::Promise<void> Crop::Server::species(SpeciesContext) {
   return ::capnp::Capability::Server::internalUnimplemented(
@@ -385,18 +385,21 @@ Crop::Client::speciesRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
       return {
         parameters(::capnp::Capability::Server::internalGetTypedContext<
              ::mas::schema::crop::Crop::ParametersParams,  ::mas::schema::crop::Crop::ParametersResults>(context)),
+        false,
         false
       };
     case 1:
       return {
         cultivar(::capnp::Capability::Server::internalGetTypedContext<
              ::mas::schema::crop::Crop::CultivarParams,  ::mas::schema::crop::Crop::CultivarResults>(context)),
+        false,
         false
       };
     case 2:
       return {
         species(::capnp::Capability::Server::internalGetTypedContext<
              ::mas::schema::crop::Crop::SpeciesParams,  ::mas::schema::crop::Crop::SpeciesResults>(context)),
+        false,
         false
       };
     default:
@@ -410,56 +413,82 @@ Crop::Client::speciesRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
 
 // Crop
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Crop::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Crop::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // Crop::ParametersParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t Crop::ParametersParams::_capnpPrivate::dataWordSize;
 constexpr uint16_t Crop::ParametersParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Crop::ParametersParams::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Crop::ParametersParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // Crop::ParametersResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t Crop::ParametersResults::_capnpPrivate::dataWordSize;
 constexpr uint16_t Crop::ParametersResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Crop::ParametersResults::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Crop::ParametersResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // Crop::CultivarParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t Crop::CultivarParams::_capnpPrivate::dataWordSize;
 constexpr uint16_t Crop::CultivarParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Crop::CultivarParams::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Crop::CultivarParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // Crop::CultivarResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t Crop::CultivarResults::_capnpPrivate::dataWordSize;
 constexpr uint16_t Crop::CultivarResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Crop::CultivarResults::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Crop::CultivarResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // Crop::SpeciesParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t Crop::SpeciesParams::_capnpPrivate::dataWordSize;
 constexpr uint16_t Crop::SpeciesParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Crop::SpeciesParams::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Crop::SpeciesParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 // Crop::SpeciesResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr uint16_t Crop::SpeciesResults::_capnpPrivate::dataWordSize;
 constexpr uint16_t Crop::SpeciesResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Crop::SpeciesResults::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Crop::SpeciesResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 #if !CAPNP_LITE
@@ -492,8 +521,10 @@ constexpr ::capnp::_::RawSchema const* Crop::SpeciesResults::_capnpPrivate::sche
 
 // Service
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 constexpr ::capnp::Kind Service::_capnpPrivate::kind;
 constexpr ::capnp::_::RawSchema const* Service::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #endif  // !CAPNP_LITE
 
 

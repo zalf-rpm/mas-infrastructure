@@ -23,6 +23,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <locale>
 #include <vector>
 #include <algorithm>
+#include <cstdint>
 
 namespace Tools {
 struct Errors {

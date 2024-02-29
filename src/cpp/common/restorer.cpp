@@ -31,9 +31,9 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 #include <sodium.h>
 
-#include "sole.hpp"
 #include "common.h"
 #include "../json11/json11.hpp"
+#include "sole.hpp"
 
 using namespace mas::infrastructure::common;
 

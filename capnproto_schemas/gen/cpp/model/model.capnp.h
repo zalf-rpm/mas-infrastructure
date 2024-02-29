@@ -9,7 +9,9 @@
 #include <capnp/capability.h>
 #endif  // !CAPNP_LITE
 
-#if CAPNP_VERSION != 10000
+#ifndef CAPNP_VERSION
+#error "CAPNP_VERSION is not defined, is capnp/generated-header-support.h missing?"
+#elif CAPNP_VERSION != 1000001
 #error "Version mismatch between generated code and library headers.  You must use the same version of the Cap'n Proto compiler and library."
 #endif
 
@@ -3083,15 +3085,19 @@ inline ::capnp::Orphan< ::capnp::List< ::mas::schema::management::Event,  ::capn
 }
 
 // Env<RestInput>
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename RestInput>
 constexpr uint16_t Env<RestInput>::_capnpPrivate::dataWordSize;
 template <typename RestInput>
 constexpr uint16_t Env<RestInput>::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename RestInput>
 constexpr ::capnp::Kind Env<RestInput>::_capnpPrivate::kind;
 template <typename RestInput>
 constexpr ::capnp::_::RawSchema const* Env<RestInput>::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename RestInput>
 const ::capnp::_::RawBrandedSchema::Scope Env<RestInput>::_capnpPrivate::brandScopes[] = {
   { 0xb7fc866ef1127f7c, brandBindings + 0, 1, false},
@@ -3187,15 +3193,19 @@ inline ::capnp::Orphan< ::mas::schema::model::Env<RestInput>> EnvInstance<RestIn
 }
 
 // EnvInstance<RestInput, Output>::RunParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename RestInput, typename Output>
 constexpr uint16_t EnvInstance<RestInput, Output>::RunParams::_capnpPrivate::dataWordSize;
 template <typename RestInput, typename Output>
 constexpr uint16_t EnvInstance<RestInput, Output>::RunParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename RestInput, typename Output>
 constexpr ::capnp::Kind EnvInstance<RestInput, Output>::RunParams::_capnpPrivate::kind;
 template <typename RestInput, typename Output>
 constexpr ::capnp::_::RawSchema const* EnvInstance<RestInput, Output>::RunParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename RestInput, typename Output>
 const ::capnp::_::RawBrandedSchema::Scope EnvInstance<RestInput, Output>::RunParams::_capnpPrivate::brandScopes[] = {
   { 0xa5feedafa5ec5c4a, brandBindings + 0, 2, false},
@@ -3270,15 +3280,19 @@ inline ::capnp::Orphan<Output> EnvInstance<RestInput, Output>::RunResults::Build
 }
 
 // EnvInstance<RestInput, Output>::RunResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename RestInput, typename Output>
 constexpr uint16_t EnvInstance<RestInput, Output>::RunResults::_capnpPrivate::dataWordSize;
 template <typename RestInput, typename Output>
 constexpr uint16_t EnvInstance<RestInput, Output>::RunResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename RestInput, typename Output>
 constexpr ::capnp::Kind EnvInstance<RestInput, Output>::RunResults::_capnpPrivate::kind;
 template <typename RestInput, typename Output>
 constexpr ::capnp::_::RawSchema const* EnvInstance<RestInput, Output>::RunResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename RestInput, typename Output>
 const ::capnp::_::RawBrandedSchema::Scope EnvInstance<RestInput, Output>::RunResults::_capnpPrivate::brandScopes[] = {
   { 0xa5feedafa5ec5c4a, brandBindings + 0, 2, false},
@@ -3300,7 +3314,7 @@ template <typename RestInput, typename Output>
 CAPNP_AUTO_IF_MSVC(::capnp::Request<typename  ::mas::schema::model::EnvInstance<RestInput, Output>::RunParams, typename  ::mas::schema::model::EnvInstance<RestInput, Output>::RunResults>)
 EnvInstance<RestInput, Output>::Client::runRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall<typename  ::mas::schema::model::EnvInstance<RestInput, Output>::RunParams, typename  ::mas::schema::model::EnvInstance<RestInput, Output>::RunResults>(
-      0xa5feedafa5ec5c4aull, 0, sizeHint);
+      0xa5feedafa5ec5c4aull, 0, sizeHint, {false});
 }
 template <typename RestInput, typename Output>
 ::kj::Promise<void> EnvInstance<RestInput, Output>::Server::run(RunContext) {
@@ -3334,6 +3348,7 @@ template <typename RestInput, typename Output>
       return {
         run(::capnp::Capability::Server::internalGetTypedContext<
             typename  ::mas::schema::model::EnvInstance<RestInput, Output>::RunParams, typename  ::mas::schema::model::EnvInstance<RestInput, Output>::RunResults>(context)),
+        false,
         false
       };
     default:
@@ -3347,10 +3362,12 @@ template <typename RestInput, typename Output>
 
 // EnvInstance<RestInput, Output>
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename RestInput, typename Output>
 constexpr ::capnp::Kind EnvInstance<RestInput, Output>::_capnpPrivate::kind;
 template <typename RestInput, typename Output>
 constexpr ::capnp::_::RawSchema const* EnvInstance<RestInput, Output>::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename RestInput, typename Output>
 const ::capnp::_::RawBrandedSchema::Scope EnvInstance<RestInput, Output>::_capnpPrivate::brandScopes[] = {
   { 0xa5feedafa5ec5c4a, brandBindings + 0, 2, false},
@@ -3435,15 +3452,19 @@ inline typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unre
 
 #endif  // !CAPNP_LITE
 // EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename RestInput, typename Output>
 constexpr uint16_t EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterParams::_capnpPrivate::dataWordSize;
 template <typename RestInput, typename Output>
 constexpr uint16_t EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename RestInput, typename Output>
 constexpr ::capnp::Kind EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterParams::_capnpPrivate::kind;
 template <typename RestInput, typename Output>
 constexpr ::capnp::_::RawSchema const* EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename RestInput, typename Output>
 const ::capnp::_::RawBrandedSchema::Scope EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterParams::_capnpPrivate::brandScopes[] = {
   { 0x87cbebfc1164a24a, brandBindings + 0, 2, false},
@@ -3478,15 +3499,19 @@ inline void EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterResults::
 }
 
 // EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename RestInput, typename Output>
 constexpr uint16_t EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterResults::_capnpPrivate::dataWordSize;
 template <typename RestInput, typename Output>
 constexpr uint16_t EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename RestInput, typename Output>
 constexpr ::capnp::Kind EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterResults::_capnpPrivate::kind;
 template <typename RestInput, typename Output>
 constexpr ::capnp::_::RawSchema const* EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename RestInput, typename Output>
 const ::capnp::_::RawBrandedSchema::Scope EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterResults::_capnpPrivate::brandScopes[] = {
   { 0x87cbebfc1164a24a, brandBindings + 0, 2, false},
@@ -3508,7 +3533,7 @@ template <typename RestInput, typename Output>
 CAPNP_AUTO_IF_MSVC(::capnp::Request<typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterParams, typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterResults>)
 EnvInstanceProxy<RestInput, Output>::Unregister::Client::unregisterRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall<typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterParams, typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterResults>(
-      0xc727892bd5c66f88ull, 0, sizeHint);
+      0xc727892bd5c66f88ull, 0, sizeHint, {true});
 }
 template <typename RestInput, typename Output>
 ::kj::Promise<void> EnvInstanceProxy<RestInput, Output>::Unregister::Server::unregister(UnregisterContext) {
@@ -3536,6 +3561,7 @@ template <typename RestInput, typename Output>
       return {
         unregister(::capnp::Capability::Server::internalGetTypedContext<
             typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterParams, typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::Unregister::UnregisterResults>(context)),
+        false,
         false
       };
     default:
@@ -3549,10 +3575,12 @@ template <typename RestInput, typename Output>
 
 // EnvInstanceProxy<RestInput, Output>::Unregister
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename RestInput, typename Output>
 constexpr ::capnp::Kind EnvInstanceProxy<RestInput, Output>::Unregister::_capnpPrivate::kind;
 template <typename RestInput, typename Output>
 constexpr ::capnp::_::RawSchema const* EnvInstanceProxy<RestInput, Output>::Unregister::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename RestInput, typename Output>
 const ::capnp::_::RawBrandedSchema::Scope EnvInstanceProxy<RestInput, Output>::Unregister::_capnpPrivate::brandScopes[] = {
   { 0x87cbebfc1164a24a, brandBindings + 0, 2, false},
@@ -3623,15 +3651,19 @@ inline ::capnp::Orphan< ::mas::schema::model::EnvInstance<RestInput, Output>> En
 #endif  // !CAPNP_LITE
 
 // EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceParams
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename RestInput, typename Output>
 constexpr uint16_t EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceParams::_capnpPrivate::dataWordSize;
 template <typename RestInput, typename Output>
 constexpr uint16_t EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceParams::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename RestInput, typename Output>
 constexpr ::capnp::Kind EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceParams::_capnpPrivate::kind;
 template <typename RestInput, typename Output>
 constexpr ::capnp::_::RawSchema const* EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceParams::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename RestInput, typename Output>
 const ::capnp::_::RawBrandedSchema::Scope EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceParams::_capnpPrivate::brandScopes[] = {
   { 0x87cbebfc1164a24a, brandBindings + 0, 2, false},
@@ -3701,15 +3733,19 @@ inline ::capnp::Orphan<typename  ::mas::schema::model::EnvInstanceProxy<RestInpu
 #endif  // !CAPNP_LITE
 
 // EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceResults
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename RestInput, typename Output>
 constexpr uint16_t EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceResults::_capnpPrivate::dataWordSize;
 template <typename RestInput, typename Output>
 constexpr uint16_t EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceResults::_capnpPrivate::pointerCount;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename RestInput, typename Output>
 constexpr ::capnp::Kind EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceResults::_capnpPrivate::kind;
 template <typename RestInput, typename Output>
 constexpr ::capnp::_::RawSchema const* EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceResults::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename RestInput, typename Output>
 const ::capnp::_::RawBrandedSchema::Scope EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceResults::_capnpPrivate::brandScopes[] = {
   { 0x87cbebfc1164a24a, brandBindings + 0, 2, false},
@@ -3735,7 +3771,7 @@ template <typename RestInput, typename Output>
 CAPNP_AUTO_IF_MSVC(::capnp::Request<typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceParams, typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceResults>)
 EnvInstanceProxy<RestInput, Output>::Client::registerEnvInstanceRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
   return newCall<typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceParams, typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceResults>(
-      0x87cbebfc1164a24aull, 0, sizeHint);
+      0x87cbebfc1164a24aull, 0, sizeHint, {false});
 }
 template <typename RestInput, typename Output>
 ::kj::Promise<void> EnvInstanceProxy<RestInput, Output>::Server::registerEnvInstance(RegisterEnvInstanceContext) {
@@ -3771,6 +3807,7 @@ template <typename RestInput, typename Output>
       return {
         registerEnvInstance(::capnp::Capability::Server::internalGetTypedContext<
             typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceParams, typename  ::mas::schema::model::EnvInstanceProxy<RestInput, Output>::RegisterEnvInstanceResults>(context)),
+        false,
         false
       };
     default:
@@ -3784,10 +3821,12 @@ template <typename RestInput, typename Output>
 
 // EnvInstanceProxy<RestInput, Output>
 #if !CAPNP_LITE
+#if CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename RestInput, typename Output>
 constexpr ::capnp::Kind EnvInstanceProxy<RestInput, Output>::_capnpPrivate::kind;
 template <typename RestInput, typename Output>
 constexpr ::capnp::_::RawSchema const* EnvInstanceProxy<RestInput, Output>::_capnpPrivate::schema;
+#endif  // !CAPNP_NEED_REDUNDANT_CONSTEXPR_DECL
 template <typename RestInput, typename Output>
 const ::capnp::_::RawBrandedSchema::Scope EnvInstanceProxy<RestInput, Output>::_capnpPrivate::brandScopes[] = {
   { 0x87cbebfc1164a24a, brandBindings + 0, 2, false},

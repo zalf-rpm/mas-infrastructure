@@ -1,3 +1,4 @@
+zig-cache/
 src/csharp/publish
 
 cmake-build-debug

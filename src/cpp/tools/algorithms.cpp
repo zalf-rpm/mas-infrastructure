@@ -16,22 +16,18 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 #include "algorithms.h"
 
-#include <cstdio>
-#include <ctime>
-#include <cstdio>
 #include <cmath>
+#include <ctime>
 #include <cstdlib>
-#include <numeric>
 #include <algorithm>
 #include <iostream>
 #include <sstream>
 #include <cassert>
 #include <utility>
 #include <climits>
-
-#define _USE_MATH_DEFINES
-
-#include <math.h>
+//#define _USE_MATH_DEFINES
+//#include <math.h>
+constexpr double M_PI = 3.14159265358979323846;
 
 #include "helper.h"
 
