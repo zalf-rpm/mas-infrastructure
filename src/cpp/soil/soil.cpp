@@ -472,8 +472,7 @@ std::pair<SoilPMs, Errors> Soil::createEqualSizedSoilPMs(const Tools::J11Array &
       SoilParameters sps;
       auto es = sps.merge(sp);
       soilPMs.push_back(sps);
-      if (es.failure())
-        errors.append(es);
+      if (es.failure()) errors.append(es);
     }
 
     layerCount += repeatLayer;
