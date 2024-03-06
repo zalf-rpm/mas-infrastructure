@@ -24,6 +24,57 @@
       ]
     }
   ],
+  "mas": [
+    {
+      "id": "ascii_grid.py",
+      "type": "CapnpFbpComponent",
+      "interpreter": "python",
+      "path": "/home/berg/GitHub/mas-infrastructure/src/python/services/grid/ascii_grid.py",
+      "cmd_params": [
+        {"name": "path_to_ascii_grid", "type": "string", "description": "absolute path to ascii grid"},
+        {"name": "grid_crs", "type": "string", "options": ["gk5", "utm32n"]},
+        {"name": "val_type", "type": "string", "options": ["float", "int"]},
+        {"name": "fbp", "type": "string", "default": "true", "options": ["true", "false"]},
+        {"name": "from_attr", "type": "string", "description": "which attribute to read from (instead of content)"},
+        {"name": "to_attr", "type": "string", "description": "which attribute to attach output to (instead of content)"}
+      ],
+      "inputs": [{"name": "in"}],
+      "outputs": [{"name": "out"}]
+    },
+    {
+      "id": "sqlite_soil_data_service.py",
+      "type": "CapnpFbpComponent",
+      "interpreter": "python",
+      "path": "/home/berg/GitHub/mas-infrastructure/src/python/services/soil/sqlite_soil_data_service.py",
+      "cmd_params": [
+        {"name": "path_to_sqlite_db", "type": "string", "description": "absolute path to sqlite db"},
+        {"name": "path_to_ascii_soil_grid", "type": "string", "description": "absolute path to ascii soil grid"},
+        {"name": "mandatory", "type": "json:string-list", "description": "list of mandatory soil elements like soilType, organicCarbo, etc"},
+        {"name": "fbp", "type": "string", "default": "true", "options": ["true", "false"]},
+        {"name": "from_attr", "type": "string", "description": "which attribute to read from (instead of content)"},
+        {"name": "to_attr", "type": "string", "description": "which attribute to attach output to (instead of content)"}
+      ],
+      "inputs": [{"name": "in"}],
+      "outputs": [{"name": "out"}]
+    },
+    {
+      "id": "dwd_germany_service.py",
+      "type": "CapnpFbpComponent",
+      "interpreter": "python",
+      "path": "/home/berg/GitHub/mas-infrastructure/src/python/services/climate/dwd_germany_service.py",
+      "cmd_params": [
+        {"name": "path_to_data", "type": "string", "description": "absolute path to dwd csvs"},
+        {"name": "fbp", "type": "string", "default": "true", "options": ["true", "false"]},
+        {"name": "latlon_attr", "type": "string", "description": "which attribute to read latlon from"},
+        {"name": "start_date_attr", "type": "string:iso-date", "description": "which attribute to attach output to (instead of content)"},
+        {"name": "end_date_attr", "type": "string:iso-date", "description": "which attribute to attach output to (instead of content)"},
+        {"name": "to_attr", "type": "string", "description": "which attribute to attach output to (instead of content)"},
+        {"name": "mode", "type": "string", "options": ["capability"]}
+      ],
+      "inputs": [{"name": "in"}],
+      "outputs": [{"name": "out"}]
+    }
+  ],
   "minimal": [
     {
       "id": "a.py",
