@@ -24,6 +24,78 @@
       ]
     }
   ],
+  "Safe-H2O-Farm": [
+    {
+      "id": "create_env_component.py",
+      "type": "CapnpFbpComponent",
+      "interpreter": "python",
+      "cmd_params": [
+        {"name": "sim.json", "type": "string", "description": "path to sim.json file"},
+        {"name": "crop.json", "type": "string", "description": "path to crop.json file"},
+        {"name": "site.json", "type": "string", "description": "path to site.json file"},
+        {"name": "dgm_attr", "type": "Grid.Value", "description": "which attribute to read dgm value from"},
+        {"name": "id_attr", "type": "string", "description": "which attribute to read id value from"},
+        {"name": "slope_attr", "type": "Grid.Value", "description": "which attribute to read slope value from"},
+        {"name": "climate_attr", "type": "string", "description": "which attribute to read climate data from"},
+        {"name": "soil_attr", "type": "string", "description": "which attribute to read dgm value from"},
+        {"name": "coord_attr", "type": "Geo.LatLonCoord", "description": "which attribute to read coord value from"},
+        {"name": "ilr_attr", "type": "ILRDates", "description": "which attribute to read ilr value from"}
+      ],
+      "inputs": [{"name": "in"}],
+      "outputs": [{"name": "out"}],
+      "path": "/home/berg/GitHub/Safe-H2O-Farm/create_env_component.py"
+    },
+    {
+      "id": "read_data_csv_component.py",
+      "type": "CapnpFbpComponent",
+      "interpreter": "python",
+      "cmd_params": [
+        {"name": "years", "type": "json:int-list", "description": "list of years"},
+        {"name": "path_to_data_dir", "type": "string", "description": "absolute path to data dir"}
+      ],
+      "inputs": [{"name": "years"}],
+      "outputs": [{"name": "out"}],
+      "path": "/home/berg/GitHub/Safe-H2O-Farm/read_data_csv_component.py"
+    },
+    {
+      "id": "write_output_csv",
+      "type": "CapnpFbpComponent",
+      "interpreter": "python",
+      "cmd_params": [
+        {"name": "id_attr", "type": "string", "description": "which attribute to read id value from"},
+        {"name": "from_attr", "type": "Grid.Value", "description": "which attribute to read content"},
+        {"name": "path_to_out_file", "type": "string", "description": "absolute path to output file"}
+      ],
+      "inputs": [{"name": "in"}],
+      "outputs": [],
+      "path": "/home/berg/GitHub/Safe-H2O-Farm/write_output_csv.py"
+    }
+  ],
+  "monica": [
+    {
+      "id": "monica-fbp-component",
+      "type": "CapnpFbpComponent",
+      "interpreter": "",
+      "inputs": [{"name": "env"}],
+      "outputs": [{"name": "result"}],
+      "path": "/home/berg/GitHub/monica/_cmake_debug/monica-capnp-fbp-component"
+    },
+    {
+      "id": "write_monica_csv.py",
+      "type": "CapnpFbpComponent",
+      "interpreter": "python",
+      "cmd_params": [
+        {"name": "path_to_out_dir", "type": "string", "description": "absolute path to out dir"},
+        {"name": "out_path_attr", "type": "string", "description": "which attribute to read out_path from"},
+        {"name": "file_pattern", "type": "string", "default": "csv_{id}.csv", "description": "pattern to use for creating filenames"},
+        {"name": "id_attr", "type": "string", "description": "which attribute to read id from"},
+        {"name": "from_attr", "type": "string", "description": "which attribute to read content from"}
+      ],
+      "inputs": [{"name": "in"}],
+      "outputs": [],
+      "path": "/home/berg/GitHub/mas-infrastructure/src/python/fbp/write_monica_csv.py"
+    }
+  ],
   "mas": [
     {
       "id": "ascii_grid.py",
