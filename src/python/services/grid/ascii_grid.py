@@ -38,12 +38,9 @@ if str(PATH_TO_PYTHON_CODE) not in sys.path:
 
 from pkgs.common import rect_ascii_grid_management as grid_man
 from pkgs.common import geo
-import pkgs.common.service as serv
-from pkgs.common import capnp_async_helpers as async_helpers
-from pkgs.climate import common_climate_data_capnp_impl as ccdi
-from pkgs.climate import csv_file_based as csv_based
 from pkgs.common import common
 from pkgs.common import service as serv
+from pkgs.common import fbp
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
@@ -54,39 +51,36 @@ grid_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "grid.capnp"), imports=abs_i
 reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
 
 
-def fbp(config, service: grid_capnp.Grid):
-    conman = common.ConnectionManager()
-    inp = conman.try_connect(config["in_sr"], cast_as=fbp_capnp.Channel.Reader, retry_secs=1)
-    outp = conman.try_connect(config["out_sr"], cast_as=fbp_capnp.Channel.Writer, retry_secs=1)
+def fbp_wrapper(config, service: grid_capnp.Grid):
+    ports, close_out_ports = fbp.connect_ports(config)
 
     try:
-        if inp and outp and service:
-            while True:
-                in_msg = inp.read().wait()
-                if in_msg.which() == "done":
-                    break
+        while ports["in"] and ports["out"] and service:
+            in_msg = ports["in"].read().wait()
+            if in_msg.which() == "done":
+                ports["in"] = None
+                continue
 
-                in_ip = in_msg.value.as_struct(fbp_capnp.IP)
-                attr = common.get_fbp_attr(in_ip, config["from_attr"])
-                if attr:
-                    coord = attr.as_struct(geo_capnp.LatLonCoord)
-                else:
-                    coord = in_ip.content.as_struct(geo_capnp.LatLonCoord)
+            in_ip = in_msg.value.as_struct(fbp_capnp.IP)
+            attr = common.get_fbp_attr(in_ip, config["from_attr"])
+            if attr:
+                coord = attr.as_struct(geo_capnp.LatLonCoord)
+            else:
+                coord = in_ip.content.as_struct(geo_capnp.LatLonCoord)
 
-                val = service.closestValueAt(coord).wait().val
+            val = service.closestValueAt(coord).wait().val
 
-                out_ip = fbp_capnp.IP.new_message()
-                if not config["to_attr"]:
-                    out_ip.content = val
-                common.copy_and_set_fbp_attrs(in_ip, out_ip, **({config["to_attr"]: val} if config["to_attr"] else {}))
-                outp.write(value=out_ip).wait()
-
-            outp.write(done=None).wait()
+            out_ip = fbp_capnp.IP.new_message()
+            if not config["to_attr"]:
+                out_ip.content = val
+            common.copy_and_set_fbp_attrs(in_ip, out_ip, **({config["to_attr"]: val} if config["to_attr"] else {}))
+            ports["out"].write(value=out_ip).wait()
 
     except Exception as e:
-        print("ascii_grid.py ex:", e)
+        print(f"{os.path.basename(__file__)} Exception :", e)
 
-    print("ascii_grid.py: exiting FBP component")
+    close_out_ports()
+    print(f"{os.path.basename(__file__)}: process finished")
 
 
 class Grid(grid_capnp.Grid.Server, common.Identifiable, common.Persistable, serv.AdministrableService):
@@ -476,7 +470,7 @@ async def main(path_to_ascii_grid, grid_crs, val_type, serve_bootstrap=True, hos
                    grid_crs=geo.name_to_crs(config["grid_crs"]), val_type=int if config["val_type"] == "int" else float,
                    id=config["id"], name=config["name"], description=config["description"], restorer=restorer)
     if config["fbp"]:
-        fbp(config, grid_capnp.Grid._new_client(service))
+        fbp_wrapper(config, grid_capnp.Grid._new_client(service))
     else:
         if config["use_async"]:
             await serv.async_init_and_run_service({"service": service}, config["host"], config["port"],
