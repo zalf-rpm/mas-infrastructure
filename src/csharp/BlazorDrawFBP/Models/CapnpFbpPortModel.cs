@@ -17,11 +17,13 @@ public class CapnpFbpPortModel : PortModel
     public PortType ThePortType { get; }
     public string Name { get; set; }
     
-    public new PortAlignment Alignment { get; set; } = PortAlignment.Left;
+    //public new PortAlignment? Alignment { get; set; }// = PortAlignment.Left;
     
     // order of the port in the list of ports with the same alignment
     public int OrderNo { get; set; } = 0;
 
+    //public int? Offset { get; set; }// = 0;
+    
     //public IEnumerable<LinkLabelModel> LinkLabelModels => Links.SelectMany(l => l.Labels.Where(l => l.));
     
     public CapnpFbpPortModel(NodeModel parent, PortType thePortType, PortAlignment alignment = PortAlignment.Bottom,

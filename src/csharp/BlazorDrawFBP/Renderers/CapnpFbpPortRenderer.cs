@@ -72,7 +72,7 @@ public class CapnpFbpPortRenderer : ComponentBase, IDisposable
         builder.OpenElement(0, _isParentSvg ? "g" : "div");
         builder.AddAttribute(1, "style", Style);
         builder.AddAttribute(2, "class",
-            "diagram-port " + Port.Alignment.ToString().ToLower() + " " + 
+            "diagram-port " + (Port.Alignment.ToString().ToLower() ?? "") + " " + 
             Port.ThePortType.ToString().ToLower() + " " +
             //offsetString + " " + 
             (Port.Links.Count > 0 ? "has-links" : "") + " " + Class);

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Blazor.Diagrams.Core;
@@ -85,4 +86,21 @@ public class AddPortControl : ExecutableControl
             };
         }
     }
+    
+    private static readonly Dictionary<int, List<int>> LeftRightOffsetsMap = new()
+    {
+        { 1, new List<int> { 0 } },
+        { 2, new List<int> { 10, -10 } },
+        { 3, new List<int> { 20, 0, -20 } },
+        { 4, new List<int> { 30, 10, -10, -30 } },
+        { 5, new List<int> { 30, 15, 0, -15, -30 } },
+        { 6, new List<int> { 30, 15, 0, -15, -30, -45 } },
+        { 7, new List<int> { 30, 20, 10, 0, -10, -20, -30 } },
+        { 8, new List<int> { 35, 25, 15, 5, -5, -15, -25, -35 } },
+        { 9, new List<int> { 40, 30, 20, 10, 0, -10, -20, -30, -40 } },
+        { 10, new List<int> { -45, -35, -25, -15, -5, 5, 15, 25, 35, 45 } },
+        { 11, new List<int> { 50, 40, 30, 20, 10, 0, -10, -20, -30, -40, -50 } },
+    };
+
+    private static readonly List<int> TopBottomOffsets = new() { -40, -30, -20, -10, 0, 10, 20, 30, 40 };
 }

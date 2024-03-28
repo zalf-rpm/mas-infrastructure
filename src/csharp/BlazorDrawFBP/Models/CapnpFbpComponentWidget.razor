@@ -2,6 +2,7 @@
 @using BlazorDrawFBP.Models;
 @using BlazorDrawFBP.Renderers
 @using System.Text
+@using System.Diagnostics.Metrics
 
 <div>
     <MudCard>
@@ -85,28 +86,43 @@
     {
         if (port is not CapnpFbpPortModel capnpPort) continue;
 
-        capnpPort.Alignment = capnpPort.ThePortType switch
+        /*var orderNo = Node.Ports.Where(p =>
         {
-            CapnpFbpPortModel.PortType.In => capnpPort.OrderNo switch
+            if (p is CapnpFbpPortModel cp) return cp.ThePortType == capnpPort.ThePortType;
+            return false;
+        }).TakeWhile(p => p != port).Count();
+        */
+        
+        var portCount = Node.Ports.Where(p =>
+        {
+            if (p is CapnpFbpPortModel cp) return cp.ThePortType == capnpPort.ThePortType;
+            return false;
+        }).Count();
+        
+        /*var portCount = Node.Ports.Where(p =>
+        {
+            if (p is CapnpFbpPortModel cp) return cp.ThePortType == capnpPort.ThePortType;
+            return false;
+        }).Count();
+        */
+
+        /*var capnpPortAlignment = capnpPort.ThePortType switch
+        {
+            CapnpFbpPortModel.PortType.In => orderNo switch
             {
                 10 => PortAlignment.TopLeft,
                 > 10 => PortAlignment.Top,
                 _ => PortAlignment.Left
             },
-            CapnpFbpPortModel.PortType.Out => capnpPort.OrderNo switch
+            CapnpFbpPortModel.PortType.Out => orderNo switch
             {
                 10 => PortAlignment.BottomRight,
                 > 10 => PortAlignment.Bottom,
                 _ => PortAlignment.Right
             },
             _ => throw new ArgumentOutOfRangeException()
-        };
-
-        var portCount = Node.Ports.Where(p =>
-        {
-            if (p is CapnpFbpPortModel cp) return cp.ThePortType == capnpPort.ThePortType;
-            return false;
-        }).Count();
+        };*/
+        
         var offsets = capnpPort.Alignment switch
         {
             PortAlignment.Left => _leftRightOffsetsMap[Math.Min(portCount, 11)],
@@ -121,16 +137,24 @@
             offsets.Reverse();
         }
 
-        ;
+        var capnpPortOffset = capnpPort.Alignment switch
+        {
+            PortAlignment.Left => offsets[capnpPort.OrderNo],
+            PortAlignment.Top => offsets[capnpPort.OrderNo - 11],
+            PortAlignment.Right => offsets[capnpPort.OrderNo],
+            PortAlignment.Bottom => offsets[capnpPort.OrderNo - 11],
+            _ => 0
+        };
 
         var style = capnpPort.Alignment switch
         {
-            PortAlignment.Left => $"top: {50 + offsets[capnpPort.OrderNo]}%;",
-            PortAlignment.Top => $"left: {50 + offsets[capnpPort.OrderNo - 11]}%;",
-            PortAlignment.Right => $"top: {50 + offsets[capnpPort.OrderNo]}%;",
-            PortAlignment.Bottom => $"left: {50 + offsets[capnpPort.OrderNo - 11]}%;",
+            PortAlignment.Left => $"top: {50 + capnpPortOffset}%;",
+            PortAlignment.Top => $"left: {50 + capnpPortOffset}%;",
+            PortAlignment.Right => $"top: {50 + capnpPortOffset}%;",
+            PortAlignment.Bottom => $"left: {50 + capnpPortOffset}%;",
             _ => ""
-        };
+        };        
+
         // Console.WriteLine(capnpPort.ThePortType.ToString() + " OrderNo: " + capnpPort.OrderNo + " -> " + style);
         <CapnpFbpPortRenderer @key="port" Port="capnpPort" Style="@style">
             @($"{capnpPort.ThePortType.ToString().ToUpper()[0]} {capnpPort.Name}")
@@ -154,10 +178,10 @@
         { 3, new List<int> { 20, 0, -20 } },
         { 4, new List<int> { 30, 10, -10, -30 } },
         { 5, new List<int> { 30, 15, 0, -15, -30 } },
-        { 6, new List<int> { 35, 21, 7, -7, -21, -35 } },
-        { 7, new List<int> { 45, 30, 15, 0, -15, -30, -45 } },
-        { 8, new List<int> { 42, 30, 18, 6, -6, -18, -30, -42 } },
-        { 9, new List<int> { 36, 27, 18, 9, 0, -9, -18, -27, -36 } },
+        { 6, new List<int> { 30, 15, 0, -15, -30, -45 } },
+        { 7, new List<int> { 30, 20, 10, 0, -10, -20, -30 } },
+        { 8, new List<int> { 35, 25, 15, 5, -5, -15, -25, -35 } },
+        { 9, new List<int> { 40, 30, 20, 10, 0, -10, -20, -30, -40 } },
         { 10, new List<int> { -45, -35, -25, -15, -5, 5, 15, 25, 35, 45 } },
         { 11, new List<int> { 50, 40, 30, 20, 10, 0, -10, -20, -30, -40, -50 } },
     };

@@ -17,4 +17,8 @@
     <PackageReference Include="Z.Blazor.Diagrams.Core" Version="3.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Anchors\" />
+  </ItemGroup>
+
 </Project>
