@@ -98,31 +98,7 @@
             if (p is CapnpFbpPortModel cp) return cp.ThePortType == capnpPort.ThePortType;
             return false;
         }).Count();
-        
-        /*var portCount = Node.Ports.Where(p =>
-        {
-            if (p is CapnpFbpPortModel cp) return cp.ThePortType == capnpPort.ThePortType;
-            return false;
-        }).Count();
-        */
 
-        /*var capnpPortAlignment = capnpPort.ThePortType switch
-        {
-            CapnpFbpPortModel.PortType.In => orderNo switch
-            {
-                10 => PortAlignment.TopLeft,
-                > 10 => PortAlignment.Top,
-                _ => PortAlignment.Left
-            },
-            CapnpFbpPortModel.PortType.Out => orderNo switch
-            {
-                10 => PortAlignment.BottomRight,
-                > 10 => PortAlignment.Bottom,
-                _ => PortAlignment.Right
-            },
-            _ => throw new ArgumentOutOfRangeException()
-        };*/
-        
         var offsets = capnpPort.Alignment switch
         {
             PortAlignment.Left => _leftRightOffsetsMap[Math.Min(portCount, 11)],
@@ -153,8 +129,8 @@
             PortAlignment.Right => $"top: {50 + capnpPortOffset}%;",
             PortAlignment.Bottom => $"left: {50 + capnpPortOffset}%;",
             _ => ""
-        };        
-
+        };
+        
         // Console.WriteLine(capnpPort.ThePortType.ToString() + " OrderNo: " + capnpPort.OrderNo + " -> " + style);
         <CapnpFbpPortRenderer @key="port" Port="capnpPort" Style="@style">
             @($"{capnpPort.ThePortType.ToString().ToUpper()[0]} {capnpPort.Name}")

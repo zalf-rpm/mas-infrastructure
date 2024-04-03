@@ -25,6 +25,7 @@ using Microsoft.JSInterop;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SharedDemo.Demos;
+using ArgumentOutOfRangeException = System.ArgumentOutOfRangeException;
 
 namespace BlazorDrawFBP.Pages
 {
@@ -118,14 +119,16 @@ namespace BlazorDrawFBP.Pages
                                 l.TargetChanged += (link, oldTarget, newTarget) =>
                                 {
                                     if (newTarget.Model is not CapnpFbpPortModel outPort) return;
-                                    //link.Labels[1].Content = outPort.Name;
-                                    //link.Refresh();
-                                    var nl = new LinkModel(sourcePort.Parent, outPort.Parent);
-                                    nl.Labels.Add(new LinkLabelModel(nl, sourcePort.Name, 40));
-                                    nl.Labels.Add(new LinkLabelModel(nl, outPort.Name, -40));
-                                    nl.SourceMarker = LinkMarker.Arrow;
+                                    var nl = new LinkModel(outPort.Parent, sourcePort.Parent);
+                                    nl.Labels.Add(new LinkLabelModel(nl, outPort.Name, 40));
+                                    nl.Labels.Add(new LinkLabelModel(nl, sourcePort.Name, -40));
+                                    nl.TargetMarker = LinkMarker.Arrow;
                                     Diagram.Links.Add(nl);
                                     Diagram.Links.Remove(l);
+                                    outPort.Visibility = CapnpFbpPortModel.VisibilityState.Hidden;
+                                    sourcePort.Visibility = CapnpFbpPortModel.VisibilityState.Dashed;
+                                    sourcePort.Refresh();
+                                    outPort.Refresh();
                                 };
                                 break;
                             case CapnpFbpPortModel.PortType.Out:
@@ -135,14 +138,16 @@ namespace BlazorDrawFBP.Pages
                                 l.TargetChanged += (link, oldTarget, newTarget) =>
                                 {
                                     if (newTarget.Model is not CapnpFbpPortModel inPort) return;
-                                    //link.Labels[1].Content = inPort.Name;
-                                    //link.Refresh();
                                     var nl = new LinkModel(sourcePort.Parent, inPort.Parent);
                                     nl.Labels.Add(new LinkLabelModel(nl, sourcePort.Name, 40));
                                     nl.Labels.Add(new LinkLabelModel(nl, inPort.Name, -40));
                                     nl.TargetMarker = LinkMarker.Arrow;
                                     Diagram.Links.Add(nl);
                                     Diagram.Links.Remove(l);
+                                    sourcePort.Visibility = CapnpFbpPortModel.VisibilityState.Hidden;
+                                    inPort.Visibility = CapnpFbpPortModel.VisibilityState.Dashed;
+                                    sourcePort.Refresh();
+                                    inPort.Refresh();
                                 };
                                 break;
                             default:
@@ -162,7 +167,7 @@ namespace BlazorDrawFBP.Pages
                             //link.Labels[0].Content = inPort.Name;
                             //link.Refresh();
                             var nl = new LinkModel(iipPortModel.Parent, inPort.Parent);
-                            nl.Labels.Add(new LinkLabelModel(nl, "", 40));
+                            //nl.Labels.Add(new LinkLabelModel(nl, "", 40));
                             nl.Labels.Add(new LinkLabelModel(nl, inPort.Name, -40));
                             nl.TargetMarker = LinkMarker.Arrow;
                             Diagram.Links.Add(nl);
@@ -334,8 +339,14 @@ namespace BlazorDrawFBP.Pages
                 if (sourcePort == null || targetPort == null) continue;
                 //Diagram.Links.Add(new LinkModel(sourcePort, targetPort));
 
+                if (sourcePort is CapnpFbpPortModel scp) scp.Visibility = CapnpFbpPortModel.VisibilityState.Hidden;
+                if (targetPort is CapnpFbpPortModel tcp) tcp.Visibility = CapnpFbpPortModel.VisibilityState.Dashed;
+                
                 var l = new LinkModel(sourceNode, targetNode);
-                l.Labels.Add(new LinkLabelModel(l, sourcePortName, 40));
+                if (sourceNode is not CapnpFbpIipModel)
+                {
+                    l.Labels.Add(new LinkLabelModel(l, sourcePortName, 40));
+                }
                 l.Labels.Add(new LinkLabelModel(l, targetPortName, -40));
                 l.TargetMarker = LinkMarker.Arrow;
                 Diagram.Links.Add(l);

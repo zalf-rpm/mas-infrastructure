@@ -34,7 +34,7 @@ public class CapnpFbpPortRenderer : ComponentBase, IDisposable
     [Parameter] public string Class { get; set; }
 
     [Parameter] public string Style { get; set; }
-
+    
     [Parameter] public RenderFragment ChildContent { get; set; }
 
     public void Dispose()
@@ -69,8 +69,16 @@ public class CapnpFbpPortRenderer : ComponentBase, IDisposable
         if (!Port.Visible)
             return;
         
+        var visibility = Port.Visibility switch
+        {
+            CapnpFbpPortModel.VisibilityState.Hidden => "display: none;",
+            CapnpFbpPortModel.VisibilityState.Dashed => "border-style: dashed;",
+            CapnpFbpPortModel.VisibilityState.Visible => "",
+            _ => throw new ArgumentOutOfRangeException()
+        };
+        
         builder.OpenElement(0, _isParentSvg ? "g" : "div");
-        builder.AddAttribute(1, "style", Style);
+        builder.AddAttribute(1, "style", Style + visibility);
         builder.AddAttribute(2, "class",
             "diagram-port " + (Port.Alignment.ToString().ToLower() ?? "") + " " + 
             Port.ThePortType.ToString().ToLower() + " " +

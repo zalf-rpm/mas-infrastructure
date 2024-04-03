@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Blazor.Diagrams.Core.Geometry;
@@ -14,18 +15,21 @@ public class CapnpFbpPortModel : PortModel
         Out
     }
 
+    public enum VisibilityState
+    {
+        Hidden,
+        Visible,
+        Dashed
+    }
+    
     public PortType ThePortType { get; }
     public string Name { get; set; }
-    
-    //public new PortAlignment? Alignment { get; set; }// = PortAlignment.Left;
-    
+
+    public VisibilityState Visibility { get; set; } = VisibilityState.Visible;
+
     // order of the port in the list of ports with the same alignment
     public int OrderNo { get; set; } = 0;
 
-    //public int? Offset { get; set; }// = 0;
-    
-    //public IEnumerable<LinkLabelModel> LinkLabelModels => Links.SelectMany(l => l.Labels.Where(l => l.));
-    
     public CapnpFbpPortModel(NodeModel parent, PortType thePortType, PortAlignment alignment = PortAlignment.Bottom,
         Point position = null, Size size = null) : base(parent, alignment, position, size)
     {

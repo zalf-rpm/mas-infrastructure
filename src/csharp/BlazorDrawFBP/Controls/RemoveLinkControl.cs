@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using Blazor.Diagrams.Core;
 using Blazor.Diagrams.Core.Controls;
@@ -7,6 +8,7 @@ using Blazor.Diagrams.Core.Geometry;
 using Blazor.Diagrams.Core.Models;
 using Blazor.Diagrams.Core.Models.Base;
 using Blazor.Diagrams.Core.Positions;
+using BlazorDrawFBP.Models;
 
 namespace BlazorDrawFBP.Controls;
 
@@ -44,6 +46,37 @@ public class RemoveLinkControl : ExecutableControl
                 diagram.Nodes.Remove(nodeModel);
                 break;
             case BaseLinkModel baseLinkModel:
+                if (baseLinkModel.Source.Model is NodeModel sourceNode)
+                {
+                    foreach (var p in sourceNode.Ports)
+                    {
+                        if (p is CapnpFbpPortModel { ThePortType: CapnpFbpPortModel.PortType.Out } ocp &&
+                            ocp.Name == baseLinkModel.Labels[0].Content)
+                        {
+                            ocp.Visibility = CapnpFbpPortModel.VisibilityState.Visible;
+                        }
+                    }
+                    sourceNode.RefreshAll();
+                }
+                if (baseLinkModel.Target.Model is NodeModel targetNode)
+                {
+                    var noOfLinksToInPort = diagram.Links.Count(l => l.Target.Model == targetNode
+                    && l.Labels[1].Content == baseLinkModel.Labels[1].Content);
+
+                    if (noOfLinksToInPort == 1)
+                    {
+                        foreach (var p in targetNode.Ports)
+                        {
+                            if (p is CapnpFbpPortModel { ThePortType: CapnpFbpPortModel.PortType.In } ocp &&
+                                ocp.Name == baseLinkModel.Labels[1].Content)
+                            {
+                                ocp.Visibility = CapnpFbpPortModel.VisibilityState.Visible;
+                            }
+                        }
+                    }
+                    targetNode.RefreshAll();
+                }
+                
                 diagram.Links.Remove(baseLinkModel);
                 break;
         }
@@ -53,22 +86,13 @@ public class RemoveLinkControl : ExecutableControl
     {
         if (model.Locked)
             return false;
-        bool flag;
-        switch (model)
+        bool flag = model switch
         {
-            case GroupModel groupModel:
-                flag = await diagram.Options.Constraints.ShouldDeleteGroup(groupModel);
-                break;
-            case NodeModel nodeModel:
-                flag = await diagram.Options.Constraints.ShouldDeleteNode(nodeModel);
-                break;
-            case BaseLinkModel baseLinkModel:
-                flag = await diagram.Options.Constraints.ShouldDeleteLink(baseLinkModel);
-                break;
-            default:
-                flag = false;
-                break;
-        }
+            GroupModel groupModel => await diagram.Options.Constraints.ShouldDeleteGroup(groupModel),
+            NodeModel nodeModel => await diagram.Options.Constraints.ShouldDeleteNode(nodeModel),
+            BaseLinkModel baseLinkModel => await diagram.Options.Constraints.ShouldDeleteLink(baseLinkModel),
+            _ => false
+        };
 
         return flag;
     }
