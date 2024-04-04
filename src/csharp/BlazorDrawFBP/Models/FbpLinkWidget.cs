@@ -14,6 +14,7 @@ using SvgPathProperties;
 using System;
 using System.Runtime.CompilerServices;
 using BlazorDrawFBP.Behaviors;
+using BlazorDrawFBP.Renderers;
 
 namespace BlazorDrawFBP.Models;
 

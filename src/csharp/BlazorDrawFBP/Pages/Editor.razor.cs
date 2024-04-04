@@ -113,15 +113,15 @@ namespace BlazorDrawFBP.Pages
                         switch (sourcePort.ThePortType)
                         {
                             case CapnpFbpPortModel.PortType.In:
-                                l.Labels.Add(new LinkLabelModel(l, sourcePort.Name, 30));
-                                l.Labels.Add(new LinkLabelModel(l, targetPort?.Name ?? "OUT", -30));
+                                l.Labels.Add(new LinkLabelModel(l, sourcePort.Name, 0.2));
+                                l.Labels.Add(new LinkLabelModel(l, targetPort?.Name ?? "OUT", 0.8));
                                 l.SourceMarker = LinkMarker.Arrow;
                                 l.TargetChanged += (link, oldTarget, newTarget) =>
                                 {
                                     if (newTarget.Model is not CapnpFbpPortModel outPort) return;
                                     var nl = new LinkModel(outPort.Parent, sourcePort.Parent);
-                                    nl.Labels.Add(new LinkLabelModel(nl, outPort.Name, 30));
-                                    nl.Labels.Add(new LinkLabelModel(nl, sourcePort.Name, -30));
+                                    nl.Labels.Add(new LinkLabelModel(nl, outPort.Name, 0.2));
+                                    nl.Labels.Add(new LinkLabelModel(nl, sourcePort.Name, 0.8));
                                     nl.TargetMarker = LinkMarker.Arrow;
                                     Diagram.Links.Add(nl);
                                     Diagram.Links.Remove(l);
@@ -132,15 +132,15 @@ namespace BlazorDrawFBP.Pages
                                 };
                                 break;
                             case CapnpFbpPortModel.PortType.Out:
-                                l.Labels.Add(new LinkLabelModel(l, sourcePort.Name, 30));
-                                l.Labels.Add(new LinkLabelModel(l, targetPort?.Name ?? "IN", -30));
+                                l.Labels.Add(new LinkLabelModel(l, sourcePort.Name, 0.2));
+                                l.Labels.Add(new LinkLabelModel(l, targetPort?.Name ?? "IN", 0.8));
                                 l.TargetMarker = LinkMarker.Arrow;
                                 l.TargetChanged += (link, oldTarget, newTarget) =>
                                 {
                                     if (newTarget.Model is not CapnpFbpPortModel inPort) return;
                                     var nl = new LinkModel(sourcePort.Parent, inPort.Parent);
-                                    nl.Labels.Add(new LinkLabelModel(nl, sourcePort.Name, 40));
-                                    nl.Labels.Add(new LinkLabelModel(nl, inPort.Name, -40));
+                                    nl.Labels.Add(new LinkLabelModel(nl, sourcePort.Name, 0.2));
+                                    nl.Labels.Add(new LinkLabelModel(nl, inPort.Name, 0.8));
                                     nl.TargetMarker = LinkMarker.Arrow;
                                     Diagram.Links.Add(nl);
                                     Diagram.Links.Remove(l);
@@ -159,7 +159,7 @@ namespace BlazorDrawFBP.Pages
                     case CapnpFbpIipPortModel iipPortModel:
                     {
                         var targetPort = l.Target.Model as CapnpFbpPortModel;
-                        l.Labels.Add(new LinkLabelModel(l, targetPort?.Name ?? "IN", -40));
+                        l.Labels.Add(new LinkLabelModel(l, targetPort?.Name ?? "IN", 0.8));
                         l.TargetMarker = LinkMarker.Arrow;
                         l.TargetChanged += (link, oldTarget, newTarget) =>
                         {
@@ -168,7 +168,8 @@ namespace BlazorDrawFBP.Pages
                             //link.Refresh();
                             var nl = new LinkModel(iipPortModel.Parent, inPort.Parent);
                             //nl.Labels.Add(new LinkLabelModel(nl, "", 40));
-                            nl.Labels.Add(new LinkLabelModel(nl, inPort.Name, -40));
+                            nl.Labels.Add(new LinkLabelModel(nl, inPort.Name, 0.8));
+                            nl.Labels.Add(new LinkLabelModel(nl, "Channel", 0.5));
                             nl.TargetMarker = LinkMarker.Arrow;
                             Diagram.Links.Add(nl);
                             Diagram.Links.Remove(l);
