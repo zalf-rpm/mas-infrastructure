@@ -61,9 +61,20 @@
                             @* </MudButton> *@
                         </MudStack>
                     </MudExpansionPanel>
+                    <MudTextField @bind-Value="@_query" 
+                                  Label="Search component ..." 
+                                  Variant="Variant.Outlined"
+                                  Margin="Margin.Dense"
+                                  Adornment="Adornment.End"
+                                  AdornmentIcon="@Icons.Material.Filled.Cancel"
+                                  OnAdornmentClick="() => { _query = null; }"/>
                     @foreach (var (cat, value) in _components)
                     {
-                        <MudExpansionPanel Text="@cat" IsInitiallyExpanded="@(cat == "generic")">
+                        <MudExpansionPanel Text="@cat" 
+                                           IsExpanded="@(!string.IsNullOrWhiteSpace(_query) 
+                                                         || _expandedPanels.GetValueOrDefault(cat, false))" 
+                                           IsInitiallyExpanded="@(cat == "generic")"
+                                           IsExpandedChanged="b => { if (string.IsNullOrWhiteSpace(_query)) _expandedPanels[cat] = b; }">
                             <MudStack Spacing="1">
                                 @foreach (var component in value as JArray ?? new JArray())
                                 {
@@ -78,7 +89,13 @@
                                     if (nodeType == null) continue;
                                     
                                     var desc = obj["description"]?.ToString() ?? "";
-        
+
+                                    if (!string.IsNullOrWhiteSpace(_query) && 
+                                        componentId?.Contains(_query, StringComparison.OrdinalIgnoreCase) == false &&
+                                        desc.Contains(_query, StringComparison.OrdinalIgnoreCase) == false)
+                                    {
+                                        continue;
+                                    }
                                     <MudCard>
                                         <MudCardHeader>
                                             <CardHeaderContent>
@@ -129,6 +146,8 @@
     private Timer ClearButtonTimer { get; set; }
     private bool ClearButtonDisabled { get; set; } = true;
     private Editor _editor;
+    private string _query;
+    private Dictionary<string, bool> _expandedPanels = new() { {"generic", true} };
     
     private void ClearButtonClicked()
     {
