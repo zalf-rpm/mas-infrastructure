@@ -113,15 +113,15 @@ namespace BlazorDrawFBP.Pages
                         switch (sourcePort.ThePortType)
                         {
                             case CapnpFbpPortModel.PortType.In:
-                                l.Labels.Add(new LinkLabelModel(l, sourcePort.Name, 40));
-                                l.Labels.Add(new LinkLabelModel(l, targetPort?.Name ?? "OUT", -40));
+                                l.Labels.Add(new LinkLabelModel(l, sourcePort.Name, 30));
+                                l.Labels.Add(new LinkLabelModel(l, targetPort?.Name ?? "OUT", -30));
                                 l.SourceMarker = LinkMarker.Arrow;
                                 l.TargetChanged += (link, oldTarget, newTarget) =>
                                 {
                                     if (newTarget.Model is not CapnpFbpPortModel outPort) return;
                                     var nl = new LinkModel(outPort.Parent, sourcePort.Parent);
-                                    nl.Labels.Add(new LinkLabelModel(nl, outPort.Name, 40));
-                                    nl.Labels.Add(new LinkLabelModel(nl, sourcePort.Name, -40));
+                                    nl.Labels.Add(new LinkLabelModel(nl, outPort.Name, 30));
+                                    nl.Labels.Add(new LinkLabelModel(nl, sourcePort.Name, -30));
                                     nl.TargetMarker = LinkMarker.Arrow;
                                     Diagram.Links.Add(nl);
                                     Diagram.Links.Remove(l);
@@ -132,8 +132,8 @@ namespace BlazorDrawFBP.Pages
                                 };
                                 break;
                             case CapnpFbpPortModel.PortType.Out:
-                                l.Labels.Add(new LinkLabelModel(l, sourcePort.Name, 40));
-                                l.Labels.Add(new LinkLabelModel(l, targetPort?.Name ?? "IN", -40));
+                                l.Labels.Add(new LinkLabelModel(l, sourcePort.Name, 30));
+                                l.Labels.Add(new LinkLabelModel(l, targetPort?.Name ?? "IN", -30));
                                 l.TargetMarker = LinkMarker.Arrow;
                                 l.TargetChanged += (link, oldTarget, newTarget) =>
                                 {
@@ -172,6 +172,9 @@ namespace BlazorDrawFBP.Pages
                             nl.TargetMarker = LinkMarker.Arrow;
                             Diagram.Links.Add(nl);
                             Diagram.Links.Remove(l);
+                            inPort.Visibility = CapnpFbpPortModel.VisibilityState.Dashed;
+                            inPort.Refresh();
+                            iipPortModel.Parent.RefreshAll();
                         };
                         break;
                     }
@@ -345,9 +348,9 @@ namespace BlazorDrawFBP.Pages
                 var l = new LinkModel(sourceNode, targetNode);
                 if (sourceNode is not CapnpFbpIipModel)
                 {
-                    l.Labels.Add(new LinkLabelModel(l, sourcePortName, 40));
+                    l.Labels.Add(new LinkLabelModel(l, sourcePortName, 50));
                 }
-                l.Labels.Add(new LinkLabelModel(l, targetPortName, -40));
+                l.Labels.Add(new LinkLabelModel(l, targetPortName, -50));
                 l.TargetMarker = LinkMarker.Arrow;
                 Diagram.Links.Add(l);
             }

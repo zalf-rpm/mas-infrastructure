@@ -3,9 +3,10 @@
 @using BlazorDrawFBP.Renderers
 @using System.Text
 @using System.Diagnostics.Metrics
+@using _Imports = MudBlazor._Imports
 
 <div>
-    <MudCard>
+    <MudCard Style="@MinHeight">
         <MudCardHeader>
             @*<CardHeaderAvatar>
                 <MudAvatar Color="Color.Secondary"
@@ -141,6 +142,20 @@
 @code {
     [Parameter] public CapnpFbpComponentModel Node { get; set; } = null!;
 
+    private string MinHeight =>
+        $@"min-height: {Math.Max(100, Math.Max(
+            Node.Ports.Count(p =>
+            {
+                if (p is CapnpFbpPortModel cp) return cp.ThePortType == CapnpFbpPortModel.PortType.In;
+                return false;
+            }) * 2 * 20, 
+            Node.Ports.Count(p =>
+            {
+                if (p is CapnpFbpPortModel cp) return cp.ThePortType == CapnpFbpPortModel.PortType.Out;
+                return false;
+            }) * 2 * 20 
+        ))}px";
+
     private bool ParallelOn
     {
         get => Node.InParallelCount > 1;
@@ -150,8 +165,8 @@
     private readonly Dictionary<int, List<int>> _leftRightOffsetsMap = new()
     {
         { 1, new List<int> { 0 } },
-        { 2, new List<int> { 10, -10 } },
-        { 3, new List<int> { 20, 0, -20 } },
+        { 2, new List<int> { 30, -30 } },
+        { 3, new List<int> { 30, 0, -30 } },
         { 4, new List<int> { 30, 10, -10, -30 } },
         { 5, new List<int> { 30, 15, 0, -15, -30 } },
         { 6, new List<int> { 30, 15, 0, -15, -30, -45 } },

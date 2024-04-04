@@ -9,7 +9,7 @@
     @foreach (var port in Node.Ports)
     {
         if (port is not CapnpFbpIipPortModel iipPort) continue;
-        <PortRenderer Port="iipPort" Class="default"/>
+        <CapnpFbpIipPortRenderer Port="iipPort" Class="default"/>
     }
 </div>
 

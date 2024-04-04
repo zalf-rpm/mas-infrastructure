@@ -51,24 +51,29 @@ public class RemoveLinkControl : ExecutableControl
                     foreach (var p in sourceNode.Ports)
                     {
                         if (p is CapnpFbpPortModel { ThePortType: CapnpFbpPortModel.PortType.Out } ocp &&
-                            ocp.Name == baseLinkModel.Labels[0].Content)
+                            ocp.Name == baseLinkModel.Labels.First().Content)
                         {
                             ocp.Visibility = CapnpFbpPortModel.VisibilityState.Visible;
                         }
                     }
+                    
+                    /*if (sourceNode is CapnpFbpIipModel { Links.Count: 1 } iipModel)
+                    {
+                        foreach (var p in iipModel.Ports) p.Visible = true;
+                    }*/
                     sourceNode.RefreshAll();
                 }
                 if (baseLinkModel.Target.Model is NodeModel targetNode)
                 {
                     var noOfLinksToInPort = diagram.Links.Count(l => l.Target.Model == targetNode
-                    && l.Labels[1].Content == baseLinkModel.Labels[1].Content);
+                    && l.Labels.Last().Content == baseLinkModel.Labels.Last().Content);
 
                     if (noOfLinksToInPort == 1)
                     {
                         foreach (var p in targetNode.Ports)
                         {
                             if (p is CapnpFbpPortModel { ThePortType: CapnpFbpPortModel.PortType.In } ocp &&
-                                ocp.Name == baseLinkModel.Labels[1].Content)
+                                ocp.Name == baseLinkModel.Labels.Last().Content)
                             {
                                 ocp.Visibility = CapnpFbpPortModel.VisibilityState.Visible;
                             }
