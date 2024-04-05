@@ -88,3 +88,14 @@ interface Channel(V) extends(Identifiable, Persistent) {
   # wait for empty buffer or kill channel right away
 }
 
+interface PortCallbackRegistrar {
+  # interface to register callbacks for ports
+
+  interface PortCallback {
+    newInPort @0 (name :Text, readerCap :Channel(IP).Reader);
+    newOutPort @1 (name :Text, writerCap :Channel(IP).Writer);
+  }
+
+  registerCallback @0 (portName :Text, callback :PortCallback);
+  # register a callback for a port
+}
