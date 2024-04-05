@@ -1,0 +1,37 @@
+<div class="channel-link-label" style="@(Visibility)">
+    <MudCarousel Class="mud-width-full" 
+                 Style="height:50px;" 
+                 ShowArrows="@true" 
+                 ShowBullets="@false" 
+                 EnableSwipeGesture="@true" 
+                 AutoCycle="@false" 
+                 TData="object">
+        <MudCarouselItem Transition="@Transition.Slide" Color="@Color.Default">
+                    <MudChip Color="Color.Default">113 Msgs</MudChip>
+                </MudCarouselItem>
+        <MudCarouselItem Transition="@Transition.Slide" Color="@Color.Default">
+            <MudChip Icon="@Icons.Material.Filled.OpenInNew" 
+                     OnClick="OpenChannelInfo" 
+                     Color="Color.Default">Channel</MudChip>
+        </MudCarouselItem>
+        @*<MudCarouselItem Transition="@Transition.Slide">
+            <div class="d-flex" style="height:100%">
+                <MudIcon Class="mx-auto my-auto" Icon="@Icons.Custom.Brands.MudBlazor" Color="@Color.Primary" Size="@Size.Large" />
+            </div>
+        </MudCarouselItem>*@
+    </MudCarousel>
+</div>
+
+@code 
+{
+    [Parameter] 
+    public ChannelLinkLabelModel Label { get; set; }
+    
+    private string Visibility => Label.InteractiveMode ? "" : "display: none";
+    
+    private void OpenChannelInfo()
+    {
+        Console.WriteLine("Open Channel Info");
+    }
+    
+}

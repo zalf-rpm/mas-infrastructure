@@ -78,6 +78,7 @@ namespace BlazorDrawFBP.Pages
             Diagram.RegisterComponent<RemoveProcessControl, RemoveProcessControlWidget>();
             Diagram.RegisterComponent<RemoveLinkControl, RemoveLinkControlWidget>();
             Diagram.RegisterComponent<LinkModel, FbpLinkWidget>(true);
+            Diagram.RegisterComponent<ChannelLinkLabelModel, ChannelLinkLabelWidget>();
             RegisterEvents();
             
             //var oldDragNewLinkBehavior = Diagram.GetBehavior<DragNewLinkBehavior>()!;
@@ -121,6 +122,9 @@ namespace BlazorDrawFBP.Pages
                                     if (newTarget.Model is not CapnpFbpPortModel outPort) return;
                                     var nl = new LinkModel(outPort.Parent, sourcePort.Parent);
                                     nl.Labels.Add(new LinkLabelModel(nl, outPort.Name, 0.2));
+                                    var cllm = new ChannelLinkLabelModel(nl, "Channel", 0.5);
+                                    InteractiveModeChanged += cllm.ToggleInteractiveMode;
+                                    nl.Labels.Add(cllm);
                                     nl.Labels.Add(new LinkLabelModel(nl, sourcePort.Name, 0.8));
                                     nl.TargetMarker = LinkMarker.Arrow;
                                     Diagram.Links.Add(nl);
@@ -140,6 +144,9 @@ namespace BlazorDrawFBP.Pages
                                     if (newTarget.Model is not CapnpFbpPortModel inPort) return;
                                     var nl = new LinkModel(sourcePort.Parent, inPort.Parent);
                                     nl.Labels.Add(new LinkLabelModel(nl, sourcePort.Name, 0.2));
+                                    var cllm = new ChannelLinkLabelModel(nl, "Channel", 0.5);
+                                    InteractiveModeChanged += cllm.ToggleInteractiveMode;
+                                    nl.Labels.Add(cllm);
                                     nl.Labels.Add(new LinkLabelModel(nl, inPort.Name, 0.8));
                                     nl.TargetMarker = LinkMarker.Arrow;
                                     Diagram.Links.Add(nl);
@@ -164,12 +171,11 @@ namespace BlazorDrawFBP.Pages
                         l.TargetChanged += (link, oldTarget, newTarget) =>
                         {
                             if (newTarget.Model is not CapnpFbpPortModel inPort) return;
-                            //link.Labels[0].Content = inPort.Name;
-                            //link.Refresh();
                             var nl = new LinkModel(iipPortModel.Parent, inPort.Parent);
-                            //nl.Labels.Add(new LinkLabelModel(nl, "", 40));
                             nl.Labels.Add(new LinkLabelModel(nl, inPort.Name, 0.8));
-                            nl.Labels.Add(new LinkLabelModel(nl, "Channel", 0.5));
+                            var cllm = new ChannelLinkLabelModel(nl, "Channel", 0.5);
+                            InteractiveModeChanged += cllm.ToggleInteractiveMode;
+                            nl.Labels.Add(cllm);
                             nl.TargetMarker = LinkMarker.Arrow;
                             Diagram.Links.Add(nl);
                             Diagram.Links.Remove(l);
@@ -349,9 +355,12 @@ namespace BlazorDrawFBP.Pages
                 var l = new LinkModel(sourceNode, targetNode);
                 if (sourceNode is not CapnpFbpIipModel)
                 {
-                    l.Labels.Add(new LinkLabelModel(l, sourcePortName, 50));
+                    l.Labels.Add(new LinkLabelModel(l, sourcePortName, 0.2));
                 }
-                l.Labels.Add(new LinkLabelModel(l, targetPortName, -50));
+                var cllm = new ChannelLinkLabelModel(l, "Channel", 0.5);
+                InteractiveModeChanged += cllm.ToggleInteractiveMode;
+                l.Labels.Add(cllm);
+                l.Labels.Add(new LinkLabelModel(l, targetPortName, 0.8));
                 l.TargetMarker = LinkMarker.Arrow;
                 Diagram.Links.Add(l);
             }

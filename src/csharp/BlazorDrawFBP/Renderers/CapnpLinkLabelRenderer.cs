@@ -46,18 +46,16 @@ public class CapnpLinkLabelRenderer : ComponentBase, IDisposable
     var componentType = type;
     builder.OpenElement(0, "foreignObject");
     builder.AddAttribute(1, "class", "diagram-link-label");
-    var renderTreeBuilder1 = builder;
     var x = position.X;
     var offset1 = Label.Offset;
     var num1 = (object) offset1 != null ? offset1.X : 0.0;
     var invariantString1 = (x + num1).ToInvariantString();
-    renderTreeBuilder1.AddAttribute(2, "x", invariantString1);
-    var renderTreeBuilder2 = builder;
+    builder.AddAttribute(2, "x", invariantString1);
     var y = position.Y;
     var offset2 = Label.Offset;
     var num2 = (object) offset2 != null ? offset2.Y : 0.0;
     var invariantString2 = (y + num2).ToInvariantString();
-    renderTreeBuilder2.AddAttribute(3, "y", invariantString2);
+    builder.AddAttribute(3, "y", invariantString2);
     builder.OpenComponent(4, componentType);
     builder.AddAttribute(5, "Label", (object) Label);
     builder.CloseComponent();
@@ -73,21 +71,24 @@ public class CapnpLinkLabelRenderer : ComponentBase, IDisposable
   {
     var length = Path.Length;
     var distance = Label.Distance;
-    double fractionLength = 0;
+    double fractionLength;
     if (distance.HasValue)
     {
       var valueOrDefault = distance.GetValueOrDefault();
-      fractionLength = valueOrDefault switch
+      if (valueOrDefault <= 1.0)
       {
-        < 0.0 and > -1.0 => length * valueOrDefault,
-        <= 1.0 => valueOrDefault >= 0.0 ? valueOrDefault * length : length + valueOrDefault,
-        > 1.0 => valueOrDefault,
-      };
+        fractionLength = valueOrDefault >= 0.0 ? Label.Distance.Value * length : length + Label.Distance.Value;
+        goto label_6;
+      }
+      else if (valueOrDefault > 1.0)
+      {
+        fractionLength = Label.Distance.Value;
+        goto label_6;
+      }
     }
-    else
-    {
-      fractionLength = length * (Label.Parent.Labels.IndexOf(Label) + 1) / (Label.Parent.Labels.Count + 1);
-    }
+
+    fractionLength = length * (Label.Parent.Labels.IndexOf(Label) + 1) / (Label.Parent.Labels.Count + 1);
+    label_6:
     var pointAtLength = Path.GetPointAtLength(fractionLength);
     return new Blazor.Diagrams.Core.Geometry.Point(pointAtLength.X, pointAtLength.Y);
   }
