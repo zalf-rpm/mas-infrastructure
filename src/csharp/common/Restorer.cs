@@ -12,7 +12,7 @@ using P = Mas.Schema.Persistence;
 
 namespace Mas.Infrastructure.Common
 {
-    public class Restorer : Mas.Schema.Persistence.IRestorer {
+    public class Restorer : P.IRestorer {
         private ConcurrentDictionary<string, Proxy> _srToken2Capability = new();
 
         public string TcpHost { get; set; } = "127.0.0.1";
@@ -57,7 +57,7 @@ namespace Mas.Infrastructure.Common
         }
 
         
-        public class ReleaseSturdyRef : Mas.Schema.Persistence.Persistent.IReleaseSturdyRef {
+        public class ReleaseSturdyRef : P.Persistent.IReleaseSturdyRef {
             private readonly Func<Task<bool>> _releaseFunc;
 
             public ReleaseSturdyRef(Func<Task<bool>> func) {

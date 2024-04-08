@@ -19,8 +19,20 @@
                               Variant="Variant.Outlined"/>
                 <MudToggleIconButton Style="position: absolute; right: -5px; top: -5px;"
                                      @bind-Toggled="@ParallelOn"
-                                     Icon="@Icons.Material.Filled.PlaylistAddCircle" Color="@Color.Primary" Title="Parallel On"
-                                     ToggledIcon="@Icons.Material.Filled.LooksOne" ToggledColor="@Color.Secondary" ToggledTitle="Parallel Off"/>
+                                     Icon="@Icons.Material.Filled.PlaylistAddCircle" 
+                                     Color="@Color.Primary" 
+                                     Title="Parallel On"
+                                     ToggledIcon="@Icons.Material.Filled.LooksOne" 
+                                     ToggledColor="@Color.Secondary" 
+                                     ToggledTitle="Parallel Off"/>
+                <MudToggleIconButton Style="position: absolute; right: -5px; top: 25px;"
+                                     @bind-Toggled="@ProcessStarted"
+                                     Icon="@Icons.Material.Filled.PlayCircle" 
+                                     Color="@Color.Primary" 
+                                     Title="Start process"
+                                     ToggledIcon="@Icons.Material.Filled.StopCircle" 
+                                     ToggledColor="@Color.Secondary" 
+                                     ToggledTitle="Stop process"/>
                 @if (ParallelOn)
                 {
                     <MudNumericField Class="d-inline-flex pr-6" Style="width: 80px;" 
@@ -141,7 +153,7 @@
 
 @code {
     [Parameter] public CapnpFbpComponentModel Node { get; set; } = null!;
-
+    
     private string MinHeight =>
         $@"min-height: {Math.Max(100, Math.Max(
             Node.Ports.Count(p =>
@@ -162,6 +174,44 @@
         set => Node.InParallelCount = value ? 2 : 1;
     }
 
+    private System.Diagnostics.Process _process = new();
+    
+    private bool _processStarted = false;
+    private bool ProcessStarted
+    {
+        get => _processStarted;
+        set
+        {
+            _processStarted = value;
+            if (_processStarted)
+            {
+                _process.EnableRaisingEvents = false;
+                _process.StartInfo.CreateNoWindow = false;
+                if (string.IsNullOrEmpty(Node.PathToInterpreter)) _process.StartInfo.FileName = Node.PathToFile;
+                else
+                {
+                    _process.StartInfo.FileName =  Node.PathToInterpreter;
+                    _process.StartInfo.ArgumentList.Add(Node.PathToFile);
+                }
+                foreach (var arg in Node.CmdParamString.Split("\n"))
+                {
+                    _process.StartInfo.ArgumentList.Add(arg);
+                }
+                _process.Start();
+                Console.WriteLine("process started");
+                    
+                //Node.PortCallbackRegistarSR
+                //Node.StartProcess();
+            }
+            else
+            {
+                _process.Kill();
+                Console.WriteLine("process stopped");
+                //Node.StopProcess();
+            }
+        }
+    }
+    
     private readonly Dictionary<int, List<int>> _leftRightOffsetsMap = new()
     {
         { 1, new List<int> { 0 } },

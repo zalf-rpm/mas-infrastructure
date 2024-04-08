@@ -3,6 +3,7 @@
   &lt;Assembly Path="/home/berg/.nuget/packages/z.blazor.diagrams/3.0.1/lib/net6.0/Blazor.Diagrams.dll" /&gt;
   &lt;Assembly Path="/home/berg/.nuget/packages/z.blazor.diagrams.core/3.0.1/lib/net6.0/Blazor.Diagrams.Core.dll" /&gt;
 &lt;/AssemblyExplorer&gt;</s:String>
+	
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Capnp/@EntryIndexedValue">True</s:Boolean>
 	
 	

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Blazor.Diagrams;
 using Blazor.Diagrams.Core;
@@ -18,7 +19,10 @@ using Blazor.Diagrams.Options;
 using BlazorDrawFBP.Behaviors;
 using BlazorDrawFBP.Controls;
 using BlazorDrawFBP.Models;
+using Capnp.Rpc;
+using Mas.Infrastructure.Common;
 using Mas.Schema.Climate;
+using Mas.Schema.Fbp;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
@@ -29,6 +33,19 @@ using ArgumentOutOfRangeException = System.ArgumentOutOfRangeException;
 
 namespace BlazorDrawFBP.Pages
 {
+    class PCBRegistrar : Mas.Schema.Fbp.IPortCallbackRegistrar
+    {
+        public Task RegisterCallback(string portName, PortCallbackRegistrar.IPortCallback callback, CancellationToken cancellationToken_ = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Dispose()
+        {
+            // TODO release managed resources here
+        }
+    }
+    
     public partial class Editor
     {
         private static readonly Random Random = new();
@@ -37,6 +54,10 @@ namespace BlazorDrawFBP.Pages
 
         private JObject _components = null!;
         private Dictionary<string, JObject> _componentDict = new();
+        
+        private Restorer _restorer = new();
+        private PCBRegistrar _pcbRegistrar = new();
+        private string _pcbRegistrarSR;
         
         protected override void OnInitialized()
         {
@@ -84,6 +105,10 @@ namespace BlazorDrawFBP.Pages
             //var oldDragNewLinkBehavior = Diagram.GetBehavior<DragNewLinkBehavior>()!;
             Diagram.UnregisterBehavior<DragNewLinkBehavior>();
             Diagram.RegisterBehavior(new FbpDragNewLinkBehavior(Diagram));
+
+            ConMan.Restorer = _restorer;
+            var res = _restorer.SaveStr(BareProxy.FromImpl(_pcbRegistrar));
+            _pcbRegistrarSR = res.Item1;
         }
 
         private void RegisterEvents()
@@ -679,7 +704,8 @@ namespace BlazorDrawFBP.Pages
                         ShortDescription = component["description"]?.ToString() ?? "",
                         CmdParamString = cmdParams.ToString(),
                         Editable = initNode?.GetValue("editable")?.Value<bool>() ?? pathToFile.Length == 0,
-                        InParallelCount = initNode?.GetValue("parallel_processes")?.Value<int>() ?? 1
+                        InParallelCount = initNode?.GetValue("parallel_processes")?.Value<int>() ?? 1,
+                        PortCallbackRegistarSR = _pcbRegistrarSR,
                     };
 
                     Diagram.Controls.AddFor(node).Add(new AddPortControl(0.2, 0, -33, -50)

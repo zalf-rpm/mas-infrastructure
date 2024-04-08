@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorComponents", "BlazorC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "common", "common\common.csproj", "{744AB43F-A8F3-4D00-B5D2-5D0E81287BDB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "capnproto_schemas_csharp", "..\..\capnproto_schemas\gen\csharp\capnproto_schemas_csharp.csproj", "{D0A2B6E0-880E-4079-A299-DD0380B2E7D8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "capnproto_schemas_csharp", "..\..\capnproto_schemas\gen\csharp\capnproto_schemas_csharp.csproj", "{B7E60F3F-1492-4456-BFEC-202EB1BD8B0B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,10 +41,10 @@ Global
 		{744AB43F-A8F3-4D00-B5D2-5D0E81287BDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{744AB43F-A8F3-4D00-B5D2-5D0E81287BDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{744AB43F-A8F3-4D00-B5D2-5D0E81287BDB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D0A2B6E0-880E-4079-A299-DD0380B2E7D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D0A2B6E0-880E-4079-A299-DD0380B2E7D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D0A2B6E0-880E-4079-A299-DD0380B2E7D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D0A2B6E0-880E-4079-A299-DD0380B2E7D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7E60F3F-1492-4456-BFEC-202EB1BD8B0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7E60F3F-1492-4456-BFEC-202EB1BD8B0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7E60F3F-1492-4456-BFEC-202EB1BD8B0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7E60F3F-1492-4456-BFEC-202EB1BD8B0B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

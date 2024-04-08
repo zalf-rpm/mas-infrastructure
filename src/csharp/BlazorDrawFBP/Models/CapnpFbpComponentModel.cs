@@ -18,6 +18,8 @@ public class CapnpFbpComponentModel : NodeModel
 
     public int InParallelCount { get; set; } = 1;
     
+    public string PortCallbackRegistarSR { get; set; }
+    
     public bool Editable { get; set; } = true;
     
     public static int ProcessNo { get; set; } = 0;

@@ -12,13 +12,13 @@ namespace Mas.Infrastructure.Common
         private ConcurrentDictionary<string, TcpRpcClient> _connections = new();
         private TcpRpcServer _server;
 
-        private Restorer _restorer;
+        public Restorer Restorer { get; set; }
 
         public ushort Port => (ushort)_server.Port;
 
         public ConnectionManager(Restorer restorer = null) 
         {
-            _restorer = restorer;
+            Restorer = restorer;
             //Console.WriteLine("ConnectionManager created");
         }
 
