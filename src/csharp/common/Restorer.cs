@@ -91,8 +91,9 @@ namespace Mas.Infrastructure.Common
 
         public string SturdyRefStr(string srToken) {
             var vatIdBase64Url = ToBase64Url(Convert.ToBase64String(VatId));
-            var srTokenBase64Url = ToBase64Url(Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(srToken)));
-            return $"capnp://{vatIdBase64Url}@{TcpHost}:{TcpPort}/{srTokenBase64Url}";
+            //var srTokenBase64Url = ToBase64Url(Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(srToken)));
+            //return $"capnp://{vatIdBase64Url}@{TcpHost}:{TcpPort}/{srTokenBase64Url}";
+            return $"capnp://{vatIdBase64Url}@{TcpHost}:{TcpPort}/{srToken}";
         }
 
         static public string SturdyRefStr(P.SturdyRef sturdyRef) {

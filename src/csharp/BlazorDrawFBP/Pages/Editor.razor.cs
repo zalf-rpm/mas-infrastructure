@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Security.AccessControl;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -33,11 +35,18 @@ using ArgumentOutOfRangeException = System.ArgumentOutOfRangeException;
 
 namespace BlazorDrawFBP.Pages
 {
-    class PCBRegistrar : Mas.Schema.Fbp.IPortCallbackRegistrar
+    internal class PcbRegistrar : Mas.Schema.Fbp.IPortCallbackRegistrar
     {
-        public Task RegisterCallback(string portName, PortCallbackRegistrar.IPortCallback callback, CancellationToken cancellationToken_ = default)
+        private readonly CapnpFbpComponentModel _model;
+
+        public PcbRegistrar(CapnpFbpComponentModel componentModel)
         {
-            throw new NotImplementedException();
+            _model = componentModel;
+        }
+        public Task RegisterCallback(PortCallbackRegistrar.IPortCallback callback, CancellationToken cancellationToken_ = default)
+        {
+            _model.PortCallback = Capnp.Rpc.Proxy.Share(callback);
+            return Task.CompletedTask;
         }
 
         public void Dispose()
@@ -53,11 +62,10 @@ namespace BlazorDrawFBP.Pages
         //private readonly List<string> events = new List<string>();
 
         private JObject _components = null!;
-        private Dictionary<string, JObject> _componentDict = new();
+        private readonly Dictionary<string, JObject> _componentDict = new();
         
-        private Restorer _restorer = new();
-        private PCBRegistrar _pcbRegistrar = new();
-        private string _pcbRegistrarSR;
+        private readonly Restorer _restorer = new() { TcpHost = ConnectionManager.GetLocalIPAddress() };
+        private readonly List<PcbRegistrar> _pcbRegistrars = new();
         
         protected override void OnInitialized()
         {
@@ -107,8 +115,8 @@ namespace BlazorDrawFBP.Pages
             Diagram.RegisterBehavior(new FbpDragNewLinkBehavior(Diagram));
 
             ConMan.Restorer = _restorer;
-            var res = _restorer.SaveStr(BareProxy.FromImpl(_pcbRegistrar));
-            _pcbRegistrarSR = res.Item1;
+            ConMan.Bind(IPAddress.Any, 0, _restorer);
+            _restorer.TcpPort = ConMan.Port;
         }
 
         private void RegisterEvents()
@@ -695,6 +703,7 @@ namespace BlazorDrawFBP.Pages
                         JTokenType.Null => null,
                         _ => initNode?.GetValue("process_name")?.ToString()
                     };
+                    
                     var node = new CapnpFbpComponentModel(new Point(position.X, position.Y))
                     {
                         ComponentId = compId,
@@ -705,9 +714,13 @@ namespace BlazorDrawFBP.Pages
                         CmdParamString = cmdParams.ToString(),
                         Editable = initNode?.GetValue("editable")?.Value<bool>() ?? pathToFile.Length == 0,
                         InParallelCount = initNode?.GetValue("parallel_processes")?.Value<int>() ?? 1,
-                        PortCallbackRegistarSR = _pcbRegistrarSR,
                     };
-
+                    var pcbRegistrar = new PcbRegistrar(node);
+                    var res = _restorer.SaveStr(BareProxy.FromImpl(pcbRegistrar));
+                    var pcbRegistrarSr = res.Item1;
+                    node.PortCallbackRegistarSr = pcbRegistrarSr;
+                    _pcbRegistrars.Add(pcbRegistrar);
+                    
                     Diagram.Controls.AddFor(node).Add(new AddPortControl(0.2, 0, -33, -50)
                     {
                         Label = "IN",

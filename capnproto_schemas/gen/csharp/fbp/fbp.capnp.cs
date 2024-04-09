@@ -1699,17 +1699,17 @@ namespace Mas.Schema.Fbp
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x8dff741cb4dfa00cUL), Proxy(typeof(PortCallbackRegistrar_Proxy)), Skeleton(typeof(PortCallbackRegistrar_Skeleton))]
     public interface IPortCallbackRegistrar : IDisposable
     {
-        Task RegisterCallback(string portName, Mas.Schema.Fbp.PortCallbackRegistrar.IPortCallback callback, CancellationToken cancellationToken_ = default);
+        Task RegisterCallback(Mas.Schema.Fbp.PortCallbackRegistrar.IPortCallback callback, CancellationToken cancellationToken_ = default);
     }
 
     [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x8dff741cb4dfa00cUL)]
     public class PortCallbackRegistrar_Proxy : Proxy, IPortCallbackRegistrar
     {
-        public async Task RegisterCallback(string portName, Mas.Schema.Fbp.PortCallbackRegistrar.IPortCallback callback, CancellationToken cancellationToken_ = default)
+        public async Task RegisterCallback(Mas.Schema.Fbp.PortCallbackRegistrar.IPortCallback callback, CancellationToken cancellationToken_ = default)
         {
             var in_ = SerializerState.CreateForRpc<Mas.Schema.Fbp.PortCallbackRegistrar.Params_RegisterCallback.WRITER>();
             var arg_ = new Mas.Schema.Fbp.PortCallbackRegistrar.Params_RegisterCallback()
-            {PortName = portName, Callback = callback};
+            {Callback = callback};
             arg_?.serialize(in_);
             using (var d_ = await Call(10232024545051516940UL, 0, in_.Rewrap<DynamicSerializerState>(), false, cancellationToken_).WhenReturned)
             {
@@ -1733,7 +1733,7 @@ namespace Mas.Schema.Fbp
             using (d_)
             {
                 var in_ = CapnpSerializable.Create<Mas.Schema.Fbp.PortCallbackRegistrar.Params_RegisterCallback>(d_);
-                await Impl.RegisterCallback(in_.PortName, in_.Callback, cancellationToken_);
+                await Impl.RegisterCallback(in_.Callback, cancellationToken_);
                 var s_ = SerializerState.CreateForRpc<Mas.Schema.Fbp.PortCallbackRegistrar.Result_RegisterCallback.WRITER>();
                 return s_;
             }
@@ -2061,14 +2061,12 @@ namespace Mas.Schema.Fbp
             void ICapnpSerializable.Deserialize(DeserializerState arg_)
             {
                 var reader = READER.create(arg_);
-                PortName = reader.PortName;
                 Callback = reader.Callback;
                 applyDefaults();
             }
 
             public void serialize(WRITER writer)
             {
-                writer.PortName = PortName;
                 writer.Callback = Callback;
             }
 
@@ -2079,12 +2077,6 @@ namespace Mas.Schema.Fbp
 
             public void applyDefaults()
             {
-            }
-
-            public string PortName
-            {
-                get;
-                set;
             }
 
             public Mas.Schema.Fbp.PortCallbackRegistrar.IPortCallback Callback
@@ -2104,27 +2096,20 @@ namespace Mas.Schema.Fbp
                 public static READER create(DeserializerState ctx) => new READER(ctx);
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
-                public string PortName => ctx.ReadText(0, null);
-                public Mas.Schema.Fbp.PortCallbackRegistrar.IPortCallback Callback => ctx.ReadCap<Mas.Schema.Fbp.PortCallbackRegistrar.IPortCallback>(1);
+                public Mas.Schema.Fbp.PortCallbackRegistrar.IPortCallback Callback => ctx.ReadCap<Mas.Schema.Fbp.PortCallbackRegistrar.IPortCallback>(0);
             }
 
             public class WRITER : SerializerState
             {
                 public WRITER()
                 {
-                    this.SetStruct(0, 2);
-                }
-
-                public string PortName
-                {
-                    get => this.ReadText(0, null);
-                    set => this.WriteText(0, value, null);
+                    this.SetStruct(0, 1);
                 }
 
                 public Mas.Schema.Fbp.PortCallbackRegistrar.IPortCallback Callback
                 {
-                    get => ReadCap<Mas.Schema.Fbp.PortCallbackRegistrar.IPortCallback>(1);
-                    set => LinkObject(1, value);
+                    get => ReadCap<Mas.Schema.Fbp.PortCallbackRegistrar.IPortCallback>(0);
+                    set => LinkObject(0, value);
                 }
             }
         }

@@ -4,6 +4,8 @@
 @using System.Text
 @using System.Diagnostics.Metrics
 @using _Imports = MudBlazor._Imports
+@using System.Diagnostics
+@using System.Threading
 
 <div>
     <MudCard Style="@MinHeight">
@@ -174,7 +176,7 @@
         set => Node.InParallelCount = value ? 2 : 1;
     }
 
-    private System.Diagnostics.Process _process = new();
+    private Process _process;
     
     private bool _processStarted = false;
     private bool ProcessStarted
@@ -185,31 +187,39 @@
             _processStarted = value;
             if (_processStarted)
             {
-                _process.EnableRaisingEvents = false;
-                _process.StartInfo.CreateNoWindow = false;
-                if (string.IsNullOrEmpty(Node.PathToInterpreter)) _process.StartInfo.FileName = Node.PathToFile;
+                var si = new ProcessStartInfo();
+                if (string.IsNullOrEmpty(Node.PathToInterpreter)) si.FileName = Node.PathToFile;
                 else
                 {
-                    _process.StartInfo.FileName =  Node.PathToInterpreter;
-                    _process.StartInfo.ArgumentList.Add(Node.PathToFile);
+                    si.FileName =  Node.PathToInterpreter;
+                    si.ArgumentList.Add(Node.PathToFile);
                 }
                 foreach (var arg in Node.CmdParamString.Split("\n"))
                 {
-                    _process.StartInfo.ArgumentList.Add(arg);
+                    if (!string.IsNullOrWhiteSpace(arg)) si.ArgumentList.Add(arg);
                 }
-                _process.Start();
+                si.ArgumentList.Add($"port_callback_registrar_sr={Node.PortCallbackRegistarSr}");
+                _process = Process.Start(si);
+
+                _process?.Start();
                 Console.WriteLine("process started");
-                    
-                //Node.PortCallbackRegistarSR
-                //Node.StartProcess();
             }
             else
             {
-                _process.Kill();
+                //InvokeAsync(NotififyOfNewOutPort);
+                NotififyOfNewOutPort();
+                Thread.Sleep(5000);
+                _process?.Kill();
                 Console.WriteLine("process stopped");
-                //Node.StopProcess();
             }
         }
+    }
+
+    private async void NotififyOfNewOutPort()
+    {
+        Console.WriteLine("sending new out port message");
+        await Node.PortCallback.NewOutPort("out", null);
+        Console.WriteLine("sent new out port message");
     }
     
     private readonly Dictionary<int, List<int>> _leftRightOffsetsMap = new()

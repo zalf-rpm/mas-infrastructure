@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Mas.Schema.Fbp;
 
 namespace BlazorDrawFBP.Models;
 
@@ -18,7 +19,9 @@ public class CapnpFbpComponentModel : NodeModel
 
     public int InParallelCount { get; set; } = 1;
     
-    public string PortCallbackRegistarSR { get; set; }
+    public string PortCallbackRegistarSr { get; set; }
+    
+    public PortCallbackRegistrar.IPortCallback PortCallback { get; set; }
     
     public bool Editable { get; set; } = true;
     
