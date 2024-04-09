@@ -46,27 +46,6 @@ using namespace Tools;
 using namespace Soil;
 using namespace json11;
 
-std::function<double(double)> Soil::transformIfPercent(const Json &j, const string& key) {
-    const auto &value = j[key];
-    if(value.is_array() && value.array_items().size() > 1
-       && value[1].is_string() && trim(value[1].string_value()) == "%") {
-      return [](double v) { return v / 100.0; };
-    }
-    return identity<double>;
-}
-
-std::function<double(double)> Soil::transformIfNotMeters(const Json &j, const string& key) {
-  const auto &value = j[key];
-  if(value.is_array() && value.array_items().size() > 1 && value[1].is_string()) {
-    auto unit = trim(value[1].string_value());
-    if (unit == "mm") return [](double v) { return v / 1000.0; };
-    else if (unit == "cm") return [](double v) { return v / 100.0; };
-    else if (unit == "dm") return [](double v) { return v / 10.0; };
-    else return identity<double>;
-  }
-  return identity<double>;
-}
-
 void SoilParameters::serialize(mas::schema::model::monica::SoilParameters::Builder builder) const {
   builder.setSoilSandContent(vs_SoilSandContent);
   builder.setSoilClayContent(vs_SoilClayContent);
@@ -114,15 +93,24 @@ SoilParameters::SoilParameters(json11::Json j) {
 Errors SoilParameters::merge(json11::Json j) {
   Errors es;
 
-  set_double_value(vs_SoilSandContent, j, "Sand", transformIfPercent(j, "Sand"));
-  set_double_value(vs_SoilClayContent, j, "Clay", transformIfPercent(j, "Clay"));
+  auto transformIfPercent = [&](const string& key) -> std::function<double(double)> {
+    const auto& value = j[key];
+    if(value.is_array() && value.array_items().size() > 1
+    && value[1].is_string() && trim(value[1].string_value()) == "%") {
+      return [](double v) { return v / 100.0; };
+    }
+    return identity<double>;
+  };
+
+  set_double_value(vs_SoilSandContent, j, "Sand", transformIfPercent("Sand"));
+  set_double_value(vs_SoilClayContent, j, "Clay", transformIfPercent("Clay"));
   set_double_value(vs_SoilpH, j, "pH");
-  set_double_value(vs_SoilStoneContent, j, "Sceleton", transformIfPercent(j, "Sceleton"));
+  set_double_value(vs_SoilStoneContent, j, "Sceleton", transformIfPercent("Sceleton"));
   set_double_value(vs_Lambda, j, "Lambda");
-  set_double_value(vs_FieldCapacity, j, "FieldCapacity", transformIfPercent(j, "FieldCapacity"));
-  set_double_value(vs_Saturation, j, "PoreVolume", transformIfPercent(j, "PoreVolume"));
+  set_double_value(vs_FieldCapacity, j, "FieldCapacity", transformIfPercent("FieldCapacity"));
+  set_double_value(vs_Saturation, j, "PoreVolume", transformIfPercent("PoreVolume"));
   set_double_value(vs_PermanentWiltingPoint, j, "PermanentWiltingPoint",
-                   transformIfPercent(j, "PermanentWiltingPoint"));
+                   transformIfPercent("PermanentWiltingPoint"));
   set_string_value(vs_SoilTexture, j, "KA5TextureClass");
   set_double_value(vs_SoilAmmonium, j, "SoilAmmonium");
   set_double_value(vs_SoilNitrate, j, "SoilNitrate");
@@ -133,7 +121,7 @@ Errors SoilParameters::merge(json11::Json j) {
   set_double_value(_vs_SoilOrganicCarbon, j, "SoilOrganicCarbon",
                    [](double soc) { return soc / 100.0; });
   set_double_value(_vs_SoilOrganicMatter, j, "SoilOrganicMatter",
-                   transformIfPercent(j, "SoilOrganicMatter"));
+                   transformIfPercent("SoilOrganicMatter"));
 
   auto st = vs_SoilTexture;
   // use internally just uppercase chars
@@ -300,7 +288,7 @@ const CapillaryRiseRates &Soil::readCapillaryRiseRates() {
       };
 
       auto fs = kj::newDiskFilesystem();
-#ifdef _WIN32
+#ifdef WIN32
       auto pathToMonicaParamsSoil = fs->getCurrentPath().evalWin32(replaceEnvVars("${MONICA_PARAMETERS}\\soil\\"));
 #else
       auto pathToMonicaParamsSoil = fs->getCurrentPath().eval(replaceEnvVars("${MONICA_PARAMETERS}/soil/"));
@@ -445,10 +433,20 @@ double SoilParameters::sandAndClay2lambda(double sand, double clay) {
   return ::sandAndClay2lambda(sand, clay);
 }
 
-
-
-std::pair<SoilPMs, Errors> Soil::createEqualSizedSoilPMs(const Tools::J11Array &jsonSoilPMs, double layerThickness, int numberOfLayers) {
+std::pair<SoilPMs, Errors> Soil::createSoilPMs(const J11Array &jsonSoilPMs, double layerThickness, int numberOfLayers) {
   Errors errors;
+
+  auto transformIfNotMeters = [&](const Json &j, const string& key) -> std::function<double(double)> {
+    const auto& value = j[key];
+    if(value.is_array() && value.array_items().size() > 1 && value[1].is_string()) {
+      auto unit = trim(value[1].string_value());
+      if (unit == "mm") return [](double v) { return v / 1000.0; };
+      else if (unit == "cm") return [](double v) { return v / 100.0; };
+      else if (unit == "dm") return [](double v) { return v / 10.0; };
+      else return identity<double>;
+    }
+    return identity<double>;
+  };
 
   SoilPMs soilPMs;
   int layerCount = 0;
@@ -476,24 +474,6 @@ std::pair<SoilPMs, Errors> Soil::createEqualSizedSoilPMs(const Tools::J11Array &
     }
 
     layerCount += repeatLayer;
-  }
-
-  return make_pair(soilPMs, errors);
-}
-
-std::pair<SoilPMs, Errors> Soil::createSoilPMs(const J11Array &jsonSoilPMs) {
-  Errors errors;
-
-  SoilPMs soilPMs;
-  int layerCount = 0;
-  for (const auto & sp : jsonSoilPMs) {
-    SoilParameters sps;
-    auto es = sps.merge(sp);
-    auto transf = transformIfNotMeters(sp, "Thickness");
-    auto lt = transf(double_valueD(sp, "Thickness", 0.1));
-    sps.thickness = lt;
-    soilPMs.push_back(sps);
-    if (es.failure()) errors.append(es);
   }
 
   return make_pair(soilPMs, errors);
@@ -713,7 +693,7 @@ RPSCDRes Soil::readPrincipalSoilCharacteristicData(const string& soilType, doubl
       };
 
       auto fs = kj::newDiskFilesystem();
-#ifdef _WIN32
+#ifdef WIN32
       auto pathToMonicaParamsSoil = fs->getCurrentPath().evalWin32(replaceEnvVars("${MONICA_PARAMETERS}\\soil\\"));
 #else
       auto pathToMonicaParamsSoil = fs->getCurrentPath().eval(replaceEnvVars("${MONICA_PARAMETERS}/soil/"));
@@ -786,7 +766,7 @@ RPSCDRes Soil::readSoilCharacteristicModifier(const string& soilType, double org
       };
 
       auto fs = kj::newDiskFilesystem();
-#ifdef _WIN32
+#ifdef WIN32
       auto pathToMonicaParamsSoil = fs->getCurrentPath().evalWin32(replaceEnvVars("${MONICA_PARAMETERS}\\soil\\"));
 #else
       auto pathToMonicaParamsSoil = fs->getCurrentPath().eval(replaceEnvVars("${MONICA_PARAMETERS}/soil/"));
@@ -1032,6 +1012,8 @@ FcSatPwp Soil::fcSatPwpFromKA5textureClass(std::string texture,
   return res;
 }
 
+
+//------------------------------------------------------------------------------
 
 FcSatPwp Soil::fcSatPwpFromVanGenuchten(double sandContent,
                                         double clayContent,
