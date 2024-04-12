@@ -10,6 +10,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(MT_RUNTIME_LIB 1)
 add_compile_definitions(NO_MYSQL)
+add_compile_definitions(SODIUM_STATIC)
 
 if(NOT TARGET capnp_schemas_lib)
 	message(STATUS "target: capnp_schemas_lib")

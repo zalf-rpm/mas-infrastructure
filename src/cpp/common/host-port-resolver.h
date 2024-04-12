@@ -22,10 +22,10 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <kj/timer.h>
 #include <kj/tuple.h>
 
+#include "restorer.h"
 #include "common.capnp.h"
 #include "persistence.capnp.h"
 #include "storage.capnp.h"
-#include "restorer.h"
 
 namespace mas::infrastructure::common {
 

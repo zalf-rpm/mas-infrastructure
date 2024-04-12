@@ -28,9 +28,10 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include <capnp/compat/json.h>
 #include <capnp/message.h>
 
-#include "sole.hpp"
 #include "common.h"
 #include "restorer.h"
+
+#include "sole.hpp"
 
 using namespace mas::infrastructure::common;
 
