@@ -46,9 +46,14 @@ namespace Tools
 	std::vector<std::string> splitString(const std::string& s,
 																			 const std::string& splitElements,
 																			 const std::pair<std::string, std::string>& tokenDelimiters = std::make_pair("", ""),
-																			 bool removeDelimiters = false);
+																			 bool removeDelimiters = false,
+                                       bool removeEmptyStrings = true);
 
-	int createRandomNumber();
+  std::vector<std::string> splitString(const std::string& s,
+                                       const std::string& splitElements,
+                                       bool removeEmptyStrings);
+
+int createRandomNumber();
 	int createRandomNumber(int max);
 
   inline double interpolate(double x1, double x2, double f1, double f2, double x)

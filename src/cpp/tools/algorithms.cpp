@@ -39,9 +39,10 @@ using namespace Tools;
 vector<string> Tools::splitString(const string& s,
                                   const string& splitElements,
                                   const pair<string, string>& tokenDelimiters,
-                                  bool removeDelimiters) {
+                                  bool removeDelimiters,
+                                  bool removeEmptyStrings) {
   vector<string> v;
-  v.push_back("");
+  v.emplace_back("");
   int delimiterLevel = 0;
   for (char c : s) {
     if (splitElements.find(c) == string::npos || delimiterLevel > 0) {
@@ -50,9 +51,23 @@ vector<string> Tools::splitString(const string& s,
       else if (!tokenDelimiters.second.empty() && tokenDelimiters.second.find(c) != string::npos) levelInc = -1;
       if (levelInc == 0 || !removeDelimiters) v.back().append(1, c);
       delimiterLevel += levelInc;
-    } else if (v.back().size() > 0) v.push_back("");
+    } else if (!removeEmptyStrings || !v.back().empty()) v.emplace_back("");
   }
+  if (removeEmptyStrings && v.back().empty()) v.pop_back();
 
+  return v;
+}
+
+vector<string> Tools::splitString(const string& s,
+                                  const string& splitElements,
+                                  bool removeEmptyStrings) {
+  vector<string> v;
+  v.emplace_back("");
+  for (char c : s) {
+    if (splitElements.find(c) == string::npos) v.back().append(1, c);
+    else if (!removeEmptyStrings || !v.back().empty()) v.emplace_back("");
+  }
+  if (removeEmptyStrings && v.back().empty()) v.pop_back();
   return v;
 }
 
