@@ -287,8 +287,8 @@ Climate::readClimateDataFromCSVInputStream(std::istream& is,
     }
     if (options.lineNoOfDataEnd > 0 && lineNo > options.lineNoOfDataEnd) break;
 
-    vector<string> r = splitString(s, separator);
-    if (r.back().empty()) r.pop_back();
+    vector<string> r = splitString(s, separator, false);
+    if (r.empty()) continue;
     //remove possible \r at the end of the last element, when reading Windows files under linux
     if (r.back().back() == '\r') r.back().pop_back();
     size_t rSize = r.size();
