@@ -20,3 +20,7 @@ interface CB {
 interface D {
     getData @0 () -> (i :UInt64, data :Data);#List(UInt64));
 }
+
+struct X {
+    t @0 :Text;
+}

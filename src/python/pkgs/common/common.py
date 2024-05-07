@@ -12,6 +12,7 @@
 # Landscape Systems Analysis at the ZALF.
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
+import asyncio
 import base64
 import capnp
 import json
@@ -96,7 +97,7 @@ def update_config(config, argv, print_config=False, allow_new_keys=False):
             print(config)
 
 
-#def sign_sr_token_by_sk_and_encode_base64(self, sr_token):
+# def sign_sr_token_by_sk_and_encode_base64(self, sr_token):
 #   return base64.urlsafe_b64encode(pysodium.crypto_sign(sr_token, self._sign_pk))
 
 
@@ -124,7 +125,7 @@ class ReleaseSturdyRef(persistence_capnp.Persistent.ReleaseSturdyRef.Server):
     def __init__(self, release_func):
         self._release_func = release_func
 
-    def release_context(self, context):  # release @0 () -> (success :Bool);
+    async def release(self, _context, **kwargs):  # release @0 () -> (success :Bool);
         self._release_func()
 
 
@@ -136,12 +137,12 @@ class Restorer(persistence_capnp.Restorer.Server):
         self._host = socket.gethostbyname(socket.gethostname())  # socket.getfqdn() #gethostname()
         self._port = None
         self._sign_pk, self._sign_sk = pysodium.crypto_sign_keypair()
-        #self._box_pk, self._box_sk = pysodium.crypto_box_keypair()
+        # self._box_pk, self._box_sk = pysodium.crypto_box_keypair()
         self.set_vat_id_from_sign_pk()
         self._owner_guid_to_sign_pk = {}  # owner guid to owner box public key
         self._storage_container = None
         self._restore_callback = None
-        #self._vat_id = None
+        # self._vat_id = None
 
     def set_vat_id_from_sign_pk(self):
         self._vat_id = [
@@ -230,7 +231,7 @@ class Restorer(persistence_capnp.Restorer.Server):
     def set_owner_guid(self, owner_guid, owner_box_pk):
         self._owner_guid_to_sign_pk[owner_guid] = owner_box_pk
 
-    #def verify_sr_token(self, sr_token_base64, vat_id_base64):
+    # def verify_sr_token(self, sr_token_base64, vat_id_base64):
     #    # https://stackoverflow.com/questions/2941995/python-ignore-incorrect-padding-error-when-base64-decoding
     #    vat_id = base64.urlsafe_b64decode(vat_id_base64 + "==")
     #    try:
@@ -239,10 +240,15 @@ class Restorer(persistence_capnp.Restorer.Server):
     #    except ValueError:
     #        return (False, None)
 
-    #def sign_sr_token_by_vat_and_encode_base64(self, sr_token):
+    # def sign_sr_token_by_vat_and_encode_base64(self, sr_token):
     #    return base64.urlsafe_b64encode(pysodium.crypto_sign(sr_token, self._sign_pk))
 
-    def get_cap_from_sr_token(self, sr_token, owner_guid=None):
+    async def get_cap_from_sr_token(self, sr_token, owner_guid=None):
+
+        async def release_sr(sr_data):
+            res1 = await self.unsave(sr_data["restore_token"])
+            res2 = await self.unsave(sr_data["unsave_sr_token"])
+            return res1 and res2
 
         def get_cap(sr_data):
             if sr_data is None:
@@ -250,10 +256,7 @@ class Restorer(persistence_capnp.Restorer.Server):
             elif "cap" in sr_data:
                 return sr_data["cap"]
             elif len(sr_data["unsaveSRToken"]) > 0:  # restore an unsave action
-                unsave_action = ReleaseSturdyRef(
-                    lambda: self.unsave(sr_data["restore_token"]).then(
-                        lambda success: self.unsave(sr_data["unsave_sr_token"]).then(
-                            lambda success2: success and success2)))
+                unsave_action = ReleaseSturdyRef(release_sr(sr_data))
                 sr_data["cap"] = unsave_action
                 return unsave_action
             elif self.restore_callback:  # restore a service object
@@ -265,7 +268,7 @@ class Restorer(persistence_capnp.Restorer.Server):
                     pass
             return None
 
-        def load_from_store_and_get_cap(sr_token):
+        async def load_from_store_and_get_cap(sr_token):
             def value_resp(resp):
                 if resp.isUnset:
                     return None
@@ -277,7 +280,7 @@ class Restorer(persistence_capnp.Restorer.Server):
                 else:
                     return None
 
-            value_prom = self.storage_container.getEntry(key=sr_token).entry.getValue()
+            value_prom = await self.storage_container.getEntry(key=sr_token).entry.getValue()
             return value_prom.then(value_resp).then(get_cap)
 
         # if there is an owner
@@ -285,16 +288,17 @@ class Restorer(persistence_capnp.Restorer.Server):
             # and we know about that owner
             if owner_guid in self._owner_guid_to_sign_pk:
                 try:
-                    unsigned_sr_token = pysodium.crypto_sign_open(sr_token.data, self._owner_guid_to_sign_pk[owner_guid])
+                    unsigned_sr_token = pysodium.crypto_sign_open(sr_token.data,
+                                                                  self._owner_guid_to_sign_pk[owner_guid])
                 except ValueError:
                     return None
                 data = self._issued_sr_tokens.get(unsigned_sr_token, None)
-                # and that known owner was actually the one who sealed the token 
+                # and that known owner was actually the one who sealed the token
                 if data:
                     if owner_guid == data["ownerGuid"]:
                         return get_cap(data)
                 elif self.storage_container:
-                    return load_from_store_and_get_cap(unsigned_sr_token)
+                    return await load_from_store_and_get_cap(unsigned_sr_token)
 
             # if we don't know about that owner or the owner was not the one who sealed the token
             return None
@@ -308,9 +312,9 @@ class Restorer(persistence_capnp.Restorer.Server):
     def sturdy_ref_str(self, sr_token=None):
         return sturdy_ref_str(self._sign_pk, self.host, self.port, sr_token)
 
-    def sturdy_ref(self, sr_token=None): #, owner_guid=None):
+    def sturdy_ref(self, sr_token=None):  # , owner_guid=None):
         # if seal_for_owner_guid: then encrypt sr_token with seal_for_owner_guids stored public key
-        #if owner_guid and sr_token:
+        # if owner_guid and sr_token:
         #    owner_pk = self._owner_guid_to_box_pk[owner_guid]
         #    sr_token = pysodium.crypto_sign(sr_token, owner_pk)
         return {
@@ -400,7 +404,7 @@ class Restorer(persistence_capnp.Restorer.Server):
             if owner_guid in self._owner_guid_to_sign_pk:
                 verified_sr_token = pysodium.crypto_sign_open(sr_token, self._owner_guid_to_sign_pk[owner_guid])
                 data = self._issued_sr_tokens.get(verified_sr_token, None)
-                # and that known owner was actually the one who sealed the token 
+                # and that known owner was actually the one who sealed the token
                 if data and owner_guid == data["ownerGuid"]:
                     del self._issued_sr_tokens[verified_sr_token]
         # if there is no owner
@@ -424,7 +428,7 @@ class Restorer(persistence_capnp.Restorer.Server):
     #   localRef @0 :SturdyRef.Token;
     #   sealedBy @1 :SturdyRef.Owner;
     # }
-    def restore_context(self, context):  # restore @0 RestoreParams -> (cap :Capability);
+    async def restore_context(self, context):  # restore @0 RestoreParams -> (cap :Capability);
         owner_guid = context.params.sealedBy
         context.results.cap = self.get_cap_from_sr_token(context.params.localRef,
                                                          owner_guid=owner_guid.guid if owner_guid else None)
@@ -536,7 +540,7 @@ class ConnectionManager:
         self._connections = {}
         self._restorer = restorer if restorer else Restorer()
 
-    def connect(self, sturdy_ref, cast_as=None):
+    async def connect(self, sturdy_ref, cast_as=None):
         if not sturdy_ref:
             return None
 
@@ -558,7 +562,7 @@ class ConnectionManager:
                 url = urlp.urlparse(sturdy_ref)
 
                 if url.scheme == "capnp":
-                    #vat_id_base64 = url.username
+                    # vat_id_base64 = url.username
                     host = url.hostname
                     port = url.port
                     if len(url.query) > 0:
@@ -573,7 +577,7 @@ class ConnectionManager:
                             sr_token = base64.urlsafe_b64decode(sr_token + "==")
             else:
                 vat_path = sturdy_ref.vat
-                #vat_id = vat_path.id
+                # vat_id = vat_path.id
                 host = vat_path.address.host
                 port = vat_path.address.port
                 sr_token = sturdy_ref.localRef.text
@@ -582,15 +586,16 @@ class ConnectionManager:
             if host_port in self._connections:
                 bootstrap_cap = self._connections[host_port]
             else:
-                bootstrap_cap = capnp.TwoPartyClient(host_port).bootstrap()
+                connection = await capnp.AsyncIoStream.create_connection(host=host, port=port)
+                bootstrap_cap = capnp.TwoPartyClient(connection).bootstrap()
                 self._connections[host_port] = bootstrap_cap
 
             if sr_token:
                 restorer = bootstrap_cap.cast_as(persistence_capnp.Restorer)
-                dyn_obj_reader = restorer.restore(localRef={"text": sr_token}).wait().cap
-                #res_req = restorer.restore_request()
-                #res_req.localRef = {"text": sr_token}
-                #dyn_obj_reader = res_req.send().wait().cap
+                dyn_obj_reader = (await restorer.restore(localRef={"text": sr_token})).cap
+                # res_req = restorer.restore_request()
+                # res_req.localRef = {"text": sr_token}
+                # dyn_obj_reader = res_req.send().wait().cap
                 if dyn_obj_reader is not None:
                     return dyn_obj_reader.as_interface(cast_as) if cast_as else dyn_obj_reader
             else:
@@ -602,10 +607,10 @@ class ConnectionManager:
 
         return None
 
-    def try_connect(self, sturdy_ref, cast_as=None, retry_count=10, retry_secs=5, print_retry_msgs=True):
+    async def try_connect(self, sturdy_ref, cast_as=None, retry_count=10, retry_secs=5, print_retry_msgs=True):
         while True:
             try:
-                return self.connect(sturdy_ref, cast_as=cast_as)
+                return await self.connect(sturdy_ref, cast_as=cast_as)
             except Exception as e:
                 print(e)
                 if retry_count == 0:
@@ -617,144 +622,6 @@ class ConnectionManager:
                     print(f"Trying to connect to {sturdy_ref} again in {retry_secs} secs!")
                 time.sleep(retry_secs)
                 retry_secs += 1
-
-
-
-
-
-# interface Callback
-# class CallbackImpl(common_capnp.Callback.Server):
-#
-#     def __init__(self, callback, *args, exec_callback_on_del=False, **kwargs):
-#         self._args = args
-#         self._kwargs = kwargs
-#         self._callback = callback
-#         self._already_called = False
-#         self._exec_callback_on_del = exec_callback_on_del
-#
-#     def __del__(self):
-#         if self._exec_callback_on_del and not self._already_called:
-#             self._callback(*self._args, **self._kwargs)
-#
-#     def call(self, _context, **kwargs):  # call @0 ();
-#         self._callback(*self._args, **self._kwargs)
-#         self._already_called = True
-
-
-# interface Action
-# class Action(common_capnp.Action.Server):
-#
-#     def __init__(self, action, *args, exec_action_on_del=False, **kwargs):
-#         self._args = args
-#         self._kwargs = kwargs
-#         self._action = action
-#         self._already_executed = False
-#         self._exec_action_on_del = exec_action_on_del
-#
-#     def __del__(self):
-#         if self._exec_action_on_del and not self._already_executed:
-#             self._action(*self._args, **self._kwargs)
-#
-#     def do_context(self, context):  # do @0 () -> ();
-#         self._action(*self._args, **self._kwargs)
-#         self._already_executed = True
-
-
-# interface ValueHolder(T)
-# class ValueHolder(common_capnp.ValueHolder.Server, Persistable):
-#
-#     def __init__(self, value, restorer=None):
-#         Persistable.__init__(self, restorer)
-#         self._value = value
-#
-#     def val(self):
-#         return self._value
-#
-#     def value_context(self, context):  # value @0 () -> (val :T);
-#         context.results.val = self.val
-
-
-# interface AnyValueHolder
-# class AnyValueHolder(common_capnp.AnyValueHolder.Server, Persistable):
-#
-#     def __init__(self, value, restorer=None):
-#         Persistable.__init__(self, restorer)
-#         self._value = value
-#
-#     @property
-#     def val(self):
-#         return self._value
-#
-#     def value_context(self, context):  # value @0 () -> (val :AnyPointer);
-#         context.results.val = self.val
-
-
-# interface CapHolder(Object)
-# class CapHolderImpl(common_capnp.CapHolder.Server, Identifiable):
-#
-#     def __init__(self, cap, cleanup_func, cleanup_on_del=False):
-#         self._cap = cap
-#         self._cleanup_func = cleanup_func
-#         self._already_cleaned_up = False
-#         self._cleanup_on_del = cleanup_on_del
-#
-#     def __del__(self):
-#         if self._cleanup_on_del and not self._already_cleaned_up:
-#             self.cleanup_func()
-#
-#     def cap_context(self, context):  # cap @0 () -> (object :Object);
-#         context.results.cap = self._cap
-#
-#     def release_context(self, context):  # release @1 ();
-#         self._cleanup_func()
-#         self._cleanup_on_del = True
-
-
-# class IdentifiableHolder(common_capnp.IdentifiableHolder.Server, Identifiable):
-#
-#     def __init__(self, cap, cleanup_func, cleanup_on_del=False):
-#         self._cap = cap
-#         self._cleanup_func = cleanup_func
-#         self._already_cleaned_up = False
-#         self._cleanup_on_del = cleanup_on_del
-#
-#     def __del__(self):
-#         if self._cleanup_on_del and not self._already_cleaned_up:
-#             self.cleanup_func()
-#
-#     def cap_context(self, context):  # cap @0 () -> (object :Object);
-#         context.results.cap = self._cap
-#
-#     def release_context(self, context):  # release @1 ();
-#         self._cleanup_func()
-#         self._cleanup_on_del = True
-
-
-# interface PersistCapHolder(Object) extends(CapHolder(Object), Persistent.Persistent(Text, Text)) {
-"""
-class PersistCapHolderImpl(common_capnp.PersistCapHolder.Server):
-
-    def __init__(self, cap, sturdy_ref, cleanup_func, cleanup_on_del=False):
-        self._cap = cap
-        self._sturdy_ref = sturdy_ref
-        self._cleanup_func = cleanup_func
-        self._already_cleaned_up = False
-        self._cleanup_on_del = cleanup_on_del
-
-    def __del__(self):
-        if self._cleanup_on_del and not self._already_cleaned_up:
-            self.cleanup_func()
-
-    def cap_context(self, context): # cap @0 () -> (object :Object);
-        context.results.cap = self._cap
-
-    def release_context(self, context): # release @1 ();
-        self._cleanup_func()
-        self._cleanup_on_del = True
-
-    def save_context(self, context): # save @0 SaveParams -> SaveResults;
-        context.results.sturdyRef = self._sturdy_ref
-"""
 
 
 def load_capnp_module(path_and_type, def_type="Text"):

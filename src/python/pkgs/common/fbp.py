@@ -45,11 +45,35 @@ fbp_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "fbp.capnp"), imports=abs_imp
 reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
 
 
+class PortCallback(fbp_capnp.PortCallbackRegistrar.PortCallback.Server):
+    def __init__(self, ports, out_ports):
+        self._ports = ports
+        self._out_ports = out_ports
+
+    def newInPort_context(self, context):  # newInPort @0 (name :Text, readerCap :Channel(IP).Reader);
+        self._ports[context.params.name] = context.params.readerCap
+        print("newInPort", context.params.name, context.params.readerCap)
+
+    def newOutPort_context(self, context):  # newOutPort @1 (name :Text, writerCap :Channel(IP).Writer);
+        self._ports[context.params.name] = context.params.writerCap
+        self._out_ports[context.params.name] = context.params.writerCap
+        print("newOutPort", context.params.name, context.params.writerCap)
+
+
 def connect_ports(config: dict, connection_manager=None):
     if not connection_manager:
         connection_manager = common.ConnectionManager()
+
     ports = {}
     out_ports = {}
+
+    if "port_callback_registrar_sr" in config:
+        pcr_sr = config["port_callback_registrar_sr"]
+        del config["port_callback_registrar_sr"]
+        pcr = connection_manager.try_connect(pcr_sr, cast_as=fbp_capnp.PortCallbackRegistrar, retry_secs=1)
+        pcr.registerCallback(PortCallback(ports, out_ports)).wait()
+        print("registered PortCallback")
+
     for k, v in config.items():
         if k.endswith("in_sr"):
             port_name = k[:-6]

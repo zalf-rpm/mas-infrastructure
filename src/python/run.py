@@ -15,14 +15,15 @@
 # Landscape Systems Analysis at the ZALF.
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
-from random import random
+import asyncio
 import capnp
-from pathlib import Path
 import os
+from pathlib import Path
+import psutil
+from random import random
 import sys
 import time
 from threading import Thread
-import psutil
 
 PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent
 if str(PATH_TO_REPO) not in sys.path:
@@ -58,9 +59,10 @@ storage_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "storage.capnp"), imports
 geo_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "geo.capnp"), imports=abs_imports)
 crop_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "crop.capnp"), imports=abs_imports)
 fbp_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "fbp.capnp"), imports=abs_imports)
+a_capnp = capnp.load("a.capnp", imports=abs_imports)
 
-capnp.remove_event_loop()
-capnp.create_event_loop(threaded=True)
+#capnp.remove_event_loop()
+#capnp.create_event_loop(threaded=True)
 
 async def async_main():
     config = {
@@ -518,56 +520,63 @@ def run_climate():
     print(climate.info().wait())
 
 
-def run_channel():
+async def run_channel():
     con_man = common.ConnectionManager()
 
-    wsr = "capnp://CXftuCfpkPxYa0sA2XKAym02xC3Tzl43lcgoBzYpueY@10.10.25.180:46811/f94a1059-ae7b-414d-ba8a-7d193f33437f"
-    writer = con_man.try_connect(wsr, cast_as=fbp_capnp.Channel.Writer)
-    out_ip = fbp_capnp.IP.new_message(content="hello1")
-    writer.write(value=out_ip).wait()
-    print("wrote hello")
-    #writer.write(value="hello2").wait()
-    #writer.write(value="hello3").wait()
-    #writer.write(value="hello4").wait()
-    #return
+    wsr = "capnp://vtGotI6_o12o-aY5QoSIHuiVK66QIw0bTU1QAzTIbCc@10.10.25.161:41207/377d8e50-c809-4fef-b4c5-d6de22cd337c"
+    rsr = "capnp://vtGotI6_o12o-aY5QoSIHuiVK66QIw0bTU1QAzTIbCc@10.10.25.161:41207/29a53860-2016-49f2-9d71-e6869b495f35"
 
-    rsr = "capnp://CXftuCfpkPxYa0sA2XKAym02xC3Tzl43lcgoBzYpueY@10.10.25.180:46811/8c2c5bc4-8faa-4e5d-8229-727f8d3236b6"
-    reader = con_man.try_connect(rsr, cast_as=fbp_capnp.Channel.Reader)
-    msg = reader.read().wait().value.as_struct(fbp_capnp.IP)
-    print("read", msg.content.as_text())
-    return
-
-    for _ in range(100):
-        writer.write(value="hello").wait()
+    if False:
+        writer = await con_man.try_connect(wsr, cast_as=fbp_capnp.Channel.Writer)
+        out_ip = fbp_capnp.IP.new_message(content="hello1")
+        await writer.write(value=out_ip)
         print("wrote hello")
-        msg = reader.read().wait()
-        print("read", msg.value.as_text())
-    return
+        #writer.write(value="hello2").wait()
+        #writer.write(value="hello3").wait()
+        #writer.write(value="hello4").wait()
+        #return
+
+        reader = await con_man.try_connect(rsr, cast_as=fbp_capnp.Channel.Reader)
+        msg = (await reader.read()).value.as_struct(fbp_capnp.IP)
+        print("read", msg.content.as_text())
+        #return
+
+        for _ in range(100):
+            await writer.write(value="hello")
+            print("wrote hello")
+            msg = await reader.read()
+            print("read", msg.value.as_text())
+        return
 
     # test channel
     # channel_sr = "capnp://insecure@10.10.24.210:37505/6c25454e-4ef9-4659-9c94-341bdd827df5"
     def writer():
-        conMan = common.ConnectionManager()
-        writer = conMan.try_connect("capnp://insecure@10.10.24.210:43513/668ce2c1-f256-466d-99ce-30b01fd2b21b",
-                                    cast_as=fbp_capnp.Channel.Writer)
-        # channel = conMan.try_connect(channel_sr, cast_as=fbp_capnp.Channel)
-        # writer = channel.writer().wait().w.as_interface(common_capnp.Writer)
-        for i in range(1000):
-            time.sleep(random())
-            writer.write(value=common_capnp.X.new_message(t="hello_" + str(i))).wait()
-            # writer.write(value="hello_" + str(i)).wait()
-            print("wrote: hello_" + str(i))
-            # writer.write(value=common_capnp.X.new_message(t="world")).wait()
-        # print("wrote value:", "hello", "world")
+        async def writer2():
+            async with capnp.kj_loop():
+                conMan = common.ConnectionManager()
+                writer = await conMan.try_connect(wsr, cast_as=fbp_capnp.Channel.Writer)
+                # channel = conMan.try_connect(channel_sr, cast_as=fbp_capnp.Channel)
+                # writer = channel.writer().wait().w.as_interface(common_capnp.Writer)
+                for i in range(1000):
+                    #time.sleep(random())
+                    await writer.write(value=a_capnp.X.new_message(t="hello_" + str(i)))
+                    # writer.write(value="hello_" + str(i)).wait()
+                    print("wrote: hello_" + str(i))
+                    # writer.write(value=common_capnp.X.new_message(t="world")).wait()
+                # print("wrote value:", "hello", "world")
+
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        asyncio.run(writer2())
 
     Thread(target=writer).start()
-    reader = con_man.try_connect("capnp://2djJAQhpUZuiQxCllmwVBF86XNvrnNVw8JQnFomcBUM@10.10.24.218:33893/aW4",
-                                 cast_as=fbp_capnp.Channel.Reader)
+    #asyncio.run(writer())
+    reader = await con_man.try_connect(rsr, cast_as=fbp_capnp.Channel.Reader)
     # channel = conMan.try_connect(channel_sr, cast_as=fbp_capnp.Channel)
     # reader = channel.reader().wait().r.as_interface(common_capnp.Reader)
     for i in range(1000):
-        time.sleep(random())
-        print("read:", reader.read().wait().value.as_struct(common_capnp.X).t)
+        #time.sleep(random())
+        print("read:", (await reader.read()).value.as_struct(a_capnp.X).t)
         # print("read:", reader.read().wait().value.as_text())
     # print(reader.read().wait().value.as_struct(common_capnp.X).t)
     # print("read value:", value)
@@ -608,7 +617,7 @@ def run_resolver_registrar():
     return Thread(target=beat).start()
 
 
-def main():
+async def main():
     config = {
         "port": "6003",
         "server": "localhost"
@@ -628,7 +637,7 @@ def main():
 
     # run_soil_service()
 
-    run_channel()
+    await run_channel()
 
     # run_crop_service()
 
@@ -703,6 +712,6 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    asyncio.run(capnp.run(main()))
     # asyncio.get_event_loop().run_until_complete(async_main()) # gets rid of some eventloop cleanup problems using te usual call below
     # asyncio.run(async_main())

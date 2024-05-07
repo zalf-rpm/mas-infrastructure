@@ -96,6 +96,6 @@ interface PortCallbackRegistrar {
     newOutPort @1 (name :Text, writerCap :Channel(IP).Writer);
   }
 
-  registerCallback @0 (portName :Text, callback :PortCallback);
-  # register a callback for a port
+  registerCallback @0 (callback :PortCallback);
+  # register a callback for the ports of a process
 }

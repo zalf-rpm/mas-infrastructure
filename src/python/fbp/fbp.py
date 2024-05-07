@@ -90,7 +90,6 @@ class Input(fbp_capnp.Input.Server, common.Identifiable, common.Persistable):
     def close_context(self, context): #close 	@1 ();
         return self._component.stop()
 
-#--------------------------------------------------------------------------------------
 
 class Reader(fbp_capnp.Input.Reader.Server, common.Persistable): 
 
@@ -117,8 +116,7 @@ class Reader(fbp_capnp.Input.Reader.Server, common.Persistable):
             return paf.promise.then(lambda: setattr(context.results, "value", i.deserialize(b.popleft())))
 
 
-#--------------------------------------------------------------------------------------
-class Writer(fbp_capnp.Input.Writer.Server, common.Persistable): 
+class Writer(fbp_capnp.Input.Writer.Server, common.Persistable):
 
     def __init__(self, input, restorer=None):
         common.Persistable.__init__(self, restorer)
@@ -144,7 +142,6 @@ class Writer(fbp_capnp.Input.Writer.Server, common.Persistable):
             #print("[", c.name, "w"+str(len(c._blocking_write_fulfillers))+"] ", sep="", end="")
             return paf.promise.then(lambda: b.append(i.serialize(v)))
 
-#--------------------------------------------------------------------------------------
 
 def start_component_thread(sock, bootstrap):
     server = capnp.TwoPartyServer(sock, bootstrap=bootstrap)
@@ -223,8 +220,6 @@ class Component(fbp_capnp.Component.Server):#, common.Persistable):
         self._stop = s
 
 
-#--------------------------------------------------------------------------------------
-
 async def async_init_and_run_fbp_component(name_to_in_ports={}, name_to_out_ports={}, 
     host=None, port=0, serve_bootstrap=True, restorer=None, 
     conman=None, run_before_enter_eventloop=None, eventloop_wait_forever=True):
@@ -268,7 +263,6 @@ async def async_init_and_run_fbp_component(name_to_in_ports={}, name_to_out_port
         if eventloop_wait_forever:
             await conman.manage_forever()
 
-#--------------------------------------------------------------------------------------------
 
 def init_and_run_fbp_component(component_cap, name_to_in_ports={}, name_to_out_ports={}, 
     host="*", port=None, serve_bootstrap=True, restorer=None, 
@@ -309,7 +303,7 @@ def init_and_run_fbp_component(component_cap, name_to_in_ports={}, name_to_out_p
     
     ips = []
     for name, pd in name_to_in_ports.items():
-        ops.append({"name": name, "port": pd["port"]})
+        ips.append({"name": name, "port": pd["port"]})
     ops = []
     for name, pd in name_to_out_ports.items():
         ops.append({"name": name, "port": pd["port"]})

@@ -191,8 +191,6 @@ async def serve_forever(host, port, bootstrap):
         await server.serve_forever()
 
 
-# ------------------------------------------------------------------------------
-
 class ConnectionManager:
 
     def __init__(self, restorer=None):
