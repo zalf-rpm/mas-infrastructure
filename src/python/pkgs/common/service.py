@@ -28,7 +28,7 @@ if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
 from pkgs.common import common
-from pkgs.common import capnp_async_helpers as async_helpers
+#from pkgs.common import capnp_async_helpers as async_helpers
 
 PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent.parent
 PATH_TO_CAPNP_SCHEMAS = (PATH_TO_REPO / "capnproto_schemas").resolve()
@@ -86,16 +86,16 @@ class Admin(service_capnp.Admin.Server, common.Identifiable):
         if self._timeout > 0:
             self._timeout_prom = capnp.getTimer().after_delay(self._timeout * 10 ** 9).then(lambda: exit(0))
 
-    def heartbeat_context(self, context):  # heartbeat @0 ();
+    async def heartbeat(self, **kwargs):  # heartbeat @0 ();
         if self._timeout_prom:
             self._timeout_prom.cancel()
         self.make_timeout()
 
-    def setTimeout_context(self, context):  # setTimeout @1 (seconds :UInt64);
-        self._timeout = max(0, context.params.seconds)
+    async def setTimeout(self, seconds, **kwargs):  # setTimeout @1 (seconds :UInt64);
+        self._timeout = max(0, seconds)
         self.make_timeout()
 
-    def stop_context(self, context):  # stop @2 ();
+    async def stop(self, **kwargs):  # stop @2 ();
         def stop():
             capnp.remove_event_loop(ignore_errors=True)
             exit(0)
@@ -107,20 +107,18 @@ class Admin(service_capnp.Admin.Server, common.Identifiable):
             print("Admin::stop message without")
             threading.Timer(5, stop).start()
 
-    def identities_context(self, context):  # identities @3 () -> (infos :List(Common.IdInformation));
+    async def identities(self, **kwargs):  # identities @3 () -> (infos :List(Common.IdInformation));
         infos = []
         for s in self._services:
             infos.append({"id": s.id, "name": s.name, "description": s.description})
         return infos
 
-    def updateIdentity_context(self, context):  # updateIdentity @4 (oldId :Text, newInfo :Common.IdInformation);
-        oid = context.params.oldId
-        ni = context.params.newInfo
+    async def updateIdentity(self, oldId, newInfo, **kwargs):  # updateIdentity @4 (oldId :Text, newInfo :Common.IdInformation);
         for s in self._services:
-            if s.id == oid:
-                s.id = ni.id
-                s.name = ni.name
-                s.description = ni.description
+            if s.id == oldId:
+                s.id = newInfo.id
+                s.name = newInfo.name
+                s.description = newInfo.description
 
 
 async def init_and_run_service(name_to_service, host=None, port=0, serve_bootstrap=True, restorer=None,
@@ -140,7 +138,7 @@ async def init_and_run_service(name_to_service, host=None, port=0, serve_bootstr
     if not restorer:
         restorer = common.Restorer()
     if not conn_man:
-        conn_man = async_helpers.ConnectionManager(restorer)
+        conn_man = common.ConnectionManager(restorer)
     if not name_to_service_srs:
         name_to_service_srs = {}
 
@@ -148,9 +146,9 @@ async def init_and_run_service(name_to_service, host=None, port=0, serve_bootstr
         restorer_container = await conn_man.try_connect(restorer_container_sr, cast_as=storage_capnp.Store.Container)
         if restorer_container:
             restorer.storage_container = restorer_container
-            await restorer.init_vat_id_from_container().a_wait()
+            await restorer.init_vat_id_from_container()
             if not port:
-                await restorer.init_port_from_container().a_wait()
+                await restorer.init_port_from_container()
                 port = restorer.port
 
     # create and register admin with services
@@ -178,7 +176,7 @@ async def init_and_run_service(name_to_service, host=None, port=0, serve_bootstr
                 registrar = await conn_man.try_connect(reg_sr, cast_as=reg_capnp.Registrar)
                 if registrar and name in name_to_service:
                     r = await registrar.register(cap=name_to_service[name], regName=reg_name,
-                                                 categoryId=reg_cat_id).a_wait()
+                                                 categoryId=reg_cat_id)
                     unreg_action = r.unreg
                     rereg_sr = r.reregSR
                     admin.store_unreg_data(name, unreg_action, rereg_sr)
@@ -193,9 +191,10 @@ async def init_and_run_service(name_to_service, host=None, port=0, serve_bootstr
 
     if serve_bootstrap:
         server = await capnp.AsyncIoStream.create_server(new_connection, host, port)
+        restorer.port = server.sockets[0].getsockname()[1]
 
         for name, s in name_to_service.items():
-            res = restorer.save_str(s, name_to_service_srs.get(name, None)).wait()
+            res = await restorer.save_str(s, name_to_service_srs.get(name, None))
             name_to_service_srs[name] = res["sturdy_ref"]
             print("service:", name, "sr:", res["sturdy_ref"])
         print("restorer_sr:", restorer.sturdy_ref_str())
@@ -205,10 +204,10 @@ async def init_and_run_service(name_to_service, host=None, port=0, serve_bootstr
             run_before_enter_eventloop()
         async with server:
             await server.serve_forever()
-    else:
-        await register_services(conn_man, admin, reg_config)
-        if run_before_enter_eventloop:
-            run_before_enter_eventloop()
-        await conn_man.manage_forever()
+    #else:
+    #    await register_services(conn_man, admin, reg_config)
+    #    if run_before_enter_eventloop:
+    #        run_before_enter_eventloop()
+    #    await conn_man.manage_forever()
 
 

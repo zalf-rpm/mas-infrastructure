@@ -53,7 +53,7 @@ def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon, 
             {"end": {"year": 2019, "month": 12, "day": 31}}
         ]
     )
-    metadata.info = ccdi.Metadata_Info(metadata)
+    metadata.info = ccdi.MetadataInfo(metadata)
     transform_map = {
         "globrad": lambda gr: gr / 1000.0 if gr > 0 else gr
     }

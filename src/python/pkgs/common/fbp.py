@@ -50,17 +50,17 @@ class PortCallback(fbp_capnp.PortCallbackRegistrar.PortCallback.Server):
         self._ports = ports
         self._out_ports = out_ports
 
-    def newInPort_context(self, context):  # newInPort @0 (name :Text, readerCap :Channel(IP).Reader);
-        self._ports[context.params.name] = context.params.readerCap
-        print("newInPort", context.params.name, context.params.readerCap)
+    async def newInPort(self, name, readerCap, **kwargs):  # newInPort @0 (name :Text, readerCap :Channel(IP).Reader);
+        self._ports[name] = readerCap
+        print("newInPort", name, readerCap)
 
-    def newOutPort_context(self, context):  # newOutPort @1 (name :Text, writerCap :Channel(IP).Writer);
-        self._ports[context.params.name] = context.params.writerCap
-        self._out_ports[context.params.name] = context.params.writerCap
-        print("newOutPort", context.params.name, context.params.writerCap)
+    async def newOutPort(self, name, writerCap, **kwargs):  # newOutPort @1 (name :Text, writerCap :Channel(IP).Writer);
+        self._ports[name] = writerCap
+        self._out_ports[name] = writerCap
+        print("newOutPort", name, writerCap)
 
 
-def connect_ports(config: dict, connection_manager=None):
+async def connect_ports(config: dict, connection_manager=None):
     if not connection_manager:
         connection_manager = common.ConnectionManager()
 
@@ -70,8 +70,8 @@ def connect_ports(config: dict, connection_manager=None):
     if "port_callback_registrar_sr" in config:
         pcr_sr = config["port_callback_registrar_sr"]
         del config["port_callback_registrar_sr"]
-        pcr = connection_manager.try_connect(pcr_sr, cast_as=fbp_capnp.PortCallbackRegistrar, retry_secs=1)
-        pcr.registerCallback(PortCallback(ports, out_ports)).wait()
+        pcr = await connection_manager.try_connect(pcr_sr, cast_as=fbp_capnp.PortCallbackRegistrar, retry_secs=1)
+        await pcr.registerCallback(PortCallback(ports, out_ports))
         print("registered PortCallback")
 
     for k, v in config.items():
@@ -84,7 +84,7 @@ def connect_ports(config: dict, connection_manager=None):
             if v is None:
                 ports[port_name] = None
             else:
-                ports[port_name] = connection_manager.try_connect(v, cast_as=fbp_capnp.Channel.Reader, retry_secs=1)
+                ports[port_name] = await connection_manager.try_connect(v, cast_as=fbp_capnp.Channel.Reader, retry_secs=1)
         elif k.endswith("out_sr"):
             port_name = k[:-7]
             if len(port_name) == 0:
@@ -94,7 +94,7 @@ def connect_ports(config: dict, connection_manager=None):
             if v is None:
                 ports[port_name] = None
             else:
-                ports[port_name] = connection_manager.try_connect(v, cast_as=fbp_capnp.Channel.Writer, retry_secs=1)
+                ports[port_name] = await connection_manager.try_connect(v, cast_as=fbp_capnp.Channel.Writer, retry_secs=1)
                 out_ports[port_name] = ports[port_name]
         elif k.endswith("out_srs"):
             port_name = k[:-8]
@@ -107,17 +107,17 @@ def connect_ports(config: dict, connection_manager=None):
             else:
                 ports[port_name] = []
                 for out_sr in v.split("|"):
-                    ports[port_name].append(connection_manager.try_connect(out_sr, cast_as=fbp_capnp.Channel.Writer,
-                                                                       retry_secs=1))
+                    ports[port_name].append(await connection_manager.try_connect(out_sr, cast_as=fbp_capnp.Channel.Writer,
+                                                                                 retry_secs=1))
                 out_ports[port_name] = ports[port_name]
 
-    def close_ports(print_info=False, print_exception=True):
+    async def close_ports(print_info=False, print_exception=True):
         for name, ps in out_ports.items():
             # is an array out port
             if isinstance(ps, list):
                 for i, p in enumerate(ps):
                     try:
-                        p.close().wait()
+                        await p.close()
                         if print_info:
                             print(f"{os.path.basename(__file__)}: closed array out port '{name}[{i}]'")
                     except Exception as e:
@@ -126,7 +126,7 @@ def connect_ports(config: dict, connection_manager=None):
             # is a single out port
             else:
                 try:
-                    ps.close().wait()
+                    await ps.close()
                     if print_info:
                         print(f"{os.path.basename(__file__)}: closed out port '{name}'")
                 except Exception as e:

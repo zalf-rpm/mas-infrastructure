@@ -69,7 +69,7 @@ def create_meta_plus_datasets(path_to_config, config, interpolator, rowcol_to_la
             entries.append({"ssp": ds["scen"][:-2]})
         metadata = climate_data_capnp.Metadata.new_message(entries=entries)
         name = "{}_{}_{}".format(ds["gcm"], ds["scen"], ds["ensmem"])
-        metadata.info = ccdi.Metadata_Info(metadata)
+        metadata.info = ccdi.MetadataInfo(metadata)
         datasets.append(climate_data_capnp.MetaPlusData.new_message(
             meta=metadata,
             data=csv_based.Dataset(metadata, path_to_rowcols, interpolator, rowcol_to_latlon,

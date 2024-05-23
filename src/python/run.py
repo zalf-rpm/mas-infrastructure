@@ -33,7 +33,7 @@ PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
 if str(PATH_TO_PYTHON_CODE) not in sys.path:
     sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-from pkgs.common import capnp_async_helpers as async_helpers
+#from pkgs.common import capnp_async_helpers as async_helpers
 from pkgs.common import common
 from pkgs.climate import csv_file_based as csv_based
 
@@ -76,7 +76,7 @@ async def async_main():
             if k in config:
                 config[k] = v
 
-    conMan = async_helpers.ConnectionManager()
+    conMan = common.ConnectionManager()
     registry = await conMan.connect("capnp://insecure@localhost:9999/a8b8ff83-0af4-42c9-95c8-b6ec19a35945",
                                     registry_capnp.Registry)
     print(await registry.info().a_wait())
@@ -227,12 +227,32 @@ def run_fertilizer_service():
     print()
 
 
-def run_climate_service():
-    conMan = common.ConnectionManager()
+async def run_time_series():
+    #"capnp://bepiW8i4L69bme20_6URQav0Vy67h_mRNfeRaMcJpPg=@10.10.25.161:9999/aaaa"
+    #connection = await capnp.AsyncIoStream.create_connection(host="localhost", port=9999)
+    #client = capnp.TwoPartyClient(connection)
+    #restorer = client.bootstrap().cast_as(persistence_capnp.Restorer)
+    #cap = await restorer.restore(localRef={"text": "aaaa"})
+    #await cap.m(id=123)
+    #await cap.m(id=123)
+
+    con_man = common.ConnectionManager()
+    sr = "capnp://r7J0gOdcE-9Xobq9AIKa6NNC6mRvw09WKndicWbg3mI=@10.10.25.161:34545/c4d009a0-88fb-4afb-9952-6bcec12b7eac"
+    time_series = await con_man.try_connect(sr, cast_as=climate_capnp.TimeSeries)
+    try:
+        print(await time_series.info())
+    except Exception as e:
+        print(e)
+
+
+async def run_climate_service():
+    con_man = common.ConnectionManager()
     # restorer = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000", cast_as=persistence_capnp.Restorer)
     # service = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/6feaf299-d620-430b-9189-36dfccf48b3a", cast_as=climate_data_capnp.CSVTimeSeriesFactory)
-    sr = "capnp://oJFG9RpPIAr48Q9395drwGRSFMGKIZ3idmtV5m4RHMw=@10.10.25.31:44447/72ccf0a8-c192-41ed-9f0d-4c9629a5bb09"
-    service = conMan.try_connect(sr, cast_as=climate_capnp.Service)
+    sr = "capnp://psPzzv6IceWif1_WKy3M15VN1H41nlqetNb4pgmMhKA=@10.10.25.161:40617/b42d4993-3617-4e6a-a222-578ca670391a"
+
+    service = con_man.try_connect(sr, cast_as=climate_capnp.Service)
+    service = con_man.try_connect(sr, cast_as=climate_capnp.Service)
     # timeseries = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/8e7961c5-bd16-4c1d-86fd-8347dc46185e", cast_as=climate_data_capnp.TimeSeries)
     # unsave = conMan.try_connect("capnp://insecure@pc-berg-7920.fritz.box:10000/ac544d7b-1f82-4bf8-9adb-cf586ae46287", cast_as=common_capnp.Action)
     # 4e4fe3fb-791a-4a26-9ae1-1ce52093bda5'  row: 340/col: 288
@@ -637,7 +657,9 @@ async def main():
 
     # run_soil_service()
 
-    await run_channel()
+    await run_time_series()
+
+    #await run_channel()
 
     # run_crop_service()
 
@@ -645,7 +667,7 @@ async def main():
 
     # run_monica()
 
-    # run_climate_service()
+    #await run_climate_service()
 
     # run_registry()
 

@@ -106,7 +106,7 @@ class TimeSeries(climate_capnp.TimeSeries.Server, common.Identifiable, common.Pe
 
     @property
     def dataframe(self):
-        "init underlying dataframe lazily if initialized with path to csv file"
+        """init underlying dataframe lazily if initialized with path to csv file"""
         if self._df is None and (self._path_to_csv or self._csv_string):
             # load csv file
             if self._path_to_csv and self._path_to_csv[-2:] == "gz":
@@ -139,42 +139,42 @@ class TimeSeries(climate_capnp.TimeSeries.Server, common.Identifiable, common.Pe
 
         return self._df
 
-    def resolution_context(self, context):  # -> (resolution :TimeResolution);
-        context.results.resolution = climate_capnp.TimeSeries.Resolution.daily
+    async def resolution(self, **kwargs):  # -> (resolution :TimeResolution);
+        return climate_capnp.TimeSeries.Resolution.daily
 
-    def range_context(self, context):  # -> (startDate :Date, endDate :Date);
-        context.results.startDate = ccdi.create_capnp_date(date.fromisoformat(str(self.dataframe.index[0])[:10]))
-        context.results.endDate = ccdi.create_capnp_date(date.fromisoformat(str(self.dataframe.index[-1])[:10]))
+    async def range(self, _context, **kwargs):  # -> (startDate :Date, endDate :Date);
+        _context.results.startDate = ccdi.create_capnp_date(date.fromisoformat(str(self.dataframe.index[0])[:10]))
+        _context.results.endDate = ccdi.create_capnp_date(date.fromisoformat(str(self.dataframe.index[-1])[:10]))
 
-    def header(self, **kwargs):  # () -> (header :List(Element));
+    async def header(self, **kwargs):  # () -> (header :List(Element));
         return self.dataframe.columns.tolist()
 
-    def data(self, **kwargs):  # () -> (data :List(List(Float32)));
+    async def data(self, **kwargs):  # () -> (data :List(List(Float32)));
         return self.dataframe.to_numpy().tolist()
 
-    def dataT(self, **kwargs):  # () -> (data :List(List(Float32)));
+    async def dataT(self, **kwargs):  # () -> (data :List(List(Float32)));
         return self.dataframe.T.to_numpy().tolist()
 
-    def subrange_context(self, context):  # (from :Date, to :Date) -> (timeSeries :TimeSeries);
-        ps = context.params
+    async def subrange(self, _context, **kwargs):  # (from :Date, to :Date) -> (timeSeries :TimeSeries);
+        ps = _context.params
         start_date = ccdi.create_date(ps.start) if ps._has("start") else self.dataframe.index[0]
         end_date = ccdi.create_date(ps.end) if ps._has("end") else self.dataframe.index[-1]
 
         sub_df = self.dataframe.loc[str(start_date):str(end_date)]
 
-        context.results.timeSeries = TimeSeries.from_dataframe(sub_df, metadata=self._meta, location=self._location,
+        _context.results.timeSeries = TimeSeries.from_dataframe(sub_df, metadata=self._meta, location=self._location,
                                                                name=self.name, description=self.description,
                                                                restorer=self._restorer)
 
-    def subheader(self, elements, **kwargs):  # (elements :List(Element)) -> (timeSeries :TimeSeries);
+    async def subheader(self, elements, **kwargs):  # (elements :List(Element)) -> (timeSeries :TimeSeries);
         sub_headers = [str(e) for e in elements]
         sub_df = self.dataframe.loc[:, sub_headers]
 
         return TimeSeries.from_dataframe(sub_df, metadata=self._meta, location=self._location,
                                          name=self.name, description=self.description, restorer=self._restorer)
 
-    def metadata(self, _context, **kwargs):  # metadata @7 () -> Metadata;
-        "the metadata for this time series"
+    async def metadata(self, _context, **kwargs):  # metadata @7 () -> Metadata;
+        """the metadata for this time series"""
         if self._meta:
             r = _context.results
             r.init("entries", len(self._meta.entries))
@@ -182,8 +182,8 @@ class TimeSeries(climate_capnp.TimeSeries.Server, common.Identifiable, common.Pe
                 r.entries[i] = e
             r.info = self._meta.info
 
-    def location(self, _context, **kwargs):  # location @8 () -> Location;
-        "location of this time series"
+    async def location(self, _context, **kwargs):  # location @8 () -> Location;
+        """location of this time series"""
         r = _context.results
         r.timeSeries = self
         if self._location:
@@ -222,7 +222,7 @@ class Dataset(climate_capnp.Dataset.Server, common.Identifiable, common.Persista
         self._percentage_of_main_memory_use = percentage_of_main_memory_use
         self._cache_data = cache_data
 
-    def metadata(self, _context, **kwargs):  # metadata @0 () -> Metadata;
+    async def metadata(self, _context, **kwargs):  # metadata @0 () -> Metadata;
         # get metadata for these data 
         r = _context.results
         r.init("entries", len(self._meta.entries))
@@ -264,13 +264,13 @@ class Dataset(climate_capnp.Dataset.Server, common.Identifiable, common.Persista
 
         return self._timeseries[(row, col)] if self._cache_data else timeseries
 
-    def closestTimeSeriesAt(self, latlon, **kwargs):  # (latlon :Geo.LatLonCoord) -> (timeSeries :TimeSeries);
+    async def closestTimeSeriesAt(self, latlon, **kwargs):  # (latlon :Geo.LatLonCoord) -> (timeSeries :TimeSeries);
         # closest TimeSeries object which represents the whole time series 
         # of the climate realization at the give climate coordinate
         row, col = map(int, self._interpolator(latlon.lat, latlon.lon))
         return self.timeseries_at(row, col)
 
-    def timeSeriesAt(self, locationId, **kwargs):  # (locationId :Text) -> (timeSeries :TimeSeries);
+    async def timeSeriesAt(self, locationId, **kwargs):  # (locationId :Text) -> (timeSeries :TimeSeries);
         rs, cs = locationId.split("/")
         row = int(rs[2:])
         col = int(cs[2:])
@@ -300,7 +300,7 @@ class Dataset(climate_capnp.Dataset.Server, common.Identifiable, common.Persista
                 self._locations[(row, col)] = loc
         return self._locations[(row, col)] if self._cache_data else loc
 
-    def locations(self, **kwargs):  # locations @3 () -> (locations :List(Location));
+    async def locations(self, **kwargs):  # locations @3 () -> (locations :List(Location));
         # all the climate locations this dataset has
         locs = []
         if not self._all_locations_created:
@@ -315,8 +315,7 @@ class Dataset(climate_capnp.Dataset.Server, common.Identifiable, common.Persista
             locs.extend(self._locations.values())
         return locs
 
-    def streamLocations_context(self,
-                                context):  # streamLocations @4 (startAfterLocationId :Text) -> (locationsCallback :GetLocationsCallback);
+    async def streamLocations(self, _context):  # streamLocations @4 (startAfterLocationId :Text) -> (locationsCallback :GetLocationsCallback);
         # all the climate locations this dataset has
 
         def create_loc(row_col, coord):
@@ -326,23 +325,23 @@ class Dataset(climate_capnp.Dataset.Server, common.Identifiable, common.Persista
             loc.timeSeries = ts
             return loc
 
-        locId = context.params.startAfterLocationId
-        if (locId and len(locId) > 0):
-            it = itertools.dropwhile(lambda rcll: self.create_location_id(*rcll[0]) != locId,
+        loc_id = _context.params.startAfterLocationId
+        if (loc_id and len(loc_id) > 0):
+            it = itertools.dropwhile(lambda rcll: self.create_location_id(*rcll[0]) != loc_id,
                                      self._rowcol_to_latlon.items())
             next(it)
         else:
             it = self._rowcol_to_latlon.items()
 
         locs_gen = (create_loc(row_col, coord) for row_col, coord in it)
-        context.results.locationsCallback = GetLocationsCallback(locs_gen)
+        _context.results.locationsCallback = GetLocationsCallback(locs_gen)
 
 
 class GetLocationsCallback(climate_capnp.Dataset.GetLocationsCallback.Server):
     def __init__(self, locations_gen):
         self._locations_gen = locations_gen
 
-    def nextLocations(self, maxCount, **kwargs):  # nextLocations @1 (maxCount :Int64) -> (locations :List(Location));
+    async def nextLocations(self, maxCount, **kwargs):  # nextLocations @1 (maxCount :Int64) -> (locations :List(Location));
         l = []
         for _ in range(maxCount):
             try:

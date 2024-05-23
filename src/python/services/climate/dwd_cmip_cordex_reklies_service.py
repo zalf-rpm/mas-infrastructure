@@ -68,7 +68,7 @@ def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon):
                                                     {"version": version}
                                                 ]
                                             )
-                                            metadata.info = ccdi.Metadata_Info(metadata)
+                                            metadata.info = ccdi.MetadataInfo(metadata)
                                             datasets.append(climate_capnp.MetaPlusData.new_message(
                                                 meta=metadata,
                                                 data=csv_based.Dataset(metadata, version_dir, interpolator,

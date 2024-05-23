@@ -248,7 +248,7 @@ def create_capnp_date(py_date):
     }
 
 
-class Metadata_Info(climate_capnp.Metadata.Information.Server):
+class MetadataInfo(climate_capnp.Metadata.Information.Server):
 
     def __init__(self, metadata):
         self._meta = metadata
@@ -270,7 +270,7 @@ class Metadata_Info(climate_capnp.Metadata.Information.Server):
             "description": lambda v: {"id": v, "name": v, "description": v}
         }
 
-    def forOne(self, entry, _context, **kwargs):  # forOne @0 (entry :Entry) -> Common.IdInformation;
+    async def forOne(self, entry, _context, **kwargs):  # forOne @0 (entry :Entry) -> Common.IdInformation;
         which = entry.which()
         value = self._entry_map[which]
         id_info = self._entry_to_info[which](value)
@@ -279,7 +279,7 @@ class Metadata_Info(climate_capnp.Metadata.Information.Server):
         r.name = id_info["name"]
         r.description = id_info["description"]
 
-    def forAll(self, **kwargs):  # forAll @0 () -> (all :List(Common.IdInformation));
+    async def forAll(self, **kwargs):  # forAll @0 () -> (all :List(Common.IdInformation));
         id_infos = []
         for e in self._meta.entries:
             which = e.which()
@@ -297,11 +297,11 @@ class Service(climate_capnp.Service.Server, common.Identifiable, common.Persista
 
         self._meta_plus_datasets = meta_plus_datasets
 
-    def getAvailableDatasets(self, **kwargs):  # getAvailableDatasets @0 () -> (datasets :List(MetaPlusData));
+    async def getAvailableDatasets(self, **kwargs):  # getAvailableDatasets @0 () -> (datasets :List(MetaPlusData));
         """get a list of all available datasets"""
         return self._meta_plus_datasets
 
-    def getDatasetsFor(self, template, **kwargs):  # getDatasets @1 (template :Metadata) -> (datasets :List(Dataset));
+    async def getDatasetsFor(self, template, **kwargs):  # getDatasets @1 (template :Metadata) -> (datasets :List(Dataset));
         """get a reference to the simulation with given id"""
         search_entry_to_value = create_entry_map(template.entries)
 
