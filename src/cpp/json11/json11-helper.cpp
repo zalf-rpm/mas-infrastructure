@@ -18,9 +18,33 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 #include <string>
 
+#include "algorithms.h"
+
 using namespace Tools;
 using namespace std;
 using namespace json11;
+
+std::function<double(double)> Tools::transformIfPercent(const Json &j, const string& key) {
+  const auto &value = j[key];
+  if(value.is_array() && value.array_items().size() > 1
+     && value[1].is_string() && trim(value[1].string_value()) == "%") {
+    return [](double v) { return v / 100.0; };
+  }
+  return identity<double>;
+}
+
+std::function<double(double)> Tools::transformIfNotMeters(const Json &j, const string& key) {
+  const auto &value = j[key];
+  if(value.is_array() && value.array_items().size() > 1 && value[1].is_string()) {
+    auto unit = trim(value[1].string_value());
+    if (unit == "mm") return [](double v) { return v / 1000.0; };
+    else if (unit == "cm") return [](double v) { return v / 100.0; };
+    else if (unit == "dm") return [](double v) { return v / 10.0; };
+    else return identity<double>;
+  }
+  return identity<double>;
+}
+
 
 EResult<Json> Tools::readAndParseJsonFile(string path) {
   auto r = readFile(path);

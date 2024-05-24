@@ -27,6 +27,11 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include "../common/dll-exports.h"
 
 namespace Tools {
+
+std::function<double(double)> transformIfPercent(const json11::Json &j, const std::string &key);
+
+std::function<double(double)> transformIfNotMeters(const json11::Json &j, const std::string& key);
+
 EResult<json11::Json> readAndParseJsonFile(std::string path);
 
 EResult<json11::Json> parseJsonString(std::string jsonString);

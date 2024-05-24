@@ -34,9 +34,9 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 namespace Soil
 {
 
-std::function<double(double)> transformIfPercent(const json11::Json &j, const std::string &key);
+//std::function<double(double)> transformIfPercent(const json11::Json &j, const std::string &key);
 
-std::function<double(double)> transformIfNotMeters(const json11::Json &j, const std::string& key);
+//std::function<double(double)> transformIfNotMeters(const json11::Json &j, const std::string& key);
 
 //! @author Claas Nendel, Michael Berg 
 struct SoilParameters : public Tools::Json11Serializable
