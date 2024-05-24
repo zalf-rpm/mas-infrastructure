@@ -79,6 +79,8 @@ def task(ftps_host, ftps_user, ftps_pwd, import_host="localhost", import_port="1
     dates = [f"{d:%Y%m%d}" for d in ds]
     files = defaultdict(lambda: defaultdict(dict))
     for entry in filter(lambda e: e[1]["type"] == "file", ftps.mlsd(facts=["type"])):
+        if entry[0] == ".ftpaccess":
+            continue
         date = entry[0][9:17]
         type = entry[0][4:8]
         time = int(entry[0][18:22])
