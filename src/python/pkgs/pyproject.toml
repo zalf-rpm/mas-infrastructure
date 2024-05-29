@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "zalfmas-pkgs"
+version = "0.1.0"
+description = "ZALF/MAS shared packages"
+authors = ["Michael Berg-Mohnicke <michael.berg@zalf.de>"]
+license = "MPL v2.0"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+pycapnp = "2.0"
+pysodium = "^0.7.17"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

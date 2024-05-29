@@ -237,10 +237,12 @@ async def run_time_series():
     #await cap.m(id=123)
 
     con_man = common.ConnectionManager()
-    sr = "capnp://r7J0gOdcE-9Xobq9AIKa6NNC6mRvw09WKndicWbg3mI=@10.10.25.161:34545/c4d009a0-88fb-4afb-9952-6bcec12b7eac"
-    time_series = await con_man.try_connect(sr, cast_as=climate_capnp.TimeSeries)
+    sr = "capnp://o7Hm91vJAmyg4eBdrnCOZJinc9CjRm6uVwOwo0Ni0PE=@localhost:39529/6dd2a1a7-2536-41b2-8a84-ec4cd845ad1e"
+    #time_series = await con_man.try_connect(sr, cast_as=climate_capnp.TimeSeries)
+    service = await con_man.try_connect(sr, cast_as=climate_capnp.Service)
     try:
-        print(await time_series.info())
+        print(await service.info())
+
     except Exception as e:
         print(e)
 

@@ -306,6 +306,7 @@ class Restorer(persistence_capnp.Restorer.Server):
             return None
 
         # if there is no owner
+
         if sr_token.text in self._issued_sr_tokens:
             return get_cap(self._issued_sr_tokens[sr_token.text])
         elif self.storage_container:

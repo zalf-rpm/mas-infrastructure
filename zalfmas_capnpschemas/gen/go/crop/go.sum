@@ -1,0 +1,16 @@
+capnproto.org/go/capnp/v3 v3.0.0-alpha-29 h1:ICLhiy4Jmp0d7hLQO+HzFAVIft/oxpPAUPV8tqx+eUE=
+capnproto.org/go/capnp/v3 v3.0.0-alpha-29/go.mod h1:+ysMHvOh1EWNOyorxJWs1omhRFiDoKxKkWQACp54jKM=
+github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
+github.com/philhofer/fwd v1.1.1 h1:GdGcTjf5RNAxwS4QLsiMzJYj5KEvPJD3Abr261yRQXQ=
+github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
+github.com/stretchr/testify v1.8.2 h1:+h33VjcLVPDHtOdpUCuF+7gSuG3yGIftsP1YvFihtJ8=
+github.com/tinylib/msgp v1.1.5 h1:2gXmtWueD2HefZHQe1QOy9HVzmFrLOVvsXwXBQ0ayy0=
+github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/persistence v0.0.0-20230208160538-deb034d36602 h1:Jo9sleanLcnsEEBjnVX5eUpRcNOWUNTZC4fOjn1XjX4=
+github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/persistence v0.0.0-20230208160538-deb034d36602/go.mod h1:8jUm+l+Cufg7xOeoBFRMW3VmAVQu1WDpRFxjh9DuHSU=
+github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/registry v0.0.0-20230412105359-2d45c32db41e h1:tcWFoq1AZlQDO/bF99Gi+tCk79nXkMGxoDO95GOIRag=
+github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/registry v0.0.0-20230412105359-2d45c32db41e/go.mod h1:U0La1/zS2qvyjCvDJZzKPCAYVw3IIV9EiMiFGgvn89c=
+golang.org/x/sync v0.3.0 h1:ftCYgMx6zT/asHUrPw8BLLscYtGznsLAnjq5RH9P66E=
+golang.org/x/sync v0.3.0/go.mod h1:FU7BRWz2tNW+3quACPkgCx/L+uEAv1htQ0V83Z9Rj+Y=
+gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
+zenhack.net/go/util v0.0.0-20230607025951-8b02fee814ae h1:MjNLCVT0QYNmXStslQk+ugtOvFCVpC7H6mWtkEI2PxI=
+zenhack.net/go/util v0.0.0-20230607025951-8b02fee814ae/go.mod h1:1LtNdPAs8WH+BTcQiZAOo2MIKD/5jyK/u7sZ9ZPe5SE=

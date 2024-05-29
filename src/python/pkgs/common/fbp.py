@@ -27,16 +27,16 @@ from pathlib import Path
 import sys
 import uuid
 
-PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent.parent
-if str(PATH_TO_REPO) not in sys.path:
-    sys.path.insert(1, str(PATH_TO_REPO))
+#PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent.parent
+#if str(PATH_TO_REPO) not in sys.path:
+#    sys.path.insert(1, str(PATH_TO_REPO))
 
-PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
-if str(PATH_TO_PYTHON_CODE) not in sys.path:
-    sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
+#PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
+#if str(PATH_TO_PYTHON_CODE) not in sys.path:
+#    sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
 
-from pkgs.common import common
-from pkgs.common import service as serv
+#from pkgs.common import common
+#from pkgs.common import service as serv
 
 PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
 abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
