@@ -20,7 +20,7 @@
                ValueChanged="@SelectedBookmarkChanged"
                Label="@Label"
                Variant="@Variant.Outlined"
-               OffsetY="@true">
+               AnchorOrigin="@Origin.TopCenter">
         @foreach (var b in bookmarks)
         {
             <MudSelectItem Value=@b>

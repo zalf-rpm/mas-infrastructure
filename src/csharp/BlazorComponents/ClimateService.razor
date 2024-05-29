@@ -30,7 +30,7 @@
                   SelectedItemChanged="@(t => {
                                             _selectedDatasetId = t.Item3;
                                             selectedDataset = t.Item2;
-                                            if (DatasetCapChanged.HasDelegate) _ = DatasetCapChanged.InvokeAsync(selectedDataset);
+                                            if (DatasetCapChanged.HasDelegate) DatasetCapChanged.InvokeAsync(selectedDataset);
                                             StateHasChanged(); 
                                         })">
             <ToolBarContent>
