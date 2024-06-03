@@ -27,6 +27,9 @@ from pathlib import Path
 import sys
 import uuid
 
+from zalfmas_common import common
+from zalfmas_common import service as serv
+
 import zalfmas_capnpschemas
 sys.path.append(os.path.dirname(zalfmas_capnpschemas.__file__))
 import common_capnp

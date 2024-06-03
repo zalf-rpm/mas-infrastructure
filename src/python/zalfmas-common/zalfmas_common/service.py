@@ -19,7 +19,7 @@ from pathlib import Path
 import sys
 import threading
 
-import zalfmas_common as common
+from zalfmas_common import common
 import zalfmas_capnpschemas
 
 sys.path.append(os.path.dirname(zalfmas_capnpschemas.__file__))

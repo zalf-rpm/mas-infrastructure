@@ -27,7 +27,7 @@ from pathlib import Path
 import psutil
 import sys
 
-import zalfmas_common as common
+from zalfmas_common import common
 from zalfmas_common.climate import common_climate_data_capnp_impl as ccdi
 import zalfmas_capnpschemas
 
@@ -35,6 +35,7 @@ sys.path.append(os.path.dirname(zalfmas_capnpschemas.__file__))
 import common_capnp
 import geo_capnp
 import persistence_capnp
+import climate_capnp
 
 
 class TimeSeries(climate_capnp.TimeSeries.Server, common.Identifiable, common.Persistable):

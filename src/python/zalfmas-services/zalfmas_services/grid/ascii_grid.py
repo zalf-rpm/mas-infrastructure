@@ -28,27 +28,22 @@ import sys
 # import time
 import uuid
 
-PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent.parent
-if str(PATH_TO_REPO) not in sys.path:
-    sys.path.insert(1, str(PATH_TO_REPO))
+from zalfmas_common.climate import common_climate_data_capnp_impl as ccdi
+from zalfmas_common import common
+from zalfmas_common import service as serv
+from zalfmas_common.climate import csv_file_based as csv_based
+from zalfmas_common import fbp
+from zalfmas_common import geo
+from zalfmas_common import rect_ascii_grid_management as grid_man
+import zalfmas_capnpschemas
 
-PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
-if str(PATH_TO_PYTHON_CODE) not in sys.path:
-    sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
-
-from pkgs.common import rect_ascii_grid_management as grid_man
-from pkgs.common import geo
-from pkgs.common import common
-from pkgs.common import service as serv
-from pkgs.common import fbp
-
-PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
-abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
-common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
-fbp_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "fbp.capnp"), imports=abs_imports)
-geo_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "geo.capnp"), imports=abs_imports)
-grid_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "grid.capnp"), imports=abs_imports)
-reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
+sys.path.append(os.path.dirname(zalfmas_capnpschemas.__file__))
+import climate_capnp
+import registry_capnp as reg_capnp
+import common_capnp
+import fbp_capnp
+import geo_capnp
+import grid_capnp
 
 
 def fbp_wrapper(config, service: grid_capnp.Grid):
@@ -445,7 +440,7 @@ class Grid(grid_capnp.Grid.Server, common.Identifiable, common.Persistable, serv
 
 
 async def main(path_to_ascii_grid, grid_crs, val_type, serve_bootstrap=True, host=None, port=None,
-               id=None, name="Grid Service", description=None, use_async=False):
+               id=None, name="Grid Service", description=None, srt=None):
     config = {
         "path_to_ascii_grid": path_to_ascii_grid,
         "grid_crs": grid_crs,
@@ -456,12 +451,12 @@ async def main(path_to_ascii_grid, grid_crs, val_type, serve_bootstrap=True, hos
         "name": name,
         "description": description,
         "serve_bootstrap": serve_bootstrap,
-        "use_async": use_async,
         "fbp": False,
         "in_sr": None,
         "out_sr": None,
         "from_attr": None,  # "latlon"
         "to_attr": None,  # "dgm",
+        "srt": srt
     }
     common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
@@ -471,18 +466,16 @@ async def main(path_to_ascii_grid, grid_crs, val_type, serve_bootstrap=True, hos
                    id=config["id"], name=config["name"], description=config["description"], restorer=restorer)
     if config["fbp"]:
         fbp_wrapper(config, grid_capnp.Grid._new_client(service))
-    else:
-        if config["use_async"]:
-            await serv.async_init_and_run_service({"service": service}, config["host"], config["port"],
-                                                  serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
-        else:
 
-            serv.init_and_run_service({"service": service}, config["host"], config["port"],
-                                      serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
+    else:
+        await serv.init_and_run_service({"service": service}, config["host"], config["port"],
+                                    serve_bootstrap=config["serve_bootstrap"],
+                                    name_to_service_srs={"service": config["srt"]},
+                                    restorer=restorer)
 
 
 if __name__ == '__main__':
     # grid = "data/geo/dem_1000_31469_gk5.asc"
-    grid = str(PATH_TO_REPO / "data/geo/slope_1000_31469_gk5.asc")
+    grid = str(Path(zalfmas_capnpschemas.__file__).parent.parent / "data/geo/slope_1000_31469_gk5.asc")
     crs = "gk5"
-    asyncio.run(main(grid, crs, "float", serve_bootstrap=True, use_async=True))
+    asyncio.run(capnp.run(main(grid, crs, "float", serve_bootstrap=True)))

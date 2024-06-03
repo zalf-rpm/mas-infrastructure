@@ -12,6 +12,7 @@ zalfmas-capnpschemas = { path = "../../..", develop = true }
 #zalfmas-common = { path = "../../zalfmas-common", develop = true }
 zalfmas-common = {path = "../zalfmas-common", develop = true}
 numpy = "^1.26.4"
+tomli = "^2.0.1"
 
 [build-system]
 requires = ["poetry-core"]

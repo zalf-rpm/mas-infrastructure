@@ -25,7 +25,7 @@ from pyproj import CRS
 from scipy.interpolate import NearestNDInterpolator
 import sys
 
-import zalfmas_common as common
+from zalfmas_common import common
 from zalfmas_common import service as serv
 from zalfmas_common import rect_ascii_grid_management as ragm
 import zalfmas_capnpschemas

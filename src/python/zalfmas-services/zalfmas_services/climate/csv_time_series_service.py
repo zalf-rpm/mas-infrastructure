@@ -21,20 +21,12 @@ import os
 from pathlib import Path
 import sys
 
-PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent.parent
-if str(PATH_TO_REPO) not in sys.path:
-    sys.path.insert(1, str(PATH_TO_REPO))
+from zalfmas_common import common
+from zalfmas_common import service as serv
+from zalfmas_common.climate import csv_file_based as csv_based
+import zalfmas_capnpschemas
 
-PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
-if str(PATH_TO_PYTHON_CODE) not in sys.path:
-    sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
-
-from pkgs.common import common
-from pkgs.common import service as serv
-from pkgs.climate import csv_file_based as csv_based
-
-PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
-abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
+sys.path.append(os.path.dirname(zalfmas_capnpschemas.__file__))
 
 
 async def main(path_to_csv_file, serve_bootstrap=True, host=None, port=None,
@@ -62,5 +54,5 @@ async def main(path_to_csv_file, serve_bootstrap=True, host=None, port=None,
 
 
 if __name__ == '__main__':
-    path = str(PATH_TO_REPO / "data/climate/climate-iso.csv")
+    path = str(Path(zalfmas_capnpschemas.__file__).parent.parent / "data/climate/climate-iso.csv")
     asyncio.run(capnp.run(main(path)))

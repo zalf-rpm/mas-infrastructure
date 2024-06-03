@@ -17,6 +17,7 @@ from collections import defaultdict
 import os
 from pathlib import Path
 from pyproj import CRS, Transformer
+import sys
 
 import zalfmas_capnpschemas
 

@@ -15,9 +15,6 @@
 # Landscape Systems Analysis at the ZALF.
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
-# remote debugging via commandline
-# -m ptvsd --host 0.0.0.0 --port 14000 --wait
-
 import asyncio
 import capnp
 import json
@@ -29,29 +26,22 @@ import sys
 # import time
 import uuid
 
-PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent.parent.parent
-if str(PATH_TO_REPO) not in sys.path:
-    sys.path.insert(1, str(PATH_TO_REPO))
+from zalfmas_common import common
+from zalfmas_common import service as serv
+from zalfmas_common import geo
+from zalfmas_common import rect_ascii_grid_management as grid_man
+from zalfmas_common.soil import soil_io
+import zalfmas_capnpschemas
 
-PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
-if str(PATH_TO_PYTHON_CODE) not in sys.path:
-    sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
-
-from pkgs.common import common
-from pkgs.common import rect_ascii_grid_management as grid_man
-from pkgs.common import geo
-from pkgs.common import service as serv
-import pkgs.soil.soil_io3
-
-PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
-abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
-common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
-fbp_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "fbp.capnp"), imports=abs_imports)
-geo_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "geo.capnp"), imports=abs_imports)
-soil_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "soil.capnp"), imports=abs_imports)
+sys.path.append(os.path.dirname(zalfmas_capnpschemas.__file__))
+import climate_capnp
+import common_capnp
+import fbp_capnp
+import geo_capnp
+import soil_capnp
 
 
-def fbp(config, service: soil_capnp.Service):
+def fbp_wrapper(config, service: soil_capnp.Service):
     conman = common.ConnectionManager()
     inp = conman.try_connect(config["in_sr"], cast_as=fbp_capnp.Channel.Reader, retry_secs=1)
     outp = conman.try_connect(config["out_sr"], cast_as=fbp_capnp.Channel.Writer, retry_secs=1)
@@ -403,7 +393,7 @@ class Stream(soil_capnp.Service.Stream.Server):
 
 async def main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs=None, grid_epsg=None, serve_bootstrap=True,
                host=None, port=None,
-               id=None, name="Soil service", description=None, use_async=False):
+               id=None, name="Soil service", description=None, srt=None):
     config = {
         "path_to_sqlite_db": path_to_sqlite_db,
         "path_to_ascii_soil_grid": path_to_ascii_soil_grid,
@@ -415,13 +405,13 @@ async def main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs=None, grid_e
         "name": name,
         "description": description,
         "serve_bootstrap": serve_bootstrap,
-        "use_async": use_async,
         "fbp": False,
         "in_sr": None,
         "out_sr": None,
         "mandatory": """["soilType","organicCarbon","rawDensity"]""",
         "to_attr": None,  # "soil",
         "from_attr": None,  # "latlon"
+        "srt": srt
     }
     common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
@@ -444,19 +434,18 @@ async def main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs=None, grid_e
         grid_crs=grid_crs,
         id=config["id"], name=config["name"], description=config["description"], restorer=restorer)
     if config["fbp"]:
-        fbp(config, soil_capnp.Service._new_client(service))
+        fbp_wrapper(config, grid_capnp.Grid._new_client(service))
+
     else:
-        if config["use_async"]:
-            await serv.async_init_and_run_service({"service": service}, config["host"], config["port"],
-                                                  serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
-        else:
-            serv.init_and_run_service({"service": service}, config["host"], config["port"],
-                                      serve_bootstrap=config["serve_bootstrap"], restorer=restorer)
+        await serv.init_and_run_service({"service": service}, config["host"], config["port"],
+                                        serve_bootstrap=config["serve_bootstrap"],
+                                        name_to_service_srs={"service": config["srt"]},
+                                        restorer=restorer)
 
 
 if __name__ == '__main__':
-    # db = str(PATH_TO_REPO / "data/soil/buek1000.sqlite")
-    # grid = str(PATH_TO_REPO / "data/soil/buek1000_1000_31469_gk5.asc")
-    db = str(PATH_TO_REPO / "data/soil/buek200.sqlite")
-    grid = str(PATH_TO_REPO / "data/soil/buek200_1000_25832_etrs89-utm32n.asc")
-    asyncio.run(main(db, grid, use_async=True))
+    # db = str(Path(zalfmas_capnpschemas.__file__).parent.parent / "data/soil/buek1000.sqlite")
+    # grid = str(Path(zalfmas_capnpschemas.__file__).parent.parent / "data/soil/buek1000_1000_31469_gk5.asc")
+    db = str(Path(zalfmas_capnpschemas.__file__).parent.parent / "data/soil/buek200.sqlite")
+    grid = str(Path(zalfmas_capnpschemas.__file__).parent.parent / "data/soil/buek200_1000_25832_etrs89-utm32n.asc")
+    asyncio.run(capnp.run(main(db, grid, serve_bootstrap=True)))

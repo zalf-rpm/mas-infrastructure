@@ -22,7 +22,7 @@ from pathlib import Path
 import sys
 
 from zalfmas_common.climate import common_climate_data_capnp_impl as ccdi
-import zalfmas_common as common
+from zalfmas_common import common
 from zalfmas_common import service as serv
 from zalfmas_common.climate import csv_file_based as csv_based
 from zalfmas_common import fbp
