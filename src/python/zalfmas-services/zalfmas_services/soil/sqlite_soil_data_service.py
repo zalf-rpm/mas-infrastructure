@@ -164,7 +164,7 @@ class Profile(soil_capnp.Profile.Server, common.Identifiable, common.Persistable
     def data(self):
         return self._data
 
-    def data_context(self, context):
+    async def data_context(self, context):
         # data @0() -> ProfileData;
 
         ls = context.results.init("layers", len(self._data.layers))
@@ -172,7 +172,7 @@ class Profile(soil_capnp.Profile.Server, common.Identifiable, common.Persistable
             ls[i] = l
         context.results.percentageOfArea = self._data.percentageOfArea
 
-    def geoLocation_context(self, context):
+    async def geoLocation_context(self, context):
         # geoLocation @1() -> Geo.LatLonCoord;
 
         context.results.lat = self._lat
@@ -227,7 +227,7 @@ class Service(soil_capnp.Service.Server, common.Identifiable, common.Persistable
     @property
     def all_available_params_derived(self):
         if not self._all_available_params_derived:
-            params = soil_io3.available_soil_parameters_group(self._con, only_raw_data=False)
+            params = soil_io.available_soil_parameters_group(self._con, only_raw_data=False)
             self._all_available_params_derived = {
                 "mandatory": list(filter(None, map(lambda p: self._monica_param_to_capnp_prop_name.get(p, None),
                                                    params["mandatory"]))),
@@ -239,7 +239,7 @@ class Service(soil_capnp.Service.Server, common.Identifiable, common.Persistable
     @property
     def all_available_params_raw(self):
         if self._all_available_params_raw is None:
-            params = soil_io3.available_soil_parameters_group(self._con, only_raw_data=True)
+            params = soil_io.available_soil_parameters_group(self._con, only_raw_data=True)
             # print("params:", params)
             self._all_available_params_raw = {
                 "mandatory": list(filter(None, map(lambda p: self._monica_param_to_capnp_prop_name.get(p, None),
@@ -262,7 +262,7 @@ class Service(soil_capnp.Service.Server, common.Identifiable, common.Persistable
             "optional": avail_optional
         }
 
-    def checkAvailableParameters_context(self, context):
+    async def checkAvailableParameters_context(self, context):
         # checkAvailableParameters @2 Query -> Query.Result;
 
         p = context.params
@@ -273,7 +273,7 @@ class Service(soil_capnp.Service.Server, common.Identifiable, common.Persistable
         r.optional = avail["optional"]
         r.failed = avail["failed"]
 
-    def getAllAvailableParameters_context(self, context):
+    async def getAllAvailableParameters_context(self, context):
         # getAllAvailableParameters @3 () -> (mandatory :List(PropertyName), optional :List(PropertyName));
 
         r = context.results
@@ -285,14 +285,14 @@ class Service(soil_capnp.Service.Server, common.Identifiable, common.Persistable
     def profiles_at(self, lat, lon, avail_props, only_raw_data):
         if len(avail_props) > 0:
             try:
-                soil_id = self.interpolator(lat, lon)
+                soil_id = int(self.interpolator(lat, lon))
             except:
                 return
             cache = self._cache_raw if only_raw_data else self._cache_derived
             if soil_id in cache:
                 sps = cache[soil_id]
             else:
-                sp_groups = soil_io3.get_soil_profile_group(self._con, int(soil_id), only_raw_data=only_raw_data,
+                sp_groups = soil_io.get_soil_profile_group(self._con, soil_id, only_raw_data=only_raw_data,
                                                             no_units=True)
                 # because of given soil_id we expect only one profile group (with potentially many profiles)
                 sps = sp_groups[0]
@@ -353,7 +353,7 @@ class Service(soil_capnp.Service.Server, common.Identifiable, common.Persistable
         names.extend(res["optional"])
         return names
 
-    def closestProfilesAt_context(self, context):
+    async def closestProfilesAt_context(self, context):
         # closestProfilesAt @0 (coord :Geo.LatLonCoord, query :Query) -> (profiles :List(Profile));
 
         query = context.params.query
@@ -361,7 +361,7 @@ class Service(soil_capnp.Service.Server, common.Identifiable, common.Persistable
         avail_props = self.available_properties(query)
         context.results.profiles = self.profiles_at(coord.lat, coord.lon, avail_props, query.onlyRawData)
 
-    def streamAllProfiles_context(self, context):
+    async def streamAllProfiles_context(self, context):
         # streamAllProfiles @3 Query -> (allProfiles :Stream);
 
         query = context.params.query
@@ -379,7 +379,7 @@ class Stream(soil_capnp.Service.Stream.Server):
     def __init__(self, stream_gen):
         self._stream_gen = stream_gen
 
-    def nextProfiles(self, maxCount, **kwargs):
+    async def nextProfiles(self, maxCount, **kwargs):
         # nextProfiles @0 (maxCount :Int64 = 100) -> (profiles :List(Profile));
 
         ps = []
@@ -391,7 +391,7 @@ class Stream(soil_capnp.Service.Stream.Server):
         return ps
 
 
-async def main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs=None, grid_epsg=None, serve_bootstrap=True,
+async def main(path_to_sqlite_db=None, path_to_ascii_soil_grid=None, grid_crs=None, grid_epsg=None, serve_bootstrap=True,
                host=None, port=None,
                id=None, name="Soil service", description=None, srt=None):
     config = {
@@ -446,6 +446,6 @@ async def main(path_to_sqlite_db, path_to_ascii_soil_grid, grid_crs=None, grid_e
 if __name__ == '__main__':
     # db = str(Path(zalfmas_capnpschemas.__file__).parent.parent / "data/soil/buek1000.sqlite")
     # grid = str(Path(zalfmas_capnpschemas.__file__).parent.parent / "data/soil/buek1000_1000_31469_gk5.asc")
-    db = str(Path(zalfmas_capnpschemas.__file__).parent.parent / "data/soil/buek200.sqlite")
-    grid = str(Path(zalfmas_capnpschemas.__file__).parent.parent / "data/soil/buek200_1000_25832_etrs89-utm32n.asc")
+    db = None  # str(Path(zalfmas_capnpschemas.__file__).parent.parent / "data/soil/buek200.sqlite")
+    grid = None  # str(Path(zalfmas_capnpschemas.__file__).parent.parent / "data/soil/buek200_1000_25832_etrs89-utm32n.asc")
     asyncio.run(capnp.run(main(db, grid, serve_bootstrap=True)))

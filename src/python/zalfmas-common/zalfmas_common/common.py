@@ -616,18 +616,20 @@ class ConnectionManager:
     async def try_connect(self, sturdy_ref, cast_as=None, retry_count=10, retry_secs=5, print_retry_msgs=True):
         while True:
             try:
-                return await self.connect(sturdy_ref, cast_as=cast_as)
+                cap = await self.connect(sturdy_ref, cast_as=cast_as)
+                if cap:
+                    return cap
             except Exception as e:
                 print(e)
-                if retry_count == 0:
-                    if print_retry_msgs:
-                        print(f"Couldn't connect to sturdy_ref at {sturdy_ref}!")
-                    return None
-                retry_count -= 1
+            if retry_count == 0:
                 if print_retry_msgs:
-                    print(f"Trying to connect to {sturdy_ref} again in {retry_secs} secs!")
-                time.sleep(retry_secs)
-                retry_secs += 1
+                    print(f"Couldn't connect to sturdy_ref at {sturdy_ref}!")
+                return None
+            retry_count -= 1
+            if print_retry_msgs:
+                print(f"Trying to connect to {sturdy_ref} again in {retry_secs} secs!")
+            await asyncio.sleep(retry_secs)
+            retry_secs += 1
 
 
 def load_capnp_module(path_and_type, def_type="Text"):

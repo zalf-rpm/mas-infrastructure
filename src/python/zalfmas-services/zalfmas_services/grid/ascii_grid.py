@@ -78,7 +78,7 @@ def fbp_wrapper(config, service: grid_capnp.Grid):
     print(f"{os.path.basename(__file__)}: process finished")
 
 
-class Grid(grid_capnp.Grid.Server, common.Identifiable, common.Persistable, serv.AdministrableService):
+class RectMeterGrid(grid_capnp.Grid.Server, common.Identifiable, common.Persistable, serv.AdministrableService):
 
     def __init__(self, path_to_ascii_grid, grid_crs, val_type, id=None, name=None, description=None, admin=None,
                  restorer=None):
@@ -125,10 +125,11 @@ class Grid(grid_capnp.Grid.Server, common.Identifiable, common.Persistable, serv
             val = {"f": float(value)}
         return val
 
-    def closestValueAt(self, latlonCoord, ignoreNoData, resolution, agg, returnRowCols, includeAggParts, _context,
-                       **kwargs):  # closestValueAt @0 (latlonCoord :Geo.LatLonCoord, ignoreNoData :Bool, resolution :UInt64, agg :Aggregation = none, includeAggParts :Bool = false) -> (val :Value, tl :RowCol, br :RowCol, aggParts :List(AggregationPart));
+    async def closestValueAt(self, latlonCoord, ignoreNoData, resolution, agg, returnRowCols, includeAggParts, _context,
+                             **kwargs):  # closestValueAt @0 (latlonCoord :Geo.LatLonCoord, ignoreNoData :Bool, resolution :UInt64, agg :Aggregation = none, includeAggParts :Bool = false) -> (val :Value, tl :RowCol, br :RowCol, aggParts :List(AggregationPart));
         lat = latlonCoord.lat
         lon = latlonCoord.lon
+        resolution_ = resolution.meter if resolution.which() == "meter" else resolution.degree
 
         r, h = self._latlon_to_grid_crs.transform(lon, lat)
         if ignoreNoData:
@@ -136,14 +137,14 @@ class Grid(grid_capnp.Grid.Server, common.Identifiable, common.Persistable, serv
         else:
             row, col, value = self._include_nodata_rowcol_interpol(r, h)
 
-        if resolution <= self._cellsize:
+        if resolution_ <= self._cellsize:
             val = self.to_union(value)
             rc = {"row": int(row), "col": int(col)}
             return (val, rc, rc) if returnRowCols else val
 
-        elif resolution % self._cellsize == 0:
+        elif resolution_ % self._cellsize == 0:
 
-            union_value, aggValues, tl, br = self.valueAtRowCol(int(row), int(col), resolution, agg, includeAggParts)
+            union_value, aggValues, tl, br = self.valueAtRowCol(int(row), int(col), resolution_, agg, includeAggParts)
 
             if agg == "none":
                 _context.results.aggParts = aggValues
@@ -161,16 +162,17 @@ class Grid(grid_capnp.Grid.Server, common.Identifiable, common.Persistable, serv
             else:
                 return (union_value, tl, br) if returnRowCols else union_value
 
-    def valueAt(self, row, col, resolution, agg, includeAggParts, _context,
-                **kwargs):  # valueAt @4 (row :UInt64, col :UInt64, resolution :UInt64, agg :Aggregation = none, includeAggParts :Bool = false) -> (val :Value, aggParts :List(AggregationPart));
+    async def valueAt(self, row, col, resolution, agg, includeAggParts, _context,
+                      **kwargs):  # valueAt @4 (row :UInt64, col :UInt64, resolution :UInt64, agg :Aggregation = none, includeAggParts :Bool = false) -> (val :Value, aggParts :List(AggregationPart));
 
-        if resolution <= self._cellsize and row >= 0 and row < self._nrows and col >= 0 and col < self._ncols:
+        resolution_ = resolution.meter if resolution.which() == "meter" else resolution.degree
+
+        if resolution_ <= self._cellsize and row >= 0 and row < self._nrows and col >= 0 and col < self._ncols:
             value = self._grid[row, col]
             return self.to_union(value)
 
-        elif resolution % self._cellsize == 0 and row >= 0 and row < self._nrows and col >= 0 and col < self._ncols:
-
-            union_value, aggValues, _, _ = self.valueAtRowCol(row, col, resolution, agg, includeAggParts)
+        elif resolution_ % self._cellsize == 0 and row >= 0 and row < self._nrows and col >= 0 and col < self._ncols:
+            union_value, aggValues, _, _ = self.valueAtRowCol(row, col, resolution_, agg, includeAggParts)
 
             if agg == "none":
                 _context.results.aggParts = aggValues
@@ -402,18 +404,18 @@ class Grid(grid_capnp.Grid.Server, common.Identifiable, common.Persistable, serv
 
         return (self.to_union(value), list(rc_to_agg_val.values()), tl, br)
 
-    def resolution(self, **kwargs):  # resolution @1 () -> (res :UInt64);
-        return self._cellsize
+    async def resolution(self, **kwargs):  # resolution @1 () -> (res :Resolution);
+        return {"meter": self._cellsize}
 
-    def dimension(self, **kwargs):  # dimension @2 () -> (rows :UInt64, cols :UInt64);
+    async def dimension(self, **kwargs):  # dimension @2 () -> (rows :UInt64, cols :UInt64);
         return (self._nrows, self._ncols)
 
-    def noDataValue(self, **kwargs):  # noDataValue @3 () -> (nodata :Value);
+    async def noDataValue(self, **kwargs):  # noDataValue @3 () -> (nodata :Value);
         return {"i": int(self._metadata["nodata_value"])} if self._val_type == int else {
             "f": float(self._metadata["nodata_value"])}
 
-    def latLonBounds(self, useCellCenter,
-                     **kwargs):  # latLonBounds @5 (useCellCenter :Bool = false) -> (tl :Geo.LatLonCoord, tr :Geo.LatLonCoord, br :Geo.LatLonCoord, bl :Geo.LatLonCoord);
+    async def latLonBounds(self, useCellCenter,
+                           **kwargs):  # latLonBounds @5 (useCellCenter :Bool = false) -> (tl :Geo.LatLonCoord, tr :Geo.LatLonCoord, br :Geo.LatLonCoord, bl :Geo.LatLonCoord);
 
         bl_x = self._xll + self._cellsize // 2 if useCellCenter else self._xll
         bl_y = self._yll + self._cellsize // 2 if useCellCenter else self._yll
@@ -439,7 +441,7 @@ class Grid(grid_capnp.Grid.Server, common.Identifiable, common.Persistable, serv
         )
 
 
-async def main(path_to_ascii_grid, grid_crs, val_type, serve_bootstrap=True, host=None, port=None,
+async def main(path_to_ascii_grid=None, grid_crs=None, val_type=None, serve_bootstrap=True, host=None, port=None,
                id=None, name="Grid Service", description=None, srt=None):
     config = {
         "path_to_ascii_grid": path_to_ascii_grid,
@@ -461,9 +463,13 @@ async def main(path_to_ascii_grid, grid_crs, val_type, serve_bootstrap=True, hos
     common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
     restorer = common.Restorer()
-    service = Grid(path_to_ascii_grid=config["path_to_ascii_grid"],
-                   grid_crs=geo.name_to_crs(config["grid_crs"]), val_type=int if config["val_type"] == "int" else float,
-                   id=config["id"], name=config["name"], description=config["description"], restorer=restorer)
+    service = RectMeterGrid(path_to_ascii_grid=config["path_to_ascii_grid"],
+                           grid_crs=geo.name_to_crs(config["grid_crs"]),
+                           val_type=int if config["val_type"] == "int" else float,
+                           id=config["id"],
+                           name=config["name"],
+                           description=config["description"],
+                           restorer=restorer)
     if config["fbp"]:
         fbp_wrapper(config, grid_capnp.Grid._new_client(service))
 
@@ -476,6 +482,9 @@ async def main(path_to_ascii_grid, grid_crs, val_type, serve_bootstrap=True, hos
 
 if __name__ == '__main__':
     # grid = "data/geo/dem_1000_31469_gk5.asc"
-    grid = str(Path(zalfmas_capnpschemas.__file__).parent.parent / "data/geo/slope_1000_31469_gk5.asc")
-    crs = "gk5"
-    asyncio.run(capnp.run(main(grid, crs, "float", serve_bootstrap=True)))
+    #grid = str(Path(zalfmas_capnpschemas.__file__).parent.parent / "data/geo/slope_1000_31469_gk5.asc")
+    #crs = "gk5"
+    #asyncio.run(capnp.run(main(grid, crs, "float", serve_bootstrap=True)))
+    #asyncio.run(capnp.run(main(path_to_ascii_grid="/home/berg/GitHub/klimertrag_2/data/germany/buek200_1000_25832_etrs89-utm32n.asc",
+    #                           srt="soil", grid_crs="utm32n", val_type="int", serve_bootstrap=True, port=9901)))
+    asyncio.run(capnp.run(main(serve_bootstrap=True)))

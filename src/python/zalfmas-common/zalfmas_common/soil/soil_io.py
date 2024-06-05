@@ -326,7 +326,7 @@ def available_soil_parameters(con, table="soil_profile", id_col="id", only_raw_d
         no_of_rows = int(row[0])
 
     for param in params.keys():
-        for row in con.cursor().execute("select count({id_col}) as count from {table} where {param} is null"):
+        for row in con.cursor().execute(f"select count({id_col}) as count from {table} where {param} is null"):
             row_count = int(row["count"])
             if row_count == 0:
                 mandatory.append(params[param])

@@ -51,7 +51,7 @@ interface Grid extends(Common.Identifiable, Persistent) {
     union {
       meter @0 :Int64;
       degree @1 :Float64;
-      }
+    }
   }
 
   struct RowCol {
