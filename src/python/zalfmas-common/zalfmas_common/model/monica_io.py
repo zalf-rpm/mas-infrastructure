@@ -16,7 +16,7 @@ import json
 import os
 from pathlib import Path
 import sys
-from zalfmas_common.soil import soil_io3
+from zalfmas_common.soil import soil_io
 
 CACHE_REFS = False
 
