@@ -193,7 +193,7 @@ capnp::Capability::Client ConnectionManager::tryConnectB(kj::StringPtr sturdyRef
         if (printRetryMsgs) KJ_LOG(INFO, "Couldn't connect to sturdy_ref at", sturdyRefStr, "!");
         return nullptr;
       }
-      KJ_DBG(e);
+      KJ_LOG(INFO, e);
       std::this_thread::sleep_for(std::chrono::milliseconds(retrySecs * 1000));
       retryCount -= 1;
       if (printRetryMsgs) KJ_LOG(INFO, "Trying to connect to", sturdyRefStr, "again in", retrySecs, "s!");

@@ -15,7 +15,8 @@ struct IP {
 
   struct KV {
     key 	@0 :Text;
-    value 	@1 :AnyPointer;
+    desc 	@1 :Text; # optional human readable info on what value is
+    value @2 :AnyPointer;  # would often be a common.Value
   }
   attributes @0 :List(KV);
   # key value pair attributes attached to IP additional to main content

@@ -190,7 +190,7 @@ kj::Maybe<capnp::AnyPointer::Reader> mas::infrastructure::common::getIPAttr(mas:
 kj::Maybe<capnp::AnyPointer::Builder> 
 mas::infrastructure::common::copyAndSetIPAttrs(mas::schema::fbp::IP::Reader oldIp, mas::schema::fbp::IP::Builder newIp, 
         kj::StringPtr newAttrName) { //, kj::Maybe<capnp::AnyPointer::Reader> newValue)
-  // if there are not attributes and nothing new to set, nothing to copy
+  // if there are no attributes and nothing new to set, nothing to copy
   if (!oldIp.hasAttributes() && newAttrName == nullptr) return nullptr;
 
   kj::Maybe<capnp::uint> newIndex;
