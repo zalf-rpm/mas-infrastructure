@@ -211,10 +211,10 @@ Errors SoilParameters::merge(json11::Json j) {
   if (vs_SoilMoisturePercentFC < 0 || vs_SoilMoisturePercentFC > 100){
     es.appendError(kj::str("SoilMoisturePercentFC (", vs_SoilMoisturePercentFC, ") is out of bounds [0, 100].").cStr());
   }
-  if (_vs_SoilRawDensity < 0 || _vs_SoilRawDensity > 2000){
+  if (_vs_SoilBulkDensity < 0 && (_vs_SoilRawDensity < 0 || _vs_SoilRawDensity > 2000)){
     es.appendWarning(kj::str("SoilRawDensity (", _vs_SoilRawDensity, ") is out of bounds [0, 2000].").cStr());
   }
-  if (_vs_SoilBulkDensity < 0 || _vs_SoilBulkDensity > 2000){
+  if (_vs_SoilRawDensity < 0 && (_vs_SoilBulkDensity < 0 || _vs_SoilBulkDensity > 2000)){
     es.appendWarning(kj::str("SoilBulkDensity (", _vs_SoilBulkDensity, ") is out of bounds [0, 2000].").cStr());
   }
   if (_vs_SoilOrganicMatter < 0 && (_vs_SoilOrganicCarbon < 0 || _vs_SoilOrganicCarbon > 1.0)){
