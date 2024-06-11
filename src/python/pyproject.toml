@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "python"
+name = "run"
 version = "0.1.0"
 description = ""
 authors = ["Michael Berg-Mohnicke <michael.berg@zalf.de>"]
@@ -7,7 +7,12 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-
+pycapnp = "^2.0.0"
+zalfmas-capnpschemas = { path = "../..", develop = true }
+#zalfmas-common = { path = "../../zalfmas-common", develop = true }
+zalfmas-common = { path = "zalfmas-common", develop = true }
+numpy = "^1.26.4"
+tomli = "^2.0.1"
 
 [build-system]
 requires = ["poetry-core"]
