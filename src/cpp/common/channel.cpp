@@ -174,12 +174,15 @@ kj::Promise<void> Reader::read(ReadContext context) {
 
   // buffer not empty, send next value
   if (!b.empty()) {
+    KJ_LOG(INFO, "Reader::read: buffer not empty, send next value");
     auto &&v = b.back();
+    KJ_ASSERT(v.get()->isValue(), "Msg contains a value, because before buffering we checked for done.");
     context.getResults().setValue(v.get()->getValue());
     b.pop_back();
 
     // unblock a writer unless we're about to close down
     if (!c.impl->blockingWriteFulfillers.empty() && !c.impl->sendCloseOnEmptyBuffer) {
+      KJ_LOG(INFO, "Reader::read: unblock next writer");
       auto &&bwf = c.impl->blockingWriteFulfillers.back();
       bwf->fulfill();
       c.impl->blockingWriteFulfillers.pop_back();
@@ -187,17 +190,20 @@ kj::Promise<void> Reader::read(ReadContext context) {
   } else {
     // buffer is empty, but we are supposed to close down
     if (c.impl->sendCloseOnEmptyBuffer) {
+      KJ_LOG(INFO, "Reader::read: buffer is empty, but close down");
       context.getResults().setDone();
       //cout << "Reader::read: sending done to reader" << endl;
       c.closedReader(id());
 
       // if there are other readers waiting close them as well
       while (!c.impl->blockingReadFulfillers.empty()) {
+        KJ_LOG(INFO, "Reader::read: close other waiting readers");
         auto &&brf = c.impl->blockingReadFulfillers.back();
         brf->fulfill(nullptr);
         c.impl->blockingReadFulfillers.pop_back();
       }
     } else { // block because no value to read
+      KJ_LOG(INFO, "Reader::read: block, because no value to read");
       auto paf = kj::newPromiseAndFulfiller<kj::Maybe<AnyPointerMsg::Reader>>();
       c.impl->blockingReadFulfillers.push_front(kj::mv(paf.fulfiller));
       return paf.promise.then([context, this](kj::Maybe<AnyPointerMsg::Reader> msg) mutable {
@@ -206,16 +212,18 @@ kj::Promise<void> Reader::read(ReadContext context) {
         if (_channel.impl->sendCloseOnEmptyBuffer && msg == nullptr) {
           //KJ_DBG("setResults");
           context.getResults().setDone();
-          KJ_LOG(INFO, "promise_lambda: sending done to reader");
+          KJ_LOG(INFO, "Reader::read: promise_lambda: sending done to reader");
           //cout << "Reader::read: promise_lambda: sending done to reader" << endl;
           _channel.closedReader(id());
         } else {
           KJ_IF_MAYBE(m, msg) {
             //KJ_DBG("Reader::read setResults");
             context.getResults().setValue(m->getValue());
-            KJ_LOG(INFO, "promise_lambda: sending value to reader");
+            KJ_LOG(INFO, "Reader::read: promise_lambda: sending value to reader");
           }
         }
+      }, [](kj::Exception &&e) {
+        KJ_LOG(ERROR, "Reader::read: promise_lambda: error: ", e.getDescription().cStr());
       });
     }
   }
@@ -243,22 +251,28 @@ kj::Promise<void> Writer::write(WriteContext context) {
 
   // if we received a done, this writer can be removed
   if (v.isDone()) {
+    KJ_LOG(INFO, "Writer::write: received done -> remove writer");
     //cout << "Writer::write: received done message id: " << id().cStr() << endl;
     c.closedWriter(id());
   } else if (!c.impl->blockingReadFulfillers.empty()) { // there's a reader waiting
+    KJ_LOG(INFO, "Writer::write: unblock waiting reader");
     auto &&brf = c.impl->blockingReadFulfillers.back();
     brf->fulfill(v);
     c.impl->blockingReadFulfillers.pop_back();
   } else if (b.size() < c.impl->bufferSize) { // there space to store the message
+    KJ_LOG(INFO, "Writer::write: no reader waiting and space in buffer -> storing message");
     b.push_front(capnp::clone(v));
-  } else { // block until buffer has space 
+  } else { // block until buffer has space
+    KJ_LOG(INFO, "Writer::write: no reader waiting and no space in buffer -> block, waiting for reader");
     auto paf = kj::newPromiseAndFulfiller<void>();
     c.impl->blockingWriteFulfillers.push_front(kj::mv(paf.fulfiller));
     return paf.promise.then([context, this]() mutable {
       KJ_REQUIRE(!_closed, "promise_lambda: Writer already closed.", _closed);
       auto v = context.getParams();
       _channel.impl->buffer.push_front(capnp::clone(v));
-      KJ_LOG(INFO, "promise_lambda: wrote value to buffer");
+      KJ_LOG(INFO, "Writer::write: promise_lambda: wrote value to buffer");
+    }, [](kj::Exception &&e) {
+      KJ_LOG(ERROR, "Writer::write: promise_lambda: error: ", e.getDescription().cStr());
     });
   }
 
