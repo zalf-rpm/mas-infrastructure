@@ -17,6 +17,7 @@
 
 import asyncio
 import capnp
+import json
 import os
 from pathlib import Path
 import psutil
@@ -25,44 +26,34 @@ import sys
 import time
 from threading import Thread
 
-PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent
-if str(PATH_TO_REPO) not in sys.path:
-    sys.path.insert(1, str(PATH_TO_REPO))
+from zalfmas_common import common
+from zalfmas_common.climate import csv_file_based as csv_based
+import zalfmas_capnpschemas
+from zalfmas_common.model import monica_io
 
-PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
-if str(PATH_TO_PYTHON_CODE) not in sys.path:
-    sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
+capnp_path = Path(os.path.dirname(zalfmas_capnpschemas.__file__))
+sys.path.append(str(capnp_path))
+import a_capnp
+import climate_capnp
+import common_capnp
+import crop_capnp
+import fbp_capnp
+import geo_capnp
+import grid_capnp
+import management_capnp as mgmt_capnp
+import model_capnp
+import persistence_capnp
+import registry_capnp as reg_capnp
+import service_capnp
+import soil_capnp
+import storage_capnp
 
-#from pkgs.common import capnp_async_helpers as async_helpers
-from pkgs.common import common
-from pkgs.climate import csv_file_based as csv_based
+sys.path.append(str(capnp_path / "model" / "monica"))
+import management_capnp as monica_mgmt_capnp
+import monica_state_capnp
 
-PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
-abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
-reg_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
-soil_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "soil.capnp"), imports=abs_imports)
-registry_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "registry.capnp"), imports=abs_imports)
-persistence_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "persistence.capnp"), imports=abs_imports)
-model_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "model.capnp"), imports=abs_imports)
-yieldstat_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "model" / "yieldstat" / "yieldstat.capnp"),
-                             imports=abs_imports)
-monica_state_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "model" / "monica" / "monica_state.capnp"),
-                                imports=abs_imports)
-monica_mgmt_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "model" / "monica" / "monica_management.capnp"),
-                               imports=abs_imports)
-climate_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "climate.capnp"), imports=abs_imports)
-mgmt_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "management.capnp"), imports=abs_imports)
-service_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "service.capnp"), imports=abs_imports)
-common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
-grid_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "grid.capnp"), imports=abs_imports)
-storage_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "storage.capnp"), imports=abs_imports)
-geo_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "geo.capnp"), imports=abs_imports)
-crop_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "crop.capnp"), imports=abs_imports)
-fbp_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "fbp.capnp"), imports=abs_imports)
-a_capnp = capnp.load("a.capnp", imports=abs_imports)
-
-#capnp.remove_event_loop()
-#capnp.create_event_loop(threaded=True)
+sys.path.append(str(capnp_path / "model" / "yieldstat"))
+import yieldstat_capnp
 
 async def async_main():
     config = {
@@ -115,6 +106,47 @@ async def async_main():
 
     ys_res = (await run_req.send().a_wait()).result.as_struct(yieldstat_capnp.Output)
     print(ys_res)
+
+async def run_monica():
+    with open("sim.json") as _:
+        sim_json = json.load(_)
+    with open("site.json") as _:
+        site_json = json.load(_)
+    with open("crop.json") as _:
+        crop_json = json.load(_)
+    env_template = monica_io.create_env_json_from_json_config({
+        "crop": crop_json,
+        "site": site_json,
+        "sim": sim_json,
+        "climate": ""
+    })
+    env_template["csvViaHeaderOptions"] = sim_json["climate.csv-options"]
+    env_template["pathToClimateCSV"] = "/home/berg/GitHub/klimertrag_2/data/germany/col-181.csv"
+
+    conman = common.ConnectionManager()
+    soil_service = await conman.try_connect("capnp://localhost:9901/soil", cast_as=soil_capnp.Service, retry_secs=1)
+    monica_in = await conman.try_connect("capnp://localhost:9921/w_in", cast_as=fbp_capnp.Channel.Writer, retry_secs=1)
+    monica_out = await conman.try_connect("capnp://localhost:9922/r_out", cast_as=fbp_capnp.Channel.Reader, retry_secs=1)
+
+    soil_profiles = (await soil_service.closestProfilesAt(coord={"lat": 54, "lon": 12}, query={
+        "mandatory": ["soilType", "sand", "clay", "organicCarbon",
+                      "bulkDensity"],
+        "optional": ["pH"]})).profiles
+
+    capnp_env = model_capnp.Env.new_message()
+    # capnp_env.timeSeries = timeseries
+    capnp_env.soilProfile = soil_profiles[0]
+    capnp_env.rest = common_capnp.StructuredText.new_message(value=json.dumps(env_template),
+                                                             structure={"json": None})
+    out_ip = fbp_capnp.IP.new_message(content=capnp_env,
+                                      attributes=[{"key": "id", "value": common_capnp.Value(ui8=1)}])
+    await monica_in.write(value=out_ip)
+
+    in_ip = await monica_out.read()
+    st = in_ip.value.as_struct(fbp_capnp.IP).content.as_text()  # struct(common_capnp.StructuredText)
+    msg = json.loads(st)
+    print(msg)
+    #await monica_in.write(done=None)
 
 
 def x():
@@ -356,16 +388,6 @@ def check_climate_dataset_service():
     res = service.create(csvData=csv_data, config={}).wait()
 
     print()
-
-
-def run_monica():
-    con_man = common.ConnectionManager()
-    sr = "capnp://8TwMtyGcNgiSBLXps4xRi6ymeDinAINWSrzcWJyI0Uc@10.10.24.181:41075/NzVkNzc3OTMtZjA2My00YmRkLTlkNWYtNjM2NDg1MDdjODg5"
-    monica = con_man.try_connect(sr, cast_as=model_capnp.EnvInstance)
-    print(monica.info().wait())
-    print(monica.info().wait())
-    print(monica.info().wait())
-    print(monica.info().wait())
 
 
 def run_registry():
@@ -646,6 +668,8 @@ async def main():
     }
     common.update_config(config, sys.argv, print_config=True, allow_new_keys=True)
 
+    await run_monica()
+
     #run_resolver()
     #hb_thread = run_resolver_registrar()
 
@@ -659,7 +683,7 @@ async def main():
 
     # run_soil_service()
 
-    await run_time_series()
+    #await run_time_series()
 
     #await run_channel()
 
@@ -737,5 +761,3 @@ async def main():
 
 if __name__ == '__main__':
     asyncio.run(capnp.run(main()))
-    # asyncio.get_event_loop().run_until_complete(async_main()) # gets rid of some eventloop cleanup problems using te usual call below
-    # asyncio.run(async_main())
