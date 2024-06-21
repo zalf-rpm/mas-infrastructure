@@ -67,7 +67,7 @@ if(MSVC)
 		  set(MSVC_TOOLSET_VERSION "") # leave unknown for future versions
 		elseif(MSVC_VERSION GREATER_EQUAL 1920)
 		  set(MSVC_TOOLSET_VERSION 142) # VS 2019
-		elseif(MSVC_VERSION GREATER_Echannel_mainQUAL 1910)
+		elseif(MSVC_VERSION GREATER_EQUAL 1910)
 		  set(MSVC_TOOLSET_VERSION 141) # VS 2017
 		elseif(MSVC_VERSION EQUAL 1900)
 		  set(MSVC_TOOLSET_VERSION 14) # VS 2015
@@ -102,6 +102,7 @@ find_package(unofficial-sodium CONFIG REQUIRED)
 
 # create common_lib
 add_library(common_lib
+	STATIC
 	channel.h
 	channel.cpp
 	common.h
@@ -129,7 +130,7 @@ target_include_directories(common_lib
 	${CMAKE_CURRENT_SOURCE_DIR}     # for #include "common.h"
 	${CMAKE_CURRENT_SOURCE_DIR}/..  # for #include "common/common.h"
 )
-if (MSVC)
+if (MSVC AND MT_RUNTIME_LIB)
 	target_compile_options(common_lib PRIVATE "/MT$<$<CONFIG:Debug>:d>")
 endif()
 
@@ -141,7 +142,7 @@ add_executable(channel
 )
 target_link_libraries(channel common_lib)
 #target_include_directories(channel PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
-if (MSVC)
+if (MSVC AND MT_RUNTIME_LIB)
 	target_compile_options(channel PRIVATE "/MT$<$<CONFIG:Debug>:d>")
 endif()
 
@@ -158,7 +159,7 @@ target_link_libraries(storage-service
 	common_lib
 )
 #target_include_directories(storage-service PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
-if (MSVC)
+if (MSVC AND MT_RUNTIME_LIB)
 	target_compile_options(storage-service PRIVATE "/MT$<$<CONFIG:Debug>:d>")
 endif()
 
@@ -174,7 +175,7 @@ target_link_libraries(host-port-resolver-service
 		common_lib
 		)
 #target_include_directories(storage-service PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
-if (MSVC)
+if (MSVC AND MT_RUNTIME_LIB)
 	target_compile_options(host-port-resolver-service PRIVATE "/MT$<$<CONFIG:Debug>:d>")
 endif()
 
