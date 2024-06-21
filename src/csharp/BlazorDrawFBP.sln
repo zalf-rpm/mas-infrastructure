@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorComponents", "BlazorC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "common", "common\common.csproj", "{744AB43F-A8F3-4D00-B5D2-5D0E81287BDB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "capnproto_schemas_csharp", "..\..\capnproto_schemas\gen\csharp\capnproto_schemas_csharp.csproj", "{B7E60F3F-1492-4456-BFEC-202EB1BD8B0B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "zalfmas_capnpschemas", "..\..\zalfmas_capnpschemas\gen\csharp\zalfmas_capnpschemas.csproj", "{1580906A-DA25-4CED-B3D0-9DB8642779A3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,10 +41,10 @@ Global
 		{744AB43F-A8F3-4D00-B5D2-5D0E81287BDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{744AB43F-A8F3-4D00-B5D2-5D0E81287BDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{744AB43F-A8F3-4D00-B5D2-5D0E81287BDB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B7E60F3F-1492-4456-BFEC-202EB1BD8B0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B7E60F3F-1492-4456-BFEC-202EB1BD8B0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B7E60F3F-1492-4456-BFEC-202EB1BD8B0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B7E60F3F-1492-4456-BFEC-202EB1BD8B0B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1580906A-DA25-4CED-B3D0-9DB8642779A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1580906A-DA25-4CED-B3D0-9DB8642779A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1580906A-DA25-4CED-B3D0-9DB8642779A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1580906A-DA25-4CED-B3D0-9DB8642779A3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
