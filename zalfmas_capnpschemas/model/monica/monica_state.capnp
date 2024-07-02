@@ -7,7 +7,7 @@ using Go = import "/capnp/go.capnp";
 $Go.package("monica");
 $Go.import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/model/monica");
 
-using Date = import "../../date.capnp".Date;
+using Date = import "/date.capnp".Date;
 using Params = import "monica_params.capnp";
 using Mgmt = import "monica_management.capnp";
 

@@ -7,10 +7,10 @@ using Go = import "/capnp/go.capnp";
 $Go.package("monica");
 $Go.import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/model/monica");
 
-using Date = import "../../date.capnp".Date;
-using Common = import "../../common.capnp";
-using Geo = import "../../geo.capnp";
-using Crop = import "../../crop.capnp";
+using Date = import "/date.capnp".Date;
+using Common = import "/common.capnp";
+using Geo = import "/geo.capnp";
+using Crop = import "/crop.capnp";
 
 struct ILRDates {
   sowing          @0 :Date;

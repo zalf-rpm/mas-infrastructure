@@ -81,7 +81,8 @@ def fbp_wrapper(config, service: soil_capnp.Service):
 
 
 def set_capnp_prop_name_via_monica_name(param, name, value=None):
-    "set the correct union parameter in capnp Parameters struct object given the parameter name and optionally value"
+    """set the correct union parameter in capnp Parameters struct object
+    given the parameter name and optionally value"""
 
     if name == "KA5TextureClass":
         param.ka5SoilType = value if value else ""
