@@ -103,22 +103,17 @@ private:
 class CapillaryRiseRates
 {
 public:
-  CapillaryRiseRates() = default;
-  ~CapillaryRiseRates() = default;
-
   //Adds a capillary rise rate to data structure.
   void addRate(const std::string& soilType, size_t distance, double value);
 
   //Returns capillary rise rate for given soil type and distance to ground water.
   double getRate(const std::string& soilType, size_t distance) const;
 
-  std::map<size_t, double> getMap(const std::string& soilType) const;
-
   //Returns number of elements of internal map data structure.
-  size_t size() const { return cap_rates_map.size(); }
+  size_t size() const { return capillaryRiseRates.size(); }
 
 private:
-  std::map<std::string, std::map<size_t, double>> cap_rates_map;
+  std::map<std::string, std::map<size_t, double>> capillaryRiseRates;
 };
 
 const CapillaryRiseRates& readCapillaryRiseRates();

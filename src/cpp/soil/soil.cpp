@@ -252,36 +252,24 @@ json11::Json SoilParameters::to_json() const {
 void CapillaryRiseRates::addRate(const std::string& soilType, size_t distance, double value) {
   //    std::cout << "Add cap rate: " << bodart.c_str() << "\tdist: " << distance << "\tvalue: " << value << std::endl;
   //cap_rates_map.insert(std::pair<std::string,std::map<int,double> >(bodart,std::pair<int,double>(distance,value)));
-  cap_rates_map[soilType][distance] = value;
+  capillaryRiseRates[soilType][distance] = value;
 }
 
 /**
    * Returns capillary rise rate for given soil type and distance to ground water.
    */
 double CapillaryRiseRates::getRate(const std::string& soilType, size_t distance) const {
-  typedef std::map<size_t, double> Depth2Rate;
-  //    std::cout << "Get capillary rise rate: " << bodart.c_str() << "\t" << distance << std::endl;
-  Depth2Rate map = getMap(soilType);
-  if (map.empty()) {
-    std::cout << "Error. No capillary rise rates in data structure available.\n" << std::endl;
-    exit(-1);
+  auto it = capillaryRiseRates.find(soilType);
+  if (it == capillaryRiseRates.end()) {
+    it = capillaryRiseRates.find(soilType.substr(0, 3));
+    if (it == capillaryRiseRates.end()) {
+      it = capillaryRiseRates.find(soilType.substr(0, 2));
+      if (it == capillaryRiseRates.end()) return 0.0;
+    }
   }
-
-  auto it = map.find(distance);
-  if (it != map.end()) return it->second;
-
-  return 0.0;
-}
-
-std::map<size_t, double> CapillaryRiseRates::getMap(const std::string& soilType) const {
-  typedef std::map<size_t, double> Depth2Rate;
-  typedef std::map<std::string, Depth2Rate> SoilType2Depth2Rate;
-
-  auto it2 = cap_rates_map.find(soilType);
-  if (it2 != cap_rates_map.end()) return it2->second;
-
-  Depth2Rate tmp;
-  return tmp;
+  auto it2 = it->second.find(distance);
+  if (it2 == it->second.end()) return 0.0;
+  return it2->second;
 }
 
 const CapillaryRiseRates &Soil::readCapillaryRiseRates() {
