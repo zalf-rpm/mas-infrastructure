@@ -123,27 +123,24 @@ struct ConnectionManager::Impl {
 
   void acceptLoop(kj::Own<kj::ConnectionReceiver> &&listener, capnp::ReaderOptions readerOpts) {
     auto ptr = listener.get();
-    tasks.add(ptr->accept()
-                  .then(kj::mvCapture(kj::mv(listener),
-                                      [readerOpts, this]
-                                          (kj::Own<kj::ConnectionReceiver> &&listener,
-                                           kj::Own<kj::AsyncIoStream> &&connection) {
-                                        acceptLoop(kj::mv(listener), readerOpts);
+    tasks.add(ptr->accept().then(
+        [listener = kj::mv(listener), readerOpts, this]
+            (auto &&connection) mutable {
+          acceptLoop(kj::mv(listener), readerOpts);
 
-                                        KJ_LOG(INFO, "connection from client");
-                                        auto server = kj::heap<ServerContext>(kj::mv(connection), readerOpts,
-                                                                              serverMainInterface);
+          KJ_LOG(INFO, "connection from client");
+          auto server = kj::heap<ServerContext>(kj::mv(connection), readerOpts,
+                                                serverMainInterface);
 
-                                        // Arrange to destroy the server context when all references are gone, or when the
-                                        // EzRpcServer is destroyed (which will destroy the TaskSet).
-                                        tasks.add(server->network.onDisconnect().attach(kj::mv(server)));
-                                        // tasks.add(server->network.onDisconnect().then([]() {
-                                        //	KJ_LOG(INFO, "disconnecting ok");
-                                        // }, [](auto&& err) {
-                                        //	KJ_LOG(INFO, "diconnecting error", err);
-                                        // }).attach(kj::mv(server)));
-                                      }
-                  )));
+          // Arrange to destroy the server context when all references are gone, or when the
+          // EzRpcServer is destroyed (which will destroy the TaskSet).
+          tasks.add(server->network.onDisconnect().attach(kj::mv(server)));
+          // tasks.add(server->network.onDisconnect().then([]() {
+          //	KJ_LOG(INFO, "disconnecting ok");
+          // }, [](auto&& err) {
+          //	KJ_LOG(INFO, "diconnecting error", err);
+          // }).attach(kj::mv(server)));
+        }));
   }
 };
 
