@@ -569,8 +569,31 @@ void DataAccessor::addOrReplaceClimateData(AvailableClimateData acd,
   }
 }
 
-
-
-
-
+std::pair<double, double> DataAccessor::dssatTAMPandTAV() {
+  map<int, vector<double>> month2avgs;
+  for(int i = 1; i < 13; i++) month2avgs[i] = vector<double>();
+  double sum = 0;
+  int count = 0;
+  int prevMonth = 0;
+  for (size_t i = 0; i < noOfStepsPossible(); i++) {
+    auto d = dateForStep(i);
+    auto currentMonth = d.month();
+    if (prevMonth == 0) prevMonth = currentMonth;
+    if (currentMonth != prevMonth) {
+      if (count > 0) month2avgs[prevMonth].push_back(sum / count);
+      else month2avgs[prevMonth].push_back(0);
+      sum = 0;
+      count = 0;
+      prevMonth = currentMonth;
+    }
+    sum += dataForTimestep(tavg, i);
+    count++;
+  }
+  vector<double> monthlyAvgs;
+  for(int i = 1; i < 13; i++){
+    monthlyAvgs.push_back(average(month2avgs[i]));
+  }
+  auto mm = minMax(monthlyAvgs);
+  return make_pair(mm.second - mm.first, average(monthlyAvgs));
+}
 

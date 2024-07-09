@@ -230,6 +230,8 @@ public:
 
   bool hasAvailableClimateData(AvailableClimateData acd) const { return _acd2dataIndex[acd] >= 0; }
 
+  std::pair<double, double> dssatTAMPandTAV();
+
 private: //state
   Tools::Date _startDate;
   Tools::Date _endDate;

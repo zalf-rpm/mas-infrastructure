@@ -61,8 +61,6 @@ int createRandomNumber();
     return ((f2-f1)/(x2-x1)*(x-x1))+f1;
   }
 
-  //----------------------------------------------------------------------------
-
   template<class Collection>
   Collection linearRegression(const Collection& xs, const Collection& ys);
 
@@ -75,8 +73,6 @@ int createRandomNumber();
 
   template<class Collection>
   Collection simpleGlidingAverage(const Collection& ys, int n = 9);
-
-  //----------------------------------------------------------------------------
 
   /*!
   * remove leading and trailing whitespace from copy of string
@@ -227,8 +223,6 @@ int createRandomNumber();
   template<class Collection>
   std::pair<double, double> standardDeviationAndAvg(const Collection& xis);
 
-  //----------------------------------------------------------------------------
-
   /*!
   * a structure holding all necessary information to create a BoxPlot
   */
@@ -337,8 +331,6 @@ int createRandomNumber();
   */
   double quartile(double xth, const std::vector<double>& orderedData, int roundToDigits = 1);
 
-  //----------------------------------------------------------------------------
-
   std::pair<double, int> decomposeIntoSci(double value);
 
 	int integerRound1stDigit(int value);
@@ -385,8 +377,6 @@ int createRandomNumber();
   double ceil(double value, int digits = 0, bool trailingDigits = true);
 
   void testRoundFloorCeil();
-
-  //----------------------------------------------------------------------------
 
   /*!
   * elementwise vector operation (eg. + on elements)
@@ -533,8 +523,6 @@ int createRandomNumber();
     return inScalVecOp(left, right, std::divides<T>());
   };
 
-  //----------------------------------------------------------------------------
-
   /*!
   * season start is, if the average daily temperature raises above 5°C
   * and the sum of (the average daily temperature - 5°C) of the following 30 days
@@ -667,20 +655,16 @@ Collection Tools::simpleGlidingAverage(const Collection& ys, int n)
   return yas;
 }
 
-//------------------------------------------------------------------------------
-
 template<class Collection>
 std::pair<typename Collection::value_type, typename Collection::value_type>
 	Tools::minMax(const Collection& vs)
 {
   typedef typename Collection::value_type T;
-  if(vs.empty())
-    return std::make_pair(T(0), T(0));
+  if(vs.empty()) return std::make_pair(T(0), T(0));
 
 	T minv = std::numeric_limits<T>::max(); //*(ys.begin());
 	T maxv = std::numeric_limits<T>::min(); // *(ys.begin());
-  for(auto v : vs)
-		minv = std::min(minv, v), maxv = std::max(maxv, v);
+  for(auto v : vs) minv = std::min(minv, v), maxv = std::max(maxv, v);
   return std::make_pair(minv, maxv);
 }
 
@@ -773,8 +757,6 @@ Vector& Tools::inScalVecOp(Vector& left, T right, OP op){
     left[i] = op(left.at(i), right);
   return left;
 }
-
-//------------------------------------------------------------------------------
 
 template<class DoubleVector>
 int Tools::findThermalVegetationalSeasonStart(const DoubleVector& ts)
