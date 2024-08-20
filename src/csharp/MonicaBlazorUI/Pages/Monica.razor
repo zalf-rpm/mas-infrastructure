@@ -214,9 +214,9 @@
             }
             <MudGrid>
                 <MudItem xs="12">
-                    <MudSwitch Checked="@overwriteTimeSeriesData"
+                    <MudSwitch Value="@overwriteTimeSeriesData"
                             T="@bool"
-                            CheckedChanged="@(async b => {
+                            ValueChanged="@(async b => {
                                                     overwriteTimeSeriesData = b;
                                                     if (AlterTimeSeriesWrapperCap == null) await WrapTimeSeries();
                                                     else if(!b) TimeSeriesCap = PlainTimeSeriesCap;
@@ -255,7 +255,7 @@
             }
             <MudGrid>
                 <MudItem xs="12">
-                    <MudSwitch @bind-Checked="overwriteSoilProfile" Color="@Color.Primary" Label="Change" />
+                    <MudSwitch @bind-Value="overwriteSoilProfile" Color="@Color.Primary" Label="Change" />
                 </MudItem>
                 @if (overwriteSoilProfile)
                 {
@@ -283,7 +283,7 @@
             }
             <MudGrid>
                 <MudItem xs="12">
-                    <MudSwitch @bind-Checked="overwriteCropRotation" Color="@Color.Primary" Label="Change" />
+                    <MudSwitch @bind-Value="overwriteCropRotation" Color="@Color.Primary" Label="Change" />
                 </MudItem>
                 @if (overwriteCropRotation)
                 {
@@ -318,7 +318,7 @@
             }
             <MudGrid>
                 <MudItem xs="12">
-                    <MudSwitch @bind-Checked="@overwriteOutputConfig"
+                    <MudSwitch @bind-Value="@overwriteOutputConfig"
                             Color="@Color.Primary"
                             Label="Change" />
                 </MudItem>
@@ -536,8 +536,8 @@
                     </MudButton>
                 </MudItem>
                 <MudItem xs="10">
-                    <MudChipSet SelectedChipsChanged=@(cs => {
-                                                        selectedResultSection = cs.Select(c => c.Text).FirstOrDefault() ?? "";
+                    <MudChipSet SelectedValuesChanged=@(cs => {
+                                                        selectedResultSection = cs?.FirstOrDefault() ?? "";
                                                         MonicaResultsChanged = true;
                                                     })
                                 Mandatory="@true"
@@ -545,7 +545,8 @@
                         @foreach (var (s, i) in Section2Oid2Data.Keys.Select((s, i) => (s, i)))
                         {
                             <MudChip @ref=defaultSelectedSectionChips[i]
-                                Text=@s 
+                                Text="@s"
+                                Value="@s"
                                 Default=@(s == selectedResultSection)>
                             </MudChip>
                         }

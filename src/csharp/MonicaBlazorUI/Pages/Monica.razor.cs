@@ -193,17 +193,18 @@ namespace Mas.Infrastructure.BlazorComponents
             TimeSeriesCap = ts;
         }
 
-        private async Task MarkDefaultChips(MudChip[] chips, Action<MudChip[]>? action = null)
+        private async Task MarkDefaultChips(MudChip<string>[] chips, Action<MudChip<string>[]>? action = null)
         {
             if (chips.All(c => c == null)) return;
 
-            var selected = new List<MudChip>();
+            var selected = new List<MudChip<string>>();
             foreach (var c in chips)
             {
-                c.IsSelected = c.Default ?? true;
-                if (c.IsSelected) selected.Add(c);
+                c.Selected = c.Default ?? true;
+                if (c.Selected) selected.Add(c);
             }
-            if (action != null) action(selected.ToArray());
+
+            action?.Invoke(selected.ToArray());
             StateHasChanged();
         }
 
@@ -635,7 +636,7 @@ namespace Mas.Infrastructure.BlazorComponents
         [Parameter]
         public EventCallback<(Dictionary<string, IEnumerable<DateTime>>, Dictionary<string, Dictionary<string, IEnumerable<float>>>)> ResultChanged { get; set; }
 
-        private MudChip[] defaultSelectedSectionChips = new MudChip[1];
+        private MudChip<string>[] defaultSelectedSectionChips = new MudChip<string>[1];
 
         private Dictionary<string, Dictionary<string, IEnumerable<float>>> Section2Oid2Data = new();
 
@@ -780,7 +781,7 @@ namespace Mas.Infrastructure.BlazorComponents
                 var error = resj["error"];
 
                 //workaround to mark the default selected chip
-                defaultSelectedSectionChips = new MudChip[Section2Oid2Data.Count()];
+                defaultSelectedSectionChips = new MudChip<string>[Section2Oid2Data.Count()];
 
                 selectedResultSection = Section2Oid2Data.ContainsKey("daily") ? "daily" : Section2Oid2Data.FirstOrDefault().Key;
 

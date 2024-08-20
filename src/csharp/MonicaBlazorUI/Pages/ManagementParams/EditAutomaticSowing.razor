@@ -63,7 +63,7 @@
                               AdornmentText="°C" />
                 <MudSwitch T=@bool
                            Color=@Color.Primary
-                           CheckedChanged=@(b => {
+                           ValueChanged=@(b => {
                                                 if (b && Params.TheAvgSoilTemp == null)
                                                     Params.TheAvgSoilTemp = new();
                                                 else if (!b && Params.TheAvgSoilTemp != null)

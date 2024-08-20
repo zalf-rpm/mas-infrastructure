@@ -8,8 +8,8 @@
 }
 <MudCard>
     <MudCardContent>
-        <MudCheckBox @bind-Checked=@Params.Exported Label="Exported" />
-        <MudSwitch @bind-Checked=@Params.OptCarbMgmtData.OptCarbonConservation
+        <MudCheckBox @bind-Value=@Params.Exported Label="Exported" />
+        <MudSwitch @bind-Value=@Params.OptCarbMgmtData.OptCarbonConservation
                    Color=@Color.Primary
                    Label="Carbon Conservation?" />
         @if (Params.OptCarbMgmtData.OptCarbonConservation)

@@ -58,11 +58,11 @@
                                   })"
                                   Required />
                 </MudTd>
-                <MudTd DataLabel="Auto connect?"><MudSwitch @bind-Checked="context.AutoConnect" Color="@Color.Primary" /></MudTd>
+                <MudTd DataLabel="Auto connect?"><MudSwitch @bind-Value="context.AutoConnect" Color="@Color.Primary" /></MudTd>
                 <MudTd DataLabel="Select by default?">
                     <MudSwitch T="@bool"
-                               Checked="@context.DefaultSelect"
-                               CheckedChanged="@(s =>
+                               Value="@context.DefaultSelect"
+                               ValueChanged="@(s =>
                                {
                                context.DefaultSelect = s;
                                bookmarkWithLastDefaultSwitchedOn[context.InterfaceId] = context;

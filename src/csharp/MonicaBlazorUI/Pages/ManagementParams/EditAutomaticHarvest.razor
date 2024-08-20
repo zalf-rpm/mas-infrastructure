@@ -9,8 +9,8 @@
 }
 <MudCard>
     <MudCardContent>
-        <MudCheckBox @bind-Checked=@Params.Harvest.Exported Label="Exported" />
-        <MudSwitch @bind-Checked=@Params.Harvest.OptCarbMgmtData.OptCarbonConservation
+        <MudCheckBox @bind-Value=@Params.Harvest.Exported Label="Exported" />
+        <MudSwitch @bind-Value=@Params.Harvest.OptCarbMgmtData.OptCarbonConservation
                    Color=@Color.Primary
                    Label="Carbon Conservation?" />
         @if (Params.Harvest.OptCarbMgmtData.OptCarbonConservation)

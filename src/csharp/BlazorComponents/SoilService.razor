@@ -28,7 +28,7 @@
     </MudItem>
     <MudItem xs="2" Class="d-flex align-stretch">
         <MudStack Class="justify-center">
-            <MudSwitch @bind-Checked="@AutoLoad" Label="Auto load" Color="Color.Success" />
+            <MudSwitch @bind-Value="@AutoLoad" Label="Auto load" Color="Color.Success" />
             <MudButton Variant="@Variant.Filled"
                    Color="@Color.Primary"
                    OnClick="@GetSoilProfiles">
@@ -204,7 +204,7 @@
                                                             break;
                                                         case Soil.PropertyName.inGroundwater:
                                                         case Soil.PropertyName.impenetrable:
-                                                            <MudSwitch @bind-Checked=prop.BValue Label=@prop.BValue?.ToString() />
+                                                            <MudSwitch @bind-Value=prop.BValue Label=@prop.BValue?.ToString() />
                                                             break;
                                                         case Soil.PropertyName.soilType:
                                                             <MudButton @onclick="@(e => OpenKA5SoilTypeDialog(prop))"
@@ -308,8 +308,8 @@
 
     #region mandatory soil properties
     private IEnumerable<Soil.PropertyName>? availableMandatorySoilProps;
-    private ICollection<object>? selectedMandatorySoilPropertiesAsObject;
-    public ICollection<object> SelectedMandatorySoilProperties
+    private IReadOnlyCollection<object>? selectedMandatorySoilPropertiesAsObject;
+    public IReadOnlyCollection<object> SelectedMandatorySoilProperties
     {
         get => selectedMandatorySoilPropertiesAsObject ?? (availableMandatorySoilProps 
                                                            ?? new List<Soil.PropertyName>()).Select(
@@ -327,11 +327,11 @@
 
     #region optional soil properties
     private IEnumerable<Soil.PropertyName>? availableOptionalSoilProps;
-    private ICollection<object>? selectedOptionalSoilPropertiesAsObject;
-    public ICollection<object> SelectedOptionalSoilProperties
+    private IReadOnlyCollection<object>? selectedOptionalSoilPropertiesAsObject;
+    public IReadOnlyCollection<object> SelectedOptionalSoilProperties
     {
         get => selectedOptionalSoilPropertiesAsObject 
-               ?? (ICollection<object>)(availableOptionalSoilProps ?? new List<Soil.PropertyName>());
+               ?? (availableOptionalSoilProps ?? new List<Soil.PropertyName>()) as IReadOnlyCollection<object>;
         set { 
             selectedOptionalSoilPropertiesAsObject = value; 
             if (AutoLoad) _ = GetSoilProfiles();
