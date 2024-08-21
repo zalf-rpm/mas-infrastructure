@@ -26,13 +26,21 @@
             Editable="@true" Mask=@(new DateMask("0000-00-00")) DateFormat="yyyy-MM-dd" @bind-Date="@End" />
     </MudItem>
     <MudItem xs="4" Class="d-flex flex-row py-2 px-1">
-        <MudChipSet @bind-SelectedValues="@SelectedClimateElements" MultiSelection="@true" Filter="@true">
+        <MudChipSet @bind-SelectedValues="@SelectedClimateElements"
+                    SelectionMode="SelectionMode.MultiSelection"
+                    CheckMark="true">
+            <MudChip Value="@("test")"/>
             @foreach (var (e, i) in (availableClimateElements ?? new List<Climate.Element>()).OrderBy(e =>
-                e.ToString()).Select((e, i) => (e, i)))
+                          e.ToString()).Select((e, i) => (e, i)))
             {
                 var en = e.ToString();
-                <MudChip Size=@Size.Large Color=@Color.Default SelectedColor=@Color.Success Value=@e Text=@en
-                    Default=@DefaultSelectedClimateElements.Contains(en)>
+                <MudChip T="Climate.Element"
+                         Size=@Size.Large
+                         Color=@Color.Default
+                         SelectedColor=@Color.Success
+                         Value=@e
+                         Text=@en
+                         Default=@DefaultSelectedClimateElements.Contains(en)>
                 </MudChip>
             }
         </MudChipSet>
@@ -193,8 +201,8 @@
     private String csvString = "";
 
     [Parameter]
-    public HashSet<String> DefaultSelectedClimateElements { get; set; } = 
-        new HashSet<String>() { "tmin", "tavg", "tmax", "precip", "globrad", "wind", "relhumid" };
+    public HashSet<string> DefaultSelectedClimateElements { get; set; } =
+        new() { "tmin", "tavg", "tmax", "precip", "globrad", "wind", "relhumid" };
 
     private IEnumerable<Climate.Element>? availableClimateElements;
 
@@ -209,8 +217,7 @@
 
     private IEnumerable<Climate.Element> selectedClimateElements
     {
-        get => SelectedClimateElements.Select(e =>
-    (Climate.Element)e);
+        get => SelectedClimateElements.Select(e =>     (Climate.Element)e);
     }
 
     private IEnumerable<String> headings { get => selectedClimateElements.Select(e => e.ToString()); }

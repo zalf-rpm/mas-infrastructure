@@ -536,7 +536,9 @@
                     </MudButton>
                 </MudItem>
                 <MudItem xs="10">
-                    <MudChipSet SelectedValuesChanged=@(cs => {
+                    <MudChipSet
+                        T="@string"
+                        SelectedValuesChanged=@(cs => {
                                                         selectedResultSection = cs?.FirstOrDefault() ?? "";
                                                         MonicaResultsChanged = true;
                                                     })

@@ -39,7 +39,7 @@
     <MudItem xs="5" >
         <MudText Typo="@Typo.subtitle1">Mandatory</MudText>
         <MudPaper Class="d-flex flex-row">
-            <MudChipSet @bind-SelectedValues="@SelectedMandatorySoilProperties" MultiSelection="@true" Filter="@true">
+            <MudChipSet @bind-SelectedValues="@SelectedMandatorySoilProperties" SelectionMode="@SelectionMode.MultiSelection" CheckMark="true">
                 @foreach (var (e, i) in (availableMandatorySoilProps ?? new List<Soil.PropertyName>()).OrderBy(e =>
                     e.ToString()).Select((e, i) => (e, i)))
                 {
@@ -54,7 +54,7 @@
     <MudItem xs="5">
         <MudText Typo="@Typo.subtitle1">Optional</MudText>
         <MudPaper Class="d-flex flex-row">
-            <MudChipSet @bind-SelectedValues="@SelectedOptionalSoilProperties" MultiSelection="@true" Filter="@true">
+            <MudChipSet @bind-SelectedValues="@SelectedOptionalSoilProperties" SelectionMode="SelectionMode.MultiSelection" CheckMark="true">
                 @foreach (var (e, i) in (availableOptionalSoilProps ?? new List<Soil.PropertyName>()).OrderBy(e =>
                     e.ToString()).Select((e, i) => (e, i)))
                 {

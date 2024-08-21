@@ -63,7 +63,8 @@
                         Monica2Section2Dates[i] = p.Item1;
                         Monica2Section2Oid2Data[i] = p.Item2;
                         monicaDataChanged=true;
-                        StateHasChanged(); })
+                        StateHasChanged();
+                        return Task.CompletedTask; })
                             TryConnectOnInit=@true
                             HideSturdyRefConnectors=@true>
                     </Monica>
