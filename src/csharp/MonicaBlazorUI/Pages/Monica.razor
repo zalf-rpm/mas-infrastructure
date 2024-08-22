@@ -162,8 +162,11 @@
     <MudExpansionPanel @bind-IsExpanded=@panelOpened["ClimateService"]>
         <TitleContent>
             <div class="d-flex">
-                <MudIcon Icon="@(TimeSeriesCap == null ? Icons.Material.Filled.WarningAmber : Icons.Material.Filled.Check)" class="mr-3" Color="@(TimeSeriesCap == null ? Color.Error : Color.Success)"></MudIcon>
-                <MudText>Choose <strong>climate data</strong>.</MudText>
+                <MudIcon Icon="@(TimeSeriesCap == null ? Icons.Material.Filled.WarningAmber : Icons.Material.Filled.Check)"
+                         class="mr-3"
+                         Color="@(TimeSeriesCap == null ? Color.Error : Color.Success)">
+                </MudIcon>
+                <MudText>Choose <strong>climate data</strong> (a time series).</MudText>
             </div>
         </TitleContent>
         <ChildContent>

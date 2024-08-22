@@ -8,7 +8,7 @@
 <MudDialog>
     <DialogContent>
         <MudTable T="@StoredSRData"
-                  Items="@bookmarks"
+                  Items="@_bookmarks"
                   Hover="@true"
                   CommitEditTooltip="Commit Edit"
                   OnCommitEditClick="@BookmarksCommited"
@@ -37,7 +37,7 @@
                 <MudTd DataLabel="Petname">@context.PetName</MudTd>
                 <MudTd DataLabel="Sturdy reference">@context.SturdyRef</MudTd>
                 <MudTd DataLabel="Action">
-                    @if (context.SturdyRef == null || context.SturdyRef.Length == 0)
+                    @if (context.SturdyRef.Length == 0)
                     {
                         <MudText>NEW</MudText>
                     }
@@ -46,7 +46,6 @@
                         <MudIconButton Icon=@Icons.Material.Filled.Delete OnClick=@(async () => await Delete(context)) />
                     }
                 </MudTd>
-
             </RowTemplate>
             <RowEditingTemplate>
                 <MudTd DataLabel="InterfaceId">
@@ -54,7 +53,7 @@
                                   Value="@context.InterfaceId"
                                   ValueChanged="@(v => {
                                   context.InterfaceId = v;
-                                  if(context.DefaultSelect) bookmarkWithLastDefaultSwitchedOn[context.InterfaceId] = context;
+                                  if(context.DefaultSelect) _bookmarkWithLastDefaultSwitchedOn[context.InterfaceId] = context;
                                   })"
                                   Required />
                 </MudTd>
@@ -65,7 +64,7 @@
                                ValueChanged="@(s =>
                                {
                                context.DefaultSelect = s;
-                               bookmarkWithLastDefaultSwitchedOn[context.InterfaceId] = context;
+                               _bookmarkWithLastDefaultSwitchedOn[context.InterfaceId] = context;
                                })"
                                Color="@Color.Primary" />
                 </MudTd>
@@ -83,9 +82,9 @@
 @code {
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
 
-    private List<StoredSRData> bookmarks = new();
+    private List<StoredSRData> _bookmarks = [];
 
-    private Dictionary<ulong, StoredSRData> bookmarkWithLastDefaultSwitchedOn = new();
+    private readonly Dictionary<ulong, StoredSRData> _bookmarkWithLastDefaultSwitchedOn = new();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -93,10 +92,10 @@
         {
             if (await LocalStorage.ContainKeyAsync("sturdy-ref-store"))
             {
-                bookmarks = await StoredSRData.GetAllData(LocalStorage);
-                bookmarks.Sort();
+                _bookmarks = await StoredSRData.GetAllData(LocalStorage);
+                _bookmarks.Sort();
             }
-            bookmarks.Insert(0, new StoredSRData());
+            _bookmarks.Insert(0, new StoredSRData());
             StateHasChanged();
         }
     }
@@ -105,32 +104,29 @@
     {
         Snackbar.Add("Bookmarks updated.");
 
-        if (bookmarkWithLastDefaultSwitchedOn.Any())
+        if (_bookmarkWithLastDefaultSwitchedOn.Any())
         {
-            foreach (var b in bookmarks)
+            foreach (var b in _bookmarks)
             {
-                if (bookmarkWithLastDefaultSwitchedOn.ContainsKey(b.InterfaceId))
-                {
-                    var def = bookmarkWithLastDefaultSwitchedOn[b.InterfaceId];
-                    if (def.DefaultSelect && b != def) b.DefaultSelect = false;
-                }
+                if (!_bookmarkWithLastDefaultSwitchedOn.TryGetValue(b.InterfaceId, out var def)) continue;
+                if (def.DefaultSelect && b != def) b.DefaultSelect = false;
             }
         }
         await SaveBookmarks();
 
-        if (!string.IsNullOrEmpty(bookmarks[0].SturdyRef)) bookmarks.Insert(0, new StoredSRData());
+        if (!string.IsNullOrEmpty(_bookmarks[0].SturdyRef)) _bookmarks.Insert(0, new StoredSRData());
         StateHasChanged();
     }
 
     private async Task SaveBookmarks()
     {
-        var bms = bookmarks.Where(d => !string.IsNullOrEmpty(d.SturdyRef) && d.InterfaceId != 0);
+        var bms = _bookmarks.Where(d => !string.IsNullOrEmpty(d.SturdyRef) && d.InterfaceId != 0);
         await StoredSRData.SaveAllData(LocalStorage, bms.ToList());
     }
 
     private async Task Delete(StoredSRData data)
     {
-        if (!bookmarks.Remove(data)) return;
+        if (!_bookmarks.Remove(data)) return;
         await SaveBookmarks();
         StateHasChanged();
     }

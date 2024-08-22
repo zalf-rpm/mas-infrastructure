@@ -9,22 +9,22 @@
 @using Allegiance.Blazor.Highcharts.Core.Options
 @using Allegiance.Blazor.Highcharts.Core.Services.Interfaces
 
-@inject IJSRuntime jsRuntime
-@inject IChartService chartService
+@inject IJSRuntime JsRuntime
+@inject IChartService ChartService
 
 @implements IDisposable
 
-<div id="@chartId"></div>
+<div id="@_chartId"></div>
 
 @code {
     [Parameter]
-    public Dictionary<String, IEnumerable<float>>? Data { get; set; }
+    public Dictionary<string, IEnumerable<float>>? Data { get; set; }
 
     [Parameter]
     public IEnumerable<DateTime>? Dates { get; set; }
 
     [Parameter]
-    public String Type { get; set; } = ChartType.Line;
+    public string Type { get; set; } = ChartType.Line;
 
     [Parameter]
     public bool DataChanged { get; set; } = false;
@@ -45,7 +45,7 @@
         public bool Opposite { get; set; } = false;
     }
     [Parameter]
-    public List<AxisConfig> YAxisConfigs { get; set; } = new();
+    public List<AxisConfig> YAxisConfigs { get; set; } = [];
 
     [Parameter]
     public bool AllCurvesVisible { get; set; } = false;
@@ -60,21 +60,21 @@
     [Parameter]
     public Dictionary<string, CurveConfig> CurveName2Config { get; set; } = new();
 
-    private string chartId = Guid.NewGuid().ToString();
-    private bool chartRenderedOnce = false;
+    private string _chartId = Guid.NewGuid().ToString();
+    private bool _chartRenderedOnce = false;
 
-    private ChartObject? lineGraph;
+    private ChartObject? _lineGraph;
 
     protected override void OnInitialized()
     {
-        lineGraph = new ChartObject()
+        _lineGraph = new ChartObject()
         {
             Chart = new Chart(ChartType.Line, false),
             Legend = new Legend(true, Layout.Vertical, Align.Right, VerticalAlign.Middle),
             //PlotOptions = new PlotOptions(new PlotOptionsSeries(new Label(false), 2010)),
             Responsive = new Responsive(new Rule(new Condition(500),
             new ChartOptions(new Legend(true, Layout.Vertical, Align.Right, VerticalAlign.Middle)))),
-            Series = new List<SeriesElement>(),
+            Series = [],
             //Subtitle = new Title("MONICA Result Data"),
             //Title = new Title(Title),
             //YAxis = new YAxis(new Title(YAxisTitle)),
@@ -91,15 +91,15 @@
     {
         if (Data == null) return;
 
-        if (DataChanged && lineGraph != null)
+        if (DataChanged && _lineGraph != null)
         {
-            lineGraph.Series = new List<SeriesElement>();
+            _lineGraph.Series = [];
 
-            var noDates = Dates == null || Dates.Count() == 0;
+            var noDates = Dates == null || !Dates.Any();
             var milliDates = noDates ? null : Dates?.Select(d => new DateTimeOffset(new DateTime(d.Year, d.Month, d.Day, 0, 0, 0, DateTimeKind.Utc)).ToUnixTimeMilliseconds());
-            lineGraph.Title = new(Title);
-            lineGraph.XAxis.Type = noDates ? "linear" : "datetime";
-            lineGraph.XAxis.Title = new(XAxisTitle);
+            _lineGraph.Title = new Title(Title);
+            _lineGraph.XAxis.Type = noDates ? "linear" : "datetime";
+            _lineGraph.XAxis.Title = new Title(XAxisTitle);
 
             foreach (var (p, i) in Data.Select((p, i) => (p, i)))
             {
@@ -108,9 +108,9 @@
                     ? p.Value.Select(v => (object)v).ToList()
                     : p.Value.Zip(milliDates!).Select(z => new List<object>() { z.Second, z.First }).ToList<object>();
 
-                bool isVisible = AllCurvesVisible || CurveName2Config.GetValueOrDefault(curveName,
+                var isVisible = AllCurvesVisible || CurveName2Config.GetValueOrDefault(curveName,
                     new CurveConfig { IsVisible = i == 0 && !CurveName2Config.Any() }).IsVisible;
-                lineGraph.Series.Add(new SeriesElement()
+                _lineGraph.Series.Add(new SeriesElement()
                 {
                     Name = p.Key,
                     Data = ds,
@@ -118,9 +118,9 @@
                 });
             }
 
-            if (chartRenderedOnce)
+            if (_chartRenderedOnce)
             {
-                await chartService.RenderChart(chartId, UpdateJsonGraphOptions(lineGraph.Generate()));
+                await ChartService.RenderChart(_chartId, UpdateJsonGraphOptions(_lineGraph.Generate()));
                 if (ChartRerendered.HasDelegate) _ = ChartRerendered.InvokeAsync(false);
             }
         }
@@ -128,10 +128,10 @@
 
     private string UpdateJsonGraphOptions(string options)
     {
-        var joptions = JObject.Parse(options);
-        if(joptions["tooltip"] is JObject tt) tt["xDateFormat"] = "%Y-%m-%d";
+        var jOptions = JObject.Parse(options);
+        if(jOptions["tooltip"] is JObject tt) tt["xDateFormat"] = "%Y-%m-%d";
 
-        if (YAxisConfigs.Any()) joptions["yAxis"] = new JArray();
+        if (YAxisConfigs.Any()) jOptions["yAxis"] = new JArray();
         foreach (var (i, conf) in YAxisConfigs.Select((conf, i) => (i, conf)))
         {
             var yAxis = new JObject {
@@ -140,50 +140,44 @@
                 { "labels", new JObject { { "rotation", 0 } } }
             };
             _axisIdToCurveNo[conf.Id ?? i.ToString()] = i;
-            joptions.Value<JArray>("yAxis").Add(yAxis);
+            jOptions.Value<JArray>("yAxis")?.Add(yAxis);
         }
 
-        joptions.Value<JObject>("xAxis")?.Value<JObject>("labels")?.Add("rotation", 0);
+        jOptions.Value<JObject>("xAxis")?.Value<JObject>("labels")?.Add("rotation", 0);
 
-        var curves = joptions["series"];
-        if (curves != null)
+        var curves = jOptions["series"];
+        if (curves == null) return jOptions.ToString();
+        foreach (var c in curves)
         {
-            foreach (var c in curves)
+            if (c is not JObject curve) continue;
+            var name = curve.Value<string>("name");
+            if (name == null) continue;
+            var index = name.LastIndexOf("_@", StringComparison.Ordinal);
+            if (index > 0)
             {
-                if (c is JObject curve)
-                {
-                    var name = curve.Value<string>("name");
-                    var index = name.LastIndexOf("_@");
-                    if (index > 0)
-                    {
-                        var curveNo = int.Parse(name.Substring(index + 2));
-                        curve["yAxis"] = curveNo;
-                        curve["name"] = name.Substring(0, index);
-                    }
-                    else if (CurveName2Config.ContainsKey(name))
-                    {
-                        var conf = CurveName2Config[name];
-                        if (conf.DisplayAxisId != null) curve["yAxis"] = _axisIdToCurveNo.GetValueOrDefault(conf.DisplayAxisId, 0);
-                    }
-                }
+                var curveNo = int.Parse(name[(index + 2)..]);
+                curve["yAxis"] = curveNo;
+                curve["name"] = name[..index];
+            }
+            else if (CurveName2Config.TryGetValue(name, out var conf))
+            {
+                if (conf.DisplayAxisId != null) curve["yAxis"] = _axisIdToCurveNo.GetValueOrDefault(conf.DisplayAxisId, 0);
             }
         }
-        return joptions.ToString();
+        return jOptions.ToString();
     }
 
     protected override void OnAfterRender(bool firstRender)
     {
         base.OnAfterRender(firstRender);
-        if (firstRender && lineGraph != null)
-        {
-            chartService.RenderChart(chartId, UpdateJsonGraphOptions(lineGraph.Generate()));
-            jsRuntime.InvokeVoidAsync("prettyPrint");
-            chartRenderedOnce = true;
-        }
+        if (!firstRender || _lineGraph == null) return;
+        ChartService.RenderChart(_chartId, UpdateJsonGraphOptions(_lineGraph.Generate()));
+        JsRuntime.InvokeVoidAsync("prettyPrint");
+        _chartRenderedOnce = true;
     }
 
     public void Dispose()
     {
-        lineGraph?.DisposeChart(jsRuntime, chartId);
+        _lineGraph?.DisposeChart(JsRuntime, _chartId);
     }
 }

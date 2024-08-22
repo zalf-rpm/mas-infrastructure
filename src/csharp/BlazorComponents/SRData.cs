@@ -16,16 +16,16 @@ namespace Mas.Infrastructure.BlazorComponents
             if (other == null)
                 return 1;
             if (PetName != "" && other.PetName != "")
-                return PetName.CompareTo(other.PetName);
+                return string.Compare(PetName, other.PetName, StringComparison.Ordinal);
             else
-                return SturdyRef.CompareTo(other.SturdyRef);
+                return string.Compare(SturdyRef, other.SturdyRef, StringComparison.Ordinal);
         }
 
         public static string StorageKey { get; set; } = "sturdy-ref-store";
 
         public static async Task<List<StoredSRData>> GetAllData(ILocalStorageService service)
         {
-            return await service.GetItemAsync<List<StoredSRData>>(StorageKey);
+            return await service.GetItemAsync<List<StoredSRData>>(StorageKey) ?? [];
         }
 
         public static async Task<List<StoredSRData>> SaveNew(ILocalStorageService service, StoredSRData newData)

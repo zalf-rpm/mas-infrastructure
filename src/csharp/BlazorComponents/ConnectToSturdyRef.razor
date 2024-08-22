@@ -5,7 +5,7 @@
 @using System.Reflection
 @using MudBlazor
 
-@inject Mas.Infrastructure.Common.ConnectionManager ConMan
+@inject Common.ConnectionManager ConMan
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 @inject IDialogService DialogService
 
@@ -16,12 +16,12 @@
 <MudPaper Class="d-flex flex-row py-2 px-1 align-content-center">
     <MudSelect Class="pa-2 mx-2"
                T="@StoredSRData"
-               Value="@selectedBookmark"
+               Value="@_selectedBookmark"
                ValueChanged="@SelectedBookmarkChanged"
                Label="@Label"
                Variant="@Variant.Outlined"
                AnchorOrigin="@Origin.TopCenter">
-        @foreach (var b in bookmarks)
+        @foreach (var b in Bookmarks)
         {
             <MudSelectItem Value=@b>
                 <MudElement Class="d-flex">
@@ -33,16 +33,16 @@
     </MudSelect>
     <MudFab Class="pa-2 mt-2 ml-2 mr-6"
                Variant="Variant.Filled"
-               StartIcon="@connectIcon"
-               Color="@(SturdyRef == null || !SturdyRef.Any() ? Color.Default : connectColor)"
+               StartIcon="@_connectIcon"
+               Color="@(SturdyRef == null || !SturdyRef.Any() ? Color.Default : _connectColor)"
                Disabled="@(SturdyRef == null || !SturdyRef.Any())"
                OnClick="@Connect"/>
     <MudFab Class="pa-2 mt-2 mx-2"
                Variant="Variant.Filled"
                StartIcon="@Icons.Material.Filled.Edit"
                Color="@Color.Default"
-               Disabled="@(selectedBookmark == null)"
-               OnClick="@(async () => await OpenAddSturdyRefDialog(selectedBookmark))"/>
+               Disabled="@(_selectedBookmark == null)"
+               OnClick="@(async () => await OpenAddSturdyRefDialog(_selectedBookmark))"/>
     <MudFab Class="pa-2 mt-2 mx-2"
                Variant="Variant.Filled"
                StartIcon="@Icons.Material.Filled.Add"
@@ -96,9 +96,9 @@
 
 @code {
     [Parameter]
-    public String? SturdyRef { get; set; }
+    public string? SturdyRef { get; set; }
 
-    private void SturdyRefValueChanged(String sr)
+    private void SturdyRefValueChanged(string sr)
     {
         SturdyRef = sr;
         if (SturdyRefChanged.HasDelegate) _ = SturdyRefChanged.InvokeAsync(sr);
@@ -111,11 +111,11 @@
     [Parameter]
     public EventCallback<string> SturdyRefChanged { get; set; }
 
-    private string connectIcon = Icons.Material.Filled.Cast;
-    private Color connectColor = Color.Default;
-    private string connectLabel = "Connect";
+    private string _connectIcon = Icons.Material.Filled.Cast;
+    private Color _connectColor = Color.Default;
+    private string _connectLabel = "Connect";
 
-    private bool showSturdyRefEdit = false;
+    private bool _showSturdyRefEdit = false;
 
     [Parameter]
     public TCapnpInterface? Capability { get; set; }
@@ -132,15 +132,13 @@
     [Parameter]
     public EventCallback<RpcException> RpcExceptionThrown { get; set; }
 
-
-
     private async Task Connect()
     {
         try
         {
-            connectLabel = "Connecting ...";
+            _connectLabel = "Connecting ...";
 
-            Console.WriteLine("ConnectToSturdyRef<" + typeof(TCapnpInterface).ToString() + ">: ThreadId: " + Thread.CurrentThread.ManagedThreadId);
+            Console.WriteLine("ConnectToSturdyRef<" + typeof(TCapnpInterface) + ">: ThreadId: " + Thread.CurrentThread.ManagedThreadId);
             var cap = await ConMan.Connect<TCapnpInterface>(SturdyRef);
             if (Capability != cap) Capability?.Dispose();
             Capability = cap;
@@ -150,26 +148,28 @@
 
             if (Capability == null)
             {
-                connectIcon = Icons.Material.Filled.Cast;
-                connectColor = Color.Error;
-                connectLabel = "Connect failed";
+                _connectIcon = Icons.Material.Filled.Cast;
+                _connectColor = Color.Error;
+                _connectLabel = "Connect failed";
+                Console.WriteLine("ConnectToSturdyRef<" + typeof(TCapnpInterface) + ">: failed");
             } 
             else 
             {
-                connectIcon = Icons.Material.Filled.CastConnected;
-                connectColor = Color.Success;
-                connectLabel = "Connected";
+                _connectIcon = Icons.Material.Filled.CastConnected;
+                _connectColor = Color.Success;
+                _connectLabel = "Connected";
+                Console.WriteLine("ConnectToSturdyRef<" + typeof(TCapnpInterface) + ">: succeeded");
 
-                if (CapabilityChanged.HasDelegate) _ = CapabilityChanged.InvokeAsync(Capnp.Rpc.Proxy.Share(Capability));
+                if (CapabilityChanged.HasDelegate) _ = CapabilityChanged.InvokeAsync(Proxy.Share(Capability));
             }
         }
         catch (RpcException e)
         {
             Console.WriteLine(e.ToString());
 
-            connectIcon = Icons.Material.Filled.Cast;
-            connectColor = Color.Error;
-            connectLabel = "Connect failed";
+            _connectIcon = Icons.Material.Filled.Cast;
+            _connectColor = Color.Error;
+            _connectLabel = "Connect failed";
 
             if (RpcExceptionThrown.HasDelegate) _ = RpcExceptionThrown.InvokeAsync(e);
         }
@@ -183,9 +183,9 @@
 
     private void ClearButton()
     {
-        connectIcon = Icons.Material.Filled.Cast;
-        connectColor = Color.Default;
-        connectLabel = "Connect";
+        _connectIcon = Icons.Material.Filled.Cast;
+        _connectColor = Color.Default;
+        _connectLabel = "Connect";
     }
 
     private async Task RetrieveSturdyRef()
@@ -195,16 +195,13 @@
             if (Capability is Proxy p)
             {
                 var persistent = p.Cast<Mas.Schema.Persistence.IPersistent>(false);
-                if (persistent != null)
-                {
-                    var sr = (await persistent.Save(null))?.SturdyRef;
-                    SturdyRef = Mas.Infrastructure.Common.Restorer.SturdyRefStr(sr);
-                }
+                var sr = (await persistent.Save(null))?.SturdyRef;
+                SturdyRef = Common.Restorer.SturdyRefStr(sr);
 
                 if (SturdyRefChanged.HasDelegate) _ = SturdyRefChanged.InvokeAsync(SturdyRef);
             }
         }
-        catch (Capnp.Rpc.RpcException e)
+        catch (RpcException e)
         {
             Console.WriteLine(e.ToString());
         }
@@ -212,34 +209,34 @@
 
     protected override void OnInitialized()
     {
-        Console.WriteLine("OnInitialized SR<" + typeof(TCapnpInterface).ToString() + ">: " + SturdyRef);
+        Console.WriteLine("OnInitialized SR<" + typeof(TCapnpInterface) + ">: " + SturdyRef);
     }
 
     void IDisposable.Dispose()
     {
-        Console.WriteLine("Disposing<" + typeof(TCapnpInterface).ToString() + "> " + SturdyRef + " cap: " + Capability);
+        Console.WriteLine("Disposing<" + typeof(TCapnpInterface) + "> " + SturdyRef + " cap: " + Capability);
         Capability?.Dispose();
     }
 
-    private List<StoredSRData> allBookmarks = new();
-    private List<StoredSRData> bookmarks => allBookmarks.Where(b => b.InterfaceId == typeof(TCapnpInterface).GetCustomAttribute<Capnp.TypeIdAttribute>(false)?.Id).ToList();
-    private StoredSRData? selectedBookmark;
+    private List<StoredSRData> _allBookmarks = [];
+    private List<StoredSRData> Bookmarks => _allBookmarks.Where(b => b.InterfaceId == typeof(TCapnpInterface).GetCustomAttribute<Capnp.TypeIdAttribute>(false)?.Id).ToList();
+    private StoredSRData? _selectedBookmark;
 
     private async Task SelectedBookmarkChanged(StoredSRData b, bool allowAutoConnect)
     {
-        selectedBookmark = b;
+        _selectedBookmark = b;
         SturdyRefValueChanged(b.SturdyRef);
         if (allowAutoConnect && b.AutoConnect) await Connect();
         StateHasChanged();
     }
 
-    private async Task SelectedBookmarkChanged(StoredSRData b)
+    private async Task SelectedBookmarkChanged(StoredSRData? b)
     {
+        if (b == null) return;
         await SelectedBookmarkChanged(b, true);
     }
 
-    private List<StoredSRData> hardcodedDefaultSturdyRefs = new()
-    {
+    private List<StoredSRData> _hardcodedDefaultSturdyRefs = [
         /*
         new StoredSRData
         {
@@ -330,34 +327,50 @@
             DefaultSelect = true
         }
         */
-    };
+    ];
 
     protected override async Task OnInitializedAsync()
     {
-        if (ConnectOnInit && SturdyRef != null && SturdyRef.Length > 0) await Connect();
+        if (ConnectOnInit && SturdyRef is { Length: > 0 }) await Connect();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        Console.WriteLine("ConnectToSturdyRef<" + typeof(TCapnpInterface) + ">::OnAfterRenderAsync");
+
         if (firstRender)
         {
+            Console.WriteLine("ConnectToSturdyRef<" + typeof(TCapnpInterface) + ">: first render");
+
             //just temporary to have some sturdy refs available in the users browser
             if (!await LocalStorage.ContainKeyAsync("sturdy-ref-store"))
-                await StoredSRData.SaveAllData(LocalStorage, hardcodedDefaultSturdyRefs);
+            {
+                await StoredSRData.SaveAllData(LocalStorage, _hardcodedDefaultSturdyRefs);
+            }
 
             if (await LocalStorage.ContainKeyAsync("sturdy-ref-store"))
             {
-                allBookmarks = await StoredSRData.GetAllData(LocalStorage);
-                allBookmarks.Sort();
+                _allBookmarks = await StoredSRData.GetAllData(LocalStorage);
+                _allBookmarks.Sort();
                 //try to select the first found default connect and auto connect field, so the user can start right away
-                var sbms = bookmarks.Where(b => b.AutoConnect && b.DefaultSelect);
-                var sb = sbms.Any() ? sbms.First() : null;
+                var sbms = Bookmarks.Where(b => b is { AutoConnect: true, DefaultSelect: true });
+                var sbmsArray = sbms.ToArray();
+                var sb = sbmsArray.Any() ? sbmsArray.First() : null;
                 //if there was no one with default select, then just take the first auto-connect one
                 if (sb == null)
                 {
-                    sbms = bookmarks.Where(b => b.AutoConnect);
-                    sb = sbms.Any() ? sbms.First() : null;
+                    sbms = Bookmarks.Where(b => b.AutoConnect);
+                    sbmsArray = sbms.ToArray();
+                    sb = sbmsArray.Any() ? sbmsArray.First() : null;
                 }
+                else
+                {
+                    foreach (var ssrd in sbmsArray)
+                    {
+                        Console.WriteLine("ConnectToSturdyRef<" + typeof(TCapnpInterface) + ">: ssrd: " + ssrd);
+                    }
+                }
+                Console.WriteLine("ConnectToSturdyRef<" + typeof(TCapnpInterface) + ">: sb: " + sb);
                 if (sb != null) await SelectedBookmarkChanged(sb, ConnectOnInit);
                 StateHasChanged();
             }
@@ -372,11 +385,11 @@
         parameters.Add("EditData", editData);
         var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true };
         var res = await DialogService.Show<NewSturdyRefDialog>("Add sturdy reference", parameters, options).Result;
-        if (res.Data is StoredSRData nb && editData == null)
+        if (res is { Data: StoredSRData nb } && editData == null)
         {
             if (nb.SturdyRef.Length == 0) return;
-            allBookmarks = await StoredSRData.SaveNew(LocalStorage, nb);
-            allBookmarks.Sort();
+            _allBookmarks = await StoredSRData.SaveNew(LocalStorage, nb);
+            _allBookmarks.Sort();
             await SelectedBookmarkChanged(nb);
         }
         else if (editData != null)
@@ -384,12 +397,12 @@
             //if the user possibly updated the default select field, un-default select all others with same interface
             if (editData.DefaultSelect)
             {
-                foreach (var b in bookmarks)
+                foreach (var b in Bookmarks)
                 {
                     if (b != editData) b.DefaultSelect = false;
                 }
             }
-            await StoredSRData.SaveAllData(LocalStorage, allBookmarks);
+            await StoredSRData.SaveAllData(LocalStorage, _allBookmarks);
             SturdyRef = editData.SturdyRef;
         }
     }
