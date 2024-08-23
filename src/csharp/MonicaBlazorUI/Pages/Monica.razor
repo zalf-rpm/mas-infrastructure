@@ -36,7 +36,7 @@
             { "Results", true }
         };
     }
-    <MudExpansionPanel @bind-IsExpanded=@panelOpened["Connections"]
+    <MudExpansionPanel @bind-Expanded=@panelOpened["Connections"]
                        Class=@(HideSturdyRefConnectors ? "d-none" : "")>
         <TitleContent>
             <div class="d-flex">
@@ -110,7 +110,7 @@
             </MudGrid>
         </ChildContent>
     </MudExpansionPanel>
-    <MudExpansionPanel @bind-IsExpanded=@panelOpened["BaseFiles"]>
+    <MudExpansionPanel @bind-Expanded=@panelOpened["BaseFiles"]>
         <TitleContent>
             <div class="d-flex">
                 <MudIcon Icon="@Icons.Material.Filled.Check" class="mr-3" Color="@Color.Success"></MudIcon>
@@ -128,24 +128,24 @@
                 { "climate", false }
             };
                 }
-                <MudExpansionPanel Text="sim.json" @bind-IsExpanded=@baseFilePanelOpened["sim"]>
+                <MudExpansionPanel Text="sim.json" @bind-Expanded=@baseFilePanelOpened["sim"]>
                     <MudTextField T="@string" Variant="@Variant.Outlined" @bind-Text="simJsonTxt" Lines="15" />
                 </MudExpansionPanel>
-                <MudExpansionPanel Text="crop.json" @bind-IsExpanded=@baseFilePanelOpened["crop"]>
+                <MudExpansionPanel Text="crop.json" @bind-Expanded=@baseFilePanelOpened["crop"]>
                     <MudTextField T="@string" Variant="@Variant.Outlined" @bind-Text="cropJsonTxt" Lines="15" />
                 </MudExpansionPanel>
-                <MudExpansionPanel Text="site.json" @bind-IsExpanded=@baseFilePanelOpened["site"]>
+                <MudExpansionPanel Text="site.json" @bind-Expanded=@baseFilePanelOpened["site"]>
                     <MudTextField T="@string" Variant="@Variant.Outlined" @bind-Text="siteJsonTxt" Lines="15" />
                 </MudExpansionPanel>
                 <!--
-                <MudExpansionPanel Text="Base sim/crop/site.json" @bind-IsExpanded=@baseFilePanelOpened["sim"]>
+                <MudExpansionPanel Text="Base sim/crop/site.json" @bind-Expanded=@baseFilePanelOpened["sim"]>
                     <MudTextField T=@string Label="sim.json" Variant=@Variant.Outlined @bind-Text=simJsonTxt Lines=10 />
                 </MudExpansionPanel>
                     -->
             </MudExpansionPanels>
         </ChildContent>
     </MudExpansionPanel>
-    <MudExpansionPanel @bind-IsExpanded=@panelOpened["Location"]>
+    <MudExpansionPanel @bind-Expanded=@panelOpened["Location"]>
         <TitleContent>
             <div class="d-flex">
                 <MudIcon Icon="@Icons.Material.Filled.Check" class="mr-3" Color="@Color.Success"></MudIcon>
@@ -159,7 +159,7 @@
                         Zoom="6"/>
         </ChildContent>
     </MudExpansionPanel>
-    <MudExpansionPanel @bind-IsExpanded=@panelOpened["ClimateService"]>
+    <MudExpansionPanel @bind-Expanded=@panelOpened["ClimateService"]>
         <TitleContent>
             <div class="d-flex">
                 <MudIcon Icon="@(TimeSeriesCap == null ? Icons.Material.Filled.WarningAmber : Icons.Material.Filled.Check)"
@@ -203,7 +203,7 @@
             </MudTabs>
         </ChildContent>
     </MudExpansionPanel>
-    <MudExpansionPanel @bind-IsExpanded=@panelOpened["UpdateTimeSeries"]>
+    <MudExpansionPanel @bind-Expanded=@panelOpened["UpdateTimeSeries"]>
         <TitleContent>
             <div class="d-flex">
                 <MudIcon Icon="@(overwriteTimeSeriesData ? Icons.Material.Filled.Check : Icons.Material.Filled.QuestionMark)" 
@@ -244,7 +244,7 @@
             </MudGrid>
         </ChildContent>
     </MudExpansionPanel>
-    <MudExpansionPanel @bind-IsExpanded=@panelOpened["SoilProfile"]>
+    <MudExpansionPanel @bind-Expanded=@panelOpened["SoilProfile"]>
         <TitleContent>
             <div class="d-flex">
                 <MudIcon Icon="@(overwriteSoilProfile ? Icons.Material.Filled.Check : Icons.Material.Filled.QuestionMark)" 
@@ -272,7 +272,7 @@
             </MudGrid>
         </ChildContent>
     </MudExpansionPanel>
-    <MudExpansionPanel @bind-IsExpanded=@panelOpened["CropRotation"]>
+    <MudExpansionPanel @bind-Expanded=@panelOpened["CropRotation"]>
         <TitleContent>
             <div class="d-flex">
                 <MudIcon Icon="@(overwriteCropRotation ? Icons.Material.Filled.Check : Icons.Material.Filled.QuestionMark)" 
@@ -299,7 +299,7 @@
             </MudGrid>
         </ChildContent>
     </MudExpansionPanel>
-    <MudExpansionPanel @bind-IsExpanded=@panelOpened["OutputConfig"]>
+    <MudExpansionPanel @bind-Expanded=@panelOpened["OutputConfig"]>
         <TitleContent>
             <div class="d-flex">
                 <MudIcon Icon="@(overwriteOutputConfig ? Icons.Material.Filled.Check : Icons.Material.Filled.QuestionMark)" 
@@ -520,7 +520,7 @@
             }
         </ChildContent>
     </MudExpansionPanel>
-    <MudExpansionPanel @bind-IsExpanded=@panelOpened["Results"]>
+    <MudExpansionPanel @bind-Expanded=@panelOpened["Results"]>
         <TitleContent>
             <div class="d-flex">
                 <MudIcon Icon="@Icons.Material.Filled.Start" 

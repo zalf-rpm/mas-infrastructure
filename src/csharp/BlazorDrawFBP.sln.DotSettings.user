@@ -3,6 +3,8 @@
   &lt;Assembly Path="/home/berg/.nuget/packages/z.blazor.diagrams/3.0.1/lib/net6.0/Blazor.Diagrams.dll" /&gt;
   &lt;Assembly Path="/home/berg/.nuget/packages/z.blazor.diagrams.core/3.0.1/lib/net6.0/Blazor.Diagrams.Core.dll" /&gt;
 &lt;/AssemblyExplorer&gt;</s:String>
+	<s:Boolean x:Key="/Default/UnloadedProject/UnloadedProjects/=86d08776_002Dd4d1_002D4d91_002Dab43_002D6eff73945412_0023ServerSide/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UnloadedProject/UnloadedProjects/=945434e2_002Ddf2a_002D4683_002D90dd_002Dba5d4327f934_0023SharedDemo/@EntryIndexedValue">True</s:Boolean>
 	
 	
 	

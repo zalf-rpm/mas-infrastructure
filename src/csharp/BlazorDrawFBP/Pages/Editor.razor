@@ -17,7 +17,7 @@
         <MudItem xs="2">
             <MudPaper Height="90vh" Class="overflow-scroll">
                 <MudExpansionPanels MultiExpansion="true">
-                    <MudExpansionPanel Text="Actions" IsInitiallyExpanded="true">
+                    <MudExpansionPanel Text="Actions" Expanded="true">
                         <MudStack Spacing="1">
                             @* <MudButton StartIcon="@Icons.Material.Filled.Delete" *@
                             @*            Variant="@Variant.Filled" *@
@@ -29,16 +29,14 @@
                             <MudFileUpload T="IBrowserFile" 
                                            FilesChanged="LoadDiagram"
                                            Style="margin-top:0;">
-                                <ButtonTemplate>
+                                <ActivatorContent>
                                     <MudButton StartIcon="@Icons.Material.Filled.Upload"
                                                Variant="@Variant.Filled"
-                                               HtmlTag="label"
                                                Color="@Color.Primary"
-                                               FullWidth="true"
-                                               Tag="@context.Id">
+                                               FullWidth="true">
                                         Load Diagram
                                     </MudButton>
-                                </ButtonTemplate>
+                                </ActivatorContent>
                             </MudFileUpload>
                             <MudButton StartIcon="@Icons.Material.Filled.Download"
                                        Variant="@Variant.Filled"
@@ -77,12 +75,11 @@
                     @foreach (var (cat, value) in _components)
                     {
                         <MudExpansionPanel Text="@cat" 
-                                           IsExpanded="@(!string.IsNullOrWhiteSpace(_query) 
-                                                         || _expandedPanels.GetValueOrDefault(cat, false))" 
-                                           IsInitiallyExpanded="@(cat == "generic")"
-                                           IsExpandedChanged="b => { if (string.IsNullOrWhiteSpace(_query)) _expandedPanels[cat] = b; }">
+                                           Expanded="@(!string.IsNullOrWhiteSpace(_query)
+                                                    || _expandedPanels.GetValueOrDefault(cat, false))"
+                                           ExpandedChanged="b => { if (string.IsNullOrWhiteSpace(_query)) _expandedPanels[cat] = b; }">
                             <MudStack Spacing="1">
-                                @foreach (var component in value as JArray ?? new JArray())
+                                @foreach (var component in value as JArray ?? [])
                                 {
                                     if (component is not JObject obj) continue;
         

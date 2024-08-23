@@ -7,10 +7,11 @@
                  AutoCycle="@false" 
                  TData="object">
         <MudCarouselItem Transition="@Transition.Slide" Color="@Color.Default">
-                    <MudChip Color="Color.Default">113 Msgs</MudChip>
+                    <MudChip T="string" Color="Color.Default">113 Msgs</MudChip>
                 </MudCarouselItem>
         <MudCarouselItem Transition="@Transition.Slide" Color="@Color.Default">
-            <MudChip Icon="@Icons.Material.Filled.OpenInNew" 
+            <MudChip T="string"
+                     Icon="@Icons.Material.Filled.OpenInNew"
                      OnClick="OpenChannelInfo" 
                      Color="Color.Default">Channel</MudChip>
         </MudCarouselItem>
