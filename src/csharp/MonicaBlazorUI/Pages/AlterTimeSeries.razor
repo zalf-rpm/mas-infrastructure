@@ -37,7 +37,7 @@
                     </MudItem>
                     <MudItem xs="2">
                         <MudFab Color=@Color.Secondary
-                                Icon=@Icons.Material.Filled.Add
+                                StartIcon=@Icons.Material.Filled.Add
                                 Label="Add"
                                 OnClick=@(async () => {
                                     if(AlterTimeSeriesWrapperCap != null)
@@ -84,7 +84,7 @@
                         </MudItem>
                         <MudItem xs="2">
                             <MudFab Color=@Color.Secondary
-                                    Icon=@Icons.Material.Filled.Save
+                                    StartIcon=@Icons.Material.Filled.Save
                                     Label="Update"
                                     OnClick=@(async () => { 
                                         if(AlterTimeSeriesWrapperCap != null) await AlterTimeSeriesWrapperCap.Alter(altered, false); 
@@ -92,7 +92,7 @@
                         </MudItem>
                         <MudItem xs="2">
                             <MudFab Color=@Color.Secondary
-                                    Icon=@Icons.Material.Filled.Delete
+                                    StartIcon=@Icons.Material.Filled.Delete
                                     Label="Delete"
                                     OnClick=@(async () =>
                                                       {

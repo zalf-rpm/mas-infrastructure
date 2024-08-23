@@ -203,7 +203,7 @@
             </MudTabs>
         </ChildContent>
     </MudExpansionPanel>
-    <MudExpansionPanel @bind-Expanded=@panelOpened["UpdateTimeSeries"]>
+    <MudExpansionPanel Disabled="true" @bind-Expanded=@panelOpened["UpdateTimeSeries"]>
         <TitleContent>
             <div class="d-flex">
                 <MudIcon Icon="@(overwriteTimeSeriesData ? Icons.Material.Filled.Check : Icons.Material.Filled.QuestionMark)" 
@@ -356,7 +356,7 @@
                                                 Label="New Event"
                                                 Variant="Variant.Outlined" />
                                     <MudFab Color=@Color.Secondary
-                                            Icon=@(showEventSelect ? Icons.Material.Filled.Edit : Icons.Material.Filled.Close)
+                                            StartIcon=@(showEventSelect ? Icons.Material.Filled.Edit : Icons.Material.Filled.Close)
                                             OnClick=@(() => showEventSelect = !showEventSelect) />
                                 </MudItem>
                             </MudGrid>
@@ -476,7 +476,7 @@
                                                     }
                                                 </td>
                                                 <td>
-                                                    <MudFab Icon=@Icons.Material.Filled.ArrowUpward
+                                                    <MudFab StartIcon=@Icons.Material.Filled.ArrowUpward
                                                             Size=@Size.Small
                                                             Disabled=@(k == 0)
                                                             OnClick=@(() =>
@@ -485,7 +485,7 @@
                                                                 oids.Insert(Math.Max(0, k - 1), oid);
                                                                 StateHasChanged();
                                                             }) />
-                                                    <MudFab Icon=@Icons.Material.Filled.ArrowDownward
+                                                    <MudFab StartIcon=@Icons.Material.Filled.ArrowDownward
                                                             Size=@Size.Small
                                                             Disabled=@(k == oids.Count() - 1)
                                                             OnClick=@(() =>
@@ -494,7 +494,7 @@
                                                                 oids.Insert(Math.Min(k + 1, oids.Count()), oid);
                                                                 StateHasChanged();
                                                             }) />
-                                                    <MudFab Icon=@Icons.Material.Filled.Add
+                                                    <MudFab StartIcon=@Icons.Material.Filled.Add
                                                             Size=@Size.Small
                                                             Color=@Color.Success
                                                             OnClick=@(() =>
@@ -502,7 +502,7 @@
                                                                 oids.Insert(Math.Min(k + 1, oids.Count()), new OId());
                                                                 StateHasChanged();
                                                             }) />
-                                                    <MudFab Icon=@Icons.Material.Filled.Delete
+                                                    <MudFab StartIcon=@Icons.Material.Filled.Delete
                                                             Disabled=@(oids.Count() < 2)
                                                             Size=@Size.Small
                                                             Color=@Color.Error

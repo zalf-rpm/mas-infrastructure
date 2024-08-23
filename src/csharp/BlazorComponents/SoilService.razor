@@ -228,7 +228,7 @@
                                         }
                                     }
                                     <td>
-                                        <MudFab Icon=@Icons.Material.Filled.ArrowUpward
+                                        <MudFab StartIcon=@Icons.Material.Filled.ArrowUpward
                                                 Size=@Size.Small
                                                 Disabled=@(i == 0)
                                                 OnClick=@(() => {
@@ -236,7 +236,7 @@
                                                         ProfileLayers.Insert(Math.Max(0, i - 1), layer);
                                                         StateHasChanged();
                                                         }) />
-                                        <MudFab Icon=@Icons.Material.Filled.ArrowDownward
+                                        <MudFab StartIcon=@Icons.Material.Filled.ArrowDownward
                                                 Size=@Size.Small
                                                 Disabled=@(i == ProfileLayers.Count() - 1)
                                                 OnClick=@(() => {
@@ -244,7 +244,7 @@
                                                         ProfileLayers.Insert(Math.Min(i + 1, ProfileLayers.Count()), layer);
                                                         StateHasChanged();
                                                         }) />
-                                        <MudFab Icon=@Icons.Material.Filled.Add
+                                        <MudFab StartIcon=@Icons.Material.Filled.Add
                                                 Size=@Size.Small
                                                 Color=@Color.Success
                                                 OnClick=@(() => {
@@ -257,7 +257,7 @@
                                                             });
                                                             StateHasChanged();
                                                         }) />
-                                        <MudFab Icon=@Icons.Material.Filled.Delete
+                                        <MudFab StartIcon=@Icons.Material.Filled.Delete
                                                 Disabled=@(ProfileLayers.Count() < 2)
                                                 Size=@Size.Small
                                                 Color=@Color.Error

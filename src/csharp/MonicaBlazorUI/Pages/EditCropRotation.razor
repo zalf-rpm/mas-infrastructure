@@ -183,7 +183,7 @@
                     }
                 </td>
                 <td>
-                    <MudFab Icon=@Icons.Material.Filled.ArrowUpward
+                    <MudFab StartIcon=@Icons.Material.Filled.ArrowUpward
                             Size=@Size.Small
                             Disabled=@(i == 0)
                             OnClick=@(() => {
@@ -191,7 +191,7 @@
                                               CropRotation.Insert(Math.Max(0, i - 1), e);
                                               StateHasChanged();
                                           }) />
-                    <MudFab Icon=@Icons.Material.Filled.ArrowDownward
+                    <MudFab StartIcon=@Icons.Material.Filled.ArrowDownward
                             Size=@Size.Small
                             Disabled=@(i == CropRotation.Count() - 1)
                             OnClick=@(() => {
@@ -199,14 +199,14 @@
                                               CropRotation.Insert(Math.Min(i + 1, CropRotation.Count()), e);
                                               StateHasChanged();
                                           }) />
-                    <MudFab Icon=@Icons.Material.Filled.Add
+                    <MudFab StartIcon=@Icons.Material.Filled.Add
                             Size=@Size.Small
                             Color=@Color.Primary
                             OnClick=@(() => {
                                               CropRotation.Insert(Math.Min(i + 1, CropRotation.Count()), new Mgmt.Event());
                                               StateHasChanged();
                                           }) />
-                    <MudFab Icon=@Icons.Material.Filled.Delete
+                    <MudFab StartIcon=@Icons.Material.Filled.Delete
                             Size=@Size.Small
                             Color=@Color.Error
                             OnClick=@(() => { CropRotation.Remove(e); StateHasChanged(); }) />

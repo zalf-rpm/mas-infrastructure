@@ -59,7 +59,7 @@
                                           Validation=@valid />
                         </td>
                         <td>
-                            <MudFab Icon=@Icons.Material.Filled.Add
+                            <MudFab StartIcon=@Icons.Material.Filled.Add
                                     Size=@Size.Small
                                     Color=@Color.Success
                                     OnClick=@(() => {
@@ -67,7 +67,7 @@
                                                       new Mgmt.Params.Cutting.Spec());
                                                   StateHasChanged();
                                               }) />
-                            <MudFab Icon=@Icons.Material.Filled.Delete
+                            <MudFab StartIcon=@Icons.Material.Filled.Delete
                                     Disabled=@(Params.CuttingSpec.Count() < 2)
                                     Size=@Size.Small
                                     Color=@Color.Error
