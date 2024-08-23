@@ -29,7 +29,7 @@ namespace Mas.Infrastructure.Common
         public static string Capitalize(string s)
         {
             if (string.IsNullOrEmpty(s)) return s;
-            return s.Length == 1 ? char.ToUpper(s[0]).ToString() : char.ToUpper(s[0]) + s.Substring(1);
+            return s.Length == 1 ? char.ToUpper(s[0]).ToString() : char.ToUpper(s[0]) + s[1..];
         }
 
         public static string ToUpper(string s)

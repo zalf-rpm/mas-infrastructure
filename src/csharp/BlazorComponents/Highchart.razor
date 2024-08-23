@@ -96,23 +96,22 @@
             _lineGraph.Series = [];
 
             var noDates = Dates == null || !Dates.Any();
-            var milliDates = noDates ? null : Dates?.Select(d => new DateTimeOffset(new DateTime(d.Year, d.Month, d.Day, 0, 0, 0, DateTimeKind.Utc)).ToUnixTimeMilliseconds());
-            _lineGraph.Title = new Title(Title);
+            var milliDates = noDates ? null : Dates?.Select(d => new DateTimeOffset(new DateTime(d.Year, d.Month, d.Day, 0, 0, 0, DateTimeKind.Utc)).ToUnixTimeMilliseconds()).ToArray();
+            _lineGraph.Title = new Title(Title ?? "no-name");
             _lineGraph.XAxis.Type = noDates ? "linear" : "datetime";
-            _lineGraph.XAxis.Title = new Title(XAxisTitle);
+            _lineGraph.XAxis.Title = new Title(XAxisTitle ?? "no-name");
 
-            foreach (var (p, i) in Data.Select((p, i) => (p, i)))
+            foreach (var ((curveName, value), i) in Data.Select((p, i) => (p, i)))
             {
-                var curveName = p.Key;
                 var ds = noDates
-                    ? p.Value.Select(v => (object)v).ToList()
-                    : p.Value.Zip(milliDates!).Select(z => new List<object>() { z.Second, z.First }).ToList<object>();
+                    ? value.Select(v => (object)v).ToList()
+                    : value.Zip(milliDates!).Select(z => new List<object>() { z.Second, z.First }).ToList<object>();
 
                 var isVisible = AllCurvesVisible || CurveName2Config.GetValueOrDefault(curveName,
                     new CurveConfig { IsVisible = i == 0 && !CurveName2Config.Any() }).IsVisible;
                 _lineGraph.Series.Add(new SeriesElement()
                 {
-                    Name = p.Key,
+                    Name = curveName,
                     Data = ds,
                     Visible = isVisible
                 });
@@ -153,6 +152,7 @@
             var name = curve.Value<string>("name");
             if (name == null) continue;
             var index = name.LastIndexOf("_@", StringComparison.Ordinal);
+            //Console.WriteLine("name: " + name + " index: " + index);
             if (index > 0)
             {
                 var curveNo = int.Parse(name[(index + 2)..]);

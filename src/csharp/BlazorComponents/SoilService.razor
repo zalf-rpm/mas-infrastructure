@@ -2,6 +2,7 @@
 
 @using MudBlazor
 @using System.Threading
+@using Capnp.Rpc
 @using Soil = Mas.Schema.Soil
 @using Geo = Mas.Schema.Geo
 
@@ -16,8 +17,9 @@
         <ConnectToSturdyRef Label="Persistent capability to soil service"
                             CapabilityChanged="@SoilServiceCapabilityChanged"
                             TCapnpInterface="@Soil.IService"
-                            @bind-SturdyRef="@soilServiceSturdyRef"
-                            @ref="sturdyRefConnector">
+                            @bind-SturdyRef="@_soilServiceSturdyRef"
+                            @ref="_sturdyRefConnector"
+                            ConnectOnInit="true">
         </ConnectToSturdyRef>
     </MudItem>
     <MudItem Class=@(HideGeoPosPicker ? "d-none" : "") xs="12">
@@ -40,7 +42,7 @@
         <MudText Typo="@Typo.subtitle1">Mandatory</MudText>
         <MudPaper Class="d-flex flex-row">
             <MudChipSet @bind-SelectedValues="@SelectedMandatorySoilProperties" SelectionMode="@SelectionMode.MultiSelection" CheckMark="true">
-                @foreach (var (e, i) in (availableMandatorySoilProps ?? new List<Soil.PropertyName>()).OrderBy(e =>
+                @foreach (var (e, i) in (_availableMandatorySoilProps ?? new List<Soil.PropertyName>()).OrderBy(e =>
                     e.ToString()).Select((e, i) => (e, i)))
                 {
                     var en = e.ToString();
@@ -54,13 +56,21 @@
     <MudItem xs="5">
         <MudText Typo="@Typo.subtitle1">Optional</MudText>
         <MudPaper Class="d-flex flex-row">
-            <MudChipSet @bind-SelectedValues="@SelectedOptionalSoilProperties" SelectionMode="SelectionMode.MultiSelection" CheckMark="true">
-                @foreach (var (e, i) in (availableOptionalSoilProps ?? new List<Soil.PropertyName>()).OrderBy(e =>
+            <MudChipSet T="@Soil.PropertyName"
+                        @bind-SelectedValues="@SelectedOptionalSoilProperties"
+                        SelectionMode="SelectionMode.MultiSelection"
+                        CheckMark="true">
+                @foreach (var (e, i) in (_availableOptionalSoilProps ?? new List<Soil.PropertyName>()).OrderBy(e =>
                     e.ToString()).Select((e, i) => (e, i)))
                 {
                     var en = e.ToString();
-                    <MudChip Size=@Size.Large Color=@Color.Default SelectedColor=@Color.Success Value="@e" Text="@en"
-                        Default=@DefaultSelectedSoilProperties.Contains(en)>
+                    <MudChip T="@Soil.PropertyName"
+                             Size=@Size.Large
+                             Color=@Color.Default
+                             SelectedColor=@Color.Success
+                             Value="@e"
+                             Text="@en"
+                             Default=@DefaultSelectedSoilProperties.Contains(en)>
                     </MudChip>
                 }
             </MudChipSet>
@@ -77,7 +87,7 @@
                         <thead>
                             <tr>
                                 <th>Size [m]</th>
-                                @foreach (var propName in selectedMandatorySoilProperties.Concat(selectedOptionalSoilProperties).OrderBy(p => p.ToString()))
+                                @foreach (var propName in SelectedMandatorySoilProperties.Concat(SelectedOptionalSoilProperties).OrderBy(p => p.ToString()))
                                 {
                                     <th>
                                         @propName.ToString()
@@ -129,7 +139,7 @@
                                                     Adornment="Adornment.End"
                                                     AdornmentText="m" />
                                     </td>
-                                    @foreach (var propName in selectedMandatorySoilProperties.Concat(selectedOptionalSoilProperties).OrderBy(p => p.ToString()))
+                                    @foreach (var propName in SelectedMandatorySoilProperties.Concat(SelectedOptionalSoilProperties).OrderBy(p => p.ToString()))
                                     {
                                         var props = layer.Properties.Where(p => p.Name == propName);
                                         if (props.Any())
@@ -280,87 +290,78 @@
     [Parameter]
     public Soil.IService? SoilServiceCap { get; set; }
 
-    private bool soilServiceCapUpdated = false;
+    private bool _soilServiceCapUpdated = false;
 
     [Parameter]
     public EventCallback<Soil.IService> SoilServiceCapChanged { get; set; }
 
-    private String soilServiceSturdyRef = "";
+    private string _soilServiceSturdyRef = "";
 
     [Parameter]
     public List<Soil.Layer> SelectedLayers { get; set; } = new();
     [Parameter]
     public EventCallback<List<Soil.Layer>> SelectedLayersChanged { get; set; }
 
-    private int selectedProfileIndex = 0;
+    private int _selectedProfileIndex = 0;
     private int SelectedProfileIndex { 
-        get => selectedProfileIndex;
+        get => _selectedProfileIndex;
         set {
-            selectedProfileIndex = value;
+            _selectedProfileIndex = value;
             if (Profiles.Count > value) SelectedLayers = Profiles[value].Item3;
         }
     }
 
     [Parameter]
-    public List<(string, Soil.ProfileData, List<Soil.Layer>)> Profiles { get; set; } = new();
+    public List<(string, Soil.ProfileData, List<Soil.Layer>)> Profiles { get; set; } = [];
     [Parameter]
     public EventCallback<List<(string, Soil.ProfileData, List<Soil.Layer>)>> ProfilesChanged { get; set; }
 
     #region mandatory soil properties
-    private IEnumerable<Soil.PropertyName>? availableMandatorySoilProps;
-    private IReadOnlyCollection<object>? selectedMandatorySoilPropertiesAsObject;
-    public IReadOnlyCollection<object> SelectedMandatorySoilProperties
+    private IEnumerable<Soil.PropertyName>? _availableMandatorySoilProps;
+
+    private IReadOnlyCollection<Soil.PropertyName>? _selectedMandatorySoilProperties;
+    private IReadOnlyCollection<Soil.PropertyName> SelectedMandatorySoilProperties
     {
-        get => selectedMandatorySoilPropertiesAsObject ?? (availableMandatorySoilProps 
-                                                           ?? new List<Soil.PropertyName>()).Select(
-                                                               e => e as object).ToList();
+        get => _selectedMandatorySoilProperties ?? (_availableMandatorySoilProps ?? new List<Soil.PropertyName>()).ToList();
         set { 
-            selectedMandatorySoilPropertiesAsObject = value; 
+            _selectedMandatorySoilProperties = value;
             if (AutoLoad) _ = GetSoilProfiles();
         }
-    }
-    private IEnumerable<Soil.PropertyName> selectedMandatorySoilProperties
-    {
-        get => SelectedMandatorySoilProperties.Select(e => (Soil.PropertyName)e);
     }
     #endregion
 
     #region optional soil properties
-    private IEnumerable<Soil.PropertyName>? availableOptionalSoilProps;
-    private IReadOnlyCollection<object>? selectedOptionalSoilPropertiesAsObject;
-    public IReadOnlyCollection<object> SelectedOptionalSoilProperties
+    private IEnumerable<Soil.PropertyName>? _availableOptionalSoilProps;
+
+    private IReadOnlyCollection<Soil.PropertyName>? _selectedOptionalSoilProperties;
+    private IReadOnlyCollection<Soil.PropertyName> SelectedOptionalSoilProperties
     {
-        get => selectedOptionalSoilPropertiesAsObject 
-               ?? (availableOptionalSoilProps ?? new List<Soil.PropertyName>()) as IReadOnlyCollection<object>;
+        get => _selectedOptionalSoilProperties ?? (_availableOptionalSoilProps ?? new List<Soil.PropertyName>()).ToList();
         set { 
-            selectedOptionalSoilPropertiesAsObject = value; 
+            _selectedOptionalSoilProperties = value;
             if (AutoLoad) _ = GetSoilProfiles();
         }
     }
-    private IEnumerable<Soil.PropertyName> selectedOptionalSoilProperties
-    {
-        get => SelectedOptionalSoilProperties.Select(e => (Soil.PropertyName)e);
-    }    
     #endregion
 
     [Parameter]
     public bool AllowLocalSoilPropertiesEditing { get; set; } = true;
 
     [Parameter]
-    public HashSet<String> DefaultSelectedSoilProperties { get; set; } = new HashSet<String>() { "sand", "clay", "soilType", "bulkDensity", "organicCarbon" };
+    public HashSet<string> DefaultSelectedSoilProperties { get; set; } = ["sand", "clay", "soilType", "bulkDensity", "organicCarbon"];
 
-    private ConnectToSturdyRef<Soil.IService>? sturdyRefConnector;
+    private ConnectToSturdyRef<Soil.IService>? _sturdyRefConnector;
     //private ConnectToSturdyRefL<Soil.IService> sturdyRefConnectorL;
 
     [Parameter]
     public bool HideSturdyRefConnector { get; set; } = false;
 
-    (double, double) latLng = (52.52, 14.11);
+    (double, double) _latLng = (52.52, 14.11);
     [Parameter]
     public (double, double) LatLng { 
-        get => latLng; 
+        get => _latLng;
         set {
-            latLng = value;
+            _latLng = value;
             if (AutoLoad) _ = GetSoilProfiles();
         } 
     }
@@ -370,13 +371,13 @@
 
     public override async Task SetParametersAsync(ParameterView parameters)
     {
-        soilServiceCapUpdated = parameters.GetValueOrDefault<Soil.IService?>("SoilServiceCap", null) != SoilServiceCap;
+        _soilServiceCapUpdated = parameters.GetValueOrDefault<Soil.IService?>("SoilServiceCap", null) != SoilServiceCap;
         await base.SetParametersAsync(parameters);
     }
 
     protected override async Task OnParametersSetAsync()
     {
-        if (soilServiceCapUpdated)
+        if (_soilServiceCapUpdated)
         {
             await GetAllAvailableSoilProperties();
         }
@@ -410,8 +411,8 @@
             Console.WriteLine("before GetAllAvailableParameters");
             var (mps, ops) = await SoilServiceCap.GetAllAvailableParameters(false);
             Console.WriteLine("after GetAllAvailableParameters");
-            availableMandatorySoilProps = mps;
-            availableOptionalSoilProps = ops;
+            _availableMandatorySoilProps = mps;
+            _availableOptionalSoilProps = ops;
             StateHasChanged();
 
             if (AutoLoad) _ = GetSoilProfiles();
@@ -457,22 +458,28 @@
                 new Geo.LatLonCoord { Lat = LatLng.Item1, Lon = LatLng.Item2 },
                 new Soil.Query
                 {
-                    Mandatory = selectedMandatorySoilProperties.ToArray(),
-                    Optional = selectedOptionalSoilProperties.ToArray(),
+                    Mandatory = SelectedMandatorySoilProperties.ToArray(),
+                    Optional = SelectedOptionalSoilProperties.ToArray(),
                     OnlyRawData = false
                 }
             );
 
-            if (profiles?.Count > 0)
+            var p = profiles[0];
+            var profiles2 = profiles.Select(Proxy.Share).ToArray();
+
+            Console.WriteLine("count: " + profiles2.Length);
+            if (profiles2.Length > 0)
             {
                 Profiles.Clear();
-                foreach(var profile in profiles)
+                foreach(var profile in profiles2)
                 {
+                    Console.WriteLine("start");
                     var pd = await profile.Data();
                     var info = await profile.Info();
                     if (pd == null) continue;
                     List<Soil.Layer> layers = pd.Layers.ToList();
                     Profiles.Add((info.Id, pd, layers));
+                    Console.WriteLine("next");
                 }
                 
                 if (ProfilesChanged.HasDelegate) _ = ProfilesChanged.InvokeAsync(Profiles);
@@ -498,12 +505,12 @@
 
     protected override void OnInitialized()
     {
-        Console.WriteLine("OnInitialized SoilService SR: " + soilServiceSturdyRef);
+        Console.WriteLine("OnInitialized SoilService SR: " + _soilServiceSturdyRef);
     }
 
     void IDisposable.Dispose()
     {
-        Console.WriteLine("Disposing SoilService SR: " + soilServiceSturdyRef + " cap: " + SoilServiceCap);
+        Console.WriteLine("Disposing SoilService SR: " + _soilServiceSturdyRef + " cap: " + SoilServiceCap);
         SoilServiceCap?.Dispose();
     }
 }

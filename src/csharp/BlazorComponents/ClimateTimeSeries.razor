@@ -14,7 +14,8 @@
     <MudItem Class=@(HideSturdyRefConnector ? "d-none" : "") xs="12">
         <ConnectToSturdyRef Label="Persistent capability to climate timeseries" 
                             @bind-Capability="@TimeSeriesCap"
-                            TCapnpInterface="Climate.ITimeSeries"/>
+                            TCapnpInterface="Climate.ITimeSeries"
+                            ConnectOnInit="true"/>
     </MudItem>
     <MudItem xs="2" Class="d-flex justify-center">
         <MudDatePicker MinDate="@_originalStart" MaxDate="@_originalEnd" FirstDayOfWeek="@DayOfWeek.Monday" Label="Start"
@@ -47,7 +48,7 @@
         </MudChipSet>
     </MudItem>
     <MudItem xs="4" Class="d-flex align-stretch justify-end gap-4">
-        <MudSwitch @bind-Value="@AutoLoad" Label="Auto load" Color="Color.Success" />
+        <MudSwitch @bind-Value="AutoLoad" Label="Auto load" Color="Color.Success" />
         <MudButton Variant="@Variant.Filled" Color="@Color.Primary" OnClick="@LoadTimeSeriesData">Load data</MudButton>
         <MudButton Disabled="@(!headings.Any())" Variant="Variant.Filled" Color="@Color.Primary" OnClick="@SaveTimeSeries">
             Save data

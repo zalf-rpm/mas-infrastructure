@@ -22,23 +22,19 @@
 				"Crop",
 				"Stage",
 				"AbBiom",
-				[ "OrgBiom", "Leaf" ],
-				[ "OrgBiom", "Fruit" ],
+				["OrgBiom|OrgBiom_Leaf", "Leaf"],
+				["OrgBiom|OrgBiom_Fruit", "Fruit"],
 				"Yield",
 				"LAI",
 				"Precip",
 				[
-					"Mois",
-					[ 1, 3 ]
+					"Mois", [1, 3]
 				],
 				[
-					"Mois",
-					[ 1, 3 ],
-					"AVG"
+					"Mois|Mois_avg", [1, 3, "AVG"]
 				],
 				[
-					"SOC",
-					[ 1, 3 ]
+					"SOC", [1, 3]
 				],
 				"Tavg",
 				"Globrad"
@@ -48,26 +44,25 @@
 			[
 				"CM-count",
 				"Crop",
-				[ "Yield", "LAST" ],
-				[ "Date|sowing", "FIRST" ],
-				[ "Date|harvest", "LAST" ]
+				["Yield", "LAST"],
+				["Date|sowing", "FIRST"],
+				["Date|harvest", "LAST"]
 			],
 
 			"yearly",
 			[
 				"Year",
 				[
-					"N",
-					[ 1, 3 ]
+					"N", [1, 3]
 				],
-				[ "RunOff", "SUM" ],
-				[ "NLeach", "SUM" ],
-				[ "Recharge", "SUM" ]
+				["RunOff", "SUM"],
+				["NLeach", "SUM"],
+				["Recharge", "SUM"]
 			],
 
 			"run",
 			[
-				[ "Precip", "SUM" ]
+				["Precip", "SUM"]
 			]
 		]
 	},

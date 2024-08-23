@@ -22,21 +22,7 @@
 @implements IDisposable
 
 <MudExpansionPanels MultiExpansion="@true">
-    @code {
-        private Dictionary<string, bool> panelOpened = new()
-        {
-            { "Connections", false },
-            { "BaseFiles", false },
-            { "Location", false },
-            { "UpdateTimeSeries", false },
-            { "ClimateService", false },
-            { "SoilProfile", false },
-            { "CropRotation", false },
-            { "OutputConfig", false },
-            { "Results", true }
-        };
-    }
-    <MudExpansionPanel @bind-Expanded=@panelOpened["Connections"]
+    <MudExpansionPanel @bind-Expanded=@_panelOpened["Connections"]
                        Class=@(HideSturdyRefConnectors ? "d-none" : "")>
         <TitleContent>
             <div class="d-flex">
@@ -64,19 +50,8 @@
                     </ConnectToSturdyRef>
                 </MudItem>
                 <MudItem Class=@(HideSturdyRefConnectors ? "d-none" : "") xs="12">
-                    @code {
-                        [Parameter]
-                        public Mgmt.IFertilizerService? FertilizerServiceCap { get; set; }
-
-                        [Parameter]
-                        public string FertilizerServiceSturdyRef { get; set; } = "";//"capnp://login01.cluster.zalf.de:9998";
-
-                        [Parameter]
-                        public EventCallback<Mgmt.IFertilizerService> FertilizerServiceCapChanged { get; set; }
-                    }
                     <ConnectToSturdyRef Label="Persistent capability to fertilizer service"
                                         CapabilityChanged="@(cap => {
-                                                                if (cap == null) return;
                                                                 if (FertilizerServiceCap != cap) FertilizerServiceCap?.Dispose();
                                                                 FertilizerServiceCap = cap;
                                                             })"
@@ -86,20 +61,9 @@
                     </ConnectToSturdyRef>
                 </MudItem>
                 <MudItem Class=@(HideSturdyRefConnectors ? "d-none" : "") xs="12">
-                    @code {
-                        [Parameter]
-                        public Crop.IService? CropServiceCap { get; set; }
-
-                        [Parameter]
-                        public string CropServiceSturdyRef { get; set; } = "";
-
-                        [Parameter]
-                        public EventCallback<Crop.IService> CropServiceCapChanged { get; set; }
-                    }
                     <ConnectToSturdyRef Label="Persistent capability to MONICA crop service"
                                         TCapnpInterface="@Crop.IService"
                                         CapabilityChanged="@(cap => {
-                                                                if (cap == null) return;
                                                                 if (CropServiceCap != cap) CropServiceCap?.Dispose();
                                                                 CropServiceCap = cap;
                                                             })"
@@ -110,7 +74,7 @@
             </MudGrid>
         </ChildContent>
     </MudExpansionPanel>
-    <MudExpansionPanel @bind-Expanded=@panelOpened["BaseFiles"]>
+    <MudExpansionPanel @bind-Expanded=@_panelOpened["BaseFiles"]>
         <TitleContent>
             <div class="d-flex">
                 <MudIcon Icon="@Icons.Material.Filled.Check" class="mr-3" Color="@Color.Success"></MudIcon>
@@ -119,23 +83,14 @@
         </TitleContent>
         <ChildContent>
             <MudExpansionPanels MultiExpansion="@true">
-                @code {
-                    private Dictionary<string, bool> baseFilePanelOpened = new()
-                    {
-                { "sim", false },
-                { "crop", false },
-                { "site", false },
-                { "climate", false }
-            };
-                }
-                <MudExpansionPanel Text="sim.json" @bind-Expanded=@baseFilePanelOpened["sim"]>
-                    <MudTextField T="@string" Variant="@Variant.Outlined" @bind-Text="simJsonTxt" Lines="15" />
+                <MudExpansionPanel Text="sim.json" @bind-Expanded=@_baseFilePanelOpened["sim"]>
+                    <MudTextField T="@string" Variant="@Variant.Outlined" @bind-Text="_simJsonTxt" Lines="15" />
                 </MudExpansionPanel>
-                <MudExpansionPanel Text="crop.json" @bind-Expanded=@baseFilePanelOpened["crop"]>
-                    <MudTextField T="@string" Variant="@Variant.Outlined" @bind-Text="cropJsonTxt" Lines="15" />
+                <MudExpansionPanel Text="crop.json" @bind-Expanded=@_baseFilePanelOpened["crop"]>
+                    <MudTextField T="@string" Variant="@Variant.Outlined" @bind-Text="_cropJsonTxt" Lines="15" />
                 </MudExpansionPanel>
-                <MudExpansionPanel Text="site.json" @bind-Expanded=@baseFilePanelOpened["site"]>
-                    <MudTextField T="@string" Variant="@Variant.Outlined" @bind-Text="siteJsonTxt" Lines="15" />
+                <MudExpansionPanel Text="site.json" @bind-Expanded=@_baseFilePanelOpened["site"]>
+                    <MudTextField T="@string" Variant="@Variant.Outlined" @bind-Text="_siteJsonTxt" Lines="15" />
                 </MudExpansionPanel>
                 <!--
                 <MudExpansionPanel Text="Base sim/crop/site.json" @bind-Expanded=@baseFilePanelOpened["sim"]>
@@ -145,7 +100,7 @@
             </MudExpansionPanels>
         </ChildContent>
     </MudExpansionPanel>
-    <MudExpansionPanel @bind-Expanded=@panelOpened["Location"]>
+    <MudExpansionPanel @bind-Expanded=@_panelOpened["Location"]>
         <TitleContent>
             <div class="d-flex">
                 <MudIcon Icon="@Icons.Material.Filled.Check" class="mr-3" Color="@Color.Success"></MudIcon>
@@ -159,7 +114,7 @@
                         Zoom="6"/>
         </ChildContent>
     </MudExpansionPanel>
-    <MudExpansionPanel @bind-Expanded=@panelOpened["ClimateService"]>
+    <MudExpansionPanel @bind-Expanded=@_panelOpened["ClimateService"]>
         <TitleContent>
             <div class="d-flex">
                 <MudIcon Icon="@(TimeSeriesCap == null ? Icons.Material.Filled.WarningAmber : Icons.Material.Filled.Check)"
@@ -203,24 +158,21 @@
             </MudTabs>
         </ChildContent>
     </MudExpansionPanel>
-    <MudExpansionPanel Disabled="true" @bind-Expanded=@panelOpened["UpdateTimeSeries"]>
+    <MudExpansionPanel Disabled="true" @bind-Expanded=@_panelOpened["UpdateTimeSeries"]>
         <TitleContent>
             <div class="d-flex">
-                <MudIcon Icon="@(overwriteTimeSeriesData ? Icons.Material.Filled.Check : Icons.Material.Filled.QuestionMark)" 
-                    class="mr-3" Color="@(overwriteTimeSeriesData ? Color.Success : Color.Default)"/>
-                <MudText><strong>@(overwriteTimeSeriesData ? "Timeseries has been altered." : "Timeseries has not been altered.")</strong></MudText>
+                <MudIcon Icon="@(_overwriteTimeSeriesData ? Icons.Material.Filled.Check : Icons.Material.Filled.QuestionMark)"
+                    class="mr-3" Color="@(_overwriteTimeSeriesData ? Color.Success : Color.Default)"/>
+                <MudText><strong>@(_overwriteTimeSeriesData ? "Timeseries has been altered." : "Timeseries has not been altered.")</strong></MudText>
             </div>
         </TitleContent>
         <ChildContent>
-            @code {
-                private bool overwriteTimeSeriesData = false;
-            }
             <MudGrid>
                 <MudItem xs="12">
-                    <MudSwitch Value="@overwriteTimeSeriesData"
+                    <MudSwitch Value="@_overwriteTimeSeriesData"
                             T="@bool"
                             ValueChanged="@(async b => {
-                                                    overwriteTimeSeriesData = b;
+                                                    _overwriteTimeSeriesData = b;
                                                     if (AlterTimeSeriesWrapperCap == null) await WrapTimeSeries();
                                                     else if(!b) TimeSeriesCap = PlainTimeSeriesCap;
                                                 })"
@@ -228,39 +180,36 @@
                             Color="@Color.Primary"
                             Label="Alter timeseries" />
                 </MudItem>
-                <MudItem xs="12" Class=@(overwriteTimeSeriesData ? "" : "d-none")>
+                <MudItem xs="12" Class=@(_overwriteTimeSeriesData ? "" : "d-none")>
                     <AlterTimeSeries AlterTimeSeriesWrapperCap="@(AlterTimeSeriesWrapperCap == null ? null : Capnp.Rpc.Proxy.Share(AlterTimeSeriesWrapperCap))" />
                 </MudItem>
                 @if (false)
                 {
                     <MudItem xs="12">
                         @code {
-                            private Dictionary<string, IEnumerable<float>> Name2Data = new();
-                            private IEnumerable<DateTime> Dates = new List<DateTime>();
+                            private Dictionary<string, IEnumerable<float>> _name2Data = new();
+                            private IEnumerable<DateTime> _dates = new List<DateTime>();
                         }
-                        <Highchart Data=@Name2Data Dates=@Dates></Highchart>
+                        <Highchart Data=@_name2Data Dates=@_dates></Highchart>
                     </MudItem>
                 }
             </MudGrid>
         </ChildContent>
     </MudExpansionPanel>
-    <MudExpansionPanel @bind-Expanded=@panelOpened["SoilProfile"]>
+    <MudExpansionPanel @bind-Expanded=@_panelOpened["SoilProfile"]>
         <TitleContent>
             <div class="d-flex">
-                <MudIcon Icon="@(overwriteSoilProfile ? Icons.Material.Filled.Check : Icons.Material.Filled.QuestionMark)" 
-                    class="mr-3" Color="@(overwriteSoilProfile ? Color.Success : Color.Default)"/>
-                <MudText><strong>@(overwriteSoilProfile ? "Using changed soil profile below." : "Using default soil profile.")</strong></MudText>
+                <MudIcon Icon="@(_overwriteSoilProfile ? Icons.Material.Filled.Check : Icons.Material.Filled.QuestionMark)"
+                    class="mr-3" Color="@(_overwriteSoilProfile ? Color.Success : Color.Default)"/>
+                <MudText><strong>@(_overwriteSoilProfile ? "Using changed soil profile below." : "Using default soil profile.")</strong></MudText>
             </div>
         </TitleContent>
         <ChildContent>
-            @code {
-                private bool overwriteSoilProfile = false;
-            }
             <MudGrid>
                 <MudItem xs="12">
-                    <MudSwitch @bind-Value="overwriteSoilProfile" Color="@Color.Primary" Label="Change" />
+                    <MudSwitch @bind-Value="_overwriteSoilProfile" Color="@Color.Primary" Label="Change" />
                 </MudItem>
-                @if (overwriteSoilProfile)
+                @if (_overwriteSoilProfile)
                 {
                     <MudItem xs="12">
                         <SoilService @ref="@soilServiceRef"
@@ -272,26 +221,23 @@
             </MudGrid>
         </ChildContent>
     </MudExpansionPanel>
-    <MudExpansionPanel @bind-Expanded=@panelOpened["CropRotation"]>
+    <MudExpansionPanel @bind-Expanded=@_panelOpened["CropRotation"]>
         <TitleContent>
             <div class="d-flex">
-                <MudIcon Icon="@(overwriteCropRotation ? Icons.Material.Filled.Check : Icons.Material.Filled.QuestionMark)" 
-                    class="mr-3" Color="@(overwriteCropRotation ? Color.Success : Color.Default)"/>
-                <MudText><strong>@(overwriteCropRotation ? "Using changed crop rotation below." : "Using default crop rotation.")</strong></MudText>
+                <MudIcon Icon="@(_overwriteCropRotation ? Icons.Material.Filled.Check : Icons.Material.Filled.QuestionMark)"
+                    class="mr-3" Color="@(_overwriteCropRotation ? Color.Success : Color.Default)"/>
+                <MudText><strong>@(_overwriteCropRotation ? "Using changed crop rotation below." : "Using default crop rotation.")</strong></MudText>
             </div>
         </TitleContent>
         <ChildContent>
-            @code {
-                private bool overwriteCropRotation = false;
-            }
             <MudGrid>
                 <MudItem xs="12">
-                    <MudSwitch @bind-Value="overwriteCropRotation" Color="@Color.Primary" Label="Change" />
+                    <MudSwitch @bind-Value="_overwriteCropRotation" Color="@Color.Primary" Label="Change" />
                 </MudItem>
-                @if (overwriteCropRotation)
+                @if (_overwriteCropRotation)
                 {
                     <MudItem xs="12">
-                        <EditCropRotation CropRotation="@cropRotation"
+                        <EditCropRotation CropRotation="@_cropRotation"
                                         FertilizerServiceCap="@(FertilizerServiceCap == null ? null : Capnp.Rpc.Proxy.Share(FertilizerServiceCap))"
                                         CropServiceCap="@(CropServiceCap == null ? null : Capnp.Rpc.Proxy.Share(CropServiceCap))"/>
                     </MudItem>
@@ -299,228 +245,31 @@
             </MudGrid>
         </ChildContent>
     </MudExpansionPanel>
-    <MudExpansionPanel @bind-Expanded=@panelOpened["OutputConfig"]>
+    <MudExpansionPanel @bind-Expanded=@_panelOpened["OutputConfig"]>
         <TitleContent>
             <div class="d-flex">
-                <MudIcon Icon="@(overwriteOutputConfig ? Icons.Material.Filled.Check : Icons.Material.Filled.QuestionMark)" 
-                    class="mr-3" Color="@(overwriteOutputConfig ? Color.Success : Color.Default)"/>
-                <MudText><strong>@(overwriteOutputConfig ? "Using output configuration below." : "Using default output configuration.")</strong></MudText>
+                <MudIcon Icon="@(_overwriteOutputConfig ? Icons.Material.Filled.Check : Icons.Material.Filled.QuestionMark)"
+                    class="mr-3" Color="@(_overwriteOutputConfig ? Color.Success : Color.Default)"/>
+                <MudText><strong>@(_overwriteOutputConfig ? "Using output configuration below." : "Using default output configuration.")</strong></MudText>
             </div>
         </TitleContent>
         <ChildContent>
-            @code
-                {
-                bool overwriteOutputConfig = false;
-                bool showEventSelect = true;
-
-                bool isDailyEvent(string eventShortcut)
-                {
-                    return eventShortcut == "daily" || eventShortcut.Contains("at");
-                }
-                MudTabs? outputConfigTabs;
-            }
             <MudGrid>
                 <MudItem xs="12">
-                    <MudSwitch @bind-Value="@overwriteOutputConfig"
+                    <MudSwitch @bind-Value="@_overwriteOutputConfig"
                             Color="@Color.Primary"
                             Label="Change" />
                 </MudItem>
             </MudGrid>
-            @if (overwriteOutputConfig)
+            @if (_overwriteOutputConfig)
             {
                 <MudItem xs="12">
-                    <MudTabs @ref=outputConfigTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
-                        <MudTabPanel Text="new">
-                            <MudGrid>
-                                <MudItem xs="2" Class="d-flex flex-row py-2 px-1">
-                                    <MudSelect T="(string, bool)"
-                                            Class=@(showEventSelect ? "" : "d-none")
-                                            Value=@(("-", false))
-                                            ValueChanged=@(p => {
-                                                                if (p.Item1 != "-")
-                                                                {
-                                                                    events.Add((p.Item1, new List<OId>() { new OId() }, p.Item2));
-                                                                    StateHasChanged();
-                                                                }
-                                                            })
-                                            Label="New Event">
-                                        <MudSelectItem Value=@(("-", false))>-</MudSelectItem>
-                                        @foreach (var eventScAndTimeAgg in eventShortcuts)
-                                        {
-                                            <MudSelectItem Value=@eventScAndTimeAgg>@eventScAndTimeAgg.Item1</MudSelectItem>
-                                        }
-                                    </MudSelect>
-                                    <MudTextField T=@string
-                                                Class=@(showEventSelect ? "d-none" : "")
-                                                ValueChanged=@(v => { events.Add((v, new List<OId>() { new OId() }, true)); StateHasChanged(); })
-                                                Label="New Event"
-                                                Variant="Variant.Outlined" />
-                                    <MudFab Color=@Color.Secondary
-                                            StartIcon=@(showEventSelect ? Icons.Material.Filled.Edit : Icons.Material.Filled.Close)
-                                            OnClick=@(() => showEventSelect = !showEventSelect) />
-                                </MudItem>
-                            </MudGrid>
-                        </MudTabPanel>
-                        @foreach (var (i, p) in events.Select((p, i) => (i, p)))
-                        {
-                            var eventShortcut = p.Item1;
-                            var oids = p.Item2;
-                            var allowTimeAgg = p.Item3 || !isDailyEvent(eventShortcut);
-                            <MudTabPanel Text="@eventShortcut">
-                                <MudSimpleTable>
-                                    <thead>
-                                        <tr>
-                                            <th>Output</th>
-                                            <th>(From) Layer / Organ</th>
-                                            <th>To Layer</th>
-                                            <th>Layer aggregation</th>
-                                            <th>Time aggregation</th>
-                                            <th style="width:20%">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var (k, oid) in oids.Select((oid, k) => (k, oid)))
-                                        {
-                                            <tr>
-                                                <td>
-                                                    <MudSelect T=@OId
-                                                            HelperText=@(string.IsNullOrEmpty(oid.Unit) ? oid.Desc : $"{oid.Desc} [{@oid.Unit}]")
-                                                            Value=@oid
-                                                            ValueChanged=@(o => {
-                                                                        oid.Name = o.Name;
-                                                                        oid.Desc = o.Desc;
-                                                                        oid.Unit = o.Unit;
-                                                                        oid.From = o.From;
-                                                                        oid.To = o.To;
-                                                                        oid.LayerAgg = o.LayerAgg;
-                                                                        oid.TimeAgg = o.TimeAgg;
-                                                                        oid.Organ = o.Organ;
-                                                                        StateHasChanged();
-                                                                    })
-                                                            Label="Output">
-                                                        @foreach (var o in availableOIds)
-                                                        {
-                                                            <MudSelectItem Value=@o />
-                                                        }
-                                                    </MudSelect>
-                                                </td>
-                                                @if (oid.From.HasValue)
-                                                {
-                                                    <td>
-                                                        <MudSelect @bind-Value=oid.From
-                                                                Label="From"
-                                                                Error=@(oid.To != null && oid.From > oid.To)
-                                                                ErrorText="From > To">
-                                                            @for (int? i = 1; i <= 20; i++)
-                                                                            {
-                                                                <MudSelectItem Value=@i />
-                                                                            }
-                                                        </MudSelect>
-                                                    </td>
-                                                    <td>
-                                                        <MudSelect @bind-Value=oid.To
-                                                                Label="To"
-                                                                Error=@(oid.To != null && oid.To < oid.From)
-                                                                ErrorText="To < From">
-                                                            <MudSelectItem Value=@((int?)null)>-</MudSelectItem>
-                                                            @for (int? i = 1; i <= 20; i++)
-                                                                            {
-                                                                <MudSelectItem Value=@i />
-                                                                            }
-                                                        </MudSelect>
-                                                    </td>
-                                                    <td>
-                                                        <MudSelect Label="Aggregation"
-                                                                Disabled=@(!oid.To.HasValue)
-                                                                T="Agg?"
-                                                                @bind-Value=oid.LayerAgg>
-                                                            @foreach (Agg? agg in Enum.GetValues(typeof(Agg)))
-                                                            {
-                                                                <MudSelectItem Value=@agg />
-                                                            }
-                                                        </MudSelect>
-                                                    </td>
-                                                }
-                                                else if (oid.Organ.HasValue)
-                                                {
-                                                    <td>
-                                                        <MudSelect @bind-Value=oid.Organ
-                                                                T="MoMgmt.PlantOrgan?"
-                                                                Label="Organ">
-                                                            @foreach (MoMgmt.PlantOrgan? o in Enum.GetValues(typeof(MoMgmt.PlantOrgan)))
-                                                            {
-                                                                <MudSelectItem Value="@o">@Capitalize(o?.ToString()?.Replace("strukt", "struct") ?? "")</MudSelectItem>
-                                                            }
-                                                        </MudSelect>
-                                                    </td>
-                                                    <td></td>
-                                                    <td></td>
-                                                }
-                                                else
-                                                {
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                }
-                                                <td>
-                                                    @if (oid.TimeAgg.HasValue || allowTimeAgg)
-                                                    {
-                                                        <MudSelect Label="Aggregation"
-                                                                T="Agg?"
-                                                                @bind-Value=oid.TimeAgg>
-                                                            @foreach (Agg? agg in Enum.GetValues(typeof(Agg)))
-                                                            {
-                                                                <MudSelectItem Value=@agg />
-                                                            }
-                                                        </MudSelect>
-                                                    }
-                                                </td>
-                                                <td>
-                                                    <MudFab StartIcon=@Icons.Material.Filled.ArrowUpward
-                                                            Size=@Size.Small
-                                                            Disabled=@(k == 0)
-                                                            OnClick=@(() =>
-                                                            {
-                                                                oids.Remove(oid);
-                                                                oids.Insert(Math.Max(0, k - 1), oid);
-                                                                StateHasChanged();
-                                                            }) />
-                                                    <MudFab StartIcon=@Icons.Material.Filled.ArrowDownward
-                                                            Size=@Size.Small
-                                                            Disabled=@(k == oids.Count() - 1)
-                                                            OnClick=@(() =>
-                                                            {
-                                                                oids.Remove(oid);
-                                                                oids.Insert(Math.Min(k + 1, oids.Count()), oid);
-                                                                StateHasChanged();
-                                                            }) />
-                                                    <MudFab StartIcon=@Icons.Material.Filled.Add
-                                                            Size=@Size.Small
-                                                            Color=@Color.Success
-                                                            OnClick=@(() =>
-                                                            {
-                                                                oids.Insert(Math.Min(k + 1, oids.Count()), new OId());
-                                                                StateHasChanged();
-                                                            }) />
-                                                    <MudFab StartIcon=@Icons.Material.Filled.Delete
-                                                            Disabled=@(oids.Count() < 2)
-                                                            Size=@Size.Small
-                                                            Color=@Color.Error
-                                                            OnClick=@(() => { oids.Remove(oid); StateHasChanged(); }) />
-                                                </td>
-                                            </tr>
-                                        }
-                                    </tbody>
-                                </MudSimpleTable>
-                            </MudTabPanel>
-                        }
-
-                    </MudTabs>
+                    <EditOutputConfig Events="@_events"/>
                 </MudItem>
             }
         </ChildContent>
     </MudExpansionPanel>
-    <MudExpansionPanel @bind-Expanded=@panelOpened["Results"]>
+    <MudExpansionPanel @bind-Expanded=@_panelOpened["Results"]>
         <TitleContent>
             <div class="d-flex">
                 <MudIcon Icon="@Icons.Material.Filled.Start" 
@@ -542,41 +291,30 @@
                     <MudChipSet
                         T="@string"
                         SelectedValuesChanged=@(cs => {
-                                                        selectedResultSection = cs?.FirstOrDefault() ?? "";
-                                                        MonicaResultsChanged = true;
+                                                        _selectedResultSection = cs?.FirstOrDefault() ?? "";
+                                                        _monicaResultsChanged = true;
                                                     })
                                 Mandatory="@true"
                                 Filter="@true">
-                        @foreach (var (s, i) in Section2Oid2Data.Keys.Select((s, i) => (s, i)))
+                        @foreach (var (s, i) in _section2Oid2Data.Keys.Select((s, i) => (s, i)))
                         {
-                            <MudChip @ref=defaultSelectedSectionChips[i]
+                            <MudChip @ref=_defaultSelectedSectionChips[i]
                                 Text="@s"
                                 Value="@s"
-                                Default=@(s == selectedResultSection)>
+                                Default=@(s == _selectedResultSection)>
                             </MudChip>
                         }
                     </MudChipSet>
                 </MudItem>
                 <MudItem xs="12">
-                    @code {
-                        private List<Highchart.AxisConfig> yAxisConfigs = new()
-                        {
-                new Highchart.AxisConfig { Id = "def", Title = "other values" },
-                new Highchart.AxisConfig { Id = "yields", Title = "Yield [kg/ha]", Opposite = true }
-            };
-                        private Dictionary<string, Highchart.CurveConfig> curveName2Config = new()
-                        {
-                { "Yield", new Highchart.CurveConfig { DisplayAxisId = "yields", IsVisible = true } }
-            };
-                    }
                     <Highchart Title="MONICA results"
                             XAxisTitle="Date"
-                            Data="@(Section2Oid2Data.GetValueOrDefault(selectedResultSection, new Dictionary<string, IEnumerable<float>>()))"
-                            Dates="@(Section2Dates.GetValueOrDefault(selectedResultSection, new List<DateTime>()))"
-                            DataChanged="@MonicaResultsChanged"
-                            ChartRerendered="@(() => MonicaResultsChanged = false)"
-                            YAxisConfigs="@yAxisConfigs"
-                            CurveName2Config="@curveName2Config">
+                            Data="@(_section2Oid2Data.GetValueOrDefault(_selectedResultSection, new Dictionary<string, IEnumerable<float>>()))"
+                            Dates="@(_section2Dates.GetValueOrDefault(_selectedResultSection, new List<DateTime>()))"
+                            DataChanged="@_monicaResultsChanged"
+                            ChartRerendered="@(() => _monicaResultsChanged = false)"
+                            YAxisConfigs="@_yAxisConfigs"
+                            CurveName2Config="@_curveName2Config">
                     </Highchart>
                 </MudItem>
                 @*<MudItem xs="12">
@@ -587,7 +325,7 @@
                                 </MudCard>
                             </MudItem>
                 *@
-                @if(monicaErrorMessage != null && monicaErrorMessage.Count() > 0)
+                @if(monicaErrorMessage != null && monicaErrorMessage.Any())
                 {
                     <MudItem xs="12">
                         <MudAlert Severity="Severity.Error">@monicaErrorMessage</MudAlert>
@@ -597,3 +335,64 @@
         </ChildContent>
     </MudExpansionPanel>
 </MudExpansionPanels>
+
+@code
+{
+    [Parameter]
+    public Mgmt.IFertilizerService? FertilizerServiceCap { get; set; }
+
+    [Parameter]
+    public string FertilizerServiceSturdyRef { get; set; } = "";//"capnp://login01.cluster.zalf.de:9998";
+
+    [Parameter]
+    public EventCallback<Mgmt.IFertilizerService> FertilizerServiceCapChanged { get; set; }
+
+
+    [Parameter]
+    public Crop.IService? CropServiceCap { get; set; }
+
+    [Parameter]
+    public string CropServiceSturdyRef { get; set; } = "";
+
+    [Parameter]
+    public EventCallback<Crop.IService> CropServiceCapChanged { get; set; }
+
+    private Dictionary<string, bool> _panelOpened = new()
+    {
+        { "Connections", false },
+        { "BaseFiles", false },
+        { "Location", false },
+        { "UpdateTimeSeries", false },
+        { "ClimateService", false },
+        { "SoilProfile", false },
+        { "CropRotation", false },
+        { "OutputConfig", false },
+        { "Results", true }
+    };
+
+    private Dictionary<string, bool> _baseFilePanelOpened = new()
+    {
+        { "sim", false },
+        { "crop", false },
+        { "site", false },
+        { "climate", false }
+    };
+
+    private bool _overwriteSoilProfile = false;
+    private bool _overwriteTimeSeriesData = false;
+    private bool _overwriteCropRotation = false;
+    bool _overwriteOutputConfig = false;
+
+
+
+
+    private List<Highchart.AxisConfig> _yAxisConfigs =
+    [
+        new Highchart.AxisConfig { Id = "def", Title = "other values" },
+        new Highchart.AxisConfig { Id = "yields", Title = "Yield [kg/ha]", Opposite = true }
+    ];
+    private Dictionary<string, Highchart.CurveConfig> _curveName2Config = new()
+    {
+        { "Yield", new Highchart.CurveConfig { DisplayAxisId = "yields", IsVisible = true } }
+    };
+}

@@ -7,6 +7,7 @@ using Soil = Mas.Schema.Soil;
 using Mas.Infrastructure.Common;
 using Mas.Schema.Common;
 using Mas.Schema.Geo;
+using Mas.Schema.Model.Monica;
 using Mas.Schema.Persistence;
 using Climate = Mas.Schema.Climate;
 using Model = Mas.Schema.Model;
@@ -152,12 +153,10 @@ namespace Mas.Infrastructure.BlazorComponents
         {
             Console.WriteLine("OnInitialized Monica SR: " + MonicaSturdyRef);
 
-            simJsonTxt = File.ReadAllText("Data/sim_template.json");
-            cropJsonTxt = File.ReadAllText("Data/crop_template.json");
-            siteJsonTxt = File.ReadAllText("Data/site_template.json");
+            _simJsonTxt = File.ReadAllText("Data/sim_template.json");
+            _cropJsonTxt = File.ReadAllText("Data/crop_template.json");
+            _siteJsonTxt = File.ReadAllText("Data/site_template.json");
             //climateCsv = File.ReadAllText("Data-Full/climate-min.csv");
-
-            availableOIds.Sort();
 
             //_ = Task.Delay(1000).ContinueWith(_ => soilServiceRef?.GetAllAvailableSoilProperties());
         }
@@ -209,129 +208,47 @@ namespace Mas.Infrastructure.BlazorComponents
         }
 
         #region events / outputs
-        public enum Agg { AVG, MEDIAN, SUM, MIN, MAX, FIRST, LAST, NONE }
-        public class OId : IComparable<OId>
-        {
-            public static OId Out(string name) { return new OId { Name = name }; }
 
-            public static OId Out(string name, string desc, string unit = "")
-            { return new OId { Name = name, Desc = desc, Unit = unit}; }
-
-            public static OId Out(string name, string desc, Mgmt.PlantOrgan o, string unit = "")
-            { return new OId { Name = name, Desc = desc, Unit = unit, Organ = o }; }
-            
-            public static OId Out(string name, string desc, int layer, string unit = "")
-            { return new OId { Name = name, Desc = desc, Unit = unit, From = layer }; }
-
-            public static OId OutL(string name, int from, int? to = null, Agg agg = Agg.NONE)
-            { return new OId { Name = name, From = from, To = to, LayerAgg = agg }; }
-
-            public static OId OutT(string name, Agg agg = Agg.AVG)
-            { return new OId { Name = name, TimeAgg = agg }; }
-
-            public static OId OutLT(string name, int from, int? to = null, Agg layerAgg = Agg.NONE, Agg timeAgg = Agg.AVG)
-            { return new OId { Name = name, From = from, To = to, LayerAgg = layerAgg, TimeAgg = timeAgg }; }
-
-            /*
-            public override string ToString()
+        private List<(string, List<EditOutputConfig.OId>, bool)> _events =
+        [
+            ("daily", new List<EditOutputConfig.OId>
             {
-                if (From.HasValue && To.HasValue && LayerAgg.HasValue && TimeAgg.HasValue)
-                    return $"[{Name},[{From},{To},{LayerAgg}],{TimeAgg}]";
-                else if (From.HasValue && To.HasValue && LayerAgg.HasValue)
-                    return $"[{Name},[{From},{To},{LayerAgg}]]";
-                else if (TimeAgg.HasValue)
-                    return $"[{Name},{TimeAgg}]";
-                return Name;
-            }
-            */
+                EditOutputConfig.OId.Out("Date"), EditOutputConfig.OId.Out("Crop"), EditOutputConfig.OId.Out("Stage"), EditOutputConfig.OId.Out("Yield"),
+                EditOutputConfig.OId.OutL("Mois", 1, 3), EditOutputConfig.OId.OutL("SOC", 1, 6, EditOutputConfig.Agg.AVG), EditOutputConfig.OId.Out("Tavg"),
+                EditOutputConfig.OId.Out("Precip")
+            }, false)
+        ];
 
-            public int CompareTo(OId? other)
-            {
-                // A null value means that this object is greater.
-                if (other == null)
-                    return 1;
-                if (Name != null) 
-                    return Name.CompareTo(other.Name);
-                return 0;
-            }
-
-            public override string ToString() => Name ?? "";
-            
-            public string Name { get; set; } = "";
-            public string Desc { get; set; } = "";
-            public string Unit { get; set; } = "";
-            public int? From { get; set; }
-            public int? To { get; set; }
-            public Agg? LayerAgg { get; set; }
-            public Agg? TimeAgg { get; set; }
-            public Mgmt.PlantOrgan? Organ { get; set; }
-        }
-        private OId editOId = OId.Out("");
-
-        private List<(string, List<OId>, bool)> events = new() 
-        { 
-            ("daily", new List<OId> { 
-                OId.Out("Date"), OId.Out("Crop"), OId.Out("Stage"), OId.Out("Yield"), 
-                OId.OutL("Mois", 1, 3), OId.OutL("SOC", 1, 6, Agg.AVG), OId.Out("Tavg"), 
-                OId.Out("Precip") 
-            }, false) 
-        };
-
-        private List<(string, bool)> eventShortcuts = new() 
-        { 
-            ("daily", false), 
-            ("crop", true), 
-            ("monthly", true), 
-            ("yearly", true), 
-            ("run", true), 
-            ("Sowing", false), 
-            ("AutomaticSowing", false), 
-            ("Harvest", false), 
-            ("AutomaticHarvest", false), 
-            ("Cutting", false), 
-            ("emergence", false), 
-            ("anthesis", false), 
-            ("maturity", false), 
-            ("Stage-1", false), 
-            ("Stage-2", false), 
-            ("Stage-3", false), 
-            ("Stage-4", false),
-            ("Stage-5", false),
-            ("Stage-6", false), 
-            ("Stage-7", false)
-        };
-
-        private JArray CreateSingleEventsSection(List<OId> oids)
+        private JArray CreateSingleEventsSection(List<EditOutputConfig.OId> oids)
         {
-            JArray section = new();
+            JArray section = [];
             foreach (var oid in oids)
             {
+                var name = string.IsNullOrEmpty(oid.DisplayName) ? oid.Name : $"{oid.Name}|{oid.DisplayName}";
                 if (oid.From.HasValue)
                 {
                     JArray? ft = null;
                     if (oid.To.HasValue)
                     {
-                        ft = new JArray { oid.From, oid.To };
+                        ft = [oid.From, oid.To];
                         if (oid.LayerAgg.HasValue) ft.Add(oid.LayerAgg.ToString());
                     }
 
-                    var a = new JArray { oid.Name, ft == null ? oid.From : ft };
+                    JArray a = [name, ft == null ? oid.From : ft];
                     if (oid.TimeAgg.HasValue) a.Add(oid.TimeAgg.ToString());
 
                     section.Add(a);
                 }
                 else if(oid.Organ.HasValue)
                 {
-                    var a = new JArray { oid.Name, oid.Organ?.ToString().Replace("strukt", "struct") };
+                    JArray a = [name, oid.Organ?.ToString().Replace("strukt", "struct")];
                     if (oid.TimeAgg.HasValue) a.Add(oid.TimeAgg.ToString());
                     section.Add(a);
                 }
                 else
                 {
-                    if (oid.TimeAgg.HasValue)
-                        section.Add(new JArray() { oid.Name, oid.TimeAgg.ToString() });
-                    else
-                        section.Add(oid.Name);
+                    if (oid.TimeAgg.HasValue) section.Add(new JArray() { name, oid.TimeAgg.ToString() });
+                    else section.Add(name);
                 }
             }
 
@@ -340,8 +257,8 @@ namespace Mas.Infrastructure.BlazorComponents
 
         private JArray CreateEvents()
         {
-            JArray es = new();
-            foreach (var (sectionName, oids, _) in events)
+            JArray es = [];
+            foreach (var (sectionName, oids, _) in _events)
             {
                 es.Add(sectionName);
                 es.Add(CreateSingleEventsSection(oids));
@@ -351,35 +268,30 @@ namespace Mas.Infrastructure.BlazorComponents
 
         #endregion events / outputs
 
-        private string Capitalize(string s)
-        {
-            if (string.IsNullOrEmpty(s)) return s;
-            return s.Length == 1 ? char.ToUpper(s[0]).ToString() : char.ToUpper(s[0]) + s.Substring(1);
-        }
-
         #region crop rotation
-        private List<Mgmt.Event> cropRotation = new()
-        {
+        private List<Mgmt.Event> _cropRotation =
+        [
             new Mgmt.Event()
             {
                 TheType = ExtType.sowing,
-                At = new() { Date = new Mas.Schema.Common.Date { Year = 0, Month = 9, Day = 23 } },
+                At = new Event.at { Date = new Mas.Schema.Common.Date { Year = 0, Month = 9, Day = 23 } },
                 Params = new Mgmt.Params.Sowing { Cultivar = "winter wheat" }
             },
+
             new Mgmt.Event()
             {
                 TheType = ExtType.harvest,
-                At = new() { Date = new Mas.Schema.Common.Date { Year = 1, Month = 7, Day = 27 } }
+                At = new Event.at { Date = new Mas.Schema.Common.Date { Year = 1, Month = 7, Day = 27 } }
             }
-        };
+        ];
 
-        private System.Globalization.TextInfo textInfo = new System.Globalization.CultureInfo("de-DE", false).TextInfo;
+        private System.Globalization.TextInfo _textInfo = new System.Globalization.CultureInfo("de-DE", false).TextInfo;
 
         private string NameFromEvent(Mgmt.Event e)
         {
             var typeStr = e.TheType.ToString();
 
-            var type = e.Info == null ? typeStr : Capitalize(e.Info.Name);
+            var type = e.Info == null ? typeStr : Helper.Capitalize(e.Info.Name);
             var crop = (e.Params is Mgmt.Params.Sowing s) ? s.Cultivar.ToString() : "";
             if (!string.IsNullOrEmpty(crop)) type = $"{type} : {crop}";
             var date = e.which == Mgmt.Event.WHICH.At ? Helper.CommonDate2IsoDateString(e.At.Date) : null;
@@ -395,7 +307,7 @@ namespace Mas.Infrastructure.BlazorComponents
             var cr = new JArray();
             var wss = new JArray();
             var cm = new JObject { { "worksteps", wss } };
-            foreach(var e in cropRotation)
+            foreach(var e in _cropRotation)
             {
                 switch (e.TheType)
                 {
@@ -405,7 +317,7 @@ namespace Mas.Infrastructure.BlazorComponents
                             if (wss.Any())
                             {
                                 cr.Add(cm);
-                                wss = new JArray();
+                                wss = [];
                                 cm = new JObject { { "worksteps", wss } };
                             }
 
@@ -539,7 +451,7 @@ namespace Mas.Infrastructure.BlazorComponents
                             var exports = new JObject();
                             foreach(var cs in c.CuttingSpec)
                             {
-                                var organ = Capitalize(cs.Organ.ToString().Replace("strukt", "struct"));
+                                var organ = Helper.Capitalize(cs.Organ.ToString().Replace("strukt", "struct"));
                                 organs[organ] = new JArray { cs.Value, toUnit(cs.Unit), cs.CutOrLeft.ToString() };
                                 organs[organ] = cs.ExportPercentage;
                             }
@@ -636,24 +548,24 @@ namespace Mas.Infrastructure.BlazorComponents
         [Parameter]
         public EventCallback<(Dictionary<string, IEnumerable<DateTime>>, Dictionary<string, Dictionary<string, IEnumerable<float>>>)> ResultChanged { get; set; }
 
-        private MudChip<string>[] defaultSelectedSectionChips = new MudChip<string>[1];
+        private MudChip<string>[] _defaultSelectedSectionChips = new MudChip<string>[1];
 
-        private Dictionary<string, Dictionary<string, IEnumerable<float>>> Section2Oid2Data = new();
+        private Dictionary<string, Dictionary<string, IEnumerable<float>>> _section2Oid2Data = new();
 
-        private Dictionary<string, IEnumerable<DateTime>> Section2Dates = new();
+        private Dictionary<string, IEnumerable<DateTime>> _section2Dates = new();
 
-        private string selectedResultSection = "";
+        private string _selectedResultSection = "";
 
-        private string simJsonTxt = "";
-        private string cropJsonTxt = "";
-        private string siteJsonTxt = "";
+        private string _simJsonTxt = "";
+        private string _cropJsonTxt = "";
+        private string _siteJsonTxt = "";
         //private string climateCsv = "";
 
-        private bool MonicaResultsChanged = false;
+        private bool _monicaResultsChanged = false;
 
         private class SoilProfile : Soil.IProfile
         {
-            public List<Soil.Layer> Layers { get; set; } = new();
+            public List<Soil.Layer> Layers { get; set; } = [];
             
             public void Dispose()
             {
@@ -689,12 +601,12 @@ namespace Mas.Infrastructure.BlazorComponents
             //    "Data-Full/sim-min.json", "Data-Full/crop-min.json", "Data-Full/site-min.json", "Data-Full/climate-min.csv"
             //};
 
-            var simj = JObject.Parse(simJsonTxt);
-            var cropj = JObject.Parse(cropJsonTxt);
-            var sitej = JObject.Parse(siteJsonTxt);
+            var simj = JObject.Parse(_simJsonTxt);
+            var cropj = JObject.Parse(_cropJsonTxt);
+            var sitej = JObject.Parse(_siteJsonTxt);
 
             //update crop rotation (before resolving references)
-            if (overwriteCropRotation)
+            if (_overwriteCropRotation)
             {
                 var cr = await CreateCropRotation();
                 var str = cr.ToString();
@@ -703,14 +615,14 @@ namespace Mas.Infrastructure.BlazorComponents
 
             var envj = RunMonica.CreateMonicaEnv(simj, cropj, sitej, "");//, new Core.Share.UserSetting(), Core.Share.Enums.MonicaParametersBasePathTypeEnum.LocalServer);
 
-            if (overwriteOutputConfig)
+            if (_overwriteOutputConfig)
             {
                 //var events = new JArray();
                 //keep events in files and append the onces defined via UI
                 //foreach (var jt in envj["events"]) events.Add(jt);
                 //foreach (var jt in CreateEvents()) events.Add(jt);
                 var events = CreateEvents();
-                var str = events.ToString();
+                //var str = events.ToString();
                 envj?.Value<JArray>("events")?.Replace(events);
             }
 
@@ -720,7 +632,7 @@ namespace Mas.Infrastructure.BlazorComponents
             var menv = new Model.Env<Schema.Common.StructuredText>()
             {
                 TimeSeries = Capnp.Rpc.Proxy.Share(TimeSeriesCap),
-                SoilProfile = overwriteSoilProfile && profileLayers.Any() ? new SoilProfile() { Layers = profileLayers } : null,
+                SoilProfile = _overwriteSoilProfile && profileLayers.Count != 0 ? new SoilProfile() { Layers = profileLayers } : null,
                 Rest = new Schema.Common.StructuredText()
                 {
                     Structure = new Schema.Common.StructuredText.structure { which = Schema.Common.StructuredText.structure.WHICH.Json },
@@ -728,8 +640,8 @@ namespace Mas.Infrastructure.BlazorComponents
                 }
             };
 
-            Section2Oid2Data.Clear();
-            Section2Dates.Clear();
+            _section2Oid2Data.Clear();
+            _section2Dates.Clear();
 
             try
             {
@@ -743,51 +655,84 @@ namespace Mas.Infrastructure.BlazorComponents
                     if (section == null) continue;
 
                     var oids = section["outputIds"]?.Select(oid => {
+                        //Console.WriteLine("oid: " + oid);
                         var dn = oid["displayName"]?.Value<string>();
-                        if (dn == null || dn.Length == 0) return oid["name"]?.Value<string>() ?? "no-name";
-                        else return dn;
-                    });
+                        if (string.IsNullOrEmpty(dn)) return oid["name"]?.Value<string>() ?? "no-name";
+                        return dn;
+                    }).ToArray() ?? [];
+                    //Console.WriteLine("oids: " + string.Join(",", oids));
 
-                    var sectionName = section["origSpec"]?.Value<string>()?.Trim(new char[] { '\"' });
-                    if (sectionName != null)
+                    var sectionName = section["origSpec"]?.Value<string>()?.Trim(['\"']);
+                    if (sectionName == null) continue;
+                    _section2Oid2Data[sectionName] = new Dictionary<string, IEnumerable<float>>();
+
+                    var results = section["results"];
+                    if (results == null) continue;
+                    foreach (var (name, result) in oids.Zip(results))
                     {
-                        Section2Oid2Data[sectionName] = new Dictionary<string, IEnumerable<float>>();
-
-                        var results = section["results"];
-                        if (results != null && oids != null)
+                        //Console.WriteLine("path: " + result.Path);
+                        var type = result.First?.Type;
+                        switch (type ?? JTokenType.None)
                         {
-                            foreach (var (name, result) in oids.Zip(results))
-                            {
-                                var type = result.First?.Type;
-                                switch (type ?? JTokenType.None)
+                            case JTokenType.Integer:
+                            case JTokenType.Float:
+                                //Console.WriteLine("result type is float: name = " + name);
+                                _section2Oid2Data[sectionName][name] = result.Select(v => v.Value<float>());
+                                break;
+                            case JTokenType.String:
+                                //Console.WriteLine("result type is string: name = " + name);
+                                try
                                 {
-                                    case JTokenType.Integer:
-                                    case JTokenType.Float: Section2Oid2Data[sectionName][name] = result.Select(v => v.Value<float>()); break;
-
-                                    case JTokenType.String:
-                                        try
-                                        {
-                                            var date = result.First?.Value<DateTime>();
-                                            if (!date.HasValue) continue;
-                                        }
-                                        catch (System.FormatException) { continue; }
-                                        goto case JTokenType.Date;
-                                    case JTokenType.Date: Section2Dates[sectionName] = result.Select(v => v.Value<DateTime>()); break;
+                                    var date = result.First?.Value<DateTime>();
+                                    if (!date.HasValue) continue;
                                 }
-                            }
+                                catch (FormatException) { continue; }
+                                goto case JTokenType.Date;
+                            case JTokenType.Date:
+                                //Console.WriteLine("result type is date: name = " + name);
+                                _section2Dates[sectionName] = result.Select(v => v.Value<DateTime>());
+                                break;
+                            case JTokenType.Array:
+                                //Console.WriteLine("result is array: name = " + name + " result.Count = " + result.First!.AsEnumerable().Count());
+                                var elCount = result.Count();
+                                for(var i = 0; i < result.First!.AsEnumerable().Count(); i++)
+                                {
+                                    var arr = new float[elCount];
+                                    foreach (var (a, j) in result.Select((a, j) => (a, j)))
+                                    {
+                                        arr[j] = a[i]?.Value<float>() ?? 0;
+                                    }
+                                    _section2Oid2Data[sectionName][$"{name}_{i}"] = arr;
+                                }
+                                break;
+                            case JTokenType.None:
+                            case JTokenType.Object:
+                            case JTokenType.Constructor:
+                            case JTokenType.Property:
+                            case JTokenType.Comment:
+                            case JTokenType.Boolean:
+                            case JTokenType.Null:
+                            case JTokenType.Undefined:
+                            case JTokenType.Raw:
+                            case JTokenType.Bytes:
+                            case JTokenType.Guid:
+                            case JTokenType.Uri:
+                            case JTokenType.TimeSpan:
+                            default:
+                                throw new ArgumentOutOfRangeException();
                         }
                     }
                 }
                 var error = resj["error"];
 
                 //workaround to mark the default selected chip
-                defaultSelectedSectionChips = new MudChip<string>[Section2Oid2Data.Count()];
+                _defaultSelectedSectionChips = new MudChip<string>[_section2Oid2Data.Count];
 
-                selectedResultSection = Section2Oid2Data.ContainsKey("daily") ? "daily" : Section2Oid2Data.FirstOrDefault().Key;
+                _selectedResultSection = _section2Oid2Data.ContainsKey("daily") ? "daily" : _section2Oid2Data.FirstOrDefault().Key;
 
-                if (ResultChanged.HasDelegate) _ = ResultChanged.InvokeAsync((Section2Dates, Section2Oid2Data));
+                if (ResultChanged.HasDelegate) _ = ResultChanged.InvokeAsync((_section2Dates, _section2Oid2Data));
 
-                MonicaResultsChanged = true;
+                _monicaResultsChanged = true;
             }
             catch (Capnp.Rpc.RpcException e)
             {
@@ -795,7 +740,7 @@ namespace Mas.Infrastructure.BlazorComponents
             }
 
             StateHasChanged();
-            await MarkDefaultChips(defaultSelectedSectionChips);
+            await MarkDefaultChips(_defaultSelectedSectionChips);
         }
         #endregion run monica
 
@@ -821,170 +766,8 @@ namespace Mas.Infrastructure.BlazorComponents
         #endregion implement IDisposable
 
 
-        private List<OId> availableOIds = new()
-        {
-            OId.Out("Count", "output 1 for counting things"),
-            OId.Out("CM-count", "output the order number of the current cultivation method"),
-            OId.Out("Date", "output current date"),
-            OId.Out("days-since-start", "output number of days since simulation start"),
-            OId.Out("DOY", "output current day of year"),
-            OId.Out("Month", "output current Month"),
-            OId.Out("Year", "output current Year"),
-            OId.Out("Crop", "crop name"),
-            OId.Out("TraDef", "TranspirationDeficit", ""),
-            OId.Out("Tra", "ActualTranspiration", "mm"),
-            OId.Out("NDef", "CropNRedux, indicates N availability: 1 no stress, 0 no N available", ""),
-            OId.Out("HeatRed", "HeatStressRedux", ""),
-            OId.Out("FrostRed", "FrostStressRedux", ""),
-            OId.Out("OxRed", "OxygenDeficit", ""),
-            OId.Out("Stage", "DevelopmentalStage", ""),
-            OId.Out("TempSum", "CurrentTemperatureSum", "°Cd"),
-            OId.Out("VernF", "VernalisationFactor", ""),
-            OId.Out("DaylF", "DaylengthFactor", ""),
-            OId.Out("IncRoot", "OrganGrowthIncrement root", "kg/ha"),
-            OId.Out("IncLeaf", "OrganGrowthIncrement leaf", "kg/ha"),
-            OId.Out("IncShoot", "OrganGrowthIncrement shoot", "kg/ha"),
-            OId.Out("IncFruit", "OrganGrowthIncrement fruit", "kg/ha"),
-            OId.Out("RelDev", "RelativeTotalDevelopment", ""),
-            OId.Out("LT50", "LT50", "°C"),
-            OId.Out("AbBiom", "AbovegroundBiomass", "kg/ha"),
-            OId.Out("OrgBiom", "OrganBiomass", Mgmt.PlantOrgan.leaf, "kg-DM/ha"),
-            OId.Out("OrgGreenBiom", "OrganGreenBiomass", Mgmt.PlantOrgan.leaf, "kg-DM/ha"),
-            OId.Out("Yield", "get_PrimaryCropYield", "kg-DM/ha"),
-            OId.Out("SumYield", "get_AccumulatedPrimaryCropYield", "kg-DM/ha"),
-            OId.Out("sumExportedCutBiomass", "return sum(across cuts) of exported cut biomass for current crop", "kg-DM/ha"),
-            OId.Out("exportedCutBiomass", "return exported cut biomass for current crop and cut", "kg-DM/ha"),
-            OId.Out("sumResidueCutBiomass", "return sum(across cuts) of residue cut biomass for current crop", "kg-DM/ha"),
-            OId.Out("residueCutBiomass", "return residue cut biomass for current crop and cut", "kg-DM/ha"),
-            OId.Out("optCarbonExportedResidues", "return exported part of the residues according to optimal carbon balance", "kg-DM/ha"),
-            OId.Out("optCarbonReturnedResidues", "return returned to soil part of the residues according to optimal carbon balance", "kg-DM/ha"),
-            OId.Out("humusBalanceCarryOver", "return humus balance carry over according to optimal carbon balance", "Heq-NRW/ha"),
-            OId.Out("SecondaryYield", "SecondaryCropYield", "kg-DM/ha"),
-            OId.Out("GroPhot", "GrossPhotosynthesisHaRate", "kg-CH2O/ha"),
-            OId.Out("NetPhot", "NetPhotosynthesis", "kg-CH2O/ha"),
-            OId.Out("MaintR", "MaintenanceRespirationAS", "kg-CH2O/ha"),
-            OId.Out("GrowthR", "GrowthRespirationAS", "kg-CH2O/ha"),
-            OId.Out("StomRes", "StomataResistance", "s/m"),
-            OId.Out("Height", "CropHeight", "m"),
-            OId.Out("LAI", "LeafAreaIndex", "m2/m2"),
-            OId.Out("RootDep", "RootingDepth", "Layer#"),
-            OId.Out("EffRootDep", "Effective RootingDepth", "m"),
-            OId.Out("TotBiomN", "TotalBiomassNContent", "kg-N/ha"),
-            OId.Out("AbBiomN", "AbovegroundBiomassNContent", "kg-N/ha"),
-            OId.Out("SumNUp", "SumTotalNUptake", "kg-N/ha"),
-            OId.Out("ActNup", "ActNUptake", "kg-N/ha"),
-            OId.Out("PotNup", "PotNUptake", "kg-N/ha"),
-            OId.Out("NFixed", "NFixed", "kg-N/ha"),
-            OId.Out("Target", "TargetNConcentration", "kg-N/ha"),
-            OId.Out("CritN", "CriticalNConcentration", "kg-N/ha"),
-            OId.Out("AbBiomNc", "AbovegroundBiomassNConcentration", "kg-N/ha"),
-            OId.Out("Nstress", "NitrogenStressIndex", ""),
-            OId.Out("YieldNc", "PrimaryYieldNConcentration", "kg-N/ha"),
-            OId.Out("YieldN", "PrimaryYieldNContent", "kg-N/ha"),
-            OId.Out("Protein", "RawProteinConcentration", "kg/kg"),
-            OId.Out("NPP", "NPP", "kg-C/ha"),
-            OId.Out("NPP-Organs", "organ specific NPP", Mgmt.PlantOrgan.leaf, "kg-C/ha"),
-            OId.Out("GPP", "GPP", "kg-C/ha"),
-            OId.Out("Ra", "autotrophic respiration", "kg-C/ha"),
-            OId.Out("Ra-Organs", "organ specific autotrophic respiration", Mgmt.PlantOrgan.leaf, "kg-C/ha"),
-            OId.Out("Mois", "Soil moisture content", 1, "m3/m3"),
-            OId.Out("ActNupLayer", "ActNUptakefromLayer", 1, "kg-N/ha"),
-            OId.Out("Irrig", "Irrigation", "mm"),
-            OId.Out("Infilt", "Infiltration", "mm"),
-            OId.Out("Surface", "Surface water storage", "mm"),
-            OId.Out("RunOff", "Surface water runoff", "mm"),
-            OId.Out("SnowD", "Snow depth", "mm"),
-            OId.Out("FrostD", "Frost front depth in soil", "m"),
-            OId.Out("ThawD", "Thaw front depth in soil", "m"),
-            OId.Out("PASW", "Plant Available Soil Water", 1, "m3/m3"),
-            OId.Out("SurfTemp", "Surface temperature", "°C"),
-            OId.Out("STemp", "Soil temperature", 1, "°C"),
-            OId.Out("Act_Ev", "Actual evaporation", "mm"),
-            OId.Out("Pot_ET", "Potential evapotranspiration", "mm"),
-            OId.Out("Act_ET", "Actual evapotranspiration", "mm"),
-            OId.Out("Act_ET2", "ActualEvaporation + Transpiration", "mm"),
-            OId.Out("ET0", "ET0", "mm"),
-            OId.Out("Kc", "Kc", ""),
-            OId.Out("AtmCO2", "Atmospheric CO2 concentration", "ppm"),
-            OId.Out("AtmO3", "Atmospheric O3 concentration", "ppb"),
-            OId.Out("Groundw", "Groundwater level", "m"),
-            OId.Out("Recharge", "Groundwater recharge", "mm"),
-            OId.Out("NLeach", "N leaching", "kg-N/ha"),
-            OId.Out("NO3", "Soil NO3 content", 1, "kg-N/m3"),
-            OId.Out("Carb", "Soil Carbamid content", 1, "kg-N/m3"),
-            OId.Out("NH4", "Soil NH4 content", 1, "kg-N/m3"),
-            OId.Out("NO2", "NO2", "kg-N/m3"),
-            OId.Out("SOC", "Soil organic carbon content", 1, "kg-C/kg"),
-            OId.Out("SOC-X-Y", "SOC*SoilBulkDensity*LayerThickness*1000", 1, "g-C/m2"),
-            OId.Out("AOMf", "AOM_FastSum", 1, "kg-C/m3"),
-            OId.Out("AOMs", "AOM_SlowSum", 1, "kg-C/m3"),
-            OId.Out("SMBf", "SMB_Fast", 1, "kg-C/m3"),
-            OId.Out("SMBs", "SMB_Slow", 1, "kg-C/m3"),
-            OId.Out("SOMf", "SOM_Fast", 1, "kg-C/m3"),
-            OId.Out("SOMs", "SOM_Slow", 1, "kg-C/m3"),
-            OId.Out("CBal", "get_CBalance", 1, "kg-C/m3"),
-            OId.Out("Nmin", "NetNMineralisationRate", 1, "kg-N/ha"),
-            OId.Out("NetNmin", "NetNminRate for the layers defined in the parameter MaxMineralizationDepth(general/soil-organic.json)", "kg-N/ha"),
-            OId.Out("Denit", "Amount of N resulting from denitrification", "kg-N/ha"),
-            OId.Out("actnitrate", "N production rate resulting from nitrification(N2O STICS module)", "kg-N/m3"),
-            OId.Out("N2O", "Total N2O produced(Monica's original approach)", "kg-N/ha"),
-            OId.Out("N2Onit", "N2O produced through nitrification (N2O STICS module)", "kg-N/ha"),
-            OId.Out("N2Odenit", "N2O produced through denitrification(N2O STICS module)", "kg-N/ha"),
-            OId.Out("SoilpH", "SoilpH", ""),
-            OId.Out("NEP", "NEP", "kg-C/ha"),
-            OId.Out("NEE", "NEE", "kg-C/ha"),
-            OId.Out("Rh", "Rh", "kg-C/ha"),
-            OId.Out("Tmin", "Daily minimum temperature", "°C"),
-            OId.Out("Tavg", "Daily average temperature", "°C"),
-            OId.Out("Tmax", "Daily maximum temperature", "°C"),
-            OId.Out("Precip", "Daily precipitation", "mm"),
-            OId.Out("Wind", "Daily average windspeed", "m/s"),
-            OId.Out("Globrad", "Daily global radiation", "MJ/m2"),
-            OId.Out("Relhumid", "Daily relative humidity", "%"),
-            OId.Out("Sunhours", "If available? Daily number of sunshine hours", "h"),
-            OId.Out("BedGrad", "PercentageSoilCoverage", ""),
-            OId.Out("N", "Nitrate", 1, "kg-N/m3"),
-            OId.Out("Co", "Co", 1, "kg-C/m3"),
-            OId.Out("NH3", "NH3_Volatilised", "kg-N/ha"),
-            OId.Out("NFert", "dailySumFertiliser", "kg-N/ha"),
-            OId.Out("SumNFert", "sum of N fertilizer applied during cropping period", "kg-N/ha"),
-            OId.Out("NOrgFert", "dailySumOrgFertiliser", "kg-N/ha"),
-            OId.Out("SumNOrgFert", "sum of N of organic fertilizer applied during cropping period", "kg-N/ha"),
-            OId.Out("WaterContent", "soil water content", "%nFC"),
-            OId.Out("AWC", "available water capacity", "m3/m3"),
-            OId.Out("CapillaryRise", "Capillary rise", 1, "mm"),
-            OId.Out("PercolationRate", "percolation rate", 1, "mm"),
-            OId.Out("SMB-CO2-ER", "SMB_CO2EvolutionRate", 1, ""),
-            OId.Out("Evapotranspiration", "", "mm"),
-            OId.Out("Evaporation", "", "mm"),
-            OId.Out("ETa/ETc", "actual evapotranspiration / potential evapotranspiration", ""),
-            OId.Out("Transpiration", "", "mm"),
-            OId.Out("GrainN", "FruitBiomassNContent", "kg/ha"),
-            OId.Out("Fc", "Field capacity", 1, "m3/m3"),
-            OId.Out("Pwp", "Permanent wilting point", 1, "m3/m3"),
-            OId.Out("Sat", "saturation", 1, "m3/m3"),
-            OId.Out("Nresid", "Nitrogen content in crop residues", "kg-N/ha"),
-            OId.Out("Sand", "Soil sand content", "kg/kg"),
-            OId.Out("Clay", "Soil clay content", "kg/kg"),
-            OId.Out("Silt", "Soil silt content", "kg/kg"),
-            OId.Out("Stone", "Soil stone content", "kg/kg"),
-            OId.Out("pH", "Soil pH content", ""),
-            OId.Out("rootDensity", "Root density at layer", 1, ""),
-            OId.Out("rootingZone", "Layer into which roots reach", "Layer#"),
-            OId.Out("actammoxrate", "actAmmoniaOxidationRate", "kgN/m3/d"),
-            OId.Out("actnitrate", "actNitrificationRate", "kgN/m3/d"),
-            OId.Out("actdenitrate", "actDenitrificationRate", "kgN/m3/d"),
-            OId.Out("O3-short-damage", "short term ozone induced reduction of Ac", ""),
-            OId.Out("O3-long-damage", "long term ozone induced senescence", ""),
-            OId.Out("O3-WS-gs-reduction", "water stress impact on stomatal conductance", ""),
-            OId.Out("O3-total-uptake", "total O3 uptake", "?"),
-            OId.Out("NO3conv", "Convection", ""),
-            OId.Out("NO3disp", "Dispersion", ""),
-            OId.Out("noOfAOMPools", "number of AOM pools in existence currently", "#")
-        };
+
 
     }
-
-
 }
 

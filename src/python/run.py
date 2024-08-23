@@ -159,23 +159,23 @@ def x():
     # del s
 
 
-def run_soil_service():
+async def run_soil_service():
     con_man = common.ConnectionManager()
-    sr = "capnp://HvQI253JOzL1nNVvf3IvHLl2HN6qjv86aGgFxXiT1ds=@10.10.24.24:42851/e20504a7-942f-4b04-82b6-cabea3a92f88"
-    service = con_man.try_connect(sr, cast_as=soil_capnp.Service)
+    sr = "capnp://B8NKD4qssSlDBlpc77kYjxxsIGx9-Fqj6tLxE5Z-qrs=@10.10.24.176:33907/1ee32f4f-f4f3-4207-994d-a5b079cb337a"
+    service = await con_man.try_connect(sr, cast_as=soil_capnp.Service)
     try:
-        print(service.info().wait())
+        print(await service.info())
     except Exception as e:
         print(e)
 
-    ps = service.closestProfilesAt(coord={"lat": 52.52, "lon": 14.11},
-                                   query={"mandatory": ["soilType", "organicCarbon", "rawDensity"]}).wait()
+    ps = await service.closestProfilesAt(coord={"lat": 52.52, "lon": 14.11},
+                                   query={"mandatory": ["soilType", "organicCarbon", "rawDensity"]})
     print(ps)
     p0 = ps.profiles[0]
-    print(p0.geoLocation().wait())
-    d = p0.data().wait()
+    print(await p0.geoLocation())
+    d = await p0.data()
     print(d)
-    sr = p0.save().wait().sturdyRef
+    sr = (await p0.save()).sturdyRef
     sr_str = common.sturdy_ref_str_from_sr(sr)
     print("first profile sr:", sr_str)
 
@@ -668,7 +668,7 @@ async def main():
     }
     common.update_config(config, sys.argv, print_config=True, allow_new_keys=True)
 
-    await run_monica()
+    #await run_monica()
 
     #run_resolver()
     #hb_thread = run_resolver_registrar()
@@ -681,7 +681,7 @@ async def main():
 
     #run_climate_service()
 
-    # run_soil_service()
+    await run_soil_service()
 
     #await run_time_series()
 

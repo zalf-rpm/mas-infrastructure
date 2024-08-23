@@ -209,12 +209,12 @@
 
     protected override void OnInitialized()
     {
-        Console.WriteLine("OnInitialized SR<" + typeof(TCapnpInterface) + ">: " + SturdyRef);
+        //Console.WriteLine("OnInitialized SR<" + typeof(TCapnpInterface) + ">: " + SturdyRef);
     }
 
     void IDisposable.Dispose()
     {
-        Console.WriteLine("Disposing<" + typeof(TCapnpInterface) + "> " + SturdyRef + " cap: " + Capability);
+        //Console.WriteLine("Disposing<" + typeof(TCapnpInterface) + "> " + SturdyRef + " cap: " + Capability);
         Capability?.Dispose();
     }
 
@@ -336,11 +336,11 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        Console.WriteLine("ConnectToSturdyRef<" + typeof(TCapnpInterface) + ">::OnAfterRenderAsync");
+        //Console.WriteLine("ConnectToSturdyRef<" + typeof(TCapnpInterface) + ">::OnAfterRenderAsync");
 
         if (firstRender)
         {
-            Console.WriteLine("ConnectToSturdyRef<" + typeof(TCapnpInterface) + ">: first render");
+            //Console.WriteLine("ConnectToSturdyRef<" + typeof(TCapnpInterface) + ">: first render");
 
             //just temporary to have some sturdy refs available in the users browser
             if (!await LocalStorage.ContainKeyAsync("sturdy-ref-store"))
@@ -363,14 +363,14 @@
                     sbmsArray = sbms.ToArray();
                     sb = sbmsArray.Any() ? sbmsArray.First() : null;
                 }
-                else
-                {
-                    foreach (var ssrd in sbmsArray)
-                    {
-                        Console.WriteLine("ConnectToSturdyRef<" + typeof(TCapnpInterface) + ">: ssrd: " + ssrd);
-                    }
-                }
-                Console.WriteLine("ConnectToSturdyRef<" + typeof(TCapnpInterface) + ">: sb: " + sb);
+                //else
+                //{
+                //    foreach (var ssrd in sbmsArray)
+                //    {
+                //        Console.WriteLine("ConnectToSturdyRef<" + typeof(TCapnpInterface) + ">: ssrd: " + ssrd);
+                //    }
+                //}
+                //Console.WriteLine("ConnectToSturdyRef<" + typeof(TCapnpInterface) + ">: sb: " + sb);
                 if (sb != null) await SelectedBookmarkChanged(sb, ConnectOnInit);
                 StateHasChanged();
             }
