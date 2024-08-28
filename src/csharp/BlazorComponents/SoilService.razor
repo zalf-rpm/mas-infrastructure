@@ -77,7 +77,7 @@
         </MudPaper>
     </MudItem>
     <MudItem xs="12">
-        <MudTabs Elevation="1" Rounded="@true" @bind-ActivatePanelIndex="@SelectedProfileIndex">
+        <MudTabs Elevation="1" Rounded="@true" @bind-ActivePanelIndex="@SelectedProfileIndex">
             @foreach(var (k, (profileId, profile, ProfileLayers)) in Profiles.Select((layer, k) => (k, layer)))
             {
                 <MudTabPanel Text=@($"Profile {k+1} ({Math.Round(profile.PercentageOfArea, 0)}%)")
@@ -298,7 +298,8 @@
     private string _soilServiceSturdyRef = "";
 
     [Parameter]
-    public List<Soil.Layer> SelectedLayers { get; set; } = new();
+    public List<Soil.Layer> SelectedLayers { get; set; } = [];
+
     [Parameter]
     public EventCallback<List<Soil.Layer>> SelectedLayersChanged { get; set; }
 
@@ -307,12 +308,16 @@
         get => _selectedProfileIndex;
         set {
             _selectedProfileIndex = value;
-            if (Profiles.Count > value) SelectedLayers = Profiles[value].Item3;
+            Console.WriteLine("blablab: " + Profiles.Count);
+            if (Profiles.Count <= value) return;
+            SelectedLayers = Profiles[value].Item3;
+            if (SelectedLayersChanged.HasDelegate) SelectedLayersChanged.InvokeAsync(SelectedLayers);
         }
     }
 
     [Parameter]
     public List<(string, Soil.ProfileData, List<Soil.Layer>)> Profiles { get; set; } = [];
+
     [Parameter]
     public EventCallback<List<(string, Soil.ProfileData, List<Soil.Layer>)>> ProfilesChanged { get; set; }
 
@@ -371,14 +376,17 @@
 
     public override async Task SetParametersAsync(ParameterView parameters)
     {
+        Console.WriteLine("SoilService::SetParametersAsync");
         _soilServiceCapUpdated = parameters.GetValueOrDefault<Soil.IService?>("SoilServiceCap", null) != SoilServiceCap;
         await base.SetParametersAsync(parameters);
     }
 
     protected override async Task OnParametersSetAsync()
     {
+        Console.WriteLine("SoilService::OnParametersSetAsync");
         if (_soilServiceCapUpdated)
         {
+            Console.WriteLine("SoilService::OnParametersSetAsync: _soilServiceCapUpdated=true");
             await GetAllAvailableSoilProperties();
         }
     }
@@ -390,7 +398,7 @@
         if (SoilServiceCap != service) SoilServiceCap?.Dispose();
         SoilServiceCap = service;
 
-        if (SoilServiceCapChanged.HasDelegate) _ = SoilServiceCapChanged.InvokeAsync(Capnp.Rpc.Proxy.Share(SoilServiceCap));
+        if (SoilServiceCapChanged.HasDelegate) SoilServiceCapChanged.InvokeAsync(Capnp.Rpc.Proxy.Share(SoilServiceCap));
 
         Console.WriteLine("SoilService.SoilServiceCapabilityChanged: ThreadId: " + Thread.CurrentThread.ManagedThreadId);
 
@@ -400,7 +408,7 @@
         //_ = InvokeAsync(GetAllAvailableSoilProperties);
     }
 
-    public async Task GetAllAvailableSoilProperties()
+    private async Task GetAllAvailableSoilProperties()
     {
         if (SoilServiceCap == null) return;
 
@@ -408,9 +416,7 @@
 
         try
         {
-            Console.WriteLine("before GetAllAvailableParameters");
             var (mps, ops) = await SoilServiceCap.GetAllAvailableParameters(false);
-            Console.WriteLine("after GetAllAvailableParameters");
             _availableMandatorySoilProps = mps;
             _availableOptionalSoilProps = ops;
             StateHasChanged();
@@ -464,24 +470,19 @@
                 }
             );
 
-            var p = profiles[0];
-            var profiles2 = profiles.Select(Proxy.Share).ToArray();
-
-            Console.WriteLine("count: " + profiles2.Length);
-            if (profiles2.Length > 0)
+            if (profiles.Count > 0)
             {
                 Profiles.Clear();
-                foreach(var profile in profiles2)
+                foreach(var profile in profiles)
                 {
-                    Console.WriteLine("start");
                     var pd = await profile.Data();
                     var info = await profile.Info();
                     if (pd == null) continue;
                     List<Soil.Layer> layers = pd.Layers.ToList();
                     Profiles.Add((info.Id, pd, layers));
-                    Console.WriteLine("next");
                 }
-                
+
+                SelectedProfileIndex = 0;
                 if (ProfilesChanged.HasDelegate) _ = ProfilesChanged.InvokeAsync(Profiles);
                 StateHasChanged();
             }
@@ -498,7 +499,7 @@
         var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraLarge, FullWidth = true };
         var res = await DialogService.Show<KA5SoilTypeTriangleDialog>
             ("Select soil type", options).Result;
-        if (res.Data is KA5SoilTypeTriangleDialog.Result r) prop.Type = r.SoilTextureName;
+        if (res?.Data is KA5SoilTypeTriangleDialog.Result r) prop.Type = r.SoilTextureName;
         StateHasChanged();
         if (ProfilesChanged.HasDelegate) _ = ProfilesChanged.InvokeAsync(Profiles);
     }

@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "capnproto_schemas_csharp", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MonicaBlazorUI", "MonicaBlazorUI.csproj", "{CC799E8E-3B85-4269-B5A9-0AB6C2C67C21}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Capnp.Net.Runtime", "..\..\..\..\capnproto-dotnetcore\Capnp.Net.Runtime\Capnp.Net.Runtime.csproj", "{5C99ADBF-0ADD-492D-AAFC-65D43A1EB9AE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{CC799E8E-3B85-4269-B5A9-0AB6C2C67C21}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CC799E8E-3B85-4269-B5A9-0AB6C2C67C21}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CC799E8E-3B85-4269-B5A9-0AB6C2C67C21}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C99ADBF-0ADD-492D-AAFC-65D43A1EB9AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C99ADBF-0ADD-492D-AAFC-65D43A1EB9AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C99ADBF-0ADD-492D-AAFC-65D43A1EB9AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C99ADBF-0ADD-492D-AAFC-65D43A1EB9AE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

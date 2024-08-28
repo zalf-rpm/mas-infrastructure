@@ -212,9 +212,9 @@
                 @if (_overwriteSoilProfile)
                 {
                     <MudItem xs="12">
-                        <SoilService @ref="@soilServiceRef"
+                        <SoilService @ref="@_soilServiceRef"
                                     LatLng="@LatLng"
-                                    @bind-SelectedLayers="profileLayers"
+                                    @bind-SelectedLayers="_profileLayers"
                                     HideGeoPosPicker="@true"/>
                     </MudItem>
                 }
@@ -325,10 +325,10 @@
                                 </MudCard>
                             </MudItem>
                 *@
-                @if(monicaErrorMessage != null && monicaErrorMessage.Any())
+                @if(_monicaErrorMessage != null && _monicaErrorMessage.Any())
                 {
                     <MudItem xs="12">
-                        <MudAlert Severity="Severity.Error">@monicaErrorMessage</MudAlert>
+                        <MudAlert Severity="Severity.Error">@_monicaErrorMessage</MudAlert>
                     </MudItem>
                 }
             </MudGrid>
@@ -382,9 +382,6 @@
     private bool _overwriteTimeSeriesData = false;
     private bool _overwriteCropRotation = false;
     bool _overwriteOutputConfig = false;
-
-
-
 
     private List<Highchart.AxisConfig> _yAxisConfigs =
     [

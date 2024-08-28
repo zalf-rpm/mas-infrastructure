@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using Capnp;
+using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using Newtonsoft.Json.Linq;
 using ExtType = Mas.Schema.Model.Monica.Event.ExternalType;
@@ -109,18 +110,19 @@ namespace Mas.Infrastructure.BlazorComponents
         [Parameter]
         public EventCallback<Climate.ITimeSeries> SoilServiceCapChanged { get; set; }
         
-        private async Task SoilServiceCapabilityChanged(Soil.IService service)
+        private Task SoilServiceCapabilityChanged(Soil.IService service)
         {
-            if (service == null) return;
+            if (service == null) return Task.CompletedTask;
 
-            if (SoilServiceCap != service) 
-                SoilServiceCap?.Dispose();
+            if (SoilServiceCap != service) SoilServiceCap?.Dispose();
             SoilServiceCap = service;
+
+            return Task.CompletedTask;
         }
 
-        private List<Soil.Layer> profileLayers = new();
+        private List<Soil.Layer> _profileLayers = [];
 
-        private SoilService? soilServiceRef;
+        private SoilService? _soilServiceRef;
         #endregion soil service cap
 
         #region climate service cap
@@ -146,7 +148,7 @@ namespace Mas.Infrastructure.BlazorComponents
         public (double, double) LatLng { get; set; } = (52.52, 14.11);
 
         //private string monicaResult;
-        private string? monicaErrorMessage;
+        private string? _monicaErrorMessage;
 
         #region init
         protected override async Task OnInitializedAsync()
@@ -569,7 +571,6 @@ namespace Mas.Infrastructure.BlazorComponents
             
             public void Dispose()
             {
-                throw new NotImplementedException();
             }
 
             public Task<Persistent.SaveResults> Save(Persistent.SaveParams arg_, CancellationToken cancellationToken_ = default)
@@ -582,9 +583,10 @@ namespace Mas.Infrastructure.BlazorComponents
                 throw new NotImplementedException();
             }
 
-            public async Task<Soil.ProfileData> Data(CancellationToken cancellationToken_ = default)
+            public Task<Soil.ProfileData> Data(CancellationToken cancellationToken_ = default)
             {
-                return new Soil.ProfileData { Layers = Layers };
+                Console.WriteLine("SoilProfile.Data: layers: " + Layers);
+                return Task.FromResult(new Soil.ProfileData { Layers = Layers });
             }
 
             public Task<LatLonCoord> GeoLocation(CancellationToken cancellationToken_ = default)
@@ -592,7 +594,7 @@ namespace Mas.Infrastructure.BlazorComponents
                 throw new NotImplementedException();
             }
         }
-        
+
         private async Task RunMonicaModel()
         {
             if (MonicaInstanceCap == null || TimeSeriesCap == null) return;
@@ -629,13 +631,17 @@ namespace Mas.Infrastructure.BlazorComponents
             envj?.Value<JObject>("params")?.Value<JObject>("siteParameters")?.Value<JValue>("Latitude")?.Replace(LatLng.Item1);
             //envj["params"]["siteParameters"]["Latitude"] = LatLng.Item1;
 
-            var menv = new Model.Env<Schema.Common.StructuredText>()
+            Console.WriteLine("_profileLayers: " + _profileLayers);
+            foreach (var pl in _profileLayers) Console.WriteLine(pl);
+            Console.WriteLine("overwrite soil profile: " + (_overwriteSoilProfile && _profileLayers.Count != 0));
+
+            var menv = new Model.Env<StructuredText>()
             {
                 TimeSeries = Capnp.Rpc.Proxy.Share(TimeSeriesCap),
-                SoilProfile = _overwriteSoilProfile && profileLayers.Count != 0 ? new SoilProfile() { Layers = profileLayers } : null,
-                Rest = new Schema.Common.StructuredText()
+                SoilProfile = _overwriteSoilProfile && _profileLayers.Count != 0 ? new SoilProfile { Layers = _profileLayers } : null,
+                Rest = new StructuredText()
                 {
-                    Structure = new Schema.Common.StructuredText.structure { which = Schema.Common.StructuredText.structure.WHICH.Json },
+                    Structure = new StructuredText.structure { which = StructuredText.structure.WHICH.Json },
                     Value = envj?.ToString() ?? ""
                 }
             };
@@ -736,7 +742,7 @@ namespace Mas.Infrastructure.BlazorComponents
             }
             catch (Capnp.Rpc.RpcException e)
             {
-                monicaErrorMessage = e.ToString();
+                _monicaErrorMessage = e.ToString();
             }
 
             StateHasChanged();

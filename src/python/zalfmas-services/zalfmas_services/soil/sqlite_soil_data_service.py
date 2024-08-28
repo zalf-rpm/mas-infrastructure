@@ -341,13 +341,13 @@ class Service(soil_capnp.Service.Server, common.Identifiable, common.Persistable
         profiles.sort(key=lambda p: p.data.percentageOfArea, reverse=True)
         return profiles
 
-    def available_properties(self, query):
+    def available_properties(self, mandatory, optional, onlyRawData):
         """
         Get all the names of the parameters requested in the query.
         If a mandatory param is not available return no names, to indicate failure. 
         """
 
-        res = self.check_params_are_available(query.mandatory, query.optional, query.onlyRawData)
+        res = self.check_params_are_available(mandatory, optional, onlyRawData)
         if res["failed"]:
             return []
         names = res["mandatory"].copy()
@@ -359,21 +359,21 @@ class Service(soil_capnp.Service.Server, common.Identifiable, common.Persistable
 
         query = context.params.query
         coord = context.params.coord
-        avail_props = self.available_properties(query)
+        avail_props = self.available_properties(query.mandatory, query.optional, query.onlyRawData)
         context.results.profiles = self.profiles_at(coord.lat, coord.lon, avail_props, query.onlyRawData)
 
     async def streamAllProfiles_context(self, context):
         # streamAllProfiles @3 Query -> (allProfiles :Stream);
 
-        query = context.params.query
-        avail_props = self.available_properties(query)
+        ps = context.params
+        avail_props = self.available_properties(ps.mandatory, ps.optional, ps.onlyRawData)
 
         def create_profiles(lat, lon):
             profiles = self.profiles_at(lat, lon, avail_props, query.onlyRawData)
             return profiles
 
         profiles_gen = (create_profiles(lat, lon) for lat, lon in self.all_latlon_coords)
-        context.results.locationsCallback = Stream(profiles_gen)
+        context.results.allProfiles = Stream(profiles_gen)
 
 
 class Stream(soil_capnp.Service.Stream.Server):
@@ -445,8 +445,8 @@ async def main(path_to_sqlite_db=None, path_to_ascii_soil_grid=None, grid_crs=No
 
 
 if __name__ == '__main__':
-    # db = str(Path(zalfmas_capnpschemas.__file__).parent.parent / "data/soil/buek1000.sqlite")
-    # grid = str(Path(zalfmas_capnpschemas.__file__).parent.parent / "data/soil/buek1000_1000_31469_gk5.asc")
-    db = None  # str(Path(zalfmas_capnpschemas.__file__).parent.parent / "data/soil/buek200.sqlite")
-    grid = None  # str(Path(zalfmas_capnpschemas.__file__).parent.parent / "data/soil/buek200_1000_25832_etrs89-utm32n.asc")
+    #db = str(Path(zalfmas_capnpschemas.__file__).parent.parent / "data/soil/buek1000.sqlite")
+    #grid = str(Path(zalfmas_capnpschemas.__file__).parent.parent / "data/soil/buek1000_1000_31469_gk5.asc")
+    db = str(Path(zalfmas_capnpschemas.__file__).parent.parent / "data/soil/buek200.sqlite")
+    grid = str(Path(zalfmas_capnpschemas.__file__).parent.parent / "data/soil/buek200_1000_25832_etrs89-utm32n.asc")
     asyncio.run(capnp.run(main(db, grid, serve_bootstrap=True)))

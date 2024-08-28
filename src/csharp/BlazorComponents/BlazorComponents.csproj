@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="../../../capnproto_schemas/gen/csharp/capnproto_schemas_csharp.csproj" />
     <ProjectReference Include="../common/common.csproj" />
+    <ProjectReference Include="..\..\..\..\capnproto-dotnetcore\Capnp.Net.Runtime\Capnp.Net.Runtime.csproj" />
   </ItemGroup>
 
 </Project>
