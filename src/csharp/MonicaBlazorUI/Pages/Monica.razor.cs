@@ -10,6 +10,7 @@ using Mas.Schema.Common;
 using Mas.Schema.Geo;
 using Mas.Schema.Model.Monica;
 using Mas.Schema.Persistence;
+using MonicaBlazorUI.Services;
 using Climate = Mas.Schema.Climate;
 using Model = Mas.Schema.Model;
 using Monica = Mas.Schema.Model.Monica;
@@ -100,49 +101,7 @@ namespace Mas.Infrastructure.BlazorComponents
         }
         #endregion time series wrapper factory capability
 
-        #region soil service
-        [Parameter]
-        public Soil.IService? SoilServiceCap { get; set; }
-
-        [Parameter]
-        public string SoilServiceSturdyRef { get; set; } = "";
-
-        [Parameter]
-        public EventCallback<Climate.ITimeSeries> SoilServiceCapChanged { get; set; }
-        
-        private Task SoilServiceCapabilityChanged(Soil.IService service)
-        {
-            if (service == null) return Task.CompletedTask;
-
-            if (SoilServiceCap != service) SoilServiceCap?.Dispose();
-            SoilServiceCap = service;
-
-            return Task.CompletedTask;
-        }
-
         private List<Soil.Layer> _profileLayers = [];
-
-        private SoilService? _soilServiceRef;
-        #endregion soil service cap
-
-        #region climate service cap
-        [Parameter]
-        public Climate.IService? ClimateServiceCap { get; set; }
-
-        [Parameter]
-        public string ClimateServiceSturdyRef { get; set; } = "";
-
-        [Parameter]
-        public EventCallback<Climate.ITimeSeries> ClimateServiceCapChanged { get; set; }
-
-        private async Task ClimateServiceCapabilityChanged(Climate.IService service)
-        {
-            if (service == null) return;
-
-            if (ClimateServiceCap != service) ClimateServiceCap?.Dispose();
-            ClimateServiceCap = service;
-        }
-        #endregion climate service cap
 
         [Parameter]
         public (double, double) LatLng { get; set; } = (52.52, 14.11);
@@ -608,7 +567,7 @@ namespace Mas.Infrastructure.BlazorComponents
             var sitej = JObject.Parse(_siteJsonTxt);
 
             //update crop rotation (before resolving references)
-            if (_overwriteCropRotation)
+            if (OverwriteCropRotation)
             {
                 var cr = await CreateCropRotation();
                 var str = cr.ToString();
@@ -617,7 +576,7 @@ namespace Mas.Infrastructure.BlazorComponents
 
             var envj = RunMonica.CreateMonicaEnv(simj, cropj, sitej, "");//, new Core.Share.UserSetting(), Core.Share.Enums.MonicaParametersBasePathTypeEnum.LocalServer);
 
-            if (_overwriteOutputConfig)
+            if (OverwriteOutputConfig)
             {
                 //var events = new JArray();
                 //keep events in files and append the onces defined via UI
@@ -629,16 +588,11 @@ namespace Mas.Infrastructure.BlazorComponents
             }
 
             envj?.Value<JObject>("params")?.Value<JObject>("siteParameters")?.Value<JValue>("Latitude")?.Replace(LatLng.Item1);
-            //envj["params"]["siteParameters"]["Latitude"] = LatLng.Item1;
-
-            Console.WriteLine("_profileLayers: " + _profileLayers);
-            foreach (var pl in _profileLayers) Console.WriteLine(pl);
-            Console.WriteLine("overwrite soil profile: " + (_overwriteSoilProfile && _profileLayers.Count != 0));
 
             var menv = new Model.Env<StructuredText>()
             {
                 TimeSeries = Capnp.Rpc.Proxy.Share(TimeSeriesCap),
-                SoilProfile = _overwriteSoilProfile && _profileLayers.Count != 0 ? new SoilProfile { Layers = _profileLayers } : null,
+                SoilProfile = OverwriteSoilProfile && _profileLayers.Count != 0 ? new SoilProfile { Layers = _profileLayers } : null,
                 Rest = new StructuredText()
                 {
                     Structure = new StructuredText.structure { which = StructuredText.structure.WHICH.Json },
@@ -651,7 +605,7 @@ namespace Mas.Infrastructure.BlazorComponents
 
             try
             {
-                //var datat = await TimeSeriesCap.DataT();
+                Console.WriteLine($"T{Environment.CurrentManagedThreadId} Monica.razor::RunMonicaModel OverwriteSoilProfile: {OverwriteSoilProfile} _profileLayers.Count: {_profileLayers.Count} | -> await MonicaInstanceCap.Run(menv)");
                 var res = await MonicaInstanceCap.Run(menv);
                 if (res == null) throw new Capnp.Rpc.RpcException("MonicaInstanceCap.Run return null result.");
                 var resj = JObject.Parse(res.Value);
@@ -764,8 +718,6 @@ namespace Mas.Infrastructure.BlazorComponents
             TimeSeriesCap?.Dispose();
             Console.WriteLine("Disposing TimeSeriesFactory SR:" + TimeSeriesFactorySturdyRef + " cap: " + TimeSeriesFactoryCap);
             TimeSeriesFactoryCap?.Dispose();
-            Console.WriteLine("Disposing SoilService SR:" + SoilServiceSturdyRef + " cap: " + SoilServiceCap);
-            SoilServiceCap?.Dispose();
             Console.WriteLine("Disposing Monica.CropRegistryCap SR:" + CropServiceSturdyRef + " cap: " + CropServiceCap);
             CropServiceCap?.Dispose();
         }

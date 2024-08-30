@@ -13,14 +13,14 @@ namespace MonicaBlazorUI.Services
 {
     public class RunMonica
     {
-        private readonly MonicaIO _monicaIO;
-        private readonly IConfiguration _configuration;
+        //private readonly MonicaIO _monicaIO;
+        //private readonly IConfiguration _configuration;
 
-        public RunMonica(MonicaIO monicaIO, IConfiguration configuration)
-        {
-            _monicaIO = monicaIO;
-            _configuration = configuration;
-        }
+        // public RunMonica(MonicaIO monicaIO, IConfiguration configuration)
+        // {
+        //     _monicaIO = monicaIO;
+        //     _configuration = configuration;
+        // }
 
         public async Task<JObject?> RunMonicaAsync(List<string> files)//, UserSetting userSetting, MonicaParametersBasePathTypeEnum basePathType)
         {
@@ -41,18 +41,19 @@ namespace MonicaBlazorUI.Services
             return CreateMonicaEnv(simj, cropj, sitej, climateCsv); //, userSetting, basePathType);
         }
 
-        public JObject? CreateMonicaEnv(JObject simj, JObject cropj, JObject sitej, string climateCsv)//, UserSetting userSetting, MonicaParametersBasePathTypeEnum basePathType)
+        public static JObject? CreateMonicaEnv(JObject simj, JObject cropj, JObject sitej, string climateCsv,
+            string pathToMonicaParameters = "Data/monica-parameters")//, UserSetting userSetting, MonicaParametersBasePathTypeEnum basePathType)
         {
             //_monicaIO.UserSettings = userSetting;
 
-            JObject cropSiteSim = new JObject() {
+            var cropSiteSim = new JObject() {
                 {"sim", simj},
                 {"crop", cropj},
                 {"site", sitej},
                 {"climate", climateCsv}
             };
 
-            string parametersPath = _configuration.GetValue<string>("PathToMonicaParameters"); //"/home/berg/GitHub/monica-parameters/"; //string.Empty;
+            var parametersPath = pathToMonicaParameters;//_configuration.GetValue<string>("PathToMonicaParameters"); //"/home/berg/GitHub/monica-parameters/"; //string.Empty;
             //Console.WriteLine("parametersPath: " + parametersPath);
             //string parametersPath = "/home/berg/GitHub/monica-parameters/"; //string.Empty;
             //string parametersPath = "C:/Users/admin_fds/MONICA/monica-parameters/"; //string.Empty;
@@ -61,7 +62,7 @@ namespace MonicaBlazorUI.Services
             // else if (basePathType == MonicaParametersBasePathTypeEnum.Github)
             //     parametersPath = userSetting.MonicaParametersPathOnGithub;
 
-            var envj = _monicaIO.CreateEnvJsonFromJsonConfig(cropSiteSim, parametersPath);
+            var envj = MonicaIO.CreateEnvJsonFromJsonConfig(cropSiteSim, parametersPath);
             return envj;
         }
     }

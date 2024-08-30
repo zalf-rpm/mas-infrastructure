@@ -1,22 +1,23 @@
 ﻿@namespace Mas.Infrastructure.BlazorComponents
 
+@using System.Diagnostics
 @using GoogleMapsComponents
 @using GoogleMapsComponents.Maps
 
-<GoogleMap @ref="map"
-           Id="map1"
-           Options="@mapOptions"
+@inject IJSRuntime JsRuntime
+
+<GoogleMap @ref="_map"
+           Options="@_mapOptions"
            Height="@Height"
            OnAfterInit="@OnAfterInitAsync">
 </GoogleMap>
 
 @code {
+    [Parameter]
+    public string Width { get; set; } = "100%";
 
     [Parameter]
-    public String Width { get; set; } = "100%";
-
-    [Parameter]
-    public String Height { get; set; } = "100%";
+    public string Height { get; set; } = "100%";
 
     [Parameter]
     public (double, double) CenterLatLng { get; set; } = (0.0, 0.0);
@@ -30,13 +31,17 @@
     [Parameter]
     public int Zoom { get; set; } = 6;
 
-    private GoogleMap? map;
-    private MapOptions? mapOptions;
-    private Marker? currentMarker;
+
+    //[Inject]
+    //public IBlazorGoogleMapsKeyService? KeyService { get; set; }
+
+    private GoogleMap? _map;
+    private MapOptions? _mapOptions;
+    private Marker? _currentMarker;
 
     protected override void OnInitialized()
     {
-        mapOptions = new MapOptions()
+        _mapOptions = new MapOptions()
         {
             Zoom = Zoom,
             Center = new LatLngLiteral()
@@ -52,7 +57,7 @@
     {
         //Debug.WriteLine("Start OnAfterRenderAsync");
 
-        if(map != null) await map.InteropObject.AddListener<GoogleMapsComponents.Maps.MouseEvent>("click", async (e) => await OnClick(e));
+        if(_map != null) await _map.InteropObject.AddListener<MouseEvent>("click", async e => await OnClick(e));
         await SetMarker(CenterLatLng.Item1, CenterLatLng.Item2);
 
         //await map1.InteropObject.AddListener("bounds_changed", OnBoundsChanged);
@@ -96,19 +101,25 @@
 
     private async Task SetMarker(double lat, double lng)
     {
-        currentMarker?.SetMap(null);
-        currentMarker = await Marker.CreateAsync(map?.JsRuntime, new MarkerOptions()
+        //Console.WriteLine($"GeoposPicker::SetMarker: lat: {lat} lon: {lng}");
+        if (_currentMarker != null) await _currentMarker.SetPosition(new LatLngLiteral(lng, lat));
+        else
         {
-            Position = new LatLngLiteral(lng, lat),
-            Map = map?.InteropObject,
-            //Label = $"Test",
-            //Animation = Animation.Bounce
-            //Icon = new Icon()
-            //{
-            //    Url = "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png"
-            //}
-            //Icon = "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png"
-        });
+            //_currentMarker?.SetMap(null);
+            //Console.WriteLine("GeoposPicker::SetMarker: _map?.InteropObject ...");
+            _currentMarker = await Marker.CreateAsync(JsRuntime, new MarkerOptions()
+            {
+                Position = new LatLngLiteral(lng, lat),
+                Map = _map?.InteropObject,
+                //Label = $"Test",
+                //Animation = Animation.Bounce
+                //Icon = new Icon()
+                //{
+                //    Url = "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png"
+                //}
+                //Icon = "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png"
+            });
+        }
     }
 
     private async Task OnClick(GoogleMapsComponents.Maps.MouseEvent e)

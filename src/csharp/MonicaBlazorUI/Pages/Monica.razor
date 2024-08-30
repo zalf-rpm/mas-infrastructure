@@ -15,11 +15,11 @@
 @using System.Linq
 
 @inject IJSRuntime JsRuntime
-@inject MonicaBlazorUI.Services.RunMonica RunMonica
+@*@inject MonicaBlazorUI.Services.RunMonica RunMonica*@
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject NavigationManager NavigationManager
-@implements IDisposable
+
 
 <MudExpansionPanels MultiExpansion="@true">
     <MudExpansionPanel @bind-Expanded=@_panelOpened["Connections"]
@@ -108,10 +108,9 @@
             </div>
         </TitleContent>
         <ChildContent>
-            <GeoposPicker @bind-LatLng="LatLng"
-                        Width="50%" Height="400px"
-                        CenterLatLng="@LatLng"
-                        Zoom="6"/>
+           <GeoposPicker @bind-LatLng="LatLng"
+                         Width="50%" Height="400px"
+                         CenterLatLng="@LatLng"/>
         </ChildContent>
     </MudExpansionPanel>
     <MudExpansionPanel @bind-Expanded=@_panelOpened["ClimateService"]>
@@ -129,7 +128,7 @@
                 <MudTabPanel Text="Climate Service">
                     <CascadingValue Value="@false" Name="ChartPanelOpened">
                         <CascadingValue Value="@(new EventCallback<Climate.ITimeSeries>(this, (Func<Climate.ITimeSeries, Task>)(TimeSeriesCapabilityChanged)))" Name="TimeSeriesCapChanged">
-                            <CascadingValue Value="@true" Name="HideGeoPosPicker">
+                            <CascadingValue Value="@false" Name="HideGeoPosPicker">
                                 <CascadingValue Value="@LatLng" Name="LatLng">
                                     <ClimateService/>
                                 </CascadingValue>
@@ -140,7 +139,7 @@
                 <MudTabPanel Text="Single Climate Dataset">
                     <CascadingValue Value="@false" Name="ChartPanelOpened">
                         <CascadingValue Value="@(new EventCallback<Climate.ITimeSeries>(this, (Func<Climate.ITimeSeries, Task>)(TimeSeriesCapabilityChanged)))" Name="TimeSeriesCapChanged">
-                            <CascadingValue Value="@true" Name="HideGeoPosPicker">
+                            <CascadingValue Value="@false" Name="HideGeoPosPicker">
                                 <CascadingValue Value="@LatLng" Name="LatLng">
                                     <ClimateDataset/>
                                 </CascadingValue>
@@ -161,18 +160,18 @@
     <MudExpansionPanel Disabled="true" @bind-Expanded=@_panelOpened["UpdateTimeSeries"]>
         <TitleContent>
             <div class="d-flex">
-                <MudIcon Icon="@(_overwriteTimeSeriesData ? Icons.Material.Filled.Check : Icons.Material.Filled.QuestionMark)"
-                    class="mr-3" Color="@(_overwriteTimeSeriesData ? Color.Success : Color.Default)"/>
-                <MudText><strong>@(_overwriteTimeSeriesData ? "Timeseries has been altered." : "Timeseries has not been altered.")</strong></MudText>
+                <MudIcon Icon="@(OverwriteTimeSeriesData ? Icons.Material.Filled.Check : Icons.Material.Filled.QuestionMark)"
+                    class="mr-3" Color="@(OverwriteTimeSeriesData ? Color.Success : Color.Default)"/>
+                <MudText><strong>@(OverwriteTimeSeriesData ? "Timeseries has been altered." : "Timeseries has not been altered.")</strong></MudText>
             </div>
         </TitleContent>
         <ChildContent>
             <MudGrid>
                 <MudItem xs="12">
-                    <MudSwitch Value="@_overwriteTimeSeriesData"
+                    <MudSwitch Value="@OverwriteTimeSeriesData"
                             T="@bool"
                             ValueChanged="@(async b => {
-                                                    _overwriteTimeSeriesData = b;
+                                                    OverwriteTimeSeriesData = b;
                                                     if (AlterTimeSeriesWrapperCap == null) await WrapTimeSeries();
                                                     else if(!b) TimeSeriesCap = PlainTimeSeriesCap;
                                                 })"
@@ -180,7 +179,7 @@
                             Color="@Color.Primary"
                             Label="Alter timeseries" />
                 </MudItem>
-                <MudItem xs="12" Class=@(_overwriteTimeSeriesData ? "" : "d-none")>
+                <MudItem xs="12" Class=@(OverwriteTimeSeriesData ? "" : "d-none")>
                     <AlterTimeSeries AlterTimeSeriesWrapperCap="@(AlterTimeSeriesWrapperCap == null ? null : Capnp.Rpc.Proxy.Share(AlterTimeSeriesWrapperCap))" />
                 </MudItem>
                 @if (false)
@@ -199,23 +198,22 @@
     <MudExpansionPanel @bind-Expanded=@_panelOpened["SoilProfile"]>
         <TitleContent>
             <div class="d-flex">
-                <MudIcon Icon="@(_overwriteSoilProfile ? Icons.Material.Filled.Check : Icons.Material.Filled.QuestionMark)"
-                    class="mr-3" Color="@(_overwriteSoilProfile ? Color.Success : Color.Default)"/>
-                <MudText><strong>@(_overwriteSoilProfile ? "Using changed soil profile below." : "Using default soil profile.")</strong></MudText>
+                <MudIcon Icon="@(OverwriteSoilProfile ? Icons.Material.Filled.Check : Icons.Material.Filled.QuestionMark)"
+                    class="mr-3" Color="@(OverwriteSoilProfile ? Color.Success : Color.Default)"/>
+                <MudText><strong>@(OverwriteSoilProfile ? "Using changed soil profile below." : "Using default soil profile.")</strong></MudText>
             </div>
         </TitleContent>
         <ChildContent>
             <MudGrid>
                 <MudItem xs="12">
-                    <MudSwitch @bind-Value="_overwriteSoilProfile" Color="@Color.Primary" Label="Change" />
+                    <MudSwitch @bind-Value="OverwriteSoilProfile" Color="@Color.Primary" Label="Change" />
                 </MudItem>
-                @if (_overwriteSoilProfile)
+                @if (OverwriteSoilProfile)
                 {
                     <MudItem xs="12">
-                        <SoilService @ref="@_soilServiceRef"
-                                    LatLng="@LatLng"
-                                    @bind-SelectedLayers="_profileLayers"
-                                    HideGeoPosPicker="@true"/>
+                        <SoilService LatLng="@LatLng"
+                                     @bind-SelectedLayers="_profileLayers"
+                                     HideGeoPosPicker="@true"/>
                     </MudItem>
                 }
             </MudGrid>
@@ -224,17 +222,17 @@
     <MudExpansionPanel @bind-Expanded=@_panelOpened["CropRotation"]>
         <TitleContent>
             <div class="d-flex">
-                <MudIcon Icon="@(_overwriteCropRotation ? Icons.Material.Filled.Check : Icons.Material.Filled.QuestionMark)"
-                    class="mr-3" Color="@(_overwriteCropRotation ? Color.Success : Color.Default)"/>
-                <MudText><strong>@(_overwriteCropRotation ? "Using changed crop rotation below." : "Using default crop rotation.")</strong></MudText>
+                <MudIcon Icon="@(OverwriteCropRotation ? Icons.Material.Filled.Check : Icons.Material.Filled.QuestionMark)"
+                    class="mr-3" Color="@(OverwriteCropRotation ? Color.Success : Color.Default)"/>
+                <MudText><strong>@(OverwriteCropRotation ? "Using changed crop rotation below." : "Using default crop rotation.")</strong></MudText>
             </div>
         </TitleContent>
         <ChildContent>
             <MudGrid>
                 <MudItem xs="12">
-                    <MudSwitch @bind-Value="_overwriteCropRotation" Color="@Color.Primary" Label="Change" />
+                    <MudSwitch @bind-Value="OverwriteCropRotation" Color="@Color.Primary" Label="Change" />
                 </MudItem>
-                @if (_overwriteCropRotation)
+                @if (OverwriteCropRotation)
                 {
                     <MudItem xs="12">
                         <EditCropRotation CropRotation="@_cropRotation"
@@ -248,20 +246,20 @@
     <MudExpansionPanel @bind-Expanded=@_panelOpened["OutputConfig"]>
         <TitleContent>
             <div class="d-flex">
-                <MudIcon Icon="@(_overwriteOutputConfig ? Icons.Material.Filled.Check : Icons.Material.Filled.QuestionMark)"
-                    class="mr-3" Color="@(_overwriteOutputConfig ? Color.Success : Color.Default)"/>
-                <MudText><strong>@(_overwriteOutputConfig ? "Using output configuration below." : "Using default output configuration.")</strong></MudText>
+                <MudIcon Icon="@(OverwriteOutputConfig ? Icons.Material.Filled.Check : Icons.Material.Filled.QuestionMark)"
+                    class="mr-3" Color="@(OverwriteOutputConfig ? Color.Success : Color.Default)"/>
+                <MudText><strong>@(OverwriteOutputConfig ? "Using output configuration below." : "Using default output configuration.")</strong></MudText>
             </div>
         </TitleContent>
         <ChildContent>
             <MudGrid>
                 <MudItem xs="12">
-                    <MudSwitch @bind-Value="@_overwriteOutputConfig"
+                    <MudSwitch @bind-Value="@OverwriteOutputConfig"
                             Color="@Color.Primary"
                             Label="Change" />
                 </MudItem>
             </MudGrid>
-            @if (_overwriteOutputConfig)
+            @if (OverwriteOutputConfig)
             {
                 <MudItem xs="12">
                     <EditOutputConfig Events="@_events"/>
@@ -317,14 +315,13 @@
                             CurveName2Config="@_curveName2Config">
                     </Highchart>
                 </MudItem>
-                @*<MudItem xs="12">
+                <!--<MudItem xs="12">
                                 <MudCard>
                                     <MudCardContent>
                                         <MudText>@monicaResult</MudText>
                                     </MudCardContent>
                                 </MudCard>
-                            </MudItem>
-                *@
+                            </MudItem>-->
                 @if(_monicaErrorMessage != null && _monicaErrorMessage.Any())
                 {
                     <MudItem xs="12">
@@ -346,7 +343,6 @@
 
     [Parameter]
     public EventCallback<Mgmt.IFertilizerService> FertilizerServiceCapChanged { get; set; }
-
 
     [Parameter]
     public Crop.IService? CropServiceCap { get; set; }
@@ -378,10 +374,10 @@
         { "climate", false }
     };
 
-    private bool _overwriteSoilProfile = false;
-    private bool _overwriteTimeSeriesData = false;
-    private bool _overwriteCropRotation = false;
-    bool _overwriteOutputConfig = false;
+    private bool OverwriteSoilProfile { get; set; } = false;
+    private bool OverwriteTimeSeriesData { get; set; } = false;
+    private bool OverwriteCropRotation { get; set; } = false;
+    private bool OverwriteOutputConfig { get; set; } = false;
 
     private List<Highchart.AxisConfig> _yAxisConfigs =
     [

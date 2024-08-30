@@ -25,8 +25,7 @@
     <MudItem Class=@(HideGeoPosPicker ? "d-none" : "") xs="12">
         <GeoposPicker @bind-LatLng="LatLng"
                       Width="50%" Height="400px"
-                      CenterLatLng="@LatLng">
-        </GeoposPicker>
+                      CenterLatLng="@LatLng"/>
     </MudItem>
     <MudItem xs="2" Class="d-flex align-stretch">
         <MudStack Class="justify-center">
@@ -308,8 +307,8 @@
         get => _selectedProfileIndex;
         set {
             _selectedProfileIndex = value;
-            Console.WriteLine("blablab: " + Profiles.Count);
-            if (Profiles.Count <= value) return;
+            Console.WriteLine($"T{Thread.CurrentThread.ManagedThreadId} SoilService.razor::SelectedProfileIndex: Profiles.Count: " + Profiles.Count);
+            if (value >= Profiles.Count) return;
             SelectedLayers = Profiles[value].Item3;
             if (SelectedLayersChanged.HasDelegate) SelectedLayersChanged.InvokeAsync(SelectedLayers);
         }
@@ -321,9 +320,7 @@
     [Parameter]
     public EventCallback<List<(string, Soil.ProfileData, List<Soil.Layer>)>> ProfilesChanged { get; set; }
 
-    #region mandatory soil properties
     private IEnumerable<Soil.PropertyName>? _availableMandatorySoilProps;
-
     private IReadOnlyCollection<Soil.PropertyName>? _selectedMandatorySoilProperties;
     private IReadOnlyCollection<Soil.PropertyName> SelectedMandatorySoilProperties
     {
@@ -333,11 +330,8 @@
             if (AutoLoad) _ = GetSoilProfiles();
         }
     }
-    #endregion
 
-    #region optional soil properties
     private IEnumerable<Soil.PropertyName>? _availableOptionalSoilProps;
-
     private IReadOnlyCollection<Soil.PropertyName>? _selectedOptionalSoilProperties;
     private IReadOnlyCollection<Soil.PropertyName> SelectedOptionalSoilProperties
     {
@@ -347,7 +341,6 @@
             if (AutoLoad) _ = GetSoilProfiles();
         }
     }
-    #endregion
 
     [Parameter]
     public bool AllowLocalSoilPropertiesEditing { get; set; } = true;
@@ -356,38 +349,39 @@
     public HashSet<string> DefaultSelectedSoilProperties { get; set; } = ["sand", "clay", "soilType", "bulkDensity", "organicCarbon"];
 
     private ConnectToSturdyRef<Soil.IService>? _sturdyRefConnector;
-    //private ConnectToSturdyRefL<Soil.IService> sturdyRefConnectorL;
 
     [Parameter]
     public bool HideSturdyRefConnector { get; set; } = false;
 
-    (double, double) _latLng = (52.52, 14.11);
+    bool _latLngUpdated = false;
     [Parameter]
-    public (double, double) LatLng { 
-        get => _latLng;
-        set {
-            _latLng = value;
-            if (AutoLoad) _ = GetSoilProfiles();
-        } 
-    }
+    public (double, double) LatLng { get; set; } = (52.52, 14.11);
 
     [Parameter]
     public bool HideGeoPosPicker { get; set; } = false;
 
     public override async Task SetParametersAsync(ParameterView parameters)
     {
-        Console.WriteLine("SoilService::SetParametersAsync");
-        _soilServiceCapUpdated = parameters.GetValueOrDefault<Soil.IService?>("SoilServiceCap", null) != SoilServiceCap;
+        // here we can figure out if an externally supplied SoilServiceCap is different to the one in the component
+        //Console.WriteLine($"T{Thread.CurrentThread.ManagedThreadId} SoilService.razor::SetParametersAsync");
+        var ssc = parameters.GetValueOrDefault<Soil.IService?>("SoilServiceCap", null);
+        //Console.WriteLine($"T{Thread.CurrentThread.ManagedThreadId} SoilService.razor::SetParametersAsync ssc: {ssc} SoilServiceCap: {SoilServiceCap}");
+        _soilServiceCapUpdated = ssc != null && ssc != SoilServiceCap;
+        var llc = parameters.GetValueOrDefault<(double, double)>("LatLng", (9999, 9999));
+        //Console.WriteLine($"T{Thread.CurrentThread.ManagedThreadId} SoilService.razor::SetParametersAsync llc: {llc} LatLng: {LatLng}");
+        _latLngUpdated = llc is { Item1: < 361, Item2: < 361 } && llc != LatLng;
         await base.SetParametersAsync(parameters);
     }
 
     protected override async Task OnParametersSetAsync()
     {
-        Console.WriteLine("SoilService::OnParametersSetAsync");
-        if (_soilServiceCapUpdated)
+        //Console.WriteLine($"T{Thread.CurrentThread.ManagedThreadId} SoilService.razor::OnParametersSetAsync");
+        if (_soilServiceCapUpdated || _latLngUpdated)
         {
-            Console.WriteLine("SoilService::OnParametersSetAsync: _soilServiceCapUpdated=true");
+            //Console.WriteLine($"T{Thread.CurrentThread.ManagedThreadId} SoilService.razor::OnParametersSetAsync: _soilServiceCapUpdated: {_soilServiceCapUpdated} | -> await GetAllAvailableSoilProperties()");
             await GetAllAvailableSoilProperties();
+            //Console.WriteLine($"T{Thread.CurrentThread.ManagedThreadId} SoilService.razor::OnParametersSetAsync: AutoLoad: {AutoLoad} _latLngUpdated: {_latLngUpdated} | -> await GetSoilProfiles");
+            if (AutoLoad) await GetSoilProfiles();
         }
     }
 
@@ -398,35 +392,29 @@
         if (SoilServiceCap != service) SoilServiceCap?.Dispose();
         SoilServiceCap = service;
 
-        if (SoilServiceCapChanged.HasDelegate) SoilServiceCapChanged.InvokeAsync(Capnp.Rpc.Proxy.Share(SoilServiceCap));
+        if (SoilServiceCapChanged.HasDelegate) await SoilServiceCapChanged.InvokeAsync(Proxy.Share(SoilServiceCap));
 
-        Console.WriteLine("SoilService.SoilServiceCapabilityChanged: ThreadId: " + Thread.CurrentThread.ManagedThreadId);
-
+        //Console.WriteLine($"T{Thread.CurrentThread.ManagedThreadId} SoilService.razor::SoilServiceCapabilityChanged | -> await GetAllAvailableSoilProperties()");
         await GetAllAvailableSoilProperties();
-        
-        //_ = Task.Delay(200).ContinueWith(_ => GetAllAvailableSoilProperties());
-        //_ = InvokeAsync(GetAllAvailableSoilProperties);
+        //Console.WriteLine($"T{Thread.CurrentThread.ManagedThreadId} SoilService.razor::SoilServiceCapabilityChanged: AutoLoad: {AutoLoad} | -> await GetSoilProfiles()");
+        if (AutoLoad) await GetSoilProfiles();
     }
 
     private async Task GetAllAvailableSoilProperties()
     {
         if (SoilServiceCap == null) return;
 
-        Console.WriteLine("SoilService.GetAllAvailableSoilProperties: ThreadId: " + Thread.CurrentThread.ManagedThreadId);
-
         try
         {
+            //Console.WriteLine($"T{Thread.CurrentThread.ManagedThreadId} SoilService.razor::GetAllAvailableSoilProperties | -> await SoilServiceCap.GetAllAvailableParameters(false)");
             var (mps, ops) = await SoilServiceCap.GetAllAvailableParameters(false);
             _availableMandatorySoilProps = mps;
             _availableOptionalSoilProps = ops;
             StateHasChanged();
-
-            if (AutoLoad) _ = GetSoilProfiles();
         }
-        catch (Capnp.Rpc.RpcException e)
+        catch (RpcException e)
         {
-            Console.WriteLine(e.Message);
-            //await sturdyRefConnector?.Reconnect();
+            Console.WriteLine($"T{Thread.CurrentThread.ManagedThreadId} SoilService.razor::GetAllAvailableSoilProperties: RpcException: " + e.Message);
         }
     }
 
@@ -438,6 +426,7 @@
             case Soil.Layer.Property.WHICH.F32Value: return p.F32Value?.ToString() ?? "0";
             case Soil.Layer.Property.WHICH.Type: return p.Type;
             case Soil.Layer.Property.WHICH.undefined:
+            case Soil.Layer.Property.WHICH.Unset:
             default: return "";
         }
     }
@@ -450,6 +439,8 @@
             case Soil.Layer.Property.WHICH.F32Value: p.F32Value = float.Parse(value); break;
             //case Soil.Layer.Property.WHICH.Type: p.Type;
             case Soil.Layer.Property.WHICH.undefined:
+            case Soil.Layer.Property.WHICH.Type:
+            case Soil.Layer.Property.WHICH.Unset:
             default: return;
         }
     }
@@ -460,6 +451,7 @@
 
         try
         {
+            //Console.WriteLine($"T{Thread.CurrentThread.ManagedThreadId} SoilService.razor::GetSoilProfiles LatLng: {LatLng} | -> await SoilServiceCap.ClosestProfilesAt()");
             var profiles = await SoilServiceCap.ClosestProfilesAt(
                 new Geo.LatLonCoord { Lat = LatLng.Item1, Lon = LatLng.Item2 },
                 new Soil.Query
@@ -477,6 +469,7 @@
                 {
                     var pd = await profile.Data();
                     var info = await profile.Info();
+                    //Console.WriteLine($"T{Thread.CurrentThread.ManagedThreadId} SoilService.razor::GetSoilProfiles info.Id: {info.Id}");
                     if (pd == null) continue;
                     List<Soil.Layer> layers = pd.Layers.ToList();
                     Profiles.Add((info.Id, pd, layers));
@@ -484,12 +477,12 @@
 
                 SelectedProfileIndex = 0;
                 if (ProfilesChanged.HasDelegate) _ = ProfilesChanged.InvokeAsync(Profiles);
-                StateHasChanged();
+                //StateHasChanged();
             }
         }
-        catch (Capnp.Rpc.RpcException e)
+        catch (RpcException e)
         {
-            Console.WriteLine(e.Message);
+            Console.WriteLine($"T{Thread.CurrentThread.ManagedThreadId} SoilService.razor::GetSoilProfiles RpcException: {e.Message}");
             //await sturdyRefConnector?.Reconnect();
         }
     }
@@ -506,12 +499,12 @@
 
     protected override void OnInitialized()
     {
-        Console.WriteLine("OnInitialized SoilService SR: " + _soilServiceSturdyRef);
+        //Console.WriteLine($"T{Thread.CurrentThread.ManagedThreadId} SoilService.razor::OnInitialized SoilService SR: {_soilServiceSturdyRef}");
     }
 
     void IDisposable.Dispose()
     {
-        Console.WriteLine("Disposing SoilService SR: " + _soilServiceSturdyRef + " cap: " + SoilServiceCap);
+        //Console.WriteLine($"T{Thread.CurrentThread.ManagedThreadId} SoilService.razor::Dispose SoilService SR: {_soilServiceSturdyRef} cap: {SoilServiceCap}");
         SoilServiceCap?.Dispose();
     }
 }

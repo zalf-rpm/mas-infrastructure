@@ -5,25 +5,31 @@ using System.Text;
 
 namespace MonicaBlazorUI.Services
 {
+    enum Op
+    {
+        OP_AVG = 0,
+        OP_MEDIAN = 1,
+        OP_SUM = 2,
+        OP_MIN = 3,
+        OP_MAX = 4,
+        OP_FIRST = 5,
+        OP_LAST = 6,
+        OP_NONE = 7,
+        OP_UNDEFINED_OP_ = 8
+    }
+    
+    enum Organ {
+        ORGAN_ROOT = 0,
+        ORGAN_LEAF = 1,
+        ORGAN_SHOOT = 2,
+        ORGAN_FRUIT = 3,
+        ORGAN_STRUCT = 4,
+        ORGAN_SUGAR = 5,
+        ORGAN_UNDEFINED_ORGAN_ = 6
+    }
+    
     public class MonicaIO
     {
-        private int OP_AVG = 0;
-        private int OP_MEDIAN = 1;
-        private int OP_SUM = 2;
-        private int OP_MIN = 3;
-        private int OP_MAX = 4;
-        private int OP_FIRST = 5;
-        private int OP_LAST = 6;
-        private int OP_NONE = 7;
-        private int OP_UNDEFINED_OP_ = 8;
-        private int ORGAN_ROOT = 0;
-        private int ORGAN_LEAF = 1;
-        private int ORGAN_SHOOT = 2;
-        private int ORGAN_FRUIT = 3;
-        private int ORGAN_STRUCT = 4;
-        private int ORGAN_SUGAR = 5;
-        private int ORGAN_UNDEFINED_ORGAN_ = 6;
-
         //protected readonly IGithubService _githubService;
 
         //public UserSetting? UserSettings { get; set; }
@@ -33,37 +39,41 @@ namespace MonicaBlazorUI.Services
             //_githubService = githubService;
         }
 
-        private bool OidIsOrgan(dynamic oid)
+        private static bool OidIsOrgan(dynamic oid)
         {
-            return Convert.ToInt32(oid["organ"]) != ORGAN_UNDEFINED_ORGAN_;
+            return Convert.ToInt32(oid["organ"]) != Organ.ORGAN_UNDEFINED_ORGAN_;
         }
-        private bool OidIsRange(dynamic oid)
+        private static bool OidIsRange(dynamic oid)
         {
             return (Convert.ToInt32(oid["fromLayer"]) >= 0 && Convert.ToInt32(oid["toLayer"]) >= 0);
         }
-        private string OpToString(int op)
+        private static string OpToString(int op)
         {
-            if (op == OP_AVG) return "AVG";
-            if (op == OP_MEDIAN) return "MEDIAN";
-            if (op == OP_SUM) return "SUM";
-            if (op == OP_MIN) return "MIN";
-            if (op == OP_MAX) return "MAX";
-            if (op == OP_FIRST) return "FIRST";
-            if (op == OP_LAST) return "LAST";
-            if (op == OP_NONE) return "NONE";
-
-            return "undef";
+            return op switch
+            {
+                (int)Op.OP_AVG => "AVG",
+                (int)Op.OP_MEDIAN => "MEDIAN",
+                (int)Op.OP_SUM => "SUM",
+                (int)Op.OP_MIN => "MIN",
+                (int)Op.OP_MAX => "MAX",
+                (int)Op.OP_FIRST => "FIRST",
+                (int)Op.OP_LAST => "LAST",
+                (int)Op.OP_NONE => "NONE",
+                _ => "undef"
+            };
         }
-        private string OrganToString(int organ)
+        private static string OrganToString(int organ)
         {
-            if (organ == ORGAN_ROOT) return "Root";
-            if (organ == ORGAN_LEAF) return "Leaf";
-            if (organ == ORGAN_SHOOT) return "Shoot";
-            if (organ == ORGAN_FRUIT) return "Fruit";
-            if (organ == ORGAN_STRUCT) return "Struct";
-            if (organ == ORGAN_SUGAR) return "Sugar";
-
-            return "undef";
+            return organ switch
+            {
+                (int)Organ.ORGAN_ROOT => "Root",
+                (int)Organ.ORGAN_LEAF => "Leaf",
+                (int)Organ.ORGAN_SHOOT => "Shoot",
+                (int)Organ.ORGAN_FRUIT => "Fruit",
+                (int)Organ.ORGAN_STRUCT => "Struct",
+                (int)Organ.ORGAN_SUGAR => "Sugar",
+                _ => "undef"
+            };
         }
         private string OidToString(dynamic oid, bool include_time_agg)
         {
@@ -80,7 +90,7 @@ namespace MonicaBlazorUI.Services
                 oss.Append((Convert.ToInt32(oid["fromLayer"]) + 1).ToString());
                 oss.Append(", ");
                 oss.Append((Convert.ToInt32(oid["toLayer"]) + 1).ToString());
-                oss.Append(Convert.ToInt32(oid["layerAggOp"]) != OP_NONE ? ", " + OpToString(Convert.ToInt32(oid["layerAggOp"])) : "");
+                oss.Append(Convert.ToInt32(oid["layerAggOp"]) != Op.OP_NONE ? ", " + OpToString(Convert.ToInt32(oid["layerAggOp"])) : "");
                 oss.Append("]");
             }
             else if (Convert.ToInt32(oid["fromLayer"]) >= 0)
@@ -113,7 +123,7 @@ namespace MonicaBlazorUI.Services
                     var from_layer = Convert.ToInt32(oid["fromLayer"]);
                     var to_layer = Convert.ToInt32(oid["toLayer"]);
                     var is_organ = OidIsOrgan(oid);
-                    var is_range = OidIsRange(oid) && Convert.ToInt32(oid["layerAggOp"]) == OP_NONE;
+                    var is_range = OidIsRange(oid) && Convert.ToInt32(oid["layerAggOp"]) == (int)Op.OP_NONE;
                     if (is_organ)
                     {
                         // organ is being represented just by the value of fromLayer currently
@@ -203,16 +213,16 @@ namespace MonicaBlazorUI.Services
             }
             return res;
         }
-        private bool IsAbsolutePath(string p)
+        private static bool IsAbsolutePath(string p)
         {
             return p.StartsWith("/") || p.Length == 2 && p[1] == ':' || p.Length > 2 && p[1] == ':' && (p[2] == '\\' || p[2] == '/');
         }
-        private bool IsGithubPath(string p)
+        private static bool IsGithubPath(string p)
         {
             return false;
             //return p.StartsWith("https://github.com") || p.StartsWith("http://github.com") || p.StartsWith("https://raw.githubusercontent.com");
         }
-        private string FixSystemSeparator(string path)
+        private static string FixSystemSeparator(string path)
         {
             path = path.Replace("\\", "/");
             var newPath = path;
@@ -227,7 +237,7 @@ namespace MonicaBlazorUI.Services
             }
             return newPath;
         }
-        private string ReplaceEnvVars(string path)
+        private static string ReplaceEnvVars(string path)
         {
             var startToken = "${";
             var endToken = "}";
@@ -257,11 +267,11 @@ namespace MonicaBlazorUI.Services
             }
             return path;
         }
-        private  string DefaultValue(JObject dic, string key, string @default)
+        private static string DefaultValue(JObject dic, string key, string @default)
         {
-            return dic.ContainsKey(key) ? (dic[key] ?? "").ToString() : @default;
+            return dic.TryGetValue(key, out var value) ? (value ?? "").ToString() : @default;
         }
-        private  JObject ReadAndParseJsonFile(string path, bool isGithubPath = false)
+        private static JObject ReadAndParseJsonFile(string path, bool isGithubPath = false)
         {
             var res = new JObject();
             try
@@ -305,13 +315,13 @@ namespace MonicaBlazorUI.Services
                 { "success", true }
             };
         }
-        private bool IsStringType(JValue? j)
+        private static bool IsStringType(JValue? j)
         {
             if (j == null) return false;
             return j.Type == JTokenType.String;
         }
 
-        public JObject FindAndReplaceReferences(JObject? root, JToken? j)
+        public static JObject FindAndReplaceReferences(JObject? root, JToken? j)
         {
             if (root == null || j == null) return new JObject();
 
@@ -461,7 +471,7 @@ namespace MonicaBlazorUI.Services
             return (bool)(succ ?? false);
         }
 
-        public JObject? CreateEnvJsonFromJsonConfig(JObject cropSiteSim, string parametersPath)
+        public static JObject? CreateEnvJsonFromJsonConfig(JObject cropSiteSim, string parametersPath)
         {
             JToken? jTkn;
             string key;
@@ -497,12 +507,10 @@ namespace MonicaBlazorUI.Services
                 else
                 {
                     var ers = res.Value<JArray>("errors");
-                    if (ers != null)
+                    if (ers == null) continue;
+                    foreach (var t in ers)
                     {
-                        for (int ii = 0; ii < ers.Count; ii++)
-                        {
-                            errors.Add(ers[ii].ToString());
-                        }
+                        errors.Add(t.ToString());
                     }
                 }
             }
@@ -564,14 +572,14 @@ namespace MonicaBlazorUI.Services
             return env;
         }
 
-        private void AddBasePath(JObject? j, JToken? basePath)
+        private static void AddBasePath(JObject? j, JToken? basePath)
         {
             if (j == null || basePath == null) return;
             if (!j.ContainsKey("include-file-base-path")) j.Add("include-file-base-path", basePath);
             else j["include-file-base-path"] = basePath;
         }
 
-        public JObject Ref(JObject? root, JArray? j)
+        public static JObject Ref(JObject? root, JArray? j)
         {
             if (root == null || j == null) return new JObject { { "success", false } };
 
@@ -591,7 +599,7 @@ namespace MonicaBlazorUI.Services
             };
         }
 
-        public JObject FromFile(JObject? root, JArray? j)
+        public static JObject FromFile(JObject? root, JArray? j)
         {
             if (root == null || j == null) return new JObject { { "success", false } };
 
@@ -635,7 +643,7 @@ namespace MonicaBlazorUI.Services
             };
         }
 
-        public JObject LdToTrd(JObject? root, JArray? j)
+        public static JObject LdToTrd(JObject? root, JArray? j)
         {
             if (root == null || j == null) return new JObject { { "success", false } };
 
@@ -654,7 +662,7 @@ namespace MonicaBlazorUI.Services
             };
         }
 
-        public JObject KA5ToClay(JObject? root, JArray? j)
+        public static JObject KA5ToClay(JObject? root, JArray? j)
         {
             if (root == null || j == null) return new JObject { { "success", false } };
 
@@ -673,7 +681,7 @@ namespace MonicaBlazorUI.Services
             };
         }
 
-        public JObject KA5ToSand(JObject? root, JArray? j)
+        public static JObject KA5ToSand(JObject? root, JArray? j)
         {
             if (root == null || j == null) return new JObject { { "success", false } };
 
@@ -692,7 +700,7 @@ namespace MonicaBlazorUI.Services
             };
         }
 
-        public JObject SandClayToLambda(JObject? root, JArray? j)
+        public static JObject SandClayToLambda(JObject? root, JArray? j)
         {
             if (root == null || j == null) return new JObject { { "success", false } };
 
@@ -711,7 +719,7 @@ namespace MonicaBlazorUI.Services
             };
         }
 
-        public JObject Percent(JObject? root, JArray? j)
+        public static JObject Percent(JObject? root, JArray? j)
         {
             if (root == null || j == null) return new JObject { { "success", false } };
 
@@ -730,7 +738,7 @@ namespace MonicaBlazorUI.Services
             };
         }
 
-        public JObject HumusToCorg(JObject? root, JArray? j)
+        public static JObject HumusToCorg(JObject? root, JArray? j)
         {
             if (root == null || j == null) return new JObject { { "success", false } };
 
@@ -749,18 +757,18 @@ namespace MonicaBlazorUI.Services
             };
         }
 
-        private bool IsInt(JValue? value)
+        private static bool IsInt(JValue? value)
         {
             if (value == null) return false;
             return value.Type == JTokenType.Integer;
         }
-        private bool IsFloat(JValue? value)
+        private static bool IsFloat(JValue? value)
         {
             if (value == null) return false;
             return value.Type == JTokenType.Float;
         }
 
-        public JObject GetValue(string function, JObject? root, JToken? j)
+        public static JObject GetValue(string function, JObject? root, JToken? j)
         {
             if (root == null || j == null) return new JObject { { "success", false } };
 
@@ -781,7 +789,7 @@ namespace MonicaBlazorUI.Services
                 _ => throw new Exception("invalid pattern name!"),
             };
         }
-        public bool Contains(string function)
+        public static bool Contains(string function)
         {
             return function switch
             {

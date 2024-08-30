@@ -1,9 +1,14 @@
 ﻿@namespace Mas.Infrastructure.BlazorComponents
 
+@using System.Diagnostics
 @using GoogleMapsComponents
 @using GoogleMapsComponents.Maps
 
-<div @onclick="DrawRectangle">   @*For addingan ID:  @ref=MapWrapper*@
+@inject IJSRuntime JsRuntime
+
+<div @ref="@_mapElementRef" id="map1" style="height: @(Height)px"></div>
+@*
+<div @onclick="DrawRectangle">   $1$For addingan ID:  @ref=MapWrapper#1#
     <GoogleMap @ref="map"
                Id="map1"
                Options="@mapOptions"
@@ -11,20 +16,21 @@
                OnAfterInit="@OnAfterInitAsync">
     </GoogleMap>
 </div>
+*@
 
 @code {
 
     [Parameter]
-    public String? Width { get; set; }
+    public string? Width { get; set; }
 
     [Parameter]
-    public String? Height { get; set; }
+    public string? Height { get; set; }
 
     [Parameter]
     public float FillOpacity { get; set; } = 0.2F;
 
     [Parameter]
-    public String FillColor { get; set; } = "DodgerBlue";
+    public string FillColor { get; set; } = "DodgerBlue";
 
     [Parameter]
     public bool DefaultRectangle { get; set; } = false;
@@ -50,37 +56,69 @@
     [Parameter]
     public int Zoom { get; set; } = 6;
 
-    private GoogleMap? map;
-    private MapOptions? mapOptions;
+    private Map? _map;
+    private ElementReference _mapElementRef;
+
+    //[Inject]
+    //public IBlazorGoogleMapsKeyService? KeyService { get; set; }
+
+    //private GoogleMap? map;
+    //private MapOptions? mapOptions;
     //private Marker? currentMarker;
-    private Rectangle? rectangle;
+    private Rectangle? _rectangle;
 
     //ElementReference MapWrapper;  //not used and can be removed from here and DOM element as well.
 
-    private List<LatLngLiteral> path = new List<LatLngLiteral>();
-    private LatLngLiteral temp_path = new LatLngLiteral();
+    private List<LatLngLiteral> _path = new List<LatLngLiteral>();
+    private LatLngLiteral _tempPath = new LatLngLiteral();
     //private LatLngLiteral topLeft = new LatLngLiteral();
     //private LatLngLiteral topRight = new LatLngLiteral();
     //private LatLngLiteral bottomRight = new LatLngLiteral();
     //private LatLngLiteral bottomLeft = new LatLngLiteral();
 
-    private int currentCount = 0;
-    private bool rectangle_is_drawn = false;
-    private bool rectangleBoundsChangedByParent = false;
+    private int _currentCount = 0;
+    private bool _rectangleIsDrawn = false;
+    private bool _rectangleBoundsChangedByParent = false;
 
-    protected override void OnInitialized()
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        mapOptions = new MapOptions()
+        if (_map == null)
         {
-            Zoom = Zoom,
-            Center = new LatLngLiteral()
+            var mapOptions = new MapOptions()
             {
-                Lat = CenterLatLng.Item1,
-                Lng = CenterLatLng.Item2
-            },
-            MapTypeId = MapTypeId.Roadmap
-        };
+                Zoom = 13,
+                Center = new LatLngLiteral()
+                {
+                    Lat = 13.505892,
+                    Lng = 100.8162
+                },
+                MapTypeId = MapTypeId.Roadmap,
+                //ApiLoadOptions = await KeyService.GetApiOptions()
+            };
+
+            _map = await Map.CreateAsync(JsRuntime, _mapElementRef, mapOptions);
+
+            Debug.WriteLine("Init finished");
+        }
+        //var serverSideScripts = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/js/serverSideScripts.js");
+        //await serverSideScripts.InvokeVoidAsync("initServerSideScript");
     }
+
+
+    // protected override void OnInitialized()
+    // {
+    //     mapOptions = new MapOptions()
+    //     {
+    //         Zoom = Zoom,
+    //         Center = new LatLngLiteral()
+    //         {
+    //             Lat = CenterLatLng.Item1,
+    //             Lng = CenterLatLng.Item2
+    //         },
+    //         MapTypeId = MapTypeId.Roadmap
+    //     };
+    // }
 
     private async Task OnAfterInitAsync()
     {
@@ -89,26 +127,26 @@
         //await map.InteropObject.AddListener<MouseEvent>("click", async (e) => await OnClick(e));
         //await SetMarker(CenterLatLng.Item1, CenterLatLng.Item2);
 
-        if(map != null)
-        {
-            await map.InteropObject.AddListener<MouseEvent>("click", (e) => OnClick(e));
-            rectangle = await Rectangle.CreateAsync(map.JsRuntime, new RectangleOptions()
-                {
-                    Draggable = true,
-                    Editable = true,
-                    FillColor = FillColor,
-                    FillOpacity = FillOpacity,
-                    Map = map.InteropObject
-                });
-            path.Clear();
-
-            await map.InteropObject.AddListener<MouseEvent>("mousemove", async (e) => await OnMouseMove(e));
-        }
-        
-        await SetRectangle(DefaultTopLeft, DefaultBottomRight);
+        // if(map != null)
+        // {
+        //     await map.InteropObject.AddListener<MouseEvent>("click", (e) => OnClick(e));
+        //     _rectangle = await Rectangle.CreateAsync(map.JsRuntime, new RectangleOptions()
+        //         {
+        //             Draggable = true,
+        //             Editable = true,
+        //             FillColor = FillColor,
+        //             FillOpacity = FillOpacity,
+        //             Map = map.InteropObject
+        //         });
+        //     _path.Clear();
+        //
+        //     await map.InteropObject.AddListener<MouseEvent>("mousemove", async (e) => await OnMouseMove(e));
+        // }
+        //
+        // await SetRectangle(DefaultTopLeft, DefaultBottomRight);
 
         //await map.InteropObject.AddListener<Rectangle>("bounds_changed", async (Rectangle) => await testst(Rectangle));
-        if(rectangle != null) await rectangle.AddListener("bounds_changed", async () => await RectangleBoundsChanged());
+        //if(_rectangle != null) await _rectangle.AddListener("bounds_changed", async () => await RectangleBoundsChanged());
 
         //await map1.InteropObject.AddListener("center_changed", OnCenterChanged);
 
@@ -158,9 +196,9 @@
 
     private async Task RectangleBoundsChanged()
     {
-        if (rectangle != null && rectangle_is_drawn == true && path.Count == 0 && currentCount == 0 && rectangleBoundsChangedByParent == false)
+        if (_rectangle != null && _rectangleIsDrawn == true && _path.Count == 0 && _currentCount == 0 && _rectangleBoundsChangedByParent == false)
         {
-            var bounds = await rectangle.GetBounds();
+            var bounds = await _rectangle.GetBounds();
             await RectangleChanged.InvokeAsync(bounds);
 
             var newBounds = new LatLngBoundsLiteral()
@@ -171,16 +209,16 @@
                 West = DefaultTopLeft.Item2
             };
 
-            await rectangle.SetBounds(newBounds);
+            await _rectangle.SetBounds(newBounds);
 
-            rectangleBoundsChangedByParent = true;
+            _rectangleBoundsChangedByParent = true;
         }
 
     }
 
     private async Task SetRectangle((double, double) topLeft, (double, double) bottomRight)
     {
-        if (rectangle != null && DefaultRectangle == true)
+        if (_rectangle != null && DefaultRectangle == true)
         {
             var bounds = new LatLngBoundsLiteral()
             {
@@ -190,30 +228,30 @@
                 West = topLeft.Item2
             };
 
-            await rectangle.SetBounds(bounds);
+            await _rectangle.SetBounds(bounds);
 
-            rectangle_is_drawn = true;
+            _rectangleIsDrawn = true;
         }
 
     }
 
     private void OnClick(MouseEvent e)
     {
-        path.Add(e.LatLng);
+        _path.Add(e.LatLng);
     }
 
     private async Task DrawRectangle()
     {
-        if (rectangle_is_drawn == true && path.Count == 0) return;  // There is already a rectangle in the page and this click is on this rectangle, so do nothing.
+        if (_rectangleIsDrawn == true && _path.Count == 0) return;  // There is already a rectangle in the page and this click is on this rectangle, so do nothing.
                                                                     // Either it's the first ever click or it's a click on an empty space while there is already a rectangle on the page.
                                                                     // Check if it is the first click or the secound in the Wrapper
-        currentCount++;
+        _currentCount++;
 
-        if (currentCount < 2) return; // if it is the first click, path is already stored, just return and wait for the secound click.
+        if (_currentCount < 2) return; // if it is the first click, path is already stored, just return and wait for the secound click.
 
-        path.Add(temp_path);    // if it is the secound click add the secound path and continue to draw the rectangle
+        _path.Add(_tempPath);    // if it is the secound click add the secound path and continue to draw the rectangle
 
-        if (path.Count < 2) return;  // just an extra check, can be removed
+        if (_path.Count < 2) return;  // just an extra check, can be removed
 
         //specify the corners
         //topLeft = path[0];
@@ -225,16 +263,16 @@
 
         var bounds = new LatLngBoundsLiteral()
         {
-            East = path[1].Lng,
-            North = path[0].Lat,
-            South = path[1].Lat,
-            West = path[0].Lng
+            East = _path[1].Lng,
+            North = _path[0].Lat,
+            South = _path[1].Lat,
+            West = _path[0].Lng
         };
 
-        if (rectangle != null)
+        if (_rectangle != null)
         {
 
-            await rectangle.SetBounds(bounds);
+            await _rectangle.SetBounds(bounds);
 
             // //This is how to get tha corners of our rectangle. Will be useful in other methods:
 
@@ -258,11 +296,11 @@
                     West = DefaultTopLeft.Item2
                 };
 
-            await rectangle.SetBounds(newBounds);
+            await _rectangle.SetBounds(newBounds);
 
-            path.Clear();
-            currentCount = 0;
-            rectangle_is_drawn = true;
+            _path.Clear();
+            _currentCount = 0;
+            _rectangleIsDrawn = true;
             //rectangle = null;
         }
     }
@@ -271,21 +309,21 @@
     {
         //Console.WriteLine("OnMouseMove.");
 
-        rectangleBoundsChangedByParent = false;
+        _rectangleBoundsChangedByParent = false;
 
-        if (rectangle != null && path.Count == 1)
+        if (_rectangle != null && _path.Count == 1)
         {
-            temp_path = e.LatLng;
+            _tempPath = e.LatLng;
 
             var bounds = new LatLngBoundsLiteral()
             {
-                East = temp_path.Lng, // - 0.01, 
-                North = path[0].Lat,
-                South = temp_path.Lat, // - 0.01,
-                West = path[0].Lng
+                East = _tempPath.Lng, // - 0.01,
+                North = _path[0].Lat,
+                South = _tempPath.Lat, // - 0.01,
+                West = _path[0].Lng
             };
 
-            await rectangle.SetBounds(bounds);
+            await _rectangle.SetBounds(bounds);
             //await rectangle.AddListener<MouseEvent>("click", async (e) => await OnClick2(e));
         }
 
