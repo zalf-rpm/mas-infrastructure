@@ -121,12 +121,20 @@ class ReleaseSturdyRef(persistence_capnp.Persistent.ReleaseSturdyRef.Server):
         self._release_func()
 
 
+def get_public_ip(connect_to_host="8.8.8.8", connect_to_port=53):
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect((connect_to_host, connect_to_port))
+    public_ip = s.getsockname()[0]
+    s.close()
+    return public_ip
+
+
 class Restorer(persistence_capnp.Restorer.Server):
 
     def __init__(self):
         self._issued_sr_tokens = {}  # sr_token to {"sealed_for": owner_guid, "cap": capability}
         self._actions = []
-        self._host = socket.gethostbyname(socket.gethostname())  # socket.getfqdn() #gethostname()
+        self._host = get_public_ip() #socket.gethostbyname(socket.gethostname())  # socket.getfqdn() #gethostname()
         self._port = None
         self._sign_pk, self._sign_sk = pysodium.crypto_sign_keypair()
         # self._box_pk, self._box_sk = pysodium.crypto_box_keypair()
