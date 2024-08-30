@@ -114,12 +114,12 @@ class Admin(service_capnp.Admin.Server, common.Identifiable):
 
 async def init_and_run_service(name_to_service, host=None, port=0, serve_bootstrap=True, restorer=None,
                                conn_man=None, name_to_service_srs=None, run_before_enter_eventloop=None,
-                               restorer_container_sr=None, **kwargs):
+                               restorer_container_sr=None, read_from_stdin=False, **kwargs):
     port = port if port else 0
 
     # check for sturdy ref inputs
     reg_config = {}
-    if sys.stdin.isatty():
+    if read_from_stdin and not sys.stdin.isatty():
         try:
             reg_config = json.loads(sys.stdin.read())
             # print("read from stdin:", reg_config)
