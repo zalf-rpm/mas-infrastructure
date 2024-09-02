@@ -53,7 +53,7 @@ namespace MonicaBlazorUI.Services
                 {"climate", climateCsv}
             };
 
-            var parametersPath = pathToMonicaParameters;//_configuration.GetValue<string>("PathToMonicaParameters"); //"/home/berg/GitHub/monica-parameters/"; //string.Empty;
+            var parametersPath = Environment.GetEnvironmentVariable("MONICA_PARAMETERS") ?? pathToMonicaParameters;//_configuration.GetValue<string>("PathToMonicaParameters"); //"/home/berg/GitHub/monica-parameters/"; //string.Empty;
             //Console.WriteLine("parametersPath: " + parametersPath);
             //string parametersPath = "/home/berg/GitHub/monica-parameters/"; //string.Empty;
             //string parametersPath = "C:/Users/admin_fds/MONICA/monica-parameters/"; //string.Empty;
