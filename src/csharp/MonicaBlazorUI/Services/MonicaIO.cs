@@ -471,7 +471,7 @@ namespace MonicaBlazorUI.Services
             return (bool)(succ ?? false);
         }
 
-        public static JObject? CreateEnvJsonFromJsonConfig(JObject cropSiteSim, string parametersPath)
+        public static (JObject?, string) CreateEnvJsonFromJsonConfig(JObject cropSiteSim, string parametersPath)
         {
             JToken? jTkn;
             string key;
@@ -481,7 +481,7 @@ namespace MonicaBlazorUI.Services
                 jTkn = item.Value;
                 if (jTkn == null)
                 {
-                    return null;
+                    return (null, $"No value for {key}.");
                 }
             }
 
@@ -517,11 +517,13 @@ namespace MonicaBlazorUI.Services
 
             if (errors.Count > 0)
             {
-                /*foreach (var err in errors)
+                var sb = new StringBuilder();
+                foreach (var err in errors)
                 {
+                    sb.AppendLine($"{err}");
                     Console.WriteLine(err);
-                }*/
-                return null;
+                }
+                return (null, sb.ToString());
             }
             var cropj = cropSiteSim2["crop"] ?? new JObject();
             var sitej = cropSiteSim2["site"] ?? new JObject();
@@ -569,7 +571,7 @@ namespace MonicaBlazorUI.Services
                 sitej["SiteParameters"] ?? new JObject()}
             };
             env.Add("params", cpp);
-            return env;
+            return (env, "");
         }
 
         private static void AddBasePath(JObject? j, JToken? basePath)

@@ -325,7 +325,7 @@
                 @if(_monicaErrorMessage != null && _monicaErrorMessage.Any())
                 {
                     <MudItem xs="12">
-                        <MudAlert Severity="Severity.Error">@_monicaErrorMessage</MudAlert>
+                        <MudAlert style="white-space: pre-wrap;" Severity="Severity.Error">@_monicaErrorMessage</MudAlert>
                     </MudItem>
                 }
             </MudGrid>

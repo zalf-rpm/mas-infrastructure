@@ -574,7 +574,12 @@ namespace Mas.Infrastructure.BlazorComponents
                 cropj["cropRotation"] = cr;
             }
 
-            var envj = RunMonica.CreateMonicaEnv(simj, cropj, sitej, "");//, new Core.Share.UserSetting(), Core.Share.Enums.MonicaParametersBasePathTypeEnum.LocalServer);
+            var (envj, createEnvError) = RunMonica.CreateMonicaEnv(simj, cropj, sitej, "");//, new Core.Share.UserSetting(), Core.Share.Enums.MonicaParametersBasePathTypeEnum.LocalServer);
+            if (envj == null || createEnvError.Length > 0)
+            {
+                _monicaErrorMessage = createEnvError;
+                return;
+            }
 
             if (OverwriteOutputConfig)
             {
@@ -605,7 +610,7 @@ namespace Mas.Infrastructure.BlazorComponents
 
             try
             {
-                Console.WriteLine($"T{Environment.CurrentManagedThreadId} Monica.razor::RunMonicaModel OverwriteSoilProfile: {OverwriteSoilProfile} _profileLayers.Count: {_profileLayers.Count} | -> await MonicaInstanceCap.Run(menv)");
+                //Console.WriteLine($"T{Environment.CurrentManagedThreadId} Monica.razor::RunMonicaModel OverwriteSoilProfile: {OverwriteSoilProfile} _profileLayers.Count: {_profileLayers.Count} | -> await MonicaInstanceCap.Run(menv)");
                 var res = await MonicaInstanceCap.Run(menv);
                 if (res == null) throw new Capnp.Rpc.RpcException("MonicaInstanceCap.Run return null result.");
                 var resj = JObject.Parse(res.Value);
@@ -684,15 +689,21 @@ namespace Mas.Infrastructure.BlazorComponents
                     }
                 }
                 var error = resj["error"];
+                if (error != null)
+                {
+                    _monicaErrorMessage = error.ToString();
+                }
+                else
+                {
+                    //workaround to mark the default selected chip
+                    _defaultSelectedSectionChips = new MudChip<string>[_section2Oid2Data.Count];
 
-                //workaround to mark the default selected chip
-                _defaultSelectedSectionChips = new MudChip<string>[_section2Oid2Data.Count];
+                    _selectedResultSection = _section2Oid2Data.ContainsKey("daily") ? "daily" : _section2Oid2Data.FirstOrDefault().Key;
 
-                _selectedResultSection = _section2Oid2Data.ContainsKey("daily") ? "daily" : _section2Oid2Data.FirstOrDefault().Key;
+                    if (ResultChanged.HasDelegate) _ = ResultChanged.InvokeAsync((_section2Dates, _section2Oid2Data));
 
-                if (ResultChanged.HasDelegate) _ = ResultChanged.InvokeAsync((_section2Dates, _section2Oid2Data));
-
-                _monicaResultsChanged = true;
+                    _monicaResultsChanged = true;
+                }
             }
             catch (Capnp.Rpc.RpcException e)
             {
