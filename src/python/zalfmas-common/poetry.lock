@@ -380,15 +380,13 @@ name = "zalfmas-capnpschemas"
 version = "0.1.0"
 description = ""
 optional = false
-python-versions = "^3.9"
-files = []
-develop = true
-
-[package.source]
-type = "directory"
-url = "../../.."
+python-versions = "<4.0,>=3.9"
+files = [
+    {file = "zalfmas_capnpschemas-0.1.0-py3-none-any.whl", hash = "sha256:6e8ddd787cf7f2ce8ae9cff0ebd2e0a4d3af5d8e5913d82846b4549ce2f5cef9"},
+    {file = "zalfmas_capnpschemas-0.1.0.tar.gz", hash = "sha256:ec9aa889bb560860628ca110a1baf4f4942d1d0dd75cc9036637d6fbaad3e043"},
+]
 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "742dd55bd0da73d607915f55cd2f3068789cc27b3d8e528bf6d26205c0145eee"
+content-hash = "fe1038de9306b86e6f77590c1e9f89f51950f583d373cafce658b3196721e4f4"

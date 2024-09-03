@@ -9,11 +9,12 @@ readme = "README.md"
 python = "^3.9"
 pycapnp = "^2.0.0"
 pysodium = "^0.7.17"
-zalfmas-capnpschemas = {path = "../../..", develop = true}
 pyproj = "^3.6.1"
 scipy = "^1.13.1"
 pandas = "^2.2.2"
 psutil = "^5.9.8"
+#zalfmas-capnpschemas = {path = "../../..", develop = true}
+zalfmas-capnpschemas = "^0.1.0"
 
 
 [build-system]

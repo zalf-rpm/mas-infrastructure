@@ -8,11 +8,12 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.9"
 pycapnp = "^2.0.0"
-zalfmas-capnpschemas = { path = "../../..", develop = true }
-#zalfmas-common = { path = "../../zalfmas-common", develop = true }
-zalfmas-common = {path = "../zalfmas-common", develop = true}
 numpy = "^1.26.4"
 tomli = "^2.0.1"
+#zalfmas-common = {path = "../zalfmas-common", develop = true}
+zalfmas-common = "^0.1.1"
+#zalfmas-capnpschemas = { path = "../../..", develop = true }
+zalfmas-capnpschemas = "^0.1.0"
 
 [build-system]
 requires = ["poetry-core"]
