@@ -40,5 +40,5 @@ func (cerr *ConnError) Warn(message string, args ...any) {
 }
 
 func (cerr *ConnError) Error(message string, args ...any) {
-	cerr.Out <- fmt.Errorf(message)
+	cerr.Out <- fmt.Errorf(message, args...)
 }
