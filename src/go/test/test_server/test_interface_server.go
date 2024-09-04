@@ -2,9 +2,13 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
+	"flag"
 	"fmt"
 	"log"
 	"net"
+	"os"
+	"path/filepath"
 
 	"capnproto.org/go/capnp/v3"
 	"capnproto.org/go/capnp/v3/rpc"
@@ -31,16 +35,46 @@ func (a *A_Server) Method(ctx context.Context, call test.A_method) error {
 	return nil
 }
 func main() {
+	useTLS := flag.String("tls", "", "directory containing server.crt and server.key for TLS")
+	flag.Parse()
 
-	// listen on a socket
-	l, err := net.Listen("tcp", "localhost:1234")
-	if err != nil {
-		log.Fatal(err)
+	// listen on a port
+	var listener net.Listener
+	var err error
+	if *useTLS != "" {
+		// read the cert and key file
+		certFile := filepath.Join(*useTLS, "server.crt")
+		keyFile := filepath.Join(*useTLS, "server.key")
+		_, err = os.Stat(certFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		_, err = os.Stat(keyFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		cert, err := tls.LoadX509KeyPair(certFile, keyFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		cfg := &tls.Config{Certificates: []tls.Certificate{cert}}
+		listener, err = tls.Listen("tcp", "localhost:1234", cfg)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer listener.Close()
+	} else {
+
+		// listen on a socket
+		listener, err = net.Listen("tcp", "localhost:1234")
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer listener.Close()
 	}
-	defer l.Close()
 
 	// accept connections and serve
-	c, err := l.Accept()
+	c, err := listener.Accept()
 	if err != nil {
 		log.Fatal(err)
 	}
