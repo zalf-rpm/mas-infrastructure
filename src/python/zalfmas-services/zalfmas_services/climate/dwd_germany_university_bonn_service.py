@@ -17,6 +17,7 @@
 
 import asyncio
 import capnp
+import click
 import os
 from pathlib import Path
 import sys
@@ -70,14 +71,26 @@ def create_meta_plus_datasets(path_to_data_dir, interpolator, rowcol_to_latlon, 
     ))
     return datasets
 
+CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
+@click.group(context_settings=CONTEXT_SETTINGS)
+@click.version_option(version='0.1.0')
+@click.option("--id", help="ID of the service", required=False)
+@click.option("--name", default="DWD/UBN - historical - 1901 - 2023", help="Name of the service", required=False)
+@click.option("--description", help="Description of the service", required=False)
+@click.option("--path_to_data", help="Path to the directory containing the data (rows)", required=True)
+@click.option("--path_to_latlon_to_rowcol", help="Path to the JSON file containing the lat/lon to row/coll mapping", required=False)
+@click.option("--host", default=None, help="Use this host (e.g. localhost)", required=False)
+@click.option("--port", type=int, default=None, help="Use this port (default = choose random free port)", required=False)
+@click.option("--serve_bootstrap", is_flag=True, default=True, help="Is the service reachable directly via its restorer interface", required=False)
+@click.option("--sturdy_ref_token", help="Use this token as the sturdy ref token of this service", required=False)
 async def main(path_to_data, bonn_data_subdir, serve_bootstrap=True, host=None, port=None,
                id=None, name="DWD/UBN - historical - 1901 - ...", description=None,
                reg_sturdy_ref=None, srt=None):
 
     config = {
         "path_to_data": path_to_data,
-        "bonn_data_subdir": bonn_data_subdir,
+        "path_to_latlon_to_rowcol": "../latlon-to-rowcol.json",
         "host": host,
         "port": port,
         "id": id,
@@ -92,8 +105,8 @@ async def main(path_to_data, bonn_data_subdir, serve_bootstrap=True, host=None, 
 
     restorer = common.Restorer()
     interpolator, rowcol_to_latlon = ccdi.create_lat_lon_interpolator_from_json_coords_file(
-        config["path_to_data"] + "/" + "latlon-to-rowcol.json")
-    meta_plus_data = create_meta_plus_datasets(config["path_to_data"] + "/" + config["bonn_data_subdir"], interpolator,
+        config["path_to_data"] + "/" + config["path_to_latlon_to_rowcol"])
+    meta_plus_data = create_meta_plus_datasets(config["path_to_data"], interpolator,
                                                rowcol_to_latlon, restorer)
     service = ccdi.Service(meta_plus_data, id=config["id"], name=config["name"], description=config["description"],
                            restorer=restorer)

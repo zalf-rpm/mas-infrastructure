@@ -14,6 +14,7 @@ tomli = "^2.0.1"
 zalfmas-common = "^0.1.1"
 #zalfmas-capnpschemas = { path = "../../..", develop = true }
 zalfmas-capnpschemas = "^0.1.0"
+click = "^8.1.7"
 
 [build-system]
 requires = ["poetry-core"]
