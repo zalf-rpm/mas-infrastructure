@@ -16,7 +16,7 @@ import (
 )
 
 func main() {
-
+	useTls := flag.String("tls", "", "path to tls root cert")
 	sturdyRef := flag.String("sturdyref", "", "sturdy ref of the service")
 	imgFileName := flag.String("img", "streamedImg.png", "image file name")
 
@@ -27,6 +27,10 @@ func main() {
 		return
 	}
 	conMgr := commonlib.NewConnectionManager()
+	if *useTls != "" {
+		conMgr.SetTlsRootCert(*useTls)
+	}
+
 	// create a connection to the restorer
 	initialSdr, err := conMgr.TryConnect(*sturdyRef, 1, 1, false)
 	if err != nil {

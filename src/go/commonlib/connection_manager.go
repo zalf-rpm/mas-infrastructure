@@ -2,12 +2,16 @@ package commonlib
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/base64"
 	"encoding/binary"
 	"fmt"
 	"log"
 	"net"
 	"net/url"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -18,6 +22,7 @@ import (
 )
 
 type ConnectionManager struct {
+	tslRootCert     string
 	connStoppedChan chan string
 	connections     map[string]net.Conn
 	bootstraps      map[string]*capnp.Client
@@ -30,6 +35,9 @@ func NewConnectionManager() *ConnectionManager {
 		connections:     make(map[string]net.Conn),
 		bootstraps:      make(map[string]*capnp.Client),
 	}
+}
+func (cm *ConnectionManager) SetTlsRootCert(tlsRootCert string) {
+	cm.tslRootCert = tlsRootCert
 }
 
 // run the connection manager
@@ -184,12 +192,39 @@ func (cm *ConnectionManager) connect(sturdyRef interface{}) (*capnp.Client, erro
 	urlPath := fmt.Sprintf("%s:%d", sr.vat.address.host, sr.vat.address.port)
 	if _, ok := cm.connections[urlPath]; !ok {
 		// create new connection
-		conn, err := net.Dial("tcp", urlPath)
-		if err != nil {
-			return nil, err
-		}
-		cm.connections[urlPath] = conn
+		if cm.tslRootCert != "" {
+			// read the cert file
+			caFile := filepath.Join(cm.tslRootCert, "ca.crt")
+			_, err := os.Stat(caFile)
+			if err != nil {
+				return nil, err
+			}
+			data, err := os.ReadFile(caFile)
+			if err != nil {
+				return nil, err
+			}
+			roots := x509.NewCertPool()
+			ok := roots.AppendCertsFromPEM(data)
+			if !ok {
+				return nil, fmt.Errorf("failed to parse root certificate")
+			}
+			tlsconfig := &tls.Config{
+				RootCAs: roots,
+			}
+			conn, err := tls.Dial("tcp", urlPath, tlsconfig)
+			if err != nil {
+				return nil, err
+			}
+			cm.connections[urlPath] = conn
+		} else {
 
+			conn, err := net.Dial("tcp", urlPath)
+			if err != nil {
+				return nil, err
+			}
+			cm.connections[urlPath] = conn
+		}
+		conn := cm.connections[urlPath]
 		errC := make(chan error)
 		msgC := make(chan string)
 		go func(errChan <-chan error, msgChan <-chan string, stopChan chan<- string, urlPath string) {
