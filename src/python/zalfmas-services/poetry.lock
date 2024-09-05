@@ -2,13 +2,13 @@
 
 [[package]]
 name = "certifi"
-version = "2024.6.2"
+version = "2024.8.30"
 description = "Python package for providing Mozilla's CA Bundle."
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "certifi-2024.6.2-py3-none-any.whl", hash = "sha256:ddc6c8ce995e6987e7faf5e3f1b02b302836a0e5d98ece18392cb1a36c72ad56"},
-    {file = "certifi-2024.6.2.tar.gz", hash = "sha256:3cd43f1c6fa7dedc5899d69d3ad0398fd018ad1a17fba83ddaf78aa46c747516"},
+    {file = "certifi-2024.8.30-py3-none-any.whl", hash = "sha256:922820b53db7a7257ffbda3f597266d435245903d80737e34f8a45ff3e3230d8"},
+    {file = "certifi-2024.8.30.tar.gz", hash = "sha256:bec941d2aa8195e248a60b31ff9f0558284cf01a52591ceda73ea9afffd69fd9"},
 ]
 
 [[package]]
@@ -303,12 +303,12 @@ certifi = "*"
 
 [[package]]
 name = "pysodium"
-version = "0.7.17"
+version = "0.7.18"
 description = "python libsodium wrapper"
 optional = false
 python-versions = "*"
 files = [
-    {file = "pysodium-0.7.17.tar.gz", hash = "sha256:03afe011a36ab806380c0563591c48aba4e67b15e453b1249bf5c096fec9342d"},
+    {file = "pysodium-0.7.18.tar.gz", hash = "sha256:781ada024456ac74c411193b82d94018c85c94130ea01a22dbec48b8ff458b07"},
 ]
 
 [[package]]
@@ -401,6 +401,17 @@ files = [
 ]
 
 [[package]]
+name = "tomlkit"
+version = "0.13.2"
+description = "Style preserving TOML library"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "tomlkit-0.13.2-py3-none-any.whl", hash = "sha256:7a974427f6e119197f670fbbbeae7bef749a6c14e793db934baefc1b5f03efde"},
+    {file = "tomlkit-0.13.2.tar.gz", hash = "sha256:fff5fe59a87295b278abd31bec92c15d9bc4a06885ab12bcea52c71119392e79"},
+]
+
+[[package]]
 name = "tzdata"
 version = "2024.1"
 description = "Provider of IANA time zone data"
@@ -424,13 +435,13 @@ files = [
 
 [[package]]
 name = "zalfmas-common"
-version = "0.1.1"
+version = "0.1.2"
 description = ""
 optional = false
 python-versions = "<4.0,>=3.9"
 files = [
-    {file = "zalfmas_common-0.1.1-py3-none-any.whl", hash = "sha256:6ea5f1921f1c85547ebe1f70f8a7b3675701e3397225ff91a830df5722c5b883"},
-    {file = "zalfmas_common-0.1.1.tar.gz", hash = "sha256:6b544c88ad10cd23d62f4405e08970e7707e1b0b69f06e0df1fb151187cdd664"},
+    {file = "zalfmas_common-0.1.2-py3-none-any.whl", hash = "sha256:c166a36b2df286bd39df8453b688ca72734b24981bf47e74d70c009096d1161e"},
+    {file = "zalfmas_common-0.1.2.tar.gz", hash = "sha256:5907e9af2baac262967e6239f428d3ff8573a9b9045af794359fcb62ccb7e4cc"},
 ]
 
 [package.dependencies]
@@ -440,9 +451,10 @@ pycapnp = ">=2.0.0,<3.0.0"
 pyproj = ">=3.6.1,<4.0.0"
 pysodium = ">=0.7.17,<0.8.0"
 scipy = ">=1.13.1,<2.0.0"
+tomlkit = ">=0.13.2,<0.14.0"
 zalfmas-capnpschemas = ">=0.1.0,<0.2.0"
 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "0e5ce0e00ce34f7c78ba086f79450a4f572a2c3aba7c48f588bc225717e1f696"
+content-hash = "c18d68cd91b343169b6390d1dbdd265b1c3884c0deb22b28ff53ccc89e85f8de"

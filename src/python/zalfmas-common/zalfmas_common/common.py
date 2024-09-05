@@ -22,6 +22,7 @@ import pysodium
 import socket
 import sys
 import time
+import tomlkit as tk
 import urllib.parse as urlp
 import uuid
 
@@ -87,6 +88,39 @@ def update_config(config, argv, print_config=False, allow_new_keys=False):
                 config[k] = v.lower() == "true" if v.lower() in ["true", "false"] else v
         if print_config:
             print(config)
+
+
+def create_service_toml_config(header_comment: str = None, id = None, name=None, description=None,
+                               host=None, port=None, serve_bootstrap=None, sturdy_ref_token=None,
+                               reg_sturdy_ref=None, reg_category=None, **kwargs) -> tk.TOMLDocument:
+    config = tk.document()
+    config.add(tk.comment(header_comment if header_comment else "MAS service configuration file"))
+    config.add(tk.nl())
+
+    service = tk.table()
+    service["id"] = id if id else str(uuid.uuid4())
+    service["name"] = name if name else f"Service {service['id']}"
+    service["description"] = description if description else f"No description for service {service['id']}"
+    config.add("service", service)
+
+    caps = tk.table()
+    caps["fixed_sturdy_ref_token"] = sturdy_ref_token if sturdy_ref_token else "a_sturdy_ref_token"
+    register_at = tk.aot()
+    register_at.append(tk.item({
+        "sturdy_ref": reg_sturdy_ref if reg_sturdy_ref else "capnp://the_host_key@host:port/a_sturdy_ref_token",
+        "category": reg_category if reg_category else "a registry category",
+    }))
+    config.add("register_at", register_at)
+    config.add("caps", caps)
+
+    network = tk.table()
+    network["host"] = host if host else "localhost"
+    network["port"] = port if port else 0
+    network["serve_bootstrap"] = serve_bootstrap if serve_bootstrap else True
+    config.add("network", network)
+
+    return config
+
 
 
 # def sign_sr_token_by_sk_and_encode_base64(self, sr_token):
@@ -646,7 +680,7 @@ def load_capnp_module(path_and_type, def_type="Text"):
         p_and_t = path_and_type.split(":")
         if len(p_and_t) > 1:
             capnp_module_path, type_name = p_and_t
-            capnp_module = capnp.load(capnp_module_path, imports=abs_imports)
+            capnp_module = capnp.load(capnp_module_path)#, imports=abs_imports)
             capnp_type = capnp_module.__dict__.get(type_name, def_type)
         elif len(p_and_t) > 0:
             capnp_type = p_and_t[0]
@@ -661,7 +695,7 @@ def load_capnp_modules(id_to_path_and_type, def_type="Text"):
             p_and_t = path_and_type.split(":")
             if len(p_and_t) > 1:
                 capnp_module_path, type_name = p_and_t
-                capnp_module = capnp.load(capnp_module_path, imports=abs_imports)
+                capnp_module = capnp.load(capnp_module_path)#, imports=abs_imports)
                 capnp_type = capnp_module.__dict__.get(type_name, def_type)
             elif len(p_and_t) > 0:
                 capnp_type = p_and_t[0]
