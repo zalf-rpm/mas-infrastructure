@@ -176,8 +176,8 @@ Errors SoilParameters::merge(json11::Json j) {
   bool fcSatPwpSet = vs_FieldCapacity > 0 && vs_Saturation > 0 && vs_PermanentWiltingPoint > 0;
 
   // restrict FC, PWP and SAT else the water transport algorithm gets instable
-  vs_FieldCapacity = max(0.08, vs_FieldCapacity);
-  vs_PermanentWiltingPoint = max(0.05, vs_PermanentWiltingPoint);
+  vs_FieldCapacity = max(0.05, vs_FieldCapacity);
+  vs_PermanentWiltingPoint = max(0.01, vs_PermanentWiltingPoint);
   vs_Saturation = max(0.1, vs_Saturation);
 
   if (vs_Lambda < 0 && vs_SoilSandContent > 0 && vs_SoilClayContent > 0) {
