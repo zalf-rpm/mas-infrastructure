@@ -26,9 +26,9 @@ struct StructuredText {
 
   structure :union {
     # structural type
-    none @1 :Void; # just normal text
-    json @2 :Void; # it's JSON
-    xml @3 :Void; # it's XML
+    none    @1 :Void; # just normal text
+    json    @2 :Void; # it's JSON
+    xml     @3 :Void; # it's XML
   }
 }
 

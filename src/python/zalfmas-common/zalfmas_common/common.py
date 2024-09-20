@@ -214,13 +214,11 @@ class Restorer(persistence_capnp.Restorer.Server):
     def host(self, h):
         self._host = h
 
-    def init_port_from_container(self):
-        def resp(resp):
-            if not resp.isUnset:
-                self.port = resp.value.uint16Value
-
+    async def init_port_from_container(self):
         try:
-            return self.storage_container.getEntry(key="port").entry.getValue().then(resp)
+            val = await self.storage_container.getEntry(key="port").entry.getValue()
+            if not val.isUnset:
+                self.port = val.uint16Value
         except Exception as e:
             print("Couldn't initialize storage from container.", e)
 
@@ -372,7 +370,8 @@ class Restorer(persistence_capnp.Restorer.Server):
             }
         }
 
-    async def save(self, cap, fixed_sr_token=None, seal_for_owner_guid=None, create_unsave=True, restore_token=None):
+    async def save_cap(self, cap, fixed_sr_token=None, seal_for_owner_guid=None, create_unsave=True, restore_token=None,
+                       store_sturdy_refs=True):
         sr_token = fixed_sr_token if fixed_sr_token else str(uuid.uuid4())
         data = {"ownerGuid": seal_for_owner_guid, "restoreToken": restore_token}
         self._issued_sr_tokens[sr_token] = {**data, "cap": cap}
@@ -382,6 +381,7 @@ class Restorer(persistence_capnp.Restorer.Server):
             sv_req.init("value").textValue = json.dumps(data)
             store_proms.append(sv_req.send().then(lambda resp: resp.success))
 
+        unsave_sr_token = None
         if create_unsave:
             unsave_sr_token = str(uuid.uuid4())
             async def release_sr():
@@ -396,50 +396,32 @@ class Restorer(persistence_capnp.Restorer.Server):
                 sv_req.init("value").textValue = json.dumps(udata)
                 store_proms.append(sv_req.send().then(lambda resp: resp.success))
 
-        res = {
+        if len(store_proms) > 0:
+            await asyncio.wait(store_proms)
+
+        return sr_token, unsave_sr_token
+
+
+    async def save(self, cap, fixed_sr_token=None, seal_for_owner_guid=None, create_unsave=True, restore_token=None,
+                   store_sturdy_refs=True):
+
+        sr_token, unsave_sr_token = await self.save_cap(cap, fixed_sr_token, seal_for_owner_guid, create_unsave,
+                                                        restore_token, store_sturdy_refs)
+        return {
             "sturdy_ref": self.sturdy_ref(sr_token),
             "unsave_sr": self.sturdy_ref(unsave_sr_token) if create_unsave else None
         }
-        if len(store_proms) > 0:
-            await asyncio.wait(store_proms)
-        return res
 
     async def save_str(self, cap, fixed_sr_token=None, seal_for_owner_guid=None, create_unsave=True,
                        restore_token=None, store_sturdy_refs=True):
-        sr_token = fixed_sr_token if fixed_sr_token else str(uuid.uuid4())
-        data = {"ownerGuid": seal_for_owner_guid, "restoreToken": restore_token}
-        self._issued_sr_tokens[sr_token] = {**data, "cap": cap}
-        store_proms = []
-        if self.storage_container and store_sturdy_refs:
-            sv_req = self.storage_container.getEntry(key=sr_token).entry.setValue_request()
-            sv_req.init("value").textValue = json.dumps(data)
-            store_proms.append(sv_req.send().then(lambda resp: resp.success))
-
-        if create_unsave:
-            unsave_sr_token = str(uuid.uuid4())
-            # vat_signed_unsave_sr_token = self.sign_sr_token_by_vat_and_encode_base64(unsave_sr_token)
-            async def release_sr():
-                res1 = await self.unsave(sr_token)
-                res2 = await self.unsave(unsave_sr_token)
-                return res1 and res2
-            unsave_action = ReleaseSturdyRef(release_sr)
-            udata = {"ownerGuid": seal_for_owner_guid, "restoreToken": restore_token, "unsaveSRToken": unsave_sr_token}
-            self._issued_sr_tokens[unsave_sr_token] = {**udata, "cap": unsave_action}
-            if self.storage_container and store_sturdy_refs:
-                sv_req = self.storage_container.getEntry(key=unsave_sr_token).entry.setValue_request()
-                sv_req.init("value").textValue = json.dumps(udata)
-                store_proms.append(sv_req.send().then(lambda resp: resp.success))
-
-        res = {
+        sr_token, unsave_sr_token = await self.save_cap(cap, fixed_sr_token, seal_for_owner_guid, create_unsave,
+                                                        restore_token, store_sturdy_refs)
+        return {
             "sturdy_ref": self.sturdy_ref_str(sr_token),
             "sr_token": sr_token,
             "unsave_sr": self.sturdy_ref_str(unsave_sr_token) if create_unsave else None,
             "unsave_sr_token": unsave_sr_token if create_unsave else None
         }
-
-        if len(store_proms) > 0:
-            await asyncio.wait(store_proms)
-        return res
 
     async def unsave(self, sr_token, owner_guid=None):
         # if there is an owner

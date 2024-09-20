@@ -86,6 +86,9 @@ struct SturdyRef {
   }
 }
 
+interface Heartbeat {
+  beat @0 () -> ();
+}
 
 interface Persistent {
   # adjusted version of persistent.capnp::Persistent interface
@@ -105,11 +108,18 @@ interface Persistent {
     # ref.
   }
   struct SaveResults {
-    sturdyRef @0 :SturdyRef;
+    sturdyRef               @0 :SturdyRef;
     # the actual sturdy reference
 
-    unsaveSR  @1 :SturdyRef;
+    unsaveSR                @1 :SturdyRef;
     # sturdy ref referring to an ReleaseSturdyRef capability to unsave the referenced capability
+
+    heartbeat               @2 :Heartbeat;
+    # heartbeat capability to keep the sturdy ref registration alive
+    # if the heartbeat is null, you have to assume the saved capability can be lost at any time
+
+    secsHeartbeatInterval   @4 :UInt32;
+    # interval in seconds to call the heartbeat capability
   }
 
   interface ReleaseSturdyRef {
@@ -142,10 +152,6 @@ interface HostPortResolver extends(Identifiable, Restorer) {
   interface Registrar { 
     # register a services base64 encoded VatId to a host and port (and optionally a plain text alias)
 
-    interface Heartbeat {
-      beat @0 () -> ();
-    }
-
     struct RegisterParams {
       base64VatId @0 :Text;
       # base64 encoded VatId of the service to register
@@ -170,4 +176,25 @@ interface HostPortResolver extends(Identifiable, Restorer) {
 
   resolve @0 (id :Text) -> (host :Text, port :UInt16) $Go.name("ResolveIdent") ;
   # resolve an id (either base64 encoded VatId or plain text alias) to a host and port
+}
+
+interface Gateway extends(Identifiable, Restorer) {
+  # interface to "register" caps at a gateway so they can be reached from
+  # the gateways outer side and be saved to the gateways restorer
+
+  register @0 (cap :Capability) -> RegResults;
+  # Register a capability at the gateway and return sturdy refs pointing to the gateway
+  # which can be used to access the capability later
+
+  struct RegResults {
+    sturdyRef               @0 :SturdyRef;
+    # the actual sturdy reference to the registered capability
+
+    heartbeat               @2 :Heartbeat;
+    # heartbeat capability to keep the sturdy ref registration alive
+    # if the heartbeat is null, you have to assume the saved capability can be lost at any time
+
+    secsHeartbeatInterval   @4 :UInt32;
+    # interval in seconds to call the heartbeat capability
+  }
 }
