@@ -29,17 +29,14 @@ func TestServe(t *testing.T) {
 		l, err := net.Listen("tcp", fmt.Sprintf("%s:%d", restorer.Host(), restorer.Port()))
 		assert.NoError(t, err)
 
-		for {
-			main := persistence.Restorer_ServerToClient(restorer)
-			defer main.Release()
-			c, err := l.Accept()
-			fmt.Printf("service: request from %v\n", c.RemoteAddr())
-			if err != nil {
-				errChan <- err
-				continue
-			}
-			Serve(c, capnp.Client(main.AddRef()), errChan, msgChan)
+		main := persistence.Restorer_ServerToClient(restorer)
+		defer main.Release()
+		c, err := l.Accept()
+		fmt.Printf("service: request from %v\n", c.RemoteAddr())
+		if err != nil {
+			errChan <- err
 		}
+		Serve(c, capnp.Client(main.AddRef()), errChan, msgChan)
 	}()
 
 	go func() {
@@ -53,7 +50,7 @@ func TestServe(t *testing.T) {
 		}
 	}()
 
-	conMgr := commonlib.NewConnectionManager()
+	conMgr := commonlib.NewConnectionManager("")
 	// create a connection to the restorer
 	initialSdr, err := conMgr.TryConnect(initialSturdyRef.String(), 1, 1, false)
 	assert.NoError(t, err)
