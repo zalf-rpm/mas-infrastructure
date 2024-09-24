@@ -1,0 +1,6 @@
+
+[TLS]
+  cert_name = "config/server.crt"
+  key_name = "config/server.key"
+  root_cas = ["config/ca.crt"]
+  use_tls = false
