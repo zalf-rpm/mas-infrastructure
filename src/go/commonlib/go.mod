@@ -5,6 +5,7 @@ go 1.20
 require (
 	capnproto.org/go/capnp/v3 v3.0.0-alpha-29
 	github.com/google/uuid v1.3.0
+	github.com/pelletier/go-toml v1.9.5
 	github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common v0.0.0-20230412105359-2d45c32db41e
 	github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/grid v0.0.0-20230713163933-4c7223175aeb
 	github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/persistence v0.0.0-20230301145915-7fca44b89d25

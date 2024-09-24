@@ -22,22 +22,29 @@ import (
 )
 
 type ConnectionManager struct {
-	tslRootCert     string
 	connStoppedChan chan string
 	connections     map[string]net.Conn
 	bootstraps      map[string]*capnp.Client
+	config          *Config
 }
 
-func NewConnectionManager() *ConnectionManager {
+func NewConnectionManager(configPath string) *ConnectionManager {
 
+	// read the config file
+	config, err := ReadConfig(configPath)
+	if err != nil {
+		log.Fatal(err)
+	}
 	return &ConnectionManager{
 		connStoppedChan: make(chan string),
 		connections:     make(map[string]net.Conn),
 		bootstraps:      make(map[string]*capnp.Client),
+		config:          config,
 	}
 }
-func (cm *ConnectionManager) SetTlsRootCert(tlsRootCert string) {
-	cm.tslRootCert = tlsRootCert
+
+func (cm *ConnectionManager) AddTlsRootCert(certPath string) {
+	cm.config.TLS.RootCAs = append(cm.config.TLS.RootCAs, certPath)
 }
 
 // run the connection manager
@@ -192,21 +199,30 @@ func (cm *ConnectionManager) connect(sturdyRef interface{}) (*capnp.Client, erro
 	urlPath := fmt.Sprintf("%s:%d", sr.vat.address.host, sr.vat.address.port)
 	if _, ok := cm.connections[urlPath]; !ok {
 		// create new connection
-		if cm.tslRootCert != "" {
-			// read the cert file
-			caFile := filepath.Join(cm.tslRootCert, "ca.crt")
-			_, err := os.Stat(caFile)
-			if err != nil {
-				return nil, err
-			}
-			data, err := os.ReadFile(caFile)
-			if err != nil {
-				return nil, err
-			}
+		if cm.config.TLS.Use {
+			// read root CAs
 			roots := x509.NewCertPool()
-			ok := roots.AppendCertsFromPEM(data)
-			if !ok {
-				return nil, fmt.Errorf("failed to parse root certificate")
+			for _, ca := range cm.config.TLS.RootCAs {
+				// check if the file exists
+				caFile := ca
+				_, err := os.Stat(caFile)
+				if err != nil {
+					// check if the file exists in current executable directory
+					caFile = filepath.Join(filepath.Dir(os.Args[0]), ca)
+					_, err = os.Stat(caFile)
+					if err != nil {
+						return nil, err
+					}
+				}
+				// read the cert file
+				data, err := os.ReadFile(caFile)
+				if err != nil {
+					return nil, err
+				}
+				ok := roots.AppendCertsFromPEM(data)
+				if !ok {
+					return nil, fmt.Errorf("failed to parse root certificate")
+				}
 			}
 			tlsconfig := &tls.Config{
 				RootCAs: roots,
