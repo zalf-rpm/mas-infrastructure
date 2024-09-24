@@ -397,18 +397,6 @@ func isNeiborCloser(arr []float32, idx int64, val float64) int64 {
 	}
 	return idx
 }
-func min(a, b int64) int64 {
-	if a < b {
-		return a
-	}
-	return b
-}
-func max(a, b int64) int64 {
-	if a > b {
-		return a
-	}
-	return b
-}
 
 func (gs *gridService) GetValueLatLon(inLat, inLon float64) (float64, int64, int64) {
 
