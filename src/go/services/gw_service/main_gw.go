@@ -1,13 +1,10 @@
 package main
 
 import (
-	"crypto/tls"
 	"flag"
 	"fmt"
 	"log"
 	"net"
-	"os"
-	"path/filepath"
 
 	"capnproto.org/go/capnp/v3"
 	"capnproto.org/go/capnp/v3/rpc"
@@ -25,8 +22,26 @@ import (
 //restorer_sr: capnp://vat@host:port
 
 func main() {
-	useTLS := flag.String("tls", "", "directory containing server.crt and server.key for TLS")
+	configPath := flag.String("config", "", "config file")
+	configGen := flag.Bool("config-gen", false, "generate a config file")
 	flag.Parse()
+
+	// read the config file, if it exists
+	var config *commonlib.Config
+	var err error
+	if *configGen {
+		// generate a config file if it does not exist yet
+		config, err = commonlib.ConfigGen(*configPath)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println("Config file generated at:", *configPath)
+	} else {
+		config, err = commonlib.ReadConfig(*configPath)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 
 	// create a restorer
 	restorer := commonlib.NewRestorer("localhost", 0) // port 0 means: use any free port
@@ -40,39 +55,11 @@ func main() {
 	}
 
 	// start listening for connections
-	hostStr := fmt.Sprintf("%s:%d", restorer.Host(), restorer.Port())
-	var listener net.Listener
-	if *useTLS != "" {
-		// read the cert and key file
-		certFile := filepath.Join(*useTLS, "server.crt")
-		keyFile := filepath.Join(*useTLS, "server.key")
-		_, err = os.Stat(certFile)
-		if err != nil {
-			log.Fatal(err)
-		}
-		_, err = os.Stat(keyFile)
-		if err != nil {
-			log.Fatal(err)
-		}
-		cert, err := tls.LoadX509KeyPair(certFile, keyFile)
-		if err != nil {
-			log.Fatal(err)
-		}
-		cfg := &tls.Config{Certificates: []tls.Certificate{cert}}
-		listener, err = tls.Listen("tcp", hostStr, cfg)
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer listener.Close()
-	} else {
-
-		// listen on a socket
-		listener, err = net.Listen("tcp", hostStr)
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer listener.Close()
+	listener, err := config.ListenForConnections(restorer.Host(), restorer.Port())
+	if err != nil {
+		log.Fatal(err)
 	}
+	defer listener.Close()
 
 	fmt.Printf("Service is listening on %s\n", listener.Addr())
 	fmt.Printf("service: service sr: %s\n", initialSturdyRef)

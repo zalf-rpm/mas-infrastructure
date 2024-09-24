@@ -16,9 +16,9 @@ import (
 )
 
 func main() {
-	useTls := flag.String("tls", "", "path to tls root cert")
 	sturdyRef := flag.String("sturdyref", "", "sturdy ref of the service")
 	imgFileName := flag.String("img", "streamedImg.png", "image file name")
+	configToml := flag.String("config", "config.toml", "config file")
 
 	flag.Parse()
 
@@ -26,10 +26,20 @@ func main() {
 		fmt.Println("Please specify a sturdy ref.")
 		return
 	}
-	conMgr := commonlib.NewConnectionManager()
-	if *useTls != "" {
-		conMgr.SetTlsRootCert(*useTls)
+	if *configToml != "" {
+		_, err := os.Stat(*configToml)
+		if err != nil {
+			fmt.Println(err)
+			// create a default config file
+			config := commonlib.DefaultConfig()
+			err = config.WriteConfig(*configToml)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+		}
 	}
+	conMgr := commonlib.NewConnectionManager(*configToml)
 
 	// create a connection to the restorer
 	initialSdr, err := conMgr.TryConnect(*sturdyRef, 1, 1, false)
