@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\zalfmas_capnpschemas\gen\csharp\zalfmas_capnpschemas.csproj" />
     <ProjectReference Include="..\BlazorComponents\BlazorComponents.csproj" />
     <ProjectReference Include="..\SharedDemo\SharedDemo.csproj" />
   </ItemGroup>

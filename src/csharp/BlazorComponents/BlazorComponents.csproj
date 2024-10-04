@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Razor">
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -20,9 +20,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../../capnproto_schemas/gen/csharp/capnproto_schemas_csharp.csproj" />
     <ProjectReference Include="../common/common.csproj" />
     <ProjectReference Include="..\..\..\..\capnproto-dotnetcore\Capnp.Net.Runtime\Capnp.Net.Runtime.csproj" />
+    <ProjectReference Include="..\..\..\zalfmas_capnpschemas\gen\csharp\zalfmas_capnpschemas.csproj" />
   </ItemGroup>
 
 </Project>

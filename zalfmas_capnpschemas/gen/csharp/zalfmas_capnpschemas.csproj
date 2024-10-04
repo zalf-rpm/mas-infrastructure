@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <PackageId>Zalf.Mas.CapnpSchemas</PackageId>
     <Version>0.0.1</Version>
     <PackageTags>Capnproto;ZALF;MAS;Schemas</PackageTags>
@@ -9,8 +9,11 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Capnp.Net.Runtime" Version="1.3.134" />
     <PackageReference Include="MudBlazor" Version="7.6.0" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\capnproto-dotnetcore\Capnp.Net.Runtime\Capnp.Net.Runtime.csproj" />
   </ItemGroup>
 
 </Project>

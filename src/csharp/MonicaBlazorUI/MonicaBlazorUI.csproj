@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -14,10 +14,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../../capnproto_schemas/gen/csharp/capnproto_schemas_csharp.csproj" />
     <!--<ProjectReference Include="../Application/Application.csproj" />-->
     <ProjectReference Include="../BlazorComponents/BlazorComponents.csproj" />
     <ProjectReference Include="../common/common.csproj" />
+    <ProjectReference Include="..\..\..\..\capnproto-dotnetcore\Capnp.Net.Runtime\Capnp.Net.Runtime.csproj" />
+    <ProjectReference Include="..\..\..\zalfmas_capnpschemas\gen\csharp\zalfmas_capnpschemas.csproj" />
     <!--<ProjectReference Include="../Core/Core.csproj" />-->
   </ItemGroup>
 
