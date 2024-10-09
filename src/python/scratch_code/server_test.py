@@ -6,24 +6,12 @@ import sys
 import time
 import random
 
-PATH_TO_REPO = Path(os.path.realpath(__file__)).parent.parent.parent
-if str(PATH_TO_REPO) not in sys.path:
-    sys.path.insert(1, str(PATH_TO_REPO))
-
-PATH_TO_PYTHON_CODE = PATH_TO_REPO / "src/python"
-if str(PATH_TO_PYTHON_CODE) not in sys.path:
-    sys.path.insert(1, str(PATH_TO_PYTHON_CODE))
-
-#import common.capnp_async_helpers as async_helpers
-#import common.common as common
-
-PATH_TO_CAPNP_SCHEMAS = PATH_TO_REPO / "capnproto_schemas"
-abs_imports = [str(PATH_TO_CAPNP_SCHEMAS)]
-a_capnp = capnp.load(str(PATH_TO_REPO / "src" / "python" / "a.capnp"), imports=abs_imports)
-#common_capnp = capnp.load(str(PATH_TO_CAPNP_SCHEMAS / "common.capnp"), imports=abs_imports)
+from zalfmas_common import service as serv
+import zalfmas_capnpschemas
+sys.path.append(os.path.dirname(zalfmas_capnpschemas.__file__))
+import a_capnp
 
 count = 0
-
 
 async def bla():
     global count
@@ -123,10 +111,9 @@ def new_connection(bs):
     return new_con
 
 async def main():
-    a = AA()
-    server = await capnp.AsyncIoStream.create_server(new_connection(a), "localhost", "9999")
-    async with server:
-        await server.serve_forever()
+    await serv.init_and_run_service({"service": AA()}, "localhost", 9999,
+                                    serve_bootstrap=True,
+                                    name_to_service_srs={"service": "aaaa"})
 
 if __name__ == '__main__':
     asyncio.run(capnp.run(main()))

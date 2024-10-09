@@ -1,15 +1,13 @@
 [tool.poetry]
-name = "zalfmas-pkgs"
+name = "scratch-code"
 version = "0.1.0"
-description = "ZALF/MAS shared packages"
+description = ""
 authors = ["Michael Berg-Mohnicke <michael.berg@zalf.de>"]
-license = "MPL v2.0"
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-pycapnp = "2.0"
-pysodium = "^0.7.17"
+zalfmas-common = "^0.1.3"
 
 
 [build-system]

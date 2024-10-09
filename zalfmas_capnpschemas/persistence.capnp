@@ -114,11 +114,11 @@ interface Persistent {
     unsaveSR                @1 :SturdyRef;
     # sturdy ref referring to an ReleaseSturdyRef capability to unsave the referenced capability
 
-    heartbeat               @2 :Heartbeat;
+    #heartbeat               @2 :Heartbeat;
     # heartbeat capability to keep the sturdy ref registration alive
     # if the heartbeat is null, you have to assume the saved capability can be lost at any time
 
-    secsHeartbeatInterval   @4 :UInt32;
+    #secsHeartbeatInterval   @3 :UInt32;
     # interval in seconds to call the heartbeat capability
   }
 
@@ -190,11 +190,11 @@ interface Gateway extends(Identifiable, Restorer) {
     sturdyRef               @0 :SturdyRef;
     # the actual sturdy reference to the registered capability
 
-    heartbeat               @2 :Heartbeat;
+    heartbeat               @1 :Heartbeat;
     # heartbeat capability to keep the sturdy ref registration alive
     # if the heartbeat is null, you have to assume the saved capability can be lost at any time
 
-    secsHeartbeatInterval   @4 :UInt32;
+    secsHeartbeatInterval   @2 :UInt32;
     # interval in seconds to call the heartbeat capability
   }
 }

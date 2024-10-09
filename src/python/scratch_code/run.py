@@ -161,8 +161,9 @@ def x():
 
 async def run_soil_service():
     con_man = common.ConnectionManager()
-    sr = "capnp://B8NKD4qssSlDBlpc77kYjxxsIGx9-Fqj6tLxE5Z-qrs=@10.10.24.176:33907/1ee32f4f-f4f3-4207-994d-a5b079cb337a"
+    sr = "capnp://4tcFIC5QK9SJ5q7axICdolFzbLWTKJGT4XBFZTlohjM=@10.10.88.69:43661/576f8b03-a1fd-4147-8584-bc4c314dfb47"
     service = await con_man.try_connect(sr, cast_as=soil_capnp.Service)
+    #restorer = await con_man.try_connect(sr, cast_as=persistence_capnp.Restorer)
     try:
         print(await service.info())
     except Exception as e:
@@ -269,7 +270,7 @@ async def run_time_series():
     #await cap.m(id=123)
 
     con_man = common.ConnectionManager()
-    sr = "capnp://o7Hm91vJAmyg4eBdrnCOZJinc9CjRm6uVwOwo0Ni0PE=@localhost:39529/6dd2a1a7-2536-41b2-8a84-ec4cd845ad1e"
+    sr = "capnp://dEE_A1HNhE2T57NNMNLyzx3fdQzPlFMG3IUCHHMp06Y=@10.10.88.69:34898/7bc3c425-1076-4d68-b5bd-840a45f0f26c"
     #time_series = await con_man.try_connect(sr, cast_as=climate_capnp.TimeSeries)
     service = await con_man.try_connect(sr, cast_as=climate_capnp.Service)
     try:
@@ -683,7 +684,7 @@ async def main():
 
     await run_soil_service()
 
-    #await run_time_series()
+    await run_time_series()
 
     #await run_channel()
 

@@ -1,0 +1,19 @@
+# MAS service configuration file
+
+[service]
+id = "45579662-bdf0-49db-9808-860135170794"
+name = "DWD/UBN - historical - 1901 - 2023"
+description = "No description for service 45579662-bdf0-49db-9808-860135170794"
+path_to_data = "/path/to/data"
+path_to_latlon_to_rowcol = "/path/to/latlon-to-rowcol.json"
+
+[caps]
+fixed_sturdy_ref_token = "a_sturdy_ref_token"
+[[caps.registry]]
+sturdy_ref = "capnp://the_host_key@host:port/a_sturdy_ref_token"
+category = "climate"
+
+[network]
+host = "localhost"
+port = 0
+serve_bootstrap = true

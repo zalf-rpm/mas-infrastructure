@@ -1,0 +1,129 @@
+{
+	"crop.json": "crop.json",
+	"site.json": "site.json",
+	"climate.csv": "",
+
+	"climate.csv-options": {
+        "no-of-climate-file-header-lines": 2,
+        "csv-separator": ",",
+        "header-to-acd-names": {}
+    },
+	
+	"debug?": false,
+	"path-to-output": "./",
+	"include-file-base-path": "data/params/",
+	
+	"output": { 
+	  	"write-file?": false,
+		"file-name": "out.csv",
+	
+		"csv-options": {
+			"include-header-row": true,
+			"include-units-row": false,
+			"csv-separator": ","
+		},
+
+		"obj-outputs?": true,
+
+		"events": [
+			"crop", [
+				["CM-count", "FIRST"],
+				["Crop", "FIRST"],
+				["Yield", "LAST"]
+			],
+			"Sowing", [
+				"CM-count",
+				"Crop",
+				"DOY|sdoy",
+				["Mois|ssm03", [1, 3, "AVG"]],
+				["Mois|ssm36", [4, 6, "AVG"]],
+				["Mois|ssm69", [7, 9, "AVG"]]
+			],		
+			"Stage-2", [
+				"CM-count",
+				"DOY|s2doy",
+				["Mois|s2sm03", [1, 3, "AVG"]],
+				["Mois|s2sm36", [4, 6, "AVG"]],
+				["Mois|s2sm69", [7, 9, "AVG"]]
+			],
+			"stem-elongation", [
+				"CM-count",
+				"DOY|sedoy",
+				["Mois|sesm03", [1, 3, "AVG"]],
+				["Mois|sesm36", [4, 6, "AVG"]],
+				["Mois|sesm69", [7, 9, "AVG"]]
+			],
+			"Stage-3", [
+				"CM-count",
+				"DOY|s3doy",
+				["Mois|s3sm03", [1, 3, "AVG"]],
+				["Mois|s3sm36", [4, 6, "AVG"]],
+				["Mois|s3sm69", [7, 9, "AVG"]]
+			],
+			"Stage-4", [
+				"CM-count",
+				"DOY|s4doy",
+				["Mois|s4sm03", [1, 3, "AVG"]],
+				["Mois|s4sm36", [4, 6, "AVG"]],
+				["Mois|s4sm69", [7, 9, "AVG"]]
+			],
+			"Stage-5", [
+				"CM-count",
+				"DOY|s5doy",
+				["Mois|s5sm03", [1, 3, "AVG"]],
+				["Mois|s5sm36", [4, 6, "AVG"]],
+				["Mois|s5sm69", [7, 9, "AVG"]]
+			],
+			"Stage-6", [
+				"CM-count",
+				"DOY|s6doy",
+				["Mois|s6sm03", [1, 3, "AVG"]],
+				["Mois|s6sm36", [4, 6, "AVG"]],
+				["Mois|s6sm69", [7, 9, "AVG"]]
+			],
+			"Stage-7", [
+				"CM-count",
+				"DOY|s7doy",
+				["Mois|s7sm03", [1, 3, "AVG"]],
+				["Mois|s7sm36", [4, 6, "AVG"]],
+				["Mois|s7sm69", [7, 9, "AVG"]]
+			],
+			"Harvest", [
+				"CM-count",
+				"Year",
+				"DOY|hdoy",
+				["Mois|hsm03", [1, 3, "AVG"]],
+				["Mois|hsm36", [4, 6, "AVG"]],
+				["Mois|hsm69", [7, 9, "AVG"]]
+			]
+		]
+	},
+
+	"UseSecondaryYields": false,
+	"NitrogenResponseOn": true,
+	"WaterDeficitResponseOn": true,
+	"EmergenceMoistureControlOn": false,
+	"EmergenceFloodingControlOn": false,
+
+	"UseAutomaticIrrigation": false,
+	"AutoIrrigationParams": {
+		"irrigationParameters": {
+			"nitrateConcentration": [0, "mg dm-3"],
+			"sulfateConcentration": [0, "mg dm-3"]
+		},
+		"amount": [0, "mm"],
+		"threshold": 0.9
+	},
+
+	"UseNMinMineralFertilisingMethod": true,
+	"NMinUserParams": { "min": 40, "max": 120, "delayInDays": 10 },
+	"NMinFertiliserPartition": {
+		"Carbamid": 0,
+		"NH4": 0.5,
+		"NO3": 0.5,
+		"id": "AN",
+		"name": "Ammonium Nitrate",
+		"type": "MineralFertiliserParameters"
+	},
+	"JulianDayAutomaticFertilising": 89
+}

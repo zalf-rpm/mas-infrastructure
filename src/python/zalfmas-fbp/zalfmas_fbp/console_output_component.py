@@ -11,10 +11,9 @@
 # Maintainers:
 # Currently maintained by the authors.
 #
-# This file is part of the util library used by models created at the Institute of
-# Landscape Systems Analysis at the ZALF.
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
+import asyncio
 import capnp
 import os
 import sys
@@ -26,13 +25,14 @@ import common_capnp
 import fbp_capnp
 
 config = {
-    "in_sr": None,  # string
+    "in_sr": "capnp://_VcNoyHw5kwHS62qx_uIHqrnhYXUPEmfegbtIY9rf4I@10.10.25.19:9922/r_out",  # string
 }
 
 async def main(config: dict):
     common.update_config(config, sys.argv, print_config=True,
                          allow_new_keys=False)
-    ports, close_out_ports = await fbp.connect_ports(config)
+    cm = common.ConnectionManager()
+    ports, close_out_ports = await fbp.connect_ports(config, cm)
 
     while ports["in"]:
         try:
@@ -40,7 +40,7 @@ async def main(config: dict):
             if in_msg.which() == "done":
                 ports["in"] = None
                 continue
-            in_ip = msg.value.as_struct(fbp_capnp.IP)
+            in_ip = in_msg.value.as_struct(fbp_capnp.IP)
             print(in_ip.content.as_text())
         except Exception as e:
             print(f"{os.path.basename(__file__)} Exception:", e)
