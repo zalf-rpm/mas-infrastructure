@@ -6,29 +6,29 @@ message(STATUS "-> MAS-infrastructure-capnp-schemas")
 find_package(CapnProto CONFIG REQUIRED)
 find_package(ZLIB)
 
-set(CAPNPC_SRC_PREFIX ${CAPNP_SCHEMAS_DIR})
+set(CAPNPC_SRC_PREFIX ${CAPNP_SCHEMAS_DIR}/zalfmas_capnp_schemas)
 
 capnp_generate_cpp(CAPNP_SRCS CAPNP_HDRS 
-	common.capnp 
-	climate.capnp
-	cluster_admin_service.capnp
-	crop.capnp
-	date.capnp
-	fbp.capnp
-	geo.capnp
-	management.capnp
-	model.capnp
-	model/monica/monica_management.capnp
-	model/monica/monica_params.capnp
-	model/monica/soil_params.capnp
-	model/monica/monica_state.capnp
-	persistence.capnp
-	registry.capnp
-	service.capnp
-	soil.capnp
-	storage.capnp
-	model/yieldstat/yieldstat.capnp
-	x.capnp
+	zalfmas_capnp_schemas/common.capnp 
+	zalfmas_capnp_schemas/climate.capnp
+	zalfmas_capnp_schemas/cluster_admin_service.capnp
+	zalfmas_capnp_schemas/crop.capnp
+	zalfmas_capnp_schemas/date.capnp
+	zalfmas_capnp_schemas/fbp.capnp
+	zalfmas_capnp_schemas/geo.capnp
+	zalfmas_capnp_schemas/management.capnp
+	zalfmas_capnp_schemas/model.capnp
+	zalfmas_capnp_schemas/model/monica/monica_management.capnp
+	zalfmas_capnp_schemas/model/monica/monica_params.capnp
+	zalfmas_capnp_schemas/model/monica/soil_params.capnp
+	zalfmas_capnp_schemas/model/monica/monica_state.capnp
+	zalfmas_capnp_schemas/persistence.capnp
+	zalfmas_capnp_schemas/registry.capnp
+	zalfmas_capnp_schemas/service.capnp
+	zalfmas_capnp_schemas/soil.capnp
+	zalfmas_capnp_schemas/storage.capnp
+	zalfmas_capnp_schemas/model/yieldstat/yieldstat.capnp
+	zalfmas_capnp_schemas/x.capnp
 )
 message(STATUS "CAPNP_HDRS: " ${CAPNP_HDRS})
 message(STATUS "CAPNP_SRCS: " ${CAPNP_SRCS})	
