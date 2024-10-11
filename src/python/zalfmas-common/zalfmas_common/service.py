@@ -20,9 +20,9 @@ import sys
 import threading
 
 from zalfmas_common import common
-import zalfmas_capnpschemas
+import zalfmas_capnp_schemas
 
-sys.path.append(os.path.dirname(zalfmas_capnpschemas.__file__))
+sys.path.append(os.path.dirname(zalfmas_capnp_schemas.__file__))
 import common_capnp
 import fbp_capnp
 import persistence_capnp

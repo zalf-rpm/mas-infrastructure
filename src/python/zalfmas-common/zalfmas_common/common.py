@@ -26,8 +26,8 @@ import tomlkit as tk
 import urllib.parse as urlp
 import uuid
 
-import zalfmas_capnpschemas
-sys.path.append(os.path.dirname(zalfmas_capnpschemas.__file__))
+import zalfmas_capnp_schemas
+sys.path.append(os.path.dirname(zalfmas_capnp_schemas.__file__))
 import common_capnp
 import persistence_capnp
 

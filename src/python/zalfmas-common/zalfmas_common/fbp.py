@@ -30,8 +30,8 @@ import uuid
 from zalfmas_common import common
 from zalfmas_common import service as serv
 
-import zalfmas_capnpschemas
-sys.path.append(os.path.dirname(zalfmas_capnpschemas.__file__))
+import zalfmas_capnp_schemas
+sys.path.append(os.path.dirname(zalfmas_capnp_schemas.__file__))
 import common_capnp
 import fbp_capnp
 import registry_capnp as reg_capnp
