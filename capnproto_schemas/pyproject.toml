@@ -1,15 +1,14 @@
 [tool.poetry]
-name = "zalfmas-fbp"
-version = "0.1.0"
+name = "zalfmas-capnp-schemas"
+version = "0.1.1"
 description = ""
 authors = ["Michael Berg-Mohnicke <michael.berg@zalf.de>"]
 readme = "README.md"
 
+packages = [{ include = "zalfmas_capnp_schemas" }]
+
 [tool.poetry.dependencies]
 python = "^3.10"
-zalfmas-common = "^0.1.4"
-zalfmas-capnp-schemas = "^0.1.1"
-
 
 [build-system]
 requires = ["poetry-core"]

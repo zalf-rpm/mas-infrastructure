@@ -1,12 +1,12 @@
 [tool.poetry]
 name = "zalfmas-common"
-version = "0.1.3"
+version = "0.1.4"
 description = ""
 authors = ["Michael Berg-Mohnicke <michael.berg@zalf.de>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.10"
 pycapnp = "^2.0.0"
 pysodium = "^0.7.17"
 pyproj = "^3.6.1"
@@ -14,8 +14,8 @@ scipy = "^1.13.1"
 pandas = "^2.2.2"
 psutil = "^5.9.8"
 #zalfmas-capnpschemas = {path = "../../..", develop = true}
-zalfmas-capnpschemas = "^0.1.0"
 tomlkit = "^0.13.2"
+zalfmas-capnp-schemas = "^0.1.0"
 
 
 [build-system]

@@ -384,6 +384,7 @@
         new Highchart.AxisConfig { Id = "def", Title = "other values" },
         new Highchart.AxisConfig { Id = "yields", Title = "Yield [kg/ha]", Opposite = true }
     ];
+
     private Dictionary<string, Highchart.CurveConfig> _curveName2Config = new()
     {
         { "Yield", new Highchart.CurveConfig { DisplayAxisId = "yields", IsVisible = true } }
