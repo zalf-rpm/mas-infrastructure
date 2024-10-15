@@ -11,8 +11,6 @@
 # Maintainers:
 # Currently maintained by the authors.
 #
-# This file has been created at the Institute of
-# Landscape Systems Analysis at the ZALF.
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 import asyncio
@@ -20,13 +18,11 @@ import capnp
 import os
 from pathlib import Path
 import sys
-
 from zalfmas_common import common
 from zalfmas_common import service as serv
 from zalfmas_common.climate import csv_file_based as csv_based
 import zalfmas_capnp_schemas
-
-sys.path.append(os.path.dirname(zalfmas_capnpschemas.__file__))
+sys.path.append(os.path.dirname(zalfmas_capnp_schemas.__file__))
 
 
 async def main(path_to_csv_file, serve_bootstrap=True, host=None, port=None,
@@ -44,15 +40,17 @@ async def main(path_to_csv_file, serve_bootstrap=True, host=None, port=None,
     }
     common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
-    service = csv_based.TimeSeries.from_csv_file(config["path_to_csv_file"],
-                                                 header_map={},  # {"windspeed": "wind"},
-                                                 pandas_csv_config={}  # {"sep": ";"}
-                                                 )
-    await serv.init_and_run_service({"service": service}, config["host"], config["port"],
-                                    serve_bootstrap=config["serve_bootstrap"],
-                                    name_to_service_srs={"service": config["srt"]})
+    if config["path_to_csv_file"]:
+        service = csv_based.TimeSeries.from_csv_file(config["path_to_csv_file"],
+                                                     header_map={},  # {"windspeed": "wind"},
+                                                     pandas_csv_config={}  # {"sep": ";"}
+                                                     )
+        await serv.init_and_run_service({"service": service}, config["host"], config["port"],
+                                        serve_bootstrap=config["serve_bootstrap"],
+                                        name_to_service_srs={"service": config["srt"]})
+    else:
+        print("No path to csv file given.")
 
 
 if __name__ == '__main__':
-    path = str(Path(zalfmas_capnpschemas.__file__).parent.parent / "data/climate/climate-iso.csv")
-    asyncio.run(capnp.run(main(path)))
+    asyncio.run(capnp.run(main(None)))
