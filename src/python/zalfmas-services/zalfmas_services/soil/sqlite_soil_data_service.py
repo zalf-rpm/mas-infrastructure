@@ -25,15 +25,13 @@ import sqlite3
 import sys
 # import time
 import uuid
-
 from zalfmas_common import common
 from zalfmas_common import service as serv
 from zalfmas_common import geo
 from zalfmas_common import rect_ascii_grid_management as grid_man
 from zalfmas_common.soil import soil_io
-import zalfmas_capnpschemas
-
-sys.path.append(os.path.dirname(zalfmas_capnpschemas.__file__))
+import zalfmas_capnp_schemas
+sys.path.append(os.path.dirname(zalfmas_capnp_schemas.__file__))
 import fbp_capnp
 import geo_capnp
 import soil_capnp
@@ -426,6 +424,10 @@ async def main(path_to_sqlite_db=None, path_to_ascii_soil_grid=None, grid_crs=No
             print("Couldn't create CRS from soil grid name:", config["path_to_ascii_soil_grid"])
             exit(0)
 
+    if not config["path_to_sqlite_db"]:
+        print("No path to sqlite db given.")
+        exit(0)
+
     restorer = common.Restorer()
     service = Service(
         path_to_sqlite_db=config["path_to_sqlite_db"],
@@ -440,10 +442,5 @@ async def main(path_to_sqlite_db=None, path_to_ascii_soil_grid=None, grid_crs=No
                                         name_to_service_srs={"service": config["srt"]},
                                         restorer=restorer)
 
-
 if __name__ == '__main__':
-    #db = str(Path(zalfmas_capnpschemas.__file__).parent.parent / "data/soil/buek1000.sqlite")
-    #grid = str(Path(zalfmas_capnpschemas.__file__).parent.parent / "data/soil/buek1000_1000_31469_gk5.asc")
-    #db = str(Path(zalfmas_capnpschemas.__file__).parent.parent / "data/soil/buek200.sqlite")
-    #grid = str(Path(zalfmas_capnpschemas.__file__).parent.parent / "data/soil/buek200_1000_25832_etrs89-utm32n.asc")
     asyncio.run(capnp.run(main(serve_bootstrap=True)))

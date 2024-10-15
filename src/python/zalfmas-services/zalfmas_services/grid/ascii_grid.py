@@ -35,9 +35,9 @@ from zalfmas_common.climate import csv_file_based as csv_based
 from zalfmas_common import fbp
 from zalfmas_common import geo
 from zalfmas_common import rect_ascii_grid_management as grid_man
-import zalfmas_capnpschemas
+import zalfmas_capnp_schemas
 
-sys.path.append(os.path.dirname(zalfmas_capnpschemas.__file__))
+sys.path.append(os.path.dirname(zalfmas_capnp_schemas.__file__))
 import climate_capnp
 import registry_capnp as reg_capnp
 import common_capnp
@@ -482,7 +482,7 @@ async def main(path_to_ascii_grid=None, grid_crs=None, val_type=None, serve_boot
 
 if __name__ == '__main__':
     # grid = "data/geo/dem_1000_31469_gk5.asc"
-    #grid = str(Path(zalfmas_capnpschemas.__file__).parent.parent / "data/geo/slope_1000_31469_gk5.asc")
+    #grid = str(Path(zalfmas_capnp_schemas.__file__).parent.parent / "data/geo/slope_1000_31469_gk5.asc")
     #crs = "gk5"
     #asyncio.run(capnp.run(main(grid, crs, "float", serve_bootstrap=True)))
     #asyncio.run(capnp.run(main(path_to_ascii_grid="/home/berg/GitHub/klimertrag_2/data/germany/buek200_1000_25832_etrs89-utm32n.asc",

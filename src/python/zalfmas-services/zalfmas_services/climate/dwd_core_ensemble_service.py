@@ -29,9 +29,9 @@ from zalfmas_common.climate import csv_file_based as csv_based
 from zalfmas_common import fbp
 from zalfmas_common import geo
 from zalfmas_common import rect_ascii_grid_management as grid_man
-import zalfmas_capnpschemas
+import zalfmas_capnp_schemas
 
-sys.path.append(os.path.dirname(zalfmas_capnpschemas.__file__))
+sys.path.append(os.path.dirname(zalfmas_capnp_schemas.__file__))
 import climate_capnp
 import registry_capnp as reg_capnp
 

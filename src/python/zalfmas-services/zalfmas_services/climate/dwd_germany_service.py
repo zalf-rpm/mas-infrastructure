@@ -26,9 +26,9 @@ from zalfmas_common import common
 from zalfmas_common import service as serv
 from zalfmas_common.climate import csv_file_based as csv_based
 from zalfmas_common import fbp
-import zalfmas_capnpschemas
+import zalfmas_capnp_schemas
 
-sys.path.append(os.path.dirname(zalfmas_capnpschemas.__file__))
+sys.path.append(os.path.dirname(zalfmas_capnp_schemas.__file__))
 import climate_capnp
 import common_capnp
 import fbp_capnp
