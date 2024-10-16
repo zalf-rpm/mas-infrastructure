@@ -1025,7 +1025,7 @@ namespace Mas.Schema.Model
     public static class EnvInstanceProxy<TRestInput, TOutput>
         where TRestInput : class where TOutput : class
     {
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xc727892bd5c66f88UL), Proxy(typeof(EnvInstanceProxy<object, object>.Unregister_Proxy)), Skeleton(typeof(EnvInstanceProxy<object, object>.Unregister_Skeleton))]
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xc727892bd5c66f88UL), Proxy(typeof(Unregister_Proxy)), Skeleton(typeof(Unregister_Skeleton))]
         public interface IUnregister : IDisposable
         {
             Task<bool> Unregister(CancellationToken cancellationToken_ = default);

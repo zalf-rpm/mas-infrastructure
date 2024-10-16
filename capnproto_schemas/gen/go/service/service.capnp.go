@@ -5,20 +5,18 @@ package service
 import (
 	capnp "capnproto.org/go/capnp/v3"
 	text "capnproto.org/go/capnp/v3/encoding/text"
-	fc "capnproto.org/go/capnp/v3/flowcontrol"
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
 	common "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common"
 )
 
-type Admin capnp.Client
+type Admin struct{ Client *capnp.Client }
 
 // Admin_TypeID is the unique identifier for the type Admin.
 const Admin_TypeID = 0xfec1f88b198df649
 
 func (c Admin) Heartbeat(ctx context.Context, params func(Admin_heartbeat_Params) error) (Admin_heartbeat_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xfec1f88b198df649,
@@ -29,16 +27,12 @@ func (c Admin) Heartbeat(ctx context.Context, params func(Admin_heartbeat_Params
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Admin_heartbeat_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Admin_heartbeat_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Admin_heartbeat_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c Admin) SetTimeout(ctx context.Context, params func(Admin_setTimeout_Params) error) (Admin_setTimeout_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xfec1f88b198df649,
@@ -49,16 +43,12 @@ func (c Admin) SetTimeout(ctx context.Context, params func(Admin_setTimeout_Para
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Admin_setTimeout_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Admin_setTimeout_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Admin_setTimeout_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c Admin) Stop(ctx context.Context, params func(Admin_stop_Params) error) (Admin_stop_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xfec1f88b198df649,
@@ -69,16 +59,12 @@ func (c Admin) Stop(ctx context.Context, params func(Admin_stop_Params) error) (
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Admin_stop_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Admin_stop_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Admin_stop_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c Admin) Identities(ctx context.Context, params func(Admin_identities_Params) error) (Admin_identities_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xfec1f88b198df649,
@@ -89,16 +75,12 @@ func (c Admin) Identities(ctx context.Context, params func(Admin_identities_Para
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Admin_identities_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Admin_identities_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Admin_identities_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c Admin) UpdateIdentity(ctx context.Context, params func(Admin_updateIdentity_Params) error) (Admin_updateIdentity_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xfec1f88b198df649,
@@ -109,16 +91,12 @@ func (c Admin) UpdateIdentity(ctx context.Context, params func(Admin_updateIdent
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 2}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Admin_updateIdentity_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Admin_updateIdentity_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Admin_updateIdentity_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c Admin) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -129,83 +107,20 @@ func (c Admin) Info(ctx context.Context, params func(common.Identifiable_info_Pa
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
-
 }
 
-func (c Admin) WaitStreaming() error {
-	return capnp.Client(c).WaitStreaming()
-}
-
-// String returns a string that identifies this capability for debugging
-// purposes.  Its format should not be depended on: in particular, it
-// should not be used to compare clients.  Use IsSame to compare clients
-// for equality.
-func (c Admin) String() string {
-	return "Admin(" + capnp.Client(c).String() + ")"
-}
-
-// AddRef creates a new Client that refers to the same capability as c.
-// If c is nil or has resolved to null, then AddRef returns nil.
 func (c Admin) AddRef() Admin {
-	return Admin(capnp.Client(c).AddRef())
+	return Admin{
+		Client: c.Client.AddRef(),
+	}
 }
 
-// Release releases a capability reference.  If this is the last
-// reference to the capability, then the underlying resources associated
-// with the capability will be released.
-//
-// Release will panic if c has already been released, but not if c is
-// nil or resolved to null.
 func (c Admin) Release() {
-	capnp.Client(c).Release()
-}
-
-// Resolve blocks until the capability is fully resolved or the Context
-// expires.
-func (c Admin) Resolve(ctx context.Context) error {
-	return capnp.Client(c).Resolve(ctx)
-}
-
-func (c Admin) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Client(c).EncodeAsPtr(seg)
-}
-
-func (Admin) DecodeFromPtr(p capnp.Ptr) Admin {
-	return Admin(capnp.Client{}.DecodeFromPtr(p))
-}
-
-// IsValid reports whether c is a valid reference to a capability.
-// A reference is invalid if it is nil, has resolved to null, or has
-// been released.
-func (c Admin) IsValid() bool {
-	return capnp.Client(c).IsValid()
-}
-
-// IsSame reports whether c and other refer to a capability created by the
-// same call to NewClient.  This can return false negatives if c or other
-// are not fully resolved: use Resolve if this is an issue.  If either
-// c or other are released, then IsSame panics.
-func (c Admin) IsSame(other Admin) bool {
-	return capnp.Client(c).IsSame(capnp.Client(other))
-}
-
-// Update the flowcontrol.FlowLimiter used to manage flow control for
-// this client. This affects all future calls, but not calls already
-// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
-// which is also the default.
-func (c Admin) SetFlowLimiter(lim fc.FlowLimiter) {
-	capnp.Client(c).SetFlowLimiter(lim)
-}
-
-// Get the current flowcontrol.FlowLimiter used to manage flow control
-// for this client.
-func (c Admin) GetFlowLimiter() fc.FlowLimiter {
-	return capnp.Client(c).GetFlowLimiter()
+	c.Client.Release()
 }
 
 // A Admin_Server is a Admin with a local implementation.
@@ -224,15 +139,15 @@ type Admin_Server interface {
 }
 
 // Admin_NewServer creates a new Server from an implementation of Admin_Server.
-func Admin_NewServer(s Admin_Server) *server.Server {
+func Admin_NewServer(s Admin_Server, policy *server.Policy) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(Admin_Methods(nil, s), s, c)
+	return server.New(Admin_Methods(nil, s), s, c, policy)
 }
 
 // Admin_ServerToClient creates a new Client from an implementation of Admin_Server.
 // The caller is responsible for calling Release on the returned Client.
-func Admin_ServerToClient(s Admin_Server) Admin {
-	return Admin(capnp.NewClient(Admin_NewServer(s)))
+func Admin_ServerToClient(s Admin_Server, policy *server.Policy) Admin {
+	return Admin{Client: capnp.NewClient(Admin_NewServer(s, policy))}
 }
 
 // Admin_Methods appends Methods to a slice that invoke the methods on s.
@@ -325,13 +240,13 @@ type Admin_heartbeat struct {
 
 // Args returns the call's arguments.
 func (c Admin_heartbeat) Args() Admin_heartbeat_Params {
-	return Admin_heartbeat_Params(c.Call.Args())
+	return Admin_heartbeat_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Admin_heartbeat) AllocResults() (Admin_heartbeat_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Admin_heartbeat_Results(r), err
+	return Admin_heartbeat_Results{Struct: r}, err
 }
 
 // Admin_setTimeout holds the state for a server call to Admin.setTimeout.
@@ -342,13 +257,13 @@ type Admin_setTimeout struct {
 
 // Args returns the call's arguments.
 func (c Admin_setTimeout) Args() Admin_setTimeout_Params {
-	return Admin_setTimeout_Params(c.Call.Args())
+	return Admin_setTimeout_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Admin_setTimeout) AllocResults() (Admin_setTimeout_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Admin_setTimeout_Results(r), err
+	return Admin_setTimeout_Results{Struct: r}, err
 }
 
 // Admin_stop holds the state for a server call to Admin.stop.
@@ -359,13 +274,13 @@ type Admin_stop struct {
 
 // Args returns the call's arguments.
 func (c Admin_stop) Args() Admin_stop_Params {
-	return Admin_stop_Params(c.Call.Args())
+	return Admin_stop_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Admin_stop) AllocResults() (Admin_stop_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Admin_stop_Results(r), err
+	return Admin_stop_Results{Struct: r}, err
 }
 
 // Admin_identities holds the state for a server call to Admin.identities.
@@ -376,13 +291,13 @@ type Admin_identities struct {
 
 // Args returns the call's arguments.
 func (c Admin_identities) Args() Admin_identities_Params {
-	return Admin_identities_Params(c.Call.Args())
+	return Admin_identities_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Admin_identities) AllocResults() (Admin_identities_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Admin_identities_Results(r), err
+	return Admin_identities_Results{Struct: r}, err
 }
 
 // Admin_updateIdentity holds the state for a server call to Admin.updateIdentity.
@@ -393,755 +308,649 @@ type Admin_updateIdentity struct {
 
 // Args returns the call's arguments.
 func (c Admin_updateIdentity) Args() Admin_updateIdentity_Params {
-	return Admin_updateIdentity_Params(c.Call.Args())
+	return Admin_updateIdentity_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Admin_updateIdentity) AllocResults() (Admin_updateIdentity_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Admin_updateIdentity_Results(r), err
+	return Admin_updateIdentity_Results{Struct: r}, err
 }
 
-// Admin_List is a list of Admin.
-type Admin_List = capnp.CapList[Admin]
-
-// NewAdmin creates a new list of Admin.
-func NewAdmin_List(s *capnp.Segment, sz int32) (Admin_List, error) {
-	l, err := capnp.NewPointerList(s, sz)
-	return capnp.CapList[Admin](l), err
-}
-
-type Admin_heartbeat_Params capnp.Struct
+type Admin_heartbeat_Params struct{ capnp.Struct }
 
 // Admin_heartbeat_Params_TypeID is the unique identifier for the type Admin_heartbeat_Params.
 const Admin_heartbeat_Params_TypeID = 0xd627f31bdae7f234
 
 func NewAdmin_heartbeat_Params(s *capnp.Segment) (Admin_heartbeat_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Admin_heartbeat_Params(st), err
+	return Admin_heartbeat_Params{st}, err
 }
 
 func NewRootAdmin_heartbeat_Params(s *capnp.Segment) (Admin_heartbeat_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Admin_heartbeat_Params(st), err
+	return Admin_heartbeat_Params{st}, err
 }
 
 func ReadRootAdmin_heartbeat_Params(msg *capnp.Message) (Admin_heartbeat_Params, error) {
 	root, err := msg.Root()
-	return Admin_heartbeat_Params(root.Struct()), err
+	return Admin_heartbeat_Params{root.Struct()}, err
 }
 
 func (s Admin_heartbeat_Params) String() string {
-	str, _ := text.Marshal(0xd627f31bdae7f234, capnp.Struct(s))
+	str, _ := text.Marshal(0xd627f31bdae7f234, s.Struct)
 	return str
 }
 
-func (s Admin_heartbeat_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Admin_heartbeat_Params) DecodeFromPtr(p capnp.Ptr) Admin_heartbeat_Params {
-	return Admin_heartbeat_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Admin_heartbeat_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Admin_heartbeat_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Admin_heartbeat_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Admin_heartbeat_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // Admin_heartbeat_Params_List is a list of Admin_heartbeat_Params.
-type Admin_heartbeat_Params_List = capnp.StructList[Admin_heartbeat_Params]
+type Admin_heartbeat_Params_List struct{ capnp.List }
 
 // NewAdmin_heartbeat_Params creates a new list of Admin_heartbeat_Params.
 func NewAdmin_heartbeat_Params_List(s *capnp.Segment, sz int32) (Admin_heartbeat_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[Admin_heartbeat_Params](l), err
+	return Admin_heartbeat_Params_List{l}, err
+}
+
+func (s Admin_heartbeat_Params_List) At(i int) Admin_heartbeat_Params {
+	return Admin_heartbeat_Params{s.List.Struct(i)}
+}
+
+func (s Admin_heartbeat_Params_List) Set(i int, v Admin_heartbeat_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Admin_heartbeat_Params_List) String() string {
+	str, _ := text.MarshalList(0xd627f31bdae7f234, s.List)
+	return str
 }
 
 // Admin_heartbeat_Params_Future is a wrapper for a Admin_heartbeat_Params promised by a client call.
 type Admin_heartbeat_Params_Future struct{ *capnp.Future }
 
-func (f Admin_heartbeat_Params_Future) Struct() (Admin_heartbeat_Params, error) {
-	p, err := f.Future.Ptr()
-	return Admin_heartbeat_Params(p.Struct()), err
+func (p Admin_heartbeat_Params_Future) Struct() (Admin_heartbeat_Params, error) {
+	s, err := p.Future.Struct()
+	return Admin_heartbeat_Params{s}, err
 }
 
-type Admin_heartbeat_Results capnp.Struct
+type Admin_heartbeat_Results struct{ capnp.Struct }
 
 // Admin_heartbeat_Results_TypeID is the unique identifier for the type Admin_heartbeat_Results.
 const Admin_heartbeat_Results_TypeID = 0xe01c2290ae549759
 
 func NewAdmin_heartbeat_Results(s *capnp.Segment) (Admin_heartbeat_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Admin_heartbeat_Results(st), err
+	return Admin_heartbeat_Results{st}, err
 }
 
 func NewRootAdmin_heartbeat_Results(s *capnp.Segment) (Admin_heartbeat_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Admin_heartbeat_Results(st), err
+	return Admin_heartbeat_Results{st}, err
 }
 
 func ReadRootAdmin_heartbeat_Results(msg *capnp.Message) (Admin_heartbeat_Results, error) {
 	root, err := msg.Root()
-	return Admin_heartbeat_Results(root.Struct()), err
+	return Admin_heartbeat_Results{root.Struct()}, err
 }
 
 func (s Admin_heartbeat_Results) String() string {
-	str, _ := text.Marshal(0xe01c2290ae549759, capnp.Struct(s))
+	str, _ := text.Marshal(0xe01c2290ae549759, s.Struct)
 	return str
 }
 
-func (s Admin_heartbeat_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Admin_heartbeat_Results) DecodeFromPtr(p capnp.Ptr) Admin_heartbeat_Results {
-	return Admin_heartbeat_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Admin_heartbeat_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Admin_heartbeat_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Admin_heartbeat_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Admin_heartbeat_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // Admin_heartbeat_Results_List is a list of Admin_heartbeat_Results.
-type Admin_heartbeat_Results_List = capnp.StructList[Admin_heartbeat_Results]
+type Admin_heartbeat_Results_List struct{ capnp.List }
 
 // NewAdmin_heartbeat_Results creates a new list of Admin_heartbeat_Results.
 func NewAdmin_heartbeat_Results_List(s *capnp.Segment, sz int32) (Admin_heartbeat_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[Admin_heartbeat_Results](l), err
+	return Admin_heartbeat_Results_List{l}, err
+}
+
+func (s Admin_heartbeat_Results_List) At(i int) Admin_heartbeat_Results {
+	return Admin_heartbeat_Results{s.List.Struct(i)}
+}
+
+func (s Admin_heartbeat_Results_List) Set(i int, v Admin_heartbeat_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Admin_heartbeat_Results_List) String() string {
+	str, _ := text.MarshalList(0xe01c2290ae549759, s.List)
+	return str
 }
 
 // Admin_heartbeat_Results_Future is a wrapper for a Admin_heartbeat_Results promised by a client call.
 type Admin_heartbeat_Results_Future struct{ *capnp.Future }
 
-func (f Admin_heartbeat_Results_Future) Struct() (Admin_heartbeat_Results, error) {
-	p, err := f.Future.Ptr()
-	return Admin_heartbeat_Results(p.Struct()), err
+func (p Admin_heartbeat_Results_Future) Struct() (Admin_heartbeat_Results, error) {
+	s, err := p.Future.Struct()
+	return Admin_heartbeat_Results{s}, err
 }
 
-type Admin_setTimeout_Params capnp.Struct
+type Admin_setTimeout_Params struct{ capnp.Struct }
 
 // Admin_setTimeout_Params_TypeID is the unique identifier for the type Admin_setTimeout_Params.
 const Admin_setTimeout_Params_TypeID = 0x9abf358a691110fd
 
 func NewAdmin_setTimeout_Params(s *capnp.Segment) (Admin_setTimeout_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Admin_setTimeout_Params(st), err
+	return Admin_setTimeout_Params{st}, err
 }
 
 func NewRootAdmin_setTimeout_Params(s *capnp.Segment) (Admin_setTimeout_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Admin_setTimeout_Params(st), err
+	return Admin_setTimeout_Params{st}, err
 }
 
 func ReadRootAdmin_setTimeout_Params(msg *capnp.Message) (Admin_setTimeout_Params, error) {
 	root, err := msg.Root()
-	return Admin_setTimeout_Params(root.Struct()), err
+	return Admin_setTimeout_Params{root.Struct()}, err
 }
 
 func (s Admin_setTimeout_Params) String() string {
-	str, _ := text.Marshal(0x9abf358a691110fd, capnp.Struct(s))
+	str, _ := text.Marshal(0x9abf358a691110fd, s.Struct)
 	return str
 }
 
-func (s Admin_setTimeout_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Admin_setTimeout_Params) DecodeFromPtr(p capnp.Ptr) Admin_setTimeout_Params {
-	return Admin_setTimeout_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Admin_setTimeout_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Admin_setTimeout_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Admin_setTimeout_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Admin_setTimeout_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Admin_setTimeout_Params) Seconds() uint64 {
-	return capnp.Struct(s).Uint64(0)
+	return s.Struct.Uint64(0)
 }
 
 func (s Admin_setTimeout_Params) SetSeconds(v uint64) {
-	capnp.Struct(s).SetUint64(0, v)
+	s.Struct.SetUint64(0, v)
 }
 
 // Admin_setTimeout_Params_List is a list of Admin_setTimeout_Params.
-type Admin_setTimeout_Params_List = capnp.StructList[Admin_setTimeout_Params]
+type Admin_setTimeout_Params_List struct{ capnp.List }
 
 // NewAdmin_setTimeout_Params creates a new list of Admin_setTimeout_Params.
 func NewAdmin_setTimeout_Params_List(s *capnp.Segment, sz int32) (Admin_setTimeout_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0}, sz)
-	return capnp.StructList[Admin_setTimeout_Params](l), err
+	return Admin_setTimeout_Params_List{l}, err
+}
+
+func (s Admin_setTimeout_Params_List) At(i int) Admin_setTimeout_Params {
+	return Admin_setTimeout_Params{s.List.Struct(i)}
+}
+
+func (s Admin_setTimeout_Params_List) Set(i int, v Admin_setTimeout_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Admin_setTimeout_Params_List) String() string {
+	str, _ := text.MarshalList(0x9abf358a691110fd, s.List)
+	return str
 }
 
 // Admin_setTimeout_Params_Future is a wrapper for a Admin_setTimeout_Params promised by a client call.
 type Admin_setTimeout_Params_Future struct{ *capnp.Future }
 
-func (f Admin_setTimeout_Params_Future) Struct() (Admin_setTimeout_Params, error) {
-	p, err := f.Future.Ptr()
-	return Admin_setTimeout_Params(p.Struct()), err
+func (p Admin_setTimeout_Params_Future) Struct() (Admin_setTimeout_Params, error) {
+	s, err := p.Future.Struct()
+	return Admin_setTimeout_Params{s}, err
 }
 
-type Admin_setTimeout_Results capnp.Struct
+type Admin_setTimeout_Results struct{ capnp.Struct }
 
 // Admin_setTimeout_Results_TypeID is the unique identifier for the type Admin_setTimeout_Results.
 const Admin_setTimeout_Results_TypeID = 0xd6fd194a1ac74bc1
 
 func NewAdmin_setTimeout_Results(s *capnp.Segment) (Admin_setTimeout_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Admin_setTimeout_Results(st), err
+	return Admin_setTimeout_Results{st}, err
 }
 
 func NewRootAdmin_setTimeout_Results(s *capnp.Segment) (Admin_setTimeout_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Admin_setTimeout_Results(st), err
+	return Admin_setTimeout_Results{st}, err
 }
 
 func ReadRootAdmin_setTimeout_Results(msg *capnp.Message) (Admin_setTimeout_Results, error) {
 	root, err := msg.Root()
-	return Admin_setTimeout_Results(root.Struct()), err
+	return Admin_setTimeout_Results{root.Struct()}, err
 }
 
 func (s Admin_setTimeout_Results) String() string {
-	str, _ := text.Marshal(0xd6fd194a1ac74bc1, capnp.Struct(s))
+	str, _ := text.Marshal(0xd6fd194a1ac74bc1, s.Struct)
 	return str
 }
 
-func (s Admin_setTimeout_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Admin_setTimeout_Results) DecodeFromPtr(p capnp.Ptr) Admin_setTimeout_Results {
-	return Admin_setTimeout_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Admin_setTimeout_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Admin_setTimeout_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Admin_setTimeout_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Admin_setTimeout_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // Admin_setTimeout_Results_List is a list of Admin_setTimeout_Results.
-type Admin_setTimeout_Results_List = capnp.StructList[Admin_setTimeout_Results]
+type Admin_setTimeout_Results_List struct{ capnp.List }
 
 // NewAdmin_setTimeout_Results creates a new list of Admin_setTimeout_Results.
 func NewAdmin_setTimeout_Results_List(s *capnp.Segment, sz int32) (Admin_setTimeout_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[Admin_setTimeout_Results](l), err
+	return Admin_setTimeout_Results_List{l}, err
+}
+
+func (s Admin_setTimeout_Results_List) At(i int) Admin_setTimeout_Results {
+	return Admin_setTimeout_Results{s.List.Struct(i)}
+}
+
+func (s Admin_setTimeout_Results_List) Set(i int, v Admin_setTimeout_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Admin_setTimeout_Results_List) String() string {
+	str, _ := text.MarshalList(0xd6fd194a1ac74bc1, s.List)
+	return str
 }
 
 // Admin_setTimeout_Results_Future is a wrapper for a Admin_setTimeout_Results promised by a client call.
 type Admin_setTimeout_Results_Future struct{ *capnp.Future }
 
-func (f Admin_setTimeout_Results_Future) Struct() (Admin_setTimeout_Results, error) {
-	p, err := f.Future.Ptr()
-	return Admin_setTimeout_Results(p.Struct()), err
+func (p Admin_setTimeout_Results_Future) Struct() (Admin_setTimeout_Results, error) {
+	s, err := p.Future.Struct()
+	return Admin_setTimeout_Results{s}, err
 }
 
-type Admin_stop_Params capnp.Struct
+type Admin_stop_Params struct{ capnp.Struct }
 
 // Admin_stop_Params_TypeID is the unique identifier for the type Admin_stop_Params.
 const Admin_stop_Params_TypeID = 0xddc3d3cd37ef5b78
 
 func NewAdmin_stop_Params(s *capnp.Segment) (Admin_stop_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Admin_stop_Params(st), err
+	return Admin_stop_Params{st}, err
 }
 
 func NewRootAdmin_stop_Params(s *capnp.Segment) (Admin_stop_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Admin_stop_Params(st), err
+	return Admin_stop_Params{st}, err
 }
 
 func ReadRootAdmin_stop_Params(msg *capnp.Message) (Admin_stop_Params, error) {
 	root, err := msg.Root()
-	return Admin_stop_Params(root.Struct()), err
+	return Admin_stop_Params{root.Struct()}, err
 }
 
 func (s Admin_stop_Params) String() string {
-	str, _ := text.Marshal(0xddc3d3cd37ef5b78, capnp.Struct(s))
+	str, _ := text.Marshal(0xddc3d3cd37ef5b78, s.Struct)
 	return str
 }
 
-func (s Admin_stop_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Admin_stop_Params) DecodeFromPtr(p capnp.Ptr) Admin_stop_Params {
-	return Admin_stop_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Admin_stop_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Admin_stop_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Admin_stop_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Admin_stop_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // Admin_stop_Params_List is a list of Admin_stop_Params.
-type Admin_stop_Params_List = capnp.StructList[Admin_stop_Params]
+type Admin_stop_Params_List struct{ capnp.List }
 
 // NewAdmin_stop_Params creates a new list of Admin_stop_Params.
 func NewAdmin_stop_Params_List(s *capnp.Segment, sz int32) (Admin_stop_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[Admin_stop_Params](l), err
+	return Admin_stop_Params_List{l}, err
+}
+
+func (s Admin_stop_Params_List) At(i int) Admin_stop_Params {
+	return Admin_stop_Params{s.List.Struct(i)}
+}
+
+func (s Admin_stop_Params_List) Set(i int, v Admin_stop_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Admin_stop_Params_List) String() string {
+	str, _ := text.MarshalList(0xddc3d3cd37ef5b78, s.List)
+	return str
 }
 
 // Admin_stop_Params_Future is a wrapper for a Admin_stop_Params promised by a client call.
 type Admin_stop_Params_Future struct{ *capnp.Future }
 
-func (f Admin_stop_Params_Future) Struct() (Admin_stop_Params, error) {
-	p, err := f.Future.Ptr()
-	return Admin_stop_Params(p.Struct()), err
+func (p Admin_stop_Params_Future) Struct() (Admin_stop_Params, error) {
+	s, err := p.Future.Struct()
+	return Admin_stop_Params{s}, err
 }
 
-type Admin_stop_Results capnp.Struct
+type Admin_stop_Results struct{ capnp.Struct }
 
 // Admin_stop_Results_TypeID is the unique identifier for the type Admin_stop_Results.
 const Admin_stop_Results_TypeID = 0xce2a1a063e759787
 
 func NewAdmin_stop_Results(s *capnp.Segment) (Admin_stop_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Admin_stop_Results(st), err
+	return Admin_stop_Results{st}, err
 }
 
 func NewRootAdmin_stop_Results(s *capnp.Segment) (Admin_stop_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Admin_stop_Results(st), err
+	return Admin_stop_Results{st}, err
 }
 
 func ReadRootAdmin_stop_Results(msg *capnp.Message) (Admin_stop_Results, error) {
 	root, err := msg.Root()
-	return Admin_stop_Results(root.Struct()), err
+	return Admin_stop_Results{root.Struct()}, err
 }
 
 func (s Admin_stop_Results) String() string {
-	str, _ := text.Marshal(0xce2a1a063e759787, capnp.Struct(s))
+	str, _ := text.Marshal(0xce2a1a063e759787, s.Struct)
 	return str
 }
 
-func (s Admin_stop_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Admin_stop_Results) DecodeFromPtr(p capnp.Ptr) Admin_stop_Results {
-	return Admin_stop_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Admin_stop_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Admin_stop_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Admin_stop_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Admin_stop_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // Admin_stop_Results_List is a list of Admin_stop_Results.
-type Admin_stop_Results_List = capnp.StructList[Admin_stop_Results]
+type Admin_stop_Results_List struct{ capnp.List }
 
 // NewAdmin_stop_Results creates a new list of Admin_stop_Results.
 func NewAdmin_stop_Results_List(s *capnp.Segment, sz int32) (Admin_stop_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[Admin_stop_Results](l), err
+	return Admin_stop_Results_List{l}, err
+}
+
+func (s Admin_stop_Results_List) At(i int) Admin_stop_Results {
+	return Admin_stop_Results{s.List.Struct(i)}
+}
+
+func (s Admin_stop_Results_List) Set(i int, v Admin_stop_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Admin_stop_Results_List) String() string {
+	str, _ := text.MarshalList(0xce2a1a063e759787, s.List)
+	return str
 }
 
 // Admin_stop_Results_Future is a wrapper for a Admin_stop_Results promised by a client call.
 type Admin_stop_Results_Future struct{ *capnp.Future }
 
-func (f Admin_stop_Results_Future) Struct() (Admin_stop_Results, error) {
-	p, err := f.Future.Ptr()
-	return Admin_stop_Results(p.Struct()), err
+func (p Admin_stop_Results_Future) Struct() (Admin_stop_Results, error) {
+	s, err := p.Future.Struct()
+	return Admin_stop_Results{s}, err
 }
 
-type Admin_identities_Params capnp.Struct
+type Admin_identities_Params struct{ capnp.Struct }
 
 // Admin_identities_Params_TypeID is the unique identifier for the type Admin_identities_Params.
 const Admin_identities_Params_TypeID = 0xff4271628d295896
 
 func NewAdmin_identities_Params(s *capnp.Segment) (Admin_identities_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Admin_identities_Params(st), err
+	return Admin_identities_Params{st}, err
 }
 
 func NewRootAdmin_identities_Params(s *capnp.Segment) (Admin_identities_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Admin_identities_Params(st), err
+	return Admin_identities_Params{st}, err
 }
 
 func ReadRootAdmin_identities_Params(msg *capnp.Message) (Admin_identities_Params, error) {
 	root, err := msg.Root()
-	return Admin_identities_Params(root.Struct()), err
+	return Admin_identities_Params{root.Struct()}, err
 }
 
 func (s Admin_identities_Params) String() string {
-	str, _ := text.Marshal(0xff4271628d295896, capnp.Struct(s))
+	str, _ := text.Marshal(0xff4271628d295896, s.Struct)
 	return str
 }
 
-func (s Admin_identities_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Admin_identities_Params) DecodeFromPtr(p capnp.Ptr) Admin_identities_Params {
-	return Admin_identities_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Admin_identities_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Admin_identities_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Admin_identities_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Admin_identities_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // Admin_identities_Params_List is a list of Admin_identities_Params.
-type Admin_identities_Params_List = capnp.StructList[Admin_identities_Params]
+type Admin_identities_Params_List struct{ capnp.List }
 
 // NewAdmin_identities_Params creates a new list of Admin_identities_Params.
 func NewAdmin_identities_Params_List(s *capnp.Segment, sz int32) (Admin_identities_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[Admin_identities_Params](l), err
+	return Admin_identities_Params_List{l}, err
+}
+
+func (s Admin_identities_Params_List) At(i int) Admin_identities_Params {
+	return Admin_identities_Params{s.List.Struct(i)}
+}
+
+func (s Admin_identities_Params_List) Set(i int, v Admin_identities_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Admin_identities_Params_List) String() string {
+	str, _ := text.MarshalList(0xff4271628d295896, s.List)
+	return str
 }
 
 // Admin_identities_Params_Future is a wrapper for a Admin_identities_Params promised by a client call.
 type Admin_identities_Params_Future struct{ *capnp.Future }
 
-func (f Admin_identities_Params_Future) Struct() (Admin_identities_Params, error) {
-	p, err := f.Future.Ptr()
-	return Admin_identities_Params(p.Struct()), err
+func (p Admin_identities_Params_Future) Struct() (Admin_identities_Params, error) {
+	s, err := p.Future.Struct()
+	return Admin_identities_Params{s}, err
 }
 
-type Admin_identities_Results capnp.Struct
+type Admin_identities_Results struct{ capnp.Struct }
 
 // Admin_identities_Results_TypeID is the unique identifier for the type Admin_identities_Results.
 const Admin_identities_Results_TypeID = 0xf5423d8578dbb398
 
 func NewAdmin_identities_Results(s *capnp.Segment) (Admin_identities_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Admin_identities_Results(st), err
+	return Admin_identities_Results{st}, err
 }
 
 func NewRootAdmin_identities_Results(s *capnp.Segment) (Admin_identities_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Admin_identities_Results(st), err
+	return Admin_identities_Results{st}, err
 }
 
 func ReadRootAdmin_identities_Results(msg *capnp.Message) (Admin_identities_Results, error) {
 	root, err := msg.Root()
-	return Admin_identities_Results(root.Struct()), err
+	return Admin_identities_Results{root.Struct()}, err
 }
 
 func (s Admin_identities_Results) String() string {
-	str, _ := text.Marshal(0xf5423d8578dbb398, capnp.Struct(s))
+	str, _ := text.Marshal(0xf5423d8578dbb398, s.Struct)
 	return str
 }
 
-func (s Admin_identities_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Admin_identities_Results) DecodeFromPtr(p capnp.Ptr) Admin_identities_Results {
-	return Admin_identities_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Admin_identities_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Admin_identities_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Admin_identities_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Admin_identities_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Admin_identities_Results) Infos() (common.IdInformation_List, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return common.IdInformation_List(p.List()), err
+	p, err := s.Struct.Ptr(0)
+	return common.IdInformation_List{List: p.List()}, err
 }
 
 func (s Admin_identities_Results) HasInfos() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Admin_identities_Results) SetInfos(v common.IdInformation_List) error {
-	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+	return s.Struct.SetPtr(0, v.List.ToPtr())
 }
 
 // NewInfos sets the infos field to a newly
 // allocated common.IdInformation_List, preferring placement in s's segment.
 func (s Admin_identities_Results) NewInfos(n int32) (common.IdInformation_List, error) {
-	l, err := common.NewIdInformation_List(capnp.Struct(s).Segment(), n)
+	l, err := common.NewIdInformation_List(s.Struct.Segment(), n)
 	if err != nil {
 		return common.IdInformation_List{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	err = s.Struct.SetPtr(0, l.List.ToPtr())
 	return l, err
 }
 
 // Admin_identities_Results_List is a list of Admin_identities_Results.
-type Admin_identities_Results_List = capnp.StructList[Admin_identities_Results]
+type Admin_identities_Results_List struct{ capnp.List }
 
 // NewAdmin_identities_Results creates a new list of Admin_identities_Results.
 func NewAdmin_identities_Results_List(s *capnp.Segment, sz int32) (Admin_identities_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Admin_identities_Results](l), err
+	return Admin_identities_Results_List{l}, err
+}
+
+func (s Admin_identities_Results_List) At(i int) Admin_identities_Results {
+	return Admin_identities_Results{s.List.Struct(i)}
+}
+
+func (s Admin_identities_Results_List) Set(i int, v Admin_identities_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Admin_identities_Results_List) String() string {
+	str, _ := text.MarshalList(0xf5423d8578dbb398, s.List)
+	return str
 }
 
 // Admin_identities_Results_Future is a wrapper for a Admin_identities_Results promised by a client call.
 type Admin_identities_Results_Future struct{ *capnp.Future }
 
-func (f Admin_identities_Results_Future) Struct() (Admin_identities_Results, error) {
-	p, err := f.Future.Ptr()
-	return Admin_identities_Results(p.Struct()), err
+func (p Admin_identities_Results_Future) Struct() (Admin_identities_Results, error) {
+	s, err := p.Future.Struct()
+	return Admin_identities_Results{s}, err
 }
 
-type Admin_updateIdentity_Params capnp.Struct
+type Admin_updateIdentity_Params struct{ capnp.Struct }
 
 // Admin_updateIdentity_Params_TypeID is the unique identifier for the type Admin_updateIdentity_Params.
 const Admin_updateIdentity_Params_TypeID = 0xdc8472f9b668ba83
 
 func NewAdmin_updateIdentity_Params(s *capnp.Segment) (Admin_updateIdentity_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Admin_updateIdentity_Params(st), err
+	return Admin_updateIdentity_Params{st}, err
 }
 
 func NewRootAdmin_updateIdentity_Params(s *capnp.Segment) (Admin_updateIdentity_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Admin_updateIdentity_Params(st), err
+	return Admin_updateIdentity_Params{st}, err
 }
 
 func ReadRootAdmin_updateIdentity_Params(msg *capnp.Message) (Admin_updateIdentity_Params, error) {
 	root, err := msg.Root()
-	return Admin_updateIdentity_Params(root.Struct()), err
+	return Admin_updateIdentity_Params{root.Struct()}, err
 }
 
 func (s Admin_updateIdentity_Params) String() string {
-	str, _ := text.Marshal(0xdc8472f9b668ba83, capnp.Struct(s))
+	str, _ := text.Marshal(0xdc8472f9b668ba83, s.Struct)
 	return str
 }
 
-func (s Admin_updateIdentity_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Admin_updateIdentity_Params) DecodeFromPtr(p capnp.Ptr) Admin_updateIdentity_Params {
-	return Admin_updateIdentity_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Admin_updateIdentity_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Admin_updateIdentity_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Admin_updateIdentity_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Admin_updateIdentity_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Admin_updateIdentity_Params) OldId() (string, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.Text(), err
 }
 
 func (s Admin_updateIdentity_Params) HasOldId() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Admin_updateIdentity_Params) OldIdBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.TextBytes(), err
 }
 
 func (s Admin_updateIdentity_Params) SetOldId(v string) error {
-	return capnp.Struct(s).SetText(0, v)
+	return s.Struct.SetText(0, v)
 }
 
 func (s Admin_updateIdentity_Params) NewInfo() (common.IdInformation, error) {
-	p, err := capnp.Struct(s).Ptr(1)
-	return common.IdInformation(p.Struct()), err
+	p, err := s.Struct.Ptr(1)
+	return common.IdInformation{Struct: p.Struct()}, err
 }
 
 func (s Admin_updateIdentity_Params) HasNewInfo() bool {
-	return capnp.Struct(s).HasPtr(1)
+	return s.Struct.HasPtr(1)
 }
 
 func (s Admin_updateIdentity_Params) SetNewInfo(v common.IdInformation) error {
-	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
+	return s.Struct.SetPtr(1, v.Struct.ToPtr())
 }
 
 // NewNewInfo sets the newInfo field to a newly
 // allocated common.IdInformation struct, preferring placement in s's segment.
 func (s Admin_updateIdentity_Params) NewNewInfo() (common.IdInformation, error) {
-	ss, err := common.NewIdInformation(capnp.Struct(s).Segment())
+	ss, err := common.NewIdInformation(s.Struct.Segment())
 	if err != nil {
 		return common.IdInformation{}, err
 	}
-	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(1, ss.Struct.ToPtr())
 	return ss, err
 }
 
 // Admin_updateIdentity_Params_List is a list of Admin_updateIdentity_Params.
-type Admin_updateIdentity_Params_List = capnp.StructList[Admin_updateIdentity_Params]
+type Admin_updateIdentity_Params_List struct{ capnp.List }
 
 // NewAdmin_updateIdentity_Params creates a new list of Admin_updateIdentity_Params.
 func NewAdmin_updateIdentity_Params_List(s *capnp.Segment, sz int32) (Admin_updateIdentity_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
-	return capnp.StructList[Admin_updateIdentity_Params](l), err
+	return Admin_updateIdentity_Params_List{l}, err
+}
+
+func (s Admin_updateIdentity_Params_List) At(i int) Admin_updateIdentity_Params {
+	return Admin_updateIdentity_Params{s.List.Struct(i)}
+}
+
+func (s Admin_updateIdentity_Params_List) Set(i int, v Admin_updateIdentity_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Admin_updateIdentity_Params_List) String() string {
+	str, _ := text.MarshalList(0xdc8472f9b668ba83, s.List)
+	return str
 }
 
 // Admin_updateIdentity_Params_Future is a wrapper for a Admin_updateIdentity_Params promised by a client call.
 type Admin_updateIdentity_Params_Future struct{ *capnp.Future }
 
-func (f Admin_updateIdentity_Params_Future) Struct() (Admin_updateIdentity_Params, error) {
-	p, err := f.Future.Ptr()
-	return Admin_updateIdentity_Params(p.Struct()), err
+func (p Admin_updateIdentity_Params_Future) Struct() (Admin_updateIdentity_Params, error) {
+	s, err := p.Future.Struct()
+	return Admin_updateIdentity_Params{s}, err
 }
+
 func (p Admin_updateIdentity_Params_Future) NewInfo() common.IdInformation_Future {
 	return common.IdInformation_Future{Future: p.Future.Field(1, nil)}
 }
 
-type Admin_updateIdentity_Results capnp.Struct
+type Admin_updateIdentity_Results struct{ capnp.Struct }
 
 // Admin_updateIdentity_Results_TypeID is the unique identifier for the type Admin_updateIdentity_Results.
 const Admin_updateIdentity_Results_TypeID = 0xb15e79db08e2ab2c
 
 func NewAdmin_updateIdentity_Results(s *capnp.Segment) (Admin_updateIdentity_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Admin_updateIdentity_Results(st), err
+	return Admin_updateIdentity_Results{st}, err
 }
 
 func NewRootAdmin_updateIdentity_Results(s *capnp.Segment) (Admin_updateIdentity_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Admin_updateIdentity_Results(st), err
+	return Admin_updateIdentity_Results{st}, err
 }
 
 func ReadRootAdmin_updateIdentity_Results(msg *capnp.Message) (Admin_updateIdentity_Results, error) {
 	root, err := msg.Root()
-	return Admin_updateIdentity_Results(root.Struct()), err
+	return Admin_updateIdentity_Results{root.Struct()}, err
 }
 
 func (s Admin_updateIdentity_Results) String() string {
-	str, _ := text.Marshal(0xb15e79db08e2ab2c, capnp.Struct(s))
+	str, _ := text.Marshal(0xb15e79db08e2ab2c, s.Struct)
 	return str
 }
 
-func (s Admin_updateIdentity_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Admin_updateIdentity_Results) DecodeFromPtr(p capnp.Ptr) Admin_updateIdentity_Results {
-	return Admin_updateIdentity_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Admin_updateIdentity_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Admin_updateIdentity_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Admin_updateIdentity_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Admin_updateIdentity_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // Admin_updateIdentity_Results_List is a list of Admin_updateIdentity_Results.
-type Admin_updateIdentity_Results_List = capnp.StructList[Admin_updateIdentity_Results]
+type Admin_updateIdentity_Results_List struct{ capnp.List }
 
 // NewAdmin_updateIdentity_Results creates a new list of Admin_updateIdentity_Results.
 func NewAdmin_updateIdentity_Results_List(s *capnp.Segment, sz int32) (Admin_updateIdentity_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[Admin_updateIdentity_Results](l), err
+	return Admin_updateIdentity_Results_List{l}, err
+}
+
+func (s Admin_updateIdentity_Results_List) At(i int) Admin_updateIdentity_Results {
+	return Admin_updateIdentity_Results{s.List.Struct(i)}
+}
+
+func (s Admin_updateIdentity_Results_List) Set(i int, v Admin_updateIdentity_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Admin_updateIdentity_Results_List) String() string {
+	str, _ := text.MarshalList(0xb15e79db08e2ab2c, s.List)
+	return str
 }
 
 // Admin_updateIdentity_Results_Future is a wrapper for a Admin_updateIdentity_Results promised by a client call.
 type Admin_updateIdentity_Results_Future struct{ *capnp.Future }
 
-func (f Admin_updateIdentity_Results_Future) Struct() (Admin_updateIdentity_Results, error) {
-	p, err := f.Future.Ptr()
-	return Admin_updateIdentity_Results(p.Struct()), err
+func (p Admin_updateIdentity_Results_Future) Struct() (Admin_updateIdentity_Results, error) {
+	s, err := p.Future.Struct()
+	return Admin_updateIdentity_Results{s}, err
 }
 
-type SimpleFactory capnp.Client
+type SimpleFactory struct{ Client *capnp.Client }
 
 // SimpleFactory_TypeID is the unique identifier for the type SimpleFactory.
 const SimpleFactory_TypeID = 0xaba5829222c213cb
 
 func (c SimpleFactory) Create(ctx context.Context, params func(SimpleFactory_create_Params) error) (SimpleFactory_create_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xaba5829222c213cb,
@@ -1152,16 +961,12 @@ func (c SimpleFactory) Create(ctx context.Context, params func(SimpleFactory_cre
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(SimpleFactory_create_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(SimpleFactory_create_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return SimpleFactory_create_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c SimpleFactory) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -1172,83 +977,20 @@ func (c SimpleFactory) Info(ctx context.Context, params func(common.Identifiable
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
-
 }
 
-func (c SimpleFactory) WaitStreaming() error {
-	return capnp.Client(c).WaitStreaming()
-}
-
-// String returns a string that identifies this capability for debugging
-// purposes.  Its format should not be depended on: in particular, it
-// should not be used to compare clients.  Use IsSame to compare clients
-// for equality.
-func (c SimpleFactory) String() string {
-	return "SimpleFactory(" + capnp.Client(c).String() + ")"
-}
-
-// AddRef creates a new Client that refers to the same capability as c.
-// If c is nil or has resolved to null, then AddRef returns nil.
 func (c SimpleFactory) AddRef() SimpleFactory {
-	return SimpleFactory(capnp.Client(c).AddRef())
+	return SimpleFactory{
+		Client: c.Client.AddRef(),
+	}
 }
 
-// Release releases a capability reference.  If this is the last
-// reference to the capability, then the underlying resources associated
-// with the capability will be released.
-//
-// Release will panic if c has already been released, but not if c is
-// nil or resolved to null.
 func (c SimpleFactory) Release() {
-	capnp.Client(c).Release()
-}
-
-// Resolve blocks until the capability is fully resolved or the Context
-// expires.
-func (c SimpleFactory) Resolve(ctx context.Context) error {
-	return capnp.Client(c).Resolve(ctx)
-}
-
-func (c SimpleFactory) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Client(c).EncodeAsPtr(seg)
-}
-
-func (SimpleFactory) DecodeFromPtr(p capnp.Ptr) SimpleFactory {
-	return SimpleFactory(capnp.Client{}.DecodeFromPtr(p))
-}
-
-// IsValid reports whether c is a valid reference to a capability.
-// A reference is invalid if it is nil, has resolved to null, or has
-// been released.
-func (c SimpleFactory) IsValid() bool {
-	return capnp.Client(c).IsValid()
-}
-
-// IsSame reports whether c and other refer to a capability created by the
-// same call to NewClient.  This can return false negatives if c or other
-// are not fully resolved: use Resolve if this is an issue.  If either
-// c or other are released, then IsSame panics.
-func (c SimpleFactory) IsSame(other SimpleFactory) bool {
-	return capnp.Client(c).IsSame(capnp.Client(other))
-}
-
-// Update the flowcontrol.FlowLimiter used to manage flow control for
-// this client. This affects all future calls, but not calls already
-// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
-// which is also the default.
-func (c SimpleFactory) SetFlowLimiter(lim fc.FlowLimiter) {
-	capnp.Client(c).SetFlowLimiter(lim)
-}
-
-// Get the current flowcontrol.FlowLimiter used to manage flow control
-// for this client.
-func (c SimpleFactory) GetFlowLimiter() fc.FlowLimiter {
-	return capnp.Client(c).GetFlowLimiter()
+	c.Client.Release()
 }
 
 // A SimpleFactory_Server is a SimpleFactory with a local implementation.
@@ -1259,15 +1001,15 @@ type SimpleFactory_Server interface {
 }
 
 // SimpleFactory_NewServer creates a new Server from an implementation of SimpleFactory_Server.
-func SimpleFactory_NewServer(s SimpleFactory_Server) *server.Server {
+func SimpleFactory_NewServer(s SimpleFactory_Server, policy *server.Policy) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(SimpleFactory_Methods(nil, s), s, c)
+	return server.New(SimpleFactory_Methods(nil, s), s, c, policy)
 }
 
 // SimpleFactory_ServerToClient creates a new Client from an implementation of SimpleFactory_Server.
 // The caller is responsible for calling Release on the returned Client.
-func SimpleFactory_ServerToClient(s SimpleFactory_Server) SimpleFactory {
-	return SimpleFactory(capnp.NewClient(SimpleFactory_NewServer(s)))
+func SimpleFactory_ServerToClient(s SimpleFactory_Server, policy *server.Policy) SimpleFactory {
+	return SimpleFactory{Client: capnp.NewClient(SimpleFactory_NewServer(s, policy))}
 }
 
 // SimpleFactory_Methods appends Methods to a slice that invoke the methods on s.
@@ -1312,184 +1054,155 @@ type SimpleFactory_create struct {
 
 // Args returns the call's arguments.
 func (c SimpleFactory_create) Args() SimpleFactory_create_Params {
-	return SimpleFactory_create_Params(c.Call.Args())
+	return SimpleFactory_create_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c SimpleFactory_create) AllocResults() (SimpleFactory_create_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return SimpleFactory_create_Results(r), err
+	return SimpleFactory_create_Results{Struct: r}, err
 }
 
-// SimpleFactory_List is a list of SimpleFactory.
-type SimpleFactory_List = capnp.CapList[SimpleFactory]
-
-// NewSimpleFactory creates a new list of SimpleFactory.
-func NewSimpleFactory_List(s *capnp.Segment, sz int32) (SimpleFactory_List, error) {
-	l, err := capnp.NewPointerList(s, sz)
-	return capnp.CapList[SimpleFactory](l), err
-}
-
-type SimpleFactory_create_Params capnp.Struct
+type SimpleFactory_create_Params struct{ capnp.Struct }
 
 // SimpleFactory_create_Params_TypeID is the unique identifier for the type SimpleFactory_create_Params.
 const SimpleFactory_create_Params_TypeID = 0xa8296fdc60dcb6dd
 
 func NewSimpleFactory_create_Params(s *capnp.Segment) (SimpleFactory_create_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return SimpleFactory_create_Params(st), err
+	return SimpleFactory_create_Params{st}, err
 }
 
 func NewRootSimpleFactory_create_Params(s *capnp.Segment) (SimpleFactory_create_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return SimpleFactory_create_Params(st), err
+	return SimpleFactory_create_Params{st}, err
 }
 
 func ReadRootSimpleFactory_create_Params(msg *capnp.Message) (SimpleFactory_create_Params, error) {
 	root, err := msg.Root()
-	return SimpleFactory_create_Params(root.Struct()), err
+	return SimpleFactory_create_Params{root.Struct()}, err
 }
 
 func (s SimpleFactory_create_Params) String() string {
-	str, _ := text.Marshal(0xa8296fdc60dcb6dd, capnp.Struct(s))
+	str, _ := text.Marshal(0xa8296fdc60dcb6dd, s.Struct)
 	return str
 }
 
-func (s SimpleFactory_create_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (SimpleFactory_create_Params) DecodeFromPtr(p capnp.Ptr) SimpleFactory_create_Params {
-	return SimpleFactory_create_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s SimpleFactory_create_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s SimpleFactory_create_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s SimpleFactory_create_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s SimpleFactory_create_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // SimpleFactory_create_Params_List is a list of SimpleFactory_create_Params.
-type SimpleFactory_create_Params_List = capnp.StructList[SimpleFactory_create_Params]
+type SimpleFactory_create_Params_List struct{ capnp.List }
 
 // NewSimpleFactory_create_Params creates a new list of SimpleFactory_create_Params.
 func NewSimpleFactory_create_Params_List(s *capnp.Segment, sz int32) (SimpleFactory_create_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[SimpleFactory_create_Params](l), err
+	return SimpleFactory_create_Params_List{l}, err
+}
+
+func (s SimpleFactory_create_Params_List) At(i int) SimpleFactory_create_Params {
+	return SimpleFactory_create_Params{s.List.Struct(i)}
+}
+
+func (s SimpleFactory_create_Params_List) Set(i int, v SimpleFactory_create_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s SimpleFactory_create_Params_List) String() string {
+	str, _ := text.MarshalList(0xa8296fdc60dcb6dd, s.List)
+	return str
 }
 
 // SimpleFactory_create_Params_Future is a wrapper for a SimpleFactory_create_Params promised by a client call.
 type SimpleFactory_create_Params_Future struct{ *capnp.Future }
 
-func (f SimpleFactory_create_Params_Future) Struct() (SimpleFactory_create_Params, error) {
-	p, err := f.Future.Ptr()
-	return SimpleFactory_create_Params(p.Struct()), err
+func (p SimpleFactory_create_Params_Future) Struct() (SimpleFactory_create_Params, error) {
+	s, err := p.Future.Struct()
+	return SimpleFactory_create_Params{s}, err
 }
 
-type SimpleFactory_create_Results capnp.Struct
+type SimpleFactory_create_Results struct{ capnp.Struct }
 
 // SimpleFactory_create_Results_TypeID is the unique identifier for the type SimpleFactory_create_Results.
 const SimpleFactory_create_Results_TypeID = 0x89a33828e0de1eaa
 
 func NewSimpleFactory_create_Results(s *capnp.Segment) (SimpleFactory_create_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return SimpleFactory_create_Results(st), err
+	return SimpleFactory_create_Results{st}, err
 }
 
 func NewRootSimpleFactory_create_Results(s *capnp.Segment) (SimpleFactory_create_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return SimpleFactory_create_Results(st), err
+	return SimpleFactory_create_Results{st}, err
 }
 
 func ReadRootSimpleFactory_create_Results(msg *capnp.Message) (SimpleFactory_create_Results, error) {
 	root, err := msg.Root()
-	return SimpleFactory_create_Results(root.Struct()), err
+	return SimpleFactory_create_Results{root.Struct()}, err
 }
 
 func (s SimpleFactory_create_Results) String() string {
-	str, _ := text.Marshal(0x89a33828e0de1eaa, capnp.Struct(s))
+	str, _ := text.Marshal(0x89a33828e0de1eaa, s.Struct)
 	return str
 }
 
-func (s SimpleFactory_create_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (SimpleFactory_create_Results) DecodeFromPtr(p capnp.Ptr) SimpleFactory_create_Results {
-	return SimpleFactory_create_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s SimpleFactory_create_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s SimpleFactory_create_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s SimpleFactory_create_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s SimpleFactory_create_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-func (s SimpleFactory_create_Results) Caps() (common.Identifiable_List, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return common.Identifiable_List(p.List()), err
+func (s SimpleFactory_create_Results) Caps() (capnp.PointerList, error) {
+	p, err := s.Struct.Ptr(0)
+	return capnp.PointerList{List: p.List()}, err
 }
 
 func (s SimpleFactory_create_Results) HasCaps() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
-func (s SimpleFactory_create_Results) SetCaps(v common.Identifiable_List) error {
-	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+func (s SimpleFactory_create_Results) SetCaps(v capnp.PointerList) error {
+	return s.Struct.SetPtr(0, v.List.ToPtr())
 }
 
 // NewCaps sets the caps field to a newly
-// allocated common.Identifiable_List, preferring placement in s's segment.
-func (s SimpleFactory_create_Results) NewCaps(n int32) (common.Identifiable_List, error) {
-	l, err := common.NewIdentifiable_List(capnp.Struct(s).Segment(), n)
+// allocated capnp.PointerList, preferring placement in s's segment.
+func (s SimpleFactory_create_Results) NewCaps(n int32) (capnp.PointerList, error) {
+	l, err := capnp.NewPointerList(s.Struct.Segment(), n)
 	if err != nil {
-		return common.Identifiable_List{}, err
+		return capnp.PointerList{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	err = s.Struct.SetPtr(0, l.List.ToPtr())
 	return l, err
 }
 
 // SimpleFactory_create_Results_List is a list of SimpleFactory_create_Results.
-type SimpleFactory_create_Results_List = capnp.StructList[SimpleFactory_create_Results]
+type SimpleFactory_create_Results_List struct{ capnp.List }
 
 // NewSimpleFactory_create_Results creates a new list of SimpleFactory_create_Results.
 func NewSimpleFactory_create_Results_List(s *capnp.Segment, sz int32) (SimpleFactory_create_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[SimpleFactory_create_Results](l), err
+	return SimpleFactory_create_Results_List{l}, err
+}
+
+func (s SimpleFactory_create_Results_List) At(i int) SimpleFactory_create_Results {
+	return SimpleFactory_create_Results{s.List.Struct(i)}
+}
+
+func (s SimpleFactory_create_Results_List) Set(i int, v SimpleFactory_create_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s SimpleFactory_create_Results_List) String() string {
+	str, _ := text.MarshalList(0x89a33828e0de1eaa, s.List)
+	return str
 }
 
 // SimpleFactory_create_Results_Future is a wrapper for a SimpleFactory_create_Results promised by a client call.
 type SimpleFactory_create_Results_Future struct{ *capnp.Future }
 
-func (f SimpleFactory_create_Results_Future) Struct() (SimpleFactory_create_Results, error) {
-	p, err := f.Future.Ptr()
-	return SimpleFactory_create_Results(p.Struct()), err
+func (p SimpleFactory_create_Results_Future) Struct() (SimpleFactory_create_Results, error) {
+	s, err := p.Future.Struct()
+	return SimpleFactory_create_Results{s}, err
 }
 
-type Factory capnp.Client
+type Factory struct{ Client *capnp.Client }
 
 // Factory_TypeID is the unique identifier for the type Factory.
 const Factory_TypeID = 0x8ab0ecb99c269c7f
 
 func (c Factory) Create(ctx context.Context, params func(Factory_CreateParams) error) (Factory_AccessInfo_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0x8ab0ecb99c269c7f,
@@ -1500,16 +1213,12 @@ func (c Factory) Create(ctx context.Context, params func(Factory_CreateParams) e
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 2}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Factory_CreateParams(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Factory_CreateParams{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Factory_AccessInfo_Future{Future: ans.Future()}, release
-
 }
-
 func (c Factory) ServiceInterfaceNames(ctx context.Context, params func(Factory_serviceInterfaceNames_Params) error) (Factory_serviceInterfaceNames_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0x8ab0ecb99c269c7f,
@@ -1520,16 +1229,12 @@ func (c Factory) ServiceInterfaceNames(ctx context.Context, params func(Factory_
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Factory_serviceInterfaceNames_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Factory_serviceInterfaceNames_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Factory_serviceInterfaceNames_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c Factory) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -1540,83 +1245,20 @@ func (c Factory) Info(ctx context.Context, params func(common.Identifiable_info_
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
-
 }
 
-func (c Factory) WaitStreaming() error {
-	return capnp.Client(c).WaitStreaming()
-}
-
-// String returns a string that identifies this capability for debugging
-// purposes.  Its format should not be depended on: in particular, it
-// should not be used to compare clients.  Use IsSame to compare clients
-// for equality.
-func (c Factory) String() string {
-	return "Factory(" + capnp.Client(c).String() + ")"
-}
-
-// AddRef creates a new Client that refers to the same capability as c.
-// If c is nil or has resolved to null, then AddRef returns nil.
 func (c Factory) AddRef() Factory {
-	return Factory(capnp.Client(c).AddRef())
+	return Factory{
+		Client: c.Client.AddRef(),
+	}
 }
 
-// Release releases a capability reference.  If this is the last
-// reference to the capability, then the underlying resources associated
-// with the capability will be released.
-//
-// Release will panic if c has already been released, but not if c is
-// nil or resolved to null.
 func (c Factory) Release() {
-	capnp.Client(c).Release()
-}
-
-// Resolve blocks until the capability is fully resolved or the Context
-// expires.
-func (c Factory) Resolve(ctx context.Context) error {
-	return capnp.Client(c).Resolve(ctx)
-}
-
-func (c Factory) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Client(c).EncodeAsPtr(seg)
-}
-
-func (Factory) DecodeFromPtr(p capnp.Ptr) Factory {
-	return Factory(capnp.Client{}.DecodeFromPtr(p))
-}
-
-// IsValid reports whether c is a valid reference to a capability.
-// A reference is invalid if it is nil, has resolved to null, or has
-// been released.
-func (c Factory) IsValid() bool {
-	return capnp.Client(c).IsValid()
-}
-
-// IsSame reports whether c and other refer to a capability created by the
-// same call to NewClient.  This can return false negatives if c or other
-// are not fully resolved: use Resolve if this is an issue.  If either
-// c or other are released, then IsSame panics.
-func (c Factory) IsSame(other Factory) bool {
-	return capnp.Client(c).IsSame(capnp.Client(other))
-}
-
-// Update the flowcontrol.FlowLimiter used to manage flow control for
-// this client. This affects all future calls, but not calls already
-// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
-// which is also the default.
-func (c Factory) SetFlowLimiter(lim fc.FlowLimiter) {
-	capnp.Client(c).SetFlowLimiter(lim)
-}
-
-// Get the current flowcontrol.FlowLimiter used to manage flow control
-// for this client.
-func (c Factory) GetFlowLimiter() fc.FlowLimiter {
-	return capnp.Client(c).GetFlowLimiter()
+	c.Client.Release()
 }
 
 // A Factory_Server is a Factory with a local implementation.
@@ -1629,15 +1271,15 @@ type Factory_Server interface {
 }
 
 // Factory_NewServer creates a new Server from an implementation of Factory_Server.
-func Factory_NewServer(s Factory_Server) *server.Server {
+func Factory_NewServer(s Factory_Server, policy *server.Policy) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(Factory_Methods(nil, s), s, c)
+	return server.New(Factory_Methods(nil, s), s, c, policy)
 }
 
 // Factory_ServerToClient creates a new Client from an implementation of Factory_Server.
 // The caller is responsible for calling Release on the returned Client.
-func Factory_ServerToClient(s Factory_Server) Factory {
-	return Factory(capnp.NewClient(Factory_NewServer(s)))
+func Factory_ServerToClient(s Factory_Server, policy *server.Policy) Factory {
+	return Factory{Client: capnp.NewClient(Factory_NewServer(s, policy))}
 }
 
 // Factory_Methods appends Methods to a slice that invoke the methods on s.
@@ -1694,13 +1336,13 @@ type Factory_create struct {
 
 // Args returns the call's arguments.
 func (c Factory_create) Args() Factory_CreateParams {
-	return Factory_CreateParams(c.Call.Args())
+	return Factory_CreateParams{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Factory_create) AllocResults() (Factory_AccessInfo, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 3})
-	return Factory_AccessInfo(r), err
+	return Factory_AccessInfo{Struct: r}, err
 }
 
 // Factory_serviceInterfaceNames holds the state for a server call to Factory.serviceInterfaceNames.
@@ -1711,419 +1353,371 @@ type Factory_serviceInterfaceNames struct {
 
 // Args returns the call's arguments.
 func (c Factory_serviceInterfaceNames) Args() Factory_serviceInterfaceNames_Params {
-	return Factory_serviceInterfaceNames_Params(c.Call.Args())
+	return Factory_serviceInterfaceNames_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Factory_serviceInterfaceNames) AllocResults() (Factory_serviceInterfaceNames_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Factory_serviceInterfaceNames_Results(r), err
+	return Factory_serviceInterfaceNames_Results{Struct: r}, err
 }
 
-// Factory_List is a list of Factory.
-type Factory_List = capnp.CapList[Factory]
-
-// NewFactory creates a new list of Factory.
-func NewFactory_List(s *capnp.Segment, sz int32) (Factory_List, error) {
-	l, err := capnp.NewPointerList(s, sz)
-	return capnp.CapList[Factory](l), err
-}
-
-type Factory_CreateParams capnp.Struct
+type Factory_CreateParams struct{ capnp.Struct }
 
 // Factory_CreateParams_TypeID is the unique identifier for the type Factory_CreateParams.
 const Factory_CreateParams_TypeID = 0xc2b88517ccaa9197
 
 func NewFactory_CreateParams(s *capnp.Segment) (Factory_CreateParams, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 2})
-	return Factory_CreateParams(st), err
+	return Factory_CreateParams{st}, err
 }
 
 func NewRootFactory_CreateParams(s *capnp.Segment) (Factory_CreateParams, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 2})
-	return Factory_CreateParams(st), err
+	return Factory_CreateParams{st}, err
 }
 
 func ReadRootFactory_CreateParams(msg *capnp.Message) (Factory_CreateParams, error) {
 	root, err := msg.Root()
-	return Factory_CreateParams(root.Struct()), err
+	return Factory_CreateParams{root.Struct()}, err
 }
 
 func (s Factory_CreateParams) String() string {
-	str, _ := text.Marshal(0xc2b88517ccaa9197, capnp.Struct(s))
+	str, _ := text.Marshal(0xc2b88517ccaa9197, s.Struct)
 	return str
 }
 
-func (s Factory_CreateParams) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Factory_CreateParams) DecodeFromPtr(p capnp.Ptr) Factory_CreateParams {
-	return Factory_CreateParams(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Factory_CreateParams) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Factory_CreateParams) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Factory_CreateParams) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Factory_CreateParams) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Factory_CreateParams) TimeoutSeconds() uint64 {
-	return capnp.Struct(s).Uint64(0) ^ 3600
+	return s.Struct.Uint64(0) ^ 3600
 }
 
 func (s Factory_CreateParams) SetTimeoutSeconds(v uint64) {
-	capnp.Struct(s).SetUint64(0, v^3600)
+	s.Struct.SetUint64(0, v^3600)
 }
 
 func (s Factory_CreateParams) InterfaceNameToRegistrySR() (common.Pair_List, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return common.Pair_List(p.List()), err
+	p, err := s.Struct.Ptr(0)
+	return common.Pair_List{List: p.List()}, err
 }
 
 func (s Factory_CreateParams) HasInterfaceNameToRegistrySR() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Factory_CreateParams) SetInterfaceNameToRegistrySR(v common.Pair_List) error {
-	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+	return s.Struct.SetPtr(0, v.List.ToPtr())
 }
 
 // NewInterfaceNameToRegistrySR sets the interfaceNameToRegistrySR field to a newly
 // allocated common.Pair_List, preferring placement in s's segment.
 func (s Factory_CreateParams) NewInterfaceNameToRegistrySR(n int32) (common.Pair_List, error) {
-	l, err := common.NewPair_List(capnp.Struct(s).Segment(), n)
+	l, err := common.NewPair_List(s.Struct.Segment(), n)
 	if err != nil {
 		return common.Pair_List{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	err = s.Struct.SetPtr(0, l.List.ToPtr())
 	return l, err
 }
+
 func (s Factory_CreateParams) MsgPayload() (capnp.Ptr, error) {
-	return capnp.Struct(s).Ptr(1)
+	return s.Struct.Ptr(1)
 }
 
 func (s Factory_CreateParams) HasMsgPayload() bool {
-	return capnp.Struct(s).HasPtr(1)
+	return s.Struct.HasPtr(1)
 }
 
 func (s Factory_CreateParams) SetMsgPayload(v capnp.Ptr) error {
-	return capnp.Struct(s).SetPtr(1, v)
+	return s.Struct.SetPtr(1, v)
 }
 
 // Factory_CreateParams_List is a list of Factory_CreateParams.
-type Factory_CreateParams_List = capnp.StructList[Factory_CreateParams]
+type Factory_CreateParams_List struct{ capnp.List }
 
 // NewFactory_CreateParams creates a new list of Factory_CreateParams.
 func NewFactory_CreateParams_List(s *capnp.Segment, sz int32) (Factory_CreateParams_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 2}, sz)
-	return capnp.StructList[Factory_CreateParams](l), err
+	return Factory_CreateParams_List{l}, err
+}
+
+func (s Factory_CreateParams_List) At(i int) Factory_CreateParams {
+	return Factory_CreateParams{s.List.Struct(i)}
+}
+
+func (s Factory_CreateParams_List) Set(i int, v Factory_CreateParams) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Factory_CreateParams_List) String() string {
+	str, _ := text.MarshalList(0xc2b88517ccaa9197, s.List)
+	return str
 }
 
 // Factory_CreateParams_Future is a wrapper for a Factory_CreateParams promised by a client call.
 type Factory_CreateParams_Future struct{ *capnp.Future }
 
-func (f Factory_CreateParams_Future) Struct() (Factory_CreateParams, error) {
-	p, err := f.Future.Ptr()
-	return Factory_CreateParams(p.Struct()), err
+func (p Factory_CreateParams_Future) Struct() (Factory_CreateParams, error) {
+	s, err := p.Future.Struct()
+	return Factory_CreateParams{s}, err
 }
+
 func (p Factory_CreateParams_Future) MsgPayload() *capnp.Future {
 	return p.Future.Field(1, nil)
 }
 
-type Factory_AccessInfo capnp.Struct
+type Factory_AccessInfo struct{ capnp.Struct }
 
 // Factory_AccessInfo_TypeID is the unique identifier for the type Factory_AccessInfo.
 const Factory_AccessInfo_TypeID = 0xb9816a53df7cb62e
 
 func NewFactory_AccessInfo(s *capnp.Segment) (Factory_AccessInfo, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 3})
-	return Factory_AccessInfo(st), err
+	return Factory_AccessInfo{st}, err
 }
 
 func NewRootFactory_AccessInfo(s *capnp.Segment) (Factory_AccessInfo, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 3})
-	return Factory_AccessInfo(st), err
+	return Factory_AccessInfo{st}, err
 }
 
 func ReadRootFactory_AccessInfo(msg *capnp.Message) (Factory_AccessInfo, error) {
 	root, err := msg.Root()
-	return Factory_AccessInfo(root.Struct()), err
+	return Factory_AccessInfo{root.Struct()}, err
 }
 
 func (s Factory_AccessInfo) String() string {
-	str, _ := text.Marshal(0xb9816a53df7cb62e, capnp.Struct(s))
+	str, _ := text.Marshal(0xb9816a53df7cb62e, s.Struct)
 	return str
 }
 
-func (s Factory_AccessInfo) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Factory_AccessInfo) DecodeFromPtr(p capnp.Ptr) Factory_AccessInfo {
-	return Factory_AccessInfo(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Factory_AccessInfo) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Factory_AccessInfo) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Factory_AccessInfo) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Factory_AccessInfo) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-func (s Factory_AccessInfo) AdminCap() capnp.Client {
-	p, _ := capnp.Struct(s).Ptr(0)
-	return p.Interface().Client()
+func (s Factory_AccessInfo) AdminCap() (capnp.Ptr, error) {
+	return s.Struct.Ptr(0)
 }
 
 func (s Factory_AccessInfo) HasAdminCap() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
-func (s Factory_AccessInfo) SetAdminCap(c capnp.Client) error {
-	if !c.IsValid() {
-		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
-	}
-	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(c))
-	return capnp.Struct(s).SetPtr(0, in.ToPtr())
+func (s Factory_AccessInfo) SetAdminCap(v capnp.Ptr) error {
+	return s.Struct.SetPtr(0, v)
 }
-func (s Factory_AccessInfo) ServiceCaps() (common.Identifiable_List, error) {
-	p, err := capnp.Struct(s).Ptr(1)
-	return common.Identifiable_List(p.List()), err
+
+func (s Factory_AccessInfo) ServiceCaps() (capnp.PointerList, error) {
+	p, err := s.Struct.Ptr(1)
+	return capnp.PointerList{List: p.List()}, err
 }
 
 func (s Factory_AccessInfo) HasServiceCaps() bool {
-	return capnp.Struct(s).HasPtr(1)
+	return s.Struct.HasPtr(1)
 }
 
-func (s Factory_AccessInfo) SetServiceCaps(v common.Identifiable_List) error {
-	return capnp.Struct(s).SetPtr(1, v.ToPtr())
+func (s Factory_AccessInfo) SetServiceCaps(v capnp.PointerList) error {
+	return s.Struct.SetPtr(1, v.List.ToPtr())
 }
 
 // NewServiceCaps sets the serviceCaps field to a newly
-// allocated common.Identifiable_List, preferring placement in s's segment.
-func (s Factory_AccessInfo) NewServiceCaps(n int32) (common.Identifiable_List, error) {
-	l, err := common.NewIdentifiable_List(capnp.Struct(s).Segment(), n)
+// allocated capnp.PointerList, preferring placement in s's segment.
+func (s Factory_AccessInfo) NewServiceCaps(n int32) (capnp.PointerList, error) {
+	l, err := capnp.NewPointerList(s.Struct.Segment(), n)
 	if err != nil {
-		return common.Identifiable_List{}, err
+		return capnp.PointerList{}, err
 	}
-	err = capnp.Struct(s).SetPtr(1, l.ToPtr())
+	err = s.Struct.SetPtr(1, l.List.ToPtr())
 	return l, err
 }
+
 func (s Factory_AccessInfo) Error() (string, error) {
-	p, err := capnp.Struct(s).Ptr(2)
+	p, err := s.Struct.Ptr(2)
 	return p.Text(), err
 }
 
 func (s Factory_AccessInfo) HasError() bool {
-	return capnp.Struct(s).HasPtr(2)
+	return s.Struct.HasPtr(2)
 }
 
 func (s Factory_AccessInfo) ErrorBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(2)
+	p, err := s.Struct.Ptr(2)
 	return p.TextBytes(), err
 }
 
 func (s Factory_AccessInfo) SetError(v string) error {
-	return capnp.Struct(s).SetText(2, v)
+	return s.Struct.SetText(2, v)
 }
 
 // Factory_AccessInfo_List is a list of Factory_AccessInfo.
-type Factory_AccessInfo_List = capnp.StructList[Factory_AccessInfo]
+type Factory_AccessInfo_List struct{ capnp.List }
 
 // NewFactory_AccessInfo creates a new list of Factory_AccessInfo.
 func NewFactory_AccessInfo_List(s *capnp.Segment, sz int32) (Factory_AccessInfo_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 3}, sz)
-	return capnp.StructList[Factory_AccessInfo](l), err
+	return Factory_AccessInfo_List{l}, err
+}
+
+func (s Factory_AccessInfo_List) At(i int) Factory_AccessInfo {
+	return Factory_AccessInfo{s.List.Struct(i)}
+}
+
+func (s Factory_AccessInfo_List) Set(i int, v Factory_AccessInfo) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Factory_AccessInfo_List) String() string {
+	str, _ := text.MarshalList(0xb9816a53df7cb62e, s.List)
+	return str
 }
 
 // Factory_AccessInfo_Future is a wrapper for a Factory_AccessInfo promised by a client call.
 type Factory_AccessInfo_Future struct{ *capnp.Future }
 
-func (f Factory_AccessInfo_Future) Struct() (Factory_AccessInfo, error) {
-	p, err := f.Future.Ptr()
-	return Factory_AccessInfo(p.Struct()), err
-}
-func (p Factory_AccessInfo_Future) AdminCap() capnp.Client {
-	return p.Future.Field(0, nil).Client()
+func (p Factory_AccessInfo_Future) Struct() (Factory_AccessInfo, error) {
+	s, err := p.Future.Struct()
+	return Factory_AccessInfo{s}, err
 }
 
-type Factory_serviceInterfaceNames_Params capnp.Struct
+func (p Factory_AccessInfo_Future) AdminCap() *capnp.Future {
+	return p.Future.Field(0, nil)
+}
+
+type Factory_serviceInterfaceNames_Params struct{ capnp.Struct }
 
 // Factory_serviceInterfaceNames_Params_TypeID is the unique identifier for the type Factory_serviceInterfaceNames_Params.
 const Factory_serviceInterfaceNames_Params_TypeID = 0xd4d567352ab3882a
 
 func NewFactory_serviceInterfaceNames_Params(s *capnp.Segment) (Factory_serviceInterfaceNames_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Factory_serviceInterfaceNames_Params(st), err
+	return Factory_serviceInterfaceNames_Params{st}, err
 }
 
 func NewRootFactory_serviceInterfaceNames_Params(s *capnp.Segment) (Factory_serviceInterfaceNames_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Factory_serviceInterfaceNames_Params(st), err
+	return Factory_serviceInterfaceNames_Params{st}, err
 }
 
 func ReadRootFactory_serviceInterfaceNames_Params(msg *capnp.Message) (Factory_serviceInterfaceNames_Params, error) {
 	root, err := msg.Root()
-	return Factory_serviceInterfaceNames_Params(root.Struct()), err
+	return Factory_serviceInterfaceNames_Params{root.Struct()}, err
 }
 
 func (s Factory_serviceInterfaceNames_Params) String() string {
-	str, _ := text.Marshal(0xd4d567352ab3882a, capnp.Struct(s))
+	str, _ := text.Marshal(0xd4d567352ab3882a, s.Struct)
 	return str
 }
 
-func (s Factory_serviceInterfaceNames_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Factory_serviceInterfaceNames_Params) DecodeFromPtr(p capnp.Ptr) Factory_serviceInterfaceNames_Params {
-	return Factory_serviceInterfaceNames_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Factory_serviceInterfaceNames_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Factory_serviceInterfaceNames_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Factory_serviceInterfaceNames_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Factory_serviceInterfaceNames_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // Factory_serviceInterfaceNames_Params_List is a list of Factory_serviceInterfaceNames_Params.
-type Factory_serviceInterfaceNames_Params_List = capnp.StructList[Factory_serviceInterfaceNames_Params]
+type Factory_serviceInterfaceNames_Params_List struct{ capnp.List }
 
 // NewFactory_serviceInterfaceNames_Params creates a new list of Factory_serviceInterfaceNames_Params.
 func NewFactory_serviceInterfaceNames_Params_List(s *capnp.Segment, sz int32) (Factory_serviceInterfaceNames_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[Factory_serviceInterfaceNames_Params](l), err
+	return Factory_serviceInterfaceNames_Params_List{l}, err
+}
+
+func (s Factory_serviceInterfaceNames_Params_List) At(i int) Factory_serviceInterfaceNames_Params {
+	return Factory_serviceInterfaceNames_Params{s.List.Struct(i)}
+}
+
+func (s Factory_serviceInterfaceNames_Params_List) Set(i int, v Factory_serviceInterfaceNames_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Factory_serviceInterfaceNames_Params_List) String() string {
+	str, _ := text.MarshalList(0xd4d567352ab3882a, s.List)
+	return str
 }
 
 // Factory_serviceInterfaceNames_Params_Future is a wrapper for a Factory_serviceInterfaceNames_Params promised by a client call.
 type Factory_serviceInterfaceNames_Params_Future struct{ *capnp.Future }
 
-func (f Factory_serviceInterfaceNames_Params_Future) Struct() (Factory_serviceInterfaceNames_Params, error) {
-	p, err := f.Future.Ptr()
-	return Factory_serviceInterfaceNames_Params(p.Struct()), err
+func (p Factory_serviceInterfaceNames_Params_Future) Struct() (Factory_serviceInterfaceNames_Params, error) {
+	s, err := p.Future.Struct()
+	return Factory_serviceInterfaceNames_Params{s}, err
 }
 
-type Factory_serviceInterfaceNames_Results capnp.Struct
+type Factory_serviceInterfaceNames_Results struct{ capnp.Struct }
 
 // Factory_serviceInterfaceNames_Results_TypeID is the unique identifier for the type Factory_serviceInterfaceNames_Results.
 const Factory_serviceInterfaceNames_Results_TypeID = 0xa962c127b5dccf05
 
 func NewFactory_serviceInterfaceNames_Results(s *capnp.Segment) (Factory_serviceInterfaceNames_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Factory_serviceInterfaceNames_Results(st), err
+	return Factory_serviceInterfaceNames_Results{st}, err
 }
 
 func NewRootFactory_serviceInterfaceNames_Results(s *capnp.Segment) (Factory_serviceInterfaceNames_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Factory_serviceInterfaceNames_Results(st), err
+	return Factory_serviceInterfaceNames_Results{st}, err
 }
 
 func ReadRootFactory_serviceInterfaceNames_Results(msg *capnp.Message) (Factory_serviceInterfaceNames_Results, error) {
 	root, err := msg.Root()
-	return Factory_serviceInterfaceNames_Results(root.Struct()), err
+	return Factory_serviceInterfaceNames_Results{root.Struct()}, err
 }
 
 func (s Factory_serviceInterfaceNames_Results) String() string {
-	str, _ := text.Marshal(0xa962c127b5dccf05, capnp.Struct(s))
+	str, _ := text.Marshal(0xa962c127b5dccf05, s.Struct)
 	return str
 }
 
-func (s Factory_serviceInterfaceNames_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Factory_serviceInterfaceNames_Results) DecodeFromPtr(p capnp.Ptr) Factory_serviceInterfaceNames_Results {
-	return Factory_serviceInterfaceNames_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Factory_serviceInterfaceNames_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Factory_serviceInterfaceNames_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Factory_serviceInterfaceNames_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Factory_serviceInterfaceNames_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Factory_serviceInterfaceNames_Results) Names() (capnp.TextList, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return capnp.TextList(p.List()), err
+	p, err := s.Struct.Ptr(0)
+	return capnp.TextList{List: p.List()}, err
 }
 
 func (s Factory_serviceInterfaceNames_Results) HasNames() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Factory_serviceInterfaceNames_Results) SetNames(v capnp.TextList) error {
-	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+	return s.Struct.SetPtr(0, v.List.ToPtr())
 }
 
 // NewNames sets the names field to a newly
 // allocated capnp.TextList, preferring placement in s's segment.
 func (s Factory_serviceInterfaceNames_Results) NewNames(n int32) (capnp.TextList, error) {
-	l, err := capnp.NewTextList(capnp.Struct(s).Segment(), n)
+	l, err := capnp.NewTextList(s.Struct.Segment(), n)
 	if err != nil {
 		return capnp.TextList{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	err = s.Struct.SetPtr(0, l.List.ToPtr())
 	return l, err
 }
 
 // Factory_serviceInterfaceNames_Results_List is a list of Factory_serviceInterfaceNames_Results.
-type Factory_serviceInterfaceNames_Results_List = capnp.StructList[Factory_serviceInterfaceNames_Results]
+type Factory_serviceInterfaceNames_Results_List struct{ capnp.List }
 
 // NewFactory_serviceInterfaceNames_Results creates a new list of Factory_serviceInterfaceNames_Results.
 func NewFactory_serviceInterfaceNames_Results_List(s *capnp.Segment, sz int32) (Factory_serviceInterfaceNames_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Factory_serviceInterfaceNames_Results](l), err
+	return Factory_serviceInterfaceNames_Results_List{l}, err
+}
+
+func (s Factory_serviceInterfaceNames_Results_List) At(i int) Factory_serviceInterfaceNames_Results {
+	return Factory_serviceInterfaceNames_Results{s.List.Struct(i)}
+}
+
+func (s Factory_serviceInterfaceNames_Results_List) Set(i int, v Factory_serviceInterfaceNames_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Factory_serviceInterfaceNames_Results_List) String() string {
+	str, _ := text.MarshalList(0xa962c127b5dccf05, s.List)
+	return str
 }
 
 // Factory_serviceInterfaceNames_Results_Future is a wrapper for a Factory_serviceInterfaceNames_Results promised by a client call.
 type Factory_serviceInterfaceNames_Results_Future struct{ *capnp.Future }
 
-func (f Factory_serviceInterfaceNames_Results_Future) Struct() (Factory_serviceInterfaceNames_Results, error) {
-	p, err := f.Future.Ptr()
-	return Factory_serviceInterfaceNames_Results(p.Struct()), err
+func (p Factory_serviceInterfaceNames_Results_Future) Struct() (Factory_serviceInterfaceNames_Results, error) {
+	s, err := p.Future.Struct()
+	return Factory_serviceInterfaceNames_Results{s}, err
 }
 
-type Stopable capnp.Client
+type Stopable struct{ Client *capnp.Client }
 
 // Stopable_TypeID is the unique identifier for the type Stopable.
 const Stopable_TypeID = 0xe9d1be2a6e9016e5
 
 func (c Stopable) Stop(ctx context.Context, params func(Stopable_stop_Params) error) (Stopable_stop_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xe9d1be2a6e9016e5,
@@ -2134,83 +1728,20 @@ func (c Stopable) Stop(ctx context.Context, params func(Stopable_stop_Params) er
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Stopable_stop_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Stopable_stop_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Stopable_stop_Results_Future{Future: ans.Future()}, release
-
 }
 
-func (c Stopable) WaitStreaming() error {
-	return capnp.Client(c).WaitStreaming()
-}
-
-// String returns a string that identifies this capability for debugging
-// purposes.  Its format should not be depended on: in particular, it
-// should not be used to compare clients.  Use IsSame to compare clients
-// for equality.
-func (c Stopable) String() string {
-	return "Stopable(" + capnp.Client(c).String() + ")"
-}
-
-// AddRef creates a new Client that refers to the same capability as c.
-// If c is nil or has resolved to null, then AddRef returns nil.
 func (c Stopable) AddRef() Stopable {
-	return Stopable(capnp.Client(c).AddRef())
+	return Stopable{
+		Client: c.Client.AddRef(),
+	}
 }
 
-// Release releases a capability reference.  If this is the last
-// reference to the capability, then the underlying resources associated
-// with the capability will be released.
-//
-// Release will panic if c has already been released, but not if c is
-// nil or resolved to null.
 func (c Stopable) Release() {
-	capnp.Client(c).Release()
-}
-
-// Resolve blocks until the capability is fully resolved or the Context
-// expires.
-func (c Stopable) Resolve(ctx context.Context) error {
-	return capnp.Client(c).Resolve(ctx)
-}
-
-func (c Stopable) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Client(c).EncodeAsPtr(seg)
-}
-
-func (Stopable) DecodeFromPtr(p capnp.Ptr) Stopable {
-	return Stopable(capnp.Client{}.DecodeFromPtr(p))
-}
-
-// IsValid reports whether c is a valid reference to a capability.
-// A reference is invalid if it is nil, has resolved to null, or has
-// been released.
-func (c Stopable) IsValid() bool {
-	return capnp.Client(c).IsValid()
-}
-
-// IsSame reports whether c and other refer to a capability created by the
-// same call to NewClient.  This can return false negatives if c or other
-// are not fully resolved: use Resolve if this is an issue.  If either
-// c or other are released, then IsSame panics.
-func (c Stopable) IsSame(other Stopable) bool {
-	return capnp.Client(c).IsSame(capnp.Client(other))
-}
-
-// Update the flowcontrol.FlowLimiter used to manage flow control for
-// this client. This affects all future calls, but not calls already
-// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
-// which is also the default.
-func (c Stopable) SetFlowLimiter(lim fc.FlowLimiter) {
-	capnp.Client(c).SetFlowLimiter(lim)
-}
-
-// Get the current flowcontrol.FlowLimiter used to manage flow control
-// for this client.
-func (c Stopable) GetFlowLimiter() fc.FlowLimiter {
-	return capnp.Client(c).GetFlowLimiter()
+	c.Client.Release()
 }
 
 // A Stopable_Server is a Stopable with a local implementation.
@@ -2219,15 +1750,15 @@ type Stopable_Server interface {
 }
 
 // Stopable_NewServer creates a new Server from an implementation of Stopable_Server.
-func Stopable_NewServer(s Stopable_Server) *server.Server {
+func Stopable_NewServer(s Stopable_Server, policy *server.Policy) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(Stopable_Methods(nil, s), s, c)
+	return server.New(Stopable_Methods(nil, s), s, c, policy)
 }
 
 // Stopable_ServerToClient creates a new Client from an implementation of Stopable_Server.
 // The caller is responsible for calling Release on the returned Client.
-func Stopable_ServerToClient(s Stopable_Server) Stopable {
-	return Stopable(capnp.NewClient(Stopable_NewServer(s)))
+func Stopable_ServerToClient(s Stopable_Server, policy *server.Policy) Stopable {
+	return Stopable{Client: capnp.NewClient(Stopable_NewServer(s, policy))}
 }
 
 // Stopable_Methods appends Methods to a slice that invoke the methods on s.
@@ -2260,271 +1791,237 @@ type Stopable_stop struct {
 
 // Args returns the call's arguments.
 func (c Stopable_stop) Args() Stopable_stop_Params {
-	return Stopable_stop_Params(c.Call.Args())
+	return Stopable_stop_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Stopable_stop) AllocResults() (Stopable_stop_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Stopable_stop_Results(r), err
+	return Stopable_stop_Results{Struct: r}, err
 }
 
-// Stopable_List is a list of Stopable.
-type Stopable_List = capnp.CapList[Stopable]
-
-// NewStopable creates a new list of Stopable.
-func NewStopable_List(s *capnp.Segment, sz int32) (Stopable_List, error) {
-	l, err := capnp.NewPointerList(s, sz)
-	return capnp.CapList[Stopable](l), err
-}
-
-type Stopable_stop_Params capnp.Struct
+type Stopable_stop_Params struct{ capnp.Struct }
 
 // Stopable_stop_Params_TypeID is the unique identifier for the type Stopable_stop_Params.
 const Stopable_stop_Params_TypeID = 0xd2e4f20669b7b705
 
 func NewStopable_stop_Params(s *capnp.Segment) (Stopable_stop_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Stopable_stop_Params(st), err
+	return Stopable_stop_Params{st}, err
 }
 
 func NewRootStopable_stop_Params(s *capnp.Segment) (Stopable_stop_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Stopable_stop_Params(st), err
+	return Stopable_stop_Params{st}, err
 }
 
 func ReadRootStopable_stop_Params(msg *capnp.Message) (Stopable_stop_Params, error) {
 	root, err := msg.Root()
-	return Stopable_stop_Params(root.Struct()), err
+	return Stopable_stop_Params{root.Struct()}, err
 }
 
 func (s Stopable_stop_Params) String() string {
-	str, _ := text.Marshal(0xd2e4f20669b7b705, capnp.Struct(s))
+	str, _ := text.Marshal(0xd2e4f20669b7b705, s.Struct)
 	return str
 }
 
-func (s Stopable_stop_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Stopable_stop_Params) DecodeFromPtr(p capnp.Ptr) Stopable_stop_Params {
-	return Stopable_stop_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Stopable_stop_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Stopable_stop_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Stopable_stop_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Stopable_stop_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // Stopable_stop_Params_List is a list of Stopable_stop_Params.
-type Stopable_stop_Params_List = capnp.StructList[Stopable_stop_Params]
+type Stopable_stop_Params_List struct{ capnp.List }
 
 // NewStopable_stop_Params creates a new list of Stopable_stop_Params.
 func NewStopable_stop_Params_List(s *capnp.Segment, sz int32) (Stopable_stop_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[Stopable_stop_Params](l), err
+	return Stopable_stop_Params_List{l}, err
+}
+
+func (s Stopable_stop_Params_List) At(i int) Stopable_stop_Params {
+	return Stopable_stop_Params{s.List.Struct(i)}
+}
+
+func (s Stopable_stop_Params_List) Set(i int, v Stopable_stop_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Stopable_stop_Params_List) String() string {
+	str, _ := text.MarshalList(0xd2e4f20669b7b705, s.List)
+	return str
 }
 
 // Stopable_stop_Params_Future is a wrapper for a Stopable_stop_Params promised by a client call.
 type Stopable_stop_Params_Future struct{ *capnp.Future }
 
-func (f Stopable_stop_Params_Future) Struct() (Stopable_stop_Params, error) {
-	p, err := f.Future.Ptr()
-	return Stopable_stop_Params(p.Struct()), err
+func (p Stopable_stop_Params_Future) Struct() (Stopable_stop_Params, error) {
+	s, err := p.Future.Struct()
+	return Stopable_stop_Params{s}, err
 }
 
-type Stopable_stop_Results capnp.Struct
+type Stopable_stop_Results struct{ capnp.Struct }
 
 // Stopable_stop_Results_TypeID is the unique identifier for the type Stopable_stop_Results.
 const Stopable_stop_Results_TypeID = 0x96368058e2cef1ac
 
 func NewStopable_stop_Results(s *capnp.Segment) (Stopable_stop_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Stopable_stop_Results(st), err
+	return Stopable_stop_Results{st}, err
 }
 
 func NewRootStopable_stop_Results(s *capnp.Segment) (Stopable_stop_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Stopable_stop_Results(st), err
+	return Stopable_stop_Results{st}, err
 }
 
 func ReadRootStopable_stop_Results(msg *capnp.Message) (Stopable_stop_Results, error) {
 	root, err := msg.Root()
-	return Stopable_stop_Results(root.Struct()), err
+	return Stopable_stop_Results{root.Struct()}, err
 }
 
 func (s Stopable_stop_Results) String() string {
-	str, _ := text.Marshal(0x96368058e2cef1ac, capnp.Struct(s))
+	str, _ := text.Marshal(0x96368058e2cef1ac, s.Struct)
 	return str
 }
 
-func (s Stopable_stop_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Stopable_stop_Results) DecodeFromPtr(p capnp.Ptr) Stopable_stop_Results {
-	return Stopable_stop_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Stopable_stop_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Stopable_stop_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Stopable_stop_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Stopable_stop_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // Stopable_stop_Results_List is a list of Stopable_stop_Results.
-type Stopable_stop_Results_List = capnp.StructList[Stopable_stop_Results]
+type Stopable_stop_Results_List struct{ capnp.List }
 
 // NewStopable_stop_Results creates a new list of Stopable_stop_Results.
 func NewStopable_stop_Results_List(s *capnp.Segment, sz int32) (Stopable_stop_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[Stopable_stop_Results](l), err
+	return Stopable_stop_Results_List{l}, err
+}
+
+func (s Stopable_stop_Results_List) At(i int) Stopable_stop_Results {
+	return Stopable_stop_Results{s.List.Struct(i)}
+}
+
+func (s Stopable_stop_Results_List) Set(i int, v Stopable_stop_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Stopable_stop_Results_List) String() string {
+	str, _ := text.MarshalList(0x96368058e2cef1ac, s.List)
+	return str
 }
 
 // Stopable_stop_Results_Future is a wrapper for a Stopable_stop_Results promised by a client call.
 type Stopable_stop_Results_Future struct{ *capnp.Future }
 
-func (f Stopable_stop_Results_Future) Struct() (Stopable_stop_Results, error) {
-	p, err := f.Future.Ptr()
-	return Stopable_stop_Results(p.Struct()), err
+func (p Stopable_stop_Results_Future) Struct() (Stopable_stop_Results, error) {
+	s, err := p.Future.Struct()
+	return Stopable_stop_Results{s}, err
 }
 
-const schema_f52adf98d2bbc6c0 = "x\xda\x94Vkl\x14U\x14>gf\xe7Q\x04\xba" +
-	"\x97ih\xa8\xc4MH\xb5\xb0\xc1\x06ZP\xd3\x88\xed" +
-	"\x96G-\x8a\xd9\xd9\xd6\x04jT\xa6\xbbS\x18\xb2\xbb" +
-	"\xb3\xecL\x85\x12\xb1\xa2 \x16C\x02&<\x03?\xc4" +
-	"4\x11\x10Q\x90\xa7Q)F\xfdQ\xc5\xf02\x11\x8a" +
-	"<\xa21&\x1a\x03\xa6F\x7f\xc0\x98;\xb3ww\xd8" +
-	"\x16\x94\x7f\x939\xf7\x9e\xf3\x9d\xef|\xe7\x9c;\xa5\x8d" +
-	"o\x08L\x1d\xf5\xe2}\xc0\xa9\xab\x05\xd1\xd9\xf3\xc0\x8f" +
-	"W&>\xf6n\x0f\x90\xf1\x08 \xa0\x04P\xbbIh" +
-	"C@\xe5\x1d\xa1\x1e\xd0\xe9\xde\xf1\xd0\x8ec\xbf}\xb8" +
-	"\x0e\xc8h\xde9\xf1\xd5'g\xb6^\x0e\x0f\x02@\x10" +
-	"\x95\xd3\xc2\x01\xe5\x07\xa1\x0a@\x19\x14\xd6*;\xc5r" +
-	"\xa5W,u\xde\xbf~\xea\xda\xfcW\x1f\xd9\x0c\xa4\x1c" +
-	"\x01\x02\xd4\xe16q\x02B\xc0\xb9\x19$\xc6\xba\xe9\x9f" +
-	"o\x07\xb5\x0c\x99i\x95XCc\xf5\x884\xd6\xa5\xc3" +
-	"\x03\x0b\x07\xccI\xefy`\\\xfbn1F\xaf\x0a\xdf" +
-	"\x0d\x1c\xaa\xeak\xdf\x0dd\xac\x073\x88\xb5\x9b\xc4]" +
-	"\xf4j\xaf{\xb5_99\xe1\xed\xd7z\xf7\x16\xc1D" +
-	"\xe5\xbcxM\xb9*J\x00\xca%\xb1I\x11\xa4r\x00" +
-	"g\xf2\xdek\xf2\xc5\xae\x17>\x02R\xc6\xe2\x0c\x8am" +
-	"4N\xf5\xe1\x97/\xb7,Yu\x8c\xc6)\xa4.\xf0" +
-	"4\xdeUq\x04*\xd7]W\xbf\x8b\xfb\x01\x9d-\x1b" +
-	"\xf7|S\xbe\xe6\xe8IP\xc7\xa2\xff4GO\xef\x94" +
-	"*P\xd9'\xd1\xd3\xbb%zz\xed\x96\xce'\xc4\x8a" +
-	"\xf0)_\xd0}\xf2\x087\xb9#G\x0c\xf1\xc6Og" +
-	"|\x8cm\x92+\xa8%\xfc\xe6\xc1\xf0\xf4E\xe7\xcfy" +
-	"i\x07\xa8\xdf\x95\xf2vj\x99v\xe3\x97\x0b\xf7\xffY" +
-	"\xf5\xbd\xcf[J\x0eSK\xdfS_W\xcc\x1dw\xd3" +
-	"oyV\xae\xa3\x96\xd7\x8f/>\xfcOv\xf5\x80g" +
-	"\x118j\x9a!\xc7(\x89\xcd\xf22@g\xf9s\x7f" +
-	"<\xfa\xed\xd9/.\xf9\xae\xf6\xca\x1c\xbd\xba`K\xeb" +
-	"\x07\x1b&\x8c\xbf\xe2\xb3\xf4\xc85\xd4\xf2\xf3\xd8\x0d\xe9" +
-	"\xf0g\xa7\x7f\x1dB\xfcR\xf9\xb8\xd2%\xd3\xfc;\xe5" +
-	"&e'\xfdr\xb6\x1e\xbc\xb8|\xcd\x8c\xc6\xc1\x1c\x02" +
-	"Wmk(8T\xd6\xcb\xb4\x8c\xcd\x7f\xad\x1f\xf7\xd6" +
-	"\xdf}\xb7\x86x\xfbT\xde\xa5|I}\xd4\xf6\xc9M" +
-	"\xa8l+\xa1u\xdc<\x7f\xd2\xfa\xf6\xa5\x8d\x8e\x1fU" +
-	"I\x0d\xc2J\xc7\xd2\xb3/\x19q\xbd:\x10\xd72\xe9" +
-	"L]\x8b\x91\xca$\xf59Z\xdc6\xb3]\xd5\xf1\xac" +
-	"\xae\xd9zeL\xb7:\x93\xbcm\xa9\x01>\x00\x10@" +
-	"\x002*\x0c\xa0\xca<\xaa\x95\x1c\x96\xc6\xb5\x8c\x85\xa3" +
-	"\x01\xa3<\"q\xce?\xb9cA\xff\xe9\xfd\x07\x00\x90" +
-	"\xfe\xccG@/\xc2\x1c-\xe4:We\xf4\x09\x83\x94" +
-	",\xf1I\xaa\xa4\xcd\x99\xe9\x86\x8ejP\x9a\xd5R\x96" +
-	"\x13\x89\xc7u\xcbjN\x03\xdfa\xaa2/\x00\xe4\xef" +
-	"\"\xbbG\xa6\xd6\x01D&c\xe4q$\xf3$\xc4\xbc" +
-	"(\x905\x05\x89\x1c\x00\x88\xcc\xc2H+\x12]\xaa\xf7" +
-	"\xd2#\x18R\x03\x9cO\x96\xb4\xe5\x86\xfd\xd9\x90O\xa6" +
-	"\x19\xd3\xb6\x9e\xed\xd0\xe2z\xe8\x19-\xa5[\xf7\xe2C" +
-	"\x0d \xfaH\x82H\x00\x096vG\xb5\xae\xa4\xa9%" +
-	"\xf2t\xf1\xb9\x82\xd8fFkO\xea\xd5\x96mf\xdc" +
-	"JHI\xdb*>\x15I\xa4\x8ct\xb5\xa5\xdb\xadF" +
-	"J7;\xed\xcahH\xa3\xbc\xf9+\xd6\x98\xabX\x19" +
-	"\x87\xdd\x96\x1e7\xd3\x09\x0bK\x80\xc3\x12_\x8d\xee\xa6" +
-	"\x82(\xf5\x88\x85\xd0\x02\xab\xa7w\x8a1\xc3\x88qy" +
-	"\xc9\x03\xf6\x03\xa9)H'\x94\xa6\xa7\x98vF\x02w" +
-	"\x9bb\xb8b4\x92\x99\xed\x8a\"\xaa\x01W\x00l\x08" +
-	"\"\x1b\xcd\x84\xd4\x01G\x04V\xd8\xa1T\x17\xe7\xe9\xd1" +
-	"\xd6\x99Ih\xb6\xde\x9c\xd0\xd3\xb6aw\xe5\xd5^\xcc" +
-	"1K\x94I\xb1\xc3\x04\xa0`F\xe63\x9b=\x17@" +
-	"\x9d\xc5\xa3\x1a\xe5\x90 \xba\xb3\x9b\xcck\x07P\x9f\xe6" +
-	"Q]\xcc!\xe1\xb82\xe4\x00\x88N9X\xc8\xa3\x9a" +
-	"\xe4\xd0\xd1(\x8a\x99Z\x06\x00pL\x80\x07\xc41\x05" +
-	"\x12f\x82t\xb7\xee\x0a\xe9\xd9\xac\x99u\x99\x1b\xe9c" +
-	"\xae\x082k\xa6\xac\xc6\xa7,\x1ffD2{E\x01" +
-	"s\x1e\xf2\x19\x00\xb5\x95G\xf5(\x85\x8c\x1e\xe4Cm" +
-	"\x00\xea\xc7<\xaa'8tlOf-P\xef\x17\x12" +
-	"\x1f\x1c\x0d\xe0\x189\x05p\xae\x04Z\xcd\x98\xbe\xc8\xb0" +
-	"\xeclW\x0b\xc6X\x1aA\xa7\xb6\xa9\xfc\xc1\xa67\xce" +
-	"\x1d\x03\xda\x11\xacQ|?\x09V\xd1\x01\x81H\x95\x82" +
-	"\xa8\x06s\xf2`\x12IY\x8b\xdc\x86\x01^K\xe0\x18" +
-	"\xffR\xa1$\x0ee\"\xd7 \xac\x87\x92\xb6\xe5S\xc3" +
-	"\xb0\xad\x96c\xeb\xde\xe4^|\xe9\xb6\xe8\x8bu-k" +
-	"\xb7\xeb\x9a]\x19\xd5\xbc\xa9\xf6_]\x1c\xab\xf7\xb0\xfe" +
-	"/\xdd\xe6\xfaS\x95\xf3z\x9cDUV\xc9\xa3:\xc5" +
-	"\xa7\xc7\x87\xe9\x1c\x98\xc8\xa3:\x8d\xc3\x90\x99L4'" +
-	"\x98z\xba\xd3\xfa2*k\x0c:g/\xf0\xb7\xfa_" +
-	"\xe9?GU\x16\xf4\xb1)\x0da\xd3\x8dj\x01;0" +
-	"|\xbe1=t{\x1e\xc8\x18\xaf\xf7(/45[" +
-	"\xf1\xc8^G\x84\x84\xdd\xa6.\xa5\xe1\x1a0\x8aw\xa8" +
-	"\xad\xe1\xf1`\xd0\xa1\x93\xa3\xedNC\xc7Hw\x98V" +
-	"A\x8b\xfed\x87YX\x91\x84\x942\xd2\x14a\x99\x8b" +
-	"\x90=(\x90\xadz\xb21\x06\x1c\xe9\xa1\x1b\x87=\xdc" +
-	"\x90\xbd-\xc8\xca6\xe0H\xa7\x84\\\xfe\xcd\x80\xec}" +
-	"C\x0c\x9a\xd9\xf3\x12\xf2\xf9\xfd\x8cl\xef\x13\x95\xdek" +
-	"\x96\xb0\xf0\x18A\xf6\x18#3V\x00G\xa6K\x0e#" +
-	"\x18\xd0vW\x93\xa7\x1b\xe0;\xed\x06\xcc\xd1\xe50Z" +
-	"\x80\xd7\xad\x06t\x98f\xa0\xdeS\xcd]f\xe4\x9d\xd8" +
-	"\xcd\xad\x96\x7f\x03\x00\x00\xff\xffw\xccf\xf6"
+const schema_f52adf98d2bbc6c0 = "x\xda\x94Vkl\x14e\x17>gf\xe7R>>" +
+	"\xba/\xd3\xd0\xd0\x8f|\x9b\x90~_a\x83\x0d\xb4\xa0" +
+	"\xa6\x11\xdb-\x97Z\x14\xb3\xb3\xad\x09\xd4\xa8Lw\xa7" +
+	"0dwg\xd9\x99\x0aK\xc4\x8a\x82X\x0c\x09\x98p" +
+	"\x0d\xfc\x10\xd3D@DA\xaeF\xa5\x18\xf5G\x15\xc3" +
+	"\xcdD(r\x89\xc6\x98h\x0c\x98\x1a\xfd\x01c\xde\x99" +
+	"}w\x87mA\xf97\x99\xf3\xbe\xe7<\xe79\xcf9" +
+	"\xe7\x9d\xba\x80o\xe2\xa6\x09\xcf\xfd\x0b@]#\x88\xce" +
+	"\xde\xff~wu\xd2\xc3o\xf5\x02\x99\x80\x00\x02J\x00" +
+	"\xf5\x9b\x85\x0e\x04T\xde\x14\x1a\x01\x9d\x9e\x9d\xff\xdfy" +
+	"\xfc\xe7\xf7\xd6\x03\x19\xc3;'?\xff\xf0\xec\xb6+\xe1" +
+	"!\x00\x08\xa2rF8\xa8|+\xd4\x00(C\xc2:" +
+	"e\x97X\xa9\xf4\x89\xe5\xce;7N__\xf0\xd2\x83" +
+	"[\x80T\"@\x80:\xdc.ND\x088\xb7\x82\xc4" +
+	"X?\xe3\x93\x1d\xa0V 3\xad\x16\xebh\xac^\x91" +
+	"\xc6\xba|dp\xd1\xa09\xf9m\x0f\x8ck\xdf#\xc6" +
+	"\xe8U\xe1\xeb\xc1\xc35\xfd\x9d{\x80\x8c\xf3`\x06\xb1" +
+	"~\xb3\xb8\x9b^\xeds\xaf\x0e(\xa7&\xbe\xf1r\xdf" +
+	"\xbe\x12\x98\xa8\\\x10\xaf+\xd7D\x09@\xb9,\xb6(" +
+	"\x82T\x09\xe0L\xd9w]\xbe\x94{\xf6} \x15," +
+	"\xce\x90\xd8A\xe3\xd4\x1ey\xe1J\xdb\xd2\xd5\xc7i\x9c" +
+	"b\xea\x02O\xe3]\x13G\xa1r\xc3u\xf5\x8bx\x00" +
+	"\xd0\xd9\xbai\xef\x97\x95k\x8f\x9d\x02u\x1c\xfaOs" +
+	"\xf4\xf4.\xa9\x0a\x95\xfd\x12=\xbdG\xa2\xa7\xd7m\xed" +
+	"~T\xac\x0a\x9f\xf6\x05\xdd/\x8fr\x93;z\xd4\x10" +
+	"o~\x7f\xd6\xc7\xd8f\xb9\x8aZ\xc2\xaf\x1d\x0a\xcfX" +
+	"|\xe1\xbc\x97v\x80\xfa]%\xef\xa0\x96\xe97\x7f\xbc" +
+	"\xf8\x9f\xdfj\xbe\xf1yK\xc9aj\xe9\x7f\xfc\x8b\xaa" +
+	"y\xe3o\xf9-O\xc9\x0d\xd4\xf2\xca\x89%G\xfe\xcc" +
+	"\xae\x19\xf4,\x02GM3\xe5\x18%\xb1U^\x0e\xe8" +
+	"\xacx\xfa\xd7\x87\xbe:\xf7\xe9e\xdf\xd5>\x99\xa3W" +
+	"\x17nm\x7fw\xe3\xc4\x09W}\x96^\xb9\x8eZ~" +
+	"\x18\xb71\x1d\xfe\xf8\xccO\xc3\x88_&\x9fPr2" +
+	"\xcd\xbf[nQv\xd1/g\xdb\xa1K+\xd6\xcel" +
+	"\x1e\xca#p\xd5\xb6\x96\x82Ce\x83L\xcb\xd8\xfa\xfb" +
+	"\x86\xf1\xaf\xff\xd1\x7f{\x98\xb7\x8f\xe4\xdd\xcag\xd4G" +
+	"}\xbf\xdc\x82\xca\xf62Z\xc7-\x0b&o\xe8\\\xd6" +
+	"\xec\xf8Q\x95\xd5!\xacr,=\xfb\xbc\x11\xd7k\x03" +
+	"q-\x93\xce4\xb4\x19\xa9LR\x9f\xab\xc5m3\x9b" +
+	"\xab\x8dgu\xcd\xd6\xabc\xba\xd5\x9d\xe4mK\x0d\xf0" +
+	"\x01\x80\x00\x02\x90\x7f\x87\x01T\x99G\xb5\x9a\xc3\xf2\xb8" +
+	"\x96\xb1p\x0c`\x94G$\xce\x85\xc7v.\x1c8s" +
+	"\xe0 \x00\xd2\x9f\x85\x08\xe8E\x98\xab\x85\\\xe7\xaa\x8c" +
+	">a\x90\xb2\xa5>I\x95u8\xb3\xdc\xd0Q\x0d\xca" +
+	"\xb3Z\xcar\"\xf1\xb8nY\xadi\xe0\xbbLU\xe6" +
+	"\x05\x80\xc2]d\xf7\xc8\xb4\x06\x80\xc8\x14\x8c<\x82d" +
+	"\xbe\x84X\x10\x05\xb2\xa6 \x91\x83\x00\x91\xd9\x18iG" +
+	"\xa2K\x8d^z\x04Cj\x80\xf3\xc9\x92\xb6\xdc\x88?" +
+	"\x9b\x0a\xc9\xb4b\xda\xd6\xb3]Z\\\x0f=\xa9\xa5t" +
+	"\xeb~|\xa8\x01D\x1fI\x10\x09 \xc1\xe6\x9e\xa8\x96" +
+	"K\x9aZ\xa2@\x17\x9f/\x88mf\xb4\xce\xa4^k" +
+	"\xd9f\xc6\xad\x84\x94\xb4\xad\xd2S\x91D\xcaH\xd7Z" +
+	"\xba\xddn\xa4t\xb3\xdb\xae\x8e\x864\xca\x9b\xbfb\xcd" +
+	"\xf9\x8aUp\xd8c\xe9q3\x9d\xb0\xb0\x0c8,\xf3" +
+	"\xd5\xe8^*\x88R\x8fX\x0c-\xb0zz\xa7\x183" +
+	"\x8c\x18\x97\x97\x02`?\x90\xba\xa2tBiz\x8ai" +
+	"g4pw(\x86+E#\x99\xd9\\\x14Q\x0d\xb8" +
+	"\x02`C\x10\xd9h&\xa4\x018\"\xb0\xc2\x0e\xa7\xba" +
+	"4O\x8f\xb6\xeeLB\xb3\xf5\xd6\x84\x9e\xb6\x0d;W" +
+	"P{)\xc7,Q&\xc5.\x13\x80\x82\x19]\xc8l" +
+	"\xce<\x00u6\x8fj\x94C\x82\xe8\xcen2\xbf\x13" +
+	"@}\x82Gu\x09\x87\x84\xe3*\x90\x03 :\xe5`" +
+	"\x11\x8fj\x92CG\xa3(fi\x19\x00\xc0\xb1\x01\x1e" +
+	"\x10\xc7\x16I\x98\x05\xd2\xbd\xba+\xa4g\xb3f\xd6e" +
+	"n\xb4\x8f\xb9\x12\xc8\xac\x99\xb2\x1a\x9f\xb2|\x98\x11\xc9" +
+	"\x9c\x95E\xcc\x05\xc8g\x01\xd4v\x1e\xd5c\x142z" +
+	"\x90\x0fw\x00\xa8\x1f\xf0\xa8\x9e\xe4\xd0\xb1=\x99\xb5A" +
+	"\xa3_H|p\x0c\x80c\xe4\x15\xc0\xb9\x12h7c" +
+	"\xfab\xc3\xb2\xb3\xb96\x8c\xb14\x82N}K\xe5\xff" +
+	"Z^=\x7f\x1chG\xb0F\xf1\xfd$XC\x07\x04" +
+	"\"U\x0a\xa2\x1a\xcc\xcb\x83I$e-v\x1b\x06x" +
+	"-\x81c\xfdK\x85\x928\x9c\x89|\x83\xb0\x1eJ\xda" +
+	"\x96O\x0d#\xb6Z\x9e\xad\xfb\x93{\xe9\xa5;\xa2/" +
+	"\xd1\xb5\xac\xdd\xa9kvuT\xf3\xa6\xda\xdfuq\xac" +
+	"\xd1\xc3\xfa\x8ft\x9b\xefOU.\xe8q2UY5" +
+	"\x8f\xeaT\x9f\x1e\x1f\xa0s`\x12\x8f\xeat\x0eCf" +
+	"2\xd1\x9a`\xea\xe9I\xeb\xcb\xa9\xac1\xe8\x9c\xbb\xc8" +
+	"\xdf\x1exq\xe0<UY\xd0\xc7\xa64\x8cM7\xaa" +
+	"\x05\xec\xc0\xc8\xf9\xc6\xf4\xd0\x9dy c\xbc\xd1\xa3\xbc" +
+	"\xd8\xd4l\xc5#{\x1d\x11\x12v\x9b\xba\x9c\x86k\xc2" +
+	"(\xde\xa5\xb6\x86\xc7\x83A\x87N\x9e\xb6\xbb\x0d\x1d#" +
+	"\xddeZE-\xfa\x93\x1daaE\x12R\xcaHS" +
+	"\x84\x15.B\xf6\xa0@\xb6\xea\xc9\xa6\x18p\xa4\x97n" +
+	"\x1c\xf6pC\xf6\xb6 \xab:\x80#\xdd\x12r\x857" +
+	"\x03\xb2\xf7\x0d1hf\xcfH\xc8\x17\xf63\xb2\xbdO" +
+	"Tz\xafU\xc2\xe2c\x04\xd9c\x8c\xcc\\\x09\x1c\x99" +
+	"!9\x8c`@\xdb]M\x9en\x80\xef\xb6\x9b0O" +
+	"\x97\xc3h\x01^\xb7\x9a\xd0a\x9a\x81FO5\xf7\x98" +
+	"\x91wc7\xbfZ\xfe\x0a\x00\x00\xff\xff\xdcKf\xe8"
 
-func RegisterSchema(reg *schemas.Registry) {
-	reg.Register(&schemas.Schema{
-		String: schema_f52adf98d2bbc6c0,
-		Nodes: []uint64{
-			0x89a33828e0de1eaa,
-			0x8ab0ecb99c269c7f,
-			0x96368058e2cef1ac,
-			0x9abf358a691110fd,
-			0xa8296fdc60dcb6dd,
-			0xa962c127b5dccf05,
-			0xaba5829222c213cb,
-			0xb15e79db08e2ab2c,
-			0xb9816a53df7cb62e,
-			0xc2b88517ccaa9197,
-			0xce2a1a063e759787,
-			0xd2e4f20669b7b705,
-			0xd4d567352ab3882a,
-			0xd627f31bdae7f234,
-			0xd6fd194a1ac74bc1,
-			0xdc8472f9b668ba83,
-			0xddc3d3cd37ef5b78,
-			0xe01c2290ae549759,
-			0xe9d1be2a6e9016e5,
-			0xf5423d8578dbb398,
-			0xfec1f88b198df649,
-			0xff4271628d295896,
-		},
-		Compressed: true,
-	})
+func init() {
+	schemas.Register(schema_f52adf98d2bbc6c0,
+		0x89a33828e0de1eaa,
+		0x8ab0ecb99c269c7f,
+		0x96368058e2cef1ac,
+		0x9abf358a691110fd,
+		0xa8296fdc60dcb6dd,
+		0xa962c127b5dccf05,
+		0xaba5829222c213cb,
+		0xb15e79db08e2ab2c,
+		0xb9816a53df7cb62e,
+		0xc2b88517ccaa9197,
+		0xce2a1a063e759787,
+		0xd2e4f20669b7b705,
+		0xd4d567352ab3882a,
+		0xd627f31bdae7f234,
+		0xd6fd194a1ac74bc1,
+		0xdc8472f9b668ba83,
+		0xddc3d3cd37ef5b78,
+		0xe01c2290ae549759,
+		0xe9d1be2a6e9016e5,
+		0xf5423d8578dbb398,
+		0xfec1f88b198df649,
+		0xff4271628d295896)
 }

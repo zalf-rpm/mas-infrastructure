@@ -5,7 +5,6 @@ package climate
 import (
 	capnp "capnproto.org/go/capnp/v3"
 	text "capnproto.org/go/capnp/v3/encoding/text"
-	fc "capnproto.org/go/capnp/v3/flowcontrol"
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
@@ -105,10 +104,21 @@ func GCMFromString(c string) GCM {
 	}
 }
 
-type GCM_List = capnp.EnumList[GCM]
+type GCM_List struct{ capnp.List }
 
 func NewGCM_List(s *capnp.Segment, sz int32) (GCM_List, error) {
-	return capnp.NewEnumList[GCM](s, sz)
+	l, err := capnp.NewUInt16List(s, sz)
+	return GCM_List{l.List}, err
+}
+
+func (l GCM_List) At(i int) GCM {
+	ul := capnp.UInt16List{List: l.List}
+	return GCM(ul.At(i))
+}
+
+func (l GCM_List) Set(i int, v GCM) {
+	ul := capnp.UInt16List{List: l.List}
+	ul.Set(i, uint16(v))
 }
 
 type RCM uint16
@@ -174,10 +184,21 @@ func RCMFromString(c string) RCM {
 	}
 }
 
-type RCM_List = capnp.EnumList[RCM]
+type RCM_List struct{ capnp.List }
 
 func NewRCM_List(s *capnp.Segment, sz int32) (RCM_List, error) {
-	return capnp.NewEnumList[RCM](s, sz)
+	l, err := capnp.NewUInt16List(s, sz)
+	return RCM_List{l.List}, err
+}
+
+func (l RCM_List) At(i int) RCM {
+	ul := capnp.UInt16List{List: l.List}
+	return RCM(ul.At(i))
+}
+
+func (l RCM_List) Set(i int, v RCM) {
+	ul := capnp.UInt16List{List: l.List}
+	ul.Set(i, uint16(v))
 }
 
 type SSP uint16
@@ -233,10 +254,21 @@ func SSPFromString(c string) SSP {
 	}
 }
 
-type SSP_List = capnp.EnumList[SSP]
+type SSP_List struct{ capnp.List }
 
 func NewSSP_List(s *capnp.Segment, sz int32) (SSP_List, error) {
-	return capnp.NewEnumList[SSP](s, sz)
+	l, err := capnp.NewUInt16List(s, sz)
+	return SSP_List{l.List}, err
+}
+
+func (l SSP_List) At(i int) SSP {
+	ul := capnp.UInt16List{List: l.List}
+	return SSP(ul.At(i))
+}
+
+func (l SSP_List) Set(i int, v SSP) {
+	ul := capnp.UInt16List{List: l.List}
+	ul.Set(i, uint16(v))
 }
 
 type RCP uint16
@@ -302,223 +334,209 @@ func RCPFromString(c string) RCP {
 	}
 }
 
-type RCP_List = capnp.EnumList[RCP]
+type RCP_List struct{ capnp.List }
 
 func NewRCP_List(s *capnp.Segment, sz int32) (RCP_List, error) {
-	return capnp.NewEnumList[RCP](s, sz)
+	l, err := capnp.NewUInt16List(s, sz)
+	return RCP_List{l.List}, err
 }
 
-type EnsembleMember capnp.Struct
+func (l RCP_List) At(i int) RCP {
+	ul := capnp.UInt16List{List: l.List}
+	return RCP(ul.At(i))
+}
+
+func (l RCP_List) Set(i int, v RCP) {
+	ul := capnp.UInt16List{List: l.List}
+	ul.Set(i, uint16(v))
+}
+
+type EnsembleMember struct{ capnp.Struct }
 
 // EnsembleMember_TypeID is the unique identifier for the type EnsembleMember.
 const EnsembleMember_TypeID = 0xc8caacd1cd5da434
 
 func NewEnsembleMember(s *capnp.Segment) (EnsembleMember, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return EnsembleMember(st), err
+	return EnsembleMember{st}, err
 }
 
 func NewRootEnsembleMember(s *capnp.Segment) (EnsembleMember, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return EnsembleMember(st), err
+	return EnsembleMember{st}, err
 }
 
 func ReadRootEnsembleMember(msg *capnp.Message) (EnsembleMember, error) {
 	root, err := msg.Root()
-	return EnsembleMember(root.Struct()), err
+	return EnsembleMember{root.Struct()}, err
 }
 
 func (s EnsembleMember) String() string {
-	str, _ := text.Marshal(0xc8caacd1cd5da434, capnp.Struct(s))
+	str, _ := text.Marshal(0xc8caacd1cd5da434, s.Struct)
 	return str
 }
 
-func (s EnsembleMember) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (EnsembleMember) DecodeFromPtr(p capnp.Ptr) EnsembleMember {
-	return EnsembleMember(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s EnsembleMember) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s EnsembleMember) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s EnsembleMember) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s EnsembleMember) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s EnsembleMember) R() uint16 {
-	return capnp.Struct(s).Uint16(0)
+	return s.Struct.Uint16(0)
 }
 
 func (s EnsembleMember) SetR(v uint16) {
-	capnp.Struct(s).SetUint16(0, v)
+	s.Struct.SetUint16(0, v)
 }
 
 func (s EnsembleMember) I() uint16 {
-	return capnp.Struct(s).Uint16(2)
+	return s.Struct.Uint16(2)
 }
 
 func (s EnsembleMember) SetI(v uint16) {
-	capnp.Struct(s).SetUint16(2, v)
+	s.Struct.SetUint16(2, v)
 }
 
 func (s EnsembleMember) P() uint16 {
-	return capnp.Struct(s).Uint16(4)
+	return s.Struct.Uint16(4)
 }
 
 func (s EnsembleMember) SetP(v uint16) {
-	capnp.Struct(s).SetUint16(4, v)
+	s.Struct.SetUint16(4, v)
 }
 
 func (s EnsembleMember) F() uint16 {
-	return capnp.Struct(s).Uint16(6)
+	return s.Struct.Uint16(6)
 }
 
 func (s EnsembleMember) SetF(v uint16) {
-	capnp.Struct(s).SetUint16(6, v)
+	s.Struct.SetUint16(6, v)
 }
 
 // EnsembleMember_List is a list of EnsembleMember.
-type EnsembleMember_List = capnp.StructList[EnsembleMember]
+type EnsembleMember_List struct{ capnp.List }
 
 // NewEnsembleMember creates a new list of EnsembleMember.
 func NewEnsembleMember_List(s *capnp.Segment, sz int32) (EnsembleMember_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0}, sz)
-	return capnp.StructList[EnsembleMember](l), err
+	return EnsembleMember_List{l}, err
+}
+
+func (s EnsembleMember_List) At(i int) EnsembleMember { return EnsembleMember{s.List.Struct(i)} }
+
+func (s EnsembleMember_List) Set(i int, v EnsembleMember) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s EnsembleMember_List) String() string {
+	str, _ := text.MarshalList(0xc8caacd1cd5da434, s.List)
+	return str
 }
 
 // EnsembleMember_Future is a wrapper for a EnsembleMember promised by a client call.
 type EnsembleMember_Future struct{ *capnp.Future }
 
-func (f EnsembleMember_Future) Struct() (EnsembleMember, error) {
-	p, err := f.Future.Ptr()
-	return EnsembleMember(p.Struct()), err
+func (p EnsembleMember_Future) Struct() (EnsembleMember, error) {
+	s, err := p.Future.Struct()
+	return EnsembleMember{s}, err
 }
 
-type Metadata capnp.Struct
+type Metadata struct{ capnp.Struct }
 
 // Metadata_TypeID is the unique identifier for the type Metadata.
 const Metadata_TypeID = 0xfb36d2e966556db0
 
 func NewMetadata(s *capnp.Segment) (Metadata, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Metadata(st), err
+	return Metadata{st}, err
 }
 
 func NewRootMetadata(s *capnp.Segment) (Metadata, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Metadata(st), err
+	return Metadata{st}, err
 }
 
 func ReadRootMetadata(msg *capnp.Message) (Metadata, error) {
 	root, err := msg.Root()
-	return Metadata(root.Struct()), err
+	return Metadata{root.Struct()}, err
 }
 
 func (s Metadata) String() string {
-	str, _ := text.Marshal(0xfb36d2e966556db0, capnp.Struct(s))
+	str, _ := text.Marshal(0xfb36d2e966556db0, s.Struct)
 	return str
 }
 
-func (s Metadata) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Metadata) DecodeFromPtr(p capnp.Ptr) Metadata {
-	return Metadata(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Metadata) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Metadata) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Metadata) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Metadata) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Metadata) Entries() (Metadata_Entry_List, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return Metadata_Entry_List(p.List()), err
+	p, err := s.Struct.Ptr(0)
+	return Metadata_Entry_List{List: p.List()}, err
 }
 
 func (s Metadata) HasEntries() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Metadata) SetEntries(v Metadata_Entry_List) error {
-	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+	return s.Struct.SetPtr(0, v.List.ToPtr())
 }
 
 // NewEntries sets the entries field to a newly
 // allocated Metadata_Entry_List, preferring placement in s's segment.
 func (s Metadata) NewEntries(n int32) (Metadata_Entry_List, error) {
-	l, err := NewMetadata_Entry_List(capnp.Struct(s).Segment(), n)
+	l, err := NewMetadata_Entry_List(s.Struct.Segment(), n)
 	if err != nil {
 		return Metadata_Entry_List{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	err = s.Struct.SetPtr(0, l.List.ToPtr())
 	return l, err
 }
+
 func (s Metadata) Info() Metadata_Information {
-	p, _ := capnp.Struct(s).Ptr(1)
-	return Metadata_Information(p.Interface().Client())
+	p, _ := s.Struct.Ptr(1)
+	return Metadata_Information{Client: p.Interface().Client()}
 }
 
 func (s Metadata) HasInfo() bool {
-	return capnp.Struct(s).HasPtr(1)
+	return s.Struct.HasPtr(1)
 }
 
 func (s Metadata) SetInfo(v Metadata_Information) error {
-	if !v.IsValid() {
-		return capnp.Struct(s).SetPtr(1, capnp.Ptr{})
+	if !v.Client.IsValid() {
+		return s.Struct.SetPtr(1, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
-	return capnp.Struct(s).SetPtr(1, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
+	return s.Struct.SetPtr(1, in.ToPtr())
 }
 
 // Metadata_List is a list of Metadata.
-type Metadata_List = capnp.StructList[Metadata]
+type Metadata_List struct{ capnp.List }
 
 // NewMetadata creates a new list of Metadata.
 func NewMetadata_List(s *capnp.Segment, sz int32) (Metadata_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
-	return capnp.StructList[Metadata](l), err
+	return Metadata_List{l}, err
+}
+
+func (s Metadata_List) At(i int) Metadata { return Metadata{s.List.Struct(i)} }
+
+func (s Metadata_List) Set(i int, v Metadata) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s Metadata_List) String() string {
+	str, _ := text.MarshalList(0xfb36d2e966556db0, s.List)
+	return str
 }
 
 // Metadata_Future is a wrapper for a Metadata promised by a client call.
 type Metadata_Future struct{ *capnp.Future }
 
-func (f Metadata_Future) Struct() (Metadata, error) {
-	p, err := f.Future.Ptr()
-	return Metadata(p.Struct()), err
-}
-func (p Metadata_Future) Info() Metadata_Information {
-	return Metadata_Information(p.Future.Field(1, nil).Client())
+func (p Metadata_Future) Struct() (Metadata, error) {
+	s, err := p.Future.Struct()
+	return Metadata{s}, err
 }
 
-type Metadata_Supported capnp.Client
+func (p Metadata_Future) Info() Metadata_Information {
+	return Metadata_Information{Client: p.Future.Field(1, nil).Client()}
+}
+
+type Metadata_Supported struct{ Client *capnp.Client }
 
 // Metadata_Supported_TypeID is the unique identifier for the type Metadata_Supported.
 const Metadata_Supported_TypeID = 0xab06444b30722e01
 
 func (c Metadata_Supported) Categories(ctx context.Context, params func(Metadata_Supported_categories_Params) error) (Metadata_Supported_categories_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xab06444b30722e01,
@@ -529,16 +547,12 @@ func (c Metadata_Supported) Categories(ctx context.Context, params func(Metadata
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Metadata_Supported_categories_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Metadata_Supported_categories_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Metadata_Supported_categories_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c Metadata_Supported) SupportedValues(ctx context.Context, params func(Metadata_Supported_supportedValues_Params) error) (Metadata_Supported_supportedValues_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xab06444b30722e01,
@@ -549,83 +563,20 @@ func (c Metadata_Supported) SupportedValues(ctx context.Context, params func(Met
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Metadata_Supported_supportedValues_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Metadata_Supported_supportedValues_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Metadata_Supported_supportedValues_Results_Future{Future: ans.Future()}, release
-
 }
 
-func (c Metadata_Supported) WaitStreaming() error {
-	return capnp.Client(c).WaitStreaming()
-}
-
-// String returns a string that identifies this capability for debugging
-// purposes.  Its format should not be depended on: in particular, it
-// should not be used to compare clients.  Use IsSame to compare clients
-// for equality.
-func (c Metadata_Supported) String() string {
-	return "Metadata_Supported(" + capnp.Client(c).String() + ")"
-}
-
-// AddRef creates a new Client that refers to the same capability as c.
-// If c is nil or has resolved to null, then AddRef returns nil.
 func (c Metadata_Supported) AddRef() Metadata_Supported {
-	return Metadata_Supported(capnp.Client(c).AddRef())
+	return Metadata_Supported{
+		Client: c.Client.AddRef(),
+	}
 }
 
-// Release releases a capability reference.  If this is the last
-// reference to the capability, then the underlying resources associated
-// with the capability will be released.
-//
-// Release will panic if c has already been released, but not if c is
-// nil or resolved to null.
 func (c Metadata_Supported) Release() {
-	capnp.Client(c).Release()
-}
-
-// Resolve blocks until the capability is fully resolved or the Context
-// expires.
-func (c Metadata_Supported) Resolve(ctx context.Context) error {
-	return capnp.Client(c).Resolve(ctx)
-}
-
-func (c Metadata_Supported) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Client(c).EncodeAsPtr(seg)
-}
-
-func (Metadata_Supported) DecodeFromPtr(p capnp.Ptr) Metadata_Supported {
-	return Metadata_Supported(capnp.Client{}.DecodeFromPtr(p))
-}
-
-// IsValid reports whether c is a valid reference to a capability.
-// A reference is invalid if it is nil, has resolved to null, or has
-// been released.
-func (c Metadata_Supported) IsValid() bool {
-	return capnp.Client(c).IsValid()
-}
-
-// IsSame reports whether c and other refer to a capability created by the
-// same call to NewClient.  This can return false negatives if c or other
-// are not fully resolved: use Resolve if this is an issue.  If either
-// c or other are released, then IsSame panics.
-func (c Metadata_Supported) IsSame(other Metadata_Supported) bool {
-	return capnp.Client(c).IsSame(capnp.Client(other))
-}
-
-// Update the flowcontrol.FlowLimiter used to manage flow control for
-// this client. This affects all future calls, but not calls already
-// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
-// which is also the default.
-func (c Metadata_Supported) SetFlowLimiter(lim fc.FlowLimiter) {
-	capnp.Client(c).SetFlowLimiter(lim)
-}
-
-// Get the current flowcontrol.FlowLimiter used to manage flow control
-// for this client.
-func (c Metadata_Supported) GetFlowLimiter() fc.FlowLimiter {
-	return capnp.Client(c).GetFlowLimiter()
+	c.Client.Release()
 }
 
 // A Metadata_Supported_Server is a Metadata_Supported with a local implementation.
@@ -636,15 +587,15 @@ type Metadata_Supported_Server interface {
 }
 
 // Metadata_Supported_NewServer creates a new Server from an implementation of Metadata_Supported_Server.
-func Metadata_Supported_NewServer(s Metadata_Supported_Server) *server.Server {
+func Metadata_Supported_NewServer(s Metadata_Supported_Server, policy *server.Policy) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(Metadata_Supported_Methods(nil, s), s, c)
+	return server.New(Metadata_Supported_Methods(nil, s), s, c, policy)
 }
 
 // Metadata_Supported_ServerToClient creates a new Client from an implementation of Metadata_Supported_Server.
 // The caller is responsible for calling Release on the returned Client.
-func Metadata_Supported_ServerToClient(s Metadata_Supported_Server) Metadata_Supported {
-	return Metadata_Supported(capnp.NewClient(Metadata_Supported_NewServer(s)))
+func Metadata_Supported_ServerToClient(s Metadata_Supported_Server, policy *server.Policy) Metadata_Supported {
+	return Metadata_Supported{Client: capnp.NewClient(Metadata_Supported_NewServer(s, policy))}
 }
 
 // Metadata_Supported_Methods appends Methods to a slice that invoke the methods on s.
@@ -689,13 +640,13 @@ type Metadata_Supported_categories struct {
 
 // Args returns the call's arguments.
 func (c Metadata_Supported_categories) Args() Metadata_Supported_categories_Params {
-	return Metadata_Supported_categories_Params(c.Call.Args())
+	return Metadata_Supported_categories_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Metadata_Supported_categories) AllocResults() (Metadata_Supported_categories_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Metadata_Supported_categories_Results(r), err
+	return Metadata_Supported_categories_Results{Struct: r}, err
 }
 
 // Metadata_Supported_supportedValues holds the state for a server call to Metadata_Supported.supportedValues.
@@ -706,348 +657,302 @@ type Metadata_Supported_supportedValues struct {
 
 // Args returns the call's arguments.
 func (c Metadata_Supported_supportedValues) Args() Metadata_Supported_supportedValues_Params {
-	return Metadata_Supported_supportedValues_Params(c.Call.Args())
+	return Metadata_Supported_supportedValues_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Metadata_Supported_supportedValues) AllocResults() (Metadata_Supported_supportedValues_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Metadata_Supported_supportedValues_Results(r), err
+	return Metadata_Supported_supportedValues_Results{Struct: r}, err
 }
 
-// Metadata_Supported_List is a list of Metadata_Supported.
-type Metadata_Supported_List = capnp.CapList[Metadata_Supported]
-
-// NewMetadata_Supported creates a new list of Metadata_Supported.
-func NewMetadata_Supported_List(s *capnp.Segment, sz int32) (Metadata_Supported_List, error) {
-	l, err := capnp.NewPointerList(s, sz)
-	return capnp.CapList[Metadata_Supported](l), err
-}
-
-type Metadata_Supported_categories_Params capnp.Struct
+type Metadata_Supported_categories_Params struct{ capnp.Struct }
 
 // Metadata_Supported_categories_Params_TypeID is the unique identifier for the type Metadata_Supported_categories_Params.
 const Metadata_Supported_categories_Params_TypeID = 0x95887677293b5682
 
 func NewMetadata_Supported_categories_Params(s *capnp.Segment) (Metadata_Supported_categories_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Metadata_Supported_categories_Params(st), err
+	return Metadata_Supported_categories_Params{st}, err
 }
 
 func NewRootMetadata_Supported_categories_Params(s *capnp.Segment) (Metadata_Supported_categories_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Metadata_Supported_categories_Params(st), err
+	return Metadata_Supported_categories_Params{st}, err
 }
 
 func ReadRootMetadata_Supported_categories_Params(msg *capnp.Message) (Metadata_Supported_categories_Params, error) {
 	root, err := msg.Root()
-	return Metadata_Supported_categories_Params(root.Struct()), err
+	return Metadata_Supported_categories_Params{root.Struct()}, err
 }
 
 func (s Metadata_Supported_categories_Params) String() string {
-	str, _ := text.Marshal(0x95887677293b5682, capnp.Struct(s))
+	str, _ := text.Marshal(0x95887677293b5682, s.Struct)
 	return str
 }
 
-func (s Metadata_Supported_categories_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Metadata_Supported_categories_Params) DecodeFromPtr(p capnp.Ptr) Metadata_Supported_categories_Params {
-	return Metadata_Supported_categories_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Metadata_Supported_categories_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Metadata_Supported_categories_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Metadata_Supported_categories_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Metadata_Supported_categories_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // Metadata_Supported_categories_Params_List is a list of Metadata_Supported_categories_Params.
-type Metadata_Supported_categories_Params_List = capnp.StructList[Metadata_Supported_categories_Params]
+type Metadata_Supported_categories_Params_List struct{ capnp.List }
 
 // NewMetadata_Supported_categories_Params creates a new list of Metadata_Supported_categories_Params.
 func NewMetadata_Supported_categories_Params_List(s *capnp.Segment, sz int32) (Metadata_Supported_categories_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[Metadata_Supported_categories_Params](l), err
+	return Metadata_Supported_categories_Params_List{l}, err
+}
+
+func (s Metadata_Supported_categories_Params_List) At(i int) Metadata_Supported_categories_Params {
+	return Metadata_Supported_categories_Params{s.List.Struct(i)}
+}
+
+func (s Metadata_Supported_categories_Params_List) Set(i int, v Metadata_Supported_categories_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Metadata_Supported_categories_Params_List) String() string {
+	str, _ := text.MarshalList(0x95887677293b5682, s.List)
+	return str
 }
 
 // Metadata_Supported_categories_Params_Future is a wrapper for a Metadata_Supported_categories_Params promised by a client call.
 type Metadata_Supported_categories_Params_Future struct{ *capnp.Future }
 
-func (f Metadata_Supported_categories_Params_Future) Struct() (Metadata_Supported_categories_Params, error) {
-	p, err := f.Future.Ptr()
-	return Metadata_Supported_categories_Params(p.Struct()), err
+func (p Metadata_Supported_categories_Params_Future) Struct() (Metadata_Supported_categories_Params, error) {
+	s, err := p.Future.Struct()
+	return Metadata_Supported_categories_Params{s}, err
 }
 
-type Metadata_Supported_categories_Results capnp.Struct
+type Metadata_Supported_categories_Results struct{ capnp.Struct }
 
 // Metadata_Supported_categories_Results_TypeID is the unique identifier for the type Metadata_Supported_categories_Results.
 const Metadata_Supported_categories_Results_TypeID = 0xe49e838ea9c34b40
 
 func NewMetadata_Supported_categories_Results(s *capnp.Segment) (Metadata_Supported_categories_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Metadata_Supported_categories_Results(st), err
+	return Metadata_Supported_categories_Results{st}, err
 }
 
 func NewRootMetadata_Supported_categories_Results(s *capnp.Segment) (Metadata_Supported_categories_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Metadata_Supported_categories_Results(st), err
+	return Metadata_Supported_categories_Results{st}, err
 }
 
 func ReadRootMetadata_Supported_categories_Results(msg *capnp.Message) (Metadata_Supported_categories_Results, error) {
 	root, err := msg.Root()
-	return Metadata_Supported_categories_Results(root.Struct()), err
+	return Metadata_Supported_categories_Results{root.Struct()}, err
 }
 
 func (s Metadata_Supported_categories_Results) String() string {
-	str, _ := text.Marshal(0xe49e838ea9c34b40, capnp.Struct(s))
+	str, _ := text.Marshal(0xe49e838ea9c34b40, s.Struct)
 	return str
 }
 
-func (s Metadata_Supported_categories_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Metadata_Supported_categories_Results) DecodeFromPtr(p capnp.Ptr) Metadata_Supported_categories_Results {
-	return Metadata_Supported_categories_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Metadata_Supported_categories_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Metadata_Supported_categories_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Metadata_Supported_categories_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Metadata_Supported_categories_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Metadata_Supported_categories_Results) Types() (common.IdInformation_List, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return common.IdInformation_List(p.List()), err
+	p, err := s.Struct.Ptr(0)
+	return common.IdInformation_List{List: p.List()}, err
 }
 
 func (s Metadata_Supported_categories_Results) HasTypes() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Metadata_Supported_categories_Results) SetTypes(v common.IdInformation_List) error {
-	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+	return s.Struct.SetPtr(0, v.List.ToPtr())
 }
 
 // NewTypes sets the types field to a newly
 // allocated common.IdInformation_List, preferring placement in s's segment.
 func (s Metadata_Supported_categories_Results) NewTypes(n int32) (common.IdInformation_List, error) {
-	l, err := common.NewIdInformation_List(capnp.Struct(s).Segment(), n)
+	l, err := common.NewIdInformation_List(s.Struct.Segment(), n)
 	if err != nil {
 		return common.IdInformation_List{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	err = s.Struct.SetPtr(0, l.List.ToPtr())
 	return l, err
 }
 
 // Metadata_Supported_categories_Results_List is a list of Metadata_Supported_categories_Results.
-type Metadata_Supported_categories_Results_List = capnp.StructList[Metadata_Supported_categories_Results]
+type Metadata_Supported_categories_Results_List struct{ capnp.List }
 
 // NewMetadata_Supported_categories_Results creates a new list of Metadata_Supported_categories_Results.
 func NewMetadata_Supported_categories_Results_List(s *capnp.Segment, sz int32) (Metadata_Supported_categories_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Metadata_Supported_categories_Results](l), err
+	return Metadata_Supported_categories_Results_List{l}, err
+}
+
+func (s Metadata_Supported_categories_Results_List) At(i int) Metadata_Supported_categories_Results {
+	return Metadata_Supported_categories_Results{s.List.Struct(i)}
+}
+
+func (s Metadata_Supported_categories_Results_List) Set(i int, v Metadata_Supported_categories_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Metadata_Supported_categories_Results_List) String() string {
+	str, _ := text.MarshalList(0xe49e838ea9c34b40, s.List)
+	return str
 }
 
 // Metadata_Supported_categories_Results_Future is a wrapper for a Metadata_Supported_categories_Results promised by a client call.
 type Metadata_Supported_categories_Results_Future struct{ *capnp.Future }
 
-func (f Metadata_Supported_categories_Results_Future) Struct() (Metadata_Supported_categories_Results, error) {
-	p, err := f.Future.Ptr()
-	return Metadata_Supported_categories_Results(p.Struct()), err
+func (p Metadata_Supported_categories_Results_Future) Struct() (Metadata_Supported_categories_Results, error) {
+	s, err := p.Future.Struct()
+	return Metadata_Supported_categories_Results{s}, err
 }
 
-type Metadata_Supported_supportedValues_Params capnp.Struct
+type Metadata_Supported_supportedValues_Params struct{ capnp.Struct }
 
 // Metadata_Supported_supportedValues_Params_TypeID is the unique identifier for the type Metadata_Supported_supportedValues_Params.
 const Metadata_Supported_supportedValues_Params_TypeID = 0xc6d2329c05f7e208
 
 func NewMetadata_Supported_supportedValues_Params(s *capnp.Segment) (Metadata_Supported_supportedValues_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Metadata_Supported_supportedValues_Params(st), err
+	return Metadata_Supported_supportedValues_Params{st}, err
 }
 
 func NewRootMetadata_Supported_supportedValues_Params(s *capnp.Segment) (Metadata_Supported_supportedValues_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Metadata_Supported_supportedValues_Params(st), err
+	return Metadata_Supported_supportedValues_Params{st}, err
 }
 
 func ReadRootMetadata_Supported_supportedValues_Params(msg *capnp.Message) (Metadata_Supported_supportedValues_Params, error) {
 	root, err := msg.Root()
-	return Metadata_Supported_supportedValues_Params(root.Struct()), err
+	return Metadata_Supported_supportedValues_Params{root.Struct()}, err
 }
 
 func (s Metadata_Supported_supportedValues_Params) String() string {
-	str, _ := text.Marshal(0xc6d2329c05f7e208, capnp.Struct(s))
+	str, _ := text.Marshal(0xc6d2329c05f7e208, s.Struct)
 	return str
 }
 
-func (s Metadata_Supported_supportedValues_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Metadata_Supported_supportedValues_Params) DecodeFromPtr(p capnp.Ptr) Metadata_Supported_supportedValues_Params {
-	return Metadata_Supported_supportedValues_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Metadata_Supported_supportedValues_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Metadata_Supported_supportedValues_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Metadata_Supported_supportedValues_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Metadata_Supported_supportedValues_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Metadata_Supported_supportedValues_Params) TypeId() (string, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.Text(), err
 }
 
 func (s Metadata_Supported_supportedValues_Params) HasTypeId() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Metadata_Supported_supportedValues_Params) TypeIdBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.TextBytes(), err
 }
 
 func (s Metadata_Supported_supportedValues_Params) SetTypeId(v string) error {
-	return capnp.Struct(s).SetText(0, v)
+	return s.Struct.SetText(0, v)
 }
 
 // Metadata_Supported_supportedValues_Params_List is a list of Metadata_Supported_supportedValues_Params.
-type Metadata_Supported_supportedValues_Params_List = capnp.StructList[Metadata_Supported_supportedValues_Params]
+type Metadata_Supported_supportedValues_Params_List struct{ capnp.List }
 
 // NewMetadata_Supported_supportedValues_Params creates a new list of Metadata_Supported_supportedValues_Params.
 func NewMetadata_Supported_supportedValues_Params_List(s *capnp.Segment, sz int32) (Metadata_Supported_supportedValues_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Metadata_Supported_supportedValues_Params](l), err
+	return Metadata_Supported_supportedValues_Params_List{l}, err
+}
+
+func (s Metadata_Supported_supportedValues_Params_List) At(i int) Metadata_Supported_supportedValues_Params {
+	return Metadata_Supported_supportedValues_Params{s.List.Struct(i)}
+}
+
+func (s Metadata_Supported_supportedValues_Params_List) Set(i int, v Metadata_Supported_supportedValues_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Metadata_Supported_supportedValues_Params_List) String() string {
+	str, _ := text.MarshalList(0xc6d2329c05f7e208, s.List)
+	return str
 }
 
 // Metadata_Supported_supportedValues_Params_Future is a wrapper for a Metadata_Supported_supportedValues_Params promised by a client call.
 type Metadata_Supported_supportedValues_Params_Future struct{ *capnp.Future }
 
-func (f Metadata_Supported_supportedValues_Params_Future) Struct() (Metadata_Supported_supportedValues_Params, error) {
-	p, err := f.Future.Ptr()
-	return Metadata_Supported_supportedValues_Params(p.Struct()), err
+func (p Metadata_Supported_supportedValues_Params_Future) Struct() (Metadata_Supported_supportedValues_Params, error) {
+	s, err := p.Future.Struct()
+	return Metadata_Supported_supportedValues_Params{s}, err
 }
 
-type Metadata_Supported_supportedValues_Results capnp.Struct
+type Metadata_Supported_supportedValues_Results struct{ capnp.Struct }
 
 // Metadata_Supported_supportedValues_Results_TypeID is the unique identifier for the type Metadata_Supported_supportedValues_Results.
 const Metadata_Supported_supportedValues_Results_TypeID = 0xe0a71ff36670f715
 
 func NewMetadata_Supported_supportedValues_Results(s *capnp.Segment) (Metadata_Supported_supportedValues_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Metadata_Supported_supportedValues_Results(st), err
+	return Metadata_Supported_supportedValues_Results{st}, err
 }
 
 func NewRootMetadata_Supported_supportedValues_Results(s *capnp.Segment) (Metadata_Supported_supportedValues_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Metadata_Supported_supportedValues_Results(st), err
+	return Metadata_Supported_supportedValues_Results{st}, err
 }
 
 func ReadRootMetadata_Supported_supportedValues_Results(msg *capnp.Message) (Metadata_Supported_supportedValues_Results, error) {
 	root, err := msg.Root()
-	return Metadata_Supported_supportedValues_Results(root.Struct()), err
+	return Metadata_Supported_supportedValues_Results{root.Struct()}, err
 }
 
 func (s Metadata_Supported_supportedValues_Results) String() string {
-	str, _ := text.Marshal(0xe0a71ff36670f715, capnp.Struct(s))
+	str, _ := text.Marshal(0xe0a71ff36670f715, s.Struct)
 	return str
 }
 
-func (s Metadata_Supported_supportedValues_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Metadata_Supported_supportedValues_Results) DecodeFromPtr(p capnp.Ptr) Metadata_Supported_supportedValues_Results {
-	return Metadata_Supported_supportedValues_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Metadata_Supported_supportedValues_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Metadata_Supported_supportedValues_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Metadata_Supported_supportedValues_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Metadata_Supported_supportedValues_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Metadata_Supported_supportedValues_Results) Values() (common.IdInformation_List, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return common.IdInformation_List(p.List()), err
+	p, err := s.Struct.Ptr(0)
+	return common.IdInformation_List{List: p.List()}, err
 }
 
 func (s Metadata_Supported_supportedValues_Results) HasValues() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Metadata_Supported_supportedValues_Results) SetValues(v common.IdInformation_List) error {
-	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+	return s.Struct.SetPtr(0, v.List.ToPtr())
 }
 
 // NewValues sets the values field to a newly
 // allocated common.IdInformation_List, preferring placement in s's segment.
 func (s Metadata_Supported_supportedValues_Results) NewValues(n int32) (common.IdInformation_List, error) {
-	l, err := common.NewIdInformation_List(capnp.Struct(s).Segment(), n)
+	l, err := common.NewIdInformation_List(s.Struct.Segment(), n)
 	if err != nil {
 		return common.IdInformation_List{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	err = s.Struct.SetPtr(0, l.List.ToPtr())
 	return l, err
 }
 
 // Metadata_Supported_supportedValues_Results_List is a list of Metadata_Supported_supportedValues_Results.
-type Metadata_Supported_supportedValues_Results_List = capnp.StructList[Metadata_Supported_supportedValues_Results]
+type Metadata_Supported_supportedValues_Results_List struct{ capnp.List }
 
 // NewMetadata_Supported_supportedValues_Results creates a new list of Metadata_Supported_supportedValues_Results.
 func NewMetadata_Supported_supportedValues_Results_List(s *capnp.Segment, sz int32) (Metadata_Supported_supportedValues_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Metadata_Supported_supportedValues_Results](l), err
+	return Metadata_Supported_supportedValues_Results_List{l}, err
+}
+
+func (s Metadata_Supported_supportedValues_Results_List) At(i int) Metadata_Supported_supportedValues_Results {
+	return Metadata_Supported_supportedValues_Results{s.List.Struct(i)}
+}
+
+func (s Metadata_Supported_supportedValues_Results_List) Set(i int, v Metadata_Supported_supportedValues_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Metadata_Supported_supportedValues_Results_List) String() string {
+	str, _ := text.MarshalList(0xe0a71ff36670f715, s.List)
+	return str
 }
 
 // Metadata_Supported_supportedValues_Results_Future is a wrapper for a Metadata_Supported_supportedValues_Results promised by a client call.
 type Metadata_Supported_supportedValues_Results_Future struct{ *capnp.Future }
 
-func (f Metadata_Supported_supportedValues_Results_Future) Struct() (Metadata_Supported_supportedValues_Results, error) {
-	p, err := f.Future.Ptr()
-	return Metadata_Supported_supportedValues_Results(p.Struct()), err
+func (p Metadata_Supported_supportedValues_Results_Future) Struct() (Metadata_Supported_supportedValues_Results, error) {
+	s, err := p.Future.Struct()
+	return Metadata_Supported_supportedValues_Results{s}, err
 }
 
-type Metadata_Value capnp.Struct
+type Metadata_Value struct{ capnp.Struct }
 type Metadata_Value_Which uint16
 
 const (
@@ -1081,164 +986,151 @@ const Metadata_Value_TypeID = 0xc48e24c968a234db
 
 func NewMetadata_Value(s *capnp.Segment) (Metadata_Value, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 1})
-	return Metadata_Value(st), err
+	return Metadata_Value{st}, err
 }
 
 func NewRootMetadata_Value(s *capnp.Segment) (Metadata_Value, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 1})
-	return Metadata_Value(st), err
+	return Metadata_Value{st}, err
 }
 
 func ReadRootMetadata_Value(msg *capnp.Message) (Metadata_Value, error) {
 	root, err := msg.Root()
-	return Metadata_Value(root.Struct()), err
+	return Metadata_Value{root.Struct()}, err
 }
 
 func (s Metadata_Value) String() string {
-	str, _ := text.Marshal(0xc48e24c968a234db, capnp.Struct(s))
+	str, _ := text.Marshal(0xc48e24c968a234db, s.Struct)
 	return str
 }
 
-func (s Metadata_Value) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Metadata_Value) DecodeFromPtr(p capnp.Ptr) Metadata_Value {
-	return Metadata_Value(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Metadata_Value) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-
 func (s Metadata_Value) Which() Metadata_Value_Which {
-	return Metadata_Value_Which(capnp.Struct(s).Uint16(0))
-}
-func (s Metadata_Value) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Metadata_Value) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Metadata_Value) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
+	return Metadata_Value_Which(s.Struct.Uint16(0))
 }
 func (s Metadata_Value) Text() (string, error) {
-	if capnp.Struct(s).Uint16(0) != 0 {
+	if s.Struct.Uint16(0) != 0 {
 		panic("Which() != text")
 	}
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.Text(), err
 }
 
 func (s Metadata_Value) HasText() bool {
-	if capnp.Struct(s).Uint16(0) != 0 {
+	if s.Struct.Uint16(0) != 0 {
 		return false
 	}
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Metadata_Value) TextBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.TextBytes(), err
 }
 
 func (s Metadata_Value) SetText(v string) error {
-	capnp.Struct(s).SetUint16(0, 0)
-	return capnp.Struct(s).SetText(0, v)
+	s.Struct.SetUint16(0, 0)
+	return s.Struct.SetText(0, v)
 }
 
 func (s Metadata_Value) Float() float64 {
-	if capnp.Struct(s).Uint16(0) != 1 {
+	if s.Struct.Uint16(0) != 1 {
 		panic("Which() != float")
 	}
-	return math.Float64frombits(capnp.Struct(s).Uint64(8))
+	return math.Float64frombits(s.Struct.Uint64(8))
 }
 
 func (s Metadata_Value) SetFloat(v float64) {
-	capnp.Struct(s).SetUint16(0, 1)
-	capnp.Struct(s).SetUint64(8, math.Float64bits(v))
+	s.Struct.SetUint16(0, 1)
+	s.Struct.SetUint64(8, math.Float64bits(v))
 }
 
 func (s Metadata_Value) Int() int64 {
-	if capnp.Struct(s).Uint16(0) != 2 {
+	if s.Struct.Uint16(0) != 2 {
 		panic("Which() != int")
 	}
-	return int64(capnp.Struct(s).Uint64(8))
+	return int64(s.Struct.Uint64(8))
 }
 
 func (s Metadata_Value) SetInt(v int64) {
-	capnp.Struct(s).SetUint16(0, 2)
-	capnp.Struct(s).SetUint64(8, uint64(v))
+	s.Struct.SetUint16(0, 2)
+	s.Struct.SetUint64(8, uint64(v))
 }
 
 func (s Metadata_Value) Bool() bool {
-	if capnp.Struct(s).Uint16(0) != 3 {
+	if s.Struct.Uint16(0) != 3 {
 		panic("Which() != bool")
 	}
-	return capnp.Struct(s).Bit(64)
+	return s.Struct.Bit(64)
 }
 
 func (s Metadata_Value) SetBool(v bool) {
-	capnp.Struct(s).SetUint16(0, 3)
-	capnp.Struct(s).SetBit(64, v)
+	s.Struct.SetUint16(0, 3)
+	s.Struct.SetBit(64, v)
 }
 
 func (s Metadata_Value) Date() (common_date.Date, error) {
-	if capnp.Struct(s).Uint16(0) != 4 {
+	if s.Struct.Uint16(0) != 4 {
 		panic("Which() != date")
 	}
-	p, err := capnp.Struct(s).Ptr(0)
-	return common_date.Date(p.Struct()), err
+	p, err := s.Struct.Ptr(0)
+	return common_date.Date{Struct: p.Struct()}, err
 }
 
 func (s Metadata_Value) HasDate() bool {
-	if capnp.Struct(s).Uint16(0) != 4 {
+	if s.Struct.Uint16(0) != 4 {
 		return false
 	}
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Metadata_Value) SetDate(v common_date.Date) error {
-	capnp.Struct(s).SetUint16(0, 4)
-	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+	s.Struct.SetUint16(0, 4)
+	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewDate sets the date field to a newly
 // allocated common_date.Date struct, preferring placement in s's segment.
 func (s Metadata_Value) NewDate() (common_date.Date, error) {
-	capnp.Struct(s).SetUint16(0, 4)
-	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
+	s.Struct.SetUint16(0, 4)
+	ss, err := common_date.NewDate(s.Struct.Segment())
 	if err != nil {
 		return common_date.Date{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
 	return ss, err
 }
 
 // Metadata_Value_List is a list of Metadata_Value.
-type Metadata_Value_List = capnp.StructList[Metadata_Value]
+type Metadata_Value_List struct{ capnp.List }
 
 // NewMetadata_Value creates a new list of Metadata_Value.
 func NewMetadata_Value_List(s *capnp.Segment, sz int32) (Metadata_Value_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 16, PointerCount: 1}, sz)
-	return capnp.StructList[Metadata_Value](l), err
+	return Metadata_Value_List{l}, err
+}
+
+func (s Metadata_Value_List) At(i int) Metadata_Value { return Metadata_Value{s.List.Struct(i)} }
+
+func (s Metadata_Value_List) Set(i int, v Metadata_Value) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s Metadata_Value_List) String() string {
+	str, _ := text.MarshalList(0xc48e24c968a234db, s.List)
+	return str
 }
 
 // Metadata_Value_Future is a wrapper for a Metadata_Value promised by a client call.
 type Metadata_Value_Future struct{ *capnp.Future }
 
-func (f Metadata_Value_Future) Struct() (Metadata_Value, error) {
-	p, err := f.Future.Ptr()
-	return Metadata_Value(p.Struct()), err
+func (p Metadata_Value_Future) Struct() (Metadata_Value, error) {
+	s, err := p.Future.Struct()
+	return Metadata_Value{s}, err
 }
+
 func (p Metadata_Value_Future) Date() common_date.Date_Future {
 	return common_date.Date_Future{Future: p.Future.Field(0, nil)}
 }
 
-type Metadata_Entry capnp.Struct
+type Metadata_Entry struct{ capnp.Struct }
 type Metadata_Entry_Which uint16
 
 const (
@@ -1293,299 +1185,287 @@ const Metadata_Entry_TypeID = 0x85af7fea06d0820c
 
 func NewMetadata_Entry(s *capnp.Segment) (Metadata_Entry, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return Metadata_Entry(st), err
+	return Metadata_Entry{st}, err
 }
 
 func NewRootMetadata_Entry(s *capnp.Segment) (Metadata_Entry, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return Metadata_Entry(st), err
+	return Metadata_Entry{st}, err
 }
 
 func ReadRootMetadata_Entry(msg *capnp.Message) (Metadata_Entry, error) {
 	root, err := msg.Root()
-	return Metadata_Entry(root.Struct()), err
+	return Metadata_Entry{root.Struct()}, err
 }
 
 func (s Metadata_Entry) String() string {
-	str, _ := text.Marshal(0x85af7fea06d0820c, capnp.Struct(s))
+	str, _ := text.Marshal(0x85af7fea06d0820c, s.Struct)
 	return str
 }
 
-func (s Metadata_Entry) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Metadata_Entry) DecodeFromPtr(p capnp.Ptr) Metadata_Entry {
-	return Metadata_Entry(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Metadata_Entry) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-
 func (s Metadata_Entry) Which() Metadata_Entry_Which {
-	return Metadata_Entry_Which(capnp.Struct(s).Uint16(2))
-}
-func (s Metadata_Entry) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Metadata_Entry) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Metadata_Entry) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
+	return Metadata_Entry_Which(s.Struct.Uint16(2))
 }
 func (s Metadata_Entry) Gcm() GCM {
-	if capnp.Struct(s).Uint16(2) != 0 {
+	if s.Struct.Uint16(2) != 0 {
 		panic("Which() != gcm")
 	}
-	return GCM(capnp.Struct(s).Uint16(0))
+	return GCM(s.Struct.Uint16(0))
 }
 
 func (s Metadata_Entry) SetGcm(v GCM) {
-	capnp.Struct(s).SetUint16(2, 0)
-	capnp.Struct(s).SetUint16(0, uint16(v))
+	s.Struct.SetUint16(2, 0)
+	s.Struct.SetUint16(0, uint16(v))
 }
 
 func (s Metadata_Entry) Rcm() RCM {
-	if capnp.Struct(s).Uint16(2) != 1 {
+	if s.Struct.Uint16(2) != 1 {
 		panic("Which() != rcm")
 	}
-	return RCM(capnp.Struct(s).Uint16(0))
+	return RCM(s.Struct.Uint16(0))
 }
 
 func (s Metadata_Entry) SetRcm(v RCM) {
-	capnp.Struct(s).SetUint16(2, 1)
-	capnp.Struct(s).SetUint16(0, uint16(v))
+	s.Struct.SetUint16(2, 1)
+	s.Struct.SetUint16(0, uint16(v))
 }
 
 func (s Metadata_Entry) SetHistorical() {
-	capnp.Struct(s).SetUint16(2, 2)
+	s.Struct.SetUint16(2, 2)
 
 }
 
 func (s Metadata_Entry) Rcp() RCP {
-	if capnp.Struct(s).Uint16(2) != 3 {
+	if s.Struct.Uint16(2) != 3 {
 		panic("Which() != rcp")
 	}
-	return RCP(capnp.Struct(s).Uint16(0))
+	return RCP(s.Struct.Uint16(0))
 }
 
 func (s Metadata_Entry) SetRcp(v RCP) {
-	capnp.Struct(s).SetUint16(2, 3)
-	capnp.Struct(s).SetUint16(0, uint16(v))
+	s.Struct.SetUint16(2, 3)
+	s.Struct.SetUint16(0, uint16(v))
 }
 
 func (s Metadata_Entry) Ssp() SSP {
-	if capnp.Struct(s).Uint16(2) != 4 {
+	if s.Struct.Uint16(2) != 4 {
 		panic("Which() != ssp")
 	}
-	return SSP(capnp.Struct(s).Uint16(0))
+	return SSP(s.Struct.Uint16(0))
 }
 
 func (s Metadata_Entry) SetSsp(v SSP) {
-	capnp.Struct(s).SetUint16(2, 4)
-	capnp.Struct(s).SetUint16(0, uint16(v))
+	s.Struct.SetUint16(2, 4)
+	s.Struct.SetUint16(0, uint16(v))
 }
 
 func (s Metadata_Entry) EnsMem() (EnsembleMember, error) {
-	if capnp.Struct(s).Uint16(2) != 5 {
+	if s.Struct.Uint16(2) != 5 {
 		panic("Which() != ensMem")
 	}
-	p, err := capnp.Struct(s).Ptr(0)
-	return EnsembleMember(p.Struct()), err
+	p, err := s.Struct.Ptr(0)
+	return EnsembleMember{Struct: p.Struct()}, err
 }
 
 func (s Metadata_Entry) HasEnsMem() bool {
-	if capnp.Struct(s).Uint16(2) != 5 {
+	if s.Struct.Uint16(2) != 5 {
 		return false
 	}
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Metadata_Entry) SetEnsMem(v EnsembleMember) error {
-	capnp.Struct(s).SetUint16(2, 5)
-	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+	s.Struct.SetUint16(2, 5)
+	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewEnsMem sets the ensMem field to a newly
 // allocated EnsembleMember struct, preferring placement in s's segment.
 func (s Metadata_Entry) NewEnsMem() (EnsembleMember, error) {
-	capnp.Struct(s).SetUint16(2, 5)
-	ss, err := NewEnsembleMember(capnp.Struct(s).Segment())
+	s.Struct.SetUint16(2, 5)
+	ss, err := NewEnsembleMember(s.Struct.Segment())
 	if err != nil {
 		return EnsembleMember{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
 	return ss, err
 }
 
 func (s Metadata_Entry) Version() (string, error) {
-	if capnp.Struct(s).Uint16(2) != 6 {
+	if s.Struct.Uint16(2) != 6 {
 		panic("Which() != version")
 	}
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.Text(), err
 }
 
 func (s Metadata_Entry) HasVersion() bool {
-	if capnp.Struct(s).Uint16(2) != 6 {
+	if s.Struct.Uint16(2) != 6 {
 		return false
 	}
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Metadata_Entry) VersionBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.TextBytes(), err
 }
 
 func (s Metadata_Entry) SetVersion(v string) error {
-	capnp.Struct(s).SetUint16(2, 6)
-	return capnp.Struct(s).SetText(0, v)
+	s.Struct.SetUint16(2, 6)
+	return s.Struct.SetText(0, v)
 }
 
 func (s Metadata_Entry) Start() (common_date.Date, error) {
-	if capnp.Struct(s).Uint16(2) != 7 {
+	if s.Struct.Uint16(2) != 7 {
 		panic("Which() != start")
 	}
-	p, err := capnp.Struct(s).Ptr(0)
-	return common_date.Date(p.Struct()), err
+	p, err := s.Struct.Ptr(0)
+	return common_date.Date{Struct: p.Struct()}, err
 }
 
 func (s Metadata_Entry) HasStart() bool {
-	if capnp.Struct(s).Uint16(2) != 7 {
+	if s.Struct.Uint16(2) != 7 {
 		return false
 	}
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Metadata_Entry) SetStart(v common_date.Date) error {
-	capnp.Struct(s).SetUint16(2, 7)
-	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+	s.Struct.SetUint16(2, 7)
+	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewStart sets the start field to a newly
 // allocated common_date.Date struct, preferring placement in s's segment.
 func (s Metadata_Entry) NewStart() (common_date.Date, error) {
-	capnp.Struct(s).SetUint16(2, 7)
-	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
+	s.Struct.SetUint16(2, 7)
+	ss, err := common_date.NewDate(s.Struct.Segment())
 	if err != nil {
 		return common_date.Date{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
 	return ss, err
 }
 
 func (s Metadata_Entry) End() (common_date.Date, error) {
-	if capnp.Struct(s).Uint16(2) != 8 {
+	if s.Struct.Uint16(2) != 8 {
 		panic("Which() != end")
 	}
-	p, err := capnp.Struct(s).Ptr(0)
-	return common_date.Date(p.Struct()), err
+	p, err := s.Struct.Ptr(0)
+	return common_date.Date{Struct: p.Struct()}, err
 }
 
 func (s Metadata_Entry) HasEnd() bool {
-	if capnp.Struct(s).Uint16(2) != 8 {
+	if s.Struct.Uint16(2) != 8 {
 		return false
 	}
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Metadata_Entry) SetEnd(v common_date.Date) error {
-	capnp.Struct(s).SetUint16(2, 8)
-	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+	s.Struct.SetUint16(2, 8)
+	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewEnd sets the end field to a newly
 // allocated common_date.Date struct, preferring placement in s's segment.
 func (s Metadata_Entry) NewEnd() (common_date.Date, error) {
-	capnp.Struct(s).SetUint16(2, 8)
-	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
+	s.Struct.SetUint16(2, 8)
+	ss, err := common_date.NewDate(s.Struct.Segment())
 	if err != nil {
 		return common_date.Date{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
 	return ss, err
 }
 
 func (s Metadata_Entry) Co2() float32 {
-	if capnp.Struct(s).Uint16(2) != 9 {
+	if s.Struct.Uint16(2) != 9 {
 		panic("Which() != co2")
 	}
-	return math.Float32frombits(capnp.Struct(s).Uint32(4))
+	return math.Float32frombits(s.Struct.Uint32(4))
 }
 
 func (s Metadata_Entry) SetCo2(v float32) {
-	capnp.Struct(s).SetUint16(2, 9)
-	capnp.Struct(s).SetUint32(4, math.Float32bits(v))
+	s.Struct.SetUint16(2, 9)
+	s.Struct.SetUint32(4, math.Float32bits(v))
 }
 
 func (s Metadata_Entry) SetPicontrol() {
-	capnp.Struct(s).SetUint16(2, 10)
+	s.Struct.SetUint16(2, 10)
 
 }
 
 func (s Metadata_Entry) Description() (string, error) {
-	if capnp.Struct(s).Uint16(2) != 11 {
+	if s.Struct.Uint16(2) != 11 {
 		panic("Which() != description")
 	}
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.Text(), err
 }
 
 func (s Metadata_Entry) HasDescription() bool {
-	if capnp.Struct(s).Uint16(2) != 11 {
+	if s.Struct.Uint16(2) != 11 {
 		return false
 	}
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Metadata_Entry) DescriptionBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.TextBytes(), err
 }
 
 func (s Metadata_Entry) SetDescription(v string) error {
-	capnp.Struct(s).SetUint16(2, 11)
-	return capnp.Struct(s).SetText(0, v)
+	s.Struct.SetUint16(2, 11)
+	return s.Struct.SetText(0, v)
 }
 
 // Metadata_Entry_List is a list of Metadata_Entry.
-type Metadata_Entry_List = capnp.StructList[Metadata_Entry]
+type Metadata_Entry_List struct{ capnp.List }
 
 // NewMetadata_Entry creates a new list of Metadata_Entry.
 func NewMetadata_Entry_List(s *capnp.Segment, sz int32) (Metadata_Entry_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1}, sz)
-	return capnp.StructList[Metadata_Entry](l), err
+	return Metadata_Entry_List{l}, err
+}
+
+func (s Metadata_Entry_List) At(i int) Metadata_Entry { return Metadata_Entry{s.List.Struct(i)} }
+
+func (s Metadata_Entry_List) Set(i int, v Metadata_Entry) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s Metadata_Entry_List) String() string {
+	str, _ := text.MarshalList(0x85af7fea06d0820c, s.List)
+	return str
 }
 
 // Metadata_Entry_Future is a wrapper for a Metadata_Entry promised by a client call.
 type Metadata_Entry_Future struct{ *capnp.Future }
 
-func (f Metadata_Entry_Future) Struct() (Metadata_Entry, error) {
-	p, err := f.Future.Ptr()
-	return Metadata_Entry(p.Struct()), err
+func (p Metadata_Entry_Future) Struct() (Metadata_Entry, error) {
+	s, err := p.Future.Struct()
+	return Metadata_Entry{s}, err
 }
+
 func (p Metadata_Entry_Future) EnsMem() EnsembleMember_Future {
 	return EnsembleMember_Future{Future: p.Future.Field(0, nil)}
 }
+
 func (p Metadata_Entry_Future) Start() common_date.Date_Future {
 	return common_date.Date_Future{Future: p.Future.Field(0, nil)}
 }
+
 func (p Metadata_Entry_Future) End() common_date.Date_Future {
 	return common_date.Date_Future{Future: p.Future.Field(0, nil)}
 }
 
-type Metadata_Information capnp.Client
+type Metadata_Information struct{ Client *capnp.Client }
 
 // Metadata_Information_TypeID is the unique identifier for the type Metadata_Information.
 const Metadata_Information_TypeID = 0xc781edeab8160cb7
 
 func (c Metadata_Information) ForOne(ctx context.Context, params func(Metadata_Information_forOne_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xc781edeab8160cb7,
@@ -1596,16 +1476,12 @@ func (c Metadata_Information) ForOne(ctx context.Context, params func(Metadata_I
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Metadata_Information_forOne_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Metadata_Information_forOne_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
-
 }
-
 func (c Metadata_Information) ForAll(ctx context.Context, params func(Metadata_Information_forAll_Params) error) (Metadata_Information_forAll_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xc781edeab8160cb7,
@@ -1616,83 +1492,20 @@ func (c Metadata_Information) ForAll(ctx context.Context, params func(Metadata_I
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Metadata_Information_forAll_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Metadata_Information_forAll_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Metadata_Information_forAll_Results_Future{Future: ans.Future()}, release
-
 }
 
-func (c Metadata_Information) WaitStreaming() error {
-	return capnp.Client(c).WaitStreaming()
-}
-
-// String returns a string that identifies this capability for debugging
-// purposes.  Its format should not be depended on: in particular, it
-// should not be used to compare clients.  Use IsSame to compare clients
-// for equality.
-func (c Metadata_Information) String() string {
-	return "Metadata_Information(" + capnp.Client(c).String() + ")"
-}
-
-// AddRef creates a new Client that refers to the same capability as c.
-// If c is nil or has resolved to null, then AddRef returns nil.
 func (c Metadata_Information) AddRef() Metadata_Information {
-	return Metadata_Information(capnp.Client(c).AddRef())
+	return Metadata_Information{
+		Client: c.Client.AddRef(),
+	}
 }
 
-// Release releases a capability reference.  If this is the last
-// reference to the capability, then the underlying resources associated
-// with the capability will be released.
-//
-// Release will panic if c has already been released, but not if c is
-// nil or resolved to null.
 func (c Metadata_Information) Release() {
-	capnp.Client(c).Release()
-}
-
-// Resolve blocks until the capability is fully resolved or the Context
-// expires.
-func (c Metadata_Information) Resolve(ctx context.Context) error {
-	return capnp.Client(c).Resolve(ctx)
-}
-
-func (c Metadata_Information) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Client(c).EncodeAsPtr(seg)
-}
-
-func (Metadata_Information) DecodeFromPtr(p capnp.Ptr) Metadata_Information {
-	return Metadata_Information(capnp.Client{}.DecodeFromPtr(p))
-}
-
-// IsValid reports whether c is a valid reference to a capability.
-// A reference is invalid if it is nil, has resolved to null, or has
-// been released.
-func (c Metadata_Information) IsValid() bool {
-	return capnp.Client(c).IsValid()
-}
-
-// IsSame reports whether c and other refer to a capability created by the
-// same call to NewClient.  This can return false negatives if c or other
-// are not fully resolved: use Resolve if this is an issue.  If either
-// c or other are released, then IsSame panics.
-func (c Metadata_Information) IsSame(other Metadata_Information) bool {
-	return capnp.Client(c).IsSame(capnp.Client(other))
-}
-
-// Update the flowcontrol.FlowLimiter used to manage flow control for
-// this client. This affects all future calls, but not calls already
-// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
-// which is also the default.
-func (c Metadata_Information) SetFlowLimiter(lim fc.FlowLimiter) {
-	capnp.Client(c).SetFlowLimiter(lim)
-}
-
-// Get the current flowcontrol.FlowLimiter used to manage flow control
-// for this client.
-func (c Metadata_Information) GetFlowLimiter() fc.FlowLimiter {
-	return capnp.Client(c).GetFlowLimiter()
+	c.Client.Release()
 }
 
 // A Metadata_Information_Server is a Metadata_Information with a local implementation.
@@ -1703,15 +1516,15 @@ type Metadata_Information_Server interface {
 }
 
 // Metadata_Information_NewServer creates a new Server from an implementation of Metadata_Information_Server.
-func Metadata_Information_NewServer(s Metadata_Information_Server) *server.Server {
+func Metadata_Information_NewServer(s Metadata_Information_Server, policy *server.Policy) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(Metadata_Information_Methods(nil, s), s, c)
+	return server.New(Metadata_Information_Methods(nil, s), s, c, policy)
 }
 
 // Metadata_Information_ServerToClient creates a new Client from an implementation of Metadata_Information_Server.
 // The caller is responsible for calling Release on the returned Client.
-func Metadata_Information_ServerToClient(s Metadata_Information_Server) Metadata_Information {
-	return Metadata_Information(capnp.NewClient(Metadata_Information_NewServer(s)))
+func Metadata_Information_ServerToClient(s Metadata_Information_Server, policy *server.Policy) Metadata_Information {
+	return Metadata_Information{Client: capnp.NewClient(Metadata_Information_NewServer(s, policy))}
 }
 
 // Metadata_Information_Methods appends Methods to a slice that invoke the methods on s.
@@ -1756,13 +1569,13 @@ type Metadata_Information_forOne struct {
 
 // Args returns the call's arguments.
 func (c Metadata_Information_forOne) Args() Metadata_Information_forOne_Params {
-	return Metadata_Information_forOne_Params(c.Call.Args())
+	return Metadata_Information_forOne_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Metadata_Information_forOne) AllocResults() (common.IdInformation, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 3})
-	return common.IdInformation(r), err
+	return common.IdInformation{Struct: r}, err
 }
 
 // Metadata_Information_forAll holds the state for a server call to Metadata_Information.forAll.
@@ -1773,275 +1586,238 @@ type Metadata_Information_forAll struct {
 
 // Args returns the call's arguments.
 func (c Metadata_Information_forAll) Args() Metadata_Information_forAll_Params {
-	return Metadata_Information_forAll_Params(c.Call.Args())
+	return Metadata_Information_forAll_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Metadata_Information_forAll) AllocResults() (Metadata_Information_forAll_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Metadata_Information_forAll_Results(r), err
+	return Metadata_Information_forAll_Results{Struct: r}, err
 }
 
-// Metadata_Information_List is a list of Metadata_Information.
-type Metadata_Information_List = capnp.CapList[Metadata_Information]
-
-// NewMetadata_Information creates a new list of Metadata_Information.
-func NewMetadata_Information_List(s *capnp.Segment, sz int32) (Metadata_Information_List, error) {
-	l, err := capnp.NewPointerList(s, sz)
-	return capnp.CapList[Metadata_Information](l), err
-}
-
-type Metadata_Information_forOne_Params capnp.Struct
+type Metadata_Information_forOne_Params struct{ capnp.Struct }
 
 // Metadata_Information_forOne_Params_TypeID is the unique identifier for the type Metadata_Information_forOne_Params.
 const Metadata_Information_forOne_Params_TypeID = 0xdf705ef1e0b7d506
 
 func NewMetadata_Information_forOne_Params(s *capnp.Segment) (Metadata_Information_forOne_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Metadata_Information_forOne_Params(st), err
+	return Metadata_Information_forOne_Params{st}, err
 }
 
 func NewRootMetadata_Information_forOne_Params(s *capnp.Segment) (Metadata_Information_forOne_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Metadata_Information_forOne_Params(st), err
+	return Metadata_Information_forOne_Params{st}, err
 }
 
 func ReadRootMetadata_Information_forOne_Params(msg *capnp.Message) (Metadata_Information_forOne_Params, error) {
 	root, err := msg.Root()
-	return Metadata_Information_forOne_Params(root.Struct()), err
+	return Metadata_Information_forOne_Params{root.Struct()}, err
 }
 
 func (s Metadata_Information_forOne_Params) String() string {
-	str, _ := text.Marshal(0xdf705ef1e0b7d506, capnp.Struct(s))
+	str, _ := text.Marshal(0xdf705ef1e0b7d506, s.Struct)
 	return str
 }
 
-func (s Metadata_Information_forOne_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Metadata_Information_forOne_Params) DecodeFromPtr(p capnp.Ptr) Metadata_Information_forOne_Params {
-	return Metadata_Information_forOne_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Metadata_Information_forOne_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Metadata_Information_forOne_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Metadata_Information_forOne_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Metadata_Information_forOne_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Metadata_Information_forOne_Params) Entry() (Metadata_Entry, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return Metadata_Entry(p.Struct()), err
+	p, err := s.Struct.Ptr(0)
+	return Metadata_Entry{Struct: p.Struct()}, err
 }
 
 func (s Metadata_Information_forOne_Params) HasEntry() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Metadata_Information_forOne_Params) SetEntry(v Metadata_Entry) error {
-	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewEntry sets the entry field to a newly
 // allocated Metadata_Entry struct, preferring placement in s's segment.
 func (s Metadata_Information_forOne_Params) NewEntry() (Metadata_Entry, error) {
-	ss, err := NewMetadata_Entry(capnp.Struct(s).Segment())
+	ss, err := NewMetadata_Entry(s.Struct.Segment())
 	if err != nil {
 		return Metadata_Entry{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
 	return ss, err
 }
 
 // Metadata_Information_forOne_Params_List is a list of Metadata_Information_forOne_Params.
-type Metadata_Information_forOne_Params_List = capnp.StructList[Metadata_Information_forOne_Params]
+type Metadata_Information_forOne_Params_List struct{ capnp.List }
 
 // NewMetadata_Information_forOne_Params creates a new list of Metadata_Information_forOne_Params.
 func NewMetadata_Information_forOne_Params_List(s *capnp.Segment, sz int32) (Metadata_Information_forOne_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Metadata_Information_forOne_Params](l), err
+	return Metadata_Information_forOne_Params_List{l}, err
+}
+
+func (s Metadata_Information_forOne_Params_List) At(i int) Metadata_Information_forOne_Params {
+	return Metadata_Information_forOne_Params{s.List.Struct(i)}
+}
+
+func (s Metadata_Information_forOne_Params_List) Set(i int, v Metadata_Information_forOne_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Metadata_Information_forOne_Params_List) String() string {
+	str, _ := text.MarshalList(0xdf705ef1e0b7d506, s.List)
+	return str
 }
 
 // Metadata_Information_forOne_Params_Future is a wrapper for a Metadata_Information_forOne_Params promised by a client call.
 type Metadata_Information_forOne_Params_Future struct{ *capnp.Future }
 
-func (f Metadata_Information_forOne_Params_Future) Struct() (Metadata_Information_forOne_Params, error) {
-	p, err := f.Future.Ptr()
-	return Metadata_Information_forOne_Params(p.Struct()), err
+func (p Metadata_Information_forOne_Params_Future) Struct() (Metadata_Information_forOne_Params, error) {
+	s, err := p.Future.Struct()
+	return Metadata_Information_forOne_Params{s}, err
 }
+
 func (p Metadata_Information_forOne_Params_Future) Entry() Metadata_Entry_Future {
 	return Metadata_Entry_Future{Future: p.Future.Field(0, nil)}
 }
 
-type Metadata_Information_forAll_Params capnp.Struct
+type Metadata_Information_forAll_Params struct{ capnp.Struct }
 
 // Metadata_Information_forAll_Params_TypeID is the unique identifier for the type Metadata_Information_forAll_Params.
 const Metadata_Information_forAll_Params_TypeID = 0xe246d49c91fa330a
 
 func NewMetadata_Information_forAll_Params(s *capnp.Segment) (Metadata_Information_forAll_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Metadata_Information_forAll_Params(st), err
+	return Metadata_Information_forAll_Params{st}, err
 }
 
 func NewRootMetadata_Information_forAll_Params(s *capnp.Segment) (Metadata_Information_forAll_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Metadata_Information_forAll_Params(st), err
+	return Metadata_Information_forAll_Params{st}, err
 }
 
 func ReadRootMetadata_Information_forAll_Params(msg *capnp.Message) (Metadata_Information_forAll_Params, error) {
 	root, err := msg.Root()
-	return Metadata_Information_forAll_Params(root.Struct()), err
+	return Metadata_Information_forAll_Params{root.Struct()}, err
 }
 
 func (s Metadata_Information_forAll_Params) String() string {
-	str, _ := text.Marshal(0xe246d49c91fa330a, capnp.Struct(s))
+	str, _ := text.Marshal(0xe246d49c91fa330a, s.Struct)
 	return str
 }
 
-func (s Metadata_Information_forAll_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Metadata_Information_forAll_Params) DecodeFromPtr(p capnp.Ptr) Metadata_Information_forAll_Params {
-	return Metadata_Information_forAll_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Metadata_Information_forAll_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Metadata_Information_forAll_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Metadata_Information_forAll_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Metadata_Information_forAll_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // Metadata_Information_forAll_Params_List is a list of Metadata_Information_forAll_Params.
-type Metadata_Information_forAll_Params_List = capnp.StructList[Metadata_Information_forAll_Params]
+type Metadata_Information_forAll_Params_List struct{ capnp.List }
 
 // NewMetadata_Information_forAll_Params creates a new list of Metadata_Information_forAll_Params.
 func NewMetadata_Information_forAll_Params_List(s *capnp.Segment, sz int32) (Metadata_Information_forAll_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[Metadata_Information_forAll_Params](l), err
+	return Metadata_Information_forAll_Params_List{l}, err
+}
+
+func (s Metadata_Information_forAll_Params_List) At(i int) Metadata_Information_forAll_Params {
+	return Metadata_Information_forAll_Params{s.List.Struct(i)}
+}
+
+func (s Metadata_Information_forAll_Params_List) Set(i int, v Metadata_Information_forAll_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Metadata_Information_forAll_Params_List) String() string {
+	str, _ := text.MarshalList(0xe246d49c91fa330a, s.List)
+	return str
 }
 
 // Metadata_Information_forAll_Params_Future is a wrapper for a Metadata_Information_forAll_Params promised by a client call.
 type Metadata_Information_forAll_Params_Future struct{ *capnp.Future }
 
-func (f Metadata_Information_forAll_Params_Future) Struct() (Metadata_Information_forAll_Params, error) {
-	p, err := f.Future.Ptr()
-	return Metadata_Information_forAll_Params(p.Struct()), err
+func (p Metadata_Information_forAll_Params_Future) Struct() (Metadata_Information_forAll_Params, error) {
+	s, err := p.Future.Struct()
+	return Metadata_Information_forAll_Params{s}, err
 }
 
-type Metadata_Information_forAll_Results capnp.Struct
+type Metadata_Information_forAll_Results struct{ capnp.Struct }
 
 // Metadata_Information_forAll_Results_TypeID is the unique identifier for the type Metadata_Information_forAll_Results.
 const Metadata_Information_forAll_Results_TypeID = 0x9f35030ba55fed78
 
 func NewMetadata_Information_forAll_Results(s *capnp.Segment) (Metadata_Information_forAll_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Metadata_Information_forAll_Results(st), err
+	return Metadata_Information_forAll_Results{st}, err
 }
 
 func NewRootMetadata_Information_forAll_Results(s *capnp.Segment) (Metadata_Information_forAll_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Metadata_Information_forAll_Results(st), err
+	return Metadata_Information_forAll_Results{st}, err
 }
 
 func ReadRootMetadata_Information_forAll_Results(msg *capnp.Message) (Metadata_Information_forAll_Results, error) {
 	root, err := msg.Root()
-	return Metadata_Information_forAll_Results(root.Struct()), err
+	return Metadata_Information_forAll_Results{root.Struct()}, err
 }
 
 func (s Metadata_Information_forAll_Results) String() string {
-	str, _ := text.Marshal(0x9f35030ba55fed78, capnp.Struct(s))
+	str, _ := text.Marshal(0x9f35030ba55fed78, s.Struct)
 	return str
 }
 
-func (s Metadata_Information_forAll_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Metadata_Information_forAll_Results) DecodeFromPtr(p capnp.Ptr) Metadata_Information_forAll_Results {
-	return Metadata_Information_forAll_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Metadata_Information_forAll_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Metadata_Information_forAll_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Metadata_Information_forAll_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Metadata_Information_forAll_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Metadata_Information_forAll_Results) All() (common.Pair_List, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return common.Pair_List(p.List()), err
+	p, err := s.Struct.Ptr(0)
+	return common.Pair_List{List: p.List()}, err
 }
 
 func (s Metadata_Information_forAll_Results) HasAll() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Metadata_Information_forAll_Results) SetAll(v common.Pair_List) error {
-	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+	return s.Struct.SetPtr(0, v.List.ToPtr())
 }
 
 // NewAll sets the all field to a newly
 // allocated common.Pair_List, preferring placement in s's segment.
 func (s Metadata_Information_forAll_Results) NewAll(n int32) (common.Pair_List, error) {
-	l, err := common.NewPair_List(capnp.Struct(s).Segment(), n)
+	l, err := common.NewPair_List(s.Struct.Segment(), n)
 	if err != nil {
 		return common.Pair_List{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	err = s.Struct.SetPtr(0, l.List.ToPtr())
 	return l, err
 }
 
 // Metadata_Information_forAll_Results_List is a list of Metadata_Information_forAll_Results.
-type Metadata_Information_forAll_Results_List = capnp.StructList[Metadata_Information_forAll_Results]
+type Metadata_Information_forAll_Results_List struct{ capnp.List }
 
 // NewMetadata_Information_forAll_Results creates a new list of Metadata_Information_forAll_Results.
 func NewMetadata_Information_forAll_Results_List(s *capnp.Segment, sz int32) (Metadata_Information_forAll_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Metadata_Information_forAll_Results](l), err
+	return Metadata_Information_forAll_Results_List{l}, err
+}
+
+func (s Metadata_Information_forAll_Results_List) At(i int) Metadata_Information_forAll_Results {
+	return Metadata_Information_forAll_Results{s.List.Struct(i)}
+}
+
+func (s Metadata_Information_forAll_Results_List) Set(i int, v Metadata_Information_forAll_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Metadata_Information_forAll_Results_List) String() string {
+	str, _ := text.MarshalList(0x9f35030ba55fed78, s.List)
+	return str
 }
 
 // Metadata_Information_forAll_Results_Future is a wrapper for a Metadata_Information_forAll_Results promised by a client call.
 type Metadata_Information_forAll_Results_Future struct{ *capnp.Future }
 
-func (f Metadata_Information_forAll_Results_Future) Struct() (Metadata_Information_forAll_Results, error) {
-	p, err := f.Future.Ptr()
-	return Metadata_Information_forAll_Results(p.Struct()), err
+func (p Metadata_Information_forAll_Results_Future) Struct() (Metadata_Information_forAll_Results, error) {
+	s, err := p.Future.Struct()
+	return Metadata_Information_forAll_Results{s}, err
 }
 
-type Dataset capnp.Client
+type Dataset struct{ Client *capnp.Client }
 
 // Dataset_TypeID is the unique identifier for the type Dataset.
 const Dataset_TypeID = 0xf635fdd1f05960f0
 
 func (c Dataset) Metadata(ctx context.Context, params func(Dataset_metadata_Params) error) (Metadata_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xf635fdd1f05960f0,
@@ -2052,16 +1828,12 @@ func (c Dataset) Metadata(ctx context.Context, params func(Dataset_metadata_Para
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Dataset_metadata_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Dataset_metadata_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Metadata_Future{Future: ans.Future()}, release
-
 }
-
 func (c Dataset) ClosestTimeSeriesAt(ctx context.Context, params func(Dataset_closestTimeSeriesAt_Params) error) (Dataset_closestTimeSeriesAt_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xf635fdd1f05960f0,
@@ -2072,16 +1844,12 @@ func (c Dataset) ClosestTimeSeriesAt(ctx context.Context, params func(Dataset_cl
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Dataset_closestTimeSeriesAt_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Dataset_closestTimeSeriesAt_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Dataset_closestTimeSeriesAt_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c Dataset) TimeSeriesAt(ctx context.Context, params func(Dataset_timeSeriesAt_Params) error) (Dataset_timeSeriesAt_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xf635fdd1f05960f0,
@@ -2092,16 +1860,12 @@ func (c Dataset) TimeSeriesAt(ctx context.Context, params func(Dataset_timeSerie
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Dataset_timeSeriesAt_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Dataset_timeSeriesAt_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Dataset_timeSeriesAt_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c Dataset) Locations(ctx context.Context, params func(Dataset_locations_Params) error) (Dataset_locations_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xf635fdd1f05960f0,
@@ -2112,16 +1876,12 @@ func (c Dataset) Locations(ctx context.Context, params func(Dataset_locations_Pa
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Dataset_locations_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Dataset_locations_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Dataset_locations_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c Dataset) StreamLocations(ctx context.Context, params func(Dataset_streamLocations_Params) error) (Dataset_streamLocations_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xf635fdd1f05960f0,
@@ -2132,16 +1892,12 @@ func (c Dataset) StreamLocations(ctx context.Context, params func(Dataset_stream
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Dataset_streamLocations_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Dataset_streamLocations_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Dataset_streamLocations_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c Dataset) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -2152,16 +1908,12 @@ func (c Dataset) Info(ctx context.Context, params func(common.Identifiable_info_
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
-
 }
-
 func (c Dataset) Save(ctx context.Context, params func(persistence.Persistent_SaveParams) error) (persistence.Persistent_SaveResults_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xc1a7daa0dc36cb65,
@@ -2172,83 +1924,20 @@ func (c Dataset) Save(ctx context.Context, params func(persistence.Persistent_Sa
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return persistence.Persistent_SaveResults_Future{Future: ans.Future()}, release
-
 }
 
-func (c Dataset) WaitStreaming() error {
-	return capnp.Client(c).WaitStreaming()
-}
-
-// String returns a string that identifies this capability for debugging
-// purposes.  Its format should not be depended on: in particular, it
-// should not be used to compare clients.  Use IsSame to compare clients
-// for equality.
-func (c Dataset) String() string {
-	return "Dataset(" + capnp.Client(c).String() + ")"
-}
-
-// AddRef creates a new Client that refers to the same capability as c.
-// If c is nil or has resolved to null, then AddRef returns nil.
 func (c Dataset) AddRef() Dataset {
-	return Dataset(capnp.Client(c).AddRef())
+	return Dataset{
+		Client: c.Client.AddRef(),
+	}
 }
 
-// Release releases a capability reference.  If this is the last
-// reference to the capability, then the underlying resources associated
-// with the capability will be released.
-//
-// Release will panic if c has already been released, but not if c is
-// nil or resolved to null.
 func (c Dataset) Release() {
-	capnp.Client(c).Release()
-}
-
-// Resolve blocks until the capability is fully resolved or the Context
-// expires.
-func (c Dataset) Resolve(ctx context.Context) error {
-	return capnp.Client(c).Resolve(ctx)
-}
-
-func (c Dataset) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Client(c).EncodeAsPtr(seg)
-}
-
-func (Dataset) DecodeFromPtr(p capnp.Ptr) Dataset {
-	return Dataset(capnp.Client{}.DecodeFromPtr(p))
-}
-
-// IsValid reports whether c is a valid reference to a capability.
-// A reference is invalid if it is nil, has resolved to null, or has
-// been released.
-func (c Dataset) IsValid() bool {
-	return capnp.Client(c).IsValid()
-}
-
-// IsSame reports whether c and other refer to a capability created by the
-// same call to NewClient.  This can return false negatives if c or other
-// are not fully resolved: use Resolve if this is an issue.  If either
-// c or other are released, then IsSame panics.
-func (c Dataset) IsSame(other Dataset) bool {
-	return capnp.Client(c).IsSame(capnp.Client(other))
-}
-
-// Update the flowcontrol.FlowLimiter used to manage flow control for
-// this client. This affects all future calls, but not calls already
-// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
-// which is also the default.
-func (c Dataset) SetFlowLimiter(lim fc.FlowLimiter) {
-	capnp.Client(c).SetFlowLimiter(lim)
-}
-
-// Get the current flowcontrol.FlowLimiter used to manage flow control
-// for this client.
-func (c Dataset) GetFlowLimiter() fc.FlowLimiter {
-	return capnp.Client(c).GetFlowLimiter()
+	c.Client.Release()
 }
 
 // A Dataset_Server is a Dataset with a local implementation.
@@ -2269,15 +1958,15 @@ type Dataset_Server interface {
 }
 
 // Dataset_NewServer creates a new Server from an implementation of Dataset_Server.
-func Dataset_NewServer(s Dataset_Server) *server.Server {
+func Dataset_NewServer(s Dataset_Server, policy *server.Policy) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(Dataset_Methods(nil, s), s, c)
+	return server.New(Dataset_Methods(nil, s), s, c, policy)
 }
 
 // Dataset_ServerToClient creates a new Client from an implementation of Dataset_Server.
 // The caller is responsible for calling Release on the returned Client.
-func Dataset_ServerToClient(s Dataset_Server) Dataset {
-	return Dataset(capnp.NewClient(Dataset_NewServer(s)))
+func Dataset_ServerToClient(s Dataset_Server, policy *server.Policy) Dataset {
+	return Dataset{Client: capnp.NewClient(Dataset_NewServer(s, policy))}
 }
 
 // Dataset_Methods appends Methods to a slice that invoke the methods on s.
@@ -2382,13 +2071,13 @@ type Dataset_metadata struct {
 
 // Args returns the call's arguments.
 func (c Dataset_metadata) Args() Dataset_metadata_Params {
-	return Dataset_metadata_Params(c.Call.Args())
+	return Dataset_metadata_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Dataset_metadata) AllocResults() (Metadata, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Metadata(r), err
+	return Metadata{Struct: r}, err
 }
 
 // Dataset_closestTimeSeriesAt holds the state for a server call to Dataset.closestTimeSeriesAt.
@@ -2399,13 +2088,13 @@ type Dataset_closestTimeSeriesAt struct {
 
 // Args returns the call's arguments.
 func (c Dataset_closestTimeSeriesAt) Args() Dataset_closestTimeSeriesAt_Params {
-	return Dataset_closestTimeSeriesAt_Params(c.Call.Args())
+	return Dataset_closestTimeSeriesAt_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Dataset_closestTimeSeriesAt) AllocResults() (Dataset_closestTimeSeriesAt_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Dataset_closestTimeSeriesAt_Results(r), err
+	return Dataset_closestTimeSeriesAt_Results{Struct: r}, err
 }
 
 // Dataset_timeSeriesAt holds the state for a server call to Dataset.timeSeriesAt.
@@ -2416,13 +2105,13 @@ type Dataset_timeSeriesAt struct {
 
 // Args returns the call's arguments.
 func (c Dataset_timeSeriesAt) Args() Dataset_timeSeriesAt_Params {
-	return Dataset_timeSeriesAt_Params(c.Call.Args())
+	return Dataset_timeSeriesAt_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Dataset_timeSeriesAt) AllocResults() (Dataset_timeSeriesAt_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Dataset_timeSeriesAt_Results(r), err
+	return Dataset_timeSeriesAt_Results{Struct: r}, err
 }
 
 // Dataset_locations holds the state for a server call to Dataset.locations.
@@ -2433,13 +2122,13 @@ type Dataset_locations struct {
 
 // Args returns the call's arguments.
 func (c Dataset_locations) Args() Dataset_locations_Params {
-	return Dataset_locations_Params(c.Call.Args())
+	return Dataset_locations_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Dataset_locations) AllocResults() (Dataset_locations_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Dataset_locations_Results(r), err
+	return Dataset_locations_Results{Struct: r}, err
 }
 
 // Dataset_streamLocations holds the state for a server call to Dataset.streamLocations.
@@ -2450,31 +2139,21 @@ type Dataset_streamLocations struct {
 
 // Args returns the call's arguments.
 func (c Dataset_streamLocations) Args() Dataset_streamLocations_Params {
-	return Dataset_streamLocations_Params(c.Call.Args())
+	return Dataset_streamLocations_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Dataset_streamLocations) AllocResults() (Dataset_streamLocations_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Dataset_streamLocations_Results(r), err
+	return Dataset_streamLocations_Results{Struct: r}, err
 }
 
-// Dataset_List is a list of Dataset.
-type Dataset_List = capnp.CapList[Dataset]
-
-// NewDataset creates a new list of Dataset.
-func NewDataset_List(s *capnp.Segment, sz int32) (Dataset_List, error) {
-	l, err := capnp.NewPointerList(s, sz)
-	return capnp.CapList[Dataset](l), err
-}
-
-type Dataset_GetLocationsCallback capnp.Client
+type Dataset_GetLocationsCallback struct{ Client *capnp.Client }
 
 // Dataset_GetLocationsCallback_TypeID is the unique identifier for the type Dataset_GetLocationsCallback.
 const Dataset_GetLocationsCallback_TypeID = 0xd61ba043f14fe175
 
 func (c Dataset_GetLocationsCallback) NextLocations(ctx context.Context, params func(Dataset_GetLocationsCallback_nextLocations_Params) error) (Dataset_GetLocationsCallback_nextLocations_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xd61ba043f14fe175,
@@ -2485,83 +2164,22 @@ func (c Dataset_GetLocationsCallback) NextLocations(ctx context.Context, params 
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Dataset_GetLocationsCallback_nextLocations_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error {
+			return params(Dataset_GetLocationsCallback_nextLocations_Params{Struct: s})
+		}
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Dataset_GetLocationsCallback_nextLocations_Results_Future{Future: ans.Future()}, release
-
 }
 
-func (c Dataset_GetLocationsCallback) WaitStreaming() error {
-	return capnp.Client(c).WaitStreaming()
-}
-
-// String returns a string that identifies this capability for debugging
-// purposes.  Its format should not be depended on: in particular, it
-// should not be used to compare clients.  Use IsSame to compare clients
-// for equality.
-func (c Dataset_GetLocationsCallback) String() string {
-	return "Dataset_GetLocationsCallback(" + capnp.Client(c).String() + ")"
-}
-
-// AddRef creates a new Client that refers to the same capability as c.
-// If c is nil or has resolved to null, then AddRef returns nil.
 func (c Dataset_GetLocationsCallback) AddRef() Dataset_GetLocationsCallback {
-	return Dataset_GetLocationsCallback(capnp.Client(c).AddRef())
+	return Dataset_GetLocationsCallback{
+		Client: c.Client.AddRef(),
+	}
 }
 
-// Release releases a capability reference.  If this is the last
-// reference to the capability, then the underlying resources associated
-// with the capability will be released.
-//
-// Release will panic if c has already been released, but not if c is
-// nil or resolved to null.
 func (c Dataset_GetLocationsCallback) Release() {
-	capnp.Client(c).Release()
-}
-
-// Resolve blocks until the capability is fully resolved or the Context
-// expires.
-func (c Dataset_GetLocationsCallback) Resolve(ctx context.Context) error {
-	return capnp.Client(c).Resolve(ctx)
-}
-
-func (c Dataset_GetLocationsCallback) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Client(c).EncodeAsPtr(seg)
-}
-
-func (Dataset_GetLocationsCallback) DecodeFromPtr(p capnp.Ptr) Dataset_GetLocationsCallback {
-	return Dataset_GetLocationsCallback(capnp.Client{}.DecodeFromPtr(p))
-}
-
-// IsValid reports whether c is a valid reference to a capability.
-// A reference is invalid if it is nil, has resolved to null, or has
-// been released.
-func (c Dataset_GetLocationsCallback) IsValid() bool {
-	return capnp.Client(c).IsValid()
-}
-
-// IsSame reports whether c and other refer to a capability created by the
-// same call to NewClient.  This can return false negatives if c or other
-// are not fully resolved: use Resolve if this is an issue.  If either
-// c or other are released, then IsSame panics.
-func (c Dataset_GetLocationsCallback) IsSame(other Dataset_GetLocationsCallback) bool {
-	return capnp.Client(c).IsSame(capnp.Client(other))
-}
-
-// Update the flowcontrol.FlowLimiter used to manage flow control for
-// this client. This affects all future calls, but not calls already
-// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
-// which is also the default.
-func (c Dataset_GetLocationsCallback) SetFlowLimiter(lim fc.FlowLimiter) {
-	capnp.Client(c).SetFlowLimiter(lim)
-}
-
-// Get the current flowcontrol.FlowLimiter used to manage flow control
-// for this client.
-func (c Dataset_GetLocationsCallback) GetFlowLimiter() fc.FlowLimiter {
-	return capnp.Client(c).GetFlowLimiter()
+	c.Client.Release()
 }
 
 // A Dataset_GetLocationsCallback_Server is a Dataset_GetLocationsCallback with a local implementation.
@@ -2570,15 +2188,15 @@ type Dataset_GetLocationsCallback_Server interface {
 }
 
 // Dataset_GetLocationsCallback_NewServer creates a new Server from an implementation of Dataset_GetLocationsCallback_Server.
-func Dataset_GetLocationsCallback_NewServer(s Dataset_GetLocationsCallback_Server) *server.Server {
+func Dataset_GetLocationsCallback_NewServer(s Dataset_GetLocationsCallback_Server, policy *server.Policy) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(Dataset_GetLocationsCallback_Methods(nil, s), s, c)
+	return server.New(Dataset_GetLocationsCallback_Methods(nil, s), s, c, policy)
 }
 
 // Dataset_GetLocationsCallback_ServerToClient creates a new Client from an implementation of Dataset_GetLocationsCallback_Server.
 // The caller is responsible for calling Release on the returned Client.
-func Dataset_GetLocationsCallback_ServerToClient(s Dataset_GetLocationsCallback_Server) Dataset_GetLocationsCallback {
-	return Dataset_GetLocationsCallback(capnp.NewClient(Dataset_GetLocationsCallback_NewServer(s)))
+func Dataset_GetLocationsCallback_ServerToClient(s Dataset_GetLocationsCallback_Server, policy *server.Policy) Dataset_GetLocationsCallback {
+	return Dataset_GetLocationsCallback{Client: capnp.NewClient(Dataset_GetLocationsCallback_NewServer(s, policy))}
 }
 
 // Dataset_GetLocationsCallback_Methods appends Methods to a slice that invoke the methods on s.
@@ -2611,1022 +2229,905 @@ type Dataset_GetLocationsCallback_nextLocations struct {
 
 // Args returns the call's arguments.
 func (c Dataset_GetLocationsCallback_nextLocations) Args() Dataset_GetLocationsCallback_nextLocations_Params {
-	return Dataset_GetLocationsCallback_nextLocations_Params(c.Call.Args())
+	return Dataset_GetLocationsCallback_nextLocations_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Dataset_GetLocationsCallback_nextLocations) AllocResults() (Dataset_GetLocationsCallback_nextLocations_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Dataset_GetLocationsCallback_nextLocations_Results(r), err
+	return Dataset_GetLocationsCallback_nextLocations_Results{Struct: r}, err
 }
 
-// Dataset_GetLocationsCallback_List is a list of Dataset_GetLocationsCallback.
-type Dataset_GetLocationsCallback_List = capnp.CapList[Dataset_GetLocationsCallback]
-
-// NewDataset_GetLocationsCallback creates a new list of Dataset_GetLocationsCallback.
-func NewDataset_GetLocationsCallback_List(s *capnp.Segment, sz int32) (Dataset_GetLocationsCallback_List, error) {
-	l, err := capnp.NewPointerList(s, sz)
-	return capnp.CapList[Dataset_GetLocationsCallback](l), err
-}
-
-type Dataset_GetLocationsCallback_nextLocations_Params capnp.Struct
+type Dataset_GetLocationsCallback_nextLocations_Params struct{ capnp.Struct }
 
 // Dataset_GetLocationsCallback_nextLocations_Params_TypeID is the unique identifier for the type Dataset_GetLocationsCallback_nextLocations_Params.
 const Dataset_GetLocationsCallback_nextLocations_Params_TypeID = 0xe64112993dc4d4e0
 
 func NewDataset_GetLocationsCallback_nextLocations_Params(s *capnp.Segment) (Dataset_GetLocationsCallback_nextLocations_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Dataset_GetLocationsCallback_nextLocations_Params(st), err
+	return Dataset_GetLocationsCallback_nextLocations_Params{st}, err
 }
 
 func NewRootDataset_GetLocationsCallback_nextLocations_Params(s *capnp.Segment) (Dataset_GetLocationsCallback_nextLocations_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Dataset_GetLocationsCallback_nextLocations_Params(st), err
+	return Dataset_GetLocationsCallback_nextLocations_Params{st}, err
 }
 
 func ReadRootDataset_GetLocationsCallback_nextLocations_Params(msg *capnp.Message) (Dataset_GetLocationsCallback_nextLocations_Params, error) {
 	root, err := msg.Root()
-	return Dataset_GetLocationsCallback_nextLocations_Params(root.Struct()), err
+	return Dataset_GetLocationsCallback_nextLocations_Params{root.Struct()}, err
 }
 
 func (s Dataset_GetLocationsCallback_nextLocations_Params) String() string {
-	str, _ := text.Marshal(0xe64112993dc4d4e0, capnp.Struct(s))
+	str, _ := text.Marshal(0xe64112993dc4d4e0, s.Struct)
 	return str
 }
 
-func (s Dataset_GetLocationsCallback_nextLocations_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Dataset_GetLocationsCallback_nextLocations_Params) DecodeFromPtr(p capnp.Ptr) Dataset_GetLocationsCallback_nextLocations_Params {
-	return Dataset_GetLocationsCallback_nextLocations_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Dataset_GetLocationsCallback_nextLocations_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Dataset_GetLocationsCallback_nextLocations_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Dataset_GetLocationsCallback_nextLocations_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Dataset_GetLocationsCallback_nextLocations_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Dataset_GetLocationsCallback_nextLocations_Params) MaxCount() int64 {
-	return int64(capnp.Struct(s).Uint64(0))
+	return int64(s.Struct.Uint64(0))
 }
 
 func (s Dataset_GetLocationsCallback_nextLocations_Params) SetMaxCount(v int64) {
-	capnp.Struct(s).SetUint64(0, uint64(v))
+	s.Struct.SetUint64(0, uint64(v))
 }
 
 // Dataset_GetLocationsCallback_nextLocations_Params_List is a list of Dataset_GetLocationsCallback_nextLocations_Params.
-type Dataset_GetLocationsCallback_nextLocations_Params_List = capnp.StructList[Dataset_GetLocationsCallback_nextLocations_Params]
+type Dataset_GetLocationsCallback_nextLocations_Params_List struct{ capnp.List }
 
 // NewDataset_GetLocationsCallback_nextLocations_Params creates a new list of Dataset_GetLocationsCallback_nextLocations_Params.
 func NewDataset_GetLocationsCallback_nextLocations_Params_List(s *capnp.Segment, sz int32) (Dataset_GetLocationsCallback_nextLocations_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0}, sz)
-	return capnp.StructList[Dataset_GetLocationsCallback_nextLocations_Params](l), err
+	return Dataset_GetLocationsCallback_nextLocations_Params_List{l}, err
+}
+
+func (s Dataset_GetLocationsCallback_nextLocations_Params_List) At(i int) Dataset_GetLocationsCallback_nextLocations_Params {
+	return Dataset_GetLocationsCallback_nextLocations_Params{s.List.Struct(i)}
+}
+
+func (s Dataset_GetLocationsCallback_nextLocations_Params_List) Set(i int, v Dataset_GetLocationsCallback_nextLocations_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Dataset_GetLocationsCallback_nextLocations_Params_List) String() string {
+	str, _ := text.MarshalList(0xe64112993dc4d4e0, s.List)
+	return str
 }
 
 // Dataset_GetLocationsCallback_nextLocations_Params_Future is a wrapper for a Dataset_GetLocationsCallback_nextLocations_Params promised by a client call.
 type Dataset_GetLocationsCallback_nextLocations_Params_Future struct{ *capnp.Future }
 
-func (f Dataset_GetLocationsCallback_nextLocations_Params_Future) Struct() (Dataset_GetLocationsCallback_nextLocations_Params, error) {
-	p, err := f.Future.Ptr()
-	return Dataset_GetLocationsCallback_nextLocations_Params(p.Struct()), err
+func (p Dataset_GetLocationsCallback_nextLocations_Params_Future) Struct() (Dataset_GetLocationsCallback_nextLocations_Params, error) {
+	s, err := p.Future.Struct()
+	return Dataset_GetLocationsCallback_nextLocations_Params{s}, err
 }
 
-type Dataset_GetLocationsCallback_nextLocations_Results capnp.Struct
+type Dataset_GetLocationsCallback_nextLocations_Results struct{ capnp.Struct }
 
 // Dataset_GetLocationsCallback_nextLocations_Results_TypeID is the unique identifier for the type Dataset_GetLocationsCallback_nextLocations_Results.
 const Dataset_GetLocationsCallback_nextLocations_Results_TypeID = 0xfa8540d5d8065df1
 
 func NewDataset_GetLocationsCallback_nextLocations_Results(s *capnp.Segment) (Dataset_GetLocationsCallback_nextLocations_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Dataset_GetLocationsCallback_nextLocations_Results(st), err
+	return Dataset_GetLocationsCallback_nextLocations_Results{st}, err
 }
 
 func NewRootDataset_GetLocationsCallback_nextLocations_Results(s *capnp.Segment) (Dataset_GetLocationsCallback_nextLocations_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Dataset_GetLocationsCallback_nextLocations_Results(st), err
+	return Dataset_GetLocationsCallback_nextLocations_Results{st}, err
 }
 
 func ReadRootDataset_GetLocationsCallback_nextLocations_Results(msg *capnp.Message) (Dataset_GetLocationsCallback_nextLocations_Results, error) {
 	root, err := msg.Root()
-	return Dataset_GetLocationsCallback_nextLocations_Results(root.Struct()), err
+	return Dataset_GetLocationsCallback_nextLocations_Results{root.Struct()}, err
 }
 
 func (s Dataset_GetLocationsCallback_nextLocations_Results) String() string {
-	str, _ := text.Marshal(0xfa8540d5d8065df1, capnp.Struct(s))
+	str, _ := text.Marshal(0xfa8540d5d8065df1, s.Struct)
 	return str
 }
 
-func (s Dataset_GetLocationsCallback_nextLocations_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Dataset_GetLocationsCallback_nextLocations_Results) DecodeFromPtr(p capnp.Ptr) Dataset_GetLocationsCallback_nextLocations_Results {
-	return Dataset_GetLocationsCallback_nextLocations_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Dataset_GetLocationsCallback_nextLocations_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Dataset_GetLocationsCallback_nextLocations_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Dataset_GetLocationsCallback_nextLocations_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Dataset_GetLocationsCallback_nextLocations_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Dataset_GetLocationsCallback_nextLocations_Results) Locations() (Location_List, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return Location_List(p.List()), err
+	p, err := s.Struct.Ptr(0)
+	return Location_List{List: p.List()}, err
 }
 
 func (s Dataset_GetLocationsCallback_nextLocations_Results) HasLocations() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Dataset_GetLocationsCallback_nextLocations_Results) SetLocations(v Location_List) error {
-	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+	return s.Struct.SetPtr(0, v.List.ToPtr())
 }
 
 // NewLocations sets the locations field to a newly
 // allocated Location_List, preferring placement in s's segment.
 func (s Dataset_GetLocationsCallback_nextLocations_Results) NewLocations(n int32) (Location_List, error) {
-	l, err := NewLocation_List(capnp.Struct(s).Segment(), n)
+	l, err := NewLocation_List(s.Struct.Segment(), n)
 	if err != nil {
 		return Location_List{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	err = s.Struct.SetPtr(0, l.List.ToPtr())
 	return l, err
 }
 
 // Dataset_GetLocationsCallback_nextLocations_Results_List is a list of Dataset_GetLocationsCallback_nextLocations_Results.
-type Dataset_GetLocationsCallback_nextLocations_Results_List = capnp.StructList[Dataset_GetLocationsCallback_nextLocations_Results]
+type Dataset_GetLocationsCallback_nextLocations_Results_List struct{ capnp.List }
 
 // NewDataset_GetLocationsCallback_nextLocations_Results creates a new list of Dataset_GetLocationsCallback_nextLocations_Results.
 func NewDataset_GetLocationsCallback_nextLocations_Results_List(s *capnp.Segment, sz int32) (Dataset_GetLocationsCallback_nextLocations_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Dataset_GetLocationsCallback_nextLocations_Results](l), err
+	return Dataset_GetLocationsCallback_nextLocations_Results_List{l}, err
+}
+
+func (s Dataset_GetLocationsCallback_nextLocations_Results_List) At(i int) Dataset_GetLocationsCallback_nextLocations_Results {
+	return Dataset_GetLocationsCallback_nextLocations_Results{s.List.Struct(i)}
+}
+
+func (s Dataset_GetLocationsCallback_nextLocations_Results_List) Set(i int, v Dataset_GetLocationsCallback_nextLocations_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Dataset_GetLocationsCallback_nextLocations_Results_List) String() string {
+	str, _ := text.MarshalList(0xfa8540d5d8065df1, s.List)
+	return str
 }
 
 // Dataset_GetLocationsCallback_nextLocations_Results_Future is a wrapper for a Dataset_GetLocationsCallback_nextLocations_Results promised by a client call.
 type Dataset_GetLocationsCallback_nextLocations_Results_Future struct{ *capnp.Future }
 
-func (f Dataset_GetLocationsCallback_nextLocations_Results_Future) Struct() (Dataset_GetLocationsCallback_nextLocations_Results, error) {
-	p, err := f.Future.Ptr()
-	return Dataset_GetLocationsCallback_nextLocations_Results(p.Struct()), err
+func (p Dataset_GetLocationsCallback_nextLocations_Results_Future) Struct() (Dataset_GetLocationsCallback_nextLocations_Results, error) {
+	s, err := p.Future.Struct()
+	return Dataset_GetLocationsCallback_nextLocations_Results{s}, err
 }
 
-type Dataset_metadata_Params capnp.Struct
+type Dataset_metadata_Params struct{ capnp.Struct }
 
 // Dataset_metadata_Params_TypeID is the unique identifier for the type Dataset_metadata_Params.
 const Dataset_metadata_Params_TypeID = 0xb4c346906ee84815
 
 func NewDataset_metadata_Params(s *capnp.Segment) (Dataset_metadata_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Dataset_metadata_Params(st), err
+	return Dataset_metadata_Params{st}, err
 }
 
 func NewRootDataset_metadata_Params(s *capnp.Segment) (Dataset_metadata_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Dataset_metadata_Params(st), err
+	return Dataset_metadata_Params{st}, err
 }
 
 func ReadRootDataset_metadata_Params(msg *capnp.Message) (Dataset_metadata_Params, error) {
 	root, err := msg.Root()
-	return Dataset_metadata_Params(root.Struct()), err
+	return Dataset_metadata_Params{root.Struct()}, err
 }
 
 func (s Dataset_metadata_Params) String() string {
-	str, _ := text.Marshal(0xb4c346906ee84815, capnp.Struct(s))
+	str, _ := text.Marshal(0xb4c346906ee84815, s.Struct)
 	return str
 }
 
-func (s Dataset_metadata_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Dataset_metadata_Params) DecodeFromPtr(p capnp.Ptr) Dataset_metadata_Params {
-	return Dataset_metadata_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Dataset_metadata_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Dataset_metadata_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Dataset_metadata_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Dataset_metadata_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // Dataset_metadata_Params_List is a list of Dataset_metadata_Params.
-type Dataset_metadata_Params_List = capnp.StructList[Dataset_metadata_Params]
+type Dataset_metadata_Params_List struct{ capnp.List }
 
 // NewDataset_metadata_Params creates a new list of Dataset_metadata_Params.
 func NewDataset_metadata_Params_List(s *capnp.Segment, sz int32) (Dataset_metadata_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[Dataset_metadata_Params](l), err
+	return Dataset_metadata_Params_List{l}, err
+}
+
+func (s Dataset_metadata_Params_List) At(i int) Dataset_metadata_Params {
+	return Dataset_metadata_Params{s.List.Struct(i)}
+}
+
+func (s Dataset_metadata_Params_List) Set(i int, v Dataset_metadata_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Dataset_metadata_Params_List) String() string {
+	str, _ := text.MarshalList(0xb4c346906ee84815, s.List)
+	return str
 }
 
 // Dataset_metadata_Params_Future is a wrapper for a Dataset_metadata_Params promised by a client call.
 type Dataset_metadata_Params_Future struct{ *capnp.Future }
 
-func (f Dataset_metadata_Params_Future) Struct() (Dataset_metadata_Params, error) {
-	p, err := f.Future.Ptr()
-	return Dataset_metadata_Params(p.Struct()), err
+func (p Dataset_metadata_Params_Future) Struct() (Dataset_metadata_Params, error) {
+	s, err := p.Future.Struct()
+	return Dataset_metadata_Params{s}, err
 }
 
-type Dataset_closestTimeSeriesAt_Params capnp.Struct
+type Dataset_closestTimeSeriesAt_Params struct{ capnp.Struct }
 
 // Dataset_closestTimeSeriesAt_Params_TypeID is the unique identifier for the type Dataset_closestTimeSeriesAt_Params.
 const Dataset_closestTimeSeriesAt_Params_TypeID = 0xb0496f3d284f4a13
 
 func NewDataset_closestTimeSeriesAt_Params(s *capnp.Segment) (Dataset_closestTimeSeriesAt_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Dataset_closestTimeSeriesAt_Params(st), err
+	return Dataset_closestTimeSeriesAt_Params{st}, err
 }
 
 func NewRootDataset_closestTimeSeriesAt_Params(s *capnp.Segment) (Dataset_closestTimeSeriesAt_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Dataset_closestTimeSeriesAt_Params(st), err
+	return Dataset_closestTimeSeriesAt_Params{st}, err
 }
 
 func ReadRootDataset_closestTimeSeriesAt_Params(msg *capnp.Message) (Dataset_closestTimeSeriesAt_Params, error) {
 	root, err := msg.Root()
-	return Dataset_closestTimeSeriesAt_Params(root.Struct()), err
+	return Dataset_closestTimeSeriesAt_Params{root.Struct()}, err
 }
 
 func (s Dataset_closestTimeSeriesAt_Params) String() string {
-	str, _ := text.Marshal(0xb0496f3d284f4a13, capnp.Struct(s))
+	str, _ := text.Marshal(0xb0496f3d284f4a13, s.Struct)
 	return str
 }
 
-func (s Dataset_closestTimeSeriesAt_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Dataset_closestTimeSeriesAt_Params) DecodeFromPtr(p capnp.Ptr) Dataset_closestTimeSeriesAt_Params {
-	return Dataset_closestTimeSeriesAt_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Dataset_closestTimeSeriesAt_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Dataset_closestTimeSeriesAt_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Dataset_closestTimeSeriesAt_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Dataset_closestTimeSeriesAt_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Dataset_closestTimeSeriesAt_Params) Latlon() (geo.LatLonCoord, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return geo.LatLonCoord(p.Struct()), err
+	p, err := s.Struct.Ptr(0)
+	return geo.LatLonCoord{Struct: p.Struct()}, err
 }
 
 func (s Dataset_closestTimeSeriesAt_Params) HasLatlon() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Dataset_closestTimeSeriesAt_Params) SetLatlon(v geo.LatLonCoord) error {
-	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewLatlon sets the latlon field to a newly
 // allocated geo.LatLonCoord struct, preferring placement in s's segment.
 func (s Dataset_closestTimeSeriesAt_Params) NewLatlon() (geo.LatLonCoord, error) {
-	ss, err := geo.NewLatLonCoord(capnp.Struct(s).Segment())
+	ss, err := geo.NewLatLonCoord(s.Struct.Segment())
 	if err != nil {
 		return geo.LatLonCoord{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
 	return ss, err
 }
 
 // Dataset_closestTimeSeriesAt_Params_List is a list of Dataset_closestTimeSeriesAt_Params.
-type Dataset_closestTimeSeriesAt_Params_List = capnp.StructList[Dataset_closestTimeSeriesAt_Params]
+type Dataset_closestTimeSeriesAt_Params_List struct{ capnp.List }
 
 // NewDataset_closestTimeSeriesAt_Params creates a new list of Dataset_closestTimeSeriesAt_Params.
 func NewDataset_closestTimeSeriesAt_Params_List(s *capnp.Segment, sz int32) (Dataset_closestTimeSeriesAt_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Dataset_closestTimeSeriesAt_Params](l), err
+	return Dataset_closestTimeSeriesAt_Params_List{l}, err
+}
+
+func (s Dataset_closestTimeSeriesAt_Params_List) At(i int) Dataset_closestTimeSeriesAt_Params {
+	return Dataset_closestTimeSeriesAt_Params{s.List.Struct(i)}
+}
+
+func (s Dataset_closestTimeSeriesAt_Params_List) Set(i int, v Dataset_closestTimeSeriesAt_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Dataset_closestTimeSeriesAt_Params_List) String() string {
+	str, _ := text.MarshalList(0xb0496f3d284f4a13, s.List)
+	return str
 }
 
 // Dataset_closestTimeSeriesAt_Params_Future is a wrapper for a Dataset_closestTimeSeriesAt_Params promised by a client call.
 type Dataset_closestTimeSeriesAt_Params_Future struct{ *capnp.Future }
 
-func (f Dataset_closestTimeSeriesAt_Params_Future) Struct() (Dataset_closestTimeSeriesAt_Params, error) {
-	p, err := f.Future.Ptr()
-	return Dataset_closestTimeSeriesAt_Params(p.Struct()), err
+func (p Dataset_closestTimeSeriesAt_Params_Future) Struct() (Dataset_closestTimeSeriesAt_Params, error) {
+	s, err := p.Future.Struct()
+	return Dataset_closestTimeSeriesAt_Params{s}, err
 }
+
 func (p Dataset_closestTimeSeriesAt_Params_Future) Latlon() geo.LatLonCoord_Future {
 	return geo.LatLonCoord_Future{Future: p.Future.Field(0, nil)}
 }
 
-type Dataset_closestTimeSeriesAt_Results capnp.Struct
+type Dataset_closestTimeSeriesAt_Results struct{ capnp.Struct }
 
 // Dataset_closestTimeSeriesAt_Results_TypeID is the unique identifier for the type Dataset_closestTimeSeriesAt_Results.
 const Dataset_closestTimeSeriesAt_Results_TypeID = 0xedee5faa03af6a1e
 
 func NewDataset_closestTimeSeriesAt_Results(s *capnp.Segment) (Dataset_closestTimeSeriesAt_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Dataset_closestTimeSeriesAt_Results(st), err
+	return Dataset_closestTimeSeriesAt_Results{st}, err
 }
 
 func NewRootDataset_closestTimeSeriesAt_Results(s *capnp.Segment) (Dataset_closestTimeSeriesAt_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Dataset_closestTimeSeriesAt_Results(st), err
+	return Dataset_closestTimeSeriesAt_Results{st}, err
 }
 
 func ReadRootDataset_closestTimeSeriesAt_Results(msg *capnp.Message) (Dataset_closestTimeSeriesAt_Results, error) {
 	root, err := msg.Root()
-	return Dataset_closestTimeSeriesAt_Results(root.Struct()), err
+	return Dataset_closestTimeSeriesAt_Results{root.Struct()}, err
 }
 
 func (s Dataset_closestTimeSeriesAt_Results) String() string {
-	str, _ := text.Marshal(0xedee5faa03af6a1e, capnp.Struct(s))
+	str, _ := text.Marshal(0xedee5faa03af6a1e, s.Struct)
 	return str
 }
 
-func (s Dataset_closestTimeSeriesAt_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Dataset_closestTimeSeriesAt_Results) DecodeFromPtr(p capnp.Ptr) Dataset_closestTimeSeriesAt_Results {
-	return Dataset_closestTimeSeriesAt_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Dataset_closestTimeSeriesAt_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Dataset_closestTimeSeriesAt_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Dataset_closestTimeSeriesAt_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Dataset_closestTimeSeriesAt_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Dataset_closestTimeSeriesAt_Results) TimeSeries() TimeSeries {
-	p, _ := capnp.Struct(s).Ptr(0)
-	return TimeSeries(p.Interface().Client())
+	p, _ := s.Struct.Ptr(0)
+	return TimeSeries{Client: p.Interface().Client()}
 }
 
 func (s Dataset_closestTimeSeriesAt_Results) HasTimeSeries() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Dataset_closestTimeSeriesAt_Results) SetTimeSeries(v TimeSeries) error {
-	if !v.IsValid() {
-		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
+	if !v.Client.IsValid() {
+		return s.Struct.SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
-	return capnp.Struct(s).SetPtr(0, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
+	return s.Struct.SetPtr(0, in.ToPtr())
 }
 
 // Dataset_closestTimeSeriesAt_Results_List is a list of Dataset_closestTimeSeriesAt_Results.
-type Dataset_closestTimeSeriesAt_Results_List = capnp.StructList[Dataset_closestTimeSeriesAt_Results]
+type Dataset_closestTimeSeriesAt_Results_List struct{ capnp.List }
 
 // NewDataset_closestTimeSeriesAt_Results creates a new list of Dataset_closestTimeSeriesAt_Results.
 func NewDataset_closestTimeSeriesAt_Results_List(s *capnp.Segment, sz int32) (Dataset_closestTimeSeriesAt_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Dataset_closestTimeSeriesAt_Results](l), err
+	return Dataset_closestTimeSeriesAt_Results_List{l}, err
+}
+
+func (s Dataset_closestTimeSeriesAt_Results_List) At(i int) Dataset_closestTimeSeriesAt_Results {
+	return Dataset_closestTimeSeriesAt_Results{s.List.Struct(i)}
+}
+
+func (s Dataset_closestTimeSeriesAt_Results_List) Set(i int, v Dataset_closestTimeSeriesAt_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Dataset_closestTimeSeriesAt_Results_List) String() string {
+	str, _ := text.MarshalList(0xedee5faa03af6a1e, s.List)
+	return str
 }
 
 // Dataset_closestTimeSeriesAt_Results_Future is a wrapper for a Dataset_closestTimeSeriesAt_Results promised by a client call.
 type Dataset_closestTimeSeriesAt_Results_Future struct{ *capnp.Future }
 
-func (f Dataset_closestTimeSeriesAt_Results_Future) Struct() (Dataset_closestTimeSeriesAt_Results, error) {
-	p, err := f.Future.Ptr()
-	return Dataset_closestTimeSeriesAt_Results(p.Struct()), err
-}
-func (p Dataset_closestTimeSeriesAt_Results_Future) TimeSeries() TimeSeries {
-	return TimeSeries(p.Future.Field(0, nil).Client())
+func (p Dataset_closestTimeSeriesAt_Results_Future) Struct() (Dataset_closestTimeSeriesAt_Results, error) {
+	s, err := p.Future.Struct()
+	return Dataset_closestTimeSeriesAt_Results{s}, err
 }
 
-type Dataset_timeSeriesAt_Params capnp.Struct
+func (p Dataset_closestTimeSeriesAt_Results_Future) TimeSeries() TimeSeries {
+	return TimeSeries{Client: p.Future.Field(0, nil).Client()}
+}
+
+type Dataset_timeSeriesAt_Params struct{ capnp.Struct }
 
 // Dataset_timeSeriesAt_Params_TypeID is the unique identifier for the type Dataset_timeSeriesAt_Params.
 const Dataset_timeSeriesAt_Params_TypeID = 0xd9f867b0a2a15d7f
 
 func NewDataset_timeSeriesAt_Params(s *capnp.Segment) (Dataset_timeSeriesAt_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Dataset_timeSeriesAt_Params(st), err
+	return Dataset_timeSeriesAt_Params{st}, err
 }
 
 func NewRootDataset_timeSeriesAt_Params(s *capnp.Segment) (Dataset_timeSeriesAt_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Dataset_timeSeriesAt_Params(st), err
+	return Dataset_timeSeriesAt_Params{st}, err
 }
 
 func ReadRootDataset_timeSeriesAt_Params(msg *capnp.Message) (Dataset_timeSeriesAt_Params, error) {
 	root, err := msg.Root()
-	return Dataset_timeSeriesAt_Params(root.Struct()), err
+	return Dataset_timeSeriesAt_Params{root.Struct()}, err
 }
 
 func (s Dataset_timeSeriesAt_Params) String() string {
-	str, _ := text.Marshal(0xd9f867b0a2a15d7f, capnp.Struct(s))
+	str, _ := text.Marshal(0xd9f867b0a2a15d7f, s.Struct)
 	return str
 }
 
-func (s Dataset_timeSeriesAt_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Dataset_timeSeriesAt_Params) DecodeFromPtr(p capnp.Ptr) Dataset_timeSeriesAt_Params {
-	return Dataset_timeSeriesAt_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Dataset_timeSeriesAt_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Dataset_timeSeriesAt_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Dataset_timeSeriesAt_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Dataset_timeSeriesAt_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Dataset_timeSeriesAt_Params) LocationId() (string, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.Text(), err
 }
 
 func (s Dataset_timeSeriesAt_Params) HasLocationId() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Dataset_timeSeriesAt_Params) LocationIdBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.TextBytes(), err
 }
 
 func (s Dataset_timeSeriesAt_Params) SetLocationId(v string) error {
-	return capnp.Struct(s).SetText(0, v)
+	return s.Struct.SetText(0, v)
 }
 
 // Dataset_timeSeriesAt_Params_List is a list of Dataset_timeSeriesAt_Params.
-type Dataset_timeSeriesAt_Params_List = capnp.StructList[Dataset_timeSeriesAt_Params]
+type Dataset_timeSeriesAt_Params_List struct{ capnp.List }
 
 // NewDataset_timeSeriesAt_Params creates a new list of Dataset_timeSeriesAt_Params.
 func NewDataset_timeSeriesAt_Params_List(s *capnp.Segment, sz int32) (Dataset_timeSeriesAt_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Dataset_timeSeriesAt_Params](l), err
+	return Dataset_timeSeriesAt_Params_List{l}, err
+}
+
+func (s Dataset_timeSeriesAt_Params_List) At(i int) Dataset_timeSeriesAt_Params {
+	return Dataset_timeSeriesAt_Params{s.List.Struct(i)}
+}
+
+func (s Dataset_timeSeriesAt_Params_List) Set(i int, v Dataset_timeSeriesAt_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Dataset_timeSeriesAt_Params_List) String() string {
+	str, _ := text.MarshalList(0xd9f867b0a2a15d7f, s.List)
+	return str
 }
 
 // Dataset_timeSeriesAt_Params_Future is a wrapper for a Dataset_timeSeriesAt_Params promised by a client call.
 type Dataset_timeSeriesAt_Params_Future struct{ *capnp.Future }
 
-func (f Dataset_timeSeriesAt_Params_Future) Struct() (Dataset_timeSeriesAt_Params, error) {
-	p, err := f.Future.Ptr()
-	return Dataset_timeSeriesAt_Params(p.Struct()), err
+func (p Dataset_timeSeriesAt_Params_Future) Struct() (Dataset_timeSeriesAt_Params, error) {
+	s, err := p.Future.Struct()
+	return Dataset_timeSeriesAt_Params{s}, err
 }
 
-type Dataset_timeSeriesAt_Results capnp.Struct
+type Dataset_timeSeriesAt_Results struct{ capnp.Struct }
 
 // Dataset_timeSeriesAt_Results_TypeID is the unique identifier for the type Dataset_timeSeriesAt_Results.
 const Dataset_timeSeriesAt_Results_TypeID = 0xe30c466e5bc2735c
 
 func NewDataset_timeSeriesAt_Results(s *capnp.Segment) (Dataset_timeSeriesAt_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Dataset_timeSeriesAt_Results(st), err
+	return Dataset_timeSeriesAt_Results{st}, err
 }
 
 func NewRootDataset_timeSeriesAt_Results(s *capnp.Segment) (Dataset_timeSeriesAt_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Dataset_timeSeriesAt_Results(st), err
+	return Dataset_timeSeriesAt_Results{st}, err
 }
 
 func ReadRootDataset_timeSeriesAt_Results(msg *capnp.Message) (Dataset_timeSeriesAt_Results, error) {
 	root, err := msg.Root()
-	return Dataset_timeSeriesAt_Results(root.Struct()), err
+	return Dataset_timeSeriesAt_Results{root.Struct()}, err
 }
 
 func (s Dataset_timeSeriesAt_Results) String() string {
-	str, _ := text.Marshal(0xe30c466e5bc2735c, capnp.Struct(s))
+	str, _ := text.Marshal(0xe30c466e5bc2735c, s.Struct)
 	return str
 }
 
-func (s Dataset_timeSeriesAt_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Dataset_timeSeriesAt_Results) DecodeFromPtr(p capnp.Ptr) Dataset_timeSeriesAt_Results {
-	return Dataset_timeSeriesAt_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Dataset_timeSeriesAt_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Dataset_timeSeriesAt_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Dataset_timeSeriesAt_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Dataset_timeSeriesAt_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Dataset_timeSeriesAt_Results) TimeSeries() TimeSeries {
-	p, _ := capnp.Struct(s).Ptr(0)
-	return TimeSeries(p.Interface().Client())
+	p, _ := s.Struct.Ptr(0)
+	return TimeSeries{Client: p.Interface().Client()}
 }
 
 func (s Dataset_timeSeriesAt_Results) HasTimeSeries() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Dataset_timeSeriesAt_Results) SetTimeSeries(v TimeSeries) error {
-	if !v.IsValid() {
-		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
+	if !v.Client.IsValid() {
+		return s.Struct.SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
-	return capnp.Struct(s).SetPtr(0, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
+	return s.Struct.SetPtr(0, in.ToPtr())
 }
 
 // Dataset_timeSeriesAt_Results_List is a list of Dataset_timeSeriesAt_Results.
-type Dataset_timeSeriesAt_Results_List = capnp.StructList[Dataset_timeSeriesAt_Results]
+type Dataset_timeSeriesAt_Results_List struct{ capnp.List }
 
 // NewDataset_timeSeriesAt_Results creates a new list of Dataset_timeSeriesAt_Results.
 func NewDataset_timeSeriesAt_Results_List(s *capnp.Segment, sz int32) (Dataset_timeSeriesAt_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Dataset_timeSeriesAt_Results](l), err
+	return Dataset_timeSeriesAt_Results_List{l}, err
+}
+
+func (s Dataset_timeSeriesAt_Results_List) At(i int) Dataset_timeSeriesAt_Results {
+	return Dataset_timeSeriesAt_Results{s.List.Struct(i)}
+}
+
+func (s Dataset_timeSeriesAt_Results_List) Set(i int, v Dataset_timeSeriesAt_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Dataset_timeSeriesAt_Results_List) String() string {
+	str, _ := text.MarshalList(0xe30c466e5bc2735c, s.List)
+	return str
 }
 
 // Dataset_timeSeriesAt_Results_Future is a wrapper for a Dataset_timeSeriesAt_Results promised by a client call.
 type Dataset_timeSeriesAt_Results_Future struct{ *capnp.Future }
 
-func (f Dataset_timeSeriesAt_Results_Future) Struct() (Dataset_timeSeriesAt_Results, error) {
-	p, err := f.Future.Ptr()
-	return Dataset_timeSeriesAt_Results(p.Struct()), err
-}
-func (p Dataset_timeSeriesAt_Results_Future) TimeSeries() TimeSeries {
-	return TimeSeries(p.Future.Field(0, nil).Client())
+func (p Dataset_timeSeriesAt_Results_Future) Struct() (Dataset_timeSeriesAt_Results, error) {
+	s, err := p.Future.Struct()
+	return Dataset_timeSeriesAt_Results{s}, err
 }
 
-type Dataset_locations_Params capnp.Struct
+func (p Dataset_timeSeriesAt_Results_Future) TimeSeries() TimeSeries {
+	return TimeSeries{Client: p.Future.Field(0, nil).Client()}
+}
+
+type Dataset_locations_Params struct{ capnp.Struct }
 
 // Dataset_locations_Params_TypeID is the unique identifier for the type Dataset_locations_Params.
 const Dataset_locations_Params_TypeID = 0xd2a02e856c28d4ba
 
 func NewDataset_locations_Params(s *capnp.Segment) (Dataset_locations_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Dataset_locations_Params(st), err
+	return Dataset_locations_Params{st}, err
 }
 
 func NewRootDataset_locations_Params(s *capnp.Segment) (Dataset_locations_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Dataset_locations_Params(st), err
+	return Dataset_locations_Params{st}, err
 }
 
 func ReadRootDataset_locations_Params(msg *capnp.Message) (Dataset_locations_Params, error) {
 	root, err := msg.Root()
-	return Dataset_locations_Params(root.Struct()), err
+	return Dataset_locations_Params{root.Struct()}, err
 }
 
 func (s Dataset_locations_Params) String() string {
-	str, _ := text.Marshal(0xd2a02e856c28d4ba, capnp.Struct(s))
+	str, _ := text.Marshal(0xd2a02e856c28d4ba, s.Struct)
 	return str
 }
 
-func (s Dataset_locations_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Dataset_locations_Params) DecodeFromPtr(p capnp.Ptr) Dataset_locations_Params {
-	return Dataset_locations_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Dataset_locations_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Dataset_locations_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Dataset_locations_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Dataset_locations_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // Dataset_locations_Params_List is a list of Dataset_locations_Params.
-type Dataset_locations_Params_List = capnp.StructList[Dataset_locations_Params]
+type Dataset_locations_Params_List struct{ capnp.List }
 
 // NewDataset_locations_Params creates a new list of Dataset_locations_Params.
 func NewDataset_locations_Params_List(s *capnp.Segment, sz int32) (Dataset_locations_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[Dataset_locations_Params](l), err
+	return Dataset_locations_Params_List{l}, err
+}
+
+func (s Dataset_locations_Params_List) At(i int) Dataset_locations_Params {
+	return Dataset_locations_Params{s.List.Struct(i)}
+}
+
+func (s Dataset_locations_Params_List) Set(i int, v Dataset_locations_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Dataset_locations_Params_List) String() string {
+	str, _ := text.MarshalList(0xd2a02e856c28d4ba, s.List)
+	return str
 }
 
 // Dataset_locations_Params_Future is a wrapper for a Dataset_locations_Params promised by a client call.
 type Dataset_locations_Params_Future struct{ *capnp.Future }
 
-func (f Dataset_locations_Params_Future) Struct() (Dataset_locations_Params, error) {
-	p, err := f.Future.Ptr()
-	return Dataset_locations_Params(p.Struct()), err
+func (p Dataset_locations_Params_Future) Struct() (Dataset_locations_Params, error) {
+	s, err := p.Future.Struct()
+	return Dataset_locations_Params{s}, err
 }
 
-type Dataset_locations_Results capnp.Struct
+type Dataset_locations_Results struct{ capnp.Struct }
 
 // Dataset_locations_Results_TypeID is the unique identifier for the type Dataset_locations_Results.
 const Dataset_locations_Results_TypeID = 0xaa8cfcdc401d5fdd
 
 func NewDataset_locations_Results(s *capnp.Segment) (Dataset_locations_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Dataset_locations_Results(st), err
+	return Dataset_locations_Results{st}, err
 }
 
 func NewRootDataset_locations_Results(s *capnp.Segment) (Dataset_locations_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Dataset_locations_Results(st), err
+	return Dataset_locations_Results{st}, err
 }
 
 func ReadRootDataset_locations_Results(msg *capnp.Message) (Dataset_locations_Results, error) {
 	root, err := msg.Root()
-	return Dataset_locations_Results(root.Struct()), err
+	return Dataset_locations_Results{root.Struct()}, err
 }
 
 func (s Dataset_locations_Results) String() string {
-	str, _ := text.Marshal(0xaa8cfcdc401d5fdd, capnp.Struct(s))
+	str, _ := text.Marshal(0xaa8cfcdc401d5fdd, s.Struct)
 	return str
 }
 
-func (s Dataset_locations_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Dataset_locations_Results) DecodeFromPtr(p capnp.Ptr) Dataset_locations_Results {
-	return Dataset_locations_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Dataset_locations_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Dataset_locations_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Dataset_locations_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Dataset_locations_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Dataset_locations_Results) Locations() (Location_List, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return Location_List(p.List()), err
+	p, err := s.Struct.Ptr(0)
+	return Location_List{List: p.List()}, err
 }
 
 func (s Dataset_locations_Results) HasLocations() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Dataset_locations_Results) SetLocations(v Location_List) error {
-	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+	return s.Struct.SetPtr(0, v.List.ToPtr())
 }
 
 // NewLocations sets the locations field to a newly
 // allocated Location_List, preferring placement in s's segment.
 func (s Dataset_locations_Results) NewLocations(n int32) (Location_List, error) {
-	l, err := NewLocation_List(capnp.Struct(s).Segment(), n)
+	l, err := NewLocation_List(s.Struct.Segment(), n)
 	if err != nil {
 		return Location_List{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	err = s.Struct.SetPtr(0, l.List.ToPtr())
 	return l, err
 }
 
 // Dataset_locations_Results_List is a list of Dataset_locations_Results.
-type Dataset_locations_Results_List = capnp.StructList[Dataset_locations_Results]
+type Dataset_locations_Results_List struct{ capnp.List }
 
 // NewDataset_locations_Results creates a new list of Dataset_locations_Results.
 func NewDataset_locations_Results_List(s *capnp.Segment, sz int32) (Dataset_locations_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Dataset_locations_Results](l), err
+	return Dataset_locations_Results_List{l}, err
+}
+
+func (s Dataset_locations_Results_List) At(i int) Dataset_locations_Results {
+	return Dataset_locations_Results{s.List.Struct(i)}
+}
+
+func (s Dataset_locations_Results_List) Set(i int, v Dataset_locations_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Dataset_locations_Results_List) String() string {
+	str, _ := text.MarshalList(0xaa8cfcdc401d5fdd, s.List)
+	return str
 }
 
 // Dataset_locations_Results_Future is a wrapper for a Dataset_locations_Results promised by a client call.
 type Dataset_locations_Results_Future struct{ *capnp.Future }
 
-func (f Dataset_locations_Results_Future) Struct() (Dataset_locations_Results, error) {
-	p, err := f.Future.Ptr()
-	return Dataset_locations_Results(p.Struct()), err
+func (p Dataset_locations_Results_Future) Struct() (Dataset_locations_Results, error) {
+	s, err := p.Future.Struct()
+	return Dataset_locations_Results{s}, err
 }
 
-type Dataset_streamLocations_Params capnp.Struct
+type Dataset_streamLocations_Params struct{ capnp.Struct }
 
 // Dataset_streamLocations_Params_TypeID is the unique identifier for the type Dataset_streamLocations_Params.
 const Dataset_streamLocations_Params_TypeID = 0xfca3f0f431b64506
 
 func NewDataset_streamLocations_Params(s *capnp.Segment) (Dataset_streamLocations_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Dataset_streamLocations_Params(st), err
+	return Dataset_streamLocations_Params{st}, err
 }
 
 func NewRootDataset_streamLocations_Params(s *capnp.Segment) (Dataset_streamLocations_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Dataset_streamLocations_Params(st), err
+	return Dataset_streamLocations_Params{st}, err
 }
 
 func ReadRootDataset_streamLocations_Params(msg *capnp.Message) (Dataset_streamLocations_Params, error) {
 	root, err := msg.Root()
-	return Dataset_streamLocations_Params(root.Struct()), err
+	return Dataset_streamLocations_Params{root.Struct()}, err
 }
 
 func (s Dataset_streamLocations_Params) String() string {
-	str, _ := text.Marshal(0xfca3f0f431b64506, capnp.Struct(s))
+	str, _ := text.Marshal(0xfca3f0f431b64506, s.Struct)
 	return str
 }
 
-func (s Dataset_streamLocations_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Dataset_streamLocations_Params) DecodeFromPtr(p capnp.Ptr) Dataset_streamLocations_Params {
-	return Dataset_streamLocations_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Dataset_streamLocations_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Dataset_streamLocations_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Dataset_streamLocations_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Dataset_streamLocations_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Dataset_streamLocations_Params) StartAfterLocationId() (string, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.Text(), err
 }
 
 func (s Dataset_streamLocations_Params) HasStartAfterLocationId() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Dataset_streamLocations_Params) StartAfterLocationIdBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.TextBytes(), err
 }
 
 func (s Dataset_streamLocations_Params) SetStartAfterLocationId(v string) error {
-	return capnp.Struct(s).SetText(0, v)
+	return s.Struct.SetText(0, v)
 }
 
 // Dataset_streamLocations_Params_List is a list of Dataset_streamLocations_Params.
-type Dataset_streamLocations_Params_List = capnp.StructList[Dataset_streamLocations_Params]
+type Dataset_streamLocations_Params_List struct{ capnp.List }
 
 // NewDataset_streamLocations_Params creates a new list of Dataset_streamLocations_Params.
 func NewDataset_streamLocations_Params_List(s *capnp.Segment, sz int32) (Dataset_streamLocations_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Dataset_streamLocations_Params](l), err
+	return Dataset_streamLocations_Params_List{l}, err
+}
+
+func (s Dataset_streamLocations_Params_List) At(i int) Dataset_streamLocations_Params {
+	return Dataset_streamLocations_Params{s.List.Struct(i)}
+}
+
+func (s Dataset_streamLocations_Params_List) Set(i int, v Dataset_streamLocations_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Dataset_streamLocations_Params_List) String() string {
+	str, _ := text.MarshalList(0xfca3f0f431b64506, s.List)
+	return str
 }
 
 // Dataset_streamLocations_Params_Future is a wrapper for a Dataset_streamLocations_Params promised by a client call.
 type Dataset_streamLocations_Params_Future struct{ *capnp.Future }
 
-func (f Dataset_streamLocations_Params_Future) Struct() (Dataset_streamLocations_Params, error) {
-	p, err := f.Future.Ptr()
-	return Dataset_streamLocations_Params(p.Struct()), err
+func (p Dataset_streamLocations_Params_Future) Struct() (Dataset_streamLocations_Params, error) {
+	s, err := p.Future.Struct()
+	return Dataset_streamLocations_Params{s}, err
 }
 
-type Dataset_streamLocations_Results capnp.Struct
+type Dataset_streamLocations_Results struct{ capnp.Struct }
 
 // Dataset_streamLocations_Results_TypeID is the unique identifier for the type Dataset_streamLocations_Results.
 const Dataset_streamLocations_Results_TypeID = 0x9ebadb578b79fa06
 
 func NewDataset_streamLocations_Results(s *capnp.Segment) (Dataset_streamLocations_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Dataset_streamLocations_Results(st), err
+	return Dataset_streamLocations_Results{st}, err
 }
 
 func NewRootDataset_streamLocations_Results(s *capnp.Segment) (Dataset_streamLocations_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Dataset_streamLocations_Results(st), err
+	return Dataset_streamLocations_Results{st}, err
 }
 
 func ReadRootDataset_streamLocations_Results(msg *capnp.Message) (Dataset_streamLocations_Results, error) {
 	root, err := msg.Root()
-	return Dataset_streamLocations_Results(root.Struct()), err
+	return Dataset_streamLocations_Results{root.Struct()}, err
 }
 
 func (s Dataset_streamLocations_Results) String() string {
-	str, _ := text.Marshal(0x9ebadb578b79fa06, capnp.Struct(s))
+	str, _ := text.Marshal(0x9ebadb578b79fa06, s.Struct)
 	return str
 }
 
-func (s Dataset_streamLocations_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Dataset_streamLocations_Results) DecodeFromPtr(p capnp.Ptr) Dataset_streamLocations_Results {
-	return Dataset_streamLocations_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Dataset_streamLocations_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Dataset_streamLocations_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Dataset_streamLocations_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Dataset_streamLocations_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Dataset_streamLocations_Results) LocationsCallback() Dataset_GetLocationsCallback {
-	p, _ := capnp.Struct(s).Ptr(0)
-	return Dataset_GetLocationsCallback(p.Interface().Client())
+	p, _ := s.Struct.Ptr(0)
+	return Dataset_GetLocationsCallback{Client: p.Interface().Client()}
 }
 
 func (s Dataset_streamLocations_Results) HasLocationsCallback() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Dataset_streamLocations_Results) SetLocationsCallback(v Dataset_GetLocationsCallback) error {
-	if !v.IsValid() {
-		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
+	if !v.Client.IsValid() {
+		return s.Struct.SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
-	return capnp.Struct(s).SetPtr(0, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
+	return s.Struct.SetPtr(0, in.ToPtr())
 }
 
 // Dataset_streamLocations_Results_List is a list of Dataset_streamLocations_Results.
-type Dataset_streamLocations_Results_List = capnp.StructList[Dataset_streamLocations_Results]
+type Dataset_streamLocations_Results_List struct{ capnp.List }
 
 // NewDataset_streamLocations_Results creates a new list of Dataset_streamLocations_Results.
 func NewDataset_streamLocations_Results_List(s *capnp.Segment, sz int32) (Dataset_streamLocations_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Dataset_streamLocations_Results](l), err
+	return Dataset_streamLocations_Results_List{l}, err
+}
+
+func (s Dataset_streamLocations_Results_List) At(i int) Dataset_streamLocations_Results {
+	return Dataset_streamLocations_Results{s.List.Struct(i)}
+}
+
+func (s Dataset_streamLocations_Results_List) Set(i int, v Dataset_streamLocations_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Dataset_streamLocations_Results_List) String() string {
+	str, _ := text.MarshalList(0x9ebadb578b79fa06, s.List)
+	return str
 }
 
 // Dataset_streamLocations_Results_Future is a wrapper for a Dataset_streamLocations_Results promised by a client call.
 type Dataset_streamLocations_Results_Future struct{ *capnp.Future }
 
-func (f Dataset_streamLocations_Results_Future) Struct() (Dataset_streamLocations_Results, error) {
-	p, err := f.Future.Ptr()
-	return Dataset_streamLocations_Results(p.Struct()), err
-}
-func (p Dataset_streamLocations_Results_Future) LocationsCallback() Dataset_GetLocationsCallback {
-	return Dataset_GetLocationsCallback(p.Future.Field(0, nil).Client())
+func (p Dataset_streamLocations_Results_Future) Struct() (Dataset_streamLocations_Results, error) {
+	s, err := p.Future.Struct()
+	return Dataset_streamLocations_Results{s}, err
 }
 
-type MetaPlusData capnp.Struct
+func (p Dataset_streamLocations_Results_Future) LocationsCallback() Dataset_GetLocationsCallback {
+	return Dataset_GetLocationsCallback{Client: p.Future.Field(0, nil).Client()}
+}
+
+type MetaPlusData struct{ capnp.Struct }
 
 // MetaPlusData_TypeID is the unique identifier for the type MetaPlusData.
 const MetaPlusData_TypeID = 0xd7a67fec5f22e5a0
 
 func NewMetaPlusData(s *capnp.Segment) (MetaPlusData, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return MetaPlusData(st), err
+	return MetaPlusData{st}, err
 }
 
 func NewRootMetaPlusData(s *capnp.Segment) (MetaPlusData, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return MetaPlusData(st), err
+	return MetaPlusData{st}, err
 }
 
 func ReadRootMetaPlusData(msg *capnp.Message) (MetaPlusData, error) {
 	root, err := msg.Root()
-	return MetaPlusData(root.Struct()), err
+	return MetaPlusData{root.Struct()}, err
 }
 
 func (s MetaPlusData) String() string {
-	str, _ := text.Marshal(0xd7a67fec5f22e5a0, capnp.Struct(s))
+	str, _ := text.Marshal(0xd7a67fec5f22e5a0, s.Struct)
 	return str
 }
 
-func (s MetaPlusData) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (MetaPlusData) DecodeFromPtr(p capnp.Ptr) MetaPlusData {
-	return MetaPlusData(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s MetaPlusData) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s MetaPlusData) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s MetaPlusData) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s MetaPlusData) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s MetaPlusData) Meta() (Metadata, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return Metadata(p.Struct()), err
+	p, err := s.Struct.Ptr(0)
+	return Metadata{Struct: p.Struct()}, err
 }
 
 func (s MetaPlusData) HasMeta() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s MetaPlusData) SetMeta(v Metadata) error {
-	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewMeta sets the meta field to a newly
 // allocated Metadata struct, preferring placement in s's segment.
 func (s MetaPlusData) NewMeta() (Metadata, error) {
-	ss, err := NewMetadata(capnp.Struct(s).Segment())
+	ss, err := NewMetadata(s.Struct.Segment())
 	if err != nil {
 		return Metadata{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
 	return ss, err
 }
 
 func (s MetaPlusData) Data() Dataset {
-	p, _ := capnp.Struct(s).Ptr(1)
-	return Dataset(p.Interface().Client())
+	p, _ := s.Struct.Ptr(1)
+	return Dataset{Client: p.Interface().Client()}
 }
 
 func (s MetaPlusData) HasData() bool {
-	return capnp.Struct(s).HasPtr(1)
+	return s.Struct.HasPtr(1)
 }
 
 func (s MetaPlusData) SetData(v Dataset) error {
-	if !v.IsValid() {
-		return capnp.Struct(s).SetPtr(1, capnp.Ptr{})
+	if !v.Client.IsValid() {
+		return s.Struct.SetPtr(1, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
-	return capnp.Struct(s).SetPtr(1, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
+	return s.Struct.SetPtr(1, in.ToPtr())
 }
 
 // MetaPlusData_List is a list of MetaPlusData.
-type MetaPlusData_List = capnp.StructList[MetaPlusData]
+type MetaPlusData_List struct{ capnp.List }
 
 // NewMetaPlusData creates a new list of MetaPlusData.
 func NewMetaPlusData_List(s *capnp.Segment, sz int32) (MetaPlusData_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
-	return capnp.StructList[MetaPlusData](l), err
+	return MetaPlusData_List{l}, err
+}
+
+func (s MetaPlusData_List) At(i int) MetaPlusData { return MetaPlusData{s.List.Struct(i)} }
+
+func (s MetaPlusData_List) Set(i int, v MetaPlusData) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s MetaPlusData_List) String() string {
+	str, _ := text.MarshalList(0xd7a67fec5f22e5a0, s.List)
+	return str
 }
 
 // MetaPlusData_Future is a wrapper for a MetaPlusData promised by a client call.
 type MetaPlusData_Future struct{ *capnp.Future }
 
-func (f MetaPlusData_Future) Struct() (MetaPlusData, error) {
-	p, err := f.Future.Ptr()
-	return MetaPlusData(p.Struct()), err
+func (p MetaPlusData_Future) Struct() (MetaPlusData, error) {
+	s, err := p.Future.Struct()
+	return MetaPlusData{s}, err
 }
+
 func (p MetaPlusData_Future) Meta() Metadata_Future {
 	return Metadata_Future{Future: p.Future.Field(0, nil)}
 }
+
 func (p MetaPlusData_Future) Data() Dataset {
-	return Dataset(p.Future.Field(1, nil).Client())
+	return Dataset{Client: p.Future.Field(1, nil).Client()}
 }
 
 type Element uint16
@@ -3747,287 +3248,275 @@ func ElementFromString(c string) Element {
 	}
 }
 
-type Element_List = capnp.EnumList[Element]
+type Element_List struct{ capnp.List }
 
 func NewElement_List(s *capnp.Segment, sz int32) (Element_List, error) {
-	return capnp.NewEnumList[Element](s, sz)
+	l, err := capnp.NewUInt16List(s, sz)
+	return Element_List{l.List}, err
 }
 
-type Location capnp.Struct
+func (l Element_List) At(i int) Element {
+	ul := capnp.UInt16List{List: l.List}
+	return Element(ul.At(i))
+}
+
+func (l Element_List) Set(i int, v Element) {
+	ul := capnp.UInt16List{List: l.List}
+	ul.Set(i, uint16(v))
+}
+
+type Location struct{ capnp.Struct }
 
 // Location_TypeID is the unique identifier for the type Location.
 const Location_TypeID = 0x85ba7385f313fe19
 
 func NewLocation(s *capnp.Segment) (Location, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 4})
-	return Location(st), err
+	return Location{st}, err
 }
 
 func NewRootLocation(s *capnp.Segment) (Location, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 4})
-	return Location(st), err
+	return Location{st}, err
 }
 
 func ReadRootLocation(msg *capnp.Message) (Location, error) {
 	root, err := msg.Root()
-	return Location(root.Struct()), err
+	return Location{root.Struct()}, err
 }
 
 func (s Location) String() string {
-	str, _ := text.Marshal(0x85ba7385f313fe19, capnp.Struct(s))
+	str, _ := text.Marshal(0x85ba7385f313fe19, s.Struct)
 	return str
 }
 
-func (s Location) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Location) DecodeFromPtr(p capnp.Ptr) Location {
-	return Location(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Location) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Location) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Location) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Location) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Location) Id() (common.IdInformation, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return common.IdInformation(p.Struct()), err
+	p, err := s.Struct.Ptr(0)
+	return common.IdInformation{Struct: p.Struct()}, err
 }
 
 func (s Location) HasId() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Location) SetId(v common.IdInformation) error {
-	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewId sets the id field to a newly
 // allocated common.IdInformation struct, preferring placement in s's segment.
 func (s Location) NewId() (common.IdInformation, error) {
-	ss, err := common.NewIdInformation(capnp.Struct(s).Segment())
+	ss, err := common.NewIdInformation(s.Struct.Segment())
 	if err != nil {
 		return common.IdInformation{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
 	return ss, err
 }
 
 func (s Location) HeightNN() float32 {
-	return math.Float32frombits(capnp.Struct(s).Uint32(0))
+	return math.Float32frombits(s.Struct.Uint32(0))
 }
 
 func (s Location) SetHeightNN(v float32) {
-	capnp.Struct(s).SetUint32(0, math.Float32bits(v))
+	s.Struct.SetUint32(0, math.Float32bits(v))
 }
 
 func (s Location) Latlon() (geo.LatLonCoord, error) {
-	p, err := capnp.Struct(s).Ptr(1)
-	return geo.LatLonCoord(p.Struct()), err
+	p, err := s.Struct.Ptr(1)
+	return geo.LatLonCoord{Struct: p.Struct()}, err
 }
 
 func (s Location) HasLatlon() bool {
-	return capnp.Struct(s).HasPtr(1)
+	return s.Struct.HasPtr(1)
 }
 
 func (s Location) SetLatlon(v geo.LatLonCoord) error {
-	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
+	return s.Struct.SetPtr(1, v.Struct.ToPtr())
 }
 
 // NewLatlon sets the latlon field to a newly
 // allocated geo.LatLonCoord struct, preferring placement in s's segment.
 func (s Location) NewLatlon() (geo.LatLonCoord, error) {
-	ss, err := geo.NewLatLonCoord(capnp.Struct(s).Segment())
+	ss, err := geo.NewLatLonCoord(s.Struct.Segment())
 	if err != nil {
 		return geo.LatLonCoord{}, err
 	}
-	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(1, ss.Struct.ToPtr())
 	return ss, err
 }
 
 func (s Location) TimeSeries() TimeSeries {
-	p, _ := capnp.Struct(s).Ptr(2)
-	return TimeSeries(p.Interface().Client())
+	p, _ := s.Struct.Ptr(2)
+	return TimeSeries{Client: p.Interface().Client()}
 }
 
 func (s Location) HasTimeSeries() bool {
-	return capnp.Struct(s).HasPtr(2)
+	return s.Struct.HasPtr(2)
 }
 
 func (s Location) SetTimeSeries(v TimeSeries) error {
-	if !v.IsValid() {
-		return capnp.Struct(s).SetPtr(2, capnp.Ptr{})
+	if !v.Client.IsValid() {
+		return s.Struct.SetPtr(2, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
-	return capnp.Struct(s).SetPtr(2, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
+	return s.Struct.SetPtr(2, in.ToPtr())
 }
 
 func (s Location) CustomData() (Location_KV_List, error) {
-	p, err := capnp.Struct(s).Ptr(3)
-	return Location_KV_List(p.List()), err
+	p, err := s.Struct.Ptr(3)
+	return Location_KV_List{List: p.List()}, err
 }
 
 func (s Location) HasCustomData() bool {
-	return capnp.Struct(s).HasPtr(3)
+	return s.Struct.HasPtr(3)
 }
 
 func (s Location) SetCustomData(v Location_KV_List) error {
-	return capnp.Struct(s).SetPtr(3, v.ToPtr())
+	return s.Struct.SetPtr(3, v.List.ToPtr())
 }
 
 // NewCustomData sets the customData field to a newly
 // allocated Location_KV_List, preferring placement in s's segment.
 func (s Location) NewCustomData(n int32) (Location_KV_List, error) {
-	l, err := NewLocation_KV_List(capnp.Struct(s).Segment(), n)
+	l, err := NewLocation_KV_List(s.Struct.Segment(), n)
 	if err != nil {
 		return Location_KV_List{}, err
 	}
-	err = capnp.Struct(s).SetPtr(3, l.ToPtr())
+	err = s.Struct.SetPtr(3, l.List.ToPtr())
 	return l, err
 }
 
 // Location_List is a list of Location.
-type Location_List = capnp.StructList[Location]
+type Location_List struct{ capnp.List }
 
 // NewLocation creates a new list of Location.
 func NewLocation_List(s *capnp.Segment, sz int32) (Location_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 4}, sz)
-	return capnp.StructList[Location](l), err
+	return Location_List{l}, err
+}
+
+func (s Location_List) At(i int) Location { return Location{s.List.Struct(i)} }
+
+func (s Location_List) Set(i int, v Location) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s Location_List) String() string {
+	str, _ := text.MarshalList(0x85ba7385f313fe19, s.List)
+	return str
 }
 
 // Location_Future is a wrapper for a Location promised by a client call.
 type Location_Future struct{ *capnp.Future }
 
-func (f Location_Future) Struct() (Location, error) {
-	p, err := f.Future.Ptr()
-	return Location(p.Struct()), err
+func (p Location_Future) Struct() (Location, error) {
+	s, err := p.Future.Struct()
+	return Location{s}, err
 }
+
 func (p Location_Future) Id() common.IdInformation_Future {
 	return common.IdInformation_Future{Future: p.Future.Field(0, nil)}
 }
+
 func (p Location_Future) Latlon() geo.LatLonCoord_Future {
 	return geo.LatLonCoord_Future{Future: p.Future.Field(1, nil)}
 }
+
 func (p Location_Future) TimeSeries() TimeSeries {
-	return TimeSeries(p.Future.Field(2, nil).Client())
+	return TimeSeries{Client: p.Future.Field(2, nil).Client()}
 }
 
-type Location_KV capnp.Struct
+type Location_KV struct{ capnp.Struct }
 
 // Location_KV_TypeID is the unique identifier for the type Location_KV.
 const Location_KV_TypeID = 0xc5fd13a53ae6d46a
 
 func NewLocation_KV(s *capnp.Segment) (Location_KV, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Location_KV(st), err
+	return Location_KV{st}, err
 }
 
 func NewRootLocation_KV(s *capnp.Segment) (Location_KV, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Location_KV(st), err
+	return Location_KV{st}, err
 }
 
 func ReadRootLocation_KV(msg *capnp.Message) (Location_KV, error) {
 	root, err := msg.Root()
-	return Location_KV(root.Struct()), err
+	return Location_KV{root.Struct()}, err
 }
 
 func (s Location_KV) String() string {
-	str, _ := text.Marshal(0xc5fd13a53ae6d46a, capnp.Struct(s))
+	str, _ := text.Marshal(0xc5fd13a53ae6d46a, s.Struct)
 	return str
 }
 
-func (s Location_KV) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Location_KV) DecodeFromPtr(p capnp.Ptr) Location_KV {
-	return Location_KV(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Location_KV) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Location_KV) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Location_KV) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Location_KV) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Location_KV) Key() (string, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.Text(), err
 }
 
 func (s Location_KV) HasKey() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Location_KV) KeyBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.TextBytes(), err
 }
 
 func (s Location_KV) SetKey(v string) error {
-	return capnp.Struct(s).SetText(0, v)
+	return s.Struct.SetText(0, v)
 }
 
 func (s Location_KV) Value() (capnp.Ptr, error) {
-	return capnp.Struct(s).Ptr(1)
+	return s.Struct.Ptr(1)
 }
 
 func (s Location_KV) HasValue() bool {
-	return capnp.Struct(s).HasPtr(1)
+	return s.Struct.HasPtr(1)
 }
 
 func (s Location_KV) SetValue(v capnp.Ptr) error {
-	return capnp.Struct(s).SetPtr(1, v)
+	return s.Struct.SetPtr(1, v)
 }
 
 // Location_KV_List is a list of Location_KV.
-type Location_KV_List = capnp.StructList[Location_KV]
+type Location_KV_List struct{ capnp.List }
 
 // NewLocation_KV creates a new list of Location_KV.
 func NewLocation_KV_List(s *capnp.Segment, sz int32) (Location_KV_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
-	return capnp.StructList[Location_KV](l), err
+	return Location_KV_List{l}, err
+}
+
+func (s Location_KV_List) At(i int) Location_KV { return Location_KV{s.List.Struct(i)} }
+
+func (s Location_KV_List) Set(i int, v Location_KV) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s Location_KV_List) String() string {
+	str, _ := text.MarshalList(0xc5fd13a53ae6d46a, s.List)
+	return str
 }
 
 // Location_KV_Future is a wrapper for a Location_KV promised by a client call.
 type Location_KV_Future struct{ *capnp.Future }
 
-func (f Location_KV_Future) Struct() (Location_KV, error) {
-	p, err := f.Future.Ptr()
-	return Location_KV(p.Struct()), err
+func (p Location_KV_Future) Struct() (Location_KV, error) {
+	s, err := p.Future.Struct()
+	return Location_KV{s}, err
 }
+
 func (p Location_KV_Future) Value() *capnp.Future {
 	return p.Future.Field(1, nil)
 }
 
-type TimeSeries capnp.Client
+type TimeSeries struct{ Client *capnp.Client }
 
 // TimeSeries_TypeID is the unique identifier for the type TimeSeries.
 const TimeSeries_TypeID = 0xa7769f40fe6e6de8
 
 func (c TimeSeries) Resolution(ctx context.Context, params func(TimeSeries_resolution_Params) error) (TimeSeries_resolution_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa7769f40fe6e6de8,
@@ -4038,16 +3527,12 @@ func (c TimeSeries) Resolution(ctx context.Context, params func(TimeSeries_resol
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_resolution_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_resolution_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return TimeSeries_resolution_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c TimeSeries) Range(ctx context.Context, params func(TimeSeries_range_Params) error) (TimeSeries_range_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa7769f40fe6e6de8,
@@ -4058,16 +3543,12 @@ func (c TimeSeries) Range(ctx context.Context, params func(TimeSeries_range_Para
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_range_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_range_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return TimeSeries_range_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c TimeSeries) Header(ctx context.Context, params func(TimeSeries_header_Params) error) (TimeSeries_header_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa7769f40fe6e6de8,
@@ -4078,16 +3559,12 @@ func (c TimeSeries) Header(ctx context.Context, params func(TimeSeries_header_Pa
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_header_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_header_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return TimeSeries_header_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c TimeSeries) Data(ctx context.Context, params func(TimeSeries_data_Params) error) (TimeSeries_data_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa7769f40fe6e6de8,
@@ -4098,16 +3575,12 @@ func (c TimeSeries) Data(ctx context.Context, params func(TimeSeries_data_Params
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_data_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_data_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return TimeSeries_data_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c TimeSeries) DataT(ctx context.Context, params func(TimeSeries_dataT_Params) error) (TimeSeries_dataT_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa7769f40fe6e6de8,
@@ -4118,16 +3591,12 @@ func (c TimeSeries) DataT(ctx context.Context, params func(TimeSeries_dataT_Para
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_dataT_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_dataT_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return TimeSeries_dataT_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c TimeSeries) Subrange(ctx context.Context, params func(TimeSeries_subrange_Params) error) (TimeSeries_subrange_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa7769f40fe6e6de8,
@@ -4138,16 +3607,12 @@ func (c TimeSeries) Subrange(ctx context.Context, params func(TimeSeries_subrang
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 2}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_subrange_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_subrange_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return TimeSeries_subrange_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c TimeSeries) Subheader(ctx context.Context, params func(TimeSeries_subheader_Params) error) (TimeSeries_subheader_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa7769f40fe6e6de8,
@@ -4158,16 +3623,12 @@ func (c TimeSeries) Subheader(ctx context.Context, params func(TimeSeries_subhea
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_subheader_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_subheader_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return TimeSeries_subheader_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c TimeSeries) Metadata(ctx context.Context, params func(TimeSeries_metadata_Params) error) (Metadata_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa7769f40fe6e6de8,
@@ -4178,16 +3639,12 @@ func (c TimeSeries) Metadata(ctx context.Context, params func(TimeSeries_metadat
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_metadata_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_metadata_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Metadata_Future{Future: ans.Future()}, release
-
 }
-
 func (c TimeSeries) Location(ctx context.Context, params func(TimeSeries_location_Params) error) (Location_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa7769f40fe6e6de8,
@@ -4198,16 +3655,12 @@ func (c TimeSeries) Location(ctx context.Context, params func(TimeSeries_locatio
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_location_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_location_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Location_Future{Future: ans.Future()}, release
-
 }
-
 func (c TimeSeries) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -4218,16 +3671,12 @@ func (c TimeSeries) Info(ctx context.Context, params func(common.Identifiable_in
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
-
 }
-
 func (c TimeSeries) Save(ctx context.Context, params func(persistence.Persistent_SaveParams) error) (persistence.Persistent_SaveResults_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xc1a7daa0dc36cb65,
@@ -4238,83 +3687,20 @@ func (c TimeSeries) Save(ctx context.Context, params func(persistence.Persistent
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return persistence.Persistent_SaveResults_Future{Future: ans.Future()}, release
-
 }
 
-func (c TimeSeries) WaitStreaming() error {
-	return capnp.Client(c).WaitStreaming()
-}
-
-// String returns a string that identifies this capability for debugging
-// purposes.  Its format should not be depended on: in particular, it
-// should not be used to compare clients.  Use IsSame to compare clients
-// for equality.
-func (c TimeSeries) String() string {
-	return "TimeSeries(" + capnp.Client(c).String() + ")"
-}
-
-// AddRef creates a new Client that refers to the same capability as c.
-// If c is nil or has resolved to null, then AddRef returns nil.
 func (c TimeSeries) AddRef() TimeSeries {
-	return TimeSeries(capnp.Client(c).AddRef())
+	return TimeSeries{
+		Client: c.Client.AddRef(),
+	}
 }
 
-// Release releases a capability reference.  If this is the last
-// reference to the capability, then the underlying resources associated
-// with the capability will be released.
-//
-// Release will panic if c has already been released, but not if c is
-// nil or resolved to null.
 func (c TimeSeries) Release() {
-	capnp.Client(c).Release()
-}
-
-// Resolve blocks until the capability is fully resolved or the Context
-// expires.
-func (c TimeSeries) Resolve(ctx context.Context) error {
-	return capnp.Client(c).Resolve(ctx)
-}
-
-func (c TimeSeries) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Client(c).EncodeAsPtr(seg)
-}
-
-func (TimeSeries) DecodeFromPtr(p capnp.Ptr) TimeSeries {
-	return TimeSeries(capnp.Client{}.DecodeFromPtr(p))
-}
-
-// IsValid reports whether c is a valid reference to a capability.
-// A reference is invalid if it is nil, has resolved to null, or has
-// been released.
-func (c TimeSeries) IsValid() bool {
-	return capnp.Client(c).IsValid()
-}
-
-// IsSame reports whether c and other refer to a capability created by the
-// same call to NewClient.  This can return false negatives if c or other
-// are not fully resolved: use Resolve if this is an issue.  If either
-// c or other are released, then IsSame panics.
-func (c TimeSeries) IsSame(other TimeSeries) bool {
-	return capnp.Client(c).IsSame(capnp.Client(other))
-}
-
-// Update the flowcontrol.FlowLimiter used to manage flow control for
-// this client. This affects all future calls, but not calls already
-// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
-// which is also the default.
-func (c TimeSeries) SetFlowLimiter(lim fc.FlowLimiter) {
-	capnp.Client(c).SetFlowLimiter(lim)
-}
-
-// Get the current flowcontrol.FlowLimiter used to manage flow control
-// for this client.
-func (c TimeSeries) GetFlowLimiter() fc.FlowLimiter {
-	return capnp.Client(c).GetFlowLimiter()
+	c.Client.Release()
 }
 
 // A TimeSeries_Server is a TimeSeries with a local implementation.
@@ -4343,15 +3729,15 @@ type TimeSeries_Server interface {
 }
 
 // TimeSeries_NewServer creates a new Server from an implementation of TimeSeries_Server.
-func TimeSeries_NewServer(s TimeSeries_Server) *server.Server {
+func TimeSeries_NewServer(s TimeSeries_Server, policy *server.Policy) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(TimeSeries_Methods(nil, s), s, c)
+	return server.New(TimeSeries_Methods(nil, s), s, c, policy)
 }
 
 // TimeSeries_ServerToClient creates a new Client from an implementation of TimeSeries_Server.
 // The caller is responsible for calling Release on the returned Client.
-func TimeSeries_ServerToClient(s TimeSeries_Server) TimeSeries {
-	return TimeSeries(capnp.NewClient(TimeSeries_NewServer(s)))
+func TimeSeries_ServerToClient(s TimeSeries_Server, policy *server.Policy) TimeSeries {
+	return TimeSeries{Client: capnp.NewClient(TimeSeries_NewServer(s, policy))}
 }
 
 // TimeSeries_Methods appends Methods to a slice that invoke the methods on s.
@@ -4504,13 +3890,13 @@ type TimeSeries_resolution struct {
 
 // Args returns the call's arguments.
 func (c TimeSeries_resolution) Args() TimeSeries_resolution_Params {
-	return TimeSeries_resolution_Params(c.Call.Args())
+	return TimeSeries_resolution_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c TimeSeries_resolution) AllocResults() (TimeSeries_resolution_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return TimeSeries_resolution_Results(r), err
+	return TimeSeries_resolution_Results{Struct: r}, err
 }
 
 // TimeSeries_range holds the state for a server call to TimeSeries.range.
@@ -4521,13 +3907,13 @@ type TimeSeries_range struct {
 
 // Args returns the call's arguments.
 func (c TimeSeries_range) Args() TimeSeries_range_Params {
-	return TimeSeries_range_Params(c.Call.Args())
+	return TimeSeries_range_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c TimeSeries_range) AllocResults() (TimeSeries_range_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return TimeSeries_range_Results(r), err
+	return TimeSeries_range_Results{Struct: r}, err
 }
 
 // TimeSeries_header holds the state for a server call to TimeSeries.header.
@@ -4538,13 +3924,13 @@ type TimeSeries_header struct {
 
 // Args returns the call's arguments.
 func (c TimeSeries_header) Args() TimeSeries_header_Params {
-	return TimeSeries_header_Params(c.Call.Args())
+	return TimeSeries_header_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c TimeSeries_header) AllocResults() (TimeSeries_header_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return TimeSeries_header_Results(r), err
+	return TimeSeries_header_Results{Struct: r}, err
 }
 
 // TimeSeries_data holds the state for a server call to TimeSeries.data.
@@ -4555,13 +3941,13 @@ type TimeSeries_data struct {
 
 // Args returns the call's arguments.
 func (c TimeSeries_data) Args() TimeSeries_data_Params {
-	return TimeSeries_data_Params(c.Call.Args())
+	return TimeSeries_data_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c TimeSeries_data) AllocResults() (TimeSeries_data_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return TimeSeries_data_Results(r), err
+	return TimeSeries_data_Results{Struct: r}, err
 }
 
 // TimeSeries_dataT holds the state for a server call to TimeSeries.dataT.
@@ -4572,13 +3958,13 @@ type TimeSeries_dataT struct {
 
 // Args returns the call's arguments.
 func (c TimeSeries_dataT) Args() TimeSeries_dataT_Params {
-	return TimeSeries_dataT_Params(c.Call.Args())
+	return TimeSeries_dataT_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c TimeSeries_dataT) AllocResults() (TimeSeries_dataT_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return TimeSeries_dataT_Results(r), err
+	return TimeSeries_dataT_Results{Struct: r}, err
 }
 
 // TimeSeries_subrange holds the state for a server call to TimeSeries.subrange.
@@ -4589,13 +3975,13 @@ type TimeSeries_subrange struct {
 
 // Args returns the call's arguments.
 func (c TimeSeries_subrange) Args() TimeSeries_subrange_Params {
-	return TimeSeries_subrange_Params(c.Call.Args())
+	return TimeSeries_subrange_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c TimeSeries_subrange) AllocResults() (TimeSeries_subrange_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return TimeSeries_subrange_Results(r), err
+	return TimeSeries_subrange_Results{Struct: r}, err
 }
 
 // TimeSeries_subheader holds the state for a server call to TimeSeries.subheader.
@@ -4606,13 +3992,13 @@ type TimeSeries_subheader struct {
 
 // Args returns the call's arguments.
 func (c TimeSeries_subheader) Args() TimeSeries_subheader_Params {
-	return TimeSeries_subheader_Params(c.Call.Args())
+	return TimeSeries_subheader_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c TimeSeries_subheader) AllocResults() (TimeSeries_subheader_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return TimeSeries_subheader_Results(r), err
+	return TimeSeries_subheader_Results{Struct: r}, err
 }
 
 // TimeSeries_metadata holds the state for a server call to TimeSeries.metadata.
@@ -4623,13 +4009,13 @@ type TimeSeries_metadata struct {
 
 // Args returns the call's arguments.
 func (c TimeSeries_metadata) Args() TimeSeries_metadata_Params {
-	return TimeSeries_metadata_Params(c.Call.Args())
+	return TimeSeries_metadata_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c TimeSeries_metadata) AllocResults() (Metadata, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Metadata(r), err
+	return Metadata{Struct: r}, err
 }
 
 // TimeSeries_location holds the state for a server call to TimeSeries.location.
@@ -4640,22 +4026,13 @@ type TimeSeries_location struct {
 
 // Args returns the call's arguments.
 func (c TimeSeries_location) Args() TimeSeries_location_Params {
-	return TimeSeries_location_Params(c.Call.Args())
+	return TimeSeries_location_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c TimeSeries_location) AllocResults() (Location, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 8, PointerCount: 4})
-	return Location(r), err
-}
-
-// TimeSeries_List is a list of TimeSeries.
-type TimeSeries_List = capnp.CapList[TimeSeries]
-
-// NewTimeSeries creates a new list of TimeSeries.
-func NewTimeSeries_List(s *capnp.Segment, sz int32) (TimeSeries_List, error) {
-	l, err := capnp.NewPointerList(s, sz)
-	return capnp.CapList[TimeSeries](l), err
+	return Location{Struct: r}, err
 }
 
 type TimeSeries_Resolution uint16
@@ -4696,1484 +4073,1340 @@ func TimeSeries_ResolutionFromString(c string) TimeSeries_Resolution {
 	}
 }
 
-type TimeSeries_Resolution_List = capnp.EnumList[TimeSeries_Resolution]
+type TimeSeries_Resolution_List struct{ capnp.List }
 
 func NewTimeSeries_Resolution_List(s *capnp.Segment, sz int32) (TimeSeries_Resolution_List, error) {
-	return capnp.NewEnumList[TimeSeries_Resolution](s, sz)
+	l, err := capnp.NewUInt16List(s, sz)
+	return TimeSeries_Resolution_List{l.List}, err
 }
 
-type TimeSeries_resolution_Params capnp.Struct
+func (l TimeSeries_Resolution_List) At(i int) TimeSeries_Resolution {
+	ul := capnp.UInt16List{List: l.List}
+	return TimeSeries_Resolution(ul.At(i))
+}
+
+func (l TimeSeries_Resolution_List) Set(i int, v TimeSeries_Resolution) {
+	ul := capnp.UInt16List{List: l.List}
+	ul.Set(i, uint16(v))
+}
+
+type TimeSeries_resolution_Params struct{ capnp.Struct }
 
 // TimeSeries_resolution_Params_TypeID is the unique identifier for the type TimeSeries_resolution_Params.
 const TimeSeries_resolution_Params_TypeID = 0xea3f0519d272fdd1
 
 func NewTimeSeries_resolution_Params(s *capnp.Segment) (TimeSeries_resolution_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return TimeSeries_resolution_Params(st), err
+	return TimeSeries_resolution_Params{st}, err
 }
 
 func NewRootTimeSeries_resolution_Params(s *capnp.Segment) (TimeSeries_resolution_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return TimeSeries_resolution_Params(st), err
+	return TimeSeries_resolution_Params{st}, err
 }
 
 func ReadRootTimeSeries_resolution_Params(msg *capnp.Message) (TimeSeries_resolution_Params, error) {
 	root, err := msg.Root()
-	return TimeSeries_resolution_Params(root.Struct()), err
+	return TimeSeries_resolution_Params{root.Struct()}, err
 }
 
 func (s TimeSeries_resolution_Params) String() string {
-	str, _ := text.Marshal(0xea3f0519d272fdd1, capnp.Struct(s))
+	str, _ := text.Marshal(0xea3f0519d272fdd1, s.Struct)
 	return str
 }
 
-func (s TimeSeries_resolution_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (TimeSeries_resolution_Params) DecodeFromPtr(p capnp.Ptr) TimeSeries_resolution_Params {
-	return TimeSeries_resolution_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s TimeSeries_resolution_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s TimeSeries_resolution_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s TimeSeries_resolution_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s TimeSeries_resolution_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // TimeSeries_resolution_Params_List is a list of TimeSeries_resolution_Params.
-type TimeSeries_resolution_Params_List = capnp.StructList[TimeSeries_resolution_Params]
+type TimeSeries_resolution_Params_List struct{ capnp.List }
 
 // NewTimeSeries_resolution_Params creates a new list of TimeSeries_resolution_Params.
 func NewTimeSeries_resolution_Params_List(s *capnp.Segment, sz int32) (TimeSeries_resolution_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[TimeSeries_resolution_Params](l), err
+	return TimeSeries_resolution_Params_List{l}, err
+}
+
+func (s TimeSeries_resolution_Params_List) At(i int) TimeSeries_resolution_Params {
+	return TimeSeries_resolution_Params{s.List.Struct(i)}
+}
+
+func (s TimeSeries_resolution_Params_List) Set(i int, v TimeSeries_resolution_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s TimeSeries_resolution_Params_List) String() string {
+	str, _ := text.MarshalList(0xea3f0519d272fdd1, s.List)
+	return str
 }
 
 // TimeSeries_resolution_Params_Future is a wrapper for a TimeSeries_resolution_Params promised by a client call.
 type TimeSeries_resolution_Params_Future struct{ *capnp.Future }
 
-func (f TimeSeries_resolution_Params_Future) Struct() (TimeSeries_resolution_Params, error) {
-	p, err := f.Future.Ptr()
-	return TimeSeries_resolution_Params(p.Struct()), err
+func (p TimeSeries_resolution_Params_Future) Struct() (TimeSeries_resolution_Params, error) {
+	s, err := p.Future.Struct()
+	return TimeSeries_resolution_Params{s}, err
 }
 
-type TimeSeries_resolution_Results capnp.Struct
+type TimeSeries_resolution_Results struct{ capnp.Struct }
 
 // TimeSeries_resolution_Results_TypeID is the unique identifier for the type TimeSeries_resolution_Results.
 const TimeSeries_resolution_Results_TypeID = 0xcd0eadd9a1a66ed6
 
 func NewTimeSeries_resolution_Results(s *capnp.Segment) (TimeSeries_resolution_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return TimeSeries_resolution_Results(st), err
+	return TimeSeries_resolution_Results{st}, err
 }
 
 func NewRootTimeSeries_resolution_Results(s *capnp.Segment) (TimeSeries_resolution_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return TimeSeries_resolution_Results(st), err
+	return TimeSeries_resolution_Results{st}, err
 }
 
 func ReadRootTimeSeries_resolution_Results(msg *capnp.Message) (TimeSeries_resolution_Results, error) {
 	root, err := msg.Root()
-	return TimeSeries_resolution_Results(root.Struct()), err
+	return TimeSeries_resolution_Results{root.Struct()}, err
 }
 
 func (s TimeSeries_resolution_Results) String() string {
-	str, _ := text.Marshal(0xcd0eadd9a1a66ed6, capnp.Struct(s))
+	str, _ := text.Marshal(0xcd0eadd9a1a66ed6, s.Struct)
 	return str
 }
 
-func (s TimeSeries_resolution_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (TimeSeries_resolution_Results) DecodeFromPtr(p capnp.Ptr) TimeSeries_resolution_Results {
-	return TimeSeries_resolution_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s TimeSeries_resolution_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s TimeSeries_resolution_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s TimeSeries_resolution_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s TimeSeries_resolution_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s TimeSeries_resolution_Results) Resolution() TimeSeries_Resolution {
-	return TimeSeries_Resolution(capnp.Struct(s).Uint16(0))
+	return TimeSeries_Resolution(s.Struct.Uint16(0))
 }
 
 func (s TimeSeries_resolution_Results) SetResolution(v TimeSeries_Resolution) {
-	capnp.Struct(s).SetUint16(0, uint16(v))
+	s.Struct.SetUint16(0, uint16(v))
 }
 
 // TimeSeries_resolution_Results_List is a list of TimeSeries_resolution_Results.
-type TimeSeries_resolution_Results_List = capnp.StructList[TimeSeries_resolution_Results]
+type TimeSeries_resolution_Results_List struct{ capnp.List }
 
 // NewTimeSeries_resolution_Results creates a new list of TimeSeries_resolution_Results.
 func NewTimeSeries_resolution_Results_List(s *capnp.Segment, sz int32) (TimeSeries_resolution_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0}, sz)
-	return capnp.StructList[TimeSeries_resolution_Results](l), err
+	return TimeSeries_resolution_Results_List{l}, err
+}
+
+func (s TimeSeries_resolution_Results_List) At(i int) TimeSeries_resolution_Results {
+	return TimeSeries_resolution_Results{s.List.Struct(i)}
+}
+
+func (s TimeSeries_resolution_Results_List) Set(i int, v TimeSeries_resolution_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s TimeSeries_resolution_Results_List) String() string {
+	str, _ := text.MarshalList(0xcd0eadd9a1a66ed6, s.List)
+	return str
 }
 
 // TimeSeries_resolution_Results_Future is a wrapper for a TimeSeries_resolution_Results promised by a client call.
 type TimeSeries_resolution_Results_Future struct{ *capnp.Future }
 
-func (f TimeSeries_resolution_Results_Future) Struct() (TimeSeries_resolution_Results, error) {
-	p, err := f.Future.Ptr()
-	return TimeSeries_resolution_Results(p.Struct()), err
+func (p TimeSeries_resolution_Results_Future) Struct() (TimeSeries_resolution_Results, error) {
+	s, err := p.Future.Struct()
+	return TimeSeries_resolution_Results{s}, err
 }
 
-type TimeSeries_range_Params capnp.Struct
+type TimeSeries_range_Params struct{ capnp.Struct }
 
 // TimeSeries_range_Params_TypeID is the unique identifier for the type TimeSeries_range_Params.
 const TimeSeries_range_Params_TypeID = 0xff6bcf0c6b23c916
 
 func NewTimeSeries_range_Params(s *capnp.Segment) (TimeSeries_range_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return TimeSeries_range_Params(st), err
+	return TimeSeries_range_Params{st}, err
 }
 
 func NewRootTimeSeries_range_Params(s *capnp.Segment) (TimeSeries_range_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return TimeSeries_range_Params(st), err
+	return TimeSeries_range_Params{st}, err
 }
 
 func ReadRootTimeSeries_range_Params(msg *capnp.Message) (TimeSeries_range_Params, error) {
 	root, err := msg.Root()
-	return TimeSeries_range_Params(root.Struct()), err
+	return TimeSeries_range_Params{root.Struct()}, err
 }
 
 func (s TimeSeries_range_Params) String() string {
-	str, _ := text.Marshal(0xff6bcf0c6b23c916, capnp.Struct(s))
+	str, _ := text.Marshal(0xff6bcf0c6b23c916, s.Struct)
 	return str
 }
 
-func (s TimeSeries_range_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (TimeSeries_range_Params) DecodeFromPtr(p capnp.Ptr) TimeSeries_range_Params {
-	return TimeSeries_range_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s TimeSeries_range_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s TimeSeries_range_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s TimeSeries_range_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s TimeSeries_range_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // TimeSeries_range_Params_List is a list of TimeSeries_range_Params.
-type TimeSeries_range_Params_List = capnp.StructList[TimeSeries_range_Params]
+type TimeSeries_range_Params_List struct{ capnp.List }
 
 // NewTimeSeries_range_Params creates a new list of TimeSeries_range_Params.
 func NewTimeSeries_range_Params_List(s *capnp.Segment, sz int32) (TimeSeries_range_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[TimeSeries_range_Params](l), err
+	return TimeSeries_range_Params_List{l}, err
+}
+
+func (s TimeSeries_range_Params_List) At(i int) TimeSeries_range_Params {
+	return TimeSeries_range_Params{s.List.Struct(i)}
+}
+
+func (s TimeSeries_range_Params_List) Set(i int, v TimeSeries_range_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s TimeSeries_range_Params_List) String() string {
+	str, _ := text.MarshalList(0xff6bcf0c6b23c916, s.List)
+	return str
 }
 
 // TimeSeries_range_Params_Future is a wrapper for a TimeSeries_range_Params promised by a client call.
 type TimeSeries_range_Params_Future struct{ *capnp.Future }
 
-func (f TimeSeries_range_Params_Future) Struct() (TimeSeries_range_Params, error) {
-	p, err := f.Future.Ptr()
-	return TimeSeries_range_Params(p.Struct()), err
+func (p TimeSeries_range_Params_Future) Struct() (TimeSeries_range_Params, error) {
+	s, err := p.Future.Struct()
+	return TimeSeries_range_Params{s}, err
 }
 
-type TimeSeries_range_Results capnp.Struct
+type TimeSeries_range_Results struct{ capnp.Struct }
 
 // TimeSeries_range_Results_TypeID is the unique identifier for the type TimeSeries_range_Results.
 const TimeSeries_range_Results_TypeID = 0xb9ec27f476022c1b
 
 func NewTimeSeries_range_Results(s *capnp.Segment) (TimeSeries_range_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return TimeSeries_range_Results(st), err
+	return TimeSeries_range_Results{st}, err
 }
 
 func NewRootTimeSeries_range_Results(s *capnp.Segment) (TimeSeries_range_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return TimeSeries_range_Results(st), err
+	return TimeSeries_range_Results{st}, err
 }
 
 func ReadRootTimeSeries_range_Results(msg *capnp.Message) (TimeSeries_range_Results, error) {
 	root, err := msg.Root()
-	return TimeSeries_range_Results(root.Struct()), err
+	return TimeSeries_range_Results{root.Struct()}, err
 }
 
 func (s TimeSeries_range_Results) String() string {
-	str, _ := text.Marshal(0xb9ec27f476022c1b, capnp.Struct(s))
+	str, _ := text.Marshal(0xb9ec27f476022c1b, s.Struct)
 	return str
 }
 
-func (s TimeSeries_range_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (TimeSeries_range_Results) DecodeFromPtr(p capnp.Ptr) TimeSeries_range_Results {
-	return TimeSeries_range_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s TimeSeries_range_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s TimeSeries_range_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s TimeSeries_range_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s TimeSeries_range_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s TimeSeries_range_Results) StartDate() (common_date.Date, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return common_date.Date(p.Struct()), err
+	p, err := s.Struct.Ptr(0)
+	return common_date.Date{Struct: p.Struct()}, err
 }
 
 func (s TimeSeries_range_Results) HasStartDate() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s TimeSeries_range_Results) SetStartDate(v common_date.Date) error {
-	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewStartDate sets the startDate field to a newly
 // allocated common_date.Date struct, preferring placement in s's segment.
 func (s TimeSeries_range_Results) NewStartDate() (common_date.Date, error) {
-	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
+	ss, err := common_date.NewDate(s.Struct.Segment())
 	if err != nil {
 		return common_date.Date{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
 	return ss, err
 }
 
 func (s TimeSeries_range_Results) EndDate() (common_date.Date, error) {
-	p, err := capnp.Struct(s).Ptr(1)
-	return common_date.Date(p.Struct()), err
+	p, err := s.Struct.Ptr(1)
+	return common_date.Date{Struct: p.Struct()}, err
 }
 
 func (s TimeSeries_range_Results) HasEndDate() bool {
-	return capnp.Struct(s).HasPtr(1)
+	return s.Struct.HasPtr(1)
 }
 
 func (s TimeSeries_range_Results) SetEndDate(v common_date.Date) error {
-	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
+	return s.Struct.SetPtr(1, v.Struct.ToPtr())
 }
 
 // NewEndDate sets the endDate field to a newly
 // allocated common_date.Date struct, preferring placement in s's segment.
 func (s TimeSeries_range_Results) NewEndDate() (common_date.Date, error) {
-	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
+	ss, err := common_date.NewDate(s.Struct.Segment())
 	if err != nil {
 		return common_date.Date{}, err
 	}
-	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(1, ss.Struct.ToPtr())
 	return ss, err
 }
 
 // TimeSeries_range_Results_List is a list of TimeSeries_range_Results.
-type TimeSeries_range_Results_List = capnp.StructList[TimeSeries_range_Results]
+type TimeSeries_range_Results_List struct{ capnp.List }
 
 // NewTimeSeries_range_Results creates a new list of TimeSeries_range_Results.
 func NewTimeSeries_range_Results_List(s *capnp.Segment, sz int32) (TimeSeries_range_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
-	return capnp.StructList[TimeSeries_range_Results](l), err
+	return TimeSeries_range_Results_List{l}, err
+}
+
+func (s TimeSeries_range_Results_List) At(i int) TimeSeries_range_Results {
+	return TimeSeries_range_Results{s.List.Struct(i)}
+}
+
+func (s TimeSeries_range_Results_List) Set(i int, v TimeSeries_range_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s TimeSeries_range_Results_List) String() string {
+	str, _ := text.MarshalList(0xb9ec27f476022c1b, s.List)
+	return str
 }
 
 // TimeSeries_range_Results_Future is a wrapper for a TimeSeries_range_Results promised by a client call.
 type TimeSeries_range_Results_Future struct{ *capnp.Future }
 
-func (f TimeSeries_range_Results_Future) Struct() (TimeSeries_range_Results, error) {
-	p, err := f.Future.Ptr()
-	return TimeSeries_range_Results(p.Struct()), err
+func (p TimeSeries_range_Results_Future) Struct() (TimeSeries_range_Results, error) {
+	s, err := p.Future.Struct()
+	return TimeSeries_range_Results{s}, err
 }
+
 func (p TimeSeries_range_Results_Future) StartDate() common_date.Date_Future {
 	return common_date.Date_Future{Future: p.Future.Field(0, nil)}
 }
+
 func (p TimeSeries_range_Results_Future) EndDate() common_date.Date_Future {
 	return common_date.Date_Future{Future: p.Future.Field(1, nil)}
 }
 
-type TimeSeries_header_Params capnp.Struct
+type TimeSeries_header_Params struct{ capnp.Struct }
 
 // TimeSeries_header_Params_TypeID is the unique identifier for the type TimeSeries_header_Params.
 const TimeSeries_header_Params_TypeID = 0x8fd77002ae8a97a1
 
 func NewTimeSeries_header_Params(s *capnp.Segment) (TimeSeries_header_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return TimeSeries_header_Params(st), err
+	return TimeSeries_header_Params{st}, err
 }
 
 func NewRootTimeSeries_header_Params(s *capnp.Segment) (TimeSeries_header_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return TimeSeries_header_Params(st), err
+	return TimeSeries_header_Params{st}, err
 }
 
 func ReadRootTimeSeries_header_Params(msg *capnp.Message) (TimeSeries_header_Params, error) {
 	root, err := msg.Root()
-	return TimeSeries_header_Params(root.Struct()), err
+	return TimeSeries_header_Params{root.Struct()}, err
 }
 
 func (s TimeSeries_header_Params) String() string {
-	str, _ := text.Marshal(0x8fd77002ae8a97a1, capnp.Struct(s))
+	str, _ := text.Marshal(0x8fd77002ae8a97a1, s.Struct)
 	return str
 }
 
-func (s TimeSeries_header_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (TimeSeries_header_Params) DecodeFromPtr(p capnp.Ptr) TimeSeries_header_Params {
-	return TimeSeries_header_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s TimeSeries_header_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s TimeSeries_header_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s TimeSeries_header_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s TimeSeries_header_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // TimeSeries_header_Params_List is a list of TimeSeries_header_Params.
-type TimeSeries_header_Params_List = capnp.StructList[TimeSeries_header_Params]
+type TimeSeries_header_Params_List struct{ capnp.List }
 
 // NewTimeSeries_header_Params creates a new list of TimeSeries_header_Params.
 func NewTimeSeries_header_Params_List(s *capnp.Segment, sz int32) (TimeSeries_header_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[TimeSeries_header_Params](l), err
+	return TimeSeries_header_Params_List{l}, err
+}
+
+func (s TimeSeries_header_Params_List) At(i int) TimeSeries_header_Params {
+	return TimeSeries_header_Params{s.List.Struct(i)}
+}
+
+func (s TimeSeries_header_Params_List) Set(i int, v TimeSeries_header_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s TimeSeries_header_Params_List) String() string {
+	str, _ := text.MarshalList(0x8fd77002ae8a97a1, s.List)
+	return str
 }
 
 // TimeSeries_header_Params_Future is a wrapper for a TimeSeries_header_Params promised by a client call.
 type TimeSeries_header_Params_Future struct{ *capnp.Future }
 
-func (f TimeSeries_header_Params_Future) Struct() (TimeSeries_header_Params, error) {
-	p, err := f.Future.Ptr()
-	return TimeSeries_header_Params(p.Struct()), err
+func (p TimeSeries_header_Params_Future) Struct() (TimeSeries_header_Params, error) {
+	s, err := p.Future.Struct()
+	return TimeSeries_header_Params{s}, err
 }
 
-type TimeSeries_header_Results capnp.Struct
+type TimeSeries_header_Results struct{ capnp.Struct }
 
 // TimeSeries_header_Results_TypeID is the unique identifier for the type TimeSeries_header_Results.
 const TimeSeries_header_Results_TypeID = 0x8976146f144fa050
 
 func NewTimeSeries_header_Results(s *capnp.Segment) (TimeSeries_header_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return TimeSeries_header_Results(st), err
+	return TimeSeries_header_Results{st}, err
 }
 
 func NewRootTimeSeries_header_Results(s *capnp.Segment) (TimeSeries_header_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return TimeSeries_header_Results(st), err
+	return TimeSeries_header_Results{st}, err
 }
 
 func ReadRootTimeSeries_header_Results(msg *capnp.Message) (TimeSeries_header_Results, error) {
 	root, err := msg.Root()
-	return TimeSeries_header_Results(root.Struct()), err
+	return TimeSeries_header_Results{root.Struct()}, err
 }
 
 func (s TimeSeries_header_Results) String() string {
-	str, _ := text.Marshal(0x8976146f144fa050, capnp.Struct(s))
+	str, _ := text.Marshal(0x8976146f144fa050, s.Struct)
 	return str
 }
 
-func (s TimeSeries_header_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (TimeSeries_header_Results) DecodeFromPtr(p capnp.Ptr) TimeSeries_header_Results {
-	return TimeSeries_header_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s TimeSeries_header_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s TimeSeries_header_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s TimeSeries_header_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s TimeSeries_header_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s TimeSeries_header_Results) Header() (Element_List, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return Element_List(p.List()), err
+	p, err := s.Struct.Ptr(0)
+	return Element_List{List: p.List()}, err
 }
 
 func (s TimeSeries_header_Results) HasHeader() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s TimeSeries_header_Results) SetHeader(v Element_List) error {
-	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+	return s.Struct.SetPtr(0, v.List.ToPtr())
 }
 
 // NewHeader sets the header field to a newly
 // allocated Element_List, preferring placement in s's segment.
 func (s TimeSeries_header_Results) NewHeader(n int32) (Element_List, error) {
-	l, err := NewElement_List(capnp.Struct(s).Segment(), n)
+	l, err := NewElement_List(s.Struct.Segment(), n)
 	if err != nil {
 		return Element_List{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	err = s.Struct.SetPtr(0, l.List.ToPtr())
 	return l, err
 }
 
 // TimeSeries_header_Results_List is a list of TimeSeries_header_Results.
-type TimeSeries_header_Results_List = capnp.StructList[TimeSeries_header_Results]
+type TimeSeries_header_Results_List struct{ capnp.List }
 
 // NewTimeSeries_header_Results creates a new list of TimeSeries_header_Results.
 func NewTimeSeries_header_Results_List(s *capnp.Segment, sz int32) (TimeSeries_header_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[TimeSeries_header_Results](l), err
+	return TimeSeries_header_Results_List{l}, err
+}
+
+func (s TimeSeries_header_Results_List) At(i int) TimeSeries_header_Results {
+	return TimeSeries_header_Results{s.List.Struct(i)}
+}
+
+func (s TimeSeries_header_Results_List) Set(i int, v TimeSeries_header_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s TimeSeries_header_Results_List) String() string {
+	str, _ := text.MarshalList(0x8976146f144fa050, s.List)
+	return str
 }
 
 // TimeSeries_header_Results_Future is a wrapper for a TimeSeries_header_Results promised by a client call.
 type TimeSeries_header_Results_Future struct{ *capnp.Future }
 
-func (f TimeSeries_header_Results_Future) Struct() (TimeSeries_header_Results, error) {
-	p, err := f.Future.Ptr()
-	return TimeSeries_header_Results(p.Struct()), err
+func (p TimeSeries_header_Results_Future) Struct() (TimeSeries_header_Results, error) {
+	s, err := p.Future.Struct()
+	return TimeSeries_header_Results{s}, err
 }
 
-type TimeSeries_data_Params capnp.Struct
+type TimeSeries_data_Params struct{ capnp.Struct }
 
 // TimeSeries_data_Params_TypeID is the unique identifier for the type TimeSeries_data_Params.
 const TimeSeries_data_Params_TypeID = 0x8e78986bc45d7dcd
 
 func NewTimeSeries_data_Params(s *capnp.Segment) (TimeSeries_data_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return TimeSeries_data_Params(st), err
+	return TimeSeries_data_Params{st}, err
 }
 
 func NewRootTimeSeries_data_Params(s *capnp.Segment) (TimeSeries_data_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return TimeSeries_data_Params(st), err
+	return TimeSeries_data_Params{st}, err
 }
 
 func ReadRootTimeSeries_data_Params(msg *capnp.Message) (TimeSeries_data_Params, error) {
 	root, err := msg.Root()
-	return TimeSeries_data_Params(root.Struct()), err
+	return TimeSeries_data_Params{root.Struct()}, err
 }
 
 func (s TimeSeries_data_Params) String() string {
-	str, _ := text.Marshal(0x8e78986bc45d7dcd, capnp.Struct(s))
+	str, _ := text.Marshal(0x8e78986bc45d7dcd, s.Struct)
 	return str
 }
 
-func (s TimeSeries_data_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (TimeSeries_data_Params) DecodeFromPtr(p capnp.Ptr) TimeSeries_data_Params {
-	return TimeSeries_data_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s TimeSeries_data_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s TimeSeries_data_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s TimeSeries_data_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s TimeSeries_data_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // TimeSeries_data_Params_List is a list of TimeSeries_data_Params.
-type TimeSeries_data_Params_List = capnp.StructList[TimeSeries_data_Params]
+type TimeSeries_data_Params_List struct{ capnp.List }
 
 // NewTimeSeries_data_Params creates a new list of TimeSeries_data_Params.
 func NewTimeSeries_data_Params_List(s *capnp.Segment, sz int32) (TimeSeries_data_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[TimeSeries_data_Params](l), err
+	return TimeSeries_data_Params_List{l}, err
+}
+
+func (s TimeSeries_data_Params_List) At(i int) TimeSeries_data_Params {
+	return TimeSeries_data_Params{s.List.Struct(i)}
+}
+
+func (s TimeSeries_data_Params_List) Set(i int, v TimeSeries_data_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s TimeSeries_data_Params_List) String() string {
+	str, _ := text.MarshalList(0x8e78986bc45d7dcd, s.List)
+	return str
 }
 
 // TimeSeries_data_Params_Future is a wrapper for a TimeSeries_data_Params promised by a client call.
 type TimeSeries_data_Params_Future struct{ *capnp.Future }
 
-func (f TimeSeries_data_Params_Future) Struct() (TimeSeries_data_Params, error) {
-	p, err := f.Future.Ptr()
-	return TimeSeries_data_Params(p.Struct()), err
+func (p TimeSeries_data_Params_Future) Struct() (TimeSeries_data_Params, error) {
+	s, err := p.Future.Struct()
+	return TimeSeries_data_Params{s}, err
 }
 
-type TimeSeries_data_Results capnp.Struct
+type TimeSeries_data_Results struct{ capnp.Struct }
 
 // TimeSeries_data_Results_TypeID is the unique identifier for the type TimeSeries_data_Results.
 const TimeSeries_data_Results_TypeID = 0x9c3d3448d73eeae9
 
 func NewTimeSeries_data_Results(s *capnp.Segment) (TimeSeries_data_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return TimeSeries_data_Results(st), err
+	return TimeSeries_data_Results{st}, err
 }
 
 func NewRootTimeSeries_data_Results(s *capnp.Segment) (TimeSeries_data_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return TimeSeries_data_Results(st), err
+	return TimeSeries_data_Results{st}, err
 }
 
 func ReadRootTimeSeries_data_Results(msg *capnp.Message) (TimeSeries_data_Results, error) {
 	root, err := msg.Root()
-	return TimeSeries_data_Results(root.Struct()), err
+	return TimeSeries_data_Results{root.Struct()}, err
 }
 
 func (s TimeSeries_data_Results) String() string {
-	str, _ := text.Marshal(0x9c3d3448d73eeae9, capnp.Struct(s))
+	str, _ := text.Marshal(0x9c3d3448d73eeae9, s.Struct)
 	return str
 }
 
-func (s TimeSeries_data_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (TimeSeries_data_Results) DecodeFromPtr(p capnp.Ptr) TimeSeries_data_Results {
-	return TimeSeries_data_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s TimeSeries_data_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s TimeSeries_data_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s TimeSeries_data_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s TimeSeries_data_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s TimeSeries_data_Results) Data() (capnp.PointerList, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return capnp.PointerList(p.List()), err
+	p, err := s.Struct.Ptr(0)
+	return capnp.PointerList{List: p.List()}, err
 }
 
 func (s TimeSeries_data_Results) HasData() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s TimeSeries_data_Results) SetData(v capnp.PointerList) error {
-	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+	return s.Struct.SetPtr(0, v.List.ToPtr())
 }
 
 // NewData sets the data field to a newly
 // allocated capnp.PointerList, preferring placement in s's segment.
 func (s TimeSeries_data_Results) NewData(n int32) (capnp.PointerList, error) {
-	l, err := capnp.NewPointerList(capnp.Struct(s).Segment(), n)
+	l, err := capnp.NewPointerList(s.Struct.Segment(), n)
 	if err != nil {
 		return capnp.PointerList{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	err = s.Struct.SetPtr(0, l.List.ToPtr())
 	return l, err
 }
 
 // TimeSeries_data_Results_List is a list of TimeSeries_data_Results.
-type TimeSeries_data_Results_List = capnp.StructList[TimeSeries_data_Results]
+type TimeSeries_data_Results_List struct{ capnp.List }
 
 // NewTimeSeries_data_Results creates a new list of TimeSeries_data_Results.
 func NewTimeSeries_data_Results_List(s *capnp.Segment, sz int32) (TimeSeries_data_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[TimeSeries_data_Results](l), err
+	return TimeSeries_data_Results_List{l}, err
+}
+
+func (s TimeSeries_data_Results_List) At(i int) TimeSeries_data_Results {
+	return TimeSeries_data_Results{s.List.Struct(i)}
+}
+
+func (s TimeSeries_data_Results_List) Set(i int, v TimeSeries_data_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s TimeSeries_data_Results_List) String() string {
+	str, _ := text.MarshalList(0x9c3d3448d73eeae9, s.List)
+	return str
 }
 
 // TimeSeries_data_Results_Future is a wrapper for a TimeSeries_data_Results promised by a client call.
 type TimeSeries_data_Results_Future struct{ *capnp.Future }
 
-func (f TimeSeries_data_Results_Future) Struct() (TimeSeries_data_Results, error) {
-	p, err := f.Future.Ptr()
-	return TimeSeries_data_Results(p.Struct()), err
+func (p TimeSeries_data_Results_Future) Struct() (TimeSeries_data_Results, error) {
+	s, err := p.Future.Struct()
+	return TimeSeries_data_Results{s}, err
 }
 
-type TimeSeries_dataT_Params capnp.Struct
+type TimeSeries_dataT_Params struct{ capnp.Struct }
 
 // TimeSeries_dataT_Params_TypeID is the unique identifier for the type TimeSeries_dataT_Params.
 const TimeSeries_dataT_Params_TypeID = 0xeff8f923b1853525
 
 func NewTimeSeries_dataT_Params(s *capnp.Segment) (TimeSeries_dataT_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return TimeSeries_dataT_Params(st), err
+	return TimeSeries_dataT_Params{st}, err
 }
 
 func NewRootTimeSeries_dataT_Params(s *capnp.Segment) (TimeSeries_dataT_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return TimeSeries_dataT_Params(st), err
+	return TimeSeries_dataT_Params{st}, err
 }
 
 func ReadRootTimeSeries_dataT_Params(msg *capnp.Message) (TimeSeries_dataT_Params, error) {
 	root, err := msg.Root()
-	return TimeSeries_dataT_Params(root.Struct()), err
+	return TimeSeries_dataT_Params{root.Struct()}, err
 }
 
 func (s TimeSeries_dataT_Params) String() string {
-	str, _ := text.Marshal(0xeff8f923b1853525, capnp.Struct(s))
+	str, _ := text.Marshal(0xeff8f923b1853525, s.Struct)
 	return str
 }
 
-func (s TimeSeries_dataT_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (TimeSeries_dataT_Params) DecodeFromPtr(p capnp.Ptr) TimeSeries_dataT_Params {
-	return TimeSeries_dataT_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s TimeSeries_dataT_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s TimeSeries_dataT_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s TimeSeries_dataT_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s TimeSeries_dataT_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // TimeSeries_dataT_Params_List is a list of TimeSeries_dataT_Params.
-type TimeSeries_dataT_Params_List = capnp.StructList[TimeSeries_dataT_Params]
+type TimeSeries_dataT_Params_List struct{ capnp.List }
 
 // NewTimeSeries_dataT_Params creates a new list of TimeSeries_dataT_Params.
 func NewTimeSeries_dataT_Params_List(s *capnp.Segment, sz int32) (TimeSeries_dataT_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[TimeSeries_dataT_Params](l), err
+	return TimeSeries_dataT_Params_List{l}, err
+}
+
+func (s TimeSeries_dataT_Params_List) At(i int) TimeSeries_dataT_Params {
+	return TimeSeries_dataT_Params{s.List.Struct(i)}
+}
+
+func (s TimeSeries_dataT_Params_List) Set(i int, v TimeSeries_dataT_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s TimeSeries_dataT_Params_List) String() string {
+	str, _ := text.MarshalList(0xeff8f923b1853525, s.List)
+	return str
 }
 
 // TimeSeries_dataT_Params_Future is a wrapper for a TimeSeries_dataT_Params promised by a client call.
 type TimeSeries_dataT_Params_Future struct{ *capnp.Future }
 
-func (f TimeSeries_dataT_Params_Future) Struct() (TimeSeries_dataT_Params, error) {
-	p, err := f.Future.Ptr()
-	return TimeSeries_dataT_Params(p.Struct()), err
+func (p TimeSeries_dataT_Params_Future) Struct() (TimeSeries_dataT_Params, error) {
+	s, err := p.Future.Struct()
+	return TimeSeries_dataT_Params{s}, err
 }
 
-type TimeSeries_dataT_Results capnp.Struct
+type TimeSeries_dataT_Results struct{ capnp.Struct }
 
 // TimeSeries_dataT_Results_TypeID is the unique identifier for the type TimeSeries_dataT_Results.
 const TimeSeries_dataT_Results_TypeID = 0xc2e0dec0a6ea94fb
 
 func NewTimeSeries_dataT_Results(s *capnp.Segment) (TimeSeries_dataT_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return TimeSeries_dataT_Results(st), err
+	return TimeSeries_dataT_Results{st}, err
 }
 
 func NewRootTimeSeries_dataT_Results(s *capnp.Segment) (TimeSeries_dataT_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return TimeSeries_dataT_Results(st), err
+	return TimeSeries_dataT_Results{st}, err
 }
 
 func ReadRootTimeSeries_dataT_Results(msg *capnp.Message) (TimeSeries_dataT_Results, error) {
 	root, err := msg.Root()
-	return TimeSeries_dataT_Results(root.Struct()), err
+	return TimeSeries_dataT_Results{root.Struct()}, err
 }
 
 func (s TimeSeries_dataT_Results) String() string {
-	str, _ := text.Marshal(0xc2e0dec0a6ea94fb, capnp.Struct(s))
+	str, _ := text.Marshal(0xc2e0dec0a6ea94fb, s.Struct)
 	return str
 }
 
-func (s TimeSeries_dataT_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (TimeSeries_dataT_Results) DecodeFromPtr(p capnp.Ptr) TimeSeries_dataT_Results {
-	return TimeSeries_dataT_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s TimeSeries_dataT_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s TimeSeries_dataT_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s TimeSeries_dataT_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s TimeSeries_dataT_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s TimeSeries_dataT_Results) Data() (capnp.PointerList, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return capnp.PointerList(p.List()), err
+	p, err := s.Struct.Ptr(0)
+	return capnp.PointerList{List: p.List()}, err
 }
 
 func (s TimeSeries_dataT_Results) HasData() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s TimeSeries_dataT_Results) SetData(v capnp.PointerList) error {
-	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+	return s.Struct.SetPtr(0, v.List.ToPtr())
 }
 
 // NewData sets the data field to a newly
 // allocated capnp.PointerList, preferring placement in s's segment.
 func (s TimeSeries_dataT_Results) NewData(n int32) (capnp.PointerList, error) {
-	l, err := capnp.NewPointerList(capnp.Struct(s).Segment(), n)
+	l, err := capnp.NewPointerList(s.Struct.Segment(), n)
 	if err != nil {
 		return capnp.PointerList{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	err = s.Struct.SetPtr(0, l.List.ToPtr())
 	return l, err
 }
 
 // TimeSeries_dataT_Results_List is a list of TimeSeries_dataT_Results.
-type TimeSeries_dataT_Results_List = capnp.StructList[TimeSeries_dataT_Results]
+type TimeSeries_dataT_Results_List struct{ capnp.List }
 
 // NewTimeSeries_dataT_Results creates a new list of TimeSeries_dataT_Results.
 func NewTimeSeries_dataT_Results_List(s *capnp.Segment, sz int32) (TimeSeries_dataT_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[TimeSeries_dataT_Results](l), err
+	return TimeSeries_dataT_Results_List{l}, err
+}
+
+func (s TimeSeries_dataT_Results_List) At(i int) TimeSeries_dataT_Results {
+	return TimeSeries_dataT_Results{s.List.Struct(i)}
+}
+
+func (s TimeSeries_dataT_Results_List) Set(i int, v TimeSeries_dataT_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s TimeSeries_dataT_Results_List) String() string {
+	str, _ := text.MarshalList(0xc2e0dec0a6ea94fb, s.List)
+	return str
 }
 
 // TimeSeries_dataT_Results_Future is a wrapper for a TimeSeries_dataT_Results promised by a client call.
 type TimeSeries_dataT_Results_Future struct{ *capnp.Future }
 
-func (f TimeSeries_dataT_Results_Future) Struct() (TimeSeries_dataT_Results, error) {
-	p, err := f.Future.Ptr()
-	return TimeSeries_dataT_Results(p.Struct()), err
+func (p TimeSeries_dataT_Results_Future) Struct() (TimeSeries_dataT_Results, error) {
+	s, err := p.Future.Struct()
+	return TimeSeries_dataT_Results{s}, err
 }
 
-type TimeSeries_subrange_Params capnp.Struct
+type TimeSeries_subrange_Params struct{ capnp.Struct }
 
 // TimeSeries_subrange_Params_TypeID is the unique identifier for the type TimeSeries_subrange_Params.
 const TimeSeries_subrange_Params_TypeID = 0xf8aa5b6fe2496fee
 
 func NewTimeSeries_subrange_Params(s *capnp.Segment) (TimeSeries_subrange_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return TimeSeries_subrange_Params(st), err
+	return TimeSeries_subrange_Params{st}, err
 }
 
 func NewRootTimeSeries_subrange_Params(s *capnp.Segment) (TimeSeries_subrange_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return TimeSeries_subrange_Params(st), err
+	return TimeSeries_subrange_Params{st}, err
 }
 
 func ReadRootTimeSeries_subrange_Params(msg *capnp.Message) (TimeSeries_subrange_Params, error) {
 	root, err := msg.Root()
-	return TimeSeries_subrange_Params(root.Struct()), err
+	return TimeSeries_subrange_Params{root.Struct()}, err
 }
 
 func (s TimeSeries_subrange_Params) String() string {
-	str, _ := text.Marshal(0xf8aa5b6fe2496fee, capnp.Struct(s))
+	str, _ := text.Marshal(0xf8aa5b6fe2496fee, s.Struct)
 	return str
 }
 
-func (s TimeSeries_subrange_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (TimeSeries_subrange_Params) DecodeFromPtr(p capnp.Ptr) TimeSeries_subrange_Params {
-	return TimeSeries_subrange_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s TimeSeries_subrange_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s TimeSeries_subrange_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s TimeSeries_subrange_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s TimeSeries_subrange_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s TimeSeries_subrange_Params) Start() (common_date.Date, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return common_date.Date(p.Struct()), err
+	p, err := s.Struct.Ptr(0)
+	return common_date.Date{Struct: p.Struct()}, err
 }
 
 func (s TimeSeries_subrange_Params) HasStart() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s TimeSeries_subrange_Params) SetStart(v common_date.Date) error {
-	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewStart sets the start field to a newly
 // allocated common_date.Date struct, preferring placement in s's segment.
 func (s TimeSeries_subrange_Params) NewStart() (common_date.Date, error) {
-	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
+	ss, err := common_date.NewDate(s.Struct.Segment())
 	if err != nil {
 		return common_date.Date{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
 	return ss, err
 }
 
 func (s TimeSeries_subrange_Params) End() (common_date.Date, error) {
-	p, err := capnp.Struct(s).Ptr(1)
-	return common_date.Date(p.Struct()), err
+	p, err := s.Struct.Ptr(1)
+	return common_date.Date{Struct: p.Struct()}, err
 }
 
 func (s TimeSeries_subrange_Params) HasEnd() bool {
-	return capnp.Struct(s).HasPtr(1)
+	return s.Struct.HasPtr(1)
 }
 
 func (s TimeSeries_subrange_Params) SetEnd(v common_date.Date) error {
-	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
+	return s.Struct.SetPtr(1, v.Struct.ToPtr())
 }
 
 // NewEnd sets the end field to a newly
 // allocated common_date.Date struct, preferring placement in s's segment.
 func (s TimeSeries_subrange_Params) NewEnd() (common_date.Date, error) {
-	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
+	ss, err := common_date.NewDate(s.Struct.Segment())
 	if err != nil {
 		return common_date.Date{}, err
 	}
-	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(1, ss.Struct.ToPtr())
 	return ss, err
 }
 
 // TimeSeries_subrange_Params_List is a list of TimeSeries_subrange_Params.
-type TimeSeries_subrange_Params_List = capnp.StructList[TimeSeries_subrange_Params]
+type TimeSeries_subrange_Params_List struct{ capnp.List }
 
 // NewTimeSeries_subrange_Params creates a new list of TimeSeries_subrange_Params.
 func NewTimeSeries_subrange_Params_List(s *capnp.Segment, sz int32) (TimeSeries_subrange_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
-	return capnp.StructList[TimeSeries_subrange_Params](l), err
+	return TimeSeries_subrange_Params_List{l}, err
+}
+
+func (s TimeSeries_subrange_Params_List) At(i int) TimeSeries_subrange_Params {
+	return TimeSeries_subrange_Params{s.List.Struct(i)}
+}
+
+func (s TimeSeries_subrange_Params_List) Set(i int, v TimeSeries_subrange_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s TimeSeries_subrange_Params_List) String() string {
+	str, _ := text.MarshalList(0xf8aa5b6fe2496fee, s.List)
+	return str
 }
 
 // TimeSeries_subrange_Params_Future is a wrapper for a TimeSeries_subrange_Params promised by a client call.
 type TimeSeries_subrange_Params_Future struct{ *capnp.Future }
 
-func (f TimeSeries_subrange_Params_Future) Struct() (TimeSeries_subrange_Params, error) {
-	p, err := f.Future.Ptr()
-	return TimeSeries_subrange_Params(p.Struct()), err
+func (p TimeSeries_subrange_Params_Future) Struct() (TimeSeries_subrange_Params, error) {
+	s, err := p.Future.Struct()
+	return TimeSeries_subrange_Params{s}, err
 }
+
 func (p TimeSeries_subrange_Params_Future) Start() common_date.Date_Future {
 	return common_date.Date_Future{Future: p.Future.Field(0, nil)}
 }
+
 func (p TimeSeries_subrange_Params_Future) End() common_date.Date_Future {
 	return common_date.Date_Future{Future: p.Future.Field(1, nil)}
 }
 
-type TimeSeries_subrange_Results capnp.Struct
+type TimeSeries_subrange_Results struct{ capnp.Struct }
 
 // TimeSeries_subrange_Results_TypeID is the unique identifier for the type TimeSeries_subrange_Results.
 const TimeSeries_subrange_Results_TypeID = 0xf7dfe7147d09b732
 
 func NewTimeSeries_subrange_Results(s *capnp.Segment) (TimeSeries_subrange_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return TimeSeries_subrange_Results(st), err
+	return TimeSeries_subrange_Results{st}, err
 }
 
 func NewRootTimeSeries_subrange_Results(s *capnp.Segment) (TimeSeries_subrange_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return TimeSeries_subrange_Results(st), err
+	return TimeSeries_subrange_Results{st}, err
 }
 
 func ReadRootTimeSeries_subrange_Results(msg *capnp.Message) (TimeSeries_subrange_Results, error) {
 	root, err := msg.Root()
-	return TimeSeries_subrange_Results(root.Struct()), err
+	return TimeSeries_subrange_Results{root.Struct()}, err
 }
 
 func (s TimeSeries_subrange_Results) String() string {
-	str, _ := text.Marshal(0xf7dfe7147d09b732, capnp.Struct(s))
+	str, _ := text.Marshal(0xf7dfe7147d09b732, s.Struct)
 	return str
 }
 
-func (s TimeSeries_subrange_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (TimeSeries_subrange_Results) DecodeFromPtr(p capnp.Ptr) TimeSeries_subrange_Results {
-	return TimeSeries_subrange_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s TimeSeries_subrange_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s TimeSeries_subrange_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s TimeSeries_subrange_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s TimeSeries_subrange_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s TimeSeries_subrange_Results) TimeSeries() TimeSeries {
-	p, _ := capnp.Struct(s).Ptr(0)
-	return TimeSeries(p.Interface().Client())
+	p, _ := s.Struct.Ptr(0)
+	return TimeSeries{Client: p.Interface().Client()}
 }
 
 func (s TimeSeries_subrange_Results) HasTimeSeries() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s TimeSeries_subrange_Results) SetTimeSeries(v TimeSeries) error {
-	if !v.IsValid() {
-		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
+	if !v.Client.IsValid() {
+		return s.Struct.SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
-	return capnp.Struct(s).SetPtr(0, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
+	return s.Struct.SetPtr(0, in.ToPtr())
 }
 
 // TimeSeries_subrange_Results_List is a list of TimeSeries_subrange_Results.
-type TimeSeries_subrange_Results_List = capnp.StructList[TimeSeries_subrange_Results]
+type TimeSeries_subrange_Results_List struct{ capnp.List }
 
 // NewTimeSeries_subrange_Results creates a new list of TimeSeries_subrange_Results.
 func NewTimeSeries_subrange_Results_List(s *capnp.Segment, sz int32) (TimeSeries_subrange_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[TimeSeries_subrange_Results](l), err
+	return TimeSeries_subrange_Results_List{l}, err
+}
+
+func (s TimeSeries_subrange_Results_List) At(i int) TimeSeries_subrange_Results {
+	return TimeSeries_subrange_Results{s.List.Struct(i)}
+}
+
+func (s TimeSeries_subrange_Results_List) Set(i int, v TimeSeries_subrange_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s TimeSeries_subrange_Results_List) String() string {
+	str, _ := text.MarshalList(0xf7dfe7147d09b732, s.List)
+	return str
 }
 
 // TimeSeries_subrange_Results_Future is a wrapper for a TimeSeries_subrange_Results promised by a client call.
 type TimeSeries_subrange_Results_Future struct{ *capnp.Future }
 
-func (f TimeSeries_subrange_Results_Future) Struct() (TimeSeries_subrange_Results, error) {
-	p, err := f.Future.Ptr()
-	return TimeSeries_subrange_Results(p.Struct()), err
-}
-func (p TimeSeries_subrange_Results_Future) TimeSeries() TimeSeries {
-	return TimeSeries(p.Future.Field(0, nil).Client())
+func (p TimeSeries_subrange_Results_Future) Struct() (TimeSeries_subrange_Results, error) {
+	s, err := p.Future.Struct()
+	return TimeSeries_subrange_Results{s}, err
 }
 
-type TimeSeries_subheader_Params capnp.Struct
+func (p TimeSeries_subrange_Results_Future) TimeSeries() TimeSeries {
+	return TimeSeries{Client: p.Future.Field(0, nil).Client()}
+}
+
+type TimeSeries_subheader_Params struct{ capnp.Struct }
 
 // TimeSeries_subheader_Params_TypeID is the unique identifier for the type TimeSeries_subheader_Params.
 const TimeSeries_subheader_Params_TypeID = 0x8cc364dee8f693b8
 
 func NewTimeSeries_subheader_Params(s *capnp.Segment) (TimeSeries_subheader_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return TimeSeries_subheader_Params(st), err
+	return TimeSeries_subheader_Params{st}, err
 }
 
 func NewRootTimeSeries_subheader_Params(s *capnp.Segment) (TimeSeries_subheader_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return TimeSeries_subheader_Params(st), err
+	return TimeSeries_subheader_Params{st}, err
 }
 
 func ReadRootTimeSeries_subheader_Params(msg *capnp.Message) (TimeSeries_subheader_Params, error) {
 	root, err := msg.Root()
-	return TimeSeries_subheader_Params(root.Struct()), err
+	return TimeSeries_subheader_Params{root.Struct()}, err
 }
 
 func (s TimeSeries_subheader_Params) String() string {
-	str, _ := text.Marshal(0x8cc364dee8f693b8, capnp.Struct(s))
+	str, _ := text.Marshal(0x8cc364dee8f693b8, s.Struct)
 	return str
 }
 
-func (s TimeSeries_subheader_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (TimeSeries_subheader_Params) DecodeFromPtr(p capnp.Ptr) TimeSeries_subheader_Params {
-	return TimeSeries_subheader_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s TimeSeries_subheader_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s TimeSeries_subheader_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s TimeSeries_subheader_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s TimeSeries_subheader_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s TimeSeries_subheader_Params) Elements() (Element_List, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return Element_List(p.List()), err
+	p, err := s.Struct.Ptr(0)
+	return Element_List{List: p.List()}, err
 }
 
 func (s TimeSeries_subheader_Params) HasElements() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s TimeSeries_subheader_Params) SetElements(v Element_List) error {
-	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+	return s.Struct.SetPtr(0, v.List.ToPtr())
 }
 
 // NewElements sets the elements field to a newly
 // allocated Element_List, preferring placement in s's segment.
 func (s TimeSeries_subheader_Params) NewElements(n int32) (Element_List, error) {
-	l, err := NewElement_List(capnp.Struct(s).Segment(), n)
+	l, err := NewElement_List(s.Struct.Segment(), n)
 	if err != nil {
 		return Element_List{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	err = s.Struct.SetPtr(0, l.List.ToPtr())
 	return l, err
 }
 
 // TimeSeries_subheader_Params_List is a list of TimeSeries_subheader_Params.
-type TimeSeries_subheader_Params_List = capnp.StructList[TimeSeries_subheader_Params]
+type TimeSeries_subheader_Params_List struct{ capnp.List }
 
 // NewTimeSeries_subheader_Params creates a new list of TimeSeries_subheader_Params.
 func NewTimeSeries_subheader_Params_List(s *capnp.Segment, sz int32) (TimeSeries_subheader_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[TimeSeries_subheader_Params](l), err
+	return TimeSeries_subheader_Params_List{l}, err
+}
+
+func (s TimeSeries_subheader_Params_List) At(i int) TimeSeries_subheader_Params {
+	return TimeSeries_subheader_Params{s.List.Struct(i)}
+}
+
+func (s TimeSeries_subheader_Params_List) Set(i int, v TimeSeries_subheader_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s TimeSeries_subheader_Params_List) String() string {
+	str, _ := text.MarshalList(0x8cc364dee8f693b8, s.List)
+	return str
 }
 
 // TimeSeries_subheader_Params_Future is a wrapper for a TimeSeries_subheader_Params promised by a client call.
 type TimeSeries_subheader_Params_Future struct{ *capnp.Future }
 
-func (f TimeSeries_subheader_Params_Future) Struct() (TimeSeries_subheader_Params, error) {
-	p, err := f.Future.Ptr()
-	return TimeSeries_subheader_Params(p.Struct()), err
+func (p TimeSeries_subheader_Params_Future) Struct() (TimeSeries_subheader_Params, error) {
+	s, err := p.Future.Struct()
+	return TimeSeries_subheader_Params{s}, err
 }
 
-type TimeSeries_subheader_Results capnp.Struct
+type TimeSeries_subheader_Results struct{ capnp.Struct }
 
 // TimeSeries_subheader_Results_TypeID is the unique identifier for the type TimeSeries_subheader_Results.
 const TimeSeries_subheader_Results_TypeID = 0xc3238163cae880df
 
 func NewTimeSeries_subheader_Results(s *capnp.Segment) (TimeSeries_subheader_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return TimeSeries_subheader_Results(st), err
+	return TimeSeries_subheader_Results{st}, err
 }
 
 func NewRootTimeSeries_subheader_Results(s *capnp.Segment) (TimeSeries_subheader_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return TimeSeries_subheader_Results(st), err
+	return TimeSeries_subheader_Results{st}, err
 }
 
 func ReadRootTimeSeries_subheader_Results(msg *capnp.Message) (TimeSeries_subheader_Results, error) {
 	root, err := msg.Root()
-	return TimeSeries_subheader_Results(root.Struct()), err
+	return TimeSeries_subheader_Results{root.Struct()}, err
 }
 
 func (s TimeSeries_subheader_Results) String() string {
-	str, _ := text.Marshal(0xc3238163cae880df, capnp.Struct(s))
+	str, _ := text.Marshal(0xc3238163cae880df, s.Struct)
 	return str
 }
 
-func (s TimeSeries_subheader_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (TimeSeries_subheader_Results) DecodeFromPtr(p capnp.Ptr) TimeSeries_subheader_Results {
-	return TimeSeries_subheader_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s TimeSeries_subheader_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s TimeSeries_subheader_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s TimeSeries_subheader_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s TimeSeries_subheader_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s TimeSeries_subheader_Results) TimeSeries() TimeSeries {
-	p, _ := capnp.Struct(s).Ptr(0)
-	return TimeSeries(p.Interface().Client())
+	p, _ := s.Struct.Ptr(0)
+	return TimeSeries{Client: p.Interface().Client()}
 }
 
 func (s TimeSeries_subheader_Results) HasTimeSeries() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s TimeSeries_subheader_Results) SetTimeSeries(v TimeSeries) error {
-	if !v.IsValid() {
-		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
+	if !v.Client.IsValid() {
+		return s.Struct.SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
-	return capnp.Struct(s).SetPtr(0, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
+	return s.Struct.SetPtr(0, in.ToPtr())
 }
 
 // TimeSeries_subheader_Results_List is a list of TimeSeries_subheader_Results.
-type TimeSeries_subheader_Results_List = capnp.StructList[TimeSeries_subheader_Results]
+type TimeSeries_subheader_Results_List struct{ capnp.List }
 
 // NewTimeSeries_subheader_Results creates a new list of TimeSeries_subheader_Results.
 func NewTimeSeries_subheader_Results_List(s *capnp.Segment, sz int32) (TimeSeries_subheader_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[TimeSeries_subheader_Results](l), err
+	return TimeSeries_subheader_Results_List{l}, err
+}
+
+func (s TimeSeries_subheader_Results_List) At(i int) TimeSeries_subheader_Results {
+	return TimeSeries_subheader_Results{s.List.Struct(i)}
+}
+
+func (s TimeSeries_subheader_Results_List) Set(i int, v TimeSeries_subheader_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s TimeSeries_subheader_Results_List) String() string {
+	str, _ := text.MarshalList(0xc3238163cae880df, s.List)
+	return str
 }
 
 // TimeSeries_subheader_Results_Future is a wrapper for a TimeSeries_subheader_Results promised by a client call.
 type TimeSeries_subheader_Results_Future struct{ *capnp.Future }
 
-func (f TimeSeries_subheader_Results_Future) Struct() (TimeSeries_subheader_Results, error) {
-	p, err := f.Future.Ptr()
-	return TimeSeries_subheader_Results(p.Struct()), err
-}
-func (p TimeSeries_subheader_Results_Future) TimeSeries() TimeSeries {
-	return TimeSeries(p.Future.Field(0, nil).Client())
+func (p TimeSeries_subheader_Results_Future) Struct() (TimeSeries_subheader_Results, error) {
+	s, err := p.Future.Struct()
+	return TimeSeries_subheader_Results{s}, err
 }
 
-type TimeSeries_metadata_Params capnp.Struct
+func (p TimeSeries_subheader_Results_Future) TimeSeries() TimeSeries {
+	return TimeSeries{Client: p.Future.Field(0, nil).Client()}
+}
+
+type TimeSeries_metadata_Params struct{ capnp.Struct }
 
 // TimeSeries_metadata_Params_TypeID is the unique identifier for the type TimeSeries_metadata_Params.
 const TimeSeries_metadata_Params_TypeID = 0xce2cc4225c956634
 
 func NewTimeSeries_metadata_Params(s *capnp.Segment) (TimeSeries_metadata_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return TimeSeries_metadata_Params(st), err
+	return TimeSeries_metadata_Params{st}, err
 }
 
 func NewRootTimeSeries_metadata_Params(s *capnp.Segment) (TimeSeries_metadata_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return TimeSeries_metadata_Params(st), err
+	return TimeSeries_metadata_Params{st}, err
 }
 
 func ReadRootTimeSeries_metadata_Params(msg *capnp.Message) (TimeSeries_metadata_Params, error) {
 	root, err := msg.Root()
-	return TimeSeries_metadata_Params(root.Struct()), err
+	return TimeSeries_metadata_Params{root.Struct()}, err
 }
 
 func (s TimeSeries_metadata_Params) String() string {
-	str, _ := text.Marshal(0xce2cc4225c956634, capnp.Struct(s))
+	str, _ := text.Marshal(0xce2cc4225c956634, s.Struct)
 	return str
 }
 
-func (s TimeSeries_metadata_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (TimeSeries_metadata_Params) DecodeFromPtr(p capnp.Ptr) TimeSeries_metadata_Params {
-	return TimeSeries_metadata_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s TimeSeries_metadata_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s TimeSeries_metadata_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s TimeSeries_metadata_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s TimeSeries_metadata_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // TimeSeries_metadata_Params_List is a list of TimeSeries_metadata_Params.
-type TimeSeries_metadata_Params_List = capnp.StructList[TimeSeries_metadata_Params]
+type TimeSeries_metadata_Params_List struct{ capnp.List }
 
 // NewTimeSeries_metadata_Params creates a new list of TimeSeries_metadata_Params.
 func NewTimeSeries_metadata_Params_List(s *capnp.Segment, sz int32) (TimeSeries_metadata_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[TimeSeries_metadata_Params](l), err
+	return TimeSeries_metadata_Params_List{l}, err
+}
+
+func (s TimeSeries_metadata_Params_List) At(i int) TimeSeries_metadata_Params {
+	return TimeSeries_metadata_Params{s.List.Struct(i)}
+}
+
+func (s TimeSeries_metadata_Params_List) Set(i int, v TimeSeries_metadata_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s TimeSeries_metadata_Params_List) String() string {
+	str, _ := text.MarshalList(0xce2cc4225c956634, s.List)
+	return str
 }
 
 // TimeSeries_metadata_Params_Future is a wrapper for a TimeSeries_metadata_Params promised by a client call.
 type TimeSeries_metadata_Params_Future struct{ *capnp.Future }
 
-func (f TimeSeries_metadata_Params_Future) Struct() (TimeSeries_metadata_Params, error) {
-	p, err := f.Future.Ptr()
-	return TimeSeries_metadata_Params(p.Struct()), err
+func (p TimeSeries_metadata_Params_Future) Struct() (TimeSeries_metadata_Params, error) {
+	s, err := p.Future.Struct()
+	return TimeSeries_metadata_Params{s}, err
 }
 
-type TimeSeries_location_Params capnp.Struct
+type TimeSeries_location_Params struct{ capnp.Struct }
 
 // TimeSeries_location_Params_TypeID is the unique identifier for the type TimeSeries_location_Params.
 const TimeSeries_location_Params_TypeID = 0xcb329eb01b0fa313
 
 func NewTimeSeries_location_Params(s *capnp.Segment) (TimeSeries_location_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return TimeSeries_location_Params(st), err
+	return TimeSeries_location_Params{st}, err
 }
 
 func NewRootTimeSeries_location_Params(s *capnp.Segment) (TimeSeries_location_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return TimeSeries_location_Params(st), err
+	return TimeSeries_location_Params{st}, err
 }
 
 func ReadRootTimeSeries_location_Params(msg *capnp.Message) (TimeSeries_location_Params, error) {
 	root, err := msg.Root()
-	return TimeSeries_location_Params(root.Struct()), err
+	return TimeSeries_location_Params{root.Struct()}, err
 }
 
 func (s TimeSeries_location_Params) String() string {
-	str, _ := text.Marshal(0xcb329eb01b0fa313, capnp.Struct(s))
+	str, _ := text.Marshal(0xcb329eb01b0fa313, s.Struct)
 	return str
 }
 
-func (s TimeSeries_location_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (TimeSeries_location_Params) DecodeFromPtr(p capnp.Ptr) TimeSeries_location_Params {
-	return TimeSeries_location_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s TimeSeries_location_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s TimeSeries_location_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s TimeSeries_location_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s TimeSeries_location_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // TimeSeries_location_Params_List is a list of TimeSeries_location_Params.
-type TimeSeries_location_Params_List = capnp.StructList[TimeSeries_location_Params]
+type TimeSeries_location_Params_List struct{ capnp.List }
 
 // NewTimeSeries_location_Params creates a new list of TimeSeries_location_Params.
 func NewTimeSeries_location_Params_List(s *capnp.Segment, sz int32) (TimeSeries_location_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[TimeSeries_location_Params](l), err
+	return TimeSeries_location_Params_List{l}, err
+}
+
+func (s TimeSeries_location_Params_List) At(i int) TimeSeries_location_Params {
+	return TimeSeries_location_Params{s.List.Struct(i)}
+}
+
+func (s TimeSeries_location_Params_List) Set(i int, v TimeSeries_location_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s TimeSeries_location_Params_List) String() string {
+	str, _ := text.MarshalList(0xcb329eb01b0fa313, s.List)
+	return str
 }
 
 // TimeSeries_location_Params_Future is a wrapper for a TimeSeries_location_Params promised by a client call.
 type TimeSeries_location_Params_Future struct{ *capnp.Future }
 
-func (f TimeSeries_location_Params_Future) Struct() (TimeSeries_location_Params, error) {
-	p, err := f.Future.Ptr()
-	return TimeSeries_location_Params(p.Struct()), err
+func (p TimeSeries_location_Params_Future) Struct() (TimeSeries_location_Params, error) {
+	s, err := p.Future.Struct()
+	return TimeSeries_location_Params{s}, err
 }
 
-type TimeSeriesData capnp.Struct
+type TimeSeriesData struct{ capnp.Struct }
 
 // TimeSeriesData_TypeID is the unique identifier for the type TimeSeriesData.
 const TimeSeriesData_TypeID = 0xf1c1ccf59bc6964f
 
 func NewTimeSeriesData(s *capnp.Segment) (TimeSeriesData, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 4})
-	return TimeSeriesData(st), err
+	return TimeSeriesData{st}, err
 }
 
 func NewRootTimeSeriesData(s *capnp.Segment) (TimeSeriesData, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 4})
-	return TimeSeriesData(st), err
+	return TimeSeriesData{st}, err
 }
 
 func ReadRootTimeSeriesData(msg *capnp.Message) (TimeSeriesData, error) {
 	root, err := msg.Root()
-	return TimeSeriesData(root.Struct()), err
+	return TimeSeriesData{root.Struct()}, err
 }
 
 func (s TimeSeriesData) String() string {
-	str, _ := text.Marshal(0xf1c1ccf59bc6964f, capnp.Struct(s))
+	str, _ := text.Marshal(0xf1c1ccf59bc6964f, s.Struct)
 	return str
 }
 
-func (s TimeSeriesData) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (TimeSeriesData) DecodeFromPtr(p capnp.Ptr) TimeSeriesData {
-	return TimeSeriesData(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s TimeSeriesData) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s TimeSeriesData) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s TimeSeriesData) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s TimeSeriesData) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s TimeSeriesData) Data() (capnp.PointerList, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return capnp.PointerList(p.List()), err
+	p, err := s.Struct.Ptr(0)
+	return capnp.PointerList{List: p.List()}, err
 }
 
 func (s TimeSeriesData) HasData() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s TimeSeriesData) SetData(v capnp.PointerList) error {
-	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+	return s.Struct.SetPtr(0, v.List.ToPtr())
 }
 
 // NewData sets the data field to a newly
 // allocated capnp.PointerList, preferring placement in s's segment.
 func (s TimeSeriesData) NewData(n int32) (capnp.PointerList, error) {
-	l, err := capnp.NewPointerList(capnp.Struct(s).Segment(), n)
+	l, err := capnp.NewPointerList(s.Struct.Segment(), n)
 	if err != nil {
 		return capnp.PointerList{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	err = s.Struct.SetPtr(0, l.List.ToPtr())
 	return l, err
 }
+
 func (s TimeSeriesData) IsTransposed() bool {
-	return capnp.Struct(s).Bit(0)
+	return s.Struct.Bit(0)
 }
 
 func (s TimeSeriesData) SetIsTransposed(v bool) {
-	capnp.Struct(s).SetBit(0, v)
+	s.Struct.SetBit(0, v)
 }
 
 func (s TimeSeriesData) Header() (Element_List, error) {
-	p, err := capnp.Struct(s).Ptr(1)
-	return Element_List(p.List()), err
+	p, err := s.Struct.Ptr(1)
+	return Element_List{List: p.List()}, err
 }
 
 func (s TimeSeriesData) HasHeader() bool {
-	return capnp.Struct(s).HasPtr(1)
+	return s.Struct.HasPtr(1)
 }
 
 func (s TimeSeriesData) SetHeader(v Element_List) error {
-	return capnp.Struct(s).SetPtr(1, v.ToPtr())
+	return s.Struct.SetPtr(1, v.List.ToPtr())
 }
 
 // NewHeader sets the header field to a newly
 // allocated Element_List, preferring placement in s's segment.
 func (s TimeSeriesData) NewHeader(n int32) (Element_List, error) {
-	l, err := NewElement_List(capnp.Struct(s).Segment(), n)
+	l, err := NewElement_List(s.Struct.Segment(), n)
 	if err != nil {
 		return Element_List{}, err
 	}
-	err = capnp.Struct(s).SetPtr(1, l.ToPtr())
+	err = s.Struct.SetPtr(1, l.List.ToPtr())
 	return l, err
 }
+
 func (s TimeSeriesData) StartDate() (common_date.Date, error) {
-	p, err := capnp.Struct(s).Ptr(2)
-	return common_date.Date(p.Struct()), err
+	p, err := s.Struct.Ptr(2)
+	return common_date.Date{Struct: p.Struct()}, err
 }
 
 func (s TimeSeriesData) HasStartDate() bool {
-	return capnp.Struct(s).HasPtr(2)
+	return s.Struct.HasPtr(2)
 }
 
 func (s TimeSeriesData) SetStartDate(v common_date.Date) error {
-	return capnp.Struct(s).SetPtr(2, capnp.Struct(v).ToPtr())
+	return s.Struct.SetPtr(2, v.Struct.ToPtr())
 }
 
 // NewStartDate sets the startDate field to a newly
 // allocated common_date.Date struct, preferring placement in s's segment.
 func (s TimeSeriesData) NewStartDate() (common_date.Date, error) {
-	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
+	ss, err := common_date.NewDate(s.Struct.Segment())
 	if err != nil {
 		return common_date.Date{}, err
 	}
-	err = capnp.Struct(s).SetPtr(2, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(2, ss.Struct.ToPtr())
 	return ss, err
 }
 
 func (s TimeSeriesData) EndDate() (common_date.Date, error) {
-	p, err := capnp.Struct(s).Ptr(3)
-	return common_date.Date(p.Struct()), err
+	p, err := s.Struct.Ptr(3)
+	return common_date.Date{Struct: p.Struct()}, err
 }
 
 func (s TimeSeriesData) HasEndDate() bool {
-	return capnp.Struct(s).HasPtr(3)
+	return s.Struct.HasPtr(3)
 }
 
 func (s TimeSeriesData) SetEndDate(v common_date.Date) error {
-	return capnp.Struct(s).SetPtr(3, capnp.Struct(v).ToPtr())
+	return s.Struct.SetPtr(3, v.Struct.ToPtr())
 }
 
 // NewEndDate sets the endDate field to a newly
 // allocated common_date.Date struct, preferring placement in s's segment.
 func (s TimeSeriesData) NewEndDate() (common_date.Date, error) {
-	ss, err := common_date.NewDate(capnp.Struct(s).Segment())
+	ss, err := common_date.NewDate(s.Struct.Segment())
 	if err != nil {
 		return common_date.Date{}, err
 	}
-	err = capnp.Struct(s).SetPtr(3, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(3, ss.Struct.ToPtr())
 	return ss, err
 }
 
 func (s TimeSeriesData) Resolution() TimeSeries_Resolution {
-	return TimeSeries_Resolution(capnp.Struct(s).Uint16(2))
+	return TimeSeries_Resolution(s.Struct.Uint16(2))
 }
 
 func (s TimeSeriesData) SetResolution(v TimeSeries_Resolution) {
-	capnp.Struct(s).SetUint16(2, uint16(v))
+	s.Struct.SetUint16(2, uint16(v))
 }
 
 // TimeSeriesData_List is a list of TimeSeriesData.
-type TimeSeriesData_List = capnp.StructList[TimeSeriesData]
+type TimeSeriesData_List struct{ capnp.List }
 
 // NewTimeSeriesData creates a new list of TimeSeriesData.
 func NewTimeSeriesData_List(s *capnp.Segment, sz int32) (TimeSeriesData_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 4}, sz)
-	return capnp.StructList[TimeSeriesData](l), err
+	return TimeSeriesData_List{l}, err
+}
+
+func (s TimeSeriesData_List) At(i int) TimeSeriesData { return TimeSeriesData{s.List.Struct(i)} }
+
+func (s TimeSeriesData_List) Set(i int, v TimeSeriesData) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s TimeSeriesData_List) String() string {
+	str, _ := text.MarshalList(0xf1c1ccf59bc6964f, s.List)
+	return str
 }
 
 // TimeSeriesData_Future is a wrapper for a TimeSeriesData promised by a client call.
 type TimeSeriesData_Future struct{ *capnp.Future }
 
-func (f TimeSeriesData_Future) Struct() (TimeSeriesData, error) {
-	p, err := f.Future.Ptr()
-	return TimeSeriesData(p.Struct()), err
+func (p TimeSeriesData_Future) Struct() (TimeSeriesData, error) {
+	s, err := p.Future.Struct()
+	return TimeSeriesData{s}, err
 }
+
 func (p TimeSeriesData_Future) StartDate() common_date.Date_Future {
 	return common_date.Date_Future{Future: p.Future.Field(2, nil)}
 }
+
 func (p TimeSeriesData_Future) EndDate() common_date.Date_Future {
 	return common_date.Date_Future{Future: p.Future.Field(3, nil)}
 }
 
-type Service capnp.Client
+type Service struct{ Client *capnp.Client }
 
 // Service_TypeID is the unique identifier for the type Service.
 const Service_TypeID = 0xfe7d08d4352b0c5f
 
 func (c Service) GetAvailableDatasets(ctx context.Context, params func(Service_getAvailableDatasets_Params) error) (Service_getAvailableDatasets_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xfe7d08d4352b0c5f,
@@ -6184,16 +5417,12 @@ func (c Service) GetAvailableDatasets(ctx context.Context, params func(Service_g
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Service_getAvailableDatasets_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Service_getAvailableDatasets_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Service_getAvailableDatasets_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c Service) GetDatasetsFor(ctx context.Context, params func(Service_getDatasetsFor_Params) error) (Service_getDatasetsFor_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xfe7d08d4352b0c5f,
@@ -6204,16 +5433,12 @@ func (c Service) GetDatasetsFor(ctx context.Context, params func(Service_getData
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Service_getDatasetsFor_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Service_getDatasetsFor_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Service_getDatasetsFor_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c Service) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -6224,16 +5449,12 @@ func (c Service) Info(ctx context.Context, params func(common.Identifiable_info_
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
-
 }
-
 func (c Service) Save(ctx context.Context, params func(persistence.Persistent_SaveParams) error) (persistence.Persistent_SaveResults_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xc1a7daa0dc36cb65,
@@ -6244,83 +5465,20 @@ func (c Service) Save(ctx context.Context, params func(persistence.Persistent_Sa
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return persistence.Persistent_SaveResults_Future{Future: ans.Future()}, release
-
 }
 
-func (c Service) WaitStreaming() error {
-	return capnp.Client(c).WaitStreaming()
-}
-
-// String returns a string that identifies this capability for debugging
-// purposes.  Its format should not be depended on: in particular, it
-// should not be used to compare clients.  Use IsSame to compare clients
-// for equality.
-func (c Service) String() string {
-	return "Service(" + capnp.Client(c).String() + ")"
-}
-
-// AddRef creates a new Client that refers to the same capability as c.
-// If c is nil or has resolved to null, then AddRef returns nil.
 func (c Service) AddRef() Service {
-	return Service(capnp.Client(c).AddRef())
+	return Service{
+		Client: c.Client.AddRef(),
+	}
 }
 
-// Release releases a capability reference.  If this is the last
-// reference to the capability, then the underlying resources associated
-// with the capability will be released.
-//
-// Release will panic if c has already been released, but not if c is
-// nil or resolved to null.
 func (c Service) Release() {
-	capnp.Client(c).Release()
-}
-
-// Resolve blocks until the capability is fully resolved or the Context
-// expires.
-func (c Service) Resolve(ctx context.Context) error {
-	return capnp.Client(c).Resolve(ctx)
-}
-
-func (c Service) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Client(c).EncodeAsPtr(seg)
-}
-
-func (Service) DecodeFromPtr(p capnp.Ptr) Service {
-	return Service(capnp.Client{}.DecodeFromPtr(p))
-}
-
-// IsValid reports whether c is a valid reference to a capability.
-// A reference is invalid if it is nil, has resolved to null, or has
-// been released.
-func (c Service) IsValid() bool {
-	return capnp.Client(c).IsValid()
-}
-
-// IsSame reports whether c and other refer to a capability created by the
-// same call to NewClient.  This can return false negatives if c or other
-// are not fully resolved: use Resolve if this is an issue.  If either
-// c or other are released, then IsSame panics.
-func (c Service) IsSame(other Service) bool {
-	return capnp.Client(c).IsSame(capnp.Client(other))
-}
-
-// Update the flowcontrol.FlowLimiter used to manage flow control for
-// this client. This affects all future calls, but not calls already
-// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
-// which is also the default.
-func (c Service) SetFlowLimiter(lim fc.FlowLimiter) {
-	capnp.Client(c).SetFlowLimiter(lim)
-}
-
-// Get the current flowcontrol.FlowLimiter used to manage flow control
-// for this client.
-func (c Service) GetFlowLimiter() fc.FlowLimiter {
-	return capnp.Client(c).GetFlowLimiter()
+	c.Client.Release()
 }
 
 // A Service_Server is a Service with a local implementation.
@@ -6335,15 +5493,15 @@ type Service_Server interface {
 }
 
 // Service_NewServer creates a new Server from an implementation of Service_Server.
-func Service_NewServer(s Service_Server) *server.Server {
+func Service_NewServer(s Service_Server, policy *server.Policy) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(Service_Methods(nil, s), s, c)
+	return server.New(Service_Methods(nil, s), s, c, policy)
 }
 
 // Service_ServerToClient creates a new Client from an implementation of Service_Server.
 // The caller is responsible for calling Release on the returned Client.
-func Service_ServerToClient(s Service_Server) Service {
-	return Service(capnp.NewClient(Service_NewServer(s)))
+func Service_ServerToClient(s Service_Server, policy *server.Policy) Service {
+	return Service{Client: capnp.NewClient(Service_NewServer(s, policy))}
 }
 
 // Service_Methods appends Methods to a slice that invoke the methods on s.
@@ -6412,13 +5570,13 @@ type Service_getAvailableDatasets struct {
 
 // Args returns the call's arguments.
 func (c Service_getAvailableDatasets) Args() Service_getAvailableDatasets_Params {
-	return Service_getAvailableDatasets_Params(c.Call.Args())
+	return Service_getAvailableDatasets_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Service_getAvailableDatasets) AllocResults() (Service_getAvailableDatasets_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Service_getAvailableDatasets_Results(r), err
+	return Service_getAvailableDatasets_Results{Struct: r}, err
 }
 
 // Service_getDatasetsFor holds the state for a server call to Service.getDatasetsFor.
@@ -6429,363 +5587,317 @@ type Service_getDatasetsFor struct {
 
 // Args returns the call's arguments.
 func (c Service_getDatasetsFor) Args() Service_getDatasetsFor_Params {
-	return Service_getDatasetsFor_Params(c.Call.Args())
+	return Service_getDatasetsFor_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Service_getDatasetsFor) AllocResults() (Service_getDatasetsFor_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Service_getDatasetsFor_Results(r), err
+	return Service_getDatasetsFor_Results{Struct: r}, err
 }
 
-// Service_List is a list of Service.
-type Service_List = capnp.CapList[Service]
-
-// NewService creates a new list of Service.
-func NewService_List(s *capnp.Segment, sz int32) (Service_List, error) {
-	l, err := capnp.NewPointerList(s, sz)
-	return capnp.CapList[Service](l), err
-}
-
-type Service_getAvailableDatasets_Params capnp.Struct
+type Service_getAvailableDatasets_Params struct{ capnp.Struct }
 
 // Service_getAvailableDatasets_Params_TypeID is the unique identifier for the type Service_getAvailableDatasets_Params.
 const Service_getAvailableDatasets_Params_TypeID = 0x804cca489405d451
 
 func NewService_getAvailableDatasets_Params(s *capnp.Segment) (Service_getAvailableDatasets_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Service_getAvailableDatasets_Params(st), err
+	return Service_getAvailableDatasets_Params{st}, err
 }
 
 func NewRootService_getAvailableDatasets_Params(s *capnp.Segment) (Service_getAvailableDatasets_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Service_getAvailableDatasets_Params(st), err
+	return Service_getAvailableDatasets_Params{st}, err
 }
 
 func ReadRootService_getAvailableDatasets_Params(msg *capnp.Message) (Service_getAvailableDatasets_Params, error) {
 	root, err := msg.Root()
-	return Service_getAvailableDatasets_Params(root.Struct()), err
+	return Service_getAvailableDatasets_Params{root.Struct()}, err
 }
 
 func (s Service_getAvailableDatasets_Params) String() string {
-	str, _ := text.Marshal(0x804cca489405d451, capnp.Struct(s))
+	str, _ := text.Marshal(0x804cca489405d451, s.Struct)
 	return str
 }
 
-func (s Service_getAvailableDatasets_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Service_getAvailableDatasets_Params) DecodeFromPtr(p capnp.Ptr) Service_getAvailableDatasets_Params {
-	return Service_getAvailableDatasets_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Service_getAvailableDatasets_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Service_getAvailableDatasets_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Service_getAvailableDatasets_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Service_getAvailableDatasets_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // Service_getAvailableDatasets_Params_List is a list of Service_getAvailableDatasets_Params.
-type Service_getAvailableDatasets_Params_List = capnp.StructList[Service_getAvailableDatasets_Params]
+type Service_getAvailableDatasets_Params_List struct{ capnp.List }
 
 // NewService_getAvailableDatasets_Params creates a new list of Service_getAvailableDatasets_Params.
 func NewService_getAvailableDatasets_Params_List(s *capnp.Segment, sz int32) (Service_getAvailableDatasets_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[Service_getAvailableDatasets_Params](l), err
+	return Service_getAvailableDatasets_Params_List{l}, err
+}
+
+func (s Service_getAvailableDatasets_Params_List) At(i int) Service_getAvailableDatasets_Params {
+	return Service_getAvailableDatasets_Params{s.List.Struct(i)}
+}
+
+func (s Service_getAvailableDatasets_Params_List) Set(i int, v Service_getAvailableDatasets_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Service_getAvailableDatasets_Params_List) String() string {
+	str, _ := text.MarshalList(0x804cca489405d451, s.List)
+	return str
 }
 
 // Service_getAvailableDatasets_Params_Future is a wrapper for a Service_getAvailableDatasets_Params promised by a client call.
 type Service_getAvailableDatasets_Params_Future struct{ *capnp.Future }
 
-func (f Service_getAvailableDatasets_Params_Future) Struct() (Service_getAvailableDatasets_Params, error) {
-	p, err := f.Future.Ptr()
-	return Service_getAvailableDatasets_Params(p.Struct()), err
+func (p Service_getAvailableDatasets_Params_Future) Struct() (Service_getAvailableDatasets_Params, error) {
+	s, err := p.Future.Struct()
+	return Service_getAvailableDatasets_Params{s}, err
 }
 
-type Service_getAvailableDatasets_Results capnp.Struct
+type Service_getAvailableDatasets_Results struct{ capnp.Struct }
 
 // Service_getAvailableDatasets_Results_TypeID is the unique identifier for the type Service_getAvailableDatasets_Results.
 const Service_getAvailableDatasets_Results_TypeID = 0x916880859435c6e8
 
 func NewService_getAvailableDatasets_Results(s *capnp.Segment) (Service_getAvailableDatasets_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Service_getAvailableDatasets_Results(st), err
+	return Service_getAvailableDatasets_Results{st}, err
 }
 
 func NewRootService_getAvailableDatasets_Results(s *capnp.Segment) (Service_getAvailableDatasets_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Service_getAvailableDatasets_Results(st), err
+	return Service_getAvailableDatasets_Results{st}, err
 }
 
 func ReadRootService_getAvailableDatasets_Results(msg *capnp.Message) (Service_getAvailableDatasets_Results, error) {
 	root, err := msg.Root()
-	return Service_getAvailableDatasets_Results(root.Struct()), err
+	return Service_getAvailableDatasets_Results{root.Struct()}, err
 }
 
 func (s Service_getAvailableDatasets_Results) String() string {
-	str, _ := text.Marshal(0x916880859435c6e8, capnp.Struct(s))
+	str, _ := text.Marshal(0x916880859435c6e8, s.Struct)
 	return str
 }
 
-func (s Service_getAvailableDatasets_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Service_getAvailableDatasets_Results) DecodeFromPtr(p capnp.Ptr) Service_getAvailableDatasets_Results {
-	return Service_getAvailableDatasets_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Service_getAvailableDatasets_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Service_getAvailableDatasets_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Service_getAvailableDatasets_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Service_getAvailableDatasets_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Service_getAvailableDatasets_Results) Datasets() (MetaPlusData_List, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return MetaPlusData_List(p.List()), err
+	p, err := s.Struct.Ptr(0)
+	return MetaPlusData_List{List: p.List()}, err
 }
 
 func (s Service_getAvailableDatasets_Results) HasDatasets() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Service_getAvailableDatasets_Results) SetDatasets(v MetaPlusData_List) error {
-	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+	return s.Struct.SetPtr(0, v.List.ToPtr())
 }
 
 // NewDatasets sets the datasets field to a newly
 // allocated MetaPlusData_List, preferring placement in s's segment.
 func (s Service_getAvailableDatasets_Results) NewDatasets(n int32) (MetaPlusData_List, error) {
-	l, err := NewMetaPlusData_List(capnp.Struct(s).Segment(), n)
+	l, err := NewMetaPlusData_List(s.Struct.Segment(), n)
 	if err != nil {
 		return MetaPlusData_List{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	err = s.Struct.SetPtr(0, l.List.ToPtr())
 	return l, err
 }
 
 // Service_getAvailableDatasets_Results_List is a list of Service_getAvailableDatasets_Results.
-type Service_getAvailableDatasets_Results_List = capnp.StructList[Service_getAvailableDatasets_Results]
+type Service_getAvailableDatasets_Results_List struct{ capnp.List }
 
 // NewService_getAvailableDatasets_Results creates a new list of Service_getAvailableDatasets_Results.
 func NewService_getAvailableDatasets_Results_List(s *capnp.Segment, sz int32) (Service_getAvailableDatasets_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Service_getAvailableDatasets_Results](l), err
+	return Service_getAvailableDatasets_Results_List{l}, err
+}
+
+func (s Service_getAvailableDatasets_Results_List) At(i int) Service_getAvailableDatasets_Results {
+	return Service_getAvailableDatasets_Results{s.List.Struct(i)}
+}
+
+func (s Service_getAvailableDatasets_Results_List) Set(i int, v Service_getAvailableDatasets_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Service_getAvailableDatasets_Results_List) String() string {
+	str, _ := text.MarshalList(0x916880859435c6e8, s.List)
+	return str
 }
 
 // Service_getAvailableDatasets_Results_Future is a wrapper for a Service_getAvailableDatasets_Results promised by a client call.
 type Service_getAvailableDatasets_Results_Future struct{ *capnp.Future }
 
-func (f Service_getAvailableDatasets_Results_Future) Struct() (Service_getAvailableDatasets_Results, error) {
-	p, err := f.Future.Ptr()
-	return Service_getAvailableDatasets_Results(p.Struct()), err
+func (p Service_getAvailableDatasets_Results_Future) Struct() (Service_getAvailableDatasets_Results, error) {
+	s, err := p.Future.Struct()
+	return Service_getAvailableDatasets_Results{s}, err
 }
 
-type Service_getDatasetsFor_Params capnp.Struct
+type Service_getDatasetsFor_Params struct{ capnp.Struct }
 
 // Service_getDatasetsFor_Params_TypeID is the unique identifier for the type Service_getDatasetsFor_Params.
 const Service_getDatasetsFor_Params_TypeID = 0x9d7d1f83dda3e6db
 
 func NewService_getDatasetsFor_Params(s *capnp.Segment) (Service_getDatasetsFor_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Service_getDatasetsFor_Params(st), err
+	return Service_getDatasetsFor_Params{st}, err
 }
 
 func NewRootService_getDatasetsFor_Params(s *capnp.Segment) (Service_getDatasetsFor_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Service_getDatasetsFor_Params(st), err
+	return Service_getDatasetsFor_Params{st}, err
 }
 
 func ReadRootService_getDatasetsFor_Params(msg *capnp.Message) (Service_getDatasetsFor_Params, error) {
 	root, err := msg.Root()
-	return Service_getDatasetsFor_Params(root.Struct()), err
+	return Service_getDatasetsFor_Params{root.Struct()}, err
 }
 
 func (s Service_getDatasetsFor_Params) String() string {
-	str, _ := text.Marshal(0x9d7d1f83dda3e6db, capnp.Struct(s))
+	str, _ := text.Marshal(0x9d7d1f83dda3e6db, s.Struct)
 	return str
 }
 
-func (s Service_getDatasetsFor_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Service_getDatasetsFor_Params) DecodeFromPtr(p capnp.Ptr) Service_getDatasetsFor_Params {
-	return Service_getDatasetsFor_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Service_getDatasetsFor_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Service_getDatasetsFor_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Service_getDatasetsFor_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Service_getDatasetsFor_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Service_getDatasetsFor_Params) Template() (Metadata, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return Metadata(p.Struct()), err
+	p, err := s.Struct.Ptr(0)
+	return Metadata{Struct: p.Struct()}, err
 }
 
 func (s Service_getDatasetsFor_Params) HasTemplate() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Service_getDatasetsFor_Params) SetTemplate(v Metadata) error {
-	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewTemplate sets the template field to a newly
 // allocated Metadata struct, preferring placement in s's segment.
 func (s Service_getDatasetsFor_Params) NewTemplate() (Metadata, error) {
-	ss, err := NewMetadata(capnp.Struct(s).Segment())
+	ss, err := NewMetadata(s.Struct.Segment())
 	if err != nil {
 		return Metadata{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
 	return ss, err
 }
 
 // Service_getDatasetsFor_Params_List is a list of Service_getDatasetsFor_Params.
-type Service_getDatasetsFor_Params_List = capnp.StructList[Service_getDatasetsFor_Params]
+type Service_getDatasetsFor_Params_List struct{ capnp.List }
 
 // NewService_getDatasetsFor_Params creates a new list of Service_getDatasetsFor_Params.
 func NewService_getDatasetsFor_Params_List(s *capnp.Segment, sz int32) (Service_getDatasetsFor_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Service_getDatasetsFor_Params](l), err
+	return Service_getDatasetsFor_Params_List{l}, err
+}
+
+func (s Service_getDatasetsFor_Params_List) At(i int) Service_getDatasetsFor_Params {
+	return Service_getDatasetsFor_Params{s.List.Struct(i)}
+}
+
+func (s Service_getDatasetsFor_Params_List) Set(i int, v Service_getDatasetsFor_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Service_getDatasetsFor_Params_List) String() string {
+	str, _ := text.MarshalList(0x9d7d1f83dda3e6db, s.List)
+	return str
 }
 
 // Service_getDatasetsFor_Params_Future is a wrapper for a Service_getDatasetsFor_Params promised by a client call.
 type Service_getDatasetsFor_Params_Future struct{ *capnp.Future }
 
-func (f Service_getDatasetsFor_Params_Future) Struct() (Service_getDatasetsFor_Params, error) {
-	p, err := f.Future.Ptr()
-	return Service_getDatasetsFor_Params(p.Struct()), err
+func (p Service_getDatasetsFor_Params_Future) Struct() (Service_getDatasetsFor_Params, error) {
+	s, err := p.Future.Struct()
+	return Service_getDatasetsFor_Params{s}, err
 }
+
 func (p Service_getDatasetsFor_Params_Future) Template() Metadata_Future {
 	return Metadata_Future{Future: p.Future.Field(0, nil)}
 }
 
-type Service_getDatasetsFor_Results capnp.Struct
+type Service_getDatasetsFor_Results struct{ capnp.Struct }
 
 // Service_getDatasetsFor_Results_TypeID is the unique identifier for the type Service_getDatasetsFor_Results.
 const Service_getDatasetsFor_Results_TypeID = 0xcd95f79174b0eab0
 
 func NewService_getDatasetsFor_Results(s *capnp.Segment) (Service_getDatasetsFor_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Service_getDatasetsFor_Results(st), err
+	return Service_getDatasetsFor_Results{st}, err
 }
 
 func NewRootService_getDatasetsFor_Results(s *capnp.Segment) (Service_getDatasetsFor_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Service_getDatasetsFor_Results(st), err
+	return Service_getDatasetsFor_Results{st}, err
 }
 
 func ReadRootService_getDatasetsFor_Results(msg *capnp.Message) (Service_getDatasetsFor_Results, error) {
 	root, err := msg.Root()
-	return Service_getDatasetsFor_Results(root.Struct()), err
+	return Service_getDatasetsFor_Results{root.Struct()}, err
 }
 
 func (s Service_getDatasetsFor_Results) String() string {
-	str, _ := text.Marshal(0xcd95f79174b0eab0, capnp.Struct(s))
+	str, _ := text.Marshal(0xcd95f79174b0eab0, s.Struct)
 	return str
 }
 
-func (s Service_getDatasetsFor_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Service_getDatasetsFor_Results) DecodeFromPtr(p capnp.Ptr) Service_getDatasetsFor_Results {
-	return Service_getDatasetsFor_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Service_getDatasetsFor_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Service_getDatasetsFor_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Service_getDatasetsFor_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Service_getDatasetsFor_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-func (s Service_getDatasetsFor_Results) Datasets() (Dataset_List, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return Dataset_List(p.List()), err
+func (s Service_getDatasetsFor_Results) Datasets() (capnp.PointerList, error) {
+	p, err := s.Struct.Ptr(0)
+	return capnp.PointerList{List: p.List()}, err
 }
 
 func (s Service_getDatasetsFor_Results) HasDatasets() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
-func (s Service_getDatasetsFor_Results) SetDatasets(v Dataset_List) error {
-	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+func (s Service_getDatasetsFor_Results) SetDatasets(v capnp.PointerList) error {
+	return s.Struct.SetPtr(0, v.List.ToPtr())
 }
 
 // NewDatasets sets the datasets field to a newly
-// allocated Dataset_List, preferring placement in s's segment.
-func (s Service_getDatasetsFor_Results) NewDatasets(n int32) (Dataset_List, error) {
-	l, err := NewDataset_List(capnp.Struct(s).Segment(), n)
+// allocated capnp.PointerList, preferring placement in s's segment.
+func (s Service_getDatasetsFor_Results) NewDatasets(n int32) (capnp.PointerList, error) {
+	l, err := capnp.NewPointerList(s.Struct.Segment(), n)
 	if err != nil {
-		return Dataset_List{}, err
+		return capnp.PointerList{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	err = s.Struct.SetPtr(0, l.List.ToPtr())
 	return l, err
 }
 
 // Service_getDatasetsFor_Results_List is a list of Service_getDatasetsFor_Results.
-type Service_getDatasetsFor_Results_List = capnp.StructList[Service_getDatasetsFor_Results]
+type Service_getDatasetsFor_Results_List struct{ capnp.List }
 
 // NewService_getDatasetsFor_Results creates a new list of Service_getDatasetsFor_Results.
 func NewService_getDatasetsFor_Results_List(s *capnp.Segment, sz int32) (Service_getDatasetsFor_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Service_getDatasetsFor_Results](l), err
+	return Service_getDatasetsFor_Results_List{l}, err
+}
+
+func (s Service_getDatasetsFor_Results_List) At(i int) Service_getDatasetsFor_Results {
+	return Service_getDatasetsFor_Results{s.List.Struct(i)}
+}
+
+func (s Service_getDatasetsFor_Results_List) Set(i int, v Service_getDatasetsFor_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Service_getDatasetsFor_Results_List) String() string {
+	str, _ := text.MarshalList(0xcd95f79174b0eab0, s.List)
+	return str
 }
 
 // Service_getDatasetsFor_Results_Future is a wrapper for a Service_getDatasetsFor_Results promised by a client call.
 type Service_getDatasetsFor_Results_Future struct{ *capnp.Future }
 
-func (f Service_getDatasetsFor_Results_Future) Struct() (Service_getDatasetsFor_Results, error) {
-	p, err := f.Future.Ptr()
-	return Service_getDatasetsFor_Results(p.Struct()), err
+func (p Service_getDatasetsFor_Results_Future) Struct() (Service_getDatasetsFor_Results, error) {
+	s, err := p.Future.Struct()
+	return Service_getDatasetsFor_Results{s}, err
 }
 
-type CSVTimeSeriesFactory capnp.Client
+type CSVTimeSeriesFactory struct{ Client *capnp.Client }
 
 // CSVTimeSeriesFactory_TypeID is the unique identifier for the type CSVTimeSeriesFactory.
 const CSVTimeSeriesFactory_TypeID = 0xa418c26cc59929d9
 
 func (c CSVTimeSeriesFactory) Create(ctx context.Context, params func(CSVTimeSeriesFactory_create_Params) error) (CSVTimeSeriesFactory_create_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa418c26cc59929d9,
@@ -6796,16 +5908,12 @@ func (c CSVTimeSeriesFactory) Create(ctx context.Context, params func(CSVTimeSer
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 2}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(CSVTimeSeriesFactory_create_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(CSVTimeSeriesFactory_create_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return CSVTimeSeriesFactory_create_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c CSVTimeSeriesFactory) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -6816,83 +5924,20 @@ func (c CSVTimeSeriesFactory) Info(ctx context.Context, params func(common.Ident
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
-
 }
 
-func (c CSVTimeSeriesFactory) WaitStreaming() error {
-	return capnp.Client(c).WaitStreaming()
-}
-
-// String returns a string that identifies this capability for debugging
-// purposes.  Its format should not be depended on: in particular, it
-// should not be used to compare clients.  Use IsSame to compare clients
-// for equality.
-func (c CSVTimeSeriesFactory) String() string {
-	return "CSVTimeSeriesFactory(" + capnp.Client(c).String() + ")"
-}
-
-// AddRef creates a new Client that refers to the same capability as c.
-// If c is nil or has resolved to null, then AddRef returns nil.
 func (c CSVTimeSeriesFactory) AddRef() CSVTimeSeriesFactory {
-	return CSVTimeSeriesFactory(capnp.Client(c).AddRef())
+	return CSVTimeSeriesFactory{
+		Client: c.Client.AddRef(),
+	}
 }
 
-// Release releases a capability reference.  If this is the last
-// reference to the capability, then the underlying resources associated
-// with the capability will be released.
-//
-// Release will panic if c has already been released, but not if c is
-// nil or resolved to null.
 func (c CSVTimeSeriesFactory) Release() {
-	capnp.Client(c).Release()
-}
-
-// Resolve blocks until the capability is fully resolved or the Context
-// expires.
-func (c CSVTimeSeriesFactory) Resolve(ctx context.Context) error {
-	return capnp.Client(c).Resolve(ctx)
-}
-
-func (c CSVTimeSeriesFactory) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Client(c).EncodeAsPtr(seg)
-}
-
-func (CSVTimeSeriesFactory) DecodeFromPtr(p capnp.Ptr) CSVTimeSeriesFactory {
-	return CSVTimeSeriesFactory(capnp.Client{}.DecodeFromPtr(p))
-}
-
-// IsValid reports whether c is a valid reference to a capability.
-// A reference is invalid if it is nil, has resolved to null, or has
-// been released.
-func (c CSVTimeSeriesFactory) IsValid() bool {
-	return capnp.Client(c).IsValid()
-}
-
-// IsSame reports whether c and other refer to a capability created by the
-// same call to NewClient.  This can return false negatives if c or other
-// are not fully resolved: use Resolve if this is an issue.  If either
-// c or other are released, then IsSame panics.
-func (c CSVTimeSeriesFactory) IsSame(other CSVTimeSeriesFactory) bool {
-	return capnp.Client(c).IsSame(capnp.Client(other))
-}
-
-// Update the flowcontrol.FlowLimiter used to manage flow control for
-// this client. This affects all future calls, but not calls already
-// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
-// which is also the default.
-func (c CSVTimeSeriesFactory) SetFlowLimiter(lim fc.FlowLimiter) {
-	capnp.Client(c).SetFlowLimiter(lim)
-}
-
-// Get the current flowcontrol.FlowLimiter used to manage flow control
-// for this client.
-func (c CSVTimeSeriesFactory) GetFlowLimiter() fc.FlowLimiter {
-	return capnp.Client(c).GetFlowLimiter()
+	c.Client.Release()
 }
 
 // A CSVTimeSeriesFactory_Server is a CSVTimeSeriesFactory with a local implementation.
@@ -6903,15 +5948,15 @@ type CSVTimeSeriesFactory_Server interface {
 }
 
 // CSVTimeSeriesFactory_NewServer creates a new Server from an implementation of CSVTimeSeriesFactory_Server.
-func CSVTimeSeriesFactory_NewServer(s CSVTimeSeriesFactory_Server) *server.Server {
+func CSVTimeSeriesFactory_NewServer(s CSVTimeSeriesFactory_Server, policy *server.Policy) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(CSVTimeSeriesFactory_Methods(nil, s), s, c)
+	return server.New(CSVTimeSeriesFactory_Methods(nil, s), s, c, policy)
 }
 
 // CSVTimeSeriesFactory_ServerToClient creates a new Client from an implementation of CSVTimeSeriesFactory_Server.
 // The caller is responsible for calling Release on the returned Client.
-func CSVTimeSeriesFactory_ServerToClient(s CSVTimeSeriesFactory_Server) CSVTimeSeriesFactory {
-	return CSVTimeSeriesFactory(capnp.NewClient(CSVTimeSeriesFactory_NewServer(s)))
+func CSVTimeSeriesFactory_ServerToClient(s CSVTimeSeriesFactory_Server, policy *server.Policy) CSVTimeSeriesFactory {
+	return CSVTimeSeriesFactory{Client: capnp.NewClient(CSVTimeSeriesFactory_NewServer(s, policy))}
 }
 
 // CSVTimeSeriesFactory_Methods appends Methods to a slice that invoke the methods on s.
@@ -6956,364 +6001,330 @@ type CSVTimeSeriesFactory_create struct {
 
 // Args returns the call's arguments.
 func (c CSVTimeSeriesFactory_create) Args() CSVTimeSeriesFactory_create_Params {
-	return CSVTimeSeriesFactory_create_Params(c.Call.Args())
+	return CSVTimeSeriesFactory_create_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c CSVTimeSeriesFactory_create) AllocResults() (CSVTimeSeriesFactory_create_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return CSVTimeSeriesFactory_create_Results(r), err
+	return CSVTimeSeriesFactory_create_Results{Struct: r}, err
 }
 
-// CSVTimeSeriesFactory_List is a list of CSVTimeSeriesFactory.
-type CSVTimeSeriesFactory_List = capnp.CapList[CSVTimeSeriesFactory]
-
-// NewCSVTimeSeriesFactory creates a new list of CSVTimeSeriesFactory.
-func NewCSVTimeSeriesFactory_List(s *capnp.Segment, sz int32) (CSVTimeSeriesFactory_List, error) {
-	l, err := capnp.NewPointerList(s, sz)
-	return capnp.CapList[CSVTimeSeriesFactory](l), err
-}
-
-type CSVTimeSeriesFactory_CSVConfig capnp.Struct
+type CSVTimeSeriesFactory_CSVConfig struct{ capnp.Struct }
 
 // CSVTimeSeriesFactory_CSVConfig_TypeID is the unique identifier for the type CSVTimeSeriesFactory_CSVConfig.
 const CSVTimeSeriesFactory_CSVConfig_TypeID = 0xeba81ca9f46690b8
 
 func NewCSVTimeSeriesFactory_CSVConfig(s *capnp.Segment) (CSVTimeSeriesFactory_CSVConfig, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 2})
-	return CSVTimeSeriesFactory_CSVConfig(st), err
+	return CSVTimeSeriesFactory_CSVConfig{st}, err
 }
 
 func NewRootCSVTimeSeriesFactory_CSVConfig(s *capnp.Segment) (CSVTimeSeriesFactory_CSVConfig, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 2})
-	return CSVTimeSeriesFactory_CSVConfig(st), err
+	return CSVTimeSeriesFactory_CSVConfig{st}, err
 }
 
 func ReadRootCSVTimeSeriesFactory_CSVConfig(msg *capnp.Message) (CSVTimeSeriesFactory_CSVConfig, error) {
 	root, err := msg.Root()
-	return CSVTimeSeriesFactory_CSVConfig(root.Struct()), err
+	return CSVTimeSeriesFactory_CSVConfig{root.Struct()}, err
 }
 
 func (s CSVTimeSeriesFactory_CSVConfig) String() string {
-	str, _ := text.Marshal(0xeba81ca9f46690b8, capnp.Struct(s))
+	str, _ := text.Marshal(0xeba81ca9f46690b8, s.Struct)
 	return str
 }
 
-func (s CSVTimeSeriesFactory_CSVConfig) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (CSVTimeSeriesFactory_CSVConfig) DecodeFromPtr(p capnp.Ptr) CSVTimeSeriesFactory_CSVConfig {
-	return CSVTimeSeriesFactory_CSVConfig(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s CSVTimeSeriesFactory_CSVConfig) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s CSVTimeSeriesFactory_CSVConfig) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s CSVTimeSeriesFactory_CSVConfig) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s CSVTimeSeriesFactory_CSVConfig) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s CSVTimeSeriesFactory_CSVConfig) Sep() (string, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.TextDefault(","), err
 }
 
 func (s CSVTimeSeriesFactory_CSVConfig) HasSep() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s CSVTimeSeriesFactory_CSVConfig) SepBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.TextBytesDefault(","), err
 }
 
 func (s CSVTimeSeriesFactory_CSVConfig) SetSep(v string) error {
-	return capnp.Struct(s).SetNewText(0, v)
+	return s.Struct.SetNewText(0, v)
 }
 
 func (s CSVTimeSeriesFactory_CSVConfig) HeaderMap() (common.Pair_List, error) {
-	p, err := capnp.Struct(s).Ptr(1)
-	return common.Pair_List(p.List()), err
+	p, err := s.Struct.Ptr(1)
+	return common.Pair_List{List: p.List()}, err
 }
 
 func (s CSVTimeSeriesFactory_CSVConfig) HasHeaderMap() bool {
-	return capnp.Struct(s).HasPtr(1)
+	return s.Struct.HasPtr(1)
 }
 
 func (s CSVTimeSeriesFactory_CSVConfig) SetHeaderMap(v common.Pair_List) error {
-	return capnp.Struct(s).SetPtr(1, v.ToPtr())
+	return s.Struct.SetPtr(1, v.List.ToPtr())
 }
 
 // NewHeaderMap sets the headerMap field to a newly
 // allocated common.Pair_List, preferring placement in s's segment.
 func (s CSVTimeSeriesFactory_CSVConfig) NewHeaderMap(n int32) (common.Pair_List, error) {
-	l, err := common.NewPair_List(capnp.Struct(s).Segment(), n)
+	l, err := common.NewPair_List(s.Struct.Segment(), n)
 	if err != nil {
 		return common.Pair_List{}, err
 	}
-	err = capnp.Struct(s).SetPtr(1, l.ToPtr())
+	err = s.Struct.SetPtr(1, l.List.ToPtr())
 	return l, err
 }
+
 func (s CSVTimeSeriesFactory_CSVConfig) SkipLinesToHeader() int16 {
-	return int16(capnp.Struct(s).Uint16(0))
+	return int16(s.Struct.Uint16(0))
 }
 
 func (s CSVTimeSeriesFactory_CSVConfig) SetSkipLinesToHeader(v int16) {
-	capnp.Struct(s).SetUint16(0, uint16(v))
+	s.Struct.SetUint16(0, uint16(v))
 }
 
 func (s CSVTimeSeriesFactory_CSVConfig) SkipLinesFromHeaderToData() int16 {
-	return int16(capnp.Struct(s).Uint16(2) ^ 1)
+	return int16(s.Struct.Uint16(2) ^ 1)
 }
 
 func (s CSVTimeSeriesFactory_CSVConfig) SetSkipLinesFromHeaderToData(v int16) {
-	capnp.Struct(s).SetUint16(2, uint16(v)^1)
+	s.Struct.SetUint16(2, uint16(v)^1)
 }
 
 // CSVTimeSeriesFactory_CSVConfig_List is a list of CSVTimeSeriesFactory_CSVConfig.
-type CSVTimeSeriesFactory_CSVConfig_List = capnp.StructList[CSVTimeSeriesFactory_CSVConfig]
+type CSVTimeSeriesFactory_CSVConfig_List struct{ capnp.List }
 
 // NewCSVTimeSeriesFactory_CSVConfig creates a new list of CSVTimeSeriesFactory_CSVConfig.
 func NewCSVTimeSeriesFactory_CSVConfig_List(s *capnp.Segment, sz int32) (CSVTimeSeriesFactory_CSVConfig_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 2}, sz)
-	return capnp.StructList[CSVTimeSeriesFactory_CSVConfig](l), err
+	return CSVTimeSeriesFactory_CSVConfig_List{l}, err
+}
+
+func (s CSVTimeSeriesFactory_CSVConfig_List) At(i int) CSVTimeSeriesFactory_CSVConfig {
+	return CSVTimeSeriesFactory_CSVConfig{s.List.Struct(i)}
+}
+
+func (s CSVTimeSeriesFactory_CSVConfig_List) Set(i int, v CSVTimeSeriesFactory_CSVConfig) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s CSVTimeSeriesFactory_CSVConfig_List) String() string {
+	str, _ := text.MarshalList(0xeba81ca9f46690b8, s.List)
+	return str
 }
 
 // CSVTimeSeriesFactory_CSVConfig_Future is a wrapper for a CSVTimeSeriesFactory_CSVConfig promised by a client call.
 type CSVTimeSeriesFactory_CSVConfig_Future struct{ *capnp.Future }
 
-func (f CSVTimeSeriesFactory_CSVConfig_Future) Struct() (CSVTimeSeriesFactory_CSVConfig, error) {
-	p, err := f.Future.Ptr()
-	return CSVTimeSeriesFactory_CSVConfig(p.Struct()), err
+func (p CSVTimeSeriesFactory_CSVConfig_Future) Struct() (CSVTimeSeriesFactory_CSVConfig, error) {
+	s, err := p.Future.Struct()
+	return CSVTimeSeriesFactory_CSVConfig{s}, err
 }
 
-type CSVTimeSeriesFactory_create_Params capnp.Struct
+type CSVTimeSeriesFactory_create_Params struct{ capnp.Struct }
 
 // CSVTimeSeriesFactory_create_Params_TypeID is the unique identifier for the type CSVTimeSeriesFactory_create_Params.
 const CSVTimeSeriesFactory_create_Params_TypeID = 0xcfaa8d2601750547
 
 func NewCSVTimeSeriesFactory_create_Params(s *capnp.Segment) (CSVTimeSeriesFactory_create_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return CSVTimeSeriesFactory_create_Params(st), err
+	return CSVTimeSeriesFactory_create_Params{st}, err
 }
 
 func NewRootCSVTimeSeriesFactory_create_Params(s *capnp.Segment) (CSVTimeSeriesFactory_create_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return CSVTimeSeriesFactory_create_Params(st), err
+	return CSVTimeSeriesFactory_create_Params{st}, err
 }
 
 func ReadRootCSVTimeSeriesFactory_create_Params(msg *capnp.Message) (CSVTimeSeriesFactory_create_Params, error) {
 	root, err := msg.Root()
-	return CSVTimeSeriesFactory_create_Params(root.Struct()), err
+	return CSVTimeSeriesFactory_create_Params{root.Struct()}, err
 }
 
 func (s CSVTimeSeriesFactory_create_Params) String() string {
-	str, _ := text.Marshal(0xcfaa8d2601750547, capnp.Struct(s))
+	str, _ := text.Marshal(0xcfaa8d2601750547, s.Struct)
 	return str
 }
 
-func (s CSVTimeSeriesFactory_create_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (CSVTimeSeriesFactory_create_Params) DecodeFromPtr(p capnp.Ptr) CSVTimeSeriesFactory_create_Params {
-	return CSVTimeSeriesFactory_create_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s CSVTimeSeriesFactory_create_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s CSVTimeSeriesFactory_create_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s CSVTimeSeriesFactory_create_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s CSVTimeSeriesFactory_create_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s CSVTimeSeriesFactory_create_Params) CsvData() (string, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.Text(), err
 }
 
 func (s CSVTimeSeriesFactory_create_Params) HasCsvData() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s CSVTimeSeriesFactory_create_Params) CsvDataBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.TextBytes(), err
 }
 
 func (s CSVTimeSeriesFactory_create_Params) SetCsvData(v string) error {
-	return capnp.Struct(s).SetText(0, v)
+	return s.Struct.SetText(0, v)
 }
 
 func (s CSVTimeSeriesFactory_create_Params) Config() (CSVTimeSeriesFactory_CSVConfig, error) {
-	p, err := capnp.Struct(s).Ptr(1)
-	return CSVTimeSeriesFactory_CSVConfig(p.Struct()), err
+	p, err := s.Struct.Ptr(1)
+	return CSVTimeSeriesFactory_CSVConfig{Struct: p.Struct()}, err
 }
 
 func (s CSVTimeSeriesFactory_create_Params) HasConfig() bool {
-	return capnp.Struct(s).HasPtr(1)
+	return s.Struct.HasPtr(1)
 }
 
 func (s CSVTimeSeriesFactory_create_Params) SetConfig(v CSVTimeSeriesFactory_CSVConfig) error {
-	return capnp.Struct(s).SetPtr(1, capnp.Struct(v).ToPtr())
+	return s.Struct.SetPtr(1, v.Struct.ToPtr())
 }
 
 // NewConfig sets the config field to a newly
 // allocated CSVTimeSeriesFactory_CSVConfig struct, preferring placement in s's segment.
 func (s CSVTimeSeriesFactory_create_Params) NewConfig() (CSVTimeSeriesFactory_CSVConfig, error) {
-	ss, err := NewCSVTimeSeriesFactory_CSVConfig(capnp.Struct(s).Segment())
+	ss, err := NewCSVTimeSeriesFactory_CSVConfig(s.Struct.Segment())
 	if err != nil {
 		return CSVTimeSeriesFactory_CSVConfig{}, err
 	}
-	err = capnp.Struct(s).SetPtr(1, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(1, ss.Struct.ToPtr())
 	return ss, err
 }
 
 // CSVTimeSeriesFactory_create_Params_List is a list of CSVTimeSeriesFactory_create_Params.
-type CSVTimeSeriesFactory_create_Params_List = capnp.StructList[CSVTimeSeriesFactory_create_Params]
+type CSVTimeSeriesFactory_create_Params_List struct{ capnp.List }
 
 // NewCSVTimeSeriesFactory_create_Params creates a new list of CSVTimeSeriesFactory_create_Params.
 func NewCSVTimeSeriesFactory_create_Params_List(s *capnp.Segment, sz int32) (CSVTimeSeriesFactory_create_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
-	return capnp.StructList[CSVTimeSeriesFactory_create_Params](l), err
+	return CSVTimeSeriesFactory_create_Params_List{l}, err
+}
+
+func (s CSVTimeSeriesFactory_create_Params_List) At(i int) CSVTimeSeriesFactory_create_Params {
+	return CSVTimeSeriesFactory_create_Params{s.List.Struct(i)}
+}
+
+func (s CSVTimeSeriesFactory_create_Params_List) Set(i int, v CSVTimeSeriesFactory_create_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s CSVTimeSeriesFactory_create_Params_List) String() string {
+	str, _ := text.MarshalList(0xcfaa8d2601750547, s.List)
+	return str
 }
 
 // CSVTimeSeriesFactory_create_Params_Future is a wrapper for a CSVTimeSeriesFactory_create_Params promised by a client call.
 type CSVTimeSeriesFactory_create_Params_Future struct{ *capnp.Future }
 
-func (f CSVTimeSeriesFactory_create_Params_Future) Struct() (CSVTimeSeriesFactory_create_Params, error) {
-	p, err := f.Future.Ptr()
-	return CSVTimeSeriesFactory_create_Params(p.Struct()), err
+func (p CSVTimeSeriesFactory_create_Params_Future) Struct() (CSVTimeSeriesFactory_create_Params, error) {
+	s, err := p.Future.Struct()
+	return CSVTimeSeriesFactory_create_Params{s}, err
 }
+
 func (p CSVTimeSeriesFactory_create_Params_Future) Config() CSVTimeSeriesFactory_CSVConfig_Future {
 	return CSVTimeSeriesFactory_CSVConfig_Future{Future: p.Future.Field(1, nil)}
 }
 
-type CSVTimeSeriesFactory_create_Results capnp.Struct
+type CSVTimeSeriesFactory_create_Results struct{ capnp.Struct }
 
 // CSVTimeSeriesFactory_create_Results_TypeID is the unique identifier for the type CSVTimeSeriesFactory_create_Results.
 const CSVTimeSeriesFactory_create_Results_TypeID = 0xefefafebc8ae5534
 
 func NewCSVTimeSeriesFactory_create_Results(s *capnp.Segment) (CSVTimeSeriesFactory_create_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return CSVTimeSeriesFactory_create_Results(st), err
+	return CSVTimeSeriesFactory_create_Results{st}, err
 }
 
 func NewRootCSVTimeSeriesFactory_create_Results(s *capnp.Segment) (CSVTimeSeriesFactory_create_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return CSVTimeSeriesFactory_create_Results(st), err
+	return CSVTimeSeriesFactory_create_Results{st}, err
 }
 
 func ReadRootCSVTimeSeriesFactory_create_Results(msg *capnp.Message) (CSVTimeSeriesFactory_create_Results, error) {
 	root, err := msg.Root()
-	return CSVTimeSeriesFactory_create_Results(root.Struct()), err
+	return CSVTimeSeriesFactory_create_Results{root.Struct()}, err
 }
 
 func (s CSVTimeSeriesFactory_create_Results) String() string {
-	str, _ := text.Marshal(0xefefafebc8ae5534, capnp.Struct(s))
+	str, _ := text.Marshal(0xefefafebc8ae5534, s.Struct)
 	return str
 }
 
-func (s CSVTimeSeriesFactory_create_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (CSVTimeSeriesFactory_create_Results) DecodeFromPtr(p capnp.Ptr) CSVTimeSeriesFactory_create_Results {
-	return CSVTimeSeriesFactory_create_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s CSVTimeSeriesFactory_create_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s CSVTimeSeriesFactory_create_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s CSVTimeSeriesFactory_create_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s CSVTimeSeriesFactory_create_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s CSVTimeSeriesFactory_create_Results) Timeseries() TimeSeries {
-	p, _ := capnp.Struct(s).Ptr(0)
-	return TimeSeries(p.Interface().Client())
+	p, _ := s.Struct.Ptr(0)
+	return TimeSeries{Client: p.Interface().Client()}
 }
 
 func (s CSVTimeSeriesFactory_create_Results) HasTimeseries() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s CSVTimeSeriesFactory_create_Results) SetTimeseries(v TimeSeries) error {
-	if !v.IsValid() {
-		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
+	if !v.Client.IsValid() {
+		return s.Struct.SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
-	return capnp.Struct(s).SetPtr(0, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
+	return s.Struct.SetPtr(0, in.ToPtr())
 }
 
 func (s CSVTimeSeriesFactory_create_Results) Error() (string, error) {
-	p, err := capnp.Struct(s).Ptr(1)
+	p, err := s.Struct.Ptr(1)
 	return p.Text(), err
 }
 
 func (s CSVTimeSeriesFactory_create_Results) HasError() bool {
-	return capnp.Struct(s).HasPtr(1)
+	return s.Struct.HasPtr(1)
 }
 
 func (s CSVTimeSeriesFactory_create_Results) ErrorBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(1)
+	p, err := s.Struct.Ptr(1)
 	return p.TextBytes(), err
 }
 
 func (s CSVTimeSeriesFactory_create_Results) SetError(v string) error {
-	return capnp.Struct(s).SetText(1, v)
+	return s.Struct.SetText(1, v)
 }
 
 // CSVTimeSeriesFactory_create_Results_List is a list of CSVTimeSeriesFactory_create_Results.
-type CSVTimeSeriesFactory_create_Results_List = capnp.StructList[CSVTimeSeriesFactory_create_Results]
+type CSVTimeSeriesFactory_create_Results_List struct{ capnp.List }
 
 // NewCSVTimeSeriesFactory_create_Results creates a new list of CSVTimeSeriesFactory_create_Results.
 func NewCSVTimeSeriesFactory_create_Results_List(s *capnp.Segment, sz int32) (CSVTimeSeriesFactory_create_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
-	return capnp.StructList[CSVTimeSeriesFactory_create_Results](l), err
+	return CSVTimeSeriesFactory_create_Results_List{l}, err
+}
+
+func (s CSVTimeSeriesFactory_create_Results_List) At(i int) CSVTimeSeriesFactory_create_Results {
+	return CSVTimeSeriesFactory_create_Results{s.List.Struct(i)}
+}
+
+func (s CSVTimeSeriesFactory_create_Results_List) Set(i int, v CSVTimeSeriesFactory_create_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s CSVTimeSeriesFactory_create_Results_List) String() string {
+	str, _ := text.MarshalList(0xefefafebc8ae5534, s.List)
+	return str
 }
 
 // CSVTimeSeriesFactory_create_Results_Future is a wrapper for a CSVTimeSeriesFactory_create_Results promised by a client call.
 type CSVTimeSeriesFactory_create_Results_Future struct{ *capnp.Future }
 
-func (f CSVTimeSeriesFactory_create_Results_Future) Struct() (CSVTimeSeriesFactory_create_Results, error) {
-	p, err := f.Future.Ptr()
-	return CSVTimeSeriesFactory_create_Results(p.Struct()), err
-}
-func (p CSVTimeSeriesFactory_create_Results_Future) Timeseries() TimeSeries {
-	return TimeSeries(p.Future.Field(0, nil).Client())
+func (p CSVTimeSeriesFactory_create_Results_Future) Struct() (CSVTimeSeriesFactory_create_Results, error) {
+	s, err := p.Future.Struct()
+	return CSVTimeSeriesFactory_create_Results{s}, err
 }
 
-type AlterTimeSeriesWrapper capnp.Client
+func (p CSVTimeSeriesFactory_create_Results_Future) Timeseries() TimeSeries {
+	return TimeSeries{Client: p.Future.Field(0, nil).Client()}
+}
+
+type AlterTimeSeriesWrapper struct{ Client *capnp.Client }
 
 // AlterTimeSeriesWrapper_TypeID is the unique identifier for the type AlterTimeSeriesWrapper.
 const AlterTimeSeriesWrapper_TypeID = 0xe1f480ef979784b2
 
 func (c AlterTimeSeriesWrapper) WrappedTimeSeries(ctx context.Context, params func(AlterTimeSeriesWrapper_wrappedTimeSeries_Params) error) (AlterTimeSeriesWrapper_wrappedTimeSeries_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xe1f480ef979784b2,
@@ -7324,16 +6335,12 @@ func (c AlterTimeSeriesWrapper) WrappedTimeSeries(ctx context.Context, params fu
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(AlterTimeSeriesWrapper_wrappedTimeSeries_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(AlterTimeSeriesWrapper_wrappedTimeSeries_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return AlterTimeSeriesWrapper_wrappedTimeSeries_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c AlterTimeSeriesWrapper) AlteredElements(ctx context.Context, params func(AlterTimeSeriesWrapper_alteredElements_Params) error) (AlterTimeSeriesWrapper_alteredElements_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xe1f480ef979784b2,
@@ -7344,16 +6351,12 @@ func (c AlterTimeSeriesWrapper) AlteredElements(ctx context.Context, params func
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(AlterTimeSeriesWrapper_alteredElements_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(AlterTimeSeriesWrapper_alteredElements_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return AlterTimeSeriesWrapper_alteredElements_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c AlterTimeSeriesWrapper) Alter(ctx context.Context, params func(AlterTimeSeriesWrapper_alter_Params) error) (AlterTimeSeriesWrapper_alter_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xe1f480ef979784b2,
@@ -7364,16 +6367,12 @@ func (c AlterTimeSeriesWrapper) Alter(ctx context.Context, params func(AlterTime
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(AlterTimeSeriesWrapper_alter_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(AlterTimeSeriesWrapper_alter_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return AlterTimeSeriesWrapper_alter_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c AlterTimeSeriesWrapper) Remove(ctx context.Context, params func(AlterTimeSeriesWrapper_remove_Params) error) (AlterTimeSeriesWrapper_remove_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xe1f480ef979784b2,
@@ -7384,16 +6383,12 @@ func (c AlterTimeSeriesWrapper) Remove(ctx context.Context, params func(AlterTim
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(AlterTimeSeriesWrapper_remove_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(AlterTimeSeriesWrapper_remove_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return AlterTimeSeriesWrapper_remove_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c AlterTimeSeriesWrapper) ReplaceWrappedTimeSeries(ctx context.Context, params func(AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params) error) (AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xe1f480ef979784b2,
@@ -7404,16 +6399,14 @@ func (c AlterTimeSeriesWrapper) ReplaceWrappedTimeSeries(ctx context.Context, pa
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error {
+			return params(AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params{Struct: s})
+		}
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c AlterTimeSeriesWrapper) Resolution(ctx context.Context, params func(TimeSeries_resolution_Params) error) (TimeSeries_resolution_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa7769f40fe6e6de8,
@@ -7424,16 +6417,12 @@ func (c AlterTimeSeriesWrapper) Resolution(ctx context.Context, params func(Time
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_resolution_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_resolution_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return TimeSeries_resolution_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c AlterTimeSeriesWrapper) Range(ctx context.Context, params func(TimeSeries_range_Params) error) (TimeSeries_range_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa7769f40fe6e6de8,
@@ -7444,16 +6433,12 @@ func (c AlterTimeSeriesWrapper) Range(ctx context.Context, params func(TimeSerie
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_range_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_range_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return TimeSeries_range_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c AlterTimeSeriesWrapper) Header(ctx context.Context, params func(TimeSeries_header_Params) error) (TimeSeries_header_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa7769f40fe6e6de8,
@@ -7464,16 +6449,12 @@ func (c AlterTimeSeriesWrapper) Header(ctx context.Context, params func(TimeSeri
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_header_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_header_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return TimeSeries_header_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c AlterTimeSeriesWrapper) Data(ctx context.Context, params func(TimeSeries_data_Params) error) (TimeSeries_data_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa7769f40fe6e6de8,
@@ -7484,16 +6465,12 @@ func (c AlterTimeSeriesWrapper) Data(ctx context.Context, params func(TimeSeries
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_data_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_data_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return TimeSeries_data_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c AlterTimeSeriesWrapper) DataT(ctx context.Context, params func(TimeSeries_dataT_Params) error) (TimeSeries_dataT_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa7769f40fe6e6de8,
@@ -7504,16 +6481,12 @@ func (c AlterTimeSeriesWrapper) DataT(ctx context.Context, params func(TimeSerie
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_dataT_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_dataT_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return TimeSeries_dataT_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c AlterTimeSeriesWrapper) Subrange(ctx context.Context, params func(TimeSeries_subrange_Params) error) (TimeSeries_subrange_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa7769f40fe6e6de8,
@@ -7524,16 +6497,12 @@ func (c AlterTimeSeriesWrapper) Subrange(ctx context.Context, params func(TimeSe
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 2}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_subrange_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_subrange_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return TimeSeries_subrange_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c AlterTimeSeriesWrapper) Subheader(ctx context.Context, params func(TimeSeries_subheader_Params) error) (TimeSeries_subheader_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa7769f40fe6e6de8,
@@ -7544,16 +6513,12 @@ func (c AlterTimeSeriesWrapper) Subheader(ctx context.Context, params func(TimeS
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_subheader_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_subheader_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return TimeSeries_subheader_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c AlterTimeSeriesWrapper) Metadata(ctx context.Context, params func(TimeSeries_metadata_Params) error) (Metadata_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa7769f40fe6e6de8,
@@ -7564,16 +6529,12 @@ func (c AlterTimeSeriesWrapper) Metadata(ctx context.Context, params func(TimeSe
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_metadata_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_metadata_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Metadata_Future{Future: ans.Future()}, release
-
 }
-
 func (c AlterTimeSeriesWrapper) Location(ctx context.Context, params func(TimeSeries_location_Params) error) (Location_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa7769f40fe6e6de8,
@@ -7584,16 +6545,12 @@ func (c AlterTimeSeriesWrapper) Location(ctx context.Context, params func(TimeSe
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_location_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(TimeSeries_location_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Location_Future{Future: ans.Future()}, release
-
 }
-
 func (c AlterTimeSeriesWrapper) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -7604,16 +6561,12 @@ func (c AlterTimeSeriesWrapper) Info(ctx context.Context, params func(common.Ide
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
-
 }
-
 func (c AlterTimeSeriesWrapper) Save(ctx context.Context, params func(persistence.Persistent_SaveParams) error) (persistence.Persistent_SaveResults_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xc1a7daa0dc36cb65,
@@ -7624,83 +6577,20 @@ func (c AlterTimeSeriesWrapper) Save(ctx context.Context, params func(persistenc
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return persistence.Persistent_SaveResults_Future{Future: ans.Future()}, release
-
 }
 
-func (c AlterTimeSeriesWrapper) WaitStreaming() error {
-	return capnp.Client(c).WaitStreaming()
-}
-
-// String returns a string that identifies this capability for debugging
-// purposes.  Its format should not be depended on: in particular, it
-// should not be used to compare clients.  Use IsSame to compare clients
-// for equality.
-func (c AlterTimeSeriesWrapper) String() string {
-	return "AlterTimeSeriesWrapper(" + capnp.Client(c).String() + ")"
-}
-
-// AddRef creates a new Client that refers to the same capability as c.
-// If c is nil or has resolved to null, then AddRef returns nil.
 func (c AlterTimeSeriesWrapper) AddRef() AlterTimeSeriesWrapper {
-	return AlterTimeSeriesWrapper(capnp.Client(c).AddRef())
+	return AlterTimeSeriesWrapper{
+		Client: c.Client.AddRef(),
+	}
 }
 
-// Release releases a capability reference.  If this is the last
-// reference to the capability, then the underlying resources associated
-// with the capability will be released.
-//
-// Release will panic if c has already been released, but not if c is
-// nil or resolved to null.
 func (c AlterTimeSeriesWrapper) Release() {
-	capnp.Client(c).Release()
-}
-
-// Resolve blocks until the capability is fully resolved or the Context
-// expires.
-func (c AlterTimeSeriesWrapper) Resolve(ctx context.Context) error {
-	return capnp.Client(c).Resolve(ctx)
-}
-
-func (c AlterTimeSeriesWrapper) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Client(c).EncodeAsPtr(seg)
-}
-
-func (AlterTimeSeriesWrapper) DecodeFromPtr(p capnp.Ptr) AlterTimeSeriesWrapper {
-	return AlterTimeSeriesWrapper(capnp.Client{}.DecodeFromPtr(p))
-}
-
-// IsValid reports whether c is a valid reference to a capability.
-// A reference is invalid if it is nil, has resolved to null, or has
-// been released.
-func (c AlterTimeSeriesWrapper) IsValid() bool {
-	return capnp.Client(c).IsValid()
-}
-
-// IsSame reports whether c and other refer to a capability created by the
-// same call to NewClient.  This can return false negatives if c or other
-// are not fully resolved: use Resolve if this is an issue.  If either
-// c or other are released, then IsSame panics.
-func (c AlterTimeSeriesWrapper) IsSame(other AlterTimeSeriesWrapper) bool {
-	return capnp.Client(c).IsSame(capnp.Client(other))
-}
-
-// Update the flowcontrol.FlowLimiter used to manage flow control for
-// this client. This affects all future calls, but not calls already
-// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
-// which is also the default.
-func (c AlterTimeSeriesWrapper) SetFlowLimiter(lim fc.FlowLimiter) {
-	capnp.Client(c).SetFlowLimiter(lim)
-}
-
-// Get the current flowcontrol.FlowLimiter used to manage flow control
-// for this client.
-func (c AlterTimeSeriesWrapper) GetFlowLimiter() fc.FlowLimiter {
-	return capnp.Client(c).GetFlowLimiter()
+	c.Client.Release()
 }
 
 // A AlterTimeSeriesWrapper_Server is a AlterTimeSeriesWrapper with a local implementation.
@@ -7739,15 +6629,15 @@ type AlterTimeSeriesWrapper_Server interface {
 }
 
 // AlterTimeSeriesWrapper_NewServer creates a new Server from an implementation of AlterTimeSeriesWrapper_Server.
-func AlterTimeSeriesWrapper_NewServer(s AlterTimeSeriesWrapper_Server) *server.Server {
+func AlterTimeSeriesWrapper_NewServer(s AlterTimeSeriesWrapper_Server, policy *server.Policy) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(AlterTimeSeriesWrapper_Methods(nil, s), s, c)
+	return server.New(AlterTimeSeriesWrapper_Methods(nil, s), s, c, policy)
 }
 
 // AlterTimeSeriesWrapper_ServerToClient creates a new Client from an implementation of AlterTimeSeriesWrapper_Server.
 // The caller is responsible for calling Release on the returned Client.
-func AlterTimeSeriesWrapper_ServerToClient(s AlterTimeSeriesWrapper_Server) AlterTimeSeriesWrapper {
-	return AlterTimeSeriesWrapper(capnp.NewClient(AlterTimeSeriesWrapper_NewServer(s)))
+func AlterTimeSeriesWrapper_ServerToClient(s AlterTimeSeriesWrapper_Server, policy *server.Policy) AlterTimeSeriesWrapper {
+	return AlterTimeSeriesWrapper{Client: capnp.NewClient(AlterTimeSeriesWrapper_NewServer(s, policy))}
 }
 
 // AlterTimeSeriesWrapper_Methods appends Methods to a slice that invoke the methods on s.
@@ -7960,13 +6850,13 @@ type AlterTimeSeriesWrapper_wrappedTimeSeries struct {
 
 // Args returns the call's arguments.
 func (c AlterTimeSeriesWrapper_wrappedTimeSeries) Args() AlterTimeSeriesWrapper_wrappedTimeSeries_Params {
-	return AlterTimeSeriesWrapper_wrappedTimeSeries_Params(c.Call.Args())
+	return AlterTimeSeriesWrapper_wrappedTimeSeries_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c AlterTimeSeriesWrapper_wrappedTimeSeries) AllocResults() (AlterTimeSeriesWrapper_wrappedTimeSeries_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return AlterTimeSeriesWrapper_wrappedTimeSeries_Results(r), err
+	return AlterTimeSeriesWrapper_wrappedTimeSeries_Results{Struct: r}, err
 }
 
 // AlterTimeSeriesWrapper_alteredElements holds the state for a server call to AlterTimeSeriesWrapper.alteredElements.
@@ -7977,13 +6867,13 @@ type AlterTimeSeriesWrapper_alteredElements struct {
 
 // Args returns the call's arguments.
 func (c AlterTimeSeriesWrapper_alteredElements) Args() AlterTimeSeriesWrapper_alteredElements_Params {
-	return AlterTimeSeriesWrapper_alteredElements_Params(c.Call.Args())
+	return AlterTimeSeriesWrapper_alteredElements_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c AlterTimeSeriesWrapper_alteredElements) AllocResults() (AlterTimeSeriesWrapper_alteredElements_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return AlterTimeSeriesWrapper_alteredElements_Results(r), err
+	return AlterTimeSeriesWrapper_alteredElements_Results{Struct: r}, err
 }
 
 // AlterTimeSeriesWrapper_alter holds the state for a server call to AlterTimeSeriesWrapper.alter.
@@ -7994,13 +6884,13 @@ type AlterTimeSeriesWrapper_alter struct {
 
 // Args returns the call's arguments.
 func (c AlterTimeSeriesWrapper_alter) Args() AlterTimeSeriesWrapper_alter_Params {
-	return AlterTimeSeriesWrapper_alter_Params(c.Call.Args())
+	return AlterTimeSeriesWrapper_alter_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c AlterTimeSeriesWrapper_alter) AllocResults() (AlterTimeSeriesWrapper_alter_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return AlterTimeSeriesWrapper_alter_Results(r), err
+	return AlterTimeSeriesWrapper_alter_Results{Struct: r}, err
 }
 
 // AlterTimeSeriesWrapper_remove holds the state for a server call to AlterTimeSeriesWrapper.remove.
@@ -8011,13 +6901,13 @@ type AlterTimeSeriesWrapper_remove struct {
 
 // Args returns the call's arguments.
 func (c AlterTimeSeriesWrapper_remove) Args() AlterTimeSeriesWrapper_remove_Params {
-	return AlterTimeSeriesWrapper_remove_Params(c.Call.Args())
+	return AlterTimeSeriesWrapper_remove_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c AlterTimeSeriesWrapper_remove) AllocResults() (AlterTimeSeriesWrapper_remove_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return AlterTimeSeriesWrapper_remove_Results(r), err
+	return AlterTimeSeriesWrapper_remove_Results{Struct: r}, err
 }
 
 // AlterTimeSeriesWrapper_replaceWrappedTimeSeries holds the state for a server call to AlterTimeSeriesWrapper.replaceWrappedTimeSeries.
@@ -8028,110 +6918,92 @@ type AlterTimeSeriesWrapper_replaceWrappedTimeSeries struct {
 
 // Args returns the call's arguments.
 func (c AlterTimeSeriesWrapper_replaceWrappedTimeSeries) Args() AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params {
-	return AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params(c.Call.Args())
+	return AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c AlterTimeSeriesWrapper_replaceWrappedTimeSeries) AllocResults() (AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results(r), err
+	return AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results{Struct: r}, err
 }
 
-// AlterTimeSeriesWrapper_List is a list of AlterTimeSeriesWrapper.
-type AlterTimeSeriesWrapper_List = capnp.CapList[AlterTimeSeriesWrapper]
-
-// NewAlterTimeSeriesWrapper creates a new list of AlterTimeSeriesWrapper.
-func NewAlterTimeSeriesWrapper_List(s *capnp.Segment, sz int32) (AlterTimeSeriesWrapper_List, error) {
-	l, err := capnp.NewPointerList(s, sz)
-	return capnp.CapList[AlterTimeSeriesWrapper](l), err
-}
-
-type AlterTimeSeriesWrapper_Altered capnp.Struct
+type AlterTimeSeriesWrapper_Altered struct{ capnp.Struct }
 
 // AlterTimeSeriesWrapper_Altered_TypeID is the unique identifier for the type AlterTimeSeriesWrapper_Altered.
 const AlterTimeSeriesWrapper_Altered_TypeID = 0xd085b9baf390bec5
 
 func NewAlterTimeSeriesWrapper_Altered(s *capnp.Segment) (AlterTimeSeriesWrapper_Altered, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return AlterTimeSeriesWrapper_Altered(st), err
+	return AlterTimeSeriesWrapper_Altered{st}, err
 }
 
 func NewRootAlterTimeSeriesWrapper_Altered(s *capnp.Segment) (AlterTimeSeriesWrapper_Altered, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return AlterTimeSeriesWrapper_Altered(st), err
+	return AlterTimeSeriesWrapper_Altered{st}, err
 }
 
 func ReadRootAlterTimeSeriesWrapper_Altered(msg *capnp.Message) (AlterTimeSeriesWrapper_Altered, error) {
 	root, err := msg.Root()
-	return AlterTimeSeriesWrapper_Altered(root.Struct()), err
+	return AlterTimeSeriesWrapper_Altered{root.Struct()}, err
 }
 
 func (s AlterTimeSeriesWrapper_Altered) String() string {
-	str, _ := text.Marshal(0xd085b9baf390bec5, capnp.Struct(s))
+	str, _ := text.Marshal(0xd085b9baf390bec5, s.Struct)
 	return str
 }
 
-func (s AlterTimeSeriesWrapper_Altered) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (AlterTimeSeriesWrapper_Altered) DecodeFromPtr(p capnp.Ptr) AlterTimeSeriesWrapper_Altered {
-	return AlterTimeSeriesWrapper_Altered(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s AlterTimeSeriesWrapper_Altered) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s AlterTimeSeriesWrapper_Altered) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s AlterTimeSeriesWrapper_Altered) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s AlterTimeSeriesWrapper_Altered) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s AlterTimeSeriesWrapper_Altered) Element() Element {
-	return Element(capnp.Struct(s).Uint16(0))
+	return Element(s.Struct.Uint16(0))
 }
 
 func (s AlterTimeSeriesWrapper_Altered) SetElement(v Element) {
-	capnp.Struct(s).SetUint16(0, uint16(v))
+	s.Struct.SetUint16(0, uint16(v))
 }
 
 func (s AlterTimeSeriesWrapper_Altered) Value() float32 {
-	return math.Float32frombits(capnp.Struct(s).Uint32(4))
+	return math.Float32frombits(s.Struct.Uint32(4))
 }
 
 func (s AlterTimeSeriesWrapper_Altered) SetValue(v float32) {
-	capnp.Struct(s).SetUint32(4, math.Float32bits(v))
+	s.Struct.SetUint32(4, math.Float32bits(v))
 }
 
 func (s AlterTimeSeriesWrapper_Altered) Type() AlterTimeSeriesWrapper_AlterType {
-	return AlterTimeSeriesWrapper_AlterType(capnp.Struct(s).Uint16(2))
+	return AlterTimeSeriesWrapper_AlterType(s.Struct.Uint16(2))
 }
 
 func (s AlterTimeSeriesWrapper_Altered) SetType(v AlterTimeSeriesWrapper_AlterType) {
-	capnp.Struct(s).SetUint16(2, uint16(v))
+	s.Struct.SetUint16(2, uint16(v))
 }
 
 // AlterTimeSeriesWrapper_Altered_List is a list of AlterTimeSeriesWrapper_Altered.
-type AlterTimeSeriesWrapper_Altered_List = capnp.StructList[AlterTimeSeriesWrapper_Altered]
+type AlterTimeSeriesWrapper_Altered_List struct{ capnp.List }
 
 // NewAlterTimeSeriesWrapper_Altered creates a new list of AlterTimeSeriesWrapper_Altered.
 func NewAlterTimeSeriesWrapper_Altered_List(s *capnp.Segment, sz int32) (AlterTimeSeriesWrapper_Altered_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0}, sz)
-	return capnp.StructList[AlterTimeSeriesWrapper_Altered](l), err
+	return AlterTimeSeriesWrapper_Altered_List{l}, err
+}
+
+func (s AlterTimeSeriesWrapper_Altered_List) At(i int) AlterTimeSeriesWrapper_Altered {
+	return AlterTimeSeriesWrapper_Altered{s.List.Struct(i)}
+}
+
+func (s AlterTimeSeriesWrapper_Altered_List) Set(i int, v AlterTimeSeriesWrapper_Altered) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s AlterTimeSeriesWrapper_Altered_List) String() string {
+	str, _ := text.MarshalList(0xd085b9baf390bec5, s.List)
+	return str
 }
 
 // AlterTimeSeriesWrapper_Altered_Future is a wrapper for a AlterTimeSeriesWrapper_Altered promised by a client call.
 type AlterTimeSeriesWrapper_Altered_Future struct{ *capnp.Future }
 
-func (f AlterTimeSeriesWrapper_Altered_Future) Struct() (AlterTimeSeriesWrapper_Altered, error) {
-	p, err := f.Future.Ptr()
-	return AlterTimeSeriesWrapper_Altered(p.Struct()), err
+func (p AlterTimeSeriesWrapper_Altered_Future) Struct() (AlterTimeSeriesWrapper_Altered, error) {
+	s, err := p.Future.Struct()
+	return AlterTimeSeriesWrapper_Altered{s}, err
 }
 
 type AlterTimeSeriesWrapper_AlterType uint16
@@ -8172,793 +7044,713 @@ func AlterTimeSeriesWrapper_AlterTypeFromString(c string) AlterTimeSeriesWrapper
 	}
 }
 
-type AlterTimeSeriesWrapper_AlterType_List = capnp.EnumList[AlterTimeSeriesWrapper_AlterType]
+type AlterTimeSeriesWrapper_AlterType_List struct{ capnp.List }
 
 func NewAlterTimeSeriesWrapper_AlterType_List(s *capnp.Segment, sz int32) (AlterTimeSeriesWrapper_AlterType_List, error) {
-	return capnp.NewEnumList[AlterTimeSeriesWrapper_AlterType](s, sz)
+	l, err := capnp.NewUInt16List(s, sz)
+	return AlterTimeSeriesWrapper_AlterType_List{l.List}, err
 }
 
-type AlterTimeSeriesWrapper_wrappedTimeSeries_Params capnp.Struct
+func (l AlterTimeSeriesWrapper_AlterType_List) At(i int) AlterTimeSeriesWrapper_AlterType {
+	ul := capnp.UInt16List{List: l.List}
+	return AlterTimeSeriesWrapper_AlterType(ul.At(i))
+}
+
+func (l AlterTimeSeriesWrapper_AlterType_List) Set(i int, v AlterTimeSeriesWrapper_AlterType) {
+	ul := capnp.UInt16List{List: l.List}
+	ul.Set(i, uint16(v))
+}
+
+type AlterTimeSeriesWrapper_wrappedTimeSeries_Params struct{ capnp.Struct }
 
 // AlterTimeSeriesWrapper_wrappedTimeSeries_Params_TypeID is the unique identifier for the type AlterTimeSeriesWrapper_wrappedTimeSeries_Params.
 const AlterTimeSeriesWrapper_wrappedTimeSeries_Params_TypeID = 0xe31f26eed9fb36a9
 
 func NewAlterTimeSeriesWrapper_wrappedTimeSeries_Params(s *capnp.Segment) (AlterTimeSeriesWrapper_wrappedTimeSeries_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return AlterTimeSeriesWrapper_wrappedTimeSeries_Params(st), err
+	return AlterTimeSeriesWrapper_wrappedTimeSeries_Params{st}, err
 }
 
 func NewRootAlterTimeSeriesWrapper_wrappedTimeSeries_Params(s *capnp.Segment) (AlterTimeSeriesWrapper_wrappedTimeSeries_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return AlterTimeSeriesWrapper_wrappedTimeSeries_Params(st), err
+	return AlterTimeSeriesWrapper_wrappedTimeSeries_Params{st}, err
 }
 
 func ReadRootAlterTimeSeriesWrapper_wrappedTimeSeries_Params(msg *capnp.Message) (AlterTimeSeriesWrapper_wrappedTimeSeries_Params, error) {
 	root, err := msg.Root()
-	return AlterTimeSeriesWrapper_wrappedTimeSeries_Params(root.Struct()), err
+	return AlterTimeSeriesWrapper_wrappedTimeSeries_Params{root.Struct()}, err
 }
 
 func (s AlterTimeSeriesWrapper_wrappedTimeSeries_Params) String() string {
-	str, _ := text.Marshal(0xe31f26eed9fb36a9, capnp.Struct(s))
+	str, _ := text.Marshal(0xe31f26eed9fb36a9, s.Struct)
 	return str
 }
 
-func (s AlterTimeSeriesWrapper_wrappedTimeSeries_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (AlterTimeSeriesWrapper_wrappedTimeSeries_Params) DecodeFromPtr(p capnp.Ptr) AlterTimeSeriesWrapper_wrappedTimeSeries_Params {
-	return AlterTimeSeriesWrapper_wrappedTimeSeries_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s AlterTimeSeriesWrapper_wrappedTimeSeries_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s AlterTimeSeriesWrapper_wrappedTimeSeries_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s AlterTimeSeriesWrapper_wrappedTimeSeries_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s AlterTimeSeriesWrapper_wrappedTimeSeries_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // AlterTimeSeriesWrapper_wrappedTimeSeries_Params_List is a list of AlterTimeSeriesWrapper_wrappedTimeSeries_Params.
-type AlterTimeSeriesWrapper_wrappedTimeSeries_Params_List = capnp.StructList[AlterTimeSeriesWrapper_wrappedTimeSeries_Params]
+type AlterTimeSeriesWrapper_wrappedTimeSeries_Params_List struct{ capnp.List }
 
 // NewAlterTimeSeriesWrapper_wrappedTimeSeries_Params creates a new list of AlterTimeSeriesWrapper_wrappedTimeSeries_Params.
 func NewAlterTimeSeriesWrapper_wrappedTimeSeries_Params_List(s *capnp.Segment, sz int32) (AlterTimeSeriesWrapper_wrappedTimeSeries_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[AlterTimeSeriesWrapper_wrappedTimeSeries_Params](l), err
+	return AlterTimeSeriesWrapper_wrappedTimeSeries_Params_List{l}, err
+}
+
+func (s AlterTimeSeriesWrapper_wrappedTimeSeries_Params_List) At(i int) AlterTimeSeriesWrapper_wrappedTimeSeries_Params {
+	return AlterTimeSeriesWrapper_wrappedTimeSeries_Params{s.List.Struct(i)}
+}
+
+func (s AlterTimeSeriesWrapper_wrappedTimeSeries_Params_List) Set(i int, v AlterTimeSeriesWrapper_wrappedTimeSeries_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s AlterTimeSeriesWrapper_wrappedTimeSeries_Params_List) String() string {
+	str, _ := text.MarshalList(0xe31f26eed9fb36a9, s.List)
+	return str
 }
 
 // AlterTimeSeriesWrapper_wrappedTimeSeries_Params_Future is a wrapper for a AlterTimeSeriesWrapper_wrappedTimeSeries_Params promised by a client call.
 type AlterTimeSeriesWrapper_wrappedTimeSeries_Params_Future struct{ *capnp.Future }
 
-func (f AlterTimeSeriesWrapper_wrappedTimeSeries_Params_Future) Struct() (AlterTimeSeriesWrapper_wrappedTimeSeries_Params, error) {
-	p, err := f.Future.Ptr()
-	return AlterTimeSeriesWrapper_wrappedTimeSeries_Params(p.Struct()), err
+func (p AlterTimeSeriesWrapper_wrappedTimeSeries_Params_Future) Struct() (AlterTimeSeriesWrapper_wrappedTimeSeries_Params, error) {
+	s, err := p.Future.Struct()
+	return AlterTimeSeriesWrapper_wrappedTimeSeries_Params{s}, err
 }
 
-type AlterTimeSeriesWrapper_wrappedTimeSeries_Results capnp.Struct
+type AlterTimeSeriesWrapper_wrappedTimeSeries_Results struct{ capnp.Struct }
 
 // AlterTimeSeriesWrapper_wrappedTimeSeries_Results_TypeID is the unique identifier for the type AlterTimeSeriesWrapper_wrappedTimeSeries_Results.
 const AlterTimeSeriesWrapper_wrappedTimeSeries_Results_TypeID = 0xfb2eddb58f90f7aa
 
 func NewAlterTimeSeriesWrapper_wrappedTimeSeries_Results(s *capnp.Segment) (AlterTimeSeriesWrapper_wrappedTimeSeries_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return AlterTimeSeriesWrapper_wrappedTimeSeries_Results(st), err
+	return AlterTimeSeriesWrapper_wrappedTimeSeries_Results{st}, err
 }
 
 func NewRootAlterTimeSeriesWrapper_wrappedTimeSeries_Results(s *capnp.Segment) (AlterTimeSeriesWrapper_wrappedTimeSeries_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return AlterTimeSeriesWrapper_wrappedTimeSeries_Results(st), err
+	return AlterTimeSeriesWrapper_wrappedTimeSeries_Results{st}, err
 }
 
 func ReadRootAlterTimeSeriesWrapper_wrappedTimeSeries_Results(msg *capnp.Message) (AlterTimeSeriesWrapper_wrappedTimeSeries_Results, error) {
 	root, err := msg.Root()
-	return AlterTimeSeriesWrapper_wrappedTimeSeries_Results(root.Struct()), err
+	return AlterTimeSeriesWrapper_wrappedTimeSeries_Results{root.Struct()}, err
 }
 
 func (s AlterTimeSeriesWrapper_wrappedTimeSeries_Results) String() string {
-	str, _ := text.Marshal(0xfb2eddb58f90f7aa, capnp.Struct(s))
+	str, _ := text.Marshal(0xfb2eddb58f90f7aa, s.Struct)
 	return str
 }
 
-func (s AlterTimeSeriesWrapper_wrappedTimeSeries_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (AlterTimeSeriesWrapper_wrappedTimeSeries_Results) DecodeFromPtr(p capnp.Ptr) AlterTimeSeriesWrapper_wrappedTimeSeries_Results {
-	return AlterTimeSeriesWrapper_wrappedTimeSeries_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s AlterTimeSeriesWrapper_wrappedTimeSeries_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s AlterTimeSeriesWrapper_wrappedTimeSeries_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s AlterTimeSeriesWrapper_wrappedTimeSeries_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s AlterTimeSeriesWrapper_wrappedTimeSeries_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s AlterTimeSeriesWrapper_wrappedTimeSeries_Results) TimeSeries() TimeSeries {
-	p, _ := capnp.Struct(s).Ptr(0)
-	return TimeSeries(p.Interface().Client())
+	p, _ := s.Struct.Ptr(0)
+	return TimeSeries{Client: p.Interface().Client()}
 }
 
 func (s AlterTimeSeriesWrapper_wrappedTimeSeries_Results) HasTimeSeries() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s AlterTimeSeriesWrapper_wrappedTimeSeries_Results) SetTimeSeries(v TimeSeries) error {
-	if !v.IsValid() {
-		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
+	if !v.Client.IsValid() {
+		return s.Struct.SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
-	return capnp.Struct(s).SetPtr(0, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
+	return s.Struct.SetPtr(0, in.ToPtr())
 }
 
 // AlterTimeSeriesWrapper_wrappedTimeSeries_Results_List is a list of AlterTimeSeriesWrapper_wrappedTimeSeries_Results.
-type AlterTimeSeriesWrapper_wrappedTimeSeries_Results_List = capnp.StructList[AlterTimeSeriesWrapper_wrappedTimeSeries_Results]
+type AlterTimeSeriesWrapper_wrappedTimeSeries_Results_List struct{ capnp.List }
 
 // NewAlterTimeSeriesWrapper_wrappedTimeSeries_Results creates a new list of AlterTimeSeriesWrapper_wrappedTimeSeries_Results.
 func NewAlterTimeSeriesWrapper_wrappedTimeSeries_Results_List(s *capnp.Segment, sz int32) (AlterTimeSeriesWrapper_wrappedTimeSeries_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[AlterTimeSeriesWrapper_wrappedTimeSeries_Results](l), err
+	return AlterTimeSeriesWrapper_wrappedTimeSeries_Results_List{l}, err
+}
+
+func (s AlterTimeSeriesWrapper_wrappedTimeSeries_Results_List) At(i int) AlterTimeSeriesWrapper_wrappedTimeSeries_Results {
+	return AlterTimeSeriesWrapper_wrappedTimeSeries_Results{s.List.Struct(i)}
+}
+
+func (s AlterTimeSeriesWrapper_wrappedTimeSeries_Results_List) Set(i int, v AlterTimeSeriesWrapper_wrappedTimeSeries_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s AlterTimeSeriesWrapper_wrappedTimeSeries_Results_List) String() string {
+	str, _ := text.MarshalList(0xfb2eddb58f90f7aa, s.List)
+	return str
 }
 
 // AlterTimeSeriesWrapper_wrappedTimeSeries_Results_Future is a wrapper for a AlterTimeSeriesWrapper_wrappedTimeSeries_Results promised by a client call.
 type AlterTimeSeriesWrapper_wrappedTimeSeries_Results_Future struct{ *capnp.Future }
 
-func (f AlterTimeSeriesWrapper_wrappedTimeSeries_Results_Future) Struct() (AlterTimeSeriesWrapper_wrappedTimeSeries_Results, error) {
-	p, err := f.Future.Ptr()
-	return AlterTimeSeriesWrapper_wrappedTimeSeries_Results(p.Struct()), err
-}
-func (p AlterTimeSeriesWrapper_wrappedTimeSeries_Results_Future) TimeSeries() TimeSeries {
-	return TimeSeries(p.Future.Field(0, nil).Client())
+func (p AlterTimeSeriesWrapper_wrappedTimeSeries_Results_Future) Struct() (AlterTimeSeriesWrapper_wrappedTimeSeries_Results, error) {
+	s, err := p.Future.Struct()
+	return AlterTimeSeriesWrapper_wrappedTimeSeries_Results{s}, err
 }
 
-type AlterTimeSeriesWrapper_alteredElements_Params capnp.Struct
+func (p AlterTimeSeriesWrapper_wrappedTimeSeries_Results_Future) TimeSeries() TimeSeries {
+	return TimeSeries{Client: p.Future.Field(0, nil).Client()}
+}
+
+type AlterTimeSeriesWrapper_alteredElements_Params struct{ capnp.Struct }
 
 // AlterTimeSeriesWrapper_alteredElements_Params_TypeID is the unique identifier for the type AlterTimeSeriesWrapper_alteredElements_Params.
 const AlterTimeSeriesWrapper_alteredElements_Params_TypeID = 0xcba0220cda41869e
 
 func NewAlterTimeSeriesWrapper_alteredElements_Params(s *capnp.Segment) (AlterTimeSeriesWrapper_alteredElements_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return AlterTimeSeriesWrapper_alteredElements_Params(st), err
+	return AlterTimeSeriesWrapper_alteredElements_Params{st}, err
 }
 
 func NewRootAlterTimeSeriesWrapper_alteredElements_Params(s *capnp.Segment) (AlterTimeSeriesWrapper_alteredElements_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return AlterTimeSeriesWrapper_alteredElements_Params(st), err
+	return AlterTimeSeriesWrapper_alteredElements_Params{st}, err
 }
 
 func ReadRootAlterTimeSeriesWrapper_alteredElements_Params(msg *capnp.Message) (AlterTimeSeriesWrapper_alteredElements_Params, error) {
 	root, err := msg.Root()
-	return AlterTimeSeriesWrapper_alteredElements_Params(root.Struct()), err
+	return AlterTimeSeriesWrapper_alteredElements_Params{root.Struct()}, err
 }
 
 func (s AlterTimeSeriesWrapper_alteredElements_Params) String() string {
-	str, _ := text.Marshal(0xcba0220cda41869e, capnp.Struct(s))
+	str, _ := text.Marshal(0xcba0220cda41869e, s.Struct)
 	return str
 }
 
-func (s AlterTimeSeriesWrapper_alteredElements_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (AlterTimeSeriesWrapper_alteredElements_Params) DecodeFromPtr(p capnp.Ptr) AlterTimeSeriesWrapper_alteredElements_Params {
-	return AlterTimeSeriesWrapper_alteredElements_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s AlterTimeSeriesWrapper_alteredElements_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s AlterTimeSeriesWrapper_alteredElements_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s AlterTimeSeriesWrapper_alteredElements_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s AlterTimeSeriesWrapper_alteredElements_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // AlterTimeSeriesWrapper_alteredElements_Params_List is a list of AlterTimeSeriesWrapper_alteredElements_Params.
-type AlterTimeSeriesWrapper_alteredElements_Params_List = capnp.StructList[AlterTimeSeriesWrapper_alteredElements_Params]
+type AlterTimeSeriesWrapper_alteredElements_Params_List struct{ capnp.List }
 
 // NewAlterTimeSeriesWrapper_alteredElements_Params creates a new list of AlterTimeSeriesWrapper_alteredElements_Params.
 func NewAlterTimeSeriesWrapper_alteredElements_Params_List(s *capnp.Segment, sz int32) (AlterTimeSeriesWrapper_alteredElements_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[AlterTimeSeriesWrapper_alteredElements_Params](l), err
+	return AlterTimeSeriesWrapper_alteredElements_Params_List{l}, err
+}
+
+func (s AlterTimeSeriesWrapper_alteredElements_Params_List) At(i int) AlterTimeSeriesWrapper_alteredElements_Params {
+	return AlterTimeSeriesWrapper_alteredElements_Params{s.List.Struct(i)}
+}
+
+func (s AlterTimeSeriesWrapper_alteredElements_Params_List) Set(i int, v AlterTimeSeriesWrapper_alteredElements_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s AlterTimeSeriesWrapper_alteredElements_Params_List) String() string {
+	str, _ := text.MarshalList(0xcba0220cda41869e, s.List)
+	return str
 }
 
 // AlterTimeSeriesWrapper_alteredElements_Params_Future is a wrapper for a AlterTimeSeriesWrapper_alteredElements_Params promised by a client call.
 type AlterTimeSeriesWrapper_alteredElements_Params_Future struct{ *capnp.Future }
 
-func (f AlterTimeSeriesWrapper_alteredElements_Params_Future) Struct() (AlterTimeSeriesWrapper_alteredElements_Params, error) {
-	p, err := f.Future.Ptr()
-	return AlterTimeSeriesWrapper_alteredElements_Params(p.Struct()), err
+func (p AlterTimeSeriesWrapper_alteredElements_Params_Future) Struct() (AlterTimeSeriesWrapper_alteredElements_Params, error) {
+	s, err := p.Future.Struct()
+	return AlterTimeSeriesWrapper_alteredElements_Params{s}, err
 }
 
-type AlterTimeSeriesWrapper_alteredElements_Results capnp.Struct
+type AlterTimeSeriesWrapper_alteredElements_Results struct{ capnp.Struct }
 
 // AlterTimeSeriesWrapper_alteredElements_Results_TypeID is the unique identifier for the type AlterTimeSeriesWrapper_alteredElements_Results.
 const AlterTimeSeriesWrapper_alteredElements_Results_TypeID = 0xdd5b75b5bc711766
 
 func NewAlterTimeSeriesWrapper_alteredElements_Results(s *capnp.Segment) (AlterTimeSeriesWrapper_alteredElements_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return AlterTimeSeriesWrapper_alteredElements_Results(st), err
+	return AlterTimeSeriesWrapper_alteredElements_Results{st}, err
 }
 
 func NewRootAlterTimeSeriesWrapper_alteredElements_Results(s *capnp.Segment) (AlterTimeSeriesWrapper_alteredElements_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return AlterTimeSeriesWrapper_alteredElements_Results(st), err
+	return AlterTimeSeriesWrapper_alteredElements_Results{st}, err
 }
 
 func ReadRootAlterTimeSeriesWrapper_alteredElements_Results(msg *capnp.Message) (AlterTimeSeriesWrapper_alteredElements_Results, error) {
 	root, err := msg.Root()
-	return AlterTimeSeriesWrapper_alteredElements_Results(root.Struct()), err
+	return AlterTimeSeriesWrapper_alteredElements_Results{root.Struct()}, err
 }
 
 func (s AlterTimeSeriesWrapper_alteredElements_Results) String() string {
-	str, _ := text.Marshal(0xdd5b75b5bc711766, capnp.Struct(s))
+	str, _ := text.Marshal(0xdd5b75b5bc711766, s.Struct)
 	return str
 }
 
-func (s AlterTimeSeriesWrapper_alteredElements_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (AlterTimeSeriesWrapper_alteredElements_Results) DecodeFromPtr(p capnp.Ptr) AlterTimeSeriesWrapper_alteredElements_Results {
-	return AlterTimeSeriesWrapper_alteredElements_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s AlterTimeSeriesWrapper_alteredElements_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s AlterTimeSeriesWrapper_alteredElements_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s AlterTimeSeriesWrapper_alteredElements_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s AlterTimeSeriesWrapper_alteredElements_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s AlterTimeSeriesWrapper_alteredElements_Results) List() (AlterTimeSeriesWrapper_Altered_List, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return AlterTimeSeriesWrapper_Altered_List(p.List()), err
+	p, err := s.Struct.Ptr(0)
+	return AlterTimeSeriesWrapper_Altered_List{List: p.List()}, err
 }
 
 func (s AlterTimeSeriesWrapper_alteredElements_Results) HasList() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s AlterTimeSeriesWrapper_alteredElements_Results) SetList(v AlterTimeSeriesWrapper_Altered_List) error {
-	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+	return s.Struct.SetPtr(0, v.List.ToPtr())
 }
 
 // NewList sets the list field to a newly
 // allocated AlterTimeSeriesWrapper_Altered_List, preferring placement in s's segment.
 func (s AlterTimeSeriesWrapper_alteredElements_Results) NewList(n int32) (AlterTimeSeriesWrapper_Altered_List, error) {
-	l, err := NewAlterTimeSeriesWrapper_Altered_List(capnp.Struct(s).Segment(), n)
+	l, err := NewAlterTimeSeriesWrapper_Altered_List(s.Struct.Segment(), n)
 	if err != nil {
 		return AlterTimeSeriesWrapper_Altered_List{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	err = s.Struct.SetPtr(0, l.List.ToPtr())
 	return l, err
 }
 
 // AlterTimeSeriesWrapper_alteredElements_Results_List is a list of AlterTimeSeriesWrapper_alteredElements_Results.
-type AlterTimeSeriesWrapper_alteredElements_Results_List = capnp.StructList[AlterTimeSeriesWrapper_alteredElements_Results]
+type AlterTimeSeriesWrapper_alteredElements_Results_List struct{ capnp.List }
 
 // NewAlterTimeSeriesWrapper_alteredElements_Results creates a new list of AlterTimeSeriesWrapper_alteredElements_Results.
 func NewAlterTimeSeriesWrapper_alteredElements_Results_List(s *capnp.Segment, sz int32) (AlterTimeSeriesWrapper_alteredElements_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[AlterTimeSeriesWrapper_alteredElements_Results](l), err
+	return AlterTimeSeriesWrapper_alteredElements_Results_List{l}, err
+}
+
+func (s AlterTimeSeriesWrapper_alteredElements_Results_List) At(i int) AlterTimeSeriesWrapper_alteredElements_Results {
+	return AlterTimeSeriesWrapper_alteredElements_Results{s.List.Struct(i)}
+}
+
+func (s AlterTimeSeriesWrapper_alteredElements_Results_List) Set(i int, v AlterTimeSeriesWrapper_alteredElements_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s AlterTimeSeriesWrapper_alteredElements_Results_List) String() string {
+	str, _ := text.MarshalList(0xdd5b75b5bc711766, s.List)
+	return str
 }
 
 // AlterTimeSeriesWrapper_alteredElements_Results_Future is a wrapper for a AlterTimeSeriesWrapper_alteredElements_Results promised by a client call.
 type AlterTimeSeriesWrapper_alteredElements_Results_Future struct{ *capnp.Future }
 
-func (f AlterTimeSeriesWrapper_alteredElements_Results_Future) Struct() (AlterTimeSeriesWrapper_alteredElements_Results, error) {
-	p, err := f.Future.Ptr()
-	return AlterTimeSeriesWrapper_alteredElements_Results(p.Struct()), err
+func (p AlterTimeSeriesWrapper_alteredElements_Results_Future) Struct() (AlterTimeSeriesWrapper_alteredElements_Results, error) {
+	s, err := p.Future.Struct()
+	return AlterTimeSeriesWrapper_alteredElements_Results{s}, err
 }
 
-type AlterTimeSeriesWrapper_alter_Params capnp.Struct
+type AlterTimeSeriesWrapper_alter_Params struct{ capnp.Struct }
 
 // AlterTimeSeriesWrapper_alter_Params_TypeID is the unique identifier for the type AlterTimeSeriesWrapper_alter_Params.
 const AlterTimeSeriesWrapper_alter_Params_TypeID = 0xd36b1e9c2929e6e4
 
 func NewAlterTimeSeriesWrapper_alter_Params(s *capnp.Segment) (AlterTimeSeriesWrapper_alter_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return AlterTimeSeriesWrapper_alter_Params(st), err
+	return AlterTimeSeriesWrapper_alter_Params{st}, err
 }
 
 func NewRootAlterTimeSeriesWrapper_alter_Params(s *capnp.Segment) (AlterTimeSeriesWrapper_alter_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return AlterTimeSeriesWrapper_alter_Params(st), err
+	return AlterTimeSeriesWrapper_alter_Params{st}, err
 }
 
 func ReadRootAlterTimeSeriesWrapper_alter_Params(msg *capnp.Message) (AlterTimeSeriesWrapper_alter_Params, error) {
 	root, err := msg.Root()
-	return AlterTimeSeriesWrapper_alter_Params(root.Struct()), err
+	return AlterTimeSeriesWrapper_alter_Params{root.Struct()}, err
 }
 
 func (s AlterTimeSeriesWrapper_alter_Params) String() string {
-	str, _ := text.Marshal(0xd36b1e9c2929e6e4, capnp.Struct(s))
+	str, _ := text.Marshal(0xd36b1e9c2929e6e4, s.Struct)
 	return str
 }
 
-func (s AlterTimeSeriesWrapper_alter_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (AlterTimeSeriesWrapper_alter_Params) DecodeFromPtr(p capnp.Ptr) AlterTimeSeriesWrapper_alter_Params {
-	return AlterTimeSeriesWrapper_alter_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s AlterTimeSeriesWrapper_alter_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s AlterTimeSeriesWrapper_alter_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s AlterTimeSeriesWrapper_alter_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s AlterTimeSeriesWrapper_alter_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s AlterTimeSeriesWrapper_alter_Params) Desc() (AlterTimeSeriesWrapper_Altered, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return AlterTimeSeriesWrapper_Altered(p.Struct()), err
+	p, err := s.Struct.Ptr(0)
+	return AlterTimeSeriesWrapper_Altered{Struct: p.Struct()}, err
 }
 
 func (s AlterTimeSeriesWrapper_alter_Params) HasDesc() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s AlterTimeSeriesWrapper_alter_Params) SetDesc(v AlterTimeSeriesWrapper_Altered) error {
-	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewDesc sets the desc field to a newly
 // allocated AlterTimeSeriesWrapper_Altered struct, preferring placement in s's segment.
 func (s AlterTimeSeriesWrapper_alter_Params) NewDesc() (AlterTimeSeriesWrapper_Altered, error) {
-	ss, err := NewAlterTimeSeriesWrapper_Altered(capnp.Struct(s).Segment())
+	ss, err := NewAlterTimeSeriesWrapper_Altered(s.Struct.Segment())
 	if err != nil {
 		return AlterTimeSeriesWrapper_Altered{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
 	return ss, err
 }
 
 func (s AlterTimeSeriesWrapper_alter_Params) AsNewTimeSeries() bool {
-	return capnp.Struct(s).Bit(0)
+	return s.Struct.Bit(0)
 }
 
 func (s AlterTimeSeriesWrapper_alter_Params) SetAsNewTimeSeries(v bool) {
-	capnp.Struct(s).SetBit(0, v)
+	s.Struct.SetBit(0, v)
 }
 
 // AlterTimeSeriesWrapper_alter_Params_List is a list of AlterTimeSeriesWrapper_alter_Params.
-type AlterTimeSeriesWrapper_alter_Params_List = capnp.StructList[AlterTimeSeriesWrapper_alter_Params]
+type AlterTimeSeriesWrapper_alter_Params_List struct{ capnp.List }
 
 // NewAlterTimeSeriesWrapper_alter_Params creates a new list of AlterTimeSeriesWrapper_alter_Params.
 func NewAlterTimeSeriesWrapper_alter_Params_List(s *capnp.Segment, sz int32) (AlterTimeSeriesWrapper_alter_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1}, sz)
-	return capnp.StructList[AlterTimeSeriesWrapper_alter_Params](l), err
+	return AlterTimeSeriesWrapper_alter_Params_List{l}, err
+}
+
+func (s AlterTimeSeriesWrapper_alter_Params_List) At(i int) AlterTimeSeriesWrapper_alter_Params {
+	return AlterTimeSeriesWrapper_alter_Params{s.List.Struct(i)}
+}
+
+func (s AlterTimeSeriesWrapper_alter_Params_List) Set(i int, v AlterTimeSeriesWrapper_alter_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s AlterTimeSeriesWrapper_alter_Params_List) String() string {
+	str, _ := text.MarshalList(0xd36b1e9c2929e6e4, s.List)
+	return str
 }
 
 // AlterTimeSeriesWrapper_alter_Params_Future is a wrapper for a AlterTimeSeriesWrapper_alter_Params promised by a client call.
 type AlterTimeSeriesWrapper_alter_Params_Future struct{ *capnp.Future }
 
-func (f AlterTimeSeriesWrapper_alter_Params_Future) Struct() (AlterTimeSeriesWrapper_alter_Params, error) {
-	p, err := f.Future.Ptr()
-	return AlterTimeSeriesWrapper_alter_Params(p.Struct()), err
+func (p AlterTimeSeriesWrapper_alter_Params_Future) Struct() (AlterTimeSeriesWrapper_alter_Params, error) {
+	s, err := p.Future.Struct()
+	return AlterTimeSeriesWrapper_alter_Params{s}, err
 }
+
 func (p AlterTimeSeriesWrapper_alter_Params_Future) Desc() AlterTimeSeriesWrapper_Altered_Future {
 	return AlterTimeSeriesWrapper_Altered_Future{Future: p.Future.Field(0, nil)}
 }
 
-type AlterTimeSeriesWrapper_alter_Results capnp.Struct
+type AlterTimeSeriesWrapper_alter_Results struct{ capnp.Struct }
 
 // AlterTimeSeriesWrapper_alter_Results_TypeID is the unique identifier for the type AlterTimeSeriesWrapper_alter_Results.
 const AlterTimeSeriesWrapper_alter_Results_TypeID = 0xc4a1ec6280be841c
 
 func NewAlterTimeSeriesWrapper_alter_Results(s *capnp.Segment) (AlterTimeSeriesWrapper_alter_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return AlterTimeSeriesWrapper_alter_Results(st), err
+	return AlterTimeSeriesWrapper_alter_Results{st}, err
 }
 
 func NewRootAlterTimeSeriesWrapper_alter_Results(s *capnp.Segment) (AlterTimeSeriesWrapper_alter_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return AlterTimeSeriesWrapper_alter_Results(st), err
+	return AlterTimeSeriesWrapper_alter_Results{st}, err
 }
 
 func ReadRootAlterTimeSeriesWrapper_alter_Results(msg *capnp.Message) (AlterTimeSeriesWrapper_alter_Results, error) {
 	root, err := msg.Root()
-	return AlterTimeSeriesWrapper_alter_Results(root.Struct()), err
+	return AlterTimeSeriesWrapper_alter_Results{root.Struct()}, err
 }
 
 func (s AlterTimeSeriesWrapper_alter_Results) String() string {
-	str, _ := text.Marshal(0xc4a1ec6280be841c, capnp.Struct(s))
+	str, _ := text.Marshal(0xc4a1ec6280be841c, s.Struct)
 	return str
 }
 
-func (s AlterTimeSeriesWrapper_alter_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (AlterTimeSeriesWrapper_alter_Results) DecodeFromPtr(p capnp.Ptr) AlterTimeSeriesWrapper_alter_Results {
-	return AlterTimeSeriesWrapper_alter_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s AlterTimeSeriesWrapper_alter_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s AlterTimeSeriesWrapper_alter_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s AlterTimeSeriesWrapper_alter_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s AlterTimeSeriesWrapper_alter_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s AlterTimeSeriesWrapper_alter_Results) TimeSeries() TimeSeries {
-	p, _ := capnp.Struct(s).Ptr(0)
-	return TimeSeries(p.Interface().Client())
+	p, _ := s.Struct.Ptr(0)
+	return TimeSeries{Client: p.Interface().Client()}
 }
 
 func (s AlterTimeSeriesWrapper_alter_Results) HasTimeSeries() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s AlterTimeSeriesWrapper_alter_Results) SetTimeSeries(v TimeSeries) error {
-	if !v.IsValid() {
-		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
+	if !v.Client.IsValid() {
+		return s.Struct.SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
-	return capnp.Struct(s).SetPtr(0, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
+	return s.Struct.SetPtr(0, in.ToPtr())
 }
 
 // AlterTimeSeriesWrapper_alter_Results_List is a list of AlterTimeSeriesWrapper_alter_Results.
-type AlterTimeSeriesWrapper_alter_Results_List = capnp.StructList[AlterTimeSeriesWrapper_alter_Results]
+type AlterTimeSeriesWrapper_alter_Results_List struct{ capnp.List }
 
 // NewAlterTimeSeriesWrapper_alter_Results creates a new list of AlterTimeSeriesWrapper_alter_Results.
 func NewAlterTimeSeriesWrapper_alter_Results_List(s *capnp.Segment, sz int32) (AlterTimeSeriesWrapper_alter_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[AlterTimeSeriesWrapper_alter_Results](l), err
+	return AlterTimeSeriesWrapper_alter_Results_List{l}, err
+}
+
+func (s AlterTimeSeriesWrapper_alter_Results_List) At(i int) AlterTimeSeriesWrapper_alter_Results {
+	return AlterTimeSeriesWrapper_alter_Results{s.List.Struct(i)}
+}
+
+func (s AlterTimeSeriesWrapper_alter_Results_List) Set(i int, v AlterTimeSeriesWrapper_alter_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s AlterTimeSeriesWrapper_alter_Results_List) String() string {
+	str, _ := text.MarshalList(0xc4a1ec6280be841c, s.List)
+	return str
 }
 
 // AlterTimeSeriesWrapper_alter_Results_Future is a wrapper for a AlterTimeSeriesWrapper_alter_Results promised by a client call.
 type AlterTimeSeriesWrapper_alter_Results_Future struct{ *capnp.Future }
 
-func (f AlterTimeSeriesWrapper_alter_Results_Future) Struct() (AlterTimeSeriesWrapper_alter_Results, error) {
-	p, err := f.Future.Ptr()
-	return AlterTimeSeriesWrapper_alter_Results(p.Struct()), err
-}
-func (p AlterTimeSeriesWrapper_alter_Results_Future) TimeSeries() TimeSeries {
-	return TimeSeries(p.Future.Field(0, nil).Client())
+func (p AlterTimeSeriesWrapper_alter_Results_Future) Struct() (AlterTimeSeriesWrapper_alter_Results, error) {
+	s, err := p.Future.Struct()
+	return AlterTimeSeriesWrapper_alter_Results{s}, err
 }
 
-type AlterTimeSeriesWrapper_remove_Params capnp.Struct
+func (p AlterTimeSeriesWrapper_alter_Results_Future) TimeSeries() TimeSeries {
+	return TimeSeries{Client: p.Future.Field(0, nil).Client()}
+}
+
+type AlterTimeSeriesWrapper_remove_Params struct{ capnp.Struct }
 
 // AlterTimeSeriesWrapper_remove_Params_TypeID is the unique identifier for the type AlterTimeSeriesWrapper_remove_Params.
 const AlterTimeSeriesWrapper_remove_Params_TypeID = 0xdb7bfcfe4d45ff53
 
 func NewAlterTimeSeriesWrapper_remove_Params(s *capnp.Segment) (AlterTimeSeriesWrapper_remove_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return AlterTimeSeriesWrapper_remove_Params(st), err
+	return AlterTimeSeriesWrapper_remove_Params{st}, err
 }
 
 func NewRootAlterTimeSeriesWrapper_remove_Params(s *capnp.Segment) (AlterTimeSeriesWrapper_remove_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return AlterTimeSeriesWrapper_remove_Params(st), err
+	return AlterTimeSeriesWrapper_remove_Params{st}, err
 }
 
 func ReadRootAlterTimeSeriesWrapper_remove_Params(msg *capnp.Message) (AlterTimeSeriesWrapper_remove_Params, error) {
 	root, err := msg.Root()
-	return AlterTimeSeriesWrapper_remove_Params(root.Struct()), err
+	return AlterTimeSeriesWrapper_remove_Params{root.Struct()}, err
 }
 
 func (s AlterTimeSeriesWrapper_remove_Params) String() string {
-	str, _ := text.Marshal(0xdb7bfcfe4d45ff53, capnp.Struct(s))
+	str, _ := text.Marshal(0xdb7bfcfe4d45ff53, s.Struct)
 	return str
 }
 
-func (s AlterTimeSeriesWrapper_remove_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (AlterTimeSeriesWrapper_remove_Params) DecodeFromPtr(p capnp.Ptr) AlterTimeSeriesWrapper_remove_Params {
-	return AlterTimeSeriesWrapper_remove_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s AlterTimeSeriesWrapper_remove_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s AlterTimeSeriesWrapper_remove_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s AlterTimeSeriesWrapper_remove_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s AlterTimeSeriesWrapper_remove_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s AlterTimeSeriesWrapper_remove_Params) AlteredElement() Element {
-	return Element(capnp.Struct(s).Uint16(0))
+	return Element(s.Struct.Uint16(0))
 }
 
 func (s AlterTimeSeriesWrapper_remove_Params) SetAlteredElement(v Element) {
-	capnp.Struct(s).SetUint16(0, uint16(v))
+	s.Struct.SetUint16(0, uint16(v))
 }
 
 // AlterTimeSeriesWrapper_remove_Params_List is a list of AlterTimeSeriesWrapper_remove_Params.
-type AlterTimeSeriesWrapper_remove_Params_List = capnp.StructList[AlterTimeSeriesWrapper_remove_Params]
+type AlterTimeSeriesWrapper_remove_Params_List struct{ capnp.List }
 
 // NewAlterTimeSeriesWrapper_remove_Params creates a new list of AlterTimeSeriesWrapper_remove_Params.
 func NewAlterTimeSeriesWrapper_remove_Params_List(s *capnp.Segment, sz int32) (AlterTimeSeriesWrapper_remove_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0}, sz)
-	return capnp.StructList[AlterTimeSeriesWrapper_remove_Params](l), err
+	return AlterTimeSeriesWrapper_remove_Params_List{l}, err
+}
+
+func (s AlterTimeSeriesWrapper_remove_Params_List) At(i int) AlterTimeSeriesWrapper_remove_Params {
+	return AlterTimeSeriesWrapper_remove_Params{s.List.Struct(i)}
+}
+
+func (s AlterTimeSeriesWrapper_remove_Params_List) Set(i int, v AlterTimeSeriesWrapper_remove_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s AlterTimeSeriesWrapper_remove_Params_List) String() string {
+	str, _ := text.MarshalList(0xdb7bfcfe4d45ff53, s.List)
+	return str
 }
 
 // AlterTimeSeriesWrapper_remove_Params_Future is a wrapper for a AlterTimeSeriesWrapper_remove_Params promised by a client call.
 type AlterTimeSeriesWrapper_remove_Params_Future struct{ *capnp.Future }
 
-func (f AlterTimeSeriesWrapper_remove_Params_Future) Struct() (AlterTimeSeriesWrapper_remove_Params, error) {
-	p, err := f.Future.Ptr()
-	return AlterTimeSeriesWrapper_remove_Params(p.Struct()), err
+func (p AlterTimeSeriesWrapper_remove_Params_Future) Struct() (AlterTimeSeriesWrapper_remove_Params, error) {
+	s, err := p.Future.Struct()
+	return AlterTimeSeriesWrapper_remove_Params{s}, err
 }
 
-type AlterTimeSeriesWrapper_remove_Results capnp.Struct
+type AlterTimeSeriesWrapper_remove_Results struct{ capnp.Struct }
 
 // AlterTimeSeriesWrapper_remove_Results_TypeID is the unique identifier for the type AlterTimeSeriesWrapper_remove_Results.
 const AlterTimeSeriesWrapper_remove_Results_TypeID = 0xf44980b23013003b
 
 func NewAlterTimeSeriesWrapper_remove_Results(s *capnp.Segment) (AlterTimeSeriesWrapper_remove_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return AlterTimeSeriesWrapper_remove_Results(st), err
+	return AlterTimeSeriesWrapper_remove_Results{st}, err
 }
 
 func NewRootAlterTimeSeriesWrapper_remove_Results(s *capnp.Segment) (AlterTimeSeriesWrapper_remove_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return AlterTimeSeriesWrapper_remove_Results(st), err
+	return AlterTimeSeriesWrapper_remove_Results{st}, err
 }
 
 func ReadRootAlterTimeSeriesWrapper_remove_Results(msg *capnp.Message) (AlterTimeSeriesWrapper_remove_Results, error) {
 	root, err := msg.Root()
-	return AlterTimeSeriesWrapper_remove_Results(root.Struct()), err
+	return AlterTimeSeriesWrapper_remove_Results{root.Struct()}, err
 }
 
 func (s AlterTimeSeriesWrapper_remove_Results) String() string {
-	str, _ := text.Marshal(0xf44980b23013003b, capnp.Struct(s))
+	str, _ := text.Marshal(0xf44980b23013003b, s.Struct)
 	return str
 }
 
-func (s AlterTimeSeriesWrapper_remove_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (AlterTimeSeriesWrapper_remove_Results) DecodeFromPtr(p capnp.Ptr) AlterTimeSeriesWrapper_remove_Results {
-	return AlterTimeSeriesWrapper_remove_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s AlterTimeSeriesWrapper_remove_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s AlterTimeSeriesWrapper_remove_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s AlterTimeSeriesWrapper_remove_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s AlterTimeSeriesWrapper_remove_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // AlterTimeSeriesWrapper_remove_Results_List is a list of AlterTimeSeriesWrapper_remove_Results.
-type AlterTimeSeriesWrapper_remove_Results_List = capnp.StructList[AlterTimeSeriesWrapper_remove_Results]
+type AlterTimeSeriesWrapper_remove_Results_List struct{ capnp.List }
 
 // NewAlterTimeSeriesWrapper_remove_Results creates a new list of AlterTimeSeriesWrapper_remove_Results.
 func NewAlterTimeSeriesWrapper_remove_Results_List(s *capnp.Segment, sz int32) (AlterTimeSeriesWrapper_remove_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[AlterTimeSeriesWrapper_remove_Results](l), err
+	return AlterTimeSeriesWrapper_remove_Results_List{l}, err
+}
+
+func (s AlterTimeSeriesWrapper_remove_Results_List) At(i int) AlterTimeSeriesWrapper_remove_Results {
+	return AlterTimeSeriesWrapper_remove_Results{s.List.Struct(i)}
+}
+
+func (s AlterTimeSeriesWrapper_remove_Results_List) Set(i int, v AlterTimeSeriesWrapper_remove_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s AlterTimeSeriesWrapper_remove_Results_List) String() string {
+	str, _ := text.MarshalList(0xf44980b23013003b, s.List)
+	return str
 }
 
 // AlterTimeSeriesWrapper_remove_Results_Future is a wrapper for a AlterTimeSeriesWrapper_remove_Results promised by a client call.
 type AlterTimeSeriesWrapper_remove_Results_Future struct{ *capnp.Future }
 
-func (f AlterTimeSeriesWrapper_remove_Results_Future) Struct() (AlterTimeSeriesWrapper_remove_Results, error) {
-	p, err := f.Future.Ptr()
-	return AlterTimeSeriesWrapper_remove_Results(p.Struct()), err
+func (p AlterTimeSeriesWrapper_remove_Results_Future) Struct() (AlterTimeSeriesWrapper_remove_Results, error) {
+	s, err := p.Future.Struct()
+	return AlterTimeSeriesWrapper_remove_Results{s}, err
 }
 
-type AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params capnp.Struct
+type AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params struct{ capnp.Struct }
 
 // AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params_TypeID is the unique identifier for the type AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params.
 const AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params_TypeID = 0x8f08162dbd7e5068
 
 func NewAlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params(s *capnp.Segment) (AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params(st), err
+	return AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params{st}, err
 }
 
 func NewRootAlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params(s *capnp.Segment) (AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params(st), err
+	return AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params{st}, err
 }
 
 func ReadRootAlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params(msg *capnp.Message) (AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params, error) {
 	root, err := msg.Root()
-	return AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params(root.Struct()), err
+	return AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params{root.Struct()}, err
 }
 
 func (s AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params) String() string {
-	str, _ := text.Marshal(0x8f08162dbd7e5068, capnp.Struct(s))
+	str, _ := text.Marshal(0x8f08162dbd7e5068, s.Struct)
 	return str
 }
 
-func (s AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params) DecodeFromPtr(p capnp.Ptr) AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params {
-	return AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params) TimeSeries() TimeSeries {
-	p, _ := capnp.Struct(s).Ptr(0)
-	return TimeSeries(p.Interface().Client())
+	p, _ := s.Struct.Ptr(0)
+	return TimeSeries{Client: p.Interface().Client()}
 }
 
 func (s AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params) HasTimeSeries() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params) SetTimeSeries(v TimeSeries) error {
-	if !v.IsValid() {
-		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
+	if !v.Client.IsValid() {
+		return s.Struct.SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
-	return capnp.Struct(s).SetPtr(0, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
+	return s.Struct.SetPtr(0, in.ToPtr())
 }
 
 // AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params_List is a list of AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params.
-type AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params_List = capnp.StructList[AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params]
+type AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params_List struct{ capnp.List }
 
 // NewAlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params creates a new list of AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params.
 func NewAlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params_List(s *capnp.Segment, sz int32) (AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params](l), err
+	return AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params_List{l}, err
+}
+
+func (s AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params_List) At(i int) AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params {
+	return AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params{s.List.Struct(i)}
+}
+
+func (s AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params_List) Set(i int, v AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params_List) String() string {
+	str, _ := text.MarshalList(0x8f08162dbd7e5068, s.List)
+	return str
 }
 
 // AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params_Future is a wrapper for a AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params promised by a client call.
 type AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params_Future struct{ *capnp.Future }
 
-func (f AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params_Future) Struct() (AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params, error) {
-	p, err := f.Future.Ptr()
-	return AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params(p.Struct()), err
-}
-func (p AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params_Future) TimeSeries() TimeSeries {
-	return TimeSeries(p.Future.Field(0, nil).Client())
+func (p AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params_Future) Struct() (AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params, error) {
+	s, err := p.Future.Struct()
+	return AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params{s}, err
 }
 
-type AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results capnp.Struct
+func (p AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Params_Future) TimeSeries() TimeSeries {
+	return TimeSeries{Client: p.Future.Field(0, nil).Client()}
+}
+
+type AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results struct{ capnp.Struct }
 
 // AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results_TypeID is the unique identifier for the type AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results.
 const AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results_TypeID = 0x8b0a787e82cd94bb
 
 func NewAlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results(s *capnp.Segment) (AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results(st), err
+	return AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results{st}, err
 }
 
 func NewRootAlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results(s *capnp.Segment) (AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results(st), err
+	return AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results{st}, err
 }
 
 func ReadRootAlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results(msg *capnp.Message) (AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results, error) {
 	root, err := msg.Root()
-	return AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results(root.Struct()), err
+	return AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results{root.Struct()}, err
 }
 
 func (s AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results) String() string {
-	str, _ := text.Marshal(0x8b0a787e82cd94bb, capnp.Struct(s))
+	str, _ := text.Marshal(0x8b0a787e82cd94bb, s.Struct)
 	return str
 }
 
-func (s AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results) DecodeFromPtr(p capnp.Ptr) AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results {
-	return AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results_List is a list of AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results.
-type AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results_List = capnp.StructList[AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results]
+type AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results_List struct{ capnp.List }
 
 // NewAlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results creates a new list of AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results.
 func NewAlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results_List(s *capnp.Segment, sz int32) (AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results](l), err
+	return AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results_List{l}, err
+}
+
+func (s AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results_List) At(i int) AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results {
+	return AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results{s.List.Struct(i)}
+}
+
+func (s AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results_List) Set(i int, v AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results_List) String() string {
+	str, _ := text.MarshalList(0x8b0a787e82cd94bb, s.List)
+	return str
 }
 
 // AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results_Future is a wrapper for a AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results promised by a client call.
 type AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results_Future struct{ *capnp.Future }
 
-func (f AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results_Future) Struct() (AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results, error) {
-	p, err := f.Future.Ptr()
-	return AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results(p.Struct()), err
+func (p AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results_Future) Struct() (AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results, error) {
+	s, err := p.Future.Struct()
+	return AlterTimeSeriesWrapper_replaceWrappedTimeSeries_Results{s}, err
 }
 
-type AlterTimeSeriesWrapperFactory capnp.Client
+type AlterTimeSeriesWrapperFactory struct{ Client *capnp.Client }
 
 // AlterTimeSeriesWrapperFactory_TypeID is the unique identifier for the type AlterTimeSeriesWrapperFactory.
 const AlterTimeSeriesWrapperFactory_TypeID = 0xc5f12df0a2a52744
 
 func (c AlterTimeSeriesWrapperFactory) Wrap(ctx context.Context, params func(AlterTimeSeriesWrapperFactory_wrap_Params) error) (AlterTimeSeriesWrapperFactory_wrap_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xc5f12df0a2a52744,
@@ -8969,16 +7761,12 @@ func (c AlterTimeSeriesWrapperFactory) Wrap(ctx context.Context, params func(Alt
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(AlterTimeSeriesWrapperFactory_wrap_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(AlterTimeSeriesWrapperFactory_wrap_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return AlterTimeSeriesWrapperFactory_wrap_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c AlterTimeSeriesWrapperFactory) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -8989,83 +7777,20 @@ func (c AlterTimeSeriesWrapperFactory) Info(ctx context.Context, params func(com
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
-
 }
 
-func (c AlterTimeSeriesWrapperFactory) WaitStreaming() error {
-	return capnp.Client(c).WaitStreaming()
-}
-
-// String returns a string that identifies this capability for debugging
-// purposes.  Its format should not be depended on: in particular, it
-// should not be used to compare clients.  Use IsSame to compare clients
-// for equality.
-func (c AlterTimeSeriesWrapperFactory) String() string {
-	return "AlterTimeSeriesWrapperFactory(" + capnp.Client(c).String() + ")"
-}
-
-// AddRef creates a new Client that refers to the same capability as c.
-// If c is nil or has resolved to null, then AddRef returns nil.
 func (c AlterTimeSeriesWrapperFactory) AddRef() AlterTimeSeriesWrapperFactory {
-	return AlterTimeSeriesWrapperFactory(capnp.Client(c).AddRef())
+	return AlterTimeSeriesWrapperFactory{
+		Client: c.Client.AddRef(),
+	}
 }
 
-// Release releases a capability reference.  If this is the last
-// reference to the capability, then the underlying resources associated
-// with the capability will be released.
-//
-// Release will panic if c has already been released, but not if c is
-// nil or resolved to null.
 func (c AlterTimeSeriesWrapperFactory) Release() {
-	capnp.Client(c).Release()
-}
-
-// Resolve blocks until the capability is fully resolved or the Context
-// expires.
-func (c AlterTimeSeriesWrapperFactory) Resolve(ctx context.Context) error {
-	return capnp.Client(c).Resolve(ctx)
-}
-
-func (c AlterTimeSeriesWrapperFactory) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Client(c).EncodeAsPtr(seg)
-}
-
-func (AlterTimeSeriesWrapperFactory) DecodeFromPtr(p capnp.Ptr) AlterTimeSeriesWrapperFactory {
-	return AlterTimeSeriesWrapperFactory(capnp.Client{}.DecodeFromPtr(p))
-}
-
-// IsValid reports whether c is a valid reference to a capability.
-// A reference is invalid if it is nil, has resolved to null, or has
-// been released.
-func (c AlterTimeSeriesWrapperFactory) IsValid() bool {
-	return capnp.Client(c).IsValid()
-}
-
-// IsSame reports whether c and other refer to a capability created by the
-// same call to NewClient.  This can return false negatives if c or other
-// are not fully resolved: use Resolve if this is an issue.  If either
-// c or other are released, then IsSame panics.
-func (c AlterTimeSeriesWrapperFactory) IsSame(other AlterTimeSeriesWrapperFactory) bool {
-	return capnp.Client(c).IsSame(capnp.Client(other))
-}
-
-// Update the flowcontrol.FlowLimiter used to manage flow control for
-// this client. This affects all future calls, but not calls already
-// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
-// which is also the default.
-func (c AlterTimeSeriesWrapperFactory) SetFlowLimiter(lim fc.FlowLimiter) {
-	capnp.Client(c).SetFlowLimiter(lim)
-}
-
-// Get the current flowcontrol.FlowLimiter used to manage flow control
-// for this client.
-func (c AlterTimeSeriesWrapperFactory) GetFlowLimiter() fc.FlowLimiter {
-	return capnp.Client(c).GetFlowLimiter()
+	c.Client.Release()
 }
 
 // A AlterTimeSeriesWrapperFactory_Server is a AlterTimeSeriesWrapperFactory with a local implementation.
@@ -9076,15 +7801,15 @@ type AlterTimeSeriesWrapperFactory_Server interface {
 }
 
 // AlterTimeSeriesWrapperFactory_NewServer creates a new Server from an implementation of AlterTimeSeriesWrapperFactory_Server.
-func AlterTimeSeriesWrapperFactory_NewServer(s AlterTimeSeriesWrapperFactory_Server) *server.Server {
+func AlterTimeSeriesWrapperFactory_NewServer(s AlterTimeSeriesWrapperFactory_Server, policy *server.Policy) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(AlterTimeSeriesWrapperFactory_Methods(nil, s), s, c)
+	return server.New(AlterTimeSeriesWrapperFactory_Methods(nil, s), s, c, policy)
 }
 
 // AlterTimeSeriesWrapperFactory_ServerToClient creates a new Client from an implementation of AlterTimeSeriesWrapperFactory_Server.
 // The caller is responsible for calling Release on the returned Client.
-func AlterTimeSeriesWrapperFactory_ServerToClient(s AlterTimeSeriesWrapperFactory_Server) AlterTimeSeriesWrapperFactory {
-	return AlterTimeSeriesWrapperFactory(capnp.NewClient(AlterTimeSeriesWrapperFactory_NewServer(s)))
+func AlterTimeSeriesWrapperFactory_ServerToClient(s AlterTimeSeriesWrapperFactory_Server, policy *server.Policy) AlterTimeSeriesWrapperFactory {
+	return AlterTimeSeriesWrapperFactory{Client: capnp.NewClient(AlterTimeSeriesWrapperFactory_NewServer(s, policy))}
 }
 
 // AlterTimeSeriesWrapperFactory_Methods appends Methods to a slice that invoke the methods on s.
@@ -9129,626 +7854,596 @@ type AlterTimeSeriesWrapperFactory_wrap struct {
 
 // Args returns the call's arguments.
 func (c AlterTimeSeriesWrapperFactory_wrap) Args() AlterTimeSeriesWrapperFactory_wrap_Params {
-	return AlterTimeSeriesWrapperFactory_wrap_Params(c.Call.Args())
+	return AlterTimeSeriesWrapperFactory_wrap_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c AlterTimeSeriesWrapperFactory_wrap) AllocResults() (AlterTimeSeriesWrapperFactory_wrap_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return AlterTimeSeriesWrapperFactory_wrap_Results(r), err
+	return AlterTimeSeriesWrapperFactory_wrap_Results{Struct: r}, err
 }
 
-// AlterTimeSeriesWrapperFactory_List is a list of AlterTimeSeriesWrapperFactory.
-type AlterTimeSeriesWrapperFactory_List = capnp.CapList[AlterTimeSeriesWrapperFactory]
-
-// NewAlterTimeSeriesWrapperFactory creates a new list of AlterTimeSeriesWrapperFactory.
-func NewAlterTimeSeriesWrapperFactory_List(s *capnp.Segment, sz int32) (AlterTimeSeriesWrapperFactory_List, error) {
-	l, err := capnp.NewPointerList(s, sz)
-	return capnp.CapList[AlterTimeSeriesWrapperFactory](l), err
-}
-
-type AlterTimeSeriesWrapperFactory_wrap_Params capnp.Struct
+type AlterTimeSeriesWrapperFactory_wrap_Params struct{ capnp.Struct }
 
 // AlterTimeSeriesWrapperFactory_wrap_Params_TypeID is the unique identifier for the type AlterTimeSeriesWrapperFactory_wrap_Params.
 const AlterTimeSeriesWrapperFactory_wrap_Params_TypeID = 0x95064806dc018bfe
 
 func NewAlterTimeSeriesWrapperFactory_wrap_Params(s *capnp.Segment) (AlterTimeSeriesWrapperFactory_wrap_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return AlterTimeSeriesWrapperFactory_wrap_Params(st), err
+	return AlterTimeSeriesWrapperFactory_wrap_Params{st}, err
 }
 
 func NewRootAlterTimeSeriesWrapperFactory_wrap_Params(s *capnp.Segment) (AlterTimeSeriesWrapperFactory_wrap_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return AlterTimeSeriesWrapperFactory_wrap_Params(st), err
+	return AlterTimeSeriesWrapperFactory_wrap_Params{st}, err
 }
 
 func ReadRootAlterTimeSeriesWrapperFactory_wrap_Params(msg *capnp.Message) (AlterTimeSeriesWrapperFactory_wrap_Params, error) {
 	root, err := msg.Root()
-	return AlterTimeSeriesWrapperFactory_wrap_Params(root.Struct()), err
+	return AlterTimeSeriesWrapperFactory_wrap_Params{root.Struct()}, err
 }
 
 func (s AlterTimeSeriesWrapperFactory_wrap_Params) String() string {
-	str, _ := text.Marshal(0x95064806dc018bfe, capnp.Struct(s))
+	str, _ := text.Marshal(0x95064806dc018bfe, s.Struct)
 	return str
 }
 
-func (s AlterTimeSeriesWrapperFactory_wrap_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (AlterTimeSeriesWrapperFactory_wrap_Params) DecodeFromPtr(p capnp.Ptr) AlterTimeSeriesWrapperFactory_wrap_Params {
-	return AlterTimeSeriesWrapperFactory_wrap_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s AlterTimeSeriesWrapperFactory_wrap_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s AlterTimeSeriesWrapperFactory_wrap_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s AlterTimeSeriesWrapperFactory_wrap_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s AlterTimeSeriesWrapperFactory_wrap_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s AlterTimeSeriesWrapperFactory_wrap_Params) TimeSeries() TimeSeries {
-	p, _ := capnp.Struct(s).Ptr(0)
-	return TimeSeries(p.Interface().Client())
+	p, _ := s.Struct.Ptr(0)
+	return TimeSeries{Client: p.Interface().Client()}
 }
 
 func (s AlterTimeSeriesWrapperFactory_wrap_Params) HasTimeSeries() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s AlterTimeSeriesWrapperFactory_wrap_Params) SetTimeSeries(v TimeSeries) error {
-	if !v.IsValid() {
-		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
+	if !v.Client.IsValid() {
+		return s.Struct.SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
-	return capnp.Struct(s).SetPtr(0, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
+	return s.Struct.SetPtr(0, in.ToPtr())
 }
 
 // AlterTimeSeriesWrapperFactory_wrap_Params_List is a list of AlterTimeSeriesWrapperFactory_wrap_Params.
-type AlterTimeSeriesWrapperFactory_wrap_Params_List = capnp.StructList[AlterTimeSeriesWrapperFactory_wrap_Params]
+type AlterTimeSeriesWrapperFactory_wrap_Params_List struct{ capnp.List }
 
 // NewAlterTimeSeriesWrapperFactory_wrap_Params creates a new list of AlterTimeSeriesWrapperFactory_wrap_Params.
 func NewAlterTimeSeriesWrapperFactory_wrap_Params_List(s *capnp.Segment, sz int32) (AlterTimeSeriesWrapperFactory_wrap_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[AlterTimeSeriesWrapperFactory_wrap_Params](l), err
+	return AlterTimeSeriesWrapperFactory_wrap_Params_List{l}, err
+}
+
+func (s AlterTimeSeriesWrapperFactory_wrap_Params_List) At(i int) AlterTimeSeriesWrapperFactory_wrap_Params {
+	return AlterTimeSeriesWrapperFactory_wrap_Params{s.List.Struct(i)}
+}
+
+func (s AlterTimeSeriesWrapperFactory_wrap_Params_List) Set(i int, v AlterTimeSeriesWrapperFactory_wrap_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s AlterTimeSeriesWrapperFactory_wrap_Params_List) String() string {
+	str, _ := text.MarshalList(0x95064806dc018bfe, s.List)
+	return str
 }
 
 // AlterTimeSeriesWrapperFactory_wrap_Params_Future is a wrapper for a AlterTimeSeriesWrapperFactory_wrap_Params promised by a client call.
 type AlterTimeSeriesWrapperFactory_wrap_Params_Future struct{ *capnp.Future }
 
-func (f AlterTimeSeriesWrapperFactory_wrap_Params_Future) Struct() (AlterTimeSeriesWrapperFactory_wrap_Params, error) {
-	p, err := f.Future.Ptr()
-	return AlterTimeSeriesWrapperFactory_wrap_Params(p.Struct()), err
-}
-func (p AlterTimeSeriesWrapperFactory_wrap_Params_Future) TimeSeries() TimeSeries {
-	return TimeSeries(p.Future.Field(0, nil).Client())
+func (p AlterTimeSeriesWrapperFactory_wrap_Params_Future) Struct() (AlterTimeSeriesWrapperFactory_wrap_Params, error) {
+	s, err := p.Future.Struct()
+	return AlterTimeSeriesWrapperFactory_wrap_Params{s}, err
 }
 
-type AlterTimeSeriesWrapperFactory_wrap_Results capnp.Struct
+func (p AlterTimeSeriesWrapperFactory_wrap_Params_Future) TimeSeries() TimeSeries {
+	return TimeSeries{Client: p.Future.Field(0, nil).Client()}
+}
+
+type AlterTimeSeriesWrapperFactory_wrap_Results struct{ capnp.Struct }
 
 // AlterTimeSeriesWrapperFactory_wrap_Results_TypeID is the unique identifier for the type AlterTimeSeriesWrapperFactory_wrap_Results.
 const AlterTimeSeriesWrapperFactory_wrap_Results_TypeID = 0xb48982ac9bcd5d11
 
 func NewAlterTimeSeriesWrapperFactory_wrap_Results(s *capnp.Segment) (AlterTimeSeriesWrapperFactory_wrap_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return AlterTimeSeriesWrapperFactory_wrap_Results(st), err
+	return AlterTimeSeriesWrapperFactory_wrap_Results{st}, err
 }
 
 func NewRootAlterTimeSeriesWrapperFactory_wrap_Results(s *capnp.Segment) (AlterTimeSeriesWrapperFactory_wrap_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return AlterTimeSeriesWrapperFactory_wrap_Results(st), err
+	return AlterTimeSeriesWrapperFactory_wrap_Results{st}, err
 }
 
 func ReadRootAlterTimeSeriesWrapperFactory_wrap_Results(msg *capnp.Message) (AlterTimeSeriesWrapperFactory_wrap_Results, error) {
 	root, err := msg.Root()
-	return AlterTimeSeriesWrapperFactory_wrap_Results(root.Struct()), err
+	return AlterTimeSeriesWrapperFactory_wrap_Results{root.Struct()}, err
 }
 
 func (s AlterTimeSeriesWrapperFactory_wrap_Results) String() string {
-	str, _ := text.Marshal(0xb48982ac9bcd5d11, capnp.Struct(s))
+	str, _ := text.Marshal(0xb48982ac9bcd5d11, s.Struct)
 	return str
 }
 
-func (s AlterTimeSeriesWrapperFactory_wrap_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (AlterTimeSeriesWrapperFactory_wrap_Results) DecodeFromPtr(p capnp.Ptr) AlterTimeSeriesWrapperFactory_wrap_Results {
-	return AlterTimeSeriesWrapperFactory_wrap_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s AlterTimeSeriesWrapperFactory_wrap_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s AlterTimeSeriesWrapperFactory_wrap_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s AlterTimeSeriesWrapperFactory_wrap_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s AlterTimeSeriesWrapperFactory_wrap_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s AlterTimeSeriesWrapperFactory_wrap_Results) Wrapper() AlterTimeSeriesWrapper {
-	p, _ := capnp.Struct(s).Ptr(0)
-	return AlterTimeSeriesWrapper(p.Interface().Client())
+	p, _ := s.Struct.Ptr(0)
+	return AlterTimeSeriesWrapper{Client: p.Interface().Client()}
 }
 
 func (s AlterTimeSeriesWrapperFactory_wrap_Results) HasWrapper() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s AlterTimeSeriesWrapperFactory_wrap_Results) SetWrapper(v AlterTimeSeriesWrapper) error {
-	if !v.IsValid() {
-		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
+	if !v.Client.IsValid() {
+		return s.Struct.SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
-	return capnp.Struct(s).SetPtr(0, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
+	return s.Struct.SetPtr(0, in.ToPtr())
 }
 
 // AlterTimeSeriesWrapperFactory_wrap_Results_List is a list of AlterTimeSeriesWrapperFactory_wrap_Results.
-type AlterTimeSeriesWrapperFactory_wrap_Results_List = capnp.StructList[AlterTimeSeriesWrapperFactory_wrap_Results]
+type AlterTimeSeriesWrapperFactory_wrap_Results_List struct{ capnp.List }
 
 // NewAlterTimeSeriesWrapperFactory_wrap_Results creates a new list of AlterTimeSeriesWrapperFactory_wrap_Results.
 func NewAlterTimeSeriesWrapperFactory_wrap_Results_List(s *capnp.Segment, sz int32) (AlterTimeSeriesWrapperFactory_wrap_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[AlterTimeSeriesWrapperFactory_wrap_Results](l), err
+	return AlterTimeSeriesWrapperFactory_wrap_Results_List{l}, err
+}
+
+func (s AlterTimeSeriesWrapperFactory_wrap_Results_List) At(i int) AlterTimeSeriesWrapperFactory_wrap_Results {
+	return AlterTimeSeriesWrapperFactory_wrap_Results{s.List.Struct(i)}
+}
+
+func (s AlterTimeSeriesWrapperFactory_wrap_Results_List) Set(i int, v AlterTimeSeriesWrapperFactory_wrap_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s AlterTimeSeriesWrapperFactory_wrap_Results_List) String() string {
+	str, _ := text.MarshalList(0xb48982ac9bcd5d11, s.List)
+	return str
 }
 
 // AlterTimeSeriesWrapperFactory_wrap_Results_Future is a wrapper for a AlterTimeSeriesWrapperFactory_wrap_Results promised by a client call.
 type AlterTimeSeriesWrapperFactory_wrap_Results_Future struct{ *capnp.Future }
 
-func (f AlterTimeSeriesWrapperFactory_wrap_Results_Future) Struct() (AlterTimeSeriesWrapperFactory_wrap_Results, error) {
-	p, err := f.Future.Ptr()
-	return AlterTimeSeriesWrapperFactory_wrap_Results(p.Struct()), err
+func (p AlterTimeSeriesWrapperFactory_wrap_Results_Future) Struct() (AlterTimeSeriesWrapperFactory_wrap_Results, error) {
+	s, err := p.Future.Struct()
+	return AlterTimeSeriesWrapperFactory_wrap_Results{s}, err
 }
+
 func (p AlterTimeSeriesWrapperFactory_wrap_Results_Future) Wrapper() AlterTimeSeriesWrapper {
-	return AlterTimeSeriesWrapper(p.Future.Field(0, nil).Client())
+	return AlterTimeSeriesWrapper{Client: p.Future.Field(0, nil).Client()}
 }
 
-const schema_a01d3ae410eb4518 = "x\xda\xac{{|\x14\xe5\xb9\xff\xf3\xcc$Y\xc0\xc8" +
-	"\xe6uB\xc2-\xac\x84p\x0b\x90O\xb2\x10T\xfa\xe3" +
-	"\x97\x04X\x08Hj&A,T~:\xd9\x9d$\x0b" +
-	";;\xcb\xcc,!\xfe\x0e\xe5Ri\x8b\x15\x15\x0e\x1c" +
-	"\xeb\xa9Z\xb0\xa5\x1e8mE?r,\x9e\xdaOQ" +
-	"i+J[,\xb4\xc5[\xbda\x95z\xe3\xa8\xf5\x0a" +
-	"s>\xcf;;;C\xb2\x09\x17\xfb\xcf\xec\xee\xbc\xcf" +
-	"{{\x9e\xefs}\xdf\xad\xfe\xd1\xe0\xfa\xbc\x9aK\x7f" +
-	"3\x06\x84\xd6\x1d\x98_`\xcbG\xf3\xb75\x1eZ\xb8" +
-	"\x0eX\x09\x02\xe4\x05\x00\xa6>\xc5\xb6\"\xe4\xd9\x85\x1b" +
-	"\xfePpr\xed\x03\x1bA.E\xb4\xf7j\xd7\xb6\xbf" +
-	"\xf5\xec\xf4\xcf!\x82\x81BDi?;)\x1ddD" +
-	"~\x80\xdd/\x00\xda\xc3\xceH\x1fl4\x1f\xdd\x08\xf2" +
-	"`D{h\xe4\xefE\xaf\xcf(\xdb\x01\xf94\xa4\xb4" +
-	"\xbe\xf8QiSq)\xc0\xd4-\xc5!\x04\xb4\xe5\xd7" +
-	"\xbeY}\xf0\xa5\x95\xdf\x026X\xf0\x88\x01\xa5\xc7\x86" +
-	"l\x95\x0e\x0e\xa1>\x07\x86<\x00h7\xef\xb8\xa6X" +
-	"/^\xb5\x09\xd80\x04\xc8G\x9a\xb1\xb6d\x16\x02J" +
-	"3K\xea\x00\xed\xff\xdevx\xc37V\x0f\xfa.\xb0" +
-	"\xb1\xee\x06\xb4\x92\xb0\x00y\xf6\xcf\xff\xf5\x1fo\xbe\x14" +
-	"{\xe2V\x7fW\xb5\xa4\x85\xba\xae\xe4]\x0f\xafY\xf6" +
-	"\xe4\x8a\xef\xad\xbe\xcd!\xe0]w\x95T\xd2\xde\x9f\xd9" +
-	"VX\xb3:\xf0\xc1m\xbd\x96\xb7\xb9d\xab\xb4\xbd\x84" +
-	"\x96\xb7\xa5\x84\x96\xd7\xd9\xfc\x8d\xc7\xa6\x94\x0c\xb8\xdd\x99" +
-	"\xdd\x99\xe3DI\xa5\x00(\x9d\xe6s\xec\xbc\xf3\x96\x9f" +
-	"\x09\xa9?\xdf\xee\x9bct\xe9\x0c\x9a\xe3\xcd_\xd7n" +
-	"\xdb\xb8\xaes\x8b\xc3y\xa7\xeb\xc0\xd2\x7f\xa7\xe5\x0d+" +
-	"\xa5\xaeg\xbe\x8b/\x144\x16l\x0769K\xd0T" +
-	"\xfa8\x11,\xe3\x04\x1b\x16\x7feb\xd7\xaa\xefl\x07" +
-	"6\xda\x1d{=\x0d\x90g\xbfu\xf2\xff\xfe\xb9q\xda" +
-	"\xcc\xbb\xfd[_Y\x1a\xa6\xae\xdd\xbc\xeb\xf3o\xfc\xf0" +
-	"\xc5o\x86\xd6\xdc\xe3\x9f|\x7fi\x1b\x11\x1c\xe4\x04\x05" +
-	"\x9fu\x7f\xf7\xba\xe7\x1f\xbd\xd7O\xf0V\xa9A\x04\x1f" +
-	"q\x82\xd5\xef\xdc\xb0\xeb\x12\xb1\xf6\x07\xc0\xc6d\x09\xca" +
-	"\x86n%\x82)C\x89\xe0\xf8\xc4\xbb\x0e&\x1e\x1f\xfa" +
-	"#`\x83E?\x0f\xa7\xee\x1a:\x1c\xa5}CKI" +
-	"\xc6C\xe7Io\xd17\xfbM-y\xa6\xfe\x07\xab\xee" +
-	"\xefI-\x1d\x1fzH:A$SO\x0d\x9d'H" +
-	"\xda\xf0\xf1\x00\xf6\x8b7\x94\xd5\xbf\xf0\xc5\xad{\xfc\xab" +
-	"S\x87sTh\xc3ir\xac2\xaa\xaf\x9eS\xf0\x9f" +
-	"\xc0JE\x0f\xbb\x80Sw\x0e\x1f\x84\xd2\x83\xc3I\x82" +
-	"?\x1d\xfem)\x7fD\x00\xc0\x96\x16\\3a\xa6>" +
-	"\x7f\xaf\x7f\xb8w\x86\xdfB\xc3\x9d\xe6\xc3=.\xbe\x1d" +
-	"\xfd\xfd\xa1\xf6\x87\x81\x0d\x13\xbc\xa5\x02N-\x1bQ\x8e" +
-	"\xd2\x14\x1aD\x9a8\xe2\x0a@\x9b-;\xfc\xfd\x9fl" +
-	"\xd8\xf4\xb0_hSF\x1c\xa2\xa1\x1aF\xd0PC\x1a" +
-	"\xdfL\xde1\xf7\x89\x87}\x0a\xa7\x8c\x08\x93\xd0\x0e}" +
-	"\xed\x89\x80\xbc\xfa\xc5}\xc0\xc6\x0a\xf6C7\xdfy\xe7" +
-	"{\xeb>|\x85&\x99?\xe2&\x94\x96\xf1I\x96\xf0" +
-	"IFL\x16V}8\xfe\xed\xfd\x19\xf1\x0a4\xc8\xb2" +
-	"\x113h\x12uD\x17\xa0\xfd\xf9\xb6\x93?\xfe\xd5K" +
-	"/?\xee\x97\xffA\x87\xe00_\xc5_\xd7\xbdy(" +
-	"\xba~\xcc\x13~\x82KG.\xe5\xe0\x1b\xc9\x012\xed" +
-	"\xbe\xce\xa7*n{\x92\xb4_8K\xfb\xf3\x01\xa4\x99" +
-	"#OJ\xf3GR\xa7\xc8H\xae\xcf#o\xfe\xe5\xba" +
-	"\xb6\xb7w>\xe9\xd7\x83k\xcb8\x98\xd52\x1ao\xce" +
-	"\xf8]\xf7\xbd?\xe5\xd4\xc1^h\xd8T\xd6\x86\xd2=" +
-	"e\xb4\xb9\xbb\xca\xe6I\x07\xca\x08\x0d\xcb\x8f\xbe1c" +
-	"\x97t\xfa \xb0R\x9fe\xe1\x1b\x95\x1e,{Vz" +
-	"\x8c\xd3\xef/\xa3\xbd\x0ex\xf5\xe3\xfc\xbb\xc3\xcf\xfe\xda" +
-	"\xd1\x02g\xea!\xa3\xb8\x9a\x8c\x1dES?RX\xf2" +
-	"\xf3\x93\xef\xac\xffM/,DF\x0dG\xe9\xdaQ4" +
-	"\x94<\xea\xdb\xd2N\xfafO\xfb\xd1\xb2\xc3G~r" +
-	"\xe8\xb7=\xec\x187c\x9bF\x9d\x94\xb6s\xfa-\xa3" +
-	"\xfe\x06hK?\x0c\x8e\xd8{o\xf8i\x9fr\xab\xa1" +
-	"\x05$\xcb{\xbf\xd5\xf0\\a\xf9\x8e\xa7}VI\x0e" +
-	"\xbdJ-\x7fJ\xfex\xe7\xf1\x9f\x0e>\x0c\xf20t" +
-	"\x9b\"!\xaeyr\x88\x96\xbb\xf7\xe4^k\xcb\xc7\xdb" +
-	"\x0f\xfb\xc1\x98\x0e-'\x82\xf5\x9c`Z\xfb\xf6\xeb\xcb" +
-	"\x9f\x9c\xfc;\xdf\xac\xfb\x9cY\x8b~\xf0\xd2\xbb\xf1\xce" +
-	"\xab~\xd7\xcbl\xed\x0cm\x95v\x87\xb8\x81\x0b\x8d'" +
-	"y\xcd\xcbO\xe3\xb8\xcd{~\x9f\xd1^\x8e\xa0\xee\xcb" +
-	"9\xe27]N\\=\xf8\xcb;>xt\xff\xc6?" +
-	"\x80<\x16\xd1C#\x9f\xed\xc4\xe5\xcbQ\xfa\xf4r\xe2" +
-	"\xc3G\x97\x93\x15|\xf4\xe8\x84\xc4\xc6\xaa\x1d\xcf\xfa0" +
-	"\xbdy47r\xaf\xbf1q\xe2\xdd\xa3V\xfc\x91\x0f" +
-	"\x93\xdd\xcdhn&6\x8e\xa6\x89\xde\xbdiZ\xc9\xeb" +
-	"\x83V\xff\xb1\xd7\x9aO\x8c\xde*\xbd3\x9a&yk" +
-	"\xf4Z@;\xfd\xca5\xa7f\xef\x18\xf1'`%\xa2" +
-	"\xfd\xfe\x8dK\xde?r\xba\xf6\x1f\\\x07\xcb\x97\xa2T" +
-	"SN\x94S\xca\xe7IK\xe8\x9b\xbd\xe3D\xf9\x0do" +
-	"\xaf\xfd\xf1\x9f\x81\x0d\xf6{#\x8e\xa0\x86\xf2\xe7\xa4&" +
-	"N?\xbf\x9c\x96\xb0v\xd9\xce\xfb\xf6v|r\xdc\xcf" +
-	"\xf1]\xe5\xdcQ<XN\x1co\xb5#Mg\xbe\xf8" +
-	"\xff\xcfgv\xc17x\xac\x9c\xa3\xfb\x04'h/]" +
-	"\xf9\x8b}\xe9\xaf\xbf\xe8\x87\xff\xc01'\x89\xa0l\x0c" +
-	"7\xa7\xc7\x1ey\xf9\xd4\xffK\xfd\xd5o-\x9b\xc6p" +
-	"~/\xe3\x04C>N\xb5\x7f\x10\xba\xffe?\x8a\xd7" +
-	"\x8c\xe1vc\x0b'\xc8\x8a\xa0\xa7\x02\x1d\x18S\x89\xd2" +
-	"\x911\xe3\xc9@\x8f\x99\x87\xd2S\x15\xa4A\x83\xa6~" +
-	"\xb6\xe5\xee\xa3s_u&\xe4+\xde_q\x0b\x89\xe4" +
-	"z\xf3\xf1\xaf'\xe7\x16\xbe\xe6\xdf\xed\xee\x0a\xae\xfa\xfb" +
-	"*h\xa6\xdd\xd3??\xfe\xee\xb8\xd0k>\xec\x1e\xaf" +
-	"\xf8\x1f\xea\x1a\xdb\xb7\xf4\xf9\x87o\xbc\xee\xb5^\xb2:" +
-	"\\\xf1\x90t\xac\x82(\x8fT<B\xf8\xaa\xbf\xfa\x89" +
-	"\xdd\xb7}\xf3\xde\xd7\xfd\xdb\x198\xee>n_\xc6\xd1" +
-	"$/\x1f}r\xe6]\x975\xbc\x01\xf2\xa4,K\xe7" +
-	"\x8f\x13\xc8q.\xe3\x04GN\x1b\xcf\x0e\xcb\xaf;\xe9" +
-	"C\xf9\xfaqKi\x15?\xbf\xa3\xfd\xc3\xdd#\xff\xe3" +
-	"\xef \x8fA\x9f\x9bq@\xac\x8d[\x8e\xd2\xfaq$" +
-	"\xdc5\xe3HGG-\x7f@\xdcs\xc3\xbb\xef\xf8\xb7" +
-	"{p<\x07\xe0\xb1\xf1\\\x9d\xae\xfd\xd9o\xff\xfe\xc0" +
-	"{\xef\xf9U\xe1S\x87`\xe0\x04\x82\xc7\xd8\xda\x8d\x0f" +
-	"\x8e\xf9\xf4\x93\xf7|+\x89O\xe0\x16\xfb\x9a\x7f\xfb\xf5" +
-	"\xf7?z\xe6\xc0\xa9\x9c1\x8f<\xe1\xa4\xb4l\x02Q" +
-	"/\x99p\x1d\x02\x9e\xfe\x8aT\xfd\xd0\xba\xf9\x1fz\\" +
-	"}e\xe2}4J\x16\xcb=]\xdf\x91\x89\x0fI\xc7" +
-	"'\x92\xeb{k\"\x09\xb6\x92\\_\xf8\x91\x81k\x8a" +
-	"\xff\xf6\xd7\x8f\xfd\x96\xfb@%\x07\xeb\xe1J\xda\xcf\xbb" +
-	"\xfa\xfcW\xf5\xaf\xef\xf9\xc4\xef\x1cNU.\xe0\xce\xac" +
-	"\x92\xf6sjY\xc1_\x8e\xd5o\xfc\x0c\xd8\xa4\xec\x08" +
-	"K&\x0d\"\xd6\xaf\x9cD#\xec\xf9\xf8\x8e\xdb\xf7\xbd" +
-	"X\xf5\xb9\x1f\xcd\xbb&}F#\xec\xe7\x04Y#\x9a" +
-	"C\xb9^\x9c\xf4\xa8tb\xd2<\x00i\xd8d\x9a\xad" +
-	" \xf2_5\x1f\xbe\xff\xc3/\xfc\xfc\xdf8\x99\x9b\xb3" +
-	"-\x93i\xb0\x1b\x0a'\xd5\x1e\x1d\xb0\xe6L\xaf\xed\xef" +
-	"\x9f\xfc\x90t`2\x8d\xf9\xd8\xe4oK\xc3\xa6\xd0\xee" +
-	"K\x9e\x1a\xb3\xa2\xf0\xf7+l\x9f,\xd8\x940\x82\x0d" +
-	"\xe5v4\x11\xd7\x14K\xad\xca\x8f*\xa9djF\xab" +
-	"j\xac\x8aG\xd5\xaa\x0e\xd5jX\xa5\xc4\x13J[B" +
-	"\x9d\xa3X\x8a\xa9ZfE\xb3b(\x1a\x9a\xd9>\x82" +
-	"\xd3\xa7I\xb5\x94\x98b)U\x91`\xd22\xba\x9b\x11" +
-	"\xe5j1\xaf\xd0\xb6\xf3\x90\xec\x06\x96\x03\xb4\xfe\x1f\x14" +
-	"\xb1\xb5\x11\x05\xbc\x14\xcf\xd8\xc5\x04^)\xc2\x1b\xea\xa9" +
-	"a!5\x08\xa7\xedb\x14\xc8\xbe\xe0R\x80\xd6Fj" +
-	"XD\x0d\xe2\x17v1\x8a\x04\x0e\xdec!5|\x8d" +
-	"\x1a\xf2>\xb7\x8b1\x0f@\xba\x9674S\xc3\xf5\xd4" +
-	"\x90\xff\x99]\x8c\xe4r\x97\xe0\x0c\x80\xd6E\xd4p#" +
-	"5\x14|j\x17c\x01\x80\xb4\x0cg\x01\xb4~\x8d\x1a" +
-	"b\xd4\x10\xf8\xc4.&.K\x0a\x86\x01Z\xaf\xa7\x86" +
-	"Nj\x18\xf0\xb1]\x8c\x03\x00$\x95\xcfq#5$" +
-	"P\xc0\xb2\x81\xff\xb0\xb1\x18\x07\x02Hq\xde\x12\xa3\x96" +
-	"\x14u\x19\xf4\x91]\x8c\x83\x00$\x0d[\x00Z\x13\xd4" +
-	"\xb0\x9a\x1a.\xf9\xd0.\xc6K\x00\xa44\xb6\x01\xb4Z" +
-	"\xd4\xb0\x0e\x05\x0ctD5\x0cz\x8e\x08\x10\x83\x80\x01" +
-	"\x83\xbf\xcd\x06\xfd\xce[\xbb3nZ\xba\x11\x8f\x82\xa8" +
-	"$\xa0 `DS\x18\xf4B\xefLW\xd3\xa4\xb7Y" +
-	"/\xe1\xbc\xadS\x93f\x93\xaaa\x91\xe7\xae\x01\xb1\x08" +
-	"p\xed*\xd50\xe3z\x12\x0bA\xc0B\xc0\x90i)" +
-	"\x86\x85E\xf6fV.\xfe\xe4\xcc\x1bwf\xe8\x02j" +
-	"2\x96\xe3mT\x0f\xe3 \x10p\x10\xa0\x9d\x8aG\xf5" +
-	"\xa4e\xe8\x80\x09(\xb0c\xaa\x195\xe2)\x0b\x02\xbe" +
-	"\xd1\xb3\xf0A\x07>\x0b\xf5\xba\xa8b\xc5\xf5\xa4\x9c\x87" +
-	"\xe8\x0bbp\xb8x\xf5b\xb9X\xcc\x03  \xb15" +
-	"\xc3\x01\xe4\xd5\"\xca7\x0b\x88\xc81\xc4\xd6/\x00\x90" +
-	"\xd7\x89(\xdf* \x13\x90\xe3\x87m\x9a\x01 \xdf," +
-	"\xa2|\x87\x80L\x148v\xd8\xe6\xa5\x00\xf2\xad\"\xca" +
-	"\xdf\x13\x90\xe5\x89\x1c7l;\xbd\xdc&\xa2\xbcW@" +
-	"1N{\xfb\xe3s\xe2\x99\xa7\xbf\xf1\xf4\xd1\xcc\xde\xec" +
-	"N5\xde\xd1i}\xf5\xab\x00\xe0\xee\xb1.\xa1X\x09" +
-	"=\x89E\xf6\xe7\xb7?sU\xf5\x17\xa7\xdev\x89\xad" +
-	"\xb8\xa6\xb6\xaaF\x1cD\xd5D\xe6\x0fy\x91\xd1\xbe\xd3" +
-	"\xa6\xa5ks\x14\x10-\x05\x07\x036\x8b\x88E\xde\x86" +
-	"\x01\xe9eO\xee\xb4\xcc\xc6&\xd2\xa8\x91|kM7" +
-	"\xf1\xc1\xe6\xd3\x87\xc0\"\xcb\x01Pd\x0d\x0b\x000\x8f" +
-	"\xcd\xdc\x0a\x80\xf9l&\xb5\x15\xb0\xab\xda\x00\xechB" +
-	"\x8b\xea\xda\xec(\xd4%\xb4iW\xd6\\aw\xa8F" +
-	"<j\xb6\xa8P\xa7\xe9\xe1\xea\x9aZ{ER\x8b\xb7" +
-	"(Q\x0d\x82z8\x1c\xb1M\xad3\xde\x12U\xa6A" +
-	"\xb6\xf3,\x0b\xd3\xb3\xa3\xbc;^ak\xa9\xf8l3" +
-	"\xea\xf6\xaf\xbe\xcaNw\xea\x9d\xd7\x19\xedS!0\xbd" +
-	"\xa61\xbb\xf6<g\xed\x8b2\xfcP\xcd\xaaNU\x89" +
-	"\xa9FE\x8bj\xa6\x13\x96\x09r^V\xac\x97\x92\xb4" +
-	"\x06\x88(W\x08X\xe7\x90\xb9\xcc\x09z\xbe\xb3\x07s" +
-	"\x02\xce\x04\x0d\x09K5\xbcY\xae3\x94TJ5\xaa" +
-	"\x0c5\x95P\xa2\xaa\xf33\xe6\xb5W\xb4\xa8!>\x7f" +
-	"?\x0b5\xd3m\x99\xb5f\xac\x9d\x7f\xa9\x84\xb6B\x11" +
-	"\xe5\x09\x02\xdajB\xd5\xd4\xa4e\x122\xce\xb9^\xb1" +
-	"\xd7<d0+\x9a\x95\xa0\xa1hf\x0e\x997\xfbd" +
-	"\x1e\xe62\x8f\x84\xb9\xccg\x86\xb9\xcck\xc3\\\xe6S" +
-	"\xc2\\\xe6c\xc3\\\xe6ea\x80\x90\x11M\xd5\\E" +
-	"\xcf\xf0tzN\x9dF\xcfi\xb5\xf4\x9c^M\xcf+" +
-	"\xf8\xf3\xca\xda/\xcb\xcc\xcc\xe2\xfd\xfcY\x9a\xe1\xcfP" +
-	"\xe1\xdc\xca\xd0'g2\xec\xaf\xe3\xfc7/\xc8Aq" +
-	"x\x89V\x9f2\x8be\x08}2+\xf2\x82\xde\x1e2" +
-	"+\xe8\x8f-s\x95\xa8\xa5\x1b\xddU]\x86\x92r\x90" +
-	"r6\xa8/\x82\x13\xf9=\xbcik:\x95\xd2\x0dK" +
-	"\x8dUE\x15K\xed\xd03L7\x14\xd1\xc7\x95>\x80" +
-	"\xe5\x02\xdd\xbf\xa4\xca\x8c\x9eM\x130HD.\x072" +
-	"\x1fd\xdd\xfc\xdb\xcf\xeb\xc5o\x97\xcdsu\xae\x1c\x81" +
-	"\x1e\xc2_\xe0\xdf\xb2\xaa\xa5\x12\x8a\xa5\x12\xa3\x8b\xfc\xe9" +
-	"#\xb7\x93=\xa6\xc8\x8c[eZ\x86\xaah\x0bu\xc7" +
-	"\x1b\x9897\xb1\x15@.\x12Q\x1e)\xa0\x9d\xc8P" +
-	"\xa29[I$\xda\x94(\xae@\xe6e<\xe7`\xef" +
-	"\xfcd\xbbnh|\x80\xaav\xddhH$2\xd6\xe9" +
-	"l\x95/\xcfp-!`@I$<\xd8L\x9dW" +
-	":v\xde\xb7\x8e\xee\x07\x80zd\x18\x92\xf3\x04\xf4\xbf" +
-	"d8^\x1e\x80\x88H\xdd\x11i\xd5X\xe4\xd5\x07\x89" +
-	"\x15gy\x9b\x1c\xe6bv\xebbO\xb0\x1cq\xa2\xd1" +
-	"\xcd\xbdd6\x9ag\xd8b\xcfn]<[O\xb6\xc7" +
-	"\x01;\xe4<1\x1f \x9b\xa8\xa2\x1b\xa636\x03\x04" +
-	"\x96\x1f\xa8\x8b\x1a\xaab\xa9\xf5\xc8G9\xd6x\xf7\x92" +
-	"\xa7\x8f<\xf0\x90c\xed\xcf\x8a\xe9\xbcy\x018\xadW" +
-	"\xcc\xc1\xa5v\x8bj\xea\x89\xb4\x15\x07QO\xca\x15|" +
-	"J7\xf3@7U\x97\x18.\x05A\x1a\x88\x01\xc4l" +
-	"\x04\x8an\x11\x86\x9d\x0e\x83\xc0N\x05P\xc8\x16\xfb\xd0" +
-	"\xadZ\xb2\x13\xb4\xd8\xe3\x01\x14\xb3\xc5Ftks\xec" +
-	"p%\x08\xec@\x00\xf3\xb2\x19\x06\xbau\x1b\xb6\x8f\xc6" +
-	"\xdc\x1d\xc0\xfcl8\x8fn\xe0\xcf\xeeY\x00\x02\xdb\x1e" +
-	"\xc0\x82l\x85\x13\xddr\x0e\xdb\xd4\x02\x02[\x1f\xc0@" +
-	"\xb6J\x80.dY\x9a\xfai\x01\x1c\x90\xad[\xa0[" +
-	"Za\x0a\xb5-\x09\xd8\x86\x8f\x1d\xf5\x182\x94d\x87" +
-	"Z\xef:\xb3zG\xdb\xea1D\x1f\x8b\xea\xd16\xd3" +
-	"m\x9c\x84#\xc7v\x1d\x0e\xa0Q\x8f\xb6\x96\x81\xa7\xd3" +
-	"\xe6\"\x9c\xff\"4\x9d%2\xf5\xe9\xe9/\xecx\xee" +
-	"\xfe\x03~\xf1\xf5P\xa9\x84O\x99z{\xde\x16\x9fi" +
-	"\xccN\x85\xa6\x87\xf1l\x11)7>{\x9b*\x80f" +
-	"\x0exB\x84[hE7\xade5KA`\x13\x09" +
-	"\x0fn\xf9\x09\xdd\x0c\x9e\x95m\x00\x81\x0d\x09\xd8\xae\xad" +
-	"#c\xc9\xb9\xe3\x8c\x8c\xb1\xc5J\"\xad\x9aP\x8f\xcd" +
-	"\xd8K\xa9\xdd\xedF\x13\xba\xa9\x9a\x96\x07\xde\x06\xcb5" +
-	"\xce9C\x8eb\xa1\x9fh\xaeo\x13\x9b\x81?\x05\xb5" +
-	"|\xbb\xdcM3\xc7M\x0f\x9c\x01\x10\x8a)\xf1Dw" +
-	"]\xa7\x9e6\x12\xdd\x17\xe1O\\Y\x9d\xb5\xe6Y\xde" +
-	"\x9a\xd7v9\x9d\x90\xf9+\x9e\xb9\xdc\xaa\xcb\x18\x17V" +
-	"\x15\xcd\xa1\xb3\xbdj^\xbf\xbe\xbf!a\xd5\xa9\xc6\xa2" +
-	"\xee\x94\xea\xdbg\xb9\xb3\xcfr\x80\x80\x12\x8b\x05\xb4t" +
-	"\xa2\x1fVq\xa0W\xb4\xd49;\x92\x07d\xf73\x91" +
-	"\xc07\xc1qG\xcc\x0d\xe7kh\x93\x93E\x94\xaf\x14" +
-	"\xd0\xe6I\xc8\x1c\xc5\x02T{'\x1dk\xd5dl\x8e" +
-	"b\xe5h9\x87k\\\xe4-\xe6K\xfb\xc6\x9cac" +
-	"\xae\x18\xe4\"\xa2\x81\x9e\xb9\xf5\xe2 \xe1\x9f\xc4P\x9c" +
-	"\xcd\xad\xd9\x9aJ/%*\xc33\xb6\x9b\x15\x85\x01\xe4" +
-	"\x7f\x11Q\xfe\x8e\x80e\xc2i;\x93\x17m,\xf7\x92" +
-	"\xa52\xf1\x0b\xbb\xde\xc9\x8c6Uz\xe9R6\xa5f" +
-	"\x9b\xe9\xedwD\x94\xb7\x09\x18\xb4\xd4\xd5V69l" +
-	"O\xe8\x8a\x85\x97\x80\x80\x97\x00\x06\xe2I\x0b\xf3A\xc0" +
-	"|\xc0`\x9b\xae'\x10A@\x04\xce\xc6\xfe\xa4\x93\xdf" +
-	"/\xf0\x14z\xfd\xcfbe\xde\xb9\x14/\xa0;U\x0b" +
-	"\xc7y\xba'H\xe8\x9eJ0V\xc9\x9dg\x90\xd4\xee" +
-	"\xdc\xae\xd3\x0d`\xaa\xae\xc6\xc5\x8e5\xccb\x9e\x04P" +
-	"!\xa2\\\xed\xc3<\x85\xf0\xae\"\x04V\xa8\xddY>" +
-	"\xaf\"\x81\xe3e \xe0e\xbd\xa3\xd2\x1cQ\xa2k*" +
-	"3\x962WT\xea\xb7{VwJ\x9d\x1f\xeb\x95\x94" +
-	"\x8b}\x85Ib\xc6\xd8q\x1e\xb9\x95Yt#\x18V" +
-	"C>{,\xd9v\xb7\x88\x8a\xeea\x17\x1bFm\x97" +
-	"\x06\xea\xdau\xe3\x9a$yF'\xde:\xdb\x94g\xb8" +
-	"\x17I\x9a\xaa\xd6\x96P\x9b\xd4\xa0\xd6\xa6\x1a\xcd<r" +
-	"r7\xa0\\\x06 _/\xa2\xdc\xe9c\xa0J/o" +
-	"tB4&\x08\x0e\xd6\xe3\xf42&\xa2\x9c\x12\x90\x89" +
-	"\xa2\x83t\x8d^v\x8a([\x02\xa2\x81\x01\x100\x00" +
-	"\x88\xf1\xec\xb7T\xf6[\xbb\xfb\xad\x1f\x9dw]f\xd6" +
-	"\xc5\x9c\x9f\xa9w\xc0\xad\xc6\"\x99\x04\xd2\x8d\xa5\xfb\x99" +
-	"\xc9\x0d0\xf4$\xd7\x89@\xa2o\x9d\xf0\xc7\"\x18\xf4" +
-	"\xc2\xb6L\xf5\xe8\xfc\xa2\xfb\x16\xd5\x0c\xf64\x91\xe7\xc8" +
-	"\xa3\x98\xfft\xe1\x1c\xc6\xd2\xf3F=\x19\x97I\x80\xe7" +
-	"e\x8a\x1e\xd5N=g9\xd7\xe8\x8d\xcby\x02\xbc\xfe" +
-	"&\x9e\x00\xafi\xe3\x09p\xf7r\x9e\x00\xa7\x17\xf0\x04" +
-	"x\xe5R\x00\x0c0\x8d>\x06\xb08\xbd\x1c\xc8\xd4\x16" +
-	"\x00\x1c\xc4\x14\xfa\xb8\x84-3h\xbahTSf+" +
-	"I\x08FL-l\xc7\xa3\x9dj4\x12\x8d@P1" +
-	"\xacN;\x9e2\x13\xf3Sf\x02\xeafk\xb5\x0dM" +
-	"\x86\xad\xc5\x0d=\xda\x147 \xa0Gkm-\x15o" +
-	"jJ\xc5#\x104\xb5\x85\x86\xdd\xd1\x1eKDL\x8d" +
-	"\x97L\xa8\xe7lm\xba\x02\xe2B\x83\xe8\"\xa6V\x13" +
-	"\x06\xb1\xd1\xb05\x83~\x84\xab\x89*\xbdB5\xb5\x9a" +
-	"\xea\x85\x80\x09\xbb\xc3\xecJM\xbd\xae6\x02Xkk" +
-	"zg\xb4Q\x89\xcd\x83\x90\xaa\x85#\xbd2\xdf\xde\xd9" +
-	"\x80\xd1]\xe5\xc4\xf3^\x90\xe336\xb3r\x19\x9b\x19" +
-	"\x9e\xb1Y\x1b5W\x91\xd0]\x13P\x17\xa5$\xa2\x03" +
-	"\x8b\xbc\xec\"w\xbe\xd6w\xb0\x10$\\\x93\xe0\x0a\xb3" +
-	"\xcb\x88\xd02\xeaE\x94\x17\xfa\x961\x9fl\xde\x1c\x11" +
-	"\xe5f_\xd9\xae\x89<N\xa3\x88\xf2\"\x01\xd7f\xaa" +
-	"+=J*\xc1\xacY\xcc\xd4\xe2\x82d\xc50\xe8\x9d" +
-	"\x02\xf7\x80\xb9\xd8W8\xdcGu\xa1_w\xe4\x16\x84" +
-	"|<\xae\xf4x\xcc\xf7\x86\xc8\xa6l\xf0b\x98`L" +
-	"5\xa3X\xe4\x9d\x0bf\x18\xaa\x98_U\xbb\x16\xc55" +
-	"ts,\xd7k\xf6T\x84\xd6V\xa7\x12\xe4p\xa8\xb6" +
-	"\x92+\xc2\x94J\xae\x08c+\xb9\"\x94UrE\x18" +
-	"R\x09\x104\xcdT\x0d=\xc2\xf4\x98J\x8fi\xf4\xa8" +
-	"\xed+=\x98\xa7Z\xd9t\xdb\xc9\xa1\xc5\xe8\x0a\xcf\x13" +
-	"\xba\xc7M\xe8\x1e~0f\x80\xc0\x06\x06\xec\xa4\xba\x9a" +
-	"\xf7\x84\x10\xef\x9b\xd3\x92\x93\x0biN\xa4\xcd9\x8ah" +
-	")=\x1cae.lVz\xd8\x0c\x92\x89\xe8]9" +
-	"pb\xb3\xb3M\x0d\xeb\xbb\xa0`\xf5\xca\x03\xb0O\xbb" +
-	"\x99\xcd\x7f\xc4\x1cN1\xff\x1c\x152M_\xa5\xba\xa5" +
-	"\x19\xff\x047\xf9&p\xad>\xd4\xf5\x05\xed\x8bt\x1f" +
-	"\xb9\x8cu\xa5WS\x0d&\xe2\xa6\xe5\xa5t~(\x0e" +
-	">\xff\xf2\xc85I5g&\x15\xf6\"\x8a\x90\x9a\xb4" +
-	"\x8c\xee\x9e5\x8e\x8b\x0a]r&@\xfe:17\x02" +
-	"\xbeD\xf5\x1c\x85\x94\xde\x9c\x0c\x12+yF\x9de\x08" +
-	"\x1b8\xcbw\x9b$\xbfem\x83\xc3h\xdb\xe9\xdd\x9d" +
-	"\x02T\xe5b\xae\x18\xeea/\xba\x87~l\xcbV\x10" +
-	"\xd8f\x0a\x7f\xdcK\x0c\xe8\x1eo\xb3\xf5\x94\xdav\x07" +
-	"P\xc8\x1e\xec\xa3{\xf3\x83ia\x10\x98\x12@1{" +
-	"\\\x8e_\x81\xcc\x91\xe7\xb5\x146\xcd\x0f`^\xf6\xc2" +
-	"\x14\xba\xf7\xb6\xd8\xccC \xb0\x99\x01\xbb+S\x96E" +
-	"wsHY\xb3\x0b\x11tk\xd4\xf5\x18\xe2\xef\xea\xb1" +
-	"\xceAk=E\x0aNaW\xe8Y\xd9\xe5\xc5\x06\x0a" +
-	"r\xbd\x80\x1a.\xa4\x8c\xd6\xcb\xab\xf7\xa7\x96\xff\xa4\x18" +
-	"\xbf\x7f\x95\xe9\xea]\xbc\xee\x91\x07g\xecm$\x11\xe2" +
-	"\x1c#s\xd5\xc8m\xee\x11\xc7\xe6>\xe5\xd8\xdc\x03\x8e" +
-	"\xcd\xdd?\x83\xdb\xdc\x07g\xf1\xe0cw%\x0f>v" +
-	".\xe0\xc1\xc7=m<\xf8\xb8\xcb\x09>\xb6/\xe0\xc1" +
-	"\xc7\x96\xa5<\xf8\xd8L\xb9s!\xdb8\x1c\x00/e" +
-	"k\xe8\xd7`\x96\xa6\x10&\xc8V\xde\x02\x80El%" +
-	"\xfdb5Z9\x02\x04--\x9e\x0cZ\xca\xaa\x8e\xa0" +
-	"\xa5)\xab\xebR\x86\x1a\x8d\xa7\xd6v$\xf46C\x89" +
-	"\x05\xbb\xe2\xc9\x98m\xa6\x93\x9dz\xda0\x1d\x19\xe9\xe9" +
-	"\x98\xa2\xe9\x10H'-\xdbP\x13\x9di-\x1e\xa3\x16" +
-	"%n\xa4\x0c\xd5\xe4T\xab\x94\x94N\xbf@4\xcd@" +
-	"T\x0f\x8b\xfa\xd4\x80jU\xdb1\xb5+\xa5\xc7\x93\x16" +
-	"\x04\x17\xa9Z\xca6Sj4\xde\x1e\x8fb#\x0d\x12" +
-	"\xb7\xba\x01l3\xa9w\xb5+\x89\x04\x04\xe7&\xd2\xab" +
-	"m3m\xb4+Qu\x8e\xa8w%\xbb\xd4D\"\x9e" +
-	"\xecX\xa8';\xba\x94Uj\x8b\x12\x8b+\xbcBr" +
-	"a\xf5\xed\\\xe1m\xd8S\xfc\x10\xf9\xfb\xf3\xd0\xfb\xc0" +
-	"\xb9\xfc\\tE\x95\xeb\xc3\x9c\x80 G\xb6\xe4/h" +
-	"k\xca\xea\xd9z:iQ\xc4\x9bIw\xcf/^\xef" +
-	"Y\xb0\xcf\xeb'\x98\xe3\x85\xdc \x05a\xbe\xb4\x07\x91" +
-	")\xe59\xd2\x9exK&\x99yF@\xa4\xac\x87P" +
-	"\xba\x15@~FD\xf9/\x94\xf5`1R`~\xec" +
-	"Y\x00\xf9\x05\x11\xe57\x05\x0c\x98j*\xe3\xdd\x80\xe1" +
-	"e8\xd9v\xaa\x16M\x0a`\xea\xcb\xd5\xb6\x9dQ\x9d" +
-	":\x89\xb9\"\x9eZ\x18O\xaah.\xd2\x1bi\x024" +
-	"P\x04\x01E_\x9b`\xce5t\x8d\xb7\x1a\x8b\xf49" +
-	"\x8a\x85\x0a\xd1\xe4\x8b\x08\x17T\xdf\xcbU\xb4\xbf\xf8\xd3" +
-	"\x97\xfe\x82\xec\xecL\xbe@fi\xae*V\xd8W\xc5" +
-	"\xa2\xe9\xcd>\xa7\x0f\xa9\x86\xa1\x1b}%\xe1\xbdJW" +
-	"=\xadV\xafb}\x908E\xe0\x19\x9a]\xe2]\x95" +
-	"\x993\xee_y\xc7\xe6\x8f-\x07\x90\x7f!\xa2\xfc[" +
-	"_\xfc}\x90\x1c\xec\xafD\x94_\xf0\x1d\x9b\x1f'\x94" +
-	"\xfdED\xf9u\xdf\xb1\xf9+\xb3<D\xb1|,\xc6" +
-	"|Dv\x82X\xf1\xba\x88\xf2\xfb\xfd\xd7\xd0\xe2\xe6\"" +
-	"CI\x9a)\x08\xea\xa6\x1as\x03\xdfs\x9e\xfc^l" +
-	"5\xf0<\xf3\xe1\xf3\x8a\xf0\\\xe3\xd4\xd3k\xccQB" +
-	"\x1c\x9f\xdciz7\xeep\x8f\xed\x1a\x1et-O\x90" +
-	"LO&\x8ap/\xb5z\x87\x0d[\x16\x80\xc06Q" +
-	"\x14\xe1^\xaeE\xf7&\x16[s\x9f\x1bE\xb87\xef" +
-	"\xd0\xbd\x94\xc6\xb4\xe5 0\x95\xa2\x08\xf7R!\xba\x97" +
-	"}\xd9\x92\x16\x10\x98LQ\x84{\xa9\x08\xddk\xca," +
-	"\xb2\xc1\x89\"\xce>up\xb5,\x1bS\x04\xcc\x06\xab" +
-	"\xde\xa7IA\xd5y\xe1;3\xa8'\x099\xc7w\x98" +
-	"1\xa9\x17xdqv15S7\xfe\xe7\xe8v?" +
-	"3\xe4J\x9c\xc3\xb9\x92\x93rO\xd1/\xecz\xcc\x97" +
-	"\xf0I9\xc3\xe0\x8b>\xb4\xb9\xd0\x10)W\x9d\xfc\"" +
-	"\x98\x8f\xae\xdb\xafs0&\x17\xa1\xff\xa6\xf9\xb0\x16\xef" +
-	"\xd64\x1b\x16\xf6\x92\x076$\xec\xbb\x84\xcc\xdal7" +
-	"^\x00\x8c\x85x\x9e\x10\x8aP\xc2a\xbb\x11(\xbfd" +
-	"\x94\xab\x00R\xef\x93\xe3L\xb2\x86W\x8a(\xcf\x11\xc8" +
-	"jX\xb4S\x8fu\xfe\xcce0`0\x9el\xd7\x91" +
-	"y\xcb\xe8?\xdd\xecy~\x9d\xe3\x82\xc4\x1e\xdf\xf15" +
-	"GQC\xbb\x85\xaa\xe1\xf4\x09\xea\xc9\x1c\xb9\xa7[\x09" +
-	"PC\xbcT\xe7\xd5`\xdd?\xa1\xa0\xfb\x9f\x08V\xb3" +
-	"\x07\x046\x85\xcc\x87\xfbO\x05t\xefE\xb3\xd17\x81" +
-	"\xc0\x86\x05l\xf7\xde\x04\xba\x17'\x82\xa6j\x91\xfa\xba" +
-	"%@\xa8s\x8a\x80\xe7\xa9\xbd}\x1d\xf9d\\\xd5\xff" +
-	"\x06\x00\x00\xff\xff\xc4\xa4\xef\xea"
+const schema_a01d3ae410eb4518 = "x\xda\xac[{x\x14\xe5\xb9\x7f\xdf\x99$\x0b\x18\xd9" +
+	"|NH\xb8\x85\x95\x10n\x01\xf2$\x0bA\xa5\x87\x93" +
+	"\x04\x08\x04$5\x93 \x16*G'\xbb\x93dag" +
+	"g\x99\x99%\xc4s(\x97\x9a\xb6XQ\xe1\xc0\xb1\x9e" +
+	"\xaa\x05Z\xea\x81\xd3V\xf4\x91c\xf1\xd4>E\xa5\xad" +
+	"(m\xb1\xd0\x16o\xf5\x86U\xea\x8d\xa3\xd6+\xccy" +
+	"\xdeovv\x86d\x13.\xfa\xcf\xec\xee|\xefw{" +
+	"\xdf\xdf{\xfd\xbe\xad\xdc9\xb8V\xa8\xca\xfd\xcd\x18\x80" +
+	"\x96\xed\x98\x9bg\xcbGs\xb76\x1cZ\xb8\x0eX\x11" +
+	"\x02\xe4\x04\x00\xa6>\xc9\xb6 \xe4\xd8\xf9\x1b\xfe\x90w" +
+	"r\xed\xfd\xdd \x17#\xda{\xb5k\xdb\xde|f\xfa" +
+	"gP\x8f\x81|Di?;)\x1ddD~\x80\xdd" +
+	"'\x00\xda\xc3\xceH\xefw\x9b\x8ft\x83<\x18\xd1\x1e" +
+	"Z\xff\xf7\x82\xd7f\x94l\x87\\\x1aRZ_\xf8\x88" +
+	"\xb4\xb1\xb0\x18`\xea\xe6\xc2\x10\x02\xda\xf2\xab\xdf\xac<" +
+	"\xf8\xe2\xcao\x01\x1b,x\xc4\x80\xd2\xa3C\xb6H\x07" +
+	"\x87P\x9f\x03C\xee\x07\xb4\x9b\xb6_S\xa8\x17\xae\xda" +
+	"\x08l\x18\x02\xe4\"\xcdX]4\x0b\x01\xa5\x99E5" +
+	"\x80\xf6\xffn=\xbc\xe1\x1b\xab\x07}\x17\xd8Xw\x03" +
+	"ZQX\x80\x1c\xfb\xe7\xff\xfe\x8f7^\x8c>~\xab" +
+	"\xbf\xabZ\xd4L]W\xf2\xae\x87\xd7,{b\xc5\xf7" +
+	"V\xdf\xe6\x10\xf0\xae\xbb\x8a\xcai\xefOo\xcd\xafZ" +
+	"\x1dx\xff\xb6^\xcb\xdbT\xb4E\xdaVD\xcb\xdb\\" +
+	"D\xcb\xebh\xfa\xc6\xa3S\x8a\x06\xdc\xee\xcc\xee\xccq" +
+	"\xa2\xa8\\\x00\x94N\xf39v\xdcy\xcb\xcf\x84\xe4\x9f" +
+	"o\xf7\xcd1\xbax\x06\xcd\xf1\xc6\xaf\xab\xb7v\xaf\xeb" +
+	"\xd8\xecp\xde\xe9:\xb0\xf8?iy\xc3\x8a\xa9\xeb\x99" +
+	"\xef\xe2\xf3y\x0dy\xdb\x80M\xce\x104\x16?F\x04" +
+	"\xcb8\xc1\x86\xc5_\x99\xd8\xb9\xea;\xdb\x80\x8dv\xc7" +
+	"^O\x03\xe4\xd8o\x9e\xfc\xe7?7L\x9by\xb7\x7f" +
+	"\xeb+\x8b\xc3\xd4\xb5\x8bw}\xee\xf5\x1f\xbe\xf0\xcd\xd0" +
+	"\x9a{\xfc\x93\xef/n%\x82\x83\x9c \xef\xd3\xae\xef" +
+	"^\xf7\xdc#\xf7\xfa\x09\xde,6\x88\xe0CN\xb0\xfa" +
+	"\xed\x1bv]\"V\xff\x00\xd8\x98\x0cA\xc9\xd0-D" +
+	"0e(\x11\x1c\x9fx\xd7\xc1\xf8cC\x7f\x04l\xb0" +
+	"\xe8\xe7\xe1\xd4]C\x87\xa3\xb4oh1\xc9x\xe8<" +
+	"\xe9M\xfaf\xbf\xa1%\xce\xd4\xfe`\xd5}=\xa9\xa5" +
+	"\xe3C\x0fI'\x88d\xea\xa9\xa1\xf3\x04I\x1b>\x1e" +
+	"\xc0~\xe1\x86\x92\xda\xe7?\xbfu\x8f\x7fu\xeap\x8e" +
+	"\x0am8M\x8e\x15F\xe5\xd5s\xf2\xfe\x1bX\xb1\xe8" +
+	"a\x17p\xea\x8e\xe1\x83Pz`8I\xf0\xa7\xc3\xbf" +
+	"-\xe5\x8e\x08\x00\xd8\xd2\x82k&\xcc\xd4\xe7\xef\xf5\x0f" +
+	"\xf7\xf6\xf0[h\xb8\xd3|\xb8\xc7\xc4\xb7\"\xbf?\xd4" +
+	"\xf6\x10\xb0a\x82\xb7T\xc0\xa9%#JQ\x9aB\x83" +
+	"H\x13G\\\x01h\xb3e\x87\xbf\xff\x93\x0d\x1b\x1f\xf2" +
+	"\x0bm\xca\x88C4T\xdd\x08\x1ajH\xc3\x1b\x89;" +
+	"\xe6>\xfe\x90O\xe1\x94\x11a\x12\xda\xa1\xaf=\x1e\x90" +
+	"W\xbf\xb0\x0f\xd8X\xc1~\xf0\xe6;\xef|w\xdd\x07" +
+	"/\xd3$\xf3G\xdc\x84\xd22>\xc9\x12>\xc9\x88\xc9" +
+	"\xc2\xaa\x0f\xc6\xbf\xb5?-^\x81\x06Y6b\x06M" +
+	"\xa2\x8e\xe8\x04\xb4?\xdbz\xf2\xc7\xbfz\xf1\xa5\xc7\xfc" +
+	"\xf2?\xe8\x10\x1c\xe6\xab\xf8\xeb\xba7\x0eE\xd6\x8fy" +
+	"\xdcOp\xe9\xc8\xa5\x1c|#9@\xa6\xed\xecx\xb2" +
+	"\xec\xb6'H\xfb\x85\xb3\xb4?\x17@\x9a9\xf2\xa44" +
+	"\x7f$u\xaa\x1f\xc9\xf5y\xe4\xcd\xbf\\\xd7\xfa\xd6\x8e" +
+	"'\xfczpm\x09\x07\xb3ZB\xe3\xcd\x19\xbfk\xe7" +
+	"{SN\x1d\xec\x85\x86\x8d%\xad(\xddSB\x9b\xbb" +
+	"\xabd\x9et\xa0\x84\xd0\xb0\xfc\xe8\xeb3vI\xa7\x0f" +
+	"\x02+\xf6Y\x16\xbeQ\xe9\x81\x92g\xa4G9\xfd\xfe" +
+	"\x12\xda\xeb\x80W>\xca\xbd;\xfc\xcc\xaf\x1d-p\xa6" +
+	"\x1e2\x8a\xab\xc9\xd8Q4\xf5\xc3\xf9E??\xf9\xf6" +
+	"\xfa\xdf\xf4\xc2B\xfd\xa8\xe1(];\x8a\x86\x92G}" +
+	"[\xdaA\xdf\xeci?Zv\xf8\xc8O\x0e\xfd\xb6\x87" +
+	"\x1d\xe3fl\xe3\xa8\x93\xd26N\xbfy\xd4\xdf\x00m" +
+	"\xe9\x87\xc1\x11{\xef\x0d?\xe5Sn5\xb4\x80dy" +
+	"\xef\xb7\xea\x9e\xcd/\xdd\xfe\x94\xcf*\xc9\xa1W\xa8\xe5" +
+	"O\x89\x1f\xef8\xfe\xd3\xc1\x87A\x1e\x86nS}\x88" +
+	"k\x9e\x1c\xa2\xe5\xee=\xb9\xd7\xda\xfc\xd1\xb6\xc3~0" +
+	"\xa6B\xcb\x89`='\x98\xd6\xb6\xed\xfa\xd2'&\xff" +
+	"\xce7\xeb>g\xd6\x82\x1f\xbc\xf8N\xac\xe3\xaa\xdf\xf5" +
+	"2[;B[\xa4\xdd!n\xe0B\xe3I^\xf3r" +
+	"S8n\xd3\x9e\xdf\xa7\xb5\x97#\xa8\xebr\x8e\xf8\x8d" +
+	"\x97\x13W\x0f\xfe\xf2\x8e\xf7\x1f\xd9\xdf\xfd\x07\x90\xc7\"" +
+	"zh\xe4\xb3\x9d\xb8|9J\x9f\\N|\xf8\xf0r" +
+	"\xb2\x82\x8f\x1c\x9d\x10\xef\xae\xd8\xfe\x8c\x0f\xd3\x9bFs" +
+	"#\xf7\xda\xeb\x13'\xde=j\xc5\x1f\xf90\x99\xdd\x8c" +
+	"\xe6f\xa2{4M\xf4\xceM\xd3\x8a^\x1b\xb4\xfa\x8f" +
+	"\xbd\xd6|b\xf4\x16\xe9\xed\xd14\xc9\x9b\xa3\xd7\x02\xda" +
+	"\xa9\x97\xaf95{\xfb\x88?\x01+\x12\xed\xf7n\\" +
+	"\xf2\xde\x91\xd3\xd5\xff\xe0:X\xba\x14\xa5\xaaR\xa2\x9c" +
+	"R:OZB\xdf\xec\xed'Joxk\xed\x8f\xff" +
+	"\x0cl\xb0\xdf\x1bq\x04\xd5\x95>+5r\xfa\xf9\xa5" +
+	"\xb4\x84\xb5\xcbv\xec\xdc\xdb\xfe\xf1q?\xc7w\x95r" +
+	"G\xf1@)q\xbc\xc5\xaeo<\xf3\xf9\xbf>\x97\xde" +
+	"\x05\xdf\xe0\xb1R\x8e\xee\x13\x9c\xa0\xadx\xe5/\xf6\xa5" +
+	"\xbe\xfe\x82\x1f\xfe\x03\xc7\x9c$\x82\x921\xdc\x9c\x1e{" +
+	"\xf8\xa5S\xff\x92\xfc\xab\xdfZ6\x8e\xe1\xfc^\xc6\x09" +
+	"\x86|\x94l{?t\xdfK~\x14\xaf\x19\xc3\xed\xc6" +
+	"fN\x90\x11AO\x05:0\xa6\x1c\xa5#c\xc6\x93" +
+	"\x81\x1e3\x0f\xa5'\xcbH\x83\x06M\xfdt\xf3\xddG" +
+	"\xe7\xbe\xe2L\xc8W\xbc\xbf\xec\x16\x12\xc9\xf5\xe6c_" +
+	"O\xcc\xcd\x7f\xd5\xbf\xdb\xdde\\\xf5\xf7\x95\xd1L\xbb" +
+	"\xa7\x7fv\xfc\x9dq\xa1W}\xd8=^\xf6\x7f\xd45" +
+	"\xbao\xe9s\x0f\xddx\xdd\xab\xbddu\xb8\xecA\xe9" +
+	"X\x19Q\x1e){\x98\xf0U{\xf5\xe3\xbbo\xfb\xe6" +
+	"\xbd\xaf\xf9\xb73p\xdcNn_\xc6\xd1$/\x1d}" +
+	"b\xe6]\x97\xd5\xbd\x0e\xf2\xa4\x0cK\xe7\x8f\x13\xc8q" +
+	".\xe3\x04GN\x1b\xcf\x0c\xcb\xad9\xe9C\xf9\xfaq" +
+	"Ki\x15?\xbf\xa3\xed\x83\xdd#\xff\xeb\xef \x8fA" +
+	"\x9f\x9bq@\xac\x8d[\x8e\xd2\xfaq$\xdc5\xe3H" +
+	"GG-\xbf_\xdcs\xc3;o\xfb\xb7{p<\x07" +
+	"\xe0\xb1\xf1\\\x9d\xae\xfd\xd9o\xff~\xff\xbb\xef\xfaU" +
+	"\xe1\x13\x87`\xe0\x04\x82\xc7\xd8\xea\xee\x07\xc6|\xf2\xf1" +
+	"\xbb\xbe\x95\xc4&p\x8b}\xcd\x7f\xfc\xfa\xfb\x1f>}" +
+	"\xe0T\xd6\x98G\x9epRZ6\x81\xa8\x97L\xb8\x0e" +
+	"\x01O\x7fE\xaa|p\xdd\xfc\x0f<\xae\xbe<q'" +
+	"\x8d\x92\xc1rO\xd7wd\xe2\x83\xd2\xf1\x89\xe4\xfa\xde" +
+	"\x9cH\x82-'\xd7\x17~x\xe0\x9a\xc2\xbf\xfd\xf5#" +
+	"\xbf\xe5>P\xce\xc1z\xb8\x9c\xf6\xf3\x8e>\xff\x15\xfd" +
+	"\xeb{>\xf6;\x87S\xe5\x0b\xb83+\xa7\xfd\x9cZ" +
+	"\x96\xf7\x97c\xb5\xdd\x9f\x02\x9b\x94\x19a\xc9\xa4A\xc4" +
+	"\xfa\x95\x93h\x84=\x1f\xddq\xfb\xbe\x17*>\xf3\xa3" +
+	"y\xd7\xa4Oi\x84\xfd\x9c cD\xb3(\xd7\x0b\x93" +
+	"\x1e\x91NL\x9a\x07 \x0d\x9bL\xb3\xe5\xd5\xffO\xd5" +
+	"\x07\xef\xfd\xf0s?\xff\xbb'ss\xb6y2\x0dv" +
+	"C\xfe\xa4\xea\xa3\x03\xd6\x9c\xe9\xb5\xfd\xfd\x93\x1f\x94\x0e" +
+	"L\xa61\x1f\x9d\xfcmi\xd8\x14\xda}\xd1\x93cV" +
+	"\xe4\xff~\x85\xed\x93\x05\x9b\x12F\xb0\xa1\xd4\x8e\xc4c" +
+	"\x9ab\xa9\x15\xb9\x11%\x99H\xcehQ\x8dU\xb1\x88" +
+	"Z\xd1\xaeZu\xab\x94X\\i\x8d\xabs\x14K1" +
+	"U\xcb,kR\x0cEC3\xd3Gp\xfa4\xaa\x96" +
+	"\x12U,\xa5\xa2>\x98\xb0\x8c\xae&D\xb9R\xcc\xc9" +
+	"\xb7\xed\x1c$\xbb\x81\xa5\x00-\xff\x84\"\xb64\xa0\x80" +
+	"\x97\xe2\x19\xbb\x90\xc0+\xd5\xf3\x86ZjXH\x0d\xc2" +
+	"i\xbb\x10\x05\xb2/\xb8\x14\xa0\xa5\x81\x1a\x16Q\x83\xf8" +
+	"\xb9]\x88\"\x81\x83\xf7XH\x0d_\xa3\x86\x9c\xcf\xec" +
+	"B\xcc\x01\x90\xae\xe5\x0dM\xd4p=5\xe4~j\x17" +
+	"\"\xb9\xdc%8\x03\xa0e\x115\xdcH\x0dy\x9f\xd8" +
+	"\x85\x98\x07 -\xc3Y\x00-_\xa3\x86(5\x04>" +
+	"\xb6\x0b\x89\xcb\x92\x82a\x80\x96\xeb\xa9\xa1\x83\x1a\x06|" +
+	"d\x17\xe2\x00\x00I\xe5s\xdcH\x0dq\x14\xb0d\xe0" +
+	"?l,\xc4\x81\x00R\x8c\xb7D\xa9%I]\x06}" +
+	"h\x17\xe2 \x00I\xc3f\x80\x9685\xac\xa6\x86K" +
+	">\xb0\x0b\xf1\x12\x00)\x85\xad\x00-\x165\xacC\x01" +
+	"\x03\xed\x11\x0d\x83\x9e#\x02\xc4 `\xc0\xe0o3A" +
+	"\xbf\xf3\xd6\xee\x88\x99\x96n\xc4\" *q\xc8\x0b\x18" +
+	"\x91$\x06\xbd\xd0;\xdd\xd54\xe9m\xc6K8ok" +
+	"\xd4\x84\xd9\xa8jX\xe0\xb9k@,\x00\\\xbbJ5" +
+	"\xcc\x98\x9e\xc0|\x100\x1f0dZ\x8aaa\x81\xbd" +
+	"\x89\x95\x8a?9\xf3\xfa\x9di\xba\x80\x9a\x88fy\x1b" +
+	"\xd1\xc38\x08\x04\x1c\x04h'c\x11=a\x19:`" +
+	"\x1c\xf2\xec\xa8jF\x8cX\xd2\x82\x80o\xf4\x0c|\xd0" +
+	"\x81\xcfB\xbd&\xa2X1=!\xe7 \xfa\x82\x18\x1c" +
+	".^\xbdX.\x14s\x00\x08Hl\xcdp\x00y\xb5" +
+	"\x88\xf2\xcd\x02\"r\x0c\xb1\xf5\x0b\x00\xe4u\"\xca\xb7" +
+	"\x0a\xc8\x04\xe4\xf8a\x1bg\x00\xc87\x8b(\xdf! " +
+	"\x13\x05\x8e\x1d\xb6i)\x80|\xab\x88\xf2\xf7\x04d9" +
+	"\"\xc7\x0d\xdbF/\xb7\x8a(\xef\x15P\x8c\xd1\xde\xfe" +
+	"\xf8\xacx\xe6\xa9o<u4\xbd7\xbbC\x8d\xb5w" +
+	"X_\xfd*\x00\xb8{\xac\x89+V\\O`\x81\xfd" +
+	"\xd9\xedO_U\xf9\xf9\xa9\xb7\\b+\xa6\xa9-\xaa" +
+	"\x11\x03Q5\x91\xf9C^d\xb4\xef\x94i\xe9\xda\x1c" +
+	"\x05DK\xc1\xc1\x80M\"b\x81\xb7a@z\xd9\x93" +
+	";\xcd\xb3\xb1\x914j$\xdfZ\xe3M|\xb0\xf9\xf4" +
+	"!\xb0\xfa\xe5\x00(\xb2\xba\x05\x00\x98\xc3fn\x01\xc0" +
+	"\\6\x93\xda\xf2\xd8U\xad\x00v$\xaeEtmv" +
+	"\x04j\xe2\xda\xb4+\xab\xae\xb0\xdbU#\x161\x9bU" +
+	"\xa8\xd1\xf4peU\xb5\xbd\"\xa1\xc5\x9a\x95\x88\x06A" +
+	"=\x1c\xae\xb7M\xad#\xd6\x1cQ\xa6A\xa6\xf3,\x0b" +
+	"S\xb3#\xbc;^ak\xc9\xd8l3\xe2\xf6\xaf\xbc" +
+	"\xcaNu\xe8\x1d\xd7\x19mS!0\xbd\xaa!\xb3\xf6" +
+	"\x1cg\xed\x8b\xd2\xfcP\xcd\x8a\x0eU\x89\xaaFY\xb3" +
+	"j\xa6\xe2\x96\x09rNF\xac\x97\x92\xb4\x06\x88(\x97" +
+	"\x09X\xe3\x90\xb9\xcc\x09z\xbe\xb3\x07s\x02\xce\x04u" +
+	"qK5\xbcY\xae3\x94dR5*\x0c5\x19W" +
+	"\"\xaa\xf33\xea\xb5\x975\xab!>\x7f?\x0b5S" +
+	"\xad\xe9\xb5\xa6\xad\x9d\x7f\xa9\x84\xb6|\x11\xe5\x09\x02\xda" +
+	"j\\\xd5\xd4\x84e\x122\xce\xb9^\xb1\xd7<d0" +
+	"\xcb\x9a\x94\xa0\xa1hf\x16\x997\xf9d\x1e\xe62\xaf" +
+	"\x0fs\x99\xcf\x0cs\x99W\x87\xb9\xcc\xa7\x84\xb9\xcc\xc7" +
+	"\x86\xb9\xccK\xc2\x00!#\x92\xac\xba\x8a\x9e\xe1\xe9\xf4" +
+	"\x9c:\x8d\x9e\xd3\xaa\xe99\xbd\x92\x9eW\xf0\xe7\x95\xd5" +
+	"_\x94\x99\xe9\xc5\xfb\xf9\xb34\xcd\x9f\xa1\xc2\xb9\x95\xa1" +
+	"O\xce\xa4\xd9_\xc3\xf9o^\x90\x83\xe2\xf0\x12\xad>" +
+	"e\x16M\x13\xfadV\xe0\x05\xbd=d\x96\xd7\x1f[" +
+	"\xe6*\x11K7\xba*:\x0d%\xe9 \xe5lP_" +
+	"\x04'r{x\xd3\x96T2\xa9\x1b\x96\x1a\xad\x88(" +
+	"\x96\xda\xae\xa7\x99n(\xa2\x8f+}\x00\xcb\x05\xba\x7f" +
+	"I\xe5i=\x9b&`\x90\x88\\\x0e\xa4?\xc8\xba\xf9" +
+	"\xb7\x9f\xd3\x8b\xdf.\x9b\xe7\xea\\9\x02=\x84\xbf\xc0" +
+	"\xbfeUK\xc6\x15K%F\x17\xf8\xd3Gn'{" +
+	"L\x91\x1e\xb7\xc2\xb4\x0cU\xd1\x16\xea\x8e70\xb3n" +
+	"b\x0b\x80\\ \xa2<R@;\x9e\xa6Ds\xb6\x12" +
+	"\x8f\xb7*\x11\\\x81\xcc\xcbx\xce\xc1\xde\xf9\x896\xdd" +
+	"\xd0\xf8\x00\x15m\xbaQ\x17\x8f\xa7\xad\xd3\xd9*_\x9a" +
+	"\xe6Z\\\xc0\x80\x12\x8f{\xb0\x99:\xafx\xec\xbco" +
+	"\x1d\xdd\x0f\x00\xb5\xc80$\xe7\x08\xe8\x7f\xc9p\xbc<" +
+	"\x00\x11\x91\xba#\xd2\xaa\xb1\xc0\xab\x0f\x12+\xce\xf26" +
+	"Y\xcc\xc5\xec\x96\xc5\x9e`9\xe2D\xa3\x8b{\xc9L" +
+	"4\xcf\xb0\xd9\x9e\xdd\xb2x\xb6\x9eh\x8b\x01\xb6\xcb9" +
+	"b.@&QE7Lgl\x06\x08,7P\x13" +
+	"1T\xc5Rk\x91\x8fr\xac\xe1\xee%O\x1d\xb9\xff" +
+	"A\xc7\xda\x9f\x15\xd3y\xf3\x02pZ\xaf\x98\x83K\xed" +
+	"f\xd5\xd4\xe3)+\x06\xa2\x9e\x90\xcb\xf8\x94n\xe6\x81" +
+	"n\xaa.1\\\x0a\x824\x10\x03\x88\x99\x08\x14\xdd\"" +
+	"\x0c;\x1d\x06\x81\x9d\x0a\xa0\x90)\xf6\xa1[\xb5d'" +
+	"h\xb1\xc7\x03(f\x8a\x8d\xe8\xd6\xe6\xd8\xe1r\x10\xd8" +
+	"\x81\x00\xe6d2\x0ct\xeb6l\x1f\x8d\xb9;\x80\xb9" +
+	"\x99p\x1e\xdd\xc0\x9f\xdd\xb3\x00\x04\xb6-\x80y\x99\x0a" +
+	"'\xba\xe5\x1c\xb6\xb1\x19\x04\xb6>\x80\x81L\x95\x00]" +
+	"\xc8\xb2\x14\xf5\xd3\x028 S\xb7@\xb7\xb4\xc2\x14j" +
+	"[\x12\xb0\x0d\x1f;j1d(\x89v\xb5\xd6uf" +
+	"\xb5\x8e\xb6\xd5b\x88>\x16\xd5\xa2m\xa6Z9\x09G" +
+	"\x8e\xed:\x1c@\xa3\x16m-\x0dO\xa7\xcdE8\xff" +
+	"Eh:Kd\xeaS\xd3\x9f\xdf\xfe\xec}\x07\xfc\xe2" +
+	"\xeb\xa1Rq\x9f2\xf5\xf6\xbc\xcd>\xd3\x98\x99\x0aM" +
+	"\x0f\xe3\x99\"Rv|\xf66U\x00M\x1c\xf0\x84\x08" +
+	"\xb7\xd0\x8anZ\xcb\xaa\x96\x82\xc0&\x12\x1e\xdc\xf2\x13" +
+	"\xba\x19<+\xd9\x00\x02\x1b\x12\xb0][G\xc6\x92s" +
+	"\xc7\x19\x19\xa3\x8b\x95xJ5\xa1\x16\x9b\xb0\x97R\xbb" +
+	"\xdb\x8d\xc4uS5-\x0f\xbcu\x96k\x9c\xb3\x86\x1c" +
+	"\x85B?\xd1\\\xdf&6\x0d\x7f\x0aj\xf9v\xb9\x9b" +
+	"f\x8e\x9b\x1e8\x03 \x14Ub\xf1\xae\x9a\x0e=e" +
+	"\xc4\xbb.\xc2\x9f\xb8\xb2:k\xcd\xb3\xbc5\xaf\xedt" +
+	":!\xf3W<\xb3\xb9U\x971.\xac\xca\x9aBg" +
+	"{\xd5\x9c~}\x7f]\xdc\xaaQ\x8dE]I\xd5\xb7" +
+	"\xcfRg\x9f\xa5\x00\x01%\x1a\x0dh\xa9x?\xac\xe2" +
+	"@/k\xaeqv$\x0f\xc8\xecg\"\x81o\x82\xe3" +
+	"\x8e\x98\x1b\xceW\xd1&'\x8b(_)\xa0\xcd\x93\x90" +
+	"9\x8a\x05\xa8\xf6N:\xd6\xaa\x89\xe8\x1c\xc5\xca\xd2r" +
+	"\x0e\xd7\xb8\xc8[\xcc\x17\xf6\x8dY\xc3\xc6l1\xc8E" +
+	"D\x03=s\xeb\xc5A\xc2?\x89\xa10\x93[\xb35" +
+	"\xe5^JT\x82gl7+\x0a\x03\xc8\xff&\xa2\xfc" +
+	"\x1d\x01K\x84\xd3v:/\xea.\xf5\x92\xa5\x12\xf1s" +
+	"\xbb\xd6\xc9\x8c6\x96{\xe9R&\xa5f\x9b\xe8\xedw" +
+	"D\x94\xb7\x0a\x18\xb4\xd4\xd5V&9l\x8b\xeb\x8a\x85" +
+	"\x97\x80\x80\x97\x00\x06b\x09\x0bsA\xc0\\\xc0`\xab" +
+	"\xae\xc7\x11A@\x04\xce\xc6\xfe\xa4\x93\xdb/\xf0\x14z" +
+	"\xfde\xb12\xe7\\\x8a\x17\xd0\x9d\xaa\x85\xe3<\xdd\x13" +
+	"$tO%\x18+\xe7\xce3Hjwn\xd7\xe9\x06" +
+	"0\x15W\xe3b\xc7\x1af0O\x02(\x13Q\xae\xf4" +
+	"a\x9eBxW\x11\x02+\xd4\xae\x0c\x9fW\x91\xc0\xf1" +
+	"2\x10\xf0\xb2\xdeQi\x96(\xd15\x95iK\x99-" +
+	"*\xf5\xdb=\xab+\xa9\xce\x8f\xf6J\xca\xc5\xbe\xc2$" +
+	"1m\xec8\x8f\xdc\xca,\xba\x11\x0c\xab\"\x9f=\x96" +
+	"l\xbb[DE\xf7\xb0\x8b\x0d\xa3\xb6K\x035m\xba" +
+	"qM\x82<\xa3\x13o\x9dm\xca\xd3\xdc\xabO\x98\xaa" +
+	"\xd6\x1aW\x1b\xd5\xa0\xd6\xaa\x1aM<rr7\xa0\\" +
+	"\x06 _/\xa2\xdc\xe1c\xa0J/otB4&" +
+	"\x08\x0e\xd6c\xf42*\xa2\x9c\x14\x90\x89\xa2\x83t\x8d" +
+	"^v\x88([\x02\xa2\x81\x01\x100\x00\x88\xb1\xcc\xb7" +
+	"d\xe6[\x9b\xfb\xad\x1f\x9dw]f\xc6\xc5\x9c\x9f\xa9" +
+	"w\xc0\xadF\xeb\xd3\x09\xa4\x1bK\xf73\x93\x1b`\xe8" +
+	"\x09\xae\x13\x81x\xdf:\xe1\x8fE0\xe8\x85m\xe9\xea" +
+	"\xd1\xf9E\xf7\xcd\xaa\x19\xeci\"\xcf\x91G1\xff\xe9" +
+	"\xc29\x8c\xa5\xe7\x8dz2.\x9d\x00\xcfK\x17=*" +
+	"\x9dz\xcer\xae\xd1\xdd\xcby\x02\xbc\xfe&\x9e\x00\xaf" +
+	"i\xe5\x09p\xd7r\x9e\x00\xa7\x16\xf0\x04x\xe5R\x00" +
+	"\x0c0\x8d>\x06\xb0\x18\xbd\x1c\xc8\xd4f\x00\x1c\xc4\x14" +
+	"\xfa\xb8\x84-3h\xbaHDSf+\x09\x08\xd6\x9b" +
+	"Z\xd8\x8eE:\xd4H}\xa4\x1e\x82\x8aau\xd8\xb1" +
+	"\xa4\x19\x9f\x9f4\xe3P3[\xab\xaek4l-f" +
+	"\xe8\x91\xc6\x98\x01\x01=Rmk\xc9Xcc2V" +
+	"\x0fAS[h\xd8\xedm\xd1x\xbd\xa9\xf1\x92\x09\xf5" +
+	"\x9c\xadMW@\\h\x10]\xbd\xa9U\x85Al0" +
+	"l\xcd\xa0\x1f\xe1J\xa2J\xadPM\xad\xaar!`" +
+	"\xdcn7;\x93S\xaf\xab\xae\x07\xac\xb65\xbd#\xd2" +
+	"\xa0D\xe7AH\xd5\xc2\xf5\xbd2\xdf\xde\xd9\x80\xd1U" +
+	"\xe1\xc4\xf3^\x90\xe336\xb3\xb2\x19\x9b\x19\x9e\xb1Y" +
+	"\x1b1W\x91\xd0]\x13P\x13\xa1$\xa2\x1d\x0b\xbc\xec" +
+	"\"{\xbe\xd6w\xb0\x10$\\\x93\xe0\xf23\xcb\xa8\xa7" +
+	"e\xd4\x8a(/\xf4-c>\xd9\xbc9\"\xcaM\xbe" +
+	"\xb2]#y\x9c\x06\x11\xe5E\x02\xaeMWWz\x94" +
+	"T\x82\x19\xb3\x98\xae\xc5\x05\xc9\x8aa\xd0;\x05\xee\x01" +
+	"s\xb1\xafp\xb8\x8f\xeaB\xbf\xee\xc8-\x08\xf9x\\" +
+	"\xee\xf1\x98\xef\x0d\x91M\xd9\xe0\xc50\xc1\xa8jF\xb0" +
+	"\xc0;\x17L3T1\xbf\xaav.\x8ai\xe8\xe6X" +
+	"\xae\xd7\xec\xa9\x08--N%\xc8\xe1Pu9W\x84" +
+	")\xe5\\\x11\xc6\x96sE()\xe7\x8a0\xa4\x1c " +
+	"h\x9a\xc9*z\x84\xe91\x95\x1e\xd3\xe8Q\xddWz" +
+	"0O\xb52\xe9\xb6\x93C\x8b\x91\x15\x9e't\x8f\x9b" +
+	"\xd0=\xfc`\xcc\x00\x81\x0d\x0c\xd8\x09u5\xef\x09!" +
+	"\xde7\xab%'\x17\xd2\x14O\x99s\x14\xd1Rz8" +
+	"\xc2\xf2l\xd8,\xf7\xb0\x19$\x13\xd1\xbbr\xe0\xc4f" +
+	"g\x9b\x1a\xd6wA\xc1\xea\x95\x07`\x9fv3\x93\xff" +
+	"\x88Y\x9cb\xee9*d\x9a\xbeJuK3\xfe\x09" +
+	"n\xf2M\xe0Z}\xa8\xe9\x0b\xda\x17\xe9>\xb2\x19\xeb" +
+	"r\xaf\xa6\x1a\x8c\xc7L\xcbK\xe9\xfcP\x1c|\xfe\xe5" +
+	"\x91k\x12j\xd6L*\xecE\x14!5a\x19]=" +
+	"k\x1c\x17\x15\xbadM\x80\xfcubn\x04|\x89\xea" +
+	"9\x0a)\xbd9\x19$V\xf2\x8c:\xc3\x106p\x96" +
+	"\xef6In\xf3\xda:\x87\xd1\xb6\xd3\xbb+\x09\xa8\xca" +
+	"\x85\\1\xdc\xc3^t\x0f\xfd\xd8\xe6- \xb0M\x14" +
+	"\xfe\xb8\x97\x18\xd0=\xdef\xeb)\xb5\xed\x0a\xa0\x909" +
+	"\xd8G\xf7\xe6\x07\xd3\xc2 0%\x80b\xe6\xb8\x1c\xbf" +
+	"\x02\xe9#\xcfk)l\x9a\x1f\xc0\x9c\xcc\x85)t\xef" +
+	"m\xb1\x99\x87@`3\x03vg\xba,\x8b\xee\xe6\x90" +
+	"\xb2f\x17\"\xe8\xd6\xa8k1\xc4\xdf\xd5b\x8d\x83\xd6" +
+	"Z\x8a\x14\x9c\xc2\xae\xd0\xb3\xb2\xcb\x8b\x0d\x14\xe4z\x01" +
+	"5\\H\x19\xad\x97W\xefO-\xbf\xa4\x18\xbf\x7f\x95" +
+	"\xe9\xec]\xbc\xee\x91\x07\xa7\xedm}<\xc49F\xe6" +
+	"\xaa\x81\xdb\xdc#\x8e\xcd}\xd2\xb1\xb9\x07\x1c\x9b\xbb\x7f" +
+	"\x06\xb7\xb9\x0f\xcc\xe2\xc1\xc7\xeer\x1e|\xecX\xc0\x83" +
+	"\x8f{Zy\xf0q\x97\x13|l[\xc0\x83\x8f\xcdK" +
+	"y\xf0\xb1\x89r\xe7|\xd6=\x1c\x00/ek\xe8\xd7" +
+	"`\x96\xa2\x10&\xc8V\xde\x02\x80\x05l%\xfdbU" +
+	"Z)\x02\x04--\x96\x08Z\xca\xaa\xf6\xa0\xa5)\xab" +
+	"k\x92\x86\x1a\x89%\xd7\xb6\xc7\xf5VC\x89\x06;c" +
+	"\x89\xa8m\xa6\x12\x1dz\xca0\x1d\x19\xe9\xa9\xa8\xa2\xe9" +
+	"\x10H%,\xdbP\xe3\x1d)-\x16\xa5\x16%f$" +
+	"\x0d\xd5\xe4T\xab\x94\xa4N\xbf@4\xcd@D\x0f\x8b" +
+	"\xfa\xd4\x80jU\xdaQ\xb53\xa9\xc7\x12\x16\x04\x17\xa9" +
+	"Z\xd26\x93j$\xd6\x16\x8b`\x03\x0d\x12\xb3\xba\x00" +
+	"l3\xa1w\xb6)\xf18\x04\xe7\xc6S\xabm3e" +
+	"\xb4)\x11u\x8e\xa8w&:\xd5x<\x96h_\xa8" +
+	"'\xda;\x95Uj\xb3\x12\x8d)\xbcBra\xf5\xed" +
+	"l\xe1m\xd8S\xfc\x10\xf9\xfb\xf3\xd0\xfb\xc0\xb9\xfc\\" +
+	"dE\x85\xeb\xc3\x9c\x80 K\xb6\xe4/hk\xca\xea" +
+	"\xd9z*aQ\xc4\x9bNw\xcf/^\xefY\xb0\xcf" +
+	"\xe9'\x98\xe3\x85\xdc \x05a\xbe\xb4\x07\x91)\xa5Y" +
+	"\xd2\x9eXs:\x99yZ@\xa4\xac\x87P\xba\x05@" +
+	"~ZD\xf9/\x94\xf5`!R`~\xec\x19\x00\xf9" +
+	"y\x11\xe57\x04\x0c\x98j2\xed\xdd\x80\xe1e8\xd9" +
+	"v\xaa\x16\x8d\x0a`\xf2\x8b\xd5\xb6\x9dQ\x9d:\x89\xb9" +
+	"\"\x96\\\x18K\xa8h.\xd2\x1bh\x024P\x04\x01" +
+	"E_\x9b`\xce5t\x8d\xb7\x1a\x8b\xf49\x8a\x85\x0a" +
+	"\xd1\xe4\x8a\x08\x17T\xdf\xcbV\xb4\xbf\xf8\xd3\x97\xfe\x82" +
+	"\xec\xccL\xbe@fi\xb6*V\xd8W\xc5\xa2\xe9\xcd" +
+	">\xa7\x0f\xa9\x86\xa1\x1b}%\xe1\xbdJW=\xadV" +
+	"\xafb}\x908E\xe0\x19\x9aY\xe2]\xe5\xe93\xee" +
+	"_y\xc7\xe6\x8f.\x07\x90\x7f!\xa2\xfc[_\xfc}" +
+	"\x90\x1c\xec\xafD\x94\x9f\xf7\x1d\x9b\x1f'\x94\xfdED" +
+	"\xf95\xdf\xb1\xf9\xcb\xb3<D\xb1\\,\xc4\\Dv" +
+	"\x82X\xf1\x9a\x88\xf2{\xfd\xd7\xd0b\xe6\"CI\x98" +
+	"I\x08\xea\xa6\x1au\x03\xdfs\x9e\xfc^l5\xf0<" +
+	"\xf3\xe1\xf3\x8a\xf0\\\xe3\xd4\xd3k\xccQB\x1c\x9f\xdc" +
+	"iz7\xeep\x8f\xed\x1a\x1et-O\x90LO:" +
+	"\x8ap/\xb5z\x87\x0d\x9b\x17\x80\xc06R\x14\xe1^" +
+	"\xaeE\xf7&\x16[\xb3\xd3\x8d\"\xdc\x9bw\xe8^J" +
+	"c\xdar\x10\x98JQ\x84{\xa9\x10\xdd\xcb\xbelI" +
+	"3\x08L\xa6(\xc2\xbdT\x84\xee5eV\xbf\xc1\x89" +
+	"\"\xce>up\xb5,\x13S\x04\xcc:\xab\xd6\xa7I" +
+	"A\xd5y\xe1;3\xa8%\x099\xc7w\x986\xa9\x17" +
+	"xdqv15]7\xfert\xbb\x9f\x19\xb2%" +
+	"\xce\xe1l\xc9I\xa9\xa7\xe8\x17v=\xe6\x0b\xf8\xa4\xac" +
+	"a\xf0E\x1f\xda\\h\x88\x94\xadN~\x11\xccG\xd7" +
+	"\xed\xd78\x18\x93\x0b\xd0\x7f\xd3|X\xb3wk\x9a\x0d" +
+	"\x0b{\xc9\x03\x1b\x12\xf6]Bf\xad\xb6\x1b/\x00F" +
+	"C<O\x08\xd5S\xc2a\xbb\x11(\xbfd\x94\xad\x00" +
+	"R\xeb\x93\xe3L\xb2\x86W\x8a(\xcf\x11\xc8jX\xb4" +
+	"S\x8fu\xfe\xcce0`0\x96h\xd3\x91y\xcb\xe8" +
+	"?\xdd\xecy~\x9d\xe5\x82\xc4\x1e\xdf\xf15GQ]" +
+	"\x9b\x85\xaa\xe1\xf4\x09\xea\x89,\xb9\xa7[\x09PC\xbc" +
+	"T\xe7\xd5`\xdd?\xa1\xa0\xfb\x9f\x08V\xb5\x07\x046" +
+	"\x85\xcc\x87\xfbO\x05t\xefE\xb3\xd17\x81\xc0\x86\x05" +
+	"l\xf7\xde\x04\xba\x17'\x82\xa6j\x91\xfa\xba%@\xa8" +
+	"q\x8a\x80\xe7\xa9\xbd}\x1d\xf9\xa4]\xd5\xff\x07\x00\x00" +
+	"\xff\xff\xf7\x8b\xef\xdc"
 
-func RegisterSchema(reg *schemas.Registry) {
-	reg.Register(&schemas.Schema{
-		String: schema_a01d3ae410eb4518,
-		Nodes: []uint64{
-			0x804cca489405d451,
-			0x85af7fea06d0820c,
-			0x85ba7385f313fe19,
-			0x8671dec53083e351,
-			0x8976146f144fa050,
-			0x8b0a787e82cd94bb,
-			0x8cc364dee8f693b8,
-			0x8e78986bc45d7dcd,
-			0x8ef30778310c94cc,
-			0x8f08162dbd7e5068,
-			0x8fd77002ae8a97a1,
-			0x916880859435c6e8,
-			0x95064806dc018bfe,
-			0x95887677293b5682,
-			0x9c3d3448d73eeae9,
-			0x9d7d1f83dda3e6db,
-			0x9ebadb578b79fa06,
-			0x9f35030ba55fed78,
-			0xa418c26cc59929d9,
-			0xa7769f40fe6e6de8,
-			0xaa8cfcdc401d5fdd,
-			0xab06444b30722e01,
-			0xb0496f3d284f4a13,
-			0xb466cacf63ec03c2,
-			0xb48982ac9bcd5d11,
-			0xb4c346906ee84815,
-			0xb5dd785107c358ca,
-			0xb9ec27f476022c1b,
-			0xc2e0dec0a6ea94fb,
-			0xc3238163cae880df,
-			0xc48e24c968a234db,
-			0xc4a1ec6280be841c,
-			0xc5f12df0a2a52744,
-			0xc5fd13a53ae6d46a,
-			0xc6d2329c05f7e208,
-			0xc781edeab8160cb7,
-			0xc8caacd1cd5da434,
-			0xcb329eb01b0fa313,
-			0xcba0220cda41869e,
-			0xcd0eadd9a1a66ed6,
-			0xcd95f79174b0eab0,
-			0xce2cc4225c956634,
-			0xce396869eede9f10,
-			0xcfaa8d2601750547,
-			0xd085b9baf390bec5,
-			0xd2a02e856c28d4ba,
-			0xd36b1e9c2929e6e4,
-			0xd3780ae416347aee,
-			0xd61ba043f14fe175,
-			0xd7a67fec5f22e5a0,
-			0xd9f867b0a2a15d7f,
-			0xdb7bfcfe4d45ff53,
-			0xdd5b75b5bc711766,
-			0xdf705ef1e0b7d506,
-			0xe0a71ff36670f715,
-			0xe1f480ef979784b2,
-			0xe246d49c91fa330a,
-			0xe30c466e5bc2735c,
-			0xe31f26eed9fb36a9,
-			0xe35760b4db5ab564,
-			0xe49e838ea9c34b40,
-			0xe64112993dc4d4e0,
-			0xea3f0519d272fdd1,
-			0xeba81ca9f46690b8,
-			0xedee5faa03af6a1e,
-			0xefefafebc8ae5534,
-			0xeff8f923b1853525,
-			0xf1c1ccf59bc6964f,
-			0xf44980b23013003b,
-			0xf635fdd1f05960f0,
-			0xf7dfe7147d09b732,
-			0xf8aa5b6fe2496fee,
-			0xfa8540d5d8065df1,
-			0xfb2eddb58f90f7aa,
-			0xfb36d2e966556db0,
-			0xfca3f0f431b64506,
-			0xfe7d08d4352b0c5f,
-			0xff6bcf0c6b23c916,
-		},
-		Compressed: true,
-	})
+func init() {
+	schemas.Register(schema_a01d3ae410eb4518,
+		0x804cca489405d451,
+		0x85af7fea06d0820c,
+		0x85ba7385f313fe19,
+		0x8671dec53083e351,
+		0x8976146f144fa050,
+		0x8b0a787e82cd94bb,
+		0x8cc364dee8f693b8,
+		0x8e78986bc45d7dcd,
+		0x8ef30778310c94cc,
+		0x8f08162dbd7e5068,
+		0x8fd77002ae8a97a1,
+		0x916880859435c6e8,
+		0x95064806dc018bfe,
+		0x95887677293b5682,
+		0x9c3d3448d73eeae9,
+		0x9d7d1f83dda3e6db,
+		0x9ebadb578b79fa06,
+		0x9f35030ba55fed78,
+		0xa418c26cc59929d9,
+		0xa7769f40fe6e6de8,
+		0xaa8cfcdc401d5fdd,
+		0xab06444b30722e01,
+		0xb0496f3d284f4a13,
+		0xb466cacf63ec03c2,
+		0xb48982ac9bcd5d11,
+		0xb4c346906ee84815,
+		0xb5dd785107c358ca,
+		0xb9ec27f476022c1b,
+		0xc2e0dec0a6ea94fb,
+		0xc3238163cae880df,
+		0xc48e24c968a234db,
+		0xc4a1ec6280be841c,
+		0xc5f12df0a2a52744,
+		0xc5fd13a53ae6d46a,
+		0xc6d2329c05f7e208,
+		0xc781edeab8160cb7,
+		0xc8caacd1cd5da434,
+		0xcb329eb01b0fa313,
+		0xcba0220cda41869e,
+		0xcd0eadd9a1a66ed6,
+		0xcd95f79174b0eab0,
+		0xce2cc4225c956634,
+		0xce396869eede9f10,
+		0xcfaa8d2601750547,
+		0xd085b9baf390bec5,
+		0xd2a02e856c28d4ba,
+		0xd36b1e9c2929e6e4,
+		0xd3780ae416347aee,
+		0xd61ba043f14fe175,
+		0xd7a67fec5f22e5a0,
+		0xd9f867b0a2a15d7f,
+		0xdb7bfcfe4d45ff53,
+		0xdd5b75b5bc711766,
+		0xdf705ef1e0b7d506,
+		0xe0a71ff36670f715,
+		0xe1f480ef979784b2,
+		0xe246d49c91fa330a,
+		0xe30c466e5bc2735c,
+		0xe31f26eed9fb36a9,
+		0xe35760b4db5ab564,
+		0xe49e838ea9c34b40,
+		0xe64112993dc4d4e0,
+		0xea3f0519d272fdd1,
+		0xeba81ca9f46690b8,
+		0xedee5faa03af6a1e,
+		0xefefafebc8ae5534,
+		0xeff8f923b1853525,
+		0xf1c1ccf59bc6964f,
+		0xf44980b23013003b,
+		0xf635fdd1f05960f0,
+		0xf7dfe7147d09b732,
+		0xf8aa5b6fe2496fee,
+		0xfa8540d5d8065df1,
+		0xfb2eddb58f90f7aa,
+		0xfb36d2e966556db0,
+		0xfca3f0f431b64506,
+		0xfe7d08d4352b0c5f,
+		0xff6bcf0c6b23c916)
 }

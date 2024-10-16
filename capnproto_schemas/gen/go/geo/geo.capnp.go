@@ -63,512 +63,444 @@ func CoordTypeFromString(c string) CoordType {
 	}
 }
 
-type CoordType_List = capnp.EnumList[CoordType]
+type CoordType_List struct{ capnp.List }
 
 func NewCoordType_List(s *capnp.Segment, sz int32) (CoordType_List, error) {
-	return capnp.NewEnumList[CoordType](s, sz)
+	l, err := capnp.NewUInt16List(s, sz)
+	return CoordType_List{l.List}, err
 }
 
-type EPSG capnp.Struct
+func (l CoordType_List) At(i int) CoordType {
+	ul := capnp.UInt16List{List: l.List}
+	return CoordType(ul.At(i))
+}
+
+func (l CoordType_List) Set(i int, v CoordType) {
+	ul := capnp.UInt16List{List: l.List}
+	ul.Set(i, uint16(v))
+}
+
+type EPSG struct{ capnp.Struct }
 
 // EPSG_TypeID is the unique identifier for the type EPSG.
 const EPSG_TypeID = 0xb79427a74eb97fc0
 
 func NewEPSG(s *capnp.Segment) (EPSG, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return EPSG(st), err
+	return EPSG{st}, err
 }
 
 func NewRootEPSG(s *capnp.Segment) (EPSG, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return EPSG(st), err
+	return EPSG{st}, err
 }
 
 func ReadRootEPSG(msg *capnp.Message) (EPSG, error) {
 	root, err := msg.Root()
-	return EPSG(root.Struct()), err
+	return EPSG{root.Struct()}, err
 }
 
 func (s EPSG) String() string {
-	str, _ := text.Marshal(0xb79427a74eb97fc0, capnp.Struct(s))
+	str, _ := text.Marshal(0xb79427a74eb97fc0, s.Struct)
 	return str
 }
 
-func (s EPSG) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (EPSG) DecodeFromPtr(p capnp.Ptr) EPSG {
-	return EPSG(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s EPSG) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s EPSG) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s EPSG) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s EPSG) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // EPSG_List is a list of EPSG.
-type EPSG_List = capnp.StructList[EPSG]
+type EPSG_List struct{ capnp.List }
 
 // NewEPSG creates a new list of EPSG.
 func NewEPSG_List(s *capnp.Segment, sz int32) (EPSG_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[EPSG](l), err
+	return EPSG_List{l}, err
+}
+
+func (s EPSG_List) At(i int) EPSG { return EPSG{s.List.Struct(i)} }
+
+func (s EPSG_List) Set(i int, v EPSG) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s EPSG_List) String() string {
+	str, _ := text.MarshalList(0xb79427a74eb97fc0, s.List)
+	return str
 }
 
 // EPSG_Future is a wrapper for a EPSG promised by a client call.
 type EPSG_Future struct{ *capnp.Future }
 
-func (f EPSG_Future) Struct() (EPSG, error) {
-	p, err := f.Future.Ptr()
-	return EPSG(p.Struct()), err
+func (p EPSG_Future) Struct() (EPSG, error) {
+	s, err := p.Future.Struct()
+	return EPSG{s}, err
 }
 
-type UTMCoord capnp.Struct
+type UTMCoord struct{ capnp.Struct }
 
 // UTMCoord_TypeID is the unique identifier for the type UTMCoord.
 const UTMCoord_TypeID = 0xeb1acd255e40f049
 
 func NewUTMCoord(s *capnp.Segment) (UTMCoord, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 24, PointerCount: 1})
-	return UTMCoord(st), err
+	return UTMCoord{st}, err
 }
 
 func NewRootUTMCoord(s *capnp.Segment) (UTMCoord, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 24, PointerCount: 1})
-	return UTMCoord(st), err
+	return UTMCoord{st}, err
 }
 
 func ReadRootUTMCoord(msg *capnp.Message) (UTMCoord, error) {
 	root, err := msg.Root()
-	return UTMCoord(root.Struct()), err
+	return UTMCoord{root.Struct()}, err
 }
 
 func (s UTMCoord) String() string {
-	str, _ := text.Marshal(0xeb1acd255e40f049, capnp.Struct(s))
+	str, _ := text.Marshal(0xeb1acd255e40f049, s.Struct)
 	return str
 }
 
-func (s UTMCoord) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (UTMCoord) DecodeFromPtr(p capnp.Ptr) UTMCoord {
-	return UTMCoord(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s UTMCoord) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s UTMCoord) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s UTMCoord) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s UTMCoord) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s UTMCoord) Zone() uint8 {
-	return capnp.Struct(s).Uint8(0)
+	return s.Struct.Uint8(0)
 }
 
 func (s UTMCoord) SetZone(v uint8) {
-	capnp.Struct(s).SetUint8(0, v)
+	s.Struct.SetUint8(0, v)
 }
 
 func (s UTMCoord) LatitudeBand() (string, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.Text(), err
 }
 
 func (s UTMCoord) HasLatitudeBand() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s UTMCoord) LatitudeBandBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.TextBytes(), err
 }
 
 func (s UTMCoord) SetLatitudeBand(v string) error {
-	return capnp.Struct(s).SetText(0, v)
+	return s.Struct.SetText(0, v)
 }
 
 func (s UTMCoord) R() float64 {
-	return math.Float64frombits(capnp.Struct(s).Uint64(8))
+	return math.Float64frombits(s.Struct.Uint64(8))
 }
 
 func (s UTMCoord) SetR(v float64) {
-	capnp.Struct(s).SetUint64(8, math.Float64bits(v))
+	s.Struct.SetUint64(8, math.Float64bits(v))
 }
 
 func (s UTMCoord) H() float64 {
-	return math.Float64frombits(capnp.Struct(s).Uint64(16))
+	return math.Float64frombits(s.Struct.Uint64(16))
 }
 
 func (s UTMCoord) SetH(v float64) {
-	capnp.Struct(s).SetUint64(16, math.Float64bits(v))
+	s.Struct.SetUint64(16, math.Float64bits(v))
 }
 
 // UTMCoord_List is a list of UTMCoord.
-type UTMCoord_List = capnp.StructList[UTMCoord]
+type UTMCoord_List struct{ capnp.List }
 
 // NewUTMCoord creates a new list of UTMCoord.
 func NewUTMCoord_List(s *capnp.Segment, sz int32) (UTMCoord_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 24, PointerCount: 1}, sz)
-	return capnp.StructList[UTMCoord](l), err
+	return UTMCoord_List{l}, err
+}
+
+func (s UTMCoord_List) At(i int) UTMCoord { return UTMCoord{s.List.Struct(i)} }
+
+func (s UTMCoord_List) Set(i int, v UTMCoord) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s UTMCoord_List) String() string {
+	str, _ := text.MarshalList(0xeb1acd255e40f049, s.List)
+	return str
 }
 
 // UTMCoord_Future is a wrapper for a UTMCoord promised by a client call.
 type UTMCoord_Future struct{ *capnp.Future }
 
-func (f UTMCoord_Future) Struct() (UTMCoord, error) {
-	p, err := f.Future.Ptr()
-	return UTMCoord(p.Struct()), err
+func (p UTMCoord_Future) Struct() (UTMCoord, error) {
+	s, err := p.Future.Struct()
+	return UTMCoord{s}, err
 }
 
-type LatLonCoord capnp.Struct
+type LatLonCoord struct{ capnp.Struct }
 
 // LatLonCoord_TypeID is the unique identifier for the type LatLonCoord.
 const LatLonCoord_TypeID = 0xecf1fc3039cc8ffb
 
 func NewLatLonCoord(s *capnp.Segment) (LatLonCoord, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0})
-	return LatLonCoord(st), err
+	return LatLonCoord{st}, err
 }
 
 func NewRootLatLonCoord(s *capnp.Segment) (LatLonCoord, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0})
-	return LatLonCoord(st), err
+	return LatLonCoord{st}, err
 }
 
 func ReadRootLatLonCoord(msg *capnp.Message) (LatLonCoord, error) {
 	root, err := msg.Root()
-	return LatLonCoord(root.Struct()), err
+	return LatLonCoord{root.Struct()}, err
 }
 
 func (s LatLonCoord) String() string {
-	str, _ := text.Marshal(0xecf1fc3039cc8ffb, capnp.Struct(s))
+	str, _ := text.Marshal(0xecf1fc3039cc8ffb, s.Struct)
 	return str
 }
 
-func (s LatLonCoord) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (LatLonCoord) DecodeFromPtr(p capnp.Ptr) LatLonCoord {
-	return LatLonCoord(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s LatLonCoord) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s LatLonCoord) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s LatLonCoord) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s LatLonCoord) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s LatLonCoord) Lat() float64 {
-	return math.Float64frombits(capnp.Struct(s).Uint64(0))
+	return math.Float64frombits(s.Struct.Uint64(0))
 }
 
 func (s LatLonCoord) SetLat(v float64) {
-	capnp.Struct(s).SetUint64(0, math.Float64bits(v))
+	s.Struct.SetUint64(0, math.Float64bits(v))
 }
 
 func (s LatLonCoord) Lon() float64 {
-	return math.Float64frombits(capnp.Struct(s).Uint64(8))
+	return math.Float64frombits(s.Struct.Uint64(8))
 }
 
 func (s LatLonCoord) SetLon(v float64) {
-	capnp.Struct(s).SetUint64(8, math.Float64bits(v))
+	s.Struct.SetUint64(8, math.Float64bits(v))
 }
 
 // LatLonCoord_List is a list of LatLonCoord.
-type LatLonCoord_List = capnp.StructList[LatLonCoord]
+type LatLonCoord_List struct{ capnp.List }
 
 // NewLatLonCoord creates a new list of LatLonCoord.
 func NewLatLonCoord_List(s *capnp.Segment, sz int32) (LatLonCoord_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0}, sz)
-	return capnp.StructList[LatLonCoord](l), err
+	return LatLonCoord_List{l}, err
+}
+
+func (s LatLonCoord_List) At(i int) LatLonCoord { return LatLonCoord{s.List.Struct(i)} }
+
+func (s LatLonCoord_List) Set(i int, v LatLonCoord) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s LatLonCoord_List) String() string {
+	str, _ := text.MarshalList(0xecf1fc3039cc8ffb, s.List)
+	return str
 }
 
 // LatLonCoord_Future is a wrapper for a LatLonCoord promised by a client call.
 type LatLonCoord_Future struct{ *capnp.Future }
 
-func (f LatLonCoord_Future) Struct() (LatLonCoord, error) {
-	p, err := f.Future.Ptr()
-	return LatLonCoord(p.Struct()), err
+func (p LatLonCoord_Future) Struct() (LatLonCoord, error) {
+	s, err := p.Future.Struct()
+	return LatLonCoord{s}, err
 }
 
-type GKCoord capnp.Struct
+type GKCoord struct{ capnp.Struct }
 
 // GKCoord_TypeID is the unique identifier for the type GKCoord.
 const GKCoord_TypeID = 0x97ff7d61786091ae
 
 func NewGKCoord(s *capnp.Segment) (GKCoord, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 24, PointerCount: 0})
-	return GKCoord(st), err
+	return GKCoord{st}, err
 }
 
 func NewRootGKCoord(s *capnp.Segment) (GKCoord, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 24, PointerCount: 0})
-	return GKCoord(st), err
+	return GKCoord{st}, err
 }
 
 func ReadRootGKCoord(msg *capnp.Message) (GKCoord, error) {
 	root, err := msg.Root()
-	return GKCoord(root.Struct()), err
+	return GKCoord{root.Struct()}, err
 }
 
 func (s GKCoord) String() string {
-	str, _ := text.Marshal(0x97ff7d61786091ae, capnp.Struct(s))
+	str, _ := text.Marshal(0x97ff7d61786091ae, s.Struct)
 	return str
 }
 
-func (s GKCoord) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (GKCoord) DecodeFromPtr(p capnp.Ptr) GKCoord {
-	return GKCoord(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s GKCoord) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s GKCoord) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s GKCoord) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s GKCoord) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s GKCoord) MeridianNo() uint8 {
-	return capnp.Struct(s).Uint8(0)
+	return s.Struct.Uint8(0)
 }
 
 func (s GKCoord) SetMeridianNo(v uint8) {
-	capnp.Struct(s).SetUint8(0, v)
+	s.Struct.SetUint8(0, v)
 }
 
 func (s GKCoord) R() float64 {
-	return math.Float64frombits(capnp.Struct(s).Uint64(8))
+	return math.Float64frombits(s.Struct.Uint64(8))
 }
 
 func (s GKCoord) SetR(v float64) {
-	capnp.Struct(s).SetUint64(8, math.Float64bits(v))
+	s.Struct.SetUint64(8, math.Float64bits(v))
 }
 
 func (s GKCoord) H() float64 {
-	return math.Float64frombits(capnp.Struct(s).Uint64(16))
+	return math.Float64frombits(s.Struct.Uint64(16))
 }
 
 func (s GKCoord) SetH(v float64) {
-	capnp.Struct(s).SetUint64(16, math.Float64bits(v))
+	s.Struct.SetUint64(16, math.Float64bits(v))
 }
 
 // GKCoord_List is a list of GKCoord.
-type GKCoord_List = capnp.StructList[GKCoord]
+type GKCoord_List struct{ capnp.List }
 
 // NewGKCoord creates a new list of GKCoord.
 func NewGKCoord_List(s *capnp.Segment, sz int32) (GKCoord_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 24, PointerCount: 0}, sz)
-	return capnp.StructList[GKCoord](l), err
+	return GKCoord_List{l}, err
+}
+
+func (s GKCoord_List) At(i int) GKCoord { return GKCoord{s.List.Struct(i)} }
+
+func (s GKCoord_List) Set(i int, v GKCoord) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s GKCoord_List) String() string {
+	str, _ := text.MarshalList(0x97ff7d61786091ae, s.List)
+	return str
 }
 
 // GKCoord_Future is a wrapper for a GKCoord promised by a client call.
 type GKCoord_Future struct{ *capnp.Future }
 
-func (f GKCoord_Future) Struct() (GKCoord, error) {
-	p, err := f.Future.Ptr()
-	return GKCoord(p.Struct()), err
+func (p GKCoord_Future) Struct() (GKCoord, error) {
+	s, err := p.Future.Struct()
+	return GKCoord{s}, err
 }
 
-type Point2D capnp.Struct
+type Point2D struct{ capnp.Struct }
 
 // Point2D_TypeID is the unique identifier for the type Point2D.
 const Point2D_TypeID = 0xc88fb91c1e6986e2
 
 func NewPoint2D(s *capnp.Segment) (Point2D, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0})
-	return Point2D(st), err
+	return Point2D{st}, err
 }
 
 func NewRootPoint2D(s *capnp.Segment) (Point2D, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0})
-	return Point2D(st), err
+	return Point2D{st}, err
 }
 
 func ReadRootPoint2D(msg *capnp.Message) (Point2D, error) {
 	root, err := msg.Root()
-	return Point2D(root.Struct()), err
+	return Point2D{root.Struct()}, err
 }
 
 func (s Point2D) String() string {
-	str, _ := text.Marshal(0xc88fb91c1e6986e2, capnp.Struct(s))
+	str, _ := text.Marshal(0xc88fb91c1e6986e2, s.Struct)
 	return str
 }
 
-func (s Point2D) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Point2D) DecodeFromPtr(p capnp.Ptr) Point2D {
-	return Point2D(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Point2D) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Point2D) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Point2D) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Point2D) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Point2D) X() float64 {
-	return math.Float64frombits(capnp.Struct(s).Uint64(0))
+	return math.Float64frombits(s.Struct.Uint64(0))
 }
 
 func (s Point2D) SetX(v float64) {
-	capnp.Struct(s).SetUint64(0, math.Float64bits(v))
+	s.Struct.SetUint64(0, math.Float64bits(v))
 }
 
 func (s Point2D) Y() float64 {
-	return math.Float64frombits(capnp.Struct(s).Uint64(8))
+	return math.Float64frombits(s.Struct.Uint64(8))
 }
 
 func (s Point2D) SetY(v float64) {
-	capnp.Struct(s).SetUint64(8, math.Float64bits(v))
+	s.Struct.SetUint64(8, math.Float64bits(v))
 }
 
 // Point2D_List is a list of Point2D.
-type Point2D_List = capnp.StructList[Point2D]
+type Point2D_List struct{ capnp.List }
 
 // NewPoint2D creates a new list of Point2D.
 func NewPoint2D_List(s *capnp.Segment, sz int32) (Point2D_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0}, sz)
-	return capnp.StructList[Point2D](l), err
+	return Point2D_List{l}, err
+}
+
+func (s Point2D_List) At(i int) Point2D { return Point2D{s.List.Struct(i)} }
+
+func (s Point2D_List) Set(i int, v Point2D) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s Point2D_List) String() string {
+	str, _ := text.MarshalList(0xc88fb91c1e6986e2, s.List)
+	return str
 }
 
 // Point2D_Future is a wrapper for a Point2D promised by a client call.
 type Point2D_Future struct{ *capnp.Future }
 
-func (f Point2D_Future) Struct() (Point2D, error) {
-	p, err := f.Future.Ptr()
-	return Point2D(p.Struct()), err
+func (p Point2D_Future) Struct() (Point2D, error) {
+	s, err := p.Future.Struct()
+	return Point2D{s}, err
 }
 
-type RowCol capnp.Struct
+type RowCol struct{ capnp.Struct }
 
 // RowCol_TypeID is the unique identifier for the type RowCol.
 const RowCol_TypeID = 0xb0c6993e13e314ad
 
 func NewRowCol(s *capnp.Segment) (RowCol, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0})
-	return RowCol(st), err
+	return RowCol{st}, err
 }
 
 func NewRootRowCol(s *capnp.Segment) (RowCol, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0})
-	return RowCol(st), err
+	return RowCol{st}, err
 }
 
 func ReadRootRowCol(msg *capnp.Message) (RowCol, error) {
 	root, err := msg.Root()
-	return RowCol(root.Struct()), err
+	return RowCol{root.Struct()}, err
 }
 
 func (s RowCol) String() string {
-	str, _ := text.Marshal(0xb0c6993e13e314ad, capnp.Struct(s))
+	str, _ := text.Marshal(0xb0c6993e13e314ad, s.Struct)
 	return str
 }
 
-func (s RowCol) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (RowCol) DecodeFromPtr(p capnp.Ptr) RowCol {
-	return RowCol(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s RowCol) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s RowCol) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s RowCol) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s RowCol) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s RowCol) Row() uint64 {
-	return capnp.Struct(s).Uint64(0)
+	return s.Struct.Uint64(0)
 }
 
 func (s RowCol) SetRow(v uint64) {
-	capnp.Struct(s).SetUint64(0, v)
+	s.Struct.SetUint64(0, v)
 }
 
 func (s RowCol) Col() uint64 {
-	return capnp.Struct(s).Uint64(8)
+	return s.Struct.Uint64(8)
 }
 
 func (s RowCol) SetCol(v uint64) {
-	capnp.Struct(s).SetUint64(8, v)
+	s.Struct.SetUint64(8, v)
 }
 
 // RowCol_List is a list of RowCol.
-type RowCol_List = capnp.StructList[RowCol]
+type RowCol_List struct{ capnp.List }
 
 // NewRowCol creates a new list of RowCol.
 func NewRowCol_List(s *capnp.Segment, sz int32) (RowCol_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0}, sz)
-	return capnp.StructList[RowCol](l), err
+	return RowCol_List{l}, err
+}
+
+func (s RowCol_List) At(i int) RowCol { return RowCol{s.List.Struct(i)} }
+
+func (s RowCol_List) Set(i int, v RowCol) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s RowCol_List) String() string {
+	str, _ := text.MarshalList(0xb0c6993e13e314ad, s.List)
+	return str
 }
 
 // RowCol_Future is a wrapper for a RowCol promised by a client call.
 type RowCol_Future struct{ *capnp.Future }
 
-func (f RowCol_Future) Struct() (RowCol, error) {
-	p, err := f.Future.Ptr()
-	return RowCol(p.Struct()), err
+func (p RowCol_Future) Struct() (RowCol, error) {
+	s, err := p.Future.Struct()
+	return RowCol{s}, err
 }
 
-type Coord capnp.Struct
+type Coord struct{ capnp.Struct }
 type Coord_Which uint16
 
 const (
@@ -602,424 +534,400 @@ const Coord_TypeID = 0xb8f6a6192a7359f8
 
 func NewCoord(s *capnp.Segment) (Coord, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return Coord(st), err
+	return Coord{st}, err
 }
 
 func NewRootCoord(s *capnp.Segment) (Coord, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return Coord(st), err
+	return Coord{st}, err
 }
 
 func ReadRootCoord(msg *capnp.Message) (Coord, error) {
 	root, err := msg.Root()
-	return Coord(root.Struct()), err
+	return Coord{root.Struct()}, err
 }
 
 func (s Coord) String() string {
-	str, _ := text.Marshal(0xb8f6a6192a7359f8, capnp.Struct(s))
+	str, _ := text.Marshal(0xb8f6a6192a7359f8, s.Struct)
 	return str
 }
 
-func (s Coord) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Coord) DecodeFromPtr(p capnp.Ptr) Coord {
-	return Coord(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Coord) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-
 func (s Coord) Which() Coord_Which {
-	return Coord_Which(capnp.Struct(s).Uint16(0))
-}
-func (s Coord) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Coord) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Coord) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
+	return Coord_Which(s.Struct.Uint16(0))
 }
 func (s Coord) Gk() (GKCoord, error) {
-	if capnp.Struct(s).Uint16(0) != 0 {
+	if s.Struct.Uint16(0) != 0 {
 		panic("Which() != gk")
 	}
-	p, err := capnp.Struct(s).Ptr(0)
-	return GKCoord(p.Struct()), err
+	p, err := s.Struct.Ptr(0)
+	return GKCoord{Struct: p.Struct()}, err
 }
 
 func (s Coord) HasGk() bool {
-	if capnp.Struct(s).Uint16(0) != 0 {
+	if s.Struct.Uint16(0) != 0 {
 		return false
 	}
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Coord) SetGk(v GKCoord) error {
-	capnp.Struct(s).SetUint16(0, 0)
-	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+	s.Struct.SetUint16(0, 0)
+	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewGk sets the gk field to a newly
 // allocated GKCoord struct, preferring placement in s's segment.
 func (s Coord) NewGk() (GKCoord, error) {
-	capnp.Struct(s).SetUint16(0, 0)
-	ss, err := NewGKCoord(capnp.Struct(s).Segment())
+	s.Struct.SetUint16(0, 0)
+	ss, err := NewGKCoord(s.Struct.Segment())
 	if err != nil {
 		return GKCoord{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
 	return ss, err
 }
 
 func (s Coord) Latlon() (LatLonCoord, error) {
-	if capnp.Struct(s).Uint16(0) != 1 {
+	if s.Struct.Uint16(0) != 1 {
 		panic("Which() != latlon")
 	}
-	p, err := capnp.Struct(s).Ptr(0)
-	return LatLonCoord(p.Struct()), err
+	p, err := s.Struct.Ptr(0)
+	return LatLonCoord{Struct: p.Struct()}, err
 }
 
 func (s Coord) HasLatlon() bool {
-	if capnp.Struct(s).Uint16(0) != 1 {
+	if s.Struct.Uint16(0) != 1 {
 		return false
 	}
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Coord) SetLatlon(v LatLonCoord) error {
-	capnp.Struct(s).SetUint16(0, 1)
-	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+	s.Struct.SetUint16(0, 1)
+	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewLatlon sets the latlon field to a newly
 // allocated LatLonCoord struct, preferring placement in s's segment.
 func (s Coord) NewLatlon() (LatLonCoord, error) {
-	capnp.Struct(s).SetUint16(0, 1)
-	ss, err := NewLatLonCoord(capnp.Struct(s).Segment())
+	s.Struct.SetUint16(0, 1)
+	ss, err := NewLatLonCoord(s.Struct.Segment())
 	if err != nil {
 		return LatLonCoord{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
 	return ss, err
 }
 
 func (s Coord) Utm() (UTMCoord, error) {
-	if capnp.Struct(s).Uint16(0) != 2 {
+	if s.Struct.Uint16(0) != 2 {
 		panic("Which() != utm")
 	}
-	p, err := capnp.Struct(s).Ptr(0)
-	return UTMCoord(p.Struct()), err
+	p, err := s.Struct.Ptr(0)
+	return UTMCoord{Struct: p.Struct()}, err
 }
 
 func (s Coord) HasUtm() bool {
-	if capnp.Struct(s).Uint16(0) != 2 {
+	if s.Struct.Uint16(0) != 2 {
 		return false
 	}
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Coord) SetUtm(v UTMCoord) error {
-	capnp.Struct(s).SetUint16(0, 2)
-	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+	s.Struct.SetUint16(0, 2)
+	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewUtm sets the utm field to a newly
 // allocated UTMCoord struct, preferring placement in s's segment.
 func (s Coord) NewUtm() (UTMCoord, error) {
-	capnp.Struct(s).SetUint16(0, 2)
-	ss, err := NewUTMCoord(capnp.Struct(s).Segment())
+	s.Struct.SetUint16(0, 2)
+	ss, err := NewUTMCoord(s.Struct.Segment())
 	if err != nil {
 		return UTMCoord{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
 	return ss, err
 }
 
 func (s Coord) P2D() (Point2D, error) {
-	if capnp.Struct(s).Uint16(0) != 3 {
+	if s.Struct.Uint16(0) != 3 {
 		panic("Which() != p2D")
 	}
-	p, err := capnp.Struct(s).Ptr(0)
-	return Point2D(p.Struct()), err
+	p, err := s.Struct.Ptr(0)
+	return Point2D{Struct: p.Struct()}, err
 }
 
 func (s Coord) HasP2D() bool {
-	if capnp.Struct(s).Uint16(0) != 3 {
+	if s.Struct.Uint16(0) != 3 {
 		return false
 	}
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Coord) SetP2D(v Point2D) error {
-	capnp.Struct(s).SetUint16(0, 3)
-	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+	s.Struct.SetUint16(0, 3)
+	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewP2D sets the p2D field to a newly
 // allocated Point2D struct, preferring placement in s's segment.
 func (s Coord) NewP2D() (Point2D, error) {
-	capnp.Struct(s).SetUint16(0, 3)
-	ss, err := NewPoint2D(capnp.Struct(s).Segment())
+	s.Struct.SetUint16(0, 3)
+	ss, err := NewPoint2D(s.Struct.Segment())
 	if err != nil {
 		return Point2D{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
 	return ss, err
 }
 
 func (s Coord) Rowcol() (RowCol, error) {
-	if capnp.Struct(s).Uint16(0) != 4 {
+	if s.Struct.Uint16(0) != 4 {
 		panic("Which() != rowcol")
 	}
-	p, err := capnp.Struct(s).Ptr(0)
-	return RowCol(p.Struct()), err
+	p, err := s.Struct.Ptr(0)
+	return RowCol{Struct: p.Struct()}, err
 }
 
 func (s Coord) HasRowcol() bool {
-	if capnp.Struct(s).Uint16(0) != 4 {
+	if s.Struct.Uint16(0) != 4 {
 		return false
 	}
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Coord) SetRowcol(v RowCol) error {
-	capnp.Struct(s).SetUint16(0, 4)
-	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
+	s.Struct.SetUint16(0, 4)
+	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewRowcol sets the rowcol field to a newly
 // allocated RowCol struct, preferring placement in s's segment.
 func (s Coord) NewRowcol() (RowCol, error) {
-	capnp.Struct(s).SetUint16(0, 4)
-	ss, err := NewRowCol(capnp.Struct(s).Segment())
+	s.Struct.SetUint16(0, 4)
+	ss, err := NewRowCol(s.Struct.Segment())
 	if err != nil {
 		return RowCol{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
+	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
 	return ss, err
 }
 
 // Coord_List is a list of Coord.
-type Coord_List = capnp.StructList[Coord]
+type Coord_List struct{ capnp.List }
 
 // NewCoord creates a new list of Coord.
 func NewCoord_List(s *capnp.Segment, sz int32) (Coord_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1}, sz)
-	return capnp.StructList[Coord](l), err
+	return Coord_List{l}, err
+}
+
+func (s Coord_List) At(i int) Coord { return Coord{s.List.Struct(i)} }
+
+func (s Coord_List) Set(i int, v Coord) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s Coord_List) String() string {
+	str, _ := text.MarshalList(0xb8f6a6192a7359f8, s.List)
+	return str
 }
 
 // Coord_Future is a wrapper for a Coord promised by a client call.
 type Coord_Future struct{ *capnp.Future }
 
-func (f Coord_Future) Struct() (Coord, error) {
-	p, err := f.Future.Ptr()
-	return Coord(p.Struct()), err
+func (p Coord_Future) Struct() (Coord, error) {
+	s, err := p.Future.Struct()
+	return Coord{s}, err
 }
+
 func (p Coord_Future) Gk() GKCoord_Future {
 	return GKCoord_Future{Future: p.Future.Field(0, nil)}
 }
+
 func (p Coord_Future) Latlon() LatLonCoord_Future {
 	return LatLonCoord_Future{Future: p.Future.Field(0, nil)}
 }
+
 func (p Coord_Future) Utm() UTMCoord_Future {
 	return UTMCoord_Future{Future: p.Future.Field(0, nil)}
 }
+
 func (p Coord_Future) P2D() Point2D_Future {
 	return Point2D_Future{Future: p.Future.Field(0, nil)}
 }
+
 func (p Coord_Future) Rowcol() RowCol_Future {
 	return RowCol_Future{Future: p.Future.Field(0, nil)}
 }
 
-type RectBounds capnp.Struct
+type RectBounds struct{ capnp.Struct }
 
 // RectBounds_TypeID is the unique identifier for the type RectBounds.
 const RectBounds_TypeID = 0xb952dbe83866da4a
 
 func NewRectBounds(s *capnp.Segment) (RectBounds, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return RectBounds(st), err
+	return RectBounds{st}, err
 }
 
 func NewRootRectBounds(s *capnp.Segment) (RectBounds, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return RectBounds(st), err
+	return RectBounds{st}, err
 }
 
 func ReadRootRectBounds(msg *capnp.Message) (RectBounds, error) {
 	root, err := msg.Root()
-	return RectBounds(root.Struct()), err
+	return RectBounds{root.Struct()}, err
 }
 
 func (s RectBounds) String() string {
-	str, _ := text.Marshal(0xb952dbe83866da4a, capnp.Struct(s))
+	str, _ := text.Marshal(0xb952dbe83866da4a, s.Struct)
 	return str
 }
 
-func (s RectBounds) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (RectBounds) DecodeFromPtr(p capnp.Ptr) RectBounds {
-	return RectBounds(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s RectBounds) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s RectBounds) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s RectBounds) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s RectBounds) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s RectBounds) Tl() (capnp.Ptr, error) {
-	return capnp.Struct(s).Ptr(0)
+	return s.Struct.Ptr(0)
 }
 
 func (s RectBounds) HasTl() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s RectBounds) SetTl(v capnp.Ptr) error {
-	return capnp.Struct(s).SetPtr(0, v)
+	return s.Struct.SetPtr(0, v)
 }
+
 func (s RectBounds) Br() (capnp.Ptr, error) {
-	return capnp.Struct(s).Ptr(1)
+	return s.Struct.Ptr(1)
 }
 
 func (s RectBounds) HasBr() bool {
-	return capnp.Struct(s).HasPtr(1)
+	return s.Struct.HasPtr(1)
 }
 
 func (s RectBounds) SetBr(v capnp.Ptr) error {
-	return capnp.Struct(s).SetPtr(1, v)
+	return s.Struct.SetPtr(1, v)
 }
 
 // RectBounds_List is a list of RectBounds.
-type RectBounds_List = capnp.StructList[RectBounds]
+type RectBounds_List struct{ capnp.List }
 
 // NewRectBounds creates a new list of RectBounds.
 func NewRectBounds_List(s *capnp.Segment, sz int32) (RectBounds_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
-	return capnp.StructList[RectBounds](l), err
+	return RectBounds_List{l}, err
+}
+
+func (s RectBounds_List) At(i int) RectBounds { return RectBounds{s.List.Struct(i)} }
+
+func (s RectBounds_List) Set(i int, v RectBounds) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s RectBounds_List) String() string {
+	str, _ := text.MarshalList(0xb952dbe83866da4a, s.List)
+	return str
 }
 
 // RectBounds_Future is a wrapper for a RectBounds promised by a client call.
 type RectBounds_Future struct{ *capnp.Future }
 
-func (f RectBounds_Future) Struct() (RectBounds, error) {
-	p, err := f.Future.Ptr()
-	return RectBounds(p.Struct()), err
+func (p RectBounds_Future) Struct() (RectBounds, error) {
+	s, err := p.Future.Struct()
+	return RectBounds{s}, err
 }
+
 func (p RectBounds_Future) Tl() *capnp.Future {
 	return p.Future.Field(0, nil)
 }
+
 func (p RectBounds_Future) Br() *capnp.Future {
 	return p.Future.Field(1, nil)
 }
 
 const schema_9090542079c7fc24 = "x\xda\x94Toh[\xe5\x17>\xcf\xfb\xde\xdc\xdbm" +
-	"\x0d\xc9\xed\xcd\xe0\xb7\xf2\xdb\xaaaC;\xd9h\xd3\x15" +
-	"f?\xd8\xb9?\xcc?[\xed\xbbDP\x111.\xf1" +
-	".&\xcd\x8d\xe9-i\x8beN\xd6\xd9\xca\xca\xba\xd1" +
-	"Q-\x82 \xa8lP\xabS\xd0~\x10T\xfc\xb3\x0f" +
+	"-\xc9\xed\xcd\xe0\xb7\xf2\xdb\xaaaC;\xd9h\xd3\x15" +
+	"f?\xd8\xb9?\xcc?[\xed\xbbDP\x1116\xf1" +
+	"6&\xcd\x8d\xe9-i\x8beN\xd6\xd9\xca\xca\xba\xd1" +
+	"Q-\x82 \xe8pP\xabS\xd0~\x10T\xfc\xb3\x0f" +
 	"\xdb\x07\xbf*+l\xceYY\x85\x89(B\xabW\xde" +
 	"\x9b6\xb9\xcb\xeeP?\xe5p\xee\xf3\x9e<\xe79\xcf" +
-	"9-g\xd8\x0e\xa55\xd8\xa9\x11\x13\x89\x80\xea\\\x9e" +
-	"|9\xd7\xce\x8e\x9f&=\xa48\x9f\x1e\x9e\xedz\xe7" +
-	"\xae\x89\x8f\x88`\x0c\xf3)c\x8ckD\xf1\x11\xce\x11" +
-	"\x9f\xe0\x0cD\xce\xbb'\x9f\xeeO\x0e9\x93$V\x83" +
-	";\x1b\x97\xbe\x1e\xb8#1>N\x8aFd\x0c\xf3S" +
-	"\xe5\x17\xc6(\x9f!8\xd3\x91\xef\x8d\xfb^\xfb\xea=" +
-	"\x89e5\xd8M\xca+\xc6\x167jVJ\x84\xea?" +
-	"\xeb\xabQ[V\x194F\x15\x93\xb8\xf3\xc7\xe3\xbd\x9b" +
-	"\xd7\xbd\xfd\xfb\xc7\xb2\xa0\x07\xb5\x07Z\x80\xc8\x98V^" +
-	"2\xde\x97/\xda\xa6\x95&\x10\x9c\x87\xbe}v\xfb\xfc" +
-	"w\x07fo\xae\x19`Z\x18\xc6'\x81\xb3\xc6\x97\x01" +
-	"Y\xfe\xb3@\x89\xc8hWC\xce\x95c\x99\x0d\xff\x9f" +
-	"=q\xde\x8f\xef\x16\xf5\x94\xd1\xae\xca\xa8U\x95|\x87" +
-	"\xeb\xf6nx5\xbex\xfe\x16\xd9\xc6\xd4s\xc6i\x09" +
-	"\x8c\x8f\xab\x1c\xf1\xd7UW\xb6_\xafLN\\\x9b3" +
-	"/\xfcK\xf8\xd0=o\xf4\x7f\x91\x9a\xb9\xe8\x03?\xeb" +
-	"\x03_/>\x9f\xbbti\xe6\xaa\x0f|\xca\x07>\xbf" +
-	"\x10\xfd`\xee\xc3\xe6\x1fH_\xedi\xd3\x85\xbfY\x86" +
-	"\x1b'\xd5G\x08\xce\x837v<\xb5\xe9b\xe3\xf5\x9a" +
-	"a\x07 !o\xa9S\xc6\xb4\x0b>\xa3\xfeHp\x16" +
-	"O\\\xb8\xb7e\xe9\x97\x05?\xf5\x8eh\xe7\x8cQ\xcd" +
-	"\x1d\xa6&\xd5;6\xbd\xbd\xd02?\xfb\xdb-\x84/" +
-	"kS\xc6O\x12\x18\xbf\xaaq\xc4oh\x0c\xb4\xd31" +
-	"\xd3\xd6\xd6\x83\xc9B\x1e\x85\x8e=\xdd\xf1\xbd[M\x9e" +
-	"m\xef\x06PG\xac\xb5\xee\xe7A\x82\x17\xb1\xf7\xe1]" +
-	"\x96UD\xaa\x1b\x10\xf5\\!R@\xa4\xefy\x82H" +
-	"\xec\xe6\x10\xdd\x0c:\x10\x81L\xeeo \x12\x0fp\x88" +
-	"\x04\x83\xceX\x04\x8cH\x172\xb9\x8fC<\xc6\xe0\xf4" +
-	"\xa4\x8b\x99T&\x99'\xdeeA%\x06\x95\x80\"\xd6" +
-	"\x10\xc3\x1a\x02\x0e\xadD^\x02\x07\xac\xd2.+G$" +
-	"\x09\xd4U\x084G\x89\xc4F\x0e\xd1\xe2!\xb0E&" +
-	"\xef\xe6\x10\xdb\x18\xb4\xa2U\xc2*bXE\xd0\x0eZ" +
-	"\xb9\x95\xb8R\x9a:\xcb\xed\x8b\xff\x01\x1e\x874\xc7<" +
-	"f\xdc\xd4\xe1\xb1\xda\x9d\x1d\x9e\xed^\x1f\xf5\xd8d]" +
-	"\xd43\x82\xb5\xd1\xa6\x92\xd9\xbb}[g\x9f\xdd\x13k" +
-	"\x8d\xcb\x9f\xb6X\x97ff\xdb53\xbbM3\xb3m" +
-	"\xde\xee\xa4\xb8)\xb7\xb7\x08W\xea\x1d\xc7mn\xa8\x91" +
-	"H\xf4s\x88\xa3\x0cA\xfc\xe5\x94\xbb;\xd2A$^" +
-	"\xe0\x10#\x0cA\xf6\xa7S\xd6wX\xf6\xfc\"\x878" +
-	"\xce\x10\xe4KN\x04\x9cH\x1f\x95\xd9\xa3\x1cb\x9c!" +
-	"\xa8,:\x11(D\xfa\x98\xac0\xc2!&\x18\xb8\x99" +
-	"E\xb8z\x7f\x08\x08\x13:sI;g\xe5\x11\xae\xda" +
-	"\xaf\xfcA\xeb\xb3{\x10\xae:x9[\x88\xedF\xb8" +
-	"\xba\xe8\xcbE\x8aVI\x0a\x1e\xae^\xac\xf2\x87\x9b\xa6" +
-	"\x9a>h\xef\xb4B}\xf9To\xcd`\x1b\xfd\x06\xdb" +
-	"X\x1d,\xb7sh\x80\xe7\x1c\x11\xa1\x81\xc0\x9f)\xfa" +
-	"\xa5\xefW\xa0c\xd0qe\xce\xe4\x93\xd4i\xa7\x13\x03" +
-	"\x85\xb4\x97J\xb7\x95\xc9\xdb1\xec\xae\xe1\xd1\xe0\xc7\xa3" +
-	"\xa1\xca\x03\xfd\x15\xdf\x0e\xf8\xf9\xd6]\xad\xbe&\xd7\x04" +
-	"\x95\xed\xfa\xe6\xf0m@m\xb1\xae\x0ah>\xe5\x03*" +
-	"\x85\xa4\xa9*\x98ka\x1f\x8c\xc9\xb3U\xc4B\xcd\"" +
-	"\xbb\x12$\xb4\x81B\xda]e\xd7<\xeb\x1b\xe5h\xf4" +
-	"\xb5Q\"0=\xd8A\xc4\xcd\xac\x9c\xf5\xb2\x11\xbc\xef" +
-	"\x1fM\xec\xdfeY\xbc\xe8^\x82pE\xa7\xe4f\"" +
-	"\xf1$\x878\xc4\xb0\"S\xfa9\"\x91\xe2\x10\x05y" +
-	"\x08P6j\x8f\xd4\xee\x10\x87\xb0\x19t\xce\xca>}" +
-	"^&s\x1c\xa2\x9f!4h\xe5\xd3+W\xc1\xc9%" +
-	"\xed\x8c\xdd\x97JShg2\x9fB=1\xd4\xff\xf3" +
-	"\xb1\xd8\x97\xb4\xf7Y\xf9&\xb7\xd7\xffz0rI{" +
-	"\xa5\xa4&\x97\xe0v35y\xb6\xad\xa2\xf2\xf5A\xc2" +
-	"\xdf\x01\x00\x00\xff\xff!\x93\x10M"
+	"9\xcdg\xd8.\xd6\x12\xe8\xd0\x88D<\xa0:\x97\xa7" +
+	"^\xce\xb6\xb1\xe3\xa7I\x0f*\xce\xa7\x87\xe7:\xcf\xdc" +
+	"5\xf9\x11\x11\x8c\x11>m\x8cs\x8d(6\xca9b" +
+	"\x93\x9c\x81\xc8y\xf7\xe4\xd3\x03\x89ag\x8a\xc4Zp" +
+	"g\xf3\xf2\xd7\x83w\xc4'&H\xd1\x88\x8c\x11~\xaa" +
+	"\xf4\xc2\x18\xe3\xb3\x04g&\xfc\xbdq\xdfk_\xbd'" +
+	"\xb1\xac\x0a\xbbEy\xc5\xd8\xe6FMJ\x91P\xf9g" +
+	"}-\xaa\xcb*C\xc6\x98b\x12w\xfex\xbco\xeb" +
+	"\x86\xb7\x7f\xffX\x16\xf4\xa0\xf6A\x0b\x10\x193\xcaK" +
+	"\xc6\xfb\xf2E\xeb\x8c\xd2\x08\x82\xf3\xd0\xb7\xcf\xee\\\xf8" +
+	"\xee\xd0\xdc\xcd5\x03L\x0b\xc1\xf8$p\xd6\xf82 " +
+	"\xcb\x7f\x16(\x12\x19mj\xd0\xb9r,\xbd\xe9\xffs" +
+	"'\xce\xfb\xf1\xdd\xa6\x9e2\xdaT\x19\xb5\xa8\x92\xefH" +
+	"\xcd\xfeM\xaf\xc6\x96\xce\xdf\"\xdb\xb8z\xce8-\x81" +
+	"\xb1\x09\x95#\xf6\xba\xea\xca\xf6\xeb\x95\xa9\xc9k\xf3\xe6" +
+	"\x85\x7f\x09\x1f\xbe\xe7\x8d\x81/\x92\xb3\x17}\xe0g}" +
+	"\xe0\x1b\xc5\xe7\xf3\x97.\xcd^\xf5\x81O\xfb\xc0\x17\x16" +
+	"#\x1f\xcc\x7f\xd8\xf4\x03\xe9k=m\xba\xf07Kp" +
+	"\xe3\xa4\xfa\x08\xc1y\xf0\xc6\xae\xa7\xb6\\l\xb8^5" +
+	"\xec\x00$\xe4-u\xda\x98q\xc1\xef\xa8?\x12\x9c\xa5" +
+	"\x13\x17\xeem^\xfee\xd1O\xbd#\xda9cLs" +
+	"\x87\xa9I\xf5\x8e\xcd\xec\xcc7/\xcc\xfdv\x0b\xe1\xcb" +
+	"\xda\xb4\xf1\x93\x04\xc6\xaej\x1c\xb1\x1b\x1a\x03\xedv\xcc" +
+	"\x94\xb5\xbd;\x91\xcf!\xdf\xbe\xaf+\xb6\x7f\xbb\xc93" +
+	"m]\x00j\x88\xb5\xd4\xfc<D\xf0\"\xf6?\xbc\xc7" +
+	"\xb2\x0aHv\x01\xa2\x96+D\x0a\x88\xf4}O\x10\x89" +
+	"\xbd\x1c\xa2\x8bA\x07\xc2\x90\xc9\x83\xf5D\xe2\x01\x0e\x11" +
+	"g\xd0\x19\x0b\x83\x11\xe9B&\x0fp\x88\xc7\x18\x9c\xde" +
+	"T!\x9dL'r\xc4;-\xa8\xc4\xa0\x12P\xc0:" +
+	"bXG@\xcfj\xe4%p\xc8*\xee\xb1\xb2D\x92" +
+	"@M\x99@S\x84Hl\xe6\x10\xcd\x1e\x02\xdbd\xf2" +
+	"n\x0e\xb1\x83A+XE\xac!\x865\x04\xad\xdb\xca" +
+	"\xae\xc6\xe5\xd2\xd4Qj_\xfc\x0f\xf08\xa4)\xea1" +
+	"\xe3\x96v\x8f\xd5\xeel\xf7l\xf7\xc6\x88\xc7&\x1b\"" +
+	"\x9e\x11\xac\x8f4\x16\xcd\xbe\x9d;:\xfa\xed\xdehK" +
+	"L\xfe\xb4F;53\xd3\xa6\x99\x99\x1d\x9a\x99i\xf5" +
+	"v'\xc5M\xba\xbd\x85\xb9R\xeb8ns\xc3\x0dD" +
+	"b\x80C\x1ce\xa8\xc3_N\xa9\xbb#\xedD\xe2\x05" +
+	"\x0e1\xcaP\xc7\xfetJ\xfa\x8e\xc8\x9e_\xe4\x10\xc7" +
+	"\x19\xea\xf8\xb2\x13\x06'\xd2\xc7d\xf6(\x87\x98`\xa8" +
+	"S\x96\x9c0\x14\"}\\V\x18\xe5\x10\x93\x0c\xdc\xcc" +
+	" T\xb9?\x04\x84\x08\x1d\xd9\x84\x9d\xb5r\x08U\xec" +
+	"W\xfa\xa0\xf5\xdb\xbd\x08U\x1c\xbc\x92\xcdG\xf7\"T" +
+	"Y\xf4\x95\"\x05\xab(\x05\x0fU.V\xe9\xc3MS" +
+	"Mu\xdb\xbb\xad`\x7f.\xd9W5\xd8\x06\xbf\xc16" +
+	"T\x06\xcb\xed,\xea\xe19GD\xa8'\xf0g\x0a~" +
+	"\xe9\xfb\x15\xe8\x18r\\\x99\xd3\xb9\x04u\xd8\xa9\xf8`" +
+	">\xe5\xa5\xd2e\xa5sv\x14{\xabx\xd4\xfb\xf1\xa8" +
+	"\xaf\xf0\xc0@\xd9\xb7\x83~\xbeuW\xab\xbf\xd15A" +
+	"y\xbb\xbe9|\x1bPk\xb4\xb3\x0cZH\xfa\x80\x8a" +
+	"Ai\xaa2\xe6Z\xc8\x07c\xf2L\x05\xb1X\xb5\xc8" +
+	"\xae\x04qm0\x9frW\xd95\xcf\xc6\x069\x1a}" +
+	"}\x84\x08L\xafk'\xe2fF\xcez\xc5\x08\xde\xf7" +
+	"\x8f\xc6\x0f\xee\xb1,^p/A\xa8\xacSb+\x91" +
+	"x\x92C\xf40\xac\xca\x94z\x8eH$9D^\x1e" +
+	"\x02\x94\x8c\xda+\xb5\xeb\xe1\x106\x83\xceY\xc9\xa7\xcf" +
+	"\xcbd\x96C\x0c0\x04\x87\xac\\j\xf5*8\xd9\x84" +
+	"\x9d\xb6\xfb\x93)\x0a\xeeN\xe4\x92\xa8%\x86\xda\x7f>" +
+	"\x16\x07\x12\xf6\x01+\xd7\xe8\xf6\xfa_\x0fF6a\xaf" +
+	"\x96\xd4\xe4\x12\xdcn\xa6&\xcf\xb4\x96U\xbe>D\xf8" +
+	";\x00\x00\xff\xff\xb1\x9a\x10?"
 
-func RegisterSchema(reg *schemas.Registry) {
-	reg.Register(&schemas.Schema{
-		String: schema_9090542079c7fc24,
-		Nodes: []uint64{
-			0x958c02356c8797e1,
-			0x97ff7d61786091ae,
-			0xb0c6993e13e314ad,
-			0xb79427a74eb97fc0,
-			0xb8f6a6192a7359f8,
-			0xb952dbe83866da4a,
-			0xc88fb91c1e6986e2,
-			0xc8fb53981e470885,
-			0xcc67dee69497e2f3,
-			0xcdaf64c4789f2b7d,
-			0xe4afdddddec2511d,
-			0xe529b4deb322ece8,
-			0xeb1acd255e40f049,
-			0xecf1fc3039cc8ffb,
-			0xf5b9e8307038ad86,
-		},
-		Compressed: true,
-	})
+func init() {
+	schemas.Register(schema_9090542079c7fc24,
+		0x958c02356c8797e1,
+		0x97ff7d61786091ae,
+		0xb0c6993e13e314ad,
+		0xb79427a74eb97fc0,
+		0xb8f6a6192a7359f8,
+		0xb952dbe83866da4a,
+		0xc88fb91c1e6986e2,
+		0xc8fb53981e470885,
+		0xcc67dee69497e2f3,
+		0xcdaf64c4789f2b7d,
+		0xe4afdddddec2511d,
+		0xe529b4deb322ece8,
+		0xeb1acd255e40f049,
+		0xecf1fc3039cc8ffb,
+		0xf5b9e8307038ad86)
 }

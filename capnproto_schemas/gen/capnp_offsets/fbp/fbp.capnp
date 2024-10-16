@@ -6,9 +6,10 @@ $import "/capnp/go.capnp".import("github.com/zalf-rpm/mas-infrastructure/capnpro
 struct IP @0xaf0a1dc4709a5ccf {  # 0 bytes, 2 ptrs
   attributes @0 :List(KV);  # ptr[0]
   content @1 :AnyPointer;  # ptr[1]
-  struct KV @0x9e9e5391e0c499e6 {  # 0 bytes, 2 ptrs
+  struct KV @0x9e9e5391e0c499e6 {  # 0 bytes, 3 ptrs
     key @0 :Text;  # ptr[0]
-    value @1 :AnyPointer;  # ptr[1]
+    desc @1 :Text;  # ptr[1]
+    value @2 :AnyPointer;  # ptr[2]
   }
 }
 interface Channel @0x9c62c32b2ff2b1e8 (V) superclasses(import "/common.capnp".Identifiable, import "/persistence.capnp".Persistent) {
@@ -42,5 +43,12 @@ interface Channel @0x9c62c32b2ff2b1e8 (V) superclasses(import "/common.capnp".Id
   interface Writer @0xf7fec613b4a8c79f $import "/capnp/c++.capnp".name("ChanWriter") {
     write @0 Msg -> ();
     close @1 () -> ();
+  }
+}
+interface PortCallbackRegistrar @0x8dff741cb4dfa00c {
+  registerCallback @0 (callback :PortCallback) -> ();
+  interface PortCallback @0xbcdf87a68541a8ef {
+    newInPort @0 (name :Text, readerCap :Channel(IP).Reader) -> ();
+    newOutPort @1 (name :Text, writerCap :Channel(IP).Writer) -> ();
   }
 }

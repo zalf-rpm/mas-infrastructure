@@ -14,7 +14,8 @@ add_compile_definitions(SODIUM_STATIC)
 
 if(NOT TARGET capnp_schemas_lib)
 	message(STATUS "target: capnp_schemas_lib")
-	add_subdirectory(../../../capnproto_schemas capnproto_schemas)
+	#add_subdirectory(../../../capnproto_schemas capnproto_schemas)
+	add_subdirectory(../../../capnproto_schemas/gen/c++ capnproto_schemas)
 endif()
 
 if(NOT TARGET helpers_lib)

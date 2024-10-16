@@ -91,6 +91,7 @@ namespace Mas.Schema.Fbp
             {
                 var reader = READER.create(arg_);
                 Key = reader.Key;
+                Desc = reader.Desc;
                 Value = CapnpSerializable.Create<object>(reader.Value);
                 applyDefaults();
             }
@@ -98,6 +99,7 @@ namespace Mas.Schema.Fbp
             public void serialize(WRITER writer)
             {
                 writer.Key = Key;
+                writer.Desc = Desc;
                 writer.Value.SetObject(Value);
             }
 
@@ -111,6 +113,12 @@ namespace Mas.Schema.Fbp
             }
 
             public string Key
+            {
+                get;
+                set;
+            }
+
+            public string Desc
             {
                 get;
                 set;
@@ -134,14 +142,15 @@ namespace Mas.Schema.Fbp
                 public static implicit operator DeserializerState(READER reader) => reader.ctx;
                 public static implicit operator READER(DeserializerState ctx) => new READER(ctx);
                 public string Key => ctx.ReadText(0, null);
-                public DeserializerState Value => ctx.StructReadPointer(1);
+                public string Desc => ctx.ReadText(1, null);
+                public DeserializerState Value => ctx.StructReadPointer(2);
             }
 
             public class WRITER : SerializerState
             {
                 public WRITER()
                 {
-                    this.SetStruct(0, 2);
+                    this.SetStruct(0, 3);
                 }
 
                 public string Key
@@ -150,10 +159,16 @@ namespace Mas.Schema.Fbp
                     set => this.WriteText(0, value, null);
                 }
 
+                public string Desc
+                {
+                    get => this.ReadText(1, null);
+                    set => this.WriteText(1, value, null);
+                }
+
                 public DynamicSerializerState Value
                 {
-                    get => BuildPointer<DynamicSerializerState>(1);
-                    set => Link(1, value);
+                    get => BuildPointer<DynamicSerializerState>(2);
+                    set => Link(2, value);
                 }
             }
         }
@@ -630,7 +645,7 @@ namespace Mas.Schema.Fbp
             }
         }
 
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x8bc69192f3bc97ccUL), Proxy(typeof(Channel<>.Reader_Proxy)), Skeleton(typeof(Channel<>.Reader_Skeleton))]
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0x8bc69192f3bc97ccUL), Proxy(typeof(Reader_Proxy)), Skeleton(typeof(Reader_Skeleton))]
         public interface IReader : IDisposable
         {
             Task<Mas.Schema.Fbp.Channel<TV>.Msg> Read(CancellationToken cancellationToken_ = default);
@@ -845,7 +860,7 @@ namespace Mas.Schema.Fbp
             }
         }
 
-        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xf7fec613b4a8c79fUL), Proxy(typeof(Channel<>.Writer_Proxy)), Skeleton(typeof(Channel<>.Writer_Skeleton))]
+        [System.CodeDom.Compiler.GeneratedCode("capnpc-csharp", "1.3.0.0"), TypeId(0xf7fec613b4a8c79fUL), Proxy(typeof(Writer_Proxy)), Skeleton(typeof(Writer_Skeleton))]
         public interface IWriter : IDisposable
         {
             Task Write(Mas.Schema.Fbp.Channel<TV>.Msg arg_, CancellationToken cancellationToken_ = default);
@@ -2163,8 +2178,7 @@ namespace Mas.Schema.Fbp
     public static partial class PipeliningSupportExtensions_fbp
     {
         static readonly MemberAccessPath Path_mas_schema_fbp_Channel_endpoints_W = new MemberAccessPath(1U);
-        public static Mas.Schema.Fbp.Channel<TV>.IWriter W<TV>(this Task<(Mas.Schema.Fbp.Channel<TV>.IReader, Mas.Schema.Fbp.Channel<TV>.IWriter)> task) 
-            where TV : class
+        public static Mas.Schema.Fbp.Channel<TV>.IWriter W(this Task<(Mas.Schema.Fbp.Channel<TV>.IReader, Mas.Schema.Fbp.Channel<TV>.IWriter)> task)
         {
             async Task<IDisposable> AwaitProxy() => (await task).Item2;
             return (Mas.Schema.Fbp.Channel<TV>.IWriter)CapabilityReflection.CreateProxy<Mas.Schema.Fbp.Channel<TV>.IWriter>(Impatient.Access(task, Path_mas_schema_fbp_Channel_endpoints_W, AwaitProxy()));

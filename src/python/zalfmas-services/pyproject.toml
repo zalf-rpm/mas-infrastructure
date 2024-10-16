@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "zalfmas-services"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["Michael Berg-Mohnicke <michael.berg@zalf.de>"]
 readme = "README.md"

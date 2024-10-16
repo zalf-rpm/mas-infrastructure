@@ -5,85 +5,69 @@ package cluster
 import (
 	capnp "capnproto.org/go/capnp/v3"
 	text "capnproto.org/go/capnp/v3/encoding/text"
-	fc "capnproto.org/go/capnp/v3/flowcontrol"
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
 	common "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common"
 )
 
-type Cluster capnp.Struct
+type Cluster struct{ capnp.Struct }
 
 // Cluster_TypeID is the unique identifier for the type Cluster.
 const Cluster_TypeID = 0xf7485d56d6f20e7d
 
 func NewCluster(s *capnp.Segment) (Cluster, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Cluster(st), err
+	return Cluster{st}, err
 }
 
 func NewRootCluster(s *capnp.Segment) (Cluster, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Cluster(st), err
+	return Cluster{st}, err
 }
 
 func ReadRootCluster(msg *capnp.Message) (Cluster, error) {
 	root, err := msg.Root()
-	return Cluster(root.Struct()), err
+	return Cluster{root.Struct()}, err
 }
 
 func (s Cluster) String() string {
-	str, _ := text.Marshal(0xf7485d56d6f20e7d, capnp.Struct(s))
+	str, _ := text.Marshal(0xf7485d56d6f20e7d, s.Struct)
 	return str
 }
 
-func (s Cluster) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster) DecodeFromPtr(p capnp.Ptr) Cluster {
-	return Cluster(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // Cluster_List is a list of Cluster.
-type Cluster_List = capnp.StructList[Cluster]
+type Cluster_List struct{ capnp.List }
 
 // NewCluster creates a new list of Cluster.
 func NewCluster_List(s *capnp.Segment, sz int32) (Cluster_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[Cluster](l), err
+	return Cluster_List{l}, err
+}
+
+func (s Cluster_List) At(i int) Cluster { return Cluster{s.List.Struct(i)} }
+
+func (s Cluster_List) Set(i int, v Cluster) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s Cluster_List) String() string {
+	str, _ := text.MarshalList(0xf7485d56d6f20e7d, s.List)
+	return str
 }
 
 // Cluster_Future is a wrapper for a Cluster promised by a client call.
 type Cluster_Future struct{ *capnp.Future }
 
-func (f Cluster_Future) Struct() (Cluster, error) {
-	p, err := f.Future.Ptr()
-	return Cluster(p.Struct()), err
+func (p Cluster_Future) Struct() (Cluster, error) {
+	s, err := p.Future.Struct()
+	return Cluster{s}, err
 }
 
-type Cluster_Unregister capnp.Client
+type Cluster_Unregister struct{ Client *capnp.Client }
 
 // Cluster_Unregister_TypeID is the unique identifier for the type Cluster_Unregister.
 const Cluster_Unregister_TypeID = 0xe8b1f7a192651bbe
 
 func (c Cluster_Unregister) Unregister(ctx context.Context, params func(Cluster_Unregister_unregister_Params) error) (Cluster_Unregister_unregister_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xe8b1f7a192651bbe,
@@ -94,83 +78,20 @@ func (c Cluster_Unregister) Unregister(ctx context.Context, params func(Cluster_
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_Unregister_unregister_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_Unregister_unregister_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Cluster_Unregister_unregister_Results_Future{Future: ans.Future()}, release
-
 }
 
-func (c Cluster_Unregister) WaitStreaming() error {
-	return capnp.Client(c).WaitStreaming()
-}
-
-// String returns a string that identifies this capability for debugging
-// purposes.  Its format should not be depended on: in particular, it
-// should not be used to compare clients.  Use IsSame to compare clients
-// for equality.
-func (c Cluster_Unregister) String() string {
-	return "Cluster_Unregister(" + capnp.Client(c).String() + ")"
-}
-
-// AddRef creates a new Client that refers to the same capability as c.
-// If c is nil or has resolved to null, then AddRef returns nil.
 func (c Cluster_Unregister) AddRef() Cluster_Unregister {
-	return Cluster_Unregister(capnp.Client(c).AddRef())
+	return Cluster_Unregister{
+		Client: c.Client.AddRef(),
+	}
 }
 
-// Release releases a capability reference.  If this is the last
-// reference to the capability, then the underlying resources associated
-// with the capability will be released.
-//
-// Release will panic if c has already been released, but not if c is
-// nil or resolved to null.
 func (c Cluster_Unregister) Release() {
-	capnp.Client(c).Release()
-}
-
-// Resolve blocks until the capability is fully resolved or the Context
-// expires.
-func (c Cluster_Unregister) Resolve(ctx context.Context) error {
-	return capnp.Client(c).Resolve(ctx)
-}
-
-func (c Cluster_Unregister) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Client(c).EncodeAsPtr(seg)
-}
-
-func (Cluster_Unregister) DecodeFromPtr(p capnp.Ptr) Cluster_Unregister {
-	return Cluster_Unregister(capnp.Client{}.DecodeFromPtr(p))
-}
-
-// IsValid reports whether c is a valid reference to a capability.
-// A reference is invalid if it is nil, has resolved to null, or has
-// been released.
-func (c Cluster_Unregister) IsValid() bool {
-	return capnp.Client(c).IsValid()
-}
-
-// IsSame reports whether c and other refer to a capability created by the
-// same call to NewClient.  This can return false negatives if c or other
-// are not fully resolved: use Resolve if this is an issue.  If either
-// c or other are released, then IsSame panics.
-func (c Cluster_Unregister) IsSame(other Cluster_Unregister) bool {
-	return capnp.Client(c).IsSame(capnp.Client(other))
-}
-
-// Update the flowcontrol.FlowLimiter used to manage flow control for
-// this client. This affects all future calls, but not calls already
-// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
-// which is also the default.
-func (c Cluster_Unregister) SetFlowLimiter(lim fc.FlowLimiter) {
-	capnp.Client(c).SetFlowLimiter(lim)
-}
-
-// Get the current flowcontrol.FlowLimiter used to manage flow control
-// for this client.
-func (c Cluster_Unregister) GetFlowLimiter() fc.FlowLimiter {
-	return capnp.Client(c).GetFlowLimiter()
+	c.Client.Release()
 }
 
 // A Cluster_Unregister_Server is a Cluster_Unregister with a local implementation.
@@ -179,15 +100,15 @@ type Cluster_Unregister_Server interface {
 }
 
 // Cluster_Unregister_NewServer creates a new Server from an implementation of Cluster_Unregister_Server.
-func Cluster_Unregister_NewServer(s Cluster_Unregister_Server) *server.Server {
+func Cluster_Unregister_NewServer(s Cluster_Unregister_Server, policy *server.Policy) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(Cluster_Unregister_Methods(nil, s), s, c)
+	return server.New(Cluster_Unregister_Methods(nil, s), s, c, policy)
 }
 
 // Cluster_Unregister_ServerToClient creates a new Client from an implementation of Cluster_Unregister_Server.
 // The caller is responsible for calling Release on the returned Client.
-func Cluster_Unregister_ServerToClient(s Cluster_Unregister_Server) Cluster_Unregister {
-	return Cluster_Unregister(capnp.NewClient(Cluster_Unregister_NewServer(s)))
+func Cluster_Unregister_ServerToClient(s Cluster_Unregister_Server, policy *server.Policy) Cluster_Unregister {
+	return Cluster_Unregister{Client: capnp.NewClient(Cluster_Unregister_NewServer(s, policy))}
 }
 
 // Cluster_Unregister_Methods appends Methods to a slice that invoke the methods on s.
@@ -220,168 +141,139 @@ type Cluster_Unregister_unregister struct {
 
 // Args returns the call's arguments.
 func (c Cluster_Unregister_unregister) Args() Cluster_Unregister_unregister_Params {
-	return Cluster_Unregister_unregister_Params(c.Call.Args())
+	return Cluster_Unregister_unregister_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Cluster_Unregister_unregister) AllocResults() (Cluster_Unregister_unregister_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Cluster_Unregister_unregister_Results(r), err
+	return Cluster_Unregister_unregister_Results{Struct: r}, err
 }
 
-// Cluster_Unregister_List is a list of Cluster_Unregister.
-type Cluster_Unregister_List = capnp.CapList[Cluster_Unregister]
-
-// NewCluster_Unregister creates a new list of Cluster_Unregister.
-func NewCluster_Unregister_List(s *capnp.Segment, sz int32) (Cluster_Unregister_List, error) {
-	l, err := capnp.NewPointerList(s, sz)
-	return capnp.CapList[Cluster_Unregister](l), err
-}
-
-type Cluster_Unregister_unregister_Params capnp.Struct
+type Cluster_Unregister_unregister_Params struct{ capnp.Struct }
 
 // Cluster_Unregister_unregister_Params_TypeID is the unique identifier for the type Cluster_Unregister_unregister_Params.
 const Cluster_Unregister_unregister_Params_TypeID = 0xe1b78932a9f7aea3
 
 func NewCluster_Unregister_unregister_Params(s *capnp.Segment) (Cluster_Unregister_unregister_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Cluster_Unregister_unregister_Params(st), err
+	return Cluster_Unregister_unregister_Params{st}, err
 }
 
 func NewRootCluster_Unregister_unregister_Params(s *capnp.Segment) (Cluster_Unregister_unregister_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Cluster_Unregister_unregister_Params(st), err
+	return Cluster_Unregister_unregister_Params{st}, err
 }
 
 func ReadRootCluster_Unregister_unregister_Params(msg *capnp.Message) (Cluster_Unregister_unregister_Params, error) {
 	root, err := msg.Root()
-	return Cluster_Unregister_unregister_Params(root.Struct()), err
+	return Cluster_Unregister_unregister_Params{root.Struct()}, err
 }
 
 func (s Cluster_Unregister_unregister_Params) String() string {
-	str, _ := text.Marshal(0xe1b78932a9f7aea3, capnp.Struct(s))
+	str, _ := text.Marshal(0xe1b78932a9f7aea3, s.Struct)
 	return str
 }
 
-func (s Cluster_Unregister_unregister_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_Unregister_unregister_Params) DecodeFromPtr(p capnp.Ptr) Cluster_Unregister_unregister_Params {
-	return Cluster_Unregister_unregister_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_Unregister_unregister_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_Unregister_unregister_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_Unregister_unregister_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_Unregister_unregister_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // Cluster_Unregister_unregister_Params_List is a list of Cluster_Unregister_unregister_Params.
-type Cluster_Unregister_unregister_Params_List = capnp.StructList[Cluster_Unregister_unregister_Params]
+type Cluster_Unregister_unregister_Params_List struct{ capnp.List }
 
 // NewCluster_Unregister_unregister_Params creates a new list of Cluster_Unregister_unregister_Params.
 func NewCluster_Unregister_unregister_Params_List(s *capnp.Segment, sz int32) (Cluster_Unregister_unregister_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[Cluster_Unregister_unregister_Params](l), err
+	return Cluster_Unregister_unregister_Params_List{l}, err
+}
+
+func (s Cluster_Unregister_unregister_Params_List) At(i int) Cluster_Unregister_unregister_Params {
+	return Cluster_Unregister_unregister_Params{s.List.Struct(i)}
+}
+
+func (s Cluster_Unregister_unregister_Params_List) Set(i int, v Cluster_Unregister_unregister_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_Unregister_unregister_Params_List) String() string {
+	str, _ := text.MarshalList(0xe1b78932a9f7aea3, s.List)
+	return str
 }
 
 // Cluster_Unregister_unregister_Params_Future is a wrapper for a Cluster_Unregister_unregister_Params promised by a client call.
 type Cluster_Unregister_unregister_Params_Future struct{ *capnp.Future }
 
-func (f Cluster_Unregister_unregister_Params_Future) Struct() (Cluster_Unregister_unregister_Params, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_Unregister_unregister_Params(p.Struct()), err
+func (p Cluster_Unregister_unregister_Params_Future) Struct() (Cluster_Unregister_unregister_Params, error) {
+	s, err := p.Future.Struct()
+	return Cluster_Unregister_unregister_Params{s}, err
 }
 
-type Cluster_Unregister_unregister_Results capnp.Struct
+type Cluster_Unregister_unregister_Results struct{ capnp.Struct }
 
 // Cluster_Unregister_unregister_Results_TypeID is the unique identifier for the type Cluster_Unregister_unregister_Results.
 const Cluster_Unregister_unregister_Results_TypeID = 0xbba96ef3714f338f
 
 func NewCluster_Unregister_unregister_Results(s *capnp.Segment) (Cluster_Unregister_unregister_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Cluster_Unregister_unregister_Results(st), err
+	return Cluster_Unregister_unregister_Results{st}, err
 }
 
 func NewRootCluster_Unregister_unregister_Results(s *capnp.Segment) (Cluster_Unregister_unregister_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Cluster_Unregister_unregister_Results(st), err
+	return Cluster_Unregister_unregister_Results{st}, err
 }
 
 func ReadRootCluster_Unregister_unregister_Results(msg *capnp.Message) (Cluster_Unregister_unregister_Results, error) {
 	root, err := msg.Root()
-	return Cluster_Unregister_unregister_Results(root.Struct()), err
+	return Cluster_Unregister_unregister_Results{root.Struct()}, err
 }
 
 func (s Cluster_Unregister_unregister_Results) String() string {
-	str, _ := text.Marshal(0xbba96ef3714f338f, capnp.Struct(s))
+	str, _ := text.Marshal(0xbba96ef3714f338f, s.Struct)
 	return str
 }
 
-func (s Cluster_Unregister_unregister_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_Unregister_unregister_Results) DecodeFromPtr(p capnp.Ptr) Cluster_Unregister_unregister_Results {
-	return Cluster_Unregister_unregister_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_Unregister_unregister_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_Unregister_unregister_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_Unregister_unregister_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_Unregister_unregister_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Cluster_Unregister_unregister_Results) Success() bool {
-	return capnp.Struct(s).Bit(0)
+	return s.Struct.Bit(0)
 }
 
 func (s Cluster_Unregister_unregister_Results) SetSuccess(v bool) {
-	capnp.Struct(s).SetBit(0, v)
+	s.Struct.SetBit(0, v)
 }
 
 // Cluster_Unregister_unregister_Results_List is a list of Cluster_Unregister_unregister_Results.
-type Cluster_Unregister_unregister_Results_List = capnp.StructList[Cluster_Unregister_unregister_Results]
+type Cluster_Unregister_unregister_Results_List struct{ capnp.List }
 
 // NewCluster_Unregister_unregister_Results creates a new list of Cluster_Unregister_unregister_Results.
 func NewCluster_Unregister_unregister_Results_List(s *capnp.Segment, sz int32) (Cluster_Unregister_unregister_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0}, sz)
-	return capnp.StructList[Cluster_Unregister_unregister_Results](l), err
+	return Cluster_Unregister_unregister_Results_List{l}, err
+}
+
+func (s Cluster_Unregister_unregister_Results_List) At(i int) Cluster_Unregister_unregister_Results {
+	return Cluster_Unregister_unregister_Results{s.List.Struct(i)}
+}
+
+func (s Cluster_Unregister_unregister_Results_List) Set(i int, v Cluster_Unregister_unregister_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_Unregister_unregister_Results_List) String() string {
+	str, _ := text.MarshalList(0xbba96ef3714f338f, s.List)
+	return str
 }
 
 // Cluster_Unregister_unregister_Results_Future is a wrapper for a Cluster_Unregister_unregister_Results promised by a client call.
 type Cluster_Unregister_unregister_Results_Future struct{ *capnp.Future }
 
-func (f Cluster_Unregister_unregister_Results_Future) Struct() (Cluster_Unregister_unregister_Results, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_Unregister_unregister_Results(p.Struct()), err
+func (p Cluster_Unregister_unregister_Results_Future) Struct() (Cluster_Unregister_unregister_Results, error) {
+	s, err := p.Future.Struct()
+	return Cluster_Unregister_unregister_Results{s}, err
 }
 
-type Cluster_AdminMaster capnp.Client
+type Cluster_AdminMaster struct{ Client *capnp.Client }
 
 // Cluster_AdminMaster_TypeID is the unique identifier for the type Cluster_AdminMaster.
 const Cluster_AdminMaster_TypeID = 0xbf24278c65f633ce
 
 func (c Cluster_AdminMaster) RegisterModelInstanceFactory(ctx context.Context, params func(Cluster_AdminMaster_registerModelInstanceFactory_Params) error) (Cluster_AdminMaster_registerModelInstanceFactory_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xbf24278c65f633ce,
@@ -392,16 +284,14 @@ func (c Cluster_AdminMaster) RegisterModelInstanceFactory(ctx context.Context, p
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 2}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_AdminMaster_registerModelInstanceFactory_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error {
+			return params(Cluster_AdminMaster_registerModelInstanceFactory_Params{Struct: s})
+		}
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Cluster_AdminMaster_registerModelInstanceFactory_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c Cluster_AdminMaster) AvailableModels(ctx context.Context, params func(Cluster_AdminMaster_availableModels_Params) error) (Cluster_AdminMaster_availableModels_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xbf24278c65f633ce,
@@ -412,16 +302,12 @@ func (c Cluster_AdminMaster) AvailableModels(ctx context.Context, params func(Cl
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_AdminMaster_availableModels_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_AdminMaster_availableModels_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Cluster_AdminMaster_availableModels_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c Cluster_AdminMaster) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -432,83 +318,20 @@ func (c Cluster_AdminMaster) Info(ctx context.Context, params func(common.Identi
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
-
 }
 
-func (c Cluster_AdminMaster) WaitStreaming() error {
-	return capnp.Client(c).WaitStreaming()
-}
-
-// String returns a string that identifies this capability for debugging
-// purposes.  Its format should not be depended on: in particular, it
-// should not be used to compare clients.  Use IsSame to compare clients
-// for equality.
-func (c Cluster_AdminMaster) String() string {
-	return "Cluster_AdminMaster(" + capnp.Client(c).String() + ")"
-}
-
-// AddRef creates a new Client that refers to the same capability as c.
-// If c is nil or has resolved to null, then AddRef returns nil.
 func (c Cluster_AdminMaster) AddRef() Cluster_AdminMaster {
-	return Cluster_AdminMaster(capnp.Client(c).AddRef())
+	return Cluster_AdminMaster{
+		Client: c.Client.AddRef(),
+	}
 }
 
-// Release releases a capability reference.  If this is the last
-// reference to the capability, then the underlying resources associated
-// with the capability will be released.
-//
-// Release will panic if c has already been released, but not if c is
-// nil or resolved to null.
 func (c Cluster_AdminMaster) Release() {
-	capnp.Client(c).Release()
-}
-
-// Resolve blocks until the capability is fully resolved or the Context
-// expires.
-func (c Cluster_AdminMaster) Resolve(ctx context.Context) error {
-	return capnp.Client(c).Resolve(ctx)
-}
-
-func (c Cluster_AdminMaster) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Client(c).EncodeAsPtr(seg)
-}
-
-func (Cluster_AdminMaster) DecodeFromPtr(p capnp.Ptr) Cluster_AdminMaster {
-	return Cluster_AdminMaster(capnp.Client{}.DecodeFromPtr(p))
-}
-
-// IsValid reports whether c is a valid reference to a capability.
-// A reference is invalid if it is nil, has resolved to null, or has
-// been released.
-func (c Cluster_AdminMaster) IsValid() bool {
-	return capnp.Client(c).IsValid()
-}
-
-// IsSame reports whether c and other refer to a capability created by the
-// same call to NewClient.  This can return false negatives if c or other
-// are not fully resolved: use Resolve if this is an issue.  If either
-// c or other are released, then IsSame panics.
-func (c Cluster_AdminMaster) IsSame(other Cluster_AdminMaster) bool {
-	return capnp.Client(c).IsSame(capnp.Client(other))
-}
-
-// Update the flowcontrol.FlowLimiter used to manage flow control for
-// this client. This affects all future calls, but not calls already
-// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
-// which is also the default.
-func (c Cluster_AdminMaster) SetFlowLimiter(lim fc.FlowLimiter) {
-	capnp.Client(c).SetFlowLimiter(lim)
-}
-
-// Get the current flowcontrol.FlowLimiter used to manage flow control
-// for this client.
-func (c Cluster_AdminMaster) GetFlowLimiter() fc.FlowLimiter {
-	return capnp.Client(c).GetFlowLimiter()
+	c.Client.Release()
 }
 
 // A Cluster_AdminMaster_Server is a Cluster_AdminMaster with a local implementation.
@@ -521,15 +344,15 @@ type Cluster_AdminMaster_Server interface {
 }
 
 // Cluster_AdminMaster_NewServer creates a new Server from an implementation of Cluster_AdminMaster_Server.
-func Cluster_AdminMaster_NewServer(s Cluster_AdminMaster_Server) *server.Server {
+func Cluster_AdminMaster_NewServer(s Cluster_AdminMaster_Server, policy *server.Policy) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(Cluster_AdminMaster_Methods(nil, s), s, c)
+	return server.New(Cluster_AdminMaster_Methods(nil, s), s, c, policy)
 }
 
 // Cluster_AdminMaster_ServerToClient creates a new Client from an implementation of Cluster_AdminMaster_Server.
 // The caller is responsible for calling Release on the returned Client.
-func Cluster_AdminMaster_ServerToClient(s Cluster_AdminMaster_Server) Cluster_AdminMaster {
-	return Cluster_AdminMaster(capnp.NewClient(Cluster_AdminMaster_NewServer(s)))
+func Cluster_AdminMaster_ServerToClient(s Cluster_AdminMaster_Server, policy *server.Policy) Cluster_AdminMaster {
+	return Cluster_AdminMaster{Client: capnp.NewClient(Cluster_AdminMaster_NewServer(s, policy))}
 }
 
 // Cluster_AdminMaster_Methods appends Methods to a slice that invoke the methods on s.
@@ -586,13 +409,13 @@ type Cluster_AdminMaster_registerModelInstanceFactory struct {
 
 // Args returns the call's arguments.
 func (c Cluster_AdminMaster_registerModelInstanceFactory) Args() Cluster_AdminMaster_registerModelInstanceFactory_Params {
-	return Cluster_AdminMaster_registerModelInstanceFactory_Params(c.Call.Args())
+	return Cluster_AdminMaster_registerModelInstanceFactory_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Cluster_AdminMaster_registerModelInstanceFactory) AllocResults() (Cluster_AdminMaster_registerModelInstanceFactory_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_AdminMaster_registerModelInstanceFactory_Results(r), err
+	return Cluster_AdminMaster_registerModelInstanceFactory_Results{Struct: r}, err
 }
 
 // Cluster_AdminMaster_availableModels holds the state for a server call to Cluster_AdminMaster.availableModels.
@@ -603,372 +426,327 @@ type Cluster_AdminMaster_availableModels struct {
 
 // Args returns the call's arguments.
 func (c Cluster_AdminMaster_availableModels) Args() Cluster_AdminMaster_availableModels_Params {
-	return Cluster_AdminMaster_availableModels_Params(c.Call.Args())
+	return Cluster_AdminMaster_availableModels_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Cluster_AdminMaster_availableModels) AllocResults() (Cluster_AdminMaster_availableModels_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_AdminMaster_availableModels_Results(r), err
+	return Cluster_AdminMaster_availableModels_Results{Struct: r}, err
 }
 
-// Cluster_AdminMaster_List is a list of Cluster_AdminMaster.
-type Cluster_AdminMaster_List = capnp.CapList[Cluster_AdminMaster]
-
-// NewCluster_AdminMaster creates a new list of Cluster_AdminMaster.
-func NewCluster_AdminMaster_List(s *capnp.Segment, sz int32) (Cluster_AdminMaster_List, error) {
-	l, err := capnp.NewPointerList(s, sz)
-	return capnp.CapList[Cluster_AdminMaster](l), err
-}
-
-type Cluster_AdminMaster_registerModelInstanceFactory_Params capnp.Struct
+type Cluster_AdminMaster_registerModelInstanceFactory_Params struct{ capnp.Struct }
 
 // Cluster_AdminMaster_registerModelInstanceFactory_Params_TypeID is the unique identifier for the type Cluster_AdminMaster_registerModelInstanceFactory_Params.
 const Cluster_AdminMaster_registerModelInstanceFactory_Params_TypeID = 0x943b54ee6f4de610
 
 func NewCluster_AdminMaster_registerModelInstanceFactory_Params(s *capnp.Segment) (Cluster_AdminMaster_registerModelInstanceFactory_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Cluster_AdminMaster_registerModelInstanceFactory_Params(st), err
+	return Cluster_AdminMaster_registerModelInstanceFactory_Params{st}, err
 }
 
 func NewRootCluster_AdminMaster_registerModelInstanceFactory_Params(s *capnp.Segment) (Cluster_AdminMaster_registerModelInstanceFactory_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Cluster_AdminMaster_registerModelInstanceFactory_Params(st), err
+	return Cluster_AdminMaster_registerModelInstanceFactory_Params{st}, err
 }
 
 func ReadRootCluster_AdminMaster_registerModelInstanceFactory_Params(msg *capnp.Message) (Cluster_AdminMaster_registerModelInstanceFactory_Params, error) {
 	root, err := msg.Root()
-	return Cluster_AdminMaster_registerModelInstanceFactory_Params(root.Struct()), err
+	return Cluster_AdminMaster_registerModelInstanceFactory_Params{root.Struct()}, err
 }
 
 func (s Cluster_AdminMaster_registerModelInstanceFactory_Params) String() string {
-	str, _ := text.Marshal(0x943b54ee6f4de610, capnp.Struct(s))
+	str, _ := text.Marshal(0x943b54ee6f4de610, s.Struct)
 	return str
 }
 
-func (s Cluster_AdminMaster_registerModelInstanceFactory_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_AdminMaster_registerModelInstanceFactory_Params) DecodeFromPtr(p capnp.Ptr) Cluster_AdminMaster_registerModelInstanceFactory_Params {
-	return Cluster_AdminMaster_registerModelInstanceFactory_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_AdminMaster_registerModelInstanceFactory_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_AdminMaster_registerModelInstanceFactory_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_AdminMaster_registerModelInstanceFactory_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_AdminMaster_registerModelInstanceFactory_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Cluster_AdminMaster_registerModelInstanceFactory_Params) AModelId() (string, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.Text(), err
 }
 
 func (s Cluster_AdminMaster_registerModelInstanceFactory_Params) HasAModelId() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Cluster_AdminMaster_registerModelInstanceFactory_Params) AModelIdBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.TextBytes(), err
 }
 
 func (s Cluster_AdminMaster_registerModelInstanceFactory_Params) SetAModelId(v string) error {
-	return capnp.Struct(s).SetText(0, v)
+	return s.Struct.SetText(0, v)
 }
 
 func (s Cluster_AdminMaster_registerModelInstanceFactory_Params) AFactory() Cluster_ModelInstanceFactory {
-	p, _ := capnp.Struct(s).Ptr(1)
-	return Cluster_ModelInstanceFactory(p.Interface().Client())
+	p, _ := s.Struct.Ptr(1)
+	return Cluster_ModelInstanceFactory{Client: p.Interface().Client()}
 }
 
 func (s Cluster_AdminMaster_registerModelInstanceFactory_Params) HasAFactory() bool {
-	return capnp.Struct(s).HasPtr(1)
+	return s.Struct.HasPtr(1)
 }
 
 func (s Cluster_AdminMaster_registerModelInstanceFactory_Params) SetAFactory(v Cluster_ModelInstanceFactory) error {
-	if !v.IsValid() {
-		return capnp.Struct(s).SetPtr(1, capnp.Ptr{})
+	if !v.Client.IsValid() {
+		return s.Struct.SetPtr(1, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
-	return capnp.Struct(s).SetPtr(1, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
+	return s.Struct.SetPtr(1, in.ToPtr())
 }
 
 // Cluster_AdminMaster_registerModelInstanceFactory_Params_List is a list of Cluster_AdminMaster_registerModelInstanceFactory_Params.
-type Cluster_AdminMaster_registerModelInstanceFactory_Params_List = capnp.StructList[Cluster_AdminMaster_registerModelInstanceFactory_Params]
+type Cluster_AdminMaster_registerModelInstanceFactory_Params_List struct{ capnp.List }
 
 // NewCluster_AdminMaster_registerModelInstanceFactory_Params creates a new list of Cluster_AdminMaster_registerModelInstanceFactory_Params.
 func NewCluster_AdminMaster_registerModelInstanceFactory_Params_List(s *capnp.Segment, sz int32) (Cluster_AdminMaster_registerModelInstanceFactory_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
-	return capnp.StructList[Cluster_AdminMaster_registerModelInstanceFactory_Params](l), err
+	return Cluster_AdminMaster_registerModelInstanceFactory_Params_List{l}, err
+}
+
+func (s Cluster_AdminMaster_registerModelInstanceFactory_Params_List) At(i int) Cluster_AdminMaster_registerModelInstanceFactory_Params {
+	return Cluster_AdminMaster_registerModelInstanceFactory_Params{s.List.Struct(i)}
+}
+
+func (s Cluster_AdminMaster_registerModelInstanceFactory_Params_List) Set(i int, v Cluster_AdminMaster_registerModelInstanceFactory_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_AdminMaster_registerModelInstanceFactory_Params_List) String() string {
+	str, _ := text.MarshalList(0x943b54ee6f4de610, s.List)
+	return str
 }
 
 // Cluster_AdminMaster_registerModelInstanceFactory_Params_Future is a wrapper for a Cluster_AdminMaster_registerModelInstanceFactory_Params promised by a client call.
 type Cluster_AdminMaster_registerModelInstanceFactory_Params_Future struct{ *capnp.Future }
 
-func (f Cluster_AdminMaster_registerModelInstanceFactory_Params_Future) Struct() (Cluster_AdminMaster_registerModelInstanceFactory_Params, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_AdminMaster_registerModelInstanceFactory_Params(p.Struct()), err
-}
-func (p Cluster_AdminMaster_registerModelInstanceFactory_Params_Future) AFactory() Cluster_ModelInstanceFactory {
-	return Cluster_ModelInstanceFactory(p.Future.Field(1, nil).Client())
+func (p Cluster_AdminMaster_registerModelInstanceFactory_Params_Future) Struct() (Cluster_AdminMaster_registerModelInstanceFactory_Params, error) {
+	s, err := p.Future.Struct()
+	return Cluster_AdminMaster_registerModelInstanceFactory_Params{s}, err
 }
 
-type Cluster_AdminMaster_registerModelInstanceFactory_Results capnp.Struct
+func (p Cluster_AdminMaster_registerModelInstanceFactory_Params_Future) AFactory() Cluster_ModelInstanceFactory {
+	return Cluster_ModelInstanceFactory{Client: p.Future.Field(1, nil).Client()}
+}
+
+type Cluster_AdminMaster_registerModelInstanceFactory_Results struct{ capnp.Struct }
 
 // Cluster_AdminMaster_registerModelInstanceFactory_Results_TypeID is the unique identifier for the type Cluster_AdminMaster_registerModelInstanceFactory_Results.
 const Cluster_AdminMaster_registerModelInstanceFactory_Results_TypeID = 0xe7434f81e2b1e3de
 
 func NewCluster_AdminMaster_registerModelInstanceFactory_Results(s *capnp.Segment) (Cluster_AdminMaster_registerModelInstanceFactory_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_AdminMaster_registerModelInstanceFactory_Results(st), err
+	return Cluster_AdminMaster_registerModelInstanceFactory_Results{st}, err
 }
 
 func NewRootCluster_AdminMaster_registerModelInstanceFactory_Results(s *capnp.Segment) (Cluster_AdminMaster_registerModelInstanceFactory_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_AdminMaster_registerModelInstanceFactory_Results(st), err
+	return Cluster_AdminMaster_registerModelInstanceFactory_Results{st}, err
 }
 
 func ReadRootCluster_AdminMaster_registerModelInstanceFactory_Results(msg *capnp.Message) (Cluster_AdminMaster_registerModelInstanceFactory_Results, error) {
 	root, err := msg.Root()
-	return Cluster_AdminMaster_registerModelInstanceFactory_Results(root.Struct()), err
+	return Cluster_AdminMaster_registerModelInstanceFactory_Results{root.Struct()}, err
 }
 
 func (s Cluster_AdminMaster_registerModelInstanceFactory_Results) String() string {
-	str, _ := text.Marshal(0xe7434f81e2b1e3de, capnp.Struct(s))
+	str, _ := text.Marshal(0xe7434f81e2b1e3de, s.Struct)
 	return str
 }
 
-func (s Cluster_AdminMaster_registerModelInstanceFactory_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_AdminMaster_registerModelInstanceFactory_Results) DecodeFromPtr(p capnp.Ptr) Cluster_AdminMaster_registerModelInstanceFactory_Results {
-	return Cluster_AdminMaster_registerModelInstanceFactory_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_AdminMaster_registerModelInstanceFactory_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_AdminMaster_registerModelInstanceFactory_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_AdminMaster_registerModelInstanceFactory_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_AdminMaster_registerModelInstanceFactory_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Cluster_AdminMaster_registerModelInstanceFactory_Results) Unregister() Cluster_Unregister {
-	p, _ := capnp.Struct(s).Ptr(0)
-	return Cluster_Unregister(p.Interface().Client())
+	p, _ := s.Struct.Ptr(0)
+	return Cluster_Unregister{Client: p.Interface().Client()}
 }
 
 func (s Cluster_AdminMaster_registerModelInstanceFactory_Results) HasUnregister() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Cluster_AdminMaster_registerModelInstanceFactory_Results) SetUnregister(v Cluster_Unregister) error {
-	if !v.IsValid() {
-		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
+	if !v.Client.IsValid() {
+		return s.Struct.SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
-	return capnp.Struct(s).SetPtr(0, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
+	return s.Struct.SetPtr(0, in.ToPtr())
 }
 
 // Cluster_AdminMaster_registerModelInstanceFactory_Results_List is a list of Cluster_AdminMaster_registerModelInstanceFactory_Results.
-type Cluster_AdminMaster_registerModelInstanceFactory_Results_List = capnp.StructList[Cluster_AdminMaster_registerModelInstanceFactory_Results]
+type Cluster_AdminMaster_registerModelInstanceFactory_Results_List struct{ capnp.List }
 
 // NewCluster_AdminMaster_registerModelInstanceFactory_Results creates a new list of Cluster_AdminMaster_registerModelInstanceFactory_Results.
 func NewCluster_AdminMaster_registerModelInstanceFactory_Results_List(s *capnp.Segment, sz int32) (Cluster_AdminMaster_registerModelInstanceFactory_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Cluster_AdminMaster_registerModelInstanceFactory_Results](l), err
+	return Cluster_AdminMaster_registerModelInstanceFactory_Results_List{l}, err
+}
+
+func (s Cluster_AdminMaster_registerModelInstanceFactory_Results_List) At(i int) Cluster_AdminMaster_registerModelInstanceFactory_Results {
+	return Cluster_AdminMaster_registerModelInstanceFactory_Results{s.List.Struct(i)}
+}
+
+func (s Cluster_AdminMaster_registerModelInstanceFactory_Results_List) Set(i int, v Cluster_AdminMaster_registerModelInstanceFactory_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_AdminMaster_registerModelInstanceFactory_Results_List) String() string {
+	str, _ := text.MarshalList(0xe7434f81e2b1e3de, s.List)
+	return str
 }
 
 // Cluster_AdminMaster_registerModelInstanceFactory_Results_Future is a wrapper for a Cluster_AdminMaster_registerModelInstanceFactory_Results promised by a client call.
 type Cluster_AdminMaster_registerModelInstanceFactory_Results_Future struct{ *capnp.Future }
 
-func (f Cluster_AdminMaster_registerModelInstanceFactory_Results_Future) Struct() (Cluster_AdminMaster_registerModelInstanceFactory_Results, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_AdminMaster_registerModelInstanceFactory_Results(p.Struct()), err
-}
-func (p Cluster_AdminMaster_registerModelInstanceFactory_Results_Future) Unregister() Cluster_Unregister {
-	return Cluster_Unregister(p.Future.Field(0, nil).Client())
+func (p Cluster_AdminMaster_registerModelInstanceFactory_Results_Future) Struct() (Cluster_AdminMaster_registerModelInstanceFactory_Results, error) {
+	s, err := p.Future.Struct()
+	return Cluster_AdminMaster_registerModelInstanceFactory_Results{s}, err
 }
 
-type Cluster_AdminMaster_availableModels_Params capnp.Struct
+func (p Cluster_AdminMaster_registerModelInstanceFactory_Results_Future) Unregister() Cluster_Unregister {
+	return Cluster_Unregister{Client: p.Future.Field(0, nil).Client()}
+}
+
+type Cluster_AdminMaster_availableModels_Params struct{ capnp.Struct }
 
 // Cluster_AdminMaster_availableModels_Params_TypeID is the unique identifier for the type Cluster_AdminMaster_availableModels_Params.
 const Cluster_AdminMaster_availableModels_Params_TypeID = 0xa0669b656ba6cc8e
 
 func NewCluster_AdminMaster_availableModels_Params(s *capnp.Segment) (Cluster_AdminMaster_availableModels_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Cluster_AdminMaster_availableModels_Params(st), err
+	return Cluster_AdminMaster_availableModels_Params{st}, err
 }
 
 func NewRootCluster_AdminMaster_availableModels_Params(s *capnp.Segment) (Cluster_AdminMaster_availableModels_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Cluster_AdminMaster_availableModels_Params(st), err
+	return Cluster_AdminMaster_availableModels_Params{st}, err
 }
 
 func ReadRootCluster_AdminMaster_availableModels_Params(msg *capnp.Message) (Cluster_AdminMaster_availableModels_Params, error) {
 	root, err := msg.Root()
-	return Cluster_AdminMaster_availableModels_Params(root.Struct()), err
+	return Cluster_AdminMaster_availableModels_Params{root.Struct()}, err
 }
 
 func (s Cluster_AdminMaster_availableModels_Params) String() string {
-	str, _ := text.Marshal(0xa0669b656ba6cc8e, capnp.Struct(s))
+	str, _ := text.Marshal(0xa0669b656ba6cc8e, s.Struct)
 	return str
 }
 
-func (s Cluster_AdminMaster_availableModels_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_AdminMaster_availableModels_Params) DecodeFromPtr(p capnp.Ptr) Cluster_AdminMaster_availableModels_Params {
-	return Cluster_AdminMaster_availableModels_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_AdminMaster_availableModels_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_AdminMaster_availableModels_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_AdminMaster_availableModels_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_AdminMaster_availableModels_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // Cluster_AdminMaster_availableModels_Params_List is a list of Cluster_AdminMaster_availableModels_Params.
-type Cluster_AdminMaster_availableModels_Params_List = capnp.StructList[Cluster_AdminMaster_availableModels_Params]
+type Cluster_AdminMaster_availableModels_Params_List struct{ capnp.List }
 
 // NewCluster_AdminMaster_availableModels_Params creates a new list of Cluster_AdminMaster_availableModels_Params.
 func NewCluster_AdminMaster_availableModels_Params_List(s *capnp.Segment, sz int32) (Cluster_AdminMaster_availableModels_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[Cluster_AdminMaster_availableModels_Params](l), err
+	return Cluster_AdminMaster_availableModels_Params_List{l}, err
+}
+
+func (s Cluster_AdminMaster_availableModels_Params_List) At(i int) Cluster_AdminMaster_availableModels_Params {
+	return Cluster_AdminMaster_availableModels_Params{s.List.Struct(i)}
+}
+
+func (s Cluster_AdminMaster_availableModels_Params_List) Set(i int, v Cluster_AdminMaster_availableModels_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_AdminMaster_availableModels_Params_List) String() string {
+	str, _ := text.MarshalList(0xa0669b656ba6cc8e, s.List)
+	return str
 }
 
 // Cluster_AdminMaster_availableModels_Params_Future is a wrapper for a Cluster_AdminMaster_availableModels_Params promised by a client call.
 type Cluster_AdminMaster_availableModels_Params_Future struct{ *capnp.Future }
 
-func (f Cluster_AdminMaster_availableModels_Params_Future) Struct() (Cluster_AdminMaster_availableModels_Params, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_AdminMaster_availableModels_Params(p.Struct()), err
+func (p Cluster_AdminMaster_availableModels_Params_Future) Struct() (Cluster_AdminMaster_availableModels_Params, error) {
+	s, err := p.Future.Struct()
+	return Cluster_AdminMaster_availableModels_Params{s}, err
 }
 
-type Cluster_AdminMaster_availableModels_Results capnp.Struct
+type Cluster_AdminMaster_availableModels_Results struct{ capnp.Struct }
 
 // Cluster_AdminMaster_availableModels_Results_TypeID is the unique identifier for the type Cluster_AdminMaster_availableModels_Results.
 const Cluster_AdminMaster_availableModels_Results_TypeID = 0xd4bece01a7c4008f
 
 func NewCluster_AdminMaster_availableModels_Results(s *capnp.Segment) (Cluster_AdminMaster_availableModels_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_AdminMaster_availableModels_Results(st), err
+	return Cluster_AdminMaster_availableModels_Results{st}, err
 }
 
 func NewRootCluster_AdminMaster_availableModels_Results(s *capnp.Segment) (Cluster_AdminMaster_availableModels_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_AdminMaster_availableModels_Results(st), err
+	return Cluster_AdminMaster_availableModels_Results{st}, err
 }
 
 func ReadRootCluster_AdminMaster_availableModels_Results(msg *capnp.Message) (Cluster_AdminMaster_availableModels_Results, error) {
 	root, err := msg.Root()
-	return Cluster_AdminMaster_availableModels_Results(root.Struct()), err
+	return Cluster_AdminMaster_availableModels_Results{root.Struct()}, err
 }
 
 func (s Cluster_AdminMaster_availableModels_Results) String() string {
-	str, _ := text.Marshal(0xd4bece01a7c4008f, capnp.Struct(s))
+	str, _ := text.Marshal(0xd4bece01a7c4008f, s.Struct)
 	return str
 }
 
-func (s Cluster_AdminMaster_availableModels_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_AdminMaster_availableModels_Results) DecodeFromPtr(p capnp.Ptr) Cluster_AdminMaster_availableModels_Results {
-	return Cluster_AdminMaster_availableModels_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_AdminMaster_availableModels_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_AdminMaster_availableModels_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_AdminMaster_availableModels_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_AdminMaster_availableModels_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-func (s Cluster_AdminMaster_availableModels_Results) Factories() (Cluster_ModelInstanceFactory_List, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return Cluster_ModelInstanceFactory_List(p.List()), err
+func (s Cluster_AdminMaster_availableModels_Results) Factories() (capnp.PointerList, error) {
+	p, err := s.Struct.Ptr(0)
+	return capnp.PointerList{List: p.List()}, err
 }
 
 func (s Cluster_AdminMaster_availableModels_Results) HasFactories() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
-func (s Cluster_AdminMaster_availableModels_Results) SetFactories(v Cluster_ModelInstanceFactory_List) error {
-	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+func (s Cluster_AdminMaster_availableModels_Results) SetFactories(v capnp.PointerList) error {
+	return s.Struct.SetPtr(0, v.List.ToPtr())
 }
 
 // NewFactories sets the factories field to a newly
-// allocated Cluster_ModelInstanceFactory_List, preferring placement in s's segment.
-func (s Cluster_AdminMaster_availableModels_Results) NewFactories(n int32) (Cluster_ModelInstanceFactory_List, error) {
-	l, err := NewCluster_ModelInstanceFactory_List(capnp.Struct(s).Segment(), n)
+// allocated capnp.PointerList, preferring placement in s's segment.
+func (s Cluster_AdminMaster_availableModels_Results) NewFactories(n int32) (capnp.PointerList, error) {
+	l, err := capnp.NewPointerList(s.Struct.Segment(), n)
 	if err != nil {
-		return Cluster_ModelInstanceFactory_List{}, err
+		return capnp.PointerList{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	err = s.Struct.SetPtr(0, l.List.ToPtr())
 	return l, err
 }
 
 // Cluster_AdminMaster_availableModels_Results_List is a list of Cluster_AdminMaster_availableModels_Results.
-type Cluster_AdminMaster_availableModels_Results_List = capnp.StructList[Cluster_AdminMaster_availableModels_Results]
+type Cluster_AdminMaster_availableModels_Results_List struct{ capnp.List }
 
 // NewCluster_AdminMaster_availableModels_Results creates a new list of Cluster_AdminMaster_availableModels_Results.
 func NewCluster_AdminMaster_availableModels_Results_List(s *capnp.Segment, sz int32) (Cluster_AdminMaster_availableModels_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Cluster_AdminMaster_availableModels_Results](l), err
+	return Cluster_AdminMaster_availableModels_Results_List{l}, err
+}
+
+func (s Cluster_AdminMaster_availableModels_Results_List) At(i int) Cluster_AdminMaster_availableModels_Results {
+	return Cluster_AdminMaster_availableModels_Results{s.List.Struct(i)}
+}
+
+func (s Cluster_AdminMaster_availableModels_Results_List) Set(i int, v Cluster_AdminMaster_availableModels_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_AdminMaster_availableModels_Results_List) String() string {
+	str, _ := text.MarshalList(0xd4bece01a7c4008f, s.List)
+	return str
 }
 
 // Cluster_AdminMaster_availableModels_Results_Future is a wrapper for a Cluster_AdminMaster_availableModels_Results promised by a client call.
 type Cluster_AdminMaster_availableModels_Results_Future struct{ *capnp.Future }
 
-func (f Cluster_AdminMaster_availableModels_Results_Future) Struct() (Cluster_AdminMaster_availableModels_Results, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_AdminMaster_availableModels_Results(p.Struct()), err
+func (p Cluster_AdminMaster_availableModels_Results_Future) Struct() (Cluster_AdminMaster_availableModels_Results, error) {
+	s, err := p.Future.Struct()
+	return Cluster_AdminMaster_availableModels_Results{s}, err
 }
 
-type Cluster_UserMaster capnp.Client
+type Cluster_UserMaster struct{ Client *capnp.Client }
 
 // Cluster_UserMaster_TypeID is the unique identifier for the type Cluster_UserMaster.
 const Cluster_UserMaster_TypeID = 0xec42c6df28354b60
 
 func (c Cluster_UserMaster) AvailableModels(ctx context.Context, params func(Cluster_UserMaster_availableModels_Params) error) (Cluster_UserMaster_availableModels_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xec42c6df28354b60,
@@ -979,16 +757,12 @@ func (c Cluster_UserMaster) AvailableModels(ctx context.Context, params func(Clu
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_UserMaster_availableModels_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_UserMaster_availableModels_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Cluster_UserMaster_availableModels_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c Cluster_UserMaster) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -999,83 +773,20 @@ func (c Cluster_UserMaster) Info(ctx context.Context, params func(common.Identif
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
-
 }
 
-func (c Cluster_UserMaster) WaitStreaming() error {
-	return capnp.Client(c).WaitStreaming()
-}
-
-// String returns a string that identifies this capability for debugging
-// purposes.  Its format should not be depended on: in particular, it
-// should not be used to compare clients.  Use IsSame to compare clients
-// for equality.
-func (c Cluster_UserMaster) String() string {
-	return "Cluster_UserMaster(" + capnp.Client(c).String() + ")"
-}
-
-// AddRef creates a new Client that refers to the same capability as c.
-// If c is nil or has resolved to null, then AddRef returns nil.
 func (c Cluster_UserMaster) AddRef() Cluster_UserMaster {
-	return Cluster_UserMaster(capnp.Client(c).AddRef())
+	return Cluster_UserMaster{
+		Client: c.Client.AddRef(),
+	}
 }
 
-// Release releases a capability reference.  If this is the last
-// reference to the capability, then the underlying resources associated
-// with the capability will be released.
-//
-// Release will panic if c has already been released, but not if c is
-// nil or resolved to null.
 func (c Cluster_UserMaster) Release() {
-	capnp.Client(c).Release()
-}
-
-// Resolve blocks until the capability is fully resolved or the Context
-// expires.
-func (c Cluster_UserMaster) Resolve(ctx context.Context) error {
-	return capnp.Client(c).Resolve(ctx)
-}
-
-func (c Cluster_UserMaster) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Client(c).EncodeAsPtr(seg)
-}
-
-func (Cluster_UserMaster) DecodeFromPtr(p capnp.Ptr) Cluster_UserMaster {
-	return Cluster_UserMaster(capnp.Client{}.DecodeFromPtr(p))
-}
-
-// IsValid reports whether c is a valid reference to a capability.
-// A reference is invalid if it is nil, has resolved to null, or has
-// been released.
-func (c Cluster_UserMaster) IsValid() bool {
-	return capnp.Client(c).IsValid()
-}
-
-// IsSame reports whether c and other refer to a capability created by the
-// same call to NewClient.  This can return false negatives if c or other
-// are not fully resolved: use Resolve if this is an issue.  If either
-// c or other are released, then IsSame panics.
-func (c Cluster_UserMaster) IsSame(other Cluster_UserMaster) bool {
-	return capnp.Client(c).IsSame(capnp.Client(other))
-}
-
-// Update the flowcontrol.FlowLimiter used to manage flow control for
-// this client. This affects all future calls, but not calls already
-// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
-// which is also the default.
-func (c Cluster_UserMaster) SetFlowLimiter(lim fc.FlowLimiter) {
-	capnp.Client(c).SetFlowLimiter(lim)
-}
-
-// Get the current flowcontrol.FlowLimiter used to manage flow control
-// for this client.
-func (c Cluster_UserMaster) GetFlowLimiter() fc.FlowLimiter {
-	return capnp.Client(c).GetFlowLimiter()
+	c.Client.Release()
 }
 
 // A Cluster_UserMaster_Server is a Cluster_UserMaster with a local implementation.
@@ -1086,15 +797,15 @@ type Cluster_UserMaster_Server interface {
 }
 
 // Cluster_UserMaster_NewServer creates a new Server from an implementation of Cluster_UserMaster_Server.
-func Cluster_UserMaster_NewServer(s Cluster_UserMaster_Server) *server.Server {
+func Cluster_UserMaster_NewServer(s Cluster_UserMaster_Server, policy *server.Policy) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(Cluster_UserMaster_Methods(nil, s), s, c)
+	return server.New(Cluster_UserMaster_Methods(nil, s), s, c, policy)
 }
 
 // Cluster_UserMaster_ServerToClient creates a new Client from an implementation of Cluster_UserMaster_Server.
 // The caller is responsible for calling Release on the returned Client.
-func Cluster_UserMaster_ServerToClient(s Cluster_UserMaster_Server) Cluster_UserMaster {
-	return Cluster_UserMaster(capnp.NewClient(Cluster_UserMaster_NewServer(s)))
+func Cluster_UserMaster_ServerToClient(s Cluster_UserMaster_Server, policy *server.Policy) Cluster_UserMaster {
+	return Cluster_UserMaster{Client: capnp.NewClient(Cluster_UserMaster_NewServer(s, policy))}
 }
 
 // Cluster_UserMaster_Methods appends Methods to a slice that invoke the methods on s.
@@ -1139,184 +850,155 @@ type Cluster_UserMaster_availableModels struct {
 
 // Args returns the call's arguments.
 func (c Cluster_UserMaster_availableModels) Args() Cluster_UserMaster_availableModels_Params {
-	return Cluster_UserMaster_availableModels_Params(c.Call.Args())
+	return Cluster_UserMaster_availableModels_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Cluster_UserMaster_availableModels) AllocResults() (Cluster_UserMaster_availableModels_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_UserMaster_availableModels_Results(r), err
+	return Cluster_UserMaster_availableModels_Results{Struct: r}, err
 }
 
-// Cluster_UserMaster_List is a list of Cluster_UserMaster.
-type Cluster_UserMaster_List = capnp.CapList[Cluster_UserMaster]
-
-// NewCluster_UserMaster creates a new list of Cluster_UserMaster.
-func NewCluster_UserMaster_List(s *capnp.Segment, sz int32) (Cluster_UserMaster_List, error) {
-	l, err := capnp.NewPointerList(s, sz)
-	return capnp.CapList[Cluster_UserMaster](l), err
-}
-
-type Cluster_UserMaster_availableModels_Params capnp.Struct
+type Cluster_UserMaster_availableModels_Params struct{ capnp.Struct }
 
 // Cluster_UserMaster_availableModels_Params_TypeID is the unique identifier for the type Cluster_UserMaster_availableModels_Params.
 const Cluster_UserMaster_availableModels_Params_TypeID = 0x9a80efc085eae065
 
 func NewCluster_UserMaster_availableModels_Params(s *capnp.Segment) (Cluster_UserMaster_availableModels_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Cluster_UserMaster_availableModels_Params(st), err
+	return Cluster_UserMaster_availableModels_Params{st}, err
 }
 
 func NewRootCluster_UserMaster_availableModels_Params(s *capnp.Segment) (Cluster_UserMaster_availableModels_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Cluster_UserMaster_availableModels_Params(st), err
+	return Cluster_UserMaster_availableModels_Params{st}, err
 }
 
 func ReadRootCluster_UserMaster_availableModels_Params(msg *capnp.Message) (Cluster_UserMaster_availableModels_Params, error) {
 	root, err := msg.Root()
-	return Cluster_UserMaster_availableModels_Params(root.Struct()), err
+	return Cluster_UserMaster_availableModels_Params{root.Struct()}, err
 }
 
 func (s Cluster_UserMaster_availableModels_Params) String() string {
-	str, _ := text.Marshal(0x9a80efc085eae065, capnp.Struct(s))
+	str, _ := text.Marshal(0x9a80efc085eae065, s.Struct)
 	return str
 }
 
-func (s Cluster_UserMaster_availableModels_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_UserMaster_availableModels_Params) DecodeFromPtr(p capnp.Ptr) Cluster_UserMaster_availableModels_Params {
-	return Cluster_UserMaster_availableModels_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_UserMaster_availableModels_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_UserMaster_availableModels_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_UserMaster_availableModels_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_UserMaster_availableModels_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // Cluster_UserMaster_availableModels_Params_List is a list of Cluster_UserMaster_availableModels_Params.
-type Cluster_UserMaster_availableModels_Params_List = capnp.StructList[Cluster_UserMaster_availableModels_Params]
+type Cluster_UserMaster_availableModels_Params_List struct{ capnp.List }
 
 // NewCluster_UserMaster_availableModels_Params creates a new list of Cluster_UserMaster_availableModels_Params.
 func NewCluster_UserMaster_availableModels_Params_List(s *capnp.Segment, sz int32) (Cluster_UserMaster_availableModels_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[Cluster_UserMaster_availableModels_Params](l), err
+	return Cluster_UserMaster_availableModels_Params_List{l}, err
+}
+
+func (s Cluster_UserMaster_availableModels_Params_List) At(i int) Cluster_UserMaster_availableModels_Params {
+	return Cluster_UserMaster_availableModels_Params{s.List.Struct(i)}
+}
+
+func (s Cluster_UserMaster_availableModels_Params_List) Set(i int, v Cluster_UserMaster_availableModels_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_UserMaster_availableModels_Params_List) String() string {
+	str, _ := text.MarshalList(0x9a80efc085eae065, s.List)
+	return str
 }
 
 // Cluster_UserMaster_availableModels_Params_Future is a wrapper for a Cluster_UserMaster_availableModels_Params promised by a client call.
 type Cluster_UserMaster_availableModels_Params_Future struct{ *capnp.Future }
 
-func (f Cluster_UserMaster_availableModels_Params_Future) Struct() (Cluster_UserMaster_availableModels_Params, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_UserMaster_availableModels_Params(p.Struct()), err
+func (p Cluster_UserMaster_availableModels_Params_Future) Struct() (Cluster_UserMaster_availableModels_Params, error) {
+	s, err := p.Future.Struct()
+	return Cluster_UserMaster_availableModels_Params{s}, err
 }
 
-type Cluster_UserMaster_availableModels_Results capnp.Struct
+type Cluster_UserMaster_availableModels_Results struct{ capnp.Struct }
 
 // Cluster_UserMaster_availableModels_Results_TypeID is the unique identifier for the type Cluster_UserMaster_availableModels_Results.
 const Cluster_UserMaster_availableModels_Results_TypeID = 0xb147e4fbf7081bda
 
 func NewCluster_UserMaster_availableModels_Results(s *capnp.Segment) (Cluster_UserMaster_availableModels_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_UserMaster_availableModels_Results(st), err
+	return Cluster_UserMaster_availableModels_Results{st}, err
 }
 
 func NewRootCluster_UserMaster_availableModels_Results(s *capnp.Segment) (Cluster_UserMaster_availableModels_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_UserMaster_availableModels_Results(st), err
+	return Cluster_UserMaster_availableModels_Results{st}, err
 }
 
 func ReadRootCluster_UserMaster_availableModels_Results(msg *capnp.Message) (Cluster_UserMaster_availableModels_Results, error) {
 	root, err := msg.Root()
-	return Cluster_UserMaster_availableModels_Results(root.Struct()), err
+	return Cluster_UserMaster_availableModels_Results{root.Struct()}, err
 }
 
 func (s Cluster_UserMaster_availableModels_Results) String() string {
-	str, _ := text.Marshal(0xb147e4fbf7081bda, capnp.Struct(s))
+	str, _ := text.Marshal(0xb147e4fbf7081bda, s.Struct)
 	return str
 }
 
-func (s Cluster_UserMaster_availableModels_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_UserMaster_availableModels_Results) DecodeFromPtr(p capnp.Ptr) Cluster_UserMaster_availableModels_Results {
-	return Cluster_UserMaster_availableModels_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_UserMaster_availableModels_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_UserMaster_availableModels_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_UserMaster_availableModels_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_UserMaster_availableModels_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-func (s Cluster_UserMaster_availableModels_Results) Factories() (Cluster_ModelInstanceFactory_List, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return Cluster_ModelInstanceFactory_List(p.List()), err
+func (s Cluster_UserMaster_availableModels_Results) Factories() (capnp.PointerList, error) {
+	p, err := s.Struct.Ptr(0)
+	return capnp.PointerList{List: p.List()}, err
 }
 
 func (s Cluster_UserMaster_availableModels_Results) HasFactories() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
-func (s Cluster_UserMaster_availableModels_Results) SetFactories(v Cluster_ModelInstanceFactory_List) error {
-	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+func (s Cluster_UserMaster_availableModels_Results) SetFactories(v capnp.PointerList) error {
+	return s.Struct.SetPtr(0, v.List.ToPtr())
 }
 
 // NewFactories sets the factories field to a newly
-// allocated Cluster_ModelInstanceFactory_List, preferring placement in s's segment.
-func (s Cluster_UserMaster_availableModels_Results) NewFactories(n int32) (Cluster_ModelInstanceFactory_List, error) {
-	l, err := NewCluster_ModelInstanceFactory_List(capnp.Struct(s).Segment(), n)
+// allocated capnp.PointerList, preferring placement in s's segment.
+func (s Cluster_UserMaster_availableModels_Results) NewFactories(n int32) (capnp.PointerList, error) {
+	l, err := capnp.NewPointerList(s.Struct.Segment(), n)
 	if err != nil {
-		return Cluster_ModelInstanceFactory_List{}, err
+		return capnp.PointerList{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	err = s.Struct.SetPtr(0, l.List.ToPtr())
 	return l, err
 }
 
 // Cluster_UserMaster_availableModels_Results_List is a list of Cluster_UserMaster_availableModels_Results.
-type Cluster_UserMaster_availableModels_Results_List = capnp.StructList[Cluster_UserMaster_availableModels_Results]
+type Cluster_UserMaster_availableModels_Results_List struct{ capnp.List }
 
 // NewCluster_UserMaster_availableModels_Results creates a new list of Cluster_UserMaster_availableModels_Results.
 func NewCluster_UserMaster_availableModels_Results_List(s *capnp.Segment, sz int32) (Cluster_UserMaster_availableModels_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Cluster_UserMaster_availableModels_Results](l), err
+	return Cluster_UserMaster_availableModels_Results_List{l}, err
+}
+
+func (s Cluster_UserMaster_availableModels_Results_List) At(i int) Cluster_UserMaster_availableModels_Results {
+	return Cluster_UserMaster_availableModels_Results{s.List.Struct(i)}
+}
+
+func (s Cluster_UserMaster_availableModels_Results_List) Set(i int, v Cluster_UserMaster_availableModels_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_UserMaster_availableModels_Results_List) String() string {
+	str, _ := text.MarshalList(0xb147e4fbf7081bda, s.List)
+	return str
 }
 
 // Cluster_UserMaster_availableModels_Results_Future is a wrapper for a Cluster_UserMaster_availableModels_Results promised by a client call.
 type Cluster_UserMaster_availableModels_Results_Future struct{ *capnp.Future }
 
-func (f Cluster_UserMaster_availableModels_Results_Future) Struct() (Cluster_UserMaster_availableModels_Results, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_UserMaster_availableModels_Results(p.Struct()), err
+func (p Cluster_UserMaster_availableModels_Results_Future) Struct() (Cluster_UserMaster_availableModels_Results, error) {
+	s, err := p.Future.Struct()
+	return Cluster_UserMaster_availableModels_Results{s}, err
 }
 
-type Cluster_Runtime capnp.Client
+type Cluster_Runtime struct{ Client *capnp.Client }
 
 // Cluster_Runtime_TypeID is the unique identifier for the type Cluster_Runtime.
 const Cluster_Runtime_TypeID = 0xf849848fea5c4776
 
 func (c Cluster_Runtime) RegisterModelInstanceFactory(ctx context.Context, params func(Cluster_Runtime_registerModelInstanceFactory_Params) error) (Cluster_Runtime_registerModelInstanceFactory_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xf849848fea5c4776,
@@ -1327,16 +1009,14 @@ func (c Cluster_Runtime) RegisterModelInstanceFactory(ctx context.Context, param
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 2}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_Runtime_registerModelInstanceFactory_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error {
+			return params(Cluster_Runtime_registerModelInstanceFactory_Params{Struct: s})
+		}
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Cluster_Runtime_registerModelInstanceFactory_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c Cluster_Runtime) AvailableModels(ctx context.Context, params func(Cluster_Runtime_availableModels_Params) error) (Cluster_Runtime_availableModels_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xf849848fea5c4776,
@@ -1347,16 +1027,12 @@ func (c Cluster_Runtime) AvailableModels(ctx context.Context, params func(Cluste
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_Runtime_availableModels_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_Runtime_availableModels_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Cluster_Runtime_availableModels_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c Cluster_Runtime) NumberOfCores(ctx context.Context, params func(Cluster_Runtime_numberOfCores_Params) error) (Cluster_Runtime_numberOfCores_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xf849848fea5c4776,
@@ -1367,16 +1043,12 @@ func (c Cluster_Runtime) NumberOfCores(ctx context.Context, params func(Cluster_
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_Runtime_numberOfCores_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_Runtime_numberOfCores_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Cluster_Runtime_numberOfCores_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c Cluster_Runtime) FreeNumberOfCores(ctx context.Context, params func(Cluster_Runtime_freeNumberOfCores_Params) error) (Cluster_Runtime_freeNumberOfCores_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xf849848fea5c4776,
@@ -1387,16 +1059,12 @@ func (c Cluster_Runtime) FreeNumberOfCores(ctx context.Context, params func(Clus
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_Runtime_freeNumberOfCores_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_Runtime_freeNumberOfCores_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Cluster_Runtime_freeNumberOfCores_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c Cluster_Runtime) ReserveNumberOfCores(ctx context.Context, params func(Cluster_Runtime_reserveNumberOfCores_Params) error) (Cluster_Runtime_reserveNumberOfCores_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xf849848fea5c4776,
@@ -1407,16 +1075,12 @@ func (c Cluster_Runtime) ReserveNumberOfCores(ctx context.Context, params func(C
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_Runtime_reserveNumberOfCores_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_Runtime_reserveNumberOfCores_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Cluster_Runtime_reserveNumberOfCores_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c Cluster_Runtime) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -1427,83 +1091,20 @@ func (c Cluster_Runtime) Info(ctx context.Context, params func(common.Identifiab
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
-
 }
 
-func (c Cluster_Runtime) WaitStreaming() error {
-	return capnp.Client(c).WaitStreaming()
-}
-
-// String returns a string that identifies this capability for debugging
-// purposes.  Its format should not be depended on: in particular, it
-// should not be used to compare clients.  Use IsSame to compare clients
-// for equality.
-func (c Cluster_Runtime) String() string {
-	return "Cluster_Runtime(" + capnp.Client(c).String() + ")"
-}
-
-// AddRef creates a new Client that refers to the same capability as c.
-// If c is nil or has resolved to null, then AddRef returns nil.
 func (c Cluster_Runtime) AddRef() Cluster_Runtime {
-	return Cluster_Runtime(capnp.Client(c).AddRef())
+	return Cluster_Runtime{
+		Client: c.Client.AddRef(),
+	}
 }
 
-// Release releases a capability reference.  If this is the last
-// reference to the capability, then the underlying resources associated
-// with the capability will be released.
-//
-// Release will panic if c has already been released, but not if c is
-// nil or resolved to null.
 func (c Cluster_Runtime) Release() {
-	capnp.Client(c).Release()
-}
-
-// Resolve blocks until the capability is fully resolved or the Context
-// expires.
-func (c Cluster_Runtime) Resolve(ctx context.Context) error {
-	return capnp.Client(c).Resolve(ctx)
-}
-
-func (c Cluster_Runtime) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Client(c).EncodeAsPtr(seg)
-}
-
-func (Cluster_Runtime) DecodeFromPtr(p capnp.Ptr) Cluster_Runtime {
-	return Cluster_Runtime(capnp.Client{}.DecodeFromPtr(p))
-}
-
-// IsValid reports whether c is a valid reference to a capability.
-// A reference is invalid if it is nil, has resolved to null, or has
-// been released.
-func (c Cluster_Runtime) IsValid() bool {
-	return capnp.Client(c).IsValid()
-}
-
-// IsSame reports whether c and other refer to a capability created by the
-// same call to NewClient.  This can return false negatives if c or other
-// are not fully resolved: use Resolve if this is an issue.  If either
-// c or other are released, then IsSame panics.
-func (c Cluster_Runtime) IsSame(other Cluster_Runtime) bool {
-	return capnp.Client(c).IsSame(capnp.Client(other))
-}
-
-// Update the flowcontrol.FlowLimiter used to manage flow control for
-// this client. This affects all future calls, but not calls already
-// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
-// which is also the default.
-func (c Cluster_Runtime) SetFlowLimiter(lim fc.FlowLimiter) {
-	capnp.Client(c).SetFlowLimiter(lim)
-}
-
-// Get the current flowcontrol.FlowLimiter used to manage flow control
-// for this client.
-func (c Cluster_Runtime) GetFlowLimiter() fc.FlowLimiter {
-	return capnp.Client(c).GetFlowLimiter()
+	c.Client.Release()
 }
 
 // A Cluster_Runtime_Server is a Cluster_Runtime with a local implementation.
@@ -1522,15 +1123,15 @@ type Cluster_Runtime_Server interface {
 }
 
 // Cluster_Runtime_NewServer creates a new Server from an implementation of Cluster_Runtime_Server.
-func Cluster_Runtime_NewServer(s Cluster_Runtime_Server) *server.Server {
+func Cluster_Runtime_NewServer(s Cluster_Runtime_Server, policy *server.Policy) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(Cluster_Runtime_Methods(nil, s), s, c)
+	return server.New(Cluster_Runtime_Methods(nil, s), s, c, policy)
 }
 
 // Cluster_Runtime_ServerToClient creates a new Client from an implementation of Cluster_Runtime_Server.
 // The caller is responsible for calling Release on the returned Client.
-func Cluster_Runtime_ServerToClient(s Cluster_Runtime_Server) Cluster_Runtime {
-	return Cluster_Runtime(capnp.NewClient(Cluster_Runtime_NewServer(s)))
+func Cluster_Runtime_ServerToClient(s Cluster_Runtime_Server, policy *server.Policy) Cluster_Runtime {
+	return Cluster_Runtime{Client: capnp.NewClient(Cluster_Runtime_NewServer(s, policy))}
 }
 
 // Cluster_Runtime_Methods appends Methods to a slice that invoke the methods on s.
@@ -1623,13 +1224,13 @@ type Cluster_Runtime_registerModelInstanceFactory struct {
 
 // Args returns the call's arguments.
 func (c Cluster_Runtime_registerModelInstanceFactory) Args() Cluster_Runtime_registerModelInstanceFactory_Params {
-	return Cluster_Runtime_registerModelInstanceFactory_Params(c.Call.Args())
+	return Cluster_Runtime_registerModelInstanceFactory_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Cluster_Runtime_registerModelInstanceFactory) AllocResults() (Cluster_Runtime_registerModelInstanceFactory_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_Runtime_registerModelInstanceFactory_Results(r), err
+	return Cluster_Runtime_registerModelInstanceFactory_Results{Struct: r}, err
 }
 
 // Cluster_Runtime_availableModels holds the state for a server call to Cluster_Runtime.availableModels.
@@ -1640,13 +1241,13 @@ type Cluster_Runtime_availableModels struct {
 
 // Args returns the call's arguments.
 func (c Cluster_Runtime_availableModels) Args() Cluster_Runtime_availableModels_Params {
-	return Cluster_Runtime_availableModels_Params(c.Call.Args())
+	return Cluster_Runtime_availableModels_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Cluster_Runtime_availableModels) AllocResults() (Cluster_Runtime_availableModels_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_Runtime_availableModels_Results(r), err
+	return Cluster_Runtime_availableModels_Results{Struct: r}, err
 }
 
 // Cluster_Runtime_numberOfCores holds the state for a server call to Cluster_Runtime.numberOfCores.
@@ -1657,13 +1258,13 @@ type Cluster_Runtime_numberOfCores struct {
 
 // Args returns the call's arguments.
 func (c Cluster_Runtime_numberOfCores) Args() Cluster_Runtime_numberOfCores_Params {
-	return Cluster_Runtime_numberOfCores_Params(c.Call.Args())
+	return Cluster_Runtime_numberOfCores_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Cluster_Runtime_numberOfCores) AllocResults() (Cluster_Runtime_numberOfCores_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Cluster_Runtime_numberOfCores_Results(r), err
+	return Cluster_Runtime_numberOfCores_Results{Struct: r}, err
 }
 
 // Cluster_Runtime_freeNumberOfCores holds the state for a server call to Cluster_Runtime.freeNumberOfCores.
@@ -1674,13 +1275,13 @@ type Cluster_Runtime_freeNumberOfCores struct {
 
 // Args returns the call's arguments.
 func (c Cluster_Runtime_freeNumberOfCores) Args() Cluster_Runtime_freeNumberOfCores_Params {
-	return Cluster_Runtime_freeNumberOfCores_Params(c.Call.Args())
+	return Cluster_Runtime_freeNumberOfCores_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Cluster_Runtime_freeNumberOfCores) AllocResults() (Cluster_Runtime_freeNumberOfCores_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Cluster_Runtime_freeNumberOfCores_Results(r), err
+	return Cluster_Runtime_freeNumberOfCores_Results{Struct: r}, err
 }
 
 // Cluster_Runtime_reserveNumberOfCores holds the state for a server call to Cluster_Runtime.reserveNumberOfCores.
@@ -1691,908 +1292,798 @@ type Cluster_Runtime_reserveNumberOfCores struct {
 
 // Args returns the call's arguments.
 func (c Cluster_Runtime_reserveNumberOfCores) Args() Cluster_Runtime_reserveNumberOfCores_Params {
-	return Cluster_Runtime_reserveNumberOfCores_Params(c.Call.Args())
+	return Cluster_Runtime_reserveNumberOfCores_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Cluster_Runtime_reserveNumberOfCores) AllocResults() (Cluster_Runtime_reserveNumberOfCores_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Cluster_Runtime_reserveNumberOfCores_Results(r), err
+	return Cluster_Runtime_reserveNumberOfCores_Results{Struct: r}, err
 }
 
-// Cluster_Runtime_List is a list of Cluster_Runtime.
-type Cluster_Runtime_List = capnp.CapList[Cluster_Runtime]
-
-// NewCluster_Runtime creates a new list of Cluster_Runtime.
-func NewCluster_Runtime_List(s *capnp.Segment, sz int32) (Cluster_Runtime_List, error) {
-	l, err := capnp.NewPointerList(s, sz)
-	return capnp.CapList[Cluster_Runtime](l), err
-}
-
-type Cluster_Runtime_registerModelInstanceFactory_Params capnp.Struct
+type Cluster_Runtime_registerModelInstanceFactory_Params struct{ capnp.Struct }
 
 // Cluster_Runtime_registerModelInstanceFactory_Params_TypeID is the unique identifier for the type Cluster_Runtime_registerModelInstanceFactory_Params.
 const Cluster_Runtime_registerModelInstanceFactory_Params_TypeID = 0xc3668a8f7946ce88
 
 func NewCluster_Runtime_registerModelInstanceFactory_Params(s *capnp.Segment) (Cluster_Runtime_registerModelInstanceFactory_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Cluster_Runtime_registerModelInstanceFactory_Params(st), err
+	return Cluster_Runtime_registerModelInstanceFactory_Params{st}, err
 }
 
 func NewRootCluster_Runtime_registerModelInstanceFactory_Params(s *capnp.Segment) (Cluster_Runtime_registerModelInstanceFactory_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Cluster_Runtime_registerModelInstanceFactory_Params(st), err
+	return Cluster_Runtime_registerModelInstanceFactory_Params{st}, err
 }
 
 func ReadRootCluster_Runtime_registerModelInstanceFactory_Params(msg *capnp.Message) (Cluster_Runtime_registerModelInstanceFactory_Params, error) {
 	root, err := msg.Root()
-	return Cluster_Runtime_registerModelInstanceFactory_Params(root.Struct()), err
+	return Cluster_Runtime_registerModelInstanceFactory_Params{root.Struct()}, err
 }
 
 func (s Cluster_Runtime_registerModelInstanceFactory_Params) String() string {
-	str, _ := text.Marshal(0xc3668a8f7946ce88, capnp.Struct(s))
+	str, _ := text.Marshal(0xc3668a8f7946ce88, s.Struct)
 	return str
 }
 
-func (s Cluster_Runtime_registerModelInstanceFactory_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_Runtime_registerModelInstanceFactory_Params) DecodeFromPtr(p capnp.Ptr) Cluster_Runtime_registerModelInstanceFactory_Params {
-	return Cluster_Runtime_registerModelInstanceFactory_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_Runtime_registerModelInstanceFactory_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_Runtime_registerModelInstanceFactory_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_Runtime_registerModelInstanceFactory_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_Runtime_registerModelInstanceFactory_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Cluster_Runtime_registerModelInstanceFactory_Params) AModelId() (string, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.Text(), err
 }
 
 func (s Cluster_Runtime_registerModelInstanceFactory_Params) HasAModelId() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Cluster_Runtime_registerModelInstanceFactory_Params) AModelIdBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.TextBytes(), err
 }
 
 func (s Cluster_Runtime_registerModelInstanceFactory_Params) SetAModelId(v string) error {
-	return capnp.Struct(s).SetText(0, v)
+	return s.Struct.SetText(0, v)
 }
 
 func (s Cluster_Runtime_registerModelInstanceFactory_Params) AFactory() Cluster_ModelInstanceFactory {
-	p, _ := capnp.Struct(s).Ptr(1)
-	return Cluster_ModelInstanceFactory(p.Interface().Client())
+	p, _ := s.Struct.Ptr(1)
+	return Cluster_ModelInstanceFactory{Client: p.Interface().Client()}
 }
 
 func (s Cluster_Runtime_registerModelInstanceFactory_Params) HasAFactory() bool {
-	return capnp.Struct(s).HasPtr(1)
+	return s.Struct.HasPtr(1)
 }
 
 func (s Cluster_Runtime_registerModelInstanceFactory_Params) SetAFactory(v Cluster_ModelInstanceFactory) error {
-	if !v.IsValid() {
-		return capnp.Struct(s).SetPtr(1, capnp.Ptr{})
+	if !v.Client.IsValid() {
+		return s.Struct.SetPtr(1, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
-	return capnp.Struct(s).SetPtr(1, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
+	return s.Struct.SetPtr(1, in.ToPtr())
 }
 
 // Cluster_Runtime_registerModelInstanceFactory_Params_List is a list of Cluster_Runtime_registerModelInstanceFactory_Params.
-type Cluster_Runtime_registerModelInstanceFactory_Params_List = capnp.StructList[Cluster_Runtime_registerModelInstanceFactory_Params]
+type Cluster_Runtime_registerModelInstanceFactory_Params_List struct{ capnp.List }
 
 // NewCluster_Runtime_registerModelInstanceFactory_Params creates a new list of Cluster_Runtime_registerModelInstanceFactory_Params.
 func NewCluster_Runtime_registerModelInstanceFactory_Params_List(s *capnp.Segment, sz int32) (Cluster_Runtime_registerModelInstanceFactory_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
-	return capnp.StructList[Cluster_Runtime_registerModelInstanceFactory_Params](l), err
+	return Cluster_Runtime_registerModelInstanceFactory_Params_List{l}, err
+}
+
+func (s Cluster_Runtime_registerModelInstanceFactory_Params_List) At(i int) Cluster_Runtime_registerModelInstanceFactory_Params {
+	return Cluster_Runtime_registerModelInstanceFactory_Params{s.List.Struct(i)}
+}
+
+func (s Cluster_Runtime_registerModelInstanceFactory_Params_List) Set(i int, v Cluster_Runtime_registerModelInstanceFactory_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_Runtime_registerModelInstanceFactory_Params_List) String() string {
+	str, _ := text.MarshalList(0xc3668a8f7946ce88, s.List)
+	return str
 }
 
 // Cluster_Runtime_registerModelInstanceFactory_Params_Future is a wrapper for a Cluster_Runtime_registerModelInstanceFactory_Params promised by a client call.
 type Cluster_Runtime_registerModelInstanceFactory_Params_Future struct{ *capnp.Future }
 
-func (f Cluster_Runtime_registerModelInstanceFactory_Params_Future) Struct() (Cluster_Runtime_registerModelInstanceFactory_Params, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_Runtime_registerModelInstanceFactory_Params(p.Struct()), err
-}
-func (p Cluster_Runtime_registerModelInstanceFactory_Params_Future) AFactory() Cluster_ModelInstanceFactory {
-	return Cluster_ModelInstanceFactory(p.Future.Field(1, nil).Client())
+func (p Cluster_Runtime_registerModelInstanceFactory_Params_Future) Struct() (Cluster_Runtime_registerModelInstanceFactory_Params, error) {
+	s, err := p.Future.Struct()
+	return Cluster_Runtime_registerModelInstanceFactory_Params{s}, err
 }
 
-type Cluster_Runtime_registerModelInstanceFactory_Results capnp.Struct
+func (p Cluster_Runtime_registerModelInstanceFactory_Params_Future) AFactory() Cluster_ModelInstanceFactory {
+	return Cluster_ModelInstanceFactory{Client: p.Future.Field(1, nil).Client()}
+}
+
+type Cluster_Runtime_registerModelInstanceFactory_Results struct{ capnp.Struct }
 
 // Cluster_Runtime_registerModelInstanceFactory_Results_TypeID is the unique identifier for the type Cluster_Runtime_registerModelInstanceFactory_Results.
 const Cluster_Runtime_registerModelInstanceFactory_Results_TypeID = 0xa8dfab7b88664bd4
 
 func NewCluster_Runtime_registerModelInstanceFactory_Results(s *capnp.Segment) (Cluster_Runtime_registerModelInstanceFactory_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_Runtime_registerModelInstanceFactory_Results(st), err
+	return Cluster_Runtime_registerModelInstanceFactory_Results{st}, err
 }
 
 func NewRootCluster_Runtime_registerModelInstanceFactory_Results(s *capnp.Segment) (Cluster_Runtime_registerModelInstanceFactory_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_Runtime_registerModelInstanceFactory_Results(st), err
+	return Cluster_Runtime_registerModelInstanceFactory_Results{st}, err
 }
 
 func ReadRootCluster_Runtime_registerModelInstanceFactory_Results(msg *capnp.Message) (Cluster_Runtime_registerModelInstanceFactory_Results, error) {
 	root, err := msg.Root()
-	return Cluster_Runtime_registerModelInstanceFactory_Results(root.Struct()), err
+	return Cluster_Runtime_registerModelInstanceFactory_Results{root.Struct()}, err
 }
 
 func (s Cluster_Runtime_registerModelInstanceFactory_Results) String() string {
-	str, _ := text.Marshal(0xa8dfab7b88664bd4, capnp.Struct(s))
+	str, _ := text.Marshal(0xa8dfab7b88664bd4, s.Struct)
 	return str
 }
 
-func (s Cluster_Runtime_registerModelInstanceFactory_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_Runtime_registerModelInstanceFactory_Results) DecodeFromPtr(p capnp.Ptr) Cluster_Runtime_registerModelInstanceFactory_Results {
-	return Cluster_Runtime_registerModelInstanceFactory_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_Runtime_registerModelInstanceFactory_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_Runtime_registerModelInstanceFactory_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_Runtime_registerModelInstanceFactory_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_Runtime_registerModelInstanceFactory_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Cluster_Runtime_registerModelInstanceFactory_Results) Unregister() Cluster_Unregister {
-	p, _ := capnp.Struct(s).Ptr(0)
-	return Cluster_Unregister(p.Interface().Client())
+	p, _ := s.Struct.Ptr(0)
+	return Cluster_Unregister{Client: p.Interface().Client()}
 }
 
 func (s Cluster_Runtime_registerModelInstanceFactory_Results) HasUnregister() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Cluster_Runtime_registerModelInstanceFactory_Results) SetUnregister(v Cluster_Unregister) error {
-	if !v.IsValid() {
-		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
+	if !v.Client.IsValid() {
+		return s.Struct.SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
-	return capnp.Struct(s).SetPtr(0, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
+	return s.Struct.SetPtr(0, in.ToPtr())
 }
 
 // Cluster_Runtime_registerModelInstanceFactory_Results_List is a list of Cluster_Runtime_registerModelInstanceFactory_Results.
-type Cluster_Runtime_registerModelInstanceFactory_Results_List = capnp.StructList[Cluster_Runtime_registerModelInstanceFactory_Results]
+type Cluster_Runtime_registerModelInstanceFactory_Results_List struct{ capnp.List }
 
 // NewCluster_Runtime_registerModelInstanceFactory_Results creates a new list of Cluster_Runtime_registerModelInstanceFactory_Results.
 func NewCluster_Runtime_registerModelInstanceFactory_Results_List(s *capnp.Segment, sz int32) (Cluster_Runtime_registerModelInstanceFactory_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Cluster_Runtime_registerModelInstanceFactory_Results](l), err
+	return Cluster_Runtime_registerModelInstanceFactory_Results_List{l}, err
+}
+
+func (s Cluster_Runtime_registerModelInstanceFactory_Results_List) At(i int) Cluster_Runtime_registerModelInstanceFactory_Results {
+	return Cluster_Runtime_registerModelInstanceFactory_Results{s.List.Struct(i)}
+}
+
+func (s Cluster_Runtime_registerModelInstanceFactory_Results_List) Set(i int, v Cluster_Runtime_registerModelInstanceFactory_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_Runtime_registerModelInstanceFactory_Results_List) String() string {
+	str, _ := text.MarshalList(0xa8dfab7b88664bd4, s.List)
+	return str
 }
 
 // Cluster_Runtime_registerModelInstanceFactory_Results_Future is a wrapper for a Cluster_Runtime_registerModelInstanceFactory_Results promised by a client call.
 type Cluster_Runtime_registerModelInstanceFactory_Results_Future struct{ *capnp.Future }
 
-func (f Cluster_Runtime_registerModelInstanceFactory_Results_Future) Struct() (Cluster_Runtime_registerModelInstanceFactory_Results, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_Runtime_registerModelInstanceFactory_Results(p.Struct()), err
-}
-func (p Cluster_Runtime_registerModelInstanceFactory_Results_Future) Unregister() Cluster_Unregister {
-	return Cluster_Unregister(p.Future.Field(0, nil).Client())
+func (p Cluster_Runtime_registerModelInstanceFactory_Results_Future) Struct() (Cluster_Runtime_registerModelInstanceFactory_Results, error) {
+	s, err := p.Future.Struct()
+	return Cluster_Runtime_registerModelInstanceFactory_Results{s}, err
 }
 
-type Cluster_Runtime_availableModels_Params capnp.Struct
+func (p Cluster_Runtime_registerModelInstanceFactory_Results_Future) Unregister() Cluster_Unregister {
+	return Cluster_Unregister{Client: p.Future.Field(0, nil).Client()}
+}
+
+type Cluster_Runtime_availableModels_Params struct{ capnp.Struct }
 
 // Cluster_Runtime_availableModels_Params_TypeID is the unique identifier for the type Cluster_Runtime_availableModels_Params.
 const Cluster_Runtime_availableModels_Params_TypeID = 0xfe35aabe121add1a
 
 func NewCluster_Runtime_availableModels_Params(s *capnp.Segment) (Cluster_Runtime_availableModels_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Cluster_Runtime_availableModels_Params(st), err
+	return Cluster_Runtime_availableModels_Params{st}, err
 }
 
 func NewRootCluster_Runtime_availableModels_Params(s *capnp.Segment) (Cluster_Runtime_availableModels_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Cluster_Runtime_availableModels_Params(st), err
+	return Cluster_Runtime_availableModels_Params{st}, err
 }
 
 func ReadRootCluster_Runtime_availableModels_Params(msg *capnp.Message) (Cluster_Runtime_availableModels_Params, error) {
 	root, err := msg.Root()
-	return Cluster_Runtime_availableModels_Params(root.Struct()), err
+	return Cluster_Runtime_availableModels_Params{root.Struct()}, err
 }
 
 func (s Cluster_Runtime_availableModels_Params) String() string {
-	str, _ := text.Marshal(0xfe35aabe121add1a, capnp.Struct(s))
+	str, _ := text.Marshal(0xfe35aabe121add1a, s.Struct)
 	return str
 }
 
-func (s Cluster_Runtime_availableModels_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_Runtime_availableModels_Params) DecodeFromPtr(p capnp.Ptr) Cluster_Runtime_availableModels_Params {
-	return Cluster_Runtime_availableModels_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_Runtime_availableModels_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_Runtime_availableModels_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_Runtime_availableModels_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_Runtime_availableModels_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // Cluster_Runtime_availableModels_Params_List is a list of Cluster_Runtime_availableModels_Params.
-type Cluster_Runtime_availableModels_Params_List = capnp.StructList[Cluster_Runtime_availableModels_Params]
+type Cluster_Runtime_availableModels_Params_List struct{ capnp.List }
 
 // NewCluster_Runtime_availableModels_Params creates a new list of Cluster_Runtime_availableModels_Params.
 func NewCluster_Runtime_availableModels_Params_List(s *capnp.Segment, sz int32) (Cluster_Runtime_availableModels_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[Cluster_Runtime_availableModels_Params](l), err
+	return Cluster_Runtime_availableModels_Params_List{l}, err
+}
+
+func (s Cluster_Runtime_availableModels_Params_List) At(i int) Cluster_Runtime_availableModels_Params {
+	return Cluster_Runtime_availableModels_Params{s.List.Struct(i)}
+}
+
+func (s Cluster_Runtime_availableModels_Params_List) Set(i int, v Cluster_Runtime_availableModels_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_Runtime_availableModels_Params_List) String() string {
+	str, _ := text.MarshalList(0xfe35aabe121add1a, s.List)
+	return str
 }
 
 // Cluster_Runtime_availableModels_Params_Future is a wrapper for a Cluster_Runtime_availableModels_Params promised by a client call.
 type Cluster_Runtime_availableModels_Params_Future struct{ *capnp.Future }
 
-func (f Cluster_Runtime_availableModels_Params_Future) Struct() (Cluster_Runtime_availableModels_Params, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_Runtime_availableModels_Params(p.Struct()), err
+func (p Cluster_Runtime_availableModels_Params_Future) Struct() (Cluster_Runtime_availableModels_Params, error) {
+	s, err := p.Future.Struct()
+	return Cluster_Runtime_availableModels_Params{s}, err
 }
 
-type Cluster_Runtime_availableModels_Results capnp.Struct
+type Cluster_Runtime_availableModels_Results struct{ capnp.Struct }
 
 // Cluster_Runtime_availableModels_Results_TypeID is the unique identifier for the type Cluster_Runtime_availableModels_Results.
 const Cluster_Runtime_availableModels_Results_TypeID = 0x93bdb3f5b6eecd29
 
 func NewCluster_Runtime_availableModels_Results(s *capnp.Segment) (Cluster_Runtime_availableModels_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_Runtime_availableModels_Results(st), err
+	return Cluster_Runtime_availableModels_Results{st}, err
 }
 
 func NewRootCluster_Runtime_availableModels_Results(s *capnp.Segment) (Cluster_Runtime_availableModels_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_Runtime_availableModels_Results(st), err
+	return Cluster_Runtime_availableModels_Results{st}, err
 }
 
 func ReadRootCluster_Runtime_availableModels_Results(msg *capnp.Message) (Cluster_Runtime_availableModels_Results, error) {
 	root, err := msg.Root()
-	return Cluster_Runtime_availableModels_Results(root.Struct()), err
+	return Cluster_Runtime_availableModels_Results{root.Struct()}, err
 }
 
 func (s Cluster_Runtime_availableModels_Results) String() string {
-	str, _ := text.Marshal(0x93bdb3f5b6eecd29, capnp.Struct(s))
+	str, _ := text.Marshal(0x93bdb3f5b6eecd29, s.Struct)
 	return str
 }
 
-func (s Cluster_Runtime_availableModels_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_Runtime_availableModels_Results) DecodeFromPtr(p capnp.Ptr) Cluster_Runtime_availableModels_Results {
-	return Cluster_Runtime_availableModels_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_Runtime_availableModels_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_Runtime_availableModels_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_Runtime_availableModels_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_Runtime_availableModels_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-func (s Cluster_Runtime_availableModels_Results) Factories() (Cluster_ModelInstanceFactory_List, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return Cluster_ModelInstanceFactory_List(p.List()), err
+func (s Cluster_Runtime_availableModels_Results) Factories() (capnp.PointerList, error) {
+	p, err := s.Struct.Ptr(0)
+	return capnp.PointerList{List: p.List()}, err
 }
 
 func (s Cluster_Runtime_availableModels_Results) HasFactories() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
-func (s Cluster_Runtime_availableModels_Results) SetFactories(v Cluster_ModelInstanceFactory_List) error {
-	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+func (s Cluster_Runtime_availableModels_Results) SetFactories(v capnp.PointerList) error {
+	return s.Struct.SetPtr(0, v.List.ToPtr())
 }
 
 // NewFactories sets the factories field to a newly
-// allocated Cluster_ModelInstanceFactory_List, preferring placement in s's segment.
-func (s Cluster_Runtime_availableModels_Results) NewFactories(n int32) (Cluster_ModelInstanceFactory_List, error) {
-	l, err := NewCluster_ModelInstanceFactory_List(capnp.Struct(s).Segment(), n)
+// allocated capnp.PointerList, preferring placement in s's segment.
+func (s Cluster_Runtime_availableModels_Results) NewFactories(n int32) (capnp.PointerList, error) {
+	l, err := capnp.NewPointerList(s.Struct.Segment(), n)
 	if err != nil {
-		return Cluster_ModelInstanceFactory_List{}, err
+		return capnp.PointerList{}, err
 	}
-	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	err = s.Struct.SetPtr(0, l.List.ToPtr())
 	return l, err
 }
 
 // Cluster_Runtime_availableModels_Results_List is a list of Cluster_Runtime_availableModels_Results.
-type Cluster_Runtime_availableModels_Results_List = capnp.StructList[Cluster_Runtime_availableModels_Results]
+type Cluster_Runtime_availableModels_Results_List struct{ capnp.List }
 
 // NewCluster_Runtime_availableModels_Results creates a new list of Cluster_Runtime_availableModels_Results.
 func NewCluster_Runtime_availableModels_Results_List(s *capnp.Segment, sz int32) (Cluster_Runtime_availableModels_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Cluster_Runtime_availableModels_Results](l), err
+	return Cluster_Runtime_availableModels_Results_List{l}, err
+}
+
+func (s Cluster_Runtime_availableModels_Results_List) At(i int) Cluster_Runtime_availableModels_Results {
+	return Cluster_Runtime_availableModels_Results{s.List.Struct(i)}
+}
+
+func (s Cluster_Runtime_availableModels_Results_List) Set(i int, v Cluster_Runtime_availableModels_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_Runtime_availableModels_Results_List) String() string {
+	str, _ := text.MarshalList(0x93bdb3f5b6eecd29, s.List)
+	return str
 }
 
 // Cluster_Runtime_availableModels_Results_Future is a wrapper for a Cluster_Runtime_availableModels_Results promised by a client call.
 type Cluster_Runtime_availableModels_Results_Future struct{ *capnp.Future }
 
-func (f Cluster_Runtime_availableModels_Results_Future) Struct() (Cluster_Runtime_availableModels_Results, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_Runtime_availableModels_Results(p.Struct()), err
+func (p Cluster_Runtime_availableModels_Results_Future) Struct() (Cluster_Runtime_availableModels_Results, error) {
+	s, err := p.Future.Struct()
+	return Cluster_Runtime_availableModels_Results{s}, err
 }
 
-type Cluster_Runtime_numberOfCores_Params capnp.Struct
+type Cluster_Runtime_numberOfCores_Params struct{ capnp.Struct }
 
 // Cluster_Runtime_numberOfCores_Params_TypeID is the unique identifier for the type Cluster_Runtime_numberOfCores_Params.
 const Cluster_Runtime_numberOfCores_Params_TypeID = 0x9b3d2c0c5054766c
 
 func NewCluster_Runtime_numberOfCores_Params(s *capnp.Segment) (Cluster_Runtime_numberOfCores_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Cluster_Runtime_numberOfCores_Params(st), err
+	return Cluster_Runtime_numberOfCores_Params{st}, err
 }
 
 func NewRootCluster_Runtime_numberOfCores_Params(s *capnp.Segment) (Cluster_Runtime_numberOfCores_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Cluster_Runtime_numberOfCores_Params(st), err
+	return Cluster_Runtime_numberOfCores_Params{st}, err
 }
 
 func ReadRootCluster_Runtime_numberOfCores_Params(msg *capnp.Message) (Cluster_Runtime_numberOfCores_Params, error) {
 	root, err := msg.Root()
-	return Cluster_Runtime_numberOfCores_Params(root.Struct()), err
+	return Cluster_Runtime_numberOfCores_Params{root.Struct()}, err
 }
 
 func (s Cluster_Runtime_numberOfCores_Params) String() string {
-	str, _ := text.Marshal(0x9b3d2c0c5054766c, capnp.Struct(s))
+	str, _ := text.Marshal(0x9b3d2c0c5054766c, s.Struct)
 	return str
 }
 
-func (s Cluster_Runtime_numberOfCores_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_Runtime_numberOfCores_Params) DecodeFromPtr(p capnp.Ptr) Cluster_Runtime_numberOfCores_Params {
-	return Cluster_Runtime_numberOfCores_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_Runtime_numberOfCores_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_Runtime_numberOfCores_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_Runtime_numberOfCores_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_Runtime_numberOfCores_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // Cluster_Runtime_numberOfCores_Params_List is a list of Cluster_Runtime_numberOfCores_Params.
-type Cluster_Runtime_numberOfCores_Params_List = capnp.StructList[Cluster_Runtime_numberOfCores_Params]
+type Cluster_Runtime_numberOfCores_Params_List struct{ capnp.List }
 
 // NewCluster_Runtime_numberOfCores_Params creates a new list of Cluster_Runtime_numberOfCores_Params.
 func NewCluster_Runtime_numberOfCores_Params_List(s *capnp.Segment, sz int32) (Cluster_Runtime_numberOfCores_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[Cluster_Runtime_numberOfCores_Params](l), err
+	return Cluster_Runtime_numberOfCores_Params_List{l}, err
+}
+
+func (s Cluster_Runtime_numberOfCores_Params_List) At(i int) Cluster_Runtime_numberOfCores_Params {
+	return Cluster_Runtime_numberOfCores_Params{s.List.Struct(i)}
+}
+
+func (s Cluster_Runtime_numberOfCores_Params_List) Set(i int, v Cluster_Runtime_numberOfCores_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_Runtime_numberOfCores_Params_List) String() string {
+	str, _ := text.MarshalList(0x9b3d2c0c5054766c, s.List)
+	return str
 }
 
 // Cluster_Runtime_numberOfCores_Params_Future is a wrapper for a Cluster_Runtime_numberOfCores_Params promised by a client call.
 type Cluster_Runtime_numberOfCores_Params_Future struct{ *capnp.Future }
 
-func (f Cluster_Runtime_numberOfCores_Params_Future) Struct() (Cluster_Runtime_numberOfCores_Params, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_Runtime_numberOfCores_Params(p.Struct()), err
+func (p Cluster_Runtime_numberOfCores_Params_Future) Struct() (Cluster_Runtime_numberOfCores_Params, error) {
+	s, err := p.Future.Struct()
+	return Cluster_Runtime_numberOfCores_Params{s}, err
 }
 
-type Cluster_Runtime_numberOfCores_Results capnp.Struct
+type Cluster_Runtime_numberOfCores_Results struct{ capnp.Struct }
 
 // Cluster_Runtime_numberOfCores_Results_TypeID is the unique identifier for the type Cluster_Runtime_numberOfCores_Results.
 const Cluster_Runtime_numberOfCores_Results_TypeID = 0xe6b2589f9a250d7f
 
 func NewCluster_Runtime_numberOfCores_Results(s *capnp.Segment) (Cluster_Runtime_numberOfCores_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Cluster_Runtime_numberOfCores_Results(st), err
+	return Cluster_Runtime_numberOfCores_Results{st}, err
 }
 
 func NewRootCluster_Runtime_numberOfCores_Results(s *capnp.Segment) (Cluster_Runtime_numberOfCores_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Cluster_Runtime_numberOfCores_Results(st), err
+	return Cluster_Runtime_numberOfCores_Results{st}, err
 }
 
 func ReadRootCluster_Runtime_numberOfCores_Results(msg *capnp.Message) (Cluster_Runtime_numberOfCores_Results, error) {
 	root, err := msg.Root()
-	return Cluster_Runtime_numberOfCores_Results(root.Struct()), err
+	return Cluster_Runtime_numberOfCores_Results{root.Struct()}, err
 }
 
 func (s Cluster_Runtime_numberOfCores_Results) String() string {
-	str, _ := text.Marshal(0xe6b2589f9a250d7f, capnp.Struct(s))
+	str, _ := text.Marshal(0xe6b2589f9a250d7f, s.Struct)
 	return str
 }
 
-func (s Cluster_Runtime_numberOfCores_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_Runtime_numberOfCores_Results) DecodeFromPtr(p capnp.Ptr) Cluster_Runtime_numberOfCores_Results {
-	return Cluster_Runtime_numberOfCores_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_Runtime_numberOfCores_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_Runtime_numberOfCores_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_Runtime_numberOfCores_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_Runtime_numberOfCores_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Cluster_Runtime_numberOfCores_Results) Cores() int16 {
-	return int16(capnp.Struct(s).Uint16(0))
+	return int16(s.Struct.Uint16(0))
 }
 
 func (s Cluster_Runtime_numberOfCores_Results) SetCores(v int16) {
-	capnp.Struct(s).SetUint16(0, uint16(v))
+	s.Struct.SetUint16(0, uint16(v))
 }
 
 // Cluster_Runtime_numberOfCores_Results_List is a list of Cluster_Runtime_numberOfCores_Results.
-type Cluster_Runtime_numberOfCores_Results_List = capnp.StructList[Cluster_Runtime_numberOfCores_Results]
+type Cluster_Runtime_numberOfCores_Results_List struct{ capnp.List }
 
 // NewCluster_Runtime_numberOfCores_Results creates a new list of Cluster_Runtime_numberOfCores_Results.
 func NewCluster_Runtime_numberOfCores_Results_List(s *capnp.Segment, sz int32) (Cluster_Runtime_numberOfCores_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0}, sz)
-	return capnp.StructList[Cluster_Runtime_numberOfCores_Results](l), err
+	return Cluster_Runtime_numberOfCores_Results_List{l}, err
+}
+
+func (s Cluster_Runtime_numberOfCores_Results_List) At(i int) Cluster_Runtime_numberOfCores_Results {
+	return Cluster_Runtime_numberOfCores_Results{s.List.Struct(i)}
+}
+
+func (s Cluster_Runtime_numberOfCores_Results_List) Set(i int, v Cluster_Runtime_numberOfCores_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_Runtime_numberOfCores_Results_List) String() string {
+	str, _ := text.MarshalList(0xe6b2589f9a250d7f, s.List)
+	return str
 }
 
 // Cluster_Runtime_numberOfCores_Results_Future is a wrapper for a Cluster_Runtime_numberOfCores_Results promised by a client call.
 type Cluster_Runtime_numberOfCores_Results_Future struct{ *capnp.Future }
 
-func (f Cluster_Runtime_numberOfCores_Results_Future) Struct() (Cluster_Runtime_numberOfCores_Results, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_Runtime_numberOfCores_Results(p.Struct()), err
+func (p Cluster_Runtime_numberOfCores_Results_Future) Struct() (Cluster_Runtime_numberOfCores_Results, error) {
+	s, err := p.Future.Struct()
+	return Cluster_Runtime_numberOfCores_Results{s}, err
 }
 
-type Cluster_Runtime_freeNumberOfCores_Params capnp.Struct
+type Cluster_Runtime_freeNumberOfCores_Params struct{ capnp.Struct }
 
 // Cluster_Runtime_freeNumberOfCores_Params_TypeID is the unique identifier for the type Cluster_Runtime_freeNumberOfCores_Params.
 const Cluster_Runtime_freeNumberOfCores_Params_TypeID = 0xc224b7ff6089b64e
 
 func NewCluster_Runtime_freeNumberOfCores_Params(s *capnp.Segment) (Cluster_Runtime_freeNumberOfCores_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Cluster_Runtime_freeNumberOfCores_Params(st), err
+	return Cluster_Runtime_freeNumberOfCores_Params{st}, err
 }
 
 func NewRootCluster_Runtime_freeNumberOfCores_Params(s *capnp.Segment) (Cluster_Runtime_freeNumberOfCores_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Cluster_Runtime_freeNumberOfCores_Params(st), err
+	return Cluster_Runtime_freeNumberOfCores_Params{st}, err
 }
 
 func ReadRootCluster_Runtime_freeNumberOfCores_Params(msg *capnp.Message) (Cluster_Runtime_freeNumberOfCores_Params, error) {
 	root, err := msg.Root()
-	return Cluster_Runtime_freeNumberOfCores_Params(root.Struct()), err
+	return Cluster_Runtime_freeNumberOfCores_Params{root.Struct()}, err
 }
 
 func (s Cluster_Runtime_freeNumberOfCores_Params) String() string {
-	str, _ := text.Marshal(0xc224b7ff6089b64e, capnp.Struct(s))
+	str, _ := text.Marshal(0xc224b7ff6089b64e, s.Struct)
 	return str
 }
 
-func (s Cluster_Runtime_freeNumberOfCores_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_Runtime_freeNumberOfCores_Params) DecodeFromPtr(p capnp.Ptr) Cluster_Runtime_freeNumberOfCores_Params {
-	return Cluster_Runtime_freeNumberOfCores_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_Runtime_freeNumberOfCores_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_Runtime_freeNumberOfCores_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_Runtime_freeNumberOfCores_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_Runtime_freeNumberOfCores_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // Cluster_Runtime_freeNumberOfCores_Params_List is a list of Cluster_Runtime_freeNumberOfCores_Params.
-type Cluster_Runtime_freeNumberOfCores_Params_List = capnp.StructList[Cluster_Runtime_freeNumberOfCores_Params]
+type Cluster_Runtime_freeNumberOfCores_Params_List struct{ capnp.List }
 
 // NewCluster_Runtime_freeNumberOfCores_Params creates a new list of Cluster_Runtime_freeNumberOfCores_Params.
 func NewCluster_Runtime_freeNumberOfCores_Params_List(s *capnp.Segment, sz int32) (Cluster_Runtime_freeNumberOfCores_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[Cluster_Runtime_freeNumberOfCores_Params](l), err
+	return Cluster_Runtime_freeNumberOfCores_Params_List{l}, err
+}
+
+func (s Cluster_Runtime_freeNumberOfCores_Params_List) At(i int) Cluster_Runtime_freeNumberOfCores_Params {
+	return Cluster_Runtime_freeNumberOfCores_Params{s.List.Struct(i)}
+}
+
+func (s Cluster_Runtime_freeNumberOfCores_Params_List) Set(i int, v Cluster_Runtime_freeNumberOfCores_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_Runtime_freeNumberOfCores_Params_List) String() string {
+	str, _ := text.MarshalList(0xc224b7ff6089b64e, s.List)
+	return str
 }
 
 // Cluster_Runtime_freeNumberOfCores_Params_Future is a wrapper for a Cluster_Runtime_freeNumberOfCores_Params promised by a client call.
 type Cluster_Runtime_freeNumberOfCores_Params_Future struct{ *capnp.Future }
 
-func (f Cluster_Runtime_freeNumberOfCores_Params_Future) Struct() (Cluster_Runtime_freeNumberOfCores_Params, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_Runtime_freeNumberOfCores_Params(p.Struct()), err
+func (p Cluster_Runtime_freeNumberOfCores_Params_Future) Struct() (Cluster_Runtime_freeNumberOfCores_Params, error) {
+	s, err := p.Future.Struct()
+	return Cluster_Runtime_freeNumberOfCores_Params{s}, err
 }
 
-type Cluster_Runtime_freeNumberOfCores_Results capnp.Struct
+type Cluster_Runtime_freeNumberOfCores_Results struct{ capnp.Struct }
 
 // Cluster_Runtime_freeNumberOfCores_Results_TypeID is the unique identifier for the type Cluster_Runtime_freeNumberOfCores_Results.
 const Cluster_Runtime_freeNumberOfCores_Results_TypeID = 0xf004ae32302172c6
 
 func NewCluster_Runtime_freeNumberOfCores_Results(s *capnp.Segment) (Cluster_Runtime_freeNumberOfCores_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Cluster_Runtime_freeNumberOfCores_Results(st), err
+	return Cluster_Runtime_freeNumberOfCores_Results{st}, err
 }
 
 func NewRootCluster_Runtime_freeNumberOfCores_Results(s *capnp.Segment) (Cluster_Runtime_freeNumberOfCores_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Cluster_Runtime_freeNumberOfCores_Results(st), err
+	return Cluster_Runtime_freeNumberOfCores_Results{st}, err
 }
 
 func ReadRootCluster_Runtime_freeNumberOfCores_Results(msg *capnp.Message) (Cluster_Runtime_freeNumberOfCores_Results, error) {
 	root, err := msg.Root()
-	return Cluster_Runtime_freeNumberOfCores_Results(root.Struct()), err
+	return Cluster_Runtime_freeNumberOfCores_Results{root.Struct()}, err
 }
 
 func (s Cluster_Runtime_freeNumberOfCores_Results) String() string {
-	str, _ := text.Marshal(0xf004ae32302172c6, capnp.Struct(s))
+	str, _ := text.Marshal(0xf004ae32302172c6, s.Struct)
 	return str
 }
 
-func (s Cluster_Runtime_freeNumberOfCores_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_Runtime_freeNumberOfCores_Results) DecodeFromPtr(p capnp.Ptr) Cluster_Runtime_freeNumberOfCores_Results {
-	return Cluster_Runtime_freeNumberOfCores_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_Runtime_freeNumberOfCores_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_Runtime_freeNumberOfCores_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_Runtime_freeNumberOfCores_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_Runtime_freeNumberOfCores_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Cluster_Runtime_freeNumberOfCores_Results) Cores() int16 {
-	return int16(capnp.Struct(s).Uint16(0))
+	return int16(s.Struct.Uint16(0))
 }
 
 func (s Cluster_Runtime_freeNumberOfCores_Results) SetCores(v int16) {
-	capnp.Struct(s).SetUint16(0, uint16(v))
+	s.Struct.SetUint16(0, uint16(v))
 }
 
 // Cluster_Runtime_freeNumberOfCores_Results_List is a list of Cluster_Runtime_freeNumberOfCores_Results.
-type Cluster_Runtime_freeNumberOfCores_Results_List = capnp.StructList[Cluster_Runtime_freeNumberOfCores_Results]
+type Cluster_Runtime_freeNumberOfCores_Results_List struct{ capnp.List }
 
 // NewCluster_Runtime_freeNumberOfCores_Results creates a new list of Cluster_Runtime_freeNumberOfCores_Results.
 func NewCluster_Runtime_freeNumberOfCores_Results_List(s *capnp.Segment, sz int32) (Cluster_Runtime_freeNumberOfCores_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0}, sz)
-	return capnp.StructList[Cluster_Runtime_freeNumberOfCores_Results](l), err
+	return Cluster_Runtime_freeNumberOfCores_Results_List{l}, err
+}
+
+func (s Cluster_Runtime_freeNumberOfCores_Results_List) At(i int) Cluster_Runtime_freeNumberOfCores_Results {
+	return Cluster_Runtime_freeNumberOfCores_Results{s.List.Struct(i)}
+}
+
+func (s Cluster_Runtime_freeNumberOfCores_Results_List) Set(i int, v Cluster_Runtime_freeNumberOfCores_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_Runtime_freeNumberOfCores_Results_List) String() string {
+	str, _ := text.MarshalList(0xf004ae32302172c6, s.List)
+	return str
 }
 
 // Cluster_Runtime_freeNumberOfCores_Results_Future is a wrapper for a Cluster_Runtime_freeNumberOfCores_Results promised by a client call.
 type Cluster_Runtime_freeNumberOfCores_Results_Future struct{ *capnp.Future }
 
-func (f Cluster_Runtime_freeNumberOfCores_Results_Future) Struct() (Cluster_Runtime_freeNumberOfCores_Results, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_Runtime_freeNumberOfCores_Results(p.Struct()), err
+func (p Cluster_Runtime_freeNumberOfCores_Results_Future) Struct() (Cluster_Runtime_freeNumberOfCores_Results, error) {
+	s, err := p.Future.Struct()
+	return Cluster_Runtime_freeNumberOfCores_Results{s}, err
 }
 
-type Cluster_Runtime_reserveNumberOfCores_Params capnp.Struct
+type Cluster_Runtime_reserveNumberOfCores_Params struct{ capnp.Struct }
 
 // Cluster_Runtime_reserveNumberOfCores_Params_TypeID is the unique identifier for the type Cluster_Runtime_reserveNumberOfCores_Params.
 const Cluster_Runtime_reserveNumberOfCores_Params_TypeID = 0xb4d00b302a119de9
 
 func NewCluster_Runtime_reserveNumberOfCores_Params(s *capnp.Segment) (Cluster_Runtime_reserveNumberOfCores_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return Cluster_Runtime_reserveNumberOfCores_Params(st), err
+	return Cluster_Runtime_reserveNumberOfCores_Params{st}, err
 }
 
 func NewRootCluster_Runtime_reserveNumberOfCores_Params(s *capnp.Segment) (Cluster_Runtime_reserveNumberOfCores_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return Cluster_Runtime_reserveNumberOfCores_Params(st), err
+	return Cluster_Runtime_reserveNumberOfCores_Params{st}, err
 }
 
 func ReadRootCluster_Runtime_reserveNumberOfCores_Params(msg *capnp.Message) (Cluster_Runtime_reserveNumberOfCores_Params, error) {
 	root, err := msg.Root()
-	return Cluster_Runtime_reserveNumberOfCores_Params(root.Struct()), err
+	return Cluster_Runtime_reserveNumberOfCores_Params{root.Struct()}, err
 }
 
 func (s Cluster_Runtime_reserveNumberOfCores_Params) String() string {
-	str, _ := text.Marshal(0xb4d00b302a119de9, capnp.Struct(s))
+	str, _ := text.Marshal(0xb4d00b302a119de9, s.Struct)
 	return str
 }
 
-func (s Cluster_Runtime_reserveNumberOfCores_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_Runtime_reserveNumberOfCores_Params) DecodeFromPtr(p capnp.Ptr) Cluster_Runtime_reserveNumberOfCores_Params {
-	return Cluster_Runtime_reserveNumberOfCores_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_Runtime_reserveNumberOfCores_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_Runtime_reserveNumberOfCores_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_Runtime_reserveNumberOfCores_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_Runtime_reserveNumberOfCores_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Cluster_Runtime_reserveNumberOfCores_Params) ReserveCores() int16 {
-	return int16(capnp.Struct(s).Uint16(0))
+	return int16(s.Struct.Uint16(0))
 }
 
 func (s Cluster_Runtime_reserveNumberOfCores_Params) SetReserveCores(v int16) {
-	capnp.Struct(s).SetUint16(0, uint16(v))
+	s.Struct.SetUint16(0, uint16(v))
 }
 
 func (s Cluster_Runtime_reserveNumberOfCores_Params) AModelId() (string, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.Text(), err
 }
 
 func (s Cluster_Runtime_reserveNumberOfCores_Params) HasAModelId() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Cluster_Runtime_reserveNumberOfCores_Params) AModelIdBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.TextBytes(), err
 }
 
 func (s Cluster_Runtime_reserveNumberOfCores_Params) SetAModelId(v string) error {
-	return capnp.Struct(s).SetText(0, v)
+	return s.Struct.SetText(0, v)
 }
 
 // Cluster_Runtime_reserveNumberOfCores_Params_List is a list of Cluster_Runtime_reserveNumberOfCores_Params.
-type Cluster_Runtime_reserveNumberOfCores_Params_List = capnp.StructList[Cluster_Runtime_reserveNumberOfCores_Params]
+type Cluster_Runtime_reserveNumberOfCores_Params_List struct{ capnp.List }
 
 // NewCluster_Runtime_reserveNumberOfCores_Params creates a new list of Cluster_Runtime_reserveNumberOfCores_Params.
 func NewCluster_Runtime_reserveNumberOfCores_Params_List(s *capnp.Segment, sz int32) (Cluster_Runtime_reserveNumberOfCores_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1}, sz)
-	return capnp.StructList[Cluster_Runtime_reserveNumberOfCores_Params](l), err
+	return Cluster_Runtime_reserveNumberOfCores_Params_List{l}, err
+}
+
+func (s Cluster_Runtime_reserveNumberOfCores_Params_List) At(i int) Cluster_Runtime_reserveNumberOfCores_Params {
+	return Cluster_Runtime_reserveNumberOfCores_Params{s.List.Struct(i)}
+}
+
+func (s Cluster_Runtime_reserveNumberOfCores_Params_List) Set(i int, v Cluster_Runtime_reserveNumberOfCores_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_Runtime_reserveNumberOfCores_Params_List) String() string {
+	str, _ := text.MarshalList(0xb4d00b302a119de9, s.List)
+	return str
 }
 
 // Cluster_Runtime_reserveNumberOfCores_Params_Future is a wrapper for a Cluster_Runtime_reserveNumberOfCores_Params promised by a client call.
 type Cluster_Runtime_reserveNumberOfCores_Params_Future struct{ *capnp.Future }
 
-func (f Cluster_Runtime_reserveNumberOfCores_Params_Future) Struct() (Cluster_Runtime_reserveNumberOfCores_Params, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_Runtime_reserveNumberOfCores_Params(p.Struct()), err
+func (p Cluster_Runtime_reserveNumberOfCores_Params_Future) Struct() (Cluster_Runtime_reserveNumberOfCores_Params, error) {
+	s, err := p.Future.Struct()
+	return Cluster_Runtime_reserveNumberOfCores_Params{s}, err
 }
 
-type Cluster_Runtime_reserveNumberOfCores_Results capnp.Struct
+type Cluster_Runtime_reserveNumberOfCores_Results struct{ capnp.Struct }
 
 // Cluster_Runtime_reserveNumberOfCores_Results_TypeID is the unique identifier for the type Cluster_Runtime_reserveNumberOfCores_Results.
 const Cluster_Runtime_reserveNumberOfCores_Results_TypeID = 0xbcd8dd8cea624cbb
 
 func NewCluster_Runtime_reserveNumberOfCores_Results(s *capnp.Segment) (Cluster_Runtime_reserveNumberOfCores_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Cluster_Runtime_reserveNumberOfCores_Results(st), err
+	return Cluster_Runtime_reserveNumberOfCores_Results{st}, err
 }
 
 func NewRootCluster_Runtime_reserveNumberOfCores_Results(s *capnp.Segment) (Cluster_Runtime_reserveNumberOfCores_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Cluster_Runtime_reserveNumberOfCores_Results(st), err
+	return Cluster_Runtime_reserveNumberOfCores_Results{st}, err
 }
 
 func ReadRootCluster_Runtime_reserveNumberOfCores_Results(msg *capnp.Message) (Cluster_Runtime_reserveNumberOfCores_Results, error) {
 	root, err := msg.Root()
-	return Cluster_Runtime_reserveNumberOfCores_Results(root.Struct()), err
+	return Cluster_Runtime_reserveNumberOfCores_Results{root.Struct()}, err
 }
 
 func (s Cluster_Runtime_reserveNumberOfCores_Results) String() string {
-	str, _ := text.Marshal(0xbcd8dd8cea624cbb, capnp.Struct(s))
+	str, _ := text.Marshal(0xbcd8dd8cea624cbb, s.Struct)
 	return str
 }
 
-func (s Cluster_Runtime_reserveNumberOfCores_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_Runtime_reserveNumberOfCores_Results) DecodeFromPtr(p capnp.Ptr) Cluster_Runtime_reserveNumberOfCores_Results {
-	return Cluster_Runtime_reserveNumberOfCores_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_Runtime_reserveNumberOfCores_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_Runtime_reserveNumberOfCores_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_Runtime_reserveNumberOfCores_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_Runtime_reserveNumberOfCores_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Cluster_Runtime_reserveNumberOfCores_Results) ReservedCores() int16 {
-	return int16(capnp.Struct(s).Uint16(0))
+	return int16(s.Struct.Uint16(0))
 }
 
 func (s Cluster_Runtime_reserveNumberOfCores_Results) SetReservedCores(v int16) {
-	capnp.Struct(s).SetUint16(0, uint16(v))
+	s.Struct.SetUint16(0, uint16(v))
 }
 
 // Cluster_Runtime_reserveNumberOfCores_Results_List is a list of Cluster_Runtime_reserveNumberOfCores_Results.
-type Cluster_Runtime_reserveNumberOfCores_Results_List = capnp.StructList[Cluster_Runtime_reserveNumberOfCores_Results]
+type Cluster_Runtime_reserveNumberOfCores_Results_List struct{ capnp.List }
 
 // NewCluster_Runtime_reserveNumberOfCores_Results creates a new list of Cluster_Runtime_reserveNumberOfCores_Results.
 func NewCluster_Runtime_reserveNumberOfCores_Results_List(s *capnp.Segment, sz int32) (Cluster_Runtime_reserveNumberOfCores_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0}, sz)
-	return capnp.StructList[Cluster_Runtime_reserveNumberOfCores_Results](l), err
+	return Cluster_Runtime_reserveNumberOfCores_Results_List{l}, err
+}
+
+func (s Cluster_Runtime_reserveNumberOfCores_Results_List) At(i int) Cluster_Runtime_reserveNumberOfCores_Results {
+	return Cluster_Runtime_reserveNumberOfCores_Results{s.List.Struct(i)}
+}
+
+func (s Cluster_Runtime_reserveNumberOfCores_Results_List) Set(i int, v Cluster_Runtime_reserveNumberOfCores_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_Runtime_reserveNumberOfCores_Results_List) String() string {
+	str, _ := text.MarshalList(0xbcd8dd8cea624cbb, s.List)
+	return str
 }
 
 // Cluster_Runtime_reserveNumberOfCores_Results_Future is a wrapper for a Cluster_Runtime_reserveNumberOfCores_Results promised by a client call.
 type Cluster_Runtime_reserveNumberOfCores_Results_Future struct{ *capnp.Future }
 
-func (f Cluster_Runtime_reserveNumberOfCores_Results_Future) Struct() (Cluster_Runtime_reserveNumberOfCores_Results, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_Runtime_reserveNumberOfCores_Results(p.Struct()), err
+func (p Cluster_Runtime_reserveNumberOfCores_Results_Future) Struct() (Cluster_Runtime_reserveNumberOfCores_Results, error) {
+	s, err := p.Future.Struct()
+	return Cluster_Runtime_reserveNumberOfCores_Results{s}, err
 }
 
-type Cluster_ZmqPipelineAddresses capnp.Struct
+type Cluster_ZmqPipelineAddresses struct{ capnp.Struct }
 
 // Cluster_ZmqPipelineAddresses_TypeID is the unique identifier for the type Cluster_ZmqPipelineAddresses.
 const Cluster_ZmqPipelineAddresses_TypeID = 0xc9034ba2becc2a64
 
 func NewCluster_ZmqPipelineAddresses(s *capnp.Segment) (Cluster_ZmqPipelineAddresses, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Cluster_ZmqPipelineAddresses(st), err
+	return Cluster_ZmqPipelineAddresses{st}, err
 }
 
 func NewRootCluster_ZmqPipelineAddresses(s *capnp.Segment) (Cluster_ZmqPipelineAddresses, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Cluster_ZmqPipelineAddresses(st), err
+	return Cluster_ZmqPipelineAddresses{st}, err
 }
 
 func ReadRootCluster_ZmqPipelineAddresses(msg *capnp.Message) (Cluster_ZmqPipelineAddresses, error) {
 	root, err := msg.Root()
-	return Cluster_ZmqPipelineAddresses(root.Struct()), err
+	return Cluster_ZmqPipelineAddresses{root.Struct()}, err
 }
 
 func (s Cluster_ZmqPipelineAddresses) String() string {
-	str, _ := text.Marshal(0xc9034ba2becc2a64, capnp.Struct(s))
+	str, _ := text.Marshal(0xc9034ba2becc2a64, s.Struct)
 	return str
 }
 
-func (s Cluster_ZmqPipelineAddresses) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_ZmqPipelineAddresses) DecodeFromPtr(p capnp.Ptr) Cluster_ZmqPipelineAddresses {
-	return Cluster_ZmqPipelineAddresses(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_ZmqPipelineAddresses) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_ZmqPipelineAddresses) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_ZmqPipelineAddresses) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_ZmqPipelineAddresses) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Cluster_ZmqPipelineAddresses) Input() (string, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.Text(), err
 }
 
 func (s Cluster_ZmqPipelineAddresses) HasInput() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Cluster_ZmqPipelineAddresses) InputBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.TextBytes(), err
 }
 
 func (s Cluster_ZmqPipelineAddresses) SetInput(v string) error {
-	return capnp.Struct(s).SetText(0, v)
+	return s.Struct.SetText(0, v)
 }
 
 func (s Cluster_ZmqPipelineAddresses) Output() (string, error) {
-	p, err := capnp.Struct(s).Ptr(1)
+	p, err := s.Struct.Ptr(1)
 	return p.Text(), err
 }
 
 func (s Cluster_ZmqPipelineAddresses) HasOutput() bool {
-	return capnp.Struct(s).HasPtr(1)
+	return s.Struct.HasPtr(1)
 }
 
 func (s Cluster_ZmqPipelineAddresses) OutputBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(1)
+	p, err := s.Struct.Ptr(1)
 	return p.TextBytes(), err
 }
 
 func (s Cluster_ZmqPipelineAddresses) SetOutput(v string) error {
-	return capnp.Struct(s).SetText(1, v)
+	return s.Struct.SetText(1, v)
 }
 
 // Cluster_ZmqPipelineAddresses_List is a list of Cluster_ZmqPipelineAddresses.
-type Cluster_ZmqPipelineAddresses_List = capnp.StructList[Cluster_ZmqPipelineAddresses]
+type Cluster_ZmqPipelineAddresses_List struct{ capnp.List }
 
 // NewCluster_ZmqPipelineAddresses creates a new list of Cluster_ZmqPipelineAddresses.
 func NewCluster_ZmqPipelineAddresses_List(s *capnp.Segment, sz int32) (Cluster_ZmqPipelineAddresses_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
-	return capnp.StructList[Cluster_ZmqPipelineAddresses](l), err
+	return Cluster_ZmqPipelineAddresses_List{l}, err
+}
+
+func (s Cluster_ZmqPipelineAddresses_List) At(i int) Cluster_ZmqPipelineAddresses {
+	return Cluster_ZmqPipelineAddresses{s.List.Struct(i)}
+}
+
+func (s Cluster_ZmqPipelineAddresses_List) Set(i int, v Cluster_ZmqPipelineAddresses) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_ZmqPipelineAddresses_List) String() string {
+	str, _ := text.MarshalList(0xc9034ba2becc2a64, s.List)
+	return str
 }
 
 // Cluster_ZmqPipelineAddresses_Future is a wrapper for a Cluster_ZmqPipelineAddresses promised by a client call.
 type Cluster_ZmqPipelineAddresses_Future struct{ *capnp.Future }
 
-func (f Cluster_ZmqPipelineAddresses_Future) Struct() (Cluster_ZmqPipelineAddresses, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_ZmqPipelineAddresses(p.Struct()), err
+func (p Cluster_ZmqPipelineAddresses_Future) Struct() (Cluster_ZmqPipelineAddresses, error) {
+	s, err := p.Future.Struct()
+	return Cluster_ZmqPipelineAddresses{s}, err
 }
 
-type Cluster_ValueHolder capnp.Client
+type Cluster_ValueHolder struct{ Client *capnp.Client }
 
 // Cluster_ValueHolder_TypeID is the unique identifier for the type Cluster_ValueHolder.
 const Cluster_ValueHolder_TypeID = 0xd6acf080dcf2b4c8
 
 func (c Cluster_ValueHolder) Value(ctx context.Context, params func(Cluster_ValueHolder_value_Params) error) (Cluster_ValueHolder_value_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xd6acf080dcf2b4c8,
@@ -2603,16 +2094,12 @@ func (c Cluster_ValueHolder) Value(ctx context.Context, params func(Cluster_Valu
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_ValueHolder_value_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_ValueHolder_value_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Cluster_ValueHolder_value_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c Cluster_ValueHolder) ReleaseValue(ctx context.Context, params func(Cluster_ValueHolder_releaseValue_Params) error) (Cluster_ValueHolder_releaseValue_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xd6acf080dcf2b4c8,
@@ -2623,83 +2110,20 @@ func (c Cluster_ValueHolder) ReleaseValue(ctx context.Context, params func(Clust
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_ValueHolder_releaseValue_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_ValueHolder_releaseValue_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Cluster_ValueHolder_releaseValue_Results_Future{Future: ans.Future()}, release
-
 }
 
-func (c Cluster_ValueHolder) WaitStreaming() error {
-	return capnp.Client(c).WaitStreaming()
-}
-
-// String returns a string that identifies this capability for debugging
-// purposes.  Its format should not be depended on: in particular, it
-// should not be used to compare clients.  Use IsSame to compare clients
-// for equality.
-func (c Cluster_ValueHolder) String() string {
-	return "Cluster_ValueHolder(" + capnp.Client(c).String() + ")"
-}
-
-// AddRef creates a new Client that refers to the same capability as c.
-// If c is nil or has resolved to null, then AddRef returns nil.
 func (c Cluster_ValueHolder) AddRef() Cluster_ValueHolder {
-	return Cluster_ValueHolder(capnp.Client(c).AddRef())
+	return Cluster_ValueHolder{
+		Client: c.Client.AddRef(),
+	}
 }
 
-// Release releases a capability reference.  If this is the last
-// reference to the capability, then the underlying resources associated
-// with the capability will be released.
-//
-// Release will panic if c has already been released, but not if c is
-// nil or resolved to null.
 func (c Cluster_ValueHolder) Release() {
-	capnp.Client(c).Release()
-}
-
-// Resolve blocks until the capability is fully resolved or the Context
-// expires.
-func (c Cluster_ValueHolder) Resolve(ctx context.Context) error {
-	return capnp.Client(c).Resolve(ctx)
-}
-
-func (c Cluster_ValueHolder) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Client(c).EncodeAsPtr(seg)
-}
-
-func (Cluster_ValueHolder) DecodeFromPtr(p capnp.Ptr) Cluster_ValueHolder {
-	return Cluster_ValueHolder(capnp.Client{}.DecodeFromPtr(p))
-}
-
-// IsValid reports whether c is a valid reference to a capability.
-// A reference is invalid if it is nil, has resolved to null, or has
-// been released.
-func (c Cluster_ValueHolder) IsValid() bool {
-	return capnp.Client(c).IsValid()
-}
-
-// IsSame reports whether c and other refer to a capability created by the
-// same call to NewClient.  This can return false negatives if c or other
-// are not fully resolved: use Resolve if this is an issue.  If either
-// c or other are released, then IsSame panics.
-func (c Cluster_ValueHolder) IsSame(other Cluster_ValueHolder) bool {
-	return capnp.Client(c).IsSame(capnp.Client(other))
-}
-
-// Update the flowcontrol.FlowLimiter used to manage flow control for
-// this client. This affects all future calls, but not calls already
-// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
-// which is also the default.
-func (c Cluster_ValueHolder) SetFlowLimiter(lim fc.FlowLimiter) {
-	capnp.Client(c).SetFlowLimiter(lim)
-}
-
-// Get the current flowcontrol.FlowLimiter used to manage flow control
-// for this client.
-func (c Cluster_ValueHolder) GetFlowLimiter() fc.FlowLimiter {
-	return capnp.Client(c).GetFlowLimiter()
+	c.Client.Release()
 }
 
 // A Cluster_ValueHolder_Server is a Cluster_ValueHolder with a local implementation.
@@ -2710,15 +2134,15 @@ type Cluster_ValueHolder_Server interface {
 }
 
 // Cluster_ValueHolder_NewServer creates a new Server from an implementation of Cluster_ValueHolder_Server.
-func Cluster_ValueHolder_NewServer(s Cluster_ValueHolder_Server) *server.Server {
+func Cluster_ValueHolder_NewServer(s Cluster_ValueHolder_Server, policy *server.Policy) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(Cluster_ValueHolder_Methods(nil, s), s, c)
+	return server.New(Cluster_ValueHolder_Methods(nil, s), s, c, policy)
 }
 
 // Cluster_ValueHolder_ServerToClient creates a new Client from an implementation of Cluster_ValueHolder_Server.
 // The caller is responsible for calling Release on the returned Client.
-func Cluster_ValueHolder_ServerToClient(s Cluster_ValueHolder_Server) Cluster_ValueHolder {
-	return Cluster_ValueHolder(capnp.NewClient(Cluster_ValueHolder_NewServer(s)))
+func Cluster_ValueHolder_ServerToClient(s Cluster_ValueHolder_Server, policy *server.Policy) Cluster_ValueHolder {
+	return Cluster_ValueHolder{Client: capnp.NewClient(Cluster_ValueHolder_NewServer(s, policy))}
 }
 
 // Cluster_ValueHolder_Methods appends Methods to a slice that invoke the methods on s.
@@ -2763,13 +2187,13 @@ type Cluster_ValueHolder_value struct {
 
 // Args returns the call's arguments.
 func (c Cluster_ValueHolder_value) Args() Cluster_ValueHolder_value_Params {
-	return Cluster_ValueHolder_value_Params(c.Call.Args())
+	return Cluster_ValueHolder_value_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Cluster_ValueHolder_value) AllocResults() (Cluster_ValueHolder_value_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_ValueHolder_value_Results(r), err
+	return Cluster_ValueHolder_value_Results{Struct: r}, err
 }
 
 // Cluster_ValueHolder_releaseValue holds the state for a server call to Cluster_ValueHolder.releaseValue.
@@ -2780,305 +2204,257 @@ type Cluster_ValueHolder_releaseValue struct {
 
 // Args returns the call's arguments.
 func (c Cluster_ValueHolder_releaseValue) Args() Cluster_ValueHolder_releaseValue_Params {
-	return Cluster_ValueHolder_releaseValue_Params(c.Call.Args())
+	return Cluster_ValueHolder_releaseValue_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Cluster_ValueHolder_releaseValue) AllocResults() (Cluster_ValueHolder_releaseValue_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Cluster_ValueHolder_releaseValue_Results(r), err
+	return Cluster_ValueHolder_releaseValue_Results{Struct: r}, err
 }
 
-// Cluster_ValueHolder_List is a list of Cluster_ValueHolder.
-type Cluster_ValueHolder_List = capnp.CapList[Cluster_ValueHolder]
-
-// NewCluster_ValueHolder creates a new list of Cluster_ValueHolder.
-func NewCluster_ValueHolder_List(s *capnp.Segment, sz int32) (Cluster_ValueHolder_List, error) {
-	l, err := capnp.NewPointerList(s, sz)
-	return capnp.CapList[Cluster_ValueHolder](l), err
-}
-
-type Cluster_ValueHolder_value_Params capnp.Struct
+type Cluster_ValueHolder_value_Params struct{ capnp.Struct }
 
 // Cluster_ValueHolder_value_Params_TypeID is the unique identifier for the type Cluster_ValueHolder_value_Params.
 const Cluster_ValueHolder_value_Params_TypeID = 0x8ba6569cca01e84f
 
 func NewCluster_ValueHolder_value_Params(s *capnp.Segment) (Cluster_ValueHolder_value_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Cluster_ValueHolder_value_Params(st), err
+	return Cluster_ValueHolder_value_Params{st}, err
 }
 
 func NewRootCluster_ValueHolder_value_Params(s *capnp.Segment) (Cluster_ValueHolder_value_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Cluster_ValueHolder_value_Params(st), err
+	return Cluster_ValueHolder_value_Params{st}, err
 }
 
 func ReadRootCluster_ValueHolder_value_Params(msg *capnp.Message) (Cluster_ValueHolder_value_Params, error) {
 	root, err := msg.Root()
-	return Cluster_ValueHolder_value_Params(root.Struct()), err
+	return Cluster_ValueHolder_value_Params{root.Struct()}, err
 }
 
 func (s Cluster_ValueHolder_value_Params) String() string {
-	str, _ := text.Marshal(0x8ba6569cca01e84f, capnp.Struct(s))
+	str, _ := text.Marshal(0x8ba6569cca01e84f, s.Struct)
 	return str
 }
 
-func (s Cluster_ValueHolder_value_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_ValueHolder_value_Params) DecodeFromPtr(p capnp.Ptr) Cluster_ValueHolder_value_Params {
-	return Cluster_ValueHolder_value_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_ValueHolder_value_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_ValueHolder_value_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_ValueHolder_value_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_ValueHolder_value_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // Cluster_ValueHolder_value_Params_List is a list of Cluster_ValueHolder_value_Params.
-type Cluster_ValueHolder_value_Params_List = capnp.StructList[Cluster_ValueHolder_value_Params]
+type Cluster_ValueHolder_value_Params_List struct{ capnp.List }
 
 // NewCluster_ValueHolder_value_Params creates a new list of Cluster_ValueHolder_value_Params.
 func NewCluster_ValueHolder_value_Params_List(s *capnp.Segment, sz int32) (Cluster_ValueHolder_value_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[Cluster_ValueHolder_value_Params](l), err
+	return Cluster_ValueHolder_value_Params_List{l}, err
+}
+
+func (s Cluster_ValueHolder_value_Params_List) At(i int) Cluster_ValueHolder_value_Params {
+	return Cluster_ValueHolder_value_Params{s.List.Struct(i)}
+}
+
+func (s Cluster_ValueHolder_value_Params_List) Set(i int, v Cluster_ValueHolder_value_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_ValueHolder_value_Params_List) String() string {
+	str, _ := text.MarshalList(0x8ba6569cca01e84f, s.List)
+	return str
 }
 
 // Cluster_ValueHolder_value_Params_Future is a wrapper for a Cluster_ValueHolder_value_Params promised by a client call.
 type Cluster_ValueHolder_value_Params_Future struct{ *capnp.Future }
 
-func (f Cluster_ValueHolder_value_Params_Future) Struct() (Cluster_ValueHolder_value_Params, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_ValueHolder_value_Params(p.Struct()), err
+func (p Cluster_ValueHolder_value_Params_Future) Struct() (Cluster_ValueHolder_value_Params, error) {
+	s, err := p.Future.Struct()
+	return Cluster_ValueHolder_value_Params{s}, err
 }
 
-type Cluster_ValueHolder_value_Results capnp.Struct
+type Cluster_ValueHolder_value_Results struct{ capnp.Struct }
 
 // Cluster_ValueHolder_value_Results_TypeID is the unique identifier for the type Cluster_ValueHolder_value_Results.
 const Cluster_ValueHolder_value_Results_TypeID = 0x815e89f778f1da6c
 
 func NewCluster_ValueHolder_value_Results(s *capnp.Segment) (Cluster_ValueHolder_value_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_ValueHolder_value_Results(st), err
+	return Cluster_ValueHolder_value_Results{st}, err
 }
 
 func NewRootCluster_ValueHolder_value_Results(s *capnp.Segment) (Cluster_ValueHolder_value_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_ValueHolder_value_Results(st), err
+	return Cluster_ValueHolder_value_Results{st}, err
 }
 
 func ReadRootCluster_ValueHolder_value_Results(msg *capnp.Message) (Cluster_ValueHolder_value_Results, error) {
 	root, err := msg.Root()
-	return Cluster_ValueHolder_value_Results(root.Struct()), err
+	return Cluster_ValueHolder_value_Results{root.Struct()}, err
 }
 
 func (s Cluster_ValueHolder_value_Results) String() string {
-	str, _ := text.Marshal(0x815e89f778f1da6c, capnp.Struct(s))
+	str, _ := text.Marshal(0x815e89f778f1da6c, s.Struct)
 	return str
 }
 
-func (s Cluster_ValueHolder_value_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_ValueHolder_value_Results) DecodeFromPtr(p capnp.Ptr) Cluster_ValueHolder_value_Results {
-	return Cluster_ValueHolder_value_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_ValueHolder_value_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_ValueHolder_value_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_ValueHolder_value_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_ValueHolder_value_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Cluster_ValueHolder_value_Results) Val() (capnp.Ptr, error) {
-	return capnp.Struct(s).Ptr(0)
+	return s.Struct.Ptr(0)
 }
 
 func (s Cluster_ValueHolder_value_Results) HasVal() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Cluster_ValueHolder_value_Results) SetVal(v capnp.Ptr) error {
-	return capnp.Struct(s).SetPtr(0, v)
+	return s.Struct.SetPtr(0, v)
 }
 
 // Cluster_ValueHolder_value_Results_List is a list of Cluster_ValueHolder_value_Results.
-type Cluster_ValueHolder_value_Results_List = capnp.StructList[Cluster_ValueHolder_value_Results]
+type Cluster_ValueHolder_value_Results_List struct{ capnp.List }
 
 // NewCluster_ValueHolder_value_Results creates a new list of Cluster_ValueHolder_value_Results.
 func NewCluster_ValueHolder_value_Results_List(s *capnp.Segment, sz int32) (Cluster_ValueHolder_value_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Cluster_ValueHolder_value_Results](l), err
+	return Cluster_ValueHolder_value_Results_List{l}, err
+}
+
+func (s Cluster_ValueHolder_value_Results_List) At(i int) Cluster_ValueHolder_value_Results {
+	return Cluster_ValueHolder_value_Results{s.List.Struct(i)}
+}
+
+func (s Cluster_ValueHolder_value_Results_List) Set(i int, v Cluster_ValueHolder_value_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_ValueHolder_value_Results_List) String() string {
+	str, _ := text.MarshalList(0x815e89f778f1da6c, s.List)
+	return str
 }
 
 // Cluster_ValueHolder_value_Results_Future is a wrapper for a Cluster_ValueHolder_value_Results promised by a client call.
 type Cluster_ValueHolder_value_Results_Future struct{ *capnp.Future }
 
-func (f Cluster_ValueHolder_value_Results_Future) Struct() (Cluster_ValueHolder_value_Results, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_ValueHolder_value_Results(p.Struct()), err
+func (p Cluster_ValueHolder_value_Results_Future) Struct() (Cluster_ValueHolder_value_Results, error) {
+	s, err := p.Future.Struct()
+	return Cluster_ValueHolder_value_Results{s}, err
 }
+
 func (p Cluster_ValueHolder_value_Results_Future) Val() *capnp.Future {
 	return p.Future.Field(0, nil)
 }
 
-type Cluster_ValueHolder_releaseValue_Params capnp.Struct
+type Cluster_ValueHolder_releaseValue_Params struct{ capnp.Struct }
 
 // Cluster_ValueHolder_releaseValue_Params_TypeID is the unique identifier for the type Cluster_ValueHolder_releaseValue_Params.
 const Cluster_ValueHolder_releaseValue_Params_TypeID = 0xa967c8b00a278896
 
 func NewCluster_ValueHolder_releaseValue_Params(s *capnp.Segment) (Cluster_ValueHolder_releaseValue_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Cluster_ValueHolder_releaseValue_Params(st), err
+	return Cluster_ValueHolder_releaseValue_Params{st}, err
 }
 
 func NewRootCluster_ValueHolder_releaseValue_Params(s *capnp.Segment) (Cluster_ValueHolder_releaseValue_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Cluster_ValueHolder_releaseValue_Params(st), err
+	return Cluster_ValueHolder_releaseValue_Params{st}, err
 }
 
 func ReadRootCluster_ValueHolder_releaseValue_Params(msg *capnp.Message) (Cluster_ValueHolder_releaseValue_Params, error) {
 	root, err := msg.Root()
-	return Cluster_ValueHolder_releaseValue_Params(root.Struct()), err
+	return Cluster_ValueHolder_releaseValue_Params{root.Struct()}, err
 }
 
 func (s Cluster_ValueHolder_releaseValue_Params) String() string {
-	str, _ := text.Marshal(0xa967c8b00a278896, capnp.Struct(s))
+	str, _ := text.Marshal(0xa967c8b00a278896, s.Struct)
 	return str
 }
 
-func (s Cluster_ValueHolder_releaseValue_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_ValueHolder_releaseValue_Params) DecodeFromPtr(p capnp.Ptr) Cluster_ValueHolder_releaseValue_Params {
-	return Cluster_ValueHolder_releaseValue_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_ValueHolder_releaseValue_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_ValueHolder_releaseValue_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_ValueHolder_releaseValue_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_ValueHolder_releaseValue_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // Cluster_ValueHolder_releaseValue_Params_List is a list of Cluster_ValueHolder_releaseValue_Params.
-type Cluster_ValueHolder_releaseValue_Params_List = capnp.StructList[Cluster_ValueHolder_releaseValue_Params]
+type Cluster_ValueHolder_releaseValue_Params_List struct{ capnp.List }
 
 // NewCluster_ValueHolder_releaseValue_Params creates a new list of Cluster_ValueHolder_releaseValue_Params.
 func NewCluster_ValueHolder_releaseValue_Params_List(s *capnp.Segment, sz int32) (Cluster_ValueHolder_releaseValue_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[Cluster_ValueHolder_releaseValue_Params](l), err
+	return Cluster_ValueHolder_releaseValue_Params_List{l}, err
+}
+
+func (s Cluster_ValueHolder_releaseValue_Params_List) At(i int) Cluster_ValueHolder_releaseValue_Params {
+	return Cluster_ValueHolder_releaseValue_Params{s.List.Struct(i)}
+}
+
+func (s Cluster_ValueHolder_releaseValue_Params_List) Set(i int, v Cluster_ValueHolder_releaseValue_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_ValueHolder_releaseValue_Params_List) String() string {
+	str, _ := text.MarshalList(0xa967c8b00a278896, s.List)
+	return str
 }
 
 // Cluster_ValueHolder_releaseValue_Params_Future is a wrapper for a Cluster_ValueHolder_releaseValue_Params promised by a client call.
 type Cluster_ValueHolder_releaseValue_Params_Future struct{ *capnp.Future }
 
-func (f Cluster_ValueHolder_releaseValue_Params_Future) Struct() (Cluster_ValueHolder_releaseValue_Params, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_ValueHolder_releaseValue_Params(p.Struct()), err
+func (p Cluster_ValueHolder_releaseValue_Params_Future) Struct() (Cluster_ValueHolder_releaseValue_Params, error) {
+	s, err := p.Future.Struct()
+	return Cluster_ValueHolder_releaseValue_Params{s}, err
 }
 
-type Cluster_ValueHolder_releaseValue_Results capnp.Struct
+type Cluster_ValueHolder_releaseValue_Results struct{ capnp.Struct }
 
 // Cluster_ValueHolder_releaseValue_Results_TypeID is the unique identifier for the type Cluster_ValueHolder_releaseValue_Results.
 const Cluster_ValueHolder_releaseValue_Results_TypeID = 0xddbd9a18593be0c5
 
 func NewCluster_ValueHolder_releaseValue_Results(s *capnp.Segment) (Cluster_ValueHolder_releaseValue_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Cluster_ValueHolder_releaseValue_Results(st), err
+	return Cluster_ValueHolder_releaseValue_Results{st}, err
 }
 
 func NewRootCluster_ValueHolder_releaseValue_Results(s *capnp.Segment) (Cluster_ValueHolder_releaseValue_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Cluster_ValueHolder_releaseValue_Results(st), err
+	return Cluster_ValueHolder_releaseValue_Results{st}, err
 }
 
 func ReadRootCluster_ValueHolder_releaseValue_Results(msg *capnp.Message) (Cluster_ValueHolder_releaseValue_Results, error) {
 	root, err := msg.Root()
-	return Cluster_ValueHolder_releaseValue_Results(root.Struct()), err
+	return Cluster_ValueHolder_releaseValue_Results{root.Struct()}, err
 }
 
 func (s Cluster_ValueHolder_releaseValue_Results) String() string {
-	str, _ := text.Marshal(0xddbd9a18593be0c5, capnp.Struct(s))
+	str, _ := text.Marshal(0xddbd9a18593be0c5, s.Struct)
 	return str
 }
 
-func (s Cluster_ValueHolder_releaseValue_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_ValueHolder_releaseValue_Results) DecodeFromPtr(p capnp.Ptr) Cluster_ValueHolder_releaseValue_Results {
-	return Cluster_ValueHolder_releaseValue_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_ValueHolder_releaseValue_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_ValueHolder_releaseValue_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_ValueHolder_releaseValue_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_ValueHolder_releaseValue_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // Cluster_ValueHolder_releaseValue_Results_List is a list of Cluster_ValueHolder_releaseValue_Results.
-type Cluster_ValueHolder_releaseValue_Results_List = capnp.StructList[Cluster_ValueHolder_releaseValue_Results]
+type Cluster_ValueHolder_releaseValue_Results_List struct{ capnp.List }
 
 // NewCluster_ValueHolder_releaseValue_Results creates a new list of Cluster_ValueHolder_releaseValue_Results.
 func NewCluster_ValueHolder_releaseValue_Results_List(s *capnp.Segment, sz int32) (Cluster_ValueHolder_releaseValue_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[Cluster_ValueHolder_releaseValue_Results](l), err
+	return Cluster_ValueHolder_releaseValue_Results_List{l}, err
+}
+
+func (s Cluster_ValueHolder_releaseValue_Results_List) At(i int) Cluster_ValueHolder_releaseValue_Results {
+	return Cluster_ValueHolder_releaseValue_Results{s.List.Struct(i)}
+}
+
+func (s Cluster_ValueHolder_releaseValue_Results_List) Set(i int, v Cluster_ValueHolder_releaseValue_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_ValueHolder_releaseValue_Results_List) String() string {
+	str, _ := text.MarshalList(0xddbd9a18593be0c5, s.List)
+	return str
 }
 
 // Cluster_ValueHolder_releaseValue_Results_Future is a wrapper for a Cluster_ValueHolder_releaseValue_Results promised by a client call.
 type Cluster_ValueHolder_releaseValue_Results_Future struct{ *capnp.Future }
 
-func (f Cluster_ValueHolder_releaseValue_Results_Future) Struct() (Cluster_ValueHolder_releaseValue_Results, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_ValueHolder_releaseValue_Results(p.Struct()), err
+func (p Cluster_ValueHolder_releaseValue_Results_Future) Struct() (Cluster_ValueHolder_releaseValue_Results, error) {
+	s, err := p.Future.Struct()
+	return Cluster_ValueHolder_releaseValue_Results{s}, err
 }
 
-type Cluster_ModelInstanceFactory capnp.Client
+type Cluster_ModelInstanceFactory struct{ Client *capnp.Client }
 
 // Cluster_ModelInstanceFactory_TypeID is the unique identifier for the type Cluster_ModelInstanceFactory.
 const Cluster_ModelInstanceFactory_TypeID = 0xfd9959998f9f0ebe
 
 func (c Cluster_ModelInstanceFactory) NewInstance(ctx context.Context, params func(Cluster_ModelInstanceFactory_newInstance_Params) error) (Cluster_ModelInstanceFactory_newInstance_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xfd9959998f9f0ebe,
@@ -3089,16 +2465,12 @@ func (c Cluster_ModelInstanceFactory) NewInstance(ctx context.Context, params fu
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_ModelInstanceFactory_newInstance_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_ModelInstanceFactory_newInstance_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Cluster_ModelInstanceFactory_newInstance_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c Cluster_ModelInstanceFactory) NewInstances(ctx context.Context, params func(Cluster_ModelInstanceFactory_newInstances_Params) error) (Cluster_ModelInstanceFactory_newInstances_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xfd9959998f9f0ebe,
@@ -3109,16 +2481,12 @@ func (c Cluster_ModelInstanceFactory) NewInstances(ctx context.Context, params f
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_ModelInstanceFactory_newInstances_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_ModelInstanceFactory_newInstances_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Cluster_ModelInstanceFactory_newInstances_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c Cluster_ModelInstanceFactory) NewCloudViaZmqPipelineProxies(ctx context.Context, params func(Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params) error) (Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xfd9959998f9f0ebe,
@@ -3130,17 +2498,13 @@ func (c Cluster_ModelInstanceFactory) NewCloudViaZmqPipelineProxies(ctx context.
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 0}
 		s.PlaceArgs = func(s capnp.Struct) error {
-			return params(Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params(s))
+			return params(Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params{Struct: s})
 		}
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c Cluster_ModelInstanceFactory) NewCloudViaProxy(ctx context.Context, params func(Cluster_ModelInstanceFactory_newCloudViaProxy_Params) error) (Cluster_ModelInstanceFactory_newCloudViaProxy_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xfd9959998f9f0ebe,
@@ -3151,16 +2515,14 @@ func (c Cluster_ModelInstanceFactory) NewCloudViaProxy(ctx context.Context, para
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_ModelInstanceFactory_newCloudViaProxy_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error {
+			return params(Cluster_ModelInstanceFactory_newCloudViaProxy_Params{Struct: s})
+		}
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Cluster_ModelInstanceFactory_newCloudViaProxy_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c Cluster_ModelInstanceFactory) ModelId(ctx context.Context, params func(Cluster_ModelInstanceFactory_modelId_Params) error) (Cluster_ModelInstanceFactory_modelId_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xfd9959998f9f0ebe,
@@ -3171,16 +2533,12 @@ func (c Cluster_ModelInstanceFactory) ModelId(ctx context.Context, params func(C
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_ModelInstanceFactory_modelId_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_ModelInstanceFactory_modelId_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Cluster_ModelInstanceFactory_modelId_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c Cluster_ModelInstanceFactory) RegisterModelInstance(ctx context.Context, params func(Cluster_ModelInstanceFactory_registerModelInstance_Params) error) (Cluster_ModelInstanceFactory_registerModelInstance_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xfd9959998f9f0ebe,
@@ -3192,17 +2550,13 @@ func (c Cluster_ModelInstanceFactory) RegisterModelInstance(ctx context.Context,
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 2}
 		s.PlaceArgs = func(s capnp.Struct) error {
-			return params(Cluster_ModelInstanceFactory_registerModelInstance_Params(s))
+			return params(Cluster_ModelInstanceFactory_registerModelInstance_Params{Struct: s})
 		}
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Cluster_ModelInstanceFactory_registerModelInstance_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c Cluster_ModelInstanceFactory) RestoreSturdyRef(ctx context.Context, params func(Cluster_ModelInstanceFactory_restoreSturdyRef_Params) error) (Cluster_ModelInstanceFactory_restoreSturdyRef_Results_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xfd9959998f9f0ebe,
@@ -3213,16 +2567,14 @@ func (c Cluster_ModelInstanceFactory) RestoreSturdyRef(ctx context.Context, para
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Cluster_ModelInstanceFactory_restoreSturdyRef_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error {
+			return params(Cluster_ModelInstanceFactory_restoreSturdyRef_Params{Struct: s})
+		}
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return Cluster_ModelInstanceFactory_restoreSturdyRef_Results_Future{Future: ans.Future()}, release
-
 }
-
 func (c Cluster_ModelInstanceFactory) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
-
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -3233,83 +2585,20 @@ func (c Cluster_ModelInstanceFactory) Info(ctx context.Context, params func(comm
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params{Struct: s}) }
 	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
+	ans, release := c.Client.SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
-
 }
 
-func (c Cluster_ModelInstanceFactory) WaitStreaming() error {
-	return capnp.Client(c).WaitStreaming()
-}
-
-// String returns a string that identifies this capability for debugging
-// purposes.  Its format should not be depended on: in particular, it
-// should not be used to compare clients.  Use IsSame to compare clients
-// for equality.
-func (c Cluster_ModelInstanceFactory) String() string {
-	return "Cluster_ModelInstanceFactory(" + capnp.Client(c).String() + ")"
-}
-
-// AddRef creates a new Client that refers to the same capability as c.
-// If c is nil or has resolved to null, then AddRef returns nil.
 func (c Cluster_ModelInstanceFactory) AddRef() Cluster_ModelInstanceFactory {
-	return Cluster_ModelInstanceFactory(capnp.Client(c).AddRef())
+	return Cluster_ModelInstanceFactory{
+		Client: c.Client.AddRef(),
+	}
 }
 
-// Release releases a capability reference.  If this is the last
-// reference to the capability, then the underlying resources associated
-// with the capability will be released.
-//
-// Release will panic if c has already been released, but not if c is
-// nil or resolved to null.
 func (c Cluster_ModelInstanceFactory) Release() {
-	capnp.Client(c).Release()
-}
-
-// Resolve blocks until the capability is fully resolved or the Context
-// expires.
-func (c Cluster_ModelInstanceFactory) Resolve(ctx context.Context) error {
-	return capnp.Client(c).Resolve(ctx)
-}
-
-func (c Cluster_ModelInstanceFactory) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Client(c).EncodeAsPtr(seg)
-}
-
-func (Cluster_ModelInstanceFactory) DecodeFromPtr(p capnp.Ptr) Cluster_ModelInstanceFactory {
-	return Cluster_ModelInstanceFactory(capnp.Client{}.DecodeFromPtr(p))
-}
-
-// IsValid reports whether c is a valid reference to a capability.
-// A reference is invalid if it is nil, has resolved to null, or has
-// been released.
-func (c Cluster_ModelInstanceFactory) IsValid() bool {
-	return capnp.Client(c).IsValid()
-}
-
-// IsSame reports whether c and other refer to a capability created by the
-// same call to NewClient.  This can return false negatives if c or other
-// are not fully resolved: use Resolve if this is an issue.  If either
-// c or other are released, then IsSame panics.
-func (c Cluster_ModelInstanceFactory) IsSame(other Cluster_ModelInstanceFactory) bool {
-	return capnp.Client(c).IsSame(capnp.Client(other))
-}
-
-// Update the flowcontrol.FlowLimiter used to manage flow control for
-// this client. This affects all future calls, but not calls already
-// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
-// which is also the default.
-func (c Cluster_ModelInstanceFactory) SetFlowLimiter(lim fc.FlowLimiter) {
-	capnp.Client(c).SetFlowLimiter(lim)
-}
-
-// Get the current flowcontrol.FlowLimiter used to manage flow control
-// for this client.
-func (c Cluster_ModelInstanceFactory) GetFlowLimiter() fc.FlowLimiter {
-	return capnp.Client(c).GetFlowLimiter()
+	c.Client.Release()
 }
 
 // A Cluster_ModelInstanceFactory_Server is a Cluster_ModelInstanceFactory with a local implementation.
@@ -3332,15 +2621,15 @@ type Cluster_ModelInstanceFactory_Server interface {
 }
 
 // Cluster_ModelInstanceFactory_NewServer creates a new Server from an implementation of Cluster_ModelInstanceFactory_Server.
-func Cluster_ModelInstanceFactory_NewServer(s Cluster_ModelInstanceFactory_Server) *server.Server {
+func Cluster_ModelInstanceFactory_NewServer(s Cluster_ModelInstanceFactory_Server, policy *server.Policy) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(Cluster_ModelInstanceFactory_Methods(nil, s), s, c)
+	return server.New(Cluster_ModelInstanceFactory_Methods(nil, s), s, c, policy)
 }
 
 // Cluster_ModelInstanceFactory_ServerToClient creates a new Client from an implementation of Cluster_ModelInstanceFactory_Server.
 // The caller is responsible for calling Release on the returned Client.
-func Cluster_ModelInstanceFactory_ServerToClient(s Cluster_ModelInstanceFactory_Server) Cluster_ModelInstanceFactory {
-	return Cluster_ModelInstanceFactory(capnp.NewClient(Cluster_ModelInstanceFactory_NewServer(s)))
+func Cluster_ModelInstanceFactory_ServerToClient(s Cluster_ModelInstanceFactory_Server, policy *server.Policy) Cluster_ModelInstanceFactory {
+	return Cluster_ModelInstanceFactory{Client: capnp.NewClient(Cluster_ModelInstanceFactory_NewServer(s, policy))}
 }
 
 // Cluster_ModelInstanceFactory_Methods appends Methods to a slice that invoke the methods on s.
@@ -3457,13 +2746,13 @@ type Cluster_ModelInstanceFactory_newInstance struct {
 
 // Args returns the call's arguments.
 func (c Cluster_ModelInstanceFactory_newInstance) Args() Cluster_ModelInstanceFactory_newInstance_Params {
-	return Cluster_ModelInstanceFactory_newInstance_Params(c.Call.Args())
+	return Cluster_ModelInstanceFactory_newInstance_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Cluster_ModelInstanceFactory_newInstance) AllocResults() (Cluster_ModelInstanceFactory_newInstance_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_ModelInstanceFactory_newInstance_Results(r), err
+	return Cluster_ModelInstanceFactory_newInstance_Results{Struct: r}, err
 }
 
 // Cluster_ModelInstanceFactory_newInstances holds the state for a server call to Cluster_ModelInstanceFactory.newInstances.
@@ -3474,13 +2763,13 @@ type Cluster_ModelInstanceFactory_newInstances struct {
 
 // Args returns the call's arguments.
 func (c Cluster_ModelInstanceFactory_newInstances) Args() Cluster_ModelInstanceFactory_newInstances_Params {
-	return Cluster_ModelInstanceFactory_newInstances_Params(c.Call.Args())
+	return Cluster_ModelInstanceFactory_newInstances_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Cluster_ModelInstanceFactory_newInstances) AllocResults() (Cluster_ModelInstanceFactory_newInstances_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_ModelInstanceFactory_newInstances_Results(r), err
+	return Cluster_ModelInstanceFactory_newInstances_Results{Struct: r}, err
 }
 
 // Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies holds the state for a server call to Cluster_ModelInstanceFactory.newCloudViaZmqPipelineProxies.
@@ -3491,13 +2780,13 @@ type Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies struct {
 
 // Args returns the call's arguments.
 func (c Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies) Args() Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params {
-	return Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params(c.Call.Args())
+	return Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies) AllocResults() (Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results(r), err
+	return Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results{Struct: r}, err
 }
 
 // Cluster_ModelInstanceFactory_newCloudViaProxy holds the state for a server call to Cluster_ModelInstanceFactory.newCloudViaProxy.
@@ -3508,13 +2797,13 @@ type Cluster_ModelInstanceFactory_newCloudViaProxy struct {
 
 // Args returns the call's arguments.
 func (c Cluster_ModelInstanceFactory_newCloudViaProxy) Args() Cluster_ModelInstanceFactory_newCloudViaProxy_Params {
-	return Cluster_ModelInstanceFactory_newCloudViaProxy_Params(c.Call.Args())
+	return Cluster_ModelInstanceFactory_newCloudViaProxy_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Cluster_ModelInstanceFactory_newCloudViaProxy) AllocResults() (Cluster_ModelInstanceFactory_newCloudViaProxy_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_ModelInstanceFactory_newCloudViaProxy_Results(r), err
+	return Cluster_ModelInstanceFactory_newCloudViaProxy_Results{Struct: r}, err
 }
 
 // Cluster_ModelInstanceFactory_modelId holds the state for a server call to Cluster_ModelInstanceFactory.modelId.
@@ -3525,13 +2814,13 @@ type Cluster_ModelInstanceFactory_modelId struct {
 
 // Args returns the call's arguments.
 func (c Cluster_ModelInstanceFactory_modelId) Args() Cluster_ModelInstanceFactory_modelId_Params {
-	return Cluster_ModelInstanceFactory_modelId_Params(c.Call.Args())
+	return Cluster_ModelInstanceFactory_modelId_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Cluster_ModelInstanceFactory_modelId) AllocResults() (Cluster_ModelInstanceFactory_modelId_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_ModelInstanceFactory_modelId_Results(r), err
+	return Cluster_ModelInstanceFactory_modelId_Results{Struct: r}, err
 }
 
 // Cluster_ModelInstanceFactory_registerModelInstance holds the state for a server call to Cluster_ModelInstanceFactory.registerModelInstance.
@@ -3542,13 +2831,13 @@ type Cluster_ModelInstanceFactory_registerModelInstance struct {
 
 // Args returns the call's arguments.
 func (c Cluster_ModelInstanceFactory_registerModelInstance) Args() Cluster_ModelInstanceFactory_registerModelInstance_Params {
-	return Cluster_ModelInstanceFactory_registerModelInstance_Params(c.Call.Args())
+	return Cluster_ModelInstanceFactory_registerModelInstance_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Cluster_ModelInstanceFactory_registerModelInstance) AllocResults() (Cluster_ModelInstanceFactory_registerModelInstance_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_ModelInstanceFactory_registerModelInstance_Results(r), err
+	return Cluster_ModelInstanceFactory_registerModelInstance_Results{Struct: r}, err
 }
 
 // Cluster_ModelInstanceFactory_restoreSturdyRef holds the state for a server call to Cluster_ModelInstanceFactory.restoreSturdyRef.
@@ -3559,1144 +2848,1009 @@ type Cluster_ModelInstanceFactory_restoreSturdyRef struct {
 
 // Args returns the call's arguments.
 func (c Cluster_ModelInstanceFactory_restoreSturdyRef) Args() Cluster_ModelInstanceFactory_restoreSturdyRef_Params {
-	return Cluster_ModelInstanceFactory_restoreSturdyRef_Params(c.Call.Args())
+	return Cluster_ModelInstanceFactory_restoreSturdyRef_Params{Struct: c.Call.Args()}
 }
 
 // AllocResults allocates the results struct.
 func (c Cluster_ModelInstanceFactory_restoreSturdyRef) AllocResults() (Cluster_ModelInstanceFactory_restoreSturdyRef_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_ModelInstanceFactory_restoreSturdyRef_Results(r), err
+	return Cluster_ModelInstanceFactory_restoreSturdyRef_Results{Struct: r}, err
 }
 
-// Cluster_ModelInstanceFactory_List is a list of Cluster_ModelInstanceFactory.
-type Cluster_ModelInstanceFactory_List = capnp.CapList[Cluster_ModelInstanceFactory]
-
-// NewCluster_ModelInstanceFactory creates a new list of Cluster_ModelInstanceFactory.
-func NewCluster_ModelInstanceFactory_List(s *capnp.Segment, sz int32) (Cluster_ModelInstanceFactory_List, error) {
-	l, err := capnp.NewPointerList(s, sz)
-	return capnp.CapList[Cluster_ModelInstanceFactory](l), err
-}
-
-type Cluster_ModelInstanceFactory_newInstance_Params capnp.Struct
+type Cluster_ModelInstanceFactory_newInstance_Params struct{ capnp.Struct }
 
 // Cluster_ModelInstanceFactory_newInstance_Params_TypeID is the unique identifier for the type Cluster_ModelInstanceFactory_newInstance_Params.
 const Cluster_ModelInstanceFactory_newInstance_Params_TypeID = 0x8bf81264d2f11274
 
 func NewCluster_ModelInstanceFactory_newInstance_Params(s *capnp.Segment) (Cluster_ModelInstanceFactory_newInstance_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Cluster_ModelInstanceFactory_newInstance_Params(st), err
+	return Cluster_ModelInstanceFactory_newInstance_Params{st}, err
 }
 
 func NewRootCluster_ModelInstanceFactory_newInstance_Params(s *capnp.Segment) (Cluster_ModelInstanceFactory_newInstance_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Cluster_ModelInstanceFactory_newInstance_Params(st), err
+	return Cluster_ModelInstanceFactory_newInstance_Params{st}, err
 }
 
 func ReadRootCluster_ModelInstanceFactory_newInstance_Params(msg *capnp.Message) (Cluster_ModelInstanceFactory_newInstance_Params, error) {
 	root, err := msg.Root()
-	return Cluster_ModelInstanceFactory_newInstance_Params(root.Struct()), err
+	return Cluster_ModelInstanceFactory_newInstance_Params{root.Struct()}, err
 }
 
 func (s Cluster_ModelInstanceFactory_newInstance_Params) String() string {
-	str, _ := text.Marshal(0x8bf81264d2f11274, capnp.Struct(s))
+	str, _ := text.Marshal(0x8bf81264d2f11274, s.Struct)
 	return str
 }
 
-func (s Cluster_ModelInstanceFactory_newInstance_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_ModelInstanceFactory_newInstance_Params) DecodeFromPtr(p capnp.Ptr) Cluster_ModelInstanceFactory_newInstance_Params {
-	return Cluster_ModelInstanceFactory_newInstance_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_ModelInstanceFactory_newInstance_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_ModelInstanceFactory_newInstance_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_ModelInstanceFactory_newInstance_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_ModelInstanceFactory_newInstance_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // Cluster_ModelInstanceFactory_newInstance_Params_List is a list of Cluster_ModelInstanceFactory_newInstance_Params.
-type Cluster_ModelInstanceFactory_newInstance_Params_List = capnp.StructList[Cluster_ModelInstanceFactory_newInstance_Params]
+type Cluster_ModelInstanceFactory_newInstance_Params_List struct{ capnp.List }
 
 // NewCluster_ModelInstanceFactory_newInstance_Params creates a new list of Cluster_ModelInstanceFactory_newInstance_Params.
 func NewCluster_ModelInstanceFactory_newInstance_Params_List(s *capnp.Segment, sz int32) (Cluster_ModelInstanceFactory_newInstance_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[Cluster_ModelInstanceFactory_newInstance_Params](l), err
+	return Cluster_ModelInstanceFactory_newInstance_Params_List{l}, err
+}
+
+func (s Cluster_ModelInstanceFactory_newInstance_Params_List) At(i int) Cluster_ModelInstanceFactory_newInstance_Params {
+	return Cluster_ModelInstanceFactory_newInstance_Params{s.List.Struct(i)}
+}
+
+func (s Cluster_ModelInstanceFactory_newInstance_Params_List) Set(i int, v Cluster_ModelInstanceFactory_newInstance_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_ModelInstanceFactory_newInstance_Params_List) String() string {
+	str, _ := text.MarshalList(0x8bf81264d2f11274, s.List)
+	return str
 }
 
 // Cluster_ModelInstanceFactory_newInstance_Params_Future is a wrapper for a Cluster_ModelInstanceFactory_newInstance_Params promised by a client call.
 type Cluster_ModelInstanceFactory_newInstance_Params_Future struct{ *capnp.Future }
 
-func (f Cluster_ModelInstanceFactory_newInstance_Params_Future) Struct() (Cluster_ModelInstanceFactory_newInstance_Params, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_ModelInstanceFactory_newInstance_Params(p.Struct()), err
+func (p Cluster_ModelInstanceFactory_newInstance_Params_Future) Struct() (Cluster_ModelInstanceFactory_newInstance_Params, error) {
+	s, err := p.Future.Struct()
+	return Cluster_ModelInstanceFactory_newInstance_Params{s}, err
 }
 
-type Cluster_ModelInstanceFactory_newInstance_Results capnp.Struct
+type Cluster_ModelInstanceFactory_newInstance_Results struct{ capnp.Struct }
 
 // Cluster_ModelInstanceFactory_newInstance_Results_TypeID is the unique identifier for the type Cluster_ModelInstanceFactory_newInstance_Results.
 const Cluster_ModelInstanceFactory_newInstance_Results_TypeID = 0xf468b1dc515f841c
 
 func NewCluster_ModelInstanceFactory_newInstance_Results(s *capnp.Segment) (Cluster_ModelInstanceFactory_newInstance_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_ModelInstanceFactory_newInstance_Results(st), err
+	return Cluster_ModelInstanceFactory_newInstance_Results{st}, err
 }
 
 func NewRootCluster_ModelInstanceFactory_newInstance_Results(s *capnp.Segment) (Cluster_ModelInstanceFactory_newInstance_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_ModelInstanceFactory_newInstance_Results(st), err
+	return Cluster_ModelInstanceFactory_newInstance_Results{st}, err
 }
 
 func ReadRootCluster_ModelInstanceFactory_newInstance_Results(msg *capnp.Message) (Cluster_ModelInstanceFactory_newInstance_Results, error) {
 	root, err := msg.Root()
-	return Cluster_ModelInstanceFactory_newInstance_Results(root.Struct()), err
+	return Cluster_ModelInstanceFactory_newInstance_Results{root.Struct()}, err
 }
 
 func (s Cluster_ModelInstanceFactory_newInstance_Results) String() string {
-	str, _ := text.Marshal(0xf468b1dc515f841c, capnp.Struct(s))
+	str, _ := text.Marshal(0xf468b1dc515f841c, s.Struct)
 	return str
 }
 
-func (s Cluster_ModelInstanceFactory_newInstance_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_ModelInstanceFactory_newInstance_Results) DecodeFromPtr(p capnp.Ptr) Cluster_ModelInstanceFactory_newInstance_Results {
-	return Cluster_ModelInstanceFactory_newInstance_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_ModelInstanceFactory_newInstance_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_ModelInstanceFactory_newInstance_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_ModelInstanceFactory_newInstance_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_ModelInstanceFactory_newInstance_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Cluster_ModelInstanceFactory_newInstance_Results) Instance() Cluster_ValueHolder {
-	p, _ := capnp.Struct(s).Ptr(0)
-	return Cluster_ValueHolder(p.Interface().Client())
+	p, _ := s.Struct.Ptr(0)
+	return Cluster_ValueHolder{Client: p.Interface().Client()}
 }
 
 func (s Cluster_ModelInstanceFactory_newInstance_Results) HasInstance() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Cluster_ModelInstanceFactory_newInstance_Results) SetInstance(v Cluster_ValueHolder) error {
-	if !v.IsValid() {
-		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
+	if !v.Client.IsValid() {
+		return s.Struct.SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
-	return capnp.Struct(s).SetPtr(0, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
+	return s.Struct.SetPtr(0, in.ToPtr())
 }
 
 // Cluster_ModelInstanceFactory_newInstance_Results_List is a list of Cluster_ModelInstanceFactory_newInstance_Results.
-type Cluster_ModelInstanceFactory_newInstance_Results_List = capnp.StructList[Cluster_ModelInstanceFactory_newInstance_Results]
+type Cluster_ModelInstanceFactory_newInstance_Results_List struct{ capnp.List }
 
 // NewCluster_ModelInstanceFactory_newInstance_Results creates a new list of Cluster_ModelInstanceFactory_newInstance_Results.
 func NewCluster_ModelInstanceFactory_newInstance_Results_List(s *capnp.Segment, sz int32) (Cluster_ModelInstanceFactory_newInstance_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Cluster_ModelInstanceFactory_newInstance_Results](l), err
+	return Cluster_ModelInstanceFactory_newInstance_Results_List{l}, err
+}
+
+func (s Cluster_ModelInstanceFactory_newInstance_Results_List) At(i int) Cluster_ModelInstanceFactory_newInstance_Results {
+	return Cluster_ModelInstanceFactory_newInstance_Results{s.List.Struct(i)}
+}
+
+func (s Cluster_ModelInstanceFactory_newInstance_Results_List) Set(i int, v Cluster_ModelInstanceFactory_newInstance_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_ModelInstanceFactory_newInstance_Results_List) String() string {
+	str, _ := text.MarshalList(0xf468b1dc515f841c, s.List)
+	return str
 }
 
 // Cluster_ModelInstanceFactory_newInstance_Results_Future is a wrapper for a Cluster_ModelInstanceFactory_newInstance_Results promised by a client call.
 type Cluster_ModelInstanceFactory_newInstance_Results_Future struct{ *capnp.Future }
 
-func (f Cluster_ModelInstanceFactory_newInstance_Results_Future) Struct() (Cluster_ModelInstanceFactory_newInstance_Results, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_ModelInstanceFactory_newInstance_Results(p.Struct()), err
-}
-func (p Cluster_ModelInstanceFactory_newInstance_Results_Future) Instance() Cluster_ValueHolder {
-	return Cluster_ValueHolder(p.Future.Field(0, nil).Client())
+func (p Cluster_ModelInstanceFactory_newInstance_Results_Future) Struct() (Cluster_ModelInstanceFactory_newInstance_Results, error) {
+	s, err := p.Future.Struct()
+	return Cluster_ModelInstanceFactory_newInstance_Results{s}, err
 }
 
-type Cluster_ModelInstanceFactory_newInstances_Params capnp.Struct
+func (p Cluster_ModelInstanceFactory_newInstance_Results_Future) Instance() Cluster_ValueHolder {
+	return Cluster_ValueHolder{Client: p.Future.Field(0, nil).Client()}
+}
+
+type Cluster_ModelInstanceFactory_newInstances_Params struct{ capnp.Struct }
 
 // Cluster_ModelInstanceFactory_newInstances_Params_TypeID is the unique identifier for the type Cluster_ModelInstanceFactory_newInstances_Params.
 const Cluster_ModelInstanceFactory_newInstances_Params_TypeID = 0x985d83a2e2d7e204
 
 func NewCluster_ModelInstanceFactory_newInstances_Params(s *capnp.Segment) (Cluster_ModelInstanceFactory_newInstances_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Cluster_ModelInstanceFactory_newInstances_Params(st), err
+	return Cluster_ModelInstanceFactory_newInstances_Params{st}, err
 }
 
 func NewRootCluster_ModelInstanceFactory_newInstances_Params(s *capnp.Segment) (Cluster_ModelInstanceFactory_newInstances_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Cluster_ModelInstanceFactory_newInstances_Params(st), err
+	return Cluster_ModelInstanceFactory_newInstances_Params{st}, err
 }
 
 func ReadRootCluster_ModelInstanceFactory_newInstances_Params(msg *capnp.Message) (Cluster_ModelInstanceFactory_newInstances_Params, error) {
 	root, err := msg.Root()
-	return Cluster_ModelInstanceFactory_newInstances_Params(root.Struct()), err
+	return Cluster_ModelInstanceFactory_newInstances_Params{root.Struct()}, err
 }
 
 func (s Cluster_ModelInstanceFactory_newInstances_Params) String() string {
-	str, _ := text.Marshal(0x985d83a2e2d7e204, capnp.Struct(s))
+	str, _ := text.Marshal(0x985d83a2e2d7e204, s.Struct)
 	return str
 }
 
-func (s Cluster_ModelInstanceFactory_newInstances_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_ModelInstanceFactory_newInstances_Params) DecodeFromPtr(p capnp.Ptr) Cluster_ModelInstanceFactory_newInstances_Params {
-	return Cluster_ModelInstanceFactory_newInstances_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_ModelInstanceFactory_newInstances_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_ModelInstanceFactory_newInstances_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_ModelInstanceFactory_newInstances_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_ModelInstanceFactory_newInstances_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Cluster_ModelInstanceFactory_newInstances_Params) NumberOfInstances() int16 {
-	return int16(capnp.Struct(s).Uint16(0))
+	return int16(s.Struct.Uint16(0))
 }
 
 func (s Cluster_ModelInstanceFactory_newInstances_Params) SetNumberOfInstances(v int16) {
-	capnp.Struct(s).SetUint16(0, uint16(v))
+	s.Struct.SetUint16(0, uint16(v))
 }
 
 // Cluster_ModelInstanceFactory_newInstances_Params_List is a list of Cluster_ModelInstanceFactory_newInstances_Params.
-type Cluster_ModelInstanceFactory_newInstances_Params_List = capnp.StructList[Cluster_ModelInstanceFactory_newInstances_Params]
+type Cluster_ModelInstanceFactory_newInstances_Params_List struct{ capnp.List }
 
 // NewCluster_ModelInstanceFactory_newInstances_Params creates a new list of Cluster_ModelInstanceFactory_newInstances_Params.
 func NewCluster_ModelInstanceFactory_newInstances_Params_List(s *capnp.Segment, sz int32) (Cluster_ModelInstanceFactory_newInstances_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0}, sz)
-	return capnp.StructList[Cluster_ModelInstanceFactory_newInstances_Params](l), err
+	return Cluster_ModelInstanceFactory_newInstances_Params_List{l}, err
+}
+
+func (s Cluster_ModelInstanceFactory_newInstances_Params_List) At(i int) Cluster_ModelInstanceFactory_newInstances_Params {
+	return Cluster_ModelInstanceFactory_newInstances_Params{s.List.Struct(i)}
+}
+
+func (s Cluster_ModelInstanceFactory_newInstances_Params_List) Set(i int, v Cluster_ModelInstanceFactory_newInstances_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_ModelInstanceFactory_newInstances_Params_List) String() string {
+	str, _ := text.MarshalList(0x985d83a2e2d7e204, s.List)
+	return str
 }
 
 // Cluster_ModelInstanceFactory_newInstances_Params_Future is a wrapper for a Cluster_ModelInstanceFactory_newInstances_Params promised by a client call.
 type Cluster_ModelInstanceFactory_newInstances_Params_Future struct{ *capnp.Future }
 
-func (f Cluster_ModelInstanceFactory_newInstances_Params_Future) Struct() (Cluster_ModelInstanceFactory_newInstances_Params, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_ModelInstanceFactory_newInstances_Params(p.Struct()), err
+func (p Cluster_ModelInstanceFactory_newInstances_Params_Future) Struct() (Cluster_ModelInstanceFactory_newInstances_Params, error) {
+	s, err := p.Future.Struct()
+	return Cluster_ModelInstanceFactory_newInstances_Params{s}, err
 }
 
-type Cluster_ModelInstanceFactory_newInstances_Results capnp.Struct
+type Cluster_ModelInstanceFactory_newInstances_Results struct{ capnp.Struct }
 
 // Cluster_ModelInstanceFactory_newInstances_Results_TypeID is the unique identifier for the type Cluster_ModelInstanceFactory_newInstances_Results.
 const Cluster_ModelInstanceFactory_newInstances_Results_TypeID = 0xbcacf6dde70da193
 
 func NewCluster_ModelInstanceFactory_newInstances_Results(s *capnp.Segment) (Cluster_ModelInstanceFactory_newInstances_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_ModelInstanceFactory_newInstances_Results(st), err
+	return Cluster_ModelInstanceFactory_newInstances_Results{st}, err
 }
 
 func NewRootCluster_ModelInstanceFactory_newInstances_Results(s *capnp.Segment) (Cluster_ModelInstanceFactory_newInstances_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_ModelInstanceFactory_newInstances_Results(st), err
+	return Cluster_ModelInstanceFactory_newInstances_Results{st}, err
 }
 
 func ReadRootCluster_ModelInstanceFactory_newInstances_Results(msg *capnp.Message) (Cluster_ModelInstanceFactory_newInstances_Results, error) {
 	root, err := msg.Root()
-	return Cluster_ModelInstanceFactory_newInstances_Results(root.Struct()), err
+	return Cluster_ModelInstanceFactory_newInstances_Results{root.Struct()}, err
 }
 
 func (s Cluster_ModelInstanceFactory_newInstances_Results) String() string {
-	str, _ := text.Marshal(0xbcacf6dde70da193, capnp.Struct(s))
+	str, _ := text.Marshal(0xbcacf6dde70da193, s.Struct)
 	return str
 }
 
-func (s Cluster_ModelInstanceFactory_newInstances_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_ModelInstanceFactory_newInstances_Results) DecodeFromPtr(p capnp.Ptr) Cluster_ModelInstanceFactory_newInstances_Results {
-	return Cluster_ModelInstanceFactory_newInstances_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_ModelInstanceFactory_newInstances_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_ModelInstanceFactory_newInstances_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_ModelInstanceFactory_newInstances_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_ModelInstanceFactory_newInstances_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Cluster_ModelInstanceFactory_newInstances_Results) Instances() Cluster_ValueHolder {
-	p, _ := capnp.Struct(s).Ptr(0)
-	return Cluster_ValueHolder(p.Interface().Client())
+	p, _ := s.Struct.Ptr(0)
+	return Cluster_ValueHolder{Client: p.Interface().Client()}
 }
 
 func (s Cluster_ModelInstanceFactory_newInstances_Results) HasInstances() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Cluster_ModelInstanceFactory_newInstances_Results) SetInstances(v Cluster_ValueHolder) error {
-	if !v.IsValid() {
-		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
+	if !v.Client.IsValid() {
+		return s.Struct.SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
-	return capnp.Struct(s).SetPtr(0, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
+	return s.Struct.SetPtr(0, in.ToPtr())
 }
 
 // Cluster_ModelInstanceFactory_newInstances_Results_List is a list of Cluster_ModelInstanceFactory_newInstances_Results.
-type Cluster_ModelInstanceFactory_newInstances_Results_List = capnp.StructList[Cluster_ModelInstanceFactory_newInstances_Results]
+type Cluster_ModelInstanceFactory_newInstances_Results_List struct{ capnp.List }
 
 // NewCluster_ModelInstanceFactory_newInstances_Results creates a new list of Cluster_ModelInstanceFactory_newInstances_Results.
 func NewCluster_ModelInstanceFactory_newInstances_Results_List(s *capnp.Segment, sz int32) (Cluster_ModelInstanceFactory_newInstances_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Cluster_ModelInstanceFactory_newInstances_Results](l), err
+	return Cluster_ModelInstanceFactory_newInstances_Results_List{l}, err
+}
+
+func (s Cluster_ModelInstanceFactory_newInstances_Results_List) At(i int) Cluster_ModelInstanceFactory_newInstances_Results {
+	return Cluster_ModelInstanceFactory_newInstances_Results{s.List.Struct(i)}
+}
+
+func (s Cluster_ModelInstanceFactory_newInstances_Results_List) Set(i int, v Cluster_ModelInstanceFactory_newInstances_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_ModelInstanceFactory_newInstances_Results_List) String() string {
+	str, _ := text.MarshalList(0xbcacf6dde70da193, s.List)
+	return str
 }
 
 // Cluster_ModelInstanceFactory_newInstances_Results_Future is a wrapper for a Cluster_ModelInstanceFactory_newInstances_Results promised by a client call.
 type Cluster_ModelInstanceFactory_newInstances_Results_Future struct{ *capnp.Future }
 
-func (f Cluster_ModelInstanceFactory_newInstances_Results_Future) Struct() (Cluster_ModelInstanceFactory_newInstances_Results, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_ModelInstanceFactory_newInstances_Results(p.Struct()), err
-}
-func (p Cluster_ModelInstanceFactory_newInstances_Results_Future) Instances() Cluster_ValueHolder {
-	return Cluster_ValueHolder(p.Future.Field(0, nil).Client())
+func (p Cluster_ModelInstanceFactory_newInstances_Results_Future) Struct() (Cluster_ModelInstanceFactory_newInstances_Results, error) {
+	s, err := p.Future.Struct()
+	return Cluster_ModelInstanceFactory_newInstances_Results{s}, err
 }
 
-type Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params capnp.Struct
+func (p Cluster_ModelInstanceFactory_newInstances_Results_Future) Instances() Cluster_ValueHolder {
+	return Cluster_ValueHolder{Client: p.Future.Field(0, nil).Client()}
+}
+
+type Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params struct{ capnp.Struct }
 
 // Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params_TypeID is the unique identifier for the type Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params.
 const Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params_TypeID = 0x8b5d8251cf57c316
 
 func NewCluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params(s *capnp.Segment) (Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params(st), err
+	return Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params{st}, err
 }
 
 func NewRootCluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params(s *capnp.Segment) (Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params(st), err
+	return Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params{st}, err
 }
 
 func ReadRootCluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params(msg *capnp.Message) (Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params, error) {
 	root, err := msg.Root()
-	return Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params(root.Struct()), err
+	return Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params{root.Struct()}, err
 }
 
 func (s Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params) String() string {
-	str, _ := text.Marshal(0x8b5d8251cf57c316, capnp.Struct(s))
+	str, _ := text.Marshal(0x8b5d8251cf57c316, s.Struct)
 	return str
 }
 
-func (s Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params) DecodeFromPtr(p capnp.Ptr) Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params {
-	return Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params) NumberOfInstances() int16 {
-	return int16(capnp.Struct(s).Uint16(0))
+	return int16(s.Struct.Uint16(0))
 }
 
 func (s Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params) SetNumberOfInstances(v int16) {
-	capnp.Struct(s).SetUint16(0, uint16(v))
+	s.Struct.SetUint16(0, uint16(v))
 }
 
 // Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params_List is a list of Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params.
-type Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params_List = capnp.StructList[Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params]
+type Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params_List struct{ capnp.List }
 
 // NewCluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params creates a new list of Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params.
 func NewCluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params_List(s *capnp.Segment, sz int32) (Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0}, sz)
-	return capnp.StructList[Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params](l), err
+	return Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params_List{l}, err
+}
+
+func (s Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params_List) At(i int) Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params {
+	return Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params{s.List.Struct(i)}
+}
+
+func (s Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params_List) Set(i int, v Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params_List) String() string {
+	str, _ := text.MarshalList(0x8b5d8251cf57c316, s.List)
+	return str
 }
 
 // Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params_Future is a wrapper for a Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params promised by a client call.
 type Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params_Future struct{ *capnp.Future }
 
-func (f Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params_Future) Struct() (Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params(p.Struct()), err
+func (p Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params_Future) Struct() (Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params, error) {
+	s, err := p.Future.Struct()
+	return Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Params{s}, err
 }
 
-type Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results capnp.Struct
+type Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results struct{ capnp.Struct }
 
 // Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results_TypeID is the unique identifier for the type Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results.
 const Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results_TypeID = 0xa81053c61d4d995c
 
 func NewCluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results(s *capnp.Segment) (Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results(st), err
+	return Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results{st}, err
 }
 
 func NewRootCluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results(s *capnp.Segment) (Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results(st), err
+	return Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results{st}, err
 }
 
 func ReadRootCluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results(msg *capnp.Message) (Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results, error) {
 	root, err := msg.Root()
-	return Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results(root.Struct()), err
+	return Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results{root.Struct()}, err
 }
 
 func (s Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results) String() string {
-	str, _ := text.Marshal(0xa81053c61d4d995c, capnp.Struct(s))
+	str, _ := text.Marshal(0xa81053c61d4d995c, s.Struct)
 	return str
 }
 
-func (s Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results) DecodeFromPtr(p capnp.Ptr) Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results {
-	return Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results) ProxyAddresses() Cluster_ValueHolder {
-	p, _ := capnp.Struct(s).Ptr(0)
-	return Cluster_ValueHolder(p.Interface().Client())
+	p, _ := s.Struct.Ptr(0)
+	return Cluster_ValueHolder{Client: p.Interface().Client()}
 }
 
 func (s Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results) HasProxyAddresses() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results) SetProxyAddresses(v Cluster_ValueHolder) error {
-	if !v.IsValid() {
-		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
+	if !v.Client.IsValid() {
+		return s.Struct.SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
-	return capnp.Struct(s).SetPtr(0, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
+	return s.Struct.SetPtr(0, in.ToPtr())
 }
 
 // Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results_List is a list of Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results.
-type Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results_List = capnp.StructList[Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results]
+type Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results_List struct{ capnp.List }
 
 // NewCluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results creates a new list of Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results.
 func NewCluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results_List(s *capnp.Segment, sz int32) (Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results](l), err
+	return Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results_List{l}, err
+}
+
+func (s Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results_List) At(i int) Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results {
+	return Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results{s.List.Struct(i)}
+}
+
+func (s Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results_List) Set(i int, v Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results_List) String() string {
+	str, _ := text.MarshalList(0xa81053c61d4d995c, s.List)
+	return str
 }
 
 // Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results_Future is a wrapper for a Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results promised by a client call.
 type Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results_Future struct{ *capnp.Future }
 
-func (f Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results_Future) Struct() (Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results(p.Struct()), err
-}
-func (p Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results_Future) ProxyAddresses() Cluster_ValueHolder {
-	return Cluster_ValueHolder(p.Future.Field(0, nil).Client())
+func (p Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results_Future) Struct() (Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results, error) {
+	s, err := p.Future.Struct()
+	return Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results{s}, err
 }
 
-type Cluster_ModelInstanceFactory_newCloudViaProxy_Params capnp.Struct
+func (p Cluster_ModelInstanceFactory_newCloudViaZmqPipelineProxies_Results_Future) ProxyAddresses() Cluster_ValueHolder {
+	return Cluster_ValueHolder{Client: p.Future.Field(0, nil).Client()}
+}
+
+type Cluster_ModelInstanceFactory_newCloudViaProxy_Params struct{ capnp.Struct }
 
 // Cluster_ModelInstanceFactory_newCloudViaProxy_Params_TypeID is the unique identifier for the type Cluster_ModelInstanceFactory_newCloudViaProxy_Params.
 const Cluster_ModelInstanceFactory_newCloudViaProxy_Params_TypeID = 0xfea4c3f998b67621
 
 func NewCluster_ModelInstanceFactory_newCloudViaProxy_Params(s *capnp.Segment) (Cluster_ModelInstanceFactory_newCloudViaProxy_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Cluster_ModelInstanceFactory_newCloudViaProxy_Params(st), err
+	return Cluster_ModelInstanceFactory_newCloudViaProxy_Params{st}, err
 }
 
 func NewRootCluster_ModelInstanceFactory_newCloudViaProxy_Params(s *capnp.Segment) (Cluster_ModelInstanceFactory_newCloudViaProxy_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return Cluster_ModelInstanceFactory_newCloudViaProxy_Params(st), err
+	return Cluster_ModelInstanceFactory_newCloudViaProxy_Params{st}, err
 }
 
 func ReadRootCluster_ModelInstanceFactory_newCloudViaProxy_Params(msg *capnp.Message) (Cluster_ModelInstanceFactory_newCloudViaProxy_Params, error) {
 	root, err := msg.Root()
-	return Cluster_ModelInstanceFactory_newCloudViaProxy_Params(root.Struct()), err
+	return Cluster_ModelInstanceFactory_newCloudViaProxy_Params{root.Struct()}, err
 }
 
 func (s Cluster_ModelInstanceFactory_newCloudViaProxy_Params) String() string {
-	str, _ := text.Marshal(0xfea4c3f998b67621, capnp.Struct(s))
+	str, _ := text.Marshal(0xfea4c3f998b67621, s.Struct)
 	return str
 }
 
-func (s Cluster_ModelInstanceFactory_newCloudViaProxy_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_ModelInstanceFactory_newCloudViaProxy_Params) DecodeFromPtr(p capnp.Ptr) Cluster_ModelInstanceFactory_newCloudViaProxy_Params {
-	return Cluster_ModelInstanceFactory_newCloudViaProxy_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_ModelInstanceFactory_newCloudViaProxy_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_ModelInstanceFactory_newCloudViaProxy_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_ModelInstanceFactory_newCloudViaProxy_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_ModelInstanceFactory_newCloudViaProxy_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Cluster_ModelInstanceFactory_newCloudViaProxy_Params) NumberOfInstances() int16 {
-	return int16(capnp.Struct(s).Uint16(0))
+	return int16(s.Struct.Uint16(0))
 }
 
 func (s Cluster_ModelInstanceFactory_newCloudViaProxy_Params) SetNumberOfInstances(v int16) {
-	capnp.Struct(s).SetUint16(0, uint16(v))
+	s.Struct.SetUint16(0, uint16(v))
 }
 
 // Cluster_ModelInstanceFactory_newCloudViaProxy_Params_List is a list of Cluster_ModelInstanceFactory_newCloudViaProxy_Params.
-type Cluster_ModelInstanceFactory_newCloudViaProxy_Params_List = capnp.StructList[Cluster_ModelInstanceFactory_newCloudViaProxy_Params]
+type Cluster_ModelInstanceFactory_newCloudViaProxy_Params_List struct{ capnp.List }
 
 // NewCluster_ModelInstanceFactory_newCloudViaProxy_Params creates a new list of Cluster_ModelInstanceFactory_newCloudViaProxy_Params.
 func NewCluster_ModelInstanceFactory_newCloudViaProxy_Params_List(s *capnp.Segment, sz int32) (Cluster_ModelInstanceFactory_newCloudViaProxy_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0}, sz)
-	return capnp.StructList[Cluster_ModelInstanceFactory_newCloudViaProxy_Params](l), err
+	return Cluster_ModelInstanceFactory_newCloudViaProxy_Params_List{l}, err
+}
+
+func (s Cluster_ModelInstanceFactory_newCloudViaProxy_Params_List) At(i int) Cluster_ModelInstanceFactory_newCloudViaProxy_Params {
+	return Cluster_ModelInstanceFactory_newCloudViaProxy_Params{s.List.Struct(i)}
+}
+
+func (s Cluster_ModelInstanceFactory_newCloudViaProxy_Params_List) Set(i int, v Cluster_ModelInstanceFactory_newCloudViaProxy_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_ModelInstanceFactory_newCloudViaProxy_Params_List) String() string {
+	str, _ := text.MarshalList(0xfea4c3f998b67621, s.List)
+	return str
 }
 
 // Cluster_ModelInstanceFactory_newCloudViaProxy_Params_Future is a wrapper for a Cluster_ModelInstanceFactory_newCloudViaProxy_Params promised by a client call.
 type Cluster_ModelInstanceFactory_newCloudViaProxy_Params_Future struct{ *capnp.Future }
 
-func (f Cluster_ModelInstanceFactory_newCloudViaProxy_Params_Future) Struct() (Cluster_ModelInstanceFactory_newCloudViaProxy_Params, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_ModelInstanceFactory_newCloudViaProxy_Params(p.Struct()), err
+func (p Cluster_ModelInstanceFactory_newCloudViaProxy_Params_Future) Struct() (Cluster_ModelInstanceFactory_newCloudViaProxy_Params, error) {
+	s, err := p.Future.Struct()
+	return Cluster_ModelInstanceFactory_newCloudViaProxy_Params{s}, err
 }
 
-type Cluster_ModelInstanceFactory_newCloudViaProxy_Results capnp.Struct
+type Cluster_ModelInstanceFactory_newCloudViaProxy_Results struct{ capnp.Struct }
 
 // Cluster_ModelInstanceFactory_newCloudViaProxy_Results_TypeID is the unique identifier for the type Cluster_ModelInstanceFactory_newCloudViaProxy_Results.
 const Cluster_ModelInstanceFactory_newCloudViaProxy_Results_TypeID = 0xbaf979a1f5673019
 
 func NewCluster_ModelInstanceFactory_newCloudViaProxy_Results(s *capnp.Segment) (Cluster_ModelInstanceFactory_newCloudViaProxy_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_ModelInstanceFactory_newCloudViaProxy_Results(st), err
+	return Cluster_ModelInstanceFactory_newCloudViaProxy_Results{st}, err
 }
 
 func NewRootCluster_ModelInstanceFactory_newCloudViaProxy_Results(s *capnp.Segment) (Cluster_ModelInstanceFactory_newCloudViaProxy_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_ModelInstanceFactory_newCloudViaProxy_Results(st), err
+	return Cluster_ModelInstanceFactory_newCloudViaProxy_Results{st}, err
 }
 
 func ReadRootCluster_ModelInstanceFactory_newCloudViaProxy_Results(msg *capnp.Message) (Cluster_ModelInstanceFactory_newCloudViaProxy_Results, error) {
 	root, err := msg.Root()
-	return Cluster_ModelInstanceFactory_newCloudViaProxy_Results(root.Struct()), err
+	return Cluster_ModelInstanceFactory_newCloudViaProxy_Results{root.Struct()}, err
 }
 
 func (s Cluster_ModelInstanceFactory_newCloudViaProxy_Results) String() string {
-	str, _ := text.Marshal(0xbaf979a1f5673019, capnp.Struct(s))
+	str, _ := text.Marshal(0xbaf979a1f5673019, s.Struct)
 	return str
 }
 
-func (s Cluster_ModelInstanceFactory_newCloudViaProxy_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_ModelInstanceFactory_newCloudViaProxy_Results) DecodeFromPtr(p capnp.Ptr) Cluster_ModelInstanceFactory_newCloudViaProxy_Results {
-	return Cluster_ModelInstanceFactory_newCloudViaProxy_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_ModelInstanceFactory_newCloudViaProxy_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_ModelInstanceFactory_newCloudViaProxy_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_ModelInstanceFactory_newCloudViaProxy_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_ModelInstanceFactory_newCloudViaProxy_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Cluster_ModelInstanceFactory_newCloudViaProxy_Results) Proxy() Cluster_ValueHolder {
-	p, _ := capnp.Struct(s).Ptr(0)
-	return Cluster_ValueHolder(p.Interface().Client())
+	p, _ := s.Struct.Ptr(0)
+	return Cluster_ValueHolder{Client: p.Interface().Client()}
 }
 
 func (s Cluster_ModelInstanceFactory_newCloudViaProxy_Results) HasProxy() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Cluster_ModelInstanceFactory_newCloudViaProxy_Results) SetProxy(v Cluster_ValueHolder) error {
-	if !v.IsValid() {
-		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
+	if !v.Client.IsValid() {
+		return s.Struct.SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
-	return capnp.Struct(s).SetPtr(0, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
+	return s.Struct.SetPtr(0, in.ToPtr())
 }
 
 // Cluster_ModelInstanceFactory_newCloudViaProxy_Results_List is a list of Cluster_ModelInstanceFactory_newCloudViaProxy_Results.
-type Cluster_ModelInstanceFactory_newCloudViaProxy_Results_List = capnp.StructList[Cluster_ModelInstanceFactory_newCloudViaProxy_Results]
+type Cluster_ModelInstanceFactory_newCloudViaProxy_Results_List struct{ capnp.List }
 
 // NewCluster_ModelInstanceFactory_newCloudViaProxy_Results creates a new list of Cluster_ModelInstanceFactory_newCloudViaProxy_Results.
 func NewCluster_ModelInstanceFactory_newCloudViaProxy_Results_List(s *capnp.Segment, sz int32) (Cluster_ModelInstanceFactory_newCloudViaProxy_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Cluster_ModelInstanceFactory_newCloudViaProxy_Results](l), err
+	return Cluster_ModelInstanceFactory_newCloudViaProxy_Results_List{l}, err
+}
+
+func (s Cluster_ModelInstanceFactory_newCloudViaProxy_Results_List) At(i int) Cluster_ModelInstanceFactory_newCloudViaProxy_Results {
+	return Cluster_ModelInstanceFactory_newCloudViaProxy_Results{s.List.Struct(i)}
+}
+
+func (s Cluster_ModelInstanceFactory_newCloudViaProxy_Results_List) Set(i int, v Cluster_ModelInstanceFactory_newCloudViaProxy_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_ModelInstanceFactory_newCloudViaProxy_Results_List) String() string {
+	str, _ := text.MarshalList(0xbaf979a1f5673019, s.List)
+	return str
 }
 
 // Cluster_ModelInstanceFactory_newCloudViaProxy_Results_Future is a wrapper for a Cluster_ModelInstanceFactory_newCloudViaProxy_Results promised by a client call.
 type Cluster_ModelInstanceFactory_newCloudViaProxy_Results_Future struct{ *capnp.Future }
 
-func (f Cluster_ModelInstanceFactory_newCloudViaProxy_Results_Future) Struct() (Cluster_ModelInstanceFactory_newCloudViaProxy_Results, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_ModelInstanceFactory_newCloudViaProxy_Results(p.Struct()), err
-}
-func (p Cluster_ModelInstanceFactory_newCloudViaProxy_Results_Future) Proxy() Cluster_ValueHolder {
-	return Cluster_ValueHolder(p.Future.Field(0, nil).Client())
+func (p Cluster_ModelInstanceFactory_newCloudViaProxy_Results_Future) Struct() (Cluster_ModelInstanceFactory_newCloudViaProxy_Results, error) {
+	s, err := p.Future.Struct()
+	return Cluster_ModelInstanceFactory_newCloudViaProxy_Results{s}, err
 }
 
-type Cluster_ModelInstanceFactory_modelId_Params capnp.Struct
+func (p Cluster_ModelInstanceFactory_newCloudViaProxy_Results_Future) Proxy() Cluster_ValueHolder {
+	return Cluster_ValueHolder{Client: p.Future.Field(0, nil).Client()}
+}
+
+type Cluster_ModelInstanceFactory_modelId_Params struct{ capnp.Struct }
 
 // Cluster_ModelInstanceFactory_modelId_Params_TypeID is the unique identifier for the type Cluster_ModelInstanceFactory_modelId_Params.
 const Cluster_ModelInstanceFactory_modelId_Params_TypeID = 0xe4b6ea2bfbc474d8
 
 func NewCluster_ModelInstanceFactory_modelId_Params(s *capnp.Segment) (Cluster_ModelInstanceFactory_modelId_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Cluster_ModelInstanceFactory_modelId_Params(st), err
+	return Cluster_ModelInstanceFactory_modelId_Params{st}, err
 }
 
 func NewRootCluster_ModelInstanceFactory_modelId_Params(s *capnp.Segment) (Cluster_ModelInstanceFactory_modelId_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Cluster_ModelInstanceFactory_modelId_Params(st), err
+	return Cluster_ModelInstanceFactory_modelId_Params{st}, err
 }
 
 func ReadRootCluster_ModelInstanceFactory_modelId_Params(msg *capnp.Message) (Cluster_ModelInstanceFactory_modelId_Params, error) {
 	root, err := msg.Root()
-	return Cluster_ModelInstanceFactory_modelId_Params(root.Struct()), err
+	return Cluster_ModelInstanceFactory_modelId_Params{root.Struct()}, err
 }
 
 func (s Cluster_ModelInstanceFactory_modelId_Params) String() string {
-	str, _ := text.Marshal(0xe4b6ea2bfbc474d8, capnp.Struct(s))
+	str, _ := text.Marshal(0xe4b6ea2bfbc474d8, s.Struct)
 	return str
 }
 
-func (s Cluster_ModelInstanceFactory_modelId_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_ModelInstanceFactory_modelId_Params) DecodeFromPtr(p capnp.Ptr) Cluster_ModelInstanceFactory_modelId_Params {
-	return Cluster_ModelInstanceFactory_modelId_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_ModelInstanceFactory_modelId_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_ModelInstanceFactory_modelId_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_ModelInstanceFactory_modelId_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_ModelInstanceFactory_modelId_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
 // Cluster_ModelInstanceFactory_modelId_Params_List is a list of Cluster_ModelInstanceFactory_modelId_Params.
-type Cluster_ModelInstanceFactory_modelId_Params_List = capnp.StructList[Cluster_ModelInstanceFactory_modelId_Params]
+type Cluster_ModelInstanceFactory_modelId_Params_List struct{ capnp.List }
 
 // NewCluster_ModelInstanceFactory_modelId_Params creates a new list of Cluster_ModelInstanceFactory_modelId_Params.
 func NewCluster_ModelInstanceFactory_modelId_Params_List(s *capnp.Segment, sz int32) (Cluster_ModelInstanceFactory_modelId_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[Cluster_ModelInstanceFactory_modelId_Params](l), err
+	return Cluster_ModelInstanceFactory_modelId_Params_List{l}, err
+}
+
+func (s Cluster_ModelInstanceFactory_modelId_Params_List) At(i int) Cluster_ModelInstanceFactory_modelId_Params {
+	return Cluster_ModelInstanceFactory_modelId_Params{s.List.Struct(i)}
+}
+
+func (s Cluster_ModelInstanceFactory_modelId_Params_List) Set(i int, v Cluster_ModelInstanceFactory_modelId_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_ModelInstanceFactory_modelId_Params_List) String() string {
+	str, _ := text.MarshalList(0xe4b6ea2bfbc474d8, s.List)
+	return str
 }
 
 // Cluster_ModelInstanceFactory_modelId_Params_Future is a wrapper for a Cluster_ModelInstanceFactory_modelId_Params promised by a client call.
 type Cluster_ModelInstanceFactory_modelId_Params_Future struct{ *capnp.Future }
 
-func (f Cluster_ModelInstanceFactory_modelId_Params_Future) Struct() (Cluster_ModelInstanceFactory_modelId_Params, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_ModelInstanceFactory_modelId_Params(p.Struct()), err
+func (p Cluster_ModelInstanceFactory_modelId_Params_Future) Struct() (Cluster_ModelInstanceFactory_modelId_Params, error) {
+	s, err := p.Future.Struct()
+	return Cluster_ModelInstanceFactory_modelId_Params{s}, err
 }
 
-type Cluster_ModelInstanceFactory_modelId_Results capnp.Struct
+type Cluster_ModelInstanceFactory_modelId_Results struct{ capnp.Struct }
 
 // Cluster_ModelInstanceFactory_modelId_Results_TypeID is the unique identifier for the type Cluster_ModelInstanceFactory_modelId_Results.
 const Cluster_ModelInstanceFactory_modelId_Results_TypeID = 0xe3cf5a40e703e6da
 
 func NewCluster_ModelInstanceFactory_modelId_Results(s *capnp.Segment) (Cluster_ModelInstanceFactory_modelId_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_ModelInstanceFactory_modelId_Results(st), err
+	return Cluster_ModelInstanceFactory_modelId_Results{st}, err
 }
 
 func NewRootCluster_ModelInstanceFactory_modelId_Results(s *capnp.Segment) (Cluster_ModelInstanceFactory_modelId_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_ModelInstanceFactory_modelId_Results(st), err
+	return Cluster_ModelInstanceFactory_modelId_Results{st}, err
 }
 
 func ReadRootCluster_ModelInstanceFactory_modelId_Results(msg *capnp.Message) (Cluster_ModelInstanceFactory_modelId_Results, error) {
 	root, err := msg.Root()
-	return Cluster_ModelInstanceFactory_modelId_Results(root.Struct()), err
+	return Cluster_ModelInstanceFactory_modelId_Results{root.Struct()}, err
 }
 
 func (s Cluster_ModelInstanceFactory_modelId_Results) String() string {
-	str, _ := text.Marshal(0xe3cf5a40e703e6da, capnp.Struct(s))
+	str, _ := text.Marshal(0xe3cf5a40e703e6da, s.Struct)
 	return str
 }
 
-func (s Cluster_ModelInstanceFactory_modelId_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_ModelInstanceFactory_modelId_Results) DecodeFromPtr(p capnp.Ptr) Cluster_ModelInstanceFactory_modelId_Results {
-	return Cluster_ModelInstanceFactory_modelId_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_ModelInstanceFactory_modelId_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_ModelInstanceFactory_modelId_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_ModelInstanceFactory_modelId_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_ModelInstanceFactory_modelId_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Cluster_ModelInstanceFactory_modelId_Results) Id() (string, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.Text(), err
 }
 
 func (s Cluster_ModelInstanceFactory_modelId_Results) HasId() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Cluster_ModelInstanceFactory_modelId_Results) IdBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.TextBytes(), err
 }
 
 func (s Cluster_ModelInstanceFactory_modelId_Results) SetId(v string) error {
-	return capnp.Struct(s).SetText(0, v)
+	return s.Struct.SetText(0, v)
 }
 
 // Cluster_ModelInstanceFactory_modelId_Results_List is a list of Cluster_ModelInstanceFactory_modelId_Results.
-type Cluster_ModelInstanceFactory_modelId_Results_List = capnp.StructList[Cluster_ModelInstanceFactory_modelId_Results]
+type Cluster_ModelInstanceFactory_modelId_Results_List struct{ capnp.List }
 
 // NewCluster_ModelInstanceFactory_modelId_Results creates a new list of Cluster_ModelInstanceFactory_modelId_Results.
 func NewCluster_ModelInstanceFactory_modelId_Results_List(s *capnp.Segment, sz int32) (Cluster_ModelInstanceFactory_modelId_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Cluster_ModelInstanceFactory_modelId_Results](l), err
+	return Cluster_ModelInstanceFactory_modelId_Results_List{l}, err
+}
+
+func (s Cluster_ModelInstanceFactory_modelId_Results_List) At(i int) Cluster_ModelInstanceFactory_modelId_Results {
+	return Cluster_ModelInstanceFactory_modelId_Results{s.List.Struct(i)}
+}
+
+func (s Cluster_ModelInstanceFactory_modelId_Results_List) Set(i int, v Cluster_ModelInstanceFactory_modelId_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_ModelInstanceFactory_modelId_Results_List) String() string {
+	str, _ := text.MarshalList(0xe3cf5a40e703e6da, s.List)
+	return str
 }
 
 // Cluster_ModelInstanceFactory_modelId_Results_Future is a wrapper for a Cluster_ModelInstanceFactory_modelId_Results promised by a client call.
 type Cluster_ModelInstanceFactory_modelId_Results_Future struct{ *capnp.Future }
 
-func (f Cluster_ModelInstanceFactory_modelId_Results_Future) Struct() (Cluster_ModelInstanceFactory_modelId_Results, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_ModelInstanceFactory_modelId_Results(p.Struct()), err
+func (p Cluster_ModelInstanceFactory_modelId_Results_Future) Struct() (Cluster_ModelInstanceFactory_modelId_Results, error) {
+	s, err := p.Future.Struct()
+	return Cluster_ModelInstanceFactory_modelId_Results{s}, err
 }
 
-type Cluster_ModelInstanceFactory_registerModelInstance_Params capnp.Struct
+type Cluster_ModelInstanceFactory_registerModelInstance_Params struct{ capnp.Struct }
 
 // Cluster_ModelInstanceFactory_registerModelInstance_Params_TypeID is the unique identifier for the type Cluster_ModelInstanceFactory_registerModelInstance_Params.
 const Cluster_ModelInstanceFactory_registerModelInstance_Params_TypeID = 0xbea41d4487c101c4
 
 func NewCluster_ModelInstanceFactory_registerModelInstance_Params(s *capnp.Segment) (Cluster_ModelInstanceFactory_registerModelInstance_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Cluster_ModelInstanceFactory_registerModelInstance_Params(st), err
+	return Cluster_ModelInstanceFactory_registerModelInstance_Params{st}, err
 }
 
 func NewRootCluster_ModelInstanceFactory_registerModelInstance_Params(s *capnp.Segment) (Cluster_ModelInstanceFactory_registerModelInstance_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Cluster_ModelInstanceFactory_registerModelInstance_Params(st), err
+	return Cluster_ModelInstanceFactory_registerModelInstance_Params{st}, err
 }
 
 func ReadRootCluster_ModelInstanceFactory_registerModelInstance_Params(msg *capnp.Message) (Cluster_ModelInstanceFactory_registerModelInstance_Params, error) {
 	root, err := msg.Root()
-	return Cluster_ModelInstanceFactory_registerModelInstance_Params(root.Struct()), err
+	return Cluster_ModelInstanceFactory_registerModelInstance_Params{root.Struct()}, err
 }
 
 func (s Cluster_ModelInstanceFactory_registerModelInstance_Params) String() string {
-	str, _ := text.Marshal(0xbea41d4487c101c4, capnp.Struct(s))
+	str, _ := text.Marshal(0xbea41d4487c101c4, s.Struct)
 	return str
 }
 
-func (s Cluster_ModelInstanceFactory_registerModelInstance_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_ModelInstanceFactory_registerModelInstance_Params) DecodeFromPtr(p capnp.Ptr) Cluster_ModelInstanceFactory_registerModelInstance_Params {
-	return Cluster_ModelInstanceFactory_registerModelInstance_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_ModelInstanceFactory_registerModelInstance_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_ModelInstanceFactory_registerModelInstance_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_ModelInstanceFactory_registerModelInstance_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_ModelInstanceFactory_registerModelInstance_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-func (s Cluster_ModelInstanceFactory_registerModelInstance_Params) Instance() capnp.Client {
-	p, _ := capnp.Struct(s).Ptr(0)
-	return p.Interface().Client()
+func (s Cluster_ModelInstanceFactory_registerModelInstance_Params) Instance() (capnp.Ptr, error) {
+	return s.Struct.Ptr(0)
 }
 
 func (s Cluster_ModelInstanceFactory_registerModelInstance_Params) HasInstance() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
-func (s Cluster_ModelInstanceFactory_registerModelInstance_Params) SetInstance(c capnp.Client) error {
-	if !c.IsValid() {
-		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
-	}
-	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(c))
-	return capnp.Struct(s).SetPtr(0, in.ToPtr())
+func (s Cluster_ModelInstanceFactory_registerModelInstance_Params) SetInstance(v capnp.Ptr) error {
+	return s.Struct.SetPtr(0, v)
 }
+
 func (s Cluster_ModelInstanceFactory_registerModelInstance_Params) RegistrationToken() (string, error) {
-	p, err := capnp.Struct(s).Ptr(1)
+	p, err := s.Struct.Ptr(1)
 	return p.Text(), err
 }
 
 func (s Cluster_ModelInstanceFactory_registerModelInstance_Params) HasRegistrationToken() bool {
-	return capnp.Struct(s).HasPtr(1)
+	return s.Struct.HasPtr(1)
 }
 
 func (s Cluster_ModelInstanceFactory_registerModelInstance_Params) RegistrationTokenBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(1)
+	p, err := s.Struct.Ptr(1)
 	return p.TextBytes(), err
 }
 
 func (s Cluster_ModelInstanceFactory_registerModelInstance_Params) SetRegistrationToken(v string) error {
-	return capnp.Struct(s).SetText(1, v)
+	return s.Struct.SetText(1, v)
 }
 
 // Cluster_ModelInstanceFactory_registerModelInstance_Params_List is a list of Cluster_ModelInstanceFactory_registerModelInstance_Params.
-type Cluster_ModelInstanceFactory_registerModelInstance_Params_List = capnp.StructList[Cluster_ModelInstanceFactory_registerModelInstance_Params]
+type Cluster_ModelInstanceFactory_registerModelInstance_Params_List struct{ capnp.List }
 
 // NewCluster_ModelInstanceFactory_registerModelInstance_Params creates a new list of Cluster_ModelInstanceFactory_registerModelInstance_Params.
 func NewCluster_ModelInstanceFactory_registerModelInstance_Params_List(s *capnp.Segment, sz int32) (Cluster_ModelInstanceFactory_registerModelInstance_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
-	return capnp.StructList[Cluster_ModelInstanceFactory_registerModelInstance_Params](l), err
+	return Cluster_ModelInstanceFactory_registerModelInstance_Params_List{l}, err
+}
+
+func (s Cluster_ModelInstanceFactory_registerModelInstance_Params_List) At(i int) Cluster_ModelInstanceFactory_registerModelInstance_Params {
+	return Cluster_ModelInstanceFactory_registerModelInstance_Params{s.List.Struct(i)}
+}
+
+func (s Cluster_ModelInstanceFactory_registerModelInstance_Params_List) Set(i int, v Cluster_ModelInstanceFactory_registerModelInstance_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_ModelInstanceFactory_registerModelInstance_Params_List) String() string {
+	str, _ := text.MarshalList(0xbea41d4487c101c4, s.List)
+	return str
 }
 
 // Cluster_ModelInstanceFactory_registerModelInstance_Params_Future is a wrapper for a Cluster_ModelInstanceFactory_registerModelInstance_Params promised by a client call.
 type Cluster_ModelInstanceFactory_registerModelInstance_Params_Future struct{ *capnp.Future }
 
-func (f Cluster_ModelInstanceFactory_registerModelInstance_Params_Future) Struct() (Cluster_ModelInstanceFactory_registerModelInstance_Params, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_ModelInstanceFactory_registerModelInstance_Params(p.Struct()), err
-}
-func (p Cluster_ModelInstanceFactory_registerModelInstance_Params_Future) Instance() capnp.Client {
-	return p.Future.Field(0, nil).Client()
+func (p Cluster_ModelInstanceFactory_registerModelInstance_Params_Future) Struct() (Cluster_ModelInstanceFactory_registerModelInstance_Params, error) {
+	s, err := p.Future.Struct()
+	return Cluster_ModelInstanceFactory_registerModelInstance_Params{s}, err
 }
 
-type Cluster_ModelInstanceFactory_registerModelInstance_Results capnp.Struct
+func (p Cluster_ModelInstanceFactory_registerModelInstance_Params_Future) Instance() *capnp.Future {
+	return p.Future.Field(0, nil)
+}
+
+type Cluster_ModelInstanceFactory_registerModelInstance_Results struct{ capnp.Struct }
 
 // Cluster_ModelInstanceFactory_registerModelInstance_Results_TypeID is the unique identifier for the type Cluster_ModelInstanceFactory_registerModelInstance_Results.
 const Cluster_ModelInstanceFactory_registerModelInstance_Results_TypeID = 0xca8fb2a4c16e5f08
 
 func NewCluster_ModelInstanceFactory_registerModelInstance_Results(s *capnp.Segment) (Cluster_ModelInstanceFactory_registerModelInstance_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_ModelInstanceFactory_registerModelInstance_Results(st), err
+	return Cluster_ModelInstanceFactory_registerModelInstance_Results{st}, err
 }
 
 func NewRootCluster_ModelInstanceFactory_registerModelInstance_Results(s *capnp.Segment) (Cluster_ModelInstanceFactory_registerModelInstance_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_ModelInstanceFactory_registerModelInstance_Results(st), err
+	return Cluster_ModelInstanceFactory_registerModelInstance_Results{st}, err
 }
 
 func ReadRootCluster_ModelInstanceFactory_registerModelInstance_Results(msg *capnp.Message) (Cluster_ModelInstanceFactory_registerModelInstance_Results, error) {
 	root, err := msg.Root()
-	return Cluster_ModelInstanceFactory_registerModelInstance_Results(root.Struct()), err
+	return Cluster_ModelInstanceFactory_registerModelInstance_Results{root.Struct()}, err
 }
 
 func (s Cluster_ModelInstanceFactory_registerModelInstance_Results) String() string {
-	str, _ := text.Marshal(0xca8fb2a4c16e5f08, capnp.Struct(s))
+	str, _ := text.Marshal(0xca8fb2a4c16e5f08, s.Struct)
 	return str
 }
 
-func (s Cluster_ModelInstanceFactory_registerModelInstance_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_ModelInstanceFactory_registerModelInstance_Results) DecodeFromPtr(p capnp.Ptr) Cluster_ModelInstanceFactory_registerModelInstance_Results {
-	return Cluster_ModelInstanceFactory_registerModelInstance_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_ModelInstanceFactory_registerModelInstance_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_ModelInstanceFactory_registerModelInstance_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_ModelInstanceFactory_registerModelInstance_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_ModelInstanceFactory_registerModelInstance_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Cluster_ModelInstanceFactory_registerModelInstance_Results) Unregister() Cluster_Unregister {
-	p, _ := capnp.Struct(s).Ptr(0)
-	return Cluster_Unregister(p.Interface().Client())
+	p, _ := s.Struct.Ptr(0)
+	return Cluster_Unregister{Client: p.Interface().Client()}
 }
 
 func (s Cluster_ModelInstanceFactory_registerModelInstance_Results) HasUnregister() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Cluster_ModelInstanceFactory_registerModelInstance_Results) SetUnregister(v Cluster_Unregister) error {
-	if !v.IsValid() {
-		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
+	if !v.Client.IsValid() {
+		return s.Struct.SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
-	return capnp.Struct(s).SetPtr(0, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
+	return s.Struct.SetPtr(0, in.ToPtr())
 }
 
 // Cluster_ModelInstanceFactory_registerModelInstance_Results_List is a list of Cluster_ModelInstanceFactory_registerModelInstance_Results.
-type Cluster_ModelInstanceFactory_registerModelInstance_Results_List = capnp.StructList[Cluster_ModelInstanceFactory_registerModelInstance_Results]
+type Cluster_ModelInstanceFactory_registerModelInstance_Results_List struct{ capnp.List }
 
 // NewCluster_ModelInstanceFactory_registerModelInstance_Results creates a new list of Cluster_ModelInstanceFactory_registerModelInstance_Results.
 func NewCluster_ModelInstanceFactory_registerModelInstance_Results_List(s *capnp.Segment, sz int32) (Cluster_ModelInstanceFactory_registerModelInstance_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Cluster_ModelInstanceFactory_registerModelInstance_Results](l), err
+	return Cluster_ModelInstanceFactory_registerModelInstance_Results_List{l}, err
+}
+
+func (s Cluster_ModelInstanceFactory_registerModelInstance_Results_List) At(i int) Cluster_ModelInstanceFactory_registerModelInstance_Results {
+	return Cluster_ModelInstanceFactory_registerModelInstance_Results{s.List.Struct(i)}
+}
+
+func (s Cluster_ModelInstanceFactory_registerModelInstance_Results_List) Set(i int, v Cluster_ModelInstanceFactory_registerModelInstance_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_ModelInstanceFactory_registerModelInstance_Results_List) String() string {
+	str, _ := text.MarshalList(0xca8fb2a4c16e5f08, s.List)
+	return str
 }
 
 // Cluster_ModelInstanceFactory_registerModelInstance_Results_Future is a wrapper for a Cluster_ModelInstanceFactory_registerModelInstance_Results promised by a client call.
 type Cluster_ModelInstanceFactory_registerModelInstance_Results_Future struct{ *capnp.Future }
 
-func (f Cluster_ModelInstanceFactory_registerModelInstance_Results_Future) Struct() (Cluster_ModelInstanceFactory_registerModelInstance_Results, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_ModelInstanceFactory_registerModelInstance_Results(p.Struct()), err
-}
-func (p Cluster_ModelInstanceFactory_registerModelInstance_Results_Future) Unregister() Cluster_Unregister {
-	return Cluster_Unregister(p.Future.Field(0, nil).Client())
+func (p Cluster_ModelInstanceFactory_registerModelInstance_Results_Future) Struct() (Cluster_ModelInstanceFactory_registerModelInstance_Results, error) {
+	s, err := p.Future.Struct()
+	return Cluster_ModelInstanceFactory_registerModelInstance_Results{s}, err
 }
 
-type Cluster_ModelInstanceFactory_restoreSturdyRef_Params capnp.Struct
+func (p Cluster_ModelInstanceFactory_registerModelInstance_Results_Future) Unregister() Cluster_Unregister {
+	return Cluster_Unregister{Client: p.Future.Field(0, nil).Client()}
+}
+
+type Cluster_ModelInstanceFactory_restoreSturdyRef_Params struct{ capnp.Struct }
 
 // Cluster_ModelInstanceFactory_restoreSturdyRef_Params_TypeID is the unique identifier for the type Cluster_ModelInstanceFactory_restoreSturdyRef_Params.
 const Cluster_ModelInstanceFactory_restoreSturdyRef_Params_TypeID = 0xd88a3f78cce2bc7d
 
 func NewCluster_ModelInstanceFactory_restoreSturdyRef_Params(s *capnp.Segment) (Cluster_ModelInstanceFactory_restoreSturdyRef_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_ModelInstanceFactory_restoreSturdyRef_Params(st), err
+	return Cluster_ModelInstanceFactory_restoreSturdyRef_Params{st}, err
 }
 
 func NewRootCluster_ModelInstanceFactory_restoreSturdyRef_Params(s *capnp.Segment) (Cluster_ModelInstanceFactory_restoreSturdyRef_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_ModelInstanceFactory_restoreSturdyRef_Params(st), err
+	return Cluster_ModelInstanceFactory_restoreSturdyRef_Params{st}, err
 }
 
 func ReadRootCluster_ModelInstanceFactory_restoreSturdyRef_Params(msg *capnp.Message) (Cluster_ModelInstanceFactory_restoreSturdyRef_Params, error) {
 	root, err := msg.Root()
-	return Cluster_ModelInstanceFactory_restoreSturdyRef_Params(root.Struct()), err
+	return Cluster_ModelInstanceFactory_restoreSturdyRef_Params{root.Struct()}, err
 }
 
 func (s Cluster_ModelInstanceFactory_restoreSturdyRef_Params) String() string {
-	str, _ := text.Marshal(0xd88a3f78cce2bc7d, capnp.Struct(s))
+	str, _ := text.Marshal(0xd88a3f78cce2bc7d, s.Struct)
 	return str
 }
 
-func (s Cluster_ModelInstanceFactory_restoreSturdyRef_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_ModelInstanceFactory_restoreSturdyRef_Params) DecodeFromPtr(p capnp.Ptr) Cluster_ModelInstanceFactory_restoreSturdyRef_Params {
-	return Cluster_ModelInstanceFactory_restoreSturdyRef_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_ModelInstanceFactory_restoreSturdyRef_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_ModelInstanceFactory_restoreSturdyRef_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_ModelInstanceFactory_restoreSturdyRef_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_ModelInstanceFactory_restoreSturdyRef_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Cluster_ModelInstanceFactory_restoreSturdyRef_Params) SturdyRef() (string, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.Text(), err
 }
 
 func (s Cluster_ModelInstanceFactory_restoreSturdyRef_Params) HasSturdyRef() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Cluster_ModelInstanceFactory_restoreSturdyRef_Params) SturdyRefBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(0)
+	p, err := s.Struct.Ptr(0)
 	return p.TextBytes(), err
 }
 
 func (s Cluster_ModelInstanceFactory_restoreSturdyRef_Params) SetSturdyRef(v string) error {
-	return capnp.Struct(s).SetText(0, v)
+	return s.Struct.SetText(0, v)
 }
 
 // Cluster_ModelInstanceFactory_restoreSturdyRef_Params_List is a list of Cluster_ModelInstanceFactory_restoreSturdyRef_Params.
-type Cluster_ModelInstanceFactory_restoreSturdyRef_Params_List = capnp.StructList[Cluster_ModelInstanceFactory_restoreSturdyRef_Params]
+type Cluster_ModelInstanceFactory_restoreSturdyRef_Params_List struct{ capnp.List }
 
 // NewCluster_ModelInstanceFactory_restoreSturdyRef_Params creates a new list of Cluster_ModelInstanceFactory_restoreSturdyRef_Params.
 func NewCluster_ModelInstanceFactory_restoreSturdyRef_Params_List(s *capnp.Segment, sz int32) (Cluster_ModelInstanceFactory_restoreSturdyRef_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Cluster_ModelInstanceFactory_restoreSturdyRef_Params](l), err
+	return Cluster_ModelInstanceFactory_restoreSturdyRef_Params_List{l}, err
+}
+
+func (s Cluster_ModelInstanceFactory_restoreSturdyRef_Params_List) At(i int) Cluster_ModelInstanceFactory_restoreSturdyRef_Params {
+	return Cluster_ModelInstanceFactory_restoreSturdyRef_Params{s.List.Struct(i)}
+}
+
+func (s Cluster_ModelInstanceFactory_restoreSturdyRef_Params_List) Set(i int, v Cluster_ModelInstanceFactory_restoreSturdyRef_Params) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_ModelInstanceFactory_restoreSturdyRef_Params_List) String() string {
+	str, _ := text.MarshalList(0xd88a3f78cce2bc7d, s.List)
+	return str
 }
 
 // Cluster_ModelInstanceFactory_restoreSturdyRef_Params_Future is a wrapper for a Cluster_ModelInstanceFactory_restoreSturdyRef_Params promised by a client call.
 type Cluster_ModelInstanceFactory_restoreSturdyRef_Params_Future struct{ *capnp.Future }
 
-func (f Cluster_ModelInstanceFactory_restoreSturdyRef_Params_Future) Struct() (Cluster_ModelInstanceFactory_restoreSturdyRef_Params, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_ModelInstanceFactory_restoreSturdyRef_Params(p.Struct()), err
+func (p Cluster_ModelInstanceFactory_restoreSturdyRef_Params_Future) Struct() (Cluster_ModelInstanceFactory_restoreSturdyRef_Params, error) {
+	s, err := p.Future.Struct()
+	return Cluster_ModelInstanceFactory_restoreSturdyRef_Params{s}, err
 }
 
-type Cluster_ModelInstanceFactory_restoreSturdyRef_Results capnp.Struct
+type Cluster_ModelInstanceFactory_restoreSturdyRef_Results struct{ capnp.Struct }
 
 // Cluster_ModelInstanceFactory_restoreSturdyRef_Results_TypeID is the unique identifier for the type Cluster_ModelInstanceFactory_restoreSturdyRef_Results.
 const Cluster_ModelInstanceFactory_restoreSturdyRef_Results_TypeID = 0xe5cdfbf0462c5cfd
 
 func NewCluster_ModelInstanceFactory_restoreSturdyRef_Results(s *capnp.Segment) (Cluster_ModelInstanceFactory_restoreSturdyRef_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_ModelInstanceFactory_restoreSturdyRef_Results(st), err
+	return Cluster_ModelInstanceFactory_restoreSturdyRef_Results{st}, err
 }
 
 func NewRootCluster_ModelInstanceFactory_restoreSturdyRef_Results(s *capnp.Segment) (Cluster_ModelInstanceFactory_restoreSturdyRef_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Cluster_ModelInstanceFactory_restoreSturdyRef_Results(st), err
+	return Cluster_ModelInstanceFactory_restoreSturdyRef_Results{st}, err
 }
 
 func ReadRootCluster_ModelInstanceFactory_restoreSturdyRef_Results(msg *capnp.Message) (Cluster_ModelInstanceFactory_restoreSturdyRef_Results, error) {
 	root, err := msg.Root()
-	return Cluster_ModelInstanceFactory_restoreSturdyRef_Results(root.Struct()), err
+	return Cluster_ModelInstanceFactory_restoreSturdyRef_Results{root.Struct()}, err
 }
 
 func (s Cluster_ModelInstanceFactory_restoreSturdyRef_Results) String() string {
-	str, _ := text.Marshal(0xe5cdfbf0462c5cfd, capnp.Struct(s))
+	str, _ := text.Marshal(0xe5cdfbf0462c5cfd, s.Struct)
 	return str
 }
 
-func (s Cluster_ModelInstanceFactory_restoreSturdyRef_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Cluster_ModelInstanceFactory_restoreSturdyRef_Results) DecodeFromPtr(p capnp.Ptr) Cluster_ModelInstanceFactory_restoreSturdyRef_Results {
-	return Cluster_ModelInstanceFactory_restoreSturdyRef_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Cluster_ModelInstanceFactory_restoreSturdyRef_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Cluster_ModelInstanceFactory_restoreSturdyRef_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Cluster_ModelInstanceFactory_restoreSturdyRef_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Cluster_ModelInstanceFactory_restoreSturdyRef_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
 func (s Cluster_ModelInstanceFactory_restoreSturdyRef_Results) Cap() Cluster_ValueHolder {
-	p, _ := capnp.Struct(s).Ptr(0)
-	return Cluster_ValueHolder(p.Interface().Client())
+	p, _ := s.Struct.Ptr(0)
+	return Cluster_ValueHolder{Client: p.Interface().Client()}
 }
 
 func (s Cluster_ModelInstanceFactory_restoreSturdyRef_Results) HasCap() bool {
-	return capnp.Struct(s).HasPtr(0)
+	return s.Struct.HasPtr(0)
 }
 
 func (s Cluster_ModelInstanceFactory_restoreSturdyRef_Results) SetCap(v Cluster_ValueHolder) error {
-	if !v.IsValid() {
-		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
+	if !v.Client.IsValid() {
+		return s.Struct.SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
-	return capnp.Struct(s).SetPtr(0, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
+	return s.Struct.SetPtr(0, in.ToPtr())
 }
 
 // Cluster_ModelInstanceFactory_restoreSturdyRef_Results_List is a list of Cluster_ModelInstanceFactory_restoreSturdyRef_Results.
-type Cluster_ModelInstanceFactory_restoreSturdyRef_Results_List = capnp.StructList[Cluster_ModelInstanceFactory_restoreSturdyRef_Results]
+type Cluster_ModelInstanceFactory_restoreSturdyRef_Results_List struct{ capnp.List }
 
 // NewCluster_ModelInstanceFactory_restoreSturdyRef_Results creates a new list of Cluster_ModelInstanceFactory_restoreSturdyRef_Results.
 func NewCluster_ModelInstanceFactory_restoreSturdyRef_Results_List(s *capnp.Segment, sz int32) (Cluster_ModelInstanceFactory_restoreSturdyRef_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return capnp.StructList[Cluster_ModelInstanceFactory_restoreSturdyRef_Results](l), err
+	return Cluster_ModelInstanceFactory_restoreSturdyRef_Results_List{l}, err
+}
+
+func (s Cluster_ModelInstanceFactory_restoreSturdyRef_Results_List) At(i int) Cluster_ModelInstanceFactory_restoreSturdyRef_Results {
+	return Cluster_ModelInstanceFactory_restoreSturdyRef_Results{s.List.Struct(i)}
+}
+
+func (s Cluster_ModelInstanceFactory_restoreSturdyRef_Results_List) Set(i int, v Cluster_ModelInstanceFactory_restoreSturdyRef_Results) error {
+	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Cluster_ModelInstanceFactory_restoreSturdyRef_Results_List) String() string {
+	str, _ := text.MarshalList(0xe5cdfbf0462c5cfd, s.List)
+	return str
 }
 
 // Cluster_ModelInstanceFactory_restoreSturdyRef_Results_Future is a wrapper for a Cluster_ModelInstanceFactory_restoreSturdyRef_Results promised by a client call.
 type Cluster_ModelInstanceFactory_restoreSturdyRef_Results_Future struct{ *capnp.Future }
 
-func (f Cluster_ModelInstanceFactory_restoreSturdyRef_Results_Future) Struct() (Cluster_ModelInstanceFactory_restoreSturdyRef_Results, error) {
-	p, err := f.Future.Ptr()
-	return Cluster_ModelInstanceFactory_restoreSturdyRef_Results(p.Struct()), err
+func (p Cluster_ModelInstanceFactory_restoreSturdyRef_Results_Future) Struct() (Cluster_ModelInstanceFactory_restoreSturdyRef_Results, error) {
+	s, err := p.Future.Struct()
+	return Cluster_ModelInstanceFactory_restoreSturdyRef_Results{s}, err
 }
+
 func (p Cluster_ModelInstanceFactory_restoreSturdyRef_Results_Future) Cap() Cluster_ValueHolder {
-	return Cluster_ValueHolder(p.Future.Field(0, nil).Client())
+	return Cluster_ValueHolder{Client: p.Future.Field(0, nil).Client()}
 }
 
 const schema_f3c1b27d6da9d0fa = "x\xda\xbcY}pT\xd5\x15?\xe7\xed\x86\x97l>" +
@@ -4706,205 +3860,200 @@ const schema_f3c1b27d6da9d0fa = "x\xda\xbcY}pT\xd5\x15?\xe7\xed\x86\x97l>" +
 	"A\x19\x0b\xa5\xd6P\xb5%U\x1c\x14\xd2\"H\x85\x02" +
 	"JG-eH\x15\x14\xb0\x99V\x09\x16\x11\x18|\x9d" +
 	"\xfb\xde\xbb/7\xd9M\xd8$\xb4\xff\xed\xbe{\xee9" +
-	"\xe7\x9e\xf3\xbb\xe7\x9c{N\xc1L\xb1\xc4\xe9\xcf\xfe\xd2" +
-	"\x0b\x82t*m\x84\x1e>\xd9\xbd\xf4\xf2\xda\x1f\xad\x04" +
-	"R\x80\x00i(z\xb0\xa8:\xe3\"\x02\xfa\x1a3\x8a" +
-	"\x01\xf5\xef\xec\xff\xe1{RK\xf5z\x90&!\x028" +
-	"E\x80\xa2\x0d\x19\x17\x05@\xdf\xeb\x06\xc1\xac\xcf\xf1\xf0" +
-	"\xf3s_\\orpR\x06\x9d\x19]\x08N=\xe6" +
-	"\xed\xfek\xd0\xfb\xcdz \x93\xd8\xce\xe3\x195\x028" +
-	"\xf5{\x8e~\xb1\xeb\xd2\x1f\xf6>\x0dd\xbc)\x15\xa0" +
-	"\xe8h\xc6\x1d\x94\xe9Y\x83\xa9\xe7\\y\xf4\x8b\xd9\x0f" +
-	"\xfc\xdcRK\xa0\x04\xa3]\xdb(\xc1$\xd7\x12@\xdd" +
-	"y\xe6og\xb6\xfd\xb4\xfaY^\xad-\xae\xc5\x94`" +
-	"\xb7\x8brP>\xe9Z\xf5\xa7/\x1f\xdf\x0c\xe4>\xb6" +
-	"~\xdaUH\x85\x87\x9bfWd\x8d\x7f\xe89S\xb8" +
-	"\xb1\xf2w\x97\x8b\xae\xfc\xec\xc8\x8b\x8f)\xcf\xd5\xfd\x92" +
-	"\x1d\x85*\xec\x9aLW\xe6o*\x1fw\xf0\x11\xcfK" +
-	"\xe6QL\x85\x0f\xb9\xaeRq\xff6\xc4}0\xb3n" +
-	"\xcdO~\xfb\xf1K\xfc\x89\x02\x99\xeb(\x81\x9cI\x09" +
-	"~\xb1\xe6.\xd7\xef\xdf]\xd4\xc6\x99iU\xe6Uj" +
-	"\xa6\x93\xb7\xa5_\xbe\xf6\xd9\xd4\x9d\xa6\xa6\xe6\xd6\xe6\xcc" +
-	"\xc9t\xeb\x06c\xeb?\xb7\x90{\x0b2\xdf\x7f\x0d\xa4" +
-	"\xf1hS\xbc\x93YJ):3\xa95F\x17,\xba" +
-	"\xb4\xb5\xf9\xca\x9b\xbcz\x81\xac\x8d\x86\xf4,\xca\xa2\xb5" +
-	"hV\xe3W\x91\xb6\xb7@\xba\xcf6\xd7\xca,/%" +
-	"\xd8d\x10<\xbd5\xfb|\xe7\xd7/\xef\xe19\xec\xce" +
-	"R)\xc1\x87\x06\xc1[?\xa8\xe9z\xb2\xf3\xc4\x1eK" +
-	"\x09\x83\xc3\xa4\xec\x19\x94`N6%8\x80\xfbV\x7f" +
-	"o\xdc\xf6\x0e\x8b\x83\xe1\xb2\xe6\xecvCD6U\xf2" +
-	"X\xd1\xd7\xca\x93w\xe5\xfd\x11H\x9eC_\x9es\xf1" +
-	"\xa3\xb9\xd5\xd3.\x03`QZN\x0b\xfaF\xe7\x88\x00" +
-	"\xbeQ9\xab}\xf1\x9c[\x00\xf4\x87w\xad]\xa8\xbf" +
-	"\x91\xf76\xe7%%\xe7^\xea\x8b5\xc7\xa64\xb7\xae" +
-	"\xab\xdbo\x99\xda\x10T\x9d\xd3B\x055\xe7PA\xc1" +
-	"{\x8ftl\x9b\xe98\x04$\x0f{\x04\x99\x84\x9d9" +
-	"\x87\xd1w\xc5\x90u\xc9 N_\x10\xd9\xb7\xbd\xbd\xf5" +
-	"0\x7fp\xc9\xfd&\xe5\xd6\xe8.\x06\xbc\xdez\xe07" +
-	"x\xac\xe3\x03v?\x00\x8a\x9eq\x1b\xa6\x7f\x85.\xeb" +
-	"\xef\xbev\xf1\xd4\xe3\x17^\xfe\xa8\xcf\xa9\xc0\x83E\xa7" +
-	"\xdd-\xe8\xbb\xe4\xa6\xb2\xba\xdd\xab}\xbb=\xa2o\xb7" +
-	"\xc7\xad/\xdfs\xe6\xc8\xd2\xe2u'x\x89\xafx\x0c" +
-	"\xa8\x1c\xf5P\x96\xef|\xf2\xc0\xbc[7\xef\xed\xe4\xa0" +
-	"\xd2\xed\x11\xe8\xd1\x7f\xf5\xea\xe5\xb6\xc2\xb5o\x9c\xe6@" +
-	"}\xd6c@\xf7\xe49\xc7\xf9\x92\xaa\xf7>\xe5\x99v" +
-	"z\x0c\xf7\\1\x98\x9e\x88\x1d\xb8\xf6\xdd\xae]\x9fq" +
-	"\x97q4)\xa5[\xaf\xcf\x1f?\xe5\xc2\xb5\xa3g\xf9" +
-	"\xad\x84\x18\xe0\xf1\x13\xbauE\xf6\x9d\x9b_x\xb4\xfd" +
-	"\x1c\xefz\x89\x18\xe0\x09\x19\x04\xff\xf8t\xe7\x99\x95\xb3" +
-	"\xca\xce\x03g\xa4\xb5d\x07%h3\x08:nS6" +
-	"n\xbd\xbc\xf3\xf3\x04\xd7\x1f%\xcb\xd0w\x9aP\x13u" +
-	"\x92\xa9\xbe\x0c\xaf\x08\xa0/\x9c9\xf1\xee\x8f\x0f\x96\xfe" +
-	"+\x81\xba\x9bR\xa7Q\x1a\x1fz\xa7\xfa&x)P" +
-	"\x0e\xaa\xb7\x17\x14\xbe\xea\xbc\xc0k7\xce[H\x85O" +
-	"\xf4R\xe1c\x9fX \x9d\xda\xf9\xe3\xff\xf0\xe7\x9b\xe3" +
-	"5BE\xa3A`\x8b cQ\xbf\xfa~[\xfd\xf2" +
-	"\xf6}_\x99\x8c\x9e\xf1\xde\x81\xbe_{\x97\x80Co" +
-	"\x9a:\xbf\xab\xf5\x89\xe9\xdf$hu\xc9[\x83\xbe\x0c" +
-	"\x1f%O\xf3ME_\xb7\x8f\xaa\xd5\x91\xf3B\xeb\xa6" +
-	"y\x9b\xae'\x90\x9f\xf6\x1dF\xdfu\x83\xfc\x8a\xef\xcf" +
-	"\xe8{h\x14%\x1f\xd39\xc6\xdb\xb1c\xe2\xb7\x1c\xdc" +
-	"'\x8c\x1aC\xdds{\xd3\xaeg\xaf\xec\xdf\xfe-\x1f" +
-	"\xe9\xee\x1ce\xc0\xe5\xfb\xa3\x8aa\x99^\x1b\x8ek1" +
-	"E]0B\x0e\xd6\x87\"\x0b4Em\x0a\xd5*\xf9" +
-	"\xb5rC\xa4ar\x99\xb9\x98?W\x0e\xc7\x95i\xd1" +
-	"pPQ\xf3\x9b\xe8\xef\xbcJ%W\x8b\x87c\x9a\xe4" +
-	"t8\x01\x9c\x08@\xb2\xef\x00\x90\xd2\x1d(\x8d\x14P" +
-	"l\x92\xc3\xe8E\x0e\xe0\x00\xe8\x05\xb4\xc5\xb9\x06\x12W" +
-	"\x1e\x0d*\xe1\xe9\x11-&Gj\x95)rm,\xaa" +
-	"6\xe7G\x94%e\xe1h<87$W\xd57V" +
-	"\x84\x1a\x94p(\xa2T\xa8\xd1\xa5!E\xcb\xab\xc8\x95" +
-	"U\xb9\xbe\x97:\x1b\x01$\x8f\x03\xa5\xb1\x02\xea\x91x" +
-	"}\x8d\xa2\xce\xaaC\xc6\x155t\x80\x80\x0eN\xa5A" +
-	"Z\xa0BvS\x89\xf6\xf6\xf4\xa1\x9c\x88}\xca\xab\x90" +
-	"U\x91\xe7&\x0e\xc4\xad2\x1e\x89\x85\xea\x95|\xb9I" +
-	"\x0e\x85\xe5\x9a\xb0b\xb0\xd7\xf2*\x15-.\xf6qJ" +
-	"%\x80\x94\xe5@\xe9n\x01\xf5:CpH\x01\xd40" +
-	"\x07\xb0\xc2\x81Hz\xa0\x06H?\xda\x1ad\x0c\xa4A" +
-	"\x80\xae\x95\xcb\xc6oUY\x14\xa2?\x92\x9d\x91\x9dK" +
-	"J\xb75\xbag\x06\x80t\xb7\x03\xa5\xfb\x05$\x88#" +
-	"),\x89\x9f~,p\xa0\xf4\xa0\x80\xbalr\x0aR" +
-	"\xccd\x81\x80Y\x80\xbal1\xa4\xdfz\xebL8\x9d" +
-	"\x87\xe5\x03\x8d\xb9t8 \x1a\xd0os4E\xb5\x8c" +
-	"\xd6\xd7u\x16~\x07\xe7\x7f\xa6PYT5\xb4\xa7\x1c" +
-	"\x00R\xe3\xc1{\xb0\xaf2\xc5\x15\xbd\x95\xb9\xd9\x97\xb5" +
-	"\xb2XI\x08\x1e\xcb,\x9cN\x13PoP\xa3K\x9b" +
-	"\x03\xc1 \x14\xab\x8a\xa6)\x1a\x12>\x8e\x94 \xc1\\" +
-	"\xc9)\xf4\x0a.\x04o\x91\x9c\x88h\x80\xda\xd3\x93\xc4" +
-	"\xfb\x00$#\x15\xb3\x0e\x08\xe8JSu\x00^\xf9*" +
-	"K\xf9[\x05\xd4\xe3\x11s?8\x14\x95B\x95%\xaf" +
-	">\x9a\xa4\x1cmT%\xac\xc8\x9a\x92\xe0\x94\xa1\"-" +
-	"\x99\xf1\x87\x1c$\xd2S\xb3']W\x1eN\x86V>" +
-	"0,\xee\x09\x0cI\xe3\x82\xc5\xa7\x0c\xdc\x94\x83}\xf5" +
-	"\x92\x85\x8b\x94\xfc}#\xe4R\xb82\x87c/{\x15" +
-	"\xf6d\xba\\\x03\xac\xbd\x10\xda\xdb\xd1\x03\xfb)\xc2\xc0" +
-	"\x96\x1f\xb7\x7f&\x15Y\xda#r\x85\x16\xaf\xadU4" +
-	"\x0d\x11\x04\xc4\x9b\x17\xfe\x92\xe5t\x86\x8cG\x05\xd4C" +
-	"\x16%E\xc6 o\xa4\x0d\xa4\xfe\xac4t %\xbd" +
-	"\x90*w!\xad]A\xc8-\xeb\x85\x9b\xa1c$i" +
-	"\x80\xb0K\x90\x81R\x1d\"\xf1\xd3\x94r\xbf\x03\xa5\x12" +
-	"\xde\xa4\xb4<r:\x00\x8d\"\xc9\xe4\xaf\xca\x18\x0bE" +
-	"#\xb3\xa3\x8f)\x18\xb1\x90\x0d\x04]\\\x84OK1" +
-	"\xc2C\x05\xa2\x94\xeeH\x03\xb0\xdf\xc6\xc8\xcan\xe2\xef" +
-	"\x02\x81\xf8ED\xfb\x05\x8b\xad`=[\xeel\x01\x81" +
-	"\x8c\x13uvb\xa1\xaf=\xdc\xd4 %\xa8\xb3(\x83" +
-	"V\x98\x81\x12\xa4\xde\xd7?\x9c\xf6\xfc\xbc\xbf\x1c\xff]" +
-	";\xa4\x9a\x97\x98\xaf\xebT%!b\xf4.\xb8\x86\x1f" +
-	"\xcb\x93\xc4\xa0\xffaq2`\xc4\xe7\xb2d \x184" +
-	"\xd3\x1eXn\xb3\x95\xa3a'\xcf\x81R\x01\xa7\xdc\x84" +
-	"\xc9=\x1a\xe7\x86\"\x0d\xf1\x18S\xab8\x1a\x8fq\x7f" +
-	"o:\xde\x93%\x92!$\xc2\xf4\xa1V)\xec\xe2\xdf" +
-	"\x94D\x96\x96b:\xe6n\x12k]!\xeb\x82\x11\x7f" +
-	"!@`<\x06\x1eDRN\xef\x13\xeb\xda {\x93" +
-	"\x93@)\x09\xe4\x06\x82\x18\x88!Y%\xe6\x1a/\x89" +
-	"\x84\xd8i\xf85\xd9\xc7\x12\\aU\x03\x92\x13\x05\xbd" +
-	"\xfb\xa9\xfbn\xf1.\xdc\xfd6P\xca\xc0H4\xe3\xc3" +
-	"b\xdd\xa2\x99\x0bn\xca\xbe\x1f^\xfd\x08\xa8@\x0c8" +
-	"\x91\xa0\x17g\x0f\x0b0Z,\xaa*\x8f\xc4\xe2j\xb0" +
-	"\xb9R\xa9\xb3k\xd3d\xbe\xa2X\xd1,J\xc0\xba\x04" +
-	"\xbc\xba\x07[)1`0\x06\x83O\xc0\x09\xa5\xf4\xe0" +
-	"3k\xbd\x19&\x92\xa7\xa71=\xc9\xdc\x11\x0a&\x9c" +
-	"\xd8;di\x96\xe2\xa9\x9c<5\xc7%+E\xf8w" +
-	"~\xad\xdc0\xd4\xda'\xf9+\xe6F\xe5V\xed\xe0s" +
-	"x\xca\x8f\xd5JEs\xdf\x84\x88\xe6\xbc\x11\xe0\x8aM" +
-	"\x1dh(q\x1a\xa1\x84u\xe6\x90uZ\x09\xa9\x02\x81" +
-	"d\x88\xbdD\x1a\xb73E)\x9a\xa2\x16\x9bG\xee\x91" +
-	"\xc2\x9a\xda\xc8z\xc6\x84\xb4\x98R\xfe\x0f\xd9;Yq" +
-	"yc\xbf\x0e\xaf\xa9\x92\xcc\x9f38\x7f\xf2\xd5W\xff" +
-	" v\xf4\xa7\x83\x18STi,\xf2\x0dJ\x7f\x15\xd7" +
-	"\xa8\xf6\xd7p\xcdH\x7f\x15\xd7\x03\xf4\x97rm\xe6\x09" +
-	";\xb86\xb0\xbf\x86\xeb\xfd\xf9w\xe8s8\xff\xeb\x0c" +
-	"\xc8@%\xeb\xec\x8dG\x97VX\x86\xd7Y\x1d\x81\xac" +
-	"\x90p\xd3JBga\x12\xc4\xa0\xa2\xea\xccp\xd8\xab" +
-	"\x8aK\x0dYT\x90\x18\xaaW(\xacF\x1a\xb0b\x1d" +
-	"udS\x0c\xb2\x81V\x94\x1bh\x06d\x8dId3" +
-	"\x1b\xb2\x8aBn\xb9\x88\x82=IA\xd6!&\x8d*" +
-	"\x08$$\xa2\xc3\xee\xdf#\xeb\xcf\x92\xea\x8d \x90y" +
-	"\":\xed\x81\x06\xb2\xa1\x02)\xdf\x01\x02\x99>\xb4*" +
-	"\xd5\xee\xeaX\xcf\x83\x12\xd4\x19x\x91\xa1\x17\xe9W\xf6" +
-	"\xf8@\x06k\xb7I\xde\xefE\x191X\xec\x9a\xf5\xde" +
-	"XG\x1a\x0a\xf6\xf4\x0bY\xff\x99\x1c\xaf\x01\x81\x1c\xa2" +
-	"\xc6a\xd3+dc\x17\xb2w1\x08\xe4uj\x1c6" +
-	"pC6s\"m\x17A m\"\xa6\xd9\xbd`d" +
-	"\x03\x1f\xb2e\x1d\x08d\x13u\x14k\xf0#\x1b\x05\x90" +
-	"\xa7JA +E\x00{6\x83l\xdaA\xe2\xed " +
-	"\x90F\x11G\xd8\xe3\x08ds\x00\xa2P\x9e\xb2\xa8\xb3" +
-	"\x8b\x08b\xa4V\xa1vf\xff\xdd\xf4\xb1i~0^" +
-	"\xdaB\xdf&Q\xae\xd1%\xe2(\x90=\xc6\x8d\x12\xc8" +
-	"\xcau%h\xfb\x1b\x995s\x0ds\x9a\xce2\xf2\x18" +
-	"\xb2D\x06\xc3\x0ei\x09\x1d;Y\x95\x1d\xa9>GR" +
-	"k5$\xab\x92Rl@\xfe7\x00\x00\xff\xff\x94v" +
-	"\xa3\xc0"
+	"\xe7\x9e\xf3\xbb\xe7\x9c{N\xc1t\xb1D\xf0\xa7}\xe9" +
+	"\x05\x90N\xa5\x8d\xd0\xc3'\xbb\x97^^\xfb\xa3\x95@" +
+	"\x0a\x10 \x0dE\x0f\x16Ug\\D@_cF1" +
+	"\xa0\xfe\x9d\xfd?|Oj\xa9^\x0f\xd2$D\x00\xa7" +
+	"\x08P\xb4!\xe3\xa2\x00\xe8{\xdd \x98\xf59\x1e~" +
+	"~\xee\x8b\xebM\x0eN\xca\xa03\xa3\x0b\xc1\xa9\xc7\xbc" +
+	"\xdd\x7f\x0dz\xbfY\x0fd\x12\xdby<\xa3F\x00\xa7" +
+	"~\xcf\xd1/v]\xfa\xc3\xde\xa7\x81\x8c7\xa5\x02\x14" +
+	"\x1d\xcd\xb8\x832=k0\xf5\x9c+\x8f~1\xfb\x81" +
+	"\x9f[j\x09\x94`\xb4k\x1b%\x98\xe4Z\x02\xa8;" +
+	"\xcf\xfc\xed\xcc\xb6\x9fV?\xcb\xab\xb5\xc5\xb5\x98\x12\xec" +
+	"vQ\x0e\xca']\xab\xfe\xf4\xe5\xe3\x9b\x81\xdc\xc7\xd6" +
+	"O\xbb\x0a\xa9\xf0p\xd3\xec\x8a\xac\xf1\x0f=g\x0a7" +
+	"V\xfe\xeer\xd1\x95\x9f\x1dy\xf11\xe5\xb9\xba_\xb2" +
+	"\xa3P\x85]\x93\xe9\xca\xfcM\xe5\xe3\x0e>\xe2y\xc9" +
+	"<\x8a\xa9\xf0!\xd7U*\xee\xdf\x86\xb8\x0ff\xd6\xad" +
+	"\xf9\xc9o?~\x89?Q s\x1d%\x903)\xc1" +
+	"/\xd6\xdc\xe5\xfa\xfd\xbb\x8b\xda83\xad\xca\xbcJ\xcd" +
+	"t\xf2\xb6\xf4\xcb\xd7>\x9b\xba\xd3\xd4\xd4\xdc\xda\x9c9" +
+	"\x99n\xdd`l\xfd\xe7\x16roA\xe6\xfb\xaf\x814" +
+	"\x1em\x8aw2K)Eg&\xb5\xc6\xe8\x82E\x97" +
+	"\xb66_y\x93W/\x90\xb5\xd1\x90\x9eEY\xb4\x16" +
+	"\xcdj\xfc*\xd2\xf6\x16H\xf7\xd9\xe6Z\x99\xe5\xa5\x04" +
+	"\x9b\x0c\x82\xa7\xb7f\x9f\xef\xfc\xfa\xe5=<\x87\xddY" +
+	"*%\xf8\xd0 x\xeb\x075]Ov\x9e\xd8c)" +
+	"ap\x98\x94=\x83\x12\xcc\xc9\xa6\x04\x07p\xdf\xea\xef" +
+	"\x8d\xdb\xdeaq0\\\xd6\x9c\xddn\x88\xc8\xa6J\x1e" +
+	"+\xfaZy\xf2\xae\xbc?\x02\xc9s\xe8\xcbs.~" +
+	"4\xb7z\xdae\x00,J\xcbiA\xdf\xe8\x1c\x11\xc0" +
+	"7*g\xb5/\x9es\x0b\x80\xfe\xf0\xae\xb5\x0b\xf57" +
+	"\xf2\xde\xe6\xbc\xa4\xe4\xdcK}\xb1\xe6\xd8\x94\xe6\xd6u" +
+	"u\xfb-S\x1b\x82\xaasZ\xa8\xa0\xe6\x1c*(x" +
+	"\xef\x91\x8em3\x1d\x87\x80\xe4a\x8f \x93\xb03\xe7" +
+	"0\xfa\xae\x18\xb2.\x19\xc4\xe9\x0b\"\xfb\xb6\xb7\xb7\x1e" +
+	"\xe6\x0f.\xb9\xdf\xa4\xdc\x1a\xdd\xc5\x80\xd7[\x0f\xfc\x06" +
+	"\x8fu|\xc0\xee\x07@\xd13n\xc3\xf4\xaf\xd0e\xfd" +
+	"\xdd\xd7.\x9ez\xfc\xc2\xcb\x1f\xf59\x15x\xb0\xe8\xb4" +
+	"\xbb\x05}\x97\xdcTV\xb7{\xb5o\xb7G\xf4\xed\xf6" +
+	"\xb8\xf5\xe5{\xce\x1cYZ\xbc\xee\x04/\xf1\x15\x8f\x01" +
+	"\x95\xa3\x1e\xca\xf2\x9dO\x1e\x98w\xeb\xe6\xbd\x9d\x1cT" +
+	"\xba=\x02=\xfa\xaf^\xbd\xdcV\xb8\xf6\x8d\xd3\x1c\xa8" +
+	"\xcfz\x0c\xe8\x9e<\xe78_R\xf5\xde\xa7<\xd3N" +
+	"\x8f\xe1\x9e+\x06\xd3\x13\xb1\x03\xd7\xbe\xdb\xb5\xeb3\xee" +
+	"2\x8e&\xa5t\xeb\xf5\xf9\xe3\xa7\\\xb8v\xf4,\xbf" +
+	"\x95\x10\x03<~B\xb7\xae\xc8\xbes\xf3\x0b\x8f\xb6\x9f" +
+	"\xe3]/\x11\x03<!\x83\xe0\x1f\x9f\xee<\xb3rV" +
+	"\xd9y\xe0\x8c\xb4\x96\xec\xa0\x04m\x06A\xc7m\xca\xc6" +
+	"\xad\x97w~\x9e\xe0\xfa\xa3d\x19\xfaN\x13j\xa2N" +
+	"2\xd5\x97\xe1\x15\x01\xf4\x853'\xde\xfd\xf1\xc1\xd2\x7f" +
+	"%PwS\xea4J\xe3C\xefT\xdf\x04/\x05\xca" +
+	"A\xf5\xf6\x82\xc2W\x9d\x17x\xed\xc6y\x0b\xa9\xf0\x89" +
+	"^*|\xec\x13\x0b\xa4S;\x7f\xfc\x1f\xfe|s\xbc" +
+	"F\xa8h4\x08l\x11d,\xeaW\xdfo\xab_\xde" +
+	"\xbe\xef+\x93\xd13\xde;\xd0\xf7k\xef\x12p\xe8M" +
+	"S\xe7w\xb5>1\xfd\x9b\x04\xad.yk\xd0\x97\xe1" +
+	"\xa3\xe4i\xbe\xa9\xe8\xeb\xf6Q\xb5:r^h\xdd4" +
+	"o\xd3\xf5\x04\xf2\xd3\xbe\xc3\xe8\xbbn\x90_\xf1\xfd\x19" +
+	"}\x0f\x8d\xa2\xe4c:\xc7x;vL\xfc\x96\x83\xfb" +
+	"\x84Qc\xa8{no\xda\xf5\xec\x95\xfd\xdb\xbf\xe5#" +
+	"\xdd\x9d\xa3\x0c\xb8|\x7fT1,\xd3k\xc3q-\xa6" +
+	"\xa8\x0bF\xc8\xc1\xfaPd\x81\xa6\xa8M\xa1Z%\xbf" +
+	"Vn\x884L.3\x17\xf3\xe7\xca\xe1\xb82-\x1a" +
+	"\x0e*j~\x13\xfd\x9dW\xa9\xe4j\xf1pL\x93\x9c" +
+	"\x0e'\x80\x13\x01H\xf6\x1d\x00R\xba\x03\xa5\x91\x02\x8a" +
+	"Mr\x18\xbd\xc8\x01\x1c\x00\xbd\x80\xb68\xd7@\xe2\xca" +
+	"\xa3A%<=\xa2\xc5\xe4H\xad2E\xae\x8dE\xd5" +
+	"\xe6\xfc\x88\xb2\xa4,\x1c\x8d\x07\xe7\x86\xe4\xaa\xfa\xc6\x8a" +
+	"P\x83\x12\x0eE\x94\x0a5\xba4\xa4hy\x15\xb9\xb2" +
+	"*\xd7\xf7Rg#\x80\xe4q\xa04V@=\x12\xaf" +
+	"\xafQ\xd4Yu\xc8\xb8\xa2\x86\x0e\x10\xd0\xc1\xa94H" +
+	"\x0bT\xc8n*\xd1\xde\x9e>\x94\x13\xb1Oy\x15\xb2" +
+	"*\xf2\xdc\xc4\x81\xb8U\xc6#\xb1P\xbd\x92/7\xc9" +
+	"\xa1\xb0\\\x13V\x0c\xf6Z^\xa5\xa2\xc5\xc5>N\xa9" +
+	"\x04\x90\xb2\x1c(\xdd-\xa0^g\x08\x0e)\x80\x1a\xe6" +
+	"\x00V8\x10I\x0f\xd4\x00\xe9G[\x83\x8c\x814\x08" +
+	"\xd0\xb5r\xd9\xf8\xad*\x8bB\xf4G\xb23\xb2sI" +
+	"\xe9\xb6F\xf7\xcc\x00\x90\xeev\xa0t\xbf\x80\x04q$" +
+	"\x85%\xf1\xd3\x8f\x05\x0e\x94\x1e\x14P\x97MNA\x8a" +
+	"\x99,\x100\x0bP\x97-\x86\xf4[o\x9d\x09\xa7\xf3" +
+	"\xb0|\xa01\x97\x0e\x07D\x03\xfam\x8e\xa6\xa8\x96\xd1" +
+	"\xfa\xba\xce\xc2\xef\xe0\xfc\xcf\x14*\x8b\xaa\x86\xf6\x94\x03" +
+	"@j<x\x0f\xf6U\xa6\xb8\xa2\xb727\xfb\xb2V" +
+	"\x16+\x09\xc1c\x99\x85\xd3i\x02\xea\x0djtis" +
+	" \x18\x84bU\xd14EC\xc2\xc7\x91\x12$\x98+" +
+	"9\x85^\xc1\x85\xe0-\x92\x13\x11\x0dP{z\x92x" +
+	"\x1f\x80d\xa4b\xd6\x01\x01]i\xaa\x0e\xc0+_e" +
+	")\x7f\xab\x80z<b\xee\x07\x87\xa2R\xa8\xb2\xe4\xd5" +
+	"G\x93\x94\xa3\x8d\xaa\x84\x15YS\x12\x9c2T\xa4%" +
+	"3\xfe\x90\x83Dzj\xf6\xa4\xeb\xca\xc3\xc9\xd0\xca\x07" +
+	"\x86\xc5=\x81!i\\\xb0\xf8\x94\x81\x9br\xb0\xaf^" +
+	"\xb2p\x91\x92\xbfo\x84\\\x0aW\xe6p\xece\xaf\xc2" +
+	"\x9eL\x97k\x80\xb5\x17B{;z`?E\x18\xd8" +
+	"\xf2\xe3\xf6\xcf\xa4\"K{D\xae\xd0\xe2\xb5\xb5\x8a\xa6" +
+	"!\x82\x80x\xf3\xc2_\xb2\x9c\xce\x90\xf1\xa8\x80z\xc8" +
+	"\xa2\xa4\xc8\x18\xe4\x8d\xb4\x81\xd4\x9f\x95\x86\x0e\xa4\xa4\x17" +
+	"R\xe5.\xa4\xb5+\x08\xb9e\xbdp3t\x8c$\x0d" +
+	"\x10v\x092P\xaaC$~\x9aR\xeew\xa0T\xc2" +
+	"\x9b\x94\x96GN\x07\xa0Q$\x99\xfcU\x19c\xa1h" +
+	"dv\xf41\x05#\x16\xb2\x81\xa0\x8b\x8b\xf0i)F" +
+	"x\xa8@\x94\xd2\x1di\x00\xf6\xdb\x18Y\xd9M\xfc]" +
+	" \x10\xbf\x88h\xbf`\xb1\x15\xacg\xcb\x9d- \x90" +
+	"q\xa2\xceN,\xf4\xb5\x87\x9b\x1a\xa4\x04u\x16e\xd0" +
+	"\x0a3P\x82\xd4\xfb\xfa\x87\xd3\x9e\x9f\xf7\x97\xe3\xbfk" +
+	"\x87T\xf3\x12\xf3u\x9d\xaa$D\x8c\xde\x05\xd7\xf0c" +
+	"y\x92\x18\xf4?,N\x06\x8c\xf8\\\x96\x0c\x04\x83f" +
+	"\xda\x03\xcbm\xb6r4\xec\xe49P*\xe0\x94\x9b0" +
+	"\xb9G\xe3\xdcP\xa4!\x1ecj\x15G\xe31\xee\xef" +
+	"M\xc7{\xb2D2\x84D\x98>\xd4*\x85]\xfc\x9b" +
+	"\x92\xc8\xd2RL\xc7\xdcMb\xad+d]0\xe2/" +
+	"\x04\x08\x8c\xc7\xc0\x83H\xca\xe9}b]\x1bdor" +
+	"\x12(%\x81\xdc@\x10\x031$\xab\xc4\\\xe3%\x91" +
+	"\x10;\x0d\xbf&\xfbX\x82+\xacj@r\xa2\xa0w" +
+	"?u\xdf-\xde\x85\xbb\xdf\x06J\x19\x18\x89f|X" +
+	"\xac[4s\xc1M\xd9\xf7\xc3\xab\x1f\x01\x15\x88\x01'" +
+	"\x12\xf4\xe2\xeca\x01F\x8bEU\xe5\x91X\\\x0d6" +
+	"W*uvm\x9a\xccW\x14+\x9aE\x09X\x97\x80" +
+	"W\xf7`+%\x06\x0c\xc6`\xf0\x098\xa1\x94\x1e|" +
+	"f\xad7\xc3D\xf2\xf44\xa6'\x99;B\xc1\x84\x13" +
+	"{\x87,\xcdR<\x95\x93\xa7\xe6\xb8d\xa5\x08\xff\xce" +
+	"\xaf\x95\x1b\x86Z\xfb$\x7f\xc5\xdc\xa8\xdc\xaa\x1d|\x0e" +
+	"O\xf9\xb1Z\xa9h\xee\x9b\x10\xd1\x9c7\x02\\\xb1\xa9" +
+	"\x03\x0d%N#\x94\xb0\xce\x1c\xb2N+!U \x90" +
+	"\x0c\xb1\x97H\xe3v\xa6(ES\xd4b\xf3\xc8=R" +
+	"XS\x1bY\xcf\x98\x90\x16S\xca\xff!{'+." +
+	"o\xec\xd7\xe15U\x92\xf9s\x06\xe7O\xbe\xfa\xea\x1f" +
+	"\xc4\x8e\xfet\x10c\x8a*\x8dE\xbeA\xe9\xaf\xe2\x1a" +
+	"\xd5\xfe\x1a\xae\x19\xe9\xaf\xe2z\x80\xfeR\xae\xcd<a" +
+	"\x07\xd7\x06\xf6\xd7p\xbd?\xff\x0e}\x0e\xe7\x7f\x9d\x01" +
+	"\x19\xa8d\x9d\xbd\xf1\xe8\xd2\x0a\xcb\xf0:\xab#\x90\x15" +
+	"\x12nZI\xe8,L\x82\x18TT\x9d\x19\x0e{U" +
+	"q\xa9!\x8b\x0a\x12C\xf5\x0a\x85\xd5H\x03V\xac\xa3" +
+	"\x8el\x8aA6\xd0\x8ar\x03\xcd\x80\xac1\x89lf" +
+	"CVQ\xc8-\x17Q\xb0')\xc8:\xc4\xa4Q\x05" +
+	"\x81\x84Dt\xd8\xfd{d\xfdYR\xbd\x11\x042O" +
+	"D\xa7=\xd0@6T \xe5;@ \xd3\x87V\xa5" +
+	"\xda]\x1d\xebyP\x82:\x03/2\xf4\"\xfd\xca\x1e" +
+	"\x1f\xc8`\xed6\xc9\xfb\xbd(#\x06\x8b]\xb3\xde\x1b" +
+	"\xebHC\xc1\x9e~!\xeb?\x93\xe35 \x90C\xd4" +
+	"8lz\x85l\xecB\xf6.\x06\x81\xbcN\x8d\xc3\x06" +
+	"n\xc8fN\xa4\xed\"\x08\xa4M\xc44\xbb\x17\x8cl" +
+	"\xe0C\xb6\xac\x03\x81l\xa2\x8eb\x0d~d\xa3\x00\xf2" +
+	"T)\x08d\xa5\x08`\xcff\x90M;H\xbc\x1d\x04" +
+	"\xd2(\xe2\x08{\x1c\x81l\x0e@\x14\xcaS\x16uv" +
+	"\x11A\x8c\xd4*\xd4\xce\xec\xbf\x9b>6\xcd\x0f\xc6K" +
+	"[\xe8\xdb$\xca5\xbaD\x1c\x05\xb2\xc7\xb8Q\x02Y" +
+	"\xb9\xae\x04m\x7f#\xb3f\xaeaN\xd3YF\x1eC" +
+	"\x96\xc8`\xd8!-\xa1c'\xab\xb2#\xd5\xe7Hj" +
+	"\xad\x86dUR\x8a\x0d\xc8\xff\x06\x00\x00\xff\xff\xf6:" +
+	"\xa3\xb2"
 
-func RegisterSchema(reg *schemas.Registry) {
-	reg.Register(&schemas.Schema{
-		String: schema_f3c1b27d6da9d0fa,
-		Nodes: []uint64{
-			0x815e89f778f1da6c,
-			0x8b5d8251cf57c316,
-			0x8ba6569cca01e84f,
-			0x8bf81264d2f11274,
-			0x93bdb3f5b6eecd29,
-			0x943b54ee6f4de610,
-			0x985d83a2e2d7e204,
-			0x9a80efc085eae065,
-			0x9b3d2c0c5054766c,
-			0xa0669b656ba6cc8e,
-			0xa81053c61d4d995c,
-			0xa8dfab7b88664bd4,
-			0xa967c8b00a278896,
-			0xb147e4fbf7081bda,
-			0xb4d00b302a119de9,
-			0xbaf979a1f5673019,
-			0xbba96ef3714f338f,
-			0xbcacf6dde70da193,
-			0xbcd8dd8cea624cbb,
-			0xbea41d4487c101c4,
-			0xbf24278c65f633ce,
-			0xc224b7ff6089b64e,
-			0xc3668a8f7946ce88,
-			0xc9034ba2becc2a64,
-			0xca8fb2a4c16e5f08,
-			0xd4bece01a7c4008f,
-			0xd6acf080dcf2b4c8,
-			0xd88a3f78cce2bc7d,
-			0xddbd9a18593be0c5,
-			0xe1b78932a9f7aea3,
-			0xe3cf5a40e703e6da,
-			0xe4b6ea2bfbc474d8,
-			0xe5cdfbf0462c5cfd,
-			0xe6b2589f9a250d7f,
-			0xe7434f81e2b1e3de,
-			0xe8b1f7a192651bbe,
-			0xec42c6df28354b60,
-			0xf004ae32302172c6,
-			0xf468b1dc515f841c,
-			0xf7485d56d6f20e7d,
-			0xf849848fea5c4776,
-			0xfd9959998f9f0ebe,
-			0xfe35aabe121add1a,
-			0xfea4c3f998b67621,
-		},
-		Compressed: true,
-	})
+func init() {
+	schemas.Register(schema_f3c1b27d6da9d0fa,
+		0x815e89f778f1da6c,
+		0x8b5d8251cf57c316,
+		0x8ba6569cca01e84f,
+		0x8bf81264d2f11274,
+		0x93bdb3f5b6eecd29,
+		0x943b54ee6f4de610,
+		0x985d83a2e2d7e204,
+		0x9a80efc085eae065,
+		0x9b3d2c0c5054766c,
+		0xa0669b656ba6cc8e,
+		0xa81053c61d4d995c,
+		0xa8dfab7b88664bd4,
+		0xa967c8b00a278896,
+		0xb147e4fbf7081bda,
+		0xb4d00b302a119de9,
+		0xbaf979a1f5673019,
+		0xbba96ef3714f338f,
+		0xbcacf6dde70da193,
+		0xbcd8dd8cea624cbb,
+		0xbea41d4487c101c4,
+		0xbf24278c65f633ce,
+		0xc224b7ff6089b64e,
+		0xc3668a8f7946ce88,
+		0xc9034ba2becc2a64,
+		0xca8fb2a4c16e5f08,
+		0xd4bece01a7c4008f,
+		0xd6acf080dcf2b4c8,
+		0xd88a3f78cce2bc7d,
+		0xddbd9a18593be0c5,
+		0xe1b78932a9f7aea3,
+		0xe3cf5a40e703e6da,
+		0xe4b6ea2bfbc474d8,
+		0xe5cdfbf0462c5cfd,
+		0xe6b2589f9a250d7f,
+		0xe7434f81e2b1e3de,
+		0xe8b1f7a192651bbe,
+		0xec42c6df28354b60,
+		0xf004ae32302172c6,
+		0xf468b1dc515f841c,
+		0xf7485d56d6f20e7d,
+		0xf849848fea5c4776,
+		0xfd9959998f9f0ebe,
+		0xfe35aabe121add1a,
+		0xfea4c3f998b67621)
 }

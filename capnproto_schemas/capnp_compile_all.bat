@@ -1,0 +1,30 @@
+LANG=%1%
+
+mkdir -p gen/%LANG%/test ; capnp compile -Izalfmas_capnp_schemas --src-prefix=zalfmas_capnp_schemas -o%LANG%:./gen/%LANG%/test zalfmas_capnp_schemas/x.capnp
+mkdir -p gen/%LANG%/test ; capnp compile -Izalfmas_capnp_schemas --src-prefix=zalfmas_capnp_schemas -o%LANG%:./gen/%LANG%/test zalfmas_capnp_schemas/a.capnp
+mkdir -p gen/%LANG%/climate ; capnp compile -Izalfmas_capnp_schemas --src-prefix=zalfmas_capnp_schemas -o%LANG%:./gen/%LANG%/climate zalfmas_capnp_schemas/climate.capnp
+mkdir -p gen/%LANG%/cluster ; capnp compile -Izalfmas_capnp_schemas --src-prefix=zalfmas_capnp_schemas -o%LANG%:./gen/%LANG%/cluster zalfmas_capnp_schemas/cluster_admin_service.capnp
+mkdir -p gen/%LANG%/common ; capnp compile -Izalfmas_capnp_schemas --src-prefix=zalfmas_capnp_schemas -o%LANG%:./gen/%LANG%/common zalfmas_capnp_schemas/common.capnp
+mkdir -p gen/%LANG%/config ; capnp compile -Izalfmas_capnp_schemas --src-prefix=zalfmas_capnp_schemas -o%LANG%:./gen/%LANG%/config zalfmas_capnp_schemas/config.capnp
+mkdir -p gen/%LANG%/crop ; capnp compile -Izalfmas_capnp_schemas --src-prefix=zalfmas_capnp_schemas -o%LANG%:./gen/%LANG%/crop zalfmas_capnp_schemas/crop.capnp
+mkdir -p gen/%LANG%/common ; capnp compile -Izalfmas_capnp_schemas --src-prefix=zalfmas_capnp_schemas -o%LANG%:./gen/%LANG%/common zalfmas_capnp_schemas/date.capnp
+mkdir -p gen/%LANG%/fbp ; capnp compile -Izalfmas_capnp_schemas --src-prefix=zalfmas_capnp_schemas -o%LANG%:./gen/%LANG%/fbp zalfmas_capnp_schemas/fbp.capnp
+rem mkdir -p gen/%LANG%/frontend ; capnp compile -Izalfmas_capnp_schemas --src-prefix=zalfmas_capnp_schemas -o%LANG%:./gen/%LANG%/frontend zalfmas_capnp_schemas/frontend.capnp
+mkdir -p gen/%LANG%/geo ; capnp compile -Izalfmas_capnp_schemas --src-prefix=zalfmas_capnp_schemas -o%LANG%:./gen/%LANG%/geo zalfmas_capnp_schemas/geo.capnp
+mkdir -p gen/%LANG%/grid ; capnp compile -Izalfmas_capnp_schemas --src-prefix=zalfmas_capnp_schemas -o%LANG%:./gen/%LANG%/grid zalfmas_capnp_schemas/grid.capnp
+mkdir -p gen/%LANG%/jobs ; capnp compile -Izalfmas_capnp_schemas --src-prefix=zalfmas_capnp_schemas -o%LANG%:./gen/%LANG%/jobs zalfmas_capnp_schemas/jobs.capnp
+mkdir -p gen/%LANG%/management ; capnp compile -Izalfmas_capnp_schemas --src-prefix=zalfmas_capnp_schemas -o%LANG%:./gen/%LANG%/management zalfmas_capnp_schemas/management.capnp
+mkdir -p gen/%LANG%/model ; capnp compile -Izalfmas_capnp_schemas --src-prefix=zalfmas_capnp_schemas -o%LANG%:./gen/%LANG%/model zalfmas_capnp_schemas/model.capnp
+mkdir -p gen/%LANG%/persistence ; capnp compile -Izalfmas_capnp_schemas --src-prefix=zalfmas_capnp_schemas -o%LANG%:./gen/%LANG%/persistence zalfmas_capnp_schemas/persistence.capnp
+mkdir -p gen/%LANG%/registry ; capnp compile -Izalfmas_capnp_schemas --src-prefix=zalfmas_capnp_schemas -o%LANG%:./gen/%LANG%/registry zalfmas_capnp_schemas/registry.capnp
+mkdir -p gen/%LANG%/service ; capnp compile -Izalfmas_capnp_schemas --src-prefix=zalfmas_capnp_schemas -o%LANG%:./gen/%LANG%/service zalfmas_capnp_schemas/service.capnp
+mkdir -p gen/%LANG%/soil ; capnp compile -Izalfmas_capnp_schemas --src-prefix=zalfmas_capnp_schemas -o%LANG%:./gen/%LANG%/soil zalfmas_capnp_schemas/soil.capnp
+mkdir -p gen/%LANG%/storage ; capnp compile -Izalfmas_capnp_schemas --src-prefix=zalfmas_capnp_schemas -o%LANG%:./gen/%LANG%/storage zalfmas_capnp_schemas/storage.capnp
+rem mkdir -p gen/%LANG%/vr ; capnp compile -Izalfmas_capnp_schemas --src-prefix=zalfmas_capnp_schemas -o%LANG%:./gen/%LANG%/vr vr.capnp
+
+mkdir -p gen/%LANG%/model/weberest ; capnp compile -Izalfmas_capnp_schemas --src-prefix=zalfmas_capnp_schemas -o%LANG%:./gen/%LANG% zalfmas_capnp_schemas/model/weberest/web-berest-data-import.capnp
+mkdir -p gen/%LANG%/model/yieldstat ; capnp compile -Izalfmas_capnp_schemas --src-prefix=zalfmas_capnp_schemas -o%LANG%:./gen/%LANG% zalfmas_capnp_schemas/model/yieldstat/yieldstat.capnp
+mkdir -p gen/%LANG%/model/monica ; capnp compile -Izalfmas_capnp_schemas --src-prefix=zalfmas_capnp_schemas -o%LANG%:./gen/%LANG% zalfmas_capnp_schemas/model/monica/monica_management.capnp
+mkdir -p gen/%LANG%/model/monica ; capnp compile -Izalfmas_capnp_schemas --src-prefix=zalfmas_capnp_schemas -o%LANG%:./gen/%LANG% zalfmas_capnp_schemas/model/monica/monica_params.capnp
+mkdir -p gen/%LANG%/model/monica ; capnp compile -Izalfmas_capnp_schemas --src-prefix=zalfmas_capnp_schemas -o%LANG%:./gen/%LANG% zalfmas_capnp_schemas/model/monica/monica_state.capnp
+mkdir -p gen/%LANG%/model/monica ; capnp compile -Izalfmas_capnp_schemas --src-prefix=zalfmas_capnp_schemas -o%LANG%:./gen/%LANG% zalfmas_capnp_schemas/model/monica/soil_params.capnp
