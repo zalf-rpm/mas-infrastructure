@@ -14,6 +14,7 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 */
 
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 #include <chrono>
@@ -26,53 +27,61 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 #include <capnp/ez-rpc.h>
 
-#include "common/rpc-connection-manager.h"
+#include "common/restorable-service-main.h"
 #include "common/common.h"
-#include "x.capnp.h"
+#include "test/a.capnp.h"
 
-class AServ final : public A::Server
+using RSM = mas::infrastructure::common::RestorableServiceMain;
+
+class AServ final : public mas::rpc::test::A::Server
 {
 public:
   AServ() {}
 
   virtual ~AServ() noexcept(false) {}
 
-  kj::Promise<void> m(MContext context) override {
-    //auto hello = context.getParams().getHello();
-    //if (i % 10000 == 0) { std::cout << "."; std::cout.flush(); }
-    //i++;
-    //if (hello == "done") exit(0);
-    context.getResults().setR(context.getParams().getN() + 0.1);
+  kj::Promise<void> method(MethodContext context) override {
+    std::stringstream oss;
+    for(int i = 0; i < 10000; i++) oss << '.';
+    context.getResults().setRes(oss.str());
     return kj::READY_NOW;
   }
 
   int i{0};
 };
 
-class AMain
+class AMain : public RSM
 {
 public:
   AMain(kj::ProcessContext& context) 
-    : context(context)
-    , ioContext(kj::setupAsyncIo()) 
+    : RSM(context, "Test Server v", "")
   {}
 
-  kj::MainBuilder::Validity setHost(kj::StringPtr name) { host = kj::str(name); return true; }
-
-  kj::MainBuilder::Validity setPort(kj::StringPtr name) { port = std::max(0, std::stoi(name.cStr())); return true; }
+  kj::MainBuilder::Validity setSRT(kj::StringPtr name) { srt = kj::str(name); return true; }
 
   kj::MainBuilder::Validity start()
   {
     KJ_LOG(INFO, "starting A");
 
-    A::Client a = kj::heap<AServ>();
-    
-    //capnp::EzRpcServer server(a, kj::str("*"), 9999);
-    //auto& waitScope = server.getWaitScope();
-    //kj::NEVER_DONE.wait(waitScope);
-    
-    auto portProm = conMan.bind(ioContext, kj::mv(a), host, 9999);
-    std::cout << portProm.wait(ioContext.waitScope) << std::endl;
+    mas::rpc::test::A::Client a = kj::heap<AServ>();
+    auto ownedRestorer = kj::heap<mas::infrastructure::common::Restorer>();
+    restorer = ownedRestorer.get();
+    conMan = kj::heap<mas::infrastructure::common::ConnectionManager>(ioContext, restorer);
+    restorerClient = kj::mv(ownedRestorer);
+    auto portPromise = conMan->bind(restorerClient, host, 9999);
+    portPromise.then([this](auto port){
+      return restorer->setPort(port).then([port](){
+                                            return port;
+                                          }, [](auto&& e){
+                                            KJ_LOG(ERROR, "Error while trying to set port.", e);
+                                            return 0;
+                                          }
+      );
+    }).wait(ioContext.waitScope);
+    auto sr = restorer->saveStr(a, "aaaa", nullptr, false).wait(ioContext.waitScope).sturdyRef;
+    std::cout << "sr=" << sr.cStr() << std::endl;
+
+    // Run forever, accepting connections and handling requests.
     kj::NEVER_DONE.wait(ioContext.waitScope);
 
     KJ_LOG(INFO, "stopping A");
@@ -81,21 +90,15 @@ public:
 
   kj::MainFunc getMain()
   {
-    return kj::MainBuilder(context, "Test A", "")
-      .addOptionWithArg({'h', "host"}, KJ_BIND_METHOD(*this, setHost),
-                        "<host-IP>", "Set host IP.")
-      .addOptionWithArg({'p', "port"}, KJ_BIND_METHOD(*this, setPort),
-                        "<port>", "Set port.")
-      .callAfterParsing(KJ_BIND_METHOD(*this, start))
-      .build();
+    return addRestorableServiceOptions()
+        .addOptionWithArg({'t', "srt"}, KJ_BIND_METHOD(*this, setSRT),
+                          "<sturdy-ref token>", "Set a fixed sturdy ref token.")
+        .callAfterParsing(KJ_BIND_METHOD(*this, start))
+        .build();
   }
 
 private:
-  mas::infrastructure::common::ConnectionManager conMan;
-  kj::String host{ kj::str("*") };
-  int port{0};
-  kj::ProcessContext &context;
-  kj::AsyncIoContext ioContext;
+  kj::String srt;
 };
 
 KJ_MAIN(AMain)

@@ -7,7 +7,7 @@ set(MT_RUNTIME_LIB 1)
 
 if(NOT TARGET capnp_schemas_lib)
     message(STATUS "target: capnp_schemas_lib")
-    add_subdirectory(../../../capnproto_schemas capnproto_schemas)
+    add_subdirectory(../../../capnproto_schemas/gen/c++ capnproto_schemas)
 endif()
 
 if(NOT TARGET common_lib)

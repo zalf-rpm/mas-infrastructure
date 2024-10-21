@@ -11,28 +11,24 @@
 # Maintainers:
 # Currently maintained by the authors.
 #
-# This file has been created at the Institute of
-# Landscape Systems Analysis at the ZALF.
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 import asyncio
+from io import StringIO
 import capnp
 import os
-from pathlib import Path
-import psutil
-from random import random
 import sys
-import time
-from threading import Thread
 from zalfmas_common import service as serv
-import zalfmas_capnpschemas
-sys.path.append(os.path.dirname(zalfmas_capnpschemas.__file__))
+import zalfmas_capnp_schemas
+sys.path.append(os.path.dirname(zalfmas_capnp_schemas.__file__))
 import a_capnp
-
 
 class A(a_capnp.A.Server):
     async def method(self, param, **kwargs):
-        print("param:", param)
+        sio = StringIO()
+        for i in range(20200):
+            sio.write(".")
+        return sio.getvalue()
 
     async def m(self, id, **kwargs):
         print("id:", id)

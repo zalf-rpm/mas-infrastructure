@@ -64,6 +64,8 @@ add_library(capnp_schemas_lib
 
 		test/x.capnp.h
 		test/x.capnp.c++
+		test/a.capnp.h
+		test/a.capnp.c++
 )
 
 target_link_libraries(capnp_schemas_lib 

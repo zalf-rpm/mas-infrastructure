@@ -2,25 +2,17 @@ import asyncio
 import capnp
 import os
 import sys
-import time
-
-import zalfmas_capnpschemas
-sys.path.append(os.path.dirname(zalfmas_capnpschemas.__file__))
+from zalfmas_common import common
+import zalfmas_capnp_schemas
+sys.path.append(os.path.dirname(zalfmas_capnp_schemas.__file__))
 import a_capnp
 
-
 async def main():
-    con = await capnp.AsyncIoStream.create_connection(host="localhost", port="9999")
-    client = capnp.TwoPartyClient(con)
-    bs = client.bootstrap()
-    a = bs.cast_as(a_capnp.A)
-
-    time.sleep(5)
-    #res = await a.method()
-    res = await a.m()
-    print(res.count, end=" ", flush=True)
-    #print(res.res, flush=True)
-    time.sleep(5)
+    con_man = common.ConnectionManager()
+    #a = await con_man.connect("capnp://localhost:9999/aaaa", a_capnp.A)
+    a = await con_man.connect("capnp://localhost:9999/aaaa", a_capnp.A)
+    res = await a.method()
+    print(res.res, end=" ", flush=True)
 
 
 if __name__ == '__main__':
