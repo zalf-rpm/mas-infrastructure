@@ -3,7 +3,7 @@ module github.com/zalf-rpm/mas-infrastructure/src/go/commonlib
 go 1.20
 
 require (
-	capnproto.org/go/capnp/v3 v3.0.0-alpha-29
+	capnproto.org/go/capnp/v3 v3.0.1-alpha.2
 	github.com/google/uuid v1.3.0
 	github.com/pelletier/go-toml v1.9.5
 	github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/common v0.0.0-20230412105359-2d45c32db41e
@@ -13,7 +13,7 @@ require (
 )
 
 require (
+	github.com/colega/zeropool v0.0.0-20230505084239-6fb4a4f75381 // indirect
 	github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/geo v0.0.0-20230208160538-deb034d36602 // indirect
-	golang.org/x/sync v0.3.0 // indirect
-	zenhack.net/go/util v0.0.0-20230607025951-8b02fee814ae // indirect
+	golang.org/x/sync v0.8.0 // indirect
 )

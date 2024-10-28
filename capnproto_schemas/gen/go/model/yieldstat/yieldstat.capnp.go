@@ -67,631 +67,681 @@ func ResultIdFromString(c string) ResultId {
 	}
 }
 
-type ResultId_List struct{ capnp.List }
+type ResultId_List = capnp.EnumList[ResultId]
 
 func NewResultId_List(s *capnp.Segment, sz int32) (ResultId_List, error) {
-	l, err := capnp.NewUInt16List(s, sz)
-	return ResultId_List{l.List}, err
+	return capnp.NewEnumList[ResultId](s, sz)
 }
 
-func (l ResultId_List) At(i int) ResultId {
-	ul := capnp.UInt16List{List: l.List}
-	return ResultId(ul.At(i))
-}
-
-func (l ResultId_List) Set(i int, v ResultId) {
-	ul := capnp.UInt16List{List: l.List}
-	ul.Set(i, uint16(v))
-}
-
-type RestInput struct{ capnp.Struct }
+type RestInput capnp.Struct
 
 // RestInput_TypeID is the unique identifier for the type RestInput.
 const RestInput_TypeID = 0xa47f8d65869200af
 
 func NewRestInput(s *capnp.Segment) (RestInput, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 24, PointerCount: 0})
-	return RestInput{st}, err
+	return RestInput(st), err
 }
 
 func NewRootRestInput(s *capnp.Segment) (RestInput, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 24, PointerCount: 0})
-	return RestInput{st}, err
+	return RestInput(st), err
 }
 
 func ReadRootRestInput(msg *capnp.Message) (RestInput, error) {
 	root, err := msg.Root()
-	return RestInput{root.Struct()}, err
+	return RestInput(root.Struct()), err
 }
 
 func (s RestInput) String() string {
-	str, _ := text.Marshal(0xa47f8d65869200af, s.Struct)
+	str, _ := text.Marshal(0xa47f8d65869200af, capnp.Struct(s))
 	return str
 }
 
+func (s RestInput) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (RestInput) DecodeFromPtr(p capnp.Ptr) RestInput {
+	return RestInput(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s RestInput) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s RestInput) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s RestInput) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s RestInput) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s RestInput) UseDevTrend() bool {
-	return s.Struct.Bit(0)
+	return capnp.Struct(s).Bit(0)
 }
 
 func (s RestInput) SetUseDevTrend(v bool) {
-	s.Struct.SetBit(0, v)
+	capnp.Struct(s).SetBit(0, v)
 }
 
 func (s RestInput) UseCO2Increase() bool {
-	return !s.Struct.Bit(1)
+	return !capnp.Struct(s).Bit(1)
 }
 
 func (s RestInput) SetUseCO2Increase(v bool) {
-	s.Struct.SetBit(1, !v)
+	capnp.Struct(s).SetBit(1, !v)
 }
 
 func (s RestInput) Dgm() float64 {
-	return math.Float64frombits(s.Struct.Uint64(8))
+	return math.Float64frombits(capnp.Struct(s).Uint64(8))
 }
 
 func (s RestInput) SetDgm(v float64) {
-	s.Struct.SetUint64(8, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(8, math.Float64bits(v))
 }
 
 func (s RestInput) Hft() uint8 {
-	return s.Struct.Uint8(1)
+	return capnp.Struct(s).Uint8(1)
 }
 
 func (s RestInput) SetHft(v uint8) {
-	s.Struct.SetUint8(1, v)
+	capnp.Struct(s).SetUint8(1, v)
 }
 
 func (s RestInput) Nft() uint8 {
-	return s.Struct.Uint8(2)
+	return capnp.Struct(s).Uint8(2)
 }
 
 func (s RestInput) SetNft(v uint8) {
-	s.Struct.SetUint8(2, v)
+	capnp.Struct(s).SetUint8(2, v)
 }
 
 func (s RestInput) Sft() uint8 {
-	return s.Struct.Uint8(3)
+	return capnp.Struct(s).Uint8(3)
 }
 
 func (s RestInput) SetSft(v uint8) {
-	s.Struct.SetUint8(3, v)
+	capnp.Struct(s).SetUint8(3, v)
 }
 
 func (s RestInput) Slope() uint8 {
-	return s.Struct.Uint8(4)
+	return capnp.Struct(s).Uint8(4)
 }
 
 func (s RestInput) SetSlope(v uint8) {
-	s.Struct.SetUint8(4, v)
+	capnp.Struct(s).SetUint8(4, v)
 }
 
 func (s RestInput) Steino() uint8 {
-	return s.Struct.Uint8(5)
+	return capnp.Struct(s).Uint8(5)
 }
 
 func (s RestInput) SetSteino(v uint8) {
-	s.Struct.SetUint8(5, v)
+	capnp.Struct(s).SetUint8(5, v)
 }
 
 func (s RestInput) Az() uint8 {
-	return s.Struct.Uint8(6)
+	return capnp.Struct(s).Uint8(6)
 }
 
 func (s RestInput) SetAz(v uint8) {
-	s.Struct.SetUint8(6, v)
+	capnp.Struct(s).SetUint8(6, v)
 }
 
 func (s RestInput) Klz() uint8 {
-	return s.Struct.Uint8(7)
+	return capnp.Struct(s).Uint8(7)
 }
 
 func (s RestInput) SetKlz(v uint8) {
-	s.Struct.SetUint8(7, v)
+	capnp.Struct(s).SetUint8(7, v)
 }
 
 func (s RestInput) Stt() uint8 {
-	return s.Struct.Uint8(16)
+	return capnp.Struct(s).Uint8(16)
 }
 
 func (s RestInput) SetStt(v uint8) {
-	s.Struct.SetUint8(16, v)
+	capnp.Struct(s).SetUint8(16, v)
 }
 
 func (s RestInput) GermanFederalStates() int8 {
-	return int8(s.Struct.Uint8(17) ^ 255)
+	return int8(capnp.Struct(s).Uint8(17) ^ 255)
 }
 
 func (s RestInput) SetGermanFederalStates(v int8) {
-	s.Struct.SetUint8(17, uint8(v)^255)
+	capnp.Struct(s).SetUint8(17, uint8(v)^255)
 }
 
 func (s RestInput) GetDryYearWaterNeed() bool {
-	return s.Struct.Bit(2)
+	return capnp.Struct(s).Bit(2)
 }
 
 func (s RestInput) SetGetDryYearWaterNeed(v bool) {
-	s.Struct.SetBit(2, v)
+	capnp.Struct(s).SetBit(2, v)
 }
 
 // RestInput_List is a list of RestInput.
-type RestInput_List struct{ capnp.List }
+type RestInput_List = capnp.StructList[RestInput]
 
 // NewRestInput creates a new list of RestInput.
 func NewRestInput_List(s *capnp.Segment, sz int32) (RestInput_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 24, PointerCount: 0}, sz)
-	return RestInput_List{l}, err
-}
-
-func (s RestInput_List) At(i int) RestInput { return RestInput{s.List.Struct(i)} }
-
-func (s RestInput_List) Set(i int, v RestInput) error { return s.List.SetStruct(i, v.Struct) }
-
-func (s RestInput_List) String() string {
-	str, _ := text.MarshalList(0xa47f8d65869200af, s.List)
-	return str
+	return capnp.StructList[RestInput](l), err
 }
 
 // RestInput_Future is a wrapper for a RestInput promised by a client call.
 type RestInput_Future struct{ *capnp.Future }
 
-func (p RestInput_Future) Struct() (RestInput, error) {
-	s, err := p.Future.Struct()
-	return RestInput{s}, err
+func (f RestInput_Future) Struct() (RestInput, error) {
+	p, err := f.Future.Ptr()
+	return RestInput(p.Struct()), err
 }
 
-type Result struct{ capnp.Struct }
+type Result capnp.Struct
 
 // Result_TypeID is the unique identifier for the type Result.
 const Result_TypeID = 0x8db55634a0e7d054
 
 func NewResult(s *capnp.Segment) (Result, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 2})
-	return Result{st}, err
+	return Result(st), err
 }
 
 func NewRootResult(s *capnp.Segment) (Result, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 2})
-	return Result{st}, err
+	return Result(st), err
 }
 
 func ReadRootResult(msg *capnp.Message) (Result, error) {
 	root, err := msg.Root()
-	return Result{root.Struct()}, err
+	return Result(root.Struct()), err
 }
 
 func (s Result) String() string {
-	str, _ := text.Marshal(0x8db55634a0e7d054, s.Struct)
+	str, _ := text.Marshal(0x8db55634a0e7d054, capnp.Struct(s))
 	return str
 }
 
+func (s Result) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Result) DecodeFromPtr(p capnp.Ptr) Result {
+	return Result(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Result) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Result) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Result) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Result) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Result) Cultivar() (string, error) {
-	p, err := s.Struct.Ptr(0)
+	p, err := capnp.Struct(s).Ptr(0)
 	return p.Text(), err
 }
 
 func (s Result) HasCultivar() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s Result) CultivarBytes() ([]byte, error) {
-	p, err := s.Struct.Ptr(0)
+	p, err := capnp.Struct(s).Ptr(0)
 	return p.TextBytes(), err
 }
 
 func (s Result) SetCultivar(v string) error {
-	return s.Struct.SetText(0, v)
+	return capnp.Struct(s).SetText(0, v)
 }
 
 func (s Result) IsNoData() bool {
-	return s.Struct.Bit(0)
+	return capnp.Struct(s).Bit(0)
 }
 
 func (s Result) SetIsNoData(v bool) {
-	s.Struct.SetBit(0, v)
+	capnp.Struct(s).SetBit(0, v)
 }
 
 func (s Result) Values() (Result_ResultToValue_List, error) {
-	p, err := s.Struct.Ptr(1)
-	return Result_ResultToValue_List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(1)
+	return Result_ResultToValue_List(p.List()), err
 }
 
 func (s Result) HasValues() bool {
-	return s.Struct.HasPtr(1)
+	return capnp.Struct(s).HasPtr(1)
 }
 
 func (s Result) SetValues(v Result_ResultToValue_List) error {
-	return s.Struct.SetPtr(1, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(1, v.ToPtr())
 }
 
 // NewValues sets the values field to a newly
 // allocated Result_ResultToValue_List, preferring placement in s's segment.
 func (s Result) NewValues(n int32) (Result_ResultToValue_List, error) {
-	l, err := NewResult_ResultToValue_List(s.Struct.Segment(), n)
+	l, err := NewResult_ResultToValue_List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return Result_ResultToValue_List{}, err
 	}
-	err = s.Struct.SetPtr(1, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(1, l.ToPtr())
 	return l, err
 }
 
 // Result_List is a list of Result.
-type Result_List struct{ capnp.List }
+type Result_List = capnp.StructList[Result]
 
 // NewResult creates a new list of Result.
 func NewResult_List(s *capnp.Segment, sz int32) (Result_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 2}, sz)
-	return Result_List{l}, err
-}
-
-func (s Result_List) At(i int) Result { return Result{s.List.Struct(i)} }
-
-func (s Result_List) Set(i int, v Result) error { return s.List.SetStruct(i, v.Struct) }
-
-func (s Result_List) String() string {
-	str, _ := text.MarshalList(0x8db55634a0e7d054, s.List)
-	return str
+	return capnp.StructList[Result](l), err
 }
 
 // Result_Future is a wrapper for a Result promised by a client call.
 type Result_Future struct{ *capnp.Future }
 
-func (p Result_Future) Struct() (Result, error) {
-	s, err := p.Future.Struct()
-	return Result{s}, err
+func (f Result_Future) Struct() (Result, error) {
+	p, err := f.Future.Ptr()
+	return Result(p.Struct()), err
 }
 
-type Result_ResultToValue struct{ capnp.Struct }
+type Result_ResultToValue capnp.Struct
 
 // Result_ResultToValue_TypeID is the unique identifier for the type Result_ResultToValue.
 const Result_ResultToValue_TypeID = 0x8d365bd4f0136fc0
 
 func NewResult_ResultToValue(s *capnp.Segment) (Result_ResultToValue, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0})
-	return Result_ResultToValue{st}, err
+	return Result_ResultToValue(st), err
 }
 
 func NewRootResult_ResultToValue(s *capnp.Segment) (Result_ResultToValue, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0})
-	return Result_ResultToValue{st}, err
+	return Result_ResultToValue(st), err
 }
 
 func ReadRootResult_ResultToValue(msg *capnp.Message) (Result_ResultToValue, error) {
 	root, err := msg.Root()
-	return Result_ResultToValue{root.Struct()}, err
+	return Result_ResultToValue(root.Struct()), err
 }
 
 func (s Result_ResultToValue) String() string {
-	str, _ := text.Marshal(0x8d365bd4f0136fc0, s.Struct)
+	str, _ := text.Marshal(0x8d365bd4f0136fc0, capnp.Struct(s))
 	return str
 }
 
+func (s Result_ResultToValue) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Result_ResultToValue) DecodeFromPtr(p capnp.Ptr) Result_ResultToValue {
+	return Result_ResultToValue(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Result_ResultToValue) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Result_ResultToValue) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Result_ResultToValue) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Result_ResultToValue) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Result_ResultToValue) Id() ResultId {
-	return ResultId(s.Struct.Uint16(0))
+	return ResultId(capnp.Struct(s).Uint16(0))
 }
 
 func (s Result_ResultToValue) SetId(v ResultId) {
-	s.Struct.SetUint16(0, uint16(v))
+	capnp.Struct(s).SetUint16(0, uint16(v))
 }
 
 func (s Result_ResultToValue) Value() float64 {
-	return math.Float64frombits(s.Struct.Uint64(8))
+	return math.Float64frombits(capnp.Struct(s).Uint64(8))
 }
 
 func (s Result_ResultToValue) SetValue(v float64) {
-	s.Struct.SetUint64(8, math.Float64bits(v))
+	capnp.Struct(s).SetUint64(8, math.Float64bits(v))
 }
 
 // Result_ResultToValue_List is a list of Result_ResultToValue.
-type Result_ResultToValue_List struct{ capnp.List }
+type Result_ResultToValue_List = capnp.StructList[Result_ResultToValue]
 
 // NewResult_ResultToValue creates a new list of Result_ResultToValue.
 func NewResult_ResultToValue_List(s *capnp.Segment, sz int32) (Result_ResultToValue_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 16, PointerCount: 0}, sz)
-	return Result_ResultToValue_List{l}, err
-}
-
-func (s Result_ResultToValue_List) At(i int) Result_ResultToValue {
-	return Result_ResultToValue{s.List.Struct(i)}
-}
-
-func (s Result_ResultToValue_List) Set(i int, v Result_ResultToValue) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Result_ResultToValue_List) String() string {
-	str, _ := text.MarshalList(0x8d365bd4f0136fc0, s.List)
-	return str
+	return capnp.StructList[Result_ResultToValue](l), err
 }
 
 // Result_ResultToValue_Future is a wrapper for a Result_ResultToValue promised by a client call.
 type Result_ResultToValue_Future struct{ *capnp.Future }
 
-func (p Result_ResultToValue_Future) Struct() (Result_ResultToValue, error) {
-	s, err := p.Future.Struct()
-	return Result_ResultToValue{s}, err
+func (f Result_ResultToValue_Future) Struct() (Result_ResultToValue, error) {
+	p, err := f.Future.Ptr()
+	return Result_ResultToValue(p.Struct()), err
 }
 
-type Output struct{ capnp.Struct }
+type Output capnp.Struct
 
 // Output_TypeID is the unique identifier for the type Output.
 const Output_TypeID = 0x932a681f81b4be19
 
 func NewOutput(s *capnp.Segment) (Output, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 3})
-	return Output{st}, err
+	return Output(st), err
 }
 
 func NewRootOutput(s *capnp.Segment) (Output, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 3})
-	return Output{st}, err
+	return Output(st), err
 }
 
 func ReadRootOutput(msg *capnp.Message) (Output, error) {
 	root, err := msg.Root()
-	return Output{root.Struct()}, err
+	return Output(root.Struct()), err
 }
 
 func (s Output) String() string {
-	str, _ := text.Marshal(0x932a681f81b4be19, s.Struct)
+	str, _ := text.Marshal(0x932a681f81b4be19, capnp.Struct(s))
 	return str
 }
 
+func (s Output) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Output) DecodeFromPtr(p capnp.Ptr) Output {
+	return Output(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Output) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Output) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Output) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Output) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Output) Id() (string, error) {
-	p, err := s.Struct.Ptr(0)
+	p, err := capnp.Struct(s).Ptr(0)
 	return p.Text(), err
 }
 
 func (s Output) HasId() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s Output) IdBytes() ([]byte, error) {
-	p, err := s.Struct.Ptr(0)
+	p, err := capnp.Struct(s).Ptr(0)
 	return p.TextBytes(), err
 }
 
 func (s Output) SetId(v string) error {
-	return s.Struct.SetText(0, v)
+	return capnp.Struct(s).SetText(0, v)
 }
 
 func (s Output) RunFailed() bool {
-	return s.Struct.Bit(0)
+	return capnp.Struct(s).Bit(0)
 }
 
 func (s Output) SetRunFailed(v bool) {
-	s.Struct.SetBit(0, v)
+	capnp.Struct(s).SetBit(0, v)
 }
 
 func (s Output) Reason() (string, error) {
-	p, err := s.Struct.Ptr(1)
+	p, err := capnp.Struct(s).Ptr(1)
 	return p.Text(), err
 }
 
 func (s Output) HasReason() bool {
-	return s.Struct.HasPtr(1)
+	return capnp.Struct(s).HasPtr(1)
 }
 
 func (s Output) ReasonBytes() ([]byte, error) {
-	p, err := s.Struct.Ptr(1)
+	p, err := capnp.Struct(s).Ptr(1)
 	return p.TextBytes(), err
 }
 
 func (s Output) SetReason(v string) error {
-	return s.Struct.SetText(1, v)
+	return capnp.Struct(s).SetText(1, v)
 }
 
 func (s Output) Results() (Output_YearToResult_List, error) {
-	p, err := s.Struct.Ptr(2)
-	return Output_YearToResult_List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(2)
+	return Output_YearToResult_List(p.List()), err
 }
 
 func (s Output) HasResults() bool {
-	return s.Struct.HasPtr(2)
+	return capnp.Struct(s).HasPtr(2)
 }
 
 func (s Output) SetResults(v Output_YearToResult_List) error {
-	return s.Struct.SetPtr(2, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(2, v.ToPtr())
 }
 
 // NewResults sets the results field to a newly
 // allocated Output_YearToResult_List, preferring placement in s's segment.
 func (s Output) NewResults(n int32) (Output_YearToResult_List, error) {
-	l, err := NewOutput_YearToResult_List(s.Struct.Segment(), n)
+	l, err := NewOutput_YearToResult_List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return Output_YearToResult_List{}, err
 	}
-	err = s.Struct.SetPtr(2, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(2, l.ToPtr())
 	return l, err
 }
 
 // Output_List is a list of Output.
-type Output_List struct{ capnp.List }
+type Output_List = capnp.StructList[Output]
 
 // NewOutput creates a new list of Output.
 func NewOutput_List(s *capnp.Segment, sz int32) (Output_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 3}, sz)
-	return Output_List{l}, err
-}
-
-func (s Output_List) At(i int) Output { return Output{s.List.Struct(i)} }
-
-func (s Output_List) Set(i int, v Output) error { return s.List.SetStruct(i, v.Struct) }
-
-func (s Output_List) String() string {
-	str, _ := text.MarshalList(0x932a681f81b4be19, s.List)
-	return str
+	return capnp.StructList[Output](l), err
 }
 
 // Output_Future is a wrapper for a Output promised by a client call.
 type Output_Future struct{ *capnp.Future }
 
-func (p Output_Future) Struct() (Output, error) {
-	s, err := p.Future.Struct()
-	return Output{s}, err
+func (f Output_Future) Struct() (Output, error) {
+	p, err := f.Future.Ptr()
+	return Output(p.Struct()), err
 }
 
-type Output_YearToResult struct{ capnp.Struct }
+type Output_YearToResult capnp.Struct
 
 // Output_YearToResult_TypeID is the unique identifier for the type Output_YearToResult.
 const Output_YearToResult_TypeID = 0xa008c533888c3a5e
 
 func NewOutput_YearToResult(s *capnp.Segment) (Output_YearToResult, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return Output_YearToResult{st}, err
+	return Output_YearToResult(st), err
 }
 
 func NewRootOutput_YearToResult(s *capnp.Segment) (Output_YearToResult, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return Output_YearToResult{st}, err
+	return Output_YearToResult(st), err
 }
 
 func ReadRootOutput_YearToResult(msg *capnp.Message) (Output_YearToResult, error) {
 	root, err := msg.Root()
-	return Output_YearToResult{root.Struct()}, err
+	return Output_YearToResult(root.Struct()), err
 }
 
 func (s Output_YearToResult) String() string {
-	str, _ := text.Marshal(0xa008c533888c3a5e, s.Struct)
+	str, _ := text.Marshal(0xa008c533888c3a5e, capnp.Struct(s))
 	return str
 }
 
+func (s Output_YearToResult) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Output_YearToResult) DecodeFromPtr(p capnp.Ptr) Output_YearToResult {
+	return Output_YearToResult(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Output_YearToResult) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Output_YearToResult) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Output_YearToResult) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Output_YearToResult) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Output_YearToResult) Year() int16 {
-	return int16(s.Struct.Uint16(0))
+	return int16(capnp.Struct(s).Uint16(0))
 }
 
 func (s Output_YearToResult) SetYear(v int16) {
-	s.Struct.SetUint16(0, uint16(v))
+	capnp.Struct(s).SetUint16(0, uint16(v))
 }
 
 func (s Output_YearToResult) Result() (Result, error) {
-	p, err := s.Struct.Ptr(0)
-	return Result{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return Result(p.Struct()), err
 }
 
 func (s Output_YearToResult) HasResult() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s Output_YearToResult) SetResult(v Result) error {
-	return s.Struct.SetPtr(0, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewResult sets the result field to a newly
 // allocated Result struct, preferring placement in s's segment.
 func (s Output_YearToResult) NewResult() (Result, error) {
-	ss, err := NewResult(s.Struct.Segment())
+	ss, err := NewResult(capnp.Struct(s).Segment())
 	if err != nil {
 		return Result{}, err
 	}
-	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 // Output_YearToResult_List is a list of Output_YearToResult.
-type Output_YearToResult_List struct{ capnp.List }
+type Output_YearToResult_List = capnp.StructList[Output_YearToResult]
 
 // NewOutput_YearToResult creates a new list of Output_YearToResult.
 func NewOutput_YearToResult_List(s *capnp.Segment, sz int32) (Output_YearToResult_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1}, sz)
-	return Output_YearToResult_List{l}, err
-}
-
-func (s Output_YearToResult_List) At(i int) Output_YearToResult {
-	return Output_YearToResult{s.List.Struct(i)}
-}
-
-func (s Output_YearToResult_List) Set(i int, v Output_YearToResult) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Output_YearToResult_List) String() string {
-	str, _ := text.MarshalList(0xa008c533888c3a5e, s.List)
-	return str
+	return capnp.StructList[Output_YearToResult](l), err
 }
 
 // Output_YearToResult_Future is a wrapper for a Output_YearToResult promised by a client call.
 type Output_YearToResult_Future struct{ *capnp.Future }
 
-func (p Output_YearToResult_Future) Struct() (Output_YearToResult, error) {
-	s, err := p.Future.Struct()
-	return Output_YearToResult{s}, err
+func (f Output_YearToResult_Future) Struct() (Output_YearToResult, error) {
+	p, err := f.Future.Ptr()
+	return Output_YearToResult(p.Struct()), err
 }
-
 func (p Output_YearToResult_Future) Result() Result_Future {
 	return Result_Future{Future: p.Future.Field(0, nil)}
 }
 
-const schema_b80c8fd14e523f9b = "x\xda\x8c\x93O\x88\x1cE\x14\xc6\xdfW\xd5\xb3\xbd\xc9" +
-	"n\x9cm\xba\xc1\x98\xcb\x84 D\x03&1\x9b\x08\x19" +
-	"\x08c\x92Md\x83I\xb6f6\xd1\xc5(tv\xca" +
-	"L\xc7\x9e\xeeIu\xf7&\xb3D\x93@\"+d\xf1" +
-	"_\xc0\x83\x08K\xf0\xa2\x08\xb9(\xe8AQ\xd0\xb3\x06" +
-	"\xf4\xe2E\xf0\x92\xabW\x0f\xd2\xf2z\x9c\xe9e!\x92" +
-	"S\xbf\xfe\xd5\xab\xd7\xdfW\xfd\xd5\xde\x05\xf1\xbcx\xb6" +
-	"\xb2\xd3\"R{+c\xf9\xf7\xb1\xfb\xd7\xaf\xaf<\xb7" +
-	"Jj'D>\xff\xcb\x83\xb5\xfdg\xbfZ%\xcb&" +
-	"\x9a\xfe\x1b\x9f\xc3u\x84M\xe4n\x11\x97\x09\xe5\xb2\xda" +
-	"\x0e\xe4\x1f7\x9a\xa7\xee\xbf;\xf95U\xb8e:\x10" +
-	"u\xb8}\xf18\x91{K\xdc#\xe4O|\xf7\xe5\x8d" +
-	"Zg\xd7\x87\x1b\xbb%w\x1f\x90u\xb8\xc7$w+" +
-	"\xf9\x80\x90\xbfV\xbf\xbd2\xfd\xd3\xf8\x1a\x0bY\xb7\xb7" +
-	"\x02\xee>h\xdd\x85\xabX\x94{\xd2\xbaL\xf8\xe7\xde" +
-	"\x07o\xeb\xd5k\x9f\xaa\xed\x90\xe5\xe4B\xf4gV\x13" +
-	"\xee\xb7E\xf9\x8d\xf5\x87 \xe4[\xde\xda\xb1\xfa\xe3\xd6" +
-	"?\x7f&g\xbb(\x9b\x09\xd3?\xd8'\xe0\xfef\xf3" +
-	"\xd4\xfb\xf6Gt4\xef\xc6m\x1d\xee\xe9\x07\x15\x1d\xb6" +
-	"\x93\xd4O\xf7\xf4\x83\xff\xaa\xdd\x8b~/\xea\xd5\x9b:" +
-	"\xc9\xc2t\xf7\xe01\x1f\x9f\xad\xfaa\xa6\xe7\x005." +
-	"-\"\x0bD\xce\xd3\xdb\x88\xd4\x93\x12j\xaf\x80\x03x" +
-	"`\xf8\xcc>\"\xf5\x94\x84\xda/ \x836\xaa\xa5(" +
-	"\x02\xaa\x84\xda\x12O\xc2\x04\x09L\x10FB\xe4\xc3\x84" +
-	"4\x06\x12\x94\x05\x94\xbf\xd0\x81\xc9\x87\xd2\xa8v\x96'" +
-	"\xaa\xc9\x91\xb0c'\x88\xd4\x8c\x84\x9a\x13(t\x01\xce" +
-	"If/J\xa8\x97\x05\x1c\x01\x0f\x82\xc89S'R" +
-	"s\x12*\x14\xc8\x17\xb30\x0d\x96|CD\x98$\x81" +
-	"IB\x1e$\xa7\xe2\x19?\xf5\x99\x81\x04@h\x14\xfa" +
-	"\x13<F\x98\x93\xc0T)\x8a\xc0\xf0\x11\x1c\x9d\xce\xd2" +
-	"^6p4\xca\x82\x83\x8b\xf9\x82\xf6\xcd|\xdc\xd4T" +
-	"-\x1cO\x8d\x0c\xf9|\xd2\xe7$T\xa74\xa4\x9bD" +
-	"\xaa-\xa1z\xeb\x0cu\xd9PGB\xa5\x02\x8e\x14\x1e" +
-	"$\x91s\xe9\x08\x91\x0a%\xd4\xca\xe0\x97\x0c\xcd\x99," +
-	":\xee\x07\xa1&\xb4G\xe6\x8c\xf6\x938\x1a\xb6\\3" +
-	"\xc5\x19\xaf3;\xd2\xbb\xc1\xecCs4\xf0\xba{h" +
-	"-\xb1\xb30\xdd\x10\xa3]e\x8cF)\xaa\x97)\xaa" +
-	"\xf6\xb5o I@\x16\x02Y\x11\xa6\xca\x1bJ\xc0\xd4" +
-	":%\xd6\xff$:\x9d\x8dz\x19\x8a\xef\xef\x1f|\x1f" +
-	"p_\xc5y\xa2\xd69H\xb4:\x18&\x19p5\x96" +
-	"\x89Zm\xe6=\x0c\xcf\x18p\xbb\xd8A\xd4\xea0O" +
-	"\x99Kx\x90\x80{\xa9\xe0!\xf3+\xcc-\xe1\xc1\x02" +
-	"\xdc\xac\xe0=\xe6W\x99W\xa4\x87\x0a\xe0\xf6\x0b\x9e2" +
-	"\xbf\xce|\xcc\xf20\x06\xb8ob\x1fQ\xeb\x0a\xf3\x9b" +
-	"\xcc\xed\x8a\x07\x1bpo\xa0N\xd4\xba\xca|\x85\xf9\xf8" +
-	"\x98\x87q\xc0\xbd\x85mD\xad\xeb\xcco3\xdfd{" +
-	"\xd8\x04\xb8\xef\x14\xf3o2\x7f\x8f\xf9\xe6)\x0f\x9b\x01" +
-	"w\xb5\xe0+\xcc\xef0\x9fp<L\x00\xee\xfb\xb8K" +
-	"\xd4\xba\xc3|\x8d\xf9\xa4\xf00\x09\xb8\x9f\x14|\x8d\xf9" +
-	"\x17\x10\xc8\xb3D\xcf\xe8\xa5yC\xb6\x8eF\xc1az" +
-	"\xf4\xf4\xbe\xd9\x88\x1a\x8b\x9c!\xcd\x0b\x15^\xb1\xdb\x17" +
-	"\xba\xc3\xdbnw^O1F\x02c\x04;ZW'" +
-	"e]K\xc2\xb8\xa7\x87o\x8d$\xd5A\x14\x0f_\xa5" +
-	"\xbf<\xda\xf3FX\xd6I:\xda\x9f_\xd0\xa6\xebG" +
-	"\xc75\xda\xda\xf8a+\xf5\xedT'\x10$*\"/" +
-	"\x96\xd3\x19\xd3_\xd0\xf0\xcdK~\xaa\xcd)[\xeb\xd2" +
-	"\xc6\xa3\xa4(\x0b\xd3\xd96\x11\xa7hkq\xeb\x0e_" +
-	"\xe4\x10:\x87\x9aD\x10\xce\xc1\xdf\x89 \x9dC\x86\x08" +
-	"\x96s\x90\x1f\x15\xe7\xc02Q\xde3A\xd77\xfd\x05" +
-	"\xaa\xf2\xd0\xbcm\xfa'\xfd4\xd5\x04\x93/\xfa\xe6|" +
-	"\x1c\xcdF\xe2\xf0\xf9xI\xbf`\xe2,j\x1f\x09\xe2" +
-	"\xae/\x93$O\xb2\xeeqm\xd2\x80ja\xb0\xac\x0d" +
-	"\xbf\xcf\x1a\x13\\\xa0\x9a\x9f\x06qT\xcem\xf0\xdc\xa3" +
-	"g\xfe\x0d\x00\x00\xff\xffyk\xa0\xcf"
+const schema_b80c8fd14e523f9b = "x\xda\x8c\x93O\x8c\x14E\x1b\xc6\xdf\xa7\xaag{a" +
+	"\x87o\xb6\xd3\x9d|\xc8e\x081AI\x04d\xc1\x84" +
+	"I\xc8\x08,\x98%\x02[3\x0bJ@\x93f\xa7d" +
+	"\x1a{\xba\x87\xea\xee\x85\xd9\xa0@\x02fM\xd8\xf8\x8f" +
+	"\xc4\x831\xd9\x10/\x1a\x13.\x9a\xe8A\xa3\x89\x9e\x95" +
+	"D/^L\xbcp\xf5\xea\xc1\xb4y{\x9c\xe9\x0d\x09" +
+	"\x86S\xbf\xfd\xab\xb7\xde~\x9e\xea\xa7v\x9f\x15\xcf[" +
+	"\xcfn\xdan\x91P\xbb+\x13\xf9w\xb1\xfb\xe7/g" +
+	"\x9f[%\xb5\x1d\"_\xf8\xf9\xc1\xda\xde\xd3_\xae\x92" +
+	"e\x13\xcd\xfc\x85\xcf\xe0:\xc2&r7\x89\xcb\x84r" +
+	"Ym\x05\xf2\x8f\x9a\xad\x13\xf7\xdf\xa9~E\x15n\x99" +
+	"\x09D\x03\xee@\xfc\x9f\xc8\xbd%\xee\x11\xf2'\xbe\xfd" +
+	"\xe2F\xbd\xbb\xe3\x83\x87\xbb%w\xef\x93\x0d\xb8G$" +
+	"w+\xf9\x80\x90\xbf\xda\xb8\xbd2\xf3\xe3\xe4\x1a\x0bY" +
+	"\xb7\xb7\x02\xee\xdeo\xdd\x85\xabX\x94{\xdc\xbaL\xf8" +
+	"\xfb\xde\xfbo\xe9\xd5k\x9f\xa8\xad\x90\xe5\xe4B\xf4\xa7" +
+	"V\x0b\xee7E\xf9\xb5\xf5\xbb \xe4\x9b\xde\xdc\xb6\xfa" +
+	"\xc3\xe6?~\"g\xab(\x9b\x093\xdf\xdb\xc7\xe0\xfe" +
+	"j\xf3\xd4\xfb\xf6\x87t8\xef\xc5\x1d\x1d\xee\x1a\x04\x15" +
+	"\x1dv\x92\xd4Ow\x0d\x82\x7f\xab\x9d\x8b~?\xea7" +
+	"Z:\xc9\xc2t\xe7\xf0\xb1\x10\x9f\xae\xf9a\xa6\xe7\x01" +
+	"5)-\"\x0bD\xce\xd3[\x88\xd4\x93\x12j\xb7\x80" +
+	"\x03x`\xf8\xcc\x1e\"\xf5\x94\x84\xda+ \x83\x0ej" +
+	"\xa5(\x02j\x84\xfa\x12O\xc2\x14\x09L\x11\xc6B\xe4" +
+	"\xa3\x844\x87\x12\x94\x05\x94\xbf\xd0\x81\xc9G\xd2\xa8~" +
+	"\x9a'\xaa\xeaX\xd8\x91cDjVB\xcd\x0b\x14\xba" +
+	"\x00\xe78\xb3\x17%\xd4\xcb\x02\x8e\x80\x07A\xe4\x9cj" +
+	"\x10\xa9y\x09\x15\x0a\xe4\x8bY\x98\x06K\xbe!\"T" +
+	"I\xa0J\xc8\x83\xe4D<\xeb\xa7>3\x90\x00\x08\xcd" +
+	"B\x7f\x82\xff\x11\xe6%0]\x8a\"0|\x0cG'" +
+	"\xb3\xb4\x9f\x0d\x1d\x8d\xb3\xe0\xe0b~F\xfbf!n" +
+	"i\xaa\x15\x8e\xa7\xc7\x86|>\xe9s\x12\xaa[\x1a\xd2" +
+	"-\"\xd5\x91P\xfdu\x86zl\xa8+\xa1R\x01G" +
+	"\x0a\x0f\x92\xc8\xb9t\x88H\x85\x12je\xf8KF\xe6" +
+	"L\x16\x1d\xf5\x83P\x13:csF\xfbI\x1c\x8dZ" +
+	"\xae\x99\xe2\x8c\xd7\x99\x1d\xeb}\xc8\xec#s4\xf4\xba" +
+	"sd-\xb1\xb30}(F;\xca\x18\x8dS\xd4(" +
+	"ST\x1bh\xdf@\x92\x80,\x04\xb2\"L\x977\x94" +
+	"\x80\xe9uJ\xac\xffHt:\x17\xf53\x14\xdf\xdf;" +
+	"\xfc>\xe0\xbe\x82\xf3D\xeds\x90hw1J2\xe0" +
+	"j,\x13\xb5;\xcc\xfb\x18\x9d1\xe0\xf6\xb0\x8d\xa8\xdd" +
+	"e\x9e2\x97\xf0 \x01\xf7R\xc1C\xe6W\x98[\xc2" +
+	"\x83\x05\xb8Y\xc1\xfb\xcc\xaf2\xafH\x0f\x15\xc0\x1d\x14" +
+	"<e~\x9d\xf9\x84\xe5a\x02p\xdf\xc0\x1e\xa2\xf6\x15" +
+	"\xe67\x99\xdb\x15\x0f6\xe0\xde@\x83\xa8}\x95\xf9\x0a" +
+	"\xf3\xc9\x09\x0f\x93\x80{\x0b[\x88\xda\xd7\x99\xdff\xbe" +
+	"\xc1\xf6\xb0\x01p\xdf.\xe6\xdfd\xfe.\xf3\x8d\xd3\x1e" +
+	"6\x02\xeej\xc1W\x98\xdfa>\xe5x\x98\x02\xdc\xf7" +
+	"p\x97\xa8}\x87\xf9\x1a\xf3\xaa\xf0P\x05\xdc\x8f\x0b\xbe" +
+	"\xc6\xfcs\x08\xe4Y\xa2g\xf5\xd2\x82![G\xe3\xe0" +
+	"0=|r\xcf\\D\xcdE\xce\x90\xe6\x85\x0a\xaf\xd8" +
+	"\x9d\x0b\xbd\xd1m\xb7\xbb\xaf\xa5\x98 \x81\x09\x82\x1d\xad" +
+	"\xab\x93\xb2\xae'a\xdc\xd7\xa3\xb7f\x92\xea \x8aG" +
+	"\xaf\xd2_\x1e\xefy=,\xeb$\x1d\xef\xcf/h\xd3" +
+	"\xf3\xa3\xa3\x1a\x1dm\xfc\xb0\x9d\xfav\xaa\x13\x08\x12\x15" +
+	"\x91\x17\xcb\xe9\xac\x19\x9c\xd1\xf0\xcdK~\xaa\xcd\x09[" +
+	"\xeb\xd2\xc6\xe3\xa4(\x0b\xd3\xb9\x0e\x11\xa7hsq\xeb" +
+	"\x0e^\xe4\x10:\x07ZD\x10\xce\xfe\xdf\x88 \x9d\x03" +
+	"\x86\x08\x96\xb3\x9f\x1f\x15g\xdf2Q\xde7A\xcf7" +
+	"\x833T\xe3\xa1y\xc7\x0c\x8e\xfbi\xaa\x09&_\xf4" +
+	"\xcd\xf98\x9a\x8b\xc4\xc1\xf3\xf1\x92~\xc1\xc4Y\xd49" +
+	"\x14\xc4=_&I\x9ed\xbd\xa3\xda\xa4\x01\xd5\xc3`" +
+	"Y\x1b~\x9f3&\xb8@u?\x0d\xe2\xa8\x9c\xdb\xe4" +
+	"\xb9\x87O\xfd\x13\x00\x00\xff\xff\xda\xc9\xa0\xdd"
 
-func init() {
-	schemas.Register(schema_b80c8fd14e523f9b,
-		0x8d365bd4f0136fc0,
-		0x8db55634a0e7d054,
-		0x932a681f81b4be19,
-		0xa008c533888c3a5e,
-		0xa47f8d65869200af,
-		0xcfe218c48d227e0d)
+func RegisterSchema(reg *schemas.Registry) {
+	reg.Register(&schemas.Schema{
+		String: schema_b80c8fd14e523f9b,
+		Nodes: []uint64{
+			0x8d365bd4f0136fc0,
+			0x8db55634a0e7d054,
+			0x932a681f81b4be19,
+			0xa008c533888c3a5e,
+			0xa47f8d65869200af,
+			0xcfe218c48d227e0d,
+		},
+		Compressed: true,
+	})
 }

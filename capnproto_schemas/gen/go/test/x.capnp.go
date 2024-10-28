@@ -5,91 +5,105 @@ package test
 import (
 	capnp "capnproto.org/go/capnp/v3"
 	text "capnproto.org/go/capnp/v3/encoding/text"
+	fc "capnproto.org/go/capnp/v3/flowcontrol"
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
 	math "math"
 )
 
-type S struct{ capnp.Struct }
+type S capnp.Struct
 
 // S_TypeID is the unique identifier for the type S.
 const S_TypeID = 0xd227ef68de0bc647
 
 func NewS(s *capnp.Segment) (S, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return S{st}, err
+	return S(st), err
 }
 
 func NewRootS(s *capnp.Segment) (S, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return S{st}, err
+	return S(st), err
 }
 
 func ReadRootS(msg *capnp.Message) (S, error) {
 	root, err := msg.Root()
-	return S{root.Struct()}, err
+	return S(root.Struct()), err
 }
 
 func (s S) String() string {
-	str, _ := text.Marshal(0xd227ef68de0bc647, s.Struct)
+	str, _ := text.Marshal(0xd227ef68de0bc647, capnp.Struct(s))
 	return str
 }
 
+func (s S) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (S) DecodeFromPtr(p capnp.Ptr) S {
+	return S(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s S) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s S) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s S) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s S) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s S) C() X {
-	p, _ := s.Struct.Ptr(0)
-	return X{Client: p.Interface().Client()}
+	p, _ := capnp.Struct(s).Ptr(0)
+	return X(p.Interface().Client())
 }
 
 func (s S) HasC() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s S) SetC(v X) error {
-	if !v.Client.IsValid() {
-		return s.Struct.SetPtr(0, capnp.Ptr{})
+	if !v.IsValid() {
+		return capnp.Struct(s).SetPtr(0, capnp.Ptr{})
 	}
 	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().AddCap(v.Client))
-	return s.Struct.SetPtr(0, in.ToPtr())
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
+	return capnp.Struct(s).SetPtr(0, in.ToPtr())
 }
 
 // S_List is a list of S.
-type S_List struct{ capnp.List }
+type S_List = capnp.StructList[S]
 
 // NewS creates a new list of S.
 func NewS_List(s *capnp.Segment, sz int32) (S_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return S_List{l}, err
-}
-
-func (s S_List) At(i int) S { return S{s.List.Struct(i)} }
-
-func (s S_List) Set(i int, v S) error { return s.List.SetStruct(i, v.Struct) }
-
-func (s S_List) String() string {
-	str, _ := text.MarshalList(0xd227ef68de0bc647, s.List)
-	return str
+	return capnp.StructList[S](l), err
 }
 
 // S_Future is a wrapper for a S promised by a client call.
 type S_Future struct{ *capnp.Future }
 
-func (p S_Future) Struct() (S, error) {
-	s, err := p.Future.Struct()
-	return S{s}, err
+func (f S_Future) Struct() (S, error) {
+	p, err := f.Future.Ptr()
+	return S(p.Struct()), err
 }
-
 func (p S_Future) C() X {
-	return X{Client: p.Future.Field(0, nil).Client()}
+	return X(p.Future.Field(0, nil).Client())
 }
 
-type X struct{ Client *capnp.Client }
+type X capnp.Client
 
 // X_TypeID is the unique identifier for the type X.
 const X_TypeID = 0xdcf28e81fa4de615
 
 func (c X) M(ctx context.Context, params func(X_m_Params) error) (X_m_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xdcf28e81fa4de615,
@@ -100,20 +114,83 @@ func (c X) M(ctx context.Context, params func(X_m_Params) error) (X_m_Results_Fu
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(X_m_Params{Struct: s}) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(X_m_Params(s)) }
 	}
-	ans, release := c.Client.SendCall(ctx, s)
+
+	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return X_m_Results_Future{Future: ans.Future()}, release
+
 }
 
+func (c X) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
+}
+
+// String returns a string that identifies this capability for debugging
+// purposes.  Its format should not be depended on: in particular, it
+// should not be used to compare clients.  Use IsSame to compare clients
+// for equality.
+func (c X) String() string {
+	return "X(" + capnp.Client(c).String() + ")"
+}
+
+// AddRef creates a new Client that refers to the same capability as c.
+// If c is nil or has resolved to null, then AddRef returns nil.
 func (c X) AddRef() X {
-	return X{
-		Client: c.Client.AddRef(),
-	}
+	return X(capnp.Client(c).AddRef())
 }
 
+// Release releases a capability reference.  If this is the last
+// reference to the capability, then the underlying resources associated
+// with the capability will be released.
+//
+// Release will panic if c has already been released, but not if c is
+// nil or resolved to null.
 func (c X) Release() {
-	c.Client.Release()
+	capnp.Client(c).Release()
+}
+
+// Resolve blocks until the capability is fully resolved or the Context
+// expires.
+func (c X) Resolve(ctx context.Context) error {
+	return capnp.Client(c).Resolve(ctx)
+}
+
+func (c X) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Client(c).EncodeAsPtr(seg)
+}
+
+func (X) DecodeFromPtr(p capnp.Ptr) X {
+	return X(capnp.Client{}.DecodeFromPtr(p))
+}
+
+// IsValid reports whether c is a valid reference to a capability.
+// A reference is invalid if it is nil, has resolved to null, or has
+// been released.
+func (c X) IsValid() bool {
+	return capnp.Client(c).IsValid()
+}
+
+// IsSame reports whether c and other refer to a capability created by the
+// same call to NewClient.  This can return false negatives if c or other
+// are not fully resolved: use Resolve if this is an issue.  If either
+// c or other are released, then IsSame panics.
+func (c X) IsSame(other X) bool {
+	return capnp.Client(c).IsSame(capnp.Client(other))
+}
+
+// Update the flowcontrol.FlowLimiter used to manage flow control for
+// this client. This affects all future calls, but not calls already
+// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
+// which is also the default.
+func (c X) SetFlowLimiter(lim fc.FlowLimiter) {
+	capnp.Client(c).SetFlowLimiter(lim)
+}
+
+// Get the current flowcontrol.FlowLimiter used to manage flow control
+// for this client.
+func (c X) GetFlowLimiter() fc.FlowLimiter {
+	return capnp.Client(c).GetFlowLimiter()
 }
 
 // A X_Server is a X with a local implementation.
@@ -122,15 +199,15 @@ type X_Server interface {
 }
 
 // X_NewServer creates a new Server from an implementation of X_Server.
-func X_NewServer(s X_Server, policy *server.Policy) *server.Server {
+func X_NewServer(s X_Server) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(X_Methods(nil, s), s, c, policy)
+	return server.New(X_Methods(nil, s), s, c)
 }
 
 // X_ServerToClient creates a new Client from an implementation of X_Server.
 // The caller is responsible for calling Release on the returned Client.
-func X_ServerToClient(s X_Server, policy *server.Policy) X {
-	return X{Client: capnp.NewClient(X_NewServer(s, policy))}
+func X_ServerToClient(s X_Server) X {
+	return X(capnp.NewClient(X_NewServer(s)))
 }
 
 // X_Methods appends Methods to a slice that invoke the methods on s.
@@ -163,149 +240,185 @@ type X_m struct {
 
 // Args returns the call's arguments.
 func (c X_m) Args() X_m_Params {
-	return X_m_Params{Struct: c.Call.Args()}
+	return X_m_Params(c.Call.Args())
 }
 
 // AllocResults allocates the results struct.
 func (c X_m) AllocResults() (X_m_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return X_m_Results{Struct: r}, err
+	return X_m_Results(r), err
 }
 
-type X_m_Params struct{ capnp.Struct }
+// X_List is a list of X.
+type X_List = capnp.CapList[X]
+
+// NewX_List creates a new list of X.
+func NewX_List(s *capnp.Segment, sz int32) (X_List, error) {
+	l, err := capnp.NewPointerList(s, sz)
+	return capnp.CapList[X](l), err
+}
+
+type X_m_Params capnp.Struct
 
 // X_m_Params_TypeID is the unique identifier for the type X_m_Params.
 const X_m_Params_TypeID = 0xc68563695ada2a40
 
 func NewX_m_Params(s *capnp.Segment) (X_m_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return X_m_Params{st}, err
+	return X_m_Params(st), err
 }
 
 func NewRootX_m_Params(s *capnp.Segment) (X_m_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return X_m_Params{st}, err
+	return X_m_Params(st), err
 }
 
 func ReadRootX_m_Params(msg *capnp.Message) (X_m_Params, error) {
 	root, err := msg.Root()
-	return X_m_Params{root.Struct()}, err
+	return X_m_Params(root.Struct()), err
 }
 
 func (s X_m_Params) String() string {
-	str, _ := text.Marshal(0xc68563695ada2a40, s.Struct)
+	str, _ := text.Marshal(0xc68563695ada2a40, capnp.Struct(s))
 	return str
 }
 
+func (s X_m_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (X_m_Params) DecodeFromPtr(p capnp.Ptr) X_m_Params {
+	return X_m_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s X_m_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s X_m_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s X_m_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s X_m_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s X_m_Params) I() int64 {
-	return int64(s.Struct.Uint64(0))
+	return int64(capnp.Struct(s).Uint64(0))
 }
 
 func (s X_m_Params) SetI(v int64) {
-	s.Struct.SetUint64(0, uint64(v))
+	capnp.Struct(s).SetUint64(0, uint64(v))
 }
 
 // X_m_Params_List is a list of X_m_Params.
-type X_m_Params_List struct{ capnp.List }
+type X_m_Params_List = capnp.StructList[X_m_Params]
 
 // NewX_m_Params creates a new list of X_m_Params.
 func NewX_m_Params_List(s *capnp.Segment, sz int32) (X_m_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0}, sz)
-	return X_m_Params_List{l}, err
-}
-
-func (s X_m_Params_List) At(i int) X_m_Params { return X_m_Params{s.List.Struct(i)} }
-
-func (s X_m_Params_List) Set(i int, v X_m_Params) error { return s.List.SetStruct(i, v.Struct) }
-
-func (s X_m_Params_List) String() string {
-	str, _ := text.MarshalList(0xc68563695ada2a40, s.List)
-	return str
+	return capnp.StructList[X_m_Params](l), err
 }
 
 // X_m_Params_Future is a wrapper for a X_m_Params promised by a client call.
 type X_m_Params_Future struct{ *capnp.Future }
 
-func (p X_m_Params_Future) Struct() (X_m_Params, error) {
-	s, err := p.Future.Struct()
-	return X_m_Params{s}, err
+func (f X_m_Params_Future) Struct() (X_m_Params, error) {
+	p, err := f.Future.Ptr()
+	return X_m_Params(p.Struct()), err
 }
 
-type X_m_Results struct{ capnp.Struct }
+type X_m_Results capnp.Struct
 
 // X_m_Results_TypeID is the unique identifier for the type X_m_Results.
 const X_m_Results_TypeID = 0x86aae6bcee1a970d
 
 func NewX_m_Results(s *capnp.Segment) (X_m_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return X_m_Results{st}, err
+	return X_m_Results(st), err
 }
 
 func NewRootX_m_Results(s *capnp.Segment) (X_m_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return X_m_Results{st}, err
+	return X_m_Results(st), err
 }
 
 func ReadRootX_m_Results(msg *capnp.Message) (X_m_Results, error) {
 	root, err := msg.Root()
-	return X_m_Results{root.Struct()}, err
+	return X_m_Results(root.Struct()), err
 }
 
 func (s X_m_Results) String() string {
-	str, _ := text.Marshal(0x86aae6bcee1a970d, s.Struct)
+	str, _ := text.Marshal(0x86aae6bcee1a970d, capnp.Struct(s))
 	return str
 }
 
+func (s X_m_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (X_m_Results) DecodeFromPtr(p capnp.Ptr) X_m_Results {
+	return X_m_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s X_m_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s X_m_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s X_m_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s X_m_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s X_m_Results) T() (string, error) {
-	p, err := s.Struct.Ptr(0)
+	p, err := capnp.Struct(s).Ptr(0)
 	return p.Text(), err
 }
 
 func (s X_m_Results) HasT() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s X_m_Results) TBytes() ([]byte, error) {
-	p, err := s.Struct.Ptr(0)
+	p, err := capnp.Struct(s).Ptr(0)
 	return p.TextBytes(), err
 }
 
 func (s X_m_Results) SetT(v string) error {
-	return s.Struct.SetText(0, v)
+	return capnp.Struct(s).SetText(0, v)
 }
 
 // X_m_Results_List is a list of X_m_Results.
-type X_m_Results_List struct{ capnp.List }
+type X_m_Results_List = capnp.StructList[X_m_Results]
 
 // NewX_m_Results creates a new list of X_m_Results.
 func NewX_m_Results_List(s *capnp.Segment, sz int32) (X_m_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return X_m_Results_List{l}, err
-}
-
-func (s X_m_Results_List) At(i int) X_m_Results { return X_m_Results{s.List.Struct(i)} }
-
-func (s X_m_Results_List) Set(i int, v X_m_Results) error { return s.List.SetStruct(i, v.Struct) }
-
-func (s X_m_Results_List) String() string {
-	str, _ := text.MarshalList(0x86aae6bcee1a970d, s.List)
-	return str
+	return capnp.StructList[X_m_Results](l), err
 }
 
 // X_m_Results_Future is a wrapper for a X_m_Results promised by a client call.
 type X_m_Results_Future struct{ *capnp.Future }
 
-func (p X_m_Results_Future) Struct() (X_m_Results, error) {
-	s, err := p.Future.Struct()
-	return X_m_Results{s}, err
+func (f X_m_Results_Future) Struct() (X_m_Results, error) {
+	p, err := f.Future.Ptr()
+	return X_m_Results(p.Struct()), err
 }
 
-type Y struct{ Client *capnp.Client }
+type Y capnp.Client
 
 // Y_TypeID is the unique identifier for the type Y.
 const Y_TypeID = 0xac121e5aa82ca6bd
 
 func (c Y) M(ctx context.Context, params func(Y_m_Params) error) (Y_m_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xac121e5aa82ca6bd,
@@ -316,20 +429,83 @@ func (c Y) M(ctx context.Context, params func(Y_m_Params) error) (Y_m_Results_Fu
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Y_m_Params{Struct: s}) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Y_m_Params(s)) }
 	}
-	ans, release := c.Client.SendCall(ctx, s)
+
+	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Y_m_Results_Future{Future: ans.Future()}, release
+
 }
 
+func (c Y) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
+}
+
+// String returns a string that identifies this capability for debugging
+// purposes.  Its format should not be depended on: in particular, it
+// should not be used to compare clients.  Use IsSame to compare clients
+// for equality.
+func (c Y) String() string {
+	return "Y(" + capnp.Client(c).String() + ")"
+}
+
+// AddRef creates a new Client that refers to the same capability as c.
+// If c is nil or has resolved to null, then AddRef returns nil.
 func (c Y) AddRef() Y {
-	return Y{
-		Client: c.Client.AddRef(),
-	}
+	return Y(capnp.Client(c).AddRef())
 }
 
+// Release releases a capability reference.  If this is the last
+// reference to the capability, then the underlying resources associated
+// with the capability will be released.
+//
+// Release will panic if c has already been released, but not if c is
+// nil or resolved to null.
 func (c Y) Release() {
-	c.Client.Release()
+	capnp.Client(c).Release()
+}
+
+// Resolve blocks until the capability is fully resolved or the Context
+// expires.
+func (c Y) Resolve(ctx context.Context) error {
+	return capnp.Client(c).Resolve(ctx)
+}
+
+func (c Y) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Client(c).EncodeAsPtr(seg)
+}
+
+func (Y) DecodeFromPtr(p capnp.Ptr) Y {
+	return Y(capnp.Client{}.DecodeFromPtr(p))
+}
+
+// IsValid reports whether c is a valid reference to a capability.
+// A reference is invalid if it is nil, has resolved to null, or has
+// been released.
+func (c Y) IsValid() bool {
+	return capnp.Client(c).IsValid()
+}
+
+// IsSame reports whether c and other refer to a capability created by the
+// same call to NewClient.  This can return false negatives if c or other
+// are not fully resolved: use Resolve if this is an issue.  If either
+// c or other are released, then IsSame panics.
+func (c Y) IsSame(other Y) bool {
+	return capnp.Client(c).IsSame(capnp.Client(other))
+}
+
+// Update the flowcontrol.FlowLimiter used to manage flow control for
+// this client. This affects all future calls, but not calls already
+// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
+// which is also the default.
+func (c Y) SetFlowLimiter(lim fc.FlowLimiter) {
+	capnp.Client(c).SetFlowLimiter(lim)
+}
+
+// Get the current flowcontrol.FlowLimiter used to manage flow control
+// for this client.
+func (c Y) GetFlowLimiter() fc.FlowLimiter {
+	return capnp.Client(c).GetFlowLimiter()
 }
 
 // A Y_Server is a Y with a local implementation.
@@ -338,15 +514,15 @@ type Y_Server interface {
 }
 
 // Y_NewServer creates a new Server from an implementation of Y_Server.
-func Y_NewServer(s Y_Server, policy *server.Policy) *server.Server {
+func Y_NewServer(s Y_Server) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(Y_Methods(nil, s), s, c, policy)
+	return server.New(Y_Methods(nil, s), s, c)
 }
 
 // Y_ServerToClient creates a new Client from an implementation of Y_Server.
 // The caller is responsible for calling Release on the returned Client.
-func Y_ServerToClient(s Y_Server, policy *server.Policy) Y {
-	return Y{Client: capnp.NewClient(Y_NewServer(s, policy))}
+func Y_ServerToClient(s Y_Server) Y {
+	return Y(capnp.NewClient(Y_NewServer(s)))
 }
 
 // Y_Methods appends Methods to a slice that invoke the methods on s.
@@ -379,382 +555,533 @@ type Y_m struct {
 
 // Args returns the call's arguments.
 func (c Y_m) Args() Y_m_Params {
-	return Y_m_Params{Struct: c.Call.Args()}
+	return Y_m_Params(c.Call.Args())
 }
 
 // AllocResults allocates the results struct.
 func (c Y_m) AllocResults() (Y_m_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Y_m_Results{Struct: r}, err
+	return Y_m_Results(r), err
 }
 
-type Y_m_Params struct{ capnp.Struct }
+// Y_List is a list of Y.
+type Y_List = capnp.CapList[Y]
+
+// NewY_List creates a new list of Y.
+func NewY_List(s *capnp.Segment, sz int32) (Y_List, error) {
+	l, err := capnp.NewPointerList(s, sz)
+	return capnp.CapList[Y](l), err
+}
+
+type Y_m_Params capnp.Struct
 
 // Y_m_Params_TypeID is the unique identifier for the type Y_m_Params.
 const Y_m_Params_TypeID = 0xc102bb9ca7ace092
 
 func NewY_m_Params(s *capnp.Segment) (Y_m_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Y_m_Params{st}, err
+	return Y_m_Params(st), err
 }
 
 func NewRootY_m_Params(s *capnp.Segment) (Y_m_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Y_m_Params{st}, err
+	return Y_m_Params(st), err
 }
 
 func ReadRootY_m_Params(msg *capnp.Message) (Y_m_Params, error) {
 	root, err := msg.Root()
-	return Y_m_Params{root.Struct()}, err
+	return Y_m_Params(root.Struct()), err
 }
 
 func (s Y_m_Params) String() string {
-	str, _ := text.Marshal(0xc102bb9ca7ace092, s.Struct)
+	str, _ := text.Marshal(0xc102bb9ca7ace092, capnp.Struct(s))
 	return str
 }
 
+func (s Y_m_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Y_m_Params) DecodeFromPtr(p capnp.Ptr) Y_m_Params {
+	return Y_m_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Y_m_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Y_m_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Y_m_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Y_m_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Y_m_Params) Hello() (string, error) {
-	p, err := s.Struct.Ptr(0)
+	p, err := capnp.Struct(s).Ptr(0)
 	return p.Text(), err
 }
 
 func (s Y_m_Params) HasHello() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s Y_m_Params) HelloBytes() ([]byte, error) {
-	p, err := s.Struct.Ptr(0)
+	p, err := capnp.Struct(s).Ptr(0)
 	return p.TextBytes(), err
 }
 
 func (s Y_m_Params) SetHello(v string) error {
-	return s.Struct.SetText(0, v)
+	return capnp.Struct(s).SetText(0, v)
 }
 
 // Y_m_Params_List is a list of Y_m_Params.
-type Y_m_Params_List struct{ capnp.List }
+type Y_m_Params_List = capnp.StructList[Y_m_Params]
 
 // NewY_m_Params creates a new list of Y_m_Params.
 func NewY_m_Params_List(s *capnp.Segment, sz int32) (Y_m_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return Y_m_Params_List{l}, err
-}
-
-func (s Y_m_Params_List) At(i int) Y_m_Params { return Y_m_Params{s.List.Struct(i)} }
-
-func (s Y_m_Params_List) Set(i int, v Y_m_Params) error { return s.List.SetStruct(i, v.Struct) }
-
-func (s Y_m_Params_List) String() string {
-	str, _ := text.MarshalList(0xc102bb9ca7ace092, s.List)
-	return str
+	return capnp.StructList[Y_m_Params](l), err
 }
 
 // Y_m_Params_Future is a wrapper for a Y_m_Params promised by a client call.
 type Y_m_Params_Future struct{ *capnp.Future }
 
-func (p Y_m_Params_Future) Struct() (Y_m_Params, error) {
-	s, err := p.Future.Struct()
-	return Y_m_Params{s}, err
+func (f Y_m_Params_Future) Struct() (Y_m_Params, error) {
+	p, err := f.Future.Ptr()
+	return Y_m_Params(p.Struct()), err
 }
 
-type Y_m_Results struct{ capnp.Struct }
+type Y_m_Results capnp.Struct
 
 // Y_m_Results_TypeID is the unique identifier for the type Y_m_Results.
 const Y_m_Results_TypeID = 0xdcf58b9bef546812
 
 func NewY_m_Results(s *capnp.Segment) (Y_m_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Y_m_Results{st}, err
+	return Y_m_Results(st), err
 }
 
 func NewRootY_m_Results(s *capnp.Segment) (Y_m_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Y_m_Results{st}, err
+	return Y_m_Results(st), err
 }
 
 func ReadRootY_m_Results(msg *capnp.Message) (Y_m_Results, error) {
 	root, err := msg.Root()
-	return Y_m_Results{root.Struct()}, err
+	return Y_m_Results(root.Struct()), err
 }
 
 func (s Y_m_Results) String() string {
-	str, _ := text.Marshal(0xdcf58b9bef546812, s.Struct)
+	str, _ := text.Marshal(0xdcf58b9bef546812, capnp.Struct(s))
 	return str
 }
 
+func (s Y_m_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Y_m_Results) DecodeFromPtr(p capnp.Ptr) Y_m_Results {
+	return Y_m_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Y_m_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Y_m_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Y_m_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Y_m_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+
 // Y_m_Results_List is a list of Y_m_Results.
-type Y_m_Results_List struct{ capnp.List }
+type Y_m_Results_List = capnp.StructList[Y_m_Results]
 
 // NewY_m_Results creates a new list of Y_m_Results.
 func NewY_m_Results_List(s *capnp.Segment, sz int32) (Y_m_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return Y_m_Results_List{l}, err
-}
-
-func (s Y_m_Results_List) At(i int) Y_m_Results { return Y_m_Results{s.List.Struct(i)} }
-
-func (s Y_m_Results_List) Set(i int, v Y_m_Results) error { return s.List.SetStruct(i, v.Struct) }
-
-func (s Y_m_Results_List) String() string {
-	str, _ := text.MarshalList(0xdcf58b9bef546812, s.List)
-	return str
+	return capnp.StructList[Y_m_Results](l), err
 }
 
 // Y_m_Results_Future is a wrapper for a Y_m_Results promised by a client call.
 type Y_m_Results_Future struct{ *capnp.Future }
 
-func (p Y_m_Results_Future) Struct() (Y_m_Results, error) {
-	s, err := p.Future.Struct()
-	return Y_m_Results{s}, err
+func (f Y_m_Results_Future) Struct() (Y_m_Results, error) {
+	p, err := f.Future.Ptr()
+	return Y_m_Results(p.Struct()), err
 }
 
-type A struct{ Client *capnp.Client }
+type Z capnp.Client
 
-// A_TypeID is the unique identifier for the type A.
-const A_TypeID = 0xbab68c252196561b
+// Z_TypeID is the unique identifier for the type Z.
+const Z_TypeID = 0xc64526206425c2ab
 
-func (c A) M(ctx context.Context, params func(A_m_Params) error) (A_m_Results_Future, capnp.ReleaseFunc) {
+func (c Z) M(ctx context.Context, params func(Z_m_Params) error) (Z_m_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
-			InterfaceID:   0xbab68c252196561b,
+			InterfaceID:   0xc64526206425c2ab,
 			MethodID:      0,
-			InterfaceName: "x.capnp:A",
+			InterfaceName: "x.capnp:Z",
 			MethodName:    "m",
 		},
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 8, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(A_m_Params{Struct: s}) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Z_m_Params(s)) }
 	}
-	ans, release := c.Client.SendCall(ctx, s)
-	return A_m_Results_Future{Future: ans.Future()}, release
+
+	ans, release := capnp.Client(c).SendCall(ctx, s)
+	return Z_m_Results_Future{Future: ans.Future()}, release
+
 }
 
-func (c A) AddRef() A {
-	return A{
-		Client: c.Client.AddRef(),
-	}
+func (c Z) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
 }
 
-func (c A) Release() {
-	c.Client.Release()
+// String returns a string that identifies this capability for debugging
+// purposes.  Its format should not be depended on: in particular, it
+// should not be used to compare clients.  Use IsSame to compare clients
+// for equality.
+func (c Z) String() string {
+	return "Z(" + capnp.Client(c).String() + ")"
 }
 
-// A A_Server is a A with a local implementation.
-type A_Server interface {
-	M(context.Context, A_m) error
+// AddRef creates a new Client that refers to the same capability as c.
+// If c is nil or has resolved to null, then AddRef returns nil.
+func (c Z) AddRef() Z {
+	return Z(capnp.Client(c).AddRef())
 }
 
-// A_NewServer creates a new Server from an implementation of A_Server.
-func A_NewServer(s A_Server, policy *server.Policy) *server.Server {
+// Release releases a capability reference.  If this is the last
+// reference to the capability, then the underlying resources associated
+// with the capability will be released.
+//
+// Release will panic if c has already been released, but not if c is
+// nil or resolved to null.
+func (c Z) Release() {
+	capnp.Client(c).Release()
+}
+
+// Resolve blocks until the capability is fully resolved or the Context
+// expires.
+func (c Z) Resolve(ctx context.Context) error {
+	return capnp.Client(c).Resolve(ctx)
+}
+
+func (c Z) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Client(c).EncodeAsPtr(seg)
+}
+
+func (Z) DecodeFromPtr(p capnp.Ptr) Z {
+	return Z(capnp.Client{}.DecodeFromPtr(p))
+}
+
+// IsValid reports whether c is a valid reference to a capability.
+// A reference is invalid if it is nil, has resolved to null, or has
+// been released.
+func (c Z) IsValid() bool {
+	return capnp.Client(c).IsValid()
+}
+
+// IsSame reports whether c and other refer to a capability created by the
+// same call to NewClient.  This can return false negatives if c or other
+// are not fully resolved: use Resolve if this is an issue.  If either
+// c or other are released, then IsSame panics.
+func (c Z) IsSame(other Z) bool {
+	return capnp.Client(c).IsSame(capnp.Client(other))
+}
+
+// Update the flowcontrol.FlowLimiter used to manage flow control for
+// this client. This affects all future calls, but not calls already
+// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
+// which is also the default.
+func (c Z) SetFlowLimiter(lim fc.FlowLimiter) {
+	capnp.Client(c).SetFlowLimiter(lim)
+}
+
+// Get the current flowcontrol.FlowLimiter used to manage flow control
+// for this client.
+func (c Z) GetFlowLimiter() fc.FlowLimiter {
+	return capnp.Client(c).GetFlowLimiter()
+}
+
+// A Z_Server is a Z with a local implementation.
+type Z_Server interface {
+	M(context.Context, Z_m) error
+}
+
+// Z_NewServer creates a new Server from an implementation of Z_Server.
+func Z_NewServer(s Z_Server) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(A_Methods(nil, s), s, c, policy)
+	return server.New(Z_Methods(nil, s), s, c)
 }
 
-// A_ServerToClient creates a new Client from an implementation of A_Server.
+// Z_ServerToClient creates a new Client from an implementation of Z_Server.
 // The caller is responsible for calling Release on the returned Client.
-func A_ServerToClient(s A_Server, policy *server.Policy) A {
-	return A{Client: capnp.NewClient(A_NewServer(s, policy))}
+func Z_ServerToClient(s Z_Server) Z {
+	return Z(capnp.NewClient(Z_NewServer(s)))
 }
 
-// A_Methods appends Methods to a slice that invoke the methods on s.
+// Z_Methods appends Methods to a slice that invoke the methods on s.
 // This can be used to create a more complicated Server.
-func A_Methods(methods []server.Method, s A_Server) []server.Method {
+func Z_Methods(methods []server.Method, s Z_Server) []server.Method {
 	if cap(methods) == 0 {
 		methods = make([]server.Method, 0, 1)
 	}
 
 	methods = append(methods, server.Method{
 		Method: capnp.Method{
-			InterfaceID:   0xbab68c252196561b,
+			InterfaceID:   0xc64526206425c2ab,
 			MethodID:      0,
-			InterfaceName: "x.capnp:A",
+			InterfaceName: "x.capnp:Z",
 			MethodName:    "m",
 		},
 		Impl: func(ctx context.Context, call *server.Call) error {
-			return s.M(ctx, A_m{call})
+			return s.M(ctx, Z_m{call})
 		},
 	})
 
 	return methods
 }
 
-// A_m holds the state for a server call to A.m.
+// Z_m holds the state for a server call to Z.m.
 // See server.Call for documentation.
-type A_m struct {
+type Z_m struct {
 	*server.Call
 }
 
 // Args returns the call's arguments.
-func (c A_m) Args() A_m_Params {
-	return A_m_Params{Struct: c.Call.Args()}
+func (c Z_m) Args() Z_m_Params {
+	return Z_m_Params(c.Call.Args())
 }
 
 // AllocResults allocates the results struct.
-func (c A_m) AllocResults() (A_m_Results, error) {
+func (c Z_m) AllocResults() (Z_m_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return A_m_Results{Struct: r}, err
+	return Z_m_Results(r), err
 }
 
-type A_m_Params struct{ capnp.Struct }
+// Z_List is a list of Z.
+type Z_List = capnp.CapList[Z]
 
-// A_m_Params_TypeID is the unique identifier for the type A_m_Params.
-const A_m_Params_TypeID = 0x8be7edcd35d4c706
+// NewZ_List creates a new list of Z.
+func NewZ_List(s *capnp.Segment, sz int32) (Z_List, error) {
+	l, err := capnp.NewPointerList(s, sz)
+	return capnp.CapList[Z](l), err
+}
 
-func NewA_m_Params(s *capnp.Segment) (A_m_Params, error) {
+type Z_m_Params capnp.Struct
+
+// Z_m_Params_TypeID is the unique identifier for the type Z_m_Params.
+const Z_m_Params_TypeID = 0xf01d08c96dc98cc9
+
+func NewZ_m_Params(s *capnp.Segment) (Z_m_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return A_m_Params{st}, err
+	return Z_m_Params(st), err
 }
 
-func NewRootA_m_Params(s *capnp.Segment) (A_m_Params, error) {
+func NewRootZ_m_Params(s *capnp.Segment) (Z_m_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return A_m_Params{st}, err
+	return Z_m_Params(st), err
 }
 
-func ReadRootA_m_Params(msg *capnp.Message) (A_m_Params, error) {
+func ReadRootZ_m_Params(msg *capnp.Message) (Z_m_Params, error) {
 	root, err := msg.Root()
-	return A_m_Params{root.Struct()}, err
+	return Z_m_Params(root.Struct()), err
 }
 
-func (s A_m_Params) String() string {
-	str, _ := text.Marshal(0x8be7edcd35d4c706, s.Struct)
+func (s Z_m_Params) String() string {
+	str, _ := text.Marshal(0xf01d08c96dc98cc9, capnp.Struct(s))
 	return str
 }
 
-func (s A_m_Params) N() int64 {
-	return int64(s.Struct.Uint64(0))
+func (s Z_m_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
 }
 
-func (s A_m_Params) SetN(v int64) {
-	s.Struct.SetUint64(0, uint64(v))
+func (Z_m_Params) DecodeFromPtr(p capnp.Ptr) Z_m_Params {
+	return Z_m_Params(capnp.Struct{}.DecodeFromPtr(p))
 }
 
-// A_m_Params_List is a list of A_m_Params.
-type A_m_Params_List struct{ capnp.List }
+func (s Z_m_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Z_m_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
 
-// NewA_m_Params creates a new list of A_m_Params.
-func NewA_m_Params_List(s *capnp.Segment, sz int32) (A_m_Params_List, error) {
+func (s Z_m_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Z_m_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+func (s Z_m_Params) N() int64 {
+	return int64(capnp.Struct(s).Uint64(0))
+}
+
+func (s Z_m_Params) SetN(v int64) {
+	capnp.Struct(s).SetUint64(0, uint64(v))
+}
+
+// Z_m_Params_List is a list of Z_m_Params.
+type Z_m_Params_List = capnp.StructList[Z_m_Params]
+
+// NewZ_m_Params creates a new list of Z_m_Params.
+func NewZ_m_Params_List(s *capnp.Segment, sz int32) (Z_m_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0}, sz)
-	return A_m_Params_List{l}, err
+	return capnp.StructList[Z_m_Params](l), err
 }
 
-func (s A_m_Params_List) At(i int) A_m_Params { return A_m_Params{s.List.Struct(i)} }
+// Z_m_Params_Future is a wrapper for a Z_m_Params promised by a client call.
+type Z_m_Params_Future struct{ *capnp.Future }
 
-func (s A_m_Params_List) Set(i int, v A_m_Params) error { return s.List.SetStruct(i, v.Struct) }
-
-func (s A_m_Params_List) String() string {
-	str, _ := text.MarshalList(0x8be7edcd35d4c706, s.List)
-	return str
+func (f Z_m_Params_Future) Struct() (Z_m_Params, error) {
+	p, err := f.Future.Ptr()
+	return Z_m_Params(p.Struct()), err
 }
 
-// A_m_Params_Future is a wrapper for a A_m_Params promised by a client call.
-type A_m_Params_Future struct{ *capnp.Future }
+type Z_m_Results capnp.Struct
 
-func (p A_m_Params_Future) Struct() (A_m_Params, error) {
-	s, err := p.Future.Struct()
-	return A_m_Params{s}, err
-}
+// Z_m_Results_TypeID is the unique identifier for the type Z_m_Results.
+const Z_m_Results_TypeID = 0xd444a663531a6b53
 
-type A_m_Results struct{ capnp.Struct }
-
-// A_m_Results_TypeID is the unique identifier for the type A_m_Results.
-const A_m_Results_TypeID = 0xc0e8eed87688cb46
-
-func NewA_m_Results(s *capnp.Segment) (A_m_Results, error) {
+func NewZ_m_Results(s *capnp.Segment) (Z_m_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return A_m_Results{st}, err
+	return Z_m_Results(st), err
 }
 
-func NewRootA_m_Results(s *capnp.Segment) (A_m_Results, error) {
+func NewRootZ_m_Results(s *capnp.Segment) (Z_m_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0})
-	return A_m_Results{st}, err
+	return Z_m_Results(st), err
 }
 
-func ReadRootA_m_Results(msg *capnp.Message) (A_m_Results, error) {
+func ReadRootZ_m_Results(msg *capnp.Message) (Z_m_Results, error) {
 	root, err := msg.Root()
-	return A_m_Results{root.Struct()}, err
+	return Z_m_Results(root.Struct()), err
 }
 
-func (s A_m_Results) String() string {
-	str, _ := text.Marshal(0xc0e8eed87688cb46, s.Struct)
+func (s Z_m_Results) String() string {
+	str, _ := text.Marshal(0xd444a663531a6b53, capnp.Struct(s))
 	return str
 }
 
-func (s A_m_Results) R() float64 {
-	return math.Float64frombits(s.Struct.Uint64(0))
+func (s Z_m_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
 }
 
-func (s A_m_Results) SetR(v float64) {
-	s.Struct.SetUint64(0, math.Float64bits(v))
+func (Z_m_Results) DecodeFromPtr(p capnp.Ptr) Z_m_Results {
+	return Z_m_Results(capnp.Struct{}.DecodeFromPtr(p))
 }
 
-// A_m_Results_List is a list of A_m_Results.
-type A_m_Results_List struct{ capnp.List }
+func (s Z_m_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Z_m_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
 
-// NewA_m_Results creates a new list of A_m_Results.
-func NewA_m_Results_List(s *capnp.Segment, sz int32) (A_m_Results_List, error) {
+func (s Z_m_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Z_m_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+func (s Z_m_Results) R() float64 {
+	return math.Float64frombits(capnp.Struct(s).Uint64(0))
+}
+
+func (s Z_m_Results) SetR(v float64) {
+	capnp.Struct(s).SetUint64(0, math.Float64bits(v))
+}
+
+// Z_m_Results_List is a list of Z_m_Results.
+type Z_m_Results_List = capnp.StructList[Z_m_Results]
+
+// NewZ_m_Results creates a new list of Z_m_Results.
+func NewZ_m_Results_List(s *capnp.Segment, sz int32) (Z_m_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 0}, sz)
-	return A_m_Results_List{l}, err
+	return capnp.StructList[Z_m_Results](l), err
 }
 
-func (s A_m_Results_List) At(i int) A_m_Results { return A_m_Results{s.List.Struct(i)} }
+// Z_m_Results_Future is a wrapper for a Z_m_Results promised by a client call.
+type Z_m_Results_Future struct{ *capnp.Future }
 
-func (s A_m_Results_List) Set(i int, v A_m_Results) error { return s.List.SetStruct(i, v.Struct) }
-
-func (s A_m_Results_List) String() string {
-	str, _ := text.MarshalList(0xc0e8eed87688cb46, s.List)
-	return str
+func (f Z_m_Results_Future) Struct() (Z_m_Results, error) {
+	p, err := f.Future.Ptr()
+	return Z_m_Results(p.Struct()), err
 }
 
-// A_m_Results_Future is a wrapper for a A_m_Results promised by a client call.
-type A_m_Results_Future struct{ *capnp.Future }
+const schema_ffd06af2f026177b = "x\xda\x8cTKh\x13Q\x14\xbdw\xe6N\x13\xfaY" +
+	"L\x9e\"\x16\xfcT\x9a\x0a\"\xa1\x11\xdct\x93\x04\x94" +
+	"\xe0B\xccL\\4\xc1\xcd\x90\x06\xa6m\xa6\x09I\x0a" +
+	"\x82\xab\x08u\xa3\x08u#X\xe9\"\x8b\xfai7\xa2" +
+	"\"\xf8\x01-\x1a\x8c++\xae\xb4\x15\xb3)\xb81m" +
+	"\xa1\x88\x82\x8c\xcc\x1b\xa73\xb1\xa9\xba{p\xce\xb9\xe7" +
+	"\x9c\xdc\x9b\x19\xfc\x88Q\x0a\xf74} (\xe7\xa4\x0e" +
+	"\xb3\xe7z\xef\xd7\xa7\xabw/\x81\xdc\x89\x00\x12\xfa\x00" +
+	"\xd8\x8aX\x05d+b\x04\xd0lN\x8e\x0d~\xf7\xf7" +
+	"\xcdz\xf1\x9f\xe2\x1b@\x86d\xe1\xcf\xe6\x8e\xdeN\xef" +
+	"\x0f,\x80\xec\x17\xcd\x0b{\x06\xd66\xc6\xde\x9a\x00\xc8" +
+	"\xfaHeA\xb2\xe8}\x14g\xa7\xac\x97y\xe6\xf5\xfc" +
+	"\xfd\xbc9\xfb\x98\x93g\x1e\x8d_\xac\xea\x0f^Z\xe4" +
+	"0\xa9\xec8'\x87)\xceR\x9c|\xed\xf3\xc2\xad\x9b" +
+	"O\x84\x17^\xe7\x18\xdd\x00d1\xee\xfc-\xa87\x9e" +
+	"\x7f\xe9x\xe5\xc55Z\x04d\x1a\xc7\xe7\x17\x83#\x07" +
+	"\x07N\xd6\xb6%\xab\x90\xca\xa6\xb8Y\x85\xe2\xec\x0e7" +
+	"\x8b\x1e\xf9\x90\x1e\xcdL\xd5@\xe9D\x04\xe0\xe847" +
+	"\x9b\xe6\xc3\xe2\xb5\xaeOz\xf3\xf0;\x90\xfd\xe8\x0e\xb3" +
+	"M\xef\x91\xca\x1e\x92\xfd\xb2\xb8\xc9\xf1\xdedf\xee\xc4" +
+	"{\xef\xac%\xb2~\xd2%\x8e\xef^=\xfd\xa3ru" +
+	"cy[\xb0uR\xd9&\xa7\xafS\x9c\xed\x95\xac`" +
+	"\x01\xfdls\xe6\xf2\xe6\xb2\xdd\x92\x83(U\x81\xcc\xfa" +
+	"\x95\xbaQ\xf7\xef[\xf3\xba4x\xe2\x06E o\x9e" +
+	"\x0fe\xb4\xc2Da\x08\x87CF\xbf\x9a-M\xfar" +
+	"\xe5\x92B\"\x01\x10\x02\xc8=\x01\x00\xc5/\xa2\xb2K" +
+	"@,c7\x08\xd8\x0dhj\xbfeB,dd\xcb" +
+	"z~\x84ks\xe5\x12\x80W|\xc8\x15\xfb\x8a\xd9\xd2" +
+	"\x96\xdcq\x05L%\x10\x15\x12%\xcf&\xd1)#\xcb" +
+	"\x01\x10d\xc9\x87F\x14\x13\xe8\x9a\x02\xc6\\\x95\xb3_" +
+	"tNP\x96\x87\xb8*b\x07\xb3\xa5[5S!\xa3" +
+	"?\xa1\x155\xd1hiy\xcc\x0dz@\xcf\xe6r\xf9" +
+	"\xbf4\xb5\xe4F\x09v\x92\x17,\xb8M\xd3\xb4\x9b\xd9" +
+	"Y\x0a:7\xf0g\xd3\x96\xad\xb4\x89\xeb]\xca(J" +
+	" \xa0\xd4\xe2\x95\xb4\xbd\xda\xf23(\xbb\xb7\x05\x88\xb2" +
+	"G\x89\xe9\xff\xb8\x82\"v\x81\x80]-\x86\xc3n9" +
+	"\xe7?\x82\xce7c\xc7r)\x8fYk\x84\x7fT\x9e" +
+	"p*\xff\x0a\x00\x00\xff\xff-\xf0'\xea"
 
-func (p A_m_Results_Future) Struct() (A_m_Results, error) {
-	s, err := p.Future.Struct()
-	return A_m_Results{s}, err
-}
-
-const schema_ffd06af2f026177b = "x\xda2p`t`2d\xbd\xce\xc2\xc0\x10h\xc1" +
-	"\xca\xf6\x9fw\xba\xd4\xbb=\xcfV\xb51\x08r12" +
-	"0\xb02\xb230\x08\x072-b`\x14\x0ed\xb2" +
-	"g`\xfc\xcfv\xfc\x8a\xe9\xd9\xb7\xcf\xbb\x19\x02\xb9\x18" +
-	"\x19\x19\x18X@\xf2\x85L\xb3\x18\x18\x85\x0b\xc1\xf2{" +
-	"\x97\xe9\xac\x88\x92\x13Z\xc3 \xc8\xc1\xfc\xbfZ\\\xed" +
-	"\xc3\xa7\xac\x0b\xff\x19\x18\x18\x85'2\x05\x09Oe\x02" +
-	")\x9f\xc8\xe4.\xbc\x13\xc4\xfa/\x1d6MQ\xb5g" +
-	"\xdb.\x0c\xc5\x0b\x99\x82\x84\x97\x82\x15/dr\x17>" +
-	"\x09V\xecv\xba\xa3\xec\xc6\xbb\x17\x07\x90m\xde\x08v" +
-	"\xd9F\xb0\xcd\x93\x1e\xacY>g7\xd3Ad\x97_" +
-	"\x04\xbb\xec\"X\xdeA\xebVTfr\xeb1d\xfd" +
-	"\x1f\xc1\xf2\x1f\xc1\xf2\xee\xc7\xb8\xefe\xbcW\xbf\xc4 " +
-	"\xc8\xc1\x88p\x0c\xc4\x1cA\xe6 aQf\x08\x0b\xa4" +
-	"V\xf4\x99\xef\xaf\xc6\xbeOw0\x1cn\xc8\x1c$l" +
-	"\x0aVh\xc8\xec.\x1c\x09b\xfd\x17\xca\x08y?\xbb" +
-	"\xfb\xeb\x1d\x88\xc3\xc0\xf6:2/b0\xf8_\xa1\x97" +
-	"\x9cX\x90W`\xc5\x18\xa1\x97\xab\x12\x94Z\\\xca\x9e" +
-	"SR\x1c\xc8\xc2\xcc\xc2\xc0\xc0\xc2\xc8\xc0 \xc8+\xc4" +
-	"\xc0\x10\xc8\xc1\xcc\x18(\xc2\xc4\xc8X\xc2\xc8\xc3\xc0\xc4" +
-	"\xc8\xc3\xc0\x88\xd0\xe6\xa8\x97\xab\x12\x90X\x94\xc8\x9c\x8b" +
-	"SW\x1e#+\x03\x13#+\x92.\x06\xc6\xc8\x00F" +
-	"\xc6@\x16fV\x06\x06x\x981\xc2\xdc(((\xc4" +
-	"\xc0$\xc8\xca\xce\x98\xeb\xc0\x18\xc0\x88\xac\xcb\x11\xa1\x0b" +
-	"\x96\x06\x18aQ\x82K\x17\xd8\x85\x84<V\xc4\xc8\xcd" +
-	"\xc0\xc4\xc8\x8d\xec\xb1H\xec\x1e3B\xe8\x92\xcfH\xcd" +
-	"\xc9\xc9\xc7\x0c\x92\x08\xc2A\x92\x89%H\x82!\x9e\xc3" +
-	"\xaa>\x99Q\x10\x11\xdf\x0c\x8c\x8c\x82(:#\x10\xc1" +
-	"\x02K`\x8c\xb0<\x843X\"\x91\x82\x05\x10\x00\x00" +
-	"\xff\xff\xfe\x02\xe1\x03"
-
-func init() {
-	schemas.Register(schema_ffd06af2f026177b,
-		0x86aae6bcee1a970d,
-		0x8be7edcd35d4c706,
-		0xac121e5aa82ca6bd,
-		0xbab68c252196561b,
-		0xc0e8eed87688cb46,
-		0xc102bb9ca7ace092,
-		0xc68563695ada2a40,
-		0xd227ef68de0bc647,
-		0xdcf28e81fa4de615,
-		0xdcf58b9bef546812)
+func RegisterSchema(reg *schemas.Registry) {
+	reg.Register(&schemas.Schema{
+		String: schema_ffd06af2f026177b,
+		Nodes: []uint64{
+			0x86aae6bcee1a970d,
+			0x9e2108f9306a75ef,
+			0xac121e5aa82ca6bd,
+			0xba9eff6fb3abc84f,
+			0xc102bb9ca7ace092,
+			0xc506e9c0e16825f7,
+			0xc64526206425c2ab,
+			0xc68563695ada2a40,
+			0xd227ef68de0bc647,
+			0xd444a663531a6b53,
+			0xdcf28e81fa4de615,
+			0xdcf58b9bef546812,
+			0xf01d08c96dc98cc9,
+		},
+		Compressed: true,
+	})
 }
