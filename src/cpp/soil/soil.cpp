@@ -155,7 +155,7 @@ Errors SoilParameters::merge(json11::Json j) {
     vs_SoilTexture = sandAndClay2KA5texture(vs_SoilSandContent, vs_SoilClayContent);
   }
 
-  // restrict sceleton to 80%, else FC, PWP and SAT could be calculated too low, so that the water transport algorithm gets instable
+  // restrict sceleton to 80%, else FC, PWP and SAT could be calculated too low, so that the water transport algorithm gets unstable
   if (vs_SoilStoneContent > 0) vs_SoilStoneContent = min(vs_SoilStoneContent, 0.8);
 
   if (vs_FieldCapacity < 0 || vs_Saturation < 0 || vs_PermanentWiltingPoint < 0) {
