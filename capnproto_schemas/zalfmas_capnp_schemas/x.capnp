@@ -16,6 +16,6 @@ interface Y {
     m @0 (hello :Text);
 }
 
-interface A {
+interface Z {
     m @0 (n :Int64) -> (r :Float64);
 }

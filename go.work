@@ -1,4 +1,6 @@
-go 1.19
+go 1.20
+
+toolchain go1.22.4
 
 use (
 	./capnproto_schemas/gen/go/climate
@@ -20,12 +22,12 @@ use (
 	./capnproto_schemas/gen/go/service
 	./capnproto_schemas/gen/go/soil
 	./capnproto_schemas/gen/go/storage
-	./capnproto_schemas/gen/go/common_date
-	./src/go/fbp/gw_provider
-	./src/go/test/test_client
-	./src/go/test/test_server
-	./src/go/test/test_client_gw
-	./src/go/services/gw_service
 	./src/go/commonlib
+	./src/go/fbp/gw_provider
+	./src/go/services/gw_service
+	./src/go/test/test_client
+	./src/go/test/test_client_gw
+	./src/go/test/test_server
 )
+
 replace capnproto.org/go/capnp/v3 => C:/Users/sschulz/go/src/capnproto.org/go/capnp/go-capnproto2

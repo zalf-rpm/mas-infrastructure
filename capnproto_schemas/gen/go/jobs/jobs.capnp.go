@@ -5,6 +5,7 @@ package jobs
 import (
 	capnp "capnproto.org/go/capnp/v3"
 	text "capnproto.org/go/capnp/v3/encoding/text"
+	fc "capnproto.org/go/capnp/v3/flowcontrol"
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
@@ -12,87 +13,99 @@ import (
 	persistence "github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/persistence"
 )
 
-type Job struct{ capnp.Struct }
+type Job capnp.Struct
 
 // Job_TypeID is the unique identifier for the type Job.
 const Job_TypeID = 0xa05b60b71ca38848
 
 func NewJob(s *capnp.Segment) (Job, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return Job{st}, err
+	return Job(st), err
 }
 
 func NewRootJob(s *capnp.Segment) (Job, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return Job{st}, err
+	return Job(st), err
 }
 
 func ReadRootJob(msg *capnp.Message) (Job, error) {
 	root, err := msg.Root()
-	return Job{root.Struct()}, err
+	return Job(root.Struct()), err
 }
 
 func (s Job) String() string {
-	str, _ := text.Marshal(0xa05b60b71ca38848, s.Struct)
+	str, _ := text.Marshal(0xa05b60b71ca38848, capnp.Struct(s))
 	return str
 }
 
+func (s Job) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Job) DecodeFromPtr(p capnp.Ptr) Job {
+	return Job(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Job) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Job) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Job) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Job) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Job) Data() (capnp.Ptr, error) {
-	return s.Struct.Ptr(0)
+	return capnp.Struct(s).Ptr(0)
 }
 
 func (s Job) HasData() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s Job) SetData(v capnp.Ptr) error {
-	return s.Struct.SetPtr(0, v)
+	return capnp.Struct(s).SetPtr(0, v)
 }
-
 func (s Job) NoFurtherJobs() bool {
-	return s.Struct.Bit(0)
+	return capnp.Struct(s).Bit(0)
 }
 
 func (s Job) SetNoFurtherJobs(v bool) {
-	s.Struct.SetBit(0, v)
+	capnp.Struct(s).SetBit(0, v)
 }
 
 // Job_List is a list of Job.
-type Job_List struct{ capnp.List }
+type Job_List = capnp.StructList[Job]
 
 // NewJob creates a new list of Job.
 func NewJob_List(s *capnp.Segment, sz int32) (Job_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1}, sz)
-	return Job_List{l}, err
-}
-
-func (s Job_List) At(i int) Job { return Job{s.List.Struct(i)} }
-
-func (s Job_List) Set(i int, v Job) error { return s.List.SetStruct(i, v.Struct) }
-
-func (s Job_List) String() string {
-	str, _ := text.MarshalList(0xa05b60b71ca38848, s.List)
-	return str
+	return capnp.StructList[Job](l), err
 }
 
 // Job_Future is a wrapper for a Job promised by a client call.
 type Job_Future struct{ *capnp.Future }
 
-func (p Job_Future) Struct() (Job, error) {
-	s, err := p.Future.Struct()
-	return Job{s}, err
+func (f Job_Future) Struct() (Job, error) {
+	p, err := f.Future.Ptr()
+	return Job(p.Struct()), err
 }
-
 func (p Job_Future) Data() *capnp.Future {
 	return p.Future.Field(0, nil)
 }
 
-type Service struct{ Client *capnp.Client }
+type Service capnp.Client
 
 // Service_TypeID is the unique identifier for the type Service.
 const Service_TypeID = 0xb8745454d013cbf0
 
 func (c Service) NextJob(ctx context.Context, params func(Service_nextJob_Params) error) (Service_nextJob_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb8745454d013cbf0,
@@ -103,12 +116,16 @@ func (c Service) NextJob(ctx context.Context, params func(Service_nextJob_Params
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Service_nextJob_Params{Struct: s}) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Service_nextJob_Params(s)) }
 	}
-	ans, release := c.Client.SendCall(ctx, s)
+
+	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return Service_nextJob_Results_Future{Future: ans.Future()}, release
+
 }
+
 func (c Service) Info(ctx context.Context, params func(common.Identifiable_info_Params) error) (common.IdInformation_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xb2afd1cb599c48d5,
@@ -119,12 +136,16 @@ func (c Service) Info(ctx context.Context, params func(common.Identifiable_info_
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params{Struct: s}) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(common.Identifiable_info_Params(s)) }
 	}
-	ans, release := c.Client.SendCall(ctx, s)
+
+	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return common.IdInformation_Future{Future: ans.Future()}, release
+
 }
+
 func (c Service) Save(ctx context.Context, params func(persistence.Persistent_SaveParams) error) (persistence.Persistent_SaveResults_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xc1a7daa0dc36cb65,
@@ -135,20 +156,83 @@ func (c Service) Save(ctx context.Context, params func(persistence.Persistent_Sa
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams{Struct: s}) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(persistence.Persistent_SaveParams(s)) }
 	}
-	ans, release := c.Client.SendCall(ctx, s)
+
+	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return persistence.Persistent_SaveResults_Future{Future: ans.Future()}, release
+
 }
 
+func (c Service) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
+}
+
+// String returns a string that identifies this capability for debugging
+// purposes.  Its format should not be depended on: in particular, it
+// should not be used to compare clients.  Use IsSame to compare clients
+// for equality.
+func (c Service) String() string {
+	return "Service(" + capnp.Client(c).String() + ")"
+}
+
+// AddRef creates a new Client that refers to the same capability as c.
+// If c is nil or has resolved to null, then AddRef returns nil.
 func (c Service) AddRef() Service {
-	return Service{
-		Client: c.Client.AddRef(),
-	}
+	return Service(capnp.Client(c).AddRef())
 }
 
+// Release releases a capability reference.  If this is the last
+// reference to the capability, then the underlying resources associated
+// with the capability will be released.
+//
+// Release will panic if c has already been released, but not if c is
+// nil or resolved to null.
 func (c Service) Release() {
-	c.Client.Release()
+	capnp.Client(c).Release()
+}
+
+// Resolve blocks until the capability is fully resolved or the Context
+// expires.
+func (c Service) Resolve(ctx context.Context) error {
+	return capnp.Client(c).Resolve(ctx)
+}
+
+func (c Service) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Client(c).EncodeAsPtr(seg)
+}
+
+func (Service) DecodeFromPtr(p capnp.Ptr) Service {
+	return Service(capnp.Client{}.DecodeFromPtr(p))
+}
+
+// IsValid reports whether c is a valid reference to a capability.
+// A reference is invalid if it is nil, has resolved to null, or has
+// been released.
+func (c Service) IsValid() bool {
+	return capnp.Client(c).IsValid()
+}
+
+// IsSame reports whether c and other refer to a capability created by the
+// same call to NewClient.  This can return false negatives if c or other
+// are not fully resolved: use Resolve if this is an issue.  If either
+// c or other are released, then IsSame panics.
+func (c Service) IsSame(other Service) bool {
+	return capnp.Client(c).IsSame(capnp.Client(other))
+}
+
+// Update the flowcontrol.FlowLimiter used to manage flow control for
+// this client. This affects all future calls, but not calls already
+// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
+// which is also the default.
+func (c Service) SetFlowLimiter(lim fc.FlowLimiter) {
+	capnp.Client(c).SetFlowLimiter(lim)
+}
+
+// Get the current flowcontrol.FlowLimiter used to manage flow control
+// for this client.
+func (c Service) GetFlowLimiter() fc.FlowLimiter {
+	return capnp.Client(c).GetFlowLimiter()
 }
 
 // A Service_Server is a Service with a local implementation.
@@ -161,15 +245,15 @@ type Service_Server interface {
 }
 
 // Service_NewServer creates a new Server from an implementation of Service_Server.
-func Service_NewServer(s Service_Server, policy *server.Policy) *server.Server {
+func Service_NewServer(s Service_Server) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(Service_Methods(nil, s), s, c, policy)
+	return server.New(Service_Methods(nil, s), s, c)
 }
 
 // Service_ServerToClient creates a new Client from an implementation of Service_Server.
 // The caller is responsible for calling Release on the returned Client.
-func Service_ServerToClient(s Service_Server, policy *server.Policy) Service {
-	return Service{Client: capnp.NewClient(Service_NewServer(s, policy))}
+func Service_ServerToClient(s Service_Server) Service {
+	return Service(capnp.NewClient(Service_NewServer(s)))
 }
 
 // Service_Methods appends Methods to a slice that invoke the methods on s.
@@ -226,183 +310,215 @@ type Service_nextJob struct {
 
 // Args returns the call's arguments.
 func (c Service_nextJob) Args() Service_nextJob_Params {
-	return Service_nextJob_Params{Struct: c.Call.Args()}
+	return Service_nextJob_Params(c.Call.Args())
 }
 
 // AllocResults allocates the results struct.
 func (c Service_nextJob) AllocResults() (Service_nextJob_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Service_nextJob_Results{Struct: r}, err
+	return Service_nextJob_Results(r), err
 }
 
-type Service_nextJob_Params struct{ capnp.Struct }
+// Service_List is a list of Service.
+type Service_List = capnp.CapList[Service]
+
+// NewService_List creates a new list of Service.
+func NewService_List(s *capnp.Segment, sz int32) (Service_List, error) {
+	l, err := capnp.NewPointerList(s, sz)
+	return capnp.CapList[Service](l), err
+}
+
+type Service_nextJob_Params capnp.Struct
 
 // Service_nextJob_Params_TypeID is the unique identifier for the type Service_nextJob_Params.
 const Service_nextJob_Params_TypeID = 0xea3ba97e764a031c
 
 func NewService_nextJob_Params(s *capnp.Segment) (Service_nextJob_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Service_nextJob_Params{st}, err
+	return Service_nextJob_Params(st), err
 }
 
 func NewRootService_nextJob_Params(s *capnp.Segment) (Service_nextJob_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Service_nextJob_Params{st}, err
+	return Service_nextJob_Params(st), err
 }
 
 func ReadRootService_nextJob_Params(msg *capnp.Message) (Service_nextJob_Params, error) {
 	root, err := msg.Root()
-	return Service_nextJob_Params{root.Struct()}, err
+	return Service_nextJob_Params(root.Struct()), err
 }
 
 func (s Service_nextJob_Params) String() string {
-	str, _ := text.Marshal(0xea3ba97e764a031c, s.Struct)
+	str, _ := text.Marshal(0xea3ba97e764a031c, capnp.Struct(s))
 	return str
 }
 
+func (s Service_nextJob_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Service_nextJob_Params) DecodeFromPtr(p capnp.Ptr) Service_nextJob_Params {
+	return Service_nextJob_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Service_nextJob_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Service_nextJob_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Service_nextJob_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Service_nextJob_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+
 // Service_nextJob_Params_List is a list of Service_nextJob_Params.
-type Service_nextJob_Params_List struct{ capnp.List }
+type Service_nextJob_Params_List = capnp.StructList[Service_nextJob_Params]
 
 // NewService_nextJob_Params creates a new list of Service_nextJob_Params.
 func NewService_nextJob_Params_List(s *capnp.Segment, sz int32) (Service_nextJob_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return Service_nextJob_Params_List{l}, err
-}
-
-func (s Service_nextJob_Params_List) At(i int) Service_nextJob_Params {
-	return Service_nextJob_Params{s.List.Struct(i)}
-}
-
-func (s Service_nextJob_Params_List) Set(i int, v Service_nextJob_Params) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Service_nextJob_Params_List) String() string {
-	str, _ := text.MarshalList(0xea3ba97e764a031c, s.List)
-	return str
+	return capnp.StructList[Service_nextJob_Params](l), err
 }
 
 // Service_nextJob_Params_Future is a wrapper for a Service_nextJob_Params promised by a client call.
 type Service_nextJob_Params_Future struct{ *capnp.Future }
 
-func (p Service_nextJob_Params_Future) Struct() (Service_nextJob_Params, error) {
-	s, err := p.Future.Struct()
-	return Service_nextJob_Params{s}, err
+func (f Service_nextJob_Params_Future) Struct() (Service_nextJob_Params, error) {
+	p, err := f.Future.Ptr()
+	return Service_nextJob_Params(p.Struct()), err
 }
 
-type Service_nextJob_Results struct{ capnp.Struct }
+type Service_nextJob_Results capnp.Struct
 
 // Service_nextJob_Results_TypeID is the unique identifier for the type Service_nextJob_Results.
 const Service_nextJob_Results_TypeID = 0xe067ec22521ebebb
 
 func NewService_nextJob_Results(s *capnp.Segment) (Service_nextJob_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Service_nextJob_Results{st}, err
+	return Service_nextJob_Results(st), err
 }
 
 func NewRootService_nextJob_Results(s *capnp.Segment) (Service_nextJob_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Service_nextJob_Results{st}, err
+	return Service_nextJob_Results(st), err
 }
 
 func ReadRootService_nextJob_Results(msg *capnp.Message) (Service_nextJob_Results, error) {
 	root, err := msg.Root()
-	return Service_nextJob_Results{root.Struct()}, err
+	return Service_nextJob_Results(root.Struct()), err
 }
 
 func (s Service_nextJob_Results) String() string {
-	str, _ := text.Marshal(0xe067ec22521ebebb, s.Struct)
+	str, _ := text.Marshal(0xe067ec22521ebebb, capnp.Struct(s))
 	return str
 }
 
+func (s Service_nextJob_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Service_nextJob_Results) DecodeFromPtr(p capnp.Ptr) Service_nextJob_Results {
+	return Service_nextJob_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Service_nextJob_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Service_nextJob_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Service_nextJob_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Service_nextJob_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s Service_nextJob_Results) Job() (Job, error) {
-	p, err := s.Struct.Ptr(0)
-	return Job{Struct: p.Struct()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return Job(p.Struct()), err
 }
 
 func (s Service_nextJob_Results) HasJob() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s Service_nextJob_Results) SetJob(v Job) error {
-	return s.Struct.SetPtr(0, v.Struct.ToPtr())
+	return capnp.Struct(s).SetPtr(0, capnp.Struct(v).ToPtr())
 }
 
 // NewJob sets the job field to a newly
 // allocated Job struct, preferring placement in s's segment.
 func (s Service_nextJob_Results) NewJob() (Job, error) {
-	ss, err := NewJob(s.Struct.Segment())
+	ss, err := NewJob(capnp.Struct(s).Segment())
 	if err != nil {
 		return Job{}, err
 	}
-	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, capnp.Struct(ss).ToPtr())
 	return ss, err
 }
 
 // Service_nextJob_Results_List is a list of Service_nextJob_Results.
-type Service_nextJob_Results_List struct{ capnp.List }
+type Service_nextJob_Results_List = capnp.StructList[Service_nextJob_Results]
 
 // NewService_nextJob_Results creates a new list of Service_nextJob_Results.
 func NewService_nextJob_Results_List(s *capnp.Segment, sz int32) (Service_nextJob_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return Service_nextJob_Results_List{l}, err
-}
-
-func (s Service_nextJob_Results_List) At(i int) Service_nextJob_Results {
-	return Service_nextJob_Results{s.List.Struct(i)}
-}
-
-func (s Service_nextJob_Results_List) Set(i int, v Service_nextJob_Results) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s Service_nextJob_Results_List) String() string {
-	str, _ := text.MarshalList(0xe067ec22521ebebb, s.List)
-	return str
+	return capnp.StructList[Service_nextJob_Results](l), err
 }
 
 // Service_nextJob_Results_Future is a wrapper for a Service_nextJob_Results promised by a client call.
 type Service_nextJob_Results_Future struct{ *capnp.Future }
 
-func (p Service_nextJob_Results_Future) Struct() (Service_nextJob_Results, error) {
-	s, err := p.Future.Struct()
-	return Service_nextJob_Results{s}, err
+func (f Service_nextJob_Results_Future) Struct() (Service_nextJob_Results, error) {
+	p, err := f.Future.Ptr()
+	return Service_nextJob_Results(p.Struct()), err
 }
-
 func (p Service_nextJob_Results_Future) Job() Job_Future {
 	return Job_Future{Future: p.Future.Field(0, nil)}
 }
 
-const schema_e7e7e2edc72e660c = "x\xda|\x8f=k\x14Q\x18\x85\xcf\x99{\xc7\x19\x88" +
-	"\x92\xbd{SIP\x08\x01Qt\x89\x84\x88\xc6\"1" +
-	"\x85\x86\xa9\xf6\xc64b\xe3\xcc\xee\xf8\x11\xe3\xcc23" +
-	"\x89\x1f\x85i\xfd\x0d\"\xb8\"\"[\x88`\xa3 \x08" +
-	"\x16b\xb1,ha#\x16b\xb3\xa0.\xf8\x0f\xae\x8c" +
-	"\xba\xbbV\xe9\xde\xe2\x9c\xe7=\xcf\xdcu.;\xc7\xdd" +
-	"\x87>`\x9a\xee\x1e\xbbz\xef\xf1\xf4\xcbK\x17\xdb0" +
-	"\x13\xa4\xdd{\xb9\xf6~\xf0\xad\xdf\x87K\xafB\xbd " +
-	"\xef\xe8S\xd2\x03\xf4\x82\xbc\x09\xe8gr\xd2\xfe\xea\xea" +
-	"\x0f\xeb\xeb\xc5+\xa8\x091\xce\x83\xfa\x91\xbc\xaf;\x7f" +
-	"\xc2O\xe49\xdd\x93\x87\x00\xfb\xfa\xcd\x81\xb5\x99\x9fW" +
-	"\xbeBi\xa2\x84\x02\xf3\xef\xe4~\x82\xba'\x97@;" +
-	"-\x82\xed\xbb\x9d\xd3\xdf\xff\x06\xca\xf6\xfc@V\x89\x1f" +
-	"v#\x8d\xf2Z#la)i-\x06iT'\x8d" +
-	"/$ \x09\xa8\xc3G\x003+h\xe6\x1c\x92S$" +
-	"\xa9\x8ee\x809*hN:\x9cl\x86E\xc8*9" +
-	"\x16\x04X\x05m\x92\x9e\xdd\xca\x8a\xab1\x0efA\x1a" +
-	"\xe5$\x1c\x12<#\xa9\xb8\xb2S\x0foo\xa6as" +
-	"\xf4\x9dIk\xf1|\x9cm_\x13\x8d\xb8\\ \x85\x0b" +
-	"\x8cVs\xe8\xa7\xd4\x0a\x1c\xe5z;I|\xab\x08\xd2" +
-	"h\x99\xc6'\xed\xa7\xd5\x07\x17\xba\x1f\x9f\xbf\x00`\xe3" +
-	"\xee\x89/\xed\xcfO\xdf\x96\xf7\x90.\x86\xf4F\\\xfb" +
-	"\xd7\x9c]\x8b\xf3\xadMQ\xe4F\x8ed\xf7\xcd\x00\xc6" +
-	"\x174S\x0e\xbd\x8d4b\xe5?+\xb2\x02\xeeJ\xac" +
-	"\x87Yx\x83\xf9\xef\x00\x00\x00\xff\xff\xcb#\x8e6"
+const schema_e7e7e2edc72e660c = "x\xda|\x8f=k\x14Q\x18\x85\xcf\x99\xfb\xae3\x10" +
+	"C\xf6\xeeM%A!\x04D\xd1%\x12\"\x1a\x8b\xc4" +
+	"\x14\x1a\xa6\xda\x1b\xd3\x88\x8d3\xbb\xe3GHf\x96\x99" +
+	"I\xfc(L\xebo\x10\xc1\x88\x88\xa4\x10\xc1FA\x10" +
+	",\xc4b\x09ha#\x16b\x13P\x03\xfe\x83+\xa3" +
+	"\xee\xc6\xca\xee-\xcey\xde\xf3L\xaerNN\x0c?" +
+	"\x08\xe0\xd9Nm\x9f[\xb8\xfbh\xec\xc5\xe5K\x9b\xb0" +
+	"C\xa4\xdb\x7f\xa5\xf9n\xf7\xeb\xce\x0ej\xf4\xeb4\xd3" +
+	"r\xdb\x9c\x16\x1f0\xd3r\x030Oe\xc4\xfd\xec\x99" +
+	"\xf7KK\xe5K\xe8!\xb5\x97\x07\xcdC\xb9g\xb6~" +
+	"\x87\x1f\xcby\xb3-\x87\x01\xf7\xea\xf5\xc1\xc5\xf1\x1fW" +
+	"\xbf@\x1b\xa2\x82\x02So\xe5\x00A\xb3-\xb3\xa0\x1b" +
+	"S\xe1\xfa\x9d\xad3\xdf\xfe\x04\xaa\xf6\xd4\xae4\x88\xef" +
+	"n9\x8b\x8bf;\xeab6\xed\xce\x84Y\xdc\"m" +
+	"\xa0\x04\x10\x02\xfa\xc8Q\xc0N(\xdaI\x8f\xe4(I" +
+	"\xea\xe39`\x8f)\xdaS\x1eG:Q\x19\xb1A\xee" +
+	"\x09\x02l\x80.\xcd\xce\xad\xe5\xe5\xb5\x04\x87\xf20\x8b" +
+	"\x0b\x12\x1e\x09\x9e\x15j\xceo\xb4\xa2[+Y\xd4\x19" +
+	"|g\xda\x9d\xb9\x90\xe4\xeb\xd7U;\xa9\x16\x88\xaa\x01" +
+	"\x83\xd5\xec\xfbi=\x0fO\xd7\xfc\x8d4\xb9Y\x86Y" +
+	"<G\x1b\x90\xee\xe3\xc2\xfd\x8b\xbd\x0f\xcf\x9e\x03pI" +
+	"\xef\xe4\xe7\xcdOO\xdeTw\x9f\xae\xfa\xf4v\xd2\xfc" +
+	"\xdb\x9cXL\x8a\xb5\x15U\x16V\x06\xb2\xc3\xe3\x80\x0d" +
+	"\x14\xed\xa8G\x7f9\x8bY\xff\xc7\x8a\xac\x83\xff%\xb6" +
+	"\xa2<Ze\xf1+\x00\x00\xff\xff\xe6\x81\x8eD"
 
-func init() {
-	schemas.Register(schema_e7e7e2edc72e660c,
-		0xa05b60b71ca38848,
-		0xb8745454d013cbf0,
-		0xe067ec22521ebebb,
-		0xea3ba97e764a031c)
+func RegisterSchema(reg *schemas.Registry) {
+	reg.Register(&schemas.Schema{
+		String: schema_e7e7e2edc72e660c,
+		Nodes: []uint64{
+			0xa05b60b71ca38848,
+			0xb8745454d013cbf0,
+			0xe067ec22521ebebb,
+			0xea3ba97e764a031c,
+		},
+		Compressed: true,
+	})
 }

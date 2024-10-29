@@ -5,595 +5,595 @@ package monica
 import (
 	capnp "capnproto.org/go/capnp/v3"
 	text "capnproto.org/go/capnp/v3/encoding/text"
-	schemas "capnproto.org/go/capnp/v3/schemas"
 	math "math"
 )
 
-type SoilCharacteristicData struct{ capnp.Struct }
+type SoilCharacteristicData capnp.Struct
 
 // SoilCharacteristicData_TypeID is the unique identifier for the type SoilCharacteristicData.
 const SoilCharacteristicData_TypeID = 0xfc682227304e2281
 
 func NewSoilCharacteristicData(s *capnp.Segment) (SoilCharacteristicData, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return SoilCharacteristicData{st}, err
+	return SoilCharacteristicData(st), err
 }
 
 func NewRootSoilCharacteristicData(s *capnp.Segment) (SoilCharacteristicData, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return SoilCharacteristicData{st}, err
+	return SoilCharacteristicData(st), err
 }
 
 func ReadRootSoilCharacteristicData(msg *capnp.Message) (SoilCharacteristicData, error) {
 	root, err := msg.Root()
-	return SoilCharacteristicData{root.Struct()}, err
+	return SoilCharacteristicData(root.Struct()), err
 }
 
 func (s SoilCharacteristicData) String() string {
-	str, _ := text.Marshal(0xfc682227304e2281, s.Struct)
+	str, _ := text.Marshal(0xfc682227304e2281, capnp.Struct(s))
 	return str
 }
 
+func (s SoilCharacteristicData) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (SoilCharacteristicData) DecodeFromPtr(p capnp.Ptr) SoilCharacteristicData {
+	return SoilCharacteristicData(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s SoilCharacteristicData) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s SoilCharacteristicData) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s SoilCharacteristicData) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s SoilCharacteristicData) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s SoilCharacteristicData) List() (SoilCharacteristicData_Data_List, error) {
-	p, err := s.Struct.Ptr(0)
-	return SoilCharacteristicData_Data_List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return SoilCharacteristicData_Data_List(p.List()), err
 }
 
 func (s SoilCharacteristicData) HasList() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s SoilCharacteristicData) SetList(v SoilCharacteristicData_Data_List) error {
-	return s.Struct.SetPtr(0, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
 }
 
 // NewList sets the list field to a newly
 // allocated SoilCharacteristicData_Data_List, preferring placement in s's segment.
 func (s SoilCharacteristicData) NewList(n int32) (SoilCharacteristicData_Data_List, error) {
-	l, err := NewSoilCharacteristicData_Data_List(s.Struct.Segment(), n)
+	l, err := NewSoilCharacteristicData_Data_List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return SoilCharacteristicData_Data_List{}, err
 	}
-	err = s.Struct.SetPtr(0, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
 	return l, err
 }
 
 // SoilCharacteristicData_List is a list of SoilCharacteristicData.
-type SoilCharacteristicData_List struct{ capnp.List }
+type SoilCharacteristicData_List = capnp.StructList[SoilCharacteristicData]
 
 // NewSoilCharacteristicData creates a new list of SoilCharacteristicData.
 func NewSoilCharacteristicData_List(s *capnp.Segment, sz int32) (SoilCharacteristicData_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return SoilCharacteristicData_List{l}, err
-}
-
-func (s SoilCharacteristicData_List) At(i int) SoilCharacteristicData {
-	return SoilCharacteristicData{s.List.Struct(i)}
-}
-
-func (s SoilCharacteristicData_List) Set(i int, v SoilCharacteristicData) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s SoilCharacteristicData_List) String() string {
-	str, _ := text.MarshalList(0xfc682227304e2281, s.List)
-	return str
+	return capnp.StructList[SoilCharacteristicData](l), err
 }
 
 // SoilCharacteristicData_Future is a wrapper for a SoilCharacteristicData promised by a client call.
 type SoilCharacteristicData_Future struct{ *capnp.Future }
 
-func (p SoilCharacteristicData_Future) Struct() (SoilCharacteristicData, error) {
-	s, err := p.Future.Struct()
-	return SoilCharacteristicData{s}, err
+func (f SoilCharacteristicData_Future) Struct() (SoilCharacteristicData, error) {
+	p, err := f.Future.Ptr()
+	return SoilCharacteristicData(p.Struct()), err
 }
 
-type SoilCharacteristicData_Data struct{ capnp.Struct }
+type SoilCharacteristicData_Data capnp.Struct
 
 // SoilCharacteristicData_Data_TypeID is the unique identifier for the type SoilCharacteristicData_Data.
 const SoilCharacteristicData_Data_TypeID = 0xeafaab57e025db63
 
 func NewSoilCharacteristicData_Data(s *capnp.Segment) (SoilCharacteristicData_Data, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return SoilCharacteristicData_Data{st}, err
+	return SoilCharacteristicData_Data(st), err
 }
 
 func NewRootSoilCharacteristicData_Data(s *capnp.Segment) (SoilCharacteristicData_Data, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return SoilCharacteristicData_Data{st}, err
+	return SoilCharacteristicData_Data(st), err
 }
 
 func ReadRootSoilCharacteristicData_Data(msg *capnp.Message) (SoilCharacteristicData_Data, error) {
 	root, err := msg.Root()
-	return SoilCharacteristicData_Data{root.Struct()}, err
+	return SoilCharacteristicData_Data(root.Struct()), err
 }
 
 func (s SoilCharacteristicData_Data) String() string {
-	str, _ := text.Marshal(0xeafaab57e025db63, s.Struct)
+	str, _ := text.Marshal(0xeafaab57e025db63, capnp.Struct(s))
 	return str
 }
 
+func (s SoilCharacteristicData_Data) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (SoilCharacteristicData_Data) DecodeFromPtr(p capnp.Ptr) SoilCharacteristicData_Data {
+	return SoilCharacteristicData_Data(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s SoilCharacteristicData_Data) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s SoilCharacteristicData_Data) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s SoilCharacteristicData_Data) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s SoilCharacteristicData_Data) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s SoilCharacteristicData_Data) SoilType() (string, error) {
-	p, err := s.Struct.Ptr(0)
+	p, err := capnp.Struct(s).Ptr(0)
 	return p.Text(), err
 }
 
 func (s SoilCharacteristicData_Data) HasSoilType() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s SoilCharacteristicData_Data) SoilTypeBytes() ([]byte, error) {
-	p, err := s.Struct.Ptr(0)
+	p, err := capnp.Struct(s).Ptr(0)
 	return p.TextBytes(), err
 }
 
 func (s SoilCharacteristicData_Data) SetSoilType(v string) error {
-	return s.Struct.SetText(0, v)
+	return capnp.Struct(s).SetText(0, v)
 }
 
 func (s SoilCharacteristicData_Data) SoilRawDensity() int16 {
-	return int16(s.Struct.Uint16(0))
+	return int16(capnp.Struct(s).Uint16(0))
 }
 
 func (s SoilCharacteristicData_Data) SetSoilRawDensity(v int16) {
-	s.Struct.SetUint16(0, uint16(v))
+	capnp.Struct(s).SetUint16(0, uint16(v))
 }
 
 func (s SoilCharacteristicData_Data) AirCapacity() uint8 {
-	return s.Struct.Uint8(2)
+	return capnp.Struct(s).Uint8(2)
 }
 
 func (s SoilCharacteristicData_Data) SetAirCapacity(v uint8) {
-	s.Struct.SetUint8(2, v)
+	capnp.Struct(s).SetUint8(2, v)
 }
 
 func (s SoilCharacteristicData_Data) FieldCapacity() uint8 {
-	return s.Struct.Uint8(3)
+	return capnp.Struct(s).Uint8(3)
 }
 
 func (s SoilCharacteristicData_Data) SetFieldCapacity(v uint8) {
-	s.Struct.SetUint8(3, v)
+	capnp.Struct(s).SetUint8(3, v)
 }
 
 func (s SoilCharacteristicData_Data) NFieldCapacity() uint8 {
-	return s.Struct.Uint8(4)
+	return capnp.Struct(s).Uint8(4)
 }
 
 func (s SoilCharacteristicData_Data) SetNFieldCapacity(v uint8) {
-	s.Struct.SetUint8(4, v)
+	capnp.Struct(s).SetUint8(4, v)
 }
 
 // SoilCharacteristicData_Data_List is a list of SoilCharacteristicData_Data.
-type SoilCharacteristicData_Data_List struct{ capnp.List }
+type SoilCharacteristicData_Data_List = capnp.StructList[SoilCharacteristicData_Data]
 
 // NewSoilCharacteristicData_Data creates a new list of SoilCharacteristicData_Data.
 func NewSoilCharacteristicData_Data_List(s *capnp.Segment, sz int32) (SoilCharacteristicData_Data_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1}, sz)
-	return SoilCharacteristicData_Data_List{l}, err
-}
-
-func (s SoilCharacteristicData_Data_List) At(i int) SoilCharacteristicData_Data {
-	return SoilCharacteristicData_Data{s.List.Struct(i)}
-}
-
-func (s SoilCharacteristicData_Data_List) Set(i int, v SoilCharacteristicData_Data) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s SoilCharacteristicData_Data_List) String() string {
-	str, _ := text.MarshalList(0xeafaab57e025db63, s.List)
-	return str
+	return capnp.StructList[SoilCharacteristicData_Data](l), err
 }
 
 // SoilCharacteristicData_Data_Future is a wrapper for a SoilCharacteristicData_Data promised by a client call.
 type SoilCharacteristicData_Data_Future struct{ *capnp.Future }
 
-func (p SoilCharacteristicData_Data_Future) Struct() (SoilCharacteristicData_Data, error) {
-	s, err := p.Future.Struct()
-	return SoilCharacteristicData_Data{s}, err
+func (f SoilCharacteristicData_Data_Future) Struct() (SoilCharacteristicData_Data, error) {
+	p, err := f.Future.Ptr()
+	return SoilCharacteristicData_Data(p.Struct()), err
 }
 
-type SoilCharacteristicModifier struct{ capnp.Struct }
+type SoilCharacteristicModifier capnp.Struct
 
 // SoilCharacteristicModifier_TypeID is the unique identifier for the type SoilCharacteristicModifier.
 const SoilCharacteristicModifier_TypeID = 0xe4eb0a9bb0e5bb53
 
 func NewSoilCharacteristicModifier(s *capnp.Segment) (SoilCharacteristicModifier, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return SoilCharacteristicModifier{st}, err
+	return SoilCharacteristicModifier(st), err
 }
 
 func NewRootSoilCharacteristicModifier(s *capnp.Segment) (SoilCharacteristicModifier, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return SoilCharacteristicModifier{st}, err
+	return SoilCharacteristicModifier(st), err
 }
 
 func ReadRootSoilCharacteristicModifier(msg *capnp.Message) (SoilCharacteristicModifier, error) {
 	root, err := msg.Root()
-	return SoilCharacteristicModifier{root.Struct()}, err
+	return SoilCharacteristicModifier(root.Struct()), err
 }
 
 func (s SoilCharacteristicModifier) String() string {
-	str, _ := text.Marshal(0xe4eb0a9bb0e5bb53, s.Struct)
+	str, _ := text.Marshal(0xe4eb0a9bb0e5bb53, capnp.Struct(s))
 	return str
 }
 
+func (s SoilCharacteristicModifier) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (SoilCharacteristicModifier) DecodeFromPtr(p capnp.Ptr) SoilCharacteristicModifier {
+	return SoilCharacteristicModifier(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s SoilCharacteristicModifier) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s SoilCharacteristicModifier) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s SoilCharacteristicModifier) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s SoilCharacteristicModifier) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s SoilCharacteristicModifier) List() (SoilCharacteristicModifier_Data_List, error) {
-	p, err := s.Struct.Ptr(0)
-	return SoilCharacteristicModifier_Data_List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return SoilCharacteristicModifier_Data_List(p.List()), err
 }
 
 func (s SoilCharacteristicModifier) HasList() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s SoilCharacteristicModifier) SetList(v SoilCharacteristicModifier_Data_List) error {
-	return s.Struct.SetPtr(0, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
 }
 
 // NewList sets the list field to a newly
 // allocated SoilCharacteristicModifier_Data_List, preferring placement in s's segment.
 func (s SoilCharacteristicModifier) NewList(n int32) (SoilCharacteristicModifier_Data_List, error) {
-	l, err := NewSoilCharacteristicModifier_Data_List(s.Struct.Segment(), n)
+	l, err := NewSoilCharacteristicModifier_Data_List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return SoilCharacteristicModifier_Data_List{}, err
 	}
-	err = s.Struct.SetPtr(0, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
 	return l, err
 }
 
 // SoilCharacteristicModifier_List is a list of SoilCharacteristicModifier.
-type SoilCharacteristicModifier_List struct{ capnp.List }
+type SoilCharacteristicModifier_List = capnp.StructList[SoilCharacteristicModifier]
 
 // NewSoilCharacteristicModifier creates a new list of SoilCharacteristicModifier.
 func NewSoilCharacteristicModifier_List(s *capnp.Segment, sz int32) (SoilCharacteristicModifier_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return SoilCharacteristicModifier_List{l}, err
-}
-
-func (s SoilCharacteristicModifier_List) At(i int) SoilCharacteristicModifier {
-	return SoilCharacteristicModifier{s.List.Struct(i)}
-}
-
-func (s SoilCharacteristicModifier_List) Set(i int, v SoilCharacteristicModifier) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s SoilCharacteristicModifier_List) String() string {
-	str, _ := text.MarshalList(0xe4eb0a9bb0e5bb53, s.List)
-	return str
+	return capnp.StructList[SoilCharacteristicModifier](l), err
 }
 
 // SoilCharacteristicModifier_Future is a wrapper for a SoilCharacteristicModifier promised by a client call.
 type SoilCharacteristicModifier_Future struct{ *capnp.Future }
 
-func (p SoilCharacteristicModifier_Future) Struct() (SoilCharacteristicModifier, error) {
-	s, err := p.Future.Struct()
-	return SoilCharacteristicModifier{s}, err
+func (f SoilCharacteristicModifier_Future) Struct() (SoilCharacteristicModifier, error) {
+	p, err := f.Future.Ptr()
+	return SoilCharacteristicModifier(p.Struct()), err
 }
 
-type SoilCharacteristicModifier_Data struct{ capnp.Struct }
+type SoilCharacteristicModifier_Data capnp.Struct
 
 // SoilCharacteristicModifier_Data_TypeID is the unique identifier for the type SoilCharacteristicModifier_Data.
 const SoilCharacteristicModifier_Data_TypeID = 0xa968a46ccde8b1b4
 
 func NewSoilCharacteristicModifier_Data(s *capnp.Segment) (SoilCharacteristicModifier_Data, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return SoilCharacteristicModifier_Data{st}, err
+	return SoilCharacteristicModifier_Data(st), err
 }
 
 func NewRootSoilCharacteristicModifier_Data(s *capnp.Segment) (SoilCharacteristicModifier_Data, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return SoilCharacteristicModifier_Data{st}, err
+	return SoilCharacteristicModifier_Data(st), err
 }
 
 func ReadRootSoilCharacteristicModifier_Data(msg *capnp.Message) (SoilCharacteristicModifier_Data, error) {
 	root, err := msg.Root()
-	return SoilCharacteristicModifier_Data{root.Struct()}, err
+	return SoilCharacteristicModifier_Data(root.Struct()), err
 }
 
 func (s SoilCharacteristicModifier_Data) String() string {
-	str, _ := text.Marshal(0xa968a46ccde8b1b4, s.Struct)
+	str, _ := text.Marshal(0xa968a46ccde8b1b4, capnp.Struct(s))
 	return str
 }
 
+func (s SoilCharacteristicModifier_Data) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (SoilCharacteristicModifier_Data) DecodeFromPtr(p capnp.Ptr) SoilCharacteristicModifier_Data {
+	return SoilCharacteristicModifier_Data(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s SoilCharacteristicModifier_Data) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s SoilCharacteristicModifier_Data) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s SoilCharacteristicModifier_Data) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s SoilCharacteristicModifier_Data) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s SoilCharacteristicModifier_Data) SoilType() (string, error) {
-	p, err := s.Struct.Ptr(0)
+	p, err := capnp.Struct(s).Ptr(0)
 	return p.Text(), err
 }
 
 func (s SoilCharacteristicModifier_Data) HasSoilType() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s SoilCharacteristicModifier_Data) SoilTypeBytes() ([]byte, error) {
-	p, err := s.Struct.Ptr(0)
+	p, err := capnp.Struct(s).Ptr(0)
 	return p.TextBytes(), err
 }
 
 func (s SoilCharacteristicModifier_Data) SetSoilType(v string) error {
-	return s.Struct.SetText(0, v)
+	return capnp.Struct(s).SetText(0, v)
 }
 
 func (s SoilCharacteristicModifier_Data) OrganicMatter() float32 {
-	return math.Float32frombits(s.Struct.Uint32(0))
+	return math.Float32frombits(capnp.Struct(s).Uint32(0))
 }
 
 func (s SoilCharacteristicModifier_Data) SetOrganicMatter(v float32) {
-	s.Struct.SetUint32(0, math.Float32bits(v))
+	capnp.Struct(s).SetUint32(0, math.Float32bits(v))
 }
 
 func (s SoilCharacteristicModifier_Data) AirCapacity() int8 {
-	return int8(s.Struct.Uint8(4))
+	return int8(capnp.Struct(s).Uint8(4))
 }
 
 func (s SoilCharacteristicModifier_Data) SetAirCapacity(v int8) {
-	s.Struct.SetUint8(4, uint8(v))
+	capnp.Struct(s).SetUint8(4, uint8(v))
 }
 
 func (s SoilCharacteristicModifier_Data) FieldCapacity() int8 {
-	return int8(s.Struct.Uint8(5))
+	return int8(capnp.Struct(s).Uint8(5))
 }
 
 func (s SoilCharacteristicModifier_Data) SetFieldCapacity(v int8) {
-	s.Struct.SetUint8(5, uint8(v))
+	capnp.Struct(s).SetUint8(5, uint8(v))
 }
 
 func (s SoilCharacteristicModifier_Data) NFieldCapacity() int8 {
-	return int8(s.Struct.Uint8(6))
+	return int8(capnp.Struct(s).Uint8(6))
 }
 
 func (s SoilCharacteristicModifier_Data) SetNFieldCapacity(v int8) {
-	s.Struct.SetUint8(6, uint8(v))
+	capnp.Struct(s).SetUint8(6, uint8(v))
 }
 
 // SoilCharacteristicModifier_Data_List is a list of SoilCharacteristicModifier_Data.
-type SoilCharacteristicModifier_Data_List struct{ capnp.List }
+type SoilCharacteristicModifier_Data_List = capnp.StructList[SoilCharacteristicModifier_Data]
 
 // NewSoilCharacteristicModifier_Data creates a new list of SoilCharacteristicModifier_Data.
 func NewSoilCharacteristicModifier_Data_List(s *capnp.Segment, sz int32) (SoilCharacteristicModifier_Data_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1}, sz)
-	return SoilCharacteristicModifier_Data_List{l}, err
-}
-
-func (s SoilCharacteristicModifier_Data_List) At(i int) SoilCharacteristicModifier_Data {
-	return SoilCharacteristicModifier_Data{s.List.Struct(i)}
-}
-
-func (s SoilCharacteristicModifier_Data_List) Set(i int, v SoilCharacteristicModifier_Data) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s SoilCharacteristicModifier_Data_List) String() string {
-	str, _ := text.MarshalList(0xa968a46ccde8b1b4, s.List)
-	return str
+	return capnp.StructList[SoilCharacteristicModifier_Data](l), err
 }
 
 // SoilCharacteristicModifier_Data_Future is a wrapper for a SoilCharacteristicModifier_Data promised by a client call.
 type SoilCharacteristicModifier_Data_Future struct{ *capnp.Future }
 
-func (p SoilCharacteristicModifier_Data_Future) Struct() (SoilCharacteristicModifier_Data, error) {
-	s, err := p.Future.Struct()
-	return SoilCharacteristicModifier_Data{s}, err
+func (f SoilCharacteristicModifier_Data_Future) Struct() (SoilCharacteristicModifier_Data, error) {
+	p, err := f.Future.Ptr()
+	return SoilCharacteristicModifier_Data(p.Struct()), err
 }
 
-type CapillaryRiseRate struct{ capnp.Struct }
+type CapillaryRiseRate capnp.Struct
 
 // CapillaryRiseRate_TypeID is the unique identifier for the type CapillaryRiseRate.
 const CapillaryRiseRate_TypeID = 0x9b169bc96bb3d24b
 
 func NewCapillaryRiseRate(s *capnp.Segment) (CapillaryRiseRate, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return CapillaryRiseRate{st}, err
+	return CapillaryRiseRate(st), err
 }
 
 func NewRootCapillaryRiseRate(s *capnp.Segment) (CapillaryRiseRate, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return CapillaryRiseRate{st}, err
+	return CapillaryRiseRate(st), err
 }
 
 func ReadRootCapillaryRiseRate(msg *capnp.Message) (CapillaryRiseRate, error) {
 	root, err := msg.Root()
-	return CapillaryRiseRate{root.Struct()}, err
+	return CapillaryRiseRate(root.Struct()), err
 }
 
 func (s CapillaryRiseRate) String() string {
-	str, _ := text.Marshal(0x9b169bc96bb3d24b, s.Struct)
+	str, _ := text.Marshal(0x9b169bc96bb3d24b, capnp.Struct(s))
 	return str
 }
 
+func (s CapillaryRiseRate) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (CapillaryRiseRate) DecodeFromPtr(p capnp.Ptr) CapillaryRiseRate {
+	return CapillaryRiseRate(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s CapillaryRiseRate) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s CapillaryRiseRate) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s CapillaryRiseRate) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s CapillaryRiseRate) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s CapillaryRiseRate) List() (CapillaryRiseRate_Data_List, error) {
-	p, err := s.Struct.Ptr(0)
-	return CapillaryRiseRate_Data_List{List: p.List()}, err
+	p, err := capnp.Struct(s).Ptr(0)
+	return CapillaryRiseRate_Data_List(p.List()), err
 }
 
 func (s CapillaryRiseRate) HasList() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s CapillaryRiseRate) SetList(v CapillaryRiseRate_Data_List) error {
-	return s.Struct.SetPtr(0, v.List.ToPtr())
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
 }
 
 // NewList sets the list field to a newly
 // allocated CapillaryRiseRate_Data_List, preferring placement in s's segment.
 func (s CapillaryRiseRate) NewList(n int32) (CapillaryRiseRate_Data_List, error) {
-	l, err := NewCapillaryRiseRate_Data_List(s.Struct.Segment(), n)
+	l, err := NewCapillaryRiseRate_Data_List(capnp.Struct(s).Segment(), n)
 	if err != nil {
 		return CapillaryRiseRate_Data_List{}, err
 	}
-	err = s.Struct.SetPtr(0, l.List.ToPtr())
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
 	return l, err
 }
 
 // CapillaryRiseRate_List is a list of CapillaryRiseRate.
-type CapillaryRiseRate_List struct{ capnp.List }
+type CapillaryRiseRate_List = capnp.StructList[CapillaryRiseRate]
 
 // NewCapillaryRiseRate creates a new list of CapillaryRiseRate.
 func NewCapillaryRiseRate_List(s *capnp.Segment, sz int32) (CapillaryRiseRate_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return CapillaryRiseRate_List{l}, err
-}
-
-func (s CapillaryRiseRate_List) At(i int) CapillaryRiseRate {
-	return CapillaryRiseRate{s.List.Struct(i)}
-}
-
-func (s CapillaryRiseRate_List) Set(i int, v CapillaryRiseRate) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s CapillaryRiseRate_List) String() string {
-	str, _ := text.MarshalList(0x9b169bc96bb3d24b, s.List)
-	return str
+	return capnp.StructList[CapillaryRiseRate](l), err
 }
 
 // CapillaryRiseRate_Future is a wrapper for a CapillaryRiseRate promised by a client call.
 type CapillaryRiseRate_Future struct{ *capnp.Future }
 
-func (p CapillaryRiseRate_Future) Struct() (CapillaryRiseRate, error) {
-	s, err := p.Future.Struct()
-	return CapillaryRiseRate{s}, err
+func (f CapillaryRiseRate_Future) Struct() (CapillaryRiseRate, error) {
+	p, err := f.Future.Ptr()
+	return CapillaryRiseRate(p.Struct()), err
 }
 
-type CapillaryRiseRate_Data struct{ capnp.Struct }
+type CapillaryRiseRate_Data capnp.Struct
 
 // CapillaryRiseRate_Data_TypeID is the unique identifier for the type CapillaryRiseRate_Data.
 const CapillaryRiseRate_Data_TypeID = 0xb78a89c58fad885d
 
 func NewCapillaryRiseRate_Data(s *capnp.Segment) (CapillaryRiseRate_Data, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return CapillaryRiseRate_Data{st}, err
+	return CapillaryRiseRate_Data(st), err
 }
 
 func NewRootCapillaryRiseRate_Data(s *capnp.Segment) (CapillaryRiseRate_Data, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return CapillaryRiseRate_Data{st}, err
+	return CapillaryRiseRate_Data(st), err
 }
 
 func ReadRootCapillaryRiseRate_Data(msg *capnp.Message) (CapillaryRiseRate_Data, error) {
 	root, err := msg.Root()
-	return CapillaryRiseRate_Data{root.Struct()}, err
+	return CapillaryRiseRate_Data(root.Struct()), err
 }
 
 func (s CapillaryRiseRate_Data) String() string {
-	str, _ := text.Marshal(0xb78a89c58fad885d, s.Struct)
+	str, _ := text.Marshal(0xb78a89c58fad885d, capnp.Struct(s))
 	return str
 }
 
+func (s CapillaryRiseRate_Data) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (CapillaryRiseRate_Data) DecodeFromPtr(p capnp.Ptr) CapillaryRiseRate_Data {
+	return CapillaryRiseRate_Data(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s CapillaryRiseRate_Data) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s CapillaryRiseRate_Data) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s CapillaryRiseRate_Data) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s CapillaryRiseRate_Data) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s CapillaryRiseRate_Data) SoilType() (string, error) {
-	p, err := s.Struct.Ptr(0)
+	p, err := capnp.Struct(s).Ptr(0)
 	return p.Text(), err
 }
 
 func (s CapillaryRiseRate_Data) HasSoilType() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s CapillaryRiseRate_Data) SoilTypeBytes() ([]byte, error) {
-	p, err := s.Struct.Ptr(0)
+	p, err := capnp.Struct(s).Ptr(0)
 	return p.TextBytes(), err
 }
 
 func (s CapillaryRiseRate_Data) SetSoilType(v string) error {
-	return s.Struct.SetText(0, v)
+	return capnp.Struct(s).SetText(0, v)
 }
 
 func (s CapillaryRiseRate_Data) Distance() uint8 {
-	return s.Struct.Uint8(0)
+	return capnp.Struct(s).Uint8(0)
 }
 
 func (s CapillaryRiseRate_Data) SetDistance(v uint8) {
-	s.Struct.SetUint8(0, v)
+	capnp.Struct(s).SetUint8(0, v)
 }
 
 func (s CapillaryRiseRate_Data) Rate() float32 {
-	return math.Float32frombits(s.Struct.Uint32(4))
+	return math.Float32frombits(capnp.Struct(s).Uint32(4))
 }
 
 func (s CapillaryRiseRate_Data) SetRate(v float32) {
-	s.Struct.SetUint32(4, math.Float32bits(v))
+	capnp.Struct(s).SetUint32(4, math.Float32bits(v))
 }
 
 // CapillaryRiseRate_Data_List is a list of CapillaryRiseRate_Data.
-type CapillaryRiseRate_Data_List struct{ capnp.List }
+type CapillaryRiseRate_Data_List = capnp.StructList[CapillaryRiseRate_Data]
 
 // NewCapillaryRiseRate_Data creates a new list of CapillaryRiseRate_Data.
 func NewCapillaryRiseRate_Data_List(s *capnp.Segment, sz int32) (CapillaryRiseRate_Data_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1}, sz)
-	return CapillaryRiseRate_Data_List{l}, err
-}
-
-func (s CapillaryRiseRate_Data_List) At(i int) CapillaryRiseRate_Data {
-	return CapillaryRiseRate_Data{s.List.Struct(i)}
-}
-
-func (s CapillaryRiseRate_Data_List) Set(i int, v CapillaryRiseRate_Data) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s CapillaryRiseRate_Data_List) String() string {
-	str, _ := text.MarshalList(0xb78a89c58fad885d, s.List)
-	return str
+	return capnp.StructList[CapillaryRiseRate_Data](l), err
 }
 
 // CapillaryRiseRate_Data_Future is a wrapper for a CapillaryRiseRate_Data promised by a client call.
 type CapillaryRiseRate_Data_Future struct{ *capnp.Future }
 
-func (p CapillaryRiseRate_Data_Future) Struct() (CapillaryRiseRate_Data, error) {
-	s, err := p.Future.Struct()
-	return CapillaryRiseRate_Data{s}, err
-}
-
-const schema_f83caca0747996ab = "x\xda\x9c\x94\xcdk\x14I\x18\xc6\xdf\xa7\xaaz\xb2\x84" +
-	"\xecf\x9b\x1ev\xd9\xd3@\xd8%\x90C>XX\xd8" +
-	" \x8c0\xa3\xe0Gd*1\xe8\xc1 eO\xc7\x14" +
-	"vf\x9a\x9e\x06\x99\xa0\x07\xc1@\x0c\x06=\xa8(1" +
-	"\x90\x83\x82!\x8a\x1a\x05\x0f\x9e=\xe4\xe0%G\xbd(" +
-	"(\xf8\xf1\x0fh\x10Z*\x93tFf\x82In\xc5" +
-	"So\xd5\xfb\xd6\xf3\xfc\xba{W\xb0\x97\xf5Y\x9d\x82" +
-	"H\xf6Z\xa9\xf8\xd0\xca\x933\xcb\xb3\x7f\xcc\x92\x9dA" +
-	"\xbcx\xa3\x1a\xcd\xdf\xdf\xf3\x85,\xb4\x10\xfd\xfb\x15\xd3" +
-	"pl\xf6'\x91\xf3\x17\xcb\x12\xe2\xa7\x8f?\xbc\xf4\xef" +
-	"\x8c-\x90\xec\x07\xe2\xa1\xe7\xef\x1f\xcd\xb6~~\xb7^" +
-	"}\x80\xad\xc2\xf1\x98Y*\x96\x01!\x1e\x99zp\xe5" +
-	"\xc5\xa5\xe9g$\xfb\x80\xcdN\xb5\xf2I\xbe\x04g\x8e" +
-	"\xb7\x109\xb7\xf8C\xaa\xbb\xae\xc9$\xff\x8b\x158\xc3" +
-	"\xc2L2\"\xcc$\xee\xeb\x7f\xde\x1c[\\\xfdD\xf2" +
-	"? \xbe\xd0q\xa4\xb7\xb3c\xec\xdbz\xf5\x8cx\x05" +
-	"gA\x98\xe5]\xb16IR\xd0\xe4\xeeek\x09\xce" +
-	"[\xcb\xdc\xfd\xd1\xcaR.\x1e/\x17=\xbfg\xbcl" +
-	"\x95\xb4\xabz*e\xed\x9f\x0cT\xa8\xc6+\xdd\xae\x0a" +
-	"JA\x7fN\x05\xda\xf7UX\x1d\xd4\x15oPE\x1e" +
-	"\x91\x14\xa8{\xae\x8d\xae\xf6\xbc\x8a\x94\x14\\\x10\x09\x10" +
-	"\xd9\xbfv\x11\xc9_8\xe4\xdf\x0c\xed\xbe\xaeD\xf8\x8d" +
-	"P\xe0\xc0\xef\x9b\xc7\x08FL\xda\xa7\xb6h?T\xd6" +
-	"~nL\x85\xca\x8d\xbcPW\"\xed\x0e\x94\x8bzT" +
-	"{\xd9\xb0\xdbt-\x002\x9d4>\x7f\x90H\x9e\xe3" +
-	"\x90S\x0c@\x1aF\x9b\x0c\x89\xe4E\x0ey\x95\xc1f" +
-	"\"\x0dFd\xcf\x9c\"\x92\x979\xe4M\x06\x9b[i" +
-	"p\"\xfb\xba\xa9\xbc\xc6!\xe7\x19l\x91JC\x10\xd9" +
-	"s\x13D\xf26\x87\xbc\xc7\x10\x9b\xf9\x8eV\x03\x8f\x88" +
-	"\xd0F\x0cm\x84\xb8\x1c\x9eV%\xed\x0ePFE\x91" +
-	"\x17\xa2\x95\x18Z\x09\xb1\xd2aN\x05\xca\xa5\x16\x1dU" +
-	"\xc1\x88\x81\x11\xe2Q\xed\xf9\xc5\x9c\x0a(\xa3\xdcz\xbd" +
-	"\xb4\xbf\xb6A\xd9\xe0\xc7\x8d\x1d\xe7\x93I|iK|" +
-	"\xd9g|\xc9s\xc8\xc2\xa6/\x03F;\xcc!\x8f\x1b" +
-	"_P\xf3e\xd8$W\xe0\x90'\xb6xmQW\"" +
-	"Ur\xd7\xb4\x141\xa4\x08\xed\xa1\x8a\xbc\xe4\xd9\xbb\x0e" +
-	"\x14\xe1\x1aW\xc9W\xb73\xae\x92c\xbb\xe6\xca\xf4\xea" +
-	"\xce+\xbe-\xa6&\xea\x99b\xcd\x98\xe2\xcd\x98\x12\xdb" +
-	"d\xcah\x83\xeal\x9e\xb2^\xa9bh\xe0\xc4\xc0\x1b" +
-	"\xa0Z\x0f\xa0\x01\xaa\x0d\xbd\x01\xaa\x8d\x8d\x9fA\xd5\xe0" +
-	"N\xc6\xadE\x81\xba\x9f\xd1\xce\x02J\x8e\xd5\x02\xfa\x1e" +
-	"\x00\x00\xff\xff\xe7\x1e\x82["
-
-func init() {
-	schemas.Register(schema_f83caca0747996ab,
-		0x9b169bc96bb3d24b,
-		0xa968a46ccde8b1b4,
-		0xb78a89c58fad885d,
-		0xe4eb0a9bb0e5bb53,
-		0xeafaab57e025db63,
-		0xfc682227304e2281)
+func (f CapillaryRiseRate_Data_Future) Struct() (CapillaryRiseRate_Data, error) {
+	p, err := f.Future.Ptr()
+	return CapillaryRiseRate_Data(p.Struct()), err
 }

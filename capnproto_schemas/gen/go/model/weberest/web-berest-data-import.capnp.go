@@ -5,17 +5,19 @@ package weberest
 import (
 	capnp "capnproto.org/go/capnp/v3"
 	text "capnproto.org/go/capnp/v3/encoding/text"
+	fc "capnproto.org/go/capnp/v3/flowcontrol"
 	schemas "capnproto.org/go/capnp/v3/schemas"
 	server "capnproto.org/go/capnp/v3/server"
 	context "context"
 )
 
-type DWLABImport struct{ Client *capnp.Client }
+type DWLABImport capnp.Client
 
 // DWLABImport_TypeID is the unique identifier for the type DWLABImport.
 const DWLABImport_TypeID = 0xa1a4ad9d143eaa6f
 
 func (c DWLABImport) ImportData(ctx context.Context, params func(DWLABImport_importData_Params) error) (DWLABImport_importData_Results_Future, capnp.ReleaseFunc) {
+
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0xa1a4ad9d143eaa6f,
@@ -26,20 +28,83 @@ func (c DWLABImport) ImportData(ctx context.Context, params func(DWLABImport_imp
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 3}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(DWLABImport_importData_Params{Struct: s}) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(DWLABImport_importData_Params(s)) }
 	}
-	ans, release := c.Client.SendCall(ctx, s)
+
+	ans, release := capnp.Client(c).SendCall(ctx, s)
 	return DWLABImport_importData_Results_Future{Future: ans.Future()}, release
+
 }
 
+func (c DWLABImport) WaitStreaming() error {
+	return capnp.Client(c).WaitStreaming()
+}
+
+// String returns a string that identifies this capability for debugging
+// purposes.  Its format should not be depended on: in particular, it
+// should not be used to compare clients.  Use IsSame to compare clients
+// for equality.
+func (c DWLABImport) String() string {
+	return "DWLABImport(" + capnp.Client(c).String() + ")"
+}
+
+// AddRef creates a new Client that refers to the same capability as c.
+// If c is nil or has resolved to null, then AddRef returns nil.
 func (c DWLABImport) AddRef() DWLABImport {
-	return DWLABImport{
-		Client: c.Client.AddRef(),
-	}
+	return DWLABImport(capnp.Client(c).AddRef())
 }
 
+// Release releases a capability reference.  If this is the last
+// reference to the capability, then the underlying resources associated
+// with the capability will be released.
+//
+// Release will panic if c has already been released, but not if c is
+// nil or resolved to null.
 func (c DWLABImport) Release() {
-	c.Client.Release()
+	capnp.Client(c).Release()
+}
+
+// Resolve blocks until the capability is fully resolved or the Context
+// expires.
+func (c DWLABImport) Resolve(ctx context.Context) error {
+	return capnp.Client(c).Resolve(ctx)
+}
+
+func (c DWLABImport) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Client(c).EncodeAsPtr(seg)
+}
+
+func (DWLABImport) DecodeFromPtr(p capnp.Ptr) DWLABImport {
+	return DWLABImport(capnp.Client{}.DecodeFromPtr(p))
+}
+
+// IsValid reports whether c is a valid reference to a capability.
+// A reference is invalid if it is nil, has resolved to null, or has
+// been released.
+func (c DWLABImport) IsValid() bool {
+	return capnp.Client(c).IsValid()
+}
+
+// IsSame reports whether c and other refer to a capability created by the
+// same call to NewClient.  This can return false negatives if c or other
+// are not fully resolved: use Resolve if this is an issue.  If either
+// c or other are released, then IsSame panics.
+func (c DWLABImport) IsSame(other DWLABImport) bool {
+	return capnp.Client(c).IsSame(capnp.Client(other))
+}
+
+// Update the flowcontrol.FlowLimiter used to manage flow control for
+// this client. This affects all future calls, but not calls already
+// waiting to send. Passing nil sets the value to flowcontrol.NopLimiter,
+// which is also the default.
+func (c DWLABImport) SetFlowLimiter(lim fc.FlowLimiter) {
+	capnp.Client(c).SetFlowLimiter(lim)
+}
+
+// Get the current flowcontrol.FlowLimiter used to manage flow control
+// for this client.
+func (c DWLABImport) GetFlowLimiter() fc.FlowLimiter {
+	return capnp.Client(c).GetFlowLimiter()
 }
 
 // A DWLABImport_Server is a DWLABImport with a local implementation.
@@ -48,15 +113,15 @@ type DWLABImport_Server interface {
 }
 
 // DWLABImport_NewServer creates a new Server from an implementation of DWLABImport_Server.
-func DWLABImport_NewServer(s DWLABImport_Server, policy *server.Policy) *server.Server {
+func DWLABImport_NewServer(s DWLABImport_Server) *server.Server {
 	c, _ := s.(server.Shutdowner)
-	return server.New(DWLABImport_Methods(nil, s), s, c, policy)
+	return server.New(DWLABImport_Methods(nil, s), s, c)
 }
 
 // DWLABImport_ServerToClient creates a new Client from an implementation of DWLABImport_Server.
 // The caller is responsible for calling Release on the returned Client.
-func DWLABImport_ServerToClient(s DWLABImport_Server, policy *server.Policy) DWLABImport {
-	return DWLABImport{Client: capnp.NewClient(DWLABImport_NewServer(s, policy))}
+func DWLABImport_ServerToClient(s DWLABImport_Server) DWLABImport {
+	return DWLABImport(capnp.NewClient(DWLABImport_NewServer(s)))
 }
 
 // DWLABImport_Methods appends Methods to a slice that invoke the methods on s.
@@ -89,231 +154,263 @@ type DWLABImport_importData struct {
 
 // Args returns the call's arguments.
 func (c DWLABImport_importData) Args() DWLABImport_importData_Params {
-	return DWLABImport_importData_Params{Struct: c.Call.Args()}
+	return DWLABImport_importData_Params(c.Call.Args())
 }
 
 // AllocResults allocates the results struct.
 func (c DWLABImport_importData) AllocResults() (DWLABImport_importData_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return DWLABImport_importData_Results{Struct: r}, err
+	return DWLABImport_importData_Results(r), err
 }
 
-type DWLABImport_importData_Params struct{ capnp.Struct }
+// DWLABImport_List is a list of DWLABImport.
+type DWLABImport_List = capnp.CapList[DWLABImport]
+
+// NewDWLABImport_List creates a new list of DWLABImport.
+func NewDWLABImport_List(s *capnp.Segment, sz int32) (DWLABImport_List, error) {
+	l, err := capnp.NewPointerList(s, sz)
+	return capnp.CapList[DWLABImport](l), err
+}
+
+type DWLABImport_importData_Params capnp.Struct
 
 // DWLABImport_importData_Params_TypeID is the unique identifier for the type DWLABImport_importData_Params.
 const DWLABImport_importData_Params_TypeID = 0xeb03972caa23c7d2
 
 func NewDWLABImport_importData_Params(s *capnp.Segment) (DWLABImport_importData_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 3})
-	return DWLABImport_importData_Params{st}, err
+	return DWLABImport_importData_Params(st), err
 }
 
 func NewRootDWLABImport_importData_Params(s *capnp.Segment) (DWLABImport_importData_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 3})
-	return DWLABImport_importData_Params{st}, err
+	return DWLABImport_importData_Params(st), err
 }
 
 func ReadRootDWLABImport_importData_Params(msg *capnp.Message) (DWLABImport_importData_Params, error) {
 	root, err := msg.Root()
-	return DWLABImport_importData_Params{root.Struct()}, err
+	return DWLABImport_importData_Params(root.Struct()), err
 }
 
 func (s DWLABImport_importData_Params) String() string {
-	str, _ := text.Marshal(0xeb03972caa23c7d2, s.Struct)
+	str, _ := text.Marshal(0xeb03972caa23c7d2, capnp.Struct(s))
 	return str
 }
 
+func (s DWLABImport_importData_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (DWLABImport_importData_Params) DecodeFromPtr(p capnp.Ptr) DWLABImport_importData_Params {
+	return DWLABImport_importData_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s DWLABImport_importData_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s DWLABImport_importData_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s DWLABImport_importData_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s DWLABImport_importData_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s DWLABImport_importData_Params) Id() (string, error) {
-	p, err := s.Struct.Ptr(0)
+	p, err := capnp.Struct(s).Ptr(0)
 	return p.Text(), err
 }
 
 func (s DWLABImport_importData_Params) HasId() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s DWLABImport_importData_Params) IdBytes() ([]byte, error) {
-	p, err := s.Struct.Ptr(0)
+	p, err := capnp.Struct(s).Ptr(0)
 	return p.TextBytes(), err
 }
 
 func (s DWLABImport_importData_Params) SetId(v string) error {
-	return s.Struct.SetText(0, v)
+	return capnp.Struct(s).SetText(0, v)
 }
 
 func (s DWLABImport_importData_Params) Dwla() ([]byte, error) {
-	p, err := s.Struct.Ptr(1)
+	p, err := capnp.Struct(s).Ptr(1)
 	return []byte(p.Data()), err
 }
 
 func (s DWLABImport_importData_Params) HasDwla() bool {
-	return s.Struct.HasPtr(1)
+	return capnp.Struct(s).HasPtr(1)
 }
 
 func (s DWLABImport_importData_Params) SetDwla(v []byte) error {
-	return s.Struct.SetData(1, v)
+	return capnp.Struct(s).SetData(1, v)
 }
 
 func (s DWLABImport_importData_Params) Dwlb() ([]byte, error) {
-	p, err := s.Struct.Ptr(2)
+	p, err := capnp.Struct(s).Ptr(2)
 	return []byte(p.Data()), err
 }
 
 func (s DWLABImport_importData_Params) HasDwlb() bool {
-	return s.Struct.HasPtr(2)
+	return capnp.Struct(s).HasPtr(2)
 }
 
 func (s DWLABImport_importData_Params) SetDwlb(v []byte) error {
-	return s.Struct.SetData(2, v)
+	return capnp.Struct(s).SetData(2, v)
 }
 
 // DWLABImport_importData_Params_List is a list of DWLABImport_importData_Params.
-type DWLABImport_importData_Params_List struct{ capnp.List }
+type DWLABImport_importData_Params_List = capnp.StructList[DWLABImport_importData_Params]
 
 // NewDWLABImport_importData_Params creates a new list of DWLABImport_importData_Params.
 func NewDWLABImport_importData_Params_List(s *capnp.Segment, sz int32) (DWLABImport_importData_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 3}, sz)
-	return DWLABImport_importData_Params_List{l}, err
-}
-
-func (s DWLABImport_importData_Params_List) At(i int) DWLABImport_importData_Params {
-	return DWLABImport_importData_Params{s.List.Struct(i)}
-}
-
-func (s DWLABImport_importData_Params_List) Set(i int, v DWLABImport_importData_Params) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s DWLABImport_importData_Params_List) String() string {
-	str, _ := text.MarshalList(0xeb03972caa23c7d2, s.List)
-	return str
+	return capnp.StructList[DWLABImport_importData_Params](l), err
 }
 
 // DWLABImport_importData_Params_Future is a wrapper for a DWLABImport_importData_Params promised by a client call.
 type DWLABImport_importData_Params_Future struct{ *capnp.Future }
 
-func (p DWLABImport_importData_Params_Future) Struct() (DWLABImport_importData_Params, error) {
-	s, err := p.Future.Struct()
-	return DWLABImport_importData_Params{s}, err
+func (f DWLABImport_importData_Params_Future) Struct() (DWLABImport_importData_Params, error) {
+	p, err := f.Future.Ptr()
+	return DWLABImport_importData_Params(p.Struct()), err
 }
 
-type DWLABImport_importData_Results struct{ capnp.Struct }
+type DWLABImport_importData_Results capnp.Struct
 
 // DWLABImport_importData_Results_TypeID is the unique identifier for the type DWLABImport_importData_Results.
 const DWLABImport_importData_Results_TypeID = 0xb9bc568c49fcca07
 
 func NewDWLABImport_importData_Results(s *capnp.Segment) (DWLABImport_importData_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return DWLABImport_importData_Results{st}, err
+	return DWLABImport_importData_Results(st), err
 }
 
 func NewRootDWLABImport_importData_Results(s *capnp.Segment) (DWLABImport_importData_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return DWLABImport_importData_Results{st}, err
+	return DWLABImport_importData_Results(st), err
 }
 
 func ReadRootDWLABImport_importData_Results(msg *capnp.Message) (DWLABImport_importData_Results, error) {
 	root, err := msg.Root()
-	return DWLABImport_importData_Results{root.Struct()}, err
+	return DWLABImport_importData_Results(root.Struct()), err
 }
 
 func (s DWLABImport_importData_Results) String() string {
-	str, _ := text.Marshal(0xb9bc568c49fcca07, s.Struct)
+	str, _ := text.Marshal(0xb9bc568c49fcca07, capnp.Struct(s))
 	return str
 }
 
+func (s DWLABImport_importData_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (DWLABImport_importData_Results) DecodeFromPtr(p capnp.Ptr) DWLABImport_importData_Results {
+	return DWLABImport_importData_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s DWLABImport_importData_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s DWLABImport_importData_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s DWLABImport_importData_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s DWLABImport_importData_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
 func (s DWLABImport_importData_Results) Id() (string, error) {
-	p, err := s.Struct.Ptr(0)
+	p, err := capnp.Struct(s).Ptr(0)
 	return p.Text(), err
 }
 
 func (s DWLABImport_importData_Results) HasId() bool {
-	return s.Struct.HasPtr(0)
+	return capnp.Struct(s).HasPtr(0)
 }
 
 func (s DWLABImport_importData_Results) IdBytes() ([]byte, error) {
-	p, err := s.Struct.Ptr(0)
+	p, err := capnp.Struct(s).Ptr(0)
 	return p.TextBytes(), err
 }
 
 func (s DWLABImport_importData_Results) SetId(v string) error {
-	return s.Struct.SetText(0, v)
+	return capnp.Struct(s).SetText(0, v)
 }
 
 func (s DWLABImport_importData_Results) SuccessA() bool {
-	return s.Struct.Bit(0)
+	return capnp.Struct(s).Bit(0)
 }
 
 func (s DWLABImport_importData_Results) SetSuccessA(v bool) {
-	s.Struct.SetBit(0, v)
+	capnp.Struct(s).SetBit(0, v)
 }
 
 func (s DWLABImport_importData_Results) SuccessB() bool {
-	return s.Struct.Bit(1)
+	return capnp.Struct(s).Bit(1)
 }
 
 func (s DWLABImport_importData_Results) SetSuccessB(v bool) {
-	s.Struct.SetBit(1, v)
+	capnp.Struct(s).SetBit(1, v)
 }
 
 // DWLABImport_importData_Results_List is a list of DWLABImport_importData_Results.
-type DWLABImport_importData_Results_List struct{ capnp.List }
+type DWLABImport_importData_Results_List = capnp.StructList[DWLABImport_importData_Results]
 
 // NewDWLABImport_importData_Results creates a new list of DWLABImport_importData_Results.
 func NewDWLABImport_importData_Results_List(s *capnp.Segment, sz int32) (DWLABImport_importData_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1}, sz)
-	return DWLABImport_importData_Results_List{l}, err
-}
-
-func (s DWLABImport_importData_Results_List) At(i int) DWLABImport_importData_Results {
-	return DWLABImport_importData_Results{s.List.Struct(i)}
-}
-
-func (s DWLABImport_importData_Results_List) Set(i int, v DWLABImport_importData_Results) error {
-	return s.List.SetStruct(i, v.Struct)
-}
-
-func (s DWLABImport_importData_Results_List) String() string {
-	str, _ := text.MarshalList(0xb9bc568c49fcca07, s.List)
-	return str
+	return capnp.StructList[DWLABImport_importData_Results](l), err
 }
 
 // DWLABImport_importData_Results_Future is a wrapper for a DWLABImport_importData_Results promised by a client call.
 type DWLABImport_importData_Results_Future struct{ *capnp.Future }
 
-func (p DWLABImport_importData_Results_Future) Struct() (DWLABImport_importData_Results, error) {
-	s, err := p.Future.Struct()
-	return DWLABImport_importData_Results{s}, err
+func (f DWLABImport_importData_Results_Future) Struct() (DWLABImport_importData_Results, error) {
+	p, err := f.Future.Ptr()
+	return DWLABImport_importData_Results(p.Struct()), err
 }
 
-const schema_c4b468a2826bb79b = "x\xda\xac\x90?\xab\x13A\x14\xc5\xcf\xb9\xb3\xfbV!" +
-	"\xe11l*;Q\x10\x1e//\x914QP\x92\x10" +
-	"\xd1H\x84\x9d \x0a\xc1f\x92]0\x98\x98\x90\xdd\x90" +
-	"\xde\xda\xdeB,\x14\xab\x80\xa4\x11D\xb0\x12A\xb0\xb4" +
-	"\xf7\x13\xf8\x09\x02\xc2\xca\xba\xe4Oc!\xd8\xdd\xfb\xe3" +
-	"\xcc\x9c\xdfL\xf5\x98\x0d\xb9\xea^q\x00Su\x8f\xd2" +
-	"\xe9\xeaf\xe9\xd5\xbb\xb7\xaf\xa1OU\xfa\xf2\xc3\x93g" +
-	"o\x1e\xbf\xff\x02\xb0\xb6\xe1g\xfaZ<\xc0/\xcam" +
-	"\xffZ6\xa5\xde\xb7_\x9d\xe7\x0f>}\x84\xa9\x93\x80" +
-	"K\x0f\xa8]\x94\xbe\x80\xfe\x0dY\x83\xe9\xf7\xaf\x97V" +
-	"\xa7/\xd4O\xe8z\x16PY\xe0\x87\xf4\xb2\xc0F\xd6" +
-	"\x08\xd3\xc94\x8c\xc6\x95et4\x88\xe6Q\x9cT\x96" +
-	"\xd1\xa0\x9c\x8f\xe5\xd0&\xb6<\x9a\xcc\xa6\xf3\xe4lh" +
-	"gOg\xd7\xdb\x0f\xbb\xcdV\xe7\x0fA@\x1aG\xb9" +
-	"\xc0\xae\x83[\x1d\xad\xfb\x10}\xdeK\xf3\xc3m\x0b\x95" +
-	"\xd8\x06\x03rWw\xee\x1f\xeb\xce\xb6W%\xf6r/" +
-	"\x8a\x17c\x95\xc4\xa6\xa0\x1c\xc0!\xa0o]\x00LC" +
-	"\xd1t\x85d)\xfb\x0c\xdd\xb9\x0b\x98;\x8a\xe6\xbeP" +
-	"\x0bK\x14@\x9b\x0c\x06\x8a\xe6\x91P\x8dB\x16 ," +
-	"\x80i\xbc\x18\x0e\xa38n\x02 !\xe4\x9e\xb5\x0e\xd9" +
-	"\xff\xf0\x0f\xec\xdcN\xf87}\xbd\xf3?\x01L[\xd1" +
-	"\x04\x99\xbf\xe4\xfe\xf7N\xf6\x8f:\xf0?\x0e\x97c\xcb" +
-	"\"\x84\xc5|\x19l\x97\xdf\x01\x00\x00\xff\xff\x01\xdc\x99" +
-	"\xea"
+const schema_c4b468a2826bb79b = "x\xda\xac\x90?\xab\x13A\x14\xc5\xcf\xb9\xb3y\xab\x90" +
+	"E\x86Me'\x0a\xc2\xe3\xe5%\x92&\x0aJ\x12\"" +
+	"\x1a\x89\xb0\x13D!\xd8L\xb2\x0b\x06\x13\x13\xb2\x1b\xd2" +
+	"[\xdb[\x88\x85b\x15\x904\x82\x08V\"\x08\x96\xf6" +
+	"~\x02?A@XY\x97\xfci,\x84\xd7\xdd\xfb\xe3" +
+	"\xcc\x9c\xdfLU\xb3\xe1\\\xf3\xae:\x10S-\x1c\xa5" +
+	"\xd3\xd5\xad\xd2\xeb\xf7\xef\xde@\x9f\xa8\xf4\xd5\xc7\xa7\xcf" +
+	"\xdf>\xf9\xf0\x15`m\xc3/\xf4\xb5\xb8\x80\xef\xc9\x1d" +
+	"\xffz6\xa5\xee\xf7\xdf\x9d\x17\x0f?\x7f\x82\xa9\x93@" +
+	"\x81.P\xbb$}\x01\xfd\x9b\xb2\x06\xd3\x1f\xdf.\xaf" +
+	"N^\xaa_\xd0\xf5,\xa0\xb2\xc0O\xe9e\x81\x8d\xac" +
+	"\x11\xa6\x93i\x18\x8d+\xcb\xe8h\x10\xcd\xa38\xa9," +
+	"\xa3A9\x1f\xcb\xa1Mly4\x99M\xe7\xc9\xe9\xd0" +
+	"\xce\x9e\xcdn\xb4\x1fu\x9b\xad\xce_\x82\x804\x8e*" +
+	"\x00\xbb\x0enu\xb4\xeeC\xf4y7\xcd\x0f\xb7-T" +
+	"b\x1b\x0c\xc8]\xdd\xb9\xff\xac;\xdd^\x95\xd8+\xbd" +
+	"(^\x8cU\x12\x9b\xa2r\x00\x87\x80\xbe}\x110\x0d" +
+	"E\xd3\x15\x92\xa5\xec3t\xe7\x1e`\xee*\x9a\x07B" +
+	"-,Q\x00m2\x18(\x9a\xc7B5\x0aY\x84\xb0" +
+	"\x08\xa6\xf1b8\x8c\xe2\xb8\x09\x80\x84\x90{\xd6:d" +
+	"g\xe1\x1f\xd8\xb9\x9d\xf0_\xfaz\xe7\x7f\x0c\x98\xb6\xa2" +
+	"\x092\x7f\xc9\xfd\xef\x1f\xef\x1fu\xe0\x7f!\\\x8e-" +
+	"=\x08\xbd|\x19l\x97?\x01\x00\x00\xff\xff\"\xdc\x99" +
+	"\xf8"
 
-func init() {
-	schemas.Register(schema_c4b468a2826bb79b,
-		0xa1a4ad9d143eaa6f,
-		0xb9bc568c49fcca07,
-		0xeb03972caa23c7d2)
+func RegisterSchema(reg *schemas.Registry) {
+	reg.Register(&schemas.Schema{
+		String: schema_c4b468a2826bb79b,
+		Nodes: []uint64{
+			0xa1a4ad9d143eaa6f,
+			0xb9bc568c49fcca07,
+			0xeb03972caa23c7d2,
+		},
+		Compressed: true,
+	})
 }
