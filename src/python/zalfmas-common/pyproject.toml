@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "zalfmas-common"
-version = "0.1.5"
-description = ""
+version = "0.1.7"
+description = "Common code for ZALF MAS projects"
 authors = ["Michael Berg-Mohnicke <michael.berg@zalf.de>"]
 readme = "README.md"
 
@@ -12,10 +12,10 @@ pysodium = "^0.7.17"
 pyproj = "^3.6.1"
 scipy = "^1.13.1"
 pandas = "^2.2.2"
-psutil = "^5.9.8"
+psutil = "^6.1.0"
 #zalfmas-capnpschemas = {path = "../../..", develop = true}
 tomlkit = "^0.13.2"
-zalfmas-capnp-schemas = "^0.1.0"
+zalfmas-capnp-schemas = "^0.1.2"
 
 
 [build-system]

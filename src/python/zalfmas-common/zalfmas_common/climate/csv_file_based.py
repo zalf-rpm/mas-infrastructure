@@ -65,7 +65,7 @@ class TimeSeries(climate_capnp.TimeSeries.Server, common.Identifiable, common.Pe
         self._header_map = header_map
         self._supported_headers = list(
             climate_capnp.Element.schema.enumerants.keys()) if supported_headers is None else supported_headers
-        self._pandas_csv_config_defaults = {"skip_rows": [1], "index_col": 0, "sep": ","}
+        self._pandas_csv_config_defaults = {"skiprows": [0], "index_col": 0, "sep": ","}
         self._pandas_csv_config = {**self._pandas_csv_config_defaults, **pandas_csv_config}
         self._transform_map = transform_map
 
@@ -102,20 +102,11 @@ class TimeSeries(climate_capnp.TimeSeries.Server, common.Identifiable, common.Pe
             # load csv file
             if self._path_to_csv and self._path_to_csv[-2:] == "gz":
                 with gzip.open(self._path_to_csv) as _:
-                    self._df = pd.read_csv(_,
-                                           skiprows=self._pandas_csv_config["skip_rows"],
-                                           index_col=self._pandas_csv_config["index_col"],
-                                           sep=self._pandas_csv_config["sep"])
+                    self._df = pd.read_csv(_, **self._pandas_csv_config)
             elif self._path_to_csv:
-                self._df = pd.read_csv(self._path_to_csv,
-                                       skiprows=self._pandas_csv_config["skip_rows"],
-                                       index_col=self._pandas_csv_config["index_col"],
-                                       sep=self._pandas_csv_config["sep"])
+                self._df = pd.read_csv(self._path_to_csv, **self._pandas_csv_config)
             else:
-                self._df = pd.read_csv(io.StringIO(self._csv_string),
-                                       skiprows=self._pandas_csv_config["skip_rows"],
-                                       index_col=self._pandas_csv_config["index_col"],
-                                       sep=self._pandas_csv_config["sep"])
+                self._df = pd.read_csv(io.StringIO(self._csv_string), **self._pandas_csv_config)
 
             if self._header_map:
                 self._df.rename(columns=self._header_map, inplace=True)

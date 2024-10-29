@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "zalfmas-services"
-version = "0.1.1"
+version = "0.1.3"
 description = ""
 authors = ["Michael Berg-Mohnicke <michael.berg@zalf.de>"]
 readme = "README.md"
@@ -11,7 +11,7 @@ pycapnp = "^2.0.0"
 numpy = "^2.1.2"
 tomli = "^2.0.1"
 #zalfmas-common = {path = "../zalfmas-common", develop = true}
-zalfmas-common = "^0.1.5"
+zalfmas-common = "^0.1.7"
 #zalfmas-capnpschemas = { path = "../../..", develop = true }
 #zalfmas-capnp-schemas = "^0.1.0"
 click = "^8.1.7"
