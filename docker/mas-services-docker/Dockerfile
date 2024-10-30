@@ -9,23 +9,49 @@ RUN git clone https://github.com/zalf-rpm/mas-infrastructure.git
 
 # default docker file for capnp python services
 # try alpine image python:3.9.20-alpine3.20
-FROM python:3.12-alpine3.20
+FROM python:3.10-alpine3.20
 
 # install capnproto
 RUN apk add --no-cache capnproto
 # install supervisor
 RUN apk add --no-cache supervisor
 
-RUN apk add --no-cache python3.9 python3-dev python3.9-venv 
+RUN python -m pip install virtualenv
+# install poetry
+RUN apk add --no-cache poetry
 
 # install python dependencies
 RUN pip install --no-cache-dir --upgrade pip
 
-COPY /mas-infrastructure/docker/mas-services-docker/requirements.txt /requirements.txt
+RUN apk add --no-cache build-base
 
-RUN python3.9 -m venv /envs/python3.9
-RUN source /envs/python3.9/bin/activate
-RUN pip install -r requirements.txt
+RUN apk add --no-cache \
+    gcc \
+    python3-dev \
+    musl-dev \
+    linux-headers \
+    proj \
+    proj-dev \
+    proj-util \
+    geos \
+    geos-dev
+
+RUN mkdir -p /envs
+
+ENV POETRY_VIRTUALENVS_PATH=/envs
+WORKDIR /envs
+# COPY --from=build-env /mas-infrastructure/docker/mas-services-docker/requirements.txt requirements.txt
+
+COPY --from=build-env /mas-infrastructure/src/python/zalfmas-services/poetry.lock poetry.lock
+COPY --from=build-env /mas-infrastructure/src/python/zalfmas-services/pyproject.toml pyproject.toml
+
+# RUN virtualenv pythonservice
+# RUN source pythonservice/bin/activate
+# #RUN pip install --no-cache-dir pyproj
+# RUN pip wheel --no-cache-dir --use-pep517 "pyproj (==3.7.0)"
+# # RUN pip wheel --no-cache-dir --use-pep517 "psutil (==6.1.0)"
+
+RUN poetry install --no-root
 
 ENV auto_restart=true
 
