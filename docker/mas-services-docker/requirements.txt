@@ -59,7 +59,7 @@ netcdf4==1.6.2
 numexpr==2.8.4
 olefile==0.46
 openjpeg==2.4.0
-openssl==1.1.1v
+openssl==1.1.1
 packaging==22.0
 pcre==8.45
 pillow==8.3.1
