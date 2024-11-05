@@ -34,7 +34,8 @@ RUN apk add --no-cache \
     proj-dev \
     proj-util \
     geos \
-    geos-dev
+    geos-dev \
+    libsodium
 
 RUN mkdir -p /envs
 
