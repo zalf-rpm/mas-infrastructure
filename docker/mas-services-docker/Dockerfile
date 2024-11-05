@@ -72,9 +72,12 @@ COPY --from=build-env /mas-infrastructure/docker/mas-services-docker/supervisord
 # copy capnp schemas
 COPY --from=build-env /mas-infrastructure/capnproto_schemas /mas-infrastructure/capnproto_schemas
 
-# flag to start each service
+# start csv time series service
 ENV autostart_csv_time_series=false
+ENV data_csv_time_series=/data/csv_time_series
+
 ENV autostart_dwd_core_ensemble=false
+ENV config_dwd_core_ensemble=/data/dwd_core_ensemble
 
 # restart the service if it crashes
 ENV auto_restart=true
