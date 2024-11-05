@@ -14,6 +14,52 @@
 
 import sqlite3
 
+def create_env_soil_profile_entry_from_capnp_soil_layers(sp_layers):
+    sp_data = []
+    for layer in sp_layers:
+        layer_desc = {"Thickness": [layer.size, "m"]}
+        for prop in layer.properties:
+            if prop.name == "soilType" and prop.which == "type":
+                layer_desc["KA5TextureClass"] = prop.type
+            elif prop.name == "sand" and prop.which == "f32Value":
+                layer_desc["Sand"] = [prop.f32Value / 100.0, "kg kg-1"]
+            elif prop.name == "clay" and prop.which == "f32Value":
+                layer_desc["Clay"] = [prop.f32Value / 100.0, "kg kg-1"]
+            elif prop.name == "organicCarbon" and prop.which == "f32Value":
+                layer_desc["SoilOrganicCarbon"] = [prop.f32Value, "%"]
+            elif prop.name == "organicMatter" and prop.which == "f32Value":
+                layer_desc["SoilOrganicMatter"] = [prop.f32Value / 100.0, "%"]
+            elif prop.name == "bulkDensity" and prop.which == "f32Value":
+                layer_desc["SoilBulkDensity"] = [prop.f32Value, "kg/m^3"]
+            elif prop.name == "rawDensity" and prop.which == "f32Value":
+                layer_desc["SoilRawDensity"] = [prop.f32Value, "kg/m^3"]
+            elif prop.name == "pH" and prop.which == "f32Value":
+                layer_desc["pH"] = [prop.f32Value, "pH"]
+            elif prop.name == "sceleton" and prop.which == "f32Value":
+                layer_desc["Sceleton"] = [prop.f32Value / 100.0, "fraction"]
+            elif prop.name == "fieldCapacity" and prop.which == "f32Value":
+                layer_desc["FieldCapacity"] = [prop.f32Value / 100.0, "m3 m-3"]
+            elif prop.name == "permanentWiltingPoint" and prop.which == "f32Value":
+                layer_desc["PermanentWiltingPoint"] = [prop.f32Value / 100.0, "m3 m-3"]
+            elif prop.name == "saturation" and prop.which == "f32Value":
+                layer_desc["PoreVolume"] = [prop.f32Value / 100.0, "m3 m-3"]
+            elif prop.name == "soilMoisture" and prop.which == "f32Value":
+                layer_desc["SoilMoisturePercentFC"] = [prop.f32Value, "%"]
+            elif prop.name == "soilWaterConductivityCoefficient" and prop.which == "f32Value":
+                layer_desc["Lambda"] = [prop.f32Value, ""]
+            elif prop.name == "ammonium" and prop.which == "f32Value":
+                layer_desc["SoilAmmonium"] = [prop.f32Value, "kg NH4-N m-3"]
+            elif prop.name == "nitrate" and prop.which == "f32Value":
+                layer_desc["SoilNitrate"] = [prop.f32Value, "kg NO3-N m-3"]
+            elif prop.name == "cnRatio" and prop.which == "f32Value":
+                layer_desc["CN"] = [prop.f32Value, "ratio"]
+            elif prop.name == "inGroundwater" and prop.which == "bValue":
+                layer_desc["inGroundwater"] = prop.bValue
+            elif prop.name == "impenetrable" and prop.which == "bValue":
+                layer_desc["impenetrable"] = prop.bValue
+        sp_data.append(layer_desc)
+    return sp_data
+
 
 def soil_parameters(con, profile_id):
     """compatibility function to get soil parameters for older monica python scripts"""
