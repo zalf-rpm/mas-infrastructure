@@ -71,6 +71,13 @@ COPY --from=build-env /mas-infrastructure/docker/mas-services-docker/supervisord
 # copy capnp schemas
 COPY --from=build-env /mas-infrastructure/capnproto_schemas /mas-infrastructure/capnproto_schemas
 
+# flag to start each service
+ENV autostart_csv_time_series=false
+ENV autostart_dwd_core_ensemble=false
+
+# restart the service if it crashes
+ENV auto_restart=true
+
 # non root user
 RUN adduser -D myuser
 USER myuser
