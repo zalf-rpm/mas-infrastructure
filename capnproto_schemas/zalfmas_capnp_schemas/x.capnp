@@ -1,5 +1,8 @@
 @0xffd06af2f026177b;
 
+using Cxx = import "/capnp/c++.capnp";
+$Cxx.namespace("mas::schema::test");
+
 using Go = import "/capnp/go.capnp";
 $Go.package("test");
 $Go.import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/test");

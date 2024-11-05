@@ -30,10 +30,74 @@ Copyright (C) Leibniz Centre for Agricultural Landscape Research (ZALF)
 #include "common/restorable-service-main.h"
 #include "common/common.h"
 #include "test/a.capnp.h"
+#include "test/x.capnp.h"
+#include "climate/climate.capnp.h"
+#include "soil/soil.capnp.h"
+#include "model/model.capnp.h"
 
 using RSM = mas::infrastructure::common::RestorableServiceMain;
+using ST = mas::schema::common::StructuredText;
 
-class AServ final : public mas::rpc::test::A::Server
+class Y final : public mas::schema::test::Y::Server
+{
+public:
+  Y() = default;
+  virtual ~Y() noexcept(false) = default;
+
+  kj::Promise<void> m(MContext context) override {
+    std::cout << i++ << ": Hello " << context.getParams().getHello().cStr() << std::endl;
+    return kj::READY_NOW;
+  }
+
+  int i{0};
+};
+
+class EnvInstance final : public mas::schema::model::EnvInstance<ST, ST>::Server
+{
+public:
+  EnvInstance() {}
+
+  virtual ~EnvInstance() noexcept(false) {}
+
+  kj::Promise<void> run(RunContext context) override {
+    auto env = context.getParams().getEnv();
+    auto v = env.getRest().getValue();
+    std::cout << "v: " << v.cStr() << std::endl;
+    if (env.hasTimeSeries()) {
+      auto ts = context.getParams().getEnv().getTimeSeries().castAs<mas::schema::climate::TimeSeries>();
+      return ts.infoRequest().send().then([c = kj::mv(context)](auto &&resp) mutable {
+        std::cout << "ts id: " << resp.getId().cStr() << std::endl;
+        std::stringstream oss;
+        for (int i = 0; i < 10000; i++) oss << '.';
+        auto rs = c.getResults();
+        auto res = rs.initResult();
+        res.initStructure().setJson();
+        //context.getResults().setRes(oss.str());
+        res.setValue(oss.str());
+        if (c.getParams().getEnv().hasSoilProfile()){
+          auto s = c.getParams().getEnv().getSoilProfile().castAs<mas::schema::soil::Service>();
+          return s.infoRequest().send().then([c = kj::mv(c)](auto &&resp) {
+            std::cout << "soil id: " << resp.getId().cStr() << std::endl;
+          });
+        }
+        return (kj::Promise<void>)kj::READY_NOW;
+      });
+    } else {
+      std::stringstream oss;
+      for (int i = 0; i < 10000; i++) oss << '.';
+      auto rs = context.getResults();
+      auto res = rs.initResult();
+      res.initStructure().setJson();
+      //context.getResults().setRes(oss.str());
+      res.setValue(oss.str());
+      return kj::READY_NOW;
+    }
+  }
+
+  int i{0};
+};
+
+class AServ final : public mas::rpc::test::A<ST, ST>::Server
 {
 public:
   AServ() {}
@@ -41,10 +105,38 @@ public:
   virtual ~AServ() noexcept(false) {}
 
   kj::Promise<void> method(MethodContext context) override {
-    std::stringstream oss;
-    for(int i = 0; i < 10000; i++) oss << '.';
-    context.getResults().setRes(oss.str());
-    return kj::READY_NOW;
+    auto param = context.getParams().getParam();
+    auto v = param.getRest().getValue();
+    std::cout << "v: " << v.cStr() << std::endl;
+    if (param.hasTimeSeries()) {
+      auto ts = context.getParams().getParam().getTimeSeries().castAs<mas::schema::climate::TimeSeries>();
+      return ts.infoRequest().send().then([c = kj::mv(context)](auto &&resp) mutable {
+        std::cout << "ts id: " << resp.getId().cStr() << std::endl;
+        std::stringstream oss;
+        for (int i = 0; i < 10000; i++) oss << '.';
+        auto rs = c.getResults();
+        auto res = rs.initRes();
+        res.initStructure().setJson();
+        //context.getResults().setRes(oss.str());
+        res.setValue(oss.str());
+        if (c.getParams().getParam().hasSoilProfile()){
+        auto s = c.getParams().getParam().getSoilProfile().castAs<mas::schema::soil::Service>();
+          return s.infoRequest().send().then([c = kj::mv(c)](auto &&resp) {
+            std::cout << "soil id: " << resp.getId().cStr() << std::endl;
+          });
+        }
+        return (kj::Promise<void>)kj::READY_NOW;
+      });
+    } else {
+      std::stringstream oss;
+      for (int i = 0; i < 10000; i++) oss << '.';
+      auto rs = context.getResults();
+      auto res = rs.initRes();
+      res.initStructure().setJson();
+      //context.getResults().setRes(oss.str());
+      res.setValue(oss.str());
+      return kj::READY_NOW;
+    }
   }
 
   int i{0};
@@ -63,12 +155,14 @@ public:
   {
     KJ_LOG(INFO, "starting A");
 
-    mas::rpc::test::A::Client a = kj::heap<AServ>();
+    mas::schema::test::Y::Client a = kj::heap<Y>();
+    //mas::rpc::test::A<ST, ST>::Client a = kj::heap<AServ>();
+    //mas::schema::model::EnvInstance<ST, ST>::Client a = kj::heap<EnvInstance>();
     auto ownedRestorer = kj::heap<mas::infrastructure::common::Restorer>();
     restorer = ownedRestorer.get();
     conMan = kj::heap<mas::infrastructure::common::ConnectionManager>(ioContext, restorer);
     restorerClient = kj::mv(ownedRestorer);
-    auto portPromise = conMan->bind(restorerClient, host, 9999);
+    auto portPromise = conMan->bind(restorerClient, host, 9920);
     portPromise.then([this](auto port){
       return restorer->setPort(port).then([port](){
                                             return port;
@@ -78,7 +172,7 @@ public:
                                           }
       );
     }).wait(ioContext.waitScope);
-    auto sr = restorer->saveStr(a, "aaaa", nullptr, false).wait(ioContext.waitScope).sturdyRef;
+    auto sr = restorer->saveStr(a, "monica", nullptr, false).wait(ioContext.waitScope).sturdyRef;
     std::cout << "sr=" << sr.cStr() << std::endl;
 
     // Run forever, accepting connections and handling requests.

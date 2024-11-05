@@ -28,13 +28,16 @@ CAPNP_DECLARE_SCHEMA(86aae6bcee1a970d);
 CAPNP_DECLARE_SCHEMA(ac121e5aa82ca6bd);
 CAPNP_DECLARE_SCHEMA(c102bb9ca7ace092);
 CAPNP_DECLARE_SCHEMA(dcf58b9bef546812);
-CAPNP_DECLARE_SCHEMA(bab68c252196561b);
-CAPNP_DECLARE_SCHEMA(8be7edcd35d4c706);
-CAPNP_DECLARE_SCHEMA(c0e8eed87688cb46);
+CAPNP_DECLARE_SCHEMA(c64526206425c2ab);
+CAPNP_DECLARE_SCHEMA(f01d08c96dc98cc9);
+CAPNP_DECLARE_SCHEMA(d444a663531a6b53);
 
 }  // namespace schemas
 }  // namespace capnp
 
+namespace mas {
+namespace schema {
+namespace test {
 
 struct S {
   S() = delete;
@@ -149,8 +152,8 @@ struct Y::MResults {
   };
 };
 
-struct A {
-  A() = delete;
+struct Z {
+  Z() = delete;
 
 #if !CAPNP_LITE
   class Client;
@@ -162,13 +165,13 @@ struct A {
 
   #if !CAPNP_LITE
   struct _capnpPrivate {
-    CAPNP_DECLARE_INTERFACE_HEADER(bab68c252196561b)
+    CAPNP_DECLARE_INTERFACE_HEADER(c64526206425c2ab)
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
   };
   #endif  // !CAPNP_LITE
 };
 
-struct A::MParams {
+struct Z::MParams {
   MParams() = delete;
 
   class Reader;
@@ -176,14 +179,14 @@ struct A::MParams {
   class Pipeline;
 
   struct _capnpPrivate {
-    CAPNP_DECLARE_STRUCT_HEADER(8be7edcd35d4c706, 1, 0)
+    CAPNP_DECLARE_STRUCT_HEADER(f01d08c96dc98cc9, 1, 0)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
   };
 };
 
-struct A::MResults {
+struct Z::MResults {
   MResults() = delete;
 
   class Reader;
@@ -191,7 +194,7 @@ struct A::MResults {
   class Pipeline;
 
   struct _capnpPrivate {
-    CAPNP_DECLARE_STRUCT_HEADER(c0e8eed87688cb46, 1, 0)
+    CAPNP_DECLARE_STRUCT_HEADER(d444a663531a6b53, 1, 0)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
@@ -219,7 +222,7 @@ public:
 
   inline bool hasC() const;
 #if !CAPNP_LITE
-  inline  ::X::Client getC() const;
+  inline  ::mas::schema::test::X::Client getC() const;
 #endif  // !CAPNP_LITE
 
 private:
@@ -252,11 +255,11 @@ public:
 
   inline bool hasC();
 #if !CAPNP_LITE
-  inline  ::X::Client getC();
-  inline void setC( ::X::Client&& value);
-  inline void setC( ::X::Client& value);
-  inline void adoptC(::capnp::Orphan< ::X>&& value);
-  inline ::capnp::Orphan< ::X> disownC();
+  inline  ::mas::schema::test::X::Client getC();
+  inline void setC( ::mas::schema::test::X::Client&& value);
+  inline void setC( ::mas::schema::test::X::Client& value);
+  inline void adoptC(::capnp::Orphan< ::mas::schema::test::X>&& value);
+  inline ::capnp::Orphan< ::mas::schema::test::X> disownC();
 #endif  // !CAPNP_LITE
 
 private:
@@ -277,7 +280,7 @@ public:
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
       : _typeless(kj::mv(typeless)) {}
 
-  inline  ::X::Client getC();
+  inline  ::mas::schema::test::X::Client getC();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -305,7 +308,7 @@ public:
   Client& operator=(Client& other);
   Client& operator=(Client&& other);
 
-  ::capnp::Request< ::X::MParams,  ::X::MResults> mRequest(
+  ::capnp::Request< ::mas::schema::test::X::MParams,  ::mas::schema::test::X::MResults> mRequest(
       ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
 
 protected:
@@ -323,14 +326,14 @@ public:
       override;
 
 protected:
-  typedef  ::X::MParams MParams;
-  typedef  ::X::MResults MResults;
+  typedef  ::mas::schema::test::X::MParams MParams;
+  typedef  ::mas::schema::test::X::MResults MResults;
   typedef ::capnp::CallContext<MParams, MResults> MContext;
   virtual ::kj::Promise<void> m(MContext context);
 
-  inline  ::X::Client thisCap() {
+  inline  ::mas::schema::test::X::Client thisCap() {
     return ::capnp::Capability::Server::thisCap()
-        .template castAs< ::X>();
+        .template castAs< ::mas::schema::test::X>();
   }
 
   ::capnp::Capability::Server::DispatchCallResult dispatchCallInternal(
@@ -515,7 +518,7 @@ public:
   Client& operator=(Client& other);
   Client& operator=(Client&& other);
 
-  ::capnp::Request< ::Y::MParams,  ::Y::MResults> mRequest(
+  ::capnp::Request< ::mas::schema::test::Y::MParams,  ::mas::schema::test::Y::MResults> mRequest(
       ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
 
 protected:
@@ -533,14 +536,14 @@ public:
       override;
 
 protected:
-  typedef  ::Y::MParams MParams;
-  typedef  ::Y::MResults MResults;
+  typedef  ::mas::schema::test::Y::MParams MParams;
+  typedef  ::mas::schema::test::Y::MResults MResults;
   typedef ::capnp::CallContext<MParams, MResults> MContext;
   virtual ::kj::Promise<void> m(MContext context);
 
-  inline  ::Y::Client thisCap() {
+  inline  ::mas::schema::test::Y::Client thisCap() {
     return ::capnp::Capability::Server::thisCap()
-        .template castAs< ::Y>();
+        .template castAs< ::mas::schema::test::Y>();
   }
 
   ::capnp::Capability::Server::DispatchCallResult dispatchCallInternal(
@@ -702,11 +705,11 @@ private:
 #endif  // !CAPNP_LITE
 
 #if !CAPNP_LITE
-class A::Client
+class Z::Client
     : public virtual ::capnp::Capability::Client {
 public:
-  typedef A Calls;
-  typedef A Reads;
+  typedef Z Calls;
+  typedef Z Reads;
 
   Client(decltype(nullptr));
   explicit Client(::kj::Own< ::capnp::ClientHook>&& hook);
@@ -720,17 +723,17 @@ public:
   Client& operator=(Client& other);
   Client& operator=(Client&& other);
 
-  ::capnp::Request< ::A::MParams,  ::A::MResults> mRequest(
+  ::capnp::Request< ::mas::schema::test::Z::MParams,  ::mas::schema::test::Z::MResults> mRequest(
       ::kj::Maybe< ::capnp::MessageSize> sizeHint = nullptr);
 
 protected:
   Client() = default;
 };
 
-class A::Server
+class Z::Server
     : public virtual ::capnp::Capability::Server {
 public:
-  typedef A Serves;
+  typedef Z Serves;
 
   ::capnp::Capability::Server::DispatchCallResult dispatchCall(
       uint64_t interfaceId, uint16_t methodId,
@@ -738,14 +741,14 @@ public:
       override;
 
 protected:
-  typedef  ::A::MParams MParams;
-  typedef  ::A::MResults MResults;
+  typedef  ::mas::schema::test::Z::MParams MParams;
+  typedef  ::mas::schema::test::Z::MResults MResults;
   typedef ::capnp::CallContext<MParams, MResults> MContext;
   virtual ::kj::Promise<void> m(MContext context);
 
-  inline  ::A::Client thisCap() {
+  inline  ::mas::schema::test::Z::Client thisCap() {
     return ::capnp::Capability::Server::thisCap()
-        .template castAs< ::A>();
+        .template castAs< ::mas::schema::test::Z>();
   }
 
   ::capnp::Capability::Server::DispatchCallResult dispatchCallInternal(
@@ -754,7 +757,7 @@ protected:
 };
 #endif  // !CAPNP_LITE
 
-class A::MParams::Reader {
+class Z::MParams::Reader {
 public:
   typedef MParams Reads;
 
@@ -785,7 +788,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class A::MParams::Builder {
+class Z::MParams::Builder {
 public:
   typedef MParams Builds;
 
@@ -814,7 +817,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class A::MParams::Pipeline {
+class Z::MParams::Pipeline {
 public:
   typedef MParams Pipelines;
 
@@ -830,7 +833,7 @@ private:
 };
 #endif  // !CAPNP_LITE
 
-class A::MResults::Reader {
+class Z::MResults::Reader {
 public:
   typedef MResults Reads;
 
@@ -861,7 +864,7 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class A::MResults::Builder {
+class Z::MResults::Builder {
 public:
   typedef MResults Builds;
 
@@ -890,7 +893,7 @@ private:
 };
 
 #if !CAPNP_LITE
-class A::MResults::Pipeline {
+class Z::MResults::Pipeline {
 public:
   typedef MResults Pipelines;
 
@@ -917,32 +920,32 @@ inline bool S::Builder::hasC() {
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
 #if !CAPNP_LITE
-inline  ::X::Client S::Reader::getC() const {
-  return ::capnp::_::PointerHelpers< ::X>::get(_reader.getPointerField(
+inline  ::mas::schema::test::X::Client S::Reader::getC() const {
+  return ::capnp::_::PointerHelpers< ::mas::schema::test::X>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::X::Client S::Builder::getC() {
-  return ::capnp::_::PointerHelpers< ::X>::get(_builder.getPointerField(
+inline  ::mas::schema::test::X::Client S::Builder::getC() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::test::X>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::X::Client S::Pipeline::getC() {
-  return  ::X::Client(_typeless.getPointerField(0).asCap());
+inline  ::mas::schema::test::X::Client S::Pipeline::getC() {
+  return  ::mas::schema::test::X::Client(_typeless.getPointerField(0).asCap());
 }
-inline void S::Builder::setC( ::X::Client&& cap) {
-  ::capnp::_::PointerHelpers< ::X>::set(_builder.getPointerField(
+inline void S::Builder::setC( ::mas::schema::test::X::Client&& cap) {
+  ::capnp::_::PointerHelpers< ::mas::schema::test::X>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(cap));
 }
-inline void S::Builder::setC( ::X::Client& cap) {
-  ::capnp::_::PointerHelpers< ::X>::set(_builder.getPointerField(
+inline void S::Builder::setC( ::mas::schema::test::X::Client& cap) {
+  ::capnp::_::PointerHelpers< ::mas::schema::test::X>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), cap);
 }
 inline void S::Builder::adoptC(
-    ::capnp::Orphan< ::X>&& value) {
-  ::capnp::_::PointerHelpers< ::X>::adopt(_builder.getPointerField(
+    ::capnp::Orphan< ::mas::schema::test::X>&& value) {
+  ::capnp::_::PointerHelpers< ::mas::schema::test::X>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::X> S::Builder::disownC() {
-  return ::capnp::_::PointerHelpers< ::X>::disown(_builder.getPointerField(
+inline ::capnp::Orphan< ::mas::schema::test::X> S::Builder::disownC() {
+  return ::capnp::_::PointerHelpers< ::mas::schema::test::X>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 #endif  // !CAPNP_LITE
@@ -961,11 +964,11 @@ inline X::Client::Client(::kj::Promise<_t>&& promise)
     : ::capnp::Capability::Client(::kj::mv(promise)) {}
 inline X::Client::Client(::kj::Exception&& exception)
     : ::capnp::Capability::Client(::kj::mv(exception)) {}
-inline  ::X::Client& X::Client::operator=(Client& other) {
+inline  ::mas::schema::test::X::Client& X::Client::operator=(Client& other) {
   ::capnp::Capability::Client::operator=(other);
   return *this;
 }
-inline  ::X::Client& X::Client::operator=(Client&& other) {
+inline  ::mas::schema::test::X::Client& X::Client::operator=(Client&& other) {
   ::capnp::Capability::Client::operator=(kj::mv(other));
   return *this;
 }
@@ -1033,11 +1036,11 @@ inline Y::Client::Client(::kj::Promise<_t>&& promise)
     : ::capnp::Capability::Client(::kj::mv(promise)) {}
 inline Y::Client::Client(::kj::Exception&& exception)
     : ::capnp::Capability::Client(::kj::mv(exception)) {}
-inline  ::Y::Client& Y::Client::operator=(Client& other) {
+inline  ::mas::schema::test::Y::Client& Y::Client::operator=(Client& other) {
   ::capnp::Capability::Client::operator=(other);
   return *this;
 }
-inline  ::Y::Client& Y::Client::operator=(Client&& other) {
+inline  ::mas::schema::test::Y::Client& Y::Client::operator=(Client&& other) {
   ::capnp::Capability::Client::operator=(kj::mv(other));
   return *this;
 }
@@ -1078,57 +1081,60 @@ inline ::capnp::Orphan< ::capnp::Text> Y::MParams::Builder::disownHello() {
 }
 
 #if !CAPNP_LITE
-inline A::Client::Client(decltype(nullptr))
+inline Z::Client::Client(decltype(nullptr))
     : ::capnp::Capability::Client(nullptr) {}
-inline A::Client::Client(
+inline Z::Client::Client(
     ::kj::Own< ::capnp::ClientHook>&& hook)
     : ::capnp::Capability::Client(::kj::mv(hook)) {}
 template <typename _t, typename>
-inline A::Client::Client(::kj::Own<_t>&& server)
+inline Z::Client::Client(::kj::Own<_t>&& server)
     : ::capnp::Capability::Client(::kj::mv(server)) {}
 template <typename _t, typename>
-inline A::Client::Client(::kj::Promise<_t>&& promise)
+inline Z::Client::Client(::kj::Promise<_t>&& promise)
     : ::capnp::Capability::Client(::kj::mv(promise)) {}
-inline A::Client::Client(::kj::Exception&& exception)
+inline Z::Client::Client(::kj::Exception&& exception)
     : ::capnp::Capability::Client(::kj::mv(exception)) {}
-inline  ::A::Client& A::Client::operator=(Client& other) {
+inline  ::mas::schema::test::Z::Client& Z::Client::operator=(Client& other) {
   ::capnp::Capability::Client::operator=(other);
   return *this;
 }
-inline  ::A::Client& A::Client::operator=(Client&& other) {
+inline  ::mas::schema::test::Z::Client& Z::Client::operator=(Client&& other) {
   ::capnp::Capability::Client::operator=(kj::mv(other));
   return *this;
 }
 
 #endif  // !CAPNP_LITE
-inline  ::int64_t A::MParams::Reader::getN() const {
+inline  ::int64_t Z::MParams::Reader::getN() const {
   return _reader.getDataField< ::int64_t>(
       ::capnp::bounded<0>() * ::capnp::ELEMENTS);
 }
 
-inline  ::int64_t A::MParams::Builder::getN() {
+inline  ::int64_t Z::MParams::Builder::getN() {
   return _builder.getDataField< ::int64_t>(
       ::capnp::bounded<0>() * ::capnp::ELEMENTS);
 }
-inline void A::MParams::Builder::setN( ::int64_t value) {
+inline void Z::MParams::Builder::setN( ::int64_t value) {
   _builder.setDataField< ::int64_t>(
       ::capnp::bounded<0>() * ::capnp::ELEMENTS, value);
 }
 
-inline double A::MResults::Reader::getR() const {
+inline double Z::MResults::Reader::getR() const {
   return _reader.getDataField<double>(
       ::capnp::bounded<0>() * ::capnp::ELEMENTS);
 }
 
-inline double A::MResults::Builder::getR() {
+inline double Z::MResults::Builder::getR() {
   return _builder.getDataField<double>(
       ::capnp::bounded<0>() * ::capnp::ELEMENTS);
 }
-inline void A::MResults::Builder::setR(double value) {
+inline void Z::MResults::Builder::setR(double value) {
   _builder.setDataField<double>(
       ::capnp::bounded<0>() * ::capnp::ELEMENTS, value);
 }
 
+}  // namespace
+}  // namespace
+}  // namespace
 
 CAPNP_END_HEADER
 
