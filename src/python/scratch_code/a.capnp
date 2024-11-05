@@ -1,26 +1,22 @@
 @0xc4b468a2826bb79b;
 
-
 using Cxx = import "/capnp/c++.capnp";
-$Cxx.namespace("mas::rpc");
+$Cxx.namespace("mas::rpc::test");
 
-interface A {
-    method @0 (param :Text) -> (res :Text);
-    m @1 (id :UInt64) -> (count :UInt64);
+using Java = import "/capnp/java.capnp";
+$Java.package("de.zalf.mas");
+$Java.outerClassname("OuterA");
+
+using Go = import "/capnp/go.capnp";
+$Go.package("test");
+$Go.import("github.com/zalf-rpm/mas-infrastructure/capnproto_schemas/gen/go/test");
+
+struct Env(RestInput) {
+  rest @0 :RestInput;
+  timeSeries @1 :Capability;
+  soilProfile @2 :Capability;
 }
 
-interface S {
-    getCB @0 () -> (cb :CB);
-}
-
-interface CB {
-    getD @0 () -> (d :D);
-}
-
-interface D {
-    getData @0 () -> (i :UInt64, data :Data);#List(UInt64));
-}
-
-struct X {
-    t @0 :Text;
+interface A(S, T) {
+    method @0 (param :Env(S)) -> (res :T);
 }
