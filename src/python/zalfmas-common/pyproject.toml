@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "zalfmas-common"
-version = "0.1.7"
+version = "0.1.8"
 description = "Common code for ZALF MAS projects"
 authors = ["Michael Berg-Mohnicke <michael.berg@zalf.de>"]
 readme = "README.md"

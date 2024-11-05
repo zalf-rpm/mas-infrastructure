@@ -7,7 +7,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-zalfmas-common = "^0.1.5"
+zalfmas-common = "^0.1.7"
 
 
 [build-system]
