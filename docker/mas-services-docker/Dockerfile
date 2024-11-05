@@ -61,9 +61,9 @@ ENV climate_sturdy_ref=none
 
 
 # copy python scripts from build-env
-RUN mkdir -p /mas-infrastructure/zalfmas_services/climate
-COPY --from=build-env /mas-infrastructure/src/python/zalfmas-services/zalfmas_services/climate/dwd_core_ensemble_service.py  /mas-infrastructure/src/python/zalfmas_services/zalfmas_services/climate/dwd_core_ensemble_service.py 
-COPY --from=build-env /mas-infrastructure/src/python/zalfmas-services/zalfmas_services/climate/csv_time_series_service.py  /mas-infrastructure/src/python/zalfmas-services/zalfmas_services/climate/csv_time_series_service.py 
+RUN mkdir -p /mas-infrastructure/src/python/zalfmas-services/zalfmas_services/climate
+COPY --from=build-env /mas-infrastructure/src/python/zalfmas-services/zalfmas_services/climate/dwd_core_ensemble_service.py  /mas-infrastructure/src/python/zalfmas-services/zalfmas_services/climate/dwd_core_ensemble_service.py 
+COPY --from=build-env /mas-infrastructure/src/python/zalfmas-services/zalfmas_services/climate/csv_time_series_service.py    /mas-infrastructure/src/python/zalfmas-services/zalfmas_services/climate/csv_time_series_service.py 
 
 # copy the supervisor configuration
 COPY --from=build-env /mas-infrastructure/docker/mas-services-docker/start_supervisor.sh /start.sh
