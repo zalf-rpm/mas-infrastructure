@@ -8,14 +8,13 @@
 # Maintainers:
 # Currently maintained by the authors.
 #
-# This file is part of the MONICA model created at the Institute of
-# Landscape Systems Analysis at the ZALF.
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
+from collections import defaultdict
+import csv
 import json
 import os
-from pathlib import Path
-import sys
+from io import StringIO
 from zalfmas_common.soil import soil_io
 
 CACHE_REFS = False
@@ -99,7 +98,7 @@ def write_output_header_rows(output_ids,
                              include_header_row=True,
                              include_units_row=True,
                              include_time_agg=False):
-    "write header rows"
+    """write header rows"""
     row1 = []
     row2 = []
     row3 = []
@@ -165,8 +164,10 @@ def write_output(output_ids, values, round_ids=None):
     return out
 
 
-def write_output_obj(output_ids, values, round_ids={}):
-    "write actual output lines"
+def write_output_obj(output_ids, values, round_ids=None):
+    """write actual output lines"""
+    if round_ids is None:
+        round_ids = {}
     out = []
     for obj in values:
         row = []
@@ -181,17 +182,47 @@ def write_output_obj(output_ids, values, round_ids={}):
         out.append(row)
     return out
 
+def create_csv_strings_from_json_result(msg,
+                                        is_obj_msg=False,
+                                        delimiter=",",
+                                        include_header_row=True,
+                                        include_units_row=True,
+                                        include_time_agg=False,
+                                        round_ids=None):
+    out = []
+
+    for section in msg.get("data", []):
+        results = section.get("results", [])
+        orig_spec = section.get("origSpec", "")
+        output_ids = section.get("outputIds", [])
+
+        sio = StringIO()
+        writer = csv.writer(sio, delimiter=delimiter)
+
+        if len(results) > 0:
+            for row in write_output_header_rows(output_ids,
+                                                include_header_row=include_header_row,
+                                                include_units_row=include_units_row,
+                                                include_time_agg=include_time_agg):
+                writer.writerow(row)
+            for row in write_output_obj(output_ids, results, round_ids=round_ids) \
+                    if is_obj_msg else write_output(output_ids, results, round_ids=round_ids):
+                writer.writerow(row)
+
+        out.append((orig_spec.replace("\"", ""), sio.getvalue()))
+    return out
+
 
 def is_absolute_path(p):
-    "is absolute path"
+    """is absolute path"""
     return p.startswith("/") \
         or (len(p) == 2 and p[1] == ":") \
-        or (len(p) > 2 and p[1] == ":" \
-            and (p[2] == "\\" \
-                or p[2] == "/"))
+        or (len(p) > 2 and p[1] == ":"
+            and (p[2] == "\\"
+                 or p[2] == "/"))
 
 def fix_system_separator(path):
-    "fix system separator"
+    """fix system separator"""
     path = path.replace("\\", "/")
     new_path = path
     while True:
@@ -202,7 +233,7 @@ def fix_system_separator(path):
     return new_path
 
 def replace_env_vars(path):
-    "replace ${ENV_VAR} in path"
+    """replace ${ENV_VAR} in path"""
     start_token = "${"
     end_token = "}"
     start_pos = path.find(start_token)
@@ -224,7 +255,7 @@ def replace_env_vars(path):
 
 
 def default_value(dic, key, default):
-    "return default value if key not there"
+    """return default value if key not there"""
     return dic[key] if key in dic else default
 
 
@@ -344,153 +375,8 @@ def supported_patterns():
                 "errors": ["Couldn't resolve reference: " + json.dumps(j) + "!"],
                 "success" : False}
 
-    '''
-    auto fromDb = [](const Json&, const Json& j) -> EResult<Json>
-    {
-        if((j.array_items().size() >= 3 && j[1].is_string())
-           || (j.array_items().size() == 2 && j[1].is_object()))
-        {
-            bool isParamMap = j[1].is_object();
-
-            auto type = isParamMap ? j[1]["type"].string_value() :j[1].string_value();
-            string err;
-            string db = isParamMap && j[1].has_shape({{"db", Json::STRING}}, err)
-                        ? j[1]["db"].string_value()
-                        : "";
-            if(type == "mineral_fertiliser")
-            {
-                if(db.empty())
-                    db = "monica";
-                auto name = isParamMap ? j[1]["name"].string_value() : j[2].string_value();
-                return{getMineralFertiliserParametersFromMonicaDB(name, db).to_json()};
-            }
-            else if(type == "organic_fertiliser")
-            {
-                if(db.empty())
-                    db = "monica";
-                auto name = isParamMap ? j[1]["name"].string_value() : j[2].string_value();
-                return{getOrganicFertiliserParametersFromMonicaDB(name, db)->to_json()};
-            }
-            else if(type == "crop_residue"
-                    && j.array_items().size() >= 3)
-            {
-                if(db.empty())
-                    db = "monica";
-                auto species = isParamMap ? j[1]["species"].string_value() : j[2].string_value();
-                auto residueType = isParamMap ? j[1]["residue-type"].string_value()
-                                              : j.array_items().size() == 4 ? j[3].string_value()
-                                                                            : "";
-                return{getResidueParametersFromMonicaDB(species, residueType, db)->to_json()};
-            }
-            else if(type == "species")
-            {
-                if(db.empty())
-                    db = "monica";
-                auto species = isParamMap ? j[1]["species"].string_value() : j[2].string_value();
-                return{getSpeciesParametersFromMonicaDB(species, db)->to_json()};
-            }
-            else if(type == "cultivar"
-                    && j.array_items().size() >= 3)
-            {
-                if(db.empty())
-                    db = "monica";
-                auto species = isParamMap ? j[1]["species"].string_value() : j[2].string_value();
-                auto cultivar = isParamMap ? j[1]["cultivar"].string_value()
-                                           : j.array_items().size() == 4 ? j[3].string_value()
-                                                                         : "";
-                return{getCultivarParametersFromMonicaDB(species, cultivar, db)->to_json()};
-            }
-            else if(type == "crop"
-                    && j.array_items().size() >= 3)
-            {
-                if(db.empty())
-                    db = "monica";
-                auto species = isParamMap ? j[1]["species"].string_value() : j[2].string_value();
-                auto cultivar = isParamMap ? j[1]["cultivar"].string_value()
-                                           : j.array_items().size() == 4 ? j[3].string_value()
-                                                                         : "";
-                return{getCropParametersFromMonicaDB(species, cultivar, db)->to_json()};
-            }
-            else if(type == "soil-temperature-params")
-            {
-                if(db.empty())
-                    db = "monica";
-                auto module = isParamMap ? j[1]["name"].string_value() : j[2].string_value();
-                return{readUserSoilTemperatureParametersFromDatabase(module, db).to_json()};
-            }
-            else if(type == "environment-params")
-            {
-                if(db.empty())
-                    db = "monica";
-                auto module = isParamMap ? j[1]["name"].string_value() : j[2].string_value();
-                return{readUserEnvironmentParametersFromDatabase(module, db).to_json()};
-            }
-            else if(type == "soil-organic-params")
-            {
-                if(db.empty())
-                    db = "monica";
-                auto module = isParamMap ? j[1]["name"].string_value() : j[2].string_value();
-                return{readUserSoilOrganicParametersFromDatabase(module, db).to_json()};
-            }
-            else if(type == "soil-transport-params")
-            {
-                if(db.empty())
-                    db = "monica";
-                auto module = isParamMap ? j[1]["name"].string_value() : j[2].string_value();
-                return{readUserSoilTransportParametersFromDatabase(module, db).to_json()};
-            }
-            else if(type == "soil-moisture-params")
-            {
-                if(db.empty())
-                    db = "monica";
-                auto module = isParamMap ? j[1]["name"].string_value() : j[2].string_value();
-                return{readUserSoilTemperatureParametersFromDatabase(module, db).to_json()};
-            }
-            else if(type == "crop-params")
-            {
-                if(db.empty())
-                    db = "monica";
-                auto module = isParamMap ? j[1]["name"].string_value() : j[2].string_value();
-                return{readUserCropParametersFromDatabase(module, db).to_json()};
-            }
-            else if(type == "soil-profile"
-                    && (isParamMap
-                        || (!isParamMap && j[2].is_number())))
-            {
-                if(db.empty())
-                    db = "soil";
-                vector<Json> spjs;
-                int profileId = isParamMap ? j[1]["id"].int_value() : j[2].int_value();
-                auto sps = Soil::soilParameters(db, profileId);
-                for(auto sp : *sps)
-                    spjs.push_back(sp.to_json());
-
-                return{spjs};
-            }
-            else if(type == "soil-layer"
-                    && (isParamMap
-                        || (j.array_items().size() == 4
-                            && j[2].is_number()
-                            && j[3].is_number())))
-            {
-                if(db.empty())
-                    db = "soil";
-                int profileId = isParamMap ? j[1]["id"].int_value() : j[2].int_value();
-                size_t layerNo = size_t(isParamMap ? j[1]["no"].int_value() : j[3].int_value());
-                auto sps = Soil::soilParameters(db, profileId);
-                if(0 < layerNo && layerNo <= sps->size())
-                    return{sps->at(layerNo - 1).to_json()};
-
-                return{j, string("Couldn't load soil-layer from database: ") + j.dump() + "!"};
-            }
-        }
-
-        return{j, string("Couldn't load data from DB: ") + j.dump() + "!"};
-    };
-    '''
-
     def from_file(root, j__):
-        "include from file"
+        """include from file"""
         if len(j__) == 2 and is_string_type(j__[1]):
 
             base_path = default_value(root, "include-file-base-path", ".")
@@ -515,7 +401,7 @@ def supported_patterns():
         "convert humus level to corg"
         if len(j__) == 2 \
             and isinstance(j__[1], int):
-            return {"result": soil_io3.humus_class_to_corg(j__[1]), "errors": [], "success": True}
+            return {"result": soil_io.humus_class_to_corg(j__[1]), "errors": [], "success": True}
         return {"result": j__,
                 "errors": ["Couldn't convert humus level to corg: " + json.dumps(j__) + "!"],
                 "success": False}
@@ -524,21 +410,21 @@ def supported_patterns():
         if len(j__) == 3 \
             and isinstance(j__[1], int) \
             and isinstance(j__[2], float):
-            return {"result": soil_io3.bulk_density_class_to_raw_density(j__[1], j__[2]), "errors": [], "success": True}
+            return {"result": soil_io.bulk_density_class_to_raw_density(j__[1], j__[2]), "errors": [], "success": True}
         return {"result": j__,
                 "errors": ["Couldn't convert bulk density class to raw density using function: " + json.dumps(j__) + "!"],
                 "success": False}
 
     def ka5_to_clay(_, j__):
         if len(j__) == 2 and is_string_type(j__[1]):
-            return {"result": soil_io3.ka5_texture_to_clay(j__[1]), "errors": [], "success": True}
+            return {"result": soil_io.ka5_texture_to_clay(j__[1]), "errors": [], "success": True}
         return {"result": j__,
                 "errors": ["Couldn't get soil clay content from KA5 soil class: " + json.dumps(j__) + "!"],
                 "success": False}
 
     def ka5_to_sand(_, j__):
         if len(j__) == 2 and is_string_type(j__[1]):
-            return {"result": soil_io3.ka5_texture_to_sand(j__[1]), "errors": [], "success": True}
+            return {"result": soil_io.ka5_texture_to_sand(j__[1]), "errors": [], "success": True}
         return {"result": j__,
                 "errors": ["Couldn't get soil sand content from KA5 soil class: " + json.dumps(j__) + "!"],
                 "success": False}
@@ -547,7 +433,7 @@ def supported_patterns():
         if len(j__) == 3 \
             and isinstance(j__[1], float) \
             and isinstance(j__[2], float):
-            return {"result": soil_io3.sand_and_clay_to_lambda(j__[1], j__[2]), "errors": [], "success": True}
+            return {"result": soil_io.sand_and_clay_to_lambda(j__[1], j__[2]), "errors": [], "success": True}
         return {"result": j__,
                 "errors": ["Couldn't get lambda value from soil sand and clay content: " + json.dumps(j__) + "!"],
                 "success": False}
@@ -593,7 +479,8 @@ def print_possible_errors(errs, include_warnings=False):
 
 
 def create_env_json_from_json_config(crop_site_sim):
-    "create the json version of the env from the json config files"
+    """create the json version of the env from the json config files"""
+
     for k, j in crop_site_sim.items():
         if j is None:
             return None
@@ -601,7 +488,7 @@ def create_env_json_from_json_config(crop_site_sim):
     path_to_parameters = crop_site_sim["sim"]["include-file-base-path"]
 
     def add_base_path(j, base_path):
-        "add include file base path if not there"
+        """add include file base path if not there"""
         if not "include-file-base-path" in j:
             j["include-file-base-path"] = base_path
 
@@ -658,19 +545,34 @@ def create_env_json_from_json_config(crop_site_sim):
 
     climate_csv_string = crop_site_sim["climate"] if "climate" in crop_site_sim else ""
     if climate_csv_string:
-        add_climate_data_to_env(env, simj, climate_csv_string)
+        env["climateCSV"] = climate_csv_string
 
     return env
 
 
-def add_climate_data_to_env(env, simj, climate_csv_string=""):
-    "add climate data separately to env"
+def create_env_climate_data_dict_from_capnp_time_series_data(ts_header, ts_range, ts_data_transposed):
+    """add climate data from capnp time series structures separately to env"""
 
-    #if not climate_csv_string:
-    #    with open(simj["climate.csv"]) as _:
-    #        climate_csv_string = _.read()
+    ts_data = ts_data_transposed
+    data = {
+        "startDate": f"{ts_range.startDate.year:04d}-{ts_range.startDate.month:02d}-{ts_range.startDate.day:02d}",
+        "endDate": f"{ts_range.endDate.year:04d}-{ts_range.endDate.month:02d}-{ts_range.endDate.day:02d}",
+        "data": defaultdict(list),
+    }
+    for i, h in enumerate(ts_header):
+        if h == "tmin":
+            data["data"]["3"] = list(ts_data[i])
+        elif h == "tavg":
+            data["data"]["4"] = list(ts_data[i])
+        elif h == "tmax":
+            data["data"]["5"] = list(ts_data[i])
+        elif h == "precip":
+            data["data"]["6"] = list(ts_data[i])
+        elif h == "relhumid":
+            data["data"]["12"] = list(ts_data[i])
+        elif h == "wind":
+            data["data"]["9"] = list(ts_data[i])
+        elif h == "globrad":
+            data["data"]["8"] = list(ts_data[i])
 
-    #if climate_csv_string:
-    #    env["climateData"] = json.loads(monica_python.readClimateDataFromCSVStringViaHeadersToJsonString(climate_csv_string, json.dumps(simj["climate.csv-options"])))
-
-    return env
+    return data
