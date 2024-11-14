@@ -39,9 +39,10 @@ WORKDIR /envs
 
 COPY ./src/python/zalfmas-fbp/poetry.lock poetry.lock
 COPY ./src/python/zalfmas-fbp/pyproject.toml pyproject.toml
-
+# update the dependencies as defined in the pyproject.toml
+RUN poetry lock --no-update
+# install the dependencies as defined in the pyproject.toml
 RUN poetry install --no-root
-
 
 # copy python scripts from build-env
 RUN mkdir -p /mas-infrastructure/src/python/zalfmas-fbp/zalfmas_fbp/components
@@ -53,5 +54,7 @@ COPY ./src/python/zalfmas-fbp/zalfmas_fbp/components/read_file.py /mas-infrastru
 RUN adduser -D myuser
 USER myuser
 
-# run the service
+# run the service, the start.sh script expects the fbp component as first argument (optional other arguments, depending on the component)
+# docker run --rm <image> <component> <args>
+# e.g. docker run --rm zalfrpm/mas-fbp:0.1 read_file.py file=/path/to/file.txt
 ENTRYPOINT ["sh", "/start.sh"]

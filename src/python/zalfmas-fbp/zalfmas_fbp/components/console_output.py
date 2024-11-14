@@ -19,8 +19,8 @@ import os
 import sys
 from zalfmas_common import common
 from zalfmas_common import fbp
-import zalfmas_capnpschemas
-sys.path.append(os.path.dirname(zalfmas_capnpschemas.__file__))
+import zalfmas_capnp_schemas
+sys.path.append(os.path.dirname(zalfmas_capnp_schemas.__file__))
 import common_capnp
 import fbp_capnp
 
