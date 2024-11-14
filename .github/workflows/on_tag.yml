@@ -1,0 +1,45 @@
+name: Tag Created Workflow
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+
+  docker:
+
+    runs-on: ubuntu-latest
+
+    steps:
+        
+        - name: Checkout repository
+          uses: actions/checkout@v3
+
+        - name: Set up Docker Buildx
+          uses: docker/setup-buildx-action@v2
+
+        # login to docker hub
+        - name: Login to DockerHub
+          uses: docker/login-action@v2
+          with:
+            username: ${{ secrets.DOCKER_USERNAME }}
+            password: ${{ secrets.DOCKER_PASSWORD }}
+            
+        - name: Build and push Docker image mas-services
+          uses: docker/build-push-action@v4
+          with:
+              context: .
+              file: ./docker/mas-services/Dockerfile
+              push: true
+              # push with just the tag
+              tags: zalfrpm/mas-services:${{ github.ref_name }}    
+
+        - name: Build and push Docker image mas-fbp
+          uses: docker/build-push-action@v4
+          with:
+              context: .
+              file: ./docker/fbp/Dockerfile
+              push: true
+              # push with just the tag
+              tags: zalfrpm/mas-fbp:${{ github.ref_name }}
+
