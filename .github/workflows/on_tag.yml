@@ -26,10 +26,10 @@ jobs:
             password: ${{ secrets.DOCKER_PASSWORD }}
             
         - name: Build and push Docker image mas-services
-          uses: docker/build-push-action@v4
+          uses: docker/build-push-action@v6
           with:
               context: .
-              file: docker/mas-services/Dockerfile
+              file: docker/mas-services-docker/Dockerfile
               push: true
               # push with just the tag
               tags: zalfrpm/mas-services:${{ github.ref_name }}    
