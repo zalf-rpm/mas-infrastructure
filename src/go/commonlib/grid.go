@@ -89,9 +89,7 @@ func NewGrid(restorer *Restorer, id, name, description string) *Grid {
 		Name:        name,
 		Description: description,
 	}
-	persitable := &Persistable{
-		saveChan: restorer.saveMsgC,
-	}
+	persitable := NewPersistable(restorer)
 	newGrid := &Grid{
 		persistable: persitable,
 		info:        identifiable,
@@ -107,18 +105,7 @@ func NewGrid(restorer *Restorer, id, name, description string) *Grid {
 
 func (g *Grid) InitialSturdyRef() (*SturdyRef, error) {
 
-	saveMsg := &SaveMsg{
-		persitentObj: g.persistable,
-		owner:        "",
-		returnChan:   make(chan SaveAnswer),
-	}
-	g.persistable.saveChan <- saveMsg
-	answer := <-saveMsg.returnChan
-	if answer.err != nil {
-		return nil, answer.err
-	}
-	sr := answer.sr
-	return sr, nil
+	return g.persistable.InitialSturdyRef()
 }
 
 type LatLon struct {

@@ -31,7 +31,7 @@ type ConnectionManager struct {
 func NewConnectionManager(configPath string) *ConnectionManager {
 
 	// read the config file
-	config, err := ReadConfig(configPath)
+	config, err := ReadConfig(configPath, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
