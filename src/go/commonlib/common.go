@@ -49,6 +49,29 @@ type Persistable struct {
 	Cap func() capnp.Client
 }
 
+func NewPersistable(restorer *Restorer) *Persistable {
+	persitable := &Persistable{
+		saveChan: restorer.saveMsgC,
+	}
+	return persitable
+}
+
+func (p *Persistable) InitialSturdyRef() (*SturdyRef, error) {
+
+	saveMsg := &SaveMsg{
+		persitentObj: p,
+		owner:        "",
+		returnChan:   make(chan SaveAnswer),
+	}
+	p.saveChan <- saveMsg
+	answer := <-saveMsg.returnChan
+	if answer.err != nil {
+		return nil, answer.err
+	}
+	sr := answer.sr
+	return sr, nil
+}
+
 // Persistent_Server interface
 func (p *Persistable) Save(c context.Context, call persistence.Persistent_save) error {
 
