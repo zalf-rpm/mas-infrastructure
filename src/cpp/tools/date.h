@@ -361,6 +361,7 @@ public:
     _daysInMonth = _useLeapYears ? _ldim() : _dim();
   }
 
+
 private:
   //! days in month (1-indexed)
   static const std::vector<uint8_t> *_dim();
@@ -383,6 +384,13 @@ private:
   //! is this a relative date = what's the meaning of the year
   bool _isRelativeDate{false};
 };
+
+struct DayLengths {
+  double astronomicDayLenght{-1};
+  double effectiveDayLength{-1};
+  double photoperiodicDaylength{-1};
+};
+DayLengths dayLengths(double latitude, double julianDay);
 
 inline Date fromMysqlString(const char *mysqlDateString,
                             bool useLeapYears = true) {
