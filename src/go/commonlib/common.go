@@ -323,13 +323,17 @@ func (r *Restorer) messageLoop() {
 				for _, handler := range r.forwardingHandlers {
 					if handler.CanResolveSturdyRef(srToken) {
 						found = true
-						cap, err := handler.ResolveSturdyRef(srToken)
-						if err != nil {
-							// if the handler can resolve the token but there is an error
-							msg.returnChan <- RestoreAnswer{err: err}
-						} else {
-							msg.returnChan <- RestoreAnswer{cap: cap}
-						}
+						// actuall resolving of the token may take some time
+						// so we do it in a go routine
+						go func() {
+							cap, err := handler.ResolveSturdyRef(srToken)
+							if err != nil {
+								// if the handler can resolve the token but there is an error
+								msg.returnChan <- RestoreAnswer{err: err}
+							} else {
+								msg.returnChan <- RestoreAnswer{cap: cap}
+							}
+						}()
 						break
 					}
 				}
