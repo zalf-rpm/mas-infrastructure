@@ -1,7 +1,0 @@
-{
-    "registry": {
-        "reg_sr": "capnp://insecure@10.10.24.71:38955/9435c320-b093-483a-a6e3-ac023c420406", 
-        "reg_name": "reg_test", 
-        "cat_id": "soil"
-    }
-}
