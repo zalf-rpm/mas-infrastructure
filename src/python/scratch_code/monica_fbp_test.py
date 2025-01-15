@@ -14,6 +14,8 @@
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 import asyncio
+from collections import defaultdict
+
 import capnp
 import json
 import os
@@ -31,9 +33,11 @@ import climate_capnp
 import common_capnp
 import fbp_capnp
 import model_capnp
+import crop_capnp
 
 sys.path.append(str(capnp_path / "model" / "monica"))
 import monica_management_capnp as mgmt_capnp
+import monica_params_capnp
 
 async def run_monica():
     with open("sim.json") as _:
@@ -87,8 +91,6 @@ async def main():
         site_json = json.load(_)
     with open("/home/berg/GitHub/monica/installer/Hohenfinow2/crop-min.json") as _:
         crop_json = json.load(_)
-    with open("/home/berg/GitHub/monica/installer/Hohenfinow2/climate-min.csv") as _:
-        climate_csv = _.read()
     sim_json["include-file-base-path"] = "/home/berg/GitHub/monica-parameters"
     env_template = monica_io.create_env_json_from_json_config({
         "crop": crop_json,
@@ -96,8 +98,9 @@ async def main():
         "sim": sim_json,
         "climate": ""
     })
-    env_template["csvViaHeaderOptions"] = sim_json["climate.csv-options"]
-    env_template["climateCSV"] = climate_csv
+    #env_template["csvViaHeaderOptions"] = sim_json["climate.csv-options"]
+    #env_template["climateCSV"] = climate_csv
+    json_crop_params = env_template["cropRotation"][0]["worksteps"][0]["crop"]
 
     env_writer = await con_man.try_connect("capnp://10.10.25.25:9921/w_in", cast_as=fbp_capnp.Channel.Writer)
     env = common_capnp.StructuredText.new_message(value=json.dumps(env_template),
@@ -107,21 +110,76 @@ async def main():
     print("wrote env")
 
     event_writer = await con_man.try_connect("capnp://10.10.25.25:9923/w_ev", cast_as=fbp_capnp.Channel.Writer)
-    weather = mgmt_capnp.Params.DailyWeather.new_message(data=[
-        {"key": "tavg", "value": -0.6},
-        {"key": "tmin", "value": -1.5},
-        {"key": "tmax", "value": 1},
-        {"key": "wind", "value": 6.7},
-        {"key": "globrad", "value": 0.52},
-        {"key": "precip", "value": 0},
-        {"key": "relhumid", "value": 90}
-    ])
-    event = mgmt_capnp.Event.new_message(type="weather",
-                                    info={"id": "1", "name": "day one"},
-                                    params=weather)
-    event_ip = fbp_capnp.IP.new_message(content=event)
-    await event_writer.write(value=event_ip)
-    print("wrote weather event")
+    crop_planted = False
+    crop_service_sr = "capnp://10.10.25.25:43777/b131ee61-f51f-4a2f-965e-7f0c21db0598"
+    crop_service = await con_man.try_connect(crop_service_sr, cast_as=crop_capnp.Service)
+    cat_to_name_to_crop = defaultdict(dict)
+    for e in (await crop_service.entries()).entries:
+        cat_to_name_to_crop[e.categoryId][e.name] = e.ref
+
+    with open("/home/berg/GitHub/monica/installer/Hohenfinow2/climate-min.csv") as _:
+        header = _.readline().split(",")
+        h2i = {h: i for i, h in enumerate(header)}
+        _.readline() # skip units
+        for line in _.readlines():
+
+            events = []
+
+            data = line.split(",")
+            weather = mgmt_capnp.Params.DailyWeather.new_message(data=[
+                {"key": "tavg", "value": float(data[h2i["tavg"]])},
+                {"key": "tmin", "value": float(data[h2i["tmin"]])},
+                {"key": "tmax", "value": float(data[h2i["tmax"]])},
+                {"key": "wind", "value": float(data[h2i["wind"]])},
+                {"key": "globrad", "value": float(data[h2i["globrad"]])},
+                {"key": "precip", "value": float(data[h2i["precip"]])},
+                {"key": "relhumid", "value": float(data[h2i["relhumid"]])}
+            ])
+            iso_date = data[h2i["iso-date"]]
+            event = mgmt_capnp.Event.new_message(type="weather",
+                                                 info={"id": iso_date},
+                                                 at={"date": {"year": int(iso_date[:4]),
+                                                              "month": int(iso_date[5:7]),
+                                                              "day": int(iso_date[8:])},},
+                                                 params=weather)
+            events.append(event)
+            print("created weather event for day", iso_date)
+
+            if iso_date[5:] == "09-22": # sowing
+                crop_planted = True
+                crop = cat_to_name_to_crop["wheat"]["winter-wheat"].cast_as(crop_capnp.Crop)
+                print(await crop.info())
+                sowing = mgmt_capnp.Params.Sowing.new_message(
+                    cultivar="winter-wheat",
+                    crop=crop
+                )
+                print(sowing)
+                event = mgmt_capnp.Event.new_message(type="sowing",
+                                                     at={"date": {"year": int(iso_date[:4]), "month": 9, "day": 22}},
+                                                     info={"id": iso_date},
+                                                     params=sowing)
+                events.append(event)
+                print("created sowing event")
+
+            if crop_planted and iso_date[5:] == "09-05": # harvest
+                harvest = mgmt_capnp.Params.Harvest.new_message()
+                event = mgmt_capnp.Event.new_message(type="harvest",
+                                                     at={"date": {"year": int(iso_date[:4]), "month": 9, "day": 5}},
+                                                     info={"id": iso_date},
+                                                     params=harvest)
+                events.append(event)
+                print("created harvest event")
+                crop_planted = False
+
+            # sending events
+            wrq = event_writer.write_request()
+            v = wrq.init("value").as_struct(fbp_capnp.IP)
+            c = v.init("content").init_as_list(capnp._ListSchema(mgmt_capnp.Event), len(events))
+            for i, e in enumerate(events):
+                c[i] = e
+
+            await wrq.send()
+            print("wrote event(s)")
 
     #output_reader = await con_man.try_connect("capnp://10.10.25.25:9922/r_out", cast_as=fbp_capnp.Channel.Reader)
 
