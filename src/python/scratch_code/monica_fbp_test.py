@@ -111,7 +111,7 @@ async def main():
 
     event_writer = await con_man.try_connect("capnp://10.10.25.25:9923/w_ev", cast_as=fbp_capnp.Channel.Writer)
     crop_planted = False
-    crop_service_sr = "capnp://10.10.25.25:43777/b131ee61-f51f-4a2f-965e-7f0c21db0598"
+    crop_service_sr = "capnp://A3yYVWcdedLjLf4iyJ-NqQ4dykmq8ojseB4ghNOL0-w=@10.10.25.25:33845/cccd6b5b-9e0f-4294-a159-fd630458480c"
     crop_service = await con_man.try_connect(crop_service_sr, cast_as=crop_capnp.Service)
     cat_to_name_to_crop = defaultdict(dict)
     for e in (await crop_service.entries()).entries:
@@ -147,7 +147,7 @@ async def main():
 
             if iso_date[5:] == "09-22": # sowing
                 crop_planted = True
-                crop = cat_to_name_to_crop["wheat"]["winter-wheat"].cast_as(crop_capnp.Crop)
+                crop = cat_to_name_to_crop["wheat"]["winter wheat"].cast_as(crop_capnp.Crop)
                 print(await crop.info())
                 sowing = mgmt_capnp.Params.Sowing.new_message(
                     cultivar="winter-wheat",
@@ -181,8 +181,16 @@ async def main():
             await wrq.send()
             print("wrote event(s)")
 
-    #output_reader = await con_man.try_connect("capnp://10.10.25.25:9922/r_out", cast_as=fbp_capnp.Channel.Reader)
+        await event_writer.write(done=None)
+        print("wrote done on event channel")
 
+    output_reader = await con_man.try_connect("capnp://10.10.25.25:9922/r_out", cast_as=fbp_capnp.Channel.Reader)
+    out_msg = await output_reader.read()
+    if out_msg.which() == "value":
+        val = out_msg.value.as_struct(common_capnp.StructuredText)
+        print(val)
+        print(val.value)
+        #print(out_msg.value.as_struct(common_capnp.StructuredText).value)
 
 
 if __name__ == '__main__':

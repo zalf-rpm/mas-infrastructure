@@ -28,10 +28,10 @@ from threading import Thread
 
 from zalfmas_common import common
 from zalfmas_common.climate import csv_file_based as csv_based
-import zalfmas_capnpschemas
+import zalfmas_capnp_schemas
 from zalfmas_common.model import monica_io
 
-capnp_path = Path(os.path.dirname(zalfmas_capnpschemas.__file__))
+capnp_path = Path(os.path.dirname(zalfmas_capnp_schemas.__file__))
 sys.path.append(str(capnp_path))
 import a_capnp
 import climate_capnp
@@ -391,11 +391,11 @@ def check_climate_dataset_service():
     print()
 
 
-def run_registry():
+async def run_registry():
     con_man = common.ConnectionManager()
-    registry_sr = "capnp://MCowBQYDK2VwAyEAYSMdzsTMWEQmsd3/BMyVzC25QwngGxF2KkV4zE3TsMg=@10.10.88.68:35877/ODM0YzUzY2MtZTI2Zi00M2M4LThiZTQtNDk5ZGQzOWNiMmM5"
-    registry = con_man.try_connect(registry_sr, cast_as=registry_capnp.Registry)
-    print(registry.info().wait())
+    registry_sr = "capnp://tB0ejAKABqTdoEXxmtwjzRZpBTVkJ_pC4Z5PA5BCDp0=@10.10.25.25:42043/3fa3db27-858f-4c57-b920-11bbc8ea74c8"
+    registry = await con_man.try_connect(registry_sr, cast_as=reg_capnp.Registry)
+    print(await registry.info())
 
     # registrar_sr = "capnp://MCowBQYDK2VwAyEAFJHQao0Dy26vAV2LmMT4lBXMtI+xebNohLBaYLvsqkc=@10.10.24.181:38101/ZTE2YWE4ZTQtN2FhMi00YWMyLWJlMzctZmZmMTIyMzg5N2Q5"
     # registrar = con_man.try_connect(registrar_sr, cast_as=registry_capnp.Registrar)
@@ -408,9 +408,9 @@ def run_registry():
     # res = registrar.register(cap=admin, regName="admin", categoryId="climate").wait()
     # print(res)
 
-    climate_entries = registry.entries("monica").wait().entries
-    for ent in climate_entries:
-        print(ent.name, " ref.info:", ent.ref.info().wait())
+    #climate_entries = registry.entries("monica").wait().entries
+    #for ent in climate_entries:
+    #    print(ent.name, " ref.info:", ent.ref.info().wait())
 
     print("bla")
 
@@ -682,9 +682,9 @@ async def main():
 
     #run_climate_service()
 
-    await run_soil_service()
+    #await run_soil_service()
 
-    await run_time_series()
+    #await run_time_series()
 
     #await run_channel()
 
@@ -696,7 +696,7 @@ async def main():
 
     #await run_climate_service()
 
-    # run_registry()
+    await run_registry()
 
     # run_cross_domain_registry()
 
