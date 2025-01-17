@@ -100,14 +100,12 @@ async def main():
     })
     #env_template["csvViaHeaderOptions"] = sim_json["climate.csv-options"]
     #env_template["climateCSV"] = climate_csv
-    json_crop_params = env_template["cropRotation"][0]["worksteps"][0]["crop"]
 
     env_writer = await con_man.try_connect("capnp://10.10.25.25:9921/w_in", cast_as=fbp_capnp.Channel.Writer)
     env = common_capnp.StructuredText.new_message(value=json.dumps(env_template),
                                                   structure={"json": None})
-    env_ip = fbp_capnp.IP.new_message(content=env)
-    await env_writer.write(value=env_ip)
-    print("wrote env")
+    await env_writer.write(value=fbp_capnp.IP.new_message(content=env))
+    print("send env on env channel")
 
     event_writer = await con_man.try_connect("capnp://10.10.25.25:9923/w_ev", cast_as=fbp_capnp.Channel.Writer)
     crop_planted = False
@@ -116,34 +114,18 @@ async def main():
     cat_to_name_to_crop = defaultdict(dict)
     for e in (await crop_service.entries()).entries:
         cat_to_name_to_crop[e.categoryId][e.name] = e.ref
+    print("got all crop service entries")
 
+    await event_writer.write(value=fbp_capnp.IP.new_message(type="openBracket"))
+    print("wrote openBracket on event channel")
     with open("/home/berg/GitHub/monica/installer/Hohenfinow2/climate-min.csv") as _:
         header = _.readline().split(",")
         h2i = {h: i for i, h in enumerate(header)}
         _.readline() # skip units
         for line in _.readlines():
 
-            events = []
-
             data = line.split(",")
-            weather = mgmt_capnp.Params.DailyWeather.new_message(data=[
-                {"key": "tavg", "value": float(data[h2i["tavg"]])},
-                {"key": "tmin", "value": float(data[h2i["tmin"]])},
-                {"key": "tmax", "value": float(data[h2i["tmax"]])},
-                {"key": "wind", "value": float(data[h2i["wind"]])},
-                {"key": "globrad", "value": float(data[h2i["globrad"]])},
-                {"key": "precip", "value": float(data[h2i["precip"]])},
-                {"key": "relhumid", "value": float(data[h2i["relhumid"]])}
-            ])
             iso_date = data[h2i["iso-date"]]
-            event = mgmt_capnp.Event.new_message(type="weather",
-                                                 info={"id": iso_date},
-                                                 at={"date": {"year": int(iso_date[:4]),
-                                                              "month": int(iso_date[5:7]),
-                                                              "day": int(iso_date[8:])},},
-                                                 params=weather)
-            events.append(event)
-            print("created weather event for day", iso_date)
 
             if iso_date[5:] == "09-22": # sowing
                 crop_planted = True
@@ -158,8 +140,8 @@ async def main():
                                                      at={"date": {"year": int(iso_date[:4]), "month": 9, "day": 22}},
                                                      info={"id": iso_date},
                                                      params=sowing)
-                events.append(event)
-                print("created sowing event")
+                await event_writer.write(value=fbp_capnp.IP.new_message(content=event))
+                print("sent sowing event on event channel")
 
             if crop_planted and iso_date[5:] == "09-05": # harvest
                 harvest = mgmt_capnp.Params.Harvest.new_message()
@@ -167,31 +149,43 @@ async def main():
                                                      at={"date": {"year": int(iso_date[:4]), "month": 9, "day": 5}},
                                                      info={"id": iso_date},
                                                      params=harvest)
-                events.append(event)
-                print("created harvest event")
+                await event_writer.write(value=fbp_capnp.IP.new_message(content=event))
+                print("sent harvest event on event channel")
                 crop_planted = False
 
-            # sending events
-            wrq = event_writer.write_request()
-            v = wrq.init("value").as_struct(fbp_capnp.IP)
-            c = v.init("content").init_as_list(capnp._ListSchema(mgmt_capnp.Event), len(events))
-            for i, e in enumerate(events):
-                c[i] = e
+            # finally send weather to initiate daily step
+            weather = mgmt_capnp.Params.DailyWeather.new_message(data=[
+                {"key": "tavg", "value": float(data[h2i["tavg"]])},
+                {"key": "tmin", "value": float(data[h2i["tmin"]])},
+                {"key": "tmax", "value": float(data[h2i["tmax"]])},
+                {"key": "wind", "value": float(data[h2i["wind"]])},
+                {"key": "globrad", "value": float(data[h2i["globrad"]])},
+                {"key": "precip", "value": float(data[h2i["precip"]])},
+                {"key": "relhumid", "value": float(data[h2i["relhumid"]])}
+            ])
+            event = mgmt_capnp.Event.new_message(type="weather",
+                                                 info={"id": iso_date},
+                                                 at={"date": {"year": int(iso_date[:4]),
+                                                              "month": int(iso_date[5:7]),
+                                                              "day": int(iso_date[8:])},},
+                                                 params=weather)
+            await event_writer.write(value=fbp_capnp.IP.new_message(content=event))
+            print("send weather event for day:", iso_date, "on event channel")
 
-            await wrq.send()
-            print("wrote event(s)")
+        await event_writer.write(value=fbp_capnp.IP.new_message(type="closeBracket"))
+        print("send closeBracket on event channel")
 
-        await event_writer.write(done=None)
-        print("wrote done on event channel")
+        #await event_writer.write(done=None)
+        #print("wrote done on event channel")
 
     output_reader = await con_man.try_connect("capnp://10.10.25.25:9922/r_out", cast_as=fbp_capnp.Channel.Reader)
     out_msg = await output_reader.read()
     if out_msg.which() == "value":
-        val = out_msg.value.as_struct(common_capnp.StructuredText)
-        print(val)
-        print(val.value)
-        #print(out_msg.value.as_struct(common_capnp.StructuredText).value)
-
+        out_ip = out_msg.value.as_struct(fbp_capnp.IP)
+        c = out_ip.content.as_struct(common_capnp.StructuredText)
+        print(c)
+    else:
+        print("received done on output channel")
 
 if __name__ == '__main__':
     asyncio.run(capnp.run(main()))
