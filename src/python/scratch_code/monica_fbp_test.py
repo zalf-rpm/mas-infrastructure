@@ -14,6 +14,7 @@
 # Copyright (C: Leibniz Centre for Agricultural Landscape Research (ZALF)
 
 import asyncio
+import threading
 from collections import defaultdict
 
 import capnp
@@ -25,6 +26,7 @@ import sys
 from zalfmas_common import common
 from zalfmas_common.climate import csv_file_based as csv_based
 import zalfmas_capnp_schemas
+from zalfmas_common import service as serv
 from zalfmas_common.model import monica_io
 
 capnp_path = Path(os.path.dirname(zalfmas_capnp_schemas.__file__))
@@ -38,48 +40,6 @@ import crop_capnp
 sys.path.append(str(capnp_path / "model" / "monica"))
 import monica_management_capnp as mgmt_capnp
 import monica_params_capnp
-
-async def run_monica():
-    with open("sim.json") as _:
-        sim_json = json.load(_)
-    with open("site.json") as _:
-        site_json = json.load(_)
-    with open("crop.json") as _:
-        crop_json = json.load(_)
-    env_template = monica_io.create_env_json_from_json_config({
-        "crop": crop_json,
-        "site": site_json,
-        "sim": sim_json,
-        "climate": ""
-    })
-    env_template["csvViaHeaderOptions"] = sim_json["climate.csv-options"]
-    env_template["pathToClimateCSV"] = "/home/berg/GitHub/klimertrag_2/data/germany/col-181.csv"
-
-    conman = common.ConnectionManager()
-    soil_service = await conman.try_connect("capnp://localhost:9901/soil", cast_as=soil_capnp.Service, retry_secs=1)
-    monica_in = await conman.try_connect("capnp://localhost:9921/w_in", cast_as=fbp_capnp.Channel.Writer, retry_secs=1)
-    monica_out = await conman.try_connect("capnp://localhost:9922/r_out", cast_as=fbp_capnp.Channel.Reader, retry_secs=1)
-
-    soil_profiles = (await soil_service.closestProfilesAt(coord={"lat": 54, "lon": 12}, query={
-        "mandatory": ["soilType", "sand", "clay", "organicCarbon",
-                      "bulkDensity"],
-        "optional": ["pH"]})).profiles
-
-    capnp_env = model_capnp.Env.new_message()
-    # capnp_env.timeSeries = timeseries
-    capnp_env.soilProfile = soil_profiles[0]
-    capnp_env.rest = common_capnp.StructuredText.new_message(value=json.dumps(env_template),
-                                                             structure={"json": None})
-    out_ip = fbp_capnp.IP.new_message(content=capnp_env,
-                                      attributes=[{"key": "id", "value": common_capnp.Value(ui8=1)}])
-    await monica_in.write(value=out_ip)
-
-    in_ip = await monica_out.read()
-    st = in_ip.value.as_struct(fbp_capnp.IP).content.as_text()  # struct(common_capnp.StructuredText)
-    msg = json.loads(st)
-    print(msg)
-    #await monica_in.write(done=None)
-
 
 async def main():
 
