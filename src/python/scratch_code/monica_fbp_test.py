@@ -16,19 +16,19 @@
 import asyncio
 import threading
 from collections import defaultdict
-
 import capnp
 import json
 import os
 from pathlib import Path
+import subprocess as sp
 import sys
-
+import uuid
 from zalfmas_common import common
 from zalfmas_common.climate import csv_file_based as csv_based
 import zalfmas_capnp_schemas
 from zalfmas_common import service as serv
 from zalfmas_common.model import monica_io
-
+from zalfmas_fbp.run import channels as chans
 capnp_path = Path(os.path.dirname(zalfmas_capnp_schemas.__file__))
 sys.path.append(str(capnp_path))
 import climate_capnp
@@ -41,9 +41,51 @@ sys.path.append(str(capnp_path / "model" / "monica"))
 import monica_management_capnp as mgmt_capnp
 import monica_params_capnp
 
-async def main():
+def start_component(path_to_component, writer_sr, name=None, verbose=False):
+    return sp.Popen([path_to_component,
+                    f"--name=comp_{name if name else str(uuid.uuid4())}",
+                    f"--startup_info_writer_sr={writer_sr}",
+                    ] + (["--verbose"] if verbose else []))
+
+standalone_config = {
+    "path_to_channel": "/home/berg/GitHub/monica/_cmake_debug/common/channel",
+}
+async def main(config: dict):
+    common.update_config(config, sys.argv, print_config=True, allow_new_keys=False)
 
     con_man = common.ConnectionManager()
+    channels = []
+
+    try:
+        first_chan, first_reader_sr, first_writer_sr = chans.start_first_channel(config["path_to_channel"])
+        channels.append(first_chan)
+        first_reader = await con_man.try_connect(first_reader_sr, cast_as=fbp_capnp.Channel.Reader)
+
+        chan_id = f"env"
+        env_chan = chans.start_channel(config["path_to_channel"], chan_id + "|" + first_writer_sr, name=chan_id)
+        channels.append(env_chan)
+
+        p = (await first_reader.read()).value.as_struct(common_capnp.Pair)
+        c_id = p.fst.as_text()
+        info = p.snd.as_struct(fbp_capnp.Channel.StartupInfo)
+        print(info.readerSRs[0])
+        print(info.writerSRs[0])
+
+        for channel in channels:
+            channel.terminate()
+        print(f"{os.path.basename(__file__)}: all channels terminated")
+
+    except Exception as e:
+        #for process in process_id_to_process.values():
+        #    process.terminate()
+
+        for channel in channels:
+            channel.terminate()
+
+        print(f"exception terminated {os.path.basename(__file__)} early. Exception:", e)
+
+
+
 
     with open("/home/berg/GitHub/monica/installer/Hohenfinow2/sim-min.json") as _:
         sim_json = json.load(_)
@@ -148,4 +190,4 @@ async def main():
         print("received done on output channel")
 
 if __name__ == '__main__':
-    asyncio.run(capnp.run(main()))
+    asyncio.run(capnp.run(main(standalone_config)))
