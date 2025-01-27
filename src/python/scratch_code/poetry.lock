@@ -435,13 +435,13 @@ files = [
 
 [[package]]
 name = "zalfmas-capnp-schemas"
-version = "0.1.8"
+version = "0.1.9"
 description = ""
 optional = false
 python-versions = "<4.0,>=3.10"
 files = [
-    {file = "zalfmas_capnp_schemas-0.1.8-py3-none-any.whl", hash = "sha256:143f691f2fcc52e78125d0084b2bdee2185fd5204c12a4f351cdd0c39c65a2e3"},
-    {file = "zalfmas_capnp_schemas-0.1.8.tar.gz", hash = "sha256:f515fea6c5e08e3a754625d521a5f8554666598a7429050d2f2bd4d246a1e69a"},
+    {file = "zalfmas_capnp_schemas-0.1.9-py3-none-any.whl", hash = "sha256:974df794403f5f361c553de9b4723f0b7d0a2cbc2d38207ad4a93d7e14d1369e"},
+    {file = "zalfmas_capnp_schemas-0.1.9.tar.gz", hash = "sha256:cec10497d826f7769d13a379dcdc964fc5e4416eedfebd2bbf5c17134bf57ff0"},
 ]
 
 [[package]]
@@ -467,13 +467,12 @@ zalfmas-capnp-schemas = ">=0.1.2,<0.2.0"
 
 [[package]]
 name = "zalfmas-fbp"
-version = "0.1.1"
+version = "0.1.2"
 description = ""
 optional = false
 python-versions = "<4.0,>=3.10"
 files = [
-    {file = "zalfmas_fbp-0.1.1-py3-none-any.whl", hash = "sha256:010b96356e1ddc20aa2cd550533bf253b407244aecff0e8e994db0515102e865"},
-    {file = "zalfmas_fbp-0.1.1.tar.gz", hash = "sha256:ea101c1cd4b64d50082c176ff205c04b6299a94d5c7caf0c315f326b5131ff77"},
+    {file = "zalfmas_fbp-0.1.2-py3-none-any.whl", hash = "sha256:f53573a58d87a0e2327d366ad0e3533ad55242fef4c6fbbf0a602fa6d577d251"},
 ]
 
 [package.dependencies]
@@ -483,4 +482,4 @@ zalfmas-common = ">=0.1.7,<0.2.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "b2178c51bef3419de9eb2afc489704b5f980e506d01fdf2ad23d664a6592e8c2"
+content-hash = "944cc70c26bf3f161b4924613418636d6da6578822bbd95496045027c8915414"

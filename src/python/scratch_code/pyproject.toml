@@ -8,8 +8,8 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.10"
 zalfmas-common = "^0.1.7"
-zalfmas-capnp-schemas = "^0.1.8"
-zalfmas-fbp = "^0.1.1"
+zalfmas-capnp-schemas = "^0.1.9"
+zalfmas-fbp = "^0.1.2"
 
 [build-system]
 requires = ["poetry-core"]

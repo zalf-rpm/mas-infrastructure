@@ -61,15 +61,147 @@ async def main(config: dict):
         channels.append(first_chan)
         first_reader = await con_man.try_connect(first_reader_sr, cast_as=fbp_capnp.Channel.Reader)
 
-        chan_id = f"env"
-        env_chan = chans.start_channel(config["path_to_channel"], chan_id + "|" + first_writer_sr, name=chan_id)
-        channels.append(env_chan)
+        channels.append(chans.start_channel(config["path_to_channel"],
+                                                  "new_ports_info|" + first_writer_sr,
+                                                  name="new_ports_info",
+                                                  port=9991,
+                                                  reader_srts="r_in",
+                                                  verbose=True))
 
         p = (await first_reader.read()).value.as_struct(common_capnp.Pair)
-        c_id = p.fst.as_text()
+        #c_id = p.fst.as_text()
         info = p.snd.as_struct(fbp_capnp.Channel.StartupInfo)
         print(info.readerSRs[0])
         print(info.writerSRs[0])
+        ports_info_writer = await con_man.try_connect(info.writerSRs[0], cast_as=fbp_capnp.Channel.Writer)
+
+        # create the three channels for the three ports
+        channels.append(chans.start_channel(config["path_to_channel"],
+                                            "env|" + first_writer_sr, name="env"))
+        channels.append(chans.start_channel(config["path_to_channel"],
+                                            "events|" + first_writer_sr, name="events"))
+        channels.append(chans.start_channel(config["path_to_channel"],
+                                            "results|" + first_writer_sr, name="results"))
+
+        env_writer_sr = events_writer_sr = results_writer_sr = None
+        for i in range(3):
+            p = (await first_reader.read()).value.as_struct(common_capnp.Pair)
+            c_id = p.fst.as_text()
+            info = p.snd.as_struct(fbp_capnp.Channel.StartupInfo)
+            print("channel:", c_id, "reader_sr:", info.readerSRs[0], "writer_sr:", info.writerSRs[0])
+
+            if c_id == "env":
+                await ports_info_writer.write(value=fbp_capnp.NewPortInfo.new_message(name="env_in", inPortReaderSR=info.readerSRs[0]))
+                env_writer_sr = info.writerSRs[0]
+            elif c_id == "events":
+                await ports_info_writer.write(value=fbp_capnp.NewPortInfo.new_message(name="event_in", inPortReaderSR=info.readerSRs[0]))
+                events_writer_sr = info.writerSRs[0]
+            elif c_id == "results":
+                await ports_info_writer.write(value=fbp_capnp.NewPortInfo.new_message(name="out", outPortWriterSR=info.writerSRs[0]))
+                results_writer_sr = info.readerSRs[0]
+
+
+        with open("/home/berg/GitHub/monica/installer/Hohenfinow2/sim-min.json") as _:
+            sim_json = json.load(_)
+        with open("/home/berg/GitHub/monica/installer/Hohenfinow2/site-min.json") as _:
+            site_json = json.load(_)
+        with open("/home/berg/GitHub/monica/installer/Hohenfinow2/crop-min.json") as _:
+            crop_json = json.load(_)
+        sim_json["include-file-base-path"] = "/home/berg/GitHub/monica-parameters"
+        env_template = monica_io.create_env_json_from_json_config({
+            "crop": crop_json,
+            "site": site_json,
+            "sim": sim_json,
+            "climate": ""
+        })
+        #env_template["csvViaHeaderOptions"] = sim_json["climate.csv-options"]
+        #env_template["climateCSV"] = climate_csv
+
+        env_writer = await con_man.try_connect(env_writer_sr, cast_as=fbp_capnp.Channel.Writer)
+        env = common_capnp.StructuredText.new_message(value=json.dumps(env_template),
+                                                      structure={"json": None})
+        await env_writer.write(value=fbp_capnp.IP.new_message(content=env))
+        print("send env on env channel")
+
+        event_writer = await con_man.try_connect(events_writer_sr, cast_as=fbp_capnp.Channel.Writer)
+        crop_planted = False
+        crop_service_sr = "capnp://A3yYVWcdedLjLf4iyJ-NqQ4dykmq8ojseB4ghNOL0-w=@10.10.25.25:33845/cccd6b5b-9e0f-4294-a159-fd630458480c"
+        crop_service = await con_man.try_connect(crop_service_sr, cast_as=crop_capnp.Service)
+        cat_to_name_to_crop = defaultdict(dict)
+        for e in (await crop_service.entries()).entries:
+            cat_to_name_to_crop[e.categoryId][e.name] = e.ref
+        print("got all crop service entries")
+
+        await event_writer.write(value=fbp_capnp.IP.new_message(type="openBracket"))
+        print("wrote openBracket on event channel")
+        with open("/home/berg/GitHub/monica/installer/Hohenfinow2/climate-min.csv") as _:
+            header = _.readline().split(",")
+            h2i = {h: i for i, h in enumerate(header)}
+            _.readline() # skip units
+            for line in _.readlines():
+
+                data = line.split(",")
+                iso_date = data[h2i["iso-date"]]
+
+                if iso_date[5:] == "09-22": # sowing
+                    crop_planted = True
+                    crop = cat_to_name_to_crop["wheat"]["winter wheat"].cast_as(crop_capnp.Crop)
+                    print(await crop.info())
+                    sowing = mgmt_capnp.Params.Sowing.new_message(
+                        cultivar="winter-wheat",
+                        crop=crop
+                    )
+                    print(sowing)
+                    event = mgmt_capnp.Event.new_message(type="sowing",
+                                                         at={"date": {"year": int(iso_date[:4]), "month": 9, "day": 22}},
+                                                         info={"id": iso_date},
+                                                         params=sowing)
+                    await event_writer.write(value=fbp_capnp.IP.new_message(content=event))
+                    print("sent sowing event on event channel")
+
+                if crop_planted and iso_date[5:] == "09-05": # harvest
+                    harvest = mgmt_capnp.Params.Harvest.new_message()
+                    event = mgmt_capnp.Event.new_message(type="harvest",
+                                                         at={"date": {"year": int(iso_date[:4]), "month": 9, "day": 5}},
+                                                         info={"id": iso_date},
+                                                         params=harvest)
+                    await event_writer.write(value=fbp_capnp.IP.new_message(content=event))
+                    print("sent harvest event on event channel")
+                    crop_planted = False
+
+                # finally send weather to initiate daily step
+                weather = mgmt_capnp.Params.DailyWeather.new_message(data=[
+                    {"key": "tavg", "value": float(data[h2i["tavg"]])},
+                    {"key": "tmin", "value": float(data[h2i["tmin"]])},
+                    {"key": "tmax", "value": float(data[h2i["tmax"]])},
+                    {"key": "wind", "value": float(data[h2i["wind"]])},
+                    {"key": "globrad", "value": float(data[h2i["globrad"]])},
+                    {"key": "precip", "value": float(data[h2i["precip"]])},
+                    {"key": "relhumid", "value": float(data[h2i["relhumid"]])}
+                ])
+                event = mgmt_capnp.Event.new_message(type="weather",
+                                                     info={"id": iso_date},
+                                                     at={"date": {"year": int(iso_date[:4]),
+                                                                  "month": int(iso_date[5:7]),
+                                                                  "day": int(iso_date[8:])},},
+                                                     params=weather)
+                await event_writer.write(value=fbp_capnp.IP.new_message(content=event))
+                print("send weather event for day:", iso_date, "on event channel")
+
+            await event_writer.write(value=fbp_capnp.IP.new_message(type="closeBracket"))
+            print("send closeBracket on event channel")
+
+            #await event_writer.write(done=None)
+            #print("wrote done on event channel")
+
+        output_reader = await con_man.try_connect(results_writer_sr, cast_as=fbp_capnp.Channel.Reader)
+        out_msg = await output_reader.read()
+        if out_msg.which() == "value":
+            out_ip = out_msg.value.as_struct(fbp_capnp.IP)
+            c = out_ip.content.as_struct(common_capnp.StructuredText)
+            print(c)
+        else:
+            print("received done on output channel")
 
         for channel in channels:
             channel.terminate()
@@ -84,110 +216,6 @@ async def main(config: dict):
 
         print(f"exception terminated {os.path.basename(__file__)} early. Exception:", e)
 
-
-
-
-    with open("/home/berg/GitHub/monica/installer/Hohenfinow2/sim-min.json") as _:
-        sim_json = json.load(_)
-    with open("/home/berg/GitHub/monica/installer/Hohenfinow2/site-min.json") as _:
-        site_json = json.load(_)
-    with open("/home/berg/GitHub/monica/installer/Hohenfinow2/crop-min.json") as _:
-        crop_json = json.load(_)
-    sim_json["include-file-base-path"] = "/home/berg/GitHub/monica-parameters"
-    env_template = monica_io.create_env_json_from_json_config({
-        "crop": crop_json,
-        "site": site_json,
-        "sim": sim_json,
-        "climate": ""
-    })
-    #env_template["csvViaHeaderOptions"] = sim_json["climate.csv-options"]
-    #env_template["climateCSV"] = climate_csv
-
-    env_writer = await con_man.try_connect("capnp://10.10.25.25:9921/w_in", cast_as=fbp_capnp.Channel.Writer)
-    env = common_capnp.StructuredText.new_message(value=json.dumps(env_template),
-                                                  structure={"json": None})
-    await env_writer.write(value=fbp_capnp.IP.new_message(content=env))
-    print("send env on env channel")
-
-    event_writer = await con_man.try_connect("capnp://10.10.25.25:9923/w_ev", cast_as=fbp_capnp.Channel.Writer)
-    crop_planted = False
-    crop_service_sr = "capnp://A3yYVWcdedLjLf4iyJ-NqQ4dykmq8ojseB4ghNOL0-w=@10.10.25.25:33845/cccd6b5b-9e0f-4294-a159-fd630458480c"
-    crop_service = await con_man.try_connect(crop_service_sr, cast_as=crop_capnp.Service)
-    cat_to_name_to_crop = defaultdict(dict)
-    for e in (await crop_service.entries()).entries:
-        cat_to_name_to_crop[e.categoryId][e.name] = e.ref
-    print("got all crop service entries")
-
-    await event_writer.write(value=fbp_capnp.IP.new_message(type="openBracket"))
-    print("wrote openBracket on event channel")
-    with open("/home/berg/GitHub/monica/installer/Hohenfinow2/climate-min.csv") as _:
-        header = _.readline().split(",")
-        h2i = {h: i for i, h in enumerate(header)}
-        _.readline() # skip units
-        for line in _.readlines():
-
-            data = line.split(",")
-            iso_date = data[h2i["iso-date"]]
-
-            if iso_date[5:] == "09-22": # sowing
-                crop_planted = True
-                crop = cat_to_name_to_crop["wheat"]["winter wheat"].cast_as(crop_capnp.Crop)
-                print(await crop.info())
-                sowing = mgmt_capnp.Params.Sowing.new_message(
-                    cultivar="winter-wheat",
-                    crop=crop
-                )
-                print(sowing)
-                event = mgmt_capnp.Event.new_message(type="sowing",
-                                                     at={"date": {"year": int(iso_date[:4]), "month": 9, "day": 22}},
-                                                     info={"id": iso_date},
-                                                     params=sowing)
-                await event_writer.write(value=fbp_capnp.IP.new_message(content=event))
-                print("sent sowing event on event channel")
-
-            if crop_planted and iso_date[5:] == "09-05": # harvest
-                harvest = mgmt_capnp.Params.Harvest.new_message()
-                event = mgmt_capnp.Event.new_message(type="harvest",
-                                                     at={"date": {"year": int(iso_date[:4]), "month": 9, "day": 5}},
-                                                     info={"id": iso_date},
-                                                     params=harvest)
-                await event_writer.write(value=fbp_capnp.IP.new_message(content=event))
-                print("sent harvest event on event channel")
-                crop_planted = False
-
-            # finally send weather to initiate daily step
-            weather = mgmt_capnp.Params.DailyWeather.new_message(data=[
-                {"key": "tavg", "value": float(data[h2i["tavg"]])},
-                {"key": "tmin", "value": float(data[h2i["tmin"]])},
-                {"key": "tmax", "value": float(data[h2i["tmax"]])},
-                {"key": "wind", "value": float(data[h2i["wind"]])},
-                {"key": "globrad", "value": float(data[h2i["globrad"]])},
-                {"key": "precip", "value": float(data[h2i["precip"]])},
-                {"key": "relhumid", "value": float(data[h2i["relhumid"]])}
-            ])
-            event = mgmt_capnp.Event.new_message(type="weather",
-                                                 info={"id": iso_date},
-                                                 at={"date": {"year": int(iso_date[:4]),
-                                                              "month": int(iso_date[5:7]),
-                                                              "day": int(iso_date[8:])},},
-                                                 params=weather)
-            await event_writer.write(value=fbp_capnp.IP.new_message(content=event))
-            print("send weather event for day:", iso_date, "on event channel")
-
-        await event_writer.write(value=fbp_capnp.IP.new_message(type="closeBracket"))
-        print("send closeBracket on event channel")
-
-        #await event_writer.write(done=None)
-        #print("wrote done on event channel")
-
-    output_reader = await con_man.try_connect("capnp://10.10.25.25:9922/r_out", cast_as=fbp_capnp.Channel.Reader)
-    out_msg = await output_reader.read()
-    if out_msg.which() == "value":
-        out_ip = out_msg.value.as_struct(fbp_capnp.IP)
-        c = out_ip.content.as_struct(common_capnp.StructuredText)
-        print(c)
-    else:
-        print("received done on output channel")
 
 if __name__ == '__main__':
     asyncio.run(capnp.run(main(standalone_config)))
