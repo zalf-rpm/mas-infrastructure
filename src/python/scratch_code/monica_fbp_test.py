@@ -61,45 +61,47 @@ async def main(config: dict):
         channels.append(first_chan)
         first_reader = await con_man.try_connect(first_reader_sr, cast_as=fbp_capnp.Channel.Reader)
 
-        channels.append(chans.start_channel(config["path_to_channel"],
-                                                  "new_ports_info|" + first_writer_sr,
-                                                  name="new_ports_info",
-                                                  port=9991,
-                                                  reader_srts="r_in",
-                                                  verbose=True))
-
-        p = (await first_reader.read()).value.as_struct(common_capnp.Pair)
-        #c_id = p.fst.as_text()
-        info = p.snd.as_struct(fbp_capnp.Channel.StartupInfo)
-        print(info.readerSRs[0])
-        print(info.writerSRs[0])
-        ports_info_writer = await con_man.try_connect(info.writerSRs[0], cast_as=fbp_capnp.Channel.Writer)
-
         # create the three channels for the three ports
         channels.append(chans.start_channel(config["path_to_channel"],
-                                            "env|" + first_writer_sr, name="env"))
+                                            "env_in|" + first_writer_sr, name="env"))
         channels.append(chans.start_channel(config["path_to_channel"],
-                                            "events|" + first_writer_sr, name="events"))
+                                            "events_in|" + first_writer_sr, name="events"))
         channels.append(chans.start_channel(config["path_to_channel"],
-                                            "results|" + first_writer_sr, name="results"))
+                                            "result_out|" + first_writer_sr, name="result"))
+        channels.append(chans.start_channel(config["path_to_channel"],
+                                            "config|" + first_writer_sr, name="config",
+                                            port=9991,
+                                            reader_srts="r_in"))
 
-        env_writer_sr = events_writer_sr = results_writer_sr = None
-        for i in range(3):
+        port_srs = {"in": {}, "out": {}}
+        init_toml_str = f"""
+id = '{uuid.uuid4()}'
+component_id = 'de.zalf.cdp.mas.fbp.monica.daily'
+name = 'monica_daily'
+
+"""
+        config_reader_sr = None
+        config_writer = None
+        for i in range(4):
             p = (await first_reader.read()).value.as_struct(common_capnp.Pair)
             c_id = p.fst.as_text()
             info = p.snd.as_struct(fbp_capnp.Channel.StartupInfo)
             print("channel:", c_id, "reader_sr:", info.readerSRs[0], "writer_sr:", info.writerSRs[0])
+            if c_id[-3:] == "_in":
+                port_name = c_id[:-3]
+                init_toml_str += f"[ports.in.{port_name}]\nsr = '{info.readerSRs[0]}'\n\n"
+                port_srs["in"][port_name] = info.writerSRs[0]
+            elif c_id[-4:] == "_out":
+                port_name = c_id[:-4]
+                init_toml_str += f"[ports.out.{port_name}]\nsr = '{info.writerSRs[0]}'\n\n"
+                port_srs["out"][port_name] = info.readerSRs[0]
+            else:
+                config_writer = await con_man.try_connect(info.writerSRs[0], cast_as=fbp_capnp.Channel.Writer)
+                config_reader_sr = info.readerSRs[0]
 
-            if c_id == "env":
-                await ports_info_writer.write(value=fbp_capnp.NewPortInfo.new_message(name="env_in", inPortReaderSR=info.readerSRs[0]))
-                env_writer_sr = info.writerSRs[0]
-            elif c_id == "events":
-                await ports_info_writer.write(value=fbp_capnp.NewPortInfo.new_message(name="event_in", inPortReaderSR=info.readerSRs[0]))
-                events_writer_sr = info.writerSRs[0]
-            elif c_id == "results":
-                await ports_info_writer.write(value=fbp_capnp.NewPortInfo.new_message(name="out", outPortWriterSR=info.writerSRs[0]))
-                results_writer_sr = info.readerSRs[0]
-
+        # write the config to the config channel
+        toml_st = common_capnp.StructuredText.new_message(value=init_toml_str, structure={"toml": None})
+        await config_writer.write(value=fbp_capnp.IIP.new_message(content=toml_st))
 
         with open("/home/berg/GitHub/monica/installer/Hohenfinow2/sim-min.json") as _:
             sim_json = json.load(_)
@@ -117,15 +119,15 @@ async def main(config: dict):
         #env_template["csvViaHeaderOptions"] = sim_json["climate.csv-options"]
         #env_template["climateCSV"] = climate_csv
 
-        env_writer = await con_man.try_connect(env_writer_sr, cast_as=fbp_capnp.Channel.Writer)
+        env_writer = await con_man.try_connect(port_srs["in"]["env"], cast_as=fbp_capnp.Channel.Writer)
         env = common_capnp.StructuredText.new_message(value=json.dumps(env_template),
                                                       structure={"json": None})
         await env_writer.write(value=fbp_capnp.IP.new_message(content=env))
         print("send env on env channel")
 
-        event_writer = await con_man.try_connect(events_writer_sr, cast_as=fbp_capnp.Channel.Writer)
+        event_writer = await con_man.try_connect(port_srs["in"]["events"], cast_as=fbp_capnp.Channel.Writer)
         crop_planted = False
-        crop_service_sr = "capnp://A3yYVWcdedLjLf4iyJ-NqQ4dykmq8ojseB4ghNOL0-w=@10.10.25.25:33845/cccd6b5b-9e0f-4294-a159-fd630458480c"
+        crop_service_sr = "capnp://10.10.25.68:9997/crop"
         crop_service = await con_man.try_connect(crop_service_sr, cast_as=crop_capnp.Service)
         cat_to_name_to_crop = defaultdict(dict)
         for e in (await crop_service.entries()).entries:
@@ -145,7 +147,10 @@ async def main(config: dict):
 
                 if iso_date[5:] == "09-22": # sowing
                     crop_planted = True
-                    crop = cat_to_name_to_crop["wheat"]["winter wheat"].cast_as(crop_capnp.Crop)
+                    if "winter wheat" in cat_to_name_to_crop["wheat"]:
+                        crop = cat_to_name_to_crop["wheat"]["winter wheat"].cast_as(crop_capnp.Crop)
+                    else:
+                        crop = cat_to_name_to_crop["wheat"]["winter-wheat"].cast_as(crop_capnp.Crop)
                     print(await crop.info())
                     sowing = mgmt_capnp.Params.Sowing.new_message(
                         cultivar="winter-wheat",
@@ -194,7 +199,7 @@ async def main(config: dict):
             #await event_writer.write(done=None)
             #print("wrote done on event channel")
 
-        output_reader = await con_man.try_connect(results_writer_sr, cast_as=fbp_capnp.Channel.Reader)
+        output_reader = await con_man.try_connect(port_srs["out"]["result"], cast_as=fbp_capnp.Channel.Reader)
         out_msg = await output_reader.read()
         if out_msg.which() == "value":
             out_ip = out_msg.value.as_struct(fbp_capnp.IP)
